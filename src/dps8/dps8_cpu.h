@@ -12,6 +12,8 @@
  at https://sourceforge.net/p/dps8m/code/ci/master/tree/LICENSE
  */
 
+#include "hdbg.h"
+
 // simh only explicitly supports a single cpu
 
 #define N_CPU_UNITS 1 // Default
@@ -563,6 +565,9 @@ typedef struct EISaddr
 #define paragraphMask 077777770
 #define paragraphOffsetMask 07
     word36 cachedParagraph [paragraphSz];
+#ifdef CWO
+    bool wordDirty [paragraphSz];
+#endif
     word18 cachedAddr;
 
 } EISaddr;
@@ -2061,15 +2066,24 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
 static inline void core_readN (word24 addr, word36 *data, uint n, UNUSED const char * ctx)
   {
     for (uint i = 0; i < n; i ++)
-      core_read (addr + i, data + i, ctx);
+      {
+        core_read (addr + i, data + i, ctx);
 #ifdef TR_WORK_MEM
-    cpu.tTRticks += n / 2; // Not n because pairs would have been read
+        cpu.tTRticks += n / 2; // Not n because pairs would have been read
 #endif
+        HDBGMRead (addr + i, * (data + i));
+      }
   }
 static inline void core_writeN (word24 addr, word36 *data, uint n, UNUSED const char * ctx)
   {
     for (uint i = 0; i < n; i ++)
-      core_write (addr + i, data [i], ctx);
+      {
+        core_write (addr + i, data [i], ctx);
+#ifdef TR_WORK_MEM
+        cpu.tTRticks += n / 2; // Not n because pairs would have been read
+#endif
+        HDBGMWrite (addr + i, * (data + i));
+      }
   }
 
 int is_priv_mode (void);

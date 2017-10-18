@@ -520,13 +520,29 @@ static void EISWriteCache (EISaddr * p)
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
               {
                 for (uint i = 0; i < 8; i ++)
+#ifdef CWO
+                  if (p->wordDirty[i])
+                    {
+#endif
                   sim_debug (DBG_TRACEEXT, & cpu_dev, 
                              "%s: writeCache (PR) %012"PRIo64"@%o:%06o\n", 
                              __func__, p -> cachedParagraph [i], p -> SNR, p -> cachedAddr + i);
+#ifdef CWO
+                   }
+#endif
               }
 { long eisaddr_idx = EISADDR_IDX (p);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 TRR %o TSR %05o\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
+#ifdef CWO
+            for (uint i = 0; i < 8; i ++)
+              if (p->wordDirty[i])
+                {
+                  Write1 (p->cachedAddr+i, p -> cachedParagraph[i], true);
+                  p->wordDirty[i] = false;
+                }
+#else
             Write8 (p->cachedAddr, p -> cachedParagraph, true);
+#endif
           }
         else
           {
@@ -539,13 +555,29 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 TRR %o TSR %05o\n", eisaddr_
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
               {
                 for (uint i = 0; i < 8; i ++)
+#ifdef CWO
+                  if (p->wordDirty[i])
+                    {
+#endif
                   sim_debug (DBG_TRACEEXT, & cpu_dev, 
                              "%s: writeCache %012"PRIo64"@%o:%06o\n", 
                              __func__, p -> cachedParagraph [i], cpu.TPR.TSR, p -> cachedAddr + i);
+#ifdef CWO
+                     }
+#endif
               }
 { long eisaddr_idx = EISADDR_IDX (p);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 NO PR TRR %o TSR %05o\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
+#ifdef CWO
+            for (uint i = 0; i < 8; i ++)
+              if (p->wordDirty[i])
+                {
+                  Write1 (p->cachedAddr+i, p -> cachedParagraph[i], false);
+                  p->wordDirty[i] = false;
+                }
+#else
             Write8 (p->cachedAddr, p -> cachedParagraph, false);
+#endif
           }
       }
     p -> cacheDirty = false;
@@ -609,6 +641,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 NO PR TRR %o TSR %05o\n", eis
       }
     p -> cacheValid = true;
     p -> cacheDirty = false;
+#ifdef CWO
+    for (uint i = 0; i < 8; i ++)
+      p->wordDirty[i] = false;
+#endif
     p -> cachedAddr = paragraphAddress;
     cpu.TPR.TRR = saveTRR;
   }
@@ -638,6 +674,9 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) sim_err ("IDX1");
         EISReadCache (p, paragraphAddress);
       }
     p -> cacheDirty = true;
+#ifdef CWO
+    p -> wordDirty[paragraphOffset] = true;
+#endif
     p -> cachedParagraph [paragraphOffset] = data;
     p -> cachedAddr = paragraphAddress;
 // XXX ticket #31
@@ -2007,6 +2046,7 @@ void a4bd (void)
 //sim_printf ("a4bd char4no %d.\n", char4no);
 
     SET_AR_CHAR_BITNO (ARn, (word2) (char4no / 2), (char4no % 2) ? 5 : 0);
+    HDBGRegAR (ARn);
 //if (currentRunningCpuIdx)
 //sim_printf ("a4bd CHAR %o %d.\n", cpu.AR[ARn].CHAR, cpu.AR[ARn].CHAR);
 //if (currentRunningCpuIdx)
@@ -2056,6 +2096,7 @@ void s4bd (void)
 //    cpu.AR [ARn].BITNO = tab [bitno];
     // SET_PR_BITNO (ARn, bitFromCnt[bitno % 8]);
     SET_AR_CHAR_BITNO (ARn, bitFromCnt[bitno % 8] / 9, bitFromCnt[bitno % 8] % 9);
+    HDBGRegAR (ARn);
   }
 
 void axbd (uint sz)
@@ -2135,6 +2176,7 @@ IF1 sim_printf ("axbd augend 0%o addend 0%o sum 0%o\n", augend, addend, sum);
     cpu.AR [ARn].WORDNO = (word18) (sum / 36) & AMASK;
     //SET_PR_BITNO (ARn, sum % 36);
     SET_AR_CHAR_BITNO (ARn, (sum % 36) / 9, sum % 9);
+    HDBGRegAR (ARn);
 IF1 sim_printf ("axbd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, GET_AR_CHAR (ARn), GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
   }
 
@@ -2195,6 +2237,7 @@ void abd (void)
                                     r % 9);
           }
       }
+    HDBGRegAR (ARn);
  
 //if (currentRunningCpuIdx)
 //sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
@@ -2336,6 +2379,7 @@ sim_printf ("abd sum 0%o %d.\n", sum, sum);
     //SET_PR_BITNO (ARn, sum % 36);
     SET_AR_CHAR_BITNO (ARn, (sum % 36) / 9, sum % 9);
 #endif
+    HDBGRegAR (ARn);
 
     // Fails boot
     //uint bitno = sum % 36;
@@ -2397,6 +2441,7 @@ IF1 sim_printf ("awd augend 0%o addend 0%o sum 0%o\n", augend, addend, sum);
 
     cpu.AR[ARn].WORDNO = (word18) sum & AMASK;
     SET_AR_CHAR_BITNO (ARn, 0, 0);
+    HDBGRegAR (ARn);
 
 IF1 sim_printf ("awd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.PAR[ARn].AR_CHAR, cpu.PAR[ARn].AR_BITNO, cpu.PAR[ARn].AR_BITNO);
 
@@ -2451,6 +2496,7 @@ IF1 sim_printf ("A 0\n");
                                     (- (r % 9)) & MASK4);
           }
       }
+    HDBGRegAR (ARn);
  
 //IF1 sim_printf ("sbd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
 IF1 sim_printf ("sbd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, GET_AR_CHAR (ARn), GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
@@ -2505,6 +2551,7 @@ IF1 sim_printf ("swd minued 0%o subtractend 0%o difference 0%o\n", minued, subtr
     cpu.AR [ARn].WORDNO = (word18) difference & AMASK;
     //SET_PR_BITNO (ARn, 0);
     SET_AR_CHAR_BITNO (ARn, 0, 0);
+    HDBGRegAR (ARn);
 
 //IF1 sim_printf ("swd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.PAR[ARn].CHAR, cpu.PAR[ARn].BITNO, cpu.PAR[ARn].BITNO);
 IF1 sim_printf ("swd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, GET_AR_CHAR (ARn), GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
@@ -2563,6 +2610,7 @@ void s9bd (void)
           //}
       }
     //cpu.AR[ARn].BITNO = 0;
+    HDBGRegAR (ARn);
  
 //if (currentRunningCpuIdx)
 //sim_printf ("s9bd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
@@ -3026,6 +3074,7 @@ void asxbd (uint sz, bool sub)
 //IF1 sim_printf ("asxbd sum BITNO %d %o\n", bitno, bitno);
           }
       }
+    HDBGRegAR (ARn);
 
 //IF1 sim_printf ("asxbd WORDNO %06o CHAR 0%o BITNO 0%o\n", cpu.AR[ARn].WORDNO, GET_AR_CHAR (ARn), GET_AR_BITNO (ARn));
 //IF1 if (sz == 6)
