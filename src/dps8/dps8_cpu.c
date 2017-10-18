@@ -1809,6 +1809,7 @@ setCPU:;
 
 #if 0
         cpu.rTR -= cpu.rTRticks * 100;
+        //cpu.rTR -= cpu.rTRticks * 50;
         cpu.rTRticks = 0;
 #else
 #define TR_RATE 2
@@ -2723,7 +2724,7 @@ int32 core_read(word24 addr, word36 *data, const char * ctx)
     *data = scu [scuUnitIdx].M[offset] & DMASK;
     if (watchBits [addr])
       {
-        sim_printf ("WATCH [%"PRId64"] read   %08o %012"PRIo64" (%s)\n", sim_timell (), addr, *data, ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o read   %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr, *data, ctx);
       }
 #else
     if (M[addr] & MEM_UNINITIALIZED)
@@ -2734,7 +2735,7 @@ int32 core_read(word24 addr, word36 *data, const char * ctx)
     //if (watchBits [addr] && M[addr]==0)
       {
         //sim_debug (0, & cpu_dev, "read   %08o %012"PRIo64" (%s)\n",addr, M [addr], ctx);
-        sim_printf ("WATCH [%"PRId64"] read   %08o %012"PRIo64" (%s)\n", sim_timell (), addr, M [addr], ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o read   %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr, M [addr], ctx);
         traceInstruction (0);
       }
     *data = M[addr] & DMASK;
@@ -2786,7 +2787,7 @@ int core_write(word24 addr, word36 data, const char * ctx) {
     scu [scuUnitIdx].M[offset] = data & DMASK;
     if (watchBits [addr])
       {
-        sim_printf ("WATCH [%"PRId64"] write  %08o %012"PRIo64" (%s)\n", sim_timell (), addr, data & DMASK, ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o write   %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr, data & DMASK, ctx);
       }
 #else
     M[addr] = data & DMASK;
@@ -2794,7 +2795,7 @@ int core_write(word24 addr, word36 data, const char * ctx) {
     //if (watchBits [addr] && M[addr]==0)
       {
         //sim_debug (0, & cpu_dev, "write  %08o %012"PRIo64" (%s)\n",addr, M [addr], ctx);
-        sim_printf ("WATCH [%"PRId64"] write  %08o %012"PRIo64" (%s)\n", sim_timell (), addr, M [addr], ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o write  %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr, M [addr], ctx);
         traceInstruction (0);
       }
 #endif
@@ -2853,7 +2854,7 @@ int core_read2(word24 addr, word36 *even, word36 *odd, const char * ctx) {
     *even = scu [scuUnitIdx].M[offset++] & DMASK;
     if (watchBits [addr])
       {
-        sim_printf ("WATCH [%"PRId64"] read2  %08o %012"PRIo64" (%s)\n", sim_timell (), addr, *even, ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr, *even, ctx);
       }
     sim_debug (DBG_CORE, & cpu_dev,
                "core_read2 %08o %012"PRIo64" (%s)\n",
@@ -2861,7 +2862,7 @@ int core_read2(word24 addr, word36 *even, word36 *odd, const char * ctx) {
     *odd = scu [scuUnitIdx].M[offset] & DMASK;
     if (watchBits [addr+1])
       {
-        sim_printf ("WATCH [%"PRId64"] read2  %08o %012"PRIo64" (%s)\n", sim_timell (), addr+1, * odd, ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr+1, * odd, ctx);
       }
 
     sim_debug (DBG_CORE, & cpu_dev,
@@ -2876,7 +2877,7 @@ int core_read2(word24 addr, word36 *even, word36 *odd, const char * ctx) {
     //if (watchBits [addr] && M[addr]==0)
       {
         //sim_debug (0, & cpu_dev, "read2  %08o %012"PRIo64" (%s)\n",addr, M [addr], ctx);
-        sim_printf ("WATCH [%"PRId64"] read2  %08o %012"PRIo64" (%s)\n", sim_timell (), addr, M [addr], ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr, M [addr], ctx);
         traceInstruction (0);
       }
     *even = M[addr++] & DMASK;
@@ -2895,7 +2896,7 @@ int core_read2(word24 addr, word36 *even, word36 *odd, const char * ctx) {
     //if (watchBits [addr] && M[addr]==0)
       {
         //sim_debug (0, & cpu_dev, "read2  %08o %012"PRIo64" (%s)\n",addr, M [addr], ctx);
-        sim_printf ("WATCH [%"PRId64"] read2  %08o %012"PRIo64" (%s)\n", sim_timell (), addr, M [addr], ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr, M [addr], ctx);
         traceInstruction (0);
       }
 
@@ -2963,19 +2964,19 @@ int core_write2(word24 addr, word36 even, word36 odd, const char * ctx) {
     scu [scuUnitIdx].M[offset++] = even & DMASK;
     if (watchBits [addr])
       {
-        sim_printf ("WATCH [%"PRId64"] write2 %08o %012"PRIo64" (%s)\n", sim_timell (), addr, even, ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr, even, ctx);
       }
     scu [scuUnitIdx].M[offset] = odd & DMASK;
     if (watchBits [addr+1])
       {
-        sim_printf ("WATCH [%"PRId64"] write2 %08o %012"PRIo64" (%s)\n", sim_timell (), addr+1, odd, ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr+1, odd, ctx);
       }
 #else
     if (watchBits [addr])
     //if (watchBits [addr] && even==0)
       {
         //sim_debug (0, & cpu_dev, "write2 %08o %012"PRIo64" (%s)\n",addr, even, ctx);
-        sim_printf ("WATCH [%"PRId64"] write2 %08o %012"PRIo64" (%s)\n", sim_timell (), addr, even, ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr, even, ctx);
         traceInstruction (0);
       }
     M[addr++] = even & DMASK;
@@ -2991,7 +2992,7 @@ int core_write2(word24 addr, word36 even, word36 odd, const char * ctx) {
     //if (watchBits [addr] && odd==0)
       {
         //sim_debug (0, & cpu_dev, "write2 %08o %012"PRIo64" (%s)\n",addr, odd, ctx);
-        sim_printf ("WATCH [%"PRId64"] write2 %08o %012"PRIo64" (%s)\n", sim_timell (), addr, odd, ctx);
+        sim_printf ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" (%s)\n", sim_timell (), cpu.PPR.PSR, cpu.PPR.IC, addr, odd, ctx);
         traceInstruction (0);
       }
     M[addr] = odd & DMASK;

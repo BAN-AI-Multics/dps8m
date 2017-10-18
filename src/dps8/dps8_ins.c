@@ -589,7 +589,7 @@ static void scu2words (word36 *words)
     // words[7]
 
     words[7] = cpu.cu.IRODD;
-//sim_printf ("scu2words %lld %012llo\n", sim_timell (), words [6]);
+//sim_printf ("[%lld] scu to %05llo:%06llo  PSR:IC %05o:%06o final address %08o\r\n",  sim_timell (), (cpu.Yblock8[0]>>18)&MASK15, (cpu.Yblock8[4]>>18)&MASK18, cpu.PPR.PSR, cpu.PPR.IC, cpu.iefpFinalAddress);
   }
 
 
@@ -6771,6 +6771,7 @@ IF1 sim_printf ("get mode register %012"PRIo64"\n", cpu.Ypair[0]);
               // restore it.
               //SC_I_TALLY (cpu.currentInstruction.stiTally == 0);
 
+//sim_printf (" scu to %05llo:%06llo  PSR:IC %05o:%06o\r\n",  (cpu.Yblock8[0]>>18)&MASK15, (cpu.Yblock8[4]>>18)&MASK18, cpu.PPR.PSR, cpu.PPR.IC);
               scu2words (cpu.Yblock8);
             }
           else
@@ -9272,6 +9273,7 @@ void doRCU (void)
 elapsedtime ();
  sim_printf (" rcu to %05o:%06o  PSR:IC %05o:%06o\r\n",  (cpu.Yblock8[0]>>18)&MASK15, (cpu.Yblock8[4]>>18)&MASK18, cpu.PPR.PSR, cpu.PPR.IC);
 #endif
+//sim_printf ("[%lld] rcu to %05llo:%06llo  PSR:IC %05o:%06o final address %08o\r\n",  sim_timell (), (cpu.Yblock8[0]>>18)&MASK15, (cpu.Yblock8[4]>>18)&MASK18, cpu.PPR.PSR, cpu.PPR.IC, cpu.iefpFinalAddress);
 
     if_sim_debug (DBG_TRACE, & cpu_dev)
       {
