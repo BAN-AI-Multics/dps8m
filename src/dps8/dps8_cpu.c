@@ -2040,6 +2040,8 @@ elapsedtime ();
                 if (cpu.g7_flag)
                   {
                       cpu.g7_flag = false;
+                      cpu.interrupt_flag = false;
+                      sim_debug (DBG_CYCLE, & cpu_dev, "call doG7Fault (%d)\n", !noCheckTR);
                       doG7Fault (!noCheckTR);
                   }
                 if (cpu.interrupt_flag)
@@ -3118,7 +3120,7 @@ void decodeInstruction (word36 inst, DCDstruct * p)
  
 int is_priv_mode(void)
   {
-sim_debug (DBG_TRACE, & cpu_dev, "is_priv_mode P %u get_addr_mode %d get_bar_mode %d IR %06o\n", cpu.PPR.P, get_addr_mode (), get_bar_mode (), cpu.cu.IR);
+//sim_debug (DBG_TRACE, & cpu_dev, "is_priv_mode P %u get_addr_mode %d get_bar_mode %d IR %06o\n", cpu.PPR.P, get_addr_mode (), get_bar_mode (), cpu.cu.IR);
     
 // Back when it was ABS/APP/BAR, this test was right; now that
 // it is ABS/APP,BAR/NBAR, check bar mode.
