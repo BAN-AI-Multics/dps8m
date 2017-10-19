@@ -1833,6 +1833,15 @@ restart_1:
 /// executeInstruction: simh hooks
 ///
 
+#if 1
+#ifndef SPEED
+    traceInstruction (DBG_TRACE);
+#ifdef HDBG
+        hdbgTrace ();
+#endif // HDBG
+#endif // SPEED
+#else  // ! 1
+// The DIS instruction used to reexcute itself and fill the trace logs...
 #ifndef SPEED
     // Don't trace Multics idle loop
     if (cpu.PPR.PSR != 061 || cpu.PPR.IC != 0307)
@@ -1841,9 +1850,10 @@ restart_1:
         traceInstruction (DBG_TRACE);
 #ifdef HDBG
         hdbgTrace ();
-#endif
+#endif // HDBG
       }
-#endif
+#endif // SPEED
+#endif // else ! 1
 
 ///
 /// executeInstruction: Initialize misc.
