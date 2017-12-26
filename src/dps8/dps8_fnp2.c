@@ -763,7 +763,6 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
               linep->buffer[linep->nPos++] = 0;
             linep->accept_input = 1;
             linep->input_break = true;
-//sim_printf ("set nPos to %d\n", (int) linep->nPos);
             return true;
 #endif
           }
@@ -851,11 +850,21 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
         // Internal buffer full
         (size_t) linep->nPos >= sizeof (linep->buffer) ||
 
+#if 0
         // block xfer buffer size met
         (linep->block_xfer_out_frame_sz != 0 && linep->nPos >= linep->block_xfer_out_frame_sz) ||
 
         // 'listen' command buffer size met
-        (linep->inputBufferSize != 0 && linep->nPos >= linep->inputBufferSize))
+        (linep->inputBufferSize != 0 && linep->nPos >= (int) linep->inputBufferSize))
+#endif
+        ((linep->block_xfer_out_frame_sz != 0)
+          ?
+            // block xfer buffer size met
+            (linep->nPos >= (int) linep->block_xfer_out_frame_sz)
+          :
+            // 'listen' command buffer size met
+            (linep->inputBufferSize != 0 && linep->nPos >= (int) linep->inputBufferSize))
+        )  
       {
         linep->accept_input = 1;
         linep->input_break = false;
