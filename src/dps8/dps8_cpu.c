@@ -1749,7 +1749,7 @@ setCPU:;
 #endif // THREADZ
 
 #ifdef LOCKLESS
-	core_unlock_all();
+	core_unlock_all ();
 #endif // LOCKLESS
 
         int con_unit_idx = check_attn_key ();
@@ -2998,7 +2998,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
+int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
     if (cpu.switches.useMap)
@@ -3019,7 +3019,7 @@ int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
     LOCK_CORE_WORD(addr);
     if (cpu.locked_addr != 0) {
       sim_warn ("core_read_lock: locked %x addr %x\n", cpu.locked_addr, addr);
-      core_unlock_all();
+      core_unlock_all ();
     }
     cpu.locked_addr = addr;
     word36 v;
@@ -3104,7 +3104,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int core_write_unlock (word24 addr, word36 data, const char * ctx)
+int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
     if (cpu.switches.useMap)
@@ -3125,7 +3125,7 @@ int core_write_unlock (word24 addr, word36 data, const char * ctx)
     if (cpu.locked_addr != addr)
       {
        sim_warn ("core_write_unlock: locked %x addr %x\n", cpu.locked_addr, addr);
-       core_unlock_all();
+       core_unlock_all ();
       }
       
     STORE_REL_CORE_WORD(addr, data);
@@ -3133,7 +3133,7 @@ int core_write_unlock (word24 addr, word36 data, const char * ctx)
     return 0;
 }
 
-int core_unlock_all ()
+int core_unlock_all (void)
 {
   if (cpu.locked_addr != 0) {
       sim_warn ("core_unlock_all: locked %x\n", cpu.locked_addr);
