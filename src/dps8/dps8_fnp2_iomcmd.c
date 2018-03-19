@@ -488,6 +488,14 @@ static int wcd (struct decoded_t *decoded_p)
 
         case 30: // input_fc_chars
           {
+// dcl 1 input_flow_control_info aligned based,
+//     2 suspend_seq unaligned,
+//       3 count fixed bin (9) unsigned,
+//       3 chars char (3),
+//     2 resume_seq unaligned,
+//       3 count fixed bin (9) unsigned,
+//       3 chars char (3),
+//     2 timeout bit (1);
             sim_debug (DBG_TRACE, & fnp_dev, "[%u]    input_fc_chars\n", decoded_p->slot_no);
             word36 suspendStr = command_data[0];
             linep->inputSuspendStr[0] = getbits36_8 (suspendStr, 10);
@@ -512,6 +520,8 @@ static int wcd (struct decoded_t *decoded_p)
                 resumeLen = 3;
               }
             linep->inputResumeLen = resumeLen;
+
+            // XXX timeout ignored
           }
           break;
 
