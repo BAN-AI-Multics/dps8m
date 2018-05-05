@@ -1594,8 +1594,9 @@ static void set_temporary_absolute_mode (void)
   {
     CPT (cpt1L, 20); // set temp. abs. mode
     cpu.secret_addressing_mode = true;
+    bool oldXSF = cpu.cu.XSF;
     cpu.cu.XSF = false;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "set_temporary_absolute_mode bit 29 sets XSF to 0\n");
+    sim_debug (DBG_TRACEEXT|DBG_AVC, & cpu_dev, "set_temporary_absolute_mode bit 29 sets XSF from %d to %d\n", oldXSF, cpu.cu.XSF);
     //cpu.went_appending = false;
   }
 
@@ -2120,8 +2121,12 @@ setCPU:;
                     // fetch next instruction into current instruction struct
                     //clr_went_appending (); // XXX not sure this is the right
                                            //  place
-                    cpu.cu.XSF = 0;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
+		    bool oldXSF = cpu.cu.XSF;
+                    //if (get_addr_mode () != APPEND_mode)
+                     {
+                       cpu.cu.XSF = 0;
+		     }
+		    sim_debug (DBG_TRACEEXT|DBG_AVC, & cpu_dev, "fetchCycle bit 29 sets XSF from %d to %d\n", oldXSF, cpu.cu.XSF);
                     cpu.cu.TSN_VALID [0] = 0;
 		    cpu.TPR.TSR = cpu.PPR.PSR;
 		    cpu.TPR.TRR = cpu.PPR.PRR;
@@ -2177,6 +2182,21 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 		    break;
                   }
 
+#ifdef NEWRPT
+                if (ret == CONT_RPT)
+                  {
+                    CPT (cpt1U, 27); // XEx instruction
+                    cpu.wasXfer = false;
+		    // stay in EXEC cycle
+		    set_cpu_cycle (EXEC_cycle);
+		    //cpu.PPR.IC ++;
+		    cpu.cu.XSF = 0;
+                    cpu.TPR.TSR = cpu.PPR.PSR;
+                    cpu.TPR.TRR = cpu.PPR.PRR;
+
+                    break;
+                  }
+#endif
                 if (ret == CONT_TRA || ret == CONT_RET)
                   {
                     CPT (cpt1U, 24); // transfer instruction
@@ -2393,9 +2413,28 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                     if (cpu.cu.rd)
                       -- cpu.PPR.IC;
                     cpu.wasXfer = false; 
-                    set_cpu_cycle (FETCH_cycle);
+#ifndef NEWRPT
+		    set_cpu_cycle (FETCH_cycle);
+#else
+                    set_cpu_cycle (EXEC_cycle);
+		    cpu.cu.XSF = 0;
+		    cpu.TPR.TSR = cpu.PPR.PSR;
+                    cpu.TPR.TRR = cpu.PPR.PRR;
+#endif
                     break;
                   }
+#ifdef NEWRPT
+		else if (cpu.cu.rd && (cpu.PPR.IC & 1) == 0)
+		  {
+		    cpu.PPR.IC++;
+                    cpu.wasXfer = false; 
+                    set_cpu_cycle (EXEC_cycle);
+		    cpu.cu.XSF = 0;
+		    cpu.TPR.TSR = cpu.PPR.PSR;
+                    cpu.TPR.TRR = cpu.PPR.PRR;
+		    break;
+		  }
+#endif
 
 		// If we just did the odd word of a fault pair
                 if (cpu.cycle == FAULT_EXEC_cycle &&
@@ -4132,5 +4171,6 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
           free (buf);
       }
     //pthread_mutex_unlock (& debug_lock);
+    //fflush (sim_deb);
   }
 #endif

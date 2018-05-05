@@ -309,8 +309,9 @@ static void do_ITS_ITP (word6 Tag, word6 * newtag)
 
     * newtag = GET_TAG (cpu.itxPair [1]);
     //set_went_appending ();
+    bool oldXSF = cpu.cu.XSF;
     cpu.cu.XSF = 1;
-    sim_debug (DBG_APPENDING, & cpu_dev, "do_ITS_ITP sets XSF to 1\n");
+    sim_debug (DBG_APPENDING|DBG_AVC, & cpu_dev, "do_ITS_ITP sets XSF from %d to %d\n", oldXSF, cpu.cu.XSF);
   }
 
 
@@ -486,16 +487,16 @@ startCA:;
                        cpu.ou.directOperand);
             return;
           }
-
         // For the case of RPT/RPD, the instruction decoder has
         // verified that Tm is R or RI, and Td is X1..X7.
-        if (cpu.cu.rpt || cpu.cu.rd | cpu.cu.rl)
+        if ((cpu.cu.rpt || cpu.cu.rd | cpu.cu.rl) &&
+	    !cpu.cu.repeat_first)
           {
             if (cpu.currentInstruction.b29)
               {
                 word3 PRn = GET_PRN(IWB_IRODD);
                 CPTUR (cptUsePRn + PRn);
-                cpu.TPR.CA = (Cr & MASK15) + cpu.PR [PRn].WORDNO;
+                cpu.TPR.CA = Cr + cpu.PR [PRn].WORDNO;
                 cpu.TPR.CA &= AMASK;
               }
             else
@@ -535,7 +536,8 @@ startCA:;
             sim_debug (DBG_ADDRMOD, & cpu_dev,
                        "RI_MOD: Cr=%06o CA(Before)=%06o\n", Cr, cpu.TPR.CA);
 
-            if (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)
+            if ((cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl) &&
+		!cpu.cu.repeat_first)
               {
                  word6 Td_ = GET_TD (i -> tag);
                  uint Xn = X (Td_);  // Get Xn of next instruction
@@ -1389,7 +1391,6 @@ startCA:;
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_DIC): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
-
 #ifdef TEST_OLIN
           cmpxchg ();
 #endif
@@ -1399,9 +1400,11 @@ startCA:;
 #ifdef THREADZ
                 lock_rmw ();
 #endif
-
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
+
+		// cpu.cu.pot = 1;
+		
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
 		cpu.cu.pot = 0;
@@ -1508,6 +1511,7 @@ startCA:;
                 // IR, but if RI or R is used, R must equal N (RI and R forced
                 // to N).
 
+
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_IDC): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
@@ -1521,9 +1525,9 @@ startCA:;
 #ifdef THREADZ
                 lock_rmw ();
 #endif
-
-                word18 saveCA = cpu.TPR.CA;
+		word18 saveCA = cpu.TPR.CA;
                 word36 indword;
+
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
 		cpu.cu.pot = 0;
@@ -1580,7 +1584,7 @@ startCA:;
                 // Thus, permissible variations are any allowable form of IT or
                 // IR, but if RI or R is used, R must equal N (RI and R forced
                 // to N).
-                cpu.TPR.CA = YiSafe;
+		cpu.TPR.CA = YiSafe;
 
 		sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_IDC): new CT_HOLD %02o new TAG %02o\n", 
@@ -1591,11 +1595,11 @@ startCA:;
                 Tm = GET_TM (cpu.rTAG);
                 if (Tm == TM_RI || Tm == TM_R)
                   {
-                     if (GET_TD (cpu.rTAG) != 0)
-                       {
-                         doFault (FAULT_IPR, fst_ill_mod,
-                                  "IDC Incorrect address modifier");
-                       }
+		    if (GET_TD (cpu.rTAG) != 0)
+		      {
+			doFault (FAULT_IPR, fst_ill_mod,
+				 "IDC Incorrect address modifier");
+		      }
                   }
 
 // Set the tally after the indirect word is processed; if it faults, the IR

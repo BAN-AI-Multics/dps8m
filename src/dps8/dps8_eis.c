@@ -1248,7 +1248,13 @@ sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
                                             cpu.PPR.PRR);
                 
             e -> addr [k - 1].mat = viaPR;   // ARs involved
+
+	    bool oldXSF = cpu.cu.XSF;
+	    cpu.cu.XSF = 1;
+	    sim_debug (DBG_TRACEEXT|DBG_AVC, & cpu_dev, "EIS A bit sets XSF from %d to %d\n", oldXSF, cpu.cu.XSF);
+	    
 sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
+ 
           }
         else
           {
