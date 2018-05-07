@@ -497,11 +497,22 @@ startCA:;
                 word3 PRn = GET_PRN(IWB_IRODD);
                 CPTUR (cptUsePRn + PRn);
                 cpu.TPR.CA = Cr + cpu.PR [PRn].WORDNO;
+		if (cpu.cu.rpt ||
+		    (cpu.cu.rd &&
+		     (((cpu.PPR.IC & 1) == 0 && (cpu.rX[0] & 01000)) ||
+		      ((cpu.PPR.IC & 1) &&  (cpu.rX[0] & 00400)))))
+		    cpu.TPR.CA += cpu.cu.delta;
                 cpu.TPR.CA &= AMASK;
               }
             else
               {
                 cpu.TPR.CA = Cr;
+		if (cpu.cu.rpt ||
+		    (cpu.cu.rd &&
+		     (((cpu.PPR.IC & 1) == 0 && (cpu.rX[0] & 01000)) ||
+		      ((cpu.PPR.IC & 1) &&  (cpu.rX[0] & 00400)))))
+		    cpu.TPR.CA += cpu.cu.delta;
+                cpu.TPR.CA &= AMASK;
               }
           }
         else
@@ -542,6 +553,12 @@ startCA:;
                  word6 Td_ = GET_TD (i -> tag);
                  uint Xn = X (Td_);  // Get Xn of next instruction
                  cpu.TPR.CA = cpu.rX [Xn];
+		if (cpu.cu.rpt ||
+		    (cpu.cu.rd &&
+		     (((cpu.PPR.IC & 1) == 0 && (cpu.rX[0] & 01000)) ||
+		      ((cpu.PPR.IC & 1) &&  (cpu.rX[0] & 00400)))))
+		   cpu.TPR.CA += cpu.cu.delta;
+		 cpu.TPR.CA &= AMASK;
               }
             else
               {

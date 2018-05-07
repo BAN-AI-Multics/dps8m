@@ -1105,6 +1105,7 @@ void fetchInstruction (word18 addr)
         //cpu.PPR.P = 1; // XXX this should be already set by set_addr_mode, so no worry here
       }
 
+#if 0
     if (cpu.cu.rd && ((cpu.PPR.IC & 1) != 0))
       {
         if (cpu.cu.repeat_first)
@@ -1130,6 +1131,7 @@ void fetchInstruction (word18 addr)
           }
       }
     else
+#endif
       {
         CPT (cpt2U, 12); // fetch 
 // ISOLTS test pa870 expects IRODD to be set up.
@@ -1278,6 +1280,123 @@ force:;
 
   }
 #endif
+
+// Handle first time of a RPT or RPD or RPL
+// after CA is accessed
+
+static void repeat_first_postprocess (void)
+  {
+    //
+    // RPT:
+    //
+    // The computed address, y, of the operand (in the case of R modification) or
+    // indirect word (in the case of RI modification) is determined as follows:
+    //
+    // For the first execution of the repeated instruction:
+    //      C(C(PPR.IC)+1)0,17 + C(Xn) -> y, y -> C(Xn)
+    //
+    // For all successive executions of the repeated instruction:
+    //      C(Xn) + Delta -> y, y -> C(Xn);
+    //
+    //
+    // RPD:
+    //
+    // The computed addresses, y-even and y-odd, of the operands (in the case of
+    // R modification) or indirect words (in the case of RI modification) are
+    // determined as follows:
+    //
+    // For the first execution of the repeated instruction pair:
+    //      C(C(PPR.IC)+1)0,17 + C(X-even) -> y-even, y-even -> C(X-even)
+    //      C(C(PPR.IC)+2)0,17 + C(X-odd) -> y-odd, y-odd -> C(X-odd)
+    //
+    // For all successive executions of the repeated instruction pair:
+    //      if C(X0)8 = 1, then C(X-even) + Delta -> y-even,
+    //           y-even -> C(X-even);
+    //      otherwise, C(X-even) -> y-even
+    //      if C(X0)9 = 1, then C(X-odd) + Delta -> y-odd,
+    //           y-odd -> C(X-odd);
+    //      otherwise, C(X-odd) -> y-odd
+    //
+    // C(X0)8,9 correspond to control bits A and B, respectively, of the rpd
+    // instruction word.
+    //
+    //
+    // RL:
+    //
+    // The computed address, y, of the operand is determined as follows:
+    //
+    // For the first execution of the repeated instruction:
+    //
+    //      C(C(PPR.IC)+1)0,17 + C(Xn) -> y, y -> C(Xn)
+    //
+    // For all successive executions of the repeated instruction:
+    //
+    //      C(Xn) -> y
+    //
+    //      if C(Y)0,17 != 0, then C (y)0,17 -> C(Xn);
+    //
+    //      otherwise, no change to C(Xn)
+    //
+    //  C(Y)0,17 is known as the link address and is the computed address of the
+    //  next entry in a threaded list of operands to be referenced by the repeated
+    //  instruction.
+    //
+
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+              "RPT/RPD first %d rpt %d rd %d e/o %d X0 %06o a %d b %d\n",
+              cpu.cu.repeat_first, cpu.cu.rpt, cpu.cu.rd, cpu.PPR.IC & 1,
+              cpu.rX[0], !! (cpu.rX[0] & 01000), !! (cpu.rX[0] & 0400));
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+              "RPT/RPD CA %06o\n", cpu.TPR.CA);
+
+    CPT (cpt2U, 16); // RPx first processing
+    // The semantics of these are that even is the first instruction of
+    // and RPD, and odd the second.
+
+    bool icOdd = !! (cpu.PPR.IC & 1);
+
+    // If RPT or (RPD and the odd instruction)
+    //    if (/*cpu.cu.rpt || (cpu.cu.rd && icOdd) || */ cpu.cu.rl)
+    //  cpu.cu.repeat_first = false;
+
+    // a:RJ78/rpd6
+    // For the first execution of the repeated instruction:
+    // C(C(PPR.IC)+1)0,17 + C(Xn) -> y, y -> C(Xn)
+    DCDstruct * ci = & cpu.currentInstruction;
+    word18 offset;
+    if (ci->b29)
+      {
+       sim_debug (DBG_TRACEEXT, & cpu_dev, "b29, ci->address %o\n", ci->address);
+       // a:RJ78/rpd4
+       offset = SIGNEXT15_18 (ci->address & MASK15);
+      }
+    else
+      {
+       offset = ci->address;
+      }
+
+    offset &= AMASK;
+
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+	       "rpt/rd/rl repeat first; CA is %06o offset is %06o\n", cpu.TPR.CA, offset);
+
+    word6 Td = GET_TD (ci->tag);
+    uint Xn = X (Td);  // Get Xn of next instruction
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+              "rpt/rd/rl repeat first; X%d was %06o\n",
+              Xn, cpu.rX[Xn]);
+    // a:RJ78/rpd5
+#if 0
+    cpu.TPR.CA = (cpu.rX[Xn] + offset) & AMASK;
+    cpu.rX[Xn] = cpu.TPR.CA;
+#else
+    cpu.rX[Xn] = (cpu.rX[Xn] + offset) & AMASK;
+#endif
+    HDBGRegX (Xn);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+              "rpt/rd/rl repeat first; X%d now %06o\n",
+              Xn, cpu.rX[Xn]);
+  }
 
 bool chkOVF (void)
   {
@@ -1721,19 +1840,6 @@ t_stat executeInstruction (void)
     ///
 restart_1:
 
-#if 0 // #ifndef CA_REWORK
-#if 1
-    cpu.TPR.CA = ci->address;
-    cpu.iefpFinalAddress = cpu.TPR.CA;
-    //cpu.rY = cpu.TPR.CA;
-#else
-    cpu.iefpFinalAddress = ci->address;
-    cpu.rY = ci->address;
-#endif
-#endif
-
-
-
     CPT (cpt2U, 15); // instruction processing
 ///
 /// executeInstruction: Initialize state saving registers
@@ -1777,147 +1883,6 @@ restart_1:
     cpu.du.JMP = (word3) ndes;
     cpu.dlyFlt = false;
 
-#if 0
-///
-/// executeInstruction: RPT/RPD/RPL special processing for 'first time'
-///
-
-    if (unlikely (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
-      {
-        CPT (cpt2U, 15); // RPx processing
-//
-// RPT:
-//
-// The computed address, y, of the operand (in the case of R modification) or
-// indirect word (in the case of RI modification) is determined as follows:
-//
-// For the first execution of the repeated instruction:
-//      C(C(PPR.IC)+1)0,17 + C(Xn) -> y, y -> C(Xn)
-//
-// For all successive executions of the repeated instruction:
-//      C(Xn) + Delta -> y, y -> C(Xn);
-//
-//
-// RPD:
-//
-// The computed addresses, y-even and y-odd, of the operands (in the case of
-// R modification) or indirect words (in the case of RI modification) are
-// determined as follows:
-//
-// For the first execution of the repeated instruction pair:
-//      C(C(PPR.IC)+1)0,17 + C(X-even) -> y-even, y-even -> C(X-even)
-//      C(C(PPR.IC)+2)0,17 + C(X-odd) -> y-odd, y-odd -> C(X-odd)
-//
-// For all successive executions of the repeated instruction pair:
-//      if C(X0)8 = 1, then C(X-even) + Delta -> y-even,
-//           y-even -> C(X-even);
-//      otherwise, C(X-even) -> y-even
-//      if C(X0)9 = 1, then C(X-odd) + Delta -> y-odd,
-//           y-odd -> C(X-odd);
-//      otherwise, C(X-odd) -> y-odd
-//
-// C(X0)8,9 correspond to control bits A and B, respectively, of the rpd
-// instruction word.
-//
-//
-// RL:
-//
-// The computed address, y, of the operand is determined as follows:
-//
-// For the first execution of the repeated instruction:
-//
-//      C(C(PPR.IC)+1)0,17 + C(Xn) -> y, y -> C(Xn)
-//
-// For all successive executions of the repeated instruction:
-//
-//      C(Xn) -> y
-//
-//      if C(Y)0,17 != 0, then C (y)0,17 -> C(Xn);
-//
-//      otherwise, no change to C(Xn)
-//
-//  C(Y)0,17 is known as the link address and is the computed address of the
-//  next entry in a threaded list of operands to be referenced by the repeated
-//  instruction.
-//
-
-        sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "RPT/RPD first %d rpt %d rd %d e/o %d X0 %06o a %d b %d\n",
-                   cpu.cu.repeat_first, cpu.cu.rpt, cpu.cu.rd, cpu.PPR.IC & 1,
-                   cpu.rX[0], !! (cpu.rX[0] & 01000), !! (cpu.rX[0] & 0400));
-        sim_debug (DBG_TRACEEXT, & cpu_dev,
-                   "RPT/RPD CA %06o\n", cpu.TPR.CA);
-
-// Handle first time of a RPT or RPD
-
-        if (cpu.cu.repeat_first)
-          {
-            CPT (cpt2U, 16); // RPx first processing
-            // The semantics of these are that even is the first instruction of
-            // and RPD, and odd the second.
-
-            bool icOdd = !! (cpu.PPR.IC & 1);
-            bool icEven = ! icOdd;
-
-            // If RPT or (RPD and the odd instruction)
-            if (cpu.cu.rpt || (cpu.cu.rd && icOdd) || cpu.cu.rl)
-              cpu.cu.repeat_first = false;
-
-            // a:RJ78/rpd6
-            // For the first execution of the repeated instruction:
-            // C(C(PPR.IC)+1)0,17 + C(Xn) -> y, y -> C(Xn)
-            if (cpu.cu.rpt ||              // rpt
-                (cpu.cu.rd && icEven) ||   // rpd & even
-                (cpu.cu.rd && icOdd)  ||   // rpd & odd
-                cpu.cu.rl)                 // rl
-              {
-#if 0
-                word18 offset;
-                if (ci->b29)
-                  {
-{ static bool first = true;
-if (first) {
-first = false;
-sim_printf ("XXX rethink this; bit 29 is finagled below; should this be done in a different order?\n");
-}}
-sim_debug (DBG_TRACEEXT, & cpu_dev, "b29, ci->address %o\n", ci->address);
-                    // a:RJ78/rpd4
-                    offset = SIGNEXT15_18 (ci->address & MASK15);
-                  }
-                else
-                  offset = ci->address;
-#else
-		word18 offset;
-#ifdef NEWRPT
-		do_caf ();
-		sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "rpt/rd/rl: caf: %06o\n", cpu.TPR.CA);
-#endif
-		offset = ci->address;
-#endif
-                offset &= AMASK;
-
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "rpt/rd/rl repeat first; offset is %06o\n", offset);
-
-                word6 Td = GET_TD (tag);
-                uint Xn = X (Td);  // Get Xn of next instruction
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "rpt/rd/rl repeat first; X%d was %06o\n",
-                           Xn, cpu.rX[Xn]);
-                // a:RJ78/rpd5
-                cpu.TPR.CA = (cpu.rX[Xn] + offset) & AMASK;
-                cpu.rX[Xn] = cpu.TPR.CA;
-                HDBGRegX (Xn);
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "rpt/rd/rl repeat first; X%d now %06o\n",
-                           Xn, cpu.rX[Xn]);
-              } // rpt or rd or rl
-
-          } // repeat first
-      } // cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl
-
-#endif
 ///
 /// Restart or Non-restart
 ///
@@ -2061,23 +2026,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
             cpu.cu.CT_HOLD = 0; // Clear interrupted IR mode flag
           }
 
-
-#if 0 // #ifndef CA_REWORK
-        //
-        // If POT is set, a page fault occured during the fetch of the data word
-        // pointed to by an indirect addressing word, and the saved CA points
-        // to the data word instead of the indirect word; reset the CA correctly
-        //
-
-        if (restart && cpu.cu.pot)
-          {
-            CPT (cpt2L, 0); // POT set
-            cpu.TPR.CA = GET_ADDR (IWB_IRODD);
-            if (getbits36_1 (cpu.cu.IWB, 29) != 0)
-              cpu.TPR.CA &= MASK15;
-          }
-#endif
-
         // These are set by do_caf
         cpu.ou.directOperandFlag = false;
         cpu.ou.directOperand = 0;
@@ -2085,8 +2033,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
         cpu.ou.characterOperandOffset = 0;
         cpu.ou.crflag = false;
 
-#define REORDER
-#ifdef REORDER
         if ((flags & PREPARE_CA) || WRITEOP (ci) || READOP (ci))
           {
             CPT (cpt2L, 1); // CAF
@@ -2123,21 +2069,20 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
                       }
                   }
               }
+	    if (cpu.cu.repeat_first &&
+		(cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
+	      {
+		repeat_first_postprocess ();
+	      }
           }
-#else
-        if (flags & PREPARE_CA)
-          {
-            do_caf ();
-            L68_ (cpu.AR_F_E = true;)
-            cpu.iefpFinalAddress = cpu.TPR.CA;
-          }
-        else if (READOP (ci))
-          {
-            do_caf ();
-            cpu.iefpFinalAddress = cpu.TPR.CA;
-            readOperands ();
-          }
-#endif
+	if (flags & PREPARE_CA)
+	  {
+	    if (cpu.cu.repeat_first &&
+		(cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
+	      {
+		repeat_first_postprocess ();
+	      }
+	  }
         PNL (cpu.IWRAddr = 0);
       }
 
@@ -2178,7 +2123,14 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 	      core_write_unlock (cpu.iefpFinalAddress, cpu.CY, __func__);
          }
 	else
-	  writeOperands ();
+	  {
+	    writeOperands ();
+	    if (cpu.cu.repeat_first &&
+		(cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
+	      {
+		repeat_first_postprocess ();
+	      }
+	  }
 #else
         writeOperands ();
 #endif
@@ -2282,69 +2234,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 
 // Handle first time of a RPT or RPD
 
-        if (cpu.cu.repeat_first)
+        if (cpu.cu.repeat_first && 0 &&
+	    (/*cpu.cu.rpt || cpu.cu.rd || */cpu.cu.rl))
           {
-            CPT (cpt2U, 16); // RPx first processing
-            // The semantics of these are that even is the first instruction of
-            // and RPD, and odd the second.
-
-            bool icOdd = !! (cpu.PPR.IC & 1);
-            bool icEven = ! icOdd;
-
-#if 1
-            // If RPT or (RPD and the odd instruction)
-            if (cpu.cu.rpt || (cpu.cu.rd && icOdd) || cpu.cu.rl)
-              cpu.cu.repeat_first = false;
-#endif
-#if 1
-            // a:RJ78/rpd6
-            // For the first execution of the repeated instruction:
-            // C(C(PPR.IC)+1)0,17 + C(Xn) -> y, y -> C(Xn)
-            if (cpu.cu.rpt ||              // rpt
-                (cpu.cu.rd && icEven) ||   // rpd & even
-                (cpu.cu.rd && icOdd)  ||   // rpd & odd
-                cpu.cu.rl)                 // rl
-              {
-                word18 offset;
-                if (ci->b29)
-                  {
-		    { static bool first = true;
-		      if (first) {
-			first = false;
-			sim_printf ("XXX rethink this; bit 29 is finagled below; should this be done in a different order?\n");
-		      }
-		    }
-		    sim_debug (DBG_TRACEEXT, & cpu_dev, "b29, ci->address %o\n", ci->address);
-                    // a:RJ78/rpd4
-                    offset = SIGNEXT15_18 (ci->address & MASK15);
-                  }
-                else
-		  {
-		    offset = ci->address;
-		  }		
-#else
-		word18 offset;
-		offset = ci->address;
-#endif
-                offset &= AMASK;
-
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "rpt/rd/rl repeat first; offset is %06o\n", offset);
-
-                word6 Td = GET_TD (tag);
-                uint Xn = X (Td);  // Get Xn of next instruction
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "rpt/rd/rl repeat first; X%d was %06o\n",
-                           Xn, cpu.rX[Xn]);
-                // a:RJ78/rpd5
-                cpu.TPR.CA = (cpu.rX[Xn] + offset) & AMASK;
-                cpu.rX[Xn] = cpu.TPR.CA;
-                HDBGRegX (Xn);
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "rpt/rd/rl repeat first; X%d now %06o\n",
-                           Xn, cpu.rX[Xn]);
-              } // rpt or rd or rl
-
+	    repeat_first_postprocess ();
           } // repeat first
       } // cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl
 #endif // 0
@@ -2355,99 +2248,66 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
     // until the odd instruction gets its first execution. Put some
     // ugly logic in to detect that condition.
 
-#ifndef NEWRPT
-    bool rf = cpu.cu.repeat_first;
-    if (rf && cpu.cu.rd && icEven)
-      rf = false;
-#else
-      bool rf =  false;
-#endif
-
-    if (unlikely ((! rf) && (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)))
+     if (!cpu.cu.repeat_first && (cpu.cu.rpt || cpu.cu.rd))
       {
         CPT (cpt2L, 7); // Post execution RPx
         // If we get here, the instruction just executed was a
         // RPT, RPD or RPL target instruction, and not the RPT or RPD
         // instruction itself
 
-        if (cpu.cu.rpt || cpu.cu.rd)
-          {
-            // Add delta to index register.
+	// Add delta to index register.
 
-            bool rptA = !! (cpu.rX[0] & 01000);
-            bool rptB = !! (cpu.rX[0] & 00400);
+	bool rptA = !! (cpu.rX[0] & 01000);
+	bool rptB = !! (cpu.rX[0] & 00400);
 
-            sim_debug (DBG_TRACEEXT, & cpu_dev,
-                "RPT/RPD delta first %d rf %d rpt %d rd %d "
-                "e/o %d X0 %06o a %d b %d\n",
-                cpu.cu.repeat_first, rf, cpu.cu.rpt, cpu.cu.rd, icOdd,
-                cpu.rX[0], rptA, rptB);
+	sim_debug (DBG_TRACEEXT, & cpu_dev,
+		   "RPT/RPD delta first %d rpt %d rd %d "
+		   "e/o %d X0 %06o a %d b %d\n",
+		   cpu.cu.repeat_first, cpu.cu.rpt, cpu.cu.rd, icOdd,
+		   cpu.rX[0], rptA, rptB);
 
-            if (cpu.cu.rpt) // rpt
-              {
-                CPT (cpt2L, 8); // RPT delta
-                uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-                cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
-                cpu.rX[Xn] = cpu.TPR.CA;
-                HDBGRegX (Xn);
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
-              }
+	if (cpu.cu.rpt) // rpt
+	  {
+	    CPT (cpt2L, 8); // RPT delta
+	    uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
+	    cpu.rX[Xn] = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
+	    HDBGRegX (Xn);
+	    sim_debug (DBG_TRACEEXT, & cpu_dev,
+		       "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+	  }
 
-            // a:RJ78/rpd6
-            // We know that the X register is not to be incremented until
-            // after both instructions have executed, so the following
-            // if uses icOdd instead of the more sensical icEven.
-            if (cpu.cu.rd && icOdd && rptA) // rpd, even instruction
-              {
-                CPT (cpt2L, 9); // RD even
-                // a:RJ78/rpd7
-                uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-                cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
-                cpu.rX[Xn] = cpu.TPR.CA;
-                HDBGRegX (Xn);
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
-              }
+	// a:RJ78/rpd6
+	// We know that the X register is not to be incremented until
+	// after both instructions have executed, so the following
+	// if uses icOdd instead of the more sensical icEven.
+	if (cpu.cu.rd && icOdd && rptA) // rpd, even instruction
+	  {
+	    CPT (cpt2L, 9); // RD even
+	    // a:RJ78/rpd7
+	    uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
 
-            if (cpu.cu.rd && icOdd && rptB) // rpdb, odd instruction
-              {
-                CPT (cpt2L, 10); // RD odd
-                // a:RJ78/rpd8
-                uint Xn = (uint) getbits36_3 (cpu.cu.IRODD, 36 - 3);
-                cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
-                cpu.rX[Xn] = cpu.TPR.CA;
-                HDBGRegX (Xn);
-                sim_debug (DBG_TRACEEXT, & cpu_dev,
-                           "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
-              }
-          } // rpt || rd
+	    cpu.rX[Xn] = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
+	    HDBGRegX (Xn);
+	    sim_debug (DBG_TRACEEXT, & cpu_dev,
+		       "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+	  }
 
-#if 0
-        else if (cpu.cu.rl)
-          {
-            CPT (cpt2L, 11); // RL
-            // C(Xn) -> y
+	if (cpu.cu.rd && icOdd && rptB) // rpdb, odd instruction
+	  {
+	    CPT (cpt2L, 10); // RD odd
+	    // a:RJ78/rpd8
+	    uint Xn = (uint) getbits36_3 (cpu.cu.IRODD, 36 - 3);
+	    cpu.rX[Xn] = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
+	    HDBGRegX (Xn);
+	    sim_debug (DBG_TRACEEXT, & cpu_dev,
+		       "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+	  }
+      }
 #if 1
-            uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-            word18 lnk = GETHI36 (cpu.CY);
-            cpu.CY &= MASK18;
-            cpu.rX[Xn] = lnk;
-            //putbits36 (& cpu.cu.IWB,  0, 18, lnk);
-#else
-            uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-            putbits36 (& cpu.cu.IWB,  0, 18, cpu.rX[Xn]);
+     // If RPT or (RPD and the odd instruction)
+     if (cpu.cu.rpt || (cpu.cu.rd && icOdd) || cpu.cu.rl)
+       cpu.cu.repeat_first = false;
 #endif
-          }
-#endif
-#if 0
-            // If RPT or (RPD and the odd instruction)
-            if (cpu.cu.rpt || (cpu.cu.rd && icOdd) || cpu.cu.rl)
-              cpu.cu.repeat_first = false;
-#endif
-
-        // Check for termination conditions.
-
 ///////
 //
 // ISOLTS test 769 claims in test-02a that 'rpt;div' with a divide
@@ -2460,141 +2320,184 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 // trying:
 
 #ifdef DPS8M
-        if (cpu.cu.rl && cpu.dlyFlt)
+    if (cpu.cu.rl && cpu.dlyFlt)
 #else // L68
-        if ((cpu.cu.rl || cpu.cu.rpt || cpu.cu.rd) && cpu.dlyFlt)
+    if ((cpu.cu.rl || cpu.cu.rpt || cpu.cu.rd) && cpu.dlyFlt)
 #endif
-          {
-            CPT (cpt2L, 14); // Delayed fault
-            doFault (cpu.dlyFltNum, cpu.dlySubFltNum, cpu.dlyCtx);
-          }
+      {
+	CPT (cpt2L, 14); // Delayed fault
+	doFault (cpu.dlyFltNum, cpu.dlySubFltNum, cpu.dlyCtx);
+      }
 
 // Sadly, it fixes ISOLTS 769 test 02a and 02b.
 //
 ///////
 
-        if (cpu.cu.rpt || (cpu.cu.rd && icOdd) || cpu.cu.rl)
-          {
-            CPT (cpt2L, 12); // RPx termination check
-            bool exit = false;
-            // The repetition cycle consists of the following steps:
-            //  a. Execute the repeated instruction
-            //  b. C(X0)0,7 - 1 -> C(X0)0,7
-            // a:AL39/rpd9
-            uint x = (uint) getbits18 (cpu.rX[0], 0, 8);
-            x -= 1;
-            x &= MASK8;
-            putbits18 (& cpu.rX[0], 0, 8, x);
-            HDBGRegX (0);
+     // Check for termination conditions.
 
-            //sim_debug (DBG_TRACEEXT, & cpu_dev, "x %03o rX[0] %06o\n", x, rX[0]);
+    if (cpu.cu.rpt || (cpu.cu.rd && icOdd) || cpu.cu.rl)
+      {
+	CPT (cpt2L, 12); // RPx termination check
+	bool exit = false;
+	// The repetition cycle consists of the following steps:
+	//  a. Execute the repeated instruction
+	//  b. C(X0)0,7 - 1 -> C(X0)0,7
+	// a:AL39/rpd9
+	uint x = (uint) getbits18 (cpu.rX[0], 0, 8);
+	x -= 1;
+	x &= MASK8;
+	putbits18 (& cpu.rX[0], 0, 8, x);
+	HDBGRegX (0);
 
-            // a:AL39/rpd10
-            //  c. If C(X0)0,7 = 0, then set the tally runout indicator ON
-            //     and terminate
+	//sim_debug (DBG_TRACEEXT, & cpu_dev, "x %03o rX[0] %06o\n", x, rX[0]);
 
-            sim_debug (DBG_TRACEEXT, & cpu_dev, "tally %d\n", x);
-            if (x == 0)
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "tally runout\n");
-                SET_I_TALLY;
-                exit = true;
-              }
-            else
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "not tally runout\n");
-                CLR_I_TALLY;
-              }
+	// a:AL39/rpd10
+	//  c. If C(X0)0,7 = 0, then set the tally runout indicator ON
+	//     and terminate
 
-            //  d. If a terminate condition has been met, then set
-            //     the tally runout indicator OFF and terminate
+	sim_debug (DBG_TRACEEXT, & cpu_dev, "tally %d\n", x);
+	if (x == 0)
+	  {
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "tally runout\n");
+	    SET_I_TALLY;
+	    exit = true;
+	  }
+	else
+	  {
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "not tally runout\n");
+	    CLR_I_TALLY;
+	  }
 
-            if (TST_I_ZERO && (cpu.rX[0] & 0100))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is zero terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (!TST_I_ZERO && (cpu.rX[0] & 040))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is not zero terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (TST_I_NEG && (cpu.rX[0] & 020))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is neg terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (!TST_I_NEG && (cpu.rX[0] & 010))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is not neg terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (TST_I_CARRY && (cpu.rX[0] & 04))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is carry terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (!TST_I_CARRY && (cpu.rX[0] & 02))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is not carry terminate\n");
-                CLR_I_TALLY;
-                exit = true;
-              }
-            if (TST_I_OFLOW && (cpu.rX[0] & 01))
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "is overflow terminate\n");
-// ISOLTS test ps805 says that on overflow the tally should be set.
-                //CLR_I_TALLY;
-                SET_I_TALLY;
-                exit = true;
-              }
+	//  d. If a terminate condition has been met, then set
+	//     the tally runout indicator OFF and terminate
 
-            if (exit)
-              {
-                CPT (cpt2L, 13); // RPx terminated
-                cpu.cu.rpt = false;
-                cpu.cu.rd = false;
-                cpu.cu.rl = false;
-              }
-            else
-              {
-                sim_debug (DBG_TRACEEXT, & cpu_dev, "not terminate\n");
-              }
-          } // if (cpu.cu.rpt || cpu.cu.rd & (cpu.PPR.IC & 1))
+	if (TST_I_ZERO && (cpu.rX[0] & 0100))
+	  {
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "is zero terminate\n");
+	    CLR_I_TALLY;
+	    exit = true;
+	  }
+	if (!TST_I_ZERO && (cpu.rX[0] & 040))
+	  {
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "is not zero terminate\n");
+	    CLR_I_TALLY;
+	    exit = true;
+	  }
+	if (TST_I_NEG && (cpu.rX[0] & 020))
+	  {
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "is neg terminate\n");
+	    CLR_I_TALLY;
+	    exit = true;
+	  }
+	if (!TST_I_NEG && (cpu.rX[0] & 010))
+	  {
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "is not neg terminate\n");
+	    CLR_I_TALLY;
+	    exit = true;
+	  }
+	if (TST_I_CARRY && (cpu.rX[0] & 04))
+	  {
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "is carry terminate\n");
+	    CLR_I_TALLY;
+	    exit = true;
+	  }
+	if (!TST_I_CARRY && (cpu.rX[0] & 02))
+	  {
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "is not carry terminate\n");
+	    CLR_I_TALLY;
+	    exit = true;
+	  }
+	if (TST_I_OFLOW && (cpu.rX[0] & 01))
+	  {
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "is overflow terminate\n");
+	    // ISOLTS test ps805 says that on overflow the tally should be set.
+	    //CLR_I_TALLY;
+	    SET_I_TALLY;
+	    exit = true;
+	  }
 
-        if (cpu.cu.rl)
-          {
-            CPT (cpt2L, 11); // RL
-            if (cpu.lnk == 0)
-              {
-                CPT (cpt2L, 13); // RPx terminated
-                cpu.cu.rpt = false;
-                cpu.cu.rd = false;
-                cpu.cu.rl = false;
-                SET_I_TALLY;
-              }
-            else
-              {
-                // C(Xn) -> y
-#if 1
-                uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-                //word18 lnk = GETHI36 (cpu.CY);
-                //cpu.CY &= MASK18;
-                cpu.rX[Xn] = cpu.lnk;
-                HDBGRegX (Xn);
-                //putbits36 (& cpu.cu.IWB,  0, 18, lnk);
-#else
-                uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
-                putbits36 (& cpu.cu.IWB,  0, 18, cpu.rX[Xn]);
-#endif
-              }
-          } // rl
-      } // (! rf) && (cpu.cu.rpt || cpu.cu.rd)
+	if (exit)
+	  {
+	    CPT (cpt2L, 13); // RPx terminated
+
+	    bool rptA = !! (cpu.rX[0] & 01000);
+	    bool rptB = !! (cpu.rX[0] & 00400);
+
+	    sim_debug (DBG_TRACEEXT, & cpu_dev,
+		       "RPT/RPD exit delta first %d rpt %d rd %d "
+		       "e/o %d X0 %06o a %d b %d\n",
+		       cpu.cu.repeat_first, cpu.cu.rpt, cpu.cu.rd, icOdd,
+		       cpu.rX[0], rptA, rptB);
+
+	    if (cpu.cu.rpt) // rpt
+	      {
+		CPT (cpt2L, 8); // RPT delta
+		uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
+		cpu.rX[Xn] = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
+		HDBGRegX (Xn);
+		sim_debug (DBG_TRACEEXT, & cpu_dev,
+			   "RPT/RPD exit delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+	      }
+
+	    // a:RJ78/rpd6
+	    // We know that the X register is not to be incremented until
+	    // after both instructions have executed, so the following
+	    // if uses icOdd instead of the more sensical icEven.
+	    if (cpu.cu.rd && icOdd && rptA) // rpd, even instruction
+	      {
+		CPT (cpt2L, 9); // RD even
+		// a:RJ78/rpd7
+		uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
+
+		cpu.rX[Xn] = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
+		HDBGRegX (Xn);
+		sim_debug (DBG_TRACEEXT, & cpu_dev,
+			   "RPT/RPD exit delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+	      }
+
+	    if (cpu.cu.rd && icOdd && rptB) // rpdb, odd instruction
+	      {
+		CPT (cpt2L, 10); // RD odd
+		// a:RJ78/rpd8
+		uint Xn = (uint) getbits36_3 (cpu.cu.IRODD, 36 - 3);
+		cpu.rX[Xn] = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
+		HDBGRegX (Xn);
+		sim_debug (DBG_TRACEEXT, & cpu_dev,
+			   "RPT/RPD exit delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
+	      }
+
+	    cpu.cu.rpt = false;
+	    cpu.cu.rd = false;
+	    cpu.cu.rl = false;
+	  }
+	else
+	  {
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "not terminate\n");
+	  }
+      } // if (cpu.cu.rpt || cpu.cu.rd & (cpu.PPR.IC & 1))
+
+    if (cpu.cu.rl)
+      {
+	CPT (cpt2L, 11); // RL
+	if (cpu.lnk == 0)
+	  {
+	    CPT (cpt2L, 13); // RPx terminated
+	    sim_debug (DBG_TRACEEXT, & cpu_dev, "link = 0 terminate\n");
+	    cpu.cu.rpt = false;
+	    cpu.cu.rd = false;
+	    cpu.cu.rl = false;
+	    SET_I_TALLY;
+	  }
+	else
+	  {
+	    // C(Xn) -> y
+	    uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
+	    cpu.rX[Xn] = cpu.lnk;
+	    sim_debug (DBG_TRACEEXT, & cpu_dev,
+		       "RPL; X%d now %06o\n", Xn, cpu.rX[Xn]);
+	    HDBGRegX (Xn);
+	  }
+      } // rl
 
     if (unlikely (cpu.dlyFlt))
       {
