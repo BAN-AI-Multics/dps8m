@@ -1582,7 +1582,11 @@ static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
         sim_printf ("line_break:                  %d\n", fudp->MState.line[l].line_break);
         sim_printf ("send_output:                 %d\n", fudp->MState.line[l].send_output);
         sim_printf ("accept_new_terminal:         %d\n", fudp->MState.line[l].accept_new_terminal);
+#if DISC_DELAY
         sim_printf ("line_disconnected:           %d\n", fudp->MState.line[l].line_disconnected);
+#else
+        sim_printf ("line_disconnected:           %c\n", fudp->MState.line[l].line_disconnected ? 'T' : 'F');
+#endif
         sim_printf ("acu_dial_failure:            %d\n", fudp->MState.line[l].acu_dial_failure);
         sim_printf ("accept_input:                %d\n", fudp->MState.line[l].accept_input);
         sim_printf ("waitForMbxDone:              %d\n", fudp->MState.line[l].waitForMbxDone);
@@ -2078,6 +2082,43 @@ done:;
     //fnpuv_read_stop (client);
   }
 
+void reset_line (struct t_line * linep)
+  {
+    linep->was_CR = false;
+    linep->inputBufferSize = 0;
+    linep->ctrlStrIdx = 0;
+    linep->breakAll = false;
+    linep->handleQuit = false;
+    linep->echoPlex = false;
+    linep->crecho = false;
+    linep->lfecho = false;
+    linep->tabecho = false;
+    linep->replay = false;
+    linep->polite = false;
+    linep->prefixnl = false;
+    linep->eight_bit_out = false;
+    linep->eight_bit_in = false;
+    linep->odd_parity = false;
+    linep->output_flow_control = false;
+    linep->input_flow_control = false;
+    linep->block_xfer_in_frame_sz = 0;
+    linep->block_xfer_out_frame_sz = 0;
+    memset (linep->delay_table, 0, sizeof (linep->delay_table));
+    linep->inputSuspendLen = 0;
+    memset (linep->inputSuspendStr, 0, sizeof (linep->inputSuspendStr));
+    linep->inputResumeLen = 0;
+    memset (linep->inputResumeStr, 0, sizeof (linep->inputResumeStr));
+    linep->outputSuspendLen = 0;
+    memset (linep->outputSuspendStr, 0, sizeof (linep->outputSuspendStr));
+    linep->outputResumeLen = 0;
+    memset (linep->outputResumeStr, 0, sizeof (linep->outputResumeStr));
+    linep->frame_begin = 0;
+    linep->frame_end = 0;
+    memset (linep->echnego, 0, sizeof (linep->echnego));
+    linep->echnego_len = 0;
+    linep->line_break = false;
+  }
+
 void processUserInput (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
   {
     if (! client || ! client->data)
@@ -2272,7 +2313,7 @@ associate:;
 
     fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].lineType = 1 /* LINE_ASCII */;
     fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].accept_new_terminal = true;
-    fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].was_CR = false;
+    reset_line (& fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno]);
     ltnRaw (p->telnetp);
   }
 

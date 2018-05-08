@@ -168,8 +168,7 @@ static int wcd (struct decoded_t *decoded_p)
             if (linep->line_client && linep->service == service_login)
               fnpuv_start_writestr (linep->line_client, (unsigned char *) "Multics has disconnected you\r\n");
 #ifdef DISC_DELAY
-            // '1' --> disconnect on next poll
-            linep -> line_disconnected = 1;
+            linep -> line_disconnected = DISC_DELAY;
 #else
             linep -> line_disconnected = true;
 #endif
