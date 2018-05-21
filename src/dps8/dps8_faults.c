@@ -913,12 +913,16 @@ void doG7Fault (bool allowTR)
       // }
     // According AL39,  Table 7-1. List of Faults, priority of connect is 25
     // and priority of Timer runout is 26, lower number means higher priority
+#if defined(THREADZ) || defined(LOCKLESS)
     lock_scu ();
+#endif
      if (cpu.g7Faults & (1u << FAULT_CON))
        {
          cpu.g7Faults &= ~(1u << FAULT_CON);
 
+#if defined(THREADZ) || defined(LOCKLESS)
 	 unlock_scu ();
+#endif
          doFault (FAULT_CON, cpu.g7SubFaults [FAULT_CON], "Connect"); 
        }
 
@@ -927,7 +931,9 @@ void doG7Fault (bool allowTR)
          cpu . g7Faults &= ~(1u << FAULT_TRO);
 
          //sim_printf("timer runout %12o\n",cpu.PPR.IC);
+#if defined(THREADZ) || defined(LOCKLESS)
          unlock_scu ();
+#endif
 	 doFault (FAULT_TRO, fst_zero, "Timer runout"); 
        }
 
@@ -938,7 +944,9 @@ void doG7Fault (bool allowTR)
        {
          cpu . g7Faults &= ~(1u << FAULT_EXF);
 
+#if defined(THREADZ) || defined(LOCKLESS)
 	 unlock_scu ();
+#endif
 	 doFault (FAULT_EXF, fst_zero, "Execute fault");
        }
 
@@ -946,23 +954,31 @@ void doG7Fault (bool allowTR)
      if (cpu.FFV_faults & 1u)  // FFV + 2 OC TRAP
        {
          cpu.FFV_faults &= ~1u;
+#if defined(THREADZ) || defined(LOCKLESS)
 	 unlock_scu ();
+#endif
          do_FFV_fault (1, "OC TRAP");
        }
      if (cpu.FFV_faults & 2u)  // FFV + 4 CU HISTORY OVERFLOW TRAP
        {
          cpu.FFV_faults &= ~2u;
+#if defined(THREADZ) || defined(LOCKLESS)
 	 unlock_scu ();
+#endif
          do_FFV_fault (2, "CU HIST OVF TRAP");
        }
      if (cpu.FFV_faults & 4u)  // FFV + 6 ADR TRAP
        {
          cpu.FFV_faults &= ~4u;
+#if defined(THREADZ) || defined(LOCKLESS)
 	 unlock_scu ();
+#endif
          do_FFV_fault (3, "ADR TRAP");
        }
 #endif
+#if defined(THREADZ) || defined(LOCKLESS)
      unlock_scu ();
+#endif
      doFault (FAULT_TRB, (_fault_subtype) {.bits=cpu.g7Faults}, "Dazed and confused in doG7Fault");
   }
 
