@@ -2124,10 +2124,10 @@ setCPU:;
                                            //  place
 		    bool oldXSF = cpu.cu.XSF;
                     //if (get_addr_mode () != APPEND_mode)
-                     {
-                       cpu.cu.XSF = 0;
-		     }
-		    sim_debug (DBG_TRACEEXT|DBG_AVC, & cpu_dev, "fetchCycle bit 29 sets XSF from %d to %d\n", oldXSF, cpu.cu.XSF);
+                    // {
+                    cpu.cu.XSF = 0;
+		    // }
+		    //sim_debug (DBG_TRACEEXT|DBG_AVC, & cpu_dev, "fetchCycle bit 29 sets XSF from %d to %d\n", oldXSF, cpu.cu.XSF);
                     cpu.cu.TSN_VALID [0] = 0;
 		    cpu.TPR.TSR = cpu.PPR.PSR;
 		    cpu.TPR.TRR = cpu.PPR.PRR;
@@ -2187,9 +2187,13 @@ setCPU:;
                 if (ret == CONT_RPT)
                   {
                     CPT (cpt1U, 27); // XEx instruction
+		    cpu.cu.xde = cpu.cu.xdo = 0;
+                    cpu.isExec = false;
+                    cpu.isXED = false;
+
                     cpu.wasXfer = false;
 		    // stay in EXEC cycle
-		    set_cpu_cycle (EXEC_cycle);
+		    //set_cpu_cycle (EXEC_cycle);
 		    //cpu.PPR.IC ++;
 		    cpu.cu.XSF = 0;
                     cpu.TPR.TSR = cpu.PPR.PSR;
@@ -2405,7 +2409,7 @@ setCPU:;
                     break;
                   }
 
-                if ((! cpu.cu.repeat_first) &&
+                if (/* (! cpu.cu.repeat_first) && */
                     (cpu.cu.rpt ||
                      (cpu.cu.rd && (cpu.PPR.IC & 1)) ||
                      cpu.cu.rl))

@@ -2100,13 +2100,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
       {
         CPT (cpt2L, 3); // Write operands
 	cpu.last_write = cpu.TPR.CA;
-#ifndef REORDER
-        if (! READOP (ci))
-          {
-            do_caf ();
-            cpu.iefpFinalAddress = cpu.TPR.CA;
-          }
-#endif
 #ifdef LOCKLESS
 	if ((ci->info->flags & RMW) == RMW)
 	  {
@@ -6883,7 +6876,7 @@ static t_stat doInstruction (void)
             if ((cpu.PPR.IC & 1) == 0)
               doFault (FAULT_IPR, fst_ill_proc, "rpd odd");
 #ifdef NEWRPT
-	    Read2 (cpu.PPR.IC+1, cpu.Ypair, INSTRUCTION_FETCH);
+	    Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
 #endif
             cpu.cu.delta = i->tag;
             // a:AL39/rpd1
@@ -6906,7 +6899,17 @@ static t_stat doInstruction (void)
         case x0 (0500):  // rpl
           {
 #ifdef NEWRPT
-	    Read (cpu.PPR.IC+1, &cpu.CY, INSTRUCTION_FETCH);
+	    if ((cpu.PPR.IC+1) & 1) // odd
+	      {
+		Read (cpu.PPR.IC + 1, &cpu.CY, INSTRUCTION_FETCH);
+		cpu.cu.IWB = cpu.cu.IRODD = cpu.CY;
+	      }
+	    else
+	      {
+		Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+		cpu.cu.IWB = cpu.Ypair[0];
+		cpu.cu.IRODD = cpu.Ypair[1];
+	      }
 #endif
 
             uint c = (i->address >> 7) & 1;
@@ -6920,7 +6923,7 @@ static t_stat doInstruction (void)
             cpu.cu.repeat_first = 1;
 
 #ifdef NEWRPT
-	    cpu.cu.IWB = cpu.CY;
+	    //	    cpu.cu.IWB = cpu.CY;
 	    return CONT_RPT;
 #endif
           }
@@ -6929,7 +6932,17 @@ static t_stat doInstruction (void)
         case x0 (0520):  // rpt
           {
 #ifdef NEWRPT
-	    Read (cpu.PPR.IC+1, &cpu.CY, INSTRUCTION_FETCH);
+	    if ((cpu.PPR.IC+1) & 1) // odd
+	      {
+		Read (cpu.PPR.IC + 1, &cpu.CY, INSTRUCTION_FETCH);
+		cpu.cu.IWB = cpu.cu.IRODD = cpu.CY;
+	      }
+	    else
+	      {
+		Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+		cpu.cu.IWB = cpu.Ypair[0];
+		cpu.cu.IRODD = cpu.Ypair[1];
+	      }
 #endif
 
             uint c = (i->address >> 7) & 1;
@@ -6943,7 +6956,7 @@ static t_stat doInstruction (void)
             cpu.cu.repeat_first = 1;
 
 #ifdef NEWRPT
-	    cpu.cu.IWB = cpu.CY;
+	    //cpu.cu.IWB = cpu.CY;
 	    return CONT_RPT;
 #endif
           }
@@ -9998,22 +10011,6 @@ elapsedtime ();
         fi_addr == FAULT_CMD ||
         fi_addr == FAULT_EXF)
       {
-	if (fi_addr == FAULT_DF0 ||
-	    fi_addr == FAULT_DF1 ||
-	    fi_addr == FAULT_DF2 ||
-	    fi_addr == FAULT_DF3 ||
-	    fi_addr == FAULT_ACV ||
-	    fi_addr == FAULT_F1 ||
-	    fi_addr == FAULT_F2 ||
-	    fi_addr == FAULT_F3)
-	  {
-	    if (TST_I_ABS == 0)
-	      {
-		bool oldXSF = cpu.cu.XSF;
-		cpu.cu.XSF = 1;
-                sim_debug (DBG_TRACEEXT|DBG_AVC, & cpu_dev, "rcu sets XSF from %d to %d\n", oldXSF, cpu.cu.XSF);
-	      }
-	  }
         // If the fault occurred during fetch, handled above.
         cpu.cu.rfi = 1;
         sim_debug (DBG_FAULT, & cpu_dev, "RCU ACV RESTART return\n");
