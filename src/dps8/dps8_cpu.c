@@ -2186,11 +2186,12 @@ setCPU:;
 #ifdef NEWRPT
                 if (ret == CONT_RPT)
                   {
-                    CPT (cpt1U, 27); // XEx instruction
-		    cpu.cu.xde = cpu.cu.xdo = 0;
-                    cpu.isExec = false;
-                    cpu.isXED = false;
-
+		    if (cpu.cu.xde && !cpu.cu.xdo)
+		      {
+		      cpu.cu.xde = 0;
+		      cpu.isExec = false;
+		      cpu.isXED = false;
+		      }
                     cpu.wasXfer = false;
 		    // stay in EXEC cycle
 		    //set_cpu_cycle (EXEC_cycle);

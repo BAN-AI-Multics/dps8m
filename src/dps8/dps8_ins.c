@@ -491,7 +491,7 @@ static void scu2words (word36 *words)
 	      "pa885 test-05b xed inst",
 	    },
 	    { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004004000, 0200004235100, 0000005755000 },
-	      { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004002000, 0200004235100, 0000005755000 },
+	      { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004006000, 0200004235100, 0000005755000 },
 	      "pa885 test-05c xed inst", //                                                         xde/xdo
             },
             { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004006000, 0200004235100, 0000005755000 },
@@ -503,7 +503,7 @@ static void scu2words (word36 *words)
 	      "pa885 test-06a rpd inst", //                                                         rfi/fif
             },
             { { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000200200, 0000003500001, 0200003235111, 0002005755012 },
-              { 0000000651001, 0000000000041, 0000001000101, 0000000000000, 0002000202200, 0000003500000, 0200003235111, 0002005755012 },
+              { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000202200, 0000003500000, 0200003235111, 0002005755012 },
 	      "pa885 test-06b rpd inst", //                                          tro               ct-hold
             },
             { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776200200, 0002015500001, 0002015235031, 0002017755032 },
@@ -517,6 +517,14 @@ static void scu2words (word36 *words)
 	    { { 0000000404202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000500, 0001773755000, 0001773755000 },
 	      { 0000000400202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000100, 0001773755000, 0001773755000 },
 	      "pa885 test-10a scu snap (acv fault)", //                                              rfi
+	    },
+	    { { 0000000400041, 0010000000003, 0000000000100, 0000000000000, 0001777202200, 0001777000000, 0001777235000, 0001777235000 },
+	      { 0000000600011, 0010000000003, 0000000000100, 0000000000000, 0001777202200, 0001777000000, 0001777235000, 0001777235000 },
+	      "pa885 test-10b scu snap",
+	    },
+	    { { 0000000404203, 0000000000041, 0000000000100, 0000000000000, 0002000002200, 0002000000500, 0001777235000, 0001777235000 },
+	      { 0000000400201, 0000000000041, 0000000000100, 0000000000000, 0002000002200, 0002000000100, 0001777235000, 0001777235000 },
+	      "pa885 test-10b scu snap 2",
 	    }
 	  };
 	int i;
@@ -6876,7 +6884,9 @@ static t_stat doInstruction (void)
             if ((cpu.PPR.IC & 1) == 0)
               doFault (FAULT_IPR, fst_ill_proc, "rpd odd");
 #ifdef NEWRPT
+	    word18 save_ic = cpu.PPR.IC + 1;
 	    Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+	    cpu.PPR.IC = save_ic;
 #endif
             cpu.cu.delta = i->tag;
             // a:AL39/rpd1
@@ -6899,14 +6909,24 @@ static t_stat doInstruction (void)
         case x0 (0500):  // rpl
           {
 #ifdef NEWRPT
-	    if ((cpu.PPR.IC+1) & 1) // odd
+	    // first inst in xed
+	    if (cpu.cu.xde && cpu.cu.xdo)
 	      {
+		cpu.cu.xde = 0;
+		cpu.cu.IWB = cpu.cu.IRODD;
+	      }
+	    else if ((cpu.PPR.IC+1) & 1) // odd
+	      {
+		word18 save_ic = cpu.PPR.IC + 1;
 		Read (cpu.PPR.IC + 1, &cpu.CY, INSTRUCTION_FETCH);
+		cpu.PPR.IC = save_ic;
 		cpu.cu.IWB = cpu.cu.IRODD = cpu.CY;
 	      }
 	    else
 	      {
+		word18 save_ic = cpu.PPR.IC + 1;
 		Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+		cpu.PPR.IC = save_ic;
 		cpu.cu.IWB = cpu.Ypair[0];
 		cpu.cu.IRODD = cpu.Ypair[1];
 	      }
@@ -6932,14 +6952,24 @@ static t_stat doInstruction (void)
         case x0 (0520):  // rpt
           {
 #ifdef NEWRPT
-	    if ((cpu.PPR.IC+1) & 1) // odd
+	    // first inst in xed
+	    if (cpu.cu.xde && cpu.cu.xdo)
 	      {
+		cpu.cu.xde = 0;
+		cpu.cu.IWB = cpu.cu.IRODD;
+	      }
+	    else if ((cpu.PPR.IC+1) & 1) // odd
+	      {
+		word18 save_ic = cpu.PPR.IC + 1;
 		Read (cpu.PPR.IC + 1, &cpu.CY, INSTRUCTION_FETCH);
+		cpu.PPR.IC = save_ic;
 		cpu.cu.IWB = cpu.cu.IRODD = cpu.CY;
 	      }
 	    else
 	      {
+		word18 save_ic = cpu.PPR.IC + 1;
 		Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+		cpu.PPR.IC = save_ic;
 		cpu.cu.IWB = cpu.Ypair[0];
 		cpu.cu.IRODD = cpu.Ypair[1];
 	      }
@@ -9903,7 +9933,8 @@ elapsedtime ();
         fi_addr == FAULT_MME2 ||
         fi_addr == FAULT_MME3 ||
         fi_addr == FAULT_MME4 ||
-        fi_addr == FAULT_DRL)
+        fi_addr == FAULT_DRL ||
+	fi_addr == FAULT_STR)
     //if (fi_addr == FAULT_MME2)
       {
 //sim_printf ("MME2 restart\n");
