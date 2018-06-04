@@ -1710,7 +1710,7 @@ t_stat executeInstruction (bool restart)
 #endif
       }
 
-    if (unlikely (RPx_fault))
+    if (unlikely (RPx_fault != 0))
       {
         doFault (FAULT_IPR,
                  (_fault_subtype) {.fault_ipr_subtype=RPx_fault},
@@ -1827,7 +1827,7 @@ t_stat executeInstruction (bool restart)
 
 #ifdef DPS8M
     // DPS8M raises it delayed
-    if (unlikely (mod_fault))
+    if (unlikely (mod_fault != 0))
       {
         doFault (FAULT_IPR,
                  (_fault_subtype) {.fault_ipr_subtype=mod_fault},
@@ -2637,9 +2637,14 @@ static t_stat doInstruction (void)
         uint col = grp % 36;
         CPT (cpt3U + row, col); // 3U 0-35, 3L 0-17
       }
+#ifdef L68
+    bool is_ou = false;
+#endif
     if (opcodes10[opcode10].reg_use & is_OU)
       {
+#ifdef L68
         is_ou = true;
+#endif
     // XXX Punt on RP FULL, RS FULL
         cpu.ou.RB1_FULL = cpu.ou.RP_FULL = cpu.ou.RS_FULL = 1;
         cpu.ou.cycle |= ou_GIN;
@@ -2657,10 +2662,15 @@ static t_stat doInstruction (void)
         if (reguse & ru_X6) CPT (cpt5U, 12);
         if (reguse & ru_X7) CPT (cpt5U, 13);
       }
-#endif
 #ifdef L68
-    bool is_ou = false;
+    bool is_du = false;
+    if (opcodes10[opcode10].reg_use & is_DU)
+      {
+        is_du = true;
+        PNL (DU_CYCLE_nDUD;) // set not idle
+      }
 #endif
+#endif // PANEL
 
     switch (opcode10)
       {
