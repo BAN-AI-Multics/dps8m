@@ -216,6 +216,9 @@ typedef struct opc_state_t
 
     uv_access console_access;
 
+    // ^T 
+    //unsigned long keyboard_poll_cnt;
+
  } opc_state_t;
 
 static opc_state_t console_state[N_OPC_UNITS_MAX];
@@ -1165,6 +1168,17 @@ eol:
             csp->simh_buffer_cnt = 0;
             console_putstr (conUnitIdx,  "SIMH> ");
           }
+        return;
+      }
+
+    if (c == 024) // ^T
+      {
+        char buf[256];
+        char cms[3] = "?RW";
+        sprintf (buf, "^T attn %c %c\r\n",
+                 console_state[0].attn_pressed+'0',
+                 cms[console_state[0].io_mode]);
+        console_putstr (conUnitIdx, buf);
         return;
       }
 
