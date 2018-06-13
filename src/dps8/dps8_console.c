@@ -906,7 +906,10 @@ sim_warn ("uncomfortable with this\n");
 #ifndef __MINGW64__
                 newlineOff ();
 #endif
+// XXX this should be iom_indirect_data_service
+#ifdef COLOR
                 sim_print (""); // force text color reset
+#endif
                 while (tally)
                   {
                     word36 datum = * bufp ++;
@@ -1038,6 +1041,7 @@ static void consoleProcessIdx (int conUnitIdx)
     if (csp->io_mode == opc_read_mode &&
         csp->autop != NULL)
       {
+#if 0
         if (*csp->autop == '\0')
           {
             free (csp->auto_input);
@@ -1045,8 +1049,11 @@ static void consoleProcessIdx (int conUnitIdx)
             csp->autop = NULL;
             return;
           }
+#endif
         int announce = 1;
+#ifdef COLOR
         sim_print (""); // force text color reset
+#endif
         for (;;)
           {
             if (csp->tailp >= csp->buf + sizeof (csp->buf))
@@ -1329,7 +1336,9 @@ eol:
         if (csp->tailp >= csp->buf + sizeof (csp->buf))
           return;
 
+#ifdef COLOR
         sim_print (""); // force text color reset
+#endif
         * csp->tailp ++ = (unsigned char) c;
         console_putchar (conUnitIdx, (char) c);
         return;
@@ -1524,7 +1533,9 @@ t_stat set_console_pw (int32 arg, UNUSED const char * buf)
 
 static void console_putstr (int conUnitIdx, char * str)
   {
+#ifdef COLOR
     sim_print (""); // Force text color reset
+#endif
     size_t l = strlen (str);
     for (size_t i = 0; i < l; i ++)
       sim_putchar (str[i]);
