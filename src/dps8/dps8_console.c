@@ -1281,7 +1281,7 @@ eol:
 
     if (csp->io_mode != opc_read_mode)
       {
-        if (c == '\033') // escape
+        if (c == '\033' || c == '\001') // escape or ^A
           csp->attn_pressed = true;
         return;
       }
