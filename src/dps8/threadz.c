@@ -302,6 +302,10 @@ bool test_tst_lock (void)
 
 struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
 
+#if defined(__FreeBSD__) && defined(AFFINITY)
+typedef cpuset_t cpu_set_t;
+#endif
+
 // Create CPU thread
 
 void createCPUThread (uint cpuNum)

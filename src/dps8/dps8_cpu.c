@@ -1753,7 +1753,13 @@ setCPU:;
         if (fast_queue_subsample ++ > sys_opts.sys_poll_check_rate) // ~ 1KHz
           {
             fast_queue_subsample = 0;
+#if defined(THREADZ) || defined(LOCKLESS)
+            lock_libuv ();
+#endif
             uv_run (ev_poll_loop, UV_RUN_NOWAIT);
+#if defined(THREADZ) || defined(LOCKLESS)
+            unlock_libuv ();
+#endif
             PNL (panel_process_event ());
           }
 #else
@@ -2413,7 +2419,13 @@ setCPU:;
                     usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
 #ifndef NO_EV_POLL
                     // Trigger I/O polling
+#if defined(THREADZ) || defined(LOCKLESS)
+                    lock_libuv ();
+#endif
                     uv_run (ev_poll_loop, UV_RUN_NOWAIT);
+#if defined(THREADZ) || defined(LOCKLESS)
+                    unlock_libuv ();
+#endif
                     fast_queue_subsample = 0;
 #else // NO_EV_POLL
                     // this ignores the amount of time since the last poll;
