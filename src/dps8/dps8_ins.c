@@ -2275,7 +2275,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 	// We know that the X register is not to be incremented until
 	// after both instructions have executed, so the following
 	// if uses icOdd instead of the more sensical icEven.
-	if (cpu.cu.rd && icOdd && rptA) // rpd, even instruction
+	if (cpu.cu.rd && icEven && rptA) // rpd, even instruction
 	  {
 	    CPT (cpt2L, 9); // RD even
 	    // a:RJ78/rpd7
