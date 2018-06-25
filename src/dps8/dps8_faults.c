@@ -506,7 +506,7 @@ else if (faultNumber == FAULT_ACV)
     // Assume no
     // Reading Multics source, it seems like Multics is setting this bit; I'm going
     // to assume that the h/w also sets it to 0, and the s/w has to explicitly set it on.
-    cpu . cu . rfi = 0;
+    cpu . cu . rfi = cpu . cycle == FETCH_cycle ? 1 : 0;;
 
 // Try to decide if this a MIF fault (fault during EIS instruction)
 // EIS instructions are not used in fault/interrupt pairs, so the

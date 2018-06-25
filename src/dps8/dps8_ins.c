@@ -446,9 +446,9 @@ static void scu2words (word36 *words)
     putbits36_1 (& words[5], 24, cpu.cu.xde);
     putbits36_1 (& words[5], 25, cpu.cu.xdo);
     putbits36_1 (& words[5], 26, cpu.cu.itp);
-    putbits36_1 (& words[5], 27, cpu.cu.rfi);
+    putbits36_1 (& words[5], 27, cpu.cycle == INTERRUPT_cycle ? 1 : cpu.cu.rfi);
     putbits36_1 (& words[5], 28, cpu.cu.its);
-    putbits36_1 (& words[5], 29, cpu.cu.FIF);
+    putbits36_1 (& words[5], 29, cpu.cycle == INTERRUPT_cycle ? 1 : cpu.cu.FIF);
     putbits36_6 (& words[5], 30, cpu.cu.CT_HOLD);
 
     // words[6]
@@ -553,6 +553,9 @@ void cu_safe_store (void)
     cpu.cu_data.PSR = cpu.PPR.PSR;
     cpu.cu_data.PRR = cpu.PPR.PRR;
     cpu.cu_data.IC =  cpu.PPR.IC;
+
+    cpu.cu.rfi = 0;
+    cpu.cu.FIF = 0;
 
     tidy_cu ();
 
@@ -9906,6 +9909,8 @@ elapsedtime ();
         // how Multics uses it. I need to pick a different way to
         // communicate; for now, turn it off on refetch so the state
         // machine doesn't become confused.
+	if (cpu.cu.rfi != 1)
+	  sim_warn ("FIF without rfi\n");
         cpu.cu.rfi = 0;
         sim_debug (DBG_FAULT, & cpu_dev, "RCU FIF REFETCH return\n");
         longjmp (cpu.jmpMain, JMP_REFETCH);
