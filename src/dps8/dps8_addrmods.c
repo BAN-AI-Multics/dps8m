@@ -489,8 +489,11 @@ startCA:;
           }
         // For the case of RPT/RPD, the instruction decoder has
         // verified that Tm is R or RI, and Td is X1..X7.
-        if ((cpu.cu.rpt || cpu.cu.rd | cpu.cu.rl) &&
-	    !cpu.cu.repeat_first)
+        if ((cpu.cu.rpt || cpu.cu.rd | cpu.cu.rl)
+#ifdef NEWRPT
+	    && !cpu.cu.repeat_first
+#endif
+	    )
           {
             if (cpu.currentInstruction.b29)
               {
@@ -502,11 +505,13 @@ startCA:;
               {
                 cpu.TPR.CA = Cr;
 	      }
+#ifdef NEWRPT
 	    if (cpu.cu.rpt ||
 		(cpu.cu.rd &&
 		 (((cpu.PPR.IC & 1) == 0 && (cpu.rX[0] & 01000)) ||
 		  ((cpu.PPR.IC & 1) &&  (cpu.rX[0] & 00400)))))
 	      cpu.TPR.CA += cpu.cu.delta;
+#endif
 	    cpu.TPR.CA &= AMASK;
           }
         else
@@ -541,8 +546,11 @@ startCA:;
             sim_debug (DBG_ADDRMOD, & cpu_dev,
                        "RI_MOD: Cr=%06o CA(Before)=%06o\n", Cr, cpu.TPR.CA);
 
-            if ((cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl) &&
-		!cpu.cu.repeat_first)
+            if ((cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)
+#ifdef NEWRPT
+		&& !cpu.cu.repeat_first
+#endif
+		)
               {
 		if (cpu.currentInstruction.b29)
 		  {
@@ -554,11 +562,13 @@ startCA:;
 		  {
 		    cpu.TPR.CA = Cr;
 		  }
+#ifdef NEWRPT
 		if (cpu.cu.rpt ||
 		    (cpu.cu.rd &&
 		     (((cpu.PPR.IC & 1) == 0 && (cpu.rX[0] & 01000)) ||
 		      ((cpu.PPR.IC & 1) &&  (cpu.rX[0] & 00400)))))
 		  cpu.TPR.CA += cpu.cu.delta;
+#endif
 		cpu.TPR.CA &= AMASK;
               }
             else
@@ -1422,7 +1432,7 @@ startCA:;
                 word36 indword;
 
 		// cpu.cu.pot = 1;
-		
+
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
 		cpu.cu.pot = 0;

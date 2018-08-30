@@ -1093,7 +1093,7 @@ void fetchInstruction (word18 addr)
         //cpu.PPR.P = 1; // XXX this should be already set by set_addr_mode, so no worry here
       }
 
-#if 0
+#ifndef NEWRPT
     if (cpu.cu.rd && ((cpu.PPR.IC & 1) != 0))
       {
         if (cpu.cu.repeat_first)
@@ -1269,6 +1269,7 @@ force:;
   }
 #endif
 
+#ifdef NEWRPT
 // Handle first time of a RPT or RPD or RPL
 // after CA is accessed
 
@@ -1385,6 +1386,7 @@ static void repeat_first_postprocess (void)
               "rpt/rd/rl repeat first; X%d now %06o\n",
               Xn, cpu.rX[Xn]);
   }
+#endif
 
 bool chkOVF (void)
   {
@@ -2070,12 +2072,15 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
                       }
                   }
               }
+#ifdef NEWRPT
 	    if (cpu.cu.repeat_first &&
 		(cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
 	      {
 		repeat_first_postprocess ();
 	      }
+#endif
           }
+#ifdef NEWRPT
 	if (flags & PREPARE_CA)
 	  {
 	    if (cpu.cu.repeat_first &&
@@ -2084,6 +2089,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 		repeat_first_postprocess ();
 	      }
 	  }
+#endif
         PNL (cpu.IWRAddr = 0);
       }
 
@@ -2119,11 +2125,13 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 	else
 	  {
 	    writeOperands ();
+#ifdef NEWRPT
 	    if (cpu.cu.repeat_first &&
 		(cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
 	      {
 		repeat_first_postprocess ();
 	      }
+#endif
 	  }
 #else
         writeOperands ();
@@ -2155,7 +2163,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
     bool icOdd = !! (cpu.PPR.IC & 1);
     bool icEven = ! icOdd;
 
-#if 1
+#if NEWRPT
 ///
 /// executeInstruction: RPT/RPD/RPL special processing for 'first time'
 ///
@@ -2234,7 +2242,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 	    repeat_first_postprocess ();
           } // repeat first
       } // cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl
-#endif // 0
+#endif // NEWRPT
 
     // Here, repeat_first means that the instruction just executed was the
     // RPT or RPD; but when the even instruction of a RPD is executed,

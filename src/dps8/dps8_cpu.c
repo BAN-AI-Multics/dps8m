@@ -2514,7 +2514,10 @@ setCPU:;
                     break;
                   }
 
-                if (/* (! cpu.cu.repeat_first) && */
+                if (
+#ifndef NEWRPT
+		    (! cpu.cu.repeat_first) &&
+#endif
                     (cpu.cu.rpt ||
                      (cpu.cu.rd && (cpu.PPR.IC & 1)) ||
                      cpu.cu.rl))
