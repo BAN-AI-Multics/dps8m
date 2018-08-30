@@ -489,7 +489,7 @@ startCA:;
           }
         // For the case of RPT/RPD, the instruction decoder has
         // verified that Tm is R or RI, and Td is X1..X7.
-        if ((cpu.cu.rpt || cpu.cu.rd | cpu.cu.rl)
+        if ((cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)
 #ifdef NEWRPT
 	    && !cpu.cu.repeat_first
 #endif
