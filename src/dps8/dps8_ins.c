@@ -2268,9 +2268,19 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 	      }
 #endif
 	  }
-#else
+#else // LOCKLESS
         writeOperands ();
+#ifdef NEWRPT
+	if ((ci->info->flags & RMW) != RMW)
+	  {
+	    if (cpu.cu.repeat_first &&
+		(cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
+	      {
+		repeat_first_postprocess ();
+	      }
+	  }
 #endif
+#endif //LOCKLESS
       }
 
     else if (flags & PREPARE_CA)
