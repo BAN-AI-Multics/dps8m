@@ -430,7 +430,7 @@ sim_printf ("\n");
         if (i + 3 < linep->nPos)
           l_putbits36_9 (& v, 27, linep->buffer [i + 3]);
 //sim_printf ("%012"PRIo64"\n", v);
-	iom_direct_data_service (iom_unit_idx, chan_num, fsmbx+MYSTERY+j, & v, direct_store);
+          iom_direct_data_service (iom_unit_idx, chan_num, fsmbx+MYSTERY+j, & v, direct_store);
       }
 
 // command_data is at mystery[25]?
@@ -2118,7 +2118,10 @@ void fnpConnectPrompt (uv_tcp_t * client)
             struct t_line * linep = & fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno];
             if (! linep->listen)
               continue;
-            if (linep->service == service_login && ! linep->line_client)
+            if (linep->service == service_login &&
+                ! linep->line_disconnected &&
+                ! linep->line_client &&
+                fnpData.fnpUnitData[fnp_unit_idx].MState.accept_calls)
               {
                 if (! first)
                   fnpuv_start_writestr (client, (unsigned char *) ",");
@@ -2559,7 +2562,10 @@ check:;
             for (lineno = 0; lineno < MAX_LINES; lineno ++)
               {
                 if (fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].service == service_login &&
-                    ! fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].line_client)
+                    fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].listen &&
+                    ! fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].line_disconnected &&
+                    ! fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].line_client &&
+                    fnpData.fnpUnitData[fnp_unit_idx].MState.accept_calls)
                   {
                     goto associate;
                   }
