@@ -21,7 +21,9 @@
 
 #include <stdio.h>
 #ifndef __MINGW64__
+#ifndef __OpenBSD__
 #include <wordexp.h>
+#endif
 #include <signal.h>
 #endif
 #include <unistd.h>
@@ -3307,6 +3309,7 @@ static void addChild (pid_t pid)
 static t_stat launch (int32 UNUSED arg, const char * buf)
   {
 #ifndef __MINGW64__
+#ifndef __OpenBSD__
     wordexp_t p;
     int rc = wordexp (buf, & p, WRDE_SHOWERR | WRDE_UNDEF);
     if (rc)
@@ -3348,6 +3351,7 @@ static t_stat launch (int32 UNUSED arg, const char * buf)
 #endif
     return SCPE_OK;
   }
+#endif
 #endif
 
 #ifdef PANEL
