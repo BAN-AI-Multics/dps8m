@@ -85,7 +85,7 @@ static void accessReadCallback (uv_stream_t* stream,
     uv_access * access = (uv_access *) stream->data;
     if (nread < 0)
       {
-        if (nread == UV_EOF)
+        //if (nread == UV_EOF)
           {
             accessCloseConnection (stream);
           }
@@ -520,6 +520,7 @@ static void onNewAccess (uv_stream_t * server, int status)
             accessCloseConnection ((uv_stream_t *) access->client);
           }
         access->client = client;
+        uv_tcp_nodelay (client, 1);
         struct sockaddr name;
         int namelen = sizeof (name);
         int ret = uv_tcp_getpeername (access->client, & name, & namelen);
@@ -581,7 +582,7 @@ void uv_open_access (uv_access * access)
     struct sockaddr_in addr;
     uv_ip4_addr (access->address, access->port, & addr);
     uv_tcp_bind (& access->server, (const struct sockaddr *) & addr, 0);
-#define DEFAULT_BACKLOG 16
+#define DEFAULT_BACKLOG 1024
     int r = uv_listen ((uv_stream_t *) & access->server,
                        DEFAULT_BACKLOG,
                        onNewAccess);
