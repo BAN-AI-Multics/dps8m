@@ -1152,7 +1152,7 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
     linep->line_client = NULL;
 
     struct sockaddr_in addr;
-    uv_ip4_addr ("0.0.0.0", linep->port, & addr);
+    uv_ip4_addr (fnpData.telnet_address, linep->port, & addr);
     uv_tcp_bind (& linep->server, (const struct sockaddr *) & addr, 0);
     sim_printf ("[FNP emulation: listening on port %d]\n", linep->port);
     int r = uv_listen ((uv_stream_t *) & linep->server, DEFAULT_BACKLOG, 
@@ -1496,7 +1496,7 @@ void fnpuv3270Init (int telnet3270_port)
     // Bind and listen
     struct sockaddr_in addr;
     sim_printf ("[FNP 3270 emulation: listening to %d]\n", telnet3270_port);
-    uv_ip4_addr ("0.0.0.0", telnet3270_port, & addr);
+    uv_ip4_addr (fnpData.telnet_address, telnet3270_port, & addr);
     uv_tcp_bind (& fnpData.du3270_server, (const struct sockaddr *) & addr, 0);
     int r = uv_listen ((uv_stream_t *) & fnpData.du3270_server, DEFAULT_BACKLOG, 
 		   on_new_3270_connection);
