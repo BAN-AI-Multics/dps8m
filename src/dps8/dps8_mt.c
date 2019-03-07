@@ -538,16 +538,16 @@ DEVICE tape_dev =
 
 void loadTape (uint driveNumber, char * tapeFilename, bool ro)
   {
+    if (ro)
+      mt_unit [driveNumber] . flags |= MTUF_WRP;
+    else
+      mt_unit [driveNumber] . flags &= ~ MTUF_WRP;
     t_stat stat = sim_tape_attach (& mt_unit [driveNumber], tapeFilename);
     if (stat != SCPE_OK)
       {
         sim_printf ("%s sim_tape_attach returned %d\n", __func__, stat);
         return;
       }
-    if (ro)
-      mt_unit [driveNumber] . flags |= MTUF_WRP;
-    else
-      mt_unit [driveNumber] . flags &= ~ MTUF_WRP;
 
     uint ctlr_unit_idx = cables->tape_to_mtp [driveNumber].ctlr_unit_idx;
     // Which port should the controller send the interrupt to? All of them...
