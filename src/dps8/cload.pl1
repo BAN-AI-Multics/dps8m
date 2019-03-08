@@ -50,7 +50,9 @@ cload:
 
     dcl ioa_ entry options (variable);
     dcl com_err_ entry options (variable);
-    
+    dcl cu_$arg_ptr entry (fixed bin, ptr, fixed bin, fixed bin (35));
+    dcl cu_$arg_count entry (fixed bin);
+ 
     dcl error_table_$end_of_info fixed binary (35) external;
 
     dcl iocbp ptr;
@@ -64,6 +66,10 @@ cload:
     dcl this_read_chars fixed bin (21);
     dcl path character (168);
     dcl bn fixed bin;
+    dcl  argp ptr,
+         argln fixed bin (17),
+         arg char (argln) based (argp) unaligned,
+         count fixed bin;
 
     dcl 1 h based aligned,
           2 type fixed binary,        /* 0 */
@@ -82,13 +88,20 @@ cload:
 
     dcl  rings (3) fixed binary (6);
 
+    call cu_$arg_count (count);
+    if count ^= 1 then do;
+      call ioa_ ("Usage cload tape_label");
+      goto done;
+    end;
+
+    call cu_$arg_ptr (1, argp, argln, code);
 
     rings (1) = 4;
     rings (2) = 4;
     rings (3) = 4;
 
     
-    call iox_$attach_ioname  ("tape_switch", iocbp, "tape_nstd_ Test", code);
+    call iox_$attach_ioname  ("tape_switch", iocbp, "tape_nstd_ " || arg, code);
     if code ^= 0 then do;
       call com_err_ (code, "cload", "attach_ioname");
       goto done;
