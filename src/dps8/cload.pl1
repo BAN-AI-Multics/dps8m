@@ -77,6 +77,9 @@ cload:
     dcl 1 s based aligned,
           2 block (1:255) char (4096);
 
+    dcl 1 minbuf based aligned,
+          2 buf char (256);
+
     dcl  rings (3) fixed binary (6);
 
 
@@ -180,9 +183,12 @@ dloop:
            /* minium buffer size */
            if this_read_chars < 256 then
              this_read_chars = 256;
-
+           
            bn = bn + 1;
            p = addr (segp -> s.block (bn));
+
+           /* zero out the minimum buffer size to handle short reads */
+           p -> minbuf.buf = char (0);
 
            /* Read a block of data */
            call iox_$read_record (iocbp, p, this_read_chars, char_count, code);
