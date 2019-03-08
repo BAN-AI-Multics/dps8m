@@ -173,9 +173,13 @@ dloop:
        if (bc > 0) then do;
            /* Calculate the number of bits in the next block */
            this_read_bits = bc;
-           if (this_read_bits > 4096 * 9) then
+           if this_read_bits > 4096 * 9 then
                this_read_bits = 4096 * 9;
            this_read_chars = this_read_bits / 9;
+
+           /* minium buffer size */
+           if this_read_chars < 256 then
+             this_read_chars = 256;
 
            bn = bn + 1;
            p = addr (segp -> s.block (bn));
