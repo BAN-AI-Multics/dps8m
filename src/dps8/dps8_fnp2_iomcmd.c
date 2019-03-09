@@ -1652,6 +1652,7 @@ static void fnpcmdBootload (uint devUnitIdx)
   {
     sim_printf("Received BOOTLOAD command...\n");
     fnpData.fnpUnitData[devUnitIdx].MState.accept_calls = false;
+    bool have3270 = false;
     for (uint lineno = 0; lineno < MAX_LINES; lineno ++)
       {
         fnpData.fnpUnitData[devUnitIdx].MState.line [lineno] . listen = false;
@@ -1672,6 +1673,7 @@ sim_printf ("3270 controller found at unit %u line %u\r\n", devUnitIdx, lineno);
               }
             else
               {
+                have3270 = true;
                 memset (& fnpData.ibm3270ctlr[ASSUME0], 0, sizeof (struct ibm3270ctlr_s));
                 fnpData.ibm3270ctlr[ASSUME0].configured = true;
                 fnpData.ibm3270ctlr[ASSUME0].fnpno = devUnitIdx;
@@ -1684,7 +1686,8 @@ sim_printf ("3270 controller found at unit %u line %u\r\n", devUnitIdx, lineno);
           }
       }
     fnpuvInit (fnpData.telnet_port, fnpData.telnet_address);
-    fnpuv3270Init (fnpData.telnet3270_port);
+    if (have3270)
+      fnpuv3270Init (fnpData.telnet3270_port);
   }
 
 static void processMBX (uint iomUnitIdx, uint chan)

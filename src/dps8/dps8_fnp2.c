@@ -2097,7 +2097,7 @@ t_stat fnp_start (UNUSED int32 arg, UNUSED const char * buf)
   {
     sim_printf ("FNP force start\n");
     fnpuvInit (fnpData.telnet_port, fnpData.telnet_address);
-    fnpuv3270Init (fnpData.telnet3270_port);
+    //fnpuv3270Init (fnpData.telnet3270_port);
     return SCPE_OK;
   }
 
