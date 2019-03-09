@@ -605,7 +605,13 @@ static void sendConsole (int conUnitIdx, word12 stati)
     uint chan_num = cables->opc_to_iom[conUnitIdx][ctlr_port_num].chan_num;
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan_num];
 
-    ASSURE (csp->io_mode == opc_read_mode);
+    //ASSURE (csp->io_mode == opc_read_mode);
+    if (csp->io_mode != opc_read_mode)
+      {
+        sim_warn ("sendConsole() called with io_mode != opc_read_mode (%d)\n",
+                  csp->io_mode);
+        return;
+      }
 
     // XXX this should be iom_indirect_data_service
 
@@ -673,7 +679,12 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
     opc_state_t * csp = console_state + con_unit_idx;
 
 
-    ASSURE(p -> DCW_18_20_CP == 07); // IDCW
+    // ASSURE(p -> DCW_18_20_CP == 07); // IDCW
+    if (p->DCW_18_20_CP != 07) // IDCW
+      {
+        sim_warn ("opc_cmd not IDCW (%o)\n", p->DCW_18_20_CP);
+        return IOM_CMD_ERROR;
+      }
 
     if (p->PCW_63_PTP)
       {

@@ -1297,7 +1297,12 @@ sim_printf ("']\n");
 static int interruptL66_CS_to_FNP (struct decoded_t *decoded_p)
   {
     uint mbx = decoded_p->cell;
-    ASSURE(mbx < 8);
+    //ASSURE(mbx < 8);
+    if (mbx >= 8)
+      {
+        sim_warn ("bad mbx number in interruptL66_CS_to_FNP; dropping\n");
+        return -1;
+      }
     decoded_p->smbx = decoded_p->fudp->mailboxAddress + DN355_SUB_MBXES + mbx*DN355_SUB_MBX_SIZE;
 
     word36 word2;
@@ -1366,7 +1371,12 @@ static int interruptL66_FNP_to_CS (struct decoded_t *decoded_p)
     // of the FNP->CS command that was in the submailbox
 
     uint mbx = decoded_p->cell - 8;
-    ASSURE(mbx < 4);
+    //ASSURE(mbx < 4);
+    if (mbx >= 4)
+      {
+        sim_warn ("bad mbx number in interruptL66_FNP_to_CS; dropping\n");
+        return -1;
+      }
     decoded_p->fsmbx = decoded_p->fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
 #if 0
     sim_printf ("fnp smbox %d update\n", decoded_p->cell);
@@ -1527,7 +1537,12 @@ sim_printf ("reject_request_temp\r\n");
 static int interruptL66_CS_done (struct decoded_t *decoded_p)
   {
     uint mbx = decoded_p->cell - 12;
-    ASSURE(mbx < 4);
+    //ASSURE(mbx < 4);
+    if (mbx >= 4)
+      {
+        sim_warn ("bad mbx number in interruptL66_CS_done; dropping\n");
+        return -1;
+      }
     if (! decoded_p->fudp -> fnpMBXinUse [mbx])
       {
         sim_debug (DBG_ERR, & fnp_dev, "odd -- Multics marked an unused mbx as unused? cell %d (mbx %d)\n", decoded_p->cell, mbx);
