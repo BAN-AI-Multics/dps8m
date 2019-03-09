@@ -195,22 +195,22 @@
 //   
 // bound_tolts_/mtdsim_.pl1
 //
-//    idcw.chan_cmd = "40"b3;			/* otherwise set special cont. cmd */
+//    idcw.chan_cmd = "40"b3;           /* otherwise set special cont. cmd */
 //
 // bound_io_tools/exercise_disk.pl1
 //
-//   idcw.chan_cmd = INHIB_AUTO_RETRY;		/* inhibit mpc auto retries */
+//   idcw.chan_cmd = INHIB_AUTO_RETRY; /* inhibit mpc auto retries */
 //   dcl     INHIB_AUTO_RETRY       bit (6) int static init ("010001"b);  // 021
 //
 // poll_mpc.pl1:
 //  /* Build dcw list to get statistics from EURC MPC */
-//  idcw.chan_cmd = "41"b3;			/* Indicate special controller command */
+//  idcw.chan_cmd = "41"b3;            /* Indicate special controller command */
 //  /* Build dcw list to get configuration and statistics from DAU MSP */
 //  idcw.chan_cmd = "30"b3;                           /* Want list in dev# order */
 //
 // tape_ioi_io.pl1:
-//   idcw.chan_cmd = "03"b3;			/* data security erase */
-//   dcw.chan_cmd = "30"b3;			/* use normal values, auto-retry */
+//   idcw.chan_cmd = "03"b3;          /* data security erase */
+//   dcw.chan_cmd = "30"b3;           /* use normal values, auto-retry */
 
 
 #include "dps8.h"
@@ -1719,7 +1719,7 @@ static void fetch_DDSPTW (uint iom_unit_idx, int chan, word18 addr)
     iom_core_read (iom_unit_idx, pgte, (word36 *) & p -> PTW_DCW, __func__);
     if ((p -> PTW_DCW & 0740000777747) != 04llu)
       sim_warn ("%s: chan %d addr %#o ptw %012"PRIo64"\n",
-		__func__, chan, addr, p -> PTW_DCW);
+                __func__, chan, addr, p -> PTW_DCW);
   }
 
 static word24 build_IDSPTW_address (word18 PCW_PAGE_TABLE_PTR, word1 seg, word8 pageNumber)
@@ -1756,7 +1756,7 @@ static void fetch_IDSPTW (uint iom_unit_idx, int chan, word18 addr)
     iom_core_read (iom_unit_idx, pgte, (word36 *) & p -> PTW_DCW, __func__);
     if ((p -> PTW_DCW & 0740000777747) != 04llu)
       sim_warn ("%s: chan %d addr %#o ptw %012"PRIo64"\n",
-		__func__, chan, addr, p -> PTW_DCW);
+                __func__, chan, addr, p -> PTW_DCW);
   }
 
 
@@ -1793,7 +1793,7 @@ static void fetch_LPWPTW (uint iom_unit_idx, uint chan)
     iom_core_read (iom_unit_idx, addr, (word36 *) & p -> PTW_LPW, __func__);
     if ((p -> PTW_LPW & 0740000777747) != 04llu)
       sim_warn ("%s: chan %d addr %#o ptw %012"PRIo64"\n",
-		__func__, chan, addr, p -> PTW_LPW);
+                __func__, chan, addr, p -> PTW_LPW);
   }
 
 // 'write' means periperal write; i.e. the peripheral is writing to core after
@@ -1825,8 +1825,8 @@ void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36
 
     if (p -> PCW_63_PTP && p -> PCW_64_PGE)
       {
-	fetch_DDSPTW (iom_unit_idx, (int) chan, daddr);
-	daddr = ((uint) getbits36_14 (p -> PTW_DCW, 4) << 10) | (daddr & MASK10);
+        fetch_DDSPTW (iom_unit_idx, (int) chan, daddr);
+        daddr = ((uint) getbits36_14 (p -> PTW_DCW, 4) << 10) | (daddr & MASK10);
       }
 
     if (op == direct_store)
@@ -1835,8 +1835,8 @@ void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36
       iom_core_read (iom_unit_idx, daddr, data, __func__);
     else if (op == direct_read_clear)
       {
-	iom_core_read_lock (iom_unit_idx, daddr, data, __func__);
-	iom_core_write_unlock (iom_unit_idx, daddr, 0, __func__);
+        iom_core_read_lock (iom_unit_idx, daddr, data, __func__);
+        iom_core_write_unlock (iom_unit_idx, daddr, 0, __func__);
       }
 #ifdef THREADZ
     // Force mailbox and dma data to be up-to-date 
@@ -1921,11 +1921,11 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
             else
               {
 // XXX assuming DCW_ABS
-		if (daddr > MASK18) // 256K overflow
-		  {
-		    sim_warn ("%s 256K ovf\n", __func__); // XXX
-		    daddr &= MASK18;
-		  }
+                if (daddr > MASK18) // 256K overflow
+                  {
+                    sim_warn ("%s 256K ovf\n", __func__); // XXX
+                    daddr &= MASK18;
+                  }
 // If PTP is not set, we are in cm1e or cm2e. Both are 'EXT DCW', so
 // we can elide the mode check here.
                 uint daddr2 = daddr | (uint) p -> ADDR_EXT << 18;
@@ -2071,14 +2071,14 @@ static void write_LPW (uint iom_unit_idx, uint chan)
     uint chanLoc = mbxLoc (iom_unit_idx, chan);
     iom_core_write (iom_unit_idx, chanLoc + IOM_MBX_LPW, p -> LPW, __func__);
     sim_debug (DBG_DEBUG, & iom_dev,
-	       "%s: chan %d lpw %012"PRIo64"\n",
-	       __func__, chan, p -> LPW);
+               "%s: chan %d lpw %012"PRIo64"\n",
+               __func__, chan, p -> LPW);
     if (chan != IOM_CONNECT_CHAN)
       {
-	iom_core_write (iom_unit_idx, chanLoc + IOM_MBX_LPWX, p -> LPWX, __func__);
-	sim_debug (DBG_DEBUG, & iom_dev,
-		   "%s: chan %d lpwx %012"PRIo64"\n",
-		   __func__, chan, p -> LPWX);
+        iom_core_write (iom_unit_idx, chanLoc + IOM_MBX_LPWX, p -> LPWX, __func__);
+        sim_debug (DBG_DEBUG, & iom_dev,
+                   "%s: chan %d lpwx %012"PRIo64"\n",
+                   __func__, chan, p -> LPWX);
       }
 #ifdef THREADZ
     // Force mailbox and dma data to be up-to-date 
@@ -2111,9 +2111,9 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
     p -> LPW_TALLY =   getbits36_12 (p -> LPW, 24);
 
     sim_debug (DBG_DEBUG, & iom_dev,
-	       "%s: chan %d res %d 18_rel %d ae %d nc %d tal %d 23rel %d dcw %#o tally %#o\n",
-	       __func__, chan, p -> LPW_18_RES, p -> LPW_19_REL, p -> LPW_20_AE,
-	       p -> LPW_21_NC, p -> LPW_22_TAL, p -> LPW_23_REL, p -> LPW_DCW_PTR, p -> LPW_TALLY);
+               "%s: chan %d res %d 18_rel %d ae %d nc %d tal %d 23rel %d dcw %#o tally %#o\n",
+               __func__, chan, p -> LPW_18_RES, p -> LPW_19_REL, p -> LPW_20_AE,
+               p -> LPW_21_NC, p -> LPW_22_TAL, p -> LPW_23_REL, p -> LPW_DCW_PTR, p -> LPW_TALLY);
 
     if (chan == IOM_CONNECT_CHAN)
       {
@@ -2126,9 +2126,9 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
         iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPWX, (word36 *) & p -> LPWX, __func__);
         p -> LPWX_BOUND = getbits36_18 (p -> LPWX, 0);
         p -> LPWX_SIZE = getbits36_18 (p -> LPWX, 18);
-	sim_debug (DBG_DEBUG, & iom_dev,
-		   "%s: chan %d bound %#o size %#o\n",
-		   __func__, chan, p -> LPWX_BOUND, p -> LPWX_SIZE);
+        sim_debug (DBG_DEBUG, & iom_dev,
+                   "%s: chan %d bound %#o size %#o\n",
+                   __func__, chan, p -> LPWX_BOUND, p -> LPWX_SIZE);
       }   
     update_chan_mode (iom_unit_idx, chan, false);
 
@@ -2236,19 +2236,19 @@ static void fetch_and_parse_PCW (uint iom_unit_idx, uint chan)
     if (p -> PCW_65_AUX)
       sim_warn ("PCW_65_AUX\n");
     sim_debug (DBG_DEBUG, & iom_dev,
-	       "%s: chan %d pcw0 %012"PRIo64"\n",
-	       __func__, p -> PCW_CHAN, (p -> PCW0) & 0777700037777);
+               "%s: chan %d pcw0 %012"PRIo64"\n",
+               __func__, p -> PCW_CHAN, (p -> PCW0) & 0777700037777);
     p -> DCW = p -> PCW0;
     unpack_DCW (iom_unit_idx, chan);
 
     sim_debug (DBG_DEBUG, & iom_dev,
-	       "%s: chan %d pcw0: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
-	       __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
-	       p -> IDCW_EC, p -> IDCW_CONTROL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
+               "%s: chan %d pcw0: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
+               __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
+               p -> IDCW_EC, p -> IDCW_CONTROL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
     sim_debug (DBG_DEBUG, & iom_dev,
-	       "%s: chan %d pcw1: ae %d ptp %d pge %d ptp %#o\n",
-	       __func__, p -> PCW_CHAN, p -> PCW_AE, p -> PCW_63_PTP,
-	       p -> PCW_64_PGE, p -> PCW_PAGE_TABLE_PTR);
+               "%s: chan %d pcw1: ae %d ptp %d pge %d ptp %#o\n",
+               __func__, p -> PCW_CHAN, p -> PCW_AE, p -> PCW_63_PTP,
+               p -> PCW_64_PGE, p -> PCW_PAGE_TABLE_PTR);
   }
  
 static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_only)
@@ -2324,26 +2324,26 @@ sim_warn ("unhandled fetch_and_parse_DCW\n");
           break;
       }
     sim_debug (DBG_DEBUG, & iom_dev,
-	       "%s: chan %d dcw %012"PRIo64"\n",
-	       __func__, chan, p -> DCW);
+               "%s: chan %d dcw %012"PRIo64"\n",
+               __func__, chan, p -> DCW);
     unpack_DCW (iom_unit_idx, chan);
 
     if (p -> DCW_18_20_CP == 07)
       sim_debug (DBG_DEBUG, & iom_dev,
-		 "%s: chan %d idcw: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
-		 __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
-		 p -> IDCW_EC, p -> IDCW_CONTROL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
+                 "%s: chan %d idcw: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
+                 __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
+                 p -> IDCW_EC, p -> IDCW_CONTROL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
     else
       if (p -> DDCW_22_23_TYPE == 02)
-	sim_debug (DBG_DEBUG, & iom_dev,
-		   "%s: chan %d tdcw: address %#o seg %d pdta %d pdcw/ec %d res %d rel %d\n",
-		   __func__, p -> PCW_CHAN, p -> TDCW_DATA_ADDRESS, p -> TDCW_31_SEG,
-		   p -> TDCW_32_PDTA, p -> TDCW_33_PDCW, p -> TDCW_34_RES, p -> TDCW_35_REL);
+        sim_debug (DBG_DEBUG, & iom_dev,
+                   "%s: chan %d tdcw: address %#o seg %d pdta %d pdcw/ec %d res %d rel %d\n",
+                   __func__, p -> PCW_CHAN, p -> TDCW_DATA_ADDRESS, p -> TDCW_31_SEG,
+                   p -> TDCW_32_PDTA, p -> TDCW_33_PDCW, p -> TDCW_34_RES, p -> TDCW_35_REL);
       else
-	sim_debug (DBG_DEBUG, & iom_dev,
-		   "%s: chan %d ddcw: address %#o char_pos %#o type %#o tally %#o\n",
-		   __func__, p -> PCW_CHAN, p -> DDCW_ADDR, p -> DCW_18_20_CP,
-		   p -> DDCW_22_23_TYPE, p -> DDCW_TALLY);
+        sim_debug (DBG_DEBUG, & iom_dev,
+                   "%s: chan %d ddcw: address %#o char_pos %#o type %#o tally %#o\n",
+                   __func__, p -> PCW_CHAN, p -> DDCW_ADDR, p -> DCW_18_20_CP,
+                   p -> DDCW_22_23_TYPE, p -> DDCW_TALLY);
   }
 
 /*
@@ -2468,8 +2468,8 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
     iom_core_read_lock (iom_unit_idx, chanloc + IOM_MBX_DCW, & dcw, __func__);
 
     sim_debug (DBG_DEBUG, & iom_dev,
-	       "%s: lpw %012"PRIo64" scw %012"PRIo64" dcw %012"PRIo64"\n",
-	       __func__, lpw, scw, dcw);
+               "%s: lpw %012"PRIo64" scw %012"PRIo64" dcw %012"PRIo64"\n",
+               __func__, lpw, scw, dcw);
 
     iom_core_write (iom_unit_idx, (dcw >> 18) & MASK18, faultWord, __func__);
 
@@ -2674,7 +2674,7 @@ A:;
             // p -> DCW = p -> DCW;
             send = true;
           }
-	p -> LPWX_SIZE = p -> LPW_DCW_PTR;
+        p -> LPWX_SIZE = p -> LPW_DCW_PTR;
         goto D;
       }
 
@@ -2854,9 +2854,9 @@ D:;
      {
        // UPDATE LPW ADDRESS & TALLY
        if (isConnChan)
-	 p -> LPW_DCW_PTR = (p -> LPW_DCW_PTR + 2u) & MASK18;
+         p -> LPW_DCW_PTR = (p -> LPW_DCW_PTR + 2u) & MASK18;
        else
-	 p -> LPW_DCW_PTR = (p -> LPW_DCW_PTR + 1u) & MASK18;
+         p -> LPW_DCW_PTR = (p -> LPW_DCW_PTR + 1u) & MASK18;
        p -> LPW_TALLY = (p -> LPW_TALLY - 1u) & MASK12;
        pack_LPW (iom_unit_idx, chan);
      }
@@ -2928,9 +2928,9 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 // chanTypeCPI to indicate the operator console.
     if (d->chan_type != chan_type_CPI && p -> IDCW_DEV_CMD == 051)
       {
-	p -> stati = 04501;
-	send_terminate_interrupt (iom_unit_idx, chan);
-	return 0;
+        p -> stati = 04501;
+        send_terminate_interrupt (iom_unit_idx, chan);
+        return 0;
       }
 
     if (! d->iom_cmd)
@@ -2982,26 +2982,26 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
     switch (rc)
       {
       case IOM_CMD_IGNORED:
-	// handler ignored command; used to be used for 051, now unused.
+        // handler ignored command; used to be used for 051, now unused.
         sim_debug (DBG_DEBUG, & iom_dev, "handler ignored cmd\n");
         return 0;
 
       case IOM_CMD_NO_DCW:
-	// handler doesn't want the dcw list
+        // handler doesn't want the dcw list
         sim_debug (DBG_DEBUG, & iom_dev, "handler don't want no stinking dcws\n");
         goto done;
 
       case IOM_CMD_PENDING:
-	// handler still processing command, don't set
-	// terminate interrupt.
+        // handler still processing command, don't set
+        // terminate interrupt.
         sim_debug (DBG_DEBUG, & iom_dev, "handler processing cmd\n");
         return 0;
 
       case IOM_CMD_OK:
-	break;
+        break;
 
       default:
-	// 04501 : COMMAND REJECTED, invalid command
+        // 04501 : COMMAND REJECTED, invalid command
         p -> stati = 04501;
         p -> dev_code = getbits36_6 (p -> DCW, 6);
         p -> chanStatus = chanStatInvalidInstrPCW;
@@ -3152,43 +3152,43 @@ int loops = 0;
 loops ++;
             iom_chan_data_t * q = & iom_chan_data[iom_unit_idx][p -> PCW_CHAN];
 
-	    q -> PCW0 =               q -> PCW0;
-	    q -> PCW1 =               p -> PCW1;
-	    q -> PCW_CHAN =           p -> PCW_CHAN;
-	    q -> PCW_AE =             p -> PCW_AE;
-	    q -> PCW_PAGE_TABLE_PTR = p -> PCW_PAGE_TABLE_PTR;
-	    q -> PCW_63_PTP =         p -> PCW_63_PTP;
-	    q -> PCW_64_PGE =         p -> PCW_64_PGE;
-	    q -> PCW_65_AUX =         p -> PCW_65_AUX;
-	    q -> PCW_21_MSK =         p -> PCW_21_MSK;
+            q -> PCW0 =               q -> PCW0;
+            q -> PCW1 =               p -> PCW1;
+            q -> PCW_CHAN =           p -> PCW_CHAN;
+            q -> PCW_AE =             p -> PCW_AE;
+            q -> PCW_PAGE_TABLE_PTR = p -> PCW_PAGE_TABLE_PTR;
+            q -> PCW_63_PTP =         p -> PCW_63_PTP;
+            q -> PCW_64_PGE =         p -> PCW_64_PGE;
+            q -> PCW_65_AUX =         p -> PCW_65_AUX;
+            q -> PCW_21_MSK =         p -> PCW_21_MSK;
 
             q -> DCW =                p -> DCW;
 
-	    q -> masked = p -> PCW_21_MSK;
-	    if (q -> masked)
-	      {
-		if (q -> in_use)
-		  sim_warn ("%s: chan %d masked while in use\n", __func__, p -> PCW_CHAN);
-		q -> in_use = false;
-		q -> start  = false;
-	      }
-	    else
-	      {
-		if (q -> in_use)
-		  sim_warn ("%s: chan %d connect while in use\n", __func__, p -> PCW_CHAN);
-		q -> in_use = true;
-		q -> start  = true;
+            q -> masked = p -> PCW_21_MSK;
+            if (q -> masked)
+              {
+                if (q -> in_use)
+                  sim_warn ("%s: chan %d masked while in use\n", __func__, p -> PCW_CHAN);
+                q -> in_use = false;
+                q -> start  = false;
+              }
+            else
+              {
+                if (q -> in_use)
+                  sim_warn ("%s: chan %d connect while in use\n", __func__, p -> PCW_CHAN);
+                q -> in_use = true;
+                q -> start  = true;
 #ifdef IO_THREADZ
-		setChnConnect (iom_unit_idx, p -> PCW_CHAN);
+                setChnConnect (iom_unit_idx, p -> PCW_CHAN);
 #else
 #if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
-		do_payload_chan (iom_unit_idx, p -> PCW_CHAN);
+                do_payload_chan (iom_unit_idx, p -> PCW_CHAN);
 #endif
 #ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
-		pthread_cond_signal (& iomCond);
+                pthread_cond_signal (& iomCond);
 #endif
 #endif
-	      }
+              }
           }
       } while (! ptro);
 if (loops > 1) sim_printf ("%d loops\r\n", loops);
@@ -3250,11 +3250,11 @@ int send_special_interrupt (uint iom_unit_idx, uint chan, uint devCode,
     iom_core_read_lock (iom_unit_idx, chanloc + IOM_MBX_DCW, & dcw, __func__);
 
     sim_debug (DBG_DEBUG, & iom_dev,
-	       "%s: channel %d (%#o), devCode %#o, status0 %#o, status1 %#o\n",
-	       __func__, chan, chan, devCode, status0, status1);
+               "%s: channel %d (%#o), devCode %#o, status0 %#o, status1 %#o\n",
+               __func__, chan, chan, devCode, status0, status1);
     sim_debug (DBG_DEBUG, & iom_dev,
-	       "%s: lpw %012"PRIo64" scw %012"PRIo64" dcw %012"PRIo64"\n",
-	       __func__, lpw, scw, dcw);
+               "%s: lpw %012"PRIo64" scw %012"PRIo64" dcw %012"PRIo64"\n",
+               __func__, lpw, scw, dcw);
 
     word36 status = 0400000000000;   
     status |= (((word36) chan) & MASK6) << 27;
@@ -3416,13 +3416,13 @@ void iomProcess (void)
   {
     for (uint i = 0; i < N_IOM_UNITS_MAX; i++)
       for (uint j = 0; j < MAX_CHANNELS; j++)
-	{
-	  iom_chan_data_t * p = &iom_chan_data [i] [j];
-	  if (p -> start)
-	    {
-	      p -> start = false;
-	      do_payload_chan (i, j);
-	    }
-	}
+        {
+          iom_chan_data_t * p = &iom_chan_data [i] [j];
+          if (p -> start)
+            {
+              p -> start = false;
+              do_payload_chan (i, j);
+            }
+        }
   }
 #endif
