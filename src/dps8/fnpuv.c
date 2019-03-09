@@ -822,11 +822,11 @@ sim_printf ("[FNP emulation: dropping 2nd slave]\n");
     p->assoc = false;
     p->nPos = 0;
     p->ttype = NULL;
-    p->read_cb = fnpuv_unassociated_readcb;
     p->write_actual_cb = fnpuv_start_write_actual;
     // dialup connections are routed through libtelent
     if (! server->data)
       {
+        p->read_cb = fnpuv_unassociated_readcb;
         p->write_cb = fnpuv_start_write;
         p->telnetp = ltnConnect (client);
 
@@ -838,6 +838,7 @@ sim_printf ("[FNP emulation: dropping 2nd slave]\n");
       }
     else
       {
+        p->read_cb = fnpuv_associated_readcb;
         p->write_cb = fnpuv_start_write_actual;
         p->telnetp = NULL;
         uvClientData * q = (uvClientData *) server->data;
@@ -1142,8 +1143,8 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
          return;
       }
     p->assoc = false;
-    p->read_cb = fnpuv_unassociated_readcb;
-    p->write_cb = fnpuv_start_write;
+    p->read_cb = fnpuv_associated_readcb;
+    p->write_cb = fnpuv_start_write_actual;
     p->write_actual_cb = fnpuv_start_write_actual;
     p->nPos = 0;
     p->ttype = NULL;
