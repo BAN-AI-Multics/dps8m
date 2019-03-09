@@ -605,7 +605,8 @@ void fnpuv_start_write (uv_tcp_t * client, unsigned char * data, ssize_t datalen
       return;
     if (!p->telnetp)
       {
-        sim_warn ("telnetp NULL\n");
+        sim_warn ("telnetp NULL; dropping fnpuv_start_write()\n");
+        return;
       }
     telnet_send (p->telnetp, (char *) data, (size_t) datalen);
   }
