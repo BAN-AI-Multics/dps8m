@@ -304,6 +304,7 @@ static config_list_t cpu_config_list [] =
     { "faultbase", 0, 0177, cfg_multics_fault_base },
     { "num", 0, 07, NULL },
     { "data", 0, 0777777777777, NULL },
+    { "stopnum", 0, 999999, NULL },
     { "mode", 0, 01, cfg_cpu_mode }, 
     { "speed", 0, 017, NULL }, // XXX use keywords
     { "port", 0, N_CPU_PORTS - 1, cfg_port_letter },
@@ -375,6 +376,21 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.cpu_num = (uint) v;
         else if (strcmp (p, "data") == 0)
           cpus[cpu_unit_idx].switches.data_switches = (word36) v;
+        else if (strcmp (p, "stopnum") == 0)
+          {
+            // set up for check stop
+            // convert stopnum to bcd
+            int64_t d1 = (v / 1000) % 10;
+            int64_t d2 = (v /  100) % 10;
+            int64_t d3 = (v /   10) % 10;
+            int64_t d4 = (v /    1) % 10;
+            word36 d = 0123000000000;
+            putbits36_6 (& d,  9, (word4) d1);
+            putbits36_6 (& d, 15, (word4) d2);
+            putbits36_6 (& d, 21, (word4) d3);
+            putbits36_6 (& d, 27, (word4) d4);
+            cpus[cpu_unit_idx].switches.data_switches = d;
+          }
         else if (strcmp (p, "address") == 0)
           cpus[cpu_unit_idx].switches.addr_switches = (word18) v;
         else if (strcmp (p, "mode") == 0)
