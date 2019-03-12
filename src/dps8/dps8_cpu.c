@@ -2632,6 +2632,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
           case FAULT_cycle:
             {
               CPT (cpt1U, 30); // fault cycle
+
+              reset_exf_state ();
+
               // In the FAULT CYCLE, the processor safe-stores the Control
               // Unit Data (see Section 3) into program-invisible holding
               // registers in preparation for a Store Control Unit ( scu)

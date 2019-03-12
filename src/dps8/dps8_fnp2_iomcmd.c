@@ -209,6 +209,7 @@ static int wcd (struct decoded_t *decoded_p)
 
         case 12: // dial out
           {
+for(;;);
             sim_debug (DBG_TRACE, & fnp_dev, "[%u]    dial out\n", decoded_p->slot_no);
             //sim_printf ("XXX dial_out %d %012"PRIo64" %012"PRIo64" %012"PRIo64"", decoded_p->slot_no, command_data0, command_data1, command_data2);
             fnpuv_dial_out (decoded_p->devUnitIdx, decoded_p->slot_no, command_data[0], command_data[1], command_data[2]);

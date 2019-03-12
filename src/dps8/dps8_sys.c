@@ -3666,12 +3666,45 @@ static CTAB dps8_cmds[] =
   }; // dps8_cmds
 
 #ifndef __MINGW64__
+// Use the USR1 signal to simulate the pressing of the Execute Fault button
+// on the maintainence panel.
+//
+// Strategy: On the first USR1 signal, set the G7 fault flag; on the
+// next trip through the CPU state machine, the fault will take hold.
+// If the CPU is wedged in such a way that the state machine is not
+// running, the G7 fault flag will not be noticed. On the receipt of
+// a second USR1 signal, the state machine will be forcibly restarted,
+// abandoning whatever was in process at the time.
+//
+// A Multics bug should respond to the first signal; an emulator bug to
+// the second. It his probable that the emulator bug is ultimately fatal,
+// but there is a chance that the Emergency Shutdown procedures will work,
+// a better option then just killing the emulator.
+
+static enum exf_state_t { exf_init, exf_first } exf_state = exf_init;
+
+// When the G7 fault is serviced, this will reset the signal handler state
+void reset_exf_state (void)
+  {
+    exf_state = exf_init;
+  }
+
 static void usr1_signal_handler (UNUSED int sig)
   {
     sim_msg ("USR1 signal caught; pressing the EXF button\n");
-    // Assume the bootload CPU
-    setG7fault (ASSUME0, FAULT_EXF, fst_zero);
-    return;
+    // First signal?
+    if (exf_state == exf_init)
+      {
+        // Note that we have received the first signal
+        exf_state = exf_first;
+        // Assume the bootload CPU
+        setG7fault (ASSUME0, FAULT_EXF, fst_zero);
+        return;
+      }
+    // The first signal didn't take; the operator has issued a second signal
+    set_cpu_idx (ASSUME0);
+    doFault (FAULT_EXF, fst_zero, "USR1 emergency signal");
+    // Doesn't return
   }
 #endif
 
