@@ -139,7 +139,7 @@ extern DEVICE scu_dev;
 // Requires a value, DEV and DEVn both work, in "show"
 #define MTAB_unit_value_show MTAB_XTD | MTAB_VUN | MTAB_VDV | MTAB_VALR
 // Requires a value, DEV only, not in "show", uppercase value
-#define MTAB_dev_valr MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR
+#define MTAB_dev_valr_noshow MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR
 // Requires a value, DEV only, not in "show", don't uppercase value
 #define MTAB_dev_valr_nouc MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC
 // Requires a value, DEV only, not in "show"
@@ -148,6 +148,12 @@ extern DEVICE scu_dev;
 #define MTAB_dev_novalue     MTAB_XTD | MTAB_VDV 
 // Requires a value, DEVn only, in "show", don't uppercase value
 #define MTAB_unit_valr_nouc MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC
+// Value optional, DEVn only, do not uppercase value
+#define MTAB_unit_nouc MTAB_XTD | MTAB_VUN | MTAB_NC
+// Value optional, DEVn only,  uppercase value
+#define MTAB_unit_uc MTAB_XTD | MTAB_VUN 
+// Value required, DEV only
+#define MTAB_dev_valr MTAB_XTD | MTAB_VDV | MTAB_VALR
 // End of list marker
 #define MTAB_eol { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
 

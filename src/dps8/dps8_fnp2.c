@@ -185,7 +185,7 @@ static MTAB fnpMod [] =
     },
 
     {
-      MTAB_dev_valr,
+      MTAB_dev_valr_noshow,
       0,            /* match */ 
       "FW",     /* print string */
       "FW",         /* match string */
