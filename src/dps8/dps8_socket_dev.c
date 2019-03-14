@@ -380,7 +380,7 @@ static void skt_bind (int unit_num, word36 * buffer)
 
     int socket_fd = (int) buffer[0];
     int sin_family = (int) buffer[1];
-    uint sin_port = (uint) getbits36_16 (buffer [2], 0);
+    unsigned short sin_port = (unsigned short) getbits36_16 (buffer [2], 0);
     word8 octet [4] = { getbits36_8 (buffer [3], 0),
                         getbits36_8 (buffer [3], 8),
                         getbits36_8 (buffer [3], 16),
