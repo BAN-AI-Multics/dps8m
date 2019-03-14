@@ -219,7 +219,12 @@ typedef struct opc_state_t
     UNIT * unitp;
     int chan;
 
+    // Generate "accept" command when dial_ctl announces dialin console
     int autoaccept;
+    // Replace empty console input with "@"
+    int noempty;
+    // ATTN flushes typeahead buffer
+    int attn_flush;
 
     bool attn_pressed;
     bool simh_attn_pressed;
@@ -298,7 +303,7 @@ static bool ta_scan (int c)
 
 static t_stat opc_reset (UNUSED DEVICE * dptr)
   {
-    for (uint i = 0; i < dptr->numunits; i ++)
+    for (uint i = 0; i < N_OPC_UNITS_MAX; i ++)
       {
         console_state[i].io_mode = opc_no_mode;
         console_state[i].tailp = console_state[i].buf;
@@ -340,7 +345,7 @@ int check_attn_key (void)
 void console_init (void)
   {
     opc_reset (& opc_dev);
-    for (uint i = 0; i < opc_dev.numunits; i ++)
+    for (uint i = 0; i < N_OPC_UNITS_MAX; i ++)
       {
         opc_state_t * csp = console_state + i;
         csp->auto_input = NULL;
@@ -352,6 +357,10 @@ void console_init (void)
         csp->simh_attn_pressed = false;
         csp->simh_buffer_cnt = 0;
         strcpy (csp->console_access.pw, "MulticsRulez");
+
+        csp->autoaccept = 0;
+        csp->noempty = 0;
+        csp->attn_flush = 1;
       }
 
 #if 0
@@ -669,7 +678,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
 
     // Multics doesn't seem to like empty lines; it the line buffer
     // is empty and there is room in the I/O buffer, send a line kill.
-    if (n_chars == 0 && tally)
+    if (csp->noempty && n_chars == 0 && tally)
       {
         n_chars = 1;
         n_words = 1;
@@ -1180,7 +1189,8 @@ static void consoleProcessIdx (int conUnitIdx)
           {
             if (ch == '\033' || ch == '\001') // escape or ^A
               {
-                ta_flush ();
+                if (csp->attn_flush)
+                  ta_flush ();
                 csp->attn_pressed = true;
                 continue;
               }
@@ -1604,6 +1614,8 @@ static config_list_t opc_config_list[] =
     /* 0 */ { "attn_hack", 0, 1, cfg_on_off },
 #endif
    { "autoaccept", 0, 1, cfg_on_off },
+   { "noempty", 0, 1, cfg_on_off },
+   { "attn_flush", 0, 1, cfg_on_off },
    { NULL, 0, 0, NULL }
   };
 
@@ -1643,6 +1655,18 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
             continue;
           }
  
+        if (strcmp (p, "noempty") == 0)
+          {
+            csp->noempty = (int) v;
+            continue;
+          }
+ 
+        if (strcmp (p, "attn_flush") == 0)
+          {
+            csp->attn_flush = (int) v;
+            continue;
+          }
+ 
         sim_warn ("error: opc_set_config: invalid cfg_parse rc <%d>\n",
                   rc);
         cfg_parse_done (& cfg_state);
@@ -1655,11 +1679,14 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
 static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int  val, UNUSED const void * desc)
   {
-#ifdef ATTN_HACK
     int devUnitIdx = (int) OPC_UNIT_NUM (uptr);
     opc_state_t * csp = console_state + devUnitIdx;
-    sim_msg ("Attn hack:  %d\n", csp->attn_hack);
+#ifdef ATTN_HACK
+    sim_msg ("attn_hack:  %d\n", csp->attn_hack);
 #endif
+    sim_msg ("autoaccept:  %d\n", csp->autoaccept);
+    sim_msg ("noempty:  %d\n", csp->noempty);
+    sim_msg ("attn_flush:  %d\n", csp->attn_flush);
     return SCPE_OK;
   }
 
