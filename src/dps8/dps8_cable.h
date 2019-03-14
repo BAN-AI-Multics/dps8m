@@ -233,7 +233,7 @@ struct cables_s
     //   console
     struct ctlr_to_iom_s opc_to_iom [N_OPC_UNITS_MAX] [MAX_CTLR_PORTS];
     //   socket
-    struct ctlr_to_iom_s sk_to_iom [N_SK_UNITS_MAX] [MAX_CTLR_PORTS];
+    struct ctlr_to_iom_s sk_to_iom [N_SKC_UNITS_MAX] [MAX_CTLR_PORTS];
 
     // CTLR->DEV
     //   mtp->tape

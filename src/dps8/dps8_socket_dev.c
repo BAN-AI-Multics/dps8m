@@ -42,6 +42,7 @@ static struct {
 static struct
   {
     int fd_unit[N_FDS]; // unit number that a FD is associated with; -1 is free.   
+    word6 fd_dev_code[N_FDS]; // dev_code that a FD is associated with; -1 is free.   
     bool fd_nonblock[N_FDS]; // socket() call had NON_BLOCK set
     struct
       {
@@ -55,10 +56,10 @@ static struct
          int accept_fd;
          int read_fd;
          uint read_buffer_sz;
-      } unit_data[N_SK_UNITS_MAX];
+      } unit_data[N_SKC_UNITS_MAX][N_DEV_CODES];
   } sk_data;
 
-#define N_SK_UNITS 64 // default
+#define N_SKC_UNITS 64 // default
 
 static t_stat sk_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, 
                               UNUSED int val, UNUSED const void * desc)
@@ -73,7 +74,7 @@ static t_stat sk_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     if (! cptr)
       return SCPE_ARG;
     int n = atoi (cptr);
-    if (n < 1 || n > N_SK_UNITS_MAX)
+    if (n < 1 || n > N_SKC_UNITS_MAX)
       return SCPE_ARG;
     skc_dev.numunits = (uint32) n;
     return SCPE_OK;
@@ -95,9 +96,9 @@ static MTAB sk_mod [] =
   };
 
 
-UNIT sk_unit [N_SK_UNITS_MAX] =
+UNIT sk_unit [N_SKC_UNITS_MAX] =
   {
-    [0 ... (N_SK_UNITS_MAX -1)] =
+    [0 ... (N_SKC_UNITS_MAX -1)] =
       {
         UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
       },
@@ -127,7 +128,7 @@ DEVICE skc_dev = {
     sk_unit,          /* units */
     NULL,             /* registers */
     sk_mod,           /* modifiers */
-    N_SK_UNITS,       /* #units */
+    N_SKC_UNITS,      /* #units */
     10,               /* address radix */
     31,               /* address width */
     1,                /* address increment */
@@ -161,8 +162,9 @@ void sk_init(void)
     memset(& sk_data, 0, sizeof(sk_data));
     for (uint i = 0; i < N_FDS; i ++)
       sk_data.fd_unit[i] = -1;
-    //for (uint i = 0; i < N_SK_UNITS_MAX; i ++)
-      //FD_ZERO (& sk_data.unit_data[i].accept_fds);
+    //for (uint i = 0; i < N_SKC_UNITS_MAX; i ++)
+      //for (word6 j = 0; j < N_DEV_CODES; j ++)
+        //FD_ZERO (& sk_data.unit_data[i][j].accept_fds);
   }
 
 static void set_error_str (word36 * error_str, const char * str)
@@ -207,7 +209,7 @@ static void set_error (word36 * error_str, int _errno)
     set_error_str (error_str, huh);
   }
 
-static void skt_socket (int unit_num, word36 * buffer)
+static void skt_socket (uint unit_idx, word5 dev_code, word36 * buffer)
   {
 // /* Data block for socket() call */
 // dcl 1 SOCKETDEV_socket_data aligned,
@@ -258,7 +260,8 @@ sim_printf ("errno %d\n", errno);
           }
         else if (fd < N_FDS)
           {
-            sk_data.fd_unit[fd] = unit_num;
+            sk_data.fd_unit[fd] = (int) unit_idx;
+            sk_data.fd_dev_code[fd] = dev_code;
 #if defined(__APPLE__)
             sk_data.fd_nonblock[fd] = 0;
 #else
@@ -361,7 +364,7 @@ sim_printf ("h_errno %d\n", h_errno);
       }
   }
 
-static void skt_bind (int unit_num, word36 * buffer)
+static void skt_bind (uint unit_idx, word6 dev_code, word36 * buffer)
   {
 // dcl 1 SOCKETDEV_bind_data aligned,
 //       2 socket fixed bin,              // 0
@@ -404,7 +407,7 @@ sim_printf ("bind() s_addr     %08x\n", addr);
   //(buffer [3] >> (36 - 4 * 8)) & MASK8),
 
     // Does this socket belong to us?
-    if (sk_data.fd_unit[socket_fd] != unit_num)
+    if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
         set_error (& buffer[4], EBADF);
         return;
@@ -428,7 +431,7 @@ sim_printf ("errno %d\n", errno);
     set_error (& buffer[4], _errno);
   }
 
-static void skt_listen (int unit_num, word36 * buffer)
+static void skt_listen (uint unit_idx, word6 dev_code, word36 * buffer)
   {
 // dcl 1 SOCKETDEV_listen_data aligned,
 //       2 sockfd fixed bin,  // 0
@@ -452,10 +455,10 @@ sim_printf ("listen() backlog    %d\n", backlog   );
     int rc = 0;
     int _errno = 0;
     // Does this socket belong to us?
-    if (sk_data.fd_unit[socket_fd] != unit_num)
+    if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
 sim_printf ("listen() socket doesn't belong to us\n");
-sim_printf ("socket_fd %u fd_unit %u unit_num %u\n", socket_fd, sk_data.fd_unit[socket_fd], unit_num);
+sim_printf ("socket_fd %u fd_unit %d fd_dev_code %u unit_idx %u dev_code %u\n", socket_fd, sk_data.fd_unit[socket_fd], sk_data.fd_dev_code[socket_fd], unit_idx, dev_code);
         _errno = EBADF;
         goto done;
       }
@@ -493,7 +496,7 @@ done:
     set_error (& buffer[3], _errno);
   }
 
-static int skt_accept (int unit_num, word36 * buffer)
+static int skt_accept (uint unit_idx, word6 dev_code, word36 * buffer)
   {
 // dcl 1 SOCKETDEV_accept_data aligned,
 //       2 sockfd fixed bin,                           // 0
@@ -508,18 +511,18 @@ static int skt_accept (int unit_num, word36 * buffer)
     int socket_fd = (int) buffer[0];
 sim_printf ("accept() socket     %d\n", socket_fd);
     // Does this socket belong to us?
-    if (sk_data.fd_unit[socket_fd] != unit_num)
+    if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
         set_error (& buffer[4], EBADF);
         return 2; // send terminate interrupt
       }
-    //FD_SET (socket_fd, & sk_data.unit_data[unit_num].accept_fds);
-    sk_data.unit_data[unit_num].accept_fd = socket_fd;
-    sk_data.unit_data[unit_num].unit_state = unit_accept;
+    //FD_SET (socket_fd, & sk_data.unit_data[unit_idx][dev_code].accept_fds);
+    sk_data.unit_data[unit_idx][dev_code].accept_fd = socket_fd;
+    sk_data.unit_data[unit_idx][dev_code].unit_state = unit_accept;
     return 3; // don't send terminate interrupt
   }
 
-static void skt_close (int unit_num, word36 * buffer)
+static void skt_close (uint unit_idx, word6 dev_code, word36 * buffer)
   {
 // dcl 1 SOCKETDEV_close_data aligned,
 //       2 sockfd fixed bin,  // 0
@@ -539,7 +542,7 @@ sim_printf ("close() socket     %d\n", socket_fd);
     int rc = 0;
     int _errno = 0;
     // Does this socket belong to us?
-    if (sk_data.fd_unit[socket_fd] != unit_num)
+    if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
 sim_printf ("close() socket doesn't belong to us\n");
         _errno = EBADF;
@@ -547,11 +550,11 @@ sim_printf ("close() socket doesn't belong to us\n");
       }
     sk_data.fd_unit[socket_fd] = -1;
 
-    if (sk_data.unit_data[unit_num].unit_state == unit_accept &&
-        sk_data.unit_data[unit_num].accept_fd == socket_fd)
+    if (sk_data.unit_data[unit_idx][dev_code].unit_state == unit_accept &&
+        sk_data.unit_data[unit_idx][dev_code].accept_fd == socket_fd)
       {
-        sk_data.unit_data[unit_num].unit_state = unit_idle;
-        sk_data.unit_data[unit_num].accept_fd = -1;
+        sk_data.unit_data[unit_idx][dev_code].unit_state = unit_idle;
+        sk_data.unit_data[unit_idx][dev_code].accept_fd = -1;
       }
     rc = close (socket_fd);
 
@@ -567,7 +570,7 @@ done:
     set_error (& buffer[2], _errno);
   }
 
-static int skt_read8 (int unit_num, UNUSED uint tally, word36 * buffer)
+static int skt_read8 (uint unit_idx, word6 dev_code, UNUSED uint tally, word36 * buffer)
   {
 // dcl 1 SOCKETDEV_read_data8 aligned,
 //       2 sockfd fixed bin,                    // 0
@@ -591,22 +594,22 @@ sim_printf ("read8() socket     %d\n", socket_fd);
     int rc = 0;
     int _errno = 0;
     // Does this socket belong to us?
-    if (sk_data.fd_unit[socket_fd] != unit_num)
+    if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
 sim_printf ("read8() socket doesn't belong to us\n");
         set_error (& buffer[4], EBADF);
         return 2; // send terminate interrupt
       }
-    sk_data.unit_data[unit_num].read_fd = socket_fd;
-    sk_data.unit_data[unit_num].read_buffer_sz = count;
-    sk_data.unit_data[unit_num].unit_state = unit_read;
+    sk_data.unit_data[unit_idx][dev_code].read_fd = socket_fd;
+    sk_data.unit_data[unit_idx][dev_code].read_buffer_sz = count;
+    sk_data.unit_data[unit_idx][dev_code].unit_state = unit_read;
     return 3; // don't send terminate interrupt
 
     buffer[1] = ((word36) ((word36s) rc)) & MASK36; // rc
     set_error (& buffer[2], _errno);
   }
 
-static int skt_write8 (uint iom_unit_idx, uint chan, int unit_num, uint tally, word36 * buffer)
+static int skt_write8 (uint iom_unit_idx, uint chan, uint unit_idx, word6 dev_code, uint tally, word36 * buffer)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 // dcl 1 SOCKETDEV_write_data8 aligned,
@@ -637,7 +640,7 @@ sim_printf ("write8() socket     %d\n", socket_fd);
     ssize_t rc = 0;
     int _errno = 0;
     // Does this socket belong to us?
-    if (sk_data.fd_unit[socket_fd] != unit_num)
+    if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
 sim_printf ("write8() socket doesn't belong to us\n");
         set_error (& buffer[4], EBADF);
@@ -732,9 +735,7 @@ static int sk_cmd (uint iom_unit_idx, uint chan)
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
     sim_debug (DBG_DEBUG, & skc_dev, "IDCW_DEV_CODE %d\n", p->IDCW_DEV_CODE);
-    //struct device * d = & cables->cablesFromIomToDev [iom_unit_idx].devices[chan][p->IDCW_DEV_CODE];
-    //uint devUnitIdx = d->devUnitIdx;
-    //UNIT * unitp = & sk_unit[devUnitIdx];
+    uint unit_idx = get_ctlr_idx (iom_unit_idx, chan);
 sim_printf ("device %u\n", p->IDCW_DEV_CODE);
     bool ptro;
     switch (p->IDCW_DEV_CMD)
@@ -768,7 +769,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
 
-            skt_socket ((int) p->IDCW_DEV_CODE, buffer);
+            skt_socket (unit_idx, p->IDCW_DEV_CODE, buffer);
 
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, true);
@@ -793,7 +794,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
 
-            skt_bind ((int) p->IDCW_DEV_CODE, buffer);
+            skt_bind (unit_idx, p->IDCW_DEV_CODE, buffer);
 
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, true);
@@ -852,7 +853,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
 
-            skt_listen ((int) p->IDCW_DEV_CODE, buffer);
+            skt_listen (unit_idx, p->IDCW_DEV_CODE, buffer);
 
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, true);
@@ -878,7 +879,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
 
-            rc = skt_accept ((int) p->IDCW_DEV_CODE, buffer);
+            rc = skt_accept (unit_idx, p->IDCW_DEV_CODE, buffer);
 
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, true);
@@ -906,7 +907,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
 
-            skt_close ((int) p->IDCW_DEV_CODE, buffer);
+            skt_close (unit_idx, p->IDCW_DEV_CODE, buffer);
 
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, true);
@@ -931,7 +932,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
 
-            rc = skt_read8 ((int) p->IDCW_DEV_CODE, tally, buffer);
+            rc = skt_read8 (unit_idx, p->IDCW_DEV_CODE, tally, buffer);
 
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, true);
@@ -958,7 +959,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
 
-            skt_write8 (iom_unit_idx, chan, (int) p->IDCW_DEV_CODE, tally, buffer);
+            skt_write8 (iom_unit_idx, chan, unit_idx, p->IDCW_DEV_CODE, tally, buffer);
 
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, true);
@@ -1015,12 +1016,12 @@ int skc_iom_cmd (uint iom_unit_idx, uint chan)
 
   }
 
-static void do_try_accept (uint unit_num)
+static void do_try_accept (uint unit_idx, word6 dev_code)
   {
     struct sockaddr_in from;
     socklen_t size = sizeof (from);
     int _errno = 0;
-    int fd = accept (sk_data.unit_data[unit_num].accept_fd, (struct sockaddr *) & from, & size);
+    int fd = accept (sk_data.unit_data[unit_idx][dev_code].accept_fd, (struct sockaddr *) & from, & size);
     if (fd == -1)
       {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
@@ -1029,7 +1030,8 @@ static void do_try_accept (uint unit_num)
       }
     else if (fd < N_FDS)
       {
-        sk_data.fd_unit[fd] = (int) unit_num;
+        sk_data.fd_unit[fd] = (int) unit_idx;
+        sk_data.fd_dev_code[fd] = dev_code;
         sk_data.fd_nonblock[fd] = false ; // !! (type & SOCK_NONBLOCK);
       }
     else
@@ -1040,7 +1042,7 @@ static void do_try_accept (uint unit_num)
       }
     word36 buffer [7];
     // sign extend int into word36
-    buffer[0] = ((word36) ((word36s) sk_data.unit_data[unit_num].accept_fd)) & MASK36; 
+    buffer[0] = ((word36) ((word36s) sk_data.unit_data[unit_idx][dev_code].accept_fd)) & MASK36; 
     buffer[1] = ((word36) ((word36s) fd)) & MASK36; 
     buffer[2] = ((word36) ((word36s) from.sin_family)) & MASK36; 
     uint16_t port = ntohs (from.sin_port);
@@ -1050,25 +1052,25 @@ static void do_try_accept (uint unit_num)
     set_error (& buffer[5], _errno);
     // This makes me nervous; it is assuming that the decoded channel control
     // list data for the channel is intact, and that buffer is still in place.
-    uint iom_unit_idx = (uint) cables->sk_to_iom[unit_num][0].iom_unit_idx;
-    uint chan = (uint) cables->sk_to_iom[unit_num][0].chan_num;
+    uint iom_unit_idx = (uint) cables->sk_to_iom[unit_idx][0].iom_unit_idx;
+    uint chan = (uint) cables->sk_to_iom[unit_idx][0].chan_num;
     uint words_processed;
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                & words_processed, true);
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     p->stati = 04000;
-    sk_data.unit_data[unit_num].unit_state = unit_idle;
+    sk_data.unit_data[unit_idx][dev_code].unit_state = unit_idle;
     send_terminate_interrupt (iom_unit_idx, chan);
   }
 
-static void do_try_read (uint unit_num)
+static void do_try_read (uint unit_idx, word6 dev_code)
   {
     int _errno = 0;
-    uint count = sk_data.unit_data[unit_num].read_buffer_sz;
+    uint count = sk_data.unit_data[unit_idx][dev_code].read_buffer_sz;
     uint buffer_size_wds = (count + 3) / 4;
     word36 buffer [buffer_size_wds];
     uint8_t netdata [count];
-    ssize_t nread = read (sk_data.unit_data[unit_num].read_fd, & netdata, count);
+    ssize_t nread = read (sk_data.unit_data[unit_idx][dev_code].read_fd, & netdata, count);
     if (nread == -1)
       {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
@@ -1078,8 +1080,8 @@ static void do_try_read (uint unit_num)
       }
 
     // sign extend int into word36
-    buffer[0] = ((word36) ((word36s) sk_data.unit_data[unit_num].read_fd)) & MASK36; 
-    buffer[1] = ((word36) (sk_data.unit_data[unit_num].read_buffer_sz)) & MASK36; 
+    buffer[0] = ((word36) ((word36s) sk_data.unit_data[unit_idx][dev_code].read_fd)) & MASK36; 
+    buffer[1] = ((word36) (sk_data.unit_data[unit_idx][dev_code].read_buffer_sz)) & MASK36; 
     buffer[2] = ((word36) ((word36s) nread)) & MASK36; 
     set_error (& buffer[3], _errno);
 
@@ -1092,27 +1094,30 @@ static void do_try_read (uint unit_num)
 
     // This makes me nervous; it is assuming that the decoded channel control
     // list data for the channel is intact, and that buffer is still in place.
-    uint iom_unit_idx = (uint) cables->sk_to_iom[unit_num][0].iom_unit_idx;
-    uint chan = (uint) cables->sk_to_iom[unit_num][0].chan_num;
+    uint iom_unit_idx = (uint) cables->sk_to_iom[unit_idx][0].iom_unit_idx;
+    uint chan = (uint) cables->sk_to_iom[unit_idx][0].chan_num;
     uint words_processed;
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                & words_processed, true);
-    sk_data.unit_data[unit_num].unit_state = unit_idle;
+    sk_data.unit_data[unit_idx][dev_code].unit_state = unit_idle;
     send_terminate_interrupt (iom_unit_idx, chan);
   }
 
 void sk_process_event (void)
   {
 // Accepts
-    for (uint unit_num = 0; unit_num < N_SK_UNITS_MAX; unit_num ++)
+    for (uint unit_idx = 0; unit_idx < N_SKC_UNITS_MAX; unit_idx ++)
       {
-        if (sk_data.unit_data[unit_num].unit_state == unit_accept)
+        for (word6 dev_code = 0; dev_code < N_DEV_CODES; dev_code ++)
           {
-            do_try_accept (unit_num);
-          }
-        else if (sk_data.unit_data[unit_num].unit_state == unit_read)
-          {
-            do_try_read (unit_num);
+            if (sk_data.unit_data[unit_idx][dev_code].unit_state == unit_accept)
+              {
+                do_try_accept (unit_idx, dev_code);
+              }
+            else if (sk_data.unit_data[unit_idx][dev_code].unit_state == unit_read)
+              {
+                do_try_read (unit_idx, dev_code);
+              }
           }
       }
   }
