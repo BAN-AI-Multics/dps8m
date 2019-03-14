@@ -23,9 +23,7 @@
 
 
 #ifdef HDBG
-#include "dps8_sys.h"
 #include "dps8_faults.h"
-#include "dps8_cpu.h"
 
 enum hevtType { hevtEmpty = 0, hevtTrace, hevtMRead, hevtMWrite, hevtIWBUpdate, hevtRegs, hevtFault, hevtIntrSet, hevtIntr, hevtReg, hevtPAReg };
 
