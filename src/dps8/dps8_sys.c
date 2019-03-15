@@ -1603,6 +1603,32 @@ static t_stat do_execute_fault (UNUSED int32 arg,  UNUSED const char * buf)
     return SCPE_OK;
   }
 
+// Simulate pressing the 'XED 10000' sequence; this starts BCE
+//
+//  sim> restart
+//  sim> go
+
+static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
+  {
+    int n = 010000;
+    if (buf)
+      {
+        n = (int) strtol (buf, NULL, 0);
+      }
+    sim_printf ("Restart entry 0%o\n", n);
+    // Assume bootload CPU
+    cpu.cu.IWB = M [n] & MASK36;
+    cpu.cu.IRODD = M [n + 1] & MASK36;
+    sim_printf ("%012llo %012llo\r\n", cpu.cu.IWB, cpu.cu.IRODD);
+    cpu.cu.xde = 1;
+    cpu.cu.xdo = 1;
+    cpu.isExec = true;
+    cpu.isXED = true;
+    cpu.cycle = FAULT_EXEC_cycle;
+    set_addr_mode (ABSOLUTE_mode);
+    return SCPE_OK;
+  }
+
 static t_stat set_sys_polling_interval (UNUSED int32 arg, const char * buf)
   {
     if (! buf)
@@ -3549,9 +3575,10 @@ static CTAB dps8_cmds[] =
     {"FNPSTART",            fnp_start,                0, "fnpstart: Force immediate FNP initialization\n", NULL, NULL},
     {"MOUNT",               mount_tape,               0, "mount: Mount tape image and signal Mulitcs\n", NULL, NULL },
     {"XF",                  do_execute_fault,         0, "xf: Execute fault: Press the execute fault button\n", NULL, NULL},
+    {"RESTART",             do_restart,         0, "xf: Execute fault: Press the execute fault button\n", NULL, NULL},
     {"POLL",                set_sys_polling_interval, 0, "Set polling interval in milliseconds", NULL, NULL },
-    {"SLOWPOLL",           set_sys_slow_polling_interval, 0, "Set slow polling interval in polling intervals", NULL, NULL },
-    {"CHECKPOLL",          set_sys_poll_check_rate, 0, "Set slow polling interval in polling intervals", NULL, NULL },
+    {"SLOWPOLL",            set_sys_slow_polling_interval, 0, "Set slow polling interval in polling intervals", NULL, NULL },
+    {"CHECKPOLL",           set_sys_poll_check_rate, 0, "Set slow polling interval in polling intervals", NULL, NULL },
 
 //
 // Debugging

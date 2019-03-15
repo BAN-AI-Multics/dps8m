@@ -1327,7 +1327,7 @@ void sysCableInit (void)
    if (! cables)
       {
 #ifdef M_SHARED
-        cables = (struct cables_s *) create_shm ("cables", getsid (0),
+        cables = (struct cables_s *) create_shm ("cables",
                                                  sizeof (struct cables_s));
 #else
         cables = (struct cables_s *) malloc (sizeof (struct cables_s));
