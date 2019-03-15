@@ -1610,6 +1610,11 @@ static t_stat do_execute_fault (UNUSED int32 arg,  UNUSED const char * buf)
 
 static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
   {
+    if (sim_is_running)
+      {
+        sim_printf ("Don't restart a running system....\r\n");
+        return SCPE_ARG;
+      }
     int n = 010000;
     if (buf)
       {
@@ -1619,14 +1624,14 @@ static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
     // Assume bootload CPU
     cpu.cu.IWB = M [n] & MASK36;
     cpu.cu.IRODD = M [n + 1] & MASK36;
-    sim_printf ("%012llo %012llo\r\n", cpu.cu.IWB, cpu.cu.IRODD);
     cpu.cu.xde = 1;
     cpu.cu.xdo = 1;
     cpu.isExec = true;
     cpu.isXED = true;
     cpu.cycle = FAULT_EXEC_cycle;
     set_addr_mode (ABSOLUTE_mode);
-    return SCPE_OK;
+    t_stat rc = run_cmd (RU_CONT, "");
+    return rc;
   }
 
 static t_stat set_sys_polling_interval (UNUSED int32 arg, const char * buf)
