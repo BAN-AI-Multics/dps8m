@@ -205,6 +205,27 @@ void unlock_mem_force (void)
   }
 #endif
 
+// local serializer
+
+void lock_ptr (pthread_mutex_t * lock)
+  {
+    int rc;
+    rc = pthread_mutex_lock (lock);
+    if (rc)
+      sim_printf ("lock_ptr %d\n", rc);
+  }
+
+void unlock_ptr (pthread_mutex_t * lock)
+  {
+    //sim_debug (DBG_TRACE, & cpu_dev, "unlock_scu\n");
+    int rc;
+    rc = pthread_mutex_unlock (lock);
+    if (rc)
+      sim_printf ("unlock_ptr %d\n", rc);
+  }
+
+
+
 // SCU serializer
 
 static pthread_mutex_t scu_lock;
