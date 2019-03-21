@@ -31,6 +31,7 @@
 #include "dps8_cpu.h"
 #include "dps8_append.h"
 #include "dps8_ins.h"
+#include "dps8_state.h"
 #include "dps8_loader.h"
 #include "dps8_math.h"
 #include "dps8_iefp.h"
@@ -1106,6 +1107,7 @@ void cpu_init (void)
 // !!!! Do not use 'cpu' in this routine; usage of 'cpus' violates 'restrict'
 // !!!! attribute
 
+#if 0
 #ifndef SCUMEM
 #ifdef M_SHARED
     if (! M)
@@ -1136,6 +1138,10 @@ void cpu_init (void)
         sim_fatal ("create cpus failed\n");
       }
 #endif
+#endif
+
+    M = system_state->M;
+    cpus = system_state->cpus;
 
 #ifndef SPEED
     memset (& watch_bits, 0, sizeof (watch_bits));

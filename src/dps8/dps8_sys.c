@@ -41,6 +41,7 @@
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_state.h"
 #include "dps8_ins.h"
 #include "dps8_loader.h"
 #include "dps8_math.h"
@@ -55,6 +56,7 @@
 #include "dps8_urp.h"
 #include "dps8_absi.h"
 #include "dps8_utils.h"
+#include "shm.h"
 #include "utlist.h"
 #if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
@@ -75,6 +77,9 @@
 // contention across multiple CPUs, but that is a level of
 // emulation that will be ignored.
 // Building with SCUMEM defined puts the memory in the SCUs.
+
+
+vol struct system_state_s * system_state;
 
 #ifndef SCUMEM
 vol word36 * M = NULL;                                          // memory
@@ -110,9 +115,9 @@ static void fprint_addr(FILE *stream, DEVICE *dptr, t_addr addr);
 // Session ID is used for shared memory name identification
 //
 
-#ifndef __MINGW64__
-static pid_t dps8m_sid; // Session id
-#endif
+//#ifndef __MINGW64__
+//static pid_t dps8m_sid; // Session id
+//#endif
 
 //
 // simh hooks
@@ -3733,6 +3738,9 @@ static void dps8_init (void)
 #ifdef ROUND_ROBIN
     sim_msg ("#### ROUND_ROBIN BUILD ####\n");
 #endif
+#ifdef M_SHARED
+    sim_msg ("#### M_SHARED BUILD ####\n");
+#endif
 #ifdef LOCKLESS
     sim_msg ("#### LOCKLESS BUILD ####\n");
 #endif
@@ -3750,23 +3758,49 @@ static void dps8_init (void)
     // This is needed to make sbreak work
     sim_brk_types = sim_brk_dflt = SWMASK ('E');
 
-#ifndef __MINGW64__
-    // Create a session for this dps8m system instance.
-    dps8m_sid = setsid ();
-    if (dps8m_sid == (pid_t) -1)
-      dps8m_sid = getsid (0);
-#ifdef DPS8M
-    sim_msg ("DPS8M system session id is %d\n", dps8m_sid);
-#endif
-#ifdef L68
-    sim_msg ("L68 system session id is %d\n", dps8m_sid);
-#endif
-#endif
+//#ifndef __MINGW64__
+//    // Create a session for this dps8m system instance.
+//    dps8m_sid = setsid ();
+//    if (dps8m_sid == (pid_t) -1)
+//      dps8m_sid = getsid (0);
+//#ifdef DPS8M
+//    sim_msg ("DPS8M system session id is %d\n", dps8m_sid);
+//#endif
+//#ifdef L68
+//    sim_msg ("L68 system session id is %d\n", dps8m_sid);
+//#endif
+//#endif
 
 #ifndef __MINGW64__
     // Wire the XF button to signal USR1
     signal (SIGUSR1, usr1_signal_handler);
 #endif
+
+#ifdef SCUMEM
+#warn SCUMEM not working with new shared memory model
+#endif
+
+    system_state = (struct system_state_s *)
+      create_shm ("state", sizeof (struct system_state_s));
+
+#include "dps8.sha1.txt"
+
+    if (strlen (system_state->commit_id) == 0)
+      {
+        sim_printf ("Setting up new system state\r\n");
+      }
+    else
+      {
+        if (strcmp (system_state->commit_id, COMMIT_ID) != 0)
+          {
+            sim_warn ("WARNING: system_state commit ID changed; system state may be corrupt\r\n");
+          }
+        else
+          {
+            sim_printf ("System state restored\r\n");
+          }
+      }
+    strncpy (system_state->commit_id, COMMIT_ID, sizeof (system_state->commit_id));
 
     // sets connect to 0
     memset (& sys_opts, 0, sizeof (sys_opts));
