@@ -56,6 +56,7 @@ static struct
          int accept_fd;
          int read_fd;
          uint read_buffer_sz;
+         uint words_processed;
       } unit_data[N_SKC_UNITS_MAX][N_DEV_CODES];
   } sk_data;
 
@@ -591,8 +592,6 @@ static int skt_read8 (uint unit_idx, word6 dev_code, UNUSED uint tally, word36 *
     uint count = (uint) buffer[1];
 sim_printf ("read8() socket     %d\n", socket_fd);
 
-    int rc = 0;
-    int _errno = 0;
     // Does this socket belong to us?
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
@@ -604,9 +603,6 @@ sim_printf ("read8() socket doesn't belong to us\n");
     sk_data.unit_data[unit_idx][dev_code].read_buffer_sz = count;
     sk_data.unit_data[unit_idx][dev_code].unit_state = unit_read;
     return 3; // don't send terminate interrupt
-
-    buffer[1] = ((word36) ((word36s) rc)) & MASK36; // rc
-    set_error (& buffer[2], _errno);
   }
 
 static int skt_write8 (uint iom_unit_idx, uint chan, uint unit_idx, word6 dev_code, uint tally, word36 * buffer)
@@ -878,6 +874,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             uint words_processed;
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
+            sk_data.unit_data[unit_idx][p->IDCW_DEV_CODE].words_processed = words_processed;
 
             rc = skt_accept (unit_idx, p->IDCW_DEV_CODE, buffer);
 
@@ -931,6 +928,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             uint words_processed;
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
+            sk_data.unit_data[unit_idx][p->IDCW_DEV_CODE].words_processed = words_processed;
 
             rc = skt_read8 (unit_idx, p->IDCW_DEV_CODE, tally, buffer);
 
@@ -1054,7 +1052,7 @@ static void do_try_accept (uint unit_idx, word6 dev_code)
     // list data for the channel is intact, and that buffer is still in place.
     uint iom_unit_idx = (uint) cables->sk_to_iom[unit_idx][0].iom_unit_idx;
     uint chan = (uint) cables->sk_to_iom[unit_idx][0].chan_num;
-    uint words_processed;
+    uint words_processed = sk_data.unit_data[unit_idx][dev_code].words_processed;
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                & words_processed, true);
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
@@ -1096,7 +1094,7 @@ static void do_try_read (uint unit_idx, word6 dev_code)
     // list data for the channel is intact, and that buffer is still in place.
     uint iom_unit_idx = (uint) cables->sk_to_iom[unit_idx][0].iom_unit_idx;
     uint chan = (uint) cables->sk_to_iom[unit_idx][0].chan_num;
-    uint words_processed;
+    uint words_processed = sk_data.unit_data[unit_idx][dev_code].words_processed;
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                & words_processed, true);
     sk_data.unit_data[unit_idx][dev_code].unit_state = unit_idle;
