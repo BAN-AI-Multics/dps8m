@@ -11,7 +11,7 @@
  at https://sourceforge.net/p/dps8m/code/ci/master/tree/LICENSE
  */
 
-extern UNIT sk_unit [N_SK_UNITS_MAX];
+extern UNIT sk_unit [N_SKC_UNITS_MAX];
 extern DEVICE skc_dev;
 void sk_init(void);
 int skc_iom_cmd (uint iomUnitIdx, uint chan);
