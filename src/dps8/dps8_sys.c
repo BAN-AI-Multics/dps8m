@@ -205,8 +205,15 @@ static char * default_base_system_script [] =
 //  026 FNPG           comm line controller
 //  027 FNPH           comm line controller
 //  032 ABSI0          IMP controller
-//  033 SKT0           IP socket device controller
 //  036 OPC0           operator console
+//  040 SKCA
+//  041 SKCB
+//  042 SKCC
+//  043 SKCD
+//  044 SKCE
+//  045 SKCF
+//  046 SKCG
+//  047 SKCH
 //
 // IOM B
 //
@@ -234,7 +241,7 @@ static char * default_base_system_script [] =
     "set rdr nunits=1",
     "set pun nunits=1",
     "set prt nunits=1",
-    "set skc nunits=1",
+    "set skc nunits=64",
     "set absi nunits=1",
 
 #if 0
@@ -1178,18 +1185,6 @@ static char * default_base_system_script [] =
     "cable MTP0 16 TAPE16",
     "set tape16 name=tapa_16",
 
-    "cable IOM0 033 SKC0",
-#if 0
-    for (uint i = 0; i < N_SK_UNITS_MAX; i ++)
-      {
-        char line [128];
-        // ; Attach socket device i to IOM 0, chan 033, dev_code i
-        //doIniLine ("cable sk,0,0,033,0");
-        sprintf (line, "cable sk,%d,0,033,%d", i, i);
-        doIniLine (line);
-      }
-#endif
-
 // 4 3381 disks
 
     "set ipc0 name=IPC0",
@@ -1304,6 +1299,16 @@ static char * default_base_system_script [] =
     // ; Attach PRT unit 0 to IOM 0, chan 017, dev_code 1
     "set prt0 name=prta",
     "cable URP2 1 PRT0",
+
+
+    "cable IOMA 040 SKCA",
+    "cable IOMA 041 SKCB",
+    "cable IOMA 042 SKCC",
+    "cable IOMA 043 SKCD",
+    "cable IOMA 044 SKCE",
+    "cable IOMA 045 SKCF",
+    "cable IOMA 046 SKCG",
+    "cable IOMA 047 SKCH",
 
 #if 0
     // ; Attach PRT unit 1 to IOM 0, chan 017, dev_code 2

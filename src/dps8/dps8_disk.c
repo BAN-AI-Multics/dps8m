@@ -36,6 +36,10 @@
 #include "sim_disk.h"
 #include "dps8_utils.h"
 
+#ifdef LOCKLESS
+#include "threadz.h"
+#endif
+
 #define DBG_CTR 1
 
 /*
@@ -187,6 +191,9 @@ static struct dsk_state
     enum { disk_no_mode, disk_seek512_mode, disk_seek64_mode, disk_seek_mode, disk_read_mode, disk_write_mode, disk_request_status_mode } io_mode;
     uint seekPosition;
     char device_name [MAX_DEV_NAME_LEN];
+#ifdef LOCKLESS
+    pthread_mutex_t dsk_lock;
+#endif
   } dsk_states [N_DSK_UNITS_MAX];
 
 
@@ -593,6 +600,20 @@ void disk_init (void)
   {
     // Sets diskTypeIdx to 0: 3381
     memset (dsk_states, 0, sizeof (dsk_states));
+#ifdef LOCKLESS
+    for (uint i = 0; i < N_DSK_UNITS_MAX; i ++)
+      {
+#ifdef __FreeBSD__
+        pthread_mutexattr_t scu_attr;
+        pthread_mutexattr_init (& scu_attr);
+        pthread_mutexattr_settype (& scu_attr, PTHREAD_MUTEX_ADAPTIVE_NP);
+    
+        pthread_mutex_init (& dsk_states[i].dsk_lock, & scu_attr);
+#else                            
+        pthread_mutex_init (& dsk_states[i].dsk_lock, NULL);
+#endif 
+      }
+#endif 
   }
 
 static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
@@ -1390,11 +1411,18 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
         sim_warn ("disk_cmd lost\n");
         return -1;
       }
+
     UNIT * unitp = & dsk_unit [devUnitIdx];
     struct dsk_state * disk_statep = & dsk_states [devUnitIdx];
 
+#ifdef LOCKLESS
+    lock_ptr (& dsk_states->dsk_lock);
+#endif
+
     disk_statep -> io_mode = disk_no_mode;
     p -> stati = 0;
+
+    int rc = 0;
 
     switch (p -> IDCW_DEV_CMD)
       {
@@ -1414,7 +1442,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
 // XXX missing. see poll_mpc.pl1, poll_mpc_data.incl.pl1
             int rc = read_and_clear_statistics (devUnitIdx, iomUnitIdx, chan);
             if (rc)
-              return -1;
+              {
+                rc = -1;
+                break;
+              }
             //p -> stati = 04000;
             break;
           }
@@ -1422,7 +1453,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
           {
             int rc = readStatusRegister (devUnitIdx, iomUnitIdx, chan);
             if (rc)
-              return -1;
+              {
+                rc = -1;
+                break;
+              }
           }
           break;
 
@@ -1431,7 +1465,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
 // XXX missing. see poll_mpc.pl1, poll_mpc_data.incl.pl1
             int rc = read_configuration (devUnitIdx, iomUnitIdx, chan);
             if (rc)
-              return -1;
+              {
+                rc = -1;
+                break;
+              }
             //p -> stati = 04000;
             break;
           }
@@ -1446,7 +1483,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
               }
             int rc = diskRead (devUnitIdx, iomUnitIdx, chan);
             if (rc)
-              return -1;
+              {
+                rc = -1;
+                break;
+              }
           }
           break;
 
@@ -1460,7 +1500,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
               }
             int rc = diskSeek512 (devUnitIdx, iomUnitIdx, chan);
             if (rc)
-              return -1;
+              {
+                rc = -1;
+                break;
+              }
           }
           break;
 
@@ -1475,7 +1518,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
             p -> isRead = false;
             int rc = diskWrite (devUnitIdx, iomUnitIdx, chan);
             if (rc)
-              return -1;
+              {
+                rc = -1;
+                break;
+              }
 
             sim_debug (DBG_NOTIFY, & dsk_dev, "Write %d\n", devUnitIdx);
             disk_statep -> io_mode = disk_write_mode;
@@ -1495,7 +1541,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
               }
             int rc = diskSeek64 (devUnitIdx, iomUnitIdx, chan);
             if (rc)
-              return -1;
+              {
+                rc = -1;
+                break;
+              }
           }
           break;
 
@@ -1539,7 +1588,12 @@ sim_printf ("%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
             break;
           }
       }
-    return 0;
+
+#ifdef LOCKLESS
+    unlock_ptr (& dsk_states->dsk_lock);
+#endif
+
+    return rc;
   }
 
 int dsk_iom_cmd (uint iomUnitIdx, uint chan)
