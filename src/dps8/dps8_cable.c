@@ -21,6 +21,7 @@
 #include "dps8_faults.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_state.h"
 #include "dps8_console.h"
 #include "dps8_disk.h"
 #include "dps8_fnp2.h"
@@ -1324,10 +1325,11 @@ t_stat sys_cable_ripout (UNUSED int32 arg, UNUSED const char * buf)
 
 void sysCableInit (void)
   {
+#if 0
    if (! cables)
       {
 #ifdef M_SHARED
-        cables = (struct cables_s *) create_shm ("cables", getsid (0),
+        cables = (struct cables_s *) create_shm ("cables",
                                                  sizeof (struct cables_s));
 #else
         cables = (struct cables_s *) malloc (sizeof (struct cables_s));
@@ -1338,6 +1340,8 @@ void sysCableInit (void)
             sim_fatal ("create_shm cables failed\n");
           }
       }
+#endif
+    cables = & system_state->cables;
 
     // Initialize data structures
     cable_init ();

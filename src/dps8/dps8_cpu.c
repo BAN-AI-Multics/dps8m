@@ -31,6 +31,7 @@
 #include "dps8_cpu.h"
 #include "dps8_append.h"
 #include "dps8_ins.h"
+#include "dps8_state.h"
 #include "dps8_loader.h"
 #include "dps8_math.h"
 #include "dps8_iefp.h"
@@ -559,13 +560,20 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
             if (get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
                 uint sci_unit_idx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
+                // Clear lock bits
                 for (uint i = 0; i < SCU_MEM_SIZE; i ++)
-                  scu [sci_unit_idx].M[i] = MEM_UNINITIALIZED;
+                  {
+                    //scu [sci_unit_idx].M[i] = MEM_UNINITIALIZED;
+                    scu [sci_unit_idx].M[i] &= (MASK36 | MEM_UNINITIALIZED);
+                  }
               }
           }
 #else
         for (uint i = 0; i < MEMSIZE; i ++)
-          M [i] = MEM_UNINITIALIZED;
+          {
+            //M [i] = MEM_UNINITIALIZED;
+            M[i] &= (MASK36 | MEM_UNINITIALIZED);
+          }
 #endif
       }
     cpu.rA = 0;
@@ -1099,11 +1107,12 @@ void cpu_init (void)
 // !!!! Do not use 'cpu' in this routine; usage of 'cpus' violates 'restrict'
 // !!!! attribute
 
+#if 0
 #ifndef SCUMEM
 #ifdef M_SHARED
     if (! M)
       {
-        M = (word36 *) create_shm ("M", getsid (0), MEMSIZE * sizeof (word36));
+        M = (word36 *) create_shm ("M", MEMSIZE * sizeof (word36));
       }
 #else
     if (! M)
@@ -1121,7 +1130,6 @@ void cpu_init (void)
     if (! cpus)
       {
         cpus = (cpu_state_t *) create_shm ("cpus", 
-                                           getsid (0), 
                                            N_CPU_UNITS_MAX * 
                                              sizeof (cpu_state_t));
       }
@@ -1130,6 +1138,10 @@ void cpu_init (void)
         sim_fatal ("create cpus failed\n");
       }
 #endif
+#endif
+
+    M = system_state->M;
+    cpus = system_state->cpus;
 
 #ifndef SPEED
     memset (& watch_bits, 0, sizeof (watch_bits));
