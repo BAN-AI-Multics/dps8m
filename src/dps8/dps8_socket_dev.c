@@ -639,7 +639,7 @@ sim_printf ("write8() socket     %d\n", socket_fd);
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
 sim_printf ("write8() socket doesn't belong to us\n");
-        set_error (& buffer[4], EBADF);
+        set_error (& buffer[3], EBADF);
         return 2; // send terminate interrupt
       }
 
@@ -942,7 +942,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
         case 9:               // CMD 9 -- write8()
           {
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: socket_dev_$read8\n", __func__);
+                       "%s: socket_dev_$write8\n", __func__);
 
             const uint expected_tally = 0;
             uint tally;
@@ -957,10 +957,11 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, false);
 
-            skt_write8 (iom_unit_idx, chan, unit_idx, p->IDCW_DEV_CODE, tally, buffer);
+            rc = skt_write8 (iom_unit_idx, chan, unit_idx, p->IDCW_DEV_CODE, tally, buffer);
 
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, true);
+	    return rc;
           }
           break;
 
