@@ -79,7 +79,7 @@
 // Building with SCUMEM defined puts the memory in the SCUs.
 
 
-vol struct system_state_s * system_state;
+struct system_state_s * system_state;
 
 #ifndef SCUMEM
 vol word36 * M = NULL;                                          // memory
