@@ -2920,18 +2920,23 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 
     unpack_DCW (iom_unit_idx, chan);
 
+    p->isPCW = true;
+
     p->masked = !!p->PCW_21_MSK;
     struct iom_to_ctlr_s * d = & cables->iom_to_ctlr[iom_unit_idx][chan];
 
+#if 0
 // A device command of 051 in the PCW is only meaningful to the operator console;
 // all other channels should ignore it. We use (somewhat bogusly) a chanType of
 // chanTypeCPI to indicate the operator console.
     if (d->chan_type != chan_type_CPI && p -> IDCW_DEV_CMD == 051)
       {
         p -> stati = 04501;
+        p -> chanStatus = chanStatIncorrectDCW;
         send_terminate_interrupt (iom_unit_idx, chan);
         return 0;
       }
+#endif
 
     if (! d->iom_cmd)
       {
@@ -3005,7 +3010,7 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
         p -> stati = 04501;
         p -> dev_code = getbits36_6 (p -> DCW, 6);
         p -> chanStatus = chanStatInvalidInstrPCW;
-        sim_warn ("do_payload_chan handler error\n");
+        //sim_warn ("do_payload_chan handler error\n");
         goto done;
       }
 
@@ -3027,6 +3032,8 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
         goto done;
       }
     bool ptro, send, uff;
+
+    p->isPCW = false;
 
     do
       {

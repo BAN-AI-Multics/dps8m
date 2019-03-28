@@ -1956,21 +1956,24 @@ static int fnpCmd (uint iomUnitIdx, uint chan)
 
     switch (p -> IDCW_DEV_CMD)
       {
-      case 000: // CMD 00 Request status
-        {
-          p -> stati = 04000;
-          processMBX (iomUnitIdx, chan);
-          // no status_service and no additional terminate interrupt
-          // ???
+        case 000: // CMD 00 Request status
+          {
+            p -> stati = 04000;
+            processMBX (iomUnitIdx, chan);
+            // no status_service and no additional terminate interrupt
+            // ???
+          }
           return IOM_CMD_PENDING;
-        }
-      default:
-        {
-          p -> stati = 04501;
-          sim_debug (DBG_ERR, & fnp_dev,
-                     "%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
+
+        default:
+          {
+            p -> stati = 04501;
+            p -> chanStatus = chanStatIncorrectDCW;
+
+            sim_debug (DBG_ERR, & fnp_dev,
+                       "%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
+          }
           return IOM_CMD_NO_DCW;
-        }
       }
   }
 
@@ -1994,6 +1997,6 @@ int fnp_iom_cmd (uint iomUnitIdx, uint chan)
       }
     // else // DDCW/TDCW
     sim_printf ("%s expected IDCW\n", __func__);
-    return -1;
+    return IOM_CMD_ERROR;
   }
 

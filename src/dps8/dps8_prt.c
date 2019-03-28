@@ -549,7 +549,7 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
                   {
                     p -> stati = 05001; // BUG: arbitrary error code; config switch
                     sim_printf ("%s list service failed\n", __func__);
-                    return -1;
+                    return IOM_CMD_ERROR;
                   }
                 if (uff)
                   {
@@ -559,13 +559,13 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
                   {
                     sim_printf ("%s nothing to send\n", __func__);
                     p -> stati = 05001; // BUG: arbitrary error code; config switch
-                    return 1;
+                    return IOM_CMD_IGNORED;
                   }
                 if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
                   {
                     sim_printf ("%s expected DDCW\n", __func__);
                     p -> stati = 05001; // BUG: arbitrary error code; config switch
-                    return -1;
+                    return IOM_CMD_ERROR;
                   }
 
                 uint tally = p -> DDCW_TALLY;
@@ -682,21 +682,19 @@ sim_printf ("\n");
           }
           break;
 
-
         default:
           {
-            sim_warn ("prt daze %o\n", p -> IDCW_DEV_CMD);
             p -> stati = 04501; // cmd reject, invalid opcode
             p -> chanStatus = chanStatIncorrectDCW;
           }
-          break;
+          return IOM_CMD_ERROR;
         }   
 
     if (p -> IDCW_CONTROL == 3) // marker bit set
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
-    return 0;
+    return IOM_CMD_OK;
   }
 
 // 1 ignored command
@@ -705,18 +703,19 @@ sim_printf ("\n");
 int prt_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+    int rc = IOM_CMD_OK;
 // Is it an IDCW?
 
     if (p -> DCW_18_20_CP == 7)
       {
-        prt_cmd (iomUnitIdx, chan);
+        rc = prt_cmd (iomUnitIdx, chan);
       }
     else // DDCW/TDCW
       {
         sim_printf ("%s expected IDCW\n", __func__);
-        return -1;
+        return IOM_CMD_ERROR;
       }
-    return 0;
+    return rc;
   }
 
 static t_stat prt_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)

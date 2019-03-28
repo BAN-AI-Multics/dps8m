@@ -460,7 +460,7 @@ empty:;
           p -> initiate = false;
           p -> tallyResidue = 0;
 sim_printf ("hopper empty\n");
-          return -1;
+          return IOM_CMD_ERROR;
        }
 
     unsigned char cardImage [80] = "";
@@ -691,7 +691,7 @@ sim_printf ("\n");
       {
         p -> stati = 05001; // BUG: arbitrary error code; config switch
         sim_printf ("%s list service failed\n", __func__);
-        return -1;
+        return IOM_CMD_ERROR;
       }
     if (uff)
       {
@@ -701,13 +701,13 @@ sim_printf ("\n");
       {
         sim_printf ("%s nothing to send\n", __func__);
         p -> stati = 05001; // BUG: arbitrary error code; config switch
-        return 1;
+        return IOM_CMD_IGNORED;
       }
     if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
       {
         sim_printf ("%s expected DDCW\n", __func__);
         p -> stati = 05001; // BUG: arbitrary error code; config switch
-        return -1;
+        return IOM_CMD_ERROR;
       }
 
     iom_indirect_data_service (iomUnitIdx, chan, buffer,
@@ -720,7 +720,7 @@ sim_printf ("\n");
     if (p -> DDCW_22_23_TYPE != 0)
       sim_warn ("curious... a card read with more than one DDCW?\n");
 
-    return 0;
+    return IOM_CMD_OK;
   }
 
 static int rdr_cmd (uint iomUnitIdx, uint chan)
@@ -765,13 +765,12 @@ static int rdr_cmd (uint iomUnitIdx, uint chan)
 
         default:
           {
-            sim_warn ("card reader daze %o\n", p -> IDCW_DEV_CMD);
             p -> stati = 04501; // cmd reject, invalid opcode
             p -> chanStatus = chanStatIncorrectDCW;
           }
-          break;
+          return IOM_CMD_ERROR;
       }
-    return 0;
+    return IOM_CMD_OK;
   }
 
 static void submit (enum deckFormat fmt, char * fname)
@@ -882,7 +881,7 @@ int rdr_iom_cmd (uint iomUnitIdx, uint chan)
         return rdr_cmd (iomUnitIdx, chan);
       }
     sim_printf ("%s expected IDCW\n", __func__);
-    return -1;
+    return IOM_CMD_ERROR;
   }
 
 static t_stat rdr_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)

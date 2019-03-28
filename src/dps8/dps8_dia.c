@@ -1030,18 +1030,19 @@ static int dia_cmd (uint iom_unit_idx, uint chan)
         default:
           {
             p -> stati = 04501;
+            p -> chanStatus = chanStatIncorrectDCW;
             sim_debug (DBG_ERR, & dia_dev,
                        "%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
 #ifdef FNPDBG
 sim_printf ("%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
 #endif
-            break;
           }
+          return IOM_CMD_ERROR;
       }
 
     processMBX (iom_unit_idx, chan);
 
-    return 2; // did command, don't want more
+    return IOM_CMD_NO_DCW; // did command, don't want more
   }
 
 /*

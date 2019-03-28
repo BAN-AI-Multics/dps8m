@@ -1409,7 +1409,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
     else
       {
         sim_warn ("disk_cmd lost\n");
-        return -1;
+        return IOM_CMD_ERROR;
       }
 
     UNIT * unitp = & dsk_unit [devUnitIdx];
@@ -1422,7 +1422,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
     disk_statep -> io_mode = disk_no_mode;
     p -> stati = 0;
 
-    int rc = 0;
+    int rc = IOM_CMD_OK;
 
     switch (p -> IDCW_DEV_CMD)
       {
@@ -1440,10 +1440,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
         case 016: // CMD 16 Read and Clear Statistics -- Model 800
           {
 // XXX missing. see poll_mpc.pl1, poll_mpc_data.incl.pl1
-            int rc = read_and_clear_statistics (devUnitIdx, iomUnitIdx, chan);
-            if (rc)
+            int rc1 = read_and_clear_statistics (devUnitIdx, iomUnitIdx, chan);
+            if (rc1)
               {
-                rc = -1;
+                rc = IOM_CMD_ERROR;
                 break;
               }
             //p -> stati = 04000;
@@ -1451,10 +1451,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
           }
         case 022: // CMD 22 Read Status Resgister
           {
-            int rc = readStatusRegister (devUnitIdx, iomUnitIdx, chan);
-            if (rc)
+            int rc1 = readStatusRegister (devUnitIdx, iomUnitIdx, chan);
+            if (rc1)
               {
-                rc = -1;
+                rc = IOM_CMD_ERROR;
                 break;
               }
           }
@@ -1463,10 +1463,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
         case 024: // CMD 24 Read configuration -- Model 800
           {
 // XXX missing. see poll_mpc.pl1, poll_mpc_data.incl.pl1
-            int rc = read_configuration (devUnitIdx, iomUnitIdx, chan);
-            if (rc)
+            int rc1 = read_configuration (devUnitIdx, iomUnitIdx, chan);
+            if (rc1)
               {
-                rc = -1;
+                rc = IOM_CMD_ERROR;
                 break;
               }
             //p -> stati = 04000;
@@ -1481,10 +1481,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
                 p -> stati = 04240; // device offline
                 break;
               }
-            int rc = diskRead (devUnitIdx, iomUnitIdx, chan);
-            if (rc)
+            int rc1 = diskRead (devUnitIdx, iomUnitIdx, chan);
+            if (rc1)
               {
-                rc = -1;
+                rc = IOM_CMD_ERROR;
                 break;
               }
           }
@@ -1498,10 +1498,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
                 p -> stati = 04240; // device offline
                 break;
               }
-            int rc = diskSeek512 (devUnitIdx, iomUnitIdx, chan);
-            if (rc)
+            int rc1 = diskSeek512 (devUnitIdx, iomUnitIdx, chan);
+            if (rc1)
               {
-                rc = -1;
+                rc = IOM_CMD_ERROR;
                 break;
               }
           }
@@ -1516,10 +1516,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
                 break;
               }
             p -> isRead = false;
-            int rc = diskWrite (devUnitIdx, iomUnitIdx, chan);
-            if (rc)
+            int rc1 = diskWrite (devUnitIdx, iomUnitIdx, chan);
+            if (rc1)
               {
-                rc = -1;
+                rc = IOM_CMD_ERROR;
                 break;
               }
 
@@ -1539,10 +1539,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
                 p -> stati = 04240; // device offline
                 break;
               }
-            int rc = diskSeek64 (devUnitIdx, iomUnitIdx, chan);
-            if (rc)
+            int rc1 = diskSeek64 (devUnitIdx, iomUnitIdx, chan);
+            if (rc1)
               {
-                rc = -1;
+                rc = IOM_CMD_ERROR;
                 break;
               }
           }
@@ -1581,12 +1581,12 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
         default:
           {
             p -> stati = 04501;
+            p -> chanStatus = chanStatIncorrectDCW;
             sim_debug (DBG_ERR, & dsk_dev,
                        "%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
-            p -> chanStatus = chanStatIncorrectDCW;
-sim_printf ("%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
-            break;
+//sim_printf ("%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
           }
+          return IOM_CMD_ERROR;
       }
 
 #ifdef LOCKLESS
@@ -1599,23 +1599,26 @@ sim_printf ("%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
 int dsk_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+    int rc = IOM_CMD_OK;
+
 // Is it an IDCW?
 
     if (p -> DCW_18_20_CP == 7)
       {
 
+#if 0
         // Ignore a CMD 051 in the PCW
         if (p -> IDCW_DEV_CMD == 051)
-          return 1;
-
-        disk_cmd (iomUnitIdx, chan);
+          return IOM_CMD_IGNORED;
+#endif
+        rc = disk_cmd (iomUnitIdx, chan);
       }
     else // DDCW/TDCW
       {
         sim_printf ("dsk_iom_cmd expected IDCW\n");
-        return -1;
+        return IOM_CMD_ERROR;
       }
-    return 0;
+    return rc;
   }
 
 //////////

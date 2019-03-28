@@ -195,9 +195,12 @@ DEVICE opc_dev = {
  at http://example.org/project/LICENSE.
  */
 
+enum console_model { m6001 = 0, m6601 = 1 };
+
 // Hangs off the device structure
 typedef struct opc_state_t
   {
+    enum console_model model;
     enum console_mode { opc_no_mode, opc_read_mode, opc_write_mode } io_mode;
     // SIMH console library has only putc and getc; the SIMH terminal
     // library has more features including line buffering.
@@ -207,6 +210,7 @@ typedef struct opc_state_t
     unsigned char *readp;
     unsigned char *auto_input;
     unsigned char *autop;
+    bool echo;
 #ifdef ATTN_HACK
     bool once_per_boot;
     int attn_hack;
@@ -348,6 +352,7 @@ void console_init (void)
     for (uint i = 0; i < N_OPC_UNITS_MAX; i ++)
       {
         opc_state_t * csp = console_state + i;
+        csp->model = m6001;
         csp->auto_input = NULL;
         csp->autop = NULL;
 #ifdef ATTN_HACK
@@ -762,15 +767,8 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
           break;
 
         case 023:               // Read ASCII
+        case 043:               // Read ASCII unechoed
           {
-            csp->io_mode = opc_read_mode;
-#if 0
-extern struct timespec cioc_t0;
-struct timespec now, delta;
-clock_gettime (CLOCK_REALTIME, & now);
-timespec_diff (& cioc_t0, & now, & delta);
-sim_printf ("#### %ld/%ld\r\n", delta.tv_sec, delta.tv_nsec);
-#endif
             sim_debug (DBG_NOTIFY, & opc_dev, 
                        "%s: Read ASCII command received\n", __func__);
             if (csp->tailp != csp->buf)
@@ -779,9 +777,6 @@ sim_printf ("#### %ld/%ld\r\n", delta.tv_sec, delta.tv_nsec);
                            "%s: Discarding previously buffered input.\n",
                            __func__);
               }
-            // TODO: discard any buffered chars from SIMH?
-            csp->tailp = csp->buf;
-            csp->readp = csp->buf;
 
             // Get the DDCW
 
@@ -842,6 +837,12 @@ sim_warn ("uncomfortable with this\n");
                            __func__);
                 tally = 4096;
               }
+
+            // TODO: discard any buffered chars from SIMH?
+            csp->echo = p->IDCW_DEV_CMD == 023;
+            csp->tailp = csp->buf;
+            csp->readp = csp->buf;
+            csp->io_mode = opc_read_mode;
             csp->startTime = time (NULL);
             csp->tally = tally;
             csp->daddr = daddr;
@@ -1117,12 +1118,14 @@ sim_warn ("uncomfortable with this\n");
         default:
           {
             p->stati = 04501; // command reject, invalid instruction code
+            p->chanStatus = chanStatIncorrectDCW;
             sim_debug (DBG_ERR, & opc_dev, "%s: Unknown command 0%o\n",
                        __func__, p->IDCW_DEV_CMD);
-            p->chanStatus = chanStatIncorrectDCW;
           }
-          break;
+          return IOM_CMD_ERROR;
       }
+    if (csp->model == m6001)
+      return IOM_CMD_NO_DCW;
     return IOM_CMD_OK;
   }
 
@@ -1400,7 +1403,8 @@ static void consoleProcessIdx (int conUnitIdx)
             if (c == '\012' || c == '\015')
               {
 eol:
-                console_putstr (conUnitIdx,  "\r\n");
+                if (csp->echo)
+                  console_putstr (conUnitIdx,  "\r\n");
                 sim_debug (DBG_NOTIFY, & opc_dev,
                            "getConsoleInput: Got EOL\n");
                 sendConsole (conUnitIdx, 04000); // Normal status
@@ -1409,7 +1413,8 @@ eol:
             else
               {
                 * csp->tailp ++ = c;
-                console_putchar (conUnitIdx, (char) c);
+                if (csp->echo)
+                  console_putchar (conUnitIdx, (char) c);
               }
           } // for (;;)
       } // if (autop)
@@ -1469,7 +1474,8 @@ eol:
           {
             * csp->tailp = 0;
             -- csp->tailp;
-            console_putstr (conUnitIdx,  "\b \b");
+            if (csp->echo)
+              console_putstr (conUnitIdx,  "\b \b");
           }
         return;
       }
@@ -1477,16 +1483,30 @@ eol:
     if (ch == '\022')  // ^R
       {
         ta_get ();
-        console_putstr (conUnitIdx,  "^R\r\nM-> ");
-        for (unsigned char * p = csp->buf; p < csp->tailp; p ++)
-          console_putchar (conUnitIdx, (char) (*p));
-        return;
+        if (csp->echo)
+          {
+            //console_putstr (conUnitIdx,  "^R\r\nM-> ");
+            console_putstr (conUnitIdx,  "^R\r\n");
+            for (unsigned char * p = csp->buf; p < csp->tailp; p ++)
+              console_putchar (conUnitIdx, (char) (*p));
+            return;
+          }
       }
 
     if (ch == '\025')  // ^U
       {
         ta_get ();
-        console_putstr (conUnitIdx,  "^U\r\nM-> ");
+        //console_putstr (conUnitIdx,  "^U\r\nM-> ");
+        console_putstr (conUnitIdx,  "^U\r\n");
+        csp->tailp = csp->buf;
+        return;
+      }
+
+    if (ch == '\030')  // ^X
+      {
+        ta_get ();
+        //console_putstr (conUnitIdx,  "^X\r\nM-> ");
+        console_putstr (conUnitIdx,  "^X\r\n");
         csp->tailp = csp->buf;
         return;
       }
@@ -1494,7 +1514,8 @@ eol:
     if (ch == '\012' || ch == '\015')  // CR/LF
       {
         ta_get ();
-        console_putstr (conUnitIdx,  "\r\n");
+        if (csp->echo)
+          console_putstr (conUnitIdx,  "\r\n");
         sendConsole (conUnitIdx, 04000); // Normal status
         return;
       }
@@ -1523,7 +1544,8 @@ eol:
         sim_print (""); // force text color reset
 #endif
         * csp->tailp ++ = (unsigned char) ch;
-        console_putchar (conUnitIdx, (char) ch);
+        if (csp->echo)
+          console_putchar (conUnitIdx, (char) ch);
         return;
       }
     // ignore other chars...
@@ -1562,10 +1584,7 @@ int opc_iom_cmd (uint iomUnitIdx, uint chan)
 #if defined(THREADZ) || defined(LOCKLESS)
     unlock_libuv ();
 #endif
-    // return rc;
-    if (rc == IOM_CMD_PENDING)
-      return rc;
-    return IOM_CMD_NO_DCW;
+    return rc;
   }
 
 static t_stat opc_svc (UNIT * unitp)
@@ -1608,6 +1627,13 @@ static config_value_list_t cfg_on_off[] =
     { NULL, 0 }
   };
 
+static config_value_list_t cfg_model[] =
+  {
+    { "m6001", m6001 },
+    { "m6601", m6601 },
+    { NULL, 0 }
+  };
+
 static config_list_t opc_config_list[] =
   {
 #ifdef ATTN_HACK
@@ -1616,6 +1642,7 @@ static config_list_t opc_config_list[] =
    { "autoaccept", 0, 1, cfg_on_off },
    { "noempty", 0, 1, cfg_on_off },
    { "attn_flush", 0, 1, cfg_on_off },
+   { "model", 1, 0, cfg_model },
    { NULL, 0, 0, NULL }
   };
 

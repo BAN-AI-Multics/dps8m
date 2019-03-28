@@ -1235,7 +1235,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               {
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
                 sim_warn ("%s list service failed\n", __func__);
-                return -1;
+                return IOM_CMD_ERROR;
               }
             if (uff)
               {
@@ -1245,13 +1245,13 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               {
                 sim_warn ("%s nothing to send\n", __func__);
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
-                return 1;
+                return IOM_CMD_IGNORED;
               }
             if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
               {
                 sim_warn ("%s expected DDCW\n", __func__);
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
-                return -1;
+                return IOM_CMD_ERROR;
               }
 
 //sim_printf ("chan mode %d\n", p -> chanMode);
@@ -1275,7 +1275,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
           {
             int rc = mtReadRecord (devUnitIdx, iomUnitIdx, chan);
             if (rc)
-              return -1;
+              return IOM_CMD_ERROR;
           }
           break;
 
@@ -1310,7 +1310,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               {
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
                 sim_warn ("%s list service failed\n", __func__);
-                return -1;
+                return IOM_CMD_ERROR;
               }
             if (uff)
               {
@@ -1320,13 +1320,13 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               {
                 sim_warn ("%s nothing to send\n", __func__);
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
-                return 1;
+                return IOM_CMD_IGNORED;
               }
             if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
               {
                 sim_warn ("%s expected DDCW\n", __func__);
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
-                return -1;
+                return IOM_CMD_ERROR;
               }
 //sim_printf ("ddcw %012"PRIo64"\n", p -> DCW);
 //sim_printf (" addr %06o tally %06o\n", p -> DDCW_ADDR, p -> DDCW_TALLY);
@@ -1401,7 +1401,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
           {
             int rc = mtWriteRecord (devUnitIdx, iomUnitIdx, chan);
             if (rc)
-              return -1;
+              return IOM_CMD_ERROR;
           }
           break;
 
@@ -1416,7 +1416,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               {
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
                 sim_warn ("%s list service failed\n", __func__);
-                return -1;
+                return IOM_CMD_ERROR;
               }
             if (uff)
               {
@@ -1426,13 +1426,13 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               {
                 sim_warn ("%s nothing to send\n", __func__);
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
-                return 1;
+                return IOM_CMD_IGNORED;
               }
             if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
               {
                 sim_warn ("%s expected DDCW\n", __func__);
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
-                return -1;
+                return IOM_CMD_ERROR;
               }
 //sim_printf ("ddcw %012"PRIo64"\n", p -> DCW);
 //sim_printf (" addr %06o tally %06o\n", p -> DDCW_ADDR, p -> DDCW_TALLY);
@@ -1483,7 +1483,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               {
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
                 sim_warn ("%s list service failed\n", __func__);
-                return -1;
+                return IOM_CMD_ERROR;
               }
             if (uff)
               {
@@ -1493,13 +1493,13 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               {
                 sim_warn ("%s nothing to send\n", __func__);
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
-                return 1;
+                return IOM_CMD_IGNORED;
               }
             if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
               {
                 sim_warn ("%s expected DDCW\n", __func__);
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
-                return -1;
+                return IOM_CMD_ERROR;
               }
 
 //sim_printf ("chan mode %d\n", p -> chanMode);
@@ -1827,6 +1827,12 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
 // has been filtered out at a higher level
         case 051:               // CMD 051 -- Reset device status
           {
+            if (p->isPCW)
+              {
+                p->stati = 04501;
+                p->chanStatus = chanStatIncorrectDCW;
+                return IOM_CMD_ERROR;
+              }
             p -> stati = 04000;
             if (sim_tape_wrp (unitp))
               p -> stati |= 1;
@@ -2020,7 +2026,8 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
           {
             p -> stati = 04501;
             p -> chanStatus = chanStatIncorrectDCW;
-            sim_warn ("%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
+            //sim_warn ("%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
+            return IOM_CMD_ERROR;
           }
           break;
 
@@ -2032,7 +2039,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
-    return 0;
+    return IOM_CMD_OK;
   }
 
 // 031 read statistics
@@ -2056,18 +2063,19 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
 int mt_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+    int rc = IOM_CMD_OK;
 // Is it an IDCW?
 
     if (p -> DCW_18_20_CP == 7)
       {
-        mt_cmd (iomUnitIdx, chan);
+        rc = mt_cmd (iomUnitIdx, chan);
       }
     else // DDCW/TDCW
       {
         sim_warn ("%s expected IDCW\n", __func__);
-        return -1;
+        return IOM_CMD_ERROR;
       }
-    return 0;
+    return rc;
   }
 
 
