@@ -763,14 +763,6 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
 
         case 023:               // Read ASCII
           {
-            csp->io_mode = opc_read_mode;
-#if 0
-extern struct timespec cioc_t0;
-struct timespec now, delta;
-clock_gettime (CLOCK_REALTIME, & now);
-timespec_diff (& cioc_t0, & now, & delta);
-sim_printf ("#### %ld/%ld\r\n", delta.tv_sec, delta.tv_nsec);
-#endif
             sim_debug (DBG_NOTIFY, & opc_dev, 
                        "%s: Read ASCII command received\n", __func__);
             if (csp->tailp != csp->buf)
@@ -779,9 +771,6 @@ sim_printf ("#### %ld/%ld\r\n", delta.tv_sec, delta.tv_nsec);
                            "%s: Discarding previously buffered input.\n",
                            __func__);
               }
-            // TODO: discard any buffered chars from SIMH?
-            csp->tailp = csp->buf;
-            csp->readp = csp->buf;
 
             // Get the DDCW
 
@@ -842,6 +831,11 @@ sim_warn ("uncomfortable with this\n");
                            __func__);
                 tally = 4096;
               }
+
+            // TODO: discard any buffered chars from SIMH?
+            csp->tailp = csp->buf;
+            csp->readp = csp->buf;
+            csp->io_mode = opc_read_mode;
             csp->startTime = time (NULL);
             csp->tally = tally;
             csp->daddr = daddr;
@@ -849,7 +843,6 @@ sim_warn ("uncomfortable with this\n");
             csp->chan = (int) chan;
 
           }
-          //break;
           return IOM_CMD_PENDING; // command in progress; do not send terminate interrupt
 
 
@@ -1117,11 +1110,11 @@ sim_warn ("uncomfortable with this\n");
         default:
           {
             p->stati = 04501; // command reject, invalid instruction code
+            p->chanStatus = chanStatIncorrectDCW;
             sim_debug (DBG_ERR, & opc_dev, "%s: Unknown command 0%o\n",
                        __func__, p->IDCW_DEV_CMD);
-            p->chanStatus = chanStatIncorrectDCW;
           }
-          break;
+          return IOM_CMD_ERROR;
       }
     return IOM_CMD_OK;
   }
@@ -1477,7 +1470,7 @@ eol:
     if (ch == '\022')  // ^R
       {
         ta_get ();
-        console_putstr (conUnitIdx,  "^R\r\nM-> ");
+        console_putstr (conUnitIdx,  "^R\r\n");
         for (unsigned char * p = csp->buf; p < csp->tailp; p ++)
           console_putchar (conUnitIdx, (char) (*p));
         return;
@@ -1486,7 +1479,15 @@ eol:
     if (ch == '\025')  // ^U
       {
         ta_get ();
-        console_putstr (conUnitIdx,  "^U\r\nM-> ");
+        console_putstr (conUnitIdx,  "^U\r\n");
+        csp->tailp = csp->buf;
+        return;
+      }
+
+    if (ch == '\030')  // ^X
+      {
+        ta_get ();
+        console_putstr (conUnitIdx,  "^X\r\n");
         csp->tailp = csp->buf;
         return;
       }

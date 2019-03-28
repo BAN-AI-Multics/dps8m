@@ -491,7 +491,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
             iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                     & wordsProcessed, false);
 
-#if 1
+#if 0
 sim_printf ("tally %d\n", p-> DDCW_TALLY);
 for (uint i = 0; i < p -> DDCW_TALLY; i ++)
   sim_printf ("  %012"PRIo64"\n", buffer [i]);
@@ -567,18 +567,19 @@ sim_printf ("\n");
 
         default:
           {
-            sim_warn ("pun daze %o\n", p -> IDCW_DEV_CMD);
+            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+              sim_warn ("pun daze %o\n", p -> IDCW_DEV_CMD);
             p -> stati = 04501; // cmd reject, invalid opcode
             p -> chanStatus = chanStatIncorrectDCW;
           }
-          break;
+          return IOM_CMD_ERROR;
         }   
 
     if (p -> IDCW_CONTROL == 3) // marker bit set
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
-    return 0;
+    return IOM_CMD_OK;
   }
 
 // 1 ignored command
@@ -596,9 +597,9 @@ int pun_iom_cmd (uint iomUnitIdx, uint chan)
     else // DDCW/TDCW
       {
         sim_printf ("%s expected IDCW\n", __func__);
-        return -1;
+        return IOM_CMD_ERROR;
       }
-    return 0;
+    return IOM_CMD_OK;
   }
 
 static t_stat pun_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)

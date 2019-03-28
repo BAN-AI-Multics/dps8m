@@ -254,7 +254,7 @@ static int parseID (word36 * b, uint tally, char * qno, char * name)
         name [i] = (char) ch;
       }
     name [i] = 0;
-    return 1;
+    return IOM_CMD_IGNORED;
   }
 
 
@@ -287,7 +287,7 @@ static int mkstemps (char *pattern, int suffix_len)
   if ((int) len < 6 + suffix_len
       || strncmp (&pattern[((int) len) - 6 - suffix_len], "XXXXXX", 6))
     {
-      return -1;
+      return IOM_CMD_ERROR;
     }
 
   XXXXXX = &pattern[((int) len) - 6 - suffix_len];
@@ -338,7 +338,7 @@ static int mkstemps (char *pattern, int suffix_len)
 
   /* We return the null string if we can't find a unique file name.  */
   pattern[0] = '\0';
-  return -1;
+  return IOM_CMD_ERROR;
 }
 #endif
 
@@ -405,7 +405,7 @@ static int eoj (word36 * buffer, uint tally)
       return 0;
     if (getbits36_9 (buffer [2], 0) != 005)
       return 0;
-    return 1;
+    return IOM_CMD_IGNORED;
   }
 
 static int prt_cmd (uint iomUnitIdx, uint chan)
@@ -549,7 +549,7 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
                   {
                     p -> stati = 05001; // BUG: arbitrary error code; config switch
                     sim_printf ("%s list service failed\n", __func__);
-                    return -1;
+                    return IOM_CMD_ERROR;
                   }
                 if (uff)
                   {
@@ -559,13 +559,13 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
                   {
                     sim_printf ("%s nothing to send\n", __func__);
                     p -> stati = 05001; // BUG: arbitrary error code; config switch
-                    return 1;
+                    return IOM_CMD_IGNORED;
                   }
                 if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
                   {
                     sim_printf ("%s expected DDCW\n", __func__);
                     p -> stati = 05001; // BUG: arbitrary error code; config switch
-                    return -1;
+                    return IOM_CMD_ERROR;
                   }
 
                 uint tally = p -> DDCW_TALLY;
@@ -682,21 +682,21 @@ sim_printf ("\n");
           }
           break;
 
-
         default:
           {
-            sim_warn ("prt daze %o\n", p -> IDCW_DEV_CMD);
-            p -> stati = 04501; // cmd reject, invalid opcode
-            p -> chanStatus = chanStatIncorrectDCW;
+            p->stati = 04501; // cmd reject, invalid opcode
+            p->chanStatus = chanStatIncorrectDCW;
+            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+              sim_warn ("prt daze %o\n", p -> IDCW_DEV_CMD);
           }
-          break;
+          return IOM_CMD_ERROR;
         }   
 
     if (p -> IDCW_CONTROL == 3) // marker bit set
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
-    return 0;
+    return IOM_CMD_OK;
   }
 
 // 1 ignored command
@@ -705,18 +705,15 @@ sim_printf ("\n");
 int prt_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+
 // Is it an IDCW?
 
-    if (p -> DCW_18_20_CP == 7)
-      {
-        prt_cmd (iomUnitIdx, chan);
-      }
-    else // DDCW/TDCW
+    if (p -> DCW_18_20_CP != 7)
       {
         sim_printf ("%s expected IDCW\n", __func__);
-        return -1;
+        return IOM_CMD_ERROR;
       }
-    return 0;
+    return prt_cmd (iomUnitIdx, chan);
   }
 
 static t_stat prt_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)

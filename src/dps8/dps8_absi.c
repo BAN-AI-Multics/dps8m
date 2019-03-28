@@ -265,11 +265,12 @@ sim_printf ("absi host switch up\n");
 
         default:
           {
-            sim_warn ("absi daze %o\n", p->IDCW_DEV_CMD);
+            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+              sim_warn ("absi daze %o\n", p->IDCW_DEV_CMD);
             p->stati = 04501; // cmd reject, invalid opcode
             p->chanStatus = chanStatIncorrectDCW;
           }
-          break;
+          return IOM_CMD_ERROR;
       }
 
     if (p->IDCW_CONTROL == 3) // marker bit set
@@ -279,8 +280,8 @@ sim_printf ("absi marker\n");
       }
 
     if (p->IDCW_CHAN_CMD == 0)
-      return 2; // don't do DCW list
-    return 0;
+      return IOM_CMD_NO_DCW; // don't do DCW list
+    return IOM_CMD_OK;
   }
 
 // 1 ignored command
@@ -296,7 +297,7 @@ int absi_iom_cmd (uint iomUnitIdx, uint chan)
         return absi_cmd (iomUnitIdx, chan);
       }
     sim_printf ("%s expected IDCW\n", __func__);
-    return -1;
+    return IOM_CMD_ERROR;
   }
 
 void absi_process_event (void)

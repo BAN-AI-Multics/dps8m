@@ -961,7 +961,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, true);
-	    return rc;
+	  return rc;
           }
           break;
 
@@ -978,9 +978,10 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
           {
             p->stati = 04501;
             p->chanStatus = chanStatIncorrectDCW;
-            sim_warn ("%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
+            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+              sim_warn ("%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
           }
-          break;
+          return IOM_CMD_ERROR;
 
       } // IDCW_DEV_CMD
 

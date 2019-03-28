@@ -171,6 +171,9 @@ typedef volatile struct
 //  flag
     //chanMode_t chanMode;
 
+    // true if the DCW is from a PCW
+    bool isPCW;
+
     // Information accumulated for status service.
     word12 stati;
     uint dev_code;

@@ -214,262 +214,6 @@ static int urp_cmd (uint iomUnitIdx, uint chan)
 
     switch (p -> IDCW_DEV_CMD)
       {
-#if 0
-        case 000: // CMD 00 Request status
-          {
-            p -> stati = 04000;
-            sim_debug (DBG_NOTIFY, & urp_dev, "Request status %d\n", urp_unit_num);
-          }
-          break;
-
-
-        case 001: // CMD 001 -- load image buffer
-          {
-            sim_debug (DBG_NOTIFY, & urp_dev, "load image buffer\n");
-            p -> isRead = false;
-            // Get the DDCW
-
-            bool ptro, send, uff;
-
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-            if (rc < 0)
-              {
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                sim_printf ("%s list service failed\n", __func__);
-                break;
-              }
-            if (uff)
-              {
-                sim_printf ("%s ignoring uff\n", __func__); // XXX
-              }
-            if (! send)
-              {
-                sim_printf ("%s nothing to send\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-            if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
-              {
-                sim_printf ("%s expected DDCW\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-
-            // We don't actually have a print chain, so just pretend we loaded the image data
-            p -> stati = 04000; 
-          }
-          break;
-
-
-
-// load_vfc: entry (pip, pcip, iop, rcode);
-// 
-// dcl 1 vfc_image aligned,                                    /* print VFC image */
-//    (2 lpi fixed bin (8),                                    /* lines per inch */
-//     2 image_length fixed bin (8),                           /* number of lines represented by image */
-//     2 toip,                                                 /* top of inside page info */
-//       3 line fixed bin (8),                                 /* line number */
-//       3 pattern bit (9),                                    /* VFC pattern */
-//     2 boip,                                                 /* bottom of inside page info */
-//       3 line fixed bin (8),                                 /* line number */
-//       3 pattern bit (9),                                    /* VFC pattern */
-//     2 toop,                                                 /* top of outside page info */
-//       3 line fixed bin (8),                                 /* line number */
-//       3 pattern bit (9),                                    /* VFC pattern */
-//     2 boop,                                                 /* bottom of outside page info */
-//       3 line fixed bin (8),                                 /* line number */
-//       3 pattern bit (9),                                    /* VFC pattern */
-//     2 pad bit (18)) unal;                                   /* fill out last word */
-// 
-// dcl (toip_pattern init ("113"b3),                           /* top of inside page pattern */
-//      toop_pattern init ("111"b3),                           /* top of outside page pattern */
-//      bop_pattern init ("060"b3))                            /* bottom of page pattern */
-//      bit (9) static options (constant);
-
-
-        case 005: // CMD 001 -- load vfc image
-          {
-            sim_debug (DBG_NOTIFY, & urp_dev, "load vfc image\n");
-            p -> isRead = false;
-
-            // Get the DDCW
-
-            bool ptro, send, uff;
-
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-            if (rc < 0)
-              {
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                sim_printf ("%s list service failed\n", __func__);
-                break;
-              }
-            if (uff)
-              {
-                sim_printf ("%s ignoring uff\n", __func__); // XXX
-              }
-            if (! send)
-              {
-                sim_printf ("%s nothing to send\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-            if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
-              {
-                sim_printf ("%s expected DDCW\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-
-            // We don't actually have VFC, so just pretend we loaded the image data
-            p -> stati = 04000; 
-          }
-          break;
-
-
-
-        case 034: // CMD 034 -- print edited ascii
-          {
-            p -> isRead = false;
-            p -> initiate = false;
-
-// The EURC MPC printer controller sets the number of DCWs in the IDCW and
-// ignores the IOTD bits in the DDCWs.
-
-            uint ddcwCnt = p -> IDCW_COUNT;
-            // Process DDCWs
-
-            bool ptro, send, uff;
-            for (uint ddcwIdx = 0; ddcwIdx < ddcwCnt; ddcwIdx ++)
-              {
-                int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-                if (rc < 0)
-                  {
-                    p -> stati = 05001; // BUG: arbitrary error code; config switch
-                    sim_printf ("%s list service failed\n", __func__);
-                    return -1;
-                  }
-                if (uff)
-                  {
-                    sim_printf ("%s ignoring uff\n", __func__); // XXX
-                  }
-                if (! send)
-                  {
-                    sim_printf ("%s nothing to send\n", __func__);
-                    p -> stati = 05001; // BUG: arbitrary error code; config switch
-                    return 1;
-                  }
-                if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
-                  {
-                    sim_printf ("%s expected DDCW\n", __func__);
-                    p -> stati = 05001; // BUG: arbitrary error code; config switch
-                    return -1;
-                  }
-
-                uint tally = p -> DDCW_TALLY;
-                sim_debug (DBG_DEBUG, & urp_dev,
-                           "%s: Tally %d (%o)\n", __func__, tally, tally);
-
-                if (tally == 0)
-                  tally = 4096;
-
-                // Copy from core to buffer
-                word36 buffer [tally];
-                uint wordsProcessed = 0;
-                iom_indirect_data_service (iomUnitIdx, chan, buffer,
-                                        & wordsProcessed, false);
-
-
-#if 0
-for (uint i = 0; i < tally; i ++)
-   sim_printf (" %012"PRIo64"", buffer [i]);
-sim_printf ("\n");
-#endif
-
-#if 0
-              sim_printf ("<");
-                for (uint i = 0; i < tally * 4; i ++) {
-                uint wordno = i / 4;
-                uint charno = i % 4;
-                uint ch = (buffer [wordno] >> ((3 - charno) * 9)) & 0777;
-                if (isprint (ch))
-                  sim_printf ("%c", ch);
-                else
-                  sim_printf ("\\%03o", ch);
-              }
-                sim_printf (">\n");
-#endif
-
-                if (urp_state [urp_unit_num] . urpfile == -1)
-                  openPunFile (urp_unit_num, buffer, tally);
-
-                uint8 bytes [tally * 4];
-                for (uint i = 0; i < tally * 4; i ++)
-                  {
-                    uint wordno = i / 4;
-                    uint charno = i % 4;
-                    bytes [i] = (buffer [wordno] >> ((3 - charno) * 9)) & 0777;
-                  }
-
-                for (uint i = 0; i < tally * 4; i ++)
-                  {
-                    uint8 ch = bytes [i];
-                    if (ch == 037) // insert n spaces
-                      {
-                        const uint8 spaces [128] = "                                                                                                                                ";
-                        i ++;
-                        uint8 n = bytes [i] & 0177;
-                        write (urp_state [urp_unit_num] . urpfile, spaces, n);
-                      }
-                    else if (ch == 013) // insert n new lines
-                      {
-                        const uint8 newlines [128] = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-                        i ++;
-                        uint8 n = bytes [i] & 0177;
-                        if (n)
-                          write (urp_state [urp_unit_num] . urpfile, newlines, n);
-                        else
-                          {
-                            const uint cr = '\r';
-                            write (urp_state [urp_unit_num] . urpfile, & cr, 1);
-                          }
-                      }
-                    else if (ch == 014) // slew
-                      {
-                        const uint8 ff = '\f';
-                        i ++;
-                        write (urp_state [urp_unit_num] . urpfile, & ff, 1);
-                      }
-                    else if (ch)
-                      {
-                        write (urp_state [urp_unit_num] . urpfile, & ch, 1);
-                      }
-                  }
-
-#if 0
-                if (urp_state [urp_unit_num] . last)
-                  {
-                    close (urp_state [urp_unit_num] . urpfile);
-                    urp_state [urp_unit_num] . urpfile = -1;
-                    urp_state [urp_unit_num] . last = false;
-                  }
-                // Check for slew to bottom of page
-                urp_state [urp_unit_num] . last = tally == 1 && buffer [0] == 0014011000000;
-#else
-                if (eoj (buffer, tally))
-                  {
-                    //sim_printf ("urp end of job\n");
-                    close (urp_state [urp_unit_num] . urpfile);
-                    urp_state [urp_unit_num] . urpfile = -1;
-                    //urp_state [urp_unit_num] . last = false;
-                  }
-#endif
-            } // for (ddcwIdx)
-
-            p -> tallyResidue = 0;
-            p -> stati = 04000; 
-          }
-          break;
-#endif
         case 000: // CMD 00 Request status
           {
             p -> stati = 04000;
@@ -568,11 +312,12 @@ sim_printf ("\n");
 
         default:
           {
-            sim_warn ("urp daze %o\n", p -> IDCW_DEV_CMD);
             p -> stati = 04501; // cmd reject, invalid opcode
             p -> chanStatus = chanStatIncorrectDCW;
+            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+              sim_warn ("urp daze %o\n", p -> IDCW_DEV_CMD);
           }
-          break;
+          return IOM_CMD_ERROR;
         }   
 
     if (p -> IDCW_CONTROL == 3) // marker bit set
@@ -581,8 +326,8 @@ sim_printf ("\n");
       }
 
     if (p -> IDCW_CHAN_CMD == 0)
-      return 2; // don't do DCW list
-    return 0;
+      return IOM_CMD_NO_DCW; // don't do DCW list
+    return IOM_CMD_OK;
   }
 
 // 1 ignored command
@@ -603,12 +348,12 @@ int urp_iom_cmd (uint iomUnitIdx, uint chan)
         if (! cmd)
           {
             sim_warn ("URP can't find divice handler\n");
-            return -1;
+            return IOM_CMD_ERROR;
           }
         return cmd (iomUnitIdx, chan);
       }
     sim_printf ("%s expected IDCW\n", __func__);
-    return -1;
+    return IOM_CMD_ERROR;
   }
 
 

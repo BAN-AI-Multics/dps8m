@@ -347,130 +347,6 @@ struct mailbox
 #define MAILBOX_WORDS (sizeof (struct mailbox) / sizeof (word36))
 #define TERM_INPT_MPX_WD (offsetof (struct mailbox, term_inpt_mpx_wd) / sizeof (word36))
 
-#if 0
-#ifdef THREADZ
-static inline void l_putbits36_1 (word36 volatile * x, uint p, word1 val)
-  {
-    const int n = 1;
-    int shift = 36 - (int) p - (int) n;
-    if (shift < 0 || shift > 35) {
-        sim_printf ("l_putbits36_1: bad args (%012"PRIo64",pos=%d)\n", *x, p);
-        return;
-    }
-    word36 mask = ~ (~0U<<n);  // n low bits on
-    word36 smask = mask << (unsigned) shift;  // shift 1s to proper position; result 0*1{n}0*
-    // caller may provide val that is too big, e.g., a word with all bits
-    // set to one, so we mask val
-    lock_mem_wr ();
-    * x = (* x & ~ smask) | (((word36) val & mask) << shift);
-    unlock_mem ();
-  }
-
-static inline void l_putbits36_3 (word36 volatile * x, uint p, word3 val)
-  {
-    const int n = 3;
-    int shift = 36 - (int) p - (int) n;
-    if (shift < 0 || shift > 35) {
-        sim_printf ("l_putbits36_3: bad args (%012"PRIo64",pos=%d)\n", *x, p);
-        return;
-    }
-    word36 mask = ~ (~0U<<n);  // n low bits on
-    word36 smask = mask << (unsigned) shift;  // shift 1s to proper position; result 0*1{n}0*
-    // caller may provide val that is too big, e.g., a word with all bits
-    // set to one, so we mask val
-    lock_mem_wr ();
-    * x = (* x & ~ smask) | (((word36) val & mask) << shift);
-    unlock_mem ();
-  }
-
-static inline void l_putbits36_6 (word36 volatile * x, uint p, word6 val)
-  {
-    const int n = 6;
-    int shift = 36 - (int) p - (int) n;
-    if (shift < 0 || shift > 35) {
-        sim_printf ("l_putbits36_6: bad args (%012"PRIo64",pos=%d)\n", *x, p);
-        return;
-    }
-    word36 mask = ~ (~0U<<n);  // n low bits on
-    word36 smask = mask << (unsigned) shift;  // shift 1s to proper position; result 0*1{n}0*
-    // caller may provide val that is too big, e.g., a word with all bits
-    // set to one, so we mask val
-    lock_mem_wr ();
-    * x = (* x & ~ smask) | (((word36) val & mask) << shift);
-    unlock_mem ();
-  }
-
-static inline void l_putbits36_9 (word36 volatile * x, uint p, word9 val)
-  {
-    const int n = 9;
-    int shift = 36 - (int) p - (int) n;
-    if (shift < 0 || shift > 35) {
-        sim_printf ("l_putbits36_9: bad args (%012"PRIo64",pos=%d)\n", *x, p);
-        return;
-    }
-    word36 mask = ~ (~0U<<n);  // n low bits on
-    word36 smask = mask << (unsigned) shift;  // shift 1s to proper position; result 0*1{n}0*
-    // caller may provide val that is too big, e.g., a word with all bits
-    // set to one, so we mask val
-    lock_mem_wr ();
-    * x = (* x & ~ smask) | (((word36) val & mask) << shift);
-    unlock_mem ();
-  }
-
-static inline void l_putbits36_12 (word36 volatile * x, uint p, word12 val)
-  {
-    const int n = 12;
-    int shift = 36 - (int) p - (int) n;
-    if (shift < 0 || shift > 35) {
-        sim_printf ("l_putbits36_12: bad args (%012"PRIo64",pos=%d)\n", *x, p);
-        return;
-    }
-    word36 mask = ~ (~0U<<n);  // n low bits on
-    word36 smask = mask << (unsigned) shift;  // shift 1s to proper position; result 0*1{n}0*
-    // caller may provide val that is too big, e.g., a word with all bits
-    // set to one, so we mask val
-    lock_mem_wr ();
-    * x = (* x & ~ smask) | (((word36) val & mask) << shift);
-    unlock_mem ();
-  }
-
-static inline void l_putbits36_18 (word36 volatile * x, uint p, word18 val)
-  {
-    const int n = 18;
-    int shift = 36 - (int) p - (int) n;
-    if (shift < 0 || shift > 35) {
-        sim_printf ("l_putbits36_18: bad args (%012"PRIo64",pos=%d)\n", *x, p);
-        return;
-    }
-    word36 mask = ~ (~0U<<n);  // n low bits on
-    word36 smask = mask << (unsigned) shift;  // shift 1s to proper position; result 0*1{n}0*
-    // caller may provide val that is too big, e.g., a word with all bits
-    // set to one, so we mask val
-    lock_mem_wr ();
-    * x = (* x & ~ smask) | (((word36) val & mask) << shift);
-    unlock_mem ();
-}
-
-#else
-#define l_putbits36_1 putbits36_1
-#define l_putbits36_3 putbits36_3
-#define l_putbits36_6 putbits36_6
-#define l_putbits36_9 putbits36_9
-#define l_putbits36_12 putbits36_12
-#define l_putbits36_18 putbits36_18
-#endif
-#endif
-
-
-#if 0
-static void setTIMW (uint mailbox_address, int mbx)
-  {
-    uint timwAddress = mailbox_address + TERM_INPT_MPX_WD;
-    l_putbits36_1 (& M [timwAddress], (uint) mbx, 1);
-  }
-#endif
-
-
 //
 // Once-only initialization
 //
@@ -528,50 +404,6 @@ static uint virtToPhys (uint ptPtr, uint l66Address)
     return addr;
   }
 
-#if 0
-//
-// Locate an available fnp_submailbox
-//
-
-static int findMbx (uint dia_unit_idx)
-  {
-    struct dia_unit_data * dudp = & dia_data.dia_unit_data [dia_unit_idx];
-    for (uint i = 0; i < 4; i ++)
-      if (! dudp -> fnpMBXinUse [i])
-        return (int) i;
-    return -1;
-  }
-#endif
-
-#if 0
-static void notifyCS (int mbx, int fnpno, int lineno)
-  {
-#ifdef DIADBG
-sim_printf ("notifyCS mbx %d\n", mbx);
-#endif
-    struct dia_unit_data * dudp = & dia_data.dia_unit_data [fnpno];
-#ifdef SCUMEM
-    uint iom_unit_idx = (uint) cables->cables_from_iom_to_dia [fnpno].iom_unit_idx;
-    word24 offset;
-    int scu_unit_num =  query_IOM_SCU_bank_map (iom_unit_idx, dudp->mailbox_address, & offset);
-    int scu_unit_idx = cables->cablesFromScus[iom_unit_idx][scu_unit_num].scu_unit_idx;
-    struct mailbox vol * mbxp = (struct mailbox vol *) & scu [scu_unit_idx].M[offset];
-#else
-    struct mailbox vol * mbxp = (struct mailbox vol *) & M [dudp->mailbox_address];
-#endif
-    struct fnp_submailbox vol * smbxp = & (mbxp -> fnp_sub_mbxes [mbx]);
-
-    l_putbits36_3 (& smbxp -> word1, 0, (word3) fnpno); // dn355_no XXX
-    l_putbits36_1 (& smbxp -> word1, 8, 1); // is_hsla XXX
-    l_putbits36_3 (& smbxp -> word1, 9, 0); // la_no XXX
-    l_putbits36_6 (& smbxp -> word1, 12, (word6) lineno); // slot_no XXX
-    l_putbits36_18 (& smbxp -> word1, 18, 256); // blocks available XXX
-
-    dudp->fnpMBXinUse [mbx] = true;
-    setTIMW (dudp->mailbox_address, mbx + 8);
-    send_terminate_interrupt ((uint) cables -> cables_from_iom_to_dia [fnpno] . iom_unit_idx, (uint) cables -> cables_from_iom_to_dia [fnpno] . chan_num);
-  }
-#endif
 
 //
 // udp packets
@@ -1013,16 +845,7 @@ static int dia_cmd (uint iom_unit_idx, uint chan)
       {
         case 000: // CMD 00 Request status
           {
-//sim_printf ("fnp cmd request status\n");
-#if 0
-            if (findPeer ("fnp-d"))
-              p -> stati = 04000;
-            else
-              p -> stati = 06000; // Have status; power off?
-#else
-              p -> stati = 04000;
-#endif
-            //disk_statep -> io_mode = no_mode;
+            p -> stati = 04000;
             sim_debug (DBG_NOTIFY, & dia_dev, "Request status\n");
           }
           break;
@@ -1030,18 +853,16 @@ static int dia_cmd (uint iom_unit_idx, uint chan)
         default:
           {
             p -> stati = 04501;
-            sim_debug (DBG_ERR, & dia_dev,
-                       "%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
-#ifdef FNPDBG
-sim_printf ("%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
-#endif
-            break;
+            p -> chanStatus = chanStatIncorrectDCW;
+            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+              sim_warn ("dia daze %o\n", p->IDCW_DEV_CMD);
           }
+          return IOM_CMD_ERROR;
       }
 
     processMBX (iom_unit_idx, chan);
 
-    return 2; // did command, don't want more
+    return IOM_CMD_NO_DCW; // did command, don't want more
   }
 
 /*
