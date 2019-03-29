@@ -1690,6 +1690,19 @@ sim_printf ("3270 controller found at unit %u line %u\r\n", devUnitIdx, lineno);
       fnpuv3270Init (fnpData.telnet3270_port);
   }
 
+#if 0
+static word18 getl6core (uint iom_unit_idx, uint chan, word24 l66addr, uint addr)
+  {
+    word24 wos = addr / 2;
+    word36 word;
+    iom_direct_data_service (iom_unit_idx, chan, l66addr + wos, & word, direct_load);
+    if (addr & 1)
+      return (word18) (word & MASK18);
+    else
+      return (word18) ((word >> 18) & MASK18);
+  }
+#endif
+
 static void processMBX (uint iomUnitIdx, uint chan)
   {
     uint fnp_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
@@ -1822,6 +1835,406 @@ static void processMBX (uint iomUnitIdx, uint chan)
       }
     else if (command == 072) // bootload
       {
+#if 0
+        word24 l66addr = (((word24) getbits36_6 (dia_pcw, 24)) << 18) |
+                           (word24) getbits36_18 (dia_pcw, 0);
+
+// AN85-01 15-2 
+//   0 boot dcw
+//   1  gicb
+//      ....
+//      padding to next multiple of 64
+//   n  core image
+//
+// where n is (in 36 bit words) (gicb len + 1) + 63 / 64 
+
+//sim_printf ("l66addr %08o\n", l66addr);
+        word36 dcw;
+        iom_direct_data_service (iomUnitIdx, chan, l66addr, & dcw, direct_load);
+        word12 tally = getbits36_12 (dcw, 24);
+        // sim_printf ("%o %d.\n", tally, tally);
+//sim_printf ("dcw %012llo\n", dcw);
+
+        // Calculate start of core image
+        word24 image_off = (tally + 64) & 077777700;
+        // sim_printf ("image_off %o %d.\n", image_off, image_off);
+#endif
+
+#if 0
+for (uint i = 0; i < 4096; i ++) {
+  if (i % 4 == 0) sim_printf ("%06o", i);
+  word36 word0;
+  iom_direct_data_service (iomUnitIdx, chan, l66addr + i, & word0, direct_load);
+  sim_printf (" %012llo", word0);
+  if (i % 4 == 3) sim_printf ("\r\n");
+  }
+#endif
+#if 0
+  word36 word0;
+  iom_direct_data_service (iomUnitIdx, chan, l66addr + 001170, & word0, direct_load);
+  sim_printf ("001170 %012llo\n", word0);
+  sim_printf ("(000370*2 %08o\n", getl6core (iomUnitIdx, chan, l66addr + image_off, (0370*2)));
+#endif
+#if 0
+sim_printf ("%05o %08o\n", 0, getl6core (iomUnitIdx, chan, l66addr + image_off, 0));
+word36 word0;
+iom_direct_data_service (iomUnitIdx, chan, l66addr + image_off, & word0, direct_load);
+sim_printf ("word0 %012llo\n", word0);
+#endif
+
+#if 0
+//for (uint i = 0640; i <=0677; i ++)
+for (uint i = 0370*2; i <=0400*2; i ++)
+  sim_printf ("%05o %08o\n", i, getl6core (iomUnitIdx, chan, l66addr + image_off, i));
+#endif
+
+
+// comm_ref
+//   0640   crldt  72 
+//   0644   crbdt  72
+//   0650   crbuf  18
+//   0651   crmem  18
+//   0652   crnbf  18
+//   0653   criom  18
+
+
+//     2 comm_reg unal,                   /* software communications region */
+// 0640  3 crldt fixed bin (71) aligned,  /* date and time binder */
+// 0644  3 crbdt fixed bin (71) aligned,  /* date and time image booted */
+// 0650  3 crbuf fixed bin (17) unal,     /* base of free buffer pool */
+// 0651  3 crmem fixed bin (18) unsigned unal, /* last loc of mem configured */
+// 0652  3 crnbf fixed bin (17) unal,     /* free buffers in pool now */
+// 0653  3 criom fixed bin (17) unal,     /* pointer to iom table */
+// 0654  3 crnhs fixed bin (17) unal,     /* number of HSLAs */
+// 0655  3 crnls fixed bin (17) unal,     /* number of LSLAs */
+// 0656  3 crcon bit (18) unal,           /* console enable switch */
+// 0657  3 crmod fixed bin (17) unal,     /* base of module chain */
+//       3 crnxa fixed bin (17) unal,     /* ptr to head of free space chain */
+//       3 crtra bit (18) unal,           /* trace entry enable mask */
+//       3 crtrb fixed bin (18) unsigned unal, /* base of trace table */
+//       3 crtrc fixed bin (18) unsigned unal, /* next trace table entry ptr */
+//       3 crreg fixed bin (17) unal,    /* ptr to fault reg storage area */
+//       3 crttb fixed bin (17) unal,    /* ptr to tib table base */
+//       3 crtte fixed bin (17) unal,    /* last addr in tib table */
+//       3 crdly fixed bin (17) unal,    /* pointer to delay table chain */
+//       3 crver char (4) unal, /* mcs version number */
+//       3 crbrk fixed bin (17) unal,    /* pointer to breakpoint control table */
+//       3 crtsw bit (18) unal, /* trace switch (zero=trace on) */
+//       3 crnxs fixed bin (17) unal,    /* pointer to next free small block */
+//       3 crnbs fixed bin (17) unal,    /* number of buffers devoted to small space */
+//       3 crcct fixed bin (17) unal,    /* pointer to first cct descriptor */
+//       3 crskd fixed bin (17) unal,    /* pointer to scheduler data block */
+//       3 cretb fixed bin (17) unal,    /* pointer to list of echo-negotiation bit tables */
+//       3 crcpt fixed bin (17) unal,    /* pointer to cpu page table */
+//       3 crpte fixed bin (17) unal,    /* pointer to variable cpu page table entry */
+//       3 crtsz fixed bin (17) unal,    /* size of trace data buffer */
+//       3 crmet bit (18) unal,          /* metering enabled */
+//       3 crtdt bit (18) unal,          /* 0 if no COLTS channel; set to TIB address if it exists */
+//       3 crbtm bit (18) unal,          /* address of time meters for buffer allocation/freeing */
+//       3 crnxe fixed bin (18) unsigned unal, /* next available space in extended memory */
+//       3 crbpe fixed bin (17) unal,    /* buffer paging window table entry */
+//       3 pad (39) bit (18) unal,
+//       3 crcpr char (28) unal,         /* image copyright notice */
+//       3 crash_location bit (18) unal, /* offset used for unresolved REF's */
+//       3 crash_opcode bit (18) unal,   /* crash instruction */
+
+#if 0
+// print IOM table
+        sim_printf ("FNP IOM table\n");
+        word18 criom = getl6core (iomUnitIdx, chan, l66addr + image_off, 0653);
+        //sim_printf ("criom %08o\n", criom);
+        for (uint ichan = 0; ichan < 16; ichan ++)
+          {
+            word18 flag = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + ichan * 2);
+            word18 taddr = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + ichan * 2 + 1);
+            //adapter_number = getbits18_3 (flag, 3);
+            uint adapter_number = (flag >> 12) & 3;
+            uint device_type_code = (flag >> 4) & 037;
+            uint speed_code = flag & 017;
+            char * dtc_str = "";
+            if (device_type_code == 1)
+              dtc_str = "clock";
+            else if (device_type_code == 2)
+              dtc_str = "dia";
+            else if (device_type_code == 3)
+              dtc_str = "hsla";
+            else if (device_type_code == 4)
+              dtc_str = "lsla";
+            else if (device_type_code == 5)
+              dtc_str = "console";
+            else if (device_type_code == 6)
+              dtc_str = "printer";
+            char * itable [16] =
+              {
+                "console",
+                "reader ",
+                "printer",
+                "-------",
+                "DIA    ",
+                "-------",
+                "HSLA 0 ",
+                "HSLA 1 ",
+                "HSLA 2 ",
+                "LSLA 0 ",
+                "LSLA 1 ",
+                "LSLA 2 ",
+                "LSLA 3 ",
+                "LSLA 4 ",
+                "LSLA 5 ",
+                "clock  "
+              };
+            
+            sim_printf ("%2d %s %08o %d %d %d %s\n", ichan, itable[ichan], taddr, device_type_code, adapter_number, speed_code, dtc_str);
+          }
+#endif
+
+#if 0
+        // Number of LSLAs
+        word18 crnls = getl6core (iomUnitIdx, chan, l66addr + image_off, 0655);
+        sim_printf ("Number of LSLAs (crnls) %d\n", crnls);
+
+        // Address of IOM table
+        word18 criom = getl6core (iomUnitIdx, chan, l66addr + image_off, 0653);
+
+        // Walk the LSLAs in the IOM table
+        //  2 words/slot (flags, taddr)
+        //  6 LSLA slots
+        //  first slot at first_lsla_ch 9
+
+        bool hdr = false;
+        uint nfound = 0;
+        for (uint lsla = 0; lsla < 6; lsla ++)
+          {
+            uint slot = lsla + 9;
+            uint os = slot * 2;
+            // get flags word
+            word18 flags = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os);
+            uint device_type_code = (flags >> 4) & 037;
+            if (device_type_code == 4)
+              {
+                nfound ++;
+                // get addr word
+                word18 tblp = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os + 1);
+                for (uint slot = 0; slot < 52; slot ++)
+                  {
+                    // 2 word18s per entry
+                    //   pad bit(11)
+                    //   ibm_code bit(1)   // if 6-bit odd parity
+                    //   pad2 bit(3)
+                    //   slot_id bit(3)
+                    //
+                    //   ptr bit(18)
+                    word3 slot_id = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot) & MASK3;
+                    if (slot_id != 7)
+                      {
+                        char * slot_ids [8] = 
+                          { 
+                            "10 cps",
+                            "30 cps, slot 1", 
+                            "30 cps, slot 2", 
+                            "30 cps, slot 3", 
+                            "invalid",
+                            "15 cps, slot 1", 
+                            "15 cps, slot 2", 
+                            "unused"
+                          };
+                        char * id = slot_ids[slot_id];
+                        if (! hdr)
+                          {
+                            hdr = true;
+                            sim_printf ("LSLA table: card number, slot, slot_id, slot_id string\n");
+                          }
+                        sim_printf ("%d %2d %d %s\n", lsla, slot, slot_id, id);
+                      }
+                  } // for slot
+              } // if dev type 4 (LSLA)
+          } // iom table entry
+        if (nfound != crnls)
+          sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
+
+
+        // Number of HSLAs
+        word18 crnhs = getl6core (iomUnitIdx, chan, l66addr + image_off, 0654);
+        sim_printf ("Number of HSLAs (crnhs) %d\n", crnhs);
+
+        // Walk the HSLAs in the IOM table
+        //  2 words/slot (flags, taddr)
+        //  3 LSLA slots
+        //  first slot at first_hsla_ch 6
+
+        hdr = false;
+        nfound = 0;
+        for (uint hsla = 0; hsla < 3; hsla ++)
+          {
+            uint slot = hsla + 6;
+            uint os = slot * 2;
+            // get flags word
+            word18 flags = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os);
+            uint device_type_code = (flags >> 4) & 037;
+            if (device_type_code == 3)
+              {
+                nfound ++;
+                // get addr word
+                word18 tblp = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os + 1);
+                for (uint slot = 0; slot < 32; slot ++)
+                  {
+                    // 2 word18s per entry
+                    //   conc_chan bit(1)
+                    //   private_line bit(1)
+                    //   async bit(1)
+                    //   option1 bit(1)
+                    //   option2 bit(1)
+                    //   modem_type bit(4)
+                    //   line_type bit(5)
+                    //   dev_speed bit(4)
+                    //
+                    //   ptr bit(18)
+
+                    char * line_types[23] =
+                      {
+                        "none      ",
+                        "ASCII     ",
+                        "1050      ",
+                        "2741      ",
+                        "ARDS      ",
+                        "Sync      ",
+                        "G115      ",
+                        "BSC       ",
+                        "202ETX    ",
+                        "VIP       ",
+                        "ASYNC1    ",
+                        "ASYNC2    ",
+                        "ASYNC3    ",
+                        "SYNC1     ",
+                        "SYNC2     ",
+                        "SYNC3     ",
+                        "POLLED_VIP",
+                        "X25LAP    ",
+                        "HDLC      ",
+                        "COLTS     ",
+                        "DSA       ",
+                        "HASP_OPR  ",
+                        "invalid   "
+                      };
+
+                    char * modem_types[8] =
+                      {
+                        "invalid      ",
+                        "Bell 103A/113",
+                        "Bell 201C    ",
+                        "Bell 202C5   ",
+                        "Bell 202C6   ",
+                        "Bell 208A    ",
+                        "Bell 208B    ",
+                        "Bell 209A    "
+                      };
+
+#if 0
+                    char * async_speeds[11] =
+                      {
+                        "invalid",
+                        "75     ",
+                        "110    ",
+                        "134.5  ",
+                        "150    ",
+                        "300    ",
+                        "600    ",
+                        "1050   ",
+                        "1200   ",
+                        "1800   ",
+                        "option "
+                      };
+
+                    char * sync_speeds[11] =
+                      {
+                        "invalid",
+                        "2000   ",
+                        "2400   ",
+                        "3600   ",
+                        "4800   ",
+                        "5400   ",
+                        "7200   ",
+                        "9600   ",
+                        "19200  ",
+                        "40800  ",
+                        "50000  "
+                      };
+#endif
+                    char * async_speeds[16] =
+                      {
+                        "invalid",
+                        "110    ",
+                        "133    ",
+                        "150    ",
+                        "300    ",
+                        "600    ",
+                        "1200   ",
+                        "1800   ",
+                        "2400   ",
+                        "4800   ",
+                        "7200   ",
+                        "9600   ",
+                        "19200  ",
+                        "40800  ",
+                        "50000  ",
+                        "72000  "
+                      };
+
+                    char * sync_speeds[16] =
+                      {
+                        "invalid",
+                        "2000   ",
+                        "2400   ",
+                        "3600   ",
+                        "4800   ",
+                        "5400   ",
+                        "7200   ",
+                        "9600   ",
+                        "19200  ",
+                        "40800  ",
+                        "50000  ",
+                        "invalid",
+                        "invalid",
+                        "invalid",
+                        "invalid",
+                        "invalid"
+                      };
+                    word18 subch_data = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot);
+                    word1 async = (subch_data >> 15) & 1;
+                    word1 option1 = (subch_data >> 14) & 1;
+                    word5 line_type = (subch_data >> 4)  & MASK5;
+                    if (line_type > 22)
+                      line_type = 22;
+                    word4 modem_type = (subch_data >> 9)  & MASK4;
+                    if (modem_type > 7)
+                      modem_type = 0;
+                    word4 dev_speed = subch_data  & MASK4;
+                    //if (dev_speed > 10)
+                      //dev_speed = 0;
+                    char * speed = async ? async_speeds[dev_speed] : sync_speeds[dev_speed];
+                    if (async && dev_speed == 4 && option1)
+                      speed = "auto   ";
+
+                    if (! hdr)
+                      {
+                        hdr = true;
+                        sim_printf ("HSLA table: card number, slot, "
+                                    "sync/async, line type, modem_type, "
+                                    "speed\n");
+                      }
+                    sim_printf ("%d %2d %s %s %s %s\n",
+                                 hsla, slot, async ? "async" :"sync ", 
+                                 line_types[line_type],
+                                 modem_types[modem_type],
+                                 speed);
+                  } // for slot
+              } // if dev type 4 (LSLA)
+          } // iom table entry
+        if (nfound != crnls)
+          sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
+#endif
+
+
 #if defined(THREADZ) || defined(LOCKLESS)
         lock_libuv ();
 #endif
