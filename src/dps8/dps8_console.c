@@ -736,6 +736,11 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
     UNIT * unitp = & opc_unit[con_unit_idx];
     opc_state_t * csp = console_state + con_unit_idx;
 
+    // The 6001 only executes the PCW DCW command; the 6601 executes
+    // the the PCW DCW and (at least) the first DCW list item.
+    // When Multics uses the 6601, the PCW DCW is always 040 RESET.
+    // The 040 RESET will trigger the DCW list read.
+    // will change this.
 
     // ASSURE(p -> DCW_18_20_CP == 07); // IDCW
     if (p->DCW_18_20_CP != 07) // IDCW
@@ -1082,6 +1087,15 @@ sim_warn ("uncomfortable with this\n");
           }
           break;
 
+// Model 6001 vs. 6601.
+//
+// When Multics switches to 6601 mode, the PCW DCW is always 040 RESET; the
+// bootload and 6001 code never does that. Therefore, we use the 040 
+// as an indication that the DCW list should be processed.
+// All of the other device commands will return IOM_CMD_NO_DCW, stopping
+// parsing of the channel command program. This one will return IOM_CMD_OK,
+// causing the parser to move to the DCW list.
+
         case 040:               // Reset
           {
             sim_debug (DBG_NOTIFY, & opc_dev,
@@ -1089,7 +1103,8 @@ sim_warn ("uncomfortable with this\n");
             csp->io_mode = opc_no_mode;
             p->stati = 04000;
           }
-          break;
+          // Read the DCW list.
+          return IOM_CMD_OK;
 
         case 051:               // Write Alert -- Ring Bell
           {
@@ -1114,6 +1129,24 @@ sim_warn ("uncomfortable with this\n");
           }
           break;
 
+        case 060:               // LOCK MCA
+          {
+            console_putstr ((int) con_unit_idx,  "CONSOLE: LOCK\r\n");
+            sim_debug (DBG_NOTIFY, & opc_dev,
+                       "%s: Lock  cmd received\n", __func__);
+            p->stati = 04000;
+          }
+          break;
+
+        case 063:               // UNLOCK MCA
+          {
+            console_putstr ((int) con_unit_idx,  "CONSOLE: UNLOCK\r\n");
+            sim_debug (DBG_NOTIFY, & opc_dev,
+                       "%s: Unlock  cmd received\n", __func__);
+            p->stati = 04000;
+          }
+          break;
+
         default:
           {
             p->stati = 04501; // command reject, invalid instruction code
@@ -1123,7 +1156,9 @@ sim_warn ("uncomfortable with this\n");
           }
           return IOM_CMD_ERROR;
       }
-    return IOM_CMD_OK;
+    // If we get here, Multics is either in bootload, or is configured for
+    // 6001; so don't read the DCW list.
+    return IOM_CMD_NO_DCW;
   }
 
 static void consoleProcessIdx (int conUnitIdx)
@@ -1578,9 +1613,10 @@ int opc_iom_cmd (uint iomUnitIdx, uint chan)
 #if defined(THREADZ) || defined(LOCKLESS)
     unlock_libuv ();
 #endif
-    if (rc == IOM_CMD_PENDING)
-      return rc;
-    return IOM_CMD_NO_DCW;
+    //if (rc == IOM_CMD_PENDING)
+      //return rc;
+    //return IOM_CMD_NO_DCW;
+    return rc;
   }
 
 static t_stat opc_svc (UNIT * unitp)
