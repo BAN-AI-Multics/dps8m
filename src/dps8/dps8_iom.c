@@ -267,6 +267,12 @@ enum config_sw_OS_t
     CONFIG_SW_MULTICS  // "Paged"
   };
     
+enum config_sw_model_t
+  {
+    CONFIG_SW_MODEL_IOM, 
+    CONFIG_SW_MODEL_IMU 
+  };
+
 
 // Boot device: CARD/TAPE;
 enum config_sw_bootlood_device_e { CONFIG_SW_BLCT_CARD, CONFIG_SW_BLCT_TAPE };
@@ -295,6 +301,8 @@ typedef struct
 
     word9 configSwMultiplexBaseAddress;
             
+    enum config_sw_model_t config_sw_model; // IOM or IMY
+
     // OS: Three position switch: GCOS, EXT GCOS, Multics
     enum config_sw_OS_t config_sw_OS; // = CONFIG_SW_MULTICS;
 
@@ -728,6 +736,12 @@ static t_stat iom_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
 //             storesize=n
 //          bootskip=n // Hack: forward skip n records after reading boot record
 
+static config_value_list_t cfg_model_list[] =
+  {
+    { "iom", CONFIG_SW_MODEL_IOM },
+    { "imu", CONFIG_SW_MODEL_IMU }
+  };
+
 static config_value_list_t cfg_os_list[] =
   {
     { "gcos", CONFIG_SW_STD_GCOS },
@@ -779,20 +793,21 @@ static config_value_list_t cfg_size_list[] =
 
 static config_list_t iom_config_list[] =
   {
-    /*  0 */ { "os", 1, 0, cfg_os_list },
-    /*  1 */ { "boot", 1, 0, cfg_boot_list },
-    /*  2 */ { "iom_base", 0, 07777, cfg_base_list },
-    /*  3 */ { "multiplex_base", 0, 0777, NULL },
-    /*  4 */ { "tapechan", 0, 077, NULL },
-    /*  5 */ { "cardchan", 0, 077, NULL },
-    /*  6 */ { "scuport", 0, 07, NULL },
-    /*  7 */ { "port", 0, N_IOM_PORTS - 1, NULL },
-    /*  8 */ { "addr", 0, 7, NULL },
-    /*  9 */ { "interlace", 0, 1, NULL },
-    /* 10 */ { "enable", 0, 1, NULL },
-    /* 11 */ { "initenable", 0, 1, NULL },
-    /* 12 */ { "halfsize", 0, 1, NULL },
-    /* 13 */ { "store_size", 0, 7, cfg_size_list },
+    { "model", 1, 0, cfg_model_list },
+    { "os", 1, 0, cfg_os_list },
+    { "boot", 1, 0, cfg_boot_list },
+    { "iom_base", 0, 07777, cfg_base_list },
+    { "multiplex_base", 0, 0777, NULL },
+    { "tapechan", 0, 077, NULL },
+    { "cardchan", 0, 077, NULL },
+    { "scuport", 0, 07, NULL },
+    { "port", 0, N_IOM_PORTS - 1, NULL },
+    { "addr", 0, 7, NULL },
+    { "interlace", 0, 1, NULL },
+    { "enable", 0, 1, NULL },
+    { "initenable", 0, 1, NULL },
+    { "halfsize", 0, 1, NULL },
+    { "store_size", 0, 7, cfg_size_list },
 
     { NULL, 0, 0, NULL }
   };
@@ -816,32 +831,47 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
       {
         int64_t v;
         int rc = cfg_parse (__func__, cptr, iom_config_list, & cfg_state, & v);
-        switch (rc)
+
+        if (rc == -1) // done
+          break;
+
+        if (rc == -2) // error
           {
-            case -2: // error
-              cfg_parse_done (& cfg_state);
-              return SCPE_ARG; 
+            cfg_parse_done (& cfg_state);
+            continue;
+          }
+        const char * name = iom_config_list[rc].name;
 
-            case -1: // done
-              break;
+        if (strcmp (name, "model") == 0)
+          {
+            p -> config_sw_model = (enum config_sw_model_t) v;
+            continue;
+          }
 
-            case 0: // OS
-              p -> config_sw_OS = (enum config_sw_OS_t) v;
-              break;
+        if (strcmp (name, "os") == 0)
+          {
+            p -> config_sw_OS = (enum config_sw_OS_t) v;
+            continue;
+          }
 
-            case 1: // BOOT
-              p -> configSwBootloadCardTape = (enum config_sw_bootlood_device_e) v;
-              break;
+        if (strcmp (name, "boot") == 0)
+          {
+            p -> configSwBootloadCardTape = (enum config_sw_bootlood_device_e) v;
+            continue;
+          }
 
-            case 2: // IOM_BASE
-              p -> configSwIomBaseAddress = (word12) v;
-              break;
+        if (strcmp (name, "iom_base") == 0)
+          {
+            p -> configSwIomBaseAddress = (word12) v;
+            continue;
+          }
 
-            case 3: // MULTIPLEX_BASE
-              // The IOM number is in the low 2 bits
-              // The address is in the high 7 bits which are mapped
-              // to bits 12 to 18 of a 24 bit addrss
-              //
+        if (strcmp (name, "multiplex_base") == 0)
+          {
+            // The IOM number is in the low 2 bits
+            // The address is in the high 7 bits which are mapped
+            // to bits 12 to 18 of a 24 bit addrss
+            //
 //  0  1  2  3  4  5  6  7  8
 //  x  x  x  x  x  x  x  y  y
 //
@@ -854,64 +884,73 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
 //  0  1
 //  y  y
 
-              p -> configSwMultiplexBaseAddress = (word9) v;
-              break;
+            p -> configSwMultiplexBaseAddress = (word9) v;
+            continue;
+          }
 
-            case 4: // TAPECHAN
-              p -> configSwBootloadMagtapeChan = (word6) v;
-              break;
+        if (strcmp (name, "tapechan") == 0)
+          {
+            p -> configSwBootloadMagtapeChan = (word6) v;
+            continue;
+          }
 
-            case 5: // CARDCHAN
-              p -> configSwBootloadCardrdrChan = (word6) v;
-              break;
+        if (strcmp (name, "cardchan") == 0)
+          {
+            p -> configSwBootloadCardrdrChan = (word6) v;
+            continue;
+          }
 
-            case 6: // SCUPORT
-              p -> configSwBootloadPort = (word3) v;
-              break;
+        if (strcmp (name, "scuport") == 0)
+          {
+            p -> configSwBootloadPort = (word3) v;
+            continue;
+          }
 
-            case 7: // PORT
-              port_num = (uint) v;
-              break;
+        if (strcmp (name, "port") == 0)
+          {
+            port_num = (uint) v;
+            continue;
+          }
 
-#if 0
-                // all of the remaining assume a valid value in port_num
-                if (/* port_num < 0 || */ port_num > 7)
-                  {
-                    sim_printf ("error: %s: cached PORT value out of range: %d\n", __func__, port_num);
-                    break;
-                  } 
-#endif
-            case 8: // ADDR
-              p -> configSwPortAddress[port_num] = (uint) v;
-              break;
+        if (strcmp (name, "addr") == 0)
+          {
+            p -> configSwPortAddress[port_num] = (uint) v;
+            continue;
+          }
 
-            case 9: // INTERLACE
-              p -> configSwPortInterface[port_num] = (uint) v;
-              break;
+        if (strcmp (name, "interlace") == 0)
+          {
+            p -> configSwPortInterface[port_num] = (uint) v;
+            continue;
+          }
 
-            case 10: // ENABLE
-              p -> configSwPortEnable[port_num] = (uint) v;
-              break;
+        if (strcmp (name, "enable") == 0)
+          {
+            p -> configSwPortEnable[port_num] = (uint) v;
+            continue;
+          }
 
-            case 11: // INITENABLE
-              p -> configSwPortSysinitEnable[port_num] = (uint) v;
-              break;
+        if (strcmp (name, "initenable") == 0)
+          {
+            p -> configSwPortSysinitEnable[port_num] = (uint) v;
+            continue;
+          }
 
-            case 12: // HALFSIZE
-              p -> configSwPortHalfsize[port_num] = (uint) v;
-              break;
+        if (strcmp (name, "halfsize") == 0)
+          {
+            p -> configSwPortHalfsize[port_num] = (uint) v;
+            continue;
+          }
 
-            case 13: // STORE_SIZE
-              p -> configSwPortStoresize[port_num] = (uint) v;
-              break;
+        if (strcmp (name, "store_size") == 0)
+          {
+            p -> configSwPortStoresize[port_num] = (uint) v;
+            continue;
+          }
 
-            default:
-              sim_printf ("error: %s: invalid cfg_parse rc <%d>\n", __func__, rc);
-              cfg_parse_done (& cfg_state);
-              return SCPE_ARG; 
-          } // switch
-        if (rc < 0)
-          break;
+        sim_printf ("error: %s: invalid cfg_parse rc <%d>\n", __func__, rc);
+        cfg_parse_done (& cfg_state);
+        return SCPE_ARG; 
       } // process statements
     cfg_parse_done (& cfg_state);
     return SCPE_OK;
@@ -1069,8 +1108,8 @@ static void init_memory_iom (uint iom_unit_idx)
     word36 cmd = 5;       // 6 bits; 05 for tape, 01 for cards
     word36 dev = 0;            // 6 bits: drive number
     
-    // Maybe an is-IMU flag; IMU is later version of IOM
-    word36 imu = 0;       // 1 bit
+    // is-IMU flag
+    word36 imu = iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IMU ? 1 : 0;       // 1 bit
     
     // Description of the bootload channel from 43A239854
     //    Legend
