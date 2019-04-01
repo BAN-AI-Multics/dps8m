@@ -2726,6 +2726,8 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
               }
           }
         cnt = sscanf (filebuf, "Bindmap for >ldd>h>e>%32s", name);
+        if (cnt != 1)
+          cnt = sscanf (filebuf, "Bindmap for >ldd>hard>e>%32s", name);
         if (cnt == 1)
           {
             //sim_msg ("B: %s\n", name);
