@@ -717,6 +717,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
 
     p->charPos = n_chars % 4;
     p->stati = (word12) stati;
+    p->initiate = false;
 
     csp->readp = csp->buf;
     csp->tailp = csp->buf;
