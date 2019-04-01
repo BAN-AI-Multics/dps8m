@@ -219,6 +219,7 @@ H_SRCS += dps8_prt.h
 H_SRCS += dps8_socket_dev.h
 H_SRCS += dps8_scu.h
 H_SRCS += dps8_simh.h
+H_SRCS += dps8_state.h
 H_SRCS += dps8_sys.h
 H_SRCS += dps8_urp.h
 H_SRCS += dps8_utils.h
