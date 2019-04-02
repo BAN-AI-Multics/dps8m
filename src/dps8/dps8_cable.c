@@ -30,6 +30,9 @@
 //   CABLE DUMP
 //      Show the current cabling configuration in great detail.
 //
+//   The following can be prefixed with "UN" ("UNCABLE") to cause the
+//   removal of an existing cable.
+//
 //   CABLE SCUi j IOMk l
 //
 //      Connect SCU i port j to IOM k port l.
@@ -78,6 +81,10 @@
 //   CABLE IPCi j DISKk
 //
 //      Connect IPC i device code j to disk unit k.
+//
+//   CABLE IPCi j TAPEk
+//
+//      Connect IPC i device code j to tape unit k.
 //
 //   CABLE MSPi j DISKk
 //
@@ -1030,22 +1037,22 @@ static t_stat cable_ipc (int uncable, uint ctlr_unit_idx, char * * name_save)
         return SCPE_ARG;
       }
 
-    // extract tape index
+    // parse DISK/TAPE 
     char * param = strtok_r (NULL, ", ", name_save);
     if (! param)
       {
         sim_printf ("error: CABLE IOM can't parse device name\n");
         return SCPE_ARG;
       }
-    uint dsk_unit_idx;
+    uint unit_idx;
 
 
 // MPCx DISKx
-    if (name_match (param, "DISK", & dsk_unit_idx))
+    if (name_match (param, "DISK", & unit_idx))
       {
-        if (dsk_unit_idx >= N_DSK_UNITS_MAX)
+        if (unit_idx >= N_DSK_UNITS_MAX)
           {
-            sim_printf ("error: CABLE IOM: DISK unit number out of range <%d>\n", dsk_unit_idx);
+            sim_printf ("error: CABLE IOM: DISK unit number out of range <%d>\n", unit_idx);
             return SCPE_ARG;
           }
 
@@ -1054,10 +1061,30 @@ static t_stat cable_ipc (int uncable, uint ctlr_unit_idx, char * * name_save)
                              (uint) dev_code,
                              CTLR_T_IPC,
                              & cables->ipc_to_dsk[ctlr_unit_idx][dev_code],
-                             dsk_unit_idx,
+                             unit_idx,
                              dsk_iom_cmd, // XXX
-                             & cables->dsk_to_ctlr[dsk_unit_idx],
+                             & cables->dsk_to_ctlr[unit_idx],
                              "CABLE IPCx DISKx");
+      }
+
+// MPCx TAPEx
+    if (name_match (param, "TAPE", & unit_idx))
+      {
+        if (unit_idx >= N_MT_UNITS_MAX)
+          {
+            sim_printf ("error: CABLE IOM: TAPE unit number out of range <%d>\n", unit_idx);
+            return SCPE_ARG;
+          }
+
+        return cable_periph (uncable,
+                             ctlr_unit_idx,
+                             (uint) dev_code,
+                             CTLR_T_IPC,
+                             & cables->ipc_to_tap[ctlr_unit_idx][dev_code],
+                             unit_idx,
+                             mt_iom_cmd, // XXX
+                             & cables->tap_to_ctlr[unit_idx],
+                             "CABLE IPCx TAPEx");
       }
 
     sim_printf ("cable IPC: can't parse device name\n");
