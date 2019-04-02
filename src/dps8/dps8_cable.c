@@ -9,6 +9,96 @@
  at https://sourceforge.net/p/dps8m/code/ci/master/tree/LICENSE
  */
 
+//  The cable command
+//
+//  This command is responsible for managing the interconnection of 
+//  major substems: CPU, SCU, IOM; contollers: MTP, IPC, MSP, URP;
+//  periperals:
+//
+//  The unit numbers for CPUs, IOMs, and SCUs (eg IOM3 is IOM unit 3) are
+//  simh unit numbers; these units can can indvidually configured to
+//  desired Multics unit numbers. However, it is somewhat easier to 
+//  adopt an one-to-one practice; IOM0 == IOMA, etc.
+//
+//
+//   CABLE RIPOUT
+//      Remove all cables from the configuration.
+//
+//   CABLE SHOW
+//      Show the current cabling configuration.
+//
+//   CABLE DUMP
+//      Show the current cabling configuration in great detail.
+//
+//   CABLE SCUi j IOMk l
+//
+//      Connect SCU i port j to IOM k port l.
+//      "cable SCU0 0 IOM0 2"
+//
+//   CABLE SCUi j CPUk l
+//
+//      Connect SCU i port j to CPU k port l.
+//      "cable SCU0 7 CPU0 7"
+//
+//   CABLE IOMi j MTPk 
+//   CABLE IOMi j MTPk l
+//
+//      Connect IOM i channel j to MTP k port l (l defaults to 0).
+//
+//   CABLE IOMi j MSPk 
+//   CABLE IOMi j MSPk l
+//
+//      Connect IOM i channel j to MSP k port l (l defaults to 0).
+//
+//   CABLE IOMi j IPCk 
+//   CABLE IOMi j IPCk l
+//
+//      Connect IOM i channel j to IPC k port l (l defaults to 0).
+//
+//   CABLE IOMi j OPCk 
+//
+//      Connect IOM i channel j to OPC k.
+//
+//   CABLE IOMi j FNPk 
+//
+//      Connect IOM i channel j to FNP k.
+//
+//   CABLE IOMi j ABSIk 
+//
+//      Connect IOM i channel j to ABSI k.
+//
+//   CABLE IOMi j SKCk 
+//
+//      Connect IOM i channel j to SKC k.
+//
+//   CABLE MTPi j TAPEk
+//
+//      Connect MTP i device code j to tape unit k.
+//
+//   CABLE IPCi j DISKk
+//
+//      Connect IPC i device code j to disk unit k.
+//
+//   CABLE MSPi j DISKk
+//
+//      Connect MSP i device code j to disk unit k.
+//
+//   CABLE URPi j RDRk
+//
+//      Connect URP i device code j to card reader unit k.
+//
+//   CABLE URPi j PUNk
+//
+//      Connect URP i device code j to card punch unit k.
+//
+//   CABLE URPi j PRTk
+//
+//      Connect URP i device code j to printer unit k.
+//
+
+
+
+
 #include <ctype.h>
 
 #include "dps8.h"
@@ -533,10 +623,10 @@ static t_stat cable_ctlr (int uncable,
     return SCPE_OK;
   }
 
-//    cable IOMx chan# MTP [port#]  // tape controller
+//    cable IOMx chan# MTPx [port#]  // tape controller
 //    cable IOMx chan# MSPx [port#] // disk controller
 //    cable IOMx chah# IPCx [port#] // FIPS disk controller
-//    cable IOMx chan# OPC        // Operator console
+//    cable IOMx chan# OPCx       // Operator console
 //    cable IOMx chan# FNPx       // FNP 
 //    cable IOMx chan# ABSIx      // ABSI 
 //    cable IOMx chan# SKCx       // Socket controller
