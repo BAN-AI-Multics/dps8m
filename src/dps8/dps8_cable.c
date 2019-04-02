@@ -1006,10 +1006,10 @@ static t_stat cable_mtp (int uncable, uint ctlr_unit_idx, char * * name_save)
                              ctlr_unit_idx,
                              (uint) dev_code,
                              CTLR_T_MTP,
-                             & cables->mtp_to_tape[ctlr_unit_idx][dev_code],
+                             & cables->mtp_to_tap[ctlr_unit_idx][dev_code],
                              mt_unit_idx,
                              mt_iom_cmd,
-                             & cables->tape_to_mtp[mt_unit_idx],
+                             & cables->tap_to_ctlr[mt_unit_idx],
                              "CABLE MTPx TAPEx");
       }
 
@@ -1401,10 +1401,10 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         if (p->in_use) \
           sim_printf (" %4u    %4u   %4u    %5s\n", u, p->ctlr_unit_idx, p->dev_code, ctlr_type_strs[p->ctlr_type]); \
       } 
-    CTLR_DEV (MTP, mtp, TAPE, MT, tape);
+    CTLR_DEV (MTP, mtp, TAPE, MT, tap);
     if (dump)
       {
-        DEV_CTLR (MTP, mtp, TAPE, MT, tape);
+        DEV_CTLR (MTP, ctlr, TAPE, MT, tap);
       }
     CTLR_DEV (IPC, ipc, DISK, DSK, dsk);
     CTLR_DEV (MSP, msp, DISK, DSK, dsk);

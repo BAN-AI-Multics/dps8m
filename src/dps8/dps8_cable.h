@@ -216,39 +216,45 @@ struct cables_s
 
     // IOM->CTLR
     struct iom_to_ctlr_s iom_to_ctlr [N_IOM_UNITS_MAX] [MAX_CHANNELS];
-    //   mtp
+    //   mtp->iom
     struct ctlr_to_iom_s mtp_to_iom [N_MTP_UNITS_MAX] [MAX_CTLR_PORTS];
-    //   msp
+    //   msp->iom
     struct ctlr_to_iom_s msp_to_iom [N_MSP_UNITS_MAX] [MAX_CTLR_PORTS];
-    //   ipc
+    //   ipc->iom
     struct ctlr_to_iom_s ipc_to_iom [N_IPC_UNITS_MAX] [MAX_CTLR_PORTS];
-    //   urp
+    //   urp->iom
     struct ctlr_to_iom_s urp_to_iom [N_URP_UNITS_MAX] [MAX_CTLR_PORTS];
-    //   dia
+    //   dia->iom
     struct ctlr_to_iom_s dia_to_iom [N_DIA_UNITS_MAX] [MAX_CTLR_PORTS];
-    //   fnp
+    //   fnp->iom
     struct ctlr_to_iom_s fnp_to_iom [N_FNP_UNITS_MAX] [MAX_CTLR_PORTS];
-    //   absi
+    //   absi->iom
     struct ctlr_to_iom_s absi_to_iom [N_ABSI_UNITS_MAX] [MAX_CTLR_PORTS];
-    //   console
+    //   console->iom
     struct ctlr_to_iom_s opc_to_iom [N_OPC_UNITS_MAX] [MAX_CTLR_PORTS];
-    //   socket
+    //   socket->iom
     struct ctlr_to_iom_s sk_to_iom [N_SKC_UNITS_MAX] [MAX_CTLR_PORTS];
 
     // CTLR->DEV
     //   mtp->tape
-    struct ctlr_to_dev_s mtp_to_tape [N_MTP_UNITS_MAX] [N_DEV_CODES];
-    struct dev_to_ctlr_s tape_to_mtp [N_MT_UNITS_MAX];
+    struct ctlr_to_dev_s mtp_to_tap [N_MTP_UNITS_MAX] [N_DEV_CODES];
     //   ipc->disk
-    //   msp->disk
     //   ipc->tape
     struct ctlr_to_dev_s ipc_to_dsk [N_IPC_UNITS_MAX] [N_DEV_CODES];
     struct ctlr_to_dev_s msp_to_dsk [N_MSP_UNITS_MAX] [N_DEV_CODES];
+    //   msp->disk
     struct ctlr_to_dev_s ipc_to_tap [N_IPC_UNITS_MAX] [N_DEV_CODES];
+
+    // DEV->CTLR
+    //   dsk ->ipc/msp
     struct dev_to_ctlr_s dsk_to_ctlr [N_DSK_UNITS_MAX];
+    //   dsk ->ipc/mtp
     struct dev_to_ctlr_s tap_to_ctlr [N_MT_UNITS_MAX];
+
     //   urp->rdr/pun/prt
     struct ctlr_to_dev_s urp_to_urd [N_URP_UNITS_MAX] [N_DEV_CODES];
+
+    // rdr/pun/prt->urp
     struct dev_to_ctlr_s rdr_to_urp [N_RDR_UNITS_MAX];
     struct dev_to_ctlr_s pun_to_urp [N_PUN_UNITS_MAX];
     struct dev_to_ctlr_s prt_to_urp [N_PRT_UNITS_MAX];
