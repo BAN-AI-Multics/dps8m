@@ -15,6 +15,7 @@ extern DEVICE opc_dev;
 void console_init(void);
 void console_attn_idx (int opc_unit_idx);
 int add_opc_autoinput (int32 flag, const char * cptr);
+int add_opc_autostream (int32 flag, const char * cptr);
 int clear_opc_autoinput (int32 flag, const char * cptr);
 int opc_iom_cmd (uint iomUnitIdx, uint chan);
 int check_attn_key (void);

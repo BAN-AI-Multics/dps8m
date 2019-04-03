@@ -19,11 +19,12 @@
 
 #define IPCD_UNIT_IDX(uptr) ((uptr) - ipcd_unit)
 #define N_IPCD_UNITS 1 // default
-#define IPCT_UNIT_IDX(uptr) ((uptr) - ipcd_unit)
+#define IPCT_UNIT_IDX(uptr) ((uptr) - ipct_unit)
 #define N_IPCT_UNITS 1 // default
 
 struct ipc_state
   {
+    uint boot_drive;
     char device_name [MAX_DEV_NAME_LEN];
   };
 
@@ -81,6 +82,38 @@ static t_stat ipcd_set_device_name (UNIT * uptr, UNUSED int32 value,
       }
     else
       ipcd_states[n].device_name[0] = 0;
+    return SCPE_OK;
+  }
+
+static t_stat ipct_show_boot_drive (UNUSED FILE * st, UNIT * uptr, 
+                                   UNUSED int val, UNUSED const void * desc)
+  {
+    long ipct_unit_idx = IPCT_UNIT_IDX (uptr);
+    if (ipct_unit_idx < 0 || ipct_unit_idx >= N_IPCT_UNITS_MAX)
+      {
+        sim_printf ("Controller unit number out of range\n");
+        return SCPE_ARG;
+      }
+    sim_printf ("Tape drive dev_code to boot from is %u\n",
+                ipct_states[ipct_unit_idx].boot_drive);
+    return SCPE_OK;
+  }
+
+static t_stat ipct_set_boot_drive (UNIT * uptr, UNUSED int32 value, 
+                                 const char * cptr, UNUSED void * desc)
+  {
+    long ipct_unit_idx = IPCT_UNIT_IDX (uptr);
+    if (ipct_unit_idx < 0 || ipct_unit_idx >= N_IPCT_UNITS_MAX)
+      {
+        sim_printf ("Controller unit number out of range\n");
+        return SCPE_ARG;
+      }
+    if (! cptr)
+      return SCPE_ARG;
+    int n = (int) atoi (cptr);
+    if (n < 0 || n >= N_DEV_CODES)
+      return SCPE_ARG;
+    ipct_states[ipct_unit_idx].boot_drive = (uint) n;
     return SCPE_OK;
   }
 
@@ -243,6 +276,16 @@ static MTAB ipct_mod [] =
       ipct_set_device_name, /* validation routine */
       ipct_show_device_name, /* display routine */
       "Set the device name", /* value descriptor */
+      NULL          // help
+    },
+    {
+      MTAB_XTD | MTAB_VUN | MTAB_VALR, /* mask */
+      0,            /* match */
+      "BOOT_DRIVE",     /* print string */
+      "BOOT_DRIVE",         /* match string */
+      ipct_set_boot_drive, /* validation routine */
+      ipct_show_boot_drive, /* display routine */
+      "Select the boot drive", /* value descriptor */
       NULL          // help
     },
     MTAB_eol

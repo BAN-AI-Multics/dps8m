@@ -553,7 +553,7 @@ static t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1)
 
     uint ctlr_unit_idx = cables->tap_to_ctlr [tap_unit_idx].ctlr_unit_idx;
     enum ctlr_type_e ctlr_type = cables->tap_to_ctlr [tap_unit_idx].ctlr_type;
-    if (ctlr_type != CTLR_T_MTP && ctlr_type != CTLR_T_IPC)
+    if (ctlr_type != CTLR_T_MTP && ctlr_type != CTLR_T_IPCT)
       {
         // If None, assume that the cabling hasn't happend yey.
         if (ctlr_type != CTLR_T_NONE)
@@ -583,10 +583,10 @@ sim_printf ("lost %u\n", ctlr_type);
           }
         else
           {
-            if (cables->ipc_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
+            if (cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
               {
-                uint iom_unit_idx = cables->ipc_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
-                uint chan_num = cables->ipc_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+                uint iom_unit_idx = cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+                uint chan_num = cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
                 uint dev_code = cables->tap_to_ctlr[tap_unit_idx].dev_code;
 
                 send_special_interrupt (iom_unit_idx, chan_num, dev_code, status0, status1);
@@ -1097,13 +1097,18 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
       buffer [i] = 0;
     
     uint ctlr_idx = get_ctlr_idx (iomUnitIdx, chan);
+    bool is_IPCT = cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPCT;
     // Walk the device codes
     for (uint dev_code = 0; dev_code < N_DEV_CODES; dev_code ++)
       {
        if (cnt / 2 >= bufsz)
           break;
         // Which device on the string is connected to that device code
-        struct ctlr_to_dev_s * p = & cables->mtp_to_tap[ctlr_idx][dev_code];
+        struct ctlr_to_dev_s * p;
+        if (is_IPCT)
+          p = & cables->ipct_to_tap[ctlr_idx][dev_code];
+        else
+          p = & cables->mtp_to_tap[ctlr_idx][dev_code];
         if (! p -> in_use)
           continue;
         uint unit_idx = p->unit_idx;
@@ -1171,15 +1176,26 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 
 // Simplifying design decision: tapa_00 is hidden, always has the boot tape.
 
+// If we are a FIPS tape (and therefore on an IMU), the tapes start at
+// device 0, and the IMU pokes the actual drive number into the boot code,
+// so the whole invisible tape 0 goes away.
+//
+
     uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
 
+// Are we FIPS?
+    bool fips = cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPCT;
     sim_debug (DBG_DEBUG, & tape_dev, "IDCW_DEV_CODE %d\n", p -> IDCW_DEV_CODE);
     uint dev_code = p -> IDCW_DEV_CODE;
-    if (p -> IDCW_DEV_CODE == 0)
+    if ((! fips) && p -> IDCW_DEV_CODE == 0)
       dev_code = mtp_state[ctlr_unit_idx].boot_drive;
     sim_debug (DBG_DEBUG, & tape_dev, "dev_code %d\n", dev_code);
 
-    uint devUnitIdx = cables->mtp_to_tap[ctlr_unit_idx][dev_code].unit_idx;
+    uint devUnitIdx;
+    if (fips)
+      devUnitIdx = cables->ipct_to_tap[ctlr_unit_idx][dev_code].unit_idx;
+    else
+      devUnitIdx = cables->mtp_to_tap[ctlr_unit_idx][dev_code].unit_idx;
     UNIT * unitp = & mt_unit [devUnitIdx];
     struct tape_state * tape_statep = & tape_states [devUnitIdx];
 

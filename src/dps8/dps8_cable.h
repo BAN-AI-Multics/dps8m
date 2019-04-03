@@ -71,7 +71,8 @@ enum ctlr_type_e
      CTLR_T_NONE = 0,
      CTLR_T_MTP,
      CTLR_T_MSP,
-     CTLR_T_IPC,
+     CTLR_T_IPCD,
+     CTLR_T_IPCT,
      CTLR_T_OPC,
      CTLR_T_URP,
      CTLR_T_FNP,
@@ -130,7 +131,8 @@ struct cpu_to_scu_s
 //
 //    cable IOMx chan# MTPx [port#]  // tape controller
 //    cable IOMx chan# MSPx [port#] // disk controller
-//    cable IOMx chah# IPCx [port#] // FIPS disk controller
+//    cable IOMx chan# IPCDx [port#] // FIPS disk controller
+//    cable IOMx chan# IPCTx [port#] // FIPS tape controller
 //    cable IOMx chan# OPCx       // Operator console
 //    cable IOMx chan# FNPx       // FNP 
 //    cable IOMx chan# ABSIx      // ABSI 
@@ -168,7 +170,11 @@ struct ctlr_to_iom_s
 //
 //   ipc ctlr to disk
 //
-//     cable FIPSx dev_code DISKx
+//     cable IPCDx dev_code DISKx
+//
+//   ipc ctlr to tape
+//
+//     cable IPCTx dev_code TAPEx
 //
 //   fnp doesn't have a device
 //
@@ -201,7 +207,7 @@ struct dev_to_ctlr_s
     uint ctlr_unit_idx;
     uint dev_code;
     enum ctlr_type_e ctlr_type; // Used by disks to determine if the controler
-                                // is MSP or IPC
+                                // is MSP or IPCD; tapes MTP or IPCT
   };
    
 struct cables_s
@@ -220,8 +226,10 @@ struct cables_s
     struct ctlr_to_iom_s mtp_to_iom [N_MTP_UNITS_MAX] [MAX_CTLR_PORTS];
     //   msp->iom
     struct ctlr_to_iom_s msp_to_iom [N_MSP_UNITS_MAX] [MAX_CTLR_PORTS];
-    //   ipc->iom
-    struct ctlr_to_iom_s ipc_to_iom [N_IPC_UNITS_MAX] [MAX_CTLR_PORTS];
+    //   ipcd->iom
+    struct ctlr_to_iom_s ipcd_to_iom [N_IPCD_UNITS_MAX] [MAX_CTLR_PORTS];
+    //   ipct->iom
+    struct ctlr_to_iom_s ipct_to_iom [N_IPCT_UNITS_MAX] [MAX_CTLR_PORTS];
     //   urp->iom
     struct ctlr_to_iom_s urp_to_iom [N_URP_UNITS_MAX] [MAX_CTLR_PORTS];
     //   dia->iom
@@ -238,17 +246,17 @@ struct cables_s
     // CTLR->DEV
     //   mtp->tape
     struct ctlr_to_dev_s mtp_to_tap [N_MTP_UNITS_MAX] [N_DEV_CODES];
-    //   ipc->disk
-    //   ipc->tape
-    struct ctlr_to_dev_s ipc_to_dsk [N_IPC_UNITS_MAX] [N_DEV_CODES];
-    struct ctlr_to_dev_s msp_to_dsk [N_MSP_UNITS_MAX] [N_DEV_CODES];
+    //   ipcd->disk
+    struct ctlr_to_dev_s ipcd_to_dsk [N_IPCD_UNITS_MAX] [N_DEV_CODES];
+    //   ipct->tape
+    struct ctlr_to_dev_s ipct_to_tap [N_IPCT_UNITS_MAX] [N_DEV_CODES];
     //   msp->disk
-    struct ctlr_to_dev_s ipc_to_tap [N_IPC_UNITS_MAX] [N_DEV_CODES];
+    struct ctlr_to_dev_s msp_to_dsk [N_MSP_UNITS_MAX] [N_DEV_CODES];
 
     // DEV->CTLR
     //   dsk ->ipc/msp
     struct dev_to_ctlr_s dsk_to_ctlr [N_DSK_UNITS_MAX];
-    //   dsk ->ipc/mtp
+    //   tap ->ipc/mtp
     struct dev_to_ctlr_s tap_to_ctlr [N_MT_UNITS_MAX];
 
     //   urp->rdr/pun/prt

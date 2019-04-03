@@ -450,6 +450,42 @@ int add_opc_autoinput (int32 flag, const char * cptr)
     return SCPE_OK;
   }
 
+// autostream token
+//   text
+// token
+
+int add_opc_autostream (int32 flag, const char * cptr)
+  {
+    opc_state_t * csp = console_state + flag;
+    for (;;)
+      {
+        char cbuf [4 * CBUFSIZE];
+        char * p = read_line (cbuf, sizeof (cbuf) - 1, sim_fpin);
+        if (! p) // eof
+          break;
+        if (strcmp (cptr, p) == 0)
+          break;
+        strcat (p, "\n");
+        unsigned char * new = (unsigned char *) strdupesc (p);
+        if (csp->auto_input)
+          {
+            size_t nl = strlen ((char *) new);
+            size_t ol = strlen ((char *) csp->auto_input);
+
+            unsigned char * old = realloc (csp->auto_input, nl + ol + 1);
+            strcpy ((char *) old + ol, (char *) new);
+            csp->auto_input = old;
+            free (new);
+          }
+        else
+          csp->auto_input = new;
+      }
+    sim_debug (DBG_NOTIFY, & opc_dev,
+           "%s: Auto-input now: %s\n", __func__, cptr);
+    csp->autop = csp->auto_input;
+    return SCPE_OK;
+  }
+
 static int opc_autoinput_show (UNUSED FILE * st, UNIT * uptr, 
                                  UNUSED int val, UNUSED const void * desc)
   {

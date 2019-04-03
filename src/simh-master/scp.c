@@ -452,6 +452,7 @@ BRKTAB *sim_brk_new (t_addr loc, uint32 btyp);
 char *sim_brk_clract (void);
 
 FILE *stdnul;
+FILE *sim_fpin;
 
 /* Command support routines */
 
@@ -7392,6 +7393,7 @@ if (prompt && (!initialized)) {
         p_add_history = (add_history_func)((size_t)dlsym(handle, "add_history"));
         }
     }
+sim_fpin = stream;
 if (prompt) {                                           /* interactive? */
     if (p_readline) {
         char *tmpc = p_readline (prompt);               /* get cmd line */

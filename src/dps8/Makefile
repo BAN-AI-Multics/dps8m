@@ -148,6 +148,7 @@ C_SRCS += ./dps8_fnp2.c
 C_SRCS += ./dps8_fnp2_iomcmd.c
 C_SRCS += ./dps8_iefp.c
 C_SRCS += ./dps8_ins.c
+C_SRCS += ./dps8_ipc.c
 C_SRCS += ./dps8_iom.c
 #ifeq ($(LOADER),1)
 C_SRCS += ./dps8_loader.c
@@ -206,6 +207,7 @@ H_SRCS += dps8.h
 H_SRCS += dps8_hw_consts.h
 H_SRCS += dps8_iefp.h
 H_SRCS += dps8_ins.h
+H_SRCS += dps8_ipc.h
 H_SRCS += dps8_iom.h
 #ifeq ($(LOADER),1)
 H_SRCS += dps8_loader.h
