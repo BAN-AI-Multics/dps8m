@@ -844,7 +844,6 @@ sim_warn ("uncomfortable with this\n");
                 tally = 4096;
               }
 
-            // TODO: discard any buffered chars from SIMH?
             csp->echo = p->IDCW_DEV_CMD == 023;
             csp->tailp = csp->buf;
             csp->readp = csp->buf;
@@ -855,6 +854,26 @@ sim_warn ("uncomfortable with this\n");
             csp->unitp = unitp;
             csp->chan = (int) chan;
 
+            // If Multics has gone seriously awry (eg crash
+            // to BCE during boot), the autoinput will become
+            // wedged waiting for the expect string 'Ready'.
+            // We just went to read mode; if we are waiting
+            // on an expect string, it is never coming because
+            // console access is blocked by the expect code.
+            // Throw out the script if this happens....
+
+            // If there is autoinput and it is at ^X or ^Y
+            if (csp->autop && (*csp->autop == 030 || *csp->autop == 031)) // ^X ^Y
+              {
+                // We are wedged.
+                // Clear the autoinput buffer; this will cancel the
+                // expect wait and any remaining script, returning
+                // control of the console to the user.
+                // Assuming opc0.
+                clear_opc_autoinput (ASSUME0, NULL);
+                ta_flush ();
+                sim_printf ("\r\nScript wedged and abandoned; autoinput and typeahead buffers flushed\r\n");
+              }
           }
           return IOM_CMD_PENDING; // command in progress; do not send terminate interrupt
 
@@ -1221,6 +1240,8 @@ static void consoleProcessIdx (int conUnitIdx)
         int ch = c - SCPE_KFLAG;
 
         // XXX This is subject to race conditions
+        // If the console is not in read mode and ESC or ^A
+        // is pressed, signal Multics for ATTN.
         if (csp->io_mode != opc_read_mode)
           {
             if (ch == '\033' || ch == '\001') // escape or ^A
@@ -1232,6 +1253,27 @@ static void consoleProcessIdx (int conUnitIdx)
               }
           }
 
+#if 0
+        // If Multics has gone seriously awry (eg crash
+        // to BCE during boot, the autoinput will become
+        // wedged waiting for the expect string 'Ready'
+        // Allow the user to signal ATTN when wedged
+        // by checking to see if we are waiting on an expect string
+
+        if ((ch == '\033' || ch == '\001') &&  // ESC or ^A
+            csp->autop && (*csp->autop == 030 || *csp->autop == 031)) // ^X ^Y
+          {
+            // User pressed ATTN while expect waiting
+            // Clear the autoinput buffer; these will cancel the
+            // expect wait and any remaining script, returning
+            // control of the console to the user.
+            // Assuming opc0.
+            clear_opc_autoinput (ASSUME0, NULL);
+            ta_flush ();
+            sim_printf ("\r\nAutoinput and typeahead buffers flushed\r\n");
+            continue;
+          }
+#endif
         // ^S
 
         if (ch == 023) // ^S simh command
