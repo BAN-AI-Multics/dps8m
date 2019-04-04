@@ -115,6 +115,21 @@ static inline void set_apu_status (apuStatusBits status)
   }
 
 t_stat dump_sdwam (void);
+
+word24 do_append_cycle_OPERAND_STORE (word36 * data, uint nWords);
+word24 do_append_cycle_OPERAND_READ (word36 * data, uint nWords);
+word24 do_append_cycle_INDIRECT_WORD_FETCH (word36 * data, uint nWords);
+word24 do_append_cycle_RTCD_OPERAND_FETCH (word36 * data, uint nWords);
+word24 do_append_cycle_INSTRUCTION_FETCH (word36 * data, uint nWords);
+word24 do_append_cycle_APU_DATA_READ (word36 * data, uint nWords);
+word24 do_append_cycle_APU_DATA_STORE (word36 * data, uint nWords);
+word24 do_append_cycle_ABSA_CYCLE (word36 * data, uint nWords);
+#ifdef LOCKLESS
+word24 do_append_cycle_OPERAND_RMW (word36 * data, uint nWords);
+word24 do_append_cycle_APU_DATA_RMW (word36 * data, uint nWords);
+#endif
+
+
 word24 do_append_cycle (processor_cycle_type thisCycle, 
                       word36 * data, uint nWords);
 void do_ldbr (word36 * Ypair);

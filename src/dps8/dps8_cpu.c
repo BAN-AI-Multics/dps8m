@@ -2828,7 +2828,7 @@ int operand_size (void)
 
 // read instruction operands
 
-t_stat read_operand (word18 addr, processor_cycle_type cyctyp)
+t_stat read_operand (word18 addr, processor_cycle_type cyctyp, do_append_cycle_t dac)
   {
     CPT (cpt1L, 6); // read_operand
 
@@ -2855,12 +2855,12 @@ t_stat read_operand (word18 addr, processor_cycle_type cyctyp)
       {
         case 1:
             CPT (cpt1L, 7); // word
-            Read (addr, & cpu.CY, cyctyp);
+            Read (addr, & cpu.CY, cyctyp, dac);
             return SCPE_OK;
         case 2:
             CPT (cpt1L, 8); // double word
             addr &= 0777776;   // make even
-            Read2 (addr, cpu.Ypair, cyctyp);
+            Read2 (addr, cpu.Ypair, cyctyp, dac);
             break;
         case 8:
             CPT (cpt1L, 9); // oct word
@@ -2876,7 +2876,7 @@ t_stat read_operand (word18 addr, processor_cycle_type cyctyp)
             CPT (cpt1L, 11); // 32 words
             addr &= 0777740;   // make on 32-word boundary
             for (uint j = 0 ; j < 32 ; j += 1)
-                Read (addr + j, cpu.Yblock32 + j, cyctyp);
+                Read (addr + j, cpu.Yblock32 + j, cyctyp, dac);
             
             break;
       }
@@ -2888,18 +2888,18 @@ t_stat read_operand (word18 addr, processor_cycle_type cyctyp)
 
 // write instruction operands
 
-t_stat write_operand (word18 addr, UNUSED processor_cycle_type cyctyp)
+t_stat write_operand (word18 addr, UNUSED processor_cycle_type cyctyp, do_append_cycle_t dac)
   {
     switch (operand_size ())
       {
         case 1:
             CPT (cpt1L, 12); // word
-            Write (addr, cpu.CY, OPERAND_STORE);
+            Write (addr, cpu.CY, OPERAND_STORE, do_append_cycle_OPERAND_STORE);
             break;
         case 2:
             CPT (cpt1L, 13); // double word
             addr &= 0777776;   // make even
-            Write2 (addr + 0, cpu.Ypair, OPERAND_STORE);
+            Write2 (addr + 0, cpu.Ypair, OPERAND_STORE, do_append_cycle_OPERAND_STORE);
             break;
         case 8:
             CPT (cpt1L, 14); // 8 words

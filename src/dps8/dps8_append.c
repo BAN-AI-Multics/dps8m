@@ -1239,6 +1239,7 @@ static char *str_pct (processor_cycle_type t)
 
 // CANFAULT
 
+#if 0
 word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
                       uint nWords)
   {
@@ -2296,6 +2297,7 @@ Exit:;
 
     return finalAddress;    // or 0 or -1???
   }
+#endif
 
 // Translate a segno:offset to a absolute address.
 // Return 0 if successful.

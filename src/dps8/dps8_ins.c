@@ -131,7 +131,7 @@ static void writeOperands (void)
 	// gives warnings as another lock is aquired in between
 	core_write_unlock (cpu.char_word_address, cpu.ou.character_data, __func__);
 #else
-        Write (cpu.ou.character_address, cpu.ou.character_data, OPERAND_STORE);
+        Write (cpu.ou.character_address, cpu.ou.character_data, OPERAND_STORE, do_append_cycle_OPERAND_STORE);
 #endif
 
         sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -146,7 +146,7 @@ static void writeOperands (void)
         return;
       } // IT
 
-    write_operand (cpu.TPR.CA, OPERAND_STORE);
+    write_operand (cpu.TPR.CA, OPERAND_STORE, do_append_cycle_OPERAND_STORE);
 
     return;
 }
@@ -230,9 +230,9 @@ static void readOperands (void)
       } // IT
 
 #ifdef LOCKLESS
-    read_operand (cpu.TPR.CA, ((i->info->flags & RMW) == RMW) ? OPERAND_RMW : OPERAND_READ);
+    read_operand (cpu.TPR.CA, ((i->info->flags & RMW) == RMW) ? OPERAND_RMW : OPERAND_READ, ((i->info->flags & RMW) == RMW) ? do_append_cycle_OPERAND_RMW : do_append_cycle_OPERAND_READ);
 #else
-    read_operand (cpu.TPR.CA, OPERAND_READ);
+    read_operand (cpu.TPR.CA, OPERAND_READ, do_append_cycle_OPERAND_READ);
 #endif
 
     return;
@@ -241,9 +241,9 @@ static void readOperands (void)
 static void read_tra_op (void)
   {
     if (cpu.TPR.CA & 1)
-      Read (cpu.TPR.CA, &cpu.CY, OPERAND_READ);
+      Read (cpu.TPR.CA, &cpu.CY, OPERAND_READ, do_append_cycle_OPERAND_READ);
     else
-      Read2 (cpu.TPR.CA, cpu.Ypair, OPERAND_READ);
+      Read2 (cpu.TPR.CA, cpu.Ypair, OPERAND_READ, do_append_cycle_OPERAND_READ);
     if (! (get_addr_mode () == APPEND_mode || cpu.cu.TSN_VALID [0] ||
            cpu.cu.XSF || cpu.currentInstruction.b29 /*get_went_appending ()*/))
       {
@@ -1101,11 +1101,11 @@ void fetchInstruction (word18 addr)
           {
             CPT (cpt2U, 11); // fetch rpt even
 	    if (addr & 1)
-	      Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+	      Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH, do_append_cycle_INSTRUCTION_FETCH);
 	    else
 	      {
 		word36 tmp[2];
-		Read2 (addr, tmp, INSTRUCTION_FETCH);
+		Read2 (addr, tmp, INSTRUCTION_FETCH, do_append_cycle_INSTRUCTION_FETCH);
 		cpu.cu.IWB = tmp[0];
 		cpu.cu.IRODD = tmp[1];
 	      }
@@ -1122,13 +1122,13 @@ void fetchInstruction (word18 addr)
         if ((cpu.PPR.IC & 1) == 0) // Even
           {
             word36 tmp[2];
-            Read2 (addr, tmp, INSTRUCTION_FETCH);
+            Read2 (addr, tmp, INSTRUCTION_FETCH, do_append_cycle_INSTRUCTION_FETCH);
             cpu.cu.IWB = tmp[0];
             cpu.cu.IRODD = tmp[1];
           }
         else // Odd
           {
-            Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+            Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH, do_append_cycle_INSTRUCTION_FETCH);
             cpu.cu.IRODD = cpu.cu.IWB; 
           }
       }
@@ -1945,7 +1945,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 	    // append cycles updates cpu.PPR.IC to TPR.CA
 	    word18 saveIC = cpu.PPR.IC;
             Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
-                  INSTRUCTION_FETCH);
+                  INSTRUCTION_FETCH, do_append_cycle_INSTRUCTION_FETCH);
 	    cpu.PPR.IC = saveIC;
             //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
             //      APU_DATA_READ);
@@ -3308,7 +3308,7 @@ static t_stat doInstruction (void)
           // the Y-pair, the C(PPR.PSR) and C(PPR.PRR) are not altered.
 
           do_caf ();
-          Read2 (cpu.TPR.CA, cpu.Ypair, RTCD_OPERAND_FETCH);
+          Read2 (cpu.TPR.CA, cpu.Ypair, RTCD_OPERAND_FETCH, do_append_cycle_RTCD_OPERAND_FETCH);
           // RTCD always ends up in append mode.
           set_addr_mode (APPEND_mode);
             
@@ -6079,7 +6079,7 @@ static t_stat doInstruction (void)
             // C(Y)0,17 -> C(PPR.IC)
             // C(Y)18,31 -> C(IR)
             do_caf ();
-            Read (cpu.TPR.CA, &cpu.CY, OPERAND_READ);
+            Read (cpu.TPR.CA, &cpu.CY, OPERAND_READ, do_append_cycle_OPERAND_READ);
 
             cpu.PPR.IC = GETHI (cpu.CY);
             word18 tempIR = GETLO (cpu.CY) & 0777770;
@@ -9689,7 +9689,7 @@ static int doABSA (word36 * result)
     // ISOLTS-860 02
     //   res = (word36) do_append_cycle (cpu.TPR.CA & MASK18, ABSA_CYCLE, NULL,
     //                                   0) << 12;
-    res = (word36) do_append_cycle (ABSA_CYCLE, NULL, 0) << 12;
+    res = (word36) do_append_cycle_ABSA_CYCLE (NULL, 0) << 12;
 
     * result = res;
 

@@ -288,7 +288,12 @@ typedef enum
 #ifndef LOCKLESS
 #define OPERAND_RMW   OPERAND_READ
 #define APU_DATA_RMW  APU_DATA_READ
+#define do_append_cycle_OPERAND_RMW   do_append_cycle_OPERAND_READ
+#define do_append_cycle_APU_DATA_RMW  do_append_cycle_APU_DATA_READ
 #endif
+
+typedef word24 (* do_append_cycle_t) (word36 * data, uint nWords);
+
 
 #ifndef EIS_PTR4
 // some breakpoint stuff ...
