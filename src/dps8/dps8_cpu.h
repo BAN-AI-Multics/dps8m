@@ -481,10 +481,10 @@ typedef struct EISaddr_s
     
     word36  data;
     word1    bit;
-    bool    incr;      // when true increment bit address
-    bool    decr;      // when true decrement bit address
     eRW     mode;
     
+    int     last_bit_posn;  // track for caching tests
+
     // for type of data being address by this object
     
     // eisDataType _type;   // type of data - alphunumeric/numeric

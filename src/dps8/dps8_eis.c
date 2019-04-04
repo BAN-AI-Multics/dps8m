@@ -108,7 +108,7 @@
 //  EISWriteCache  -- flush the cache
 //
 //
-//  EISWriteIdx (p, n, data); -- write to cache at p->addr [n]; 
+//  EISWriteIdx (p, n, data, flush); -- write to cache at p->addr [n]; 
 //  EISRead (p) -- read to cache from p->addr
 //  EISReadIdx (p, n)  -- read to cache from p->addr[n]; 
 //  EISReadN (p, n, dst) -- read N words to dst; 
@@ -657,7 +657,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 NO PR TRR %o TSR %05o\n", eis
     cpu.TPR.TRR = saveTRR;
   }
 
-static void EISWriteIdx (EISaddr *p, uint n, word36 data)
+static void EISWriteIdx (EISaddr *p, uint n, word36 data, bool flush)
 {
 #ifdef EIS_PTR
     long eisaddr_idx = EISADDR_IDX (p);
@@ -692,8 +692,10 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 // is lost. There might be a way to logic it up so that when the next read
 // word offset changes, then we write the cache before doing the read. For
 // right now, be pessimistic. Sadly, since this is a bit loop, it is very.
-    EISWriteCache (p);
-    p -> cacheDirty = false;
+    if (flush)
+      {
+        EISWriteCache (p);
+      }
 }
 
 static word36 EISReadIdx (EISaddr * p, uint n)
@@ -995,7 +997,7 @@ static void EISput469 (int k, uint i, word9 c469)
           w = put9 (data, (int) residue, c469);
           break;
       }
-    EISWriteIdx (& e -> addr [k - 1], 0, w);
+    EISWriteIdx (& e -> addr [k - 1], 0, w, true);
   }
 
 /*
@@ -1040,7 +1042,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     return c;
   }
 
-static bool EISgetBitRWN (EISaddr * p)
+static bool EISgetBitRWN (EISaddr * p, bool flush)
   {
 #ifdef EIS_PTR
     long eisaddr_idx = EISADDR_IDX (p);
@@ -1073,8 +1075,10 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
       {
         p -> data = setbits36_1 (p -> data, (uint) bitPosn, p -> bit);
         
-        EISWriteIdx (p, 0, p -> data); // write data word to memory
+        EISWriteIdx (p, 0, p -> data, flush); // write data word to memory
       }
+
+    p->last_bit_posn = bitPosn;
 
 #ifdef EIS_PTR
     cpu.du.Dk_PTR_W[eisaddr_idx] = saveAddr;
@@ -3273,7 +3277,7 @@ void scd ()
     
     //word36 CY3 = bitfieldInsert36 (0, cpu.du.CHTALLY, 0, 24);
     word36 CY3 = setbits36_24 (0, 12, cpu.du.CHTALLY);
-    EISWriteIdx (& e -> ADDR3, 0, CY3);
+    EISWriteIdx (& e -> ADDR3, 0, CY3, true);
 
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
@@ -3459,7 +3463,7 @@ void scdr (void)
 
     //word36 CY3 = bitfieldInsert36(0, cpu.du.CHTALLY, 0, 24);
     word36 CY3 = setbits36_24 (0, 12, cpu.du.CHTALLY);
-    EISWriteIdx (& e -> ADDR3, 0, CY3);
+    EISWriteIdx (& e -> ADDR3, 0, CY3, true);
 
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
@@ -3629,7 +3633,7 @@ void scm (void)
     
     SC_I_TALLY (cpu.du.CHTALLY == limit);
     
-    EISWriteIdx (& e -> ADDR3, 0, CY3);
+    EISWriteIdx (& e -> ADDR3, 0, CY3, true);
 
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
@@ -3800,7 +3804,7 @@ void scmr (void)
     
     SC_I_TALLY (cpu.du.CHTALLY == limit);
     
-    EISWriteIdx (& e -> ADDR3, 0, CY3);
+    EISWriteIdx (& e -> ADDR3, 0, CY3, true);
 
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
@@ -4038,7 +4042,7 @@ void tct (void)
     
     //CY3 = bitfieldInsert36 (CY3, cpu.du.CHTALLY, 0, 24);
     putbits36_24 (& CY3, 12, cpu.du.CHTALLY);
-    EISWriteIdx (& e -> ADDR3, 0, CY3);
+    EISWriteIdx (& e -> ADDR3, 0, CY3, true);
     
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
@@ -4235,7 +4239,7 @@ void tctr (void)
     
     //CY3 = bitfieldInsert36 (CY3, cpu.du.CHTALLY, 0, 24);
     putbits36_24 (& CY3, 12, cpu.du.CHTALLY);
-    EISWriteIdx (& e -> ADDR3, 0, CY3);
+    EISWriteIdx (& e -> ADDR3, 0, CY3, true);
     
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
@@ -4571,7 +4575,7 @@ void mlr (void)
           {
             uint n = cpu.du.CHTALLY / 4;
             word36 w = EISReadIdx (& e -> ADDR1, n);
-            EISWriteIdx (& e -> ADDR2, n, w);
+            EISWriteIdx (& e -> ADDR2, n, w, true);
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
@@ -4601,7 +4605,7 @@ void mlr (void)
         for ( ; cpu.du.CHTALLY < e -> N2; cpu.du.CHTALLY += 4)
           {
             uint n = cpu.du.CHTALLY / 4;
-            EISWriteIdx (& e -> ADDR2, n, w);
+            EISWriteIdx (& e -> ADDR2, n, w, true);
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
@@ -4868,7 +4872,7 @@ void mrl (void)
           {
             uint n = (limit - cpu.du.CHTALLY - 1) / 4;
             word36 w = EISReadIdx (& e -> ADDR1, n);
-            EISWriteIdx (& e -> ADDR2, n, w);
+            EISWriteIdx (& e -> ADDR2, n, w, true);
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
@@ -4902,7 +4906,7 @@ void mrl (void)
         for ( ; cpu.du.CHTALLY < e -> N2; cpu.du.CHTALLY += 4)
           {
             uint n = (limit - cpu.du.CHTALLY - 1) / 4;
-            EISWriteIdx (& e -> ADDR2, n, w);
+            EISWriteIdx (& e -> ADDR2, n, w, true);
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
@@ -7548,7 +7552,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     }
 
 
-    EISWriteIdx(p, 0, w); // XXX this is the inefficient part!
+    EISWriteIdx(p, 0, w, true); // XXX this is the inefficient part!
 
     *pos += 1;       // to next char.
 }
@@ -7596,7 +7600,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             break;
     }
 
-    EISWriteIdx (p, 0, w); // XXX this is the inefficient part!
+    EISWriteIdx (p, 0, w, true); // XXX this is the inefficient part!
 
     *pos += 1;       // to next byte.
 }
@@ -7956,8 +7960,8 @@ sim_debug (DBG_CAC, & cpu_dev, "Ovr %o\n", Ovr);
 }
 
 
-void csl (bool isSZTL)
-{
+void csl (void)
+  {
     EISstruct * e = & cpu.currentEISinstruction;
 
     // For i = bits 1, 2, ..., minimum (N1,N2)
@@ -8018,21 +8022,19 @@ void csl (bool isSZTL)
     fault_ipr_subtype_ mod_fault = 0;
     
 #ifndef EIS_SETUP
-    setupOperandDescriptor(1, &mod_fault);
-    setupOperandDescriptor(2, &mod_fault);
+    setupOperandDescriptor (1, & mod_fault);
+    setupOperandDescriptor (2, & mod_fault);
 #endif
     
-    parseBitstringOperandDescriptor(1, &mod_fault);
-    parseBitstringOperandDescriptor(2, &mod_fault);
+    parseBitstringOperandDescriptor (1, & mod_fault);
+    parseBitstringOperandDescriptor (2, & mod_fault);
 
 #ifdef L68
     // L68 raises it immediately
     if (mod_fault)
-      {
         doFault (FAULT_IPR,
                  (_fault_subtype) {.fault_ipr_subtype=mod_fault},
                  "Illegal modifier");
-      }
 #endif
     
     // Bits 1-4 and 10 MBZ
@@ -8042,11 +8044,9 @@ void csl (bool isSZTL)
 #ifdef DPS8M
     // DPS8M raises it delayed
     if (mod_fault)
-      {
         doFault (FAULT_IPR,
                  (_fault_subtype) {.fault_ipr_subtype=mod_fault},
                  "Illegal modifier");
-      }
 #endif
 
     e->ADDR1.cPos = (int) e->C1;
@@ -8059,12 +8059,11 @@ void csl (bool isSZTL)
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;   // T (enablefault) bit
     
     uint BOLR = getbits36_4 (cpu.cu.IWB, 5);   // T (enablefault) bit
-    bool B5 = (bool)((BOLR >> 3) & 1);
-    bool B6 = (bool)((BOLR >> 2) & 1);
-    bool B7 = (bool)((BOLR >> 1) & 1);
-    bool B8 = (bool)( BOLR      & 1);
+    bool B5 = !! (BOLR & 8);
+    bool B6 = !! (BOLR & 4);
+    bool B7 = !! (BOLR & 2);
+    bool B8 = !! (BOLR & 1);
     
-    e->ADDR1.incr = true;
     e->ADDR1.mode = eRWreadBit;
 
 #ifndef EIS_PTR
@@ -8086,108 +8085,64 @@ void csl (bool isSZTL)
     bool bR = false; // result bit
 
     PNL (L68_ (if (max (e->N1, e->N2) < 128)
-      DU_CYCLE_FLEN_128;))
+                 DU_CYCLE_FLEN_128;))
 
-    for( ; cpu.du.CHTALLY < min(e->N1, e->N2) ; cpu.du.CHTALLY += 1)
-    {
-        //bool b1 = EISgetBitRW(&e->ADDR1);  // read w/ addt incr from src 1
-        bool b1 = EISgetBitRWN(&e->ADDR1);  // read w/ addt incr from src 1
-        
-        // If we are a SZTL, addr2 is read only, increment here.
-        // If we are a CSL, addr2 will be incremented below in the write cycle
-        e->ADDR2.incr = isSZTL;
+    for( ; cpu.du.CHTALLY < min(e->N1, e->N2); cpu.du.CHTALLY += 1)
+      {
+        bool b1 = EISgetBitRWN(&e->ADDR1, true);
         e->ADDR2.mode = eRWreadBit;
-        //bool b2 = EISgetBitRW(&e->ADDR2);  // read w/ no addr incr from src2 to in anticipation of a write
-        bool b2 = EISgetBitRWN(&e->ADDR2);  // read w/ no addr incr from src2 to in anticipation of a write
+        bool b2 = EISgetBitRWN(&e->ADDR2, true);
         
-        if (!b1 && !b2)
-            bR = B5;
-        else if (!b1 && b2)
-            bR = B6;
-        else if (b1 && !b2)
-            bR = B7;
-        else if (b1 && b2)
-            bR = B8;
-        
+        if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
+
         if (bR)
-        {
+          {
             //CLR_I_ZERO);
             cpu.du.Z = 0;
-            if (isSZTL)
-                break;
-        }
+          }
 
-        if (! isSZTL)
-        {
-            // write out modified bit
-            e->ADDR2.bit = bR ? 1 : 0;              // set bit contents to write
-            e->ADDR2.incr = true;           // we want address incrementing
-            e->ADDR2.mode = eRWwriteBit;    // we want to write the bit
-            //EISgetBitRW(&e->ADDR2);    // write bit w/ addr increment to memory
-            EISgetBitRWN(&e->ADDR2);    // write bit w/ addr increment to memory
-// XXX ticket #31
-// This a little brute force; it we fault on the next read, the cached value
-// is lost. There might be a way to logic it up so that when the next read
-// word offset changes, then we write the cache before doing the read. For
-// right now, be pessimistic. Sadly, since this is a bit loop, it is very.
-            EISWriteCache (&e->ADDR2);
-        }
+        // write out modified bit
+        e->ADDR2.bit = bR ? 1 : 0;              // set bit contents to write
+        e->ADDR2.mode = eRWwriteBit;    // we want to write the bit
+        // if ADDR1 is on a word boundary, it might fault on the next loop,
+        // so we flush the write in case.
+        EISgetBitRWN(&e->ADDR2, e->ADDR1.last_bit_posn == 35);    // write bit w/ addr increment to memory
     }
     
     if (e->N1 < e->N2)
-    {
-        for(; cpu.du.CHTALLY < e->N2 ; cpu.du.CHTALLY += 1)
-        {
+      {
+        for(; cpu.du.CHTALLY < e->N2; cpu.du.CHTALLY += 1)
+          {
             bool b1 = F;
             
-            // If we are a SZTL, addr2 is read only, increment here.
-            // If we are a CSL, addr2 will be incremented below in the write cycle
-            e->ADDR2.incr = isSZTL;
             e->ADDR2.mode = eRWreadBit;
-            //bool b2 = EISgetBitRW(&e->ADDR2); // read w/ no addr incr from src2 to in anticipation of a write
-            bool b2 = EISgetBitRWN(&e->ADDR2); // read w/ no addr incr from src2 to in anticipation of a write
+            bool b2 = EISgetBitRWN(&e->ADDR2, true);
             
-            if (!b1 && !b2)
-                bR = B5;
-            else if (!b1 && b2)
-                bR = B6;
-            else if (b1 && !b2)
-                bR = B7;
-            else if (b1 && b2)
-                bR = B8;
-            
+            if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
+
             if (bR)
-            {
+              {
                 //CLR_I_ZERO;
                 cpu.du.Z = 0;
-                if (isSZTL)
-                  break;
-            }
+              }
         
-            if (! isSZTL)
-            {
-                // write out modified bit
-                e->ADDR2.bit = bR ? 1 : 0;
-                e->ADDR2.mode = eRWwriteBit;
-                e->ADDR2.incr = true;
-                //EISgetBitRW(&e->ADDR2);
-                EISgetBitRWN(&e->ADDR2);
-// XXX ticket #31
-// This a little brute force; it we fault on the next read, the cached value
-// is lost. There might be a way to logic it up so that when the next read
-// word offset changes, then we write the cache before doing the read. For
-// right now, be pessimistic. Sadly, since this is a bit loop, it is very.
-                EISWriteCache (&e->ADDR2);
-            }
-        }
-    }
-    
+            // write out modified bit
+            e->ADDR2.bit = bR ? 1 : 0;
+            e->ADDR2.mode = eRWwriteBit;
+            // if ADDR1 is on a word boundary, it might fault on the next loop,
+            // so we flush the write in case.
+            EISgetBitRWN(&e->ADDR2, e->ADDR1.last_bit_posn == 35);    // write bit w/ addr increment to memory
+          }
+      }
+
+    EISWriteCache (&e->ADDR2);
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
 
     SC_I_ZERO (cpu.du.Z);
     if (e->N1 > e->N2)
-    {
+      {
         // NOTES: If N1 > N2, the low order (N1-N2) bits of C(Y-bit1) are not
         // processed and the truncation indicator is set ON.
         //
@@ -8196,13 +8151,13 @@ void csl (bool isSZTL)
         
         SET_I_TRUNC;
         if (T && tstOVFfault ())
-        {
-            doFault(FAULT_OFL, fst_zero, "csl truncation fault");
-        }
-    }
+          doFault(FAULT_OFL, fst_zero, "csl truncation fault");
+      }
     else
+      {
         CLR_I_TRUNC;
-}
+      }
+  }
 
 /*
  * return B (bit position), C (char position) and word offset given:
@@ -8231,7 +8186,7 @@ static void getBitOffsets(int length, int initC, int initB, int *nWords, int *ne
     *newB = endBit % 9; // last bit number
 }
 
-static bool EISgetBitRWNR (EISaddr * p)
+static bool EISgetBitRWNR (EISaddr * p, bool flush)
   {
     int baseCharPosn = (p -> cPos * 9);     // 9-bit char bit position
     int baseBitPosn = baseCharPosn + p -> bPos;
@@ -8275,8 +8230,10 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         //p -> data = bitfieldInsert36 (p -> data, p -> bit, bitPosn, 1);
         p -> data = setbits36_1 (p -> data, (uint) bitPosn, p -> bit);
         
-        EISWriteIdx (p, 0, p -> data); // write data word to memory
+        EISWriteIdx (p, 0, p -> data, flush); // write data word to memory
       }
+
+    p->last_bit_posn = bitPosn;
 
 #ifdef EIS_PTR
     cpu.du.Dk_PTR_W[eisaddr_idx] = saveAddr;
@@ -8286,8 +8243,8 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     return p -> bit;
   }
 
-void csr (bool isSZTR)
-{
+void csr (void)
+  {
     EISstruct * e = & cpu.currentEISinstruction;
 
     // For i = bits 1, 2, ..., minimum (N1,N2)
@@ -8340,11 +8297,9 @@ void csr (bool isSZTR)
 #ifdef L68
     // L68 raises it immediately
     if (mod_fault)
-      {
         doFault (FAULT_IPR,
                  (_fault_subtype) {.fault_ipr_subtype=mod_fault},
                  "Illegal modifier");
-      }
 #endif
     
     // Bits 1-4 and 10 MBZ
@@ -8354,11 +8309,9 @@ void csr (bool isSZTR)
 #ifdef DPS8M
     // DPS8M raises it delayed
     if (mod_fault)
-      {
         doFault (FAULT_IPR,
                  (_fault_subtype) {.fault_ipr_subtype=mod_fault},
                  "Illegal modifier");
-      }
 #endif
 
     e->ADDR1.cPos = (int) e->C1;
@@ -8400,13 +8353,11 @@ void csr (bool isSZTR)
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;   // T (enablefault) bit
     
     uint BOLR = getbits36_4 (cpu.cu.IWB, 5);   // T (enablefault) bit
-    bool B5 = (bool)((BOLR >> 3) & 1);
-    bool B6 = (bool)((BOLR >> 2) & 1);
-    bool B7 = (bool)((BOLR >> 1) & 1);
-    bool B8 = (bool)( BOLR      & 1);
+    bool B5 = !! (BOLR & 8);
+    bool B6 = !! (BOLR & 4);
+    bool B7 = !! (BOLR & 2);
+    bool B8 = !! (BOLR & 1);
     
-    
-    e->ADDR1.decr = true;
     e->ADDR1.mode = eRWreadBit;
     
     CLR_I_TRUNC;     // assume N1 <= N2
@@ -8414,103 +8365,62 @@ void csr (bool isSZTR)
     bool bR = false; // result bit
     
     PNL (L68_ (if (max (e->N1, e->N2) < 128)
-      DU_CYCLE_FLEN_128;))
+                 DU_CYCLE_FLEN_128;))
 
-    for( ; cpu.du.CHTALLY < min(e->N1, e->N2) ; cpu.du.CHTALLY += 1)
-    {
-        bool b1 = EISgetBitRWNR(&e->ADDR1);  // read w/ addt decr from src 1
+    for( ; cpu.du.CHTALLY < min(e->N1, e->N2); cpu.du.CHTALLY += 1)
+      {
+        bool b1 = EISgetBitRWNR(&e->ADDR1, true);
         
-        // If we are a SZTR, addr2 is read only, decrement here.
-        // If we are a CSR, addr2 will be decremented below in the write cycle
-        e->ADDR2.decr = isSZTR;
         e->ADDR2.mode = eRWreadBit;
-        bool b2 = EISgetBitRWNR(&e->ADDR2);  // read w/ no addr decr from src2 to in anticipation of a write
+        bool b2 = EISgetBitRWNR(&e->ADDR2, true);
         
-        if (!b1 && !b2)
-            bR = B5;
-        else if (!b1 && b2)
-            bR = B6;
-        else if (b1 && !b2)
-            bR = B7;
-        else if (b1 && b2)
-            bR = B8;
+        if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
         
         if (bR)
-        {
-            cpu.du.Z = 0;
-            if (isSZTR)
-                break;
-        }
+          cpu.du.Z = 0;
         
-        if (! isSZTR)
-        {
-            // write out modified bit
-            e->ADDR2.bit = bR ? 1 : 0;              // set bit contents to write
-            e->ADDR2.decr = true;           // we want address incrementing
-            e->ADDR2.mode = eRWwriteBit;    // we want to write the bit
-            EISgetBitRWNR(&e->ADDR2);  // write bit w/ addr increment to memory
-// XXX ticket #31
-// This a little brute force; it we fault on the next read, the cached value
-// is lost. There might be a way to logic it up so that when the next read
-// word offset changes, then we write the cache before doing the read. For
-// right now, be pessimistic. Sadly, since this is a bit loop, it is very.
-            EISWriteCache (&e->ADDR2);
-        }
-    }
+        // write out modified bit
+        e->ADDR2.bit = bR ? 1 : 0;              // set bit contents to write
+        e->ADDR2.mode = eRWwriteBit;    // we want to write the bit
+        // if ADDR1 is on a word boundary, it might fault on the next loop,
+        // so we flush the write in case.
+        EISgetBitRWNR(&e->ADDR2, e->ADDR1.last_bit_posn == 0);
+      }
     
     if (e->N1 < e->N2)
-    {
-        for(; cpu.du.CHTALLY < e->N2 ; cpu.du.CHTALLY += 1)
-        {
+      {
+        for(; cpu.du.CHTALLY < e->N2; cpu.du.CHTALLY += 1)
+          {
             bool b1 = F;
             
-            // If we are a SZTR, addr2 is read only, decrement here.
-            // If we are a CSR, addr2 will be decremented below in the write cycle
-            e->ADDR2.decr = isSZTR;
             e->ADDR2.mode = eRWreadBit;
-            bool b2 = EISgetBitRWNR(&e->ADDR2); // read w/ no addr decr from src2 to in anticipation of a write
+            bool b2 = EISgetBitRWNR(&e->ADDR2, true);
             
-            if (!b1 && !b2)
-                bR = B5;
-            else if (!b1 && b2)
-                bR = B6;
-            else if (b1 && !b2)
-                bR = B7;
-            else if (b1 && b2)
-                bR = B8;
+            if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
             
             if (bR)
-            {
+              {
                 //CLR_I_ZERO;
                 cpu.du.Z = 0;
-                if (isSZTR)
-                  break;
-            }
+              }
         
-            if (! isSZTR)
-            {
-                // write out modified bit
-                e->ADDR2.bit = bR ? 1 : 0;
-                e->ADDR2.mode = eRWwriteBit;
-                e->ADDR2.decr = true;
-                //EISgetBitRW(&e->ADDR2);
-                EISgetBitRWNR(&e->ADDR2);
-// XXX ticket #31
-// This a little brute force; it we fault on the next read, the cached value
-// is lost. There might be a way to logic it up so that when the next read
-// word offset changes, then we write the cache before doing the read. For
-// right now, be pessimistic. Sadly, since this is a bit loop, it is very.
-                EISWriteCache (&e->ADDR2);
-            }
-        }
-    }
+            // write out modified bit
+            e->ADDR2.bit = bR ? 1 : 0;
+            e->ADDR2.mode = eRWwriteBit;
+            // if ADDR1 is on a word boundary, it might fault on the next loop,
+            // so we flush the write in case.
+            EISgetBitRWNR(&e->ADDR2, e->ADDR1.last_bit_posn == 0);
+          }
+      }
+
+    EISWriteCache (&e->ADDR2);
 
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
 
     SC_I_ZERO (cpu.du.Z);
     if (e->N1 > e->N2)
-    {
+      {
         // NOTES: If N1 > N2, the low order (N1-N2) bits of C(Y-bit1) are not
         // processed and the truncation indicator is set ON.
         //
@@ -8519,13 +8429,390 @@ void csr (bool isSZTR)
         
         SET_I_TRUNC;
         if (T && tstOVFfault ())
-        {
-            doFault(FAULT_OFL, fst_zero, "csr truncation fault");
-        }
-    }
+          doFault(FAULT_OFL, fst_zero, "csr truncation fault");
+      }
     else
+      {
         CLR_I_TRUNC;
-}
+      }
+  }
+
+void sztl (void)
+  {
+
+    // The execution of this instruction is identical to the Combine
+    // Bit Strings Left (csl) instruction except that C(BOLR)m is
+    // not placed into C(Y-bit2)i-1.
+
+    EISstruct * e = & cpu.currentEISinstruction;
+
+    // For i = bits 1, 2, ..., minimum (N1,N2)
+    //   m = C(Y-bit1)i-1 || C(Y-bit2)i-1 (a 2-bit number)
+    //   C(BOLR)m → C(Y-bit2)i-1
+    // If N1 < N2, then for i = N1+l, N1+2, ..., N2
+    //   m = C(F) || C(Y-bit2)i-1 (a 2-bit number)
+    //   C(BOLR)m → C(Y-bit2)i-1
+    //
+    // INDICATORS: (Indicators not listed are not affected)
+    //     Zero If C(Y-bit2) = 00...0, then ON; otherwise OFF
+    //     Truncation If N1 > N2, then ON; otherwise OFF
+    //
+    // NOTES: If N1 > N2, the low order (N1-N2) bits of C(Y-bit1) are not
+    // processed and the truncation indicator is set ON.
+    //
+    // If T = 1 and the truncation indicator is set ON by execution of the
+    // instruction, then a truncation (overflow) fault occurs.
+    //
+    // BOLR
+    // If first operand    and    second operand    then result
+    // bit is:                    bit is:           is from bit:
+    //        0                          0                      5
+    //        0                          1                      6
+    //        1                          0                      7
+    //        1                          1                      8
+    //
+    // The Boolean operations most commonly used are
+    //                  BOLR Field Bits
+    // Operation        5      6      7      8
+    //
+    // MOVE             0      0      1      1
+    // AND              0      0      0      1
+    // OR               0      1      1      1
+    // NAND             1      1      1      0
+    // EXCLUSIVE OR     0      1      1      0
+    // Clear            0      0      0      0
+    // Invert           1      1      0      0
+    //
+    
+// 0 0 0 0  Clear
+// 0 0 0 1  a AND b
+// 0 0 1 0  a AND !b
+// 0 0 1 1  a
+// 0 1 0 0  !a AND b
+// 0 1 0 1  b
+// 0 1 1 0  a XOR b
+// 0 1 1 1  a OR b
+// 1 0 0 0  !a AND !b     !(a OR b)
+// 1 0 0 1  a == b        !(a XOR b)
+// 1 0 1 0  !b
+// 1 0 1 1  !b OR A 
+// 1 1 0 0  !a
+// 1 1 0 1  !b AND a
+// 1 1 1 0  a NAND b
+// 1 1 1 1  Set
+
+    fault_ipr_subtype_ mod_fault = 0;
+    
+#ifndef EIS_SETUP
+    setupOperandDescriptor (1, &mod_fault);
+    setupOperandDescriptor (2, &mod_fault);
+#endif
+    
+    parseBitstringOperandDescriptor (1, &mod_fault);
+    parseBitstringOperandDescriptor (2, &mod_fault);
+
+#ifdef L68
+    // L68 raises it immediately
+    if (mod_fault)
+        doFault (FAULT_IPR,
+                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                 "Illegal modifier");
+#endif
+    
+    // Bits 1-4 and 10 MBZ
+    if (IWB_IRODD & 0360200000000)
+      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "csl 1-4,10 MBZ");
+
+#ifdef DPS8M
+    // DPS8M raises it delayed
+    if (mod_fault)
+        doFault (FAULT_IPR,
+                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                 "Illegal modifier");
+#endif
+
+    e->ADDR1.cPos = (int) e->C1;
+    e->ADDR2.cPos = (int) e->C2;
+    
+    e->ADDR1.bPos = (int) e->B1;
+    e->ADDR2.bPos = (int) e->B2;
+    
+    bool F = getbits36_1 (cpu.cu.IWB, 0) != 0;   // fill bit
+    bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;   // T (enablefault) bit
+    
+    uint BOLR = getbits36_4 (cpu.cu.IWB, 5);   // T (enablefault) bit
+    bool B5 = !! (BOLR & 8);
+    bool B6 = !! (BOLR & 4);
+    bool B7 = !! (BOLR & 2);
+    bool B8 = !! (BOLR & 1);
+    
+    e->ADDR1.mode = eRWreadBit;
+    e->ADDR2.mode = eRWreadBit;
+
+#ifndef EIS_PTR
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "SZTL N1 %d N2 %d\n"
+               "SZTL C1 %d C2 %d B1 %d B2 %d F %o T %d\n"
+               "SZTL BOLR %u%u%u%u\n"
+               "SZTL op1 SNR %06o WORDNO %06o CHAR %d BITNO %d\n"
+               "SZTL op2 SNR %06o WORDNO %06o CHAR %d BITNO %d\n",
+               e -> N1, e -> N2,
+               e -> C1, e -> C2, e -> B1, e -> B2, F, T,
+               B5, B6, B7, B8,
+               e -> addr [0].SNR, e -> addr [0].address, 
+               e -> addr [0].cPos, e -> addr [0].bPos,
+               e -> addr [1].SNR, e -> addr [1].address, 
+               e -> addr [1].cPos, e -> addr [1].bPos);
+#endif
+
+    bool bR = false; // result bit
+
+    PNL (L68_ (if (max (e->N1, e->N2) < 128)
+                 DU_CYCLE_FLEN_128;))
+
+    for( ; cpu.du.CHTALLY < min (e->N1, e->N2); cpu.du.CHTALLY += 1)
+    {
+        bool b1 = EISgetBitRWN (& e->ADDR1, true);
+        bool b2 = EISgetBitRWN (& e->ADDR2, true);
+        
+        if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
+        
+        if (bR)
+          {
+            //CLR_I_ZERO);
+            cpu.du.Z = 0;
+            break;
+          }
+      }
+    
+    if (e->N1 < e->N2)
+      {
+        for (; cpu.du.CHTALLY < e->N2; cpu.du.CHTALLY += 1)
+          {
+            bool b1 = F;
+            bool b2 = EISgetBitRWN (& e->ADDR2, true);
+            
+            if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
+            
+            if (bR)
+              {
+                //CLR_I_ZERO;
+                cpu.du.Z = 0;
+                break;
+              }
+          }
+      }
+    
+    cleanupOperandDescriptor (1);
+    cleanupOperandDescriptor (2);
+
+    SC_I_ZERO (cpu.du.Z);
+    if (e->N1 > e->N2)
+      {
+        // NOTES: If N1 > N2, the low order (N1-N2) bits of C(Y-bit1) are not
+        // processed and the truncation indicator is set ON.
+        //
+        // If T = 1 and the truncation indicator is set ON by execution of the
+        // instruction, then a truncation (overflow) fault occurs.
+        
+        SET_I_TRUNC;
+        if (T && tstOVFfault ())
+          doFault(FAULT_OFL, fst_zero, "csl truncation fault");
+      }
+    else
+      {
+        CLR_I_TRUNC;
+      }
+  }
+
+void sztr (void)
+  {
+
+    // The execution of this instruction is identical to the Combine
+    // Bit Strings Left (csl) instruction except that C(BOLR)m is
+    // not placed into C(Y-bit2)i-1.
+
+    EISstruct * e = & cpu.currentEISinstruction;
+
+    // For i = bits 1, 2, ..., minimum (N1,N2)
+    //   m = C(Y-bit1)N1-i || C(Y-bit2)N2-i (a 2-bit number)
+    //   C(BOLR)m → C( Y-bit2)N2-i
+    // If N1 < N2, then for i = N1+i, N1+2, ..., N2
+    //   m = C(F) || C(Y-bit2)N2-i (a 2-bit number)
+    //    C(BOLR)m → C( Y-bit2)N2-i
+    // INDICATORS: (Indicators not listed are not affected)
+    //     Zero If C(Y-bit2) = 00...0, then ON; otherwise OFF
+    //     Truncation If N1 > N2, then ON; otherwise OFF
+    //
+    // NOTES: If N1 > N2, the low order (N1-N2) bits of C(Y-bit1) are not
+    // processed and the truncation indicator is set ON.
+    //
+    // If T = 1 and the truncation indicator is set ON by execution of the
+    // instruction, then a truncation (overflow) fault occurs.
+    //
+    // BOLR
+    // If first operand    and    second operand    then result
+    // bit is:                    bit is:           is from bit:
+    //        0                          0                      5
+    //        0                          1                      6
+    //        1                          0                      7
+    //        1                          1                      8
+    //
+    // The Boolean operations most commonly used are
+    //                  BOLR Field Bits
+    // Operation        5      6      7      8
+    //
+    // MOVE             0      0      1      1
+    // AND              0      0      0      1
+    // OR               0      1      1      1
+    // NAND             1      1      1      0
+    // EXCLUSIVE OR     0      1      1      0
+    // Clear            0      0      0      0
+    // Invert           1      1      0      0
+    //
+    
+    fault_ipr_subtype_ mod_fault = 0;
+    
+#ifndef EIS_SETUP
+    setupOperandDescriptor(1, &mod_fault);
+    setupOperandDescriptor(2, &mod_fault);
+#endif
+    
+    parseBitstringOperandDescriptor(1, &mod_fault);
+    parseBitstringOperandDescriptor(2, &mod_fault);
+
+#ifdef L68
+    // L68 raises it immediately
+    if (mod_fault)
+        doFault (FAULT_IPR,
+                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                 "Illegal modifier");
+#endif
+    
+    // Bits 1-4 and 10 MBZ
+    if (IWB_IRODD & 0360200000000)
+      doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "csr 1-4,10 MBZ");
+
+#ifdef DPS8M
+    // DPS8M raises it delayed
+    if (mod_fault)
+        doFault (FAULT_IPR,
+                 (_fault_subtype) {.fault_ipr_subtype=mod_fault},
+                 "Illegal modifier");
+#endif
+
+    e->ADDR1.cPos = (int) e->C1;
+    e->ADDR2.cPos = (int) e->C2;
+    
+    e->ADDR1.bPos = (int) e->B1;
+    e->ADDR2.bPos = (int) e->B2;
+    
+    // get new char/bit offsets
+    int numWords1=0, numWords2=0;
+    
+    getBitOffsets((int) e->N1, (int) e->C1, (int) e->B1, &numWords1, &e->ADDR1.cPos, &e->ADDR1.bPos);
+    PNL (cpu.du.D1_PTR_W += (word18) numWords1);
+    PNL (cpu.du.D1_PTR_W &= AMASK);
+#ifdef EIS_PTR
+    cpu.du.D1_PTR_W += (word18) numWords1;
+    cpu.du.D1_PTR_W &= AMASK;
+#else
+    e->ADDR1.address += (word18) numWords1;
+#endif
+        
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "CSR N1 %d C1 %d B1 %d numWords1 %d cPos %d bPos %d\n",
+               e->N1, e->C1, e->B1, numWords1, e->ADDR1.cPos, e->ADDR1.bPos);
+    getBitOffsets((int) e->N2, (int) e->C2, (int) e->B2, &numWords2, &e->ADDR2.cPos, &e->ADDR2.bPos);
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
+               "CSR N2 %d C2 %d B2 %d numWords2 %d cPos %d bPos %d\n",
+               e->N2, e->C2, e->B2, numWords2, e->ADDR2.cPos, e->ADDR2.bPos);
+    PNL (cpu.du.D2_PTR_W += (word18) numWords1);
+    PNL (cpu.du.D2_PTR_W &= AMASK);
+#ifdef EIS_PTR
+    cpu.du.D2_PTR_W += (word18) numWords1;
+    cpu.du.D2_PTR_W &= AMASK;
+#else
+    e->ADDR2.address += (word18) numWords2;
+#endif
+    
+    bool F = getbits36_1 (cpu.cu.IWB, 0) != 0;   // fill bit
+    bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;   // T (enablefault) bit
+    
+    uint BOLR = getbits36_4 (cpu.cu.IWB, 5);   // T (enablefault) bit
+    bool B5 = !! (BOLR & 8);
+    bool B6 = !! (BOLR & 4);
+    bool B7 = !! (BOLR & 2);
+    bool B8 = !! (BOLR & 1);
+    
+    e->ADDR1.mode = eRWreadBit;
+    
+    CLR_I_TRUNC;     // assume N1 <= N2
+    
+    bool bR = false; // result bit
+    
+    PNL (L68_ (if (max (e->N1, e->N2) < 128)
+                 DU_CYCLE_FLEN_128;))
+
+    for( ; cpu.du.CHTALLY < min(e->N1, e->N2); cpu.du.CHTALLY += 1)
+      {
+        bool b1 = EISgetBitRWNR(&e->ADDR1, true);
+        
+        e->ADDR2.mode = eRWreadBit;
+        bool b2 = EISgetBitRWNR(&e->ADDR2, true);
+        
+        if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
+        
+        if (bR)
+          {
+            cpu.du.Z = 0;
+            break;
+          }
+        
+      }
+    
+    if (e->N1 < e->N2)
+      {
+        for(; cpu.du.CHTALLY < e->N2; cpu.du.CHTALLY += 1)
+          {
+            bool b1 = F;
+            
+            e->ADDR2.mode = eRWreadBit;
+            bool b2 = EISgetBitRWNR(&e->ADDR2, true);
+            
+            if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
+            
+            if (bR)
+            {
+                //CLR_I_ZERO;
+                cpu.du.Z = 0;
+                break;
+            }
+        
+          }
+      }
+
+    cleanupOperandDescriptor (1);
+    cleanupOperandDescriptor (2);
+
+    SC_I_ZERO (cpu.du.Z);
+    if (e->N1 > e->N2)
+      {
+        // NOTES: If N1 > N2, the low order (N1-N2) bits of C(Y-bit1) are not
+        // processed and the truncation indicator is set ON.
+        //
+        // If T = 1 and the truncation indicator is set ON by execution of the
+        // instruction, then a truncation (overflow) fault occurs.
+        
+        SET_I_TRUNC;
+        if (T && tstOVFfault ())
+          doFault(FAULT_OFL, fst_zero, "csr truncation fault");
+      }
+    else
+      {
+        CLR_I_TRUNC;
+      }
+  }
 
 
 /*
@@ -8568,9 +8855,6 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     }
     
     p->data = EISRead(p); // read data word from memory
-    
-    //int charPosn = ((3 - *cpos) * 9);     // 9-bit char bit position
-    //int bitPosn = charPosn + (8 - *bpos);
     
     int charPosn = *cpos * 9;
     int bitPosn = charPosn + *bpos;
@@ -8790,7 +9074,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     }
     
     //Write (*dstAddr, w, OperandWrite, 0); // XXX this is the inefficient part!
-    EISWriteIdx(p, 0, w); // XXX this is the inefficient part!
+    EISWriteIdx(p, 0, w, true); // XXX this is the inefficient part!
     
     *pos -= 1;       // to prev byte.
 }
@@ -8840,7 +9124,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     }
     
     //Write (*dstAddr, w, OperandWrite, 0); // XXX this is the inefficient part!
-    EISWriteIdx(p, 0, w); // XXX this is the inefficient part!
+    EISWriteIdx(p, 0, w, true); // XXX this is the inefficient part!
     
     *pos -= 1;       // to prev byte.
 }

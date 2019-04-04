@@ -9354,11 +9354,11 @@ elapsedtime ();
         /// EIS - Bit String Combine
 
         case x1 (0060):   // csl
-          csl (false);
+          csl ();
           break;
 
         case x1 (0061):   // csr
-          csr (false);
+          csr ();
           break;
 
         /// EIS - Bit String Compare
@@ -9373,14 +9373,14 @@ elapsedtime ();
           // The execution of this instruction is identical to the Combine
           // Bit Strings Left (csl) instruction except that C(BOLR)m is
           // not placed into C(Y-bit2)i-1.
-          csl (true);
+          sztl ();
           break;
 
         case x1 (0065):   // sztr
           // The execution of this instruction is identical to the Combine
           // Bit Strings Left (csr) instruction except that C(BOLR)m is
           // not placed into C(Y-bit2)i-1.
-          csr (true);
+          sztr ();
           break;
 
         /// EIS -- Data Conversion
