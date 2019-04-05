@@ -656,9 +656,8 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
         // XXX Does the CU or FR need fixing? ticket #36
         if (cpu . bTroubleFaultCycle)
           {
-#if !defined(THREADZ) && !defined(LOCKLESS)
+#if !defined(LOCKLESS)
 #ifndef PANEL
-#ifndef ROUND_ROBIN
             if ((! sample_interrupts ()) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will 
                                      // break this logic
@@ -669,7 +668,6 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
                 //stop_reason = STOP_FLT_CASCADE;
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
-#endif
 #endif
 #endif
           }
@@ -796,9 +794,8 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
         // XXX Does the CU or FR need fixing? ticket #36
         if (cpu.bTroubleFaultCycle)
           {
-#if !defined(THREADZ) && !defined(LOCKLESS)
+#if !defined(LOCKLESS)
 #ifndef PANEL
-#ifndef ROUND_ROBIN
             if ((! sample_interrupts ()) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will 
                                      // break this logic
@@ -809,7 +806,6 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
                 //stop_reason = STOP_FLT_CASCADE;
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
-#endif
 #endif
 #endif
           }

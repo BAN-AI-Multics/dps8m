@@ -41,44 +41,9 @@
 #ifdef FNPDBG
 static inline void fnp_core_read_n (word24 addr, word36 *data, uint n, UNUSED const char * ctx)
   {
-#ifdef THREADZ
-    lock_mem_rd ();
-#endif
     for (uint i = 0; i < n; i ++)
-#ifdef SCUMEM
-      iom_core_read (addr, data, ctx);
-#else
       data [i] = M [addr + i] & DMASK;
-#endif
-#ifdef THREADZ
-    unlock_mem ();
-#endif
   }
-#endif
-
-#ifdef THREADZ
-static inline void l_putbits36_1 (vol word36 * x, uint p, word1 val)
-{
-    const int n = 1;
-    int shift = 36 - (int) p - (int) n;
-    if (shift < 0 || shift > 35) {
-        sim_printf ("l_putbits36_1: bad args (%012"PRIo64",pos=%d)\n", *x, p);
-        return;
-    }
-    word36 mask = ~ (~0U<<n);  // n low bits on
-    word36 smask = mask << (unsigned) shift;  // shift 1s to proper position; result 0*1{n}0*
-    // caller may provide val that is too big, e.g., a word with all bits
-    // set to one, so we mask val
-#ifdef THREADZ
-    lock_mem_wr ();
-#endif
-    * x = (* x & ~ smask) | (((word36) val & mask) << shift);
-#ifdef THREADZ
-    unlock_mem ();
-#endif
-}
-#else
-#define l_putbits36_1 putbits36_1
 #endif
 
 //
@@ -1280,8 +1245,8 @@ sim_printf ("']\n");
 
     word36 v;
     iom_direct_data_service (decoded_p->iom_unit, decoded_p->chan_num,  decoded_p->fsmbx+INP_COMMAND_DATA, &v, direct_load);
-    l_putbits36_1 (& v, 16, output_chain_present);
-    l_putbits36_1 (& v, 17, linep->input_break ? 1 : 0);
+    putbits36_1 (& v, 16, output_chain_present);
+    putbits36_1 (& v, 17, linep->input_break ? 1 : 0);
     iom_direct_data_service (decoded_p->iom_unit, decoded_p->chan_num,  decoded_p->fsmbx+INP_COMMAND_DATA, &v, direct_store);
 
     // Mark the line as ready to receive more data
@@ -1577,14 +1542,6 @@ static int interruptL66 (uint iomUnitIdx, uint chan)
     decoded_p->chan_num = chan;
     decoded_p->devUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
     decoded_p->fudp = & fnpData.fnpUnitData [decoded_p->devUnitIdx];
-#ifdef SCUMEM
-    word24 offset;
-    int scuUnitNum =  query_IOM_SCU_bank_map (iomUnitIdx, decoded_p->fudp->mailboxAddress, & offset);
-    uint scuUnitIdx = cables->iom_to_scu[iomUnitIdx][scuUnitNum].scu_unit_idx;
-    decoded_p->mbxp = (vol struct mailbox *) & scu [scuUnitIdx].M [decoded_p->fudp->mailboxAddress];
-#else
-    //decoded_p->mbxp = (vol struct mailbox *) & M [decoded_p->fudp -> mailboxAddress];
-#endif
     word36 dia_pcw;
     iom_direct_data_service (decoded_p->iom_unit, decoded_p->chan_num, decoded_p->fudp->mailboxAddress+DIA_PCW, & dia_pcw, direct_load);
 

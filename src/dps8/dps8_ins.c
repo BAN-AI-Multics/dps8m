@@ -6894,9 +6894,6 @@ static t_stat doInstruction (void)
           cpu.CY = ((((word36) cpu.BAR.BASE) << 9) | cpu.BAR.BOUND) << 18;
           cpu.zone = 0777777000000;
           cpu.useZone = true;
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
           break;
 
 
@@ -8532,12 +8529,7 @@ elapsedtime ();
             // cioc The system controller addressed by Y (i.e., contains
             // the word at Y) sends a connect signal to the port specified
             // by C(Y) 33,35.
-#ifdef SCUMEM
-            word24 offset;
-            int cpu_port_num = lookup_cpu_mem_map (cpu.iefpFinalAddress, & offset);
-#else
             int cpu_port_num = lookup_cpu_mem_map (cpu.iefpFinalAddress);
-#endif
             // If the there is no port to that memory location, fault
             if (cpu_port_num < 0)
               {
@@ -8729,15 +8721,6 @@ elapsedtime ();
                 //stopCPUThread ();
               }
 #endif
-#ifdef ROUND_ROBIN
-          if (cpu.PPR.PSR == 034 && cpu.PPR.IC == 03535)
-              {
-                sim_printf ("[%lld] sys_trouble$die DIS causes CPU halt\n", cpu.cycleCnt);
-                sim_debug (DBG_MSG, & cpu_dev, "sys_trouble$die DIS causes CPU halt\n");
-                //longjmp (cpu.jmpMain, JMP_STOP);
-                cpu.isRunning = false;
-              }
-#endif
 #if 0
           if (i->address == 0777)
               {
@@ -8803,15 +8786,6 @@ elapsedtime ();
           else
             {
               sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\n");
-#ifdef ROUND_ROBIN
-#ifdef ISOLTS
-              if (current_running_cpu_idx)
-              {
-//sim_printf ("stopping CPU %c\n", current_running_cpu_idx + 'A');
-                cpu.isRunning = false;
-              }
-#endif
-#endif
               return CONT_DIS;
             }
 

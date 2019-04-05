@@ -1109,10 +1109,6 @@ void scu_unit_reset (int scu_unit_idx)
     up -> lwr = sw -> lwr;
 
    
-#ifdef SCUMEM
-    memset (up->M, 0, sizeof (up->M));
-#endif
-
 // This is to allow the CPU reset to update the memory map. IAC clears the 
 // attached SCUs; they clear the attached IOMs.
 
@@ -1409,9 +1405,6 @@ static void deliver_interrupts (uint scu_unit_idx)
                            cpu_unit_udx, scu_unit_idx);
 #else // ! THREADZ
 //if (cpu_unit_udx && ! cpu.isRunning) sim_printf ("starting CPU %c\n", cpu_unit_udx + 'A');
-#ifdef ROUND_ROBIN
-                cpus[cpu_unit_udx].isRunning = true;
-#endif
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
 sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_udx, scu_unit_idx);
                 sim_debug (DBG_INTR, & scu_dev,

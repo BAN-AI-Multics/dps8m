@@ -91,9 +91,6 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 #undef HDBG
 #endif
 
-// Enable round-robin multi-CPU
-//#define ROUND_ROBIN
-
 // Legacy ATTN_HACK support
 // #define ATTN_HACK
 
@@ -114,8 +111,8 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 
 // ISOLTS requires multiple CPU support
 #ifdef ISOLTS
-#if !defined(ROUND_ROBIN) && !defined(LOCKLESS)
-#define ROUND_ROBIN
+#if !defined(LOCKLESS)
+#define LOCKLESS
 #endif
 #endif
 

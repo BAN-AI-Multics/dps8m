@@ -78,10 +78,6 @@ typedef struct
     uint y2k;
     int64 user_correction;
     uint64 last_time;
-#ifdef SCUMEM
-enum { SCU_MEM_SIZE = 020000000 };
-    vol word36 M [SCU_MEM_SIZE];
-#endif
 } scu_t;
 
 extern scu_t scu [N_SCU_UNITS_MAX];

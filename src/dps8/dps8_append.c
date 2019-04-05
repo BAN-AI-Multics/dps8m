@@ -102,8 +102,10 @@ void set_apu_status (apuStatusBits status)
   }
 #endif
 
+#ifdef TESTING
 #ifdef WAM
 static char *str_sdw (char * buf, sdw_s *SDW);
+#endif
 #endif
 
 //
@@ -294,18 +296,6 @@ static void modify_dsptw (word15 segno)
 
     word24 x1 = (2u * segno) / 1024u; // floor
     
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-    bool lck = get_rmw_lock ();
-    if (! lck)
-      lock_rmw ();
-#endif
-
     word36 PTWx1;
 #ifdef LOCKLESS
     core_read_lock ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
@@ -317,14 +307,6 @@ static void modify_dsptw (word15 segno)
     core_write ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
 #endif
     
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-    if (! lck)
-      unlock_rmw ();
-#endif
-
     cpu.PTW0.U = 1;
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
@@ -425,9 +407,11 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
                   p->USE = u;
               }
 
+#ifdef TESTING
             char buf[256];
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                     __func__, toffset + setno, str_sdw (buf, cpu.SDW));
+#endif
             return cpu.SDW;
           }
       }
@@ -551,6 +535,7 @@ static void fetch_nsdw (word15 segno)
 #endif
   }
 
+#ifdef TESTING
 #ifdef WAM
 static char *str_sdw (char * buf, sdw_s *SDW)
   {
@@ -579,7 +564,8 @@ static char *str_sdw (char * buf, sdw_s *SDW)
                SDW->USE);
     return buf;
   }
-#endif
+#endif // WAM
+#endif // TESTING
 
 #ifdef WAM
 #ifdef L68
@@ -725,10 +711,12 @@ static void load_sdwam (word15 segno, UNUSED bool nomatch)
           p->USE = u;
       }
             
+#ifdef TESTING
     char buf[256];
     DBGAPP ("%s(2):SDWAM[%d]=%s\n",
             __func__, toffset + setno, str_sdw (buf, cpu.SDW));
 #endif
+#endif // DPS8M
 #endif // WAM
   }
 
@@ -835,17 +823,6 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
     PNL (cpu.lastPTWOffset = offset;)
     PNL (cpu.lastPTWIsDS = false;)
 
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-    bool lck = get_rmw_lock ();
-    if (! lck)
-      lock_rmw ();
-#endif
 #ifdef LOCKLESS
     core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
 #else
@@ -1012,17 +989,6 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
     
     set_apu_status (apuStatus_MPTW);
 
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-    bool lck = get_rmw_lock ();
-    if (! lck)
-      lock_rmw ();
-#endif
 #ifdef LOCKLESS
     core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
@@ -1031,13 +997,6 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
     core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
     core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-    if (! lck)
-      unlock_rmw ();
 #endif
     cpu.PTW->M = 1;
 #ifdef L68

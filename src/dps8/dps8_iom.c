@@ -410,82 +410,6 @@ __thread uint this_iom_idx;
 __thread uint this_chan_num;
 #endif
 
-#ifdef SCUMEM
-void iom_core_read (uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
-  {
-    word24 offset;
-    int scuUnitNum = query_IOM_SCU_bank_map (iom_unit_idx, addr, & offset);
-    uint scu_unit_idx = cables->iom_to_scu[iom_unit_idx][scuUnitNum].scu_unit_idx;
-#ifdef THREADZ
-#ifdef lockread
-    lock_mem_rd ();
-#endif
-#endif
-    *data = scu[scu_unit_idx].M[offset] & DMASK;
-#ifdef THREADZ
-#ifdef lockread
-    unlock_mem ();
-#endif
-#endif
-  }
-
-void iom_core_read2 (uint iom_unit_idx, word24 addr, word36 *even, word36 *odd, UNUSED const char * ctx)
-  {
-    word24 offset;
-    int scuUnitNum = query_IOM_SCU_bank_map (iom_unit_idx, addr & PAEVEN, & offset);
-    uint scu_unit_idx = cables->iom_to_scu[iom_unit_idx][scuUnitNum].scu_unit_idx;
-#ifdef THREADZ
-#ifdef lockread
-    lock_mem_rd ();
-#endif
-#endif
-    * even = scu[scu_unit_idx].M[offset ++] & DMASK;
-    * odd  = scu[scu_unit_idx].M[offset   ] & DMASK;
-#ifdef THREADZ
-#ifdef lockread
-      unlock_mem ();
-#endif
-#endif
-  }
-
-void iom_core_write (uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
-  {
-    word24 offset;
-    int scuUnitNum = query_IOM_SCU_bank_map (iom_unit_idx, addr, & offset);
-    uint scu_unit_idx = cables->iom_to_scu[iom_unit_idx][scuUnitNum].scu_unit_idx;
-#ifdef THREADZ
-#ifdef lockread
-    lock_mem_wr ();
-#endif
-#endif
-    scu[scu_unit_idx].M[offset] = data & DMASK;
-#ifdef THREADZ
-#ifdef lockread
-    unlock_mem ();
-#endif
-#endif
-  }
-
-void iom_core_write2 (uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
-  {
-    word24 offset;
-    int scuUnitNum = query_IOM_SCU_bank_map (iom_unit_idx, addr & PAEVEN, & offset);
-    uint scu_unit_idx = cables->iom_to_scu[iom_unit_idx][scuUnitNum].scu_unit_idx;
-#ifdef THREADZ
-#ifdef lockread
-    lock_mem_wr ();
-#endif
-#endif
-    scu[scu_unit_idx].M[offset ++] = even & DMASK;
-    scu[scu_unit_idx].M[offset   ] = odd & DMASK;
-#ifdef THREADZ
-#ifdef lockread
-      unlock_mem ();
-#endif
-#endif
-  }
-
-#else // SCUMEM
 
 void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
@@ -555,11 +479,6 @@ void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED 
 
 void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
   {
-#ifdef THREADZ
-#ifdef lockread
-    lock_mem_wr ();
-#endif
-#endif
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, even);
@@ -570,13 +489,7 @@ void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36
     M[addr ++] = even;
     M[addr] =    odd;
 #endif
-#ifdef THREADZ
-#ifdef lockread
-    unlock_mem ();
-#endif
-#endif
   }
-#endif
 
 
 void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
@@ -1037,9 +950,6 @@ static DEBTAB iom_dt[] =
 
 t_stat iom_unit_reset_idx (UNUSED uint iom_unit_idx)
   {
-#ifdef SCUMEM
-    setupIOMScbankMap (iom_unit_idx);
-#endif
     return SCPE_OK;
   }
 
@@ -1079,11 +989,6 @@ static UNIT boot_channel_unit[N_IOM_UNITS_MAX] =
 
 static void init_memory_iom (uint iom_unit_idx)
   {
-#ifdef SCUMEM
-    word36 * M = iom_lookup_address (iom_unit_idx, 0);
-    if (! M)
-      sim_fatal ("%s can't find memory\n", __func__);
-#endif
     // The presence of a 0 in the top six bits of word 0 denote an IOM boot
     // from an IOX boot
     
@@ -1383,106 +1288,6 @@ DEVICE iom_dev =
     NULL,        // description
     NULL
   };
-
-#ifdef SCUMEM
-// Map memory to port
-// -1 -- no mapping
-// iomScbankMap is indexed by IDX because the data are
-// based on the configuration switches associated with
-// the physical IOM
-
-typedef struct
-  {
-    int portNum;
-    word24 base;
-  } map_t;
-
-static map_t  iomScbankMap[N_IOM_UNITS_MAX][N_SCBANKS];
-
-static void setupIOMScbankMap (uint iom_unit_idx)
-  {
-    sim_debug (DBG_DEBUG, & cpu_dev,
-      "%s: setupIOMScbankMap: SCBANK %d N_SCBANKS %d MEM_SIZE_MAX %d\n", 
-      __func__, SCBANK, N_SCBANKS, MEM_SIZE_MAX);
-
-    // Initalize to unmapped
-    for (int pg = 0; pg < (int) N_SCBANKS; pg ++)
-      iomScbankMap[iom_unit_idx][pg].portNum = -1;
-    
-    iom_unit_data_t * p = iom_unit_data + iom_unit_idx;
-    // For each port (which is connected to a SCU
-    for (int port_num = 0; port_num < N_IOM_PORTS; port_num ++)
-      {
-        if (! p -> configSwPortEnable[port_num])
-          continue;
-        // Calculate the amount of memory in the SCU in words
-        uint store_size = p -> configSwPortStoresize[port_num];
-#ifdef DPS8M
-        uint store_table[8] = 
-          { 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304 };
-#endif
-#ifdef L68
-        uint store_table[8] = 
-          { 32768, 65536, 4194304, 131072, 524288, 1048576, 2097152, 262144 };
-#endif
-        //uint sz = 1 << (store_size + 16);
-        uint sz = store_table[store_size];
- 
-        // Calculate the base address of the memory in words
-        uint assignment = p -> configSwPortAddress[port_num];
-        //uint assignment = cpu.switches.assignment[port_num];
-        uint base = assignment * sz;
- 
-        // Now convert to SCBANKs
-        sz = sz / SCBANK;
-        uint scbase = base / SCBANK;
- 
-        sim_debug (DBG_DEBUG, & cpu_dev,
-          "%s: unit:%u port:%d ss:%u as:%u sz:%u ba:%u\n",
-          __func__, iom_unit_idx, port_num, store_size, assignment, sz, 
-          scbase);
- 
-        for (uint pg = 0; pg < sz; pg ++)
-          {
-            uint scpg = scbase + pg;
-            if (/*scpg >= 0 && */ scpg < N_SCBANKS)
-              {
-                iomScbankMap[iom_unit_idx][scpg].base = base;
-                iomScbankMap[iom_unit_idx][scpg].portNum = port_num;
-              }
-          }
-      }
-#if 0
-    for (int pg = 0; pg < (int) N_SCBANKS; pg ++)
-      sim_debug (DBG_DEBUG, & cpu_dev, "%s: %d:%d\n", 
-        __func__, pg, iomScbankMap[iom_unit_idx][pg].portNum);
-#endif
-  }
-
-int query_IOM_SCU_bank_map (uint iom_unit_idx, word24 addr, word24 * offset)
-  {
-    uint scpg = addr / SCBANK;
-    if (scpg < N_SCBANKS)
-      {
-        * offset = addr-iomScbankMap[iom_unit_idx][scpg].base;
-        return iomScbankMap[iom_unit_idx][scpg].portNum;
-      }
-    return -1;
-  }
-
-static word36 * iom_lookup_address (uint iom_unit_idx, word24 addr)
-  {
-    word24 offset;
-    int port = query_IOM_SCU_bank_map (iom_unit_idx, addr, & offset);
-    if (port < 0)
-      {
-        sim_printf ("IOM %d mem fail %08o\n", iom_unit_idx, addr); 
-        return NULL;
-      }
-    uint scu_unit_idx = cables->iom_to_scu[iom_unit_idx][port].scu_unit_idx;
-    return & scu[scu_unit_idx].M[offset];
-  }
-#endif
 
 static uint mbxLoc (uint iom_unit_idx, uint chan)
   {
@@ -3435,16 +3240,6 @@ void iom_init (void)
 
 t_stat boot2 (UNUSED int32 arg, UNUSED const char * buf)
   {
-#ifdef ROUND_ROBIN
-    uint cpuUnitIdx = 1U;
-    uint save = set_cpu_idx ((uint) cpuUnitIdx);
-if (cpuUnitIdx && ! cpu.isRunning)
- sim_printf ("starting CPU %c early\n", cpuUnitIdx + 'A');
-    cpu.isRunning = true;
-                    set_cpu_idx (save);
-    //boot_svc (& boot_channel_unit[1]);
-    iom_boot ((int) cpuUnitIdx, & iom_dev);
-#endif
     return SCPE_OK;
   }
 

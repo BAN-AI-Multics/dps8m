@@ -539,10 +539,7 @@ static void set_cpu_cycle (cycles_e cycle)
 uint set_cpu_idx (UNUSED uint cpu_idx)
   {
     uint prev = current_running_cpu_idx;
-#if defined(THREADZ) || defined(LOCKLESS)
-    current_running_cpu_idx = cpu_idx;
-#endif
-#ifdef ROUND_ROBIN
+#if defined(LOCKLESS)
     current_running_cpu_idx = cpu_idx;
 #endif
     cpup = & cpus [current_running_cpu_idx];
@@ -554,27 +551,10 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     uint save = set_cpu_idx (cpun);
     if (clear_mem)
       {
-#ifdef SCUMEM
-        for (int cpu_port_num = 0; cpu_port_num < N_CPU_PORTS; cpu_port_num ++)
-          {
-            if (get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-              {
-                uint sci_unit_idx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-                // Clear lock bits
-                for (uint i = 0; i < SCU_MEM_SIZE; i ++)
-                  {
-                    //scu [sci_unit_idx].M[i] = MEM_UNINITIALIZED;
-                    scu [sci_unit_idx].M[i] &= (MASK36 | MEM_UNINITIALIZED);
-                  }
-              }
-          }
-#else
         for (uint i = 0; i < MEMSIZE; i ++)
           {
-            //M [i] = MEM_UNINITIALIZED;
             M[i] &= (MASK36 | MEM_UNINITIALIZED);
           }
-#endif
       }
     cpu.rA = 0;
     cpu.rQ = 0;
@@ -961,23 +941,15 @@ void setup_scbank_map (void)
               }
           }
       }
+    //for (uint pg = 0; pg < N_SCBANKS; pg ++)
+     //if (cpu.scbank_map [pg] != -1)
+      //sim_printf ("setup_scbank_map: cpu %d page %o %d. port %d base %o os %o\n",
+                 //current_running_cpu_idx, pg, pg, cpu.scbank_map [pg], cpu.scbank_base[pg], cpu.scbank_pg_os[pg]);
     for (uint pg = 0; pg < N_SCBANKS; pg ++)
       sim_debug (DBG_DEBUG, & cpu_dev, "setup_scbank_map: %d:%d\n",
                  pg, cpu.scbank_map [pg]);
   }
 
-#ifdef SCUMEM
-int lookup_cpu_mem_map (word24 addr, word24 * offset)
-  {
-    uint scpg = addr / SCBANK;
-    if (scpg < N_SCBANKS)
-      {
-        * offset = addr - cpu.scbank_base[scpg];
-        return cpu.scbank_map[scpg];
-      }
-    return -1;
-  }
-#else
 int lookup_cpu_mem_map (word24 addr)
   {
     uint scpg = addr / SCBANK;
@@ -987,7 +959,7 @@ int lookup_cpu_mem_map (word24 addr)
       }
     return -1;
   }
-#endif
+
 //
 // serial.txt format
 //
@@ -1107,39 +1079,6 @@ void cpu_init (void)
 // !!!! Do not use 'cpu' in this routine; usage of 'cpus' violates 'restrict'
 // !!!! attribute
 
-#if 0
-#ifndef SCUMEM
-#ifdef M_SHARED
-    if (! M)
-      {
-        M = (word36 *) create_shm ("M", MEMSIZE * sizeof (word36));
-      }
-#else
-    if (! M)
-      {
-        M = (word36 *) calloc (MEMSIZE, sizeof (word36));
-      }
-#endif
-    if (! M)
-      {
-        sim_fatal ("create M failed\n");
-      }
-#endif
-
-#ifdef M_SHARED
-    if (! cpus)
-      {
-        cpus = (cpu_state_t *) create_shm ("cpus", 
-                                           N_CPU_UNITS_MAX * 
-                                             sizeof (cpu_state_t));
-      }
-    if (! cpus)
-      {
-        sim_fatal ("create cpus failed\n");
-      }
-#endif
-#endif
-
     M = system_state->M;
     cpus = system_state->cpus;
 
@@ -1214,13 +1153,7 @@ static t_stat cpu_ex (t_value *vptr, t_addr addr, UNUSED UNIT * uptr,
         return SCPE_NXM;
     if (vptr != NULL)
       {
-#ifdef SCUMEM
-        word36 w;
-        core_read (addr, & w, __func__);
-        *vptr = w;
-#else
         *vptr = M[addr] & DMASK;
-#endif
       }
     return SCPE_OK;
   }
@@ -1231,12 +1164,7 @@ static t_stat cpu_dep (t_value val, t_addr addr, UNUSED UNIT * uptr,
                        UNUSED int32 sw)
   {
     if (addr >= MEMSIZE) return SCPE_NXM;
-#ifdef SCUMEM
-    word36 w = val & DMASK;
-    core_write (addr, w, __func__);
-#else
     M[addr] = val & DMASK;
-#endif
     return SCPE_OK;
   }
 
@@ -1311,9 +1239,6 @@ __thread cpu_state_t * restrict cpup;
 #else
 cpu_state_t * restrict cpup; 
 #endif
-#ifdef ROUND_ROBIN
-uint current_running_cpu_idx;
-#endif
 
 // Scan the SCUs; it one has an interrupt present, return the fault pair
 // address for the highest numbered interrupt on that SCU. If no interrupts
@@ -1356,9 +1281,6 @@ t_stat simh_hooks (void)
     if (breakEnable && stop_cpu)
       return STOP_STOP;
 
-#ifdef ISOLTS
-    if (current_running_cpu_idx == 0)
-#endif
     // check clock queue 
     if (sim_interval <= 0)
       {
@@ -1724,37 +1646,11 @@ t_stat threadz_sim_instr (void)
 
     t_stat reason = 0;
       
-#if !defined(THREADZ) && !defined(LOCKLESS)
+#if !defined(LOCKLESS)
     set_cpu_idx (0);
-#ifdef M_SHARED
 // simh needs to have the IC statically allocated, so a placeholder was
 // created. Copy the placeholder in so the IC can be set by simh.
-
     cpus [0].PPR.IC = dummy_IC;
-#endif
-
-#ifdef ROUND_ROBIN
-    cpu.isRunning = true;
-    set_cpu_idx (cpu_dev.numunits - 1);
-
-setCPU:;
-    uint current = current_running_cpu_idx;
-    uint c;
-    for (c = 0; c < cpu_dev.numunits; c ++)
-      {
-        set_cpu_idx (c);
-        if (cpu.isRunning)
-          break;
-      }
-    if (c == cpu_dev.numunits)
-      {
-        sim_msg ("All CPUs stopped\n");
-        goto leave;
-      }
-    set_cpu_idx ((current + 1) % cpu_dev.numunits);
-    if (! cpu . isRunning)
-      goto setCPU;
-#endif
 #endif
 
     // This allows long jumping to the top of the state machine
@@ -1878,7 +1774,7 @@ setCPU:;
           console_attn_idx (con_unit_idx);
 
 #ifndef NO_EV_POLL
-#if !defined(THREADZ) && !defined(LOCKLESS)
+//#if !defined(THREADZ) && !defined(LOCKLESS)
 #ifdef ISOLTS
         if (cpu.cycle != FETCH_cycle)
           {
@@ -1896,7 +1792,7 @@ setCPU:;
               }
           }
 #endif
-#endif
+//#endif
 #endif
 
 // Check for TR underflow. The TR is stored in a uint32_t, but is 27 bits wide.
@@ -2397,10 +2293,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 //
 
 
-// The usleep logic is not smart enough w.r.t. ROUND_ROBIN/ISOLTS.
-// The sleep should only happen if all running processors are in
-// DIS mode.
-#ifndef ROUND_ROBIN
                   // 1/100 is .01 secs.
                   // *1000 is 10  milliseconds
                   // *1000 is 10000 microseconds
@@ -2507,7 +2399,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                                     fst_zero);
                     }
                   cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
-#endif // ! ROUND_ROBIN
                   break;
                 }
 
@@ -2743,13 +2634,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 
           }  // switch (cpu.cycle)
       } 
-#ifdef ROUND_ROBIN
-    while (0);
-    if (reason == 0)
-      goto setCPU;
-#else
     while (reason == 0);
-#endif
 
 leave:
 
@@ -2965,34 +2850,9 @@ t_stat set_mem_watch (int32 arg, const char * buf)
 #ifndef SPEED
 static void nem_check (word24 addr, char * context)
   {
-#ifdef SCUMEM
-    word24 offset;
-    if (lookup_cpu_mem_map (addr, & offset) < 0)
-      {
-        doFault (FAULT_STR, fst_str_nea,  context);
-      }
-#else
     if (lookup_cpu_mem_map (addr) < 0)
-      {
-        doFault (FAULT_STR, fst_str_nea,  context);
-      }
-#endif
+      doFault (FAULT_STR, fst_str_nea,  context);
   }
-#endif
-
-#ifdef SCUMEM
-#ifndef SPEED
-static uint get_scu_unit_idx (word24 addr, word24 * offset)
-  {
-    int cpu_port_num = lookup_cpu_mem_map (addr, offset);
-    if (cpu_port_num < 0) // Can't happen, we passed nem_check above
-      { 
-        sim_warn ("cpu_port_num < 0");
-        doFault (FAULT_STR, fst_str_nea,  __func__);
-      }
-    return cables->cpu_to_scu [current_running_cpu_idx][cpu_port_num].scu_unit_idx;
-  }
-#endif
 #endif
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
@@ -3008,13 +2868,27 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
           {
             doFault (FAULT_STR, fst_str_nea,  __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the SCU region
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (addr,  "core_read nem");
 #endif
+#else // ! ISOLTS
+#ifndef SPEED
+    nem_check (addr,  "core_read nem");
+#endif
+#endif // ! ISOLTS
 
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
@@ -3030,19 +2904,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
       }
 #endif
 #endif
-#ifdef SCUMEM
-    word24 offset;
-    uint scu_unit_idx = get_scu_unit_idx (addr, & offset);
-    LOCK_MEM_RD;
-    *data = scu [scu_unit_idx].M[offset] & DMASK;
-    UNLOCK_MEM;
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o read   %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    * data, ctx);
-      }
-#else
+
 #ifndef LOCKLESS
     if (M[addr] & MEM_UNINITIALIZED)
       {
@@ -3066,13 +2928,12 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     *data = v & DMASK;
-#else
+#else // ! LOCKLESS
     LOCK_MEM_RD;
     *data = M[addr] & DMASK;
     UNLOCK_MEM;
 #endif
 
-#endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -3094,15 +2955,31 @@ int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
+sim_printf ("core_read_lock addr %o pgnum %o\r\n", addr, pgnum);
+brkbrk(0, NULL);
             doFault (FAULT_STR, fst_str_nea,  __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the SCU region
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
-    else
-#endif
 #ifndef SPEED
-      nem_check (addr,  "core_read nem");
+    else
+      nem_check (addr,  "core_lock_read nem");
 #endif
+#else // ! ISOLTS
+#ifndef SPEED
+    nem_check (addr,  "core_lock_read nem");
+#endif
+#endif // ! ISOLTS
     LOCK_CORE_WORD(addr);
     if (cpu.locked_addr != 0) {
       sim_warn ("core_read_lock: locked %x addr %x\n", cpu.locked_addr, addr);
@@ -3129,13 +3006,27 @@ int core_write (word24 addr, word36 data, const char * ctx)
           {
             doFault (FAULT_STR, fst_str_nea,  __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the SCU region
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
-    else
-#endif
 #ifndef SPEED
-      nem_check (addr,  "core_write nem");
+    else
+      nem_check (addr,  "core_read nem");
 #endif
+#else // ! ISOLTS
+#ifndef SPEED
+    nem_check (addr,  "core_read nem");
+#endif
+#endif // ! ISOLTS
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
       {
@@ -3148,19 +3039,6 @@ int core_write (word24 addr, word36 data, const char * ctx)
         cpu.MR.separ = 0;
       }
 #endif
-#ifdef SCUMEM
-    word24 offset;
-    uint sci_unit_idx = get_scu_unit_idx (addr, & offset);
-    LOCK_MEM_WR;
-    scu[sci_unit_idx].M[offset] = data & DMASK;
-    UNLOCK_MEM;
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o write   %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, 
-                    scu[sci_unit_idx].M[offset], ctx);
-      }
-#else
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, data);
@@ -3177,7 +3055,6 @@ int core_write (word24 addr, word36 data, const char * ctx)
                     M [addr], ctx);
         traceInstruction (0);
       }
-#endif
 #endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -3235,55 +3112,12 @@ int core_unlock_all ()
 int core_write_zone (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#ifdef SCUMEM
-    word24 offset;
-    uint sci_unit_idx = get_scu_unit_idx (addr, & offset);
-    LOCK_MEM_WR;
-    scu[sci_unit_idx].M[offset] = (scu[sci_unit_idx].M[offset] & ~cpu.zone) |
-                              (data & cpu.zone);
-    UNLOCK_MEM;
-    cpu.useZone = false; // Safety
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o writez %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, 
-                    scu[sci_unit_idx].M[offset], ctx);
-      }
-#else
 #ifdef LOCKLESS
     word36 v;
     core_read_lock(addr,  &v, ctx);
     v = (v & ~cpu.zone) | (data & cpu.zone);
     core_write_unlock(addr, v, ctx);
 #else
-#ifdef ISOLTS
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-        addr = (uint) os + addr % SCBANK;
-      }
-    else
-#endif
-#ifndef SPEED
-      nem_check (addr,  "core_read nem");
-#endif
     LOCK_MEM_WR;
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     UNLOCK_MEM;
@@ -3297,7 +3131,6 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
                     M [addr], ctx);
         traceInstruction (0);
       }
-#endif
 #endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -3321,23 +3154,6 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
                    "core_read2 (%s)\n", addr, ctx);
         addr &= (word24)~1; /* make it an even address */
       }
-#ifdef ISOLTS
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-        addr = (uint) os + addr % SCBANK;
-      }
-    else
-#endif
-#ifndef SPEED
-    nem_check (addr,  "core_read2 nem");
-#endif
-
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -3352,40 +3168,36 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
       }
 #endif
 #endif
-#ifdef SCUMEM
-    word24 offset;
-    uint sci_unit_idx = get_scu_unit_idx (addr, & offset);
-    LOCK_MEM_RD;
-    *even = scu [sci_unit_idx].M[offset++] & DMASK;
-    UNLOCK_MEM;
-#ifndef SPEED
-    if (watch_bits [addr])
+#ifdef ISOLTS
+    if (cpu.switches.useMap)
       {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    * even, ctx);
+        uint pgnum = addr / SCBANK;
+        int os = cpu.scbank_pg_os [pgnum];
+        if (os < 0)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the SCU region
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
-#endif
-
-    sim_debug (DBG_CORE, & cpu_dev,
-               "core_read2 %08o %012"PRIo64" (%s)\n",
-                addr, * even, ctx);
-    LOCK_MEM_RD;
-    *odd = scu [sci_unit_idx].M[offset] & DMASK;
-    UNLOCK_MEM;
 #ifndef SPEED
-    if (watch_bits [addr+1])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr+1,
-                    * odd, ctx);
-      }
+    else
+      nem_check (addr,  "core_read nem");
 #endif
-
-    sim_debug (DBG_CORE, & cpu_dev,
-               "core_read2 %08o %012"PRIo64" (%s)\n",
-                addr+1, * odd, ctx);
-#else
+#else // ! ISOLTS
+#ifndef SPEED
+    nem_check (addr,  "core_read nem");
+#endif
+#endif // ! ISOLTS
 #ifndef LOCKLESS
     if (M[addr] & MEM_UNINITIALIZED)
       {
@@ -3453,7 +3265,6 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
     sim_debug (DBG_CORE, & cpu_dev,
                "core_read2 %08o %012"PRIo64" (%s)\n",
                 addr, * odd, ctx);
-#endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -3473,19 +3284,6 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
                    "(%s)\n", addr, ctx);
         addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
       }
-#ifdef ISOLTS
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-        addr = (word24)os + addr % SCBANK;
-      }
-    else
-#endif
 #ifndef SPEED
       nem_check (addr,  "core_write2 nem");
 #endif
@@ -3502,26 +3300,36 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
       }
 #endif
 
-#ifdef SCUMEM
-    word24 offset;
-    uint sci_unit_idx = get_scu_unit_idx (addr, & offset);
-    scu [sci_unit_idx].M[offset++] = even & DMASK;
-    if (watch_bits [addr])
+#ifdef ISOLTS
+    if (cpu.switches.useMap)
       {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    even, ctx);
+        uint pgnum = addr / SCBANK;
+        int os = cpu.scbank_pg_os [pgnum];
+        if (os < 0)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the SCU region
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
-    LOCK_MEM_WR;
-    scu [sci_unit_idx].M[offset] = odd & DMASK;
-    UNLOCK_MEM;
-    if (watch_bits [addr+1])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr+1,
-                    odd, ctx);
-      }
-#else
+#ifndef SPEED
+    else
+      nem_check (addr,  "core_read nem");
+#endif
+#else // ! ISOLTS
+#ifndef SPEED
+    nem_check (addr,  "core_read nem");
+#endif
+#endif // ! ISOLTS
 #ifndef SPEED
     if (watch_bits [addr])
       {
@@ -3563,7 +3371,6 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
     LOCK_MEM_WR;
     M[addr] = odd & DMASK;
     UNLOCK_MEM;
-#endif
 #endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;

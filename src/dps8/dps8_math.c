@@ -335,7 +335,7 @@ void IEEElongdoubleToEAQ(long double f0)
 }
 #endif
 
-//#ifndef QUIET_UNUSED
+#ifndef QUIET_UNUSED
 #ifdef ISOLTS
 /*!
  * return IEEE double version dps8 single-precision number ...
@@ -371,7 +371,7 @@ static double float36ToIEEEdouble(word36 f36)
     
     return (S ? -1 : 1) * ldexp(m, e);
 }
-//#endif
+#endif
 #endif
 
 #ifndef QUIET_UNUSED

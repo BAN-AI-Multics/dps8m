@@ -1507,6 +1507,11 @@ enum { CUH_XINT = 0100, CUH_IFT = 040, CUH_CRD = 020, CUH_MRD = 010,
 
 typedef struct
   {
+    // Strictly speaking, jmpMain should have that same value for
+    // all of the cpu theads, and arguably does not belong in
+    // cpu_state_t, but it is possible that some implmentation of
+    // setjmp/longjmp puts thread-dependent data in there, so
+    // for rigor's sake, it stays.
     jmp_buf jmpMain; // This is the entry to the CPU state machine
     cycles_e cycle;
     unsigned long long cycleCnt;
@@ -1753,9 +1758,6 @@ typedef struct
     bool lufOccurred;
     bool secret_addressing_mode;
     //bool went_appending; // we will go....
-#ifdef ROUND_ROBIN
-    bool isRunning;
-#endif
     // Map memory to port
     int scbank_map [N_SCBANKS];
     word24 scbank_base [N_SCBANKS];
@@ -1818,14 +1820,10 @@ extern cpu_state_t * restrict cpup;
 #define cpu (* cpup)
 
 uint set_cpu_idx (uint cpuNum);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
 extern __thread uint current_running_cpu_idx;
 #else
-#ifdef ROUND_ROBIN
-extern uint current_running_cpu_idx;
-#else
 #define current_running_cpu_idx 0
-#endif
 #endif
 
 // Support code to access ARn.BITNO, ARn.CHAR, PRn.BITNO
@@ -1890,10 +1888,6 @@ void unlock_mem (void);
 void doFault (_fault faultNumber, _fault_subtype faultSubtype, 
               const char * faultMsg) NO_RETURN;
 extern const _fault_subtype fst_str_nea;
-#ifdef SCUMEM
-// Stupid dependency order
-int lookup_cpu_mem_map (word24 addr, word24 * offset);
-#endif
 
 static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
@@ -1905,9 +1899,19 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea, __func__);
+            doFault (FAULT_STR, fst_str_nea,  __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the banl
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
 #endif
 #if 0 // XXX Controlled by TEST/NORMAL switch
@@ -1924,23 +1928,9 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
       }
 #endif
 #endif
-#ifdef SCUMEM
-    word24 offset;
-    int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
-    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-      {
-        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
-        doFault (FAULT_STR, fst_str_nea, __func__);
-      }
-    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    LOCK_MEM_RD;
-    *data = scu [scuUnitIdx].M[offset] & DMASK;
-    UNLOCK_MEM;
-#else
     LOCK_MEM_RD;
     *data = M[addr] & DMASK;
     UNLOCK_MEM;
-#endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -1958,9 +1948,19 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea, __func__);
+            doFault (FAULT_STR, fst_str_nea,  __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the banl
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
 #endif
 #ifdef ISOLTS
@@ -1975,23 +1975,9 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
         cpu.MR.separ = 0;
       }
 #endif
-#ifdef SCUMEM
-    word24 offset;
-    int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
-    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-      {
-        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
-        doFault (FAULT_STR, fst_str_nea, __func__);
-      }
-    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    LOCK_MEM_WR;
-    scu[scuUnitIdx].M[offset] = data & DMASK;
-    UNLOCK_MEM;
-#else
     LOCK_MEM_WR;
     M[addr] = data & DMASK;
     UNLOCK_MEM;
-#endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -2009,9 +1995,19 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea, __func__);
+            doFault (FAULT_STR, fst_str_nea,  __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the banl
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
 #endif
 #ifdef ISOLTS
@@ -2026,26 +2022,10 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
         cpu.MR.separ = 0;
       }
 #endif
-#ifdef SCUMEM
-    word24 offset;
-    int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
-    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-      {
-        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
-        doFault (FAULT_STR, fst_str_nea, __func__);
-      }
-    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    LOCK_MEM_WR;
-    scu[scuUnitIdx].M[offset] = (scu[scuUnitIdx].M[offset] & ~cpu.zone) |
-                              (data & cpu.zone);
-    cpu.useZone = false; // Safety
-    UNLOCK_MEM;
-#else
     LOCK_MEM_WR;
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     cpu.useZone = false; // Safety
     UNLOCK_MEM;
-#endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -2064,9 +2044,19 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea, __func__);
+            doFault (FAULT_STR, fst_str_nea,  __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the banl
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
 #endif
 #if 0 // XXX Controlled by TEST/NORMAL switch
@@ -2083,25 +2073,10 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
       }
 #endif
 #endif
-#ifdef SCUMEM
-    word24 offset;
-    int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
-    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-      {
-        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
-        doFault (FAULT_STR, fst_str_nea, __func__);
-      }
-    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    LOCK_MEM_WR;
-    *even = scu [scuUnitIdx].M[offset++] & DMASK;
-    *odd = scu [scuUnitIdx].M[offset] & DMASK;
-    UNLOCK_MEM;
-#else
     LOCK_MEM_WR;
     *even = M[addr++] & DMASK;
     *odd = M[addr] & DMASK;
     UNLOCK_MEM;
-#endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -2120,9 +2095,19 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea, __func__);
+            doFault (FAULT_STR, fst_str_nea,  __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the banl
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
 #endif
 #ifdef ISOLTS
@@ -2137,25 +2122,10 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
         cpu.MR.separ = 0;
       }
 #endif
-#ifdef SCUMEM
-    word24 offset;
-    int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
-    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-      {
-        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
-        doFault (FAULT_STR, fst_str_nea, __func__);
-      }
-    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    LOCK_MEM_WR;
-    scu [scuUnitIdx].M[offset++] = even & DMASK;
-    scu [scuUnitIdx].M[offset] = odd & DMASK;
-    UNLOCK_MEM;
-#else
     LOCK_MEM_WR;
     M[addr++] = even;
     M[addr] = odd;
     UNLOCK_MEM;
-#endif
     PNL (trackport (addr - 1, even);)
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -2303,11 +2273,7 @@ void decode_instruction (word36 inst, DCDstruct * p);
 t_stat set_mem_watch (int32 arg, const char * buf);
 #endif
 char *str_SDW0 (char * buf, sdw_s *SDW);
-#ifdef SCUMEM
-int lookup_cpu_mem_map (word24 addr, word24 * offset);
-#else
 int lookup_cpu_mem_map (word24 addr);
-#endif
 void cpu_init (void);
 void setup_scbank_map (void);
 #ifdef DPS8M

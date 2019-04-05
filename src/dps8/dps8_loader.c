@@ -33,7 +33,6 @@
 
 #include "utlist.h" // for linked list ops
 
-#ifndef SCUMEM
 /* Master loader */
 #define FMT_O   1 // .oct
 #define FMT_S   2 // .sav
@@ -390,9 +389,7 @@ sdw0_s *fetchSDW (word15 segno)
     
     return SDW;
   }
-#endif // ndef SCUMEM
 
-#ifndef SCUMEM
 int getAddress(int segno, int offset)
 {
     // XXX Do we need to 1st check SDWAM for segment entry?
@@ -403,9 +400,7 @@ int getAddress(int segno, int offset)
     
     return (s->ADDR + (word18) offset) & 0xffffff; // keep to 24-bits
 }
-#endif // !SCUMEM
 
-#ifndef SCUMEM
 /*
  * for a given 24-bit address see if it can be mapped to a segment + offset
  */
@@ -1409,13 +1404,9 @@ static t_stat sim_dump (FILE *fileref, UNUSED const char * cptr, UNUSED const ch
     }
     return SCPE_OK;
 }
-#endif // ndef SCUMEM
 // This is part of the simh interface
 t_stat sim_load (FILE *fileref, const char *cptr, const char *fnam, int flag)
 {
-#ifdef SCUMEM
-    return SCPE_ARG;
-#else
     if (! cptr)
       return SCPE_ARG;
     if (flag)
@@ -1585,7 +1576,6 @@ t_stat sim_load (FILE *fileref, const char *cptr, const char *fnam, int flag)
     
     sim_printf ("Can't determine load file format\n");
     return SCPE_FMT;
-#endif
 }
 
 static void printSDW0 (sdw0_s *SDW)
@@ -1607,7 +1597,6 @@ static void printDSBR (void)
     sim_printf ("%s\n", strDSBR (buf));
   }
 
-#ifndef SCUMEM
 static t_stat dpsCmd_DumpSegmentTable (void)
   {
     sim_printf ("*** Descriptor Segment Base Register (DSBR) ***\n");
@@ -1714,7 +1703,6 @@ static t_stat dpsCmd_DumpSegmentTable (void)
 
     return SCPE_OK;
   }
-#endif
 
 //! custom command "dump"
 t_stat dpsCmd_Dump (UNUSED int32 arg, const char *buf)
@@ -1724,12 +1712,10 @@ t_stat dpsCmd_Dump (UNUSED int32 arg, const char *buf)
     
     int nParams = sscanf (buf, "%s %s %s %s",
                           cmds[0], cmds[1], cmds[2], cmds[3]);
-#ifndef SCUMEM
     if (nParams == 2 &&
         ! strcasecmp (cmds[0], "segment") &&
         ! strcasecmp (cmds[1], "table"))
         return dpsCmd_DumpSegmentTable ();
-#endif
 #ifdef WAM
 #ifdef L68
     if (nParams == 1 && !strcasecmp (cmds[0], "sdwam"))
@@ -1819,7 +1805,6 @@ t_stat dpsCmd_Init (UNUSED int32 arg, const char *buf)
 
 t_stat dpsCmd_Segment (UNUSED int32  arg, const char *buf)
   {
-#ifndef SCUMEM
     char cmds [8][32];
     memset (cmds, 0, sizeof (cmds));  // clear cmds buffer
     
@@ -1842,7 +1827,6 @@ t_stat dpsCmd_Segment (UNUSED int32  arg, const char *buf)
         ! strcasecmp (cmds[1], "segdef") &&
         ! strcasecmp (cmds[2], "remove"))
         return removeSegdef (cmds[0], cmds[3]);
-#endif
     return SCPE_ARG;
   }
 
@@ -1850,7 +1834,6 @@ t_stat dpsCmd_Segment (UNUSED int32  arg, const char *buf)
 
 t_stat dpsCmd_Segments (UNUSED int32 arg, const char *buf)
   {
-#ifndef SCUMEM
     bool bVerbose = ! sim_quiet;
 
     char cmds [8][32];
@@ -1893,7 +1876,6 @@ t_stat dpsCmd_Segments (UNUSED int32 arg, const char *buf)
         int _n = (int)strtoll (cmds[2], NULL, 8);
         return createStack (_n, bVerbose);
       }
-#endif
     return SCPE_ARG;
   }
 

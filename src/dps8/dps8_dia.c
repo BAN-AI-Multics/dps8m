@@ -34,23 +34,7 @@
 
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-    lock_mem_rd ();
-#endif
-#ifdef SCUMEM
-    iom_core_read (addr, data, ctx);
-#else
     * data = M [addr] & DMASK;
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-    unlock_mem ();
-#endif
   }
 #define N_DIA_UNITS 1 // default
 #define DIA_UNIT_IDX(uptr) ((uptr) - dia_unit)
@@ -364,23 +348,7 @@ void dia_init (void)
 
 static inline void fnp_core_write (word24 addr, word36 data, UNUSED const char * ctx)
   {
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-    lock_mem_wr ();
-#endif
-#ifdef SCUMEM
-    iom_core_write (addr, data, ctx);
-#else
     M [addr] = data & DMASK;
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-    unlock_mem ();
-#endif
   }
 
 //
@@ -393,12 +361,7 @@ static uint virtToPhys (uint ptPtr, uint l66Address)
     uint l66AddressPage = l66Address / 1024u;
 
     word36 ptw;
-#ifdef SCUMEM
-    uint iomUnitIdx = (uint) cables->cablesFromIomToFnp [decoded.devUnitIdx].iomUnitIdx;
-    iom_core_read (iomUnitIdx, pageTable + l66AddressPage, & ptw, "fnpIOMCmd get ptw");
-#else
     fnp_core_read (pageTable + l66AddressPage, & ptw, "fnpIOMCmd get ptw");
-#endif
     uint page = getbits36_14 (ptw, 4);
     uint addr = page * 1024u + l66Address % 1024u;
     return addr;
@@ -418,14 +381,7 @@ static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word2
     uint fnpno = dev_unit_idx; // XXX
     //iom_chan_data_t * p = & iom_chan_data [iom_unit_idx] [chan];
     struct dia_unit_data * dudp = & dia_data.dia_unit_data[fnpno];
-#ifdef SCUMEM
-    word24 offset;
-    int scu_unit_num =  query_IOM_SCU_bank_map (iom_unit_idx, dudp->mailbox_address, & offset);
-    int scu_unit_idx = cables->cablesFromScus[iom_unit_idx][scu_unit_num].scu_unit_idx;
-    struct mailbox vol * mbxp = (struct mailbox *) & scu[scu_unit_idx].M[decoded.dudp->mailbox_address]; 
-#else
     struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailbox_address];
-#endif
 
     dia_data.dia_unit_data[dev_unit_idx].l66_addr = l66_addr;
 
@@ -450,14 +406,7 @@ static int interruptL66 (uint iom_unit_idx, uint chan)
       devices[chan][p->IDCW_DEV_CODE];
     uint dev_unit_idx = d->devUnitIdx;
     struct dia_unit_data * dudp = &dia_data.dia_unit_data[dev_unit_idx];
-#ifdef SCUMEM
-    word24 offset;
-    int scu_unit_num =  query_IOM_SCU_bank_map (iom_unit_idx, dudp->mailbox_address, & offset);
-    int scu_unit_idx = cables->cablesFromScus[iom_unit_idx][scu_unit_num].scu_unit_idx;
-    struct mailbox vol * mbxp = (struct mailbox *) & scu[scu_unit_idx].M[dudp->mailbox_address];
-#else
     struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailbox_address];
-#endif
     word36 dia_pcw = mbxp -> dia_pcw;
 
 // AN85, pg 13-5
