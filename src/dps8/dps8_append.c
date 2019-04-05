@@ -1220,11 +1220,20 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
     // lptp,lptr,lsdp,lsdr,sptp,sptr,ssdp,ssdr
     // Unfortunately, ISOLTS doesn't try to execute any of these in append mode.
     // XXX should this be only for OPERAND_READ and OPERAND_STORE?
+#if 1
+    bool nomatch = i->opcode10 == 01232 ||
+                   i->opcode10 == 01254 ||
+                   i->opcode10 == 01154 ||
+                   i->opcode10 == 01173 ||
+                   i->opcode10 == 00557 ||
+                   i->opcode10 == 00257;
+#else
     bool nomatch = ((i->opcode == 0232 || i->opcode == 0254 ||
                      i->opcode == 0154 || i->opcode == 0173) &&
                      i->opcodeX ) ||
                     ((i->opcode == 0557 || i->opcode == 0257) &&
                      ! i->opcodeX);
+#endif
 #else
     const bool nomatch = true;
 #endif
@@ -1373,11 +1382,12 @@ A:;
     // shutting down multics -- a stored lastCycle is useless.
     // the opcode is preserved accross faults and only replaced as the
     // INSTRUCTION_FETCH succeeds.
-    if (thisCycle == INSTRUCTION_FETCH &&
-	i->opcode == 0610  && ! i->opcodeX)
+    //if (thisCycle == INSTRUCTION_FETCH &&
+	//i->opcode == 0610  && ! i->opcodeX)
+    if (thisCycle == INSTRUCTION_FETCH && i->opcode10 == 00610)
       goto C;
-    else if (lastCycle == RTCD_OPERAND_FETCH)
-      sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\n", __func__, i->opcode);
+    if (lastCycle == RTCD_OPERAND_FETCH)
+      sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\n", __func__, i->opcode10);
 
     //
     // B1: The operand is one of: an instruction, data to be read or data to be
@@ -1826,8 +1836,16 @@ G:;
     // ISOLTS-878 02: mvn,cmpn,mvne,ad3d; obviously also
     // ad2/3d,sb2/3d,mp2/3d,dv2/3d
     // DH03 p.8-13: probably also mve,btd,dtb
-    if (i->opcodeX && ((i->opcode & 0770)== 0200|| (i->opcode & 0770) == 0220
+#if 0
+    //works
+    if (i->opcodeX && ((i->opcode & 0770) == 0200|| (i->opcode & 0770) == 0220
         || (i->opcode & 0770)== 020|| (i->opcode & 0770) == 0300))
+#endif
+#if 1
+    if ((i->opcode10 & 01750) == 01200 || // ad2d sb2d mp2d dv2d ad3d sb3d mp3d dv3d
+        (i->opcode10 & 01770) == 01020 || // mve mvne
+        (i->opcode10 & 01770) == 01300)   // mvn btd cmpn dtb
+#endif
       {
         do_ptw2 (cpu.SDW, cpu.TPR.CA);
       } 
@@ -2103,7 +2121,7 @@ L:; // Transfer or instruction fetch
     // lastCycle == RTCD_OPERAND_FETCH
     
     if (thisCycle == INSTRUCTION_FETCH &&
-        i->opcode == 0610  && ! i->opcodeX)
+        i->opcode10 == 00610)
       {
         // C(PPR.PRR) -> C(PRn.RNR) for n = (0, 1, ..., 7)
         // Use TRR here; PRR not set until KL

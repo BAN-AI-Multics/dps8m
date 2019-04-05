@@ -354,24 +354,6 @@ const _fault_subtype fst_onc_nem = (_fault_subtype) {.fault_onc_subtype=flt_onc_
 void doFault (_fault faultNumber, _fault_subtype subFault, 
               const char * faultMsg)
   {
-#ifdef LOOPTRC
-if (faultNumber == FAULT_TRO)
-{
- elapsedtime ();
- sim_printf (" TRO PSR:IC %05o:%06o\r\n", cpu.PPR.PSR, cpu.PPR.IC);
-}
-else if (faultNumber == FAULT_ACV)
-{
- elapsedtime ();
- sim_printf (" ACV %012llo PSR:IC %05o:%06o\r\n", subFault.bits, cpu.PPR.PSR, cpu.PPR.IC);
-}
-#endif
-//if (current_running_cpu_idx)
-    //sim_printf ("Fault %d(0%0o), sub %ld(0%lo), dfc %c, '%s'\n", 
-               //faultNumber, faultNumber, subFault, subFault, 
-               //cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
-//if (current_running_cpu_idx)
-    //sim_printf ("xde %d xdo %d\n", cpu.cu.xde, cpu.cu.xdo);
     sim_debug (DBG_FAULT, & cpu_dev, 
                "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\n", 
                faultNumber, faultNumber, subFault.bits, subFault.bits, 
@@ -385,6 +367,11 @@ else if (faultNumber == FAULT_ACV)
 #endif
 
     PNL (cpu.DACVpDF = faultNumber >=  FAULT_DF0 && faultNumber <= FAULT_ACV;)
+
+#ifdef LOCKLESS
+    // Clear memory lock
+    core_unlock_fault ();
+#endif
 
 #ifdef TESTING
     // some debugging support stuff

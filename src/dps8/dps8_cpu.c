@@ -1732,12 +1732,6 @@ t_stat threadz_sim_instr (void)
         cpu.cycleCnt ++;
 
 #ifdef LOCKLESS
-        core_unlock_all ();
-        // wait on run/switch
-        // cpuRunningWait ();
-#endif
-
-#ifdef LOCKLESS
         core_unlock_all();
 #endif // LOCKLESS
 
@@ -1933,8 +1927,9 @@ t_stat threadz_sim_instr (void)
                 // ISOLTS-776 04bcf, 785 02c
                 // (but do if in a DIS instruction with bit28 clear)
                 bool tmp_priv_mode = is_priv_mode ();
-                bool is_dis = cpu.currentInstruction.opcode == 0616 &&
-                              cpu.currentInstruction.opcodeX == 0;
+                //bool is_dis = cpu.currentInstruction.opcode == 0616 &&
+                              //cpu.currentInstruction.opcodeX == 0;
+                bool is_dis = cpu.currentInstruction.opcode10 == 00616;
                 bool noCheckTR = tmp_priv_mode && 
                                  ! (is_dis && GET_I (cpu.cu.IWB) == 0);
 
@@ -2188,8 +2183,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 // out of BAR mode) by the execution of any transfer instruction
 // other than tss during a fault or interrupt trap.
 
-                      if (! (cpu.currentInstruction.opcode == 0715 &&
-                         cpu.currentInstruction.opcodeX == 0))
+                      //if (! (cpu.currentInstruction.opcode == 0715 &&
+                         //cpu.currentInstruction.opcodeX == 0))
+                      if (! (cpu.currentInstruction.opcode10 == 00715))
                         {
                           CPT (cpt1U, 9); // nbar set
                           SET_I_NBAR;
@@ -2485,7 +2481,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               if ((cpu.PPR.IC & 1) == 0 &&
                   ci->info->ndes == 0 &&
                   !cpu.cu.repeat_first && !cpu.cu.rpt && !cpu.cu.rd && !cpu.cu.rl &&
-                  !(cpu.currentInstruction.opcode == 0616 && cpu.currentInstruction.opcodeX == 0) &&
+                  //!(cpu.currentInstruction.opcode == 0616 && cpu.currentInstruction.opcodeX == 0) &&
+                  !(cpu.currentInstruction.opcode10 == 00616) &&
                   (cpu.PPR.IC & ~3u) != (cpu.last_write  & ~3u))
                 {
                   cpu.PPR.IC ++;
@@ -2896,8 +2893,6 @@ int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-sim_printf ("core_read_lock addr %o pgnum %o\r\n", addr, pgnum);
-brkbrk(0, NULL);
             doFault (FAULT_STR, fst_str_nea,  __func__);
           }
 // XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
@@ -3018,13 +3013,27 @@ int core_write_unlock (word24 addr, word36 data, const char * ctx)
           {
             doFault (FAULT_STR, fst_str_nea,  __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the SCU region
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (addr,  "core_read nem");
 #endif
+#else // ! ISOLTS
+#ifndef SPEED
+    nem_check (addr,  "core_read nem");
+#endif
+#endif // ! ISOLTS
     if (cpu.locked_addr != addr)
       {
        sim_warn ("core_write_unlock: locked %x addr %x\n", cpu.locked_addr, addr);
@@ -3040,6 +3049,17 @@ int core_unlock_all ()
 {
   if (cpu.locked_addr != 0) {
       sim_warn ("core_unlock_all: locked %x\n", cpu.locked_addr);
+      STORE_REL_CORE_WORD(cpu.locked_addr, M[cpu.locked_addr]);
+      cpu.locked_addr = 0;
+  }
+  return 0;
+}
+
+// In case of fault, quietly clean up
+
+int core_unlock_fault ()
+{
+  if (cpu.locked_addr != 0) {
       STORE_REL_CORE_WORD(cpu.locked_addr, M[cpu.locked_addr]);
       cpu.locked_addr = 0;
   }
