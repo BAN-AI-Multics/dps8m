@@ -33,9 +33,7 @@
 #include "dps8_iefp.h"
 #include "dps8_opcodetable.h"
 #include "dps8_utils.h"
-#if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
-#endif
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -355,7 +353,6 @@ void updateIWB (word18 addr, word6 tag)
 
 void do_caf (void)
   {
-//#ifdef CA_REWORK
     if (cpu.currentInstruction.b29 == 0)
       {
         cpu.TPR.CA = GET_ADDR (IWB_IRODD);
@@ -367,7 +364,7 @@ void do_caf (void)
         cpu.TPR.CA = (cpu.PAR[n].WORDNO + SIGNEXT15_18 (offset))
                       & MASK18;
       }
-//#endif
+
     char buf [256];
     sim_debug (DBG_ADDRMOD, & cpu_dev,
                "%s(Entry): operType:%s TPR.CA=%06o\n",
@@ -411,17 +408,17 @@ startCA:;
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "%s(startCA): restart; CT_HOLD %02o\n",
                    __func__, cpu.cu.CT_HOLD);
-	word6 save_rTAG = cpu.rTAG;
-	if (Tm == TM_IR)
-	  {
-	    cpu.rTAG = cpu.cu.CT_HOLD;
-	    Td = GET_TD (cpu.rTAG);
-	    Tm = GET_TM (cpu.rTAG);
-	    cpu.cu.CT_HOLD = save_rTAG;
-	  }
+        word6 save_rTAG = cpu.rTAG;
+        if (Tm == TM_IR)
+          {
+            cpu.rTAG = cpu.cu.CT_HOLD;
+            Td = GET_TD (cpu.rTAG);
+            Tm = GET_TM (cpu.rTAG);
+            cpu.cu.CT_HOLD = save_rTAG;
+          }
 #ifdef ISOLTS
        else if (GET_TM(cpu.cu.CT_HOLD) == TM_IT && GET_TD (cpu.cu.CT_HOLD) == IT_DIC &&
-		cpu.cu.pot == 1 && GET_ADDR (IWB_IRODD) == cpu.TPR.CA)
+                cpu.cu.pot == 1 && GET_ADDR (IWB_IRODD) == cpu.TPR.CA)
          {
            cpu.TPR.CA--;
            sim_warn ("%s: correct CA\n", __func__);
@@ -434,12 +431,12 @@ startCA:;
       }
     else
       {
-	// not CT_HOLD
-	if (Tm == TM_IR || (Tm == TM_IT && (Td == IT_IDC || Td == IT_DIC)))
-	  cpu.cu.CT_HOLD = cpu.rTAG;
-	cpu.cu.its = 0;
-	cpu.cu.itp = 0;
-	cpu.cu.pot = 0;
+        // not CT_HOLD
+        if (Tm == TM_IR || (Tm == TM_IT && (Td == IT_IDC || Td == IT_DIC)))
+          cpu.cu.CT_HOLD = cpu.rTAG;
+        cpu.cu.its = 0;
+        cpu.cu.itp = 0;
+        cpu.cu.pot = 0;
       }
     sim_debug (DBG_ADDRMOD, & cpu_dev,
                "%s(startCA): TAG=%02o(%s) Tm=%o Td=%o CT_HOLD %02o\n",
@@ -588,14 +585,14 @@ startCA:;
           }
 
         if ((saveCA & 1) == 1 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
-	  {
-	    sim_warn ("%s: itp/its at odd address\n", __func__);
+          {
+            sim_warn ("%s: itp/its at odd address\n", __func__);
 #ifdef TESTING
-	    traceInstruction (0);
+            traceInstruction (0);
 #endif
-	  }
+          }
 
-	if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
+        if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
           {
             do_ITS_ITP (iTAG, & cpu.rTAG);
           }
@@ -644,14 +641,14 @@ startCA:;
         ReadIndirect ();
 
         if ((saveCA & 1) == 1 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
-	  {
-	    sim_warn ("%s: itp/its at odd address\n", __func__);
+          {
+            sim_warn ("%s: itp/its at odd address\n", __func__);
 #ifdef TESTING
-	    traceInstruction (0);
+            traceInstruction (0);
 #endif
-	  }
+          }
 
-	if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
+        if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
           {
             do_ITS_ITP (iTAG, & cpu.rTAG);
           }
@@ -849,7 +846,7 @@ startCA:;
                 word18 indaddr = cpu.TPR.CA;
                 Read (indaddr, & indword, APU_DATA_READ);
 #ifdef LOCKLESS
-		word24 phys_address = cpu.iefpFinalAddress;
+                word24 phys_address = cpu.iefpFinalAddress;
 #endif
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -951,13 +948,13 @@ startCA:;
                 cpu.cu.pot = 1;
 
 #ifdef LOCKLESSXXX
-		// gives warnings as another lock is aquired in between
+                // gives warnings as another lock is aquired in between
                 Read (cpu.TPR.CA, & cpu.ou.character_data, (i->info->flags & RMW) == STORE_OPERAND ? OPERAND_RMW : OPERAND_READ);
 #else
                 Read (cpu.TPR.CA, & cpu.ou.character_data, OPERAND_READ);
 #endif
 #ifdef LOCKLESS
-		cpu.char_word_address = cpu.iefpFinalAddress;
+                cpu.char_word_address = cpu.iefpFinalAddress;
 #endif
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -1005,16 +1002,16 @@ startCA:;
                     //                    cpu.ou.characterOperandOffset);
                     //Write (cpu.TPR.CA,  new_indword, APU_DATA_STORE);
 #ifdef LOCKLESS
-		    word36 indword_new;
-		    core_read_lock(phys_address, &indword_new, __func__);
-		    if (indword_new != indword)
-		      sim_warn("indword changed from %llo to %llo\n", indword, indword_new);
+                    word36 indword_new;
+                    core_read_lock(phys_address, &indword_new, __func__);
+                    if (indword_new != indword)
+                      sim_warn("indword changed from %llo to %llo\n", indword, indword_new);
 #endif
                     putbits36_18 (& indword, 0, Yi);
                     putbits36_12 (& indword, 18, tally);
                     putbits36_3  (& indword, 33, os);
 #ifdef LOCKLESS
-		    core_write_unlock(phys_address, indword, __func__);
+                    core_write_unlock(phys_address, indword, __func__);
 #else
                     Write (indaddr, indword, APU_DATA_STORE);
 #endif
@@ -1068,16 +1065,6 @@ startCA:;
                            "IT_MOD(IT_AD): reading indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                lock_rmw ();
-#endif
-
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
@@ -1110,16 +1097,9 @@ startCA:;
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
-		Write (saveCA, indword, APU_DATA_STORE);
-#endif
-
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                unlock_rmw ();
+                Write (saveCA, indword, APU_DATA_STORE);
 #endif
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -1143,19 +1123,9 @@ startCA:;
                 // otherwise it is set OFF. The computed address is the value
                 // of the decremented ADDRESS field of the indirect word.
 
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                lock_rmw ();
-#endif
-
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-		Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_SD): reading indirect word from %06o\n",
@@ -1186,16 +1156,9 @@ startCA:;
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
-#endif
-
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                unlock_rmw ();
 #endif
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -1222,16 +1185,6 @@ startCA:;
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_DI): reading indirect word from %06o\n",
                            cpu.TPR.CA);
-
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                lock_rmw ();
-#endif
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
@@ -1268,16 +1221,9 @@ startCA:;
                            indword, saveCA);
 
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
-#endif
-
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                unlock_rmw ();
 #endif
                 cpu.TPR.CA = Yi;
                 return;
@@ -1299,16 +1245,6 @@ startCA:;
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_ID): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
-
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                lock_rmw ();
-#endif
 
                 word36 indword;
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
@@ -1347,18 +1283,10 @@ startCA:;
                            indword, saveCA);
 
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
-
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                unlock_rmw ();
-#endif
-
                 cpu.TPR.CA = computedAddress;
                 return;
               } // IT_ID
@@ -1389,16 +1317,6 @@ startCA:;
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_DIC): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
-
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                lock_rmw ();
-#endif
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
@@ -1439,17 +1357,11 @@ startCA:;
                            "addr %06o\n", indword, saveCA);
 
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                unlock_rmw ();
-#endif
                 // If the TAG of the indirect word invokes a register, that is,
                 // specifies r, ri, or ir modification, the effective Td value
                 // for the register is forced to "null" before the next
@@ -1463,8 +1375,8 @@ startCA:;
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_DIC): new CT_HOLD %02o new TAG %02o\n", 
                            cpu.rTAG, idwtag);
-		cpu.cu.CT_HOLD = cpu.rTAG;
-		cpu.rTAG = idwtag;
+                cpu.cu.CT_HOLD = cpu.rTAG;
+                cpu.rTAG = idwtag;
 
                 Tm = GET_TM (cpu.rTAG);
                 if (Tm == TM_RI || Tm == TM_R)
@@ -1480,7 +1392,7 @@ startCA:;
 // should be unchanged. ISOLTS ps791 test-02g
                 SC_I_TALLY (cpu.AM_tally == 0);
 #ifdef ISOLTS
-		updateIWB (YiSafe2, cpu.rTAG);
+                updateIWB (YiSafe2, cpu.rTAG);
 #else
                 updateIWB (cpu.TPR.CA, cpu.rTAG);
 #endif
@@ -1513,16 +1425,6 @@ startCA:;
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_IDC): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
-
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                lock_rmw ();
-#endif
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
@@ -1561,16 +1463,9 @@ startCA:;
                            indword, saveCA);
 
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else 
                 Write (saveCA, indword, APU_DATA_STORE);
-#endif
-
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-                unlock_rmw ();
 #endif
 
                 // If the TAG of the indirect word invokes a register, that is,
@@ -1584,10 +1479,10 @@ startCA:;
                 // to N).
                 cpu.TPR.CA = YiSafe;
 
-		sim_debug (DBG_ADDRMOD, & cpu_dev,
+                sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_IDC): new CT_HOLD %02o new TAG %02o\n", 
                            cpu.rTAG, idwtag);
-		cpu.cu.CT_HOLD = cpu.rTAG;
+                cpu.cu.CT_HOLD = cpu.rTAG;
                 cpu.rTAG = idwtag;
 
                 Tm = GET_TM (cpu.rTAG);

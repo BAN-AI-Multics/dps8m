@@ -45,12 +45,12 @@ extern DEVICE scu_dev;
     ) 
 #endif
 
-#if !defined(THREADZ) && !defined(LOCKLESS)
+#if !defined(LOCKLESS)
 #define dps8_sim_debug _sim_debug
 #endif
 
 #undef sim_debug
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
 #define sim_debug(dbits, dptr, ...) \
   if_sim_debug((dbits), dptr) \
     dps8_sim_debug ((dbits), dptr, DBG_CTR, __VA_ARGS__); \
@@ -185,7 +185,7 @@ void sim_warn (const char * format, ...)
 ;
 #endif
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
 void dps8_sim_debug (uint32 dbits, DEVICE* dptr, unsigned long long cnt, const char* fmt, ...)
 #ifdef __GNUC__
   __attribute__ ((format (printf, 4, 5)))

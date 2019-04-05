@@ -42,9 +42,7 @@
 #include "dps8_mt.h"  // attachTape
 #include "dps8_disk.h"  // attachDisk
 #include "dps8_utils.h"
-#if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
-#endif
 
 #include "libtelnet.h"
 #ifdef CONSOLE_FIX
@@ -133,7 +131,7 @@ static DEBTAB opc_dt[] =
 
 // sim_activate counts in instructions, is dependent on the execution
 // model
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
 // The sim_activate calls are done by the controller thread, which
 // has a 1000Hz cycle rate.
 // 1K ~= 1 sec
@@ -211,10 +209,6 @@ typedef struct opc_state_t
     unsigned char *auto_input;
     unsigned char *autop;
     bool echo;
-#ifdef ATTN_HACK
-    bool once_per_boot;
-    int attn_hack;
-#endif
     
     // stuff saved from the Read ASCII command
     time_t startTime;
@@ -295,16 +289,6 @@ static int ta_get (void)
     return c;
   }
 
-#if 0
-static bool ta_scan (int c)
-  {
-    for (uint i = ta_next; i < ta_cnt; i ++)
-      if (c == ta_buffer[i])
-        return true;
-    return false;
-  }
-#endif
-
 static t_stat opc_reset (UNUSED DEVICE * dptr)
   {
     for (uint i = 0; i < N_OPC_UNITS_MAX; i ++)
@@ -312,23 +296,9 @@ static t_stat opc_reset (UNUSED DEVICE * dptr)
         console_state[i].io_mode = opc_no_mode;
         console_state[i].tailp = console_state[i].buf;
         console_state[i].readp = console_state[i].buf;
-#ifdef ATTN_HACK
-        console_state[i].once_per_boot = false;
-#endif
       }
     return SCPE_OK;
   }
-
-
-#if 0
-//#ifndef __MINGW64__
-static void quit_sig_hndlr (int UNUSED signum)
-  {
-    //printf ("quit\n");
-    csp->attn_pressed = true;
-  }
-//#endif
-#endif
 
 int check_attn_key (void)
   {
@@ -355,9 +325,6 @@ void console_init (void)
         csp->model = m6001;
         csp->auto_input = NULL;
         csp->autop = NULL;
-#ifdef ATTN_HACK
-        csp->attn_hack = 0;
-#endif
         csp->attn_pressed = false;
         csp->simh_attn_pressed = false;
         csp->simh_buffer_cnt = 0;
@@ -525,15 +492,6 @@ static void newlineOn (void)
 
 static void handleRCP (char * text)
   {
-// It appears that Cygwin doesn't grok "%ms"
-#if 0
-    char * label = NULL;
-    char * with = NULL;
-    char * drive = NULL;
-// 1750.1  RCP: Mount Reel 12.3EXEC_CF0019_1 without ring on tapa_01 
-    int rc = sscanf (text, "%*d.%*d RCP: Mount Reel %ms %ms ring on %ms",
-                & label, & with, & drive);
-#endif
     size_t len = strlen (text);
     char label [len + 1];
     char with [len + 1];
@@ -940,9 +898,6 @@ sim_warn ("uncomfortable with this\n");
                   }
 
                 uint tally = p->DDCW_TALLY;
-#ifdef ATTN_HACK
-                uint daddr = p->DDCW_ADDR;
-#endif
 
 // We would hope that number of valid characters in the last word
 // would be in DCW_18_20_CP, but it seems to reliably be zero.
@@ -965,54 +920,6 @@ sim_warn ("uncomfortable with this\n");
                                __func__);
                     tally = 4096;
                   }
-
-#ifdef ATTN_HACK
-                word36 w0, w1, w2;
-                iom_core_read (iomUnitIdx, daddr + 0, & w0, __func__);
-                iom_core_read (iomUnitIdx, daddr + 1, & w1, __func__);
-                iom_core_read (iomUnitIdx, daddr + 2, & w2, __func__);
-
-                // When the console prints out "Command:", press the Attention
-                // key one second later
-                if (csp->attn_hack &&
-                    tally == 3 &&
-                    w0 == 0103157155155llu &&
-                    w1 == 0141156144072llu &&
-                    w2 == 0040177177177llu)
-                  {
-                    if (! csp->once_per_boot)
-                      {
-#if defined(THREADZ) || defined(LOCKLESS)
-                        // 1K ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 1000);
-#else
-                        // 4M ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 4000000);
-#endif
-                        csp->once_per_boot = true;
-                      }
-                  }
-
-                // When the console prints out "Ready", press the Attention
-                // key one second later
-                if (csp->attn_hack &&
-                    tally == 2 &&
-                    w0 == 0122145141144llu &&
-                    w1 == 0171015012177llu)
-                  {
-                    if (! csp->once_per_boot)
-                      {
-#if defined(THREADZ) || defined(LOCKLESS)
-                        // 1K ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 1000);
-#else
-                        // 4M ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 4000000);
-#endif
-                        csp->once_per_boot = true;
-                      }
-                  }
-#endif // ATTN_HACK
 
                 word36 buf[tally];
                 iom_indirect_data_service (iomUnitIdx, chan, buf, & tally, false);
@@ -1059,7 +966,7 @@ sim_warn ("uncomfortable with this\n");
                     if (strncmp (text, (char *) (csp->autop + 1), expl) == 0)
                       {
                         csp->autop += expl + 2;
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
                         // 1K ~= 1 sec
                         sim_activate (& attn_unit[con_unit_idx], 1000);
 #else
@@ -1082,7 +989,7 @@ sim_warn ("uncomfortable with this\n");
                     if (strstr (text, needle))
                       {
                         csp->autop += expl + 2;
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
                         // 1K ~= 1 sec
                         sim_activate (& attn_unit[con_unit_idx], 1000);
 #else
@@ -1647,13 +1554,13 @@ int opc_iom_cmd (uint iomUnitIdx, uint chan)
 
     // uint chanloc = mbx_loc (iomUnitIdx, pcwp->chan);
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     lock_libuv ();
 #endif
 
     int rc = opc_cmd (iomUnitIdx, chan);
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     unlock_libuv ();
 #endif
     //if (rc == IOM_CMD_PENDING)
@@ -1711,9 +1618,6 @@ static config_value_list_t cfg_model[] =
 
 static config_list_t opc_config_list[] =
   {
-#ifdef ATTN_HACK
-    /* 0 */ { "attn_hack", 0, 1, cfg_on_off },
-#endif
    { "autoaccept", 0, 1, cfg_on_off },
    { "noempty", 0, 1, cfg_on_off },
    { "attn_flush", 0, 1, cfg_on_off },
@@ -1744,13 +1648,6 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
           }
         const char * p = opc_config_list[rc].name;
 
-#ifdef ATTN_HACK
-        if (strcmp (p, "attn_hack") == 0)
-          {
-            csp->attn_hack = (int) v;
-            continue;
-          }
-#endif
         if (strcmp (p, "autoaccept") == 0)
           {
             csp->autoaccept = (int) v;
@@ -1789,9 +1686,6 @@ static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
   {
     int devUnitIdx = (int) OPC_UNIT_NUM (uptr);
     opc_state_t * csp = console_state + devUnitIdx;
-#ifdef ATTN_HACK
-    sim_msg ("attn_hack:  %d\n", csp->attn_hack);
-#endif
     sim_msg ("autoaccept:  %d\n", csp->autoaccept);
     sim_msg ("noempty:  %d\n", csp->noempty);
     sim_msg ("attn_flush:  %d\n", csp->attn_flush);
@@ -1882,13 +1776,13 @@ void startRemoteConsole (void)
         console_state[conUnitIdx].console_access.connected = NULL;
         console_state[conUnitIdx].console_access.useTelnet = true;
 #ifdef CONSOLE_FIX
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
         lock_libuv ();
 #endif
 #endif
         uv_open_access (& console_state[conUnitIdx].console_access);
 #ifdef CONSOLE_FIX
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
         unlock_libuv ();
 #endif
 #endif

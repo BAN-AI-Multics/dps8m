@@ -30,13 +30,9 @@
 #include "dps8_fnp2_iomcmd.h"
 #include "dps8_utils.h"
 #include "fnpuv.h"
+#include "threadz.h"
 
 #define DBG_CTR 1
-
-#if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
-#endif
-
 
 #ifdef FNPDBG
 static inline void fnp_core_read_n (word24 addr, word36 *data, uint n, UNUSED const char * ctx)
@@ -2192,11 +2188,11 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 #endif
 
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
         lock_libuv ();
 #endif
         fnpcmdBootload (fnp_unit_idx);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
         unlock_libuv ();
 #endif
         send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
@@ -2204,11 +2200,11 @@ for (uint i = 0370*2; i <=0400*2; i ++)
       }
     else if (command == 071) // interrupt L6
       {
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
         lock_libuv ();
 #endif
         ok = interruptL66 (iomUnitIdx, chan) == 0;
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
         unlock_libuv ();
 #endif
       }

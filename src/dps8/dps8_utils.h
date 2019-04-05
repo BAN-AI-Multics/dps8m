@@ -872,6 +872,6 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 void timespec_diff(struct timespec *start, struct timespec *stop,
                    struct timespec *result);
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
 void currentTR (word27 * trunits, bool * ovf);
 #endif

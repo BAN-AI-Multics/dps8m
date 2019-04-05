@@ -1,3 +1,4 @@
+#ifdef LOCKLESS
 // 
 
 #define tdbg
@@ -213,4 +214,5 @@ void fence (void);
 #ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
 extern pthread_cond_t iomCond;
 extern pthread_mutex_t iom_start_lock;
+#endif
 #endif

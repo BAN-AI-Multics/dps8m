@@ -64,10 +64,6 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 // Quiet compiler unused warnings
 #define QUIET_UNUSED
 
-// Enable M[] as shared memory segment
-//#define M_SHARED
-//LDFLAGS += -lrt
-
 #ifdef TESTING
 #else
 // Enable speed over debuggibility
@@ -90,9 +86,6 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 #ifdef __APPLE__
 #undef HDBG
 #endif
-
-// Legacy ATTN_HACK support
-// #define ATTN_HACK
 
 // Enable ISOLTS support
 //#define ISOLTS
@@ -171,7 +164,7 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 // Multi-threading may require 'volatile' in some place; make it easy
 // to support both configurations
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
 #define CWO
 #define vol volatile
 #else
@@ -608,24 +601,5 @@ typedef enum
 #endif
 
 #define MAX_DEV_NAME_LEN 64
-
-#ifdef TEST_OLIN
-extern int64_t cmpxchg_data;
-inline void cmpxchg (void)
-  {
-    __sync_val_compare_and_swap (& cmpxchg_data, 0, 1);
-    cmpxchg_data = 0;
-  }
-#endif
-
-#ifdef TEST_FENCE
-#include <pthread.h>
-extern pthread_mutex_t fenceLock;
-inline void fence (void)
-  {
-    pthread_mutex_lock (& fenceLock);
-    pthread_mutex_unlock (& fenceLock);
-  }
-#endif
 
 #endif // ifdef DPS8_H

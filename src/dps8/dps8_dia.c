@@ -23,14 +23,12 @@
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_utils.h"
+#include "threadz.h"
 
 #include "udplib.h"
 
 #define DBG_CTR 1
 
-#ifdef THREADZ
-#include "threadz.h"
-#endif
 
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {

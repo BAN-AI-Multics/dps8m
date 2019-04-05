@@ -1561,7 +1561,7 @@ typedef struct
 
     word18   rX [8]; // index
     word27   rTR;    // timer [map: TR, 9 0's]
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     struct timespec rTRTime; // time when rTR was set
     uint     rTRsample;
 #endif
@@ -1806,13 +1806,9 @@ typedef struct
 #endif
   } cpu_state_t;
 
-#ifdef M_SHARED
 extern cpu_state_t * cpus;
-#else
-extern cpu_state_t cpus [N_CPU_UNITS_MAX];
-#endif
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
 extern __thread cpu_state_t * restrict cpup;
 #else
 extern cpu_state_t * restrict cpup;
@@ -1863,26 +1859,6 @@ static inline void trackport (word24 a, word36 d)
   }
 #endif
 
-#ifdef THREADZ
-// Ugh. Circular dependencies XXX
-void lock_mem_rd (void);
-void lock_mem_wr (void);
-void unlock_mem (void);
-#define LOCK_MEM_RD lock_mem_rd ();
-#define LOCK_MEM_WR lock_mem_wr ();
-#define UNLOCK_MEM unlock_mem ();
-#else // ! THREADZ
-#ifdef TEST_FENCE
-#define LOCK_MEM_RD fence ();
-#define LOCK_MEM_WR fence ();
-#define UNLOCK_MEM fence ();
-#else
-#define LOCK_MEM_RD
-#define LOCK_MEM_WR
-#define UNLOCK_MEM
-#endif
-#endif // ! THREADZ
-
 #if defined(SPEED) && defined(INLINE_CORE)
 // Ugh. Circular dependencies XXX
 void doFault (_fault faultNumber, _fault_subtype faultSubtype, 
@@ -1899,7 +1875,7 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
+            doFault (FAULT_STR, fst_str_nea, __func__);
           }
 // XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
 // memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
@@ -1928,9 +1904,7 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
       }
 #endif
 #endif
-    LOCK_MEM_RD;
     *data = M[addr] & DMASK;
-    UNLOCK_MEM;
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -1975,9 +1949,7 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
         cpu.MR.separ = 0;
       }
 #endif
-    LOCK_MEM_WR;
     M[addr] = data & DMASK;
-    UNLOCK_MEM;
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -2022,10 +1994,8 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
         cpu.MR.separ = 0;
       }
 #endif
-    LOCK_MEM_WR;
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     cpu.useZone = false; // Safety
-    UNLOCK_MEM;
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -2073,10 +2043,8 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
       }
 #endif
 #endif
-    LOCK_MEM_WR;
     *even = M[addr++] & DMASK;
     *odd = M[addr] & DMASK;
-    UNLOCK_MEM;
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -2122,10 +2090,8 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
         cpu.MR.separ = 0;
       }
 #endif
-    LOCK_MEM_WR;
     M[addr++] = even;
     M[addr] = odd;
-    UNLOCK_MEM;
     PNL (trackport (addr - 1, even);)
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -2291,7 +2257,7 @@ void add_APU_history (enum APUH_e op);
 #endif
 void add_history_force (uint hset, word36 w0, word36 w1);
 word18 get_BAR_address(word18 addr);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
 t_stat threadz_sim_instr (void);
 void * cpu_thread_main (void * arg);
 #endif

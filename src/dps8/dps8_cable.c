@@ -123,10 +123,8 @@
 #ifndef __MINGW64__
 #include "dps8_absi.h"
 #endif
-#ifdef M_SHARED
 #include <unistd.h>
 #include "shm.h"
-#endif
 
 #define DBG_CTR 1
 
@@ -1415,22 +1413,6 @@ t_stat sys_cable_ripout (UNUSED int32 arg, UNUSED const char * buf)
 
 void sysCableInit (void)
   {
-#if 0
-   if (! cables)
-      {
-#ifdef M_SHARED
-        cables = (struct cables_s *) create_shm ("cables",
-                                                 sizeof (struct cables_s));
-#else
-        cables = (struct cables_s *) malloc (sizeof (struct cables_s));
-#endif
-        if (cables == NULL)
-          {
-            sim_printf ("create_shm cables failed\n");
-            sim_fatal ("create_shm cables failed\n");
-          }
-      }
-#endif
     cables = & system_state->cables;
 
     // Initialize data structures

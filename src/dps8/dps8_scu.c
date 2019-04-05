@@ -551,9 +551,7 @@
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
-#if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
-#endif
 
 #define DBG_CTR 1
 
@@ -1145,14 +1143,14 @@ t_stat scu_reset (UNUSED DEVICE * dptr)
 
 // ============================================================================
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
 static pthread_mutex_t clock_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 // The SCU clock is 52 bits long; fits in t_uint64
 static uint64 set_SCU_clock (uint scu_unit_idx)
   {
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     pthread_mutex_lock (& clock_lock);
 #endif
 
@@ -1310,7 +1308,7 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
     scu [scu_unit_idx].last_time = Multics_usecs;
 
 done:
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     pthread_mutex_unlock (& clock_lock);
 #endif
 
@@ -1391,7 +1389,7 @@ static void deliver_interrupts (uint scu_unit_idx)
                     continue;
                   }
                 uint cpu_unit_udx = cables->scu_to_cpu[scu_unit_idx][port][sn].cpu_unit_idx;
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
 #ifdef HDBG
                 hdbgIntrSet (inum, cpu_unit_udx, scu_unit_idx);
@@ -1403,13 +1401,13 @@ static void deliver_interrupts (uint scu_unit_idx)
                 sim_debug (DBG_DEBUG, & scu_dev,
                            "interrupt set for CPU %d SCU %d\n",
                            cpu_unit_udx, scu_unit_idx);
-#else // ! THREADZ
+#else // ! LOCKLESS
 //if (cpu_unit_udx && ! cpu.isRunning) sim_printf ("starting CPU %c\n", cpu_unit_udx + 'A');
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
 sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_udx, scu_unit_idx);
                 sim_debug (DBG_INTR, & scu_dev,
                            "XIP set for SCU %d\n", scu_unit_idx);
-#endif // ! THREADZ
+#endif // ! LOCKLESS
               }
           }
       }
@@ -1418,7 +1416,7 @@ sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_u
 t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_udx, 
                  uint UNUSED cpu_port_num, word36 rega)
   {
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     lock_scu ();
 #endif
 // smic can set cells but not reset them...
@@ -1474,7 +1472,7 @@ t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_udx,
 #endif
     dump_intr_regs ("smic", scu_unit_idx);
     deliver_interrupts (scu_unit_idx);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     unlock_scu ();
 #endif
     return SCPE_OK;
@@ -1550,12 +1548,12 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
       {
         case 00000: // Set system controller mode register
           {
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             lock_scu ();
 #endif
             scu [scu_unit_idx].id = (word4) getbits36_4 (regq, 50 - 36);
             scu [scu_unit_idx].mode_reg = getbits36_18 (regq, 54 - 36);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             unlock_scu ();
 #endif
           }
@@ -1567,7 +1565,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
             sim_debug (DBG_DEBUG, & scu_dev,
                        "sscr 1 %d A: %012"PRIo64" Q: %012"PRIo64"\n",
                        scu_unit_idx, rega, regq);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             lock_scu ();
 #endif
             scu_t * up = scu + scu_unit_idx;
@@ -1623,7 +1621,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
             up -> port_enable [6] = (regq >> 1) & 01;
             up -> port_enable [7] = (regq >> 0) & 01;
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             unlock_scu ();
 #endif
             // XXX A, A1, B, B1, INT, LWR not implemented. (AG87-00A pgs 2-5,
@@ -1640,7 +1638,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
         //case 00062: // Set mask register port 6
         //case 00072: // Set mask register port 7
           {
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             lock_scu ();
 #endif
             uint port_num = (addr >> 6) & 07;
@@ -1671,7 +1669,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
                 sim_debug (DBG_WARN, & scu_dev, 
                            "%s: No masks assigned to cpu on port %d\n", 
                            __func__, port_num);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
                 unlock_scu ();
 #endif
                 return SCPE_OK;
@@ -1715,7 +1713,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
                        scu[scu_unit_idx].exec_intr_mask[mask_num]);
 
             deliver_interrupts (scu_unit_idx);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             unlock_scu ();
 #endif
           }
@@ -1723,7 +1721,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
 
         case 00003: // Set interrupt cells
           {
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             lock_scu ();
 #endif
             for (uint i = 0; i < 16; i ++)
@@ -1742,7 +1740,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
                        scu_unit_idx, pcells (scu_unit_idx, pcellb));
             dump_intr_regs ("sscr set interrupt cells", scu_unit_idx);
             deliver_interrupts (scu_unit_idx);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             unlock_scu ();
 #endif
           }
@@ -1755,12 +1753,12 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
             word16 b0_15 = (word16) getbits36_16 (cpu.rA, 20);
             word36 b16_51 = cpu.rQ;
             uint64 new_clk = (((uint64) b0_15) << 36) | b16_51;
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             lock_scu ();
 #endif
             scu [scu_unit_idx].user_correction =
               (int64) (new_clk - set_SCU_clock (scu_unit_idx));
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             unlock_scu ();
 #endif
             //sim_printf ("sscr %o\n", function);
@@ -1824,12 +1822,12 @@ t_stat scu_rscr (uint scu_unit_idx, uint cpu_unit_udx, word18 addr,
             * rega = 0;
             //* regq = 0000002000000; // ID = 0010
             * regq = 0;
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             lock_scu ();
 #endif
             putbits36_4 (regq, 50 - 36, scu [scu_unit_idx].id);
             putbits36_18 (regq, 54 - 36, scu [scu_unit_idx].mode_reg);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             unlock_scu ();
 #endif
             break;
@@ -1868,7 +1866,7 @@ t_stat scu_rscr (uint scu_unit_idx, uint cpu_unit_udx, word18 addr,
             //
             //struct config_switches * sw = config_switches + scu_unit_idx;
             sim_debug (DBG_DEBUG, & scu_dev, "rscr 1 %d\n", scu_unit_idx);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             lock_scu ();
 #endif
             scu_t * up = scu + scu_unit_idx;
@@ -1903,7 +1901,7 @@ t_stat scu_rscr (uint scu_unit_idx, uint cpu_unit_udx, word18 addr,
 gotit:;
             if (scu_port_num < 0)
               {
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
                 unlock_scu ();
 #endif
                 sim_warn ("%s: can't find cpu port in the snarl of cables; "
@@ -1948,7 +1946,7 @@ gotit:;
             putbits36_1 (& q, 35,  (word1) up -> port_enable [7]);
             * regq = q;
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             unlock_scu ();
 #endif
             sim_debug (DBG_DEBUG, & scu_dev, 
@@ -1960,7 +1958,7 @@ gotit:;
         case 00002: // mask register
           {
             uint port_num = (addr >> 6) & MASK3;
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             lock_scu ();
 #endif
             scu_t * up = scu + scu_unit_idx;
@@ -1989,7 +1987,7 @@ gotit:;
             putbits36 (regq, 34,  1, up -> port_enable [6]);
             putbits36 (regq, 35,  1, up -> port_enable [7]);
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             unlock_scu ();
 #endif
             sim_debug (DBG_TRACE, & scu_dev,
@@ -2002,7 +2000,7 @@ gotit:;
 
         case 00003: // Interrupt cells
           {
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             lock_scu ();
 #endif
             scu_t * up = scu + scu_unit_idx;
@@ -2016,7 +2014,7 @@ gotit:;
                 else
                   putbits36_1 (regq, i - 16, cell);
               }
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
             unlock_scu ();
 #endif
           }
@@ -2110,7 +2108,7 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
                cpu_unit_udx, scu_unit_idx, scu_port_num,
               expander_command, sub_mask);
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     lock_scu ();
 #endif
     struct ports * portp = & scu [scu_unit_idx].ports [scu_port_num];
@@ -2161,7 +2159,7 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
     if (portp -> type == ADEV_IOM)
       {
         int iom_unit_idx = portp->dev_idx;
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
         unlock_scu ();
 #if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
         lock_iom ();
@@ -2173,7 +2171,7 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
         unlock_iom ();
 #endif
         return 0;
-#else // ! THREADZ
+#else // ! LOCKLESS
         if (sys_opts.iom_times.connect <= 0)
           {
             iom_interrupt (scu_unit_idx, (uint) iom_unit_idx);
@@ -2200,7 +2198,7 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
               }
             goto done;
           }
-#endif // ! THREADZ
+#endif // ! LOCKLESS
       }
     else if (portp -> type == ADEV_CPU)
       {
@@ -2269,7 +2267,7 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
         goto done;
       }
 done:
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     unlock_scu ();
 #endif
     return rc;
@@ -2297,13 +2295,13 @@ int scu_set_interrupt (uint scu_unit_idx, uint inum)
         return 1;
       }
     
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     lock_scu ();
 #endif
     scu [scu_unit_idx].cells [inum] = 1;
     dump_intr_regs ("scu_set_interrupt", scu_unit_idx);
     deliver_interrupts (scu_unit_idx);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     unlock_scu ();
 #endif
     return 0;
@@ -2317,7 +2315,7 @@ int scu_set_interrupt (uint scu_unit_idx, uint inum)
 
 uint scu_get_highest_intr (uint scu_unit_idx)
   {
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     lock_scu ();
 #endif
     // lower numbered cells have higher priority
@@ -2338,14 +2336,14 @@ uint scu_get_highest_intr (uint scu_unit_idx)
                 scu [scu_unit_idx].cells [inum] = false;
                 dump_intr_regs ("scu_get_highest_intr", scu_unit_idx);
                 deliver_interrupts (scu_unit_idx);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
                 unlock_scu ();
 #endif
                 return (uint) inum * 2;
               }
           }
       }
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     unlock_scu ();
 #endif
     return 1;
@@ -2443,7 +2441,7 @@ gotit:;
 
     sim_debug (DBG_TRACE, & scu_dev, "rmcm selected scu port %u\n",
                scu_port_num);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     lock_scu ();
 #endif
     uint mask_contents = 0;
@@ -2475,7 +2473,7 @@ gotit:;
     putbits36_1 (regq, 34,  (word1) up -> port_enable [6]);
     putbits36_1 (regq, 35,  (word1) up -> port_enable [7]);
 
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     unlock_scu ();
 #endif
     sim_debug (DBG_TRACE, & scu_dev,
@@ -2535,7 +2533,7 @@ gotit:;
     uint imask =
       ((uint) getbits36_16(rega, 0) << 16) |
       ((uint) getbits36_16(regq, 0) <<  0);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     lock_scu ();
 #endif
     if (up -> mask_assignment [0] == (uint) scu_port_num)
@@ -2562,7 +2560,7 @@ gotit:;
 
     dump_intr_regs ("smcm", scu_unit_idx);
     deliver_interrupts (scu_unit_idx);
-#if defined(THREADZ) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     unlock_scu ();
 #endif
     

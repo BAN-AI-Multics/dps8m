@@ -82,16 +82,13 @@
 #include "dps8_utils.h"
 #include "utlist.h"
 #include "uthash.h"
+#include "threadz.h"
 
 #include "sim_defs.h"
 #include "sim_tmxr.h"
 #include <regex.h>
 
 #define DBG_CTR 1
-
-#if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
-#endif
 
 static t_stat fnpShowConfig (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat fnpSetConfig (UNIT * uptr, int value, const char * cptr, void * desc);

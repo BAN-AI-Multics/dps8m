@@ -29,9 +29,7 @@
 #include "dps8_append.h"
 #include "dps8_addrmods.h"
 #include "dps8_utils.h"
-#if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
-#endif
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -849,14 +847,6 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
         cpu.PTW0.U = 1;
       }
     
-#ifdef TEST_FENCE
-    fence ();
-#endif
-#ifdef THREADZ
-    if (! lck)
-      unlock_rmw ();
-#endif
-
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_APU_history (APUH_FPTW);

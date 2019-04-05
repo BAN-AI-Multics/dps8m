@@ -90,11 +90,8 @@ ifneq ($(M32),)
 CFLAGS += -DNEED_128 -Wno-format-zero-length -Wno-sign-conversion
 endif
 
-# The system_state code relies on M_SHARED.
-#ifeq ($(M_SHARED),1)
-CFLAGS += -DM_SHARED
+# The system_state code relies on shared memory.
 LDFLAGS += -lrt
-#endif
 
 # Configuration switches
 
@@ -167,10 +164,7 @@ C_SRCS += ./fnpuv.c
 C_SRCS += ./fnptelnet.c
 C_SRCS += libtelnet.c
 C_SRCS += ./hdbg.c
-# The system_state code relies on M_SHARED.
-#ifeq ($(M_SHARED),1)
 C_SRCS += ./shm.c
-#endif
 ifneq ($(CROSS),MINGW64)
 C_SRCS += ./udplib.c
 endif
@@ -227,10 +221,7 @@ H_SRCS += fnpuv.h
 H_SRCS += fnptelnet.h
 H_SRCS += h316_imp.h
 H_SRCS += hdbg.h
-# The system_state code relies on M_SHARED.
-#ifeq ($(M_SHARED),1)
 H_SRCS += shm.h
-#endif
 ifneq ($(CROSS),MINGW64)
 H_SRCS += udplib.h
 endif
