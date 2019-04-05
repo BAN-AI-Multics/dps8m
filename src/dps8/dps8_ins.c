@@ -8929,15 +8929,15 @@ elapsedtime ();
 
         // aran Address Register n to Alphanumeric Descriptor
 
-                        // aarn
-        case x1 (0540): // aar0
-        case x1 (0541): // aar1
-        case x1 (0542): // aar2
-        case x1 (0543): // aar3
-        case x1 (0544): // aar4
-        case x1 (0545): // aar5
-        case x1 (0546): // aar6
-        case x1 (0547): // aar7
+                        // aran
+        case x1 (0540): // ara0
+        case x1 (0541): // ara1
+        case x1 (0542): // ara2
+        case x1 (0543): // ara3
+        case x1 (0544): // ara4
+        case x1 (0545): // ara5
+        case x1 (0546): // ara6
+        case x1 (0547): // ara7
             {
                 // The alphanumeric descriptor is fetched from Y and C(Y)21,22
                 // (TA field) is examined to determine the data type described.
@@ -8993,22 +8993,20 @@ elapsedtime ();
                                      (word3) ((GET_AR_CHAR (n) & MASK2) << 1));
                         break;
                 }
-              cpu.zone = 0777777700000;
-              cpu.useZone = true;
             }
             break;
 
         // arnn Address Register n to Numeric Descriptor 
 
-                        // aarn
-        case x1 (0640): // aar0
-        case x1 (0641): // aar1
-        case x1 (0642): // aar2
-        case x1 (0643): // aar3
-        case x1 (0644): // aar4
-        case x1 (0645): // aar5
-        case x1 (0646): // aar6
-        case x1 (0647): // aar7
+                        // arnn
+        case x1 (0640): // arn0
+        case x1 (0641): // arn1
+        case x1 (0642): // arn2
+        case x1 (0643): // arn3
+        case x1 (0644): // arn4
+        case x1 (0645): // arn5
+        case x1 (0646): // arn6
+        case x1 (0647): // arn7
             {
                 PNL (L68_ (DU_CYCLE_DDU_STEA;))
                 uint32 n = opcode10 & 07;  // get register #
