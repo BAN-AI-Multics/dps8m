@@ -1025,25 +1025,6 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
 			telnet->state = TELNET_STATE_DATA;
 			break;
 
-		/* NVT EOL to be translated */
-		case TELNET_STATE_EOL:
-			if (byte != '\n') {
-				byte = '\r';
-				ev.type = TELNET_EV_DATA;
-				ev.data.buffer = (char*)&byte;
-				ev.data.size = 1;
-				telnet->eh(telnet, &ev, telnet->ud);
-				byte = (unsigned char) buffer[i];
-			}
-			// any byte following '\r' other than '\n' or '\0' is invalid,
-			// so pass both \r and the byte
-			start = i;
-			if (byte == '\0')
-				++start;
-			/* state update */
-			telnet->state = TELNET_STATE_DATA;
-			break;
-
 		/* IAC command */
 		case TELNET_STATE_IAC:
 			switch (byte) {

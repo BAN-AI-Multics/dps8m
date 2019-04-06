@@ -341,10 +341,4 @@ void process3270Input (uv_tcp_t * client, unsigned char * buf, ssize_t nread);
 void set_3270_write_complete (uv_tcp_t * client);
 void startFNPListener (void);
 void setTIMW (uint iom_unit_idx, uint chan, word24 mailboxAddress, int mbx);
-<<<<<<< HEAD
-=======
 void reset_line (struct t_line * linep);
-#ifdef SCUMEM
-uint get_scu_unit_idx_iom (uint fnp_unit_idx, word24 addr, word24 * offset);
-#endif
->>>>>>> 5b6b1385c93f716302a834c5170f62e552285ba3

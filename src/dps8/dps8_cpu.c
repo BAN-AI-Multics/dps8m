@@ -2114,7 +2114,7 @@ t_stat threadz_sim_instr (void)
                     // fetch next instruction into current instruction struct
                     //clr_went_appending (); // XXX not sure this is the right
                                            //  place
-                    bool oldXSF = cpu.cu.XSF;
+                    //bool oldXSF = cpu.cu.XSF;
                     //if (get_addr_mode () != APPEND_mode)
                     // {
                     cpu.cu.XSF = 0;

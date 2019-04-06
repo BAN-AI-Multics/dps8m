@@ -907,7 +907,6 @@ void doG7Fault (bool allowTR)
     // According AL39,  Table 7-1. List of Faults, priority of connect is 25
     // and priority of Timer runout is 26, lower number means higher priority
 #if defined(LOCKLESS) && ! defined (LOCKLESS_SCU)
-#if defined(LOCKLESS)
     lock_scu ();
 #endif
      if (cpu.g7Faults & (1u << FAULT_CON))
