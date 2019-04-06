@@ -492,7 +492,7 @@ void doFault (_fault faultNumber, _fault_subtype subFault,
     // Assume no
     // Reading Multics source, it seems like Multics is setting this bit; I'm going
     // to assume that the h/w also sets it to 0, and the s/w has to explicitly set it on.
-    cpu . cu . rfi = 0;
+    cpu . cu . rfi = cpu . cycle == FETCH_cycle ? 1 : 0;;
 
 // Try to decide if this a MIF fault (fault during EIS instruction)
 // EIS instructions are not used in fault/interrupt pairs, so the
@@ -861,7 +861,15 @@ void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
     cpus[cpuNo].g7SubFaults [faultNo] = subFault;
     __atomic_or_fetch (& cpus[cpuNo].g7FaultsPreset, 1u << faultNo, __ATOMIC_RELEASE)
 #else
+#ifdef LOCKLESS
+#if defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
+    atomic_set_32 (&cpus[cpuNo].g7FaultsPreset, (1u << faultNo));
+#else
+    __sync_or_and_fetch (&cpus[cpuNo].g7FaultsPreset, (1u << faultNo));
+#endif
+#else // ! LOCKLESS
     cpus[cpuNo].g7FaultsPreset |= (1u << faultNo);
+#endif
     //cpu.g7SubFaultsPreset [faultNo] = subFault;
     cpus[cpuNo].g7SubFaults [faultNo] = subFault;
 #endif
@@ -899,6 +907,7 @@ void doG7Fault (bool allowTR)
     // According AL39,  Table 7-1. List of Faults, priority of connect is 25
     // and priority of Timer runout is 26, lower number means higher priority
 #if defined(LOCKLESS) && ! defined (LOCKLESS_SCU)
+#if defined(LOCKLESS)
     lock_scu ();
 #endif
      if (cpu.g7Faults & (1u << FAULT_CON))
@@ -1001,9 +1010,17 @@ void advanceG7Faults (void)
 #if defined(LOCKLESS)
     lock_scu ();
 #endif
+#ifdef LOCKLESS
+#if defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
+    uint tmp = atomic_readandclear_32 (&cpu.g7FaultsPreset);
+#else
+    uint tmp = __sync_fetch_and_and (&cpu.g7FaultsPreset, 0);
+#endif
+    cpu.g7Faults |= tmp;
+#else  // !LOCKLESS
     cpu.g7Faults |= cpu.g7FaultsPreset;
     cpu.g7FaultsPreset = 0;
-    //memcpy (cpu.g7SubFaults, cpu.g7SubFaultsPreset, sizeof (cpu.g7SubFaults));
+#endif
 #ifdef L68
     cpu.FFV_faults |= cpu.FFV_faults_preset;
     cpu.FFV_faults_preset = 0;
@@ -1013,4 +1030,3 @@ void advanceG7Faults (void)
 #endif
 #endif // ! LOCKLESS_SCU
   }
-

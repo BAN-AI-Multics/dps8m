@@ -341,6 +341,10 @@ bool test_tst_lock (void)
 
 struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
 
+#if defined(__FreeBSD__) && defined(AFFINITY)
+typedef cpuset_t cpu_set_t;
+#endif
+
 // Create CPU thread
 
 void createCPUThread (uint cpuNum)
@@ -373,7 +377,13 @@ void createCPUThread (uint cpuNum)
 
     char nm [17];
     sprintf (nm, "CPU %c", 'a' + cpuNum);
-#ifdef __FreeBSD__
+#ifndef __FreeBSD__
+#ifdef __APPLE__
+    pthread_setname_np (nm);
+#else
+    pthread_setname_np (p->cpuThread, nm);
+#endif
+#else
     pthread_set_name_np (p->cpuThread, nm);
 #else
 #ifdef __APPLE__
@@ -383,6 +393,18 @@ void createCPUThread (uint cpuNum)
 #endif
 #endif
 
+#ifdef AFFINITY
+    if (cpus[cpuNum].set_affinity)
+      {
+        cpu_set_t cpuset;
+        CPU_ZERO (& cpuset);
+        CPU_SET (cpus[cpuNum].affinity, & cpuset);
+        int s = pthread_setaffinity_np (p->cpuThread, sizeof (cpu_set_t), & cpuset);
+        if (s)
+          sim_printf ("pthread_setaffinity_np %u on CPU %u returned %d\n",
+                      cpus[cpuNum].affinity, cpuNum, s);
+      }
+#endif
 #ifdef AFFINITY
     if (cpus[cpuNum].set_affinity)
       {

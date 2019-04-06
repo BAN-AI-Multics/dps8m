@@ -1606,8 +1606,9 @@ static void set_temporary_absolute_mode (void)
   {
     CPT (cpt1L, 20); // set temp. abs. mode
     cpu.secret_addressing_mode = true;
+    bool oldXSF = cpu.cu.XSF;
     cpu.cu.XSF = false;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "set_temporary_absolute_mode bit 29 sets XSF to 0\n");
+    sim_debug (DBG_TRACEEXT|DBG_AVC, & cpu_dev, "set_temporary_absolute_mode bit 29 sets XSF from %d to %d\n", oldXSF, cpu.cu.XSF);
     //cpu.went_appending = false;
   }
 
@@ -1624,6 +1625,7 @@ t_stat threadz_sim_instr (void)
 //cpu.have_tst_lock = false;
 
     t_stat reason = 0;
+    bool restart_instr = false;
       
 #if !defined(LOCKLESS)
     set_cpu_idx (0);
@@ -1634,6 +1636,8 @@ t_stat threadz_sim_instr (void)
 
     // This allows long jumping to the top of the state machine
     int val = setjmp (cpu.jmpMain);
+
+    restart_instr = false;
 
     switch (val)
       {
@@ -1661,6 +1665,7 @@ t_stat threadz_sim_instr (void)
             break;
         case JMP_RESTART:
             set_cpu_cycle (EXEC_cycle);
+            restart_instr = true;
             break;
         default:
           sim_warn ("longjmp value of %d unhandled\n", val);
@@ -2092,32 +2097,36 @@ t_stat threadz_sim_instr (void)
                 doFault (FAULT_LUF, fst_zero, "instruction cycle lockup");
               }
 #endif
-            if (cpu.cycle == PSEUDO_FETCH_cycle)
-              {
-                cpu.apu.lastCycle = INSTRUCTION_FETCH;
-                cpu.cu.XSF = 0;
-                cpu.cu.TSN_VALID [0] = 0;
-                cpu.TPR.TSR = cpu.PPR.PSR;
-                cpu.TPR.TRR = cpu.PPR.PRR;
-                cpu.wasInhibited = false;
-              }
-            else
-              {
-                CPT (cpt1U, 20); // not XEC or RPx
-                cpu.isExec = false;
-                cpu.isXED = false;
-                // fetch next instruction into current instruction struct
-                //clr_went_appending (); // XXX not sure this is the right
-                                         //  place
-                cpu.cu.XSF = 0;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
-                cpu.cu.TSN_VALID [0] = 0;
-                cpu.TPR.TSR = cpu.PPR.PSR;
-                cpu.TPR.TRR = cpu.PPR.PRR;
-                PNL (cpu.prepare_state = ps_PIA);
-                PNL (L68_ (cpu.INS_FETCH = true;))
-                fetchInstruction (cpu.PPR.IC);
-              }
+                if (cpu.cycle == PSEUDO_FETCH_cycle)
+                  {
+                    cpu.apu.lastCycle = INSTRUCTION_FETCH;
+                    cpu.cu.XSF = 0;
+                    cpu.cu.TSN_VALID [0] = 0;
+                    cpu.TPR.TSR = cpu.PPR.PSR;
+                    cpu.TPR.TRR = cpu.PPR.PRR;
+                    cpu.wasInhibited = false;
+                  }
+                else
+                  {
+                    CPT (cpt1U, 20); // not XEC or RPx
+                    cpu.isExec = false;
+                    cpu.isXED = false;
+                    // fetch next instruction into current instruction struct
+                    //clr_went_appending (); // XXX not sure this is the right
+                                           //  place
+                    bool oldXSF = cpu.cu.XSF;
+                    //if (get_addr_mode () != APPEND_mode)
+                    // {
+                    cpu.cu.XSF = 0;
+                    // }
+                    //sim_debug (DBG_TRACEEXT|DBG_AVC, & cpu_dev, "fetchCycle bit 29 sets XSF from %d to %d\n", oldXSF, cpu.cu.XSF);
+                    cpu.cu.TSN_VALID [0] = 0;
+                    cpu.TPR.TSR = cpu.PPR.PSR;
+                    cpu.TPR.TRR = cpu.PPR.PRR;
+                    PNL (cpu.prepare_state = ps_PIA);
+                    PNL (L68_ (cpu.INS_FETCH = true;))
+                    fetchInstruction (cpu.PPR.IC);
+                  }
 
             CPT (cpt1U, 21); // go to exec cycle
             advanceG7Faults ();
@@ -2136,48 +2145,69 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               if (GET_I (cpu.cu.IWB))
                 cpu.wasInhibited = true;
 
-              t_stat ret = executeInstruction ();
+                t_stat ret = executeInstruction (restart_instr);
+                restart_instr = false;
 #ifdef TR_WORK_EXEC
-              cpu.rTRticks ++;
+               cpu.rTRticks ++;
 #endif
-              CPT (cpt1U, 23); // execution complete
+                CPT (cpt1U, 23); // execution complete
 
-              add_CU_history ();
+                add_CU_history ();
 
-              if (ret > 0)
-                {
-                   reason = ret;
-                   break;
-                }
+                if (ret > 0)
+                  {
+                     reason = ret;
+                     break;
+                  }
 
-              if (ret == CONT_XEC)
-                {
-                  CPT (cpt1U, 27); // XEx instruction
-                  cpu.wasXfer = false;
-                  cpu.isExec = true;
-                  if (cpu.cu.xdo)
-                    cpu.isXED = true;
+                if (ret == CONT_XEC)
+                  {
+                    CPT (cpt1U, 27); // XEx instruction
+                    cpu.wasXfer = false;
+                    cpu.isExec = true;
+                    if (cpu.cu.xdo)
+                      cpu.isXED = true;
 
-                  cpu.cu.XSF = 0;
-                  cpu.cu.TSN_VALID [0] = 0;
-                  cpu.TPR.TSR = cpu.PPR.PSR;
-                  cpu.TPR.TRR = cpu.PPR.PRR;
-                  break;
-                }
+                    cpu.cu.XSF = 0;
+                    cpu.cu.TSN_VALID [0] = 0;
+                    cpu.TPR.TSR = cpu.PPR.PSR;
+                    cpu.TPR.TRR = cpu.PPR.PRR;
+                    break;
+                  }
 
-              if (ret == CONT_TRA || ret == CONT_RET)
-                {
-                  CPT (cpt1U, 24); // transfer instruction
-                  cpu.cu.xde = cpu.cu.xdo = 0;
-                  cpu.isExec = false;
-                  cpu.isXED = false;
-                  // even for CONT_RET else isolts 886 fails
-                  cpu.wasXfer = true;
+#ifdef NEWRPT
+                if (ret == CONT_RPT)
+                  {
+                    if (cpu.cu.xde && !cpu.cu.xdo)
+                      {
+                      cpu.cu.xde = 0;
+                      cpu.isExec = false;
+                      cpu.isXED = false;
+                      }
+                    cpu.wasXfer = false;
+                    // stay in EXEC cycle
+                    //set_cpu_cycle (EXEC_cycle);
+                    //cpu.PPR.IC ++;
+                    cpu.cu.XSF = 0;
+                    cpu.TPR.TSR = cpu.PPR.PSR;
+                    cpu.TPR.TRR = cpu.PPR.PRR;
 
-                  if (cpu.cycle != EXEC_cycle) // fault or interrupt
-                    {
+                    break;
+                  }
+#endif
+                if (ret == CONT_TRA || ret == CONT_RET)
+                  {
+                    CPT (cpt1U, 24); // transfer instruction
+                    cpu.cu.xde = cpu.cu.xdo = 0;
+                    cpu.isExec = false;
+                    cpu.isXED = false;
+                    // even for CONT_RET else isolts 886 fails
+                    cpu.wasXfer = true;
 
-                      clearFaultCycle ();
+                    if (cpu.cycle != EXEC_cycle) // fault or interrupt
+                      {
+
+                        clearFaultCycle ();
 
 // BAR mode:  [NBAR] is set ON (taking the processor
 // out of BAR mode) by the execution of any transfer instruction
@@ -2348,11 +2378,11 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 #endif // NO_EV_POLL
 
                   sim_interval = 0;
-#endif // !LOCKLESS
+#endif // !THREADZ
                   // Timer register runs at 512 KHz
                   // 512000 is 1 second
                   // 512000/100 -> 5120  is .01 second
- 
+         
                   cpu.rTRticks = 0;
                   // Would we have underflowed while sleeping?
                   //if ((cpu.rTR & ~ MASK27) || cpu.rTR <= 5120)
@@ -2361,154 +2391,175 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   // Timer register runs at 512 KHz
                   // 512Khz / 512 is millisecods
                   if (cpu.rTR <= sys_opts.sys_poll_interval * 512)
-                    {
-                      if (cpu.switches.tro_enable)
-                        setG7fault (current_running_cpu_idx, FAULT_TRO,
-                                    fst_zero);
-                    }
-                  cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
-                  break;
-                }
+                      {
+                        if (cpu.switches.tro_enable)
+                          setG7fault (current_running_cpu_idx, FAULT_TRO,
+                                      fst_zero);
+                      }
+                    cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
+                    break;
+                  }
 
-              cpu.wasXfer = false;
+                cpu.wasXfer = false;
 
-              if (ret < 0)
-                {
-                  sim_warn ("executeInstruction returned %d?\n", ret);
-                  break;
-                }
+                if (ret < 0)
+                  {
+                    sim_warn ("executeInstruction returned %d?\n", ret);
+                    break;
+                  }
 
-              if ((! cpu.cu.repeat_first) &&
-                  (cpu.cu.rpt ||
-                   (cpu.cu.rd && (cpu.PPR.IC & 1)) ||
-                   cpu.cu.rl))
-                {
-                  CPT (cpt1U, 26); // RPx instruction
-                  if (cpu.cu.rd)
-                    -- cpu.PPR.IC;
-                  cpu.wasXfer = false; 
-                  set_cpu_cycle (FETCH_cycle);
-                  break;
-                }
+                if (
+#ifndef NEWRPT
+                    (! cpu.cu.repeat_first) &&
+#endif
+                    (cpu.cu.rpt ||
+                     (cpu.cu.rd && (cpu.PPR.IC & 1)) ||
+                     cpu.cu.rl))
+                  {
+                    CPT (cpt1U, 26); // RPx instruction
+                    if (cpu.cu.rd)
+                      -- cpu.PPR.IC;
+                    cpu.wasXfer = false; 
+#ifndef NEWRPT
+                    set_cpu_cycle (FETCH_cycle);
+#else
+                    set_cpu_cycle (EXEC_cycle);
+                    cpu.cu.XSF = 0;
+                    cpu.TPR.TSR = cpu.PPR.PSR;
+                    cpu.TPR.TRR = cpu.PPR.PRR;
+#endif
+                    break;
+                  }
+#ifdef NEWRPT
+                else if (cpu.cu.rd && (cpu.PPR.IC & 1) == 0)
+                  {
+                    cpu.PPR.IC++;
+                    cpu.wasXfer = false; 
+                    set_cpu_cycle (EXEC_cycle);
+                    cpu.cu.XSF = 0;
+                    cpu.TPR.TSR = cpu.PPR.PSR;
+                    cpu.TPR.TRR = cpu.PPR.PRR;
+                    break;
+                  }
+#endif
 
-              // If we just did the odd word of a fault pair
-              if (cpu.cycle == FAULT_EXEC_cycle &&
-                  !cpu.cu.xde && cpu.cu.xdo)
-                {
-                  clear_temporary_absolute_mode ();
-                  cu_safe_restore ();
-                  CPT (cpt1U, 12); // cu restored
-                  clearFaultCycle ();
-                  // cu_safe_restore calls decode_instruction ()
-                  // we can determine the instruction length.
-                  // decode_instruction() restores ci->info->ndes
-                  cpu.wasXfer = false;
-                  cpu.isExec = false;
-                  cpu.isXED = false;
+                // If we just did the odd word of a fault pair
+                if (cpu.cycle == FAULT_EXEC_cycle &&
+                    !cpu.cu.xde && cpu.cu.xdo)
+                  {
+                    clear_temporary_absolute_mode ();
+                    cu_safe_restore ();
+                    CPT (cpt1U, 12); // cu restored
+                    clearFaultCycle ();
+                    // cu_safe_restore calls decode_instruction ()
+                    // we can determine the instruction length.
+                    // decode_instruction() restores ci->info->ndes
+                    cpu.wasXfer = false;
+                    cpu.isExec = false;
+                    cpu.isXED = false;
 
-                  cpu.PPR.IC += ci->info->ndes;
-                  cpu.PPR.IC ++;
+                    cpu.PPR.IC += ci->info->ndes;
+                    cpu.PPR.IC ++;
 
-                  set_cpu_cycle (FETCH_cycle);
-                  break;
-                }
+                    set_cpu_cycle (FETCH_cycle);
+                    break;
+                  }
 
-              // If we just did the odd word of a interrupt pair
-              if (cpu.cycle == INTERRUPT_EXEC_cycle &&
-                  !cpu.cu.xde && cpu.cu.xdo)
-                {
-                  clear_temporary_absolute_mode ();
-                  cu_safe_restore ();
-                  // cpu.cu.xdo = 0;
+                // If we just did the odd word of a interrupt pair
+                if (cpu.cycle == INTERRUPT_EXEC_cycle &&
+                    !cpu.cu.xde && cpu.cu.xdo)
+                  {
+                    clear_temporary_absolute_mode ();
+                    cu_safe_restore ();
+                    // cpu.cu.xdo = 0;
 // The only place cycle is set to INTERRUPT_cycle in FETCH_cycle; therefore
 // we can safely assume that is the state that should be restored.
-                  CPT (cpt1U, 12); // cu restored
-                  cpu.wasXfer = false;
-                  cpu.isExec = false;
-                  cpu.isXED = false;
+                    CPT (cpt1U, 12); // cu restored
+                    cpu.wasXfer = false;
+                    cpu.isExec = false;
+                    cpu.isXED = false;
 
-                  set_cpu_cycle (FETCH_cycle);
-                  break;
-                }
+                    set_cpu_cycle (FETCH_cycle);
+                    break;
+                  }
 
-              // Even word of fault or interrupt pair or xed
-              if (cpu.cu.xde && cpu.cu.xdo)
-                {
-                  // Get the odd
-                  cpu.cu.IWB = cpu.cu.IRODD;
-                  cpu.cu.xde = 0;
-                  cpu.isExec = true;
-                  cpu.isXED = true;
-                  cpu.cu.XSF = 0;
-                  cpu.cu.TSN_VALID [0] = 0;
-                  cpu.TPR.TSR = cpu.PPR.PSR;
-                  cpu.TPR.TRR = cpu.PPR.PRR;
-                  break; // go do the odd word
-                }
+                // Even word of fault or interrupt pair or xed
+                if (cpu.cu.xde && cpu.cu.xdo)
+                  {
+                    // Get the odd
+                    cpu.cu.IWB = cpu.cu.IRODD;
+                    cpu.cu.xde = 0;
+                    cpu.isExec = true;
+                    cpu.isXED = true;
+                    cpu.cu.XSF = 0;
+                    cpu.cu.TSN_VALID [0] = 0;
+                    cpu.TPR.TSR = cpu.PPR.PSR;
+                    cpu.TPR.TRR = cpu.PPR.PRR;
+                    break; // go do the odd word
+                  }
 
-              if (cpu.cu.xde || cpu.cu.xdo) // we are in an XEC/XED
-                {
-                  cpu.cu.xde = cpu.cu.xdo = 0;
-                  cpu.isExec = false;
-                  cpu.isXED = false;
-                  CPT (cpt1U, 27); // XEx instruction
-                  cpu.wasXfer = false; 
-                  cpu.PPR.IC ++;
-                  if (ci->info->ndes > 0)
-                    cpu.PPR.IC += ci->info->ndes;
-                  cpu.wasInhibited = true;
-                  set_cpu_cycle (FETCH_cycle);
-                  break;
-                }
+                if (cpu.cu.xde || cpu.cu.xdo) // we are in an XEC/XED
+                  {
+                    cpu.cu.xde = cpu.cu.xdo = 0;
+                    cpu.isExec = false;
+                    cpu.isXED = false;
+                    CPT (cpt1U, 27); // XEx instruction
+                    cpu.wasXfer = false; 
+                    cpu.PPR.IC ++;
+                    if (ci->info->ndes > 0)
+                      cpu.PPR.IC += ci->info->ndes;
+                    cpu.wasInhibited = true;
+                    set_cpu_cycle (FETCH_cycle);
+                    break;
+                  }
 
               //ASSURE (cpu.cycle == EXEC_cycle);
               if (cpu.cycle != EXEC_cycle)
                 sim_warn ("expected EXEC_cycle (%d)\n", cpu.cycle);
 
-              cpu.cu.xde = cpu.cu.xdo = 0;
-              cpu.isExec = false;
-              cpu.isXED = false;
+                cpu.cu.xde = cpu.cu.xdo = 0;
+                cpu.isExec = false;
+                cpu.isXED = false;
 
-              // use prefetched instruction from cpu.cu.IRODD
-              // we must have finished an instruction at an even location
-              // skip multiword EIS instructions
-              // skip repeat instructions for now
-              // skip dis - we may need to take interrupts/g7faults
-              // skip if (last instruction) wrote to current instruction range
-              //  the hardware really does this and isolts tests it
-              //  multics differences manual DPS8 70/M
-              //  should take segment number into account?
-              if ((cpu.PPR.IC & 1) == 0 &&
-                  ci->info->ndes == 0 &&
-                  !cpu.cu.repeat_first && !cpu.cu.rpt && !cpu.cu.rd && !cpu.cu.rl &&
-                  //!(cpu.currentInstruction.opcode == 0616 && cpu.currentInstruction.opcodeX == 0) &&
-                  !(cpu.currentInstruction.opcode10 == 00616) &&
-                  (cpu.PPR.IC & ~3u) != (cpu.last_write  & ~3u))
-                {
-                  cpu.PPR.IC ++;
-                  cpu.wasXfer = false;
-                  cpu.cu.IWB = cpu.cu.IRODD;
-                  set_cpu_cycle (PSEUDO_FETCH_cycle);
-                  break;
-                }
+                // use prefetched instruction from cpu.cu.IRODD
+                // we must have finished an instruction at an even location
+                // skip multiword EIS instructions
+                // skip repeat instructions for now
+                // skip dis - we may need to take interrupts/g7faults
+                // skip if (last instruction) wrote to current instruction range
+                //  the hardware really does this and isolts tests it
+                //  multics differences manual DPS8 70/M
+                //  should take segment number into account?
+                if ((cpu.PPR.IC & 1) == 0 &&
+                    ci->info->ndes == 0 &&
+                    !cpu.cu.repeat_first && !cpu.cu.rpt && !cpu.cu.rd && !cpu.cu.rl &&
+                    !(cpu.currentInstruction.opcode == 0616 && cpu.currentInstruction.opcodeX == 0) &&
+                    (cpu.PPR.IC & ~3u) != (cpu.last_write  & ~3u))
+                  {
+                    cpu.PPR.IC ++;
+                    cpu.wasXfer = false;
+                    cpu.cu.IWB = cpu.cu.IRODD;
+                    set_cpu_cycle (PSEUDO_FETCH_cycle);
+                    break;
+                  }
 
-              cpu.PPR.IC ++;
-              if (ci->info->ndes > 0)
-                cpu.PPR.IC += ci->info->ndes;
+                cpu.PPR.IC ++;
+                if (ci->info->ndes > 0)
+                  cpu.PPR.IC += ci->info->ndes;
 
-              CPT (cpt1U, 28); // enter fetch cycle
-              cpu.wasXfer = false; 
-              set_cpu_cycle (FETCH_cycle);
-            }
-            break;
+                CPT (cpt1U, 28); // enter fetch cycle
+                cpu.wasXfer = false; 
+                set_cpu_cycle (FETCH_cycle);
+              }
+              break;
 
-          case SYNC_FAULT_RTN_cycle:
-            {
-              CPT (cpt1U, 29); // sync. fault return
-              cpu.wasXfer = false; 
-              // cu_safe_restore should have restored CU.IWB, so
-              // we can determine the instruction length.
-              // decode_instruction() restores ci->info->ndes
+            case SYNC_FAULT_RTN_cycle:
+              {
+                CPT (cpt1U, 29); // sync. fault return
+                cpu.wasXfer = false; 
+                // cu_safe_restore should have restored CU.IWB, so
+                // we can determine the instruction length.
+                // decode_instruction() restores ci->info->ndes
 
               cpu.PPR.IC += ci->info->ndes;
               cpu.PPR.IC ++;
@@ -2517,88 +2568,88 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
             }
             break;
 
-          case FAULT_cycle:
-            {
-              CPT (cpt1U, 30); // fault cycle
-              // In the FAULT CYCLE, the processor safe-stores the Control
-              // Unit Data (see Section 3) into program-invisible holding
-              // registers in preparation for a Store Control Unit ( scu)
-              // instruction, then enters temporary absolute mode, forces the
-              // current ring of execution C(PPR.PRR) to 0, and generates a
-              // computed address for the fault trap pair by concatenating
-              // the setting of the FAULT BASE switches on the processor
-              // configuration panel with twice the fault number (see Table
-              // 7-1).  This computed address and the operation code for the
-              // Execute Double (xed) instruction are forced into the
-              // instruction register and executed as an instruction. Note
-              // that the execution of the instruction is not done in a
-              // normal EXECUTE CYCLE but in the FAULT CYCLE with the
-              // processor in temporary absolute mode.
+            case FAULT_cycle:
+              {
+                CPT (cpt1U, 30); // fault cycle
+                // In the FAULT CYCLE, the processor safe-stores the Control
+                // Unit Data (see Section 3) into program-invisible holding
+                // registers in preparation for a Store Control Unit ( scu)
+                // instruction, then enters temporary absolute mode, forces the
+                // current ring of execution C(PPR.PRR) to 0, and generates a
+                // computed address for the fault trap pair by concatenating
+                // the setting of the FAULT BASE switches on the processor
+                // configuration panel with twice the fault number (see Table
+                // 7-1).  This computed address and the operation code for the
+                // Execute Double (xed) instruction are forced into the
+                // instruction register and executed as an instruction. Note
+                // that the execution of the instruction is not done in a
+                // normal EXECUTE CYCLE but in the FAULT CYCLE with the
+                // processor in temporary absolute mode.
 
-              // F(A)NP should never be stored when faulting.
-              // ISOLTS-865 01a,870 02d
-              // Unconditional reset of APU status to FABS breaks boot.
-              // Checking for F(A)NP here is equivalent to checking that the
-              // last append cycle has made it as far as H/I without a fault.
-              // Also reset it on TRB fault. ISOLTS-870 05a
-              if (cpu.cu.APUCycleBits & 060 || cpu.secret_addressing_mode)
+                // F(A)NP should never be stored when faulting.
+                // ISOLTS-865 01a,870 02d
+                // Unconditional reset of APU status to FABS breaks boot.
+                // Checking for F(A)NP here is equivalent to checking that the
+                // last append cycle has made it as far as H/I without a fault.
+                // Also reset it on TRB fault. ISOLTS-870 05a
+                if (cpu.cu.APUCycleBits & 060 || cpu.secret_addressing_mode)
                   set_apu_status (apuStatus_FABS);
 
-              // XXX the whole fault cycle should be rewritten as an xed 
-              // instruction pushed to IWB and executed 
+                // XXX the whole fault cycle should be rewritten as an xed 
+                // instruction pushed to IWB and executed 
 
-              // AL39: TRB fault doesn't safestore CUD - the original fault
-              // CUD should be stored
+                // AL39: TRB fault doesn't safestore CUD - the original fault
+                // CUD should be stored
 
-              // ISOLTS-870 05a: CUD[5] and IWB are safe stored, possibly
-              //  due to CU overlap
+                // ISOLTS-870 05a: CUD[5] and IWB are safe stored, possibly
+                //  due to CU overlap
 
-              // keep IRODD untouched if TRB occurred in an even location
-              if (cpu.faultNumber != FAULT_TRB || cpu.cu.xde == 0)
-                {
-                  cu_safe_store ();
-                }
-              else
-                {
-                  word36 tmpIRODD = cpu.scu_data[7];
-                  cu_safe_store ();
-                  cpu.scu_data[7] = tmpIRODD;
-                }
-              CPT (cpt1U, 31); // safe store complete
+                // keep IRODD untouched if TRB occurred in an even location
+                if (cpu.faultNumber != FAULT_TRB || cpu.cu.xde == 0)
+                  {
+                    cu_safe_store ();
+                  }
+                else
+                  {
+                    word36 tmpIRODD = cpu.scu_data[7];
+                    cu_safe_store ();
+                    cpu.scu_data[7] = tmpIRODD;
+                  }
+                CPT (cpt1U, 31); // safe store complete
 
-              // Temporary absolute mode
-              set_temporary_absolute_mode ();
+                // Temporary absolute mode
+                set_temporary_absolute_mode ();
 
-              // Set to ring 0
-              cpu.PPR.PRR = 0;
-              cpu.TPR.TRR = 0;
+                // Set to ring 0
+                cpu.PPR.PRR = 0;
+                cpu.TPR.TRR = 0;
 
-              // (12-bits of which the top-most 7-bits are used)
-              uint fltAddress = (cpu.switches.FLT_BASE << 5) & 07740;
+                // (12-bits of which the top-most 7-bits are used)
+                uint fltAddress = (cpu.switches.FLT_BASE << 5) & 07740;
 #ifdef L68
-              if (cpu.is_FFV)
-                {
-                  cpu.is_FFV = false;
-                  CPTUR (cptUseMR);
-                  // The high 15 bits
-                  fltAddress = (cpu.MR.FFV & MASK15) << 3;
-                }
+                if (cpu.is_FFV)
+                  {
+                    cpu.is_FFV = false;
+                    CPTUR (cptUseMR);
+                    // The high 15 bits
+                    fltAddress = (cpu.MR.FFV & MASK15) << 3;
+                  }
 #endif
 
-              // absolute address of fault YPair
-              word24 addr = fltAddress + 2 * cpu.faultNumber;
+                // absolute address of fault YPair
+                word24 addr = fltAddress + 2 * cpu.faultNumber;
   
-              core_read2 (addr, & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
-              cpu.cu.xde = 1;
-              cpu.cu.xdo = 1;
-              cpu.isExec = true;
-              cpu.isXED = true;
+                core_read2 (addr, & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
+                cpu.cu.xde = 1;
+                cpu.cu.xdo = 1;
+                cpu.isExec = true;
+                cpu.isXED = true;
 
-              CPT (cpt1U, 33); // set fault exec cycle
-              set_cpu_cycle (FAULT_EXEC_cycle);
+                CPT (cpt1U, 33); // set fault exec cycle
+                set_cpu_cycle (FAULT_EXEC_cycle);
 
-              break;
-            }
+                break;
+              }
 
 
           }  // switch (cpu.cycle)
@@ -2884,7 +2935,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
+int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
     if (cpu.switches.useMap)
@@ -2919,7 +2970,7 @@ int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
     LOCK_CORE_WORD(addr);
     if (cpu.locked_addr != 0) {
       sim_warn ("core_read_lock: locked %x addr %x\n", cpu.locked_addr, addr);
-      core_unlock_all();
+      core_unlock_all ();
     }
     cpu.locked_addr = addr;
     word36 v;
@@ -3002,7 +3053,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int core_write_unlock (word24 addr, word36 data, const char * ctx)
+int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
     if (cpu.switches.useMap)
@@ -3037,7 +3088,7 @@ int core_write_unlock (word24 addr, word36 data, const char * ctx)
     if (cpu.locked_addr != addr)
       {
        sim_warn ("core_write_unlock: locked %x addr %x\n", cpu.locked_addr, addr);
-       core_unlock_all();
+       core_unlock_all ();
       }
       
     STORE_REL_CORE_WORD(addr, data);
@@ -3045,7 +3096,7 @@ int core_write_unlock (word24 addr, word36 data, const char * ctx)
     return 0;
 }
 
-int core_unlock_all ()
+int core_unlock_all (void)
 {
   if (cpu.locked_addr != 0) {
       sim_warn ("core_unlock_all: locked %x\n", cpu.locked_addr);
@@ -4026,5 +4077,6 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
           free (buf);
       }
     //pthread_mutex_unlock (& debug_lock);
+    //fflush (sim_deb);
   }
 #endif
