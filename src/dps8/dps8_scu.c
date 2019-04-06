@@ -660,8 +660,7 @@ static t_stat scu_show_state (UNUSED FILE * st, UNIT *uptr, UNUSED int val,
     sim_printf("Online: %02o\n", scup -> onl);
     sim_printf("Interlace: %o\n", scup -> interlace);
     sim_printf("Lower: %o\n", scup -> lwr);
-    sim_printf("ID: %o\n", scup -> id);
-    sim_printf("mode_reg: %06o\n", scup -> mode_reg);
+    sim_printf("sc_mode: %012"PRIo64"\n", scup -> sc_mode);
     sim_printf("Elapsed days: %d\n", scup -> elapsed_days);
     sim_printf("Steady clock: %d\n", scup -> steady_clock);
     sim_printf("Bullet time: %d\n", scup -> bullet_time);
@@ -1416,6 +1415,16 @@ sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_u
 t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_udx, 
                  uint UNUSED cpu_port_num, word36 rega)
   {
+// Locking notes: Rarely called (3 time in CI).
+//   sets scu[].cells[] = 1
+//   calls deliver_interrupts
+//       examines scu[].cells[] 
+//       sets cpus[].events.XIP[] = true
+//  I think that since it only sets cell, never clears, cell does not need to 
+//  be locked; but I may be wrong. If two CPU threads are doing a SMIC at
+//  the same time to the same SCU?
+//  I think the XIP needs to be atomic.
+// 
 #if defined(LOCKLESS)
     lock_scu ();
 #endif
@@ -1548,14 +1557,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
       {
         case 00000: // Set system controller mode register
           {
-#if defined(LOCKLESS)
-            lock_scu ();
-#endif
-            scu [scu_unit_idx].id = (word4) getbits36_4 (regq, 50 - 36);
-            scu [scu_unit_idx].mode_reg = getbits36_18 (regq, 54 - 36);
-#if defined(LOCKLESS)
-            unlock_scu ();
-#endif
+            scu[scu_unit_idx].sc_mode = regq;
           }
           break;
 
@@ -1821,15 +1823,7 @@ t_stat scu_rscr (uint scu_unit_idx, uint cpu_unit_udx, word18 addr,
             // MODE REG: these fields are only used by T&D
             * rega = 0;
             //* regq = 0000002000000; // ID = 0010
-            * regq = 0;
-#if defined(LOCKLESS)
-            lock_scu ();
-#endif
-            putbits36_4 (regq, 50 - 36, scu [scu_unit_idx].id);
-            putbits36_18 (regq, 54 - 36, scu [scu_unit_idx].mode_reg);
-#if defined(LOCKLESS)
-            unlock_scu ();
-#endif
+            * regq = scu[scu_unit_idx].sc_mode;
             break;
           }
 
@@ -2377,11 +2371,16 @@ void scu_init (void)
             scu[u].ports[p].is_exp = false;
           }
 
+        // system controller mode register
+        //  36 bits 0
+        //  14 bits 0
+        //  4 bits id
+        //  18 bits mode
+
         //  ID: 0000  8034, 8035
         //      0001  Level 68 SC
         //      0010  Level 66 SCU
-        scu [u].id = 0b0010;
-        scu [u].mode_reg = 0; // used by T&D
+        scu[u].sc_mode = 02000000;
         scu [u].elapsed_days = 0;
       }
 

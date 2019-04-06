@@ -69,8 +69,10 @@ typedef struct
       } ports [N_SCU_PORTS];
 
     // system controller mode regsister    
-    word4 id;
-    word18 mode_reg;
+    // Storing these bits in a single word to ease atomic access
+    //word4 id;
+    //word18 mode_reg;
+    word36 sc_mode;
 
     uint elapsed_days;
     uint steady_clock;    // If non-zero the clock is tied to the cycle counter

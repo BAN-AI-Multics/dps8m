@@ -855,9 +855,16 @@ void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
   {
     sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o) sub %"PRId64" %"PRIo64"\n", 
                cpuNo, faultNo, faultNo, subFault.bits, subFault.bits);
+#if defined(LOCKLESS) && defined(LOCKLESS_CPU)
+// If I understand correctly, __ATOMIC_RELEASE will force the subFault to
+// to set before the preset.
+    cpus[cpuNo].g7SubFaults [faultNo] = subFault;
+    __atomic_or_fetch (& cpus[cpuNo].g7FaultsPreset, 1u << faultNo, __ATOMIC_RELEASE)
+#else
     cpus[cpuNo].g7FaultsPreset |= (1u << faultNo);
     //cpu.g7SubFaultsPreset [faultNo] = subFault;
     cpus[cpuNo].g7SubFaults [faultNo] = subFault;
+#endif
 #if defined(LOCKLESS)
     wakeCPU(cpuNo);
 #endif
@@ -875,7 +882,11 @@ void set_FFV_fault (uint f_fault_no)
 
 void clearTROFault (void)
   {
+#if defined(LOCKLESS) && defined(LOCKLESS_SCU)
+    __atomic_and_fetch (& cpu.g7Faults, ~(1u << FAULT_TRO), __ATOMIC_RELAXED);
+#else
     cpu . g7Faults &= ~(1u << FAULT_TRO);
+#endif
   }
 
 void doG7Fault (bool allowTR)
@@ -887,14 +898,18 @@ void doG7Fault (bool allowTR)
       // }
     // According AL39,  Table 7-1. List of Faults, priority of connect is 25
     // and priority of Timer runout is 26, lower number means higher priority
-#if defined(LOCKLESS)
+#if defined(LOCKLESS) && ! defined (LOCKLESS_SCU)
     lock_scu ();
 #endif
      if (cpu.g7Faults & (1u << FAULT_CON))
        {
+#if defined(LOCKLESS) && defined(LOCKLESS_SCU)
+         __atomic_and_fetch (& cpu.g7Faults, ~(1u << FAULT_CON), __ATOMIC_RELAXED);
+#else
          cpu.g7Faults &= ~(1u << FAULT_CON);
+#endif
 
-#if defined(LOCKLESS)
+#if defined(LOCKLESS) && ! defined (LOCKLESS_SCU)
 	 unlock_scu ();
 #endif
          doFault (FAULT_CON, cpu.g7SubFaults [FAULT_CON], "Connect"); 
@@ -902,10 +917,14 @@ void doG7Fault (bool allowTR)
 
      if (allowTR && cpu . g7Faults & (1u << FAULT_TRO))
        {
+#if defined(LOCKLESS) && defined(LOCKLESS_SCU)
+         __atomic_and_fetch (& cpu.g7Faults, ~(1u << FAULT_TRO), __ATOMIC_RELAXED);
+#else
          cpu . g7Faults &= ~(1u << FAULT_TRO);
+#endif
 
          //sim_printf("timer runout %12o\n",cpu.PPR.IC);
-#if defined(LOCKLESS)
+#if defined(LOCKLESS) && ! defined (LOCKLESS_SCU)
          unlock_scu ();
 #endif
 	 doFault (FAULT_TRO, fst_zero, "Timer runout"); 
@@ -916,9 +935,12 @@ void doG7Fault (bool allowTR)
      // implementation
      if (cpu . g7Faults & (1u << FAULT_EXF))
        {
+#if defined(LOCKLESS) && defined(LOCKLESS_SCU)
+         __atomic_and_fetch (& cpu.g7Faults, ~(1u << FAULT_EXF), __ATOMIC_RELAXED);
+#else
          cpu . g7Faults &= ~(1u << FAULT_EXF);
-
-#if defined(LOCKLESS)
+#endif
+#if defined(LOCKLESS) && ! defined (LOCKLESS_SCU)
 	 unlock_scu ();
 #endif
 	 doFault (FAULT_EXF, fst_zero, "Execute fault");
@@ -927,30 +949,42 @@ void doG7Fault (bool allowTR)
 #ifdef L68
      if (cpu.FFV_faults & 1u)  // FFV + 2 OC TRAP
        {
+#if defined(LOCKLESS) && defined(LOCKLESS_SCU)
+         __atomic_and_fetch (& cpu.FFV_Faults, ~1u, __ATOMIC_RELAXED);
+#else
          cpu.FFV_faults &= ~1u;
-#if defined(LOCKLESS)
+#endif
+#if defined(LOCKLESS) && ! defined (LOCKLESS_SCU)
 	 unlock_scu ();
 #endif
          do_FFV_fault (1, "OC TRAP");
        }
      if (cpu.FFV_faults & 2u)  // FFV + 4 CU HISTORY OVERFLOW TRAP
        {
+#if defined(LOCKLESS) && defined(LOCKLESS_SCU)
+         __atomic_and_fetch (& cpu.FFV_Faults, ~2u, __ATOMIC_RELAXED);
+#else
          cpu.FFV_faults &= ~2u;
-#if defined(LOCKLESS)
+#endif
+#if defined(LOCKLESS) && ! defined (LOCKLESS_SCU)
 	 unlock_scu ();
 #endif
          do_FFV_fault (2, "CU HIST OVF TRAP");
        }
      if (cpu.FFV_faults & 4u)  // FFV + 6 ADR TRAP
        {
+#if defined(LOCKLESS) && defined(LOCKLESS_SCU)
+         __atomic_and_fetch (& cpu.FFV_Faults, ~4u, __ATOMIC_RELAXED);
+#else
          cpu.FFV_faults &= ~4u;
-#if defined(LOCKLESS)
+#endif
+#if defined(LOCKLESS) && ! defined (LOCKLESS_SCU)
 	 unlock_scu ();
 #endif
          do_FFV_fault (3, "ADR TRAP");
        }
 #endif
-#if defined(LOCKLESS)
+#if defined(LOCKLESS) && ! defined (LOCKLESS_SCU)
      unlock_scu ();
 #endif
      doFault (FAULT_TRB, (_fault_subtype) {.bits=cpu.g7Faults}, "Dazed and confused in doG7Fault");
@@ -958,6 +992,12 @@ void doG7Fault (bool allowTR)
 
 void advanceG7Faults (void)
   {
+#if defined(LOCKLESS) && defined(LOCKLESS_SCU)
+    cpu.g7Faults |= __atomic_exchange_n (& cpu.g7FaultsPreset, 0, __ATOMIC_RELAXED);
+#ifdef L68
+    cpu.FFV_faults |= __atomic_exchange_n (& cpu.FFV_faults_preset, 0, __ATOMIC_RELAXED);
+#endif
+#else // ! LOCKLESS_SCU
 #if defined(LOCKLESS)
     lock_scu ();
 #endif
@@ -971,5 +1011,6 @@ void advanceG7Faults (void)
 #if defined(LOCKLESS)
     unlock_scu ();
 #endif
+#endif // ! LOCKLESS_SCU
   }
 
