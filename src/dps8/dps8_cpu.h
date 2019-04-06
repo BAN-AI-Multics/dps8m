@@ -1961,28 +1961,6 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        // Which SCU is addr on?
-        int scuno = cpu.scbank_map[pgnum];
-        // Where does that scu's memory reside in M?
-        //word24 base = cpu.scbank_base[pgnum];
-        word24 base = (word24) scuno * 4u * 1024u * 1024u;
-        // final address is base plus offset into the banl
-        word24 offset = addr % (4u * 1024u * 1024u);
-        addr = base + offset;
-      }
-#endif
-#ifdef ISOLTS
     if (cpu.MR.sdpap)
       {
         sim_warn ("failing to implement sdpap\n");
