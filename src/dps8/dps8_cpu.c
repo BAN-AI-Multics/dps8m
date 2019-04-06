@@ -619,7 +619,7 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
             if (os < 0)
               continue;
             for (uint addr = 0; addr < SCBANK; addr ++)
-              M [addr + (uint) os] = MEM_UNINITIALIZED;
+              M [addr + (uint) os] &= (MASK36 | MEM_UNINITIALIZED);
           }
       }
 #else
