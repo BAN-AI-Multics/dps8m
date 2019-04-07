@@ -393,6 +393,10 @@ static t_stat dsk_set_device_name (UNIT * uptr, UNUSED int32 value,
 
 static t_stat signal_disk_ready (uint dsk_unit_idx)
   {
+
+    // Don't signal in the sim is actually running....
+    if (! sim_is_running)
+      return SCPE_OK;
     // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
     // if substr (special_status_word, 34, 3) ^= "001"b
     // Note the 34,3 spans 34,35,36; therefore the bits are 1..36, not 0..35
