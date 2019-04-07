@@ -1339,7 +1339,7 @@ t_stat sim_instr (void)
   {
     t_stat reason = 0;
 
-#if 0
+#ifdef EARLY_CREATE
     static bool inited = false;
     if (! inited)
       {
@@ -1379,12 +1379,14 @@ t_stat sim_instr (void)
         //for (uint cpu_idx = 0; cpu_idx < N_CPU_UNITS_MAX; cpu_idx ++)
         for (uint cpu_idx = 0; cpu_idx < cpu_dev.numunits; cpu_idx ++)
           {
-            createCPUThread (cpu_idx);
+            if (cpuThreadz[cpu_idx].run == false)
+              createCPUThread (cpu_idx);
           }
       }
-#endif
+#else
     if (cpuThreadz[0].run == false)
           createCPUThread (0);
+#endif
     do
       {
         reason = 0;
