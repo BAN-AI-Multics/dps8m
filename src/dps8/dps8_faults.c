@@ -890,11 +890,7 @@ void set_FFV_fault (uint f_fault_no)
 
 void clearTROFault (void)
   {
-#if defined(LOCKLESS) && defined(LOCKLESS_SCU)
-    __atomic_and_fetch (& cpu.g7Faults, ~(1u << FAULT_TRO), __ATOMIC_RELAXED);
-#else
     cpu . g7Faults &= ~(1u << FAULT_TRO);
-#endif
   }
 
 void doG7Fault (bool allowTR)
@@ -1006,9 +1002,6 @@ void advanceG7Faults (void)
     cpu.FFV_faults |= __atomic_exchange_n (& cpu.FFV_faults_preset, 0, __ATOMIC_RELAXED);
 #endif
 #else // ! LOCKLESS_SCU
-#if defined(LOCKLESS)
-    lock_scu ();
-#endif
 #ifdef LOCKLESS
 #if defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
     uint tmp = atomic_readandclear_32 (&cpu.g7FaultsPreset);
@@ -1023,9 +1016,6 @@ void advanceG7Faults (void)
 #ifdef L68
     cpu.FFV_faults |= cpu.FFV_faults_preset;
     cpu.FFV_faults_preset = 0;
-#endif
-#if defined(LOCKLESS)
-    unlock_scu ();
 #endif
 #endif // ! LOCKLESS_SCU
   }
