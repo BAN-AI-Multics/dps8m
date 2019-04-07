@@ -549,6 +549,9 @@ void loadTape (uint driveNumber, char * tapeFilename, bool ro)
         return;
       }
 
+    if (! sim_is_running)
+      return;
+
     uint ctlr_unit_idx = cables->tape_to_mtp [driveNumber].ctlr_unit_idx;
     // Which port should the controller send the interrupt to? All of them...
     bool sent_one = false;
