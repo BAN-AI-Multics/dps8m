@@ -53,6 +53,7 @@
 #include "dps8_crdrdr.h"
 #include "dps8_crdpun.h"
 #include "dps8_prt.h"
+#include "dps8_ipc.h"
 #include "dps8_urp.h"
 #include "dps8_absi.h"
 #include "dps8_utils.h"
@@ -180,7 +181,7 @@ static char * default_base_system_script [] =
 // IOM A
 //  
 //  012 MTP0           tape drives
-//  013 IPC0 port 0    FIPS disk controller
+//  013 IPCD0 port 0   FIPS disk controller
 //  014 MSP0 port 0    disk controller
 //  015 URP0           card reader controller
 //  016 URP1           card punch controller
@@ -206,7 +207,7 @@ static char * default_base_system_script [] =
 //
 // IOM B
 //
-//  013 IPC0 port 1    FIPS disk controller
+//  013 IPCD0 port 1   FIPS disk controller
 //  014 MSP0 port 1    disk controller
 
     // ; Disconnect everything...
@@ -220,7 +221,7 @@ static char * default_base_system_script [] =
     // ; 4 3381 drives; 2 controllers
     // ; 4 d501 drives; 2 controller
     // ; 4 d451 drives; same controller has d501s
-    "set ipc nunits=2",
+    "set ipcd nunits=2",
     "set msp nunits=2",
     "set disk nunits=12",
     "set scu nunits=4",
@@ -1176,23 +1177,23 @@ static char * default_base_system_script [] =
 
 // 4 3381 disks
 
-    "set ipc0 name=IPC0",
-    "cable IOM0 013 IPC0",
-    "cable IOM1 013 IPC0 1",
-    // ; Attach DISK unit 0 to IPC0 dev_code 0",
-    "cable IPC0 0 DISK0",
+    "set ipcd0 name=IPCD0",
+    "cable IOM0 013 IPCD0",
+    "cable IOM1 013 IPCD0 1",
+    // ; Attach DISK unit 0 to IPCD0 dev_code 0",
+    "cable IPCD0 0 DISK0",
     "set disk0 type=3381",
     "set disk0 name=dska_00",
-    // ; Attach DISK unit 1 to IPC0 dev_code 1",
-    "cable IPC0 1 DISK1",
+    // ; Attach DISK unit 1 to IPCD0 dev_code 1",
+    "cable IPCD0 1 DISK1",
     "set disk1 type=3381",
     "set disk1 name=dska_01",
-    // ; Attach DISK unit 2 to IPC0 dev_code 2",
-    "cable IPC0 2 DISK2",
+    // ; Attach DISK unit 2 to IPCD0 dev_code 2",
+    "cable IPCD0 2 DISK2",
     "set disk2 type=3381",
     "set disk2 name=dska_02",
-    // ; Attach DISK unit 3 to IPC0 dev_code 3",
-    "cable IPC0 3 DISK3",
+    // ; Attach DISK unit 3 to IPCD0 dev_code 3",
+    "cable IPCD0 3 DISK3",
     "set disk3 type=3381",
     "set disk3 name=dska_03",
 
@@ -3652,6 +3653,7 @@ static CTAB dps8_cmds[] =
 //
 
     {"AUTOINPUT",           add_opc_autoinput,      0, "autoinput: Set console auto-input\n", NULL, NULL},
+    {"AUTOSTREAM",          add_opc_autostream,     0, "autoinput: Set console auto-input stream\n", NULL, NULL},
     {"AI",                  add_opc_autoinput,      0, "ai: Set console auto-input\n", NULL, NULL},
     {"AUTOINPUT2",          add_opc_autoinput,      1, "autoinput2: Set CPU-B console auto-input\n", NULL, NULL},
     {"AI2",                 add_opc_autoinput,      1, "ai2: Set console CPU-B auto-input\n", NULL, NULL},
@@ -4210,7 +4212,8 @@ DEVICE * sim_devices[] =
     & mtp_dev,
     & fnp_dev,
     & dsk_dev,
-    & ipc_dev,
+    & ipcd_dev,
+    & ipct_dev,
     & msp_dev,
     & scu_dev,
     // & mpc_dev,

@@ -30,6 +30,9 @@
 //   CABLE DUMP
 //      Show the current cabling configuration in great detail.
 //
+//   The following can be prefixed with "UN" ("UNCABLE") to cause the
+//   removal of an existing cable.
+//
 //   CABLE SCUi j IOMk l
 //
 //      Connect SCU i port j to IOM k port l.
@@ -50,10 +53,15 @@
 //
 //      Connect IOM i channel j to MSP k port l (l defaults to 0).
 //
-//   CABLE IOMi j IPCk 
-//   CABLE IOMi j IPCk l
+//   CABLE IOMi j IPCDk 
+//   CABLE IOMi j IPCDk l
 //
-//      Connect IOM i channel j to IPC k port l (l defaults to 0).
+//      Connect IOM i channel j to IPCD k port l (l defaults to 0).
+//
+//   CABLE IOMi j IPCTk 
+//   CABLE IOMi j IPCTk l
+//
+//      Connect IOM i channel j to IPCT k port l (l defaults to 0).
 //
 //   CABLE IOMi j OPCk 
 //
@@ -75,9 +83,13 @@
 //
 //      Connect MTP i device code j to tape unit k.
 //
-//   CABLE IPCi j DISKk
+//   CABLE IPCDi j DISKk
 //
-//      Connect IPC i device code j to disk unit k.
+//      Connect IPCD i device code j to disk unit k.
+//
+//   CABLE IPCTi j TAPEk
+//
+//      Connect IPCT i device code j to tape unit k.
 //
 //   CABLE MSPi j DISKk
 //
@@ -115,6 +127,7 @@
 #include "dps8_console.h"
 #include "dps8_disk.h"
 #include "dps8_fnp2.h"
+#include "dps8_ipc.h"
 #include "dps8_urp.h"
 #include "dps8_crdrdr.h"
 #include "dps8_crdpun.h"
@@ -132,11 +145,11 @@ struct cables_s * cables = NULL;
 
 char * ctlr_type_strs [/* enum ctlr_type_e */] =
   {
-    "none", "MTP", "MSP", "IPC", "OPC", 
+    "none", "MTP", "MSP", "IPCD", "IPCT", "OPC", 
     "URP", "FNP", "ABSI", "SKC"
   };
 
-char * chan_type_strs [/* enum ctlr_type_e */] =
+char * chan_type_strs [/* enum chan_type_e */] =
   {
     "CPI", "PSI", "Direct"
   };
@@ -623,7 +636,8 @@ static t_stat cable_ctlr (int uncable,
 
 //    cable IOMx chan# MTPx [port#]  // tape controller
 //    cable IOMx chan# MSPx [port#] // disk controller
-//    cable IOMx chah# IPCx [port#] // FIPS disk controller
+//    cable IOMx chah# IPCDx [port#] // FIPS disk controller
+//    cable IOMx chan# IPCTx [port#] // FIPS tape controller
 //    cable IOMx chan# OPCx       // Operator console
 //    cable IOMx chan# FNPx       // FNP 
 //    cable IOMx chan# ABSIx      // ABSI 
@@ -657,34 +671,64 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
     uint unit_idx;
 
 
-// IOMx IPCx
-    if (name_match (param, "IPC", & unit_idx))
+// IOMx IPCDx
+    if (name_match (param, "IPCD", & unit_idx))
       {
-        if (unit_idx >= N_IPC_UNITS_MAX)
+        if (unit_idx >= N_IPCD_UNITS_MAX)
           {
-            sim_printf ("error: CABLE IOM: IPC unit number out of range <%d>\n", unit_idx);
+            sim_printf ("error: CABLE IOM: IPCD unit number out of range <%d>\n", unit_idx);
             return SCPE_ARG;
           }
 
-        // extract IPC port number
-        int ipc_port_num = 0;
+        // extract IPCD port number
+        int ipcd_port_num = 0;
         param = strtok_r (NULL, ", ", name_save);
         if (param)
-          ipc_port_num = parseval (param);
+          ipcd_port_num = parseval (param);
 
-        if (ipc_port_num < 0 || ipc_port_num >= MAX_CTLR_PORTS)
+        if (ipcd_port_num < 0 || ipcd_port_num >= MAX_CTLR_PORTS)
           {
-            sim_printf ("error: CABLE IOM: IPC port number out of range <%d>\n", ipc_port_num);
+            sim_printf ("error: CABLE IOM: IPCD port number out of range <%d>\n", ipcd_port_num);
             return SCPE_ARG;
           }
         return cable_ctlr (uncable,
                            iom_unit_idx, (uint) chan_num,
-                           unit_idx, (uint) ipc_port_num,
-                           "CABLE IOMx IPCx",
-                           & ipc_dev,
-                           & cables->ipc_to_iom[unit_idx][ipc_port_num],
-                           CTLR_T_IPC, chan_type_PSI,
-                           & ipc_unit [unit_idx], dsk_iom_cmd); // XXX mtp_iom_cmd?
+                           unit_idx, (uint) ipcd_port_num,
+                           "CABLE IOMx IPCDx",
+                           & ipcd_dev,
+                           & cables->ipcd_to_iom[unit_idx][ipcd_port_num],
+                           CTLR_T_IPCD, chan_type_PSI,
+                           & ipcd_unit [unit_idx], dsk_iom_cmd); // XXX mtp_iom_cmd?
+      }
+
+// IOMx IPCTx
+    if (name_match (param, "IPCT", & unit_idx))
+      {
+        if (unit_idx >= N_IPCT_UNITS_MAX)
+          {
+            sim_printf ("error: CABLE IOM: IPCT unit number out of range <%d>\n", unit_idx);
+            return SCPE_ARG;
+          }
+
+        // extract IPCT port number
+        int ipct_port_num = 0;
+        param = strtok_r (NULL, ", ", name_save);
+        if (param)
+          ipct_port_num = parseval (param);
+
+        if (ipct_port_num < 0 || ipct_port_num >= MAX_CTLR_PORTS)
+          {
+            sim_printf ("error: CABLE IOM: IPCT port number out of range <%d>\n", ipct_port_num);
+            return SCPE_ARG;
+          }
+        return cable_ctlr (uncable,
+                           iom_unit_idx, (uint) chan_num,
+                           unit_idx, (uint) ipct_port_num,
+                           "CABLE IOMx IPCTx",
+                           & ipct_dev,
+                           & cables->ipct_to_iom[unit_idx][ipct_port_num],
+                           CTLR_T_IPCT, chan_type_PSI,
+                           & ipct_unit [unit_idx], mt_iom_cmd); // XXX mtp_iom_cmd?
       }
 
 // IOMx MSPx
@@ -997,10 +1041,10 @@ static t_stat cable_mtp (int uncable, uint ctlr_unit_idx, char * * name_save)
                              ctlr_unit_idx,
                              (uint) dev_code,
                              CTLR_T_MTP,
-                             & cables->mtp_to_tape[ctlr_unit_idx][dev_code],
+                             & cables->mtp_to_tap[ctlr_unit_idx][dev_code],
                              mt_unit_idx,
                              mt_iom_cmd,
-                             & cables->tape_to_mtp[mt_unit_idx],
+                             & cables->tap_to_ctlr[mt_unit_idx],
                              "CABLE MTPx TAPEx");
       }
 
@@ -1008,57 +1052,111 @@ static t_stat cable_mtp (int uncable, uint ctlr_unit_idx, char * * name_save)
     return SCPE_ARG;
   }
 
-//     cable IPCx dev_code DISKx
+//     cable IPCDx dev_code DISKx
 
-static t_stat cable_ipc (int uncable, uint ctlr_unit_idx, char * * name_save)
+static t_stat cable_ipcd (int uncable, uint ctlr_unit_idx, char * * name_save)
   {
-    if (ctlr_unit_idx >= ipc_dev.numunits)
+    if (ctlr_unit_idx >= ipcd_dev.numunits)
       {
-        sim_printf ("error: CABLE IPC: controller unit number out of range <%d>\n", 
+        sim_printf ("error: CABLE IPCD: controller unit number out of range <%d>\n", 
                     ctlr_unit_idx);
         return SCPE_ARG;
       }
 
-    int dev_code = getval (name_save, "IPC device code");
+    int dev_code = getval (name_save, "IPCD device code");
 
     if (dev_code < 0 || dev_code >= MAX_CHANNELS)
       {
-        sim_printf ("error: CABLE IPC device code out of range <%d>\n", 
+        sim_printf ("error: CABLE IPCD device code out of range <%d>\n", 
                     dev_code);
         return SCPE_ARG;
       }
 
-    // extract tape index
+    // parse DISK
     char * param = strtok_r (NULL, ", ", name_save);
     if (! param)
       {
         sim_printf ("error: CABLE IOM can't parse device name\n");
         return SCPE_ARG;
       }
-    uint dsk_unit_idx;
+    uint unit_idx;
 
 
-// MPCx DISKx
-    if (name_match (param, "DISK", & dsk_unit_idx))
+// IPCDx DISKx
+    if (name_match (param, "DISK", & unit_idx))
       {
-        if (dsk_unit_idx >= N_DSK_UNITS_MAX)
+        if (unit_idx >= N_DSK_UNITS_MAX)
           {
-            sim_printf ("error: CABLE IOM: DISK unit number out of range <%d>\n", dsk_unit_idx);
+            sim_printf ("error: CABLE IOM: DISK unit number out of range <%d>\n", unit_idx);
             return SCPE_ARG;
           }
 
         return cable_periph (uncable,
                              ctlr_unit_idx,
                              (uint) dev_code,
-                             CTLR_T_IPC,
-                             & cables->ipc_to_dsk[ctlr_unit_idx][dev_code],
-                             dsk_unit_idx,
+                             CTLR_T_IPCD,
+                             & cables->ipcd_to_dsk[ctlr_unit_idx][dev_code],
+                             unit_idx,
                              dsk_iom_cmd, // XXX
-                             & cables->dsk_to_ctlr[dsk_unit_idx],
-                             "CABLE IPCx DISKx");
+                             & cables->dsk_to_ctlr[unit_idx],
+                             "CABLE IPCDx DISKx");
       }
 
-    sim_printf ("cable IPC: can't parse device name\n");
+    sim_printf ("cable IPCD: can't parse device name\n");
+    return SCPE_ARG;
+  }
+
+//     cable IPCTx dev_code TAPEx
+
+static t_stat cable_ipct (int uncable, uint ctlr_unit_idx, char * * name_save)
+  {
+    if (ctlr_unit_idx >= ipct_dev.numunits)
+      {
+        sim_printf ("error: CABLE IPCT: controller unit number out of range <%d>\n", 
+                    ctlr_unit_idx);
+        return SCPE_ARG;
+      }
+
+    int dev_code = getval (name_save, "IPCT device code");
+
+    if (dev_code < 0 || dev_code >= MAX_CHANNELS)
+      {
+        sim_printf ("error: CABLE IPCT device code out of range <%d>\n", 
+                    dev_code);
+        return SCPE_ARG;
+      }
+
+    // parse TAPE 
+    char * param = strtok_r (NULL, ", ", name_save);
+    if (! param)
+      {
+        sim_printf ("error: CABLE IOM can't parse device name\n");
+        return SCPE_ARG;
+      }
+    uint unit_idx;
+
+
+// IPCTx TAPEx
+    if (name_match (param, "TAPE", & unit_idx))
+      {
+        if (unit_idx >= N_MT_UNITS_MAX)
+          {
+            sim_printf ("error: CABLE IOM: TAPE unit number out of range <%d>\n", unit_idx);
+            return SCPE_ARG;
+          }
+
+        return cable_periph (uncable,
+                             ctlr_unit_idx,
+                             (uint) dev_code,
+                             CTLR_T_IPCT,
+                             & cables->ipct_to_tap[ctlr_unit_idx][dev_code],
+                             unit_idx,
+                             mt_iom_cmd, // XXX
+                             & cables->tap_to_ctlr[unit_idx],
+                             "CABLE IPCTx TAPEx");
+      }
+
+    sim_printf ("cable IPCT: can't parse device name\n");
     return SCPE_ARG;
   }
 
@@ -1241,8 +1339,10 @@ t_stat sys_cable (int32 arg, const char * buf)
       rc = cable_iom (arg, unit_num, & name_save);
     else if (name_match (name, "MTP", & unit_num))
       rc = cable_mtp (arg, unit_num, & name_save);
-    else if (name_match (name, "IPC", & unit_num))
-      rc = cable_ipc (arg, unit_num, & name_save);
+    else if (name_match (name, "IPCD", & unit_num))
+      rc = cable_ipcd (arg, unit_num, & name_save);
+    else if (name_match (name, "IPCT", & unit_num))
+      rc = cable_ipct (arg, unit_num, & name_save);
     else if (name_match (name, "MSP", & unit_num))
       rc = cable_msp (arg, unit_num, & name_save);
     else if (name_match (name, "URP", & unit_num))
@@ -1345,7 +1445,8 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         } 
         CTLR_IOM (MTP, mtp)
         CTLR_IOM (MSP, msp)
-        CTLR_IOM (IPC, ipc)
+        CTLR_IOM (IPCD, ipcd)
+        CTLR_IOM (IPCT, ipct)
         CTLR_IOM (URP, urp)
         CTLR_IOM (DIA, dia)
         CTLR_IOM (ABSI, absi)
@@ -1372,12 +1473,13 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         if (p->in_use) \
           sim_printf (" %4u    %4u   %4u    %5s\n", u, p->ctlr_unit_idx, p->dev_code, ctlr_type_strs[p->ctlr_type]); \
       } 
-    CTLR_DEV (MTP, mtp, TAPE, MT, tape);
+    CTLR_DEV (MTP, mtp, TAPE, MT, tap);
     if (dump)
       {
-        DEV_CTLR (MTP, mtp, TAPE, MT, tape);
+        DEV_CTLR (MTP, ctlr, TAPE, MT, tap);
       }
-    CTLR_DEV (IPC, ipc, DISK, DSK, dsk);
+    CTLR_DEV (IPCD, ipcd, DISK, DSK, dsk);
+    CTLR_DEV (IPCT, ipct, TAPE, TAP, tap);
     CTLR_DEV (MSP, msp, DISK, DSK, dsk);
     if (dump)
       {

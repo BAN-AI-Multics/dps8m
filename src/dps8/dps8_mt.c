@@ -536,6 +536,82 @@ DEVICE tape_dev =
   };
 
 
+static t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1)
+  {
+    if (! sim_is_running)
+      return;
+
+    // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
+    // if substr (special_status_word, 34, 3) ^= "001"b
+    // Note the 34,3 spans 34,35,36; therefore the bits are 1..36, not 0..35
+    // 20,1 is bit 19
+    // 13,6, is bits 12..17
+    // status0 is 19..26
+    // status1 is 28..35
+    // so substr (w, 20, 1) is bit 0 of status0
+    //    substr (w, 13, 6) is the low 6 bits of dev_no
+    //    substr (w, 34, 3) is the low 3 bits of status 1
+        //sim_printf ("%s %d %o\n", disk_filename, ro,  mt_unit [tap_unit_idx] . flags);
+        //sim_printf ("special int %d %o\n", tap_unit_idx, mt_unit [tap_unit_idx] . flags);
+
+    uint ctlr_unit_idx = cables->tap_to_ctlr [tap_unit_idx].ctlr_unit_idx;
+    enum ctlr_type_e ctlr_type = cables->tap_to_ctlr [tap_unit_idx].ctlr_type;
+    if (ctlr_type != CTLR_T_MTP && ctlr_type != CTLR_T_IPCT)
+      {
+        // If None, assume that the cabling hasn't happend yey.
+        if (ctlr_type != CTLR_T_NONE)
+          {
+sim_printf ("lost %u\n", ctlr_type);
+            sim_warn ("loadDisk lost\n");
+            return SCPE_ARG;
+          }
+        return SCPE_OK;
+      }
+
+    // Which port should the controller send the interrupt to? All of them...
+    bool sent_one = false;
+    for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
+      {
+        if (ctlr_type == CTLR_T_MTP)
+          {
+            if (cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
+              {
+                uint iom_unit_idx = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+                uint chan_num = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+                uint dev_code = cables->tap_to_ctlr[tap_unit_idx].dev_code;
+
+                send_special_interrupt (iom_unit_idx, chan_num, dev_code, status0, status1);
+                sent_one = true;
+              }
+          }
+        else
+          {
+            if (cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
+              {
+                uint iom_unit_idx = cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+                uint chan_num = cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+                uint dev_code = cables->tap_to_ctlr[tap_unit_idx].dev_code;
+
+                send_special_interrupt (iom_unit_idx, chan_num, dev_code, status0, status1);
+                sent_one = true;
+              }
+          }
+      }
+    if (! sent_one)
+      {
+        sim_printf ("signalTape can't find controller; dropping interrupt\n");
+        return SCPE_ARG;
+      }
+
+// controller ready
+//    send_special_interrupt ((uint) cables -> cablesFromIomToTap [tap_unit_idx] . iomUnitIdx,
+//                            (uint) cables -> cablesFromIomToTap [tap_unit_idx] . chan_num,
+//                            0,
+//                            0x40, 00 /* controller ready */);
+
+    return SCPE_OK;
+  }
+
 void loadTape (uint driveNumber, char * tapeFilename, bool ro)
   {
     if (ro)
@@ -549,27 +625,7 @@ void loadTape (uint driveNumber, char * tapeFilename, bool ro)
         return;
       }
 
-    if (! sim_is_running)
-      return;
-
-    uint ctlr_unit_idx = cables->tape_to_mtp [driveNumber].ctlr_unit_idx;
-    // Which port should the controller send the interrupt to? All of them...
-    bool sent_one = false;
-    for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
-      if (cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
-        {
-          uint iom_unit_idx = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
-          uint chan_num = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
-          uint dev_code = cables->tape_to_mtp[driveNumber].dev_code;
-
-          send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0, 020 /* tape drive to ready */);
-          sent_one = true;
-        }
-    if (! sent_one)
-      {
-        sim_printf ("loadTape can't find controller; dropping interrupt\n");
-        return;
-      }
+    signal_tape (driveNumber, 0, 020 /* tape drive to ready */);
   }
 
 static void unloadTape (uint driveNumber)
@@ -583,23 +639,7 @@ static void unloadTape (uint driveNumber)
             return;
           }
       }
-    uint ctlr_unit_idx = cables->tape_to_mtp [driveNumber].ctlr_unit_idx;
-    // Which port should the controller send the interrupt to?
-    // Find one that is connected...
-    uint ctlr_port_num;
-    for (ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
-      if (cables->mtp_to_iom[driveNumber][ctlr_port_num].in_use)
-        break;
-    if (ctlr_port_num >= MAX_CTLR_PORTS)
-      {
-        sim_printf ("loadTape can't file controller; dropping interrupt\n");
-        return;
-      }
-    uint iom_unit_idx = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
-    uint chan_num = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
-    uint dev_code = cables->tape_to_mtp[driveNumber].dev_code;
-
-    send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0, 040 /* unload complere */);
+    signal_tape (driveNumber, 0, 040 /* unload complere */);
   }
 
 void mt_init(void)
@@ -1060,13 +1100,18 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
       buffer [i] = 0;
     
     uint ctlr_idx = get_ctlr_idx (iomUnitIdx, chan);
+    bool is_IPCT = cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPCT;
     // Walk the device codes
     for (uint dev_code = 0; dev_code < N_DEV_CODES; dev_code ++)
       {
        if (cnt / 2 >= bufsz)
           break;
         // Which device on the string is connected to that device code
-        struct ctlr_to_dev_s * p = & cables->mtp_to_tape[ctlr_idx][dev_code];
+        struct ctlr_to_dev_s * p;
+        if (is_IPCT)
+          p = & cables->ipct_to_tap[ctlr_idx][dev_code];
+        else
+          p = & cables->mtp_to_tap[ctlr_idx][dev_code];
         if (! p -> in_use)
           continue;
         uint unit_idx = p->unit_idx;
@@ -1134,15 +1179,26 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 
 // Simplifying design decision: tapa_00 is hidden, always has the boot tape.
 
+// If we are a FIPS tape (and therefore on an IMU), the tapes start at
+// device 0, and the IMU pokes the actual drive number into the boot code,
+// so the whole invisible tape 0 goes away.
+//
+
     uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
 
+// Are we FIPS?
+    bool fips = cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPCT;
     sim_debug (DBG_DEBUG, & tape_dev, "IDCW_DEV_CODE %d\n", p -> IDCW_DEV_CODE);
     uint dev_code = p -> IDCW_DEV_CODE;
-    if (p -> IDCW_DEV_CODE == 0)
+    if ((! fips) && p -> IDCW_DEV_CODE == 0)
       dev_code = mtp_state[ctlr_unit_idx].boot_drive;
     sim_debug (DBG_DEBUG, & tape_dev, "dev_code %d\n", dev_code);
 
-    uint devUnitIdx = cables->mtp_to_tape[ctlr_unit_idx][dev_code].unit_idx;
+    uint devUnitIdx;
+    if (fips)
+      devUnitIdx = cables->ipct_to_tap[ctlr_unit_idx][dev_code].unit_idx;
+    else
+      devUnitIdx = cables->mtp_to_tap[ctlr_unit_idx][dev_code].unit_idx;
     UNIT * unitp = & mt_unit [devUnitIdx];
     struct tape_state * tape_statep = & tape_states [devUnitIdx];
 

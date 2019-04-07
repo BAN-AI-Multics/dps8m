@@ -282,6 +282,7 @@ extern uint32 sim_brk_match_type;
 extern t_addr sim_brk_match_addr;
 extern BRKTYPTAB *sim_brk_type_desc;                      /* type descriptions */
 extern FILE *stdnul;
+extern FILE *sim_fpin;
 extern t_bool sim_asynch_enabled;
 #if defined(SIM_ASYNCH_IO)
 int sim_aio_update_queue (void);

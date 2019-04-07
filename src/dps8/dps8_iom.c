@@ -299,7 +299,7 @@ typedef struct
 
     word9 configSwMultiplexBaseAddress;
             
-    enum config_sw_model_t config_sw_model; // IOM or IMY
+    enum config_sw_model_t config_sw_model; // IOM or IMU
 
     // OS: Three position switch: GCOS, EXT GCOS, Multics
     enum config_sw_OS_t config_sw_OS; // = CONFIG_SW_MULTICS;
@@ -347,6 +347,9 @@ typedef struct
     iom_status_t iomStatus;
 
     uint invokingScuUnitIdx; // the unit number of the SCU that did the connect.
+
+    // IMUs have a boot drive number
+    uint boot_drive;
   } iom_unit_data_t;
 
 static iom_unit_data_t iom_unit_data[N_IOM_UNITS_MAX];
@@ -837,6 +840,38 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
     return SCPE_OK;
   }
 
+static t_stat imu_show_boot_drive (UNUSED FILE * st, UNIT * uptr,
+                                   UNUSED int val, UNUSED const void * desc)
+  {
+    long imu_unit_idx = IOM_UNIT_IDX (uptr);
+    if (imu_unit_idx < 0 || imu_unit_idx >= N_IOM_UNITS_MAX)
+      {
+        sim_printf ("Controller unit number out of range\n");
+        return SCPE_ARG;
+      }
+    sim_printf ("Tape drive dev_code to boot from is %u\n",
+                iom_unit_data[imu_unit_idx].boot_drive);
+    return SCPE_OK;
+  }
+
+static t_stat imu_set_boot_drive (UNIT * uptr, UNUSED int32 value,
+                                 const char * cptr, UNUSED void * desc)
+  {
+    long imu_unit_idx = IOM_UNIT_IDX (uptr);
+    if (imu_unit_idx < 0 || imu_unit_idx >= N_IOM_UNITS_MAX)
+      {
+        sim_printf ("Controller unit number out of range\n");
+        return SCPE_ARG;
+      }
+    if (! cptr)
+      return SCPE_ARG;
+    int n = (int) atoi (cptr);
+    if (n < 0 || n >= N_DEV_CODES)
+      return SCPE_ARG;
+    iom_unit_data[imu_unit_idx].boot_drive = (uint) n;
+    return SCPE_OK;
+  }
+
 static t_stat iom_reset_unit (UNIT * uptr, UNUSED int32 value, UNUSED const char * cptr, 
                        UNUSED void * desc)
   {
@@ -888,6 +923,17 @@ static MTAB iom_mod[] =
       "Number of IOM units in the system", /* value descriptor */
       NULL   // help string
     },
+    {
+      MTAB_XTD | MTAB_VUN | MTAB_VALR, /* mask */
+      0,            /* match */
+      "BOOT_DRIVE",     /* print string */
+      "BOOT_DRIVE",         /* match string */
+      imu_set_boot_drive, /* validation routine */
+      imu_show_boot_drive, /* display routine */
+      "Select the IMU boot drive", /* value descriptor */
+      NULL          // help
+    },
+
     {
       0, 0, NULL, NULL, 0, 0, NULL, NULL
     }
@@ -979,7 +1025,13 @@ static void init_memory_iom (uint iom_unit_idx)
                      (((word36) (iom_unit_data[iom_unit_idx].configSwIomBaseAddress & 07700U)) << 6) ;
     word3 iom_num = ((word36) iom_unit_data[iom_unit_idx].configSwMultiplexBaseAddress) & 3; 
     word36 cmd = 5;       // 6 bits; 05 for tape, 01 for cards
-    word36 dev = 0;            // 6 bits: drive number
+
+    bool is_IMU = iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IMU;
+
+    // We believe that the IMU stuck the boot tape drive device code into
+    // memory instead of relying on the controller's configuration to
+    // do the mapping from 0 to the drive.
+    word36 dev = is_IMU ? iom_unit_data[iom_unit_idx].boot_drive : 0;            // 6 bits: drive number
     
     // is-IMU flag
     word36 imu = iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IMU ? 1 : 0;       // 1 bit

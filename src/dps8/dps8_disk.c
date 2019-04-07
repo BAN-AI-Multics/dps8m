@@ -412,7 +412,7 @@ static t_stat signal_disk_ready (uint dsk_unit_idx)
 
     uint ctlr_unit_idx = cables->dsk_to_ctlr [dsk_unit_idx].ctlr_unit_idx;
     enum ctlr_type_e ctlr_type = cables->dsk_to_ctlr [dsk_unit_idx].ctlr_type;
-    if (ctlr_type != CTLR_T_MSP && ctlr_type != CTLR_T_IPC)
+    if (ctlr_type != CTLR_T_MSP && ctlr_type != CTLR_T_IPCD)
       {
         // If None, assume that the cabling hasn't happend yey.
         if (ctlr_type != CTLR_T_NONE)
@@ -442,10 +442,10 @@ sim_printf ("lost %u\n", ctlr_type);
           }
         else
           {
-            if (cables->ipc_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
+            if (cables->ipcd_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
               {
-                uint iom_unit_idx = cables->ipc_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
-                uint chan_num = cables->ipc_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+                uint iom_unit_idx = cables->ipcd_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+                uint chan_num = cables->ipcd_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
                 uint dev_code = cables->dsk_to_ctlr[dsk_unit_idx].dev_code;
 
                 send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0x40, 01 /* disk pack ready */);
@@ -1259,8 +1259,8 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 
     uint ctlr_unit_idx = get_ctlr_idx (iom_unit_idx, chan);
     struct ctlr_to_dev_s * dev_p;
-    if (cables->iom_to_ctlr[iom_unit_idx][chan].ctlr_type == CTLR_T_IPC)
-      dev_p = cables->ipc_to_dsk[ctlr_unit_idx];
+    if (cables->iom_to_ctlr[iom_unit_idx][chan].ctlr_type == CTLR_T_IPCD)
+      dev_p = cables->ipcd_to_dsk[ctlr_unit_idx];
     else  
       dev_p = cables->msp_to_dsk[ctlr_unit_idx];
 
@@ -1406,8 +1406,8 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
     uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
     uint devUnitIdx;
-    if (cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPC)
-       devUnitIdx = cables->ipc_to_dsk[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
+    if (cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPCD)
+       devUnitIdx = cables->ipcd_to_dsk[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
     else if (cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_MSP)
        devUnitIdx = cables->msp_to_dsk[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
     else
@@ -1620,131 +1620,6 @@ int dsk_iom_cmd (uint iomUnitIdx, uint chan)
       }
     return rc;
   }
-
-//////////
-//////////
-//////////
-///
-/// IPC
-///
-
-#define IPC_UNIT_IDX(uptr) ((uptr) - ipc_unit)
-#define N_IPC_UNITS 1 // default
-
-static struct ipc_state
-  {
-    char device_name [MAX_DEV_NAME_LEN];
-  } ipc_states [N_IPC_UNITS_MAX];
-
-UNIT ipc_unit [N_IPC_UNITS_MAX] =
-  {
-    [0 ... N_IPC_UNITS_MAX-1] =
-      {
-        UDATA (NULL, 0, 0),
-        0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
-      }
-  };
-
-static t_stat ipc_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
-                               UNUSED int val, UNUSED const void * desc)
-  {
-    sim_printf("Number of IPC units in system is %d\n", ipc_dev.numunits);
-    return SCPE_OK;
-  }
-
-static t_stat ipc_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
-                              const char * cptr, UNUSED void * desc)
-  {
-    if (! cptr)
-      return SCPE_ARG;
-    int n = atoi (cptr);
-    if (n < 0 || n > N_DSK_UNITS_MAX)
-      return SCPE_ARG;
-    ipc_dev.numunits = (uint32) n;
-    return SCPE_OK;
-  }
-
-static t_stat ipc_show_device_name (UNUSED FILE * st, UNIT * uptr, 
-                                    UNUSED int val, UNUSED const void * desc)
-  {
-    int n = (int) IPC_UNIT_IDX (uptr);
-    if (n < 0 || n >= N_IPC_UNITS_MAX)
-      return SCPE_ARG;
-    sim_printf("Controller device name is %s\n", ipc_states [n].device_name);
-    return SCPE_OK;
-  }
-
-static t_stat ipc_set_device_name (UNIT * uptr, UNUSED int32 value, 
-                                   const char * cptr, UNUSED void * desc)
-  {
-    int n = (int) IPC_UNIT_IDX (uptr);
-    if (n < 0 || n >= N_IPC_UNITS_MAX)
-      return SCPE_ARG;
-    if (cptr)
-      {
-        strncpy (ipc_states[n].device_name, cptr, MAX_DEV_NAME_LEN-1);
-        ipc_states[n].device_name[MAX_DEV_NAME_LEN-1] = 0;
-      }
-    else
-      ipc_states[n].device_name[0] = 0;
-    return SCPE_OK;
-  }
-
-static MTAB ipc_mod [] =
-  {
-    {
-      MTAB_dev_value, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      ipc_set_nunits, /* validation routine */
-      ipc_show_nunits, /* display routine */
-      "Number of DISK units in the system", /* value descriptor */
-      NULL // Help
-    },
-    {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      ipc_set_device_name, /* validation routine */
-      ipc_show_device_name, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL          // help
-    },
-    MTAB_eol
-  };
-
-DEVICE ipc_dev =
-   {
-    "IPC",       /*  name */
-    ipc_unit,    /* units */
-    NULL,         /* registers */
-    ipc_mod,     /* modifiers */
-    N_IPC_UNITS, /* #units */
-    10,           /* address radix */
-    24,           /* address width */
-    1,            /* address increment */
-    8,            /* data radix */
-    36,           /* data width */
-    NULL,         /* examine */
-    NULL,         /* deposit */ 
-    NULL,   /* reset */
-    NULL,         /* boot */
-    NULL,  /* attach */
-    NULL /*disk_detach*/,  /* detach */
-    NULL,         /* context */
-    0,    /* flags */
-    0,            /* debug control flags */
-    NULL,      /* debug flag names */
-    NULL,         /* memory size change */
-    NULL,         /* logical name */
-    NULL,         // help
-    NULL,         // attach help
-    NULL,         // attach context
-    NULL,         // description
-    NULL
-  };
 
 //////////
 //////////

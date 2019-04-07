@@ -54,8 +54,11 @@ enum { N_MTP_UNITS_MAX = 16 };
 // MSP
 enum { N_MSP_UNITS_MAX = 16 };
 
-// IPC
-enum { N_IPC_UNITS_MAX = 16 };
+// IPCT tape
+enum { N_IPCT_UNITS_MAX = 16 };
+
+// IPCD disk
+enum { N_IPCD_UNITS_MAX = 16 };
 
 // DIA
 enum { N_DIA_UNITS_MAX = 16 };
