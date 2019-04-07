@@ -539,7 +539,7 @@ DEVICE tape_dev =
 static t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1)
   {
     if (! sim_is_running)
-      return;
+      return SCPE_OK;
 
     // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
     // if substr (special_status_word, 34, 3) ^= "001"b
