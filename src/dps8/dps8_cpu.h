@@ -1802,7 +1802,7 @@ typedef struct
 //#endif
 #ifdef AFFINITY
     bool set_affinity;
-    uint affinity;
+    cpu_set_t affinity;
 #endif
   } cpu_state_t;
 
@@ -2137,6 +2137,50 @@ int core_unlock_fault (void);
 
 #else  // defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
 
+#if defined(CPP11_ATOMICS)
+
+// IIUC, the __sync use CST memorder
+#define LOCK_CORE_WORD(addr)			\
+  do									\
+    {									\
+      unsigned int i = DEADLOCK_DETECT;					\
+      while ((__atomic_fetch_or((volatile u_long *)&M[addr], MEM_LOCKED, __ATOMIC_ACQUIRE) & MEM_LOCKED) \
+                &&  i > 0)						\
+	{								\
+	  i--;								\
+	  if ((i & 0xff) == 0) {					\
+	    pthread_yield();						\
+	    cpu.lockYield++;						\
+	  }								\
+	}								\
+      if (i == 0)							\
+	{								\
+	  sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__, cpu.locked_addr, addr); \
+	}								\
+      cpu.lockCnt++;							\
+      if (i == DEADLOCK_DETECT)						\
+	cpu.lockImmediate++;						\
+      cpu.lockWait += (DEADLOCK_DETECT-i);				\
+      cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ? (DEADLOCK_DETECT-i) : cpu.lockWaitMax; \
+    }									\
+  while (0)
+
+#define LOAD_ACQ_CORE_WORD(res, addr)			\
+  do							\
+    {							\
+      res = __atomic_load_n((volatile u_long *)&M[addr], __ATOMIC_ACQUIRE);	\
+    }								\
+  while (0)
+
+#define STORE_REL_CORE_WORD(addr, data)					\
+  do									\
+    {									\
+      __atomic_store_n((volatile u_long *)&M[addr], data & DMASK, __ATOMIC_RELEASE);	\
+    }									\
+  while (0)
+
+#else // !CPP11_ATOMICS
+
 #ifdef MEMORY_ACCESS_NOT_STRONGLY_ORDERED
 #define MEM_BARRIER()   do { __sync_synchronize(); } while (0)
 #else
@@ -2184,6 +2228,7 @@ int core_unlock_fault (void);
     }									\
   while (0)
 
+#endif  // if !CPP11_ATOMICS
 #endif  // defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
 #endif  // LOCKLESS
 

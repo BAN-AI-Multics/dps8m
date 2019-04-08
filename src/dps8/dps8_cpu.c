@@ -145,7 +145,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 
 #ifdef AFFINITY
     if (cpus[cpu_unit_idx].set_affinity)
-      sim_msg ("CPU affinity              %d\n", cpus[cpu_unit_idx].affinity);
+      sim_msg ("CPU affinity              %o\n", (uint) cpus[cpu_unit_idx].affinity.__bits[0]);
     else
       sim_msg ("CPU affinity              not set\n");
 #endif
@@ -332,7 +332,7 @@ static config_list_t cpu_config_list [] =
     // Tuning
 
 #ifdef AFFINITY
-    { "affinity", -1, 32767, cfg_affinity },
+    { "affinity", -1, sizeof (cpu_set_t), cfg_affinity },
 #endif
 
     { NULL, 0, 0, NULL }
@@ -430,15 +430,23 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.disable_cache = v;
 #ifdef AFFINITY
         else if (strcmp (p, "affinity") == 0)
-          if (v < 0)
-            {
-              cpus[cpu_unit_idx].set_affinity = false;
-            }
-          else
-            {
-              cpus[cpu_unit_idx].set_affinity = true;
-              cpus[cpu_unit_idx].affinity = (uint) v;
-            }
+          {
+            if (v < 0)
+              {
+                cpus[cpu_unit_idx].set_affinity = false;
+                CPU_ZERO (& cpus[cpu_unit_idx].affinity);
+              }
+            else if (v < sizeof (cpu_set_t))
+              {
+                cpus[cpu_unit_idx].set_affinity = true;
+                CPU_SET ((int) v, & cpus[cpu_unit_idx].affinity);
+              }
+           else
+              {
+                sim_warn ("CPU number out of range\r\n");
+                return SCPE_ARG; 
+              }
+          }
 #endif
         else
           {

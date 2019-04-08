@@ -390,25 +390,10 @@ void createCPUThread (uint cpuNum)
 #ifdef AFFINITY
     if (cpus[cpuNum].set_affinity)
       {
-        cpu_set_t cpuset;
-        CPU_ZERO (& cpuset);
-        CPU_SET (cpus[cpuNum].affinity, & cpuset);
-        int s = pthread_setaffinity_np (p->cpuThread, sizeof (cpu_set_t), & cpuset);
+        int s = pthread_setaffinity_np (p->cpuThread, sizeof (cpu_set_t), & cpus[cpuNum].affinity);
         if (s)
           sim_printf ("pthread_setaffinity_np %u on CPU %u returned %d\n",
-                      cpus[cpuNum].affinity, cpuNum, s);
-      }
-#endif
-#ifdef AFFINITY
-    if (cpus[cpuNum].set_affinity)
-      {
-        cpu_set_t cpuset;
-        CPU_ZERO (& cpuset);
-        CPU_SET (cpus[cpuNum].affinity, & cpuset);
-        int s = pthread_setaffinity_np (p->cpuThread, sizeof (cpu_set_t), & cpuset);
-        if (s)
-          sim_printf ("pthread_setaffinity_np %u on CPU %u returned %d\n",
-                      cpus[cpuNum].affinity, cpuNum, s);
+                      (uint) cpus[cpuNum].affinity.__bits[0], cpuNum, s);
       }
 #endif
   }
