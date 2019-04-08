@@ -223,7 +223,8 @@ typedef struct opc_state_t
     int noempty;
     // ATTN flushes typeahead buffer
     int attn_flush;
-
+    // Run in background (don't read the keyboard).
+    int bg;
     bool attn_pressed;
     bool simh_attn_pressed;
 #define simh_buffer_sz 4096
@@ -333,6 +334,7 @@ void console_init (void)
         csp->autoaccept = 0;
         csp->noempty = 0;
         csp->attn_flush = 1;
+        csp->bg = 0;
       }
 
 #if 0
@@ -1133,7 +1135,7 @@ static void consoleProcessIdx (int conUnitIdx)
 
     for (;;)
       {
-        c = sim_poll_kbd ();
+        c = csp->bg ? SCPE_OK : sim_poll_kbd ();
         if (c == SCPE_OK)
           c = accessGetChar (& csp->console_access);
 
@@ -1658,6 +1660,7 @@ static config_list_t opc_config_list[] =
    { "noempty", 0, 1, cfg_on_off },
    { "attn_flush", 0, 1, cfg_on_off },
    { "model", 1, 0, cfg_model },
+   { "bg", 1, 0, cfg_on_off },
    { NULL, 0, 0, NULL }
   };
 
@@ -1705,6 +1708,12 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
         if (strcmp (p, "model") == 0)
           {
             csp->model = (enum console_model) v;
+            continue;
+          }
+ 
+        if (strcmp (p, "bg") == 0)
+          {
+            csp->bg = (int) v;
             continue;
           }
  
