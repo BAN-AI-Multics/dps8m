@@ -24,12 +24,21 @@
 #include <gtk/gtk.h>
 
 #include "dps8.h"
+#include "dps8_iom.h"
 #include "dps8_sys.h"
+#include "dps8_faults.h"
 #include "dps8_cpu.h"
+#include "dps8_cable.h"
+#include "dps8_state.h"
 
+#include "dps8_mp.h"
 #include "shm.h"
 
 #define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
+
+struct system_state_s * system_state;
+vol word36 * M;
+cpu_state_t * cpun;
 
 cpu_state_t * cpus;
 cpu_state_t * cpun;
@@ -44,7 +53,7 @@ gboolean window_delete (GtkWidget * widget, cairo_t * cr, gpointer data)
 
 gboolean draw_callback (GtkWidget * widget, cairo_t * cr, gpointer data)
   {
-    guint width, height;
+    int width, height;
 
     width = gtk_widget_get_allocated_width (widget);
     height = gtk_widget_get_allocated_height (widget);
@@ -153,59 +162,59 @@ static bool FAULT_F3_state;
 static bool FAULT_TRB_state;
 //static bool FAULT_oob_state;
 
-static bool IPR_ill_op_state;
-static bool IPR_ill_mod_state;
-static bool IPR_ill_slv_state;
-static bool IPR_ill_proc_state;
-static bool ONC_nem_state;
+//static bool IPR_ill_op_state;
+//static bool IPR_ill_mod_state;
+//static bool IPR_ill_slv_state;
+//static bool IPR_ill_proc_state;
+//static bool ONC_nem_state;
 //static bool STR_oob_state;
-static bool IPR_ill_dig_state;
-static bool PAR_proc_paru_state;
-static bool PAR_proc_parl_state;
-static bool CON_con_a_state;
-static bool CON_con_b_state;
-static bool CON_con_c_state;
-static bool CON_con_d_state;
-static bool ONC_da_err_state;
-static bool ONC_da_err2_state;
-static bool PAR_cpar_dir_state;
-static bool PAR_cpar_str_state;
-static bool PAR_cpar_ia_state;
-static bool PAR_cpar_blk_state;
-static bool FAULT_subtype_port_a_state;
-static bool FAULT_subtype_port_b_state;
-static bool FAULT_subtype_port_c_state;
-static bool FAULT_subtype_port_d_state;
-static bool FAULT_subtype_cpd_state;
-static bool FAULT_subtype_level_0_state;
-static bool FAULT_subtype_level_1_state;
-static bool FAULT_subtype_level_2_state;
-static bool FAULT_subtype_level_3_state;
-static bool FAULT_subtype_cdd_state;
-static bool FAULT_subtype_par_sdwam_state;
-static bool FAULT_subtype_par_ptwam_state;
+//static bool IPR_ill_dig_state;
+//static bool PAR_proc_paru_state;
+//static bool PAR_proc_parl_state;
+//static bool CON_con_a_state;
+//static bool CON_con_b_state;
+//static bool CON_con_c_state;
+//static bool CON_con_d_state;
+//static bool ONC_da_err_state;
+//static bool ONC_da_err2_state;
+//static bool PAR_cpar_dir_state;
+//static bool PAR_cpar_str_state;
+//static bool PAR_cpar_ia_state;
+//static bool PAR_cpar_blk_state;
+//static bool FAULT_subtype_port_a_state;
+//static bool FAULT_subtype_port_b_state;
+//static bool FAULT_subtype_port_c_state;
+//static bool FAULT_subtype_port_d_state;
+//static bool FAULT_subtype_cpd_state;
+//static bool FAULT_subtype_level_0_state;
+//static bool FAULT_subtype_level_1_state;
+//static bool FAULT_subtype_level_2_state;
+//static bool FAULT_subtype_level_3_state;
+//static bool FAULT_subtype_cdd_state;
+//static bool FAULT_subtype_par_sdwam_state;
+//static bool FAULT_subtype_par_ptwam_state;
 //static bool ACV_ACDF0_state;
 //static bool ACV_ACDF1_state;
 //static bool ACV_ACDF2_state;
 //static bool ACV_ACDF3_state;
-static bool ACV0_IRO_state;
-static bool ACV1_OEB_state;
-static bool ACV2_E_OFF_state;
-static bool ACV3_ORB_state;
-static bool ACV4_R_OFF_state;
-static bool ACV5_OWB_state;
-static bool ACV6_W_OFF_state;
-static bool ACV7_NO_GA_state;
-static bool ACV8_OCB_state;
-static bool ACV9_OCALL_state;
-static bool ACV10_BOC_state;
-static bool ACV11_INRET_state;
-static bool ACV12_CRT_state;
-static bool ACV13_RALR_state;
-static bool ACV_AME_state;
-static bool ACV15_OOSB_state;
+//static bool ACV0_IRO_state;
+//static bool ACV1_OEB_state;
+//static bool ACV2_E_OFF_state;
+//static bool ACV3_ORB_state;
+//static bool ACV4_R_OFF_state;
+//static bool ACV5_OWB_state;
+//static bool ACV6_W_OFF_state;
+//static bool ACV7_NO_GA_state;
+//static bool ACV8_OCB_state;
+//static bool ACV9_OCALL_state;
+//static bool ACV10_BOC_state;
+//static bool ACV11_INRET_state;
+//static bool ACV12_CRT_state;
+//static bool ACV13_RALR_state;
+//static bool ACV_AME_state;
+//static bool ACV15_OOSB_state;
 
-static bool intr_pair_addr_state [6];
+//static bool intr_pair_addr_state [6];
 
 static GtkWidget * PPR_display;
 static GtkWidget * inst_display;
@@ -218,21 +227,19 @@ static GtkWidget * TR_display;
 static GtkWidget * RALR_display;
 static GtkWidget * PAR_display[8];
 //static GtkWidget * BAR_STRfault_display;
-static GtkWidget * TPR_display;
-static GtkWidget * DSBR_display;
+//static GtkWidget * TPR_display;
+//static GtkWidget * DSBR_display;
 static GtkWidget * fault_display[2];
-static GtkWidget * IPRfault_display;
-static GtkWidget * ONCfault_display;
-static GtkWidget * PARfault_display;
-static GtkWidget * CONfault_display;
-static GtkWidget * cachefault_display;
+//static GtkWidget * IPRfault_display;
+//static GtkWidget * ONCfault_display;
+//static GtkWidget * PARfault_display;
+//static GtkWidget * CONfault_display;
+//static GtkWidget * cachefault_display;
 //static GtkWidget * ACDF_display;
-static GtkWidget * ACVfault_display;
-static GtkWidget * intrpair_display;
+//static GtkWidget * ACVfault_display;
+//static GtkWidget * intrpair_display;
 
 static cpu_state_t previous;
-
-static pid_t sid;
 
 static gboolean time_handler (GtkWidget * widget)
   {
@@ -241,46 +248,46 @@ static gboolean time_handler (GtkWidget * widget)
 
     bool update = false;
 
-    if (memcmp (& cpun -> PPR, & previous . PPR, sizeof (previous . PPR)))
+    if (memcmp (& cpun->PPR, & previous.PPR, sizeof (previous.PPR)))
       {
         update = true;
         for (int i = 0; i < 3; i ++)
-          PRR_state [2 - i] = ((1llu << i) & cpun -> PPR . PRR) ? 1 : 0;
+          PRR_state [2 - i] = ((1llu << i) & cpun->PPR.PRR) ? 1 : 0;
         for (int i = 0; i < 15; i ++)
-          PSR_state [14 - i] = ((1llu << i) & cpun -> PPR . PSR) ? 1 : 0;
+          PSR_state [14 - i] = ((1llu << i) & cpun->PPR.PSR) ? 1 : 0;
         for (int i = 0; i < 1; i ++)
-          P_state [0 - i] = ((1llu << i) & cpun -> PPR . P) ? 1 : 0;
+          P_state [0 - i] = ((1llu << i) & cpun->PPR.P) ? 1 : 0;
         for (int i = 0; i < 18; i ++)
-          IC_state  [17 - i] = ((1llu << i) & cpun -> PPR . IC) ? 1 : 0;
+          IC_state  [17 - i] = ((1llu << i) & cpun->PPR.IC) ? 1 : 0;
         //gtk_widget_queue_draw (PPR_display);
       }
 
-    if (memcmp (& cpun -> cu.IWB, & previous . cu.IWB, sizeof (previous . cu.IWB)))
+    if (memcmp (& cpun->cu.IWB, & previous.cu.IWB, sizeof (previous.cu.IWB)))
       {
         update = true;
         for (int i = 0; i < 36; i ++)
           {
-            inst_state [35 - i] = ((1llu << i) & cpun -> cu.IWB) ? 1 : 0;
+            inst_state [35 - i] = ((1llu << i) & cpun->cu.IWB) ? 1 : 0;
           }
         //gtk_widget_queue_draw (inst_display);
       }
 
-    if (memcmp (& cpun -> rA, & previous . rA, sizeof (previous . rA)))
+    if (memcmp (& cpun->rA, & previous.rA, sizeof (previous.rA)))
       {
         update = true;
         for (int i = 0; i < 36; i ++)
           {
-            A_state [35 - i] = ((1llu << i) & cpun -> rA) ? 1 : 0;
+            A_state [35 - i] = ((1llu << i) & cpun->rA) ? 1 : 0;
           }
         //gtk_widget_queue_draw (A_display);
       }
 
-    if (memcmp (& cpun -> rQ, & previous . rQ, sizeof (previous . rQ)))
+    if (memcmp (& cpun->rQ, & previous.rQ, sizeof (previous.rQ)))
       {
         update = true;
         for (int i = 0; i < 36; i ++)
           {
-            Q_state [35 - i] = ((1llu << i) & cpun -> rQ) ? 1 : 0;
+            Q_state [35 - i] = ((1llu << i) & cpun->rQ) ? 1 : 0;
           }
         //gtk_widget_queue_draw (Q_display);
 //printf ("Q ");
@@ -289,23 +296,23 @@ static gboolean time_handler (GtkWidget * widget)
 
       }
 
-    if (memcmp (& cpun -> rE, & previous . rE, sizeof (previous . rE)))
+    if (memcmp (& cpun->rE, & previous.rE, sizeof (previous.rE)))
       {
         update = true;
         for (int i = 0; i < 8; i ++)
           {
-            E_state [7 - i] = ((1llu << i) & cpun -> rE) ? 1 : 0;
+            E_state [7 - i] = ((1llu << i) & cpun->rE) ? 1 : 0;
           }
         //gtk_widget_queue_draw (E_display);
       }
     
     for(int nreg = 0; nreg < 8; nreg ++) {
-      if (memcmp (& cpun -> rX[nreg], & previous . rX[nreg], sizeof (previous . rX[nreg])))
+      if (memcmp (& cpun->rX[nreg], & previous.rX[nreg], sizeof (previous.rX[nreg])))
         {
           update = true;
           for (int i = 0; i < 18; i ++)
             {
-              X_state [nreg][17 - i] = ((1llu << i) & cpun -> rX[nreg]) ? 1 : 0;
+              X_state [nreg][17 - i] = ((1llu << i) & cpun->rX[nreg]) ? 1 : 0;
             }
           //gtk_widget_queue_draw (X_display[nreg]);
         }
@@ -313,150 +320,150 @@ static gboolean time_handler (GtkWidget * widget)
 
 
 
-    if (memcmp (& cpun -> cu.IR, & previous . cu.IR, sizeof (previous . cu.IR)))
+    if (memcmp (& cpun->cu.IR, & previous.cu.IR, sizeof (previous.cu.IR)))
       {
         update = true;
         for (int i = 0; i < 18; i ++)
           {
-            IR_state [17 - i] = ((1llu << i) & cpun -> cu.IR) ? 1 : 0;
+            IR_state [17 - i] = ((1llu << i) & cpun->cu.IR) ? 1 : 0;
           }
         //gtk_widget_queue_draw (IR_display);
       }
 
-    if (memcmp (& cpun -> rTR, & previous . rTR, sizeof (previous . rTR)))
+    if (memcmp (& cpun->rTR, & previous.rTR, sizeof (previous.rTR)))
       {
         update = true;
         for (int i = 0; i < 26; i ++)
           {
-            TR_state [26 - i] = ((1llu << i) & cpun -> rTR) ? 1 : 0;
+            TR_state [26 - i] = ((1llu << i) & cpun->rTR) ? 1 : 0;
           }
         //gtk_widget_queue_draw (TR_display);
       }
 
-    if (memcmp (& cpun -> rRALR, & previous . rRALR, sizeof (previous . rRALR)))
+    if (memcmp (& cpun->rRALR, & previous.rRALR, sizeof (previous.rRALR)))
       {
         update = true;
         for (int i = 0; i < 3; i ++)
           {
-            RALR_state [2 - i] = ((1llu << i) & cpun -> rRALR) ? 1 : 0;
+            RALR_state [2 - i] = ((1llu << i) & cpun->rRALR) ? 1 : 0;
           }
         //gtk_widget_queue_draw (RALR_display);
       }
 
     for(int nreg = 0; nreg < 8; nreg ++) {
-      if (memcmp (& cpun -> PAR[nreg], & previous . PAR[nreg], sizeof (previous . PAR[nreg])))
+      if (memcmp (& cpun->PAR[nreg], & previous.PAR[nreg], sizeof (previous.PAR[nreg])))
         {
           update = true;
           for (int i = 0; i < 15; i ++)
-              SNR_state [nreg][14 - i] = ((1llu << i) & cpun -> PAR[nreg] . SNR) ? 1 : 0;
+              SNR_state [nreg][14 - i] = ((1llu << i) & cpun->PAR[nreg].SNR) ? 1 : 0;
           for (int i = 0; i < 3; i ++)
-              RNR_state [nreg][2 - i] = ((1llu << i) & cpun -> PAR[nreg] . RNR) ? 1 : 0;
+              RNR_state [nreg][2 - i] = ((1llu << i) & cpun->PAR[nreg].RNR) ? 1 : 0;
           for (int i = 0; i < 6; i ++)
-              BITNO_state [nreg][5 - i] = ((1llu << i) & cpun -> PAR[nreg] . PR_BITNO) ? 1 : 0;
+              BITNO_state [nreg][5 - i] = ((1llu << i) & cpun->PAR[nreg].PR_BITNO) ? 1 : 0;
           for (int i = 0; i < 18; i ++)
-              WORDNO_state [nreg][17 - i] = ((1llu << i) & cpun -> PAR[nreg] . WORDNO) ? 1 : 0;
+              WORDNO_state [nreg][17 - i] = ((1llu << i) & cpun->PAR[nreg].WORDNO) ? 1 : 0;
           //gtk_widget_queue_draw (PAR_display[nreg]);
         }
     }
 
 
 
-//    if (memcmp (& cpun -> BAR, & previous . BAR, sizeof (previous . BAR)))
+//    if (memcmp (& cpun->BAR, & previous.BAR, sizeof (previous.BAR)))
 //      {
 //        update = true;
 //        for (int i = 0; i < 9; i ++)
-//            BASE_state [8 - i] = ((1llu << i) & cpun -> BAR . BASE) ? 1 : 0;
+//            BASE_state [8 - i] = ((1llu << i) & cpun->BAR.BASE) ? 1 : 0;
 //        for (int i = 0; i < 9; i ++)
-//            BOUND_state [8 - i] = ((1llu << i) & cpun -> BAR . BOUND) ? 1 : 0;
+//            BOUND_state [8 - i] = ((1llu << i) & cpun->BAR.BOUND) ? 1 : 0;
 //        //gtk_widget_queue_draw (BAR_STRfault_display);
 //      }
 
 
-    if (memcmp (& cpun -> TPR.TRR, & previous . TPR.TRR, sizeof (previous . TPR.TRR)))
+    if (memcmp (& cpun->TPR.TRR, & previous.TPR.TRR, sizeof (previous.TPR.TRR)))
       {
         update = true;
         for (int i = 0; i < 3; i ++)
           {
-            TRR_state [2 - i] = ((1llu << i) & cpun -> TPR.TRR) ? 1 : 0;
+            TRR_state [2 - i] = ((1llu << i) & cpun->TPR.TRR) ? 1 : 0;
           }
         //gtk_widget_queue_draw (TPR_display);
       }
 
-    if (memcmp (& cpun -> TPR.TSR, & previous . TPR.TSR, sizeof (previous . TPR.TSR)))
+    if (memcmp (& cpun->TPR.TSR, & previous.TPR.TSR, sizeof (previous.TPR.TSR)))
       {
         update = true;
         for (int i = 0; i < 15; i ++)
           {
-            TSR_state [14 - i] = ((1llu << i) & cpun -> TPR.TSR) ? 1 : 0;
+            TSR_state [14 - i] = ((1llu << i) & cpun->TPR.TSR) ? 1 : 0;
           }
         //gtk_widget_queue_draw (TPR_display);
       }
 
-    if (memcmp (& cpun -> TPR.TBR, & previous . TPR.TBR, sizeof (previous . TPR.TBR)))
+    if (memcmp (& cpun->TPR.TBR, & previous.TPR.TBR, sizeof (previous.TPR.TBR)))
       {
         update = true;
         for (int i = 0; i < 6; i ++)
           {
-            TBR_state [5 - i] = ((1llu << i) & cpun -> TPR.TBR) ? 1 : 0;
+            TBR_state [5 - i] = ((1llu << i) & cpun->TPR.TBR) ? 1 : 0;
           }
         //gtk_widget_queue_draw (TPR_display);
       }
 
-    if (memcmp (& cpun -> TPR.CA, & previous . TPR.CA, sizeof (previous . TPR.CA)))
+    if (memcmp (& cpun->TPR.CA, & previous.TPR.CA, sizeof (previous.TPR.CA)))
       {
         update = true;
         for (int i = 0; i < 18; i ++)
           {
-            CA_state [17 - i] = ((1llu << i) & cpun -> TPR.CA) ? 1 : 0;
+            CA_state [17 - i] = ((1llu << i) & cpun->TPR.CA) ? 1 : 0;
           }
         //gtk_widget_queue_draw (TPR_display);
       }
 
-    if (memcmp (& cpun -> DSBR, & previous . DSBR, sizeof (previous . DSBR)))
+    if (memcmp (& cpun->DSBR, & previous.DSBR, sizeof (previous.DSBR)))
       {
         update = true;
         for (int i = 0; i < 24; i ++)
-            ADDR_state [23 - i] = ((1llu << i) & cpun -> DSBR . ADDR) ? 1 : 0;
+            ADDR_state [23 - i] = ((1llu << i) & cpun->DSBR.ADDR) ? 1 : 0;
         for (int i = 0; i < 14; i ++)
-            BND_state [13 - i] = ((1llu << i) & cpun -> DSBR . BND) ? 1 : 0;
+            BND_state [13 - i] = ((1llu << i) & cpun->DSBR.BND) ? 1 : 0;
         for (int i = 0; i < 1; i ++)
-            U_state [0 - i] = ((1llu << i) & cpun -> DSBR . U) ? 1 : 0;
+            U_state [0 - i] = ((1llu << i) & cpun->DSBR.U) ? 1 : 0;
         for (int i = 0; i < 12; i ++)
-            STACK_state [11 - i] = ((1llu << i) & cpun -> DSBR . STACK) ? 1 : 0;
+            STACK_state [11 - i] = ((1llu << i) & cpun->DSBR.STACK) ? 1 : 0;
         //gtk_widget_queue_draw (DSBR_display);
       }
 
-    if (memcmp (& cpun -> faultNumber, & previous . faultNumber, sizeof (previous . faultNumber)))
+    if (memcmp (& cpun->faultNumber, & previous.faultNumber, sizeof (previous.faultNumber)))
       {
         update = true;
-        FAULT_SDF_state = (FAULT_SDF == cpun -> faultNumber) ? 1 : 0;
-        FAULT_STR_state = (FAULT_STR == cpun -> faultNumber) ? 1 : 0;
-        FAULT_MME_state = (FAULT_MME == cpun -> faultNumber) ? 1 : 0;
-        FAULT_F1_state = (FAULT_F1 == cpun -> faultNumber) ? 1 : 0;
-        FAULT_TRO_state = (FAULT_TRO == cpun -> faultNumber) ? 1 : 0;
-        FAULT_CMD_state = (FAULT_CMD == cpun -> faultNumber) ? 1 : 0;
-        FAULT_DRL_state = (FAULT_DRL == cpun -> faultNumber) ? 1 : 0;
-        FAULT_LUF_state = (FAULT_LUF == cpun -> faultNumber) ? 1 : 0;
-        FAULT_CON_state = (FAULT_CON == cpun -> faultNumber) ? 1 : 0;
-        FAULT_PAR_state = (FAULT_PAR == cpun -> faultNumber) ? 1 : 0;
-        FAULT_IPR_state = (FAULT_IPR == cpun -> faultNumber) ? 1 : 0;
-        FAULT_ONC_state = (FAULT_ONC == cpun -> faultNumber) ? 1 : 0;
-        FAULT_SUF_state = (FAULT_SUF == cpun -> faultNumber) ? 1 : 0;
-        FAULT_OFL_state = (FAULT_OFL == cpun -> faultNumber) ? 1 : 0;
-        FAULT_DIV_state = (FAULT_DIV == cpun -> faultNumber) ? 1 : 0;
-        FAULT_EXF_state = (FAULT_EXF == cpun -> faultNumber) ? 1 : 0;
-        FAULT_DF0_state = (FAULT_DF0 == cpun -> faultNumber) ? 1 : 0;
-        FAULT_DF1_state = (FAULT_DF1 == cpun -> faultNumber) ? 1 : 0;
-        FAULT_DF2_state = (FAULT_DF2 == cpun -> faultNumber) ? 1 : 0;
-        FAULT_DF3_state = (FAULT_DF3 == cpun -> faultNumber) ? 1 : 0;
-        FAULT_ACV_state = (FAULT_ACV == cpun -> faultNumber) ? 1 : 0;
-        FAULT_MME2_state = (FAULT_MME2 == cpun -> faultNumber) ? 1 : 0;
-        FAULT_MME3_state = (FAULT_MME3 == cpun -> faultNumber) ? 1 : 0;
-        FAULT_MME4_state = (FAULT_MME4 == cpun -> faultNumber) ? 1 : 0;
-        FAULT_F2_state = (FAULT_F2 == cpun -> faultNumber) ? 1 : 0;
-        FAULT_F3_state = (FAULT_F3 == cpun -> faultNumber) ? 1 : 0;
-        FAULT_TRB_state = (FAULT_TRB == cpun -> faultNumber) ? 1 : 0;
-        //FAULT_oob_state = (oob_fault == cpun -> faultNumber) ? 1 : 0;
+        FAULT_SDF_state = (FAULT_SDF == cpun->faultNumber) ? 1 : 0;
+        FAULT_STR_state = (FAULT_STR == cpun->faultNumber) ? 1 : 0;
+        FAULT_MME_state = (FAULT_MME == cpun->faultNumber) ? 1 : 0;
+        FAULT_F1_state = (FAULT_F1 == cpun->faultNumber) ? 1 : 0;
+        FAULT_TRO_state = (FAULT_TRO == cpun->faultNumber) ? 1 : 0;
+        FAULT_CMD_state = (FAULT_CMD == cpun->faultNumber) ? 1 : 0;
+        FAULT_DRL_state = (FAULT_DRL == cpun->faultNumber) ? 1 : 0;
+        FAULT_LUF_state = (FAULT_LUF == cpun->faultNumber) ? 1 : 0;
+        FAULT_CON_state = (FAULT_CON == cpun->faultNumber) ? 1 : 0;
+        FAULT_PAR_state = (FAULT_PAR == cpun->faultNumber) ? 1 : 0;
+        FAULT_IPR_state = (FAULT_IPR == cpun->faultNumber) ? 1 : 0;
+        FAULT_ONC_state = (FAULT_ONC == cpun->faultNumber) ? 1 : 0;
+        FAULT_SUF_state = (FAULT_SUF == cpun->faultNumber) ? 1 : 0;
+        FAULT_OFL_state = (FAULT_OFL == cpun->faultNumber) ? 1 : 0;
+        FAULT_DIV_state = (FAULT_DIV == cpun->faultNumber) ? 1 : 0;
+        FAULT_EXF_state = (FAULT_EXF == cpun->faultNumber) ? 1 : 0;
+        FAULT_DF0_state = (FAULT_DF0 == cpun->faultNumber) ? 1 : 0;
+        FAULT_DF1_state = (FAULT_DF1 == cpun->faultNumber) ? 1 : 0;
+        FAULT_DF2_state = (FAULT_DF2 == cpun->faultNumber) ? 1 : 0;
+        FAULT_DF3_state = (FAULT_DF3 == cpun->faultNumber) ? 1 : 0;
+        FAULT_ACV_state = (FAULT_ACV == cpun->faultNumber) ? 1 : 0;
+        FAULT_MME2_state = (FAULT_MME2 == cpun->faultNumber) ? 1 : 0;
+        FAULT_MME3_state = (FAULT_MME3 == cpun->faultNumber) ? 1 : 0;
+        FAULT_MME4_state = (FAULT_MME4 == cpun->faultNumber) ? 1 : 0;
+        FAULT_F2_state = (FAULT_F2 == cpun->faultNumber) ? 1 : 0;
+        FAULT_F3_state = (FAULT_F3 == cpun->faultNumber) ? 1 : 0;
+        FAULT_TRB_state = (FAULT_TRB == cpun->faultNumber) ? 1 : 0;
+        //FAULT_oob_state = (oob_fault == cpun->faultNumber) ? 1 : 0;
 
         //gtk_widget_queue_draw (fault_display[0]);
         //gtk_widget_queue_draw (fault_display[1]);
@@ -474,21 +481,9 @@ int main (int argc, char * argv [])
   {
 
     struct sigaction quit_action;
-    quit_action . sa_handler = SIG_IGN;
-    quit_action . sa_flags = SA_RESTART;
+    quit_action.sa_handler = SIG_IGN;
+    quit_action.sa_flags = SA_RESTART;
     sigaction (SIGQUIT, & quit_action, NULL);
-
-    sid = getsid (0);
-    if (argc > 1 && strlen (argv [1]))
-      {
-        char * end;
-        long p = strtol (argv [1], & end, 0);
-        if (* end == 0)
-          {
-            sid = p;
-            argv [1] [0] = 0;
-          }
-      }
 
     int cpunum = 0;
     if (argc > 2 && strlen (argv [2]))
@@ -497,7 +492,7 @@ int main (int argc, char * argv [])
         long p = strtol (argv [2], & end, 0);
         if (* end == 0)
           {
-            cpunum = p;
+            cpunum = (int) p;
             argv [1] [0] = 0;
           }
       }
@@ -507,12 +502,15 @@ int main (int argc, char * argv [])
         return 1;
       }
 
-    cpus = (cpu_state_t *) open_shm ("cpus", sid, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
-    if (! cpus)
-      {
-        perror ("cpus open_shm");
-        return 1;
-      }
+    system_state = (struct system_state_s *)
+      open_shm ("state", sizeof (struct system_state_s));
+    if (! system_state)
+      { 
+        printf ("Unable to access DPS8/M memory\n");
+        exit (1);
+     }
+
+    cpus = system_state->cpus;
     cpun = cpus + cpunum;
 
     gdk_rgba_parse (& lightOn, "white");
