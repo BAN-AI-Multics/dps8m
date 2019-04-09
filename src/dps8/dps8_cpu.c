@@ -1392,6 +1392,7 @@ t_stat sim_instr (void)
           }
       }
 #else
+    // XXX This assumes that the CPU at idx 0 is the boot CPU.
     if (cpuThreadz[0].run == false)
           createCPUThread (0);
 #endif
