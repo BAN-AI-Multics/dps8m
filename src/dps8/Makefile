@@ -16,7 +16,7 @@
 #  TESTING=1    Enables sim_debug and additional runtime checks
 #
 
-all :
+all::
 
 SIMHx = ../simh-master
 
@@ -237,10 +237,11 @@ ifeq ($(LOCKLESS),1)
 H_SRCS += ./threadz.h
 endif
 H_SRCS += ./uvutil.h
+# build_uuid.h is not in H_SRCS; it is built on demand
 
 
 
-all: utils $(TAGS) locallibs_then_dps8
+all:: utils $(TAGS) locallibs_then_dps8
 
 #fnpx : fnpx.c fnp_udplib.o
 #	$(CC) fnpx.c -o fnpx fnp_udplib.o
@@ -267,17 +268,22 @@ blinkenLights2 : blinkenLights2.c shm.o
 blinkenLightsPi : blinkenLightsPi.c shm.o
 	$(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsPi.c -o blinkenLightsPi shm.o 
 
-#all : blinkenLights
+#all:: blinkenLights
 
 blinkenLightsCurses : blinkenLightsCurses.c shm.o
 	@echo LD blinkenLightsCurses
 	@$(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsCurses.c -o blinkenLightsCurses shm.o -lncurses
 
-#all : blinkenLightsCurses
+#all:: blinkenLightsCurses
 
 dps8$(EXE) : $(OBJS) $(LOCALOBJS) $(LOCALLIBS) 
 	@echo LD dps8$(EXE)
 	@$(LD)  -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(LIBS)
+
+.PHONY: __uuid__
+build_uuid.h : __uuid__
+	@echo uuidgen build_uuid.h
+	@uuidgen | awk '{print "#define BUILD_UUID \""$$1"\""}' > build_uuid.h
 
 .PHONY: FORCE
 
@@ -367,7 +373,7 @@ tapes: 88534.tap 88631.tap 88632.tap 88633.tap 88634.tap 88635.tap 88636.tap 990
 
 .PHONY : clean 
 
-clean:
+clean::
 	@echo CLEAN
 	@$(MAKE) -C $(SIMHx) -f Makefile clean
 	#(cd ../decNumber; $(MAKE) clean)
@@ -381,7 +387,7 @@ clean_dps8:
 	@echo CLEAN dps8
 	-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt
 
-dps8_sys.o : dps8.sha1.txt
+dps8_sys.o : dps8.sha1.txt build_uuid.h
 dps8_sys.d : dps8.sha1.txt
 
 dps8_socket_dev.c: errnos.h

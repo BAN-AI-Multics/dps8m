@@ -60,6 +60,7 @@
 #include "shm.h"
 #include "utlist.h"
 #include "threadz.h"
+#include "build_uuid.h"
 
 #ifdef PANEL
 #include "panelScraper.h"
@@ -3757,22 +3758,17 @@ static void dps8_init (void)
 
 #include "dps8.sha1.txt"
 
-    if (strlen (system_state->commit_id) == 0)
+    if (strcmp (system_state->build_uuid, BUILD_UUID) != 0)
       {
-        sim_printf ("Setting up new system state\r\n");
+        if (strlen (system_state->build_uuid))
+          sim_warn ("WARNING: system_state build ID changed; system state being reset\n");
+        memset (system_state, 0, sizeof (struct system_state_s));
       }
     else
       {
-        if (strcmp (system_state->commit_id, COMMIT_ID) != 0)
-          {
-            sim_warn ("WARNING: system_state commit ID changed; system state may be corrupt\r\n");
-          }
-        else
-          {
-            sim_printf ("System state restored\r\n");
-          }
+        sim_printf ("System state restored\r\n");
       }
-    strncpy (system_state->commit_id, COMMIT_ID, sizeof (system_state->commit_id));
+    strncpy (system_state->build_uuid, BUILD_UUID, sizeof (system_state->build_uuid));
 
     // sets connect to 0
     memset (& sys_opts, 0, sizeof (sys_opts));

@@ -11,7 +11,7 @@
 
 struct system_state_s
   {
-    char commit_id [41];
+    char build_uuid [37];
     vol word36 M [MEMSIZE];
     cpu_state_t cpus [N_CPU_UNITS_MAX];
     struct cables_s cables;
