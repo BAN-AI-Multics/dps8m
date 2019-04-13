@@ -27,17 +27,36 @@ INSTALL_BIN ?= $(INSTALL_ROOT)/bin
 include ../Makefile.mk
 
 ifneq (,$(wildcard Makefile.local))
-$(warning ####)
 $(warning #### Using Makefile.local)
-$(warning ####)
 include Makefile.local
 endif
 
-ifdef TESTING
-$(warning ####)
+ifeq ($(TESTING),1)
 $(warning #### TESTING mode)
-$(warning ####)
 CFLAGS += -DTESTING
+endif
+
+ifeq ($(HDBG),1)
+$(warning #### HDBG mode)
+CFLAGS += -DHDBG
+endif
+
+ifeq ($(PROFILER),1)
+$(warning #### PROFILER mode)
+CFLAGS += -DPROFILER
+PROF_TARGETS = profiler tracer tracer_to_txt tracer_annotate
+PROF_OBJS = profiler.o tracer.o tracer_to_txt.o tracer_annotate.o
+else
+PROF_TARGETS = 
+PROF_OBJS = 
+endif
+
+ifeq ($(ISOLTS),1)
+$(warning #### ISOLTS mode)
+CFLAGS += -DISOLTS
+CFLAGS += -DL68 -DWAM
+CFLAGS += -DWAM
+#CFLAGS += -DISOLTS -DWAM -DLOCKLESS_SCU
 endif
 
 #ifeq ($(LOADER),1)
@@ -48,14 +67,8 @@ ifeq ($(OS),Windows_NT)
 CROSS=MINGW64
 endif
 
-ifeq ($(THREADZ),1)
-CFLAGS += -pthread -DTHREADZ
-LDFLAGS += -pthread
-LIBS += -lpthread
-endif
-
 ifeq ($(LOCKLESS),1)
-#CFLAGS += -pthread -DLOCKLESS -DWAM
+$(warning ####  LOCKLESS_MODE)
 CFLAGS += -pthread -DLOCKLESS 
 LDFLAGS += -pthread
 LIBS += -lpthread
@@ -169,9 +182,6 @@ C_SRCS += ./shm.c
 ifneq ($(CROSS),MINGW64)
 C_SRCS += ./udplib.c
 endif
-ifeq ($(THREADZ),1)
-C_SRCS += ./threadz.c
-endif
 ifeq ($(LOCKLESS),1)
 C_SRCS += ./threadz.c
 endif
@@ -230,18 +240,13 @@ endif
 H_SRCS += utarray.h
 H_SRCS += uthash.h
 H_SRCS += utlist.h
-ifeq ($(THREADZ),1)
 H_SRCS += ./threadz.h
-endif
-ifeq ($(LOCKLESS),1)
-H_SRCS += ./threadz.h
-endif
 H_SRCS += ./uvutil.h
 # build_uuid.h is not in H_SRCS; it is built on demand
 
 
 
-all:: utils $(TAGS) locallibs_then_dps8 profiler tracer tracer_to_txt tracer_annotate
+all:: utils $(TAGS) locallibs_then_dps8 $(PROF_TARGETS)
 
 profiler : locallibs_then_dps8 profiler.c dps8.h dps8_cpu.h dps8_iom.h dps8_cable.h dps8_state.h shm.h 
 	$(CC) $(CFLAGS) $(LDFLAGS) profiler.c -o profiler -I../simh-master shm.o -lncurses
@@ -389,7 +394,6 @@ tapes: 88534.tap 88631.tap 88632.tap 88633.tap 88634.tap 88635.tap 88636.tap 990
 clean::
 	@echo CLEAN
 	@$(MAKE) -C $(SIMHx) -f Makefile clean
-	#(cd ../decNumber; $(MAKE) clean)
 	@$(MAKE) -C ../decNumber clean
 	@$(MAKE) -C ../utils clean
 	@$(MAKE) clean_dps8
@@ -398,7 +402,7 @@ clean::
 
 clean_dps8:
 	@echo CLEAN dps8
-	-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt
+	-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt $(PROF_TARGETS) $(PROG_OBJS)
 
 dps8_sys.o : dps8.sha1.txt build_uuid.h
 dps8_sys.d : dps8.sha1.txt
