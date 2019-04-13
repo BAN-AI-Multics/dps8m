@@ -358,6 +358,9 @@ void doFault (_fault faultNumber, _fault_subtype subFault,
                "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\n", 
                faultNumber, faultNumber, subFault.bits, subFault.bits, 
                cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
+#ifdef PROFILER
+    __atomic_add_fetch (& cpu.faults[faultNumber], 1u, __ATOMIC_ACQUIRE);
+#endif
 #ifdef HDBG
     hdbgFault (faultNumber, subFault, faultMsg);
 #endif

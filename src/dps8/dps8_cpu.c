@@ -1858,6 +1858,9 @@ t_stat threadz_sim_instr (void)
 
                     if (intr_pair_addr != 1) // no interrupts 
                       {
+#ifdef PROFILER
+                        __atomic_add_fetch (& cpu.intrs, 1u, __ATOMIC_ACQUIRE);
+#endif
 
                         CPT (cpt1U, 3); // interrupt identified
 
@@ -3104,6 +3107,22 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
       
     STORE_REL_CORE_WORD(addr, data);
     cpu.locked_addr = 0;
+#ifndef SPEED
+    if (watch_bits [addr])
+      {
+        sim_msg ("WATCH [%"PRId64"] %05o:%06o write  %08o %012"PRIo64" "
+                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, 
+                    M [addr], ctx);
+        traceInstruction (0);
+      }
+#endif
+#ifdef TR_WORK_MEM
+    cpu.rTRticks ++;
+#endif
+    sim_debug (DBG_CORE, & cpu_dev,
+               "core_write %08o %012"PRIo64" (%s)\n",
+                addr, data, ctx);
+    PNL (trackport (addr, data));
     return 0;
 }
 

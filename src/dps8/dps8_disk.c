@@ -35,10 +35,7 @@
 #include "dps8_cpu.h"
 #include "sim_disk.h"
 #include "dps8_utils.h"
-
-#ifdef LOCKLESS
 #include "threadz.h"
-#endif
 
 #define DBG_CTR 1
 

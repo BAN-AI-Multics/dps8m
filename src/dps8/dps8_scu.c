@@ -2152,6 +2152,9 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
 
     if (portp -> type == ADEV_IOM)
       {
+#ifdef PROFILER
+        __atomic_add_fetch (& cpu.cioc_iom, 1u, __ATOMIC_ACQUIRE);
+#endif
         int iom_unit_idx = portp->dev_idx;
 #if defined(LOCKLESS)
         unlock_scu ();
@@ -2196,7 +2199,9 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
       }
     else if (portp -> type == ADEV_CPU)
       {
-
+#ifdef PROFILER
+        __atomic_add_fetch (& cpu.cioc_cpu, 1u, __ATOMIC_ACQUIRE);
+#endif
 #if 1
 // by subport_enables
         if (portp->is_exp)

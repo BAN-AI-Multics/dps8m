@@ -1804,6 +1804,12 @@ typedef struct
     bool set_affinity;
     cpu_set_t affinity;
 #endif
+#ifdef PROFILER
+    uint cioc_iom;
+    uint cioc_cpu;
+    unsigned long faults[32];
+    uint intrs;
+#endif
   } cpu_state_t;
 
 extern cpu_state_t * cpus;
