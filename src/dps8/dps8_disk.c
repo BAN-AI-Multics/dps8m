@@ -37,6 +37,10 @@
 #include "dps8_utils.h"
 #include "threadz.h"
 
+#ifdef PROFILER
+#include "dps8_state.h"
+#endif
+
 #define DBG_CTR 1
 
 /*
@@ -688,6 +692,9 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     disk_statep -> seekPosition = seekData & MASK21;
 //sim_printf ("seek seekPosition %d\n", disk_statep -> seekPosition);
     p -> stati = 00000; // Channel ready
+#ifdef PROFILER
+    __atomic_add_fetch (& system_state->profiler.disk_seeks, 1u, __ATOMIC_ACQUIRE);
+#endif
     return 0;
   }
 
@@ -763,6 +770,9 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     disk_statep -> seekPosition = seekData & MASK21;
 //sim_printf ("seek seekPosition %d\n", disk_statep -> seekPosition);
     p -> stati = 00000; // Channel ready
+#ifdef PROFILER
+    __atomic_add_fetch (& system_state->profiler.disk_seeks, 1u, __ATOMIC_ACQUIRE);
+#endif
     return 0;
   }
 
@@ -920,6 +930,10 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
           }
         iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                 & wordsProcessed, true);
+#ifdef PROFILER
+        __atomic_add_fetch (& system_state->profiler.disk_reads, 1u, __ATOMIC_ACQUIRE);
+        __atomic_add_fetch (& system_state->profiler.disk_read, (unsigned long) tally, __ATOMIC_ACQUIRE);
+#endif
       } while (p -> DDCW_22_23_TYPE != 0); // not IOTD
     p -> stati = 04000;
     p -> initiate = false;
@@ -1042,6 +1056,10 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
           }
 
         disk_statep -> seekPosition += tallySectors;
+#ifdef PROFILER
+        __atomic_add_fetch (& system_state->profiler.disk_writes, 1u, __ATOMIC_ACQUIRE);
+        __atomic_add_fetch (& system_state->profiler.disk_written, (unsigned long) tally, __ATOMIC_ACQUIRE);
+#endif
  
       } while (p -> DDCW_22_23_TYPE != 0); // not IOTD
     p -> stati = 04000;

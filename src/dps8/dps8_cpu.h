@@ -1809,8 +1809,8 @@ typedef struct
     uint cioc_cpu;
     unsigned long faults[32];
     uint intrs;
-#endif
     bool run; // shadow of cpuThreadz[].run
+#endif
   } cpu_state_t;
 
 extern cpu_state_t * cpus;

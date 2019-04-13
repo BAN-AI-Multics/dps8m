@@ -64,6 +64,13 @@ int main (int argc, char * argv[])
         if (sample_ctr && sample_ctr % UPDATE_RATE == 0)
           {
             clear ();
+            unsigned long disk_seeks = __atomic_exchange_n (& system_state->profiler.disk_seeks, 0, __ATOMIC_SEQ_CST);
+            unsigned long disk_reads = __atomic_exchange_n (& system_state->profiler.disk_reads, 0, __ATOMIC_SEQ_CST);
+            unsigned long disk_writes = __atomic_exchange_n (& system_state->profiler.disk_writes, 0, __ATOMIC_SEQ_CST);
+            unsigned long disk_read = __atomic_exchange_n (& system_state->profiler.disk_read, 0, __ATOMIC_SEQ_CST);
+            unsigned long disk_written = __atomic_exchange_n (& system_state->profiler.disk_written, 0, __ATOMIC_SEQ_CST);
+            printw ("DISK S %06d R %06d W %06d MB/S %4d\n", disk_seeks, disk_reads, disk_writes, (disk_read + disk_written) * 9 / 2 / 1048576);
+
             for_cpus
               {
                 cpup_ = (cpu_state_t *) & cpus[cpun];
