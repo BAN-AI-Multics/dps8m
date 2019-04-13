@@ -437,15 +437,15 @@ static void skt_listen (uint unit_idx, word6 dev_code, word36 * buffer)
 // dcl 1 SOCKETDEV_listen_data aligned,
 //       2 sockfd fixed bin,  // 0
 //       3 backlog fixed bin, // 1
-//       2 rc fixed bin;      // 3
-//       2 errno char(8);   // 4, 5
+//       2 rc fixed bin;      // 2
+//       2 errno char(8);   // 3, 4
 // 
 // /* Tally 5 */
 // /* In: */
 // /*   sockfd */
 // /*   backlog */
 // /* Out: */
-// /*   fd */
+// /*   rc */
 // /*   errno */
 
     int socket_fd = (int) buffer[0];
