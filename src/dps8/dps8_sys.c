@@ -1695,7 +1695,8 @@ uint64 sim_deb_stop = 0;
 // Break to simh prompt at CPU cycle N.
 uint64 sim_deb_break = 0;
 // Enable CPU sim_debug iff PPR.PSR == N
-uint64 sim_deb_segno = NO_SUCH_SEGNO;
+bool sim_deb_segno_on = false;
+bool sim_deb_segno[DEBUG_SEGNO_LIMIT] = { [0 ... DEBUG_SEGNO_LIMIT - 1] = false };
 // Enable CPU sim_debug iff PPR.PRR == N
 uint64 sim_deb_ringno = NO_SUCH_RINGNO;
 // Supress CPU sim_debug calls that pass all
@@ -1753,10 +1754,26 @@ static t_stat dps_debug_break (UNUSED int32 arg, const char * buf)
     return SCPE_OK;
   }
 
-static t_stat dps_debug_segno (UNUSED int32 arg, const char * buf)
+static t_stat dps_debug_segno (int32 arg, const char * buf)
   {
-    sim_deb_segno = strtoull (buf, NULL, 0);
-    sim_msg ("Debug set to segno %"PRIo64"\n", sim_deb_segno);
+    if (arg)
+      {
+        unsigned long segno = strtoul (buf, NULL, 0);
+        if (segno >= DEBUG_SEGNO_LIMIT)
+          {
+            sim_printf ("out of range; 0 to %u %d.\n", DEBUG_SEGNO_LIMIT, DEBUG_SEGNO_LIMIT);
+            return SCPE_ARG;
+          }
+        sim_deb_segno[segno] = true;
+        sim_deb_segno_on = true;
+        sim_msg ("Debug set for segno %lo %ld.\n", segno, segno);
+      }
+    else
+      {
+        memset (sim_deb_segno, 0, sizeof (sim_deb_segno));
+        sim_deb_segno_on = false;
+        sim_msg ("Debug set for all segments\n");
+      }
     return SCPE_OK;
   }
 
@@ -3588,7 +3605,8 @@ static CTAB dps8_cmds[] =
     {"DBGSTART",            dps_debug_start,          0, "dbgstart: Limit debugging to N > Cycle count\n", NULL, NULL},
     {"DBGSTOP",             dps_debug_stop,           0, "dbgstop: Limit debugging to N < Cycle count\n", NULL, NULL},
     {"DBGBREAK",            dps_debug_break,          0, "dbgstop: Break when N >= Cycle count\n", NULL, NULL},
-    {"DBGSEGNO",            dps_debug_segno,          0, "dbgsegno: Limit debugging to PSR == segno\n", NULL, NULL},
+    {"DBGSEGNO",            dps_debug_segno,          1, "dbgsegno: Limit debugging to PSR == segno\n", NULL, NULL},
+    {"NODBGSEGNO",          dps_debug_segno,          0, "nodbgsegno: Reset to debugging all segments\n", NULL, NULL},
     {"DBGRINGNO",           dps_debug_ringno,         0, "dbgsegno: Limit debugging to PRR == ringno\n", NULL, NULL},
     {"DBGBAR",              dps_debug_bar,            1, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
     {"NODBGBAR",            dps_debug_bar,            0, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
