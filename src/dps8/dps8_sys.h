@@ -84,6 +84,7 @@ extern sysinfo_t sys_opts;
 extern uint64 sim_deb_start;
 extern uint64 sim_deb_stop;
 extern uint64 sim_deb_break;
+// Must be a power of 2 for sim_debug mask to work
 #define DEBUG_SEGNO_LIMIT 1024
 extern bool sim_deb_segno_on;
 extern bool sim_deb_segno[DEBUG_SEGNO_LIMIT];

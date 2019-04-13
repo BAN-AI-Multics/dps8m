@@ -1758,15 +1758,17 @@ static t_stat dps_debug_segno (int32 arg, const char * buf)
   {
     if (arg)
       {
-        unsigned long segno = strtoul (buf, NULL, 0);
-        if (segno >= DEBUG_SEGNO_LIMIT)
+        int segno = (int) strtol (buf, NULL, 0);
+        if (abs (segno) >= DEBUG_SEGNO_LIMIT)
           {
             sim_printf ("out of range; 0 to %u %d.\n", DEBUG_SEGNO_LIMIT, DEBUG_SEGNO_LIMIT);
             return SCPE_ARG;
           }
-        sim_deb_segno[segno] = true;
-        sim_deb_segno_on = true;
-        sim_msg ("Debug set for segno %lo %ld.\n", segno, segno);
+        sim_deb_segno[segno] = segno >= 0;
+        sim_deb_segno_on = false;
+        for (int i = 0; i < DEBUG_SEGNO_LIMIT; i ++)
+          sim_deb_segno_on |= sim_deb_segno[i];
+        sim_msg ("Debug set for segno %o %d.\n", segno, segno);
       }
     else
       {
