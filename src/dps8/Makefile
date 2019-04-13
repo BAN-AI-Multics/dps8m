@@ -241,7 +241,20 @@ H_SRCS += ./uvutil.h
 
 
 
-all:: utils $(TAGS) locallibs_then_dps8
+all:: utils $(TAGS) locallibs_then_dps8 profiler tracer tracer_to_txt tracer_annotate
+
+profiler : locallibs_then_dps8 profiler.c dps8.h dps8_cpu.h dps8_iom.h dps8_cable.h dps8_state.h shm.h 
+	$(CC) $(CFLAGS) $(LDFLAGS) profiler.c -o profiler -I../simh-master shm.o -lncurses
+
+tracer : locallibs_then_dps8 tracer.c dps8.h dps8_cpu.h dps8_iom.h dps8_cable.h dps8_state.h shm.h trace_record.h
+	$(CC) $(CFLAGS) $(LDFLAGS) tracer.c -o tracer -I../simh-master shm.o
+
+tracer_to_txt : tracer_to_txt.c dps8.h dps8_cpu.h trace_record.h
+	$(CC) $(CFLAGS) $(LDFLAGS) tracer_to_txt.c -o tracer_to_txt -I../simh-master
+
+tracer_annotate : tracer_annotate.c dps8.h dps8_cpu.h trace_record.h
+	$(CC) $(CFLAGS) $(LDFLAGS) tracer_annotate.c -o tracer_annotate -I../simh-master
+
 
 #fnpx : fnpx.c fnp_udplib.o
 #	$(CC) fnpx.c -o fnpx fnp_udplib.o

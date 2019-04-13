@@ -1810,6 +1810,7 @@ typedef struct
     unsigned long faults[32];
     uint intrs;
 #endif
+    bool run; // shadow of cpuThreadz[].run
   } cpu_state_t;
 
 extern cpu_state_t * cpus;

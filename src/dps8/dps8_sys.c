@@ -66,7 +66,7 @@
 #include "panelScraper.h"
 #endif
 
-#define DBG_CTR 1
+#define DBG_CTR cpu.cycleCnt
 
 #define ASSUME0 0
 

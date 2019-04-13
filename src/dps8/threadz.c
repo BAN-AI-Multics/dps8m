@@ -364,6 +364,7 @@ void createCPUThread (uint cpuNum)
       sim_printf ("createCPUThread pthread_cond_init runCond %d\n", rc);
 
     p->run = true;
+    cpus[cpuNum].run = true;
 
     // initialize DIS sleep
     rc = pthread_cond_init (& p->sleepCond, NULL);
@@ -402,6 +403,7 @@ void stopCPUThread()
   {
     struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
     p->run = false;
+    cpus[current_running_cpu_idx].run = false;
     pthread_exit(NULL);
   }
 
@@ -430,6 +432,7 @@ void setCPURun (uint cpuNum, bool run)
     rc = pthread_mutex_unlock (& p->runLock);
     if (rc)
       sim_printf ("setCPUrun pthread_mutex_unlock %d\n", rc);
+   cpus[cpuNum].run = run;
   }
 
 // Called by CPU thread to block on run/sleep
