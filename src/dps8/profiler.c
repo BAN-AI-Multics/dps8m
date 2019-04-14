@@ -47,7 +47,11 @@ int main (int argc, char * argv[])
 // If it isn't changing, then it has probably been stopped.
 
 //#define for_cpus for (uint cpun = 0; cpun < N_CPU_UNITS_MAX; cpun ++)
+#ifdef LOCKLESS
 #define for_cpus for (uint cpun = 0; cpun < 2; cpun ++)
+#else
+#define for_cpus for (uint cpun = 0; cpun < 1; cpun ++)
+#endif
 
     unsigned long long last_cycle_cnt[N_CPU_UNITS_MAX] = {0,0,0,0,0,0,0,0};
     int dis_cnt[N_CPU_UNITS_MAX] = {0,0,0,0,0,0,0,0};
@@ -74,8 +78,10 @@ int main (int argc, char * argv[])
             for_cpus
               {
                 cpup_ = (cpu_state_t *) & cpus[cpun];
+#ifdef LOCKLESS
                 if (! cpu.run)
                   continue;
+#endif
                 printw ("CPU %c\n", 'A' + cpun);
                 unsigned long long cnt = __atomic_load_n (& cpu.cycleCnt, __ATOMIC_ACQUIRE);
                 float dis_pct = ((float) (dis_cnt[cpun] * 100)) / UPDATE_RATE;
@@ -116,8 +122,10 @@ int main (int argc, char * argv[])
         for_cpus
           {
             cpup_ = (cpu_state_t *) & cpus[cpun];
+#ifdef LOCKLESS
             if (! cpu.run)
               continue;
+#endif
             if (cpu.currentInstruction.opcode10 == 00616)
               dis_cnt[cpun] ++;
           }
