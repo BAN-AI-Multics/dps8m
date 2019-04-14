@@ -2886,12 +2886,44 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 
         rc2 = d->iom_cmd (iom_unit_idx, chan);
 
+#if 0
         if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
                      // terminate intrrupt.
           {
             sim_debug (DBG_DEBUG, & iom_dev, "handler processing cmd\n");
             return 0;
           }
+#endif
+        switch (rc)
+          {
+          case IOM_CMD_IGNORED:
+            // handler ignored command; used to be used for 051, now unused.
+            sim_debug (DBG_DEBUG, & iom_dev, "handler ignored cmd\n");
+            return 0;
+
+          case IOM_CMD_NO_DCW:
+            // handler doesn't want the dcw list
+            sim_debug (DBG_DEBUG, & iom_dev, "handler don't want no stinking dcws\n");
+            goto done;
+
+          case IOM_CMD_PENDING:
+            // handler still processing command, don't set
+            // terminate interrupt.
+            sim_debug (DBG_DEBUG, & iom_dev, "handler processing cmd\n");
+            return 0;
+
+          case IOM_CMD_OK:
+            break;
+
+          default:
+            // 04501 : COMMAND REJECTED, invalid command
+            p -> stati = 04501;
+            p -> dev_code = getbits36_6 (p -> DCW, 6);
+            p -> chanStatus = chanStatInvalidInstrPCW;
+            //sim_warn ("do_payload_chan handler error\n");
+            goto done;
+          }
+
 
         if (rc2 || p -> IDCW_CONTROL == 0) 
           ptro = true; 
