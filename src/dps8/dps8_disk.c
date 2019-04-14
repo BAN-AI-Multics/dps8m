@@ -24,6 +24,9 @@
 // source/library_dir_dir/system_library_1/source/bound_rcp_.s.archive/rcp_disk_.pl1
 
 #include <stdio.h>
+#ifdef IO_LATENCY
+#include <unistd.h>
+#endif
 
 #include "dps8.h"
 #include "dps8_iom.h"
@@ -103,6 +106,9 @@ struct diskType_t
     enum seekSize_t seekSize; // false: seek 64  true: seek 512
     uint sectorSizeWords;
     uint dau_type;
+    uint sects_per_cyl; // not canonical, used for seek latency calculations
+    useconds_t seek_latency;
+    useconds_t xfer_latency;
   };
 
 // dau_type stat_mpc_.pl1
@@ -140,33 +146,75 @@ struct diskType_t
 //   1  222     ""
 //   1  223     "509"
 
+// Latency
+//
+// http://www.extremetech.com/extreme/142911-ibm-3390-the-worlds-largest-and-most-expensive-hard-drive-teardown
+// https://www.ibm.com/ibm/history/exhibits/storage/storage_3390.html
+//
+// The 3390 disks rotated faster than those in the 3380. Faster disk rotation
+// reduced rotational delay, the time required for the correct area of the disk
+// surface to move to the point where data could be read or written. In the
+// 3390's initial models, the average rotational delay was reduced to 7.1
+// milliseconds from 8.3 milliseconds for the 3380 family.
+//
+// 3390
+//  4.2 MB/S data transfer rate
+//  12.5 msec average seek time
+//  "probably" 2500-3000 rpm.
+//
+// Sectors are 512 words; 2304 bytes.
+//  4.2 MB/s  / 2304 => 1800 secs/sec
+//  0.0005 secs/sector
+//  .5 msecs/sector
+//  500 usecs/sector
+//
+#define LATENCY_XFER 500
+//
+// The non-FIPS disks have 64 word sectors
+//
+#define LATENCY_XFER64 (500 / 8)
+//
+//  12.5 msecs seek avg
+//  3390 had 590 cyls; assume avg means half worst case, so 295 cyls in 12.5 ms
+//  12.5 ms / 295 cyls => .04 ms/cyl => 40 usec
+//
+#define LATENCY_SEEK_CYL 40
+//
+//  12,000 usecs seek
+//
+//  7.1 ms rotation delay avg.
+//  7,100 usec
+//
+#define LATENCY_ROT 7100
+//
+
 
 
 static struct diskType_t diskTypes [] =
   {
     { // disk_init assumes 3381 is at index 0
-      "3381", 22479, 0, false, seek_512, 512, 0
+      "3381", 22479, 0, false, seek_512, 512, 0, 127 * 15, LATENCY_SEEK_CYL, LATENCY_XFER
     },
     {
-      "d500", 38258, 1, false, seek_64, 64, 200
+      "d500", 38258, 1, false, seek_64, 64, 200, 47 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64
     },
     {
-      "d451", 38258, 1, true, seek_64, 64, 154
+      "d451", 38258, 1, true, seek_64, 64, 154, 47 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64
     },
     {
-      "d400", 19270, 1, true, seek_64, 64, 84 // d400 is a d190 with "high-efficiency format (40 sectors/track)"
+      "d400", 19270, 1, true, seek_64, 64, 84, 47 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64 // d400 is a d190 with "high-efficiency format (40 sectors/track)"
     },
     {
-      "d190", 14760, 1, true, seek_64, 64, 84 // 190A 84, 190B 137
+      "d190", 14760, 1, true, seek_64, 64, 84, 36 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64 // 190A 84, 190B 137
     },
     {
-      "d181", 4444, 1, true, seek_64, 64, 0 // no idea what the dau idx is
+      "d181", 4444, 1, true, seek_64, 64, 0, 22 * 20, LATENCY_SEEK_CYL, LATENCY_XFER64 // no idea what the dau idx is
     },
     {
-      "d501", 67200, 1, false, seek_64, 64, 201
+      "d501", 67200, 1, false, seek_64, 64, 201, 80 * 20, LATENCY_SEEK_CYL, LATENCY_XFER64
     },
     {
-      "3380", 112395, 0, false, seek_512, 512, 0 // 338x is never attached to a dau
+      "3380", 112395, 0, false, seek_512, 512, 0, 127 * 15, LATENCY_SEEK_CYL, LATENCY_XFER64 // 338x is never attached to a dau
     },
   };
 #define N_DISK_TYPES (sizeof (diskTypes) / sizeof (struct diskType_t))
@@ -270,6 +318,7 @@ static struct dsk_state
 //              001000
 //  itr boot    001001
 //
+
 
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE | DKUF_F_RAW)
@@ -676,6 +725,7 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     iom_indirect_data_service (iomUnitIdx, chan, & seekData, &count, false);
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
+    seekData &= MASK21;
 
 //sim_printf ("seekData %012"PRIo64"\n", seekData);
 // Observations about the seek/write stream
@@ -685,11 +735,16 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 // highest observed n during vol. inoit. 272657(8) 95663(10)
 //
 
+#if defined(LOCKLESS) && defined(IO_LATENCY)
+        uint delta = (uint) abs ((int) disk_statep->seekPosition - (int) seekData) /
+                      diskTypes[typeIdx].sects_per_cyl;
+        usleep (diskTypes[typeIdx].seek_latency * delta);
+#endif
 // disk_control.pl1: 
 //   quentry.sector = bit (sector, 21);  /* Save the disk device address. */
 // suggests seeks are 21 bits.
 //  
-    disk_statep -> seekPosition = seekData & MASK21;
+    disk_statep -> seekPosition = (uint) seekData;
 //sim_printf ("seek seekPosition %d\n", disk_statep -> seekPosition);
     p -> stati = 00000; // Channel ready
 #ifdef PROFILER
@@ -754,6 +809,7 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     iom_indirect_data_service (iomUnitIdx, chan, & seekData, &count, false);
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
+    seekData &= MASK21;
 
 //sim_printf ("seekData %012"PRIo64"\n", seekData);
 // Observations about the seek/write stream
@@ -763,11 +819,16 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 // highest observed n during vol. inoit. 272657(8) 95663(10)
 //
 
+#if defined(LOCKLESS) && defined(IO_LATENCY)
+        uint delta = (uint) abs ((int) disk_statep->seekPosition - (int) seekData) /
+                      diskTypes[typeIdx].sects_per_cyl;
+        usleep (diskTypes[typeIdx].seek_latency * delta);
+#endif
 // disk_control.pl1: 
 //   quentry.sector = bit (sector, 21);  /* Save the disk device address. */
 // suggests seeks are 21 bits.
 //  
-    disk_statep -> seekPosition = seekData & MASK21;
+    disk_statep -> seekPosition = (uint) seekData;
 //sim_printf ("seek seekPosition %d\n", disk_statep -> seekPosition);
     p -> stati = 00000; // Channel ready
 #ifdef PROFILER
@@ -852,6 +913,9 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
                    devUnitIdx, disk_statep -> seekPosition, tallySectors);
 
         fflush (unitp->fileref);
+#if defined(LOCKLESS) && defined(IO_LATENCY)
+        usleep (diskTypes[typeIdx].xfer_latency * tallySectors + LATENCY_ROT);
+#endif
         rc = (int) fread (diskBuffer, sectorSizeBytes,
                     tallySectors,
                     unitp -> fileref);
@@ -1037,6 +1101,9 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
           }
 #endif
 
+#if defined(LOCKLESS) && defined(IO_LATENCY)
+        usleep (diskTypes[typeIdx].xfer_latency * tallySectors + LATENCY_ROT);
+#endif
         sim_debug (DBG_TRACE, & dsk_dev, "Disk write %3d %8d %3d\n",
                    devUnitIdx, disk_statep -> seekPosition, tallySectors);
         rc = (int) fwrite (diskBuffer, sectorSizeBytes,
@@ -1527,6 +1594,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
           break;
 
         case 031: // CMD 31 WRITE
+        case 033: // CMD 31 WRITE AND COMPARE
           {
             // XXX is it correct to not process the DDCWs?
             if (! unitp -> fileref)
