@@ -1673,8 +1673,9 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
               sim_warn ("disk daze %o\n", p->IDCW_DEV_CMD);
             sim_debug (DBG_ERR, & dsk_dev,
                        "%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
+            rc = IOM_CMD_ERROR;
           }
-          return IOM_CMD_ERROR;
+          break;
       }
 
 #ifdef LOCKLESS
