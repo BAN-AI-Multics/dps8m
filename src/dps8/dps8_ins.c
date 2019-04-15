@@ -8757,13 +8757,6 @@ elapsedtime ();
           if (cpu.disInterrupted)
             {
               cpu.disInterrupted = false;
-#ifdef DIS_METER
-              struct timespec now, delta;
-              clock_gettime (CLOCK_REALTIME, & now);
-              timespec_diff (& cpu.foo, & now, & delta);
-              sim_printf ("dis latency %6ld.%02ld\r\n",  delta.tv_sec,
-                                  delta.tv_nsec / 10000000);
-#endif
               break;
             }
 
@@ -9743,9 +9736,6 @@ elapsedtime ();
         if (cpu.currentInstruction.opcode10 == 00616)
           {
              cpu.disInterrupted = true;
-#ifdef DIS_METER
-             clock_gettime (CLOCK_REALTIME, & cpu.foo);
-#endif
           }
         sim_debug (DBG_FAULT, & cpu_dev, "RCU interrupt return\n");
         longjmp (cpu.jmpMain, JMP_REFETCH);
