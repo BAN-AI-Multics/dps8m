@@ -1538,6 +1538,10 @@ typedef struct
                  // XEC instruction
 
     bool disInterrupted; // A DIS instruction was interrupted;
+#ifdef DIS_METER
+    struct timespec foo;
+#endif
+
     DCDstruct currentInstruction;
     EISstruct currentEISinstruction;
 
