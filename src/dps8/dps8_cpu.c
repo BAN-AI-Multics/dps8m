@@ -2072,24 +2072,6 @@ setCPU:;
 
                 if (is_dis)
                   {
-#if 0
-                    // If we are doing a refetch, then we must
-                    // have come from an RCU. If is_dis is set,
-                    // the SCU happened during an SCU; therefore
-                    // we took a fault or interrupt during a DIS.
-                    // The Yblock8 will still have the MC; test 
-                    // is it was an interupt.
-                    if (val == JMP_REFETCH && 
-                        getbits36_1 (cpu.Yblock8[1], 35) == 0)
-                      {
-                         // since this is a Delay until Interrupt,
-                         // and we took an interrupt, move on
-                         cpu.PPR.IC ++;
-                         set_cpu_cycle (FETCH_cycle);
-                         val = JMP_ENTRY;
-                         break;
-                       }
-#endif
                     // take interrupts and g7 faults as long as
                     // last instruction is DIS (??)
                     cpu.interrupt_flag = sample_interrupts ();
