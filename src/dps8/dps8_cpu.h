@@ -1535,8 +1535,9 @@ typedef struct
     bool isExec;  // The instruction being executed is the target of
                   // an XEC or XED instruction
     bool isXED; // The instruction being executed is the target of an
-                // XEC instruction
+                 // XEC instruction
 
+    bool disInterrupted; // A DIS instruction was interrupted;
     DCDstruct currentInstruction;
     EISstruct currentEISinstruction;
 

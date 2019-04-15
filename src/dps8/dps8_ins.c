@@ -8754,6 +8754,12 @@ elapsedtime ();
           sim_debug (DBG_TRACEEXT, & cpu_dev, "entered DIS_cycle\n");
           //sim_printf ("entered DIS_cycle\n");
 
+          if (cpu.disInterrupted)
+            {
+              cpu.disInterrupted = false;
+              break;
+            }
+
           // No operation takes place, and the processor does not
           // continue with the next instruction; it waits for a
           // external interrupt signal.
@@ -9727,6 +9733,10 @@ elapsedtime ();
 
     if (getbits36_1  (cpu.Yblock8[1], 35) == 0) // cpu.cu.FLT_INT is interrupt, not fault
       {
+        if (cpu.currentInstruction.opcode10 == 00616)
+          {
+             cpu.disInterrupted = true;
+          }
         sim_debug (DBG_FAULT, & cpu_dev, "RCU interrupt return\n");
         longjmp (cpu.jmpMain, JMP_REFETCH);
       }
