@@ -1670,6 +1670,13 @@ t_stat threadz_sim_instr (void)
             // was xfer was false; or in a DIS cycle, in
             // which case we want it false so interrupts 
             // can happen.
+
+            // CAC 2019-05-14. This is not so.
+            // We get here after an instruction fetch fault,
+            // an RCU with RFI set, or after an interrupt.
+            // I don't see how to preserve wasXfer across the SCU/RCU
+            // so take the conservative approach.
+
             cpu.wasXfer = false;
              
             set_cpu_cycle (FETCH_cycle);

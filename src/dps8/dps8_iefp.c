@@ -154,11 +154,14 @@ void Read2 (word18 address, word36 * result, processor_cycle_type cyctyp)
                             __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {
-                    for (uint i = 0; i < 2; i ++)
-                      sim_debug (DBG_FINAL, & cpu_dev,
-                                  "Read2 (Actual) Read:       bar address=%08o"
-                                  "  readData=%012"PRIo64"\n",
-                                  address + i, result [i]);
+                    if (cyctyp == OPERAND_READ)
+                      {
+                        for (uint i = 0; i < 2; i ++)
+                          sim_debug (DBG_FINAL, & cpu_dev,
+                                      "Read2 (Actual) Read:       bar address=%08o"
+                                      "  readData=%012"PRIo64"\n",
+                                      address + i, result [i]);
+                      }
                   }
                 HDBGMRead (cpu.iefpFinalAddress, * result);
                 HDBGMRead (cpu.iefpFinalAddress+1, * (result+1));
@@ -171,11 +174,14 @@ void Read2 (word18 address, word36 * result, processor_cycle_type cyctyp)
                 core_read2 (address, result + 0, result + 1, __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {
-                    for (uint i = 0; i < 2; i ++)
-                      sim_debug (DBG_FINAL, & cpu_dev,
-                                 "Read2 (Actual) Read:       abs address=%08o"
-                                 "  readData=%012"PRIo64"\n", 
-                                 address + i, result [i]);
+                    if (cyctyp == OPERAND_READ)
+                      {
+                        for (uint i = 0; i < 2; i ++)
+                          sim_debug (DBG_FINAL, & cpu_dev,
+                                     "Read2 (Actual) Read:       abs address=%08o"
+                                     "  readData=%012"PRIo64"\n", 
+                                     address + i, result [i]);
+                      }
                   }
                 HDBGMRead (cpu.iefpFinalAddress, * result);
                 HDBGMRead (cpu.iefpFinalAddress+1, * (result+1));
@@ -192,13 +198,24 @@ B29:;
 		cpu.TPR.TSR = cpu.PPR.PSR;
 		cpu.TPR.TRR = cpu.PPR.PRR;
                 cpu.iefpFinalAddress = do_append_cycle (cyctyp, result, 2);
-                if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev)
+                if_sim_debug (DBG_APPENDING, & cpu_dev)
                   {
                     for (uint i = 0; i < 2; i ++)
-                     sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
-                                "Read2 (Actual) Read:  bar iefpFinalAddress="
-                                "%08o  readData=%012"PRIo64"\n", 
-                                cpu.iefpFinalAddress + i, result [i]);
+                      sim_debug (DBG_APPENDING, & cpu_dev,
+                                 "Read2 (Actual) Read:  bar iefpFinalAddress="
+                                 "%08o  readData=%012"PRIo64"\n", 
+                                 cpu.iefpFinalAddress + i, result [i]);
+                  }
+                if_sim_debug (DBG_FINAL, & cpu_dev)
+                  {
+                    if (cyctyp == OPERAND_READ)
+                      {
+                        for (uint i = 0; i < 2; i ++)
+                          sim_debug (DBG_FINAL, & cpu_dev,
+                                     "Read2 (Actual) Read:  bar iefpFinalAddress="
+                                     "%08o  readData=%012"PRIo64"\n", 
+                                    cpu.iefpFinalAddress + i, result [i]);
+                      }
                   }
                 HDBGMRead (cpu.iefpFinalAddress, * result);
                 HDBGMRead (cpu.iefpFinalAddress+1, * (result+1));
@@ -207,13 +224,24 @@ B29:;
             else
               {
                 cpu.iefpFinalAddress = do_append_cycle (cyctyp, result, 2);
-                if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev)
+                if_sim_debug (DBG_APPENDING, & cpu_dev)
                   {
                     for (uint i = 0; i < 2; i ++)
-                      sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, 
+                      sim_debug (DBG_APPENDING, & cpu_dev, 
                                  "Read2 (Actual) Read:  iefpFinalAddress=%08o"
                                  "  readData=%012"PRIo64"\n",
                                  cpu.iefpFinalAddress + i, result [i]);
+                  }
+                if_sim_debug (DBG_FINAL, & cpu_dev)
+                  {
+                    if (cyctyp == OPERAND_READ)
+                      {
+                        for (uint i = 0; i < 2; i ++)
+                          sim_debug (DBG_FINAL, & cpu_dev, 
+                                     "Read2 (Actual) Read:  iefpFinalAddress=%08o"
+                                     "  readData=%012"PRIo64"\n",
+                                     cpu.iefpFinalAddress + i, result [i]);
+                      }
                   }
                 HDBGMRead (cpu.iefpFinalAddress, * result);
                 HDBGMRead (cpu.iefpFinalAddress+1, * (result+1));

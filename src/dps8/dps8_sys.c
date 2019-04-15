@@ -2038,7 +2038,7 @@ static t_stat abs_addr (UNUSED int32 arg, const char * buf)
 // Read a system_book segment, extracting segment names and numbers
 // and component names, offsets, and lengths
 
-#define BOOT_SEGMENTS_MAX 1024
+#define BOOT_SEGMENTS_MAX 4096
 #define BOOT_COMPONENTS_MAX 4096
 #define BOOK_SEGMENT_NAME_LEN 33
 
