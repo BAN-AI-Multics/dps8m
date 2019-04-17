@@ -1508,6 +1508,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
           break;
 
         case 031: // CMD 31 WRITE
+        case 033: // CMD 31 WRITE AND COMPARE
           {
             // XXX is it correct to not process the DDCWs?
             if (! unitp -> fileref)
