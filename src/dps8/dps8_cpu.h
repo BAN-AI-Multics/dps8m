@@ -1811,6 +1811,8 @@ typedef struct
     uint intrs;
     bool run; // shadow of cpuThreadz[].run
 #endif
+    bool restart;
+    uint restart_address;
   } cpu_state_t;
 
 extern cpu_state_t * cpus;
