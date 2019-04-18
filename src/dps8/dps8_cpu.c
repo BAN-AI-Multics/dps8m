@@ -1347,7 +1347,7 @@ t_stat sim_instr (void)
   {
     t_stat reason = 0;
 
-#ifdef EARLY_CREATE
+#if defined(IO_THREADZ) || defined (EARLY_CREATE)
     static bool inited = false;
     if (! inited)
       {
@@ -1382,6 +1382,7 @@ t_stat sim_instr (void)
           }
 #endif
 
+#ifdef EARLY_CREATE
 // Create CPU threads
 
         //for (uint cpu_idx = 0; cpu_idx < N_CPU_UNITS_MAX; cpu_idx ++)
@@ -1390,12 +1391,14 @@ t_stat sim_instr (void)
             if (cpuThreadz[cpu_idx].run == false)
               createCPUThread (cpu_idx);
           }
-      }
 #else
-    // XXX This assumes that the CPU at idx 0 is the boot CPU.
-    if (cpuThreadz[0].run == false)
+        // XXX This assumes that the CPU at idx 0 is the boot CPU.
+        if (cpuThreadz[0].run == false)
           createCPUThread (0);
 #endif
+      }
+#endif
+
     do
       {
         reason = 0;
