@@ -492,6 +492,18 @@ unsigned long  sleepCPU (unsigned long usec)
     return (unsigned long) delta.tv_nsec / 1000;
   }
 
+// Stall the CPU at startup until interrupt or connect fault
+void stallCPU (void)
+  {
+    int rc;
+    struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
+    lock_scu ();
+    rc = pthread_cond_wait (& p->sleepCond, & scu_lock);
+    unlock_scu ();
+    if (rc)
+      sim_printf ("sleepCPU pthread_cond_timedwait %d\n", rc);
+  }
+
 // Called to wake sleeping CPU; such as interrupt during DIS
 
 void wakeCPU (uint cpuNum)

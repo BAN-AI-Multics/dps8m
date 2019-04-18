@@ -1555,6 +1555,7 @@ void * cpu_thread_main (void * arg)
     sim_msg ("CPU %c thread created\n", 'a' + myid);
 
     setSignals ();
+    //stallCPU ();
     threadz_sim_instr ();
     return NULL;
   }
@@ -1656,6 +1657,7 @@ t_stat threadz_sim_instr (void)
     switch (val)
       {
         case JMP_ENTRY:
+            doFault (FAULT_SUF, fst_zero, "Startup"); // doFault does a longjmp to JMP_REENTRY
         case JMP_REENTRY:
             reason = 0;
             break;

@@ -143,6 +143,7 @@ void cpuRdyWait (uint cpuNum);
 void setCPURun (uint cpuNum, bool run);
 void cpuRunningWait (void);
 unsigned long sleepCPU (unsigned long usec);
+void stallCPU (void);
 void wakeCPU (uint cpuNum);
 
 #ifdef IO_THREADZ
