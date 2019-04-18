@@ -2379,7 +2379,7 @@ t_stat threadz_sim_instr (void)
                                       fst_zero);
                           unlock_scu ();
                         }
-                      cpu.rTR = 0;
+                      cpu.rTR = MASK27;
                     }
 #endif // !NO_TIMEWAIT
                   cpu.rTRticks = 0;
