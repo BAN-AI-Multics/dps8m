@@ -46,9 +46,9 @@ int main (int argc, char * argv[])
 // the cycle count, tho. If it is 0, then the CPU hasn't been started;
 // If it isn't changing, then it has probably been stopped.
 
-//#define for_cpus for (uint cpun = 0; cpun < N_CPU_UNITS_MAX; cpun ++)
 #ifdef LOCKLESS
-#define for_cpus for (uint cpun = 0; cpun < 2; cpun ++)
+//#define for_cpus for (uint cpun = 0; cpun < 2; cpun ++)
+#define for_cpus for (uint cpun = 0; cpun < N_CPU_UNITS_MAX; cpun ++)
 #else
 #define for_cpus for (uint cpun = 0; cpun < 1; cpun ++)
 #endif
@@ -85,7 +85,7 @@ int main (int argc, char * argv[])
                 printw ("CPU %c\n", 'A' + cpun);
                 unsigned long long cnt = __atomic_load_n (& cpu.cycleCnt, __ATOMIC_ACQUIRE);
                 float dis_pct = ((float) (dis_cnt[cpun] * 100)) / UPDATE_RATE;
-                printw ("Cycles %10lld Idle %5.1f%%\n", cnt - last_cycle_cnt [cpun], dis_pct);
+                printw ("Cycles %10lld %5.1f%%\n", cnt - last_cycle_cnt [cpun], 100.0 - dis_pct);
                 dis_cnt[cpun] = 0;
                 last_cycle_cnt [cpun] = cnt;
 
