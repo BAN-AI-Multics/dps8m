@@ -82,10 +82,12 @@ int main (int argc, char * argv[])
                 if (! cpu.run)
                   continue;
 #endif
-                printw ("CPU %c\n", 'A' + cpun);
                 unsigned long long cnt = __atomic_load_n (& cpu.cycleCnt, __ATOMIC_ACQUIRE);
                 float dis_pct = ((float) (dis_cnt[cpun] * 100)) / UPDATE_RATE;
-                printw ("Cycles %10lld %5.1f%%\n", cnt - last_cycle_cnt [cpun], 100.0 - dis_pct);
+                printw ("CPU %c Cycles %10lld %5.1f%%\n", 'A' + cpun, cnt - last_cycle_cnt [cpun], 100.0 - dis_pct);
+
+                printw ("%05o:%06o %012llo A: %012llo Q: %012llo\n",
+                        cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD, cpu.rA, cpu.rQ);
                 dis_cnt[cpun] = 0;
                 last_cycle_cnt [cpun] = cnt;
 
