@@ -45,9 +45,11 @@ ifeq ($(PROFILER),1)
 $(warning #### PROFILER mode)
 CFLAGS += -DPROFILER
 PROF_TARGETS = profiler tracer tracer_to_txt tracer_annotate
-PROF_OBJS = profiler.o tracer.o tracer_to_txt.o tracer_annotate.o
+PROF_SRCS = profiler.c tracer.c tracer_to_txt.c tracer_annotate.c
+PROF_OBJS = $(patsubst %.c,%.o,$(PROF_SRCS))
 else
 PROF_TARGETS = 
+PROF_SRCS = 
 PROF_OBJS = 
 endif
 
@@ -248,17 +250,17 @@ H_SRCS += ./uvutil.h
 
 all:: utils $(TAGS) locallibs_then_dps8 $(PROF_TARGETS)
 
-profiler : locallibs_then_dps8 profiler.c dps8.h dps8_cpu.h dps8_iom.h dps8_cable.h dps8_state.h shm.h 
-	$(CC) $(CFLAGS) $(LDFLAGS) profiler.c -o profiler -I../simh-master shm.o -lncurses
+profiler : locallibs_then_dps8 profiler.o 
+	$(CC) $(LDFLAGS) profiler.o -o profiler shm.o -lncurses
 
-tracer : locallibs_then_dps8 tracer.c dps8.h dps8_cpu.h dps8_iom.h dps8_cable.h dps8_state.h shm.h trace_record.h
-	$(CC) $(CFLAGS) $(LDFLAGS) tracer.c -o tracer -I../simh-master shm.o
+tracer : locallibs_then_dps8 tracer.o 
+	$(CC) $(LDFLAGS) tracer.o -o tracer shm.o
 
-tracer_to_txt : tracer_to_txt.c dps8.h dps8_cpu.h trace_record.h
-	$(CC) $(CFLAGS) $(LDFLAGS) tracer_to_txt.c -o tracer_to_txt -I../simh-master
+tracer_to_txt : tracer_to_txt.o
+	$(CC) $(LDFLAGS) tracer_to_txt.o -o tracer_to_txt
 
-tracer_annotate : tracer_annotate.c dps8.h dps8_cpu.h trace_record.h
-	$(CC) $(CFLAGS) $(LDFLAGS) tracer_annotate.c -o tracer_annotate -I../simh-master
+tracer_annotate : tracer_annotate.o
+	$(CC) $(LDFLAGS) tracer_annotate.o -o tracer_annotate
 
 
 #fnpx : fnpx.c fnp_udplib.o
@@ -420,3 +422,4 @@ errnos.h:
 	rm -f $@.$$$$
 
 -include $(C_SRCS:.c=.d)
+-include $(PROF_SRCS:.c=.d)
