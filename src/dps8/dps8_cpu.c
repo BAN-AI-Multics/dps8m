@@ -1796,6 +1796,11 @@ setCPU:;
 
     DCDstruct * ci = & cpu.currentInstruction;
 
+    if (cpu.restart)
+      {
+        set_cpu_cycle (FAULT_cycle);
+      }
+
     do
       {
         reason = 0;
@@ -2728,6 +2733,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               // absolute address of fault YPair
               word24 addr = fltAddress + 2 * cpu.faultNumber;
   
+              if (cpu.restart)
+                {
+                  cpu.restart = false;
+                  addr = cpu.restart_address;
+                }
+
               core_read2 (addr, & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
               cpu.cu.xde = 1;
               cpu.cu.xdo = 1;

@@ -1802,6 +1802,8 @@ typedef struct
     bool set_affinity;
     uint affinity;
 #endif
+    bool restart;
+    uint restart_address;
   } cpu_state_t;
 
 #ifdef M_SHARED

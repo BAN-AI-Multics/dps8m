@@ -1631,6 +1631,8 @@ static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
         n = (int) strtol (buf, NULL, 0);
       }
     sim_printf ("Restart entry 0%o\n", n);
+
+#if 0
     // Assume bootload CPU
     cpu.cu.IWB = M [n] & MASK36;
     cpu.cu.IRODD = M [n + 1] & MASK36;
@@ -1640,6 +1642,12 @@ static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
     cpu.isXED = true;
     cpu.cycle = FAULT_EXEC_cycle;
     set_addr_mode (ABSOLUTE_mode);
+#endif
+
+    cpu_reset_unit_idx (0, false);
+    cpu.restart = true;
+    cpu.restart_address = (uint) n;
+
     t_stat rc = run_cmd (RU_CONT, "");
     return rc;
   }
