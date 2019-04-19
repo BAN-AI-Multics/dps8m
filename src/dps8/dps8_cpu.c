@@ -2286,7 +2286,7 @@ t_stat threadz_sim_instr (void)
                     set_cpu_cycle (FETCH_cycle);
                   break;   // don't bump PPR.IC, instruction already did it
                 }
-
+#ifndef LOCKLESS
               if (ret == CONT_DIS)
                 {
                   CPT (cpt1U, 25); // DIS instruction
@@ -2430,6 +2430,7 @@ t_stat threadz_sim_instr (void)
                     cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
                     break;
                   }
+#endif // LOCKLESS
 
                 cpu.wasXfer = false;
 

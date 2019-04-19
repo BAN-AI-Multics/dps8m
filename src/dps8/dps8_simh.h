@@ -116,7 +116,9 @@ extern DEVICE scu_dev;
 
 // not really STOP codes, but get returned from instruction loops
 #define CONT_TRA    -1  // encountered a transfer instruction; don't bump PPR.IC
+#ifndef LOCKLESS
 #define CONT_DIS    -2  // instruction was a DIS 
+#endif
 #define CONT_XEC    -3  // instruction was a XEC or XED 
 #define CONT_RPT    -4  // instruction was a RPT or RPD or RPL
 #define CONT_RET    -5  // encountered a return instruction; don't bump PPR.IC,

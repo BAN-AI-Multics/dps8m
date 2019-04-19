@@ -9069,6 +9069,8 @@ elapsedtime ();
 
         case x0 (0616):  // dis
 
+          CPT (cpt1U, 25); // DIS instruction
+
           if (! cpu.switches.dis_enable)
             {
               return STOP_STOP;
@@ -9172,11 +9174,82 @@ elapsedtime ();
               cpu.g7_flag = true;
               break;
             }
+#ifndef LOCKLESS
+
+          sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\n");
+          return CONT_DIS;
+
+#else // LOCKLESS
+
+// If we get here, we have encountered a DIS instruction in EXEC_cycle.
+//
+// We need to idle the CPU until one of the following conditions:
+//
+//  An external interrupt occurs.
+//  The Timer Register underflows.
+//  The emulator polled devices need polling.
+//
+// The external interrupt will only be posted to the CPU engine if the
+// device poll posts an interrupt. This means that we do not need to
+// detect the interrupts here; if we wake up and poll the devices, the 
+// interrupt will be detected by the DIS instruction when it is re-executed.
+//
+// The Timer Register is a fast, high-precision timer but Multics uses it 
+// in only two ways: detecting I/O lockup during early boot, and process
+// quantum scheduling (1/4 second for Multics).
+//
+// Neither of these require high resolution or high accuracy.
+//
+// The goal of the polling code is sample at about 100Hz; updating the timer
+// register at that rate should suffice.
+//
+//    sleep for 1/100 of a second
+//    update the polling state to trigger a poll
+//    update the timer register by 1/100 of a second
+//    force the simh queues to process
+//    continue processing
+//
+
+
+          // 1/100 is .01 secs.
+          // *1000 is 10  milliseconds
+          // *1000 is 10000 microseconds
+          // in uSec;
+
+// XXX If interupt inhibit set, then sleep forever instead of TRO
+          // rTR is 512KHz; sleepCPU is in 1Mhz
+          //   rTR * 1,000,000 / 512,000
+          //   rTR * 1000 / 512
+          //   rTR * 500 / 256
+          //   rTR * 250 / 128
+          //   rTR * 125 / 64
+
+          unsigned long left = cpu.rTR * 125u / 64u;
+          lock_scu ();
+          if (!sample_interrupts ())
+            {
+              left = sleepCPU (left);
+            }
+          unlock_scu ();
+          if (left)
+            {
+              cpu.rTR = (word27) (left * 64 / 125);
+            }
           else
             {
-              sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\n");
-              return CONT_DIS;
+              if (cpu.switches.tro_enable)
+                {
+                  lock_scu ();
+                  setG7fault (current_running_cpu_idx, FAULT_TRO,
+                              fst_zero);
+                  unlock_scu ();
+                }
+              cpu.rTR = MASK27;
             }
+          cpu.rTRticks = 0;
+          // This will repeat the FAULT_EXEC cycle and cause interrupts and faults go be resample.
+          longjmp (cpu.jmpMain, JMP_REENTRY);
+#endif // LOCKLESS
 
         /// POINTER REGISTER INSTRUCTIONS
 
