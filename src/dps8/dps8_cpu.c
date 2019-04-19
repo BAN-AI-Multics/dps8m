@@ -1448,9 +1448,11 @@ t_stat sim_instr (void)
 #endif
         PNL (panel_process_event ());
 
+#ifndef LOCKLESS
         int con_unit_idx = check_attn_key ();
         if (con_unit_idx != -1)
           console_attn_idx (con_unit_idx);
+#endif
 
 #ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
         struct timespec next_time;
