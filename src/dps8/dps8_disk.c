@@ -535,6 +535,10 @@ static t_stat disk_set_ready (UNIT * uptr, UNUSED int32 value,
 
 static t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, UNUSED bool ro)
   {
+    if (ro)
+      dsk_unit[dsk_unit_idx].flags |= MTUF_WRP;
+    else
+      dsk_unit[dsk_unit_idx].flags &= ~ MTUF_WRP;
     //sim_printf ("in loadTape %d %s\n", dsk_unit_idx, disk_filename);
     t_stat stat = attach_unit (& dsk_unit [dsk_unit_idx], disk_filename);
     if (stat != SCPE_OK)
@@ -1829,4 +1833,22 @@ DEVICE msp_dev =
     NULL,         // description
     NULL
   };
+
+t_stat attach_disk (char * label, bool with_protect, char * drive)
+  {
+    int i;
+    for (i = 0; i < N_DSK_UNITS_MAX; i ++)
+      {
+        if (strcmp (drive, dsk_states[i].device_name) == 0)
+          break;
+      }
+    if (i >= N_DSK_UNITS_MAX)
+      {
+        sim_printf ("can't find device named %s\n", drive);
+        return SCPE_ARG;
+      }
+    sim_printf ("attach_disk selected unit %d\n", i);
+    loadDisk ((uint) i, label, with_protect);
+    return SCPE_OK;
+  }
 

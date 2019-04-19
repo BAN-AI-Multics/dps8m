@@ -40,7 +40,7 @@
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_mt.h"  // attachTape
-#include "dps8_disk.h"  // attachDisk
+#include "dps8_disk.h"
 #include "dps8_utils.h"
 #include "threadz.h"
 
@@ -555,6 +555,20 @@ static void handleRCP (char * text)
         strcpy (labelDotTap, label);
         strcat (labelDotTap, ".tap");
         attachTape (labelDotTap, withring, drive);
+        return;
+      }
+
+// 1654.1  RCP: Mount Pack test without protect on dskb_05 for Repair.SysAdmin.a
+
+    rc = sscanf (text, "%*d.%*d RCP: Mount Pack %s %s protect on %s",
+                label, with, drive);
+    if (rc == 3)
+      {
+        bool with_protect = (strcmp (with, "with") == 0);
+        char label_dot_dsk [strlen (label) + strlen (".dsk") + 1];
+        strcpy (label_dot_dsk, label);
+        strcat (label_dot_dsk, ".dsk");
+        attach_disk (label_dot_dsk, with_protect, drive);
         return;
       }
 

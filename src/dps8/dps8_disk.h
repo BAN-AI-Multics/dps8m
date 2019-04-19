@@ -21,7 +21,8 @@ extern DEVICE msp_dev;
 extern UNIT msp_unit [N_MSP_UNITS_MAX];
 
 void disk_init(void);
-t_stat attachDisk (char * label);
+//t_stat attachDisk (char * label);
+t_stat attach_disk (char * label, bool with_protect, char * drive);
 int dsk_iom_cmd (uint iomUnitIdx, uint chan);
 
 
