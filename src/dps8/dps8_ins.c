@@ -9106,6 +9106,7 @@ elapsedtime ();
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
 
+#if 0
 #ifdef LOCKLESS
           if (cpu.PPR.PSR == 044 && cpu.PPR.IC == 0005217)
               {
@@ -9114,6 +9115,7 @@ elapsedtime ();
                 longjmp (cpu.jmpMain, JMP_STOP);
                 //stopCPUThread ();
               }
+#endif
 #endif
 #if 0
           if (i->address == 0777)
