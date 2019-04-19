@@ -1827,6 +1827,7 @@ extern cpu_state_t * restrict cpup;
 uint set_cpu_idx (uint cpuNum);
 #if defined(LOCKLESS)
 extern __thread uint current_running_cpu_idx;
+extern bool bce_dis_called;
 #else
 #define current_running_cpu_idx 0
 #endif

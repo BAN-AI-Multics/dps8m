@@ -9100,6 +9100,9 @@ elapsedtime ();
               {
                 sim_printf ("BCE DIS causes CPU halt\n");
                 sim_debug (DBG_MSG, & cpu_dev, "BCE DIS causes CPU halt\n");
+#ifdef LOCKLESS
+                bce_dis_called = true;
+#endif // LOCKLESS
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
 

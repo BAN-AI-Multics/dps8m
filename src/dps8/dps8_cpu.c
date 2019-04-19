@@ -1340,6 +1340,7 @@ static void panel_process_event (void)
   }
 #endif
 
+bool bce_dis_called = false;
 
 #if defined(LOCKLESS)
 // The hypervisor CPU for the threadz model
@@ -1417,7 +1418,7 @@ t_stat sim_instr (void)
             return STOP_STOP;
           }
 #endif
-#if 1
+#if 0
 
 // Check for all CPUs stopped
 
@@ -1435,7 +1436,10 @@ t_stat sim_instr (void)
           return STOP_STOP;
 #endif
 
-// Loop runs at 1000Hhz
+        if (bce_dis_called)
+          return STOP_STOP;
+
+// Loop runs at 1000 Hz
 
 #ifdef LOCKLESS
         lock_iom();
