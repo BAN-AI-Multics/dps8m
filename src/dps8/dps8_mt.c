@@ -109,6 +109,14 @@
  Allow multiple tapes per channel.
  */
 
+/*  rcp_tape_.pl1
+ *      We should come here because we have received a special interrupt.
+ *      We will check to see if it is from a rewind & unload or from
+ *      a mount.  The special status bits we will test are:
+ *      REWIND, UNLOAD, READY, STANDBY, LOADED, RELEASED, MALFUNCTIONED.
+ *
+ *       0100      040     020      010        04       02        01
+ */
 #include "sim_tape.h"
 
 static DEBTAB mt_dt [] =
@@ -256,7 +264,7 @@ static MTAB mtp_mod [] =
       "Set the device name", /* value descriptor */
       NULL          // help
     },
-    { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
+    MTAB_eol
   };
 
 static t_stat mtp_reset (UNUSED DEVICE * dptr)
@@ -303,7 +311,7 @@ DEVICE mtp_dev =
 //
 
 
-#define MT_UNIT_NUM(uptr) ((uptr) - mt_unit)
+#define MT_UNIT_IDX(uptr) ((uptr) - mt_unit)
 
 struct tape_state tape_states [N_MT_UNITS_MAX];
 static const char * simh_tape_msg (int code); // hack
@@ -363,7 +371,7 @@ static t_stat mt_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
 static t_stat mt_show_device_name (UNUSED FILE * st, UNIT * uptr, 
                                    UNUSED int val, UNUSED const void * desc)
   {
-    int n = (int) MT_UNIT_NUM (uptr);
+    int n = (int) MT_UNIT_IDX (uptr);
     if (n < 0 || n >= N_MT_UNITS_MAX)
       return SCPE_ARG;
     sim_printf("Tape drive device name is %s\n", tape_states [n] . device_name);
@@ -373,7 +381,7 @@ static t_stat mt_show_device_name (UNUSED FILE * st, UNIT * uptr,
 static t_stat mt_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value, 
                                   UNUSED const char * cptr, UNUSED void * desc)
   {
-    int n = (int) MT_UNIT_NUM (uptr);
+    int n = (int) MT_UNIT_IDX (uptr);
     if (n < 0 || n >= N_MT_UNITS_MAX)
       return SCPE_ARG;
     if (cptr)
@@ -425,6 +433,115 @@ static t_stat mt_set_capac (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
+static t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1)
+  {
+    if (! sim_is_running)
+      return SCPE_OK;
+
+// controller ready
+//    send_special_interrupt ((uint) cables -> cablesFromIomToTap [tap_unit_idx] . iomUnitIdx,
+//                            (uint) cables -> cablesFromIomToTap [tap_unit_idx] . chan_num,
+//                            0,
+//                            0x40, 00 /* controller ready */);
+
+    // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
+    // if substr (special_status_word, 34, 3) ^= "001"b
+    // Note the 34,3 spans 34,35,36; therefore the bits are 1..36, not 0..35
+    // 20,1 is bit 19
+    // 13,6, is bits 12..17
+    // status0 is 19..26
+    // status1 is 28..35
+    // so substr (w, 20, 1) is bit 0 of status0
+    //    substr (w, 13, 6) is the low 6 bits of dev_no
+    //    substr (w, 34, 3) is the low 3 bits of status 1
+        //sim_printf ("%s %d %o\n", disk_filename, ro,  mt_unit [tap_unit_idx] . flags);
+        //sim_printf ("special int %d %o\n", tap_unit_idx, mt_unit [tap_unit_idx] . flags);
+
+    uint ctlr_unit_idx = cables->tap_to_ctlr [tap_unit_idx].ctlr_unit_idx;
+    enum ctlr_type_e ctlr_type = cables->tap_to_ctlr [tap_unit_idx].ctlr_type;
+    if (ctlr_type != CTLR_T_MTP && ctlr_type != CTLR_T_IPCT)
+      {
+        // If None, assume that the cabling hasn't happend yey.
+        if (ctlr_type != CTLR_T_NONE)
+          {
+sim_printf ("lost %u\n", ctlr_type);
+            sim_warn ("loadDisk lost\n");
+            return SCPE_ARG;
+          }
+        return SCPE_OK;
+      }
+
+    // Which port should the controller send the interrupt to? All of them...
+
+#define ALLOFEM
+
+#ifdef ALLOFEM
+    bool sent_one = false;
+#endif
+    for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
+      {
+        if (ctlr_type == CTLR_T_MTP)
+          {
+            if (cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
+              {
+                uint iom_unit_idx = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+                uint chan_num = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+                uint dev_code = cables->tap_to_ctlr[tap_unit_idx].dev_code;
+
+                send_special_interrupt (iom_unit_idx, chan_num, dev_code, status0, status1);
+#ifdef ALLOFEM
+                sent_one = true;
+#else
+                return SCPE_OK;
+#endif
+              }
+          }
+        else
+          {
+            if (cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
+              {
+                uint iom_unit_idx = cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+                uint chan_num = cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+                uint dev_code = cables->tap_to_ctlr[tap_unit_idx].dev_code;
+
+                send_special_interrupt (iom_unit_idx, chan_num, dev_code, status0, status1);
+#ifdef ALLOFEM
+                sent_one = true;
+#else
+                return SCPE_OK;
+#endif
+              }
+          }
+      }
+#ifdef ALLOFEM
+    if (! sent_one)
+      {
+        sim_printf ("signalTape can't find controller; dropping interrupt\n");
+        return SCPE_ARG;
+      }
+    return SCPE_OK;
+#else
+    sim_printf ("signalTape can't find controller; dropping interrupt\n");
+    return SCPE_ARG;
+#endif
+  }
+
+
+static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
+                              UNUSED const char * cptr,
+                              UNUSED void * desc)
+  {
+    long tape_unit_idx = MT_UNIT_IDX (uptr);
+    if (tape_unit_idx >= N_MT_UNITS_MAX)
+      {
+        sim_debug (DBG_ERR, & tape_dev, 
+                   "Tape set ready: Invalid unit number %ld\n", tape_unit_idx);
+        sim_printf ("error: invalid unit number %ld\n", tape_unit_idx);
+        return SCPE_ARG;
+      }
+    signal_tape ((unsigned int) tape_unit_idx, 0, 020 /* tape drive to ready */);
+    return SCPE_OK;
+  }
 
 static MTAB mt_mod [] =
   {
@@ -490,6 +607,16 @@ static MTAB mt_mod [] =
       "Set the tape capacity of all drives", /* value descriptor */
       NULL          // help
     },
+    {
+      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
+      0,            /* match */
+      "READY",     /* print string */
+      "READY",         /* match string */
+      tape_set_ready,         /* validation routine */
+      NULL, /* display routine */
+      NULL,          /* value descriptor */
+      NULL   // help string
+    },
     { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
   };
 
@@ -502,6 +629,43 @@ static t_stat mt_reset (DEVICE * dptr)
       }
     return SCPE_OK;
   }
+
+static t_stat tape_attach (UNIT *uptr, CONST char *cptr)
+  {
+    int tape_unit_idx = (int) MT_UNIT_IDX (uptr);
+    if (tape_unit_idx < 0 || tape_unit_idx >= N_DSK_UNITS_MAX)
+      {
+        sim_printf ("error: invalid unit number %d\n", tape_unit_idx);
+        return SCPE_ARG;
+      }
+    int rc = sim_tape_attach (uptr, cptr);
+    if (rc == SCPE_OK)
+      {
+#if defined(LOCKLESS) && defined(IO_LATENCY)
+        //sleep (1);
+#endif
+        signal_tape ((unsigned int) tape_unit_idx, 0, 020 /* tape drive to ready */);
+      }
+    return rc;
+  }
+
+
+static t_stat tape_detach (UNIT *uptr)
+  {
+    int tape_unit_idx = (int) MT_UNIT_IDX (uptr);
+    if (tape_unit_idx < 0 || tape_unit_idx >= N_DSK_UNITS_MAX)
+      {
+        sim_printf ("error: invalid unit number %d\n", tape_unit_idx);
+        return SCPE_ARG;
+      }
+    int rc = sim_tape_detach (uptr);
+    if (rc == SCPE_OK)
+      {
+        signal_tape ((unsigned int) tape_unit_idx, 0, 050 /* tape drive to unload, standby */);
+      }
+    return rc;
+  }
+
 
 
 DEVICE tape_dev =
@@ -520,8 +684,8 @@ DEVICE tape_dev =
     NULL,             /* deposit routine */
     mt_reset,         /* reset routine */
     NULL,             /* boot routine */
-    &sim_tape_attach, /* attach routine */
-    &sim_tape_detach, /* detach routine */
+    tape_attach,      /* attach routine */
+    tape_detach,      /* detach routine */
     NULL,             /* context */
     DEV_DEBUG,        /* flags */
     0,                /* debug control flags */
@@ -535,82 +699,6 @@ DEVICE tape_dev =
     NULL
   };
 
-
-static t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1)
-  {
-    if (! sim_is_running)
-      return SCPE_OK;
-
-    // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
-    // if substr (special_status_word, 34, 3) ^= "001"b
-    // Note the 34,3 spans 34,35,36; therefore the bits are 1..36, not 0..35
-    // 20,1 is bit 19
-    // 13,6, is bits 12..17
-    // status0 is 19..26
-    // status1 is 28..35
-    // so substr (w, 20, 1) is bit 0 of status0
-    //    substr (w, 13, 6) is the low 6 bits of dev_no
-    //    substr (w, 34, 3) is the low 3 bits of status 1
-        //sim_printf ("%s %d %o\n", disk_filename, ro,  mt_unit [tap_unit_idx] . flags);
-        //sim_printf ("special int %d %o\n", tap_unit_idx, mt_unit [tap_unit_idx] . flags);
-
-    uint ctlr_unit_idx = cables->tap_to_ctlr [tap_unit_idx].ctlr_unit_idx;
-    enum ctlr_type_e ctlr_type = cables->tap_to_ctlr [tap_unit_idx].ctlr_type;
-    if (ctlr_type != CTLR_T_MTP && ctlr_type != CTLR_T_IPCT)
-      {
-        // If None, assume that the cabling hasn't happend yey.
-        if (ctlr_type != CTLR_T_NONE)
-          {
-sim_printf ("lost %u\n", ctlr_type);
-            sim_warn ("loadDisk lost\n");
-            return SCPE_ARG;
-          }
-        return SCPE_OK;
-      }
-
-    // Which port should the controller send the interrupt to? All of them...
-    bool sent_one = false;
-    for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
-      {
-        if (ctlr_type == CTLR_T_MTP)
-          {
-            if (cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
-              {
-                uint iom_unit_idx = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
-                uint chan_num = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
-                uint dev_code = cables->tap_to_ctlr[tap_unit_idx].dev_code;
-
-                send_special_interrupt (iom_unit_idx, chan_num, dev_code, status0, status1);
-                sent_one = true;
-              }
-          }
-        else
-          {
-            if (cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
-              {
-                uint iom_unit_idx = cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
-                uint chan_num = cables->ipct_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
-                uint dev_code = cables->tap_to_ctlr[tap_unit_idx].dev_code;
-
-                send_special_interrupt (iom_unit_idx, chan_num, dev_code, status0, status1);
-                sent_one = true;
-              }
-          }
-      }
-    if (! sent_one)
-      {
-        sim_printf ("signalTape can't find controller; dropping interrupt\n");
-        return SCPE_ARG;
-      }
-
-// controller ready
-//    send_special_interrupt ((uint) cables -> cablesFromIomToTap [tap_unit_idx] . iomUnitIdx,
-//                            (uint) cables -> cablesFromIomToTap [tap_unit_idx] . chan_num,
-//                            0,
-//                            0x40, 00 /* controller ready */);
-
-    return SCPE_OK;
-  }
 
 void loadTape (uint driveNumber, char * tapeFilename, bool ro)
   {
@@ -736,7 +824,7 @@ ddcws:;
     tape_statep -> words_processed = 0;
     if (unitp->flags & UNIT_WATCH)
       sim_printf ("Tape %ld reads record %d\n",
-                  (long) MT_UNIT_NUM (unitp), tape_statep -> rec_num);
+                  (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
     tape_statep -> io_mode = tape_read_mode;
 
 
@@ -1003,7 +1091,7 @@ loop:;
     tape_statep -> rec_num ++;
     if (unitp->flags & UNIT_WATCH)
       sim_printf ("Tape %ld writes record %d\n",
-                  (long) MT_UNIT_NUM (unitp), tape_statep -> rec_num);
+                  (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
 
     sim_tape_wreom (unitp);
     if (unitp->io_flush)
@@ -1219,6 +1307,14 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             else
               {
                 p -> stati = 04000; // have_status = 1
+                if (fips)
+                  {
+                    // FIPS uses CMD 0 for device status
+                    if (sim_tape_wrp (unitp))
+                      p -> stati |= 1;
+                    if (sim_tape_bot (unitp))
+                      p -> stati |= 2;
+                  }
               }
 //sim_printf ("tape req status chan_cmd %o\n", p -> IDCW_CHAN_CMD);
             sim_debug (DBG_DEBUG, & tape_dev,
@@ -1659,7 +1755,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             tape_statep -> rec_num += (int) skipped;
             if (unitp->flags & UNIT_WATCH)
               sim_printf ("Tape %ld forward skips to record %d\n",
-                          (long) MT_UNIT_NUM (unitp), tape_statep -> rec_num);
+                          (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
 
             p -> tallyResidue = (word12) (tally - skipped);
 
@@ -1708,7 +1804,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             tape_statep -> rec_num += (int) recsskipped;
             if (unitp->flags & UNIT_WATCH)
               sim_printf ("Tape %ld forward skips to record %d\n",
-                          (long) MT_UNIT_NUM (unitp), tape_statep -> rec_num);
+                          (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
 
             p -> tallyResidue = (word12) (tally - skipped);
             sim_debug (DBG_NOTIFY, & tape_dev, 
@@ -1782,7 +1878,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
             tape_statep -> rec_num -= (int) skipped;
             if (unitp->flags & UNIT_WATCH)
               sim_printf ("Tape %ld skip back to record %d\n",
-                          (long) MT_UNIT_NUM (unitp), tape_statep -> rec_num);
+                          (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
 
             p -> tallyResidue = (word12) (tally - skipped);
 
@@ -1846,7 +1942,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
             tape_statep -> rec_num -= (int) recsskipped;
             if (unitp->flags & UNIT_WATCH)
               sim_printf ("Tape %ld backward skips to record %d\n",
-                          (long) MT_UNIT_NUM (unitp), tape_statep -> rec_num);
+                          (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
 
             p -> tallyResidue = (word12) (tally - skipped);
             sim_debug (DBG_NOTIFY, & tape_dev, 
@@ -1949,7 +2045,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
             tape_statep -> rec_num ++;
             if (unitp->flags & UNIT_WATCH)
               sim_printf ("Tape %ld writes tape mark %d\n",
-                          (long) MT_UNIT_NUM (unitp), tape_statep -> rec_num);
+                          (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
 
             p -> stati = 04000; 
             if (sim_tape_eot (unitp))
@@ -2048,7 +2144,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
 
             tape_statep -> rec_num = 0;
             if (unitp->flags & UNIT_WATCH)
-              sim_printf ("Tape %ld rewinds\n", (long) MT_UNIT_NUM (unitp));
+              sim_printf ("Tape %ld rewinds\n", (long) MT_UNIT_IDX (unitp));
 
             p -> stati = 04000;
             if (sim_tape_wrp (unitp))
@@ -2067,7 +2163,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
           {
             if (unitp->flags & UNIT_WATCH)
               sim_printf ("Tape %ld unloads\n",
-                          (long) MT_UNIT_NUM (unitp));
+                          (long) MT_UNIT_IDX (unitp));
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Rewind/unload\n", __func__);
             sim_tape_detach (unitp);
