@@ -1824,6 +1824,17 @@ extern cpu_state_t * restrict cpup;
 #endif
 #define cpu (* cpup)
 
+
+#define N_STALL_POINTS 4
+struct stall_point_s
+  {
+    word15 segno;
+    word18 offset;
+    useconds_t time;
+  };
+extern struct stall_point_s stall_points [N_STALL_POINTS];
+extern bool stall_point_active;
+
 uint set_cpu_idx (uint cpuNum);
 #if defined(LOCKLESS)
 extern __thread uint current_running_cpu_idx;
