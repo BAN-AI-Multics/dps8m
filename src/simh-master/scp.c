@@ -5668,6 +5668,7 @@ free (uptr->filename);
 uptr->filename = NULL;
 if (fclose (uptr->fileref) == EOF)
     return SCPE_IOERR;
+uptr->fileref = NULL;
 return SCPE_OK;
 }
 

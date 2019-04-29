@@ -234,17 +234,7 @@ static struct diskType_t diskTypes [] =
 
 #define N_DISK_UNITS 2 // default
 
-static struct dsk_state
-  {
-    uint typeIdx;
-    enum { disk_no_mode, disk_seek512_mode, disk_seek64_mode, disk_seek_mode, disk_read_mode, disk_write_mode, disk_request_status_mode } io_mode;
-    uint seekPosition;
-    char device_name [MAX_DEV_NAME_LEN];
-#ifdef LOCKLESS
-    pthread_mutex_t dsk_lock;
-#endif
-  } dsk_states [N_DSK_UNITS_MAX];
-
+struct dsk_state dsk_states [N_DSK_UNITS_MAX];
 
 //-- // extern t_stat disk_svc(UNIT *up);
 
@@ -444,6 +434,12 @@ static t_stat dsk_set_device_name (UNIT * uptr, UNUSED int32 value,
 static t_stat signal_disk_ready (uint dsk_unit_idx)
   {
 
+// controller ready
+//    send_special_interrupt ((uint) cables -> cablesFromIomToDsk [dsk_unit_idx] . iomUnitIdx,
+//                            (uint) cables -> cablesFromIomToDsk [dsk_unit_idx] . chan_num,
+//                            0,
+//                            0x40, 00 /* controller ready */);
+
     // Don't signal in the sim is actually running....
     if (! sim_is_running)
       return SCPE_OK;
@@ -468,7 +464,7 @@ static t_stat signal_disk_ready (uint dsk_unit_idx)
         if (ctlr_type != CTLR_T_NONE)
           {
 sim_printf ("lost %u\n", ctlr_type);
-            sim_warn ("loadDisk lost\n");
+            sim_warn ("signal_disk_ready lost\n");
             return SCPE_ARG;
           }
         return SCPE_OK;
@@ -505,15 +501,9 @@ sim_printf ("lost %u\n", ctlr_type);
       }
     if (! sent_one)
       {
-        sim_printf ("loadDisk can't find controller; dropping interrupt\n");
+        sim_printf ("signal_disk_ready can't find controller; dropping interrupt\n");
         return SCPE_ARG;
       }
-
-// controller ready
-//    send_special_interrupt ((uint) cables -> cablesFromIomToDsk [dsk_unit_idx] . iomUnitIdx,
-//                            (uint) cables -> cablesFromIomToDsk [dsk_unit_idx] . chan_num,
-//                            0,
-//                            0x40, 00 /* controller ready */);
 
     return SCPE_OK;
   }
@@ -533,7 +523,21 @@ static t_stat disk_set_ready (UNIT * uptr, UNUSED int32 value,
     return signal_disk_ready ((uint) disk_unit_idx);
   }
 
-static t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, UNUSED bool ro)
+t_stat unload_disk (uint dsk_unit_idx)
+  {
+    if (dsk_unit [dsk_unit_idx] . flags & UNIT_ATT)
+      {
+        t_stat stat = sim_disk_detach (& dsk_unit [dsk_unit_idx]);
+        if (stat != SCPE_OK)
+          {
+            sim_warn ("%s sim_disk_detach returned %d\n", __func__, stat);
+            return SCPE_ARG;
+          }
+      }
+    return signal_disk_ready ((uint) dsk_unit_idx);
+  }
+
+t_stat load_disk (uint dsk_unit_idx, const char * disk_filename, bool ro)
   {
     if (ro)
       dsk_unit[dsk_unit_idx].flags |= MTUF_WRP;
@@ -543,7 +547,7 @@ static t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, UNUSED bo
     t_stat stat = attach_unit (& dsk_unit [dsk_unit_idx], disk_filename);
     if (stat != SCPE_OK)
       {
-        sim_printf ("loadDisk sim_disk_attach returned %d\n", stat);
+        sim_printf ("load_disk sim_disk_attach returned %d\n", stat);
         return stat;
       }
     return signal_disk_ready ((uint) dsk_unit_idx);
@@ -613,7 +617,7 @@ static t_stat disk_attach (UNIT *uptr, CONST char *cptr)
         return SCPE_ARG;
       }
 
-    return loadDisk ((uint) diskUnitIdx, cptr, false);
+    return load_disk ((uint) diskUnitIdx, cptr, false);
   }
 
 // No disks known to multics had more than 2^24 sectors...
@@ -1848,7 +1852,7 @@ t_stat attach_disk (char * label, bool with_protect, char * drive)
         return SCPE_ARG;
       }
     sim_printf ("attach_disk selected unit %d\n", i);
-    loadDisk ((uint) i, label, with_protect);
+    load_disk ((uint) i, label, with_protect);
     return SCPE_OK;
   }
 

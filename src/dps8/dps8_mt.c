@@ -700,7 +700,7 @@ DEVICE tape_dev =
   };
 
 
-void loadTape (uint driveNumber, char * tapeFilename, bool ro)
+t_stat load_tape (uint driveNumber, char * tapeFilename, bool ro)
   {
     if (ro)
       mt_unit [driveNumber] . flags |= MTUF_WRP;
@@ -710,13 +710,14 @@ void loadTape (uint driveNumber, char * tapeFilename, bool ro)
     if (stat != SCPE_OK)
       {
         sim_printf ("%s sim_tape_attach returned %d\n", __func__, stat);
-        return;
+        return stat;
       }
 
     signal_tape (driveNumber, 0, 020 /* tape drive to ready */);
+    return SCPE_OK;
   }
 
-static void unloadTape (uint driveNumber)
+void unload_tape (uint driveNumber)
   {
     if (mt_unit [driveNumber] . flags & UNIT_ATT)
       {
@@ -1297,26 +1298,29 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
       {
         case 0: // CMD 00 Request status -- controller status, not tape drive
           {
-            if (p -> IDCW_CHAN_CMD == 040) // If special controller command, then command 0 is 'suspend'
+            p -> stati = 04000; // have_status = 1
+            if (fips)
               {
-                sim_debug (DBG_DEBUG, & tape_dev,
-                           "controller suspend\n");
-                send_special_interrupt (iomUnitIdx, chan, p->IDCW_DEV_CODE, 01, 0 /* suspended */);
-                p -> stati = 04000; // have_status = 1
-              }
-            else
-              {
-                p -> stati = 04000; // have_status = 1
-                if (fips)
+                // FIPS uses CMD 0 for device status
+                if (unitp -> flags & UNIT_ATT)
                   {
-                    // FIPS uses CMD 0 for device status
                     if (sim_tape_wrp (unitp))
                       p -> stati |= 1;
                     if (sim_tape_bot (unitp))
                       p -> stati |= 2;
                   }
               }
-//sim_printf ("tape req status chan_cmd %o\n", p -> IDCW_CHAN_CMD);
+            else // Not fips
+              {
+                if (p -> IDCW_CHAN_CMD == 040) // If special controller command, then command 0 is 'suspend'
+                  {
+                    sim_debug (DBG_DEBUG, & tape_dev,
+                               "controller suspend\n");
+                    send_special_interrupt (iomUnitIdx, chan, p->IDCW_DEV_CODE, 01, 0 /* suspended */);
+                    p -> stati = 04000; // have_status = 1
+                    break;
+                  }
+              }
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Request status: %04o\n", __func__, p -> stati);
             sim_debug (DBG_DEBUG, & tape_dev,
@@ -1428,6 +1432,9 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
         case 3: // CMD 03 -- Read 9 Record
         case 5: // CMD 05 -- Read Binary Record
           {
+            if ((! (unitp->flags & UNIT_ATT)) ||
+                 (! (fips || dev_code)))
+              return IOM_CMD_ERROR;
             int rc = mtReadRecord (devUnitIdx, iomUnitIdx, chan);
             if (rc)
               return IOM_CMD_ERROR;
@@ -1554,6 +1561,9 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
         case 013: // CMD 013 -- Write tape 9
         case 015: // CMD 015 -- Write Binary Record
           {
+            if ((! (unitp->flags & UNIT_ATT)) ||
+                 (! (fips || dev_code)))
+              return IOM_CMD_ERROR;
             int rc = mtWriteRecord (devUnitIdx, iomUnitIdx, chan);
             if (rc)
               return IOM_CMD_ERROR;
@@ -1683,7 +1693,8 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             p -> stati = 04000;
             p -> initiate = false;
             p -> isRead = false;
-            if (dev_code)
+            if (unitp -> flags & UNIT_ATT &&
+                (fips || dev_code)) // If fips, drive code 0 is valid
               {
                 if (sim_tape_wrp (unitp))
                   p -> stati |= 1;
@@ -1701,12 +1712,16 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
         case 041:              // CMD 041 -- Set 6250 cpi.
           {
             p -> stati = 04000;
-            if (sim_tape_wrp (unitp))
-              p -> stati |= 1;
-            if (sim_tape_bot (unitp))
-              p -> stati |= 2;
-            //if (sim_tape_eom (unitp))
-              //p -> stati |= 0340;
+            if (unitp -> flags & UNIT_ATT &&
+                (fips || dev_code)) // If fips, drive code 0 is valid
+              {
+                if (sim_tape_wrp (unitp))
+                  p -> stati |= 1;
+                if (sim_tape_bot (unitp))
+                  p -> stati |= 2;
+                //if (sim_tape_eom (unitp))
+                  //p -> stati |= 0340;
+              }
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Set 800 bpi\n", __func__);
           }
@@ -1716,6 +1731,9 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
           {
             sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_cmd: Forward Skip Record\n");
+            if ((! (unitp->flags & UNIT_ATT)) ||
+                 (! (fips || dev_code)))
+              return IOM_CMD_ERROR;
             uint tally = p -> IDCW_COUNT;
             if (tally == 0)
               {
@@ -1776,6 +1794,9 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
           {
             sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_cmd: Forward Skip File\n");
+            if ((! (unitp->flags & UNIT_ATT)) ||
+                 (! (fips || dev_code)))
+              return IOM_CMD_ERROR;
             uint tally = 1;
 
             if (tally != 1)
@@ -1825,6 +1846,9 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_cmd: Backspace Record\n");
 
+            if ((! (unitp->flags & UNIT_ATT)) ||
+                 (! (fips || dev_code)))
+              return IOM_CMD_ERROR;
             uint tally = p -> IDCW_COUNT;
 
             if (tally == 0)
@@ -1900,6 +1924,9 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
           {
             sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_cmd: Backspace File\n");
+            if ((! (unitp->flags & UNIT_ATT)) ||
+                 (! (fips || dev_code)))
+              return IOM_CMD_ERROR;
             uint tally = 1;
 
             if (tally != 1)
@@ -1962,12 +1989,16 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
         case 050:               // CMD 050 -- Request device status
           {
             p -> stati = 04000;
-            if (sim_tape_wrp (unitp))
-              p -> stati |= 1;
-            if (sim_tape_bot (unitp))
-              p -> stati |= 2;
-            //if (sim_tape_eom (unitp))
-              //p -> stati |= 0340;
+            if (unitp -> flags & UNIT_ATT &&
+                (fips || dev_code)) // If fips, drive code 0 is valid
+              {
+                if (sim_tape_wrp (unitp))
+                  p -> stati |= 1;
+                if (sim_tape_bot (unitp))
+                  p -> stati |= 2;
+                //if (sim_tape_eom (unitp))
+                  //p -> stati |= 0340;
+              }
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Request device status: %o\n", __func__, p -> stati);
           }
@@ -1980,6 +2011,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
 // ("intellegence") by sending a 051 in a IDCW.
 // Since it's diffcult here to test for PCW/IDCW, assume that the PCW case
 // has been filtered out at a higher level
+
         case 051:               // CMD 051 -- Reset device status
           {
             if (p->isPCW)
@@ -1988,13 +2020,16 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
                 p->chanStatus = chanStatIncorrectDCW;
                 return IOM_CMD_ERROR;
               }
-             p->stati = 04000;
-            if (sim_tape_wrp (unitp))
-              p -> stati |= 1;
-            if (sim_tape_bot (unitp))
-              p -> stati |= 2;
-            //if (sim_tape_eom (unitp))
-              //p -> stati |= 0340;
+            p->stati = 04000;
+            if (unitp -> flags & UNIT_ATT)
+              {
+                if (sim_tape_wrp (unitp))
+                  p -> stati |= 1;
+                if (sim_tape_bot (unitp))
+                  p -> stati |= 2;
+                //if (sim_tape_eom (unitp))
+                  //p -> stati |= 0340;
+              }
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Reset device status: %o\n", __func__, p -> stati);
           }
@@ -2008,8 +2043,9 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
                        "mt_cmd: Write tape mark\n");
 
             int ret;
-            if (! (unitp -> flags & UNIT_ATT))
-              ret = MTSE_UNATT;
+            if ((! (unitp->flags & UNIT_ATT)) ||
+                 (! (fips || dev_code)))
+              ret = IOM_CMD_ERROR;
             else
               {
                 ret = sim_tape_wrtmk (unitp);
@@ -2066,12 +2102,16 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
         case 060:              // CMD 060 -- Set 800 bpi.
           {
             p -> stati = 04000;
-            if (sim_tape_wrp (unitp))
-              p -> stati |= 1;
-            if (sim_tape_bot (unitp))
-              p -> stati |= 2;
-            //if (sim_tape_eom (unitp))
-              //p -> stati |= 0340;
+            if (unitp -> flags & UNIT_ATT &&
+                (fips || dev_code)) // If fips, drive code 0 is valid
+              {
+                if (sim_tape_wrp (unitp))
+                  p -> stati |= 1;
+                if (sim_tape_bot (unitp))
+                  p -> stati |= 2;
+                //if (sim_tape_eom (unitp))
+                  //p -> stati |= 0340;
+              }
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Set 800 bpi\n", __func__);
           }
@@ -2080,12 +2120,16 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
         case 061:              // CMD 061 -- Set 556 bpi.
           {
             p -> stati = 04000;
-            if (sim_tape_wrp (unitp))
-              p -> stati |= 1;
-            if (sim_tape_bot (unitp))
-              p -> stati |= 2;
-            //if (sim_tape_eom (unitp))
-              //p -> stati |= 0340;
+            if (unitp -> flags & UNIT_ATT &&
+                (fips || dev_code)) // If fips, drive code 0 is valid
+              {
+                if (sim_tape_wrp (unitp))
+                  p -> stati |= 1;
+                if (sim_tape_bot (unitp))
+                  p -> stati |= 2;
+                //if (sim_tape_eom (unitp))
+                  //p -> stati |= 0340;
+              }
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Set 556 bpi\n", __func__);
           }
@@ -2096,6 +2140,9 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
         case 063:              // CMD 063 -- Set File Permit.
           {
             sim_debug (DBG_WARN, & tape_dev, "Set file permit?\n");
+            if ((! (unitp->flags & UNIT_ATT)) ||
+                 (! (fips || dev_code)))
+              return IOM_CMD_ERROR;
             p -> stati = 04000;
             if (sim_tape_wrp (unitp))
               p -> stati |= 1;
@@ -2104,17 +2151,19 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
           }
           break;
 
-// 064 Set file protect
-
         case 064:              // CMD 064 -- Set 200 bpi.
           {
             p -> stati = 04000;
-            if (sim_tape_wrp (unitp))
-              p -> stati |= 1;
-            if (sim_tape_bot (unitp))
-              p -> stati |= 2;
-            //if (sim_tape_eom (unitp))
-              //p -> stati |= 0340;
+            if (unitp -> flags & UNIT_ATT &&
+                (fips || dev_code)) // If fips, drive code 0 is valid
+              {
+                if (sim_tape_wrp (unitp))
+                  p -> stati |= 1;
+                if (sim_tape_bot (unitp))
+                  p -> stati |= 2;
+                //if (sim_tape_eom (unitp))
+                  //p -> stati |= 0340;
+              }
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Set 200 bpi\n", __func__);
           }
@@ -2123,12 +2172,16 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
         case 065:              // CMD 064 -- Set 1600 CPI
           {
             p -> stati = 04000;
-            if (sim_tape_wrp (unitp))
-              p -> stati |= 1;
-            if (sim_tape_bot (unitp))
-              p -> stati |= 2;
-            //if (sim_tape_eom (unitp))
-              //p -> stati |= 0340;
+            if (unitp -> flags & UNIT_ATT &&
+                (fips || dev_code)) // If fips, drive code 0 is valid
+              {
+                if (sim_tape_wrp (unitp))
+                  p -> stati |= 1;
+                if (sim_tape_bot (unitp))
+                  p -> stati |= 2;
+                //if (sim_tape_eom (unitp))
+                  //p -> stati |= 0340;
+              }
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Set 1600 CPI\n", __func__);
           }
@@ -2140,6 +2193,14 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
           {
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Rewind\n", __func__);
+            if ((! (unitp->flags & UNIT_ATT)) ||
+                 (! (fips || dev_code)))
+              {
+                send_special_interrupt (iomUnitIdx, chan, dev_code, 0, 040 /* unloaded */);
+sim_printf ("rewind bails idx %u ATT %u fips %u dev_code %u\r\n", 
+devUnitIdx, unitp->flags & UNIT_ATT, fips, dev_code);
+                return IOM_CMD_ERROR;
+              }
             sim_tape_rewind (unitp);
 
             tape_statep -> rec_num = 0;
@@ -2161,11 +2222,14 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
    
         case 072:              // CMD 072 -- Rewind/Unload.
           {
+            sim_debug (DBG_DEBUG, & tape_dev,
+                       "%s: Rewind/unload\n", __func__);
+            if ((! (unitp->flags & UNIT_ATT)) ||
+                 (! (fips || dev_code)))
+              return IOM_CMD_ERROR;
             if (unitp->flags & UNIT_WATCH)
               sim_printf ("Tape %ld unloads\n",
                           (long) MT_UNIT_IDX (unitp));
-            sim_debug (DBG_DEBUG, & tape_dev,
-                       "%s: Rewind/unload\n", __func__);
             sim_tape_detach (unitp);
             //tape_statep -> rec_num = 0;
             p -> stati = 04000;
@@ -2275,8 +2339,7 @@ t_stat attachTape (char * label, bool withring, char * drive)
         return SCPE_ARG;
       }
     sim_printf ("attachTape selected unit %d\n", i);
-    loadTape ((uint) i, label, ! withring);
-    return SCPE_OK;
+    return load_tape ((uint) i, label, ! withring);
   }
 
 // mount <image.tap> ring|noring <drive>
@@ -2319,7 +2382,7 @@ t_stat detachTape (char * drive)
         sim_printf ("can't find device named %s\n", drive);
         return SCPE_ARG;
       }
-    unloadTape ((uint) i);
+    unload_tape ((uint) i);
     return SCPE_OK;
   }
 
