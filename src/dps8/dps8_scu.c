@@ -2159,13 +2159,13 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
 #if defined(LOCKLESS)
         unlock_scu ();
 #if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
-        lock_iom ();
+        //lock_iom ();
 	lock_libuv ();
 #endif
         iom_interrupt (scu_unit_idx, (uint) iom_unit_idx);
 #if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
 	unlock_libuv ();
-        unlock_iom ();
+        //unlock_iom ();
 #endif
         return 0;
 #else // ! LOCKLESS

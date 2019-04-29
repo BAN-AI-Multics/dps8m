@@ -1907,6 +1907,10 @@ static void write_LPW (uint iom_unit_idx, uint chan)
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
     uint chanLoc = mbxLoc (iom_unit_idx, chan);
+#ifdef LOCKLESS
+    lock_iom();
+#endif
+
     iom_core_write (iom_unit_idx, chanLoc + IOM_MBX_LPW, p -> LPW, __func__);
     sim_debug (DBG_DEBUG, & iom_dev,
                "%s: chan %d lpw %012"PRIo64"\n",
@@ -1918,6 +1922,10 @@ static void write_LPW (uint iom_unit_idx, uint chan)
                    "%s: chan %d lpwx %012"PRIo64"\n",
                    __func__, chan, p -> LPWX);
       }
+#ifdef LOCKLESS
+    unlock_iom();
+#endif
+
   }
 
 static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
@@ -1926,6 +1934,9 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
 
     uint chanLoc = mbxLoc (iom_unit_idx, chan);
 
+#ifdef LOCKLESS
+    lock_iom();
+#endif
     iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPW, (word36 *) & p -> LPW, __func__);
     sim_debug (DBG_DEBUG, & iom_dev, "lpw %012"PRIo64"\n", p -> LPW);
 
@@ -1958,6 +1969,11 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
                    "%s: chan %d bound %#o size %#o\n",
                    __func__, chan, p -> LPWX_BOUND, p -> LPWX_SIZE);
       }   
+
+#ifdef LOCKLESS
+    unlock_iom();
+#endif
+
     update_chan_mode (iom_unit_idx, chan, false);
 
 #if 0
@@ -2258,6 +2274,10 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
 
     uint chanloc = mbxLoc (iom_unit_idx, IOM_SYSTEM_FAULT_CHAN);
 
+#ifdef LOCKLESS
+    lock_iom();
+#endif
+
     word36 lpw;
     iom_core_read (iom_unit_idx, chanloc + IOM_MBX_LPW, & lpw, __func__);
 
@@ -2282,6 +2302,10 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
     else
       dcw = scw; // reset to beginning of queue
     iom_core_write_unlock (iom_unit_idx, chanloc + IOM_MBX_DCW, dcw, __func__);
+
+#ifdef LOCKLESS
+    unlock_iom();
+#endif
 
     send_general_interrupt (iom_unit_idx, IOM_SYSTEM_FAULT_CHAN, imwSystemFaultPic);
   }

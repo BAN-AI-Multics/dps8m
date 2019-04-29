@@ -1523,22 +1523,18 @@ t_stat sim_instr (void)
 
 // Loop runs at 1000 Hz
 
-#ifdef LOCKLESS
-        lock_iom();
-#endif
-        lock_libuv ();
-        uv_run (ev_poll_loop, UV_RUN_NOWAIT);
-        unlock_libuv ();
-#ifdef LOCKLESS
-        unlock_iom();
-#endif
+        //lock_iom();
+            lock_libuv ();
+
+                uv_run (ev_poll_loop, UV_RUN_NOWAIT);
+
+            unlock_libuv ();
+        //unlock_iom();
         PNL (panel_process_event ());
 
-#ifndef LOCKLESS
         int con_unit_idx = check_attn_key ();
         if (con_unit_idx != -1)
           console_attn_idx (con_unit_idx);
-#endif
 
 #ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
         struct timespec next_time;
@@ -1557,13 +1553,13 @@ t_stat sim_instr (void)
                                     & iom_start_lock,
                                     & next_time);
             pthread_mutex_unlock (& iom_start_lock);
-            lock_iom();
-            lock_libuv ();
+            //lock_iom();
+                lock_libuv ();
 
-            iomProcess ();
+                    iomProcess ();
 
-            unlock_libuv ();
-            unlock_iom ();
+                unlock_libuv ();
+            //unlock_iom ();
 
             clock_gettime (CLOCK_REALTIME, & new_time);
           }
@@ -1856,9 +1852,11 @@ t_stat threadz_sim_instr (void)
         core_unlock_all();
 #endif // LOCKLESS
 
+#ifndef LOCKLESS
         int con_unit_idx = check_attn_key ();
         if (con_unit_idx != -1)
           console_attn_idx (con_unit_idx);
+#endif
 
 #ifndef NO_EV_POLL
 //#if !defined(LOCKLESS)
