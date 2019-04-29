@@ -3037,6 +3037,11 @@ loops ++;
                 q -> in_use = true;
                 q -> start  = true;
 #ifdef IO_THREADZ
+#ifndef EARLY_CREATE
+                enum ctlr_type_e ctlr_type = 
+                      cables->iom_to_ctlr[iom_unit_idx][p->PCW_CHAN].ctlr_type;
+                createChnThread (iom_unit_idx, p->PCW_CHAN, ctlr_type_strs [ctlr_type]);
+#endif
                 setChnConnect (iom_unit_idx, p -> PCW_CHAN);
 #else
 #if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
@@ -3167,6 +3172,9 @@ void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx)
     iom_unit_data[iom_unit_idx].invokingScuUnitIdx = scu_unit_idx;
 
 #ifdef IO_THREADZ
+#ifndef EARLY_CREATE
+    createIOMThread (iom_unit_idx);
+#endif
     setIOMInterrupt (iom_unit_idx);
     iomDoneWait (iom_unit_idx);
 #else

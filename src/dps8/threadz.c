@@ -548,13 +548,25 @@ void createIOMThread (uint iomNum)
   {
     int rc;
     struct iomThreadz_t * p = & iomThreadz[iomNum];
+    if (p->run)
+      return;
 #ifdef tdbg
     p->inCnt = 0;
     p->outCnt = 0;
 #endif
     p->iomThreadArg = (int) iomNum;
 
-    p->ready = false;
+
+    // initialize run/stop switch
+    rc = pthread_mutex_init (& p->runLock, NULL);
+    if (rc)
+      sim_printf ("createIOMThread pthread_mutex_init runLock %d\n", rc);
+    rc = pthread_cond_init (& p->runCond, NULL);
+    if (rc)
+      sim_printf ("createIOMThread pthread_cond_init runCond %d\n", rc);
+
+    p->run = true;
+
     // initialize interrupt wait
     p->intr = false;
     rc = pthread_mutex_init (& p->intrLock, NULL);
@@ -705,13 +717,25 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
   {
     int rc;
     struct chnThreadz_t * p = & chnThreadz[iomNum][chnNum];
+    if (p->run)
+      return;
     p->chnThreadArg = (int) (chnNum + iomNum * MAX_CHANNELS);
 
 #ifdef tdbg
     p->inCnt = 0;
     p->outCnt = 0;
 #endif
-    p->ready = false;
+
+    // initialize run/stop switch
+    rc = pthread_mutex_init (& p->runLock, NULL);
+    if (rc)
+      sim_printf ("createCPUThread pthread_mutex_init runLock %d\n", rc);
+    rc = pthread_cond_init (& p->runCond, NULL);
+    if (rc)
+      sim_printf ("createCPUThread pthread_cond_init runCond %d\n", rc);
+
+    p->run = true;
+
     // initialize interrupt wait
     p->connect = false;
     rc = pthread_mutex_init (& p->connectLock, NULL);

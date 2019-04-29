@@ -1437,6 +1437,7 @@ t_stat sim_instr (void)
         inited = true;
 
 #ifdef IO_THREADZ
+#ifdef EARLY_CREATE
 // Create channel threads
 
         for (uint iom_unit_idx = 0; iom_unit_idx < N_IOM_UNITS_MAX; iom_unit_idx ++)
@@ -1463,7 +1464,8 @@ t_stat sim_instr (void)
             createIOMThread (iom_unit_idx);
             iomRdyWait (iom_unit_idx);
           }
-#endif
+#endif // EARLY_CREATE
+#endif // IO_THREADZ
 
 #ifdef EARLY_CREATE
 // Create CPU threads
@@ -1474,13 +1476,13 @@ t_stat sim_instr (void)
             if (cpuThreadz[cpu_idx].run == false)
               createCPUThread (cpu_idx);
           }
-#else
+#else // ! EARLY_CREATE
         // XXX This assumes that the CPU at idx 0 is the boot CPU.
         if (cpuThreadz[0].run == false)
           createCPUThread (0);
-#endif
+#endif // ! EARLY_CREATE
       }
-#endif
+#endif // defined(IO_THREADZ) || defined (EARLY_CREATE)
 
     do
       {

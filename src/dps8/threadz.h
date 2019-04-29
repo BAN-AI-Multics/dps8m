@@ -154,6 +154,11 @@ struct iomThreadz_t
     pthread_t iomThread;
     int iomThreadArg;
 
+    // run/stop switch
+    bool run;
+    pthread_cond_t runCond;
+    pthread_mutex_t runLock;
+
     volatile bool ready;
 
     // interrupt wait
@@ -180,10 +185,13 @@ void iomRdyWait (uint iomNum);
 
 struct chnThreadz_t
   {
-    bool started;
-
     pthread_t chnThread;
     int chnThreadArg;
+
+    // run/stop switch
+    bool run;
+    pthread_cond_t runCond;
+    pthread_mutex_t runLock;
 
     // waiting at the gate
     volatile bool ready;
