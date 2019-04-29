@@ -3023,29 +3023,51 @@ loops ++;
             q -> DCW =                p -> DCW;
 
             q -> masked = p -> PCW_21_MSK;
+
+
+            uint chan = p->PCW_CHAN;
             if (q -> masked)
               {
                 if (q -> in_use)
-                  sim_warn ("%s: chan %d masked while in use\n", __func__, p -> PCW_CHAN);
+                  sim_warn ("%s: chan %d masked while in use\n", __func__, chan);
                 q -> in_use = false;
                 q -> start  = false;
               }
             else
               {
                 if (q -> in_use)
-                  sim_warn ("%s: chan %d connect while in use\n", __func__, p -> PCW_CHAN);
+                  sim_warn ("%s: chan %d connect while in use\n", __func__, chan);
                 q -> in_use = true;
                 q -> start  = true;
 #ifdef IO_THREADZ
 #ifndef EARLY_CREATE
-                enum ctlr_type_e ctlr_type = 
-                      cables->iom_to_ctlr[iom_unit_idx][p->PCW_CHAN].ctlr_type;
-                createChnThread (iom_unit_idx, p->PCW_CHAN, ctlr_type_strs [ctlr_type]);
+                struct iom_to_ctlr_s * d = & cables->iom_to_ctlr[iom_unit_idx][chan];
+                // A device command of 051 in the PCW is only meaningful to the operator console;
+                // all other channels should ignore it. We use (somewhat bogusly) a chanType of
+                // chanTypeCPI to indicate the operator console.
+                if (d->chan_type != chan_type_CPI && p -> IDCW_DEV_CMD == 051)
+                  {
+                    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+                    p->stati = 04501;
+                    p->chanStatus = chanStatIncorrectDCW;
+                    send_terminate_interrupt (iom_unit_idx, chan);
+                    return 0;
+                  }
+                if (! d->iom_cmd)
+                  {
+                    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+                    p -> stati = 06000; // t, power off/missing
+                    send_terminate_interrupt (iom_unit_idx, chan);
+                    return 0;
+                  }
+
+                enum ctlr_type_e ctlr_type = d->ctlr_type;
+                createChnThread (iom_unit_idx, chan, ctlr_type_strs [ctlr_type]);
 #endif
-                setChnConnect (iom_unit_idx, p -> PCW_CHAN);
+                setChnConnect (iom_unit_idx, chan);
 #else
 #if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
-                do_payload_chan (iom_unit_idx, p -> PCW_CHAN);
+                do_payload_chan (iom_unit_idx, chan);
 #endif
 #ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
                 pthread_cond_signal (& iomCond);
