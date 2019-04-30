@@ -3298,3 +3298,8 @@ void iomProcess (void)
         }
   }
 #endif
+
+uint iom_unit_number (uint iom_unit_idx)
+  {
+    return (iom_unit_data[iom_unit_idx].configSwIomBaseAddress - 014) / 4;
+  }

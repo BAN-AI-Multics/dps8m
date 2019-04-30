@@ -347,4 +347,4 @@ t_stat iom_unit_reset_idx (uint iom_unit_idx);
 #if defined(IO_ASYNC_PAYLOAD_CHAN) || defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
 void iomProcess (void);
 #endif
-
+uint iom_unit_number (uint iom_unit_idx);

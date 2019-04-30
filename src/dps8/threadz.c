@@ -379,7 +379,7 @@ void createCPUThread (uint cpuNum)
       sim_printf ("createCPUThread pthread_create %d\n", rc);
 
     char nm [17];
-    sprintf (nm, "CPU %c", 'a' + cpuNum);
+    sprintf (nm, "CPU %c", 'A' + cpus[cpuNum].switches.cpu_num);
 #ifdef __FreeBSD__
     pthread_set_name_np (p->cpuThread, nm);
 #else
@@ -582,7 +582,7 @@ void createIOMThread (uint iomNum)
       sim_printf ("createIOMThread pthread_create %d\n", rc);
 
     char nm [17];
-    sprintf (nm, "IOM %c", 'a' + iomNum);
+    sprintf (nm, "IOM %c", 'A' + iom_unit_number (iomNum));
 #ifndef __FreeBSD__
     pthread_setname_np (p->iomThread, nm);
 #else
@@ -751,7 +751,7 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
       sim_printf ("createChnThread pthread_create %d\n", rc);
 
     char nm [17];
-    sprintf (nm, "chn %c/%u %s", 'a' + iomNum, chnNum, devTypeStr);
+    sprintf (nm, "chn %c%u %s", 'A' + iom_unit_number (iomNum), chnNum, devTypeStr);
 #ifndef __FreeBSD__
     pthread_setname_np (p->chnThread, nm);
 #else
