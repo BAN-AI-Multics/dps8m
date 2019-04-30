@@ -154,6 +154,7 @@ char * chan_type_strs [/* enum chan_type_e */] =
     "CPI", "PSI", "Direct"
   };
 
+static t_stat sys_cable_graph (void);
 
 static int parseval (char * value)
   {
@@ -1333,6 +1334,8 @@ t_stat sys_cable (int32 arg, const char * buf)
       rc = sys_cable_show (0, NULL);
     else if (strcasecmp (name, "DUMP") == 0)
       rc = sys_cable_show (1, NULL);
+    else if (strcasecmp (name, "GRAPH") == 0)
+      rc = sys_cable_graph ();
     else if (name_match (name, "SCU", & unit_num))
       rc = cable_scu (arg, unit_num, & name_save);
     else if (name_match (name, "IOM", & unit_num))
@@ -1369,11 +1372,201 @@ static void cable_init (void)
     memset (cables, 0, sizeof (struct cables_s));
   }
 
-t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
-  {
 #define all(i,n) \
   for (uint i = 0; i < n; i ++)
 
+static t_stat sys_cable_graph (void)
+  {
+
+    // Find all used CPUs, IOMs, SCUs
+    bool cpus_used [N_CPU_UNITS_MAX];
+    memset (cpus_used, 0, sizeof (cpus_used));
+
+    all (u, N_CPU_UNITS_MAX)
+      all (prt, N_CPU_PORTS)
+        {
+          struct cpu_to_scu_s * p = & cables->cpu_to_scu[u][prt];
+          if (p->in_use)
+            cpus_used[u] = true;
+        }
+
+    bool scus_used [N_SCU_UNITS_MAX];
+    memset (scus_used, 0, sizeof (scus_used));
+
+    all (u, N_SCU_UNITS_MAX)
+      all (prt, N_SCU_PORTS)
+        {
+          struct scu_to_iom_s * p = & cables->scu_to_iom[u][prt];
+          if (p->in_use)
+            scus_used[u] = true;
+        }
+    all (u, N_CPU_UNITS_MAX)
+      all (prt, N_CPU_PORTS)
+        {
+          struct cpu_to_scu_s * p = & cables->cpu_to_scu[u][prt];
+          if (p->in_use)
+            scus_used[p->scu_unit_idx] = true;
+        }
+
+    bool ioms_used [N_IOM_UNITS_MAX];
+    memset (ioms_used, 0, sizeof (ioms_used));
+
+    all (u, N_SCU_UNITS_MAX)
+      all (prt, N_SCU_PORTS)
+        {
+          struct scu_to_iom_s * p = & cables->scu_to_iom[u][prt];
+          if (p->in_use)
+            ioms_used[p->iom_unit_idx] = true;
+        }
+
+
+    // Set up ranking
+    //     CPUs
+    //     SCUs
+    //     IOMs
+
+    sim_printf ("graph {\n");
+    sim_printf ("    rankdir=TB;\n");
+
+    sim_printf ("    { rank=same; ");
+    for (int i = 0; i < N_CPU_UNITS_MAX; i ++)
+      if (cpus_used[i])
+        sim_printf (" CPU%c;", i + 'A');
+    sim_printf ("}\n");
+    
+    sim_printf ("    { rank=same; ");
+    for (int i = 0; i < N_SCU_UNITS_MAX; i ++)
+      if (scus_used[i])
+        sim_printf (" SCU%c;", i + 'A');
+    sim_printf ("}\n");
+    
+    sim_printf ("    { rank=same; ");
+    for (int i = 0; i < N_IOM_UNITS_MAX; i ++)
+      if (ioms_used[i])
+        sim_printf (" IOM%c;", i + 'A');
+    sim_printf ("}\n");
+    
+#if 0
+    // Rank controllers.
+    // It is harder to generate a used list becuase controllers 
+    // are indexed by type and idx instead of just idx like CPU/SCU/IOMs.
+    // But dot appears to be okay with duplicates in the rank list.
+
+    sim_printf ("    { rank=same; ");
+    all (u, N_IOM_UNITS_MAX)
+      all (c, MAX_CHANNELS)
+        {
+          struct iom_to_ctlr_s * p = & cables->iom_to_ctlr[u][c];
+          if (p->in_use)
+            sim_printf (" %s%d;", ctlr_type_strs[p->ctlr_type], p->ctlr_unit_idx);
+        }
+    sim_printf ("}\n");
+#endif
+ 
+#define R_CTLR_IOM(big,small) \
+    sim_printf ("    { rank=same; "); \
+    all (u, N_ ## big ## _UNITS_MAX) \
+      all (prt, MAX_CTLR_PORTS) \
+        { \
+          struct ctlr_to_iom_s * p = & cables->small ## _to_iom[u][prt]; \
+          if (p->in_use) \
+            sim_printf (" %s%d;", #big, u); \
+        } \
+    sim_printf ("}\n");
+
+    R_CTLR_IOM (MTP, mtp)
+    R_CTLR_IOM (MSP, msp)
+    R_CTLR_IOM (IPCD, ipcd)
+    R_CTLR_IOM (IPCT, ipct)
+    R_CTLR_IOM (URP, urp)
+    R_CTLR_IOM (DIA, dia)
+    R_CTLR_IOM (ABSI, absi)
+    R_CTLR_IOM (OPC, opc)
+
+#define R_DEV_CTLR(from_big,from_small, to_label, to_big, to_small) \
+    sim_printf ("    { rank=same; "); \
+    all (u, N_ ## to_big ## _UNITS_MAX) \
+      { \
+        struct dev_to_ctlr_s * p = & cables->to_small ## _to_ ## from_small[u]; \
+        if (p->in_use) \
+          sim_printf (" %s%d;", #to_label, p->dev_code); \
+      } \
+    sim_printf ("}\n");
+
+    R_DEV_CTLR (MTP, ctlr, TAPE, MT, tap);
+    R_DEV_CTLR (CTLR, ctlr, DISK, DSK, dsk);
+    R_DEV_CTLR (URP, urp, RDR, RDR, rdr);
+    R_DEV_CTLR (URP, urp, PUN, PUN, pun);
+    R_DEV_CTLR (URP, urp, PRT, PRT, prt);
+
+
+    // Generate CPU/SCU/IOM cables
+    
+    all (u, N_CPU_UNITS_MAX)
+      all (prt, N_CPU_PORTS)
+        {
+          struct cpu_to_scu_s * p = & cables->cpu_to_scu[u][prt];
+          if (p->in_use)
+            sim_printf ("    CPU%c -- SCU%c;\n", u + 'A', p->scu_unit_idx + 'A');
+        }
+
+    all (u, N_SCU_UNITS_MAX)
+      all (prt, N_SCU_PORTS)
+        {
+          struct scu_to_iom_s * p = & cables->scu_to_iom[u][prt];
+          if (p->in_use)
+            sim_printf ("    SCU%c -- IOM%c;\n", u + 'A', p->iom_unit_idx + 'A');
+        }
+    // Generate IOM to controller cables
+
+    all (u, N_IOM_UNITS_MAX)
+      all (c, MAX_CHANNELS)
+        {
+          struct iom_to_ctlr_s * p = & cables->iom_to_ctlr[u][c];
+          if (p->in_use)
+            sim_printf ("    IOM%c -- %s%d;\n", u + 'A', ctlr_type_strs[p->ctlr_type], p->ctlr_unit_idx);
+        }
+
+    // Generate controller to device cables
+
+#if 0
+#define G_CTLR_DEV(from_big,from_small, to_label, to_big, to_small) \
+    sim_printf ("  %-4s dev_code --> %-4s   command\n", #from_big, #to_label); \
+    all (u, N_ ## from_big ## _UNITS_MAX) \
+      all (prt, N_DEV_CODES) \
+        { \
+          struct ctlr_to_dev_s * p = & cables->from_small ## _to_ ## to_small[u][prt]; \
+          if (p->in_use) \
+            sim_printf ("    %s%d -- %s%d;\n", #from_big, u, #to_label, p->unit_idx); \
+        } 
+    G_CTLR_DEV (MTP, mtp, TAPE, MT, tap);
+    G_CTLR_DEV (IPCD, ipcd, DISK, DSK, dsk);
+    G_CTLR_DEV (IPCT, ipct, TAPE, TAP, tap);
+    G_CTLR_DEV (MSP, msp, DISK, DSK, dsk);
+    G_CTLR_DEV (URP, urp, URP, URP, urd);
+#endif
+
+
+//          sim_printf ("    %s%d -- %s%d;\n", #to_label, p->dev_code, ctlr_type_strs[p->ctlr_type], p->ctlr_unit_idx); 
+#define G_DEV_CTLR(from_big,from_small, to_label, to_big, to_small) \
+    all (u, N_ ## to_big ## _UNITS_MAX) \
+      { \
+        struct dev_to_ctlr_s * p = & cables->to_small ## _to_ ## from_small[u]; \
+        if (p->in_use) \
+          sim_printf ("    %s%d -- %s%d;\n", ctlr_type_strs[p->ctlr_type], p->ctlr_unit_idx, #to_label, p->dev_code); \
+      } 
+    G_DEV_CTLR (MTP, ctlr, TAPE, MT, tap);
+    G_DEV_CTLR (CTLR, ctlr, DISK, DSK, dsk);
+    G_DEV_CTLR (URP, urp, RDR, RDR, rdr);
+    G_DEV_CTLR (URP, urp, PUN, PUN, pun);
+    G_DEV_CTLR (URP, urp, PRT, PRT, prt);
+
+    sim_printf ("}\n");
+    return SCPE_OK;
+  }
+
+t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
+  {
     sim_printf ("SCU <--> IOM\n");
     sim_printf ("   SCU port --> IOM port\n");
     all (u, N_SCU_UNITS_MAX)
@@ -1486,10 +1679,6 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         DEV_CTLR (CTLR, ctlr, DISK, DSK, dsk);
       }
     CTLR_DEV (URP, urp, URP, URP, urd);
-    if (dump)
-      {
-        DEV_CTLR (URP, urp, RDR, RDR, rdr);
-      }
     if (dump)
       {
         DEV_CTLR (URP, urp, RDR, RDR, rdr);
