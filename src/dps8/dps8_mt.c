@@ -2046,14 +2046,12 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
             if ((! (unitp->flags & UNIT_ATT)) ||
                  (! (fips || dev_code)))
               ret = IOM_CMD_ERROR;
-            else
-              {
-                ret = sim_tape_wrtmk (unitp);
-                sim_debug (DBG_DEBUG, & tape_dev, 
-                           "sim_tape_wrtmk returned %d\n", ret);
-                if (unitp->io_flush)
-                  unitp->io_flush (unitp);                              /* flush buffered data */
-              }
+
+            ret = sim_tape_wrtmk (unitp);
+            sim_debug (DBG_DEBUG, & tape_dev, 
+                       "sim_tape_wrtmk returned %d\n", ret);
+            if (unitp->io_flush)
+              unitp->io_flush (unitp);                              /* flush buffered data */
             if (ret != 0)
               {
                 if (ret == MTSE_EOM)
@@ -2196,10 +2194,14 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
             if ((! (unitp->flags & UNIT_ATT)) ||
                  (! (fips || dev_code)))
               {
+                // XXX rewind to an unloaded drive...
+                // send unload interrupt
+                // return ready
                 send_special_interrupt (iomUnitIdx, chan, dev_code, 0, 040 /* unloaded */);
-sim_printf ("rewind bails idx %u ATT %u fips %u dev_code %u\r\n", 
-devUnitIdx, unitp->flags & UNIT_ATT, fips, dev_code);
-                return IOM_CMD_ERROR;
+//sim_printf ("rewind bails idx %u ATT %u fips %u dev_code %u\r\n", 
+//devUnitIdx, unitp->flags & UNIT_ATT, fips, dev_code);
+                p -> stati = 04000;
+                break;
               }
             sim_tape_rewind (unitp);
 
@@ -2224,13 +2226,14 @@ devUnitIdx, unitp->flags & UNIT_ATT, fips, dev_code);
           {
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Rewind/unload\n", __func__);
-            if ((! (unitp->flags & UNIT_ATT)) ||
-                 (! (fips || dev_code)))
-              return IOM_CMD_ERROR;
+            if (unitp -> flags & UNIT_ATT &&
+                (fips || dev_code)) // If fips, drive code 0 is valid
+              {
+                sim_tape_detach (unitp);
+              }
             if (unitp->flags & UNIT_WATCH)
               sim_printf ("Tape %ld unloads\n",
                           (long) MT_UNIT_IDX (unitp));
-            sim_tape_detach (unitp);
             //tape_statep -> rec_num = 0;
             p -> stati = 04000;
             send_special_interrupt (iomUnitIdx, chan, dev_code, 0, 0040 /* unload complete */);
