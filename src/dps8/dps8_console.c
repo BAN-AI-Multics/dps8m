@@ -225,6 +225,7 @@ typedef struct opc_state_t
     int attn_flush;
     // Run in background (don't read the keyboard).
     int bg;
+    int rcpwatch;
     bool attn_pressed;
     bool simh_attn_pressed;
 #define simh_buffer_sz 4096
@@ -335,6 +336,7 @@ void console_init (void)
         csp->noempty = 0;
         csp->attn_flush = 1;
         csp->bg = 0;
+        csp->rcpwatch = 1;
       }
 
 #if 0
@@ -1050,7 +1052,8 @@ sim_warn ("uncomfortable with this\n");
 #endif
                       }
                   }
-                handleRCP (text);
+                if (csp->rcpwatch)
+                  handleRCP (text);
 #ifndef __MINGW64__
                 newlineOn ();
 #endif
@@ -1675,6 +1678,7 @@ static config_list_t opc_config_list[] =
    { "attn_flush", 0, 1, cfg_on_off },
    { "model", 1, 0, cfg_model },
    { "bg", 1, 0, cfg_on_off },
+   { "rcpwatch", 1, 0, cfg_on_off },
    { NULL, 0, 0, NULL }
   };
 
@@ -1731,6 +1735,12 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
             continue;
           }
  
+        if (strcmp (p, "rcpwatch") == 0)
+          {
+            csp->rcpwatch = (int) v;
+            continue;
+          }
+ 
         sim_warn ("error: opc_set_config: invalid cfg_parse rc <%d>\n",
                   rc);
         cfg_parse_done (& cfg_state);
@@ -1748,6 +1758,9 @@ static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
     sim_msg ("autoaccept:  %d\n", csp->autoaccept);
     sim_msg ("noempty:  %d\n", csp->noempty);
     sim_msg ("attn_flush:  %d\n", csp->attn_flush);
+    sim_msg ("model:  %d\n", csp->model);
+    sim_msg ("bg:  %d\n", csp->bg);
+    sim_msg ("rcpwatch:  %d\n", csp->rcpwatch);
     return SCPE_OK;
   }
 
