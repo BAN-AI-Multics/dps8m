@@ -263,12 +263,6 @@ tracer_annotate : tracer_annotate.o
 	$(CC) $(LDFLAGS) tracer_annotate.o -o tracer_annotate
 
 
-#fnpx : fnpx.c fnp_udplib.o
-#	$(CC) fnpx.c -o fnpx fnp_udplib.o
-
-#remote : remote.c fnp_udplib.o
-#	$(CC) remote.c -o remote fnp_udplib.o
-
 install: all
 	cp dps8$(EXE) $(INSTALL_BIN)/dps8$(EXE)
 
@@ -354,30 +348,13 @@ endif
 utils :
 	@$(MAKE) -C ../utils 
 
+# Build standalone test code for udplib
+
 udplib : udplib.c udplib.h
 	clang udplib.c -o udplib -DTEST=1
 
-.PHONY: zeromq czmq zyre 
-
-zmq: zeromq czmq zyre
-
-zeromq : ../lib/libzmq.a
-
-../lib/libzmq.a :
-	(cd ../zeromq-4.1.0 && ./configure --prefix=`pwd`/../ && $(MAKE) && $(MAKE) check && $(MAKE) install)
-	
-czmq : ../lib/libczmq.so
-
-../lib/libczmq.so :
-	(cd ../czmq-master-ff0d028b16 && cmake . -DZEROMQ_LIBRARIES=../lib/libzmq.so -DZEROMQ_INCLUDE_DIRS=../include/ -DCMAKE_INSTALL_PREFIX=.. && $(MAKE) && $(MAKE) install)
-
-zyre : ../lib/libzyre.so
-
-../lib/libzyre.so :
-	(cd ../zyre-master-9d7e62d2c9 && cmake . -DCZMQ_LIBRARIES=../lib/libczmq.so -DCZMQ_INCLUDE_DIRS=../include -DZEROMQ_LIBRARIES=../lib/libzmq.so -DZEROMQ_INCLUDE_DIRS=../include/ -DCMAKE_INSTALL_PREFIX=.. && $(MAKE) && $(MAKE) install)
-
-# If you do not have ctags in your build environment, change 'ctags' to 
-# '#ctags' below.
+# If you do not have ctags in your build environment, change '-@ctags' to 
+# '#-@ctags' below.
 
 tags : $(C_SRCS) $(H_SRCS) dps8.sha1.txt
 	@echo TAGS
