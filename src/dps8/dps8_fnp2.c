@@ -106,6 +106,10 @@ static t_stat fnpShowService (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat fnpSetService (UNIT * uptr, int32 value, const char * cptr, void * desc);
 static t_stat fnpShowFW (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat fnpSetFW (UNIT * uptr, int32 value, const char * cptr, void * desc);
+static t_stat fnp_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+                                    UNUSED int val, UNUSED const void * desc);
+static t_stat fnp_set_device_name (UNIT * uptr, UNUSED int32 value, 
+                                   const char * cptr, UNUSED void * desc);
 
 static int findMbx (uint fnpUnitIdx);
 
@@ -196,8 +200,17 @@ static MTAB fnpMod [] =
       "Edit firewall", /* value descriptor */
       NULL          // help
     },
-
-    { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
+    {
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
+      0,            /* match */
+      "NAME",     /* print string */
+      "NAME",         /* match string */
+      fnp_set_device_name, /* validation routine */
+      fnp_show_device_name, /* display routine */
+      "Set the device name", /* value descriptor */
+      NULL          // help
+    },
+    MTAB_eol
   };
 
 #define FNP_UNIT_IDX(uptr) ((uptr) - fnp_unit)
@@ -2086,6 +2099,32 @@ static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
         sim_printf ("port:                        %d\n", fudp->MState.line[l].port);
 
       }
+    return SCPE_OK;
+  }
+
+static t_stat fnp_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+                                    UNUSED int val, UNUSED const void * desc)
+  {
+    int n = (int) FNP_UNIT_IDX (uptr);
+    if (n < 0 || n >= N_FNP_UNITS_MAX)
+      return SCPE_ARG;
+    sim_printf("Controller device name is %s\n", fnpData.fnpUnitData[n].device_name);
+    return SCPE_OK;
+  }
+
+static t_stat fnp_set_device_name (UNIT * uptr, UNUSED int32 value, 
+                                   const char * cptr, UNUSED void * desc)
+  {
+    int n = (int) FNP_UNIT_IDX (uptr);
+    if (n < 0 || n >= N_FNP_UNITS_MAX)
+      return SCPE_ARG;
+    if (cptr)
+      {
+        strncpy (fnpData.fnpUnitData[n].device_name, cptr, MAX_DEV_NAME_LEN-1);
+        fnpData.fnpUnitData[n].device_name[MAX_DEV_NAME_LEN-1] = 0;
+      }
+    else
+      fnpData.fnpUnitData[n].device_name[0] = 0;
     return SCPE_OK;
   }
 

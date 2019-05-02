@@ -36,6 +36,15 @@
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
 #endif /* ifndef bzero */
 
+#define SKC_UNIT_IDX(uptr) ((uptr) - sk_unit)
+
+struct skc_state_s
+  {
+    char device_name [MAX_DEV_NAME_LEN];
+  };
+static struct skc_state_s skc_state[N_SKC_UNITS_MAX];
+  
+
 static struct {
     const char *name;
     int code;
@@ -89,6 +98,32 @@ static t_stat sk_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
+static t_stat skc_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+                                    UNUSED int val, UNUSED const void * desc)
+  {
+    int n = (int) SKC_UNIT_IDX (uptr);
+    if (n < 0 || n >= N_SKC_UNITS_MAX)
+      return SCPE_ARG;
+    sim_printf("Controller device name is %s\n", skc_state[n].device_name);
+    return SCPE_OK;
+  }
+
+static t_stat skc_set_device_name (UNIT * uptr, UNUSED int32 value, 
+                                   const char * cptr, UNUSED void * desc)
+  {
+    int n = (int) SKC_UNIT_IDX (uptr);
+    if (n < 0 || n >= N_SKC_UNITS_MAX)
+      return SCPE_ARG;
+    if (cptr)
+      {
+        strncpy (skc_state[n].device_name, cptr, MAX_DEV_NAME_LEN-1);
+        skc_state[n].device_name[MAX_DEV_NAME_LEN-1] = 0;
+      }
+    else
+      skc_state[n].device_name[0] = 0;
+    return SCPE_OK;
+  }
+
 static MTAB sk_mod [] =
   {
     {
@@ -101,7 +136,17 @@ static MTAB sk_mod [] =
       "Number of socket units in the system", /* value descriptor */
       NULL          // help
     },
-    { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
+    {
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
+      0,            /* match */
+      "NAME",     /* print string */
+      "NAME",         /* match string */
+      skc_set_device_name, /* validation routine */
+      skc_show_device_name, /* display routine */
+      "Set the device name", /* value descriptor */
+      NULL          // help
+    },
+    MTAB_eol
   };
 
 
@@ -123,8 +168,6 @@ static DEBTAB sk_dt [] =
     { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
     { NULL, 0, NULL }
   };
-
-#define SK_UNIT_NUM(uptr) ((uptr) - sk_unit)
 
 static t_stat sk_reset (UNUSED DEVICE * dptr)
   {
