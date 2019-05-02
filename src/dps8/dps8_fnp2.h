@@ -210,6 +210,7 @@ struct ibm3270ctlr_s
 // Indexed by sim unit number
 struct fnpUnitData_s
   {
+    char device_name [MAX_DEV_NAME_LEN];
     word24 mailboxAddress;
     bool fnpIsRunning;
     bool fnpMBXinUse [4];  // 4 FNP submailboxes
