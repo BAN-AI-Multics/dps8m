@@ -39,5 +39,7 @@ void disk_init(void);
 t_stat attach_disk (char * label, bool with_protect, char * drive);
 int dsk_iom_cmd (uint iomUnitIdx, uint chan);
 t_stat load_disk (uint dsk_unit_idx, const char * disk_filename, bool ro);
+t_stat print_config_deck (int32 flag, UNUSED const char * cptr);
+t_stat sync_config_deck (int32 flag, UNUSED const char * cptr);
 
 

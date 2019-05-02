@@ -34,8 +34,8 @@
 #endif
 
 #include "dps8.h"
-#include "dps8_console.h"
 #include "dps8_sys.h"
+#include "dps8_console.h"
 #include "dps8_faults.h"
 #include "dps8_scu.h"
 #include "dps8_iom.h"
@@ -1143,6 +1143,7 @@ static char * default_base_system_script [] =
     "set mtp0 name=MTP0",
     // ; Attach TAPE unit 0 to IOM 0, chan 012, dev_code 1
     "cable IOM0 012 MTP0",
+    "set mtp0 name=tapa",
     "cable MTP0 1 TAPE1",
     "set tape1 name=tapa_01",
     "cable MTP0 2 TAPE2",
@@ -1181,6 +1182,7 @@ static char * default_base_system_script [] =
     "set ipcd0 name=IPCD0",
     "cable IOM0 013 IPCD0",
     "cable IOM1 013 IPCD0 1",
+    "set ipcd0 name=dska",
     // ; Attach DISK unit 0 to IPCD0 dev_code 0",
     "cable IPCD0 0 DISK0",
     "set disk0 type=3381",
@@ -1200,9 +1202,9 @@ static char * default_base_system_script [] =
 
 // 4 d501 disks + 4 d451 disks
 
-    "set msp0 name=MSP0",
     "cable IOM0 014 MSP0 0",
     "cable IOM1 014 MSP0 1",
+    "set msp0 name=msp0",
 
     // ; Attach DISK unit 4 to MSP0 dev_code 1",
     "cable MSP0 1 DISK4",
@@ -1240,6 +1242,8 @@ static char * default_base_system_script [] =
 
     // ; Attach OPC unit 0 to IOM A, chan 036, dev_code 0
     "cable IOMA 036 opc0",
+    "set opc0 name=opca",
+
     // No devices for console, so no 'cable OPC0 # CONx'
 
     // ;;;
@@ -1248,20 +1252,28 @@ static char * default_base_system_script [] =
 
     // ; Attach FNP unit 3 (d) to IOM A, chan 020, dev_code 0
     "cable IOMA 020 FNPD",
+    "set fnp3 name=fnpd",
     // ; Attach FNP unit 0 (a) to IOM A, chan 021, dev_code 0
     "cable IOMA 021 FNPA",
+    "set fnp0 name=fnpa",
     // ; Attach FNP unit 1 (b) to IOM A, chan 022, dev_code 0
     "cable IOMA 022 FNPB",
+    "set fnp1 name=fnpb",
     // ; Attach FNP unit 2 (c) to IOM A, chan 023, dev_code 0
     "cable IOMA 023 FNPC",
+    "set fnp2 name=fnpc",
     // ; Attach FNP unit 4 (e) to IOM A, chan 024, dev_code 0
     "cable IOMA 024 FNPE",
+    "set fnp4 name=fnpe",
     // ; Attach FNP unit 5 (f) to IOM A, chan 025, dev_code 0
     "cable IOMA 025 FNPF",
+    "set fnp5 name=fnpf",
     // ; Attach FNP unit 6 (g) to IOM A, chan 026, dev_code 0
     "cable IOMA 026 FNPG",
+    "set fnp6 name=fnpg",
     // ; Attach FNP unit 7 (h) to IOM A, chan 027, dev_code 0
     "cable IOMA 027 FNPH",
+    "set fnp7 name=fnph",
 
     // ;;;
     // ;;; MPC
@@ -1288,18 +1300,26 @@ static char * default_base_system_script [] =
     "set urp2 name=urpc",
 
     // ; Attach PRT unit 0 to IOM 0, chan 017, dev_code 1
-    "set prt0 name=prta",
     "cable URP2 1 PRT0",
+    "set prt0 name=prta",
 
 
     "cable IOMA 040 SKCA",
+    "set skc0 name=skca",
     "cable IOMA 041 SKCB",
+    "set skc1 name=skcb",
     "cable IOMA 042 SKCC",
+    "set skc2 name=skcc",
     "cable IOMA 043 SKCD",
+    "set skc3 name=skcd",
     "cable IOMA 044 SKCE",
+    "set skc4 name=skce",
     "cable IOMA 045 SKCF",
+    "set skc5 name=skcf",
     "cable IOMA 046 SKCG",
+    "set skc6 name=skcg",
     "cable IOMA 047 SKCH",
+    "set skc7 name=skch",
 
 #if 0
     // ; Attach PRT unit 1 to IOM 0, chan 017, dev_code 2
@@ -1367,6 +1387,7 @@ static char * default_base_system_script [] =
 
     // ; Attach ABSI unit 0 to IOM 0, chan 032, dev_code 0
     "cable IOM0 032 ABSI0",
+    "set absi0 name=absi0",
 
     // ; Attach IOM unit 0 port A (0) to SCU unit 0, port 0
     "cable SCU0 0 IOM0 0", // SCU0 port 0 IOM0 port 0
@@ -3754,6 +3775,14 @@ static CTAB dps8_cmds[] =
     {"YIELD",               yield,                  1, "yield: define yield point\n", NULL, NULL},
 #endif
 
+//
+// config deck
+//
+
+    {"PRINT_CONFIG_DECK",   print_config_deck,      1, "Print config deck\n", NULL, NULL},
+    {"PCD",                 print_config_deck,      1, "Print config deck\n", NULL, NULL},
+    {"SYNC_CONFIG_DECK",    sync_config_deck,       1, "Synchronize config deck\n", NULL, NULL},
+    {"SCD",                 sync_config_deck,       1, "Synchronize config deck\n", NULL, NULL},
 //
 // Misc.
 //
