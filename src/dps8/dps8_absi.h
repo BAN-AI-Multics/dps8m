@@ -9,6 +9,13 @@
  at https://sourceforge.net/p/dps8m/code/ci/master/tree/LICENSE
  */
 
+struct absi_state_s
+  {
+    char device_name [MAX_DEV_NAME_LEN];
+    int link;
+  };
+extern struct absi_state_s absi_state[N_SKC_UNITS_MAX];
+
 extern DEVICE absi_dev;
 extern UNIT absi_unit [N_ABSI_UNITS_MAX];
 
