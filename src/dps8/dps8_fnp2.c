@@ -324,8 +324,12 @@ sim_printf ("notifyCS mbx %d\n", mbx);
 
     setTIMW (iom_unit_idx, chan_num, fudp->mailboxAddress, (int)(mbx + 8));
 
+    fudp->lineWaiting [mbx] = true;
+    fudp->fnpMBXlineno [mbx] = lineno;
+    struct t_line * linep = & fudp->MState.line[lineno];
+    linep->waitForMbxDone=true;
+
     sim_debug (DBG_TRACE, & fnp_dev, "[%d]notifyCS %d %d\n", lineno, mbx, chan_num);
-    //send_general_interrupt (iom_unit_idx, chan_num, imwTerminatePic);
   }
 
 static void fnp_rcd_ack_echnego_init (uint mbx, int fnp_unit_idx, int lineno)
@@ -341,6 +345,25 @@ static void fnp_rcd_ack_echnego_init (uint mbx, int fnp_unit_idx, int lineno)
     word36 data = 0;
     l_putbits36_9 (& data, 9, 2); // cmd_data_len
     l_putbits36_9 (& data, 18, 70); // op_code ack_echnego_init
+    l_putbits36_9 (& data, 27, 1); // io_cmd rcd
+    iom_direct_data_service (iom_unit_idx, chan_num, fsmbx+WORD2, & data, direct_store);
+
+    notifyCS (mbx, fnp_unit_idx, lineno);
+  }
+
+static void fnp_rcd_ack_echnego_stop (uint mbx, int fnp_unit_idx, int lineno)
+  {
+    sim_debug (DBG_TRACE, & fnp_dev, "[%d]rcd ack_echnego_stop\n", lineno);
+    struct fnpUnitData_s * fudp = & fnpData.fnpUnitData [fnp_unit_idx];
+    word24 fsmbx = fudp->mailboxAddress + FNP_SUB_MBXES + mbx*FNP_SUB_MBX_SIZE;
+
+    uint ctlr_port_num = 0; // FNPs are single ported
+    uint iom_unit_idx = cables->fnp_to_iom[fnp_unit_idx][ctlr_port_num].iom_unit_idx;
+    uint chan_num = cables->fnp_to_iom[fnp_unit_idx][ctlr_port_num].chan_num;
+
+    word36 data = 0;
+    l_putbits36_9 (& data, 9, 2); // cmd_data_len
+    l_putbits36_9 (& data, 18, 71); // op_code ack_echnego_stop
     l_putbits36_9 (& data, 27, 1); // io_cmd rcd
     iom_direct_data_service (iom_unit_idx, chan_num, fsmbx+WORD2, & data, direct_store);
 
@@ -428,16 +451,16 @@ sim_printf ("\n");
         if (i + 3 < linep->nPos)
           l_putbits36_9 (& v, 27, linep->buffer [i + 3]);
 //sim_printf ("%012"PRIo64"\n", v);
-          iom_direct_data_service (iom_unit_idx, chan_num, fsmbx+MYSTERY+j, & v, direct_store);
+       iom_direct_data_service (iom_unit_idx, chan_num, fsmbx+MYSTERY+j, & v, direct_store);
       }
 
 // command_data is at mystery[25]?
 
     // temporary until the logic is in place XXX
-    int outputChainPresent = 0;
+    int output_chain_present = 0;
 
     data = 0;
-    l_putbits36_1 (& data, 16, (word1) outputChainPresent);
+    l_putbits36_1 (& data, 16, (word1) output_chain_present);
     l_putbits36_1 (& data, 17, linep->input_break ? 1 : 0);
     iom_direct_data_service (iom_unit_idx, chan_num, fsmbx+INP_COMMAND_DATA, & data, direct_store);
 
@@ -449,9 +472,6 @@ sim_printf ("\n");
     sim_printf ("interrupting!\n"); 
 #endif
 
-    fudp->lineWaiting [mbx] = true;
-    fudp->fnpMBXlineno [mbx] = lineno;
-    linep->waitForMbxDone=true;
     notifyCS (mbx, fnp_unit_idx, lineno);
   }
 
@@ -467,7 +487,7 @@ static void fnp_rcd_line_status  (uint mbx, int fnp_unit_idx, int lineno)
 
     word36 data = 0;
     l_putbits36_9 (& data, 9, 2); // cmd_data_len
-    l_putbits36_9 (& data, 18, 0124); // op_code accept_input
+    l_putbits36_9 (& data, 18, 0124); // op_code line_status
     l_putbits36_9 (& data, 27, 1); // io_cmd rcd
     iom_direct_data_service (iom_unit_idx, chan_num, fsmbx+WORD2, & data, direct_store);
 
@@ -505,8 +525,10 @@ static void fnp_rcd_accept_input (uint mbx, int fnp_unit_idx, int lineno)
     l_putbits36_12 (& data, 24, (word12) linep->nPos);
     iom_direct_data_service (iom_unit_idx, chan_num, fsmbx+DCWS+0, & data, direct_store);
 
-    // temporary until the logic is in place XXX
-    word1 output_chain_present = 1;
+    // Tell the MCS that we have emptied the output buffer; because of the
+    // miracle of TCP, this is essentially true. echnego cares about this
+    // for reason that are not clear to me.
+    word1 output_chain_present = 0;
 
     data = 0;
     l_putbits36_1 (& data, 16, (word1) output_chain_present);
@@ -745,10 +767,114 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
           {
             linep->buffer[linep->nPos ++] = kar;
             linep->buffer[linep->nPos] = 0;
+// Echnego
+
+// MTB-418, pg 13. 
+// "If the [input_break] bit is on, the delivery consists.of characters none of
+// which were echoed by the multiplexer; the multiplexer may decide for any
+// reason (e.g., internal buffer shortages, internal races, etc.) to stop
+// echoing (as can ring zero vis-a-vis ring 4). Of course, it must stop echoing
+// for the defined echo negotiation.break conditions. If the "break character"
+// bit is off, the delivery consists of characters all of which were echoed by
+// the multiplexer, except for perhaps the la~ character of the delivery. MCS
+// must determine, for such a delivery, whether the last character of such a
+// delivery was capable of being echoed by the multiplexer, and if so, assume
+// that it was, otherwise not. 
+
+// "start negotiated echo'', via a control order, also specifying the number of
+// characters left on the line
+
+// The multiplexer input processor will also count characters processed by it
+// since it last echoed a character.
+
+            // Are we echoing?
+            if (linep->echnego_on)
+              {
+                // This decrements even for non-printing, but they will be
+                // break characters which will cause echnego_screen_left to
+                // be reset.
+                if (linep->echnego_screen_left)
+                  linep->echnego_screen_left --;
+
+                if (linep->echnego_break_table[kar] ||
+                    linep->echnego_screen_left == 0)
+                  {
+                    // Break.
+
+                    // MTB418 pg 14:
+                    // "Whenever the multiplexer delivers to the Ring Zero MCS
+                    // interrupt side a character that takes ring zero out of
+                    // the echo state, the multiplexer itself will be known to
+                    // have stopped echoing."
+
+                    // Leave echnego mode.
+                    linep->echnego_on = false;
+
+                    //linep->echnego_echoed_cnt ++;
+
+                    // "If [input_break] is off, the delivery consists
+                    // of characters all of which were echoed ..., 
+                    // except for perhaps the last ... ."
+                    linep->input_break = false;
+
+
+
+                    // MTB418 pg 15:
+                    // "This determination is made by the ''input processor''
+                    // of the multiplexer based upon a value called the
+                    // synchronization counter sent with the start negotiated
+                    // echo control order: the value sent by ring zero is the
+                    // count of all characters received by the ring zero
+                    // interrupt side since the last character echoed by the
+                    // multiplexer."
+                    if (linep->echnego_break_table[kar])
+                      linep->echnego_unechoed_cnt ++;
+
+#ifdef ECHNEGO_DEBUG
+                    sim_printf ("echnedo break nPos %d unechoed cnt %d\r\n",
+                      linep->nPos, linep->echnego_unechoed_cnt);
+#endif
+                    linep->accept_input = 1;
+                    return true;
+                  }
+
+#ifdef ECHNEGO_DEBUG
+                sim_printf ("echoing '%c'\r\n", kar);
+#endif
+                // Not break; so echo
+                unsigned char str [2] = { kar, 0 };
+                fnpuv_start_writestr (linep->line_client, str);
+
+                // MTB418 pg 15:
+                // "This determination is made by the ''input processor'' of
+                // the multiplexer based upon a value called the
+                // synchronization counter sent with the start negotiated echo
+                // control order: the value sent by ring zero is the count of
+                // all characters received by the ring zero interrupt side
+                // since the last character echoed by the multiplexer."
+                linep->echnego_unechoed_cnt = 0;
+
+                return true;
+              }
+
+            // MTB418 pg 15:
+            // "This determination is made by the ''input processor''
+            // of the multiplexer based upon a value called the
+            // synchronization counter sent with the start negotiated
+            // echo control order: the value sent by ring zero is the
+            // count of all characters received by the ring zero
+            // interrupt side since the last character echoed by the
+            // multiplexer."
+            linep->echnego_unechoed_cnt += linep->nPos;
+
             linep->input_break = true;
             linep->accept_input = 1;
+#ifdef ECHNEGO_DEBUG
+            sim_printf ("break nPos %d unechoed cnt %d\r\n",
+              linep->nPos, linep->echnego_unechoed_cnt);
+#endif
             return true;
-          }
+          } // break all
     
         if ((linep-> frame_begin != 0 &&
              linep-> frame_begin == kar) ||
@@ -1276,6 +1402,11 @@ void fnpProcessEvent (void)
                   }
               }
 #endif
+
+            // Are we waiting for the previous command to complete?
+            if (linep->waitForMbxDone)
+              continue;
+
             // Need to send a 'send_output' command to CS?
 
             bool do_send_output = linep->send_output == 1;
@@ -1286,18 +1417,6 @@ void fnpProcessEvent (void)
             if (do_send_output) 
               {
                 fnp_rcd_send_output ((uint)mbx, (int) fnp_unit_idx, lineno);
-                need_intr = true;
-              }
-
-            // Need to send a 'line_break' command to CS?
-
-            // Line_break forces an input flush; wait until the flush
-            // is done before signaling the break to avoid race condittions.
-
-            else if (linep->line_break  && (! linep->waitForMbxDone))
-              {
-                fnp_rcd_line_break ((uint)mbx, (int) fnp_unit_idx, lineno);
-                linep -> line_break = false;
                 need_intr = true;
               }
 
@@ -1331,7 +1450,16 @@ void fnpProcessEvent (void)
               {
                 fnp_rcd_ack_echnego_init ((uint)mbx, (int) fnp_unit_idx, lineno);
                 linep -> ack_echnego_init = false;
-                //linep -> send_output = true;
+                linep -> send_output = SEND_OUTPUT_DELAY;
+                need_intr = true;
+              }
+
+            // Need to send an 'ack_echnego_stop' command to CS?
+
+            else if (linep -> ack_echnego_stop)
+              {
+                fnp_rcd_ack_echnego_stop ((uint)mbx, (int) fnp_unit_idx, lineno);
+                linep -> ack_echnego_stop = false;
                 linep -> send_output = SEND_OUTPUT_DELAY;
                 need_intr = true;
               }
@@ -1397,7 +1525,7 @@ void fnpProcessEvent (void)
    sim_printf ("\r\n");
 }
 #endif
-// There is a bufferful of data that needs to be sent to the CS.
+// There is a bufferfull of data that needs to be sent to the CS.
 // If the buffer has < 101 characters, use the 'input_in_mailbox'
 // command; otherwise use the 'accept_input/input_accepted'
 // sequence.
@@ -1434,6 +1562,18 @@ sim_printf ("input_in_mailbox\n");
                   }
                 linep->accept_input --;
               } // accept_input
+
+            // Need to send a 'line_break' command to CS?
+            // This goes after the accept_input to that when BREAK occurs,
+            // first the input is flushed and then the break signal is sent.
+
+            else if (linep->line_break)
+              {
+                fnp_rcd_line_break ((uint)mbx, (int) fnp_unit_idx, lineno);
+                linep -> line_break = false;
+                need_intr = true;
+                linep -> send_output = SEND_OUTPUT_DELAY;
+              }
 
             else if (linep->sendLineStatus)
               {
@@ -2439,7 +2579,12 @@ void reset_line (struct t_line * linep)
     memset (linep->outputResumeStr, 0, sizeof (linep->outputResumeStr));
     linep->frame_begin = 0;
     linep->frame_end = 0;
-    memset (linep->echnego, 0, sizeof (linep->echnego));
+    memset (linep->echnego_break_table, 0, sizeof (linep->echnego_break_table));
+    linep->echnego_sync_ctr = 0;
+    linep->echnego_screen_left = 0;
+    linep->echnego_unechoed_cnt = 0;
+    linep->echnego_on = false;
+    linep->echnego_synced = false;
     linep->line_break = false;
   }
 

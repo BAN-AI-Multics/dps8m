@@ -93,7 +93,16 @@ typedef struct t_MState
         unsigned char outputResumeStr [4];
         uint frame_begin;
         uint frame_end;
-        bool echnego [256];
+
+        // Echonego
+        bool echnego_break_table [256];
+        word18 echnego_sync_ctr; // Sent by MCS
+        word18 echnego_screen_left;
+        uint echnego_unechoed_cnt;
+        //uint echnego_echoed_cnt;
+        bool echnego_on;
+        bool echnego_synced;
+
         uint sync_msg_size;
         // Pending requests
         bool line_break;
@@ -110,6 +119,7 @@ typedef struct t_MState
         bool line_disconnected;
 #endif
         bool ack_echnego_init;
+        bool ack_echnego_stop;
         bool acu_dial_failure;
         bool sendLineStatus;
         bool wru_timeout;
