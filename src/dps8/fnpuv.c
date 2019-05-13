@@ -893,6 +893,7 @@ void fnpuvInit (int telnet_port, char * telnet_address)
                        on_new_connection);
     if (r)
      {
+        sim_printf ("[FNP emulation: %s %d Listen error %s]\n", telnet_address, telnet_port, uv_strerror (r));
         sim_printf ("[FNP emulation: Listen error %s]\n", uv_strerror (r));
       }
   }
@@ -1161,7 +1162,7 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
                        on_new_connection);
     if (r)
      {
-        sim_printf ("[FNP emulation: Listen error %s]\n", uv_strerror (r));
+        sim_printf ("[FNP emulation: %s %d Listen error %s]\n", fnpData.telnet_address, linep->port, uv_strerror (r));
       }
 
 // It should be possible to run a peer-to-peer TCP instead of client server,
@@ -1504,7 +1505,7 @@ void fnpuv3270Init (int telnet3270_port)
 		   on_new_3270_connection);
     if (r)
      {
-        sim_printf ("[FNP 3270 emulation: Listen error %s]\n", uv_strerror (r));
+        sim_printf ("[FNP 3270 emulation: %s %d Listen error %s]\n", fnpData.telnet_address, telnet3270_port, uv_strerror (r));
       }
     fnpuv3270Poll (false);
   }

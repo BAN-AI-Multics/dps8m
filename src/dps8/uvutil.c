@@ -500,7 +500,7 @@ static void onNewAccess (uv_stream_t * server, int status)
   {
     if (status < 0)
       {
-        fprintf (stderr, "New connection error %s\n", uv_strerror (status));
+        sim_warn ("New connection error %s\n", uv_strerror (status));
         // error!
         return;
       }
@@ -588,7 +588,7 @@ void uv_open_access (uv_access * access)
                        onNewAccess);
     if (r)
      {
-        fprintf (stderr, "Listen error %s\n", uv_strerror (r));
+        sim_printf ("Listen %s %d error %s\n", access->address, access->port, uv_strerror (r));
       }
     access->open = true;
   }
