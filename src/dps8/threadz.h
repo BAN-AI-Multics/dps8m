@@ -121,6 +121,7 @@ bool test_tst_lock (void);
 
 struct cpuThreadz_t
   {
+    bool started; // protected by tstart_lock
     pthread_t cpuThread;
     int cpuThreadArg;
 
@@ -151,6 +152,7 @@ void wakeCPU (uint cpuNum);
 
 struct iomThreadz_t
   {
+    bool started; // protected by tstart_lock
     pthread_t iomThread;
     int iomThreadArg;
 
@@ -185,6 +187,7 @@ void iomRdyWait (uint iomNum);
 
 struct chnThreadz_t
   {
+    bool started; // protected by tstart_lock
     pthread_t chnThread;
     int chnThreadArg;
 

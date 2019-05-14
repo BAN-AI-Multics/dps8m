@@ -41,6 +41,20 @@ void unlock_simh (void)
     pthread_mutex_unlock (& simh_lock);
   }
 
+// tstart  serializer
+
+static pthread_mutex_t tstart_lock;
+
+static void lock_tstart (void)
+  {
+    pthread_mutex_lock (& tstart_lock);
+  }
+
+static void unlock_tstart (void)
+  {
+    pthread_mutex_unlock (& tstart_lock);
+  }
+
 // libuv library serializer
 
 static pthread_mutex_t libuv_lock;
@@ -91,119 +105,6 @@ bool test_libuv_lock (void)
 
 // mem_lock -- memory atomicity lock
 // rmw_lock -- big R/M/W cycle lock
-
-#ifndef LOCKLESS
-pthread_rwlock_t mem_lock = PTHREAD_RWLOCK_INITIALIZER;
-static __thread bool have_mem_lock = false;
-static __thread bool have_rmw_lock = false;
-
-bool get_rmw_lock (void)
-  {
-    return have_rmw_lock;
-  }
-
-void lock_rmw (void)
-  {
-    if (have_rmw_lock)
-      {
-        sim_warn ("%s: Already have RMW lock\n", __func__);
-        return;
-      }
-    if (have_mem_lock)
-      {
-        sim_warn ("%s: Already have memory lock\n", __func__);
-        return;
-      }
-    int rc= pthread_rwlock_wrlock (& mem_lock);
-    if (rc)
-      sim_printf ("%s pthread_rwlock_rdlock mem_lock %d\n", __func__, rc);
-    have_mem_lock = true;
-    have_rmw_lock = true;
-  }
-
-void lock_mem_rd (void)
-  {
-    // If the big RMW lock is on, do nothing.
-    if (have_rmw_lock)
-      return;
-
-    if (have_mem_lock)
-      {
-        sim_warn ("%s: Already have memory lock\n", __func__);
-        return;
-      }
-    int rc= pthread_rwlock_rdlock (& mem_lock);
-    if (rc)
-      sim_printf ("%s pthread_rwlock_rdlock mem_lock %d\n", __func__, rc);
-    have_mem_lock = true;
-  }
-
-void lock_mem_wr (void)
-  {
-    // If the big RMW lock is on, do nothing.
-    if (have_rmw_lock)
-      return;
-
-    if (have_mem_lock)
-      {
-        sim_warn ("%s: Already have memory lock\n", __func__);
-        return;
-      }
-    int rc= pthread_rwlock_wrlock (& mem_lock);
-    if (rc)
-      sim_printf ("%s pthread_rwlock_wrlock mem_lock %d\n", __func__, rc);
-    have_mem_lock = true;
-  }
-
-
-void unlock_rmw (void)
-  {
-    if (! have_mem_lock)
-      {
-        sim_warn ("%s: Don't have memory lock\n", __func__);
-        return;
-      }
-    if (! have_rmw_lock)
-      {
-        sim_warn ("%s: Don't have RMW lock\n", __func__);
-        return;
-      }
-
-    int rc = pthread_rwlock_unlock (& mem_lock);
-    if (rc)
-      sim_printf ("%s pthread_rwlock_ublock mem_lock %d\n", __func__, rc);
-    have_mem_lock = false;
-    have_rmw_lock = false;
-  }
-
-void unlock_mem (void)
-  {
-    if (have_rmw_lock)
-      return; 
-    if (! have_mem_lock)
-      {
-        sim_warn ("%s: Don't have memory lock\n", __func__);
-        return;
-      }
-
-    int rc = pthread_rwlock_unlock (& mem_lock);
-    if (rc)
-      sim_printf ("%s pthread_rwlock_ublock mem_lock %d\n", __func__, rc);
-    have_mem_lock = false;
-  }
-
-void unlock_mem_force (void)
-  {
-    if (have_mem_lock)
-      {
-        int rc = pthread_rwlock_unlock (& mem_lock);
-        if (rc)
-          sim_printf ("%s pthread_rwlock_unlock mem_lock %d\n", __func__, rc);
-      }
-    have_mem_lock = false;
-    have_rmw_lock = false;
-  }
-#endif
 
 // local serializer
 
@@ -351,8 +252,16 @@ void createCPUThread (uint cpuNum)
   {
     int rc;
     struct cpuThreadz_t * p = & cpuThreadz[cpuNum];
-    if (p->run)
-      return;
+
+    lock_tstart ();
+    if (p->started)
+      {
+        unlock_tstart ();
+        return;
+      }
+    p->started = true;
+    unlock_tstart ();
+
     cpu_reset_unit_idx (cpuNum, false);
     p->cpuThreadArg = (int) cpuNum;
     // initialize run/stop switch
@@ -548,8 +457,16 @@ void createIOMThread (uint iomNum)
   {
     int rc;
     struct iomThreadz_t * p = & iomThreadz[iomNum];
-    if (p->run)
-      return;
+
+    lock_tstart ();
+    if (p->started)
+      {
+        unlock_tstart ();
+        return;
+      }
+    p->started = true;
+    unlock_tstart ();
+
 #ifdef tdbg
     p->inCnt = 0;
     p->outCnt = 0;
@@ -717,8 +634,16 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
   {
     int rc;
     struct chnThreadz_t * p = & chnThreadz[iomNum][chnNum];
-    if (p->run)
-      return;
+
+    lock_tstart ();
+    if (p->started)
+      {
+        unlock_tstart ();
+        return;
+      }
+    p->started = true;
+    unlock_tstart ();
+
     p->chnThreadArg = (int) (chnNum + iomNum * MAX_CHANNELS);
 
 #ifdef tdbg
@@ -844,11 +769,6 @@ void initThreadz (void)
     memset (chnThreadz, 0, sizeof (chnThreadz));
 #endif
 
-#ifndef LOCKLESS
-    //pthread_rwlock_init (& mem_lock, PTHREAD_PROCESS_PRIVATE);
-    have_mem_lock = false;
-    have_rmw_lock = false;
-#endif
 #ifdef __FreeBSD__
     pthread_mutexattr_t scu_attr;
     pthread_mutexattr_init(&scu_attr);
@@ -867,6 +787,8 @@ void initThreadz (void)
     pthread_mutexattr_t libuv_attr;
     pthread_mutexattr_init(& libuv_attr);
     pthread_mutexattr_settype(& libuv_attr, PTHREAD_MUTEX_RECURSIVE);
+
+    pthread_mutex_init (& tstart_lock, & libuv_attr);
 
     pthread_mutex_init (& libuv_lock, & libuv_attr);
 
