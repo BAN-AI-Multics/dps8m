@@ -2513,7 +2513,7 @@ t_stat threadz_sim_instr (void)
 #endif // NO_EV_POLL
 
                   sim_interval = 0;
-#endif // !THREADZ
+#endif // !LOCKLESS
                   // Timer register runs at 512 KHz
                   // 512000 is 1 second
                   // 512000/100 -> 5120  is .01 second
