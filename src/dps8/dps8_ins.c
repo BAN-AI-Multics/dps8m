@@ -8721,7 +8721,15 @@ elapsedtime ();
               }
 
 #ifdef LOCKLESS
-          if (cpu.PPR.PSR == 044 && cpu.PPR.IC == 0005217)
+// Changes to pxss.alm will move the address of the delete_me dis instuction
+// That dis has a distintive bit pattern; use the segment and IWB instead
+// of segment and IC.
+
+// pxss.list
+//    005217  aa   000777 6162 07   4608            dis       =o777,dl
+
+          //if (cpu.PPR.PSR == 044 && cpu.PPR.IC == 0005217)
+          if (cpu.PPR.PSR == 044 && cpu.cu.IWB == 0000777616207)
               {
                 sim_printf ("[%lld] pxss:delete_me DIS causes CPU halt\n", cpu.cycleCnt);
                 sim_debug (DBG_MSG, & cpu_dev, "pxss:delete_me DIS causes CPU halt\n");
