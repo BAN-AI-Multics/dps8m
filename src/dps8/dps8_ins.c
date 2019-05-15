@@ -8233,7 +8233,7 @@ elapsedtime ();
             // The full/empty bit of cache PTWAM register is set to zero and
             // the LRU counters are initialized.
 #ifdef WAM
-            if (! cpu.switches.disable_wam)
+            if (cpu.switches.enable_wam)
               { // disabled by simh, do nothing
 #ifdef DPS8M
                 if (cpu.cu.PT_ON) // only clear when enabled
@@ -8291,7 +8291,7 @@ elapsedtime ();
             // memory.
             // This may be done to either or both halves.
 #ifdef WAM
-            if (!cpu.switches.disable_wam)
+            if (cpu.switches.enable_wam)
               { // disabled by simh, do nothing
 #ifdef DPS8M
                 if (cpu.cu.SD_ON) // only clear when enabled
