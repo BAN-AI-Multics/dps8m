@@ -1489,7 +1489,7 @@ static t_stat sys_cable_graph (void)
       { \
         struct dev_to_ctlr_s * p = & cables->to_small ## _to_ ## from_small[u]; \
         if (p->in_use) \
-          sim_printf (" %s%d;", #to_label, p->dev_code); \
+          sim_printf (" %s%d;", #to_label, u); \
       } \
     sim_printf ("}\n");
 
@@ -1553,7 +1553,7 @@ static t_stat sys_cable_graph (void)
       { \
         struct dev_to_ctlr_s * p = & cables->to_small ## _to_ ## from_small[u]; \
         if (p->in_use) \
-          sim_printf ("    %s%d -- %s%d;\n", ctlr_type_strs[p->ctlr_type], p->ctlr_unit_idx, #to_label, p->dev_code); \
+          sim_printf ("    %s%d -- %s%d;\n", ctlr_type_strs[p->ctlr_type], p->ctlr_unit_idx, #to_label, u); \
       } 
     G_DEV_CTLR (MTP, ctlr, TAPE, MT, tap);
     G_DEV_CTLR (CTLR, ctlr, DISK, DSK, dsk);
