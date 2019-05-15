@@ -8524,7 +8524,7 @@ elapsedtime ();
                        << (35-18));  //BCD option off
                 tmp |= (word36) ((0b1L)                                       
                        << (35-19));  //DPS option
-                tmp |= (word36) ((cpu.switches.disable_cache ? 0 : 1)                                       
+                tmp |= (word36) ((cpu.switches.enable_cache ? 1 : 0)                                       
                        << (35-20));  //8K cache not installed
                 tmp |= (word36) ((0b00L)                                      
                        << (35-22));
@@ -8754,7 +8754,7 @@ elapsedtime ();
                             << (35-19));  // L68/DPS option: L68
 #endif
 #ifdef DPS8M
-                  cpu.rA |= (word36) ((cpu.switches.disable_cache ? 0 : 1)
+                  cpu.rA |= (word36) ((cpu.switches.enable_cache ? 1 : 0)
                             << (35-20));  //8K cache not installed
                   cpu.rA |= (word36) ((0b00L)
                             << (35-22));

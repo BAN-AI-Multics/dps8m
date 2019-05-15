@@ -711,18 +711,22 @@ typedef struct
     uint store_size [N_CPU_PORTS]; // 0-7 encoding 32K-4M
     uint proc_mode; // 1 bit  Read by rsw instruction; format unknown
     uint proc_speed; // 4 bits Read by rsw instruction; format unknown
+    bool enable_cache;
+    bool enable_pt_wam;
+    bool enable_sd_wam;
 
     // Emulator run-time options (virtual switches)
     uint dis_enable;      // If non-zero, DIS works
     uint halt_on_unimp;   // If non-zero, halt CPU on unimplemented instruction
                           // instead of faulting
-    uint disable_wam;     // If non-zero, disable PTWAM, STWAM
+    // If zero, do not use WAM, even if built. This is invisible to the 
+    // CPU; the WAM will always report miss.
+    bool enable_wam;
     uint report_faults;   // If set, faults are reported and ignored
     uint tro_enable;   // If set, Timer runout faults are generated.
     uint drl_fatal;
     uint serno;
     bool useMap;
-    bool disable_cache;
   } switches_t;
 
 #ifdef L68

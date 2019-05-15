@@ -131,8 +131,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 scu [0].steady_clock);
     sim_msg ("Halt on unimplemented:    %01o(8)\n", 
                 cpus[cpu_unit_idx].switches.halt_on_unimp);
-    sim_msg ("Disable SDWAM/PTWAM:      %01o(8)\n", 
-                cpus[cpu_unit_idx].switches.disable_wam);
+    sim_msg ("Enable SDWAM/PTWAM:       %01o(8)\n", 
+                cpus[cpu_unit_idx].switches.enable_wam);
     sim_msg ("Report faults:            %01o(8)\n", 
                 cpus[cpu_unit_idx].switches.report_faults);
     sim_msg ("TRO faults enabled:       %01o(8)\n", 
@@ -143,8 +143,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.drl_fatal);
     sim_msg ("useMap:                   %d\n",
                 cpus[cpu_unit_idx].switches.useMap);
-    sim_msg ("Disable cache:            %01o(8)\n",
-                cpus[cpu_unit_idx].switches.disable_cache);
+    sim_msg ("Enable cache:            %01o(8)\n",
+                cpus[cpu_unit_idx].switches.enable_cache);
 
 #ifdef AFFINITY
     if (cpus[cpu_unit_idx].set_affinity)
@@ -172,7 +172,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 //           dis_enable = n
 //           steadyclock = on|off
 //           halt_on_unimplmented = n
-//           disable_wam = n
+//           enable_wam = n
 //           report_faults = n
 //               n = 0 don't
 //               n = 1 report
@@ -315,6 +315,9 @@ static config_list_t cpu_config_list [] =
     { "enable", 0, 1, cfg_on_off },
     { "init_enable", 0, 1, cfg_on_off },
     { "store_size", 0, 7, cfg_size_list },
+    { "enable_cache", 0, 1, cfg_on_off },
+    { "enable_pt_wam", 0, 1, cfg_on_off },
+    { "enable_sd_wam", 0, 1, cfg_on_off },
 
     // Hacks
 
@@ -322,7 +325,7 @@ static config_list_t cpu_config_list [] =
     // steady_clock was moved to SCU; keep here for script compatibility
     { "steady_clock", 0, 1, cfg_on_off },
     { "halt_on_unimplemented", 0, 1, cfg_on_off },
-    { "disable_wam", 0, 1, cfg_on_off },
+    { "enable_wam", 0, 1, cfg_on_off },
     { "report_faults", 0, 2, NULL },
     { "tro_enable", 0, 1, cfg_on_off },
     // y2k was moved to SCU; keep here for script compatibility
@@ -330,7 +333,6 @@ static config_list_t cpu_config_list [] =
     { "drl_fatal", 0, 1, cfg_on_off },
     { "useMap", 0, 1, cfg_on_off },
     { "address", 0, 0777777, NULL },
-    { "disable_cache", 0, 1, cfg_on_off },
 
     // Tuning
 
@@ -417,8 +419,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           scu [0].steady_clock = (uint) v;
         else if (strcmp (p, "halt_on_unimplemented") == 0)
           cpus[cpu_unit_idx].switches.halt_on_unimp = (uint) v;
-        else if (strcmp (p, "disable_wam") == 0)
-          cpus[cpu_unit_idx].switches.disable_wam = (uint) v;
+        else if (strcmp (p, "enable_wam") == 0)
+          cpus[cpu_unit_idx].switches.enable_wam = !! v;
         else if (strcmp (p, "report_faults") == 0)
           cpus[cpu_unit_idx].switches.report_faults = (uint) v;
         else if (strcmp (p, "tro_enable") == 0)
@@ -429,8 +431,12 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.drl_fatal = (uint) v;
         else if (strcmp (p, "useMap") == 0)
           cpus[cpu_unit_idx].switches.useMap = v;
-        else if (strcmp (p, "disable_cache") == 0)
-          cpus[cpu_unit_idx].switches.disable_cache = v;
+        else if (strcmp (p, "enable_cache") == 0)
+          cpus[cpu_unit_idx].switches.enable_cache = !! v;
+        else if (strcmp (p, "enable_pt_wam") == 0)
+          cpus[cpu_unit_idx].switches.enable_pt_wam = !! v;
+        else if (strcmp (p, "enable_sd_wam") == 0)
+          cpus[cpu_unit_idx].switches.enable_sd_wam = !! v;
 #ifdef AFFINITY
         else if (strcmp (p, "affinity") == 0)
           {
@@ -657,8 +663,8 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     SET_I_NBAR;
     
     cpu.CMR.luf = 3;    // default of 16 mS
-    cpu.cu.SD_ON = cpu.switches.disable_wam ? 0 : 1;
-    cpu.cu.PT_ON = cpu.switches.disable_wam ? 0 : 1;
+    cpu.cu.SD_ON = cpu.switches.enable_sd_wam ? 1 : 0;
+    cpu.cu.PT_ON = cpu.switches.enable_pt_wam ? 1 : 0;
  
     set_cpu_cycle (FETCH_cycle);
 
@@ -1459,7 +1465,7 @@ t_stat sim_instr (void)
 // Create IOM threads
 
         for (uint iom_unit_idx = 0;
-             iom_unit_idx < N_IOM_UNITS_MAX;
+             iom_unit_idx < iom_dev.numunits;
              iom_unit_idx ++)
           {
             createIOMThread (iom_unit_idx);

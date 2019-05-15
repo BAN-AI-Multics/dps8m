@@ -161,7 +161,7 @@ void do_ldbr (word36 * Ypair)
   {
     CPTUR (cptUseDSBR);
 #ifdef WAM
-    if (! cpu.switches.disable_wam) 
+    if (cpu.switches.enable_wam) 
       {
         if (cpu.cu.SD_ON) 
           {
@@ -338,7 +338,13 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
   {
     DBGAPP ("%s(0):segno=%05o\n", __func__, segno);
     
-    if (cpu.switches.disable_wam || ! cpu.cu.SD_ON)
+    if (! cpu.switches.enable_wam)
+      {
+        DBGAPP ("%s(0): WAM disabled\n", __func__);
+        return NULL;
+      }
+
+    if (! cpu.cu.SD_ON)
       {
         DBGAPP ("%s(0): SDWAM disabled\n", __func__);
         return NULL;
@@ -624,7 +630,7 @@ static void load_sdwam (word15 segno, UNUSED bool nomatch)
     cpu.SDW = & cpu.SDW0;
             
 #else
-    if (nomatch || cpu.switches.disable_wam || ! cpu.cu.SD_ON)
+    if (nomatch || (! cpu.switches.enable_wam) || ! cpu.cu.SD_ON)
       {
         DBGAPP ("%s: SDWAM disabled\n", __func__);
         sdw_s * p = & cpu.SDW0;
@@ -721,7 +727,7 @@ static void load_sdwam (word15 segno, UNUSED bool nomatch)
 #ifdef WAM
 static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
   {
-    if (cpu.switches.disable_wam || ! cpu.cu.PT_ON)
+    if ((! cpu.switches.enable_wam) || ! cpu.cu.PT_ON)
       {
         DBGAPP ("%s: PTWAM disabled\n", __func__);
         return NULL;
@@ -868,7 +874,7 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
             
     cpu.PTW = & cpu.PTW0;
 #else
-    if (nomatch || cpu.switches.disable_wam || ! cpu.cu.PT_ON)
+    if (nomatch || ! cpu.cu.PT_ON)
       {
         DBGAPP ("loadPTWAM: PTWAM disabled\n");
         ptw_s * p = & cpu.PTW0;
