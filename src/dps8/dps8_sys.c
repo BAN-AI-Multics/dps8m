@@ -3774,7 +3774,7 @@ static CTAB dps8_cmds[] =
     {"DBGBREAK",            dps_debug_break,          0, "dbgstop: Break when N >= Cycle count\n", NULL, NULL},
     {"DBGSEGNO",            dps_debug_segno,          1, "dbgsegno: Limit debugging to PSR == segno\n", NULL, NULL},
     {"NODBGSEGNO",          dps_debug_segno,          0, "nodbgsegno: Reset to debugging all segments\n", NULL, NULL},
-    {"DBGRINGNO",           dps_debug_ringno,         0, "dbgsegno: Limit debugging to PRR == ringno\n", NULL, NULL},
+    {"DBGRINGNO",           dps_debug_ringno,         0, "dbgringno: Limit debugging to PRR == ringno\n", NULL, NULL},
     {"DBGBAR",              dps_debug_bar,            1, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
     {"NODBGBAR",            dps_debug_bar,            0, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
 #ifdef HDBG
