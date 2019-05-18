@@ -1861,7 +1861,7 @@ static t_stat dps_debug_segno (int32 arg, const char * buf)
   {
     if (arg)
       {
-        int segno = (int) strtol (buf, NULL, 0);
+        int segno = (int) strtol (buf, NULL, 8);
         if (abs (segno) >= DEBUG_SEGNO_LIMIT)
           {
             sim_printf ("out of range; 0 to %u %d.\n", DEBUG_SEGNO_LIMIT, DEBUG_SEGNO_LIMIT);
