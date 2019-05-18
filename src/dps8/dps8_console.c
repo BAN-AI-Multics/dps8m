@@ -1382,6 +1382,38 @@ static void consoleProcessIdx (int conUnitIdx)
                 // to be processed
                 return;
               }
+            if (c == 023) // ^S
+              {
+                size_t cmdl = strcspn ((char *) (csp->autop + 1), "\n");
+                if (cmdl >= simh_buffer_sz)
+                  cmdl = simh_buffer_sz -1;
+                strncpy (csp->simh_buffer, (char *) csp->autop + 1, cmdl);
+                csp->autop += cmdl + 2;
+                csp->simh_buffer[cmdl] = 0;
+                char * cptr = csp->simh_buffer;
+                char gbuf[simh_buffer_sz];
+                cptr = (char *) get_glyph (cptr, gbuf, 0); /* get command glyph */
+                if (strlen (gbuf))
+                  {
+                    CTAB *cmdp;
+                    if ((cmdp = find_cmd (gbuf))) /* lookup command */
+                      {
+                        t_stat stat = cmdp->action (cmdp->arg, cptr);
+                           /* if found, exec */
+                        if (stat != SCPE_OK)
+                          {
+                            char buf[4096];
+                            sprintf (buf, "SIMH returned %d '%s'\r\n", stat,
+                                     sim_error_text (stat));
+                            console_putstr (conUnitIdx,  buf);
+                          }
+                      }
+                    else
+                       console_putstr (conUnitIdx,
+                                       "SIMH didn't recognize the command\r\n");
+                  }
+                return;
+              }
             if (c == 0)
               {
                 free (csp->auto_input);

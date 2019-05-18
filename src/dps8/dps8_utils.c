@@ -1898,6 +1898,8 @@ char * strdupesc (const char * str)
           * p = ',';
         else if (p [1] == 's')       //  \s    semicolon (simh parser issue)
           * p = ';';
+        else if (p [1] == 'S')       //  \S    ^S
+          * p = '\023';
         else if (p [1] == 'd')       //  \d    dollar sign (simh parser issue)
           * p = '$';
         else if (p [1] == 'q')       //  \q    double quote (simh parser issue)
