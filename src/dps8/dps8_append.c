@@ -2420,5 +2420,46 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
     return 0;
   }
 
+#ifdef CTRACE
+word36 fast_append (uint cpun, uint segno, uint offset)
+  {
+    // prds is segment 072
+    //uint segno = 072;
+    word24 dsbr_addr = cpus[cpun].DSBR.ADDR;
+//printf ("dsbr %08o\n", dsbr_addr);
+    if (! dsbr_addr)
+      return 1;
+    // punt on unpaged ds
+    if (cpus[cpun].DSBR.U)
+      return 2;
+    word24 x1 = (2u * segno) / 1024u; // floor
+    word36 PTWx1 = M[dsbr_addr + x1];
+//printf ("PTRx1 %012llo\n", PTWx1);
+    if (TSTBIT (PTWx1, 2) == 0) // df - page not in memory
+      return 3;
+    word24 y1 = (2 * segno) % 1024;
+    word36 SDWeven = M [(GETHI (PTWx1) << 6) + y1];
+    word36 SDWodd = M [(GETHI (PTWx1) << 6) + y1 + 1];
+//printf ("SDWeven %012llo\n", SDWeven);
+//printf ("SDWodd %012llo\n", SDWodd);
+    if (TSTBIT (SDWeven, 2) == 0)
+      return 4;
+    if (TSTBIT (SDWodd, 16)) // .U
+      return 5;
+    word24 sdw_addr = (SDWeven >> 12) & 077777777;
+//printf ("sdw_addr %08o\n", sdw_addr);
+    word24 x2 = (offset) / 1024; // floor
+
+    word24 y2 = offset % 1024;
+    word36 PTWx2 = M[sdw_addr + x2];
+    word24 PTW1_addr= GETHI (PTWx2);
+    word1 PTW0_U = TSTBIT (PTWx2, 9);
+    if (! PTW0_U)
+      return 6;
+    word24 finalAddress = ((((word24)PTW1_addr & 0777760) << 6) + y2) & PAMASK;
+    return M[finalAddress];
+    //return (word24) (GETHI (PTWx1) << 6);
+  }
+#endif
 
 

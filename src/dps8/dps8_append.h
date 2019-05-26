@@ -130,3 +130,6 @@ static inline void fauxDoAppendCycle (processor_cycle_type thisCycle)
     cpu.apu.lastCycle = thisCycle;
   }
 
+#ifdef CTRACE
+word36 fast_append (uint cpun, uint segno, uint offset);
+#endif

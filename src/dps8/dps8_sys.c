@@ -4998,3 +4998,21 @@ void start_machine_room (void)
 #endif
   }
 
+#ifdef CTRACE
+static unsigned long seqno_;
+unsigned long seqno (void)
+  {
+    return __sync_fetch_and_add (& seqno_, 1l);
+    //return seqno_ ++;
+  }
+
+char * cpunstr [8] = {
+  "0       ",
+  " 1      ",
+  "  2     ",
+  "   3    ",
+  "    4   ",
+  "     5  ",
+  "      6 ",
+  "       7"};
+#endif

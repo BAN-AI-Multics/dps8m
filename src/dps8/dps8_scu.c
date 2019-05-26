@@ -2219,6 +2219,9 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
                     uint cpu_unit_udx = cables->
                       scu_to_cpu[scu_unit_idx][scu_port_num][sn].cpu_unit_idx;
                     setG7fault ((uint) cpu_unit_udx, FAULT_CON, fst_zero);
+#ifdef CTRACE
+fprintf (stderr, "%10lu %s connect issued to CPU %u by CPU %d from %05o:%08o\r\n", seqno (), cpunstr[current_running_cpu_idx], cpu_unit_udx, current_running_cpu_idx, cpu.PPR.PSR, cpu.PPR.IC);
+#endif
                   }
               }
           }
@@ -2233,6 +2236,9 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
             uint cpu_unit_udx =
               cables->scu_to_cpu[scu_unit_idx][scu_port_num][0].cpu_unit_idx;
             setG7fault ((uint) cpu_unit_udx, FAULT_CON, fst_zero);
+#ifdef CTRACE
+fprintf (stderr, "%10lu %s connect issued to CPU %u by CPU %d from %05o:%08o\r\n", seqno (), cpunstr[current_running_cpu_idx], cpu_unit_udx, current_running_cpu_idx, cpu.PPR.PSR, cpu.PPR.IC);
+#endif
           }
 #else
 // by xipmaskval

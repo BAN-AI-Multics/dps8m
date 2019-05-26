@@ -354,6 +354,20 @@ const _fault_subtype fst_onc_nem = (_fault_subtype) {.fault_onc_subtype=flt_onc_
 void doFault (_fault faultNumber, _fault_subtype subFault, 
               const char * faultMsg)
   {
+#ifdef CTRACE
+if (faultNumber == FAULT_CON)
+  {
+      fprintf (stderr, "%10lu %s connect fault on CPU %u stkend %08o\r\n", seqno (), cpunstr[current_running_cpu_idx], current_running_cpu_idx, GETHI (fast_append (current_running_cpu_idx, 072, 21)));
+  }
+#if 0
+if (faultNumber == FAULT_ACV && cpu.PPR.PSR == 034 && cpu.PPR.IC == 03071)
+  {
+    hdbgPrint();
+  }
+
+if (faultNumber == FAULT_ACV) {sim_printf ("ACV fault %u %05o:%06o\n", current_running_cpu_idx, cpu.PPR.PSR, cpu.PPR.IC);}
+#endif
+#endif
     sim_debug (DBG_FAULT, & cpu_dev, 
                "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\n", 
                faultNumber, faultNumber, subFault.bits, subFault.bits, 

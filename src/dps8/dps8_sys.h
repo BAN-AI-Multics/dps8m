@@ -106,3 +106,7 @@ t_stat brkbrk (int32 arg, const char * buf);
 void start_machine_room (void);
 void machine_room_process (void);
 extern int32 luf_flag;
+#ifdef CTRACE
+extern char * cpunstr[8];
+unsigned long seqno (void);
+#endif

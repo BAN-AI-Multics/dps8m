@@ -2285,6 +2285,9 @@ t_stat threadz_sim_instr (void)
                       if (stall_points[i].segno && stall_points[i].segno == cpu.PPR.PSR &&
                           stall_points[i].offset && stall_points[i].offset == cpu.PPR.IC)
                         {
+#ifdef CTRACE
+                          fprintf (stderr, "%10lu %s stall %d\n", seqno (), cpunstr[current_running_cpu_idx], i);
+#endif
                           //sim_printf ("stall %2d %05o:%06o\n", i, stall_points[i].segno, stall_points[i].offset);
                           //pthread_yield ();
                           usleep(stall_points[i].time);
@@ -2300,6 +2303,28 @@ t_stat threadz_sim_instr (void)
                 cpu.wasInhibited = true;
 
                 t_stat ret = executeInstruction (restart_instr);
+#ifdef CTRACE
+if (0) {
+  static word36 cam_waitx;
+  static word36 pendx [8];
+
+  word36 cam_wait = fast_append (current_running_cpu_idx, 025, 0132);
+  if (cam_wait != cam_waitx)
+     {
+       sim_printf ("%10lu cam_wait set to %012llo by CPU %u\n", seqno(), cam_wait, current_running_cpu_idx);
+       cam_waitx = cam_wait;
+     }
+  for (uint cpun = 0; cpun < 8; cpun ++)
+    {
+       word36 pend = fast_append (current_running_cpu_idx, 025, 0204 + cpun);
+       if (pend != pendx[cpun])
+         {
+           sim_printf ("%10lu fast_cam_pending[%u] set to %012llo by CPU %u\n", seqno(), cpun, pend, current_running_cpu_idx);
+           pendx[cpun] = pend;
+        }
+    }
+}
+#endif
                 restart_instr = false;
 #ifdef TR_WORK_EXEC
                cpu.rTRticks ++;
@@ -2351,6 +2376,9 @@ t_stat threadz_sim_instr (void)
 #endif
                 if (ret == CONT_TRA || ret == CONT_RET)
                   {
+#ifdef CTRACE
+if (cpu.PPR.PSR == 042 && cpu.PPR.IC == 036573) fprintf (stderr, "%10lu %s >>>>>>>> cam wait timeout <<<<<<<<<<\r\n", seqno (), cpunstr[current_running_cpu_idx]);
+#endif
                     CPT (cpt1U, 24); // transfer instruction
                     cpu.cu.xde = cpu.cu.xdo = 0;
                     cpu.isExec = false;

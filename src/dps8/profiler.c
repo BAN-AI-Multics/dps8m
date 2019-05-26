@@ -17,6 +17,48 @@ vol cpu_state_t * cpup_;
 #undef cpu
 #define cpu (* cpup_)
 
+#ifdef CTRACE
+static word36 append (uint cpun, uint segno, uint offset)
+  {
+    // prds is segment 072
+    //uint segno = 072;
+    word24 dsbr_addr = cpus[cpun].DSBR.ADDR;
+//printf ("dsbr %08o\n", dsbr_addr);
+    if (! dsbr_addr)
+      return 1;
+    // punt on unpaged ds
+    if (cpus[cpun].DSBR.U)
+      return 2;
+    word24 x1 = (2u * segno) / 1024u; // floor
+    word36 PTWx1 = M[dsbr_addr + x1];
+//printf ("PTRx1 %012llo\n", PTWx1);
+    if (TSTBIT (PTWx1, 2) == 0) // df - page not in memory
+      return 3;
+    word24 y1 = (2 * segno) % 1024;
+    word36 SDWeven = M [(GETHI (PTWx1) << 6) + y1];
+    word36 SDWodd = M [(GETHI (PTWx1) << 6) + y1 + 1];
+//printf ("SDWeven %012llo\n", SDWeven);
+//printf ("SDWodd %012llo\n", SDWodd);
+    if (TSTBIT (SDWeven, 2) == 0)
+      return 4;
+    if (TSTBIT (SDWodd, 16)) // .U
+      return 5;
+    word24 sdw_addr = (SDWeven >> 12) & 077777777;
+//printf ("sdw_addr %08o\n", sdw_addr);
+    word24 x2 = (offset) / 1024; // floor
+
+    word24 y2 = offset % 1024;
+    word36 PTWx2 = M[sdw_addr + x2];
+    word24 PTW1_addr= GETHI (PTWx2);
+    word1 PTW0_U = TSTBIT (PTWx2, 9);
+    if (! PTW0_U)
+      return 6;
+    word24 finalAddress = ((((word24)PTW1_addr & 0777760) << 6) + y2) & PAMASK;
+    return M[finalAddress];
+    //return (word24) (GETHI (PTWx1) << 6);
+  }
+#endif
+
 // Sampling loop
 //   Sample rate: 1000 Hz
 #define USLEEP_1KHz 1000 // 1000 usec is 1 msec
@@ -84,9 +126,12 @@ int main (int argc, char * argv[])
 #endif
                 unsigned long long cnt = __atomic_load_n (& cpu.cycleCnt, __ATOMIC_ACQUIRE);
                 float dis_pct = ((float) (dis_cnt[cpun] * 100)) / UPDATE_RATE;
+#ifdef CTRACE
+                printw ("CPU %c Cycles %10lld %5.1f%% %012llo %012llo\n", 'A' + cpun, cnt - last_cycle_cnt [cpun], 100.0 - dis_pct, append (cpun, 072, 20), append (cpun, 072, 21));
+#else
                 printw ("CPU %c Cycles %10lld %5.1f%%\n", 'A' + cpun, cnt - last_cycle_cnt [cpun], 100.0 - dis_pct);
-
-                printw ("%05o:%06o %012llo A: %012llo Q: %012llo\n",
+#endif
+                printw ("%05o:%06o %012llo A: %012llo Q: %012llo",
                         cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD, cpu.rA, cpu.rQ);
                 dis_cnt[cpun] = 0;
                 last_cycle_cnt [cpun] = cnt;
@@ -94,22 +139,18 @@ int main (int argc, char * argv[])
                 uint cioc_iom = __atomic_exchange_n (& cpu.cioc_iom, 0, __ATOMIC_SEQ_CST);
                 uint cioc_cpu = __atomic_exchange_n (& cpu.cioc_cpu, 0, __ATOMIC_SEQ_CST);
                 uint intrs = __atomic_exchange_n (& cpu.intrs, 0, __ATOMIC_SEQ_CST);
-                printw ("CIOC IOM %4u CPU %4u INTRS %4u\n", cioc_iom, cioc_cpu, intrs);
+                printw (" CIOC IOM %4u CPU %4u INTRS %4u\n", cioc_iom, cioc_cpu, intrs);
 
 
                 for (uint fn = 0; fn < 32; fn ++)
                   {
                     if (fn == 0)
-                      printw ("     SDF     STR     MME     F1      TRO     CMD     DRL     LUF\n");
-                    else if (fn == 8)
-                      printw ("     CON     PAR     IPR     ONC     SUF     OFL     DIV     EXF\n");
+                      printw ("     SDF     STR     MME     F1      TRO     CMD     DRL     LUF     CON     PAR     IPR     ONC     SUF     OFL     DIV     EXF\n");
                     else if (fn == 16)
-                      printw ("     DF0     DF1     DF2     DF3     ACV     MME2    MME3    MME4\n");
-                    else if (fn == 24)
-                      printw ("     F2      F3      UN1     UN2     UN3     UN4     UN5     TRB\n");
+                      printw ("     DF0     DF1     DF2     DF3     ACV     MME2    MME3    MME4    F2      F3      UN1     UN2     UN3     UN4     UN5     TRB\n");
                     unsigned long fcnt = __atomic_exchange_n (& cpu.faults[fn], 0, __ATOMIC_SEQ_CST);
                     printw ("%8u", fcnt);
-                    if (fn % 8 == 7)
+                    if (fn % 16 == 15)
                       printw ("\n");
                   }
 

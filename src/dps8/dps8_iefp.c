@@ -484,6 +484,14 @@ B29:;
 
 void Write (word18 address, word36 data, processor_cycle_type cyctyp)
  {
+#ifdef CTRACE
+{
+  if (cpu.TPR.TSR == 025 && address == 0132)
+    fprintf (stderr, "%10lu %s cam_wait set to %012llo by CPU %u\r\n", seqno(), cpunstr[current_running_cpu_idx], data, current_running_cpu_idx);
+  if (cpu.TPR.TSR == 025 && address >= 0204 && address < 0214)
+   fprintf (stderr, "%10lu %s fast_cam_pending[%u] set to %012llo by CPU %u\r\n", seqno(), cpunstr[current_running_cpu_idx], address-0204, data, current_running_cpu_idx);
+}
+#endif
     cpu.TPR.CA = cpu.iefpFinalAddress = address;
 
     bool isBAR = get_bar_mode ();
@@ -555,6 +563,9 @@ B29:
             else 
               {
                 cpu.iefpFinalAddress = do_append_cycle (cyctyp, & data, 1);
+#ifdef CTRACE
+//if (cpu.TPR.TSR == 072 && cpu.TPR.CA == 024) sim_print ("stack_end_ptr set to %012llo %o %05o:%06o %08o\n", data, current_running_cpu_idx, cpu.PPR.PSR, cpu.PPR.IC, cpu.iefpFinalAddress);
+#endif
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                            "Write(Actual) Write: iefpFinalAddress=%08o "
                            "writeData=%012"PRIo64"\n",
@@ -633,6 +644,9 @@ B29:
                            "Write2 (Actual) Write: iefpFinalAddress=%08o "
                            "writeData=%012"PRIo64" %012"PRIo64"\n", 
                            address, data [0], data [1]);
+#ifdef CTRACE
+//if (cpu.TPR.TSR == 072 && cpu.TPR.CA == 024) sim_print ("stack_end_ptr set to %012llo %012llo %o %05o:%06o %08o\n", data[0], data[1], current_running_cpu_idx, cpu.PPR.PSR, cpu.PPR.IC, cpu.iefpFinalAddress);
+#endif
                 HDBGMWrite (cpu.iefpFinalAddress, data[0]);
                 HDBGMWrite (cpu.iefpFinalAddress+1, data[1]);
               }
