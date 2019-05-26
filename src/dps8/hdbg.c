@@ -124,6 +124,7 @@ static void hdbg_inc (void)
 
 void hdbgTrace (void)
   {
+if (current_running_cpu_idx != 1) return;
 #ifdef LOCKLESS
     pthread_mutex_lock (& hdbg_lock);
 #endif
@@ -150,6 +151,7 @@ done: ;
 
 void hdbgMRead (word24 addr, word36 data)
   {
+if (current_running_cpu_idx != 1) return;
 #ifdef LOCKLESS
     pthread_mutex_lock (& hdbg_lock);
 #endif
@@ -173,6 +175,7 @@ done: ;
 
 void hdbgMWrite (word24 addr, word36 data)
   {
+if (current_running_cpu_idx != 1) return;
 #ifdef LOCKLESS
     pthread_mutex_lock (& hdbg_lock);
 #endif
@@ -197,6 +200,7 @@ done: ;
 void hdbgFault (_fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg)
   {
+if (current_running_cpu_idx != 1) return;
 #ifdef LOCKLESS
     pthread_mutex_lock (& hdbg_lock);
 #endif
@@ -222,6 +226,7 @@ done: ;
 
 void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx)
   {
+if (current_running_cpu_idx != 1) return;
 #ifdef LOCKLESS
     pthread_mutex_lock (& hdbg_lock);
 #endif
@@ -246,6 +251,7 @@ done: ;
 
 void hdbgIntr (uint intr_pair_addr)
   {
+if (current_running_cpu_idx != 1) return;
 #ifdef LOCKLESS
     pthread_mutex_lock (& hdbg_lock);
 #endif
@@ -268,6 +274,7 @@ done: ;
 
 void hdbgReg (enum hregs_t type, word36 data)
   {
+if (current_running_cpu_idx != 1) return;
 #ifdef LOCKLESS
     pthread_mutex_lock (& hdbg_lock);
 #endif
@@ -292,6 +299,7 @@ done: ;
 
 void hdbgPAReg (enum hregs_t type, struct par_s * data)
   {
+if (current_running_cpu_idx != 1) return;
 #ifdef LOCKLESS
     pthread_mutex_lock (& hdbg_lock);
 #endif
@@ -493,6 +501,7 @@ void hdbgPrint (void)
           }
       }
     fclose (hdbgOut);
+#if 0
     int fd = open ("M.dump", O_WRONLY | O_CREAT, 0660);
     if (fd == -1)
       {
@@ -502,6 +511,7 @@ void hdbgPrint (void)
     // cast discards volatile
     /* ssize_t n = */ write (fd, (const void *) M, MEMSIZE * sizeof (word36));
     close (fd);
+#endif
 done: ;
 #ifdef LOCKLESS
     pthread_mutex_unlock (& hdbg_lock);
