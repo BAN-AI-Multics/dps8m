@@ -1647,6 +1647,17 @@ void * cpu_thread_main (void * arg)
     
     sim_msg ("CPU %c thread created\n", 'a' + myid);
 
+#ifdef THREAD_PRIORITY
+    struct sched_param params;
+    //params.sched_priority = sched_get_priority_max (SCHED_RR);
+    params.sched_priority = THREAD_PRIORITY;
+    int ret = pthread_setschedparam (pthread_self (), SCHED_RR, & params);
+    if (ret)
+      {
+        sim_warn ("Unable to set CPU thread priority (%d)\n", ret);
+      }
+#endif
+
     setSignals ();
     //stallCPU ();
     threadz_sim_instr ();
@@ -2274,9 +2285,6 @@ t_stat threadz_sim_instr (void)
                       if (stall_points[i].segno && stall_points[i].segno == cpu.PPR.PSR &&
                           stall_points[i].offset && stall_points[i].offset == cpu.PPR.IC)
                         {
-#ifdef CTRACE
-                          fprintf (stderr, "%10lu %s stall %d\n", seqno (), cpunstr[current_running_cpu_idx], i);
-#endif
                           //sim_printf ("stall %2d %05o:%06o\n", i, stall_points[i].segno, stall_points[i].offset);
                           //pthread_yield ();
                           usleep(stall_points[i].time);
