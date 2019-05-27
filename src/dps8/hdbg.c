@@ -53,7 +53,7 @@ struct hevt
           {
             _fault faultNumber;
             _fault_subtype subFault;
-            char faultMsg [64];
+            char faultMsg[64];
           } fault;
 
         struct
@@ -87,8 +87,14 @@ static unsigned long hdbgSize = 0;
 static unsigned long hevtPtr = 0;
 static unsigned long hevtMark = 0;
 
-#ifdef LOCKLESS
-static pthread_mutex_t hdbg_lock = PTHREAD_MUTEX_INITIALIZER;
+//#ifdef LOCKLESS
+//static pthread_mutex_t hdbg_lock = PTHREAD_MUTEX_INITIALIZER;
+//#endif
+
+#if 1
+#define CPUN if (current_running_cpu_idx < 1 || current_running_cpu_idx > 3) return
+#else
+#define CPUN
 #endif
 
 static void createBuffer (void)
@@ -111,6 +117,7 @@ static void createBuffer (void)
     hevtPtr = 0;
   }
 
+#if 0
 static void hdbg_inc (void)
   {
     hevtPtr = (hevtPtr + 1) % hdbgSize;
@@ -121,204 +128,218 @@ static void hdbg_inc (void)
           hdbgPrint ();
       }
   }
+#endif
+
+static unsigned long hdbg_inc (void)
+  {
+    return __sync_fetch_and_add (& hevtPtr, 1l) % hdbgSize;
+  }
 
 void hdbgTrace (void)
   {
-if (current_running_cpu_idx != 1) return;
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+CPUN;
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     if (! hevents)
       goto done;
 #ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
-    hevents [hevtPtr] . type = hevtTrace;
-    hevents [hevtPtr] . cpu_idx = current_running_cpu_idx;
-    hevents [hevtPtr] . time = cpu.cycleCnt;
-    hevents [hevtPtr] . trace . addrMode = get_addr_mode ();
-    hevents [hevtPtr] . trace . segno = cpu . PPR.PSR;
-    hevents [hevtPtr] . trace . ic = cpu . PPR.IC;
-    hevents [hevtPtr] . trace . ring = cpu . PPR.PRR;
-    hevents [hevtPtr] . trace . inst = cpu.cu.IWB;
-    hdbg_inc ();
+    unsigned long p = hdbg_inc ();
+    hevents[p].type = hevtTrace;
+    hevents[p].cpu_idx = current_running_cpu_idx;
+    hevents[p].time = cpu.cycleCnt;
+    hevents[p].trace.addrMode = get_addr_mode ();
+    hevents[p].trace.segno = cpu.PPR.PSR;
+    hevents[p].trace.ic = cpu.PPR.IC;
+    hevents[p].trace.ring = cpu.PPR.PRR;
+    hevents[p].trace.inst = cpu.cu.IWB;
+    //hdbg_inc ();
 done: ;
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
   }
 
 void hdbgMRead (word24 addr, word36 data)
   {
-if (current_running_cpu_idx != 1) return;
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+CPUN;
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     if (! hevents)
       goto done;
 #ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
-    hevents [hevtPtr] . type = hevtMRead;
-    hevents [hevtPtr] . cpu_idx = current_running_cpu_idx;
-    hevents [hevtPtr] . time = cpu.cycleCnt;
-    hevents [hevtPtr] . memref . addr = addr;
-    hevents [hevtPtr] . memref . data = data;
-    hdbg_inc ();
+    unsigned long p = hdbg_inc ();
+    hevents[p].type = hevtMRead;
+    hevents[p].cpu_idx = current_running_cpu_idx;
+    hevents[p].time = cpu.cycleCnt;
+    hevents[p].memref.addr = addr;
+    hevents[p].memref.data = data;
+    //hdbg_inc ();
 done: ;
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
   }
 
 void hdbgMWrite (word24 addr, word36 data)
   {
-if (current_running_cpu_idx != 1) return;
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+CPUN;
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     if (! hevents)
       goto done;
 #ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
-    hevents [hevtPtr] . type = hevtMWrite;
-    hevents [hevtPtr] . cpu_idx = current_running_cpu_idx;
-    hevents [hevtPtr] . time = cpu.cycleCnt;
-    hevents [hevtPtr] . memref . addr = addr;
-    hevents [hevtPtr] . memref . data = data;
-    hdbg_inc ();
+    unsigned long p = hdbg_inc ();
+    hevents[p].type = hevtMWrite;
+    hevents[p].cpu_idx = current_running_cpu_idx;
+    hevents[p].time = cpu.cycleCnt;
+    hevents[p].memref.addr = addr;
+    hevents[p].memref.data = data;
+    //hdbg_inc ();
 done: ;
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
   }
 
 void hdbgFault (_fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg)
   {
-if (current_running_cpu_idx != 1) return;
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+CPUN;
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     if (! hevents)
       goto done;
 #ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
-    hevents [hevtPtr] . type = hevtFault;
-    hevents [hevtPtr] . cpu_idx = current_running_cpu_idx;
-    hevents [hevtPtr] . time = cpu.cycleCnt;
-    hevents [hevtPtr] . fault . faultNumber = faultNumber;
-    hevents [hevtPtr] . fault . subFault = subFault;
-    strncpy (hevents [hevtPtr] . fault . faultMsg, faultMsg, 63);
-    hevents [hevtPtr] . fault . faultMsg [63] = 0;
-    hdbg_inc ();
+    unsigned long p = hdbg_inc ();
+    hevents[p].type = hevtFault;
+    hevents[p].cpu_idx = current_running_cpu_idx;
+    hevents[p].time = cpu.cycleCnt;
+    hevents[p].fault.faultNumber = faultNumber;
+    hevents[p].fault.subFault = subFault;
+    strncpy (hevents[p].fault.faultMsg, faultMsg, 63);
+    hevents[p].fault.faultMsg[63] = 0;
+    //hdbg_inc ();
 done: ;
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
   }
 
 void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx)
   {
-if (current_running_cpu_idx != 1) return;
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+CPUN;
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     if (! hevents)
       goto done;
 #ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
-    hevents [hevtPtr].type = hevtIntrSet;
-    hevents [hevtPtr] . cpu_idx = current_running_cpu_idx;
-    hevents [hevtPtr].time = cpu.cycleCnt;
-    hevents [hevtPtr].intrSet.inum = inum;
-    hevents [hevtPtr].intrSet.cpuUnitIdx = cpuUnitIdx;
-    hevents [hevtPtr].intrSet.scuUnitIdx = scuUnitIdx;
-    hdbg_inc ();
+    unsigned long p = hdbg_inc ();
+    hevents[p].type = hevtIntrSet;
+    hevents[p].cpu_idx = current_running_cpu_idx;
+    hevents[p].time = cpu.cycleCnt;
+    hevents[p].intrSet.inum = inum;
+    hevents[p].intrSet.cpuUnitIdx = cpuUnitIdx;
+    hevents[p].intrSet.scuUnitIdx = scuUnitIdx;
+    //hdbg_inc ();
 done: ;
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
   }
 
 void hdbgIntr (uint intr_pair_addr)
   {
-if (current_running_cpu_idx != 1) return;
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+CPUN;
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     if (! hevents)
       goto done;
 #ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
-    hevents [hevtPtr].type = hevtIntr;
-    hevents [hevtPtr] . cpu_idx = current_running_cpu_idx;
-    hevents [hevtPtr].time = cpu.cycleCnt;
-    hevents [hevtPtr].intr.intr_pair_addr = intr_pair_addr;
-    hdbg_inc ();
+    unsigned long p = hdbg_inc ();
+    hevents[p].type = hevtIntr;
+    hevents[p].cpu_idx = current_running_cpu_idx;
+    hevents[p].time = cpu.cycleCnt;
+    hevents[p].intr.intr_pair_addr = intr_pair_addr;
+    //hdbg_inc ();
 done: ;
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
   }
 
 void hdbgReg (enum hregs_t type, word36 data)
   {
-if (current_running_cpu_idx != 1) return;
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+CPUN;
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     if (! hevents)
       goto done;
 #ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
-    hevents[hevtPtr].type = hevtReg;
-    hevents [hevtPtr] . cpu_idx = current_running_cpu_idx;
-    hevents[hevtPtr].time = cpu.cycleCnt;
-    hevents[hevtPtr].reg.type = type;
-    hevents[hevtPtr].reg.data = data;
-    hdbg_inc ();
+    unsigned long p = hdbg_inc ();
+    hevents[p].type = hevtReg;
+    hevents[p].cpu_idx = current_running_cpu_idx;
+    hevents[p].time = cpu.cycleCnt;
+    hevents[p].reg.type = type;
+    hevents[p].reg.data = data;
+    //hdbg_inc ();
 done: ;
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
   }
 
 
 void hdbgPAReg (enum hregs_t type, struct par_s * data)
   {
-if (current_running_cpu_idx != 1) return;
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+CPUN;
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     if (! hevents)
       goto done;
 #ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
-    hevents[hevtPtr].type = hevtPAReg;
-    hevents [hevtPtr] . cpu_idx = current_running_cpu_idx;
-    hevents[hevtPtr].time = cpu.cycleCnt;
-    hevents[hevtPtr].par.type = type;
-    hevents[hevtPtr].par.data =  * data;
-    hdbg_inc ();
+    unsigned long p = hdbg_inc ();
+    hevents[p].type = hevtPAReg;
+    hevents[p].cpu_idx = current_running_cpu_idx;
+    hevents[p].time = cpu.cycleCnt;
+    hevents[p].par.type = type;
+    hevents[p].par.data =  * data;
+    //hdbg_inc ();
 done: ;
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
   }
 
 static FILE * hdbgOut = NULL;
@@ -328,7 +349,7 @@ static void printMRead (struct hevt * p)
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d FINAL: Read %08o %012"PRIo64"\n",
                 p -> time, 
                 p -> cpu_idx,
-                p -> memref . addr, p -> memref . data);
+                p -> memref.addr, p -> memref.data);
   }
 
 static void printMWrite (struct hevt * p)
@@ -336,26 +357,26 @@ static void printMWrite (struct hevt * p)
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d FINAL: Write %08o %012"PRIo64"\n",
                 p -> time, 
                 p -> cpu_idx,
-                p -> memref . addr, p -> memref . data);
+                p -> memref.addr, p -> memref.data);
   }
 
 static void printTrace (struct hevt * p)
   {
-    char buf [256];
-    if (p -> trace . addrMode == ABSOLUTE_mode)
+    char buf[256];
+    if (p -> trace.addrMode == ABSOLUTE_mode)
       {
         fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d TRACE: %06o %o %012"PRIo64" (%s)\n",
                     p -> time, 
                     p -> cpu_idx,
-                    p -> trace . ic, p -> trace . ring,
-                    p -> trace . inst, disassemble (buf, p -> trace . inst));
+                    p -> trace.ic, p -> trace.ring,
+                    p -> trace.inst, disassemble (buf, p -> trace.inst));
       }
     else
       {
         fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d TRACE: %05o:%06o %o %012"PRIo64" (%s)\n",
-                    p -> time, p -> cpu_idx, p -> trace . segno,
-                    p -> trace . ic, p -> trace . ring,
-                    p -> trace . inst, disassemble (buf, p -> trace . inst));
+                    p -> time, p -> cpu_idx, p -> trace.segno,
+                    p -> trace.ic, p -> trace.ring,
+                    p -> trace.inst, disassemble (buf, p -> trace.inst));
       }
   }
 
@@ -387,7 +408,7 @@ static void printIntr (struct hevt * p)
                 p -> intr.intr_pair_addr);
   }
 
-static char * regNames [] =
+static char * regNames[] =
   {
     "A ",
     "Q ",
@@ -439,11 +460,14 @@ static void printPAReg (struct hevt * p)
 
 void hdbgPrint (void)
   {
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+    sim_printf ("hdbg print\n");
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     if (! hevents)
       goto done;
+    struct hevt * t = hevents;
+    hevents = NULL;
     hdbgOut = fopen ("hdbg.list", "w");
     if (! hdbgOut)
       {
@@ -457,7 +481,7 @@ void hdbgPrint (void)
     for (unsigned long p = 0; p < hdbgSize; p ++)
       {
         unsigned long q = (hevtPtr + p) % hdbgSize;
-        struct hevt * evtp = hevents + q;
+        struct hevt * evtp = t + q;
         switch (evtp -> type)
           {
             case hevtEmpty:
@@ -513,35 +537,35 @@ void hdbgPrint (void)
     close (fd);
 #endif
 done: ;
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
   }
 
 void hdbg_mark (void)
   {
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     hevtMark = hdbgSize;
     sim_printf ("hdbg mark set to %ld\n", hevtMark);
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
   }
 
 // set buffer size 
 t_stat hdbg_size (UNUSED int32 arg, const char * buf)
   {
-#ifdef LOCKLESS
-    pthread_mutex_lock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_lock (& hdbg_lock);
+//#endif
     hdbgSize = strtoul (buf, NULL, 0);
     sim_printf ("hdbg size set to %ld\n", hdbgSize);
     createBuffer ();
-#ifdef LOCKLESS
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
+//#ifdef LOCKLESS
+//    pthread_mutex_unlock (& hdbg_lock);
+//#endif
     return SCPE_OK;
   }
 
