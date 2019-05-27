@@ -99,7 +99,6 @@ typedef struct t_MState
         word18 echnego_sync_ctr; // Sent by MCS
         word18 echnego_screen_left;
         uint echnego_unechoed_cnt;
-        //uint echnego_echoed_cnt;
         bool echnego_on;
         bool echnego_synced;
 
