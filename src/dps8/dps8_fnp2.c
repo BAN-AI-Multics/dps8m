@@ -788,6 +788,9 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 // The multiplexer input processor will also count characters processed by it
 // since it last echoed a character.
 
+#ifdef ECHNEGO_DEBUG
+            sim_printf ("\nkar <%c>\n", isprint (kar) ? kar : '*');
+#endif
             // Are we echoing?
             if (linep->echnego_on)
               {
@@ -796,12 +799,16 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                 // be reset.
                 if (linep->echnego_screen_left)
                   linep->echnego_screen_left --;
+#ifdef ECHNEGO_DEBUG
+               sim_printf ("echnego_screen_left %u\n", linep->echnego_screen_left);
+#endif
 
-                if (linep->echnego_break_table[kar] ||
-                    linep->echnego_screen_left == 0)
+                if (linep->echnego_break_table[kar])
                   {
                     // Break.
-
+#ifdef ECHNEGO_DEBUG
+               sim_printf ("break\n");
+#endif
                     // MTB418 pg 14:
                     // "Whenever the multiplexer delivers to the Ring Zero MCS
                     // interrupt side a character that takes ring zero out of
@@ -811,7 +818,21 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                     // Leave echnego mode.
                     linep->echnego_on = false;
 
-                    //linep->echnego_echoed_cnt ++;
+// If the multiplexer delivers up a non-empty shipment of characters
+// without the break character bit on, and the specific multiplexer has
+// been found to be knowledgeable about multiplexer echo negotiation
+// (i.e., earlier accepted the ''start negotiated echo" control order) all
+// characters except the last in the shipment are known to have been
+// echoed by the multiplexer, which has apparently honored the order call
+// which was issued at the time ring zero went into the echoing state.
+// Thus, this only possible if ring zero is in the echoing state. Those
+// characters are counted by ring zero as "having been echoed by ring
+// zero" (as far is ring four is concerned) and are not echoed by ring
+// zero. The last character is checked for stopping ring-zero echo, and
+// if it would not stop ring zero echo, is treated as one of the
+// multiplexer-echoed characters. If it would stop ring zero echo, it is
+// processed as today, indeed takes ring zero out of the echo state,
+// and causes ring 4 to be woken up, as today.
 
                     // "If [input_break] is off, the delivery consists
                     // of characters all of which were echoed ..., 
@@ -828,11 +849,59 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                     // count of all characters received by the ring zero
                     // interrupt side since the last character echoed by the
                     // multiplexer."
-                    if (linep->echnego_break_table[kar])
-                      linep->echnego_unechoed_cnt ++;
-
+                    linep->echnego_unechoed_cnt ++;
 #ifdef ECHNEGO_DEBUG
-                    sim_printf ("echnedo break nPos %d unechoed cnt %d\r\n",
+                    sim_printf ("echnego break nPos %d unechoed cnt %d\r\n",
+                      linep->nPos, linep->echnego_unechoed_cnt);
+#endif
+                    linep->accept_input = 1;
+                    return true;
+                  }
+
+                if (linep->echnego_screen_left == 0)
+                  {
+                    // Break.
+#ifdef ECHNEGO_DEBUG
+                    sim_printf ("end of line\n");
+#endif
+                    // MTB418 pg 14:
+                    // "Whenever the multiplexer delivers to the Ring Zero MCS
+                    // interrupt side a character that takes ring zero out of
+                    // the echo state, the multiplexer itself will be known to
+                    // have stopped echoing."
+
+                    // Leave echnego mode.
+                    linep->echnego_on = false;
+
+// If the multiplexer delivers up a shipment of characters with the
+// "break character" bit on, either the request was not honored, or the
+// specific multiplexer does not support echo negotiation, the multiplexer
+// decided randomly (i.e., for internal reasons) to stop or not start
+// echoing, or the first character in the delivery is a break character· or
+// exceeds the length of screen left; in any case, the delivery is 
+// entirely of non-echoed characters. These cases are indistinguishable
+// from each other and from the only case today when in the ring zero echo
+// state, and handled identically as today. The delivery is scanned,
+// a possible leading prefix of echoable characters echoed by ring zero,
+// and the characters made available (if ring zero leaves the ring zero
+// echo state while processing them) to ring 4, which would then be woken
+// up.
+
+                    linep->input_break = true;
+
+
+
+                    // MTB418 pg 15:
+                    // "This determination is made by the ''input processor''
+                    // of the multiplexer based upon a value called the
+                    // synchronization counter sent with the start negotiated
+                    // echo control order: the value sent by ring zero is the
+                    // count of all characters received by the ring zero
+                    // interrupt side since the last character echoed by the
+                    // multiplexer."
+                    linep->echnego_unechoed_cnt ++;
+#ifdef ECHNEGO_DEBUG
+                    sim_printf ("echnego end of line nPos %d unechoed cnt %d\r\n",
                       linep->nPos, linep->echnego_unechoed_cnt);
 #endif
                     linep->accept_input = 1;
