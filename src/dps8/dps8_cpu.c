@@ -1990,6 +1990,8 @@ t_stat threadz_sim_instr (void)
                         // get interrupt pair
                         core_read2 (intr_pair_addr,
                                     & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
+                        HDBGMRead (intr_pair_addr, cpu.cu.IWB);
+                        HDBGMRead (intr_pair_addr + 1, cpu.cu.IRODD);
                         cpu.cu.xde = 1;
                         cpu.cu.xdo = 1;
                         cpu.isExec = true;
@@ -2829,6 +2831,9 @@ if (cpu.PPR.PSR == 042 && cpu.PPR.IC == 036573) fprintf (stderr, "%10lu %s >>>>>
                   }
 
                 core_read2 (addr, & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
+                HDBGMRead (addr, cpu.cu.IWB);
+                HDBGMRead (addr + 1, cpu.cu.IRODD);
+
                 cpu.cu.xde = 1;
                 cpu.cu.xdo = 1;
                 cpu.isExec = true;
