@@ -2138,7 +2138,9 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
     if (expander_command == 2) // "set xipmask"
       {
         int cnt = 0;
-        int val = -1;
+        // Invalid value for detecting uninitialized XIP mask.
+        int val = N_SCU_SUBPORTS;
+
         for (uint i = 0; i < N_SCU_SUBPORTS; i++)
           {
             portp->xipmask [i] = !! (sub_mask & (0200u >> i));
@@ -2151,7 +2153,7 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
         if (cnt > 1)
           {
             sim_warn ("xip mask cnt > 1\n");
-            val = -1;
+            val = N_SCU_SUBPORTS;
           }
         portp->xipmaskval = val;
         goto done;
@@ -2227,7 +2229,7 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
                       scu_to_cpu[scu_unit_idx][scu_port_num][sn].cpu_unit_idx;
                     setG7fault ((uint) cpu_unit_udx, FAULT_CON, fst_zero);
 #ifdef CTRACE
-fprintf (stderr, "%10lu %s connect issued to CPU %u by CPU %d from %05o:%08o\r\n", seqno (), cpunstr[current_running_cpu_idx], cpu_unit_udx, current_running_cpu_idx, cpu.PPR.PSR, cpu.PPR.IC);
+fprintf (stderr, "%10lu %s connect issued to CPU %u by CPU %d scu %u port %u sn %u from %05o:%08o\r\n", seqno (), cpunstr[current_running_cpu_idx, cpu_unit_udx, current_running_cpu_idx, scu_unit_idx, scu_port_num, sn, cpu.PPR.PSR, cpu.PPR.IC);
 #endif
                   }
               }
