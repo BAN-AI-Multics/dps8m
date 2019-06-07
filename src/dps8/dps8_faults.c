@@ -359,14 +359,6 @@ if (faultNumber == FAULT_CON)
   {
       fprintf (stderr, "%10lu %s connect fault on CPU %u stkend %08o\r\n", seqno (), cpunstr[current_running_cpu_idx], current_running_cpu_idx, GETHI (fast_append (current_running_cpu_idx, 072, 21)));
   }
-#if 0
-if (faultNumber == FAULT_ACV && cpu.PPR.PSR == 034 && cpu.PPR.IC == 03071)
-  {
-    hdbgPrint();
-  }
-
-if (faultNumber == FAULT_ACV) {sim_printf ("ACV fault %u %05o:%06o\n", current_running_cpu_idx, cpu.PPR.PSR, cpu.PPR.IC);}
-#endif
 #endif
     sim_debug (DBG_FAULT, & cpu_dev, 
                "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\n", 
@@ -375,9 +367,7 @@ if (faultNumber == FAULT_ACV) {sim_printf ("ACV fault %u %05o:%06o\n", current_r
 #ifdef PROFILER
     __atomic_add_fetch (& cpu.faults[faultNumber], 1u, __ATOMIC_ACQUIRE);
 #endif
-#ifdef HDBG
-    hdbgFault (faultNumber, subFault, faultMsg);
-#endif
+    HDBGFault (faultNumber, subFault, faultMsg, "");
 #ifndef SPEED
     if_sim_debug (DBG_FAULT, & cpu_dev)
       traceInstruction (DBG_FAULT);
@@ -533,7 +523,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
 #endif
 
 #ifdef ISOLTS
-//if (current_running_cpu_idx && faultNumber == FAULT_LUF) hdbgPrint ();
+//if (current_running_cpu_idx && faultNumber == FAULT_LUF) HDBGPrint ();
 #endif
     if (faultNumber == FAULT_ACV)
       {

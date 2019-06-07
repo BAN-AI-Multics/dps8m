@@ -2121,7 +2121,7 @@ L:; // Transfer or instruction fetch
           cpu.PR[n].SNR = cpu.PPR.PSR;
         cpu.PR[n].WORDNO = (cpu.PPR.IC + 1) & MASK18;
         SET_PR_BITNO (n, 0);
-        HDBGRegPR (n);
+        HDBGRegPRW (n, "app tspn");
       }
 
     // lastCycle == RTCD_OPERAND_FETCH
@@ -2147,14 +2147,14 @@ L:; // Transfer or instruction fetch
         cpu.PR[5].RNR =
         cpu.PR[6].RNR =
         cpu.PR[7].RNR = cpu.TPR.TRR;
-        HDBGRegPR (0);
-        HDBGRegPR (1);
-        HDBGRegPR (2);
-        HDBGRegPR (3);
-        HDBGRegPR (4);
-        HDBGRegPR (5);
-        HDBGRegPR (6);
-        HDBGRegPR (7);
+        HDBGRegPRW (0, "app rtcd");
+        HDBGRegPRW (1, "app rtcd");
+        HDBGRegPRW (2, "app rtcd");
+        HDBGRegPRW (3, "app rtcd");
+        HDBGRegPRW (4, "app rtcd");
+        HDBGRegPRW (5, "app rtcd");
+        HDBGRegPRW (6, "app rtcd");
+        HDBGRegPRW (7, "app rtcd");
       }
     goto KL;
 
@@ -2210,7 +2210,7 @@ N: // CALL6
     cpu.PR[7].WORDNO = 0;
     // 000000 -> C(PR7.BITNO)
     SET_PR_BITNO (7, 0);
-    HDBGRegPR (7);
+    HDBGRegPRW (7, "app call6");
     // C(TPR.TRR) -> C(PPR.PRR)
     cpu.PPR.PRR = cpu.TPR.TRR;
     // C(TPR.TSR) -> C(PPR.PSR)

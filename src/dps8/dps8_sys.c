@@ -136,6 +136,1111 @@ t_stat sim_load (FILE *fileref, const char *cptr, const char *fnam, int flag)
 
 // Script to string cables and set switches
 
+#ifdef NEW
+static char * default_base_system_script [] =
+  {
+    //
+    // Configure test system
+    //
+    //  8  CPU
+    //  4  SCU
+    //  1  IOM
+    //  1  IPC tape controller
+    // 16  tape drives
+    //  8  IPC disk controller 
+    //  8  3381 disk drives
+    //  1  MSP disk controller
+    //  4  d501 disk drives
+    //  4  d451 disk drives
+    //  3  URP
+    //  1  card reader
+    //  1  card printer
+    //  2  printers
+    //  8  FNP
+    //  1  ABSI
+    //  1  OPC
+    //  8  SKC
+    
+    // From AN70-1 System Initialization PLM May 84, pg 8-4:
+    //
+    // All CPUs and IOMs must share the same layout of port assignments to
+    // SCUs. Thus, if memory port B of CPU C goes to SCU D, the memory port
+    // B of all other CPUs and IOMs must go to SCU D. All CPUs and IOMs must
+    // describe this SCU the same; all must agree in memory sizes. Also, all
+    // SCUs must agree on port assignments of CPUs and IOMs. This, if port 3 
+    // of SCU C goes to CPU A, the port 3 of all other SCUs must also go to
+    // CPU A.
+    // 
+    // Pg. 8-6:
+    //
+    // The actual memory size of the memory attached to the SCU attached to
+    // the processor port in questions is 32K * 2 ** (encoded memory size).
+    // The port assignment couples with the memory size to determine the base 
+    // address of the SCU connected to the specified CPU port (absoulte
+    // address of the first location in the memory attached to that SCU). The 
+    // base address of the SCU is the (actual memory size) * (port assignment).
+    // 
+    // Pg. 8-6
+    // 
+    // [bits 09-11 lower store size]
+    // 
+    // A DPS-8 SCU may have up to four store units attached to it. If this is
+    // the case, two stores units form a pair of units. The size of a pair of
+    // units (or a single unit) is 32K * 2 ** (lower store size) above.
+    // 
+
+//
+// IOM channel assignments
+//
+//  IOM A
+//   
+//   010 OPC0           operator console
+//   011 ABSI0          IMP controller
+//   012 IPCT0 port 0   FIPS tape drives
+//   013 IPCT0 port 1   FIPS tape drives
+//   014
+//   015 URPA           card reader controller
+//   016 URPB           card punch controller
+//   017 URPC           printer controller
+//
+//   020 FNPA           comm line controller
+//   021 FNPB           comm line controller
+//   022 FNPC           comm line controller
+//   023 FNPD           comm line controller
+//   024 FNPE           comm line controller
+//   025 FNPF           comm line controller
+//   026 FNPG           comm line controller
+//   027 FNPH           comm line controller
+//  
+//   030 IPCD0 port 0   FIPS disk controller
+//   031 IPCD1 port 0   FIPS disk controller
+//   032 IPCD2 port 0   FIPS disk controller
+//   033 IPCD3 port 0   FIPS disk controller
+//   034 IPCD4 port 0   FIPS disk controller
+//   035 IPCD5 port 0   FIPS disk controller
+//   036 IPCD6 port 0   FIPS disk controller
+//   037 IPCD7 port 0   FIPS disk controller
+//
+//   040 IPCD0 port 1   FIPS disk controller
+//   041 IPCD1 port 1   FIPS disk controller
+//   042 IPCD2 port 1   FIPS disk controller
+//   043 IPCD3 port 1   FIPS disk controller
+//   044 IPCD4 port 1   FIPS disk controller
+//   045 IPCD5 port 1   FIPS disk controller
+//   046 IPCD6 port 1   FIPS disk controller
+//   047 IPCD7 port 1   FIPS disk controller
+//
+//   050 SKCA
+//   051 SKCB
+//   052 SKCC
+//   053 SKCD
+//   054 SKCE
+//   055 SKCF
+//   056 SKCG
+//   057 SKCH
+// 
+//   060 MSP0  port 0   disk controller
+//   061 MSP0  port 1   disk controller
+
+
+#if 0
+clok -delta 8. -zone pst 
+cpu -tag a -port 7 -state on -type dps8 -model 70. -cache 8. 
+cpu -tag b -port 6 -state off -type dps8 -model 70. -cache 8. 
+cpu -tag c -port 5 -state off -type dps8 -model 70. -cache 8. 
+cpu -tag d -port 4 -state off -type dps8 -model 70. -cache 8. 
+cpu -tag e -port 3 -state off -type dps8 -model 70. -cache 8. 
+cpu -tag f -port 2 -state off -type dps8 -model 70. -cache 8.
+cpu -tag g -port 1 -state off -type dps8 -model 70. -cache 8. -exp_port a 
+cpu -tag h -port 1 -state off -type dps8 -model 70. -cache 8. -exp_port b 
+mem -port a -size 4096. -state on 
+mem -port b -size 4096. -state on 
+mem -port c -size 4096. -state on 
+mem -port d -size 4096. -state on 
+iom -tag a -port 0 -model imu -state on 
+prph -device opca -iom a -chn 10 -model 6001. -ll 256. -state on 
+ipc -type fips -iom a -chn 12 -nchan 1 
+prph -subsys tapa -iom a -chn 12 -nchan 1 -model 8200. -number 16. 
+chnl -subsys tapa -iom a -chn 13 -nchan 1 
+mpc -ctlr urpa -model 8004. -iom a -chn 15 -nchan 1 
+prph -device rdra -iom a -chn 15 -model 301. 
+mpc -ctlr urpb -model 8004. -iom a -chn 16 -nchan 1 
+prph -device puna -iom a -chn 16 -model 301. 
+mpc -ctlr urpc -model 8004. -iom a -chn 17 -nchan 1 
+prph -device prta -iom a -chn 17 -model 1600. -train 600. -ll 136. 
+prph -device prtb -iom a -chn 17 -model 1600. -train 600. -ll 136. 
+prph -device fnpa -iom a -chn 20 -model 6670. -state on 
+prph -device fnpb -iom a -chn 21 -model 6670. -state off 
+prph -device fnpc -iom a -chn 22 -model 6670. -state on 
+prph -device fnpd -iom a -chn 23 -model 6670. -state on 
+prph -device fnpe -iom a -chn 24 -model 6670. -state off 
+prph -device fnpf -iom a -chn 25 -model 6670. -state off 
+prph -device fnpg -iom a -chn 26 -model 6670. -state off 
+prph -device fnph -iom a -chn 27 -model 6670. -state off 
+ipc -type fips -iom a -chn 30 -nchan 1 
+ipc -type fips -iom a -chn 31 -nchan 1 
+ipc -type fips -iom a -chn 32 -nchan 1 
+ipc -type fips -iom a -chn 33 -nchan 1 
+ipc -type fips -iom a -chn 34 -nchan 1 
+ipc -type fips -iom a -chn 35 -nchan 1 
+ipc -type fips -iom a -chn 36 -nchan 1 
+ipc -type fips -iom a -chn 37 -nchan 1 
+ipc -type fips -iom a -chn 40 -nchan 1 
+ipc -type fips -iom a -chn 41 -nchan 1 
+ipc -type fips -iom a -chn 42 -nchan 1 
+ipc -type fips -iom a -chn 43 -nchan 1 
+ipc -type fips -iom a -chn 44 -nchan 1 
+ipc -type fips -iom a -chn 45 -nchan 1 
+ipc -type fips -iom a -chn 46 -nchan 1 
+ipc -type fips -iom a -chn 47 -nchan 1 
+prph -subsys dska -iom a -chn 30 -nchan 1 -model 3381. -number 4. 
+prph -subsys dskb -iom a -chn 31 -nchan 1 -model 3381. -number 4. 
+prph -subsys dskc -iom a -chn 32 -nchan 1 -model 3381. -number 4. 
+prph -subsys dskd -iom a -chn 33 -nchan 1 -model 3381. -number 4. 
+prph -subsys dske -iom a -chn 34 -nchan 1 -model 3381. -number 4. 
+prph -subsys dskf -iom a -chn 35 -nchan 1 -model 3381. -number 4. 
+prph -subsys dskg -iom a -chn 36 -nchan 1 -model 3381. -number 4. 
+prph -subsys dskh -iom a -chn 37 -nchan 1 -model 3381. -number 4. 
+chnl -subsys dska -iom a -chn 40 -nchan 1
+chnl -subsys dskb -iom a -chn 41 -nchan 1
+chnl -subsys dskc -iom a -chn 42 -nchan 1
+chnl -subsys dskd -iom a -chn 43 -nchan 1
+chnl -subsys dske -iom a -chn 44 -nchan 1
+chnl -subsys dskf -iom a -chn 45 -nchan 1
+chnl -subsys dskg -iom a -chn 46 -nchan 1
+chnl -subsys dskh -iom a -chn 47 -nchan 1
+prph skta a 50 0 1 64. 
+prph sktb a 51 0 1 64. 
+prph sktc a 52 0 1 64. 
+prph sktd a 53 0 1 64. 
+prph skte a 54 0 1 64. 
+prph sktf a 55 0 1 64. 
+prph sktg a 56 0 1 64. 
+prph skth a 57 0 1 64. 
+mpc -ctlr mspa -model 800. -iom a -chn 60 -nchan 1 
+mpc -ctlr mspa -model 800. -iom a -chn 61 -nchan 1 
+prph dski a 60 1 501. 4 451. 4
+chnl dski a 61 1 
+part -part hc -subsys dska -drive 00a 
+part -part bos -subsys dska -drive 00a 
+part -part dump -subsys dska -drive 00a 
+root -subsys dska -drive 00a -subsys dska -drive 00b -subsys dska -drive 00c 
+sst -4k 3800. -16k 2100. -64k 820. -256k 260. 
+dbmj 64. 700. 400. 150. 60. 25. 
+tcd -apt 1000. -itt 2000. 
+intk warm 0. star 
+parm dirw loud ttyb 64000 
+#endif
+
+
+    // Disconnect everything...
+    "cable ripout",
+
+    "set cpu nunits=8",
+    "set iom nunits=1",
+    // One tape controller with 16 drives
+    "set ipct nunits=1",
+    "set tape nunits=16",
+    // 8 3381 drives; 8 controllers
+    "set ipcd nunits=8",
+    // 4 d501 drives; 1 controller
+    // 4 d451 drives; same controller has d501s
+    "set msp nunits=1",
+    "set disk nunits=16",
+    "set scu nunits=4",
+    "set opc nunits=1",
+    "set fnp nunits=8",
+    "set urp nunits=3",
+    "set rdr nunits=1",
+    "set pun nunits=1",
+    "set prt nunits=2",
+    "set skc nunits=8",
+    "set absi nunits=1",
+
+// CPU0
+
+    "set cpu0 config=faultbase=Multics",
+
+    "set cpu0 config=num=0",
+    // As per GB61-01 Operators Guide, App. A
+    // switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
+    "set cpu0 config=data=024000717200",
+
+    // enable ports 0 and 1 (scu connections)
+    // portconfig: ABCD
+    //   each is 3 bits addr assignment
+    //           1 bit enabled 
+    //           1 bit sysinit enabled
+    //           1 bit interlace enabled (interlace?)
+    //           3 bit memory size
+    //              0 - 32K
+    //              1 - 64K
+    //              2 - 128K
+    //              3 - 256K
+    //              4 - 512K
+    //              5 - 1M
+    //              6 - 2M
+    //              7 - 4M  
+
+    "set cpu0 config=port=A",
+    "set cpu0   config=assignment=0",
+    "set cpu0   config=interlace=0",
+    "set cpu0   config=enable=1",
+    "set cpu0   config=init_enable=1",
+    "set cpu0   config=store_size=4M",
+ 
+    "set cpu0 config=port=B",
+    "set cpu0   config=assignment=1",
+    "set cpu0   config=interlace=0",
+    "set cpu0   config=enable=1",
+    "set cpu0   config=init_enable=1",
+    "set cpu0   config=store_size=4M",
+
+    "set cpu0 config=port=C",
+    "set cpu0   config=assignment=2",
+    "set cpu0   config=interlace=0",
+    "set cpu0   config=enable=1",
+    "set cpu0   config=init_enable=1",
+    "set cpu0   config=store_size=4M",
+
+    "set cpu0 config=port=D",
+    "set cpu0   config=assignment=3",
+    "set cpu0   config=interlace=0",
+    "set cpu0   config=enable=1",
+    "set cpu0   config=init_enable=1",
+    "set cpu0   config=store_size=4M",
+
+    // 0 = GCOS 1 = VMS
+    "set cpu0 config=mode=Multics",
+    // 0 = 8/70
+    "set cpu0 config=speed=0",
+    "set cpu0 config=enable_cache=1",
+    "set cpu0 config=enable_pt_wam=1",
+    "set cpu0 config=enable_sd_wam=1",
+
+    "set cpu0 config=dis_enable=enable",
+    "set cpu0 config=steady_clock=disable",
+    "set cpu0 config=halt_on_unimplemented=disable",
+    "set cpu0 config=enable_wam=disable",
+    "set cpu0 config=tro_enable=enable",
+    "set cpu0 config=y2k=disable",
+
+// CPU1
+
+    "set cpu1 config=faultbase=Multics",
+    "set cpu1 config=num=1",
+    "set cpu1 config=data=024000717200",
+    "set cpu1 config=port=A",
+    "set cpu1   config=assignment=0",
+    "set cpu1   config=interlace=0",
+    "set cpu1   config=enable=1",
+    "set cpu1   config=init_enable=1",
+    "set cpu1   config=store_size=4M",
+    "set cpu1 config=port=B",
+    "set cpu1   config=assignment=1",
+    "set cpu1   config=interlace=0",
+    "set cpu1   config=enable=1",
+    "set cpu1   config=init_enable=1",
+    "set cpu1   config=store_size=4M",
+    "set cpu1 config=port=C",
+    "set cpu1   config=assignment=2",
+    "set cpu1   config=interlace=0",
+    "set cpu1   config=enable=1",
+    "set cpu1   config=init_enable=1",
+    "set cpu1   config=store_size=4M",
+    "set cpu1 config=port=D",
+    "set cpu1   config=assignment=3",
+    "set cpu1   config=interlace=0",
+    "set cpu1   config=enable=1",
+    "set cpu1   config=init_enable=1",
+    "set cpu1   config=store_size=4M",
+    "set cpu1 config=mode=Multics",
+    "set cpu1 config=speed=0",
+    "set cpu1 config=enable_cache=1",
+    "set cpu1 config=enable_pt_wam=1",
+    "set cpu1 config=enable_sd_wam=1",
+    "set cpu1 config=dis_enable=enable",
+    "set cpu1 config=steady_clock=disable",
+    "set cpu1 config=halt_on_unimplemented=disable",
+    "set cpu1 config=enable_wam=disable",
+    "set cpu1 config=tro_enable=enable",
+    "set cpu1 config=y2k=disable",
+
+// CPU2
+
+    "set cpu2 config=faultbase=Multics",
+    "set cpu2 config=num=2",
+    "set cpu2 config=data=024000717200",
+    "set cpu2 config=port=A",
+    "set cpu2   config=assignment=0",
+    "set cpu2   config=interlace=0",
+    "set cpu2   config=enable=1",
+    "set cpu2   config=init_enable=1",
+    "set cpu2   config=store_size=4M",
+    "set cpu2 config=port=B",
+    "set cpu2   config=assignment=1",
+    "set cpu2   config=interlace=0",
+    "set cpu2   config=enable=1",
+    "set cpu2   config=init_enable=1",
+    "set cpu2   config=store_size=4M",
+    "set cpu2 config=port=C",
+    "set cpu2   config=assignment=2",
+    "set cpu2   config=interlace=0",
+    "set cpu2   config=enable=1",
+    "set cpu2   config=init_enable=1",
+    "set cpu2   config=store_size=4M",
+    "set cpu2 config=port=D",
+    "set cpu2   config=assignment=3",
+    "set cpu2   config=interlace=0",
+    "set cpu2   config=enable=1",
+    "set cpu2   config=init_enable=1",
+    "set cpu2   config=store_size=4M",
+    "set cpu2 config=mode=Multics",
+    "set cpu2 config=speed=0",
+    "set cpu2 config=enable_cache=1",
+    "set cpu2 config=enable_pt_wam=1",
+    "set cpu2 config=enable_sd_wam=1",
+    "set cpu2 config=dis_enable=enable",
+    "set cpu2 config=steady_clock=disable",
+    "set cpu2 config=halt_on_unimplemented=disable",
+    "set cpu2 config=enable_wam=disable",
+    "set cpu2 config=tro_enable=enable",
+    "set cpu2 config=y2k=disable",
+
+// CPU3
+
+    "set cpu3 config=faultbase=Multics",
+    "set cpu3 config=num=3",
+    "set cpu3 config=data=024000717200",
+    "set cpu3 config=port=A",
+    "set cpu3   config=assignment=0",
+    "set cpu3   config=interlace=0",
+    "set cpu3   config=enable=1",
+    "set cpu3   config=init_enable=1",
+    "set cpu3   config=store_size=4M",
+    "set cpu3 config=port=B",
+    "set cpu3   config=assignment=1",
+    "set cpu3   config=interlace=0",
+    "set cpu3   config=enable=1",
+    "set cpu3   config=init_enable=1",
+    "set cpu3   config=store_size=4M",
+    "set cpu3 config=port=C",
+    "set cpu3   config=assignment=2",
+    "set cpu3   config=interlace=0",
+    "set cpu3   config=enable=1",
+    "set cpu3   config=init_enable=1",
+    "set cpu3   config=store_size=4M",
+    "set cpu3 config=port=D",
+    "set cpu3   config=assignment=3",
+    "set cpu3   config=interlace=0",
+    "set cpu3   config=enable=1",
+    "set cpu3   config=init_enable=1",
+    "set cpu3   config=store_size=4M",
+    "set cpu3 config=mode=Multics",
+    "set cpu3 config=speed=0",
+    "set cpu3 config=enable_cache=1",
+    "set cpu3 config=enable_pt_wam=1",
+    "set cpu3 config=enable_sd_wam=1",
+    "set cpu3 config=dis_enable=enable",
+    "set cpu3 config=steady_clock=disable",
+    "set cpu3 config=halt_on_unimplemented=disable",
+    "set cpu3 config=enable_wam=disable",
+    "set cpu3 config=tro_enable=enable",
+    "set cpu3 config=y2k=disable",
+    "set cpu4 config=faultbase=Multics",
+    "set cpu4 config=num=4",
+    "set cpu4 config=data=024000717200",
+    "set cpu4 config=port=A",
+    "set cpu4   config=assignment=0",
+    "set cpu4   config=interlace=0",
+    "set cpu4   config=enable=1",
+    "set cpu4   config=init_enable=1",
+    "set cpu4   config=store_size=4M",
+    "set cpu4 config=port=B",
+    "set cpu4   config=assignment=1",
+    "set cpu4   config=interlace=0",
+    "set cpu4   config=enable=1",
+    "set cpu4   config=init_enable=1",
+    "set cpu4   config=store_size=4M",
+    "set cpu4 config=port=C",
+    "set cpu4   config=assignment=2",
+    "set cpu4   config=interlace=0",
+    "set cpu4   config=enable=1",
+    "set cpu4   config=init_enable=1",
+    "set cpu4   config=store_size=4M",
+    "set cpu4 config=port=D",
+    "set cpu4   config=assignment=3",
+    "set cpu4   config=interlace=0",
+    "set cpu4   config=enable=1",
+    "set cpu4   config=init_enable=1",
+    "set cpu4   config=store_size=4M",
+    "set cpu4 config=mode=Multics",
+    "set cpu4 config=speed=0",
+    "set cpu4 config=enable_cache=1",
+    "set cpu4 config=enable_pt_wam=1",
+    "set cpu4 config=enable_sd_wam=1",
+    "set cpu4 config=dis_enable=enable",
+    "set cpu4 config=steady_clock=disable",
+    "set cpu4 config=halt_on_unimplemented=disable",
+    "set cpu4 config=enable_wam=disable",
+    "set cpu4 config=tro_enable=enable",
+    "set cpu4 config=y2k=disable",
+
+// CPU5
+
+    "set cpu5 config=faultbase=Multics",
+    "set cpu5 config=num=5",
+    "set cpu5 config=data=024000717200",
+    "set cpu5 config=port=A",
+    "set cpu5   config=assignment=0",
+    "set cpu5   config=interlace=0",
+    "set cpu5   config=enable=1",
+    "set cpu5   config=init_enable=1",
+    "set cpu5   config=store_size=4M",
+    "set cpu5 config=port=B",
+    "set cpu5   config=assignment=1",
+    "set cpu5   config=interlace=0",
+    "set cpu5   config=enable=1",
+    "set cpu5   config=init_enable=1",
+    "set cpu5   config=store_size=4M",
+    "set cpu5 config=port=C",
+    "set cpu5   config=assignment=2",
+    "set cpu5   config=interlace=0",
+    "set cpu5   config=enable=1",
+    "set cpu5   config=init_enable=1",
+    "set cpu5   config=store_size=4M",
+    "set cpu5 config=port=D",
+    "set cpu5   config=assignment=3",
+    "set cpu5   config=interlace=0",
+    "set cpu5   config=enable=1",
+    "set cpu5   config=init_enable=1",
+    "set cpu5   config=store_size=4M",
+    "set cpu5 config=mode=Multics",
+    "set cpu5 config=speed=0",
+    "set cpu5 config=enable_cache=1",
+    "set cpu5 config=enable_pt_wam=1",
+    "set cpu5 config=enable_sd_wam=1",
+    "set cpu5 config=dis_enable=enable",
+    "set cpu5 config=steady_clock=disable",
+    "set cpu5 config=halt_on_unimplemented=disable",
+    "set cpu5 config=enable_wam=disable",
+    "set cpu5 config=tro_enable=enable",
+    "set cpu5 config=y2k=disable",
+
+// CPU6
+
+    "set cpu6 config=faultbase=Multics",
+    "set cpu6 config=num=6",
+    "set cpu6 config=data=024000717200",
+    "set cpu6 config=port=A",
+    "set cpu6   config=assignment=0",
+    "set cpu6   config=interlace=0",
+    "set cpu6   config=enable=1",
+    "set cpu6   config=init_enable=1",
+    "set cpu6   config=store_size=4M",
+    "set cpu6 config=port=B",
+    "set cpu6   config=assignment=1",
+    "set cpu6   config=interlace=0",
+    "set cpu6   config=enable=1",
+    "set cpu6   config=init_enable=1",
+    "set cpu6   config=store_size=4M",
+    "set cpu6 config=port=C",
+    "set cpu6   config=assignment=2",
+    "set cpu6   config=interlace=0",
+    "set cpu6   config=enable=1",
+    "set cpu6   config=init_enable=1",
+    "set cpu6   config=store_size=4M",
+    "set cpu6 config=port=D",
+    "set cpu6   config=assignment=3",
+    "set cpu6   config=interlace=0",
+    "set cpu6   config=enable=1",
+    "set cpu6   config=init_enable=1",
+    "set cpu6   config=store_size=4M",
+    "set cpu6 config=mode=Multics",
+    "set cpu6 config=speed=0",
+    "set cpu6 config=enable_cache=1",
+    "set cpu6 config=enable_pt_wam=1",
+    "set cpu6 config=enable_sd_wam=1",
+    "set cpu6 config=dis_enable=enable",
+    "set cpu6 config=steady_clock=disable",
+    "set cpu6 config=halt_on_unimplemented=disable",
+    "set cpu6 config=enable_wam=disable",
+    "set cpu6 config=tro_enable=enable",
+    "set cpu6 config=y2k=disable",
+
+// CPU7
+
+    "set cpu7 config=faultbase=Multics",
+    "set cpu7 config=num=7",
+    "set cpu7 config=data=024000717200",
+    "set cpu7 config=port=A",
+    "set cpu7   config=assignment=0",
+    "set cpu7   config=interlace=0",
+    "set cpu7   config=enable=1",
+    "set cpu7   config=init_enable=1",
+    "set cpu7   config=store_size=4M",
+    "set cpu7 config=port=B",
+    "set cpu7   config=assignment=1",
+    "set cpu7   config=interlace=0",
+    "set cpu7   config=enable=1",
+    "set cpu7   config=init_enable=1",
+    "set cpu7   config=store_size=4M",
+    "set cpu7 config=port=C",
+    "set cpu7   config=assignment=2",
+    "set cpu7   config=interlace=0",
+    "set cpu7   config=enable=1",
+    "set cpu7   config=init_enable=1",
+    "set cpu7   config=store_size=4M",
+    "set cpu7 config=port=D",
+    "set cpu7   config=assignment=3",
+    "set cpu7   config=interlace=0",
+    "set cpu7   config=enable=1",
+    "set cpu7   config=init_enable=1",
+    "set cpu7   config=store_size=4M",
+    "set cpu7 config=mode=Multics",
+    "set cpu7 config=speed=0",
+    "set cpu7 config=enable_cache=1",
+    "set cpu7 config=enable_pt_wam=1",
+    "set cpu7 config=enable_sd_wam=1",
+    "set cpu7 config=dis_enable=enable",
+    "set cpu7 config=steady_clock=disable",
+    "set cpu7 config=halt_on_unimplemented=disable",
+    "set cpu7 config=enable_wam=disable",
+    "set cpu7 config=tro_enable=enable",
+    "set cpu7 config=y2k=disable",
+
+// IOM0
+
+    "set iom0 config=model=imu",
+    "set iom0 config=iom_base=Multics",
+    "set iom0 config=multiplex_base=0120",
+    "set iom0 config=os=Multics",
+    "set iom0 config=boot=tape",
+    "set iom0 config=tapechan=012",
+    "set iom0 config=cardchan=011",
+    "set iom0 config=scuport=0",
+
+    "set iom0 config=port=0",
+    "set iom0   config=addr=0",
+    "set iom0   config=interlace=0",
+    "set iom0   config=enable=1",
+    "set iom0   config=initenable=0",
+    "set iom0   config=halfsize=0",
+    "set iom0   config=store_size=4M",
+
+    "set iom0 config=port=1",
+    "set iom0   config=addr=1",
+    "set iom0   config=interlace=0",
+    "set iom0   config=enable=1",
+    "set iom0   config=initenable=0",
+    "set iom0   config=halfsize=0",
+    "set iom0   config=store_size=4M",
+
+    "set iom0 config=port=2",
+    "set iom0   config=addr=2",
+    "set iom0   config=interlace=0",
+    "set iom0   config=enable=1",
+    "set iom0   config=initenable=0",
+    "set iom0   config=halfsize=0",
+    "set iom0   config=store_size=4M",
+
+    "set iom0 config=port=3",
+    "set iom0   config=addr=3",
+    "set iom0   config=interlace=0",
+    "set iom0   config=enable=1",
+    "set iom0   config=initenable=0",
+    "set iom0   config=halfsize=0",
+    "set iom0   config=store_size=4M",
+
+    "set iom0 config=port=4",
+    "set iom0   config=enable=0",
+
+    "set iom0 config=port=5",
+    "set iom0   config=enable=0",
+
+    "set iom0 config=port=6",
+    "set iom0   config=enable=0",
+
+    "set iom0 config=port=7",
+    "set iom0   config=enable=0",
+
+// SCU0
+
+    "set scu0 config=mode=program",
+    "set scu0 config=port0=enable",
+    "set scu0 config=port1=enable",
+    "set scu0 config=port2=enable",
+    "set scu0 config=port3=enable",
+    "set scu0 config=port4=enable",
+    "set scu0 config=port5=enable",
+    "set scu0 config=port6=enable",
+    "set scu0 config=port7=enable",
+    "set scu0 config=maska=7",
+    "set scu0 config=maskb=off",
+    "set scu0 config=lwrstoresize=7",
+    "set scu0 config=cyclic=0040",
+    "set scu0 config=nea=0200",
+    "set scu0 config=onl=014",
+    "set scu0 config=int=0",
+    "set scu0 config=lwr=0",
+
+// SCU1
+
+    "set scu1 config=mode=program",
+    "set scu1 config=port0=enable",
+    "set scu1 config=port1=enable",
+    "set scu1 config=port2=enable",
+    "set scu1 config=port3=enable",
+    "set scu1 config=port4=enable",
+    "set scu1 config=port5=enable",
+    "set scu1 config=port6=enable",
+    "set scu1 config=port7=enable",
+    "set scu1 config=maska=off",
+    "set scu1 config=maskb=off",
+    "set scu1 config=lwrstoresize=7",
+    "set scu1 config=cyclic=0040",
+    "set scu1 config=nea=0200",
+    "set scu1 config=onl=014",
+    "set scu1 config=int=0",
+    "set scu1 config=lwr=0",
+
+// SCU2
+
+    "set scu2 config=mode=program",
+    "set scu2 config=port0=enable",
+    "set scu2 config=port1=enable",
+    "set scu2 config=port2=enable",
+    "set scu2 config=port3=enable",
+    "set scu2 config=port4=enable",
+    "set scu2 config=port5=enable",
+    "set scu2 config=port6=enable",
+    "set scu2 config=port7=enable",
+    "set scu2 config=maska=off",
+    "set scu2 config=maskb=off",
+    "set scu2 config=lwrstoresize=7",
+    "set scu2 config=cyclic=0040",
+    "set scu2 config=nea=0200",
+    "set scu2 config=onl=014",
+    "set scu2 config=int=0",
+    "set scu2 config=lwr=0",
+
+// SCU3
+
+    "set scu3 config=mode=program",
+    "set scu3 config=port0=enable",
+    "set scu3 config=port1=enable",
+    "set scu3 config=port2=enable",
+    "set scu3 config=port3=enable",
+    "set scu3 config=port4=enable",
+    "set scu3 config=port5=enable",
+    "set scu3 config=port6=enable",
+    "set scu3 config=port7=enable",
+    "set scu3 config=maska=off",
+    "set scu3 config=maskb=off",
+    "set scu3 config=lwrstoresize=7",
+    "set scu3 config=cyclic=0040",
+    "set scu3 config=nea=0200",
+    "set scu3 config=onl=014",
+    "set scu3 config=int=0",
+    "set scu3 config=lwr=0",
+
+    // There are bugs in the FNP code that require sim unit number
+    // to be the same as the Multics unit number; ie fnp0 == fnpa, etc.
+    //
+    // fnp a 3400
+    // fnp b 3700
+    // fnp c 4200
+    // fnp d 4500
+    // fnp e 5000
+    // fnp f 5300
+    // fnp g 5600
+    // fnp h 6100
+
+    "set fnp0 config=mailbox=03400",
+    "set fnp1 config=mailbox=03700",
+    "set fnp2 config=mailbox=04200",
+    "set fnp3 config=mailbox=04500",
+    "set fnp4 config=mailbox=05000",
+    "set fnp5 config=mailbox=05300",
+    "set fnp6 config=mailbox=05600",
+    "set fnp7 config=mailbox=06100",
+
+
+    //  Attach OPC unit 0 to IOM A, chan 010, dev_code 0
+    "cable IOMA 010 opc0",
+    "set opc0 name=opca",
+    //  No devices for console, so no 'cable OPC0 # CONx'
+
+    // Attach ABSI unit 0 to IOM 0, chan 011, dev_code 0
+    "cable IOMA 011 ABSI0",
+    "set absi0 name=absia",
+
+    //  Attach tape IPCT0 to IOM 0, chan 012 and 013
+    "set ipct0 boot_drive=0",
+    "set ipct0 name=tapa",
+    "cable IOMA 012 IPCT0 0",
+    "cable IOMA 013 IPCT0 1",
+
+    //  Attach TAPE unit 0 to IPCT 0, dev_code 0
+    "cable IPCT0 0 TAPE0",
+    "set tape0 name=tapa_00",
+    "cable IPCT0 1 TAPE1",
+    "set tape1 name=tapa_01",
+    "cable IPCT0 2 TAPE2",
+    "set tape2 name=tapa_02",
+    "cable IPCT0 3 TAPE3",
+    "set tape3 name=tapa_03",
+    "cable IPCT0 4 TAPE4",
+    "set tape4 name=tapa_04",
+    "cable IPCT0 5 TAPE5",
+    "set tape5 name=tapa_05",
+    "cable IPCT0 6 TAPE6",
+    "set tape6 name=tapa_06",
+    "cable IPCT0 7 TAPE7",
+    "set tape7 name=tapa_07",
+    "cable IPCT0 8 TAPE8",
+    "set tape8 name=tapa_08",
+    "cable IPCT0 9 TAPE9",
+    "set tape9 name=tapa_09",
+    "cable IPCT0 10 TAPE10",
+    "set tape10 name=tapa_10",
+    "cable IPCT0 11 TAPE11",
+    "set tape11 name=tapa_11",
+    "cable IPCT0 12 TAPE12",
+    "set tape12 name=tapa_12",
+    "cable IPCT0 13 TAPE13",
+    "set tape13 name=tapa_13",
+    "cable IPCT0 14 TAPE14",
+    "set tape14 name=tapa_14",
+    "cable IPCT0 15 TAPE15",
+    "set tape15 name=tapa_15",
+
+    // Attach MPC unit 0 to IOM 0, char 015, dev_code 0
+    "cable IOMA 015 URP0",
+    "set urp0 name=urpa",
+
+    // Attach RDR unit 0 to IOM 0, chan 015, dev_code 1
+    "cable URP0 1 RDR0",
+    "set rdr0 name=rdra",
+
+    // Attach MPC unit 1 to IOM 0, char 016, dev_code 0
+    "cable IOMA 016 URP1",
+    "set urp1 name=urpb",
+
+    // Attach PUN unit 0 to IOM 0, chan 016, dev_code 1
+    "cable URP1 1 PUN0",
+    "set pun0 name=puna",
+
+    // Attach MPC unit 2 to IOM 0, char 017, dev_code 0
+    "cable IOMA 017 URP2",
+    "set urp2 name=urpc",
+
+    // Attach PRT unit 0 to URP2 dev_code 1
+    "set prt0 name=prta",
+    "cable URP2 1 PRT0",
+    // Attach PRT unit 1 to URP2 dev_code 2
+    "set prt1 name=prtb",
+    "cable URP2 2 PRT1",
+
+    //  Attach FNP unit 3 (d) to IOM A, chan 020, dev_code 0
+    "cable IOMA 020 FNPA",
+    "set fnp0 name=fnpa",
+    //  Attach FNP unit 0 (a) to IOM A, chan 021, dev_code 0
+    "cable IOMA 021 FNPB",
+    "set fnp1 name=fnpb",
+    //  Attach FNP unit 1 (b) to IOM A, chan 022, dev_code 0
+    "cable IOMA 022 FNPC",
+    "set fnp2 name=fnpc",
+    //  Attach FNP unit 2 (c) to IOM A, chan 023, dev_code 0
+    "cable IOMA 023 FNPD",
+    "set fnp3 name=fnpd",
+    //  Attach FNP unit 4 (e) to IOM A, chan 024, dev_code 0
+    "cable IOMA 024 FNPE",
+    "set fnp4 name=fnpe",
+    //  Attach FNP unit 5 (f) to IOM A, chan 025, dev_code 0
+    "cable IOMA 025 FNPF",
+    "set fnp5 name=fnpf",
+    //  Attach FNP unit 6 (g) to IOM A, chan 026, dev_code 0
+    "cable IOMA 026 FNPG",
+    "set fnp6 name=fnpg",
+    //  Attach FNP unit 7 (h) to IOM A, chan 027, dev_code 0
+    "cable IOMA 027 FNPH",
+    "set fnp7 name=fnph",
+
+    //  8 3381 disks (idx 0-7)
+
+    // Attach disk controller IPCD0 to IOMA chan 030 and 040
+    "cable IOMA 030 IPCD0 0",
+    "cable IOMA 040 IPCD0 1",
+    "set ipcd0 name=dska",
+    // Attach DISK unit 0 to IPCD0 dev_code 0",
+    "cable IPCD0 0 DISK0",
+    "set disk0 type=3381",
+    "set disk0 name=dska_00",
+
+    // Attach disk controller IPCD1 to IOMA chan 031 and 041
+    "cable IOMA 031 IPCD1 0",
+    "cable IOMA 041 IPCD1 1",
+    "set ipcd1 name=dskb",
+    // Attach DISK unit 1 to IPCD1 dev_code 0",
+    "cable IPCD1 0 DISK1",
+    "set disk1 type=3381",
+    "set disk1 name=dskb_00",
+
+    // Attach disk controller IPCD2 to IOMA chan 032 and 042
+    "cable IOMA 032 IPCD2 0",
+    "cable IOMA 042 IPCD2 1",
+    "set ipcd2 name=dskc",
+    // Attach DISK unit 2 to IPCD2 dev_code 0",
+    "cable IPCD2 0 DISK2",
+    "set disk2 type=3381",
+    "set disk2 name=dskc_00",
+
+    // Attach disk controller IPCD3 to IOMA chan 033 and 043
+    "cable IOMA 033 IPCD3 0",
+    "cable IOMA 043 IPCD3 1",
+    "set ipcd3 name=dskd",
+    // Attach DISK unit 3 to IPCD3 dev_code 0",
+    "cable IPCD3 0 DISK3",
+    "set disk3 type=3381",
+    "set disk3 name=dskd_00",
+
+    // Attach disk controller IPCD4 to IOMA chan 034 and 044
+    "cable IOMA 034 IPCD4 0",
+    "cable IOMA 044 IPCD4 1",
+    "set ipcd4 name=dske",
+    // Attach DISK unit 4 to IPCD4 dev_code 0",
+    "cable IPCD4 0 DISK4",
+    "set disk4 type=3381",
+    "set disk4 name=dske_00",
+
+    // Attach disk controller IPCD5 to IOMA chan 035 and 045
+    "cable IOMA 035 IPCD5 0",
+    "cable IOMA 045 IPCD5 1",
+    "set ipcd5 name=dskf",
+    // Attach DISK unit 5 to IPCD5 dev_code 0",
+    "cable IPCD5 0 DISK5",
+    "set disk5 type=3381",
+    "set disk5 name=dskf_00",
+
+    // Attach disk controller IPCD6 to IOMA chan 036 and 046
+    "cable IOMA 036 IPCD6 0",
+    "cable IOMA 046 IPCD6 1",
+    "set ipcd6 name=dskg",
+    // Attach DISK unit 6 to IPCD6 dev_code 0",
+    "cable IPCD6 0 DISK6",
+    "set disk6 type=3381",
+    "set disk6 name=dskg_00",
+
+    // Attach disk controller IPCD7 to IOMA chan 037 and 047
+    "cable IOMA 037 IPCD7 0",
+    "cable IOMA 047 IPCD7 1",
+    "set ipcd7 name=dskh",
+    // Attach DISK unit 7 to IPCD7 dev_code 0",
+    "cable IPCD7 0 DISK7",
+    "set disk7 type=3381",
+    "set disk7 name=dskh_00",
+
+
+    "cable IOMA 050 SKCA",
+    "set skc0 name=skca",
+    "cable IOMA 051 SKCB",
+    "set skc1 name=skcb",
+    "cable IOMA 052 SKCC",
+    "set skc2 name=skcc",
+    "cable IOMA 053 SKCD",
+    "set skc3 name=skcd",
+    "cable IOMA 054 SKCE",
+    "set skc4 name=skce",
+    "cable IOMA 055 SKCF",
+    "set skc5 name=skcf",
+    "cable IOMA 056 SKCG",
+    "set skc6 name=skcg",
+    "cable IOMA 057 SKCH",
+    "set skc7 name=skch",
+
+    //  4 d501 disks (idx 8-11) + 4 d451 disks (idx 12-15)
+
+    "cable IOMA 060 MSP0 0",
+    "cable IOMA 061 MSP0 1",
+    "set msp0 name=msp0",
+
+    //  Attach DISK unit 8 to MSP0 dev_code 1
+    "cable MSP0 1 DISK8",
+    "set disk8 type=d501",
+    "set disk8 name=dski_01",
+    //  Attach DISK unit 9 to MSP0 dev_code 2
+    "cable MSP0 2 DISK9",
+    "set disk9 type=d501",
+    "set disk9 name=dski_02",
+    //  Attach DISK unit 10 to MSP0 dev_code 3
+    "cable MSP0 3 DISK10",
+    "set disk10 type=d501",
+    "set disk10 name=dski_03",
+    //  Attach DISK unit 11 to MSP0 dev_code 4
+    "cable MSP0 4 DISK11",
+    "set disk11 type=d501",
+    "set disk11 name=dski_04",
+
+    //  Attach DISK unit 12 to MSP0 dev_code 5
+    "cable MSP0 5 DISK12",
+    "set disk12 type=d451",
+    "set disk12 name=dski_05",
+    //  Attach DISK unit 13 to MSP0 dev_code 6
+    "cable MSP0 6 DISK13",
+    "set disk13 type=d451",
+    "set disk13 name=dski_06",
+    //  Attach DISK unit 14 to MSP0 dev_code 7
+    "cable MSP0 7 DISK14",
+    "set disk14 type=d451",
+    "set disk14 name=dski_07",
+    //  Attach DISK unit 15 to MSP0 dev_code 8
+    "cable MSP0 8 DISK15",
+    "set disk15 type=d451",
+    "set disk15 name=dski_08",
+
+    // Attach IOM unit 0 port A (0) to SCU unit 0, port 0
+    "cable SCU0 0 IOMA 0",
+
+    // Attach IOM unit 0 port B (1) to SCU unit 1, port 0
+    "cable SCU1 0 IOMA 1",
+
+    // Attach IOM unit 0 port C (2) to SCU unit 2, port 0
+    "cable SCU2 0 IOMA 2",
+
+    // Attach IOM unit 0 port D (3) to SCU unit 3, port 0
+    "cable SCU3 0 IOMA 3",
+
+    // SCU0 --> CPU0-7
+
+    // Attach SCU unit 0 port 7 to CPU unit A (0), port 0
+    "cable SCU0 7 CPU0 0",
+
+    // Attach SCU unit 0 port 6 to CPU unit B (1), port 0
+    "cable SCU0 6 CPU1 0",
+
+    // Attach SCU unit 0 port 5 to CPU unit C (2), port 0
+    "cable SCU0 5 CPU2 0",
+
+    // Attach SCU unit 0 port 4 to CPU unit D (3), port 0
+    "cable SCU0 4 CPU3 0",
+
+    // Attach SCU unit 0 port 3 to CPU unit E (4), port 0
+    "cable SCU0 3 CPU4 0",
+
+    // Attach SCU unit 0 port 2 to CPU unit F (5), port 0
+    "cable SCU0 2 CPU5 0",
+
+    // Attach SCU unit 0 port 2 subport 1 to CPU unit G (6), port 0
+    "cable SCU0 10 CPU6 0",
+
+    // Attach SCU unit 0 port 2 subport 2 to CPU unit H (7), port 0
+    "cable SCU0 11 CPU7 0",
+
+    // SCU1 --> CPU0-7
+
+    // Attach SCU unit 1 port 7 to CPU unit A (0), port 1
+    "cable SCU1 7 CPU0 1",
+
+    // Attach SCU unit 1 port 6 to CPU unit B (1), port 1
+    "cable SCU1 6 CPU1 1",
+
+    // Attach SCU unit 1 port 5 to CPU unit C (2), port 1
+    "cable SCU1 5 CPU2 1",
+
+    // Attach SCU unit 1 port 4 to CPU unit D (3), port 1
+    "cable SCU1 4 CPU3 1",
+
+    // Attach SCU unit 1 port 3 to CPU unit E (4), port 1
+    "cable SCU1 3 CPU4 1",
+
+    // Attach SCU unit 1 port 2 to CPU unit F (5), port 1
+    "cable SCU1 2 CPU5 1",
+
+    // Attach SCU unit 1 port 2 subport 1 to CPU unit G (6), port 1
+    "cable SCU1 10 CPU6 1",
+
+    // Attach SCU unit 1 port 2 subport 2 to CPU unit H (7), port 1
+    "cable SCU1 11 CPU7 1",
+
+    // SCU2 --> CPU0-7
+
+    // Attach SCU unit 2 port 7 to CPU unit A (0), port 2
+    "cable SCU2 7 CPU0 2",
+
+    // Attach SCU unit 2 port 6 to CPU unit B (1), port 2
+    "cable SCU2 6 CPU1 2",
+
+    // Attach SCU unit 2 port 5 to CPU unit C (2), port 2
+    "cable SCU2 5 CPU2 2",
+
+    // Attach SCU unit 2 port 4 to CPU unit D (3), port 2
+    "cable SCU2 4 CPU3 2",
+
+    // Attach SCU unit 2 port 3 to CPU unit E (4), port 2
+    "cable SCU2 3 CPU4 2",
+
+    // Attach SCU unit 2 port 2 to CPU unit F (5), port 2
+    "cable SCU2 2 CPU5 2",
+
+    // Attach SCU unit 2 port 2 subport 1 to CPU unit G (6), port 2
+    "cable SCU2 10 CPU6 2",
+
+    // Attach SCU unit 2 port 2 subport 2 to CPU unit H (7), port 2
+    "cable SCU2 11 CPU7 2",
+
+
+
+    // SCU3 --> CPU0-7
+
+    // Attach SCU unit 3 port 7 to CPU unit A (0), port 3
+    "cable SCU3 7 CPU0 3",
+
+    // Attach SCU unit 3 port 6 to CPU unit B (1), port 3
+    "cable SCU3 6 CPU1 3",
+
+    // Attach SCU unit 3 port 5 to CPU unit C (2), port 3
+    "cable SCU3 5 CPU2 3",
+
+    // Attach SCU unit 3 port 4 to CPU unit D (3), port 3
+    "cable SCU3 4 CPU3 3",
+
+    // Attach SCU unit 3 port 3 to CPU unit E (4), port 3
+    "cable SCU3 3 CPU4 3",
+
+    // Attach SCU unit 3 port 2 to CPU unit F (5), port 3
+    "cable SCU3 2 CPU5 3",
+
+    // Attach SCU unit 3 port 2 subport 1 to CPU unit G (6), port 3
+    "cable SCU3 10 CPU6 3",
+
+    // Attach SCU unit 3 port 2 subport 2 to CPU unit H (7), port 3
+    "cable SCU3 11 CPU7 3",
+
+    "set scu0 reset",
+    "set scu1 reset",
+    "set scu2 reset",
+    "set scu3 reset",
+    "set iom0 reset",
+
+#if defined(LOCKLESS)
+    "set cpu nunits=8",
+#else
+#ifdef ISOLTS
+    "set cpu nunits=2",
+#else
+    "set cpu nunits=1",
+#endif // ISOLTS
+#endif // LOCKLESS
+#ifdef FNPDBG
+    "set sys config=connect_time=4000",
+#else
+    "set sys config=connect_time=-1",
+#endif
+
+    "fnpserverport 6180"
+  }; // default_base_system_script
+#else // ! NEW
 static char * default_base_system_script [] =
   {
     //
@@ -224,66 +1329,123 @@ static char * default_base_system_script [] =
 //   013 IPCD0 port 1   FIPS disk controller
 //   014 MSP0  port 1   disk controller
 
+#if 0
+clok -delta 8. -zone pst 
+cpu -tag a -port 7 -state on -type dps8 -model 70. -cache 8. 
+cpu -tag b -port 6 -state on -type dps8 -model 70. -cache 8. 
+cpu -tag c -port 5 -state off -type dps8 -model 70. -cache 8. 
+cpu -tag d -port 4 -state off -type dps8 -model 70. -cache 8. 
+cpu -tag e -port 3 -state off -type dps8 -model 70. -cache 8. 
+cpu -tag f -port 2 -state off -type dps8 -model 70. -cache 8. -exp_port a 
+cpu -tag g -port 2 -state off -type dps8 -model 70. -cache 8. -exp_port b 
+cpu -tag h -port 2 -state off -type dps8 -model 70. -cache 8. -exp_port c 
+mem -port a -size 4096. -state on 
+mem -port b -size 4096. -state on 
+mem -port c -size 4096. -state on 
+mem -port d -size 4096. -state on 
+iom -tag a -port 0 -model imu -state on 
+iom -tag b -port 1 -model imu -state on 
+ipc -type fips -iom a -chn 12 -nchan 1 
+prph -subsys tapa -iom a -chn 12 -nchan 1 -model 8200. -number 16. 
+chnl -subsys tapa -iom b -chn 12 -nchan 1 
+ipc -type fips -iom a -chn 13 -nchan 1 
+prph -subsys dska -iom a -chn 13 -nchan 1 -model 3381. -number 4. 
+chnl -subsys dska -iom b -chn 13 -nchan 1 
+mpc -ctlr mspa -model 800. -iom a -chn 14 -nchan 1 
+prph dskb a 14 1 501. 4 451.  4
+chnl -subsys dskb -iom b -chn 14 -nchan 1 
+mpc -ctlr urpa -model 8004. -iom a -chn 15 -nchan 1 
+prph -device rdra -iom a -chn 15 -model 301. 
+mpc -ctlr urpb -model 8004. -iom a -chn 16 -nchan 1 
+prph -device puna -iom a -chn 16 -model 301. 
+mpc -ctlr urpc -model 8004. -iom a -chn 17 -nchan 1 
+prph -device prta -iom a -chn 17 -model 1600. -train 600. -ll 136. 
+prph -device prtb -iom a -chn 17 -model 1600. -train 600. -ll 136. 
+prph -device fnpa -iom a -chn 20 -model 6670. -state on 
+prph -device fnpb -iom a -chn 21 -model 6670. -state off 
+prph -device fnpc -iom a -chn 22 -model 6670. -state on 
+prph -device fnpd -iom a -chn 23 -model 6670. -state on 
+prph -device fnpe -iom a -chn 24 -model 6670. -state off 
+prph -device fnpf -iom a -chn 25 -model 6670. -state off 
+prph -device fnpg -iom a -chn 26 -model 6670. -state off 
+prph -device fnph -iom a -chn 27 -model 6670. -state off 
+prph -device opca -iom a -chn 36 -model 6001. -ll 256. -state on 
+prph skta a 40 0 1 64. 
+prph sktb a 41 0 1 64. 
+prph sktc a 42 0 1 64. 
+prph sktd a 43 0 1 64. 
+prph skte a 44 0 1 64. 
+prph sktf a 45 0 1 64. 
+prph sktg a 46 0 1 64. 
+prph skth a 47 0 1 64. 
+part -part hc -subsys dska -drive 00a 
+part -part bos -subsys dska -drive 00a 
+part -part dump -subsys dska -drive 00a 
+root -subsys dska -drive 00a -subsys dska -drive 00b -subsys dska -drive 00c 
+sst -4k 3800. -16k 2100. -64k 820. -256k 260. 
+dbmj 64. 700. 400. 150. 60. 25. 
+tcd -apt 1000. -itt 2000. 
+intk warm 0. star 
+parm dirw loud ttyb 64000 
 
-// clok -delta 8. -zone pst 
-// cpu -tag a -port 7 -state on -type dps8 -model 70. -cache 8. 
-// cpu -tag b -port 6 -state on -type dps8 -model 70. -cache 8. 
-// cpu -tag c -port 5 -state off -type dps8 -model 70. -cache 8. 
-// cpu -tag d -port 4 -state off -type dps8 -model 70. -cache 8. 
-// cpu -tag e -port 3 -state off -type dps8 -model 70. -cache 8. 
-// cpu -tag f -port 2 -state off -type dps8 -model 70. -cache 8. -exp_port a 
-// cpu -tag g -port 2 -state off -type dps8 -model 70. -cache 8. -exp_port b 
-// cpu -tag h -port 2 -state off -type dps8 -model 70. -cache 8. -exp_port c 
-// mem -port a -size 4096. -state on 
-// mem -port b -size 4096. -state on 
-// mem -port c -size 4096. -state on 
-// mem -port d -size 4096. -state on 
-// iom -tag a -port 0 -model imu -state on 
-// iom -tag b -port 1 -model imu -state on 
-// ipc -type fips -iom a -chn 12 -nchan 1 
-// prph -subsys tapa -iom a -chn 12 -nchan 1 -model 8200. -number 16. 
-// chnl -subsys tapa -iom b -chn 12 -nchan 1 
-// ipc -type fips -iom a -chn 13 -nchan 1 
-// prph -subsys dska -iom a -chn 13 -nchan 1 -model 3381. -number 4. 
-// chnl -subsys dska -iom b -chn 13 -nchan 1 
-// mpc -ctlr mspa -model 800. -iom a -chn 14 -nchan 1 
-// prph -subsys dskb -iom a -chn 14 -nchan 1 -model 501. -number 4 -model 451. -num
-// \cber 3 
-// chnl -subsys dskb -iom b -chn 14 -nchan 1 
-// mpc -ctlr urpa -model 8004. -iom a -chn 15 -nchan 1 
-// prph -device rdra -iom a -chn 15 -model 301. 
-// mpc -ctlr urpb -model 8004. -iom a -chn 16 -nchan 1 
-// prph -device puna -iom a -chn 16 -model 301. 
-// mpc -ctlr urpc -model 8004. -iom a -chn 17 -nchan 1 
-// prph -device prta -iom a -chn 17 -model 1600. -train 600. -ll 136. 
-// prph -device prtb -iom a -chn 17 -model 1600. -train 600. -ll 136. 
-// prph -device fnpa -iom a -chn 20 -model 6670. -state on 
-// prph -device fnpb -iom a -chn 21 -model 6670. -state off 
-// prph -device fnpc -iom a -chn 22 -model 6670. -state on 
-// prph -device fnpd -iom a -chn 23 -model 6670. -state on 
-// prph -device fnpe -iom a -chn 24 -model 6670. -state off 
-// prph -device fnpf -iom a -chn 25 -model 6670. -state off 
-// prph -device fnpg -iom a -chn 26 -model 6670. -state off 
-// prph -device fnph -iom a -chn 27 -model 6670. -state off 
-// prph -device opca -iom a -chn 36 -model 6001. -ll 256. -state on 
-// prph skta a 40 0 1 64. 
-// prph sktb a 41 0 1 64. 
-// prph sktc a 42 0 1 64. 
-// prph sktd a 43 0 1 64. 
-// prph skte a 44 0 1 64. 
-// prph sktf a 45 0 1 64. 
-// prph sktg a 46 0 1 64. 
-// prph skth a 47 0 1 64. 
-// part -part hc -subsys dska -drive 00a 
-// part -part bos -subsys dska -drive 00a 
-// part -part dump -subsys dska -drive 00a 
-// root -subsys dska -drive 00a -subsys dska -drive 00b -subsys dska -drive 00c 
-// sst -4k 3800. -16k 2100. -64k 820. -256k 260. 
-// dbmj 64. 700. 400. 150. 60. 25. 
-// tcd -apt 1000. -itt 2000. 
-// intk warm 0. star 
-// parm dirw loud ttyb 64000 
 
+
+
+clok  8.  pst
+cpu  a  7  on  dps8  70.  8.
+cpu  b  6  off  dps8  70.  8.
+cpu  c  5  off  dps8  70.  8.
+cpu  d  4  off  dps8  70.  8.
+cpu  e  3  off  dps8  70.  8.
+cpu  f  2  off  dps8  70.  8.
+cpu  g  1  off  dps8  70.  8.  a
+cpu  h  1  off  dps8  70.  8.  b
+mem  a  4096.  on
+mem  b  4096.  on
+mem  c  4096.  on
+mem  d  4096.  on
+iom  a  0  imu  on
+ipc  fips  a  12  1
+prph  tapa  a  12  1  8200.  16.
+ipc  fips  a  13  1
+prph  dska  a  13  1  3381.  4.
+mpc  mspa  800.  a  14  1
+prph  dskb  a  14  1  501.  4  451.  3
+mpc  urpa  8004.  a  15  1
+prph  rdra  a  15  301.
+mpc  urpb  8004.  a  16  1
+prph  puna  a  16  301.
+mpc  urpc  8004.  a  17  1
+prph  prta  a  17  1600.  600.  136.
+prph  prtb  a  17  1600.  600.  136.
+prph  fnpa  a  20  6670.  on
+prph  fnpb  a  21  6670.  off
+prph  fnpc  a  22  6670.  on
+prph  fnpd  a  23  6670.  on
+prph  fnpe  a  24  6670.  off
+prph  fnpf  a  25  6670.  off
+prph  fnpg  a  26  6670.  off
+prph  fnph  a  27  6670.  off
+prph  opca  a  36  6001.  256.  on
+prph  skta  a  40  0  1  64.
+prph  sktb  a  41  0  1  64.
+prph  sktc  a  42  0  1  64.
+prph  sktd  a  43  0  1  64.
+prph  skte  a  44  0  1  64.
+prph  sktf  a  45  0  1  64.
+prph  sktg  a  46  0  1  64.
+prph  skth  a  47  0  1  64.
+part  hc  dska  00a
+part  bos  dska  00a
+part  dump  dska  00a
+root  dska  00a  dska  00b  dska  00c
+sst  3800.  2100.  820.  260.
+dbmj  64.  700.  400.  150.  60.  25.
+tcd  1000.  2000.
+intk  warm  0.  star
+parm  dirw  loud  ttyb  64000
+
+#endif
 
     // Disconnect everything...
     "cable ripout",
@@ -1606,6 +2768,8 @@ static char * default_base_system_script [] =
 
     "fnpserverport 6180"
   }; // default_base_system_script
+
+#endif // ! NEW
 
 // Execute a line of script
 

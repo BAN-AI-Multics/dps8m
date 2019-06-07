@@ -1578,9 +1578,7 @@ t_stat sim_instr (void)
 #endif
       }
     while (reason == 0);
-#ifdef HDBG
-    hdbgPrint ();
-#endif
+    HDBGPrint ();
     return reason;
   }
 #endif
@@ -1947,9 +1945,7 @@ t_stat threadz_sim_instr (void)
                 // present register.  
 
                 uint intr_pair_addr = get_highest_intr ();
-#ifdef HDBG
-                hdbgIntr (intr_pair_addr);
-#endif
+                HDBGIntr (intr_pair_addr, "");
                 cpu.cu.FI_ADDR = (word5) (intr_pair_addr / 2);
                 cu_safe_store ();
                 // XXX the whole interrupt cycle should be rewritten as an xed
@@ -1990,8 +1986,8 @@ t_stat threadz_sim_instr (void)
                         // get interrupt pair
                         core_read2 (intr_pair_addr,
                                     & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
-                        HDBGMRead (intr_pair_addr, cpu.cu.IWB);
-                        HDBGMRead (intr_pair_addr + 1, cpu.cu.IRODD);
+                        HDBGMRead (intr_pair_addr, cpu.cu.IWB, "intr even");
+                        HDBGMRead (intr_pair_addr + 1, cpu.cu.IRODD, "intr odd");
                         cpu.cu.xde = 1;
                         cpu.cu.xdo = 1;
                         cpu.isExec = true;
@@ -2831,8 +2827,8 @@ if (cpu.PPR.PSR == 042 && cpu.PPR.IC == 036573) fprintf (stderr, "%10lu %s >>>>>
                   }
 
                 core_read2 (addr, & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
-                HDBGMRead (addr, cpu.cu.IWB);
-                HDBGMRead (addr + 1, cpu.cu.IRODD);
+                HDBGMRead (addr, cpu.cu.IWB, "fault even");
+                HDBGMRead (addr + 1, cpu.cu.IRODD, "fault odd");
 
                 cpu.cu.xde = 1;
                 cpu.cu.xdo = 1;
@@ -2856,9 +2852,7 @@ leave:
     //    setCPURun (current_running_cpu_idx, false);
 #endif
 
-#ifdef HDBG
-    hdbgPrint ();
-#endif
+    HDBGPrint ();
     sim_msg ("\ncycles = %llu\n", cpu.cycleCnt);
     sim_msg ("instructions  %15llu\n", cpu.instrCnt);
     sim_msg ("lockCnt       %15llu\n", cpu.lockCnt);
@@ -3020,7 +3014,7 @@ t_stat set_mem_watch (int32 arg, const char * buf)
     long int n = strtol (buf, & end, 0);
     if (* end || n < 0 || n >= MEMSIZE)
       {
-        sim_warn ("invalid argument to watch?\n");
+        sim_warn ("invalid argument to watch? %ld\n", n);
         return SCPE_ARG;
       }
     watch_bits [n] = arg != 0;

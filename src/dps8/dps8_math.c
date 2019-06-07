@@ -288,7 +288,7 @@ void IEEElongdoubleToEAQ(long double f0)
     if (f0 == 0)
     {
         cpu . rA = 0;
-        HDBGRegA ();
+        HDBGRegAW ("IEEEld2EAQ");
         cpu . rQ = 0;
         cpu . rE = 0200U; /*-128*/
         return;
@@ -330,7 +330,7 @@ void IEEElongdoubleToEAQ(long double f0)
     
     cpu . rE = exp & MASK8;
     cpu . rA = (result >> 36) & MASK36;
-    HDBGRegA ();
+    HDBGRegAW ("IEEEld2EAQ");
     cpu . rQ = result & MASK36;
 }
 #endif
@@ -730,7 +730,7 @@ void ufa (bool sub)
     }
 
     convert_to_word36 (m3, & cpu.rA, & cpu.rQ);
-    HDBGRegA ();
+    HDBGRegAW ("ufa");
     cpu . rE = e3 & 0377;
 
     SC_I_NEG (cpu.rA & SIGN36); // Do this here instead of in Add72b because
@@ -1254,7 +1254,7 @@ void fneg (void)
     convert_to_word36 (m, & cpu.rA, & cpu.rQ);
 #endif
     fno (& cpu.rE, & cpu.rA, & cpu.rQ);  // normalize
-    HDBGRegA ();
+    HDBGRegAW ("fneg");
 }
 
 /*!
@@ -1293,7 +1293,7 @@ void ufm (void)
         
         cpu . rE = 0200U; /*-128*/
         cpu . rA = 0;
-        HDBGRegA ();
+        HDBGRegAW ("ufm");
         cpu . rQ = 0;
         
         return; // normalized 0
@@ -1361,7 +1361,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "m3a %016lx%016lx\n", (uint64_t) (m3a>>64), 
     }
 
     convert_to_word36 (m3a, & cpu.rA, & cpu.rQ);
-    HDBGRegA ();
+    HDBGRegAW ("ufm");
     cpu . rE = (word8) e3 & MASK8;
 sim_debug (DBG_TRACEEXT, & cpu_dev, "fmp A %012"PRIo64" Q %012"PRIo64" E %03o\n", cpu.rA, cpu.rQ, cpu.rE);
     SC_I_NEG (cpu.rA & SIGN36);
@@ -1462,7 +1462,7 @@ static void fdvX(bool bInvert)
         
         cpu . rE = 0200U; /*-128*/
         cpu . rA = 0;
-        HDBGRegA ();
+        HDBGRegAW ("fdvX");
         cpu . rQ = 0;
         
         return; // normalized 0
@@ -1555,7 +1555,7 @@ static void fdvX(bool bInvert)
         // Instead, a divide check fault occurs and all the registers remain unchanged.
         if (!bInvert) {
             convert_to_word36 (m1, & cpu.rA, & cpu.rQ);
-            HDBGRegA ();
+            HDBGRegAW ("fdvX");
         }
 
         doFault(FAULT_DIV, fst_zero, "FDV: divide check fault");
@@ -1632,7 +1632,7 @@ static void fdvX(bool bInvert)
 #else
     cpu . rA = (m3 >> 36) & MASK36;
 #endif
-    HDBGRegA ();
+    HDBGRegAW ("fdvX");
     cpu . rQ = 0;
     
     SC_I_ZERO (cpu . rA == 0);
@@ -1789,7 +1789,7 @@ void frd (void)
     convert_to_word36 (m, & cpu.rA, & cpu.rQ);
 
     fno (& cpu.rE, & cpu.rA, & cpu.rQ);
-    HDBGRegA ();
+    HDBGRegAW ("frd");
     SC_I_OFLOW(savedovf);
   }
 
@@ -2577,7 +2577,7 @@ void dufa (bool subtract)
       }
 
     convert_to_word36 (m3, & cpu.rA, & cpu.rQ);
-    HDBGRegA ();
+    HDBGRegAW ("dufa");
     cpu.rE = e3 & 0377;
 
     SC_I_NEG (cpu.rA & SIGN36); // Do this here instead of in Add72b because
@@ -2729,7 +2729,7 @@ void dufm (void)
         
         cpu . rE = 0200U; /*-128*/
         cpu . rA = 0;
-        HDBGRegA ();
+        HDBGRegAW ("dufm");
         cpu . rQ = 0;
         
         return; // normalized 0
@@ -2846,7 +2846,7 @@ void dufm (void)
     }
 
     convert_to_word36 (m3a, & cpu.rA, & cpu.rQ);
-    HDBGRegA ();
+    HDBGRegAW ("dufm");
     cpu . rE = (word8) e3 & MASK8;
 
     SC_I_NEG (cpu.rA & SIGN36);
@@ -2966,7 +2966,7 @@ static void dfdvX (bool bInvert)
         
         cpu.rE = 0200U; /*-128*/
         cpu.rA = 0;
-        HDBGRegA ();
+        HDBGRegAW ("dfdvX");
         cpu.rQ = 0;
         
         return;	// normalized 0 
@@ -3060,7 +3060,7 @@ static void dfdvX (bool bInvert)
         // Instead, a divide check fault occurs and all the registers remain unchanged.
         if (!bInvert) {
           convert_to_word36 (m1, & cpu.rA, & cpu.rQ);
-          HDBGRegA ();
+          HDBGRegAW ("dfdvX");
         }
         doFault (FAULT_DIV, fst_zero, "DFDV: divide check fault");
       }
@@ -3130,7 +3130,7 @@ static void dfdvX (bool bInvert)
 #endif
 
     convert_to_word36 (m3, & cpu.rA, & cpu.rQ);
-    HDBGRegA ();
+    HDBGRegAW ("dfdvX");
     cpu.rE = (word8) e3 & MASK8;
     
     SC_I_ZERO (cpu.rA == 0 && cpu . rQ == 0);
@@ -3359,7 +3359,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
         doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
       }
     cpu . rA = quot & MASK36;
-    HDBGRegA ();
+    HDBGRegAW ("dvf");
     cpu . rQ = remainder & MASK36;
  
 #endif
@@ -3538,7 +3538,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "quot %016llx %016llx\n", (uint64) (quot>>64
             cpu.rQ = (cpu.rQ + 1) & MASK36;
           }
 #endif
-        HDBGRegA ();
+        HDBGRegAW ("dvf");
         //cpu . rA = (zFrac >> 35) & MASK35;
         //cpu . rQ = (word36) ((zFrac & MASK35) << 1);
 // ISOLTS 730 expects the right to be zero and the sign
@@ -3578,7 +3578,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "quot %016llx %016llx\n", (uint64) (quot>>64
     cpu . rA = quot & MASK36;
     cpu . rQ = remainder & MASK36;
 #endif
-    HDBGRegA ();
+    HDBGRegAW ("dvf");
  
 #endif
 
@@ -3662,7 +3662,7 @@ void dfrd (void)
     convert_to_word36 (m, & cpu.rA, & cpu.rQ);
 
     fno (& cpu.rE, & cpu.rA, & cpu.rQ);
-    HDBGRegA ();
+    HDBGRegAW ("dfrd");
     SC_I_OFLOW(savedovf);
   }
 

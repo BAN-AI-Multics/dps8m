@@ -327,18 +327,22 @@ static word36 getCrAR (word4 reg)
           return 0;
 
         case TD_AU: // C(A)0,17
+          HDBGRegAR ("au");
           return GETHI (cpu.rA);
 
         case TD_QU: //  C(Q)0,17
+          HDBGRegAR ("qu");
           return GETHI (cpu.rQ);
 
         case TD_IC: // C(PPR.IC)
           return cpu.PPR.IC;
 
         case TD_AL: // C(A)18,35
+          HDBGRegAR ("al");
           return cpu.rA; // See AL36, Table 4-1
 
         case TD_QL: // C(Q)18,35
+          HDBGRegAR ("ql");
           return cpu.rQ; // See AL36, Table 4-1
       }
     return 0;
@@ -378,9 +382,11 @@ static word18 getMFReg18 (uint n, bool allowDU, bool allowNIC, fault_ipr_subtype
           return 0;
 
         case 1: // au
+          HDBGRegAR ("au");
           return GETHI (cpu.rA);
 
         case 2: // qu
+          HDBGRegAR ("qu");
           return GETHI (cpu.rQ);
 
         case 3: // du
@@ -421,9 +427,11 @@ sim_printf ("getMFReg18 %012"PRIo64"\n", IWB_IRODD);
           return cpu.PPR.IC;
 
         case 5: // al / a
+          HDBGRegAR ("al/a");
           return GETLO (cpu.rA);
 
         case 6: // ql / a
+          HDBGRegAR ("ql/a");
           return GETLO (cpu.rQ);
 
         case 7: // dl
@@ -458,9 +466,11 @@ static word36 getMFReg36 (uint n, bool allowDU, bool allowNIC, fault_ipr_subtype
            }
           return 0;
         case 1: // au
+          HDBGRegAR ("au");
           return GETHI (cpu.rA);
 
         case 2: // qu
+          HDBGRegAR ("qu");
           return GETHI (cpu.rQ);
 
         case 3: // du
@@ -484,9 +494,11 @@ static word36 getMFReg36 (uint n, bool allowDU, bool allowNIC, fault_ipr_subtype
           return cpu.PPR.IC;
 
         case 5: // al / a
+          HDBGRegAR ("al/a");
           return cpu.rA;
 
         case 6: // ql / a
+          HDBGRegAR ("ql/a");
             return cpu.rQ;
 
         case 7: // dl
@@ -2058,7 +2070,7 @@ void a4bd (void)
 //sim_printf ("a4bd char4no %d.\n", char4no);
 
     SET_AR_CHAR_BITNO (ARn, (word2) (char4no / 2), (char4no % 2) ? 5 : 0);
-    HDBGRegAR (ARn);
+    HDBGRegARW (ARn, "a4bd");
 //if (current_running_cpu_idx)
 //sim_printf ("a4bd CHAR %o %d.\n", cpu.AR[ARn].CHAR, cpu.AR[ARn].CHAR);
 //if (current_running_cpu_idx)
@@ -2108,7 +2120,7 @@ void s4bd (void)
 //    cpu.AR [ARn].BITNO = tab [bitno];
     // SET_PR_BITNO (ARn, bitFromCnt[bitno % 8]);
     SET_AR_CHAR_BITNO (ARn, bitFromCnt[bitno % 8] / 9, bitFromCnt[bitno % 8] % 9);
-    HDBGRegAR (ARn);
+    HDBGRegARW (ARn, "s4bd");
   }
 
 void axbd (uint sz)
@@ -2172,7 +2184,7 @@ void axbd (uint sz)
     cpu.AR [ARn].WORDNO = (word18) (sum / 36) & AMASK;
     //SET_PR_BITNO (ARn, sum % 36);
     SET_AR_CHAR_BITNO (ARn, (sum % 36) / 9, sum % 9);
-    HDBGRegAR (ARn);
+    HDBGRegARW (ARn, "axbd");
   }
 
 #if 1
@@ -2228,7 +2240,7 @@ void abd (void)
                                     r % 9);
           }
       }
-    HDBGRegAR (ARn);
+    HDBGRegARW (ARn, "abd");
  
 //if (current_running_cpu_idx)
 //sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
@@ -2366,7 +2378,7 @@ sim_printf ("abd sum 0%o %d.\n", sum, sum);
     //SET_PR_BITNO (ARn, sum % 36);
     SET_AR_CHAR_BITNO (ARn, (sum % 36) / 9, sum % 9);
 #endif
-    HDBGRegAR (ARn);
+    HDBGRegARW (ARn, "abd");
 
     // Fails boot
     //uint bitno = sum % 36;
@@ -2414,7 +2426,7 @@ void awd (void)
 
     cpu.AR[ARn].WORDNO = (word18) sum & AMASK;
     SET_AR_CHAR_BITNO (ARn, 0, 0);
-    HDBGRegAR (ARn);
+    HDBGRegARW (ARn, "awd");
   }
 
 void sbd (void)
@@ -2448,7 +2460,7 @@ void sbd (void)
                                     (- (r % 9)) & MASK4);
           }
       }
-    HDBGRegAR (ARn);
+    HDBGRegARW (ARn, "sbd");
   }
 
 void swd (void)
@@ -2484,7 +2496,7 @@ void swd (void)
 
     cpu.AR [ARn].WORDNO = (word18) difference & AMASK;
     SET_AR_CHAR_BITNO (ARn, 0, 0);
-    HDBGRegAR (ARn);
+    HDBGRegARW (ARn, "swd");
   }
 
 void s9bd (void)
@@ -2528,7 +2540,7 @@ void s9bd (void)
           //}
       }
     //cpu.AR[ARn].BITNO = 0;
-    HDBGRegAR (ARn);
+    HDBGRegARW (ARn, "s9bd");
  
 //if (current_running_cpu_idx)
 //sim_printf ("s9bd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
@@ -2963,7 +2975,7 @@ void asxbd (uint sz, bool sub)
             SET_AR_CHAR_BITNO (ARn, (word2) charno, (word4) bitno);
           }
       }
-    HDBGRegAR (ARn);
+    HDBGRegARW (ARn, "asxbd");
   }
 
 void cmpc (void)

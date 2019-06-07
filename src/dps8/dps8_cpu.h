@@ -2272,7 +2272,7 @@ static inline void core_readN (word24 addr, word36 * data, uint n,
     for (uint i = 0; i < n; i ++)
       {
         core_read (addr + i, data + i, ctx);
-        HDBGMRead (addr + i, * (data + i));
+        HDBGMRead (addr + i, * (data + i), __func__);
       }
   }
 
@@ -2282,6 +2282,7 @@ static inline void core_writeN (word24 addr, word36 * data, uint n,
     for (uint i = 0; i < n; i ++)
       {
         core_write (addr + i, data [i], ctx);
+        HDBGMWrite (addr + i, * (data + i), __func__);
       }
   }
 
