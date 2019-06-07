@@ -44,7 +44,7 @@ endif
 ifeq ($(PROFILER),1)
 $(warning #### PROFILER mode)
 CFLAGS += -DPROFILER
-PROF_TARGETS = profiler tracer tracer_to_txt tracer_annotate
+PROF_TARGETS = profiler tracer tracer_to_txt tracer_annotate 
 PROF_SRCS = profiler.c tracer.c tracer_to_txt.c tracer_annotate.c
 PROF_OBJS = $(patsubst %.c,%.o,$(PROF_SRCS))
 else
@@ -248,7 +248,7 @@ H_SRCS += ./uvutil.h
 
 
 
-all:: utils $(TAGS) locallibs_then_dps8 $(PROF_TARGETS)
+all:: utils $(TAGS) locallibs_then_dps8 $(PROF_TARGETS) multics_tables_dump
 
 profiler : locallibs_then_dps8 profiler.o 
 	$(CC) $(LDFLAGS) profiler.o -o profiler shm.o -lncurses
@@ -261,6 +261,9 @@ tracer_to_txt : tracer_to_txt.o
 
 tracer_annotate : tracer_annotate.o
 	$(CC) $(LDFLAGS) tracer_annotate.o -o tracer_annotate
+
+multics_tables_dump : multics_tables_dump.o shm.o
+	$(CC) $(LDFLAGS) multics_tables_dump.o -o multics_tables_dump shm.o
 
 
 install: all
@@ -400,3 +403,4 @@ errnos.h:
 
 -include $(C_SRCS:.c=.d)
 -include $(PROF_SRCS:.c=.d)
+-include $(multics_tables_dump.c=.d)
