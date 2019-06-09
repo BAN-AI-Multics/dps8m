@@ -21,6 +21,29 @@ vol cpu_state_t * cpup_;
 static word24 dsbr_addr;
 static uint cpun;
 
+static int nerrors = 0;
+
+#define dseg_segno 00
+#define sst_segno 0102
+#define sst_seg_astap 24
+#define sst_level 36
+#define sst_seg_cmp 44
+#define sst_seg_usedp 46
+
+#define aste_size 12
+
+static word18 sst_usedp;
+static uint cmp_seg_len;
+static word15 cmp_segno;
+static word18 cmp_os;
+static word15 asta_segno;
+static word18 asta_os;
+
+
+void sim_printf (const char* fmt, ...)
+  {
+  }
+
 static word36 append (uint segno, uint offset)
   {
     if (! dsbr_addr)
@@ -127,6 +150,227 @@ static word18 get_os (word36 w)
     return (word18) (w >> 18) & 0777777;
   }
 
+static void coremap (void)
+  {
+// Coremap
+
+    printf ("core_map bound %u %o\n", seg_len (cmp_segno), seg_len (cmp_segno));
+
+#define pages 16384
+
+#define cme_size 4
+
+    printf ("page  absadr   p      fp     bp     devadd   ptwp   astep  pinctr syncpp contr\n");
+    uint page;
+    for (page = 0; page < pages; page ++)
+      {
+        uint cmep = cmp_os + page * cme_size;
+        if (cmep >= cmp_seg_len)
+          break;
+
+        word36 cme0 = append (cmp_segno, cmep + 0);
+        word36 cme1 = append (cmp_segno, cmep + 1);
+        word36 cme2 = append (cmp_segno, cmep + 2);
+        word36 cme3 = append (cmp_segno, cmep + 3);
+
+        //printf ("%5o %012llo %012llo %012llo %012llo\n", page, cme0, cme1, cme2, cme3);
+        if (cme0 || cme1 || cme2 || cme3)
+          {
+            word18 fp = getbits36_18 (cme0, 0);
+            word18 bp = getbits36_18 (cme0, 18);
+            word22 devadd = (word22) getbits36 (cme1, 0, 22);
+            word1 synch_held = getbits36_1 (cme1, 23);
+            word1 io = getbits36_1 (cme1, 24);
+            word1 er = getbits36_1 (cme1, 26);
+            word1 removing = getbits36_1 (cme1, 27);
+            word1 abs_w = getbits36_1 (cme1, 28);
+            word1 abs_usable = getbits36_1 (cme1, 29);
+            word1 notify_requested = getbits36_1 (cme1, 30);
+            word1 phm_hedge = getbits36_1 (cme1, 32);
+            word3 contr = getbits36_3 (cme1, 33);
+
+            word18 ptwp = getbits36_18 (cme2, 0);
+            word18 astep = getbits36_18 (cme2, 18);
+
+            word18 pin_counter = getbits36_18 (cme3, 0);
+            word18 synch_page_entryp = getbits36_18 (cme3, 18);
+            word24 abs_adr = absadr (cmp_segno, cmep);
+            printf ("%5o %08o %06o %06o %06o %08o %06o %06o %06o %06o %o %s%s%s%s%s%s%s%s\n",
+                    page,
+                    abs_adr,
+                    cmep,
+                    fp,
+                    bp,
+                    devadd,
+                    ptwp,
+                    astep,
+                    pin_counter,
+                    synch_page_entryp,
+                    contr,
+                    synch_held ? " synch_held" : "",
+                    io ? " io" : "",
+                    er ? " er" : "",
+                    removing ? " removing" : "",
+                    abs_w ? " abs_w" : "",
+                    abs_usable ? " abs_usable" : "",
+                    notify_requested ? " notify_requested" : "",
+                    phm_hedge ? " phm_hedge" : "");
+          }
+      }
+    // uint npages = page;
+    printf ("\n");
+
+    printf ("usedp %06o %08o\n", sst_usedp, absadr (cmp_segno, sst_usedp));
+
+    // bool visited [pages];
+    // memset (visited, 0, sizeof (visited));
+
+    word18 ptr = sst_usedp;
+    if (ptr >= cmp_seg_len)
+      {
+        printf ("usedp (%o) starts off the end of the segment\n", ptr);
+        nerrors ++;
+        goto skip;
+      }
+
+    uint cnt = 0;
+    while (1)
+      {
+        // printf ("ptr %o\n", ptr);
+        // uint n = (ptr - cme_size) / cme_size;
+        // visited[n] = true;
+        word36 cme0 = append (cmp_segno, ptr + 0);
+        word18 fp = getbits36_18 (cme0, 0);
+        // printf ("fp %o\n", fp);
+        if (fp >= cmp_seg_len)
+          {
+            printf ("fp (%o) of %o went off the end of the segment\n", fp, ptr);
+            nerrors ++;
+            break;
+          }
+        word18 last = ptr;
+        ptr = fp;
+        cme0 = append (cmp_segno, ptr + 0);
+        word18 bp = getbits36_18 (cme0, 18);
+        // printf ("bp %o\n", bp);
+        if (bp != last)
+          {
+            printf ("bp (%o) of %o does not agree with last (%o)\n", bp, ptr, last);
+            nerrors ++;
+            break;
+          }
+        cnt ++;
+        if (ptr == sst_usedp)
+          {
+             printf ("loop checked; %d entries\n", cnt);
+             break;
+          }
+      }
+skip: ;
+
+  }
+
+static void print_ptw (word36 ptw)
+  {
+    word1 b0 = getbits36_1 (ptw, 0);
+    word4 add_type = getbits36_4 (ptw, 18);
+    word1 u = getbits36_1 (ptw, 26);
+    word1 m = getbits36_1 (ptw, 29);
+    word1 f = getbits36_1 (ptw, 33);
+    word2 fc = getbits36_2 (ptw, 34);
+    if (add_type == 010)
+      {
+        word14 page = getbits36_14 (ptw, 0);
+        word24 addr = ((word24) page) << 10;
+        printf ("    %012llo  core page %05o addr %08o U %o M %o F %o FC %o\n",
+ ptw, page, addr, u, m, f, fc);
+      }
+    else if (add_type == 00 && b0 == 00)
+      {
+        word18 debug = getbits36_18 (ptw, 0);
+        printf ("    %012llo  null debug %06o U %o M %o F %o FC %o\n",
+ ptw, debug, u, m, f, fc);
+      }
+    else
+      {
+        printf ("    %012llo  unknown U %o M %o F %o FC %o\n",
+ ptw, u, m, f, fc);
+      }
+  }
+
+static void verify_ptw (word36 ptw, word18 astep)
+  {
+    word4 add_type = getbits36_4 (ptw, 18);
+    if (add_type != 010)
+      return;
+    word14 page = getbits36_14 (ptw, 0);
+    //word24 addr = ((word24) page) << 10;
+    uint cmep = cmp_os + page * cme_size;
+    word36 cme2 = append (cmp_segno, cmep + 2);
+    word18 cme_astep = getbits36_18 (cme2, 18);
+    if (cme_astep != astep)
+      {
+        printf ("cme.astep (%06o) != astep (%06o)\n", cme_astep, astep);
+        nerrors ++;
+      }
+  }
+
+// Given an astep, find the segno
+
+static uint find_segno (word18 astep)
+  {
+    
+  }
+
+static void ast (void)
+  {
+    printf ("asta %05o:%06o\n", asta_segno, asta_os);
+
+// walk the lists
+
+    for (uint level = 0; level < 4; level ++)
+      {
+        word36 level0 = append (asta_segno, sst_level + level);
+        word18 ausedp = getbits36_18 (level0, 0);
+        word18 no_aste = getbits36_18 (level0, 18);
+        printf ("Level %u: ausedp: %06o (%08o) no_aste: %06o\n", level, ausedp, absadr (asta_segno, ausedp), no_aste);
+        word18 ptr = ausedp;
+        for (uint n = 0; n < no_aste; n ++)
+          {
+            word36 aste0 = append (asta_segno, ptr);
+            word18 fp = getbits36_18 (aste0, 0);
+            word18 bp = getbits36_18 (aste0, 18);
+            word36 aste11 = append (asta_segno, ptr + 11);
+            word2 ptsi = getbits36_2 (aste11, 28);
+            printf ("aste @ %06o (%08o) fp %06o bp %06o ptsi %o\n", ptr, absadr (asta_segno, ptr), fp, bp, ptsi);
+            static uint ptsi_tab[4] = {4, 16, 64, 256 };
+            uint nptws = ptsi_tab[ptsi];
+            for (uint np = 0; np < nptws; np ++)
+              {
+                word36 ptw = append (asta_segno, ptr + aste_size + np);
+                //printf ("  %012llo\n", ptw0);
+                print_ptw (ptw);
+                verify_ptw (ptw, ptr);
+                
+              }
+            ptr = fp;
+        }
+    }
+
+#if 0
+    while (1)
+      {
+        word36 aste0 = append (asta_segno, ptr);
+        word18 fp = getbits36_18 (aste0, 0);
+        word18 bp = getbits36_18 (aste0, 18);
+        printf ("p %06o fp %06o bp %06o\n", ptr, fp, bp);
+        ptr = fp;
+        if (ptr == asta_os)
+          break;
+      }
+#endif
+  }
+
 int main (int argc, char * argv[])
   {
 
@@ -163,70 +407,42 @@ int main (int argc, char * argv[])
 
 // sst
 
-#define sst_seg 0102
+    word36 sst_cmp_l = append (sst_segno, sst_seg_cmp);
+    word36 sst_cmp_h = append (sst_segno, sst_seg_cmp + 1);
+    cmp_segno = get_segno (sst_cmp_l);
+    cmp_os = get_os (sst_cmp_h);
+    cmp_seg_len = seg_len (cmp_segno);
+    word36 w = append (sst_segno, sst_seg_usedp);
+    sst_usedp = getbits36_18 (w, 0);
 
-    word36 sst_cmp_l = append (sst_seg, 44);
-    word36 sst_cmp_h = append (sst_seg, 45);
-    word15 sst_cmp_segno = get_segno (sst_cmp_l);
-    word18 sst_cmp_os = get_os (sst_cmp_h);
+    word36 sst_astap_l = append (sst_segno, sst_seg_astap);
+    word36 sst_astap_h = append (sst_segno, sst_seg_astap + 1);
+    asta_segno = get_segno (sst_astap_l);
+    asta_os = get_os (sst_astap_h);
 
-    uint cmp_seg_len = seg_len (sst_cmp_segno);
-    //printf ("sst_cmp %o:%o\n", sst_cmp_segno, sst_cmp_os);
-    printf ("core_map bound %u %o\n", seg_len (sst_cmp_segno), seg_len (sst_cmp_segno));
+    coremap ();
+    ast ();
 
-// Coremap
-
-#define pages 16384
-
-#define cme_size 4
-
-    printf ("page  fp     bp     devadd   ptwp   astep  pinctr syncpp contr\n");
-    for (uint i = 0; i < pages; i ++)
+//  2 * segno >= 16 * (DSBR.BND + 1)
+//  2 * segno < 16 * (DSBR.BND + 1)
+//  segno < 8 * (DSBR.BND + 1)
+    uint nsegs = 8 * (cpus[cpun].DSBR.BND + 1);
+    for (uint segno = 0; segno < nsegs; segno ++)
       {
-        uint cmep = sst_cmp_os + i * cme_size;
-        if (cmep >= cmp_seg_len)
-          break;
-printf ("%5o %08o\n", i, absadr (sst_cmp_segno, cmep));
+        uint y1 = (2 * segno) % 1024;
+        uint x1 = (2 * segno - y1) / 1024;
+        word24 ptw_add = cpus[cpun].DSBR.ADDR + x1;       
+        word36 ptw = M[ptw_add];
+        word24 dspg_add = ((word24) (getbits36_18 (ptw, 0) & 0777760)) << 6;
+        word36 sdw_even = M[dspg_add + y1];       
+        word36 sdw_odd = M[dspg_add + y1 + 1];       
+        word24 sgpt_add = getbits36_24 (sdw_even, 0);
+        word24 aste_add = sgpt_add - aste_size;
+        printf ("segno %05o ptw_add %08o ptw %012llo dspg_add %08o sdw %012llo %012llo sgpt_add %08o aste_addr %08o\n", segno, ptw_add, ptw, dspg_add, sdw_even, sdw_odd, sgpt_add, aste_add);
+      }
 
-        word36 cme0 = append (sst_cmp_segno, cmep + 0);
-        word36 cme1 = append (sst_cmp_segno, cmep + 1);
-        word36 cme2 = append (sst_cmp_segno, cmep + 2);
-        word36 cme3 = append (sst_cmp_segno, cmep + 3);
 
-        //printf ("%5o %012llo %012llo %012llo %012llo\n", i, cme0, cme1, cme2, cme3);
-        if (cme0 || cme1 || cme2 || cme3)
-          {
-            word18 fp = getbits36_18 (cme0, 0);
-            word18 bp = getbits36_18 (cme0, 18);
-            word22 devadd = (word22) getbits36 (cme1, 0, 22);
-            word1 synch_held = getbits36_1 (cme1, 23);
-            word1 io = getbits36_1 (cme1, 24);
-            word1 er = getbits36_1 (cme1, 26);
-            word1 removing = getbits36_1 (cme1, 27);
-            word1 abs_w = getbits36_1 (cme1, 28);
-            word1 abs_usable = getbits36_1 (cme1, 29);
-            word1 notify_requested = getbits36_1 (cme1, 30);
-            word1 phm_hedge = getbits36_1 (cme1, 32);
-            word3 contr = getbits36_3 (cme1, 33);
-
-            word18 ptwp = getbits36_18 (cme2, 0);
-            word18 astep = getbits36_18 (cme2, 18);
-
-            word18 pin_counter = getbits36_18 (cme3, 0);
-            word18 synch_page_entryp = getbits36_18 (cme3, 18);
-            printf ("%5o %06o %06o %08o %06o %06o %06o %06o %o\n",
-                    i, fp, bp, devadd, ptwp, astep, pin_counter, synch_page_entryp, contr);
-            printf ("     %s%s%s%s%s%s%s%s\n",
-                    synch_held ? " synch_held" : "",
-                    io ? " io" : "",
-                    er ? " er" : "",
-                    removing ? " removing" : "",
-                    abs_w ? " abs_w" : "",
-                    abs_usable ? " abs_usable" : "",
-                    notify_requested ? " notify_requested" : "",
-                    phm_hedge ? " phm_hedge" : "");
-        }
-    }
+    printf ("%d error(s)\n", nerrors);
     return 0;
   }
 
