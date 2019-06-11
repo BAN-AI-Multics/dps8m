@@ -24,6 +24,8 @@ static uint cpun;
 static int nerrors = 0;
 
 #define dseg_segno 00
+#define slt_segno 07
+#define slt_seg 8 
 #define sst_segno 0102
 #define sst_seg_astap 24
 #define sst_level 36
@@ -31,6 +33,7 @@ static int nerrors = 0;
 #define sst_seg_usedp 46
 
 #define aste_size 12
+#define slte_size 4
 
 static word18 sst_usedp;
 static uint cmp_seg_len;
@@ -160,7 +163,7 @@ static void coremap (void)
 
 #define cme_size 4
 
-    printf ("page  absadr   p      fp     bp     devadd   ptwp   astep  pinctr syncpp contr\n");
+    printf ("page  absadr   p      fp     bp     strp   devadd   ptwp   astep  pinctr syncpp contr\n");
     uint page;
     for (page = 0; page < pages; page ++)
       {
@@ -190,17 +193,19 @@ static void coremap (void)
             word3 contr = getbits36_3 (cme1, 33);
 
             word18 ptwp = getbits36_18 (cme2, 0);
+            word18 strp = getbits36_18 (cme2, 0);
             word18 astep = getbits36_18 (cme2, 18);
 
             word18 pin_counter = getbits36_18 (cme3, 0);
             word18 synch_page_entryp = getbits36_18 (cme3, 18);
             word24 abs_adr = absadr (cmp_segno, cmep);
-            printf ("%5o %08o %06o %06o %06o %08o %06o %06o %06o %06o %o %s%s%s%s%s%s%s%s\n",
+            printf ("%5o %08o %06o %06o %06o %06o %08o %06o %06o %06o %06o %o %s%s%s%s%s%s%s%s\n",
                     page,
                     abs_adr,
                     cmep,
                     fp,
                     bp,
+                    strp,
                     devadd,
                     ptwp,
                     astep,
@@ -228,15 +233,17 @@ static void coremap (void)
     word18 ptr = sst_usedp;
     if (ptr >= cmp_seg_len)
       {
-        printf ("usedp (%o) starts off the end of the segment\n", ptr);
+        printf ("usedp (%08o) starts off the end of the segment\n", ptr);
         nerrors ++;
         goto skip;
       }
 
+    printf ("Walking the sst|usedp list:\n");
+
     uint cnt = 0;
     while (1)
       {
-        // printf ("ptr %o\n", ptr);
+        printf ("    %06o %6o\n", ptr, (ptr - cmp_os) / cme_size);
         // uint n = (ptr - cme_size) / cme_size;
         // visited[n] = true;
         word36 cme0 = append (cmp_segno, ptr + 0);
@@ -244,7 +251,7 @@ static void coremap (void)
         // printf ("fp %o\n", fp);
         if (fp >= cmp_seg_len)
           {
-            printf ("fp (%o) of %o went off the end of the segment\n", fp, ptr);
+            printf ("fp (%08o) of %08o went off the end of the segment\n", fp, ptr);
             nerrors ++;
             break;
           }
@@ -255,7 +262,7 @@ static void coremap (void)
         // printf ("bp %o\n", bp);
         if (bp != last)
           {
-            printf ("bp (%o) of %o does not agree with last (%o)\n", bp, ptr, last);
+            printf ("bp (%08o) of %08o does not agree with last (%08o)\n", bp, ptr, last);
             nerrors ++;
             break;
           }
@@ -270,7 +277,7 @@ skip: ;
 
   }
 
-static void print_ptw (word36 ptw)
+static void print_ptw (word36 ptw, bool * iscore, word14 * ispage)
   {
     word1 b0 = getbits36_1 (ptw, 0);
     word4 add_type = getbits36_4 (ptw, 18);
@@ -278,12 +285,22 @@ static void print_ptw (word36 ptw)
     word1 m = getbits36_1 (ptw, 29);
     word1 f = getbits36_1 (ptw, 33);
     word2 fc = getbits36_2 (ptw, 34);
+    * iscore = false;
     if (add_type == 010)
       {
         word14 page = getbits36_14 (ptw, 0);
         word24 addr = ((word24) page) << 10;
         printf ("    %012llo  core page %05o addr %08o U %o M %o F %o FC %o\n",
  ptw, page, addr, u, m, f, fc);
+        * iscore = true;
+        * ispage = page;
+      }
+    else if (add_type == 04)
+      {
+        word18 record = getbits36_18 (ptw, 0);
+        record &= 0377777;
+        printf ("    %012llo  disk record %06o zero %o U %o M %o F %o FC %o\n",
+ ptw, record, b0, u, m, f, fc);
       }
     else if (add_type == 00 && b0 == 00)
       {
@@ -322,6 +339,104 @@ static uint find_segno (word18 astep)
     
   }
 
+static void slt (void)
+  {
+    word18 sltep0 = slt_seg; // offset to start of array
+    printf ("n    os     names  path   REWP len rng   segno  max bc\n");
+    for (uint n = 0; n <= 9192; n ++)
+      {
+        word18 sltep = sltep0 + n * slte_size;
+printf ("%08o\n", absadr (slt_segno, sltep + 1));
+        word36 slte0 = append (slt_segno, sltep + 0);
+        word36 slte1 = append (slt_segno, sltep + 1);
+        word36 slte2 = append (slt_segno, sltep + 2);
+        word36 slte3 = append (slt_segno, sltep + 3);
+       
+        word18 names_ptr = getbits36_18 (slte0, 0);
+        word18 path_ptr = getbits36_18 (slte0, 18);
+
+        word1 access_r = getbits36_1 (slte1, 0);
+        word1 access_e = getbits36_1 (slte1, 1);
+        word1 access_w = getbits36_1 (slte1, 2);
+        word1 access_p = getbits36_1 (slte1, 3);
+        word1 cache = getbits36_1 (slte1, 4);
+        word1 abs_seg = getbits36_1 (slte1, 5);
+        word1 firmware_seg = getbits36_1 (slte1, 6);
+        word1 layout_seg = getbits36_1 (slte1, 7);
+        word1 breakpointable = getbits36_1 (slte1, 8);
+        word1 wired = getbits36_1 (slte1, 12);
+        word1 paged = getbits36_1 (slte1, 13);
+        word1 per_process = getbits36_1 (slte1, 14);
+        word1 acl_provided = getbits36_1 (slte1, 17);
+        word1 branch_required = getbits36_1 (slte1, 21);
+        word1 init_seg = getbits36_1 (slte1, 22);
+        word1 temp_seg = getbits36_1 (slte1, 23);
+        word1 link_provided = getbits36_1 (slte1, 24);
+        word1 link_sect = getbits36_1 (slte1, 25);
+        word1 link_sect_wired = getbits36_1 (slte1, 26);
+        word1 combine_link = getbits36_1 (slte1, 27);
+        word1 pre_linked = getbits36_1 (slte1, 28);
+        word1 defs = getbits36_1 (slte1, 29);
+
+        word9 cur_length = getbits36_9 (slte2, 0);
+        word3 rb1 = getbits36_3 (slte2, 9);
+        word3 rb2 = getbits36_3 (slte2, 12);
+        word3 rb3 = getbits36_3 (slte2, 15);
+        word18 segno = getbits36_18 (slte2, 18);
+
+        word9 max_length = getbits36_9 (slte3, 3);
+        word24 bit_count = getbits36_24 (slte3, 12);
+
+        printf ("%04o %06o %06o %06o %c%c%c%c %03o %o,%o,%o %06o %03o %08o\n",
+                n, sltep, names_ptr, path_ptr, 
+                access_r ? 'R' : ' ',
+                access_e ? 'E' : ' ',
+                access_w ? 'W' : ' ',
+                access_p ? 'P' : ' ',
+                cur_length, rb1, rb2, rb3, segno, max_length, bit_count);
+
+        printf (" ON: %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n",
+          cache ? "cache " : "",
+          abs_seg ? "abs " : "",
+          firmware_seg  ? "firmware " : "",
+          layout_seg  ? "layout " : "",
+          breakpointable  ? "bkptable " : "",
+          wired  ? "wired " : "",
+          paged  ? "paged " : "",
+          per_process  ? "per_proc " : "",
+          acl_provided  ? "acl_prov " : "",
+          branch_required  ? "brch_req " : "",
+          init_seg  ? "init " : "",
+          temp_seg  ? "temp " : "",
+          link_provided  ? "line_prvd " : "",
+          link_sect  ? "link_sect " : "",
+          link_sect_wired  ? "ls_wired " : "",
+          combine_link  ? "cmb_lnk " : "",
+          pre_linked  ? "pre_lnkd " : "",
+          defs  ? "defs " : "");
+
+        printf (" OFF: %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s\n\n",
+          !cache ? "cache " : "",
+          !abs_seg ? "abs " : "",
+          !firmware_seg  ? "firmware " : "",
+          !layout_seg  ? "layout " : "",
+          !breakpointable  ? "bkptable " : "",
+          !wired  ? "wired " : "",
+          !paged  ? "paged " : "",
+          !per_process  ? "per_proc " : "",
+          !acl_provided  ? "acl_prov " : "",
+          !branch_required  ? "brch_req " : "",
+          !init_seg  ? "init " : "",
+          !temp_seg  ? "temp " : "",
+          !link_provided  ? "line_prvd " : "",
+          !link_sect  ? "link_sect " : "",
+          !link_sect_wired  ? "ls_wired " : "",
+          !combine_link  ? "cmb_lnk " : "",
+          !pre_linked  ? "pre_lnkd " : "",
+          !defs  ? "defs " : "");
+      }
+  }
+
 static void ast (void)
   {
     printf ("asta %05o:%06o\n", asta_segno, asta_os);
@@ -348,9 +463,12 @@ static void ast (void)
             for (uint np = 0; np < nptws; np ++)
               {
                 word36 ptw = append (asta_segno, ptr + aste_size + np);
+                bool ispage;
+                word14 pageno;
                 //printf ("  %012llo\n", ptw0);
-                print_ptw (ptw);
-                verify_ptw (ptw, ptr);
+                print_ptw (ptw, & ispage, & pageno);
+                if (ispage)
+                  verify_ptw (ptw, ptr);
                 
               }
             ptr = fp;
@@ -414,6 +532,7 @@ int main (int argc, char * argv[])
     cmp_seg_len = seg_len (cmp_segno);
     word36 w = append (sst_segno, sst_seg_usedp);
     sst_usedp = getbits36_18 (w, 0);
+    printf ("sst|cmp %05o:%06o %08o\n", cmp_segno, cmp_os, absadr (cmp_segno, cmp_os));
 
     word36 sst_astap_l = append (sst_segno, sst_seg_astap);
     word36 sst_astap_h = append (sst_segno, sst_seg_astap + 1);
@@ -421,6 +540,7 @@ int main (int argc, char * argv[])
     asta_os = get_os (sst_astap_h);
 
     coremap ();
+    slt ();
     ast ();
 
 //  2 * segno >= 16 * (DSBR.BND + 1)
@@ -437,7 +557,7 @@ int main (int argc, char * argv[])
         word36 sdw_even = M[dspg_add + y1];       
         word36 sdw_odd = M[dspg_add + y1 + 1];       
         word24 sgpt_add = getbits36_24 (sdw_even, 0);
-        word24 aste_add = sgpt_add - aste_size;
+        word24 aste_add = (sgpt_add - aste_size) & MASK24;
         printf ("segno %05o ptw_add %08o ptw %012llo dspg_add %08o sdw %012llo %012llo sgpt_add %08o aste_addr %08o\n", segno, ptw_add, ptw, dspg_add, sdw_even, sdw_odd, sgpt_add, aste_add);
       }
 
