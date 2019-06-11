@@ -30,6 +30,7 @@
 #include <ctype.h>
 
 #ifdef __APPLE__
+#define _GNU_SOURCE
 #include <pthread.h>
 #endif
 
@@ -136,6 +137,7 @@ t_stat sim_load (FILE *fileref, const char *cptr, const char *fnam, int flag)
 
 // Script to string cables and set switches
 
+#define NEW
 #ifdef NEW
 static char * default_base_system_script [] =
   {
