@@ -106,7 +106,7 @@ CFLAGS += -DNEED_128 -Wno-format-zero-length -Wno-sign-conversion
 endif
 
 # The system_state code relies on shared memory.
-LDFLAGS += -lrt
+#LDFLAGS += -lrt
 
 # Configuration switches
 
