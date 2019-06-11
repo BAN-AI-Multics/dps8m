@@ -248,7 +248,7 @@ H_SRCS += ./uvutil.h
 
 
 
-all:: utils $(TAGS) locallibs_then_dps8 $(PROF_TARGETS) multics_tables_dump
+all:: utils $(TAGS) locallibs_then_dps8 $(PROF_TARGETS) multics_tables_dump annotate
 
 profiler : locallibs_then_dps8 profiler.o 
 	$(CC) $(LDFLAGS) profiler.o -o profiler shm.o -lncurses
@@ -264,6 +264,9 @@ tracer_annotate : tracer_annotate.o
 
 multics_tables_dump : multics_tables_dump.o shm.o
 	$(CC) $(LDFLAGS) multics_tables_dump.o -o multics_tables_dump shm.o
+
+annotate : annotate.o
+	$(CC) $(LDFLAGS) annotate.o -o annotate shm.o
 
 
 install: all
@@ -406,3 +409,4 @@ errnos.h:
 -include $(C_SRCS:.c=.d)
 -include $(PROF_SRCS:.c=.d)
 -include $(multics_tables_dump.c=.d)
+-include $(annotate.c=.d)
