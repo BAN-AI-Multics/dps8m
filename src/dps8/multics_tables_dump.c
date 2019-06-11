@@ -155,6 +155,8 @@ static word18 get_os (word36 w)
 
 static void coremap (void)
   {
+    printf ("COREMAP\n");
+
 // Coremap
 
     printf ("core_map bound %u %o\n", seg_len (cmp_segno), seg_len (cmp_segno));
@@ -336,17 +338,35 @@ static void verify_ptw (word36 ptw, word18 astep)
 
 static uint find_segno (word18 astep)
   {
-    
+//  2 * segno >= 16 * (DSBR.BND + 1)
+//  2 * segno < 16 * (DSBR.BND + 1)
+//  segno < 8 * (DSBR.BND + 1)
+    uint nsegs = 8 * (cpus[cpun].DSBR.BND + 1);
+    for (uint segno = 0; segno < nsegs; segno ++)
+      {
+        uint y1 = (2 * segno) % 1024;
+        uint x1 = (2 * segno - y1) / 1024;
+        word24 ptw_add = cpus[cpun].DSBR.ADDR + x1;       
+        word36 ptw = M[ptw_add];
+        word24 dspg_add = ((word24) (getbits36_18 (ptw, 0) & 0777760)) << 6;
+        word36 sdw_even = M[dspg_add + y1];       
+        word36 sdw_odd = M[dspg_add + y1 + 1];       
+        word24 sgpt_add = getbits36_24 (sdw_even, 0);
+        word24 aste_add = (sgpt_add - aste_size) & MASK24;
+        printf ("segno %05o ptw_add %08o ptw %012llo dspg_add %08o sdw %012llo %012llo sgpt_add %08o aste_addr %08o\n", segno, ptw_add, ptw, dspg_add, sdw_even, sdw_odd, sgpt_add, aste_add);
+      }
+    return 0;
   }
 
 static void slt (void)
   {
+    printf ("SLT\n");
     word18 sltep0 = slt_seg; // offset to start of array
     printf ("n    os     names  path   REWP len rng   segno  max bc\n");
     for (uint n = 0; n <= 9192; n ++)
       {
         word18 sltep = sltep0 + n * slte_size;
-printf ("%08o\n", absadr (slt_segno, sltep + 1));
+//printf ("%08o\n", absadr (slt_segno, sltep + 1));
         word36 slte0 = append (slt_segno, sltep + 0);
         word36 slte1 = append (slt_segno, sltep + 1);
         word36 slte2 = append (slt_segno, sltep + 2);
@@ -439,6 +459,7 @@ printf ("%08o\n", absadr (slt_segno, sltep + 1));
 
 static void ast (void)
   {
+    printf ("AST\n");
     printf ("asta %05o:%06o\n", asta_segno, asta_os);
 
 // walk the lists
@@ -542,25 +563,6 @@ int main (int argc, char * argv[])
     coremap ();
     slt ();
     ast ();
-
-//  2 * segno >= 16 * (DSBR.BND + 1)
-//  2 * segno < 16 * (DSBR.BND + 1)
-//  segno < 8 * (DSBR.BND + 1)
-    uint nsegs = 8 * (cpus[cpun].DSBR.BND + 1);
-    for (uint segno = 0; segno < nsegs; segno ++)
-      {
-        uint y1 = (2 * segno) % 1024;
-        uint x1 = (2 * segno - y1) / 1024;
-        word24 ptw_add = cpus[cpun].DSBR.ADDR + x1;       
-        word36 ptw = M[ptw_add];
-        word24 dspg_add = ((word24) (getbits36_18 (ptw, 0) & 0777760)) << 6;
-        word36 sdw_even = M[dspg_add + y1];       
-        word36 sdw_odd = M[dspg_add + y1 + 1];       
-        word24 sgpt_add = getbits36_24 (sdw_even, 0);
-        word24 aste_add = (sgpt_add - aste_size) & MASK24;
-        printf ("segno %05o ptw_add %08o ptw %012llo dspg_add %08o sdw %012llo %012llo sgpt_add %08o aste_addr %08o\n", segno, ptw_add, ptw, dspg_add, sdw_even, sdw_odd, sgpt_add, aste_add);
-      }
-
 
     printf ("%d error(s)\n", nerrors);
     return 0;
