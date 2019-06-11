@@ -300,7 +300,9 @@ dps8$(EXE) : $(OBJS) $(LOCALOBJS) $(LOCALLIBS)
 .PHONY: __uuid__
 build_uuid.h : __uuid__
 	@echo uuidgen build_uuid.h
-	@uuidgen | awk '{print "#define BUILD_UUID \""$$1"\""}' > build_uuid.h
+	@UUID=`uuidgen`; echo "#define BUILD_UUID \"$UUID\"" > build_uuid.h
+
+#	@uuidgen | awk '{print "#define BUILD_UUID \""$$1"\""}' > build_uuid.h
 
 .PHONY: FORCE
 
