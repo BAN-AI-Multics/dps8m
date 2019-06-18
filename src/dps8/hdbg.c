@@ -245,7 +245,7 @@ if (current_running_cpu_idx == 0)
   goto done;
 #endif
     unsigned long p = hdbg_inc ();
-    hevents[p].type = hevtM;
+    hevents[p].type = hevtAPU;
     hevents[p].cpu_idx = current_running_cpu_idx;
     hevents[p].time = cpu.cycleCnt;
     strncpy (hevents[p].ctx, ctx, 15);
