@@ -642,7 +642,11 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
       }
     cpu.rA = 0;
     cpu.rQ = 0;
-    
+    //cpu.DSBR.ADDR = 0;
+    //cpu.DSBR.BND = 0;
+    //cpu.DSBR.U = 0;
+    //cpu.DSBR.STACK = 0;
+   
     cpu.PPR.IC = 0;
     cpu.PPR.PRR = 0;
     cpu.PPR.PSR = 0;
@@ -3340,6 +3344,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 #else
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
 #endif
+    HDBGMWrite (addr, M[addr], __func__);
     cpu.useZone = false; // Safety
 #ifndef SPEED
     if (watch_bits [addr])
