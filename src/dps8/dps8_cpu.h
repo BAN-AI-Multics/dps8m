@@ -2008,6 +2008,7 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
 #endif
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     cpu.useZone = false; // Safety
+    HDBGMWrite (addr, M[addr], __func__);
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
