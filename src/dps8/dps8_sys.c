@@ -4059,6 +4059,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
 
       }
     fclose (fp);
+    sim_printf ("ld_system_book: %d segments, %d components\n", n_book_segments, n_book_components);
 #if 0
     for (int i = 0; i < n_book_segments; i ++)
       { 

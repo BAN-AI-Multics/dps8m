@@ -663,6 +663,7 @@ static void loadSystemBook (const char * buf)
 
       }
     fclose (fp);
+    fprintf (stderr, "system book: %d segments, %d components\n", nBookSegments, nBookComponents);
 #if 0
     for (int i = 0; i < nBookSegments; i ++)
       { 
@@ -688,8 +689,21 @@ static void loadSystemBook (const char * buf)
 
 int main (int argc, char * argv [])
   {
-    setSearchPath (PATH);
-    loadSystemBook (BK);
+    if (argc == 3)
+      {
+        setSearchPath (argv[1]);
+        loadSystemBook (argv[2]);
+      }
+    else if (argc == 1)
+      {
+        setSearchPath (PATH);
+        loadSystemBook (BK);
+      }
+    else
+      {
+        fprintf (stderr, "annotate [search_path book] < raw > annotated\n");
+        exit (1);
+      }
 // DBG(108398614)> CPU TRACE: 00042:010324 0 036717707000 (TSX7 036717)
     char * buf = NULL;
     size_t size;
