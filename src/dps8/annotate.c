@@ -639,8 +639,11 @@ static void loadSystemBook (const char * buf)
         if (cnt == 7)
           {
             //printf ("C: %s\n", name);
+            if (strcmp (name, "Start") == 0 || strcmp (name, "Length") == 0)
+              continue;
             if (current >= 0)
               {
+                
                 addBookComponent (current, name, txt_start, txt_length, intstat_start, intstat_length, symbol_start, symbol_length);
               }
             continue;
