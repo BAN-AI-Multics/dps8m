@@ -865,6 +865,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            & fnp_unit [unit_idx], fnp_iom_cmd);
       }
 
+#ifndef __MINGW64__
 // IOMx ABSIx
     if (name_match (param, "ABSI", & unit_idx))
       {
@@ -884,6 +885,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            CTLR_T_ABSI, chan_type_direct,
                            & absi_unit [unit_idx], absi_iom_cmd);
       }
+#endif
 
 // IOMx SKCx
     if (name_match (param, "SKC", & unit_idx))
@@ -1482,7 +1484,9 @@ static t_stat sys_cable_graph (void)
     R_CTLR_IOM (IPCT, ipct)
     R_CTLR_IOM (URP, urp)
     R_CTLR_IOM (DIA, dia)
+#ifndef __MINGW64__
     R_CTLR_IOM (ABSI, absi)
+#endif
     R_CTLR_IOM (OPC, opc)
 
 #define R_DEV_CTLR(from_big,from_small, to_label, to_big, to_small) \
@@ -1644,7 +1648,9 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         CTLR_IOM (IPCT, ipct)
         CTLR_IOM (URP, urp)
         CTLR_IOM (DIA, dia)
+#ifndef __MINGW64__
         CTLR_IOM (ABSI, absi)
+#endif
         CTLR_IOM (OPC, opc)
       }
     sim_printf ("\n");
