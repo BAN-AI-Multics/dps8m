@@ -56,7 +56,9 @@
 #include "dps8_prt.h"
 #include "dps8_ipc.h"
 #include "dps8_urp.h"
+#ifndef __MINGW64__
 #include "dps8_absi.h"
+#endif
 #include "dps8_utils.h"
 #include "shm.h"
 #include "utlist.h"
@@ -357,7 +359,9 @@ parm dirw loud ttyb 64000
     "set pun nunits=1",
     "set prt nunits=2",
     "set skc nunits=8",
+#ifndef __MINGW64__
     "set absi nunits=1",
+#endif
 
 // CPU0
 
@@ -873,9 +877,11 @@ parm dirw loud ttyb 64000
     "set opc0 name=opca",
     //  No devices for console, so no 'cable OPC0 # CONx'
 
+#ifndef __MINGW64__
     // Attach ABSI unit 0 to IOM 0, chan 011, dev_code 0
     "cable IOMA 011 ABSI0",
     "set absi0 name=absia",
+#endif
 
     //  Attach tape IPCT0 to IOM 0, chan 012 and 013
     "set ipct0 boot_drive=0",
@@ -1471,7 +1477,9 @@ parm  dirw  loud  ttyb  64000
     "set pun nunits=1",
     "set prt nunits=2",
     "set skc nunits=8",
+#ifndef __MINGW64__
     "set absi nunits=1",
+#endif
 
 // CPU0
 
@@ -2610,9 +2618,11 @@ parm  dirw  loud  ttyb  64000
     "cable IOMA 047 SKCH",
     "set skc7 name=skch",
 
+#ifndef __MINGW64__
     // Attach ABSI unit 0 to IOM 0, chan 032, dev_code 0
     "cable IOM0 032 ABSI0",
     "set absi0 name=absia",
+#endif
 
     // Attach IOM unit 0 port A (0) to SCU unit 0, port 0
     "cable SCU0 0 IOM0 0",
@@ -4033,6 +4043,8 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
         if (cnt == 7)
           {
             //sim_msg ("C: %s\n", name);
+            if (strcmp (name, "Start") == 0 || strcmp (name, "Length") == 0)
+              continue;
             if (current >= 0)
               {
                 add_book_component (current, name, txt_start, txt_length,
