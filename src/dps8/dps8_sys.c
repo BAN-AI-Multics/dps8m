@@ -241,8 +241,10 @@ static char * default_base_system_script [] =
     "set rdr nunits=1",
     "set pun nunits=1",
     "set prt nunits=1",
+#ifndef __MINGW64__
     "set skc nunits=64",
     "set absi nunits=1",
+#endif
 
 #if 0
 #ifndef __MINGW64__
@@ -1301,6 +1303,7 @@ static char * default_base_system_script [] =
     "cable URP2 1 PRT0",
 
 
+#ifndef __MINGW64__
     "cable IOMA 040 SKCA",
     "cable IOMA 041 SKCB",
     "cable IOMA 042 SKCC",
@@ -1309,6 +1312,7 @@ static char * default_base_system_script [] =
     "cable IOMA 045 SKCF",
     "cable IOMA 046 SKCG",
     "cable IOMA 047 SKCH",
+#endif
 
 #if 0
     // ; Attach PRT unit 1 to IOM 0, chan 017, dev_code 2
@@ -3815,8 +3819,12 @@ static void dps8_init (void)
 #warn SCUMEM not working with new shared memory model
 #endif
 
+#ifdef __MINGW64__
+    system_state = malloc (sizeof (struct system_state_s));
+#else
     system_state = (struct system_state_s *)
       create_shm ("state", sizeof (struct system_state_s));
+#endif
 
 #include "dps8.sha1.txt"
 
@@ -3850,7 +3858,9 @@ static void dps8_init (void)
     iom_init ();
     disk_init ();
     mt_init ();
+#ifndef __MINGW64__
     sk_init ();
+#endif
     fnpInit ();
     console_init (); // must come after fnpInit due to libuv initiailization
     //mpc_init ();
@@ -4279,7 +4289,9 @@ DEVICE * sim_devices[] =
     & cpu_dev, // dev[0] is special to simh; it is the 'default device'
     & iom_dev,
     & tape_dev,
+#ifndef __MINGW64__
     & skc_dev,
+#endif
     & mtp_dev,
     & fnp_dev,
     & dsk_dev,
