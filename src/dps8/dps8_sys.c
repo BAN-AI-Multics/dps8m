@@ -358,8 +358,8 @@ parm dirw loud ttyb 64000
     "set rdr nunits=1",
     "set pun nunits=1",
     "set prt nunits=2",
-    "set skc nunits=8",
 #ifndef __MINGW64__
+    "set skc nunits=8",
     "set absi nunits=1",
 #endif
 
@@ -877,11 +877,9 @@ parm dirw loud ttyb 64000
     "set opc0 name=opca",
     //  No devices for console, so no 'cable OPC0 # CONx'
 
-#ifndef __MINGW64__
     // Attach ABSI unit 0 to IOM 0, chan 011, dev_code 0
     "cable IOMA 011 ABSI0",
     "set absi0 name=absia",
-#endif
 
     //  Attach tape IPCT0 to IOM 0, chan 012 and 013
     "set ipct0 boot_drive=0",
