@@ -2318,6 +2318,7 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
 int iom_list_service (uint iom_unit_idx, uint chan,
                            bool * ptro, bool * sendp, bool * uffp)
   {
+    sim_debug (DBG_DEBUG, & iom_dev, "iom_list_service iom %u chan %o %u.\n", iom_unit_idx, chan, chan);
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
 // initialize
@@ -2793,6 +2794,7 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 // Send the PCW's DCW
     //sim_printf ("PCW chan %d (%o) control %d\n", chan, chan, p -> IDCW_CONTROL);
     int rc = d->iom_cmd (iom_unit_idx, chan);
+    sim_debug (DBG_DEBUG, & iom_dev, "iom_cmd returnd %d\n", rc);
 
 //
 // iom_cmd returns:
@@ -2833,6 +2835,13 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
         goto done;
       }
 
+#if 0
+    if (p -> IDCW_CONTROL == 0)
+      {
+        sim_printf ("sprionnnnng\n");
+        goto done;
+      }
+#endif
 #if 0
 // The boot tape loader sends PCWs with control == 0 when it shouldn't
 // BCE sends disk PCWs with control == 0 when it shouldn't
@@ -2909,6 +2918,7 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 // Send the DCW list's DCW
 
         rc2 = d->iom_cmd (iom_unit_idx, chan);
+        sim_debug (DBG_DEBUG, & iom_dev, "iom_cmd returnd %d\n", rc2);
 
 #if 0
         if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
@@ -2948,6 +2958,7 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
             goto done;
           }
 
+        sim_debug (DBG_DEBUG, & iom_dev, "bottom of loop; rc2 %u IDCW_CONTROL %o\n", rc2, p->IDCW_CONTROL);
 
         if (rc2 || p -> IDCW_CONTROL == 0) 
           ptro = true; 

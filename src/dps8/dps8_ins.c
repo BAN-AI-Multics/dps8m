@@ -10011,7 +10011,7 @@ elapsedtime ();
 #endif
 
         default:
-          if (cpu.switches.halt_on_unimp)
+          if (cpu.switches.halt_on_unimp && cpu.instrCnt > 10)
             return STOP_STOP;
           doFault (FAULT_IPR,
                    fst_ill_op,

@@ -105,18 +105,13 @@ ifneq ($(M32),)
 CFLAGS += -DNEED_128 -Wno-format-zero-length -Wno-sign-conversion
 endif
 
-<<<<<<< HEAD
-# The system_state code relies on shared memory.
-#LDFLAGS += -lrt
-=======
 # The system_state code relies on M_SHARED.
 ifneq ($(CROSS),MINGW64)
 #ifeq ($(M_SHARED),1)
 CFLAGS += -DM_SHARED
-LDFLAGS += -lrt
+#LDFLAGS += -lrt
 #endif
 endif
->>>>>>> 6a0c9d0d... MINGW64 compatibility fixes -- disable shared memory, socket device, use PRI macros.
 
 # Configuration switches
 
