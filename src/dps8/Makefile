@@ -44,8 +44,8 @@ endif
 ifeq ($(PROFILER),1)
 $(warning #### PROFILER mode)
 CFLAGS += -DPROFILER
-PROF_TARGETS = profiler tracer tracer_to_txt tracer_annotate 
-PROF_SRCS = profiler.c tracer.c tracer_to_txt.c tracer_annotate.c
+PROF_TARGETS = profiler tracer tracer_to_txt tracer_annotate multics_tables_dump
+PROF_SRCS = profiler.c tracer.c tracer_to_txt.c tracer_annotate.c multics_tables_dump.c
 PROF_OBJS = $(patsubst %.c,%.o,$(PROF_SRCS))
 else
 PROF_TARGETS = 
