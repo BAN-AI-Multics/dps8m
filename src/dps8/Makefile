@@ -105,8 +105,18 @@ ifneq ($(M32),)
 CFLAGS += -DNEED_128 -Wno-format-zero-length -Wno-sign-conversion
 endif
 
+<<<<<<< HEAD
 # The system_state code relies on shared memory.
 #LDFLAGS += -lrt
+=======
+# The system_state code relies on M_SHARED.
+ifneq ($(CROSS),MINGW64)
+#ifeq ($(M_SHARED),1)
+CFLAGS += -DM_SHARED
+LDFLAGS += -lrt
+#endif
+endif
+>>>>>>> 6a0c9d0d... MINGW64 compatibility fixes -- disable shared memory, socket device, use PRI macros.
 
 # Configuration switches
 
@@ -172,7 +182,9 @@ C_SRCS += ./dps8_opcodetable.c
 C_SRCS += ./dps8_prt.c
 C_SRCS += ./dps8_scu.c
 C_SRCS += ./dps8_simh.c
+ifneq ($(CROSS),MINGW64)
 C_SRCS += ./dps8_socket_dev.c
+endif
 C_SRCS += ./dps8_sys.c
 C_SRCS += ./dps8_urp.c
 C_SRCS += ./dps8_utils.c
@@ -180,7 +192,12 @@ C_SRCS += ./fnpuv.c
 C_SRCS += ./fnptelnet.c
 C_SRCS += libtelnet.c
 C_SRCS += ./hdbg.c
+# The system_state code relies on M_SHARED.
+ifneq ($(CROSS),MINGW64)
+#ifeq ($(M_SHARED),1)
 C_SRCS += ./shm.c
+#endif
+endif
 ifneq ($(CROSS),MINGW64)
 C_SRCS += ./udplib.c
 endif
