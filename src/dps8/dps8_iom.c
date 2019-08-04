@@ -2468,6 +2468,8 @@ A:;
                 return -1;
               }
           }
+        else // tally == 1
+          * ptro = true;
       }
 
     // LPW 20? -- LPW_20 checked by fetch_and_parse_DCW
