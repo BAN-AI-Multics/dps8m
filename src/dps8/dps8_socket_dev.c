@@ -716,10 +716,10 @@ sim_printf ("write8() socket doesn't belong to us\n");
     return IOM_CMD_NO_DCW; // send terminate interrupt
   }
 
-static int get_ddcw (iom_chan_data_t * p, uint iom_unit_idx, uint chan, bool * ptro, uint expected_tally, uint * tally)
+static int get_ddcw (iom_chan_data_t * p, uint iom_unit_idx, uint chan, uint expected_tally, uint * tally)
   {
     bool send, uff;
-    int rc = iom_list_service (iom_unit_idx, chan, ptro, & send, & uff);
+    int rc = iom_list_service (iom_unit_idx, chan, & send, & uff);
     if (rc < 0)
       {
         p->stati = 05001; // BUG: arbitrary error code; config switch
@@ -771,7 +771,6 @@ static int sk_cmd (uint iom_unit_idx, uint chan)
     sim_debug (DBG_DEBUG, & skc_dev, "IDCW_DEV_CODE %d\n", p->IDCW_DEV_CODE);
     uint unit_idx = get_ctlr_idx (iom_unit_idx, chan);
 sim_printf ("device %u\n", p->IDCW_DEV_CODE);
-    bool ptro;
     switch (p->IDCW_DEV_CMD)
       {
         case 0: // CMD 00 Request status -- controller status, not device
@@ -792,7 +791,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
                        "%s: socket_dev_$socket\n", __func__);
             const uint expected_tally = 6;
             uint tally;
-            int rc = get_ddcw (p, iom_unit_idx, chan, & ptro, expected_tally, & tally);
+            int rc = get_ddcw (p, iom_unit_idx, chan, expected_tally, & tally);
             if (rc)
               return rc;
 
@@ -817,7 +816,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             const uint expected_tally = 6;
             uint tally;
-            int rc = get_ddcw (p, iom_unit_idx, chan, & ptro, expected_tally, & tally);
+            int rc = get_ddcw (p, iom_unit_idx, chan, expected_tally, & tally);
             if (rc)
               return rc;
 
@@ -850,7 +849,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             const uint expected_tally = 68;
             uint tally;
-            int rc = get_ddcw (p, iom_unit_idx, chan, & ptro, expected_tally, & tally);
+            int rc = get_ddcw (p, iom_unit_idx, chan, expected_tally, & tally);
             if (rc)
               return rc;
 
@@ -876,7 +875,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             const uint expected_tally = 5;
             uint tally;
-            int rc = get_ddcw (p, iom_unit_idx, chan, & ptro, expected_tally, & tally);
+            int rc = get_ddcw (p, iom_unit_idx, chan, expected_tally, & tally);
             if (rc)
               return rc;
 
@@ -902,7 +901,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             const uint expected_tally = 7;
             uint tally;
-            int rc = get_ddcw (p, iom_unit_idx, chan, & ptro, expected_tally, & tally);
+            int rc = get_ddcw (p, iom_unit_idx, chan, expected_tally, & tally);
             if (rc)
               return rc;
 
@@ -931,7 +930,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             const uint expected_tally = 4;
             uint tally;
-            int rc = get_ddcw (p, iom_unit_idx, chan, & ptro, expected_tally, & tally);
+            int rc = get_ddcw (p, iom_unit_idx, chan, expected_tally, & tally);
             if (rc)
               return rc;
 
@@ -956,7 +955,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             const uint expected_tally = 0;
             uint tally;
-            int rc = get_ddcw (p, iom_unit_idx, chan, & ptro, expected_tally, & tally);
+            int rc = get_ddcw (p, iom_unit_idx, chan, expected_tally, & tally);
             if (rc)
               return rc;
 
@@ -984,7 +983,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             const uint expected_tally = 0;
             uint tally;
-            int rc = get_ddcw (p, iom_unit_idx, chan, & ptro, expected_tally, & tally);
+            int rc = get_ddcw (p, iom_unit_idx, chan, expected_tally, & tally);
             if (rc)
               return rc;
 

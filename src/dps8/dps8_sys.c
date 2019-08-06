@@ -2863,6 +2863,8 @@ static t_stat set_machine_room_pw (UNUSED int32 arg, UNUSED const char * buf)
 static t_stat boot_skip (int32 UNUSED arg, const char * UNUSED buf)
   {
     uint32 skipped;
+    tape_states[0].rec_num ++;
+    sim_printf ("Tape 0 skips record %d\n", tape_states[0].rec_num);
     return sim_tape_sprecsf (& mt_unit[0], 1, & skipped);
   }
   

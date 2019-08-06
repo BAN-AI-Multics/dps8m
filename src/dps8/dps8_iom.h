@@ -197,6 +197,14 @@ typedef volatile struct
 
     bool start;
 
+// This iom code is "incorrectly structured. The list service reads DCWs and
+// pushes them to the handler; the handlers pull IOTs from the list service.
+// this means that the IOT disconnect/proceed bit doesn't get propageted back
+// up to the DCW list service. By placing 'ptro' in this structure, the 
+// handlers can signal disconnect back up.
+
+    bool ptro;
+
   } iom_chan_data_t;
 
 extern iom_chan_data_t iom_chan_data [N_IOM_UNITS_MAX] [MAX_CHANNELS];
@@ -315,8 +323,7 @@ int send_special_interrupt (uint iom_unit_idx, uint chanNum, uint devCode,
 #define IOM_CMD_ERROR	-1
 
 typedef int iom_cmd_t (uint iom_unit_idx, uint chan);
-int iom_list_service (uint iom_unit_idx, uint chan,
-                           bool * ptro, bool * sendp, bool * uffp);
+int iom_list_service (uint iom_unit_idx, uint chan, bool * sendp, bool * uffp);
 int send_terminate_interrupt (uint iom_unit_idx, uint chanNum);
 void iom_interrupt (uint scuUnitNum, uint iom_unit_idx);
 void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36 * data,

@@ -831,10 +831,11 @@ ddcws:;
 
 // Process DDCWs
 
-    bool ptro, send, uff;
-    do
+    bool send, uff;
+    // do
       {
-        int rc2 = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+        int rc2 = iom_list_service (iomUnitIdx, chan, & send, & uff);
+//sim_printf ("i/o xfer %u\n", p->DDCW_22_23_TYPE);
         if (rc2 < 0)
           {
             p -> stati = 05001; // BUG: arbitrary error code; config switch
@@ -921,7 +922,9 @@ ddcws:;
           //sim_warn ("curious... a tape read with more than one DDCW?\n");
 
       }
-    while (p -> DDCW_22_23_TYPE != 0); // while not IOTD
+    // while (p -> DDCW_22_23_TYPE != 0); // while not IOTD
+    if (p->DDCW_22_23_TYPE == 0) // IOTD
+      p->ptro = true;
     //if (sim_tape_wrp (unitp))
       //p -> stati |= 1;
     return 0;
@@ -944,9 +947,9 @@ static int mtWriteRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
 // Get the DDCW
 
-    bool ptro, send, uff;
+    bool send, uff;
 loop:;
-    int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+    int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
 //sim_printf ("DDCW_22_23_TYPE %u\n", p->DDCW_22_23_TYPE);
     if (rc < 0)
       {
@@ -1144,8 +1147,8 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
                "%s: Survey devices\n", __func__);
     p -> stati = 04000; // have_status = 1
     // Get the DDCW
-    bool ptro, send, uff;
-    int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+    bool send, uff;
+    int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
     if (rc < 0)
       {
         sim_warn ("%s list service failed\n", __func__);
@@ -1298,6 +1301,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
       {
         case 0: // CMD 00 Request status -- controller status, not tape drive
           {
+//sim_printf ("Request status\n");
             p -> stati = 04000; // have_status = 1
             if (fips)
               {
@@ -1388,8 +1392,8 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Read controller main memory\n", __func__);
 
-            bool ptro, send, uff;
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+            bool send, uff;
+            int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
             if (rc < 0)
               {
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
@@ -1432,6 +1436,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
         case 3: // CMD 03 -- Read 9 Record
         case 5: // CMD 05 -- Read Binary Record
           {
+//sim_printf ("Read\n");
             if ((! (unitp->flags & UNIT_ATT)) ||
                  (! (fips || dev_code)))
               return IOM_CMD_ERROR;
@@ -1466,8 +1471,8 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: initiate read data transfer\n", __func__);
 
-            bool ptro, send, uff;
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+            bool send, uff;
+            int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
             if (rc < 0)
               {
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
@@ -1575,8 +1580,8 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: initiate write data transfer\n", __func__);
 
-            bool ptro, send, uff;
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+            bool send, uff;
+            int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
             if (rc < 0)
               {
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
@@ -1642,8 +1647,8 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Write controller main memory\n", __func__);
 
-            bool ptro, send, uff;
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+            bool send, uff;
+            int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
             if (rc < 0)
               {
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
@@ -1690,6 +1695,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 
         case 040:               // CMD 040 -- Reset Status
           {
+//sim_printf ("Reset status\n");
             p -> stati = 04000;
             p -> initiate = false;
             p -> isRead = false;
@@ -1729,6 +1735,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 
         case 044: // 044 -- Forward skip Record
           {
+//sim_printf ("Forward skip record\n");
             sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_cmd: Forward Skip Record\n");
             if ((! (unitp->flags & UNIT_ATT)) ||
@@ -1792,6 +1799,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 
         case 045: // CMD 045 -- Forward Skip File
           {
+//sim_printf ("Forward skip file\n");
             sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_cmd: Forward Skip File\n");
             if ((! (unitp->flags & UNIT_ATT)) ||
@@ -1843,6 +1851,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 
         case 046: // CMD 046 -- Backspace Record
           {
+//sim_printf ("Backward skip record\n");
             sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_cmd: Backspace Record\n");
 
@@ -1922,6 +1931,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
 
         case 047: // CMD 047 -- Backspace File
           {
+//sim_printf ("Backward skip file\n");
             sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_cmd: Backspace File\n");
             if ((! (unitp->flags & UNIT_ATT)) ||
@@ -1988,6 +1998,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
 
         case 050:               // CMD 050 -- Request device status
           {
+//sim_printf ("Request device status\n");
             p -> stati = 04000;
             if (unitp -> flags & UNIT_ATT &&
                 (fips || dev_code)) // If fips, drive code 0 is valid
@@ -2014,6 +2025,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
 
         case 051:               // CMD 051 -- Reset device status
           {
+//sim_printf ("Reset device status\n");
             if (p->isPCW)
               {
                 p->stati = 04501; // cmd reject, invalid opcode
@@ -2189,6 +2201,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
 
         case 070:              // CMD 070 -- Rewind.
           {
+//sim_printf ("Rewind\n");
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Rewind\n", __func__);
             if ((! (unitp->flags & UNIT_ATT)) ||
@@ -2224,6 +2237,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
    
         case 072:              // CMD 072 -- Rewind/Unload.
           {
+//sim_printf ("Rewind/unload\n");
             sim_debug (DBG_DEBUG, & tape_dev,
                        "%s: Rewind/unload\n", __func__);
             if (unitp -> flags & UNIT_ATT &&
