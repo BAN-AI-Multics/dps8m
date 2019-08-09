@@ -470,25 +470,6 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat cpu_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, 
-                               UNUSED int val, UNUSED const void * desc)
-  {
-    sim_msg ("Number of CPUs in system is %d\n", cpu_dev.numunits);
-    return SCPE_OK;
-  }
-
-static t_stat cpu_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
-                              const char * cptr, UNUSED void * desc)
-  {
-    if (! cptr)
-      return SCPE_ARG;
-    int n = atoi (cptr);
-    if (n < 1 || n > N_CPU_UNITS_MAX)
-      return SCPE_ARG;
-    cpu_dev.numunits = (uint32) n;
-    return SCPE_OK;
-  }
-
 static t_stat cpu_show_kips (UNUSED FILE * st, UNUSED UNIT * uptr, 
                              UNUSED int val, UNUSED const void * desc)
   {
@@ -797,18 +778,6 @@ static MTAB cpu_mod[] =
       NULL,                      // value descriptor
       NULL                       // help
     },
-
-    {
-      MTAB_dev_value,            // mask
-      0,                         // match
-      "NUNITS",                  // print string
-      "NUNITS",                  // match string
-      cpu_set_nunits,            // validation routine
-      cpu_show_nunits,           // display routine
-      NULL,                      // value descriptor
-      NULL                       // help
-    },
-
 
     {
       MTAB_dev_value,            // mask

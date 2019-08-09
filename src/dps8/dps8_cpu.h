@@ -14,9 +14,9 @@
 
 #include "hdbg.h"
 
-// simh only explicitly supports a single cpu
+// simh only explicitly supports a single cpu; so we move away from simh...
 
-#define N_CPU_UNITS 1 // Default
+#define N_CPU_UNITS N_CPU_UNITS_MAX 
 
 // JMP_ENTRY must be 0, which is the return value of the setjmp initial
 // entry
@@ -1799,7 +1799,7 @@ typedef struct
 #endif
     word24 rmw_address;
     word24 pad[16];
-//#ifdef THREADZ
+//#ifdef LOCKLESS
 //    // Set if this thread has set memlock
 //    bool havelock; // Vetinari 
 //bool have_tst_lock;

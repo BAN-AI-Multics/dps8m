@@ -7,7 +7,6 @@
 
 // Wrapper around pthreads
 
-#define _GNU_SOURCE
 #include <pthread.h>
 
 #if 0

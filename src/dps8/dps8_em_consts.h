@@ -27,7 +27,16 @@ enum { N_SCU_UNITS_MAX = 8 };
 enum { N_IOM_UNITS_MAX = 4 };
 
 // CPU
+
+#ifdef LOCKLESS
 enum { N_CPU_UNITS_MAX = 8 };
+#else
+#ifdef ISOLTS
+enum { N_CPU_UNITS_MAX = 2 };
+#else
+enum { N_CPU_UNITS_MAX = 1 };
+#endif
+#endif
 
 
 ////////////////

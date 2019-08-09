@@ -95,8 +95,10 @@ int main (int argc, char * argv[])
 #define for_cpus for (uint cpun = 0; cpun < 1; cpun ++)
 #endif
 
-    unsigned long long last_cycle_cnt[N_CPU_UNITS_MAX] = {0,0,0,0,0,0,0,0};
-    int dis_cnt[N_CPU_UNITS_MAX] = {0,0,0,0,0,0,0,0};
+    unsigned long long last_cycle_cnt[N_CPU_UNITS_MAX] =
+     { [0 ... N_CPU_UNITS_MAX-1] = 0 };
+    int dis_cnt[N_CPU_UNITS_MAX] =
+     { [0 ... N_CPU_UNITS_MAX-1] = 0 };
 
     for_cpus
       last_cycle_cnt[cpun] = cpus[cpun].cycleCnt;

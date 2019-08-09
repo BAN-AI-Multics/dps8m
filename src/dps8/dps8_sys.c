@@ -30,7 +30,6 @@
 #include <ctype.h>
 
 #ifdef __APPLE__
-#define _GNU_SOURCE
 #include <pthread.h>
 #endif
 
@@ -340,7 +339,6 @@ parm dirw loud ttyb 64000
     // Disconnect everything...
     "cable ripout",
 
-    "set cpu nunits=8",
     "set iom nunits=1",
     // One tape controller with 16 drives
     "set ipct nunits=1",
@@ -431,6 +429,8 @@ parm dirw loud ttyb 64000
     "set cpu0 config=tro_enable=enable",
     "set cpu0 config=y2k=disable",
 
+#if N_CPU_UNITS_MAX > 1
+
 // CPU1
 
     "set cpu1 config=faultbase=Multics",
@@ -471,6 +471,8 @@ parm dirw loud ttyb 64000
     "set cpu1 config=enable_wam=disable",
     "set cpu1 config=tro_enable=enable",
     "set cpu1 config=y2k=disable",
+
+#if N_CPU_UNITS_MAX > 2
 
 // CPU2
 
@@ -715,6 +717,8 @@ parm dirw loud ttyb 64000
     "set cpu7 config=tro_enable=enable",
     "set cpu7 config=y2k=disable",
 
+#endif // N_CPU_UNITS_MAX > 2
+#endif // N_CPU_UNITS_MAX > 1
 // IOM0
 
     "set iom0 config=model=imu",
@@ -1124,8 +1128,12 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 0 port 7 to CPU unit A (0), port 0
     "cable SCU0 7 CPU0 0",
 
+#if N_CPU_UNITS_MAX > 1
+
     // Attach SCU unit 0 port 6 to CPU unit B (1), port 0
     "cable SCU0 6 CPU1 0",
+
+#if N_CPU_UNITS_MAX > 2
 
     // Attach SCU unit 0 port 5 to CPU unit C (2), port 0
     "cable SCU0 5 CPU2 0",
@@ -1145,13 +1153,20 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 0 port 2 subport 2 to CPU unit H (7), port 0
     "cable SCU0 11 CPU7 0",
 
+#endif // N_CPU_UNITS_MAX > 2
+#endif // N_CPU_UNITS_MAX > 1
+
     // SCU1 --> CPU0-7
 
     // Attach SCU unit 1 port 7 to CPU unit A (0), port 1
     "cable SCU1 7 CPU0 1",
 
+#if N_CPU_UNITS_MAX > 1
+
     // Attach SCU unit 1 port 6 to CPU unit B (1), port 1
     "cable SCU1 6 CPU1 1",
+
+#if N_CPU_UNITS_MAX > 2
 
     // Attach SCU unit 1 port 5 to CPU unit C (2), port 1
     "cable SCU1 5 CPU2 1",
@@ -1171,13 +1186,20 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 1 port 2 subport 2 to CPU unit H (7), port 1
     "cable SCU1 11 CPU7 1",
 
+#endif // N_CPU_UNITS_MAX > 2
+#endif // N_CPU_UNITS_MAX > 1
+
     // SCU2 --> CPU0-7
 
     // Attach SCU unit 2 port 7 to CPU unit A (0), port 2
     "cable SCU2 7 CPU0 2",
 
+#if N_CPU_UNITS_MAX > 1
+
     // Attach SCU unit 2 port 6 to CPU unit B (1), port 2
     "cable SCU2 6 CPU1 2",
+
+#if N_CPU_UNITS_MAX > 2
 
     // Attach SCU unit 2 port 5 to CPU unit C (2), port 2
     "cable SCU2 5 CPU2 2",
@@ -1197,15 +1219,20 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 2 port 2 subport 2 to CPU unit H (7), port 2
     "cable SCU2 11 CPU7 2",
 
-
+#endif // N_CPU_UNITS_MAX > 2
+#endif // N_CPU_UNITS_MAX > 1
 
     // SCU3 --> CPU0-7
 
     // Attach SCU unit 3 port 7 to CPU unit A (0), port 3
     "cable SCU3 7 CPU0 3",
 
+#if N_CPU_UNITS_MAX > 1
+
     // Attach SCU unit 3 port 6 to CPU unit B (1), port 3
     "cable SCU3 6 CPU1 3",
+
+#if N_CPU_UNITS_MAX > 2
 
     // Attach SCU unit 3 port 5 to CPU unit C (2), port 3
     "cable SCU3 5 CPU2 3",
@@ -1225,21 +1252,15 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 3 port 2 subport 2 to CPU unit H (7), port 3
     "cable SCU3 11 CPU7 3",
 
+#endif // N_CPU_UNITS_MAX > 2
+#endif // N_CPU_UNITS_MAX > 1
+
     "set scu0 reset",
     "set scu1 reset",
     "set scu2 reset",
     "set scu3 reset",
     "set iom0 reset",
 
-#if defined(LOCKLESS)
-    "set cpu nunits=8",
-#else
-#ifdef ISOLTS
-    "set cpu nunits=2",
-#else
-    "set cpu nunits=1",
-#endif // ISOLTS
-#endif // LOCKLESS
 #ifdef FNPDBG
     "set sys config=connect_time=4000",
 #else
@@ -1458,7 +1479,6 @@ parm  dirw  loud  ttyb  64000
     // Disconnect everything...
     "cable ripout",
 
-    "set cpu nunits=8",
     "set iom nunits=2",
     // One tape controller with 16 drives
     "set ipct nunits=1",
@@ -1549,6 +1569,8 @@ parm  dirw  loud  ttyb  64000
     "set cpu0 config=tro_enable=enable",
     "set cpu0 config=y2k=disable",
 
+#if N_CPU_UNITS_MAX > 1
+
 // CPU1
 
     "set cpu1 config=faultbase=Multics",
@@ -1617,6 +1639,8 @@ parm  dirw  loud  ttyb  64000
     "set cpu1 config=tro_enable=enable",
     "set cpu1 config=y2k=disable",
 
+
+#if N_CPU_UNITS_MAX > 1
 
 // CPU2
 
@@ -2029,6 +2053,9 @@ parm  dirw  loud  ttyb  64000
     "set cpu7 config=enable_wam=disable",
     "set cpu7 config=tro_enable=enable",
     "set cpu7 config=y2k=disable",
+
+#endif // N_CPU_UNITS_MAX > 2
+#endif // N_CPU_UNITS_MAX > 1
 
 // IOM0
 
@@ -2653,8 +2680,12 @@ parm  dirw  loud  ttyb  64000
     // Attach SCU unit 0 port 7 to CPU unit A (0), port 0
     "cable SCU0 7 CPU0 0",
 
+#if N_CPU_UNITS_MAX > 1
+
     // Attach SCU unit 0 port 6 to CPU unit B (1), port 0
     "cable SCU0 6 CPU1 0",
+
+#if N_CPU_UNITS_MAX > 2
 
     // Attach SCU unit 0 port 5 to CPU unit C (2), port 0
     "cable SCU0 5 CPU2 0",
@@ -2754,6 +2785,8 @@ parm  dirw  loud  ttyb  64000
     // Attach SCU unit 3 port 2 subport 2 to CPU unit H (7), port 3
     "cable SCU3 22 CPU7 3",
 
+#endif // N_CPU_UNITS_MAX > 2
+#endif // N_CPU_UNITS_MAX > 1
 
 
     "set cpu0 reset",
@@ -2763,15 +2796,6 @@ parm  dirw  loud  ttyb  64000
     "set scu3 reset",
     "set iom0 reset",
 
-#if defined(LOCKLESS)
-    "set cpu nunits=8",
-#else
-#ifdef ISOLTS
-    "set cpu nunits=2",
-#else
-    "set cpu nunits=1",
-#endif // ISOLTS
-#endif // LOCKLESS
 #ifdef FNPDBG
     "set sys config=connect_time=4000",
 #else
