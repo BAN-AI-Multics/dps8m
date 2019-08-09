@@ -1397,7 +1397,7 @@ static void deliver_interrupts (uint scu_unit_idx)
                 uint cpu_unit_udx = cables->scu_to_cpu[scu_unit_idx][port][sn].cpu_unit_idx;
 #if defined(LOCKLESS)
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
-                HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx);
+                HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx, "deliver_interrupts");
                 createCPUThread((uint) cpu_unit_udx);
 #ifndef NO_TIMEWAIT
                 wakeCPU ((uint) cpu_unit_udx);
