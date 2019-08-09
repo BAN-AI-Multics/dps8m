@@ -691,8 +691,8 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
 // Process DDCW
 
-    bool ptro, send, uff;
-    int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+    bool send, uff;
+    int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
     if (rc < 0)
       {
         sim_printf ("diskSeek54 list service failed\n");
@@ -775,8 +775,8 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
 // Process DDCW
 
-    bool ptro, send, uff;
-    int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+    bool send, uff;
+    int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
     if (rc < 0)
       {
         sim_printf ("diskSeek512 list service failed\n");
@@ -858,10 +858,10 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
 // Process DDCWs
 
-    bool ptro, send, uff;
+    bool send, uff;
     do
       {
-        int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+        int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
         if (rc < 0)
           {
             sim_printf ("diskRead list service failed\n");
@@ -1026,10 +1026,10 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
 // Process DDCWs
 
-    bool ptro, send, uff;
+    bool send, uff;
     do
       {
-        int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+        int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
         if (rc < 0)
           {
             sim_printf ("diskWrite list service failed\n");
@@ -1153,10 +1153,9 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
 // Process DDCW
 
-    bool ptro;
     bool send;
     bool uff;
-    int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+    int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
     if (rc < 0)
       {
         sim_printf ("readStatusRegister list service failed\n");
@@ -1234,10 +1233,9 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 
 // Process DDCW
 
-    bool ptro;
     bool send;
     bool uff;
-    int rc = iom_list_service (iom_unit_idx, chan, & ptro, & send, & uff);
+    int rc = iom_list_service (iom_unit_idx, chan, & send, & uff);
     if (rc < 0)
       {
         sim_printf ("%s list service failed\n", __func__);
@@ -1413,10 +1411,9 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
 
 // Process DDCW
 
-    bool ptro;
     bool send;
     bool uff;
-    int rc = iom_list_service (iom_unit_idx, chan, & ptro, & send, & uff);
+    int rc = iom_list_service (iom_unit_idx, chan, & send, & uff);
     if (rc < 0)
       {
         sim_printf ("%s list service failed\n", __func__);

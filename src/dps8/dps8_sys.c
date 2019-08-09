@@ -356,8 +356,8 @@ parm dirw loud ttyb 64000
     "set rdr nunits=1",
     "set pun nunits=1",
     "set prt nunits=2",
-    "set skc nunits=8",
 #ifndef __MINGW64__
+    "set skc nunits=8",
     "set absi nunits=1",
 #endif
 
@@ -881,11 +881,9 @@ parm dirw loud ttyb 64000
     "set opc0 name=opca",
     //  No devices for console, so no 'cable OPC0 # CONx'
 
-#ifndef __MINGW64__
     // Attach ABSI unit 0 to IOM 0, chan 011, dev_code 0
     "cable IOMA 011 ABSI0",
     "set absi0 name=absia",
-#endif
 
     //  Attach tape IPCT0 to IOM 0, chan 012 and 013
     "set ipct0 boot_drive=0",
@@ -1496,8 +1494,8 @@ parm  dirw  loud  ttyb  64000
     "set rdr nunits=1",
     "set pun nunits=1",
     "set prt nunits=2",
-    "set skc nunits=8",
 #ifndef __MINGW64__
+    "set skc nunits=64",
     "set absi nunits=1",
 #endif
 
@@ -2628,6 +2626,7 @@ parm  dirw  loud  ttyb  64000
     "cable URP2 2 PRT1",
 
 
+#ifndef __MINGW64__
     "cable IOMA 040 SKCA",
     "set skc0 name=skca",
     "cable IOMA 041 SKCB",
@@ -2644,6 +2643,7 @@ parm  dirw  loud  ttyb  64000
     "set skc6 name=skcg",
     "cable IOMA 047 SKCH",
     "set skc7 name=skch",
+#endif
 
 #ifndef __MINGW64__
     // Attach ABSI unit 0 to IOM 0, chan 032, dev_code 0
@@ -2887,6 +2887,8 @@ static t_stat set_machine_room_pw (UNUSED int32 arg, UNUSED const char * buf)
 static t_stat boot_skip (int32 UNUSED arg, const char * UNUSED buf)
   {
     uint32 skipped;
+    tape_states[0].rec_num ++;
+    sim_printf ("Tape 0 skips record %d\n", tape_states[0].rec_num);
     return sim_tape_sprecsf (& mt_unit[0], 1, & skipped);
   }
   
@@ -5166,8 +5168,12 @@ static void dps8_init (void)
     signal (SIGUSR1, usr1_signal_handler);
 #endif
 
+#ifdef __MINGW64__
+    system_state = malloc (sizeof (struct system_state_s));
+#else
     system_state = (struct system_state_s *)
       create_shm ("state", sizeof (struct system_state_s));
+#endif
 
 #include "dps8.sha1.txt"
 
@@ -5196,7 +5202,9 @@ static void dps8_init (void)
     iom_init ();
     disk_init ();
     mt_init ();
+#ifndef __MINGW64__
     sk_init ();
+#endif
     fnpInit ();
     console_init (); // must come after fnpInit due to libuv initiailization
     //mpc_init ();
@@ -5617,7 +5625,9 @@ DEVICE * sim_devices[] =
     & cpu_dev, // dev[0] is special to simh; it is the 'default device'
     & iom_dev,
     & tape_dev,
+#ifndef __MINGW64__
     & skc_dev,
+#endif
     & mtp_dev,
     & fnp_dev,
     & dsk_dev,

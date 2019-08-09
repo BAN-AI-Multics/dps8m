@@ -309,7 +309,7 @@ static int wcd (struct decoded_t *decoded_p)
                         break;
                     if (stn_no >= ADDR_MAP_ENTRIES)
                       {
-                        sim_warn ("SET_POLLING_ADDR couldn't find selDevChar %02hhx\r\n", fnpData.ibm3270ctlr[ASSUME0].selDevChar);
+                        sim_warn ("SET_POLLING_ADDR couldn't find selDevChar %02x\r\n", (unsigned int) fnpData.ibm3270ctlr[ASSUME0].selDevChar);
                         break;
                       }
                     fnpData.

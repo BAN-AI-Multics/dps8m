@@ -2315,15 +2315,14 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
 // There is a path through the code where no DCW is sent (IDCW && LPW_18_RES)
 // Does the -1 return cover that?
 
-int iom_list_service (uint iom_unit_idx, uint chan,
-                           bool * ptro, bool * sendp, bool * uffp)
+int iom_list_service (uint iom_unit_idx, uint chan, bool * sendp, bool * uffp)
   {
+    sim_debug (DBG_DEBUG, & iom_dev, "iom_list_service iom %u chan %o %u.\n", iom_unit_idx, chan, chan);
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
 // initialize
 
     bool isConnChan = chan == IOM_CONNECT_CHAN;
-    * ptro = false; // assume not PTRO
     bool uff = false; // user fault flag
     bool send = false;
 
@@ -2335,6 +2334,7 @@ int iom_list_service (uint iom_unit_idx, uint chan,
 
     if (p -> lsFirst)
       {
+        p->ptro = false; // assume not PTRO
         // PULL LPW AND LPW EXT. FROM CORE MAILBOX
 
         fetch_and_parse_LPW (iom_unit_idx, chan);
@@ -2344,6 +2344,8 @@ int iom_list_service (uint iom_unit_idx, uint chan,
     // else lpw and lpwx are in chanData;
 
     // CONNECT CHANNEL?
+
+//sim_printf ("chan %u NC %u TAL %u TALLY %u\n", chan, p->LPW_21_NC, p->LPW_22_TAL, p->LPW_TALLY);
 
     if (isConnChan)
       { // connect channel
@@ -2386,10 +2388,10 @@ int iom_list_service (uint iom_unit_idx, uint chan,
                   }
               }
             else if (p -> LPW_TALLY == 1)
-              * ptro = true;
+              p->ptro = true;
           }
         else // 1x
-          * ptro = true;
+          p->ptro = true;
 
         // PULL PCW FROM CORE
 
@@ -2467,6 +2469,8 @@ A:;
                 return -1;
               }
           }
+        else // tally == 1
+          p->ptro = true;
       }
 
     // LPW 20? -- LPW_20 checked by fetch_and_parse_DCW
@@ -2793,6 +2797,7 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 // Send the PCW's DCW
     //sim_printf ("PCW chan %d (%o) control %d\n", chan, chan, p -> IDCW_CONTROL);
     int rc = d->iom_cmd (iom_unit_idx, chan);
+    sim_debug (DBG_DEBUG, & iom_dev, "iom_cmd returnd %d\n", rc);
 
 //
 // iom_cmd returns:
@@ -2834,6 +2839,13 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
       }
 
 #if 0
+    if (p -> IDCW_CONTROL == 0)
+      {
+        sim_printf ("sprionnnnng\n");
+        goto done;
+      }
+#endif
+#if 0
 // The boot tape loader sends PCWs with control == 0 when it shouldn't
 // BCE sends disk PCWs with control == 0 when it shouldn't
 
@@ -2850,13 +2862,13 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 //sim_printf ("chan %u masked, skipping\n", chan);
         goto done;
       }
-    bool ptro, send, uff;
+    bool send, uff;
 
     p->isPCW = false;
 
     do
       {
-        int rc2 = iom_list_service (iom_unit_idx, chan, & ptro, & send, & uff);
+        int rc2 = iom_list_service (iom_unit_idx, chan, & send, & uff);
         if (rc2 < 0)
           {
 // XXX set status flags
@@ -2909,6 +2921,7 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 // Send the DCW list's DCW
 
         rc2 = d->iom_cmd (iom_unit_idx, chan);
+        sim_debug (DBG_DEBUG, & iom_dev, "iom_cmd returnd %d\n", rc2);
 
 #if 0
         if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
@@ -2948,10 +2961,11 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
             goto done;
           }
 
+        sim_debug (DBG_DEBUG, & iom_dev, "bottom of loop; rc2 %u IDCW_CONTROL %o\n", rc2, p->IDCW_CONTROL);
 
         if (rc2 || p -> IDCW_CONTROL == 0) 
-          ptro = true; 
-      } while (! ptro);
+          p->ptro = true; 
+      } while (! p->ptro);
  
 done:;
     send_terminate_interrupt (iom_unit_idx, chan);
@@ -2986,11 +3000,11 @@ static int do_connect_chan (uint iom_unit_idx)
 int loops = 0;
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][IOM_CONNECT_CHAN];
     p -> lsFirst = true;
-    bool ptro, send, uff;
+    bool send, uff;
     do
       {
         // Fetch the next PCW
-        int rc = iom_list_service (iom_unit_idx, IOM_CONNECT_CHAN, & ptro, & send, & uff);
+        int rc = iom_list_service (iom_unit_idx, IOM_CONNECT_CHAN, & send, & uff);
         if (rc < 0)
           {
             sim_warn ("connect channel connect failed\n");
@@ -3078,7 +3092,7 @@ loops ++;
 #endif
 #endif
           }
-      } while (! ptro);
+      } while (! p->ptro);
 if (loops > 1) sim_printf ("%d loops\r\n", loops);
     return 0; // XXX
   }
@@ -3190,7 +3204,7 @@ int send_terminate_interrupt (uint iom_unit_idx, uint chan)
 void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx)
   {
     sim_debug (DBG_DEBUG, & iom_dev,
-               "%s: IOM %c starting. [%lld] %05o:%08o\n",
+               "%s: IOM %c starting. [%"PRId64"] %05o:%08o\n",
                __func__, 'A' + iom_unit_idx,
                cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC);
 

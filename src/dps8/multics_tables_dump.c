@@ -67,6 +67,7 @@ static bool pg_graph = false;
 #define dseg_segno 00
 #define slt_segno 07
 #define breakpoint_page_segno 014
+#define scas_segno 077
 #define sst_segno 0102
 #define abs_seg0_segno 0402
 #define intlzr_dsbr_addr 054012
@@ -81,6 +82,10 @@ static bool pg_graph = false;
 #define sst_seg_cmp 44
 //   sst|seg_usedp
 #define sst_seg_usedp 46
+//   sst|first_core_block
+#define sst_first_core_block 144
+//   sst|last_core_block
+#define sst_last_core_block 145
 
 // Structure sizes
 
@@ -94,6 +99,9 @@ static word15 cmp_segno;  // segment number from sst|cmp
 static word18 cmp_os;     // offset from sst|cmp
 static word15 asta_segno; // segment number from sst|astp
 static word18 asta_os;    // offset fromsst|astp
+static word18 first_core_block;
+static word18 last_core_block;
+
 static bool early = true;
 
 // Segment lengths extracted from SDWs
@@ -389,12 +397,12 @@ static int find_segno (word18 astep)
     return -1;
   }
 
+// Coremap
+
 static void cmp (void)
   {
     if (! quiet)
       printf ("COREMAP\n");
-
-// Coremap
 
     if (dump_cmp)
       printf ("core_map bound %u %o\n", seg_len (cmp_segno), seg_len (cmp_segno));
@@ -404,10 +412,13 @@ static void cmp (void)
 #define cme_size 4
 
     if (dump_cmp)
-      printf ("page  absadr   p      fp     bp     strp   devadd   ptwp   astep  pinctr syncpp contr\n");
+      printf ("page  absadr   p      fp     bp     devadd ty ptwp   astep  pinctr syncpp contr\n");
     uint page;
     for (page = 0; page < pages; page ++)
       {
+        // assuming 4 4mw conrollers wited 0 1 2 3.
+        word36 cntlr = (word36) (page >> 12);
+
         uint cmep = cmp_os + page * cme_size;
         if (cmep >= cmp_seg_len)
           break;
@@ -417,23 +428,51 @@ static void cmp (void)
         word36 cme2 = append (cmp_segno, cmep + 2, NULL);
         word36 cme3 = append (cmp_segno, cmep + 3, NULL);
 
+        if (page < first_core_block)
+          {
+            if (cme0 != 0777777777777 ||
+                cme1 != cntlr ||
+                cme2 != 0 ||
+                cme3 != 0)
+              {
+                printf ("Warning: CME not in first..last and not zapped: page %05o %012llo %012llo %012llo %012llo\n",
+                        page, cme0, cme1, cme2, cme3);
+              }
+            continue;
+          }
+        if (page > last_core_block)
+          {
+            if (! (cme0 == 0777777777777 || cme0 == 0) ||
+                cme1 != cntlr ||
+                cme2 != 0 ||
+                cme3 != 0)
+              {
+                printf ("Warning: CME not in first..last and not zapped: page %05o %012llo %012llo %012llo %012llo\n",
+                        page, cme0, cme1, cme2, cme3);
+              }
+            continue;
+          }
         if (cme0 || cme1 || cme2 || cme3)
           {
             word18 fp = GETHI (cme0);
             word18 bp = GETLO (cme0);
-            word22 devadd = (word22) getbits36 (cme1, 0, 22);
+            word1 b0 = getbits36_1 (cme1, 0);
+            word18 cmeadd = getbits36_18 (cme1, 0);
+            word4 cmeaddtype = getbits36_4 (cme1, 18);
+            // word1 pad5
             word1 synch_held = getbits36_1 (cme1, 23);
             word1 io = getbits36_1 (cme1, 24);
+            // word1 pad2
             word1 er = getbits36_1 (cme1, 26);
             word1 removing = getbits36_1 (cme1, 27);
             word1 abs_w = getbits36_1 (cme1, 28);
             word1 abs_usable = getbits36_1 (cme1, 29);
             word1 notify_requested = getbits36_1 (cme1, 30);
+            // word1 pad3
             word1 phm_hedge = getbits36_1 (cme1, 32);
             word3 contr = getbits36_3 (cme1, 33);
 
             word18 ptwp = GETHI (cme2);
-            //word18 strp = GETHI (cme2);
             word18 astep = GETLO (cme2);
 
             word18 pin_counter = GETHI (cme3);
@@ -441,16 +480,23 @@ static void cmp (void)
             word24 abs_adr = absadr (cmp_segno, cmep);
 
             int segno = find_segno (astep);
-
+            char typ = '?';
+            if (cmeaddtype == 010)
+              typ = 'c'; // core
+            else if (cmeaddtype == 004)
+              typ = 'd'; // disk
+            else if (cmeaddtype == 000 & b0 == 0)
+              typ = 'd'; // null
             if (dump_cmp)
-              printf ("%5o %08o %06o %06o %06o %08o %06o %06o %06o %06o %o %s%s%s%s%s%s%s%s\n",
+              printf ("%05o %08o %06o %06o %06o %06o %02o%c %06o %06o %06o %06o %o %s%s%s%s%s%s%s%s\n",
                       page,
                       abs_adr,
                       cmep,
                       fp,
                       bp,
-                      //strp,
-                      devadd,
+                      cmeadd,
+                      cmeaddtype,
+                      typ,
                       ptwp,
                       astep,
                       pin_counter,
@@ -464,6 +510,8 @@ static void cmp (void)
                       abs_usable ? " abs_usable" : "",
                       notify_requested ? " notify_requested" : "",
                       phm_hedge ? " phm_hedge" : "");
+            if (cntlr != contr)
+              printf ("Error: contr wrong; is %o, should be %llo\n", contr, cntlr);
             if (astep)
               {
                 if (segno < 0)
@@ -498,7 +546,7 @@ static void cmp (void)
       }
 
     if (dump_cmp)
-      printf ("Walking the sst|usedp list:\n");
+      printf ("Walking the sst|usedp list forwards:\n");
 
     uint cnt = 0;
     while (1)
@@ -509,6 +557,7 @@ static void cmp (void)
         // visited[n] = true;
         word36 cme0 = append (cmp_segno, ptr + 0, NULL);
         word18 fp = GETHI (cme0);
+        word18 bp = GETLO (cme0);
         // printf ("fp %o\n", fp);
         if (fp >= cmp_seg_len)
           {
@@ -516,24 +565,68 @@ static void cmp (void)
             nerrors ++;
             break;
           }
+printf ("  %06o %06o %06o\n", ptr, fp, bp);
         word18 last = ptr;
         ptr = fp;
         cme0 = append (cmp_segno, ptr + 0, NULL);
-        word18 bp = GETLO (cme0);
+        bp = GETLO (cme0);
         // printf ("bp %o\n", bp);
         if (bp != last)
           {
             printf ("bp (%08o) of %08o does not agree with last (%08o)\n", bp, ptr, last);
             nerrors ++;
-            break;
+            //break;
           }
         cnt ++;
         if (ptr == sst_usedp)
           {
-             if (! quiet)
-               printf ("loop checked; %d entries\n", cnt);
              break;
           }
+      }
+    word18 expected = last_core_block - first_core_block + 1;
+    if (ptr == sst_usedp)
+      {
+        if (! quiet)
+          printf ("loop checked; %d entries\n", cnt);
+        if (cnt != expected)
+          printf ("Error: loop checked; %d entries found, %d expected\n", cnt, expected);
+        goto skip;  // if loop was closed, don't bother with reverse walk
+      }
+    else
+     {
+       printf ("Error: sst|usedp loop broken\n");
+     }
+
+    if (dump_cmp)
+      printf ("Walking the sst|usedp list backwards:\n");
+
+    ptr = sst_usedp;
+    cnt = 0;
+    while (1)
+      {
+        word36 cme0 = append (cmp_segno, ptr + 0, NULL);
+        word18 fp = GETHI (cme0);
+        word18 bp = GETLO (cme0);
+        if (bp >= cmp_seg_len)
+          {
+            printf ("bp (%08o) of %08o went off the end of the segment\n", bp, ptr);
+            nerrors ++;
+            break;
+          }
+printf ("  %06o %06o %06o\n", ptr, fp, bp);
+        word18 last = ptr;
+        ptr = bp;
+        cme0 = append (cmp_segno, ptr + 0, NULL);
+        fp = GETHI (cme0);
+        if (fp != last)
+          {
+            printf ("fp (%08o) of %08o does not agree with last (%08o)\n", fp, ptr, last);
+            nerrors ++;
+            //break;
+          }
+        cnt ++;
+        if (ptr == sst_usedp)
+          break;
       }
 skip: ;
 
@@ -661,6 +754,11 @@ static char * lookup_slt_seg_name (uint segno, char * buf)
       }
     word36 slte0 = append (slt_segno, sltep + 0, NULL);
     word18 names_ptr = GETHI (slte0);
+    if (names_ptr == 0)
+      {
+        strcpy (buf, "----                            ");
+        return buf;
+      }
     word24 name_address = absadr (name_segno, name_os + 1 + names_ptr + 1);
     get_str (name_address, 32, buf);
     return buf;
@@ -680,8 +778,6 @@ static void analyze_slte (word18 n, pair name_ptr)
         probe (slt_segno, sltep + 3))
       return;
 
-    if (dump_slt)
-      printf ("n    os     names  path   REWP len rng   segno  max bc\n");
 //printf ("%08o\n", absadr (slt_segno, sltep + 1));
     word36 slte0 = append (slt_segno, sltep + 0, NULL);
     word36 slte1 = append (slt_segno, sltep + 1, NULL);
@@ -821,10 +917,14 @@ static void slt (void)
       }
     if (dump_slt)
       printf ("  Supervisor segments\n");
+    if (dump_slt)
+      printf ("n    os     names  path   REWP len rng   segno  max bc\n");
     for (word18 n = first_sup_seg; n <= last_sup_seg; n ++)
       analyze_slte (n, name_seg_ptr);
     if (dump_slt)
       printf ("  Init segments\n");
+    if (dump_slt)
+      printf ("n    os     names  path   REWP len rng   segno  max bc\n");
     for (word18 n = first_init_seg; n <= last_init_seg; n ++)
       analyze_slte (n, name_seg_ptr);
   }
@@ -893,9 +993,11 @@ static void  analyze_dsbr (struct dsbr_s DSBR)
      page_seg_map[i].n_claims = 0; // unclaimed
 
     if (! quiet)
-      printf ("DSBR ADDR %8o BND %05o U %o STACK %04o\n",
-              DSBR.ADDR, DSBR.BND, DSBR.U, DSBR.STACK); 
-
+      {
+          printf ("DSBR ADDR %8o BND %05o U %o STACK %04o\n",
+                  DSBR.ADDR, DSBR.BND, DSBR.U, DSBR.STACK); 
+          printf ("Note: CME claim analysis elides 'abs_seg0' and 'scas'\n");
+      }
     if (DSBR.U)
       {
         printf ("Error: DSBR unpaged\n");
@@ -981,10 +1083,12 @@ static void  analyze_dsbr (struct dsbr_s DSBR)
             uint cmep = cmp_os + page_number * cme_size;
             if (cmep < cmp_seg_len)
               {
-                //word36 cme0 = append (cmp_segno, cmep + 0, NULL);
+                word36 cme0 = append (cmp_segno, cmep + 0, NULL);
                 word36 cme1 = append (cmp_segno, cmep + 1, NULL);
                 word36 cme2 = append (cmp_segno, cmep + 2, NULL);
                 //word36 cme3 = append (cmp_segno, cmep + 3, NULL);
+                word18 fp = GETHI (cme0);
+                word18 bp = GETLO (cme0);
                 word22 devadd = (word22) getbits36 (cme1, 0, 22);
                 word18 ptwp = GETHI (cme2);
                 word18 astep = GETLO (cme2);
@@ -999,8 +1103,8 @@ static void  analyze_dsbr (struct dsbr_s DSBR)
 
                 if (dump_dsbr)
                   {
-                    printf ("     CMP devadr %08o ptwp %06o astep %06o segno %05o\n",
-                            devadd, ptwp, astep, cmp_segno);
+                    printf ("     CMP fp %06o bp %06o devadr %08o ptwp %06o astep %06o segno %05o\n",
+                             fp, bp, devadd, ptwp, astep, cmp_segno);
                   }
               }
 #if 0
@@ -1029,7 +1133,7 @@ static void  analyze_dsbr (struct dsbr_s DSBR)
 
             // Ignore claims from abs_seg0; it deliberately maps into claimed
             // pages
-            if (segno == abs_seg0_segno)
+            if (segno == abs_seg0_segno || segno == scas_segno)
               continue;
 
             // Remember breakpoint_page page 0
@@ -1231,6 +1335,11 @@ static void usage (void)
 
 int main (int argc, char * argv[])
   {
+
+//
+// Parse args
+//
+
     char * state_file = "dps8m.state";
     
     for (int i = 1; i < argc; i ++)
@@ -1293,7 +1402,9 @@ illopt:
           }
       }
 
+//
 // Open state file
+//
 
     system_state = (struct system_state_s *) open_shm2 (state_file, sizeof (struct system_state_s));
     if (! system_state)
@@ -1309,21 +1420,45 @@ illopt:
 
     cpun = 0;
 
-// Report some stuff
+// Gather some global data
 
     dsbr_addr = cpus[cpun].DSBR.ADDR;
     early = dsbr_addr == intlzr_dsbr_addr;
 
+//
 // sst
+//
+
+//   sst|cmp
 
     pair sst_cmp = append72 (sst_segno, sst_seg_cmp, NULL);
     cmp_segno = get_segno (sst_cmp);
     cmp_os = get_os (sst_cmp);
     cmp_seg_len = seg_len (cmp_segno);
+
+//    sst|usedp
+
     word36 w = append (sst_segno, sst_seg_usedp, NULL);
     sst_usedp = GETHI (w);
     if (! quiet)
       printf ("sst|cmp %05o:%06o %08o\n", cmp_segno, cmp_os, absadr (cmp_segno, cmp_os));
+
+//   sst|first_core_block, sst|last_core_block
+
+    first_core_block = GETLO (append (sst_segno, sst_first_core_block, NULL));
+    last_core_block = GETLO (append (sst_segno, sst_last_core_block, NULL));
+    if (! quiet)
+     printf ("sst|first_core_block %06o\n", first_core_block);
+    if (! quiet)
+     printf ("sst|last_core_block %06o\n", last_core_block);
+
+    if (last_core_block < first_core_block)
+      {
+        printf ("Error: last_core_block (%o) < first_core_block (%o)\n", last_core_block, first_core_block);
+        nerrors ++;
+      }
+
+//   sst|astap
 
     pair sst_astap = append72 (sst_segno, sst_seg_astap, NULL);
     asta_segno = get_segno (sst_astap);

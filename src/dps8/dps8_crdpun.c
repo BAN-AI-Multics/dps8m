@@ -446,9 +446,9 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
             p -> isRead = false;
             // Get the DDCW
 
-            bool ptro, send, uff;
+            bool send, uff;
 
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+            int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
             if (rc < 0)
               {
                 p -> stati = 05001; // BUG: arbitrary error code; config switch

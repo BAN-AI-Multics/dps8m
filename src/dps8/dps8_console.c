@@ -766,10 +766,10 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
 
             // Get the DDCW
 
-            bool ptro, send, uff;
+            bool send, uff;
 
             // We only expect one DCW, so no loop
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+            int rc = iom_list_service (iomUnitIdx, chan, & send, & uff);
             if (rc < 0)
               {
                 sim_warn ("console read list service failed\n");
@@ -874,12 +874,11 @@ sim_warn ("uncomfortable with this\n");
 
             // Get the DDCWs
 
-            bool ptro;
             bool send;
             bool uff;
             do
               {
-                int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send,
+                int rc = iom_list_service (iomUnitIdx, chan, & send,
                                          & uff);
                 if (rc < 0)
                   {

@@ -9193,11 +9193,6 @@ elapsedtime ();
 
           CPT (cpt1U, 25); // DIS instruction
 
-          if (! cpu.switches.dis_enable)
-            {
-              return STOP_STOP;
-            }
-
           // XXX This is subtle; g7Pending below won't see the queued
           // g7Fault. I don't understand how the real hardware dealt 
           // with this, but this seems to work. (I would hazard a guess
@@ -9292,6 +9287,12 @@ elapsedtime ();
               cpu.interrupt_flag = true;
               break;
             }
+
+          if (! cpu.switches.dis_enable)
+            {
+              return STOP_STOP;
+            }
+
 // Implementing TRO according to AL39 for the DIS cause caues idle systems to
 // hang in the DIS instruction. Revert back to the old behavior.
 #if 1
@@ -10011,7 +10012,7 @@ elapsedtime ();
 #endif
 
         default:
-          if (cpu.switches.halt_on_unimp)
+          if (cpu.switches.halt_on_unimp && cpu.instrCnt > 10)
             return STOP_STOP;
           doFault (FAULT_IPR,
                    fst_ill_op,
