@@ -739,6 +739,26 @@ typedef struct
 #endif
   } switches_t;
 
+#ifdef ISOLTS
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+#define ISOLTS_MAP \
+    do \
+      { \
+        if (cpu.switches.isolts_mode) \
+          { \
+            if (addr >= 0200000) \
+              { \
+                doFault (FAULT_STR, fst_str_nea,  __func__); \
+              } \
+            addr = addr + ISOLTS_BASE; \
+          } \
+      } \
+    while (0)
+#else
+#define ISOLTS_MAP
+#endif
 #ifdef L68
 enum ou_cycle_e
   {
@@ -1912,42 +1932,7 @@ extern const _fault_subtype fst_str_nea;
 static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
-#if 0
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea, __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        // Which SCU is addr on?
-        int scuno = cpu.scbank_map[pgnum];
-        // Where does that scu's memory reside in M?
-        //word24 base = cpu.scbank_base[pgnum];
-        word24 base = (word24) scuno * 4u * 1024u * 1024u;
-        // final address is base plus offset into the banl
-        word24 offset = addr % (4u * 1024u * 1024u);
-        addr = base + offset;
-      }
-#else
-    if (cpu.switches.isolts_mode)
-      {
-        if (addr >= 0200000)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        addr = addr + ISOLTS_BASE;
-      }
-#endif
-#endif
+    ISOLTS_MAP;
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -1973,42 +1958,7 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
 static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
-#if 0
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        // Which SCU is addr on?
-        int scuno = cpu.scbank_map[pgnum];
-        // Where does that scu's memory reside in M?
-        //word24 base = cpu.scbank_base[pgnum];
-        word24 base = (word24) scuno * 4u * 1024u * 1024u;
-        // final address is base plus offset into the banl
-        word24 offset = addr % (4u * 1024u * 1024u);
-        addr = base + offset;
-      }
-#else
-    if (cpu.switches.isolts_mode)
-      {
-        if (addr >= 0200000)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        addr = addr + ISOLTS_BASE;
-      }
-#endif
-#endif
+    ISOLTS_MAP;
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -2034,42 +1984,7 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
 static inline int core_write_zone (word24 addr, word36 data, UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
-#if 0
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        // Which SCU is addr on?
-        int scuno = cpu.scbank_map[pgnum];
-        // Where does that scu's memory reside in M?
-        //word24 base = cpu.scbank_base[pgnum];
-        word24 base = (word24) scuno * 4u * 1024u * 1024u;
-        // final address is base plus offset into the banl
-        word24 offset = addr % (4u * 1024u * 1024u);
-        addr = base + offset;
-      }
-#else
-    if (cpu.switches.isolts_mode)
-      {
-        if (addr >= 0200000)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        addr = addr + ISOLTS_BASE;
-      }
-#endif
-#endif
+    ISOLTS_MAP;
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -2098,42 +2013,7 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
                               UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
-#if 0
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        // Which SCU is addr on?
-        int scuno = cpu.scbank_map[pgnum];
-        // Where does that scu's memory reside in M?
-        //word24 base = cpu.scbank_base[pgnum];
-        word24 base = (word24) scuno * 4u * 1024u * 1024u;
-        // final address is base plus offset into the banl
-        word24 offset = addr % (4u * 1024u * 1024u);
-        addr = base + offset;
-      }
-#else
-    if (cpu.switches.isolts_mode)
-      {
-        if (addr >= 0200000)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        addr = addr + ISOLTS_BASE;
-      }
-#endif
-#endif
+    ISOLTS_MAP;
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -2161,42 +2041,7 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
                                UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
-#if 0
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        // Which SCU is addr on?
-        int scuno = cpu.scbank_map[pgnum];
-        // Where does that scu's memory reside in M?
-        //word24 base = cpu.scbank_base[pgnum];
-        word24 base = (word24) scuno * 4u * 1024u * 1024u;
-        // final address is base plus offset into the banl
-        word24 offset = addr % (4u * 1024u * 1024u);
-        addr = base + offset;
-      }
-#else
-    if (cpu.switches.isolts_mode)
-      {
-        if (addr >= 0200000)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-        addr = addr + ISOLTS_BASE;
-      }
-#endif
-#endif
+    ISOLTS_MAP;
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
       {
