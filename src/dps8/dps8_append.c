@@ -379,8 +379,10 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
             cpu.SDW->USE = N_WAM_ENTRIES - 1;
  
             char buf[256];
+#ifdef TESTING
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                      __func__, _n, str_sdw (buf, cpu.SDW));
+#endif
 
             return cpu.SDW;
           }
@@ -539,7 +541,6 @@ static void fetch_nsdw (word15 segno)
 #endif
   }
 
-#ifdef TESTING
 #ifdef WAM
 static char *str_sdw (char * buf, sdw_s *SDW)
   {
@@ -569,7 +570,6 @@ static char *str_sdw (char * buf, sdw_s *SDW)
     return buf;
   }
 #endif // WAM
-#endif // TESTING
 
 #ifdef WAM
 #ifdef L68

@@ -86,7 +86,7 @@ void hdbgAPUWrite (word15 segno, word18 offset, word36 data, const char * ctx);
 #define HDBGRegDSBRW(i, c)
 #define HDBGTrace(c)
 #define HDBGIntr(i, c)
-#define HDBGIntrSet(i, c, s)
+#define HDBGIntrSet(i, c, s, ctx)
 #define HDBGFault(n, s, m, c)
 #define HDBGPrint()
 #endif

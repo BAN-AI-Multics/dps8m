@@ -30,6 +30,7 @@
 #include "dps8_cpu.h"
 #include "dps8_loader.h"
 #include "dps8_utils.h"
+#include "dps8_append.h"
 
 #include "utlist.h" // for linked list ops
 
