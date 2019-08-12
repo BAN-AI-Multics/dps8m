@@ -346,7 +346,7 @@ static t_stat disk_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, const cha
     if (! cptr)
       return SCPE_ARG;
     int n = atoi (cptr);
-    if (n < 1 || n > N_DSK_UNITS_MAX)
+    if (n < 0 || n > N_DSK_UNITS_MAX)
       return SCPE_ARG;
     dsk_dev . numunits = (uint32) n;
     return SCPE_OK;

@@ -1646,7 +1646,7 @@ static t_stat opc_set_nunits (UNUSED UNIT * uptr, int32 UNUSED value,
     if (! cptr)
       return SCPE_ARG;
     int n = atoi (cptr);
-    if (n < 1 || n > N_OPC_UNITS_MAX)
+    if (n < 0 || n > N_OPC_UNITS_MAX)
       return SCPE_ARG;
     opc_dev.numunits = (uint32) n;
     return SCPE_OK;

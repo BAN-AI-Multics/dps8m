@@ -140,7 +140,7 @@ static t_stat set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     if (! cptr)
       return SCPE_ARG;
     int n = atoi (cptr);
-    if (n < 1 || n > N_DIA_UNITS_MAX)
+    if (n < 0 || n > N_DIA_UNITS_MAX)
       return SCPE_ARG;
     dia_dev.numunits = (uint32) n;
     return SCPE_OK;

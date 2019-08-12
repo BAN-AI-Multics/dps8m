@@ -602,7 +602,7 @@ static t_stat scu_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     if (! cptr)
       return SCPE_ARG;
     int n = atoi (cptr);
-    if (n < 1 || n > N_SCU_UNITS_MAX)
+    if (n < 0 || n > N_SCU_UNITS_MAX)
       return SCPE_ARG;
     scu_dev.numunits = (uint) n;
     return SCPE_OK;

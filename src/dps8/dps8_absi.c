@@ -70,7 +70,7 @@ static t_stat absi_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     if (! cptr)
       return SCPE_ARG;
     int n = atoi (cptr);
-    if (n < 1 || n > N_ABSI_UNITS_MAX)
+    if (n < 0 || n > N_ABSI_UNITS_MAX)
       return SCPE_ARG;
     absi_dev.numunits = (uint32) n;
     return SCPE_OK;
