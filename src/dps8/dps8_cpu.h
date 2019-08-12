@@ -727,6 +727,16 @@ typedef struct
     uint drl_fatal;
     uint serno;
     bool useMap;
+
+#ifdef ISOLTS
+    // When running ISOTLTS, the CPU undertest as a memory configuration plug
+    // that remaps memory to 64K in SCU B. This switch will fake that mode by
+    // offsetting the address by 4MW, assuming that memory is ordered
+    //  SCU A B C D amd A has 4MW
+    bool isolts_mode;
+#define ISOLTS_BASE 020000000 // 4MW
+#define ISOLTS_LEN  0200000   // 64KW
+#endif
   } switches_t;
 
 #ifdef L68
@@ -1903,6 +1913,7 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
+#if 0
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -1923,6 +1934,19 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
         word24 offset = addr % (4u * 1024u * 1024u);
         addr = base + offset;
       }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
+#endif
 #endif
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
@@ -1950,6 +1974,7 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
+#if 0
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -1970,7 +1995,21 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
         word24 offset = addr % (4u * 1024u * 1024u);
         addr = base + offset;
       }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
 #endif
+#endif
+#if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
       {
@@ -1982,6 +2021,7 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
         sim_warn ("failing to implement separ\n");
         cpu.MR.separ = 0;
       }
+#endif
 #endif
     M[addr] = data & DMASK;
 #ifdef TR_WORK_MEM
@@ -1995,6 +2035,43 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
+#if 0
+    if (cpu.switches.useMap)
+      {
+        uint pgnum = addr / SCBANK;
+        int os = cpu.scbank_pg_os [pgnum];
+        if (os < 0)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        // Which SCU is addr on?
+        int scuno = cpu.scbank_map[pgnum];
+        // Where does that scu's memory reside in M?
+        //word24 base = cpu.scbank_base[pgnum];
+        word24 base = (word24) scuno * 4u * 1024u * 1024u;
+        // final address is base plus offset into the banl
+        word24 offset = addr % (4u * 1024u * 1024u);
+        addr = base + offset;
+      }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
+#endif
+#endif
+#if 0 // XXX Controlled by TEST/NORMAL switch
+#ifdef ISOLTS
     if (cpu.MR.sdpap)
       {
         sim_warn ("failing to implement sdpap\n");
@@ -2005,6 +2082,7 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
         sim_warn ("failing to implement separ\n");
         cpu.MR.separ = 0;
       }
+#endif
 #endif
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     cpu.useZone = false; // Safety
@@ -2021,6 +2099,7 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
+#if 0
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -2041,6 +2120,19 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
         word24 offset = addr % (4u * 1024u * 1024u);
         addr = base + offset;
       }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
+#endif
 #endif
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
@@ -2070,6 +2162,7 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
+#if 0
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -2090,6 +2183,19 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
         word24 offset = addr % (4u * 1024u * 1024u);
         addr = base + offset;
       }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
+#endif
 #endif
 #ifdef ISOLTS
     if (cpu.MR.sdpap)

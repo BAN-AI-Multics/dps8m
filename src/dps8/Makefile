@@ -55,10 +55,17 @@ endif
 
 ifeq ($(ISOLTS),1)
 $(warning #### ISOLTS mode)
+LOCKLESS=1
 CFLAGS += -DISOLTS
-CFLAGS += -DL68 -DWAM
 CFLAGS += -DWAM
-#CFLAGS += -DISOLTS -DWAM -DLOCKLESS_SCU
+endif
+
+ifeq ($(ISOLTS_L68),1)
+$(warning #### ISOLTS_L68 mode)
+LOCKLESS=1
+CFLAGS += -DISOLTS
+CFLAGS += -DWAM
+CFLAGS += -DL68 
 endif
 
 #ifeq ($(LOADER),1)

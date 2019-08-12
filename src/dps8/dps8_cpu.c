@@ -143,6 +143,10 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.drl_fatal);
     sim_msg ("useMap:                   %d\n",
                 cpus[cpu_unit_idx].switches.useMap);
+#ifdef ISOLTS
+    sim_msg ("isolts_mode:              %d\n",
+                cpus[cpu_unit_idx].switches.isolts_mode);
+#endif
     sim_msg ("Enable cache:            %01o(8)\n",
                 cpus[cpu_unit_idx].switches.enable_cache);
 
@@ -332,6 +336,9 @@ static config_list_t cpu_config_list [] =
     { "y2k", 0, 1, cfg_on_off },
     { "drl_fatal", 0, 1, cfg_on_off },
     { "useMap", 0, 1, cfg_on_off },
+#ifdef ISOLTS
+    { "isolts_mode", 0, 1, cfg_on_off },
+#endif
     { "address", 0, 0777777, NULL },
 
     // Tuning
@@ -431,6 +438,10 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.drl_fatal = (uint) v;
         else if (strcmp (p, "useMap") == 0)
           cpus[cpu_unit_idx].switches.useMap = v;
+#ifdef ISOLTS
+        else if (strcmp (p, "isolts_mode") == 0)
+          cpus[cpu_unit_idx].switches.isolts_mode = v;
+#endif
         else if (strcmp (p, "enable_cache") == 0)
           cpus[cpu_unit_idx].switches.enable_cache = !! v;
         else if (strcmp (p, "enable_pt_wam") == 0)
@@ -637,7 +648,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
 //#if defined(LOCKLESS)
 //    clock_gettime (CLOCK_BOOTTIME, & cpu.rTRTime);
 //#endif
-#if ISOLTS
+#ifdef ISOLTS
     cpu.shadowTR = 0;
     cpu.rTRlsb = 0;
 #endif
@@ -681,6 +692,7 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
   {
     long cpu_unit_idx = UNIT_IDX (uptr);
 #ifdef ISOLTS
+#if 0
     cpu_state_t * cpun = cpus + cpu_unit_idx;
     if (cpun->switches.useMap)
       {
@@ -693,6 +705,14 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
               M [addr + (uint) os] &= (MASK36 | MEM_UNINITIALIZED);
           }
       }
+#else
+    cpu_state_t * cpun = cpus + cpu_unit_idx;
+    if (cpun->switches.isolts_mode)
+      {
+        for (uint addr = 0; addr < ISOLTS_LEN; addr ++)
+          M [ISOLTS_BASE + addr] &= (MEM_UNINITIALIZED);
+      }
+#endif
 #else
     // Crashes console?
     cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
@@ -937,7 +957,8 @@ void setup_scbank_map (void)
           { 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304 };
 #endif
 #ifdef L68
-#ifdef ISOLTS
+// This is done with isolts_mode now.
+#ifdef old_ISOLTS
 // ISOLTS sez:
 // for DPS88:
 //   3. set store size switches to 2222.
@@ -3016,6 +3037,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
+#if 0
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3036,6 +3058,19 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
         word24 offset = addr % (4u * 1024u * 1024u);
         addr = base + offset;
       }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
+#endif
 #ifndef SPEED
     else
       nem_check (addr,  "core_read nem");
@@ -3103,6 +3138,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
+#if 0
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3123,6 +3159,19 @@ int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
         word24 offset = addr % (4u * 1024u * 1024u);
         addr = base + offset;
       }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
+#endif
 #ifndef SPEED
     else
       nem_check (addr,  "core_lock_read nem");
@@ -3152,6 +3201,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
+#if 0
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3172,6 +3222,19 @@ int core_write (word24 addr, word36 data, const char * ctx)
         word24 offset = addr % (4u * 1024u * 1024u);
         addr = base + offset;
       }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
+#endif
 #ifndef SPEED
     else
       nem_check (addr,  "core_read nem");
@@ -3181,6 +3244,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
     nem_check (addr,  "core_read nem");
 #endif
 #endif // ! ISOLTS
+#if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
       {
@@ -3192,6 +3256,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
         sim_warn ("failing to implement separ\n");
         cpu.MR.separ = 0;
       }
+#endif
 #endif
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
@@ -3223,6 +3288,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
 int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
+#if 0
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3243,6 +3309,19 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
         word24 offset = addr % (4u * 1024u * 1024u);
         addr = base + offset;
       }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
+#endif
 #ifndef SPEED
     else
       nem_check (addr,  "core_read nem");
@@ -3365,6 +3444,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
 #endif
 #endif
 #ifdef ISOLTS
+#if 0
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3385,6 +3465,19 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         word24 offset = addr % (4u * 1024u * 1024u);
         addr = base + offset;
       }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
+#endif
 #ifndef SPEED
     else
       nem_check (addr,  "core_read nem");
@@ -3483,6 +3576,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
 #ifndef SPEED
       nem_check (addr,  "core_write2 nem");
 #endif
+#if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
       {
@@ -3495,8 +3589,10 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
         cpu.MR.separ = 0;
       }
 #endif
+#endif
 
 #ifdef ISOLTS
+#if 0
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3517,6 +3613,19 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
         word24 offset = addr % (4u * 1024u * 1024u);
         addr = base + offset;
       }
+#else
+    if (cpu.switches.isolts_mode)
+      {
+        if (addr >= 0200000)
+          {
+            doFault (FAULT_STR, fst_str_nea,  __func__);
+          }
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+        addr = addr + ISOLTS_BASE;
+      }
+#endif
 #ifndef SPEED
     else
       nem_check (addr,  "core_read nem");
