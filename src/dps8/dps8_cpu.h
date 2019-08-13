@@ -14,6 +14,41 @@
 
 #include "hdbg.h"
 
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+//
+// Memory access architecture
+//
+
+// Atomics
+
+//  LOCK_CORE_WORD(addr)
+//  LOAD_ACQ_CORE_WORD(addr)
+//  STORE_REL_CORE_WORD(addr)
+
+// core access
+
+// core_read              // calls LOAD_ACQ_CORE_WORD
+// core_read2             // calls LOAD_ACQ_CORE_WORD
+// core_read_lock         // calls LOCK_CORE_WORD, LOAD_ACQ_CORE_WORD
+// core_write             // calls LOCK_CORE_WORD, STORE_REL_CORE_WORD
+// core_write2            // calls LOCK_CORE_WORD, STORE_REL_CORE_WORD
+// core_write_unlock      // calls STORE_REL_CORE_WORD
+// core_unlock_all        // calls STORE_REL_CORE_WORD
+// core_unlock_fault      // STORE_REL_CORE_WORD
+
+// core_write_zone        // calls core_read_lock, core_write_unlock
+
+// iom_core_read          // calls LOAD_ACQ_CORE_WORD
+// iom_core_read2         // calls LOAD_ACQ_CORE_WORD
+// iom_core_read_lock     // calls LOCK_CORE_WORD, LOAD_ACQ_CORE_WORD
+// iom_core_write         // calls LOCK_CORE_WORD, STORE_REL_CORE_WORD
+// iom_core_write2        // calls LOCK_CORE_WORD, STORE_REL_CORE_WORD
+// iom_core_write_unlock  // calls STORE_REL_CORE_WORD
+//
+//
 // simh only explicitly supports a single cpu; so we move away from simh...
 
 #define N_CPU_UNITS N_CPU_UNITS_MAX 
@@ -2117,7 +2152,7 @@ int core_unlock_fault (void);
 #define STORE_REL_CORE_WORD(addr, data)					\
   do									\
     {									\
-      atomic_store_rel_64((volatile u_long *)&M[addr], data & DMASK);	\
+      atomic_store_rel_64((volatile u_long *)&M[addr], (data) & DMASK);	\
     }									\
   while (0)
 
@@ -2161,7 +2196,7 @@ int core_unlock_fault (void);
 #define STORE_REL_CORE_WORD(addr, data)					\
   do									\
     {									\
-      __atomic_store_n((volatile u_long *)&M[addr], data & DMASK, __ATOMIC_RELEASE);	\
+      __atomic_store_n((volatile u_long *)&M[addr], (data) & DMASK, __ATOMIC_RELEASE);	\
     }									\
   while (0)
 
@@ -2210,12 +2245,18 @@ int core_unlock_fault (void);
   do									\
     {									\
       MEM_BARRIER();							\
-      M[addr] = data & DMASK;						\
+      M[addr] = (data) & DMASK;						\
     }									\
   while (0)
 
 #endif  // if !CPP11_ATOMICS
 #endif  // defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
+#else   // ! LOCKLESS
+#define LOCK_CORE_WORD(addr)
+#define LOAD_ACQ_CORE_WORD(res, addr) res = M[addr]
+#define STORE_REL_CORE_WORD(addr, data) M[addr] = (data) & DMASK
+#define core_read_lock core_read
+#define core_write_unlock core_write
 #endif  // LOCKLESS
 
 static inline void core_readN (word24 addr, word36 * data, uint n,

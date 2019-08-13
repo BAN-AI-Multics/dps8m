@@ -295,15 +295,9 @@ static void modify_dsptw (word15 segno)
     word24 x1 = (2u * segno) / 1024u; // floor
     
     word36 PTWx1;
-#ifdef LOCKLESS
     core_read_lock ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
     PTWx1 = SETBIT (PTWx1, 9);
     core_write_unlock ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
-#else
-    core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
-    PTWx1 = SETBIT (PTWx1, 9);
-    core_write ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
-#endif
     
     cpu.PTW0.U = 1;
 #ifdef L68
@@ -827,11 +821,7 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
     PNL (cpu.lastPTWOffset = offset;)
     PNL (cpu.lastPTWIsDS = false;)
 
-#ifdef LOCKLESS
     core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
-#else
-    core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
-#endif
     
     cpu.PTW0.ADDR = GETHI (PTWx2);
     cpu.PTW0.U = TSTBIT (PTWx2, 9);
@@ -840,16 +830,13 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
     cpu.PTW0.FC = PTWx2 & 3;
 
     // ISOLTS-861 02
+// For the case of LOCKLESS, always write the PTW to as to relase the lock
 #ifndef LOCKLESS
     if (! cpu.PTW0.U)
 #endif
       {
         PTWx2 = SETBIT (PTWx2, 9);
-#ifdef LOCKLESS
-	core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#else
-        core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#endif
+        core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
         cpu.PTW0.U = 1;
       }
     
@@ -985,15 +972,9 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
     
     set_apu_status (apuStatus_MPTW);
 
-#ifdef LOCKLESS
     core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
     core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#else    
-    core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
-    PTWx2 = SETBIT (PTWx2, 6);
-    core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#endif
     cpu.PTW->M = 1;
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
