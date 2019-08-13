@@ -7993,6 +7993,17 @@ elapsedtime ();
                                  [cpu.history_cyclic[CU_HIST_REG]][1];
                     cpu.history_cyclic[CU_HIST_REG] =
                       (cpu.history_cyclic[CU_HIST_REG] + 1) % N_HIST_SIZE;
+#if L68
+                    if (cpu.MR.hrhlt && cpu.history_cyclic[CU_HIST_REG] == 0)
+                      {
+                        //cpu.history_cyclic[CU_HIST_REG] = 15;
+                        if (cpu.MR.ihrrs)
+                          {
+                            cpu.MR.ihr = 0;
+                          }
+                        set_FFV_fault (4);
+                      }
+#endif
                   }
                   break;
 

@@ -712,6 +712,7 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
         for (uint addr = 0; addr < ISOLTS_LEN; addr ++)
           M [ISOLTS_BASE + addr] = MEM_UNINITIALIZED;
       }
+    cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
 #endif
 #else
     // Crashes console?
