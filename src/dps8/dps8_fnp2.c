@@ -2319,7 +2319,9 @@ void fnpConnectPrompt (uv_tcp_t * client)
                   fnpuv_start_writestr (client, (unsigned char *) ",");
                 char name [16];
                 first = false;
-                sprintf (name, "%c.h%03d", 'a' + fnp_unit_idx, lineno);
+                char prefix = (char) ((fnpData.fnpUnitData[fnp_unit_idx].mailboxAddress - 03400) / 0300) + 'a';
+                
+                sprintf (name, "%c.h%03d", prefix, lineno);
                 fnpuv_start_writestr (client, (unsigned char *) name);
               }
           }
