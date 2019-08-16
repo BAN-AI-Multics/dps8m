@@ -138,8 +138,6 @@ t_stat sim_load (FILE *fileref, const char *cptr, const char *fnam, int flag)
 
 // Script to string cables and set switches
 
-#define NEW
-#ifdef NEW
 static char * default_base_system_script [] =
   {
     //
@@ -1265,9 +1263,11 @@ parm dirw loud ttyb 64000
     "set sys config=connect_time=-1",
 #endif
 
-    "fnpserverport 6180"
+    "fnpserverport 6180",
+    NULL
   }; // default_base_system_script
-#else // ! NEW
+
+#if 0
 static char * default_base_system_script [] =
   {
     //
@@ -2802,10 +2802,1277 @@ parm  dirw  loud  ttyb  64000
     "set sys config=connect_time=-1",
 #endif
 
-    "fnpserverport 6180"
+    "fnpserverport 6180",
+    NULL
   }; // default_base_system_script
+#endif
 
-#endif // ! NEW
+static char * r2_0_base_system_script [] =
+  {
+    // ;
+    // ; Configure test system
+    // ;
+    // ; CPU, IOM * 2, MPC, TAPE * 16, DISK * 16, SCU * 4, OPC, FNP, URP * 3,
+    // ; PRT, RDR, PUN
+    // ;
+    // ;
+    // ; From AN70-1 System Initialization PLM May 84, pg 8-4:
+    // ;
+    // ; All CPUs and IOMs must share the same layout of port assignments to
+    // ; SCUs. Thus, if memory port B of CPU C goes to SCU D, the memory port
+    // ; B of all other CPUs and IOMs must go to SCU D. All CPUs and IOMs must
+    // ; describe this SCU the same; all must agree in memory sizes. Also, all
+    // ; SCUs must agree on port assignments of CPUs and IOMs. This, if port 3 
+    // ; of SCU C goes to CPU A, the port 3 of all other SCUs must also go to
+    // ; CPU A.
+    // ;
+    // ; Pg. 8-6:
+    // ;
+    // ; The actual memory size of the memory attached to the SCU attached to
+    // ; the processor port in questions is 32K * 2 ** (encoded memory size).
+    // ; The port assignment couples with the memory size to determine the base 
+    // ; address of the SCU connected to the specified CPU port (absoulte
+    // ; address of the first location in the memory attached to that SCU). The 
+    // ; base address of the SCU is the (actual memory size) * (port assignment).
+    // ;
+    // ; Pg. 8-6
+    // ;
+    // ; [bits 09-11 lower store size]
+    // ;
+    // ; A DPS-8 SCU may have up to four store units attached to it. If this is
+    // ; the case, two stores units form a pair of units. The size of a pair of
+    // ; units (or a single unit) is 32K * 2 ** (lower store size) above.
+    // ;
+    // ;
+    // ;
+    // ; Looking at bootload_io, it would appear that Multics is happier with
+    // ; IOM0 being the bootload IOM, despite suggestions elsewhere that was
+    // ; not a requirement.
+
+//
+// IOM channel assignments
+//
+// IOM A
+//  
+//  012 MTP0           tape drives
+//  013 IPC0 port 0    FIPS disk controller
+//  014 MSP0 port 0    disk controller
+//  015 URP0           card reader controller
+//  016 URP1           card punch controller
+//  017 URP2           printer controller
+//  020 FNPD           comm line controller
+//  021 FNPA           comm line controller
+//  022 FNPB           comm line controller
+//  023 FNPC           comm line controller
+//  024 FNPE           comm line controller
+//  025 FNPF           comm line controller
+//  026 FNPG           comm line controller
+//  027 FNPH           comm line controller
+//  032 ABSI0          IMP controller
+//  036 OPC0           operator console
+//  040 SKCA
+//  041 SKCB
+//  042 SKCC
+//  043 SKCD
+//  044 SKCE
+//  045 SKCF
+//  046 SKCG
+//  047 SKCH
+//
+// IOM B
+//
+//  013 IPC0 port 1    FIPS disk controller
+//  014 MSP0 port 1    disk controller
+
+    // ; Disconnect everything...
+    "cable ripout",
+
+    "set iom nunits=2",
+    // ; 16 drives plus a placeholder for the controller
+    "set tape nunits=17",
+    "set mtp nunits=1",
+    // ; 4 3381 drives; 2 controllers
+    // ; 4 d501 drives; 2 controller
+    // ; 4 d451 drives; same controller has d501s
+    "set ipcd nunits=2",
+    "set msp nunits=2",
+    "set disk nunits=12",
+    "set scu nunits=4",
+    "set opc nunits=1",
+    "set fnp nunits=8",
+    "set urp nunits=3",
+    "set rdr nunits=1",
+    "set pun nunits=1",
+    "set prt nunits=1",
+#ifndef __MINGW64__
+    "set skc nunits=64",
+    "set absi nunits=1",
+#endif
+
+#if 0
+#ifndef __MINGW64__
+
+    // ;Create card reader queue directory
+    "! if [ ! -e /tmp/rdra ]; then mkdir /tmp/rdra; fi",
+#else
+    "! mkdir %TEMP%\\rdra",
+#endif
+#endif
+
+// CPU0
+
+    "set cpu0 config=faultbase=Multics",
+
+    "set cpu0 config=num=0",
+    // ; As per GB61-01 Operators Guide, App. A
+    // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
+    "set cpu0 config=data=024000717200",
+
+    // ; enable ports 0 and 1 (scu connections)
+    // ; portconfig: ABCD
+    // ;   each is 3 bits addr assignment
+    // ;           1 bit enabled 
+    // ;           1 bit sysinit enabled
+    // ;           1 bit interlace enabled (interlace?)
+    // ;           3 bit memory size
+    // ;              0 - 32K
+    // ;              1 - 64K
+    // ;              2 - 128K
+    // ;              3 - 256K
+    // ;              4 - 512K
+    // ;              5 - 1M
+    // ;              6 - 2M
+    // ;              7 - 4M  
+
+    "set cpu0 config=port=A",
+    "set cpu0   config=assignment=0",
+    "set cpu0   config=interlace=0",
+    "set cpu0   config=enable=1",
+    "set cpu0   config=init_enable=1",
+    "set cpu0   config=store_size=4M",
+ 
+    "set cpu0 config=port=B",
+    "set cpu0   config=assignment=1",
+    "set cpu0   config=interlace=0",
+    "set cpu0   config=enable=1",
+    "set cpu0   config=init_enable=1",
+    "set cpu0   config=store_size=4M",
+
+    "set cpu0 config=port=C",
+    "set cpu0   config=assignment=2",
+    "set cpu0   config=interlace=0",
+    "set cpu0   config=enable=1",
+    "set cpu0   config=init_enable=1",
+    "set cpu0   config=store_size=4M",
+
+    "set cpu0 config=port=D",
+    "set cpu0   config=assignment=3",
+    "set cpu0   config=interlace=0",
+    "set cpu0   config=enable=1",
+    "set cpu0   config=init_enable=1",
+    "set cpu0   config=store_size=4M",
+
+    // ; 0 = GCOS 1 = VMS
+    "set cpu0 config=mode=Multics",
+    // ; 0 = 8/70
+    "set cpu0 config=speed=0",
+
+    "set cpu0 config=dis_enable=enable",
+    "set cpu0 config=steady_clock=disable",
+    "set cpu0 config=halt_on_unimplemented=disable",
+    "set cpu0 config=enable_wam=disable",
+    "set cpu0 config=tro_enable=enable",
+    "set cpu0 config=y2k=disable",
+
+#if N_CPU_UNITS_MAX > 1
+
+// CPU1
+
+    "set cpu1 config=faultbase=Multics",
+
+    "set cpu1 config=num=1",
+    // ; As per GB61-01 Operators Guide, App. A
+    // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
+    "set cpu1 config=data=024000717200",
+
+    // ; enable ports 0 and 1 (scu connections)
+    // ; portconfig: ABCD
+    // ;   each is 3 bits addr assignment
+    // ;           1 bit enabled 
+    // ;           1 bit sysinit enabled
+    // ;           1 bit interlace enabled (interlace?)
+    // ;           3 bit memory size
+    // ;              0 - 32K
+    // ;              1 - 64K
+    // ;              2 - 128K
+    // ;              3 - 256K
+    // ;              4 - 512K
+    // ;              5 - 1M
+    // ;              6 - 2M
+    // ;              7 - 4M  
+
+    "set cpu1 config=port=A",
+    "set cpu1   config=assignment=0",
+    "set cpu1   config=interlace=0",
+    "set cpu1   config=enable=1",
+    "set cpu1   config=init_enable=1",
+    "set cpu1   config=store_size=4M",
+ 
+    "set cpu1 config=port=B",
+    "set cpu1   config=assignment=1",
+    "set cpu1   config=interlace=0",
+    "set cpu1   config=enable=1",
+    "set cpu1   config=init_enable=1",
+    "set cpu1   config=store_size=4M",
+
+    "set cpu1 config=port=C",
+    "set cpu1   config=assignment=2",
+    "set cpu1   config=interlace=0",
+    "set cpu1   config=enable=1",
+    "set cpu1   config=init_enable=1",
+    "set cpu1   config=store_size=4M",
+
+    "set cpu1 config=port=D",
+    "set cpu1   config=assignment=3",
+    "set cpu1   config=interlace=0",
+    "set cpu1   config=enable=1",
+    "set cpu1   config=init_enable=1",
+    "set cpu1   config=store_size=4M",
+
+    // ; 0 = GCOS 1 = VMS
+    "set cpu1 config=mode=Multics",
+    // ; 0 = 8/70
+    "set cpu1 config=speed=0",
+
+    "set cpu1 config=dis_enable=enable",
+    "set cpu1 config=steady_clock=disable",
+    "set cpu1 config=halt_on_unimplemented=disable",
+    "set cpu1 config=disable_wam=disable",
+    "set cpu1 config=tro_enable=enable",
+    "set cpu1 config=y2k=disable",
+
+#if N_CPU_UNITS_MAX > 2
+
+// CPU2
+
+    "set cpu2 config=faultbase=Multics",
+
+    "set cpu2 config=num=2",
+    // ; As per GB61-01 Operators Guide, App. A
+    // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
+    "set cpu2 config=data=024000717200",
+
+    // ; enable ports 0 and 1 (scu connections)
+    // ; portconfig: ABCD
+    // ;   each is 3 bits addr assignment
+    // ;           1 bit enabled 
+    // ;           1 bit sysinit enabled
+    // ;           1 bit interlace enabled (interlace?)
+    // ;           3 bit memory size
+    // ;              0 - 32K
+    // ;              1 - 64K
+    // ;              2 - 128K
+    // ;              3 - 256K
+    // ;              4 - 512K
+    // ;              5 - 1M
+    // ;              6 - 2M
+    // ;              7 - 4M  
+
+    "set cpu2 config=port=A",
+    "set cpu2   config=assignment=0",
+    "set cpu2   config=interlace=0",
+    "set cpu2   config=enable=1",
+    "set cpu2   config=init_enable=1",
+    "set cpu2   config=store_size=4M",
+ 
+    "set cpu2 config=port=B",
+    "set cpu2   config=assignment=1",
+    "set cpu2   config=interlace=0",
+    "set cpu2   config=enable=1",
+    "set cpu2   config=init_enable=1",
+    "set cpu2   config=store_size=4M",
+
+    "set cpu2 config=port=C",
+    "set cpu2   config=assignment=2",
+    "set cpu2   config=interlace=0",
+    "set cpu2   config=enable=1",
+    "set cpu2   config=init_enable=1",
+    "set cpu2   config=store_size=4M",
+
+    "set cpu2 config=port=D",
+    "set cpu2   config=assignment=3",
+    "set cpu2   config=interlace=0",
+    "set cpu2   config=enable=1",
+    "set cpu2   config=init_enable=1",
+    "set cpu2   config=store_size=4M",
+
+    // ; 0 = GCOS 1 = VMS
+    "set cpu2 config=mode=Multics",
+    // ; 0 = 8/70
+    "set cpu2 config=speed=0",
+
+    "set cpu2 config=dis_enable=enable",
+    "set cpu2 config=steady_clock=disable",
+    "set cpu2 config=halt_on_unimplemented=disable",
+    "set cpu2 config=disable_wam=disable",
+    "set cpu2 config=tro_enable=enable",
+    "set cpu2 config=y2k=disable",
+
+
+// CPU3
+
+    "set cpu3 config=faultbase=Multics",
+
+    "set cpu3 config=num=3",
+    // ; As per GB61-01 Operators Guide, App. A
+    // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
+    "set cpu3 config=data=024000717200",
+
+    // ; enable ports 0 and 1 (scu connections)
+    // ; portconfig: ABCD
+    // ;   each is 3 bits addr assignment
+    // ;           1 bit enabled 
+    // ;           1 bit sysinit enabled
+    // ;           1 bit interlace enabled (interlace?)
+    // ;           3 bit memory size
+    // ;              0 - 32K
+    // ;              1 - 64K
+    // ;              2 - 128K
+    // ;              3 - 256K
+    // ;              4 - 512K
+    // ;              5 - 1M
+    // ;              6 - 2M
+    // ;              7 - 4M  
+
+    "set cpu3 config=port=A",
+    "set cpu3   config=assignment=0",
+    "set cpu3   config=interlace=0",
+    "set cpu3   config=enable=1",
+    "set cpu3   config=init_enable=1",
+    "set cpu3   config=store_size=4M",
+ 
+    "set cpu3 config=port=B",
+    "set cpu3   config=assignment=1",
+    "set cpu3   config=interlace=0",
+    "set cpu3   config=enable=1",
+    "set cpu3   config=init_enable=1",
+    "set cpu3   config=store_size=4M",
+
+    "set cpu3 config=port=C",
+    "set cpu3   config=assignment=2",
+    "set cpu3   config=interlace=0",
+    "set cpu3   config=enable=1",
+    "set cpu3   config=init_enable=1",
+    "set cpu3   config=store_size=4M",
+
+    "set cpu3 config=port=D",
+    "set cpu3   config=assignment=3",
+    "set cpu3   config=interlace=0",
+    "set cpu3   config=enable=1",
+    "set cpu3   config=init_enable=1",
+    "set cpu3   config=store_size=4M",
+
+    // ; 0 = GCOS 1 = VMS
+    "set cpu3 config=mode=Multics",
+    // ; 0 = 8/70
+    "set cpu3 config=speed=0",
+
+    "set cpu3 config=dis_enable=enable",
+    "set cpu3 config=steady_clock=disable",
+    "set cpu3 config=halt_on_unimplemented=disable",
+    "set cpu3 config=disable_wam=disable",
+    "set cpu3 config=tro_enable=enable",
+    "set cpu3 config=y2k=disable",
+
+
+// CPU4
+
+    "set cpu4 config=faultbase=Multics",
+
+    "set cpu4 config=num=4",
+    // ; As per GB61-01 Operators Guide, App. A
+    // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
+    "set cpu4 config=data=024000717200",
+
+    // ; enable ports 0 and 1 (scu connections)
+    // ; portconfig: ABCD
+    // ;   each is 3 bits addr assignment
+    // ;           1 bit enabled 
+    // ;           1 bit sysinit enabled
+    // ;           1 bit interlace enabled (interlace?)
+    // ;           3 bit memory size
+    // ;              0 - 32K
+    // ;              1 - 64K
+    // ;              2 - 128K
+    // ;              3 - 256K
+    // ;              4 - 512K
+    // ;              5 - 1M
+    // ;              6 - 2M
+    // ;              7 - 4M  
+
+    "set cpu4 config=port=A",
+    "set cpu4   config=assignment=0",
+    "set cpu4   config=interlace=0",
+    "set cpu4   config=enable=1",
+    "set cpu4   config=init_enable=1",
+    "set cpu4   config=store_size=4M",
+ 
+    "set cpu4 config=port=B",
+    "set cpu4   config=assignment=1",
+    "set cpu4   config=interlace=0",
+    "set cpu4   config=enable=1",
+    "set cpu4   config=init_enable=1",
+    "set cpu4   config=store_size=4M",
+
+    "set cpu4 config=port=C",
+    "set cpu4   config=assignment=2",
+    "set cpu4   config=interlace=0",
+    "set cpu4   config=enable=1",
+    "set cpu4   config=init_enable=1",
+    "set cpu4   config=store_size=4M",
+
+    "set cpu4 config=port=D",
+    "set cpu4   config=assignment=3",
+    "set cpu4   config=interlace=0",
+    "set cpu4   config=enable=1",
+    "set cpu4   config=init_enable=1",
+    "set cpu4   config=store_size=4M",
+
+    // ; 0 = GCOS 1 = VMS
+    "set cpu4 config=mode=Multics",
+    // ; 0 = 8/70
+    "set cpu4 config=speed=0",
+
+    "set cpu4 config=dis_enable=enable",
+    "set cpu4 config=steady_clock=disable",
+    "set cpu4 config=halt_on_unimplemented=disable",
+    "set cpu4 config=disable_wam=disable",
+    "set cpu4 config=tro_enable=enable",
+    "set cpu4 config=y2k=disable",
+
+
+// CPU5
+
+    "set cpu5 config=faultbase=Multics",
+
+    "set cpu5 config=num=5",
+    // ; As per GB61-01 Operators Guide, App. A
+    // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
+    "set cpu5 config=data=024000717200",
+
+    // ; enable ports 0 and 1 (scu connections)
+    // ; portconfig: ABCD
+    // ;   each is 3 bits addr assignment
+    // ;           1 bit enabled 
+    // ;           1 bit sysinit enabled
+    // ;           1 bit interlace enabled (interlace?)
+    // ;           3 bit memory size
+    // ;              0 - 32K
+    // ;              1 - 64K
+    // ;              2 - 128K
+    // ;              3 - 256K
+    // ;              4 - 512K
+    // ;              5 - 1M
+    // ;              6 - 2M
+    // ;              7 - 4M  
+
+    "set cpu5 config=port=A",
+    "set cpu5   config=assignment=0",
+    "set cpu5   config=interlace=0",
+    "set cpu5   config=enable=1",
+    "set cpu5   config=init_enable=1",
+    "set cpu5   config=store_size=4M",
+ 
+    "set cpu5 config=port=B",
+    "set cpu5   config=assignment=1",
+    "set cpu5   config=interlace=0",
+    "set cpu5   config=enable=1",
+    "set cpu5   config=init_enable=1",
+    "set cpu5   config=store_size=4M",
+
+    "set cpu5 config=port=C",
+    "set cpu5   config=assignment=2",
+    "set cpu5   config=interlace=0",
+    "set cpu5   config=enable=1",
+    "set cpu5   config=init_enable=1",
+    "set cpu5   config=store_size=4M",
+
+    "set cpu5 config=port=D",
+    "set cpu5   config=assignment=3",
+    "set cpu5   config=interlace=0",
+    "set cpu5   config=enable=1",
+    "set cpu5   config=init_enable=1",
+    "set cpu5   config=store_size=4M",
+
+    // ; 0 = GCOS 1 = VMS
+    "set cpu5 config=mode=Multics",
+    // ; 0 = 8/70
+    "set cpu5 config=speed=0",
+
+    "set cpu5 config=dis_enable=enable",
+    "set cpu5 config=steady_clock=disable",
+    "set cpu5 config=halt_on_unimplemented=disable",
+    "set cpu5 config=disable_wam=disable",
+    "set cpu5 config=tro_enable=enable",
+    "set cpu5 config=y2k=disable",
+
+#endif
+#endif
+
+
+// IOM0
+
+    "set iom0 config=iom_base=Multics",
+    "set iom0 config=multiplex_base=0120",
+    "set iom0 config=os=Multics",
+    "set iom0 config=boot=tape",
+    "set iom0 config=tapechan=012",
+    "set iom0 config=cardchan=011",
+    "set iom0 config=scuport=0",
+
+    "set iom0 config=port=0",
+    "set iom0   config=addr=0",
+    "set iom0   config=interlace=0",
+    "set iom0   config=enable=1",
+    "set iom0   config=initenable=0",
+    "set iom0   config=halfsize=0",
+    "set iom0   config=store_size=4M",
+
+    "set iom0 config=port=1",
+    "set iom0   config=addr=1",
+    "set iom0   config=interlace=0",
+    "set iom0   config=enable=1",
+    "set iom0   config=initenable=0",
+    "set iom0   config=halfsize=0",
+    "set iom0   config=store_size=4M",
+
+    "set iom0 config=port=2",
+    "set iom0   config=addr=2",
+    "set iom0   config=interlace=0",
+    "set iom0   config=enable=1",
+    "set iom0   config=initenable=0",
+    "set iom0   config=halfsize=0",
+    "set iom0   config=store_size=4M",
+
+    "set iom0 config=port=3",
+    "set iom0   config=addr=3",
+    "set iom0   config=interlace=0",
+    "set iom0   config=enable=1",
+    "set iom0   config=initenable=0",
+    "set iom0   config=halfsize=0",
+    "set iom0   config=store_size=4M",
+
+    "set iom0 config=port=4",
+    "set iom0   config=enable=0",
+
+    "set iom0 config=port=5",
+    "set iom0   config=enable=0",
+
+    "set iom0 config=port=6",
+    "set iom0   config=enable=0",
+
+    "set iom0 config=port=7",
+    "set iom0   config=enable=0",
+
+// IOM1
+
+    "set iom1 config=iom_base=Multics2",
+    "set iom1 config=multiplex_base=0121",
+    "set iom1 config=os=Multics",
+    "set iom1 config=boot=tape",
+    "set iom1 config=tapechan=012",
+    "set iom1 config=cardchan=011",
+    "set iom1 config=scuport=0",
+
+    "set iom1 config=port=0",
+    "set iom1   config=addr=0",
+    "set iom1   config=interlace=0",
+    "set iom1   config=enable=1",
+    "set iom1   config=initenable=0",
+    "set iom1   config=halfsize=0;",
+
+    "set iom1 config=port=1",
+    "set iom1   config=addr=1",
+    "set iom1   config=interlace=0",
+    "set iom1   config=enable=1",
+    "set iom1   config=initenable=0",
+    "set iom1   config=halfsize=0;",
+
+    "set iom1 config=port=2",
+    "set iom1   config=enable=0",
+    "set iom1 config=port=3",
+    "set iom1   config=enable=0",
+    "set iom1 config=port=4",
+    "set iom1   config=enable=0",
+    "set iom1 config=port=5",
+    "set iom1   config=enable=0",
+    "set iom1 config=port=6",
+    "set iom1   config=enable=0",
+    "set iom1 config=port=7",
+    "set iom1   config=enable=0",
+
+#if 0
+
+// IOM2
+
+    "set iom2 config=iom_base=Multics2",
+    "set iom2 config=multiplex_base=0121",
+    "set iom2 config=os=Multics",
+    "set iom2 config=boot=tape",
+    "set iom2 config=tapechan=012",
+    "set iom2 config=cardchan=011",
+    "set iom2 config=scuport=0",
+
+    "set iom2 config=port=0",
+    "set iom2   config=addr=0",
+    "set iom2   config=interlace=0",
+    "set iom2   config=enable=1",
+    "set iom2   config=initenable=0",
+    "set iom2   config=halfsize=0;",
+
+    "set iom2 config=port=1",
+    "set iom2   config=addr=1",
+    "set iom2   config=interlace=0",
+    "set iom2   config=enable=1",
+    "set iom2   config=initenable=0",
+    "set iom2   config=halfsize=0;",
+
+    "set iom2 config=port=2",
+    "set iom2   config=enable=0",
+    "set iom2 config=port=3",
+    "set iom2   config=enable=0",
+    "set iom2 config=port=4",
+    "set iom2   config=enable=0",
+    "set iom2 config=port=5",
+    "set iom2   config=enable=0",
+    "set iom2 config=port=6",
+    "set iom2   config=enable=0",
+    "set iom2 config=port=7",
+    "set iom2   config=enable=0",
+
+
+// IOM3
+
+    "set iom3 config=iom_base=Multics2",
+    "set iom3 config=multiplex_base=0121",
+    "set iom3 config=os=Multics",
+    "set iom3 config=boot=tape",
+    "set iom3 config=tapechan=012",
+    "set iom3 config=cardchan=011",
+    "set iom3 config=scuport=0",
+
+    "set iom3 config=port=0",
+    "set iom3   config=addr=0",
+    "set iom3   config=interlace=0",
+    "set iom3   config=enable=1",
+    "set iom3   config=initenable=0",
+    "set iom3   config=halfsize=0;",
+
+    "set iom3 config=port=1",
+    "set iom3   config=addr=1",
+    "set iom3   config=interlace=0",
+    "set iom3   config=enable=1",
+    "set iom3   config=initenable=0",
+    "set iom3   config=halfsize=0;",
+
+    "set iom3 config=port=2",
+    "set iom3   config=enable=0",
+    "set iom3 config=port=3",
+    "set iom3   config=enable=0",
+    "set iom3 config=port=4",
+    "set iom3   config=enable=0",
+    "set iom3 config=port=5",
+    "set iom3   config=enable=0",
+    "set iom3 config=port=6",
+    "set iom3   config=enable=0",
+    "set iom3 config=port=7",
+    "set iom3   config=enable=0",
+#endif
+
+// SCU0
+
+    "set scu0 config=mode=program",
+    "set scu0 config=port0=enable",
+    "set scu0 config=port1=enable",
+    "set scu0 config=port2=enable",
+    "set scu0 config=port3=enable",
+    "set scu0 config=port4=enable",
+    "set scu0 config=port5=enable",
+    "set scu0 config=port6=enable",
+    "set scu0 config=port7=enable",
+    "set scu0 config=maska=7",
+    "set scu0 config=maskb=off",
+    "set scu0 config=lwrstoresize=7",
+    "set scu0 config=cyclic=0040",
+    "set scu0 config=nea=0200",
+    "set scu0 config=onl=014",
+    "set scu0 config=int=0",
+    "set scu0 config=lwr=0",
+
+// SCU1
+
+    "set scu1 config=mode=program",
+    "set scu1 config=port0=enable",
+    "set scu1 config=port1=enable",
+    "set scu1 config=port2=enable",
+    "set scu1 config=port3=enable",
+    "set scu1 config=port4=enable",
+    "set scu1 config=port5=enable",
+    "set scu1 config=port6=enable",
+    "set scu1 config=port7=enable",
+    "set scu1 config=maska=off",
+    "set scu1 config=maskb=off",
+    "set scu1 config=lwrstoresize=7",
+    "set scu1 config=cyclic=0040",
+    "set scu1 config=nea=0200",
+    "set scu1 config=onl=014",
+    "set scu1 config=int=0",
+    "set scu1 config=lwr=0",
+
+// SCU2
+
+    "set scu2 config=mode=program",
+    "set scu2 config=port0=enable",
+    "set scu2 config=port1=enable",
+    "set scu2 config=port2=enable",
+    "set scu2 config=port3=enable",
+    "set scu2 config=port4=enable",
+    "set scu2 config=port5=enable",
+    "set scu2 config=port6=enable",
+    "set scu2 config=port7=enable",
+    "set scu2 config=maska=off",
+    "set scu2 config=maskb=off",
+    "set scu2 config=lwrstoresize=7",
+    "set scu2 config=cyclic=0040",
+    "set scu2 config=nea=0200",
+    "set scu2 config=onl=014",
+    "set scu2 config=int=0",
+    "set scu2 config=lwr=0",
+
+// SCU3
+
+    "set scu3 config=mode=program",
+    "set scu3 config=port0=enable",
+    "set scu3 config=port1=enable",
+    "set scu3 config=port2=enable",
+    "set scu3 config=port3=enable",
+    "set scu3 config=port4=enable",
+    "set scu3 config=port5=enable",
+    "set scu3 config=port6=enable",
+    "set scu3 config=port7=enable",
+    "set scu3 config=maska=off",
+    "set scu3 config=maskb=off",
+    "set scu3 config=lwrstoresize=7",
+    "set scu3 config=cyclic=0040",
+    "set scu3 config=nea=0200",
+    "set scu3 config=onl=014",
+    "set scu3 config=int=0",
+    "set scu3 config=lwr=0",
+
+#if 0
+// SCU4
+
+    "set scu4 config=mode=program",
+    "set scu4 config=port0=enable",
+    "set scu4 config=port1=enable",
+    "set scu4 config=port2=enable",
+    "set scu4 config=port3=enable",
+    "set scu4 config=port4=enable",
+    "set scu4 config=port5=enable",
+    "set scu4 config=port6=enable",
+    "set scu4 config=port7=enable",
+    "set scu4 config=maska=off",
+    "set scu4 config=maskb=off",
+    "set scu4 config=lwrstoresize=7",
+    "set scu4 config=cyclic=0040",
+    "set scu4 config=nea=0200",
+    "set scu4 config=onl=014",
+    "set scu4 config=int=0",
+    "set scu4 config=lwr=0",
+
+// SCU5
+
+    "set scu5 config=mode=program",
+    "set scu5 config=port0=enable",
+    "set scu5 config=port1=enable",
+    "set scu5 config=port2=enable",
+    "set scu5 config=port3=enable",
+    "set scu5 config=port4=enable",
+    "set scu5 config=port5=enable",
+    "set scu5 config=port6=enable",
+    "set scu5 config=port7=enable",
+    "set scu5 config=maska=off",
+    "set scu5 config=maskb=off",
+    "set scu5 config=lwrstoresize=7",
+    "set scu5 config=cyclic=0040",
+    "set scu5 config=nea=0200",
+    "set scu5 config=onl=014",
+    "set scu5 config=int=0",
+    "set scu5 config=lwr=0",
+
+// SCU6
+
+    "set scu6 config=mode=program",
+    "set scu6 config=port0=enable",
+    "set scu6 config=port1=enable",
+    "set scu6 config=port2=enable",
+    "set scu6 config=port3=enable",
+    "set scu6 config=port4=enable",
+    "set scu6 config=port5=enable",
+    "set scu6 config=port6=enable",
+    "set scu6 config=port7=enable",
+    "set scu6 config=maska=off",
+    "set scu6 config=maskb=off",
+    "set scu6 config=lwrstoresize=7",
+    "set scu6 config=cyclic=0040",
+    "set scu6 config=nea=0200",
+    "set scu6 config=onl=014",
+    "set scu6 config=int=0",
+    "set scu6 config=lwr=0",
+
+// SCU7
+
+    "set scu7 config=mode=program",
+    "set scu7 config=port0=enable",
+    "set scu7 config=port1=enable",
+    "set scu7 config=port2=enable",
+    "set scu7 config=port3=enable",
+    "set scu7 config=port4=enable",
+    "set scu7 config=port5=enable",
+    "set scu7 config=port6=enable",
+    "set scu7 config=port7=enable",
+    "set scu7 config=maska=off",
+    "set scu7 config=maskb=off",
+    "set scu7 config=lwrstoresize=7",
+    "set scu7 config=cyclic=0040",
+    "set scu7 config=nea=0200",
+    "set scu7 config=onl=014",
+    "set scu7 config=int=0",
+    "set scu7 config=lwr=0",
+#endif
+
+    // ; There are bugs in the FNP code that require sim unit number
+    // ; to be the same as the Multics unit number; ie fnp0 == fnpa, etc.
+    // ;
+    // ; fnp a 3400
+    // ; fnp b 3700
+    // ; fnp c 4200
+    // ; fnp d 4500
+    // ; fnp e 5000
+    // ; fnp f 5300
+    // ; fnp g 5600
+    // ; fnp h 6100
+
+    "set fnp0 config=mailbox=03400",
+    "set fnp0 ipc_name=fnp-a",
+    "set fnp1 config=mailbox=03700",
+    "set fnp1 ipc_name=fnp-b",
+    "set fnp2 config=mailbox=04200",
+    "set fnp2 ipc_name=fnp-c",
+    "set fnp3 config=mailbox=04500",
+    "set fnp3 ipc_name=fnp-d",
+    "set fnp4 config=mailbox=05000",
+    "set fnp4 ipc_name=fnp-e",
+    "set fnp5 config=mailbox=05300",
+    "set fnp5 ipc_name=fnp-f",
+    "set fnp6 config=mailbox=05600",
+    "set fnp6 ipc_name=fnp-g",
+    "set fnp7 config=mailbox=06100",
+    "set fnp7 ipc_name=fnp-h",
+
+
+    //XXX"set mtp0 boot_drive=1",
+    // ; Attach tape MPC to IOM 0, chan 012, dev_code 0
+    "set mtp0 boot_drive=0",
+    "set mtp0 name=MTP0",
+    // ; Attach TAPE unit 0 to IOM 0, chan 012, dev_code 1
+    "cable IOM0 012 MTP0",
+    "cable MTP0 1 TAPE1",
+    "set tape1 name=tapa_01",
+    "cable MTP0 2 TAPE2",
+    "set tape2 name=tapa_02",
+    "cable MTP0 3 TAPE3",
+    "set tape3 name=tapa_03",
+    "cable MTP0 4 TAPE4",
+    "set tape4 name=tapa_04",
+    "cable MTP0 5 TAPE5",
+    "set tape5 name=tapa_05",
+    "cable MTP0 6 TAPE6",
+    "set tape6 name=tapa_06",
+    "cable MTP0 7 TAPE7",
+    "set tape7 name=tapa_07",
+    "cable MTP0 8 TAPE8",
+    "set tape8 name=tapa_08",
+    "cable MTP0 9 TAPE9",
+    "set tape9 name=tapa_09",
+    "cable MTP0 10 TAPE10",
+    "set tape10 name=tapa_10",
+    "cable MTP0 11 TAPE11",
+    "set tape11 name=tapa_11",
+    "cable MTP0 12 TAPE12",
+    "set tape12 name=tapa_12",
+    "cable MTP0 13 TAPE13",
+    "set tape13 name=tapa_13",
+    "cable MTP0 14 TAPE14",
+    "set tape14 name=tapa_14",
+    "cable MTP0 15 TAPE15",
+    "set tape15 name=tapa_15",
+    "cable MTP0 16 TAPE16",
+    "set tape16 name=tapa_16",
+
+// 4 3381 disks
+
+    "set ipcd0 name=IPCD0",
+    "cable IOM0 013 IPCD0",
+    "cable IOM1 013 IPCD0 1",
+    // ; Attach DISK unit 0 to IPCD0 dev_code 0",
+    "cable IPCD0 0 DISK0",
+    "set disk0 type=3381",
+    "set disk0 name=dska_00",
+    // ; Attach DISK unit 1 to IPCD0 dev_code 1",
+    "cable IPCD0 1 DISK1",
+    "set disk1 type=3381",
+    "set disk1 name=dska_01",
+    // ; Attach DISK unit 2 to IPCD0 dev_code 2",
+    "cable IPCD0 2 DISK2",
+    "set disk2 type=3381",
+    "set disk2 name=dska_02",
+    // ; Attach DISK unit 3 to IPCD0 dev_code 3",
+    "cable IPCD0 3 DISK3",
+    "set disk3 type=3381",
+    "set disk3 name=dska_03",
+
+// 4 d501 disks + 4 d451 disks
+
+    "set msp0 name=MSP0",
+    "cable IOM0 014 MSP0 0",
+    "cable IOM1 014 MSP0 1",
+
+    // ; Attach DISK unit 4 to MSP0 dev_code 1",
+    "cable MSP0 1 DISK4",
+    "set disk4 type=d501",
+    "set disk4 name=dskb_01",
+    // ; Attach DISK unit 5 to MSP0 dev_code 2",
+    "cable MSP0 2 DISK5",
+    "set disk5 type=d501",
+    "set disk5 name=dskb_02",
+    // ; Attach DISK unit 6 to MSP0 dev_code 3",
+    "cable MSP0 3 DISK6",
+    "set disk6 type=d501",
+    "set disk6 name=dskb_03",
+    // ; Attach DISK unit 7 to MSP0 dev_code 4",
+    "cable MSP0 4 DISK7",
+    "set disk7 type=d501",
+    "set disk7 name=dskb_04",
+
+    // ; Attach DISK unit 8 to MSP0 dev_code 5",
+    "cable MSP0 5 DISK8",
+    "set disk8 type=d451",
+    "set disk8 name=dskb_05",
+    // ; Attach DISK unit 9 to MSP0 dev_code 6",
+    "cable MSP0 6 DISK9",
+    "set disk9 type=d451",
+    "set disk9 name=dskb_06",
+    // ; Attach DISK unit 10 to MSP0 dev_code 7",
+    "cable MSP0 7 DISK10",
+    "set disk10 type=d451",
+    "set disk10 name=dskb_07",
+    // ; Attach DISK unit 11 to MSP0 dev_code 8",
+    "cable MSP0 8 DISK11",
+    "set disk11 type=d451",
+    "set disk11 name=dskb_08",
+
+    // ; Attach OPC unit 0 to IOM A, chan 036, dev_code 0
+    "cable IOMA 036 opc0",
+    // No devices for console, so no 'cable OPC0 # CONx'
+
+    // ;;;
+    // ;;; FNP
+    // ;;;
+
+    // ; Attach FNP unit 3 (d) to IOM A, chan 020, dev_code 0
+    "cable IOMA 020 FNPD",
+    // ; Attach FNP unit 0 (a) to IOM A, chan 021, dev_code 0
+    "cable IOMA 021 FNPA",
+    // ; Attach FNP unit 1 (b) to IOM A, chan 022, dev_code 0
+    "cable IOMA 022 FNPB",
+    // ; Attach FNP unit 2 (c) to IOM A, chan 023, dev_code 0
+    "cable IOMA 023 FNPC",
+    // ; Attach FNP unit 4 (e) to IOM A, chan 024, dev_code 0
+    "cable IOMA 024 FNPE",
+    // ; Attach FNP unit 5 (f) to IOM A, chan 025, dev_code 0
+    "cable IOMA 025 FNPF",
+    // ; Attach FNP unit 6 (g) to IOM A, chan 026, dev_code 0
+    "cable IOMA 026 FNPG",
+    // ; Attach FNP unit 7 (h) to IOM A, chan 027, dev_code 0
+    "cable IOMA 027 FNPH",
+
+    // ;;;
+    // ;;; MPC
+    // ;;;
+
+    // ; Attach MPC unit 0 to IOM 0, char 015, dev_code 0
+    "cable IOM0 015 URP0",
+    "set urp0 name=urpa",
+
+    // ; Attach RDR unit 0 to IOM 0, chan 015, dev_code 1
+    "cable URP0 1 RDR0",
+    "set rdr0 name=rdra",
+
+    // ; Attach MPC unit 1 to IOM 0, char 016, dev_code 0
+    "cable IOM0 016 URP1",
+    "set urp1 name=urpb",
+
+    // ; Attach PUN unit 0 to IOM 0, chan 016, dev_code 1
+    "cable URP1 1 PUN0",
+    "set pun0 name=puna",
+
+    // ; Attach MPC unit 2 to IOM 0, char 017, dev_code 0
+    "cable IOM0 017 URP2",
+    "set urp2 name=urpc",
+
+    // ; Attach PRT unit 0 to IOM 0, chan 017, dev_code 1
+    "set prt0 name=prta",
+    "cable URP2 1 PRT0",
+
+
+#ifndef __MINGW64__
+    "cable IOMA 040 SKCA",
+    "cable IOMA 041 SKCB",
+    "cable IOMA 042 SKCC",
+    "cable IOMA 043 SKCD",
+    "cable IOMA 044 SKCE",
+    "cable IOMA 045 SKCF",
+    "cable IOMA 046 SKCG",
+    "cable IOMA 047 SKCH",
+#endif
+
+#if 0
+    // ; Attach PRT unit 1 to IOM 0, chan 017, dev_code 2
+    "set prt1 name=prtb",
+    "cable URP2 2 PRT1",
+
+    // ; Attach PRT unit 2 to IOM 0, chan 017, dev_code 3
+    "set prt2 name=prtc",
+    "cable URP2 3 PRT2",
+
+    // ; Attach PRT unit 3 to IOM 0, chan 017, dev_code 4
+    "cable URP2 4 PRT3",
+    "set prt3 name=prtd",
+
+    // ; Attach PRT unit 4 to IOM 0, chan 017, dev_code 5
+    "cable URP2 5 PRT4",
+    "set prt4 name=prte",
+
+    // ; Attach PRT unit 5 to IOM 0, chan 017, dev_code 6
+    "cable URP2 6 PRT5",
+    "set prt5 name=prtf",
+
+    // ; Attach PRT unit 6 to IOM 0, chan 017, dev_code 7
+    "cable URP2 7 PRT6",
+    "set prt6 name=prtg",
+
+    // ; Attach PRT unit 7 to IOM 0, chan 017, dev_code 8
+    "cable URP2 8 PRT7",
+    "set prt7 name=prth",
+
+    // ; Attach PRT unit 8 to IOM 0, chan 017, dev_code 9
+    "cable URP2 9 PRT8",
+    "set prt8 name=prti",
+
+    // ; Attach PRT unit 9 to IOM 0, chan 017, dev_code 10
+    "cable URP2 10 PRT9",
+    "set prt9 name=prtj",
+
+    // ; Attach PRT unit 10 to IOM 0, chan 017, dev_code 11
+    "cable URP2 11 PRT10",
+    "set prt10 name=prtk",
+
+    // ; Attach PRT unit 11 to IOM 0, chan 017, dev_code 12
+    "cable URP2 12 PRT11",
+    "set prt11 name=prtl",
+
+    // ; Attach PRT unit 12 to IOM 0, chan 017, dev_code 13
+    "cable URP2 13 PRT12",
+    "set prt12 name=prtm",
+
+    // ; Attach PRT unit 13 to IOM 0, chan 017, dev_code 14
+    "cable URP2 14 PRT13",
+    "set prt13 name=prtn",
+
+    // ; Attach PRT unit 14 to IOM 0, chan 017, dev_code 15
+    "cable URP2 15 PRT14",
+    "set prt14 name=prto",
+
+    // ; Attach PRT unit 15 to IOM 0, chan 017, dev_code 16
+    "set prt15 name=prtp",
+
+    // ; Attach PRT unit 16 to IOM 0, chan 017, dev_code 17
+    "set prt16 name=prtq",
+#endif
+
+#ifndef __MINGW64__
+    // ; Attach ABSI unit 0 to IOM 0, chan 032, dev_code 0
+    "cable IOM0 032 ABSI0",
+#endif
+
+    // ; Attach IOM unit 0 port A (0) to SCU unit 0, port 0
+    "cable SCU0 0 IOM0 0", // SCU0 port 0 IOM0 port 0
+
+    // ; Attach IOM unit 0 port B (1) to SCU unit 1, port 0
+    "cable SCU1 0 IOM0 1", // SCU1 port 0 IOM0 port 1
+
+    // ; Attach IOM unit 0 port C (2) to SCU unit 2, port 0
+    "cable SCU2 0 IOM0 2", // SCU2 port 0 IOM0 port 2
+
+    // ; Attach IOM unit 0 port D (3) to SCU unit 3, port 0
+    "cable SCU3 0 IOM0 3", // SCU3 port 0 IOM0 port 3
+
+    // ; Attach IOM unit 1 port A (0) to SCU unit 0, port 1
+    "cable SCU0 1 IOM1 0", // SCU0 port 0 IOM0 port 0
+
+    // ; Attach IOM unit 1 port B (1) to SCU unit 1, port 1
+    "cable SCU1 1 IOM1 1", // SCU1 port 0 IOM0 port 1
+
+    // ; Attach IOM unit 1 port C (2) to SCU unit 2, port 1
+    "cable SCU2 1 IOM1 2", // SCU2 port 0 IOM0 port 2
+
+    // ; Attach IOM unit 1 port D (3) to SCU unit 3, port 1
+    "cable SCU3 1 IOM1 3", // SCU3 port 0 IOM0 port 3
+
+// SCU0 --> CPU0-6
+
+    // ; Attach SCU unit 0 port 7 to CPU unit A (1), port 0
+    "cable SCU0 7 CPU0 0",
+
+#if N_CPU_UNITS_MAX > 1
+
+    // ; Attach SCU unit 0 port 6 to CPU unit B (1), port 0
+    "cable SCU0 6 CPU1 0",
+
+#if N_CPU_UNITS_MAX > 2
+
+    // ; Attach SCU unit 0 port 5 to CPU unit C (2), port 0
+    "cable SCU0 5 CPU2 0",
+
+    // ; Attach SCU unit 0 port 4 to CPU unit D (3), port 0
+    "cable SCU0 4 CPU3 0",
+
+    // ; Attach SCU unit 0 port 3 to CPU unit E (4), port 0
+    "cable SCU0 3 CPU4 0",
+
+    // ; Attach SCU unit 0 port 2 to CPU unit F (5), port 0
+    "cable SCU0 2 CPU5 0",
+
+#endif
+#endif
+
+// SCU1 --> CPU0-6
+
+    // ; Attach SCU unit 1 port 7 to CPU unit A (1), port 1
+    "cable SCU1 7 CPU0 1",
+
+#if N_CPU_UNITS_MAX > 1
+
+    // ; Attach SCU unit 1 port 6 to CPU unit B (1), port 1
+    "cable SCU1 6 CPU1 1",
+
+#if N_CPU_UNITS_MAX > 2
+
+    // ; Attach SCU unit 1 port 5 to CPU unit C (2), port 1
+    "cable SCU1 5 CPU2 1",
+
+    // ; Attach SCU unit 1 port 4 to CPU unit D (3), port 1
+    "cable SCU1 4 CPU3 1",
+
+    // ; Attach SCU unit 1 port 3 to CPU unit E (4), port 0
+    "cable SCU1 3 CPU4 1",
+
+    // ; Attach SCU unit 1 port 2 to CPU unit F (5), port 0
+    "cable SCU1 2 CPU5 1",
+
+#endif
+#endif
+
+// SCU2 --> CPU0-6
+
+    // ; Attach SCU unit 2 port 7 to CPU unit A (1), port 2
+    "cable SCU2 7 CPU0 2", 
+
+#if N_CPU_UNITS_MAX > 1
+
+    // ; Attach SCU unit 2 port 6 to CPU unit B (1), port 2
+    "cable SCU2 6 CPU1 2",
+
+#if N_CPU_UNITS_MAX > 2
+
+    // ; Attach SCU unit 2 port 5 to CPU unit C (2), port 2
+    "cable SCU2 5 CPU2 2",
+
+    // ; Attach SCU unit 2 port 4 to CPU unit D (3), port 2
+    "cable SCU2 4 CPU3 2",
+
+    // ; Attach SCU unit 2 port 3 to CPU unit E (4), port 0
+    "cable SCU2 3 CPU4 2",
+
+    // ; Attach SCU unit 2 port 2 to CPU unit F (5), port 0
+    "cable SCU2 2 CPU5 2",
+
+    // ; Attach SCU unit 2 port 1 to CPU unit G (6), port 0
+    "cable SCU2 1 CPU6 2",
+
+#endif
+#endif
+
+// SCU3 --> CPU0-6
+
+    // ; Attach SCU unit 3 port 7 to CPU unit A (1), port 3
+    "cable SCU3 7 CPU0 3",
+
+#if N_CPU_UNITS_MAX > 1
+
+    // ; Attach SCU unit 3 port 6 to CPU unit B (1), port 3
+    "cable SCU3 6 CPU1 3",
+
+#if N_CPU_UNITS_MAX > 2
+
+    // ; Attach SCU unit 3 port 5 to CPU unit C (2), port 3
+    "cable SCU3 5 CPU2 3",
+
+    // ; Attach SCU unit 3 port 4 to CPU unit D (3), port 3
+    "cable SCU3 4 CPU3 3",
+
+    // ; Attach SCU unit 3 port 3 to CPU unit E (4), port 0
+    "cable SCU3 3 CPU4 3",
+
+    // ; Attach SCU unit 3 port 2 to CPU unit F (5), port 0
+    "cable SCU3 2 CPU5 3",
+
+    // ; Attach SCU unit 3 port 1 to CPU unit G (6), port 0
+    "cable SCU3 1 CPU6 3",
+
+#endif
+#endif
+
+    "set cpu0 reset",
+    "set scu0 reset",
+    "set scu1 reset",
+    "set scu2 reset",
+    "set scu3 reset",
+    "set iom0 reset",
+
+#ifdef FNPDBG
+    "set sys config=connect_time=4000",
+#else
+    "set sys config=connect_time=-1",
+#endif
+
+#if 0
+    "fnpload Devices.txt",
+#endif
+    "fnpserverport 6180",
+    NULL
+  }; // r2_0_base_system_script
 
 // Execute a line of script
 
@@ -2825,14 +4092,25 @@ static void do_ini_line (char * text)
       sim_warn ("%s: %s\n", sim_error_text (SCPE_UNK), text);
   }
 
+static t_stat set_base_system (char * script[])
+  {
+    for (int line = 0; script[line]; line ++)
+      do_ini_line (script [line]);
+    return SCPE_OK;
+  }
+
 // Execute the base system script; this strings the cables
 // and sets the switches
 
 static t_stat set_default_base_system (UNUSED int32 arg, UNUSED const char * buf)
   {
-    int n_lines = sizeof (default_base_system_script) / sizeof (char *);
-    for (int line = 0; line < n_lines; line ++)
-      do_ini_line (default_base_system_script [line]);
+    set_base_system (default_base_system_script);
+    return SCPE_OK;
+  }
+
+static t_stat set_r2_0_base_system (UNUSED int32 arg, UNUSED const char * buf)
+  {
+    set_base_system (r2_0_base_system_script);
     return SCPE_OK;
   }
 
@@ -4940,6 +6218,7 @@ static CTAB dps8_cmds[] =
 //
 
     {"DEFAULT_BASE_SYSTEM", set_default_base_system,  0, "default_base_system: Set configuration to defaults\n", NULL, NULL},
+    {"R2_0_BASE_SYSTEM", set_r2_0_base_system,  0, "default_base_system: Set configuration to R2.0 defaults\n", NULL, NULL},
 
     {"CABLE",               sys_cable,                0, "cable: String a cable\n" , NULL, NULL},
     {"UNCABLE",             sys_cable,                1, "uncable: Unstring a cable\n" , NULL, NULL},
