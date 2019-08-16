@@ -194,25 +194,25 @@ struct diskType_t
 static struct diskType_t diskTypes [] =
   {
     { // disk_init assumes 3381 is at index 0
-      "3381", 22479, 0, false, seek_512, 512, 0, 255, LATENCY_SEEK_CYL, LATENCY_XFER
+      "3381", 224790, 0, false, seek_512, 512, 0, 255, LATENCY_SEEK_CYL, LATENCY_XFER
     },
     {
-      "d500", 38258, 1, false, seek_64, 64, 200, 40 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64
+      "d500",  38258, 1, false, seek_64, 64, 200, 40 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64
     },
     {
-      "d451", 38258, 1, true, seek_64, 64, 154, 40 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64
+      "d451",  38258, 1, true, seek_64, 64, 154, 40 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64
     },
     {
-      "d400", 19270, 1, true, seek_64, 64, 84, 40 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64 // d400 is a d190 with "high-efficiency format (40 sectors/track)"
+      "d400",  19270, 1, true, seek_64, 64, 84, 40 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64 // d400 is a d190 with "high-efficiency format (40 sectors/track)"
     },
     {
-      "d190", 14760, 1, true, seek_64, 64, 84, 31 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64 // 190A 84, 190B 137
+      "d190",  14760, 1, true, seek_64, 64, 84, 31 * 19, LATENCY_SEEK_CYL, LATENCY_XFER64 // 190A 84, 190B 137
     },
     {
-      "d181", 4444, 1, true, seek_64, 64, 0, 18 * 20, LATENCY_SEEK_CYL, LATENCY_XFER64 // no idea what the dau idx is
+      "d181",  4444, 1, true, seek_64, 64, 0, 18 * 20, LATENCY_SEEK_CYL, LATENCY_XFER64 // no idea what the dau idx is
     },
     {
-      "d501", 67200, 1, false, seek_64, 64, 201, 64 * 20, LATENCY_SEEK_CYL, LATENCY_XFER64
+      "d501",  67200, 1, false, seek_64, 64, 201, 64 * 20, LATENCY_SEEK_CYL, LATENCY_XFER64
     },
     {
       "3380", 112395, 0, false, seek_512, 512, 0, 255, LATENCY_SEEK_CYL, LATENCY_XFER64 // 338x is never attached to a dau
