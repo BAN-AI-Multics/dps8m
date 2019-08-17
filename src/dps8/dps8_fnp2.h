@@ -216,7 +216,6 @@ struct fnpUnitData_s
     bool fnpMBXinUse [4];  // 4 FNP submailboxes
     bool lineWaiting [4]; // If set, fnpMBXlineno is waiting for the mailbox to be marked clear.
     int fnpMBXlineno [4]; // Which HSLA line is using the mbx
-    char ipcName [MAX_DEV_NAME_LEN];
 
     t_MState MState;
   };
