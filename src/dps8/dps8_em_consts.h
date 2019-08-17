@@ -21,7 +21,7 @@
 ////////////////
 
 // SCU
-enum { N_SCU_UNITS_MAX = 8 };
+enum { N_SCU_UNITS_MAX = 4 };
 
 // IOM
 enum { N_IOM_UNITS_MAX = 4 };
