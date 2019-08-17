@@ -2014,7 +2014,7 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
 #else
     LOCK_MEM_WR;
     //M[addr] = data & DMASK;
-    *data = Mfetch(addr) & DMASK;
+    Mstore (addr, data & DMASK);
     UNLOCK_MEM;
 #endif
 #ifdef TR_WORK_MEM
@@ -2246,11 +2246,12 @@ int core_unlock_all();
     }								\
   while (0)
 
+// The lock bit is in the high byte, so store the low word first
 #define STORE_REL_CORE_WORD(addr, data)					\
   do									\
     {									\
-      __atomic_store_n((volatile u_long *)&Mhigh[addr], ((data) >> 32) & MASK8, __ATOMIC_RELEASE);	\
       __atomic_store_n((volatile u_long *)&Mlow[addr], data & MASK32, __ATOMIC_RELEASE);	\
+      __atomic_store_n((volatile u_long *)&Mhigh[addr], ((data) >> 32) & MASK8, __ATOMIC_RELEASE);	\
     }									\
   while (0)
 
