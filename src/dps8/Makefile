@@ -68,10 +68,6 @@ CFLAGS += -DWAM
 CFLAGS += -DL68 
 endif
 
-#ifeq ($(LOADER),1)
-CFLAGS += -DLOADER
-#endif
-
 ifeq ($(OS),Windows_NT)
 CROSS=MINGW64
 endif
@@ -182,9 +178,6 @@ C_SRCS += ./dps8_iefp.c
 C_SRCS += ./dps8_ins.c
 C_SRCS += ./dps8_ipc.c
 C_SRCS += ./dps8_iom.c
-#ifeq ($(LOADER),1)
-C_SRCS += ./dps8_loader.c
-#endif
 C_SRCS += ./dps8_math.c
 C_SRCS += ./dps8_math128.c
 C_SRCS += ./dps8_mt.c
@@ -242,9 +235,6 @@ H_SRCS += dps8_iefp.h
 H_SRCS += dps8_ins.h
 H_SRCS += dps8_ipc.h
 H_SRCS += dps8_iom.h
-#ifeq ($(LOADER),1)
-H_SRCS += dps8_loader.h
-#endif
 H_SRCS += dps8_math.h
 H_SRCS += dps8_math128.h
 #H_SRCS += dps8_mp.h
