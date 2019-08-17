@@ -883,7 +883,7 @@ startCA:;
                 word36 indword;
                 word18 indaddr = cpu.TPR.CA;
                 Read (indaddr, & indword, APU_DATA_READ);
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
                 word24 phys_address = cpu.iefpFinalAddress;
 #endif
 
@@ -991,7 +991,7 @@ startCA:;
 #else
                 Read (cpu.TPR.CA, & cpu.ou.character_data, OPERAND_READ);
 #endif
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
                 cpu.char_word_address = cpu.iefpFinalAddress;
 #endif
 
@@ -1039,7 +1039,7 @@ startCA:;
                     //                    cpu.ou.characterOperandSize |
                     //                    cpu.ou.characterOperandOffset);
                     //Write (cpu.TPR.CA,  new_indword, APU_DATA_STORE);
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
                     word36 indword_new;
                     core_read_lock(phys_address, &indword_new, __func__);
                     if (indword_new != indword)
@@ -1048,7 +1048,7 @@ startCA:;
                     putbits36_18 (& indword, 0, Yi);
                     putbits36_12 (& indword, 18, tally);
                     putbits36_3  (& indword, 33, os);
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
                     core_write_unlock(phys_address, indword, __func__);
 #else
                     Write (indaddr, indword, APU_DATA_STORE);
@@ -1134,7 +1134,7 @@ startCA:;
                 indword = (word36) (((word36) Yi << 18) |
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
@@ -1193,7 +1193,7 @@ startCA:;
                 indword = (word36) (((word36) Yi << 18) |
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
@@ -1258,7 +1258,7 @@ startCA:;
                            "addr %06o\n",
                            indword, saveCA);
 
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
@@ -1320,7 +1320,7 @@ startCA:;
                            "addr %06o\n",
                            indword, saveCA);
 
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
@@ -1396,7 +1396,7 @@ startCA:;
                            "IT_MOD(IT_DIC): writing indword=%012"PRIo64" to "
                            "addr %06o\n", indword, saveCA);
 
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
@@ -1504,7 +1504,7 @@ startCA:;
                            " to addr %06o\n",
                            indword, saveCA);
 
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else 
                 Write (saveCA, indword, APU_DATA_STORE);

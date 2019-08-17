@@ -1088,7 +1088,7 @@ static char *str_pct (processor_cycle_type t)
         case APU_DATA_READ: return "APU_DATA_READ";
         case APU_DATA_STORE: return "APU_DATA_STORE";
         case ABSA_CYCLE : return "ABSA_CYCLE";
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
         case OPERAND_RMW : return "OPERAND_RMW";
         case APU_DATA_RMW : return "APU_DATA_RMW";
 #endif
@@ -1415,7 +1415,7 @@ A:;
     // check read bracket for read access
     //
 
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
     if (!StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
 #else
     if (!StrOp)
@@ -1460,7 +1460,7 @@ A:;
     //
     // check write bracket for write access
     //
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
     if (StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
 #else
     if (StrOp)
@@ -1496,7 +1496,7 @@ A:;
           }
         
       }
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
     if (StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
 #else
     if (StrOp)
@@ -1887,7 +1887,7 @@ I:;
 // Set PTW.M
 
     DBGAPP ("do_append_cycle(I): FAP\n");
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
     if ((StrOp ||
         thisCycle == OPERAND_RMW ||
         thisCycle == APU_DATA_RMW) && cpu.PTW->M == 0)  // is this the right way to do this?
@@ -1941,7 +1941,7 @@ HI:
       }
     else
       {
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
 	if ((thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) && nWords == 1)
 	  {
 	    core_read_lock (finalAddress, data, str_pct (thisCycle));

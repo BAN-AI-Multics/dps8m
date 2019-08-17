@@ -3026,11 +3026,62 @@ t_stat set_mem_watch (int32 arg, const char * buf)
  */
 
 #ifndef SPEED
-static void nem_check (word24 addr, char * context)
+static void nem_check (word24 addr, const char context[])
   {
     if (lookup_cpu_mem_map (addr) < 0)
       doFault (FAULT_STR, fst_str_nea,  context);
   }
+#define NEM_CHECK nem_check (addr, __func__)
+#else
+#define NEM_CHECK 
+#endif
+
+#if 0 // XXX Controlled by TEST/NORMAL switch
+#ifdef ISOLTS
+#define PAR_CHECK \
+    if (cpu.MR.sdpap) \
+      { \
+        sim_warn ("failing to implement sdpap\n"); \
+        cpu.MR.sdpap = 0; \
+      } \
+    if (cpu.MR.separ) \
+      { \
+        sim_warn ("failing to implement separ\n"); \
+        cpu.MR.separ = 0; \
+      }
+#else
+#define PAR_CHECK
+#endif
+#else
+#define PAR_CHECK
+#endif
+
+
+#ifdef MEM_INIT
+#define MEM_INIT_CHECK(addr) \
+    if (M[addr] & MEM_UNINITIALIZED) \
+      { \
+        sim_debug (DBG_WARN, & cpu_dev, \
+                   "Uninitialized memory accessed at address %08o; " \
+                   "IC is 0%06o:0%06o (%s(\n", \
+                   addr, cpu.PPR.PSR, cpu.PPR.IC, ctx); \
+      }
+#else
+#define MEM_INIT_CHECK(addr)
+#endif
+
+#ifndef SPEED
+#define WATCH_BITS(addr) \
+    if (watch_bits [addr]) \
+      { \
+        sim_msg ("WATCH [%"PRId64"] %05o:%06o read   %08o %012"PRIo64" " \
+                    "(%s)\n", \
+                    cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, M [addr], \
+                    ctx); \
+        traceInstruction (0); \
+      }
+#else
+#define WATCH_BITS(addr)
 #endif
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
@@ -3038,44 +3089,10 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#ifndef SPEED
-    nem_check (addr,  "core_read nem");
-#endif
-
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
-
-#ifndef LOCKLESS
-    if (M[addr] & MEM_UNINITIALIZED)
-      {
-        sim_debug (DBG_WARN, & cpu_dev,
-                   "Uninitialized memory accessed at address %08o; "
-                   "IC is 0%06o:0%06o (%s(\n",
-                   addr, cpu.PPR.PSR, cpu.PPR.IC, ctx);
-      }
-#endif
-#ifndef SPEED
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o read   %08o %012"PRIo64" "
-                    "(%s)\n",
-                    cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, M [addr],
-                    ctx);
-        traceInstruction (0);
-      }
-#endif
+    NEM_CHECK;
+    PAR_CHECK;
+    MEM_INIT_CHECK (addr);
+    WATCH_BITS (addr);
 #ifdef LOCKLESS
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
@@ -3100,9 +3117,7 @@ int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#ifndef SPEED
-    nem_check (addr,  "core_lock_read nem");
-#endif
+    NEM_CHECK;
     LOCK_CORE_WORD(addr);
     if (cpu.locked_addr != 0) {
       sim_warn ("core_read_lock: locked %08o locked_addr %08o %c %05o:%06o\n",
@@ -3123,38 +3138,15 @@ int core_write (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#ifndef SPEED
-    nem_check (addr,  "core_read nem");
-#endif
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
+    NEM_CHECK;
+    PAR_CHECK;
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, data);
 #else
     M[addr] = data & DMASK;
 #endif
-#ifndef SPEED
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o write  %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, 
-                    M [addr], ctx);
-        traceInstruction (0);
-      }
-#endif
+    WATCH_BITS (addr);
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -3171,9 +3163,7 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
 {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#ifndef SPEED
-    nem_check (addr,  "core_read nem");
-#endif
+    NEM_CHECK;
     if (cpu.locked_addr != addr)
       {
         sim_warn ("core_write_unlock: locked %08o locked_addr %08o %c %05o:%06o\n",
@@ -3184,15 +3174,7 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
       
     STORE_REL_CORE_WORD(addr, data);
     cpu.locked_addr = 0;
-#ifndef SPEED
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o write  %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, 
-                    M [addr], ctx);
-        traceInstruction (0);
-      }
-#endif
+    WATCH_BITS (addr);
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -3241,15 +3223,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 #endif
     HDBGMWrite (addr, M[addr], __func__);
     cpu.useZone = false; // Safety
-#ifndef SPEED
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o writez %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, 
-                    M [addr], ctx);
-        traceInstruction (0);
-      }
-#endif
+    WATCH_BITS (addr);
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -3273,41 +3247,10 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         addr &= (word24)~1; /* make it an even address */
       }
     ISOLTS_MAP;
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
-#ifndef SPEED
-    nem_check (addr,  "core_read nem");
-#endif
-#ifndef LOCKLESS
-    if (M[addr] & MEM_UNINITIALIZED)
-      {
-        sim_debug (DBG_WARN, & cpu_dev,
-                   "Uninitialized memory accessed at address %08o; "
-                   "IC is 0%06o:0%06o (%s)\n",
-                   addr, cpu.PPR.PSR, cpu.PPR.IC, ctx);
-      }
-#endif
-#ifndef SPEED
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, 
-                    M [addr], ctx);
-        traceInstruction (0);
-      }
-#endif
+    PAR_CHECK;
+    NEM_CHECK;
+    MEM_INIT_CHECK (addr);
+    WATCH_BITS (addr);
 #ifdef LOCKLESS
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
@@ -3326,24 +3269,8 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
 
     // if the even address is OK, the odd will be
     //nem_check (addr,  "core_read2 nem");
-#ifndef LOCKLESS
-    if (M[addr] & MEM_UNINITIALIZED)
-      {
-        sim_debug (DBG_WARN, & cpu_dev,
-                   "Uninitialized memory accessed at address %08o; "
-                   "IC is 0%06o:0%06o (%s)\n",
-                    addr, cpu.PPR.PSR, cpu.PPR.IC, ctx);
-      }
-#endif
-#ifndef SPEED
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    M [addr], ctx);
-        traceInstruction (0);
-      }
-#endif
+    MEM_INIT_CHECK (addr);
+    WATCH_BITS (addr);
 #ifdef LOCKLESS
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
@@ -3377,35 +3304,9 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
         addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
       }
     ISOLTS_MAP;
-#ifndef SPEED
-     nem_check (addr,  "core_write2 nem");
-#endif
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
-#ifndef SPEED
-  nem_check (addr,  "core_read nem");
-#endif
-#ifndef SPEED
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    even, ctx);
-        traceInstruction (0);
-      }
-#endif
+    NEM_CHECK;
+    NEM_CHECK;
+    WATCH_BITS (addr);
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, even);
@@ -3420,15 +3321,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
     // If the even address is OK, the odd will be
     //nem_check (addr,  "core_write2 nem");
 
-#ifndef SPEED
-    if (watch_bits [addr])
-      {
-        sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    odd, ctx);
-        traceInstruction (0);
-      }
-#endif
+    WATCH_BITS (addr);
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, odd);
