@@ -2888,9 +2888,8 @@ static char * r2_0_base_system_script [] =
     "cable ripout",
 
     "set iom nunits=2",
-    // ; 16 drives plus a placeholder for the controller
-    "set tape nunits=17",
     "set mtp nunits=1",
+    "set tape nunits=17",
     // ; 4 3381 drives; 2 controllers
     // ; 4 d501 drives; 2 controller
     // ; 4 d451 drives; same controller has d501s
@@ -2905,7 +2904,7 @@ static char * r2_0_base_system_script [] =
     "set pun nunits=1",
     "set prt nunits=1",
 #ifndef __MINGW64__
-    "set skc nunits=64",
+    "set skc nunits=8",
     "set absi nunits=1",
 #endif
 
@@ -3411,84 +3410,6 @@ static char * r2_0_base_system_script [] =
     "set iom1 config=port=7",
     "set iom1   config=enable=0",
 
-#if 0
-
-// IOM2
-
-    "set iom2 config=iom_base=Multics2",
-    "set iom2 config=multiplex_base=0121",
-    "set iom2 config=os=Multics",
-    "set iom2 config=boot=tape",
-    "set iom2 config=tapechan=012",
-    "set iom2 config=cardchan=011",
-    "set iom2 config=scuport=0",
-
-    "set iom2 config=port=0",
-    "set iom2   config=addr=0",
-    "set iom2   config=interlace=0",
-    "set iom2   config=enable=1",
-    "set iom2   config=initenable=0",
-    "set iom2   config=halfsize=0;",
-
-    "set iom2 config=port=1",
-    "set iom2   config=addr=1",
-    "set iom2   config=interlace=0",
-    "set iom2   config=enable=1",
-    "set iom2   config=initenable=0",
-    "set iom2   config=halfsize=0;",
-
-    "set iom2 config=port=2",
-    "set iom2   config=enable=0",
-    "set iom2 config=port=3",
-    "set iom2   config=enable=0",
-    "set iom2 config=port=4",
-    "set iom2   config=enable=0",
-    "set iom2 config=port=5",
-    "set iom2   config=enable=0",
-    "set iom2 config=port=6",
-    "set iom2   config=enable=0",
-    "set iom2 config=port=7",
-    "set iom2   config=enable=0",
-
-
-// IOM3
-
-    "set iom3 config=iom_base=Multics2",
-    "set iom3 config=multiplex_base=0121",
-    "set iom3 config=os=Multics",
-    "set iom3 config=boot=tape",
-    "set iom3 config=tapechan=012",
-    "set iom3 config=cardchan=011",
-    "set iom3 config=scuport=0",
-
-    "set iom3 config=port=0",
-    "set iom3   config=addr=0",
-    "set iom3   config=interlace=0",
-    "set iom3   config=enable=1",
-    "set iom3   config=initenable=0",
-    "set iom3   config=halfsize=0;",
-
-    "set iom3 config=port=1",
-    "set iom3   config=addr=1",
-    "set iom3   config=interlace=0",
-    "set iom3   config=enable=1",
-    "set iom3   config=initenable=0",
-    "set iom3   config=halfsize=0;",
-
-    "set iom3 config=port=2",
-    "set iom3   config=enable=0",
-    "set iom3 config=port=3",
-    "set iom3   config=enable=0",
-    "set iom3 config=port=4",
-    "set iom3   config=enable=0",
-    "set iom3 config=port=5",
-    "set iom3   config=enable=0",
-    "set iom3 config=port=6",
-    "set iom3   config=enable=0",
-    "set iom3 config=port=7",
-    "set iom3   config=enable=0",
-#endif
-
 // SCU0
 
     "set scu0 config=mode=program",
@@ -3569,87 +3490,6 @@ static char * r2_0_base_system_script [] =
     "set scu3 config=int=0",
     "set scu3 config=lwr=0",
 
-#if 0
-// SCU4
-
-    "set scu4 config=mode=program",
-    "set scu4 config=port0=enable",
-    "set scu4 config=port1=enable",
-    "set scu4 config=port2=enable",
-    "set scu4 config=port3=enable",
-    "set scu4 config=port4=enable",
-    "set scu4 config=port5=enable",
-    "set scu4 config=port6=enable",
-    "set scu4 config=port7=enable",
-    "set scu4 config=maska=off",
-    "set scu4 config=maskb=off",
-    "set scu4 config=lwrstoresize=7",
-    "set scu4 config=cyclic=0040",
-    "set scu4 config=nea=0200",
-    "set scu4 config=onl=014",
-    "set scu4 config=int=0",
-    "set scu4 config=lwr=0",
-
-// SCU5
-
-    "set scu5 config=mode=program",
-    "set scu5 config=port0=enable",
-    "set scu5 config=port1=enable",
-    "set scu5 config=port2=enable",
-    "set scu5 config=port3=enable",
-    "set scu5 config=port4=enable",
-    "set scu5 config=port5=enable",
-    "set scu5 config=port6=enable",
-    "set scu5 config=port7=enable",
-    "set scu5 config=maska=off",
-    "set scu5 config=maskb=off",
-    "set scu5 config=lwrstoresize=7",
-    "set scu5 config=cyclic=0040",
-    "set scu5 config=nea=0200",
-    "set scu5 config=onl=014",
-    "set scu5 config=int=0",
-    "set scu5 config=lwr=0",
-
-// SCU6
-
-    "set scu6 config=mode=program",
-    "set scu6 config=port0=enable",
-    "set scu6 config=port1=enable",
-    "set scu6 config=port2=enable",
-    "set scu6 config=port3=enable",
-    "set scu6 config=port4=enable",
-    "set scu6 config=port5=enable",
-    "set scu6 config=port6=enable",
-    "set scu6 config=port7=enable",
-    "set scu6 config=maska=off",
-    "set scu6 config=maskb=off",
-    "set scu6 config=lwrstoresize=7",
-    "set scu6 config=cyclic=0040",
-    "set scu6 config=nea=0200",
-    "set scu6 config=onl=014",
-    "set scu6 config=int=0",
-    "set scu6 config=lwr=0",
-
-// SCU7
-
-    "set scu7 config=mode=program",
-    "set scu7 config=port0=enable",
-    "set scu7 config=port1=enable",
-    "set scu7 config=port2=enable",
-    "set scu7 config=port3=enable",
-    "set scu7 config=port4=enable",
-    "set scu7 config=port5=enable",
-    "set scu7 config=port6=enable",
-    "set scu7 config=port7=enable",
-    "set scu7 config=maska=off",
-    "set scu7 config=maskb=off",
-    "set scu7 config=lwrstoresize=7",
-    "set scu7 config=cyclic=0040",
-    "set scu7 config=nea=0200",
-    "set scu7 config=onl=014",
-    "set scu7 config=int=0",
-    "set scu7 config=lwr=0",
-#endif
 
     // ; There are bugs in the FNP code that require sim unit number
     // ; to be the same as the Multics unit number; ie fnp0 == fnpa, etc.
@@ -3664,26 +3504,17 @@ static char * r2_0_base_system_script [] =
     // ; fnp h 6100
 
     "set fnp0 config=mailbox=03400",
-    "set fnp0 ipc_name=fnp-a",
     "set fnp1 config=mailbox=03700",
-    "set fnp1 ipc_name=fnp-b",
     "set fnp2 config=mailbox=04200",
-    "set fnp2 ipc_name=fnp-c",
     "set fnp3 config=mailbox=04500",
-    "set fnp3 ipc_name=fnp-d",
     "set fnp4 config=mailbox=05000",
-    "set fnp4 ipc_name=fnp-e",
     "set fnp5 config=mailbox=05300",
-    "set fnp5 ipc_name=fnp-f",
     "set fnp6 config=mailbox=05600",
-    "set fnp6 ipc_name=fnp-g",
     "set fnp7 config=mailbox=06100",
-    "set fnp7 ipc_name=fnp-h",
 
 
-    //XXX"set mtp0 boot_drive=1",
-    // ; Attach tape MPC to IOM 0, chan 012, dev_code 0
-    "set mtp0 boot_drive=0",
+    // ; Attach tape MPC to IOM 0, chan 012, dev_code 1
+    "set mtp0 boot_drive=1",
     "set mtp0 name=MTP0",
     // ; Attach TAPE unit 0 to IOM 0, chan 012, dev_code 1
     "cable IOM0 012 MTP0",
@@ -4060,16 +3891,8 @@ static char * r2_0_base_system_script [] =
     "set scu2 reset",
     "set scu3 reset",
     "set iom0 reset",
+    "set iom1 reset",
 
-#ifdef FNPDBG
-    "set sys config=connect_time=4000",
-#else
-    "set sys config=connect_time=-1",
-#endif
-
-#if 0
-    "fnpload Devices.txt",
-#endif
     "fnpserverport 6180",
     NULL
   }; // r2_0_base_system_script
