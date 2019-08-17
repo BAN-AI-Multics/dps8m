@@ -1961,7 +1961,8 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
     UNLOCK_MEM;
 #else
     LOCK_MEM_RD;
-    *data = M[addr] & DMASK;
+    //*data = M[addr] & DMASK;
+    *data = Mfetch(addr) & DMASK;
     UNLOCK_MEM;
 #endif
 #ifdef TR_WORK_MEM
@@ -2012,7 +2013,8 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
     UNLOCK_MEM;
 #else
     LOCK_MEM_WR;
-    M[addr] = data & DMASK;
+    //M[addr] = data & DMASK;
+    *data = Mfetch(addr) & DMASK;
     UNLOCK_MEM;
 #endif
 #ifdef TR_WORK_MEM
@@ -2065,7 +2067,8 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
     UNLOCK_MEM;
 #else
     LOCK_MEM_WR;
-    M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
+    //M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
+    Mstore (addr, (Mfetch(addr) & ~cpu.zone) | (data & cpu.zone));
     cpu.useZone = false; // Safety
     UNLOCK_MEM;
 #endif
@@ -2121,8 +2124,11 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
     UNLOCK_MEM;
 #else
     LOCK_MEM_WR;
-    *even = M[addr++] & DMASK;
-    *odd = M[addr] & DMASK;
+    //*even = M[addr++] & DMASK;
+    //*odd = M[addr] & DMASK;
+    *even = Mfetch (addr) & DMASK;
+    addr ++;
+    *odd = Mfetch (addr) & DMASK;
     UNLOCK_MEM;
 #endif
 #ifdef TR_WORK_MEM
@@ -2175,8 +2181,11 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
     UNLOCK_MEM;
 #else
     LOCK_MEM_WR;
-    M[addr++] = even;
-    M[addr] = odd;
+    //M[addr++] = even;
+    //M[addr] = odd;
+    Mstore (addr, even);
+    addr ++;
+    Mstore (addr, odd);
     UNLOCK_MEM;
 #endif
     PNL (trackport (addr - 1, even);)
@@ -2199,17 +2208,17 @@ int core_write_unlock (word24 addr, word36 data, const char * ctx);
 int core_unlock_all();
 
 #define DEADLOCK_DETECT	  0x40000000U
-#define MEM_LOCKED_BIT    61
-#define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
-
-#if defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
-#include <machine/atomic.h>
+//#define MEM_LOCKED_BIT    61
+//#define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
+#define MEM_LOCKED_BIT    5
+#define MEM_LOCKED        (1U<<MEM_LOCKED_BIT)
 
 #define LOCK_CORE_WORD(addr)			\
   do									\
     {									\
       unsigned int i = DEADLOCK_DETECT;					\
-      while ( atomic_testandset_64((volatile u_long *)&M[addr], MEM_LOCKED_BIT) == 1 && i > 0) \
+      while ((__atomic_fetch_or((volatile u_long *)&Mhigh[addr], MEM_LOCKED, __ATOMIC_ACQUIRE) & MEM_LOCKED) \
+                &&  i > 0)						\
 	{								\
 	  i--;								\
 	  if ((i & 0xff) == 0) {					\
@@ -2232,67 +2241,19 @@ int core_unlock_all();
 #define LOAD_ACQ_CORE_WORD(res, addr)			\
   do							\
     {							\
-      res = atomic_load_acq_64((volatile u_long *)&M[addr]);	\
+      res = (((word36) __atomic_load_n((volatile uint8_t *)&Mhigh[addr], __ATOMIC_ACQUIRE)) << 32) |	\
+                      __atomic_load_n((volatile uint32_t *)&Mlow[addr], __ATOMIC_ACQUIRE);	\
     }								\
   while (0)
 
 #define STORE_REL_CORE_WORD(addr, data)					\
   do									\
     {									\
-      atomic_store_rel_64((volatile u_long *)&M[addr], data & DMASK);	\
+      __atomic_store_n((volatile u_long *)&Mhigh[addr], ((data) >> 32) & MASK8, __ATOMIC_RELEASE);	\
+      __atomic_store_n((volatile u_long *)&Mlow[addr], data & MASK32, __ATOMIC_RELEASE);	\
     }									\
   while (0)
 
-#else  // defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
-
-#ifdef MEMORY_ACCESS_NOT_STRONGLY_ORDERED
-#define MEM_BARRIER()   do { __sync_synchronize(); } while (0)
-#else
-#define MEM_BARRIER()   do {} while (0)
-#endif
-
-#define LOCK_CORE_WORD(addr)						\
-     do									\
-       {								\
-	 unsigned int i = DEADLOCK_DETECT;					\
-	 while ((__sync_fetch_and_or((volatile u_long *)&M[addr], MEM_LOCKED) & MEM_LOCKED) \
-		&&  i > 0)						\
-	   {								\
-	    i--;							\
-	    if ((i & 0xff) == 0) {					\
-	      pthread_yield();						\
-	      cpu.lockYield++;						\
-	    }								\
-	   }								\
-	 if (i == 0)							\
-	   {								\
-	    sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__, cpu.locked_addr, addr); \
-	    }								\
-	 cpu.lockCnt++;							\
-	 if (i == DEADLOCK_DETECT)					\
-	   cpu.lockImmediate++;						\
-	 cpu.lockWait += (DEADLOCK_DETECT-i);				\
-	 cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ? (DEADLOCK_DETECT-i) : cpu.lockWaitMax; \
-       }								\
-     while (0)
-
-#define LOAD_ACQ_CORE_WORD(res, addr)			\
-     do							\
-       {						\
-	 res = M[addr];					\
-	 MEM_BARRIER();					\
-       }						\
-     while (0)
-
-#define STORE_REL_CORE_WORD(addr, data)					\
-  do									\
-    {									\
-      MEM_BARRIER();							\
-      M[addr] = data & DMASK;						\
-    }									\
-  while (0)
-
-#endif  // defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
 #endif  // LOCKLESS
 
 static inline void core_readN (word24 addr, word36 * data, uint n,

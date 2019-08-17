@@ -537,9 +537,11 @@ int resolveLinks(bool bVerbose)
                         else
                             sim_printf("found %s (%06o)\n", sr->symbol, sr->value);
                         }
+#if 0 // XXX
                         word36 *Ypair = &sg1->M[sr->value];
                         makeITS(sg2->segno, sd->value, 0, Ypair);   // "snap" link for segref in sg1
                         if (bVerbose) sim_printf("            ITS Pair: [even:%012"PRIo64", odd:%012"PRIo64"]\n", Ypair[0], Ypair[1]);
+#endif
                     }
                 }
             }
@@ -559,7 +561,7 @@ static int loadDeferredSegment(segment *sg, int addr24)
         
     word18 segwords = (word18) sg->size;
     
-    memcpy((void *) M + addr24, sg->M, (unsigned long) sg->size * sizeof(word36));
+    // XXX memcpy((void *) M + addr24, sg->M, (unsigned long) sg->size * sizeof(word36));
     
     cpu . DSBR.BND = 037777;  // temporary max bound ...
     
@@ -724,6 +726,7 @@ t_stat createLOT(UNUSED bool bVerbose)
 
 t_stat snapLOT(bool bVerbose)
 {
+#if 0
     segment *s, *lot;
     bool bFound = false;
     // see if lot$ already exists ...
@@ -782,6 +785,7 @@ t_stat snapLOT(bool bVerbose)
 //        }
 //
 //    }
+#endif
     return SCPE_OK;
 }
 
@@ -1068,6 +1072,7 @@ static t_stat scanDirectives(FILE *f, const char * fnam, bool bDeferred,
 static t_stat load_oct (FILE *fileref, int32 segno, int32 ldaddr, 
                         bool bDeferred, UNUSED bool bVerbose)
 {
+#if 0
     /*
      * we'll support the following type of loads
      */
@@ -1124,12 +1129,14 @@ static t_stat load_oct (FILE *fileref, int32 segno, int32 ldaddr,
             if (n == 2)
             {
                 if (currSegment && currSegment->M == NULL)
-                    currSegment->M = (word36 *) &M[maddr];
+                    //currSegment->M = (word36 *) &M[maddr];
+                    currSegment->M = Mfetch (maddr);
 
                 if (maddr > MEMSIZE)
                     return SCPE_NXM;
                 else
-                    M[maddr+(unsigned int) ldaddr] = data & DMASK;
+                    //M[maddr+(unsigned int) ldaddr] = data & DMASK;
+                    Mstore (maddr+(unsigned int) ldaddr, data);
                 words++;
             }
         }
@@ -1159,7 +1166,8 @@ static t_stat load_oct (FILE *fileref, int32 segno, int32 ldaddr,
                 if (maddr > MEMSIZE)
                     return SCPE_NXM;
                 else
-                    M[(unsigned int) ldaddr + maddr] = data & DMASK;
+                    //M[(unsigned int) ldaddr + maddr] = data & DMASK;
+                    Mstore ((unsigned int) ldaddr + maddr, data);
                 //sim_printf ("laddr:%d maddr:%d\n", maddr, maddr);
                 words++;
                 maxaddr = max(maddr, maxaddr);
@@ -1176,7 +1184,7 @@ static t_stat load_oct (FILE *fileref, int32 segno, int32 ldaddr,
             if (!sim_quiet) sim_printf("Error loading segment %d (%o)\n", segno, segno);
         }
     }
-    
+#endif    
     return SCPE_OK;
 }
 
@@ -1187,6 +1195,7 @@ static t_stat load_oct (FILE *fileref, int32 segno, int32 ldaddr,
 static t_stat load_simh (FILE *fileref, int32 segno, int32 ldaddr, 
                          bool bDeferred, UNUSED bool bVerbose)
   {
+#if 0
     char buff[132] = "";
     int fno = fileno (fileref);
     lseek (fno, 0, SEEK_SET);
@@ -1232,15 +1241,18 @@ static t_stat load_simh (FILE *fileref, int32 segno, int32 ldaddr,
             word36 w2 = extr36 (bytes, 1);
 
             if (currSegment && currSegment->M == NULL)
-              currSegment->M = (word36 *) &M[maddr];
+              //currSegment->M = (word36 *) &M[maddr];
+              currSegment->M = Mfetch (maddr);
 
             if (maddr > MEMSIZE)
               return SCPE_NXM;
 
-            M [maddr + (unsigned int) ldaddr] = w1 & DMASK;
+            //M [maddr + (unsigned int) ldaddr] = w1 & DMASK;
+            Mstore (maddr + (unsigned int) ldaddr, w1);
             maddr ++;
             words++;
-            M [maddr + (unsigned int) ldaddr] = w2 & DMASK;
+            //M [maddr + (unsigned int) ldaddr] = w2 & DMASK;
+            Mstore (maddr + (unsigned int) ldaddr, w2);
             maddr ++;
             words++;
           }
@@ -1262,10 +1274,12 @@ static t_stat load_simh (FILE *fileref, int32 segno, int32 ldaddr,
             if (maddr > MEMSIZE)
               return SCPE_NXM;
 
-            M [maddr + (unsigned int) ldaddr] = w1 & DMASK;
+            //M [maddr + (unsigned int) ldaddr] = w1 & DMASK;
+            Mstore (maddr + (unsigned int) ldaddr, w1);
             maddr ++;
             words++;
-            M [maddr + (unsigned int) ldaddr] = w2 & DMASK;
+            //M [maddr + (unsigned int) ldaddr] = w2 & DMASK;
+            Mstore (maddr + (unsigned int) ldaddr, w2);
             maxaddr = maddr;
             maddr ++;
             words++;
@@ -1281,7 +1295,7 @@ static t_stat load_simh (FILE *fileref, int32 segno, int32 ldaddr,
             if (!sim_quiet) sim_printf("Error loading segment %d (%o)\n", segno, segno);
         }
     }
-    
+#endif    
     return SCPE_OK;
 }
 
@@ -1401,12 +1415,14 @@ char * lookupSegmentAddress (word18 segno, word18 offset, char * * compname, wor
 static t_stat sim_dump (FILE *fileref, UNUSED const char * cptr, UNUSED const char * fnam, 
                  UNUSED int flag)
 {
+#if 0
     size_t rc = fwrite ((word36 *) M, sizeof (word36), MEMSIZE, fileref);
     if (rc != MEMSIZE)
     {
         sim_printf ("fwrite returned %ld; expected %d\n", (long) rc, MEMSIZE);
         return SCPE_IOERR;  
     }
+#endif
     return SCPE_OK;
 }
 #endif // ndef SCUMEM

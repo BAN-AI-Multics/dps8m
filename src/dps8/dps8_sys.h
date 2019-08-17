@@ -80,7 +80,19 @@ int dbgevent_lookup (word15 segno, word18 offset);
 #endif
 
 #ifndef SCUMEM
-extern vol word36 * M;
+//extern vol word36 * M;
+extern vol uint8_t * Mhigh;
+extern vol uint32_t * Mlow;
+inline word36 Mfetch (word24 addr)
+  {
+    return (((word36) (Mhigh[addr] & MASK4)) << 32) | Mlow[addr];
+  }
+
+inline void Mstore (word24 addr, word36 w)
+  {
+    Mhigh[addr] = ((uint8_t) (w >> 32)) & MASK4;
+    Mlow[addr] = (uint32_t) (w & MASK32);
+  }
 #endif
 extern sysinfo_t sys_opts;
 extern uint64 sim_deb_start;

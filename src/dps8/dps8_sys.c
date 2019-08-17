@@ -82,7 +82,9 @@
 struct system_state_s * system_state;
 
 #ifndef SCUMEM
-vol word36 * M = NULL;                                          // memory
+//vol word36 * M = NULL;                                          // memory
+vol uint8_t * Mhigh = NULL;
+vol uint32_t * Mlow = NULL;
 #endif
 
 #ifdef TEST_OLIN

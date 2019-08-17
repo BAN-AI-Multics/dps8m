@@ -606,7 +606,20 @@ static void set_cpu_cycle (cycles_e cycle)
 
 // DPS8M Memory of 36 bit words is implemented as an array of 64 bit words.
 // Put state information into the unused high order bits.
-#define MEM_UNINITIALIZED (1LLU<<62)
+//
+// 7
+// 6
+// 5   memlocked
+// 4   unitialized
+// 3   data bit 0
+// 2   data bit 1
+// 1   data bit 2
+// 0   data bit 3
+
+//#define MEM_UNINITIALIZED (1LLU<<62)
+//#define MEM_UNINITIALIZED (1LLU<<62)
+#define MEM_UNINITIALIZED_HIGH (1U<<4)
+#define MEM_UNINITIALIZED (1U<<36)
 
 uint set_cpu_idx (UNUSED uint cpu_idx)
   {
@@ -626,27 +639,12 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     uint save = set_cpu_idx (cpun);
     if (clear_mem)
       {
-#ifdef SCUMEM
-        for (int cpu_port_num = 0; cpu_port_num < N_CPU_PORTS; cpu_port_num ++)
-          {
-            if (get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-              {
-                uint sci_unit_idx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-                // Clear lock bits
-                for (uint i = 0; i < SCU_MEM_SIZE; i ++)
-                  {
-                    //scu [sci_unit_idx].M[i] = MEM_UNINITIALIZED;
-                    scu [sci_unit_idx].M[i] &= (MASK36 | MEM_UNINITIALIZED);
-                  }
-              }
-          }
-#else
         for (uint i = 0; i < MEMSIZE; i ++)
           {
-            //M [i] = MEM_UNINITIALIZED;
-            M[i] &= (MASK36 | MEM_UNINITIALIZED);
+            //M[i] &= (MASK36 | MEM_UNINITIALIZED);
+            Mhigh[i] = MEM_UNINITIALIZED_HIGH;
+            Mlow[i] = 0;
           }
-#endif
       }
     cpu.rA = 0;
     cpu.rQ = 0;
@@ -722,7 +720,8 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
             if (os < 0)
               continue;
             for (uint addr = 0; addr < SCBANK; addr ++)
-              M [addr + (uint) os] = MEM_UNINITIALIZED;
+              //M [addr + (uint) os] = MEM_UNINITIALIZED;
+              Mstore (addr + (uint) os, MEM_UNINITIALIZED);
           }
       }
 #else
@@ -1225,7 +1224,9 @@ void cpu_init (void)
 #endif
 #endif
 
-    M = system_state->M;
+    //M = system_state->M;
+    Mhigh = system_state->Mhigh;
+    Mlow = system_state->Mlow;
 #ifdef M_SHARED
     cpus = system_state->cpus;
 #endif
@@ -1306,7 +1307,8 @@ static t_stat cpu_ex (t_value *vptr, t_addr addr, UNUSED UNIT * uptr,
         core_read (addr, & w, __func__);
         *vptr = w;
 #else
-        *vptr = M[addr] & DMASK;
+        //*vptr = M[addr] & DMASK;
+        *vptr = Mfetch(addr) & DMASK;
 #endif
       }
     return SCPE_OK;
@@ -1322,7 +1324,8 @@ static t_stat cpu_dep (t_value val, t_addr addr, UNUSED UNIT * uptr,
     word36 w = val & DMASK;
     core_write (addr, w, __func__);
 #else
-    M[addr] = val & DMASK;
+    //M[addr] = val & DMASK;
+    Mstore (addr, val & DMASK);
 #endif
     return SCPE_OK;
   }
@@ -3166,7 +3169,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
       }
 #else
 #ifndef LOCKLESS
-    if (M[addr] & MEM_UNINITIALIZED)
+    if (Mhigh[addr] & MEM_UNINITIALIZED_HIGH)
       {
         sim_debug (DBG_WARN, & cpu_dev,
                    "Unitialized memory accessed at address %08o; "
@@ -3179,7 +3182,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
       {
         sim_msg ("WATCH [%"PRId64"] %05o:%06o read   %08o %012"PRIo64" "
                     "(%s)\n",
-                    cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, M [addr],
+                    cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, Mfetch (addr),
                     ctx);
         traceInstruction (0);
       }
@@ -3190,7 +3193,8 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
     *data = v & DMASK;
 #else
     LOCK_MEM_RD;
-    *data = M[addr] & DMASK;
+    //*data = M[addr] & DMASK;
+    *data = Mfetch (addr) & DMASK;
     UNLOCK_MEM;
 #endif
 
@@ -3290,7 +3294,8 @@ int core_write (word24 addr, word36 data, const char * ctx)
     STORE_REL_CORE_WORD(addr, data);
 #else
     LOCK_MEM_WR;
-    M[addr] = data & DMASK;
+    //M[addr] = data & DMASK;
+    Mstore (addr, data & DMASK);
     UNLOCK_MEM;
 #endif
 #ifndef SPEED
@@ -3298,7 +3303,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
       {
         sim_msg ("WATCH [%"PRId64"] %05o:%06o write  %08o %012"PRIo64" "
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, 
-                    M [addr], ctx);
+                    Mfetch (addr), ctx);
         traceInstruction (0);
       }
 #endif
@@ -3352,7 +3357,7 @@ int core_unlock_all ()
       sim_warn ("core_unlock_all: locked %08o %c %05o:%06o\n",
                 cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
-      STORE_REL_CORE_WORD(cpu.locked_addr, M[cpu.locked_addr]);
+      STORE_REL_CORE_WORD(cpu.locked_addr, Mfetch(cpu.locked_addr));
       cpu.locked_addr = 0;
   }
   return 0;
@@ -3413,7 +3418,8 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
       nem_check (addr,  "core_read nem");
 #endif
     LOCK_MEM_WR;
-    M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
+    //M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
+    Mstore (addr, (Mfetch (addr) & ~cpu.zone) | (data & cpu.zone));
     UNLOCK_MEM;
 #endif
     cpu.useZone = false; // Safety
@@ -3422,7 +3428,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
       {
         sim_msg ("WATCH [%"PRId64"] %05o:%06o writez %08o %012"PRIo64" "
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, 
-                    M [addr], ctx);
+                    Mfetch (addr), ctx);
         traceInstruction (0);
       }
 #endif
@@ -3515,7 +3521,8 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
                 addr+1, * odd, ctx);
 #else
 #ifndef LOCKLESS
-    if (M[addr] & MEM_UNINITIALIZED)
+    //if (M[addr] & MEM_UNINITIALIZED)
+    if (Mhigh[addr] & MEM_UNINITIALIZED_HIGH)
       {
         sim_debug (DBG_WARN, & cpu_dev,
                    "Unitialized memory accessed at address %08o; "
@@ -3528,7 +3535,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
       {
         sim_msg ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" "
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, 
-                    M [addr], ctx);
+                    Mfetch (addr), ctx);
         traceInstruction (0);
       }
 #endif
@@ -3543,7 +3550,8 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
     addr++;
 #else
     LOCK_MEM_RD;
-    *even = M[addr++] & DMASK;
+    //*even = M[addr++] & DMASK;
+    *even = Mfetch (addr++) & DMASK;
     UNLOCK_MEM;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
@@ -3553,7 +3561,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
     // if the even address is OK, the odd will be
     //nem_check (addr,  "core_read2 nem");
 #ifndef LOCKLESS
-    if (M[addr] & MEM_UNINITIALIZED)
+    if (Mhigh[addr] & MEM_UNINITIALIZED_HIGH)
       {
         sim_debug (DBG_WARN, & cpu_dev,
                    "Unitialized memory accessed at address %08o; "
@@ -3566,7 +3574,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
       {
         sim_msg ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" "
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    M [addr], ctx);
+                    Mfetch(addr), ctx);
         traceInstruction (0);
       }
 #endif
@@ -3579,7 +3587,8 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
     *odd = v & DMASK;
 #else
     LOCK_MEM_RD;
-    *odd = M[addr] & DMASK;
+    //*odd = M[addr] & DMASK;
+    *odd = Mfetch (addr) & DMASK;
     UNLOCK_MEM;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
@@ -3669,7 +3678,8 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
     addr++;
 #else
     LOCK_MEM_WR;
-    M[addr++] = even & DMASK;
+    //M[addr++] = even & DMASK;
+    Mstore (addr++, even & DMASK);
     UNLOCK_MEM;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
@@ -3693,7 +3703,8 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
     STORE_REL_CORE_WORD(addr, odd);
 #else
     LOCK_MEM_WR;
-    M[addr] = odd & DMASK;
+    //M[addr] = odd & DMASK;
+    Mstore (addr, odd & DMASK);
     UNLOCK_MEM;
 #endif
 #endif

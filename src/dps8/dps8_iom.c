@@ -499,7 +499,8 @@ void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED 
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
 #else
-    * data = M[addr] & DMASK;
+    //* data = M[addr] & DMASK;
+    * data = Mfetch (addr) & DMASK;
 #endif
 #ifdef THREADZ
 #ifdef lockread
@@ -523,8 +524,11 @@ void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36
     LOAD_ACQ_CORE_WORD(v, addr);
     * odd = v & DMASK;
 #else
-    * even = M[addr ++] & DMASK;
-    * odd =  M[addr]    & DMASK;
+    //* even = M[addr ++] & DMASK;
+    //* odd =  M[addr]    & DMASK;
+    * even = Mfetch (addr) & DMASK;
+    addr ++;
+    * odd = Mfetch (addr) & DMASK;
 #endif
 #ifdef THREADZ
 #ifdef lockread
@@ -544,7 +548,8 @@ void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED 
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, data);
 #else
-    M[addr] = data & DMASK;
+    //M[addr] = data & DMASK;
+    Mstore (addr, data & DMASK);
 #endif
 #ifdef THREADZ
 #ifdef lockread
@@ -567,8 +572,11 @@ void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, odd);
 #else
-    M[addr ++] = even;
-    M[addr] =    odd;
+    //M[addr ++] = even;
+    //M[addr] =    odd;
+    Mstore (addr, even);
+    addr ++;
+    Mstore (addr, odd);
 #endif
 #ifdef THREADZ
 #ifdef lockread
@@ -587,7 +595,8 @@ void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UN
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
 #else
-    * data = M[addr] & DMASK;
+    //* data = M[addr] & DMASK;
+    * data = Mfetch (addr) & DMASK;
 #endif
   }
 
@@ -596,7 +605,8 @@ void iom_core_write_unlock (UNUSED uint iom_unit_idx, word24 addr, word36 data, 
 #ifdef LOCKLESS
     STORE_REL_CORE_WORD(addr, data);
 #else
-    M[addr] = data & DMASK;
+    //M[addr] = data & DMASK;
+    Mstore (addr, data & DMASK);
 #endif
   }
 
@@ -1136,14 +1146,15 @@ static void init_memory_iom (uint iom_unit_idx)
     // system fault vector; DIS 0 instruction (imu bit not mentioned by 
     // 43A239854)
 
-    M[010 + 2 * iom_num] = (imu << 34) | dis0;
+    //M[010 + 2 * iom_num] = (imu << 34) | dis0;
+    Mstore (010 + 2 * iom_num, (imu << 34) | dis0);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012"PRIo64"\n",
       010 + 2 * iom_num, (imu << 34) | dis0);
 
     // Zero other 1/2 of y-pair to avoid msgs re reading uninitialized
     // memory (if we have that turned on)
 
-    M[010 + 2 * iom_num + 1] = 0;
+    Mstore(010 + 2 * iom_num + 1, 0);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012o\n",
       010 + 2 * iom_num + 1, 0);
     
@@ -1152,7 +1163,8 @@ static void init_memory_iom (uint iom_unit_idx)
 
     // terminate interrupt vector (overwritten by bootload)
 
-    M[030 + 2 * iom_num] = dis0;
+    //M[030 + 2 * iom_num] = dis0;
+    Mstore (030 + 2 * iom_num, dis0);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012"PRIo64"\n",
       030 + 2 * iom_num, dis0);
 
@@ -1163,7 +1175,8 @@ static void init_memory_iom (uint iom_unit_idx)
     word24 base_addr = (word24) base << 6; // 01400
     
     // tally word for sys fault status
-    M[base_addr + 7] = ((word36) base_addr << 18) | 02000002;
+    //M[base_addr + 7] = ((word36) base_addr << 18) | 02000002;
+    Mstore (base_addr + 7, ((word36) base_addr << 18) | 02000002);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012"PRIo64"\n",
        base_addr + 7, ((word36) base_addr << 18) | 02000002);
 
@@ -1177,7 +1190,8 @@ static void init_memory_iom (uint iom_unit_idx)
     // large tally
 
     // Connect channel LPW; points to PCW at 000000
-    M[base_addr + 010] = 040000;
+    //M[base_addr + 010] = 040000;
+    Mstore (base_addr + 010, 040000);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012o\n",
       base_addr + 010, 040000);
 
@@ -1187,7 +1201,8 @@ static void init_memory_iom (uint iom_unit_idx)
 
     // Boot device LPW; points to IDCW at 000003
 
-    M[mbx] = 03020003;
+    //M[mbx] = 03020003;
+    Mstore (mbx, 03020003);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012o\n",
       mbx, 03020003);
 
@@ -1196,7 +1211,8 @@ static void init_memory_iom (uint iom_unit_idx)
 
     // Second IDCW: IOTD to loc 30 (startup fault vector)
 
-    M[4] = 030 << 18;
+    //M[4] = 030 << 18;
+    Mstore (4, 030 << 18);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012o\n",
       4, 030 << 18);
     
@@ -1210,7 +1226,8 @@ static void init_memory_iom (uint iom_unit_idx)
 
     // SCW
 
-    M[mbx + 2] = ((word36)base_addr << 18);
+    //M[mbx + 2] = ((word36)base_addr << 18);
+    Mstore(mbx + 2, ((word36)base_addr << 18));
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012"PRIo64"\n",
       mbx + 2, ((word36)base_addr << 18));
     
@@ -1219,7 +1236,8 @@ static void init_memory_iom (uint iom_unit_idx)
 
     // 1st word of bootload channel PCW
 
-    M[0] = 0720201;
+    //M[0] = 0720201;
+    Mstore (0, 0720201);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012o\n",
       0, 0720201);
     
@@ -1252,7 +1270,8 @@ static void init_memory_iom (uint iom_unit_idx)
 
     // 2nd word of PCW pair
 
-    M[1] = ((word36) (bootchan) << 27) | port;
+    //M[1] = ((word36) (bootchan) << 27) | port;
+    Mstore (1, ((word36) (bootchan) << 27) | port);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012"PRIo64"\n",
       1, ((word36) (bootchan) << 27) | port);
     
@@ -1264,7 +1283,8 @@ static void init_memory_iom (uint iom_unit_idx)
 
    // word after PCW (used by program)
 
-    M[2] = ((word36) base_addr << 18) | (pi_base) | iom_num;
+    //M[2] = ((word36) base_addr << 18) | (pi_base) | iom_num;
+    Mstore (2, ((word36) base_addr << 18) | (pi_base) | iom_num);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012"PRIo64"\n",
       2,  ((word36) base_addr << 18) | (pi_base) | iom_num);
     
@@ -1273,7 +1293,8 @@ static void init_memory_iom (uint iom_unit_idx)
 
     // IDCW for read binary
 
-    M[3] = (cmd << 30) | (dev << 24) | 0700000;
+    //M[3] = (cmd << 30) | (dev << 24) | 0700000;
+    Mstore (3, (cmd << 30) | (dev << 24) | 0700000);
     sim_debug (DBG_INFO, & iom_dev, "M[%08o] <= %012"PRIo64"\n",
       3, (cmd << 30) | (dev << 24) | 0700000);
     

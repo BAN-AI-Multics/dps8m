@@ -12,7 +12,9 @@
 struct system_state_s
   {
     char commit_id [41];
-    vol word36 M [MEMSIZE];
+    //vol word36 M [MEMSIZE];
+    vol uint8_t Mhigh [MEMSIZE];
+    vol uint32_t Mlow [MEMSIZE];
     cpu_state_t cpus [N_CPU_UNITS_MAX];
     struct cables_s cables;
   };
