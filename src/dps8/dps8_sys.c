@@ -420,7 +420,7 @@ parm dirw loud ttyb 64000
     "set cpu0 config=dis_enable=enable",
     "set cpu0 config=steady_clock=disable",
     "set cpu0 config=halt_on_unimplemented=disable",
-    "set cpu0 config=enable_wam=disable",
+    "set cpu0 config=enable_wam=enable",
     "set cpu0 config=tro_enable=enable",
     "set cpu0 config=y2k=disable",
 
@@ -463,7 +463,7 @@ parm dirw loud ttyb 64000
     "set cpu1 config=dis_enable=enable",
     "set cpu1 config=steady_clock=disable",
     "set cpu1 config=halt_on_unimplemented=disable",
-    "set cpu1 config=enable_wam=disable",
+    "set cpu1 config=enable_wam=enable",
     "set cpu1 config=tro_enable=enable",
     "set cpu1 config=y2k=disable",
 
@@ -506,7 +506,7 @@ parm dirw loud ttyb 64000
     "set cpu2 config=dis_enable=enable",
     "set cpu2 config=steady_clock=disable",
     "set cpu2 config=halt_on_unimplemented=disable",
-    "set cpu2 config=enable_wam=disable",
+    "set cpu2 config=enable_wam=enable",
     "set cpu2 config=tro_enable=enable",
     "set cpu2 config=y2k=disable",
 
@@ -547,7 +547,7 @@ parm dirw loud ttyb 64000
     "set cpu3 config=dis_enable=enable",
     "set cpu3 config=steady_clock=disable",
     "set cpu3 config=halt_on_unimplemented=disable",
-    "set cpu3 config=enable_wam=disable",
+    "set cpu3 config=enable_wam=enable",
     "set cpu3 config=tro_enable=enable",
     "set cpu3 config=y2k=disable",
     "set cpu4 config=faultbase=Multics",
@@ -585,7 +585,7 @@ parm dirw loud ttyb 64000
     "set cpu4 config=dis_enable=enable",
     "set cpu4 config=steady_clock=disable",
     "set cpu4 config=halt_on_unimplemented=disable",
-    "set cpu4 config=enable_wam=disable",
+    "set cpu4 config=enable_wam=enable",
     "set cpu4 config=tro_enable=enable",
     "set cpu4 config=y2k=disable",
 
@@ -626,7 +626,7 @@ parm dirw loud ttyb 64000
     "set cpu5 config=dis_enable=enable",
     "set cpu5 config=steady_clock=disable",
     "set cpu5 config=halt_on_unimplemented=disable",
-    "set cpu5 config=enable_wam=disable",
+    "set cpu5 config=enable_wam=enable",
     "set cpu5 config=tro_enable=enable",
     "set cpu5 config=y2k=disable",
 
@@ -667,7 +667,7 @@ parm dirw loud ttyb 64000
     "set cpu6 config=dis_enable=enable",
     "set cpu6 config=steady_clock=disable",
     "set cpu6 config=halt_on_unimplemented=disable",
-    "set cpu6 config=enable_wam=disable",
+    "set cpu6 config=enable_wam=enable",
     "set cpu6 config=tro_enable=enable",
     "set cpu6 config=y2k=disable",
 
@@ -708,7 +708,7 @@ parm dirw loud ttyb 64000
     "set cpu7 config=dis_enable=enable",
     "set cpu7 config=steady_clock=disable",
     "set cpu7 config=halt_on_unimplemented=disable",
-    "set cpu7 config=enable_wam=disable",
+    "set cpu7 config=enable_wam=enable",
     "set cpu7 config=tro_enable=enable",
     "set cpu7 config=y2k=disable",
 
@@ -1560,7 +1560,7 @@ parm  dirw  loud  ttyb  64000
     "set cpu0 config=dis_enable=enable",
     "set cpu0 config=steady_clock=disable",
     "set cpu0 config=halt_on_unimplemented=disable",
-    "set cpu0 config=enable_wam=disable",
+    "set cpu0 config=enable_wam=enable",
     "set cpu0 config=tro_enable=enable",
     "set cpu0 config=y2k=disable",
 
@@ -1630,7 +1630,7 @@ parm  dirw  loud  ttyb  64000
     "set cpu1 config=dis_enable=enable",
     "set cpu1 config=steady_clock=disable",
     "set cpu1 config=halt_on_unimplemented=disable",
-    "set cpu1 config=enable_wam=disable",
+    "set cpu1 config=enable_wam=enable",
     "set cpu1 config=tro_enable=enable",
     "set cpu1 config=y2k=disable",
 
@@ -1701,7 +1701,7 @@ parm  dirw  loud  ttyb  64000
     "set cpu2 config=dis_enable=enable",
     "set cpu2 config=steady_clock=disable",
     "set cpu2 config=halt_on_unimplemented=disable",
-    "set cpu2 config=enable_wam=disable",
+    "set cpu2 config=enable_wam=enable",
     "set cpu2 config=tro_enable=enable",
     "set cpu2 config=y2k=disable",
 
@@ -1770,7 +1770,7 @@ parm  dirw  loud  ttyb  64000
     "set cpu3 config=dis_enable=enable",
     "set cpu3 config=steady_clock=disable",
     "set cpu3 config=halt_on_unimplemented=disable",
-    "set cpu3 config=enable_wam=disable",
+    "set cpu3 config=enable_wam=enable",
     "set cpu3 config=tro_enable=enable",
     "set cpu3 config=y2k=disable",
 
@@ -1839,7 +1839,7 @@ parm  dirw  loud  ttyb  64000
     "set cpu4 config=dis_enable=enable",
     "set cpu4 config=steady_clock=disable",
     "set cpu4 config=halt_on_unimplemented=disable",
-    "set cpu4 config=enable_wam=disable",
+    "set cpu4 config=enable_wam=enable",
     "set cpu4 config=tro_enable=enable",
     "set cpu4 config=y2k=disable",
 
@@ -1908,7 +1908,7 @@ parm  dirw  loud  ttyb  64000
     "set cpu5 config=dis_enable=enable",
     "set cpu5 config=steady_clock=disable",
     "set cpu5 config=halt_on_unimplemented=disable",
-    "set cpu5 config=enable_wam=disable",
+    "set cpu5 config=enable_wam=enable",
     "set cpu5 config=tro_enable=enable",
     "set cpu5 config=y2k=disable",
 
@@ -1977,7 +1977,7 @@ parm  dirw  loud  ttyb  64000
     "set cpu6 config=dis_enable=enable",
     "set cpu6 config=steady_clock=disable",
     "set cpu6 config=halt_on_unimplemented=disable",
-    "set cpu6 config=enable_wam=disable",
+    "set cpu6 config=enable_wam=enable",
     "set cpu6 config=tro_enable=enable",
     "set cpu6 config=y2k=disable",
 
@@ -2045,7 +2045,7 @@ parm  dirw  loud  ttyb  64000
     "set cpu7 config=dis_enable=enable",
     "set cpu7 config=steady_clock=disable",
     "set cpu7 config=halt_on_unimplemented=disable",
-    "set cpu7 config=enable_wam=disable",
+    "set cpu7 config=enable_wam=enable",
     "set cpu7 config=tro_enable=enable",
     "set cpu7 config=y2k=disable",
 
@@ -2973,10 +2973,13 @@ static char * r2_0_base_system_script [] =
     // ; 0 = 8/70
     "set cpu0 config=speed=0",
 
+    "set cpu0 config=enable_cache=1",
+    "set cpu0 config=enable_pt_wam=1",
+    "set cpu0 config=enable_sd_wam=1",
     "set cpu0 config=dis_enable=enable",
     "set cpu0 config=steady_clock=disable",
     "set cpu0 config=halt_on_unimplemented=disable",
-    "set cpu0 config=enable_wam=disable",
+    "set cpu0 config=enable_wam=enable",
     "set cpu0 config=tro_enable=enable",
     "set cpu0 config=y2k=disable",
 
@@ -3040,6 +3043,9 @@ static char * r2_0_base_system_script [] =
     // ; 0 = 8/70
     "set cpu1 config=speed=0",
 
+    "set cpu1 config=enable_cache=1",
+    "set cpu1 config=enable_pt_wam=1",
+    "set cpu1 config=enable_sd_wam=1",
     "set cpu1 config=dis_enable=enable",
     "set cpu1 config=steady_clock=disable",
     "set cpu1 config=halt_on_unimplemented=disable",
@@ -3107,13 +3113,15 @@ static char * r2_0_base_system_script [] =
     // ; 0 = 8/70
     "set cpu2 config=speed=0",
 
+    "set cpu2 config=enable_cache=1",
+    "set cpu2 config=enable_pt_wam=1",
+    "set cpu2 config=enable_sd_wam=1",
     "set cpu2 config=dis_enable=enable",
     "set cpu2 config=steady_clock=disable",
     "set cpu2 config=halt_on_unimplemented=disable",
     "set cpu2 config=enable_wam=enable",
     "set cpu2 config=tro_enable=enable",
     "set cpu2 config=y2k=disable",
-
 
 // CPU3
 
@@ -3173,13 +3181,15 @@ static char * r2_0_base_system_script [] =
     // ; 0 = 8/70
     "set cpu3 config=speed=0",
 
+    "set cpu3 config=enable_cache=1",
+    "set cpu3 config=enable_pt_wam=1",
+    "set cpu3 config=enable_sd_wam=1",
     "set cpu3 config=dis_enable=enable",
     "set cpu3 config=steady_clock=disable",
     "set cpu3 config=halt_on_unimplemented=disable",
     "set cpu3 config=enable_wam=enable",
     "set cpu3 config=tro_enable=enable",
     "set cpu3 config=y2k=disable",
-
 
 // CPU4
 
@@ -3239,13 +3249,15 @@ static char * r2_0_base_system_script [] =
     // ; 0 = 8/70
     "set cpu4 config=speed=0",
 
+    "set cpu4 config=enable_cache=1",
+    "set cpu4 config=enable_pt_wam=1",
+    "set cpu4 config=enable_sd_wam=1",
     "set cpu4 config=dis_enable=enable",
     "set cpu4 config=steady_clock=disable",
     "set cpu4 config=halt_on_unimplemented=disable",
     "set cpu4 config=enable_wam=enable",
     "set cpu4 config=tro_enable=enable",
     "set cpu4 config=y2k=disable",
-
 
 // CPU5
 
@@ -3305,6 +3317,9 @@ static char * r2_0_base_system_script [] =
     // ; 0 = 8/70
     "set cpu5 config=speed=0",
 
+    "set cpu5 config=enable_cache=1",
+    "set cpu5 config=enable_pt_wam=1",
+    "set cpu5 config=enable_sd_wam=1",
     "set cpu5 config=dis_enable=enable",
     "set cpu5 config=steady_clock=disable",
     "set cpu5 config=halt_on_unimplemented=disable",
