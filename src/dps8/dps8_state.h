@@ -12,7 +12,12 @@
 struct system_state_s
   {
     char build_uuid [37];
+#ifdef SPLIT_MEMORY
+    vol uint8_t Mhigh [MEMSIZE];
+    vol uint32_t Mlow [MEMSIZE];
+#else
     vol word36 M [MEMSIZE];
+#endif
     cpu_state_t cpus [N_CPU_UNITS_MAX];
     struct cables_s cables;
 #ifdef PROFILER

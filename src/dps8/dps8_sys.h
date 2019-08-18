@@ -79,7 +79,22 @@ extern struct timespec dbgevent_t0;
 int dbgevent_lookup (word15 segno, word18 offset);
 #endif
 
+#ifdef SPLIT_MEMORY
+extern vol uint8_t * Mhigh;
+extern vol uint32_t * Mlow;
+inline word36 Mfetch (word24 addr)
+  {
+    return (((word36) (Mhigh[addr])) << 32) | Mlow[addr];
+  }
+
+inline void Mstore (word24 addr, word36 w)
+  {
+    Mhigh[addr] = ((uint8_t) (w >> 32)) & MASK8;
+    Mlow[addr] = (uint32_t) (w & MASK32);
+  }
+#else
 extern vol word36 * M;
+#endif
 extern sysinfo_t sys_opts;
 extern uint64 sim_deb_start;
 extern uint64 sim_deb_stop;

@@ -1947,7 +1947,11 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
       }
 #endif
 #endif
+#ifdef SPLIT_MEMORY
+    *data = Mfetch(addr) & DMASK;
+#else
     *data = M[addr] & DMASK;
+#endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -1973,7 +1977,11 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
       }
 #endif
 #endif
+#ifdef SPLIT_MEMORY
+    Mstore (addr, data & DMASK);
+#else
     M[addr] = data & DMASK;
+#endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -1999,7 +2007,11 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
       }
 #endif
 #endif
+#ifdef SPLIT_MEMORY
+    Mstore (addr, (Mfetch(addr) & ~cpu.zone) | (data & cpu.zone));
+#else
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
+#endif
     cpu.useZone = false; // Safety
     HDBGMWrite (addr, M[addr], __func__);
 #ifdef TR_WORK_MEM
@@ -2028,8 +2040,14 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
       }
 #endif
 #endif
+#ifdef SPLIT_MEMORY
+    *even = Mfetch (addr) & DMASK;
+    addr ++;
+    *odd = Mfetch (addr) & DMASK;
+#else
     *even = M[addr++] & DMASK;
     *odd = M[addr] & DMASK;
+#endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif
@@ -2054,8 +2072,14 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
         cpu.MR.separ = 0;
       }
 #endif
+#ifdef SPLIT_MEMORY
+    Mstore (addr, even);
+    addr ++;
+    Mstore (addr, odd);
+#else
     M[addr++] = even;
     M[addr] = odd;
+#endif
     PNL (trackport (addr - 1, even);)
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -2077,8 +2101,14 @@ int core_unlock_all (void);
 int core_unlock_fault (void);
 
 #define DEADLOCK_DETECT	  0x40000000U
+#ifdef SPLIT_MEMORY
+#define MEM_LOCKED_BIT      5
+#define MEM_LOCKED_HIGH     (1U<<MEM_LOCKED_BIT)
+#define MEM_LOCKED          (1LLU<<(MEM_LOCKED_BIT+32))
+#else
 #define MEM_LOCKED_BIT    61
 #define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
+#endif
 
 #if defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
 #include <machine/atomic.h>
@@ -2125,6 +2155,51 @@ int core_unlock_fault (void);
 
 #if defined(CPP11_ATOMICS)
 
+#ifdef SPLIT_MEMORY
+#define LOCK_CORE_WORD(addr)			\
+  do									\
+    {									\
+      unsigned int i = DEADLOCK_DETECT;					\
+      while ((__atomic_fetch_or((volatile uint8_t *)&Mhigh[addr], MEM_LOCKED_HIGH, __ATOMIC_ACQUIRE) & MEM_LOCKED_HIGH) \
+                &&  i > 0)                                                     \
+	{								\
+	  i--;								\
+	  if ((i & 0xff) == 0) {					\
+	    pthread_yield();						\
+	    cpu.lockYield++;						\
+	  }								\
+	}								\
+      if (i == 0)							\
+	{								\
+	  sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__, cpu.locked_addr, addr); \
+	}								\
+      cpu.lockCnt++;							\
+      if (i == DEADLOCK_DETECT)						\
+	cpu.lockImmediate++;						\
+      cpu.lockWait += (DEADLOCK_DETECT-i);				\
+      cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ? (DEADLOCK_DETECT-i) : cpu.lockWaitMax; \
+    }									\
+  while (0)
+
+#define LOAD_ACQ_CORE_WORD(res, addr)			\
+  do							\
+    {							\
+      res = (((word36) __atomic_load_n((volatile uint8_t *)&Mhigh[addr], __ATOMIC_ACQUIRE)) << 32) |         \
+                      __atomic_load_n((volatile uint32_t *)&Mlow[addr], __ATOMIC_ACQUIRE);         \
+    }								\
+  while (0)
+
+// The lock bit is in the high byte, so store the low word first
+#define STORE_REL_CORE_WORD(addr, data)					\
+  do									\
+    {									\
+      __atomic_store_n((volatile uint32_t *)&Mlow[addr], data & MASK32, __ATOMIC_RELEASE);	\
+      __atomic_store_n((volatile uint8_t *)&Mhigh[addr], ((data) >> 32) & MASK8, __ATOMIC_RELEASE);	\
+    }									\
+  while (0)
+
+#else
+
 // IIUC, the __sync use CST memorder
 #define LOCK_CORE_WORD(addr)			\
   do									\
@@ -2164,6 +2239,7 @@ int core_unlock_fault (void);
       __atomic_store_n((volatile u_long *)&M[addr], data & DMASK, __ATOMIC_RELEASE);	\
     }									\
   while (0)
+#endif
 
 #else // !CPP11_ATOMICS
 

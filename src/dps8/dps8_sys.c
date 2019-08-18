@@ -82,7 +82,12 @@
 
 struct system_state_s * system_state;
 
+#ifdef SPLIT_MEMORY
+vol uint8_t * Mhigh = NULL;
+vol uint32_t * Mlow = NULL;
+#else
 vol word36 * M = NULL;                                          // memory
+#endif
 
 //
 // These are part of the simh interface
