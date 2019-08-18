@@ -1829,15 +1829,11 @@ t_stat threadz_sim_instr (void)
           {
             fast_queue_subsample = 0;
 #ifdef CONSOLE_FIX
-#if defined(LOCKLESS)
             lock_libuv ();
-#endif
 #endif
             uv_run (ev_poll_loop, UV_RUN_NOWAIT);
 #ifdef CONSOLE_FIX
-#if defined(LOCKLESS)
             unlock_libuv ();
-#endif
 #endif
             PNL (panel_process_event ());
           }
@@ -1864,10 +1860,7 @@ t_stat threadz_sim_instr (void)
 #endif // ! LOCKLESS
 
         cpu.cycleCnt ++;
-
-#ifdef LOCKLESS
         core_unlock_all();
-#endif // LOCKLESS
 
 #ifndef LOCKLESS
         int con_unit_idx = check_attn_key ();
@@ -2538,15 +2531,11 @@ if (cpu.PPR.PSR == 042 && cpu.PPR.IC == 036573) fprintf (stderr, "%10lu %s >>>>>
 #ifndef NO_EV_POLL
                   // Trigger I/O polling
 #ifdef CONSOLE_FIX
-#if defined(LOCKLESS)
                   lock_libuv ();
-#endif
 #endif
                   uv_run (ev_poll_loop, UV_RUN_NOWAIT);
 #ifdef CONSOLE_FIX
-#if defined(LOCKLESS)
                   unlock_libuv ();
-#endif
 #endif
                   fast_queue_subsample = 0;
 #else // NO_EV_POLL
@@ -3093,13 +3082,9 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
     PAR_CHECK;
     MEM_INIT_CHECK (addr);
     WATCH_BITS (addr);
-#ifdef LOCKLESS
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     *data = v & DMASK;
-#else // ! LOCKLESS
-    *data = M[addr] & DMASK;
-#endif
 
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -3140,12 +3125,8 @@ int core_write (word24 addr, word36 data, const char * ctx)
     ISOLTS_MAP;
     NEM_CHECK;
     PAR_CHECK;
-#ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, data);
-#else
-    M[addr] = data & DMASK;
-#endif
     WATCH_BITS (addr);
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -3185,6 +3166,7 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
     return 0;
 }
 
+#ifdef LOCKLESS
 int core_unlock_all (void)
 {
   if (cpu.locked_addr != 0) {
@@ -3196,6 +3178,9 @@ int core_unlock_all (void)
   }
   return 0;
 }
+#else
+#define core_unlock_all()
+#endif
 
 // In case of fault, quietly clean up
 
@@ -3213,14 +3198,10 @@ int core_unlock_fault ()
 int core_write_zone (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef LOCKLESS
     word36 v;
     core_read_lock(addr,  &v, ctx);
     v = (v & ~cpu.zone) | (data & cpu.zone);
     core_write_unlock(addr, v, ctx);
-#else
-    M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
-#endif
     HDBGMWrite (addr, M[addr], __func__);
     cpu.useZone = false; // Safety
     WATCH_BITS (addr);
@@ -3251,18 +3232,16 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
     NEM_CHECK;
     MEM_INIT_CHECK (addr);
     WATCH_BITS (addr);
-#ifdef LOCKLESS
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
+#ifdef LOCKLESS
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: even locked %08o locked_addr %08o %c %05o:%06o\n",
                 addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
+#endif
     *even = v & DMASK;
     addr++;
-#else
-    *even = M[addr++] & DMASK;
-#endif
     sim_debug (DBG_CORE, & cpu_dev,
                "core_read2 %08o %012"PRIo64" (%s)\n",
                 addr - 1, * even, ctx);
@@ -3271,16 +3250,14 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
     //nem_check (addr,  "core_read2 nem");
     MEM_INIT_CHECK (addr);
     WATCH_BITS (addr);
-#ifdef LOCKLESS
     LOAD_ACQ_CORE_WORD(v, addr);
+#ifdef LOCKLESS
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: odd locked %08o locked_addr %08o %c %05o:%06o\n",
                 addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
-    *odd = v & DMASK;
-#else
-    *odd = M[addr] & DMASK;
 #endif
+    *odd = v & DMASK;
     sim_debug (DBG_CORE, & cpu_dev,
                "core_read2 %08o %012"PRIo64" (%s)\n",
                 addr, * odd, ctx);
@@ -3307,13 +3284,9 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
     NEM_CHECK;
     NEM_CHECK;
     WATCH_BITS (addr);
-#ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, even);
     addr++;
-#else
-    M[addr++] = even & DMASK;
-#endif
     sim_debug (DBG_CORE, & cpu_dev,
                "core_write2 %08o %012"PRIo64" (%s)\n",
                 addr - 1, even, ctx);
@@ -3322,12 +3295,8 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
     //nem_check (addr,  "core_write2 nem");
 
     WATCH_BITS (addr);
-#ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, odd);
-#else
-    M[addr] = odd & DMASK;
-#endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 #endif

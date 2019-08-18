@@ -344,7 +344,7 @@ void iom_core_read (uint iom_unit_idx, word24 addr, word36 *data, UNUSED const c
 void iom_core_read2 (uint iom_unit_idx, word24 addr, word36 *even, word36 *odd, UNUSED const char * ctx);
 void iom_core_write (uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx);
 void iom_core_write2 (uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx);
-#ifdef LOCKLESS
+#ifdef LOCKLESS_IOM
 void iom_core_read_lock (uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx);
 void iom_core_write_unlock (uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx);
 #endif

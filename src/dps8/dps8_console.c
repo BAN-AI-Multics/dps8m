@@ -1608,15 +1608,10 @@ int opc_iom_cmd (uint iomUnitIdx, uint chan)
 
     // uint chanloc = mbx_loc (iomUnitIdx, pcwp->chan);
 
-#if defined(LOCKLESS)
     lock_libuv ();
-#endif
-
     int rc = opc_cmd (iomUnitIdx, chan);
-
-#if defined(LOCKLESS)
     unlock_libuv ();
-#endif
+
     //if (rc == IOM_CMD_PENDING)
       //return rc;
     //return IOM_CMD_NO_DCW;
@@ -1873,15 +1868,11 @@ void startRemoteConsole (void)
         console_state[conUnitIdx].console_access.connected = NULL;
         console_state[conUnitIdx].console_access.useTelnet = true;
 #ifdef CONSOLE_FIX
-#if defined(LOCKLESS)
         lock_libuv ();
-#endif
 #endif
         uv_open_access (& console_state[conUnitIdx].console_access);
 #ifdef CONSOLE_FIX
-#if defined(LOCKLESS)
         unlock_libuv ();
-#endif
 #endif
       }
   }

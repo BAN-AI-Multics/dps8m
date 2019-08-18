@@ -161,11 +161,12 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 //#define TR_WORK_MEM
 #define TR_WORK_EXEC
 
+#define CWO
+
 // Multi-threading may require 'volatile' in some place; make it easy
 // to support both configurations
 
 #if defined(LOCKLESS)
-#define CWO
 #define vol volatile
 #else
 #define vol
@@ -269,13 +270,13 @@ typedef enum
     APU_DATA_READ,
     APU_DATA_STORE,
     ABSA_CYCLE,
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
     OPERAND_RMW,
     APU_DATA_RMW,
 #endif
   } processor_cycle_type;
 
-#ifndef LOCKLESS
+#ifndef LOCKLESS_RMW
 #define OPERAND_RMW   OPERAND_READ
 #define APU_DATA_RMW  APU_DATA_READ
 #endif

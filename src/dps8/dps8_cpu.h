@@ -2257,6 +2257,7 @@ int core_unlock_fault (void);
 #define STORE_REL_CORE_WORD(addr, data) M[addr] = (data) & DMASK
 #define core_read_lock core_read
 #define core_write_unlock core_write
+#define core_unlock_all()
 #endif  // LOCKLESS
 
 static inline void core_readN (word24 addr, word36 * data, uint n,

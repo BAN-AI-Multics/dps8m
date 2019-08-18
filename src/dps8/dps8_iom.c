@@ -414,7 +414,7 @@ __thread uint this_chan_num;
 
 void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
-#ifdef LOCKLESS
+#ifdef LOCKLESS_IOM
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
@@ -425,7 +425,7 @@ void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED 
 
 void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36 *odd, UNUSED const char * ctx)
   {
-#ifdef LOCKLESS
+#ifdef LOCKLESS_IOM
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * even = v & DMASK;
@@ -440,7 +440,7 @@ void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36
 
 void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
   {
-#ifdef LOCKLESS
+#ifdef LOCKLESS_IOM
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, data);
 #else
@@ -450,7 +450,7 @@ void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED 
 
 void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
   {
-#ifdef LOCKLESS
+#ifdef LOCKLESS_IOM
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, even);
     addr++;
@@ -465,23 +465,15 @@ void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36
 
 void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
-#ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
-#else
-    * data = M[addr] & DMASK;
-#endif
   }
 
 void iom_core_write_unlock (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
   {
-#ifdef LOCKLESS
     STORE_REL_CORE_WORD(addr, data);
-#else
-    M[addr] = data & DMASK;
-#endif
   }
 
 static t_stat iom_action (UNIT *up)
@@ -1907,9 +1899,7 @@ static void write_LPW (uint iom_unit_idx, uint chan)
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
     uint chanLoc = mbxLoc (iom_unit_idx, chan);
-#ifdef LOCKLESS
     lock_iom();
-#endif
 
     iom_core_write (iom_unit_idx, chanLoc + IOM_MBX_LPW, p -> LPW, __func__);
     sim_debug (DBG_DEBUG, & iom_dev,
@@ -1922,9 +1912,7 @@ static void write_LPW (uint iom_unit_idx, uint chan)
                    "%s: chan %d lpwx %012"PRIo64"\n",
                    __func__, chan, p -> LPWX);
       }
-#ifdef LOCKLESS
     unlock_iom();
-#endif
 
   }
 
@@ -1934,9 +1922,7 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
 
     uint chanLoc = mbxLoc (iom_unit_idx, chan);
 
-#ifdef LOCKLESS
     lock_iom();
-#endif
     iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPW, (word36 *) & p -> LPW, __func__);
     sim_debug (DBG_DEBUG, & iom_dev, "lpw %012"PRIo64"\n", p -> LPW);
 
@@ -1970,9 +1956,7 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
                    __func__, chan, p -> LPWX_BOUND, p -> LPWX_SIZE);
       }   
 
-#ifdef LOCKLESS
     unlock_iom();
-#endif
 
     update_chan_mode (iom_unit_idx, chan, false);
 
@@ -2274,9 +2258,7 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
 
     uint chanloc = mbxLoc (iom_unit_idx, IOM_SYSTEM_FAULT_CHAN);
 
-#ifdef LOCKLESS
     lock_iom();
-#endif
 
     word36 lpw;
     iom_core_read (iom_unit_idx, chanloc + IOM_MBX_LPW, & lpw, __func__);
@@ -2303,9 +2285,7 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
       dcw = scw; // reset to beginning of queue
     iom_core_write_unlock (iom_unit_idx, chanloc + IOM_MBX_DCW, dcw, __func__);
 
-#ifdef LOCKLESS
     unlock_iom();
-#endif
 
     send_general_interrupt (iom_unit_idx, IOM_SYSTEM_FAULT_CHAN, imwSystemFaultPic);
   }
@@ -3130,9 +3110,7 @@ int send_special_interrupt (uint iom_unit_idx, uint chan, uint devCode,
     if (iom_chan_data [iom_unit_idx] [chan] . masked)
       return(0);
     
-#ifdef LOCKLESS
     lock_iom();
-#endif
 
 // Multics uses an 12(8) word circular queue, managed by clever manipulation
 // of the LPW and DCW.
@@ -3172,9 +3150,7 @@ int send_special_interrupt (uint iom_unit_idx, uint chan, uint devCode,
       dcw = scw; // reset to beginning of queue
     iom_core_write_unlock (iom_unit_idx, chanloc + IOM_MBX_DCW, dcw, __func__);
 
-#ifdef LOCKLESS
     unlock_iom();
-#endif
 
     send_general_interrupt (iom_unit_idx, IOM_SPECIAL_STATUS_CHAN, imwSpecialPic);
     return 0;

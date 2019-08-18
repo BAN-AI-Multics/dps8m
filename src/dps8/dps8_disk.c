@@ -1506,9 +1506,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
     UNIT * unitp = & dsk_unit [devUnitIdx];
     struct dsk_state * disk_statep = & dsk_states [devUnitIdx];
 
-#ifdef LOCKLESS
     lock_ptr (& dsk_states->dsk_lock);
-#endif
 
     disk_statep -> io_mode = disk_no_mode;
     p -> stati = 0;
@@ -1683,9 +1681,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
           break;
       }
 
-#ifdef LOCKLESS
     unlock_ptr (& dsk_states->dsk_lock);
-#endif
 
     return rc;
   }

@@ -227,4 +227,11 @@ void fence (void);
 extern pthread_cond_t iomCond;
 extern pthread_mutex_t iom_start_lock;
 #endif
+#else // ! THREADZ
+#define lock_libuv()
+#define unlock_libuv()
+#define lock_ptr(p)
+#define unlock_ptr(p)
+#define lock_iom()
+#define unlock_iom()
 #endif

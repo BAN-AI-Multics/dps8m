@@ -56,7 +56,7 @@ void Read (word18 address, word36 * result, processor_cycle_type cyctyp)
                 set_apu_status (apuStatus_FABS); // XXX maybe...
                 cpu.iefpFinalAddress = get_BAR_address (address);
                 fauxDoAppendCycle (cyctyp);
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
 		if (cyctyp == OPERAND_RMW || cyctyp == APU_DATA_RMW)
 		  core_read_lock (cpu.iefpFinalAddress, result, __func__);
 		else
@@ -74,7 +74,7 @@ void Read (word18 address, word36 * result, processor_cycle_type cyctyp)
               {
                 set_apu_status (apuStatus_FABS);
                 fauxDoAppendCycle (cyctyp);
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
 		if (cyctyp == OPERAND_RMW || cyctyp == APU_DATA_RMW)
 		  core_read_lock (address, result, __func__);
 		else

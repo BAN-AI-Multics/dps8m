@@ -2253,25 +2253,17 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 #endif
 
 
-#if defined(LOCKLESS)
         lock_libuv ();
-#endif
         fnpcmdBootload (fnp_unit_idx);
-#if defined(LOCKLESS)
         unlock_libuv ();
-#endif
         send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
         fudp -> fnpIsRunning = true;
       }
     else if (command == 071) // interrupt L6
       {
-#if defined(LOCKLESS)
         lock_libuv ();
-#endif
         ok = interruptL66 (iomUnitIdx, chan) == 0;
-#if defined(LOCKLESS)
         unlock_libuv ();
-#endif
       }
     else if (command == 075) // data xfer from L6 to L66
       {

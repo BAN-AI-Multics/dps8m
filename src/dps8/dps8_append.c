@@ -821,7 +821,11 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
     PNL (cpu.lastPTWOffset = offset;)
     PNL (cpu.lastPTWIsDS = false;)
 
+#ifdef LOCKLESS_PTW
     core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+#else
+    core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+#endif
     
     cpu.PTW0.ADDR = GETHI (PTWx2);
     cpu.PTW0.U = TSTBIT (PTWx2, 9);
@@ -831,14 +835,18 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
 
     // ISOLTS-861 02
 // For the case of LOCKLESS, always write the PTW to as to relase the lock
-#ifndef LOCKLESS
+#ifdef LOCKLESS_PTW
+    PTWx2 = SETBIT (PTWx2, 9);
+    core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+    cpu.PTW0.U = 1;
+#else
     if (! cpu.PTW0.U)
-#endif
       {
         PTWx2 = SETBIT (PTWx2, 9);
-        core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+        core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
         cpu.PTW0.U = 1;
       }
+#endif
     
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)

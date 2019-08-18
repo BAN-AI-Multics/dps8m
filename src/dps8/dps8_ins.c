@@ -100,7 +100,7 @@ static void writeOperands (void)
         // Put the character into the data word
         //
 
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
 	word36 tmpdata;
 	core_read(cpu.char_word_address, &tmpdata, __func__);
 	if (tmpdata != cpu.ou.character_data)
@@ -226,7 +226,7 @@ static void readOperands (void)
         return;
       } // IT
 
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
     read_operand (cpu.TPR.CA, ((i->info->flags & RMW) == RMW) ? OPERAND_RMW : OPERAND_READ);
 #else
     read_operand (cpu.TPR.CA, OPERAND_READ);
@@ -2179,7 +2179,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
           {
             CPT (cpt2L, 2); // Read operands
             readOperands ();
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
 	    cpu.rmw_address = cpu.iefpFinalAddress;
 #endif
             if (cpu.cu.rl)
@@ -2245,7 +2245,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
       {
         CPT (cpt2L, 3); // Write operands
 	cpu.last_write = cpu.TPR.CA;
-#ifdef LOCKLESS
+#ifdef LOCKLESS_RMW
 	if ((ci->info->flags & RMW) == RMW)
 	  {
 	      if (operand_size() != 1)
@@ -2265,7 +2265,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 	      }
 #endif
 	  }
-#else // LOCKLESS
+#else // ! LOCKLESS_RMW
         writeOperands ();
 #ifdef NEWRPT
 	if ((ci->info->flags & RMW) != RMW)
@@ -2277,7 +2277,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 	      }
 	  }
 #endif
-#endif //LOCKLESS
+#endif // !LOCKLESS_RMW
       }
 
     else if (flags & PREPARE_CA)
