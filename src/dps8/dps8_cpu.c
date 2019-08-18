@@ -642,8 +642,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
         for (uint i = 0; i < MEMSIZE; i ++)
           {
             //M[i] &= (MASK36 | MEM_UNINITIALIZED);
-            Mhigh[i] = MEM_UNINITIALIZED_HIGH;
-            Mlow[i] = 0;
+            Mhigh[i] &= (MASK4 | MEM_UNINITIALIZED_HIGH);
           }
       }
     cpu.rA = 0;
@@ -3551,7 +3550,8 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
 #else
     LOCK_MEM_RD;
     //*even = M[addr++] & DMASK;
-    *even = Mfetch (addr++) & DMASK;
+    *even = Mfetch (addr) & DMASK;
+    addr ++;
     UNLOCK_MEM;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
@@ -3679,7 +3679,8 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
 #else
     LOCK_MEM_WR;
     //M[addr++] = even & DMASK;
-    Mstore (addr++, even & DMASK);
+    Mstore (addr, even & DMASK);
+    addr ++;
     UNLOCK_MEM;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,

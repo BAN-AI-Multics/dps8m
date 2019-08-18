@@ -85,12 +85,12 @@ extern vol uint8_t * Mhigh;
 extern vol uint32_t * Mlow;
 inline word36 Mfetch (word24 addr)
   {
-    return (((word36) (Mhigh[addr] & MASK4)) << 32) | Mlow[addr];
+    return (((word36) (Mhigh[addr])) << 32) | Mlow[addr];
   }
 
 inline void Mstore (word24 addr, word36 w)
   {
-    Mhigh[addr] = ((uint8_t) (w >> 32)) & MASK4;
+    Mhigh[addr] = ((uint8_t) (w >> 32)) & MASK8;
     Mlow[addr] = (uint32_t) (w & MASK32);
   }
 #endif

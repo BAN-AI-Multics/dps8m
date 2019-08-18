@@ -2210,14 +2210,15 @@ int core_unlock_all();
 #define DEADLOCK_DETECT	  0x40000000U
 //#define MEM_LOCKED_BIT    61
 //#define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
-#define MEM_LOCKED_BIT    5
-#define MEM_LOCKED        (1U<<MEM_LOCKED_BIT)
+#define MEM_LOCKED_BIT      5
+#define MEM_LOCKED_HIGH     (1U<<MEM_LOCKED_BIT)
+#define MEM_LOCKED          (1LLU<<(MEM_LOCKED_BIT+32))
 
 #define LOCK_CORE_WORD(addr)			\
   do									\
     {									\
       unsigned int i = DEADLOCK_DETECT;					\
-      while ((__atomic_fetch_or((volatile u_long *)&Mhigh[addr], MEM_LOCKED, __ATOMIC_ACQUIRE) & MEM_LOCKED) \
+      while ((__atomic_fetch_or((volatile uint8_t *)&Mhigh[addr], MEM_LOCKED_HIGH, __ATOMIC_ACQUIRE) & MEM_LOCKED_HIGH) \
                 &&  i > 0)						\
 	{								\
 	  i--;								\
@@ -2250,8 +2251,8 @@ int core_unlock_all();
 #define STORE_REL_CORE_WORD(addr, data)					\
   do									\
     {									\
-      __atomic_store_n((volatile u_long *)&Mlow[addr], data & MASK32, __ATOMIC_RELEASE);	\
-      __atomic_store_n((volatile u_long *)&Mhigh[addr], ((data) >> 32) & MASK8, __ATOMIC_RELEASE);	\
+      __atomic_store_n((volatile uint32_t *)&Mlow[addr], data & MASK32, __ATOMIC_RELEASE);	\
+      __atomic_store_n((volatile uint8_t *)&Mhigh[addr], ((data) >> 32) & MASK8, __ATOMIC_RELEASE);	\
     }									\
   while (0)
 
