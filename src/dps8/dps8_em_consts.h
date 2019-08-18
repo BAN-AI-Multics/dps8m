@@ -30,11 +30,14 @@ enum { N_IOM_UNITS_MAX = 4 };
 
 #ifdef LOCKLESS
 enum { N_CPU_UNITS_MAX = 8 };
+#define N_CPU_UNITS_MAX_ 8
 #else
 #ifdef ISOLTS
 enum { N_CPU_UNITS_MAX = 2 };
+#define N_CPU_UNITS_MAX_ 2
 #else
 enum { N_CPU_UNITS_MAX = 1 };
+#define N_CPU_UNITS_MAX_ 1
 #endif
 #endif
 

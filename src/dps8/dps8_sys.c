@@ -98,7 +98,7 @@ int32 sim_emax = 4; // some EIS can take up to 4-words
 static void dps8_init(void);
 void (*sim_vm_init) (void) = & dps8_init;    // CustomCmds;
 
-#ifdef TESTING
+#ifdef xTESTING
 static t_addr parse_addr(DEVICE *dptr, const char *cptr, const char **optr);
 static void fprint_addr(FILE *stream, DEVICE *dptr, t_addr addr);
 #endif // TESTING
@@ -424,7 +424,7 @@ parm dirw loud ttyb 64000
     "set cpu0 config=tro_enable=enable",
     "set cpu0 config=y2k=disable",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
 // CPU1
 
@@ -467,7 +467,7 @@ parm dirw loud ttyb 64000
     "set cpu1 config=tro_enable=enable",
     "set cpu1 config=y2k=disable",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
 // CPU2
 
@@ -712,8 +712,8 @@ parm dirw loud ttyb 64000
     "set cpu7 config=tro_enable=enable",
     "set cpu7 config=y2k=disable",
 
-#endif // N_CPU_UNITS_MAX > 2
-#endif // N_CPU_UNITS_MAX > 1
+#endif // N_CPU_UNITS_MAX_ > 2
+#endif // N_CPU_UNITS_MAX_ > 1
 // IOM0
 
     "set iom0 config=model=imu",
@@ -1121,12 +1121,12 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 0 port 7 to CPU unit A (0), port 0
     "cable SCU0 7 CPU0 0",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
     // Attach SCU unit 0 port 6 to CPU unit B (1), port 0
     "cable SCU0 6 CPU1 0",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
     // Attach SCU unit 0 port 5 to CPU unit C (2), port 0
     "cable SCU0 5 CPU2 0",
@@ -1146,20 +1146,20 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 0 port 2 subport 2 to CPU unit H (7), port 0
     "cable SCU0 11 CPU7 0",
 
-#endif // N_CPU_UNITS_MAX > 2
-#endif // N_CPU_UNITS_MAX > 1
+#endif // N_CPU_UNITS_MAX_ > 2
+#endif // N_CPU_UNITS_MAX_ > 1
 
     // SCU1 --> CPU0-7
 
     // Attach SCU unit 1 port 7 to CPU unit A (0), port 1
     "cable SCU1 7 CPU0 1",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
     // Attach SCU unit 1 port 6 to CPU unit B (1), port 1
     "cable SCU1 6 CPU1 1",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
     // Attach SCU unit 1 port 5 to CPU unit C (2), port 1
     "cable SCU1 5 CPU2 1",
@@ -1179,20 +1179,20 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 1 port 2 subport 2 to CPU unit H (7), port 1
     "cable SCU1 11 CPU7 1",
 
-#endif // N_CPU_UNITS_MAX > 2
-#endif // N_CPU_UNITS_MAX > 1
+#endif // N_CPU_UNITS_MAX_ > 2
+#endif // N_CPU_UNITS_MAX_ > 1
 
     // SCU2 --> CPU0-7
 
     // Attach SCU unit 2 port 7 to CPU unit A (0), port 2
     "cable SCU2 7 CPU0 2",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
     // Attach SCU unit 2 port 6 to CPU unit B (1), port 2
     "cable SCU2 6 CPU1 2",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
     // Attach SCU unit 2 port 5 to CPU unit C (2), port 2
     "cable SCU2 5 CPU2 2",
@@ -1212,20 +1212,20 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 2 port 2 subport 2 to CPU unit H (7), port 2
     "cable SCU2 11 CPU7 2",
 
-#endif // N_CPU_UNITS_MAX > 2
-#endif // N_CPU_UNITS_MAX > 1
+#endif // N_CPU_UNITS_MAX_ > 2
+#endif // N_CPU_UNITS_MAX_ > 1
 
     // SCU3 --> CPU0-7
 
     // Attach SCU unit 3 port 7 to CPU unit A (0), port 3
     "cable SCU3 7 CPU0 3",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
     // Attach SCU unit 3 port 6 to CPU unit B (1), port 3
     "cable SCU3 6 CPU1 3",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
     // Attach SCU unit 3 port 5 to CPU unit C (2), port 3
     "cable SCU3 5 CPU2 3",
@@ -1245,8 +1245,8 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 3 port 2 subport 2 to CPU unit H (7), port 3
     "cable SCU3 11 CPU7 3",
 
-#endif // N_CPU_UNITS_MAX > 2
-#endif // N_CPU_UNITS_MAX > 1
+#endif // N_CPU_UNITS_MAX_ > 2
+#endif // N_CPU_UNITS_MAX_ > 1
 
     "set scu0 reset",
     "set scu1 reset",
@@ -1564,7 +1564,7 @@ parm  dirw  loud  ttyb  64000
     "set cpu0 config=tro_enable=enable",
     "set cpu0 config=y2k=disable",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
 // CPU1
 
@@ -1635,7 +1635,7 @@ parm  dirw  loud  ttyb  64000
     "set cpu1 config=y2k=disable",
 
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
 // CPU2
 
@@ -2049,8 +2049,8 @@ parm  dirw  loud  ttyb  64000
     "set cpu7 config=tro_enable=enable",
     "set cpu7 config=y2k=disable",
 
-#endif // N_CPU_UNITS_MAX > 2
-#endif // N_CPU_UNITS_MAX > 1
+#endif // N_CPU_UNITS_MAX_ > 2
+#endif // N_CPU_UNITS_MAX_ > 1
 
 // IOM0
 
@@ -2677,12 +2677,12 @@ parm  dirw  loud  ttyb  64000
     // Attach SCU unit 0 port 7 to CPU unit A (0), port 0
     "cable SCU0 7 CPU0 0",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
     // Attach SCU unit 0 port 6 to CPU unit B (1), port 0
     "cable SCU0 6 CPU1 0",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
     // Attach SCU unit 0 port 5 to CPU unit C (2), port 0
     "cable SCU0 5 CPU2 0",
@@ -2782,8 +2782,8 @@ parm  dirw  loud  ttyb  64000
     // Attach SCU unit 3 port 2 subport 2 to CPU unit H (7), port 3
     "cable SCU3 22 CPU7 3",
 
-#endif // N_CPU_UNITS_MAX > 2
-#endif // N_CPU_UNITS_MAX > 1
+#endif // N_CPU_UNITS_MAX_ > 2
+#endif // N_CPU_UNITS_MAX_ > 1
 
 
     "set cpu0 reset",
@@ -2980,7 +2980,7 @@ static char * r2_0_base_system_script [] =
     "set cpu0 config=tro_enable=enable",
     "set cpu0 config=y2k=disable",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
 // CPU1
 
@@ -3043,11 +3043,11 @@ static char * r2_0_base_system_script [] =
     "set cpu1 config=dis_enable=enable",
     "set cpu1 config=steady_clock=disable",
     "set cpu1 config=halt_on_unimplemented=disable",
-    "set cpu1 config=disable_wam=disable",
+    "set cpu1 config=enable_wam=enable",
     "set cpu1 config=tro_enable=enable",
     "set cpu1 config=y2k=disable",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
 // CPU2
 
@@ -3110,7 +3110,7 @@ static char * r2_0_base_system_script [] =
     "set cpu2 config=dis_enable=enable",
     "set cpu2 config=steady_clock=disable",
     "set cpu2 config=halt_on_unimplemented=disable",
-    "set cpu2 config=disable_wam=disable",
+    "set cpu2 config=enable_wam=enable",
     "set cpu2 config=tro_enable=enable",
     "set cpu2 config=y2k=disable",
 
@@ -3176,7 +3176,7 @@ static char * r2_0_base_system_script [] =
     "set cpu3 config=dis_enable=enable",
     "set cpu3 config=steady_clock=disable",
     "set cpu3 config=halt_on_unimplemented=disable",
-    "set cpu3 config=disable_wam=disable",
+    "set cpu3 config=enable_wam=enable",
     "set cpu3 config=tro_enable=enable",
     "set cpu3 config=y2k=disable",
 
@@ -3242,7 +3242,7 @@ static char * r2_0_base_system_script [] =
     "set cpu4 config=dis_enable=enable",
     "set cpu4 config=steady_clock=disable",
     "set cpu4 config=halt_on_unimplemented=disable",
-    "set cpu4 config=disable_wam=disable",
+    "set cpu4 config=enable_wam=enable",
     "set cpu4 config=tro_enable=enable",
     "set cpu4 config=y2k=disable",
 
@@ -3308,7 +3308,7 @@ static char * r2_0_base_system_script [] =
     "set cpu5 config=dis_enable=enable",
     "set cpu5 config=steady_clock=disable",
     "set cpu5 config=halt_on_unimplemented=disable",
-    "set cpu5 config=disable_wam=disable",
+    "set cpu5 config=enable_wam=enable",
     "set cpu5 config=tro_enable=enable",
     "set cpu5 config=y2k=disable",
 
@@ -3773,12 +3773,12 @@ static char * r2_0_base_system_script [] =
     // ; Attach SCU unit 0 port 7 to CPU unit A (1), port 0
     "cable SCU0 7 CPU0 0",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
     // ; Attach SCU unit 0 port 6 to CPU unit B (1), port 0
     "cable SCU0 6 CPU1 0",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
     // ; Attach SCU unit 0 port 5 to CPU unit C (2), port 0
     "cable SCU0 5 CPU2 0",
@@ -3800,12 +3800,12 @@ static char * r2_0_base_system_script [] =
     // ; Attach SCU unit 1 port 7 to CPU unit A (1), port 1
     "cable SCU1 7 CPU0 1",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
     // ; Attach SCU unit 1 port 6 to CPU unit B (1), port 1
     "cable SCU1 6 CPU1 1",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
     // ; Attach SCU unit 1 port 5 to CPU unit C (2), port 1
     "cable SCU1 5 CPU2 1",
@@ -3827,12 +3827,12 @@ static char * r2_0_base_system_script [] =
     // ; Attach SCU unit 2 port 7 to CPU unit A (1), port 2
     "cable SCU2 7 CPU0 2", 
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
     // ; Attach SCU unit 2 port 6 to CPU unit B (1), port 2
     "cable SCU2 6 CPU1 2",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
     // ; Attach SCU unit 2 port 5 to CPU unit C (2), port 2
     "cable SCU2 5 CPU2 2",
@@ -3857,12 +3857,12 @@ static char * r2_0_base_system_script [] =
     // ; Attach SCU unit 3 port 7 to CPU unit A (1), port 3
     "cable SCU3 7 CPU0 3",
 
-#if N_CPU_UNITS_MAX > 1
+#if N_CPU_UNITS_MAX_ > 1
 
     // ; Attach SCU unit 3 port 6 to CPU unit B (1), port 3
     "cable SCU3 6 CPU1 3",
 
-#if N_CPU_UNITS_MAX > 2
+#if N_CPU_UNITS_MAX_ > 2
 
     // ; Attach SCU unit 3 port 5 to CPU unit C (2), port 3
     "cable SCU3 5 CPU2 3",
@@ -4639,9 +4639,11 @@ char * lookup_address (word18 segno, word18 offset, char * * compname,
 #endif
 
     char * ret = lookup_system_book_address (segno, offset, compname, compoffset);
+#if 0
     if (ret)
       return ret;
     ret = lookupSegmentAddress (segno, offset, compname, compoffset);
+#endif
     return ret;
   }
 
@@ -5329,6 +5331,7 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
     return SCPE_OK;
   }
 
+#if 0
 static t_stat virtAddrN (uint address)
   {
     if (cpu.DSBR.U) {
@@ -5438,7 +5441,9 @@ static t_stat virtAddrN (uint address)
     return SCPE_OK;
 
   }
+#endif
 
+#if 0
 // VIRTUAL address
 
 static t_stat virt_address (UNUSED int32 arg, const char * buf)
@@ -5448,6 +5453,7 @@ static t_stat virt_address (UNUSED int32 arg, const char * buf)
       return SCPE_ARG;
     return virtAddrN (address);
   }
+#endif
 
 // search path is path:path:path....
 
@@ -6091,7 +6097,9 @@ static CTAB dps8_cmds[] =
     {"ASBE",                add_system_book_entry,    0, "asbe: Add an entry to the system book\n", NULL, NULL},
     {"LOOKUP_SYSTEM_BOOK",  lookup_system_book,       0, "lookup_system_book: Lookup an address or symbol in the Multics system book\n", NULL, NULL},
     {"LSB",                 lookup_system_book,       0, "lsb: Lookup an address or symbol in the Multics system book\n", NULL, NULL},
+#if 0
     {"VIRTUAL",             virt_address,             0, "virtual: Compute the virtural address(es) of segno:offset\n", NULL, NULL},
+#endif
     {"SPATH",               set_search_path,          0, "spath: Set source code search path\n", NULL, NULL},
     {"BT2",                 boot2,                    0, "boot2: Boot CPU-B\n", NULL, NULL},
     {"TEST",                brkbrk,                   0, "test: GDB hook\n", NULL, NULL},
@@ -6229,7 +6237,7 @@ static void dps8_init (void)
 
     // special dps8 initialization stuff that cant be done in reset, etc .....
 
-#ifdef TESTING
+#ifdef xTESTING
     // These are part of the simh interface
     sim_vm_parse_addr = parse_addr;
     sim_vm_fprint_addr = fprint_addr;
@@ -6319,7 +6327,7 @@ static void dps8_init (void)
 
 
 
-#ifdef TESTING 
+#ifdef xTESTING 
 static struct pr_table
   {
     char  * alias;    // pr alias
@@ -6472,7 +6480,7 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
 }
 #endif // TESTING
 
-#ifdef TESTING 
+#ifdef xTESTING 
 static void fprint_addr (FILE * stream, UNUSED DEVICE *  dptr, t_addr simh_addr)
 {
     char temp[256];

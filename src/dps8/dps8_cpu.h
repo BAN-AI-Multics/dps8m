@@ -16,7 +16,7 @@
 
 // simh only explicitly supports a single cpu; so we move away from simh...
 
-#define N_CPU_UNITS N_CPU_UNITS_MAX 
+#define N_CPU_UNITS N_CPU_UNITS_MAX_
 
 // JMP_ENTRY must be 0, which is the return value of the setjmp initial
 // entry
