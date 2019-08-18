@@ -274,6 +274,11 @@ static t_stat fnpReset (UNUSED DEVICE * dptr)
     return SCPE_OK;
   }
 
+char prefix (uint fnp_unit_idx)
+  {
+    return (char) ((fnpData.fnpUnitData[fnp_unit_idx].mailboxAddress - 03400) / 0300) + 'a';
+  }
+
 //
 // Locate an available fnp_submailbox
 //
@@ -1691,25 +1696,26 @@ static t_stat fnpShowService (UNUSED FILE * st, UNIT * uptr,
     long devnum = FNP_UNIT_IDX (uptr);
     if (devnum < 0 || devnum >= N_FNP_UNITS_MAX)
       return SCPE_ARG;
+    char pfx = prefix ((uint) devnum);
     for (uint linenum = 0; linenum < MAX_LINES; linenum ++)
       {
         enum service_types st = fnpData.fnpUnitData[devnum].MState.line[linenum].service;
         switch (st)
           {
             case service_undefined:
-              sim_printf("%c.%03d undefined\r\n", 'a' + (int) devnum, linenum);
+              sim_printf("%c.%03d undefined\r\n", pfx, linenum);
               break;
             case service_login:
-              sim_printf("%c.%03d login\r\n", 'a' + (int) devnum, linenum);
+              sim_printf("%c.%03d login\r\n", pfx, linenum);
               break;
             case service_autocall:
-              sim_printf("%c.%03d autocall\r\n", 'a' + (int) devnum, linenum);
+              sim_printf("%c.%03d autocall\r\n", pfx, linenum);
               break;
             case service_slave:
-              sim_printf("%c.%03d slave\r\n", 'a' + (int) devnum, linenum);
+              sim_printf("%c.%03d slave\r\n", pfx, linenum);
               break;
             default:
-              sim_printf("%d.%03d ERR (%u)\r\n", 'a' + (int) devnum, linenum, st);
+              sim_printf("%d.%03d ERR (%u)\r\n", pfx, linenum, st);
               break;
           }
       }
@@ -1775,7 +1781,7 @@ static t_stat fnpShowConfig (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
 
     sim_printf ("FNP unit number %ld\n", fnpUnitIdx);
     struct fnpUnitData_s * fudp = fnpData.fnpUnitData + fnpUnitIdx;
-
+    sim_printf ("FNP ID:                      %c\n", prefix ((uint) fnpUnitIdx));
     sim_printf ("FNP Mailbox Address:         %04o(8)\n", fudp -> mailboxAddress);
  
     return SCPE_OK;
@@ -2319,9 +2325,8 @@ void fnpConnectPrompt (uv_tcp_t * client)
                   fnpuv_start_writestr (client, (unsigned char *) ",");
                 char name [16];
                 first = false;
-                char prefix = (char) ((fnpData.fnpUnitData[fnp_unit_idx].mailboxAddress - 03400) / 0300) + 'a';
                 
-                sprintf (name, "%c.h%03d", prefix, lineno);
+                sprintf (name, "%c.h%03d", prefix (fnp_unit_idx), lineno);
                 fnpuv_start_writestr (client, (unsigned char *) name);
               }
           }
@@ -2427,7 +2432,7 @@ void fnp3270ConnectPrompt (uv_tcp_t * client)
     // Don't know ttype yet because Telnet negotiation won't
     // start until evPoll runs.
     unsigned char buf [256];
-    sprintf ((char *) buf, "DPS8/M 3270 connection to %c.%03d.%d ttype %s\n", fnpno+'a',lineno, p->stationNo, p->ttype);
+    sprintf ((char *) buf, "DPS8/M 3270 connection to %c.%03d.%d ttype %s\n",prefix (fnpno),lineno, p->stationNo, p->ttype);
     fnpData.ibm3270ctlr[ASSUME0].selDevChar = addr_map[p->stationNo];
     fnp3270Msg (client, buf);
 #endif
@@ -2742,7 +2747,16 @@ check:;
             fnpuv_start_writestr (client, (unsigned char *) "can't parse\r\n");
             goto reprompt;
           }
-        fnp_unit_idx = (uint) (fnpcode - 'a');
+        //fnp_unit_idx = (uint) (fnpcode - 'a');
+        for (fnp_unit_idx = 0; fnp_unit_idx < 8; fnp_unit_idx ++)
+          if (prefix (fnp_unit_idx) == fnpcode)
+            break;
+        if (fnp_unit_idx >= 8)
+          {
+            fnpuv_start_writestr (client, (unsigned char *) "can't find FNP\r\n");
+            goto reprompt;
+          }
+
         if (fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].service != service_login ||
             fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].line_client)
           {
@@ -2797,15 +2811,15 @@ associate:;
     int ret = uv_tcp_getpeername (client, & name, & namelen);
     if (ret < 0)
       {
-        sim_printf ("CONNECT (addr err %d) to %c.h%03d\n", ret, fnp_unit_idx +'a', lineno);
+        sim_printf ("CONNECT (addr err %d) to %c.h%03d\n", ret, prefix (fnp_unit_idx), lineno);
       }
     else
       {
         struct sockaddr_in * p = (struct sockaddr_in *) & name;
-        sim_printf ("CONNECT %s to %c.h%03d\n", inet_ntoa (p -> sin_addr), fnp_unit_idx +'a', lineno);
+        sim_printf ("CONNECT %s to %c.h%03d\n", inet_ntoa (p -> sin_addr), prefix (fnp_unit_idx), lineno);
       }
 
-    sprintf (buf2, "Attached to line %c.h%03d\r\n", fnp_unit_idx +'a', lineno);
+    sprintf (buf2, "Attached to line %c.h%03d\r\n", prefix (fnp_unit_idx), lineno);
     fnpuv_start_writestr (client, (unsigned char *) buf2);
 
     if (! fnpData.fnpUnitData[fnp_unit_idx].MState.accept_calls)
