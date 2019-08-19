@@ -1325,7 +1325,7 @@ DEVICE cpu_dev =
     cpu_unit,       // units
     cpu_reg,        // registers
     cpu_mod,        // modifiers
-    N_CPU_UNITS,    // #units
+    N_CPU_UNITS_MAX,// #units
     8,              // address radix
     PASIZE,         // address width
     1,              // addr increment
@@ -1505,12 +1505,13 @@ t_stat sim_instr (void)
 
 // Create IOM threads
 
-        for (uint iom_unit_idx = 0;
-             iom_unit_idx < iom_dev.numunits;
-             iom_unit_idx ++)
+        for (uint iom_unit_idx = 0; iom_unit_idx < N_IOM_UNITS_MAX; iom_unit_idx ++)
           {
-            createIOMThread (iom_unit_idx);
-            iomRdyWait (iom_unit_idx);
+            if (iom_unit_data[iom_unit_idx].configSwPower)
+              {
+                createIOMThread (iom_unit_idx);
+                iomRdyWait (iom_unit_idx);
+              }
           }
 #endif // EARLY_CREATE
 #endif // IO_THREADZ
@@ -1518,11 +1519,10 @@ t_stat sim_instr (void)
 #ifdef EARLY_CREATE
 // Create CPU threads
 
-        //for (uint cpu_idx = 0; cpu_idx < N_CPU_UNITS_MAX; cpu_idx ++)
-        for (uint cpu_idx = 0; cpu_idx < cpu_dev.numunits; cpu_idx ++)
+        for (uint cpu_idx = 0; cpu_idx < N_CPU_UNITS_MAX; cpu_idx ++)
+        //for (uint cpu_idx = 0; cpu_idx < cpu_dev.numunits; cpu_idx ++)
           {
-            if (cpus[cpu_idx].switches.power &&
-                cpuThreadz[cpu_idx].run == false)
+            if (cpus[cpu_idx].switches.power)
               createCPUThread (cpu_idx);
           }
 #else // ! EARLY_CREATE
@@ -3069,11 +3069,14 @@ t_stat set_mem_watch (int32 arg, const char * buf)
  */
 
 #ifndef SPEED
-static void nem_check (word24 addr, char * context)
+static void nem_check (word24 addr, const char * ctx)
   {
     if (lookup_cpu_mem_map (addr) < 0)
-      doFault (FAULT_STR, fst_str_nea,  context);
+      doFault (FAULT_STR, fst_str_nea,  ctx);
   }
+#define NEM_CHECK nem_check (addr, ctx)
+#else
+#define NEM_CHECK
 #endif
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
@@ -3081,9 +3084,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#ifndef SPEED
-    nem_check (addr,  "core_read nem");
-#endif
+    NEM_CHECK;
 
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
@@ -3157,9 +3158,7 @@ int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#ifndef SPEED
-    nem_check (addr,  "core_lock_read nem");
-#endif
+    NEM_CHECK;
     LOCK_CORE_WORD(addr);
     if (cpu.locked_addr != 0) {
       sim_warn ("core_read_lock: locked %08o locked_addr %08o %c %05o:%06o\n",
@@ -3180,9 +3179,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#ifndef SPEED
-    nem_check (addr,  "core_read nem");
-#endif
+    NEM_CHECK;
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -3238,9 +3235,7 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
 {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#ifndef SPEED
-    nem_check (addr,  "core_read nem");
-#endif
+    NEM_CHECK;
     if (cpu.locked_addr != addr)
       {
         sim_warn ("core_write_unlock: locked %08o locked_addr %08o %c %05o:%06o\n",
@@ -3372,9 +3367,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
       }
 #endif
 #endif
-#ifndef SPEED
-    nem_check (addr,  "core_read nem");
-#endif
+    NEM_CHECK;
 #ifndef LOCKLESS
 #ifdef SPLIT_MEMORY
     if (Mhigh[addr] & MEM_UNINITIALIZED_HIGH)
@@ -3425,7 +3418,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
                 addr - 1, * even, ctx);
 
     // if the even address is OK, the odd will be
-    //nem_check (addr,  "core_read2 nem");
+    // NEM_CHECK;
 #ifndef LOCKLESS
 #ifdef SPLIT_MEMORY
     if (Mhigh[addr] & MEM_UNINITIALIZED_HIGH)
@@ -3491,9 +3484,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
         addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
       }
     ISOLTS_MAP;
-#ifndef SPEED
-     nem_check (addr,  "core_write2 nem");
-#endif
+    NEM_CHECK;
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -3507,9 +3498,6 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
         cpu.MR.separ = 0;
       }
 #endif
-#endif
-#ifndef SPEED
-  nem_check (addr,  "core_read nem");
 #endif
 #ifndef SPEED
     if (watch_bits [addr])
@@ -3537,7 +3525,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
                 addr - 1, even, ctx);
 
     // If the even address is OK, the odd will be
-    //nem_check (addr,  "core_write2 nem");
+    // NEM_CHECK;
 
 #ifndef SPEED
     if (watch_bits [addr])

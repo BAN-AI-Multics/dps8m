@@ -339,7 +339,6 @@ parm dirw loud ttyb 64000
     // Disconnect everything...
     "cable ripout",
 
-    "set iom nunits=1",
     // One tape controller with 16 drives
     "set ipct nunits=1",
     "set tape nunits=16",
@@ -362,13 +361,17 @@ parm dirw loud ttyb 64000
 #endif
 
     "set cpu0 config=power=off",
+#if N_CPU_UNITS_MAX_ > 1
     "set cpu1 config=power=off",
+#if N_CPU_UNITS_MAX_ > 2
     "set cpu2 config=power=off",
     "set cpu3 config=power=off",
     "set cpu4 config=power=off",
     "set cpu5 config=power=off",
     "set cpu6 config=power=off",
     "set cpu7 config=power=off",
+#endif
+#endif
     "set iom0 config=power=off",
     "set iom1 config=power=off",
     "set iom2 config=power=off",
@@ -1502,7 +1505,6 @@ parm  dirw  loud  ttyb  64000
     // Disconnect everything...
     "cable ripout",
 
-    "set iom nunits=2",
     // One tape controller with 16 drives
     "set ipct nunits=1",
     "set tape nunits=16",
@@ -1525,13 +1527,17 @@ parm  dirw  loud  ttyb  64000
 #endif
 
     "set cpu0 config=power=off",
+#if N_CPU_UNITS_MAX_ > 1
     "set cpu1 config=power=off",
+#if N_CPU_UNITS_MAX_ > 2
     "set cpu2 config=power=off",
     "set cpu3 config=power=off",
     "set cpu4 config=power=off",
     "set cpu5 config=power=off",
     "set cpu6 config=power=off",
     "set cpu7 config=power=off",
+#endif
+#endif
     "set iom0 config=power=off",
     "set iom1 config=power=off",
     "set iom2 config=power=off",
@@ -2937,7 +2943,6 @@ static char * r2_0_base_system_script [] =
     // ; Disconnect everything...
     "cable ripout",
 
-    "set iom nunits=2",
     "set mtp nunits=1",
     "set tape nunits=17",
     // ; 4 3381 drives; 2 controllers
@@ -2959,13 +2964,17 @@ static char * r2_0_base_system_script [] =
 #endif
 
     "set cpu0 config=power=off",
+#if N_CPU_UNITS_MAX_ > 1
     "set cpu1 config=power=off",
+#if N_CPU_UNITS_MAX_ > 2
     "set cpu2 config=power=off",
     "set cpu3 config=power=off",
     "set cpu4 config=power=off",
     "set cpu5 config=power=off",
     "set cpu6 config=power=off",
     "set cpu7 config=power=off",
+#endif
+#endif
     "set iom0 config=power=off",
     "set iom1 config=power=off",
     "set iom2 config=power=off",

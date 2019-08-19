@@ -234,7 +234,7 @@
 //              IOMB,..."). Encoded in the low to bits of configSwMultiplexBaseAddress
 
 // Default
-#define N_IOM_UNITS 1
+#define N_IOM_UNITS N_IOM_UNITS_MAX
 
 #define IOM_UNIT_IDX(uptr) ((uptr) - iom_unit)
 
@@ -539,30 +539,11 @@ static t_stat iom_show_mbx (UNUSED FILE * st,
   }
 
 
-static t_stat iom_show_units (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
-  {
-    sim_printf ("Number of IOM units in system is %d\n", iom_dev.numunits);
-    return SCPE_OK;
-  }
-
-static t_stat iom_set_units (UNUSED UNIT * uptr, UNUSED int value, const char * cptr, UNUSED void * desc)
-  {
-    if (! cptr)
-      return SCPE_ARG;
-    int n = atoi (cptr);
-    if (n < 1 || n > N_IOM_UNITS_MAX)
-      return SCPE_ARG;
-    if (n > 2)
-      sim_printf ("Warning: Multics supports 2 IOMs maximum\n");
-    iom_dev.numunits = (unsigned) n;
-    return SCPE_OK;
-  }
-
 static t_stat iom_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val, 
                              UNUSED const void * desc)
   {
     uint iom_unit_idx = (uint) IOM_UNIT_IDX (uptr);
-    if (iom_unit_idx >= iom_dev.numunits)
+    if (iom_unit_idx >= N_IOM_UNITS_MAX)
       {
         sim_printf ("error: invalid unit number %u\n", iom_unit_idx);
         return SCPE_ARG;
@@ -740,7 +721,7 @@ static config_list_t iom_config_list[] =
 static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUSED void * desc)
   {
     uint iom_unit_idx = (uint) IOM_UNIT_IDX (uptr);
-    if (iom_unit_idx >= iom_dev.numunits)
+    if (iom_unit_idx >= N_IOM_UNITS_MAX)
       {
         sim_printf ("error: %s: invalid unit number %d\n", __func__, iom_unit_idx);
         return SCPE_ARG;
@@ -961,16 +942,6 @@ static MTAB iom_mod[] =
       NULL /* help */
     },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      iom_set_units, /* validation routine */
-      iom_show_units, /* display routine */
-      "Number of IOM units in the system", /* value descriptor */
-      NULL   // help string
-    },
-    {
       MTAB_XTD | MTAB_VUN | MTAB_VALR, /* mask */
       0,            /* match */
       "BOOT_DRIVE",     /* print string */
@@ -1018,7 +989,7 @@ static t_stat iom_reset (UNUSED DEVICE * dptr)
   {
     sim_debug (DBG_INFO, & iom_dev, "%s: running.\n", __func__);
 
-    for (uint iom_unit_idx = 0; iom_unit_idx < iom_dev.numunits; iom_unit_idx ++)
+    for (uint iom_unit_idx = 0; iom_unit_idx < N_IOM_UNITS_MAX; iom_unit_idx ++)
       {
         iom_unit_reset_idx (iom_unit_idx);
       }
@@ -1352,7 +1323,7 @@ static t_stat boot_svc (UNIT * unitp)
 
 static t_stat iom_boot (int unitNum, UNUSED DEVICE * dptr)
   {
-    if (unitNum < 0 || unitNum >= (int) iom_dev.numunits)
+    if (unitNum < 0 || unitNum >= (int) N_IOM_UNITS_MAX)
       {
         sim_printf ("%s: Invalid unit number %d\n", __func__, unitNum);
         return SCPE_ARG;
