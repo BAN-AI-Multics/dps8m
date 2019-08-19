@@ -282,6 +282,8 @@ typedef struct
   {
     // Configuration switches
 
+    bool configSwPower;
+
     // Interrupt multiplex base address: 12 toggles
     word12 configSwIomBaseAddress;
             
@@ -593,6 +595,7 @@ static t_stat iom_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
           break;
       }
 
+    sim_printf ("Power:                    %s)\n", p -> configSwPower ? "on" : "off");
     sim_printf ("Allowed Operating System: %s\n", os);
     sim_printf ("IOM Base Address:         %03o(8)\n", p -> configSwIomBaseAddress);
     sim_printf ("Multiplex Base Address:   %04o(8)\n", p -> configSwMultiplexBaseAddress);
@@ -647,6 +650,15 @@ static t_stat iom_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
 //             halfsize=n
 //             storesize=n
 //          bootskip=n // Hack: forward skip n records after reading boot record
+
+static config_value_list_t cfg_on_off [] =
+  {
+    { "off", 0 },
+    { "on", 1 },
+    { "disable", 0 },
+    { "enable", 1 },
+    { NULL, 0 }
+  };
 
 static config_value_list_t cfg_model_list[] =
   {
@@ -705,6 +717,7 @@ static config_value_list_t cfg_size_list[] =
 
 static config_list_t iom_config_list[] =
   {
+    { "power", 1, 0, cfg_on_off },
     { "model", 1, 0, cfg_model_list },
     { "os", 1, 0, cfg_os_list },
     { "boot", 1, 0, cfg_boot_list },
@@ -769,6 +782,12 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
         if (strcmp (name, "boot") == 0)
           {
             p -> configSwBootloadCardTape = (enum config_sw_bootlood_device_e) v;
+            continue;
+          }
+
+        if (strcmp (name, "power") == 0)
+          {
+            p -> configSwPower = !! v;
             continue;
           }
 

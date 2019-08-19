@@ -98,6 +98,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 
     sim_msg ("CPU unit number %ld\n", cpu_unit_idx);
 
+    sim_msg ("Power:    :               %s)\n",
+                cpus[cpu_unit_idx].switches.power ? "on" : "off");
     sim_msg ("Fault base:               %03o(8)\n",
                 cpus[cpu_unit_idx].switches.FLT_BASE);
     sim_msg ("CPU number:               %01o(8)\n",
@@ -306,6 +308,7 @@ static config_value_list_t cfg_size_list [] =
 
 static config_list_t cpu_config_list [] =
   {
+    { "power", 0, 1, cfg_on_off },
     { "faultbase", 0, 0177, cfg_multics_fault_base },
     { "num", 0, 07, NULL },
     { "data", 0, 0777777777777, NULL },
@@ -380,7 +383,9 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           }
 
         const char * p = cpu_config_list [rc] . name;
-        if (strcmp (p, "faultbase") == 0)
+        if (strcmp (p, "power") == 0)
+          cpus[cpu_unit_idx].switches.power = !! v;
+        else if (strcmp (p, "faultbase") == 0)
           cpus[cpu_unit_idx].switches.FLT_BASE = (uint) v;
         else if (strcmp (p, "num") == 0)
           cpus[cpu_unit_idx].switches.cpu_num = (uint) v;
@@ -1516,7 +1521,8 @@ t_stat sim_instr (void)
         //for (uint cpu_idx = 0; cpu_idx < N_CPU_UNITS_MAX; cpu_idx ++)
         for (uint cpu_idx = 0; cpu_idx < cpu_dev.numunits; cpu_idx ++)
           {
-            if (cpuThreadz[cpu_idx].run == false)
+            if (cpus[cpu_idx].switches.power &&
+                cpuThreadz[cpu_idx].run == false)
               createCPUThread (cpu_idx);
           }
 #else // ! EARLY_CREATE

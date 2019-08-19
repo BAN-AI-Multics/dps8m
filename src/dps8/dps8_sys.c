@@ -361,8 +361,22 @@ parm dirw loud ttyb 64000
     "set absi nunits=1",
 #endif
 
+    "set cpu0 config=power=off",
+    "set cpu1 config=power=off",
+    "set cpu2 config=power=off",
+    "set cpu3 config=power=off",
+    "set cpu4 config=power=off",
+    "set cpu5 config=power=off",
+    "set cpu6 config=power=off",
+    "set cpu7 config=power=off",
+    "set iom0 config=power=off",
+    "set iom1 config=power=off",
+    "set iom2 config=power=off",
+    "set iom3 config=power=off",
+
 // CPU0
 
+    "set cpu0 config=power=on",
     "set cpu0 config=faultbase=Multics",
 
     "set cpu0 config=num=0",
@@ -433,6 +447,7 @@ parm dirw loud ttyb 64000
 
 // CPU1
 
+    "set cpu1 config=power=on",
     "set cpu1 config=faultbase=Multics",
     "set cpu1 config=num=1",
     "set cpu1 config=data=024000717200",
@@ -476,6 +491,7 @@ parm dirw loud ttyb 64000
 
 // CPU2
 
+    "set cpu2 config=power=on",
     "set cpu2 config=faultbase=Multics",
     "set cpu2 config=num=2",
     "set cpu2 config=data=024000717200",
@@ -517,6 +533,7 @@ parm dirw loud ttyb 64000
 
 // CPU3
 
+    "set cpu3 config=power=on",
     "set cpu3 config=faultbase=Multics",
     "set cpu3 config=num=3",
     "set cpu3 config=data=024000717200",
@@ -555,6 +572,8 @@ parm dirw loud ttyb 64000
     "set cpu3 config=enable_wam=enable",
     "set cpu3 config=tro_enable=enable",
     "set cpu3 config=y2k=disable",
+
+    "set cpu4 config=power=on",
     "set cpu4 config=faultbase=Multics",
     "set cpu4 config=num=4",
     "set cpu4 config=data=024000717200",
@@ -596,6 +615,7 @@ parm dirw loud ttyb 64000
 
 // CPU5
 
+    "set cpu5 config=power=on",
     "set cpu5 config=faultbase=Multics",
     "set cpu5 config=num=5",
     "set cpu5 config=data=024000717200",
@@ -637,6 +657,7 @@ parm dirw loud ttyb 64000
 
 // CPU6
 
+    "set cpu6 config=power=on",
     "set cpu6 config=faultbase=Multics",
     "set cpu6 config=num=6",
     "set cpu6 config=data=024000717200",
@@ -678,6 +699,7 @@ parm dirw loud ttyb 64000
 
 // CPU7
 
+    "set cpu7 config=power=on",
     "set cpu7 config=faultbase=Multics",
     "set cpu7 config=num=7",
     "set cpu7 config=data=024000717200",
@@ -721,6 +743,7 @@ parm dirw loud ttyb 64000
 #endif // N_CPU_UNITS_MAX_ > 1
 // IOM0
 
+    "set iom0 config=power=on",
     "set iom0 config=model=imu",
     "set iom0 config=iom_base=Multics",
     "set iom0 config=multiplex_base=0120",
@@ -1501,8 +1524,22 @@ parm  dirw  loud  ttyb  64000
     "set absi nunits=1",
 #endif
 
+    "set cpu0 config=power=off",
+    "set cpu1 config=power=off",
+    "set cpu2 config=power=off",
+    "set cpu3 config=power=off",
+    "set cpu4 config=power=off",
+    "set cpu5 config=power=off",
+    "set cpu6 config=power=off",
+    "set cpu7 config=power=off",
+    "set iom0 config=power=off",
+    "set iom1 config=power=off",
+    "set iom2 config=power=off",
+    "set iom3 config=power=off",
+
 // CPU0
 
+    "set cpu0 config=power=on",
     "set cpu0 config=faultbase=Multics",
 
     "set cpu0 config=num=0",
@@ -1573,6 +1610,7 @@ parm  dirw  loud  ttyb  64000
 
 // CPU1
 
+    "set cpu1 config=power=on",
     "set cpu1 config=faultbase=Multics",
 
     "set cpu1 config=num=1",
@@ -1644,6 +1682,7 @@ parm  dirw  loud  ttyb  64000
 
 // CPU2
 
+    "set cpu2 config=power=on",
     "set cpu2 config=faultbase=Multics",
 
     "set cpu2 config=num=2",
@@ -1713,6 +1752,7 @@ parm  dirw  loud  ttyb  64000
 
 // CPU3
 
+    "set cpu3 config=power=on",
     "set cpu3 config=faultbase=Multics",
 
     "set cpu3 config=num=3",
@@ -1782,6 +1822,7 @@ parm  dirw  loud  ttyb  64000
 
 // CPU4
 
+    "set cpu4 config=power=on",
     "set cpu4 config=faultbase=Multics",
 
     "set cpu4 config=num=4",
@@ -1851,6 +1892,7 @@ parm  dirw  loud  ttyb  64000
 
 // CPU5
 
+    "set cpu5 config=power=on",
     "set cpu5 config=faultbase=Multics",
 
     "set cpu5 config=num=5",
@@ -1920,6 +1962,7 @@ parm  dirw  loud  ttyb  64000
 
 // CPU6
 
+    "set cpu6 config=power=on",
     "set cpu6 config=faultbase=Multics",
 
     "set cpu6 config=num=6",
@@ -1988,6 +2031,7 @@ parm  dirw  loud  ttyb  64000
 
 // CPU7
 
+    "set cpu7 config=power=on",
     "set cpu7 config=faultbase=Multics",
 
     "set cpu7 config=num=7",
@@ -2059,6 +2103,7 @@ parm  dirw  loud  ttyb  64000
 
 // IOM0
 
+    "set iom0 config=power=on",
     "set iom0 config=model=imu",
     "set iom0 config=iom_base=Multics",
     "set iom0 config=multiplex_base=0120",
@@ -2114,6 +2159,7 @@ parm  dirw  loud  ttyb  64000
 
 // IOM1
 
+    "set iom1 config=power=on",
     "set iom1 config=model=imu",
     "set iom1 config=iom_base=Multics2",
     "set iom1 config=multiplex_base=0121",
@@ -2154,6 +2200,7 @@ parm  dirw  loud  ttyb  64000
 
 // IOM2
 
+    "set iom2 config=power=on",
     "set iom2 config=iom_base=Multics2",
     "set iom2 config=multiplex_base=0121",
     "set iom2 config=os=Multics",
@@ -2192,6 +2239,7 @@ parm  dirw  loud  ttyb  64000
 
 // IOM3
 
+    "set iom3 config=power=on",
     "set iom3 config=iom_base=Multics2",
     "set iom3 config=multiplex_base=0121",
     "set iom3 config=os=Multics",
@@ -2910,6 +2958,19 @@ static char * r2_0_base_system_script [] =
     "set absi nunits=1",
 #endif
 
+    "set cpu0 config=power=off",
+    "set cpu1 config=power=off",
+    "set cpu2 config=power=off",
+    "set cpu3 config=power=off",
+    "set cpu4 config=power=off",
+    "set cpu5 config=power=off",
+    "set cpu6 config=power=off",
+    "set cpu7 config=power=off",
+    "set iom0 config=power=off",
+    "set iom1 config=power=off",
+    "set iom2 config=power=off",
+    "set iom3 config=power=off",
+
 #if 0
 #ifndef __MINGW64__
 
@@ -2922,6 +2983,7 @@ static char * r2_0_base_system_script [] =
 
 // CPU0
 
+    "set cpu0 config=power=on",
     "set cpu0 config=faultbase=Multics",
 
     "set cpu0 config=num=0",
@@ -2992,6 +3054,7 @@ static char * r2_0_base_system_script [] =
 
 // CPU1
 
+    "set cpu1 config=power=on",
     "set cpu1 config=faultbase=Multics",
 
     "set cpu1 config=num=1",
@@ -3062,6 +3125,7 @@ static char * r2_0_base_system_script [] =
 
 // CPU2
 
+    "set cpu2 config=power=on",
     "set cpu2 config=faultbase=Multics",
 
     "set cpu2 config=num=2",
@@ -3130,6 +3194,7 @@ static char * r2_0_base_system_script [] =
 
 // CPU3
 
+    "set cpu3 config=power=on",
     "set cpu3 config=faultbase=Multics",
 
     "set cpu3 config=num=3",
@@ -3198,6 +3263,7 @@ static char * r2_0_base_system_script [] =
 
 // CPU4
 
+    "set cpu4 config=power=on",
     "set cpu4 config=faultbase=Multics",
 
     "set cpu4 config=num=4",
@@ -3266,6 +3332,7 @@ static char * r2_0_base_system_script [] =
 
 // CPU5
 
+    "set cpu5 config=power=on",
     "set cpu5 config=faultbase=Multics",
 
     "set cpu5 config=num=5",
@@ -3338,6 +3405,7 @@ static char * r2_0_base_system_script [] =
 
 // IOM0
 
+    "set iom0 config=power=on",
     "set iom0 config=iom_base=Multics",
     "set iom0 config=multiplex_base=0120",
     "set iom0 config=os=Multics",
@@ -3392,6 +3460,7 @@ static char * r2_0_base_system_script [] =
 
 // IOM1
 
+    "set iom1 config=power=on",
     "set iom1 config=iom_base=Multics2",
     "set iom1 config=multiplex_base=0121",
     "set iom1 config=os=Multics",

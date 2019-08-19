@@ -699,6 +699,7 @@ typedef struct
 
 typedef struct
   {
+    bool power;
     // Switches on the Processor's maintenance and configuration panels
     uint FLT_BASE; // normally 7 MSB of 12bit fault base addr
     uint cpu_num;  // zero for CPU 'A', one for 'B' etc.
