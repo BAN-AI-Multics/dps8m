@@ -3079,13 +3079,6 @@ static void nem_check (word24 addr, const char * ctx)
 #define NEM_CHECK
 #endif
 
-#if !defined(SPEED) || !defined(INLINE_CORE)
-int32 core_read (word24 addr, word36 *data, const char * ctx)
-  {
-    PNL (cpu.portBusy = true;)
-    ISOLTS_MAP;
-    NEM_CHECK;
-
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -3099,7 +3092,17 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
         cpu.MR.separ = 0;
       }
 #endif
+#else
+#define PAR_CHECK
 #endif
+
+#if !defined(SPEED) || !defined(INLINE_CORE)
+int32 core_read (word24 addr, word36 *data, const char * ctx)
+  {
+    PNL (cpu.portBusy = true;)
+    ISOLTS_MAP;
+    NEM_CHECK;
+    PAR_CHECK;
 
 #ifndef LOCKLESS
 #ifdef SPLIT_MEMORY
@@ -3180,20 +3183,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
     NEM_CHECK;
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
+    PAR_CHECK;
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, data);
@@ -3353,21 +3343,8 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         addr &= (word24)~1; /* make it an even address */
       }
     ISOLTS_MAP;
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
     NEM_CHECK;
+    PAR_CHECK;
 #ifndef LOCKLESS
 #ifdef SPLIT_MEMORY
     if (Mhigh[addr] & MEM_UNINITIALIZED_HIGH)
@@ -3485,20 +3462,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
       }
     ISOLTS_MAP;
     NEM_CHECK;
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
+    PAR_CHECK;
 #ifndef SPEED
     if (watch_bits [addr])
       {
