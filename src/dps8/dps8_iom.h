@@ -163,7 +163,7 @@ t_stat boot2 (UNUSED int32 arg, UNUSED const char * buf);
 t_stat iom_unit_reset_idx (uint iom_unit_idx);
 
 #if defined(IO_ASYNC_PAYLOAD_CHAN) || defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
-void iomProcess (void);
+void iom_process (void);
 #endif
 #ifdef IO_THREADZ
 #ifdef EARLY_CREATE

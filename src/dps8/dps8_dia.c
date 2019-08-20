@@ -800,7 +800,7 @@ static int dia_cmd (uint iom_unit_idx, uint chan)
         default:
           {
             p -> stati = 04501;
-            p -> chanStatus = chanStatIncorrectDCW;
+            p -> chan_status = chan_stat_incorrect_DCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("dia daze %o\n", p->IDCW_DEV_CMD);
           }

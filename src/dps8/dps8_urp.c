@@ -303,7 +303,7 @@ static int urp_cmd (uint iomUnitIdx, uint chan)
           {
             p -> stati = 04000;
             p -> initiate = false;
-            p -> isRead = false;
+            p -> is_read = false;
             sim_debug (DBG_NOTIFY, & urp_dev, "Reset status %d\n", urp_unit_num);
           }
           break;
@@ -311,7 +311,7 @@ static int urp_cmd (uint iomUnitIdx, uint chan)
         default:
           {
             p -> stati = 04501; // cmd reject, invalid opcode
-            p -> chanStatus = chanStatIncorrectDCW;
+            p -> chan_status = chan_stat_incorrect_DCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("urp daze %o\n", p -> IDCW_DEV_CMD);
           }

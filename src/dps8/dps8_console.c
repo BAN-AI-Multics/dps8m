@@ -696,7 +696,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
 
     iom_indirect_data_service (iomUnitIdx, chan_num, buf, & n_words, true);
 
-    p->charPos = n_chars % 4;
+    p->char_pos = n_chars % 4;
     p->stati = (word12) stati;
     p->initiate = false;
 
@@ -775,7 +775,7 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
               {
                 sim_warn ("console read list service failed\n");
                 p->stati = 05001; // BUG: arbitrary error code; config switch
-                p->chanStatus = chanStatIncomplete;
+                p->chan_status = chan_stat_incomplete;
                 return IOM_CMD_ERROR;
               }
             if (uff)
@@ -786,14 +786,14 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
               {
                 sim_warn ("console read nothing to send\n");
                 p->stati = 05001; // BUG: arbitrary error code; config switch
-                p->chanStatus = chanStatIncomplete;
+                p->chan_status = chan_stat_incomplete;
                 return  IOM_CMD_ERROR;
               }
             if (p->DCW_18_20_CP == 07 || p->DDCW_22_23_TYPE == 2)
               {
                 sim_warn ("console read expected DDCW\n");
                 p->stati = 05001; // BUG: arbitrary error code; config switch
-                p->chanStatus = chanStatIncorrectDCW;
+                p->chan_status = chan_stat_incorrect_DCW;
                 return IOM_CMD_ERROR;
               }
 
@@ -801,7 +801,7 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
               {
                 sim_warn ("list service failed\n");
                 p->stati = 05001; // BUG: arbitrary error code; config switch
-                p->chanStatus = chanStatIncomplete;
+                p->chan_status = chan_stat_incomplete;
                 return IOM_CMD_ERROR;
               }
 
@@ -810,7 +810,7 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
               {
 sim_warn ("uncomfortable with this\n");
                 p->stati = 05001; // BUG: arbitrary error code; config switch
-                p->chanStatus = chanStatIncorrectDCW;
+                p->chan_status = chan_stat_incorrect_DCW;
                 return IOM_CMD_ERROR;
               }
 
@@ -861,7 +861,7 @@ sim_warn ("uncomfortable with this\n");
 
         case 033:               // Write ASCII
           {
-            p->isRead = false;
+            p->is_read = false;
             csp->io_mode = opc_write_mode;
 
             sim_debug (DBG_NOTIFY, & opc_dev,
@@ -886,7 +886,7 @@ sim_warn ("uncomfortable with this\n");
                     sim_warn ("console write list service failed\n");
                     p->stati = 05001; // BUG: arbitrary error code; 
                                         //config switch
-                    p->chanStatus = chanStatIncomplete;
+                    p->chan_status = chan_stat_incomplete;
                     return IOM_CMD_ERROR;
                   }
                 if (uff)
@@ -898,7 +898,7 @@ sim_warn ("uncomfortable with this\n");
                     sim_warn ("console write nothing to send\n");
                     p->stati = 05001; // BUG: arbitrary error code; 
                                         //config switch
-                    p->chanStatus = chanStatIncomplete;
+                    p->chan_status = chan_stat_incomplete;
                     return  IOM_CMD_ERROR;
                   }
                 if (p->DCW_18_20_CP == 07 || p->DDCW_22_23_TYPE == 2)
@@ -906,7 +906,7 @@ sim_warn ("uncomfortable with this\n");
                     sim_warn ("console write expected DDCW\n");
                     p->stati = 05001; // BUG: arbitrary error code; 
                                         //config switch
-                    p->chanStatus = chanStatIncorrectDCW;
+                    p->chan_status = chan_stat_incorrect_DCW;
                     return IOM_CMD_ERROR;
                   }
 
@@ -915,7 +915,7 @@ sim_warn ("uncomfortable with this\n");
                     sim_warn ("list service failed\n");
                     p->stati = 05001; // BUG: arbitrary error code;
                                         // config switch
-                    p->chanStatus = chanStatIncomplete;
+                    p->chan_status = chan_stat_incomplete;
                     return IOM_CMD_ERROR;
                   }
 
@@ -930,7 +930,7 @@ sim_warn ("uncomfortable with this\n");
 sim_warn ("uncomfortable with this\n");
                     // BUG: arbitrary error code; config switch
                     p->stati = 05001;
-                    p->chanStatus = chanStatIncorrectDCW;
+                    p->chan_status = chan_stat_incorrect_DCW;
                     return IOM_CMD_ERROR;
                   }
 
@@ -1058,7 +1058,7 @@ sim_warn ("uncomfortable with this\n");
 
         case 051:               // Write Alert -- Ring Bell
           {
-            p->isRead = false;
+            p->is_read = false;
             console_putstr ((int) con_unit_idx,  "CONSOLE: ALERT\r\n");
             sim_debug (DBG_NOTIFY, & opc_dev,
                        "%s: Write Alert cmd received\n", __func__);
@@ -1100,7 +1100,7 @@ sim_warn ("uncomfortable with this\n");
         default:
           {
             p->stati = 04501; // command reject, invalid instruction code
-            p->chanStatus = chanStatIncorrectDCW;
+            p->chan_status = chan_stat_incorrect_DCW;
             sim_debug (DBG_ERR, & opc_dev, "%s: Unknown command 0%o\n",
                        __func__, p->IDCW_DEV_CMD);
           }

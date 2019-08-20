@@ -1661,7 +1661,7 @@ sim_printf ("input_in_mailbox\n");
             uint ctlr_port_num = 0; // FNPs are single ported
             uint iom_unit_idx = cables->fnp_to_iom[fnp_unit_idx][ctlr_port_num].iom_unit_idx;
             uint chan_num = cables->fnp_to_iom[fnp_unit_idx][ctlr_port_num].chan_num;
-            send_general_interrupt (iom_unit_idx, chan_num, imwTerminatePic);
+            send_general_interrupt (iom_unit_idx, chan_num, imw_terminate_PIC);
           }
       } // for fnp_unit_idx
 

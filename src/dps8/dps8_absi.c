@@ -302,7 +302,7 @@ sim_printf ("absi host switch up\n");
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("absi daze %o\n", p->IDCW_DEV_CMD);
             p->stati = 04501; // cmd reject, invalid opcode
-            p->chanStatus = chanStatIncorrectDCW;
+            p->chan_status = chan_stat_incorrect_DCW;
           }
           return IOM_CMD_ERROR;
       }

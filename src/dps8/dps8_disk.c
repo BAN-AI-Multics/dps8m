@@ -699,7 +699,7 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
       {
         sim_printf ("disk seek dazed by tally %d != 1\n", tally);
         p -> stati = 04510; // Cmd reject, invalid inst. seq.
-        p -> chanStatus = chanStatIncorrectDCW;
+        p -> chan_status = chan_stat_incorrect_DCW;
         return -1;
       }
 
@@ -783,7 +783,7 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
       {
         sim_printf ("disk seek dazed by tally %d != 1\n", tally);
         p -> stati = 04510; // Cmd reject, invalid inst. seq.
-        p -> chanStatus = chanStatIncorrectDCW;
+        p -> chan_status = chan_stat_incorrect_DCW;
         return -1;
       }
 
@@ -910,7 +910,7 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
             if (ferror (unitp->fileref))
               {
                 p -> stati = 04202; // attn, seek incomplete
-                p -> chanStatus = chanStatIncorrectDCW;
+                p -> chan_status = chan_stat_incorrect_DCW;
                 return -1;
               }
             // We ignore short reads-- we assume that they are reads
@@ -949,7 +949,7 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
                   dsk_unit[i].fileref);
               }
             p -> stati = 04202; // attn, seek incomplete
-            p -> chanStatus = chanStatIncorrectDCW;
+            p -> chan_status = chan_stat_incorrect_DCW;
             return -1;
           }
 #endif
@@ -1101,7 +1101,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
           {
             sim_printf ("fwrite returned %d, errno %d\n", rc, errno);
             p -> stati = 04202; // attn, seek incomplete
-            p -> chanStatus = chanStatIncorrectDCW;
+            p -> chan_status = chan_stat_incorrect_DCW;
             return -1;
           }
 
@@ -1189,7 +1189,7 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
     //M [daddr] = SIGN36;
     core_write (daddr, SIGN36, "Disk status register");
 #endif
-    p -> charPos = 0;
+    p -> char_pos = 0;
     p -> stati = 04000;
     if (! unitp -> fileref)
       p -> stati = 04240; // device offline
@@ -1367,7 +1367,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
     core_write (daddr, SIGN36, "Disk status register");
 #endif
 #endif
-    p -> charPos = 0;
+    p -> char_pos = 0;
     p -> stati = 04000;
     if (! unitp -> fileref)
       p -> stati = 04240; // device offline
@@ -1448,7 +1448,7 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
     core_write (daddr, SIGN36, "Disk status register");
 #endif
 #endif
-    p -> charPos = 0;
+    p -> char_pos = 0;
     p -> stati = 04000;
     if (! unitp -> fileref)
       p -> stati = 04240; // device offline
@@ -1582,7 +1582,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
                 p -> stati = 04240; // device offline
                 break;
               }
-            p -> isRead = false;
+            p -> is_read = false;
             int rc1 = diskWrite (devUnitIdx, iomUnitIdx, chan);
             if (rc1)
               {
@@ -1619,7 +1619,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
           {
             p -> stati = 04000;
             p -> initiate = false;
-            p -> isRead = false;
+            p -> is_read = false;
             //if (! unitp -> fileref)
               //p -> stati = 04240; // device offline
             disk_statep -> io_mode = disk_no_mode;
@@ -1648,7 +1648,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
         default:
           {
             p -> stati = 04501;
-            p -> chanStatus = chanStatIncorrectDCW;
+            p -> chan_status = chan_stat_incorrect_DCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("disk daze %o\n", p->IDCW_DEV_CMD);
             sim_debug (DBG_ERR, & dsk_dev,

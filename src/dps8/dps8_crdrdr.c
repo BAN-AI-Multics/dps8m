@@ -459,7 +459,7 @@ empty:;
           //p -> stati = 04200; // offline
           //p -> stati = 04240; // data alert
           p -> initiate = false;
-          p -> tallyResidue = 0;
+          p -> tally_residue = 0;
 sim_printf ("hopper empty\n");
           return IOM_CMD_ERROR;
        }
@@ -715,8 +715,8 @@ sim_printf ("\n");
                             & tally, true);
     p -> stati = 04000; // ok
     p -> initiate = false;
-    p -> tallyResidue = (word12) tally & MASK12;
-    p -> charPos = 0;
+    p -> tally_residue = (word12) tally & MASK12;
+    p -> char_pos = 0;
 
     if (p -> DDCW_22_23_TYPE != 0)
       sim_warn ("curious... a card read with more than one DDCW?\n");
@@ -759,7 +759,7 @@ static int rdr_cmd (uint iomUnitIdx, uint chan)
           {
             p -> stati = 04000;
             p -> initiate = false;
-            p -> isRead = false;
+            p -> is_read = false;
             sim_debug (DBG_NOTIFY, & rdr_dev, "Reset status\n");
           }
           break;
@@ -769,7 +769,7 @@ static int rdr_cmd (uint iomUnitIdx, uint chan)
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("card reader daze %o\n", p -> IDCW_DEV_CMD);
             p -> stati = 04501; // cmd reject, invalid opcode
-            p -> chanStatus = chanStatIncorrectDCW;
+            p -> chan_status = chan_stat_incorrect_DCW;
           }
           return IOM_CMD_ERROR;
       }

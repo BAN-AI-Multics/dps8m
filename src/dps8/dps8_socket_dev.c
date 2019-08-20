@@ -1015,7 +1015,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
         default:
           {
             p->stati = 04501;
-            p->chanStatus = chanStatIncorrectDCW;
+            p->chan_status = chan_stat_incorrect_DCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
           }

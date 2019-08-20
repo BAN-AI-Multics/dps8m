@@ -1044,7 +1044,7 @@ word36 pad;
 
     setTIMW (decoded_p->iom_unit, decoded_p->chan_num, decoded_p->fudp->mailboxAddress, (int) decoded_p->cell);
 
-    send_general_interrupt (decoded_p->iom_unit, decoded_p->chan_num, imwTerminatePic);
+    send_general_interrupt (decoded_p->iom_unit, decoded_p->chan_num, imw_terminate_PIC);
 
 #ifdef FNPDBG
 sim_printf ("wcd sets the TIMW??\n");
@@ -1205,7 +1205,7 @@ static int wtx (struct decoded_t *decoded_p)
 
     setTIMW (decoded_p->iom_unit, decoded_p->chan_num, decoded_p->fudp->mailboxAddress, (int) decoded_p->cell);
 
-    send_general_interrupt (decoded_p->iom_unit, decoded_p->chan_num, imwTerminatePic);
+    send_general_interrupt (decoded_p->iom_unit, decoded_p->chan_num, imw_terminate_PIC);
 
 #if 0
     //decoded_p->fudp->MState.line[decoded_p->slot_no].send_output = true;
@@ -1314,7 +1314,7 @@ sim_printf ("']\n");
 
     setTIMW (decoded_p->iom_unit, decoded_p->chan_num, decoded_p->fudp->mailboxAddress, (int) decoded_p->cell);
 
-    send_general_interrupt (decoded_p->iom_unit, decoded_p->chan_num, imwTerminatePic);
+    send_general_interrupt (decoded_p->iom_unit, decoded_p->chan_num, imw_terminate_PIC);
   }
 
 static int interruptL66_CS_to_FNP (struct decoded_t *decoded_p)
@@ -1850,7 +1850,7 @@ static void processMBX (uint iomUnitIdx, uint chan)
       {
         sim_debug (DBG_TRACE, & fnp_dev,
                    "%s: chan %d reset command\n", __func__, chan);
-        send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
+        send_general_interrupt (iomUnitIdx, chan, imw_terminate_PIC);
       }
     else if (command == 072) // bootload
       {
@@ -2261,7 +2261,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 #if defined(LOCKLESS)
         unlock_libuv ();
 #endif
-        send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
+        send_general_interrupt (iomUnitIdx, chan, imw_terminate_PIC);
         fudp -> fnpIsRunning = true;
       }
     else if (command == 071) // interrupt L6
@@ -2400,7 +2400,7 @@ static int fnpCmd (uint iomUnitIdx, uint chan)
         default:
           {
             p->stati = 04501;
-            p->chanStatus = chanStatIncorrectDCW;
+            p->chan_status = chan_stat_incorrect_DCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("fnp daze %o\n", p->IDCW_DEV_CMD);
             sim_debug (DBG_ERR, & fnp_dev,

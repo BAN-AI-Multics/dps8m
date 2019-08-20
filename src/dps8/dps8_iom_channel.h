@@ -19,20 +19,20 @@
     //cm_real_LPW_real_DCW,
     //cm_ext_LPW_real_DCW,
     //cm_paged_LPW_seg_DCW
-  //} chanMode_t;
+  //} chan_mode_t;
 
 
-typedef enum chanStat
+enum chan_stat_e
   {
-    chanStatNormal = 0,
-    chanStatUnexpectedPCW = 1,
-    chanStatInvalidInstrPCW = 2,
-    chanStatIncorrectDCW = 3,
-    chanStatIncomplete = 4,
-    chanStatUnassigned = 5,
-    chanStatParityErrPeriph = 6,
-    chanStatParityErrBus = 7
-  } chanStat;
+    chan_stat_normal = 0,
+    chan_stat_unexpected_PCW = 1,
+    chan_stat_invalid_instr_PCW = 2,
+    chan_stat_incorrect_DCW = 3,
+    chan_stat_incomplete = 4,
+    chan_stat_unassigned = 5,
+    chan_stat_parity_err_periph = 6,
+    chan_stat_parity_err_bus = 7
+  };
 
 typedef volatile struct
   {
@@ -107,7 +107,7 @@ typedef volatile struct
     word1 SEG;  // pg B21
 
     enum { /* PGE */ cm1, cm2, cm3a, cm3b, cm4, cm5,
-           /* EXT */ cm1e, cm2e } chanMode;
+           /* EXT */ cm1e, cm2e } chan_mode;
 
 // XXX CP XXXX
 // "Specifies the positions of the first character withe the first word
@@ -164,27 +164,27 @@ typedef volatile struct
 // the PTWs on demand.
 
 //  flag
-    //chanMode_t chanMode;
+    //chan_mode_t chan_mode;
 
     // true if the DCW is from a PCW
-    bool isPCW;
+    bool is_PCW;
 
     // Information accumulated for status service.
     word12 stati;
     uint dev_code;
-    word6 recordResidue;
-    word12 tallyResidue;
-    word3 charPos;
-    bool isRead;
+    word6 record_residue;
+    word12 tally_residue;
+    word3 char_pos;
+    bool is_read;
     // isOdd can be ignored; see http://ringzero.wikidot.com/wiki:cac-2015-10-22
     // bool isOdd;
     bool initiate;
 
-    chanStat chanStatus;
+    enum chan_stat_e chan_status;
 
-    bool lsFirst;
+    bool ls_first;
 
-    bool wasTDCW;
+    bool was_TDCW;
 
     bool masked;
 
@@ -247,12 +247,12 @@ typedef enum
  *       2       1     2
  */
 
-enum iomImwPics
+enum im_IMW_PICS
   {
-    imwSystemFaultPic = 0,
-    imwTerminatePic = 1,
-    imwMarkerPic = 2,
-    imwSpecialPic = 3
+    imw_system_fault_PIC = 0,
+    imw_terminate_PIC = 1,
+    imw_marker_PIC = 2,
+    imw_special_PIC = 3
   };
 
 
@@ -261,9 +261,9 @@ void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36
                            iom_direct_data_service_op op);
 void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
                              uint * cnt, bool write);
-int send_terminate_interrupt (uint iom_unit_idx, uint chanNum);
-void iom_interrupt (uint scuUnitNum, uint iom_unit_idx);
+int send_terminate_interrupt (uint iom_unit_idx, uint chan);
+void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx);
 int send_marker_interrupt (uint iom_unit_idx, int chan);
-int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic);
-int send_special_interrupt (uint iom_unit_idx, uint chanNum, uint devCode, 
+int send_general_interrupt (uint iom_unit_idx, uint chan, enum im_IMW_PICS pic);
+int send_special_interrupt (uint iom_unit_idx, uint chan, uint dev_code, 
                             word8 status0, word8 status1);

@@ -1173,7 +1173,7 @@ static void ev_poll_cb (uv_timer_t * UNUSED handle)
     consoleProcess ();
     machine_room_process ();
 #ifdef IO_ASYNC_PAYLOAD_CHAN
-    iomProcess ();
+    iom_process ();
 #endif
 #ifndef __MINGW64__
     absi_process_event ();
@@ -1581,7 +1581,7 @@ t_stat sim_instr (void)
             //lock_iom();
                 lock_libuv ();
 
-                    iomProcess ();
+                    iom_process ();
 
                 unlock_libuv ();
             //unlock_iom ();

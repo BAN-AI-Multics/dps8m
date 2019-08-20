@@ -430,7 +430,7 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
         case 001: // CMD 001 -- load image buffer
           {
             sim_debug (DBG_NOTIFY, & prt_dev, "load image buffer\n");
-            p -> isRead = false;
+            p -> is_read = false;
             // Get the DDCW
 
             bool send, uff;
@@ -494,7 +494,7 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
         case 005: // CMD 001 -- load vfc image
           {
             sim_debug (DBG_NOTIFY, & prt_dev, "load vfc image\n");
-            p -> isRead = false;
+            p -> is_read = false;
 
             // Get the DDCW
 
@@ -533,7 +533,7 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
 
         case 034: // CMD 034 -- print edited ascii
           {
-            p -> isRead = false;
+            p -> is_read = false;
             p -> initiate = false;
 
 // The EURC MPC printer controller sets the number of DCWs in the IDCW and
@@ -669,7 +669,7 @@ sim_printf ("\n");
 #endif
             } // for (ddcwIdx)
 
-            p -> tallyResidue = 0;
+            p -> tally_residue = 0;
             p -> stati = 04000; 
           }
           break;
@@ -678,7 +678,7 @@ sim_printf ("\n");
           {
             p -> stati = 04000;
             p -> initiate = false;
-            p -> isRead = false;
+            p -> is_read = false;
             sim_debug (DBG_NOTIFY, & prt_dev, "Reset status %d\n", prt_unit_num);
           }
           break;
@@ -686,7 +686,7 @@ sim_printf ("\n");
         default:
           {
             p->stati = 04501; // cmd reject, invalid opcode
-            p->chanStatus = chanStatIncorrectDCW;
+            p->chan_status = chan_stat_incorrect_DCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("prt daze %o\n", p -> IDCW_DEV_CMD);
           }

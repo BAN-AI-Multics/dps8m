@@ -809,7 +809,7 @@ static int mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
                    "%s: Returning arbitrary error code\n",
                    __func__);
         p -> stati = 05001; // BUG: arbitrary error code; config switch
-        p -> chanStatus = chanStatParityErrPeriph;
+        p -> chan_status = chan_stat_parity_err_periph;
         //return 0;
         tapeStatus = tapeEOM;
         goto ddcws;
@@ -905,7 +905,7 @@ ddcws:;
 #endif
             iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                     & tape_statep -> words_processed, true);
-            if (p -> tallyResidue)
+            if (p -> tally_residue)
               {
                 sim_debug (DBG_WARN, & tape_dev,
                            "%s: Read buffer exhausted on channel %d\n",
@@ -914,9 +914,9 @@ ddcws:;
               }
 // XXX This assumes that the tally was bigger then the record
             if (tape_statep -> is9)
-              p -> charPos = tape_statep -> tbc % 4;
+              p -> char_pos = tape_statep -> tbc % 4;
             else
-              p -> charPos = (tape_statep -> tbc * 8) / 9 % 4;
+              p -> char_pos = (tape_statep -> tbc * 8) / 9 % 4;
           }
 
         //if (p -> DDCW_22_23_TYPE != 0)
@@ -944,7 +944,7 @@ static int mtWriteRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
     sim_debug (DBG_DEBUG, & tape_dev, "%s: Write %s record\n", __func__,
                tape_statep -> is9 ? "9" : "binary");
 
-    p -> isRead = false;
+    p -> is_read = false;
 
 // Get the DDCW
 
@@ -1050,13 +1050,13 @@ loop:;
             break;
           }
       }
-    p -> tallyResidue = (word12) (tally - i);
+    p -> tally_residue = (word12) (tally - i);
 
 // XXX This assumes that the tally was bigger then the record
     if (tape_statep -> is9)
-      p -> charPos = tape_statep -> tbc % 4;
+      p -> char_pos = tape_statep -> tbc % 4;
     else
-      p -> charPos = (tape_statep -> tbc * 8) / 9 % 4;
+      p -> char_pos = (tape_statep -> tbc * 8) / 9 % 4;
   
     // Write buf to tape
 
@@ -1090,7 +1090,7 @@ loop:;
         sim_warn ("%s: Returning arbitrary error code\n",
                    __func__);
         p -> stati = 05001; // BUG: arbitrary error code; config switch
-        p -> chanStatus = chanStatParityErrPeriph;
+        p -> chan_status = chan_stat_parity_err_periph;
         return IOM_CMD_ERROR;
       }
     tape_statep -> rec_num ++;
@@ -1154,7 +1154,7 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
       {
         sim_warn ("%s list service failed\n", __func__);
         p -> stati = 05001; // BUG: arbitrary error code; config switch
-        p -> chanStatus = chanStatIncomplete;
+        p -> chan_status = chan_stat_incomplete;
         return IOM_CMD_ERROR;
       }
     if (uff)
@@ -1165,14 +1165,14 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
       {
         sim_warn ("%s nothing to send\n", __func__);
         p -> stati = 05001; // BUG: arbitrary error code; config switch
-        p -> chanStatus = chanStatIncomplete;
+        p -> chan_status = chan_stat_incomplete;
         return IOM_CMD_ERROR;
       }
     if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
       {
         sim_warn ("%s expected DDCW\n", __func__);
         p -> stati = 05001; // BUG: arbitrary error code; config switch
-        p -> chanStatus = chanStatIncorrectDCW;
+        p -> chan_status = chan_stat_incorrect_DCW;
         return IOM_CMD_ERROR;
       }
 
@@ -1182,7 +1182,7 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
                    "%s: Expected tally of 8; got %d\n",
                    __func__, p -> DDCW_TALLY);
         p -> stati = 05001; // BUG: arbitrary error code; config switch
-        p -> chanStatus = chanStatIncorrectDCW;
+        p -> chan_status = chan_stat_incorrect_DCW;
         return IOM_CMD_ERROR;
       }
 
@@ -1418,7 +1418,6 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
                 return IOM_CMD_ERROR;
               }
 
-//sim_printf ("chan mode %d\n", p -> chanMode);
 //sim_printf ("ddcw %012"PRIo64"\n", p -> DCW);
             word36 control;
 	    uint count;
@@ -1503,7 +1502,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               {
                 sim_warn ("tape controller read memory expected tally of 04000\n");
                 p -> stati = 04501;
-                p -> chanStatus = chanStatIncorrectDCW;
+                p -> chan_status = chan_stat_incorrect_DCW;
                 break;
               }
             uint16 mem [04000 * 2];
@@ -1625,7 +1624,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             else
               {
                 p -> stati = 04501;
-                p -> chanStatus = chanStatIncorrectDCW;
+                p -> chan_status = chan_stat_incorrect_DCW;
                 sim_warn ("%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
               }
 //sim_printf ("tape req status chan_cmd %o\n", p -> IDCW_CHAN_CMD);
@@ -1673,13 +1672,9 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
                 return IOM_CMD_ERROR;
               }
 
-//sim_printf ("chan mode %d\n", p -> chanMode);
-//sim_printf ("ddcw %012"PRIo64"\n", p -> DCW);
             word36 control;
 	    uint count;
             iom_indirect_data_service (iomUnitIdx, chan, & control, &count, false);
-//sim_printf ("control %012"PRIo64"\n", control);
-//sim_printf ("  addr %012"PRIo64" tally %012"PRIo64"\n", getbits36_16 (control, 0), getbits36_16 (control, 16));
             if (count != 1)
               sim_warn ("%s: count %d not 1\n", __func__, count);
             tape_statep -> cntlrAddress = getbits36_16 (control, 0);
@@ -1699,7 +1694,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 //sim_printf ("Reset status\n");
             p -> stati = 04000;
             p -> initiate = false;
-            p -> isRead = false;
+            p -> is_read = false;
             if (unitp -> flags & UNIT_ATT &&
                 (fips || dev_code)) // If fips, drive code 0 is valid
               {
@@ -1783,7 +1778,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               sim_printf ("Tape %ld forward skips to record %d\n",
                           (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
 
-            p -> tallyResidue = (word12) (tally - skipped);
+            p -> tally_residue = (word12) (tally - skipped);
 
             sim_debug (DBG_NOTIFY, & tape_dev, 
                        "mt_iom_cmd: Forward space %d records\n", skipped);
@@ -1836,7 +1831,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
               sim_printf ("Tape %ld forward skips to record %d\n",
                           (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
 
-            p -> tallyResidue = (word12) (tally - skipped);
+            p -> tally_residue = (word12) (tally - skipped);
             sim_debug (DBG_NOTIFY, & tape_dev, 
                        "mt_iom_cmd: Forward space %d files\n", tally);
 
@@ -1914,7 +1909,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
               sim_printf ("Tape %ld skip back to record %d\n",
                           (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
 
-            p -> tallyResidue = (word12) (tally - skipped);
+            p -> tally_residue = (word12) (tally - skipped);
 
             sim_debug (DBG_NOTIFY, & tape_dev, 
                        "mt_iom_cmd: Backspace %d records\n", skipped);
@@ -1982,7 +1977,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
               sim_printf ("Tape %ld backward skips to record %d\n",
                           (long) MT_UNIT_IDX (unitp), tape_statep -> rec_num);
 
-            p -> tallyResidue = (word12) (tally - skipped);
+            p -> tally_residue = (word12) (tally - skipped);
             sim_debug (DBG_NOTIFY, & tape_dev, 
                        "mt_iom_cmd: Backspace %d records\n", tally);
 #endif
@@ -2027,10 +2022,10 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
         case 051:               // CMD 051 -- Reset device status
           {
 //sim_printf ("Reset device status\n");
-            if (p->isPCW)
+            if (p->is_PCW)
               {
                 p->stati = 04501; // cmd reject, invalid opcode
-                p->chanStatus = chanStatIncorrectDCW;
+                p->chan_status = chan_stat_incorrect_DCW;
                 return IOM_CMD_ERROR;
               }
             p->stati = 04000;
@@ -2081,7 +2076,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
                 sim_warn ("%s: Returning arbitrary error code\n",
                            __func__);
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
-                p -> chanStatus = chanStatParityErrPeriph;
+                p -> chan_status = chan_stat_parity_err_periph;
                 break;
               }
 
@@ -2262,7 +2257,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
         default:
           {
             p -> stati = 04501;
-            p -> chanStatus = chanStatIncorrectDCW;
+            p -> chan_status = chan_stat_incorrect_DCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("mt daze %o\n", p->IDCW_DEV_CMD);
           }

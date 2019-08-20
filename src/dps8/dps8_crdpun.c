@@ -444,7 +444,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
 
         case 011: // CMD 011 Punch binary
           {
-            p -> isRead = false;
+            p -> is_read = false;
             // Get the DDCW
 
             bool send, uff;
@@ -476,7 +476,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
             if (p -> DDCW_TALLY != 27)
               {
                 sim_warn ("%s expected tally of 27\n", __func__);
-                p -> chanStatus = chanStatIncorrectDCW;
+                p -> chan_status = chan_stat_incorrect_DCW;
                 p -> stati = 05001; // BUG: arbitrary error code; config switch
                 break;
               }
@@ -561,7 +561,7 @@ sim_printf ("\n");
           {
             p -> stati = 04000;
             p -> initiate = false;
-            p -> isRead = false;
+            p -> is_read = false;
             sim_debug (DBG_NOTIFY, & pun_dev, "Reset status %ld\n", pun_unit_num);
           }
           break;
@@ -571,7 +571,7 @@ sim_printf ("\n");
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("pun daze %o\n", p -> IDCW_DEV_CMD);
             p -> stati = 04501; // cmd reject, invalid opcode
-            p -> chanStatus = chanStatIncorrectDCW;
+            p -> chan_status = chan_stat_incorrect_DCW;
           }
           return IOM_CMD_ERROR;
         }   
