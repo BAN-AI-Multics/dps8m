@@ -218,6 +218,7 @@
 #include "dps8_faults.h"
 #include "dps8_scu.h"
 #include "dps8_iom.h"
+#include "dps8_iom_channel.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_console.h"
@@ -231,7 +232,7 @@
 //
 //  IDX index   refers to emulator unit
 //  NUM         refers to the number that the unit is configured as ("IOMA,
-//              IOMB,..."). Encoded in the low to bits of configSwMultiplexBaseAddress
+//              IOMB,..."). Encoded in the low to bits of switches.mbx_base_address
 
 // Default
 #define N_IOM_UNITS N_IOM_UNITS_MAX
@@ -242,119 +243,12 @@
 #define IOM_CONNECT_CHAN 2U
 #define IOM_SPECIAL_STATUS_CHAN 6U
 
+struct iom_unit_data_s iom_unit_data[N_IOM_UNITS_MAX];
 iom_chan_data_t iom_chan_data[N_IOM_UNITS_MAX][MAX_CHANNELS];
 
 
-typedef enum iom_status_t
-  {
-    iomStatNormal = 0,
-    iomStatLPWTRO = 1,
-    iomStat2TDCW = 2,
-    iomStatBoundaryError = 3,
-    iomStatAERestricted = 4,
-    iomStatIDCWRestricted = 5,
-    iomStatCPDiscrepancy = 6,
-    iomStatParityErr = 7
-  } iom_status_t;
 
 
-enum config_sw_OS_t
-  {
-    CONFIG_SW_STD_GCOS, 
-    CONFIG_SW_EXT_GCOS,
-    CONFIG_SW_MULTICS  // "Paged"
-  };
-    
-enum config_sw_model_t
-  {
-    CONFIG_SW_MODEL_IOM, 
-    CONFIG_SW_MODEL_IMU 
-  };
-
-
-// Boot device: CARD/TAPE;
-enum config_sw_bootlood_device_e { CONFIG_SW_BLCT_CARD, CONFIG_SW_BLCT_TAPE };
-
-
-
-
-typedef struct
-  {
-    // Configuration switches
-
-    bool configSwPower;
-
-    // Interrupt multiplex base address: 12 toggles
-    word12 configSwIomBaseAddress;
-            
-
-    // Mailbox base aka IOM base address: 9 toggles
-    // Note: The IOM number is encoded in the lower two bits
-
-    // AM81, pg 60 shows an image of a Level 68 IOM configuration panel
-    // The switches are arranged and labeled
-    //
-    //  12   13   14   15   16   17   18   --   --  --  IOM
-    //                                                  NUMBER
-    //   X    X    X    X    X    X    X                X     X
-    //
-
-    word9 configSwMultiplexBaseAddress;
-            
-    enum config_sw_model_t config_sw_model; // IOM or IMU
-
-    // OS: Three position switch: GCOS, EXT GCOS, Multics
-    enum config_sw_OS_t config_sw_OS; // = CONFIG_SW_MULTICS;
-
-    // Bootload device: Toggle switch CARD/TAPE
-    enum config_sw_bootlood_device_e configSwBootloadCardTape; // = CONFIG_SW_BLCT_TAPE; 
-
-    // Bootload tape IOM channel: 6 toggles
-    word6 configSwBootloadMagtapeChan; // = 0; 
-
-    // Bootload cardreader IOM channel: 6 toggles
-    word6 configSwBootloadCardrdrChan; // = 1;
-
-    // Bootload: pushbutton
-
-    // Sysinit: pushbutton
-
-    // Bootload SCU port: 3 toggle AKA "ZERO BASE S.C. PORT NO"
-    // "the port number of the SC through which which connects are to
-    // be sent to the IOM
-    word3 configSwBootloadPort; // = 0; 
-
-    // 8 Ports: CPU/IOM connectivity
-    // Port configuration: 3 toggles/port 
-    // Which SCU number is this port attached to 
-    uint configSwPortAddress[N_IOM_PORTS]; // = { 0, 1, 2, 3, 4, 5, 6, 7 }; 
-
-    // Port interlace: 1 toggle/port
-    uint configSwPortInterface[N_IOM_PORTS]; // = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-    // Port enable: 1 toggle/port
-    uint configSwPortEnable[N_IOM_PORTS]; // = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-    // Port system initialize enable: 1 toggle/port // XXX What is this
-    uint configSwPortSysinitEnable[N_IOM_PORTS]; // = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-    // Port half-size: 1 toggle/port // XXX what is this
-    uint configSwPortHalfsize[N_IOM_PORTS]; // = { 0, 0, 0, 0, 0, 0, 0, 0 }; 
-    // Port store size: 1 8 pos. rotary/port
-    uint configSwPortStoresize[N_IOM_PORTS]; // = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-    // other switches:
-    //   alarm disable
-    //   test/normal
-    iom_status_t iomStatus;
-
-    uint invokingScuUnitIdx; // the unit number of the SCU that did the connect.
-
-    // IMUs have a boot drive number
-    uint boot_drive;
-  } iom_unit_data_t;
-
-static iom_unit_data_t iom_unit_data[N_IOM_UNITS_MAX];
 
 typedef enum iomSysFaults_t
   {
@@ -408,13 +302,53 @@ typedef enum iomFaultServiceRequest
     iomFsrDPDirStore = (7 << 2) | 1
   } iomFaultServiceRequest;
 
+#define IOM_MBX_LPW	0
+#define IOM_MBX_LPWX	1
+#define IOM_MBX_SCW	2
+#define IOM_MBX_DCW	3
+
+#if 0
+typedef struct pcw_t
+  {
+    // Word 1
+    uint dev_cmd;    // 6 bits; 0..5
+    uint dev_code;   // 6 bits; 6..11
+    uint ext;        // 6 bits; 12..17; address extension
+    uint cp;         // 3 bits; 18..20, must be all ones
+
+// From iom_control.alm:
+//  " At this point we would normally set idcw.ext_ctl.  This would allow IOM's
+//  " to transfer to DCW lists which do not reside in the low 256K.
+//  " Unfortunately, the PSIA does not handle this bit properly.
+//  " As a result, we do not set the bit and put a kludge in pc_abs so that
+//  " contiguous I/O buffers are always in the low 256K.
+//  "
+//  " lda       =o040000,dl         " set extension control in IDCW
+//  " orsa      ab|0
+
+    uint mask;    // extension control or mask; 1 bit; bit 21
+    uint control;    // 2 bits; bit 22..23
+    uint chan_cmd;   // 6 bits; bit 24..29;
+    // AN87 says: 00 single record xfer, 02 non data xfer,
+    // 06 multi-record xfer, 10 single char record xfer
+    uint chan_data;  // 6 bits; bit 30..35; often some sort of count
+    //
+
+    // Word 2
+    uint chan;       // 6 bits; bits 3..8 of word 2
+    uint ptPtr;        // 18 bits; bits 9..26 of word 2
+    uint ptp;    // 1 bit; bit 27 of word 2 
+    uint pcw64_pge;    // 1 bit; bit 28 of word 2
+    uint aux;    // 1 bit; bit 29 of word 2
+  } pcw_t;
+#endif
 #ifdef IO_THREADZ
 __thread uint this_iom_idx;
 __thread uint this_chan_num;
 #endif
 
 
-void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
+static void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
     word36 v;
@@ -429,7 +363,7 @@ void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED 
 #endif
   }
 
-void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36 *odd, UNUSED const char * ctx)
+static void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36 *odd, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
     word36 v;
@@ -450,7 +384,7 @@ void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36
 #endif
   }
 
-void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
+static void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
@@ -464,7 +398,7 @@ void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED 
 #endif
   }
 
-void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
+static void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
@@ -485,7 +419,7 @@ void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36
   }
 
 
-void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
+static void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
@@ -501,7 +435,7 @@ void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UN
 #endif
   }
 
-void iom_core_write_unlock (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
+static void iom_core_write_unlock (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
     STORE_REL_CORE_WORD(addr, data);
@@ -550,10 +484,10 @@ static t_stat iom_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
       }
 
     sim_printf ("IOM unit number %u\n", iom_unit_idx);
-    iom_unit_data_t * p = iom_unit_data + iom_unit_idx;
+    struct iom_unit_data_s * p = iom_unit_data + iom_unit_idx;
 
     char * os = "<out of range>";
-    switch (p -> config_sw_OS)
+    switch (p -> switches.os)
       {
         case CONFIG_SW_STD_GCOS:
           os = "Standard GCOS";
@@ -566,7 +500,7 @@ static t_stat iom_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
           break;
       }
     char * blct = "<out of range>";
-    switch (p -> configSwBootloadCardTape)
+    switch (p -> switches.boot_card_tape)
       {
         case CONFIG_SW_BLCT_CARD:
           blct = "CARD";
@@ -576,38 +510,38 @@ static t_stat iom_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
           break;
       }
 
-    sim_printf ("Power:                    %s)\n", p -> configSwPower ? "on" : "off");
+    sim_printf ("Power:                    %s)\n", p -> switches.power ? "on" : "off");
     sim_printf ("Allowed Operating System: %s\n", os);
-    sim_printf ("IOM Base Address:         %03o(8)\n", p -> configSwIomBaseAddress);
-    sim_printf ("Multiplex Base Address:   %04o(8)\n", p -> configSwMultiplexBaseAddress);
+    sim_printf ("IOM Base Address:         %03o(8)\n", p -> switches.interrupt_base_address);
+    sim_printf ("Multiplex Base Address:   %04o(8)\n", p -> switches.mbx_base_address);
     sim_printf ("Bootload Card/Tape:       %s\n", blct);
-    sim_printf ("Bootload Tape Channel:    %02o(8)\n", p -> configSwBootloadMagtapeChan);
-    sim_printf ("Bootload Card Channel:    %02o(8)\n", p -> configSwBootloadCardrdrChan);
-    sim_printf ("Bootload Port:            %02o(8)\n", p -> configSwBootloadPort);
+    sim_printf ("Bootload Tape Channel:    %02o(8)\n", p -> switches.boot_tape_chan);
+    sim_printf ("Bootload Card Channel:    %02o(8)\n", p -> switches.boot_card_chan);
+    sim_printf ("Bootload Port:            %02o(8)\n", p -> switches.boot_port);
     sim_printf ("Port Address:            ");
     int i;
     for (i = 0; i < N_IOM_PORTS; i ++)
-      sim_printf (" %03o", p -> configSwPortAddress[i]);
+      sim_printf (" %03o", p -> switches.port_address[i]);
     sim_printf ("\n");
     sim_printf ("Port Interlace:          ");
     for (i = 0; i < N_IOM_PORTS; i ++)
-      sim_printf (" %3o", p -> configSwPortInterface[i]);
+      sim_printf (" %3o", p -> switches.port_interlace[i]);
     sim_printf ("\n");
     sim_printf ("Port Enable:             ");
     for (i = 0; i < N_IOM_PORTS; i ++)
-      sim_printf (" %3o", p -> configSwPortEnable[i]);
+      sim_printf (" %3o", p -> switches.port_enable[i]);
     sim_printf ("\n");
     sim_printf ("Port Sysinit Enable:     ");
     for (i = 0; i < N_IOM_PORTS; i ++)
-      sim_printf (" %3o", p -> configSwPortSysinitEnable[i]);
+      sim_printf (" %3o", p -> switches.port_init_enable[i]);
     sim_printf ("\n");
     sim_printf ("Port Halfsize:           ");
     for (i = 0; i < N_IOM_PORTS; i ++)
-      sim_printf (" %3o", p -> configSwPortHalfsize[i]);
+      sim_printf (" %3o", p -> switches.port_half_size[i]);
     sim_printf ("\n");
     sim_printf ("Port Storesize:           ");
     for (i = 0; i < N_IOM_PORTS; i ++)
-      sim_printf (" %3o", p -> configSwPortStoresize[i]);
+      sim_printf (" %3o", p -> switches.port_store_size[i]);
     sim_printf ("\n");
     
     return SCPE_OK;
@@ -727,7 +661,7 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
         return SCPE_ARG;
       }
 
-    iom_unit_data_t * p = iom_unit_data + iom_unit_idx;
+    struct iom_unit_data_s * p = iom_unit_data + iom_unit_idx;
 
     static uint port_num = 0;
 
@@ -750,31 +684,31 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
 
         if (strcmp (name, "model") == 0)
           {
-            p -> config_sw_model = (enum config_sw_model_t) v;
+            p -> switches.model = (enum config_sw_model_t) v;
             continue;
           }
 
         if (strcmp (name, "os") == 0)
           {
-            p -> config_sw_OS = (enum config_sw_OS_t) v;
+            p -> switches.os = (enum config_sw_OS_t) v;
             continue;
           }
 
         if (strcmp (name, "boot") == 0)
           {
-            p -> configSwBootloadCardTape = (enum config_sw_bootlood_device_e) v;
+            p -> switches.boot_card_tape = (enum config_sw_bootlood_device_e) v;
             continue;
           }
 
         if (strcmp (name, "power") == 0)
           {
-            p -> configSwPower = !! v;
+            p -> switches.power = !! v;
             continue;
           }
 
         if (strcmp (name, "iom_base") == 0)
           {
-            p -> configSwIomBaseAddress = (word12) v;
+            p -> switches.interrupt_base_address = (word12) v;
             continue;
           }
 
@@ -796,25 +730,25 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
 //  0  1
 //  y  y
 
-            p -> configSwMultiplexBaseAddress = (word9) v;
+            p -> switches.mbx_base_address = (word9) v;
             continue;
           }
 
         if (strcmp (name, "tapechan") == 0)
           {
-            p -> configSwBootloadMagtapeChan = (word6) v;
+            p -> switches.boot_tape_chan = (word6) v;
             continue;
           }
 
         if (strcmp (name, "cardchan") == 0)
           {
-            p -> configSwBootloadCardrdrChan = (word6) v;
+            p -> switches.boot_card_chan = (word6) v;
             continue;
           }
 
         if (strcmp (name, "scuport") == 0)
           {
-            p -> configSwBootloadPort = (word3) v;
+            p -> switches.boot_port = (word3) v;
             continue;
           }
 
@@ -826,37 +760,37 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
 
         if (strcmp (name, "addr") == 0)
           {
-            p -> configSwPortAddress[port_num] = (uint) v;
+            p -> switches.port_address[port_num] = (uint) v;
             continue;
           }
 
         if (strcmp (name, "interlace") == 0)
           {
-            p -> configSwPortInterface[port_num] = (uint) v;
+            p -> switches.port_interlace[port_num] = (uint) v;
             continue;
           }
 
         if (strcmp (name, "enable") == 0)
           {
-            p -> configSwPortEnable[port_num] = (uint) v;
+            p -> switches.port_enable[port_num] = (uint) v;
             continue;
           }
 
         if (strcmp (name, "initenable") == 0)
           {
-            p -> configSwPortSysinitEnable[port_num] = (uint) v;
+            p -> switches.port_init_enable[port_num] = (uint) v;
             continue;
           }
 
         if (strcmp (name, "halfsize") == 0)
           {
-            p -> configSwPortHalfsize[port_num] = (uint) v;
+            p -> switches.port_half_size[port_num] = (uint) v;
             continue;
           }
 
         if (strcmp (name, "store_size") == 0)
           {
-            p -> configSwPortStoresize[port_num] = (uint) v;
+            p -> switches.port_store_size[port_num] = (uint) v;
             continue;
           }
 
@@ -971,7 +905,7 @@ static DEBTAB iom_dt[] =
 
 uint get_iom_num (uint iom_unit_idx)
   {
-    return iom_unit_data[iom_unit_idx].configSwMultiplexBaseAddress & 3; 
+    return iom_unit_data[iom_unit_idx].switches.mbx_base_address & 3; 
   }
 //
 // iom_unit_reset_idx ()
@@ -1037,18 +971,18 @@ static void init_memory_iom (uint iom_unit_idx)
       "%s: Performing load of eleven words from IOM %c bootchannel to memory.\n",
       __func__, 'A' + iom_unit_idx);
 
-    word12 base = iom_unit_data[iom_unit_idx].configSwIomBaseAddress;
+    word12 base = iom_unit_data[iom_unit_idx].switches.interrupt_base_address;
 
     // bootload_io.alm insists that pi_base match
     // template_slt_$iom_mailbox_absloc
 
-    //uint pi_base = iom_unit_data[iom_unit_idx].configSwMultiplexBaseAddress & ~3;
-    word36 pi_base = (((word36) iom_unit_data[iom_unit_idx].configSwMultiplexBaseAddress)  << 3) |
-                     (((word36) (iom_unit_data[iom_unit_idx].configSwIomBaseAddress & 07700U)) << 6) ;
-    word3 iom_num = ((word36) iom_unit_data[iom_unit_idx].configSwMultiplexBaseAddress) & 3; 
+    //uint pi_base = iom_unit_data[iom_unit_idx].switches.mbx_base_address & ~3;
+    word36 pi_base = (((word36) iom_unit_data[iom_unit_idx].switches.mbx_base_address)  << 3) |
+                     (((word36) (iom_unit_data[iom_unit_idx].switches.interrupt_base_address & 07700U)) << 6) ;
+    word3 iom_num = ((word36) iom_unit_data[iom_unit_idx].switches.mbx_base_address) & 3; 
     word36 cmd = 5;       // 6 bits; 05 for tape, 01 for cards
 
-    bool is_IMU = iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IMU;
+    bool is_IMU = iom_unit_data[iom_unit_idx].switches.model == CONFIG_SW_MODEL_IMU;
 
     // We believe that the IMU stuck the boot tape drive device code into
     // memory instead of relying on the controller's configuration to
@@ -1056,7 +990,7 @@ static void init_memory_iom (uint iom_unit_idx)
     word36 dev = is_IMU ? iom_unit_data[iom_unit_idx].boot_drive : 0;            // 6 bits: drive number
     
     // is-IMU flag
-    word36 imu = iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IMU ? 1 : 0;       // 1 bit
+    word36 imu = iom_unit_data[iom_unit_idx].switches.model == CONFIG_SW_MODEL_IMU ? 1 : 0;       // 1 bit
     
     // Description of the bootload channel from 43A239854
     //    Legend
@@ -1067,13 +1001,13 @@ static void init_memory_iom (uint iom_unit_idx)
     //    XXXX00 - Base Addr -- 01400
     //    XXYYYY0 Program Interrupt Base
     
-    enum config_sw_bootlood_device_e bootdev = iom_unit_data[iom_unit_idx].configSwBootloadCardTape;
+    enum config_sw_bootlood_device_e bootdev = iom_unit_data[iom_unit_idx].switches.boot_card_tape;
 
     word6 bootchan;
     if (bootdev == CONFIG_SW_BLCT_CARD)
-      bootchan = iom_unit_data[iom_unit_idx].configSwBootloadCardrdrChan;
+      bootchan = iom_unit_data[iom_unit_idx].switches.boot_card_chan;
     else // CONFIG_SW_BLCT_TAPE
-      bootchan = iom_unit_data[iom_unit_idx].configSwBootloadMagtapeChan;
+      bootchan = iom_unit_data[iom_unit_idx].switches.boot_tape_chan;
 
 
     // 1
@@ -1210,7 +1144,7 @@ static void init_memory_iom (uint iom_unit_idx)
     // 9
 
     // "SCU port" 
-    word3 port = iom_unit_data[iom_unit_idx].configSwBootloadPort; // 3 bits;
+    word3 port = iom_unit_data[iom_unit_idx].switches.boot_port; // 3 bits;
     
     // Why does bootload_tape_label.alm claim that a port number belongs in 
     // the low bits of the 2nd word of the PCW?  The lower 27 bits of the 
@@ -1383,7 +1317,7 @@ static uint mbxLoc (uint iom_unit_idx, uint chan)
   {
 // IDX is correct here as computation is based on physical unit 
 // configuration switches
-    word12 base = iom_unit_data[iom_unit_idx].configSwIomBaseAddress;
+    word12 base = iom_unit_data[iom_unit_idx].switches.interrupt_base_address;
     word24 base_addr = ((word24) base) << 6; // 01400
     word24 mbx = base_addr + 4 * chan;
     sim_debug (DBG_DEBUG, & iom_dev, "%s: IOM %c, chan %d is %012o\n",
@@ -1612,7 +1546,7 @@ static word24 UNUSED build_AUXPTW_address (uint iom_unit_idx, int chan)
 //                         -----------------------------------
 // XXX Assuming 16 and 17 are or'ed. Pg B4 doesn't specify
 
-    word12 IOMBaseAddress = iom_unit_data[iom_unit_idx].configSwIomBaseAddress;
+    word12 IOMBaseAddress = iom_unit_data[iom_unit_idx].switches.interrupt_base_address;
     word24 addr = (((word24) IOMBaseAddress) & MASK12) << 6;
     addr |= ((uint) chan & MASK6) << 2;
     addr |= 03;
@@ -2266,7 +2200,7 @@ int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic)
     uint chan_in_group = chan & 037;
 
     uint iomUnitNum =
-      iom_unit_data[iom_unit_idx].configSwMultiplexBaseAddress & 3u;
+      iom_unit_data[iom_unit_idx].switches.mbx_base_address & 3u;
     uint interrupt_num = iomUnitNum | (chan_group << 2) | ((uint) pic << 3);
     // Section 3.2.7 defines the upper bits of the IMW address as
     // being defined by the mailbox base address switches and the
@@ -2278,7 +2212,7 @@ int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic)
     // address switches and zeros for the bits defined by the mailbox base
     // address switches.
     //imw_addr += 01200;  // all remaining bits
-    uint pi_base = iom_unit_data[iom_unit_idx].configSwMultiplexBaseAddress & ~3u;
+    uint pi_base = iom_unit_data[iom_unit_idx].switches.mbx_base_address & ~3u;
     imw_addr = (pi_base << 3) | interrupt_num;
 
     sim_debug (DBG_NOTIFY, & iom_dev, 
@@ -2298,7 +2232,7 @@ int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic)
                "%s: IMW at %#o now %012"PRIo64"\n", __func__, imw_addr, imw);
     iom_core_write_unlock (iom_unit_idx, imw_addr, imw, __func__);
 
-    return scu_set_interrupt (iom_unit_data[iom_unit_idx].invokingScuUnitIdx, interrupt_num);
+    return scu_set_interrupt (iom_unit_data[iom_unit_idx].invoking_scu_unit_idx, interrupt_num);
   }
 
 static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
@@ -3278,7 +3212,7 @@ void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx)
                __func__, 'A' + iom_unit_idx,
                cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC);
 
-    iom_unit_data[iom_unit_idx].invokingScuUnitIdx = scu_unit_idx;
+    iom_unit_data[iom_unit_idx].invoking_scu_unit_idx = scu_unit_idx;
 
 #ifdef IO_THREADZ
 #ifndef EARLY_CREATE
@@ -3319,7 +3253,7 @@ void create_iom_threads (void)
 
     for (uint iom_unit_idx = 0; iom_unit_idx < N_IOM_UNITS_MAX; iom_unit_idx ++)
       {
-        if (iom_unit_data[iom_unit_idx].configSwPower)
+        if (iom_unit_data[iom_unit_idx].switches.power)
           {
             createIOMThread (iom_unit_idx);
             iomRdyWait (iom_unit_idx);
@@ -3418,8 +3352,3 @@ void iomProcess (void)
         }
   }
 #endif
-
-uint iom_unit_number (uint iom_unit_idx)
-  {
-    return (iom_unit_data[iom_unit_idx].configSwIomBaseAddress - 014) / 4;
-  }

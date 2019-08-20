@@ -28,6 +28,7 @@
 #include "dps8_faults.h"
 #include "dps8_scu.h"
 #include "dps8_iom.h"
+#include "dps8_iom_channel.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_utils.h"

@@ -21,6 +21,7 @@
 
 #include "dps8.h"
 #include "dps8_iom.h"
+#include "dps8_iom_channel.h"
 #include "dps8_absi.h"
 #include "dps8_sys.h"
 #include "dps8_faults.h"

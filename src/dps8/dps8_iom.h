@@ -17,296 +17,123 @@ extern __thread uint this_chan_num;
 //extern __thread bool thisIOMHaveLock;
 #endif
 
-//typedef enum 
-  //{
-    //cm_LPW_init_state, // No TDCWs encountered; state is:
-                       ////    PCW64 (pcw64_pge): on   PAGE CHAN
-                       ////    PCW64 (pcw64_pge): off  EXT MODE CHAN
-    //cm_real_LPW_real_DCW,
-    //cm_ext_LPW_real_DCW,
-    //cm_paged_LPW_seg_DCW
-  //} chanMode_t;
+// Boot device: CARD/TAPE;
+enum config_sw_bootlood_device_e { CONFIG_SW_BLCT_CARD, CONFIG_SW_BLCT_TAPE };
 
-typedef enum chanStat
+
+
+enum config_sw_OS_t
   {
-    chanStatNormal = 0,
-    chanStatUnexpectedPCW = 1,
-    chanStatInvalidInstrPCW = 2,
-    chanStatIncorrectDCW = 3,
-    chanStatIncomplete = 4,
-    chanStatUnassigned = 5,
-    chanStatParityErrPeriph = 6,
-    chanStatParityErrBus = 7
-  } chanStat;
-
-typedef volatile struct
+    CONFIG_SW_STD_GCOS, 
+    CONFIG_SW_EXT_GCOS,
+    CONFIG_SW_MULTICS  // "Paged"
+  };
+    
+enum config_sw_model_t
   {
+    CONFIG_SW_MODEL_IOM, 
+    CONFIG_SW_MODEL_IMU 
+  };
 
-// scratch pad
-
-    // packed LPW
-    word36 LPW; 
-    // unpacked LPW
-    word18 LPW_DCW_PTR;
-    word1 LPW_18_RES;
-    word1 LPW_19_REL;
-    word1 LPW_20_AE;
-    word1 LPW_21_NC;
-    word1 LPW_22_TAL;
-    word1 LPW_23_REL;
-    word12 LPW_TALLY;
-
-    // packed LPWX
-    word36 LPWX;
-    // unpacked LPWX
-    word18 LPWX_BOUND; // MOD 2 (pg B16) 0-2^19; ie val = LPX_BOUND * 2
-    word18 LPWX_SIZE;  // MOD 1 (pg B16) 0-2^18
-
-// PCW_63_PTP indicates paging mode; indicates that a page table
-// is available. 
-// XXX pg B11: cleared by a terminate interrupt service with the
-// character size bit of the transaction command = 1. (bit 32)
-// what is the 'transaction command.?
-
-    // packed PCW
-    word36 PCW0, PCW1;
-    // unpacked PCW
-    word6 PCW_CHAN;
-    word6 PCW_AE;
-    // Pg B2: "Absolute location (MOD 64) of the channels Page Table"
-    word18 PCW_PAGE_TABLE_PTR;
-    word1 PCW_63_PTP;
-    word1 PCW_64_PGE;
-    word1 PCW_65_AUX;  // XXX
-    word1 PCW_21_MSK; // Sometimes called 'M' // see 3.2.2, pg 25
-
-    // packed DCW
-    word36 DCW;
-    // unpacked DCW
-    // TDCW only
-    word18 TDCW_DATA_ADDRESS; 
-    word1  TDCW_34_RES;
-    word1  TDCW_35_REL;
-    // TDCW, PCW 64 = 0
-    word1  TDCW_33_EC;
-    // TDCW, PCW 64 = 1
-    word1  TDCW_31_SEG;
-    word1  TDCW_32_PDTA;
-    word1  TDCW_33_PDCW;
-    // IDCW only
-    word6  IDCW_DEV_CMD;
-    word6  IDCW_DEV_CODE;
-    word6  IDCW_AE;
-    word1  IDCW_EC;
-    word2  IDCW_CONTROL; // 0 terminate, 2 process, 3 marker
-    word6  IDCW_CHAN_CMD;
-    word6  IDCW_COUNT; 
-    // DDCW only
-    /*word18*/ uint DDCW_ADDR; // Allow overflow detection
-    word12 DDCW_TALLY;
-    word2  DDCW_22_23_TYPE; // '2' indicates TDCW
-    // xDCW
-    word3  DCW_18_20_CP; // '7' indicates IDCW // XXX pg 30; the indirect data service needs to use this.
-
-    word6 ADDR_EXT; // 3.2.2, 3.2.3.1
-    word1 SEG;  // pg B21
-
-    enum { /* PGE */ cm1, cm2, cm3a, cm3b, cm4, cm5,
-           /* EXT */ cm1e, cm2e } chanMode;
-
-// XXX CP XXXX
-// "Specifies the positions of the first character withe the first word
-// of the block. The byte size, defined by the channel, determines
-// what CP vaues are valid/
-//  6 bit: 0-5; 9 bit: 0-4; 18 bit: 0-1; 36 bit: 0-6
-//
-// For word channels, CP is sent to the channel during list service,
-// and is zeros when placed in the mailbox for subsequent data
-// services to the channel.
-//
-//  [CAC: I think that this can be elided. To implement correctly,
-//  iom_list_service and/or doPayloadChannel would have to know the
-//  word or sub-word functionality of the channel. But it would
-//  be simpler to let the device handler just access the CP data,
-//  and make it's own decisions about "zeros". After all, it is 
-//  not clear what a non-zero CP means for a word channel.]
-//
-// For sub-word channels which depent on IOM Central for packing and
-// unpacking words, [IOM Central uses and updates the CP to access
-// sub-words].
-//
-//  [CAC: Again, I think that this can be elided. It is simpler to 
-//  to have the device handler pack and unpack.]
-//
+// typedef enum iom_status_t
+//   {
+//     iom_stat_normal = 0,
+//     iomStatLPWTRO = 1,
+//     iomStat2TDCW = 2,
+//     iomStatBoundaryError = 3,
+//     iomStatAERestricted = 4,
+//     iomStatIDCWRestricted = 5,
+//     iomStatCPDiscrepancy = 6,
+//     iomStatParityErr = 7
+//   } iom_status_t;
 
 
+struct iom_unit_switches
+  {
+    bool power;
 
-// LPW addressing mode
+    // Interrupt multiplex base address: 12 toggles
+    word12 interrupt_base_address;
 
-    //enum { LPW_REAL, LPW_EXT, LPW_PAGED, LPW_SEG } lpwAddrMode;
+    // Mailbox base aka IOM base address: 9 toggles
+    // Note: The IOM number is encoded in the lower two bits
 
-    // pg B2: "Scratchpad area for two Page Table Words ... one
-    // for the DCW List (PTW-LPW) and one for the data (PTW-DCW).
+    // AM81, pg 60 shows an image of a Level 68 IOM configuration panel
+    // The switches are arranged and labeled
+    //
+    //  12   13   14   15   16   17   18   --   --  --  IOM
+    //                                                  NUMBER
+    //   X    X    X    X    X    X    X                X     X
+    //
+    word9 mbx_base_address;
+            
+    // Not an actual switch...
+    enum config_sw_model_t model; // IOM or IMU
 
-    // PTW format: (pg B8)
-    //   4-17: Address of page table, mod 64
-    //   31: WRC: Write control bit (1: page may be written)
-    //   32: HSE: Housekeeping
-    //   33: PGP: Page present
-    // To read or write PGP must be 1
-    // To write, WRC must be 1, HSE 0; system fault 15 on fail
-// pg b8: PTWs are used iff (indirect store and LPw 23 (segmented)), or
-// direct store.
-//
-//  ADDR  0-13 <- PTW 4-17
-//       14-23 <- LPW 8-17; DCW 8-17; direct channel address 14-23
+    // OS: Three position switch: GCOS, EXT GCOS, Multics
+    enum config_sw_OS_t os; // = CONFIG_SW_MULTICS;
 
-    word36 PTW_DCW;  // pg B8.
-    word36 PTW_LPW;  // pg B6.
+    // Bootload device: Toggle switch CARD/TAPE
+    enum config_sw_bootlood_device_e boot_card_tape; // = CONFIG_SW_BLCT_TAPE; 
 
-// pg b11 defines two PTW flags to indicate the validity of the
-// PTW_DCW and PTW_LPW; it is simpler to simply always fetch 
-// the PTWs on demand.
+    // Bootload tape IOM channel: 6 toggles
+    word6 boot_tape_chan; // = 0; 
 
-//  flag
-    //chanMode_t chanMode;
+    // Bootload cardreader IOM channel: 6 toggles
+    word6 boot_card_chan; // = 1;
 
-    // true if the DCW is from a PCW
-    bool isPCW;
+    // Bootload: pushbutton
 
-    // Information accumulated for status service.
-    word12 stati;
-    uint dev_code;
-    word6 recordResidue;
-    word12 tallyResidue;
-    word3 charPos;
-    bool isRead;
-    // isOdd can be ignored; see http://ringzero.wikidot.com/wiki:cac-2015-10-22
-    // bool isOdd;
-    bool initiate;
+    // Sysinit: pushbutton
 
-    chanStat chanStatus;
+    // Bootload SCU port: 3 toggle AKA "ZERO BASE S.C. PORT NO"
+    // "the port number of the SC through which which connects are to
+    // be sent to the IOM
+    word3 boot_port; // = 0; // was configSwBootloadPort; 
 
-    bool lsFirst;
+    // 8 Ports: CPU/IOM connectivity
+    // Port configuration: 3 toggles/port 
+    // Which SCU number is this port attached to 
+    uint port_address[N_IOM_PORTS]; // = { 0, 1, 2, 3, 4, 5, 6, 7 }; 
 
-    bool wasTDCW;
+    // Port interlace: 1 toggle/port
+    uint port_interlace[N_IOM_PORTS]; // = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    bool masked;
+    // Port enable: 1 toggle/port
+    uint port_enable[N_IOM_PORTS]; // = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    bool in_use;
+    // Port system initialize enable: 1 toggle/port // XXX What is this
+    uint port_init_enable[N_IOM_PORTS]; // = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    bool start;
+    // Port half-size: 1 toggle/port // XXX what is this
+    uint port_half_size[N_IOM_PORTS]; // = { 0, 0, 0, 0, 0, 0, 0, 0 }; 
 
-// This iom code is "incorrectly structured. The list service reads DCWs and
-// pushes them to the handler; the handlers pull IOTs from the list service.
-// this means that the IOT disconnect/proceed bit doesn't get propageted back
-// up to the DCW list service. By placing 'ptro' in this structure, the 
-// handlers can signal disconnect back up.
+    // Port store size: 1 8 pos. rotary/port
+    uint port_store_size[N_IOM_PORTS]; // = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    bool ptro;
+    // other switches:
+    //   alarm disable
+    //   test/normal
 
-  } iom_chan_data_t;
+  };
 
-extern iom_chan_data_t iom_chan_data [N_IOM_UNITS_MAX] [MAX_CHANNELS];
+struct iom_unit_data_s
+  {
+    // Configuration switches
+    struct iom_unit_switches switches;
+
+    // iom_status_t iomStatus;
+
+    uint invoking_scu_unit_idx; // the unit number of the SCU that did the connect.
+
+    // IMUs have a boot drive number
+    uint boot_drive;
+  };
+extern struct iom_unit_data_s iom_unit_data[N_IOM_UNITS_MAX];
 
 extern DEVICE iom_dev;
 
-// Indirect data service data type
-typedef enum 
-  {   
-    idsTypeW36  // Incoming data is array of word36 
-  } idsType;
 
-typedef enum
-  {
-    direct_load,
-    direct_store,
-    direct_read_clear,
-  } iom_direct_data_service_op;
-
-#if 0
-typedef struct pcw_t
-  {
-    // Word 1
-    uint dev_cmd;    // 6 bits; 0..5
-    uint dev_code;   // 6 bits; 6..11
-    uint ext;        // 6 bits; 12..17; address extension
-    uint cp;         // 3 bits; 18..20, must be all ones
-
-// From iom_control.alm:
-//  " At this point we would normally set idcw.ext_ctl.  This would allow IOM's
-//  " to transfer to DCW lists which do not reside in the low 256K.
-//  " Unfortunately, the PSIA does not handle this bit properly.
-//  " As a result, we do not set the bit and put a kludge in pc_abs so that
-//  " contiguous I/O buffers are always in the low 256K.
-//  "
-//  " lda       =o040000,dl         " set extension control in IDCW
-//  " orsa      ab|0
-
-    uint mask;    // extension control or mask; 1 bit; bit 21
-    uint control;    // 2 bits; bit 22..23
-    uint chan_cmd;   // 6 bits; bit 24..29;
-    // AN87 says: 00 single record xfer, 02 non data xfer,
-    // 06 multi-record xfer, 10 single char record xfer
-    uint chan_data;  // 6 bits; bit 30..35; often some sort of count
-    //
-
-    // Word 2
-    uint chan;       // 6 bits; bits 3..8 of word 2
-    uint ptPtr;        // 18 bits; bits 9..26 of word 2
-    uint ptp;    // 1 bit; bit 27 of word 2 
-    uint pcw64_pge;    // 1 bit; bit 28 of word 2
-    uint aux;    // 1 bit; bit 29 of word 2
-  } pcw_t;
-#endif
-
-#define IOM_MBX_LPW	0
-#define IOM_MBX_LPWX	1
-#define IOM_MBX_SCW	2
-#define IOM_MBX_DCW	3
-
-/* From AN70-1 May84
- *  ... The IOM determines an interrupt
- * number. (The interrupt number is a five bit value, from 0 to 31.
- * The high order bits are the interrupt level.
- *
- * 0 - system fault
- * 1 - terminate
- * 2 - marker
- * 3 - special
- *
- * The low order three bits determines the IOM and IOM channel 
- * group.
- *
- * 0 - IOM 0 channels 32-63
- * 1 - IOM 1 channels 32-63
- * 2 - IOM 2 channels 32-63
- * 3 - IOM 3 channels 32-63
- * 4 - IOM 0 channels 0-31
- * 5 - IOM 1 channels 0-31
- * 6 - IOM 2 channels 0-31
- * 7 - IOM 3 channels 0-31
- *
- *   3  3     3   3   3
- *   1  2     3   4   5
- *  ---------------------
- *  | pic | group | iom |
- *  -----------------------------
- *       2       1     2
- */
-
-enum iomImwPics
-  {
-    imwSystemFaultPic = 0,
-    imwTerminatePic = 1,
-    imwMarkerPic = 2,
-    imwSpecialPic = 3
-  };
-
-int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic);
-
-int send_special_interrupt (uint iom_unit_idx, uint chanNum, uint devCode, 
-                            word8 status0, word8 status1);
 //
 // iom_cmd_t returns:
 //
@@ -323,15 +150,7 @@ int send_special_interrupt (uint iom_unit_idx, uint chanNum, uint devCode,
 #define IOM_CMD_ERROR	-1
 
 typedef int iom_cmd_t (uint iom_unit_idx, uint chan);
-int iom_list_service (uint iom_unit_idx, uint chan, bool * sendp, bool * uffp);
-int send_terminate_interrupt (uint iom_unit_idx, uint chanNum);
-void iom_interrupt (uint scuUnitNum, uint iom_unit_idx);
-void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36 * data,
-                           iom_direct_data_service_op op);
-void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
-                             uint * cnt, bool write);
 void iom_init (void);
-int send_marker_interrupt (uint iom_unit_idx, int chan);
 #ifdef PANEL
 void do_boot (void);
 #endif
@@ -340,21 +159,12 @@ void * iom_thread_main (void * arg);
 void * chan_thread_main (void * arg);
 #endif
 
-void iom_core_read (uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx);
-void iom_core_read2 (uint iom_unit_idx, word24 addr, word36 *even, word36 *odd, UNUSED const char * ctx);
-void iom_core_write (uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx);
-void iom_core_write2 (uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx);
-#ifdef LOCKLESS
-void iom_core_read_lock (uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx);
-void iom_core_write_unlock (uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx);
-#endif
 t_stat boot2 (UNUSED int32 arg, UNUSED const char * buf);
 t_stat iom_unit_reset_idx (uint iom_unit_idx);
 
 #if defined(IO_ASYNC_PAYLOAD_CHAN) || defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
 void iomProcess (void);
 #endif
-uint iom_unit_number (uint iom_unit_idx);
 #ifdef IO_THREADZ
 #ifdef EARLY_CREATE
 void create_iom_threads (void);

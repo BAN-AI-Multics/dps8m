@@ -499,7 +499,7 @@ void createIOMThread (uint iomNum)
       sim_printf ("createIOMThread pthread_create %d\n", rc);
 
     char nm [17];
-    sprintf (nm, "IOM %c", 'A' + iom_unit_number (iomNum));
+    sprintf (nm, "IOM %c", 'A' + get_iom_num (iomNum));
 #ifndef __FreeBSD__
     pthread_setname_np (p->iomThread, nm);
 #else
@@ -676,7 +676,7 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
       sim_printf ("createChnThread pthread_create %d\n", rc);
 
     char nm [17];
-    sprintf (nm, "chn %c%u %s", 'A' + iom_unit_number (iomNum), chnNum, devTypeStr);
+    sprintf (nm, "chn %c%u %s", 'A' + get_iom_num (iomNum), chnNum, devTypeStr);
 #ifndef __FreeBSD__
     pthread_setname_np (p->chnThread, nm);
 #else
