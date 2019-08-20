@@ -76,7 +76,7 @@
 #include "dps8_iom_channel.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
-#include "dps8_fnp2.h"
+#include "dps8_fnp.h"
 #include "fnptelnet.h"
 #include "fnpuv.h"
 #include "dps8_utils.h"

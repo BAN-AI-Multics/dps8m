@@ -21,7 +21,7 @@
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_urp.h"
-#include "dps8_fnp2.h"
+#include "dps8_fnp.h"
 #include "dps8_socket_dev.h"
 #include "sim_disk.h"
 #include "dps8_utils.h"

@@ -35,7 +35,7 @@
 #include "dps8_math.h"
 #include "dps8_iefp.h"
 #include "dps8_console.h"
-#include "dps8_fnp2.h"
+#include "dps8_fnp.h"
 #include "dps8_socket_dev.h"
 #include "dps8_crdrdr.h"
 #include "dps8_absi.h"

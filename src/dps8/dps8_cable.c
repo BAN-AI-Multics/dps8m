@@ -126,7 +126,7 @@
 #include "dps8_state.h"
 #include "dps8_console.h"
 #include "dps8_disk.h"
-#include "dps8_fnp2.h"
+#include "dps8_fnp.h"
 #include "dps8_ipc.h"
 #include "dps8_urp.h"
 #include "dps8_crdrdr.h"

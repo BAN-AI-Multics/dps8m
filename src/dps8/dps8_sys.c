@@ -48,7 +48,7 @@
 #include "dps8_socket_dev.h"
 #include "dps8_disk.h"
 #include "dps8_append.h"
-#include "dps8_fnp2.h"
+#include "dps8_fnp.h"
 #include "dps8_crdrdr.h"
 #include "dps8_crdpun.h"
 #include "dps8_prt.h"
