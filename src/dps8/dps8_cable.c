@@ -361,7 +361,9 @@ static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_nu
         p->in_use = false;
         scu[scu_unit_idx].ports[scu_port_num].type = ADEV_NONE;
         scu[scu_unit_idx].ports[scu_port_num].dev_idx = 0;
-// XXX is this wrong? is is_exp supposed to be an accumulation of bits?
+// XXX Is this wrong? is is_exp supposed to be an accumulation of bits?
+// XXX Doesn't matter; Multics misbehaves is more 2 CPUs are on an expander port,
+// XXX so this doesn't matter.
         scu[scu_unit_idx].ports[scu_port_num].is_exp = false;
         scu[scu_unit_idx].ports[scu_port_num].dev_port[scu_subport_num] = 0;
       }
@@ -388,7 +390,9 @@ static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_nu
         scu[scu_unit_idx].ports[scu_port_num].type = ADEV_CPU;
         scu[scu_unit_idx].ports[scu_port_num].dev_idx = (int) cpu_unit_idx;
         scu[scu_unit_idx].ports[scu_port_num].dev_port[0] = (int) cpu_port_num;
-// XXX is this wrong? is is_exp supposed to be an accumulation of bits?
+// XXX Is this wrong? is is_exp supposed to be an accumulation of bits?
+// XXX Doesn't matter; Multics misbehaves is more 2 CPUs are on an expander port,
+// XXX so this doesn't matter.
         scu[scu_unit_idx].ports[scu_port_num].is_exp = is_exp;
         scu[scu_unit_idx].ports[scu_port_num].dev_port[scu_subport_num] = (int) cpu_port_num;
 

@@ -1079,27 +1079,27 @@ parm dirw loud ttyb 64000
 
 
     "cable IOMA 050 SKCA",
-    "set skc0 name=skca",
+    "set skc0 name=skta",
     "cable IOMA 051 SKCB",
-    "set skc1 name=skcb",
+    "set skc1 name=sktb",
     "cable IOMA 052 SKCC",
-    "set skc2 name=skcc",
+    "set skc2 name=sktc",
     "cable IOMA 053 SKCD",
-    "set skc3 name=skcd",
+    "set skc3 name=sktd",
     "cable IOMA 054 SKCE",
-    "set skc4 name=skce",
+    "set skc4 name=skte",
     "cable IOMA 055 SKCF",
-    "set skc5 name=skcf",
+    "set skc5 name=sktf",
     "cable IOMA 056 SKCG",
-    "set skc6 name=skcg",
+    "set skc6 name=sktg",
     "cable IOMA 057 SKCH",
-    "set skc7 name=skch",
+    "set skc7 name=skth",
 
     //  4 d501 disks (idx 8-11) + 4 d451 disks (idx 12-15)
 
     "cable IOMA 060 MSP0 0",
     "cable IOMA 061 MSP0 1",
-    "set msp0 name=msp0",
+    "set msp0 name=mspa",
 
     //  Attach DISK unit 8 to MSP0 dev_code 1
     "cable MSP0 1 DISK8",
@@ -1171,10 +1171,10 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 0 port 2 to CPU unit F (5), port 0
     "cable SCU0 2 CPU5 0",
 
-    // Attach SCU unit 0 port 2 subport 1 to CPU unit G (6), port 0
+    // Attach SCU unit 0 port 1 subport 0 to CPU unit G (6), port 0
     "cable SCU0 10 CPU6 0",
 
-    // Attach SCU unit 0 port 2 subport 2 to CPU unit H (7), port 0
+    // Attach SCU unit 0 port 1 subport 0 to CPU unit H (7), port 0
     "cable SCU0 11 CPU7 0",
 
 #endif // N_CPU_UNITS_MAX_ > 2
@@ -1204,10 +1204,10 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 1 port 2 to CPU unit F (5), port 1
     "cable SCU1 2 CPU5 1",
 
-    // Attach SCU unit 1 port 2 subport 1 to CPU unit G (6), port 1
+    // Attach SCU unit 1 port 1 subport 0 to CPU unit G (6), port 1
     "cable SCU1 10 CPU6 1",
 
-    // Attach SCU unit 1 port 2 subport 2 to CPU unit H (7), port 1
+    // Attach SCU unit 1 port 1 subport 1 to CPU unit H (7), port 1
     "cable SCU1 11 CPU7 1",
 
 #endif // N_CPU_UNITS_MAX_ > 2
@@ -1237,10 +1237,10 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 2 port 2 to CPU unit F (5), port 2
     "cable SCU2 2 CPU5 2",
 
-    // Attach SCU unit 2 port 2 subport 1 to CPU unit G (6), port 2
+    // Attach SCU unit 2 port 1 subport 0 to CPU unit G (6), port 2
     "cable SCU2 10 CPU6 2",
 
-    // Attach SCU unit 2 port 2 subport 2 to CPU unit H (7), port 2
+    // Attach SCU unit 2 port 1 subport 1 to CPU unit H (7), port 2
     "cable SCU2 11 CPU7 2",
 
 #endif // N_CPU_UNITS_MAX_ > 2
@@ -1270,10 +1270,10 @@ parm dirw loud ttyb 64000
     // Attach SCU unit 3 port 2 to CPU unit F (5), port 3
     "cable SCU3 2 CPU5 3",
 
-    // Attach SCU unit 3 port 2 subport 1 to CPU unit G (6), port 3
+    // Attach SCU unit 3 port 1 subport 0 to CPU unit G (6), port 3
     "cable SCU3 10 CPU6 3",
 
-    // Attach SCU unit 3 port 2 subport 2 to CPU unit H (7), port 3
+    // Attach SCU unit 3 port 1 subport 1 to CPU unit H (7), port 3
     "cable SCU3 11 CPU7 3",
 
 #endif // N_CPU_UNITS_MAX_ > 2
@@ -2580,7 +2580,7 @@ parm  dirw  loud  ttyb  64000
 
     "cable IOM0 014 MSP0 0",
     "cable IOM1 014 MSP0 1",
-    "set msp0 name=msp0",
+    "set msp0 name=mspa",
 
     //  Attach DISK unit 16 to MSP0 dev_code 1
     "cable MSP0 1 DISK16",
@@ -2684,21 +2684,21 @@ parm  dirw  loud  ttyb  64000
 
 #ifndef __MINGW64__
     "cable IOMA 040 SKCA",
-    "set skc0 name=skca",
+    "set skc0 name=skta",
     "cable IOMA 041 SKCB",
-    "set skc1 name=skcb",
+    "set skc1 name=sktb",
     "cable IOMA 042 SKCC",
-    "set skc2 name=skcc",
+    "set skc2 name=sktc",
     "cable IOMA 043 SKCD",
-    "set skc3 name=skcd",
+    "set skc3 name=sktd",
     "cable IOMA 044 SKCE",
-    "set skc4 name=skce",
+    "set skc4 name=skte",
     "cable IOMA 045 SKCF",
-    "set skc5 name=skcf",
+    "set skc5 name=sktf",
     "cable IOMA 046 SKCG",
-    "set skc6 name=skcg",
+    "set skc6 name=sktg",
     "cable IOMA 047 SKCH",
-    "set skc7 name=skch",
+    "set skc7 name=skth",
 #endif
 
 #ifndef __MINGW64__
@@ -3670,7 +3670,7 @@ static char * r2_0_base_system_script [] =
 
 // 4 d501 disks + 4 d451 disks
 
-    "set msp0 name=MSP0",
+    "set msp0 name=mspa",
     "cable IOM0 014 MSP0 0",
     "cable IOM1 014 MSP0 1",
 

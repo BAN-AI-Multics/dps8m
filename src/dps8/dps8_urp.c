@@ -51,10 +51,7 @@
 
 #define N_PRU_UNITS 1 // default
 
-static struct urp_state
-  {
-    char device_name [MAX_DEV_NAME_LEN];
-  } urp_state [N_URP_UNITS_MAX];
+struct urp_state_s urp_state [N_URP_UNITS_MAX];
 
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE )

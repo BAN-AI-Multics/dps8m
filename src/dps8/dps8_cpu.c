@@ -1486,33 +1486,7 @@ t_stat sim_instr (void)
 
 #ifdef IO_THREADZ
 #ifdef EARLY_CREATE
-// Create channel threads
-
-        for (uint iom_unit_idx = 0; iom_unit_idx < N_IOM_UNITS_MAX; iom_unit_idx ++)
-          {
-            for (uint chan_num = 0; chan_num < MAX_CHANNELS; chan_num ++)
-              {
-                if (get_ctlr_in_use (iom_unit_idx, chan_num))
-                  {
-                    enum ctlr_type_e ctlr_type = 
-                      cables->iom_to_ctlr[iom_unit_idx][chan_num].ctlr_type;
-                    createChnThread (iom_unit_idx, chan_num,
-                                     ctlr_type_strs [ctlr_type]);
-                    chnRdyWait (iom_unit_idx, chan_num);
-                  }
-              }
-          }
-
-// Create IOM threads
-
-        for (uint iom_unit_idx = 0; iom_unit_idx < N_IOM_UNITS_MAX; iom_unit_idx ++)
-          {
-            if (iom_unit_data[iom_unit_idx].configSwPower)
-              {
-                createIOMThread (iom_unit_idx);
-                iomRdyWait (iom_unit_idx);
-              }
-          }
+        create_iom_threads ();
 #endif // EARLY_CREATE
 #endif // IO_THREADZ
 

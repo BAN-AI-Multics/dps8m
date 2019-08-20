@@ -14,5 +14,11 @@
 extern DEVICE urp_dev;
 extern UNIT urp_unit [N_URP_UNITS_MAX];
 
+struct urp_state_s
+  {
+    char device_name [MAX_DEV_NAME_LEN];
+  };
+extern struct urp_state_s urp_state [N_URP_UNITS_MAX];
+
 void urp_init(void);
 int urp_iom_cmd (uint iomUnitIdx, uint chan);

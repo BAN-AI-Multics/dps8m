@@ -31,6 +31,39 @@ struct dsk_state
 #endif
   };
 
+// Disk types
+//
+//  D500
+//  D451
+//  D400
+//  D190
+//  D181
+//  D501
+//  3380
+//  3381
+
+enum seekSize_t { seek_64, seek_512};
+struct diskType_t
+  {
+    char * typename;
+    uint capac;
+    uint firstDevNumber;
+    bool removable;
+    enum seekSize_t seekSize; // false: seek 64  true: seek 512
+    uint sectorSizeWords;
+    uint dau_type;
+    uint sects_per_cyl; // not canonical, used for seek latency calculations
+    useconds_t seek_latency;
+    useconds_t xfer_latency;
+  };
+extern struct diskType_t diskTypes [];
+
+struct msp_state_s
+  {
+    char device_name [MAX_DEV_NAME_LEN];
+  };
+extern struct msp_state_s msp_states [N_MSP_UNITS_MAX];
+
 extern struct dsk_state dsk_states [N_DSK_UNITS_MAX];
 
 

@@ -355,3 +355,9 @@ t_stat iom_unit_reset_idx (uint iom_unit_idx);
 void iomProcess (void);
 #endif
 uint iom_unit_number (uint iom_unit_idx);
+#ifdef IO_THREADZ
+#ifdef EARLY_CREATE
+void create_iom_threads (void);
+#endif // EARLY_CREATE
+#endif // IO_THREADZ
+uint get_iom_num (uint iom_unit_idx);

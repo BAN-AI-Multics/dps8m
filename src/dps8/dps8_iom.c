@@ -969,6 +969,10 @@ static DEBTAB iom_dt[] =
     { NULL, 0, NULL }
   };
 
+uint get_iom_num (uint iom_unit_idx)
+  {
+    return iom_unit_data[iom_unit_idx].configSwMultiplexBaseAddress & 3; 
+  }
 //
 // iom_unit_reset_idx ()
 //
@@ -3292,6 +3296,39 @@ void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx)
     // XXX do_connect_chan return value ignored
   }
  
+#ifdef IO_THREADZ
+#ifdef EARLY_CREATE
+void create_iom_threads (void)
+  {
+    for (uint iom_unit_idx = 0; iom_unit_idx < N_IOM_UNITS_MAX; iom_unit_idx ++)
+      {
+        for (uint chan_num = 0; chan_num < MAX_CHANNELS; chan_num ++)
+          {
+            if (get_ctlr_in_use (iom_unit_idx, chan_num))
+              {
+                enum ctlr_type_e ctlr_type = 
+                  cables->iom_to_ctlr[iom_unit_idx][chan_num].ctlr_type;
+                createChnThread (iom_unit_idx, chan_num,
+                                 ctlr_type_strs [ctlr_type]);
+                chnRdyWait (iom_unit_idx, chan_num);
+              }
+          }
+      }
+
+// Create IOM threads
+
+    for (uint iom_unit_idx = 0; iom_unit_idx < N_IOM_UNITS_MAX; iom_unit_idx ++)
+      {
+        if (iom_unit_data[iom_unit_idx].configSwPower)
+          {
+            createIOMThread (iom_unit_idx);
+            iomRdyWait (iom_unit_idx);
+          }
+      }
+  } // create_iom_threads
+#endif // EARLY_CREATE
+#endif // IO_THREADZ
+
 #ifdef IO_THREADZ
 void * chan_thread_main (void * arg)
   {     
