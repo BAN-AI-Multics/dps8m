@@ -16,7 +16,7 @@
 #  TESTING=1    Enables sim_debug and additional runtime checks
 #
 
-all::
+all:
 
 SIMHx = ../simh-master
 
@@ -268,7 +268,7 @@ H_SRCS += ./uvutil.h
 
 
 
-all:: utils $(TAGS) locallibs_then_dps8 $(PROF_TARGETS) multics_tables_dump annotate
+all: utils $(TAGS) locallibs_then_dps8 $(PROF_TARGETS) multics_tables_dump annotate
 
 profiler : locallibs_then_dps8 profiler.o 
 	$(CC) $(LDFLAGS) profiler.o -o profiler shm.o -lncurses
@@ -308,13 +308,13 @@ blinkenLights2 : blinkenLights2.c shm.o
 blinkenLightsPi : blinkenLightsPi.c shm.o
 	$(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsPi.c -o blinkenLightsPi shm.o 
 
-#all:: blinkenLights
+#all: blinkenLights
 
 blinkenLightsCurses : blinkenLightsCurses.c shm.o
 	@echo LD blinkenLightsCurses
 	@$(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsCurses.c -o blinkenLightsCurses shm.o -lncurses
 
-#all:: blinkenLightsCurses
+#all: blinkenLightsCurses
 
 dps8$(EXE) : $(OBJS) $(LOCALOBJS) $(LOCALLIBS) 
 	@echo LD dps8$(EXE)
@@ -398,7 +398,7 @@ tapes: 88534.tap 88631.tap 88632.tap 88633.tap 88634.tap 88635.tap 88636.tap 990
 
 .PHONY : clean 
 
-clean::
+clean:
 	@echo CLEAN
 	@$(MAKE) -C $(SIMHx) -f Makefile clean
 	@$(MAKE) -C ../decNumber clean
@@ -409,7 +409,7 @@ clean::
 
 clean_dps8:
 	@echo CLEAN dps8
-	-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt $(PROF_TARGETS) $(PROG_OBJS)
+	-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt $(PROF_TARGETS) $(PROF_OBJS)
 
 dps8_sys.o : dps8.sha1.txt build_uuid.h
 dps8_sys.d : dps8.sha1.txt
