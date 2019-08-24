@@ -1845,6 +1845,7 @@ static void console_putstr (int conUnitIdx, char * str)
     size_t l = strlen (str);
     for (size_t i = 0; i < l; i ++)
       sim_putchar (str[i]);
+    fflush (sim_log);
     opc_state_t * csp = console_state + conUnitIdx;
     if (csp->console_access.loggedOn)
       accessStartWrite (csp->console_access.client, str,
@@ -1854,6 +1855,7 @@ static void console_putstr (int conUnitIdx, char * str)
 static void console_putchar (int conUnitIdx, char ch)
   {
     sim_putchar (ch);
+    fflush (sim_log);
     opc_state_t * csp = console_state + conUnitIdx;
     if (csp->console_access.loggedOn)
       accessStartWrite (csp->console_access.client, & ch, 1);
