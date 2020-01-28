@@ -756,14 +756,18 @@ char *formatDecimal (uint8_t * out, decContext *set, decNumber *r, int nout, int
 
         //decNumberToString(r2,pr); sim_printf("integral: %s\n",pr);
 
+        int r2digits = r2->digits;
+        if (decNumberIsZero(r2))
+          r2digits = 0;
+
         // if sf< 0, this reduces number of integer slots available
         // if sf>=0, this doesn't change anything, nout integer slots are available
         // ET 275, ET 336
-        if (nout + min(sf,0) < r2 -> digits) {
+        if (nout + min(sf,0) < r2digits) {
 
             // discard overflowing digits
             // note that this may set zero flag: ISOLTS-810 01l
-            set->digits = r2 -> digits - (nout + min(sf,0));
+            set->digits = r2digits - (nout + min(sf,0));
             decNumberPlus(r2, r, set);
             set->digits = safe;
 
