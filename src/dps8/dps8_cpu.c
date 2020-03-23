@@ -147,6 +147,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.useMap);
     sim_msg ("Disable cache:            %01o(8)\n",
                 cpus[cpu_unit_idx].switches.disable_cache);
+    sim_msg ("Fault tag indirect:       %01o(8)\n",
+                cpus[cpu_unit_idx].switches.fault_tag_indirect);
 
 #ifdef AFFINITY
     if (cpus[cpu_unit_idx].set_affinity)
@@ -333,6 +335,7 @@ static config_list_t cpu_config_list [] =
     { "useMap", 0, 1, cfg_on_off },
     { "address", 0, 0777777, NULL },
     { "disable_cache", 0, 1, cfg_on_off },
+    { "fault_tag_indirect", 0, 1, cfg_on_off },
 
     // Tuning
 
@@ -433,6 +436,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.useMap = v;
         else if (strcmp (p, "disable_cache") == 0)
           cpus[cpu_unit_idx].switches.disable_cache = v;
+        else if (strcmp (p, "fault_tag_indirect") == 0)
+          cpus[cpu_unit_idx].switches.fault_tag_indirect = v;
 #ifdef AFFINITY
         else if (strcmp (p, "affinity") == 0)
           if (v < 0)

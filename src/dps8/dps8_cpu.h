@@ -723,6 +723,7 @@ typedef struct
     uint serno;
     bool useMap;
     bool disable_cache;
+    bool fault_tag_indirect; // If set, enable ITS/ITP CT-HOLD works with indirect tag
   } switches_t;
 
 #ifdef L68
