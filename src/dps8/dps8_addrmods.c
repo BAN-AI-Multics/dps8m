@@ -476,6 +476,7 @@ startCA:;
     sim_debug (DBG_ADDRMOD, & cpu_dev,
                "%s(startCA): TAG=%02o(%s) Tm=%o Td=%o CT_HOLD %02o\n",
                __func__, cpu.rTAG, get_mod_string (buf, cpu.rTAG), Tm, Td, cpu.cu.CT_HOLD);
+
     switch (Tm)
       {
         case TM_R:
@@ -654,13 +655,11 @@ startCA:;
     // Figure 6-5. Indirect Then Register Modification Flowchart
     IR_MOD:;
       {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 1\n");
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "IR_MOD: CT_HOLD=%o %o\n", cpu.cu.CT_HOLD, Td);
 
         IR_MOD_1:;
 
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 2\n");
         if (++ lockupCnt > lockupLimit)
           {
             doFault (FAULT_LUF, fst_zero, "Lockup in addrmod IR mode");
@@ -673,10 +672,8 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 2\n");
         // in case it turns out to be a ITS/ITP
         iTAG = cpu.rTAG;
 
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 3  iTAG %02o\n", iTAG);
         word18 saveCA = cpu.TPR.CA;
         ReadIndirect ();
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 4\n");
 
         if ((saveCA & 1) == 1 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
 	  {
@@ -688,18 +685,15 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 4\n");
 
 	if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
           {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 5\n");
             do_ITS_ITP (iTAG, & cpu.rTAG);
           }
         else
           {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 6\n");
             cpu.TPR.CA = GETHI (cpu.itxPair[0]);
             cpu.rY = cpu.TPR.CA;
             cpu.rTAG = GET_TAG (cpu.itxPair[0]);
           }
 
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 7\n");
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "IR_MOD: CT_HOLD=%o\n", cpu.cu.CT_HOLD);
         Td = GET_TD (cpu.rTAG);
@@ -717,7 +711,6 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 7\n");
           {
             case TM_IT:
               {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 8\n");
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IR_MOD(TM_IT): Td=%02o => %02o\n",
                            Td, cpu.cu.CT_HOLD);
@@ -728,12 +721,10 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 8\n");
                     switch (Td)
                       {
                         case IT_F2:
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 9\n");
                           cpu.TPR.CA = saveCA;
                           doFault (FAULT_F2, fst_zero, "TM_IT: IT_F2 (1)"); 
 
                         case IT_F3:
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 10\n");
                           cpu.TPR.CA = saveCA;
                           doFault (FAULT_F3, fst_zero, "TM_IT: IT_F3");
                       }
@@ -743,7 +734,6 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 10\n");
 
             case TM_R:
               {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 11\n");
                 word18 Cr = get_Cr (GET_TD (cpu.cu.CT_HOLD));
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -752,7 +742,6 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 11\n");
 
                 if (cpu.ou.directOperandFlag)
                   {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 12\n");
                     sim_debug (DBG_ADDRMOD, & cpu_dev,
                                "IR_MOD(TM_R): CT_HOLD DO %012"PRIo64"\n",
                                cpu.ou.directOperand);
@@ -762,7 +751,6 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 12\n");
                   }
                 else
                   {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 13\n");
                     cpu.TPR.CA += Cr;
                     cpu.TPR.CA &= MASK18;   // keep to 18-bits
 
@@ -776,7 +764,6 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 13\n");
 
             case TM_RI:
               {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 13\n");
                 word18 Cr = get_Cr (Td);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -785,7 +772,6 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 13\n");
 
                 if (cpu.ou.directOperandFlag)
                   {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 14\n");
                     // keep to 18-bits
                     cpu.TPR.CA = (word18) cpu.ou.directOperand & MASK18;
 
@@ -795,7 +781,6 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 14\n");
                   }
                 else
                   {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 15\n");
                     cpu.TPR.CA += Cr;
                     cpu.TPR.CA &= MASK18;   // keep to 18-bits
 
@@ -808,14 +793,12 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 15\n");
                            "IR_MOD(TM_RI): TPR.CA(After)=%06o\n",
                            cpu.TPR.CA);
 
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 16\n");
                 updateIWB (cpu.TPR.CA, cpu.rTAG); // XXX guessing here...
                 goto IR_MOD_1;
               } // TM_RI
 
             case TM_IR:
               {
-sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 17\n");
                 updateIWB (cpu.TPR.CA, cpu.rTAG); // XXX guessing here...
                 goto IR_MOD_1;
               } // TM_IR
@@ -1243,6 +1226,7 @@ sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 17\n");
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
+
 #ifdef TEST_FENCE
     fence ();
 #endif

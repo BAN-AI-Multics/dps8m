@@ -2078,29 +2078,6 @@ J:;
         true, true, true, true, true, true, true, true,
         true, true, true, true, true, true, true, true
       };
-#if 0
-if (((*data) & MASK6) == 040) {
-  sim_printf (">>>>>>>>>>>>>>>>> F1\r\n");
-  sim_printf ("%05o:%06o %012llo\r\n", cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
-  DBGAPP (">>>>>>>>>>>>>>>>> F1\r\n");
-  DBGAPP ("%05o:%06o %012llo\r\n", cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
-  brkbrk(0,NULL);
-}
-if (((*data) & MASK6) == 046) {
-  sim_printf (">>>>>>>>>>>>>>>>> F2\r\n");
-  sim_printf ("%05o:%06o %012llo\r\n", cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
-  DBGAPP (">>>>>>>>>>>>>>>>> F2\r\n");
-  DBGAPP ("%05o:%06o %012llo\r\n", cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
-  brkbrk(0,NULL);
-}
-if (((*data) & MASK6) == 047) {
-  sim_printf (">>>>>>>>>>>>>>>>> F3\r\n");
-  sim_printf ("%05o:%06o %012llo\r\n", cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
-  DBGAPP (">>>>>>>>>>>>>>>>> F3\r\n");
-  DBGAPP ("%05o:%06o %012llo\r\n", cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
-  brkbrk(0,NULL);
-}
-#endif
     if (isInd[(* data) & MASK6])
 #else
     if ((* data) & 060)
