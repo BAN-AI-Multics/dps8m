@@ -3585,6 +3585,7 @@ sim_printf ("%o:%o %u(%d) %s\r\n", dbgevents[n_dbgevents].segno, dbgevents[n_dbg
 // simh Command table
 //
 
+#ifdef TRACKER
 #include "tracker.h"
 
 static t_stat trkw (UNUSED int32 arg, const char * buf)
@@ -3598,6 +3599,7 @@ static t_stat trkr (UNUSED int32 arg, const char * buf)
     trk_init (false);
     return SCPE_OK;
   }
+#endif
 
 static t_stat zap (UNUSED int32 arg, const char * buf)
   {
@@ -3674,8 +3676,10 @@ static CTAB dps8_cmds[] =
 // Debugging
 //
 
+#ifdef TRACKER
     {"TRKW",             trkw,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
     {"TRKR",             trkr,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
+#endif
     {"ZAP",              zap,            0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
     {"CLR",              clr,            0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
     {"NOCLR",            noclr,            0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},

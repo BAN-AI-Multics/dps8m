@@ -40,6 +40,10 @@ $(warning ####)
 CFLAGS += -DTESTING
 endif
 
+ifdef TRACKER
+CFLAGS += -DTRACKER
+endif
+
 #ifeq ($(LOADER),1)
 CFLAGS += -DLOADER
 #endif
@@ -143,7 +147,6 @@ endif
 ifneq ($(CROSS),MINGW64)
 C_SRCS  = ./dps8_absi.c
 endif
-C_SRCS += ./tracker.c 
 C_SRCS += ./dps8_addrmods.c 
 C_SRCS += ./dps8_append.c
 C_SRCS += ./dps8_cable.c
@@ -196,6 +199,9 @@ ifeq ($(LOCKLESS),1)
 C_SRCS += ./threadz.c
 endif
 C_SRCS += ./uvutil.c
+ifeq ($(TRACKER),1)
+C_SRCS += ./tracker.c 
+endif
 
 OBJS  := $(patsubst %.c,%.o,$(C_SRCS))
 
@@ -259,6 +265,9 @@ ifeq ($(LOCKLESS),1)
 H_SRCS += ./threadz.h
 endif
 H_SRCS += ./uvutil.h
+ifeq ($(TRACKER),1)
+H_SRCS += ./tracker.h 
+endif
 
 
 

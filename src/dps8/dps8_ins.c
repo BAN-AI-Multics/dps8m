@@ -1289,11 +1289,15 @@ bool tstOVFfault (void)
     return true;
   }
 
+#ifdef TRACKER
 #include "tracker.h"
+#endif
 
 t_stat executeInstruction (void)
   {
-trk (cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
+#ifdef TRACKER
+    trk (cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
+#endif
     CPT (cpt2U, 13); // execute instruction 
 
 //
