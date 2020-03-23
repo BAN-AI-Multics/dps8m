@@ -210,8 +210,6 @@ static void do_ITP (word4 Tag)
     cpu.TPR.TRR = max3 (cpu.PR[n].RNR, cpu.RSDWH_R1, cpu.TPR.TRR);
     cpu.TPR.TBR = GET_ITP_BITNO (cpu.itxPair);
     cpu.TPR.CA = cpu.PAR[n].WORDNO + GET_ITP_WORDNO (cpu.itxPair);
-#if 1
-    //if (GET_TM (Tag) == TM_IR)
     if (GET_TM (Tag) == TM_IR || (cpu.switches.fault_tag_indirect && Tag == 020))
       {
         cpu.TPR.CA += get_Cr(GET_TD(cpu.cu.CT_HOLD));
@@ -223,7 +221,6 @@ static void do_ITP (word4 Tag)
         if (GET_ITP_MOD (cpu.itxPair) == TM_R || GET_ITP_MOD (cpu.itxPair) == TM_RI)
             cpu.TPR.CA += get_Cr(GET_TAG (GET_ITP_MOD (cpu.itxPair)));
       }
-#endif
 
     cpu.TPR.CA &= AMASK;
     cpu.rY = cpu.TPR.CA;
@@ -267,8 +264,6 @@ static void do_ITS (word4 Tag)
     cpu.TPR.TRR = max3 (GET_ITS_RN (cpu.itxPair), cpu.RSDWH_R1, cpu.TPR.TRR);
     cpu.TPR.TBR = GET_ITS_BITNO (cpu.itxPair);
     cpu.TPR.CA = GET_ITS_WORDNO (cpu.itxPair);
-#if 1
-    //if (GET_TM (Tag) == TM_IR)
     if (GET_TM (Tag) == TM_IR || (cpu.switches.fault_tag_indirect && Tag == 020))
       {
         cpu.TPR.CA += get_Cr(GET_TD(cpu.cu.CT_HOLD));
@@ -280,7 +275,6 @@ static void do_ITS (word4 Tag)
         if (GET_ITS_MOD (cpu.itxPair) == TM_R || GET_ITS_MOD (cpu.itxPair) == TM_RI)
             cpu.TPR.CA += get_Cr(GET_TD (GET_ITS_MOD (cpu.itxPair)));
       }
-#endif
 
     cpu.TPR.CA &= AMASK;
 

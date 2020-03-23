@@ -2091,20 +2091,18 @@ J:;
         //cpu.cu.TSN_VALID[0] = 1;
 
       }
-#if 1
-//extern bool b29clr;
-//if (b29clr)
-{
-    word36 * wb;
-    if (USE_IRODD)
-      wb = & cpu.cu.IRODD;
-    else
-      wb = & cpu.cu.IWB;
-    putbits36_1 (wb, 29,  0);
-    //cpu.currentInstruction.b29 = 0;
-    //cpu.cu.XSF = 1;
-}
-#endif
+    // XXX
+    // The snap link code "adjust_mc" assumes that bit 29 is magically cleared
+    // This is probably wrong, but is needed to make link snapping work.
+    // When adjust_mc is fixed, this can probably be deleted.
+      {
+        word36 * wb;
+        if (USE_IRODD)
+          wb = & cpu.cu.IRODD;
+        else
+          wb = & cpu.cu.IWB;
+        putbits36_1 (wb, 29,  0);
+      }
 
      goto Exit;
 
