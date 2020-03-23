@@ -1154,7 +1154,7 @@ static pthread_mutex_t clock_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 // The SCU clock is 52 bits long; fits in t_uint64
-static uint64 set_SCU_clock (uint scu_unit_idx)
+uint64 set_SCU_clock (uint scu_unit_idx)
   {
 #if defined(THREADZ) || defined(LOCKLESS)
     pthread_mutex_lock (& clock_lock);

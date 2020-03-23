@@ -1647,7 +1647,8 @@ static int status_service (uint iom_unit_idx, uint chan, bool marker)
                    __func__, chan);
         lq = 0;
       }
-//sim_printf ("status %d %08o %012"PRIo64" %012"PRIo64"\n", chan, addr, word1, word2);
+//if (addr == 0362360) sim_printf ("status %d %08o %012"PRIo64" %012"PRIo64"\n", chan, addr, word1, word2);
+//if (addr == 0362360) brkbrk (0, NULL);
     iom_core_write2 (iom_unit_idx, addr, word1, word2, __func__);
 
     if (tally > 0 || (tally == 0 && lq != 0))

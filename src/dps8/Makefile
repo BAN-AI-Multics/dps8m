@@ -143,6 +143,7 @@ endif
 ifneq ($(CROSS),MINGW64)
 C_SRCS  = ./dps8_absi.c
 endif
+C_SRCS += ./tracker.c 
 C_SRCS += ./dps8_addrmods.c 
 C_SRCS += ./dps8_append.c
 C_SRCS += ./dps8_cable.c

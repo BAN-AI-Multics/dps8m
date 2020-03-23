@@ -181,12 +181,12 @@ static char * op_desc_str (char * temp)
     return temp;    //"op_desc_str (???)";
   }
 
-static void do_ITP (void)
+static void do_ITP (word4 Tag)
   {
     sim_debug (DBG_APPENDING, & cpu_dev,
-               "ITP Pair: PRNUM=%o BITNO=%o WORDNO=%o MOD=%o\n",
+               "ITP Pair: PRNUM=%o BITNO=%o WORDNO=%o MOD=%o TAG=%o\n",
                GET_ITP_PRNUM (cpu.itxPair), GET_ITP_WORDNO (cpu.itxPair),
-               GET_ITP_BITNO (cpu.itxPair), GET_ITP_MOD (cpu.itxPair));
+               GET_ITP_BITNO (cpu.itxPair), GET_ITP_MOD (cpu.itxPair), Tag);
     //
     // For n = C(ITP.PRNUM):
     // C(PRn.SNR) -> C(TPR.TSR)
@@ -210,6 +210,21 @@ static void do_ITP (void)
     cpu.TPR.TRR = max3 (cpu.PR[n].RNR, cpu.RSDWH_R1, cpu.TPR.TRR);
     cpu.TPR.TBR = GET_ITP_BITNO (cpu.itxPair);
     cpu.TPR.CA = cpu.PAR[n].WORDNO + GET_ITP_WORDNO (cpu.itxPair);
+#if 1
+    //if (GET_TM (Tag) == TM_IR)
+    if (GET_TM (Tag) == TM_IR || Tag == 020)
+      {
+        cpu.TPR.CA += get_Cr(GET_TD(cpu.cu.CT_HOLD));
+        sim_debug (DBG_APPENDING, & cpu_dev, "ITP sets CA to %06o\n", cpu.TPR.CA);
+        cpu.cu.CT_HOLD = 0;
+      }
+    else if (GET_TM (Tag) == TM_RI)
+      {
+        if (GET_ITP_MOD (cpu.itxPair) == TM_R || GET_ITP_MOD (cpu.itxPair) == TM_RI)
+            cpu.TPR.CA += get_Cr(GET_TAG (GET_ITP_MOD (cpu.itxPair)));
+      }
+#endif
+
     cpu.TPR.CA &= AMASK;
     cpu.rY = cpu.TPR.CA;
 
@@ -222,13 +237,13 @@ static void do_ITP (void)
     return;
   }
 
-static void do_ITS (void)
+static void do_ITS (word4 Tag)
   {
     sim_debug (DBG_APPENDING, & cpu_dev,
-               "ITS Pair: SEGNO=%o RN=%o WORDNO=%o BITNO=%o MOD=%o\n",
+               "ITS Pair: SEGNO=%o RN=%o WORDNO=%o BITNO=%o MOD=%o TAG=%o\n",
                GET_ITS_SEGNO (cpu.itxPair), GET_ITS_RN (cpu.itxPair),
                GET_ITS_WORDNO (cpu.itxPair), GET_ITS_BITNO (cpu.itxPair),
-               GET_ITS_MOD (cpu.itxPair));
+               GET_ITS_MOD (cpu.itxPair), Tag);
     // C(ITS.SEGNO) -> C(TPR.TSR)
     // maximum of ( C(ITS.RN), C(SDW.R1), C(TPR.TRR) ) -> C(TPR.TRR)
     // C(ITS.BITNO) -> C(TPR.TBR)
@@ -252,6 +267,21 @@ static void do_ITS (void)
     cpu.TPR.TRR = max3 (GET_ITS_RN (cpu.itxPair), cpu.RSDWH_R1, cpu.TPR.TRR);
     cpu.TPR.TBR = GET_ITS_BITNO (cpu.itxPair);
     cpu.TPR.CA = GET_ITS_WORDNO (cpu.itxPair);
+#if 1
+    //if (GET_TM (Tag) == TM_IR)
+    if (GET_TM (Tag) == TM_IR || Tag == 020)
+      {
+        cpu.TPR.CA += get_Cr(GET_TD(cpu.cu.CT_HOLD));
+        cpu.cu.CT_HOLD = 0;
+        sim_debug (DBG_APPENDING, & cpu_dev, "ITS sets CA to %06o\n", cpu.TPR.CA);
+      }
+    else if (GET_TM (Tag) == TM_RI)
+      {
+        if (GET_ITS_MOD (cpu.itxPair) == TM_R || GET_ITS_MOD (cpu.itxPair) == TM_RI)
+            cpu.TPR.CA += get_Cr(GET_TD (GET_ITS_MOD (cpu.itxPair)));
+      }
+#endif
+
     cpu.TPR.CA &= AMASK;
 
     cpu.rY = cpu.TPR.CA;
@@ -303,9 +333,9 @@ static void do_ITS_ITP (word6 Tag, word6 * newtag)
 
 
     if (ISITS (ind_tag))
-        do_ITS ();
+        do_ITS (Tag);
     else
-        do_ITP ();
+        do_ITP (Tag);
 
     * newtag = GET_TAG (cpu.itxPair [1]);
     //set_went_appending ();
@@ -408,6 +438,7 @@ startCA:;
     // state and restart the fetch.
     if (cpu.cu.CT_HOLD)
       {
+#if 0
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "%s(startCA): restart; CT_HOLD %02o\n",
                    __func__, cpu.cu.CT_HOLD);
@@ -431,6 +462,7 @@ startCA:;
          {
            cpu.cu.pot = 1;
          }
+#endif
       }
     else
       {
@@ -444,7 +476,6 @@ startCA:;
     sim_debug (DBG_ADDRMOD, & cpu_dev,
                "%s(startCA): TAG=%02o(%s) Tm=%o Td=%o CT_HOLD %02o\n",
                __func__, cpu.rTAG, get_mod_string (buf, cpu.rTAG), Tm, Td, cpu.cu.CT_HOLD);
-
     switch (Tm)
       {
         case TM_R:
@@ -623,11 +654,13 @@ startCA:;
     // Figure 6-5. Indirect Then Register Modification Flowchart
     IR_MOD:;
       {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 1\n");
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "IR_MOD: CT_HOLD=%o %o\n", cpu.cu.CT_HOLD, Td);
 
         IR_MOD_1:;
 
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 2\n");
         if (++ lockupCnt > lockupLimit)
           {
             doFault (FAULT_LUF, fst_zero, "Lockup in addrmod IR mode");
@@ -640,8 +673,10 @@ startCA:;
         // in case it turns out to be a ITS/ITP
         iTAG = cpu.rTAG;
 
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 3  iTAG %02o\n", iTAG);
         word18 saveCA = cpu.TPR.CA;
         ReadIndirect ();
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 4\n");
 
         if ((saveCA & 1) == 1 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
 	  {
@@ -653,15 +688,18 @@ startCA:;
 
 	if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
           {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 5\n");
             do_ITS_ITP (iTAG, & cpu.rTAG);
           }
         else
           {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 6\n");
             cpu.TPR.CA = GETHI (cpu.itxPair[0]);
             cpu.rY = cpu.TPR.CA;
             cpu.rTAG = GET_TAG (cpu.itxPair[0]);
           }
 
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 7\n");
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "IR_MOD: CT_HOLD=%o\n", cpu.cu.CT_HOLD);
         Td = GET_TD (cpu.rTAG);
@@ -679,6 +717,7 @@ startCA:;
           {
             case TM_IT:
               {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 8\n");
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IR_MOD(TM_IT): Td=%02o => %02o\n",
                            Td, cpu.cu.CT_HOLD);
@@ -689,10 +728,12 @@ startCA:;
                     switch (Td)
                       {
                         case IT_F2:
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 9\n");
                           cpu.TPR.CA = saveCA;
                           doFault (FAULT_F2, fst_zero, "TM_IT: IT_F2 (1)"); 
 
                         case IT_F3:
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 10\n");
                           cpu.TPR.CA = saveCA;
                           doFault (FAULT_F3, fst_zero, "TM_IT: IT_F3");
                       }
@@ -702,6 +743,7 @@ startCA:;
 
             case TM_R:
               {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 11\n");
                 word18 Cr = get_Cr (GET_TD (cpu.cu.CT_HOLD));
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -710,6 +752,7 @@ startCA:;
 
                 if (cpu.ou.directOperandFlag)
                   {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 12\n");
                     sim_debug (DBG_ADDRMOD, & cpu_dev,
                                "IR_MOD(TM_R): CT_HOLD DO %012"PRIo64"\n",
                                cpu.ou.directOperand);
@@ -719,6 +762,7 @@ startCA:;
                   }
                 else
                   {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 13\n");
                     cpu.TPR.CA += Cr;
                     cpu.TPR.CA &= MASK18;   // keep to 18-bits
 
@@ -732,6 +776,7 @@ startCA:;
 
             case TM_RI:
               {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 13\n");
                 word18 Cr = get_Cr (Td);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -740,6 +785,7 @@ startCA:;
 
                 if (cpu.ou.directOperandFlag)
                   {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 14\n");
                     // keep to 18-bits
                     cpu.TPR.CA = (word18) cpu.ou.directOperand & MASK18;
 
@@ -749,6 +795,7 @@ startCA:;
                   }
                 else
                   {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 15\n");
                     cpu.TPR.CA += Cr;
                     cpu.TPR.CA &= MASK18;   // keep to 18-bits
 
@@ -761,12 +808,14 @@ startCA:;
                            "IR_MOD(TM_RI): TPR.CA(After)=%06o\n",
                            cpu.TPR.CA);
 
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 16\n");
                 updateIWB (cpu.TPR.CA, cpu.rTAG); // XXX guessing here...
                 goto IR_MOD_1;
               } // TM_RI
 
             case TM_IR:
               {
+sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD 17\n");
                 updateIWB (cpu.TPR.CA, cpu.rTAG); // XXX guessing here...
                 goto IR_MOD_1;
               } // TM_IR
@@ -1128,6 +1177,10 @@ startCA:;
                            indword, saveCA);
 
                 cpu.TPR.CA = computedAddress;
+                // The address and tally have been updated; change the tag
+                // so that if the indirect fetches, the address and tally
+                // will be left alone. 
+                updateIWB (cpu.TPR.CA, 0);
                 return;
               } // IT_AD
 
@@ -1190,7 +1243,6 @@ startCA:;
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
-
 #ifdef TEST_FENCE
     fence ();
 #endif
@@ -1205,6 +1257,10 @@ startCA:;
 
 
                 cpu.TPR.CA = Yi;
+                // The address and tally have been updated; change the tag
+                // so that if the indirect fetches, the address and tally
+                // will be left alone. 
+                updateIWB (cpu.TPR.CA, 0);
                 return;
               } // IT_SD
 
@@ -1280,6 +1336,10 @@ startCA:;
                 unlock_rmw ();
 #endif
                 cpu.TPR.CA = Yi;
+                // The address and tally have been updated; change the tag
+                // so that if the indirect fetches, the address and tally
+                // will be left alone. 
+                updateIWB (cpu.TPR.CA, 0);
                 return;
               } // IT_DI
 

@@ -46,6 +46,8 @@
 #include "threadz.h"
 #endif
 
+uint64 set_SCU_clock (uint scu_unit_idx);
+
 #include "libtelnet.h"
 #ifdef CONSOLE_FIX
 #include "threadz.h"
@@ -217,7 +219,8 @@ typedef struct opc_state_t
 #endif
     
     // stuff saved from the Read ASCII command
-    time_t startTime;
+    //time_t startTime;
+    uint64 startTime;
     uint tally;
     uint daddr;
     UNIT * unitp;
@@ -848,7 +851,8 @@ sim_warn ("uncomfortable with this\n");
             csp->tailp = csp->buf;
             csp->readp = csp->buf;
             csp->io_mode = opc_read_mode;
-            csp->startTime = time (NULL);
+            //csp->startTime = time (NULL);
+            csp->startTime = set_SCU_clock (0);
             csp->tally = tally;
             csp->daddr = daddr;
             csp->unitp = unitp;
@@ -1501,7 +1505,10 @@ eol:
     if (csp->io_mode == opc_read_mode &&
         csp->tailp == csp->buf)
       {
-        if (csp->startTime + 30 < time (NULL))
+#if 0
+sim_printf ("time check\n");
+        //if (csp->startTime + 30 < time (NULL))
+        if (csp->startTime + 30000000 < set_SCU_clock(0))
           {
             console_putstr (conUnitIdx,  "CONSOLE: TIMEOUT\r\n");
             csp->readp = csp->buf;
@@ -1509,6 +1516,7 @@ eol:
             sendConsole (conUnitIdx, 04310); // Null line, status operator
                                              // distracted
           }
+#endif
       }
 
 

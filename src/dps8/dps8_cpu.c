@@ -644,7 +644,9 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
         for (uint i = 0; i < MEMSIZE; i ++)
           {
             //M [i] = MEM_UNINITIALIZED;
-            M[i] &= (MASK36 | MEM_UNINITIALIZED);
+            //M[i] &= (MASK36 | MEM_UNINITIALIZED);
+            M[i] &= ~MASK36;
+            M[i] |= MEM_UNINITIALIZED;
           }
 #endif
       }
@@ -3431,8 +3433,8 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
     cpu.rTRticks ++;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
-               "core_write_zone %08o %012"PRIo64" (%s)\n",
-                addr, data, ctx);
+               "core_write_zone %08o zone %012"PRIo64" data %012"PRIo64" final %012"PRIo64" (%s)\n",
+                addr, cpu.zone, data, M[addr], ctx);
     PNL (trackport (addr, data));
     return 0;
   }

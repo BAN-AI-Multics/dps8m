@@ -3585,6 +3585,40 @@ sim_printf ("%o:%o %u(%d) %s\r\n", dbgevents[n_dbgevents].segno, dbgevents[n_dbg
 // simh Command table
 //
 
+#include "tracker.h"
+
+static t_stat trkw (UNUSED int32 arg, const char * buf)
+  {
+    trk_init (true);
+    return SCPE_OK;
+  }
+
+static t_stat trkr (UNUSED int32 arg, const char * buf)
+  {
+    trk_init (false);
+    return SCPE_OK;
+  }
+
+static t_stat zap (UNUSED int32 arg, const char * buf)
+  {
+    cpu_reset_unit_idx (0, true);
+    return SCPE_OK;
+  }
+
+bool b29clr = false;
+
+static t_stat clr (UNUSED int32 arg, const char * buf)
+  {
+    b29clr = true;
+    return SCPE_OK;
+  }
+
+static t_stat noclr (UNUSED int32 arg, const char * buf)
+  {
+    b29clr = false;
+    return SCPE_OK;
+  }
+
 static CTAB dps8_cmds[] =
   {
 
@@ -3640,6 +3674,11 @@ static CTAB dps8_cmds[] =
 // Debugging
 //
 
+    {"TRKW",             trkw,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
+    {"TRKR",             trkr,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
+    {"ZAP",              zap,            0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
+    {"CLR",              clr,            0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
+    {"NOCLR",            noclr,            0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
 #ifdef TESTING
     {"DBGMMECNTDWN",        dps_debug_mme_cntdwn,     0, "dbgmmecntdwn: Enable debug after n MMEs\n", NULL, NULL},
     {"DBGSKIP",             dps_debug_skip,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
