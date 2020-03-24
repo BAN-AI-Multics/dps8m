@@ -1462,7 +1462,7 @@ typedef struct du_unit_data_t
     // These values must be restored on instruction restart
     word7 MF [3]; // Modifier fields for each instruction.
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     // Image of LPL/SPL for ISOLTS compliance
     word36 image [8];
 #endif
@@ -1935,7 +1935,7 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
       }
 #endif
 #if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     if (cpu.MR.sdpap)
       {
         sim_warn ("failing to implement sdpap\n");
@@ -1987,7 +1987,7 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
         addr = (uint) os + addr % SCBANK;
       }
 #endif
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     if (cpu.MR.sdpap)
       {
         sim_warn ("failing to implement sdpap\n");
@@ -2038,7 +2038,7 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
         addr = (uint) os + addr % SCBANK;
       }
 #endif
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     if (cpu.MR.sdpap)
       {
         sim_warn ("failing to implement sdpap\n");
@@ -2094,7 +2094,7 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
       }
 #endif
 #if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     if (cpu.MR.sdpap)
       {
         sim_warn ("failing to implement sdpap\n");
@@ -2149,7 +2149,7 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
         addr = (uint) os + addr % SCBANK;
       }
 #endif
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     if (cpu.MR.sdpap)
       {
         sim_warn ("failing to implement sdpap\n");

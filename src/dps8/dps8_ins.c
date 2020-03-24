@@ -399,7 +399,7 @@ static void scu2words (word36 *words)
     // Breaks ISOLTS 768
     //putbits36_1 (& words[4], 25, cpu.currentInstruction.stiTally);
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
 //testing for ipr fault by attempting execution of
 //the illegal opcode  000   and bit 27 not set
 //in privileged-append-bar mode.
@@ -452,7 +452,7 @@ static void scu2words (word36 *words)
     if_sim_debug (DBG_FAULT, & cpu_dev)
 	dump_words (words);
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     if (current_running_cpu_idx != 0)
       {
 	struct
@@ -706,7 +706,7 @@ static void du2words (word36 * words)
   {
     CPT (cpt2U, 7); // du2words
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     for (int i = 0; i < 8; i ++)
       {
         words[i] = cpu.du.image[i];
@@ -722,9 +722,39 @@ static void du2words (word36 * words)
 
     // Word 1
 
-#ifdef ISOLTS
-    words[1] = words[0];
-#endif
+//#ifdef ISOLTS_FIX
+    // ISOLTS test 800 expects data in word 1.
+    // According to AL39, word 1 is all zeros.
+    // According to zm_display_mc_.pl1, word 1 is "empty_word":
+    //    dcl  1 eis_info_fmt based (eis_info_ptr),
+    //       2 mbz1 bit (9) unal,
+    //       2 neg_over bit (1) unal,
+    //       2 pd1 bit (2) unal,
+    //       2 char_tally bit (24) unal,
+    //       2 empty_word bit (36) unal,
+    //
+    // Searching the Multics source shows no examples of the
+    // SPL data being manipulated; it is only examined by
+    // diagnostics routines. Those routines either dump the
+    // Y8 block in octal or, in the case of azm, breaks out the
+    // fields for a structured dump. But azm ignores word 1.
+    //
+    // So it would seem that the contents of word 1 will not affect
+    // Multics operation, so I am electing to set it for non-ISOLTS builds,
+    // in the interest of KISS.
+    //
+    // It appears that ISOLTS is expecting the tally from word 0 to
+    // appear in word1. The test never sets any of the other bits
+    // in word 0, so it is unclear if it is the same as word 0 or
+    // just the tally. I am guessing just the tally.
+
+    // The entire word
+    // word[1] = word[0];
+
+    // Just the tally
+    putbits36_24 (& words[1], 12, cpu.du.CHTALLY);
+//#endif
+
     // Word 2
 
     putbits36_18 (& words[2],  0, cpu.du.D1_PTR_W);
@@ -816,7 +846,7 @@ static void words2du (word36 * words)
 
     cpu.du.D3_RES   = getbits36_24 (words[7], 12);
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     for (int i = 0; i < 8; i ++)
       {
         cpu.du.image[i] = words[i];
@@ -6817,7 +6847,8 @@ static t_stat doInstruction (void)
           if (sim_deb_mme_cntdwn > 0)
             sim_deb_mme_cntdwn --;
 #endif
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
+            // ISOLTS 885
 	  cpu.TPR.CA = GET_ADDR (IWB_IRODD);
 #endif
           // Causes a fault that fetches and executes, in absolute mode, the

@@ -1710,7 +1710,7 @@ static void parseNumericOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
         r = 0;
     }
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
 #if 0
     uint TN = e->TN[k-1];
     uint S = e->S[k-1];  // This is where MVNE gets really nasty.
@@ -1733,7 +1733,7 @@ static void parseNumericOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
 //DBG(662088814)> CPU0 FAULT:       664 end print_question;^M
 //DBG(662088814)> CPU0 FAULT: 00257:004574 4 000100301500 (BTD PR0|100) 000100 301(1) 0 0 0 00^M
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
 #if 0 
 // This test does not hold true for BTD operand 1; the S field is ignored by
 // the instruction
