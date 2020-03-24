@@ -460,16 +460,20 @@ startCA:;
       }
     else
       {
+#if 0
 	// not CT_HOLD
 	if (Tm == TM_IR || (Tm == TM_IT && (Td == IT_IDC || Td == IT_DIC)))
 	  cpu.cu.CT_HOLD = cpu.rTAG;
+#endif
 	cpu.cu.its = 0;
 	cpu.cu.itp = 0;
 	cpu.cu.pot = 0;
       }
+#if 0
     sim_debug (DBG_ADDRMOD, & cpu_dev,
                "%s(startCA): TAG=%02o(%s) Tm=%o Td=%o CT_HOLD %02o\n",
                __func__, cpu.rTAG, get_mod_string (buf, cpu.rTAG), Tm, Td, cpu.cu.CT_HOLD);
+#endif
 
     switch (Tm)
       {
@@ -649,16 +653,31 @@ startCA:;
     // Figure 6-5. Indirect Then Register Modification Flowchart
     IR_MOD:;
       {
-        sim_debug (DBG_ADDRMOD, & cpu_dev,
-                   "IR_MOD: CT_HOLD=%o %o\n", cpu.cu.CT_HOLD, Td);
+        sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD\n");
+
+// ISOLTS 885: The indirect read may fault; CT-HOLD must be
+// left alone on fault as the restart comes in at the top of CAF.
+// Instead of updating CT-HOLD at IR_MOD_1, as in the AL39 flowchart,
+// create a stash which will be copied in after the indirection.
 
         IR_MOD_1:;
+
+        // Set up the stash
+        // cpu.cu.CT_HOLD = Td;
+        // ISOLTS 885 expects the entire tag, not just Td as indicated
+        // by AL39.
+        word6 hold_to_be = cpu.rTAG;
+        sim_debug (DBG_ADDRMOD, & cpu_dev,
+                   "IR_MOD: CT_HOLD will be %o\n", hold_to_be);
+
+        IR_MOD_2:;
 
         if (++ lockupCnt > lockupLimit)
           {
             doFault (FAULT_LUF, fst_zero, "Lockup in addrmod IR mode");
           }
 
+        
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "IR_MOD: fetching indirect word from %06o\n",
                    cpu.TPR.CA);
@@ -668,6 +687,9 @@ startCA:;
 
         word18 saveCA = cpu.TPR.CA;
         ReadIndirect ();
+
+        // Update CT-HOLD it the indirect did not fault
+        cpu.cu.CT_HOLD = hold_to_be;
 
         if ((saveCA & 1) == 1 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
 	  {
@@ -688,12 +710,8 @@ startCA:;
             cpu.rTAG = GET_TAG (cpu.itxPair[0]);
           }
 
-        sim_debug (DBG_ADDRMOD, & cpu_dev,
-                   "IR_MOD: CT_HOLD=%o\n", cpu.cu.CT_HOLD);
         Td = GET_TD (cpu.rTAG);
         Tm = GET_TM (cpu.rTAG);
-
-        // IR_MOD_2:;
 
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "IR_MOD1: cpu.itxPair[0]=%012"PRIo64
@@ -788,7 +806,7 @@ startCA:;
                            cpu.TPR.CA);
 
                 updateIWB (cpu.TPR.CA, cpu.rTAG); // XXX guessing here...
-                goto IR_MOD_1;
+                goto IR_MOD_2;
               } // TM_RI
 
             case TM_IR:
@@ -1468,13 +1486,16 @@ startCA:;
                 // to N).
                 cpu.TPR.CA = Yi;
 
-                sim_debug (DBG_ADDRMOD, & cpu_dev,
-                           "IT_MOD(IT_DIC): new CT_HOLD %02o new TAG %02o\n", 
-                           cpu.rTAG, idwtag);
-		cpu.cu.CT_HOLD = cpu.rTAG;
-		cpu.rTAG = idwtag;
-
                 Tm = GET_TM (cpu.rTAG);
+                if (Tm == TM_IR)
+                  {
+                    sim_debug (DBG_ADDRMOD, & cpu_dev,
+                               "IT_MOD(IT_DIC): new CT_HOLD %02o new TAG %02o\n", 
+                               cpu.rTAG, idwtag);
+		cpu.cu.CT_HOLD = cpu.rTAG;
+                  }
+                cpu.rTAG = idwtag;
+
                 if (Tm == TM_RI || Tm == TM_R)
                   {
                      if (GET_TD (cpu.rTAG) != 0)
