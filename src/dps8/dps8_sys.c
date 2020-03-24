@@ -89,9 +89,6 @@ vol word36 * M = NULL;                                          // memory
 int64_t cmpxchg_data;
 #endif
 
-#ifdef TEST_FENCE
-pthread_mutex_t fenceLock = PTHREAD_MUTEX_INITIALIZER;
-#endif
 //
 // These are part of the simh interface
 //

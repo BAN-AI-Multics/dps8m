@@ -297,9 +297,6 @@ static void modify_dsptw (word15 segno)
 #ifdef TEST_OLIN
           cmpxchg ();
 #endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
     bool lck = get_rmw_lock ();
     if (! lck)
@@ -317,9 +314,6 @@ static void modify_dsptw (word15 segno)
     core_write ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
 #endif
     
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
     if (! lck)
       unlock_rmw ();
@@ -837,9 +831,6 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
 #ifdef TEST_OLIN
           cmpxchg ();
 #endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
     bool lck = get_rmw_lock ();
     if (! lck)
@@ -871,9 +862,6 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
         cpu.PTW0.U = 1;
       }
     
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
     if (! lck)
       unlock_rmw ();
@@ -1014,9 +1002,6 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
 #ifdef TEST_OLIN
           cmpxchg ();
 #endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
     bool lck = get_rmw_lock ();
     if (! lck)
@@ -1030,9 +1015,6 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
     core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
     core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#endif
-#ifdef TEST_FENCE
-    fence ();
 #endif
 #ifdef THREADZ
     if (! lck)

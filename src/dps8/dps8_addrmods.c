@@ -1097,9 +1097,6 @@ startCA:;
 #ifdef TEST_OLIN
           cmpxchg ();
 #endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
                 lock_rmw ();
 #endif
@@ -1141,9 +1138,6 @@ startCA:;
 		Write (saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
                 unlock_rmw ();
 #endif
@@ -1175,9 +1169,6 @@ startCA:;
 
 #ifdef TEST_OLIN
           cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
 #endif
 #ifdef THREADZ
                 lock_rmw ();
@@ -1221,9 +1212,6 @@ startCA:;
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
                 unlock_rmw ();
 #endif
@@ -1259,9 +1247,6 @@ startCA:;
 
 #ifdef TEST_OLIN
           cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
 #endif
 #ifdef THREADZ
                 lock_rmw ();
@@ -1307,9 +1292,6 @@ startCA:;
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
                 unlock_rmw ();
 #endif
@@ -1340,9 +1322,6 @@ startCA:;
 
 #ifdef TEST_OLIN
           cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
 #endif
 #ifdef THREADZ
                 lock_rmw ();
@@ -1390,9 +1369,6 @@ startCA:;
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
                 unlock_rmw ();
 #endif
@@ -1430,9 +1406,6 @@ startCA:;
 
 #ifdef TEST_OLIN
           cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
 #endif
 #ifdef THREADZ
                 lock_rmw ();
@@ -1482,9 +1455,6 @@ startCA:;
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
                 unlock_rmw ();
 #endif
@@ -1555,9 +1525,6 @@ startCA:;
 #ifdef TEST_OLIN
           cmpxchg ();
 #endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
                 lock_rmw ();
 #endif
@@ -1604,9 +1571,6 @@ startCA:;
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
                 unlock_rmw ();
 #endif

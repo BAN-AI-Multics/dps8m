@@ -705,9 +705,6 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
 #ifdef TEST_OLIN
           cmpxchg ();
 #endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
     fence ();
 #endif
