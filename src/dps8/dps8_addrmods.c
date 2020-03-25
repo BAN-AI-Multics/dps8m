@@ -824,15 +824,15 @@ startCA:;
     IT_MOD:;
       {
         //    IT_SD     = 004,
-        //    IT_SCR        = 005,
+        //    IT_SCR    = 005,
         //    IT_CI     = 010,
         //    IT_I      = 011,
         //    IT_SC     = 012,
         //    IT_AD     = 013,
         //    IT_DI     = 014,
-        //    IT_DIC        = 015,
+        //    IT_DIC    = 015,
         //    IT_ID     = 016,
-        //    IT_IDC        = 017
+        //    IT_IDC    = 017
         word6 idwtag, delta;
         word24 Yi = (word24) -1;
 
@@ -1431,6 +1431,8 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
+                // ISOLTS 885 test-02a second level
+                cpu.cu.pot = 1;
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 cpu.cu.pot = 0;
@@ -1444,9 +1446,10 @@ startCA:;
                            "tally=%04o idwtag=%02o\n", 
                            indword, Yi, cpu.AM_tally, idwtag);
 
-#ifdef ISOLTS_FIX
+//#ifdef ISOLTS_FIX
+                // ISOLTS 885 test-02a
                 word24 YiSafe2 = Yi; // save indirect address for later use
-#endif
+//#endif
 
                 Yi -= 1;
                 Yi &= MASK18;
@@ -1508,11 +1511,11 @@ startCA:;
 // Set the tally after the indirect word is processed; if it faults, the IR
 // should be unchanged. ISOLTS ps791 test-02g
                 SC_I_TALLY (cpu.AM_tally == 0);
-#ifdef ISOLTS_FIX
+//#ifdef ISOLTS_FIX
 		updateIWB (YiSafe2, cpu.rTAG);
-#else
-                updateIWB (cpu.TPR.CA, cpu.rTAG);
-#endif
+//#else
+//                updateIWB (cpu.TPR.CA, cpu.rTAG);
+//#endif
                 goto startCA;
               } // IT_DIC
 
@@ -1552,6 +1555,8 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
+                // ISOLTS 885 test-02a first level
+                cpu.cu.pot = 0;
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 cpu.cu.pot = 0;
