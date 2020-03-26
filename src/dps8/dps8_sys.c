@@ -3691,10 +3691,6 @@ static CTAB dps8_cmds[] =
     {"DBGRINGNO",           dps_debug_ringno,         0, "dbgsegno: Limit debugging to PRR == ringno\n", NULL, NULL},
     {"DBGBAR",              dps_debug_bar,            1, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
     {"NODBGBAR",            dps_debug_bar,            0, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
-#ifdef HDBG
-    {"HDBG",                hdbg_size,                0, "hdbg: set history buffer size\n", NULL, NULL},
-    {"PHDBG",               hdbg_print,               0, "phdbg: display history size\n", NULL, NULL},
-#endif
     {"ABSOLUTE",            abs_addr,                 0, "abs: Compute the absolute address of segno:offset\n", NULL, NULL},
 #ifndef SCUMEM
     {"STK",                 stack_trace,              0, "stk: Print a stack trace\n", NULL, NULL},
@@ -3744,6 +3740,10 @@ static CTAB dps8_cmds[] =
 #endif
     {"DBGCPUMASK",          set_dbg_cpu_mask,         0, "dbgcpumask: Set per CPU debug enable", NULL, NULL},
 #endif // TESTING
+#ifdef HDBG
+    {"HDBG",                hdbg_size,                0, "hdbg: set history buffer size\n", NULL, NULL},
+    {"PHDBG",               hdbg_print,               0, "phdbg: display history size\n", NULL, NULL},
+#endif
 
 //
 // Statistics

@@ -214,6 +214,7 @@ static void do_ITP (word4 Tag)
       {
         cpu.TPR.CA += get_Cr(GET_TD(cpu.cu.CT_HOLD));
         sim_debug (DBG_APPENDING, & cpu_dev, "ITP sets CA to %06o\n", cpu.TPR.CA);
+        sim_debug (DBG_ADDRMOD, & cpu_dev, "ITP clears CT_HOLD\n");
         cpu.cu.CT_HOLD = 0;
       }
     else if (GET_TM (Tag) == TM_RI)
@@ -267,6 +268,7 @@ static void do_ITS (word4 Tag)
     if (GET_TM (Tag) == TM_IR || (cpu.switches.fault_tag_indirect && Tag == 020))
       {
         cpu.TPR.CA += get_Cr(GET_TD(cpu.cu.CT_HOLD));
+        sim_debug (DBG_ADDRMOD, & cpu_dev, "ITS clears CT_HOLD\n");
         cpu.cu.CT_HOLD = 0;
         sim_debug (DBG_APPENDING, & cpu_dev, "ITS sets CA to %06o\n", cpu.TPR.CA);
       }
@@ -467,7 +469,13 @@ startCA:;
 #endif
 	cpu.cu.its = 0;
 	cpu.cu.itp = 0;
-	cpu.cu.pot = 0;
+	//cpu.cu.pot = 0;
+      }
+
+    // Try to get ISOLTS 885 POT usage right
+    if (! cpu.instr_restart)
+      {
+        cpu.cu.pot = 0;
       }
 #if 0
     sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -690,6 +698,7 @@ startCA:;
 
         // Update CT-HOLD it the indirect did not fault
         cpu.cu.CT_HOLD = hold_to_be;
+        sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD sets CT_HOLD to %02o\n", cpu.cu.CT_HOLD);
 
         if ((saveCA & 1) == 1 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
 	  {
@@ -1008,7 +1017,7 @@ startCA:;
                            "IT_MOD CI/SC/SCR data=%012"PRIo64"\n",
                            cpu.ou.character_data);
 
-                cpu.cu.pot = 0;
+                //cpu.cu.pot = 0;
 
                 if (Td == IT_SC)
                   {
@@ -1435,7 +1444,7 @@ startCA:;
                 cpu.cu.pot = 1;
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
-                cpu.cu.pot = 0;
+                //cpu.cu.pot = 0;
 
                 Yi = GETHI (indword);
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
@@ -1490,12 +1499,13 @@ startCA:;
                 cpu.TPR.CA = Yi;
 
                 Tm = GET_TM (cpu.rTAG);
-                if (Tm == TM_IR)
+                //if (Tm == TM_IR)
                   {
                     sim_debug (DBG_ADDRMOD, & cpu_dev,
                                "IT_MOD(IT_DIC): new CT_HOLD %02o new TAG %02o\n", 
                                cpu.rTAG, idwtag);
 		cpu.cu.CT_HOLD = cpu.rTAG;
+                    sim_debug (DBG_ADDRMOD, & cpu_dev, "IT_DIC sets CT_HOLD to %02o\n", cpu.cu.CT_HOLD);
                   }
                 cpu.rTAG = idwtag;
 
@@ -1556,10 +1566,10 @@ startCA:;
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
                 // ISOLTS 885 test-02a first level
-                cpu.cu.pot = 0;
+                //cpu.cu.pot = 0;
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
-                cpu.cu.pot = 0;
+                //cpu.cu.pot = 0;
 
                 Yi = GETHI (indword);
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
@@ -1612,10 +1622,13 @@ startCA:;
                 // to N).
                 cpu.TPR.CA = YiSafe;
 
-		sim_debug (DBG_ADDRMOD, & cpu_dev,
+                sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_IDC): new CT_HOLD %02o new TAG %02o\n", 
                            cpu.rTAG, idwtag);
-		cpu.cu.CT_HOLD = cpu.rTAG;
+// Experiment to fix ISOLTS 885 test-02a level 4 CT-HOLD error...
+// Disabling this breaks level 2.
+                cpu.cu.CT_HOLD = cpu.rTAG;
+                sim_debug (DBG_ADDRMOD, & cpu_dev, "IT_IDC sets CT_HOLD to %02o\n", cpu.cu.CT_HOLD);
                 cpu.rTAG = idwtag;
 
                 Tm = GET_TM (cpu.rTAG);

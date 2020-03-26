@@ -1415,7 +1415,7 @@ t_stat executeInstruction (void)
 // Local caches of frequently accessed data
 
     const uint ndes = info->ndes;
-    const bool restart = cpu.cu.rfi;         // instruction is to be restarted
+    cpu.instr_restart = cpu.cu.rfi;         // instruction is to be restarted
     cpu.cu.rfi = 0;
     const opc_flag flags = info->flags;
     const opc_mod mods = info->mods;
@@ -1468,7 +1468,7 @@ t_stat executeInstruction (void)
 /// executeInstruction: Non-restart processing
 ///
 
-    if (likely (!restart) || unlikely (ndes > 0)) // until we implement EIS restart
+    if (likely (!cpu.instr_restart) || unlikely (ndes > 0)) // until we implement EIS restart
     {
         cpu.cu.TSN_VALID[0] = 0;
         cpu.cu.TSN_VALID[1] = 0;
@@ -1478,7 +1478,7 @@ t_stat executeInstruction (void)
         cpu.cu.TSN_PRNO[2] = 0;
     }
 
-    if (unlikely (restart))
+    if (unlikely (cpu.instr_restart))
       goto restart_1;
 
 //
@@ -1975,7 +1975,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "b29, ci->address %o\n", ci->address);
         CPT (cpt2U, 27); // EIS operand processing
         sim_debug (DBG_APPENDING, &cpu_dev, "initialize EIS descriptors\n");
         // This must not happen on instruction restart
-        if (!restart)
+        if (!cpu.instr_restart)
           {
             CPT (cpt2U, 28); // EIS not restart
             cpu.du.CHTALLY = 0;
@@ -2082,7 +2082,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
         else
           {
 // not eis, not bit b29
-            if (!restart)
+            if (!cpu.instr_restart)
               {
                 CPT (cpt2U, 35); // not B29
                 cpu.cu.TSN_VALID [0] = 0;
@@ -2100,7 +2100,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
           }
 
         // This must not happen on instruction restart
-        if (!restart)
+        if (!cpu.instr_restart)
           {
             cpu.cu.CT_HOLD = 0; // Clear interrupted IR mode flag
           }
@@ -2113,7 +2113,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
         // to the data word instead of the indirect word; reset the CA correctly
         //
 
-        if (restart && cpu.cu.pot)
+        if (cpu.instr_restart && cpu.cu.pot)
           {
             CPT (cpt2L, 0); // POT set
             cpu.TPR.CA = GET_ADDR (IWB_IRODD);
