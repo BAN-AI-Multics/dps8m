@@ -240,7 +240,7 @@ static char fault_msg [1024];
 void emCallReportFault (void)
   {
            sim_printf ("fault report:\n");
-           sim_printf ("  fault number %d (%o)\n", cpu . faultNumber, cpu . faultNumber);
+           sim_printf ("  fault number %d (%o)\n", cpu.faultNumber, cpu.faultNumber);
            sim_printf ("  subfault number %"PRIu64" (%"PRIo64")\n", cpu.subFault.bits, cpu.subFault.bits);
            sim_printf ("  faulting address %05o:%06o\n", fault_psr, fault_ic);
            sim_printf ("  msg %s\n", fault_msg);
@@ -250,7 +250,7 @@ void emCallReportFault (void)
 
 void clearFaultCycle (void)
   {
-    cpu . bTroubleFaultCycle = false;
+    cpu.bTroubleFaultCycle = false;
   }
 
 /*
@@ -371,13 +371,13 @@ else if (faultNumber == FAULT_ACV)
 //if (current_running_cpu_idx)
     //sim_printf ("Fault %d(0%0o), sub %ld(0%lo), dfc %c, '%s'\n", 
                //faultNumber, faultNumber, subFault, subFault, 
-               //cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
+               //cpu.bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
 //if (current_running_cpu_idx)
     //sim_printf ("xde %d xdo %d\n", cpu.cu.xde, cpu.cu.xdo);
     sim_debug (DBG_FAULT, & cpu_dev, 
                "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\n", 
                faultNumber, faultNumber, subFault.bits, subFault.bits, 
-               cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
+               cpu.bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
 #ifdef HDBG
     hdbgFault (faultNumber, subFault, faultMsg);
 #endif
@@ -390,8 +390,8 @@ else if (faultNumber == FAULT_ACV)
 
 #ifdef TESTING
     // some debugging support stuff
-    fault_psr = cpu . PPR.PSR;
-    fault_ic = cpu . PPR.IC;
+    fault_psr = cpu.PPR.PSR;
+    fault_ic = cpu.PPR.IC;
     strcpy (fault_msg, faultMsg);
 #endif
 
@@ -425,45 +425,45 @@ else if (faultNumber == FAULT_ACV)
       {
 #if 0
         if (subFault == flt_ipr_ill_op)
-          cpu . faultRegister [0] |= FR_ILL_OP;
+          cpu.faultRegister [0] |= FR_ILL_OP;
         else if (subFault == flt_ipr_ill_mod)
-          cpu . faultRegister [0] |= FR_ILL_MOD;
+          cpu.faultRegister [0] |= FR_ILL_MOD;
         else if (subFault == flt_ipr_ill_dig)
-          cpu . faultRegister [0] |= FR_ILL_DIG;
+          cpu.faultRegister [0] |= FR_ILL_DIG;
         else /* if (subFault == flt_ipr_ill_proc) */ // and all others
-          cpu . faultRegister [0] |= FR_ILL_PROC;
+          cpu.faultRegister [0] |= FR_ILL_PROC;
 #else
-        cpu . faultRegister [0] |= subFault.bits;
+        cpu.faultRegister [0] |= subFault.bits;
 #endif
       }
     else if (faultNumber == FAULT_ONC && subFault.fault_onc_subtype == flt_onc_nem)
       {
-        cpu . faultRegister [0] |= FR_NEM;
+        cpu.faultRegister [0] |= FR_NEM;
       }
     else if (faultNumber == FAULT_STR)
       {
         if (subFault.fault_str_subtype == flt_str_oob)
-          cpu . faultRegister [0] |= FR_OOB;
+          cpu.faultRegister [0] |= FR_OOB;
         //else if (subFault.fault_str_subtype == flt_str_ill_ptr)
-          //cpu . faultRegister [0] |= ?;    // XXX
+          //cpu.faultRegister [0] |= ?;    // XXX
         //else if (subFault.fault_str_subtype == flt_str_nea)
-          //cpu . faultRegister [0] |= ?;    // XXX
+          //cpu.faultRegister [0] |= ?;    // XXX
       }
     else if (faultNumber == FAULT_CON)
       {
         switch (subFault.fault_con_subtype)
           {
             case con_a:
-              cpu . faultRegister [0] |= FR_CON_A;
+              cpu.faultRegister [0] |= FR_CON_A;
               break;
             case con_b:
-              cpu . faultRegister [0] |= FR_CON_B;
+              cpu.faultRegister [0] |= FR_CON_B;
               break;
             case con_c:
-              cpu . faultRegister [0] |= FR_CON_C;
+              cpu.faultRegister [0] |= FR_CON_C;
               break;
             case con_d:
-              cpu . faultRegister [0] |= FR_CON_D;
+              cpu.faultRegister [0] |= FR_CON_D;
               break;
             default:
               sim_warn ("FAULT_CON can't map port %lo\n", (long unsigned) subFault.fault_con_subtype);
@@ -473,41 +473,41 @@ else if (faultNumber == FAULT_ACV)
 
     // Set cu word1 fault bits
 
-    cpu . cu . IRO_ISN = 0;
-    cpu . cu . OEB_IOC = 0;
-    cpu . cu . EOFF_IAIM = 0;
-    cpu . cu . ORB_ISP = 0;
-    cpu . cu . ROFF_IPR = 0;
-    cpu . cu . OWB_NEA = 0;
-    cpu . cu . WOFF_OOB = 0;
-    cpu . cu . NO_GA = 0;
-    cpu . cu . OCB = 0;
-    cpu . cu . OCALL = 0;
-    cpu . cu . BOC = 0;
+    cpu.cu.IRO_ISN = 0;
+    cpu.cu.OEB_IOC = 0;
+    cpu.cu.EOFF_IAIM = 0;
+    cpu.cu.ORB_ISP = 0;
+    cpu.cu.ROFF_IPR = 0;
+    cpu.cu.OWB_NEA = 0;
+    cpu.cu.WOFF_OOB = 0;
+    cpu.cu.NO_GA = 0;
+    cpu.cu.OCB = 0;
+    cpu.cu.OCALL = 0;
+    cpu.cu.BOC = 0;
 #ifdef DPS8M
-    cpu . cu . PTWAM_ER = 0;
+    cpu.cu.PTWAM_ER = 0;
 #endif
-    cpu . cu . CRT = 0;
-    cpu . cu . RALR = 0;
-    cpu . cu . SDWAM_ER = 0;
-    cpu . cu . OOSB = 0;
-    cpu . cu . PARU = 0;
-    cpu . cu . PARL = 0;
-    cpu . cu . ONC1 = 0;
-    cpu . cu . ONC2 = 0;
-    cpu . cu . IA = 0;
-    cpu . cu . IACHN = 0;
-    cpu . cu . CNCHN = (faultNumber == FAULT_CON) ? subFault.fault_con_subtype & MASK3 : 0;
+    cpu.cu.CRT = 0;
+    cpu.cu.RALR = 0;
+    cpu.cu.SDWAM_ER = 0;
+    cpu.cu.OOSB = 0;
+    cpu.cu.PARU = 0;
+    cpu.cu.PARL = 0;
+    cpu.cu.ONC1 = 0;
+    cpu.cu.ONC2 = 0;
+    cpu.cu.IA = 0;
+    cpu.cu.IACHN = 0;
+    cpu.cu.CNCHN = (faultNumber == FAULT_CON) ? subFault.fault_con_subtype & MASK3 : 0;
 
     // Set control unit 'fault occured during instruction fetch' flag
-    cpu . cu . FIF = cpu . cycle == FETCH_cycle ? 1 : 0;
-    cpu . cu . FI_ADDR = (word5) faultNumber;
+    cpu.cu.FIF = cpu.cycle == FETCH_cycle ? 1 : 0;
+    cpu.cu.FI_ADDR = (word5) faultNumber;
 
     // XXX Under what conditions should this be set?
     // Assume no
     // Reading Multics source, it seems like Multics is setting this bit; I'm going
     // to assume that the h/w also sets it to 0, and the s/w has to explicitly set it on.
-    cpu . cu . rfi = 0;
+    cpu.cu.rfi = 0;
 
 // Try to decide if this a MIF fault (fault during EIS instruction)
 // EIS instructions are not used in fault/interrupt pairs, so the
@@ -522,11 +522,11 @@ else if (faultNumber == FAULT_ACV)
 		(cpu.currentInstruction.opcode & 0410) == 0)));
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MIF %o\n", TST_I_MIF);
 #if 0
-sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu.currentInstruction.info->ndes, faultNumber, (cpu . cycle == EXEC_cycle && cpu . currentInstruction . info -> ndes > 0) || faultNumber == FAULT_IPR);
-    SC_I_MIF (cpu . cycle == EXEC_cycle &&
-        cpu . currentInstruction . info -> ndes > 0);
-    //SC_I_MIF ((cpu . cycle == EXEC_cycle &&
-        //cpu . currentInstruction . info -> ndes > 0) ||
+sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu.currentInstruction.info->ndes, faultNumber, (cpu.cycle == EXEC_cycle && cpu.currentInstruction.info -> ndes > 0) || faultNumber == FAULT_IPR);
+    SC_I_MIF (cpu.cycle == EXEC_cycle &&
+        cpu.currentInstruction.info -> ndes > 0);
+    //SC_I_MIF ((cpu.cycle == EXEC_cycle &&
+        //cpu.currentInstruction.info -> ndes > 0) ||
         //faultNumber == FAULT_IPR);
 #endif
 
@@ -538,67 +538,67 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
         // This is annoyingly inefficent since the subFault value 
         // is bitwise the same as the upper half of CU word1;
         // if the upperhalf were not broken out, then this would be
-        // cpu . cu . word1_upper_half = subFault.
+        // cpu.cu.word1_upper_half = subFault.
 
         if (subFault.fault_acv_subtype & ACV0)
-          cpu . cu . IRO_ISN = 1;
+          cpu.cu.IRO_ISN = 1;
         if (subFault.fault_acv_subtype & ACV1)
-          cpu . cu . OEB_IOC = 1;
+          cpu.cu.OEB_IOC = 1;
         if (subFault.fault_acv_subtype & ACV2)
-          cpu . cu . EOFF_IAIM = 1;
+          cpu.cu.EOFF_IAIM = 1;
         if (subFault.fault_acv_subtype & ACV3)
-          cpu . cu . ORB_ISP = 1;
+          cpu.cu.ORB_ISP = 1;
         if (subFault.fault_acv_subtype & ACV4)
-          cpu . cu . ROFF_IPR = 1;
+          cpu.cu.ROFF_IPR = 1;
         if (subFault.fault_acv_subtype & ACV5)
-          cpu . cu . OWB_NEA = 1;
+          cpu.cu.OWB_NEA = 1;
         if (subFault.fault_acv_subtype & ACV6)
-          cpu . cu . WOFF_OOB = 1;
+          cpu.cu.WOFF_OOB = 1;
         if (subFault.fault_acv_subtype & ACV7)
-          cpu . cu . NO_GA = 1;
+          cpu.cu.NO_GA = 1;
         if (subFault.fault_acv_subtype & ACV8)
-          cpu . cu . OCB = 1;
+          cpu.cu.OCB = 1;
         if (subFault.fault_acv_subtype & ACV9)
-          cpu . cu . OCALL = 1;
+          cpu.cu.OCALL = 1;
         if (subFault.fault_acv_subtype & ACV10)
-          cpu . cu . BOC = 1;
+          cpu.cu.BOC = 1;
         if (subFault.fault_acv_subtype & ACV11)
-          cpu . cu . PTWAM_ER = 1;
+          cpu.cu.PTWAM_ER = 1;
         if (subFault.fault_acv_subtype & ACV12)
-          cpu . cu . CRT = 1;
+          cpu.cu.CRT = 1;
         if (subFault.fault_acv_subtype & ACV13)
-          cpu . cu . RALR = 1;
+          cpu.cu.RALR = 1;
         if (subFault.fault_acv_subtype & ACV14)
-          cpu . cu . SDWAM_ER = 1;
+          cpu.cu.SDWAM_ER = 1;
         if (subFault.fault_acv_subtype & ACV15)
-          cpu . cu . OOSB = 1;
+          cpu.cu.OOSB = 1;
       }
     else if (faultNumber == FAULT_STR)
       {
         if (subFault.fault_str_subtype == flt_str_oob)
-          cpu . cu . WOFF_OOB = 1;
+          cpu.cu.WOFF_OOB = 1;
         //else if (subFault.fault_str_subtype == flt_str_ill_ptr)
-          //cpu . cu . ??? = 1; // XXX
+          //cpu.cu.??? = 1; // XXX
         else if (subFault.fault_str_subtype == flt_str_nea)
-          cpu . cu . OWB_NEA = 1;
+          cpu.cu.OWB_NEA = 1;
       }
     else if (faultNumber == FAULT_IPR)
       {
         if (subFault.fault_ipr_subtype & FR_ILL_OP)
-          cpu . cu . OEB_IOC = 1;
+          cpu.cu.OEB_IOC = 1;
         if (subFault.fault_ipr_subtype & FR_ILL_MOD)
-          cpu . cu . EOFF_IAIM = 1;
+          cpu.cu.EOFF_IAIM = 1;
         if (subFault.fault_ipr_subtype & FR_ILL_SLV)
-          cpu . cu . ORB_ISP = 1;
+          cpu.cu.ORB_ISP = 1;
         if (subFault.fault_ipr_subtype & FR_ILL_DIG)
-          cpu . cu . ROFF_IPR = 1;
+          cpu.cu.ROFF_IPR = 1;
       }
     else if (faultNumber == FAULT_CMD)
       {
         if (subFault.fault_cmd_subtype == flt_cmd_lprpn_bits)
-          cpu . cu . IA = 0;
+          cpu.cu.IA = 0;
         else if (subFault.fault_cmd_subtype == flt_cmd_not_control)
-          cpu . cu . IA = 010;
+          cpu.cu.IA = 010;
       }
 
 #ifdef L68
@@ -654,7 +654,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
         cpu.cu.FI_ADDR = FAULT_TRB;
         cpu.subFault.bits = 0; // XXX ???
         // XXX Does the CU or FR need fixing? ticket #36
-        if (cpu . bTroubleFaultCycle)
+        if (cpu.bTroubleFaultCycle)
           {
 #if !defined(THREADZ) && !defined(LOCKLESS)
 #ifndef PANEL
@@ -663,7 +663,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will 
                                      // break this logic
               {
-                sim_printf ("Fault cascade @0%06o with no interrupts pending and no events in queue\n", cpu . PPR.IC);
+                sim_printf ("Fault cascade @0%06o with no interrupts pending and no events in queue\n", cpu.PPR.IC);
                 sim_printf("\nCycles = %"PRId64"\n", cpu.cycleCnt);
                 sim_printf("\nInstructions = %"PRId64"\n", cpu.instrCnt);
                 //stop_reason = STOP_FLT_CASCADE;
@@ -676,20 +676,20 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
         else
           {
 //--            f = &_faults[FAULT_TRB];
-            cpu . bTroubleFaultCycle = true;
+            cpu.bTroubleFaultCycle = true;
           }
       }
     else
       {
-        cpu . bTroubleFaultCycle = false;
+        cpu.bTroubleFaultCycle = false;
       }
     
     // If doInstruction faults, the instruction cycle counter doesn't get 
     // bumped.
-    if (cpu . cycle == EXEC_cycle)
+    if (cpu.cycle == EXEC_cycle)
       cpu.instrCnt ++;
 
-    cpu . cycle = FAULT_cycle;
+    cpu.cycle = FAULT_cycle;
     sim_debug (DBG_CYCLE, & cpu_dev, "Setting cycle to FAULT_cycle\n");
     longjmp (cpu.jmpMain, JMP_REENTRY);
 }
@@ -763,8 +763,9 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 
     // XXX Under what conditions should this be set?
     // Assume no
-    // Reading Multics source, it seems like Multics is setting this bit; I'm going
-    // to assume that the h/w also sets it to 0, and the s/w has to explicitly set it on.
+    // Reading Multics source, it seems like Multics is setting this bit;
+    // I'm going to assume that the h/w also sets it to 0, and the s/w has
+    // to explicitly set it on.
     cpu.cu.rfi = 0;
 
 // Try to decide if this a MIF fault (fault during EIS instruction)
@@ -825,7 +826,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
     
     // If doInstruction faults, the instruction cycle counter doesn't get 
     // bumped.
-    if (cpu . cycle == EXEC_cycle)
+    if (cpu.cycle == EXEC_cycle)
       cpu.instrCnt ++;
 
     cpu.is_FFV = true;
@@ -894,15 +895,15 @@ void set_FFV_fault (uint f_fault_no)
 
 void clearTROFault (void)
   {
-    cpu . g7Faults &= ~(1u << FAULT_TRO);
+    cpu.g7Faults &= ~(1u << FAULT_TRO);
   }
 
 void doG7Fault (bool allowTR)
   {
-    // sim_printf ("doG7fault %08o [%"PRId64"]\n", cpu . g7Faults, cpu.cycleCnt);
-    // if (cpu . g7Faults)
+    // sim_printf ("doG7fault %08o [%"PRId64"]\n", cpu.g7Faults, cpu.cycleCnt);
+    // if (cpu.g7Faults)
       // {
-        // sim_debug (DBG_FAULT, & cpu_dev, "doG7Fault %08o\n", cpu . g7Faults);
+        // sim_debug (DBG_FAULT, & cpu_dev, "doG7Fault %08o\n", cpu.g7Faults);
       // }
     // According AL39,  Table 7-1. List of Faults, priority of connect is 25
     // and priority of Timer runout is 26, lower number means higher priority
@@ -919,9 +920,9 @@ void doG7Fault (bool allowTR)
          doFault (FAULT_CON, cpu.g7SubFaults [FAULT_CON], "Connect"); 
        }
 
-     if (allowTR && cpu . g7Faults & (1u << FAULT_TRO))
+     if (allowTR && cpu.g7Faults & (1u << FAULT_TRO))
        {
-         cpu . g7Faults &= ~(1u << FAULT_TRO);
+         cpu.g7Faults &= ~(1u << FAULT_TRO);
 
          //sim_printf("timer runout %12o\n",cpu.PPR.IC);
 #if defined(THREADZ) || defined(LOCKLESS)
@@ -933,9 +934,9 @@ void doG7Fault (bool allowTR)
      // Strictly speaking EXF isn't a G7 fault, put if we treat is as one,
      // we are allowing the current instruction to complete, simplifying
      // implementation
-     if (cpu . g7Faults & (1u << FAULT_EXF))
+     if (cpu.g7Faults & (1u << FAULT_EXF))
        {
-         cpu . g7Faults &= ~(1u << FAULT_EXF);
+         cpu.g7Faults &= ~(1u << FAULT_EXF);
 
 #if defined(THREADZ) || defined(LOCKLESS)
 	 unlock_scu ();
