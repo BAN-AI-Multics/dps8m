@@ -1855,6 +1855,9 @@ setCPU:;
     // This allows long jumping to the top of the state machine
     int val = setjmp (cpu.jmpMain);
 
+    // Assume that an RCU did not just occur
+    cpu.instr_restart = false;
+
     switch (val)
       {
         case JMP_ENTRY:
@@ -1880,6 +1883,7 @@ setCPU:;
             set_cpu_cycle (FETCH_cycle);
             break;
         case JMP_RESTART:
+            cpu.instr_restart = true;
             set_cpu_cycle (EXEC_cycle);
             break;
         default:

@@ -1415,7 +1415,7 @@ t_stat executeInstruction (void)
 // Local caches of frequently accessed data
 
     const uint ndes = info->ndes;
-    cpu.instr_restart = cpu.cu.rfi;         // instruction is to be restarted
+    cpu.instr_refetch = cpu.cu.rfi;         // instruction is to be restarted
     cpu.cu.rfi = 0;
     const opc_flag flags = info->flags;
     const opc_mod mods = info->mods;
@@ -9875,13 +9875,14 @@ elapsedtime ();
 #ifdef rework
     if (cpu.cu.FIF) // fault occured during instruction fetch
       {
-//if (cpu.cu.rfi) sim_printf ( "RCU FIF refetch return caught rfi\n");
+#ifdef OLDRFI
         // I am misusing this bit; on restart I want a way to tell the
         // CPU state machine to restart the instruction, which is not
         // how Multics uses it. I need to pick a different way to
         // communicate; for now, turn it off on refetch so the state
         // machine doesn't become confused.
         cpu.cu.rfi = 0;
+#endif
         sim_debug (DBG_FAULT, & cpu_dev, "RCU FIF REFETCH return\n");
         longjmp (cpu.jmpMain, JMP_REFETCH);
       }
@@ -9891,10 +9892,13 @@ elapsedtime ();
       {
 //sim_printf ( "RCU rfi refetch return\n");
         sim_debug (DBG_FAULT, & cpu_dev, "RCU rfi refetch return\n");
+#ifdef OLDRFI
 // Setting the to RESTART causes ISOLTS 776 to report unexpected
 // trouble faults.
 // Without clearing rfi, ISOLTS pm776-08i LUFs.
         cpu.cu.rfi = 0;
+// Hangs after 8d error with or without reset.
+#endif
         longjmp (cpu.jmpMain, JMP_REFETCH);
       }
 
@@ -9911,7 +9915,9 @@ elapsedtime ();
       {
 //sim_printf ("MME2 restart\n");
         sim_debug (DBG_FAULT, & cpu_dev, "RCU MME2 restart return\n");
+#ifdef OLDRFI
         cpu.cu.rfi = 0;
+#endif
         longjmp (cpu.jmpMain, JMP_RESTART);
       }
 #else
@@ -9925,7 +9931,9 @@ elapsedtime ();
         // communicate; for now, turn it off on refetch so the state
         // machine doesn't become confused.
 
+#ifdef OLDRFI
         cpu.cu.rfi = 0;
+#endif
         sim_debug (DBG_FAULT, & cpu_dev, "RCU rfi/FIF REFETCH return\n");
         longjmp (cpu.jmpMain, JMP_REFETCH);
       }
@@ -9938,7 +9946,9 @@ elapsedtime ();
       {
 //sim_printf ("MME2 restart\n");
         sim_debug (DBG_FAULT, & cpu_dev, "RCU MME2 restart return\n");
+#ifdef OLDRFI
         cpu.cu.rfi = 1;
+#endif
         longjmp (cpu.jmpMain, JMP_RESTART);
       }
 #endif
@@ -9971,7 +9981,9 @@ elapsedtime ();
         fi_addr == FAULT_IPR)
       {
         sim_debug (DBG_FAULT, & cpu_dev, "RCU sync fault return\n");
+#ifdef OLDRFI
         cpu.cu.rfi = 0;
+#endif
         longjmp (cpu.jmpMain, JMP_SYNC_FAULT_RETURN);
       }
 #else
@@ -9985,7 +9997,9 @@ elapsedtime ();
         fi_addr == FAULT_IPR)
       {
         sim_debug (DBG_FAULT, & cpu_dev, "RCU MMEx sync fault return\n");
+#ifdef OLDRFI
         cpu.cu.rfi = 0;
+#endif
         longjmp (cpu.jmpMain, JMP_SYNC_FAULT_RETURN);
       }
 #endif
@@ -9998,7 +10012,9 @@ elapsedtime ();
     // LUF can happen during fetch or CAF. If fetch, handled above
     if (fi_addr == FAULT_LUF)
       {
+#ifdef OLDRFI
         cpu.cu.rfi = 1;
+#endif
         sim_debug (DBG_FAULT, & cpu_dev, "RCU LUF RESTART return\n");
         longjmp (cpu.jmpMain, JMP_RESTART);
       }
@@ -10015,7 +10031,9 @@ elapsedtime ();
         fi_addr == FAULT_EXF)
       {
         // If the fault occurred during fetch, handled above.
+#ifdef OLDRFI
         cpu.cu.rfi = 1;
+#endif
         sim_debug (DBG_FAULT, & cpu_dev, "RCU ACV RESTART return\n");
         longjmp (cpu.jmpMain, JMP_RESTART);
       }

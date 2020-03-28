@@ -381,7 +381,6 @@ void updateIWB (word18 addr, word6 tag)
 
 void do_caf (void)
   {
-//#ifdef CA_REWORK
     if (cpu.currentInstruction.b29 == 0)
       {
         cpu.TPR.CA = GET_ADDR (IWB_IRODD);
@@ -393,7 +392,7 @@ void do_caf (void)
         cpu.TPR.CA = (cpu.PAR[n].WORDNO + SIGNEXT15_18 (offset))
                       & MASK18;
       }
-//#endif
+
     char buf [256];
     sim_debug (DBG_ADDRMOD, & cpu_dev,
                "%s(Entry): operType:%s TPR.CA=%06o\n",
@@ -419,7 +418,30 @@ void do_caf (void)
     int lockupCnt = 0;
 #define lockupLimit 4096 // approx. 2 ms
 
+    if (cpu.instr_restart)
+      {
+       if (cpu.cu.CT_HOLD == (TM_IT | IT_DIC) &&
+           cpu.cu.pot == 1 && GET_ADDR (IWB_IRODD) == cpu.TPR.CA)
+         {
+           cpu.TPR.CA--;
+	 cpu.TPR.CA &= MASK18;
+           sim_debug (DBG_ADDRMOD, & cpu_dev, "correct CA\n");
+         }
+      }
+
 startCA:;
+
+    sim_debug (DBG_ADDRMOD, & cpu_dev,
+               "startCA: TAG=%02o(%s) CT_HOLD %02o CA:%06o\n",
+               cpu.rTAG, get_mod_string (buf, cpu.rTAG), cpu.cu.CT_HOLD, cpu.TPR.CA);
+
+    // Try to get ISOLTS 885 POT usage right
+    if (! cpu.instr_restart)
+      {
+        cpu.cu.pot = 0;
+        cpu.cu.its = 0;
+        cpu.cu.itp = 0;
+      }
 
     if (++ lockupCnt > lockupLimit)
       {
@@ -429,59 +451,11 @@ startCA:;
     Td = GET_TD (cpu.rTAG);
     Tm = GET_TM (cpu.rTAG);
 
-    // CT_HOLD is set to 0 on instruction setup; if it is non-zero here,
-    // we must have faulted during an indirect word fetch. Restore 
-    // state and restart the fetch.
-    if (cpu.cu.CT_HOLD)
-      {
-#if 0
-        sim_debug (DBG_ADDRMOD, & cpu_dev,
-                   "%s(startCA): restart; CT_HOLD %02o\n",
-                   __func__, cpu.cu.CT_HOLD);
-	word6 save_rTAG = cpu.rTAG;
-	if (Tm == TM_IR)
-	  {
-	    cpu.rTAG = cpu.cu.CT_HOLD;
-	    Td = GET_TD (cpu.rTAG);
-	    Tm = GET_TM (cpu.rTAG);
-	    cpu.cu.CT_HOLD = save_rTAG;
-	  }
-#ifdef ISOLTS_FIX
-       else if (GET_TM(cpu.cu.CT_HOLD) == TM_IT && GET_TD (cpu.cu.CT_HOLD) == IT_DIC &&
-		cpu.cu.pot == 1 && GET_ADDR (IWB_IRODD) == cpu.TPR.CA)
-         {
-           cpu.TPR.CA--;
-           sim_warn ("%s: correct CA\n", __func__);
-         }
-#endif
-       else if (Tm == TM_IT && (Td == IT_IDC || Td == IT_DIC))
-         {
-           cpu.cu.pot = 1;
-         }
-#endif
-      }
-    else
-      {
-#if 0
-	// not CT_HOLD
-	if (Tm == TM_IR || (Tm == TM_IT && (Td == IT_IDC || Td == IT_DIC)))
-	  cpu.cu.CT_HOLD = cpu.rTAG;
-#endif
-	cpu.cu.its = 0;
-	cpu.cu.itp = 0;
-	//cpu.cu.pot = 0;
-      }
-
     // Try to get ISOLTS 885 POT usage right
     if (! cpu.instr_restart)
       {
         cpu.cu.pot = 0;
       }
-#if 0
-    sim_debug (DBG_ADDRMOD, & cpu_dev,
-               "%s(startCA): TAG=%02o(%s) Tm=%o Td=%o CT_HOLD %02o\n",
-               __func__, cpu.rTAG, get_mod_string (buf, cpu.rTAG), Tm, Td, cpu.cu.CT_HOLD);
-#endif
 
     switch (Tm)
       {
@@ -626,14 +600,14 @@ startCA:;
           }
 
         if ((saveCA & 1) == 1 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
-	  {
-	    sim_warn ("%s: itp/its at odd address\n", __func__);
+            {
+              sim_warn ("%s: itp/its at odd address\n", __func__);
 #ifdef TESTING
-	    traceInstruction (0);
+              traceInstruction (0);
 #endif
-	  }
+            }
 
-	if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
+          if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
           {
             do_ITS_ITP (iTAG, & cpu.rTAG);
           }
@@ -654,6 +628,7 @@ startCA:;
         if (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)
           return;
 
+        sim_debug (DBG_ADDRMOD, & cpu_dev, "RI_MOD updateIWB\n");
         updateIWB (cpu.TPR.CA, cpu.rTAG);
         goto startCA;
       } // RI_MOD
@@ -701,14 +676,14 @@ startCA:;
         sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD sets CT_HOLD to %02o\n", cpu.cu.CT_HOLD);
 
         if ((saveCA & 1) == 1 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
-	  {
-	    sim_warn ("%s: itp/its at odd address\n", __func__);
+            {
+              sim_warn ("%s: itp/its at odd address\n", __func__);
 #ifdef TESTING
-	    traceInstruction (0);
+              traceInstruction (0);
 #endif
-	  }
+            }
 
-	if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
+          if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
           {
             do_ITS_ITP (iTAG, & cpu.rTAG);
           }
@@ -768,6 +743,7 @@ startCA:;
                                cpu.ou.directOperand);
                     // CT_HOLD has *DU or *DL; convert to DU or DL
                     word6 tag = TM_R | GET_TD (cpu.cu.CT_HOLD);
+                    sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD(TM_R) direct operand updateIWB\n");
                     updateIWB (cpu.TPR.CA, tag); // Known to be DL or DU
                   }
                 else
@@ -778,6 +754,7 @@ startCA:;
                     sim_debug (DBG_ADDRMOD, & cpu_dev,
                                "IR_MOD(TM_R): TPR.CA=%06o\n", cpu.TPR.CA);
 
+                    sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD(TM_R) not direct operand updateIWB\n");
                     updateIWB (cpu.TPR.CA, 0);
                   }
                 return;
@@ -814,12 +791,14 @@ startCA:;
                            "IR_MOD(TM_RI): TPR.CA(After)=%06o\n",
                            cpu.TPR.CA);
 
+                sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD(TM_RI) updateIWB\n");
                 updateIWB (cpu.TPR.CA, cpu.rTAG); // XXX guessing here...
                 goto IR_MOD_2;
               } // TM_RI
 
             case TM_IR:
               {
+                sim_debug (DBG_ADDRMOD, & cpu_dev, "IR_MOD(TM_IR) updateIWB\n");
                 updateIWB (cpu.TPR.CA, cpu.rTAG); // XXX guessing here...
                 goto IR_MOD_1;
               } // TM_IR
@@ -902,7 +881,7 @@ startCA:;
                 word18 indaddr = cpu.TPR.CA;
                 Read (indaddr, & indword, APU_DATA_READ);
 #ifdef LOCKLESS
-		word24 phys_address = cpu.iefpFinalAddress;
+                word24 phys_address = cpu.iefpFinalAddress;
 #endif
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -1004,13 +983,13 @@ startCA:;
                 cpu.cu.pot = 1;
 
 #ifdef LOCKLESSXXX
-		// gives warnings as another lock is aquired in between
+                // gives warnings as another lock is aquired in between
                 Read (cpu.TPR.CA, & cpu.ou.character_data, (i->info->flags & RMW) == STORE_OPERAND ? OPERAND_RMW : OPERAND_READ);
 #else
                 Read (cpu.TPR.CA, & cpu.ou.character_data, OPERAND_READ);
 #endif
 #ifdef LOCKLESS
-		cpu.char_word_address = cpu.iefpFinalAddress;
+                cpu.char_word_address = cpu.iefpFinalAddress;
 #endif
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -1058,16 +1037,16 @@ startCA:;
                     //                    cpu.ou.characterOperandOffset);
                     //Write (cpu.TPR.CA,  new_indword, APU_DATA_STORE);
 #ifdef LOCKLESS
-		    word36 indword_new;
-		    core_read_lock(phys_address, &indword_new, __func__);
-		    if (indword_new != indword)
-		      sim_warn("indword changed from %llo to %llo\n", indword, indword_new);
+                    word36 indword_new;
+                    core_read_lock(phys_address, &indword_new, __func__);
+                    if (indword_new != indword)
+                      sim_warn("indword changed from %llo to %llo\n", indword, indword_new);
 #endif
                     putbits36_18 (& indword, 0, Yi);
                     putbits36_12 (& indword, 18, tally);
                     putbits36_3  (& indword, 33, os);
 #ifdef LOCKLESS
-		    core_write_unlock(phys_address, indword, __func__);
+                    core_write_unlock(phys_address, indword, __func__);
 #else
                     Write (indaddr, indword, APU_DATA_STORE);
 #endif
@@ -1121,9 +1100,6 @@ startCA:;
                            "IT_MOD(IT_AD): reading indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
 #ifdef THREADZ
                 lock_rmw ();
 #endif
@@ -1160,9 +1136,9 @@ startCA:;
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
-		Write (saveCA, indword, APU_DATA_STORE);
+                Write (saveCA, indword, APU_DATA_STORE);
 #endif
 
 #ifdef THREADZ
@@ -1178,6 +1154,7 @@ startCA:;
                 // The address and tally have been updated; change the tag
                 // so that if the indirect fetches, the address and tally
                 // will be left alone. 
+                sim_debug (DBG_ADDRMOD, & cpu_dev, "IT_MOD(IT_AD) updateIWB\n");
                 updateIWB (cpu.TPR.CA, 0);
                 return;
               } // IT_AD
@@ -1194,16 +1171,13 @@ startCA:;
                 // otherwise it is set OFF. The computed address is the value
                 // of the decremented ADDRESS field of the indirect word.
 
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
 #ifdef THREADZ
                 lock_rmw ();
 #endif
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-		Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_SD): reading indirect word from %06o\n",
@@ -1234,7 +1208,7 @@ startCA:;
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
@@ -1253,6 +1227,7 @@ startCA:;
                 // The address and tally have been updated; change the tag
                 // so that if the indirect fetches, the address and tally
                 // will be left alone. 
+                sim_debug (DBG_ADDRMOD, & cpu_dev, "IT_MOD(IT_SD) updateIWB\n");
                 updateIWB (cpu.TPR.CA, 0);
                 return;
               } // IT_SD
@@ -1272,9 +1247,6 @@ startCA:;
                            "IT_MOD(IT_DI): reading indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
 #ifdef THREADZ
                 lock_rmw ();
 #endif
@@ -1314,7 +1286,7 @@ startCA:;
                            indword, saveCA);
 
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
@@ -1322,10 +1294,14 @@ startCA:;
 #ifdef THREADZ
                 unlock_rmw ();
 #endif
+
+// Confusing... CA is set to Yi above, so this should be redundant, but
+// commenting it out causes early boot hang...
                 cpu.TPR.CA = Yi;
                 // The address and tally have been updated; change the tag
                 // so that if the indirect fetches, the address and tally
                 // will be left alone. 
+                sim_debug (DBG_ADDRMOD, & cpu_dev, "IT_MOD(IT_DI) updateIWB\n");
                 updateIWB (cpu.TPR.CA, 0);
                 return;
               } // IT_DI
@@ -1347,9 +1323,6 @@ startCA:;
                            "IT_MOD(IT_ID): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
 #ifdef THREADZ
                 lock_rmw ();
 #endif
@@ -1391,7 +1364,7 @@ startCA:;
                            indword, saveCA);
 
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
@@ -1431,9 +1404,6 @@ startCA:;
                            "IT_MOD(IT_DIC): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
 #ifdef THREADZ
                 lock_rmw ();
 #endif
@@ -1455,10 +1425,8 @@ startCA:;
                            "tally=%04o idwtag=%02o\n", 
                            indword, Yi, cpu.AM_tally, idwtag);
 
-//#ifdef ISOLTS_FIX
                 // ISOLTS 885 test-02a
                 word24 YiSafe2 = Yi; // save indirect address for later use
-//#endif
 
                 Yi -= 1;
                 Yi &= MASK18;
@@ -1480,7 +1448,7 @@ startCA:;
                            "addr %06o\n", indword, saveCA);
 
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
@@ -1504,7 +1472,7 @@ startCA:;
                     sim_debug (DBG_ADDRMOD, & cpu_dev,
                                "IT_MOD(IT_DIC): new CT_HOLD %02o new TAG %02o\n", 
                                cpu.rTAG, idwtag);
-		cpu.cu.CT_HOLD = cpu.rTAG;
+                    cpu.cu.CT_HOLD = cpu.rTAG;
                     sim_debug (DBG_ADDRMOD, & cpu_dev, "IT_DIC sets CT_HOLD to %02o\n", cpu.cu.CT_HOLD);
                   }
                 cpu.rTAG = idwtag;
@@ -1521,11 +1489,13 @@ startCA:;
 // Set the tally after the indirect word is processed; if it faults, the IR
 // should be unchanged. ISOLTS ps791 test-02g
                 SC_I_TALLY (cpu.AM_tally == 0);
-//#ifdef ISOLTS_FIX
-		updateIWB (YiSafe2, cpu.rTAG);
-//#else
-//                updateIWB (cpu.TPR.CA, cpu.rTAG);
-//#endif
+                sim_debug (DBG_ADDRMOD, & cpu_dev, "IT_MOD(IT_DIC) updateIWB\n");
+                // For DIC, the computed address is the modified address
+// fails on ISOLTS 885 test-02a 3rd level at DIC to IDC 
+                //updateIWB (Yi, cpu.rTAG);
+                updateIWB (YiSafe2, cpu.rTAG);
+                cpu.TPR.CA = Yi;
+
                 goto startCA;
               } // IT_DIC
 
@@ -1556,17 +1526,20 @@ startCA:;
                            "IT_MOD(IT_IDC): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
 #ifdef THREADZ
                 lock_rmw ();
 #endif
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                // ISOLTS 885 test-02a first level
-                //cpu.cu.pot = 0;
+#if 0
+                if (cpu.cu.CT_HOLD == (TM_IT | IT_DI) ||
+                    cpu.cu.CT_HOLD == (TM_IT | IT_DIC))
+                  {
+                    cpu.TPR.CA --;
+                    cpu.TPR.CA &= MASK18;
+                  }
+#endif
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 //cpu.cu.pot = 0;
@@ -1602,7 +1575,7 @@ startCA:;
                            indword, saveCA);
 
 #ifdef LOCKLESS
-		core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else 
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
@@ -1644,6 +1617,7 @@ startCA:;
 // Set the tally after the indirect word is processed; if it faults, the IR
 // should be unchanged. ISOLTS ps791 test-02f
                 SC_I_TALLY (cpu.AM_tally == 0);
+                sim_debug (DBG_ADDRMOD, & cpu_dev, "IT_MOD(IT_IDC) updateIWB\n");
                 updateIWB (cpu.TPR.CA, cpu.rTAG);
 
                 goto startCA;
