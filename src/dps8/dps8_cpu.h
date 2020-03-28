@@ -999,7 +999,7 @@ typedef struct
                    //       pair
     word1 xdo;     // 25    XDO Execute instruction from Execute Double odd pair  000000002000
     word1 itp;     // 26    ITP Execute ITP indirect cycle                        000000001000
-    word1 rfi;     // 27    RFI Restart this instruction                          000000000400
+    word1 rfi;     // 27    RFI Refetch this instruction                          000000000400
     word1 its;     // 28    ITS Execute ITS indirect cycle                        000000000200
     word1 FIF;     // 29    FIF Fault occured during instruction fetch            000000000100
     word6 CT_HOLD; // 30-35 CT HOLD contents of the "remember modifier" register  000000000077
@@ -1541,7 +1541,8 @@ typedef struct
     DCDstruct currentInstruction;
     EISstruct currentEISinstruction;
 
-    bool instr_restart; // Memory of rfi
+    bool instr_refetch; // Memory of rfi
+    bool instr_restart; // Came from RCU
     events_t events;
     switches_t switches;
     ctl_unit_data_t cu;
