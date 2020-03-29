@@ -2034,7 +2034,10 @@ J:;
     //   TM_RI always indirects
     //   TM_IR always indirects
     //   TM_IT always indirects
-#if 1
+
+// The existence of adjust_mc in link_snap implies that F1/F2/F3 is
+// treated as in indirect word.
+#if 0
     //     IT_CI, IT_SC, IT_SCR -- address is used for tally word
     //     IT_I indirects
     //     IT_AD -- address is used for tally word
@@ -2073,10 +2076,12 @@ J:;
         //cpu.cu.TSN_VALID[0] = 1;
 
       }
-    // XXX
+#if 0
     // The snap link code "adjust_mc" assumes that bit 29 is magically cleared
     // This is probably wrong, but is needed to make link snapping work.
     // When adjust_mc is fixed, this can probably be deleted.
+// If J's "other indirect" is interpreted to include F1/F2/F3, then
+// this is unneeded and adjust_mc makes sense.
       {
         word36 * wb;
         if (USE_IRODD)
@@ -2085,7 +2090,7 @@ J:;
           wb = & cpu.cu.IWB;
         putbits36_1 (wb, 29,  0);
       }
-
+#endif
      goto Exit;
 
 ////////////////////////////////////////

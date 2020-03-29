@@ -181,6 +181,8 @@ static char * op_desc_str (char * temp)
     return temp;    //"op_desc_str (???)";
   }
 
+bool b29clr;
+
 static void do_ITP (word4 Tag)
   {
     sim_debug (DBG_APPENDING, & cpu_dev,
@@ -210,12 +212,16 @@ static void do_ITP (word4 Tag)
     cpu.TPR.TRR = max3 (cpu.PR[n].RNR, cpu.RSDWH_R1, cpu.TPR.TRR);
     cpu.TPR.TBR = GET_ITP_BITNO (cpu.itxPair);
     cpu.TPR.CA = cpu.PAR[n].WORDNO + GET_ITP_WORDNO (cpu.itxPair);
-    if (GET_TM (Tag) == TM_IR || (cpu.switches.fault_tag_indirect && Tag == 020))
+    //if (GET_TM (Tag) == TM_IR || (cpu.switches.fault_tag_indirect && Tag == 020))
+    if (GET_TM (Tag) == TM_IR && Tag != 060)
       {
         cpu.TPR.CA += get_Cr(GET_TD(cpu.cu.CT_HOLD));
         sim_debug (DBG_APPENDING, & cpu_dev, "ITP sets CA to %06o\n", cpu.TPR.CA);
-        sim_debug (DBG_ADDRMOD, & cpu_dev, "ITP clears CT_HOLD\n");
-        cpu.cu.CT_HOLD = 0;
+        //if (b29clr)
+          {
+            sim_debug (DBG_ADDRMOD, & cpu_dev, "ITP clears CT_HOLD\n");
+            cpu.cu.CT_HOLD = 0;
+          }
       }
     else if (GET_TM (Tag) == TM_RI)
       {
@@ -265,12 +271,16 @@ static void do_ITS (word4 Tag)
     cpu.TPR.TRR = max3 (GET_ITS_RN (cpu.itxPair), cpu.RSDWH_R1, cpu.TPR.TRR);
     cpu.TPR.TBR = GET_ITS_BITNO (cpu.itxPair);
     cpu.TPR.CA = GET_ITS_WORDNO (cpu.itxPair);
-    if (GET_TM (Tag) == TM_IR || (cpu.switches.fault_tag_indirect && Tag == 020))
+    //if (GET_TM (Tag) == TM_IR || (cpu.switches.fault_tag_indirect && Tag == 020))
+    if (GET_TM (Tag) == TM_IR && Tag != 060)
       {
         cpu.TPR.CA += get_Cr(GET_TD(cpu.cu.CT_HOLD));
-        sim_debug (DBG_ADDRMOD, & cpu_dev, "ITS clears CT_HOLD\n");
-        cpu.cu.CT_HOLD = 0;
         sim_debug (DBG_APPENDING, & cpu_dev, "ITS sets CA to %06o\n", cpu.TPR.CA);
+        //if (b29clr)
+          {
+            sim_debug (DBG_ADDRMOD, & cpu_dev, "ITS clears CT_HOLD\n");
+            cpu.cu.CT_HOLD = 0;
+          }
       }
     else if (GET_TM (Tag) == TM_RI)
       {
