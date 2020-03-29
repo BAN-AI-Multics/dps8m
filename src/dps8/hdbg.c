@@ -474,6 +474,7 @@ void hdbgPrint (void)
           }
       }
     fclose (hdbgOut);
+#if 0
     int fd = open ("M.dump", O_WRONLY | O_CREAT, 0660);
     if (fd == -1)
       {
@@ -483,6 +484,7 @@ void hdbgPrint (void)
     // cast discards volatile
     /* ssize_t n = */ write (fd, (const void *) M, MEMSIZE * sizeof (word36));
     close (fd);
+#endif
 done: ;
 #ifdef THREADZ
     pthread_mutex_unlock (& hdbg_lock);
