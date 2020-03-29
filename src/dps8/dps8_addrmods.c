@@ -1466,6 +1466,19 @@ startCA:;
 #ifdef THREADZ
                 unlock_rmw ();
 #endif
+// ISOLTS 791 test-02e claims:
+//      specifying   au  as register designator of an indirect word fetched
+//      via 'dic' modification should have faulted
+//
+// The R/RI handling discussed in AL39 ("forces null") actually means fault.
+
+                if ((GET_TM (idwtag) == TM_R || GET_TM (idwtag) == TM_RI) &&
+                    GET_TD (idwtag) != 0)
+                  {
+                    doFault (FAULT_IPR, fst_ill_mod,
+                             "IT_MOD(IT_DIC): indirect TM_R");
+                  }
+
                 // If the TAG of the indirect word invokes a register, that is,
                 // specifies r, ri, or ir modification, the effective Td value
                 // for the register is forced to "null" before the next
