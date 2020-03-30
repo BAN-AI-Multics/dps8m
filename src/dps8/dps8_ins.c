@@ -463,66 +463,59 @@ static void scu2words (word36 *words)
 	}
 	rewrite_table[] =
 	  {
+              // 1
               // s/b FANP on,  FABS off, RFI on
               // was FANP off, FABS on,  RFI off
 	    { { 0000001400021, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000500, 0110015011000, 0110015011000 },
 	      { 0000001400011, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000100, 0110015011000, 0110015011000 },
 	      "pa865 test-03a inhibit", //                                                           rfi
 	    },
-              // s/b XSF on,
-              // was XSF off
-	    { { 0000000401001, 0000000000041, 0000001000100, 0000000000000, 0101175000220, 0000006000000, 0100006235100, 0100006235100 },
-	      { 0000000601001, 0000000000041, 0000001000100, 0000000000000, 0101175000220, 0000006000000, 0100006235100, 0100006235100 },
-	      "pa870 test-01a dir. fault",
-	    },
-              // s/b XSF on,
-              // was XSF off,
-	    { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000003000000, 0200003716100, 0000005755000 },
-	      { 0000000651001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000003000000, 0200003716100, 0000005755000 },
-	      "pa885 test-05a xec inst",
-	    },
-              // s/b XSF on,
-              // was XSF off,
-	    { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000002000000, 0200002717100, 0110002001000 },
-	      { 0000000651001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000002000000, 0200002717100, 0110002001000 },
-	      "pa885 test-05b xed inst",
-	    },
-              // s/b XDE on, XDO off
-              // was XDE off, XDO on
+              // 2
+              // s/b XDO off
+              // was XDO on
 	    { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004004000, 0200004235100, 0000005755000 },
-	      { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004002000, 0200004235100, 0000005755000 },
+	      { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004006000, 0200004235100, 0000005755000 },
 	      "pa885 test-05c xed inst", //                                                         xde/xdo
               },
+              // 3
               // s/b XDE on
               // was XDE off
               { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004006000, 0200004235100, 0000005755000 },
                 { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004002000, 0200004235100, 0000005755000 },
 	        "pa885 test-05d xed inst", //                                                         xde/xdo
               },
+              // 4
               // s/b PI-AP on,  RFI on,  FIF on
               // was PI-AP off, RFI off, FIF off
               { { 0000000454201, 0000000000041, 0000000000100, 0000000000000, 0001777200200, 0002000000500, 0005600560201, 0005600560201 },
                 { 0000000450201, 0000000000041, 0000000000100, 0000000000000, 0001777200200, 0002000000000, 0005600560201, 0005600560201 },
 	        "pa885 test-06a rpd inst", //                                                         rfi/fif
               },
-              // s/b XSF on,  TRO off, CT-HOLD 01
-              // was XSF off, TRO on,  CT-HOLD 00
-              { { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000200200, 0000003500001, 0200003235111, 0002005755012 },
-                { 0000000651001, 0000000000041, 0000001000101, 0000000000000, 0002000202200, 0000003500000, 0200003235111, 0002005755012 },
-	        "pa885 test-06b rpd inst", //                                          tro               ct-hold
+              // 5
+              { { 0000000454201, 0000000000041, 0000000000101, 0000000000000, 0001777200200, 0002000000500, 0005600560201, 0005600560201 },
+                { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0002000200200, 0002000500100, 0005600560201, 0005600560201 },
+	        "pa885 test-06a rpd inst cac", //                                                         rfi/fif
               },
+              // 6
+              { { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000200200, 0000003500001, 0200003235111, 0002005755012 },
+                { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000202200, 0000003500000, 0200003235111, 0002005755012 },
+	        "pa885 test-06b rpd inst cac", //                                      tro               ct-hold
+              },
+              // 7
               // s/b TRO off, CT-HOLD 01
               // was TRO on,  CT-HOLD 00
               { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776200200, 0002015500001, 0002015235031, 0002017755032 },
                 { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776202200, 0002015500000, 0002015235031, 0002017755032 },
 	        "pa885 test-06c rpd inst", //                                          tro               ct-hold
               },
+              // 8
               // s/b CT-HOLD 12
               // was CT-HOLD 00
               { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776000200, 0002000100012, 0001775235011, 0001775755012 },
                 { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776000200, 0002000100000, 0001775235011, 0001775755012 },
 	        "pa885 test-06d rpd inst", //                                                            ct-hold
 	    },
+              // 9
               // s/b PI-AP on,  RFI on
               // was PI-AP off, RFI off
 	    { { 0000000404202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000500, 0001773755000, 0001773755000 },
@@ -531,12 +524,13 @@ static void scu2words (word36 *words)
 	    }
 	  };
 	int i;
-	for (i=0; i < 11; i++)
+	for (i=0; i < 9; i++)
 	  {
 	    if (memcmp (words, rewrite_table[i].was, 8*sizeof (word36)) == 0)
 	      {
 		memcpy (words, rewrite_table[i].should_be, 8*sizeof (word36));
 		sim_warn("%s: scu rewrite %d: %s\n", __func__, i, rewrite_table[i].name);
+		sim_printf("%s: scu rewrite %d: %s\n", __func__, i, rewrite_table[i].name);
 		break;
 	      }
 	  }
@@ -9745,6 +9739,316 @@ static int emCall (void)
 #endif
 #endif // TESTING
 
+#if 0
+// This code may be redundant; it may be possible to just let CAF do its
+// thing and put the final address into A.
+// CANFAULT
+static int doABSA (word36 * result)
+  {
+    DCDstruct * i = & cpu.currentInstruction;
+    word36 res;
+    sim_debug (DBG_APPENDING, & cpu_dev, "absa CA:%08o\n", cpu.TPR.CA);
+
+    if (get_addr_mode () == ABSOLUTE_mode && ! i->a)
+      {
+        //sim_debug (DBG_ERR, & cpu_dev, "ABSA in absolute mode\n");
+        // Not clear what the subfault should be; see Fault Register in AL39.
+        //doFault (FAULT_IPR,
+                 //(_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}, 
+                 //"ABSA in absolute mode.");
+        * result = ((word36) (cpu.TPR.CA & MASK18)) << 12; // 24:12 format
+        return SCPE_OK;
+      }
+
+    if (cpu.DSBR.U == 1) // Unpaged
+      {
+        sim_debug (DBG_APPENDING, & cpu_dev, "absa DSBR is unpaged\n");
+        // 1. If 2 * segno >= 16 * (DSBR.BND + 1), then generate an access
+        // violation, out of segment bounds, fault.
+
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa Boundary check: TSR: %05o f(TSR): %06o "
+          "BND: %05o f(BND): %06o\n",
+          cpu.TPR.TSR, 2 * (uint) cpu.TPR.TSR,
+          cpu.DSBR.BND, 16 * ((uint) cpu.DSBR.BND + 1));
+
+        if (2 * (uint) cpu.TPR.TSR >= 16 * ((uint) cpu.DSBR.BND + 1))
+          {
+            doFault (FAULT_ACV,
+                     (_fault_subtype) {.fault_acv_subtype=ACV15},
+                     "ABSA in DSBR boundary violation.");
+          }
+
+        // 2. Fetch the target segment SDW from DSBR.ADDR + 2 * segno.
+
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa DSBR.ADDR %08o TSR %o SDWe offset %o SWDe %08o\n",
+          cpu.DSBR.ADDR, cpu.TPR.TSR, 2u * cpu.TPR.TSR,
+          cpu.DSBR.ADDR + 2u * cpu.TPR.TSR);
+
+        word36 SDWe, SDWo;
+        core_read ((cpu.DSBR.ADDR + 2u * cpu.TPR.TSR) & PAMASK, & SDWe,
+                   __func__);
+        core_read ((cpu.DSBR.ADDR + 2u * cpu.TPR.TSR + 1u) & PAMASK, & SDWo, 
+                   __func__);
+
+//sim_debug (DBG_TRACE, & cpu_dev, "absa SDW0 %s\n", strSDW0 (& SDW0));
+//sim_debug (DBG_TRACE, & cpu_dev, "absa  DSBR.ADDR %08o TPR.TSR %08o\n",
+//           DSBR.ADDR, cpu.TPR.TSR);
+//sim_debug (DBG_TRACE, & cpu_dev,
+//           "absa  SDWaddr: %08o SDW: %012"PRIo64" %012"PRIo64"\n",
+//           DSBR.ADDR + 2 * cpu.TPR.TSR, SDWe, SDWo);
+        // 3. If SDW.F = 0, then generate directed fault n where n is given in
+        // SDW.FC. The value of n used here is the value assigned to define a
+        // missing segment fault or, simply, a segment fault.
+
+        // ABSA doesn't care if the page isn't resident
+
+
+        // 4. If offset >= 16 * (SDW.BOUND + 1), then generate an access
+        // violation, out of segment bounds, fault.
+
+        word14 BOUND = (SDWo >> (35u - 14u)) & 037777u;
+        if (cpu.TPR.CA >= 16u * (BOUND + 1u))
+          {
+            doFault (FAULT_ACV,
+                     (_fault_subtype) {.fault_acv_subtype=ACV15},
+                     "ABSA in SDW boundary violation.");
+          }
+
+        // 5. If the access bits (SDW.R, SDW.E, etc.) of the segment are
+        // incompatible with the reference, generate the appropriate access
+        // violation fault.
+
+        // t4d doesn't care
+        // XXX Don't know what the correct behavior is here for ABSA
+
+
+        // 6. Generate 24-bit absolute main memory address SDW.ADDR + offset.
+
+        word24 ADDR = (SDWe >> 12) & 077777760;
+        res = (word36) ADDR + (word36) cpu.TPR.CA;
+        res &= PAMASK; //24 bit math
+        res <<= 12; // 24:12 format
+
+      }
+    else
+      {
+        sim_debug (DBG_APPENDING, & cpu_dev, "absa DSBR is paged\n");
+        // paged
+        word15 segno = cpu.TPR.TSR;
+        word18 offset = cpu.TPR.CA;
+
+        // 1. If 2 * segno >= 16 * (DSBR.BND + 1), then generate an access
+        // violation, out of segment bounds, fault.
+
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa Segment boundary check: segno: %05o f(segno): %06o "
+          "BND: %05o f(BND): %06o\n",
+          segno, 2 * (uint) segno,
+          cpu.DSBR.BND, 16 * ((uint) cpu.DSBR.BND + 1));
+
+        if (2 * (uint) segno >= 16 * ((uint) cpu.DSBR.BND + 1))
+          {
+            doFault (FAULT_ACV,
+                     (_fault_subtype) {.fault_acv_subtype=ACV15},
+                     "ABSA in DSBR boundary violation.");
+          }
+
+        // 2. Form the quantities:
+        //       y1 = (2 * segno) modulo 1024
+        //       x1 = (2 * segno - y1) / 1024
+
+        word24 y1 = (2u * segno) % 1024u;
+        word24 x1 = (2u * segno - y1) / 1024u;
+
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa y1:%08o x1:%08o\n", y1, x1);
+
+        // 3. Fetch the descriptor segment PTW(x1) from DSBR.ADR + x1.
+
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa read PTW1@%08o+%08o %08o\n",
+          cpu.DSBR.ADDR, x1, (cpu.DSBR.ADDR + x1) & PAMASK);
+
+        word36 PTWx1;
+        core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+
+        _ptw0 PTW1;
+        PTW1.ADDR = GETHI (PTWx1);
+        PTW1.U = TSTBIT (PTWx1, 9);
+        PTW1.M = TSTBIT (PTWx1, 6);
+        PTW1.DF = TSTBIT (PTWx1, 2);
+        PTW1.FC = PTWx1 & 3;
+
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa PTW1 ADDR %08o U %o M %o F %o FC %o\n",
+          PTW1.ADDR, PTW1.U, PTW1.M, PTW1.DF, PTW1.FC);
+
+        // 4. If PTW(x1).F = 0, then generate directed fault n where n is
+        // given in PTW(x1).FC. The value of n used here is the value
+        // assigned to define a missing page fault or, simply, a
+        // page fault.
+
+        if (!PTW1.DF)
+          {
+            sim_debug (DBG_APPENDING, & cpu_dev, "absa fault !PTW1.F\n");
+            // initiate a directed fault
+            doFault (FAULT_DF0 + PTW1.FC,
+                     (_fault_subtype) {.bits=0},
+                     "ABSA !PTW1.F");
+          }
+
+        // 5. Fetch the target segment SDW, SDW(segno), from the
+        // descriptor segment page at PTW(x1).ADDR + y1.
+
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa read SDW@%08o<<6+%08o %08o\n",
+          PTW1.ADDR, y1, ((PTW1.ADDR << 6) + y1) & PAMASK);
+
+        word36 SDWeven, SDWodd;
+        core_read2 (((PTW1.ADDR << 6) + y1) & PAMASK, & SDWeven, & SDWodd,
+                     __func__);
+
+        _sdw0 SDW0;
+        // even word
+        SDW0.ADDR = (SDWeven >> 12) & PAMASK;
+        SDW0.R1 = (SDWeven >> 9) & 7;
+        SDW0.R2 = (SDWeven >> 6) & 7;
+        SDW0.R3 = (SDWeven >> 3) & 7;
+        SDW0.DF = TSTBIT (SDWeven, 2);
+        SDW0.FC = SDWeven & 3;
+
+        // odd word
+        SDW0.BOUND = (SDWodd >> 21) & 037777;
+        SDW0.R = TSTBIT (SDWodd, 20);
+        SDW0.E = TSTBIT (SDWodd, 19);
+        SDW0.W = TSTBIT (SDWodd, 18);
+        SDW0.P = TSTBIT (SDWodd, 17);
+        SDW0.U = TSTBIT (SDWodd, 16);
+        SDW0.G = TSTBIT (SDWodd, 15);
+        SDW0.C = TSTBIT (SDWodd, 14);
+        SDW0.EB = SDWodd & 037777;
+
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa SDW0 ADDR %08o R1 %o R1 %o R3 %o F %o FC %o\n",
+          SDW0.ADDR, SDW0.R1, SDW0.R2, SDW0.R3, SDW0.DF,
+          SDW0.FC);
+
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa SDW0 BOUND %06o R %o E %o W %o P %o U %o G %o C %o "
+          "EB %05o\n",
+          SDW0.BOUND, SDW0.R, SDW0.E, SDW0.W, SDW0.P, SDW0.U,
+          SDW0.G, SDW0.C, SDW0.EB);
+
+
+        // 6. If SDW(segno).F = 0, then generate directed fault n where
+        // n is given in SDW(segno).FC.
+        // This is a segment fault as discussed earlier in this section.
+
+        if (!SDW0.DF)
+          {
+            sim_debug (DBG_APPENDING, & cpu_dev, "absa fault !SDW0.F\n");
+            doFault (FAULT_DF0 + SDW0.FC,
+                     (_fault_subtype) {.bits=0},
+                     "ABSA !SDW0.F");
+          }
+
+        // 7. If offset >= 16 * (SDW(segno).BOUND + 1), then generate an
+        // access violation, out of segment bounds, fault.
+
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa SDW boundary check: offset: %06o f(offset): %06o "
+          "BOUND: %06o\n",
+          offset, offset >> 4, SDW0.BOUND);
+
+        if (((offset >> 4) & 037777) > SDW0.BOUND)
+          {
+            sim_debug (DBG_APPENDING, & cpu_dev,
+                       "absa SDW boundary violation\n");
+            doFault (FAULT_ACV,
+                     (_fault_subtype) {.fault_acv_subtype=ACV15},
+                     "ABSA in SDW boundary violation.");
+          }
+
+        // 8. If the access bits (SDW(segno).R, SDW(segno).E, etc.) of the
+        // segment are incompatible with the reference, generate the
+        // appropriate access violation fault.
+
+        // Only the address is wanted, so no check
+
+        if (SDW0.U == 0)
+          {
+            // Segment is paged
+
+            // 9. Form the quantities:
+            //    y2 = offset modulo 1024
+            //    x2 = (offset - y2) / 1024
+
+            word24 y2 = offset % 1024;
+            word24 x2 = (offset - y2) / 1024;
+
+            sim_debug (DBG_APPENDING, & cpu_dev,
+              "absa y2:%08o x2:%08o\n", y2, x2);
+
+            // 10. Fetch the target segment PTW(x2) from SDW(segno).ADDR + x2.
+
+            sim_debug (DBG_APPENDING, & cpu_dev,
+              "absa read PTWx2@%08o+%08o %08o\n",
+              SDW0.ADDR, x2, (SDW0.ADDR + x2) & PAMASK);
+
+            word36 PTWx2;
+            core_read ((SDW0.ADDR + x2) & PAMASK, & PTWx2, __func__);
+
+            _ptw0 PTW_2;
+            PTW_2.ADDR = GETHI (PTWx2);
+            PTW_2.U = TSTBIT (PTWx2, 9);
+            PTW_2.M = TSTBIT (PTWx2, 6);
+            PTW_2.DF = TSTBIT (PTWx2, 2);
+            PTW_2.FC = PTWx2 & 3;
+
+            sim_debug (DBG_APPENDING, & cpu_dev,
+              "absa PTW_2 ADDR %08o U %o M %o F %o FC %o\n",
+              PTW_2.ADDR, PTW_2.U, PTW_2.M, PTW_2.DF, PTW_2.FC);
+
+            // 11.If PTW(x2).F = 0, then generate directed fault n where n is
+            // given in PTW(x2).FC. This is a page fault as in Step 4 above.
+
+            // ABSA only wants the address; it doesn't care if the page is
+            // resident
+
+            // if (!PTW_2.F)
+            //   {
+            //     sim_debug (DBG_APPENDING, & cpu_dev,
+            //                "absa fault !PTW_2.F\n");
+            //     // initiate a directed fault
+            //     doFault (FAULT_DF0 + PTW_2.FC, 0, "ABSA !PTW_2.F");
+            //   }
+
+            // 12. Generate the 24-bit absolute main memory address
+            // PTW(x2).ADDR + y2.
+
+            res = (((word36) PTW_2.ADDR) << 6)  + (word36) y2;
+            res &= PAMASK; //24 bit math
+            res <<= 12; // 24:12 format
+          }
+        else
+          {
+            // Segment is unpaged
+            // SDW0.ADDR is the base address of the segment
+            res = (word36) SDW0.ADDR + offset;
+            res &= PAMASK; //24 bit math
+            res <<= 12; // 24:12 format
+          }
+      }
+
+
+    * result = res;
+
+    return SCPE_OK;
+  }
+
+#endif
 // CANFAULT
 static int doABSA (word36 * result)
   {
