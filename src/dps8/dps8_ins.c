@@ -6778,6 +6778,8 @@ static t_stat doInstruction (void)
             {
               return STOP_STOP;
             }
+          // ISOLTS 885 test-03a
+	cpu.TPR.CA = GET_ADDR (IWB_IRODD);
           doFault (FAULT_DRL, fst_zero, "drl");
 
         case x0 (0716):  // xec
@@ -6839,10 +6841,9 @@ static t_stat doInstruction (void)
           if (sim_deb_mme_cntdwn > 0)
             sim_deb_mme_cntdwn --;
 #endif
-//#ifdef ISOLTS_FIX
-            // ISOLTS 885 test-03a
-	  cpu.TPR.CA = GET_ADDR (IWB_IRODD);
-//#endif
+          // ISOLTS 885 test-03a
+	cpu.TPR.CA = GET_ADDR (IWB_IRODD);
+
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+4. The value of C is
           // obtained from the FAULT VECTOR switches on the processor
@@ -6850,6 +6851,8 @@ static t_stat doInstruction (void)
           doFault (FAULT_MME, fst_zero, "Master Mode Entry (mme)");
 
         case x0 (0004):   // mme2
+          // ISOLTS 885 test-03a
+	cpu.TPR.CA = GET_ADDR (IWB_IRODD);
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+(52)8. The value of C
           // is obtained from the FAULT VECTOR switches on the processor
@@ -6857,6 +6860,8 @@ static t_stat doInstruction (void)
           doFault (FAULT_MME2, fst_zero, "Master Mode Entry 2 (mme2)");
 
         case x0 (0005):   // mme3
+          // ISOLTS 885 test-03a
+	cpu.TPR.CA = GET_ADDR (IWB_IRODD);
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+(54)8. The value of C
           // is obtained from the FAULT VECTOR switches on the processor
@@ -6864,6 +6869,8 @@ static t_stat doInstruction (void)
           doFault (FAULT_MME3, fst_zero, "Master Mode Entry 3 (mme3)");
 
         case x0 (0007):   // mme4
+          // ISOLTS 885 test-03a
+	cpu.TPR.CA = GET_ADDR (IWB_IRODD);
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+(56)8. The value of C
           // is obtained from the FAULT VECTOR switches on the processor
