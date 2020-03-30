@@ -213,7 +213,8 @@ static void do_ITP (word4 Tag)
     cpu.TPR.TBR = GET_ITP_BITNO (cpu.itxPair);
     cpu.TPR.CA = cpu.PAR[n].WORDNO + GET_ITP_WORDNO (cpu.itxPair);
     //if (GET_TM (Tag) == TM_IR || (cpu.switches.fault_tag_indirect && Tag == 020))
-    if (GET_TM (Tag) == TM_IR && Tag != 060)
+    //if (GET_TM (Tag) == TM_IR && Tag != 060)
+    if (cpu.cu.CT_HOLD && cpu.cu.CT_HOLD != 060)
       {
         cpu.TPR.CA += get_Cr(GET_TD(cpu.cu.CT_HOLD));
         sim_debug (DBG_APPENDING, & cpu_dev, "ITP sets CA to %06o\n", cpu.TPR.CA);
@@ -272,7 +273,8 @@ static void do_ITS (word4 Tag)
     cpu.TPR.TBR = GET_ITS_BITNO (cpu.itxPair);
     cpu.TPR.CA = GET_ITS_WORDNO (cpu.itxPair);
     //if (GET_TM (Tag) == TM_IR || (cpu.switches.fault_tag_indirect && Tag == 020))
-    if (GET_TM (Tag) == TM_IR && Tag != 060)
+    //if (GET_TM (Tag) == TM_IR && Tag != 060)
+    if (cpu.cu.CT_HOLD && cpu.cu.CT_HOLD != 060)
       {
         cpu.TPR.CA += get_Cr(GET_TD(cpu.cu.CT_HOLD));
         sim_debug (DBG_APPENDING, & cpu_dev, "ITS sets CA to %06o\n", cpu.TPR.CA);
