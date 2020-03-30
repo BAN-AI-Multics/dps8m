@@ -1431,6 +1431,8 @@ t_stat executeInstruction (void)
     }
 #endif
 
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction restart %o refetch %o\n", cpu.instr_restart, cpu.instr_refetch);
+
 //#define likely(x) (x)
 //#define unlikely(x) (x)
 #define likely(x) __builtin_expect ((x), 1)
@@ -2088,7 +2090,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
                     cpu.RSDWH_R1 = 0;
                   }
                 //cpu.cu.XSF = 0;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n", cpu.cu.XSF);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n", cpu.cu.XSF);
                 //clr_went_appending ();
               }
           }
