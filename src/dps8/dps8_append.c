@@ -449,7 +449,7 @@ static void fetch_psdw (word15 segno)
     word24 y1 = (2 * segno) % 1024;
     
     word36 SDWeven, SDWodd;
-    core_read2 (((((word24) cpu.PTW0.ADDR & 0777777) << 6) + y1) & PAMASK, 
+    core_read2 (((((word24) cpu.PTW0.ADDR & 0777760) << 6) + y1) & PAMASK, 
                 & SDWeven, & SDWodd, __func__);
     
     // even word
