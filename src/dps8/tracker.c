@@ -39,7 +39,9 @@ void trk (unsigned long long cycleCnt, uint16_t segno, uint32_t ic, uint64_t opc
         fprintf (stderr, "\r\n[%lld]\r\n", cycleCnt);
         fprintf (stderr, "expected: %05o:%06o %012lo\r\n", psegno, pic, popcode);
         fprintf (stderr, "got:      %05o:%06o %012lo\r\n", segno, ic, opcode);
+#ifdef HDBG
         hdbgPrint ();
+#endif
         brkbrk (0, "");
         exit (1);
       }
