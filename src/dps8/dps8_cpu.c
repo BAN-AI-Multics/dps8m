@@ -2398,6 +2398,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 cpu.wasInhibited = true;
 
               t_stat ret = executeInstruction ();
+              cpu.instr_restart = false;
 #ifdef TR_WORK_EXEC
               cpu.rTRticks ++;
 #endif
