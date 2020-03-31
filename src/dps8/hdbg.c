@@ -128,7 +128,7 @@ void hdbgTrace (void)
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
+#if defined(ISOLTS) || defined(ISOLTS2)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -153,7 +153,7 @@ void hdbgMRead (word24 addr, word36 data)
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
+#if defined(ISOLTS) || defined(ISOLTS2)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -175,7 +175,7 @@ void hdbgMWrite (word24 addr, word36 data)
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
+#if defined(ISOLTS) || defined(ISOLTS2)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -198,7 +198,7 @@ void hdbgFault (_fault faultNumber, _fault_subtype subFault,
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
+#if defined(ISOLTS) || defined(ISOLTS2)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -222,7 +222,7 @@ void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx)
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
+#if defined(ISOLTS) || defined(ISOLTS2)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -245,7 +245,7 @@ void hdbgIntr (uint intr_pair_addr)
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
+#if defined(ISOLTS) || defined(ISOLTS2)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -266,7 +266,7 @@ void hdbgReg (enum hregs_t type, word36 data)
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
+#if defined(ISOLTS) || defined(ISOLTS2)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -289,7 +289,7 @@ void hdbgPAReg (enum hregs_t type, struct par_s * data)
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
+#if defined(ISOLTS) || defined(ISOLTS2)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
