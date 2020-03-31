@@ -102,9 +102,11 @@ MAKEFLAGS += --no-print-directory
 
 # This file is included as '../Makefile.mk', so it's local include needs the ../
 ifneq (,$(wildcard ../Makefile.local))
+ifeq ($(MAKELEVEL),0)
 $(warning ####)
 $(warning #### Using ../Makefile.local)
 $(warning ####)
+endif
 include ../Makefile.local
 endif
 
