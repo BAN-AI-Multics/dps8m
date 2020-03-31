@@ -3122,7 +3122,7 @@ t_stat set_mem_watch (int32 arg, const char * buf)
  */
 
 #ifndef SPEED
-static void nem_check (word24 addr, char * context)
+static void nem_check (word24 addr, const char * context)
   {
 #ifdef SCUMEM
     word24 offset;
@@ -3394,8 +3394,8 @@ int core_unlock_all ()
 int core_write_zone (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    MMAP;
 #ifdef SCUMEM
+    MMAP;
     word24 offset;
     uint sci_unit_idx = get_scu_unit_idx (addr, & offset);
     LOCK_MEM_WR;
@@ -3411,11 +3411,13 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
       }
 #else
 #ifdef LOCKLESS
+    // No MMAP; core_read_xxx does it.
     word36 v;
     core_read_lock(addr,  &v, ctx);
     v = (v & ~cpu.zone) | (data & cpu.zone);
     core_write_unlock(addr, v, ctx);
 #else
+    MMAP;
     LOCK_MEM_WR;
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     UNLOCK_MEM;
