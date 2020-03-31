@@ -9747,6 +9747,11 @@ static int emCall (void)
 #if 0
 // This code may be redundant; it may be possible to just let CAF do its
 // thing and put the final address into A.
+
+// ISOLTS tests ABSA with non-existent pages; the APU faults on them, 
+// breaking the test. It seems simplier to restrict the page existence
+// tests to a specialized piece of code rather then complicate do_append.
+
 // CANFAULT
 static int doABSA (word36 * result)
   {
@@ -9754,13 +9759,8 @@ static int doABSA (word36 * result)
     word36 res;
     sim_debug (DBG_APPENDING, & cpu_dev, "absa CA:%08o\n", cpu.TPR.CA);
 
-    if (get_addr_mode () == ABSOLUTE_mode && ! i->a)
+    if (get_addr_mode () == ABSOLUTE_mode && ! (cpu.cu.XSF || cpu.currentInstruction.b29)) // ISOLTS-860
       {
-        //sim_debug (DBG_ERR, & cpu_dev, "ABSA in absolute mode\n");
-        // Not clear what the subfault should be; see Fault Register in AL39.
-        //doFault (FAULT_IPR,
-                 //(_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}, 
-                 //"ABSA in absolute mode.");
         * result = ((word36) (cpu.TPR.CA & MASK18)) << 12; // 24:12 format
         return SCPE_OK;
       }
@@ -9803,12 +9803,22 @@ static int doABSA (word36 * result)
 //sim_debug (DBG_TRACE, & cpu_dev,
 //           "absa  SDWaddr: %08o SDW: %012"PRIo64" %012"PRIo64"\n",
 //           DSBR.ADDR + 2 * cpu.TPR.TSR, SDWe, SDWo);
+
         // 3. If SDW.F = 0, then generate directed fault n where n is given in
         // SDW.FC. The value of n used here is the value assigned to define a
         // missing segment fault or, simply, a segment fault.
 
-        // ABSA doesn't care if the page isn't resident
+        word1 DF = TSTBIT (SDWe, 2);
 
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa 3: DF %o\n", DF);
+
+        if (DF == 0)
+          {
+            sim_debug (DBG_APPENDING, & cpu_dev,
+              "absa 3: returning DF\n");
+            return SCPE_OK;
+          }
 
         // 4. If offset >= 16 * (SDW.BOUND + 1), then generate an access
         // violation, out of segment bounds, fault.
@@ -9836,6 +9846,8 @@ static int doABSA (word36 * result)
         res &= PAMASK; //24 bit math
         res <<= 12; // 24:12 format
 
+        sim_debug (DBG_APPENDING, & cpu_dev,
+          "absa 6: ADDR %08o res %012llo\n", ADDR, res);
       }
     else
       {
@@ -9879,7 +9891,7 @@ static int doABSA (word36 * result)
         word36 PTWx1;
         core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
 
-        _ptw0 PTW1;
+        ptw0_s PTW1;
         PTW1.ADDR = GETHI (PTWx1);
         PTW1.U = TSTBIT (PTWx1, 9);
         PTW1.M = TSTBIT (PTWx1, 6);
@@ -9915,7 +9927,7 @@ static int doABSA (word36 * result)
         core_read2 (((PTW1.ADDR << 6) + y1) & PAMASK, & SDWeven, & SDWodd,
                      __func__);
 
-        _sdw0 SDW0;
+        sdw_s SDW0;
         // even word
         SDW0.ADDR = (SDWeven >> 12) & PAMASK;
         SDW0.R1 = (SDWeven >> 9) & 7;
@@ -10005,7 +10017,7 @@ static int doABSA (word36 * result)
             word36 PTWx2;
             core_read ((SDW0.ADDR + x2) & PAMASK, & PTWx2, __func__);
 
-            _ptw0 PTW_2;
+            ptw0_s PTW_2;
             PTW_2.ADDR = GETHI (PTWx2);
             PTW_2.U = TSTBIT (PTWx2, 9);
             PTW_2.M = TSTBIT (PTWx2, 6);
@@ -10054,6 +10066,8 @@ static int doABSA (word36 * result)
   }
 
 #endif
+
+#if 1
 // CANFAULT
 static int doABSA (word36 * result)
   {
@@ -10080,6 +10094,7 @@ static int doABSA (word36 * result)
 
     return SCPE_OK;
   }
+#endif
 
 void doRCU (void)
   {
