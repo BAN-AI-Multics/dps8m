@@ -26,16 +26,20 @@ INSTALL_BIN ?= $(INSTALL_ROOT)/bin
 include ../Makefile.mk
 
 ifneq (,$(wildcard Makefile.local))
+ifeq ($(MAKELEVEL),0)
 $(warning ####)
 $(warning #### Using Makefile.local)
 $(warning ####)
+endif
 include Makefile.local
 endif
 
 ifdef TESTING
+ifeq ($(MAKELEVEL),0)
 $(warning ####)
 $(warning #### TESTING mode)
 $(warning ####)
+endif
 CFLAGS += -DTESTING
 endif
 
