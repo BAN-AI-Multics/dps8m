@@ -718,27 +718,20 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
                                              UNUSED void * desc)
   {
     long cpu_unit_idx = UNIT_IDX (uptr);
-#ifdef ISOLTS
     cpu_state_t * cpun = cpus + cpu_unit_idx;
-    if (cpun->switches.useMap || cpun->switches.isolts_mode)
+    for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++)
       {
-        for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++)
-          {
-            int os = cpun->scbank_pg_os [pgnum];
-            if (os < 0)
-              continue;
-            for (uint addr = 0; addr < SCBANK; addr ++)
+        int os = cpun->scbank_pg_os [pgnum];
+        if (os < 0)
+          continue;
+        for (uint addr = 0; addr < SCBANK; addr ++)
 #ifdef SPLIT_MEMORY
-              Mstore (addr + (uint) os, MEM_UNINITIALIZED);
+          Mstore (addr + (uint) os, MEM_UNINITIALIZED);
 #else
-              M [addr] = MEM_UNINITIALIZED;
+          M [addr] = MEM_UNINITIALIZED;
 #endif
-          }
       }
-#else
-    // Crashes console?
     cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
-#endif
     return SCPE_OK;
   }
 
@@ -3248,6 +3241,8 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
     v = (v & ~cpu.zone) | (data & cpu.zone);
     core_write_unlock(addr, v, ctx);
 #else
+    ISOLTS_MAP;
+    NEM_CHECK;
 #ifdef SPLIT_MEMORY
     Mstore (addr, (Mfetch (addr) & ~cpu.zone) | (data & cpu.zone));
 #else
