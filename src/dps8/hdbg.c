@@ -154,7 +154,7 @@ void hdbgTrace (const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -177,7 +177,7 @@ void hdbgMRead (word24 addr, word36 data, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -197,7 +197,7 @@ void hdbgMWrite (word24 addr, word36 data, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -218,7 +218,7 @@ void hdbgAPURead (word15 segno, word18 offset, word36 data, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -240,7 +240,7 @@ void hdbgAPUWrite (word15 segno, word18 offset, word36 data, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -263,7 +263,7 @@ void hdbgFault (_fault faultNumber, _fault_subtype subFault,
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -285,7 +285,7 @@ void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -306,7 +306,7 @@ void hdbgIntr (uint intr_pair_addr, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -325,7 +325,7 @@ void hdbgRegR (enum hregs_t type, word36 data, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -347,7 +347,7 @@ void hdbgRegW (enum hregs_t type, word36 data, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -369,7 +369,7 @@ void hdbgPARegR (enum hregs_t type, struct par_s * data, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -390,7 +390,7 @@ void hdbgPARegW (enum hregs_t type, struct par_s * data, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -411,7 +411,7 @@ void hdbgDSBRRegR (enum hregs_t type, struct dsbr_s * data, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
@@ -432,7 +432,7 @@ void hdbgDSBRRegW (enum hregs_t type, struct dsbr_s * data, const char * ctx)
 CPUN;
     if (! hevents)
       goto done;
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 if (current_running_cpu_idx == 0)
   goto done;
 #endif

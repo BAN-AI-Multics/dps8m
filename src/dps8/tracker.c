@@ -8,7 +8,6 @@
 
 #include "tracker.h"
 
-int brkbrk (int32_t arg, const char *  buf);
 void hdbgPrint (void);
 
 static int fd;
@@ -42,7 +41,6 @@ void trk (unsigned long long cycleCnt, uint16_t segno, uint32_t ic, uint64_t opc
 #ifdef HDBG
         hdbgPrint ();
 #endif
-        brkbrk (0, "");
         exit (1);
       }
   }

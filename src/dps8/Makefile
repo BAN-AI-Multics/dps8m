@@ -68,6 +68,13 @@ endif
 CFLAGS += -DTRACKER
 endif
 
+ifeq ($(WAM),1)
+ifeq ($(MAKELEVEL),0)
+$(warning #### WAM mode)
+endif
+CFLAGS += -DWAM
+endif
+
 ifeq ($(ISOLTS),1)
 ifeq ($(MAKELEVEL),0)
 $(warning #### ISOLTS mode)

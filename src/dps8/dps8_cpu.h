@@ -730,23 +730,11 @@ typedef struct
     bool useMap;
 
 #ifdef ISOLTS
-    // When running ISOTLTS, the CPU undertest as a memory configuration plug
-    // that remaps memory to 64K in SCU B. This switch will fake that mode by
-    // offsetting the address by 4MW, assuming that memory is ordered
-    //  SCU A B C D amd A has 4MW
     bool isolts_mode;
-#define ISOLTS_BASE 020000000 // 4MW
-#define ISOLTS_LEN  0200000   // 64KW
-#endif
-#ifdef ISOLTS2
-    bool isolts; // If set, enable ISOLTS memory mapping
 #endif
   } switches_t;
 
-#ifdef ISOLTS2
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
+#ifdef ISOLTS
 
 #define ISOLTS_MAP \
     do \
@@ -763,29 +751,12 @@ typedef struct
           } \
       } \
     while (0)
+
 #else
 
-#ifdef ISOLTS
-// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
-// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
-// and the each SCU is 4MW
-#define ISOLTS_MAP \
-    do \
-      { \
-        if (cpu.switches.isolts_mode) \
-          { \
-            if (addr >= 0200000) \
-              { \
-                doFault (FAULT_STR, fst_str_nea,  __func__); \
-              } \
-            addr = addr + ISOLTS_BASE; \
-          } \
-      } \
-    while (0)
-#else
 #define ISOLTS_MAP
 #endif
-#endif
+
 #ifdef L68
 enum ou_cycle_e
   {
@@ -1814,7 +1785,7 @@ typedef struct
         word18 IC;
       } cu_data;            // For STCD instruction
     uint rTRticks;
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     uint rTRlsb;
 #endif
     uint64 lufCounter;
@@ -1847,7 +1818,7 @@ typedef struct
     _fault_subtype dlySubFltNum;
     const char * dlyCtx;
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     uint shadowTR;
     uint TR0; // The value that the TR was set to.
 #endif
@@ -1962,20 +1933,6 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
 #ifdef SPLIT_MEMORY
     *data = Mfetch(addr) & DMASK;
 #else
@@ -1992,20 +1949,6 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
 #ifdef SPLIT_MEMORY
     Mstore (addr, data & DMASK);
 #else
@@ -2022,20 +1965,6 @@ static inline int core_write_zone (word24 addr, word36 data, UNUSED const char *
   {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
 #ifdef SPLIT_MEMORY
     Mstore (addr, (Mfetch(addr) & ~cpu.zone) | (data & cpu.zone));
 #else
@@ -2055,20 +1984,6 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
   {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
-#endif
 #ifdef SPLIT_MEMORY
     *even = Mfetch (addr) & DMASK;
     addr ++;
@@ -2089,18 +2004,6 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
   {
     PNL (cpu.portBusy = true;)
     ISOLTS_MAP;
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
 #ifdef SPLIT_MEMORY
     Mstore (addr, even);
     addr ++;

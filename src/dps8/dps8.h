@@ -87,9 +87,6 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 #undef HDBG
 #endif
 
-// Enable ISOLTS support
-//#define ISOLTS
-
 // Experimential dial_out line disconnect delay
 // FNP polled ~100Hz; 2 secs. is 200 polls
 #define DISC_DELAY 200
@@ -138,7 +135,7 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 #endif
 
 // debugging tool
-#if defined(ISOLTS) || defined(ISOLTS2)
+#ifdef ISOLTS
 #define IF1 if (current_running_cpu_idx && sim_deb)
 #else
 #define IF1 if (0)

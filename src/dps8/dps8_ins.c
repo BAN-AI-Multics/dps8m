@@ -12,8 +12,6 @@
  at https://sourceforge.net/p/dps8m/code/ci/master/tree/LICENSE
  */
 
-//#define ISOLTS_BITNO
-
 /**
  * \file dps8_ins.c
  * \project dps8
@@ -4330,7 +4328,7 @@ static t_stat doInstruction (void)
           cpu.Yblock8[4] = cpu.rA;
           cpu.Yblock8[5] = cpu.rQ;
           cpu.Yblock8[6] = ((word36)(cpu.rE & MASK8)) << 28;
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
           if (current_running_cpu_idx)
             cpu.Yblock8[7] = (((-- cpu.shadowTR) & MASK27) << 9) | (cpu.rRALR & 07);
           else
@@ -4518,7 +4516,7 @@ static t_stat doInstruction (void)
 
         case x0 (0454):  // stt
           CPTUR (cptUseTR);
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
           if (current_running_cpu_idx)
             cpu.CY = ((-- cpu.shadowTR) & MASK27) << 9;
           else
@@ -7735,7 +7733,7 @@ static t_stat doInstruction (void)
           CPTUR (cptUseTR);
           cpu.rTR = (cpu.CY >> 9) & MASK27;
           cpu.rTRticks = 0;
-#if ISOLTS
+#if ISOLTS_FIX
           cpu.shadowTR = cpu.TR0 = cpu.rTR;
           cpu.rTRlsb = 0;
 #endif

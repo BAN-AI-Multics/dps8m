@@ -821,7 +821,7 @@ static void analyze_slte (word18 n, pair name_ptr)
     word3 rb3 = getbits36_3 (slte2, 15);
     word18 segno = GETLO (slte2);
 
-    word12 name_assoc_segno = getbits36_12 (append (name_segno, name_os + 1 + names_ptr + 0, NULL), 24);
+    //word12 name_assoc_segno = getbits36_12 (append (name_segno, name_os + 1 + names_ptr + 0, NULL), 24);
     word24 name_address = absadr (name_segno, name_os + 1 + names_ptr + 1);
   
     get_str (name_address, 32, slt_seg_names[n]);
@@ -1005,7 +1005,7 @@ static void  analyze_dsbr (struct dsbr_s DSBR)
         return;
       }
 
-    word18 first_sup_seg = GETLO (append (slt_segno, slt_first_sup_seg, NULL));
+    //word18 first_sup_seg = GETLO (append (slt_segno, slt_first_sup_seg, NULL));
     word18 last_sup_seg = GETLO (append (slt_segno, slt_last_sup_seg, NULL));
     word18 first_init_seg = GETLO (append (slt_segno, slt_first_init_seg, NULL));
     word18 last_init_seg = GETLO (append (slt_segno, slt_last_init_seg, NULL));

@@ -719,7 +719,7 @@ static void fill_new_deck (uint8_t * new_deck, uint n_cards)
               continue;
 
             enum ctlr_type_e ctlr_type = p->ctlr_type;
-            UNIT * board = p->board;
+            //UNIT * board = p->board;
             switch (ctlr_type)
               {
                 case CTLR_T_NONE:

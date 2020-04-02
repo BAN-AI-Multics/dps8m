@@ -102,7 +102,9 @@ void set_apu_status (apuStatusBits status)
 
 #ifdef TESTING
 #ifdef WAM
+#ifdef L68
 static char *str_sdw (char * buf, sdw_s *SDW);
+#endif
 #endif
 #endif
 
