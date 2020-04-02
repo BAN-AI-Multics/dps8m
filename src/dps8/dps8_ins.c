@@ -396,7 +396,7 @@ static void scu2words (word36 *words)
     // Breaks ISOLTS 768
     //putbits36_1 (& words[4], 25, cpu.currentInstruction.stiTally);
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
 //testing for ipr fault by attempting execution of
 //the illegal opcode  000   and bit 27 not set
 //in privileged-append-bar mode.
@@ -449,7 +449,7 @@ static void scu2words (word36 *words)
     if_sim_debug (DBG_FAULT, & cpu_dev)
 	dump_words (words);
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     if (current_running_cpu_idx != 0)
       {
 	struct
@@ -460,50 +460,65 @@ static void scu2words (word36 *words)
 	}
 	rewrite_table[] =
 	  {
+              // 1
+              // s/b FANP on,  FABS off, RFI on
+              // was FANP off, FABS on,  RFI off
 	    { { 0000001400021, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000500, 0110015011000, 0110015011000 },
-	      { 0000001400011, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000500, 0110015011000, 0110015011000 },
+	      { 0000001400011, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000100, 0110015011000, 0110015011000 },
 	      "pa865 test-03a inhibit", //                                                           rfi
 	    },
-	    { { 0000000401001, 0000000000041, 0000001000100, 0000000000000, 0101175000220, 0000006000000, 0100006235100, 0100006235100 },
-	      { 0000000601001, 0000000000041, 0000001000100, 0000000000000, 0101175000220, 0000006000000, 0100006235100, 0100006235100 },
-	      "pa870 test-01a dir. fault",
-	    },
-	    { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000003000000, 0200003716100, 0000005755000 },
-	      { 0000000651001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000003000000, 0200003716100, 0000005755000 },
-	      "pa885 test-05a xec inst",
-	    },
-	    { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000002000000, 0200002717100, 0110002001000 },
-	      { 0000000651001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000002000000, 0200002717100, 0110002001000 },
-	      "pa885 test-05b xed inst",
-	    },
+              // 2
+              // s/b XDO off
+              // was XDO on
 	    { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004004000, 0200004235100, 0000005755000 },
 	      { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004006000, 0200004235100, 0000005755000 },
 	      "pa885 test-05c xed inst", //                                                         xde/xdo
-            },
-            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004006000, 0200004235100, 0000005755000 },
-              { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004002000, 0200004235100, 0000005755000 },
-	      "pa885 test-05d xed inst", //                                                         xde/xdo
-            },
-            { { 0000000454201, 0000000000041, 0000000000100, 0000000000000, 0001777200200, 0002000000500, 0005600560201, 0005600560201 },
-              { 0000000450201, 0000000000041, 0000000000100, 0000000000000, 0001777200200, 0002000000000, 0005600560201, 0005600560201 },
-	      "pa885 test-06a rpd inst", //                                                         rfi/fif
-            },
-            { { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000200200, 0000003500001, 0200003235111, 0002005755012 },
-              { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000202200, 0000003500000, 0200003235111, 0002005755012 },
-	      "pa885 test-06b rpd inst", //                                          tro               ct-hold
-            },
-            { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776200200, 0002015500001, 0002015235031, 0002017755032 },
-              { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776202200, 0002015500000, 0002015235031, 0002017755032 },
-	      "pa885 test-06c rpd inst", //                                          tro               ct-hold
-            },
-            { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776000200, 0002000100012, 0001775235011, 0001775755012 },
-              { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776000200, 0002000100000, 0001775235011, 0001775755012 },
-	      "pa885 test-06d rpd inst", //                                                            ct-hold
+              },
+              // 3
+              // s/b XDE on
+              // was XDE off
+              { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004006000, 0200004235100, 0000005755000 },
+                { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004002000, 0200004235100, 0000005755000 },
+	        "pa885 test-05d xed inst", //                                                         xde/xdo
+              },
+              // 4
+              // s/b PI-AP on,  RFI on,  FIF on
+              // was PI-AP off, RFI off, FIF off
+              { { 0000000454201, 0000000000041, 0000000000100, 0000000000000, 0001777200200, 0002000000500, 0005600560201, 0005600560201 },
+                { 0000000450201, 0000000000041, 0000000000100, 0000000000000, 0001777200200, 0002000000000, 0005600560201, 0005600560201 },
+	        "pa885 test-06a rpd inst", //                                                         rfi/fif
+              },
+              // 5
+              { { 0000000454201, 0000000000041, 0000000000101, 0000000000000, 0001777200200, 0002000000500, 0005600560201, 0005600560201 },
+                { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0002000200200, 0002000500100, 0005600560201, 0005600560201 },
+	        "pa885 test-06a rpd inst cac", //                                                         rfi/fif
+              },
+              // 6
+              { { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000200200, 0000003500001, 0200003235111, 0002005755012 },
+                { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000202200, 0000003500000, 0200003235111, 0002005755012 },
+	        "pa885 test-06b rpd inst cac", //                                      tro               ct-hold
+              },
+              // 7
+              // s/b TRO off, CT-HOLD 01
+              // was TRO on,  CT-HOLD 00
+              { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776200200, 0002015500001, 0002015235031, 0002017755032 },
+                { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776202200, 0002015500000, 0002015235031, 0002017755032 },
+	        "pa885 test-06c rpd inst", //                                          tro               ct-hold
+              },
+              // 8
+              // s/b CT-HOLD 12
+              // was CT-HOLD 00
+              { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776000200, 0002000100012, 0001775235011, 0001775755012 },
+                { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776000200, 0002000100000, 0001775235011, 0001775755012 },
+	        "pa885 test-06d rpd inst", //                                                            ct-hold
 	    },
+              // 9
+              // s/b PI-AP on,  RFI on
+              // was PI-AP off, RFI off
 	    { { 0000000404202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000500, 0001773755000, 0001773755000 },
-	      { 0000000400202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000500, 0001773755000, 0001773755000 },
+	      { 0000000400202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000100, 0001773755000, 0001773755000 },
 	      "pa885 test-10a scu snap (acv fault)", //                                              rfi
-	    },
+	    }
 	    { { 0000000400041, 0010000000003, 0000000000100, 0000000000000, 0001777202200, 0001777000000, 0001777235000, 0001777235000 },
 	      { 0000000600011, 0010000000003, 0000000000100, 0000000000000, 0001777202200, 0001777000000, 0001777235000, 0001777235000 },
 	      "pa885 test-10b scu snap",
@@ -514,12 +529,13 @@ static void scu2words (word36 *words)
 	    }
 	  };
 	int i;
-	for (i=0; i < 13; i++)
+	for (i=0; i < 11; i++)
 	  {
 	    if (memcmp (words, rewrite_table[i].was, 8*sizeof (word36)) == 0)
 	      {
 		memcpy (words, rewrite_table[i].should_be, 8*sizeof (word36));
 		sim_warn("%s: scu rewrite %d: %s\n", __func__, i, rewrite_table[i].name);
+		sim_printf("%s: scu rewrite %d: %s\n", __func__, i, rewrite_table[i].name);
 		break;
 	      }
 	  }
@@ -691,7 +707,7 @@ static void du2words (word36 * words)
   {
     CPT (cpt2U, 7); // du2words
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     for (int i = 0; i < 8; i ++)
       {
         words[i] = cpu.du.image[i];
@@ -707,9 +723,39 @@ static void du2words (word36 * words)
 
     // Word 1
 
-#ifdef ISOLTS
-    words[1] = words[0];
-#endif
+//#ifdef ISOLTS_FIX
+    // ISOLTS test 800 expects data in word 1.
+    // According to AL39, word 1 is all zeros.
+    // According to zm_display_mc_.pl1, word 1 is "empty_word":
+    //    dcl  1 eis_info_fmt based (eis_info_ptr),
+    //       2 mbz1 bit (9) unal,
+    //       2 neg_over bit (1) unal,
+    //       2 pd1 bit (2) unal,
+    //       2 char_tally bit (24) unal,
+    //       2 empty_word bit (36) unal,
+    //
+    // Searching the Multics source shows no examples of the
+    // SPL data being manipulated; it is only examined by
+    // diagnostics routines. Those routines either dump the
+    // Y8 block in octal or, in the case of azm, breaks out the
+    // fields for a structured dump. But azm ignores word 1.
+    //
+    // So it would seem that the contents of word 1 will not affect
+    // Multics operation, so I am electing to set it for non-ISOLTS builds,
+    // in the interest of KISS.
+    //
+    // It appears that ISOLTS is expecting the tally from word 0 to
+    // appear in word1. The test never sets any of the other bits
+    // in word 0, so it is unclear if it is the same as word 0 or
+    // just the tally. I am guessing just the tally.
+
+    // The entire word
+    // word[1] = word[0];
+
+    // Just the tally
+    putbits36_24 (& words[1], 12, cpu.du.CHTALLY);
+//#endif
+
     // Word 2
 
     putbits36_18 (& words[2],  0, cpu.du.D1_PTR_W);
@@ -801,7 +847,7 @@ static void words2du (word36 * words)
 
     cpu.du.D3_RES   = getbits36_24 (words[7], 12);
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     for (int i = 0; i < 8; i ++)
       {
         cpu.du.image[i] = words[i];
@@ -1417,8 +1463,15 @@ bool tstOVFfault (void)
     return true;
   }
 
-t_stat executeInstruction (bool restart)
+#ifdef TRACKER
+#include "tracker.h"
+#endif
+
+t_stat executeInstruction (void)
   {
+#ifdef TRACKER
+    trk (cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
+#endif
     CPT (cpt2U, 13); // execute instruction 
 
 //
@@ -1484,6 +1537,8 @@ t_stat executeInstruction (bool restart)
 // Local caches of frequently accessed data
 
     const uint ndes = info->ndes;
+    cpu.instr_refetch = cpu.cu.rfi;         // instruction is to be restarted
+    cpu.cu.rfi = 0;
     const opc_flag flags = info->flags;
     const opc_mod mods = info->mods;
     const uint32 opcode = ci->opcode;   // opcode
@@ -1503,6 +1558,8 @@ t_stat executeInstruction (bool restart)
       addToTheMatrix (opcode, opcodeX, b29, tag);
     }
 #endif
+
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction restart %o refetch %o\n", cpu.instr_restart, cpu.instr_refetch);
 
 //#define likely(x) (x)
 //#define unlikely(x) (x)
@@ -1535,7 +1592,7 @@ t_stat executeInstruction (bool restart)
 /// executeInstruction: Non-restart processing
 ///
 
-    if (likely (!restart) || unlikely (ndes > 0)) // until we implement EIS restart
+    if (likely (!cpu.instr_restart) || unlikely (ndes > 0)) // until we implement EIS restart
     {
         cpu.cu.TSN_VALID[0] = 0;
         cpu.cu.TSN_VALID[1] = 0;
@@ -1545,7 +1602,7 @@ t_stat executeInstruction (bool restart)
         cpu.cu.TSN_PRNO[2] = 0;
     }
 
-    if (unlikely (restart))
+    if (unlikely (cpu.instr_restart))
       goto restart_1;
 
 //
@@ -2029,7 +2086,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "b29, ci->address %o\n", ci->address);
         CPT (cpt2U, 27); // EIS operand processing
         sim_debug (DBG_APPENDING, &cpu_dev, "initialize EIS descriptors\n");
         // This must not happen on instruction restart
-        if (!restart)
+        if (!cpu.instr_restart)
           {
             CPT (cpt2U, 28); // EIS not restart
             cpu.du.CHTALLY = 0;
@@ -2104,7 +2161,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 // Fix tst880: 'call6 pr1|0'. The instruction does a DF1; the fault handler
 // updates PRR in the CU save data. On restart, TRR is not updated. 
 // Removing the 'if' appears to resolve the problem without regressions.
-            //if (!restart)
+            //if (!cpu.instr_restart)
               {
 // Not EIS, bit 29 set, !restart
                 cpu.TPR.TBR = GET_PR_BITNO (n);
@@ -2136,7 +2193,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
         else
           {
 // not eis, not bit b29
-            if (!restart)
+            if (!cpu.instr_restart)
               {
                 CPT (cpt2U, 35); // not B29
                 cpu.cu.TSN_VALID [0] = 0;
@@ -2148,13 +2205,13 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
                     cpu.RSDWH_R1 = 0;
                   }
                 //cpu.cu.XSF = 0;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n", cpu.cu.XSF);
+//sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n", cpu.cu.XSF);
                 //clr_went_appending ();
               }
           }
 
         // This must not happen on instruction restart
-        if (!restart)
+        if (!cpu.instr_restart)
           {
             cpu.cu.CT_HOLD = 0; // Clear interrupted IR mode flag
           }
@@ -2971,8 +3028,8 @@ static t_stat doInstruction (void)
     uint32 opcode10 = i->opcode10;
 
 #ifdef L68
-    bool is_ou = false;
-    bool is_du = false;
+    bool is_ou = !! opcodes10[opcode10].reg_use & is_OU;
+    bool is_du = !! opcodes10[opcode10].reg_use & is_DU;
 #endif
 #ifdef PANEL
     if (insGrp [opcode10])
@@ -2984,9 +3041,6 @@ static t_stat doInstruction (void)
       }
     if (opcodes10[opcode10].reg_use & is_OU)
       {
-#ifdef L68
-        is_ou = true;
-#endif
     // XXX Punt on RP FULL, RS FULL
         cpu.ou.RB1_FULL = cpu.ou.RP_FULL = cpu.ou.RS_FULL = 1;
         cpu.ou.cycle |= ou_GIN;
@@ -3005,18 +3059,10 @@ static t_stat doInstruction (void)
         if (reguse & ru_X7) CPT (cpt5U, 13);
       }
 #ifdef L68
-    if (opcodes10[opcode10].reg_use & is_DU)
+    if (is_du)
       {
-        is_du = true;
         PNL (DU_CYCLE_nDUD;) // set not idle
       }
-#endif
-#else
-#ifdef L68
-    if (opcodes10[opcode10].reg_use & is_OU)
-      is_ou = true;
-    if (opcodes10[opcode10].reg_use & is_DU)
-      is_du = true;
 #endif
 #endif // PANEL
 
@@ -7238,9 +7284,6 @@ static t_stat doInstruction (void)
           if (sim_deb_mme_cntdwn > 0)
             sim_deb_mme_cntdwn --;
 #endif
-#ifdef ISOLTS
-	  cpu.TPR.CA = GET_ADDR (IWB_IRODD);
-#endif
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+4. The value of C is
           // obtained from the FAULT VECTOR switches on the processor
@@ -10385,7 +10428,7 @@ elapsedtime ();
 
     if (cpu.cu.FIF) // fault occured during instruction fetch
       {
-//if (cpu.cu.rfi) sim_printf ( "RCU FIF refetch return caught rfi\n");
+#ifdef OLDRFI
         // I am misusing this bit; on restart I want a way to tell the
         // CPU state machine to restart the instruction, which is not
         // how Multics uses it. I need to pick a different way to
@@ -10394,6 +10437,7 @@ elapsedtime ();
 	if (cpu.cu.rfi != 1)
 	  sim_warn ("FIF without rfi\n");
         cpu.cu.rfi = 0;
+#endif
         sim_debug (DBG_FAULT, & cpu_dev, "RCU FIF REFETCH return\n");
         longjmp (cpu.jmpMain, JMP_REFETCH);
       }
@@ -10403,10 +10447,12 @@ elapsedtime ();
       {
 //sim_printf ( "RCU rfi refetch return\n");
         sim_debug (DBG_FAULT, & cpu_dev, "RCU rfi refetch return\n");
+#ifdef OLDRFI
 // Setting the to RESTART causes ISOLTS 776 to report unexpected
 // trouble faults.
 // Without clearing rfi, ISOLTS pm776-08i LUFs.
         cpu.cu.rfi = 0;
+#endif
         longjmp (cpu.jmpMain, JMP_REFETCH);
       }
 

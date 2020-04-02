@@ -150,6 +150,10 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 #endif
     sim_msg ("Enable cache:            %01o(8)\n",
                 cpus[cpu_unit_idx].switches.enable_cache);
+#ifdef ISOLTS2
+    sim_msg ("isolts_mode:              %d\n",
+                cpus[cpu_unit_idx].switches.isolts);
+#endif
 
 #ifdef AFFINITY
     if (cpus[cpu_unit_idx].set_affinity)
@@ -349,6 +353,11 @@ static config_list_t cpu_config_list [] =
     { "affinity", -1, sizeof (cpu_set_t), cfg_affinity },
 #endif
 
+#ifdef ISOLTS2
+    // ISOLTS
+    { "isolts", 0, 1, cfg_on_off },
+#endif
+
     { NULL, 0, 0, NULL }
   };
 
@@ -471,6 +480,10 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
                 return SCPE_ARG; 
               }
           }
+#endif
+#ifdef ISOLTS2
+        else if (strcmp (p, "isolts") == 0)
+          cpus[cpu_unit_idx].switches.isolts = v;
 #endif
         else
           {
@@ -651,9 +664,11 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
         for (uint i = 0; i < MEMSIZE; i ++)
           {
 #ifdef SPLIT_MEMORY
-            Mhigh[i] &= (MASK4 | MEM_UNINITIALIZED_HIGH);
+            Mhigh[i] = 0360 | MEM_UNINITIALIZED_HIGH;
+            Mlow[i] = 0;
 #else
-            M[i] &= (MASK36 | MEM_UNINITIALIZED);
+            M[i] &= ~MASK36;
+            M[i] |= MEM_UNINITIALIZED;
 #endif
           }
       }
@@ -716,6 +731,25 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
                                              UNUSED void * desc)
   {
     long cpu_unit_idx = UNIT_IDX (uptr);
+#ifdef ISOLTS2
+    cpu_state_t * cpun = cpus + cpu_unit_idx;
+    if (cpun->switches.useMap || cpun->switches.isolts)
+      {
+        for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++)
+          {
+            int os = cpun->scbank_pg_os [pgnum];
+            if (os < 0)
+              continue;
+            for (uint addr = 0; addr < SCBANK; addr ++)
+              M [addr + (uint) os] = MEM_UNINITIALIZED;
+#ifdef SPLIT_MEMORY
+              Mstore (addr + (uint) os, MEM_UNINITIALIZED);
+#else
+              M [ISOLTS_BASE + addr] = MEM_UNINITIALIZED;
+#endif
+          }
+      }
+#else
 #ifdef ISOLTS
 #if 0
     cpu_state_t * cpun = cpus + cpu_unit_idx;
@@ -746,6 +780,7 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
 #else
     // Crashes console?
     cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
+#endif
 #endif
     return SCPE_OK;
   }
@@ -1772,6 +1807,9 @@ t_stat threadz_sim_instr (void)
 
     restart_instr = false;
 
+    // Assume that an RCU did not just occur
+    cpu.instr_restart = false;
+
     switch (val)
       {
         case JMP_ENTRY:
@@ -1805,6 +1843,7 @@ t_stat threadz_sim_instr (void)
             set_cpu_cycle (FETCH_cycle);
             break;
         case JMP_RESTART:
+            cpu.instr_restart = true;
             set_cpu_cycle (EXEC_cycle);
             restart_instr = true;
             break;
@@ -2316,7 +2355,8 @@ t_stat threadz_sim_instr (void)
               if (GET_I (cpu.cu.IWB))
                 cpu.wasInhibited = true;
 
-                t_stat ret = executeInstruction (restart_instr);
+              t_stat ret = executeInstruction ();
+              cpu.instr_restart = false;
 #ifdef CTRACE
 if (0) {
   static word36 cam_waitx;

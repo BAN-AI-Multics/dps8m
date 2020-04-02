@@ -1,0 +1,29 @@
+" copied from seg1, since we don't have a linker
+	bool	t5_data,567005001
+	bool	t6_data,670006001
+	bool	t20_data,670123456
+	bool	t21_data,701234567
+	
+t6_p2:	arg	t6_a1
+
+	org	1*1024
+
+t5_a1:
+	dec	t5_data
+t6_a1:
+	dec	t6_data
+
+	org	2*1024
+
+t20_link:  " 2|2048
+	dec	0
+	dec	0
+" a stashed copy of the snapped link for the f3 handler to copy to
+" the link above
+	dec	0
+	dec	0
+" 2|2052
+	dec	t20_data
+" 2|2053
+	dec	t21_data
+

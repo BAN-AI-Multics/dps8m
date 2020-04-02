@@ -222,7 +222,7 @@ void do_ldbr (word36 * Ypair)
     // C(Y-pair) 60,71 -> C(DSBR.STACK)
     cpu.DSBR.STACK = (Ypair[1] >> (71 - 71)) & 07777;
     DBGAPP ("ldbr 0 -> SDWAM/PTWAM[*].F, i -> SDWAM/PTWAM[i].USE, "
-            "DSBR.ADDR 0%o, DSBR.BND 0%o, DSBR.U 0%o, DSBR.STACK 0%o\n",
+            "DSBR.ADDR %088o, DSBR.BND %05o, DSBR.U %o, DSBR.STACK %04o\n",
             cpu.DSBR.ADDR, cpu.DSBR.BND, cpu.DSBR.U, cpu.DSBR.STACK); 
   }
 
@@ -236,7 +236,7 @@ void do_ldbr (word36 * Ypair)
 
 static void fetch_dsptw (word15 segno)
   {
-    DBGAPP ("%s segno 0%o\n", __func__, segno);
+    DBGAPP ("%s segno %o\n", __func__, segno);
     PNL (L68_ (cpu.apu.state |= apu_FDPT;))
 
     if (2 * segno >= 16 * (cpu.DSBR.BND + 1))
@@ -272,8 +272,8 @@ static void fetch_dsptw (word15 segno)
       add_APU_history (APUH_FDSPTW);
 #endif
 
-    DBGAPP ("%s x1 0%o y1 0%o DSBR.ADDR 0%o PTWx1 0%012"PRIo64" "
-            "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
+    DBGAPP ("%s x1 %o y1 %o DSBR.ADDR %o PTWx1 %012"PRIo64" "
+            "PTW0: ADDR %06o U %o M %o F %o FC %o\n",
             __func__, x1, y1, cpu.DSBR.ADDR, PTWx1, cpu.PTW0.ADDR, cpu.PTW0.U,
             cpu.PTW0.M, cpu.PTW0.DF, cpu.PTW0.FC);
   }
@@ -445,7 +445,6 @@ static void fetch_psdw (word15 segno)
     word24 y1 = (2 * segno) % 1024;
     
     word36 SDWeven, SDWodd;
-    
     core_read2 (((((word24) cpu.PTW0.ADDR & 0777760) << 6) + y1) & PAMASK, 
                 & SDWeven, & SDWodd, __func__);
     
@@ -472,8 +471,8 @@ static void fetch_psdw (word15 segno)
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_APU_history (APUH_FSDWP);
 #endif
-    DBGAPP ("%s y1 0%o p->ADDR 0%o SDW 0%012"PRIo64" 0%012"PRIo64" "
-            "ADDR %o R %o%o%o BOUND 0%o REWPUGC %o%o%o%o%o%o%o "
+    DBGAPP ("%s y1 %o p->ADDR %06o SDW %012"PRIo64" %012"PRIo64" "
+            "ADDR %08o R %o%o%o BOUND %05o REWPUGC %o%o%o%o%o%o%o "
             "F %o FC %o FE %o USE %o\n",
             __func__, y1, cpu.PTW0.ADDR, SDWeven, SDWodd, cpu.SDW0.ADDR,
             cpu.SDW0.R1, cpu.SDW0.R2, cpu.SDW0.R3, cpu.SDW0.BOUND,
@@ -762,7 +761,7 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
 #ifdef do_selftestPTWAM
             selftest_ptwaw ();
 #endif
-            DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
+            DBGAPP ("%s: ADDR 0%06o U %o M %o F %o FC %o\n",
                     __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M,
                     cpu.PTW->DF, cpu.PTW->FC);
             return cpu.PTW;
@@ -795,7 +794,7 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
                   p->USE = u;
               }
 
-            DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
+            DBGAPP ("%s: ADDR 0%06o U %o M %o F %o FC %o\n",
                     __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, 
                     cpu.PTW->DF, cpu.PTW->FC);
             return cpu.PTW;
@@ -858,8 +857,8 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
       add_APU_history (APUH_FPTW);
 #endif
 
-    DBGAPP ("%s x2 0%o y2 0%o sdw->ADDR 0%o PTWx2 0%012"PRIo64" "
-            "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
+    DBGAPP ("%s x2 %o y2 %o sdw->ADDR %06o PTWx2 %012"PRIo64" "
+            "PTW0: ADDR %08o U %o M %o F %o FC %o\n",
             __func__, x2, y2, sdw->ADDR, PTWx2, cpu.PTW0.ADDR, cpu.PTW0.U,
             cpu.PTW0.M, cpu.PTW0.DF, cpu.PTW0.FC);
   }
@@ -914,7 +913,7 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
               }
             
             cpu.PTW = p;
-            DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o "
+            DBGAPP ("loadPTWAM(2): ADDR %06o U %o M %o F %o FC %o "
                     "POINTER=%o PAGENO=%o USE=%d\n",
                     cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
                     cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO,
@@ -963,7 +962,7 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
           p->USE = u;
       }
 
-    DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o POINTER=%o "
+    DBGAPP ("loadPTWAM(2): ADDR 0%06o U %o M %o F %o FC %o POINTER=%o "
             "PAGENO=%o USE=%d\n",
             cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF, 
             cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO, cpu.PTW->USE);
@@ -1029,8 +1028,8 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
       add_APU_history (APUH_FPTW2);
 #endif
 
-    DBGAPP ("%s x2 0%o y2 0%o sdw->ADDR 0%o PTW2 0%012"PRIo64" "
-            "PTW2: ADDR 0%o U %o M %o F %o FC %o\n",
+    DBGAPP ("%s x2 %o y2 %o sdw->ADDR %08o PTW2 %012"PRIo64" "
+            "PTW2: ADDR %08o U %o M %o F %o FC %o\n",
             __func__, x2, y2, sdw->ADDR, PTWx2n, PTW2.ADDR, PTW2.U, PTW2.M,
             PTW2.DF, PTW2.FC);
 
@@ -2008,6 +2007,7 @@ HI:
 
 J:;
     DBGAPP ("do_append_cycle(J)\n");
+    DBGAPP ("CA %06o *data %012llo\n", cpu.TPR.CA, * data);
 
     // ri or ir & TPC.CA even?
     word6 tag = GET_TAG (IWB_IRODD);
@@ -2025,6 +2025,8 @@ J:;
     //   TM_RI always indirects
     //   TM_IR always indirects
     //   TM_IT always indirects
+// The existence of adjust_mc in link_snap implies that F1/F2/F3 is
+// treated as in indirect word.
 #if 0
     //     IT_CI, IT_SC, IT_SCR -- address is used for tally word
     //     IT_I indirects
@@ -2065,6 +2067,21 @@ J:;
 
       }
 
+#if 0
+    // The snap link code "adjust_mc" assumes that bit 29 is magically cleared
+    // This is probably wrong, but is needed to make link snapping work.
+    // When adjust_mc is fixed, this can probably be deleted.
+// If J's "other indirect" is interpreted to include F1/F2/F3, then
+// this is unneeded and adjust_mc makes sense.
+      {
+        word36 * wb;
+        if (USE_IRODD)
+          wb = & cpu.cu.IRODD;
+        else
+          wb = & cpu.cu.IWB;
+        putbits36_1 (wb, 29,  0);
+      }
+#endif
      goto Exit;
 
 ////////////////////////////////////////

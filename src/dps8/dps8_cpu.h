@@ -738,7 +738,32 @@ typedef struct
 #define ISOLTS_BASE 020000000 // 4MW
 #define ISOLTS_LEN  0200000   // 64KW
 #endif
+#ifdef ISOLTS2
+    bool isolts; // If set, enable ISOLTS memory mapping
+#endif
   } switches_t;
+
+#ifdef ISOLTS2
+// XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
+// memory 0, SCU 1 is on port 1 and is mapped to memory location 4M, etc;
+// and the each SCU is 4MW
+
+#define ISOLTS_MAP \
+    do \
+      { \
+        if (cpu.switches.useMap || cpu.switches.isolts) \
+          { \
+            uint pgnum = addr / SCBANK; \
+            int os = cpu.scbank_pg_os [pgnum]; \
+            if (os < 0) \
+              { \
+                doFault (FAULT_STR, fst_str_nea,  __func__); \
+              } \
+            addr = (uint) os + addr % SCBANK; \
+          } \
+      } \
+    while (0)
+#else
 
 #ifdef ISOLTS
 // XXX simplifying assumption that SC0 0 is on port 0 and is mapped to
@@ -759,6 +784,7 @@ typedef struct
     while (0)
 #else
 #define ISOLTS_MAP
+#endif
 #endif
 #ifdef L68
 enum ou_cycle_e
@@ -894,28 +920,28 @@ typedef struct
     //     IC  bits [0..17] of word 4
     
     /* word 0 */
-                   // 0-2   PRR is stored in PPR
-                   // 3-17  PSR is stored in PPR
-                   // 18    P   is stored in PPR
-    word1 XSF;     // 19    XSF External segment flag
-    word1 SDWAMM;  // 20    SDWAMM Match on SDWAM
-    word1 SD_ON;   // 21    SDWAM enabled
-    word1 PTWAMM;  // 22    PTWAMM Match on PTWAM
-    word1 PT_ON;   // 23    PTWAM enabled
+                   // 0-2   PRR is stored in PPR                  700000000000
+                   // 3-17  PSR is stored in PPR                  077777000000
+                   // 18    P   is stored in PPR                  000000400000
+    word1 XSF;     // 19    XSF External segment flag             000000200000
+    word1 SDWAMM;  // 20    SDWAMM Match on SDWAMa                000000100000
+    word1 SD_ON;   // 21    SDWAM enabled                         000000040000
+    word1 PTWAMM;  // 22    PTWAMM Match on PTWAM                 000000020000
+    word1 PT_ON;   // 23    PTWAM enabled                         000000010000
 
 #if 0
-    word1 PI_AP;   // 24    PI-AP Instruction fetch append cycle
-    word1 DSPTW;   // 25    DSPTW Fetch descriptor segment PTW
-    word1 SDWNP;   // 26    SDWNP Fetch SDW non paged
-    word1 SDWP;    // 27    SDWP  Fetch SDW paged
-    word1 PTW;     // 28    PTW   Fetch PTW
-    word1 PTW2;    // 29    PTW2  Fetch prepage PTW
-    word1 FAP;     // 30    FAP   Fetch final address - paged
-    word1 FANP;    // 31    FANP  Fetch final address - nonpaged
-    word1 FABS;    // 32    FABS  Fetch final address - absolute
-                   // 33-35 FCT   Fault counter - counts retries
+    word1 PI_AP;   // 24    PI-AP Instruction fetch append cycle  000000004000
+    word1 DSPTW;   // 25    DSPTW Fetch descriptor segment PTW    000000002000
+    word1 SDWNP;   // 26    SDWNP Fetch SDW non paged             000000001000
+    word1 SDWP;    // 27    SDWP  Fetch SDW paged                 000000000400
+    word1 PTW;     // 28    PTW   Fetch PTW                       000000000200
+    word1 PTW2;    // 29    PTW2  Fetch prepage PTW               000000000100
+    word1 FAP;     // 30    FAP   Fetch final address - paged     000000000040
+    word1 FANP;    // 31    FANP  Fetch final address - nonpaged  000000000020
+    word1 FABS;    // 32    FABS  Fetch final address - absolute  000000000010
+                   // 33-35 FCT   Fault counter - counts retries  000000000007
 #else
-    word12 APUCycleBits;
+    word12 APUCycleBits;  //  24-35                               000000007777
 #endif
 
     /* word 1 */
@@ -923,128 +949,128 @@ typedef struct
                    //               SF  Store Fault
                    //               IPF Illegal Procedure Fault
                    //
-    word1 IRO_ISN; //  0    IRO       AVF Illegal Ring Order
+    word1 IRO_ISN; //  0    IRO       AVF Illegal Ring Order                   400000000000
                    //       ISN       SF  Illegal segment number
-    word1 OEB_IOC; //  1    ORB       AVF Out of execute bracket [sic] should
+    word1 OEB_IOC; //  1    ORB       AVF Out of execute bracket [sic] should  200000000000
                    //                     be OEB?
-                   //       IOC       IPF Illegal op code
+                   //       IOC       IPF Illegal op code        
     word1 EOFF_IAIM;
-                   //  2    E-OFF     AVF Execute bit is off
+                   //  2    E-OFF     AVF Execute bit is off                   100000000000
                    //       IA+IM     IPF Illegal address of modifier
-    word1 ORB_ISP; //  3    ORB       AVF Out of read bracket
+    word1 ORB_ISP; //  3    ORB       AVF Out of read bracket                  040000000000
                    //       ISP       IPF Illegal slave procedure
-    word1 ROFF_IPR;//  4    R-OFF     AVF Read bit is off
+    word1 ROFF_IPR;//  4    R-OFF     AVF Read bit is off                      020000000000
                    //       IPR       IPF Illegal EIS digit
-    word1 OWB_NEA; //  5    OWB       AVF Out of write bracket
+    word1 OWB_NEA; //  5    OWB       AVF Out of write bracket                 010000000000
                    //       NEA       SF  Nonexistant address
-    word1 WOFF_OOB;//  6    W-OFF     AVF Write bit is off
+    word1 WOFF_OOB;//  6    W-OFF     AVF Write bit is off                     004000000000
                    //       OOB       SF  Out of bounds (BAR mode)
-    word1 NO_GA;   //  7    NO GA     AVF Not a gate
-    word1 OCB;     //  8    OCB       AVF Out of call bracket
-    word1 OCALL;   //  9    OCALL     AVF Outward call
-    word1 BOC;     // 10    BOC       AVF Bad outward call
+    word1 NO_GA;   //  7    NO GA     AVF Not a gate                           002000000000
+    word1 OCB;     //  8    OCB       AVF Out of call bracket                  001000000000
+    word1 OCALL;   //  9    OCALL     AVF Outward call                         000400000000
+    word1 BOC;     // 10    BOC       AVF Bad outward call                     000200000000
 // PTWAM error is DPS8M only
-    word1 PTWAM_ER;// 11    PTWAM_ER  AVF PTWAM error // inward return
-    word1 CRT;     // 12    CRT       AVF Cross ring transfer
-    word1 RALR;    // 13    RALR      AVF Ring alarm
+    word1 PTWAM_ER;// 11    PTWAM_ER  AVF PTWAM error // inward return         000100000000
+    word1 CRT;     // 12    CRT       AVF Cross ring transfer                  000040000000
+    word1 RALR;    // 13    RALR      AVF Ring alarm                           000020000000
 // On DPS8M a SDWAM error, on DP8/L68 a WAM error
-    word1 SDWAM_ER;// 14    SWWAM_ER  AVF SDWAM error
-    word1 OOSB;    // 15    OOSB      AVF Out of segment bounds
-    word1 PARU;    // 16    PARU      Parity fault - processor parity upper
-    word1 PARL;    // 17    PARL      Parity fault - processor parity lower
-    word1 ONC1;    // 18    ONC1      Operation not complete fault error #1
-    word1 ONC2;    // 19    ONC2      Operation not complete fault error #2
-    word4 IA;      // 20-23 IA        System control illegal action lines
-    word3 IACHN;   // 24-26 IACHN     Illegal action processor port
-    word3 CNCHN;   // 27-29 CNCHN     Connect fault - connect processor port
-    word5 FI_ADDR; // 30-34 F/I ADDR  Modulo 2 fault/interrupt vector address
-    word1 FLT_INT; // 35    F/I       0 = interrupt; 1 = fault
+    word1 SDWAM_ER;// 14    SWWAM_ER  AVF SDWAM error                          000010000000
+    word1 OOSB;    // 15    OOSB      AVF Out of segment bounds                000004000000
+    word1 PARU;    // 16    PARU      Parity fault - processor parity upper    000002000000
+    word1 PARL;    // 17    PARL      Parity fault - processor parity lower    000001000000
+    word1 ONC1;    // 18    ONC1      Operation not complete fault error #1    000000400000
+    word1 ONC2;    // 19    ONC2      Operation not complete fault error #2    000000200000
+    word4 IA;      // 20-23 IA        System control illegal action lines      000000170000
+    word3 IACHN;   // 24-26 IACHN     Illegal action processor port            000000007000
+    word3 CNCHN;   // 27-29 CNCHN     Connect fault - connect processor port   000000000700
+    word5 FI_ADDR; // 30-34 F/I ADDR  Modulo 2 fault/interrupt vector address  000000000076
+    word1 FLT_INT; // 35    F/I       0 = interrupt; 1 = fault                 000000000001
 
     /* word 2 */
-                   //  0- 2 TRR
-                   //  3-17 TSR
-                   // 18-21 PTW
+                   //  0- 2 TRR                                                700000000000
+                   //  3-17 TSR                                                077777000000
+                   // 18-21 PTW                                                000000740000
                    //                  18  PTWAM levels A, B enabled
                    //                  19  PTWAM levels C, D enabled
                    //                  20  PTWAM levels A, B match
                    //                  21  PTWAM levels C, D match
-                   // 22-25 SDW
+                   // 22-25 SDW                                                000000360000
                    //                  22  SDWAM levels A, B enabled
                    //                  23  SDWAM levels C, D enabled
                    //                  24  SDWAM levels A, B match
                    //                  25  SDWAM levels C, D match
                    // 26             0
-                   // 27-29 CPU      CPU Number
-    word6 delta;   // 30-35 DELTA    addr increment for repeats
+                   // 27-29 CPU      CPU Number                                000000000700
+    word6 delta;   // 30-35 DELTA    addr increment for repeats                000000000077
     
     /* word 3 */
-                   //  0-17          0
-                   // 18-21 TSNA     Pointer register number for non-EIS 
+                   //  0-17          0                                         777777000000
+                   // 18-21 TSNA     Pointer register number for non-EIS       000000740000
                    //                operands or EIS Operand #1
                    //                  18-20 PRNO Pointer register number
                    //                  21       PRNO is valid
-                   // 22-25 TSNB     Pointer register number for EIS operand #2
+                   // 22-25 TSNB     Pointer register number for EIS operand #2  000000036000
                    //                  22-24 PRNO Pointer register number
                    //                  25       PRNO is valid
-                   // 26-29 TSNC     Pointer register number for EIS operand #2
+                   // 26-29 TSNC     Pointer register number for EIS operand #2  000000001700
                    //                  26-28 PRNO Pointer register number
                    //                  29       PRNO is valid
     word3 TSN_PRNO [3];
     word1 TSN_VALID [3];
 
-                   // 30-35 TEMP BIT Current bit offset (TPR.TBR)
+                   // 30-35 TEMP BIT Current bit offset (TPR.TBR)                000000000077
 
     /* word 4 */
-                   //  0-17 PPR.IC
-    word18 IR;     // 18-35 Indicator register
-                   //    18 ZER0
-                   //    19 NEG
-                   //    20 CARY
-                   //    21 OVFL
-                   //    22 EOVF
-                   //    23 EUFL
-                   //    24 OFLM
-                   //    25 TRO
-                   //    26 PAR
-                   //    27 PARM
-                   //    28 -BM
-                   //    29 TRU
-                   //    30 MIF
-                   //    31 ABS
-                   //    32 HEX [sic] Figure 3-32 is wrong.
-                   // 33-35 0
+                   //  0-17 PPR.IC                           777777000000
+    word18 IR;     // 18-35 Indicator register               000000777777
+                   //    18 ZER0                             000000400000
+                   //    19 NEG                              000000200000
+                   //    20 CARY                             000000100000
+                   //    21 OVFL                             000000040000
+                   //    22 EOVF                             000000020000
+                   //    23 EUFL                             000000010000
+                   //    24 OFLM                             000000004000
+                   //    25 TRO                              000000002000
+                   //    26 PAR                              000000001000
+                   //    27 PARM                             000000000400
+                   //    28 -BM                              000000000200
+                   //    29 TRU                              000000000100
+                   //    30 MIF                              000000000040
+                   //    31 ABS                              000000000020
+                   //    32 HEX [sic] Figure 3-32 is wrong.  000000000010
+                   // 33-35 0                                000000000007
                     
     /* word 5 */
 
-                   //  0-17 COMPUTED ADDRESS (TPR.CA)
+                   //  0-17 COMPUTED ADDRESS (TPR.CA)A                            777777000000
     word1 repeat_first; 
-                   // 18    RF  First cycle of all repeat instructions
-    word1 rpt;     // 19    RPT Execute an Repeat (rpt) instruction
-    word1 rd;      // 20    RD  Execute an Repeat Double (rpd) instruction
-    word1 rl;      // 21    RL  Execute a Repeat Link (rpl) instruction
-    word1 pot;     // 22    POT Prepare operand tally
-                   // 23    PON Prepare operand no tally
+                   // 18    RF  First cycle of all repeat instructions            000000400000
+    word1 rpt;     // 19    RPT Execute an Repeat (rpt) instruction               000000200000
+    word1 rd;      // 20    RD  Execute an Repeat Double (rpd) instruction        000000100000
+    word1 rl;      // 21    RL  Execute a Repeat Link (rpl) instruction           000000040000
+    word1 pot;     // 22    POT Prepare operand tally                             000000020000
+                   // 23    PON Prepare operand no tally                          000000010000
     //xde xdo
     // 0   0   no execute           -> 0 0
     // 1   0   execute XEC          -> 0 0
     // 1   1   execute even of XED  -> 0 1
     // 0   1   execute odd of XED   -> 0 0
-    word1 xde;     // 24    XDE Execute instruction from Execute Double even
+    word1 xde;     // 24    XDE Execute instruction from Execute Double even      000000004000
                    //       pair
-    word1 xdo;     // 25    XDO Execute instruction from Execute Double odd pair
-    word1 itp;     // 26    ITP Execute ITP indirect cycle
-    word1 rfi;     // 27    RFI Restart this instruction
-    word1 its;     // 28    ITS Execute ITS indirect cycle
-    word1 FIF;     // 29    FIF Fault occured during instruction fetch
-    word6 CT_HOLD; // 30-35 CT HOLD contents of the "remember modifier" register
+    word1 xdo;     // 25    XDO Execute instruction from Execute Double odd pair  000000002000
+    word1 itp;     // 26    ITP Execute ITP indirect cycle                        000000001000
+    word1 rfi;     // 27    RFI Refetch this instruction                          000000000400
+    word1 its;     // 28    ITS Execute ITS indirect cycle                        000000000200
+    word1 FIF;     // 29    FIF Fault occured during instruction fetch            000000000100
+    word6 CT_HOLD; // 30-35 CT HOLD contents of the "remember modifier" register  000000000077
 
     
     
     /* word 6 */
-    word36 IWB;
+    word36 IWB;  //                                                               777777777777
 
     /* word 7 */
-    word36 IRODD; /* Instr holding register; odd word of last pair fetched */
+    word36 IRODD; // Instr holding register; odd word of last pair fetched        777777777777
  } ctl_unit_data_t;
 
 #define USE_IRODD (cpu.cu.rd && ((cpu. PPR.IC & 1) != 0)) 
@@ -1496,7 +1522,7 @@ typedef struct du_unit_data_t
     // These values must be restored on instruction restart
     word7 MF [3]; // Modifier fields for each instruction.
 
-#ifdef ISOLTS
+#ifdef ISOLTS_FIX
     // Image of LPL/SPL for ISOLTS compliance
     word36 image [8];
 #endif
@@ -1580,6 +1606,8 @@ typedef struct
     DCDstruct currentInstruction;
     EISstruct currentEISinstruction;
 
+    bool instr_refetch; // Memory of rfi
+    bool instr_restart; // Came from RCU
     events_t events;
     switches_t switches;
     ctl_unit_data_t cu;

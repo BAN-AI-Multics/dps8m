@@ -27,22 +27,30 @@ INSTALL_BIN ?= $(INSTALL_ROOT)/bin
 include ../Makefile.mk
 
 ifneq (,$(wildcard Makefile.local))
+ifeq ($(MAKELEVEL),0)
 $(warning #### Using Makefile.local)
+endif
 include Makefile.local
 endif
 
 ifeq ($(TESTING),1)
+ifeq ($(MAKELEVEL),0)
 $(warning #### TESTING mode)
+endif
 CFLAGS += -DTESTING
 endif
 
 ifeq ($(HDBG),1)
+ifeq ($(MAKELEVEL),0)
 $(warning #### HDBG mode)
+endif
 CFLAGS += -DHDBG
 endif
 
 ifeq ($(PROFILER),1)
+ifeq ($(MAKELEVEL),0)
 $(warning #### PROFILER mode)
+endif
 CFLAGS += -DPROFILER
 PROF_TARGETS = profiler tracer tracer_to_txt tracer_annotate multics_tables_dump
 PROF_SRCS = profiler.c tracer.c tracer_to_txt.c tracer_annotate.c multics_tables_dump.c
@@ -53,15 +61,35 @@ PROF_SRCS =
 PROF_OBJS = 
 endif
 
+ifeq ($(TRACKER),1)
+ifeq ($(MAKELEVEL),0)
+$(warning #### TRACKER mode)
+endif
+CFLAGS += -DTRACKER
+endif
+
 ifeq ($(ISOLTS),1)
+ifeq ($(MAKELEVEL),0)
 $(warning #### ISOLTS mode)
+endif
 LOCKLESS=1
 CFLAGS += -DISOLTS
 CFLAGS += -DWAM
 endif
 
+ifeq ($(ISOLTS2),1)
+ifeq ($(MAKELEVEL),0)
+$(warning #### ISOLTS2 mode)
+endif
+LOCKLESS=1
+CFLAGS += -DISOLTS2
+CFLAGS += -DWAM
+endif
+
 ifeq ($(ISOLTS_L68),1)
+ifeq ($(MAKELEVEL),0)
 $(warning #### ISOLTS_L68 mode)
+endif
 LOCKLESS=1
 CFLAGS += -DISOLTS
 CFLAGS += -DWAM
@@ -73,7 +101,9 @@ CROSS=MINGW64
 endif
 
 ifeq ($(LOCKLESS),1)
+ifeq ($(MAKELEVEL),0)
 $(warning ####  LOCKLESS_MODE)
+endif
 CFLAGS += -pthread -DLOCKLESS 
 LDFLAGS += -pthread
 LIBS += -lpthread
@@ -209,6 +239,9 @@ ifeq ($(LOCKLESS),1)
 C_SRCS += ./threadz.c
 endif
 C_SRCS += ./uvutil.c
+ifeq ($(TRACKER),1)
+C_SRCS += ./tracker.c
+endif
 
 OBJS  := $(patsubst %.c,%.o,$(C_SRCS))
 
@@ -264,6 +297,9 @@ H_SRCS += uthash.h
 H_SRCS += utlist.h
 H_SRCS += ./threadz.h
 H_SRCS += ./uvutil.h
+ifeq ($(TRACKER),1)
+H_SRCS += ./tracker.h
+endif
 # build_uuid.h is not in H_SRCS; it is built on demand
 
 
