@@ -311,7 +311,10 @@ endif
 
 
 
-all: utils $(TAGS) locallibs_then_dps8 $(PROF_TARGETS) multics_tables_dump annotate
+all: utils $(TAGS) locallibs_then_dps8 $(PROF_TARGETS) multics_tables_dump annotate profiler
+
+touch :
+	touch dps8.h
 
 profiler : locallibs_then_dps8 profiler.o 
 	$(CC) $(LDFLAGS) profiler.o -o profiler shm.o -lncurses
