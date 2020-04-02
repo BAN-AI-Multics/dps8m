@@ -415,7 +415,7 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
                   p->USE = u;
               }
 
-#ifdef TESTING
+#ifdef TESTINGx
             char buf[256];
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                     __func__, toffset + setno, str_sdw (buf, cpu.SDW));
