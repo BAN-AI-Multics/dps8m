@@ -739,7 +739,7 @@ typedef struct
 #define ISOLTS_MAP \
     do \
       { \
-        if (cpu.switches.useMap || cpu.switches.isolts) \
+        if (cpu.switches.useMap || cpu.switches.isolts_mode) \
           { \
             uint pgnum = addr / SCBANK; \
             int os = cpu.scbank_pg_os [pgnum]; \
