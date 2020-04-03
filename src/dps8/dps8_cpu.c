@@ -118,7 +118,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
         sim_msg ("Port%c assignment:         %01o(8)\n",
                     'A' + i, cpus[cpu_unit_idx].switches.assignment [i]);
         sim_msg ("Port%c interlace:          %01o(8)\n",
-                    'A' + i, cpus[cpu_unit_idx].switches.assignment [i]);
+                    'A' + i, cpus[cpu_unit_idx].switches.interlace [i]);
         sim_msg ("Port%c store size:         %01o(8)\n",
                     'A' + i, cpus[cpu_unit_idx].switches.store_size [i]);
       }
