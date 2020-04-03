@@ -117,7 +117,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
         sim_msg ("Port%c assignment:         %01o(8)\n",
                     'A' + i, cpus[cpu_unit_idx].switches.assignment [i]);
         sim_msg ("Port%c interlace:          %01o(8)\n",
-                    'A' + i, cpus[cpu_unit_idx].switches.assignment [i]);
+                    'A' + i, cpus[cpu_unit_idx].switches.interlace [i]);
         sim_msg ("Port%c store size:         %01o(8)\n",
                     'A' + i, cpus[cpu_unit_idx].switches.store_size [i]);
       }
@@ -144,10 +144,10 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.drl_fatal);
     sim_msg ("useMap:                   %d\n",
                 cpus[cpu_unit_idx].switches.useMap);
-#ifdef ISOLTS
+//#ifdef ISOLTS
     sim_msg ("isolts_mode:              %d\n",
                 cpus[cpu_unit_idx].switches.isolts_mode);
-#endif
+//#endif
     sim_msg ("Enable cache:            %01o(8)\n",
                 cpus[cpu_unit_idx].switches.enable_cache);
 
@@ -338,9 +338,9 @@ static config_list_t cpu_config_list [] =
     { "y2k", 0, 1, cfg_on_off },
     { "drl_fatal", 0, 1, cfg_on_off },
     { "useMap", 0, 1, cfg_on_off },
-#ifdef ISOLTS
+//#ifdef ISOLTS
     { "isolts_mode", 0, 1, cfg_on_off },
-#endif
+//#endif
     { "address", 0, 0777777, NULL },
 
     // Tuning
@@ -442,10 +442,46 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.drl_fatal = (uint) v;
         else if (strcmp (p, "useMap") == 0)
           cpus[cpu_unit_idx].switches.useMap = v;
-#ifdef ISOLTS
+// #ifdef ISOLTS
         else if (strcmp (p, "isolts_mode") == 0)
-          cpus[cpu_unit_idx].switches.isolts_mode = v;
+          {
+#if LOCKLESS
+            //lock_tstart ();
 #endif
+//
+// Need to reset the CPU if it is running
+//
+//    // enter with tstart locked
+//    if (cpu running)
+//      {
+//        lock reset_request condition variable
+//        cpu.reset_request = 1;
+//        wakeCPU (); // in case it is sleeping on DIS
+//        timed wait on reset_request condition variable
+//        if time out
+//          {
+//             report timeout, trying signal...
+//             signal CPU
+//             timed wait on reset_request condition variable
+//             if time out, report
+//           }
+//      }
+//
+//
+//  at the "do {" at the top of the state machine, and check for
+//  reset_request and if set do longjump to the top of the thread
+//  and to go sleep.
+//
+
+            cpus[cpu_unit_idx].switches.isolts_mode = v;
+
+            cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
+
+#if LOCKLESS
+            //unlock_tstart ();
+#endif
+          }
+// #endif
         else if (strcmp (p, "enable_cache") == 0)
           cpus[cpu_unit_idx].switches.enable_cache = !! v;
         else if (strcmp (p, "enable_pt_wam") == 0)
@@ -998,6 +1034,15 @@ void setup_scbank_map (void)
         uint sz = store_table [store_size];
         // Calculate the base address of the memory in words
         uint assignment = cpu.switches.assignment [port_num];
+
+//#ifdef ISOLTS
+        if (cpu.switches.isolts_mode)
+          {
+            store_size = ISOLTS_SZ;
+            sz = ISOLTS_STORE_SZ;
+            assignment = 0;
+          }
+//#endif
         uint base = assignment * sz;
 
         // Now convert to SCBANK (number of pages, page number)

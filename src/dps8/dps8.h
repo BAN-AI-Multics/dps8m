@@ -99,12 +99,23 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 // Dependencies
 //
 
-// ISOLTS requires multiple CPU support
-#ifdef ISOLTS
-#if !defined(LOCKLESS)
-#define LOCKLESS
+//// ISOLTS requires multiple CPU support
+//#ifdef ISOLTS
+//#if !defined(LOCKLESS)
+//#define LOCKLESS
+//#endif
+
+#ifdef DPS8M
+#define ISOLTS_STORE_SZ 2
+#define ISOLTS_SZ 131072
 #endif
+
+#ifdef L68
+#define ISOLTS_STORE_SZ 3
+#define ISOLTS_SZ 65536
 #endif
+
+//#endif
 
 // PANEL only works on L68
 #ifdef PANEL

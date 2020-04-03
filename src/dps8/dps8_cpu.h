@@ -729,12 +729,12 @@ typedef struct
     uint serno;
     bool useMap;
 
-#ifdef ISOLTS
+//#ifdef ISOLTS
     bool isolts_mode;
-#endif
+//#endif
   } switches_t;
 
-#ifdef ISOLTS
+#if 1 //#ifdef ISOLTS
 
 #define ISOLTS_MAP \
     do \

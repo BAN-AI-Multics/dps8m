@@ -8782,49 +8782,131 @@ elapsedtime ();
 //     111 4096K   2^22
 
                   cpu.rA  = 0;
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.assignment  [0] & 07LL)
+                            << (35 -  (2 +  0));
+#else
                   cpu.rA |= (word36) (cpu.switches.assignment  [0] & 07LL)
                             << (35 -  (2 +  0));
+#endif
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.enable      [0] & 01LL)
+                            << (35 -  (3 +  0));
+#else
                   cpu.rA |= (word36) (cpu.switches.enable      [0] & 01LL)
                             << (35 -  (3 +  0));
+#endif
                   cpu.rA |= (word36) (cpu.switches.init_enable [0] & 01LL)
                             << (35 -  (4 +  0));
                   cpu.rA |= (word36) (cpu.switches.interlace   [0] ? 1LL:0LL)
                             << (35 -  (5 +  0));
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      ISOLTS_STORE_SZ :
+                                      cpu.switches.store_size  [0] & 07LL)
+                            << (35 -  (8 +  0));
+#else
                   cpu.rA |= (word36) (cpu.switches.store_size  [0] & 07LL)
                             << (35 -  (8 +  0));
+#endif
 
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.assignment  [1] & 07LL)
+                            << (35 -  (2 +  9));
+#else
                   cpu.rA |= (word36) (cpu.switches.assignment  [1] & 07LL)
                             << (35 -  (2 +  9));
+#endif
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      1 :
+                                      cpu.switches.enable      [1] & 01LL)
+                            << (35 -  (3 +  9));
+#else
                   cpu.rA |= (word36) (cpu.switches.enable      [1] & 01LL)
                             << (35 -  (3 +  9));
+#endif
                   cpu.rA |= (word36) (cpu.switches.init_enable [1] & 01LL)
                             << (35 -  (4 +  9));
                   cpu.rA |= (word36) (cpu.switches.interlace   [1] ? 1LL:0LL)
                             << (35 -  (5 +  9));
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      ISOLTS_STORE_SZ :
+                                      cpu.switches.store_size  [1] & 07LL)
+                            << (35 -  (8 +  9));
+#else
                   cpu.rA |= (word36) (cpu.switches.store_size  [1] & 07LL)
                             << (35 -  (8 +  9));
-
+#endif
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.assignment  [2] & 07LL)
+                            << (35 -  (2 +  18));
+#else
                   cpu.rA |= (word36) (cpu.switches.assignment  [2] & 07LL)
                             << (35 -  (2 + 18));
+#endif
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.enable      [2] & 01LL)
+                            << (35 -  (3 + 18));
+#else
                   cpu.rA |= (word36) (cpu.switches.enable      [2] & 01LL)
                             << (35 -  (3 + 18));
+#endif
                   cpu.rA |= (word36) (cpu.switches.init_enable [2] & 01LL)
                             << (35 -  (4 + 18));
                   cpu.rA |= (word36) (cpu.switches.interlace   [2] ? 1LL:0LL)
                             << (35 -  (5 + 18));
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      ISOLTS_STORE_SZ :
+                                      cpu.switches.store_size  [2] & 07LL)
+                            << (35 -  (8 + 18));
+#else
                   cpu.rA |= (word36) (cpu.switches.store_size  [2] & 07LL)
                             << (35 -  (8 + 18));
-
+#endif
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.assignment  [3] & 07LL)
+                            << (35 -  (2 +  27));
+#else
                   cpu.rA |= (word36) (cpu.switches.assignment  [3] & 07LL)
                             << (35 -  (2 + 27));
+#endif
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.enable      [3] & 01LL)
+                            << (35 -  (3 + 27));
+#else
                   cpu.rA |= (word36) (cpu.switches.enable      [3] & 01LL)
                             << (35 -  (3 + 27));
+#endif
                   cpu.rA |= (word36) (cpu.switches.init_enable [3] & 01LL)
                             << (35 -  (4 + 27));
                   cpu.rA |= (word36) (cpu.switches.interlace   [3] ? 1LL:0LL)
                             << (35 -  (5 + 27));
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      ISOLTS_STORE_SZ :
+                                      cpu.switches.store_size  [3] & 07LL)
+                            << (35 -  (8 + 27));
+#else
                   cpu.rA |= (word36) (cpu.switches.store_size  [3] & 07LL)
                             << (35 -  (8 + 27));
+#endif
                   break;
 
                 case 2: // fault base and processor number  switches
@@ -9001,49 +9083,133 @@ elapsedtime ();
 //     111 4096K   2^22
 
                   cpu.rA  = 0;
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.assignment  [4] & 07LL)
+                            << (35 -  (2 +   0));
+#else
                   cpu.rA |= (word36) (cpu.switches.assignment  [4] & 07LL)
                             << (35 -  (2 +  0));
+#endif
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.enable      [4] & 01LL)
+                            << (35 -  (3 +  0));
+#else
                   cpu.rA |= (word36) (cpu.switches.enable      [4] & 01LL)
                             << (35 -  (3 +  0));
+#endif
                   cpu.rA |= (word36) (cpu.switches.init_enable [4] & 01LL)
                             << (35 -  (4 +  0));
                   cpu.rA |= (word36) (cpu.switches.interlace   [4] ? 1LL:0LL)
                             << (35 -  (5 +  0));
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      ISOLTS_STORE_SZ :
+                                      cpu.switches.store_size  [4] & 07LL)
+                            << (35 -  (8 +  0));
+#else
                   cpu.rA |= (word36) (cpu.switches.store_size  [4] & 07LL)
                             << (35 -  (8 +  0));
+#endif
 
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.assignment  [5] & 07LL)
+                            << (35 -  (2 +   9));
+#else
                   cpu.rA |= (word36) (cpu.switches.assignment  [5] & 07LL)
                             << (35 -  (2 +  9));
+#endif
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.enable      [5] & 01LL)
+                            << (35 -  (3 +  9));
+#else
                   cpu.rA |= (word36) (cpu.switches.enable      [5] & 01LL)
                             << (35 -  (3 +  9));
+#endif
                   cpu.rA |= (word36) (cpu.switches.init_enable [5] & 01LL)
                             << (35 -  (4 +  9));
                   cpu.rA |= (word36) (cpu.switches.interlace   [5] ? 1LL:0LL)
                             << (35 -  (5 +  9));
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      ISOLTS_STORE_SZ :
+                                      cpu.switches.store_size  [5] & 07LL)
+                            << (35 -  (8 +  9));
+#else
                   cpu.rA |= (word36) (cpu.switches.store_size  [5] & 07LL)
                             << (35 -  (8 +  9));
+#endif
 
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.assignment  [6] & 07LL)
+                            << (35 -  (2 +  18));
+#else
                   cpu.rA |= (word36) (cpu.switches.assignment  [6] & 07LL)
                             << (35 -  (2 + 18));
+#endif
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.enable      [6] & 01LL)
+                            << (35 -  (3 + 18));
+#else
                   cpu.rA |= (word36) (cpu.switches.enable      [6] & 01LL)
                             << (35 -  (3 + 18));
+#endif
                   cpu.rA |= (word36) (cpu.switches.init_enable [6] & 01LL)
                             << (35 -  (4 + 18));
                   cpu.rA |= (word36) (cpu.switches.interlace   [6] ? 1LL:0LL)
                             << (35 -  (5 + 18));
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      ISOLTS_STORE_SZ :
+                                      cpu.switches.store_size  [6] & 07LL)
+                            << (35 -  (8 + 18));
+#else
                   cpu.rA |= (word36) (cpu.switches.store_size  [6] & 07LL)
                             << (35 -  (8 + 18));
+#endif
 
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.assignment  [7] & 07LL)
+                            << (35 -  (2 +  27));
+#else
                   cpu.rA |= (word36) (cpu.switches.assignment  [7] & 07LL)
                             << (35 -  (2 + 27));
+#endif
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      0 :
+                                      cpu.switches.enable      [7] & 01LL)
+                            << (35 -  (3 + 27));
+#else
                   cpu.rA |= (word36) (cpu.switches.enable      [7] & 01LL)
                             << (35 -  (3 + 27));
+#endif
                   cpu.rA |= (word36) (cpu.switches.init_enable [7] & 01LL)
                             << (35 -  (4 + 27));
                   cpu.rA |= (word36) (cpu.switches.interlace   [7] ? 1LL:0LL)
                             << (35 -  (5 + 27));
+#if 1 // ISOLTS
+                  cpu.rA |= (word36) (cpu.switches.isolts_mode ?
+                                      ISOLTS_STORE_SZ :
+                                      cpu.switches.store_size  [7] & 07LL)
+                            << (35 -  (8 + 27));
+#else
                   cpu.rA |= (word36) (cpu.switches.store_size  [7] & 07LL)
                             << (35 -  (8 + 27));
+#endif
                   break;
 
 #endif

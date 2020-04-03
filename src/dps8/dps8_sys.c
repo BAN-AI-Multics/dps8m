@@ -6360,9 +6360,9 @@ static void dps8_init (void)
 #else
     sim_msg ("Production build\n");
 #endif
-#ifdef ISOLTS
-    sim_msg ("#### ISOLTS BUILD ####\n");
-#endif
+//#ifdef ISOLTS
+//    sim_msg ("#### ISOLTS BUILD ####\n");
+//#endif
 #ifdef NEED_128
     sim_msg ("#### NEED_128 BUILD ####\n");
 #endif

@@ -75,6 +75,11 @@ static inline int cthread_cond_timedwait (pthread_cond_t * restrict cond,
 extern pthread_rwlock_t mem_lock;
 #endif
 
+// thread start lock
+
+void lock_tstart (void);
+void unlock_tstart (void);
+
 // local lock
 
 void lock_ptr (pthread_mutex_t * lock);

@@ -45,12 +45,12 @@ void unlock_simh (void)
 
 static pthread_mutex_t tstart_lock;
 
-static void lock_tstart (void)
+void lock_tstart (void)
   {
     pthread_mutex_lock (& tstart_lock);
   }
 
-static void unlock_tstart (void)
+void unlock_tstart (void)
   {
     pthread_mutex_unlock (& tstart_lock);
   }
@@ -337,14 +337,14 @@ void setCPURun (uint cpuNum, bool run)
     struct cpuThreadz_t * p = & cpuThreadz[cpuNum];
     rc = pthread_mutex_lock (& p->runLock);
     if (rc)
-      sim_printf ("setCPUrun pthread_mutex_lock %d\n", rc);
+      sim_printf ("setCPURun pthread_mutex_lock %d\n", rc);
     p->run = run;
     rc = pthread_cond_signal (& p->runCond);
     if (rc)
-      sim_printf ("setCPUrun pthread_cond_signal %d\n", rc);
+      sim_printf ("setCPURun pthread_cond_signal %d\n", rc);
     rc = pthread_mutex_unlock (& p->runLock);
     if (rc)
-      sim_printf ("setCPUrun pthread_mutex_unlock %d\n", rc);
+      sim_printf ("setCPURun pthread_mutex_unlock %d\n", rc);
 #ifdef PROFILER
    cpus[cpuNum].run = run;
 #endif
