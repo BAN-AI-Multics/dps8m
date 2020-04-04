@@ -386,6 +386,8 @@ parm dirw loud ttyb 64000
     // As per GB61-01 Operators Guide, App. A
     // switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu0 config=data=024000717200",
+    "set cpu0 config=isolts_data=0000030714000",
+    "set cpu0 config=isolts_addr=0100150",
 
     // enable ports 0 and 1 (scu connections)
     // portconfig: ABCD
@@ -454,6 +456,8 @@ parm dirw loud ttyb 64000
     "set cpu1 config=faultbase=Multics",
     "set cpu1 config=num=1",
     "set cpu1 config=data=024000717200",
+    "set cpu1 config=isolts_data=0000030714000",
+    "set cpu1 config=isolts_addr=0100150",
     "set cpu1 config=port=A",
     "set cpu1   config=assignment=0",
     "set cpu1   config=interlace=0",
@@ -498,6 +502,8 @@ parm dirw loud ttyb 64000
     "set cpu2 config=faultbase=Multics",
     "set cpu2 config=num=2",
     "set cpu2 config=data=024000717200",
+    "set cpu2 config=isolts_data=0000030714000",
+    "set cpu2 config=isolts_addr=0100150",
     "set cpu2 config=port=A",
     "set cpu2   config=assignment=0",
     "set cpu2   config=interlace=0",
@@ -540,6 +546,8 @@ parm dirw loud ttyb 64000
     "set cpu3 config=faultbase=Multics",
     "set cpu3 config=num=3",
     "set cpu3 config=data=024000717200",
+    "set cpu3 config=isolts_data=0000030714000",
+    "set cpu3 config=isolts_addr=0100150",
     "set cpu3 config=port=A",
     "set cpu3   config=assignment=0",
     "set cpu3   config=interlace=0",
@@ -580,6 +588,8 @@ parm dirw loud ttyb 64000
     "set cpu4 config=faultbase=Multics",
     "set cpu4 config=num=4",
     "set cpu4 config=data=024000717200",
+    "set cpu4 config=isolts_data=0000030714000",
+    "set cpu4 config=isolts_addr=0100150",
     "set cpu4 config=port=A",
     "set cpu4   config=assignment=0",
     "set cpu4   config=interlace=0",
@@ -622,6 +632,8 @@ parm dirw loud ttyb 64000
     "set cpu5 config=faultbase=Multics",
     "set cpu5 config=num=5",
     "set cpu5 config=data=024000717200",
+    "set cpu5 config=isolts_data=0000030714000",
+    "set cpu5 config=isolts_addr=0100150",
     "set cpu5 config=port=A",
     "set cpu5   config=assignment=0",
     "set cpu5   config=interlace=0",
@@ -664,6 +676,8 @@ parm dirw loud ttyb 64000
     "set cpu6 config=faultbase=Multics",
     "set cpu6 config=num=6",
     "set cpu6 config=data=024000717200",
+    "set cpu6 config=isolts_data=0000030714000",
+    "set cpu6 config=isolts_addr=0100150",
     "set cpu6 config=port=A",
     "set cpu6   config=assignment=0",
     "set cpu6   config=interlace=0",
@@ -706,6 +720,8 @@ parm dirw loud ttyb 64000
     "set cpu7 config=faultbase=Multics",
     "set cpu7 config=num=7",
     "set cpu7 config=data=024000717200",
+    "set cpu7 config=isolts_data=0000030714000",
+    "set cpu7 config=isolts_addr=0100150",
     "set cpu7 config=port=A",
     "set cpu7   config=assignment=0",
     "set cpu7   config=interlace=0",
@@ -1552,6 +1568,8 @@ parm  dirw  loud  ttyb  64000
     // As per GB61-01 Operators Guide, App. A
     // switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu0 config=data=024000717200",
+    "set cpu0 config=isolts_data=0000030714000",
+    "set cpu0 config=isolts_addr=0100150",
 
     // enable ports 0 and 1 (scu connections)
     // portconfig: ABCD
@@ -1623,6 +1641,8 @@ parm  dirw  loud  ttyb  64000
     // As per GB61-01 Operators Guide, App. A
     // switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu1 config=data=024000717200",
+    "set cpu1 config=isolts_data=0000030714000",
+    "set cpu1 config=isolts_addr=0100150",
 
     // enable ports 0 and 1 (scu connections)
     // portconfig: ABCD
@@ -1695,6 +1715,8 @@ parm  dirw  loud  ttyb  64000
     // As per GB61-01 Operators Guide, App. A
     // switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu2 config=data=024000717200",
+    "set cpu2 config=isolts_data=0000030714000",
+    "set cpu2 config=isolts_addr=0100150",
 
     // enable ports 0 and 1 (scu connections)
     // portconfig: ABCD
@@ -1765,6 +1787,8 @@ parm  dirw  loud  ttyb  64000
     // As per GB61-01 Operators Guide, App. A
     // switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu3 config=data=024000717200",
+    "set cpu3 config=isolts_data=0000030714000",
+    "set cpu3 config=isolts_addr=0100150",
 
     // enable ports 0 and 1 (scu connections)
     // portconfig: ABCD
@@ -1835,6 +1859,8 @@ parm  dirw  loud  ttyb  64000
     // As per GB61-01 Operators Guide, App. A
     // switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu4 config=data=024000717200",
+    "set cpu4 config=isolts_data=0000030714000",
+    "set cpu4 config=isolts_addr=0100150",
 
     // enable ports 0 and 1 (scu connections)
     // portconfig: ABCD
@@ -1905,6 +1931,8 @@ parm  dirw  loud  ttyb  64000
     // As per GB61-01 Operators Guide, App. A
     // switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu5 config=data=024000717200",
+    "set cpu5 config=isolts_data=0000030714000",
+    "set cpu5 config=isolts_addr=0100150",
 
     // enable ports 0 and 1 (scu connections)
     // portconfig: ABCD
@@ -1975,6 +2003,8 @@ parm  dirw  loud  ttyb  64000
     // As per GB61-01 Operators Guide, App. A
     // switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu6 config=data=024000717200",
+    "set cpu6 config=isolts_data=0000030714000",
+    "set cpu6 config=isolts_addr=0100150",
 
     // enable ports 0 and 1 (scu connections)
     // portconfig: ABCD
@@ -2044,6 +2074,8 @@ parm  dirw  loud  ttyb  64000
     // As per GB61-01 Operators Guide, App. A
     // switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu7 config=data=024000717200",
+    "set cpu7 config=isolts_data=0000030714000",
+    "set cpu7 config=isolts_addr=0100150",
 
     // enable ports 0 and 1 (scu connections)
     // portconfig: ABCD
@@ -2999,6 +3031,8 @@ static char * r2_0_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu0 config=data=024000717200",
+    "set cpu0 config=isolts_data=0000030714000",
+    "set cpu0 config=isolts_addr=0100150",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -3070,6 +3104,8 @@ static char * r2_0_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu1 config=data=024000717200",
+    "set cpu1 config=isolts_data=0000030714000",
+    "set cpu1 config=isolts_addr=0100150",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -3141,6 +3177,8 @@ static char * r2_0_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu2 config=data=024000717200",
+    "set cpu3 config=isolts_data=0000030714000",
+    "set cpu3 config=isolts_addr=0100150",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -3210,6 +3248,8 @@ static char * r2_0_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu3 config=data=024000717200",
+    "set cpu4 config=isolts_data=0000030714000",
+    "set cpu4 config=isolts_addr=0100150",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -3279,6 +3319,8 @@ static char * r2_0_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu4 config=data=024000717200",
+    "set cpu5 config=isolts_data=0000030714000",
+    "set cpu5 config=isolts_addr=0100150",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -3348,6 +3390,8 @@ static char * r2_0_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu5 config=data=024000717200",
+    "set cpu6 config=isolts_data=0000030714000",
+    "set cpu6 config=isolts_addr=0100150",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD

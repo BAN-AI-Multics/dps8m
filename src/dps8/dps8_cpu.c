@@ -147,6 +147,10 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 //#ifdef ISOLTS
     sim_msg ("isolts_mode:              %d\n",
                 cpus[cpu_unit_idx].switches.isolts_mode);
+    sim_msg ("isolts_data:              %012llo\n",
+                cpus[cpu_unit_idx].switches.isolts_data);
+    sim_msg ("isolts_addr:              %06o(8)\n",
+                cpus[cpu_unit_idx].switches.isolts_addr);
 //#endif
     sim_msg ("Enable cache:            %01o(8)\n",
                 cpus[cpu_unit_idx].switches.enable_cache);
@@ -340,6 +344,8 @@ static config_list_t cpu_config_list [] =
     { "useMap", 0, 1, cfg_on_off },
 //#ifdef ISOLTS
     { "isolts_mode", 0, 1, cfg_on_off },
+    { "isolts_data", 0, 0777777777777, NULL },
+    { "isolts_addr", 0, 0777777, NULL },
 //#endif
     { "address", 0, 0777777, NULL },
 
@@ -481,6 +487,10 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
             //unlock_tstart ();
 #endif
           }
+        else if (strcmp (p, "isolts_data") == 0)
+          cpus[cpu_unit_idx].switches.isolts_data = (word36) v;
+        else if (strcmp (p, "isolts_addr") == 0)
+          cpus[cpu_unit_idx].switches.isolts_addr = (word18) v;
 // #endif
         else if (strcmp (p, "enable_cache") == 0)
           cpus[cpu_unit_idx].switches.enable_cache = !! v;
@@ -989,8 +999,16 @@ void setup_scbank_map (void)
     // For each port (which is connected to a SCU
     for (int port_num = 0; port_num < N_CPU_PORTS; port_num ++)
       {
-        if (! cpu.switches.enable [port_num])
-          continue;
+        if (cpu.switches.isolts_mode)
+          {
+            if (port_num != 1) // port B
+              continue;
+          }
+        else
+          {
+            if (! cpu.switches.enable [port_num])
+              continue;
+          }
         // This will happen during SIMH early initialization before
         // the cables are run.
         if (! cables->cpu_to_scu[current_running_cpu_idx][port_num].in_use)

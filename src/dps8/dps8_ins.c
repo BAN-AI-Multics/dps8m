@@ -8751,7 +8751,10 @@ elapsedtime ();
             switch (select)
               {
                 case 0: // data switches
-                  cpu.rA = cpu.switches.data_switches;
+                  //cpu.rA = cpu.switches.data_switches;
+                  cpu.rA = cpu.switches.isolts_mode ?
+                    cpu.switches.isolts_data :
+                    cpu.switches.data_switches;
                   break;
 
                 case 1: // configuration switches for ports A, B, C, D
