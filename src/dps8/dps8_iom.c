@@ -361,6 +361,7 @@ static void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, 
     * data = M[addr] & DMASK;
 #endif
 #endif
+    HDBGMRead (addr, * data, "iom_core_read");
   }
 
 static void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36 *odd, UNUSED const char * ctx)
@@ -382,6 +383,8 @@ static void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even,
     * odd =  M[addr]    & DMASK;
 #endif
 #endif
+    HDBGMRead (addr - 1, * even, "iom_core_read2");
+    HDBGMRead (addr, * odd, "iom_core_read2");
   }
 
 static void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
@@ -396,6 +399,7 @@ static void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, 
     M[addr] = data & DMASK;
 #endif
 #endif
+    HDBGMWrite (addr, data, "iom_core_write");
   }
 
 static void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
@@ -416,6 +420,8 @@ static void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even,
     M[addr] =    odd;
 #endif
 #endif
+    HDBGMWrite (addr - 1, even, "iom_core_write2");
+    HDBGMWrite (addr, odd, "iom_core_write2");
   }
 
 
@@ -433,6 +439,7 @@ static void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *d
     * data = M[addr] & DMASK;
 #endif
 #endif
+    HDBGMRead (addr, * data, "iom_core_read_lock");
   }
 
 static void iom_core_write_unlock (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
@@ -446,6 +453,7 @@ static void iom_core_write_unlock (UNUSED uint iom_unit_idx, word24 addr, word36
     M[addr] = data & DMASK;
 #endif
 #endif
+    HDBGMWrite (addr, data, "iom_core_write_unlock");
   }
 
 static t_stat iom_action (UNIT *up)
@@ -2070,6 +2078,9 @@ static void fetch_and_parse_PCW (uint iom_unit_idx, uint chan)
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
     iom_core_read2 (iom_unit_idx, p->LPW_DCW_PTR, (word36 *) & p->PCW0, (word36 *) & p->PCW1, __func__);
+    sim_debug (DBG_DEBUG, & iom_dev,
+               "%s: pcw0 %012"PRIo64" pcw1 %012"PRIo64"\n",
+               __func__, p->PCW0, p->PCW1);
     p->PCW_CHAN = getbits36_6 (p->PCW1, 3);
     p->PCW_AE = getbits36_6 (p->PCW0, 12);
     p->PCW_21_MSK = getbits36_1 (p->PCW0, 21);
@@ -2086,9 +2097,9 @@ static void fetch_and_parse_PCW (uint iom_unit_idx, uint chan)
     unpack_DCW (iom_unit_idx, chan);
 
     sim_debug (DBG_DEBUG, & iom_dev,
-               "%s: chan %d pcw0: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
+               "%s: chan %d pcw0: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o mask %o\n",
                __func__, p->PCW_CHAN, p->IDCW_DEV_CMD, p->IDCW_DEV_CODE, p->IDCW_AE,
-               p->IDCW_EC, p->IDCW_CONTROL, p->IDCW_CHAN_CMD, p->IDCW_COUNT);
+               p->IDCW_EC, p->IDCW_CONTROL, p->IDCW_CHAN_CMD, p->IDCW_COUNT, p->PCW_21_MSK);
     sim_debug (DBG_DEBUG, & iom_dev,
                "%s: chan %d pcw1: ae %d ptp %d pge %d ptp %#o\n",
                __func__, p->PCW_CHAN, p->PCW_AE, p->PCW_63_PTP,
@@ -2740,6 +2751,8 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 //  listService sets ptro, indicating that no more DCWs are availible. or
 //     control is 0, indicating last IDCW
 
+    sim_debug (DBG_DEBUG, & iom_dev,
+                   "%s: chan 0%o %d.\n", __func__, chan, chan);
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
     p->chan_mode = cm1;
@@ -3009,6 +3022,7 @@ int loops = 0;
       {
         // Fetch the next PCW
         int rc = iom_list_service (iom_unit_idx, IOM_CONNECT_CHAN, & send, & uff);
+        sim_debug (DBG_DEBUG, & iom_dev, "list service returned rc %d send %d uff %d\n", rc, send, uff);
         if (rc < 0)
           {
             sim_warn ("connect channel connect failed\n");
@@ -3044,6 +3058,8 @@ loops ++;
 
 
             uint chan = p->PCW_CHAN;
+            sim_debug (DBG_DEBUG, & iom_dev,
+              "using chan 0%o %d. masked %d in_use %d\n", chan, chan, q->masked, q->in_use);
             if (q->masked)
               {
                 if (q->in_use)
