@@ -1056,8 +1056,8 @@ void setup_scbank_map (void)
 //#ifdef ISOLTS
         if (cpu.switches.isolts_mode)
           {
-            store_size = ISOLTS_SZ;
-            sz = ISOLTS_STORE_SZ;
+            store_size = ISOLTS_STORE_SZ;
+            sz = ISOLTS_SZ;
             assignment = 0;
           }
 //#endif
@@ -3107,8 +3107,8 @@ static void nem_check (word24 addr, const char * ctx)
 int32 core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    ISOLTS_MAP;
     NEM_CHECK;
+    ISOLTS_MAP;
     PAR_CHECK;
 
 #ifndef LOCKLESS
@@ -3167,8 +3167,8 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
     PNL (cpu.portBusy = true;)
-    ISOLTS_MAP;
     NEM_CHECK;
+    ISOLTS_MAP;
     LOCK_CORE_WORD(addr);
     if (cpu.locked_addr != 0) {
       sim_warn ("core_read_lock: locked %08o locked_addr %08o %c %05o:%06o\n",
@@ -3188,8 +3188,8 @@ int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 int core_write (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    ISOLTS_MAP;
     NEM_CHECK;
+    ISOLTS_MAP;
     PAR_CHECK;
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
@@ -3231,8 +3231,8 @@ int core_write (word24 addr, word36 data, const char * ctx)
 int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
 {
     PNL (cpu.portBusy = true;)
-    ISOLTS_MAP;
     NEM_CHECK;
+    ISOLTS_MAP;
     if (cpu.locked_addr != addr)
       {
         sim_warn ("core_write_unlock: locked %08o locked_addr %08o %c %05o:%06o\n",
@@ -3304,8 +3304,8 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
     v = (v & ~cpu.zone) | (data & cpu.zone);
     core_write_unlock(addr, v, ctx);
 #else
-    ISOLTS_MAP;
     NEM_CHECK;
+    ISOLTS_MAP;
 #ifdef SPLIT_MEMORY
     Mstore (addr, (Mfetch (addr) & ~cpu.zone) | (data & cpu.zone));
 #else
@@ -3351,8 +3351,8 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
                    "core_read2 (%s)\n", addr, ctx);
         addr &= (word24)~1; /* make it an even address */
       }
-    ISOLTS_MAP;
     NEM_CHECK;
+    ISOLTS_MAP;
     PAR_CHECK;
 #ifndef LOCKLESS
 #ifdef SPLIT_MEMORY
@@ -3469,8 +3469,8 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
                    "(%s)\n", addr, ctx);
         addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
       }
-    ISOLTS_MAP;
     NEM_CHECK;
+    ISOLTS_MAP;
     PAR_CHECK;
 #ifndef SPEED
     if (watch_bits [addr])
