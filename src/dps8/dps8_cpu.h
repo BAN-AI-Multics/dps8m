@@ -1870,7 +1870,7 @@ extern cpu_state_t * restrict cpup;
 #define cpu (* cpup)
 
 
-#define N_STALL_POINTS 4
+#define N_STALL_POINTS 10
 struct stall_point_s
   {
     word15 segno;
