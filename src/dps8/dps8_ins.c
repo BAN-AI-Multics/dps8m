@@ -8744,6 +8744,9 @@ elapsedtime ();
                   ;
                             
                 cpu.rA = PROM[cpu.TPR.CA & 1023];
+                HDBGRegAW ("rsw");
+                SC_I_ZERO (cpu.rA == 0);
+                SC_I_NEG (cpu.rA & SIGN36);
                 break;
               }
 #endif // DPS8M
