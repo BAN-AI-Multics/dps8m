@@ -151,6 +151,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.isolts_data);
     sim_msg ("isolts_addr:              %06o(8)\n",
                 cpus[cpu_unit_idx].switches.isolts_addr);
+    sim_msg ("tandd_mode:              %d\n",
+                cpus[cpu_unit_idx].switches.tandd_mode);
 //#endif
     sim_msg ("Enable cache:            %01o(8)\n",
                 cpus[cpu_unit_idx].switches.enable_cache);
@@ -346,6 +348,7 @@ static config_list_t cpu_config_list [] =
     { "isolts_mode", 0, 1, cfg_on_off },
     { "isolts_data", 0, 0777777777777, NULL },
     { "isolts_addr", 0, 0777777, NULL },
+    { "tandd_mode", 0, 1, cfg_on_off },
 //#endif
     { "address", 0, 0777777, NULL },
 
@@ -491,6 +494,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.isolts_data = (word36) v;
         else if (strcmp (p, "isolts_addr") == 0)
           cpus[cpu_unit_idx].switches.isolts_addr = (word18) v;
+        else if (strcmp (p, "tandd_mode") == 0)
+          cpus[cpu_unit_idx].switches.tandd_mode = (word36) v;
 // #endif
         else if (strcmp (p, "enable_cache") == 0)
           cpus[cpu_unit_idx].switches.enable_cache = !! v;
@@ -1004,6 +1009,11 @@ void setup_scbank_map (void)
             if (port_num != 1) // port B
               continue;
           }
+        if (cpu.switches.tandd_mode)
+          {
+            if (port_num != 0) // port A
+              continue;
+          }
         else
           {
             if (! cpu.switches.enable [port_num])
@@ -1054,7 +1064,7 @@ void setup_scbank_map (void)
         uint assignment = cpu.switches.assignment [port_num];
 
 //#ifdef ISOLTS
-        if (cpu.switches.isolts_mode)
+        if (cpu.switches.isolts_mode || cpu.switches.tandd_mode)
           {
             store_size = ISOLTS_STORE_SZ;
             sz = ISOLTS_SZ;
@@ -1803,7 +1813,6 @@ static bool clear_temporary_absolute_mode (void)
 
 t_stat threadz_sim_instr (void)
   {
-//cpu.have_tst_lock = false;
 
     t_stat reason = 0;
 

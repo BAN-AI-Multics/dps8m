@@ -734,6 +734,8 @@ typedef struct
     word36 isolts_data;
     word18 isolts_addr;
 //#endif
+
+    bool tandd_mode;
   } switches_t;
 
 #if 1 //#ifdef ISOLTS
