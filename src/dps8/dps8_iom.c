@@ -2708,7 +2708,8 @@ D:;
         // scratch pad
         // p->lpw = p->lpw
         // core
-        write_LPW (iom_unit_idx, chan);
+        if (p->LPW_21_NC == 0) // UPDATE
+          write_LPW (iom_unit_idx, chan);
       }
     else
       {
@@ -2719,7 +2720,8 @@ D:;
             // scratch pad
             // p->lpw = p->lpw
             // core
-            write_LPW (iom_unit_idx, chan);
+            if (p->LPW_21_NC == 0) // UPDATE
+              write_LPW (iom_unit_idx, chan);
           }
       }
 
