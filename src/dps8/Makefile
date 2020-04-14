@@ -424,7 +424,7 @@ ifeq ($(CROSS),MINGW64)
 	#(cd ../gnulib; $(MAKE))
 endif
 	#$(MAKE) zmq
-	$(MAKE) dps8.sha1.txt
+	$(MAKE) dps8.sha1.txt build_uuid.h
 	$(MAKE) dps8$(EXE)
 
 
@@ -441,7 +441,7 @@ udplib : udplib.c udplib.h
 # If you do not have ctags in your build environment, change '-@ctags' to 
 # '#-@ctags' below.
 
-tags : $(C_SRCS) $(H_SRCS) dps8.sha1.txt
+tags : $(C_SRCS) $(H_SRCS) dps8.sha1.txt build_uuid.h
 	@echo TAGS
 	-@ctags $(C_SRCS) $(H_SRCS) $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]
 
@@ -455,20 +455,38 @@ tapes: 88534.tap 88631.tap 88632.tap 88633.tap 88634.tap 88635.tap 88636.tap 990
 
 .PHONY : clean 
 
-clean:
-	@echo CLEAN
+#clean:
+#	@echo CLEAN
+#	@$(MAKE) -C $(SIMHx) -f Makefile clean
+#	@$(MAKE) -C ../decNumber clean
+#	@$(MAKE) -C ../utils clean
+#	@$(MAKE) clean_dps8
+#
+#.PHONY: clean_dps8
+#
+#clean_dps8:
+#	@echo CLEAN dps8
+#	-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt $(PROF_TARGETS) $(PROF_OBJS)
+
+clean: clean_others clean_dps8
+
+.PHONY: clean_others
+
+clean_others:
+	@echo clean others
 	@$(MAKE) -C $(SIMHx) -f Makefile clean
 	@$(MAKE) -C ../decNumber clean
 	@$(MAKE) -C ../utils clean
-	@$(MAKE) clean_dps8
 
 .PHONY: clean_dps8
 
 clean_dps8:
 	@echo CLEAN dps8
-	-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt $(PROF_TARGETS) $(PROF_OBJS)
+#-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt $(PROF_TARGETS) $(PROF_OBJS)
+
 
 dps8_sys.o : dps8.sha1.txt build_uuid.h
+# Putting build_uuid.h here causes recursion.
 dps8_sys.d : dps8.sha1.txt
 
 dps8_socket_dev.c: errnos.h
