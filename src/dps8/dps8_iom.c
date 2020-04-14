@@ -2753,6 +2753,9 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 //  listService sets ptro, indicating that no more DCWs are availible. or
 //     control is 0, indicating last IDCW
 
+#ifdef TANDD_DEBUG
+sim_printf ("chan %d\n", chan);
+#endif
     sim_debug (DBG_DEBUG, & iom_dev,
                    "%s: chan 0%o %d.\n", __func__, chan, chan);
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
@@ -3225,6 +3228,9 @@ int send_terminate_interrupt (uint iom_unit_idx, uint chan)
 
 void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx)
   {
+#ifdef TANDD_DEBUG
+sim_printf ("[%lld] iom_interrupt\n", cpu.cycleCnt);
+#endif
     sim_debug (DBG_DEBUG, & iom_dev,
                "%s: IOM %c starting. [%"PRId64"] %05o:%08o\n",
                __func__, 'A' + iom_unit_idx,

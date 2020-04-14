@@ -41,6 +41,27 @@
 
 #define DBG_CTR cpu.cycleCnt
 
+#ifdef TANDD_DEBUG
+static void pmem (int addr)
+  {
+static char * bcd =
+  "01234567"
+  "89[#@;>?"
+  " ABCDEFG"
+  "HI&.](<\\"
+  "^JKLMNOP"
+  "QR-$*);'"
+  "+/STUVWX"
+  "YZ_,%=\"!";
+ 
+    word36 w = M[addr];
+    sim_printf ("%08o %012llo  ", addr, w);
+    for (int j = 0; j < 6; j ++)
+      sim_printf ("%c", bcd [(w >> ((5-j)*6)) & 077]);
+    sim_printf ("\r\n");
+}
+#endif
+
 // Forward declarations
 
 static int doABSA (word36 * result);
@@ -8758,6 +8779,9 @@ elapsedtime ();
                   cpu.rA = cpu.switches.isolts_mode ?
                     cpu.switches.isolts_data :
                     cpu.switches.data_switches;
+#ifdef TANDD_DEBUG
+sim_printf ("RSW data switches\n");
+#endif
                   break;
 
                 case 1: // configuration switches for ports A, B, C, D
@@ -9274,6 +9298,9 @@ elapsedtime ();
 
         case x0 (0015):  // cioc
           {
+#ifdef TANDD_DEBUG
+sim_printf ("[%lld] cioc\n", cpu.cycleCnt);
+#endif
             // cioc The system controller addressed by Y (i.e., contains
             // the word at Y) sends a connect signal to the port specified
             // by C(Y) 33,35.
@@ -9427,7 +9454,20 @@ elapsedtime ();
           break;
 
         case x0 (0616):  // dis
-
+#ifdef TANDD_DEBUG
+sim_printf ("dis %05o:%06o %012llo\r\n", cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
+if (IWB_IRODD == 0000011616200 ||
+    IWB_IRODD == 000000616200)
+{
+sim_printf ("A: %012llo\r\n", cpu.rA);
+sim_printf ("Q: %012llo\r\n", cpu.rQ);
+sim_printf ("data switches %012llo\r\n", cpu.switches.data_switches);
+pmem (010000);
+for (int i = 07740; i <= 07777; i ++)
+  pmem (i);
+              longjmp (cpu.jmpMain, JMP_STOP);
+}
+#endif
           CPT (cpt1U, 25); // DIS instruction
 
           // XXX This is subtle; g7Pending below won't see the queued
