@@ -466,14 +466,14 @@ tapes: 88534.tap 88631.tap 88632.tap 88633.tap 88634.tap 88635.tap 88636.tap 990
 #
 #clean_dps8:
 #	@echo CLEAN dps8
-#	-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt $(PROF_TARGETS) $(PROF_OBJS)
+#	-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt build_uuid.h $(PROF_TARGETS) $(PROF_OBJS)
 
 clean: clean_others clean_dps8
 
 .PHONY: clean_others
 
 clean_others:
-	@echo clean others
+	@echo CLEAN others
 	@$(MAKE) -C $(SIMHx) -f Makefile clean
 	@$(MAKE) -C ../decNumber clean
 	@$(MAKE) -C ../utils clean
@@ -482,7 +482,7 @@ clean_others:
 
 clean_dps8:
 	@echo CLEAN dps8
-#-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt $(PROF_TARGETS) $(PROF_OBJS)
+	-@$(RM) $(OBJS) $(C_DEPS) $(EXECUTABLES) dps8$(EXE) tags $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) dps8.sha1.txt $(PROF_TARGETS) $(PROF_OBJS)
 
 
 dps8_sys.o : dps8.sha1.txt build_uuid.h
@@ -501,7 +501,16 @@ errnos.h:
 	sed 's/dps8.sha1.txt//;s/build_uuid.h//' $@.$$$$ | sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' > $@; \
 	rm -f $@.$$$$
 
+# XXX "include" will regenerate the files if needed, that makes no sense 
+# XXX for 'clean', which will promptly destroy them. 
+# XXX This is a little better but I am not sure that is really works correctly 
+# XXX for "make clean foo". In theory, since the clean kills everything,
+# XXX then the dependencies are not really needed for make to do the right
+# XXX thing, but I am not convinced that this is robust or handles edge
+# XXX cases right.
+ifneq ($(MAKECMDGOALS),clean)
 -include $(C_SRCS:.c=.d)
 -include $(PROF_SRCS:.c=.d)
 -include $(multics_tables_dump.c=.d)
 -include $(annotate.c=.d)
+endif
