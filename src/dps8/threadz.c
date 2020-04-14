@@ -69,6 +69,7 @@ void unlock_libuv (void)
     pthread_mutex_unlock (& libuv_lock);
   }
 
+#if 0
 bool test_libuv_lock (void)
   {
     //sim_debug (DBG_TRACE, & cpu_dev, "test_libuv_lock\n");
@@ -85,7 +86,7 @@ bool test_libuv_lock (void)
       sim_printf ("test_libuv_lock pthread_mutex_lock libuv_lock %d\n", rc);
     return false;   
   }
-
+#endif
 
 // Memory serializer
 
@@ -171,6 +172,7 @@ void unlock_iom (void)
   }
 
 
+#if 0
 // Debugging tool
 
 static pthread_mutex_t tst_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -211,7 +213,7 @@ bool test_tst_lock (void)
       sim_printf ("test_tst_lock pthread_mutex_lock tst_lock %d\n", rc);
     return false;   
   }
-
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -273,6 +275,14 @@ void createCPUThread (uint cpuNum)
       sim_printf ("createCPUThread pthread_cond_init runCond %d\n", rc);
 
     p->run = true;
+
+#if IDLE
+    // We had not yet reached the run/idle switch
+    p->ready = false;
+    // We will be idling when we get there
+    p->idle = true;
+#endif 
+
 #ifdef PROFILER
     cpus[cpuNum].run = true;
 #endif
@@ -282,6 +292,19 @@ void createCPUThread (uint cpuNum)
     if (rc)
       sim_printf ("createCPUThread pthread_cond_init sleepCond %d\n", rc);
 
+#ifdef IDLE
+    // initialize reset idle state
+    rc = pthread_mutex_init (& p->idleLock, NULL);
+    if (rc)
+      sim_printf ("createCPUThread pthread_mutex_init idleLock %d\n", rc);
+    rc = pthread_cond_init (& p->idleCond, NULL);
+    if (rc)
+      sim_printf ("createCPUThread pthread_cond_init idleCond %d\n", rc);
+    p->idle_state = false;
+#endif
+
+
+    // Create thread
     rc = pthread_create (& p->cpuThread, NULL, cpu_thread_main, 
                     & p->cpuThreadArg);
     if (rc)
@@ -310,6 +333,30 @@ void createCPUThread (uint cpuNum)
 #endif
   }
 
+#if IDLE
+
+// Called by CPU thread to block until idle flag cleared
+
+void cpuIdleWait (void)
+  {
+    int rc;
+    struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
+    rc = pthread_mutex_lock (& p->idleLock);
+    if (rc)
+      sim_printf ("%s pthread_mutex_lock %d\n", __func__, rc);
+    // Indicate that we are ready to do run/idle switching
+    p->ready = true;
+
+    p->idle = true;
+    while (! p->intr)
+      {
+        rc = pthread_cond_wait (& p->intrCond, & p->intrLock);
+        if (rc)
+          sim_printf ("iomInterruptWait pthread_cond_wait %d\n", rc);
+      }
+  }
+#endif
+
 void stopCPUThread()
   {
     struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
@@ -329,6 +376,7 @@ void cpuRdyWait (uint cpuNum)
    }
 #endif
 
+#if 0
 // Set CPU thread run/sleep
 
 void setCPURun (uint cpuNum, bool run)
@@ -371,6 +419,7 @@ void cpuRunningWait (void)
     if (rc)
       sim_printf ("cpuRunningWait pthread_mutex_unlock %d\n", rc);
   }
+#endif
 
 // Called by CPU thread to sleep until time up or signaled
 // Return time left
@@ -474,6 +523,7 @@ void createIOMThread (uint iomNum)
     p->iomThreadArg = (int) iomNum;
 
 
+#if 0
     // initialize run/stop switch
     rc = pthread_mutex_init (& p->runLock, NULL);
     if (rc)
@@ -483,6 +533,7 @@ void createIOMThread (uint iomNum)
       sim_printf ("createIOMThread pthread_cond_init runCond %d\n", rc);
 
     p->run = true;
+#endif
 
     // initialize interrupt wait
     p->intr = false;

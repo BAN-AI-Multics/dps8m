@@ -1814,6 +1814,54 @@ static bool clear_temporary_absolute_mode (void)
 t_stat threadz_sim_instr (void)
   {
 
+#if 0
+//
+// Thread is created, idle is false
+//
+// reset longjmp established
+//
+// 
+// After a CPU is reset, it enters an idle condition...
+//
+// Interrupt signal will release it from idle
+//
+// A longjmp to the reset will place it back in idle.
+//
+// start_CPU:
+//   if (! running) // fast check, can race
+//       get tstart lock
+//       if (! running)
+//          start thread
+//          wait for run flag
+//       release tstart lock
+//  wait for idle flag
+//
+//
+// Interrupt
+//   if (!running) // fast check, can race
+//       start_CPU
+//   if idling, release idle
+//
+//  Reset
+//    set reset flag
+//    timed wait for idle flag
+//    if time out
+//
+//       // this is dangerous a signal can leave lingering locks and 
+//       // and broken data
+//       send signal
+//       timed wait for idle flag
+//       
+//  Reset handler
+//    clear locks
+//    longjmp to idle loop
+//   
+
+    // Wait for idle/run to be set to run; this will be done by an interrupt.
+
+    cpuIdleWait ();
+#endif
+
     t_stat reason = 0;
 
 #if !defined(LOCKLESS)

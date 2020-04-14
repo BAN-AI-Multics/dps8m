@@ -90,7 +90,7 @@ void unlock_ptr (pthread_mutex_t * lock);
 
 void lock_libuv (void);
 void unlock_libuv (void);
-bool test_libuv_lock (void);
+//bool test_libuv_lock (void);
 
 // simh resource lock
 
@@ -118,9 +118,9 @@ void unlock_iom (void);
 
 
 // testing lock
-void lock_tst (void);
-void unlock_tst (void);
-bool test_tst_lock (void);
+//void lock_tst (void);
+//void unlock_tst (void);
+//bool test_tst_lock (void);
 
 // CPU threads
 
@@ -130,7 +130,15 @@ struct cpuThreadz_t
     pthread_t cpuThread;
     int cpuThreadArg;
 
-    //volatile bool ready;
+#ifdef IDLE
+    // Has gotten to the idle wait code
+    volatile bool ready;
+
+    // reset idle state
+    pthread_cond_t idleCond;
+    pthread_mutex_t idleLock;
+    bool idle_state;
+#endif
 
     // run/stop switch
     bool run;
@@ -146,8 +154,8 @@ extern struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
 void createCPUThread (uint cpuNum);
 void stopCPUThread(void);
 void cpuRdyWait (uint cpuNum);
-void setCPURun (uint cpuNum, bool run);
-void cpuRunningWait (void);
+//void setCPURun (uint cpuNum, bool run);
+//void cpuRunningWait (void);
 unsigned long sleepCPU (unsigned long usec);
 void stallCPU (void);
 void wakeCPU (uint cpuNum);
@@ -161,10 +169,12 @@ struct iomThreadz_t
     pthread_t iomThread;
     int iomThreadArg;
 
+#if 0
     // run/stop switch
     bool run;
     pthread_cond_t runCond;
     pthread_mutex_t runLock;
+#endif
 
     volatile bool ready;
 
