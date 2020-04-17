@@ -117,6 +117,7 @@ static inline void set_apu_status (apuStatusBits status)
 t_stat dump_sdwam (void);
 word24 do_append_cycle (processor_cycle_type thisCycle, 
                       word36 * data, uint nWords);
+word24 do_append_cycle_IF (word36 * data, uint nWords);
 void do_ldbr (word36 * Ypair);
 void do_sdbr (word36 * Ypair);
 void do_camp (word36 Y);

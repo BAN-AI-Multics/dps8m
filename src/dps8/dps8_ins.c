@@ -1174,11 +1174,13 @@ void fetchInstruction (word18 addr)
           {
             CPT (cpt2U, 11); // fetch rpt even
 	    if (addr & 1)
-	      Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+	      //Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+	      Read_IF (addr, & cpu.cu.IWB);
 	    else
 	      {
 		word36 tmp[2];
-		Read2 (addr, tmp, INSTRUCTION_FETCH);
+		//Read2 (addr, tmp, INSTRUCTION_FETCH);
+		Read2_IF (addr, tmp);
 		cpu.cu.IWB = tmp[0];
 		cpu.cu.IRODD = tmp[1];
 	      }
@@ -1196,13 +1198,15 @@ void fetchInstruction (word18 addr)
         if ((cpu.PPR.IC & 1) == 0) // Even
           {
             word36 tmp[2];
-            Read2 (addr, tmp, INSTRUCTION_FETCH);
+            //Read2 (addr, tmp, INSTRUCTION_FETCH);
+            Read2_IF (addr, tmp);
             cpu.cu.IWB = tmp[0];
             cpu.cu.IRODD = tmp[1];
           }
         else // Odd
           {
-            Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+            //Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+            Read_IF (addr, & cpu.cu.IWB);
             cpu.cu.IRODD = cpu.cu.IWB; 
           }
       }
@@ -2133,8 +2137,9 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 #else
 	    // append cycles updates cpu.PPR.IC to TPR.CA
 	    word18 saveIC = cpu.PPR.IC;
-            Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
-                  INSTRUCTION_FETCH);
+            //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
+                  //INSTRUCTION_FETCH);
+              Read_IF (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n]);
 	    cpu.PPR.IC = saveIC;
             //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
             //      APU_DATA_READ);
@@ -7347,7 +7352,8 @@ static t_stat doInstruction (void)
               doFault (FAULT_IPR, fst_ill_proc, "rpd odd");
 #ifdef NEWRPT
 	    word18 save_ic = cpu.PPR.IC + 1;
-	    Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+	    //Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+	    Read2_IF (cpu.PPR.IC + 1, cpu.Ypair);
 	    cpu.PPR.IC = save_ic;
 #endif
             cpu.cu.delta = i->tag;
@@ -7380,14 +7386,16 @@ static t_stat doInstruction (void)
 	    else if ((cpu.PPR.IC+1) & 1) // odd
 	      {
 		word18 save_ic = cpu.PPR.IC + 1;
-		Read (cpu.PPR.IC + 1, &cpu.CY, INSTRUCTION_FETCH);
+		//Read (cpu.PPR.IC + 1, &cpu.CY, INSTRUCTION_FETCH);
+		Read_IF (cpu.PPR.IC + 1, &cpu.CY);
 		cpu.PPR.IC = save_ic;
 		cpu.cu.IWB = cpu.cu.IRODD = cpu.CY;
 	      }
 	    else
 	      {
 		word18 save_ic = cpu.PPR.IC + 1;
-		Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+		//Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+		Read2_IF (cpu.PPR.IC + 1, cpu.Ypair);
 		cpu.PPR.IC = save_ic;
 		cpu.cu.IWB = cpu.Ypair[0];
 		cpu.cu.IRODD = cpu.Ypair[1];
@@ -7423,14 +7431,16 @@ static t_stat doInstruction (void)
 	    else if ((cpu.PPR.IC+1) & 1) // odd
 	      {
 		word18 save_ic = cpu.PPR.IC + 1;
-		Read (cpu.PPR.IC + 1, &cpu.CY, INSTRUCTION_FETCH);
+		//Read (cpu.PPR.IC + 1, &cpu.CY, INSTRUCTION_FETCH);
+		Read_IF (cpu.PPR.IC + 1, &cpu.CY);
 		cpu.PPR.IC = save_ic;
 		cpu.cu.IWB = cpu.cu.IRODD = cpu.CY;
 	      }
 	    else
 	      {
 		word18 save_ic = cpu.PPR.IC + 1;
-		Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+		//Read2 (cpu.PPR.IC + 1, cpu.Ypair, INSTRUCTION_FETCH);
+		Read2_IF (cpu.PPR.IC + 1, cpu.Ypair);
 		cpu.PPR.IC = save_ic;
 		cpu.cu.IWB = cpu.Ypair[0];
 		cpu.cu.IRODD = cpu.Ypair[1];

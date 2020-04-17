@@ -2289,6 +2289,8 @@ Exit:;
     return finalAddress;    // or 0 or -1???
   }
 
+#include "do_append_instruction_fetch.h"
+
 // Translate a segno:offset to a absolute address.
 // Return 0 if successful.
 

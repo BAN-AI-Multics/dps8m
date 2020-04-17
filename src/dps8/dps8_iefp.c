@@ -252,6 +252,162 @@ B29:;
     return ;//SCPE_UNK;
   }
 
+void Read_IF (word18 address, word36 * result)
+  {
+    cpu.TPR.CA = cpu.iefpFinalAddress = address;
+    bool isBAR = get_bar_mode ();
+
+    //if (get_went_appending () ||
+    if (cpu.cu.XSF)
+      {
+        goto B29;
+      }
+
+    switch (get_addr_mode ())
+      {
+        case ABSOLUTE_mode:
+          {
+            if (isBAR)
+              {
+                set_apu_status (apuStatus_FABS); // XXX maybe...
+                cpu.iefpFinalAddress = get_BAR_address (address);
+                fauxDoAppendCycle (INSTRUCTION_FETCH);
+                core_read (cpu.iefpFinalAddress, result, __func__);
+                sim_debug (DBG_FINAL, & cpu_dev,
+                           "Read (Actual) Read:       bar address=%08o  "
+                           "readData=%012"PRIo64"\n", address, *result);
+                HDBGMRead (cpu.iefpFinalAddress, * result, "Read ABS BAR");
+                return;
+              }
+            else 
+              {
+                set_apu_status (apuStatus_FABS);
+                fauxDoAppendCycle (INSTRUCTION_FETCH);
+                core_read (address, result, __func__);
+                sim_debug (DBG_FINAL, & cpu_dev,
+                           "Read (Actual) Read:       abs address=%08o  "
+                           "readData=%012"PRIo64"\n", address, *result);
+                HDBGMRead (address, * result, "Read ABS");
+                return;
+              }
+          }
+
+        case APPEND_mode:
+          {
+B29:;
+            if (isBAR)
+              {
+                cpu.TPR.CA = get_BAR_address (address);
+		cpu.TPR.TSR = cpu.PPR.PSR;
+		cpu.TPR.TRR = cpu.PPR.PRR;
+                cpu.iefpFinalAddress = do_append_cycle_IF (result, 1);
+                sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, 
+                           "Read (Actual) Read:  bar iefpFinalAddress=%08o  "
+                           "readData=%012"PRIo64"\n",
+                           cpu.iefpFinalAddress, * result);
+                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, * result, "Read BAR");
+
+                return;
+              }
+            else 
+              {
+                cpu.iefpFinalAddress = do_append_cycle_IF (result, 1);
+                // XXX Don't trace Multics idle loop
+                if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307)
+                  {
+                    sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
+                               "Read (Actual) Read:  iefpFinalAddress=%08o  "
+                               "readData=%012"PRIo64"\n",
+                               cpu.iefpFinalAddress, * result);
+                    HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, * result, "Read");
+                  }
+              }
+            return;
+          }
+      }
+    return ;//SCPE_UNK;
+  }
+
+void Read2_IF (word18 address, word36 * result)
+  {
+    cpu.TPR.CA = cpu.iefpFinalAddress = address;
+
+    bool isBAR = get_bar_mode ();
+
+    //if (get_went_appending () ||
+    if (cpu.cu.XSF)
+      {
+        goto B29;
+      }
+
+    switch (get_addr_mode ())
+      {
+        case ABSOLUTE_mode:
+          {
+            if (isBAR)
+              {
+                set_apu_status (apuStatus_FABS); // XXX maybe...
+                cpu.iefpFinalAddress = get_BAR_address (address);
+        
+                fauxDoAppendCycle (INSTRUCTION_FETCH);
+                core_read2 (cpu.iefpFinalAddress, result + 0, result + 1,
+                            __func__);
+                HDBGMRead (cpu.iefpFinalAddress, * result, "Read2 ABBR evn");
+                HDBGMRead (cpu.iefpFinalAddress+1, * (result+1), "Read2 ABBR odd");
+                return;
+              }
+            else
+              {
+                set_apu_status (apuStatus_FABS);
+                fauxDoAppendCycle (INSTRUCTION_FETCH);
+                core_read2 (address, result + 0, result + 1, __func__);
+                HDBGMRead (cpu.iefpFinalAddress, * result, "Read2 AB evn");
+                HDBGMRead (cpu.iefpFinalAddress+1, * (result+1), "Read2 AB odd");
+                return;
+              }
+          }
+
+        case APPEND_mode:
+          {
+B29:;
+            if (isBAR)
+              {
+                cpu.TPR.CA = get_BAR_address (address);
+		cpu.TPR.TSR = cpu.PPR.PSR;
+		cpu.TPR.TRR = cpu.PPR.PRR;
+                cpu.iefpFinalAddress = do_append_cycle_IF (result, 2);
+                if_sim_debug (DBG_APPENDING, & cpu_dev)
+                  {
+                    for (uint i = 0; i < 2; i ++)
+                      sim_debug (DBG_APPENDING, & cpu_dev,
+                                 "Read2 (Actual) Read:  bar iefpFinalAddress="
+                                 "%08o  readData=%012"PRIo64"\n", 
+                                 cpu.iefpFinalAddress + i, result [i]);
+                  }
+                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, * result, "Read2 BR evn");
+                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + 1, * (result+1), "Read2 BR odd");
+                return;
+              }
+            else
+              {
+                cpu.iefpFinalAddress = do_append_cycle_IF (result, 2);
+                if_sim_debug (DBG_APPENDING, & cpu_dev)
+                  {
+                    for (uint i = 0; i < 2; i ++)
+                      sim_debug (DBG_APPENDING, & cpu_dev, 
+                                 "Read2 (Actual) Read:  iefpFinalAddress=%08o"
+                                 "  readData=%012"PRIo64"\n",
+                                 cpu.iefpFinalAddress + i, result [i]);
+                  }
+                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, * result, "Read2 evn");
+                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA+1, * (result+1), "Read2 odd");
+              }
+            return;
+          }
+      }
+    return ;//SCPE_UNK;
+  }
+
 void Read8 (word18 address, word36 * result, bool isAR)
   {
     cpu.TPR.CA = cpu.iefpFinalAddress = address;
