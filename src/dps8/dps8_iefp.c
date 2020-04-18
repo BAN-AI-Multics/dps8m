@@ -300,7 +300,7 @@ B29:;
                 cpu.TPR.CA = get_BAR_address (address);
 		cpu.TPR.TSR = cpu.PPR.PSR;
 		cpu.TPR.TRR = cpu.PPR.PRR;
-                cpu.iefpFinalAddress = do_append_cycle_IF (result, 1);
+                cpu.iefpFinalAddress = do_append_instruction_fetch (result, 1);
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, 
                            "Read (Actual) Read:  bar iefpFinalAddress=%08o  "
                            "readData=%012"PRIo64"\n",
@@ -311,7 +311,7 @@ B29:;
               }
             else 
               {
-                cpu.iefpFinalAddress = do_append_cycle_IF (result, 1);
+                cpu.iefpFinalAddress = do_append_instruction_fetch (result, 1);
                 // XXX Don't trace Multics idle loop
                 if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307)
                   {
@@ -375,7 +375,7 @@ B29:;
                 cpu.TPR.CA = get_BAR_address (address);
 		cpu.TPR.TSR = cpu.PPR.PSR;
 		cpu.TPR.TRR = cpu.PPR.PRR;
-                cpu.iefpFinalAddress = do_append_cycle_IF (result, 2);
+                cpu.iefpFinalAddress = do_append_instruction_fetch (result, 2);
                 if_sim_debug (DBG_APPENDING, & cpu_dev)
                   {
                     for (uint i = 0; i < 2; i ++)
@@ -390,7 +390,7 @@ B29:;
               }
             else
               {
-                cpu.iefpFinalAddress = do_append_cycle_IF (result, 2);
+                cpu.iefpFinalAddress = do_append_instruction_fetch (result, 2);
                 if_sim_debug (DBG_APPENDING, & cpu_dev)
                   {
                     for (uint i = 0; i < 2; i ++)

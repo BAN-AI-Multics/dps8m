@@ -1195,7 +1195,7 @@ static char *str_pct (processor_cycle_type t)
 
 // CANFAULT
 
-word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
+static word24 do_append_cycle_generic (processor_cycle_type thisCycle, word36 * data,
                       uint nWords)
   {
     DCDstruct * i = & cpu.currentInstruction;
@@ -1959,6 +1959,9 @@ HI:
       {
         core_writeN (finalAddress, data, nWords, str_pct (thisCycle));
       }
+    else if (thisCycle == ABSA_CYCLE)
+      {
+      }
     else
       {
 #ifdef LOCKLESS
@@ -2290,6 +2293,56 @@ Exit:;
   }
 
 #include "do_append_instruction_fetch.h"
+#include "do_append_absa.h"
+#include "do_append_operand_store.h"
+#include "do_append_operand_read.h"
+#include "do_append_operand_rmw.h"
+#include "do_append_data_read.h"
+#include "do_append_data_store.h"
+#include "do_append_data_rmw.h"
+#include "do_append_rtcd_operand_fetch.h"
+#include "do_append_indirect_word_fetch.h"
+
+word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
+                      uint nWords)
+  {
+    switch (thisCycle)
+      {
+        case UNKNOWN_CYCLE:
+          return do_append_cycle_generic (thisCycle, data, nWords);
+        case OPERAND_STORE:
+          return do_append_operand_store (data, nWords);
+        case OPERAND_READ:
+          return do_append_operand_read (data, nWords);
+        case INDIRECT_WORD_FETCH:
+          return do_append_indirect_word_fetch (data, nWords);
+        case RTCD_OPERAND_FETCH:
+          return do_append_rtcd_operand_fetch (data, nWords);
+        //case INSTRUCTION_FETCH:
+          //return do_append_cycle_generic (thisCycle, data, nWords);
+        case APU_DATA_READ:
+          return do_append_data_read (data, nWords);
+        case APU_DATA_STORE:
+          return do_append_data_store (data, nWords);
+        //case ABSA_CYCLE:
+          //return do_append_cycle_generic (thisCycle, data, nWords);
+#ifdef LOCKLESS
+        case OPERAND_RMW:
+          return do_append_operand_rmw (data, nWords);
+        case APU_DATA_RMW:
+          return do_append_data_rmw (data, nWords);
+#endif
+        default:
+          sim_printf ("oops\n");
+          exit (1);
+      }
+  }
+
+
+void APU_cache_invalidate (void)
+  {
+    APU_cache_invalidate_IF ();
+  }
 
 // Translate a segno:offset to a absolute address.
 // Return 0 if successful.

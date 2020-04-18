@@ -8490,6 +8490,7 @@ elapsedtime ();
             cpu.PTW0.FE = 0;
             cpu.PTW0.USE = 0;
 #endif
+            APU_cache_invalidate ();
           }
           break;
 
@@ -8547,6 +8548,7 @@ elapsedtime ();
             cpu.SDW0.FE = 0;
             cpu.SDW0.USE = 0;
 #endif
+            APU_cache_invalidate ();
   }
           break;
 
@@ -10540,7 +10542,8 @@ static int doABSA (word36 * result)
     // ISOLTS-860 02
     //   res = (word36) do_append_cycle (cpu.TPR.CA & MASK18, ABSA_CYCLE, NULL,
     //                                   0) << 12;
-    res = (word36) do_append_cycle (ABSA_CYCLE, NULL, 0) << 12;
+    //res = (word36) do_append_cycle (ABSA_CYCLE, NULL, 0) << 12;
+    res = (word36) do_append_absa () << 12;
 
     * result = res;
 
