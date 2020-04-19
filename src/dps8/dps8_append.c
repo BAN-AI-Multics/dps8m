@@ -1195,6 +1195,7 @@ static char *str_pct (processor_cycle_type t)
 
 // CANFAULT
 
+#if 0
 static word24 do_append_cycle_generic (processor_cycle_type thisCycle, word36 * data,
                       uint nWords)
   {
@@ -2291,6 +2292,7 @@ Exit:;
 
     return finalAddress;    // or 0 or -1???
   }
+#endif
 
 #include "do_append_instruction_fetch.h"
 #include "do_append_absa.h"
@@ -2308,8 +2310,8 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
   {
     switch (thisCycle)
       {
-        case UNKNOWN_CYCLE:
-          return do_append_cycle_generic (thisCycle, data, nWords);
+        // case UNKNOWN_CYCLE:
+          // return do_append_cycle_generic (thisCycle, data, nWords);
         case OPERAND_STORE:
           return do_append_operand_store (data, nWords);
         case OPERAND_READ:
