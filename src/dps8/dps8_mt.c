@@ -592,7 +592,7 @@ static void unloadTape (uint driveNumber)
         break;
     if (ctlr_port_num >= MAX_CTLR_PORTS)
       {
-        sim_printf ("loadTape can't file controller; dropping interrupt\n");
+        sim_printf ("unloadTape can't file controller; dropping interrupt\n");
         return;
       }
     uint iom_unit_idx = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
