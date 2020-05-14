@@ -3832,6 +3832,9 @@ static void dps8_init (void)
     signal (SIGUSR1, usr1_signal_handler);
 #endif
 
+// On line 4,739 of the libuv man page, it recommends this.
+    signal(SIGPIPE, SIG_IGN);
+
 #ifdef SCUMEM
 #warn SCUMEM not working with new shared memory model
 #endif
