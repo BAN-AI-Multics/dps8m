@@ -440,7 +440,7 @@ sim_printf ("\n");
 }
 #endif
     uint j = 0;
-    for (int i = 0; i < n_chars; i += 4, j++)
+    for (uint i = 0; i < n_chars; i += 4, j++)
       {
         word36 v = 0;
         if (i < linep->nPos)
@@ -962,7 +962,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 // XXX This code assumes that only 'frame_end' is in play, as in Kermit behavior
             linep->buffer[linep->nPos++] = kar;
             // Pad to frame size with nulls
-            int frsz = (int) linep->block_xfer_in_frame_sz;
+            uint frsz = linep->block_xfer_in_frame_sz;
             while ((size_t) linep->nPos < sizeof (linep->buffer) && linep->nPos < frsz)
               linep->buffer[linep->nPos++] = 0;
             linep->accept_input = 1;
@@ -1064,10 +1064,10 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
         ((linep->block_xfer_out_frame_sz != 0)
           ?
             // block xfer buffer size met
-            (linep->nPos >= (int) linep->block_xfer_out_frame_sz)
+            (linep->nPos >= linep->block_xfer_out_frame_sz)
           :
             // 'listen' command buffer size met
-            (linep->inputBufferSize != 0 && linep->nPos >= (int) linep->inputBufferSize))
+            (linep->inputBufferSize != 0 && linep->nPos >= linep->inputBufferSize))
         )  
       {
         linep->accept_input = 1;
@@ -2001,7 +2001,7 @@ static t_stat fnpSetFW (UNIT * uptr, UNUSED int32 value,
 
     if (strcasecmp (tok, "LIST") == 0)
       {
-        for (uint i = 0; i < n_fw_entries; i ++)
+        for (int i = 0; i < n_fw_entries; i ++)
           {
             struct fw_entry_s * p = fw_entries + i;
 

@@ -1036,7 +1036,7 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
     bool accept = true;
     uint32_t ip_addr = (uint32_t) ((oct1 << 24) | (oct2 << 16) | (oct3 << 8) | oct4);
     uint this_line = encodeline (fnpno, lineno);
-    for (uint i = 0; i < n_fw_entries; i ++)
+    for (int i = 0; i < n_fw_entries; i ++)
       {
         struct fw_entry_s * p = fw_entries + i;
         if (this_line < p->line_0 || this_line > p->line_1)
