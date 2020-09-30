@@ -689,7 +689,6 @@ static int mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
       p -> stati |= 1;
     tape_statep -> rec_num ++;
     tapeStatus = dataOK;
-    p -> initiate = false; 
 
 ddcws:;
 
@@ -774,6 +773,7 @@ ddcws:;
 #endif
             iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                     & tape_statep -> words_processed, true);
+            p -> initiate = false; 
             if (p -> tallyResidue)
               {
                 sim_debug (DBG_WARN, & tape_dev,
@@ -862,6 +862,7 @@ loop:;
 
     iom_indirect_data_service (iomUnitIdx, chan, buffer,
                             & tape_statep -> words_processed, false);
+    p -> initiate = false; 
 
 #if 0
             if (tape_statep -> is9) {
@@ -1094,6 +1095,7 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
         cnt ++;
       }
     iom_indirect_data_service (iomUnitIdx, chan, buffer, & bufsz, true);
+    p -> initiate = false; 
     p -> stati = 04000;
     return 0;
   }
@@ -1262,6 +1264,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             word36 control;
 	    uint count;
             iom_indirect_data_service (iomUnitIdx, chan, & control, &count, false);
+            p -> initiate = false; 
 //sim_printf ("control %012"PRIo64"\n", control);
 //sim_printf ("  addr %012"PRIo64" tally %012"PRIo64"\n", getbits36_16 (control, 0), getbits36_16 (control, 16));
 	    if (count != 1)
@@ -1393,8 +1396,8 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
                 putbits36_18 (buf + i, 18, mem [i * 2 + 1]);
               }
             iom_indirect_data_service (iomUnitIdx, chan, buf, & tally, true);
-            p -> stati = 04000;
             p -> initiate = false; 
+            p -> stati = 04000;
           }
           break;
 
@@ -1510,6 +1513,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
             word36 control;
 	    uint count;
             iom_indirect_data_service (iomUnitIdx, chan, & control, &count, false);
+            p -> initiate = false; 
 //sim_printf ("control %012"PRIo64"\n", control);
 //sim_printf ("  addr %012"PRIo64" tally %012"PRIo64"\n", getbits36_16 (control, 0), getbits36_16 (control, 16));
             if (count != 1)
@@ -1529,7 +1533,6 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
         case 040:               // CMD 040 -- Reset Status
           {
             p -> stati = 04000;
-            p -> initiate = false;
             p -> isRead = false;
             if (dev_code)
               {

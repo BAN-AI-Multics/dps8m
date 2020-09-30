@@ -714,10 +714,10 @@ static void sendConsole (int conUnitIdx, word12 stati)
       }
 
     iom_indirect_data_service (iomUnitIdx, chan_num, buf, & n_words, true);
+    p->initiate = false;
 
     p->charPos = n_chars % 4;
     p->stati = (word12) stati;
-    p->initiate = false;
 
     csp->readp = csp->buf;
     csp->tailp = csp->buf;
@@ -750,11 +750,14 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
         return IOM_CMD_ERROR;
       }
 
+// POLTS issues PTP commands.
+#if 0
     if (p->PCW_63_PTP)
       {
         sim_warn ("PTP in console\n");
         return IOM_CMD_ERROR;
       }
+#endif
 
     p->dev_code = p->IDCW_DEV_CODE;
     p->stati = 0;
@@ -1016,6 +1019,7 @@ sim_warn ("uncomfortable with this\n");
 
                 word36 buf[tally];
                 iom_indirect_data_service (iomUnitIdx, chan, buf, & tally, false);
+                p->initiate = false;
 
                 // Tally is in words, not chars.
                 char text[tally * 4 + 1];
@@ -1096,7 +1100,6 @@ sim_warn ("uncomfortable with this\n");
                 newlineOn ();
 #endif
                 p->stati = 04000;
-                p->initiate = false;
 
                if (p->DDCW_22_23_TYPE != 0)
                  sim_warn ("curious... a console write with more than one "

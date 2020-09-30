@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2007-2013 Michael Mondy
  Copyright 2012-2016 by Harry Reed
- Copyright 2013-2017 by Charles Anthony
+ Copyright 2013-2017,2020 by Charles Anthony
  Copyright 2016 by Michal Tomek
 
  All rights reserved.
@@ -3635,6 +3635,7 @@ static CTAB dps8_cmds[] =
     {"POLL",                set_sys_polling_interval, 0, "Set polling interval in milliseconds", NULL, NULL },
     {"SLOWPOLL",            set_sys_slow_polling_interval, 0, "Set slow polling interval in polling intervals", NULL, NULL },
     {"CHECKPOLL",           set_sys_poll_check_rate, 0, "Set slow polling interval in polling intervals", NULL, NULL },
+    {"BURST",               burst_printer,           0, "Burst output from printrt", NULL, NULL },
 
 //
 // Debugging

@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2007-2013 Michael Mondy
  Copyright 2012-2016 by Harry Reed
- Copyright 2013-2016 by Charles Anthony
+ Copyright 2013-2016,2020 by Charles Anthony
 
  All rights reserved.
 
@@ -16,3 +16,4 @@ extern UNIT prt_unit [N_PRT_UNITS_MAX];
 
 void prt_init(void);
 int prt_iom_cmd (uint iomUnitIdx, uint chan);
+t_stat burst_printer (UNUSED int32 arg, const char * buf);

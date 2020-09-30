@@ -490,6 +490,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
             uint wordsProcessed = 0;
             iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                     & wordsProcessed, false);
+            p -> initiate = false;
 
 #if 0
 sim_printf ("tally %d\n", p-> DDCW_TALLY);
@@ -559,7 +560,6 @@ sim_printf ("\n");
         case 040: // CMD 40 Reset status
           {
             p -> stati = 04000;
-            p -> initiate = false;
             p -> isRead = false;
             sim_debug (DBG_NOTIFY, & pun_dev, "Reset status %ld\n", pun_unit_num);
           }

@@ -457,7 +457,6 @@ empty:;
           //p -> stati = 04205; // hopper empty, "last batch" button pressed
           //p -> stati = 04200; // offline
           //p -> stati = 04240; // data alert
-          p -> initiate = false;
           p -> tallyResidue = 0;
 sim_printf ("hopper empty\n");
           return IOM_CMD_ERROR;
@@ -677,7 +676,6 @@ for (uint i = 0; i < 27; i ++)
 sim_printf ("\n");
 #endif
     p -> stati = 04000;
-    p -> initiate = false;
 
     // Card images are 80 columns.
     uint tally = 27;
@@ -712,8 +710,8 @@ sim_printf ("\n");
 
     iom_indirect_data_service (iomUnitIdx, chan, buffer,
                             & tally, true);
-    p -> stati = 04000; // ok
     p -> initiate = false;
+    p -> stati = 04000; // ok
     p -> tallyResidue = (word12) tally & MASK12;
     p -> charPos = 0;
 
@@ -757,7 +755,6 @@ static int rdr_cmd (uint iomUnitIdx, uint chan)
         case 040: // CMD 40 Reset status
           {
             p -> stati = 04000;
-            p -> initiate = false;
             p -> isRead = false;
             sim_debug (DBG_NOTIFY, & rdr_dev, "Reset status\n");
           }
