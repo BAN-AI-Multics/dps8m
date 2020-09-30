@@ -2,6 +2,7 @@
  Copyright (c) 2007-2013 Michael Mondy
  Copyright 2012-2016 by Harry Reed
  Copyright 2013-2016 by Charles Anthony
+ Copyright 2020 by Dean Anderson
 
  All rights reserved.
 
@@ -57,6 +58,18 @@ static t_stat prt_show_nunits (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat prt_set_nunits (UNIT * uptr, int32 value, const char * cptr, void * desc);
 static t_stat prt_show_device_name (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat prt_set_device_name (UNIT * uptr, int32 value, const char * cptr, void * desc);
+static t_stat prt_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
+                              const char * cptr, UNUSED void * desc);
+static t_stat prt_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
+                               UNUSED int  val, UNUSED const void * desc);
+static t_stat prt_show_path (UNUSED FILE * st, UNIT * uptr,
+                                       UNUSED int val, UNUSED const void * desc);
+static t_stat prt_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
+                                    const UNUSED char * cptr, UNUSED void * desc);
+static t_stat prt_set_ready (UNIT * uptr, UNUSED int32 value,
+                             UNUSED const char * cptr,
+                             UNUSED void * desc);
+
 
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE )
@@ -128,6 +141,16 @@ static MTAB prt_mod [] =
       NULL // Help
     },
     {
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC, /* mask */
+      0,            /* match */
+      "PATH",     /* print string */
+      "PATH",         /* match string */
+      prt_set_path, /* validation routine */
+      prt_show_path, /* display routine */
+      "Path to write PRT files", /* value descriptor */
+      NULL // Help
+    },
+    {
       MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
       0,            /* match */
       "NAME",     /* print string */
@@ -137,7 +160,26 @@ static MTAB prt_mod [] =
       "Select the boot drive", /* value descriptor */
       NULL          // help
     },
-
+    {
+      MTAB_XTD | MTAB_VUN, /* mask */
+      0,            /* match */
+      (char *) "CONFIG",     /* print string */
+      (char *) "CONFIG",         /* match string */
+      prt_set_config,         /* validation routine */
+      prt_show_config, /* display routine */
+      NULL,          /* value descriptor */
+      NULL,            /* help */
+    },
+    {
+      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
+      0,            /* match */
+      "READY",     /* print string */
+      "READY",         /* match string */
+      prt_set_ready,         /* validation routine */
+      NULL, /* display routine */
+      NULL,          /* value descriptor */
+      NULL   // help string
+    },
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
   };
 
@@ -172,13 +214,18 @@ DEVICE prt_dev = {
     NULL
 };
 
-static struct prt_state
+typedef struct
   {
     char device_name [MAX_DEV_NAME_LEN];
     int prtfile; // fd
     //bool last;
     bool cachedFF;
-  } prt_state [N_PRT_UNITS_MAX];
+    bool split;
+  } prt_state_t;
+
+static prt_state_t prt_state [N_PRT_UNITS_MAX];
+
+static char prt_path[1025];
 
 /*
  * prt_init()
@@ -189,6 +236,7 @@ static struct prt_state
 
 void prt_init (void)
   {
+    memset (prt_path, 0, sizeof (prt_path));
     memset (prt_state, 0, sizeof (prt_state));
     for (int i = 0; i < N_PRT_UNITS_MAX; i ++)
       prt_state [i] . prtfile = -1;
@@ -343,11 +391,11 @@ static int mkstemps (char *pattern, int suffix_len)
 }
 #endif
 
-static void openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
+static int openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
   {
 //sim_printf ("openPrtFile\n");
     if (prt_state [prt_unit_num] . prtfile != -1)
-      return;
+      return 0;
 
 // The first (spooled) write is a formfeed; special case it and delay opening until
 // the next line
@@ -356,17 +404,31 @@ static void openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
     if (tally == 1 && buffer [0] == 0014013000000llu)
       {
         prt_state [prt_unit_num] . cachedFF = true;
-        return;
+        return 0;
       }
 
     char qno [6], name [LONGEST + 1];
     int rc = parseID (buffer, tally, qno, name);
     char template [129 + LONGEST];
+    char unit_designator = 'a' + (char) prt_unit_num;
+    char split_prefix[6];
+    split_prefix[0] = 0;
+    if (prt_state [prt_unit_num] . split) {
+      sprintf(split_prefix, "prt%c/", unit_designator);
+    }
     if (rc == 0)
-      sprintf (template, "prt%c.spool.XXXXXX.prt", 'a' + prt_unit_num);
+      sprintf (template, "%s%sprt%c.spool.XXXXXX.prt", prt_path, split_prefix, unit_designator);
     else
-      sprintf (template, "prt%c.spool.%s.%s.XXXXXX.prt", 'a' + prt_unit_num, qno, name);
+      sprintf (template, "%s%sprt%c.spool.%s.%s.XXXXXX.prt", prt_path, split_prefix, unit_designator, qno, name);
+
+    //sim_printf("++++ openPrtFile: %s\n", template);
+
     prt_state [prt_unit_num] . prtfile = mkstemps (template, 4);
+    if (prt_state[prt_unit_num].prtfile == -1)
+      {
+        sim_warn ("Unable to open printer file '%s', errno %d\n", template, errno);
+        return -1;
+      }
     if (prt_state [prt_unit_num] . cachedFF)
       {
         // 014 013 is slew to 013 (top of odd page?); just do a ff
@@ -376,6 +438,7 @@ static void openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
         write (prt_state [prt_unit_num] . prtfile, & cache, 1);
         prt_state [prt_unit_num] . cachedFF = false;
       }
+    return 0;
   }
 
 // looking for lines "\037\014%%%%%\037\005"
@@ -604,7 +667,14 @@ sim_printf ("\n");
 #endif
 
                 if (prt_state [prt_unit_num] . prtfile == -1)
-                  openPrtFile (prt_unit_num, buffer, tally);
+                  {
+                    int rc = openPrtFile (prt_unit_num, buffer, tally);
+                    if (rc == -1)
+                      {
+                        p->stati = 04201; // Out of paper
+                        return IOM_CMD_ERROR;
+                      }
+                  }
 
                 uint8 bytes [tally * 4];
                 for (uint i = 0; i < tally * 4; i ++)
@@ -760,4 +830,139 @@ static t_stat prt_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
+static t_stat prt_show_path (UNUSED FILE * st, UNIT * uptr,
+                                       UNUSED int val, UNUSED const void * desc)
+  {
+    sim_printf("Path to PRT files is %s\n", prt_path);
+    return SCPE_OK;
+  }
 
+static t_stat prt_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
+                                    const UNUSED char * cptr, UNUSED void * desc)
+  {
+    if (! cptr)
+      return SCPE_ARG;
+
+    size_t len = strlen(cptr);
+
+    if (len >= sizeof(prt_path))
+      return SCPE_ARG;
+    strncpy(prt_path, cptr, sizeof(prt_path));
+    if (len > 0)
+      {
+        if (prt_path[len - 1] != '/')
+          {
+            if (len == sizeof(prt_path) - 1)
+              return SCPE_ARG;
+            prt_path[len++] = '/';
+            prt_path[len] = 0;
+          }
+      }
+    return SCPE_OK;
+  }
+
+static t_stat signal_prt_ready (uint prt_unit_idx)
+  {
+    // Don't signal if the sim is not running....
+    if (! sim_is_running)
+      return SCPE_OK;
+    uint ctlr_unit_idx = cables->prt_to_urp[prt_unit_idx].ctlr_unit_idx;
+    // Which port should the controller send the interrupt to? All of them...
+    bool sent_one = false;
+    for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
+      {
+        struct ctlr_to_iom_s * urp_to_iom = & cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num];
+        if (urp_to_iom->in_use)
+          {
+            uint iom_unit_idx = urp_to_iom->iom_unit_idx;
+            uint chan_num = urp_to_iom->chan_num;
+            uint dev_code = cables->prt_to_urp[prt_unit_idx].dev_code;
+
+            send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0x40, 01 /* disk pack ready */);
+            sent_one = true;
+          }
+      }
+    if (! sent_one)
+      {
+        sim_printf ("signal_prt_ready can't find controller; dropping interrupt\n");
+        return SCPE_ARG;
+      }
+    return SCPE_OK;
+  }
+
+static t_stat prt_set_ready (UNIT * uptr, UNUSED int32 value,
+                             UNUSED const char * cptr,
+                             UNUSED void * desc)
+  {
+    int n = (int) PRT_UNIT_NUM (uptr);
+    if (n < 0 || n >= N_PRT_UNITS_MAX)
+      {
+        sim_debug (DBG_ERR, & prt_dev,
+                   "Printer set ready: Invalid unit number %d\n", n);
+        sim_printf ("error: invalid unit number %d\n", n);
+        return SCPE_ARG;
+      }
+    return signal_prt_ready ((uint) n);
+  }
+
+static config_value_list_t cfg_on_off[] =
+  {
+    { "off", 0 },
+    { "on", 1 },
+    { "disable", 0 },
+    { "enable", 1 },
+    { NULL, 0 }
+  };
+
+static config_list_t prt_config_list[] =
+  {
+   { "split", 0, 1, cfg_on_off },
+   { NULL, 0, 0, NULL }
+  };
+
+static t_stat prt_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
+                              const char * cptr, UNUSED void * desc)
+  {
+    int devUnitIdx = (int) PRT_UNIT_NUM (uptr);
+    prt_state_t * psp = prt_state + devUnitIdx;
+// XXX Minor bug; this code doesn't check for trailing garbage
+    config_state_t cfg_state = { NULL, NULL };
+
+    for (;;)
+      {
+        int64_t v;
+        int rc = cfg_parse (__func__, cptr, prt_config_list,
+                           & cfg_state, & v);
+        if (rc == -1) // done
+          break;
+
+        if (rc == -2) // error
+          {
+            cfg_parse_done (& cfg_state);
+            return SCPE_ARG;
+          }
+        const char * p = prt_config_list[rc].name;
+
+        if (strcmp (p, "split") == 0)
+          {
+            psp->split = v != 0;
+            continue;
+          }
+
+        sim_warn ("error: prt_set_config: invalid cfg_parse rc <%d>\n",
+                  rc);
+        cfg_parse_done (& cfg_state);
+        return SCPE_ARG;
+      } // process statements
+    cfg_parse_done (& cfg_state);
+    return SCPE_OK;
+  }
+
+static t_stat prt_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
+                               UNUSED int  val, UNUSED const void * desc)
+  {
+    int devUnitIdx = (int) PRT_UNIT_NUM (uptr);
+    prt_state_t * psp = prt_state + devUnitIdx;
+    sim_msg ("split:  %d\n", psp->split);
+    return SCPE_OK;
+  }
