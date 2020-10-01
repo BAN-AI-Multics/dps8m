@@ -552,13 +552,7 @@ enum {
 #define F_N             (1LLU << F_V_N)
 #define F_O             (1LLU << F_V_O)
 
-#ifdef DPS8M
-#define I_HEX   F_O     // base-16 exponent                 0000010
-#endif
-#define I_ABS   F_N     // absolute mode                    0000020
-#define I_MIF   F_M     // mid-instruction interrupt fault  0000040
-#define I_TRUNC F_L     // truncation                       0000100
-#define I_NBAR  F_K     // not BAR mode                     0000200
+#define I_MM    F_K     // master mode                      0000200
 #define I_PMASK F_J     // parity mask                      0000400
 #define I_PERR  F_I     // parity error                     0001000
 #define I_TALLY F_H     // tally runout                     0002000
@@ -573,10 +567,7 @@ enum {
 #define I_ZNOC (I_ZERO | I_NEG | I_OFLOW | I_CARRY)
 #define I_ZNC (I_ZERO | I_NEG | I_CARRY)
 
-#define CLR_I_ABS   CLRF (cpu.cu.IR, I_ABS)
-#define CLR_I_MIF   CLRF (cpu.cu.IR, I_MIF)
-#define CLR_I_TRUNC CLRF (cpu.cu.IR, I_TRUNC)
-#define CLR_I_NBAR  CLRF (cpu.cu.IR, I_NBAR)
+#define CLR_I_MM    CLRF (cpu.cu.IR, I_MM)
 #define CLR_I_TALLY CLRF (cpu.cu.IR, I_TALLY)
 #define CLR_I_PMASK CLRF (cpu.cu.IR, I_PMASK)
 #define CLR_I_EOFL  CLRF (cpu.cu.IR, I_EOFL)
@@ -586,8 +577,7 @@ enum {
 #define CLR_I_NEG   CLRF (cpu.cu.IR, I_NEG)
 #define CLR_I_ZERO  CLRF (cpu.cu.IR, I_ZERO)
 
-#define SET_I_ABS   SETF (cpu.cu.IR, I_ABS)
-#define SET_I_NBAR  SETF (cpu.cu.IR, I_NBAR)
+#define SET_I_MM    SETF (cpu.cu.IR, I_MM)
 #define SET_I_TRUNC SETF (cpu.cu.IR, I_TRUNC)
 #define SET_I_TALLY SETF (cpu.cu.IR, I_TALLY)
 #define SET_I_EOFL  SETF (cpu.cu.IR, I_EOFL)
@@ -599,7 +589,7 @@ enum {
 
 #define TST_I_ABS   TSTF (cpu.cu.IR, I_ABS)
 #define TST_I_MIF   TSTF (cpu.cu.IR, I_MIF)
-#define TST_I_NBAR  TSTF (cpu.cu.IR, I_NBAR)
+#define TST_I_MM    TSTF (cpu.cu.IR, I_MM)
 #define TST_I_PMASK TSTF (cpu.cu.IR, I_PMASK)
 #define TST_I_TRUNC TSTF (cpu.cu.IR, I_TRUNC)
 #define TST_I_TALLY TSTF (cpu.cu.IR, I_TALLY)
@@ -612,10 +602,6 @@ enum {
 #define TST_I_ZERO  TSTF (cpu.cu.IR, I_ZERO)
 #define TST_I_HEX   TSTF (cpu.cu.IR, I_HEX)
 
-#ifdef DPS8M
-#define SC_I_HEX(v)   SCF (v, cpu.cu.IR, I_HEX)
-#endif
-#define SC_I_MIF(v)   SCF (v, cpu.cu.IR, I_MIF)
 #define SC_I_TALLY(v) SCF (v, cpu.cu.IR, I_TALLY)
 #define SC_I_NEG(v)   SCF (v, cpu.cu.IR, I_NEG)
 #define SC_I_ZERO(v)  SCF (v, cpu.cu.IR, I_ZERO)
@@ -1466,12 +1452,7 @@ typedef enum {
 //
 
 enum { N_HIST_SETS = 4 };
-#ifdef DPS8M
-enum { N_HIST_SIZE = 64 };
-#endif
-#ifdef L68
 enum { N_HIST_SIZE = 16 };
-#endif
 
 // Bit in CU history register word 0
 
@@ -1586,12 +1567,7 @@ enum
   };
 
 
-#ifdef DPS8M
-enum { CU_HIST_REG = 0, DU_OU_HIST_REG = 1, APU_HIST_REG = 2, EAPU_HIST_REG = 3 };
-#endif
-#ifdef L68
 enum { CU_HIST_REG = 0, DU_HIST_REG = 1, OU_HIST_REG = 2, APU_HIST_REG = 3 };
-#endif
 
 
 #endif // DPS8_HW_CONSTS_H

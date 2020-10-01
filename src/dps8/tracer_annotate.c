@@ -569,14 +569,7 @@ void traceInstruction (int cnt, struct record cpu, uint cpun)
         strncpy (last_compname, compname, sizeof (last_compname));
       }
 
-    if (TST_I_ABS)
-      {
-        printf ("%6d %d %06o %s\n", cnt, cpun, cpu.PPR.IC, where);
-      }
-    else
-      {
-         printf ("%6d %d %05o:%06o %s\n", cnt, cpun, cpu.PPR.PSR, cpu.PPR.IC, where);
-      }
+    printf ("%6d %d %06o %s\n", cnt, cpun, cpu.PPR.IC, where);
     list_source (compname, compoffset);
   }
 

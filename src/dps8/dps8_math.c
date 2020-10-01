@@ -431,24 +431,6 @@ float36 IEEEdoubleTofloat36(double f0)
  */
 
 
-#ifdef HEX_MODE
-//#define HEX_SIGN (SIGN72 | BIT71 | BIT70 | BIT69 | BIT68)
-//#define HEX_MSB  (         BIT71 | BIT70 | BIT69 | BIT68)
-#ifdef NEED_128
-#define HEX_SIGN construct_128 (0xF0, 0)
-#define HEX_MSB  consturct_128 (0x70, 0)
-#define HEX_NORM construct_128 (0x78, 0)
-#else
-#define HEX_SIGN (SIGN72 | BIT71 | BIT70 | BIT69)
-#define HEX_MSB  (         BIT71 | BIT70 | BIT69)
-#define HEX_NORM (         BIT71 | BIT70 | BIT69 | BIT68)
-#endif
-
-static inline bool isHex (void)
-  {
-    return (!!cpu.MR.hexfp) && (!!TST_I_HEX);
-  }
-#endif
 
 /*!
  * unnormalized floating single-precision add
@@ -472,12 +454,6 @@ void ufa (bool sub)
     // * C(E) is increased by one.
 
     CPTUR (cptUseE);
-#ifdef HEX_MODE
-    uint shift_amt = isHex() ? 4 : 1;
-    //uint shift_msk = isHex() ? 017 : 1;
-    //word72 sign_msk = isHex() ? HEX_SIGN : SIGN72;
-    //word72 sign_msb = isHex() ? HEX_MSB  : BIT71;
-#endif
     word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
     // 28-bit mantissa (incl sign)
@@ -503,13 +479,8 @@ void ufa (bool sub)
        if (iszero_128 (m2)) 
            m2zero = 1;
        if (iseq_128 (m2, SIGN72)) {  // -1.0 -> 0.5, increase exponent, ISOLTS-735 08i,j
-#ifdef HEX_MODE
-           m2 = rshift_128 (m2, shift_amt);
-           e2 += 1;
-#else // ! HEX_MODE
            m2 = rshift_128 (m2, 1);
            e2 += 1;
-#endif // ! HEX_MODE
        } else
            m2 = and_128 (negate_128 (m2), MASK72);
     }
@@ -517,13 +488,8 @@ void ufa (bool sub)
        if (m2 == 0) 
            m2zero = 1;
        if (m2 == SIGN72) {  // -1.0 -> 0.5, increase exponent, ISOLTS-735 08i,j
-#ifdef HEX_MODE
-           m2 >>= shift_amt;
-           e2 += 1;
-#else // ! HEX_MODE
            m2 >>= 1;
            e2 += 1;
-#endif // ! HEX_MODE
        } else
            m2 = (-m2) & MASK72;
     }
@@ -533,9 +499,7 @@ void ufa (bool sub)
     int e3 = -1;
 
     // which exponent is smaller?
-#ifdef L68
     cpu.ou.cycle |= ou_GOE;   
-#endif
     int shift_count = -1;
     word1 allones = 1;
     word1 notallzeros = 0;
@@ -547,11 +511,7 @@ void ufa (bool sub)
     }
     else if (e1 < e2)
     {
-#ifdef HEX_MODE
-        shift_count = abs(e2 - e1) * (int) shift_amt;
-#else
         shift_count = abs(e2 - e1);
-#endif
 #ifdef NEED_128
         bool sign = isnonzero_128 (and_128 (m1, SIGN72)); // mantissa negative?
         for(int n = 0 ; n < shift_count ; n += 1)
@@ -563,13 +523,8 @@ void ufa (bool sub)
             if (sign)
                 m1 = or_128 (m1, SIGN72);
         }
-#ifdef HEX_MODE
-        if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = construct_128 (0, 0);
-#else
         if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count > 71)
             m1 = construct_128 (0, 0);
-#endif
         m1 = and_128 (m1, MASK72);
         e3 = e2;
 #else
@@ -584,13 +539,8 @@ void ufa (bool sub)
                 m1 |= SIGN72;
         }
         
-#ifdef HEX_MODE
-        if (m1 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = 0;
-#else
         if (m1 == MASK72 && notallzeros == 1 && shift_count > 71)
             m1 = 0;
-#endif
         m1 &= MASK72;
         e3 = e2;
 #endif // NEED_128
@@ -598,11 +548,7 @@ void ufa (bool sub)
     else
     {
         // e2 < e1;
-#ifdef HEX_MODE
-        shift_count = abs(e1 - e2) * (int) shift_amt;
-#else
         shift_count = abs(e1 - e2);
-#endif
 #ifdef NEED_128
         bool sign = isnonzero_128 (and_128 (m2, SIGN72)); // mantissa negative?
         for(int n = 0 ; n < shift_count ; n += 1)
@@ -614,13 +560,8 @@ void ufa (bool sub)
             if (sign)
                 m2 = or_128 (m2, SIGN72);
         }
-#ifdef HEX_MODE
-        if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m2 = construct_128 (0, 0);
-#else
         if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count > 71)
             m2 = construct_128 (0, 0);
-#endif
         m2 = and_128 (m2, MASK72);
         e3 = e1;
 #else
@@ -634,13 +575,8 @@ void ufa (bool sub)
             if (sign)
                 m2 |= SIGN72;
         }
-#ifdef HEX_MODE
-        if (m2 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-          m2 = 0;
-#else
         if (m2 == MASK72 && notallzeros == 1 && shift_count > 71)
           m2 = 0;
-#endif
         m2 &= MASK72;
         e3 = e1;
 #endif // NEED_128
@@ -657,73 +593,18 @@ void ufa (bool sub)
     if (ovf)
     {
 #ifdef NEED_128
-#ifdef HEX_MODE
-//        word72 signbit = m3 & sign_msk;
-//        m3 >>= shift_amt;
-//        m3 = (m3 & MASK71) | signbit;
-//        m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
-//        e3 += 1;
-        word72 s = and_128 (m3, SIGN72); // save the sign bit
-        if (isHex ())
-          {
-            m3 = rshift_128 (m3, shift_amt); // renormalize the mantissa
-            if (isnonzero_128 (s))
-              // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
-              m3 = and_128 (m3, MASK68);
-            else
-              // Sign is clr, number should be negative; set the sign bit and the 3 MSBs
-              m3 = or_128 (m3, HEX_SIGN);
-          }
-        else
-          {
-            word72 signbit = and_128 (m3, SIGN72);
-            m3 = rshift_128 (m3, 1);
-            m3 = and_128 (m3, MASK71);
-            m3 = or_128 (m3, signbit);
-            m3 = xor_128 (m3, SIGN72); // C(AQ)0 is inverted to restore the sign
-          }
-        e3 += 1;
-#else
         word72 signbit = and_128 (m3, SIGN72);
         m3 = rshift_128 (m3, 1);
         m3 = and_128 (m3, MASK71);
         m3 = or_128 (m3, signbit);
         m3 = xor_128 (m3, SIGN72); // C(AQ)0 is inverted to restore the sign
         e3 += 1;
-#endif
 #else // NEED_128
-#ifdef HEX_MODE
-//        word72 signbit = m3 & sign_msk;
-//        m3 >>= shift_amt;
-//        m3 = (m3 & MASK71) | signbit;
-//        m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
-//        e3 += 1;
-        word72 s = m3 & SIGN72; // save the sign bit
-        if (isHex ())
-          {
-            m3 >>= shift_amt; // renormalize the mantissa
-            if (s)
-              // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
-              m3 &= MASK68;
-            else
-              // Sign is clr, number should be negative; set the sign bit and the 3 MSBs
-              m3 |=  HEX_SIGN;
-          }
-        else
-          {
-            word72 signbit = m3 & SIGN72;
-            m3 >>= 1;
-            m3 = (m3 & MASK71) | signbit;
-            m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
-          }
-        e3 += 1;
-#else
         word72 signbit = m3 & SIGN72;
         m3 >>= 1;
         m3 = (m3 & MASK71) | signbit;
         m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
         e3 += 1;
-#endif
 #endif // NEED_128
     }
 
@@ -785,15 +666,7 @@ void fno (word8 * E, word36 * A, word36 * Q)
     //
     // If C(AQ) = 0, then C(E) is set to -128 and the zero indicator is set ON.
     
-#ifdef L68
     cpu.ou.cycle |= ou_GON;
-#endif
-#ifdef HEX_MODE
-    uint shift_amt = isHex() ? 4 : 1;
-    //uint shift_msk = isHex() ? 017 : 1;
-    //word72 sign_msk = isHex() ? HEX_SIGN : SIGN72;
-    //word72 sign_msb = isHex() ? HEX_NORM  : BIT71;
-#endif
     *A &= DMASK;
     *Q &= DMASK;
     float72 m = convert_to_word72 (* A, * Q);
@@ -802,28 +675,9 @@ void fno (word8 * E, word36 * A, word36 * Q)
         CLR_I_OFLOW;
 #ifdef NEED_128
         word72 s = and_128 (m, SIGN72); // save the sign bit
-#ifdef HEX_MODE
-        if (isHex ())
-          {
-            m = rshift_128 (m, shift_amt); // renormalize the mantissa
-            if (isnonzero_128 (s)) // sign of mantissa
-              // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
-              m = and_128 (m, MASK68);
-            else
-              // Sign is clr, number should be negative; set the sign bit and the 3 MSBs
-              m = or_128 (m, HEX_SIGN);
-          }
-        else
-          {
-            m = rshift_128 (m, 1); // renormalize the mantissa
-            m = or_128 (m, SIGN72); // set the sign bit
-            m = xor_128 (m, s); // if the was 0, leave it 1; if it was 1, make it 0
-          }
-#else
         m = rshift_128 (m, 1); // renormalize the mantissa
         m = or_128 (m, SIGN72); // set the sign bit
         m = xor_128 (m, s); // if the was 0, leave it 1; if it was 1, make it 0
-#endif
 
         // Zero: If C(AQ) = floating point 0, then ON; otherwise OFF
         if (iszero_128 (m))
@@ -845,28 +699,9 @@ void fno (word8 * E, word36 * A, word36 * Q)
         }
 #else
         word72 s = m & SIGN72; // save the sign bit
-#ifdef HEX_MODE
-        if (isHex ())
-          {
-            m >>= shift_amt; // renormalize the mantissa
-            if (s)
-              // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
-              m &= MASK68;
-            else
-              // Sign is clr, number should be negative; set the sign bit and the 3 MSBs
-              m |=  HEX_SIGN;
-          }
-        else
-          {
-            m >>= 1; // renormalize the mantissa
-            m |= SIGN72; // set the sign bit
-            m ^= s; // if the was 0, leave it 1; if it was 1, make it 0
-          }
-#else
         m >>= 1; // renormalize the mantissa
         m |= SIGN72; // set the sign bit
         m ^= s; // if the was 0, leave it 1; if it was 1, make it 0
-#endif
 
         // Zero: If C(AQ) = floating point 0, then ON; otherwise OFF
         if (m == 0)
@@ -915,98 +750,6 @@ void fno (word8 * E, word36 * A, word36 * Q)
     bool s = (m & SIGN72) != (word72)0;    ///< save sign bit
 #endif
 
-#ifdef HEX_MODE
-// Normalized in Hex Mode: If sign is 0, bits 1-4 != 0; if sign is 1,
-// bits 1-4 != 017.
-    if (isHex ())
-      {
-        if (s)
-          {
-            // Negative
-            // Until bits 1-4 != 014
-            // Termination guarantee: Zeros are being shifted into the right
-	  // end, so the loop will terminate when the first shifted
-            // zero enters bits 1-4.
-#ifdef NEED_128
-            while (iseq_128 (and_128 (m, HEX_NORM), HEX_NORM))
-              {
-//if (m == 0) // XXX: necessary??
-//    break;
-                m = lshift_128 (m, 4);
-                e -= 1;
-              }
-            m = and_128 (m, MASK71);
-            m = or_128 (m, SIGN72);
-#else
-            while ((m & HEX_NORM) == HEX_NORM) 
-              {
-//if (m == 0) // XXX: necessary??
-//    break;
-                m <<= 4;
-                e -= 1;
-              }
-            m &= MASK71;
-            m |= SIGN72;
-#endif
-          }
-        else
-          {
-#ifdef NEED_128
-            // Positive
-            // Until bits 1-4 != 0
-            // Termination guarantee: m is known to be non-zero; a non-zero
-            // bit will eventually be shifted into bits 1-4.
-            while (iszero_128 (and_128 (m, HEX_NORM)))
-              {
-                m = lshift_128 (m, 4);
-                e -= 1;
-              }
-            m = and_128 (m, MASK71);
-#else
-            // Positive
-            // Until bits 1-4 != 0
-            // Termination guarantee: m is known to be non-zero; a non-zero
-            // bit will eventually be shifted into bits 1-4.
-            while ((m & HEX_NORM) == 0)
-              {
-                m <<= 4;
-                e -= 1;
-              }
-            m &= MASK71;
-#endif
-          }
-      }
-    else
-      {
-#ifdef NEED_128
-        while (s  == isnonzero_128 (and_128 (m, BIT71))) // until C(AQ)0 != C(AQ)1?
-        {
-            m = lshift_128 (m, 1);
-            e -= 1;
-            //if (m == 0) // XXX: necessary??
-            //    break;
-        }
-
-        m = and_128 (m, MASK71);
-        
-        if (s)
-          m = or_128 (m, SIGN72);
-#else
-        while (s  == !! (m & BIT71)) // until C(AQ)0 != C(AQ)1?
-        {
-            m <<= 1;
-            e -= 1;
-            //if (m == 0) // XXX: necessary??
-            //    break;
-        }
-
-        m &= MASK71;
-        
-        if (s)
-          m |= SIGN72;
-#endif
-      }
-#else
 #ifdef NEED_128
     while (s  == isnonzero_128 (and_128 (m, BIT71))) // until C(AQ)0 != C(AQ)1?
     {
@@ -1033,7 +776,6 @@ void fno (word8 * E, word36 * A, word36 * Q)
         
     if (s)
       m |= SIGN72;
-#endif
 #endif
       
     if (e < -128)
@@ -1394,9 +1136,6 @@ static void fdvX(bool bInvert)
     //! 00...0 → C(Q)
   
     CPTUR (cptUseE);
-#ifdef HEX_MODE
-    uint shift_amt = isHex() ? 4 : 1;
-#endif
     word72 m1;
     int    e1;
     
@@ -1478,22 +1217,14 @@ static void fdvX(bool bInvert)
 #ifdef NEED_128
         if (iseq_128 (m1, SIGN72))
         {
-#ifdef HEX_MODE
-            m1 = rshift_128 (m1, shift_amt);
-#else
             m1 = rshift_128 (m1, 1);
-#endif
             e1 += 1;
         } else
             m1 = and_128 (negate_128 (m1), MASK72);
 #else
         if (m1 == SIGN72)
         {
-#ifdef HEX_MODE
-            m1 >>= shift_amt;
-#else
             m1 >>= 1;
-#endif
             e1 += 1;
         } else
             m1 = (~m1 + 1) & MASK72;
@@ -1508,11 +1239,7 @@ static void fdvX(bool bInvert)
     {
         if (iseq_128 (m2, SIGN72))
         {
-#ifdef HEX_MODE
-            m2 = rshift_128 (m2, shift_amt);
-#else
             m2 = rshift_128 (m2, 1);
-#endif
             e2 += 1;
         } else
             m2 = and_128 (negate_128 (m2), MASK72);
@@ -1523,11 +1250,7 @@ static void fdvX(bool bInvert)
     {
         if (m2 == SIGN72)
         {
-#ifdef HEX_MODE
-            m2 >>= shift_amt;
-#else
             m2 >>= 1;
-#endif
             e2 += 1;
         } else
             m2 = (~m2 + 1) & MASK72;
@@ -1564,11 +1287,7 @@ static void fdvX(bool bInvert)
                      // dividend exponent C(E) increased accordingly until | C(AQ)0,71 | < | C(Y)8,35 with zero fill |
     // We have already taken the absolute value so just shift it
     {
-#ifdef HEX_MODE
-        m1 = rshift_128 (m1, shift_amt);
-#else
         m1 = rshift_128 (m1, 1);
-#endif
         e1 += 1;
     }
 #else
@@ -1576,11 +1295,7 @@ static void fdvX(bool bInvert)
                      // dividend exponent C(E) increased accordingly until | C(AQ)0,71 | < | C(Y)8,35 with zero fill |
     // We have already taken the absolute value so just shift it
     {
-#ifdef HEX_MODE
-        m1 >>= shift_amt;
-#else
         m1 >>= 1;
-#endif
         e1 += 1;
     }
 #endif
@@ -1716,9 +1431,7 @@ void frd (void)
     // later models.) I'll assume AL39 is wrong.
     
     CPTUR (cptUseE);
-#ifdef L68
     cpu.ou.cycle |= ou_GOS;
-#endif
 
     word72 m = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
@@ -1799,9 +1512,7 @@ void fstr (word36 *Y)
     // located under the description of the fno instruction.  Attempted
     // repetition with the rpl instruction causes an illegal procedure fault.
     
-#ifdef L68
     cpu.ou.cycle |= ou_GOS;
-#endif
     word36 A = cpu . rA, Q = cpu . rQ;
     word8 E = cpu . rE;
     //A &= DMASK;
@@ -1898,12 +1609,7 @@ void fcmp(void)
     
     //which exponent is smaller???
     
-#ifdef L68
     cpu.ou.cycle = ou_GOE;
-#endif
-#ifdef HEX_MODE
-    uint shift_amt = isHex() ? 4 : 1;
-#endif
     int shift_count = -1;
     word1 notallzeros = 0;
     
@@ -1913,14 +1619,8 @@ void fcmp(void)
       }
     else if (e1 < e2)
       {
-#ifdef L68
         cpu.ou.cycle = ou_GOA;
-#endif
-#ifdef HEX_MODE
-        shift_count = abs(e2 - e1) * (int) shift_amt;
-#else
         shift_count = abs(e2 - e1);
-#endif
         // mantissa negative?
 #ifdef NEED_128
         bool s = isnonzero_128 (and_128 (m1, SIGN72));
@@ -1944,36 +1644,20 @@ void fcmp(void)
 #endif
           }
 #ifdef NEED_128
-#ifdef HEX_MODE
-        if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = construct_128 (0, 0);
-#else
         if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count > 71)
             m1 = construct_128 (0, 0);
-#endif
         m1 = and_128 (m1, MASK72);
 #else // NEED_128
-#ifdef HEX_MODE
-        if (m1 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = 0;
-#else
         if (m1 == MASK72 && notallzeros == 1 && shift_count > 71)
             m1 = 0;
-#endif
         m1 &= MASK72;
 #endif // NEED_128
       }
     else
       {
         // e2 < e1;
-#ifdef L68
         cpu.ou.cycle = ou_GOA;
-#endif
-#ifdef HEX_MODE
-        shift_count = abs(e1 - e2) * (int) shift_amt;
-#else
         shift_count = abs(e1 - e2);
-#endif
         // mantissa negative?
 #ifdef NEED_128
         bool s = isnonzero_128 (and_128 (m2, SIGN72));
@@ -1997,23 +1681,13 @@ void fcmp(void)
 #endif
           }
 #ifdef NEED_128
-#ifdef HEX_MODE
-        if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-          m2 = construct_128 (0, 0);
-#else
         if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count > 71)
           m2 = construct_128 (0, 0);
-#endif
         m2 = and_128 (m2, MASK72);
         //e3 = e1;
 #else
-#ifdef HEX_MODE
-        if (m2 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-          m2 = 0;
-#else
         if (m2 == MASK72 && notallzeros == 1 && shift_count > 71)
           m2 = 0;
-#endif
         m2 &= MASK72;
         //e3 = e1;
 #endif
@@ -2054,12 +1728,7 @@ void fcmg ()
     // number with the lower exponent is defined as zero.
 
     CPTUR (cptUseE);
-#ifdef L68
    cpu.ou.cycle = ou_GOS;
-#endif
-#ifdef HEX_MODE
-    uint shift_amt = isHex() ? 4 : 1;
-#endif
 #if 1
     // C(AQ)0,27
 #ifdef NEED_128
@@ -2082,9 +1751,7 @@ void fcmg ()
 
     //which exponent is smaller???
     
-#ifdef L68
     cpu.ou.cycle = ou_GOE;
-#endif
     int shift_count = -1;
     word1 notallzeros = 0;
     
@@ -2094,14 +1761,8 @@ void fcmg ()
       }
     else if (e1 < e2)
       {
-#ifdef L68
         cpu.ou.cycle = ou_GOA;
-#endif
-#ifdef HEX_MODE
-        shift_count = abs(e2 - e1) * (int) shift_amt;
-#else
         shift_count = abs(e2 - e1);
-#endif
 #ifdef NEED_128
         bool s = isnonzero_128 (and_128 (m1, SIGN72));
 #else
@@ -2125,22 +1786,12 @@ void fcmg ()
           }
 
 #ifdef NEED_128
-#ifdef HEX_MODE
-        if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = construct_128 (0, 0);
-#else
         if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count > 71)
             m1 = construct_128 (0, 0);
-#endif
         m1 = and_128 (m1, MASK72);
-#else
-#ifdef HEX_MODE
-        if (m1 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = 0;
 #else
         if (m1 == MASK72 && notallzeros == 1 && shift_count > 71)
             m1 = 0;
-#endif
         m1 &= MASK72;
 #endif
         //e3 = e2;
@@ -2148,14 +1799,8 @@ void fcmg ()
     else
       {
         // e2 < e1;
-#ifdef L68
         cpu.ou.cycle = ou_GOA;
-#endif
-#ifdef HEX_MODE
-        shift_count = abs(e1 - e2) * (int) shift_amt;
-#else
         shift_count = abs(e1 - e2);
-#endif
 #ifdef NEED_128
         bool s = isnonzero_128 (and_128 (m2, SIGN72));
 #else
@@ -2178,22 +1823,12 @@ void fcmg ()
 #endif
           }
 #ifdef NEED_128
-#ifdef HEX_MODE
-        if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m2 = construct_128 (0, 0);
-#else
         if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count > 71)
             m2 = construct_128 (0, 0);
-#endif
         m2 = and_128 (m2, MASK72);
-#else
-#ifdef HEX_MODE
-        if (m2 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m2 = 0;
 #else
         if (m2 == MASK72 && notallzeros == 1 && shift_count > 71)
             m2 = 0;
-#endif
         m2 &= MASK72;
 #endif
         //e3 = e1;
@@ -2333,13 +1968,7 @@ void dufa (bool subtract)
     // main memory (op2) is used.
 
     CPTUR (cptUseE);
-#ifdef L68
     cpu.ou.cycle |= ou_GOS;
-#endif
-#ifdef HEX_MODE
-    uint shift_amt = isHex() ? 4 : 1;
-#endif
-
     word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ);
     int e1 = SIGNEXT8_int (cpu . rE & MASK8); 
 
@@ -2363,26 +1992,16 @@ void dufa (bool subtract)
        if (iszero_128 (m2)) 
            m2zero = 1;
        if (iseq_128 (m2, SIGN72)) {
-#ifdef HEX_MODE
-           m2 = rshift_128 (m2, shift_amt);
-           e2 += 1;
-#else
            m2 = rshift_128 (m2, 1);
            e2 += 1;
-#endif
        } else
            m2 = and_128 (negate_128 (m2), MASK72);
 #else
        if (m2 == 0) 
            m2zero = 1;
        if (m2 == SIGN72) {
-#ifdef HEX_MODE
-           m2 >>= shift_amt;
-           e2 += 1;
-#else
            m2 >>= 1;
            e2 += 1;
-#endif
        } else
            m2 = (-m2) & MASK72;
 #endif
@@ -2392,9 +2011,7 @@ void dufa (bool subtract)
 
     // which exponent is smaller?
     
-#ifdef L68
     cpu.ou.cycle |= ou_GOE;
-#endif
     int shift_count = -1;
     word1 notallzeros = 0;
 
@@ -2405,14 +2022,8 @@ void dufa (bool subtract)
       }
     else if (e1 < e2)
       {
-#ifdef L68
         cpu.ou.cycle |= ou_GOA;
-#endif
-#ifdef HEX_MODE
-        shift_count = abs(e2 - e1) * (int) shift_amt;
-#else
         shift_count = abs(e2 - e1);
-#endif
         // mantissa negative?
 #ifdef NEED_128
         bool s = isnonzero_128 (and_128 (m1, SIGN72));
@@ -2436,22 +2047,12 @@ void dufa (bool subtract)
 #endif
           }
 #ifdef NEED_128
-#ifdef HEX_MODE
-        if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = construct_128 (0, 0);
-#else
         if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count > 71)
             m1 = construct_128 (0, 0);
-#endif
         m1 = and_128 (m1, MASK72);
-#else
-#ifdef HEX_MODE
-        if (m1 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = 0;
 #else
         if (m1 == MASK72 && notallzeros == 1 && shift_count > 71)
             m1 = 0;
-#endif
         m1 &= MASK72;
 #endif
         e3 = e2;
@@ -2459,14 +2060,8 @@ void dufa (bool subtract)
     else
       {
         // e2 < e1;
-#ifdef L68
         cpu.ou.cycle |= ou_GOA;
-#endif
-#ifdef HEX_MODE
-        shift_count = abs(e1 - e2) * (int) shift_amt;
-#else
         shift_count = abs(e1 - e2);
-#endif
 #ifdef NEED_128
         bool s = isnonzero_128 (and_128 (m2, SIGN72));
 #else
@@ -2489,22 +2084,12 @@ void dufa (bool subtract)
 #endif
           }
 #ifdef NEED_128
-#ifdef HEX_MODE
-        if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m2 = construct_128 (0, 0);
-#else
         if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count > 71)
             m2 = construct_128 (0, 0);
-#endif
         m2 = and_128 (m2, MASK72);
-#else
-#ifdef HEX_MODE
-        if (m2 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-          m2 = 0;
 #else
         if (m2 == MASK72 && notallzeros == 1 && shift_count > 71)
           m2 = 0;
-#endif
         m2 &= MASK72;
 #endif
         e3 = e1;
@@ -2518,60 +2103,11 @@ void dufa (bool subtract)
 
     if (ovf)
       {
-#ifdef HEX_MODE
-//        word72 signbit = m3 & sign_msk;
-//        m3 >>= shift_amt;
-//        m3 = (m3 & MASK71) | signbit;
-//        m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
-//        e3 += 1;
-        // save the sign bit
-#ifdef NEED_128
-        bool s = isnonzero_128 (and_128 (m3, SIGN72));
-#else
-        bool s = (m3 & SIGN72) != (word72)0;
-#endif
-        if (isHex ())
-          {
-#ifdef NEED_128
-            m3 = rshift_128 (m3, shift_amt); // renormalize the mantissa
-            if (s)
-              // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
-              m3 = and_128 (m3, MASK68);
-            else
-              // Sign is clr, number should be negative; set the sign bit and the 3 MSBs
-              m3 = or_128 (m3, HEX_SIGN);
-#else
-            m3 >>= shift_amt; // renormalize the mantissa
-            if (s)
-              // Sign is set, number should be positive; clear the sign bit and the 3 MSBs
-              m3 &= MASK68;
-            else
-              // Sign is clr, number should be negative; set the sign bit and the 3 MSBs
-              m3 |=  HEX_SIGN;
-#endif
-          }
-        else
-          {
-#ifdef NEED_128
-            word72 signbit = and_128 (m3, SIGN72);
-            m3 = rshift_128 (m3, 1); // renormalize the mantissa
-            m3 = or_128 (and_128 (m3, MASK71), signbit);
-            m3 = xor_128 (m3, SIGN72); // C(AQ)0 is inverted to restore the sign
-#else
-            word72 signbit = m3 & SIGN72;
-            m3 >>= 1;
-            m3 = (m3 & MASK71) | signbit;
-            m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
-#endif
-          }
-        e3 += 1;
-#else
         word72 signbit = m3 & SIGN72;
         m3 >>= 1;
         m3 = (m3 & MASK71) | signbit;
         m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
         e3 += 1;
-#endif
       }
 
     convert_to_word36 (m3, & cpu.rA, & cpu.rQ);
@@ -2688,9 +2224,7 @@ void dufm (void)
     // * Exp Undr: If exponent is less than -128, then ON
     
     CPTUR (cptUseE);
-#ifdef L68
     cpu.ou.cycle |= ou_GOS;
-#endif
     word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ);
     int    e1 = SIGNEXT8_int (cpu . rE & MASK8);
     
@@ -2879,12 +2413,7 @@ static void dfdvX (bool bInvert)
     //    C(AQ) / C(Y-pair)8,71 → C(AQ)0,63 00...0 → C(Q)64,71
     
     CPTUR (cptUseE);
-#ifdef L68
     cpu.ou.cycle |= ou_GOS;
-#endif
-#ifdef HEX_MODE
-    uint shift_amt = isHex() ? 4 : 1;
-#endif
     word72 m1;
     int    e1;
     
@@ -2978,11 +2507,7 @@ static void dfdvX (bool bInvert)
         SET_I_NEG; // in case of divide fault
         if (iseq_128 (m1, SIGN72))
         {
-#ifdef HEX_MODE
-            m1 = rshift_128 (m1, shift_amt);
-#else
             m1 = rshift_128 (m1, 1);
-#endif
             e1 += 1;
         } else
             m1 = and_128 (negate_128 (m1), MASK72);
@@ -2995,11 +2520,7 @@ static void dfdvX (bool bInvert)
     {
         if (iseq_128 (m2, SIGN72))
         {
-#ifdef HEX_MODE
-            m2 = rshift_128 (m2, shift_amt);
-#else
             m2 = rshift_128 (m2, 1);
-#endif
             e2 += 1;
         } else
             m2 = and_128 (negate_128 (m2), MASK72);
@@ -3011,11 +2532,7 @@ static void dfdvX (bool bInvert)
         SET_I_NEG; // in case of divide fault
         if (m1 == SIGN72)
         {
-#ifdef HEX_MODE
-            m1 >>= shift_amt;
-#else
             m1 >>= 1;
-#endif
             e1 += 1;
         } else
             m1 = (~m1 + 1) & MASK72;
@@ -3028,11 +2545,7 @@ static void dfdvX (bool bInvert)
     {
         if (m2 == SIGN72)
         {
-#ifdef HEX_MODE
-            m2 >>= shift_amt;
-#else
             m2 >>= 1;
-#endif
             e2 += 1;
         } else
             m2 = (~m2 + 1) & MASK72;
@@ -3063,27 +2576,17 @@ static void dfdvX (bool bInvert)
         doFault (FAULT_DIV, fst_zero, "DFDV: divide check fault");
       }
     
-#ifdef L68
     cpu.ou.cycle |= ou_GOA;
-#endif
 #ifdef NEED_128
     while (isge_128 (m1, m2))
       {
-#ifdef HEX_MODE
-        m1 = rshift_128 (m1, shift_amt);
-#else
         m1 = rshift_128 (m1, 1);
-#endif
         e1 += 1;
       }
 #else
     while (m1 >= m2)
       {
-#ifdef HEX_MODE
-        m1 >>= shift_amt;
-#else
         m1 >>= 1;
-#endif
         e1 += 1;
       }
 #endif
@@ -3101,9 +2604,7 @@ static void dfdvX (bool bInvert)
           dlyDoFault (FAULT_OFL, fst_zero, "dfdvX exp underflow fault");
       }
 
-#ifdef L68
     cpu.ou.cycle |= ou_GD1;
-#endif
 
     // We need 63 bits quotient + sign. Divisor is at most 64 bits.
     // Do a 127 by 64 fractional divide
@@ -3113,9 +2614,7 @@ static void dfdvX (bool bInvert)
 #else
     word72 m3 = ((uint128)m1 << (63-8)) / ((uint128)m2 >> 8);
 #endif
-#ifdef L68
     cpu.ou.cycle |= ou_GD2;
-#endif
 
 #ifdef NEED_128
     m3 = lshift_128 (m3, 8);  // convert back to float
@@ -3257,9 +2756,7 @@ void dvf (void)
     // s  dividend x
     //  C(AQ)
 
-#ifdef L68
     cpu.ou.cycle |= ou_GD1;
-#endif
     int sign = 1;
     bool dividendNegative = (getbits36_1 (cpu . rA, 0) != 0);
     bool divisorNegative = (getbits36_1 (cpu.CY, 0) != 0);
@@ -3318,9 +2815,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
         doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
       }
 
-#ifdef L68
     cpu.ou.cycle |= ou_GD2;
-#endif
     uint128 sn = zFrac;
     word36 quot = 0;
     for (uint i = 0; i < 35; i ++)
@@ -3342,9 +2837,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
     if (dividendNegative)
       remainder = ~remainder + 1;
 
-#ifdef L68
     cpu.ou.cycle |= ou_GD2;
-#endif
     // I am surmising that the "If | dividend | >= | divisor |" is an
     // overflow prediction; implement it by checking that the calculated
     // quotient will fit in 35 bits.
@@ -3385,9 +2878,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
     // s  dividend x
     //  C(AQ)
 
-#ifdef L68
     cpu.ou.cycle |= ou_GD1;
-#endif
     int sign = 1;
     bool dividendNegative = (getbits36_1 (cpu . rA, 0) != 0);
     bool divisorNegative = (getbits36_1 (cpu.CY, 0) != 0);
@@ -3485,9 +2976,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
         return;
       }
 
-#ifdef L68
     cpu.ou.cycle |= ou_GD2;
-#endif
 #ifdef NEED_128
     uint128 remainder;
     uint128 quot = divide_128 (zFrac, dFrac, & remainder);
@@ -3821,9 +3310,6 @@ void dfcmp (void)
     
     // C(AQ)0,63
     CPTUR (cptUseE);
-#ifdef HEX_MODE
-    uint shift_amt = isHex() ? 4 : 1;
-#endif
     word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ & 0777777777400LL);
     int   e1 = SIGNEXT8_int (cpu . rE & MASK8);
 
@@ -3853,11 +3339,7 @@ void dfcmp (void)
     }
     else if (e1 < e2)
     {
-#ifdef HEX_MODE
-        shift_count = abs(e2 - e1) * (int) shift_amt;
-#else
         shift_count = abs(e2 - e1);
-#endif
         bool s = isnonzero_128 (and_128 (m1, SIGN72));   ///< mantissa negative?
         for(int n = 0 ; n < shift_count ; n += 1)
         {
@@ -3867,24 +3349,15 @@ void dfcmp (void)
                 m1 = or_128 (m1, SIGN72);
         }
         
-#ifdef HEX_MODE
-        if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = construct_128 (0, 0);
-#else
         if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count > 71)
             m1 = construct_128 (0, 0);
-#endif
         m1 = and_128 (m1, MASK72);
         //e3 = e2;
     }
     else
     {
         // e2 < e1;
-#ifdef HEX_MODE
-        shift_count = abs(e1 - e2) * (int) shift_amt;
-#else
         shift_count = abs(e1 - e2);
-#endif
         bool s = isnonzero_128 (and_128 (m2, SIGN72));   ///< mantissa negative?
         for(int n = 0 ; n < shift_count ; n += 1)
         {
@@ -3893,13 +3366,8 @@ void dfcmp (void)
             if (s)
                 m2 = or_128 (m2, SIGN72);
         }
-#ifdef HEX_MODE
-        if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-          m2 = construct_128 (0, 0);
-#else
         if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count > 71)
           m2 = construct_128 (0, 0);
-#endif
         m2 = and_128 (m2, MASK72);
         //e3 = e1;
     }
@@ -3916,11 +3384,7 @@ void dfcmp (void)
     }
     else if (e1 < e2)
     {
-#ifdef HEX_MODE
-        shift_count = abs(e2 - e1) * (int) shift_amt;
-#else
         shift_count = abs(e2 - e1);
-#endif
         bool s = m1 & SIGN72;   ///< mantissa negative?
         for(int n = 0 ; n < shift_count ; n += 1)
         {
@@ -3930,24 +3394,15 @@ void dfcmp (void)
                 m1 |= SIGN72;
         }
         
-#ifdef HEX_MODE
-        if (m1 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = 0;
-#else
         if (m1 == MASK72 && notallzeros == 1 && shift_count > 71)
             m1 = 0;
-#endif
         m1 &= MASK72;
         //e3 = e2;
     }
     else
     {
         // e2 < e1;
-#ifdef HEX_MODE
-        shift_count = abs(e1 - e2) * (int) shift_amt;
-#else
         shift_count = abs(e1 - e2);
-#endif
         bool s = m2 & SIGN72;   ///< mantissa negative?
         for(int n = 0 ; n < shift_count ; n += 1)
         {
@@ -3956,13 +3411,8 @@ void dfcmp (void)
             if (s)
                 m2 |= SIGN72;
         }
-#ifdef HEX_MODE
-        if (m2 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-          m2 = 0;
-#else
         if (m2 == MASK72 && notallzeros == 1 && shift_count > 71)
           m2 = 0;
-#endif
         m2 &= MASK72;
         //e3 = e1;
     }
@@ -3996,9 +3446,6 @@ void dfcmg (void)
     // values.
     
     CPTUR (cptUseE);
-#ifdef HEX_MODE
-    uint shift_amt = isHex() ? 4 : 1;
-#endif
     // C(AQ)0,63
     word72 m1 = convert_to_word72 (cpu.rA & MASK36, cpu.rQ & 0777777777400LL);
     int    e1 = SIGNEXT8_int (cpu.rE & MASK8);
@@ -4018,9 +3465,7 @@ void dfcmg (void)
     //int e3 = -1;
 
     //which exponent is smaller???
-#ifdef L68
     cpu.ou.cycle = ou_GOE;
-#endif
     int shift_count = -1;
     word1 notallzeros = 0;
     
@@ -4031,14 +3476,8 @@ void dfcmg (void)
       }
     else if (e1 < e2)
       {
-#ifdef L68
         cpu.ou.cycle = ou_GOA;
-#endif
-#ifdef HEX_MODE
-        shift_count = abs(e2 - e1) * (int) shift_amt;
-#else
         shift_count = abs(e2 - e1);
-#endif
 #ifdef NEED_128
         bool s = isnonzero_128 (and_128 (m1, SIGN72));   ///< mantissa negative?
         for( int n = 0; n < shift_count; n += 1)
@@ -4048,13 +3487,8 @@ void dfcmg (void)
             if (s)
               m1 = or_128 (m1, SIGN72);
           }
-#ifdef HEX_MODE
-        if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = construct_128 (0, 0);
-#else
         if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count > 71)
             m1 = construct_128 (0, 0);
-#endif
         m1 = and_128 (m1, MASK72);
         //e3 = e2;
 #else
@@ -4066,13 +3500,8 @@ void dfcmg (void)
             if (s)
               m1 |= SIGN72;
           }
-#ifdef HEX_MODE
-        if (m1 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-            m1 = 0;
-#else
         if (m1 == MASK72 && notallzeros == 1 && shift_count > 71)
             m1 = 0;
-#endif
         m1 &= MASK72;
         //e3 = e2;
 #endif
@@ -4080,11 +3509,7 @@ void dfcmg (void)
     else
       {
         // e2 < e1;
-#ifdef HEX_MODE
-        shift_count = abs(e1 - e2) * (int) shift_amt;
-#else
         shift_count = abs(e1 - e2);
-#endif
 #ifdef NEED_128
         bool s = isnonzero_128 (and_128 (m2, SIGN72));   ///< mantissa negative?
         for(int n = 0; n < shift_count; n += 1)
@@ -4094,13 +3519,8 @@ void dfcmg (void)
             if (s)
               m2 = or_128 (m2, SIGN72);
           }
-#ifdef HEX_MODE
-        if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-          m2 = construct_128 (0, 0);
-#else
         if (iseq_128 (m2, MASK72) && notallzeros == 1 && shift_count > 71)
           m2 = construct_128 (0, 0);
-#endif
         m2 = and_128 (m2, MASK72);
         //e3 = e1;
 #else
@@ -4112,13 +3532,8 @@ void dfcmg (void)
             if (s)
               m2 |= SIGN72;
           }
-#ifdef HEX_MODE
-        if (m2 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
-          m2 = 0;
-#else
         if (m2 == MASK72 && notallzeros == 1 && shift_count > 71)
           m2 = 0;
-#endif
         m2 &= MASK72;
         //e3 = e1;
 #endif
