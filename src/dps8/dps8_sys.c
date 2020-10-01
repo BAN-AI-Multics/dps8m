@@ -3656,7 +3656,9 @@ static char * r2_0_base_system_script [] =
     "set mtp0 boot_drive=1",
     "set mtp0 name=MTP0",
     // ; Attach TAPE unit 0 to IOM 0, chan 012, dev_code 1
-    "cable IOM0 012 MTP0",
+    "cable IOMA 012 MTP0 0",
+    // ; Attach TAPE unit 0 to IOM 1, chan 012, dev_code 1
+    "cable IOMB 012 MTP0 1",
     "cable MTP0 1 TAPE1",
     "set tape1 name=tapa_01",
     "cable MTP0 2 TAPE2",
@@ -3693,8 +3695,8 @@ static char * r2_0_base_system_script [] =
 // 4 3381 disks
 
     "set ipcd0 name=IPCD0",
-    "cable IOM0 013 IPCD0",
-    "cable IOM1 013 IPCD0 1",
+    "cable IOMA 013 IPCD0 0",
+    "cable IOMB 013 IPCD0 1",
     // ; Attach DISK unit 0 to IPCD0 dev_code 0",
     "cable IPCD0 0 DISK0",
     "set disk0 type=3381",
@@ -3715,8 +3717,8 @@ static char * r2_0_base_system_script [] =
 // 4 d501 disks + 4 d451 disks
 
     "set msp0 name=mspa",
-    "cable IOM0 014 MSP0 0",
-    "cable IOM1 014 MSP0 1",
+    "cable IOMA 014 MSP0 0",
+    "cable IOMB 014 MSP0 1",
 
     // ; Attach DISK unit 4 to MSP0 dev_code 1",
     "cable MSP0 1 DISK4",
@@ -3761,13 +3763,13 @@ static char * r2_0_base_system_script [] =
     // ;;;
 
     // ; Attach FNP unit 3 (d) to IOM A, chan 020, dev_code 0
-    "cable IOMA 020 FNPD",
+    "cable IOMA 020 FNPA",
     // ; Attach FNP unit 0 (a) to IOM A, chan 021, dev_code 0
-    "cable IOMA 021 FNPA",
+    "cable IOMA 021 FNPB",
     // ; Attach FNP unit 1 (b) to IOM A, chan 022, dev_code 0
-    "cable IOMA 022 FNPB",
+    "cable IOMA 022 FNPC",
     // ; Attach FNP unit 2 (c) to IOM A, chan 023, dev_code 0
-    "cable IOMA 023 FNPC",
+    "cable IOMA 023 FNPD",
     // ; Attach FNP unit 4 (e) to IOM A, chan 024, dev_code 0
     "cable IOMA 024 FNPE",
     // ; Attach FNP unit 5 (f) to IOM A, chan 025, dev_code 0
