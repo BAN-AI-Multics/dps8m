@@ -3047,7 +3047,7 @@ int loops = 0;
 loops ++;
             iom_chan_data_t * q = & iom_chan_data[iom_unit_idx][p->PCW_CHAN];
 
-            q->PCW0 =               q->PCW0;
+            q->PCW0 =               p->PCW0;
             q->PCW1 =               p->PCW1;
             q->PCW_CHAN =           p->PCW_CHAN;
             q->PCW_AE =             p->PCW_AE;

@@ -292,7 +292,7 @@ static INLINE int _check_telopt(telnet_t *telnet, unsigned char telopt,
 static INLINE telnet_rfc1143_t _get_rfc1143(telnet_t *telnet,
 		unsigned char telopt) {
 	telnet_rfc1143_t empty;
-	int i;
+	unsigned int i;
 
 	/* search for entry */
 	for (i = 0; i != telnet->q_cnt; ++i) {
@@ -311,7 +311,7 @@ static INLINE telnet_rfc1143_t _get_rfc1143(telnet_t *telnet,
 static INLINE void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
 		unsigned char us, unsigned char him) {
 	telnet_rfc1143_t *qtmp;
-	int i;
+	unsigned int i;
 
 	/* search for entry */
 	for (i = 0; i != telnet->q_cnt; ++i) {

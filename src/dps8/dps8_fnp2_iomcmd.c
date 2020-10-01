@@ -1322,7 +1322,7 @@ sim_printf ("']\n");
 #endif
 //sim_printf ("long  in; line %d tally %d\n", decoded_p->slot_no, linep->nPos);
         uint n_chars_in_buf = min(n_chars-off, tally);
-        for (int i = 0; i < n_chars_in_buf; i += 4)
+        for (uint i = 0; i < n_chars_in_buf; i += 4)
           {
             word36 v = 0;
             if (i < n_chars_in_buf)

@@ -1528,9 +1528,9 @@ static void panel_process_event (void)
   }
 #endif
 
+#if defined(LOCKLESS)
 bool bce_dis_called = false;
 
-#if defined(LOCKLESS)
 // The hypervisor CPU for the threadz model
 t_stat sim_instr (void)
   {
@@ -2894,7 +2894,7 @@ if (cpu.PPR.PSR == 042 && cpu.PPR.IC == 036573) fprintf (stderr, "%10lu %s >>>>>
                 // Checking for F(A)NP here is equivalent to checking that the
                 // last append cycle has made it as far as H/I without a fault.
                 // Also reset it on TRB fault. ISOLTS-870 05a
-                if (cpu.cu.APUCycleBits & 060 || cpu.secret_addressing_mode)
+                if ((cpu.cu.APUCycleBits & 060) || cpu.secret_addressing_mode)
                   set_apu_status (apuStatus_FABS);
 
                 // XXX the whole fault cycle should be rewritten as an xed 

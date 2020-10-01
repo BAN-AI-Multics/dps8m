@@ -924,7 +924,7 @@ void doG7Fault (bool allowTR)
          doFault (FAULT_CON, cpu.g7SubFaults [FAULT_CON], "Connect"); 
        }
 
-     if (allowTR && cpu.g7Faults & (1u << FAULT_TRO))
+     if (allowTR && (cpu.g7Faults & (1u << FAULT_TRO)))
        {
 #if defined(LOCKLESS) && defined(LOCKLESS_SCU)
          __atomic_and_fetch (& cpu.g7Faults, ~(1u << FAULT_TRO), __ATOMIC_RELAXED);
