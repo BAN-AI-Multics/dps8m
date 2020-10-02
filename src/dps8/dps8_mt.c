@@ -1194,8 +1194,9 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
     
     uint ctlr_idx = get_ctlr_idx (iomUnitIdx, chan);
     bool is_IPCT = cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPCT;
+    uint start = is_IPCT ? 0 : 1; // IPC starts at drive 0, MPC at drive 1
     // Walk the device codes
-    for (uint dev_code = 0; dev_code < N_DEV_CODES; dev_code ++)
+    for (uint dev_code = start; dev_code < N_DEV_CODES; dev_code ++)
       {
        if (cnt / 2 >= bufsz)
           break;
