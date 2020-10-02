@@ -113,7 +113,7 @@ enum { IOM_CONNECT_CHAN = 2 };
 #define NEG136          0777777777777LLU         // -1
 #define MAXPOS          0377777777777LLU         //  2**35-1
 #define MAXNEG          0400000000000LLU         // -2**35
-#define MAX36           0777777777777LLU         // 2**36
+#define MAX36           0777777777777LLU         // 2**36-1
 #define MAX72           (((word72)1U << 72) - 1U)  // 72 1's
 
 #define CARRY           01000000000000LLU        // carry from 2 36-bit additions/subs
