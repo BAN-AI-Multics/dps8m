@@ -2246,7 +2246,12 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
                           (long) MT_UNIT_IDX (unitp));
             //tape_statep -> rec_num = 0;
             p -> stati = 04000;
-            send_special_interrupt (iomUnitIdx, chan, dev_code, 0, 0040 /* unload complete */);
+            // Sending this confuses RCP. When requesting a tape mount, it
+            // first sends an unload command, and then waits for the operator
+            // to mount the tape and press ready. This special interrupt
+            // is being seen as an operator created event and causes RCP
+            // to request the operator to re-ready the drive.
+            //send_special_interrupt (iomUnitIdx, chan, dev_code, 0, 0040 /* unload complete */);
           }
           break;
 
