@@ -1155,7 +1155,8 @@ static char * default_base_system_script [] =
     "set mtp0 boot_drive=0",
     "set mtp0 name=MTP0",
     // ; Attach TAPE unit 0 to IOM 0, chan 012, dev_code 1
-    "cable IOM0 012 MTP0",
+    "cable IOM0 012 MTP0 0",
+    "cable IOM1 012 MTP0 1",
     "cable MTP0 1 TAPE1",
     "set tape1 name=tapa_01",
     "cable MTP0 2 TAPE2",
