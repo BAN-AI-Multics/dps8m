@@ -111,6 +111,7 @@ char *gets(char *s);
  float GLOBAL_LINES_PER_PAGE;
 
  float GLOBAL_GRAY_SCALE;
+int GLOBAL_GREEN_BAR;
 
  static char GLOBAL_CENTER_TITLE[256];
  static char GLOBAL_LEFT_TITLE[256];
@@ -197,7 +198,10 @@ char *gets(char *s);
         float width;
         float step;
 
-        fprintf(stdout,"%f g\n",GLOBAL_GRAY_SCALE); /* gray-scale value */
+        if (GLOBAL_GREEN_BAR)
+          fprintf(stdout,"0.60 0.82 0.60 rg\n"); /* green */
+        else
+          fprintf(stdout,"%f g\n",GLOBAL_GRAY_SCALE); /* gray-scale value */
         /*
         * If you want to add color,
         * R G B rg where R G B are red, green, blue components
@@ -720,6 +724,7 @@ case 1:
    fprintf(stderr," |                    # 0 is black, 1 is white.                                 |\n");
    fprintf(stderr," |    -i 2            # repeat shade pattern every N lines                      |\n");
    fprintf(stderr," |    -d ' '          # dashcode pattern (seems buggy)                          |\n");
+   fprintf(stderr," |    -G              # green bar                                               |\n");
    fprintf(stderr," +------------------------------------------------------------------------------+\n");
    fprintf(stderr," |MARGIN LABELS                                                                 |\n");
    fprintf(stderr," |   -s ''            # top middle page label.                                  |\n");
@@ -787,6 +792,7 @@ fprintf (stderr,"-u %f # unit multiplier\n", GLOBAL_UNIT_MULTIPLIER);
 fprintf (stderr,"-g %f # shading gray scale value ([black]0 <= g <= 1[white]\n", GLOBAL_GRAY_SCALE);
 fprintf (stderr,"-i %d # shading line increment\n", GLOBAL_SHADE_STEP);
 fprintf (stderr,"-d %s # shading line dashcode\n", GLOBAL_DASHCODE);
+fprintf (stderr,"-G %d # green bar\n", GLOBAL_GREEN_BAR);
 
 fprintf (stderr,"-l %f # lines per page\n", GLOBAL_LINES_PER_PAGE);
 fprintf (stderr,"-f %s # font name\n", GLOBAL_FONT);
@@ -828,6 +834,7 @@ int main(int argc, char **argv) {
    GLOBAL_PAGE_MARGIN_RIGHT =  39.0 -14.0;
    GLOBAL_LINES_PER_PAGE=      64.0;
    GLOBAL_GRAY_SCALE=           0.800781; /* gray-scale value */
+   GLOBAL_GREEN_BAR=           0;
 
 
    varname=getenv("IMPACT_GRAY");
@@ -852,7 +859,7 @@ int main(int argc, char **argv) {
    strncpy(GLOBAL_FONT,"Courier",255);
    GLOBAL_TITLE_SIZE=20.0;
 
-   while ((c = getopt (argc, argv, "B:d:f:g:H:hi:L:l:NPR:s:S:t:T:u:W:vX")) != -1)
+   while ((c = getopt (argc, argv, "B:d:f:g:H:hi:L:l:GNPR:s:S:t:T:u:W:vX")) != -1)
          switch (c) {
            case 'L': GLOBAL_PAGE_MARGIN_LEFT =    strtod(optarg,NULL)*GLOBAL_UNIT_MULTIPLIER; break; /* Left margin              */
            case 'R': GLOBAL_PAGE_MARGIN_RIGHT =   strtod(optarg,NULL)*GLOBAL_UNIT_MULTIPLIER; break; /* Right margin             */
@@ -862,6 +869,7 @@ int main(int argc, char **argv) {
            case 'W': GLOBAL_PAGE_WIDTH =          strtod(optarg,NULL)*GLOBAL_UNIT_MULTIPLIER; break; /* Width                    */
 
            case 'g': GLOBAL_GRAY_SCALE =          strtod(optarg,NULL);                        break; /* grayscale value for bars */
+           case 'G': GLOBAL_GREEN_BAR =           1;                                          break; /* green bars               */
            case 'l': GLOBAL_LINES_PER_PAGE=       strtod(optarg,NULL);                        break; /* lines per page           */
            case 'u': GLOBAL_UNIT_MULTIPLIER =     strtod(optarg,NULL);                        break; /* unit_divisor             */
            case 'i': GLOBAL_SHADE_STEP =          strtod(optarg,NULL);                        break; /* increment for bars       */
