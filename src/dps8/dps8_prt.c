@@ -636,7 +636,9 @@ static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint 
     return 0;
   }
 
-static void print_buf (int prt_unit_num, bool is_BCD, bool is_edited, int slew, word36 * buffer, uint tally)
+// 0 OK
+// -1 Can't open file
+static int print_buf (int prt_unit_num, bool is_BCD, bool is_edited, int slew, word36 * buffer, uint tally)
   {
 // derived from pr2_conv_$lower_case_table
 // 
@@ -693,7 +695,13 @@ static void print_buf (int prt_unit_num, bool is_BCD, bool is_edited, int slew, 
       "YZ_,%=\"!";
 
     if (prt_state[prt_unit_num].prtfile == -1)
-      openPrtFile (prt_unit_num, buffer, tally);
+      {
+        int rc = openPrtFile (prt_unit_num, buffer, tally);
+        if (rc == -1)
+          {
+            return -1;
+          }
+      }
 
 #if 0
 sim_printf ("%s %s %d %u\n", is_BCD ? "BCD" : "ASCII", is_edited ? "edited" : "nonedited", slew, tally);
@@ -742,34 +750,36 @@ for (uint i = 0; i < tally; i ++)
 //      }
 
 
-    if (is_BCD)
+    if (tally)
       {
-        uint nchars = tally * 8;
-#define get_BCD_char(i) ((uint8_t) ((buffer[i / 6] >> ((5 - i % 6) * 6)) & 077))
-
-        if (! is_edited)
-          { // Easy case
-            uint8 bytes[nchars];
-            for (uint i = 0; i < nchars; i ++)
-              {
-                bytes[i] = (uint8_t) bcd_uc [get_BCD_char (i)];
-                write (prt_state[prt_unit_num].prtfile, bytes, nchars);
-              }
-          }
-        else // edited BCD
+            if (is_BCD)
           {
-            //bool BCD_case = false; // false is upper case
-            // POLTS implies 3 sets
-            // 0 - initial set, upper case, no question mark.
-            // 1  - first change: lower case, question mark.
-            // 2  - second change: upper case, question mark.
-            int BCD_cset = 0;
-            char * table[3] = { bcd, bcd_lc, bcd_uc };
-
+            uint nchars = tally * 8;
+    #define get_BCD_char(i) ((uint8_t) ((buffer[i / 6] >> ((5 - i % 6) * 6)) & 077))
     
-            for (uint i = 0; i < nchars; i ++)
+            if (! is_edited)
+              { // Easy case
+                uint8 bytes[nchars];
+                for (uint i = 0; i < nchars; i ++)
+                  {
+                    bytes[i] = (uint8_t) bcd_uc [get_BCD_char (i)];
+                    write (prt_state[prt_unit_num].prtfile, bytes, nchars);
+                  }
+              }
+            else // edited BCD
               {
-                uint8_t ch = get_BCD_char (i);
+                //bool BCD_case = false; // false is upper case
+                // POLTS implies 3 sets
+                // 0 - initial set, upper case, no question mark.
+                // 1  - first change: lower case, question mark.
+                // 2  - second change: upper case, question mark.
+                int BCD_cset = 0;
+                char * table[3] = { bcd, bcd_lc, bcd_uc };
+    
+        
+                for (uint i = 0; i < nchars; i ++)
+                  {
+                    uint8_t ch = get_BCD_char (i);
 // Looking at pr2_conv_.alm, it looks like the esc char is 77
 //  77 n  if n is
 //      0 - 017, slew n lines  (0 is just CR)
@@ -778,120 +788,121 @@ for (uint i = 0; i < tally; i ++)
 //      022 generate slew to top of outside page,
 //      041 to 057, generate (n-040) *8 spaces
 
-                if (ch == 077)
-                  {
-                    i ++;
-                    uint8_t n = get_BCD_char (i);
-
-                    if (n == 077) // pr2_conv_ sez ESC ESC is case shift
+                    if (ch == 077)
                       {
-                        //BCD_case = ! BCD_case;
-                        switch (BCD_cset)
+                        i ++;
+                        uint8_t n = get_BCD_char (i);
+
+                        if (n == 077) // pr2_conv_ sez ESC ESC is case shift
                           {
-                            case 0: BCD_cset = 1; break; // default to lower
-                            case 1: BCD_cset = 2; break; // lower to upper
-                            case 2: BCD_cset = 1; break; // upper to lower
+                            //BCD_case = ! BCD_case;
+                            switch (BCD_cset)
+                              {
+                                case 0: BCD_cset = 1; break; // default to lower
+                                case 1: BCD_cset = 2; break; // lower to upper
+                                case 2: BCD_cset = 1; break; // upper to lower
+                              }
                           }
-                      }
-                    else if (n >= 041 && n <= 057)
-                      {
-                        write (prt_state[prt_unit_num].prtfile, spaces, (n - 040) * 8);
-                      }
-                    else if (n >= 020 && n <= 022)
-                      {
-                        // XXX not distinguishing between top of page, inside page, outside page
-                        write (prt_state[prt_unit_num].prtfile, formfeed, 1);
-                      }
-                    else if (n == 0) // slew 0 lines is just CR
-                      {
-                        write (prt_state[prt_unit_num].prtfile, cr, 1);
-                      }
-                    else if (n <= 017)
-                      {
-                        write (prt_state[prt_unit_num].prtfile, newlines, n);
-                      }
-                    else
-                      {
+                        else if (n >= 041 && n <= 057)
+                          {
+                            write (prt_state[prt_unit_num].prtfile, spaces, (n - 040) * 8);
+                          }
+                        else if (n >= 020 && n <= 022)
+                          {
+                            // XXX not distinguishing between top of page, inside page, outside page
+                            write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+                          }
+                        else if (n == 0) // slew 0 lines is just CR
+                          {
+                            write (prt_state[prt_unit_num].prtfile, cr, 1);
+                          }
+                        else if (n <= 017)
+                          {
+                            write (prt_state[prt_unit_num].prtfile, newlines, n);
+                          }
+                        else
+                          {
 #ifdef TESTING
-                        sim_warn ("Printer BCD edited ESC %u. %o ignored\n", n, n);
+                            sim_warn ("Printer BCD edited ESC %u. %o ignored\n", n, n);
 #endif
-                      }
+                          }
 
-                  }
-                else // not escape
-                  {
-                    write (prt_state[prt_unit_num].prtfile, table[BCD_cset] + ch, 1);
-                  }
-              } // for i to nchars
-          } // edited BCD
-      } // BCD
-    else // ASCII
-      {
-        uint nchars = tally * 4;
+                      }
+                    else // not escape
+                      {
+                        write (prt_state[prt_unit_num].prtfile, table[BCD_cset] + ch, 1);
+                      }
+                  } // for i to nchars
+              } // edited BCD
+          } // BCD
+        else // ASCII
+          {
+            uint nchars = tally * 4;
 #define get_ASCII_char(i) ((uint8_t) ((buffer[i / 4] >> ((3 - i % 4) * 9)) & 0377))
 
-        if (! is_edited)
-          { // Easy case
-            uint8 bytes[nchars];
-            uint nbytes = 0;
-            for (uint i = 0; i < nchars; i ++)
-              {
-                uint8_t ch = get_ASCII_char (i);
-                if (isprint (ch))
-                  bytes[nbytes ++] = ch;
+            if (! is_edited)
+              { // Easy case
+                uint8 bytes[nchars];
+                uint nbytes = 0;
+                for (uint i = 0; i < nchars; i ++)
+                  {
+                    uint8_t ch = get_ASCII_char (i);
+                    if (isprint (ch))
+                      bytes[nbytes ++] = ch;
+                  }
+                write (prt_state[prt_unit_num].prtfile, bytes, nbytes);
               }
-            write (prt_state[prt_unit_num].prtfile, bytes, nbytes);
-          }
-        else // edited ASCII
-          {
-            uint col = 0;
-            for (uint i = 0; i < tally * 4; i ++)
+            else // edited ASCII
               {
-                uint8_t ch = get_ASCII_char (i);
-                if (ch == 037) // insert n spaces
+                uint col = 0;
+                for (uint i = 0; i < tally * 4; i ++)
                   {
-                    i ++;
-                    uint8_t n = get_ASCII_char (i);
-                    write (prt_state[prt_unit_num].prtfile, spaces, n);
-                    col += n;
-                  }
-                else if (ch == 013) // insert n new lines
-                  {
-                    i ++;
-                    uint8_t n = get_ASCII_char (i);
-                    if (n)
-                       {
-                        write (prt_state[prt_unit_num].prtfile, newlines, n);
-                      }
-                    else // 0 lines; just slew to beginning of line
+                    uint8_t ch = get_ASCII_char (i);
+                    if (ch == 037) // insert n spaces
                       {
-                        write (prt_state[prt_unit_num].prtfile, cr, 1);
-                      }
-                    col = 0;
-                  }
-                else if (ch == 014) // slew page
-                  {
-                    write (prt_state[prt_unit_num].prtfile, formfeed, 1);
-                    col = 0;
-                  }
-                else if (ch == 011) // horizontal tab
-                  {
-                    i ++;
-                    uint8_t n = get_ASCII_char (i);
-                    if (col < n)
-                      {
-                        write (prt_state[prt_unit_num].prtfile, spaces, n - col);
+                        i ++;
+                        uint8_t n = get_ASCII_char (i);
+                        write (prt_state[prt_unit_num].prtfile, spaces, n);
                         col += n;
-                      }   
-                  }
-                else if (isprint (ch))
-                  {
-                    write (prt_state[prt_unit_num].prtfile, & ch, 1);
-                    col ++;
-                  }
-              } // for
-          } // edited ASCII
-      } // ASCII
+                      }
+                    else if (ch == 013) // insert n new lines
+                      {
+                        i ++;
+                        uint8_t n = get_ASCII_char (i);
+                        if (n)
+                           {
+                            write (prt_state[prt_unit_num].prtfile, newlines, n);
+                          }
+                        else // 0 lines; just slew to beginning of line
+                          {
+                            write (prt_state[prt_unit_num].prtfile, cr, 1);
+                          }
+                        col = 0;
+                      }
+                    else if (ch == 014) // slew page
+                      {
+                        write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+                        col = 0;
+                      }
+                    else if (ch == 011) // horizontal tab
+                      {
+                        i ++;
+                        uint8_t n = get_ASCII_char (i);
+                        if (col < n)
+                          {
+                            write (prt_state[prt_unit_num].prtfile, spaces, n - col);
+                            col += n;
+                          }   
+                      }
+                    else if (isprint (ch))
+                      {
+                        write (prt_state[prt_unit_num].prtfile, & ch, 1);
+                        col ++;
+                      }
+                  } // for
+              } // edited ASCII
+          } // ASCII
+      } // tally
 
 // Slew back to beginning of line
     write (prt_state[prt_unit_num].prtfile, cr, 1);
@@ -901,6 +912,7 @@ for (uint i = 0; i < tally; i ++)
         close (prt_state[prt_unit_num].prtfile);
         prt_state[prt_unit_num].prtfile = -1;
       }
+    return 0;
   }
 
 static int print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, bool is_BCD, bool is_edited, int slew)
@@ -975,7 +987,13 @@ sim_printf ("\n");
       }
         sim_printf (">\n");
 #endif
-        print_buf (prt_unit_num, is_BCD, is_edited, slew, buffer, tally);
+        int rc = print_buf (prt_unit_num, is_BCD, is_edited, slew, buffer, tally);
+        if (rc == -1)
+          {
+            p->stati = 04201; // Out of paper
+            return IOM_CMD_ERROR;
+          }
+
 #if 0
         if (eoj (buffer, tally))
           {
@@ -1384,9 +1402,12 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
       
               case 061: // CMD 61 Slew one line
                 {
-                  if (prt_state[prt_unit_num].prtfile == -1)
-                    openPrtFile (prt_unit_num, NULL, 0);
-                  write (prt_state[prt_unit_num].prtfile, crlf, 2);
+                  int rc = print_buf (prt_unit_num, false, false, 1, NULL, 0);
+                  if (rc == -1)
+                    {
+                      p->stati = 04201; // Out of paper
+                      return IOM_CMD_ERROR;
+                    }
                   p -> stati = 04000;
                   p -> isRead = false;
                   sim_debug (DBG_NOTIFY, & prt_dev, "Slew top of page %d\n", prt_unit_num);
@@ -1395,9 +1416,12 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
       
               case 062: // CMD 62 Slew two lines
                 {
-                  if (prt_state[prt_unit_num].prtfile == -1)
-                    openPrtFile (prt_unit_num, NULL, 0);
-                  write (prt_state[prt_unit_num].prtfile, crlf, 4);
+                  int rc = print_buf (prt_unit_num, false, false, 2, NULL, 0);
+                  if (rc == -1)
+                    {
+                      p->stati = 04201; // Out of paper
+                      return IOM_CMD_ERROR;
+                    }
                   p -> stati = 04000;
                   p -> isRead = false;
                   sim_debug (DBG_NOTIFY, & prt_dev, "Slew top of page %d\n", prt_unit_num);
@@ -1406,9 +1430,12 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
       
               case 063: // CMD 63 Slew top of page
                 {
-                  if (prt_state[prt_unit_num].prtfile == -1)
-                    openPrtFile (prt_unit_num, NULL, 0);
-                  write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+                  int rc = print_buf (prt_unit_num, false, false, -1, NULL, 0);
+                  if (rc == -1)
+                    {
+                      p->stati = 04201; // Out of paper
+                      return IOM_CMD_ERROR;
+                    }
                   p -> stati = 04000;
                   p -> isRead = false;
                   sim_debug (DBG_NOTIFY, & prt_dev, "Slew top of page %d\n", prt_unit_num);
