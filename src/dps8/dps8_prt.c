@@ -754,7 +754,7 @@ for (uint i = 0; i < tally; i ++)
       {
             if (is_BCD)
           {
-            uint nchars = tally * 8;
+            uint nchars = tally * 6;
     #define get_BCD_char(i) ((uint8_t) ((buffer[i / 6] >> ((5 - i % 6) * 6)) & 077))
     
             if (! is_edited)
@@ -763,8 +763,8 @@ for (uint i = 0; i < tally; i ++)
                 for (uint i = 0; i < nchars; i ++)
                   {
                     bytes[i] = (uint8_t) bcd_uc [get_BCD_char (i)];
-                    write (prt_state[prt_unit_num].prtfile, bytes, nchars);
                   }
+                 write (prt_state[prt_unit_num].prtfile, bytes, nchars);
               }
             else // edited BCD
               {
