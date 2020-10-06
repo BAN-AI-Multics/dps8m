@@ -109,7 +109,7 @@ struct hevt
             word18 offset;
             word36 data;
           } apu;
-      };
+      } u;
   };
 
 static struct hevt * hevents = NULL;
@@ -164,11 +164,11 @@ if (current_running_cpu_idx == 0)
     hevents[p].time = cpu.cycleCnt;
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
-    hevents[p].trace.addrMode = get_addr_mode ();
-    hevents[p].trace.segno = cpu.PPR.PSR;
-    hevents[p].trace.ic = cpu.PPR.IC;
-    hevents[p].trace.ring = cpu.PPR.PRR;
-    hevents[p].trace.inst = cpu.cu.IWB;
+    hevents[p].u.trace.addrMode = get_addr_mode ();
+    hevents[p].u.trace.segno = cpu.PPR.PSR;
+    hevents[p].u.trace.ic = cpu.PPR.IC;
+    hevents[p].u.trace.ring = cpu.PPR.PRR;
+    hevents[p].u.trace.inst = cpu.cu.IWB;
 done: ;
   }
 
@@ -187,8 +187,8 @@ if (current_running_cpu_idx == 0)
     hevents[p].time = cpu.cycleCnt;
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
-    hevents[p].rw = false; hevents[p].memref.addr = addr;
-    hevents[p].memref.data = data;
+    hevents[p].rw = false; hevents[p].u.memref.addr = addr;
+    hevents[p].u.memref.data = data;
 done: ;
   }
 
@@ -208,8 +208,8 @@ if (current_running_cpu_idx == 0)
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
     hevents[p].rw = true;
-    hevents[p].memref.addr = addr;
-    hevents[p].memref.data = data;
+    hevents[p].u.memref.addr = addr;
+    hevents[p].u.memref.data = data;
 done: ;
   }
 
@@ -229,9 +229,9 @@ if (current_running_cpu_idx == 0)
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
     hevents[p].rw = false;
-    hevents[p].apu.segno = segno;
-    hevents[p].apu.offset = offset;
-    hevents[p].apu.data = data;
+    hevents[p].u.apu.segno = segno;
+    hevents[p].u.apu.offset = offset;
+    hevents[p].u.apu.data = data;
 done: ;
   }
 
@@ -251,9 +251,9 @@ if (current_running_cpu_idx == 0)
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
     hevents[p].rw = true;
-    hevents[p].apu.segno = segno;
-    hevents[p].apu.offset = offset;
-    hevents[p].apu.data = data;
+    hevents[p].u.apu.segno = segno;
+    hevents[p].u.apu.offset = offset;
+    hevents[p].u.apu.data = data;
 done: ;
   }
 
@@ -273,10 +273,10 @@ if (current_running_cpu_idx == 0)
     hevents[p].time = cpu.cycleCnt;
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
-    hevents[p].fault.faultNumber = faultNumber;
-    hevents[p].fault.subFault = subFault;
-    strncpy (hevents[p].fault.faultMsg, faultMsg, 63);
-    hevents[p].fault.faultMsg[63] = 0;
+    hevents[p].u.fault.faultNumber = faultNumber;
+    hevents[p].u.fault.subFault = subFault;
+    strncpy (hevents[p].u.fault.faultMsg, faultMsg, 63);
+    hevents[p].u.fault.faultMsg[63] = 0;
 done: ;
   }
 
@@ -295,9 +295,9 @@ if (current_running_cpu_idx == 0)
     hevents[p].time = cpu.cycleCnt;
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
-    hevents[p].intrSet.inum = inum;
-    hevents[p].intrSet.cpuUnitIdx = cpuUnitIdx;
-    hevents[p].intrSet.scuUnitIdx = scuUnitIdx;
+    hevents[p].u.intrSet.inum = inum;
+    hevents[p].u.intrSet.cpuUnitIdx = cpuUnitIdx;
+    hevents[p].u.intrSet.scuUnitIdx = scuUnitIdx;
 done: ;
   }
 
@@ -316,7 +316,7 @@ if (current_running_cpu_idx == 0)
     hevents[p].time = cpu.cycleCnt;
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
-    hevents[p].intr.intr_pair_addr = intr_pair_addr;
+    hevents[p].u.intr.intr_pair_addr = intr_pair_addr;
 done: ;
   }
 
@@ -336,8 +336,8 @@ if (current_running_cpu_idx == 0)
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
     hevents[p].rw = false;
-    hevents[p].reg.type = type;
-    hevents[p].reg.data = data;
+    hevents[p].u.reg.type = type;
+    hevents[p].u.reg.data = data;
 done: ;
   }
 
@@ -358,8 +358,8 @@ if (current_running_cpu_idx == 0)
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
     hevents[p].rw = true;
-    hevents[p].reg.type = type;
-    hevents[p].reg.data = data;
+    hevents[p].u.reg.type = type;
+    hevents[p].u.reg.data = data;
 done: ;
   }
 
@@ -380,8 +380,8 @@ if (current_running_cpu_idx == 0)
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
     hevents[p].rw = false;
-    hevents[p].par.type = type;
-    hevents[p].par.data =  * data;
+    hevents[p].u.par.type = type;
+    hevents[p].u.par.data =  * data;
 done: ;
   }
 
@@ -401,8 +401,8 @@ if (current_running_cpu_idx == 0)
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
     hevents[p].rw = true;
-    hevents[p].par.type = type;
-    hevents[p].par.data =  * data;
+    hevents[p].u.par.type = type;
+    hevents[p].u.par.data =  * data;
 done: ;
   }
 
@@ -422,8 +422,8 @@ if (current_running_cpu_idx == 0)
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
     hevents[p].rw = false;
-    hevents[p].dsbr.type = type;
-    hevents[p].dsbr.data =  * data;
+    hevents[p].u.dsbr.type = type;
+    hevents[p].u.dsbr.data =  * data;
 done: ;
   }
 
@@ -443,8 +443,8 @@ if (current_running_cpu_idx == 0)
     strncpy (hevents[p].ctx, ctx, 15);
     hevents[p].ctx[15] = 0;
     hevents[p].rw = true;
-    hevents[p].dsbr.type = type;
-    hevents[p].dsbr.data =  * data;
+    hevents[p].u.dsbr.type = type;
+    hevents[p].u.dsbr.data =  * data;
 done: ;
   }
 
@@ -457,7 +457,7 @@ static void printM (struct hevt * p)
                 p -> cpu_idx,
                 p->ctx,
                 p->rw ? "write" : "read ",
-                p -> memref.addr, p -> memref.data);
+                p -> u.memref.addr, p -> u.memref.data);
   }
 
 static void printAPU (struct hevt * p)
@@ -467,29 +467,29 @@ static void printAPU (struct hevt * p)
                 p->cpu_idx,
                 p->ctx,
                 p->rw ? "write" : "read ",
-                p->apu.segno,
-                p->apu.offset,
-                p->apu.data);
+                p->u.apu.segno,
+                p->u.apu.offset,
+                p->u.apu.data);
   }
 
 static void printTrace (struct hevt * p)
   {
     char buf[256];
-    if (p -> trace.addrMode == ABSOLUTE_mode)
+    if (p -> u.trace.addrMode == ABSOLUTE_mode)
       {
         fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d TRACE: %s %06o %o %012"PRIo64" (%s)\n",
                     p -> time, 
                     p -> cpu_idx,
                     p->ctx,
-                    p -> trace.ic, p -> trace.ring,
-                    p -> trace.inst, disassemble (buf, p -> trace.inst));
+                    p -> u.trace.ic, p -> u.trace.ring,
+                    p -> u.trace.inst, disassemble (buf, p -> u.trace.inst));
       }
     else
       {
         fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d TRACE: %s %05o:%06o %o %012"PRIo64" (%s)\n",
-                    p -> time, p -> cpu_idx, p->ctx, p -> trace.segno,
-                    p -> trace.ic, p -> trace.ring,
-                    p -> trace.inst, disassemble (buf, p -> trace.inst));
+                    p -> time, p -> cpu_idx, p->ctx, p -> u.trace.segno,
+                    p -> u.trace.ic, p -> u.trace.ring,
+                    p -> u.trace.inst, disassemble (buf, p -> u.trace.inst));
       }
   }
 
@@ -499,9 +499,9 @@ static void printFault (struct hevt * p)
                 p -> time, 
                 p -> cpu_idx,
                 p->ctx,
-                p -> fault.faultNumber, p -> fault.faultNumber,
-                p -> fault.subFault.bits, p -> fault.subFault.bits,
-                p -> fault.faultMsg);
+                p -> u.fault.faultNumber, p -> u.fault.faultNumber,
+                p -> u.fault.subFault.bits, p -> u.fault.subFault.bits,
+                p -> u.fault.faultMsg);
   }
 
 static void printIntrSet (struct hevt * p)
@@ -510,9 +510,9 @@ static void printIntrSet (struct hevt * p)
                 p -> time, 
                 p -> cpu_idx,
                 p->ctx,
-                p -> intrSet.inum, p -> intrSet.inum,
-                p -> intrSet.cpuUnitIdx,
-                p -> intrSet.scuUnitIdx);
+                p -> u.intrSet.inum, p -> u.intrSet.inum,
+                p -> u.intrSet.cpuUnitIdx,
+                p -> u.intrSet.scuUnitIdx);
   }
 
 static void printIntr (struct hevt * p)
@@ -520,8 +520,8 @@ static void printIntr (struct hevt * p)
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d INTR: %s Interrupt pair address %o\n",
                 p -> time, 
                 p -> cpu_idx,
-                p->ctx,
-                p -> intr.intr_pair_addr);
+                p -> ctx,
+                p -> u.intr.intr_pair_addr);
   }
 
 // Keep sync'd with hregs_t
@@ -537,50 +537,50 @@ static char * regNames[] =
 
 static void printReg (struct hevt * p)
   {
-    if (p->reg.type >= hreg_X0 && p->reg.type <= hreg_X7)
+    if (p->u.reg.type >= hreg_X0 && p->u.reg.type <= hreg_X7)
       fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %06"PRIo64"\n",
                   p->time, 
                   p->cpu_idx,
                   p->ctx,
                   p->rw ? "write" : "read ",
-                  regNames[p->reg.type],
-                  p->reg.data);
+                  regNames[p->u.reg.type],
+                  p->u.reg.data);
     else
       fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s  %s %012"PRIo64"\n",
                   p->time, 
                   p->cpu_idx,
                   p->ctx,
                   p->rw ? "write" : "read ",
-                  regNames[p->reg.type],
-                  p->reg.data);
+                  regNames[p->u.reg.type],
+                  p->u.reg.data);
   }
 
 static void printPAReg (struct hevt * p)
   {
-    if (p->reg.type >= hreg_PR0 && p->reg.type <= hreg_PR7)
+    if (p->u.reg.type >= hreg_PR0 && p->u.reg.type <= hreg_PR7)
       fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s "
                "%05o:%06o BIT %2o RNR %o\n",
                p->time, 
                p->cpu_idx,
                p->ctx,
                p->rw ? "write" : "read ",
-               regNames[p->reg.type],
-               p->par.data.SNR,
-               p->par.data.WORDNO,
-               p->par.data.PR_BITNO,
-               p->par.data.RNR);
+               regNames[p->u.reg.type],
+               p->u.par.data.SNR,
+               p->u.par.data.WORDNO,
+               p->u.par.data.PR_BITNO,
+               p->u.par.data.RNR);
     else
       fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s write %s "
                "%05o:%06o CHAR %o BIT %2o RNR %o\n",
                p->time, 
                p->cpu_idx,
                p->ctx,
-               regNames[p->reg.type],
-               p->par.data.SNR,
-               p->par.data.WORDNO,
-               p->par.data.AR_CHAR,
-               p->par.data.AR_BITNO,
-               p->par.data.RNR);
+               regNames[p->u.reg.type],
+               p->u.par.data.SNR,
+               p->u.par.data.WORDNO,
+               p->u.par.data.AR_CHAR,
+               p->u.par.data.AR_BITNO,
+               p->u.par.data.RNR);
   }
 
 static void printDSBRReg (struct hevt * p)
@@ -591,11 +591,11 @@ static void printDSBRReg (struct hevt * p)
              p->cpu_idx,
              p->ctx,
              p->rw ? "write" : "read ",
-             regNames[p->reg.type],
-             p->par.data.SNR,
-             p->par.data.WORDNO,
-             p->par.data.PR_BITNO,
-             p->par.data.RNR);
+             regNames[p->u.reg.type],
+             p->u.par.data.SNR,
+             p->u.par.data.WORDNO,
+             p->u.par.data.PR_BITNO,
+             p->u.par.data.RNR);
   }
 
 void hdbgPrint (void)
