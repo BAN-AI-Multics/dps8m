@@ -83,7 +83,6 @@ o added command line options for
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
-char *gets(char *s);
 
 /* ============================================================================================================================== */
 #define MAX(x, y)       ((x) > (y) ? (x) : (y))
