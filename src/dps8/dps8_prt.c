@@ -453,20 +453,23 @@ static int mkstemps (char *pattern, int suffix_len)
 }
 #endif
 
+// 0 ok
+// -1 unable to open print file
+// -2 unable to write to print file
+// -3 form feed cached, no i/o done.
+
 static int openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
   {
-//sim_printf ("openPrtFile\n");
     if (prt_state[prt_unit_num].prtfile != -1)
       return 0;
 
-// The first (spooled) write is a formfeed; special case it and delay opening until
-// the next line
+// The first (spooled) write is a formfeed; special case it and delay opening
+//  until the next line
 
-//sim_printf ("openPrtFile 2 %012"PRIo64"\n", buffer[0]);
     if (tally == 1 && buffer[0] == 0014013000000llu)
       {
         prt_state[prt_unit_num].cachedFF = true;
-        return 0;
+        return -3;
       }
 
     char qno[6], name[LONGEST + 1];
@@ -491,10 +494,11 @@ static int openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
       }
     if (prt_state[prt_unit_num].cachedFF)
       {
-        // 014 013 is slew to 013 (top of odd page?); just do a ff
-        //char cache[2] = {014, 013};
-        //write (prt_state[prt_unit_num].prtfile, & cache, 2);
-        write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+        if (n_write != 1)
+          {
+            return -2;
+          }
         prt_state[prt_unit_num].cachedFF = false;
       }
     return 0;
@@ -637,7 +641,9 @@ static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint 
   }
 
 // 0 OK
-// -1 Can't open file
+// -1 Can't open print file
+// -2 Can't write to print file
+
 static int print_buf (int prt_unit_num, bool is_BCD, bool is_edited, int slew, word36 * buffer, uint tally)
   {
 // derived from pr2_conv_$lower_case_table
@@ -697,9 +703,9 @@ static int print_buf (int prt_unit_num, bool is_BCD, bool is_edited, int slew, w
     if (prt_state[prt_unit_num].prtfile == -1)
       {
         int rc = openPrtFile (prt_unit_num, buffer, tally);
-        if (rc == -1)
+        if (rc < 0) // Can't open or can't write to print file; or ff cached
           {
-            return -1;
+            return rc == -3 ? 0 : rc;
           }
       }
 
@@ -734,13 +740,21 @@ for (uint i = 0; i < tally; i ++)
 
     if (slew == -1)
       {
-        write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+        if (n_write != 1)
+          {
+            return -2;
+          }
       }
     else if (slew)
       {
         for (int i = 0; i < slew; i ++)
           {
-            write (prt_state[prt_unit_num].prtfile, crlf, 2);
+            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, crlf, 2);
+            if (n_write != 2)
+              {
+                return -2;
+              }
           }
       }
 // Not needed; always slew back to column 0 when done.
@@ -764,7 +778,11 @@ for (uint i = 0; i < tally; i ++)
                   {
                     bytes[i] = (uint8_t) bcd_uc [get_BCD_char (i)];
                   }
-                 write (prt_state[prt_unit_num].prtfile, bytes, nchars);
+                ssize_t n_write = write (prt_state[prt_unit_num].prtfile, bytes, nchars);
+                if (n_write != nchars)
+                  {
+                    return -2;
+                  }
               }
             else // edited BCD
               {
@@ -805,20 +823,37 @@ for (uint i = 0; i < tally; i ++)
                           }
                         else if (n >= 041 && n <= 057)
                           {
-                            write (prt_state[prt_unit_num].prtfile, spaces, (n - 040) * 8);
+                            int nchars = (n - 040) * 8;
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, spaces, nchars);
+                            if (n_write != nchars)
+                              {
+                                return -2;
+                              }
                           }
                         else if (n >= 020 && n <= 022)
                           {
                             // XXX not distinguishing between top of page, inside page, outside page
-                            write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+                            if (n_write != 1)
+                              {
+                                return -2;
+                              }
                           }
                         else if (n == 0) // slew 0 lines is just CR
                           {
-                            write (prt_state[prt_unit_num].prtfile, cr, 1);
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, cr, 1);
+                            if (n_write != 1)
+                              {
+                                return -2;
+                              }
                           }
                         else if (n <= 017)
                           {
-                            write (prt_state[prt_unit_num].prtfile, newlines, n);
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, newlines, n);
+                            if (n_write != n)
+                              {
+                                return -2;
+                              }
                           }
                         else
                           {
@@ -830,7 +865,11 @@ for (uint i = 0; i < tally; i ++)
                       }
                     else // not escape
                       {
-                        write (prt_state[prt_unit_num].prtfile, table[BCD_cset] + ch, 1);
+                        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, table[BCD_cset] + ch, 1);
+                        if (n_write != 1)
+                          {
+                            return -2;
+                          }
                       }
                   } // for i to nchars
               } // edited BCD
@@ -850,7 +889,11 @@ for (uint i = 0; i < tally; i ++)
                     if (isprint (ch))
                       bytes[nbytes ++] = ch;
                   }
-                write (prt_state[prt_unit_num].prtfile, bytes, nbytes);
+                ssize_t n_write = write (prt_state[prt_unit_num].prtfile, bytes, nbytes);
+                if (n_write != nbytes)
+                  {
+                    return -2;
+                  }
               }
             else // edited ASCII
               {
@@ -862,7 +905,11 @@ for (uint i = 0; i < tally; i ++)
                       {
                         i ++;
                         uint8_t n = get_ASCII_char (i);
-                        write (prt_state[prt_unit_num].prtfile, spaces, n);
+                        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, spaces, n);
+                        if (n_write != n)
+                          {
+                            return -2;
+                          }
                         col += n;
                       }
                     else if (ch == 013) // insert n new lines
@@ -871,17 +918,29 @@ for (uint i = 0; i < tally; i ++)
                         uint8_t n = get_ASCII_char (i);
                         if (n)
                            {
-                            write (prt_state[prt_unit_num].prtfile, newlines, n);
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, newlines, n);
+                            if (n_write != n)
+                              {
+                                return -2;
+                              }
                           }
                         else // 0 lines; just slew to beginning of line
                           {
-                            write (prt_state[prt_unit_num].prtfile, cr, 1);
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, cr, 1);
+                            if (n_write != 1)
+                              {
+                                return -2;
+                              }
                           }
                         col = 0;
                       }
                     else if (ch == 014) // slew page
                       {
-                        write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+                        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+                        if (n_write != 1)
+                          {
+                            return -2;
+                          }
                         col = 0;
                       }
                     else if (ch == 011) // horizontal tab
@@ -890,13 +949,21 @@ for (uint i = 0; i < tally; i ++)
                         uint8_t n = get_ASCII_char (i);
                         if (col < n)
                           {
-                            write (prt_state[prt_unit_num].prtfile, spaces, n - col);
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, spaces, n - col);
+                            if (n_write != n - col)
+                              {
+                                return -2;
+                              }
                             col += n;
                           }   
                       }
                     else if (isprint (ch))
                       {
-                        write (prt_state[prt_unit_num].prtfile, & ch, 1);
+                        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, & ch, 1);
+                        if (n_write != 1)
+                          {
+                            return -2;
+                          }
                         col ++;
                       }
                   } // for
@@ -905,7 +972,11 @@ for (uint i = 0; i < tally; i ++)
       } // tally
 
 // Slew back to beginning of line
-    write (prt_state[prt_unit_num].prtfile, cr, 1);
+    ssize_t n_write = write (prt_state[prt_unit_num].prtfile, cr, 1);
+    if (n_write != 1)
+      {
+        return -2;
+      }
 
     if ((! is_BCD) && eoj (buffer, tally))
       {
@@ -988,9 +1059,14 @@ sim_printf ("\n");
         sim_printf (">\n");
 #endif
         int rc = print_buf (prt_unit_num, is_BCD, is_edited, slew, buffer, tally);
-        if (rc == -1)
+        if (rc == -1) // Can't open print file
           {
             p->stati = 04201; // Out of paper
+            return IOM_CMD_ERROR;
+          }
+        if (rc == -2) // Can't write to print file
+          {
+            p->stati = 04210; // Check alert
             return IOM_CMD_ERROR;
           }
 
@@ -1403,9 +1479,14 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
               case 061: // CMD 61 Slew one line
                 {
                   int rc = print_buf (prt_unit_num, false, false, 1, NULL, 0);
-                  if (rc == -1)
+                  if (rc == -1) // Can't open print file
                     {
                       p->stati = 04201; // Out of paper
+                      return IOM_CMD_ERROR;
+                    }
+                  if (rc == -2) // Can't write to print file
+                    {
+                      p->stati = 04210; // Check alert
                       return IOM_CMD_ERROR;
                     }
                   p -> stati = 04000;
@@ -1417,9 +1498,14 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
               case 062: // CMD 62 Slew two lines
                 {
                   int rc = print_buf (prt_unit_num, false, false, 2, NULL, 0);
-                  if (rc == -1)
+                  if (rc == -1) // Can't open print file
                     {
                       p->stati = 04201; // Out of paper
+                      return IOM_CMD_ERROR;
+                    }
+                  if (rc == -2) // Can't write to print file
+                    {
+                      p->stati = 04210; // Check alert
                       return IOM_CMD_ERROR;
                     }
                   p -> stati = 04000;
@@ -1431,9 +1517,14 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
               case 063: // CMD 63 Slew top of page
                 {
                   int rc = print_buf (prt_unit_num, false, false, -1, NULL, 0);
-                  if (rc == -1)
+                  if (rc == -1) // Can't open print file
                     {
                       p->stati = 04201; // Out of paper
+                      return IOM_CMD_ERROR;
+                    }
+                  if (rc == -2) // Can't write to print file
+                    {
+                      p->stati = 04210; // Check alert
                       return IOM_CMD_ERROR;
                     }
                   p -> stati = 04000;
