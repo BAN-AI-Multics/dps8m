@@ -27,13 +27,13 @@ struct opcode_s opcodes10[02000] = {
 // NonEIS
     /* 000 */
     {NULL, 0, 0, 0, 0},
-    {"mme", NO_RPT, 0, 0, 0},
-    {"drl", NO_RPT, 0, 0, 0},
+    {"mme", PREPARE_CA | NO_RPT, 0, 0, 0},
+    {"drl", PREPARE_CA | NO_RPT, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-    {"mme2", NO_BAR | NO_RPT, 0, 0, 0},
-    {"mme3", NO_BAR | NO_RPT, 0, 0, 0},
+    {"mme2", PREPARE_CA | NO_BAR | NO_RPT, 0, 0, 0},
+    {"mme3", PREPARE_CA | NO_BAR | NO_RPT, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-    {"mme4", NO_BAR | NO_RPT, 0, 0, 0},
+    {"mme4", PREPARE_CA | NO_BAR | NO_RPT, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {"nop", PREPARE_CA | NO_RPT, 0, 0, ru_none},
     {"puls1", PREPARE_CA | NO_RPT, 0, 0, 0},
