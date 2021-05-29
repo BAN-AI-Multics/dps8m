@@ -1550,35 +1550,6 @@ A:;
           }
         
       }
-#ifdef LOCKLESS
-    if (StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
-#else
-    if (StrOp)
-#endif
-      {
-        DBGAPP ("do_append_cycle(B):STR-OP\n");
-        
-        // C(TPR.TRR) > C(SDW .R1)? Note typo in AL39, R2 should be R1
-        if (cpu.TPR.TRR > cpu.SDW->R1)
-          {
-            DBGAPP ("ACV5 TRR %o R1 %o\n",
-                    cpu.TPR.TRR, cpu.SDW->R1);
-            //Set fault ACV5 = OWB
-            cpu.acvFaults |= ACV5;
-            PNL (L68_ (cpu.apu.state |= apu_FLT;))
-            FMSG (acvFaultsMsg = "acvFaults(B) C(TPR.TRR) > C(SDW .R1)";)
-          }
-        
-        if (! cpu.SDW->W)
-          {
-            DBGAPP ("ACV6\n");
-            // Set fault ACV6 = W-OFF
-            cpu.acvFaults |= ACV6;
-            PNL (L68_ (cpu.apu.state |= apu_FLT;))
-            FMSG (acvFaultsMsg = "acvFaults(B) ACV6 = W-OFF";)
-          }
-        
-      }
     goto G;
     
 ////////////////////////////////////////
