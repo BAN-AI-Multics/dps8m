@@ -3132,7 +3132,9 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
+#ifndef SPEED
     else
+#endif
 #endif
 #ifndef SPEED
       nem_check (addr,  "core_read nem");
@@ -3460,7 +3462,9 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
+#ifdef TESTING
     else
+#endif
 #endif
 #ifndef SPEED
     nem_check (addr,  "core_read2 nem");

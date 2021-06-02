@@ -61,6 +61,13 @@ LDFLAGS += -pthread
 LIBS += -lpthread
 endif
 
+ifeq ($(ISOLTS),1)
+$(warning #### ISOLTS mode)
+LOCKLESS=1
+CFLAGS += -DISOLTS
+CFLAGS += -DWAM
+endif
+
 ifndef LIBUV
 LIBUV = -luv
 endif
@@ -360,7 +367,7 @@ zeromq : ../lib/libzmq.a
 
 ../lib/libzmq.a :
 	(cd ../zeromq-4.1.0 && ./configure --prefix=`pwd`/../ && $(MAKE) && $(MAKE) check && $(MAKE) install)
-	
+
 czmq : ../lib/libczmq.so
 
 ../lib/libczmq.so :
