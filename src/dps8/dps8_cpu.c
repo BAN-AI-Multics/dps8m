@@ -3444,6 +3444,9 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
+#if defined(ISOLTS) || defined(LOCKLESS)
+    word36 v;
+#endif
     if (addr & 1)
       {
         sim_debug (DBG_MSG, & cpu_dev,
@@ -3462,7 +3465,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-#ifdef TESTING
+#ifdef SPEED
     else
 #endif
 #endif
@@ -3537,7 +3540,6 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
       }
 #endif
 #ifdef LOCKLESS
-    word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: even locked %08o locked_addr %08o %c %05o:%06o\n",
