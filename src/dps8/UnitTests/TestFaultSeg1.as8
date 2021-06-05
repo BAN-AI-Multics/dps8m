@@ -40,7 +40,7 @@ main:
 
 run_tests:
 
-	tra	skip
+"	tra	skip
 
 " Test 1: simple direct R,n
 
@@ -149,6 +149,7 @@ t6_pass:
 
 " Test 7: subtract delta
 
+skip:
 	msg	msg_test7
 
 	bool	t7_data,701007001
@@ -457,8 +458,6 @@ t18_pass:
 
 t19_pass:
 	msg	msg_test_ok
-
-skip:
 
 " Test 20: fault tag 3, snapped link
 "
