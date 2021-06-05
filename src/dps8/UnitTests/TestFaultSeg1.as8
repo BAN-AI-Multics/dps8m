@@ -520,7 +520,23 @@ t20_pass:
 t21_pass:
 	msg	msg_test_ok
 
+" Test 22: double indirect with indexing
 
+	msg	msg_test22
+
+	bool	t22_data,345026001
+
+	lda	=0,dl
+	ldx3	=1,du
+
+	unmap_memory
+	lda	t22_p1,*3	"t22_p1 -> t22_p2 -> t22_a1[1]
+
+	cmpa	t22_a1
+	tze	t22_pass
+	dis	*
+t22_pass:
+	msg	msg_test_ok
 
 
 
@@ -690,6 +706,9 @@ msg_test20:
 msg_test21:
 	aci	'Test 21 fault tag 3 unsnapped ...\n\0'
 
+msg_test22:
+	aci	'Test 22 IR,RI,R ...\n\0'
+
 msg_main_entry:
 	aci	'Fault test main\n\0'
 
@@ -784,6 +803,9 @@ t18_p1:	oct	0	" Initialized to t18_p1_init in test
 
 t19_p1:	arg	t19_a1
 
+" Test 22
+t22_p1:	arg	t22_p2,N*
+
 "
 " Page 2: double indirect words
 "
@@ -802,6 +824,10 @@ t16_p2:	oct	0
 " Test 18
 
 t18_p2:	arg	t18_a1
+
+" Test 22
+
+t22_p2:	arg	t22_a1-1
 
 "
 " Page 3: data
@@ -900,4 +926,8 @@ t20_a1:	dec	t20_data
 " Test 21
 
 t21_a1:	dec	t21_data
+
+" Test 22
+
+t22_a1:	dec	t22_data
 
