@@ -4,7 +4,7 @@ image: silkeh/clang
 
 default:
   before_script:
-    - apt-get update -qq && apt-get install -y -qq libuv0.10-dev
+    - apt-get update -qq && apt-get install -y -qq libuv1-dev
     
 
 stages:
