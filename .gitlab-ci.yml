@@ -1,5 +1,6 @@
 #image: "registry.gitlab.com/dps8m/dps8m"
-image: "registry.gitlab.com/unused0/docker_images"
+#image: "registry.gitlab.com/unused0/docker_images"
+image: gcc
 
 stages:
   - build_linux
