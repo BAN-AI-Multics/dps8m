@@ -23,7 +23,6 @@ SIMHx = ../simh-master
 INSTALL_ROOT ?= /usr/local/
 INSTALL_BIN ?= $(INSTALL_ROOT)/bin
 
-
 include ../Makefile.mk
 
 ifneq (,$(wildcard Makefile.local))
@@ -49,16 +48,38 @@ CROSS=MINGW64
 endif
 
 ifeq ($(THREADZ),1)
+$(warning ####)
+$(warning #### THREADZ mode)
+$(warning ####)
 CFLAGS += -pthread -DTHREADZ
 LDFLAGS += -pthread
 LIBS += -lpthread
 endif
 
+ifeq ($(ISOLTS),1)
+$(warning ####)
+$(warning #### ISOLTS mode)
+$(warning ####)
+LOCKLESS=1
+CFLAGS += -DISOLTS
+CFLAGS += -DWAM
+endif
+
 ifeq ($(LOCKLESS),1)
+$(warning ####)
+$(warning #### LOCKLESS mode)
+$(warning ####)
 #CFLAGS += -pthread -DLOCKLESS -DWAM
 CFLAGS += -pthread -DLOCKLESS 
 LDFLAGS += -pthread
 LIBS += -lpthread
+endif
+
+ifeq ($(SPEED),1)
+$(warning ####)
+$(warning #### SPEED mode)
+$(warning ####)
+SPEED=1
 endif
 
 ifndef LIBUV
@@ -360,7 +381,7 @@ zeromq : ../lib/libzmq.a
 
 ../lib/libzmq.a :
 	(cd ../zeromq-4.1.0 && ./configure --prefix=`pwd`/../ && $(MAKE) && $(MAKE) check && $(MAKE) install)
-	
+
 czmq : ../lib/libczmq.so
 
 ../lib/libczmq.so :
