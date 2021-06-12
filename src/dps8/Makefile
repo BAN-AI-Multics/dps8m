@@ -52,27 +52,33 @@ CROSS=MINGW64
 endif
 
 ifeq ($(THREADZ),1)
+ifeq ($(MAKELEVEL),0)
 $(warning ####)
 $(warning #### THREADZ mode)
 $(warning ####)
+endif
 CFLAGS += -pthread -DTHREADZ
 LDFLAGS += -pthread
 LIBS += -lpthread
 endif
 
 ifeq ($(ISOLTS),1)
+ifeq ($(MAKELEVEL),0)
 $(warning ####)
 $(warning #### ISOLTS mode)
 $(warning ####)
+endif
 LOCKLESS=1
 CFLAGS += -DISOLTS
 CFLAGS += -DWAM
 endif
 
 ifeq ($(LOCKLESS),1)
+ifeq ($(MAKELEVEL),0)
 $(warning ####)
 $(warning #### LOCKLESS mode)
 $(warning ####)
+endif
 #CFLAGS += -pthread -DLOCKLESS -DWAM
 CFLAGS += -pthread -DLOCKLESS 
 LDFLAGS += -pthread
@@ -80,9 +86,11 @@ LIBS += -lpthread
 endif
 
 ifeq ($(SPEED),1)
+ifeq ($(MAKELEVEL),0)
 $(warning ####)
 $(warning #### SPEED mode)
 $(warning ####)
+endif
 SPEED=1
 endif
 
