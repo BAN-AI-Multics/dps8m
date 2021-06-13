@@ -32,6 +32,13 @@ $(warning ####)
 include Makefile.local
 endif
 
+ifdef TRACKER
+$(warning ####)
+$(warning #### TRACKER mode)
+$(warning ####)
+CFLAGS += -DTRACKER -DTESTING
+endif
+
 ifdef TESTING
 $(warning ####)
 $(warning #### TESTING mode)
@@ -193,6 +200,9 @@ C_SRCS += ./dps8_simh.c
 ifneq ($(CROSS),MINGW64)
 C_SRCS += ./dps8_socket_dev.c
 endif
+ifeq ($(TRACKER),1)
+C_SRCS += ./tracker.c 
+endif
 C_SRCS += ./dps8_sys.c
 C_SRCS += ./dps8_urp.c
 C_SRCS += ./dps8_utils.c
@@ -279,6 +289,9 @@ ifeq ($(LOCKLESS),1)
 H_SRCS += ./threadz.h
 endif
 H_SRCS += ./uvutil.h
+ifeq ($(TRACKER),1)
+H_SRCS += ./tracker.h 
+endif
 
 
 
