@@ -4,8 +4,15 @@ image: silkeh/clang
 
 default:
   before_script:
-    - apt-get update -qq && apt-get install -y -qq libuv1-dev mingw-w64
-    - ln -s /usr/lib/x86_64-linux-gnu /usr/lib64
+    - apt-get update -qq && apt-get install -y -qq mingw-w64 libtool unzip
+    - wget https://github.com/libuv/libuv/archive/v1.x.zip
+    - unzip v1.x
+    - cd libuv-1.x
+    - sh autogen.sh
+    - ./configure
+    - make
+    - make install
+    - cd ..
 
 stages:
   - build_linux
@@ -26,7 +33,7 @@ build linux:
   only:
     - master
   script:
-    -  make LIBUV="/usr/lib64/libuv.a" -lpthread
+    -  make LIBUV="/usr/lib64/libuv.a -lpthread"
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
@@ -37,7 +44,7 @@ build linuxlockless:
   only:
     - master
   script:
-    -  make LIBUV="/usr/lib64/libuv.a" -lpthread LOCKLESS=1
+    -  make LIBUV="/usr/lib64/libuv.a -lpthread" LOCKLESS=1
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
