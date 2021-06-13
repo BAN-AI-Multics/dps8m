@@ -122,7 +122,6 @@ ldbr_data:
 """ Descriptor Segment Page Table.
 """
 
-
 descr_seg_page_table:
 
 " A table of PTWs; each PTW points to a table of 1024 SDWs; the first PTW is
@@ -211,11 +210,10 @@ descr_seg_page_table:
 	vfd	1/0, 14/#4, 1/#5, 1/#6, 1/#7, 1/#8, 1/#9, 1/0, 1/1, 14/0
 	endm
 
-	sixtyfour
-
 """
 """ Descriptor segment page for segments 0-1023
 """
+	mod	pgsz
 
 seg_0_descr_seg_page_table:
 
@@ -510,6 +508,14 @@ ft3_handler:
 	spri	ft3_spri
 	dmsg	msg_ft3_entry
 
+	ldq     =0777700,dl	" adjust_mc
+	ansq	ft3_scu+6
+	ldq	=020,dl		" RI mod
+	orsq	ft3_scu+6	" to IWB
+	ldq	ft3_scu+5	" CA
+	anq	=0777777,du
+	orsq	ft3_scu+6	" to IWB
+	
 " The snapped link is stashed immediately after the unsnapped link
 " Recover the link address from the SCU data
 
