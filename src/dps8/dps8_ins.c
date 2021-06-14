@@ -2017,20 +2017,6 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 		//                cpu.cu.XSF = 1;
 		//sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction !restart !EIS sets XSF to %o\n", cpu.cu.XSF);
                 //set_went_appending ();
-#if 0
-extern bool b29clr;
-if (b29clr)
-{
-    word36 * wb;
-    if (USE_IRODD)
-      wb = & cpu.cu.IRODD;
-    else
-      wb = & cpu.cu.IWB;
-    putbits36_1 (wb, 29,  0);
-    //cpu.currentInstruction.b29 = 0;
-    //cpu.cu.XSF = 1;
-}
-#endif
             }
 
 // Putting the a29 clear here makes sense, but breaks the emulator for unclear
