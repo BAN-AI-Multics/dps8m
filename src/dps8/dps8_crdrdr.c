@@ -3,6 +3,7 @@
  Copyright 2012-2016 by Harry Reed
  Copyright 2013-2016 by Charles Anthony
  Copyright 2016 by Michal Tomek
+ Copyright 2021 by Dean S. Anderson
 
  All rights reserved.
 
@@ -61,6 +62,8 @@ static t_stat rdr_show_nunits (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat rdr_set_nunits (UNIT * uptr, int32 value, const char * cptr, void * desc);
 static t_stat rdr_show_device_name (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat rdr_set_device_name (UNIT * uptr, int32 value, const char * cptr, void * desc);
+static t_stat rdr_show_path (UNUSED FILE * st, UNIT * uptr, UNUSED int val, UNUSED const void * desc);
+static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value, const UNUSED char * cptr, UNUSED void * desc);
 
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE )
@@ -123,6 +126,16 @@ static MTAB rdr_mod [] =
       "Select the boot drive", /* value descriptor */
       NULL          // help
     },
+    {
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC, /* mask */
+      0,            /* match */
+      "PATH",     /* print string */
+      "PATH",         /* match string */
+      rdr_set_path, /* validation routine */
+      rdr_show_path, /* display routine */
+      "Path to card reader directories", /* value descriptor */
+      NULL // Help
+    },
 
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
   };
@@ -179,6 +192,10 @@ static struct rdr_state
   } rdr_state [N_RDR_UNITS_MAX];
 
 
+static char* rdr_name = "rdra";
+static char rdr_path_prefix[PATH_MAX+1];
+
+
 /*
  * rdr_init()
  *
@@ -196,6 +213,7 @@ sim_printf ("crd rdr signal caught\n");
 
 void rdr_init (void)
   {
+    memset (rdr_path_prefix, 0, sizeof (rdr_path_prefix));
     memset (rdr_state, 0, sizeof (rdr_state));
     for (uint i = 0; i < N_RDR_UNITS_MAX; i ++)
       rdr_state [i] . deckfd = -1;
@@ -794,24 +812,31 @@ static void submit (enum deckFormat fmt, char * fname)
 
 void rdrProcessEvent ()
   {
+    char rdr_dir [PATH_MAX+1];
+
 #ifndef __MINGW64__
-    char * qdir = "/tmp/rdra";
+    strcpy(rdr_dir,"/tmp/");
+    strcat(rdr_dir,rdr_name);
 #else
-    char qdir[260];
-    strcpy(qdir,getenv("TEMP"));
-    strcat(qdir,"/rdra");
+    strcpy(rdr_dir,getenv("TEMP"));
+    strcat(rdr_dir,"/");
+    strcat(rdr_dir,rdr_name);
 #endif
+
+    if (rdr_path_prefix [0]) 
+      {
+        strcpy(rdr_dir,rdr_path_prefix);
+        strcat(rdr_dir,rdr_name);
+      }
+
     if (! rdr_state [0 /* ASSUME0 */] . running)
       return;
-#if 0
-    if (rdr_state [0 /* ASSUME0 */] . deckfd >= 0)
-      return;
-#endif
+
     DIR * dp;
-    dp = opendir (qdir);
+    dp = opendir (rdr_dir);
     if (! dp)
       {
-        sim_warn ("crdrdr opendir '%s' fail.\n", qdir);
+        sim_warn ("crdrdr opendir '%s' fail.\n", rdr_dir);
         perror ("opendir");
         return;
       }
@@ -820,7 +845,7 @@ void rdrProcessEvent ()
     while ((entry = readdir (dp)))
       {
         //printf ("%s\n", entry -> d_name);
-        strcpy (fqname, qdir);
+        strcpy (fqname, rdr_dir);
         strcat (fqname, "/");
         strcat (fqname, entry -> d_name);
         if (rdr_state [0 /* ASSUME0 */] . deckfd < 0)
@@ -926,6 +951,39 @@ static t_stat rdr_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
       }
     else
       rdr_state [n] . device_name [0] = 0;
+    return SCPE_OK;
+  }
+
+static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
+                                    const UNUSED char * cptr, UNUSED void * desc)
+  {
+    if (! cptr)
+      return SCPE_ARG;
+
+    size_t len = strlen(cptr);
+
+    // We check for legnth - (2 + length of rdr_name) to allow for the null, a possible '/' being added and "rdrx" being added
+    if (len >= (sizeof(rdr_path_prefix) - (strlen(rdr_name) + 2)))
+      return SCPE_ARG;
+
+    strncpy(rdr_path_prefix, cptr, sizeof(rdr_path_prefix));
+    if (len > 0)
+      {
+        if (rdr_path_prefix[len - 1] != '/')
+          {
+            if (len == sizeof(rdr_path_prefix) - 1)
+              return SCPE_ARG;
+            rdr_path_prefix[len++] = '/';
+            rdr_path_prefix[len] = 0;
+          }
+      }
+    return SCPE_OK;
+  }
+
+static t_stat rdr_show_path (UNUSED FILE * st, UNIT * uptr,
+                                       UNUSED int val, UNUSED const void * desc)
+  {
+    sim_printf("Path to card reader directories is %s\n", rdr_path_prefix);
     return SCPE_OK;
   }
 
