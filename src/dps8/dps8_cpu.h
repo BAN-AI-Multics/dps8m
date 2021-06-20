@@ -2202,6 +2202,10 @@ int core_unlock_all();
 #define MEM_LOCKED_BIT    61
 #define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
 
+#if defined(__APPLE__)
+#define pthread_yield pthread_yield_np
+#endif
+
 #if defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
 #include <machine/atomic.h>
 
