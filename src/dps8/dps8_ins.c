@@ -6788,9 +6788,6 @@ static t_stat doInstruction (void)
           if (sim_deb_mme_cntdwn > 0)
             sim_deb_mme_cntdwn --;
 #endif
-#ifdef ISOLTS
-	  cpu.TPR.CA = GET_ADDR (IWB_IRODD);
-#endif
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+4. The value of C is
           // obtained from the FAULT VECTOR switches on the processor
