@@ -2,6 +2,7 @@
  Copyright (c) 2007-2013 Michael Mondy
  Copyright 2012-2016 by Harry Reed
  Copyright 2013-2016 by Charles Anthony
+ Copyright 2021 by Dean Anderson
 
  All rights reserved.
 
@@ -56,6 +57,8 @@ static t_stat pun_show_nunits (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat pun_set_nunits (UNIT * uptr, int32 value, const char * cptr, void * desc);
 static t_stat pun_show_device_name (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat pun_set_device_name (UNIT * uptr, int32 value, const char * cptr, void * desc);
+static t_stat pun_show_path (UNUSED FILE * st, UNIT * uptr, UNUSED int val, UNUSED const void * desc);
+static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value, const UNUSED char * cptr, UNUSED void * desc);
 
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE )
@@ -115,8 +118,18 @@ static MTAB pun_mod [] =
       "NAME",         /* match string */
       pun_set_device_name, /* validation routine */
       pun_show_device_name, /* display routine */
-      "Select the boot drive", /* value descriptor */
+      "Set the punch device name", /* value descriptor */
       NULL          // help
+    },
+    {
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC, /* mask */
+      0,            /* match */
+      "PATH",     /* print string */
+      "PATH",         /* match string */
+      pun_set_path, /* validation routine */
+      pun_show_path, /* display routine */
+      "Path to card punch directories", /* value descriptor */
+      NULL // Help
     },
 
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
@@ -161,6 +174,10 @@ static struct pun_state
     bool sawEOD;
   } pun_state [N_PUN_UNITS_MAX];
 
+static char* pun_name = "pun";
+static char* pun_file_name_template = "spool.XXXXXX";
+static char pun_path_prefix[PATH_MAX+1];
+
 /*
  * pun_init()
  *
@@ -170,6 +187,7 @@ static struct pun_state
 
 void pun_init (void)
   {
+    memset (pun_path_prefix, 0, sizeof (pun_path_prefix));
     memset (pun_state, 0, sizeof (pun_state));
     for (int i = 0; i < N_PUN_UNITS_MAX; i ++)
       pun_state [i] . punfile = -1;
@@ -326,8 +344,17 @@ static void openPunFile (int pun_unit_num, UNUSED word36 * buffer, UNUSED uint t
     else
       sprintf (template, "pun%c.spool.%s.%s.XXXXXX", 'a' + pun_unit_num, qno, name);
 #else
-    char template [129];
-    sprintf (template, "pun%c.spool.XXXXXX", 'a' + pun_unit_num);
+    char template [PATH_MAX+1];
+
+    if (pun_path_prefix [0]) 
+      {
+        sprintf (template, "%s%s%c/%s", pun_path_prefix, pun_name, 'a' + pun_unit_num, pun_file_name_template);
+      }
+    else
+      {
+        sprintf (template, "pun%c.%s", 'a' + pun_unit_num, pun_file_name_template);
+      }
+
     pun_state [pun_unit_num] . punfile = mkstemp (template);
 #endif
 #if 0
@@ -491,48 +518,6 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
             iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                     & wordsProcessed, false);
 
-#if 0
-sim_printf ("tally %d\n", p-> DDCW_TALLY);
-for (uint i = 0; i < p -> DDCW_TALLY; i ++)
-  sim_printf ("  %012"PRIo64"\n", buffer [i]);
-sim_printf ("\n");
-
-for (uint row = 0; row < 12; row ++)
-  {
-    for (uint col = 0; col < 80; col ++)
-      {
-        // 3 cols/word
-        uint wordno = col / 3;
-        uint fieldno = col % 3;
-        word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
-        if (bit)
-          sim_printf ("*");
-        else
-          sim_printf (" ");
-      }
-    sim_printf ("\n");
-  }
-sim_printf ("\n");
-
-for (uint row = 0; row < 12; row ++)
-  {
-    //for (uint col = 0; col < 80; col ++)
-    for (int col = 79; col >= 0; col --)
-      {
-        // 3 cols/word
-        uint wordno = (uint) col / 3;
-        uint fieldno = (uint) col % 3;
-        word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
-        if (bit)
-          sim_printf ("*");
-        else
-          sim_printf (" ");
-      }
-    sim_printf ("\n");
-  }
-sim_printf ("\n");
-#endif
-
              if (pun_state [pun_unit_num] . punfile == -1)
                openPunFile ((int) pun_unit_num, buffer, p -> DDCW_TALLY);
 
@@ -645,4 +630,36 @@ static t_stat pun_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
+static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
+                                    const UNUSED char * cptr, UNUSED void * desc)
+  {
+    if (! cptr)
+      return SCPE_ARG;
+
+    size_t len = strlen(cptr);
+
+    // We check for legnth - (3 + length of pun_name + 1) to allow for the null, a possible '/' being added, "punx" and the file name being added
+    if (len >= (sizeof(pun_path_prefix) - (strlen(pun_name) + strlen(pun_file_name_template) + 4)))
+      return SCPE_ARG;
+
+    strncpy(pun_path_prefix, cptr, sizeof(pun_path_prefix));
+    if (len > 0)
+      {
+        if (pun_path_prefix[len - 1] != '/')
+          {
+            if (len == sizeof(pun_path_prefix) - 1)
+              return SCPE_ARG;
+            pun_path_prefix[len++] = '/';
+            pun_path_prefix[len] = 0;
+          }
+      }
+    return SCPE_OK;
+  }
+
+static t_stat pun_show_path (UNUSED FILE * st, UNIT * uptr,
+                                       UNUSED int val, UNUSED const void * desc)
+  {
+    sim_printf("Path to card punch directories is %s\n", pun_path_prefix);
+    return SCPE_OK;
+  }
 
