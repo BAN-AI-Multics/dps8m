@@ -1,0 +1,258 @@
+\subsection[Cabling System Components]{CABLING SYSTEM COMPONENTS}
+
+This section describes how the simulated components of a system are cabled together.
+
+\subsubsection[CABLE Command]{CABLE COMMAND}
+
+This section describes the CABLE command and its options.
+
+This command is responsible for managing the interconnection of 
+major subsystems: CPU, SCU, IOM; contollers: MTP, IPC, MSP, URP;
+
+The unit numbers for CPUs, IOMs, and SCUs (eg IOM3 is IOM unit 3) are
+SIMH unit numbers; these units can be individually configured to
+desired Multics unit numbers. However, it is somewhat easier to 
+adopt an one-to-one practice; IOM0 == IOMA, etc.
+
+The following shows all the various options for the CABLE command:
+
+\textbf{CABLE RIPOUT}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Remove all cables from the configuration.
+\end{adjustwidth}  
+
+\textbf{CABLE SHOW}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Show the current cabling configuration.
+\end{adjustwidth}  
+
+\textbf{CABLE DUMP}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Show the current cabling configuration in great detail.
+\end{adjustwidth}  
+
+\textbf{CABLE SCUi j IOMk l}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect SCU i port j to IOM k port l.
+  "cable SCU0 0 IOM0 2"
+\end{adjustwidth}  
+
+\textbf{CABLE SCUi j CPUk l}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect SCU i port j to CPU k port l.
+  "cable SCU0 7 CPU0 7"
+\end{adjustwidth}  
+
+\textbf{CABLE IOMi j MTPk} \\
+\textbf{CABLE IOMi j MTPk l}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect IOM i channel j to MTP k port l (l defaults to 0).
+\end{adjustwidth}  
+
+\textbf{CABLE IOMi j MSPk} \\
+\textbf{CABLE IOMi j MSPk l}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect IOM i channel j to MSP k port l (l defaults to 0).
+\end{adjustwidth}  
+
+\textbf{CABLE IOMi j IPCk} \\
+\textbf{CABLE IOMi j IPCk l} \\
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect IOM i channel j to IPC k port l (l defaults to 0).
+\end{adjustwidth}  
+
+\textbf{CABLE IOMi j OPCk}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect IOM i channel j to OPC k.
+\end{adjustwidth}  
+
+\textbf{CABLE IOMi j FNPk}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect IOM i channel j to FNP k.
+\end{adjustwidth}  
+
+\textbf{CABLE IOMi j ABSIk}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect IOM i channel j to ABSI k.
+\end{adjustwidth}  
+
+\textbf{CABLE IOMi j SKCk}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect IOM i channel j to SKC k.
+\end{adjustwidth}  
+
+\textbf{CABLE MTPi j TAPEk}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect MTP i device code j to tape unit k.
+\end{adjustwidth}  
+
+\textbf{CABLE IPCi j DISKk}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect IPC i device code j to disk unit k.
+\end{adjustwidth}  
+
+\textbf{CABLE MSPi j DISKk}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect MSP i device code j to disk unit k.
+\end{adjustwidth}  
+
+\textbf{CABLE URPi j RDRk}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect URP i device code j to card reader unit k.
+\end{adjustwidth}  
+
+\textbf{CABLE URPi j PUNk}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect URP i device code j to card punch unit k.
+\end{adjustwidth}  
+
+\textbf{CABLE URPi j PRTk}
+
+\begin{adjustwidth}{5ex}{1ex}
+  Connect URP i device code j to printer unit k.
+\end{adjustwidth}  
+
+\subsubsection[Default Cable Configuration]{DEFAULT CABLE CONFIGURATION}
+
+Below are tables showing the default cable configuration. Note that you
+can always get this information by simply starting the simulator with
+no ".ini" file and entering the command "cable show" (which is how these tables were generated).
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{SCU} & \texttt{<-->} & \texttt{IOM} &  \\
+		\texttt{SCU} & \texttt{port} & \texttt{-->} & \texttt{IOM} & \texttt{port} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} \\
+		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{0} \\
+		\texttt{1} & \texttt{0} & & \texttt{0} & \texttt{1} \\
+		\texttt{1} & \texttt{1} & & \texttt{1} & \texttt{1} \\
+		\texttt{2} & \texttt{0} & & \texttt{0} & \texttt{2} \\
+		\texttt{2} & \texttt{1} & & \texttt{1} & \texttt{2} \\
+		\texttt{3} & \texttt{0} & & \texttt{0} & \texttt{3} \\
+		\texttt{3} & \texttt{1} & & \texttt{1} & \texttt{3} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{SCU} & \texttt{<-->} & \texttt{CPU} &  \\
+		\texttt{SCU} & \texttt{port} & \texttt{-->} & \texttt{CPU} & \texttt{port} \\
+		\texttt{0} & \texttt{2} & & \texttt{5} & \texttt{0} \\
+		\texttt{0} & \texttt{3} & & \texttt{4} & \texttt{0} \\
+		\texttt{0} & \texttt{4} & & \texttt{3} & \texttt{0} \\
+		\texttt{0} & \texttt{5} & & \texttt{2} & \texttt{0} \\
+		\texttt{0} & \texttt{6} & & \texttt{1} & \texttt{0} \\
+		\texttt{0} & \texttt{7} & & \texttt{0} & \texttt{0} \\
+		\texttt{1} & \texttt{2} & & \texttt{5} & \texttt{1} \\
+		\texttt{1} & \texttt{3} & & \texttt{4} & \texttt{1} \\
+		\texttt{1} & \texttt{4} & & \texttt{3} & \texttt{1} \\
+		\texttt{1} & \texttt{5} & & \texttt{2} & \texttt{1} \\
+		\texttt{1} & \texttt{6} & & \texttt{1} & \texttt{1} \\
+		\texttt{1} & \texttt{7} & & \texttt{0} & \texttt{1} \\
+		\texttt{2} & \texttt{2} & & \texttt{5} & \texttt{2} \\
+		\texttt{2} & \texttt{3} & & \texttt{4} & \texttt{2} \\
+		\texttt{2} & \texttt{4} & & \texttt{3} & \texttt{2} \\
+		\texttt{2} & \texttt{5} & & \texttt{2} & \texttt{2} \\
+		\texttt{2} & \texttt{6} & & \texttt{1} & \texttt{2} \\
+		\texttt{2} & \texttt{7} & & \texttt{0} & \texttt{2} \\
+		\texttt{3} & \texttt{2} & & \texttt{5} & \texttt{3} \\
+		\texttt{3} & \texttt{3} & & \texttt{4} & \texttt{3} \\
+		\texttt{3} & \texttt{4} & & \texttt{3} & \texttt{3} \\
+		\texttt{3} & \texttt{5} & & \texttt{2} & \texttt{3} \\
+		\texttt{3} & \texttt{6} & & \texttt{1} & \texttt{3} \\
+		\texttt{3} & \texttt{7} & & \texttt{0} & \texttt{3} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{cccccccccc}
+		& & & & \texttt{IOM} & \texttt{<-->} & \texttt{controller} & & &  \\
+		& & & \texttt{ctlr} & & \texttt{ctlr} & \texttt{chan} & & &  \\
+		\texttt{IOM} & \texttt{chan} & \texttt{-->} & \texttt{idx} & \texttt{port} & \texttt{type} & \texttt{type} & \texttt{device} & \texttt{board} & \texttt{command} \\
+		\texttt{0} & \texttt{10} & & \texttt{0} & \texttt{0} & \texttt {MTP} & \texttt{PSI} & \texttt{0x4e5f98} & \texttt{0x553c50} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{11} & & \texttt{0} & \texttt{0} & \texttt{IPC} & \texttt{PSI} & \texttt{0x4e4208} & \texttt{0x551f20} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{12} & & \texttt{0} & \texttt{0} & \texttt{MSP} & \texttt{PSI} & \texttt{0x4e4368} & \texttt{0x5527a0} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{13} & & \texttt{0} & \texttt{0} & \texttt{URP} & \texttt{PSI} & \texttt{0x4f1b28} & \texttt{0x4f10e0} & \texttt{0x449510} \\
+		\texttt{0} & \texttt{14} & & \texttt{1} & \texttt{0} & \texttt{URP} & \texttt{PSI} & \texttt{0x4f1b28} & \texttt{0x4f1168} & \texttt{0x449510} \\
+		\texttt{0} & \texttt{15} & & \texttt{2} & \texttt{0} & \texttt{URP} & \texttt{PSI} & \texttt{0x4f1b28} & \texttt{0x4f11f0} & \texttt{0x449510} \\
+		\texttt{0} & \texttt{16} & & \texttt{3} & \texttt{0} & \texttt{FNP} & \texttt{Direct} & \texttt{0x4e51f0} & \texttt{0x4e48b8} & \texttt{0x4288c0} \\
+		\texttt{0} & \texttt{17} & & \texttt{0} & \texttt{0} & \texttt{FNP} & \texttt{Direct} & \texttt{0x4e51f0} & \texttt{0x4e4720} & \texttt{0x4288c0} \\
+		\texttt{0} & \texttt{18} & & \texttt{1} & \texttt{0} & \texttt{FNP} & \texttt{Direct} & \texttt{0x4e51f0} & \texttt{0x4e47a8} & \texttt{0x4288c0} \\
+		\texttt{0} & \texttt{19} & & \texttt{2} & \texttt{0} & \texttt{FNP} & \texttt{Direct} & \texttt{0x4e51f0} & \texttt{0x4e4830} & \texttt{0x4288c0} \\
+		\texttt{0} & \texttt{20} & & \texttt{4} & \texttt{0} & \texttt{FNP} & \texttt{Direct} & \texttt{0x4e51f0} & \texttt{0x4e4940} & \texttt{0x4288c0} \\
+		\texttt{0} & \texttt{21} & & \texttt{5} & \texttt{0} & \texttt{FNP} & \texttt{Direct} & \texttt{0x4e51f0} & \texttt{0x4e49c8} & \texttt{0x4288c0} \\
+		\texttt{0} & \texttt{22} & & \texttt{6} & \texttt{0} & \texttt{FNP} & \texttt{Direct} & \texttt{0x4e51f0} & \texttt{0x4e4a50} & \texttt{0x4288c0} \\
+		\texttt{0} & \texttt{23} & & \texttt{7} & \texttt{0} & \texttt{FNP} & \texttt{Direct} & \texttt{0x4e51f0} & \texttt{0x4e4ad8} & \texttt{0x4288c0} \\
+		\texttt{0} & \texttt{26} & & \texttt{0} & \texttt{0} & \texttt{ABSI} & \texttt{Direct} & \texttt{0x4de7b8} & \texttt{0x4de5a0} & \texttt{0x403d50} \\
+		\texttt{0} & \texttt{30} & & \texttt{0} & \texttt{0} & \texttt{OPC} & \texttt{CPI} & \texttt{0x4deea8} & \texttt{0x4de8e0} & \texttt{0x40b5b0} \\
+		\texttt{0} & \texttt{32} & & \texttt{0} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x556d60} & \texttt{0x445c20} \\
+		\texttt{0} & \texttt{33} & & \texttt{1} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x556de8} & \texttt{0x445c20} \\
+		\texttt{0} & \texttt{34} & & \texttt{2} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x556e70} & \texttt{0x445c20} \\
+		\texttt{0} & \texttt{35} & & \texttt{3} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x556ef8} & \texttt{0x445c20} \\
+		\texttt{0} & \texttt{36} & & \texttt{4} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x556f80} & \texttt{0x445c20} \\
+		\texttt{0} & \texttt{37} & & \texttt{5} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x557008} & \texttt{0x445c20} \\
+		\texttt{0} & \texttt{38} & & \texttt{6} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x557090} & \texttt{0x445c20} \\
+		\texttt{0} & \texttt{39} & & \texttt{7} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x557118} & \texttt{0x445c20} \\
+		\texttt{1} & \texttt{10} & & \texttt{0} & \texttt{1} & \texttt{MTP} & \texttt{PSI} & \texttt{0x4e5f98} & \texttt{0x553c50} & \texttt{0x43ed50} \\
+		\texttt{1} & \texttt{11} & & \texttt{0} & \texttt{1} & \texttt{IPC} & \texttt{PSI} & \texttt{0x4e4208} & \texttt{0x551f20} & \texttt{0x4120e0} \\
+		\texttt{1} & \texttt{12} & & \texttt{0} & \texttt{1} & \texttt{MSP} & \texttt{PSI} & \texttt{0x4e4368} & \texttt{0x5527a0} & \texttt{0x4120e0} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{controller} & \texttt{<-->} & \texttt{device} &  \\
+		\texttt{MTP} & \texttt{dev\_code} & \texttt{-->} & \texttt{TAPE} & \texttt{command} \\
+		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{2} & & \texttt{2} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{3} & & \texttt{3} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{4} & & \texttt{4} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{5} & & \texttt{5} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{6} & & \texttt{6} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{7} & & \texttt{7} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{8} & & \texttt{8} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{9} & & \texttt{9} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{10} & & \texttt{10} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{11} & & \texttt{11} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{12} & & \texttt{12} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{13} & & \texttt{13} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{14} & & \texttt{14} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{15} & & \texttt{15} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{16} & & \texttt{16} & \texttt{0x43ed50} \\
+		\texttt{IPC} & \texttt{dev\_code} & \texttt{-->} & \texttt{DISK} & \texttt{command} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{2} & & \texttt{2} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{3} & & \texttt{3} & \texttt{0x4120e0} \\
+		\texttt{MSP} & \texttt{dev\_code} & \texttt{-->} & \texttt{DISK} & \texttt{command} \\
+		\texttt{0} & \texttt{1} & & \texttt{4} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{2} & & \texttt{5} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{3} & & \texttt{6} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{4} & & \texttt{7} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{5} & & \texttt{8} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{6} & & \texttt{9} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{7} & & \texttt{10} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{8} & & \texttt{11} & \texttt{0x4120e0} \\
+		\texttt{URP} & \texttt{dev\_code} & \texttt{-->} & \texttt{URP} & \texttt{command} \\
+		\texttt{0} & \texttt{1} & & \texttt{0} & \texttt{0x410f20} \\
+		\texttt{1} & \texttt{1} & & \texttt{0} & \texttt{0x410610} \\
+		\texttt{2} & \texttt{1} & & \texttt{0} & \texttt{0x441960} \\
+	\end{tabular}
+\end{adjustwidth}

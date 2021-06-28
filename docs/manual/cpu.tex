@@ -1,0 +1,69 @@
+\subsection[Central Processing Unit]{CENTRAL PROCESSING UNIT}
+
+This section describes the configuration and operation of the simulated DPS8M Central Processing Unit (CPU).
+
+\subsubsection[CPU Overview]{CPU OVERVIEW}
+
+The DPS8M CPU has
+\begin{itemize}
+	\item 36 bit words
+	\item 18 bit addresses (allowing a segment size of 256 thousand words)
+	\item 15 bit segment numbers (allowing 32 thousand segments of 256 thousand words)
+	\item 1 million instructions per second (1 MIP)
+	\item Direct Memory Access I/O (DMA)
+	\item Two 36 bit accumulators (A and Q)
+	\item Eight 18 bit index registers (X0-X7)
+	\item Eight pointer/address registers (each containing a 15 bit segment number, 18 bit address and 6 bit bit number)
+	\item 36 and 72 bit integer and floating point arithmetic
+	\item 10 digit decimal arithmetic
+	\item String move and compare
+	\item Decimal number formatting (e.g COBOL or PL/1 "PIC")
+\end{itemize} 
+
+\subsubsection[CPU Options]{CPU OPTIONS}
+
+These are the currently supported "normal" CPU options:
+
+faultbase
+
+num
+
+data
+
+stopnum
+
+mode
+
+speed
+
+port
+
+assignment
+
+interlace
+
+enable
+
+init\_enable
+
+store\_size
+
+These options are supported as "hacks" and should not normally be used:
+
+dis\_enable
+
+halt\_on\_unimplemented
+
+disable\_wam
+
+report\_faults
+
+tro\_enable
+
+drl\_fatal
+
+useMap
+
+address
+
+disable\_cache
