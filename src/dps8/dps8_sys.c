@@ -3608,20 +3608,6 @@ static t_stat zap (UNUSED int32 arg, const char * buf)
     return SCPE_OK;
   }
 
-bool b29clr = false;
-
-static t_stat clr (UNUSED int32 arg, const char * buf)
-  {
-    b29clr = true;
-    return SCPE_OK;
-  }
-
-static t_stat noclr (UNUSED int32 arg, const char * buf)
-  {
-    b29clr = false;
-    return SCPE_OK;
-  }
-
 static CTAB dps8_cmds[] =
   {
 
@@ -3682,8 +3668,6 @@ static CTAB dps8_cmds[] =
     {"TRKR",             trkr,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
 #endif
     {"ZAP",              zap,            0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
-    {"CLR",              clr,            0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
-    {"NOCLR",            noclr,            0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
 #ifdef TESTING
     {"DBGMMECNTDWN",        dps_debug_mme_cntdwn,     0, "dbgmmecntdwn: Enable debug after n MMEs\n", NULL, NULL},
     {"DBGSKIP",             dps_debug_skip,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
