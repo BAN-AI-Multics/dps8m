@@ -3580,6 +3580,22 @@ sim_printf ("%o:%o %u(%d) %s\r\n", dbgevents[n_dbgevents].segno, dbgevents[n_dbg
 // simh Command table
 //
 
+#ifdef TRACKER
+#include "tracker.h"
+
+static t_stat trkw (UNUSED int32 arg, const char * buf)
+  {
+    trk_init (true);
+    return SCPE_OK;
+  }
+
+static t_stat trkr (UNUSED int32 arg, const char * buf)
+  {
+    trk_init (false);
+    return SCPE_OK;
+  }
+#endif
+
 static CTAB dps8_cmds[] =
   {
 
@@ -3635,6 +3651,10 @@ static CTAB dps8_cmds[] =
 // Debugging
 //
 
+#ifdef TRACKER
+    {"TRKW",             trkw,                        0, "tracker: Start tracking to track.dat\n", NULL, NULL},
+    {"TRKR",             trkr,                        0, "tracker: Start comparing with track.dat\n", NULL, NULL},
+#endif
 #ifdef TESTING
     {"DBGMMECNTDWN",        dps_debug_mme_cntdwn,     0, "dbgmmecntdwn: Enable debug after n MMEs\n", NULL, NULL},
     {"DBGSKIP",             dps_debug_skip,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
@@ -3794,6 +3814,9 @@ static void dps8_init (void)
 #endif
 #ifdef LOCKLESS
     sim_msg ("#### LOCKLESS BUILD ####\n");
+#endif
+#ifdef TRACKER
+    sim_msg ("#### TRACKER BUILD ####\n");
 #endif
 
     // special dps8 initialization stuff that cant be done in reset, etc .....
