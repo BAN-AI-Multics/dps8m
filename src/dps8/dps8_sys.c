@@ -3602,12 +3602,6 @@ static t_stat trkr (UNUSED int32 arg, const char * buf)
   }
 #endif
 
-static t_stat zap (UNUSED int32 arg, const char * buf)
-  {
-    cpu_reset_unit_idx (0, true);
-    return SCPE_OK;
-  }
-
 static CTAB dps8_cmds[] =
   {
 
@@ -3664,10 +3658,9 @@ static CTAB dps8_cmds[] =
 //
 
 #ifdef TRACKER
-    {"TRKW",             trkw,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
-    {"TRKR",             trkr,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
+    {"TRKW",             trkw,                        0, "tracker: Start tracking to track.dat\n", NULL, NULL},
+    {"TRKR",             trkr,                        0, "tracker: Start comparing with track.dat\n", NULL, NULL},
 #endif
-    {"ZAP",              zap,            0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
 #ifdef TESTING
     {"DBGMMECNTDWN",        dps_debug_mme_cntdwn,     0, "dbgmmecntdwn: Enable debug after n MMEs\n", NULL, NULL},
     {"DBGSKIP",             dps_debug_skip,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
@@ -3827,6 +3820,9 @@ static void dps8_init (void)
 #endif
 #ifdef LOCKLESS
     sim_msg ("#### LOCKLESS BUILD ####\n");
+#endif
+#ifdef TRACKER
+    sim_msg ("#### TRACKER BUILD ####\n");
 #endif
 
     // special dps8 initialization stuff that cant be done in reset, etc .....
