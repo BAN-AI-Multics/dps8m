@@ -1,15 +1,15 @@
 /*
- Copyright (c) 2007-2013 Michael Mondy
- Copyright 2012-2016 by Harry Reed
- Copyright 2013-2016 by Charles Anthony
- Copyright 2015 by Eric Swenson
-
- All rights reserved.
-
- This software is made available under the terms of the
- ICU License -- ICU 1.8.1 and later.
- See the LICENSE file at the top-level directory of this distribution and
- at https://sourceforge.net/p/dps8m/code/ci/master/tree/LICENSE
+ * Copyright (c) 2007-2013 Michael Mondy
+ * Copyright (c) 2012-2016 Harry Reed
+ * Copyright (c) 2013-2016 Charles Anthony
+ * Copyright (c) 2015 Eric Swenson
+ * Copyright (c) 2021 The DPS8M Development Team
+ *
+ * All rights reserved.
+ *
+ * This software is made available under the terms of the ICU
+ * License, version 1.8.1 or later.  For more details, see the
+ * LICENSE file at the top-level directory of this distribution.
  */
 
 void Read (word18 addr, word36 *dat, processor_cycle_type cyctyp);
