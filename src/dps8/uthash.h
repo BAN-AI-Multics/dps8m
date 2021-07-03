@@ -1,25 +1,27 @@
 /*
-Copyright (c) 2003-2013, Troy D. Hanson     http://troydhanson.github.com/uthash/
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
-OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * Copyright (c) 2003-2013, Troy D. Hanson
+ *     http://troydhanson.github.com/uthash/
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #ifndef UTHASH_H
 #define UTHASH_H 
@@ -28,18 +30,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stddef.h>   /* ptrdiff_t */
 #include <stdlib.h>   /* exit() */
 
-/* These macros use decltype or the earlier __typeof GNU extension.
-   As decltype is only available in newer compilers (VS2010 or gcc 4.3+
-   when compiling c++ source) this code uses whatever method is needed
-   or, for VS2008 where neither is available, uses casting workarounds. */
-#ifdef _MSC_VER         /* MS compiler */
+ /*
+  *  These macros use decltype or the earlier __typeof GNU extension.
+  *  As decltype is only available in newer compilers (VS2010 or gcc 4.3+
+  *  when compiling c++ source) this code uses whatever method is needed
+  *  or, for VS2008 where neither is available, uses casting workarounds.
+  */
+
+#ifdef _MSC_VER                     /* MS compiler */
 #if _MSC_VER >= 1600 && defined(__cplusplus)  /* VS2010 or newer in C++ mode */
 #define DECLTYPE(x) (decltype(x))
-#else                   /* VS2008 or older (or VS2010 in C mode) */
+#else                               /* VS2008 or older (or VS2010 in C mode) */
 #define NO_DECLTYPE
 #define DECLTYPE(x)
 #endif
-#else                   /* GNU, Sun and other compilers */
+#else                               /* GNU, Sun and other compilers */
 #define DECLTYPE(x) (__typeof(x))
 #endif
 
@@ -56,7 +61,11 @@ do {                                                                            
 } while(0)
 #endif
 
-/* a number of the hash function use uint32_t which isn't defined on win32 */
+ /*
+  * a number of the hash function use 
+  * uint32_t which isn't defined on win32
+  */
+
 #ifdef _MSC_VER
 typedef unsigned int uint32_t;
 typedef unsigned char uint8_t;
@@ -200,18 +209,20 @@ do {                                                                            
   bkt = ((hashv) & ((num_bkts) - 1));                                            \
 } while(0)
 
-/* delete "delptr" from the hash table.
- * "the usual" patch-up process for the app-order doubly-linked-list.
- * The use of _hd_hh_del below deserves special explanation.
- * These used to be expressed using (delptr) but that led to a bug
- * if someone used the same symbol for the head and deletee, like
- *  HASH_DELETE(hh,users,users);
- * We want that to work, but by changing the head (users) below
- * we were forfeiting our ability to further refer to the deletee (users)
- * in the patch-up process. Solution: use scratch space to
- * copy the deletee pointer, then the latter references are via that
- * scratch pointer rather than through the repointed (users) symbol.
- */
+ /*
+  * delete "delptr" from the hash table.
+  * "the usual" patch-up process for the app-order doubly-linked-list.
+  * The use of _hd_hh_del below deserves special explanation.
+  * These used to be expressed using (delptr) but that led to a bug
+  * if someone used the same symbol for the head and deletee, like
+  *  HASH_DELETE(hh,users,users);
+  * We want that to work, but by changing the head (users) below
+  * we were forfeiting our ability to further refer to the deletee (users)
+  * in the patch-up process. Solution: use scratch space to
+  * copy the deletee pointer, then the latter references are via that
+  * scratch pointer rather than through the repointed (users) symbol.
+  */
+
 #define HASH_DELETE(hh,head,delptr)                                              \
 do {                                                                             \
     unsigned _hd_bkt;                                                            \
@@ -248,7 +259,11 @@ do {                                                                            
 } while (0)
 
 
-/* convenience forms of HASH_FIND/HASH_ADD/HASH_DEL */
+ /*
+  * convenience forms of
+  * HASH_FIND/HASH_ADD/HASH_DEL
+  */
+
 #define HASH_FIND_STR(head,findstr,out)                                          \
     HASH_FIND(hh,head,findstr,strlen(findstr),out)
 #define HASH_ADD_STR(head,strfield,add)                                          \
@@ -270,9 +285,14 @@ do {                                                                            
 #define HASH_DEL(head,delptr)                                                    \
     HASH_DELETE(hh,head,delptr)
 
-/* HASH_FSCK checks hash integrity on every add/delete when HASH_DEBUG is defined.
- * This is for uthash developer only; it compiles away if HASH_DEBUG isn't defined.
- */
+ /*
+  * HASH_FSCK checks hash integrity on every
+  * add/delete when HASH_DEBUG is defined.
+  *
+  * This is for uthash developer only; it compiles
+  * away if HASH_DEBUG isn't defined.
+  */
+
 #ifdef HASH_DEBUG
 #define HASH_OOPS(...) do { fprintf(stderr,__VA_ARGS__); exit(-1); } while (0)
 #define HASH_FSCK(hh,head)                                                       \
@@ -330,9 +350,15 @@ do {                                                                            
 #define HASH_FSCK(hh,head) 
 #endif
 
-/* When compiled with -DHASH_EMIT_KEYS, length-prefixed keys are emitted to 
- * the descriptor to which this macro is defined for tuning the hash function.
- * The app can #include <unistd.h> to get the prototype for write(2). */
+ /*
+  * When compiled with -DHASH_EMIT_KEYS,
+  * length-prefixed keys are emitted to 
+  * the descriptor to which this macro is
+  * defined for tuning the hash function.
+  * The app can #include <unistd.h> to
+  * get the prototype for write(2).
+  */
+
 #ifdef HASH_EMIT_KEYS
 #define HASH_EMIT_KEY(hh,head,keyptr,fieldlen)                                   \
 do {                                                                             \
@@ -344,14 +370,22 @@ do {                                                                            
 #define HASH_EMIT_KEY(hh,head,keyptr,fieldlen)                    
 #endif
 
-/* default to Jenkin's hash unless overridden e.g. DHASH_FUNCTION=HASH_SAX */
+ /*
+  * default to Jenkin's hash unless overridden
+  * e.g. DHASH_FUNCTION=HASH_SAX
+  */
+
 #ifdef HASH_FUNCTION 
 #define HASH_FCN HASH_FUNCTION
 #else
 #define HASH_FCN HASH_JEN
 #endif
 
-/* The Bernstein hash function, used in Perl prior to v5.6 */
+ /*
+  * The Bernstein hash function,
+  * used in Perl prior to v5.6
+  */
+
 #define HASH_BER(key,keylen,num_bkts,hashv,bkt)                                  \
 do {                                                                             \
   unsigned _hb_keylen=keylen;                                                    \
@@ -361,9 +395,12 @@ do {                                                                            
   bkt = (hashv) & (num_bkts-1);                                                  \
 } while (0)
 
+ /*
+  * SAX/FNV/OAT/JEN hash functions are
+  * macro variants of those listed at
+  * http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+  */
 
-/* SAX/FNV/OAT/JEN hash functions are macro variants of those listed at 
- * http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx */
 #define HASH_SAX(key,keylen,num_bkts,hashv,bkt)                                  \
 do {                                                                             \
   unsigned _sx_i;                                                                \
@@ -454,7 +491,11 @@ do {                                                                            
   bkt = hashv & (num_bkts-1);                                                    \
 } while(0)
 
-/* The Paul Hsieh hash function */
+ /*
+  * The Paul Hsieh
+  * hash function
+  */
+
 #undef get16bits
 #if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__)             \
   || defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
@@ -510,15 +551,24 @@ do {                                                                            
 } while(0) 
 
 #ifdef HASH_USING_NO_STRICT_ALIASING
-/* The MurmurHash exploits some CPU's (x86,x86_64) tolerance for unaligned reads.
- * For other types of CPU's (e.g. Sparc) an unaligned read causes a bus error.
- * MurmurHash uses the faster approach only on CPU's where we know it's safe. 
- *
- * Note the preprocessor built-in defines can be emitted using:
- *
- *   gcc -m64 -dM -E - < /dev/null                  (on gcc)
- *   cc -## a.c (where a.c is a simple test file)   (Sun Studio)
- */
+
+ /*
+  * The MurmurHash exploits some CPU's
+  * (x86,x86_64) tolerance for unaligned reads.
+  *
+  * For other types of CPU's (e.g. Sparc) an
+  * unaligned read causes a bus error.
+  *
+  * MurmurHash uses the faster approach only
+  * on CPU's where we know it's safe. 
+  *
+  * Note the preprocessor built-in defines
+  * can be emitted using:
+  *
+  *   gcc -m64 -dM -E - < /dev/null                  (on gcc)
+  *   cc -## a.c (where a.c is a simple test file)   (Sun Studio)
+  */
+
 #if (defined(__i386__) || defined(__x86_64__)  || defined(_M_IX86))
 #define MUR_GETBLOCK(p,i) p[i]
 #else /* non intel */
@@ -590,10 +640,18 @@ do {                                                                   \
 } while(0)
 #endif  /* HASH_USING_NO_STRICT_ALIASING */
 
-/* key comparison function; return 0 if keys equal */
+ /*
+  * key comparison function;
+  * return 0 if keys equal
+  */
+
 #define HASH_KEYCMP(a,b,len) memcmp(a,b,len) 
 
-/* iterate over items in a known bucket to find desired item */
+ /*
+  * iterate over items in a known
+  * bucket to find desired item
+  */
+
 #define HASH_FIND_IN_BKT(tbl,hh,head,keyptr,keylen_in,out)                       \
 do {                                                                             \
  if (head.hh_head) DECLTYPE_ASSIGN(out,ELMT_FROM_HH(tbl,head.hh_head));          \
@@ -607,7 +665,11 @@ do {                                                                            
  }                                                                               \
 } while(0)
 
-/* add an item to a bucket  */
+ /*
+  * add an item
+  * to a bucket
+  */
+
 #define HASH_ADD_TO_BKT(head,addhh)                                              \
 do {                                                                             \
  head.count++;                                                                   \
@@ -621,7 +683,11 @@ do {                                                                            
  }                                                                               \
 } while(0)
 
-/* remove an item from a given bucket */
+ /*
+  * remove an item from
+  * a given bucket
+  */
+
 #define HASH_DEL_IN_BKT(hh,head,hh_del)                                          \
     (head).count--;                                                              \
     if ((head).hh_head == hh_del) {                                              \
@@ -634,35 +700,36 @@ do {                                                                            
         hh_del->hh_next->hh_prev = hh_del->hh_prev;                              \
     }                                                                
 
-/* Bucket expansion has the effect of doubling the number of buckets
- * and redistributing the items into the new buckets. Ideally the
- * items will distribute more or less evenly into the new buckets
- * (the extent to which this is true is a measure of the quality of
- * the hash function as it applies to the key domain). 
- * 
- * With the items distributed into more buckets, the chain length
- * (item count) in each bucket is reduced. Thus by expanding buckets
- * the hash keeps a bound on the chain length. This bounded chain 
- * length is the essence of how a hash provides constant time lookup.
- * 
- * The calculation of tbl->ideal_chain_maxlen below deserves some
- * explanation. First, keep in mind that we're calculating the ideal
- * maximum chain length based on the *new* (doubled) bucket count.
- * In fractions this is just n/b (n=number of items,b=new num buckets).
- * Since the ideal chain length is an integer, we want to calculate 
- * ceil(n/b). We don't depend on floating point arithmetic in this
- * hash, so to calculate ceil(n/b) with integers we could write
- * 
- *      ceil(n/b) = (n/b) + ((n%b)?1:0)
- * 
- * and in fact a previous version of this hash did just that.
- * But now we have improved things a bit by recognizing that b is
- * always a power of two. We keep its base 2 log handy (call it lb),
- * so now we can write this with a bit shift and logical AND:
- * 
- *      ceil(n/b) = (n>>lb) + ( (n & (b-1)) ? 1:0)
- * 
- */
+ /*
+  * Bucket expansion has the effect of doubling the number of buckets
+  * and redistributing the items into the new buckets. Ideally the
+  * items will distribute more or less evenly into the new buckets
+  * (the extent to which this is true is a measure of the quality of
+  * the hash function as it applies to the key domain). 
+  * 
+  * With the items distributed into more buckets, the chain length
+  * (item count) in each bucket is reduced. Thus by expanding buckets
+  * the hash keeps a bound on the chain length. This bounded chain 
+  * length is the essence of how a hash provides constant time lookup.
+  * 
+  * The calculation of tbl->ideal_chain_maxlen below deserves some
+  * explanation. First, keep in mind that we're calculating the ideal
+  * maximum chain length based on the *new* (doubled) bucket count.
+  * In fractions this is just n/b (n=number of items,b=new num buckets).
+  * Since the ideal chain length is an integer, we want to calculate 
+  * ceil(n/b). We don't depend on floating point arithmetic in this
+  * hash, so to calculate ceil(n/b) with integers we could write
+  * 
+  *      ceil(n/b) = (n/b) + ((n%b)?1:0)
+  * 
+  * and in fact a previous version of this hash did just that.
+  * But now we have improved things a bit by recognizing that b is
+  * always a power of two. We keep its base 2 log handy (call it lb),
+  * so now we can write this with a bit shift and logical AND:
+  * 
+  *      ceil(n/b) = (n>>lb) + ( (n & (b-1)) ? 1:0)
+  */
+
 #define HASH_EXPAND_BUCKETS(tbl)                                                 \
 do {                                                                             \
     unsigned _he_bkt;                                                            \
@@ -712,9 +779,19 @@ do {                                                                            
 } while(0)
 
 
-/* This is an adaptation of Simon Tatham's O(n log(n)) mergesort */
-/* Note that HASH_SORT assumes the hash handle name to be hh. 
- * HASH_SRT was added to allow the hash handle name to be passed in. */
+ /*
+  * This is an adaptation of Simon
+  * Tatham's O(n log(n)) mergesort
+  */
+
+ /*
+  * Note that HASH_SORT assumes the
+  * hash handle name to be hh.
+  * 
+  * HASH_SRT was added to allow the
+  * hash handle name to be passed in.
+  */
+
 #define HASH_SORT(head,cmpfcn) HASH_SRT(hh,head,cmpfcn)
 #define HASH_SRT(hh,head,cmpfcn)                                                 \
 do {                                                                             \
@@ -795,11 +872,14 @@ do {                                                                            
  }                                                                               \
 } while (0)
 
-/* This function selects items from one hash into another hash. 
- * The end result is that the selected items have dual presence 
- * in both hashes. There is no copy of the items made; rather 
- * they are added into the new hash through a secondary hash 
- * hash handle that must be present in the structure. */
+ /*
+  * This function selects items from one hash into another hash. 
+  * The end result is that the selected items have dual presence 
+  * in both hashes. There is no copy of the items made; rather 
+  * they are added into the new hash through a secondary hash 
+  * hash handle that must be present in the structure.
+  */
+
 #define HASH_SELECT(hh_dst, dst, hh_src, src, cond)                              \
 do {                                                                             \
   unsigned _src_bkt, _dst_bkt;                                                   \
@@ -873,7 +953,8 @@ typedef struct UT_hash_bucket {
    struct UT_hash_handle *hh_head;
    unsigned count;
 
-   /* expand_mult is normally set to 0. In this situation, the max chain length
+   /*
+	* expand_mult is normally set to 0. In this situation, the max chain length
     * threshold is enforced at its default value, HASH_BKT_CAPACITY_THRESH. (If
     * the bucket's chain exceeds this length, bucket expansion is triggered). 
     * However, setting expand_mult to a non-zero value delays bucket expansion
@@ -885,6 +966,7 @@ typedef struct UT_hash_bucket {
     * It is better to let its chain length grow to a longer yet-still-bounded
     * value, than to do an O(n) bucket expansion too often. 
     */
+
    unsigned expand_mult;
 
 } UT_hash_bucket;
@@ -900,21 +982,30 @@ typedef struct UT_hash_table {
    struct UT_hash_handle *tail; /* tail hh in app order, for fast append    */
    ptrdiff_t hho; /* hash handle offset (byte pos of hash handle in element */
 
-   /* in an ideal situation (all buckets used equally), no bucket would have
-    * more than ceil(#items/#buckets) items. that's the ideal chain length. */
+   /*
+	* in an ideal situation (all buckets used equally), no bucket would have
+    * more than ceil(#items/#buckets) items. that's the ideal chain length.
+	*/
+
    unsigned ideal_chain_maxlen;
 
-   /* nonideal_items is the number of items in the hash whose chain position
+   /*
+	* nonideal_items is the number of items in the hash whose chain position
     * exceeds the ideal chain maxlen. these items pay the penalty for an uneven
-    * hash distribution; reaching them in a chain traversal takes >ideal steps */
+    * hash distribution; reaching them in a chain traversal takes >ideal steps
+	*/
+
    unsigned nonideal_items;
 
-   /* ineffective expands occur when a bucket doubling was performed, but 
+   /*
+	* ineffective expands occur when a bucket doubling was performed, but 
     * afterward, more than half the items in the hash had nonideal chain
     * positions. If this happens on two consecutive expansions we inhibit any
     * further expansion, as it's not helping; this happens when the hash
     * function isn't a good fit for the key domain. When expansion is inhibited
-    * the hash will still work, albeit no longer in constant time. */
+    * the hash will still work, albeit no longer in constant time.
+	*/
+
    unsigned ineff_expands, noexpand;
 
    uint32_t signature; /* used only to find hash tables in external analysis */

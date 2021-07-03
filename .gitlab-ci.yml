@@ -17,7 +17,7 @@ default:
 stages:
   - build_linux
   - build_linux_lockless
-  - build_mingw
+# - build_mingw
 
 #  - list
 #
@@ -37,7 +37,7 @@ build linux:
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/utils/prt2pdf
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
 
 build linuxlockless:
   stage: build_linux_lockless
@@ -48,7 +48,7 @@ build linuxlockless:
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/utils/prt2pdf
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
 
 # build mingw:
 #   stage: build_mingw
@@ -72,4 +72,3 @@ build linuxlockless:
 #    - cd src/dps8; ./dps8 -v yoyodyne.ini
 #    - cd src/dps8; cp root.dsk yoyodyne.root.dsk
 #    - cd src/dps8; cp dska_01.dsk yoyodyne.dska_01.dsk
-
