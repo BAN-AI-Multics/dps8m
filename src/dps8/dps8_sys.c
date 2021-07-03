@@ -1410,7 +1410,7 @@ static char * default_base_system_script [] =
     // ; Attach IOM unit 1 port D (3) to SCU unit 3, port 1
     "cable SCU3 1 IOM1 3", // SCU3 port 0 IOM0 port 3
 
-// SCU0 --> CPU0-6
+// SCU0 --> CPU0-5
 
     // ; Attach SCU unit 0 port 7 to CPU unit A (1), port 0
     "cable SCU0 7 CPU0 0",
@@ -1430,7 +1430,7 @@ static char * default_base_system_script [] =
     // ; Attach SCU unit 0 port 2 to CPU unit F (5), port 0
     "cable SCU0 2 CPU5 0",
 
-// SCU1 --> CPU0-6
+// SCU1 --> CPU0-5
 
     // ; Attach SCU unit 1 port 7 to CPU unit A (1), port 1
     "cable SCU1 7 CPU0 1",
@@ -1450,7 +1450,7 @@ static char * default_base_system_script [] =
     // ; Attach SCU unit 1 port 2 to CPU unit F (5), port 0
     "cable SCU1 2 CPU5 1",
 
-// SCU2 --> CPU0-6
+// SCU2 --> CPU0-5
 
     // ; Attach SCU unit 2 port 7 to CPU unit A (1), port 2
     "cable SCU2 7 CPU0 2", 
@@ -1470,11 +1470,8 @@ static char * default_base_system_script [] =
     // ; Attach SCU unit 2 port 2 to CPU unit F (5), port 0
     "cable SCU2 2 CPU5 2",
 
-    // ; Attach SCU unit 2 port 1 to CPU unit G (6), port 0
-    "cable SCU2 1 CPU6 2",
 
-
-// SCU3 --> CPU0-6
+// SCU3 --> CPU0-5
 
     // ; Attach SCU unit 3 port 7 to CPU unit A (1), port 3
     "cable SCU3 7 CPU0 3",
@@ -1493,9 +1490,6 @@ static char * default_base_system_script [] =
 
     // ; Attach SCU unit 3 port 2 to CPU unit F (5), port 0
     "cable SCU3 2 CPU5 3",
-
-    // ; Attach SCU unit 3 port 1 to CPU unit G (6), port 0
-    "cable SCU3 1 CPU6 3",
 
 
     "set cpu0 reset",
