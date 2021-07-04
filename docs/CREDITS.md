@@ -81,7 +81,7 @@ was part of the version 2.9 of the Berkeley Software Distribution.
 It was later rewritten to support ANSI C by [Tony Finch](dot@dotat.at).
 
 ```text
-* Copyright (c) 2002-2020 Tony Finch <dot@dotat.at>
+* Copyright (c) 2002‑2020 Tony Finch <dot@dotat.at>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -150,7 +150,7 @@ structures, was written by
 distributed under the terms and conditions of a modified BSD license.
 
 ```text
-Copyright (c) 2005-2021 Troy D. Hanson
+Copyright (c) 2005‑2021 Troy D. Hanson
     http://troydhanson.github.io/uthash/
 
 All rights reserved.
@@ -180,15 +180,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 **SIMH**, a portable simulation framework, was written by Robert M Supnik
 and others, and is distributed under the terms and conditions of a modified
-X-Windows/MIT license.
+X‑Windows/MIT license.
 
-* Copyright (c) 1993-2012 Robert M Supnik
-* Copyright (c) 2002-2007 David T. Hittner
-* Copyright (c) 2005-2016 Richard Cornwell
-* Copyright (c) 2007-2008 Howard M. Harte
-* Copyright (c) 2008-2009 J. David Bryan
-* Copyright (c) 2011-2013 Matt Burke
-* Copyright (c) 2011-2015 Mark Pizzolato
+* Copyright (c) 1993‑2012 Robert M Supnik
+* Copyright (c) 2002‑2007 David T. Hittner
+* Copyright (c) 2005‑2016 Richard Cornwell
+* Copyright (c) 2007‑2008 Howard M. Harte
+* Copyright (c) 2008‑2009 J. David Bryan
+* Copyright (c) 2011‑2013 Matt Burke
+* Copyright (c) 2011‑2015 Mark Pizzolato
 * Copyright (c) 2013 Timothe Litt
 
 ```text
@@ -221,7 +221,7 @@ in this Software without prior written authorization from the authors.
 **PRT2PDF** is a utility to convert the output of **DPS8M** line
 printers to ISO 32000 Portable Document Format (PDF) format.
 
-* Copyright (c) 2013-2016 Charles Anthony \<charles.unix.pro@gmail.com\>
+* Copyright (c) 2013‑2016 Charles Anthony \<charles.unix.pro@gmail.com\>
 * Copyright (c) 2006 John S. Urban, USA. \<urbanjost@comcast.net\>
 
 **PRT2PDF** is made available under the terms and conditions of the
@@ -245,8 +245,8 @@ text to Adobe PDF format, written by P. G. Womack.
 ### DECNUMBER
 
 ***DECNUMBER*** is the ANSI C reference implementation of the *IBM General
-Decimal Arithmetic* standard, implementing decimal floating-point
-arithmetic and the 'Strawman 4d' decimal-encoding formats, as described
+Decimal Arithmetic* standard, implementing decimal floating‑point
+arithmetic and the 'Strawman 4d' decimal encoding formats, as described
 by the revised IEEE 754 specifications. It is distributed under the terms
 and conditions of the **ICU License** (*version 1.8.1 or later*).
 
@@ -255,7 +255,7 @@ ICU License (ICU 1.8.1 and later)
 
 COPYRIGHT AND PERMISSION NOTICE
 
-Copyright (c) 1995-2010 International Business Machines Corporation and others
+Copyright (c) 1995‑2010 International Business Machines Corporation and others
 
 All rights reserved.
 
@@ -291,7 +291,7 @@ of the copyright holder.
 
 **LIBTELNET** is an implementation of the protocol specified by the Network
 Working Group of the Internet Engineering Task Force, as described in
-RFC-854, RFC-855, RFC-1091, RFC-1143, RFC-1408, and RFC-1572 - the TELNET
+RFC‑854, RFC‑855, RFC‑1091, RFC‑1143, RFC‑1408, and RFC‑1572 - the TELNET
 protocol and the Q method for TELNET protocol option negotiation - written
 by Sean Middleditch and other contributors.
 
@@ -305,9 +305,9 @@ of all present and future rights to this code under copyright law.
 
 ----
 
-### SHELL-TOOLKIT
+### SHELL‑TOOLKIT
 
-Shell scripts may adapt or incorporate public-domain
+Shell scripts may adapt or incorporate public domain
 POSIX shell functions, routines, and techniques (the "Routines"),
 written or distributed by
 [Thorsten "mirabilos" Glaser](https://www.mirbsd.org/).
