@@ -192,7 +192,7 @@ static struct rdr_state
   } rdr_state [N_RDR_UNITS_MAX];
 
 
-static char* rdr_name = "rdra";
+static char* rdr_name = "rdr";
 static char rdr_path_prefix[PATH_MAX+1];
 
 
@@ -793,44 +793,46 @@ static int rdr_cmd (uint iomUnitIdx, uint chan)
     return IOM_CMD_OK;
   }
 
-static void submit (enum deckFormat fmt, char * fname)
+static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
   {
-    //FILE * deckfd = fopen (fname, "r");
+    if (readerIndex >= N_RDR_UNITS_MAX) {
+      sim_warn("crdrdr: submit called with invalid reader index %d\n", readerIndex);
+      return;
+    }
+
     int deckfd = open (fname, O_RDONLY);
     if (deckfd < 0)
       perror ("card reader deck open\n");
 // Windows can't unlink open files; save the file name and unlink on close.
     // int rc = unlink (fname); // this only works on UNIX
     sim_printf ("submit %s\n", fname);
-    strcpy (rdr_state [0 /* ASSUME0 */] . fname, fname);
-    rdr_state [0 /* ASSUME0 */] . deckfd = deckfd;
-    rdr_state [0 /* ASSUME0 */] . deckState = deckStart;
-    rdr_state [0 /* ASSUME0 */] . deckFormat = fmt;
+    strcpy (rdr_state [readerIndex] . fname, fname);
+    rdr_state [readerIndex] . deckfd = deckfd;
+    rdr_state [readerIndex] . deckState = deckStart;
+    rdr_state [readerIndex] . deckFormat = fmt;
     if (deckfd >= 0)
-      rdrCardReady (0 /*ASSUME0*/);
+      rdrCardReady (readerIndex);
   }
 
-void rdrProcessEvent ()
+static void scanForCards(uint16 readerIndex)
   {
     char rdr_dir [PATH_MAX+1];
 
+    if (readerIndex >= N_RDR_UNITS_MAX) {
+      sim_warn("crdrdr: scanForCards called with invalid reader index %d\n", readerIndex);
+      return;
+    }
+
 #ifndef __MINGW64__
-    strcpy(rdr_dir,"/tmp/");
-    strcat(rdr_dir,rdr_name);
+    sprintf(rdr_dir, "/tmp/%s%c", rdr_name, 'a' + readerIndex);
 #else
-    strcpy(rdr_dir,getenv("TEMP"));
-    strcat(rdr_dir,"/");
-    strcat(rdr_dir,rdr_name);
+    sprintf(rdr_dir, "%s/%s%c", getenv("TEMP"), rdr_name, 'a' + readerIndex);
 #endif
 
     if (rdr_path_prefix [0]) 
       {
-        strcpy(rdr_dir,rdr_path_prefix);
-        strcat(rdr_dir,rdr_name);
+        sprintf(rdr_dir, "%s%s%c", rdr_path_prefix, rdr_name, 'a' + readerIndex);
       }
-
-    if (! rdr_state [0 /* ASSUME0 */] . running)
-      return;
 
     DIR * dp;
     dp = opendir (rdr_dir);
@@ -841,28 +843,41 @@ void rdrProcessEvent ()
         return;
       }
     struct dirent * entry;
+    struct stat info;
     char fqname [PATH_MAX+1];
     while ((entry = readdir (dp)))
       {
-        //printf ("%s\n", entry -> d_name);
         strcpy (fqname, rdr_dir);
         strcat (fqname, "/");
         strcat (fqname, entry -> d_name);
-        if (rdr_state [0 /* ASSUME0 */] . deckfd < 0)
+
+        if (stat(fqname, &info) != 0) 
+          {
+            sim_warn("crdrdr: scanForCards stat() error for %s: %s\n", fqname, strerror(errno));
+            continue;
+          }
+
+        if (S_ISDIR(info.st_mode)) 
+          {
+            // Found a directory so skip it
+            continue;
+          }
+
+        if (rdr_state [readerIndex] . deckfd < 0)
           {
             if (strncmp (entry -> d_name, "cdeck.", 6) == 0)
               {
-                submit (cardDeck, fqname);
+                submit (cardDeck, fqname, readerIndex);
                 break;
               }
             if (strncmp (entry -> d_name, "7deck.", 6) == 0)
               {
-                submit (sevenDeck, fqname);
+                submit (sevenDeck, fqname, readerIndex);
                 break;
               }
             if (strncmp (entry -> d_name, "sdeck.", 6) == 0)
               {
-                submit (streamDeck, fqname);
+                submit (streamDeck, fqname, readerIndex);
                 break;
               }
           }
@@ -872,19 +887,42 @@ void rdrProcessEvent ()
             int rc = unlink (fqname);
             if (rc)
               perror ("crdrdr discard unlink\n");
-            if (rdr_state [0 /* ASSUME0 */] . deckfd >= 0)
+            if (rdr_state [readerIndex] . deckfd >= 0)
               {
-                close (rdr_state [0 /* ASSUME0 */] . deckfd);
-                rc = unlink (rdr_state [0 /* ASSUME0 */] . fname);
+                close (rdr_state [readerIndex] . deckfd);
+                rc = unlink (rdr_state [readerIndex] . fname);
                 if (rc)
                   perror ("crdrdr deck unlink\n");
-                rdr_state [0 /* ASSUME0 */] . deckfd = -1;
-                rdr_state [0 /* ASSUME0 */] . deckState = deckStart;
+                rdr_state [readerIndex] . deckfd = -1;
+                rdr_state [readerIndex] . deckState = deckStart;
                 break;
              }
           }
       }
     closedir (dp);
+  }
+
+void rdrProcessEvent ()
+  {
+    if (rdr_path_prefix [0]) 
+      {
+        // We support multiple card readers when path prefixing is turned on
+        // so we need to check each possible reader to see if it is active
+        for (uint16 reader_idx = 0; reader_idx < rdr_dev . numunits; reader_idx++)
+          {
+            if (rdr_state [reader_idx] . running)
+                scanForCards(reader_idx);
+          }
+      }
+    else
+      {
+        // When path prefixing is off we only support a single card reader
+        // (this is for backwards compatibility)
+        if (! rdr_state [0] . running)
+          return;
+        
+        scanForCards(0);
+      }
   }
 
 
@@ -895,7 +933,7 @@ void rdrCardReady (int unitNum)
     uint iom_unit_idx = cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
     uint chan_num = cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
     uint dev_code = cables->rdr_to_urp[unitNum].dev_code;
-    send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0377, 0377 /* tape drive to ready */);
+    send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0377, 0377 /* card reader to ready */);
   }
 
 int rdr_iom_cmd (uint iomUnitIdx, uint chan)
@@ -962,8 +1000,8 @@ static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
 
     size_t len = strlen(cptr);
 
-    // We check for legnth - (2 + length of rdr_name) to allow for the null, a possible '/' being added and "rdrx" being added
-    if (len >= (sizeof(rdr_path_prefix) - (strlen(rdr_name) + 2)))
+    // We check for legnth - (3 + length of rdr_name) to allow for the null, a possible '/' being added and "rdrx" being added
+    if (len >= (sizeof(rdr_path_prefix) - (strlen(rdr_name) + 3)))
       return SCPE_ARG;
 
     strncpy(rdr_path_prefix, cptr, sizeof(rdr_path_prefix));
