@@ -1,10 +1,10 @@
 # LICENSE
 
-## DPS8M Simulator
+## DPS8M
 
-* The **DPS8M** simulator is maintained by
-  **The DPS8M Development Team**_*†*_, and
-  distributed under the *ICU License*.
+### DPS8M Simulator
+
+* The **DPS8M** simulator is distributed under the *ICU License*.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -49,7 +49,10 @@ All trademarks and registered trademarks mentioned herein are the
 property of their respective owners.
 ```
 
-* _*†*_***The DPS8M Development Team*** (*in alphabetical order*):
+### DPS8M Development Team
+
+* ***The DPS8M Development Team*** is, in alphabetical order:
+
   * Dean S. Anderson,
   * Charles Anthony
     \<[charles.unix.pro@gmail.com](mailto:charles.unix.pro@gmail.com)\>,
@@ -77,14 +80,15 @@ property of their respective owners.
   third-parties. This software is copyrighted by their respective
   owners and licensed as indicated in the following disclosures.
 
+----
+
 ### UNIFDEF
 
 * **UNIFDEF** is a utility to selectively processes conditional C
-  preprocessor directives and is distributed under a two-clause BSD licence.
-
-* **UNIFDEF** is derived from software contributed to the *Computer
-  Systems Research Group* at the *University of California, Berkeley*
-  by Dave Yost, and was later rewritten to support ANSI C by Tony Finch.
+  preprocessor directives derived from software contributed to the
+  *Computer Systems Research Group* at the *University of California,
+  Berkeley* by Dave Yost. It was rewritten to support ANSI C by Tony
+  Finch, and is distributed under a two-clause BSD licence.
 
 ```text
 Copyright (c) 2002‑2020 Tony Finch <dot@dotat.at>
@@ -117,9 +121,10 @@ SUCH DAMAGE.
 
 ### UDPLIB
 
-* **UDPLIB** is a library that implements the *BBN*∕*ARPAnet* **IMP∕TIP**
-  Modem and Host Interface over UDP. It was written by Robert Armstrong,
-  and is distributed under a modified BSD license.
+* **UDPLIB** is a library that implements the *BBN* ∕ *ARPAnet*
+  **IMP** ∕ **TIP** Modem ∕ Host Interface over UDP. It was
+  written by Robert Armstrong, and is distributed under a modified
+  BSD license.
 
 ```text
 Copyright (c) 2013 Robert Armstrong, bob@jfcl.com
@@ -184,7 +189,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #### SIMH
 
-* **SIMH**, a portable systems simulation framework, was written by
+* **SIMH** is a portable systems simulation framework, was written by
   Robert M Supnik and others, and distributed under a modified MIT license.
 
 ```text
