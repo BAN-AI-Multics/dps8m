@@ -1,3 +1,8 @@
+# DPS/8M simulator: src/dps8/GNUmakefile.local.sam
+# vim: filetype=make:tabstop=4:tw=76
+#
+###############################################################################
+#
 # Copyright (c) 2016 Charles Anthony
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
 # Copyright (c) 2021 The DPS8M Development Team
@@ -7,61 +12,84 @@
 # This software is made available under the terms of the ICU
 # License, version 1.8.1 or later.  For more details, see the
 # LICENSE file at the top-level directory of this distribution.
+#
+###############################################################################
 
-### Enables sim_debug
+###############################################################################
+# Enables sim_debug
+
 #TESTING=1
 
-### Enable round-robin multiple CPUs
+###############################################################################
+# Enable round-robin multiple CPUs
+
 #CFLAGS += -DROUND_ROBIN
 
-### Enable history debug tool
+###############################################################################
+# Enable history debug tool
+
 #CFLAGS += -DHDBG
 
-### Enable ISOLTS compatibility
+###############################################################################
+# Enable ISOLTS compatibility
+
 #CFLAGS += -DISOLTS -DL68 -DWAM
 
-### Enable Level 68 mode
+###############################################################################
+# Enable Level-68 mode
+
 #CFLAGS += -DL68
 
-### Enable panel display support
+###############################################################################
+# Enable panel display support
+
 #CFLAGS += -DPANEL
 
-### Enable WAM
+###############################################################################
+# Enable WAM
+
 #CFLAGS += -DWAM
 #CFLAGS += -Ddo_selftestPTWAM
 
-### Enable shared memory
+###############################################################################
+# Enable shared memory
+
 #M_SHARED = 1
 #CFLAGS += -DM_SHARED
 #LDFLAGS += -lrt
 
+###############################################################################
 # Statically link libuv
+
 #ifeq ($(CROSS),MINGW64)
 #LIBUV =  -luv
 #else
 #LIBUV = /usr/lib64/libuv.a -lpthread
 #endif
 
-ifeq ($(CROSS),MINGW64)
-else
+###############################################################################
+# Extra CFLAGS
 
-CFLAGS += -Wall
+CFLAGS += -Wall                     \
+    -Wunused-argument               \
+    -Wunused-function               \
+    -Wunused-label                  \
+    -Wunused-parameter              \
+    -Wunused-value                  \
+    -Wunused-variable               \
+    -Wunused                        \
+    -Wextra                         \
+    -Wno-parentheses-equality       \
+    -Wno-array-bounds               \
+    -Wsign-conversion               \
+    -Wconversion                    \
+    -Wshorten-64-to-32              \
+    -Wmissing-prototypes            \
+    -Wmissing-variable-declarations
 
-CFLAGS += -Wunused-argument \
--Wunused-function \
--Wunused-label \
--Wunused-parameter \
--Wunused-value \
--Wunused-variable \
--Wunused \
--Wextra \
--Wno-parentheses-equality \
--Wno-array-bounds
+###############################################################################
 
-CFLAGS += \
--Wsign-conversion \
--Wconversion \
--Wshorten-64-to-32 \
--Wmissing-prototypes \
--Wmissing-variable-declarations 
-endif
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:
