@@ -1,20 +1,26 @@
-# CREDITS
+# LICENSE
 
 ## DPS8M Simulator
 
-The **DPS8M** simulator is produced by **The DPS8M Development Team**.
+The **DPS8M** simulator is produced by **The DPS8M Development Team***.
 
-* ***The DPS8M Development Team*** is (*in alphabetical order*),
+* ****The DPS8M Development Team*** (*in alphabetical order*):
   * Dean S. Anderson,
-  * [Charles Anthony](mailto:charles.unix.pro@gmail.com),
-  * [Jeffrey H. Johnson](mailto:trnsz@pobox.com),
+  * Charles Anthony
+    \<[charles.unix.pro@gmail.com](mailto:charles.unix.pro@gmail.com)\>,
+  * Jeffrey H. Johnson
+    \<[trnsz@pobox.com](mailto:trnsz@pobox.com)\>,
   * Jean-Michel Merliot,
-  * [Michael Mondy](mailto:michael.mondy@coffeebird.net),
-  * [Harry Reed](mailto:doon386@reedclan.org),
+  * Michael Mondy
+    \<[michael.mondy@coffeebird.net](mailto:michael.mondy@coffeebird.net)\>,
+  * Harry Reed
+    \<[doon386@reedclan.org](mailto:doon386@reedclan.org)\>,
   * Craig Ruff,
-  * [Eric Swenson](mailto:eric@swenson.org),
+  * Eric Swenson
+    \<[eric@swenson.org](mailto:eric@swenson.org)\>,
   * Michal Tomek,
-  * [Juergen Weiss](mailto:weiss@uni-mainz.de),
+  * Juergen Weiss
+    \<[weiss@uni-mainz.de](mailto:weiss@uni-mainz.de)\>,
   * M. Williams (OrangeSquid),
   * *and others ...*
 
@@ -22,9 +28,18 @@ The **DPS8M** simulator is produced by **The DPS8M Development Team**.
 **ICU License** (*version 1.8.1 or later*).
 
 ```text
-ICU License
+ICU License —— ICU 1.8.1 to ICU 57.1
 
 COPYRIGHT AND PERMISSION NOTICE
+
+Copyright (c) 2006‑2019 Michael Mondy, Harry Reed, Charles Anthony, and others
+Copyright (c) 2015‑2016 Craig Ruff
+Copyright (c) 2016 Michal Tomek
+Copyright (c) 2016 Jean‑Michel Merliot
+Copyright (c) 2018‑2021 Juergen Weiss
+Copyright (c) 2021 The DPS8M Development Team
+
+All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -55,9 +70,6 @@ All trademarks and registered trademarks mentioned herein are the
 property of their respective owners.
 ```
 
-***For complete details, see the `LICENSE` file at the top-level directory
-of the distribution, which should be considered authoritative.***
-
 ----
 
 ## Third-party software
@@ -74,45 +86,45 @@ owners and licensed as indicated in the following disclosures.
 preprocessor directives and is distributed under the terms
 and conditions of a two-clause BSD licence.
 
-**UNIFDEF** is derived from software contributed to the Computer Systems
-Research Group at the University of California, Berkeley by Dave Yost, and
-was part of the version 2.9 of the Berkeley Software Distribution.
+**UNIFDEF** is derived from software contributed to the *Computer Systems
+Research Group* at the *University of California, Berkeley* by Dave Yost, and
+was part of the version 2.9 of the *Berkeley Software Distribution*.
 
-It was later rewritten to support ANSI C by [Tony Finch](dot@dotat.at).
+It was later rewritten to support ANSI C by [Tony Finch](mailto:dot@dotat.at).
 
 ```text
-* Copyright (c) 2002‑2020 Tony Finch <dot@dotat.at>
+Copyright (c) 2002‑2020 Tony Finch <dot@dotat.at>
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions
-  are met:
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
 
-  1. Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
 
-  2. Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in the
-     documentation and/or other materials provided with the distribution.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
 
-  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-  ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
-  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-  SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
 ```
 
 ----
 
 ### UDPLIB
 
-***UDPLIB***, a library that implements the BBN∕ARPAnet IMP∕TIP Modem and
-Host Interface over UDP, was written by Robert Armstrong, and distributed
+***UDPLIB***, a library that implements the *BBN*∕*ARPAnet* IMP∕TIP Modem and
+Host Interface over UDP, was written by Robert Armstrong, and is distributed
 under the terms and conditions of a modified BSD license.
 
 ```text
@@ -180,18 +192,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 **SIMH**, a portable simulation framework, was written by Robert M Supnik
 and others, and is distributed under the terms and conditions of a modified
-X‑Windows/MIT license.
-
-* Copyright (c) 1993‑2012 Robert M Supnik
-* Copyright (c) 2002‑2007 David T. Hittner
-* Copyright (c) 2005‑2016 Richard Cornwell
-* Copyright (c) 2007‑2008 Howard M. Harte
-* Copyright (c) 2008‑2009 J. David Bryan
-* Copyright (c) 2011‑2013 Matt Burke
-* Copyright (c) 2011‑2015 Mark Pizzolato
-* Copyright (c) 2013 Timothe Litt
+MIT license.
 
 ```text
+
+Copyright (c) 1993‑2012 Robert M Supnik
+Copyright (c) 2002‑2007 David T. Hittner
+Copyright (c) 2005‑2016 Richard Cornwell
+Copyright (c) 2007‑2008 Howard M. Harte
+Copyright (c) 2008‑2009 J. David Bryan
+Copyright (c) 2011‑2013 Matt Burke
+Copyright (c) 2011‑2015 Mark Pizzolato
+Copyright (c) 2013 Timothe Litt
+
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the “Software”),
 to deal in the Software without restriction, including without limitation
@@ -221,8 +234,10 @@ in this Software without prior written authorization from the authors.
 **PRT2PDF** is a utility to convert the output of **DPS8M** line
 printers to ISO 32000 Portable Document Format (PDF) format.
 
-* Copyright (c) 2013‑2016 Charles Anthony \<charles.unix.pro@gmail.com\>
-* Copyright (c) 2006 John S. Urban, USA. \<urbanjost@comcast.net\>
+```text
+* Copyright (c) 2013‑2016 Charles Anthony <charles.unix.pro@gmail.com>
+* Copyright (c) 2006 John S. Urban, USA. <urbanjost@comcast.net>
+```
 
 **PRT2PDF** is made available under the terms and conditions of the
 **ICU License** (*version 1.8.1 or later*).
@@ -234,9 +249,9 @@ printers to ISO 32000 Portable Document Format (PDF) format.
 **PRT2PDF** is derived from **TXT2PDF**, a utility to convert
 text to Adobe PDF format, written by P. G. Womack.
 
+```text
 * Copyright (c) 1998 P. G. Womack, Diss, Norfolk, UK.
 
-```text
 “Do what you like, but don't claim you wrote it.”
 ```
 
