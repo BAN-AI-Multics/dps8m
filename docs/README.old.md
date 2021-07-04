@@ -1,16 +1,14 @@
 # !!!! PLEASE READ THIS BEFORE DOWNLOADING ANY FILES
 
-<!-- TODO(jhj): Rewrite?! -->
-
 There have been a number of misunderstandings about the DPS8 GIT source
 code tree; sometimes leading to unfortunate user frustration.
 
 The canonical usage of GIT generally has the master branch containing
-"releases"; they are expected to be "ready to go". Development takes place
+“releases”; they are expected to be “ready to go”. Development takes place
 on branches; once the development branch is done, it is moved to the master
 branch as a release. The DPS8 emulator project is not following that model.
 
-With just a handful of developers, and any "release" being a hoped-for dream
+With just a handful of developers, and any “release” being a hoped-for dream
 in the unimaginable future, the master branch is the bleeding-edge development
 code. Commit points on the master branch probably compile on the machine of
 the person making the commit, but there is no promise of functionality,

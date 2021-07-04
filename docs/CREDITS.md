@@ -28,7 +28,7 @@ COPYRIGHT AND PERMISSION NOTICE
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
+"Software”), to deal in the Software without restriction, including
 without limitation the rights to use, copy, modify, merge, publish,
 distribute, and/or sell copies of the Software, and to permit persons
 to whom the Software is furnished to do so, provided that the above
@@ -36,7 +36,7 @@ copyright notice(s) and this permission notice appear in all copies of
 the Software and that both the above copyright notice(s) and this
 permission notice appear in supporting documentation.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
 OF THIRD PARTY RIGHTS. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -111,7 +111,7 @@ It was later rewritten to support ANSI C by [Tony Finch](dot@dotat.at).
 
 ### UDPLIB
 
-***UDPLIB***, a library that implements the BBN/ARPAnet IMP/TIP Modem and
+***UDPLIB***, a library that implements the BBN∕ARPAnet IMP∕TIP Modem and
 Host Interface over UDP, was written by Robert Armstrong, and distributed
 under the terms and conditions of a modified BSD license.
 
@@ -119,7 +119,7 @@ under the terms and conditions of a modified BSD license.
 Copyright (c) 2013 Robert Armstrong, bob@jfcl.com
 
 Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the "Software"),
+copy of this software and associated documentation files (the “Software”),
 to deal in the Software without restriction, including without limitation
 the rights to use, copy, modify, merge, publish, distribute, sublicense,
 and/or sell copies of the Software, and to permit persons to whom the
@@ -128,7 +128,7 @@ Software is furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
 ROBERT ARMSTRONG BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
@@ -161,8 +161,8 @@ modification, are permitted provided that the following conditions are met:
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS
+IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
 OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
@@ -193,7 +193,7 @@ X‑Windows/MIT license.
 
 ```text
 Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the "Software"),
+copy of this software and associated documentation files (the “Software”),
 to deal in the Software without restriction, including without limitation
 the rights to use, copy, modify, merge, publish, distribute, sublicense,
 and/or sell copies of the Software, and to permit persons to whom the
@@ -202,7 +202,7 @@ Software is furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
 THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
@@ -237,7 +237,7 @@ text to Adobe PDF format, written by P. G. Womack.
 * Copyright (c) 1998 P. G. Womack, Diss, Norfolk, UK.
 
 ```text
-"Do what you like, but don't claim you wrote it."
+“Do what you like, but don't claim you wrote it.”
 ```
 
 ----
@@ -261,7 +261,7 @@ All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
+“Software”), to deal in the Software without restriction, including
 without limitation the rights to use, copy, modify, merge, publish,
 distribute, and/or sell copies of the Software, and to permit persons
 to whom the Software is furnished to do so, provided that the above
@@ -269,7 +269,7 @@ copyright notice(s) and this permission notice appear in all copies of
 the Software and that both the above copyright notice(s) and this
 permission notice appear in supporting documentation.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
 OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
 OF THIRD PARTY RIGHTS. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -291,8 +291,8 @@ of the copyright holder.
 
 **LIBTELNET** is an implementation of the protocol specified by the Network
 Working Group of the Internet Engineering Task Force, as described in
-RFC‑854, RFC‑855, RFC‑1091, RFC‑1143, RFC‑1408, and RFC‑1572 - the TELNET
-protocol and the Q method for TELNET protocol option negotiation - written
+RFC‑854, RFC‑855, RFC‑1091, RFC‑1143, RFC‑1408, and RFC‑1572 — the TELNET
+protocol and the Q method for TELNET protocol option negotiation — written
 by Sean Middleditch and other contributors.
 
 ```text
@@ -308,26 +308,26 @@ of all present and future rights to this code under copyright law.
 ### SHELL‑TOOLKIT
 
 Shell scripts may adapt or incorporate public domain
-POSIX shell functions, routines, and techniques (the "Routines"),
+POSIX shell functions, routines, and techniques (the “Routines”),
 written or distributed by
-[Thorsten "mirabilos" Glaser](https://www.mirbsd.org/).
+[Thorsten “mirabilos” Glaser](https://www.mirbsd.org/).
 
 The Routines have been identified as being free of known restrictions
 under copyright law, including all related and neighboring rights. The
 Routines are in the public domain as they do not meet the threshold
 of originality required for copyright protection. However, the Routines
-are also distributed under the terms and conditions of a BSD "Zero Clause"
+are also distributed under the terms and conditions of a BSD “Zero Clause”
 License, or at your option, any other license which meets the Open Source
 Definition and is approved by Open Source Initiative, should the Routines
 not be in the public domain in your jurisdiction.
 
 ```text
-Copyright (c) 2011 Thorsten "mirabilos" Glaser <m@mirbsd.org>
+Copyright (c) 2011 Thorsten “mirabilos” Glaser <m@mirbsd.org>
 
 Permission to use, copy, modify, and/or distribute this software
 for any purpose with or without fee is hereby granted.
 
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+THE SOFTWARE IS PROVIDED “AS IS” AND THE AUTHOR DISCLAIMS ALL
 WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
 AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
