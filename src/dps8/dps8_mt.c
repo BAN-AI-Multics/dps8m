@@ -2,6 +2,7 @@
  Copyright (c) 2007-2013 Michael Mondy
  Copyright 2012-2016 by Harry Reed
  Copyright 2013-2018 by Charles Anthony
+ Copyright 2021 by Dean Anderson
 
  All rights reserved.
 
@@ -308,8 +309,10 @@ DEVICE mtp_dev =
 struct tape_state tape_states [N_MT_UNITS_MAX];
 static const char * simh_tape_msg (int code); // hack
 // XXX this assumes only one controller, needs to be indexed
-#define TAPE_PATH_LEN 4096
-static char tape_path [TAPE_PATH_LEN];
+static char tape_path_prefix [PATH_MAX+1];
+
+// Multics RCP limits the volume name in the label to 32 characters
+#define LABEL_MAX 32
 
 
 #define N_MT_UNITS 1 // default
@@ -389,23 +392,192 @@ static t_stat mt_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
 static t_stat mt_show_tape_path (UNUSED FILE * st, UNUSED UNIT * uptr, 
                                  UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Tape path <%s>\n", tape_path);
+    sim_printf("Tape path <%s>\n", tape_path_prefix);
     return SCPE_OK;
   }
+
+typedef struct path_node PATH_ENTRY;
+
+struct path_node
+  {
+      size_t prefix_len;
+      char label_prefix[LABEL_MAX + 1];
+      char dir[PATH_MAX + 1];
+      PATH_ENTRY *next_entry;
+  };
+
+
+static PATH_ENTRY *search_list_head = NULL;
+static PATH_ENTRY *search_list_tail = NULL;
 
 static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value, 
                              const char * cptr, UNUSED void * desc)
   {
     if (! cptr)
       return SCPE_ARG;
-    if (strlen (cptr) >= TAPE_PATH_LEN - 1)
+
+    size_t len = strlen(cptr);
+    
+    // We check for legnth - (2 + max label length) to allow for the null, a possible '/' being added and the label file name being added
+    if (len >= (sizeof(tape_path_prefix) - (LABEL_MAX + 2)))
+      return SCPE_ARG;
+
+    // If any paths have been added, we need to remove them now
+    PATH_ENTRY *current_entry = search_list_head;
+    while (current_entry != NULL)
       {
-        sim_printf ("truncating tape path\n");
+        PATH_ENTRY *old_entry = current_entry;
+        current_entry = current_entry->next_entry;
+        free(old_entry);
       }
-    strncpy (tape_path, cptr, TAPE_PATH_LEN);
-    tape_path [TAPE_PATH_LEN - 1] = 0;
+
+    search_list_head = NULL;
+    search_list_tail = NULL;
+
+    // Verify the new default path exists
+    DIR * dp;
+    dp = opendir (cptr);
+    if (! dp)
+      {
+        sim_warn ("mt opendir '%s' fail.\n", cptr);
+        perror ("opendir");
+        sim_warn ("DEFAULT_PATH not set!\n");
+        return SCPE_ARG;
+      }
+
+    closedir(dp);
+
+    // Save the new default path
+    strncpy (tape_path_prefix, cptr, sizeof(tape_path_prefix));
+    if (len > 0)
+      {
+        if (tape_path_prefix[len - 1] != '/')
+          {
+            if (len == sizeof(tape_path_prefix) - 1)
+              return SCPE_ARG;
+            tape_path_prefix[len++] = '/';
+            tape_path_prefix[len] = 0;
+          }
+      }
+
     return SCPE_OK;
   }
+
+
+static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value, 
+                             const char * cptr, UNUSED void * desc)
+  {
+    if (! cptr)
+      return SCPE_ARG;
+
+    if (!tape_path_prefix[0]) 
+      {
+        sim_print("ERROR: Tape DEFAULT_PATH must be set before ADD_PATH is used.\n");
+        return SCPE_ARG;
+      }
+
+    size_t len = strlen(cptr);
+
+    char buffer[len + 1];
+    char prefix[len+1];
+    char dir[len+1];
+
+    strcpy(buffer, cptr);
+
+    // Break up parameter into prefix and directory
+    char *token = strtok(buffer, "=");
+    if (token == NULL) 
+      {
+        return SCPE_ARG;
+      }
+
+    strcpy(prefix, token);
+
+    token = strtok(NULL, "=");
+    if (token == NULL) 
+      {
+        sim_print("ERROR: Tape ADD_PATH parameter must be specified as [prefix]=[dir]\n");
+        sim_print("   set tape ADD_PATH=BK=./tapes/backups\n");
+        return SCPE_ARG;
+      }
+
+    strcpy(dir, token);
+
+    if (strtok(NULL, "=") != NULL)    
+      {
+        return SCPE_ARG;
+      }
+
+    size_t prefix_len = strlen(prefix);
+    if ((prefix_len > LABEL_MAX) || (prefix_len < 1)) 
+      {
+        return SCPE_ARG;
+      }
+
+    size_t dir_len = strlen(dir);
+
+    // We check against PATH_MAX - 1 to account for possibly adding a slash at the end of the path
+    if (dir_len > (PATH_MAX - 1)) 
+      {
+        return SCPE_ARG;
+      }
+
+    // Verify the new path to add exists
+    DIR * dp;
+    dp = opendir (dir);
+    if (! dp)
+      {
+        sim_warn ("mt opendir '%s' fail.\n", dir);
+        perror ("opendir");
+        sim_warn ("ADD_PATH not added!\n");
+        return SCPE_ARG;
+      }
+
+    closedir(dp);
+
+    PATH_ENTRY *new_entry = malloc(sizeof(PATH_ENTRY));
+    new_entry->prefix_len = prefix_len;
+    strcpy(new_entry->label_prefix, prefix);
+    strcpy(new_entry->dir, dir);
+
+    if (new_entry->dir[dir_len - 1] != '/')
+      {
+        new_entry->dir[dir_len++] = '/';
+        new_entry->dir[dir_len] = 0;
+      }
+
+    new_entry->next_entry = NULL;
+    if (search_list_tail == NULL) 
+      {
+        search_list_head = new_entry;
+        search_list_tail = new_entry;
+      }
+    else
+      {
+        search_list_tail->next_entry = new_entry;
+        search_list_tail = new_entry;
+      }
+
+    return SCPE_OK;
+  }            
+
+static t_stat mt_show_tape_search_paths(UNUSED FILE * st, UNUSED UNIT * uptr, 
+                                 UNUSED int val, UNUSED const void * desc)
+  {
+    sim_print("Tape directory search paths:\n");
+    sim_printf("%-32s %s\n", "Prefix", "Directory");
+    sim_printf("%-32s %s\n", "------", "---------");
+    PATH_ENTRY *current_entry = search_list_head;
+    while (current_entry != NULL)
+      {
+          sim_printf("%-32s %s\n", current_entry->label_prefix, current_entry->dir);
+          current_entry = current_entry->next_entry;
+      }
+
+    sim_printf("%-32s %s\n", "[default]", tape_path_prefix);
+
+    return SCPE_OK;
+  }            
 
 static t_stat mt_set_capac (UNUSED UNIT * uptr, UNUSED int32 value, 
                              const char * cptr, UNUSED void * desc)
@@ -461,13 +633,23 @@ static MTAB mt_mod [] =
       NULL          // help
     },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC, /* mask */
       0,            /* match */
-      "TAPE_PATH",     /* print string */
-      "TAPE_PATH",         /* match string */
+      "DEFAULT_PATH",     /* print string */
+      "DEFAULT_PATH",         /* match string */
       mt_set_tape_path, /* validation routine */
       mt_show_tape_path, /* display routine */
-      "Set the path to the directory containing tape images", /* value descriptor */
+      "Set the default path to the directory containing tape images (also clear search paths)", /* value descriptor */
+      NULL          // help
+    },
+    {
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC, /* mask */
+      0,            /* match */
+      "ADD_PATH",     /* print string */
+      "ADD_PATH",         /* match string */
+      mt_add_tape_search_path, /* validation routine */
+      mt_show_tape_search_paths, /* display routine */
+      "Add a search path for tape directories", /* value descriptor */
       NULL          // help
     },
     {
@@ -535,14 +717,63 @@ DEVICE tape_dev =
     NULL
   };
 
+static void deterimeFullTapeFileName(char * tapeFileName, char * buffer, int bufferLength)
+  {
+    char full_tape_file_name[PATH_MAX + 1];
+
+    // If no path prefixing, just return the given tape file name
+    if (!tape_path_prefix[0])
+      {
+          strncpy(buffer, tapeFileName, bufferLength);
+          buffer[bufferLength - 1] = 0;
+          return;
+      }
+
+    // Prefixing is in effect so now we need to search the additional path list for a prefix match
+    PATH_ENTRY *current_entry = search_list_head;
+    while (current_entry != NULL) 
+      {
+        if (strncmp(current_entry->label_prefix, tapeFileName, current_entry->prefix_len) == 0)
+          {
+              break;
+          }
+
+        current_entry = current_entry->next_entry;
+      }
+    
+    char *selected_path = tape_path_prefix;     // Start with the default path
+    if (current_entry != NULL) 
+      {
+        selected_path = current_entry->dir;
+      }
+
+    // Verify we won't overrun the output buffer
+    if (bufferLength < (strlen(selected_path) + strlen(tapeFileName) + 1))
+      {
+          // Bad news, we are going to overrun the buffer so we just use as much of the tape file name as we can
+          strncpy(buffer, tapeFileName, bufferLength);
+          buffer[bufferLength - 1] = 0;
+          return;
+      }
+
+    // Everything will fit so construct the full tape file name and path
+    sprintf(buffer, "%s%s", selected_path, tapeFileName);
+    
+  }
 
 void loadTape (uint driveNumber, char * tapeFilename, bool ro)
   {
+    char full_tape_file_name[PATH_MAX + 1];
+
     if (ro)
       mt_unit [driveNumber] . flags |= MTUF_WRP;
     else
       mt_unit [driveNumber] . flags &= ~ MTUF_WRP;
-    t_stat stat = sim_tape_attach (& mt_unit [driveNumber], tapeFilename);
+
+    deterimeFullTapeFileName(tapeFilename, full_tape_file_name, sizeof(full_tape_file_name));
+
+    sim_printf("loadTape Attaching drive %u to file %s\n", driveNumber, full_tape_file_name);
+    t_stat stat = sim_tape_attach (& mt_unit [driveNumber], full_tape_file_name);
     if (stat != SCPE_OK)
       {
         sim_printf ("%s sim_tape_attach returned %d\n", __func__, stat);
