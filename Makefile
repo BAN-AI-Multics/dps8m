@@ -1,22 +1,36 @@
-# Copyright 2016 by Charles Anthony
+# DPS/8M simulator: src/Makefile
+# vim: filetype=make:tabstop=4:tw=76
 #
-#  All rights reserved.
+###############################################################################
 #
-# This software is made available under the terms of the
-# ICU License -- ICU 1.8.1 and later.
-# See the LICENSE file at the top-level directory of this distribution and
-# at http://example.org/project/LICENSE.
+# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
+# Copyright (c) 2021 The DPS8M Development Team
+#
+# All rights reserved.
+#
+# This software is made available under the terms of the ICU
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE file at the top-level directory of this distribution.
+#
+###############################################################################
+
+GNUMAKE?= gmake
 
 all:
-	cd src/dps8 && $(MAKE)
+	@printf '%s\n' \
+		"*** GNU Make is required; trying \"${GNUMAKE} $@\""
+	@${GNUMAKE} $@
 
-install:
-	cd src/dps8 && $(MAKE) install
+.DEFAULT:
+	@printf '%s\n' \
+		"*** GNU Make is required; trying \"${GNUMAKE} $@\""
+	@${GNUMAKE} $@
 
-clean:
-	cd src/dps8 && $(MAKE) clean
+.PHONY: all
 
-kit:
-	cd src/dps8 && $(MAKE) dps8.sha1.txt
-	cp src/dps8/dps8.sha1.txt src/dps8/dps8.sha1.txt~
-	tar cfz source.tgz -C ..  `git ls-files | grep -v .gitignore | grep -v .metadata | grep -v src/dps8/listings/ | sed s%^%dps8m-code/%` dps8m-code/src/dps8/dps8.sha1.txt~
+###############################################################################
+
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:
