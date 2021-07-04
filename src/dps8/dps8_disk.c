@@ -485,7 +485,7 @@ static t_stat disk_set_ready (UNIT * uptr, UNUSED int32 value,
 
 static t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, UNUSED bool ro)
   {
-    //sim_printf ("in loadTape %d %s\n", dsk_unit_idx, disk_filename);
+    //sim_printf ("in loadDisk %d %s\n", dsk_unit_idx, disk_filename);
     t_stat stat = attach_unit (& dsk_unit [dsk_unit_idx], disk_filename);
     if (stat != SCPE_OK)
       {

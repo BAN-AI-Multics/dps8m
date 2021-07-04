@@ -102,7 +102,7 @@ static t_stat urp_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) URPUNIT_NUM (uptr);
     if (n < 0 || n >= N_URP_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Card punch device name is %s\n", urp_state [n] . device_name);
+    sim_printf("Unit record processor device name is %s\n", urp_state [n] . device_name);
     return SCPE_OK;
   }
 
