@@ -1,4 +1,4 @@
-# DPS/8M simulator: src/decNumber/Makefile
+# DPS/8M simulator: src/decNumber/GNUmakefile
 # vim: filetype=make:tabstop=4:tw=76
 #
 ###############################################################################
