@@ -38,15 +38,20 @@
 
 /* portability stubs */
 
-#define fbinmode(fp) (fp)
+#define fbinmode(fp) ( fp )
 
-#define replace(old,new) rename(old,new)
+#define replace(old, new) rename(old, new)
 
 static FILE *
 mktempmode(char *tmp, int mode)
 {
-	int fd = mkstemp(tmp);
-	if (fd < 0) return (NULL);
-	fchmod(fd, mode & (S_IRWXU|S_IRWXG|S_IRWXO));
-	return (fdopen(fd, "wb"));
+  int fd = mkstemp(tmp);
+
+  if (fd < 0)
+  {
+    return ( NULL );
+  }
+
+  fchmod(fd, mode & ( S_IRWXU | S_IRWXG | S_IRWXO ));
+  return ( fdopen(fd, "wb"));
 }
