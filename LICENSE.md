@@ -88,10 +88,12 @@ property of their respective owners.
   preprocessor directives derived from software contributed to the
   *Computer Systems Research Group* at the *University of California,
   Berkeley* by Dave Yost. It was rewritten to support ANSI C by Tony
-  Finch, and is distributed under a two-clause BSD licence.
+  Finch, and modified to support Windows by The DPS8M Development
+  Team. It is distributed under a two-clause BSD licence.
 
 ```text
 Copyright (c) 2002‑2020 Tony Finch <dot@dotat.at>
+Copyright (c) 2021 The DPS8M Development Team
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -157,12 +159,14 @@ in this Software without prior written authorization from Robert Armstrong.
 
 * **UTHASH** (*UTLIST*, *UTARRAY*, and *UTHASH*), a hash table for C
   structures, was written by
-  [Troy D. Hanson](https://troydhanson.github.io/uthash/), and is
-  distributed under a modified BSD license.
+  [Troy D. Hanson](https://troydhanson.github.io/uthash/) and modified
+  by The DPS8M Development Team. It is distributed under a modified BSD
+  license.
 
 ```text
 Copyright (c) 2005‑2021 Troy D. Hanson
     http://troydhanson.github.io/uthash/
+Copyright (c) 2021 The DPS8M Development Team
 
 All rights reserved.
 

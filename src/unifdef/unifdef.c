@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2002-2020 Tony Finch <dot@dotat.at>
+ * Copyright (c) 2021 The DPS8M Development Team
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -49,8 +50,8 @@
 
 static const char copyright[] =
 #include "version.h"
-  "@(#) $Author: Tony Finch (dot@dotat.at) $\n"
-  "@(#) $URL: http://dotat.at/prog/unifdef $\n";
+  "@(#) $Author: The DPS8M Development Team and Tony Finch <dot@dotat.at> $\n"
+  "@(#) $URL: https://gitlab.com/dps8m/dps8m/-/tree/master/src/unifdef $\n";
 
 /* types of input lines: */
 typedef enum
@@ -73,16 +74,6 @@ typedef enum
   LT_COUNT
 } Linetype;
 
-static char const *const linetype_name[]
-  = {
-  "TRUEI",        "FALSEI",         "IF",                   "TRUE",
-  "FALSE",        "ELIF",           "ELTRUE",               "ELFALSE",
-  "ELSE",         "ENDIF",          "DODGY TRUEI",          "DODGY FALSEI",
-  "DODGY IF",     "DODGY TRUE",     "DODGY FALSE",          "DODGY ELIF",
-  "DODGY ELTRUE", "DODGY ELFALSE",  "DODGY ELSE",           "DODGY ENDIF",
-  "PLAIN",        "EOF",            "ERROR"
-  };
-
 #define linetype_if2elif(lt) ((Linetype)( lt - LT_IF + LT_ELIF ))
 #define linetype_2dodgy(lt) ((Linetype)( lt + LT_DODGY ))
 
@@ -102,13 +93,6 @@ typedef enum
   IS_COUNT
 } Ifstate;
 
-static char const *const ifstate_name[]
-  = {
-  "OUTSIDE",      "FALSE_PREFIX",      "TRUE_PREFIX",      "PASS_MIDDLE",
-  "FALSE_MIDDLE", "TRUE_MIDDLE",       "PASS_ELSE",        "FALSE_ELSE",
-  "TRUE_ELSE",    "FALSE_TRAILER"
-  };
-
 /* state of comment parser */
 typedef enum
 {
@@ -122,11 +106,6 @@ typedef enum
   RAW_STRING_LITERAL  /* inside R"()" */
 } Comment_state;
 
-static char const *const comment_name[]
-  = {
-  "NO", "C", "CXX", "STARTING", "FINISHING", "CHAR", "STRING"
-  };
-
 /* state of preprocessor line parser */
 typedef enum
 {
@@ -134,10 +113,6 @@ typedef enum
   LS_HASH,  /* only space, comments, and a hash */
   LS_DIRTY  /* this line can't be a preprocessor line */
 } Line_state;
-
-static char const *const linestate_name[] = {
-  "START", "HASH", "DIRTY"
-};
 
 /*
  * Minimum translation limits from ISO/IEC 9899:1999 5.2.4.1
@@ -159,7 +134,6 @@ static char const *const linestate_name[] = {
 static bool compblank;   /* -B: compress blank lines */
 static bool lnblank;     /* -b: blank deleted lines */
 static bool complement;  /* -c: do the complement */
-static bool debugging;   /* -d: debugging reports */
 static bool inplace;     /* -m: modify in place */
 static bool iocccok;     /* -e: fewer IOCCC errors */
 static bool strictlogic; /* -K: keep ambiguous #ifs */
@@ -221,8 +195,6 @@ static void addsym2(bool, const char *, const char *);
 static char *astrcat(const char *, const char *);
 static void cleantemp(void);
 static void closeio(void);
-static void debug(const char *, ...);
-static void debugsym(const char *, int);
 static bool defundef(void);
 static void defundefile(const char *);
 static void done(void);
@@ -313,10 +285,6 @@ main(int argc, char *argv[])
       complement = true;
       break;
 
-    case 'd':
-      debugging = true;
-      break;
-
     case 'e': /* fewer errors from dodgy lines */
       iocccok = true;
       break;
@@ -391,27 +359,32 @@ main(int argc, char *argv[])
   argv += optind;
   if (compblank && lnblank)
   {
-    errx(2, "-B and -b are mutually exclusive");
+    fprintf(stderr, "ERROR: -B and -b are mutually exclusive\n");
+	exit(1);
   }
 
   if (symlist && ( ofilename != NULL || inplace || argc > 1 ))
   {
-    errx(2, "-s only works with one input file");
+    fprintf(stderr, "ERROR: -s only works with one input file\n");
+	exit(1);
   }
 
   if (argc > 1 && ofilename != NULL)
   {
-    errx(2, "-o cannot be used with multiple input files");
+    fprintf(stderr, "ERROR: -o cannot be used with multiple input files\n");
+	exit(1);
   }
 
   if (argc > 1 && !inplace)
   {
-    errx(2, "multiple input files require -m or -M");
+    fprintf(stderr, "ERROR: multiple input files require -m or -M\n");
+	exit(1);
   }
 
   if (argc == 0 && inplace)
   {
-    errx(2, "-m requires an input file");
+    fprintf(stderr, "ERROR: -m requires an input file\n");
+	exit(1);
   }
 
   if (argc == 0)
@@ -477,7 +450,8 @@ processinout(const char *ifn, const char *ofn)
     input = fopen(ifn, "rb");
     if (input == NULL)
     {
-      err(2, "can't open %s", ifn);
+      fprintf(stderr, "ERROR: can't open %s\n", ifn);
+	  exit(1);
     }
   }
 
@@ -493,7 +467,8 @@ processinout(const char *ifn, const char *ofn)
     output = fopen(ofn, "wb");
     if (output == NULL)
     {
-      err(2, "can't create %s", ofn);
+      fprintf(stderr, "ERROR: can't create %s\n", ofn);
+	  exit(1);
     }
 
     process();
@@ -504,7 +479,8 @@ processinout(const char *ifn, const char *ofn)
   output = mktempmode(tempname, st.st_mode);
   if (output == NULL)
   {
-    err(2, "can't create %s", tempname);
+    fprintf(stderr, "ERROR: can't create %s\n", tempname);
+	exit(1);
   }
 
   process();
@@ -514,7 +490,8 @@ processinout(const char *ifn, const char *ofn)
     char *backname = astrcat(ofn, backext);
     if (rename(ofn, backname) < 0)
     {
-      err(2, "can't rename \"%s\" to \"%s\"", ofn, backname);
+      fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\"\n", ofn, backname);
+	  exit(1);
     }
 
     free(backname);
@@ -525,12 +502,13 @@ processinout(const char *ifn, const char *ofn)
   {
     if (remove(tempname) < 0)
     {
-      warn("can't remove \"%s\"", tempname);
+      fprintf(stderr, "WARNING: can't remove \"%s\"\n", tempname);
     }
   }
   else if (replace(tempname, ofn) < 0)
   {
-    err(2, "can't rename \"%s\" to \"%s\"", tempname, ofn);
+    fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\"\n", tempname, ofn);
+	exit(1);
   }
 
   free(tempname);
@@ -606,7 +584,6 @@ help(void)
     "   -b      blank lines instead of deleting them\n"
     "   -B      compress blank lines around deleted section\n"
     "   -c      complement (invert) keep vs. delete\n"
-    "   -d      debugging mode\n"
     "   -e      ignore multiline preprocessor directives\n"
     "   -h      print help\n"
     "   -Ipath  extra include file path (ignored)\n"
@@ -1034,7 +1011,7 @@ flushline(bool keep)
     blankcount = 0;
   }
 
-  if (debugging && fflush(output) == EOF)
+  if (fflush(output) == EOF)
   {
     closeio();
   }
@@ -1077,7 +1054,8 @@ closeio(void)
 
   if (output != NULL && ( ferror(output) || fclose(output) == EOF ))
   {
-    err(2, "%s: can't write to output", filename);
+    fprintf(stderr, "ERROR: %s: can't write to output\n", filename);
+	exit(1);
   }
 
   fclose(input);
@@ -1102,12 +1080,6 @@ process(void)
   {
     lineval = parseline();
     trans_table[ifstate[depth]][lineval]();
-    debug(
-      "process line %d %s -> %s depth %d",
-      linenum,
-      linetype_name[lineval],
-      ifstate_name[ifstate[depth]],
-      depth);
   }
   exitstat |= altered;
 }
@@ -1228,17 +1200,16 @@ parseline(void)
     {
       if (ferror(input))
       {
-        err(2, "can't read %s", filename);
+        fprintf(stderr, "ERROR: can't read %s\n", filename);
+		exit(1);
       }
 
-      debug("parser insert newline at EOF", linenum);
       strcpy(tline + len, newline);
       cp += strlen(newline);
       linestate = LS_START;
     }
     else
     {
-      debug("parser concatenate dangling whitespace");
       ++linenum;
       cp = skipcomment(cp);
     }
@@ -1251,11 +1222,6 @@ parseline(void)
   }
 
 done:
-  debug(
-    "parser line %d state %s comment %s line",
-    linenum,
-    comment_name[incomment],
-    linestate_name[linestate]);
   return ( retval );
 }
 
@@ -1353,7 +1319,6 @@ op_div(long *p, Linetype at, long a, Linetype bt, long b)
 {
   if (bt != LT_TRUE)
   {
-    debug("eval division by zero");
     return ( LT_ERROR );
   }
 
@@ -1437,13 +1402,6 @@ static const struct ops eval_ops[] = {
             { "%",        op_mod, NULL } } },
 };
 
-/* Current operator precedence level */
-static long
-prec(const struct ops *ops)
-{
-  return ( ops - eval_ops );
-}
-
 /*
  * Function for evaluating the innermost parts of expressions,
  * viz. !expr (expr) number defined(symbol) symbol
@@ -1461,7 +1419,6 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
   cp = skipcomment(*cpp);
   if (*cp == '!')
   {
-    debug("eval%d !", prec(ops));
     cp++;
     lt = eval_unary(ops, valp, &cp);
     if (lt == LT_ERROR)
@@ -1477,7 +1434,6 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
   }
   else if (*cp == '~')
   {
-    debug("eval%d ~", prec(ops));
     cp++;
     lt = eval_unary(ops, valp, &cp);
     if (lt == LT_ERROR)
@@ -1493,7 +1449,6 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
   }
   else if (*cp == '-')
   {
-    debug("eval%d -", prec(ops));
     cp++;
     lt = eval_unary(ops, valp, &cp);
     if (lt == LT_ERROR)
@@ -1510,7 +1465,6 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
   else if (*cp == '(')
   {
     cp++;
-    debug("eval%d (", prec(ops));
     lt = eval_table(eval_ops, valp, &cp);
     if (lt == LT_ERROR)
     {
@@ -1525,7 +1479,6 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
   }
   else if (isdigit((unsigned char)*cp))
   {
-    debug("eval%d number", prec(ops));
     *valp = strtol(cp, &ep, 0);
     if (ep == cp)
     {
@@ -1552,18 +1505,15 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
     cp = skipcomment(cp);
     if (defparen && *cp++ != ')')
     {
-      debug("eval%d defined missing ')'", prec(ops));
       return ( LT_ERROR );
     }
 
     if (sym < 0)
     {
-      debug("eval%d defined unknown", prec(ops));
       lt = LT_IF;
     }
     else
     {
-      debug("eval%d defined %s", prec(ops), symname[sym]);
       *valp = ( value[sym] != NULL );
       lt = *valp ? LT_TRUE : LT_FALSE;
     }
@@ -1572,7 +1522,6 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
   }
   else if (!endsym(*cp))
   {
-    debug("eval%d symbol", prec(ops));
     sym = findsym(&cp);
     if (sym < 0)
     {
@@ -1600,12 +1549,10 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
   }
   else
   {
-    debug("eval%d bad expr", prec(ops));
     return ( LT_ERROR );
   }
 
   *cpp = cp;
-  debug("eval%d = %d", prec(ops), *valp);
   return ( lt );
 }
 
@@ -1620,7 +1567,6 @@ eval_table(const struct ops *ops, long *valp, const char **cpp)
   long val = 0;
   Linetype lt, rt;
 
-  debug("eval%d", prec(ops));
   cp = *cpp;
   lt = ops->inner(ops + 1, valp, &cp);
   if (lt == LT_ERROR)
@@ -1654,7 +1600,6 @@ eval_table(const struct ops *ops, long *valp, const char **cpp)
     }
 
     cp += strlen(op->str);
-    debug("eval%d %s", prec(ops), op->str);
     rt = ops->inner(ops + 1, &val, &cp);
     if (rt == LT_ERROR)
     {
@@ -1665,8 +1610,6 @@ eval_table(const struct ops *ops, long *valp, const char **cpp)
   }
 
   *cpp = cp;
-  debug("eval%d = %d", prec(ops), *valp);
-  debug("eval%d lt = %s", prec(ops), linetype_name[lt]);
   return ( lt );
 }
 
@@ -1681,10 +1624,8 @@ ifeval(const char **cpp)
   Linetype ret;
   long val = 0;
 
-  debug("eval %s", *cpp);
   constexpr = killconsts ? false : true;
   ret = eval_table(eval_ops, &val, cpp);
-  debug("eval = %d", val);
   return ( constexpr ? LT_IF : ret == LT_ERROR ? LT_IF : ret );
 }
 
@@ -1704,7 +1645,8 @@ skiphash(void)
   {
     if (ferror(input))
     {
-      err(2, "can't read %s", filename);
+      fprintf(stderr, "ERROR: can't read %s\n", filename);
+	  exit(1);
     }
     else
     {
@@ -2111,7 +2053,6 @@ findsym(const char **strp)
   {
     if (matchsym(symname[symind], str) != NULL)
     {
-      debugsym("findsym", symind);
       return ( symind );
     }
   }
@@ -2146,9 +2087,7 @@ indirectsym(void)
         continue;
       }
 
-      debugsym("indir...", sym);
       value[sym] = value[ind];
-      debugsym("...ectsym", sym);
       changed++;
     }
   }
@@ -2196,7 +2135,8 @@ addsym2(bool ignorethis, const char *sym, const char *val)
   {
     if (nsyms >= MAXSYMS)
     {
-      errx(2, "too many symbols");
+      fprintf(stderr, "ERROR: too many symbols\n");
+	  exit(1);
     }
 
     symind = nsyms++;
@@ -2205,18 +2145,6 @@ addsym2(bool ignorethis, const char *sym, const char *val)
   ignore[symind] = ignorethis;
   symname[symind] = sym;
   value[symind] = val;
-  debugsym("addsym", symind);
-}
-
-static void
-debugsym(const char *why, int symind)
-{
-  debug(
-    "%s %s%c%s",
-    why,
-    symname[symind],
-    value[symind] ? '=' : ' ',
-    value[symind] ? value[symind] : "undef");
 }
 
 /*
@@ -2230,7 +2158,8 @@ defundefile(const char *fn)
   input = fopen(fn, "rb");
   if (input == NULL)
   {
-    err(2, "can't open %s", fn);
+    fprintf(stderr, "ERROR: can't open %s\n", fn);
+	exit(1);
   }
 
   linenum = 0;
@@ -2240,7 +2169,8 @@ defundefile(const char *fn)
   }
   if (ferror(input))
   {
-    err(2, "can't read %s", filename);
+    fprintf(stderr, "ERROR: can't read %s\n", filename);
+	exit(1);
   }
   else
   {
@@ -2303,7 +2233,6 @@ defundef(void)
       val = ( cp < end ) ? xstrdup(cp, end) : "";
     }
 
-    debug("#define");
     addsym2(false, sym, val);
   }
   else if (( cp = matchsym("undef", kw)) != NULL)
@@ -2315,7 +2244,6 @@ defundef(void)
     }
 
     cp = skipcomment(cp);
-    debug("#undef");
     addsym2(false, sym, NULL);
   }
   else
@@ -2325,11 +2253,6 @@ defundef(void)
 
   skipline(cp);
 done:
-  debug(
-    "parser line %d state %s comment %s line",
-    linenum,
-    comment_name[incomment],
-    linestate_name[linestate]);
   return ( true );
 }
 
@@ -2346,14 +2269,16 @@ astrcat(const char *s1, const char *s2)
   len = snprintf(NULL, 0, "%s%s", s1, s2);
   if (len < 0)
   {
-    err(2, "snprintf");
+    fprintf(stderr, "ERROR: snprintf\n");
+	exit(1);
   }
 
   size = (size_t)len + 1;
   s = (char *)malloc(size);
   if (s == NULL)
   {
-    err(2, "malloc");
+    fprintf(stderr, "ERROR: malloc\n");
+	exit(1);
   }
 
   snprintf(s, size, "%s%s", s1, s2);
@@ -2378,47 +2303,18 @@ xstrdup(const char *start, const char *end)
   s = (char *)malloc(n);
   if (s == NULL)
   {
-    err(2, "malloc");
+    fprintf(stderr, "ERROR: malloc\n");
+	exit(1);
   }
 
   snprintf(s, n, "%s", start);
   return ( s );
 }
 
-/*
- * Diagnostics.
- */
-static void
-debug(const char *msg, ...)
-{
-  va_list ap;
-
-  if (debugging)
-  {
-    va_start(ap, msg);
-    vwarnx(msg, ap);
-    va_end(ap);
-  }
-}
-
 static void
 error(const char *msg)
 {
-  if (depth == 0)
-  {
-    warnx("%s: %d: %s", filename, linenum, msg);
-  }
-  else
-  {
-    warnx(
-      "%s: %d: %s (#if line %d depth %d)",
-      filename,
-      linenum,
-      msg,
-      stifline[depth],
-      depth);
-  }
-
   closeio();
-  errx(2, "Output may be truncated");
+  fprintf(stderr, "ERROR: Output may be truncated\n");
+  exit(1);
 }

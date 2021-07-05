@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <dirent.h>
 
 #include "dps8.h"
 #include "dps8_mt.h"

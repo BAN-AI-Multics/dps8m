@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2013 Tony Finch <dot@dotat.at>
+ * Copyright (c) 2021 The DPS8M Development Team
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -26,9 +27,8 @@
  */
 
 #include <sys/stat.h>
-
+#include <errno.h>
 #include <ctype.h>
-#include <err.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -41,6 +41,11 @@
 #define fbinmode(fp) ( fp )
 
 #define replace(old, new) rename(old, new)
+
+#ifdef _WIN32
+static inline int fchmod(int fildes, mode_t mode)
+{ errno = ENOSYS; return -1; }
+#endif
 
 static FILE *
 mktempmode(char *tmp, int mode)

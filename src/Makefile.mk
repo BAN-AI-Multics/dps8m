@@ -147,11 +147,10 @@ ifneq ($(M32),)
 CC = gcc
 LD = gcc
 endif
-#CFLAGS = -m64
 
 ###############################################################################
 
-CFLAGS += -I../decNumber -I../simh-master -I ../include 
+CFLAGS += -I../decNumber -I$(SIMHx) -I../include
 CFLAGS += -std=c99
 CFLAGS += -U__STRICT_ANSI__  
 CFLAGS += -D_GNU_SOURCE

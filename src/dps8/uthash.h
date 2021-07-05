@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2003-2013, Troy D. Hanson
  *     http://troydhanson.github.com/uthash/
+ * Copyright (c) 2021 The DPS8M Development Team
  *
  * All rights reserved.
  *
@@ -497,8 +498,11 @@ do {                                                                            
   */
 
 #undef get16bits
-#if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__)             \
-  || defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
+#if (defined   (__GNUC__)     &&   defined (__i386__))  ||                       \
+     defined   (__WATCOMC__)  ||                                                 \
+     defined    (_MSC_VER)    ||                                                 \
+     defined   (__BORLANDC__) ||                                                 \
+     defined   (__TURBOC__)
 #define get16bits(d) (*((const uint16_t *) (d)))
 #endif
 

@@ -34,6 +34,7 @@ prt2pdf$(EXE) all: prt2pdf.o
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: prt2pdf"
 	@$(SETV); $(RMF) prt2pdf$(EXE) > /dev/null 2>&1 || $(TRUE)
+	@$(SETV); $(RMF) prt2pdf.exe > /dev/null 2>&1 || $(TRUE)
 	@$(SETV); $(RMF) prt2pdf.o > /dev/null 2>&1 || $(TRUE)
 
 ###############################################################################
