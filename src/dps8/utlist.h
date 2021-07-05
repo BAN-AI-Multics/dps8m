@@ -1,25 +1,27 @@
 /*
-Copyright (c) 2007-2013, Troy D. Hanson   http://troydhanson.github.com/uthash/
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
-OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * Copyright (c) 2007-2013, Troy D. Hanson
+ *     http://troydhanson.github.com/uthash/
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #ifndef UTLIST_H
 #define UTLIST_H
@@ -28,41 +30,44 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <assert.h>
 
-/* 
- * This file contains macros to manipulate singly and doubly-linked lists.
- *
- * 1. LL_ macros:  singly-linked lists.
- * 2. DL_ macros:  doubly-linked lists.
- * 3. CDL_ macros: circular doubly-linked lists.
- *
- * To use singly-linked lists, your structure must have a "next" pointer.
- * To use doubly-linked lists, your structure must "prev" and "next" pointers.
- * Either way, the pointer to the head of the list must be initialized to NULL.
- * 
- * ----------------.EXAMPLE -------------------------
- * struct item {
- *      int id;
- *      struct item *prev, *next;
- * }
- *
- * struct item *list = NULL:
- *
- * int main() {
- *      struct item *item;
- *      ... allocate and populate item ...
- *      DL_APPEND(list, item);
- * }
- * --------------------------------------------------
- *
- * For doubly-linked lists, the append and delete macros are O(1)
- * For singly-linked lists, append and delete are O(n) but prepend is O(1)
- * The sort macro is O(n log(n)) for all types of single/double/circular lists.
- */
+ /* 
+  * This file contains macros to manipulate singly and doubly-linked lists.
+  *
+  * 1. LL_ macros:  singly-linked lists.
+  * 2. DL_ macros:  doubly-linked lists.
+  * 3. CDL_ macros: circular doubly-linked lists.
+  *
+  * To use singly-linked lists, your structure must have a "next" pointer.
+  * To use doubly-linked lists, your structure must "prev" and "next" pointers.
+  * Either way, the pointer to the head of the list must be initialized to NULL.
+  * 
+  * ----------------.EXAMPLE -------------------------
+  * struct item {
+  *      int id;
+  *      struct item *prev, *next;
+  * }
+  *
+  * struct item *list = NULL:
+  *
+  * int main() {
+  *      struct item *item;
+  *      ... allocate and populate item ...
+  *      DL_APPEND(list, item);
+  * }
+  * --------------------------------------------------
+  *
+  * For doubly-linked lists, the append and delete macros are O(1)
+  * For singly-linked lists, append and delete are O(n) but prepend is O(1)
+  * The sort macro is O(n log(n)) for all types of single/double/circular lists.
+  */
 
-/* These macros use decltype or the earlier __typeof GNU extension.
-   As decltype is only available in newer compilers (VS2010 or gcc 4.3+
-   when compiling c++ code), this code uses whatever method is needed
-   or, for VS2008 where neither is available, uses casting workarounds. */
+   /*
+    * These macros use decltype or the earlier __typeof GNU extension.
+    * As decltype is only available in newer compilers (VS2010 or gcc 4.3+
+    * when compiling c++ code), this code uses whatever method is needed
+    * or, for VS2008 where neither is available, uses casting workarounds.
+    */
+
 #ifdef _MSC_VER            /* MS compiler */
 #if _MSC_VER >= 1600 && defined(__cplusplus)  /* VS2010 or newer in C++ mode */
 #define LDECLTYPE(x) decltype(x)
@@ -74,9 +79,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LDECLTYPE(x) __typeof(x)
 #endif
 
-/* for VS2008 we use some workarounds to get around the lack of decltype,
- * namely, we always reassign our tmp variable to the list head if we need
- * to dereference its prev/next pointers, and save/restore the real head.*/
+ /*
+  * For VS2008 we use some workarounds to get around the lack of decltype,
+  * namely, we always reassign our tmp variable to the list head if we need
+  * to dereference its prev/next pointers, and save/restore the real head.
+  */
+
 #ifdef NO_DECLTYPE
 #define _SV(elt,list) _tmp = (char*)(list); {char **_alias = (char**)&(list); *_alias = (elt); }
 #define _NEXT(elt,list,next) ((char*)((list)->next))
@@ -95,10 +103,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _CASTASGN(a,b) (a)=(b)
 #endif
 
-/******************************************************************************
+/*
+ ******************************************************************************
  * The sort macro is an adaptation of Simon Tatham's O(n log(n)) mergesort    *
  * Unwieldy variable names used here to avoid shadowing passed-in variables.  *
- *****************************************************************************/
+ ******************************************************************************
+ */
+
 #define LL_SORT(list, cmp)                                                                     \
     LL_SORT2(list, cmp, next)
 
@@ -300,9 +311,12 @@ do {                                                                            
   }                                                                                            \
 } while (0)
 
-/******************************************************************************
+/*
+ ******************************************************************************
  * singly linked list macros (non-circular)                                   *
- *****************************************************************************/
+ ******************************************************************************
+ */
+
 #define LL_PREPEND(head,add)                                                                   \
     LL_PREPEND2(head,add,next)
 
@@ -362,7 +376,11 @@ do {                                                                            
   }                                                                                            \
 } while (0)
 
-/* Here are VS2008 replacements for LL_APPEND and LL_DELETE */
+/*
+ * Here are VS2008 replacements
+ * for LL_APPEND and LL_DELETE
+ */
+
 #define LL_APPEND_VS2008(head,add)                                                             \
     LL_APPEND2_VS2008(head,add,next)
 
@@ -411,7 +429,11 @@ do {                                                                            
 #undef LL_CONCAT /* no LL_CONCAT_VS2008 */
 #undef DL_CONCAT /* no DL_CONCAT_VS2008 */
 #endif
-/* end VS2008 replacements */
+
+/*
+ * End VS2008
+ * replacements
+ */
 
 #define LL_FOREACH(head,el)                                                                    \
     LL_FOREACH2(head,el,next)
@@ -486,9 +508,12 @@ do {                                                                            
 } while (0)                                                                                    \
 
 
-/******************************************************************************
+/*
+ ******************************************************************************
  * doubly linked list macros (non-circular)                                   *
- *****************************************************************************/
+ ******************************************************************************
+ */
+
 #define DL_PREPEND(head,add)                                                                   \
     DL_PREPEND2(head,add,prev,next)
 
@@ -567,14 +592,22 @@ do {                                                                            
 #define DL_FOREACH2(head,el,next)                                                              \
     for(el=head;el;el=(el)->next)
 
-/* this version is safe for deleting the elements during iteration */
+/*
+ * this version is safe for deleting
+ * the elements during iteration
+ */
+
 #define DL_FOREACH_SAFE(head,el,tmp)                                                           \
     DL_FOREACH_SAFE2(head,el,tmp,next)
 
 #define DL_FOREACH_SAFE2(head,el,tmp,next)                                                     \
   for((el)=(head);(el) && (tmp = (el)->next, 1); (el) = tmp)
 
-/* these are identical to their singly-linked list counterparts */
+/*
+ * these are identical to their
+ * singly-linked list counterparts
+ */
+
 #define DL_SEARCH_SCALAR LL_SEARCH_SCALAR
 #define DL_SEARCH LL_SEARCH
 #define DL_SEARCH_SCALAR2 LL_SEARCH_SCALAR2
@@ -622,9 +655,12 @@ do {                                                                            
 } while (0)                                                                                    \
 
 
-/******************************************************************************
+/*
+ ******************************************************************************
  * circular doubly linked list macros                                         *
- *****************************************************************************/
+ ******************************************************************************
+ */
+
 #define CDL_PREPEND(head,add)                                                                  \
     CDL_PREPEND2(head,add,prev,next)
 
@@ -725,4 +761,3 @@ do {                                                                            
 } while (0)                                                                                    \
 
 #endif /* UTLIST_H */
-

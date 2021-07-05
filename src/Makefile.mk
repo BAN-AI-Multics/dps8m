@@ -1,25 +1,92 @@
-# Copyright 2014-2016 by Charles Anthony
-# Copyright 2016 by Michal Tomek
+# DPS/8M simulator: src/Makefile.mk
+# vim: filetype=make:tabstop=4:tw=76
+#
+###############################################################################
+#
+# Copyright (c) 2014-2016 Charles Anthony
+# Copyright (c) 2016 Michal Tomek
+# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
+# Copyright (c) 2021 The DPS8M Development Team
 #
 # All rights reserved.
 #
-# This software is made available under the terms of the
-# ICU License -- ICU 1.8.1 and later. 
-# See the LICENSE file at the top-level directory of this distribution and
-# at https://sourceforge.net/p/dps8m/code/ci/master/tree/LICENSE
+# This software is made available under the terms of the ICU
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE file at the top-level directory of this distribution.
+#
+###############################################################################
+
+###############################################################################
+# Default configuration
+
+TRUE      ?= true
+SET       ?= set
+ifdef V
+      VERBOSE = 1
+endif
+ifdef VERBOSE
+       ZCTV = cvf
+       SETV = $(SET) -x
+else
+       ZCTV = cf
+       SETV = $(TRUE)
+endif
+ENV        ?= env
+CCACHE     ?= ccache
+SHELL      ?= sh
+SH         ?= $(SHELL)
+UNAME      ?= uname
+PREFIX     ?= /usr/local
+CSCOPE     ?= cscope
+MKDIR      ?= mkdir -p
+NDKBUILD   ?= ndk-build
+PKGCONFIG  ?= pkg-config
+GIT        ?= git
+GREP       ?= grep
+SED        ?= sed
+AWK        ?= awk
+WEBDL      ?= wget
+CD         ?= cd
+CMAKE      ?= cmake
+RMNF       ?= rm
+RMF        ?= $(RMNF) -f
+CTAGS      ?= ctags
+CP         ?= cp -f
+TOUCH      ?= touch
+TEST       ?= test
+PRINTF     ?= printf
+MAKETAR    ?= tar $(ZCTV)
+TARXT      ?= tar
+COMPRESS   ?= gzip -f -9
+GUNZIP     ?= gzip -d
+COMPRESSXT ?= gz
+KITNAME    ?= sources
+
+###############################################################################
+
+SIMHx=../simh
+
+###############################################################################
 
 ifneq ($(OS),Windows_NT)
-  UNAME_S := $(shell uname -s)
+  UNAME_S := $(shell  $(UNAME) -s)
   ifeq ($(UNAME_S),Darwin)
     OS = OSX
   endif
 endif
 
+###############################################################################
+
 ifeq ($(OS), OSX)
   msys_version = 0
 else
-  msys_version := $(if $(findstring Msys, $(shell uname -o)),$(word 1, $(subst ., ,$(shell uname -r))),0)
+  msys_version := \
+    $(if $(findstring Msys, $(shell \
+        $(UNAME) -o)),$(word 1, \
+            $(subst ., ,$(shell $(UNAME) -r))),0)
 endif
+
+###############################################################################
 
 ifeq ($(msys_version),0)
 else
@@ -35,38 +102,46 @@ else
 endif
   EXE = .exe
 else
-#CC = gcc
-#LD = gcc
 CC = clang
 LD = clang
 endif
 
-# for Linux (Ubuntu 12.10 64-bit) or Apple OS/X 10.8
-#CFLAGS  += -g -O0
-CFLAGS  += -g -O3
+###############################################################################
 
-CFLAGS += $(X_FLAGS)
+# Default FLAGS
+CFLAGS  += -g -O3
+CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
+
+###############################################################################
 
 # Our Cygwin users are using gcc.
 ifeq ($(OS),Windows_NT)
     CC = gcc
     LD = gcc
 ifeq ($(CROSS),MINGW64)
-    CFLAGS += -I../mingw_include
+    CFLAGS  += -I../mingw_include
     LDFLAGS += -L../mingw_lib  
 endif
+
+###############################################################################
+
 else
-    UNAME_S := $(shell uname -s)
+    UNAME_S := $(shell $(UNAME) -s)
     ifeq ($(UNAME_S),Darwin)
       CFLAGS += -I /usr/local/include
       LDFLAGS += -L/usr/local/lib
     endif
+
+###############################################################################
+
     ifeq ($(UNAME_S),FreeBSD)
       CFLAGS += -I /usr/local/include -pthread
       LDFLAGS += -L/usr/local/lib
     endif
 endif
+
+###############################################################################
 
 ifneq ($(M32),)
 CC = gcc
@@ -74,37 +149,51 @@ LD = gcc
 endif
 #CFLAGS = -m64
 
-#CFLAGS += -I../decNumber -I../simhv40-beta -I ../include 
-CFLAGS += -I../decNumber -I../simh-master -I ../include 
+###############################################################################
 
+CFLAGS += -I../decNumber -I../simh-master -I ../include 
 CFLAGS += -std=c99
 CFLAGS += -U__STRICT_ANSI__  
 CFLAGS += -D_GNU_SOURCE
 CFLAGS += -DUSE_READER_THREAD
 CFLAGS += -DUSE_INT64
 
+###############################################################################
+
 ifneq ($(CROSS),MINGW64)
 CFLAGS += -DHAVE_DLOPEN=so
 endif
 
+###############################################################################
+
 ifneq ($(W),)
-# Clang generates warning messages for code it generates itself...
 CFLAGS += -Wno-array-bounds
 endif
 
-LDFLAGS += -g
+###############################################################################
+
+LDFLAGS   += -g
+
+###############################################################################
 
 MAKEFLAGS += --no-print-directory
 
-%.o : %.c
-	@echo CC $<
-	@$(CC) -c $(CFLAGS) $(CPPFLAGS) $(X_FLAGS) $< -o $@
+###############################################################################
 
-# This file is included as '../Makefile.mk', so it's local include needs the ../
+%.o: %.c
+	@$(PRINTF) '%s\n' "CC: $<"
+	@$(SETV); $(CC) -c $(CFLAGS) $(CPPFLAGS) $(X_FLAGS) $< -o $@
+
+###############################################################################
+
+# This file is included as '../Makefile.mk', so local includes needs the ../
 ifneq (,$(wildcard ../Makefile.local))
-$(warning ####)
-$(warning #### Using ../Makefile.local)
-$(warning ####)
 include ../Makefile.local
 endif
 
+###############################################################################
+
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:

@@ -1,4 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env sh
+# shellcheck disable=SC2248,SC2250
+#
+###############################################################################
+#
+# Copyright (c) 2014-2016 Charles Anthony
+# Copyright (c) 2021 The DPS8M Development Team
+#
+# All rights reserved.
+#
+# This software is made available under the terms of the ICU  
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE file at the top-level directory of this distribution.
+#
+###############################################################################
 
 T=./source/
 S3=./MR12.3+5/
@@ -8,7 +22,8 @@ TAPES=/home/cac/Projects/Multics/tapelib/
 
 ../tapeUtils/restore_tape $S3 $TAPES/88534.tap $TAPES/88631.tap
 ../tapeUtils/restore_tape $S3 $TAPES/98570.tap $TAPES/99019.tap
-../tapeUtils/restore_tape $S3 $TAPES/88632.tap $TAPES/88633.tap $TAPES/88634.tap $TAPES/88635.tap $TAPES/88636.tap $TAPES/99020.tap
+../tapeUtils/restore_tape $S3 $TAPES/88632.tap $TAPES/88633.tap \
+	$TAPES/88634.tap $TAPES/88635.tap $TAPES/88636.tap $TAPES/99020.tap
 ../tapeUtils/restore_tape $S3 $TAPES/93085.tap
 
 ../tapeUtils/restore_tape $S5 $TAPES/20185.tap
@@ -21,10 +36,14 @@ TAPES=/home/cac/Projects/Multics/tapelib/
 echo "Start merge"
 
 mdmv() {
-  local bn=`basename $1`
-  local dn=`dirname $1`
-  mv ${1} ${2}
-  mv ${dn}/.${bn}.md ${2}
+  bn="$(basename "${1}")" &&
+  dn="$(dirname "${1}")" &&
+  mv "${1}" "${2}" &&
+  mv "${dn}/.${bn}.md" "${2}" && 
+  {
+    unset dn > /dev/null 2>&1 || true
+    unset bn > /dev/null 2>&1 || true
+  } || exit 1
 }
 
 #mv $S5/documentation/MR12.5/* $S3/documentation/

@@ -1,15 +1,55 @@
+# Objects
 *.o
 *.lo
 *.a
+*.so
+a.out
+
+# Cruft
 .DS_Store
 .cproject
 .project
 .settings/
-./Makefile
 tags
+*.core
+core
+
+# Retired
 zeromq-4.1.0
 czmq-master-ff0d028b16
 zyre-master-9d7e62d2c9
-*~
+
+# Tests
 src/dps8/UnitTests/*.oct
 src/dps8/UnitTests/*.pp
+
+# Generated
+src/utils/prt2pdf
+src/prt2pdf/prt2pdf
+src/unifdef/unifdef
+src/dps8/ver.h
+src/dps8/errnos.h
+tags
+dps8m.state
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+*.tar.lz
+*.zip
+*.tar
+*.rar
+*.arj
+*.Z
+
+# Vim
+*.*.swp
+
+# Emacs
+*~
+
+# Docs
+*.toc
+*.ps
+*.log
+*.aux
+*.out

@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env sh
+# shellcheck disable=SC2129,SC2248,SC2250
+
 T=../../../bitsavers.trailing-edge.com/bits/Honeywell/multics/tape/
 (cd ../tapeUtils && make restore_tape)
 

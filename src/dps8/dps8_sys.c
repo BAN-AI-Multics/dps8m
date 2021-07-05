@@ -1,15 +1,16 @@
 /*
- Copyright (c) 2007-2013 Michael Mondy
- Copyright 2012-2016 by Harry Reed
- Copyright 2013-2017 by Charles Anthony
- Copyright 2016 by Michal Tomek
-
- All rights reserved.
-
- This software is made available under the terms of the
- ICU License -- ICU 1.8.1 and later.
- See the LICENSE file at the top-level directory of this distribution and
- at https://sourceforge.net/p/dps8m/code/ci/master/tree/LICENSE
+ * Copyright (c) 2007-2013 Michael Mondy
+ * Copyright (c) 2012-2016 Harry Reed
+ * Copyright (c) 2013-2017 Charles Anthony
+ * Copyright (c) 2016 Michal Tomek
+ * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
+ * Copyright (c) 2021 The DPS8M Development Team
+ *
+ * All rights reserved.
+ * 
+ * This software is made available under the terms of the ICU
+ * License, version 1.8.1 or later.  For more details, see the
+ * LICENSE file at the top-level directory of this distribution.
  */
 
 /**
@@ -58,6 +59,7 @@
 #include "dps8_utils.h"
 #include "shm.h"
 #include "utlist.h"
+#include "ver.h"
 #if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
 #endif
@@ -3787,8 +3789,7 @@ static void usr1_signal_handler (UNUSED int sig)
 
 static void dps8_init (void)
   {
-#include "dps8.sha1.txt"
-    sim_msg ("%s emulator (git %8.8s)\n", sim_name, COMMIT_ID);
+    sim_msg ("%s simulator    ", sim_name);
 #ifdef TESTING
     sim_msg ("#### TESTING BUILD ####\n");
 #else
@@ -3866,24 +3867,22 @@ static void dps8_init (void)
       create_shm ("state", sizeof (struct system_state_s));
 #endif
 
-#include "dps8.sha1.txt"
-
     if (strlen (system_state->commit_id) == 0)
       {
         sim_printf ("Setting up new system state\r\n");
       }
     else
       {
-        if (strcmp (system_state->commit_id, COMMIT_ID) != 0)
+        if (strcmp (system_state->commit_id, VER_H_GIT_HASH) != 0)
           {
-            sim_warn ("WARNING: system_state commit ID changed; system state may be corrupt\r\n");
+            sim_warn ("WARNING: system_state hash changed; system state may be corrupt!\r\n");
           }
         else
           {
             sim_printf ("System state restored\r\n");
           }
       }
-    strncpy (system_state->commit_id, COMMIT_ID, sizeof (system_state->commit_id));
+    strncpy (system_state->commit_id, VER_H_GIT_HASH, sizeof (system_state->commit_id));
 
     // sets connect to 0
     memset (& sys_opts, 0, sizeof (sys_opts));
@@ -4913,4 +4912,3 @@ void start_machine_room (void)
 #endif
 #endif
   }
-
