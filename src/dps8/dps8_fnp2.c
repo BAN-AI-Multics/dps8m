@@ -84,7 +84,10 @@
 
 #include "sim_defs.h"
 #include "sim_tmxr.h"
+
+#ifndef CROSS_MINGW64
 #include <regex.h>
+#endif
 
 #define DBG_CTR 1
 

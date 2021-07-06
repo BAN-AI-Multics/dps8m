@@ -530,7 +530,7 @@ clean_dps8:
 	@$(PRINTF) '%s\n' "CLEAN: dps8"
 	-@$(SETV); $(RMF) $(OBJS) $(C_DEPS) $(EXECUTABLES) "dps8$(EXE)" \
         "tags" $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) \
-            "errnos.h" "udplib" || $(TRUE)
+            "dps8.exe" "errnos.h" "udplib" || $(TRUE)
 
 ###############################################################################
 

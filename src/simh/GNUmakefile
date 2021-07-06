@@ -1,4 +1,4 @@
-# DPS/8M simulator: src/simhv-master/GNUmakefile
+# DPS/8M simulator: src/simh/GNUmakefile
 # vim: filetype=make:tabstop=4:tw=76
 #
 ###############################################################################
