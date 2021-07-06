@@ -59,6 +59,7 @@ build linux:
     - *scriptCommon
     - *scriptBuildlibuv
     - make LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1
+  dependencies: []
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
@@ -74,6 +75,7 @@ build linux_lockless:
     - *scriptCommon
     - *scriptBuildlibuv
     - make LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 W=1 V=1
+  dependencies: []
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
@@ -89,6 +91,7 @@ build mingw64:
     - *scriptCommon
     - *scriptBuildlibuvMGW64
     - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1
+  dependencies: []
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8.exe
@@ -104,6 +107,7 @@ build mingw64_lockless:
     - *scriptCommon
     - *scriptBuildlibuvMGW64
     - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 W=1 V=1
+  dependencies: []
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8.exe
