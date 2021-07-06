@@ -1,74 +1,112 @@
-#image: "registry.gitlab.com/dps8m/dps8m"
-#image: "registry.gitlab.com/unused0/docker_images"
+############################################################################
+
+.scriptCommon: &scriptCommon |
+    # scriptCommon
+    echo "Project Name              : $CI_PROJECT_TITLE"
+    echo "Project Git Commit        : $CI_COMMIT_SHA"
+    echo "Project Git Branch        : $CI_COMMIT_BRANCH"
+    echo "GitLab CI User Details    : $GITLAB_USER_LOGIN - $GITLAB_USER_NAME ($GITLAB_USER_ID) $GITLAB_USER_EMAIL"
+    echo "GitLab CI Job Name        : $CI_JOB_NAME"
+    echo "GitLab CI Job ID          : $CI_JOB_ID"
+    echo "GitLab CI Job Stage       : $CI_JOB_STAGE"
+    echo "GitLab CI Runner Details  : $CI_RUNNER_VERSION ($CI_RUNNER_REVISION)"
+
+############################################################################
+
+.scriptBuildlibuv: &scriptBuildlibuv |
+    # scriptBuildlibuv
+    wget https://github.com/libuv/libuv/archive/v1.x.zip
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    ./configure --disable-shared --enable-static
+    make && make V=1 install && cd ..
+
+############################################################################
+
+.scriptBuildlibuvMGW64: &scriptBuildlibuvMGW64 |
+    # scriptBuildlibuvMGW64
+    wget https://github.com/libuv/libuv/archive/v1.x.zip
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32
+    make && make V=1 install && cd ..
+
+############################################################################
+
 image: silkeh/clang
+
+############################################################################
 
 default:
   before_script:
-    - apt-get update -qq && apt-get install -y -qq mingw-w64 libtool unzip
-    - wget https://github.com/libuv/libuv/archive/v1.x.zip
-    - unzip v1.x
-    - cd libuv-1.x
-    - sh autogen.sh
-    - ./configure
-    - make
-    - make install
-    - cd ..
+    - uname -a || true
+    - apt-get update -y -qq
+    - apt-get install -y -qq mingw-w64 libtool unzip autoconf-archive
+
+############################################################################
 
 stages:
   - build_linux
   - build_linux_lockless
-# - build_mingw
+  - build_mingw64
+  - build_mingw64_lockless
 
-#  - list
-#
-#list job:
-#  stage: list
-#  only:
-#    - master
-#  script:
-#    - find / -name libwinpthread-1.dll
+############################################################################
 
 build linux:
   stage: build_linux
   only:
     - master
   script:
-    -  make LIBUV="/usr/local/lib/libuv.a -lpthread"
+    - *scriptCommon
+    - *scriptBuildlibuv
+    - make LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
 
-build linuxlockless:
+############################################################################
+
+build linux_lockless:
   stage: build_linux_lockless
   only:
     - master
   script:
-    -  make LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1
+    - *scriptCommon
+    - *scriptBuildlibuv
+    - make LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 W=1 V=1
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
 
-# build mingw:
-#   stage: build_mingw
-#   only:
-#     - master
-#   script:
-#     - make CROSS=MINGW64
-#   artifacts:
-#     paths:
-#       - /builds/dps8m/dps8m/src/dps8/dps8.exe
-#      - /builds/dps8m/dps8m/src/utils/prt2pdf.exe
-##      - /builds/libuv-mingw/.libs/libuv-1.dll
-##      - /usr/x86_64-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll
+############################################################################
 
-#test:
-#  only:
-#    - master
-#  script:
-#    - cd src/dps8; ./dps8 -v MR12.6e_install.ini
-#    - cd src/dps8; cp root.dsk.reloaded root.dsk
-#    - cd src/dps8; ./dps8 -v yoyodyne.ini
-#    - cd src/dps8; cp root.dsk yoyodyne.root.dsk
-#    - cd src/dps8; cp dska_01.dsk yoyodyne.dska_01.dsk
+build mingw64:
+  stage: build_mingw64
+  only:
+    - master
+  script:
+    - *scriptCommon
+    - *scriptBuildlibuvMGW64
+    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.exe
+      - /builds/dps8m/dps8m/src/utils/prt2pdf.exe
+
+############################################################################
+
+build mingw64_lockless:
+  stage: build_mingw64_lockless
+  only:
+    - master
+  script:
+    - *scriptCommon
+    - *scriptBuildlibuvMGW64
+    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 W=1 V=1
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.exe
+      - /builds/dps8m/dps8m/src/utils/prt2pdf.exe
+
+############################################################################

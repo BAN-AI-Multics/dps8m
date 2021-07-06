@@ -112,8 +112,8 @@ CFLAGS += -DCROSS_MINGW64 -I../../../libuv/include
 ifneq ($(W),)
 CFLAGS += -Wno-misleading-indentation
 endif
-LIBS += -lwinmm -lws2_32 -lmingwex -luv -lwsock32 -lws2_32 \
-        -L../../../libuv/.libs
+LIBS += -lwinmm -lws2_32 -lmingwex -lwsock32 -lws2_32 -luserenv -liphlpapi \
+        $(LIBUV) -L../../../libuv/.libs
 endif
 
 ###############################################################################
