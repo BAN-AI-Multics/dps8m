@@ -15,7 +15,7 @@
 
 .scriptBuildlibuv: &scriptBuildlibuv |
     # scriptBuildlibuv
-    wget https://github.com/libuv/libuv/archive/v1.x.zip
+    wget -q https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
     ./configure --disable-shared --enable-static
     make && make V=1 install && cd ..
@@ -24,7 +24,7 @@
 
 .scriptBuildlibuvMGW64: &scriptBuildlibuvMGW64 |
     # scriptBuildlibuvMGW64
-    wget https://github.com/libuv/libuv/archive/v1.x.zip
+    wget -q https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
     ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32
     make && make V=1 install && cd ..
@@ -37,9 +37,10 @@ image: silkeh/clang
 
 default:
   before_script:
-    - uname -a || true
-    - apt-get update -y -qq
+    - uname -a 2> /dev/null || true > /dev/null 2>&1
+    - apt-get update -y -qq || true > /dev/null 2>&1
     - apt-get install -y -qq mingw-w64 libtool unzip autoconf-archive
+    - clang --version 2> /dev/null
 
 ############################################################################
 
@@ -47,7 +48,6 @@ stages:
   - build_linux
   - build_linux_lockless
   - build_mingw64
-  - build_mingw64_lockless
 
 ############################################################################
 
@@ -59,6 +59,7 @@ build linux:
     - *scriptCommon
     - *scriptBuildlibuv
     - make LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1
+  dependencies: []
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
@@ -74,6 +75,7 @@ build linux_lockless:
     - *scriptCommon
     - *scriptBuildlibuv
     - make LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 W=1 V=1
+  dependencies: []
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
@@ -89,24 +91,10 @@ build mingw64:
     - *scriptCommon
     - *scriptBuildlibuvMGW64
     - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1
+  dependencies: []
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8.exe
-      - /builds/dps8m/dps8m/src/utils/prt2pdf.exe
-
-############################################################################
-
-build mingw64_lockless:
-  stage: build_mingw64_lockless
-  only:
-    - master
-  script:
-    - *scriptCommon
-    - *scriptBuildlibuvMGW64
-    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 W=1 V=1
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.exe
-      - /builds/dps8m/dps8m/src/utils/prt2pdf.exe
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
 
 ############################################################################
