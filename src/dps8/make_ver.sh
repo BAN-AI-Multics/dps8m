@@ -223,7 +223,7 @@ get_git_vers()
 			GITTEST=$(git version 2> /dev/null)
 			if [ -n "${GITTEST:-}" ] &&
 				[ ! -z "${GITTEST:-}" ]; then # /* GITTEST */
-				BRANCH=$(git branch --show-current 2> /dev/null)
+				BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
 				GITVER=$(git describe --abbrev=0 --dirty='*' --tags --always \
 					2> /dev/null)
 				GITPAT=$(git describe --abbrev=40 --dirty='*' --tags --always \
