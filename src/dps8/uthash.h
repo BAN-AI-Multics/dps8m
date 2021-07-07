@@ -184,8 +184,8 @@ do {                                                                            
 do {                                                                             \
  unsigned _ha_bkt;                                                               \
  (add)->hh.next = NULL;                                                          \
- (add)->hh.key = (char*)keyptr;                                                  \
- (add)->hh.keylen = (unsigned)keylen_in;                                                   \
+ (add)->hh.key = (const void*)keyptr;                                            \
+ (add)->hh.keylen = (unsigned)keylen_in;                                         \
  if (!(head)) {                                                                  \
     head = (add);                                                                \
     (head)->hh.prev = NULL;                                                      \
@@ -661,10 +661,11 @@ do {                                                                            
  if (head.hh_head) DECLTYPE_ASSIGN(out,ELMT_FROM_HH(tbl,head.hh_head));          \
  else out=NULL;                                                                  \
  while (out) {                                                                   \
-    if ((out)->hh.keylen == keylen_in) {                                           \
-        if ((HASH_KEYCMP((out)->hh.key,keyptr,keylen_in)) == 0) break;             \
+    if ((out)->hh.keylen == keylen_in) {                                         \
+        if ((HASH_KEYCMP((out)->hh.key,keyptr,keylen_in)) == 0) break;           \
     }                                                                            \
-    if ((out)->hh.hh_next) DECLTYPE_ASSIGN(out,ELMT_FROM_HH(tbl,(out)->hh.hh_next)); \
+    if ((out)->hh.hh_next) \
+      DECLTYPE_ASSIGN(out,ELMT_FROM_HH(tbl,(out)->hh.hh_next));                  \
     else out = NULL;                                                             \
  }                                                                               \
 } while(0)
@@ -1027,7 +1028,7 @@ typedef struct UT_hash_handle {
    void *next;                       /* next element in app order      */
    struct UT_hash_handle *hh_prev;   /* previous hh in bucket order    */
    struct UT_hash_handle *hh_next;   /* next hh in bucket order        */
-   void *key;                        /* ptr to enclosing struct's key  */
+   const void *key;                  /* ptr to enclosing struct's key  */
    unsigned keylen;                  /* enclosing struct's key len     */
    unsigned hashv;                   /* result of hash-fcn(key)        */
 } UT_hash_handle;
