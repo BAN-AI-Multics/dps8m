@@ -235,30 +235,22 @@ static char * default_base_system_script [] =
     // ; 4 3381 drives; 2 controllers
     // ; 4 d501 drives; 2 controller
     // ; 4 d451 drives; same controller has d501s
+    // ; 2 d500 drives; same controller has d501s
     "set ipc nunits=2",
     "set msp nunits=2",
-    "set disk nunits=12",
+    "set disk nunits=14",
     "set scu nunits=4",
-    "set opc nunits=1",
+    "set opc nunits=3",
     "set fnp nunits=8",
-    "set urp nunits=3",
-    "set rdr nunits=1",
-    "set pun nunits=1",
-    "set prt nunits=1",
+    "set urp nunits=10",
+    "set rdr nunits=3",
+    "set pun nunits=3",
+    "set prt nunits=4",
 #ifndef __MINGW64__
     "set skc nunits=64",
     "set absi nunits=1",
 #endif
 
-#if 0
-#ifndef __MINGW64__
-
-    // ;Create card reader queue directory
-    "! if [ ! -e /tmp/rdra ]; then mkdir /tmp/rdra; fi",
-#else
-    "! mkdir %TEMP%\\rdra",
-#endif
-#endif
 
 // CPU0
 
@@ -655,7 +647,7 @@ static char * default_base_system_script [] =
     "set cpu5 config=y2k=disable",
 
 
-#if 0
+#if 0 // Until the port expander code is working
 // CPU6
 
     "set cpu6 config=faultbase=Multics",
@@ -1195,7 +1187,7 @@ static char * default_base_system_script [] =
 // 4 3381 disks
 
     "set ipc0 name=IPC0",
-    "cable IOM0 013 IPC0",
+    "cable IOM0 013 IPC0 0",
     "cable IOM1 013 IPC0 1",
     // ; Attach DISK unit 0 to IPC0 dev_code 0",
     "cable IPC0 0 DISK0",
@@ -1214,7 +1206,7 @@ static char * default_base_system_script [] =
     "set disk3 type=3381",
     "set disk3 name=dska_03",
 
-// 4 d501 disks + 4 d451 disks
+// 4 d501 disks + 4 d451 disks + 2 d500 disks
 
     "set msp0 name=MSP0",
     "cable IOM0 014 MSP0 0",
@@ -1253,10 +1245,22 @@ static char * default_base_system_script [] =
     "cable MSP0 8 DISK11",
     "set disk11 type=d451",
     "set disk11 name=dskb_08",
+    // ; Attach DISK unit 12 to MSP0 dev_code 9",
+    "cable MSP0 9 DISK12",
+    "set disk12 type=d500",
+    "set disk12 name=dskb_09",
+    // ; Attach DISK unit 13 to MSP0 dev_code 10",
+    "cable MSP0 10 DISK13",
+    "set disk13 type=d500",
+    "set disk13 name=dskb_10",
+
 
     // ; Attach OPC unit 0 to IOM A, chan 036, dev_code 0
     "cable IOMA 036 opc0",
-    // No devices for console, so no 'cable OPC0 # CONx'
+    "cable IOMA 053 opc1",
+    "cable IOMA 054 opc2",
+    "set opc2 config=model=m6601",
+   // No devices for console, so no 'cable OPC0 # CONx'
 
     // ;;;
     // ;;; FNP
@@ -1305,8 +1309,67 @@ static char * default_base_system_script [] =
 
     // ; Attach PRT unit 0 to IOM 0, chan 017, dev_code 1
     "set prt0 name=prta",
+//    "set prt0 model=1600",    // Needs polts fixes
     "cable URP2 1 PRT0",
 
+    // ; Attach MPC unit 3 to IOM 0, char 050, dev_code 0
+    "cable ioma 050 urp3",
+    "set urp3 name=urpd",
+
+    // ; Attach PRT unit 1 to IOM 0, chan 050, dev_code 1
+    "set prt1 name=prtb",
+//    "set prt1 model=303",    // Needs polts fixes
+    "cable urp3 1 prt1",
+
+    // ; Attach MPC unit 4 to IOM 0, char 051, dev_code 0
+    "cable ioma 051 urp4",
+    "set urp4 name=urpe",
+
+    // ; Attach PRT unit 2 to IOM 0, chan 051, dev_code 1
+    "set prt2 name=prtc",
+//    "set prt2 model=300",    // Needs polts fixes
+    "cable urp4 1 prt2",
+
+    // ; Attach MPC unit 5 to IOM 0, chan 052, dev_code 0
+    "cable ioma 052 urp5",
+    "set urp5 name=urpf",
+
+    // ; Attach PRT unit 3 to IOM 0, chan 052, dev_code 1
+    "set prt3 name=prtd",
+//    "set prt3 model=202",    // Needs polts fixes
+    "cable urp5 1 prt3",
+
+    // ; Attach MPC unit 6 to IOM 0, chan 055, dev_code 0
+    "cable ioma 055 urp6",
+    "set urp6 name=urpg",
+
+    // ; Attach RDR unit 1 to IOM 0, chan 055, dev_code 1
+    "set rdr1 name=rdrb",
+    "cable urp6 1 rdrb",
+
+    // ; Attach MPC unit 7 to IOM 0, chan 056, dev_code 0
+    "cable ioma 056 urp7",
+    "set urp7 name=urph",
+
+    // ; Attach RDR unit 2 to IOM 0, chan 056, dev_code 1
+    "set rdr2 name=rdrc",
+    "cable urp7 1 rdrc",
+
+    // ; Attach MPC unit 8 to IOM 0, chan 057, dev_code 0
+    "cable ioma 057 urp8",
+    "set urp8 name=urpi",
+
+    // ; Attach PUN unit 1 to IOM 0, chan 057, dev_code 1
+    "set pun1 name=punb",
+    "cable urp8 1 punb",
+
+    // ; Attach MPC unit 9 to IOM 0, chan 060, dev_code 0
+    "cable ioma 060 urp9",
+    "set urp9 name=urpj",
+
+    // ; Attach PUN unit 2 to IOM 0, chan 060, dev_code 1
+    "set pun2 name=punc",
+    "cable urp9 1 punc",
 
 #ifndef __MINGW64__
     "cable IOMA 040 SKCA",
