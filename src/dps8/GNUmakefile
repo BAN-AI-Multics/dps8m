@@ -399,7 +399,10 @@ ifeq (,$(wildcard ../../.git))
 ifeq (,$(wildcard ver.h~))
 # not git, not kit
 ver.h:
-	@$(PRINTF) '%s\n' "Error: Unable to create ver.h!"; exit 1
+	@$(SETV); $(RMF) ver.h
+	@$(PRINTF) '%s\n' "WARNING: This source tree does not appear to be a" \
+	                  "         full git clone or a complete source kit."
+	@$(SETV); $(TOUCH) ver.h
 else
 # kit
 ver.h:
