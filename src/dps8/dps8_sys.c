@@ -3930,6 +3930,10 @@ static void dps8_init (void)
       create_shm ("state", sizeof (struct system_state_s));
 #endif
 
+#ifndef VER_H_GIT_HASH
+#define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
+#endif
+
     if (strlen (system_state->commit_id) == 0)
       {
         sim_printf ("Setting up new system state\r\n");
