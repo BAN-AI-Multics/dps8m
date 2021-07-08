@@ -13,11 +13,20 @@
 
 ############################################################################
 
-.scriptBuildlibuv: &scriptBuildlibuv |
-    # scriptBuildlibuv
+.scriptBuildlibuvCLANG: &scriptBuildlibuvCLANG |
+    # scriptBuildlibuvCLANG
     wget -S https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    ./configure --disable-shared --enable-static
+    CC=clang ./configure --disable-shared --enable-static
+    make V=1 && make V=1 install && cd ..
+
+############################################################################
+
+.scriptBuildlibuvGCC: &scriptBuildlibuvGCC |
+    # scriptBuildlibuvGCC
+    wget -S https://github.com/libuv/libuv/archive/v1.x.zip
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    CC=gcc ./configure --disable-shared --enable-static
     make V=1 && make V=1 install && cd ..
 
 ############################################################################
@@ -39,7 +48,7 @@ default:
   before_script:
     - uname -a 2> /dev/null || true > /dev/null 2>&1
     - apt-get update -y -qq || true > /dev/null 2>&1
-    - apt-get install -y -qq mingw-w64 libtool unzip autoconf-archive
+    - apt-get install -y -qq mingw-w64 gcc libtool unzip autoconf-archive timelimit
     - clang --version 2> /dev/null || true > /dev/null 2>&1
     - gcc --version 2> /dev/null ||  true > /dev/null 2>&1
     - cc --version 2> /dev/null || true > /dev/null 2>&1
@@ -48,20 +57,23 @@ default:
 ############################################################################
 
 stages:
-  - build_linux
-  - build_linux_lockless
+  - build_linuxclang
+  - build_linuxgcc
+  - build_linuxclang_lockless
+  - build_linuxgcc_lockless
   - build_mingw64
 
 ############################################################################
 
-build linux:
-  stage: build_linux
+build linuxclang:
+  stage: build_linuxclang
   only:
     - master
   script:
     - *scriptCommon
-    - *scriptBuildlibuv
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra"; make LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1'
+    - *scriptBuildlibuvCLANG
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=clang LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j2 --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -70,14 +82,49 @@ build linux:
 
 ############################################################################
 
-build linux_lockless:
-  stage: build_linux_lockless
+build linuxgcc:
+  stage: build_linuxgcc
   only:
     - master
   script:
     - *scriptCommon
-    - *scriptBuildlibuv
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra"; make LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 W=1 V=1'
+    - *scriptBuildlibuvGCC
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j2 --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
+
+############################################################################
+
+build linuxclang_lockless:
+  stage: build_linuxclang_lockless
+  only:
+    - master
+  script:
+    - *scriptCommon
+    - *scriptBuildlibuvCLANG
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=clang LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j2 --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
+
+############################################################################
+
+build linuxgcc_lockless:
+  stage: build_linuxgcc_lockless
+  only:
+    - master
+  script:
+    - *scriptCommon
+    - *scriptBuildlibuvGCC
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j2 --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -93,7 +140,7 @@ build mingw64:
   script:
     - *scriptCommon
     - *scriptBuildlibuvMGW64
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j2 --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
