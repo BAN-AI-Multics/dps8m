@@ -15,19 +15,19 @@
 
 .scriptBuildlibuv: &scriptBuildlibuv |
     # scriptBuildlibuv
-    wget -q https://github.com/libuv/libuv/archive/v1.x.zip
+    wget -S https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
     ./configure --disable-shared --enable-static
-    make && make V=1 install && cd ..
+    make V=1 && make V=1 install && cd ..
 
 ############################################################################
 
 .scriptBuildlibuvMGW64: &scriptBuildlibuvMGW64 |
     # scriptBuildlibuvMGW64
-    wget -q https://github.com/libuv/libuv/archive/v1.x.zip
+    wget -S https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
     ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32
-    make && make V=1 install && cd ..
+    make V=1 && make V=1 install && cd ..
 
 ############################################################################
 
@@ -40,7 +40,10 @@ default:
     - uname -a 2> /dev/null || true > /dev/null 2>&1
     - apt-get update -y -qq || true > /dev/null 2>&1
     - apt-get install -y -qq mingw-w64 libtool unzip autoconf-archive
-    - clang --version 2> /dev/null
+    - clang --version 2> /dev/null || true > /dev/null 2>&1
+    - gcc --version 2> /dev/null ||  true > /dev/null 2>&1
+    - cc --version 2> /dev/null || true > /dev/null 2>&1
+    - lsb_release -d 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
@@ -58,7 +61,7 @@ build linux:
   script:
     - *scriptCommon
     - *scriptBuildlibuv
-    - make LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra"; make LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1'
   dependencies: []
   artifacts:
     paths:
@@ -74,7 +77,7 @@ build linux_lockless:
   script:
     - *scriptCommon
     - *scriptBuildlibuv
-    - make LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 W=1 V=1
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra"; make LIBUV="/usr/local/lib/libuv.a -lpthread" LOCKLESS=1 W=1 V=1'
   dependencies: []
   artifacts:
     paths:
@@ -90,7 +93,7 @@ build mingw64:
   script:
     - *scriptCommon
     - *scriptBuildlibuvMGW64
-    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" W=1 V=1'
   dependencies: []
   artifacts:
     paths:
