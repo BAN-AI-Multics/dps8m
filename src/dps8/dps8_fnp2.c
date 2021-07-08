@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 // XXX There is a lurking bug in fnpProcessEvent(). A second 'input' messages
@@ -167,7 +167,7 @@ static MTAB fnpMod [] =
     },
     {
       MTAB_unit_valr_nouc,
-      0,            /* match */ 
+      0,            /* match */
       "IPC_NAME",     /* print string */
       "IPC_NAME",         /* match string */
       fnpSetIPCname, /* validation routine */
@@ -177,7 +177,7 @@ static MTAB fnpMod [] =
     },
     {
       MTAB_unit_valr_nouc,
-      0,            /* match */ 
+      0,            /* match */
       "SERVICE",     /* print string */
       "SERVICE",         /* match string */
       fnpSetService, /* validation routine */
@@ -188,7 +188,7 @@ static MTAB fnpMod [] =
 
     {
       MTAB_dev_valr_noshow,
-      0,            /* match */ 
+      0,            /* match */
       "FW",     /* print string */
       "FW",         /* match string */
       fnpSetFW, /* validation routine */
@@ -405,7 +405,7 @@ static void fnp_rcd_input_in_mailbox (uint mbx, int fnp_unit_idx, int lineno)
     uint chan_num = cables->fnp_to_iom[fnp_unit_idx][ctlr_port_num].chan_num;
 
     uint n_chars = min(linep->nPos, 100);
-    
+
 //Sim_printf ("fnp_rcd_input_in_mailbox nPos %d\n", linep->nPos);
     word36 data = 0;
     l_putbits36_9 (& data, 9, (word9) n_chars); // n_chars
@@ -472,7 +472,7 @@ sim_printf ("\n");
     sim_printf ("    %012"PRIo64"\n", smbxp -> word2);
     for (int i = 0; i < 26; i ++)
       sim_printf ("    %012"PRIo64"\n", smbxp -> mystery [i]);
-    sim_printf ("interrupting!\n"); 
+    sim_printf ("interrupting!\n");
 #endif
 
     notifyCS (mbx, fnp_unit_idx, lineno);
@@ -723,19 +723,19 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
         if (linep->echoPlex)
           {
             // echo \r, \n & \t
-    
+
             // echo a CR when a LF is typed
             if (linep->crecho && kar == '\n')
               {
                 fnpuv_start_writestr (linep->line_client, (unsigned char *) "\r\n");
               }
-    
+
             // echo and inserts a LF in the users input stream when a CR is typed
             else if (linep->lfecho && kar == '\r')
               {
                 fnpuv_start_writestr (linep->line_client, (unsigned char *) "\r\n");
               }
-    
+
             // echo the appropriate number of spaces when a TAB is typed
             else if (linep->tabecho && kar == '\t')
               {
@@ -747,16 +747,16 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                 for(int i = 0 ; i < nSpaces ; i += 1)
                   fnpuv_start_writestr (linep->line_client, (unsigned char *) " ");
               }
-    
+
             // XXX slightly bogus logic here..
-            // ^R ^U ^H DEL LF CR FF ETX 
+            // ^R ^U ^H DEL LF CR FF ETX
             else if (kar == '\022'  || kar == '\025' || kar == '\b' ||
                      kar == 127     || kar == '\n'   || kar == '\r' ||
                      kar == '\f'    || kar == '\003')
             {
               // handled below
             }
-    
+
             // echo character
             else
             {
@@ -764,7 +764,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                 fnpuv_start_writestr (linep->line_client, str);
             }
         } // if echoPlex
-    
+
         // send of each and every character
         if (linep->breakAll)
           {
@@ -772,7 +772,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
             linep->buffer[linep->nPos] = 0;
 // Echnego
 
-// MTB-418, pg 13. 
+// MTB-418, pg 13.
 // "If the [input_break] bit is on, the delivery consists.of characters none of
 // which were echoed by the multiplexer; the multiplexer may decide for any
 // reason (e.g., internal buffer shortages, internal races, etc.) to stop
@@ -782,7 +782,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 // the multiplexer, except for perhaps the la~ character of the delivery. MCS
 // must determine, for such a delivery, whether the last character of such a
 // delivery was capable of being echoed by the multiplexer, and if so, assume
-// that it was, otherwise not. 
+// that it was, otherwise not.
 
 // "start negotiated echo'', via a control order, also specifying the number of
 // characters left on the line
@@ -828,7 +828,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 // and causes ring 4 to be woken up, as today.
 
                     // "If [input_break] is off, the delivery consists
-                    // of characters all of which were echoed ..., 
+                    // of characters all of which were echoed ...,
                     // except for perhaps the last ... ."
                     linep->input_break = false;
 
@@ -893,7 +893,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 // specific multiplexer does not support echo negotiation, the multiplexer
 // decided randomly (i.e., for internal reasons) to stop or not start
 // echoing, or the first character in the delivery is a break character· or
-// exceeds the length of screen left; in any case, the delivery is 
+// exceeds the length of screen left; in any case, the delivery is
 // entirely of non-echoed characters. These cases are indistinguishable
 // from each other and from the only case today when in the ring zero echo
 // state, and handled identically as today. The delivery is scanned,
@@ -945,7 +945,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 #endif
             return true;
           } // break all
-    
+
         if ((linep-> frame_begin != 0 &&
              linep-> frame_begin == kar) ||
             (linep-> frame_end != 0 &&
@@ -973,11 +973,11 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
             return true;
 #endif
           }
-    
+
         // Multics seems to want CR changed to LF
         if (kar == '\r')
           kar = '\n';
-    
+
         switch (kar)
           {
             case '\n':          // NL
@@ -992,7 +992,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 //sim_printf ("processInputCharacter sees NL; sets input_break\n");
                 return true;
               }
-    
+
             case 0x03:          // ETX (^C) // line break
               {
                 if (linep->handleQuit)
@@ -1005,7 +1005,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                   }
               }
               break;
-    
+
             case '\b':  // backspace
             case 127:   // delete
               {
@@ -1015,14 +1015,14 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                     linep->nPos -= 1;                 // back up buffer pointer
                     linep->buffer[linep->nPos] = 0;     // remove char from buffer
                   }
-                else 
+                else
                  {
                     // remove char from line
                     fnpuv_start_writestr (linep->line_client, (unsigned char *) "\a");
                   }
                 return false;
               }
-    
+
             case 21:    // ^U kill
               {
                 linep->nPos = 0;
@@ -1030,7 +1030,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                 fnpuv_start_writestr (linep->line_client, (unsigned char *) "^U\r\n");
                 return false;
               }
-    
+
             case 0x12:  // ^R
               {
                 fnpuv_start_writestr (linep->line_client, (unsigned char *) "^R\r\n");       // echo ^R
@@ -1071,7 +1071,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
           :
             // 'listen' command buffer size met
             (linep->inputBufferSize != 0 && linep->nPos >= linep->inputBufferSize))
-        )  
+        )
       {
         linep->accept_input = 1;
         linep->input_break = false;
@@ -1088,7 +1088,7 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 
         return true;
       }
-    return false; 
+    return false;
   }
 
 // The 3270 controller received a EOR
@@ -1182,7 +1182,7 @@ static void fnpProcessBuffers (void)
 
 
 //  /* Values for line_stat.op */
-//  
+//
 //  dcl (BID_FAILED                    initial (1),
 //       BAD_BLOCK                     initial (2),
 //       REVERSE_INTERRUPT             initial (3),
@@ -1244,7 +1244,7 @@ sim_printf ("\r\n");
     linep->input_break = brk ? 1 : 0;
   }
 
-const unsigned char addr_map [ADDR_MAP_ENTRIES] = 
+const unsigned char addr_map [ADDR_MAP_ENTRIES] =
   {
     0x40, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7,
     0xc8, 0xc9, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
@@ -1270,7 +1270,7 @@ sim_printf ("send_stn_in_buffer\r\n");
 //
 // x3270 sends aid, cursor1, cursor2
 
-                     
+
 //sim_printf ("sending rcvd data\r\n");
 
     uint fnpno = fnpData.ibm3270ctlr[ASSUME0].fnpno;
@@ -1411,7 +1411,7 @@ static void fnp_process_3270_event (void)
         if (stn_cnt >= IBM3270_STATIONS_MAX)
           {
             // No response to poll; send EOT, stop polling
-        
+
             unsigned char EOT = 0x37;
             send_3270_msg (ASSUME0, & EOT, 1, true);
             fnpuv3270Poll (false);
@@ -1484,7 +1484,7 @@ void fnpProcessEvent (void)
             if (linep -> send_output > 0)
                 linep->send_output --;
 
-            if (do_send_output) 
+            if (do_send_output)
               {
                 fnp_rcd_send_output ((uint)mbx, (int) fnp_unit_idx, lineno);
                 need_intr = true;
@@ -1572,8 +1572,8 @@ void fnpProcessEvent (void)
                     // This check was added as part of 3270 support,
                     // but breaks break key logic. Disabling until
                     // a case can be made that the 3270 requires this.
-                    if (0 && linep->nPos == 0) 
-                      { 
+                    if (0 && linep->nPos == 0)
+                      {
                         sim_printf ("dropping nPos of 0");
                       }
                     else
@@ -1681,14 +1681,14 @@ sim_printf ("input_in_mailbox\n");
     fnp_process_3270_event ();
   }
 
-static t_stat fnpShowNUnits (UNUSED FILE * st, UNUSED UNIT * uptr, 
+static t_stat fnpShowNUnits (UNUSED FILE * st, UNUSED UNIT * uptr,
                               UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Number of FNP units in system is %d\n", fnp_dev . numunits);
     return SCPE_OK;
   }
 
-static t_stat fnpSetNUnits (UNUSED UNIT * uptr, UNUSED int32 value, 
+static t_stat fnpSetNUnits (UNUSED UNIT * uptr, UNUSED int32 value,
                              const char * cptr, UNUSED void * desc)
   {
     if (! cptr)
@@ -1703,13 +1703,13 @@ static t_stat fnpSetNUnits (UNUSED UNIT * uptr, UNUSED int32 value,
 
 static t_stat fnpShowIPCname (UNUSED FILE * st, UNIT * uptr,
                               UNUSED int val, UNUSED const void * desc)
-  {   
+  {
     long n = FNP_UNIT_IDX (uptr);
     if (n < 0 || n >= N_FNP_UNITS_MAX)
       return SCPE_ARG;
     sim_printf("FNP IPC name is %s\n", fnpData.fnpUnitData [n] . ipcName);
     return SCPE_OK;
-  }   
+  }
 
 static t_stat fnpSetIPCname (UNIT * uptr, UNUSED int32 value,
                              UNUSED const char * cptr, UNUSED void * desc)
@@ -1729,7 +1729,7 @@ static t_stat fnpSetIPCname (UNIT * uptr, UNUSED int32 value,
 
 static t_stat fnpShowService (UNUSED FILE * st, UNIT * uptr,
                               UNUSED int val, UNUSED const void * desc)
-  {   
+  {
     long devnum = FNP_UNIT_IDX (uptr);
     if (devnum < 0 || devnum >= N_FNP_UNITS_MAX)
       return SCPE_ARG;
@@ -1803,13 +1803,13 @@ static t_stat fnpSetService (UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat fnpShowConfig (UNUSED FILE * st, UNIT * uptr, UNUSED int val, 
+static t_stat fnpShowConfig (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
                              UNUSED const void * desc)
   {
     long fnpUnitIdx = FNP_UNIT_IDX (uptr);
     if (fnpUnitIdx >= (long) N_FNP_UNITS_MAX)
       {
-        sim_debug (DBG_ERR, & fnp_dev, 
+        sim_debug (DBG_ERR, & fnp_dev,
                    "fnpShowConfig: Invalid unit number %ld\n", fnpUnitIdx);
         sim_printf ("error: invalid unit number %ld\n", fnpUnitIdx);
         return SCPE_ARG;
@@ -1819,14 +1819,14 @@ static t_stat fnpShowConfig (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     struct fnpUnitData_s * fudp = fnpData.fnpUnitData + fnpUnitIdx;
 
     sim_printf ("FNP Mailbox Address:         %04o(8)\n", fudp -> mailboxAddress);
- 
+
     return SCPE_OK;
   }
 
 //  SET FNPn FW RESET
 //  SET FNPn FW ADD <line number list>:<ipaddr>:<ipmask>: ACCEPT | DENY
 //
-//   
+//
 
 int n_fw_entries = 0;
 struct fw_entry_s fw_entries [N_FW_ENTRIES];
@@ -1903,7 +1903,7 @@ static t_stat fnpSetFW (UNIT * uptr, UNUSED int32 value,
     memcpy (sn, cptr, strlen (cptr) + 1);
     char * saveptr;
     char * tok;
-   
+
 // Parse out ADD/RESET
     tok = strtok_r (sn, ":", & saveptr);
     if (strcasecmp (tok, "RESET") == 0)
@@ -2041,13 +2041,13 @@ static t_stat fnpSetFW (UNIT * uptr, UNUSED int32 value,
     return SCPE_ARG;
   }
 
-static t_stat fnpShowFW (UNUSED FILE * st, UNIT * uptr, UNUSED int val, 
+static t_stat fnpShowFW (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
                          UNUSED const void * desc)
   {
     long fnpUnitIdx = FNP_UNIT_IDX (uptr);
     if (fnpUnitIdx >= (long) N_FNP_UNITS_MAX)
       {
-        sim_debug (DBG_ERR, & fnp_dev, 
+        sim_debug (DBG_ERR, & fnp_dev,
                    "fnpShowConfig: Invalid unit number %ld\n", fnpUnitIdx);
         sim_printf ("error: invalid unit number %ld\n", fnpUnitIdx);
         return SCPE_ARG;
@@ -2062,13 +2062,13 @@ static t_stat fnpShowFW (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
   }
 
 
-static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val, 
+static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
                              UNUSED const void * desc)
   {
     long fnpUnitIdx = FNP_UNIT_IDX (uptr);
     if (fnpUnitIdx >= (long) fnp_dev.numunits)
       {
-        sim_debug (DBG_ERR, & fnp_dev, 
+        sim_debug (DBG_ERR, & fnp_dev,
                    "fnpShowStatus: Invalid unit number %ld\n", fnpUnitIdx);
         sim_printf ("error: invalid unit number %ld\n", fnpUnitIdx);
         return SCPE_ARG;
@@ -2146,7 +2146,7 @@ static t_stat fnpSetConfig (UNIT * uptr, UNUSED int value, const char * cptr, UN
           {
             case -2: // error
               cfg_parse_done (& cfg_state);
-              return SCPE_ARG; 
+              return SCPE_ARG;
 
             case -1: // done
               break;
@@ -2158,7 +2158,7 @@ static t_stat fnpSetConfig (UNIT * uptr, UNUSED int value, const char * cptr, UN
             default:
               sim_printf ("error: fnpSetConfig: invalid cfg_parse rc <%d>\n", rc);
               cfg_parse_done (& cfg_state);
-              return SCPE_ARG; 
+              return SCPE_ARG;
           } // switch
         if (rc < 0)
           break;
@@ -2188,7 +2188,7 @@ t_stat fnpLoad (UNUSED int32 arg, const char * buf)
           continue;
         if (p [0] == 0)          // blank line
           continue;;
-        
+
         char * first  = trim (Strtok (p, ":"));  // stuff to the left of ':'
         char * second = trim (Strtok (NULL, ":;")); // stuff to the right of ':'
         char dev;
@@ -2203,18 +2203,18 @@ t_stat fnpLoad (UNUSED int32 arg, const char * buf)
             devnum = (uint) (dev - 'a');
             havename = true;
             // CMF format sets the default service to login
-            fnpData.fnpUnitData[devnum].MState.line[linenum].service = service_login;                    
+            fnpData.fnpUnitData[devnum].MState.line[linenum].service = service_login;
           }
         else if (havename && second && strcmp (first, "service") == 0)
           {
             if (strcmp (second, "login") == 0)
               fnpData.fnpUnitData[devnum].MState.line[linenum].service = service_login;
             else if (strcmp (second, "autocall") == 0)
-              fnpData.fnpUnitData[devnum].MState.line[linenum].service = service_autocall;                   
+              fnpData.fnpUnitData[devnum].MState.line[linenum].service = service_autocall;
             else if (strcmp (second, "slave") == 0)
-              fnpData.fnpUnitData[devnum].MState.line[linenum].service = service_slave;                   
+              fnpData.fnpUnitData[devnum].MState.line[linenum].service = service_slave;
             else if (strcmp (second, "offline") == 0)
-              fnpData.fnpUnitData[devnum].MState.line[linenum].service = service_undefined;                   
+              fnpData.fnpUnitData[devnum].MState.line[linenum].service = service_undefined;
             else
               sim_printf ("service type '%s' not recognized; skipping\n", second);
           }
@@ -2262,7 +2262,7 @@ t_stat fnpLoad (UNUSED int32 arg, const char * buf)
           }
         else
           sim_printf ("fnpLoad '%s' not recognized; skipping\n", buff);
-      }     
+      }
     fclose (fileref);
     return SCPE_OK;
   }
@@ -2276,7 +2276,10 @@ t_stat set_fnp_server_port (UNUSED int32 arg, const char * buf)
     if (n < 1 || n > 65535)
       return SCPE_ARG;
     fnpData.telnet_port = n;
-    sim_printf ("FNP telnet server port set to %d\n", n);
+        if (!sim_quiet)
+          {
+            sim_printf ("FNP telnet server port set to %d\n", n);
+          }
     return SCPE_OK;
   }
 
@@ -2285,7 +2288,10 @@ t_stat set_fnp_server_address (UNUSED int32 arg, const char * buf)
     if (fnpData.telnet_address)
       free (fnpData.telnet_address);
     fnpData.telnet_address = strdup (buf);
-    sim_printf ("FNP telnet server address set to %s\n", fnpData.telnet_address);
+        if (!sim_quiet)
+          {
+            sim_printf ("FNP telnet server address set to %s\n", fnpData.telnet_address);
+          }
     return SCPE_OK;
   }
 
@@ -2297,13 +2303,19 @@ t_stat set_fnp_3270_server_port (UNUSED int32 arg, const char * buf)
     if (n < 1 || n > 65535)
       return SCPE_ARG;
     fnpData.telnet3270_port = n;
-    sim_printf ("FNP telnet3270 server port set to %d\n", n);
+        if (!sim_quiet)
+          {
+            sim_printf ("FNP telnet3270 server port set to %d\n", n);
+          }
     return SCPE_OK;
   }
 
 t_stat fnp_start (UNUSED int32 arg, UNUSED const char * buf)
   {
-    sim_printf ("FNP force start\n");
+        if (!sim_quiet)
+         {
+            sim_printf ("FNP force start\n");
+         }
     fnpuvInit (fnpData.telnet_port, fnpData.telnet_address);
     //fnpuv3270Init (fnpData.telnet3270_port);
     return SCPE_OK;
@@ -2408,12 +2420,12 @@ static void fnp3270Msg (uv_tcp_t * client, unsigned char * msg)
       buf[i] = a2e[msg[i]];
 // command  Erase write 245  (xf5)
 // WCC      66 x42 0100 0010   Reset, KB restore
-//  SBA     17 x11 
+//  SBA     17 x11
 // 1st addr byte 64
 // 2nd addr byte 64
 // start field 29 x1D
 // arg  96
-//          29, 200, 133, 153, 131, 164, 147, 133 ??? 
+//          29, 200, 133, 153, 131, 164, 147, 133 ???
     //unsigned char EW [] = {245, 66, 17, 64, 64 };
     unsigned char EW [] = {245, 0xc3, 17, 64, 64 };
     fnpuv_start_3270_write (client, EW, sizeof (EW));
@@ -2472,7 +2484,7 @@ void processLineInput (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
     struct t_line * linep = & fnpData.fnpUnitData[fnpno].MState.line[lineno];
 
 // By design, inBuffer overun shouldn't happen, but it has been seen in IMFT.
-// (When the TCP backs up, the buffers are merged so that larger and larger 
+// (When the TCP backs up, the buffers are merged so that larger and larger
 // reads occur. When the backedup buffer exceeds 65536, libev calls the read
 // callback twice in a row, once with the first 65536, and the next with the
 // remaining.
@@ -2549,7 +2561,7 @@ sim_printf ("\r\n");
       }
 
 // By design, inBuffer overun shouldn't happen, but it has been seen in IMFT.
-// (When the TCP backs up, the buffers are merged so that larger and larger 
+// (When the TCP backs up, the buffers are merged so that larger and larger
 // reads occur. When the backedup buffer exceeds 65536, libev calls the read
 // callback twice in a row, once with the first 65536, and the next with the
 // remaining.

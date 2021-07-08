@@ -1,6 +1,7 @@
 /* sim_video.c: Bitmap video output
 
-   Copyright (c) 2011-2013, Matt Burke
+   Copyright (c) 2011-2013 Matt Burke
+   Copyright (c) 2021 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),

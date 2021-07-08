@@ -553,7 +553,7 @@ static decFloat * decDivide(decFloat *result, const decFloat *dfl,
 
   // complete the bcdnum; quodigits is correct, so the position of
   // the first non-zero is known
-  // XXX(jhj): was num.msd=bcdacc+1+(msuq-lsuq+1)*9-quodigits;
+  // XXX(johnsonjh): was num.msd=bcdacc+1+(msuq-lsuq+1)*9-quodigits;
   num.msd=(&bcdacc[1]);
   num.msd+=(msuq-lsuq+1)*9-quodigits;
   // the above fixes a bounds checking error that triggers later,

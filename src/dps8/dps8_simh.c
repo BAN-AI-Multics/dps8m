@@ -6,13 +6,12 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #include "dps8.h"
 #include "dps8_sys.h"
 #include "dps8_simh.h"
-
 
 #ifdef COLOR
 //                FG BG
@@ -48,7 +47,7 @@ void sim_msg (const char * fmt, ...)
     va_list arglist;
 
     /* format passed string, args */
-    while (1) 
+    while (1)
       {
         va_start (arglist, fmt);
 #if defined(NO_vsnprintf)
@@ -117,7 +116,7 @@ void sim_warn (const char * fmt, ...)
     va_list arglist;
 
     /* format passed string, args */
-    while (1) 
+    while (1)
       {
         va_start (arglist, fmt);
 #if defined(NO_vsnprintf)
@@ -186,7 +185,7 @@ void sim_print (const char * fmt, ...)
     va_list arglist;
 
     /* format passed string, args */
-    while (1) 
+    while (1)
       {
         va_start (arglist, fmt);
 #if defined(NO_vsnprintf)

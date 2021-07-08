@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2016 Charles Anthony
  * Copyright (c) 2021 The DPS8M Development Team
- * 
+ *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #ifndef HDBG_H
@@ -46,7 +46,7 @@ void hdbgPAReg (enum hregs_t type, struct par_s * data);
 #define HDBGRegPR(i) hdbgPAReg (hreg_PR0+(i), & cpu.PAR[i]);
 #define HDBGRegAR(i) hdbgPAReg (hreg_AR0+(i), & cpu.PAR[i]);
 #else
-#define HDBGMRead(a, d) 
+#define HDBGMRead(a, d)
 #define HDBGMWrite(a, d)
 #define HDBGRegA()
 #define HDBGRegQ()

@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2008-2013, Troy D. Hanson
+ * Copyright (c) 2008-2013 Troy D. Hanson
  *     http://troydhanson.github.com/uthash/
+ * Copyright (c) 2021 The DPS8M Development Team
  *
  * All rights reserved.
  *
@@ -24,7 +25,7 @@
  */
 
 /*
- * a dynamic array implementation using macros 
+ * a dynamic array implementation using macros
  */
 
 #ifndef UTARRAY_H
@@ -33,9 +34,9 @@
 #define UTARRAY_VERSION 1.9.8
 
 #ifdef __GNUC__
-#define _UNUSED_ __attribute__ ((__unused__)) 
+#define _UNUSED_ __attribute__ ((__unused__))
 #else
-#define _UNUSED_ 
+#define _UNUSED_
 #endif
 
 #include <stddef.h>  /* size_t */
@@ -193,7 +194,7 @@ typedef struct {
 #define utarray_renew(a,u) do {                                               \
   if (a) utarray_clear(a); \
   else utarray_new((a),(u));   \
-} while(0) 
+} while(0)
 
 #define utarray_clear(a) do {                                                 \
   if ((a)->i > 0) {                                                           \

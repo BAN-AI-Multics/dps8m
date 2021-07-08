@@ -9,7 +9,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //#define IOMDBG1
@@ -37,78 +37,79 @@
 #define DBG_CTR 1
 
 /*
- mt.c -- mag tape
- See manual AN87
- */
-/*
- Copyright (c) 2007-2013 Michael Mondy
- 
- This software is made available under the terms of the
- ICU License -- ICU 1.8.1 and later.
- See the LICENSE file at the top-level directory of this distribution and
- at http://example.org/project/LICENSE.
+ * mt.c -- mag tape
+ * See manual AN87
  */
 
+ /*
+  * Copyright (c) 2007-2013 Michael Mondy
+  *
+  * This software is made available under the terms of the ICU
+  * License, version 1.8.1 or later.  For more details, see the
+  * LICENSE.md file at the top-level directory of this distribution.
+  *
+  */
+
 /*
- 
- COMMENTS ON "CHAN DATA" AND THE T&D TAPE (test and diagnostic tape)
- 
- The IOM status service provides the "residue" from the last PCW or
- IDCW as part of the status.  Bootload_tape_label.alm indicates
- that after a read binary operation, the field is interpreted as the
- device number and that a device number of zero is legal.
- 
- The IOM boot channel will store an IDCW with a chan-data field of zero.
- AN70, page 2-1 says that when the tape is read in native mode via an
- IOM or IOCC, the tape drive number in the IDCW will be zero.  It says
- that a non-zero tape drive number in the IDCW indicates that BOS is
- being used to simulate an IOM. (Presumaby written before BCE replaced
- BOS.)
- 
- However...
- 
- This seems to imply that an MPC could be connected to a single
- channel and support multiple tape drives by using chan-data as a
- device id.  If so, it seems unlikely that chan-data could ever
- represent anything else such as a count of a number of records to
- back space over (which is hinted at as an example in AN87).
- 
- Using chan-data as a device-id that is zero from the IOM also
- implies that Multics could only be cold booted from a tape drive with
- device-id zero.  That doesn't seem to mesh with instructions
- elsewhere... And BCE has to (initially) come from the boot tape...
-
-     Comment by CAC:  From MDD-005-02:
-
-       "     bootload_tape_label  is read  in by  one of  two means.   In
-        native mode, the  IOM or IMU reads it into  absolute location 30,
-        leaving  the PCW,  DCW's, and   other essentials  in locations  0
-        through  5.  The IMU  leaves an indication  of its identity  just
-        after this block of information.
-
-             In  BOS compatibility mode,  the BOS BOOT  command simulates
-        the IOM, leaving the same information.  However, it also leaves a
-        config deck and flagbox (although bce has its own flagbox) in the
-        usual locations.   This allows Bootload Multics to  return to BOS
-        if there is a BOS to return to.  The presence of BOS is indicated
-        by the tape drive number being  non-zero in the idcw in the "IOM"
-        provided information.   (This is normally zero  until firmware is
-        loaded into the bootload tape MPC.) 
-
- The T&D tape seems to want to see non-zero residue from the very
- first tape read.  That seems to imply that the T&D tape could not
- be booted by the IOM!  Perhaps the T&D tape requires BCE (which
- replaced BOS) ?
- 
- TODO
- 
- When simulating timing, switch to queuing the activity instead
- of queueing the status return.   That may allow us to remove most
- of our state variables and more easily support save/restore.
-
- Convert the rest of the routines to have a chan_devinfo argument.
- 
- Allow multiple tapes per channel.
+ *
+ *  COMMENTS ON "CHAN DATA" AND THE T&D TAPE (test and diagnostic tape)
+ *
+ * The IOM status service provides the "residue" from the last PCW or
+ * IDCW as part of the status.  Bootload_tape_label.alm indicates
+ * that after a read binary operation, the field is interpreted as the
+ * device number and that a device number of zero is legal.
+ *
+ * The IOM boot channel will store an IDCW with a chan-data field of zero.
+ * AN70, page 2-1 says that when the tape is read in native mode via an
+ * IOM or IOCC, the tape drive number in the IDCW will be zero.  It says
+ * that a non-zero tape drive number in the IDCW indicates that BOS is
+ * being used to simulate an IOM. (Presumaby written before BCE replaced
+ * BOS.)
+ *
+ * However...
+ *
+ * This seems to imply that an MPC could be connected to a single
+ * channel and support multiple tape drives by using chan-data as a
+ * device id.  If so, it seems unlikely that chan-data could ever
+ * represent anything else such as a count of a number of records to
+ * back space over (which is hinted at as an example in AN87).
+ *
+ * Using chan-data as a device-id that is zero from the IOM also
+ * implies that Multics could only be cold booted from a tape drive with
+ * device-id zero.  That doesn't seem to mesh with instructions
+ * elsewhere... And BCE has to (initially) come from the boot tape...
+ *
+ *     Comment by CAC:  From MDD-005-02:
+ *
+ *       "     bootload_tape_label  is read  in by  one of  two means.   In
+ *        native mode, the  IOM or IMU reads it into  absolute location 30,
+ *        leaving  the PCW,  DCW's, and   other essentials  in locations  0
+ *        through  5.  The IMU  leaves an indication  of its identity  just
+ *        after this block of information.
+ *
+ *             In  BOS compatibility mode,  the BOS BOOT  command simulates
+ *        the IOM, leaving the same information.  However, it also leaves a
+ *        config deck and flagbox (although bce has its own flagbox) in the
+ *        usual locations.   This allows Bootload Multics to  return to BOS
+ *        if there is a BOS to return to.  The presence of BOS is indicated
+ *        by the tape drive number being  non-zero in the idcw in the "IOM"
+ *        provided information.   (This is normally zero  until firmware is
+ *        loaded into the bootload tape MPC.)
+ *
+ * The T&D tape seems to want to see non-zero residue from the very
+ * first tape read.  That seems to imply that the T&D tape could not
+ * be booted by the IOM!  Perhaps the T&D tape requires BCE (which
+ * replaced BOS) ?
+ *
+ *  TODO
+ *
+ * When simulating timing, switch to queuing the activity instead
+ * of queueing the status return.   That may allow us to remove most
+ * of our state variables and more easily support save/restore.
+ *
+ * Convert the rest of the routines to have a chan_devinfo argument.
+ *
+ * Allow multiple tapes per channel.
  */
 
 #include "sim_tape.h"
@@ -139,7 +140,7 @@ static struct mtp_state_s
     char device_name [MAX_DEV_NAME_LEN];
   } mtp_state [N_MTP_UNITS_MAX];
 
-static t_stat mtp_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, 
+static t_stat mtp_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int val, UNUSED const void * desc)
   {
     sim_printf ("Number of MTP controllers in the system is %d\n",
@@ -147,7 +148,7 @@ static t_stat mtp_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat mtp_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, 
+static t_stat mtp_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
                               const char * cptr, UNUSED void * desc)
   {
     if (! cptr)
@@ -160,7 +161,7 @@ static t_stat mtp_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
   }
 
 
-static t_stat mtp_show_boot_drive (UNUSED FILE * st, UNIT * uptr, 
+static t_stat mtp_show_boot_drive (UNUSED FILE * st, UNIT * uptr,
                                    UNUSED int val, UNUSED const void * desc)
   {
     long mtp_unit_idx = MTP_UNIT_IDX (uptr);
@@ -174,7 +175,7 @@ static t_stat mtp_show_boot_drive (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat mtp_set_boot_drive (UNIT * uptr, UNUSED int32 value, 
+static t_stat mtp_set_boot_drive (UNIT * uptr, UNUSED int32 value,
                                  const char * cptr, UNUSED void * desc)
   {
     long mtp_unit_idx = MTP_UNIT_IDX (uptr);
@@ -200,7 +201,7 @@ UNIT mtp_unit [N_MTP_UNITS_MAX] =
         }
   };
 
-static t_stat mtp_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat mtp_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                     UNUSED int val, UNUSED const void * desc)
   {
     int n = (int) MTP_UNIT_IDX (uptr);
@@ -210,7 +211,7 @@ static t_stat mtp_show_device_name (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat mtp_set_device_name (UNIT * uptr, UNUSED int32 value, 
+static t_stat mtp_set_device_name (UNIT * uptr, UNUSED int32 value,
                                    const char * cptr, UNUSED void * desc)
   {
     int n = (int) MTP_UNIT_IDX (uptr);
@@ -339,20 +340,20 @@ UNIT mt_unit [N_MT_UNITS_MAX] =
 
 #define UNIT_WATCH (1 << MTUF_V_UF)
 
-static t_stat mt_rewind (UNIT * uptr, UNUSED int32 value, 
+static t_stat mt_rewind (UNIT * uptr, UNUSED int32 value,
                          UNUSED const char * cptr, UNUSED void * desc)
   {
     return sim_tape_rewind (uptr);
   }
 
-static t_stat mt_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, 
+static t_stat mt_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                               UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Number of TAPE units in system is %d\n", tape_dev . numunits);
     return SCPE_OK;
   }
 
-static t_stat mt_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, 
+static t_stat mt_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
                              const char * cptr, UNUSED void * desc)
   {
     if (! cptr)
@@ -364,7 +365,7 @@ static t_stat mt_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat mt_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat mt_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                    UNUSED int val, UNUSED const void * desc)
   {
     int n = (int) MT_UNIT_NUM (uptr);
@@ -374,7 +375,7 @@ static t_stat mt_show_device_name (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat mt_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value, 
+static t_stat mt_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
                                   UNUSED const char * cptr, UNUSED void * desc)
   {
     int n = (int) MT_UNIT_NUM (uptr);
@@ -390,7 +391,7 @@ static t_stat mt_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat mt_show_tape_path (UNUSED FILE * st, UNUSED UNIT * uptr, 
+static t_stat mt_show_tape_path (UNUSED FILE * st, UNUSED UNIT * uptr,
                                  UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Tape path <%s>\n", tape_path_prefix);
@@ -411,14 +412,14 @@ struct path_node
 static PATH_ENTRY *search_list_head = NULL;
 static PATH_ENTRY *search_list_tail = NULL;
 
-static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value, 
+static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value,
                              const char * cptr, UNUSED void * desc)
   {
     if (! cptr)
       return SCPE_ARG;
 
     size_t len = strlen(cptr);
-    
+
     // We check for legnth - (2 + max label length) to allow for the null, a possible '/' being added and the label file name being added
     if (len >= (sizeof(tape_path_prefix) - (LABEL_MAX + 2)))
       return SCPE_ARG;
@@ -465,13 +466,13 @@ static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value,
   }
 
 
-static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value, 
+static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
                              const char * cptr, UNUSED void * desc)
   {
     if (! cptr)
       return SCPE_ARG;
 
-    if (!tape_path_prefix[0]) 
+    if (!tape_path_prefix[0])
       {
         sim_print("ERROR: Tape DEFAULT_PATH must be set before ADD_PATH is used.\n");
         return SCPE_ARG;
@@ -487,7 +488,7 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
 
     // Break up parameter into prefix and directory
     char *token = strtok(buffer, "=");
-    if (token == NULL) 
+    if (token == NULL)
       {
         return SCPE_ARG;
       }
@@ -495,7 +496,7 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
     strcpy(prefix, token);
 
     token = strtok(NULL, "=");
-    if (token == NULL) 
+    if (token == NULL)
       {
         sim_print("ERROR: Tape ADD_PATH parameter must be specified as [prefix]=[dir]\n");
         sim_print("   set tape ADD_PATH=BK=./tapes/backups\n");
@@ -504,13 +505,13 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
 
     strcpy(dir, token);
 
-    if (strtok(NULL, "=") != NULL)    
+    if (strtok(NULL, "=") != NULL)
       {
         return SCPE_ARG;
       }
 
     size_t prefix_len = strlen(prefix);
-    if ((prefix_len > LABEL_MAX) || (prefix_len < 1)) 
+    if ((prefix_len > LABEL_MAX) || (prefix_len < 1))
       {
         return SCPE_ARG;
       }
@@ -518,7 +519,7 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
     size_t dir_len = strlen(dir);
 
     // We check against PATH_MAX - 1 to account for possibly adding a slash at the end of the path
-    if (dir_len > (PATH_MAX - 1)) 
+    if (dir_len > (PATH_MAX - 1))
       {
         return SCPE_ARG;
       }
@@ -548,7 +549,7 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
       }
 
     new_entry->next_entry = NULL;
-    if (search_list_tail == NULL) 
+    if (search_list_tail == NULL)
       {
         search_list_head = new_entry;
         search_list_tail = new_entry;
@@ -560,9 +561,9 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
       }
 
     return SCPE_OK;
-  }            
+  }
 
-static t_stat mt_show_tape_search_paths(UNUSED FILE * st, UNUSED UNIT * uptr, 
+static t_stat mt_show_tape_search_paths(UNUSED FILE * st, UNUSED UNIT * uptr,
                                  UNUSED int val, UNUSED const void * desc)
   {
     sim_print("Tape directory search paths:\n");
@@ -578,9 +579,9 @@ static t_stat mt_show_tape_search_paths(UNUSED FILE * st, UNUSED UNIT * uptr,
     sim_printf("%-32s %s\n", "[default]", tape_path_prefix);
 
     return SCPE_OK;
-  }            
+  }
 
-static t_stat mt_set_capac (UNUSED UNIT * uptr, UNUSED int32 value, 
+static t_stat mt_set_capac (UNUSED UNIT * uptr, UNUSED int32 value,
                              const char * cptr, UNUSED void * desc)
   {
     if (! cptr)
@@ -588,7 +589,7 @@ static t_stat mt_set_capac (UNUSED UNIT * uptr, UNUSED int32 value,
     t_stat rc;
     int i;
     // skip the boot tape drive; Multics doesn't use it, and this
-    // allows setting capacity even though the boot tape is attached. 
+    // allows setting capacity even though the boot tape is attached.
     for (i = 1; i < N_MT_UNITS_MAX; i ++)
       {
         rc = sim_tape_set_capac (mt_unit + i, value, cptr, desc);
@@ -720,19 +721,17 @@ DEVICE tape_dev =
 
 static void deterimeFullTapeFileName(char * tapeFileName, char * buffer, int bufferLength)
   {
-    char full_tape_file_name[PATH_MAX + 1];
-
     // If no path prefixing, just return the given tape file name
     if (!tape_path_prefix[0])
       {
-          strncpy(buffer, tapeFileName, bufferLength);
+          strncpy(buffer, tapeFileName, (unsigned long)bufferLength);
           buffer[bufferLength - 1] = 0;
           return;
       }
 
     // Prefixing is in effect so now we need to search the additional path list for a prefix match
     PATH_ENTRY *current_entry = search_list_head;
-    while (current_entry != NULL) 
+    while (current_entry != NULL)
       {
         if (strncmp(current_entry->label_prefix, tapeFileName, current_entry->prefix_len) == 0)
           {
@@ -741,9 +740,9 @@ static void deterimeFullTapeFileName(char * tapeFileName, char * buffer, int buf
 
         current_entry = current_entry->next_entry;
       }
-    
+
     char *selected_path = tape_path_prefix;     // Start with the default path
-    if (current_entry != NULL) 
+    if (current_entry != NULL)
       {
         selected_path = current_entry->dir;
       }
@@ -752,14 +751,14 @@ static void deterimeFullTapeFileName(char * tapeFileName, char * buffer, int buf
     if (bufferLength < (strlen(selected_path) + strlen(tapeFileName) + 1))
       {
           // Bad news, we are going to overrun the buffer so we just use as much of the tape file name as we can
-          strncpy(buffer, tapeFileName, bufferLength);
+          strncpy(buffer, tapeFileName, (unsigned long)bufferLength);
           buffer[bufferLength - 1] = 0;
           return;
       }
 
     // Everything will fit so construct the full tape file name and path
     sprintf(buffer, "%s%s", selected_path, tapeFileName);
-    
+
   }
 
 void loadTape (uint driveNumber, char * tapeFilename, bool ro)
@@ -876,7 +875,7 @@ static int mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
         p -> stati = 04423; // EOF category EOF file mark
         if (tape_statep -> tbc != 0)
           {
-            sim_warn ("%s: Read %d bytes with EOF.\n", 
+            sim_warn ("%s: Read %d bytes with EOF.\n",
                         __func__, tape_statep -> tbc);
           }
         tape_statep -> tbc = 0;
@@ -894,7 +893,7 @@ static int mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
           p -> stati = 04340; // EOT file mark
         if (tape_statep -> tbc != 0)
           {
-            sim_warn ("%s: Read %d bytes with EOM.\n", 
+            sim_warn ("%s: Read %d bytes with EOM.\n",
                         __func__, tape_statep -> tbc);
             //return 0;
           }
@@ -1005,7 +1004,7 @@ ddcws:;
 #endif
             iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                     & tape_statep -> words_processed, true);
-            p -> initiate = false; 
+            p -> initiate = false;
             if (p -> tallyResidue)
               {
                 sim_debug (DBG_WARN, & tape_dev,
@@ -1094,7 +1093,7 @@ loop:;
 
     iom_indirect_data_service (iomUnitIdx, chan, buffer,
                             & tape_statep -> words_processed, false);
-    p -> initiate = false; 
+    p -> initiate = false;
 
 #if 0
             if (tape_statep -> is9) {
@@ -1127,16 +1126,16 @@ loop:;
         int rc2;
         if (tape_statep -> is9)
           {
-            rc2 = insertASCII36toBuffer (tape_statep -> buf, 
-                                        tape_statep -> tbc, 
-                                        & tape_statep -> words_processed, 
+            rc2 = insertASCII36toBuffer (tape_statep -> buf,
+                                        tape_statep -> tbc,
+                                        & tape_statep -> words_processed,
                                         buffer [i]);
           }
         else
           {
-            rc2 = insertWord36toBuffer (tape_statep -> buf, 
-                                       tape_statep -> tbc, 
-                                       & tape_statep -> words_processed, 
+            rc2 = insertWord36toBuffer (tape_statep -> buf,
+                                       tape_statep -> tbc,
+                                       & tape_statep -> words_processed,
                                        buffer [i]);
             }
         if (rc2)
@@ -1157,7 +1156,7 @@ loop:;
       p -> charPos = tape_statep -> tbc % 4;
     else
       p -> charPos = (tape_statep -> tbc * 8) / 9 % 4;
-  
+
     // Write buf to tape
 
     if (! (unitp -> flags & UNIT_ATT))
@@ -1291,7 +1290,7 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
     uint cnt = 0;
     for (uint i = 0; i < bufsz; i ++)
       buffer [i] = 0;
-    
+
     uint ctlr_idx = get_ctlr_idx (iomUnitIdx, chan);
     // Walk the device codes
     for (uint dev_code = 0; dev_code < N_DEV_CODES; dev_code ++)
@@ -1327,7 +1326,7 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
         cnt ++;
       }
     iom_indirect_data_service (iomUnitIdx, chan, buffer, & bufsz, true);
-    p -> initiate = false; 
+    p -> initiate = false;
     p -> stati = 04000;
     return 0;
   }
@@ -1342,8 +1341,8 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
 //   tally is set to one.
 // request device status
 //   don't know
-// data security erase, rewind, rewind/unload, tape load, request status, 
-// reset status, request device status, reset device status, set file permit, 
+// data security erase, rewind, rewind/unload, tape load, request status,
+// reset status, request device status, reset device status, set file permit,
 // set file protect, reserve device, release device, read control registers
 //   no idcw.
 
@@ -1425,14 +1424,14 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 
 
 //    / * Build read or write (dev stat block) main memory dcw list */
-//    
+//
 //              idcwp = addr (buf.idcw1);                         /* First IDCW */
 //              buf.idcw1 = "0"b;
-//    
+//
 //              if OP = READ_MPC_MEM
 //              then idcw.command = "02"b3;                       /* Command is read controller main memory (ASCII) */
 //              else idcw.command = "32"b3;                       /* Command is write main memory (binary) */
-//    
+//
 //              idcw.code = "111"b;                               /* This makes it an IDCW */
 //              idcw.control = "10"b;                             /* Set continue bit */
 //              idcw.chan_cmd = "40"b3;                           /* Indicate special controller command */
@@ -1449,18 +1448,18 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 //              dcw.address = rel (addr (buf.mem));               /* Offset to core image */
 //              dcw.tally = bit (bin (size (buf) - bin (rel (addr (buf.mem)), 18), 12));
 //                                                                /* Rest of seg */
-//    
+//
 //              if OP = READ_MPC_MEM then do;
 //                   idcw.command = "06"b3;                       /* Command is initiate read data transfer */
 //                   buf.addr = "0"b;                             /* Mpc address to start is 0 */
 //                   buf.tally = bit (bin (mpc_memory_size, 16), 16);
 //                   end;
-//    
-//    
+//
+//
 // Control word:
 //
-//  
- 
+//
+
         case 02:               // CMD 02 -- Read controller main memory (ASCII)
           {
             sim_debug (DBG_DEBUG, & tape_dev,
@@ -1494,13 +1493,13 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 //sim_printf ("chan mode %d\n", p -> chanMode);
 //sim_printf ("ddcw %012"PRIo64"\n", p -> DCW);
             word36 control;
-	    uint count;
+            uint count;
             iom_indirect_data_service (iomUnitIdx, chan, & control, &count, false);
-            p -> initiate = false; 
+            p -> initiate = false;
 //sim_printf ("control %012"PRIo64"\n", control);
 //sim_printf ("  addr %012"PRIo64" tally %012"PRIo64"\n", getbits36_16 (control, 0), getbits36_16 (control, 16));
-	    if (count != 1)
-	      sim_warn ("%s: count %d not 1\n", __func__, count);
+            if (count != 1)
+              sim_warn ("%s: count %d not 1\n", __func__, count);
             tape_statep -> cntlrAddress = getbits36_16 (control, 0);
             tape_statep -> cntlrTally = getbits36_16 (control, 16);
 
@@ -1518,7 +1517,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
           break;
 
 // How is the mpc memory sent?
-// This is the code from poll_mpc that extracts the memory copy from the buffer and 
+// This is the code from poll_mpc that extracts the memory copy from the buffer and
 // repacks it the way it wants"
 //
 //     2 mem (0:mpc_memory_size - 1) bit (18) unal;         /* This is the mpc memory */
@@ -1604,7 +1603,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 //                    mpc_data.mpc_err_data_reg_addr = 254;   /* 00FE */
 
             mem [charTableOS + 0] = 4096; // mem_sze
-            mem [charTableOS + 1] = 0; // config_sw 
+            mem [charTableOS + 1] = 0; // config_sw
 
 // Set the addresses to recognizable values
             mem [charTableOS + 2] = 04000 + 0123; // trace_tab_p
@@ -1628,7 +1627,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
                 putbits36_18 (buf + i, 18, mem [i * 2 + 1]);
               }
             iom_indirect_data_service (iomUnitIdx, chan, buf, & tally, true);
-            p -> initiate = false; 
+            p -> initiate = false;
             p -> stati = 04000;
           }
           break;
@@ -1743,9 +1742,9 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 //sim_printf ("chan mode %d\n", p -> chanMode);
 //sim_printf ("ddcw %012"PRIo64"\n", p -> DCW);
             word36 control;
-	    uint count;
+            uint count;
             iom_indirect_data_service (iomUnitIdx, chan, & control, &count, false);
-            p -> initiate = false; 
+            p -> initiate = false;
 //sim_printf ("control %012"PRIo64"\n", control);
 //sim_printf ("  addr %012"PRIo64" tally %012"PRIo64"\n", getbits36_16 (control, 0), getbits36_16 (control, 16));
             if (count != 1)
@@ -1808,10 +1807,10 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
                 tally = 64;
               }
 
-            sim_debug (DBG_DEBUG, & tape_dev, 
+            sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_iom_cmd: Forward skip record tally %d\n", tally);
 
-// sim_tape_sprecsf incorrectly stops on tape marks; 
+// sim_tape_sprecsf incorrectly stops on tape marks;
 #if 0
             uint32 skipped;
             t_stat ret = sim_tape_sprecsf (unitp, tally, & skipped);
@@ -1842,7 +1841,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 
             p -> tallyResidue = (word12) (tally - skipped);
 
-            sim_debug (DBG_NOTIFY, & tape_dev, 
+            sim_debug (DBG_NOTIFY, & tape_dev,
                        "mt_iom_cmd: Forward space %d records\n", skipped);
 
             p -> stati = 04000;
@@ -1869,7 +1868,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
                 tally = 1;
               }
 
-            sim_debug (DBG_DEBUG, & tape_dev, 
+            sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_iom_cmd: Forward space file tally %d\n", tally);
 
             uint32 skipped, recsskipped;
@@ -1890,7 +1889,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
                           (long) MT_UNIT_NUM (unitp), tape_statep -> rec_num);
 
             p -> tallyResidue = (word12) (tally - skipped);
-            sim_debug (DBG_NOTIFY, & tape_dev, 
+            sim_debug (DBG_NOTIFY, & tape_dev,
                        "mt_iom_cmd: Forward space %d files\n", tally);
 
             p -> stati = 04000;
@@ -1918,7 +1917,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
                 tally = 64;
               }
 
-            sim_debug (DBG_DEBUG, & tape_dev, 
+            sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_iom_cmd: Backspace record tally %d\n", tally);
 
 #if 0
@@ -1965,7 +1964,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
 
             p -> tallyResidue = (word12) (tally - skipped);
 
-            sim_debug (DBG_NOTIFY, & tape_dev, 
+            sim_debug (DBG_NOTIFY, & tape_dev,
                        "mt_iom_cmd: Backspace %d records\n", skipped);
 #endif
 
@@ -1993,7 +1992,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
                 tally = 1;
               }
 
-            sim_debug (DBG_DEBUG, & tape_dev, 
+            sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_iom_cmd: Backspace file tally %d\n", tally);
 
 #if 0
@@ -2028,7 +2027,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
                           (long) MT_UNIT_NUM (unitp), tape_statep -> rec_num);
 
             p -> tallyResidue = (word12) (tally - skipped);
-            sim_debug (DBG_NOTIFY, & tape_dev, 
+            sim_debug (DBG_NOTIFY, & tape_dev,
                        "mt_iom_cmd: Backspace %d records\n", tally);
 #endif
 
@@ -2057,7 +2056,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
           break;
 
 // Okay, this is convoluted. Multics locates the console by sending CMD 051
-// to devices in the PCW, with the understanding that only the console 
+// to devices in the PCW, with the understanding that only the console
 // device will "respond", whatever that means.
 // But, bootload_tape_label checks for controller firmware loaded
 // ("intellegence") by sending a 051 in a IDCW.
@@ -2096,7 +2095,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
             else
               {
                 ret = sim_tape_wrtmk (unitp);
-                sim_debug (DBG_DEBUG, & tape_dev, 
+                sim_debug (DBG_DEBUG, & tape_dev,
                            "sim_tape_wrtmk returned %d\n", ret);
                 if (unitp->io_flush)
                   unitp->io_flush (unitp);                              /* flush buffered data */
@@ -2108,7 +2107,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
                     sim_debug (DBG_NOTIFY, & tape_dev,
                                 "%s: EOM: %s\n", __func__, simh_tape_msg (ret));
                     p -> stati = 04340; // EOT file mark
-                    sim_warn ("%s: Wrote tape mark with EOM.\n", 
+                    sim_warn ("%s: Wrote tape mark with EOM.\n",
                                __func__);
                     break;
                   }
@@ -2130,7 +2129,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
               sim_printf ("Tape %ld writes tape mark %d\n",
                           (long) MT_UNIT_NUM (unitp), tape_statep -> rec_num);
 
-            p -> stati = 04000; 
+            p -> stati = 04000;
             if (sim_tape_eot (unitp))
               p -> stati = 04340;
 
@@ -2241,7 +2240,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
             send_special_interrupt (iomUnitIdx, chan, dev_code, 0, 0100 /* rewind complete */);
           }
           break;
-   
+
         case 072:              // CMD 072 -- Rewind/Unload.
           {
             if (unitp->flags & UNIT_WATCH)

@@ -1,0 +1,162 @@
+# DPS/8M simulator: src/Makefile.var
+# vim: filetype=make:tabstop=4:tw=76
+#
+###############################################################################
+#
+# Copyright (c) 2021 The DPS8M Development Team
+#
+# All rights reserved.
+#
+# This software is made available under the terms of the ICU
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE.md file at the top-level directory of this distribution.
+#
+###############################################################################
+
+###############################################################################
+# Set LOCKLESS to default for R2 - NO_LOCKLESS=1 to override
+# /* TODO(johnsonjh): Review */ # Set LOADER unconditionally
+
+ifneq ($(NO_LOCKLESS),1)
+LOCKLESS=1
+endif
+
+LOADER=1
+
+###############################################################################
+
+ifneq ($(CROSS),MINGW64)
+CFLAGS += -DHAVE_DLOPEN=so
+endif
+
+###############################################################################
+
+ifdef HDBG
+HDBG=1
+CFLAGS += -DHDBG
+endif
+
+###############################################################################
+
+ifdef TRACKER
+TRACKER=1
+TESTING=1
+CFLAGS += -DTRACKER -DTESTING
+endif
+
+###############################################################################
+
+ifdef TESTING
+TESTING=1
+CFLAGS += -DTESTING
+endif
+
+###############################################################################
+
+ifeq ($(LOADER),1)
+LOADER=1
+CFLAGS += -DLOADER
+endif
+
+###############################################################################
+
+ifeq ($(OS),Windows_NT)
+CROSS=MINGW64
+endif
+
+###############################################################################
+
+ifeq ($(THREADZ),1)
+THREADZ=1
+CFLAGS += -pthread -DTHREADZ
+#LDFLAGS += -pthread
+LIBS += -lpthread
+endif
+
+###############################################################################
+
+ifeq ($(ISOLTS),1)
+LOCKLESS=1
+ISOLTS=1
+CFLAGS += -DISOLTS
+CFLAGS += -DWAM
+endif
+
+###############################################################################
+
+ifeq ($(WAM),1)
+WAM=1
+CFLAGS += -DWAM
+endif
+
+###############################################################################
+
+ifeq ($(LOCKLESS),1)
+LOCKLESS=1
+CFLAGS += -pthread -DLOCKLESS
+#LDFLAGS += -pthread
+LIBS += -lpthread
+endif
+
+###############################################################################
+
+ifeq ($(SPEED),1)
+SPEED=1
+endif
+
+###############################################################################
+
+ifeq ($(NEED_128),1)
+NEED_128=1
+CFLAGS += -DNEED_128
+endif
+
+###############################################################################
+
+ifeq ($(ROUND_ROBIN),1)
+ROUND_ROBIN=1
+CFLAGS += -DROUND_ROBIN
+endif
+
+###############################################################################
+# For embedding current time of building object
+
+ifndef VER_CURRENT_TIME
+VER_CURRENT_TIME=$(shell env TZ=UTC date -u "+%Y-%m-%d %H:%M:%S UTC" \
+	2> /dev/null || printf '%s\n' "2020-01-01 00:00:00 UTC")
+endif
+
+###############################################################################
+
+ifndef BUILD_PROM_OSV_TEXT
+BUILD_OSAP_OSS_TEXT=$(shell uname -s 2> /dev/null | \
+	tr -d '*' 2> /dev/null | tr -s ' ' 2> /dev/null || \
+		printf '%s\n' "Unknown")
+export BUILD_OSAP_OSS_TEXT
+BUILD_PROM_OSV_TEXT=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSS_TEXT)" | \
+	cut -b 1-20 2> /dev/null)
+endif
+
+###############################################################################
+
+ifndef BUILD_PROM_OSA_TEXT
+BUILD_OSAP_OSM_TEXT=$(shell uname -m 2> /dev/null | \
+	tr -d '*' 2> /dev/null | tr -s ' ' 2> /dev/null || \
+		printf '%s\n' "Unknown")
+export BUILD_OSAP_OSM_TEXT
+BUILD_PROM_OSA_TEXT=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSM_TEXT)" | \
+	cut -b 1-20 2> /dev/null)
+endif
+
+###############################################################################
+
+ifneq "$(findstring gcc,$(CC))" ""
+CFLAGS += -fno-delete-null-pointer-checks
+endif
+
+###############################################################################
+
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:

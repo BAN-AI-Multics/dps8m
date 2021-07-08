@@ -1,5 +1,18 @@
-// Threads wrappers
+/*
+ * Copyright (c) 2013-2019 Charles Anthony
+ * Copyright (c) 2021 The DPS8M Development Team
+ *
+ * All rights reserved.
+ *
+ * This software is made available under the terms of the ICU
+ * License, version 1.8.1 or later.  For more details, see the
+ * LICENSE.md file at the top-level directory of this distribution.
+ */
 
+ /*
+  * Thread
+  * Wrappers
+  */
 
 #include <unistd.h>
 #include <unistd.h>
@@ -62,16 +75,15 @@ bool test_libuv_lock (void)
     rc = pthread_mutex_trylock (& libuv_lock);
     if (rc)
       {
-         // couldn't lock; presumably already  
+         // couldn't lock; presumably already
          return true;
       }
     // lock acquired, it wasn't locked
     rc = pthread_mutex_unlock (& libuv_lock);
     if (rc)
       sim_printf ("test_libuv_lock pthread_mutex_lock libuv_lock %d\n", rc);
-    return false;   
+    return false;
   }
-
 
 // Memory serializer
 
@@ -87,7 +99,7 @@ bool test_libuv_lock (void)
 //     Read()
 //     Write()
 //
-//  IOM 
+//  IOM
 
 // mem_lock -- memory atomicity lock
 // rmw_lock -- big R/M/W cycle lock
@@ -155,7 +167,6 @@ void lock_mem_wr (void)
     have_mem_lock = true;
   }
 
-
 void unlock_rmw (void)
   {
     if (! have_mem_lock)
@@ -179,7 +190,7 @@ void unlock_rmw (void)
 void unlock_mem (void)
   {
     if (have_rmw_lock)
-      return; 
+      return;
     if (! have_mem_lock)
       {
         sim_warn ("%s: Don't have memory lock\n", __func__);
@@ -224,8 +235,6 @@ void unlock_ptr (pthread_mutex_t * lock)
       sim_printf ("unlock_ptr %d\n", rc);
   }
 
-
-
 // SCU serializer
 
 static pthread_mutex_t scu_lock;
@@ -248,7 +257,6 @@ void unlock_scu (void)
       sim_printf ("unlock_scu pthread_spin_lock scu %d\n", rc);
   }
 
-
 // IOM serializer
 
 static pthread_mutex_t iom_lock;
@@ -268,7 +276,6 @@ void unlock_iom (void)
     if (rc)
       sim_printf ("%s pthread_spin_lock iom %d\n", __func__, rc);
   }
-
 
 // Debugging tool
 
@@ -301,16 +308,15 @@ bool test_tst_lock (void)
     rc = pthread_mutex_trylock (& tst_lock);
     if (rc)
       {
-         // couldn't lock; presumably already  
+         // couldn't lock; presumably already
          return true;
       }
     // lock acquired, it wasn't locked
     rc = pthread_mutex_unlock (& tst_lock);
     if (rc)
       sim_printf ("test_tst_lock pthread_mutex_lock tst_lock %d\n", rc);
-    return false;   
+    return false;
   }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -320,7 +326,7 @@ bool test_tst_lock (void)
 
 //
 // main thread
-//   createCPUThread 
+//   createCPUThread
 //
 // CPU and SCU thread
 //   setCPURun (bool)
@@ -366,7 +372,7 @@ void createCPUThread (uint cpuNum)
     if (rc)
       sim_printf ("createCPUThread pthread_cond_init sleepCond %d\n", rc);
 
-    rc = pthread_create (& p->cpuThread, NULL, cpu_thread_main, 
+    rc = pthread_create (& p->cpuThread, NULL, cpu_thread_main,
                     & p->cpuThreadArg);
     if (rc)
       sim_printf ("createCPUThread pthread_create %d\n", rc);
@@ -542,7 +548,7 @@ void createIOMThread (uint iomNum)
     if (rc)
       sim_printf ("createIOMThread pthread_cond_init intrCond %d\n", rc);
 
-    rc = pthread_create (& p->iomThread, NULL, iom_thread_main, 
+    rc = pthread_create (& p->iomThread, NULL, iom_thread_main,
                     & p->iomThreadArg);
     if (rc)
       sim_printf ("createIOMThread pthread_create %d\n", rc);
@@ -652,7 +658,6 @@ void iomRdyWait (uint iomNum)
       usleep (10000);
    }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Channel threads
@@ -699,7 +704,7 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
     if (rc)
       sim_printf ("createChnThread pthread_cond_init connectCond %d\n", rc);
 
-    rc = pthread_create (& p->chnThread, NULL, chan_thread_main, 
+    rc = pthread_create (& p->chnThread, NULL, chan_thread_main,
                     & p->chnThreadArg);
     if (rc)
       sim_printf ("createChnThread pthread_create %d\n", rc);
@@ -720,7 +725,6 @@ void chnConnectWait (void)
     int rc;
     struct chnThreadz_t * p = & chnThreadz[this_iom_idx][this_chan_num];
 
-   
     rc = pthread_mutex_lock (& p->connectLock);
     if (rc)
       sim_printf ("chnConnectWait pthread_mutex_lock %d\n", rc);
@@ -836,6 +840,7 @@ void int_handler (int signal);
 
 void setSignals (void)
   {
+#ifndef __MINGW64__
     struct sigaction act;
     memset (& act, 0, sizeof (act));
     act.sa_handler = int_handler;
@@ -843,6 +848,7 @@ void setSignals (void)
     sigaction (SIGINT, & act, NULL);
     //sigaction (SIGHUP, & act, NULL);
     sigaction (SIGTERM, & act, NULL);
+#endif /* __MINGW64__ */
   }
 
 // Force cache coherency

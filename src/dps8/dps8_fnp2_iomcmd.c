@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //
@@ -143,7 +143,7 @@ static void dmpmbx (uint mailboxAddress)
         sim_printf ("                 %012"PRIo64"\n",
                     mbx.fnp_sub_mbxes[i].mystery [2]);
       }
-        
+
   }
 #endif
 
@@ -177,7 +177,7 @@ static int wcd (struct decoded_t *decoded_p)
               {
                 close_connection ((uv_stream_t *) linep->line_client);
               }
-            
+
           }
           break;
 
@@ -259,7 +259,7 @@ static int wcd (struct decoded_t *decoded_p)
                     sim_printf ("    transparent ASCII\n");
                   else if (val1 == 3)
                     sim_printf ("    transparent EBCDIC\n");
-                  else 
+                  else
                     sim_printf ("    unknown %u. %o\n", val1, val1);
 #endif
                   break;
@@ -361,7 +361,7 @@ static int wcd (struct decoded_t *decoded_p)
                       fnpUnitData[decoded_p->devUnitIdx].
                         MState.
                           line[decoded_p->slot_no].
-                            line_client = 
+                            line_client =
                                            fnpData.
                                              ibm3270ctlr[ASSUME0].
                                                stations[stn_no].
@@ -380,7 +380,7 @@ static int wcd (struct decoded_t *decoded_p)
                     sim_printf ("    slave\n");
                   else if (val1 == 1)
                     sim_printf ("    master\n");
-                  else 
+                  else
                     sim_printf ("    unknown %u. %o\n", val1, val1);
 #endif
                   break;
@@ -404,7 +404,7 @@ static int wcd (struct decoded_t *decoded_p)
                   sim_printf ("unknown %u. %o\n", op, op);
                   break;
               }
-  
+
 #if 0
         sim_printf ("received line_control %d %012"PRIo64" %012"PRIo64" %012"PRIo64"\n", lineno, d1, d2, d3);
         sim_printf ("  dce_or_dte  %"PRIo64"\n", getbits36 (d1, 0, 1));
@@ -450,7 +450,7 @@ static int wcd (struct decoded_t *decoded_p)
 //   5  break(144:179)
 //   6  break(180:215)
 //   7  break(216:251)
-//   8  
+//   8
 //      0:3 break(252:255)
 //      4:10 pad
 //      11:17  padding inserted by compiler to align to char boundary
@@ -553,14 +553,14 @@ static int wcd (struct decoded_t *decoded_p)
 // as today, with interrupt-side negotiated echo. If the multiplexer goes along
 // with the order, the channel is marked (in the ring-zero echo data) as having
 // a multiplexer knowledgeable about the protocol. In either case, ring zero
-// will enter the ''ring zero echo state" (of the previous paper). 
+// will enter the ''ring zero echo state" (of the previous paper).
 
         case 25: // start_negotiated_echo
           {
             sim_debug (DBG_TRACE, & fnp_dev,
               "[%u]    start_negotiated_echo\n", decoded_p->slot_no);
 
-            linep->echnego_sync_ctr = 
+            linep->echnego_sync_ctr =
               getbits36_18 (command_data[0], 0);
             linep->echnego_screen_left = getbits36_18 (command_data[0], 18);
 
@@ -572,7 +572,7 @@ static int wcd (struct decoded_t *decoded_p)
 
 // MTB-418 pg 15
 // If the counts are not equal, it must be the case that non-echoed characters
-// are ''in transit'', and the order must not be honored. 
+// are ''in transit'', and the order must not be honored.
 
             linep->echnego_on =
               linep->echnego_sync_ctr == linep->echnego_unechoed_cnt;
@@ -609,7 +609,7 @@ static int wcd (struct decoded_t *decoded_p)
 // multiplexer's synchronization counter) receives the init echo negotiation
 // control order, it zeroes its synchronization counter, begins counting
 // characters (it must be in the non-echoing state) thereafter, and sends a new
-// type of interrupt to Ring Zero MCS, ACK ECHNEGO START. 
+// type of interrupt to Ring Zero MCS, ACK ECHNEGO START.
 
             linep->echnego_unechoed_cnt = 0;
 
@@ -807,7 +807,7 @@ static int wcd (struct decoded_t *decoded_p)
         // dump the input
        //int muxLineNo = MState[fnpUnitNum].line [lineno] . muxLineNum;
        //sim_printf ("dumping mux line %d\n");
-       //ttys [muxLineNo] . nPos = 0; 
+       //ttys [muxLineNo] . nPos = 0;
                   }
                   break;
 
@@ -844,7 +844,7 @@ static int wcd (struct decoded_t *decoded_p)
                     // Word 2: Bit 17 is "1"b.
                     //uint mb1 = getbits36_1  (decoded_p->smbxp -> command_data [0], 17);
                     // Bits 18...35 contain the size, in characters,
-                    // of input buffers to be allocated for the 
+                    // of input buffers to be allocated for the
                     // channel.
                     uint sz =  getbits36_18 (command_data[0], 18);
                     sim_debug (DBG_TRACE, & fnp_dev, "[%u]        alter_parameters set_buffer_size %u\n", decoded_p->slot_no, flag);
@@ -961,7 +961,7 @@ static int wcd (struct decoded_t *decoded_p)
 
 //  dcl  fnp_chan_meterp pointer;
 //  dcl  FNP_CHANNEL_METERS_VERSION_1 fixed bin int static options (constant) init (1);
-//  
+//
 //  dcl 1 fnp_chan_meter_struc based (fnp_chan_meterp) aligned,
 //      2 version fixed bin,
 //      2 flags,
@@ -969,7 +969,7 @@ static int wcd (struct decoded_t *decoded_p)
 //        3 reserved bit (35) unaligned,
 //      2 current_meters like fnp_channel_meters,
 //      2 saved_meters like fnp_channel_meters;
-//  
+//
 
 
 //  dcl 1 fnp_channel_meters based aligned,
@@ -1005,7 +1005,7 @@ word36 software_xte___sync_or_async;
 word36 sync_or_async;
   };
 
-//  
+//
 //  dcl 1 fnp_sync_meters based aligned,
 //      2 header like fnp_channel_meters.header,
 //      2 input,
@@ -1016,7 +1016,7 @@ word36 sync_or_async;
 //      2 output like fnp_sync_meters.input,
 //      2 counters (8) fixed bin (35),
 //      2 pad (3) fixed bin;
-//  
+//
 //  dcl 1 fnp_async_meters based aligned,
 struct fnp_async_meters
   {
@@ -1031,7 +1031,7 @@ word36 bell_quits___pad;
 //      2 pad (14) fixed bin;
 word36 pad;
   };
-//  
+//
         case 36: // report_meters
           {
             sim_debug (DBG_TRACE, & fnp_dev, "[%u]    report_meters\n", decoded_p->slot_no);
@@ -1103,7 +1103,7 @@ static void tun_write (struct t_line * linep, uint16_t * data, uint tally)
       sim_printf ("%4o", data[i]);
     sim_printf ("\r\n");
 #endif
-// XXX this code is buggy; if a buffer is recieved with an embedded frame start, the embedded frame 
+// XXX this code is buggy; if a buffer is recieved with an embedded frame start, the embedded frame
 // XXX will be lost
 
     for (uint i = 0; i < tally; i ++)
@@ -1267,7 +1267,7 @@ static int wtx (struct decoded_t *decoded_p)
 
 static void fnp_rtx_input_accepted (struct decoded_t *decoded_p)
   {
-// AN85-01 pg 232 A-6 
+// AN85-01 pg 232 A-6
 //
 //  Input Accepted (005)
 //
@@ -1276,13 +1276,13 @@ static void fnp_rtx_input_accepted (struct decoded_t *decoded_p)
 //      (in the circular buffer) to which input is sent.
 //
 //    Associated Data:
-//      Word 5: Bits 0..17 contain the beginning absolute address of the 
+//      Word 5: Bits 0..17 contain the beginning absolute address of the
 //      portion of the circular buffer into which the input is to be placed.
 //
 //      Bits 18...35 contain the number of characters to be placed in the
 //      specified location.
-//    
-//      Word 4: If non-zero, contains the addess and tally as described 
+//
+//      Word 4: If non-zero, contains the addess and tally as described
 //      above for the remaining data. This word is only used if the input
 //      request required a wraparound of the circular buffer.
 //
@@ -1582,7 +1582,7 @@ sim_printf ("reject_request_temp\r\n");
 
             // Set the TIMW
 
-            // Not sure... XXX 
+            // Not sure... XXX
             //putbits36_1 (& mbxp -> term_inpt_mpx_wd, cell, 1);
             // No; the CS has told us it has updated the mbx, and
             // we need to read it; we have done so, so we are finished
@@ -1661,7 +1661,7 @@ static int interruptL66 (uint iomUnitIdx, uint chan)
 // AN85, pg 13-5
 // When the CS has control information or output data to send
 // to the FNP, it fills in a submailbox as described in Section 4
-// and sends an interrupt over the DIA. This interrupt is handled 
+// and sends an interrupt over the DIA. This interrupt is handled
 // by dail as described above; when the submailbox is read, the
 // transaction control word is set to "submailbox read" so that when
 // the I/O completes and dtrans runs, the mailbox decoder (decmbx)
@@ -1748,7 +1748,7 @@ sim_printf ("3270 controller found at unit %u line %u\r\n", devUnitIdx, lineno);
                 fnpData.ibm3270ctlr[ASSUME0].configured = true;
                 fnpData.ibm3270ctlr[ASSUME0].fnpno = devUnitIdx;
                 fnpData.ibm3270ctlr[ASSUME0].lineno = lineno;
-                
+
                 // 3270 controller connects immediately
                 // Set from CMF data now.
                 //fnpData.fnpUnitData[devUnitIdx].MState.line[lineno].lineType  = 7 /* LINE_BSC */;
@@ -1817,7 +1817,7 @@ static void processMBX (uint iomUnitIdx, uint chan)
 // Data Xfer to L6   076    L66 Addr  L66 Addr  L66 Addr
 //                           A6-A23    A0-A2     A3-A5
 
-// 
+//
 // fnp_util.pl1:
 //    075 tandd read
 //    076 tandd write
@@ -1853,11 +1853,11 @@ static void processMBX (uint iomUnitIdx, uint chan)
 //  dcl  INIT_ERROR fixed bin int static options (constant) init (4);
 //  dcl  UNWIRE_STATUS fixed bin int static options (constant) init (5);
 //  dcl  MAX_STATUS fixed bin int static options (constant) init (5);
- 
+
 
 // 3.5.1 Commands Issued by Central System
 //
-// In the issuing of an order by the Central System to the Coupler, the 
+// In the issuing of an order by the Central System to the Coupler, the
 // sequence occurs:
 //
 // 1. The L66 program creates a LPW and Pcw for the Central System Connect
@@ -1874,7 +1874,7 @@ static void processMBX (uint iomUnitIdx, uint chan)
 //
 
 // 4.1.1.2 Transfer Control Word.
-// The transfer control word, which is pointed to by the 
+// The transfer control word, which is pointed to by the
 // mailbox word in l66 memory on Op Codes 72, 7, 76 contains
 // a starting address which applies to L6 memory an a Tally
 // of the number of 36 bit words to be transfered. The l66
@@ -1912,14 +1912,14 @@ static void processMBX (uint iomUnitIdx, uint chan)
         word24 l66addr = (((word24) getbits36_6 (dia_pcw, 24)) << 18) |
                            (word24) getbits36_18 (dia_pcw, 0);
 
-// AN85-01 15-2 
+// AN85-01 15-2
 //   0 boot dcw
 //   1  gicb
 //      ....
 //      padding to next multiple of 64
 //   n  core image
 //
-// where n is (in 36 bit words) (gicb len + 1) + 63 / 64 
+// where n is (in 36 bit words) (gicb len + 1) + 63 / 64
 
 //sim_printf ("l66addr %08o\n", l66addr);
         word36 dcw;
@@ -1963,7 +1963,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 
 
 // comm_ref
-//   0640   crldt  72 
+//   0640   crldt  72
 //   0644   crbdt  72
 //   0650   crbuf  18
 //   0651   crmem  18
@@ -2056,7 +2056,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                 "LSLA 5 ",
                 "clock  "
               };
-            
+
             sim_printf ("%2d %s %08o %d %d %d %s\n", ichan, itable[ichan], taddr, device_type_code, adapter_number, speed_code, dtc_str);
           }
 #endif
@@ -2103,15 +2103,15 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                     if (slot_id != 7)
                       {
 #ifdef VERBOSE_BOOT
-                        char * slot_ids [8] = 
-                          { 
+                        char * slot_ids [8] =
+                          {
                             "10 cps",
-                            "30 cps, slot 1", 
-                            "30 cps, slot 2", 
-                            "30 cps, slot 3", 
+                            "30 cps, slot 1",
+                            "30 cps, slot 2",
+                            "30 cps, slot 3",
                             "invalid",
-                            "15 cps, slot 1", 
-                            "15 cps, slot 2", 
+                            "15 cps, slot 1",
+                            "15 cps, slot 2",
                             "unused"
                           };
                         char * id = slot_ids[slot_id];
@@ -2249,6 +2249,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                         "50000  "
                       };
 #endif
+#ifdef VERBOSE_BOOT
                     char * async_speeds[16] =
                       {
                         "invalid",
@@ -2288,22 +2289,26 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                         "invalid",
                         "invalid"
                       };
+#endif
                     word18 subch_data = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot);
+#ifdef VERBOSE_BOOT
                     word1 async = (subch_data >> 15) & 1;
                     word1 option1 = (subch_data >> 14) & 1;
+#endif
                     word5 line_type = (subch_data >> 4)  & MASK5;
                     if (line_type > 22)
                       line_type = 22;
                     word4 modem_type = (subch_data >> 9)  & MASK4;
                     if (modem_type > 7)
                       modem_type = 0;
+#ifdef VERBOSE_BOOT
                     word4 dev_speed = subch_data  & MASK4;
                     //if (dev_speed > 10)
                       //dev_speed = 0;
                     char * speed = async ? async_speeds[dev_speed] : sync_speeds[dev_speed];
                     if (async && dev_speed == 4 && option1)
                       speed = "auto   ";
-
+#endif
                     if (! hdr)
                       {
                         hdr = true;
@@ -2315,7 +2320,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                       }
 #ifdef VERBOSE_BOOT
                     sim_printf ("%d %2d %s %s %s %s\n",
-                                 hsla, slot, async ? "async" :"sync ", 
+                                 hsla, slot, async ? "async" :"sync ",
                                  line_types[line_type],
                                  modem_types[modem_type],
                                  speed);
@@ -2415,10 +2420,10 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         // The contents of M seem much more reasonable, bit still don't match
         // fnp_util$setup_dump_ctl_word. The left octet should be '1', not '0';
         // bit 18 should be 0 not 1. But the offsets and tallies match exactly.
-        // Huh... Looking at 'dump_6670_control' control instead, it matches 
+        // Huh... Looking at 'dump_6670_control' control instead, it matches
         // correctly. Apparently fnp_util thinks the FNP is a 6670, not a 335.
         // I can't decipher the call path, so I don't know why; but looking at
-        // multiplexer_types.incl.pl1, I would guess that by MR12.x, all FNPs 
+        // multiplexer_types.incl.pl1, I would guess that by MR12.x, all FNPs
         // were 6670s.
         //
         // So:

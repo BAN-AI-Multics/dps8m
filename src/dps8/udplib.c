@@ -6,14 +6,14 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
-// Largely borrowed from SIMH h316_udp.c 
+// Largely borrowed from SIMH h316_udp.c
 
 /* h316_udp.c: IMP/TIP Modem and Host Interface socket routines using UDP
 
-   Copyright (c) 2013 Robert Armstrong, bob@jfcl.com
+   Copyright (c) 2013 Robert Armstrong <bob@jfcl.com>
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -62,7 +62,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -90,13 +90,13 @@
 #define MAXDATA      16384      // longest possible IMP packet (in H316 words)
 
 // UDP connection data structure ...
-//   One of these blocks is allocated for every simulated modem link. 
+//   One of these blocks is allocated for every simulated modem link.
 struct _UDP_LINK
   {
     bool  used;                 // TRUE if this UDP_LINK is in use
     char    rhost [64];
     char    rport [64];        // Remote host:port
-    char    lport [64];            // Local port 
+    char    lport [64];            // Local port
     int32_t   lportno;
     int32_t   rportno;
     int sock;
@@ -149,7 +149,7 @@ static int udp_parse_remote (int link, char * premote)
     // yourself!!  In both cases, "w.x.y.z" is a dotted IP for the remote machine
     // and "name.domain.com" is its name (which will be looked up to get the IP).
     // If the host name/IP is omitted then it defaults to "localhost".
-  
+
     char * end;
     int32_t lportno, rport;
     char host [64], port [16];
@@ -179,7 +179,7 @@ static int udp_parse_remote (int link, char * premote)
         udp_links [link] . lportno =  lportno;
         premote = end + 1;
       }
-  
+
     if (sim_parse_addr (premote, host, sizeof (host), "localhost", port, sizeof (port), NULL, NULL) != -1 /* SCPE_OK */)
       return -1;
     sprintf (udp_links [link] . rhost, "%s", host);
@@ -193,7 +193,7 @@ static int udp_parse_remote (int link, char * premote)
     if ((strcmp (udp_links [link] . lport, port) == 0) &&
         (strcmp ("localhost", host) == 0))
       fprintf (stderr, "WARNING - use different transmit and receive ports!\n");
-  
+
     return 0;
   }
 
@@ -257,11 +257,11 @@ int udp_create (const char * premote, int * pln)
 
     struct sockaddr_in si_me;
     memset ((char *) & si_me, 0, sizeof (si_me));
- 
+
     si_me . sin_family = AF_INET;
     si_me . sin_port = htons ((uint16_t) udp_links [link] . lportno);
     si_me . sin_addr . s_addr = htonl (INADDR_ANY);
-     
+
     rc = bind (sock, (struct sockaddr *) & si_me, sizeof (si_me));
     if (rc == -1)
       return -5;
@@ -341,7 +341,7 @@ int udp_send (int link, uint16_t * pdata, uint16_t count, uint16_t flags)
     if ((pdata == NULL) || (count == 0) || (count > MAXDATA))
       return -1;
     //if (dptr != udp_links [link].dptr) return SCPE_IERR;
-  
+
     //   Build the UDP packet, filling in our own header information and copying
     // the H316 words from memory.  REMEMBER THAT EVERYTHING IS IN NETWORK ORDER!
     pkt . magic = htonl (MAGIC);
@@ -383,7 +383,7 @@ static int udp_receive_packet (int link, UDP_PACKET * ppkt, size_t pktsiz)
     ssize_t pktsiz;
     const uint8 * pbuf;
     int ret;
-  
+
     udp_lines [link] . rcve = true;          // Enable receiver
     tmxr_poll_rx (&udp_tmxr);
     ret = tmxr_get_packet_ln (&udp_lines[link], &pbuf, &pktsiz);
@@ -434,7 +434,7 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
       return -1;
     //if (dptr != udp_links [link] . dptr)
       //return SCPE_IERR;
-  
+
     while ((pktlen = udp_receive_packet (link, & pkt, sizeof (pkt))) > 0)
       {
         // First do some header checks for a valid UDP packet ...
@@ -456,7 +456,7 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
             //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet length wrong (expected=%d received=%d)\n", link, explen, pktlen);
             continue;
           }
-  
+
         //  Now the hard part = check the sequence number.  The rxsequence value is
         // the number of the next packet we expect to receive - that's the number
         // this packet should have.  If this packet's sequence is less than that,
@@ -491,14 +491,14 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
             //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet out of sequence 2 (expected=%d received=%d\n", link, udp_links[link].rxsequence, pktseq);
           }
         udp_links [link] . rxsequence = pktseq + 1;
-    
+
         // It's a valid packet - if there's no buffer then just discard it.
         if ((pdata == NULL) || (maxbuf == 0))
           {
             //sim_debug(IMP_DBG_UDP, dptr, "link %d - received packet discarded (no buffer available)\n", link);
             return implen;
           }
-  
+
         // Copy the data to the H316 memory and we're done!
         //sim_debug (IMP_DBG_UDP, dptr, "link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pktlen);
 printf ("link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pktlen);
@@ -506,7 +506,7 @@ printf ("link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pk
           * pdata ++ = ntohs (pkt . data [i]);
         return implen;
       }
-  
+
     // Here if pktlen <= 0 ...
     return pktlen;
   }
@@ -521,7 +521,7 @@ printf ("link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pk
 /* sim_parse_addr       host:port
 
    Presumption is that the input, if it doesn't contain a ':' character is a port specifier.
-   If the host field contains one or more colon characters (i.e. it is an IPv6 address), 
+   If the host field contains one or more colon characters (i.e. it is an IPv6 address),
    the IPv6 address MUST be enclosed in square bracket characters (i.e. Domain Literal format)
 
    Inputs:
@@ -538,10 +538,10 @@ printf ("link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pk
    Outputs:
         host    =       pointer to buffer for IP address (may be NULL), 0 = none
         port    =       pointer to buffer for IP port (may be NULL), 0 = none
-        result  =       status (SCPE_OK on complete success or SCPE_ARG if 
-                        parsing can't happen due to bad syntax, a value is 
-                        out of range, a result can't fit into a result buffer, 
-                        a service name doesn't exist, or a validation name 
+        result  =       status (SCPE_OK on complete success or SCPE_ARG if
+                        parsing can't happen due to bad syntax, a value is
+                        out of range, a result can't fit into a result buffer,
+                        a service name doesn't exist, or a validation name
                         doesn't match the parsed host)
 */
 

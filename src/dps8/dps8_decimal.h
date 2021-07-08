@@ -8,16 +8,16 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #define DECUSE64    1
 #define DECSUBSET   1
 #define DECDPUN     8
 #define DECBUFFER   32
-    
+
 #define DECNUMDIGITS    126
-    
+
 #include "decNumber.h"        // base number library
 #include "decNumberLocal.h"   // decNumber local types, etc.
 
@@ -35,7 +35,6 @@
         if_sim_debug (DBG_TRACEEXT, & cpu_dev) /**/ \
         sim_printf("%s:'%s E%d'\n", msg, getBCDn(dn, set->digits), dn->exponent);   \
     }
-
 
 decContext * decContextDefaultDPS8(decContext *context);
 decContext * decContextDefaultDPS8Mul(decContext *context);

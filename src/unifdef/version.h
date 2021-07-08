@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,5 +26,5 @@
  * SUCH DAMAGE.
  */
 
-"@(#) $Version: unifdef-2021.07.05-dps $\n"
-"@(#) $Date: 2021-07-05 03:56:34 +0000 $\n"
+"@(#) $Version: unifdef-2021.07.15-dps $\n"
+"@(#) $Date: 2021-07-15 04:14:07 +0000 $\n"

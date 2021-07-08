@@ -1,6 +1,7 @@
 /* sim_defs.h: simulator definitions
 
-   Copyright (c) 1993-2008, Robert M Supnik
+   Copyright (c) 1993-2008 Robert M Supnik
+   Copyright (c) 2021 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -270,7 +271,7 @@ typedef uint32          t_addr;
 #elif defined(__GNUC__)
 #define SIM_INLINE inline
 #else
-#define SIM_INLINE 
+#define SIM_INLINE
 #endif
 
 /* Storage class modifier for weak link definition for sim_vm_init() */
@@ -279,12 +280,12 @@ typedef uint32          t_addr;
 #if defined(__GNUC__)
 #define WEAK __attribute__((weak))
 #elif defined(_MSC_VER)
-#define WEAK __declspec(selectany) 
+#define WEAK __declspec(selectany)
 #else
-#define WEAK extern 
+#define WEAK extern
 #endif
 #else
-#define WEAK 
+#define WEAK
 #endif
 
 /* System independent definitions */
@@ -460,7 +461,7 @@ struct DEVICE {
                                                         /* mem size routine */
     char                *lname;                         /* logical name */
     t_stat              (*help)(FILE *st, DEVICE *dptr,
-                            UNIT *uptr, int32 flag, const char *cptr); 
+                            UNIT *uptr, int32 flag, const char *cptr);
                                                         /* help */
     t_stat              (*attach_help)(FILE *st, DEVICE *dptr,
                             UNIT *uptr, int32 flag, const char *cptr);
@@ -809,10 +810,10 @@ struct FILEREF {
     int32               refcount;                       /* reference count */
     };
 
-/* 
+/*
    The following macros exist to help populate structure contents
 
-   They are dependent on the declaration order of the fields 
+   They are dependent on the declaration order of the fields
    of the structures they exist to populate.
 
  */
@@ -820,8 +821,8 @@ struct FILEREF {
 #define UDATA(act,fl,cap) NULL,act,NULL,NULL,NULL,0,0,(fl),0,(cap),0,NULL,0,0
 
 #if defined (__STDC__) || defined (_WIN32) /* Variants which depend on how macro arguments are convered to strings */
-/* Generic Register declaration for all fields.  
-   If the register structure is extended, this macro will be retained and a 
+/* Generic Register declaration for all fields.
+   If the register structure is extended, this macro will be retained and a
    new macro will be provided that populates the new register structure */
 #define REGDATA(nm,loc,rdx,wd,off,dep,desc,flds,fl,qptr,siz) \
     #nm, &(loc), (rdx), (wd), (off), (dep), (desc), (flds), (fl), (qptr), (siz)

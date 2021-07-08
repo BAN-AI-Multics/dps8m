@@ -6,9 +6,9 @@
  *
  * All rights reserved.
  *
- * This software is made available under the terms of the ICU  
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //
@@ -43,16 +43,14 @@
 #define DBG_CTR 1
 
 /*
- disk.c -- disk drives
- 
- Copyright (c) 2007-2013 Michael Mondy
- 
- This software is made available under the terms of the
- ICU License -- ICU 1.8.1 and later.
- See the LICENSE file at the top-level directory of this distribution and
- at http://example.org/project/LICENSE.
+ * disk.c -- disk drives
+ *
+ * Copyright (c) 2007-2013 Michael Mondy
+ *
+ * This software is made available under the terms of the ICU
+ * License, version 1.8.1 or later.  For more details, see the
+ * LICENSE.md file at the top-level directory of this distributio.
  */
-
 
 //
 // A possible disk data packing algoritim
@@ -217,7 +215,7 @@ static struct dsk_state
 //       3350         559     29
 //
 //  Search Identifier Equal  [CC HH R]
-//    
+//
 
 // ./library_dir_dir/system_library_1/source/bound_page_control.s.archive/disk_control.pl1
 //
@@ -251,7 +249,7 @@ static struct dsk_state
 //   Sector address, bits 16-35
 //
 //      0                                                  35
-//      XXXX  XXXX | XXXX XXXX | XXXX XXXX | XXXX XXXX | XXXX 0000 
+//      XXXX  XXXX | XXXX XXXX | XXXX XXXX | XXXX XXXX | XXXX 0000
 //        BYTE 0         1           2           3           4
 //
 //  Seek        011100
@@ -365,7 +363,7 @@ static t_stat disk_set_type (UNUSED UNIT * uptr, UNUSED int32 value, const char 
     return SCPE_OK;
   }
 
-static t_stat dsk_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat dsk_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                     UNUSED int val, UNUSED const void * desc)
   {
     int n = (int) DSK_UNIT_IDX (uptr);
@@ -375,7 +373,7 @@ static t_stat dsk_show_device_name (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat dsk_set_device_name (UNIT * uptr, UNUSED int32 value, 
+static t_stat dsk_set_device_name (UNIT * uptr, UNUSED int32 value,
                                    const char * cptr, UNUSED void * desc)
   {
     int n = (int) DSK_UNIT_IDX (uptr);
@@ -468,14 +466,14 @@ sim_printf ("lost %u\n", ctlr_type);
     return SCPE_OK;
   }
 
-static t_stat disk_set_ready (UNIT * uptr, UNUSED int32 value, 
+static t_stat disk_set_ready (UNIT * uptr, UNUSED int32 value,
                               UNUSED const char * cptr,
                               UNUSED void * desc)
   {
     long disk_unit_idx = DSK_UNIT_IDX (uptr);
     if (disk_unit_idx >= (long) dsk_dev.numunits)
       {
-        sim_debug (DBG_ERR, & dsk_dev, 
+        sim_debug (DBG_ERR, & dsk_dev,
                    "Disk set ready: Invalid unit number %ld\n", disk_unit_idx);
         sim_printf ("error: invalid unit number %ld\n", disk_unit_idx);
         return SCPE_ARG;
@@ -512,7 +510,7 @@ static MTAB disk_mod [] =
       NULL // Help
     },
     {
-      MTAB_unit_value_show, // mask 
+      MTAB_unit_value_show, // mask
       0,                    // match
       "TYPE",               // print string
       "TYPE",               // match string
@@ -575,7 +573,7 @@ DEVICE dsk_dev = {
     8,            /* data radix */
     36,           /* data width */
     NULL,         /* examine */
-    NULL,         /* deposit */ 
+    NULL,         /* deposit */
     disk_reset,   /* reset */
     NULL,         /* boot */
     disk_attach,  /* attach */
@@ -611,13 +609,13 @@ void disk_init (void)
         pthread_mutexattr_t scu_attr;
         pthread_mutexattr_init (& scu_attr);
         pthread_mutexattr_settype (& scu_attr, PTHREAD_MUTEX_ADAPTIVE_NP);
-    
+
         pthread_mutex_init (& dsk_states[i].dsk_lock, & scu_attr);
-#else                            
+#else
         pthread_mutex_init (& dsk_states[i].dsk_lock, NULL);
-#endif 
+#endif
       }
-#endif 
+#endif
   }
 
 static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
@@ -685,10 +683,10 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 // highest observed n during vol. inoit. 272657(8) 95663(10)
 //
 
-// disk_control.pl1: 
+// disk_control.pl1:
 //   quentry.sector = bit (sector, 21);  /* Save the disk device address. */
 // suggests seeks are 21 bits.
-//  
+//
     disk_statep -> seekPosition = seekData & MASK21;
 //sim_printf ("seek seekPosition %d\n", disk_statep -> seekPosition);
     p -> stati = 00000; // Channel ready
@@ -761,10 +759,10 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 // highest observed n during vol. inoit. 272657(8) 95663(10)
 //
 
-// disk_control.pl1: 
+// disk_control.pl1:
 //   quentry.sector = bit (sector, 21);  /* Save the disk device address. */
 // suggests seeks are 21 bits.
-//  
+//
     disk_statep -> seekPosition = seekData & MASK21;
 //sim_printf ("seek seekPosition %d\n", disk_statep -> seekPosition);
     p -> stati = 00000; // Channel ready
@@ -820,7 +818,7 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
         sim_debug (DBG_DEBUG, & dsk_dev,
                    "%s: Tally %d (%o)\n", __func__, tally, tally);
 
-        rc = fseek (unitp -> fileref, 
+        rc = fseek (unitp -> fileref,
                     (long) (disk_statep -> seekPosition * sectorSizeBytes),
                     SEEK_SET);
         if (rc)
@@ -833,10 +831,10 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
         // Convert from word36 format to packed72 format
 
         // round tally up to sector boundary
-    
+
         // this math assumes tally is even.
-   
-        uint tallySectors = (tally + sectorSizeWords - 1) / 
+
+        uint tallySectors = (tally + sectorSizeWords - 1) /
                              sectorSizeWords;
         uint tallyWords = tallySectors * sectorSizeWords;
         //uint tallyBytes = tallySectors * sectorSizeBytes;
@@ -850,7 +848,7 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
         rc = (int) fread (diskBuffer, sectorSizeBytes,
                     tallySectors,
                     unitp -> fileref);
- 
+
 // The rc code is wrong; it is using read() semantics, for fread().
 #if 1
         if (rc == 0) // EOF or error
@@ -983,7 +981,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
         sim_debug (DBG_DEBUG, & dsk_dev,
                    "%s: Tally %d (%o)\n", __func__, tally, tally);
 
-        rc = fseek (unitp -> fileref, 
+        rc = fseek (unitp -> fileref,
                     (long) (disk_statep -> seekPosition * sectorSizeBytes),
                     SEEK_SET);
         if (rc)
@@ -996,10 +994,10 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
         // Convert from word36 format to packed72 format
 
         // round tally up to sector boundary
-    
+
         // this math assumes tally is even.
-   
-        uint tallySectors = (tally + sectorSizeWords - 1) / 
+
+        uint tallySectors = (tally + sectorSizeWords - 1) /
                              sectorSizeWords;
         uint tallyWords = tallySectors * sectorSizeWords;
         //uint tallyBytes = tallySectors * sectorSizeBytes;
@@ -1038,7 +1036,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
 //sim_printf ("Disk write %8d %3d %08o\n",
 //disk_statep -> seekPosition, tallySectors, daddr);
-              
+
         if (rc != (int) tallySectors)
           {
             sim_printf ("fwrite returned %d, errno %d\n", rc, errno);
@@ -1048,7 +1046,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
           }
 
         disk_statep -> seekPosition += tallySectors;
- 
+
       } while (p -> DDCW_22_23_TYPE != 0); // not IOTD
     p -> stati = 04000;
     return 0;
@@ -1094,7 +1092,7 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     if (tally != 4)
       {
-        sim_debug (DBG_ERR, &dsk_dev, 
+        sim_debug (DBG_ERR, &dsk_dev,
                    "%s: RSR expected tally of 4, is %d\n",
                    __func__, tally);
       }
@@ -1106,7 +1104,7 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
         tally = 4096;
       }
 
-// XXX need status register data format 
+// XXX need status register data format
 // system_library_tools/source/bound_io_tools_.s.archive/analyze_detail_stat_.pl1  anal_fips_disk_().
 
 #ifdef TESTING
@@ -1185,7 +1183,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 #if 0
     if (tally != 4)
       {
-        sim_debug (DBG_ERR, &i om_dev, 
+        sim_debug (DBG_ERR, &i om_dev,
                    "%s: RSR expected tally of 4, is %d\n",
                    __func__, tally);
       }
@@ -1197,7 +1195,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
         tally = 4096;
       }
 
-// XXX need status register data format 
+// XXX need status register data format
 // system_library_tools/source/bound_io_tools_.s.archive/analyze_detail_stat_.pl1  anal_fips_disk_().
 
 #ifdef TESTING
@@ -1247,7 +1245,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 // dcl  1 dau_char based (image_ptr) unaligned,   /* Config data */
 //       2 type bit (8),                          /* = 12 HEX */
 //       2 hw_rev bit (8) unal,                   /* DAU rev */
-//       2 fw_maj_rev bit (8) unal,               /* firmware rev letter */ 
+//       2 fw_maj_rev bit (8) unal,               /* firmware rev letter */
 //       2 fw_sub_rev bit (8) unal;               /* firmware rev number */
 //       2 dev (64),                              /* seq'ed by dev# */
 //                       /* all 4 bytes zero, if device NEVER configured */
@@ -1263,7 +1261,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
     struct ctlr_to_dev_s * dev_p;
     if (cables->iom_to_ctlr[iom_unit_idx][chan].ctlr_type == CTLR_T_IPC)
       dev_p = cables->ipc_to_dsk[ctlr_unit_idx];
-    else  
+    else
       dev_p = cables->msp_to_dsk[ctlr_unit_idx];
 
 // XXX Temp
@@ -1283,7 +1281,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
          putbits36_9 (& buffer[1+dev_num], 0, dau_type); // dev.type
          putbits36_9 (& buffer[1+dev_num], 9, dev_num); // dev.number
          putbits36_9 (& buffer[1+dev_num], 18, 0); // dev.summary_status // XXX
-         putbits36_9 (& buffer[1+dev_num], 27, dev_num); // dev.port_number 
+         putbits36_9 (& buffer[1+dev_num], 27, dev_num); // dev.port_number
      }
 
     uint wordsProcessed = tally;
@@ -1356,7 +1354,7 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
 
     if (tally != 4)
       {
-        sim_debug (DBG_ERR, &i om_dev, 
+        sim_debug (DBG_ERR, &i om_dev,
                    "%s: RSR expected tally of 4, is %d\n",
                    __func__, tally);
       }
@@ -1667,7 +1665,7 @@ static t_stat ipc_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat ipc_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat ipc_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                     UNUSED int val, UNUSED const void * desc)
   {
     int n = (int) IPC_UNIT_IDX (uptr);
@@ -1677,7 +1675,7 @@ static t_stat ipc_show_device_name (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat ipc_set_device_name (UNIT * uptr, UNUSED int32 value, 
+static t_stat ipc_set_device_name (UNIT * uptr, UNUSED int32 value,
                                    const char * cptr, UNUSED void * desc)
   {
     int n = (int) IPC_UNIT_IDX (uptr);
@@ -1731,7 +1729,7 @@ DEVICE ipc_dev =
     8,            /* data radix */
     36,           /* data width */
     NULL,         /* examine */
-    NULL,         /* deposit */ 
+    NULL,         /* deposit */
     NULL,   /* reset */
     NULL,         /* boot */
     NULL,  /* attach */
@@ -1792,7 +1790,7 @@ static t_stat msp_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat msp_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat msp_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                     UNUSED int val, UNUSED const void * desc)
   {
     int n = (int) MSP_UNIT_IDX (uptr);
@@ -1802,7 +1800,7 @@ static t_stat msp_show_device_name (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat msp_set_device_name (UNIT * uptr, UNUSED int32 value, 
+static t_stat msp_set_device_name (UNIT * uptr, UNUSED int32 value,
                                    const char * cptr, UNUSED void * desc)
   {
     int n = (int) MSP_UNIT_IDX (uptr);
@@ -1856,7 +1854,7 @@ DEVICE msp_dev =
     8,            /* data radix */
     36,           /* data width */
     NULL,         /* examine */
-    NULL,         /* deposit */ 
+    NULL,         /* deposit */
     NULL,   /* reset */
     NULL,         /* boot */
     NULL,  /* attach */
@@ -1873,4 +1871,3 @@ DEVICE msp_dev =
     NULL,         // description
     NULL
   };
-

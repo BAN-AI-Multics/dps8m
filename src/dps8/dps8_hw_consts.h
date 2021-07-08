@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #ifndef DPS8_HW_CONSTS_H
@@ -35,7 +35,7 @@ enum { N_CELL_INTERRUPTS = 32 };
 #define PAEVEN          (((1U << (PASIZE - 1)) - 1U) << 1)
 #define MEM_SIZE_MAX    (1U << PASIZE)           /* maximum memory */
 
-// The minimum allocation size of a SCU is 64K (2^16) 
+// The minimum allocation size of a SCU is 64K (2^16)
 // (2 banks of 32K). Call it an SCBANK
 #define SCBANK          (1U << 16)
 
@@ -79,13 +79,13 @@ enum { IOM_CONNECT_CHAN = 2 };
 
 
 #define MAX18           0777777U
-#define MAX18POS        0377777U                 //  2**17-1 
-#define MAX18NEG        0400000U                 // -2**17 
+#define MAX18POS        0377777U                 //  2**17-1
+#define MAX18NEG        0400000U                 // -2**17
 #define SIGN18          0400000U
 // NB. these 2 use the wrong bit number convention
 #define BIT19          01000000U                 // carry out bit from 18 bit arithmetic
 #define BIT20          02000000U                 // carry out bit from 19 bit arithmetic
-#define MASK36         0777777777777LLU          // data mask 
+#define MASK36         0777777777777LLU          // data mask
 #define DMASK           MASK36
 #define MASK10          0001777U                 // 10-bit data mask
 #define MASK14          0037777U                 // 14-bit data mask
@@ -108,7 +108,7 @@ enum { IOM_CONNECT_CHAN = 2 };
 #define MASK15          077777U
 #define SMASK           MASK15                   // Segment number mask
 #define SIGN15          040000U                  // sign mask 15-bit number
-#define MAGMASK         0377777777777LLU         // magnitude mask 
+#define MAGMASK         0377777777777LLU         // magnitude mask
 #define ONES            0777777777777LLU
 #define NEG136          0777777777777LLU         // -1
 #define MAXPOS          0377777777777LLU         //  2**35-1
@@ -323,7 +323,11 @@ static inline int128 SIGNEXT72_128 (word72 w)
         return cast_s128 (v);
       }
     uint128 v =  and_128 (w, MASK72);
+#ifdef __sun__
+    return (int128) { (uint64_t) v.h, v.l};
+#else
     return (int128) { (__int64_t) v.h, v.l};
+#endif
 #else
     if (w & SIGN72)
       {
@@ -403,7 +407,7 @@ static inline word72 SIGNEXT36_72 (word36 w)
 #define INST_M_I        1U
 #define INST_V_OP       9                        // opcode
 #define INST_M_OP       0777U
-#define INST_V_OPX      8                        // opcode etension 
+#define INST_V_OPX      8                        // opcode etension
 #define INST_M_OPX      1U
 
 #define INST_V_ADDR     18                       // Address
@@ -482,7 +486,7 @@ enum {
     IT_DIC      = 015U,
     IT_ID       = 016U,
     IT_IDC      = 017U,
-    
+
     // not really IT, but they're in it's namespace
     SPEC_ITP  = 001U,
     SPEC_ITS  = 003U
@@ -709,7 +713,7 @@ typedef enum _fault _fault;
 
 
 
-    // FAULT_ONC 
+    // FAULT_ONC
 
     //da_err,     // Operation not complete. Processor/system controller interface sequence error 1 has been detected. (Yeah, right)
     //da_err2,    // Operation not completed. Processor/system controller interface sequence error 2 has been detected.
@@ -720,29 +724,29 @@ typedef enum _fault _fault;
     //cpar_str,   // PAR fault. A data parity error has been detected in the cache memory.
     //cpar_ia,    // PAR fault. An illegal action has been received from a system controller during a store operation with cache memory enabled.
     //cpar_blk,   // PAR fault. A cache memory parity error has occurred during a cache memory data block load.
-    
+
     // odd word
     //      Cache Duplicate Directory WNO Buffer Overflow
     //port_a,
     //port_b,
     //port_c,
     //port_d,
-    
+
     //cpd,  // Cache Primary Directory WNO Buffer Overflow
     // Write Notify (WNO) Parity Error on Port A, B, C, or D.
-    
+
     //      Cache Duplicate Directory Parity Error
     //level_0,
     ////level_1,
     ////level_2,
     ////level_3,
-    
+
     // Cache Duplicate Directory Multiple Match
     //cdd,
-    
+
     //par_sdwam,  // A parity error has been detected in the SDWAM.
     //par_ptwam,  // A parity error has been detected in the PTWAM.
-    
+
 
 };
 typedef enum _fault_subtype _fault_subtype;
@@ -787,7 +791,7 @@ typedef enum fault_acv_subtype_
     ACV11 = (1U <<  4),   ///< 11.Inward return (ACV11=INRET)
     ACV12 = (1U <<  3),   ///< 7. Invalid ring crossing (ACV12=CRT)
     ACV13 = (1U <<  2),   ///< 12.Ring alarm (ACV13=RALR)
-    ACV14 = (1U <<  1), ///< 13.Associative memory error 
+    ACV14 = (1U <<  1), ///< 13.Associative memory error
     ACV15 = (1U <<  0), ///< 14.Out of segment bounds (ACV15=OOSB)
     flt_acv_FORCE  = 0400000000000llu // Force enum size to 36 bits.
   } fault_acv_subtype_;
@@ -1585,13 +1589,11 @@ enum
     // bit 35 is marked 'w' but undocumented
   };
 
-
 #ifdef DPS8M
 enum { CU_HIST_REG = 0, DU_OU_HIST_REG = 1, APU_HIST_REG = 2, EAPU_HIST_REG = 3 };
 #endif
 #ifdef L68
 enum { CU_HIST_REG = 0, DU_HIST_REG = 1, OU_HIST_REG = 2, APU_HIST_REG = 3 };
 #endif
-
 
 #endif // DPS8_HW_CONSTS_H

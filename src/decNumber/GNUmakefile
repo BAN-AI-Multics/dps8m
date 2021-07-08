@@ -12,7 +12,7 @@
 #
 # This software is made available under the terms of the ICU
 # License, version 1.8.1 or later.  For more details, see the
-# LICENSE file at the top-level directory of this distribution.
+# LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
 
@@ -31,7 +31,7 @@ OBJS = decContext.o decNumber.o
 CFLAGS += -Wall -Wextra -Wno-uninitialized
 
 ifneq "$(findstring gcc,$(CC))" ""
-CFLAGS += -Wno-stringop-overread
+CFLAGS += -Wno-stringop-overflow
 endif
 
 ###############################################################################

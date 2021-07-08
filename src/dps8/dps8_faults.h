@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #ifndef QUIET_UNUSED
@@ -37,26 +37,26 @@ struct _fault_register {
     bool    CPAR_STR;   // PAR fault. A data parity error has been detected in the cache memory.
     bool    CPAR_IA;    // PAR fault. An illegal action has been received from a system controller during a store operation with cache memory enabled.
     bool    CPAR_BLK;   // PAR fault. A cache memory parity error has occurred during a cache memory data block load.
-    
+
     // odd word
     //      Cache Duplicate Directory WNO Buffer Overflow
     bool    PORT_A;
     bool    PORT_B;
     bool    PORT_C;
     bool    PORT_D;
-    
+
     bool    CPD;  // Cache Primary Directory WNO Buffer Overflow
     // Write Notify (WNO) Parity Error on Port A, B, C, or D.
-    
+
     //      Cache Duplicate Directory Parity Error
     bool    LEVEL_0;
     bool    LEVEL_1;
     bool    LEVEL_2;
     bool    LEVEL_3;
-    
+
     // Cache Duplicate Directory Multiple Match
     bool    CDD;
-    
+
     bool    PAR_SDWAM;  // A parity error has been detected in the SDWAM.
     bool    PAR_PTWAM;  // A parity error has been detected in the PTWAM.
 };
@@ -113,10 +113,10 @@ extern const _fault_subtype fst_cmd_lprpn;
 extern const _fault_subtype fst_cmd_ctl;
 extern const _fault_subtype fst_onc_nem;
 #endif
- 
-void doFault (_fault faultNumber, _fault_subtype faultSubtype, 
+
+void doFault (_fault faultNumber, _fault_subtype faultSubtype,
               const char * faultMsg) NO_RETURN;
-void dlyDoFault (_fault faultNumber, _fault_subtype subFault, 
+void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg);
 bool bG7PendingNoTRO (void);
 bool bG7Pending (void);
@@ -128,5 +128,3 @@ void advanceG7Faults (void);
 void set_FFV_fault (uint f_fault_no);
 void do_FFV_fault (uint fault_number, const char * fault_msg);
 #endif
-
-

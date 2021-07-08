@@ -24,6 +24,9 @@ src/dps8/UnitTests/*.oct
 src/dps8/UnitTests/*.pp
 
 # Generated
+.builder.txt
+.buildos.txt
+useddef.txt
 src/prt2pdf/prt2pdf
 src/prt2pdf/prt2pdf.exe
 src/unifdef/unifdef

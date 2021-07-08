@@ -6,7 +6,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 // history debugging
@@ -20,7 +20,6 @@
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
 #include "hdbg.h"
-
 
 #ifdef HDBG
 #include "dps8_faults.h"
@@ -309,14 +308,14 @@ static FILE * hdbgOut = NULL;
 static void printMRead (struct hevt * p)
   {
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU FINAL: Read %08o %012"PRIo64"\n",
-                p -> time, 
+                p -> time,
                 p -> memref . addr, p -> memref . data);
   }
 
 static void printMWrite (struct hevt * p)
   {
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU FINAL: Write %08o %012"PRIo64"\n",
-                p -> time, 
+                p -> time,
                 p -> memref . addr, p -> memref . data);
   }
 
@@ -326,7 +325,7 @@ static void printTrace (struct hevt * p)
     if (p -> trace . addrMode == ABSOLUTE_mode)
       {
         fprintf (hdbgOut, "DBG(%"PRId64")> CPU TRACE: %06o %o %012"PRIo64" (%s)\n",
-                    p -> time, 
+                    p -> time,
                     p -> trace . ic, p -> trace . ring,
                     p -> trace . inst, disassemble (buf, p -> trace . inst));
       }
@@ -342,7 +341,7 @@ static void printTrace (struct hevt * p)
 static void printFault (struct hevt * p)
   {
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU FAULT: Fault %d(0%o), sub %"PRId64"(0%"PRIo64"), '%s'\n",
-                p -> time, 
+                p -> time,
                 p -> fault.faultNumber, p -> fault.faultNumber,
                 p -> fault.subFault.bits, p -> fault.subFault.bits,
                 p -> fault.faultMsg);
@@ -351,7 +350,7 @@ static void printFault (struct hevt * p)
 static void printIntrSet (struct hevt * p)
   {
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU INTR_SET: Number %d(0%o), CPU %u SCU %u\n",
-                p -> time, 
+                p -> time,
                 p -> intrSet.inum, p -> intrSet.inum,
                 p -> intrSet.cpuUnitIdx,
                 p -> intrSet.scuUnitIdx);
@@ -360,7 +359,7 @@ static void printIntrSet (struct hevt * p)
 static void printIntr (struct hevt * p)
   {
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU INTR: Interrupt pair address %o\n",
-                p -> time, 
+                p -> time,
                 p -> intr.intr_pair_addr);
   }
 
@@ -377,12 +376,12 @@ static void printReg (struct hevt * p)
   {
     if (p->reg.type >= hreg_X0 && p->reg.type <= hreg_X7)
       fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s %06"PRIo64"\n",
-                  p->time, 
+                  p->time,
                   regNames[p->reg.type],
                   p->reg.data);
     else
       fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s %012"PRIo64"\n",
-                  p->time, 
+                  p->time,
                   regNames[p->reg.type],
                   p->reg.data);
   }
@@ -392,7 +391,7 @@ static void printPAReg (struct hevt * p)
     if (p->reg.type >= hreg_PR0 && p->reg.type <= hreg_PR7)
       fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s "
                "%05o:%06o BIT %2o RNR %o\n",
-               p->time, 
+               p->time,
                regNames[p->reg.type],
                p->par.data.SNR,
                p->par.data.WORDNO,
@@ -401,7 +400,7 @@ static void printPAReg (struct hevt * p)
     else
       fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s "
                "%05o:%06o CHAR %o BIT %2o RNR %o\n",
-               p->time, 
+               p->time,
                regNames[p->reg.type],
                p->par.data.SNR,
                p->par.data.WORDNO,
@@ -439,35 +438,35 @@ void hdbgPrint (void)
             case hevtTrace:
               printTrace (evtp);
               break;
-                
+
             case hevtMRead:
               printMRead (evtp);
               break;
-                
+
             case hevtMWrite:
               printMWrite (evtp);
               break;
-                
+
             case hevtFault:
               printFault (evtp);
               break;
-                
+
             case hevtIntrSet:
               printIntrSet (evtp);
               break;
-                
+
             case hevtIntr:
               printIntr (evtp);
               break;
-                
+
             case hevtReg:
               printReg (evtp);
               break;
-                
+
             case hevtPAReg:
               printPAReg (evtp);
               break;
-                
+
             default:
               fprintf (hdbgOut, "hdbgPrint ? %d\n", evtp -> type);
               break;
@@ -501,7 +500,7 @@ void hdbg_mark (void)
 #endif
   }
 
-// set buffer size 
+// set buffer size
 t_stat hdbg_size (UNUSED int32 arg, const char * buf)
   {
 #ifdef THREADZ

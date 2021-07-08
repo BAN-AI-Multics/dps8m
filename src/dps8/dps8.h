@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 /**
@@ -21,7 +21,6 @@
 
 #ifndef DPS8_H
 #define DPS8_H
-
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -40,7 +39,7 @@
 
 // Define to emulate Level 68 instead of DPS8M
 
-//#define L68 
+//#define L68
 
 #ifndef L68
 #ifndef DPS8M
@@ -81,7 +80,7 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 //#define PANEL
 
 // Enable history debugger
-// NB. This has an large impact on ARM architectures, probably due to cache 
+// NB. This has an large impact on ARM architectures, probably due to cache
 // misses.
 //#define HDBG
 
@@ -165,7 +164,7 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 // #define MATRIX
 
 // Run TR on work done, not wall clock.
-// Define one of these; tied to memory access (MEM) or to instruction 
+// Define one of these; tied to memory access (MEM) or to instruction
 // execution (EXEC)
 
 //#define TR_WORK_MEM
@@ -386,7 +385,7 @@ typedef enum opc_mod
   {
     NO_DU                 = (1U << 0),   // No DU modification allowed (Can these 2 be combined into 1?)
     NO_DL                 = (1U << 1),   // No DL modification allowed
-#define NO_DUDL         (NO_DU | NO_DL)    
+#define NO_DUDL         (NO_DU | NO_DL)
 
     NO_CI                 = (1U << 2),   // No character indirect modification (can these next 3 be combined?_
     NO_SC                 = (1U << 3),   // No sequence character modification
@@ -472,7 +471,7 @@ enum { OP_1     = 00001U,
     OP_IR       = 00010U,
     OP_TR       = 00011U,
     OP_REGS     = 00012U,
-    
+
     /* 645/6180 */
     OP_CPR      = 00021U,
     OP_DBR      = 00022U,
@@ -481,7 +480,7 @@ enum { OP_1     = 00001U,
     OP_RA       = 00025U,
     OP_SDP      = 00026U,
     OP_SDR      = 00027U,
-    
+
     OP_X        = 01000U
 };
 
@@ -490,7 +489,7 @@ enum eCAFoper {
     unknown = 0,
     readCY,
     writeCY,
-    rmwCY,      // Read-Modify-Write 
+    rmwCY,      // Read-Modify-Write
 //    readCYpair,
 //    writeCYpair,
 //    readCYblock8,

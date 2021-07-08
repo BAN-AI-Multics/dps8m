@@ -4,9 +4,9 @@
  *
  * All rights reserved.
  *
- * This software is made available under the terms of the ICU  
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //
@@ -18,7 +18,7 @@
 // Setup
 //
 //  as root:
-// 
+//
 // apt-get update -y
 // apt-get upgrade -y
 // rpi-update
@@ -29,7 +29,7 @@
 // apt-get install bc
 // rpi-source
 // apt-get install libncurses5-dev
-// 
+//
 // cd /root/linux
 // vi drivers/staging/fbtft/fb_ili9340.c
 // ; change to
@@ -39,24 +39,24 @@
 // make SUBDIRS=drivers/staging/fbtft/ modules
 // make SUBDIRS=drivers/staging/fbtft/ modules_install
 // depmod
-// 
+//
 // /etc/modules-load.d/fbtft.conf:
-// 
+//
 //     fbtft_device
-//     
-// 
+//
+//
 // /etc/modprobe.d/fbtft.conf
-// 
+//
 //     options fbtft_device name=pitft txbuflen=32768
 //
 // The following step my be needed before the modprobe: Run "raspi-config"; select "5 Interfacing options", "P4 SPI", "Yes" in response to "Would you like the SPI interface to be enabled? "
-// 
+//
 // reboot.
-// 
+//
 // Not loaded on reboot....
-// 
+//
 // sudo modprobe fbtft_device
-// 
+//
 // [   43.109336] fbtft_device: module is from the staging directory, the quality is unknown, you have been warned.
 // [   43.110709] spidev spi0.0: spidev spi0.0 500kHz 8 bits mode=0x00
 // [   43.110731] spidev spi0.1: spidev spi0.1 500kHz 8 bits mode=0x00
@@ -68,7 +68,7 @@
 // [   43.111866] spi spi0.0: fb_ili9340 spi0.0 32000kHz 8 bits mode=0x00
 // [   43.141003] fb_ili9340: module is from the staging directory, the quality is unknown, you have been warned.
 // [   43.358297] graphics fb1: fb_ili9340 frame buffer, 320x480, 300 KiB video memory, 4 KiB DMA buffer memory, fps=20, spi0.0 at 32 MHz
-// 
+//
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -88,7 +88,7 @@
 /*
  * fbtestfnt.h
  *
- * 
+ *
  *
  * Original work by J-P Rosti (a.k.a -rst- and 'Raspberry Compote')
  *
@@ -116,7 +116,7 @@ char fontImg[][FONTW * FONTH] =
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0  
+            0, 0, 0, 0, 0, 0, 0, 0
     },
     { // !
             0, 0, 0, 1, 0, 0, 0, 0,
@@ -138,7 +138,7 @@ char fontImg[][FONTW * FONTH] =
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0
     },
-    { // # 
+    { // #
             0, 0, 1, 0, 0, 1, 0, 0,
             0, 0, 1, 0, 0, 1, 0, 0,
             1, 1, 1, 1, 1, 1, 1, 0,
@@ -216,7 +216,7 @@ char fontImg[][FONTW * FONTH] =
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0  
+            0, 0, 0, 0, 0, 0, 0, 0
     },
     { // +
             0, 0, 0, 0, 0, 0, 0, 0,
@@ -266,7 +266,7 @@ char fontImg[][FONTW * FONTH] =
             0, 0, 0, 1, 0, 0, 0, 0,
             0, 0, 1, 0, 0, 0, 0, 0,
             0, 1, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0  
+            0, 0, 0, 0, 0, 0, 0, 0
     },
     {  // 0 (zero)
             0, 0, 1, 1, 1, 1, 0, 0,
@@ -276,7 +276,7 @@ char fontImg[][FONTW * FONTH] =
             0, 1, 0, 1, 0, 0, 1, 0,
             0, 1, 1, 0, 0, 0, 1, 0,
             0, 0, 1, 1, 1, 1, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0  
+            0, 0, 0, 0, 0, 0, 0, 0
     },
     { // 1
             0, 0, 0, 0, 1, 0, 0, 0,
@@ -299,7 +299,7 @@ char fontImg[][FONTW * FONTH] =
             0, 1, 1, 1, 1, 1, 1, 0,
             0, 0, 0, 0, 0, 0, 0, 0
     },
-    { // 3 
+    { // 3
             0, 0, 1, 1, 1, 1, 0, 0,
             0, 1, 0, 0, 0, 0, 1, 0,
             0, 0, 0, 0, 0, 0, 1, 0,
@@ -309,7 +309,7 @@ char fontImg[][FONTW * FONTH] =
             0, 0, 1, 1, 1, 1, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0
     },
-    { // 4 
+    { // 4
             0, 0, 0, 0, 0, 1, 0, 0,
             0, 0, 0, 0, 1, 1, 0, 0,
             0, 0, 0, 1, 0, 1, 0, 0,
@@ -319,7 +319,7 @@ char fontImg[][FONTW * FONTH] =
             0, 0, 0, 0, 0, 1, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0
     },
-    { // 5 
+    { // 5
             0, 1, 1, 1, 1, 1, 1, 0,
             0, 1, 0, 0, 0, 0, 0, 0,
             0, 1, 0, 0, 0, 0, 0, 0,
@@ -329,7 +329,7 @@ char fontImg[][FONTW * FONTH] =
             0, 0, 1, 1, 1, 1, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0
     },
-    { // 6 
+    { // 6
             0, 0, 1, 1, 1, 1, 0, 0,
             0, 1, 0, 0, 0, 0, 1, 0,
             0, 1, 0, 0, 0, 0, 0, 0,
@@ -481,7 +481,7 @@ char fontImg[][FONTW * FONTH] =
             0, 1, 0, 0, 0, 0, 0, 0,
             0, 1, 0, 0, 0, 0, 1, 0,
             0, 0, 1, 1, 1, 1, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0  
+            0, 0, 0, 0, 0, 0, 0, 0
     },
     { // D
             0, 1, 1, 1, 1, 0, 0, 0,
@@ -491,7 +491,7 @@ char fontImg[][FONTW * FONTH] =
             0, 1, 0, 0, 0, 0, 1, 0,
             0, 1, 0, 0, 0, 1, 0, 0,
             0, 1, 1, 1, 1, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0  
+            0, 0, 0, 0, 0, 0, 0, 0
     },
     { // E
             0, 1, 1, 1, 1, 1, 0, 0,
@@ -501,7 +501,7 @@ char fontImg[][FONTW * FONTH] =
             0, 1, 0, 0, 0, 0, 0, 0,
             0, 1, 0, 0, 0, 0, 0, 0,
             0, 1, 1, 1, 1, 1, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0  
+            0, 0, 0, 0, 0, 0, 0, 0
     },
     { // F
             0, 1, 1, 1, 1, 1, 0, 0,
@@ -511,7 +511,7 @@ char fontImg[][FONTW * FONTH] =
             0, 1, 0, 0, 0, 0, 0, 0,
             0, 1, 0, 0, 0, 0, 0, 0,
             0, 1, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0  
+            0, 0, 0, 0, 0, 0, 0, 0
     },
     { // G
             0, 0, 0, 0, 0, 0, 0, 0,
@@ -601,7 +601,7 @@ char fontImg[][FONTW * FONTH] =
             0, 1, 0, 0, 0, 0, 1, 0,
             0, 1, 0, 0, 0, 0, 1, 0,
             0, 0, 1, 1, 1, 1, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0  
+            0, 0, 0, 0, 0, 0, 0, 0
     },
     { // P
             0, 1, 1, 1, 1, 1, 0, 0,
@@ -621,7 +621,7 @@ char fontImg[][FONTW * FONTH] =
             0, 1, 0, 0, 1, 0, 1, 0,
             0, 1, 0, 0, 0, 1, 0, 0,
             0, 0, 1, 1, 1, 0, 1, 0,
-            0, 0, 0, 0, 0, 0, 0, 0  
+            0, 0, 0, 0, 0, 0, 0, 0
     },
     { // R
             0, 1, 1, 1, 1, 1, 0, 0,
@@ -785,7 +785,7 @@ char fontImg[][FONTW * FONTH] =
 int font_index(char a)
   {
     int ret = a - 32;
-    // is the value in the 'printable' range (a >= 32) and 
+    // is the value in the 'printable' range (a >= 32) and
     // within the defined entries
     if ((ret >= 0) && ( ret < (int) (sizeof(fontImg) / (FONTW * FONTH) ) ) )
       {
@@ -1070,7 +1070,7 @@ int main (int argc, char * argv [])
     while (1)
       {
         l = 0;
-        draw_n ( 3, cpun -> PPR.PRR,  4, l); 
+        draw_n ( 3, cpun -> PPR.PRR,  4, l);
         draw_n ( 1, cpun -> PPR.P,   10, l);
         draw_n (15, cpun -> PPR.PSR, 16, l);
         l ++;
@@ -1102,8 +1102,8 @@ int main (int argc, char * argv [])
         l ++;
         for (int i = 0; i < 8; i ++)
           {
-            draw_n (15, cpun -> PAR [i] . SNR,     2, l); 
-            draw_n ( 3, cpun -> PAR [i] . RNR,    18, l); 
+            draw_n (15, cpun -> PAR [i] . SNR,     2, l);
+            draw_n ( 3, cpun -> PAR [i] . RNR,    18, l);
             l ++;
             draw_n ( 2, cpun -> PAR [i] . AR_CHAR,    2, l);
             draw_n ( 4, cpun -> PAR [i] . AR_BITNO ,  5, l);

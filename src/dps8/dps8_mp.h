@@ -6,7 +6,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 // Multipass data
@@ -35,12 +35,10 @@ typedef struct multipassStats
 
     uint64 cycles;
 
-
     uint64 diskSeeks;
     uint64 diskWrites;
     uint64 diskReads;
 
-    
   } multipassStats;
 
 extern multipassStats * multipassStatsPtr;

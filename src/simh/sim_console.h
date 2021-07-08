@@ -1,6 +1,7 @@
 /* sim_console.h: simulator console I/O library headers
 
-   Copyright (c) 1993-2014, Robert M Supnik
+   Copyright (c) 1993-2014 Robert M Supnik
+   Copyright (c) 2021 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -67,7 +68,7 @@ extern "C" {
 #define  TT_PAR_MARK    (TTUF_PAR_MARK  << TTUF_V_PAR)
 #define  TT_PAR_EVEN    (TTUF_PAR_EVEN  << TTUF_V_PAR)
 #define  TT_PAR_ODD     (TTUF_PAR_ODD   << TTUF_V_PAR)
-/* TT_GET_MODE returns both the TT_MODE and TT_PAR fields 
+/* TT_GET_MODE returns both the TT_MODE and TT_PAR fields
    since they together are passed into sim_tt_inpcvt() */
 #define TT_GET_MODE(x)  (((x) >> TTUF_V_MODE) & (TTUF_M_MODE | (TTUF_M_PAR << TTUF_W_MODE)))
 

@@ -7,7 +7,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #if 0
@@ -38,9 +38,9 @@ struct segdef          // definitions for externally available symbols
     char    *symbol;    ///< name of externallay available symbol
     int     value;      ///< address of value in segment
     int     relType;    ///< relocation type (RFU)
-    
+
     int     segno;      ///< when filled-in is the segment # where the segdef is found (default=-1)
-    
+
     struct segdef  *next;
     struct segdef  *prev;
 };
@@ -53,11 +53,11 @@ struct segref      // references to external symbols in this segment
     int     value;      ///< address of ITS pair in segment
     int     offset;     ///< if ext reference is an offset from segname/symbol (display purposes only for now)
     int     relType;    ///< relocation type (RFU)
-    
+
     int     segno;      ///< when filled-in is the segment # where the segref is to be found (default=-1)
-    
+
     bool    snapped;    ///< true when link has been filled in with a correct ITS pointer
-    
+
     struct segref  *next;
     struct segref  *prev;
 };
@@ -68,21 +68,21 @@ struct segment
     char    *name;  ///< name of this segment
     word36  *M;     ///< contents of this segment
     int     size;   ///< size of this segment in 36-bit words
-    
+
     segdef *defs;   ///< symbols available to other segments
     segref *refs;   ///< external symbols needed by this segment
-    
+
     bool    deferred; ///< if true segment is deferred, not loaded into memory
-    
+
     int     segno;  ///< segment# segment is assigned
     int     ldaddr; ///< address where to load segment
-    
+
     int     linkOffset; ///< link offset in segment
     int     linkSize;   ///< size of segments linkage section
 
     // For symbolic debugging support
     char    *filename;
-    
+
     struct segment *next;
     struct segment *prev;
 };

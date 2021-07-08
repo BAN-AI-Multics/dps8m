@@ -14,7 +14,7 @@
 #
 # This software is made available under the terms of the ICU
 # License, version 1.8.1 or later.  For more details, see the
-# LICENSE file at the top-level directory of this distribution.
+# LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
 
@@ -40,62 +40,23 @@ include ../Makefile.mk
 
 ###############################################################################
 
-ifneq (,$(wildcard Makefile.local))
-include Makefile.local
+ifdef BUILD_PROM_OSV_TEXT
+CFLAGS += -DBUILD_PROM_OSV_TEXT="\"$(BUILD_PROM_OSV_TEXT)\""
 endif
 
 ###############################################################################
 
-ifdef TRACKER
-CFLAGS += -DTRACKER -DTESTING
+ifdef BUILD_PROM_OSA_TEXT
+CFLAGS += -DBUILD_PROM_OSA_TEXT="\"$(BUILD_PROM_OSA_TEXT)\""
 endif
 
 ###############################################################################
+# If using Cygwin as a host for cross-compilation, set CYGWIN_MINGW_CROSS=1
 
-ifdef TESTING
-CFLAGS += -DTESTING
+ifneq ($(CYGWIN_MINGW_CROSS),1)
+ifeq ($(shell $(UNAME) -o 2> /dev/null || true >/dev/null 2>&1),Cygwin)
+CROSS=""
 endif
-
-###############################################################################
-
-#ifeq ($(LOADER),1)
-CFLAGS += -DLOADER
-#endif
-
-###############################################################################
-
-ifeq ($(OS),Windows_NT)
-CROSS=MINGW64
-endif
-
-###############################################################################
-
-ifeq ($(THREADZ),1)
-CFLAGS += -pthread -DTHREADZ
-LDFLAGS += -pthread
-LIBS += -lpthread
-endif
-
-###############################################################################
-
-ifeq ($(ISOLTS),1)
-LOCKLESS=1
-CFLAGS += -DISOLTS
-CFLAGS += -DWAM
-endif
-
-###############################################################################
-
-ifeq ($(LOCKLESS),1)
-CFLAGS += -pthread -DLOCKLESS 
-LDFLAGS += -pthread
-LIBS += -lpthread
-endif
-
-###############################################################################
-
-ifeq ($(SPEED),1)
-SPEED=1
 endif
 
 ###############################################################################
@@ -112,8 +73,12 @@ CFLAGS += -DCROSS_MINGW64 -I../../../libuv/include
 ifneq ($(W),)
 CFLAGS += -Wno-misleading-indentation
 endif
+ifeq ($(shell $(UNAME) -o 2> /dev/null || true >/dev/null 2>&1),Cygwin)
+LIBS += -lwinmm -lws2_32 -lwsock32 -lws2_32 -luserenv -liphlpapi $(LIBUV)
+else
 LIBS += -lwinmm -lws2_32 -lmingwex -lwsock32 -lws2_32 -luserenv -liphlpapi \
         $(LIBUV) -L../../../libuv/.libs
+endif
 endif
 
 ###############################################################################
@@ -146,7 +111,8 @@ endif
 ifneq ($(CROSS),MINGW64)
 CFLAGS += -DM_SHARED
 ifneq ($(OS),OSX)
-LDFLAGS += -lrt
+#LDFLAGS += -lrt
+LIBS += -lrt
 endif
 endif
 
@@ -163,8 +129,6 @@ endif
 # What needs -ldl? 
 
 ifeq ($(OS),Windows_NT)
-    LIBS += -lgcc -lm -lwinmm -lws2_32 -lmingwex $(LIBUV) -lwsock32 \
-            -lpthread -lgnurx -lpsapi -liphlpapi -luserenv
 else
   OSTYPE = $(shell $(UNAME) -s)
   ifeq ($(OSTYPE),FreeBSD)
@@ -200,9 +164,9 @@ C_SRCS += ./dps8_fnp2_iomcmd.c
 C_SRCS += ./dps8_iefp.c
 C_SRCS += ./dps8_ins.c
 C_SRCS += ./dps8_iom.c
-#ifeq ($(LOADER),1)
+ifeq ($(LOADER),1)
 C_SRCS += ./dps8_loader.c
-#endif
+endif
 C_SRCS += ./dps8_math.c
 C_SRCS += ./dps8_math128.c
 C_SRCS += ./dps8_mt.c
@@ -272,14 +236,15 @@ H_SRCS += dps8_hw_consts.h
 H_SRCS += dps8_iefp.h
 H_SRCS += dps8_ins.h
 H_SRCS += dps8_iom.h
-#ifeq ($(LOADER),1)
+ifeq ($(LOADER),1)
 H_SRCS += dps8_loader.h
-#endif
+endif
 H_SRCS += dps8_math.h
 H_SRCS += dps8_math128.h
 #H_SRCS += dps8_mp.h
 H_SRCS += dps8_mt.h
 H_SRCS += dps8_opcodetable.h
+H_SRCS += dps8_prom.h
 H_SRCS += dps8_prt.h
 H_SRCS += dps8_socket_dev.h
 H_SRCS += dps8_scu.h
@@ -313,7 +278,7 @@ H_SRCS += ./uvutil.h
 ###############################################################################
 
 .PHONY: all
-all: prt2pdf unifdef $(TAGS) locallibs_then_dps8
+all: prt2pdf unifdef useddef.txt $(TAGS) locallibs_then_dps8
 
 ###############################################################################
 
@@ -399,10 +364,10 @@ ifeq (,$(wildcard ../../.git))
 ifeq (,$(wildcard ver.h~))
 # not git, not kit
 ver.h:
-	@$(SETV); $(RMF) ver.h
+	@$(SETV); $(RMF) "./ver.h"
 	@$(PRINTF) '%s\n' "WARNING: This source tree does not appear to be a" \
 	                  "         full git clone or a complete source kit."
-	@$(SETV); $(TOUCH) ver.h
+	@$(SETV); $(TOUCH) "./ver.h"
 else
 # kit
 ver.h:
@@ -411,9 +376,15 @@ endif
 else
 # git
 ver.h: FORCE
+ifneq ($(USE_BUILDER),)
+	@$(SETV); $(PRINTF) '%s\n' "$(USE_BUILDER)" > "../../.builder.txt"
+endif
+ifneq ($(USE_BUILDOS),)
+	@$(SETV); $(PRINTF) '%s\n' "$(USE_BUILDOS)" > "../../.buildos.txt"
+endif
 	@$(SETV); ./make_ver.sh || \
 		$(SHELL) ./make_ver.sh || \
-			{ $(PRINTF) '%s\n' "Error running make_ver.sh"; exit 1; }
+			{ $(PRINTF) '%s\n' "Error: Unable to run make_ver.sh"; exit 1; }
 endif
 
 ###############################################################################
@@ -425,10 +396,10 @@ slte.inc : system_book_12_3.ascii
 
 .PHONY: locallibs_then_dps8
 locallibs_then_dps8: 
-	@($(SETV); $(CD) $(SIMHx) && $(MAKE) -f "GNUmakefile")
 	@($(SETV); $(CD) "../decNumber" && $(MAKE))
 	@$(SETV); $(ENV) MAKE="$(MAKE)" \
         $(MAKE) "ver.h"
+	@($(SETV); $(CD) $(SIMHx) && $(MAKE) -f "GNUmakefile")
 	@$(SETV); $(MAKE) "dps8$(EXE)"
 
 ###############################################################################
@@ -510,9 +481,8 @@ superclean realclean reallyclean: distclean
 
 .PHONY: distclean
 distclean: clean
-	-@$(SETV); $(RMF) "ver.h" || $(TRUE)
-	-@$(SETV); $(RMF) "../../dps8m.state" || $(TRUE)
-	-@$(SETV); $(RMF) "restoreMultics.log" || $(TRUE)
+	@$(SETV); $(RMF) "../../dps8m.state" || $(TRUE)
+	@$(SETV); $(RMF) "restoreMultics.log" || $(TRUE)
 
 ###############################################################################
 
@@ -525,6 +495,13 @@ clean:
 	@$(SETV); $(MAKE) "clean_dps8"
 	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)" || $(TRUE)
 	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)".* || $(TRUE)
+	@$(SETV); $(RMF) "../../.builder.txt" || $(TRUE)
+	@$(SETV); $(RMF) "../../.buildos.txt" || $(TRUE)
+	@$(SETV); $(RMF) "ver.h" || $(TRUE)
+	@$(SETV); $(RMF) "compdef.out" || $(TRUE)
+	@$(SETV); $(RMF) "procdef.out" || $(TRUE)
+	@$(SETV); $(RMF) "procsrt.out" || $(TRUE)
+	@$(SETV); $(RMF) "unifdef.out" || $(TRUE)
 
 ###############################################################################
 
@@ -548,10 +525,41 @@ kit dist:
 	@$(SETV); ($(CD) "../.." && \
 		$(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files | \
 			$(GREP) -v '^.git' | $(GREP) -v '^.whitesource' | \
-				$(GREP) -v '^src/dps8/listings/' )  'src/dps8/ver.h~' )
+				$(GREP) -v '^.lgtm.yml' | \
+					$(GREP) -v '^src/dps8/listings/' ) 'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n' \
 		"COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
 	@$(SETV); $(COMPRESS) "../../$(KITNAME).$(TARXT)"
+
+###############################################################################
+
+unifdef.out: unifdef
+	@$(PRINTF) '%s\n' "UNIFDEF: *.[ch]"
+	@($(SETV); $(CD) ".." 2> /dev/null && $(FIND) $$($(GIT) ls-files 2> /dev/null 2> /dev/null | $(GREP) ".*\.[ch]" 2> /dev/null ) -exec "./unifdef/unifdef" "-s" "{}" 2> /dev/null \; | $(SORT) -u 2> /dev/null) > "./unifdef.out"|| $(TOUCH) "./unifdef.out" > /dev/null 2>&1
+
+###############################################################################
+
+procdef.out:
+	@$(PRINTF) '%s\n' "PROCDEF: $(CPPCPP)"
+	@($(SETV); ($(CPPCPP) -dM - < /dev/null 2> /dev/null ; $(CPPCPP) -dD - < /dev/null 2> /dev/null) | $(GREP) "^#define" 2> /dev/null | $(GREP) -v "^$$" 2> /dev/null | $(SORT) -u 2> /dev/null) | $(SED) 's/^#define //g' | $(SORT) > "./procdef.out" || $(TOUCH) "./procdef.out" > /dev/null 2>&1
+
+###############################################################################
+
+procsrt.out: procdef.out
+	@$(PRINTF) '%s\n' "PROCSRT: procdef.out"
+	@$(SETV); $(CUT) -d ' ' -f 1 < "./procdef.out" 2> /dev/null | $(SORT) > "./procsrt.out" 2> /dev/null || $(TOUCH) "./procsrt.out" > /dev/null 2>&1
+
+###############################################################################
+
+compdef.out: procsrt.out unifdef.out
+	@$(PRINTF) '%s\n' "COMM: procsrt.out unifdef.out"
+	@$(SETV); $(COMM) -12 "procsrt.out" "unifdef.out" > "./compdef.out" 2> /dev/null || $(TOUCH) "./compdef.out" 2> /dev/null
+
+###############################################################################
+
+useddef.txt: compdef.out
+	@$(PRINTF) '%s\n' "USEDDEF: compdef.out"
+	@$(SETV); $(SH) -c 'while read -r line; do $(GREP) -i "$${line:-}" "./procdef.out" 2> /dev/null; done < compdef.out | $(SORT) -u > useddef.txt' || $(TRUE) > /dev/null 2>&1; $(TOUCH) "./useddef.txt" > /dev/null 2>&1
 
 ###############################################################################
 

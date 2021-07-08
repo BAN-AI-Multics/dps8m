@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 /* ============================================================================================================================== */
@@ -319,11 +319,11 @@ int GLOBAL_GREEN_BAR;
 /* ============================================================================================================================== */
  void printme_top(){
         char IMPACT_TOP[256];
-	char *varname;
+        char *varname;
         float charwidth;
         float xvalue;
         float yvalue;
-	float text_size=20.0;
+        float text_size=20.0;
         if( (varname=getenv("IMPACT_TOP")) != (char *)NULL ){
            strncpy(IMPACT_TOP,varname,255);
            charwidth=text_size*0.60; /* assuming fixed-space font Courier-Bold */
@@ -442,7 +442,7 @@ void do_text ()
             increment_ypos (1.0);
             goto printline;
           }
-        if (c == '\n') // print the buffer. advance          
+        if (c == '\n') // print the buffer. advance
           {
             goto printline;
           }
@@ -454,7 +454,7 @@ void do_text ()
         if (i < 8190)
           buffer [i ++] = (char) c;
         continue;
-       
+
 printline:
         GLOBAL_LINECOUNT ++;
 

@@ -48,5 +48,4 @@
                                 const decNumber *);
   decNumber * decPackedToNumber(const uint8_t *, int32_t, const int32_t *,
                                 decNumber *);
-
 #endif

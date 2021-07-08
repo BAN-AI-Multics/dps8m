@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 /**
@@ -42,7 +42,7 @@
 char * dump_flags(char * buffer, word18 flags)
 {
     //static char buffer[256] = "";
-    
+
     sprintf(buffer, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 #ifdef DPS8M
             flags & I_HEX   ? "Hex "   : "",
@@ -66,13 +66,13 @@ char * dump_flags(char * buffer, word18 flags)
             flags & I_ZERO  ? "Zero "  : ""
             );
     return buffer;
-    
+
 }
 
 static char * dps8_strupr(char *str)
 {
     char *s;
-    
+
     for(s = str; *s; s++)
         *s = (char) toupper((unsigned char)*s);
     return str;
@@ -100,7 +100,7 @@ char *disassemble(char * result, word36 instruction)
 
     //static char result[132] = "???";
     strcpy(result, "???");
-    
+
     // get mnemonic ...
     if (opcodes10[opcode10].mne)
         strcpy(result, opcodes10[opcode10].mne);
@@ -108,12 +108,12 @@ char *disassemble(char * result, word36 instruction)
     // XXX need to reconstruct multi-word EIS instruction.
 
     char buff[64];
-    
+
     if (a)
     {
         int n = (address >> 15) & 07;
         int offset = address & 077777;
-    
+
         sprintf(buff, " pr%d|%o", n, offset);
         strcat (result, buff);
         // return dps8_strupr(result);
@@ -136,7 +136,7 @@ char *disassemble(char * result, word36 instruction)
         strcat(result, ",");
         strcat(result, buff);
     }
-    
+
     return dps8_strupr(result);
 }
 
@@ -151,7 +151,7 @@ char *disassemble(char * result, word36 instruction)
 char *get_mod_string(char * msg, word6 tag)
 {
     strcpy(msg, "none");
-    
+
     if (tag >= 0100)
     {
         sprintf(msg, "getModReg(tag out-of-range %o)", tag);
@@ -177,7 +177,7 @@ char *get_mod_string(char * msg, word6 tag)
 word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 17); // Add36b
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Add36b op1 %012"PRIo64" op2 %012"PRIo64" carryin %o flagsToSet %06o flags %06o\n", op1, op2, carryin, flagsToSet, * flags); 
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Add36b op1 %012"PRIo64" op2 %012"PRIo64" carryin %o flagsToSet %06o flags %06o\n", op1, op2, carryin, flagsToSet, * flags);
 // https://en.wikipedia.org/wiki/Two%27s_complement#Addition
 //
 // In general, any two N-bit numbers may be added without overflow, by first
@@ -211,11 +211,11 @@ word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
 
     // Extract the carry bit
     bool r38 = res & BIT38 ? true : false;
-   
-    // Check for overflow 
+
+    // Check for overflow
     * ovf = r37 ^ r36;
 
-    // Check for carry 
+    // Check for carry
     bool cry = r38;
 
     // Truncate the result
@@ -235,13 +235,13 @@ word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
         else
           CLRF (* flags, I_CARRY);
       }
- 
+
     if (chkOVF () && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
       }
-    
+
     if (flagsToSet & I_ZERO)
       {
         if (res)
@@ -249,7 +249,7 @@ word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
         else
           SETF (* flags, I_ZERO);       // zero result
       }
-    
+
     if (flagsToSet & I_NEG)
       {
         if (res & SIGN36)
@@ -257,8 +257,8 @@ word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
         else
           CLRF (* flags, I_NEG);
       }
-    
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Add36b res %012"PRIo64" flags %06o ovf %o\n", res, * flags, * ovf); 
+
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Add36b res %012"PRIo64" flags %06o ovf %o\n", res, * flags, * ovf);
     return res;
   }
 
@@ -297,14 +297,14 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
 
     // Extract the carry bit
     bool r38 = res & BIT38 ? true : false;
-   
+
     // Truncate the result
     res &= MASK36;
 
-    // Check for overflow 
+    // Check for overflow
     * ovf = r37 ^ r36;
 
-    // Check for carry 
+    // Check for carry
     bool cry = r38;
 
 #ifdef PANEL
@@ -321,13 +321,13 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
         else
           SETF (* flags, I_CARRY);
       }
- 
+
     if (chkOVF () && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
       }
-    
+
     if (flagsToSet & I_ZERO)
       {
         if (res)
@@ -335,7 +335,7 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
         else
           SETF (* flags, I_ZERO);       // zero result
       }
-    
+
     if (flagsToSet & I_NEG)
       {
         if (res & SIGN36)
@@ -343,7 +343,7 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
         else
           CLRF (* flags, I_NEG);
       }
-    
+
     return res;
   }
 
@@ -384,14 +384,14 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
 
     // Extract the carry bit
     bool r20 = res & BIT20 ? true : false;
-   
+
     // Truncate the result
     res &= MASK18;
 
-    // Check for overflow 
+    // Check for overflow
     * ovf = r19 ^ r18;
 
-    // Check for carry 
+    // Check for carry
     bool cry = r20;
 
 #ifdef PANEL
@@ -408,13 +408,13 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
         else
           CLRF (* flags, I_CARRY);
       }
- 
+
     if (chkOVF () && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
       }
-    
+
     if (flagsToSet & I_ZERO)
       {
         if (res)
@@ -422,7 +422,7 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
         else
           SETF (* flags, I_ZERO);       // zero result
       }
-    
+
     if (flagsToSet & I_NEG)
       {
         if (res & SIGN18)
@@ -430,7 +430,7 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
         else
           CLRF (* flags, I_NEG);
       }
-    
+
     return (word18) res;
   }
 
@@ -469,14 +469,14 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
 
     // Extract the carry bit
     bool r20 = res & BIT20 ? true : false;
-   
+
     // Truncate the result
     res &= MASK18;
 
-    // Check for overflow 
+    // Check for overflow
     * ovf = r19 ^ r18;
 
-    // Check for carry 
+    // Check for carry
     bool cry = r20;
 
 #ifdef PANEL
@@ -493,13 +493,13 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
         else
           SETF (* flags, I_CARRY);
       }
- 
+
     if (chkOVF () && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
       }
-    
+
     if (flagsToSet & I_ZERO)
       {
         if (res)
@@ -507,7 +507,7 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
         else
           SETF (* flags, I_ZERO);       // zero result
       }
-    
+
     if (flagsToSet & I_NEG)
       {
         if (res & SIGN18)
@@ -515,7 +515,7 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
         else
           CLRF (* flags, I_NEG);
       }
-    
+
     return res;
   }
 
@@ -525,7 +525,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 #ifdef ISOLTS
 //if (current_running_cpu_idx)
 //sim_printf ("Add72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o ovf %o\n",
- //(word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags, * ovf); 
+ //(word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags, * ovf);
 #endif
 
 // https://en.wikipedia.org/wiki/Two%27s_complement#Addition
@@ -587,7 +587,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 #else
     bool r74 = res & BIT74 ? true : false;
 #endif
-   
+
     // Truncate the result
 #ifdef NEED_128
     res = and_128 (res, MASK72);
@@ -595,10 +595,10 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     res &= MASK72;
 #endif
 
-    // Check for overflow 
+    // Check for overflow
     * ovf = r73 ^ r72;
 
-    // Check for carry 
+    // Check for carry
     bool cry = r74;
 
 #ifdef PANEL
@@ -623,13 +623,13 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
         else
           CLRF (* flags, I_CARRY);
       }
- 
+
     if (chkOVF () && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
       }
-    
+
     if (flagsToSet & I_ZERO)
       {
 #ifdef NEED_128
@@ -641,7 +641,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
         else
           SETF (* flags, I_ZERO);       // zero result
       }
-    
+
     if (flagsToSet & I_NEG)
       {
 #ifdef NEED_128
@@ -653,11 +653,11 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
         else
           CLRF (* flags, I_NEG);
       }
-    
+
 #ifdef ISOLTS
 //if (current_running_cpu_idx)
 //{
-//sim_printf ("Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf); 
+//sim_printf ("Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
 //}
 #endif
     return res;
@@ -670,14 +670,14 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 #ifdef ISOLTS
 //if (current_running_cpu_idx)
 //sim_printf ("Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o ovf %o\n",
- //(word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags, * ovf); 
+ //(word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags, * ovf);
 #endif
 #ifdef NEED_128
     sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((rshift_128 (op1, 36).l) & MASK36), (word36) (op1.l & MASK36), (word36) (rshift_128 (op2, 36).l & MASK36), (word36) (op2.l & MASK36), carryin, flagsToSet, * flags); 
+ (word36) ((rshift_128 (op1, 36).l) & MASK36), (word36) (op1.l & MASK36), (word36) (rshift_128 (op2, 36).l & MASK36), (word36) (op2.l & MASK36), carryin, flagsToSet, * flags);
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags); 
+ (word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags);
 #endif
 
 // https://en.wikipedia.org/wiki/Two%27s_complement
@@ -721,10 +721,10 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     // Do the math
 #ifdef NEED_128
     sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((rshift_128 (op1e, 36).l) & MASK36), (word36) (op1e.l & MASK36), (word36) (rshift_128 (op2e, 36).l & MASK36), (word36) (op2e.l & MASK36), carryin, flagsToSet, * flags); 
+ (word36) ((rshift_128 (op1e, 36).l) & MASK36), (word36) (op1e.l & MASK36), (word36) (rshift_128 (op2e, 36).l & MASK36), (word36) (op2e.l & MASK36), carryin, flagsToSet, * flags);
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1e %012"PRIo64"%012"PRIo64" op2e %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
- (word36) ((op1e >> 36) & MASK36), (word36) (op1e & MASK36), (word36) ((op2e >> 36) & MASK36), (word36) (op2e & MASK36), carryin, flagsToSet, * flags); 
+ (word36) ((op1e >> 36) & MASK36), (word36) (op1e & MASK36), (word36) ((op2e >> 36) & MASK36), (word36) (op2e & MASK36), carryin, flagsToSet, * flags);
 #endif
 #ifdef NEED_128
     word74 res = subtract_128 (subtract_128 (op1e, op2e), ci);
@@ -732,9 +732,9 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     word74 res = op1e - op2e - ci;
 #endif
 #ifdef NEED_128
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf); 
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf); 
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
 #endif
 
     // Extract the overflow bits
@@ -751,7 +751,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     bool r74 = isnonzero_128 (and_128 (res, BIT74));
 #else
     bool r74 = res & BIT74 ? true : false;
-#endif   
+#endif
 
     // Truncate the result
 #ifdef NEED_128
@@ -760,10 +760,10 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     res &= MASK72;
 #endif
 
-    // Check for overflow 
+    // Check for overflow
     * ovf = r73 ^ r72;
 
-    // Check for carry 
+    // Check for carry
     bool cry = r74;
 
 #ifdef ISOLTS
@@ -789,13 +789,13 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
         else
           SETF (* flags, I_CARRY);
       }
- 
+
     if (chkOVF () && (flagsToSet & I_OFLOW))
       {
         if (* ovf)
           SETF (* flags, I_OFLOW);      // overflow
       }
-    
+
     if (flagsToSet & I_ZERO)
       {
 #ifdef NEED_128
@@ -807,7 +807,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
         else
           SETF (* flags, I_ZERO);       // zero result
       }
-    
+
     if (flagsToSet & I_NEG)
       {
 #ifdef NEED_128
@@ -819,11 +819,11 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
         else
           CLRF (* flags, I_NEG);
       }
-    
+
 #ifdef NEED_128
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf); 
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) (rshift_128 (res, 36).l & MASK36), (word36) (res.l & MASK36), * flags, * ovf);
 #else
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf); 
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
 #endif
     return res;
   }
@@ -833,11 +833,11 @@ word36 compl36(word36 op1, word18 *flags, bool * ovf)
 {
     CPT (cpt2L, 23); // compl36
     //printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
-    
+
     op1 &= DMASK;
-    
+
     word36 res = -op1 & DMASK;
-    
+
     * ovf = op1 == MAXNEG;
 
 #ifdef PANEL
@@ -853,12 +853,12 @@ word36 compl36(word36 op1, word18 *flags, bool * ovf)
         SETF(*flags, I_NEG);
     else
         CLRF(*flags, I_NEG);
-    
+
     if (res == 0)
         SETF(*flags, I_ZERO);
     else
         CLRF(*flags, I_ZERO);
-    
+
     return res;
 }
 
@@ -867,11 +867,11 @@ word18 compl18(word18 op1, word18 *flags, bool * ovf)
 {
     CPT (cpt2L, 24); // compl18
     //printf("op1 = %"PRIo64" %"PRIo64"\n", op1, (-op1) & DMASK);
-    
+
     op1 &= MASK18;
-    
+
     word18 res = -op1 & MASK18;
-    
+
     * ovf = op1 == MAX18NEG;
 #ifdef PANEL
     if (* ovf) CPT (cpt2L, 29); // ovf
@@ -885,36 +885,36 @@ word18 compl18(word18 op1, word18 *flags, bool * ovf)
         SETF(*flags, I_NEG);
     else
         CLRF(*flags, I_NEG);
-    
+
     if (res == 0)
         SETF(*flags, I_ZERO);
     else
         CLRF(*flags, I_ZERO);
-    
+
     return res;
 }
 
 void copyBytes(int posn, word36 src, word36 *dst)
 {
     word36 mask = 0;
-    
+
     if (posn & 8) // bit 30 - byte 0 - (bits 0-8)
         mask |= 0777000000000LL;
-   
+
     if (posn & 4) // bit 31 - byte 1 - (bits 9-17)
         mask |= 0000777000000LL;
-    
+
     if (posn & 2) // bit 32 - byte 2 - (bits 18-26)
         mask |= 0000000777000LL;
-    
+
     if (posn & 1) // bit 33 - byte 3 - (bits 27-35)
         mask |= 0000000000777LL;
-         
+
     word36 byteVals = src & mask;   // get byte bits
-    
+
     // clear the bits in dst
     *dst &= ~mask;
-    
+
     // and set the bits in dst
     *dst |= byteVals;
 }
@@ -924,33 +924,33 @@ void copyBytes(int posn, word36 src, word36 *dst)
 void copyChars(int posn, word36 src, word36 *dst)
 {
     word36 mask = 0;
-    
+
     if (posn & 32) // bit 30 - char 0 - (bits 0-5)
         mask |= 0770000000000LL;
-    
+
     if (posn & 16) // bit 31 - char 1 - (bits 6-11)
         mask |= 0007700000000LL;
-    
+
     if (posn & 8) // bit 32 - char 2 - (bits 12-17)
         mask |= 0000077000000LL;
-    
+
     if (posn & 4) // bit 33 - char 3 - (bits 18-23)
         mask |= 0000000770000LL;
-    
+
     if (posn & 2) // bit 34 - char 4 - (bits 24-29)
         mask |= 0000000007700LL;
-    
+
     if (posn & 1) // bit 35 - char 5 - (bits 30-35)
         mask |= 0000000000077LL;
-    
+
     word36 byteVals = src & mask;   // get byte bits
-    
+
     // clear the bits in dst
     *dst &= ~mask;
-    
+
     // and set the bits in dst
     *dst |= byteVals;
-    
+
 }
 
 
@@ -960,7 +960,7 @@ void copyChars(int posn, word36 src, word36 *dst)
 void putByte(word36 *dst, word9 data, int posn)
 {
     // XXX which is faster switch() or calculation?
-    
+
 //    int offset = 27 - (9 * posn);//    0;
 //    switch (posn)
 //    {
@@ -983,7 +983,7 @@ void putByte(word36 *dst, word9 data, int posn)
 void putChar(word36 *dst, word6 data, int posn)
 {
     // XXX which is faster switch() or calculation?
-    
+
 //    int offset = 30 - (6 * posn);   //0;
 //    switch (posn)
 //    {
@@ -1037,7 +1037,7 @@ void cmp36(word36 oP1, word36 oP2, word18 *flags)
 #endif
     t_int64 op1 = SIGNEXT36_64(oP1 & DMASK);
     t_int64 op2 = SIGNEXT36_64(oP2 & DMASK);
-    
+
     word36 sign1 = (word36) op1 & SIGN36;
     word36 sign2 = (word36) op2 & SIGN36;
 
@@ -1139,7 +1139,7 @@ void cmp36wl(word36 A, word36 Y, word36 Q, word18 *flags)
     bool Z = (As <= Ys && Ys <= Qs) || (As >= Ys && Ys >= Qs);
 
     SCF(Z, *flags, I_ZERO);
-    
+
     if (!(Q & SIGN36) && (Y & SIGN36) && (Qs > Ys))
         CLRF(*flags, I_NEG | I_CARRY);
     else if (((Q & SIGN36) == (Y & SIGN36)) && (Qs >= Ys))
@@ -1241,7 +1241,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "op2s %016"PRIx64"%016"PRIx64"\n", (uint64_t
 char * strlower(char *q)
 {
         char *s = q;
-    
+
         while (*s) {
                 if (isupper(*s))
                         *s = (char) tolower(*s);
@@ -1261,11 +1261,11 @@ int strmask (char * str, char * mask)
 /*!
  Tests string 'str' against mask string 'mask'
  Returns TRUE if the string matches the mask.
- 
+
  The mask can contain '?' and '*' wild card characters.
  '?' matches any        single character.
  '*' matches any number of any characters.
- 
+
  For example:
  strmask("Hello", "Hello");     ---> TRUE
  strmask("Hello", "Jello");     ---> FALSE
@@ -1278,10 +1278,10 @@ int strmask (char * str, char * mask)
   {
     char * sp, * mp, * reset_string, * reset_mask, * sn;
     int state;
-    
+
     sp = str;
     mp = mask;
-    
+
     while (1)
       {
         switch (* mp)
@@ -1315,12 +1315,12 @@ int strmask (char * str, char * mask)
                 {
                   return false;
                 }
-                
+
               /* save place -- match rest of string */
               /* if fail, reset to here */
               reset_mask = mp;
               reset_string = sn + 1;
-                
+
               mp = mp + 2;
               sp = sn + 1;
               state = NOTSTAR;
@@ -1375,17 +1375,17 @@ int strmask (char * str, char * mask)
 char *
 Strtok(char *line, char *sep)
 {
-    
+
     static char *p; /*!< current pointer position in input line*/
     static int state = NORMAL;
-    
+
     char *q; /*!< beginning of current field*/
-    
+
     if (line) { /* 1st invocation */
         p = line;
         state = NORMAL;
     }
-    
+
     q = p;
     while (state != EOB) {
         switch (state) {
@@ -1394,12 +1394,12 @@ Strtok(char *line, char *sep)
                     case 0: // at end of buffer
                         state = EOB; // set state to "end Of Buffer
                         return q;
-                        
+
                     case '"': // beginning of a quoted string
                         state = IN_STRING; // we're in a string
                         p++;
                         continue;
-                        
+
                     default:    // only a few special characters
                         if (strchr(sep, *p) == NULL) { // not a sep
                             p++; // goto next char
@@ -1411,36 +1411,36 @@ Strtok(char *line, char *sep)
                             return q; /* return field */
                         }
                 }
-                
+
             case IN_STRING:
                 if (*p == 0) {   /*!< incomplete quoted string */
                     state = EOB;
                     return q;
                 }
-                
+
                 if (*p != '"') { // not end of line and still in a string
                     p++;
                     continue;
                 }
                 state = NORMAL; /* end of quoted string */
                 p++;
-                
+
                 continue;
-                
+
             case EOB: /* just in case */
                 state = NORMAL;
                 return NULL;
-                
+
             default:
                 fprintf(stderr, "(Strtok):unknown state - %d",state);
                 state = EOB;
                 return NULL;
         }
-        
+
     }
-    
+
     return NULL; /* no more fields in buffer */
-    
+
 }
 #if 0
 bool startsWith(const char *str, const char *pre)
@@ -1459,7 +1459,7 @@ char *rtrim(char *s)
     if (! s)
       return s;
     int index;
-    
+
     //for (index = (int)strlen(s) - 1; index >= 0 && (s[index] == ' ' || s[index] == '\t'); index--)
     for (index = (int)strlen(s) - 1; index >= 0 && isspace(s[index]); index--)
     {
@@ -1476,11 +1476,11 @@ char *ltrim(char *s)
     char *p;
     if (s == NULL)
         return NULL;
-    
+
     //for (p = s; (*p == ' ' || *p == '\t') && *p != '\0'; p++)
     for (p = s; isspace(*p) && *p != '\0'; p++)
         ;
-    
+
     //strcpy(s, p);
     memmove(s, p, strlen(p) + 1);
     return(s);
@@ -1501,11 +1501,11 @@ stripquotes(char *s)
         return s;
     /*
      char *p;
-     
+
      while ((p = strchr(s, '"')))
      *p = ' ';
      strchop(s);
-     
+
      return s;
      */
     int nLast = (int)strlen(s) - 1;
@@ -1550,11 +1550,11 @@ stripquotes(char *s)
 void sim_printf( const char * format, ... )
 {
     char buffer[4096];
-    
+
     va_list args;
     va_start (args, format);
     vsnprintf (buffer, sizeof(buffer), format, args);
-    
+
 #ifdef USE_COOKED
     if (sim_is_running)
       sim_ttcmd ();
@@ -1577,7 +1577,7 @@ void sim_printf( const char * format, ... )
         } else
             break;
     }
- 
+
 #ifdef USE_COOKED
     if (sim_is_running)
       sim_ttrun ();
@@ -1607,7 +1607,7 @@ void sim_printf( const char * format, ... )
 // sim_printf --
 //   prints strings to logfile and stdout
 // sim_printl --
-//   prints strings to console logfile 
+//   prints strings to console logfile
 // sim_putchar/sim_os_putchar/sim_puts
 //   prints char/string to the console
 
@@ -1620,7 +1620,7 @@ void sim_printf (const char * format, ...)
     va_start (args, format);
     vsnprintf (buffer, sizeof (buffer), format, args);
     va_end (args);
-    
+
 #ifdef USE_COOKED
     if (sim_is_running)
       sim_ttcmd ();
@@ -1675,7 +1675,7 @@ void sim_printl (const char * format, ...)
     va_list args;
     va_start (args, format);
     vsnprintf (buffer, sizeof (buffer), format, args);
-    
+
     for (uint i = 0 ; i < sizeof (buffer); i ++)
       {
         if (! buffer [i])
@@ -1801,15 +1801,15 @@ int cfg_parse (const char * tag, const char * cptr, config_list_t * clist, confi
       {
         sim_printf ("error: %s: can't parse value\n", tag);
         goto done;
-      } 
+      }
 
 // XXX small bug; doesn't check for junk after number...
     if (n < p -> min || n > p -> max)
       {
         sim_printf ("error: %s: value out of range\n", tag);
         goto done;
-      } 
-    
+      }
+
     * result = n;
     return (int) (p - clist);
 
@@ -1858,7 +1858,7 @@ void cfg_parse_done (config_state_t * state)
 // And a special case:
 //
 //   \TZ replaced with the timezone string. Three characters are used
-//       to allow for space in the buffer. 
+//       to allow for space in the buffer.
 //
 //  all others silently ignored and left unprocessed
 //
@@ -1890,8 +1890,8 @@ char * strdupesc (const char * str)
           * p = '\r';
         else if (p [1] == 'e')       //  \e    control E; Multics escape char.
           * p = '\005';
-        else if (p [1] == '_')       //  \_    space; needed for leading or 
-                                     //        trailing spaces (simh parser 
+        else if (p [1] == '_')       //  \_    space; needed for leading or
+                                     //        trailing spaces (simh parser
                                      //        issue)
           * p = ' ';
         else if (p [1] == 'c')       //  \c    comma (simh parser issue)
@@ -2082,7 +2082,7 @@ int extractASCII36FromBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed
     //sim_printf ("store 0%08lo@0%012"PRIo64"\n", wordp - M, extr36 (bufp, wp));
 
     * wordp = extrASCII36 (bufp, wp);
-//if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\n", * wordp); 
+//if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\n", * wordp);
     //sim_printf ("* %06lo = %012"PRIo64"\n", wordp - M, * wordp);
     (* words_processed) ++;
 
@@ -2101,7 +2101,7 @@ int extractWord36FromBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed,
     //sim_printf ("store 0%08lo@0%012"PRIo64"\n", wordp - M, extr36 (bufp, wp));
 
     * wordp = extr36 (bufp, wp);
-//if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\n", * wordp); 
+//if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\n", * wordp);
     //sim_printf ("* %06lo = %012"PRIo64"\n", wordp - M, * wordp);
     (* words_processed) ++;
 
@@ -2216,7 +2216,7 @@ void currentTR (word27 * trunits, bool * ovf)
         return;
       }
     // difference in nSecs
-    unsigned long dns = (unsigned long) delta.tv_sec * 1000000000 + 
+    unsigned long dns = (unsigned long) delta.tv_sec * 1000000000 +
                         (unsigned long) delta.tv_nsec;
     // in Timer ticks
     unsigned long ticks = dns / 1953 /* 1953.125 */;

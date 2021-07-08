@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 // Interface for cfg_parse
@@ -84,7 +84,7 @@ char *rtrim(char *s);
 //   newdata = setbitsNN (data, i, n, val)
 //
 //       return 'data' with n bits of val inserted.
-// 
+//
 //           newdata = setbits36 (data, 0, 18, 1) --> move '1' into the high
 //                                                    18 bits.
 //

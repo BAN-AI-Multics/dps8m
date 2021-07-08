@@ -11,7 +11,7 @@
 #
 # This software is made available under the terms of the ICU
 # License, version 1.8.1 or later.  For more details, see the
-# LICENSE file at the top-level directory of this distribution.
+# LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
 
@@ -22,6 +22,10 @@ include ../Makefile.mk
 ifneq ($(W),)
 CFLAGS += -Wno-array-bounds -Wno-pointer-bool-conversion \
           -Wno-unknown-warning-option
+endif
+
+ifdef VER_CURRENT_TIME
+CFLAGS += -DVER_CURRENT_TIME="\"$(VER_CURRENT_TIME)\""
 endif
 
 ###############################################################################
