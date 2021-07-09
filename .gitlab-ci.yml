@@ -53,6 +53,7 @@ default:
     - gcc --version 2> /dev/null ||  true > /dev/null 2>&1
     - cc --version 2> /dev/null || true > /dev/null 2>&1
     - lsb_release -d 2> /dev/null || true > /dev/null 2>&1
+    - cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
@@ -62,6 +63,7 @@ stages:
   - build_linuxclang_lockless
   - build_linuxgcc_lockless
   - build_mingw64
+  - build_sourcekit
 
 ############################################################################
 
@@ -146,5 +148,20 @@ build mingw64:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8.exe
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
+
+############################################################################
+
+build sourcekit:
+  stage: build_sourcekit
+  only:
+    - master
+  script:
+    - *scriptCommon
+    - sh -x -c 'make reallyclean V=1 -j2 --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'make dist V=1 -j2 --output-sync --print-directory -k; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/sources.tar.gz
 
 ############################################################################
