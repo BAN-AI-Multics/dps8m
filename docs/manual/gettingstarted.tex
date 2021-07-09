@@ -2,3 +2,61 @@
 
 This section covers getting started with the simulator. First, getting a copy of the simulator (build or download) will be discussed.
 Then a review of a quick Multics startup will be shown.
+
+\subsection[Building the Simulator from Git]{BUILDING THE SIMULATOR FROM GIT}
+
+Building the simulator has been tested on a number of platforms. All of the instructions below are for Release 2.0 of the simulator.
+
+\subsubsection[Building dps8m under Ubuntu]{BUILDING DPS8M UNDER UBUNTU}
+
+This has been tested with Ubuntu 16.04 Xenial Xerus and 18.04 Bionic Beaver.
+
+\textbf{Install needed packages:}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{(for 16.04):    sudo apt install git clang} \\
+    \texttt{(for 18.04):    sudo apt install git clang libtool m4 automake}
+\end{adjustwidth}  
+
+\textbf{Build 'libuv'}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{git clone https://github.com/libuv/libuv.git} \\
+    \texttt{cd libuv} \\
+    \texttt{git checkout v1.23.0} \\
+    \texttt{sh autogen.sh} \\
+    \texttt{./configure} \\
+    \texttt{make} \\
+    \texttt{sudo make install} \\
+    \texttt{cd ..} \\
+\end{adjustwidth}  
+
+\textbf{Build dps8}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{git clone https://gitlab.com/dps8m/dps8m} \\
+    \texttt{cd dps8m} \\
+    \texttt{git checkout R2.0} \\
+    \texttt{make} \\
+\end{adjustwidth}  
+
+\textbf{Running the Simulator}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{(Copy 'src/dps8/dps8' to the desired working directory)} \\
+    \texttt{./dps8 [boot script]} \\
+\end{adjustwidth}  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
