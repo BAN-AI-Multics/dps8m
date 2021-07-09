@@ -28,7 +28,11 @@ OBJS = decContext.o decNumber.o
 
 ###############################################################################
 
-CFLAGS += -Wall 
+CFLAGS += -Wall -Wextra -Wno-uninitialized
+
+ifneq "$(findstring gcc,$(CC))" ""
+CFLAGS += -Wno-stringop-overread
+endif
 
 ###############################################################################
 
