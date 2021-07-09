@@ -553,7 +553,13 @@ static decFloat * decDivide(decFloat *result, const decFloat *dfl,
 
   // complete the bcdnum; quodigits is correct, so the position of
   // the first non-zero is known
-  num.msd=bcdacc+1+(msuq-lsuq+1)*9-quodigits;
+  // XXX(jhj): was num.msd=bcdacc+1+(msuq-lsuq+1)*9-quodigits;
+  num.msd=(&bcdacc[1]);
+  num.msd+=(msuq-lsuq+1)*9-quodigits;
+  // the above fixes a bounds checking error that triggers later,
+  // due to the way GCC parses this assignment, it doesn't grok the
+  // additional of 1, maybe due to some order of ops oddity? Anyway,
+  // there is no functional change with this patch.
   num.lsd=ub;
 
   // make exponent adjustments, etc
@@ -3038,7 +3044,7 @@ decFloat * decFloatQuantize(decFloat *result,
         case DEC_ROUND_FLOOR: {
           // same as _UP for negative numbers, and as _DOWN for positive
           // [negative reround cannot occur on 0]
-          if (sourhil&DECFLOAT_Sign && reround>0) bump=1;
+          if ((sourhil&DECFLOAT_Sign) && reround>0) bump=1;
           break;} // r-f
         case DEC_ROUND_05UP: {
           if (reround>0) { // anything out there is 'sticky'
