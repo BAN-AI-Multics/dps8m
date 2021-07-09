@@ -3711,6 +3711,7 @@ static CTAB dps8_cmds[] =
     {"POLL",                set_sys_polling_interval, 0, "Set polling interval in milliseconds", NULL, NULL },
     {"SLOWPOLL",            set_sys_slow_polling_interval, 0, "Set slow polling interval in polling intervals", NULL, NULL },
     {"CHECKPOLL",           set_sys_poll_check_rate, 0, "Set slow polling interval in polling intervals", NULL, NULL },
+    {"BURST",               burst_printer,           0, "Burst output from printrt", NULL, NULL },
 
 //
 // Debugging

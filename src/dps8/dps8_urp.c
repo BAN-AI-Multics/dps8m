@@ -304,7 +304,6 @@ static int urp_cmd (uint iomUnitIdx, uint chan)
         case 040: // CMD 40 Reset status
           {
             p -> stati = 04000;
-            p -> initiate = false;
             p -> isRead = false;
             sim_debug (DBG_NOTIFY, & urp_dev, "Reset status %d\n", urp_unit_num);
           }
@@ -325,8 +324,10 @@ static int urp_cmd (uint iomUnitIdx, uint chan)
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
 
-    if (p -> IDCW_CHAN_CMD == 0)
-      return IOM_CMD_NO_DCW; // don't do DCW list
+// POLTS sends all of its DCW lists with IDCW_CHAN_CMD set to 0.
+// Removing this test fixs POLTS and does not seem to break Multics
+    //if (p -> IDCW_CHAN_CMD == 0)
+      //return IOM_CMD_NO_DCW; // don't do DCW list
     return IOM_CMD_OK;
   }
 

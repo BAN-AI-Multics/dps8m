@@ -673,6 +673,7 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     word36 seekData;
     uint count;
     iom_indirect_data_service (iomUnitIdx, chan, & seekData, &count, false);
+    p -> initiate = false;
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
@@ -748,6 +749,7 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     word36 seekData;
     uint count;
     iom_indirect_data_service (iomUnitIdx, chan, & seekData, &count, false);
+    p -> initiate = false;
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
@@ -923,9 +925,9 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
           }
         iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                 & wordsProcessed, true);
+        p -> initiate = false;
       } while (p -> DDCW_22_23_TYPE != 0); // not IOTD
     p -> stati = 04000;
-    p -> initiate = false;
     return 0;
   }
 
@@ -1017,6 +1019,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
         word36 buffer [tally];
         iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                 & wordsProcessed, false);
+        p -> initiate = false;
 // XXX is this losing information?
         wordsProcessed = 0;
         for (uint i = 0; i < tally; i ++)
@@ -1048,7 +1051,6 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
  
       } while (p -> DDCW_22_23_TYPE != 0); // not IOTD
     p -> stati = 04000;
-    p -> initiate = false;
     return 0;
   }
 
@@ -1092,7 +1094,7 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     if (tally != 4)
       {
-        sim_debug (DBG_ERR, &iom_dev, 
+        sim_debug (DBG_ERR, &dsk_dev, 
                    "%s: RSR expected tally of 4, is %d\n",
                    __func__, tally);
       }
@@ -1114,9 +1116,10 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
     word36 buffer [tally];
     memset (buffer, 0, sizeof (buffer));
     buffer [0] = SIGN36;
-    uint wordsProcessed = 0;
+    uint wordsProcessed = tally;
     iom_indirect_data_service (iomUnitIdx, chan, buffer,
                             & wordsProcessed, true);
+    p -> initiate = false;
 #else
     for (uint i = 0; i < tally; i ++)
       //M [daddr + i] = 0;
@@ -1129,7 +1132,6 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
     p -> stati = 04000;
     if (! unitp -> fileref)
       p -> stati = 04240; // device offline
-    p -> initiate = false;
     return 0;
   }
 
@@ -1287,6 +1289,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
     uint wordsProcessed = tally;
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                             & wordsProcessed, true);
+    p -> initiate = false;
 #if 0
 #if 1
     word36 buffer [tally];
@@ -1295,6 +1298,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
     uint wordsProcessed = 0;
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                             & wordsProcessed, true);
+    p -> initiate = false;
 #else
     for (uint i = 0; i < tally; i ++)
       //M [daddr + i] = 0;
@@ -1308,7 +1312,6 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
     p -> stati = 04000;
     if (! unitp -> fileref)
       p -> stati = 04240; // device offline
-    p -> initiate = false;
     return 0;
   }
 
@@ -1377,6 +1380,7 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
     uint wordsProcessed = 0;
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                             & wordsProcessed, true);
+    p -> initiate = false;
 #else
     for (uint i = 0; i < tally; i ++)
       //M [daddr + i] = 0;
@@ -1390,7 +1394,6 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
     p -> stati = 04000;
     if (! unitp -> fileref)
       p -> stati = 04240; // device offline
-    p -> initiate = false;
     return 0;
   }
 
@@ -1556,7 +1559,6 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
         case 040: // CMD 40 Reset status
           {
             p -> stati = 04000;
-            p -> initiate = false;
             p -> isRead = false;
             //if (! unitp -> fileref)
               //p -> stati = 04240; // device offline
