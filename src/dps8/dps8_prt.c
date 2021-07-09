@@ -49,6 +49,36 @@
  at http://example.org/project/LICENSE.
  */
 
+// printer_types.incl.pl1
+//
+// dcl  models (13) fixed bin /* table of printer model numbers */
+//     (202, 300, 301, 302, 303, 304, 401, 402, 901, 1000, 1200, 1201, 1600);
+//
+// dcl  types (13) fixed bin /* table of corresponding printer types */
+//    (  1,   2,   2,   2,   3,   3,   4,   4,   4,    4,    4,    4,    4);
+// 
+// dcl  WRITE (4) bit (6) /* printer write edited commands */
+//     ("011000"b, "011000"b, "011100"b, "011100"b);
+// 
+// dcl  WRITE_NE_SLEW (4) bit (6) /* printer write non-edited commands */
+//     ("001001"b, "001001"b, "001101"b, "001101"b);
+// 
+// dcl  LOAD_IMAGE (4) bit (6) /* printer load image buffer commands */
+//     ("000000"b, "001100"b, "000001"b, "000001"b);
+// 
+// dcl  LOAD_VFC (4) bit (6) /* printer load VFC image commands */
+//     ("000000"b, "000000"b, "000000"b, "000101"b);
+// 
+// dcl  READ_STATUS (4) bit (6) /* printer read detailed status command */
+//     ("000000"b, "000000"b, "000000"b, "000011"b);
+
+// AN87 only defines commands for
+//   PRT203/303, PRU1200/1600
+// and
+//   PRT202/300
+
+
+
 
 #define N_PRT_UNITS 1 // default
 
@@ -69,10 +99,12 @@ static t_stat prt_set_ready (UNIT * uptr, UNUSED int32 value,
                              UNUSED const char * cptr,
                              UNUSED void * desc);
 
+static t_stat prt_show_device_model (FILE *st, UNIT *uptr, int val, const void *desc);
+static t_stat prt_set_device_model (UNIT * uptr, int32 value, const char * cptr, void * desc);
 
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE )
-UNIT prt_unit [N_PRT_UNITS_MAX] =
+UNIT prt_unit[N_PRT_UNITS_MAX] =
   {
     {UDATA (NULL, UNIT_FLAGS, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL},
     {UDATA (NULL, UNIT_FLAGS, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL},
@@ -112,7 +144,7 @@ UNIT prt_unit [N_PRT_UNITS_MAX] =
 
 #define PRT_UNIT_NUM(uptr) ((uptr) - prt_unit)
 
-static DEBTAB prt_dt [] =
+static DEBTAB prt_dt[] =
   {
     { "NOTIFY", DBG_NOTIFY, NULL },
     { "INFO", DBG_INFO, NULL },
@@ -125,7 +157,7 @@ static DEBTAB prt_dt [] =
 
 #define UNIT_WATCH UNIT_V_UF
 
-static MTAB prt_mod [] =
+static MTAB prt_mod[] =
   {
     { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
@@ -156,7 +188,18 @@ static MTAB prt_mod [] =
       "NAME",         /* match string */
       prt_set_device_name, /* validation routine */
       prt_show_device_name, /* display routine */
-      "Select the boot drive", /* value descriptor */
+      "Select the printer name", /* value descriptor */
+      NULL          // help
+    },
+
+    {
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
+      0,            /* match */
+      "MODEL",     /* print string */
+      "MODEL",         /* match string */
+      prt_set_device_model, /* validation routine */
+      prt_show_device_model, /* display routine */
+      "Select the printer model", /* value descriptor */
       NULL          // help
     },
     {
@@ -215,16 +258,33 @@ DEVICE prt_dev = {
 
 typedef struct
   {
-    char device_name [MAX_DEV_NAME_LEN];
+    char device_name[MAX_DEV_NAME_LEN];
     int prtfile; // fd
     //bool last;
     bool cachedFF;
     bool split;
+    int model;
   } prt_state_t;
 
-static prt_state_t prt_state [N_PRT_UNITS_MAX];
+static prt_state_t prt_state[N_PRT_UNITS_MAX];
 
 static char prt_path[1025];
+
+#define N_MODELS 13
+static const char * model_names[N_MODELS] =
+  {
+    "202", "300", "301", "302", "303", "304", "401", "402", "901", "1000", "1200", "1201", "1600"
+  };
+#define MODEL_1600 12
+
+static const int model_type[N_MODELS] =
+  {   1,     2,     2,     2,     3,     3,     4,     4,     4,      4,      4,      4,      4};
+
+static const uint8 newlines[128] = { [0 ... 127] = '\n' };
+static const uint8 spaces[128] = { [0 ... 127] = ' ' };
+static const uint8 formfeed[1] = { '\f' };
+static const uint8 crlf[4] = { '\r', '\n', '\r', '\n' };
+static const uint8 cr[2] = { '\r', '\n' };
 
 /*
  * prt_init()
@@ -238,7 +298,10 @@ void prt_init (void)
     memset (prt_path, 0, sizeof (prt_path));
     memset (prt_state, 0, sizeof (prt_state));
     for (int i = 0; i < N_PRT_UNITS_MAX; i ++)
-      prt_state [i] . prtfile = -1;
+      {
+        prt_state[i].prtfile = -1;
+        prt_state[i].model = MODEL_1600;
+      }
   }
 
 static t_stat prt_reset (UNUSED DEVICE * dptr)
@@ -246,8 +309,8 @@ static t_stat prt_reset (UNUSED DEVICE * dptr)
 #if 0
     for (uint i = 0; i < dptr -> numunits; i ++)
       {
-        // sim_prt_reset (& prt_unit [i]);
-        // sim_cancel (& prt_unit [i]);
+        // sim_prt_reset (& prt_unit[i]);
+        // sim_cancel (& prt_unit[i]);
       }
 #endif
     return SCPE_OK;
@@ -259,7 +322,7 @@ static word9 gc (word36 * b, uint os)
   {
     uint wordno = os / 4;
     uint charno = os % 4;
-    return (word9) getbits36_9 (b [wordno], charno * 9);
+    return (word9) getbits36_9 (b[wordno], charno * 9);
   }
 
 // Don't know what the longest user id is...
@@ -285,9 +348,9 @@ static int parseID (word36 * b, uint tally, char * qno, char * name)
         word9 ch = gc (b, 2 + i);
         if (ch < '0' || ch > '9')
           return 0;
-        qno [i] = (char) ch;
+        qno[i] = (char) ch;
       }
-    qno [5] = 0;
+    qno[5] = 0;
     if (gc (b, 7) != 037)
       return 0;
     //if (gc (b, 8) != 005)
@@ -299,9 +362,9 @@ static int parseID (word36 * b, uint tally, char * qno, char * name)
           break;
         if (! isprint (ch))
           return 0;
-        name [i] = (char) ch;
+        name[i] = (char) ch;
       }
-    name [i] = 0;
+    name[i] = 0;
     return IOM_CMD_IGNORED;
   }
 
@@ -390,25 +453,28 @@ static int mkstemps (char *pattern, int suffix_len)
 }
 #endif
 
+// 0 ok
+// -1 unable to open print file
+// -2 unable to write to print file
+// -3 form feed cached, no i/o done.
+
 static int openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
   {
-//sim_printf ("openPrtFile\n");
-    if (prt_state [prt_unit_num] . prtfile != -1)
+    if (prt_state[prt_unit_num].prtfile != -1)
       return 0;
 
-// The first (spooled) write is a formfeed; special case it and delay opening until
-// the next line
+// The first (spooled) write is a formfeed; special case it and delay opening
+//  until the next line
 
-//sim_printf ("openPrtFile 2 %012"PRIo64"\n", buffer [0]);
-    if (tally == 1 && buffer [0] == 0014013000000llu)
+    if (tally == 1 && buffer[0] == 0014013000000llu)
       {
-        prt_state [prt_unit_num] . cachedFF = true;
-        return 0;
+        prt_state[prt_unit_num].cachedFF = true;
+        return -3;
       }
 
-    char qno [6], name [LONGEST + 1];
+    char qno[6], name[LONGEST + 1];
     int rc = parseID (buffer, tally, qno, name);
-    char template [129 + LONGEST];
+    char template[129 + LONGEST];
     char unit_designator = 'a' + (char) prt_unit_num;
     char split_prefix[6];
     split_prefix[0] = 0;
@@ -420,22 +486,20 @@ static int openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
     else
       sprintf (template, "%s%sprt%c.spool.%s.%s.XXXXXX.prt", prt_path, split_prefix, unit_designator, qno, name);
 
-    //sim_printf("++++ openPrtFile: %s\n", template);
-
-    prt_state [prt_unit_num] . prtfile = mkstemps (template, 4);
+    prt_state[prt_unit_num].prtfile = mkstemps (template, 4);
     if (prt_state[prt_unit_num].prtfile == -1)
       {
         sim_warn ("Unable to open printer file '%s', errno %d\n", template, errno);
         return -1;
       }
-    if (prt_state [prt_unit_num] . cachedFF)
+    if (prt_state[prt_unit_num].cachedFF)
       {
-        // 014 013 is slew to 013 (top of odd page?); just do a ff
-        //char cache [2] = {014, 013};
-        //write (prt_state [prt_unit_num] . prtfile, & cache, 2);
-        char cache = '\f';
-        write (prt_state [prt_unit_num] . prtfile, & cache, 1);
-        prt_state [prt_unit_num] . cachedFF = false;
+        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+        if (n_write != 1)
+          {
+            return -2;
+          }
+        prt_state[prt_unit_num].cachedFF = false;
       }
     return 0;
   }
@@ -445,322 +509,1063 @@ static int eoj (word36 * buffer, uint tally)
   {
     if (tally < 3)
       return 0;
-    if (getbits36_9 (buffer [0], 0) != 037)
+    if (getbits36_9 (buffer[0], 0) != 037)
       return 0;
-    if (getbits36_9 (buffer [0], 9) != 014)
+    if (getbits36_9 (buffer[0], 9) != 014)
       return 0;
-    word9 ch = getbits36_9 (buffer [0], 18);
+    word9 ch = getbits36_9 (buffer[0], 18);
     if (ch < '0' || ch > '9')
       return 0;
-    ch = getbits36_9 (buffer [0], 27);
+    ch = getbits36_9 (buffer[0], 27);
     if (ch < '0' || ch > '9')
       return 0;
-    ch = getbits36_9 (buffer [1], 0);
+    ch = getbits36_9 (buffer[1], 0);
     if (ch < '0' || ch > '9')
       return 0;
-    ch = getbits36_9 (buffer [1], 9);
+    ch = getbits36_9 (buffer[1], 9);
     if (ch < '0' || ch > '9')
       return 0;
-    ch = getbits36_9 (buffer [1], 18);
+    ch = getbits36_9 (buffer[1], 18);
     if (ch < '0' || ch > '9')
       return 0;
-    if (getbits36_9 (buffer [1], 27) != 037)
+    if (getbits36_9 (buffer[1], 27) != 037)
       return 0;
-    if (getbits36_9 (buffer [2], 0) != 005)
+    if (getbits36_9 (buffer[2], 0) != 005)
       return 0;
     return IOM_CMD_IGNORED;
   }
 
-static int prt_cmd (uint iomUnitIdx, uint chan)
+// Based on prt_status_table_.alm
+//  I think that "substat_entry a,b,c,d"
+//    a  character number (6 bit chars; 6/word))
+//    b  bit pattern
+// so
+//   substat_entry       1,000000,,(Normal)
+// means "a 0 in char 1" means normal.
+//
+
+
+static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint chan)
   {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-    uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    uint devUnitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
-    UNIT * unitp = & prt_unit [devUnitIdx];
-    int prt_unit_num = (int) PRT_UNIT_NUM (unitp);
+    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+    //UNIT * unitp = & prt_unit[dev_unit_idx];
 
-    switch (p -> IDCW_DEV_CMD)
+// Process DDCW
+
+    bool ptro;
+    bool send;
+    bool uff;
+    int rc = iom_list_service (iom_unit_idx, chan, & ptro, & send, & uff);
+    if (rc < 0)
       {
-        case 000: // CMD 00 Request status
-          {
-            p -> stati = 04000;
-            sim_debug (DBG_NOTIFY, & prt_dev, "Request status %d\n", prt_unit_num);
-          }
-          break;
+        sim_printf ("%s readStatusRegister list service failed\n", __func__);
+        return -1;
+      }
+    if (uff)
+      {
+        sim_printf ("%s ignoring uff\n", __func__); // XXX
+      }
+    if (! send)
+      {
+        sim_printf ("%s nothing to send\n", __func__);
+        return 1;
+      }
+    if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
+      {
+        sim_printf ("%s expected DDCW\n", __func__);
+        return -1;
+      }
 
 
-        case 001: // CMD 001 -- load image buffer
-          {
-            sim_debug (DBG_NOTIFY, & prt_dev, "load image buffer\n");
-            p -> isRead = false;
-            // Get the DDCW
+    uint tally = p -> DDCW_TALLY;
 
-            bool ptro, send, uff;
+    if (tally != 4)
+      {
+        sim_debug (DBG_ERR, &prt_dev, 
+                   "%s: expected tally of 4, is %d\n",
+                   __func__, tally);
+      }
+    if (tally == 0)
+      {
+        sim_debug (DBG_DEBUG, & prt_dev,
+                   "%s: Tally of zero interpreted as 010000(4096)\n",
+                   __func__);
+        tally = 4096;
+      }
 
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-            if (rc < 0)
-              {
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                sim_printf ("%s list service failed\n", __func__);
-                break;
-              }
-            if (uff)
-              {
-                sim_printf ("%s ignoring uff\n", __func__); // XXX
-              }
-            if (! send)
-              {
-                sim_printf ("%s nothing to send\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-            if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
-              {
-                sim_printf ("%s expected DDCW\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
+// XXX need status register data format 
+// system_library_tools/source/bound_io_tools_.s.archive/analyze_detail_stat_.pl1  anal_fips_disk_().
 
-            // We don't actually have a print chain, so just pretend we loaded the image data
-            p -> stati = 04000; 
-          }
-          break;
+#ifdef TESTING
+    sim_warn ("Need status register data format; tally %d\n", tally);
+#endif
+#if 1
+    word36 buffer[tally];
+    memset (buffer, 0, sizeof (buffer));
+    // word 1 char 1   0: normal
+    // word 1 char 2   0: device not busy
+    // word 1 char 3   0: no device attention bit set
+    // word 1 char 4   0: no device data alert
+    // word 1 char 5   0: unused
+    // word 1 char 6   0: no command reject
+    //buffer[0] = 0;
+    // word 2 char 1 (7) 0: unused
+    // word 2 char 2 (9) 0: unused
+    // word 2 char 3 (10) 0: unused
+    // word 2 char 4 (11) 0: no MPC attention
+    // word 2 char 5 (12) 0: no MPC data alert
+    // word 2 char 6 (13) 0: unused
+    //buffer[2] = 0;
+    // word 3 char 1 (14) 0: no MPC command reject
+    // word 3 char 2 (15) 0: unused
+    // word 3 char 3 (16) 0: unused
+    // word 3 char 4 (17) 0: unused
+    // word 3 char 5 (18) 0: unused
+    // word 3 char 6 (19) 0: unused
+    //buffer[3] = 0;
+    uint wordsProcessed = tally;
+    iom_indirect_data_service (iom_unit_idx, chan, buffer,
+                            & wordsProcessed, true);
+    p -> initiate = false;
+#else
+    for (uint i = 0; i < tally; i ++)
+      //M[daddr + i] = 0;
+      core_write (daddr + i, 0, "Disk status register");
 
+    //M[daddr] = SIGN36;
+    core_write (daddr, SIGN36, "Disk status register");
+#endif
+    p -> charPos = 0;
+    p -> stati = 04000;
+    return 0;
+  }
 
+// 0 OK
+// -1 Can't open print file
+// -2 Can't write to print file
 
-// load_vfc: entry (pip, pcip, iop, rcode);
+static int print_buf (int prt_unit_num, bool is_BCD, bool is_edited, int slew, word36 * buffer, uint tally)
+  {
+// derived from pr2_conv_$lower_case_table
 // 
-// dcl 1 vfc_image aligned,                                    /* print VFC image */
-//    (2 lpi fixed bin (8),                                    /* lines per inch */
-//     2 image_length fixed bin (8),                           /* number of lines represented by image */
-//     2 toip,                                                 /* top of inside page info */
-//       3 line fixed bin (8),                                 /* line number */
-//       3 pattern bit (9),                                    /* VFC pattern */
-//     2 boip,                                                 /* bottom of inside page info */
-//       3 line fixed bin (8),                                 /* line number */
-//       3 pattern bit (9),                                    /* VFC pattern */
-//     2 toop,                                                 /* top of outside page info */
-//       3 line fixed bin (8),                                 /* line number */
-//       3 pattern bit (9),                                    /* VFC pattern */
-//     2 boop,                                                 /* bottom of outside page info */
-//       3 line fixed bin (8),                                 /* line number */
-//       3 pattern bit (9),                                    /* VFC pattern */
-//     2 pad bit (18)) unal;                                   /* fill out last word */
+//        0    1    2    3    4    5    6    7
+// 000   '0'  '1'  '2'  '3'  '4'  '5'  '6'  '7'
+// 010   '8'  '9'  '{'  '#'  '?'  ':'  '>'
+// 020   ' '  'a'  'b'  'c'  'd'  'e'  'f'  'g'
+// 030   'h'  'i'  '|'  '.'  '}'  '('  '<'  '`'
+// 040   '^'  'j'  'k'  'l'  'm'  'm'  'o'  'p'
+// 050   'q'  'r'  '_'  '$'  '*'  ')'  ';'  '\''
+// 060   '+'  '/'  's'  't'  'u'  'v'  'w'  'x'
+// 070   'y'  'z'  '~'  ','  '!'  '='  '"'
+
+    static char * bcd_lc =
+      "01234567"
+      "89{#?;>?" 
+      " abcdefg"
+      "hi|.}(<\\"
+      "^jklmnop"
+      "qr_$*);'"
+      "+/stuvwx"
+      "yz~,!=\"!"; // '!' is actuallt the escape character, caught above
+
+// derived from pr2_conv_$upper_case_table
 // 
-// dcl (toip_pattern init ("113"b3),                           /* top of inside page pattern */
-//      toop_pattern init ("111"b3),                           /* top of outside page pattern */
-//      bop_pattern init ("060"b3))                            /* bottom of page pattern */
-//      bit (9) static options (constant);
+//        0    1    2    3    4    5    6    7
+// 000   '0'  '1'  '2'  '3'  '4'  '5'  '6'  '7'
+// 010   '8'  '9'  '['  '#'  '@'  ':'  '>'  
+// 020   ' '  'A'  'B'  'C'  'D'  'E'  'F'  'G'
+// 030   'H'  'I'  '&'  '.'  ']'  '('  '<'  '`'
+// 040   '^'  'J'  'K'  'L'  'M'  'N'  'O'  'P'
+// 050   'Q'  'R'  '-'  '$'  '*'  ')'  ';'  '\''
+// 060   '+'  '/'  'S'  'T'  'U'  'V'  'W'  'X'
+// 070   'Y'  'Z'  '\\' ','  '%'  '='  '"'
+    static char * bcd_uc =
+      "01234567"
+      "89[#@;>?"  // '?' is actully in the lower case table; pr2_conv_ never generates 017 in upper case mode
+      " ABCDEFG"
+      "HI&.](<\\"
+      "^JKLMNOP"
+      "QR-$*);'"
+      "+/STUVWX"
+      "YZ_,%=\"!"; // '!' is actuallt the escape character, caught above
 
+// Used for nonedited; has question mark.
+    static char * bcd =
+      "01234567"
+      "89[#@;> "  // 'POLTS says that 17 is question mark for nonedited
+      " ABCDEFG"
+      "HI&.](<\\"
+      "^JKLMNOP"
+      "QR-$*);'"
+      "+/STUVWX"
+      "YZ_,%=\"!";
 
-        case 005: // CMD 001 -- load vfc image
+    if (prt_state[prt_unit_num].prtfile == -1)
+      {
+        int rc = openPrtFile (prt_unit_num, buffer, tally);
+        if (rc < 0) // Can't open or can't write to print file; or ff cached
           {
-            sim_debug (DBG_NOTIFY, & prt_dev, "load vfc image\n");
-            p -> isRead = false;
-
-            // Get the DDCW
-
-            bool ptro, send, uff;
-
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-            if (rc < 0)
-              {
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                sim_printf ("%s list service failed\n", __func__);
-                break;
-              }
-            if (uff)
-              {
-                sim_printf ("%s ignoring uff\n", __func__); // XXX
-              }
-            if (! send)
-              {
-                sim_printf ("%s nothing to send\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-            if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
-              {
-                sim_printf ("%s expected DDCW\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-
-            // We don't actually have VFC, so just pretend we loaded the image data
-            p -> stati = 04000; 
+            return rc == -3 ? 0 : rc;
           }
-          break;
+      }
 
+#if 0
+sim_printf ("%s %s %d %u\n", is_BCD ? "BCD" : "ASCII", is_edited ? "edited" : "nonedited", slew, tally);
+for (uint i = 0; i < tally; i ++)
+  {
+    sim_printf ("%012llo \"", buffer[i]);
+    for (uint j = 0; j < 4; j ++)
+      {
+        uint8_t ch = (uint8_t) ((buffer[i] >> ((3 - j) * 9)) & 0177);
+        sim_printf ("%c", isprint (ch) ? ch : '?');
+      }
+    sim_printf ("\" '");
+    for (uint j = 0; j < 6; j ++)
+      {
+        static char * bcd =
+          "01234567"
+          "89[#@;>?"
+          " ABCDEFG"
+          "HI&.](<\\"
+          "^JKLMNOP"
+          "QR-$*);'"
+          "+/STUVWX"
+          "YZ_,%=\"!"; 
+        uint8_t ch = (uint8_t) bcd[(buffer[i] >> ((5 - j) * 6)) & 0077];
+        sim_printf ("%c", isprint (ch) ? ch : '?');
+      }
+    sim_printf ("'\n");
+   }
+#endif
 
-
-        case 034: // CMD 034 -- print edited ascii
+    if (slew == -1)
+      {
+        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+        if (n_write != 1)
           {
-            p -> isRead = false;
-            p -> initiate = false;
+            return -2;
+          }
+      }
+    else if (slew)
+      {
+        for (int i = 0; i < slew; i ++)
+          {
+            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, crlf, 2);
+            if (n_write != 2)
+              {
+                return -2;
+              }
+          }
+      }
+// Not needed; always slew back to column 0 when done.
+//    else
+//      {
+//        write (prt_state[prt_unit_num].prtfile, cr, 1);
+//      }
+
+
+    if (tally)
+      {
+            if (is_BCD)
+          {
+            uint nchars = tally * 6;
+    #define get_BCD_char(i) ((uint8_t) ((buffer[i / 6] >> ((5 - i % 6) * 6)) & 077))
+    
+            if (! is_edited)
+              { // Easy case
+                uint8 bytes[nchars];
+                for (uint i = 0; i < nchars; i ++)
+                  {
+                    bytes[i] = (uint8_t) bcd_uc [get_BCD_char (i)];
+                  }
+                ssize_t n_write = write (prt_state[prt_unit_num].prtfile, bytes, nchars);
+                if (n_write != nchars)
+                  {
+                    return -2;
+                  }
+              }
+            else // edited BCD
+              {
+                //bool BCD_case = false; // false is upper case
+                // POLTS implies 3 sets
+                // 0 - initial set, upper case, no question mark.
+                // 1  - first change: lower case, question mark.
+                // 2  - second change: upper case, question mark.
+                int BCD_cset = 0;
+                char * table[3] = { bcd, bcd_lc, bcd_uc };
+    
+        
+                for (uint i = 0; i < nchars; i ++)
+                  {
+                    uint8_t ch = get_BCD_char (i);
+// Looking at pr2_conv_.alm, it looks like the esc char is 77
+//  77 n  if n is
+//      0 - 017, slew n lines  (0 is just CR)
+//      020 generate slew to top of page,
+//      021 generate slew to top of inside page,
+//      022 generate slew to top of outside page,
+//      041 to 057, generate (n-040) *8 spaces
+
+                    if (ch == 077)
+                      {
+                        i ++;
+                        uint8_t n = get_BCD_char (i);
+
+                        if (n == 077) // pr2_conv_ sez ESC ESC is case shift
+                          {
+                            //BCD_case = ! BCD_case;
+                            switch (BCD_cset)
+                              {
+                                case 0: BCD_cset = 1; break; // default to lower
+                                case 1: BCD_cset = 2; break; // lower to upper
+                                case 2: BCD_cset = 1; break; // upper to lower
+                              }
+                          }
+                        else if (n >= 041 && n <= 057)
+                          {
+                            int nchars = (n - 040) * 8;
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, spaces, nchars);
+                            if (n_write != nchars)
+                              {
+                                return -2;
+                              }
+                          }
+                        else if (n >= 020 && n <= 022)
+                          {
+                            // XXX not distinguishing between top of page, inside page, outside page
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+                            if (n_write != 1)
+                              {
+                                return -2;
+                              }
+                          }
+                        else if (n == 0) // slew 0 lines is just CR
+                          {
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, cr, 1);
+                            if (n_write != 1)
+                              {
+                                return -2;
+                              }
+                          }
+                        else if (n <= 017)
+                          {
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, newlines, n);
+                            if (n_write != n)
+                              {
+                                return -2;
+                              }
+                          }
+                        else
+                          {
+#ifdef TESTING
+                            sim_warn ("Printer BCD edited ESC %u. %o ignored\n", n, n);
+#endif
+                          }
+
+                      }
+                    else // not escape
+                      {
+                        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, table[BCD_cset] + ch, 1);
+                        if (n_write != 1)
+                          {
+                            return -2;
+                          }
+                      }
+                  } // for i to nchars
+              } // edited BCD
+          } // BCD
+        else // ASCII
+          {
+            uint nchars = tally * 4;
+#define get_ASCII_char(i) ((uint8_t) ((buffer[i / 4] >> ((3 - i % 4) * 9)) & 0377))
+
+            if (! is_edited)
+              { // Easy case
+                uint8 bytes[nchars];
+                uint nbytes = 0;
+                for (uint i = 0; i < nchars; i ++)
+                  {
+                    uint8_t ch = get_ASCII_char (i);
+                    if (isprint (ch))
+                      bytes[nbytes ++] = ch;
+                  }
+                ssize_t n_write = write (prt_state[prt_unit_num].prtfile, bytes, nbytes);
+                if (n_write != nbytes)
+                  {
+                    return -2;
+                  }
+              }
+            else // edited ASCII
+              {
+                uint col = 0;
+                for (uint i = 0; i < tally * 4; i ++)
+                  {
+                    uint8_t ch = get_ASCII_char (i);
+                    if (ch == 037) // insert n spaces
+                      {
+                        i ++;
+                        uint8_t n = get_ASCII_char (i);
+                        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, spaces, n);
+                        if (n_write != n)
+                          {
+                            return -2;
+                          }
+                        col += n;
+                      }
+                    else if (ch == 013) // insert n new lines
+                      {
+                        i ++;
+                        uint8_t n = get_ASCII_char (i);
+                        if (n)
+                           {
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, newlines, n);
+                            if (n_write != n)
+                              {
+                                return -2;
+                              }
+                          }
+                        else // 0 lines; just slew to beginning of line
+                          {
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, cr, 1);
+                            if (n_write != 1)
+                              {
+                                return -2;
+                              }
+                          }
+                        col = 0;
+                      }
+                    else if (ch == 014) // slew page
+                      {
+                        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, formfeed, 1);
+                        if (n_write != 1)
+                          {
+                            return -2;
+                          }
+                        col = 0;
+                      }
+                    else if (ch == 011) // horizontal tab
+                      {
+                        i ++;
+                        uint8_t n = get_ASCII_char (i);
+                        if (col < n)
+                          {
+                            ssize_t n_write = write (prt_state[prt_unit_num].prtfile, spaces, n - col);
+                            if (n_write != n - col)
+                              {
+                                return -2;
+                              }
+                            col += n;
+                          }   
+                      }
+                    else if (isprint (ch))
+                      {
+                        ssize_t n_write = write (prt_state[prt_unit_num].prtfile, & ch, 1);
+                        if (n_write != 1)
+                          {
+                            return -2;
+                          }
+                        col ++;
+                      }
+                  } // for
+              } // edited ASCII
+          } // ASCII
+      } // tally
+
+// Slew back to beginning of line
+    ssize_t n_write = write (prt_state[prt_unit_num].prtfile, cr, 1);
+    if (n_write != 1)
+      {
+        return -2;
+      }
+
+    if ((! is_BCD) && eoj (buffer, tally))
+      {
+        close (prt_state[prt_unit_num].prtfile);
+        prt_state[prt_unit_num].prtfile = -1;
+      }
+    return 0;
+  }
+
+static int print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, bool is_BCD, bool is_edited, int slew)
+  {
+    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+    p->isRead = false;
 
 // The EURC MPC printer controller sets the number of DCWs in the IDCW and
 // ignores the IOTD bits in the DDCWs.
 
-            uint ddcwCnt = p -> IDCW_COUNT;
-            // Process DDCWs
+    uint ddcwCnt = p->IDCW_COUNT;
+    // Process DDCWs
 
-            bool ptro, send, uff;
-            for (uint ddcwIdx = 0; ddcwIdx < ddcwCnt; ddcwIdx ++)
-              {
-                int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-                if (rc < 0)
-                  {
-                    p -> stati = 05001; // BUG: arbitrary error code; config switch
-                    sim_printf ("%s list service failed\n", __func__);
-                    return IOM_CMD_ERROR;
-                  }
-                if (uff)
-                  {
-                    sim_printf ("%s ignoring uff\n", __func__); // XXX
-                  }
-                if (! send)
-                  {
-                    sim_printf ("%s nothing to send\n", __func__);
-                    p -> stati = 05001; // BUG: arbitrary error code; config switch
-                    return IOM_CMD_IGNORED;
-                  }
-                if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
-                  {
-                    sim_printf ("%s expected DDCW\n", __func__);
-                    p -> stati = 05001; // BUG: arbitrary error code; config switch
-                    return IOM_CMD_ERROR;
-                  }
+    bool ptro, send, uff;
+    for (uint ddcwIdx = 0; ddcwIdx < ddcwCnt; ddcwIdx ++)
+      {
+        int rc2 = iom_list_service (iom_unit_idx, chan, & ptro, & send, & uff);
+        if (rc2 < 0)
+          {
+            p -> stati = 05001; // BUG: arbitrary error code; config switch
+            sim_printf ("%s list service failed\n", __func__);
+            return IOM_CMD_ERROR;
+          }
+        if (uff)
+          {
+            sim_printf ("%s ignoring uff\n", __func__); // XXX
+          }
+        if (! send)
+          {
+            sim_printf ("%s nothing to send\n", __func__);
+            p -> stati = 05001; // BUG: arbitrary error code; config switch
+            return IOM_CMD_IGNORED;
+          }
+        if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
+          {
+            sim_printf ("%s expected DDCW\n", __func__);
+            p -> stati = 05001; // BUG: arbitrary error code; config switch
+            return IOM_CMD_ERROR;
+          }
 
-                uint tally = p -> DDCW_TALLY;
-                sim_debug (DBG_DEBUG, & prt_dev,
-                           "%s: Tally %d (%o)\n", __func__, tally, tally);
+        uint tally = p -> DDCW_TALLY;
+        sim_debug (DBG_DEBUG, & prt_dev,
+                   "%s: Tally %d (%o)\n", __func__, tally, tally);
 
-                if (tally == 0)
-                  tally = 4096;
+        if (tally == 0)
+          tally = 4096;
 
-                // Copy from core to buffer
-                word36 buffer [tally];
-                uint wordsProcessed = 0;
-                iom_indirect_data_service (iomUnitIdx, chan, buffer,
-                                        & wordsProcessed, false);
+        // Copy from core to buffer
+        word36 buffer[tally];
+        uint wordsProcessed = 0;
+        iom_indirect_data_service (iom_unit_idx, chan, buffer,
+                                & wordsProcessed, false);
+        p -> initiate = false;
 
 
 #if 0
 for (uint i = 0; i < tally; i ++)
-   sim_printf (" %012"PRIo64"", buffer [i]);
+   sim_printf (" %012"PRIo64"", buffer[i]);
 sim_printf ("\n");
 #endif
 
 #if 0
-              sim_printf ("<");
-                for (uint i = 0; i < tally * 4; i ++) {
-                uint wordno = i / 4;
-                uint charno = i % 4;
-                uint ch = (buffer [wordno] >> ((3 - charno) * 9)) & 0777;
-                if (isprint (ch))
-                  sim_printf ("%c", ch);
-                else
-                  sim_printf ("\\%03o", ch);
-              }
-                sim_printf (">\n");
+      sim_printf ("<");
+        for (uint i = 0; i < tally * 4; i ++) {
+        uint wordno = i / 4;
+        uint charno = i % 4;
+        uint ch = (buffer[wordno] >> ((3 - charno) * 9)) & 0777;
+        if (isprint (ch))
+          sim_printf ("%c", ch);
+        else
+          sim_printf ("\\%03o", ch);
+      }
+        sim_printf (">\n");
 #endif
-
-                if (prt_state [prt_unit_num] . prtfile == -1)
-                  {
-                    int rc = openPrtFile (prt_unit_num, buffer, tally);
-                    if (rc == -1)
-                      {
-                        p->stati = 04201; // Out of paper
-                        return IOM_CMD_ERROR;
-                      }
-                  }
-
-                uint8 bytes [tally * 4];
-                for (uint i = 0; i < tally * 4; i ++)
-                  {
-                    uint wordno = i / 4;
-                    uint charno = i % 4;
-                    bytes [i] = (uint8) (buffer [wordno] >> ((3 - charno) * 9)) & 0377;
-                  }
-
-                for (uint i = 0; i < tally * 4; i ++)
-                  {
-                    uint8 ch = bytes [i];
-                    if (ch == 037) // insert n spaces
-                      {
-                        const uint8 spaces [128] = "                                                                                                                                ";
-                        i ++;
-                        uint8 n = bytes [i] & 0177;
-                        write (prt_state [prt_unit_num] . prtfile, spaces, n);
-                      }
-                    else if (ch == 013) // insert n new lines
-                      {
-                        const uint8 newlines [128] = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-                        i ++;
-                        uint8 n = bytes [i] & 0177;
-                        if (n)
-                          write (prt_state [prt_unit_num] . prtfile, newlines, n);
-                        else
-                          {
-                            const uint cr = '\r';
-                            write (prt_state [prt_unit_num] . prtfile, & cr, 1);
-                          }
-                      }
-                    else if (ch == 014) // slew
-                      {
-                        const uint8 ff = '\f';
-                        i ++;
-                        write (prt_state [prt_unit_num] . prtfile, & ff, 1);
-                      }
-                    else if (ch)
-                      {
-                        write (prt_state [prt_unit_num] . prtfile, & ch, 1);
-                      }
-                  }
+        int rc = print_buf (prt_unit_num, is_BCD, is_edited, slew, buffer, tally);
+        if (rc == -1) // Can't open print file
+          {
+            p->stati = 04201; // Out of paper
+            return IOM_CMD_ERROR;
+          }
+        if (rc == -2) // Can't write to print file
+          {
+            p->stati = 04210; // Check alert
+            return IOM_CMD_ERROR;
+          }
 
 #if 0
-                if (prt_state [prt_unit_num] . last)
-                  {
-                    close (prt_state [prt_unit_num] . prtfile);
-                    prt_state [prt_unit_num] . prtfile = -1;
-                    prt_state [prt_unit_num] . last = false;
-                  }
-                // Check for slew to bottom of page
-                prt_state [prt_unit_num] . last = tally == 1 && buffer [0] == 0014011000000;
-#else
-                if (eoj (buffer, tally))
-                  {
-                    //sim_printf ("prt end of job\n");
-                    close (prt_state [prt_unit_num] . prtfile);
-                    prt_state [prt_unit_num] . prtfile = -1;
-                    //prt_state [prt_unit_num] . last = false;
-                  }
+        if (eoj (buffer, tally))
+          {
+            close (prt_state[prt_unit_num].prtfile);
+            prt_state[prt_unit_num].prtfile = -1;
+          }
 #endif
-            } // for (ddcwIdx)
+    } // for (ddcwIdx)
 
-            p -> tallyResidue = 0;
-            p -> stati = 04000; 
-          }
-          break;
+    p -> tallyResidue = 0;
+    p -> stati = 04000; 
+    return IOM_CMD_OK;
+  }
 
-        case 040: // CMD 40 Reset status
-          {
-            p -> stati = 04000;
-            p -> initiate = false;
-            p -> isRead = false;
-            sim_debug (DBG_NOTIFY, & prt_dev, "Reset status %d\n", prt_unit_num);
-          }
-          break;
+static int prt_cmd (uint iomUnitIdx, uint chan)
+  {
+    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+    uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+    uint devUnitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
+    UNIT * unitp = & prt_unit[devUnitIdx];
+    int prt_unit_num = (int) PRT_UNIT_NUM (unitp);
 
-        default:
-          {
-            p->stati = 04501; // cmd reject, invalid opcode
-            p->chanStatus = chanStatIncorrectDCW;
-            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("prt daze %o\n", p -> IDCW_DEV_CMD);
-          }
-          return IOM_CMD_ERROR;
-        }   
+    int rc = IOM_CMD_OK;
+
+    switch (model_type [prt_state[prt_unit_num].model])
+      {
+        case 1: // 202
+          switch (p -> IDCW_DEV_CMD)
+            {
+              case 000: // CMD 00 Request status
+                {
+                  p -> stati = 04000;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Request status %d\n", prt_unit_num);
+                }
+                break;
+      
+              case 011: // CMD 011 -- print nonedited BCD, slew one line
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, true, false, 1);
+                break;
+
+              case 030: // CMD 030 -- print edited BCD, slew zero lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, true, true, 0);
+                break;
+      
+              case 040: // CMD 40 Reset status
+                {
+                  p -> stati = 04000;
+                  p -> isRead = false;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Reset status %d\n", prt_unit_num);
+                }
+                break;
+      
+              default:
+                p->stati = 04501; // cmd reject, invalid opcode
+                p->chanStatus = chanStatIncorrectDCW;
+                if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+                  sim_warn ("prt type 1 daze %o\n", p -> IDCW_DEV_CMD);
+                return IOM_CMD_ERROR;
+            } // switch type 1 cmd
+            break;
+
+        case 2: // 300, 301, 302
+          switch (p -> IDCW_DEV_CMD)
+            {
+              case 000: // CMD 00 Request status
+                {
+                  p -> stati = 04000;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Request status %d\n", prt_unit_num);
+                }
+                break;
+      
+              case 014: // CMD 014 -- load image buffer
+                {
+                  sim_debug (DBG_NOTIFY, & prt_dev, "load image buffer\n");
+                  p -> isRead = false;
+                  // Get the DDCW
+      
+                  bool ptro, send, uff;
+      
+                  int rc2 = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+                  if (rc2 < 0)
+                    {
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      sim_printf ("%s list service failed\n", __func__);
+                      break;
+                    }
+                  if (uff)
+                    {
+                      sim_printf ("%s ignoring uff\n", __func__); // XXX
+                    }
+                  if (! send)
+                    {
+                      sim_printf ("%s nothing to send\n", __func__);
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      break;
+                    }
+                  if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
+                    {
+                      sim_printf ("%s expected DDCW\n", __func__);
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      break;
+                    }
+      
+                  // We don't actually have a print chain, so just pretend we loaded the image data
+                  p -> stati = 04000; 
+                }
+                break;
+      
+              case 011: // CMD 011 -- print nonedited ASCII, slew one line
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, false, 1);
+                break;
+
+              case 030: // CMD 030 -- print edited ASCII, slew zero lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, true, 0);
+                break;
+      
+              case 040: // CMD 40 Reset status
+                {
+                  p -> stati = 04000;
+                  p -> isRead = false;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Reset status %d\n", prt_unit_num);
+                }
+                break;
+      
+              default:
+                p->stati = 04501; // cmd reject, invalid opcode
+                p->chanStatus = chanStatIncorrectDCW;
+                if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+                  sim_warn ("prt type 2 daze %o\n", p -> IDCW_DEV_CMD);
+                return IOM_CMD_ERROR;
+            } // switch type 2 cmd
+            break;
+
+        case 3: // 303, 304
+          switch (p -> IDCW_DEV_CMD)
+            {
+              case 000: // CMD 00 Request status
+                {
+                  p -> stati = 04000;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Request status %d\n", prt_unit_num);
+                }
+                break;
+      
+              case 001: // CMD 001 -- load image buffer
+                {
+                  sim_debug (DBG_NOTIFY, & prt_dev, "load image buffer\n");
+                  p -> isRead = false;
+                  // Get the DDCW
+      
+                  bool ptro, send, uff;
+      
+                  int rc2 = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+                  if (rc2 < 0)
+                    {
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      sim_printf ("%s list service failed\n", __func__);
+                      break;
+                    }
+                  if (uff)
+                    {
+                      sim_printf ("%s ignoring uff\n", __func__); // XXX
+                    }
+                  if (! send)
+                    {
+                      sim_printf ("%s nothing to send\n", __func__);
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      break;
+                    }
+                  if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
+                    {
+                      sim_printf ("%s expected DDCW\n", __func__);
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      break;
+                    }
+      
+                  // We don't actually have a print chain, so just pretend we loaded the image data
+                  p -> stati = 04000; 
+                }
+                break;
+      
+              case 015: // CMD 015 -- print nonedited ASCII, slew one line
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, false, 1);
+                break;
+      
+              case 034: // CMD 034 -- print edited ASCII, slew zero lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, true, 0);
+                break;
+      
+              case 040: // CMD 40 Reset status
+                {
+                  p -> stati = 04000;
+                  p -> isRead = false;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Reset status %d\n", prt_unit_num);
+                }
+                break;
+      
+              default:
+                p->stati = 04501; // cmd reject, invalid opcode
+                p->chanStatus = chanStatIncorrectDCW;
+                if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+                  sim_warn ("prt type 3 daze %o\n", p -> IDCW_DEV_CMD);
+            } // switch type 3 cmd
+            break;
+
+        case 4: // 401, 402, 901, 1000, 1200, 1201, 1600
+          switch (p -> IDCW_DEV_CMD)
+            {
+              case 000: // CMD 00 Request status
+                {
+                  p -> stati = 04000;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Request status %d\n", prt_unit_num);
+                }
+                break;
+      
+      
+              case 001: // CMD 001 -- load image buffer
+                {
+                  sim_debug (DBG_NOTIFY, & prt_dev, "load image buffer\n");
+                  p -> isRead = false;
+                  // Get the DDCW
+      
+                  bool ptro, send, uff;
+      
+                  int rc2 = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+                  if (rc2 < 0)
+                    {
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      sim_printf ("%s list service failed\n", __func__);
+                      break;
+                    }
+                  if (uff)
+                    {
+                      sim_printf ("%s ignoring uff\n", __func__); // XXX
+                    }
+                  if (! send)
+                    {
+                      sim_printf ("%s nothing to send\n", __func__);
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      break;
+                    }
+                  if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
+                    {
+                      sim_printf ("%s expected DDCW\n", __func__);
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      break;
+                    }
+      
+                  // We don't actually have a print chain, so just pretend we loaded the image data
+                  p -> stati = 04000; 
+                }
+                break;
+      
+              case 003: // CMD 003 -- read status
+                {
+                  int rc1 = prt_read_status_register (devUnitIdx, iomUnitIdx, chan);
+                  if (rc1)
+                    {
+                      rc = IOM_CMD_ERROR;
+                      break;
+                    }
+                }
+                break;
+      
+      // load_vfc: entry (pip, pcip, iop, rcode);
+      // 
+      // dcl 1 vfc_image aligned,                                    /* print VFC image */
+      //    (2 lpi fixed bin (8),                                    /* lines per inch */
+      //     2 image_length fixed bin (8),                           /* number of lines represented by image */
+      //     2 toip,                                                 /* top of inside page info */
+      //       3 line fixed bin (8),                                 /* line number */
+      //       3 pattern bit (9),                                    /* VFC pattern */
+      //     2 boip,                                                 /* bottom of inside page info */
+      //       3 line fixed bin (8),                                 /* line number */
+      //       3 pattern bit (9),                                    /* VFC pattern */
+      //     2 toop,                                                 /* top of outside page info */
+      //       3 line fixed bin (8),                                 /* line number */
+      //       3 pattern bit (9),                                    /* VFC pattern */
+      //     2 boop,                                                 /* bottom of outside page info */
+      //       3 line fixed bin (8),                                 /* line number */
+      //       3 pattern bit (9),                                    /* VFC pattern */
+      //     2 pad bit (18)) unal;                                   /* fill out last word */
+      // 
+      // dcl (toip_pattern init ("113"b3),                           /* top of inside page pattern */
+      //      toop_pattern init ("111"b3),                           /* top of outside page pattern */
+      //      bop_pattern init ("060"b3))                            /* bottom of page pattern */
+      //      bit (9) static options (constant);
+      
+      
+              case 005: // CMD 001 -- load vfc image
+                {
+                  sim_debug (DBG_NOTIFY, & prt_dev, "load vfc image\n");
+                  p -> isRead = false;
+      
+                  // Get the DDCW
+      
+                  bool ptro, send, uff;
+      
+                  int rc2 = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+                  if (rc2 < 0)
+                    {
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      sim_printf ("%s list service failed\n", __func__);
+                      break;
+                    }
+                  if (uff)
+                    {
+                      sim_printf ("%s ignoring uff\n", __func__); // XXX
+                    }
+                  if (! send)
+                    {
+                      sim_printf ("%s nothing to send\n", __func__);
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      break;
+                    }
+                  if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
+                    {
+                      sim_printf ("%s expected DDCW\n", __func__);
+                      p -> stati = 05001; // BUG: arbitrary error code; config switch
+                      break;
+                    }
+      
+                  // We don't actually have VFC, so just pretend we loaded the image data
+                  p -> stati = 04000; 
+                }
+                break;
+      
+      
+      
+              case 010: // CMD 010 -- print nonedited BCD, slew zero lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, true, false, 0);
+                break;
+      
+              case 011: // CMD 011 -- print nonedited BCD, slew one line
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, true, false, 1);
+                break;
+      
+              case 012: // CMD 012 -- print nonedited BCD, slew two lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, true, false, 2);
+                break;
+      
+              case 013: // CMD 013 -- print nonedited BCD, slew top of page
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, true, false, -1);
+                break;
+      
+      
+              case 014: // CMD 014 -- print nonedited ASCII, slew zero lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, false, 0);
+                break;
+      
+              case 015: // CMD 015 -- print nonedited ASCII, slew one line
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, false, 1);
+                break;
+      
+              case 016: // CMD 016 -- print nonedited ASCII, slew two lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, false, 2);
+                break;
+      
+              case 017: // CMD 017 -- print nonedited ASCII, slew top of page
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, false, -1);
+                break;
+      
+      
+      
+              case 030: // CMD 030 -- print edited BCD, slew zero lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, true, true, 0);
+                break;
+      
+              case 031: // CMD 031 -- print edited BCD, slew one lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, true, true, 1);
+                break;
+      
+              case 032: // CMD 032 -- print edited BCD, slew two lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, true, true, 2);
+                break;
+      
+              case 033: // CMD 033 -- print edited BCD, slew top of page
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, true, true, -1);
+                break;
+      
+      
+              case 034: // CMD 034 -- print edited ASCII, slew zero lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, true, 0);
+                break;
+      
+              case 035: // CMD 035 -- print edited ASCII, slew one lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, true, 1);
+                break;
+      
+              case 036: // CMD 036 -- print edited ASCII, slew two lines
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, true, 2);
+                break;
+      
+              case 037: // CMD 037 -- print edited ASCII, slew top of page
+                rc = print_cmd (iomUnitIdx, chan, prt_unit_num, false, true, -1);
+                break;
+      
+      
+      
+              case 040: // CMD 40 Reset status
+                {
+                  p -> stati = 04000;
+                  p -> isRead = false;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Reset status %d\n", prt_unit_num);
+                }
+                break;
+      
+              case 061: // CMD 61 Slew one line
+                {
+                  int rc = print_buf (prt_unit_num, false, false, 1, NULL, 0);
+                  if (rc == -1) // Can't open print file
+                    {
+                      p->stati = 04201; // Out of paper
+                      return IOM_CMD_ERROR;
+                    }
+                  if (rc == -2) // Can't write to print file
+                    {
+                      p->stati = 04210; // Check alert
+                      return IOM_CMD_ERROR;
+                    }
+                  p -> stati = 04000;
+                  p -> isRead = false;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Slew top of page %d\n", prt_unit_num);
+                }
+                break;
+      
+              case 062: // CMD 62 Slew two lines
+                {
+                  int rc = print_buf (prt_unit_num, false, false, 2, NULL, 0);
+                  if (rc == -1) // Can't open print file
+                    {
+                      p->stati = 04201; // Out of paper
+                      return IOM_CMD_ERROR;
+                    }
+                  if (rc == -2) // Can't write to print file
+                    {
+                      p->stati = 04210; // Check alert
+                      return IOM_CMD_ERROR;
+                    }
+                  p -> stati = 04000;
+                  p -> isRead = false;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Slew top of page %d\n", prt_unit_num);
+                }
+                break;
+      
+              case 063: // CMD 63 Slew top of page
+                {
+                  int rc = print_buf (prt_unit_num, false, false, -1, NULL, 0);
+                  if (rc == -1) // Can't open print file
+                    {
+                      p->stati = 04201; // Out of paper
+                      return IOM_CMD_ERROR;
+                    }
+                  if (rc == -2) // Can't write to print file
+                    {
+                      p->stati = 04210; // Check alert
+                      return IOM_CMD_ERROR;
+                    }
+                  p -> stati = 04000;
+                  p -> isRead = false;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Slew top of page %d\n", prt_unit_num);
+                }
+                break;
+      
+              case 066: // CMD 66 Reserve device
+                {
+                  p -> stati = 04000;
+                  p -> isRead = false;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Reserve device %d\n", prt_unit_num);
+      #ifdef TESTING
+                 sim_warn ("Printer reserve device ignored\n");
+      #endif
+                }
+                break;
+      
+              case 067: // CMD 67 Release device
+                {
+                  p -> stati = 04000;
+                  p -> isRead = false;
+                  sim_debug (DBG_NOTIFY, & prt_dev, "Release device %d\n", prt_unit_num);
+      #ifdef TESTING
+                 sim_warn ("Printer release device ignored\n");
+      #endif
+                }
+                break;
+      
+              default:
+                {
+                  p->stati = 04501; // cmd reject, invalid opcode
+                  p->chanStatus = chanStatIncorrectDCW;
+                  if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+                    sim_warn ("prt type 4 daze %o\n", p -> IDCW_DEV_CMD);
+                }
+                return IOM_CMD_ERROR;
+            } // switch type 4 cmd
+            break;
+      }
 
     if (p -> IDCW_CONTROL == 3) // marker bit set
       {
@@ -774,7 +1579,7 @@ sim_printf ("\n");
 // -1 problem
 int prt_iom_cmd (uint iomUnitIdx, uint chan)
   {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
 
 // Is it an IDCW?
 
@@ -788,7 +1593,7 @@ int prt_iom_cmd (uint iomUnitIdx, uint chan)
 
 static t_stat prt_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Number of PRT units in system is %d\n", prt_dev . numunits);
+    sim_printf("Number of PRT units in system is %d\n", prt_dev.numunits);
     return SCPE_OK;
   }
 
@@ -799,7 +1604,7 @@ static t_stat prt_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, const char
     int n = atoi (cptr);
     if (n < 1 || n > N_PRT_UNITS_MAX)
       return SCPE_ARG;
-    prt_dev . numunits = (uint) n;
+    prt_dev.numunits = (uint) n;
     return SCPE_OK;
   }
 
@@ -809,7 +1614,40 @@ static t_stat prt_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) PRT_UNIT_NUM (uptr);
     if (n < 0 || n >= N_PRT_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Printer device name is %s\n", prt_state [n] . device_name);
+    sim_printf("Printer device name is %s\n", prt_state[n].device_name);
+    return SCPE_OK;
+  }
+
+static t_stat prt_set_device_model (UNUSED UNIT * uptr, UNUSED int32 value,
+                                    const UNUSED char * cptr, UNUSED void * desc)
+  {
+    int n = (int) PRT_UNIT_NUM (uptr);
+    if (n < 0 || n >= N_PRT_UNITS_MAX)
+      return SCPE_ARG;
+    if (cptr)
+      {
+        for (int i = 0; i < N_MODELS; i ++)
+           {
+             if (strcmp (cptr, model_names[i]) == 0)
+               {
+                 prt_state[n].model = i;
+                 return SCPE_OK;
+               }
+            }
+        sim_printf ("Model '%s' not known (202 300 301 302 303 304 401 402 901 1000 1200 1201 1600)\n", cptr);
+        return SCPE_ARG;
+      }
+    sim_printf ("Specify model from 202 300 301 302 303 304 401 402 901 1000 1200 1201 1600\n");
+    return SCPE_ARG;
+  }
+
+static t_stat prt_show_device_model (UNUSED FILE * st, UNIT * uptr,
+                                     UNUSED int val, UNUSED const void * desc)
+  {
+    int n = (int) PRT_UNIT_NUM (uptr);
+    if (n < 0 || n >= N_PRT_UNITS_MAX)
+      return SCPE_ARG;
+    sim_printf("Printer device model is %s\n", model_names[prt_state[n].model]);
     return SCPE_OK;
   }
 
@@ -821,11 +1659,11 @@ static t_stat prt_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
       return SCPE_ARG;
     if (cptr)
       {
-        strncpy (prt_state [n] . device_name, cptr, MAX_DEV_NAME_LEN - 1);
-        prt_state [n] . device_name [MAX_DEV_NAME_LEN - 1] = 0;
+        strncpy (prt_state[n].device_name, cptr, MAX_DEV_NAME_LEN - 1);
+        prt_state[n].device_name[MAX_DEV_NAME_LEN - 1] = 0;
       }
     else
-      prt_state [n] . device_name [0] = 0;
+      prt_state[n].device_name[0] = 0;
     return SCPE_OK;
   }
 
@@ -858,6 +1696,26 @@ static t_stat prt_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
           }
       }
     return SCPE_OK;
+  }
+
+t_stat burst_printer (UNUSED int32 arg, const char * buf)
+  {
+    for (int i = 0; i < N_PRT_UNITS_MAX; i ++)
+      {
+        if (strcmp (buf, prt_state[i].device_name) == 0)
+          {
+            if (prt_state[i].prtfile != -1)
+              {
+                close (prt_state[i].prtfile);
+                prt_state[i].prtfile = -1;
+                return SCPE_OK;
+              }
+            sim_printf ("burst sees nothing to burst\n");
+            return SCPE_OK;
+          }
+      }
+    sim_printf ("burst can't find printer named '%s'\n", buf);
+    return SCPE_ARG;
   }
 
 static t_stat signal_prt_ready (uint prt_unit_idx)
