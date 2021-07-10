@@ -1355,9 +1355,13 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         CTLR_IOM (MSP, msp)
         CTLR_IOM (IPC, ipc)
         CTLR_IOM (URP, urp)
+        CTLR_IOM (FNP, fnp)
         CTLR_IOM (DIA, dia)
 #ifndef __MINGW64__
         CTLR_IOM (ABSI, absi)
+#endif
+#ifndef __MINGW64__
+        CTLR_IOM (SKC, sk)
 #endif
         CTLR_IOM (OPC, opc)
       }
@@ -1394,10 +1398,6 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         DEV_CTLR (CTLR, ctlr, DISK, DSK, dsk);
       }
     CTLR_DEV (URP, urp, URP, URP, urd);
-    if (dump)
-      {
-        DEV_CTLR (URP, urp, RDR, RDR, rdr);
-      }
     if (dump)
       {
         DEV_CTLR (URP, urp, RDR, RDR, rdr);
