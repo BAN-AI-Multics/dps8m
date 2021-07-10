@@ -37,7 +37,7 @@ This has been tested with Ubuntu 16.04 Xenial Xerus and 18.04 Bionic Beaver.
     \texttt{git clone https://gitlab.com/dps8m/dps8m} \\
     \texttt{cd dps8m} \\
     \texttt{git checkout R2.0} \\
-    \texttt{make} \\
+    \texttt{make LOCKLESS=1} \\
 \end{adjustwidth}  
 
 \textbf{Running the Simulator}
@@ -47,16 +47,212 @@ This has been tested with Ubuntu 16.04 Xenial Xerus and 18.04 Bionic Beaver.
     \texttt{./dps8 [boot script]} \\
 \end{adjustwidth}  
 
+\newpage
 
+\subsubsection[Building dps8m under MacOS]{BUILDING DPS8M UNDER MACOS}
 
+This has all been tested except the brew install of git, clang and libtool on MacOS 10.14.6
 
+\textbf{Install needed packages:}
 
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{brew install git clang libtool m4 automake} \\
+\end{adjustwidth}  
 
+\textbf{Build 'libuv'}
 
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{git clone https://github.com/libuv/libuv.git} \\
+    \texttt{cd libuv} \\
+    \texttt{git checkout v1.23.0} \\
+    \texttt{sh autogen.sh} \\
+    \texttt{./configure} \\
+    \texttt{make LOCKLESS=1} \\
+    \texttt{sudo make install} \\
+    \texttt{cd ..} \\
+\end{adjustwidth}  
 
+\textbf{Build dps8}
 
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{git clone https://gitlab.com/dps8m/dps8m} \\
+    \texttt{cd dps8m} \\
+    \texttt{git checkout R2.0} \\
+    \texttt{make LOCKLESS=1} \\
+\end{adjustwidth}  
 
+\textbf{Running the Simulator}
 
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{(Copy 'src/dps8/dps8' to the desired working directory)} \\
+    \texttt{./dps8 [boot script]} \\
+\end{adjustwidth}  
 
+\newpage
+
+\subsubsection[Building dps8m under CentOS]{BUILDING DPS8M UNDER CENTOS}
+
+This has been tested with CentOS 7.
+
+\textbf{Install needed packages:}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{sudo yum install git automake libtool clang} \\
+\end{adjustwidth}  
+
+\textbf{Build 'libuv'}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{git clone https://github.com/libuv/libuv.git} \\
+    \texttt{cd libuv} \\
+    \texttt{git checkout v1.23.0} \\
+    \texttt{sh autogen.sh} \\
+    \texttt{./configure} \\
+    \texttt{make} \\
+    \texttt{sudo make install} \\
+    \texttt{cd ..} \\
+\end{adjustwidth}  
+
+NOTE: For some reason libuv is not being found in its default installation location of /usr/local/lib and it was necessary do the following for it to be found:
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{sudo ln -s /usr/local/lib/libuv.so.1.0.0 /usr/lib64/libuv.so.1} \\
+\end{adjustwidth}  
+
+\textbf{Build dps8}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{git clone https://gitlab.com/dps8m/dps8m} \\
+    \texttt{cd dps8m} \\
+    \texttt{git checkout R2.0} \\
+    \texttt{make LOCKLESS=1} \\
+\end{adjustwidth}  
+
+\textbf{Running the Simulator}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{(Copy 'src/dps8/dps8' to the desired working directory)} \\
+    \texttt{./dps8 [boot script]} \\
+\end{adjustwidth}  
+
+\newpage
+
+\subsubsection[Building dps8m under Fedora 30 Linux For Windows]{BUILDING DPS8M UNDER FEDORA 30 LINUX FOR WINDOWS}
+
+The build artifacts have been tested on Windows 10.
+
+\textbf{Install needed packages:}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{sudo dnf install git mingw64-gcc mingw64-libgnurx libtool make} \\
+    \texttt{sudo dnf update perl-Errno} \\
+\end{adjustwidth}  
+
+\textbf{Build 'libuv'}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{git clone https://github.com/libuv/libuv.git} \\
+    \texttt{cd libuv} \\
+    \texttt{git checkout v1.23.0} \\
+    \texttt{sh autogen.sh} \\
+    \texttt{mingw64-configure} \\
+    \texttt{make} \\
+    \texttt{sudo make install} \\
+    \texttt{cd ..} \\
+\end{adjustwidth}  
+
+\textbf{Build dps8}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{git clone https://gitlab.com/dps8m/dps8m} \\
+    \texttt{cd dps8m} \\
+    \texttt{git checkout R2.0} \\
+    \texttt{make CROSS=MINGW64 LOCKLESS=1} \\
+\end{adjustwidth}  
+
+\textbf{Running the Simulator}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{Copy these files to your windows machine:} \\
+    \texttt{dps8.exe} \\
+    \texttt{/usr/x86\_64-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll} \\
+    \texttt{/usr/x86\_64-w64-mingw32/sys-root/mingw/bin/libuv-1.dll} \\
+\end{adjustwidth}  
+
+\newpage
+
+\subsubsection[Building dps8m under Windows with MSYS2]{BUILDING DPS8M UNDER WINDOWS WITH MSYS2}
+
+This build has not been tested.
+
+\textbf{Install MSYS2 and packages:}
+
+In your browser, go to https://msys2.github.io/ \\
+
+Download and run the msys2\ x86\_64\ installer. Follow the installation
+instructions on the webpage. \\
+
+After step 7 ("Now Pacman is fully committed…"), fetch the dps8m
+code, needed libraries and packages by entering: \\
+
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{git clone git://git.code.sf.net/p/dps8m/code dps8m-code} \\
+    \texttt{git clone https://github.com/libuv/libuv.git} \\
+    \\
+    \texttt{pacman -S mingw-w64-x86\_64-gcc} \\
+    \texttt{pacman -S mingw-w64-x86\_64-binutils} \\
+    \texttt{pacman -S mingw-w64-x86\_64-libtool} \\
+    \texttt{pacman -S mingw-w64-x86\_64-make} \\
+    \texttt{pacman -S mingw-w64-x86\_64-dlfcn} \\
+    \texttt{pacman -S mingw-w64-x86\_64-diffutils} \\
+    \texttt{pacman -S mingw-w64-x86\_64-gettext} \\
+    \texttt{pacman -S mingw-w64-x86\_64-libgnurx} \\
+    \texttt{pacman -S mingw-w64-x86\_64-binutils} \\
+    \texttt{pacman -S automake} \\
+    \texttt{pacman -S autoconf} \\
+    \texttt{pacman -S unzip} \\
+    \texttt{pacman -S zip} \\
+\end{adjustwidth}  
+
+\textbf{Start a MSYS2 MinGW window and build the code:}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{Start -> All programs -> MSYS2 64 bit -> MSYS2 MINGW 64 bit} \\
+\\
+    \texttt{cd libuv} \\
+    \texttt{git checkout v1.23.0} \\
+    \texttt{sh autogen.sh} \\
+    \texttt{./configure} \\
+    \texttt{mingw32-make.exe MAKE=mingw32-make.exe} \\
+\\
+    \texttt{cd} \\
+    \texttt{cd dps8-code} \\
+    \texttt{git checkout R2.0} \\
+    \texttt{git fetch} \\
+    \texttt{mingw32-make.exe} \\
+\end{adjustwidth}  
+
+\textbf{Running the Simulator}
+
+Start a Windows command shell:
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{Start -> All programs -> Accessories -> Command Prompt} \\
+\end{adjustwidth}  
+
+Change directory to where the simulator is to be run from and copy the needed files:
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{cd <wherever>} \\
+    \texttt{copy c:\textbackslash{}msys64\textbackslash{}home\textbackslash{}Admin\textbackslash{}dps8m-code\textbackslash{}rc\textbackslash{}dps8\textbackslash{}dps8.exe} \\
+    \texttt{copy c:\textbackslash{}msys64\textbackslash{}mingw64\textbackslash{}bin\textbackslash{}libwinpthread-1.dll} \\
+    \texttt{copy c:\textbackslash{}msys64\textbackslash{}mingw64\textbackslash{}bin\textbackslash{}libuv-1.dll} \\
+\end{adjustwidth}  
+
+Run Multics:
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{.\textbackslash{}dps8.exe <boot.ini>} \\
+\end{adjustwidth}  
 
 
