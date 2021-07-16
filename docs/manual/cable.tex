@@ -152,6 +152,21 @@ no ".ini" file and entering the command "cable show" (which is how these tables 
 
 \begin{adjustwidth}{5ex}{1ex}
 	\begin{tabular}{ccccc}
+		& \texttt{IOM} & \texttt{<-->} & \texttt{SCU} &  \\
+		\texttt{IOM} & \texttt{port} & \texttt{-->} & \texttt{SCU} & \texttt{port} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0} \\
+		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{0} \\
+		\texttt{0} & \texttt{2} & & \texttt{2} & \texttt{0} \\
+		\texttt{0} & \texttt{3} & & \texttt{3} & \texttt{0} \\
+		\texttt{1} & \texttt{0} & & \texttt{0} & \texttt{1} \\
+		\texttt{1} & \texttt{1} & & \texttt{1} & \texttt{1} \\
+		\texttt{1} & \texttt{2} & & \texttt{2} & \texttt{1} \\
+		\texttt{1} & \texttt{3} & & \texttt{3} & \texttt{1} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
 		& \texttt{SCU} & \texttt{<-->} & \texttt{CPU} &  \\
 		\texttt{SCU} & \texttt{port} & \texttt{-->} & \texttt{CPU} & \texttt{port} \\
 		\texttt{0} & \texttt{2} & & \texttt{5} & \texttt{0} \\
@@ -178,6 +193,37 @@ no ".ini" file and entering the command "cable show" (which is how these tables 
 		\texttt{3} & \texttt{5} & & \texttt{2} & \texttt{3} \\
 		\texttt{3} & \texttt{6} & & \texttt{1} & \texttt{3} \\
 		\texttt{3} & \texttt{7} & & \texttt{0} & \texttt{3} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{CPU} & \texttt{<-->} & \texttt{SCU} &  \\
+		\texttt{CPU} & \texttt{port} & \texttt{-->} & \texttt{SCU} & \texttt{port} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{7} \\
+		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{7} \\
+		\texttt{0} & \texttt{2} & & \texttt{2} & \texttt{7} \\
+		\texttt{0} & \texttt{3} & & \texttt{3} & \texttt{7} \\
+		\texttt{1} & \texttt{0} & & \texttt{0} & \texttt{6} \\
+		\texttt{1} & \texttt{1} & & \texttt{1} & \texttt{6} \\
+		\texttt{1} & \texttt{2} & & \texttt{2} & \texttt{6} \\
+		\texttt{1} & \texttt{3} & & \texttt{3} & \texttt{6} \\
+		\texttt{2} & \texttt{0} & & \texttt{0} & \texttt{5} \\
+		\texttt{2} & \texttt{1} & & \texttt{1} & \texttt{5} \\
+		\texttt{2} & \texttt{2} & & \texttt{2} & \texttt{5} \\
+		\texttt{2} & \texttt{3} & & \texttt{3} & \texttt{5} \\
+		\texttt{3} & \texttt{0} & & \texttt{0} & \texttt{4} \\
+		\texttt{3} & \texttt{1} & & \texttt{1} & \texttt{4} \\
+		\texttt{3} & \texttt{2} & & \texttt{2} & \texttt{4} \\
+		\texttt{3} & \texttt{3} & & \texttt{3} & \texttt{4} \\
+		\texttt{4} & \texttt{0} & & \texttt{0} & \texttt{3} \\
+		\texttt{4} & \texttt{1} & & \texttt{1} & \texttt{3} \\
+		\texttt{4} & \texttt{2} & & \texttt{2} & \texttt{3} \\
+		\texttt{4} & \texttt{3} & & \texttt{3} & \texttt{3} \\
+		\texttt{5} & \texttt{0} & & \texttt{0} & \texttt{2} \\
+		\texttt{5} & \texttt{1} & & \texttt{1} & \texttt{2} \\
+		\texttt{5} & \texttt{2} & & \texttt{2} & \texttt{2} \\
+		\texttt{5} & \texttt{3} & & \texttt{3} & \texttt{2} \\
 	\end{tabular}
 \end{adjustwidth}
 
@@ -210,11 +256,96 @@ no ".ini" file and entering the command "cable show" (which is how these tables 
 		\texttt{0} & \texttt{37} & & \texttt{5} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x557008} & \texttt{0x445c20} \\
 		\texttt{0} & \texttt{38} & & \texttt{6} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x557090} & \texttt{0x445c20} \\
 		\texttt{0} & \texttt{39} & & \texttt{7} & \texttt{0} & \texttt{SKC} & \texttt{Direct} & \texttt{0x4ef7a8} & \texttt{0x557118} & \texttt{0x445c20} \\
-		\texttt{1} & \texttt{10} & & \texttt{0} & \texttt{1} & \texttt{MTP} & \texttt{PSI} & \texttt{0x4e5f98} & \texttt{0x553c50} & \texttt{0x43ed50} \\
+		\texttt{0} & \texttt{40} & & \texttt{3} & \texttt{0} & \texttt{URP} & \texttt{PSI} & \texttt{0x4f4c48} & \texttt{0x4f4398} & \texttt{0x44aee0} \\
+		\texttt{0} & \texttt{41} & & \texttt{4} & \texttt{0} & \texttt{URP} & \texttt{PSI} & \texttt{0x4f4c48} & \texttt{0x4f4420} & \texttt{0x44aee0} \\
+		\texttt{0} & \texttt{42} & & \texttt{5} & \texttt{0} & \texttt{URP} & \texttt{PSI} & \texttt{0x4f4c48} & \texttt{0x4f44a8} & \texttt{0x44aee0} \\
+		\texttt{0} & \texttt{43} & & \texttt{1} & \texttt{0} & \texttt{OPC} & \texttt{CPI} & \texttt{0x4e1eb8} & \texttt{0x4e1978} & \texttt{0x40b950} \\
+		\texttt{0} & \texttt{45} & & \texttt{6} & \texttt{0} & \texttt{URP} & \texttt{PSI} & \texttt{0x4f4c48} & \texttt{0x4f4530} & \texttt{0x44aee0} \\
+		\texttt{0} & \texttt{46} & & \texttt{7} & \texttt{0} & \texttt{URP} & \texttt{PSI} & \texttt{0x4f4c48} & \texttt{0x4f45b8} & \texttt{0x44aee0} \\
+		\texttt{0} & \texttt{47} & & \texttt{8} & \texttt{0} & \texttt{URP} & \texttt{PSI} & \texttt{0x4f4c48} & \texttt{0x4f4640} & \texttt{0x44aee0} \\
+		\texttt{0} & \texttt{48} & & \texttt{9} & \texttt{0} & \texttt{URP} & \texttt{PSI} & \texttt{0x4f4c48} & \texttt{0x4f46c8} & \texttt{0x44aee0} \\
+        \texttt{1} & \texttt{10} & & \texttt{0} & \texttt{1} & \texttt{MTP} & \texttt{PSI} & \texttt{0x4e5f98} & \texttt{0x553c50} & \texttt{0x43ed50} \\
 		\texttt{1} & \texttt{11} & & \texttt{0} & \texttt{1} & \texttt{IPC} & \texttt{PSI} & \texttt{0x4e4208} & \texttt{0x551f20} & \texttt{0x4120e0} \\
 		\texttt{1} & \texttt{12} & & \texttt{0} & \texttt{1} & \texttt{MSP} & \texttt{PSI} & \texttt{0x4e4368} & \texttt{0x5527a0} & \texttt{0x4120e0} \\
 	\end{tabular}
 \end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{MTP} & \texttt{<-->} & \texttt{IOM} &  \\
+		\texttt{MTP} & \texttt{port} & \texttt{-->} & \texttt{IOM} & \texttt{port} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{10} \\
+		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{10} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{MSP} & \texttt{<-->} & \texttt{IOM} &  \\
+		\texttt{MSP} & \texttt{port} & \texttt{-->} & \texttt{IOM} & \texttt{port} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{12} \\
+		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{12} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{IPC} & \texttt{<-->} & \texttt{IOM} &  \\
+		\texttt{IPC} & \texttt{port} & \texttt{-->} & \texttt{IOM} & \texttt{port} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{11} \\
+		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{11} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{URP} & \texttt{<-->} & \texttt{IOM} &  \\
+		\texttt{URP} & \texttt{port} & \texttt{-->} & \texttt{IOM} & \texttt{port} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{13} \\
+		\texttt{1} & \texttt{0} & & \texttt{0} & \texttt{14} \\
+		\texttt{2} & \texttt{0} & & \texttt{0} & \texttt{15} \\
+		\texttt{3} & \texttt{0} & & \texttt{0} & \texttt{40} \\
+		\texttt{4} & \texttt{0} & & \texttt{0} & \texttt{41} \\
+		\texttt{5} & \texttt{0} & & \texttt{0} & \texttt{42} \\
+		\texttt{6} & \texttt{0} & & \texttt{0} & \texttt{45} \\
+		\texttt{7} & \texttt{0} & & \texttt{0} & \texttt{46} \\
+		\texttt{8} & \texttt{0} & & \texttt{0} & \texttt{47} \\
+		\texttt{9} & \texttt{0} & & \texttt{0} & \texttt{48} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{ABSI} & \texttt{<-->} & \texttt{IOM} &  \\
+		\texttt{ABSI} & \texttt{port} & \texttt{-->} & \texttt{IOM} & \texttt{port} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{26} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{SKC} & \texttt{<-->} & \texttt{IOM} &  \\
+		\texttt{SKC} & \texttt{port} & \texttt{-->} & \texttt{IOM} & \texttt{port} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{32} \\
+		\texttt{1} & \texttt{0} & & \texttt{0} & \texttt{33} \\
+		\texttt{2} & \texttt{0} & & \texttt{0} & \texttt{34} \\
+		\texttt{3} & \texttt{0} & & \texttt{0} & \texttt{35} \\
+		\texttt{4} & \texttt{0} & & \texttt{0} & \texttt{36} \\
+		\texttt{5} & \texttt{0} & & \texttt{0} & \texttt{37} \\
+		\texttt{6} & \texttt{0} & & \texttt{0} & \texttt{38} \\
+		\texttt{7} & \texttt{0} & & \texttt{0} & \texttt{39} \\
+	\end{tabular}
+\end{adjustwidth}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+		& \texttt{OPC} & \texttt{<-->} & \texttt{IOM} &  \\
+		\texttt{OPC} & \texttt{port} & \texttt{-->} & \texttt{IOM} & \texttt{port} \\
+		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{30} \\
+		\texttt{1} & \texttt{0} & & \texttt{0} & \texttt{43} \\
+	\end{tabular}
+\end{adjustwidth}
+
 
 \begin{adjustwidth}{5ex}{1ex}
 	\begin{tabular}{ccccc}
@@ -241,6 +372,18 @@ no ".ini" file and entering the command "cable show" (which is how these tables 
 		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{0x4120e0} \\
 		\texttt{0} & \texttt{2} & & \texttt{2} & \texttt{0x4120e0} \\
 		\texttt{0} & \texttt{3} & & \texttt{3} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{4} & & \texttt{14} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{5} & & \texttt{15} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{6} & & \texttt{16} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{7} & & \texttt{17} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{8} & & \texttt{18} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{9} & & \texttt{19} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{10} & & \texttt{20} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{11} & & \texttt{21} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{12} & & \texttt{22} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{13} & & \texttt{23} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{14} & & \texttt{24} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{15} & & \texttt{25} & \texttt{0x4120e0} \\
 		\texttt{MSP} & \texttt{dev\_code} & \texttt{-->} & \texttt{DISK} & \texttt{command} \\
 		\texttt{0} & \texttt{1} & & \texttt{4} & \texttt{0x4120e0} \\
 		\texttt{0} & \texttt{2} & & \texttt{5} & \texttt{0x4120e0} \\
@@ -250,9 +393,18 @@ no ".ini" file and entering the command "cable show" (which is how these tables 
 		\texttt{0} & \texttt{6} & & \texttt{9} & \texttt{0x4120e0} \\
 		\texttt{0} & \texttt{7} & & \texttt{10} & \texttt{0x4120e0} \\
 		\texttt{0} & \texttt{8} & & \texttt{11} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{9} & & \texttt{12} & \texttt{0x4120e0} \\
+		\texttt{0} & \texttt{10} & & \texttt{13} & \texttt{0x4120e0} \\
 		\texttt{URP} & \texttt{dev\_code} & \texttt{-->} & \texttt{URP} & \texttt{command} \\
 		\texttt{0} & \texttt{1} & & \texttt{0} & \texttt{0x410f20} \\
 		\texttt{1} & \texttt{1} & & \texttt{0} & \texttt{0x410610} \\
 		\texttt{2} & \texttt{1} & & \texttt{0} & \texttt{0x441960} \\
+		\texttt{3} & \texttt{1} & & \texttt{1} & \texttt{0x441960} \\
+		\texttt{4} & \texttt{1} & & \texttt{2} & \texttt{0x441960} \\
+		\texttt{5} & \texttt{1} & & \texttt{3} & \texttt{0x441960} \\
+		\texttt{6} & \texttt{1} & & \texttt{1} & \texttt{0x441960} \\
+		\texttt{7} & \texttt{1} & & \texttt{2} & \texttt{0x441960} \\
+		\texttt{8} & \texttt{1} & & \texttt{1} & \texttt{0x441960} \\
+		\texttt{9} & \texttt{1} & & \texttt{2} & \texttt{0x441960} \\
 	\end{tabular}
 \end{adjustwidth}
