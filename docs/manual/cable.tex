@@ -346,65 +346,112 @@ no ".ini" file and entering the command "cable show" (which is how these tables 
 	\end{tabular}
 \end{adjustwidth}
 
+\newpage
+\begin{center}
+    \texttt{controller <--> device}
+	\begin{tabular}{cccccccccc}
+		\texttt{MTP} & \texttt{dev\_code} & \texttt{-->} & \texttt{TAPE} & \texttt{|} & \texttt{IPC} & \texttt{dev\_code} & \texttt{-->} & \texttt{DISK} \\
+		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{|} & \texttt{0} & \texttt{0} & & \texttt{0} \\
+		\texttt{0} & \texttt{2} & & \texttt{2} & \texttt{|} & \texttt{0} & \texttt{1} & & \texttt{1}  \\
+		\texttt{0} & \texttt{3} & & \texttt{3} & \texttt{|} & \texttt{0} & \texttt{2} & & \texttt{2} \\
+		\texttt{0} & \texttt{4} & & \texttt{4} & \texttt{|} & \texttt{0} & \texttt{3} & & \texttt{3} \\
+		\texttt{0} & \texttt{5} & & \texttt{5} & \texttt{|} & \texttt{0} & \texttt{4} & & \texttt{14} \\
+		\texttt{0} & \texttt{6} & & \texttt{6} & \texttt{|} & \texttt{0} & \texttt{5} & & \texttt{15} \\
+		\texttt{0} & \texttt{7} & & \texttt{7} & \texttt{|} & \texttt{0} & \texttt{6} & & \texttt{16} \\
+		\texttt{0} & \texttt{8} & & \texttt{8} & \texttt{|} & \texttt{0} & \texttt{7} & & \texttt{17} \\
+		\texttt{0} & \texttt{9} & & \texttt{9} & \texttt{|} & \texttt{0} & \texttt{8} & & \texttt{18} \\
+		\texttt{0} & \texttt{10} & & \texttt{10} & \texttt{|} & \texttt{0} & \texttt{9} & & \texttt{19} \\
+		\texttt{0} & \texttt{11} & & \texttt{11} & \texttt{|} & \texttt{0} & \texttt{10} & & \texttt{20} \\
+		\texttt{0} & \texttt{12} & & \texttt{12} & \texttt{|} & \texttt{0} & \texttt{11} & & \texttt{21} \\
+		\texttt{0} & \texttt{13} & & \texttt{13} & \texttt{|} & \texttt{0} & \texttt{12} & & \texttt{22} \\
+		\texttt{0} & \texttt{14} & & \texttt{14} & \texttt{|} & \texttt{0} & \texttt{13} & & \texttt{23} \\
+		\texttt{0} & \texttt{15} & & \texttt{15} & \texttt{|} & \texttt{0} & \texttt{14} & & \texttt{24} \\
+		\texttt{0} & \texttt{16} & & \texttt{16} & \texttt{|} & \texttt{0} & \texttt{15} & & \texttt{25} \\
+    \end{tabular}
+
+    \begin{tabular}{ccccccccc}
+        \texttt{MSP} & \texttt{dev\_code} & \texttt{-->} & \texttt{DISK} & \texttt{|} & \texttt{URP} & \texttt{dev\_code} & \texttt{-->} & \texttt{URP} \\
+		\texttt{0} & \texttt{1} & & \texttt{4} & \texttt{|} & \texttt{0} & \texttt{1} & & \texttt{0} \\
+		\texttt{0} & \texttt{2} & & \texttt{5} & \texttt{|} & \texttt{1} & \texttt{1} & & \texttt{0} \\
+		\texttt{0} & \texttt{3} & & \texttt{6} & \texttt{|} & \texttt{2} & \texttt{1} & & \texttt{0} \\
+		\texttt{0} & \texttt{4} & & \texttt{7} & \texttt{|} & \texttt{3} & \texttt{1} & & \texttt{1} \\
+		\texttt{0} & \texttt{5} & & \texttt{8} & \texttt{|} & \texttt{4} & \texttt{1} & & \texttt{2} \\
+		\texttt{0} & \texttt{6} & & \texttt{9} & \texttt{|} & \texttt{5} & \texttt{1} & & \texttt{3} \\
+		\texttt{0} & \texttt{7} & & \texttt{10} & \texttt{|} & \texttt{6} & \texttt{1} & & \texttt{1} \\
+		\texttt{0} & \texttt{8} & & \texttt{11} & \texttt{|} & \texttt{7} & \texttt{1} & & \texttt{2} \\
+		\texttt{0} & \texttt{9} & & \texttt{12} & \texttt{|} & \texttt{8} & \texttt{1} & & \texttt{1} \\
+		\texttt{0} & \texttt{10} & & \texttt{13} & \texttt{|} & \texttt{9} & \texttt{1} & & \texttt{2} \\
+    \end{tabular}
+\end{center}
 
 \begin{adjustwidth}{5ex}{1ex}
 	\begin{tabular}{ccccc}
-		& \texttt{controller} & \texttt{<-->} & \texttt{device} &  \\
-		\texttt{MTP} & \texttt{dev\_code} & \texttt{-->} & \texttt{TAPE} & \texttt{command} \\
-		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{2} & & \texttt{2} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{3} & & \texttt{3} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{4} & & \texttt{4} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{5} & & \texttt{5} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{6} & & \texttt{6} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{7} & & \texttt{7} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{8} & & \texttt{8} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{9} & & \texttt{9} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{10} & & \texttt{10} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{11} & & \texttt{11} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{12} & & \texttt{12} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{13} & & \texttt{13} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{14} & & \texttt{14} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{15} & & \texttt{15} & \texttt{0x43ed50} \\
-		\texttt{0} & \texttt{16} & & \texttt{16} & \texttt{0x43ed50} \\
-		\texttt{IPC} & \texttt{dev\_code} & \texttt{-->} & \texttt{DISK} & \texttt{command} \\
-		\texttt{0} & \texttt{0} & & \texttt{0} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{1} & & \texttt{1} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{2} & & \texttt{2} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{3} & & \texttt{3} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{4} & & \texttt{14} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{5} & & \texttt{15} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{6} & & \texttt{16} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{7} & & \texttt{17} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{8} & & \texttt{18} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{9} & & \texttt{19} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{10} & & \texttt{20} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{11} & & \texttt{21} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{12} & & \texttt{22} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{13} & & \texttt{23} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{14} & & \texttt{24} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{15} & & \texttt{25} & \texttt{0x4120e0} \\
-		\texttt{MSP} & \texttt{dev\_code} & \texttt{-->} & \texttt{DISK} & \texttt{command} \\
-		\texttt{0} & \texttt{1} & & \texttt{4} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{2} & & \texttt{5} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{3} & & \texttt{6} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{4} & & \texttt{7} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{5} & & \texttt{8} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{6} & & \texttt{9} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{7} & & \texttt{10} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{8} & & \texttt{11} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{9} & & \texttt{12} & \texttt{0x4120e0} \\
-		\texttt{0} & \texttt{10} & & \texttt{13} & \texttt{0x4120e0} \\
-		\texttt{URP} & \texttt{dev\_code} & \texttt{-->} & \texttt{URP} & \texttt{command} \\
-		\texttt{0} & \texttt{1} & & \texttt{0} & \texttt{0x410f20} \\
-		\texttt{1} & \texttt{1} & & \texttt{0} & \texttt{0x410610} \\
-		\texttt{2} & \texttt{1} & & \texttt{0} & \texttt{0x441960} \\
-		\texttt{3} & \texttt{1} & & \texttt{1} & \texttt{0x441960} \\
-		\texttt{4} & \texttt{1} & & \texttt{2} & \texttt{0x441960} \\
-		\texttt{5} & \texttt{1} & & \texttt{3} & \texttt{0x441960} \\
-		\texttt{6} & \texttt{1} & & \texttt{1} & \texttt{0x441960} \\
-		\texttt{7} & \texttt{1} & & \texttt{2} & \texttt{0x441960} \\
-		\texttt{8} & \texttt{1} & & \texttt{1} & \texttt{0x441960} \\
-		\texttt{9} & \texttt{1} & & \texttt{2} & \texttt{0x441960} \\
+		& \texttt{device} & \texttt{<-->} & \texttt{controller} &  \\
+		\texttt{TAPE} & \texttt{-->} & \texttt{MTP}  & \texttt{dev\_code} & \texttt{type} \\
+		\texttt{1} & & \texttt{0} &  \texttt{1} & \texttt{MTP} \\
+		\texttt{2} & & \texttt{0} &  \texttt{2} & \texttt{MTP} \\
+		\texttt{3} & & \texttt{0} &  \texttt{3} & \texttt{MTP} \\
+		\texttt{4} & & \texttt{0} &  \texttt{4} & \texttt{MTP} \\
+		\texttt{5} & & \texttt{0} &  \texttt{5} & \texttt{MTP} \\
+		\texttt{6} & & \texttt{0} &  \texttt{6} & \texttt{MTP} \\
+		\texttt{7} & & \texttt{0} &  \texttt{7} & \texttt{MTP} \\
+		\texttt{8} & & \texttt{0} &  \texttt{8} & \texttt{MTP} \\
+		\texttt{9} & & \texttt{0} &  \texttt{9} & \texttt{MTP} \\
+		\texttt{10} & & \texttt{0} &  \texttt{10} & \texttt{MTP} \\
+		\texttt{11} & & \texttt{0} &  \texttt{11} & \texttt{MTP} \\
+		\texttt{12} & & \texttt{0} &  \texttt{12} & \texttt{MTP} \\
+		\texttt{13} & & \texttt{0} &  \texttt{13} & \texttt{MTP} \\
+		\texttt{14} & & \texttt{0} &  \texttt{14} & \texttt{MTP} \\
+		\texttt{15} & & \texttt{0} &  \texttt{15} & \texttt{MTP} \\
+		\texttt{16} & & \texttt{0} &  \texttt{16} & \texttt{MTP} \\
+	\end{tabular}
+\end{adjustwidth}
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+        \texttt{DISK} & \texttt{-->} & \texttt{CTLR}  & \texttt{dev\_code} & \texttt{type} \\
+		\texttt{0} & & \texttt{0} &  \texttt{0} & \texttt{IPC} \\
+		\texttt{1} & & \texttt{0} &  \texttt{1} & \texttt{IPC} \\
+		\texttt{2} & & \texttt{0} &  \texttt{2} & \texttt{IPC} \\
+		\texttt{3} & & \texttt{0} &  \texttt{3} & \texttt{IPC} \\
+		\texttt{4} & & \texttt{0} &  \texttt{1} & \texttt{MSP} \\
+		\texttt{5} & & \texttt{0} &  \texttt{2} & \texttt{MSP} \\
+		\texttt{6} & & \texttt{0} &  \texttt{3} & \texttt{MSP} \\
+		\texttt{7} & & \texttt{0} &  \texttt{4} & \texttt{MSP} \\
+		\texttt{8} & & \texttt{0} &  \texttt{5} & \texttt{MSP} \\
+		\texttt{9} & & \texttt{0} &  \texttt{6} & \texttt{MSP} \\
+		\texttt{10} & & \texttt{0} &  \texttt{7} & \texttt{MSP} \\
+		\texttt{11} & & \texttt{0} &  \texttt{8} & \texttt{MSP} \\
+		\texttt{12} & & \texttt{0} &  \texttt{9} & \texttt{MSP} \\
+		\texttt{13} & & \texttt{0} &  \texttt{10} & \texttt{MSP} \\
+		\texttt{14} & & \texttt{0} &  \texttt{4} & \texttt{IPC} \\
+		\texttt{15} & & \texttt{0} &  \texttt{5} & \texttt{IPC} \\
+		\texttt{16} & & \texttt{0} &  \texttt{6} & \texttt{IPC} \\
+		\texttt{17} & & \texttt{0} &  \texttt{7} & \texttt{IPC} \\
+		\texttt{18} & & \texttt{0} &  \texttt{8} & \texttt{IPC} \\
+		\texttt{19} & & \texttt{0} &  \texttt{9} & \texttt{IPC} \\
+		\texttt{20} & & \texttt{0} &  \texttt{10} & \texttt{IPC} \\
+		\texttt{21} & & \texttt{0} &  \texttt{11} & \texttt{IPC} \\
+		\texttt{22} & & \texttt{0} &  \texttt{12} & \texttt{IPC} \\
+		\texttt{23} & & \texttt{0} &  \texttt{13} & \texttt{IPC} \\
+		\texttt{24} & & \texttt{0} &  \texttt{14} & \texttt{IPC} \\
+		\texttt{25} & & \texttt{0} &  \texttt{15} & \texttt{IPC} \\
+    \end{tabular}
+\end{adjustwidth}
+\begin{adjustwidth}{5ex}{1ex}
+	\begin{tabular}{ccccc}
+       \texttt{RDR} & \texttt{-->} & \texttt{URP}  & \texttt{dev\_code} & \texttt{type} \\
+		\texttt{0} & & \texttt{0} &  \texttt{1} & \texttt{URP} \\
+		\texttt{1} & & \texttt{6} &  \texttt{1} & \texttt{URP} \\
+		\texttt{2} & & \texttt{7} &  \texttt{1} & \texttt{URP} \\
+        \texttt{PUN} & \texttt{-->} & \texttt{URP}  & \texttt{dev\_code} & \texttt{type} \\
+		\texttt{0} & & \texttt{1} &  \texttt{1} & \texttt{URP} \\
+		\texttt{1} & & \texttt{8} &  \texttt{1} & \texttt{URP} \\
+		\texttt{2} & & \texttt{9} &  \texttt{1} & \texttt{URP} \\
+        \texttt{PRT} & \texttt{-->} & \texttt{URP}  & \texttt{dev\_code} & \texttt{type} \\
+		\texttt{0} & & \texttt{2} &  \texttt{1} & \texttt{URP} \\
+		\texttt{1} & & \texttt{3} &  \texttt{1} & \texttt{URP} \\
+		\texttt{2} & & \texttt{4} &  \texttt{1} & \texttt{URP} \\
+		\texttt{3} & & \texttt{5} &  \texttt{1} & \texttt{URP} \\
+
 	\end{tabular}
 \end{adjustwidth}
