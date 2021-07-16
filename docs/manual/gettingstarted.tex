@@ -255,4 +255,45 @@ Run Multics:
     \texttt{.\textbackslash{}dps8.exe <boot.ini>} \\
 \end{adjustwidth}  
 
+\newpage
+
+\subsubsection[Building dps8m under Raspbian]{BUILDING DPS8M UNDER RASPIAN}
+
+This has been tested.
+
+\textbf{Install needed packages:}
+
+\begin{adjustwidth}{5ex}{1ex}
+	\texttt{sudo apt-get update} \\
+    \texttt{sudo apt-get install git libtool automake clang}
+\end{adjustwidth}  
+
+\textbf{Build 'libuv'}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{git clone https://github.com/libuv/libuv.git} \\
+    \texttt{cd libuv} \\
+    \texttt{git checkout v1.23.0} \\
+    \texttt{sh autogen.sh} \\
+    \texttt{./configure --prefix=/usr} \\
+    \texttt{make} \\
+    \texttt{sudo make install} \\
+    \texttt{cd ..} \\
+\end{adjustwidth}  
+
+\textbf{Build dps8}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{git clone https://gitlab.com/dps8m/dps8m} \\
+    \texttt{cd dps8m} \\
+    \texttt{git checkout R2.0} \\
+    \texttt{make M32=1} \\
+\end{adjustwidth}  
+
+\textbf{Running the Simulator}
+
+\begin{adjustwidth}{5ex}{1ex}
+    \texttt{(Copy 'src/dps8/dps8' to the desired working directory)} \\
+    \texttt{./dps8 [boot script]} \\
+\end{adjustwidth}  
 
