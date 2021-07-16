@@ -152,7 +152,7 @@ static char * default_base_system_script [] =
     // ;
     // ; Configure test system
     // ;
-    // ; CPU, IOM * 2, MPC, TAPE * 16, DISK * 16, SCU * 4, OPC, FNP, URP * 3,
+    // ; CPU, IOM * 2, MPC, TAPE * 16, DISK * 16, SCU * 4, OPC * 2, FNP, URP * 3,
     // ; PRT, RDR, PUN
     // ;
     // ;
@@ -240,7 +240,7 @@ static char * default_base_system_script [] =
     "set msp nunits=2",
     "set disk nunits=26",
     "set scu nunits=4",
-    "set opc nunits=3",
+    "set opc nunits=2",
     "set fnp nunits=8",
     "set urp nunits=10",
     "set rdr nunits=3",
@@ -1307,7 +1307,6 @@ static char * default_base_system_script [] =
     // ; Attach OPC unit 0 to IOM A, chan 036, dev_code 0
     "cable IOMA 036 opc0",
     "cable IOMA 053 opc1",
-    "cable IOMA 054 opc2",
     "set opc2 config=model=m6601",
    // No devices for console, so no 'cable OPC0 # CONx'
 
