@@ -1976,12 +1976,10 @@ int processIsTranslated(void)
 {
     int ret = 0;
     size_t size = sizeof(ret);
-    if (sysctlbyname("sysctl.proctranslated", &ret, &size, NULL, 0) == -1) {
-        if (errno == ENOENT) {
+    if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
+        if (errno == ENOENT)
             return 0;
-        }
-        return -1;
-    }
+        return -1; }
     return ret;
 }
 #endif
@@ -4610,7 +4608,7 @@ if (flag) {
             (strstr(VER_H_GIT_VERSION, "A")) || \
             (strstr(VER_H_GIT_VERSION, "B"))) {
                 dirty++;
-		}
+        }
 #if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #if defined(VER_H_GIT_HASH)
 #if VER_H_GIT_PATCH_INT < 1
@@ -4768,27 +4766,27 @@ if (flag) {
     strremove(postver, "(R)");
     strremove(postver, "git://github.com/OpenIndiana/oi-userland.git ");
     strremove(postver, "4.2.1 Compatible ");
-	strremove(postver, "git@github.com:llvm/llvm-project.git ");
+    strremove(postver, "git@github.com:llvm/llvm-project.git ");
 #endif
 #if defined (__GNUC__) && defined (__VERSION__)
 #ifndef __clang_version__
-	if (isdigit(gnumver[0])) {
+    if (isdigit(gnumver[0])) {
         fprintf (st, "\n  Compiler: GCC %s", postver);
     } else {
         fprintf (st, "\n  Compiler: %s", postver);
     }
 #endif
 #if defined (__clang_version__) && defined (__VERSION__)
-	char clangllvmver[1024];
-	sprintf(clangllvmver, "%.1023s", __clang_version__);
-	strremove(clangllvmver, "git://github.com/OpenIndiana/oi-userland.git ");
+    char clangllvmver[1024];
+    sprintf(clangllvmver, "%.1023s", __clang_version__);
+    strremove(clangllvmver, "git://github.com/OpenIndiana/oi-userland.git ");
     if (gnumver[0] == 'c' || gnumver[0] == 'C') {
         fprintf (st, "\n  Compiler: Clang %s", clangllvmver);
     } else {
         fprintf (st, "\n  Compiler: %s", postver);
     }
 #elif defined (__clang_version__)
-	fprintf (st, "\n  Compiler: %s", postver);
+    fprintf (st, "\n  Compiler: %s", postver);
 #endif
 #elif defined (_MSC_FULL_VER) && defined (_MSC_BUILD)
     fprintf (st, "\n  Compiler: Microsoft C %d.%02d.%05d.%02d", _MSC_FULL_VER/10000000, (_MSC_FULL_VER/100000)%100, _MSC_FULL_VER%100000, _MSC_BUILD);
@@ -4926,8 +4924,9 @@ if (flag) {
         }
 #endif
 #if defined(__APPLE__)
-    if (processIsTranslated()) {
-        fprintf (st, "\n\n  ****** RUNNING UNDER APPLE ROSETTA 2, EXPECT REDUCED PERFORMANCE ******");
+	int isRosetta = processIsTranslated();
+    if (isRosetta == 1) {
+        sim_printf ("\n\n  ****** RUNNING UNDER APPLE ROSETTA 2, EXPECT REDUCED PERFORMANCE ******");
     }
 #endif
 fprintf (st, "\n");
