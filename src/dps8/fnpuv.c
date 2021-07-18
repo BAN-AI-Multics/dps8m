@@ -7,13 +7,13 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 // The FNP <--> libuv interface
 //
 // Every libuv TCP connection has a uv_tcp_t object.
-// 
+//
 // The uv_tcp_t object has a 'user data' field defined as "void * data".
 //
 // This code stores a pointer to a "struct uvClientData" in 'data'; this
@@ -27,7 +27,7 @@
 //    uint lineno;
 //
 //       If 'assoc' is true, the TCP connection is associated with a particular
-//       HSLA line as specified by 'fnpno' and 'lineno'. A dialup line is 
+//       HSLA line as specified by 'fnpno' and 'lineno'. A dialup line is
 //       associated by the user entering the FNP name and line number in the
 //       multiplexor dial in dialog. For slave and dialout lines, 'assoc'
 //       is always true as the assoication is predetermined by the FNP
@@ -39,7 +39,7 @@
 //      Line canonicalization buffer used by the multiplexor dial in dialog.
 //
 // Each HSLA line is identified by a 'fnpno', 'lineno' pair. 'fnpno' indexes
-// into the 'fnpUnitData' data structure and 'lineno' into 
+// into the 'fnpUnitData' data structure and 'lineno' into
 // 'fnpUnitData[fnpno].MState.line[]'.
 //
 // The 'line' structure contains:
@@ -63,12 +63,12 @@
 //     TCP server port for the slave line.
 //
 //     The data field of 'server' points to a uvClientData structure; this
-//     field is used by the incoming connection handler to distinguish the 
+//     field is used by the incoming connection handler to distinguish the
 //     slave and dialup server ports. (If null, dialup; else slave.)
 //
 //   uv_connect_t doConnect;
 //
-//     libuv uses a uv_connect_t object to create outbound connections; 
+//     libuv uses a uv_connect_t object to create outbound connections;
 //     the dialout code uses 'doConnect' for this.
 //
 //   int port;
@@ -79,35 +79,35 @@
 
 // Dialup logic.
 //
-// The code assumes a single port number for all dialup lines, even for the 
+// The code assumes a single port number for all dialup lines, even for the
 // case of multiple FNPs.
 //
 // 'fnpuvInit()' is called when by the 'fnpserverport' command logic. It
 // creates a TCP server listen port, assigning 'on_new_connection()' as
 // the connection callback handler.
 //
-// When a connection is made to the listen port, libuv invokes the 
+// When a connection is made to the listen port, libuv invokes the
 // 'on_new_connection()' callback handler.
 //
-// The handler creates a 'uv_tcp_t' object 'client' and accepts the 
-// connection. 
+// The handler creates a 'uv_tcp_t' object 'client' and accepts the
+// connection.
 //
 // It then checks the 'data' field on the listener object to see if this
 // is a dialup or slave listener. For the case of dialup, a 'uvClientData'
 // object is created and its 'assoc' field is set to false to flag the
 // the connection as not yet being associated with an HSLA line; the
 // libtelnet data structure is intialized and the initial Telnet negotiations
-// are started. 'client->data' is set the the 'uvClientData' object, 
+// are started. 'client->data' is set the the 'uvClientData' object,
 // reading is enabled on 'client', and the HSLA line selection dialog
 // prompt is sent down the dialup connection.
 //
 // When input data is ready on the connection (user input), libuv allocates
 // a buffer, fills it with the data calls the 'fuv_read_cb()' callback handler.
 //
-// The handler looks at the 'data' field of the connection to access the 
-// 'uvClientData' structure; if the sturcture indicates that Telnet 
+// The handler looks at the 'data' field of the connection to access the
+// 'uvClientData' structure; if the sturcture indicates that Telnet
 // processing is to be done, it passes the data to libtelent handler.
-// Otherwise, it checks the 'assoc' field; if true the data is passed to the 
+// Otherwise, it checks the 'assoc' field; if true the data is passed to the
 // FNP incoming data handler; if false, to the multiplexor line selection
 // dialog handler. The libtelnet handler, after stripping and processing
 // Telnet overhead passes any remaining data on in the same manner.
@@ -120,7 +120,7 @@
 
 // Data are written to the TCP connections with 'fnpuv_start_write()'. The
 // 'uvClientData' is inspected for telnet usage; if so, the data is passed
-// to libtelnet for telnet packaging and is sent on to 
+// to libtelnet for telnet packaging and is sent on to
 // 'fnpuv_start_write_actual'. If telnet is not in play, the data is sent
 // directly on to 'fnpuv_start_write_actual()' There, a buffer is allocated
 // and the data copied and a 'uv_write_t' request object is created and
@@ -139,7 +139,7 @@
 // the dialout line HSLA, and if the Telnet flag is set, the Telnet processor
 // is initialized. The TCP connect is initiated and the procedure returns.
 //
-// When the connection succeeds or times out, the 'on_dialout_connect()' callback 
+// When the connection succeeds or times out, the 'on_dialout_connect()' callback
 // is called. on_dialout_connect retrieves the 'uvClientData'. If the connection
 // succeeded, the connection data field is set to the 'uvClientData'; read is
 // enabled on the connection, and the 'accept_new_terminal' flag is set which
@@ -156,7 +156,7 @@
 // will listen on the device and do the whole ARP rigamorole.
 //
 // It's not clear to me what happens if multiple emulators are listening
-// on the same tun device, do they each get a copy of the message (i.e. 
+// on the same tun device, do they each get a copy of the message (i.e.
 // are we wired as point-to-point)?
 //
 // Create device node:
@@ -223,12 +223,12 @@ static int tun_alloc (char * dev)
 
     memset (& ifr, 0,  sizeof (ifr));
 
-    /* Flags: IFF_TUN   - TUN device (no Ethernet headers) 
-     *        IFF_TAP   - TAP device  
+    /* Flags: IFF_TUN   - TUN device (no Ethernet headers)
+     *        IFF_TAP   - TAP device
      *
-     *        IFF_NO_PI - Do not provide packet information  
-     */ 
-    ifr.ifr_flags = IFF_TUN; 
+     *        IFF_NO_PI - Do not provide packet information
+     */
+    ifr.ifr_flags = IFF_TUN;
     if (* dev)
       strncpy (ifr.ifr_name, dev, IFNAMSIZ);
 
@@ -239,14 +239,14 @@ static int tun_alloc (char * dev)
       }
     strcpy (dev, ifr.ifr_name);
     return fd;
-  }              
+  }
 #endif
 
 //
 // alloc_buffer: libuv callback handler to allocate buffers for incomingd data.
 //
 
-static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size, 
+static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size,
                           uv_buf_t * buf)
   {
     * buf = uv_buf_init ((char *) malloc (suggested_size), (uint) suggested_size);
@@ -299,7 +299,7 @@ void fnpuv_unassociated_readcb (uv_tcp_t * client,
   {
     //printf ("unaassoc. <%*s>\n", (int) nread, buf->base);
     processUserInput (client, buf, nread);
-  } 
+  }
 
 static void fuv_close_cb (uv_handle_t * stream)
   {
@@ -316,7 +316,7 @@ void close_connection (uv_stream_t* stream)
         return;
       }
     uvClientData * p = (uvClientData *) stream->data;
-    
+
     // If stream->data, the stream is associated with a Multics line.
     // Tear down that association
     //if (p && fnpData.fnpUnitData[p->fnpno].MState.line[p->lineno].service != service_3270)
@@ -466,7 +466,7 @@ static void fuv_write_cb (uv_write_t * req, int status)
     if (nbufs > ARRAY_SIZE(req->bufsml))
       bufs = req->bufsml;
 #endif
-//sim_printf ("fuv_write_cb req %p req->data %p bufs %p nbufs %u\n", req, req->data, bufs, nbufs); 
+//sim_printf ("fuv_write_cb req %p req->data %p bufs %p nbufs %u\n", req, req->data, bufs, nbufs);
     for (unsigned int i = 0; i < nbufs; i ++)
       {
         if (bufs && bufs[i].base)
@@ -797,7 +797,7 @@ sim_printf ("[FNP emulation: dropping 2nd slave]\n");
 #endif
         linep->line_client = client;
       }
-        
+
     struct sockaddr name;
     int namelen = sizeof (name);
     uv_tcp_nodelay (client,1);
@@ -891,7 +891,7 @@ void fnpuvInit (int telnet_port, char * telnet_address)
     sim_printf ("[FNP emulation: listening to %s %d]\n", telnet_address, telnet_port);
     uv_ip4_addr (telnet_address, telnet_port, & addr);
     uv_tcp_bind (& fnpData.du_server, (const struct sockaddr *) & addr, 0);
-    int r = uv_listen ((uv_stream_t *) & fnpData.du_server, DEFAULT_BACKLOG, 
+    int r = uv_listen ((uv_stream_t *) & fnpData.du_server, DEFAULT_BACKLOG,
                        on_new_connection);
     if (r)
      {
@@ -908,7 +908,7 @@ void fnpuvProcessEvent (void)
     // requests left), or non-zero if more callbacks are expected (meaning
     // you should run the event loop again sometime in the future).
 
-    // Note that uv_run returns non-zero if that are any active_handles 
+    // Note that uv_run returns non-zero if that are any active_handles
     // (e.g. TCP connection listener open); that means a non-zero
     // return does not mean i/o is pending.
     if (! fnpData.loop)
@@ -955,7 +955,7 @@ static void on_dialout_connect (uv_connect_t * server, int status)
   }
 
 //
-// Perform a dialout 
+// Perform a dialout
 //
 
 void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
@@ -1161,7 +1161,7 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
     uv_ip4_addr (fnpData.telnet_address, linep->port, & addr);
     uv_tcp_bind (& linep->server, (const struct sockaddr *) & addr, 0);
     sim_printf ("[FNP emulation: listening on port %d]\n", linep->port);
-    int r = uv_listen ((uv_stream_t *) & linep->server, DEFAULT_BACKLOG, 
+    int r = uv_listen ((uv_stream_t *) & linep->server, DEFAULT_BACKLOG,
                        on_new_connection);
     if (r)
      {
@@ -1193,7 +1193,7 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
     uv_ip4_addr ("0.0.0.0", linep->port, & addr);
     uv_tcp_bind (linep->line_client, (const struct sockaddr *) & addr, 0);
 sim_printf ("listening on port %d\n", linep->port);
-    int r = uv_listen ((uv_stream_t *) linep->line_client, DEFAULT_BACKLOG, 
+    int r = uv_listen ((uv_stream_t *) linep->line_client, DEFAULT_BACKLOG,
                        on_slave_connect);
     if (r)
      {
@@ -1278,46 +1278,46 @@ static void fnoTUNProcessLine (int fnpno, int lineno, struct t_line * linep)
 
 // Debugging
 // 4 bytes of metadata
-#define ip 4 
+#define ip 4
     /* Do whatever with the data */
     sim_printf("Read %ld bytes\n", nread);
     sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\n",
-      buffer [0], buffer [1], buffer [2], buffer [3], 
+      buffer [0], buffer [1], buffer [2], buffer [3],
       buffer [4], buffer [5], buffer [6], buffer [7]);
     sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\n",
-      buffer [8], buffer [9], buffer [10], buffer [11], 
+      buffer [8], buffer [9], buffer [10], buffer [11],
       buffer [12], buffer [13], buffer [14], buffer [15]);
     uint version =                            (buffer [ip + 0] >> 4) & 0xf;
     uint ihl =                                (buffer [ip + 0]) & 0xf;
     uint payload_offset = ip + ihl * 4;
     uint tos =                                 buffer [ip + 1];
-    uint tl = ((uint)                 (buffer [ip + 2]) << 8) + 
+    uint tl = ((uint)                 (buffer [ip + 2]) << 8) +
                                                        buffer [ip + 3];
-    uint id = ((uint)                 (buffer [ip + 4]) << 8) + 
+    uint id = ((uint)                 (buffer [ip + 4]) << 8) +
                                                        buffer [ip + 5];
 
     uint df =                                 (buffer [ip + 6] & 0x40) ? 1 : 0;
     uint mf =                                 (buffer [ip + 6] & 0x20) ? 1 : 0;
-    uint fragment_offset = ((uint)    (buffer [ip + 6] & 0x1f) << 8) + 
+    uint fragment_offset = ((uint)    (buffer [ip + 6] & 0x1f) << 8) +
                                                        buffer [ip + 7];
     uint ttl =                                 buffer [ip + 8];
     uint protocol =                            buffer [ip + 9];
-    uint header_checksum =    (((uint) buffer [ip + 10]) << 8) + 
+    uint header_checksum =    (((uint) buffer [ip + 10]) << 8) +
                                                        buffer [ip + 11];
-    uint source_address =     (((uint) buffer [ip + 12]) << 24) + 
-                                      (((uint) buffer [ip + 13]) << 16) + 
-                                      (((uint) buffer [ip + 14]) << 8) + 
+    uint source_address =     (((uint) buffer [ip + 12]) << 24) +
+                                      (((uint) buffer [ip + 13]) << 16) +
+                                      (((uint) buffer [ip + 14]) << 8) +
                                                        buffer [ip + 15];
-    uint dest_address =       (((uint) buffer [ip + 16]) << 24) + 
-                                      (((uint) buffer [ip + 17]) << 16) + 
-                                      (((uint) buffer [ip + 18]) << 8) + 
+    uint dest_address =       (((uint) buffer [ip + 16]) << 24) +
+                                      (((uint) buffer [ip + 17]) << 16) +
+                                      (((uint) buffer [ip + 18]) << 8) +
                                                        buffer [ip + 19];
     if (protocol == 1)
       {
         uint type = buffer [payload_offset + 0];
         if (type == 0x08)
           {
-            sim_printf ("ICMP Echo Request %d.%d.%d.%d %d.%d.%d.%d\n", 
+            sim_printf ("ICMP Echo Request %d.%d.%d.%d %d.%d.%d.%d\n",
               buffer [ip + 12], buffer [ip + 13], buffer [ip + 14], buffer [ip + 15],
               buffer [ip + 16], buffer [ip + 17], buffer [ip + 18], buffer [ip + 19]);
           }
@@ -1325,14 +1325,14 @@ static void fnoTUNProcessLine (int fnpno, int lineno, struct t_line * linep)
           {
             sim_printf ("ICMP 0x%02x\n", type);
             sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\n",
-              buffer [payload_offset + 0], buffer [payload_offset + 1], buffer [payload_offset + 2], buffer [payload_offset + 3], 
+              buffer [payload_offset + 0], buffer [payload_offset + 1], buffer [payload_offset + 2], buffer [payload_offset + 3],
               buffer [payload_offset + 4], buffer [payload_offset + 5], buffer [payload_offset + 6], buffer [payload_offset + 7]);
           }
       }
     if (protocol == 0x11)
       {
         sim_printf ("UDP\n");
-       
+
       }
     else
       {
@@ -1406,7 +1406,7 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
 
     // Set up selection so the telnet negotiation can find the station.
     fnpData.ibm3270ctlr[ASSUME0].selDevChar = addr_map[stn_no];
-    
+
     struct sockaddr name;
     int namelen = sizeof (name);
     int ret = uv_tcp_getpeername (client, & name, & namelen);
@@ -1504,8 +1504,8 @@ void fnpuv3270Init (int telnet3270_port)
     sim_printf ("[FNP 3270 emulation: listening to %d]\n", telnet3270_port);
     uv_ip4_addr (fnpData.telnet_address, telnet3270_port, & addr);
     uv_tcp_bind (& fnpData.du3270_server, (const struct sockaddr *) & addr, 0);
-    int r = uv_listen ((uv_stream_t *) & fnpData.du3270_server, DEFAULT_BACKLOG, 
-		   on_new_3270_connection);
+    int r = uv_listen ((uv_stream_t *) & fnpData.du3270_server, DEFAULT_BACKLOG,
+                   on_new_3270_connection);
     if (r)
      {
         sim_printf ("[FNP 3270 emulation: Listen error %s]\n", uv_strerror (r));

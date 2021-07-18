@@ -6,9 +6,9 @@
  *
  * All rights reserved.
  *
- * This software is made available under the terms of the ICU  
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //
@@ -58,7 +58,7 @@
 // config switch -- The bootload console has a 30-second timer mechanism. When
 // reading from the console, if no character is typed within 30 seconds, the
 // read operation is terminated. The timer is controlled by an enable switch,
-// must be set to enabled during Multics and BCE 
+// must be set to enabled during Multics and BCE
 
 static t_stat opc_reset (DEVICE * dptr);
 static t_stat opc_show_nunits (FILE *st, UNIT *uptr, int val,
@@ -81,9 +81,9 @@ static MTAB opc_mtab[] =
        0,               /* match */
        "AUTOINPUT",     /* print string */
        "AUTOINPUT",     /* match pstring */
-       opc_autoinput_set, 
-       opc_autoinput_show, 
-       NULL, 
+       opc_autoinput_set,
+       opc_autoinput_show,
+       NULL,
        NULL
     },
 
@@ -124,7 +124,7 @@ static DEBTAB opc_dt[] =
     { NULL, 0, NULL }
   };
 
-// Multics only supports a single operator console; but 
+// Multics only supports a single operator console; but
 // it is possible to run multiple Multics instances in a
 // cluster.
 
@@ -188,10 +188,10 @@ DEVICE opc_dev = {
 
 /*
  Copyright (c) 2007-2013 Michael Mondy
- 
+
  This software is made available under the terms of the
  ICU License -- ICU 1.8.1 and later.
- See the LICENSE file at the top-level directory of this distribution and
+ See the LICENSE.md file at the top-level directory of this distribution and
  at http://example.org/project/LICENSE.
  */
 
@@ -215,7 +215,7 @@ typedef struct opc_state_t
     bool once_per_boot;
     int attn_hack;
 #endif
-    
+
     // stuff saved from the Read ASCII command
     time_t startTime;
     uint tally;
@@ -238,7 +238,7 @@ typedef struct opc_state_t
 
     uv_access console_access;
 
-    // ^T 
+    // ^T
     //unsigned long keyboard_poll_cnt;
 
  } opc_state_t;
@@ -410,7 +410,7 @@ static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
         if (csp->auto_input)
           free (csp->auto_input);
         csp->auto_input = NULL;
-        sim_debug (DBG_NOTIFY, & opc_dev, 
+        sim_debug (DBG_NOTIFY, & opc_dev,
                    "%s: Auto-input disabled.\n", __func__);
       }
     csp->autop = csp->auto_input;
@@ -450,7 +450,7 @@ int add_opc_autoinput (int32 flag, const char * cptr)
     return SCPE_OK;
   }
 
-static int opc_autoinput_show (UNUSED FILE * st, UNIT * uptr, 
+static int opc_autoinput_show (UNUSED FILE * st, UNIT * uptr,
                                  UNUSED int val, UNUSED const void * desc)
   {
     int conUnitIdx = (int) OPC_UNIT_NUM (uptr);
@@ -459,15 +459,15 @@ static int opc_autoinput_show (UNUSED FILE * st, UNIT * uptr,
                "%s: FILE=%p, uptr=%p, val=%d,desc=%p\n",
                __func__, (void *) st, (void *) uptr, val, desc);
     if (csp->auto_input)
-      sim_print ("Autoinput: '%s'\n", csp->auto_input); 
+      sim_print ("Autoinput: '%s'\n", csp->auto_input);
     else
       sim_print ("Autoinput: NULL\n");
     return SCPE_OK;
   }
- 
+
 static t_stat console_attn (UNUSED UNIT * uptr);
 
-static UNIT attn_unit[N_OPC_UNITS_MAX] = 
+static UNIT attn_unit[N_OPC_UNITS_MAX] =
   {
     [0 ... N_OPC_UNITS_MAX - 1] =
       {
@@ -530,7 +530,7 @@ static void handleRCP (char * text)
     char * label = NULL;
     char * with = NULL;
     char * drive = NULL;
-// 1750.1  RCP: Mount Reel 12.3EXEC_CF0019_1 without ring on tapa_01 
+// 1750.1  RCP: Mount Reel 12.3EXEC_CF0019_1 without ring on tapa_01
     int rc = sscanf (text, "%*d.%*d RCP: Mount Reel %ms %ms ring on %ms",
                 & label, & with, & drive);
 #endif
@@ -581,7 +581,7 @@ static void handleRCP (char * text)
           }
       }
 
-// Just because RCP has detached the drive, it doesn't mean that 
+// Just because RCP has detached the drive, it doesn't mean that
 // it doesn't remeber what tape is on there, and expects to be there
 
 #if 0
@@ -778,7 +778,7 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
         case 023:               // Read ASCII
         case 043:               // Read ASCII unechoed
           {
-            sim_debug (DBG_NOTIFY, & opc_dev, 
+            sim_debug (DBG_NOTIFY, & opc_dev,
                        "%s: Read ASCII command received\n", __func__);
             if (csp->tailp != csp->buf)
               {
@@ -907,7 +907,7 @@ sim_warn ("uncomfortable with this\n");
                 if (rc < 0)
                   {
                     sim_warn ("console write list service failed\n");
-                    p->stati = 05001; // BUG: arbitrary error code; 
+                    p->stati = 05001; // BUG: arbitrary error code;
                                         //config switch
                     p->chanStatus = chanStatIncomplete;
                     return IOM_CMD_ERROR;
@@ -919,7 +919,7 @@ sim_warn ("uncomfortable with this\n");
                 if (! send)
                   {
                     sim_warn ("console write nothing to send\n");
-                    p->stati = 05001; // BUG: arbitrary error code; 
+                    p->stati = 05001; // BUG: arbitrary error code;
                                         //config switch
                     p->chanStatus = chanStatIncomplete;
                     return  IOM_CMD_ERROR;
@@ -927,7 +927,7 @@ sim_warn ("uncomfortable with this\n");
                 if (p->DCW_18_20_CP == 07 || p->DDCW_22_23_TYPE == 2)
                   {
                     sim_warn ("console write expected DDCW\n");
-                    p->stati = 05001; // BUG: arbitrary error code; 
+                    p->stati = 05001; // BUG: arbitrary error code;
                                         //config switch
                     p->chanStatus = chanStatIncorrectDCW;
                     return IOM_CMD_ERROR;
@@ -1036,7 +1036,7 @@ sim_warn ("uncomfortable with this\n");
                   {
                     word36 datum = * bufp ++;
                     tally --;
-    
+
                     for (int i = 0; i < 4; i ++)
                       {
                         word36 wide_char = datum >> 27; // slide leftmost char
@@ -1113,7 +1113,7 @@ sim_warn ("uncomfortable with this\n");
 // Model 6001 vs. 6601.
 //
 // When Multics switches to 6601 mode, the PCW DCW is always 040 RESET; the
-// bootload and 6001 code never does that. Therefore, we use the 040 
+// bootload and 6001 code never does that. Therefore, we use the 040
 // as an indication that the DCW list should be processed.
 // All of the other device commands will return IOM_CMD_NO_DCW, stopping
 // parsing of the channel command program. This one will return IOM_CMD_OK,
@@ -1143,7 +1143,7 @@ sim_warn ("uncomfortable with this\n");
         case 057:               // Read ID (according to AN70-1)
           {
             // FIXME: No support for Read ID; appropriate values are not known
-            //[CAC] Looking at the bootload console code, it seems more 
+            //[CAC] Looking at the bootload console code, it seems more
             // concerned about the device responding, rather then the actual
             // returned value. Make some thing up.
             sim_debug (DBG_NOTIFY, & opc_dev,
@@ -1206,7 +1206,7 @@ static void consoleProcessIdx (int conUnitIdx)
           }
 
         // Check for ^E
-        //   (Windows doesn't handle ^E as a signal; need to explictily test 
+        //   (Windows doesn't handle ^E as a signal; need to explictily test
         //   for it.)
 
         if (breakEnable && c == SCPE_STOP)
@@ -1332,7 +1332,7 @@ static void consoleProcessIdx (int conUnitIdx)
               }
 
             //// simh ^U
-    
+
             if (ch == '\025')  // ^U
               {
                 console_putstr (conUnitIdx,  "^U\r\nSIMH> ");
@@ -1451,7 +1451,7 @@ static void consoleProcessIdx (int conUnitIdx)
               }
             if (c == 030 || c == 031) // ^X ^Y
               {
-                // an expect string is in the autoinput buffer; wait for it 
+                // an expect string is in the autoinput buffer; wait for it
                 // to be processed
                 return;
               }
@@ -1521,7 +1521,7 @@ eol:
 
     // No data
     if (c == SCPE_OK)
-        return; 
+        return;
 
     // Convert from simh encoding to ASCII
     if (c < SCPE_KFLAG)
@@ -1625,7 +1625,7 @@ eol:
       }
     // ignore other chars...
     ta_get ();
-    return;    
+    return;
   }
 
 void consoleProcess (void)
@@ -1759,25 +1759,25 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
             csp->autoaccept = (int) v;
             continue;
           }
- 
+
         if (strcmp (p, "noempty") == 0)
           {
             csp->noempty = (int) v;
             continue;
           }
- 
+
         if (strcmp (p, "attn_flush") == 0)
           {
             csp->attn_flush = (int) v;
             continue;
           }
- 
+
         if (strcmp (p, "model") == 0)
           {
             csp->model = (enum console_model) v;
             continue;
           }
- 
+
         sim_warn ("error: opc_set_config: invalid cfg_parse rc <%d>\n",
                   rc);
         cfg_parse_done (& cfg_state);
@@ -1897,4 +1897,3 @@ void startRemoteConsole (void)
 #endif
       }
   }
-

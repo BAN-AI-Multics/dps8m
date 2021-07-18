@@ -4,7 +4,7 @@
 
 ### DPS8M Simulator
 
-* The **DPS8M** simulator is distributed under the *ICU License*.
+* The **DPS8M** simulator is distributed under the ICU License.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -235,7 +235,7 @@ in this Software without prior written authorization from the authors.
 
 * **PRT2PDF** is a utility to convert the output of the **DPS8M** line
   printer to ISO 32000 Portable Document Format (PDF) format, and is
-  distributed under the *ICU License*.
+  distributed under the ICU License.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -298,7 +298,7 @@ property of their respective owners.
   Decimal Arithmetic* standard, implementing decimal floating‑point
   arithmetic and the '*Strawman 4d*' decimal encoding formats described
   by the revised IEEE 754 specification and is distributed under the
-  *ICU License*.
+  ICU License.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -354,6 +354,74 @@ in this code to the public domain. We make this dedication for the benefit
 of the public at large and to the detriment of our heirs and successors.
 We intend this dedication to be an overt act of relinquishment in perpetuity
 of all present and future rights to this code under copyright law.
+```
+
+----
+
+### blinkenLightsPi
+
+* **blinkenLightsPi** is a front-panel simulation utilizing the Raspberry
+  Pi framebuffer and targetting the AdaFruit 2441 PiTFT+ display. It was
+  written by Charles Anthony and is distributed under the terms of the
+  ICU License.
+
+```text
+ICU License —— ICU 1.8.1 to ICU 57.1
+
+COPYRIGHT AND PERMISSION NOTICE
+
+Copyright (c) 2014‑2016 Charles Anthony <charles.unix.pro@gmail.com>
+Copyright (c) 2021 The DPS8M Development Team
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+“Software”), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, and/or sell copies of the Software, and to permit persons
+to whom the Software is furnished to do so, provided that the above
+copyright notice(s) and this permission notice appear in all copies of
+the Software and that both the above copyright notice(s) and this
+permission notice appear in supporting documentation.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF THIRD PARTY RIGHTS. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+HOLDERS INCLUDED IN THIS NOTICE BE LIABLE FOR ANY CLAIM, OR ANY
+SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER
+RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+Except as contained in this notice, the name of a copyright holder
+shall not be used in advertising or otherwise to promote the sale, use
+or other dealings in this Software without prior written authorization
+of the copyright holder.
+
+All trademarks and registered trademarks mentioned herein are the
+property of their respective owners.
+```
+
+----
+
+### RASPBERRY COMPOTE
+
+* **blinkenLightsPi** incorporates code released as supporting materials from
+  the ["*Raspberry Compote*"](https://raspberrycompote.blogspot.com) blog by
+  J-P Rosti (a.k.a `-rst-` and *'Raspberry Compote'*) and distributed under
+  the Creative Commons Attribution 3.0 Unported License (CC-BY-3.0).
+
+```text
+Original work by J-P Rosti (a.k.a. -rst- and 'Raspberry Compote')
+
+Licensed under the Creative Commons Attribution 3.0 Unported License
+(http://creativecommons.org/licenses/by/3.0/deed.en_US)
+
+Distributed in the hope that this will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warrany of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ```
 
 ----

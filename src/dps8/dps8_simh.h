@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 extern DEVICE scu_dev;
@@ -27,7 +27,7 @@ extern DEVICE scu_dev;
 #define if_sim_debug(dbits, dptr) if ((0))
 
 #else
-      // ((dptr != & cpu_dev) || current_running_cpu_idx == 1) && 
+      // ((dptr != & cpu_dev) || current_running_cpu_idx == 1) &&
 
 #define if_sim_debug(dbits, dptr) \
   if ( \
@@ -42,7 +42,7 @@ extern DEVICE scu_dev;
       (sim_deb_stop == 0 || cpu.cycleCnt < sim_deb_stop) && \
       (sim_deb_mme_cntdwn == 0) && \
       ((dptr != & cpu_dev) | (((dbits) & DBG_TRACE) ? (sim_deb_skip_cnt ++ >= sim_deb_skip_limit) : (sim_deb_skip_cnt >= sim_deb_skip_limit))) \
-    ) 
+    )
 #endif
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
@@ -83,14 +83,14 @@ extern DEVICE scu_dev;
 #define DBG_ADDRMOD     (1U << 9)    ///< follow address modifications
 #define DBG_APPENDING   (1U << 10)   ///< follow appending unit operations
 #define DBG_TRACEEXT    (1U << 11)   ///< extended instruction trace
-#define DBG_WARN        (1U << 12)   
-#define DBG_DEBUG       (1U << 13)   
-#define DBG_INFO        (1U << 14)   
-#define DBG_NOTIFY      (1U << 15)   
+#define DBG_WARN        (1U << 12)
+#define DBG_DEBUG       (1U << 13)
+#define DBG_INFO        (1U << 14)
+#define DBG_NOTIFY      (1U << 15)
 #define DBG_SIM_USES_16 (1U << 16)
 #define DBG_SIM_USES_17 (1U << 17)
 #define DBG_SIM_USES_18 (1U << 18)
-#define DBG_ERR         (1U << 19)   
+#define DBG_ERR         (1U << 19)
 #define DBG_ALL (DBG_NOTIFY | DBG_INFO | DBG_ERR | DBG_DEBUG | DBG_WARN | \
                  DBG_ERR | DBG_TRACE )
 #define DBG_FAULT       (1U << 20)  ///< follow fault handling
@@ -104,7 +104,7 @@ extern DEVICE scu_dev;
 // Abort codes, used to sort out longjmp's back to the main loop.
 // Codes > 0 are simulator stop codes
 // Codes < 0 are internal aborts
-// Code  = 0 stops execution for an interrupt check (XXX Don't know if I like 
+// Code  = 0 stops execution for an interrupt check (XXX Don't know if I like
 // this or not)
 // XXX above is not entirely correct (anymore).
 
@@ -116,10 +116,10 @@ extern DEVICE scu_dev;
 
 // not really STOP codes, but get returned from instruction loops
 #define CONT_TRA    -1  // encountered a transfer instruction; don't bump PPR.IC
-#define CONT_DIS    -2  // instruction was a DIS 
-#define CONT_XEC    -3  // instruction was a XEC or XED 
+#define CONT_DIS    -2  // instruction was a DIS
+#define CONT_XEC    -3  // instruction was a XEC or XED
 #define CONT_RET    -5  // encountered a return instruction; don't bump PPR.IC,
-			// do instruction fetch
+                        // do instruction fetch
 
 //
 // mask entry flags
@@ -130,8 +130,8 @@ extern DEVICE scu_dev;
 //  MTAB_VALR takes a value (required)
 //  MTAB_NMO valid only in named SHOW
 //  MTAB_NC do not convert option value to upper case
-//  MTAB_SHP SHOW parameter takes optional value 
- 
+//  MTAB_SHP SHOW parameter takes optional value
+
 // Requires a value, DEV and DEVn both work, not in "show"
 #define MTAB_unit_value      MTAB_XTD | MTAB_VUN | MTAB_VDV | MTAB_NMO | MTAB_VALR
 // Requires a value, DEVn, not in "show"
@@ -145,13 +145,13 @@ extern DEVICE scu_dev;
 // Requires a value, DEV only, not in "show"
 #define MTAB_dev_value     MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR
 // No value, DEV only, in "show"
-#define MTAB_dev_novalue     MTAB_XTD | MTAB_VDV 
+#define MTAB_dev_novalue     MTAB_XTD | MTAB_VDV
 // Requires a value, DEVn only, in "show", don't uppercase value
 #define MTAB_unit_valr_nouc MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC
 // Value optional, DEVn only, do not uppercase value
 #define MTAB_unit_nouc MTAB_XTD | MTAB_VUN | MTAB_NC
 // Value optional, DEVn only,  uppercase value
-#define MTAB_unit_uc MTAB_XTD | MTAB_VUN 
+#define MTAB_unit_uc MTAB_XTD | MTAB_VUN
 // Value required, DEV only
 #define MTAB_dev_valr MTAB_XTD | MTAB_VDV | MTAB_VALR
 // End of list marker

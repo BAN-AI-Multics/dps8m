@@ -9,14 +9,14 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //#ifdef __MINGW64__
 //#ifndef SRWLOCK
 //typedef PVOID RTL_SRWLOCK;
 //typedef RTL_SRWLOCK SRWLOCK, *PSRWLOCK;
-//#endif 
+//#endif
 //#endif
 #include <uv.h>
 #include "libtelnet.h"
@@ -33,7 +33,7 @@ extern DEVICE fnp_dev;
 
 //
 // MState_t state of an FNP
-// 
+//
 
 // memset(0) sets service to serivce_undefined (0)
 enum service_types {service_undefined = 0, service_login, service_3270, service_autocall, service_slave};
@@ -54,7 +54,7 @@ typedef struct t_MState
         enum service_types service;
 
         // libuv hook
-        // For non-multiplexed lines, the connection to the remote is stored here; 
+        // For non-multiplexed lines, the connection to the remote is stored here;
         // For multiplexed lines (3270), the connection to the currenty selected station is stored here. Used by wtx.
         uv_tcp_t * line_client;
 
@@ -125,10 +125,10 @@ typedef struct t_MState
         uint accept_input; // If non-zero, the number of centiseconds until
                           // an accept_input message should be sent; this is
                           // deal with 'reject_request' retries.
-        // The 3270 controller always uses ACCEPT_INPUT 
+        // The 3270 controller always uses ACCEPT_INPUT
         bool force_accept_input;
 
-        bool waitForMbxDone; // If set, the line has sent input to the CS, 
+        bool waitForMbxDone; // If set, the line has sent input to the CS,
                              // but the CS has not completed the mbx transaction;
                              // in order to prevent input data reordering, serialize
                              // the commands by waiting for this to clear before
@@ -148,7 +148,7 @@ typedef struct t_MState
 
 
         // Dialout hooks
-        uv_connect_t doConnect; 
+        uv_connect_t doConnect;
 
         // Slave hooks
         uv_tcp_t server;
@@ -237,11 +237,11 @@ typedef struct s_fnpData
 
 extern t_fnpData fnpData;
 
-// dn355_mailbox.incl.pl1 
+// dn355_mailbox.incl.pl1
 //   input_sub_mbx
 //       pad1:8, line_number:10, n_free_buffers:18
 //       n_chars:18, op_code:9, io_cmd:9
-//       n_buffers 
+//       n_buffers
 //       { abs_addr:24, tally:12 } [24]
 //       command_data
 
@@ -289,27 +289,27 @@ struct mailbox
     struct fnp_submailbox fnp_sub_mbxes [4];
   };
 
-#define MAILBOX_WORDS (sizeof (struct mailbox) / sizeof (word36))
+#define MAILBOX_WORDS       (sizeof (struct mailbox) / sizeof (word36))
 
-#define DIA_PCW			(offsetof (struct mailbox, dia_pcw) / sizeof (word36))
-#define TERM_INPT_MPX_WD	(offsetof (struct mailbox, term_inpt_mpx_wd) / sizeof (word36))
-#define CRASH_DATA		(offsetof (struct mailbox, crash_data) / sizeof (word36))
-#define DN355_SUB_MBXES		(offsetof (struct mailbox, dn355_sub_mbxes) / sizeof (word36))
-#define FNP_SUB_MBXES		(offsetof (struct mailbox, fnp_sub_mbxes) / sizeof (word36))
+#define DIA_PCW                     (offsetof (struct mailbox, dia_pcw) / sizeof (word36))
+#define TERM_INPT_MPX_WD        (offsetof (struct mailbox, term_inpt_mpx_wd) / sizeof (word36))
+#define CRASH_DATA              (offsetof (struct mailbox, crash_data) / sizeof (word36))
+#define DN355_SUB_MBXES         (offsetof (struct mailbox, dn355_sub_mbxes) / sizeof (word36))
+#define FNP_SUB_MBXES           (offsetof (struct mailbox, fnp_sub_mbxes) / sizeof (word36))
 
 
-#define FNP_SUB_MBX_SIZE	(sizeof (struct fnp_submailbox) / sizeof (word36))
-#define DN355_SUB_MBX_SIZE	(sizeof (struct dn355_submailbox) / sizeof (word36))
+#define FNP_SUB_MBX_SIZE        (sizeof (struct fnp_submailbox) / sizeof (word36))
+#define DN355_SUB_MBX_SIZE      (sizeof (struct dn355_submailbox) / sizeof (word36))
 
-#define WORD1			0
-#define WORD2			1
-#define COMMAND_DATA		2
-#define MYSTERY			2
-#define WORD6			5
-#define N_BUFFERS		2
-#define DCWS			3
-#define N_DCWS			24
-#define INP_COMMAND_DATA	27
+#define WORD1                   0
+#define WORD2                   1
+#define COMMAND_DATA            2
+#define MYSTERY                 2
+#define WORD6                   5
+#define N_BUFFERS               2
+#define DCWS                    3
+#define N_DCWS                  24
+#define INP_COMMAND_DATA        27
 
 extern const unsigned char a2e [256];
 extern const unsigned char e2a [256];
@@ -333,7 +333,7 @@ extern struct fw_entry_s fw_entries [N_FW_ENTRIES];
 void fnpInit(void);
 int lookupFnpsIomUnitNumber (int fnpUnitNum);
 int lookupFnpLink (int fnpUnitNum);
-void fnpProcessEvent (void); 
+void fnpProcessEvent (void);
 t_stat diaCommand (int fnpUnitNum, char *arg3);
 void fnpToCpuQueueMsg (int fnpUnitNum, char * msg);
 int fnp_iom_cmd (uint iomUnitIdx, uint chan);

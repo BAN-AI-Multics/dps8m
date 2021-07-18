@@ -10,7 +10,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 /**
@@ -108,11 +108,11 @@
 //  EISWriteCache  -- flush the cache
 //
 //
-//  EISWriteIdx (p, n, data, flush); -- write to cache at p->addr [n]; 
+//  EISWriteIdx (p, n, data, flush); -- write to cache at p->addr [n];
 //  EISRead (p) -- read to cache from p->addr
-//  EISReadIdx (p, n)  -- read to cache from p->addr[n]; 
-//  EISReadN (p, n, dst) -- read N words to dst; 
- 
+//  EISReadIdx (p, n)  -- read to cache from p->addr[n];
+//  EISReadN (p, n, dst) -- read N words to dst;
+
 //  EISget469 (k, i)
 //  EISput469 (k, i, c)
 
@@ -183,7 +183,7 @@ static word4 get6 (word36 w, int pos)
 // AL39, Figure 2-5
 static word9 get9(word36 w, int pos)
   {
-    
+
     switch (pos)
       {
         case 0:
@@ -284,7 +284,7 @@ static word36 put6 (word36 w, int pos, word6 c)
 // AL39, Figure 2-5
 static word36 put9 (word36 w, int pos, word9 c)
   {
-    
+
     switch (pos)
       {
         case 0:
@@ -317,10 +317,10 @@ static word36 getCrAR (word4 reg)
   {
     if (reg == 0)
       return 0;
-    
+
     if (reg & 010) /* Xn */
       return cpu.rX [X (reg)];
-    
+
     switch (reg)
       {
         case TD_N:
@@ -348,7 +348,7 @@ static word36 getCrAR (word4 reg)
 //  RType reflects the AL-39 R-type and C(op. desc.)32,35 columns
 //
 //  Table 4-1. R-type Modifiers for REG Fields
-//  
+//
 //                   Meaning as used in:
 //
 //  Octal  R-type  MF.REG   Indirect operand    C(operand descriptor)32,35
@@ -407,9 +407,9 @@ sim_printf ("getMFReg18 %012"PRIo64"\n", IWB_IRODD);
             }
           return 0;
 
-        case 4: // ic - The ic modifier is permitted in 
-                // C (od)32,35 only if MFk.RL = 0, that is, if the contents of 
-                // the register is an address offset, not the designation of 
+        case 4: // ic - The ic modifier is permitted in
+                // C (od)32,35 only if MFk.RL = 0, that is, if the contents of
+                // the register is an address offset, not the designation of
                 // a register containing the operand length.
                 // Note that AL39 is wrong saying "is permitted in MFk.REG and C(od)32,35". Only C(od)32,35 is correct. cf RJ78
           if (! allowNIC)
@@ -470,9 +470,9 @@ static word36 getMFReg36 (uint n, bool allowDU, bool allowNIC, fault_ipr_subtype
            //doFault (FAULT_IPR, fst_ill_mod, "getMFReg36 du");
           return 0;
 
-        case 4: // ic - The ic modifier is permitted in MFk.REG and 
-                // C (od)32,35 only if MFk.RL = 0, that is, if the contents of 
-                // the register is an address offset, not the designation of 
+        case 4: // ic - The ic modifier is permitted in MFk.REG and
+                // C (od)32,35 only if MFk.RL = 0, that is, if the contents of
+                // the register is an address offset, not the designation of
                 // a register containing the operand length.
                 // Note that AL39 is wrong saying "is permitted in MFk.REG and C(od)32,35". Only C(od)32,35 is correct. cf RJ78
           if (! allowNIC)
@@ -521,7 +521,7 @@ static void EISWriteCache (EISaddr * p)
           {
             cpu.TPR.TRR = p -> RNR;
             cpu.TPR.TSR = p -> SNR;
-	    cpu.cu.XSF = 0;
+            cpu.cu.XSF = 0;
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
               {
                 for (uint i = 0; i < 8; i ++)
@@ -529,8 +529,8 @@ static void EISWriteCache (EISaddr * p)
                   if (p->wordDirty[i])
                     {
 #endif
-                  sim_debug (DBG_TRACEEXT, & cpu_dev, 
-                             "%s: writeCache (PR) %012"PRIo64"@%o:%06o\n", 
+                  sim_debug (DBG_TRACEEXT, & cpu_dev,
+                             "%s: writeCache (PR) %012"PRIo64"@%o:%06o\n",
                              __func__, p -> cachedParagraph [i], p -> SNR, p -> cachedAddr + i);
 #ifdef CWO
                    }
@@ -555,9 +555,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 TRR %o TSR %05o\n", eisaddr_
               //{
             cpu.TPR.TRR = cpu.PPR.PRR;
             cpu.TPR.TSR = cpu.PPR.PSR;
-	    cpu.cu.XSF = 0;
+            cpu.cu.XSF = 0;
               //}
-        
+
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
               {
                 for (uint i = 0; i < 8; i ++)
@@ -565,8 +565,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 TRR %o TSR %05o\n", eisaddr_
                   if (p->wordDirty[i])
                     {
 #endif
-                  sim_debug (DBG_TRACEEXT, & cpu_dev, 
-                             "%s: writeCache %012"PRIo64"@%o:%06o\n", 
+                  sim_debug (DBG_TRACEEXT, & cpu_dev,
+                             "%s: writeCache %012"PRIo64"@%o:%06o\n",
                              __func__, p -> cachedParagraph [i], cpu.TPR.TSR, p -> cachedAddr + i);
 #ifdef CWO
                      }
@@ -614,7 +614,7 @@ static void EISReadCache (EISaddr * p, word18 address)
       {
         cpu.TPR.TRR = p -> RNR;
         cpu.TPR.TSR = p -> SNR;
-	cpu.cu.XSF = 0;
+        cpu.cu.XSF = 0;
 { long eisaddr_idx = EISADDR_IDX (p);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 TRR %o TSR %05o\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
         Read8 (paragraphAddress, p -> cachedParagraph, true);
@@ -622,8 +622,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 TRR %o TSR %05o\n", eisaddr_i
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
           {
             for (uint i = 0; i < 8; i ++)
-              sim_debug (DBG_TRACEEXT, & cpu_dev, 
-                         "%s: readCache (PR) %012"PRIo64"@%o:%06o\n", 
+              sim_debug (DBG_TRACEEXT, & cpu_dev,
+                         "%s: readCache (PR) %012"PRIo64"@%o:%06o\n",
                            __func__, p -> cachedParagraph [i], p -> SNR, paragraphAddress + i);
           }
       }
@@ -633,17 +633,17 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 TRR %o TSR %05o\n", eisaddr_i
           //{
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.TPR.TSR = cpu.PPR.PSR;
-	cpu.cu.XSF = 0;
+        cpu.cu.XSF = 0;
           //}
-        
+
 { long eisaddr_idx = EISADDR_IDX (p);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 NO PR TRR %o TSR %05o\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
         Read8 (paragraphAddress, p -> cachedParagraph, false);
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
           {
             for (uint i = 0; i < 8; i ++)
-              sim_debug (DBG_TRACEEXT, & cpu_dev, 
-                         "%s: readCache %012"PRIo64"@%o:%06o\n", 
+              sim_debug (DBG_TRACEEXT, & cpu_dev,
+                         "%s: readCache %012"PRIo64"@%o:%06o\n",
                          __func__, p -> cachedParagraph [i], cpu.TPR.TSR, paragraphAddress + i);
           }
       }
@@ -782,19 +782,19 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
       {
         cpu.TPR.TRR = p -> RNR;
         cpu.TPR.TSR = p -> SNR;
-	cpu.cu.XSF = 0;
+        cpu.cu.XSF = 0;
         ReadPage (addressN, data, true);
 
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
           {
             for (uint i = 0; i < PGSZ; i ++)
 #ifdef EIS_PTR
-              sim_debug (DBG_TRACEEXT, & cpu_dev, 
-                         "%s: (PR) %012"PRIo64"@%o:%06o\n", 
+              sim_debug (DBG_TRACEEXT, & cpu_dev,
+                         "%s: (PR) %012"PRIo64"@%o:%06o\n",
                            __func__, data [i], cpu.TPR.TSR, addressN + i);
 #else
-              sim_debug (DBG_TRACEEXT, & cpu_dev, 
-                         "%s: (PR) %012"PRIo64"@%o:%06o\n", 
+              sim_debug (DBG_TRACEEXT, & cpu_dev,
+                         "%s: (PR) %012"PRIo64"@%o:%06o\n",
                            __func__, data [i], p -> SNR, addressN + i);
 #endif
           }
@@ -805,15 +805,15 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
           //{
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.TPR.TSR = cpu.PPR.PSR;
-	cpu.cu.XSF = 0;
+        cpu.cu.XSF = 0;
           //}
-        
+
         ReadPage (addressN, data, false);
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
           {
             for (uint i = 0; i < PGSZ; i ++)
-              sim_debug (DBG_TRACEEXT, & cpu_dev, 
-                         "%s: %012"PRIo64"@%o:%06o\n", 
+              sim_debug (DBG_TRACEEXT, & cpu_dev,
+                         "%s: %012"PRIo64"@%o:%06o\n",
                          __func__, data [i], cpu.TPR.TSR, addressN + i);
           }
       }
@@ -844,19 +844,19 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
       {
         cpu.TPR.TRR = p -> RNR;
         cpu.TPR.TSR = p -> SNR;
-	cpu.cu.XSF = 0;
+        cpu.cu.XSF = 0;
         WritePage (addressN, data, true);
 
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
           {
             for (uint i = 0; i < PGSZ; i ++)
 #ifdef EIS_PTR
-              sim_debug (DBG_TRACEEXT, & cpu_dev, 
-                         "%s: (PR) %012"PRIo64"@%o:%06o\n", 
+              sim_debug (DBG_TRACEEXT, & cpu_dev,
+                         "%s: (PR) %012"PRIo64"@%o:%06o\n",
                            __func__, data [i], cpu.TPR.TSR, addressN + i);
 #else
-              sim_debug (DBG_TRACEEXT, & cpu_dev, 
-                         "%s: (PR) %012"PRIo64"@%o:%06o\n", 
+              sim_debug (DBG_TRACEEXT, & cpu_dev,
+                         "%s: (PR) %012"PRIo64"@%o:%06o\n",
                            __func__, data [i], p -> SNR, addressN + i);
 #endif
           }
@@ -867,15 +867,15 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
           //{
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.TPR.TSR = cpu.PPR.PSR;
-	cpu.cu.XSF = 0;
+        cpu.cu.XSF = 0;
           //}
-        
+
         WritePage (addressN, data, false);
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
           {
             for (uint i = 0; i < PGSZ; i ++)
-              sim_debug (DBG_TRACEEXT, & cpu_dev, 
-                         "%s: %012"PRIo64"@%o:%06o\n", 
+              sim_debug (DBG_TRACEEXT, & cpu_dev,
+                         "%s: %012"PRIo64"@%o:%06o\n",
                          __func__, data [i], cpu.TPR.TSR, addressN + i);
           }
       }
@@ -885,7 +885,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 static word9 EISget469 (int k, uint i)
   {
     EISstruct * e = & cpu.currentEISinstruction;
-    
+
     uint nPos = 4; // CTA9
 #ifdef EIS_PTR3
     switch (cpu.du.TAk[k-1])
@@ -896,12 +896,12 @@ static word9 EISget469 (int k, uint i)
         case CTA4:
             nPos = 8;
             break;
-            
+
         case CTA6:
             nPos = 6;
             break;
       }
-    
+
     word18 address = e -> WN [k - 1];
     uint nChars = i + e -> CN [k - 1];
 
@@ -940,7 +940,7 @@ static word9 EISget469 (int k, uint i)
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev, "EISGet469 : k: %u TAk %u coffset %u c %o \n", k, e -> TA [k - 1], residue, c);
 #endif
-    
+
     return c;
   }
 
@@ -954,11 +954,11 @@ static void EISput469 (int k, uint i, word9 c469)
 #else
     switch (e -> TA [k - 1])
 #endif
-      { 
+      {
         case CTA4:
           nPos = 8;
           break;
-            
+
         case CTA6:
           nPos = 6;
           break;
@@ -1001,7 +1001,7 @@ static void EISput469 (int k, uint i, word9 c469)
   }
 
 /*
- * return a 4- or 9-bit character at memory "*address" and position "*pos". 
+ * return a 4- or 9-bit character at memory "*address" and position "*pos".
  * Increment pos (and address if necesary)
  */
 
@@ -1066,15 +1066,15 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
 
     p -> data = EISRead (p); // read data word from memory
-    
+
     if (p -> mode == eRWreadBit)
       {
         p -> bit = getbits36_1 (p -> data, (uint) bitPosn);
-      } 
+      }
     else if (p -> mode == eRWwriteBit)
       {
         p -> data = setbits36_1 (p -> data, (uint) bitPosn, p -> bit);
-        
+
         EISWriteIdx (p, 0, p -> data, flush); // write data word to memory
       }
 
@@ -1149,9 +1149,9 @@ static void setupOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
           e -> MF3 = getbits36_7 (cpu.cu.IWB,  2);
           break;
       }
-    
+
     word18 MFk = e -> MF [k - 1];
-    
+
     if (MFk & MFkID)
     {
         PNL (L68_ (if (k == 1)
@@ -1160,7 +1160,7 @@ static void setupOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
                      DU_CYCLE_LDWRT2;))
 
         word36 opDesc = e -> op [k - 1];
-        
+
 // 18-28 MBZ check breaks Multics; line 161 of sys_trouble.alm contains
 //
 // 000103 aa 040100 1006 20    160   mlr     (id),(pr),fill(040) copy error message
@@ -1189,7 +1189,7 @@ sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
 #endif
             doFault (FAULT_IPR, fst_ill_mod, "setupOperandDescriptor 18-28,30, 31 MBZ");
           }
-#endif 
+#endif
 
         // Bits 30, 31 MBZ
         // RJ78 p. 5-39, ISOLTS 840 07a,07b
@@ -1207,7 +1207,7 @@ sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
 #else
         e -> addr [k - 1].address = address;
 #endif
-        
+
         // Indirect descriptor control. If ID = 1 for Mfk, then the kth word
         // following the instruction word is an indirect pointer to the operand
         // descriptor for the kth operand; otherwise, that word is the operand
@@ -1217,8 +1217,8 @@ sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
         // instruction word is not an operand descriptor, but is an indirect
         // pointer to an operand descriptor and is interpreted as shown in
         // Figure 4-5.
-        
-        
+
+
         // Mike Mondy michael.mondy@coffeebird.net sez' ...
         // EIS indirect pointers to operand descriptors use PR registers.
         // However, operand descriptors use AR registers according to the
@@ -1228,7 +1228,7 @@ sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
         // segment field. Emulation confirms that operand descriptors
         // need to be fetched via segments given in PR registers.
 
-        bool a = opDesc & (1 << 6); 
+        bool a = opDesc & (1 << 6);
         if (a)
           {
             // A 3-bit pointer register number (n) and a 15-bit offset relative
@@ -1250,7 +1250,7 @@ sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
             e -> addr [k - 1].RNR = max3 (cpu.PR [n].RNR,
                                             cpu.TPR.TRR,
                                             cpu.PPR.PRR);
-                
+
             e -> addr [k - 1].mat = viaPR;   // ARs involved
 sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
           }
@@ -1263,7 +1263,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "No ARb %u\n", k - 1);
         // Address modifier for ADDRESS. All register modifiers except du and
         // dl may be used. If the ic modifier is used, then ADDRESS is an
         // 18-bit offset relative to value of the instruction counter for the
-        // instruction word. C(REG) is always interpreted as a word offset. REG 
+        // instruction word. C(REG) is always interpreted as a word offset. REG
 
         uint reg = opDesc & 017;
         // XXX RH03/RJ78 say a,q modifiers are also available here. AL39 says al/ql only
@@ -1277,9 +1277,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "No ARb %u\n", k - 1);
 #else
         e -> addr [k - 1].address = address;
 #endif
-        
+
         // read EIS operand .. this should be an indirectread
-        e -> op [k - 1] = EISRead (& e -> addr [k - 1]); 
+        e -> op [k - 1] = EISRead (& e -> addr [k - 1]);
     }
     else
     {
@@ -1309,7 +1309,7 @@ static void parseAlphanumericOperandDescriptor (uint k, uint useTA, bool allowDU
   {
     EISstruct * e = & cpu.currentEISinstruction;
     word18 MFk = e -> MF [k - 1];
-    
+
     PNL (L68_ (if (k == 1)
       DU_CYCLE_ANLD1;
     else if (k == 2)
@@ -1320,12 +1320,12 @@ static void parseAlphanumericOperandDescriptor (uint k, uint useTA, bool allowDU
     PNL (cpu.du.POP = 1);
 
     word36 opDesc = e -> op [k - 1];
-    
+
     word8 ARn_CHAR = 0;
     word6 ARn_BITNO = 0;
-    
+
     word18 address = GETHI (opDesc);
-    
+
 #ifdef EIS_PTR3
     if (useTA != k)
       cpu.du.TAk[k-1] = cpu.du.TAk[useTA-1];
@@ -1391,10 +1391,10 @@ static void parseAlphanumericOperandDescriptor (uint k, uint useTA, bool allowDU
         CPTUR (cptUsePRn + n);
         word18 offset = SIGNEXT15_18 ((word15) address);  // 15-bit signed number
         address = (cpu.AR [n].WORDNO + offset) & AMASK;
-        
+
         ARn_CHAR = GET_AR_CHAR (n); // AR[n].CHAR;
         ARn_BITNO = GET_AR_BITNO (n); // AR[n].BITNO;
-        
+
         cpu.cu.TSN_PRNO[k-1] = n;
         cpu.cu.TSN_VALID[k-1] = 1;
         e -> addr [k - 1].SNR = cpu.PR [n].SNR;
@@ -1409,7 +1409,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
     uint CN = getbits36_3 (opDesc, 18);    // character number
 
     sim_debug (DBG_TRACEEXT, & cpu_dev, "initial CN%u %u\n", k, CN);
-    
+
     if (MFk & MFkRL)
     {
         uint reg = opDesc & 017;
@@ -1442,14 +1442,14 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
       }
     else
       e -> N [k - 1] = opDesc & 07777;
-    
+
     //if (e->N [k - 1] == 0)
       //doFault (FAULT_IPR, FR_ILL_PROC, "parseAlphanumericOperandDescriptor N 0");
 
     sim_debug (DBG_TRACEEXT, & cpu_dev, "N%u %o\n", k, e->N[k-1]);
 
     word36 r = getMFReg36 (MFk & 017, allowDU, true, mod_fault); // allow du based on instruction, allow n,ic
-    
+
     if ((MFk & 017) == 4)   // reg == IC ?
       {
         address += r;
@@ -1457,8 +1457,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
         r = 0;
       }
 
-    // If seems that the effect address calcs given in AL39 p.6-27 are not 
-    // quite right. E.g. For CTA4/CTN4 because of the 4 "slop" bits you need 
+    // If seems that the effect address calcs given in AL39 p.6-27 are not
+    // quite right. E.g. For CTA4/CTN4 because of the 4 "slop" bits you need
     // to do 32-bit calcs not 36-bit!
     uint effBITNO = 0;
     uint effCHAR = 0;
@@ -1475,18 +1475,18 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
             // Calculate character number of ARn CHAR and BITNO
             uint bitoffset = ARn_CHAR * 9u + ARn_BITNO;
             uint arn_char4 = bitoffset * 2 / 9; // / 4.5
-            // 8 chars per word plus the number of chars in r, plus the 
+            // 8 chars per word plus the number of chars in r, plus the
             // number of chars in ARn CHAR/BITNO plus the CN from the operand
 // XXX Handle 'r' too big intelligently...
             uint nchars = address * 8 + (uint) r + arn_char4 + CN;
 
             effWORDNO = nchars / 8; // 8 chars/word
-            effCHAR = nchars % 8; // effCHAR is the 4 bit char number, not 
+            effCHAR = nchars % 8; // effCHAR is the 4 bit char number, not
                                   // the 9-bit char no
             effBITNO = (nchars & 1) ? 5 : 0;
 
             effWORDNO &= AMASK;
-            
+
             e -> CN [k - 1] = effCHAR;
             e -> WN [k - 1] = effWORDNO;
 
@@ -1512,7 +1512,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
                             6u * r +
                             ARn_BITNO) / 36u);
           effWORDNO &= AMASK;
-            
+
           e -> CN [k - 1] = effCHAR;   // ??????
           e -> WN [k - 1] = effWORDNO;
           sim_debug (DBG_TRACEEXT, & cpu_dev, "CN%d set to %d by CTA6\n",
@@ -1527,10 +1527,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
             *mod_fault |= FR_ILL_PROC;
 #endif
           CN = (CN >> 1);
-            
+
           effBITNO = 0;
           effCHAR = (CN + ARn_CHAR + r) % 4;
-          sim_debug (DBG_TRACEEXT, & cpu_dev, 
+          sim_debug (DBG_TRACEEXT, & cpu_dev,
                      "effCHAR %d = (CN %d + ARn_CHAR %d + r %"PRId64") %% 4)\n",
                      effCHAR, CN, ARn_CHAR, r);
           effWORDNO = (uint) (address +
@@ -1539,7 +1539,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
                              9u * r +
                              ARn_BITNO) / 36u));
           effWORDNO &= AMASK;
-            
+
           e -> CN [k - 1] = effCHAR;   // ??????
           e -> WN [k - 1] = effWORDNO;
           sim_debug (DBG_TRACEEXT, & cpu_dev, "CN%d set to %d by CTA9\n",
@@ -1555,7 +1555,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
           //sim_printf ("parseAlphanumericOperandDescriptor(ta=%d) How'd we get here 2?\n", e->TA[k-1]);
           break;
     }
-    
+
     EISaddr * a = & e -> addr [k - 1];
     PNL (cpu.du.Dk_PTR_W[k-1] = effWORDNO);
 #ifdef EIS_PTR
@@ -1565,7 +1565,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "AR n %u k %u\n", n, k - 1);
 #endif
     a -> cPos= (int) effCHAR;
     a -> bPos = (int) effBITNO;
-    
+
 #ifndef EIS_PTR3
     // a->_type = eisTA;
     a -> TA = (int) e -> TA [k - 1];
@@ -1587,9 +1587,9 @@ static void parseArgOperandDescriptor (uint k, fault_ipr_subtype_ *mod_fault)
     word1 yA = GET_A (opDesc);
 
     uint yREG = opDesc & 0xf;
-    
+
     word36 r = getMFReg36 (yREG, false, true, mod_fault); // disallow du, allow n,ic
-    
+
     word8 ARn_CHAR = 0;
     word6 ARn_BITNO = 0;
 
@@ -1604,20 +1604,20 @@ static void parseArgOperandDescriptor (uint k, fault_ipr_subtype_ *mod_fault)
         CPTUR (cptUsePRn + n);
         word15 offset = y & MASK15;  // 15-bit signed number
         y = (cpu.AR [n].WORDNO + SIGNEXT15_18 (offset)) & AMASK;
-        
+
         ARn_CHAR = GET_AR_CHAR (n); // AR[n].CHAR;
         ARn_BITNO = GET_AR_BITNO (n); // AR[n].BITNO;
-        
+
         cpu.cu.TSN_PRNO[k-1] = n;
         cpu.cu.TSN_VALID[k-1] = 1;
         e -> addr [k - 1].SNR = cpu.PR[n].SNR;
         e -> addr [k - 1].RNR = max3 (cpu.PR [n].RNR, cpu.TPR.TRR, cpu.PPR.PRR);
         e -> addr [k - 1].mat = viaPR;
       }
-    
+
     y += ((9u * ARn_CHAR + 36u * r + ARn_BITNO) / 36u);
     y &= AMASK;
-    
+
     PNL (cpu.du.Dk_PTR_W[k-1] = y);
 
 #ifdef EIS_PTR
@@ -1734,7 +1734,7 @@ static void parseNumericOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
 //DBG(662088814)> CPU0 FAULT: 00257:004574 4 000100301500 (BTD PR0|100) 000100 301(1) 0 0 0 00^M
 
 #ifdef ISOLTS
-#if 0 
+#if 0
 // This test does not hold true for BTD operand 1; the S field is ignored by
 // the instruction
 
@@ -1854,14 +1854,14 @@ static void parseBitstringOperandDescriptor (int k, fault_ipr_subtype_ *mod_faul
     EISstruct * e = & cpu.currentEISinstruction;
     word18 MFk = e->MF[k-1];
     word36 opDesc = e->op[k-1];
-    
+
 #ifdef PANEL
     if (k == 1)
       cpu.dataMode = 0010; // 1 bit not alpha, not alpha numeric
 #endif
     word8 ARn_CHAR = 0;
     word6 ARn_BITNO = 0;
-    
+
     PNL (cpu.du.POP = 1);
 
     word18 address = GETHI(opDesc);
@@ -1876,7 +1876,7 @@ static void parseBitstringOperandDescriptor (int k, fault_ipr_subtype_ *mod_faul
         address = (cpu.AR[n].WORDNO + SIGNEXT15_18(offset)) & AMASK;
 
         sim_debug (DBG_TRACEEXT, & cpu_dev, "bitstring k %d AR%d\n", k, n);
-        
+
         ARn_CHAR = GET_AR_CHAR (n); // AR[n].CHAR;
         ARn_BITNO = GET_AR_BITNO (n); // AR[n].BITNO;
         cpu.cu.TSN_PRNO[k-1] = n;
@@ -1904,8 +1904,8 @@ static void parseBitstringOperandDescriptor (int k, fault_ipr_subtype_ *mod_faul
 
     sim_debug (DBG_TRACEEXT, & cpu_dev, "bitstring k %d opdesc %012"PRIo64"\n", k, opDesc);
     sim_debug (DBG_TRACEEXT, & cpu_dev, "N%u %u\n", k, e->N[k-1]);
-    
-    
+
+
     word4 B = getbits36_4(opDesc, 20);    // bit# from descriptor
     word2 C = getbits36_2 (opDesc, 18);     // char# from descriptor
 
@@ -1915,7 +1915,7 @@ static void parseBitstringOperandDescriptor (int k, fault_ipr_subtype_ *mod_faul
 #else
       *mod_fault |= FR_ILL_PROC;
 #endif
-     
+
     word36 r = getMFReg36(MFk & 017, false, true, mod_fault);  // disallow du, allow n,ic
     if ((MFk & 017) == 4)   // reg == IC ?
     {
@@ -1930,10 +1930,10 @@ static void parseBitstringOperandDescriptor (int k, fault_ipr_subtype_ *mod_faul
     uint effCHAR = ((9u*ARn_CHAR + r + ARn_BITNO + B + 9u*C) % 36u) / 9u;
     uint effWORDNO = (uint) (address + (9u*ARn_CHAR + r + ARn_BITNO + B + 9u*C) / 36u);
     effWORDNO &= AMASK;
-    
+
     e->B[k-1] = effBITNO;
     e->C[k-1] = effCHAR;
-    
+
     EISaddr *a = &e->addr[k-1];
     PNL (cpu.du.Dk_PTR_W[k-1] = effWORDNO);
 #ifdef EIS_PTR
@@ -1985,7 +1985,7 @@ void a4bd (void)
 //if (current_running_cpu_idx)
 //sim_printf ("a4bd address %o %d.\n", address, address);
 
-    word4 reg = GET_TD (cpu.cu.IWB); // 4-bit register modification (None except 
+    word4 reg = GET_TD (cpu.cu.IWB); // 4-bit register modification (None except
                                      // au, qu, al, ql, xn)
     // r is the count of 4bit characters
     word36 ur = getCrAR (reg);
@@ -2065,7 +2065,7 @@ void s4bd (void)
     uint ARn = GET_ARN (cpu.cu.IWB);
     CPTUR (cptUsePRn + ARn);
     int32_t address = SIGNEXT15_32 (GET_OFFSET (cpu.cu.IWB));
-    word4 reg = GET_TD (cpu.cu.IWB); // 4-bit register modification (None except 
+    word4 reg = GET_TD (cpu.cu.IWB); // 4-bit register modification (None except
                                   // au, qu, al, ql, xn)
     // r is the count of characters
     word36 ur = getCrAR (reg);
@@ -2110,7 +2110,7 @@ void axbd (uint sz)
     uint ARn = GET_ARN (cpu.cu.IWB);
     CPTUR (cptUsePRn + ARn);
     int32_t address = SIGNEXT15_32 (GET_OFFSET (cpu.cu.IWB));
-    word6 reg = GET_TD (cpu.cu.IWB); // 4-bit register modification (None except 
+    word6 reg = GET_TD (cpu.cu.IWB); // 4-bit register modification (None except
                                   // au, qu, al, ql, xn)
     // r is the count of characters
     word36 rcnt = getCrAR (reg);
@@ -2129,7 +2129,7 @@ void axbd (uint sz)
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "axbd sz %d ARn 0%o address 0%o reg 0%o r 0%o\n", sz, ARn, address, reg, r);
 
-  
+
     uint augend = 0;
     if (GET_A (cpu.cu.IWB))
       {
@@ -2165,7 +2165,7 @@ void axbd (uint sz)
 
     cpu.AR [ARn].WORDNO = (word18) (sum / 36) & AMASK;
     //SET_PR_BITNO (ARn, sum % 36);
-    SET_AR_CHAR_BITNO (ARn, (sum % 36) / 9, sum % 9);
+    SET_AR_CHAR_BITNO (ARn, (word2)((sum % 36) / 9), (word2)(sum % 9));
     HDBGRegAR (ARn);
   }
 
@@ -2223,7 +2223,7 @@ void abd (void)
           }
       }
     HDBGRegAR (ARn);
- 
+
 //if (current_running_cpu_idx)
 //sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
@@ -2237,7 +2237,7 @@ void abd (void)
 if (current_running_cpu_idx)
 sim_printf ("abd address 0%o %d.\n", address, address);
 
-    // 4-bit register modification (None except 
+    // 4-bit register modification (None except
     // au, qu, al, ql, xn)
     uint reg = GET_TD (cpu.cu.IWB);
 
@@ -2251,7 +2251,7 @@ sim_printf ("abd r 0%o %d.\n", r, r);
 
 if (current_running_cpu_idx)
 sim_printf ("abd r 0%o %d.\n", r, r);
- 
+
 #define SEPARATE
 
     uint augend = 0; // in bits
@@ -2367,7 +2367,7 @@ sim_printf ("abd sum 0%o %d.\n", sum, sum);
     //cpu.AR[ARn].CHAR = (bitno >> 4) & MASK2;
     //cpu.AR[ARn].BITNO = bitno & MASK4;
 
-    
+
 if (current_running_cpu_idx)
 sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
@@ -2378,7 +2378,7 @@ void awd (void)
     uint ARn = GET_ARN (cpu.cu.IWB);
     CPTUR (cptUsePRn + ARn);
     int32_t address = SIGNEXT15_32 (GET_OFFSET (cpu.cu.IWB));
-    // 4-bit register modification (None except 
+    // 4-bit register modification (None except
     // au, qu, al, ql, xn)
     word4 reg = (word4) GET_TD (cpu.cu.IWB);
     // r is the count of characters
@@ -2389,7 +2389,7 @@ void awd (void)
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
                "awd ARn 0%o address 0%o reg 0%o r 0%o\n", ARn, address, reg, r);
 
-  
+
     uint augend = 0;
     if (GET_A (cpu.cu.IWB))
       {
@@ -2425,7 +2425,7 @@ void sbd (void)
     if (GET_A (cpu.cu.IWB))
       {
         word24 bits = 9u * GET_AR_CHAR (ARn) + GET_AR_BITNO (ARn) - r;
-        cpu.AR[ARn].WORDNO = (cpu.AR[ARn].WORDNO - 
+        cpu.AR[ARn].WORDNO = (cpu.AR[ARn].WORDNO -
                              address + bits / 36) & MASK18;
         if (r % 36)
           {
@@ -2450,7 +2450,7 @@ void swd (void)
     uint ARn = GET_ARN (cpu.cu.IWB);
     CPTUR (cptUsePRn + ARn);
     int32_t address = SIGNEXT15_32 (GET_OFFSET (cpu.cu.IWB));
-    // 4-bit register modification (None except 
+    // 4-bit register modification (None except
     // au, qu, al, ql, xn)
     word4 reg = (word4) GET_TD (cpu.cu.IWB);
     // r is the count of characters
@@ -2486,7 +2486,7 @@ void s9bd (void)
     uint ARn = GET_ARN (cpu.cu.IWB);
     CPTUR (cptUsePRn + ARn);
     word18 address = SIGNEXT15_18 (GET_OFFSET (cpu.cu.IWB));
-    // 4-bit register modification (None except 
+    // 4-bit register modification (None except
     // au, qu, al, ql, xn)
     word4 reg = (word4) GET_TD (cpu.cu.IWB);
 
@@ -2499,11 +2499,11 @@ void s9bd (void)
 
     if (GET_A (cpu.cu.IWB))
       {
-        //cpu.AR[ARn].WORDNO = (cpu.AR[ARn].WORDNO - 
-        //                      address + 
+        //cpu.AR[ARn].WORDNO = (cpu.AR[ARn].WORDNO -
+        //                      address +
         //                      (cpu.AR[ARn].CHAR - r) / 4) & MASK18;
-        cpu.AR[ARn].WORDNO = (cpu.AR[ARn].WORDNO - 
-                              address + 
+        cpu.AR[ARn].WORDNO = (cpu.AR[ARn].WORDNO -
+                              address +
                               (GET_AR_CHAR (ARn) - r) / 4) & MASK18;
         //if (r % 36)
           //{
@@ -2523,7 +2523,7 @@ void s9bd (void)
       }
     //cpu.AR[ARn].BITNO = 0;
     HDBGRegAR (ARn);
- 
+
 //if (current_running_cpu_idx)
 //sim_printf ("s9bd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
@@ -2550,7 +2550,7 @@ void s9bd (void)
 // The general approach is do all of the math as unsigned number of bits,
 // modulo 2^18 * 36 (the number of bits in a segment).
 //
-// To handle subtraction underflow, a preemptive borrow is done if the 
+// To handle subtraction underflow, a preemptive borrow is done if the
 // the operation will underflow.
 //
 // Notes:
@@ -2561,8 +2561,8 @@ void asxbd (uint sz, bool sub)
     // Map charno:bitno to bit offset for 4 bit char set
     uint map4 [64] =
       {      // 9-bit    4-bit
-          0, // 0  0      0 
-          0, // 0  1      0 
+          0, // 0  0      0
+          0, // 0  1      0
           0, // 0  2      0
           0, // 0  3      0
           0, // 0  4      0
@@ -2629,8 +2629,8 @@ void asxbd (uint sz, bool sub)
     // Map charno:bitno to bit offset for 6 bit char set
     uint map6 [64] =
       {      // 9-bit    6-bit
-          0, // 0  0      0 
-          1, // 0  1      0 
+          0, // 0  0      0
+          1, // 0  1      0
           2, // 0  2      0
           3, // 0  3      0
           4, // 0  4      0
@@ -2696,7 +2696,7 @@ void asxbd (uint sz, bool sub)
       };
     // Map charno:bitno to 1 and 9 bit offset
     uint map9 [64] =
-      {      // 9-bit 
+      {      // 9-bit
           0, // 0  0
           1, // 0  1
           2, // 0  2
@@ -2769,7 +2769,7 @@ void asxbd (uint sz, bool sub)
 
     uint ARn = GET_ARN (cpu.cu.IWB);
     uint address = SIGNEXT15_18 (GET_OFFSET (cpu.cu.IWB));
-    word4 reg = (word4) GET_TD (cpu.cu.IWB); // 4-bit register modification (None except 
+    word4 reg = (word4) GET_TD (cpu.cu.IWB); // 4-bit register modification (None except
                                   // au, qu, al, ql, xn)
 
 //
@@ -2816,7 +2816,7 @@ void asxbd (uint sz, bool sub)
             uint charno = GET_AR_CHAR (ARn);
 
             // The behavior of the DU for cases of CHAR > 9 is not defined; some values
-            // are tested by ISOLTS, and have been recorded in the mapx tables; the 
+            // are tested by ISOLTS, and have been recorded in the mapx tables; the
             // missing values are guessed at.
 
             uint * map;
@@ -2972,11 +2972,11 @@ void cmpc (void)
     //    C(Y-charn1)i-1 :: C(FILL)
     //
     // Indicators:
-    //     Zero: If C(Y-charn1)i-1 = C(Y-charn2)i-1 for all i, then ON; 
+    //     Zero: If C(Y-charn1)i-1 = C(Y-charn2)i-1 for all i, then ON;
     //       otherwise, OFF
-    //     Carry: If C(Y-charn1)i-1 < C(Y-charn2)i-1 for any i, then OFF; 
+    //     Carry: If C(Y-charn1)i-1 < C(Y-charn2)i-1 for any i, then OFF;
     //       otherwise ON
-    
+
     // Both strings are treated as the data type given for the left-hand
     // string, TA1. A data type given for the right-hand string, TA2, is
     // ignored.
@@ -2989,7 +2989,7 @@ void cmpc (void)
     // larger string length count is exhausted.
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, &mod_fault);
     setupOperandDescriptor (2, &mod_fault);
@@ -3006,7 +3006,7 @@ void cmpc (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 9-10 MBZ
     if (IWB_IRODD & 0000600000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "cmpc 9-10 MBZ");
@@ -3038,10 +3038,10 @@ void cmpc (void)
 #endif
 
     word9 fill = getbits36_9 (cpu.cu.IWB, 0);
-    
+
     SET_I_ZERO;  // set ZERO flag assuming strings are equal ...
     SET_I_CARRY; // set CARRY flag assuming strings are equal ...
-    
+
     PNL (L68_ (if (max (e->N1, e->N2) < 128)
       DU_CYCLE_FLEN_128;))
 
@@ -3066,7 +3066,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpc tally %d c1 %03o c2 %03o\n", cpu.du.CH
           {
             word9 c1 = fill;     // use fill for Y-char1n
             word9 c2 = EISget469 (2, cpu.du.CHTALLY); // get Y-char2n
-            
+
             if (c1 != c2)
               {
                 CLR_I_ZERO;  // an inequality found
@@ -3083,7 +3083,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpc tally %d c1 %03o c2 %03o\n", cpu.du.CH
           {
             word9 c1 = EISget469 (1, cpu.du.CHTALLY); // get Y-char1n
             word9 c2 = fill;   // use fill for Y-char2n
-            
+
             if (c1 != c2)
               {
                 CLR_I_ZERO;  // an inequality found
@@ -3117,7 +3117,7 @@ void scd ()
     //   00...0 → C(Y3)0,11
     //      N1-1→ C(Y3)12,35
     //
-    
+
     // The REG field of MF1 is checked for a legal code. If DU is specified in
     // the REG field of MF2 in one of the four multiword instructions (SCD,
     // SCDR, SCM, or SCMR) for which DU is legal, the CN field is ignored and
@@ -3131,7 +3131,7 @@ void scd ()
     setupOperandDescriptor (2, &mod_fault);
     setupOperandDescriptorCache (3);
 #endif
-    
+
     parseAlphanumericOperandDescriptor (1, 1, false, &mod_fault);
     parseAlphanumericOperandDescriptor (2, 1, true, &mod_fault); // use TA1
     parseArgOperandDescriptor (3, &mod_fault);
@@ -3145,7 +3145,7 @@ void scd ()
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 0-10 MBZ
     if (IWB_IRODD & 0777600000000)
       {
@@ -3174,16 +3174,16 @@ void scd ()
     // Both the string and the test character pair are treated as the data type
     // given for the string, TA1. A data type given for the test character
     // pair, TA2, is ignored.
-    
+
     // fetch 'test' char - double
     // If MF2.ID = 0 and MF2.REG = du, then the second word following the
     // instruction word does not contain an operand descriptor for the test
     // character; instead, it contains the test character as a direct upper
     // operand in bits 0,8.
-    
+
     word9 c1 = 0;
     word9 c2 = 0;
-    
+
     if (! (e -> MF2 & MFkID) && ((e -> MF2 & MFkREGMASK) == 3))  // MF2.du
       {
         // per Bull RJ78, p. 5-45
@@ -3225,7 +3225,7 @@ void scd ()
           }
       }
     else
-      {  
+      {
         c1 = EISget469 (2, 0);
         c2 = EISget469 (2, 1);
       }
@@ -3251,7 +3251,7 @@ void scd ()
           c2 &= 0777;   // keep 9-bits
           break;
       }
-    
+
 
     PNL (L68_ (if (e->N1 < 128)
       DU_CYCLE_FLEN_128;))
@@ -3274,7 +3274,7 @@ void scd ()
       {
         SET_I_TALLY;
       }
-    
+
     //word36 CY3 = bitfieldInsert36 (0, cpu.du.CHTALLY, 0, 24);
     word36 CY3 = setbits36_24 (0, 12, cpu.du.CHTALLY);
     EISWriteIdx (& e -> ADDR3, 0, CY3, true);
@@ -3301,7 +3301,7 @@ void scdr (void)
     //   00...0 → C(Y3)0,11
     //      N1-1→ C(Y3)12,35
     //
-    
+
     // The REG field of MF1 is checked for a legal code. If DU is specified in
     // the REG field of MF2 in one of the four multiword instructions (SCD,
     // SCDR, SCM, or SCMR) for which DU is legal, the CN field is ignored and
@@ -3309,7 +3309,7 @@ void scdr (void)
     // address portion of the operand descriptor.
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
@@ -3329,7 +3329,7 @@ void scdr (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 0-10 MBZ
     if (IWB_IRODD & 0777600000000)
       {
@@ -3364,10 +3364,10 @@ void scdr (void)
     // instruction word does not contain an operand descriptor for the test
     // character; instead, it contains the test character as a direct upper
     // operand in bits 0,8.
-    
+
     word9 c1 = 0;
     word9 c2 = 0;
-    
+
     if (! (e -> MF2 & MFkID) && ((e -> MF2 & MFkREGMASK) == 3))  // MF2.du
       {
         // per Bull RJ78, p. 5-45
@@ -3435,7 +3435,7 @@ void scdr (void)
           c2 &= 0777;   // keep 9-bits
           break;
       }
-    
+
     word9 yCharn11;
     word9 yCharn12;
 
@@ -3445,12 +3445,12 @@ void scdr (void)
     if (e -> N1)
       {
         uint limit = e -> N1 - 1;
-    
+
         for ( ; cpu.du.CHTALLY < limit; cpu.du.CHTALLY ++)
           {
             yCharn11 = EISget469 (1, limit - cpu.du.CHTALLY - 1);
             yCharn12 = EISget469 (1, limit - cpu.du.CHTALLY);
-        
+
             if (yCharn11 == c1 && yCharn12 == c2)
                 break;
           }
@@ -3489,7 +3489,7 @@ void scm (void)
     // If a masked character match was not found, then
     //   00...0 → C(Y3)0,11
     //   N1 → C(Y3)12,35
-    
+
     // Starting at location YC1, the L1 type TA1 characters are masked and
     // compared with the assumed type TA1 character contained either in
     // location YC2 or in bits 0-8 or 0-5 of the address field of operand
@@ -3504,15 +3504,15 @@ void scm (void)
     // this count is stored right-justified in bits 12-35 of location Y3 and
     // bits 0-11 of Y3 are zeroed. The contents of location YC2 and the source
     // string remain unchanged. The RL bit of the MF2 field is not used.
-    
+
     // The REG field of MF1 is checked for a legal code. If DU is specified in
     // the REG field of MF2 in one of the four multiword instructions (SCD,
     // SCDR, SCM, or SCMR) for which DU is legal, the CN field is ignored and
     // the character or characters are arranged within the 18 bits of the word
     // address portion of the operand descriptor.
-    
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, &mod_fault);
     setupOperandDescriptor (2, &mod_fault);
@@ -3532,7 +3532,7 @@ void scm (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 9-10 MBZ
     if (IWB_IRODD & 0000600000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "scm 9-10 MBZ");
@@ -3561,13 +3561,13 @@ void scm (void)
 
     // get 'mask'
     uint mask = (uint) getbits36_9 (cpu.cu.IWB, 0);
-    
+
     // fetch 'test' char
     // If MF2.ID = 0 and MF2.REG = du, then the second word following the
     // instruction word does not contain an operand descriptor for the test
     // character; instead, it contains the test character as a direct upper
     // operand in bits 0,8.
-    
+
     word9 ctest = 0;
     if (! (e -> MF2 & MFkID) && ((e -> MF2 & MFkREGMASK) == 3))  // MF2.du
       {
@@ -3630,9 +3630,9 @@ void scm (void)
       }
     //word36 CY3 = bitfieldInsert36 (0, cpu.du.CHTALLY, 0, 24);
     word36 CY3 = setbits36_24 (0, 12, cpu.du.CHTALLY);
-    
+
     SC_I_TALLY (cpu.du.CHTALLY == limit);
-    
+
     EISWriteIdx (& e -> ADDR3, 0, CY3, true);
 
     cleanupOperandDescriptor (1);
@@ -3657,7 +3657,7 @@ void scmr (void)
     // If a masked character match was not found, then
     //   00...0 → C(Y3)0,11
     //   N1 → C(Y3)12,35
-    
+
     // Starting at location YC1, the L1 type TA1 characters are masked and
     // compared with the assumed type TA1 character contained either in
     // location YC2 or in bits 0-8 or 0-5 of the address field of operand
@@ -3665,22 +3665,22 @@ void scmr (void)
     // mask is right-justified in bit positions 0-8 of the instruction word.
     // Each bit position of the mask that is a 1 prevents that bit position in
     // the two characters from entering into the compare.
- 
+
     // The masked compare operation continues until either a match is found or
     // the tally (L1) is exhausted. For each unsuccessful match, a count is
     // incremented by 1. When a match is found or when the L1 tally runs out,
     // this count is stored right-justified in bits 12-35 of location Y3 and
     // bits 0-11 of Y3 are zeroed. The contents of location YC2 and the source
     // string remain unchanged. The RL bit of the MF2 field is not used.
-    
+
     // The REG field of MF1 is checked for a legal code. If DU is specified in
     // the REG field of MF2 in one of the four multiword instructions (SCD,
     // SCDR, SCM, or SCMR) for which DU is legal, the CN field is ignored and
     // the character or characters are arranged within the 18 bits of the word
     // address portion of the operand descriptor.
-    
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, &mod_fault);
     setupOperandDescriptor (2, &mod_fault);
@@ -3700,7 +3700,7 @@ void scmr (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 9-10 MBZ
     if (IWB_IRODD & 0000600000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "scmr 9-10 MBZ");
@@ -3733,13 +3733,13 @@ void scmr (void)
 
     // get 'mask'
     uint mask = (uint) getbits36_9 (cpu.cu.IWB, 0);
-    
+
     // fetch 'test' char
     // If MF2.ID = 0 and MF2.REG = du, then the second word following the
     // instruction word does not contain an operand descriptor for the test
     // character; instead, it contains the test character as a direct upper
     // operand in bits 0,8.
-    
+
     word9 ctest = 0;
     if (! (e -> MF2 & MFkID) && ((e -> MF2 & MFkREGMASK) == 3))  // MF2.du
       {
@@ -3801,9 +3801,9 @@ void scmr (void)
       }
     //word36 CY3 = bitfieldInsert36 (0, cpu.du.CHTALLY, 0, 24);
     word36 CY3 = setbits36_24 (0, 12, cpu.du.CHTALLY);
-    
+
     SC_I_TALLY (cpu.du.CHTALLY == limit);
-    
+
     EISWriteIdx (& e -> ADDR3, 0, CY3, true);
 
     cleanupOperandDescriptor (1);
@@ -3880,16 +3880,16 @@ void tct (void)
     // the string length count is exhausted.
     // The character number of Y-char92 must be zero, i.e., Y-char92 must start
     // on a word boundary.
-    
-    
+
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, &mod_fault);
     setupOperandDescriptorCache (2);
     setupOperandDescriptorCache (3);
 #endif
-    
+
     parseAlphanumericOperandDescriptor (1, 1, false, &mod_fault);
     parseArgOperandDescriptor (2, &mod_fault);
     parseArgOperandDescriptor (3, &mod_fault);
@@ -3903,7 +3903,7 @@ void tct (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 0-17 MBZ
     if (IWB_IRODD & 0777777000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "tct 0-17 MBZ");
@@ -3956,9 +3956,9 @@ void tct (void)
             srcSZ = 9;
             break;
       }
-    
+
     // ISOLTS-878 01h asserts no prepaging
-#if 0    
+#if 0
     //  Prepage Check in a Multiword Instruction
     //  The MVT, TCT, TCTR, and CMPCT instruction have a prepage check. The
     //  size of the translate table is determined by the TA1 data type as shown
@@ -3966,12 +3966,12 @@ void tct (void)
     //  for allocation in memory for the page for the translate table. If the
     //  page is not in memory, a Missing Page fault occurs before execution of
     //  the instruction. (Bull RJ78 p.7-75)
-    
+
     // TA1              TRANSLATE TABLE SIZE
     // 4-BIT CHARACTER      4 WORDS
     // 6-BIT CHARACTER     16 WORDS
     // 9-BIT CHARACTER    128 WORDS
-    
+
     uint xlatSize = 0;   // size of xlation table in words .....
 #ifdef EIS_PTR3
     switch (TA1)
@@ -3989,15 +3989,15 @@ void tct (void)
             xlatSize = 128;
             break;
     }
-    
+
     word36 xlatTbl [128];
     memset (xlatTbl, 0, sizeof (xlatTbl));    // 0 it out just in case
-    
+
     EISReadN (& e -> ADDR2, xlatSize, xlatTbl);
 #endif
-    
+
     word36 CY3 = 0;
-    
+
     sim_debug (DBG_TRACEEXT, & cpu_dev,
                "TCT N1 %d\n", e -> N1);
 
@@ -4009,7 +4009,7 @@ void tct (void)
         word9 c = EISget469 (1, cpu.du.CHTALLY); // get src char
 
         uint m = 0;
-        
+
         switch (srcSZ)
           {
             case 4:
@@ -4022,12 +4022,12 @@ void tct (void)
               m = c;          // keep all 9-bits
               break;              // should already be 0-filled
           }
-        
+
         word9 cout = xlate (&e->ADDR2, CTA9, m);
 
         sim_debug (DBG_TRACEEXT, & cpu_dev,
                    "TCT c %03o %c cout %03o %c\n",
-                   m, isprint ((int) m) ? '?' : (char) m, 
+                   m, isprint ((int) m) ? '?' : (char) m,
                    cout, isprint ((int) cout) ? '?' : (char) cout);
 
         if (cout)
@@ -4037,13 +4037,13 @@ void tct (void)
             break;
           }
       }
-    
+
     SC_I_TALLY (cpu.du.CHTALLY == e -> N1);
-    
+
     //CY3 = bitfieldInsert36 (CY3, cpu.du.CHTALLY, 0, 24);
     putbits36_24 (& CY3, 12, cpu.du.CHTALLY);
     EISWriteIdx (& e -> ADDR3, 0, CY3, true);
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
@@ -4076,16 +4076,16 @@ void tctr (void)
 
     // The character number of Y-char92 must be zero, i.e., Y-char92 must start
     // on a word boundary.
- 
-    
+
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, &mod_fault);
     setupOperandDescriptorCache (2);
     setupOperandDescriptorCache (3);
 #endif
-    
+
     parseAlphanumericOperandDescriptor (1, 1, false, &mod_fault);
     parseArgOperandDescriptor (2, &mod_fault);
     parseArgOperandDescriptor (3, &mod_fault);
@@ -4099,7 +4099,7 @@ void tctr (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 0-17 MBZ
     if (IWB_IRODD & 0777777000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "tctr 0-17 MBZ");
@@ -4152,9 +4152,9 @@ void tctr (void)
             srcSZ = 9;
             break;
       }
-    
-    // ISOLTS-878 01i asserts no prepaging    
-#if 0    
+
+    // ISOLTS-878 01i asserts no prepaging
+#if 0
     //  Prepage Check in a Multiword Instruction
     //  The MVT, TCT, TCTR, and CMPCT instruction have a prepage check. The
     //  size of the translate table is determined by the TA1 data type as shown
@@ -4162,12 +4162,12 @@ void tctr (void)
     //  for allocation in memory for the page for the translate table. If the
     //  page is not in memory, a Missing Page fault occurs before execution of
     //  the instruction. (Bull RJ78 p.7-75)
-    
+
     // TA1              TRANSLATE TABLE SIZE
     // 4-BIT CHARACTER      4 WORDS
     // 6-BIT CHARACTER     16 WORDS
     // 9-BIT CHARACTER    128 WORDS
-    
+
     uint xlatSize = 0;   // size of xlation table in words .....
 #ifdef EIS_PTR3
     switch (TA1)
@@ -4185,15 +4185,15 @@ void tctr (void)
             xlatSize = 128;
             break;
     }
-    
+
     word36 xlatTbl [128];
     memset (xlatTbl, 0, sizeof (xlatTbl));    // 0 it out just in case
-    
+
     EISReadN (& e -> ADDR2, xlatSize, xlatTbl);
 #endif
-    
+
     word36 CY3 = 0;
-    
+
     sim_debug (DBG_TRACEEXT, & cpu_dev,
                "TCT N1 %d\n", e -> N1);
 
@@ -4206,7 +4206,7 @@ void tctr (void)
         word9 c = EISget469 (1, limit - cpu.du.CHTALLY - 1); // get src char
 
         uint m = 0;
-        
+
         switch (srcSZ)
           {
             case 4:
@@ -4219,12 +4219,12 @@ void tctr (void)
               m = c;          // keep all 9-bits
               break;              // should already be 0-filled
           }
-        
+
         word9 cout = xlate (&e->ADDR2, CTA9, m);
 
         sim_debug (DBG_TRACEEXT, & cpu_dev,
                    "TCT c %03o %c cout %03o %c\n",
-                   m, isprint ((int) m) ? '?' : (char) m, 
+                   m, isprint ((int) m) ? '?' : (char) m,
                    cout, isprint ((int) cout) ? '?' : (char) cout);
 
         if (cout)
@@ -4234,13 +4234,13 @@ void tctr (void)
             break;
           }
       }
-    
+
     SC_I_TALLY (cpu.du.CHTALLY == e -> N1);
-    
+
     //CY3 = bitfieldInsert36 (CY3, cpu.du.CHTALLY, 0, 24);
     putbits36_24 (& CY3, 12, cpu.du.CHTALLY);
     EISWriteIdx (& e -> ADDR3, 0, CY3, true);
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
@@ -4262,10 +4262,10 @@ static bool isOvp (uint c, word9 * on)
   {
     // look for GEBCD -' 'A B C D E F G H I (positive overpunch)
     // look for GEBCD - ^ J K L M N O P Q R (negative overpunch)
-    
+
     word9 c2 = c & 077;   // keep to 6-bits
     * on = 0;
-    
+
     if (c2 >= 020 && c2 <= 031)   // positive overpunch
       {
         * on = c2 - 020;          // return GEBCD number 0-9 (020 is +0)
@@ -4273,7 +4273,7 @@ static bool isOvp (uint c, word9 * on)
       }
     if (c2 >= 040 && c2 <= 052)   // negative overpunch
       {
-        * on = c2 - 040;  // return GEBCD number 0-9 
+        * on = c2 - 040;  // return GEBCD number 0-9
                          // (052 is just a '-' interpreted as -0)
         return true;
       }
@@ -4298,7 +4298,7 @@ static bool isGBCDOvp (uint c, bool * isNeg)
   }
 
 // Applies to both MLR and MRL
-// 
+//
 // If L1 is greater than L2, the least significant (L1-L2) characters are not moved and
 // the Truncation indicator is set. If L1 is less than L2, bits 0-8, 3-8, or 5-8 of the FILL
 // character (depending on TA2) are inserted as the least significant (L2-L1)
@@ -4317,15 +4317,15 @@ void mlr (void)
     // If N1 < N2, then for i = N1+1, N1+2, ..., N2
     //    C(FILL) → C(Y-charn2)N2-i
     // Indicators: Truncation. If N1 > N2 then ON; otherwise OFF
-    
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, &mod_fault);
     setupOperandDescriptor (2, &mod_fault);
     //setupOperandDescriptorCache (3);
 #endif
-    
+
     parseAlphanumericOperandDescriptor(1, 1, false, &mod_fault);
     parseAlphanumericOperandDescriptor(2, 2, false, &mod_fault);
 
@@ -4338,7 +4338,7 @@ void mlr (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bit 10 MBZ
     if (IWB_IRODD & 0000200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mlr 10 MBZ");
@@ -4379,7 +4379,7 @@ void mlr (void)
           srcSZ = 9;
           break;
       }
-    
+
 #ifdef EIS_PTR3
     switch (TA2)
 #else
@@ -4396,9 +4396,9 @@ void mlr (void)
           dstSZ = 9;
           break;
       }
-    
+
     word1 T = getbits36_1 (cpu.cu.IWB, 9);
-    
+
     word9 fill = getbits36_9 (cpu.cu.IWB, 0);
     word9 fillT = fill;  // possibly truncated fill pattern
 
@@ -4412,7 +4412,7 @@ void mlr (void)
           fillT = fill & 077;    // truncate upper 3-bits
           break;
       }
-    
+
     // If N1 > N2, then (N1-N2) leading characters of C(Y-charn1) are not moved
     // and the truncation indicator is set ON.
 
@@ -4434,7 +4434,7 @@ void mlr (void)
 
     // Attempted repetition with the rpt, rpd, or rpl instructions causes an
     // illegal procedure fault.
-    
+
     PNL (L68_ (if (max (e->N1, e->N2) < 128)
       DU_CYCLE_FLEN_128;))
 
@@ -4447,16 +4447,16 @@ void mlr (void)
 #endif
     //word9 on;     // number overpunch represents (if any)
     bool isNeg = false;
-    //bool bOvp = false;  // true when a negative overpunch character has been 
-                        // found @ N1-1 
+    //bool bOvp = false;  // true when a negative overpunch character has been
+                        // found @ N1-1
 
-    
+
 #ifdef EIS_PTR3
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR TALLY %u TA1 %u TA2 %u N1 %u N2 %u CN1 %u CN2 %u\n", cpu.du.CHTALLY, TA1, TA2, e -> N1, e -> N2, e -> CN1, e -> CN2);
 #else
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR TALLY %u TA1 %u TA2 %u N1 %u N2 %u CN1 %u CN2 %u\n", cpu.du.CHTALLY, e -> TA1, e -> TA2, e -> N1, e -> N2, e -> CN1, e -> CN2);
 #endif
-    
+
 //
 // Multics frequently uses certain code sequences which are easily detected
 // and optimized; eg. it uses the MLR instruction to copy or zero segments.
@@ -4500,7 +4500,7 @@ void mlr (void)
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
-        // truncation fault check does need to be checked for here since 
+        // truncation fault check does need to be checked for here since
         // it is known that N1 == N2
         CLR_I_TRUNC;
         return;
@@ -4549,7 +4549,7 @@ void mlr (void)
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
-        // truncation fault check does need to be checked for here since 
+        // truncation fault check does need to be checked for here since
         // it is known that N1 == N2
         CLR_I_TRUNC;
         return;
@@ -4579,7 +4579,7 @@ void mlr (void)
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
-        // truncation fault check does need to be checked for here since 
+        // truncation fault check does need to be checked for here since
         // it is known that N1 == N2
         CLR_I_TRUNC;
         return;
@@ -4609,7 +4609,7 @@ void mlr (void)
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
-        // truncation fault check does need to be checked for here since 
+        // truncation fault check does need to be checked for here since
         // it is known that N1 <= N2
         CLR_I_TRUNC;
         return;
@@ -4619,11 +4619,11 @@ void mlr (void)
       {
         word9 c = EISget469 (1, cpu.du.CHTALLY); // get src char
         word9 cout = 0;
-        
+
 #ifdef EIS_PTR3
-        if (TA1 == TA2) 
+        if (TA1 == TA2)
 #else
-        if (e -> TA1 == e -> TA2) 
+        if (e -> TA1 == e -> TA2)
 #endif
           EISput469 (2, cpu.du.CHTALLY, c);
         else
@@ -4662,7 +4662,7 @@ void mlr (void)
             // negative overpunch sign is found, then the minus sign character
             // is placed in C(Y-charn2)N2-1; otherwise, a plus sign character
             // is placed in C(Y-charn2)N2-1.
-            
+
             if (ovp && (cpu.du.CHTALLY == e -> N1 - 1))
               {
                 // C(FILL)0 = 1 means that there *is* an overpunch char here.
@@ -4672,7 +4672,7 @@ void mlr (void)
             EISput469 (2, cpu.du.CHTALLY, cout);
           }
       }
-    
+
     // If N1 < N2, then for i = N1+1, N1+2, ..., N2
     //    C(FILL) → C(Y-charn2)N2-i
     // If N1 < N2 and TA2 = 2 (4-bit data) or 1 (6-bit data), then FILL
@@ -4706,7 +4706,7 @@ void mlr (void)
       }
     else
       CLR_I_TRUNC;
-  } 
+  }
 
 
 void mrl (void)
@@ -4718,15 +4718,15 @@ void mrl (void)
     // If N1 < N2, then for i = N1+1, N1+2, ..., N2
     //    C(FILL) → C(Y-charn2)N2-i
     // Indicators: Truncation. If N1 > N2 then ON; otherwise OFF
-    
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, &mod_fault);
     setupOperandDescriptor (2, &mod_fault);
     //setupOperandDescriptorCache (3);
 #endif
-    
+
     parseAlphanumericOperandDescriptor(1, 1, false, &mod_fault);
     parseAlphanumericOperandDescriptor(2, 2, false, &mod_fault);
 
@@ -4739,7 +4739,7 @@ void mrl (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bit 10 MBZ
     if (IWB_IRODD & 0000200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mrl 10 MBZ");
@@ -4780,7 +4780,7 @@ void mrl (void)
           srcSZ = 9;
           break;
       }
-    
+
 #ifdef EIS_PTR3
     switch (TA2)
 #else
@@ -4797,9 +4797,9 @@ void mrl (void)
           dstSZ = 9;
           break;
       }
-    
+
     word1 T = getbits36_1 (cpu.cu.IWB, 9);
-    
+
     word9 fill = getbits36_9 (cpu.cu.IWB, 0);
     word9 fillT = fill;  // possibly truncated fill pattern
 
@@ -4813,7 +4813,7 @@ void mrl (void)
           fillT = fill & 077;    // truncate upper 3-bits
           break;
       }
-    
+
     // If N1 > N2, then (N1-N2) leading characters of C(Y-charn1) are not moved
     // and the truncation indicator is set ON.
 
@@ -4835,7 +4835,7 @@ void mrl (void)
 
     // Attempted repetition with the rpt, rpd, or rpl instructions causes an
     // illegal procedure fault.
-    
+
 #ifdef EIS_PTR3
     bool ovp = (e -> N1 < e -> N2) && (fill & 0400) && (TA1 == 1) &&
                (TA2 == 2); // (6-4 move)
@@ -4844,8 +4844,8 @@ void mrl (void)
                (e -> TA2 == 2); // (6-4 move)
 #endif
     bool isNeg = false;
-    //bool bOvp = false;  // true when a negative overpunch character has been 
-                        // found @ N1-1 
+    //bool bOvp = false;  // true when a negative overpunch character has been
+                        // found @ N1-1
 
     PNL (L68_ (if (max (e->N1, e->N2) < 128)
       DU_CYCLE_FLEN_128;))
@@ -4876,7 +4876,7 @@ void mrl (void)
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
-        // truncation fault check does need to be checked for here since 
+        // truncation fault check does need to be checked for here since
         // it is known that N1 == N2
         CLR_I_TRUNC;
         return;
@@ -4910,7 +4910,7 @@ void mrl (void)
           }
         cleanupOperandDescriptor (1);
         cleanupOperandDescriptor (2);
-        // truncation fault check does need to be checked for here since 
+        // truncation fault check does need to be checked for here since
         // it is known that N1 <= N2
         CLR_I_TRUNC;
         return;
@@ -4920,11 +4920,11 @@ void mrl (void)
       {
         word9 c = EISget469 (1, e -> N1 - cpu.du.CHTALLY - 1); // get src char
         word9 cout = 0;
-        
+
 #ifdef EIS_PTR3
-        if (TA1 == TA2) 
+        if (TA1 == TA2)
 #else
-        if (e -> TA1 == e -> TA2) 
+        if (e -> TA1 == e -> TA2)
 #endif
           EISput469 (2, e -> N2 - cpu.du.CHTALLY - 1, c);
         else
@@ -4963,7 +4963,7 @@ void mrl (void)
             // negative overpunch sign is found, then the minus sign character
             // is placed in C(Y-charn2)N2-1; otherwise, a plus sign character
             // is placed in C(Y-charn2)N2-1.
-            
+
 // ISOLTS 838 01f, RJ78 p.11-154 - the rightmost digit is examined for overpunch.
             if (ovp && (cpu.du.CHTALLY == 0))
               {
@@ -4973,7 +4973,7 @@ void mrl (void)
             EISput469 (2, e -> N2 - cpu.du.CHTALLY - 1, cout);
           }
       }
-    
+
     // If N1 < N2, then for i = N1+1, N1+2, ..., N2
     //    C(FILL) → C(Y-charn2)N2-i
     // If N1 < N2 and TA2 = 2 (4-bit data) or 1 (6-bit data), then FILL
@@ -5009,7 +5009,7 @@ void mrl (void)
       }
     else
       CLR_I_TRUNC;
-  } 
+  }
 
 // decimalZero
 //
@@ -5028,7 +5028,7 @@ void mrl (void)
 //
 #define isDecimalZero(c) ((e->srcTA == CTA9) ? \
                           ((c) == '0') : \
-                          (((c) & 017) == 0)) 
+                          (((c) & 017) == 0))
 
 /*
  * Load the entire sending string number (maximum length 63 characters) into
@@ -5089,7 +5089,7 @@ static void EISloadInputBufferNumeric (int k)
                 //  9-bit bytes, the exponent is bits 1-8 of c(n-1). If the
                 //  data is in 4- bit bytes, the exponent is the binary value
                 //  of the concatenation of c(n-2) and c(n-1).
- 
+
                 if (n == 0) // first had better be a sign ....
                 {
                     c &= 0xf;   // hack off all but lower 4 bits
@@ -5246,7 +5246,7 @@ static void writeToOutputBuffer (word9 **dstAddr, int szSrc, int szDst, word9 c4
 
     if (e -> mvne)
       {
-        switch (szSrc)   // XXX according to rule 1 of Numeric Edit, 
+        switch (szSrc)   // XXX according to rule 1 of Numeric Edit,
                          // input should be 4bits. this needs cleaning
           {
             case 4:
@@ -5312,7 +5312,7 @@ static void writeToOutputBuffer (word9 **dstAddr, int szSrc, int szDst, word9 c4
           }
       }
     e->dstTally -= 1;
-    *dstAddr += 1; 
+    *dstAddr += 1;
 }
 
 /*!
@@ -5324,12 +5324,12 @@ static char* defaultEditInsertionTable = " *+-$,.0";
 // Edit Flags
 //
 // The processor provides the following four edit flags for use by the micro
-// operations.  
+// operations.
 //
 // bool mopES = false; // End Suppression flag; initially OFF, set ON by a
 // micro operation when zero-suppression ends.
 //
-// bool mopSN = false; 
+// bool mopSN = false;
 // Sign flag; initially set OFF if the sending string has an alphanumeric
 // descriptor or an unsigned numeric descriptor. If the sending string has a
 // signed numeric descriptor, the sign is initially read from the sending
@@ -5424,11 +5424,11 @@ static int mopENF (void)
         }
         // If ES is ON, no action is taken.
     }
-    
+
     // For IF(1) = 1 (blank when zero): the BZ flag is set ON. For IF(1) = 0 (no blank when zero): no action is taken.
     if (e->mopIF & 04)
         e->mopBZ = true;
-    
+
     return 0;
 }
 
@@ -5460,7 +5460,7 @@ static int mopIGN (void)
             e->_faults |= FAULT_IPR;
             break;
         }
-        
+
         e->srcTally -= 1;
         e->in += 1;
     }
@@ -5485,7 +5485,7 @@ static int mopINSA (void)
         e->_faults |= FAULT_IPR;
         return 0;
     }
-    
+
 #if 1
     // If ES is OFF, then edit insertion table entry 1 is moved to the
     // receiving field. If IF = 0, then the next 9 bits are also skipped. If IF
@@ -5494,7 +5494,7 @@ static int mopINSA (void)
     if (!e->mopES)
       {
         writeToOutputBuffer(&e->out, 9, e->dstSZ, e->editInsertionTable[1]);
-           
+
         if (e->mopIF == 0)
           {
             if (e->mopTally == 0)
@@ -5549,7 +5549,7 @@ static int mopINSA (void)
         if (!e->mopES)
         {
             writeToOutputBuffer(&e->out, 9, e->dstSZ, e->editInsertionTable[1]);
-           
+
 #ifdef EIS_PTR2
             EISget49(&e->ADDR2, &e->mopPos, CTN9);
 #else
@@ -5576,7 +5576,7 @@ static int mopINSA (void)
 #endif
             e->mopTally -= 1;
         }
-        
+
     } else {
         // If ES is ON and IF<>0, then IF specifies which edit insertion table
         // entry (1-8) is to be moved to the receiving field.
@@ -5616,7 +5616,7 @@ static int mopINSB (void)
         e->_faults |= FAULT_IPR;
         return 0;
     }
-    
+
     if (!e->mopES)
     {
         // If ES is OFF, then edit insertion table entry 1 is moved to the
@@ -5723,11 +5723,11 @@ static int mopINSN (void)
         e->_faults |= FAULT_IPR;
         return 0;
     }
-    
+
     // If IF = 0, the 9 bits immediately following the INSN micro operation are
     // treated as a 9-bit character (not a MOP) and are moved or skipped
     // according to SN.
-    
+
     if (e->mopIF == 0)
     {
         if (e->mopTally == 0)
@@ -5792,7 +5792,7 @@ static int mopINSP (void)
         e->_faults |= FAULT_IPR;
         return 0;
     }
-    
+
     if (e->mopIF == 0)
     {
         if (e->mopTally == 0)
@@ -5860,9 +5860,9 @@ static int mopLTE (void)
     word9 next = EISget49(e->mopAddress, &e->mopPos, CTN9);
 #endif
     e->mopTally -= 1;
-    
+
     e->editInsertionTable[e->mopIF - 1] = next;
-    sim_debug (DBG_TRACEEXT, & cpu_dev, "LTE IT[%d]<=%d\n", e -> mopIF - 1, next);    
+    sim_debug (DBG_TRACEEXT, & cpu_dev, "LTE IT[%d]<=%d\n", e -> mopIF - 1, next);
     return 0;
 }
 
@@ -5926,7 +5926,7 @@ static int mopMFLC (void)
         // If ES is OFF and the character is not zero, then edit insertion
         // table entry 5 is moved to the receiving field, the character is also
         // moved to the receiving field, and ES is set ON.
-        
+
         word9 c = *(e->in);
         sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC c %d (0%o)\n", c, c);
         if (!e->mopES) { // e->mopES is OFF
@@ -5951,14 +5951,14 @@ static int mopMFLC (void)
                 e->mopZ = false; // iszero() tested above.
                 e->in += 1;
                 e->srcTally -= 1;
-                
+
                 e->mopES = true;
             }
         } else {
             sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC ES on\n");
             // If ES is ON, the character is moved to the receiving field.
             writeToOutputBuffer(&e->out, e->srcSZ, e->dstSZ, c);
-            
+
             if (! isDecimalZero (c))
                 e->mopZ = false;
             e->in += 1;
@@ -6016,14 +6016,14 @@ static int mopMFLS (void)
     EISstruct * e = & cpu.currentEISinstruction;
     if (e->mopIF == 0)
         e->mopIF = 16;
-    
+
     for(int n = 0 ; n < e->mopIF; n += 1)
     {
         if (e->dstTally == 0)
             break;
         if (e->srcTally == 0)
             return -1;
-        
+
         word9 c = *(e->in);
         sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLS n %d c %o\n", n, c);
         if (!e->mopES) { // e->mopES is OFF
@@ -6055,7 +6055,7 @@ static int mopMFLS (void)
                         return -1;
                     }
 #endif
-                    
+
                     writeToOutputBuffer(&e->out, e->srcSZ, e->dstSZ, c);
 
                     e->mopES = true;
@@ -6065,11 +6065,11 @@ static int mopMFLS (void)
                     //  receiving field, and ES is set ON.
                     sim_debug (DBG_TRACEEXT, & cpu_dev, "ES is off, c is non-zero, SN is OFF; edit insertion table entry 4 is moved to the receiving field; the character is also moved to the receiving field, and ES is set ON.\n");
                     writeToOutputBuffer(&e->out, 9, e->dstSZ, e->editInsertionTable[3]);
-                    
+
                     e->in += 1;
                     e->srcTally -= 1;
                     e->mopZ = false; // iszero tested above
-                    
+
                     writeToOutputBuffer(&e->out, e->srcSZ, e->dstSZ, c);
 
                     e->mopES = true;
@@ -6086,7 +6086,7 @@ static int mopMFLS (void)
             e->srcTally -= 1;
         }
     }
-    
+
     // NOTE: Since the number of characters moved to the receiving string is
     // data-dependent, a possible Illegal Procedure fault may be avoided by
     // ensuring that the Z and BZ flags are ON.
@@ -6118,7 +6118,7 @@ static int mopMORS (void)
     EISstruct * e = & cpu.currentEISinstruction;
     if (e->mopIF == 0)
         e->mopIF = 16;
-    
+
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MORS mopIF %d src %d dst %d\n", e->mopIF, e->srcTally, e->dstTally);
     for(int n = 0 ; n < e->mopIF ; n += 1)
     {
@@ -6131,14 +6131,14 @@ static int mopMORS (void)
             break;
         if (e->srcTally == 0)
             return -1;
-        
+
         // XXX this is probably wrong regarding the ORing, but it's a start ....
         word9 c = (*e->in | (!e->mopSN ? e->editInsertionTable[2] : e->editInsertionTable[3]));
         if (! isDecimalZero (*e->in))
             e->mopZ = false;
         e->in += 1;
         e->srcTally -= 1;
-        
+
         writeToOutputBuffer(&e->out, e->srcSZ, e->dstSZ, c);
     }
 
@@ -6160,7 +6160,7 @@ static int mopMVC (void)
     EISstruct * e = & cpu.currentEISinstruction;
     if (e->mopIF == 0)
         e->mopIF = 16;
-    
+
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC mopIF %d\n", e->mopIF);
 
     for(int n = 0 ; n < e->mopIF ; n += 1)
@@ -6172,16 +6172,16 @@ static int mopMVC (void)
             break;
         if (e->srcTally == 0)
             return -1;
-        
+
         sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC write to output buffer %o\n", *e->in);
         writeToOutputBuffer(&e->out, e->srcSZ, e->dstSZ, *e->in);
         if (! isDecimalZero (*e->in))
             e->mopZ = false;
         e->in += 1;
-        
+
         e->srcTally -= 1;
     }
-    
+
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MVC done\n");
     return 0;
 }
@@ -6217,13 +6217,13 @@ static int mopMSES (void)
     EISstruct * e = & cpu.currentEISinstruction;
     if (e->mvne == true)
         return mopMVC ();   // XXX I think!
-        
-        
+
+
     if (e->mopIF == 0)
         e->mopIF = 16;
 
     int overpunch = false;
-    
+
     for(int n = 0 ; n < e->mopIF ; n += 1)
     {
         if (e->dstTally == 0)
@@ -6242,13 +6242,13 @@ static int mopMSES (void)
         //result is zero, the second character is treated like the first. This
         //process continues until one of the comparative AND results is nonzero
         //or until all characters are moved.
-        
+
         word9 c = *(e->in);
 
         if (!overpunch) {
             if (c & e->editInsertionTable[2])  // XXX only lower 4-bits are considered
                 overpunch = true;
-        
+
             else if (c & e->editInsertionTable[3])  // XXX only lower 4-bits are considered
             {
                 e->mopSN = true;
@@ -6262,7 +6262,7 @@ static int mopMSES (void)
             e->mopZ = false;
         writeToOutputBuffer(&e->out, e->srcSZ, e->dstSZ, c);
     }
-    
+
     return 0;
 }
 
@@ -6281,18 +6281,18 @@ static int mopMVZA (void)
     EISstruct * e = & cpu.currentEISinstruction;
     if (e->mopIF == 0)
         e->mopIF = 16;
-    
+
     for(int n = 0 ; n < e->mopIF ; n += 1)
     {
         if (e->dstTally == 0)
             break;
         if (e->srcTally == 0)
             return -1;
-        
+
         word9 c = *e->in;
         e->in += 1;
         e->srcTally -= 1;
-        
+
         //if (!e->mopES && c == 0)
         // XXX See srcTA comment in MVNE
         if (!e->mopES && isDecimalZero (c))
@@ -6320,7 +6320,7 @@ static int mopMVZA (void)
             writeToOutputBuffer(&e->out, e->srcSZ, e->dstSZ, c);
         }
     }
-    
+
     return 0;
 }
 
@@ -6336,7 +6336,7 @@ static int mopMVZA (void)
  * is moved to the receiving field in place of the character.
  * − If ES is OFF and the character is not zero, then the character is moved to
  * the receiving field and ES is set ON.
- * − If ES is ON, the character is moved to the receiving field. 
+ * − If ES is ON, the character is moved to the receiving field.
  * FLAGS: (Flags not listed are not affected.)
  *   ES If OFF and any of C(Y) is less than decimal zero, then ON; otherwise,
  *   it is unchanged.
@@ -6347,7 +6347,7 @@ static int mopMVZB (void)
     EISstruct * e = & cpu.currentEISinstruction;
     if (e->mopIF == 0)
         e->mopIF = 16;
-    
+
     for(int n = 0 ; n < e->mopIF ; n += 1)
     {
         if (e->dstTally == 0)
@@ -6358,7 +6358,7 @@ static int mopMVZB (void)
         word9 c = *e->in;
         e->srcTally -= 1;
         e->in += 1;
-        
+
         //if (!e->mopES && c == 0)
         // XXX See srcTA comment in MVNE
         if ((!e->mopES) && isDecimalZero (c))
@@ -6410,15 +6410,15 @@ static int mopSES (void)
         e->mopES = true;
     else
         e->mopES = false;
-    
+
     if (e->mopIF & 04)
         e->mopBZ = true;
-    
+
     return 0;
 }
 
 // Table 4-9. Micro Operation Code Assignment Map
-#ifndef QUIET_UNUSED 
+#ifndef QUIET_UNUSED
 static char * mopCodes [040] =
   {
     //        0       1       2       3       4       5       6       7
@@ -6475,24 +6475,24 @@ static MOP_struct* EISgetMop (void)
     EISstruct * e = & cpu.currentEISinstruction;
     //static word18 lastAddress;  // try to keep memory access' down
     //static word36 data;
-    
-    
+
+
     if (e == NULL)
     //{
     //    p->lastAddress = -1;
     //    p->data = 0;
         return NULL;
     //}
-   
+
 #ifdef EIS_PTR2
     EISaddr *p = &e->ADDR2;
 #else
     EISaddr *p = e->mopAddress;
 #endif
-    
+
     //if (p->lastAddress != p->address)                 // read from memory if different address
         p->data = EISRead(p);   // read data word from memory
-    
+
     if (e->mopPos > 3)   // overflows to next word?
     {   // yep....
         e->mopPos = 0;   // reset to 1st byte
@@ -6511,11 +6511,11 @@ static MOP_struct* EISgetMop (void)
 #endif
 #endif
     }
-    
+
     word9 mop9  = (word9) get9 (p -> data, e -> mopPos); // get 9-bit mop
     word5 mop   = (mop9 >> 4) & 037;
     e->mopIF = mop9 & 0xf;
-    
+
     MOP_struct *m = &mopTab[mop];
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MOP %s(%o) %o\n", m -> mopName, mop, e->mopIF);
     e->m = m;
@@ -6524,12 +6524,12 @@ static MOP_struct* EISgetMop (void)
         sim_debug (DBG_TRACEEXT, & cpu_dev, "getMop(e->m == NULL || e->m->f == NULL): mop:%d IF:%d\n", mop, e->mopIF);
         return NULL;
     }
-    
+
     e->mopPos += 1;
     e->mopTally -= 1;
-    
+
     //p->lastAddress = p->address;
-    
+
     return m;
 }
 
@@ -6550,24 +6550,24 @@ static void mopExecutor (int kMop)
     e->mopTally = (int) e->N[kMop-1];        // number of micro-ops
     e->mopPos   = (int) e->CN[kMop-1];        // starting at char pos CN
 #endif
-    
+
     word9 *p9 = e->editInsertionTable; // re-initilize edit insertion table
     char *q = defaultEditInsertionTable;
     while((*p9++ = (word9) (*q++)))
         ;
-    
+
     e->in = e->inBuffer;    // reset input buffer pointer
     e->out = e->outBuffer;  // reset output buffer pointer
-    
+
     e->_faults = 0; // No faults (yet!)
-    
+
     // execute dstTally micro operations
     // The micro operation sequence is terminated normally when the receiving
     // string length becomes exhausted. The micro operation sequence is
     // terminated abnormally (with an illegal procedure fault) if a move from
     // an exhausted sending string or the use of an exhausted MOP string is
     // attempted.
-    
+
     while (e->dstTally)
     {
         sim_debug (DBG_TRACEEXT, & cpu_dev, "mopExecutor srcTally %d dstTally %d mopTally %d\n", e->srcTally, e->dstTally, e->mopTally);
@@ -6576,15 +6576,15 @@ static void mopExecutor (int kMop)
           {
             sim_debug (DBG_TRACEEXT, & cpu_dev, "mopExecutor EISgetMop forced break\n");
             e->_faults |= FAULT_IPR;   // XXX ill proc fault
-            break;        
-          } 
+            break;
+          }
         int mres = m->f();    // execute mop
 
         if (e->_faults & FAULT_IPR) // hard IPR raised by a MOP
             break;
 
         // RJ78 specifies "if at completion of a move (L1 exhausted)", AL39
-        // doesn't define "completion of a move". 
+        // doesn't define "completion of a move".
         // But ISOLTS-845 asserts a case where L1 is NOT exhausted. Therefore I
         // assume "L2 exhausted" or "L1 or L2 exhausted" is the correct
         // interpretation. Both these options pass ISOLTS-845.
@@ -6620,10 +6620,10 @@ static void mopExecutor (int kMop)
               { // N1 or N2 exhausted and BZ wasn't enabled
                 e->_faults |= FAULT_IPR;
               } // otherwise normal termination
-            break;        
+            break;
           }
     }
-    
+
     sim_debug (DBG_TRACEEXT, & cpu_dev, "mop faults %o src %d dst %d mop %d\n", e->_faults, e->srcTally, e->dstTally, e->mopTally);
 
 //"The micro-operation sequence is terminated normally when the receiving string
@@ -6661,7 +6661,7 @@ static void mopExecutor (int kMop)
         e->_faults |= FAULT_IPR;   // XXX ill proc fault
       }
 #endif
- 
+
 #if 0
     // src string not exhausted?
     if (e->srcTally != 0)
@@ -6682,13 +6682,13 @@ void mve (void)
     sim_debug(DBG_TRACEEXT, & cpu_dev, "mve\n");
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
     setupOperandDescriptor(3, &mod_fault);
 #endif
-    
+
     parseAlphanumericOperandDescriptor(1, 1, false, &mod_fault);
     parseAlphanumericOperandDescriptor(2, 2, false, &mod_fault);
     parseAlphanumericOperandDescriptor(3, 3, false, &mod_fault);
@@ -6702,7 +6702,7 @@ void mve (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 0, 1, 9, and 10 MBZ
     // According to RJ78, bit 9 is T, but is not mentioned in the text.
     if (IWB_IRODD & 0600600000000)
@@ -6740,10 +6740,10 @@ void mve (void)
     e->mopSN = false; // Sign flag
     e->mopBZ = false; // Blank-when-zero flag
     e->mopZ  = true;  // Zero flag
-    
+
     e->srcTally = (int) e->N1;  // number of chars in src (max 63)
     e->dstTally = (int) e->N3;  // number of chars in dst (max 63)
-    
+
 #ifdef EIS_PTR3
     e->srcTA = (int) TA1;    // type of chars in src
 #else
@@ -6762,7 +6762,7 @@ void mve (void)
           e -> srcSZ = 9;
           break;
       }
-    
+
 #ifdef EIS_PTR3
     uint dstTA = TA3;    // type of chars in dst
 #else
@@ -6781,21 +6781,21 @@ void mve (void)
           e -> dstSZ = 9;
           break;
       }
-    
+
     // 1. load sending string into inputBuffer
     EISloadInputBufferAlphnumeric (1);   // according to MF1
-    
+
     // 2. Execute micro operation string, starting with first (4-bit) digit.
     e -> mvne = false;
-    
+
 #ifdef EIS_PTR2
     mopExecutor ();
 #else
     mopExecutor (2);
 #endif
-    
+
     e -> dstTally = (int) e -> N3;  // restore dstTally for output
-    
+
     EISwriteOutputBufferToMemory (3);
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
@@ -6807,13 +6807,13 @@ void mvne (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, &mod_fault);
     setupOperandDescriptor (2, &mod_fault);
     setupOperandDescriptor (3, &mod_fault);
 #endif
-    
+
     parseNumericOperandDescriptor (1, &mod_fault);
     parseAlphanumericOperandDescriptor (2, 2, false, &mod_fault);
     parseAlphanumericOperandDescriptor (3, 3, false, &mod_fault);
@@ -6827,7 +6827,7 @@ void mvne (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 0, 1, 9, and 10 MBZ
     if (IWB_IRODD & 0600600000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mvne: 0, 1, 9, 10 MBZ");
@@ -6869,7 +6869,7 @@ void mvne (void)
     uint srcTN = e -> TN1;    // type of chars in src
 
     int n1 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -6878,7 +6878,7 @@ void mvne (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -6889,12 +6889,12 @@ void mvne (void)
             else
                 n1 -= 1;    // 1 9-bit digit exponent
             break;
-        
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             break;
-        
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             break;  // no sign wysiwyg
@@ -6936,10 +6936,10 @@ void mvne (void)
     e->mopSN = false; // Sign flag
     e->mopBZ = false; // Blank-when-zero flag
     e->mopZ  = true;  // Zero flag
-    
+
     e -> srcTally = (int) e -> N1;  // number of chars in src (max 63)
     e -> dstTally = (int) e -> N3;  // number of chars in dst (max 63)
-    
+
 // XXX Temp hack to get MOP to work. Merge TA/TN?
 // The MOP operators look at srcTA to make 9bit/not 9-bit decisions about
 // the contents of inBuffer; parseNumericOperandDescriptor() always puts
@@ -6991,7 +6991,7 @@ void mvne (void)
 
     // 1. load sending string into inputBuffer
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     // 2. Test sign and, if required, set the SN flag. (Sign flag; initially
     // set OFF if the sending string has an alphanumeric descriptor or an
     // unsigned numeric descriptor. If the sending string has a signed numeric
@@ -7006,10 +7006,10 @@ void mvne (void)
         sum += e -> inBuffer [n];
     if ((e -> sign == -1) && sum)
         e -> mopSN = true;
-    
+
     // 3. Execute micro operation string, starting with first (4-bit) digit.
     e -> mvne = true;
-    
+
 #ifdef EIS_PTR2
     mopExecutor ();
 #else
@@ -7017,14 +7017,14 @@ void mvne (void)
 #endif
 
     e -> dstTally = (int) e -> N3;  // restore dstTally for output
-    
+
     EISwriteOutputBufferToMemory (3);
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
   }
 
-/*  
+/*
  * MVT - Move Alphanumeric with Translation
  */
 
@@ -7038,17 +7038,17 @@ void mvt (void)
     // If N1 < N2, then for i = N1+1, N1+2, ..., N2
     //    m = C(FILL)
     //    C(Y-char93)m → C(Y-charn2)i-1
-    
+
     // Indicators: Truncation. If N1 > N2 then ON; otherwise OFF
-    
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, &mod_fault);
     setupOperandDescriptor (2, &mod_fault);
     setupOperandDescriptorCache (3);
 #endif
-    
+
     parseAlphanumericOperandDescriptor (1, 1, false, &mod_fault);
     parseAlphanumericOperandDescriptor (2, 2, false, &mod_fault);
     parseArgOperandDescriptor (3, &mod_fault);
@@ -7063,17 +7063,17 @@ void mvt (void)
       }
 #endif
 
-// ISOLTS 808 test-03b sets bit 0, 1    
+// ISOLTS 808 test-03b sets bit 0, 1
 // ISOLTS 808 test-03b sets bit 0, 1, 9
 #if 1
-    // Bits 10 MBZ 
+    // Bits 10 MBZ
     if (IWB_IRODD & 0000200000000)
       {
         //sim_printf ("mvt %012"PRIo64"\n", IWB_IRODD);
         doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mvt 10 MBZ");
       }
 #else
-    // Bits 0,1,9,10 MBZ 
+    // Bits 0,1,9,10 MBZ
     if (IWB_IRODD & 0600600000000)
       {
         //sim_printf ("mvt %012"PRIo64"\n", IWB_IRODD);
@@ -7109,12 +7109,12 @@ void mvt (void)
 #ifdef EIS_PTR3
     e->srcTA = (int) TA1;
     uint dstTA = TA2;
-    
+
     switch (TA1)
 #else
     e->srcTA = (int) e->TA1;
     uint dstTA = e->TA2;
-    
+
     switch (e -> TA1)
 #endif
       {
@@ -7128,7 +7128,7 @@ void mvt (void)
           e -> srcSZ = 9;
          break;
       }
-    
+
 #ifdef EIS_PTR3
     switch (TA2)
 #else
@@ -7145,7 +7145,7 @@ void mvt (void)
           e -> dstSZ = 9;
           break;
       }
-    
+
     //  Prepage Check in a Multiword Instruction
     //  The MVT, TCT, TCTR, and CMPCT instruction have a prepage check. The
     //  size of the translate table is determined by the TA1 data type as shown
@@ -7153,12 +7153,12 @@ void mvt (void)
     //  for allocation in memory for the page for the translate table. If the
     //  page is not in memory, a Missing Page fault occurs before execution of
     //  the instruction. (Bull RJ78 p.7-75)
-        
+
     // TA1              TRANSLATE TABLE SIZE
     // 4-BIT CHARACTER      4 WORDS
     // 6-BIT CHARACTER     16 WORDS
     // 9-BIT CHARACTER    128 WORDS
-    
+
     uint xlatSize = 0;   // size of xlation table in words .....
 #ifdef EIS_PTR3
     switch(TA1)
@@ -7176,11 +7176,11 @@ void mvt (void)
             xlatSize = 128;
             break;
     }
-    
-#if 0    
+
+#if 0
     word36 xlatTbl[128];
     memset(xlatTbl, 0, sizeof(xlatTbl));    // 0 it out just in case
-    
+
     // XXX here is where we probably need to to the prepage thang...
     EISReadN(&e->ADDR3, xlatSize, xlatTbl);
 #endif
@@ -7193,9 +7193,9 @@ void mvt (void)
     // prepage xlate table
     EISReadIdx(&e->ADDR3, 0);
     EISReadIdx(&e->ADDR3, xlatSize-1);
-    
+
     word1 T = getbits36_1 (cpu.cu.IWB, 9);
-    
+
     word9 fill = getbits36_9 (cpu.cu.IWB, 0);
     word9 fillT = fill;  // possibly truncated fill pattern
     // play with fill if we need to use it
@@ -7208,8 +7208,8 @@ void mvt (void)
             fillT = fill & 077;    // truncate upper 3-bits
             break;
     }
-    
-    sim_debug (DBG_TRACEEXT, & cpu_dev, 
+
+    sim_debug (DBG_TRACEEXT, & cpu_dev,
       "%s srcCN:%d dstCN:%d srcSZ:%d dstSZ:%d T:%d fill:%03o/%03o N1:%d N2:%d\n",
       __func__, e -> CN1, e -> CN2, e -> srcSZ, e -> dstSZ, T,
       fill, fillT, e -> N1, e -> N2);
@@ -7221,7 +7221,7 @@ void mvt (void)
     {
         word9 c = EISget469(1, cpu.du.CHTALLY); // get src char
         int cidx = 0;
-    
+
 #ifdef EIS_PTR3
         if (TA1 == TA2)
 #else
@@ -7232,7 +7232,7 @@ void mvt (void)
         {
             // If data types are dissimilar (TA1 ≠ TA2), each character is high-order truncated or zero filled, as appropriate, as it is moved. No character conversion takes place.
             cidx = c;
-            
+
             word9 cout = xlate(&e->ADDR3, dstTA, (uint) cidx);
 
 //            switch(e->dstSZ)
@@ -7269,15 +7269,15 @@ void mvt (void)
                     }
                     break;
             }
-            
+
             EISput469 (2, cpu.du.CHTALLY, cout);
         }
     }
-    
+
     // If N1 < N2, then for i = N1+1, N1+2, ..., N2
     //    m = C(FILL)
     //    C(Y-char93)m → C(Y-charn2)N2-i
-    
+
     if (e->N1 < e->N2)
     {
         word9 cfill = xlate(&e->ADDR3, dstTA, fillT);
@@ -7305,7 +7305,7 @@ void mvt (void)
                 }
                 break;
         }
-        
+
         for( ; cpu.du.CHTALLY < e->N2 ; cpu.du.CHTALLY ++)
             EISput469 (2, cpu.du.CHTALLY, cfill);
     }
@@ -7334,18 +7334,18 @@ void cmpn (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     // C(Y-charn1) :: C(Y-charn2) as numeric values
-    
+
     // Zero If C(Y-charn1) = C(Y-charn2), then ON; otherwise OFF
     // Negative If C(Y-charn1) > C(Y-charn2), then ON; otherwise OFF
     // Carry If | C(Y-charn1) | > | C(Y-charn2) | , then OFF, otherwise ON
-    
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
 #endif
-    
+
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
@@ -7358,7 +7358,7 @@ void cmpn (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 0-10 MBZ
     if (IWB_IRODD & 0777600000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "cmpn 0-10 MBZ");
@@ -7374,9 +7374,9 @@ void cmpn (void)
 #endif
 
     uint srcTN = e->TN1;    // type of chars in src
-    
+
     int n1 = 0, n2 = 0, sc1 = 0, sc2 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -7385,7 +7385,7 @@ void cmpn (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -7397,13 +7397,13 @@ void cmpn (void)
                 n1 -= 1;    // 1 9-bit digit exponent
             sc1 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             sc1 = -e->SF1;
             break;
-            
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             sc1 = -e->SF1;
@@ -7423,13 +7423,13 @@ void cmpn (void)
                 n2 -= 1;    // 1 9-bit digit exponent
             sc2 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             sc2 = -e->SF2;
             break;
-            
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             sc2 = -e->SF2;
@@ -7445,29 +7445,29 @@ void cmpn (void)
     decContextDefaultDPS8(&set);
 
     set.traps=0;
-    
+
     decNumber _1, _2, _3;
-    
+
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     decNumber *op1 = decBCD9ToNumber(e->inBuffer, n1, sc1, &_1);
     if (e->sign == -1)
         op1->bits |= DECNEG;
     if (e->S1 == CSFL)
         op1->exponent = e->exponent;
-    
+
     EISloadInputBufferNumeric (2);   // according to MF2
-    
+
     decNumber *op2 = decBCD9ToNumber(e->inBuffer, n2, sc2, &_2);
     if (e->sign == -1)
         op2->bits |= DECNEG;
     if (e->S2 == CSFL)
         op2->exponent = e->exponent;
-    
+
     // signed-compare
     decNumber *cmp = decNumberCompare(&_3, op1, op2, &set); // compare signed op1 :: op2
     int cSigned = decNumberToInt32(cmp, &set);
-    
+
     // take absolute value of operands
     op1 = decNumberAbs(op1, op1, &set);
     op2 = decNumberAbs(op2, op2, &set);
@@ -7475,7 +7475,7 @@ void cmpn (void)
     // magnitude-compare
     decNumber *mcmp = decNumberCompare(&_3, op1, op2, &set); // compare signed op1 :: op2
     int cMag = decNumberToInt32(mcmp, &set);
-    
+
     // Zero If C(Y-charn1) = C(Y-charn2), then ON; otherwise OFF
     // Negative If C(Y-charn1) > C(Y-charn2), then ON; otherwise OFF
     // Carry If | C(Y-charn1) | > | C(Y-charn2) | , then OFF, otherwise ON
@@ -7517,35 +7517,35 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 // AL39, Figure 2-3
     switch (*pos)
     {
-        case 0: 
+        case 0:
             //w = bitfieldInsert36(w, char4, 31, 5);
             w = setbits36_4 (w, 1, char4);
             break;
-        case 1: 
+        case 1:
             //w = bitfieldInsert36(w, char4, 27, 4);
             w = setbits36_4 (w, 5, char4);
             break;
-        case 2: 
+        case 2:
             //w = bitfieldInsert36(w, char4, 22, 5);
             w = setbits36_4 (w, 10, char4);
             break;
-        case 3: 
+        case 3:
             //w = bitfieldInsert36(w, char4, 18, 4);
             w = setbits36_4 (w, 14, char4);
             break;
-        case 4: 
+        case 4:
             //w = bitfieldInsert36(w, char4, 13, 5);
             w = setbits36_4 (w, 19, char4);
             break;
-        case 5: 
+        case 5:
             //w = bitfieldInsert36(w, char4, 9, 4);
             w = setbits36_4 (w, 23, char4);
             break;
-        case 6: 
+        case 6:
             //w = bitfieldInsert36(w, char4, 4, 5);
             w = setbits36_4 (w, 28, char4);
             break;
-        case 7: 
+        case 7:
             //w = bitfieldInsert36(w, char4, 0, 4);
             w = setbits36_4 (w, 32, char4);
             break;
@@ -7582,19 +7582,19 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 // AL39, Figure 2-5
     switch (*pos)
     {
-        case 0: 
+        case 0:
             //w = bitfieldInsert36(w, char9, 27, 9);
             w = setbits36_9 (w, 0, char9);
             break;
-        case 1: 
+        case 1:
             //w = bitfieldInsert36(w, char9, 18, 9);
             w = setbits36_9 (w, 9, char9);
             break;
-        case 2: 
+        case 2:
             //w = bitfieldInsert36(w, char9, 9, 9);
             w = setbits36_9 (w, 18, char9);
             break;
-        case 3: 
+        case 3:
             //w = bitfieldInsert36(w, char9, 0, 9);
             w = setbits36_9 (w, 27, char9);
             break;
@@ -7643,14 +7643,14 @@ void mvn (void)
      */
 
     EISstruct * e = & cpu.currentEISinstruction;
-    
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
 #endif
-    
+
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
@@ -7663,7 +7663,7 @@ void mvn (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 2-8 MBZ
     if (IWB_IRODD & 0377000000000)
      doFault (FAULT_IPR,
@@ -7688,10 +7688,10 @@ void mvn (void)
       DU_CYCLE_FRND;))
 
     uint srcTN = e->TN1;    // type of chars in src
-    
+
     uint dstTN = e->TN2;    // type of chars in dst
     uint dstCN = e->CN2;    // starting at char pos CN
-    
+
     sim_debug (DBG_CAC, & cpu_dev,
                "mvn(1): TN1 %d CN1 %d N1 %d TN2 %d CN2 %d N2 %d\n",
                e->TN1, e->CN1, e->N1, e->TN2, e->CN2, e->N2);
@@ -7703,7 +7703,7 @@ void mvn (void)
                e->OP1, e->OP2);
 
     int n1 = 0, n2 = 0, sc1 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -7712,7 +7712,7 @@ void mvn (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -7724,13 +7724,13 @@ void mvn (void)
                 n1 -= 1;    // 1 9-bit digit exponent
             sc1 = 0;        // no scaling factor
             break;
-        
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             sc1 = -e->SF1;
             break;
-        
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             sc1 = -e->SF1;
@@ -7743,7 +7743,7 @@ void mvn (void)
     // The values for the number of characters (N1 or N2) of the data
     // descriptors are not large enough to hold the number of characters
     // required for the specified sign and/or exponent, plus at least one
-    // digit. 
+    // digit.
 
     if (n1 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "mvn adjusted n1<1");
@@ -7757,17 +7757,17 @@ void mvn (void)
             else
                 n2 -= 1;    // 1 9-bit digit exponent
             break;
-        
+
         case CSLS:
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             break;
-        
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             break;          // no sign wysiwyg
     }
-    
+
     sim_debug (DBG_CAC, & cpu_dev, "n2 %d\n", n2);
 
     if (n2 < 1)
@@ -7776,39 +7776,39 @@ void mvn (void)
     decContext set;
     decContextDefaultDPS8(&set);
     set.traps=0;
-    
+
     decNumber _1;
 
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     decNumber *op1 = decBCD9ToNumber (e->inBuffer, n1, sc1, &_1);
-    
+
     if (e->sign == -1)
         op1->bits |= DECNEG;
     if (e->S1 == CSFL)
         op1->exponent = e->exponent;
     if (decNumberIsZero (op1))
         op1->exponent = 127;
-   
+
     if_sim_debug (DBG_CAC, & cpu_dev)
     {
         PRINTDEC ("mvn input (op1)", op1);
     }
-   
+
     bool Ovr = false, EOvr = false, Trunc = false;
-    
+
 
     uint8_t out [256];
     char * res = formatDecimal (out, & set, op1, n2, (int) e->S2, e->SF2, R,
                                 & Ovr, & Trunc);
-    
+
     sim_debug (DBG_CAC, & cpu_dev, "mvn res: '%s'\n", res);
-    
+
     // now write to memory in proper format.....
 
     //word18 dstAddr = e->dstAddr;
     int pos = (int) dstCN;
-    
+
     // 1st, take care of any leading sign .......
     switch(e->S2)
     {
@@ -7827,7 +7827,7 @@ void mvn (void)
                                     ! decNumberIsZero(op1)) ? 015 : 013);
                     else
                         // default +
-                        EISwrite49 (& e->ADDR2, & pos, (int) dstTN, 
+                        EISwrite49 (& e->ADDR2, & pos, (int) dstTN,
                                     (decNumberIsNegative (op1) &&
                                      ! decNumberIsZero (op1)) ? 015 : 014);
                     break;
@@ -7838,12 +7838,12 @@ void mvn (void)
                     break;
             }
             break;
-        
+
         case CSTS:  // nuttin' to do here .....
         case CSNS:
             break;  // no sign wysiwyg
     }
-    
+
     // 2nd, write the digits .....
     for (int i = 0 ; i < n2 ; i ++)
         switch (dstTN)
@@ -7856,7 +7856,7 @@ void mvn (void)
                 EISwrite49 (& e->ADDR2, & pos, (int) dstTN, (word9) res[i]);
                 break;
         }
-    
+
     // 3rd, take care of any trailing sign or exponent ...
     switch(e->S2)
     {
@@ -7878,7 +7878,7 @@ void mvn (void)
                                     (decNumberIsNegative (op1) &&
                                      ! decNumberIsZero (op1)) ? 015 :  014);
                     break;
-            
+
                 case CTN9:
                     EISwrite49 (& e->ADDR2, & pos, (int) dstTN,
                                 (decNumberIsNegative (op1) &&
@@ -7886,7 +7886,7 @@ void mvn (void)
                     break;
             }
             break;
-        
+
         case CSFL:  // floating-point, leading sign.
             // write the exponent
             switch(dstTN)
@@ -7903,12 +7903,12 @@ void mvn (void)
                 break;
             }
             break;
-        
+
         case CSLS:  // fixed point, leading sign - already done
         case CSNS:  // fixed point, unsigned - nuttin' needed to do
             break;
     }
-    
+
     // set flags, etc ...
     if (e->S2 == CSFL)
     {
@@ -7923,7 +7923,7 @@ void mvn (void)
             EOvr = true;
         }
     }
-    
+
 sim_debug (DBG_CAC, & cpu_dev, "is neg %o\n", decNumberIsNegative(op1));
 sim_debug (DBG_CAC, & cpu_dev, "is zero %o\n", decNumberIsZero(op1));
 sim_debug (DBG_CAC, & cpu_dev, "R %o\n", R);
@@ -7939,14 +7939,14 @@ sim_debug (DBG_CAC, & cpu_dev, "Ovr %o\n", Ovr);
 
     // set zero indicator if op3 == 0
     SC_I_ZERO (decNumberIsZero(op1));
-    
-    // If the truncation condition exists without rounding, then ON; 
+
+    // If the truncation condition exists without rounding, then ON;
     // otherwise OFF
     SC_I_TRUNC (!R && Trunc);
 
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
-    
+
     if (TST_I_TRUNC && T && tstOVFfault ())
         doFault (FAULT_OFL, fst_zero, "mvn truncation(overflow) fault");
     if (EOvr && tstOVFfault ())
@@ -8001,7 +8001,7 @@ void csl (void)
     // Clear            0      0      0      0
     // Invert           1      1      0      0
     //
-    
+
 // 0 0 0 0  Clear
 // 0 0 0 1  a AND b
 // 0 0 1 0  a AND !b
@@ -8013,19 +8013,19 @@ void csl (void)
 // 1 0 0 0  !a AND !b     !(a OR b)
 // 1 0 0 1  a == b        !(a XOR b)
 // 1 0 1 0  !b
-// 1 0 1 1  !b OR A 
+// 1 0 1 1  !b OR A
 // 1 1 0 0  !a
 // 1 1 0 1  !b AND a
 // 1 1 1 0  a NAND b
 // 1 1 1 1  Set
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, & mod_fault);
     setupOperandDescriptor (2, & mod_fault);
 #endif
-    
+
     parseBitstringOperandDescriptor (1, & mod_fault);
     parseBitstringOperandDescriptor (2, & mod_fault);
 
@@ -8036,7 +8036,7 @@ void csl (void)
                  (_fault_subtype) {.fault_ipr_subtype=mod_fault},
                  "Illegal modifier");
 #endif
-    
+
     // Bits 1-4 and 10 MBZ
     if (IWB_IRODD & 0360200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "csl 1-4,10 MBZ");
@@ -8051,19 +8051,19 @@ void csl (void)
 
     e->ADDR1.cPos = (int) e->C1;
     e->ADDR2.cPos = (int) e->C2;
-    
+
     e->ADDR1.bPos = (int) e->B1;
     e->ADDR2.bPos = (int) e->B2;
-    
+
     bool F = getbits36_1 (cpu.cu.IWB, 0) != 0;   // fill bit
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;   // T (enablefault) bit
-    
+
     uint BOLR = getbits36_4 (cpu.cu.IWB, 5);   // T (enablefault) bit
     bool B5 = !! (BOLR & 8);
     bool B6 = !! (BOLR & 4);
     bool B7 = !! (BOLR & 2);
     bool B8 = !! (BOLR & 1);
-    
+
     e->ADDR1.mode = eRWreadBit;
 
 #ifndef EIS_PTR
@@ -8076,9 +8076,9 @@ void csl (void)
                e -> N1, e -> N2,
                e -> C1, e -> C2, e -> B1, e -> B2, F, T,
                B5, B6, B7, B8,
-               e -> addr [0].SNR, e -> addr [0].address, 
+               e -> addr [0].SNR, e -> addr [0].address,
                e -> addr [0].cPos, e -> addr [0].bPos,
-               e -> addr [1].SNR, e -> addr [1].address, 
+               e -> addr [1].SNR, e -> addr [1].address,
                e -> addr [1].cPos, e -> addr [1].bPos);
 #endif
 
@@ -8092,7 +8092,7 @@ void csl (void)
         bool b1 = EISgetBitRWN(&e->ADDR1, true);
         e->ADDR2.mode = eRWreadBit;
         bool b2 = EISgetBitRWN(&e->ADDR2, true);
-        
+
         if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
 
         if (bR)
@@ -8108,16 +8108,16 @@ void csl (void)
         // so we flush the write in case.
         EISgetBitRWN(&e->ADDR2, e->ADDR1.last_bit_posn == 35);    // write bit w/ addr increment to memory
     }
-    
+
     if (e->N1 < e->N2)
       {
         for(; cpu.du.CHTALLY < e->N2; cpu.du.CHTALLY += 1)
           {
             bool b1 = F;
-            
+
             e->ADDR2.mode = eRWreadBit;
             bool b2 = EISgetBitRWN(&e->ADDR2, true);
-            
+
             if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
 
             if (bR)
@@ -8125,7 +8125,7 @@ void csl (void)
                 //CLR_I_ZERO;
                 cpu.du.Z = 0;
               }
-        
+
             // write out modified bit
             e->ADDR2.bit = bR ? 1 : 0;
             e->ADDR2.mode = eRWwriteBit;
@@ -8148,7 +8148,7 @@ void csl (void)
         //
         // If T = 1 and the truncation indicator is set ON by execution of the
         // instruction, then a truncation (overflow) fault occurs.
-        
+
         SET_I_TRUNC;
         if (T && tstOVFfault ())
           doFault(FAULT_OFL, fst_zero, "csl truncation fault");
@@ -8170,18 +8170,18 @@ static void getBitOffsets(int length, int initC, int initB, int *nWords, int *ne
 {
     if (length == 0)
         return;
-    
+
     int endBit = (length + 9 * initC + initB - 1) % 36;
-    
+
     //int numWords = (length + 35) / 36;  // how many additional words will the bits take up?
     int numWords = (length + 9 * initC + initB + 35) / 36;  // how many additional words will the bits take up?
     int lastWordOffset = numWords - 1;
-    
+
     if (lastWordOffset > 0)          // more that the 1 word needed?
         *nWords = lastWordOffset;  // # of additional words
     else
         *nWords = 0;    // no additional words needed
-    
+
     *newC = endBit / 9; // last character number
     *newB = endBit % 9; // last bit number
 }
@@ -8220,16 +8220,16 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
 
     p -> data = EISRead (p); // read data word from memory
-    
+
     if (p -> mode == eRWreadBit)
       {
         p -> bit = getbits36_1 (p -> data, (uint) bitPosn);
-      } 
+      }
     else if (p -> mode == eRWwriteBit)
       {
         //p -> data = bitfieldInsert36 (p -> data, p -> bit, bitPosn, 1);
         p -> data = setbits36_1 (p -> data, (uint) bitPosn, p -> bit);
-        
+
         EISWriteIdx (p, 0, p -> data, flush); // write data word to memory
       }
 
@@ -8283,14 +8283,14 @@ void csr (void)
     // Clear            0      0      0      0
     // Invert           1      1      0      0
     //
-    
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
 #endif
-    
+
     parseBitstringOperandDescriptor(1, &mod_fault);
     parseBitstringOperandDescriptor(2, &mod_fault);
 
@@ -8301,7 +8301,7 @@ void csr (void)
                  (_fault_subtype) {.fault_ipr_subtype=mod_fault},
                  "Illegal modifier");
 #endif
-    
+
     // Bits 1-4 and 10 MBZ
     if (IWB_IRODD & 0360200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "csr 1-4,10 MBZ");
@@ -8316,13 +8316,13 @@ void csr (void)
 
     e->ADDR1.cPos = (int) e->C1;
     e->ADDR2.cPos = (int) e->C2;
-    
+
     e->ADDR1.bPos = (int) e->B1;
     e->ADDR2.bPos = (int) e->B2;
-    
+
     // get new char/bit offsets
     int numWords1=0, numWords2=0;
-    
+
     getBitOffsets((int) e->N1, (int) e->C1, (int) e->B1, &numWords1, &e->ADDR1.cPos, &e->ADDR1.bPos);
     PNL (cpu.du.D1_PTR_W += (word18) numWords1);
     PNL (cpu.du.D1_PTR_W &= AMASK);
@@ -8332,7 +8332,7 @@ void csr (void)
 #else
     e->ADDR1.address += (word18) numWords1;
 #endif
-        
+
     sim_debug (DBG_TRACEEXT, & cpu_dev,
                "CSR N1 %d C1 %d B1 %d numWords1 %d cPos %d bPos %d\n",
                e->N1, e->C1, e->B1, numWords1, e->ADDR1.cPos, e->ADDR1.bPos);
@@ -8348,37 +8348,37 @@ void csr (void)
 #else
     e->ADDR2.address += (word18) numWords2;
 #endif
-    
+
     bool F = getbits36_1 (cpu.cu.IWB, 0) != 0;   // fill bit
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;   // T (enablefault) bit
-    
+
     uint BOLR = getbits36_4 (cpu.cu.IWB, 5);   // T (enablefault) bit
     bool B5 = !! (BOLR & 8);
     bool B6 = !! (BOLR & 4);
     bool B7 = !! (BOLR & 2);
     bool B8 = !! (BOLR & 1);
-    
+
     e->ADDR1.mode = eRWreadBit;
-    
+
     CLR_I_TRUNC;     // assume N1 <= N2
-    
+
     bool bR = false; // result bit
-    
+
     PNL (L68_ (if (max (e->N1, e->N2) < 128)
                  DU_CYCLE_FLEN_128;))
 
     for( ; cpu.du.CHTALLY < min(e->N1, e->N2); cpu.du.CHTALLY += 1)
       {
         bool b1 = EISgetBitRWNR(&e->ADDR1, true);
-        
+
         e->ADDR2.mode = eRWreadBit;
         bool b2 = EISgetBitRWNR(&e->ADDR2, true);
-        
+
         if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
-        
+
         if (bR)
           cpu.du.Z = 0;
-        
+
         // write out modified bit
         e->ADDR2.bit = bR ? 1 : 0;              // set bit contents to write
         e->ADDR2.mode = eRWwriteBit;    // we want to write the bit
@@ -8386,24 +8386,24 @@ void csr (void)
         // so we flush the write in case.
         EISgetBitRWNR(&e->ADDR2, e->ADDR1.last_bit_posn == 0);
       }
-    
+
     if (e->N1 < e->N2)
       {
         for(; cpu.du.CHTALLY < e->N2; cpu.du.CHTALLY += 1)
           {
             bool b1 = F;
-            
+
             e->ADDR2.mode = eRWreadBit;
             bool b2 = EISgetBitRWNR(&e->ADDR2, true);
-            
+
             if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
-            
+
             if (bR)
               {
                 //CLR_I_ZERO;
                 cpu.du.Z = 0;
               }
-        
+
             // write out modified bit
             e->ADDR2.bit = bR ? 1 : 0;
             e->ADDR2.mode = eRWwriteBit;
@@ -8426,7 +8426,7 @@ void csr (void)
         //
         // If T = 1 and the truncation indicator is set ON by execution of the
         // instruction, then a truncation (overflow) fault occurs.
-        
+
         SET_I_TRUNC;
         if (T && tstOVFfault ())
           doFault(FAULT_OFL, fst_zero, "csr truncation fault");
@@ -8483,7 +8483,7 @@ void sztl (void)
     // Clear            0      0      0      0
     // Invert           1      1      0      0
     //
-    
+
 // 0 0 0 0  Clear
 // 0 0 0 1  a AND b
 // 0 0 1 0  a AND !b
@@ -8495,19 +8495,19 @@ void sztl (void)
 // 1 0 0 0  !a AND !b     !(a OR b)
 // 1 0 0 1  a == b        !(a XOR b)
 // 1 0 1 0  !b
-// 1 0 1 1  !b OR A 
+// 1 0 1 1  !b OR A
 // 1 1 0 0  !a
 // 1 1 0 1  !b AND a
 // 1 1 1 0  a NAND b
 // 1 1 1 1  Set
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor (1, &mod_fault);
     setupOperandDescriptor (2, &mod_fault);
 #endif
-    
+
     parseBitstringOperandDescriptor (1, &mod_fault);
     parseBitstringOperandDescriptor (2, &mod_fault);
 
@@ -8518,7 +8518,7 @@ void sztl (void)
                  (_fault_subtype) {.fault_ipr_subtype=mod_fault},
                  "Illegal modifier");
 #endif
-    
+
     // Bits 1-4 and 10 MBZ
     if (IWB_IRODD & 0360200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "csl 1-4,10 MBZ");
@@ -8533,19 +8533,19 @@ void sztl (void)
 
     e->ADDR1.cPos = (int) e->C1;
     e->ADDR2.cPos = (int) e->C2;
-    
+
     e->ADDR1.bPos = (int) e->B1;
     e->ADDR2.bPos = (int) e->B2;
-    
+
     bool F = getbits36_1 (cpu.cu.IWB, 0) != 0;   // fill bit
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;   // T (enablefault) bit
-    
+
     uint BOLR = getbits36_4 (cpu.cu.IWB, 5);   // T (enablefault) bit
     bool B5 = !! (BOLR & 8);
     bool B6 = !! (BOLR & 4);
     bool B7 = !! (BOLR & 2);
     bool B8 = !! (BOLR & 1);
-    
+
     e->ADDR1.mode = eRWreadBit;
     e->ADDR2.mode = eRWreadBit;
 
@@ -8559,9 +8559,9 @@ void sztl (void)
                e -> N1, e -> N2,
                e -> C1, e -> C2, e -> B1, e -> B2, F, T,
                B5, B6, B7, B8,
-               e -> addr [0].SNR, e -> addr [0].address, 
+               e -> addr [0].SNR, e -> addr [0].address,
                e -> addr [0].cPos, e -> addr [0].bPos,
-               e -> addr [1].SNR, e -> addr [1].address, 
+               e -> addr [1].SNR, e -> addr [1].address,
                e -> addr [1].cPos, e -> addr [1].bPos);
 #endif
 
@@ -8574,9 +8574,9 @@ void sztl (void)
     {
         bool b1 = EISgetBitRWN (& e->ADDR1, true);
         bool b2 = EISgetBitRWN (& e->ADDR2, true);
-        
+
         if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
-        
+
         if (bR)
           {
             //CLR_I_ZERO);
@@ -8584,16 +8584,16 @@ void sztl (void)
             break;
           }
       }
-    
+
     if (e->N1 < e->N2)
       {
         for (; cpu.du.CHTALLY < e->N2; cpu.du.CHTALLY += 1)
           {
             bool b1 = F;
             bool b2 = EISgetBitRWN (& e->ADDR2, true);
-            
+
             if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
-            
+
             if (bR)
               {
                 //CLR_I_ZERO;
@@ -8602,7 +8602,7 @@ void sztl (void)
               }
           }
       }
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
 
@@ -8614,7 +8614,7 @@ void sztl (void)
         //
         // If T = 1 and the truncation indicator is set ON by execution of the
         // instruction, then a truncation (overflow) fault occurs.
-        
+
         SET_I_TRUNC;
         if (T && tstOVFfault ())
           doFault(FAULT_OFL, fst_zero, "csl truncation fault");
@@ -8670,14 +8670,14 @@ void sztr (void)
     // Clear            0      0      0      0
     // Invert           1      1      0      0
     //
-    
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
 #endif
-    
+
     parseBitstringOperandDescriptor(1, &mod_fault);
     parseBitstringOperandDescriptor(2, &mod_fault);
 
@@ -8688,7 +8688,7 @@ void sztr (void)
                  (_fault_subtype) {.fault_ipr_subtype=mod_fault},
                  "Illegal modifier");
 #endif
-    
+
     // Bits 1-4 and 10 MBZ
     if (IWB_IRODD & 0360200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "csr 1-4,10 MBZ");
@@ -8703,13 +8703,13 @@ void sztr (void)
 
     e->ADDR1.cPos = (int) e->C1;
     e->ADDR2.cPos = (int) e->C2;
-    
+
     e->ADDR1.bPos = (int) e->B1;
     e->ADDR2.bPos = (int) e->B2;
-    
+
     // get new char/bit offsets
     int numWords1=0, numWords2=0;
-    
+
     getBitOffsets((int) e->N1, (int) e->C1, (int) e->B1, &numWords1, &e->ADDR1.cPos, &e->ADDR1.bPos);
     PNL (cpu.du.D1_PTR_W += (word18) numWords1);
     PNL (cpu.du.D1_PTR_W &= AMASK);
@@ -8719,7 +8719,7 @@ void sztr (void)
 #else
     e->ADDR1.address += (word18) numWords1;
 #endif
-        
+
     sim_debug (DBG_TRACEEXT, & cpu_dev,
                "CSR N1 %d C1 %d B1 %d numWords1 %d cPos %d bPos %d\n",
                e->N1, e->C1, e->B1, numWords1, e->ADDR1.cPos, e->ADDR1.bPos);
@@ -8735,60 +8735,60 @@ void sztr (void)
 #else
     e->ADDR2.address += (word18) numWords2;
 #endif
-    
+
     bool F = getbits36_1 (cpu.cu.IWB, 0) != 0;   // fill bit
     bool T = getbits36_1 (cpu.cu.IWB, 9) != 0;   // T (enablefault) bit
-    
+
     uint BOLR = getbits36_4 (cpu.cu.IWB, 5);   // T (enablefault) bit
     bool B5 = !! (BOLR & 8);
     bool B6 = !! (BOLR & 4);
     bool B7 = !! (BOLR & 2);
     bool B8 = !! (BOLR & 1);
-    
+
     e->ADDR1.mode = eRWreadBit;
-    
+
     CLR_I_TRUNC;     // assume N1 <= N2
-    
+
     bool bR = false; // result bit
-    
+
     PNL (L68_ (if (max (e->N1, e->N2) < 128)
                  DU_CYCLE_FLEN_128;))
 
     for( ; cpu.du.CHTALLY < min(e->N1, e->N2); cpu.du.CHTALLY += 1)
       {
         bool b1 = EISgetBitRWNR(&e->ADDR1, true);
-        
+
         e->ADDR2.mode = eRWreadBit;
         bool b2 = EISgetBitRWNR(&e->ADDR2, true);
-        
+
         if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
-        
+
         if (bR)
           {
             cpu.du.Z = 0;
             break;
           }
-        
+
       }
-    
+
     if (e->N1 < e->N2)
       {
         for(; cpu.du.CHTALLY < e->N2; cpu.du.CHTALLY += 1)
           {
             bool b1 = F;
-            
+
             e->ADDR2.mode = eRWreadBit;
             bool b2 = EISgetBitRWNR(&e->ADDR2, true);
-            
+
             if (b1) if (b2) bR = B8; else bR = B7; else if (b2) bR = B6; else bR = B5;
-            
+
             if (bR)
             {
                 //CLR_I_ZERO;
                 cpu.du.Z = 0;
                 break;
             }
-        
+
           }
       }
 
@@ -8803,7 +8803,7 @@ void sztr (void)
         //
         // If T = 1 and the truncation indicator is set ON by execution of the
         // instruction, then a truncation (overflow) fault occurs.
-        
+
         SET_I_TRUNC;
         if (T && tstOVFfault ())
           doFault(FAULT_OFL, fst_zero, "csr truncation fault");
@@ -8830,13 +8830,13 @@ static bool EISgetBit(EISaddr *p, int *cpos, int *bpos)
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
-    
+
     if (!p)
     {
         //lastAddress = -1;
         return 0;
     }
-    
+
     if (*bpos > 8)      // bits 0-8
     {
         *bpos = 0;
@@ -8853,15 +8853,15 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
         }
     }
-    
+
     p->data = EISRead(p); // read data word from memory
-    
+
     int charPosn = *cpos * 9;
     int bitPosn = charPosn + *bpos;
     bool b = getbits36_1 (p->data, (uint) bitPosn) != 0;
-    
+
     *bpos += 1;
-    
+
     return b;
 }
 
@@ -8869,7 +8869,7 @@ void cmpb (void)
 {
     EISstruct * e = & cpu.currentEISinstruction;
 
-    
+
     // For i = 1, 2, ..., minimum (N1,N2)
     //   C(Y-bit1)i-1 :: C(Y-bit2)i-1
     // If N1 < N2, then for i = N1+1, N1+2, ..., N2
@@ -8880,14 +8880,14 @@ void cmpb (void)
     // Indicators:
     //    Zero:  If C(Y-bit1)i = C(Y-bit2)i for all i, then ON; otherwise, OFF
     //    Carry: If C(Y-bit1)i < C(Y-bit2)i for any i, then OFF; otherwise ON
-    
+
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
 #endif
-    
+
     parseBitstringOperandDescriptor(1, &mod_fault);
     parseBitstringOperandDescriptor(2, &mod_fault);
 
@@ -8900,7 +8900,7 @@ void cmpb (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 1-8 and 10 MBZ
     if (IWB_IRODD & 0377200000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "cmpb 1-8,10 MBZ");
@@ -8917,24 +8917,24 @@ void cmpb (void)
 
     int charPosn1 = (int) e->C1;
     int charPosn2 = (int) e->C2;
-    
+
     int bitPosn1 = (int) e->B1;
     int bitPosn2 = (int) e->B2;
-    
+
     bool F = getbits36_1 (cpu.cu.IWB, 0) != 0;   // fill bit
 
     SET_I_ZERO;  // assume all =
     SET_I_CARRY; // assume all >=
-    
+
 sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb N1 %d N2 %d\n", e -> N1, e -> N2);
 
 #if 0
-// RJ78: Notes 1:  If L1 or L2 = 0, both the Zero and Carry indicators are 
+// RJ78: Notes 1:  If L1 or L2 = 0, both the Zero and Carry indicators are
 // turned ON, but no Illegal Procedure fault occurs.
 
-// CAC: This makes sense if you s/or/and/; the behavior for the 'or' 
+// CAC: This makes sense if you s/or/and/; the behavior for the 'or'
 // condition is well-defined by the text, but the case of 'and' is
-// not covered. However, this test is just an optimization -- the 
+// not covered. However, this test is just an optimization -- the
 // code behaves this way for the 'and' case.
 
     //if (e -> N1 == 0 || e -> N2 == 0)
@@ -8952,7 +8952,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb N1 %d N2 %d\n", e -> N1, e -> N2);
     {
         bool b1 = EISgetBit (&e->ADDR1, &charPosn1, &bitPosn1);
         bool b2 = EISgetBit (&e->ADDR2, &charPosn2, &bitPosn2);
-        
+
 sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(min(e->N1, e->N2)) i %d b1 %d b2 %d\n", i, b1, b2);
         if (b1 != b2)
         {
@@ -8965,7 +8965,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(min(e->N1, e->N2)) i %d b1 %d b2 %d\n"
 
             return;
         }
-        
+
     }
     if (e->N1 < e->N2)
     {
@@ -8974,7 +8974,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(min(e->N1, e->N2)) i %d b1 %d b2 %d\n"
             bool b1 = F;
             bool b2 = EISgetBit(&e->ADDR2, &charPosn2, &bitPosn2);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 < e->N2) i %d b1fill %d b2 %d\n", i, b1, b2);
-        
+
             if (b1 != b2)
             {
                 CLR_I_ZERO;
@@ -8986,7 +8986,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 < e->N2) i %d b1fill %d b2 %d\n"
 
                 return;
             }
-        }   
+        }
     } else if (e->N1 > e->N2)
     {
         for(; i < e->N1 ; i += 1)
@@ -8994,7 +8994,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 < e->N2) i %d b1fill %d b2 %d\n"
             bool b1 = EISgetBit(&e->ADDR1, &charPosn1, &bitPosn1);
             bool b2 = F;
 sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 > e->N2) i %d b1 %d b2fill %d\n", i, b1, b2);
-        
+
             if (b1 != b2)
             {
                 CLR_I_ZERO;
@@ -9024,7 +9024,7 @@ static void EISwrite4r(EISaddr *p, int *pos, word4 char4)
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
     word36 w;
-    
+
     if (*pos < 0)    // out-of-range?
     {
         *pos = 7;    // reset to 1st byte
@@ -9035,7 +9035,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
     }
     w = EISRead(p);
-    
+
 // AL39, Figure 2-3
     switch (*pos)
     {
@@ -9072,10 +9072,10 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             w = setbits36_4 (w, 32, char4);
             break;
     }
-    
+
     //Write (*dstAddr, w, OperandWrite, 0); // XXX this is the inefficient part!
     EISWriteIdx(p, 0, w, true); // XXX this is the inefficient part!
-    
+
     *pos -= 1;       // to prev byte.
 }
 
@@ -9099,9 +9099,9 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         p->address = (p->address - 1) & AMASK;        // goto next dstAddr in memory
 #endif
     }
-    
+
     w = EISRead(p);      // read dst memory into w
-    
+
 // AL39, Figure 2-5
     switch (*pos)
     {
@@ -9122,10 +9122,10 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             w = setbits36_9 (w, 27, char9);
             break;
     }
-    
+
     //Write (*dstAddr, w, OperandWrite, 0); // XXX this is the inefficient part!
     EISWriteIdx(p, 0, w, true); // XXX this is the inefficient part!
-    
+
     *pos -= 1;       // to prev byte.
 }
 
@@ -9137,7 +9137,7 @@ static void EISwriteToOutputStringReverse (int k, word9 charToWrite, bool * ovf)
 {
     EISstruct * e = & cpu.currentEISinstruction;
     // first thing we need to do is to find out the last position is the buffer we want to start writing to.
-    
+
     static int N = 0;           // length of output buffer in native chars (4, 6 or 9-bit chunks)
     static int CN = 0;          // character number 0-7 (4), 0-5 (6), 0-3 (9)
     static int TN = 0;          // type code
@@ -9148,11 +9148,11 @@ static void EISwriteToOutputStringReverse (int k, word9 charToWrite, bool * ovf)
     if (k)
     {
         _k = k;
-        
+
         N = (int) e->N[k-1];      // length of output buffer in native chars (4, 9-bit chunks)
         CN = (int) e->CN[k-1];    // character number (position) 0-7 (4), 0-5 (6), 0-3 (9)
         TN = (int) e->TN[k-1];    // type code
-        
+
         //int chunk = 0;
         int maxPos = 4;
         switch (TN)
@@ -9170,17 +9170,17 @@ static void EISwriteToOutputStringReverse (int k, word9 charToWrite, bool * ovf)
                 maxPos = 4;
                 break;
         }
-        
-        // since we want to write the data in reverse (since it's right 
-        // justified) we need to determine the final address/CN for the 
+
+        // since we want to write the data in reverse (since it's right
+        // justified) we need to determine the final address/CN for the
         // type and go backwards from there
-        
+
         //int numBits = size * N;      // 8 4-bit digits, 4 9-bit bytes / word
-        // (remember there are 4 slop bits in a 36-bit word when dealing with 
+        // (remember there are 4 slop bits in a 36-bit word when dealing with
         // BCD)
 
         // how many additional words will the N chars take up?
-        //int numWords = numBits / ((TN == CTN4) ? 32 : 36);      
+        //int numWords = numBits / ((TN == CTN4) ? 32 : 36);
 
 // CN+N    numWords  (CN+N+3)/4   lastChar
 //   1       1                      0
@@ -9192,7 +9192,7 @@ static void EISwriteToOutputStringReverse (int k, word9 charToWrite, bool * ovf)
         int numWords = (CN + N + (maxPos - 1)) / maxPos;
         int lastWordOffset = numWords - 1;
         int lastChar = (CN + N - 1) % maxPos;   // last character number
-        
+
         if (lastWordOffset > 0)           // more that the 1 word needed?
         {
             //address += lastWordOffset;    // highest memory address
@@ -9206,18 +9206,18 @@ static void EISwriteToOutputStringReverse (int k, word9 charToWrite, bool * ovf)
             e->addr[k-1].address &= MASK18;
 #endif
         }
-        
+
         pos = lastChar;             // last character number
         return;
     }
-    
+
     // any room left in output string?
     if (N <= 0)
     {
         * ovf = true;
         return;
     }
-    
+
     // we should write character to word/pos in memory .....
     switch(TN)
     {
@@ -9238,23 +9238,23 @@ static void EISwriteToOutputStringReverse (int k, word9 charToWrite, bool * ovf)
  */
 static bool sign9n(word72 n128, int N)
 {
-    
+
     // sign bit of  9-bit is bit 8  (1 << 8)
     // sign bit of 18-bit is bit 17 (1 << 17)
     // .
     // .
     // .
     // sign bit of 72-bit is bit 71 (1 << 71)
-    
+
     if (N < 1 || N > 8) // XXX largest int we'll play with is 72-bits? Makes sense
         return false;
-    
+
 #ifdef NEED_128
     word72 sgnmask = lshift_128 (construct_128 (0, 1), (uint) (N * 9 - 1));
     return isnonzero_128 (and_128 (sgnmask, n128));
 #else
     word72 sgnmask = (word72)1 << ((N * 9) - 1);
-    
+
     return (bool)(sgnmask & n128);
 #endif
 }
@@ -9268,7 +9268,7 @@ static word72s signExt9(word72 n128, int N)
     // ext mask for 18-bit = 037777777777777777777777777777777777400000 17 0's
     // ext mask for 36-bit = 037777777777777777777777777777400000000000 35 0's
     // etc...
-    
+
     int bits = (N * 9) - 1;
     if (sign9n(n128, N))
     {
@@ -9307,9 +9307,9 @@ static void load9x(int n, EISaddr *addr, int pos)
     long eisaddr_idx = EISADDR_IDX (addr);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
-    
+
     word36 data = EISRead(addr);
-    
+
     int m = n;
     while (m)
     {
@@ -9318,7 +9318,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #else
         x <<= 9;         // make room for next 9-bit byte
 #endif
-        
+
         if (pos > 3)        // overflows to next word?
         {   // yep....
             pos = 0;        // reset to 1st byte
@@ -9329,15 +9329,15 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
             data = EISRead(addr);    // read it from memory
         }
-        
+
 #ifdef NEED_128
         x = or_128 (x, construct_128 (0, GETBYTE (data, pos)));
 #else
         x |= GETBYTE(data, pos);   // fetch byte at position pos and 'or' it in
 #endif
-        
+
         pos += 1;           // onto next posotion
-        
+
         m -= 1;             // decrement byte counter
     }
     e->x = signExt9(x, n);  // form proper 2's-complement integer
@@ -9365,7 +9365,7 @@ static word9 getSign (word72s n128)
         }
         else
         {
-            SETF(e->_flags, I_NEG); 
+            SETF(e->_flags, I_NEG);
             return 015;      // - sign
         }
     }
@@ -9392,7 +9392,7 @@ static word9 getSign (word72s n128)
 static void _btd (bool * ovfp)
 {
     EISwriteToOutputStringReverse(2, 0, ovfp);    // initialize output writer .....
-    
+
     PNL (L68_ (DU_CYCLE_DGBD;))
 
     EISstruct * e = & cpu.currentEISinstruction;
@@ -9402,13 +9402,13 @@ static void _btd (bool * ovfp)
 
     SC_I_ZERO (n128 == 0);
     SC_I_NEG (n128 == 0);
-   
+
     int sgn = (n128 < 0) ? -1 : 1;  // sgn(x)
     if (n128 < 0)
         n128 = -n128;
-    
+
     int N = (int) e->N2;  // number of chars to write ....
-    
+
     // handle any trailing sign stuff ...
     if (e->S2 == CSTS)  // a trailing sign
     {
@@ -9421,20 +9421,20 @@ static void _btd (bool * ovfp)
         do
         {
             int n = n128 % 10;
-        
+
             EISwriteToOutputStringReverse(0, (word9) ((e->TN2 == CTN4) ? n : (n + '0')), ovfp);
-        
+
             if (* ovfp)   // Overflow! Too many chars, not enough room!
                 break;
-        
+
             N -= 1;
-        
+
             n128 /= 10;
         } while (n128);
      }
-    
+
     // at this point we've exhausted our digits, but may still have spaces left.
-    
+
     // handle any leading sign stuff ...
     if (! * ovfp)
     {
@@ -9468,7 +9468,7 @@ void btd (void)
 {
     EISstruct * e = & cpu.currentEISinstruction;
 
-    
+
     // C(Y-char91) converted to decimal → C(Y-charn2)
     /*!
      * C(Y-char91) contains a twos complement binary integer aligned on 9-bit
@@ -9505,9 +9505,9 @@ void btd (void)
      * Attempted repetition with the rpt, rpd, or rpl instructions causes an illegal procedure fault.
      *
      */
-    
+
     // C(string 1) -> C(string 2) (converted)
-    
+
     // The two's complement binary integer starting at location YC1 is
     // converted into a signed string of decimal characters of data type TN2,
     // sign and decimal type S2 (S2 = 00 is illegal) and scale factor 0; and is
@@ -9523,7 +9523,7 @@ void btd (void)
     // signed 4-bit results are stored with octal 14 as the plus sign.
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
@@ -9531,7 +9531,7 @@ void btd (void)
 
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
-    
+
 #ifdef L68
     // L68 raises it immediately
     if (mod_fault)
@@ -9542,7 +9542,7 @@ void btd (void)
       }
 #endif
 
-    // Bits 1-10 MBZ 
+    // Bits 1-10 MBZ
     if (IWB_IRODD & 0377600000000)
       {
         //sim_printf ("sb2d %012"PRIo64"\n", IWB_IRODD);
@@ -9573,7 +9573,7 @@ void btd (void)
     e->P = getbits36_1 (cpu.cu.IWB, 0) != 0;  // 4-bit data sign character control
 
     if (e->N1 == 0 || e->N1 > 8)
-        doFault(FAULT_IPR, fst_ill_proc, "btd(1): N1 == 0 || N1 > 8"); 
+        doFault(FAULT_IPR, fst_ill_proc, "btd(1): N1 == 0 || N1 > 8");
 
     uint dstTN = e->TN2;    // type of chars in dst
     uint dstCN = e->CN2;    // starting at char pos CN
@@ -9586,12 +9586,12 @@ void btd (void)
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             break;
-        
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             break;          // no sign wysiwyg
     }
-    
+
     sim_debug (DBG_CAC, & cpu_dev,
       "n2 %d\n",
       n2);
@@ -9627,7 +9627,7 @@ void btd (void)
         uint16_t r;
         x = divide_128_16 (x, 10, & r);
         tmp[i] = (char) r + '0';
-        if (iszero_128 (x)) 
+        if (iszero_128 (x))
             break;
     }
 #else
@@ -9644,7 +9644,7 @@ void btd (void)
     for (i=30;i>=0;i--) {
         tmp[i] = x%10 + '0';
         x /= 10;
-        if (x == 0) 
+        if (x == 0)
             break;
     }
 #endif
@@ -9655,7 +9655,7 @@ void btd (void)
         op1->bits |= DECNEG;
 
     bool Ovr = false, Trunc = false;
-    
+
     uint8_t out [256];
     char * res = formatDecimal (out, &set, op1, n2, (int) e->S2, e->SF2, 0, &Ovr, &Trunc);
 
@@ -9663,7 +9663,7 @@ void btd (void)
 
     //word18 dstAddr = e->dstAddr;
     int pos = (int) dstCN;
-    
+
     // 1st, take care of any leading sign .......
     switch(e->S2)
     {
@@ -9681,12 +9681,12 @@ void btd (void)
                     break;
             }
             break;
-        
+
         case CSTS:  // nuttin' to do here .....
         case CSNS:
             break;  // no sign wysiwyg
     }
-    
+
     // 2nd, write the digits .....
     for(int i = 0 ; i < n2 ; i++)
         switch(dstTN)
@@ -9698,7 +9698,7 @@ void btd (void)
                 EISwrite49(&e->ADDR2, &pos, (int) dstTN, (word9) res[i]);
                 break;
         }
-    
+
     // 3rd, take care of any trailing sign or exponent ...
     switch(e->S2)
     {
@@ -9711,24 +9711,24 @@ void btd (void)
                     else
                         EISwrite49(&e->ADDR2, &pos, (int) dstTN, (decNumberIsNegative(op1) && !decNumberIsZero(op1)) ? 015 :  014);  // default +
                     break;
-            
+
                 case CTN9:
                     EISwrite49(&e->ADDR2, &pos, (int) dstTN, (decNumberIsNegative(op1) && !decNumberIsZero(op1)) ? '-' : '+');
                     break;
             }
             break;
-        
+
         case CSLS:  // fixed point, leading sign - already done
         case CSNS:  // fixed point, unsigned - nuttin' needed to do
             break;
     }
-    
+
     SC_I_NEG (decNumberIsNegative(op1) && !decNumberIsZero(op1));  // set negative indicator if op3 < 0
     SC_I_ZERO (decNumberIsZero(op1));     // set zero indicator if op3 == 0
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
-    
+
     if (Ovr)
     {
         SET_I_OFLOW;
@@ -9750,13 +9750,13 @@ static int loadDec (EISaddr *p, int pos)
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
-    
+
     p->data = EISRead(p);    // read data word from memory
-    
+
     int maxPos = e->TN1 == CTN4 ? 7 : 3;
 
     int sgn = 1;
-    
+
     sim_debug (DBG_TRACEEXT, & cpu_dev,
       "loadDec: maxPos %d N1 %d\n", maxPos, e->N1);
     for(uint n = 0 ; n < e->N1 ; n += 1)
@@ -9771,7 +9771,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
             p->data = EISRead(p);    // read it from memory
         }
-        
+
         int c = 0;
         switch(e->TN1)
         {
@@ -9784,13 +9784,13 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         }
         sim_debug (DBG_TRACEEXT, & cpu_dev,
           "loadDec: n %d c %d(%o)\n", n, c, c);
-        
+
         // per CAC suggestion
         if (n == 0 && c == 0)           // treat as +0
         {
             return -1;
         }
-        
+
         if (n == 0 && e->TN1 == CTN4 && e->S1 == CSLS)
         {
             sim_debug (DBG_TRACEEXT, & cpu_dev,
@@ -9799,7 +9799,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             {
                 case 015:   // 6-bit - sign
                     SETF(e->_flags, I_NEG);
-                    
+
                     sgn = -1;
                     break;
                 case 013:   // alternate 4-bit + sign
@@ -9821,7 +9821,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             {
                 case '-':
                     SETF(e->_flags, I_NEG);
-                    
+
                     sgn = -1;
                     break;
                 case '+':
@@ -9842,7 +9842,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             {
                 case 015:   // 4-bit - sign
                     SETF(e->_flags, I_NEG);
-                    
+
                     sgn = -1;
                     break;
                 case 013:   // alternate 4-bit + sign
@@ -9863,7 +9863,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             {
                 case '-':
                     SETF(e->_flags, I_NEG);
-                    
+
                     sgn = -1;
                     break;
                 case '+':
@@ -9874,19 +9874,19 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             }
             break;
         }
-        
+
         x *= 10;
         x += c & 0xf;
         sim_debug (DBG_TRACEEXT, & cpu_dev,
               "loadDec:  x %"PRId64"\n", (int64) x);
-        
+
         pos += 1;           // onto next posotion
     }
-    
+
     e->x = sgn * x;
     sim_debug (DBG_TRACEEXT, & cpu_dev,
       "loadDec:  final x %"PRId64"\n", (int64) x);
-    
+
     return 0;
 }
 
@@ -9898,14 +9898,14 @@ static void EISwriteToBinaryStringReverse(EISaddr *p, int k)
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
     /// first thing we need to do is to find out the last position is the buffer we want to start writing to.
-    
+
     int N = (int) e->N[k-1];            // length of output buffer in native chars (4, 6 or 9-bit chunks)
     int CN = (int) e->CN[k-1];          // character number 0-3 (9)
     //word18 address  = e->YChar9[k-1]; // current write address
-    
+
     /// since we want to write the data in reverse (since it's right justified) we need to determine
     /// the final address/CN for the type and go backwards from there
-    
+
     int numBits = 9 * N;               // 4 9-bit bytes / word
     //int numWords = numBits / 36;       // how many additional words will the N chars take up?
     //int numWords = (numBits + CN * 9) / 36;       // how many additional words will the N chars take up?
@@ -9913,7 +9913,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     // convert from count to offset
     int lastWordOffset = numWords - 1;
     int lastChar = (CN + N - 1) % 4;   // last character number
-    
+
     if (lastWordOffset > 0)           // more that the 1 word needed?
       {
 #ifdef EIS_PTR
@@ -9924,19 +9924,19 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #endif
       }
     int pos = lastChar;             // last character number
-    
+
     int128 x = e->x;
-    
+
     for(int n = 0 ; n < N ; n += 1)
     {
         word9 charToWrite = x & 0777; // get 9-bits of data
         x >>=9;
-        
+
         // we should write character to word/pos in memory .....
         //write9r(e, &address, &pos, charToWrite);
         EISwrite9r(p, &pos, charToWrite);
     }
-    
+
     // anything left in x?. If it's not all 1's we have an overflow!
     if (~x && x != 0)    // if it's all 1's this will be 0
         SETF(e->_flags, I_OFLOW);
@@ -9948,12 +9948,12 @@ void dtb (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
 #endif
-    
+
     PNL (L68_ (DU_CYCLE_DGDB;))
 
     parseNumericOperandDescriptor(1, &mod_fault);
@@ -9968,7 +9968,7 @@ void dtb (void)
                  "Illegal modifier");
       }
 #endif
-   
+
     // Bits 0 to 10 of the instruction Must Be Zero. So Say We ISOLTS.
     uint mbz = (uint) getbits36 (IWB_IRODD, 0, 11);
     if (mbz)
@@ -9988,7 +9988,7 @@ void dtb (void)
         doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC|mod_fault}, "dtb op2 21-29 MBZ");
        }
 
-    // Attempted conversion of a floating-point number (S1 = 0) or attempted 
+    // Attempted conversion of a floating-point number (S1 = 0) or attempted
     // use of a scaling factor (SF1 ≠ 0) causes an illegal procedure fault.
     if (e->S1 == 0 || e->SF1 != 0)
     {
@@ -10013,7 +10013,7 @@ void dtb (void)
 
 
     int n1 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -10022,7 +10022,7 @@ void dtb (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -10030,14 +10030,14 @@ void dtb (void)
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             break;
-        
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             break;  // no sign wysiwyg
     }
     // RJ78: An Illegal Procedure fault occurs if:
     // N1 is not large enough to specify the number of characters required for the
-    // specified sign and/or exponent, plus at least one digit. 
+    // specified sign and/or exponent, plus at least one digit.
 
     if (n1 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "dtb adjusted n1<1");
@@ -10116,10 +10116,10 @@ sim_printf("dtb: N1 %d N2 %d nin %d CN1 %d CN2 %d msk %012"PRIo64" %012"PRIo64"\
 #else
     SC_I_ZERO (x==0);     // set zero indicator
 #endif
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
-    
+
     if (Ovr)
     {
         SET_I_OFLOW;
@@ -10129,7 +10129,7 @@ sim_printf("dtb: N1 %d N2 %d nin %d CN1 %d CN2 %d msk %012"PRIo64" %012"PRIo64"\
 }
 
 /*
- * decimal EIS instructions ... 
+ * decimal EIS instructions ...
  */
 
 
@@ -10144,13 +10144,13 @@ void ad2d (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
     setupOperandDescriptorCache(3);
 #endif
-    
+
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
@@ -10163,7 +10163,7 @@ void ad2d (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 1-8 MBZ
     if (IWB_IRODD & 0377000000000)
       doFault (FAULT_IPR, fst_ill_op, "ad2d 1-8 MBZ");
@@ -10184,16 +10184,16 @@ void ad2d (void)
 
     PNL (L68_ (if (R)
       DU_CYCLE_FRND;))
-    
+
     uint srcTN = e->TN1;    // type of chars in src
-    
+
     uint dstTN = e->TN2;    // type of chars in dst
     uint dstCN = e->CN2;    // starting at char pos CN
 
     e->ADDR3 = e->ADDR2;
-    
+
     int n1 = 0, n2 = 0, sc1 = 0, sc2 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -10202,7 +10202,7 @@ void ad2d (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -10214,13 +10214,13 @@ void ad2d (void)
                 n1 -= 1;    // 1 9-bit digit exponent
             sc1 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             sc1 = -e->SF1;
             break;
-            
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             sc1 = -e->SF1;
@@ -10240,13 +10240,13 @@ void ad2d (void)
                 n2 -= 1;    // 1 9-bit digit exponent
             sc2 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             sc2 = -e->SF2;
             break;
-            
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             sc2 = -e->SF2;
@@ -10255,24 +10255,24 @@ void ad2d (void)
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "ad2d adjusted n2<1");
-    
+
 
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
     decContextDefaultDPS8(&set);
-    
+
     set.traps=0;
-    
+
     decNumber _1, _2, _3;
-    
+
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     decNumber *op1 = decBCD9ToNumber(e->inBuffer, n1, sc1, &_1);
     if (e->sign == -1)
         op1->bits |= DECNEG;
     if (e->S1 == CSFL)
         op1->exponent = e->exponent;
-    
+
     EISloadInputBufferNumeric (2);   // according to MF2
 
     decNumber *op2 = decBCD9ToNumber(e->inBuffer, n2, sc2, &_2);
@@ -10280,7 +10280,7 @@ void ad2d (void)
         op2->bits |= DECNEG;
     if (e->S2 == CSFL)
         op2->exponent = e->exponent;
-    
+
     decNumber *op3 = decNumberAdd(&_3, op1, op2, &set);
 
     // ISOLTS 846 07c, 10a, 11b internal register overflow - see ad3d
@@ -10288,11 +10288,11 @@ void ad2d (void)
     if (op3->digits > 63) {
         uint8_t pr[256];
         // if sf<=0, trailing zeroes can't be shifted out
-        // if sf> 0, (some of) trailing zeroes can be shifted out 
+        // if sf> 0, (some of) trailing zeroes can be shifted out
         int sf = e->S3==CSFL?op3->exponent:e->SF3;
 
         int ctz = 0;
-        if (sf>0) {	// optimize: we don't care when sf>0
+        if (sf>0) {     // optimize: we don't care when sf>0
             decNumberGetBCD(op3,pr);
             for (int i=op3->digits-1;i>=0 && pr[i]==0;i--)
                  ctz ++;
@@ -10310,7 +10310,7 @@ void ad2d (void)
             decNumberPlus(&tmp, op3, &set);
             set.digits = safe;
 
-            decNumberSubtract(op3, op3, &tmp, &set); 
+            decNumberSubtract(op3, op3, &tmp, &set);
 
             //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\n",pr);
 
@@ -10328,14 +10328,14 @@ void ad2d (void)
 
     if (decNumberIsZero(op3))
         op3->exponent = 127;
-    
+
     //printf("%s\r\n", res);
-    
+
     // now write to memory in proper format.....
-    
+
     //word18 dstAddr = e->dstAddr;
     int pos = (int) dstCN;
-    
+
     // 1st, take care of any leading sign .......
     switch(e->S2)
     {
@@ -10354,7 +10354,7 @@ void ad2d (void)
                     break;
             }
             break;
-            
+
         case CSTS:  // nuttin' to do here .....
         case CSNS:
             break;  // no sign wysiwyg
@@ -10371,7 +10371,7 @@ void ad2d (void)
                 EISwrite49(&e->ADDR3, &pos, (int) dstTN, (word9) res[j]);
                 break;
         }
-    
+
     // 3rd, take care of any trailing sign or exponent ...
     switch(e->S2)
     {
@@ -10389,7 +10389,7 @@ void ad2d (void)
                     break;
             }
             break;
-            
+
         case CSFL:  // floating-point, leading sign.
             // write the exponent
             switch(dstTN)
@@ -10403,12 +10403,12 @@ void ad2d (void)
                     break;
             }
             break;
-            
+
         case CSLS:  // fixed point, leading sign - already done
         case CSNS:  // fixed point, unsigned - nuttin' needed to do
             break;
     }
-    
+
     // set flags, etc ...
     if (e->S2 == CSFL)
     {
@@ -10423,12 +10423,12 @@ void ad2d (void)
             EOvr = true;
         }
     }
-    
+
     SC_I_NEG (decNumberIsNegative(op3) && !decNumberIsZero(op3));  // set negative indicator if op3 < 0
     SC_I_ZERO (decNumberIsZero(op3));     // set zero indicator if op3 == 0
-    
+
     SC_I_TRUNC (!R && Trunc); // If the truncation condition exists without rounding, then ON; otherwise OFF
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
@@ -10465,10 +10465,10 @@ static int calcSF(int sf1, int sf2, int sf3)
     {
         if (sf1 > sf2 && sf2 >= sf3)
             return sf2;
-        
+
         if (sf3 > sf1 && sf1 > sf2)
             return sf1;
-        
+
         if (sf1 >= sf3 && sf3 > sf1)
             return sf3-1;
     }
@@ -10494,13 +10494,13 @@ void ad3d (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
     setupOperandDescriptor(3, &mod_fault);
 #endif
-    
+
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
     parseNumericOperandDescriptor(3, &mod_fault);
@@ -10514,7 +10514,7 @@ void ad3d (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bit 1 MBZ
     if (IWB_IRODD & 0200000000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "ad3d(): 1 MBZ");
@@ -10536,14 +10536,14 @@ void ad3d (void)
 
     PNL (L68_ (if (R)
       DU_CYCLE_FRND;))
-    
+
     uint srcTN = e->TN1;    // type of chars in src
-    
+
     uint dstTN = e->TN3;    // type of chars in dst
     uint dstCN = e->CN3;    // starting at char pos CN
-    
+
     int n1 = 0, n2 = 0, n3 = 0, sc1 = 0, sc2 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -10552,7 +10552,7 @@ void ad3d (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -10564,13 +10564,13 @@ void ad3d (void)
                 n1 -= 1;    // 1 9-bit digit exponent
             sc1 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             sc1 = -e->SF1;
             break;
-            
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             sc1 = -e->SF1;
@@ -10590,13 +10590,13 @@ void ad3d (void)
                 n2 -= 1;    // 1 9-bit digit exponent
             sc2 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             sc2 = -e->SF2;
             break;
-            
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             sc2 = -e->SF2;
@@ -10605,7 +10605,7 @@ void ad3d (void)
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "ad3d adjusted n2<1");
-    
+
     switch(e->S3)
     {
         case CSFL:
@@ -10615,12 +10615,12 @@ void ad3d (void)
             else
                 n3 -= 1;    // 1 9-bit digit exponent
             break;
-            
+
         case CSLS:
         case CSTS:
             n3 = (int) e->N3 - 1; // 1 sign
             break;
-            
+
         case CSNS:
             n3 = (int) e->N3;     // no sign
             break;  // no sign wysiwyg
@@ -10628,23 +10628,23 @@ void ad3d (void)
 
     if (n3 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "ad3d adjusted n3<1");
-    
+
 
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
     decContextDefaultDPS8(&set);
     set.traps=0;
-    
+
     decNumber _1, _2, _3;
-    
+
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     decNumber *op1 = decBCD9ToNumber(e->inBuffer, n1, sc1, &_1);
     if (e->sign == -1)
         op1->bits |= DECNEG;
     if (e->S1 == CSFL)
         op1->exponent = e->exponent;
-    
+
     EISloadInputBufferNumeric (2);   // according to MF2
 
     decNumber *op2 = decBCD9ToNumber(e->inBuffer, n2, sc2, &_2);
@@ -10667,11 +10667,11 @@ void ad3d (void)
     if (op3->digits > 63) {
         uint8_t pr[256];
         // if sf<=0, trailing zeroes can't be shifted out
-        // if sf> 0, (some of) trailing zeroes can be shifted out 
+        // if sf> 0, (some of) trailing zeroes can be shifted out
         int sf = e->S3==CSFL?op3->exponent:e->SF3;
 
         int ctz = 0;
-        if (sf>0) {	// optimize: we don't care when sf>0
+        if (sf>0) {     // optimize: we don't care when sf>0
             decNumberGetBCD(op3,pr);
             for (int i=op3->digits-1;i>=0 && pr[i]==0;i--)
                  ctz ++;
@@ -10689,7 +10689,7 @@ void ad3d (void)
             decNumberPlus(&tmp, op3, &set);
             set.digits = safe;
 
-            decNumberSubtract(op3, op3, &tmp, &set); 
+            decNumberSubtract(op3, op3, &tmp, &set);
 
             //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\n",pr);
 
@@ -10699,7 +10699,7 @@ void ad3d (void)
     }
 
     bool Ovr = false, EOvr = false, Trunc = false;
-    
+
     uint8_t out [256];
     char *res = formatDecimal(out, &set, op3, n3, (int) e->S3, e->SF3, R, &Ovr, &Trunc);
 
@@ -10707,14 +10707,14 @@ void ad3d (void)
 
     if (decNumberIsZero(op3))
         op3->exponent = 127;
-    
+
     //printf("%s\r\n", res);
-    
+
     // now write to memory in proper format.....
 
     //word18 dstAddr = e->dstAddr;
     int pos = (int) dstCN;
-    
+
     // 1st, take care of any leading sign .......
     switch(e->S3)
     {
@@ -10733,12 +10733,12 @@ void ad3d (void)
                 break;
             }
             break;
-            
+
         case CSTS:  // nuttin' to do here .....
         case CSNS:
             break;  // no sign wysiwyg
     }
-    
+
     // 2nd, write the digits .....
     for(int i = 0 ; i < n3 ; i++)
         switch(dstTN)
@@ -10750,7 +10750,7 @@ void ad3d (void)
             EISwrite49(&e->ADDR3, &pos, (int) dstTN, (word9) res[i]);
             break;
         }
-    
+
     // 3rd, take care of any trailing sign or exponent ...
     switch(e->S3)
     {
@@ -10768,7 +10768,7 @@ void ad3d (void)
                 break;
             }
             break;
-            
+
         case CSFL:  // floating-point, leading sign.
             // write the exponent
             switch(dstTN)
@@ -10776,19 +10776,19 @@ void ad3d (void)
             case CTN4:
                 EISwrite49(&e->ADDR3, &pos, (int) dstTN, (op3->exponent >> 4) & 0xf); // upper 4-bits
                 EISwrite49(&e->ADDR3, &pos, (int) dstTN,  op3->exponent       & 0xf); // lower 4-bits
-                    
+
                     break;
             case CTN9:
                 EISwrite49(&e->ADDR3, &pos, (int) dstTN, op3->exponent & 0xff);    // write 8-bit exponent
                 break;
             }
             break;
-            
+
         case CSLS:  // fixed point, leading sign - already done
         case CSNS:  // fixed point, unsigned - nuttin' needed to do
             break;
     }
-    
+
     // set flags, etc ...
     if (e->S3 == CSFL)
     {
@@ -10803,12 +10803,12 @@ void ad3d (void)
             EOvr = true;
         }
     }
-    
+
     SC_I_NEG (decNumberIsNegative(op3) && !decNumberIsZero(op3));  // set negative indicator if op3 < 0
     SC_I_ZERO (decNumberIsZero(op3));     // set zero indicator if op3 == 0
-    
+
     SC_I_TRUNC (!R && Trunc); // If the truncation condition exists without rounding, then ON; otherwise OFF
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
@@ -10834,13 +10834,13 @@ void sb2d (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
     setupOperandDescriptorCache(3);
 #endif
-    
+
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
@@ -10853,8 +10853,8 @@ void sb2d (void)
                  "Illegal modifier");
       }
 #endif
-    
-    // Bits 1-8 MBZ 
+
+    // Bits 1-8 MBZ
     if (IWB_IRODD & 0377000000000)
       {
         //sim_printf ("sb2d %012"PRIo64"\n", IWB_IRODD);
@@ -10878,16 +10878,16 @@ void sb2d (void)
     PNL (L68_ (if (R)
       DU_CYCLE_FRND;))
 
-    
+
     uint srcTN = e->TN1;    // type of chars in src
-    
+
     uint dstTN = e->TN2;    // type of chars in dst
     uint dstCN = e->CN2;    // starting at char pos CN
-    
+
     e->ADDR3 = e->ADDR2;
-    
+
     int n1 = 0, n2 = 0, sc1 = 0, sc2 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -10896,7 +10896,7 @@ void sb2d (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -10908,13 +10908,13 @@ void sb2d (void)
                 n1 -= 1;    // 1 9-bit digit exponent
             sc1 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             sc1 = -e->SF1;
             break;
-            
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             sc1 = -e->SF1;
@@ -10934,13 +10934,13 @@ void sb2d (void)
                 n2 -= 1;    // 1 9-bit digit exponent
             sc2 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             sc2 = -e->SF2;
             break;
-            
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             sc2 = -e->SF2;
@@ -10950,22 +10950,22 @@ void sb2d (void)
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "sb2d adjusted n2<1");
 
-    
+
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
     decContextDefaultDPS8(&set);
     set.traps=0;
-    
+
     decNumber _1, _2, _3;
-    
+
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     decNumber *op1 = decBCD9ToNumber(e->inBuffer, n1, sc1, &_1);
     if (e->sign == -1)
         op1->bits |= DECNEG;
     if (e->S1 == CSFL)
         op1->exponent = e->exponent;
-    
+
     EISloadInputBufferNumeric (2);   // according to MF2
 
     decNumber *op2 = decBCD9ToNumber(e->inBuffer, n2, sc2, &_2);
@@ -10973,7 +10973,7 @@ void sb2d (void)
         op2->bits |= DECNEG;
     if (e->S2 == CSFL)
         op2->exponent = e->exponent;
-    
+
     decNumber *op3 = decNumberSubtract(&_3, op2, op1, &set);
 
     // ISOLTS 846 07c, 10a, 11b internal register overflow - see ad3d
@@ -10981,11 +10981,11 @@ void sb2d (void)
     if (op3->digits > 63) {
         uint8_t pr[256];
         // if sf<=0, trailing zeroes can't be shifted out
-        // if sf> 0, (some of) trailing zeroes can be shifted out 
+        // if sf> 0, (some of) trailing zeroes can be shifted out
         int sf = e->S3==CSFL?op3->exponent:e->SF3;
 
         int ctz = 0;
-        if (sf>0) {	// optimize: we don't care when sf>0
+        if (sf>0) {     // optimize: we don't care when sf>0
             decNumberGetBCD(op3,pr);
             for (int i=op3->digits-1;i>=0 && pr[i]==0;i--)
                  ctz ++;
@@ -11003,7 +11003,7 @@ void sb2d (void)
             decNumberPlus(&tmp, op3, &set);
             set.digits = safe;
 
-            decNumberSubtract(op3, op3, &tmp, &set); 
+            decNumberSubtract(op3, op3, &tmp, &set);
 
             //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\n",pr);
 
@@ -11013,22 +11013,22 @@ void sb2d (void)
     }
 
     bool Ovr = false, EOvr = false, Trunc = false;
-    
+
     uint8_t out [256];
     char *res = formatDecimal(out, &set, op3, n2, (int) e->S2, e->SF2, R, &Ovr, &Trunc);
 
     Ovr |= iOvr;
-    
+
     if (decNumberIsZero(op3))
         op3->exponent = 127;
-    
+
     //printf("%s\r\n", res);
-    
+
     // now write to memory in proper format.....
-    
+
     //word18 dstAddr = e->dstAddr;
     int pos = (int) dstCN;
-    
+
     // 1st, take care of any leading sign .......
     switch(e->S2)
     {
@@ -11047,12 +11047,12 @@ void sb2d (void)
                     break;
             }
             break;
-            
+
         case CSTS:  // nuttin' to do here .....
         case CSNS:
             break;  // no sign wysiwyg
     }
-    
+
     // 2nd, write the digits .....
     for(int i = 0 ; i < n2 ; i++)
         switch(dstTN)
@@ -11064,7 +11064,7 @@ void sb2d (void)
                 EISwrite49(&e->ADDR3, &pos, (int) dstTN, (word9) res[i]);
                 break;
         }
-    
+
     // 3rd, take care of any trailing sign or exponent ...
     switch(e->S2)
     {
@@ -11082,7 +11082,7 @@ void sb2d (void)
                     break;
             }
             break;
-            
+
         case CSFL:  // floating-point, leading sign.
             // write the exponent
             switch(dstTN)
@@ -11097,12 +11097,12 @@ void sb2d (void)
                     break;
             }
             break;
-            
+
         case CSLS:  // fixed point, leading sign - already done
         case CSNS:  // fixed point, unsigned - nuttin' needed to do
             break;
     }
-    
+
     // set flags, etc ...
     if (e->S2 == CSFL)
     {
@@ -11117,12 +11117,12 @@ void sb2d (void)
             EOvr = true;
         }
     }
-    
+
     SC_I_NEG (decNumberIsNegative(op3) && !decNumberIsZero(op3));  // set negative indicator if op3 < 0
     SC_I_ZERO (decNumberIsZero(op3));     // set zero indicator if op3 == 0
-    
+
     SC_I_TRUNC (!R && Trunc); // If the truncation condition exists without rounding, then ON; otherwise OFF
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
@@ -11148,13 +11148,13 @@ void sb3d (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
     setupOperandDescriptor(3, &mod_fault);
 #endif
-    
+
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
     parseNumericOperandDescriptor(3, &mod_fault);
@@ -11168,7 +11168,7 @@ void sb3d (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bit 1 MBZ
     if (IWB_IRODD & 0200000000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "sb3d(): 1 MBZ");
@@ -11189,14 +11189,14 @@ void sb3d (void)
 
     PNL (L68_ (if (R)
       DU_CYCLE_FRND;))
-    
+
     uint srcTN = e->TN1;    // type of chars in src
-    
+
     uint dstTN = e->TN3;    // type of chars in dst
     uint dstCN = e->CN3;    // starting at char pos CN
-    
+
     int n1 = 0, n2 = 0, n3 = 0, sc1 = 0, sc2 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -11205,7 +11205,7 @@ void sb3d (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -11217,13 +11217,13 @@ void sb3d (void)
                 n1 -= 1;    // 1 9-bit digit exponent
             sc1 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             sc1 = -e->SF1;
             break;
-            
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             sc1 = -e->SF1;
@@ -11243,13 +11243,13 @@ void sb3d (void)
                 n2 -= 1;    // 1 9-bit digit exponent
             sc2 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             sc2 = -e->SF2;
             break;
-            
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             sc2 = -e->SF2;
@@ -11258,7 +11258,7 @@ void sb3d (void)
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "sb3d adjusted n2<1");
-    
+
     switch(e->S3)
     {
         case CSFL:
@@ -11268,12 +11268,12 @@ void sb3d (void)
             else
                 n3 -= 1;    // 1 9-bit digit exponent
             break;
-            
+
         case CSLS:
         case CSTS:
             n3 = (int) e->N3 - 1; // 1 sign
             break;
-            
+
         case CSNS:
             n3 = (int) e->N3;     // no sign
             break;  // no sign wysiwyg
@@ -11281,24 +11281,24 @@ void sb3d (void)
 
     if (n3 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "sb3d adjusted n3<1");
-    
+
 
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
     decContextDefaultDPS8(&set);
-    
+
     set.traps=0;
-    
+
     decNumber _1, _2, _3;
-    
+
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     decNumber *op1 = decBCD9ToNumber(e->inBuffer, n1, sc1, &_1);
     if (e->sign == -1)
         op1->bits |= DECNEG;
     if (e->S1 == CSFL)
         op1->exponent = e->exponent;
-    
+
     EISloadInputBufferNumeric (2);   // according to MF2
 
     decNumber *op2 = decBCD9ToNumber(e->inBuffer, n2, sc2, &_2);
@@ -11314,11 +11314,11 @@ void sb3d (void)
     if (op3->digits > 63) {
         uint8_t pr[256];
         // if sf<=0, trailing zeroes can't be shifted out
-        // if sf> 0, (some of) trailing zeroes can be shifted out 
+        // if sf> 0, (some of) trailing zeroes can be shifted out
         int sf = e->S3==CSFL?op3->exponent:e->SF3;
 
         int ctz = 0;
-        if (sf>0) {	// optimize: we don't care when sf>0
+        if (sf>0) {     // optimize: we don't care when sf>0
             decNumberGetBCD(op3,pr);
             for (int i=op3->digits-1;i>=0 && pr[i]==0;i--)
                  ctz ++;
@@ -11336,7 +11336,7 @@ void sb3d (void)
             decNumberPlus(&tmp, op3, &set);
             set.digits = safe;
 
-            decNumberSubtract(op3, op3, &tmp, &set); 
+            decNumberSubtract(op3, op3, &tmp, &set);
 
             //decNumberToString(op3,(char*)pr); sim_printf("discarded: %s\n",pr);
 
@@ -11344,22 +11344,22 @@ void sb3d (void)
             iOvr = 1;
         }
     }
-    
+
     bool Ovr = false, EOvr = false, Trunc = false;
 
     uint8_t out [256];
     char *res = formatDecimal(out, &set, op3, n3, (int) e->S3, e->SF3, R, &Ovr, &Trunc);
 
     Ovr |= iOvr;
-    
+
     if (decNumberIsZero(op3))
         op3->exponent = 127;
-    
+
     // now write to memory in proper format.....
-    
+
     //word18 dstAddr = e->dstAddr;
     int pos = (int) dstCN;
-    
+
     // 1st, take care of any leading sign .......
     switch(e->S3)
     {
@@ -11378,12 +11378,12 @@ void sb3d (void)
                 break;
         }
             break;
-            
+
         case CSTS:  // nuttin' to do here .....
         case CSNS:
             break;  // no sign wysiwyg
     }
-    
+
     // 2nd, write the digits .....
     for(int i = 0 ; i < n3 ; i++)
         switch(dstTN)
@@ -11395,7 +11395,7 @@ void sb3d (void)
             EISwrite49(&e->ADDR3, &pos, (int) dstTN, (word9) res[i]);
             break;
     }
-    
+
     // 3rd, take care of any trailing sign or exponent ...
     switch(e->S3)
     {
@@ -11413,7 +11413,7 @@ void sb3d (void)
                     break;
             }
             break;
-            
+
         case CSFL:  // floating-point, leading sign.
             // write the exponent
             switch(dstTN)
@@ -11428,12 +11428,12 @@ void sb3d (void)
                     break;
             }
             break;
-            
+
         case CSLS:  // fixed point, leading sign - already done
         case CSNS:  // fixed point, unsigned - nuttin' needed to do
             break;
     }
-    
+
     // set flags, etc ...
     if (e->S3 == CSFL)
     {
@@ -11448,12 +11448,12 @@ void sb3d (void)
             EOvr = true;
         }
     }
-    
+
     SC_I_NEG (decNumberIsNegative(op3) && !decNumberIsZero(op3));  // set negative indicator if op3 < 0
     SC_I_ZERO (decNumberIsZero(op3));     // set zero indicator if op3 == 0
-    
+
     SC_I_TRUNC (!R && Trunc); // If the truncation condition exists without rounding, then ON; otherwise OFF
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
@@ -11479,13 +11479,13 @@ void mp2d (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
     setupOperandDescriptorCache(3);
 #endif
-    
+
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
@@ -11498,7 +11498,7 @@ void mp2d (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 1-8 MBZ
     if (IWB_IRODD & 0377000000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mp2d 1-8 MBZ");
@@ -11519,16 +11519,16 @@ void mp2d (void)
 
     PNL (L68_ (if (R)
       DU_CYCLE_FRND;))
-    
+
     uint srcTN = e->TN1;    // type of chars in src
-    
+
     uint dstTN = e->TN2;    // type of chars in dst
     uint dstCN = e->CN2;    // starting at char pos CN
-    
+
     e->ADDR3 = e->ADDR2;
-    
+
     int n1 = 0, n2 = 0, sc1 = 0, sc2 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -11537,7 +11537,7 @@ void mp2d (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -11549,13 +11549,13 @@ void mp2d (void)
                 n1 -= 1;    // 1 9-bit digit exponent
             sc1 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             sc1 = -e->SF1;
             break;
-            
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             sc1 = -e->SF1;
@@ -11575,13 +11575,13 @@ void mp2d (void)
                 n2 -= 1;    // 1 9-bit digit exponent
             sc2 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             sc2 = -e->SF2;
             break;
-            
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             sc2 = -e->SF2;
@@ -11590,23 +11590,23 @@ void mp2d (void)
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "mp2d adjusted n2<1");
-    
+
 
     decContext set;
     decContextDefaultDPS8Mul(&set); // 126 digits for multiply
-    
+
     set.traps=0;
-    
+
     decNumber _1, _2, _3;
-    
+
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     decNumber *op1 = decBCD9ToNumber(e->inBuffer, n1, sc1, &_1);
     if (e->sign == -1)
         op1->bits |= DECNEG;
     if (e->S1 == CSFL)
         op1->exponent = e->exponent;
-    
+
     EISloadInputBufferNumeric (2);   // according to MF2
 
     decNumber *op2 = decBCD9ToNumber(e->inBuffer, n2, sc2, &_2);
@@ -11614,22 +11614,22 @@ void mp2d (void)
         op2->bits |= DECNEG;
     if (e->S2 == CSFL)
         op2->exponent = e->exponent;
-    
+
     decNumber *op3 = decNumberMultiply(&_3, op1, op2, &set);
-    
+
     bool Ovr = false, EOvr = false, Trunc = false;
-    
+
     uint8_t out [256];
     char *res = formatDecimal(out, &set, op3, n2, (int) e->S2, e->SF2, R, &Ovr, &Trunc);
-    
+
     if (decNumberIsZero(op3))
         op3->exponent = 127;
-    
+
     // now write to memory in proper format.....
-    
+
     //word18 dstAddr = e->dstAddr;
     int pos = (int) dstCN;
-    
+
     // 1st, take care of any leading sign .......
     switch(e->S2)
     {
@@ -11648,12 +11648,12 @@ void mp2d (void)
                 break;
         }
             break;
-            
+
         case CSTS:  // nuttin' to do here .....
         case CSNS:
             break;  // no sign wysiwyg
     }
-    
+
     // 2nd, write the digits .....
     for(int i = 0 ; i < n2 ; i++)
         switch(dstTN)
@@ -11665,7 +11665,7 @@ void mp2d (void)
             EISwrite49(&e->ADDR3, &pos, (int) dstTN, (word9) res[i]);
             break;
     }
-    
+
     // 3rd, take care of any trailing sign or exponent ...
     switch(e->S2)
     {
@@ -11683,7 +11683,7 @@ void mp2d (void)
                 break;
         }
             break;
-            
+
         case CSFL:  // floating-point, leading sign.
             // write the exponent
             switch(dstTN)
@@ -11691,19 +11691,19 @@ void mp2d (void)
                 case CTN4:
                     EISwrite49(&e->ADDR3, &pos, (int) dstTN, (op3->exponent >> 4) & 0xf); // upper 4-bits
                     EISwrite49(&e->ADDR3, &pos, (int) dstTN,  op3->exponent       & 0xf); // lower 4-bits
-                    
+
                     break;
                 case CTN9:
                     EISwrite49(&e->ADDR3, &pos, (int) dstTN, op3->exponent & 0xff);    // write 8-bit exponent
                     break;
             }
             break;
-            
+
         case CSLS:  // fixed point, leading sign - already done
         case CSNS:  // fixed point, unsigned - nuttin' needed to do
             break;
     }
-    
+
     // set flags, etc ...
     if (e->S2 == CSFL)
     {
@@ -11718,12 +11718,12 @@ void mp2d (void)
             EOvr = true;
         }
     }
-    
+
     SC_I_NEG (decNumberIsNegative(op3) && !decNumberIsZero(op3));  // set negative indicator if op3 < 0
     SC_I_ZERO (decNumberIsZero(op3));     // set zero indicator if op3 == 0
-    
+
     SC_I_TRUNC (!R && Trunc); // If the truncation condition exists without rounding, then ON; otherwise OFF
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
@@ -11749,13 +11749,13 @@ void mp3d (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
     setupOperandDescriptor(3, &mod_fault);
 #endif
-    
+
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
     parseNumericOperandDescriptor(3, &mod_fault);
@@ -11769,7 +11769,7 @@ void mp3d (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bit 1 MBZ
     if (IWB_IRODD & 0200000000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mp3d(): 1 MBZ");
@@ -11790,14 +11790,14 @@ void mp3d (void)
 
     PNL (L68_ (if (R)
       DU_CYCLE_FRND;))
-    
+
     uint srcTN = e->TN1;    // type of chars in src
-    
+
     uint dstTN = e->TN3;    // type of chars in dst
     uint dstCN = e->CN3;    // starting at char pos CN
-    
+
     int n1 = 0, n2 = 0, n3 = 0, sc1 = 0, sc2 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -11806,7 +11806,7 @@ void mp3d (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -11818,13 +11818,13 @@ void mp3d (void)
                 n1 -= 1;    // 1 9-bit digit exponent
             sc1 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             sc1 = -e->SF1;
             break;
-            
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             sc1 = -e->SF1;
@@ -11844,13 +11844,13 @@ void mp3d (void)
                 n2 -= 1;    // 1 9-bit digit exponent
             sc2 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             sc2 = -e->SF2;
             break;
-            
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             sc2 = -e->SF2;
@@ -11859,7 +11859,7 @@ void mp3d (void)
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "mp3d adjusted n2<1");
-    
+
     switch(e->S3)
     {
         case CSFL:
@@ -11869,12 +11869,12 @@ void mp3d (void)
             else
                 n3 -= 1;    // 1 9-bit digit exponent
             break;
-            
+
         case CSLS:
         case CSTS:
             n3 = (int) e->N3 - 1; // 1 sign
             break;
-            
+
         case CSNS:
             n3 = (int) e->N3;     // no sign
             break;  // no sign wysiwyg
@@ -11886,20 +11886,20 @@ void mp3d (void)
 
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
-    decContextDefaultDPS8Mul(&set);	// 126 digits for multiply
+    decContextDefaultDPS8Mul(&set);     // 126 digits for multiply
 
     set.traps=0;
-    
+
     decNumber _1, _2, _3;
-    
+
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     decNumber *op1 = decBCD9ToNumber(e->inBuffer, n1, sc1, &_1);
     if (e->sign == -1)
         op1->bits |= DECNEG;
     if (e->S1 == CSFL)
         op1->exponent = e->exponent;
-    
+
     EISloadInputBufferNumeric (2);   // according to MF2
 
     decNumber *op2 = decBCD9ToNumber(e->inBuffer, n2, sc2, &_2);
@@ -11907,33 +11907,33 @@ void mp3d (void)
         op2->bits |= DECNEG;
     if (e->S2 == CSFL)
         op2->exponent = e->exponent;
-    
+
     decNumber *op3 = decNumberMultiply(&_3, op1, op2, &set);
-    
+
 //    char c1[1024];
 //    char c2[1024];
 //    char c3[1024];
-//    
+//
 //    decNumberToString(op1, c1);
 //    sim_printf("c1:%s\n", c1);
 //    decNumberToString(op2, c2);
 //    sim_printf("c2:%s\n", c2);
 //    decNumberToString(op3, c3);
 //    sim_printf("c3:%s\n", c3);
-    
+
     bool Ovr = false, EOvr = false, Trunc = false;
-    
+
     uint8_t out [256];
     char *res = formatDecimal(out, &set, op3, n3, (int) e->S3, e->SF3, R, &Ovr, &Trunc);
-    
+
     if (decNumberIsZero(op3))
         op3->exponent = 127;
-    
+
     // now write to memory in proper format.....
-    
+
     //word18 dstAddr = e->dstAddr;
     int pos = (int) dstCN;
-    
+
     // 1st, take care of any leading sign .......
     switch(e->S3)
     {
@@ -11942,7 +11942,7 @@ void mp3d (void)
             switch(dstTN)
             {
             case CTN4:
-	      if (e->P) // If TN2 and S2 specify a 4-bit signed number and P
+              if (e->P) // If TN2 and S2 specify a 4-bit signed number and P
                           // = 1, then the 13(8) plus sign character is placed
                           // appropriately if the result of the operation is
                           // positive.
@@ -11955,12 +11955,12 @@ void mp3d (void)
                 break;
             }
             break;
-            
+
         case CSTS:  // nuttin' to do here .....
         case CSNS:
             break;  // no sign wysiwyg
     }
-    
+
     // 2nd, write the digits .....
     for(int i = 0 ; i < n3 ; i++)
         switch(dstTN)
@@ -11972,7 +11972,7 @@ void mp3d (void)
                 EISwrite49(&e->ADDR3, &pos, (int) dstTN, (word9) res[i]);
                 break;
         }
-    
+
         // 3rd, take care of any trailing sign or exponent ...
     switch(e->S3)
     {
@@ -11990,7 +11990,7 @@ void mp3d (void)
                     break;
             }
             break;
-            
+
         case CSFL:  // floating-point, leading sign.
             // write the exponent
             switch(dstTN)
@@ -12004,12 +12004,12 @@ void mp3d (void)
                     break;
             }
             break;
-            
+
         case CSLS:  // fixed point, leading sign - already done
         case CSNS:  // fixed point, unsigned - nuttin' needed to do
             break;
     }
-    
+
     // set flags, etc ...
     if (e->S3 == CSFL)
     {
@@ -12024,12 +12024,12 @@ void mp3d (void)
             EOvr = true;
         }
     }
-    
+
     SC_I_NEG (decNumberIsNegative(op3) && !decNumberIsZero(op3));  // set negative indicator if op3 < 0
     SC_I_ZERO (decNumberIsZero(op3));     // set zero indicator if op3 == 0
-    
+
     SC_I_TRUNC (!R && Trunc); // If the truncation condition exists without rounding, then ON; otherwise OFF
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
@@ -12072,9 +12072,9 @@ void mp3d (void)
 /* bcd is returned.                                                   */
 /* ------------------------------------------------------------------ */
 static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const decNumber *dn) {
-    
+
     //PRINTDEC("decBCDFromNumber()", dn);
-    
+
     const Unit *up=dn->lsu;     // Unit array pointer
     uByte obyte=0, *out;          // current output byte, and where it goes
     Int indigs=dn->digits;      // digits processed
@@ -12084,14 +12084,14 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
 #if DECDPUN<=4
     uInt temp;                  // ..
 #endif
-    
+
     if (dn->digits>length                  // too long ..
         ||(dn->bits & DECSPECIAL)) return NULL;   // .. or special -- hopeless
-    
+
     //if (dn->bits&DECNEG) obyte=DECPMINUS;      // set the sign ..
     //else                obyte=DECPPLUS;
     *scale=-dn->exponent;                      // .. and scale
-    
+
     // loop from lowest (rightmost) byte
     out=bcd+length-1;                          // -> final byte
     for (; out>=bcd; out--) {
@@ -12134,7 +12134,7 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
         //            cut--;
         //        }
     } // loop
-    
+
     return bcd;
 } // decBCDFromNumber
 
@@ -12144,11 +12144,11 @@ static unsigned char *getBCD(decNumber *a)
     static uint8_t bcd[256];
     memset(bcd, 0, sizeof(bcd));
     int scale;
-    
+
     decBCDFromNumber(bcd, a->digits, &scale, a);
     for(int i = 0 ; i < a->digits ; i += 1 )
         bcd[i] += '0';
-    
+
     return (unsigned char *) bcd;
 }
 
@@ -12158,11 +12158,11 @@ static char *getBCDn(decNumber *a, int digits)
     static uint8_t bcd[256];
     memset(bcd, 0, sizeof(bcd));
     int scale;
-    
+
     decBCDFromNumber(bcd, digits, &scale, a);
     for(int i = 0 ; i < digits ; i += 1 )
         bcd[i] += '0';
-    
+
     return (char *) bcd;
 }
 
@@ -12172,7 +12172,7 @@ static int findFirstDigit(unsigned char *bcd)
     int i = 0;
     while (bcd[i] == '0' && bcd[i])
         i += 1;
-    
+
     return i;
 }
 
@@ -12207,20 +12207,20 @@ static decNumber * decBCDToNumber(const uByte *bcd, Int length, const Int scale,
     Unit  *up=dn->lsu;               // output pointer
     Int   digits;                    // digits count
     Int   cut=0;                     // phase of output
-    
+
     decNumberZero(dn);               // default result
     last = &bcd[length-1];
     //nib = *last & 0x0f;                // get the sign
     //if (nib==DECPMINUS || nib==DECPMINUSALT) dn->bits=DECNEG;
     //else if (nib<=9) return NULL;   // not a sign nibble
-    
+
     // skip leading zero bytes [final byte is always non-zero, due to sign]
     for (first=bcd; *first==0 && first <= last;) first++;
     digits= (int32_t) (last-first)+1;              // calculate digits ..
     //if ((*first & 0xf0)==0) digits--;     // adjust for leading zero nibble
     if (digits!=0) dn->digits=digits;     // count of actual digits [if 0,
     // leave as 1]
-    
+
     // check the adjusted exponent; note that scale could be unbounded
     dn->exponent=-scale;                 // set the exponent
     if (scale>=0) {                      // usual case
@@ -12236,14 +12236,14 @@ static decNumber * decBCDToNumber(const uByte *bcd, Int length, const Int scale,
             return NULL;}
     }
     if (digits==0) return dn;             // result was zero
-    
+
     // copy the digits to the number's units, starting at the lsu
     // [unrolled]
     for (;last >= bcd;) {                            // forever
         nib=(unsigned)(*last & 0x0f);
         // got a digit, in nib
         if (nib>9) {decNumberZero(dn); return NULL;}    // bad digit
-        
+
         if (cut==0) *up=(Unit)nib;
         else *up=(Unit)(*up+nib*DECPOWERS[cut]);
         digits--;
@@ -12268,7 +12268,7 @@ static decNumber * decBCDToNumber(const uByte *bcd, Int length, const Int scale,
         //            cut=0;
         //        }
     } // forever
-    
+
     return dn;
 } // decBCDToNumber
 
@@ -12277,13 +12277,13 @@ static int decCompareMAG(decNumber *lhs, decNumber *rhs, decContext *set)
 {
     decNumber _cmpm, *cmpm;
     cmpm = decNumberCompareTotalMag(&_cmpm, lhs, rhs, set);
-    
+
     if (decNumberIsZero(cmpm))
         return 0;   // lhs == rhs
-    
+
     if (decNumberIsNegative(cmpm))
         return -1;  // lhs < rhs
-    
+
     return 1;       // lhs > rhs
 }
 
@@ -12309,74 +12309,74 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
     // effective precision of the result is reduced by one.
     if (s == CSFL)
       {
-        
+
 //            decNumber _4, _5, _6a, _6b, *op4, *op5, *op6a, *op6b;
-//            
+//
 //            // we want to make exponents the same so as to align the operands.
 //            // ... which one has priority? dividend or divisor? >punt<
-//            
+//
 //            op4 = decNumberReduce(&_4, num, set);
 //            op5 = decNumberReduce(&_5, den, set);
 //
 ////            op4 = decNumberCopy(&_4, num);
 ////            op5 = decNumberCopy(&_5, den);
-//            
+//
 //            op4->exponent = 0;
 //            op5->exponent = 0;
 //            //op6a = decNumberQuantize(&_6a, op4, op5, set);
 //            //op6b = decNumberQuantize(&_6b, op5, op4,  set);
-//            
+//
 //            //PRINTALL("align 4 (num/dividend)", op4, set);
 //            //PRINTALL("align 5 (den/divisor) ", op5, set);
-//            
+//
 //            PRINTDEC("align 4 (num/dividend)", op4);
 //            PRINTDEC("align 5 (den/divisor) ", op5);
 //            //PRINTDEC("align 6a (nd)         ", op6a);
 //            //PRINTDEC("align 6b (dn)         ", op6b);
-//            
+//
 //            decNumber _cmp, *cmp;
 //            cmp = decNumberCompareTotal(&_cmp, op4, op5, set);
 //            bool bAdj2 = decNumberIsNegative(cmp);  // if denominator is > numerator then remove leading 0
 //            //    if (bAdj)
 //            sim_printf("bAdj2 == %d\n", decNumberToInt32(cmp, set));
-//            
-//            
-        
+//
+//
+
         //  The dividend mantissa C(AQ) is shifted right and the dividend exponent
         //  C(E) increased accordingly until
         //  | C(AQ)0,63 | < | C(Y-pair)8,71 |
         //  | numerator | < |  denominator  |
         //  | dividend  | < |    divisor    |
-        
+
         // start by determining the characteristic(s) of dividend / divisor
-        
+
         decNumber _dend, _dvsr, *dividend, *divisor;
 
         dividend = decNumberCopy(&_dend, num);
         divisor = decNumberCopy(&_dvsr, den);
-        
+
         // set exponents to zero to yield the characteristic
         dividend->exponent = 0;
         divisor->exponent = 0;
-//        
+//
 //        decNumber _one, *one = decNumberFromInt32(&_one, -1);
 //        int c = decCompare(dividend, divisor, set);
 //        sim_printf("c0 = %d\n", c);
 
-        
+
         // we want to do a funky fractional alignment here so we can compare the mantissa's
-        
+
         unsigned char *c1 = getBCD(num);
         int f1 = findFirstDigit(c1);
         dividend = decBCDToNumber(c1+f1, 63, 63, &_dend);
         PRINTDEC("aligned dividend", dividend);
-        
+
         unsigned char *c2 = getBCD(den);
         int f2 = findFirstDigit(c2);
         divisor = decBCDToNumber(c2+f2, 63, 63, &_dvsr);
         PRINTDEC("aligned divisor", divisor);
-        
-        
+
+
 //        PRINTALL("BCD 1 num/dividend", dividend, set);
 //        PRINTALL("BCD 1 den/divisor ", divisor, set);
 //
@@ -12388,27 +12388,27 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 //        PRINTALL("BCD 2 num/dividend", dividend, set);
 //        PRINTALL("BCD 2 den/divisor ", divisor, set);
 
-        
+
         if (decCompareMAG(dividend, divisor, set) == -1)
           {
             bDgtN = true;
           }
-            
+
       } // s == CSFL
 
     if (s == CSFL)
         sf = 0;
-    
+
     // XXX what happens if we try to write a negative number to an unsigned field?????
     // Detection of a character outside the range [0,11]8 in a digit position
     // or a character outside the range [12,17]8 in a sign position causes an
     // illegal procedure fault.
-    
+
     // adjust output length according to type ....
     //This implies that an unsigned fixed-point receiving field has a minimum
     //length of 1 character; a signed fixed-point field, 2 characters; and a
     //floating-point field, haracters.
-    
+
     int adjLen = n;             // adjLen is the adjusted allowed length of the result taking into account signs and/or exponent
     switch (s)
       {
@@ -12425,36 +12425,36 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
         case CSNS:
           break;                // no sign to worry about. Use everything
       }
-    
+
     sim_debug (DBG_TRACEEXT, & cpu_dev,
                "\nformatDecimal: adjLen=%d SF=%d S=%s TN=%s\n", adjLen, sf, CS[s], CTN[tn]);
     sim_debug (DBG_TRACEEXT, & cpu_dev,
                "formatDecimal: %s  r->digits=%d  r->exponent=%d\n", getBCD(r), r->digits, r->exponent);
-    
+
     PRINTDEC("fd(1:r):", r);
     PRINTALL("pa(1:r):", r, set);
-    
+
     if (adjLen < 1)
       {
         // adjusted length is too small for anything but sign and/or exponent
         //*OVR = 1;
-        
+
         // XXX what do we fill in here? Sign and exp?
         *OVR = true;
         return (char *)"";
       }
-    
+
     // scale result (if not floating)
-    
+
     decNumber _r2;
     decNumberZero(&_r2);
-    
+
     decNumber *r2 = &_r2;
-    
+
     decNumber _sf;  // scaling factor
     {
-        
-        
+
+
 #ifndef SPEED
       int scale;
       char out[256], out2[256];
@@ -12462,14 +12462,14 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
         {
           memset (out, 0, sizeof (out));
           memset (out2, 0, sizeof (out2));
-           
+
           decBCDFromNumber((uint8_t *)out, r->digits, &scale, r);
           for(int i = 0 ; i < r->digits ; i += 1 )
               out[i] += '0';
           sim_printf("formatDecimal(DEBUG): out[]: '%s'\n", out);
         }
 #endif
-        
+
       if (s != CSFL)// && sf != 0)
         {
           decNumberFromInt32(&_sf, sf);
@@ -12482,7 +12482,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
       else
         //*r2 = *r;
         decNumberCopy(r2, r);
-        
+
       PRINTDEC("fd(2:r2):", r2);
 
 #ifndef SPEED
@@ -12491,26 +12491,26 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
           decBCDFromNumber((uint8_t *)out2, r2->digits, &scale, r2);
           for(int i = 0 ; i < r2->digits ; i += 1 )
             out2[i] += '0';
-            
+
           sim_debug (DBG_TRACEEXT, & cpu_dev,
                      "formatDecimal: adjLen=%d E=%d SF=%d S=%s TN=%s digits(r2)=%s E2=%d\n", adjLen, r->exponent, sf, CS[s], CTN[tn], out2, r2->exponent);
         }
 #endif
     }
-    
-    
-    
+
+
+
     int scale;
-    
+
     uint8_t out[256];
-    
+
     memset (out, 0, sizeof (out));
-    
+
     //bool ovr = (r->digits-sf) > adjLen;     // is integer portion too large to fit?
     bool ovr = r2->digits > adjLen;          // is integer portion too large to fit?
     bool trunc = r->digits > r2->digits;     // did we loose something along the way?
-    
-    
+
+
     // now let's check for overflows
     if (!ovr && !trunc)
       {
@@ -12521,22 +12521,22 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
             if (r2->digits < adjLen)
               {
                 PRINTDEC("Value 1a", r2)
-                
+
                 decNumber _s, *sc;
                 int rescaleFactor = r2->exponent - (adjLen - r2->digits);
                 sc = decNumberFromInt32(&_s, rescaleFactor);
-                
+
                 PRINTDEC("Value sc", sc)
                 if (rescaleFactor > (adjLen - r2->digits))
                     r2 = decNumberRescale(r2, r2, sc, set);
-                
+
                 PRINTDEC("Value 2a", r2)
               }
             else
               {
                 PRINTDEC("Value 1b", r2)
               }
-            
+
             // if it's floating justify it ...
             /// <remark>
             /// The dps88 and afterwards would generate a quotient with the maximim number of significant digits.
@@ -12554,7 +12554,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
             /// by as yet an unknown algorithm
             /// <remark/>
             // ... if bAdj then we leave a (single?) leading 0
-            
+
             if (!decNumberIsZero(r2))
               {
                 char *q = getBCDn(r2, adjLen) ;
@@ -12569,7 +12569,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                     else
                       break;
                   }
-                
+
                 if (lz)
                   {
                     decNumber _1;
@@ -12579,13 +12579,13 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                   }
               }
           } // s == CSFL
-        
-        
+
+
         decBCDFromNumber(out, adjLen, &scale, r2);
-        
+
         for(int i = 0 ; i < adjLen ; i += 1 )
           out[i] += '0';
-        
+
         // add leading 0 and reduce precision if needed
         if (bDgtN)
           {
@@ -12602,43 +12602,43 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 
         ovr = false;
         trunc = false;
-        
+
         // if we get here then we have either overflow or truncation....
-        
+
         sim_debug (DBG_TRACEEXT, & cpu_dev,
                    "formatDecimal(!OK%s): r2->digits %d adjLen %d\n", R ? " R" : "", r2->digits, adjLen);
-        
+
         // so, what do we do?
         if (R)
           {
             // NB even with rounding you can have an overflow...
-            
+
             // if we're in rounding mode then we just make things fit and everything is OK - except if we have an overflow.
-            
+
             decNumber *ro = r2; //(s == CSFL ? r : r2);
-            
+
             int safe = set->digits;
-            
+
             if (ro->digits > adjLen)    //(adjLen + 1))
               {
                 //set->digits = ro->digits + sf + 1;
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "formatDecimal(!OK R1): ro->digits %d adjLen %d\n", ro->digits, adjLen);
-                
+
                 set->digits = adjLen;
                 decNumberPlus(ro, ro, set);
-                
+
                 decBCDFromNumber(out, set->digits, &scale, ro);
                 for(int i = 0 ; i < set->digits ; i += 1 )
                     out[i] += '0';
-                
+
                 // HWR 24 Oct 2013
                 char temp[256];
                 strcpy(temp, (char *) out+set->digits-adjLen);
                 strcpy((char *) out, temp);
-                
+
                 //strcpy(out, out+set->digits-adjLen); // this generates a SIGABRT - probably because of overlapping strings.
-                
+
                 //sim_debug (DBG_TRACEEXT, & cpu_dev, "R OVR\n");
                 //ovr = true; breaks ET MVN 5
               } // digits > adjlen
@@ -12646,19 +12646,19 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
               {
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "formatDecimal(!OK R2): ro->digits %d adjLen %d\n", ro->digits, adjLen);
-                
+
                 if (s==CSFL)
                   {
-                    
+
                     set->digits = adjLen;
                     decNumberPlus(ro, ro, set);
-                    
+
                     decBCDFromNumber(out, adjLen, &scale, ro);
                     for(int i = 0 ; i < adjLen ; i += 1 )
                         out[i] += '0';
                     out[adjLen] = 0;
                     sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(!OK R2a): %s\n", out);
-                    
+
                   } // s == CSFL
                 else
                   {
@@ -12667,20 +12667,20 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                     ro = decNumberPlus(ro, ro, set);    // round to adjLen digits
                     decBCDFromNumber((uint8_t *)out, adjLen, &scale, ro);
                     set->digits = dig;
-                    
+
                     for(int j = 0 ; j < adjLen; j += 1 )
                         out[j] += '0';
-                    
+
                     sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(!OK R2b): %s\n", out);
                   } // s != CSFL
                 ovr = false;    // since we've rounded we can have no overflow ?????
               } // digits <= adjlen
             sim_debug (DBG_TRACEEXT, & cpu_dev, "formatDecimal(R3): digits:'%s'\n", out);
-            
+
             set->digits = safe;
-            
+
             // display int of number
-            
+
 #ifndef SPEED
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
               {
@@ -12698,7 +12698,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
         else
           {
             // if we're not in rounding mode then we can either have a truncation or an overflow
-            
+
             if (s == CSFL)
               {
                 enum rounding safeR = decContextGetRounding(set);         // save rounding mode
@@ -12717,11 +12717,11 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                     out[i] += '0';
                 out[adjLen] = 0;
 
-                
+
                 // 1) Floating-point quotient
                 //  NQ = N3, but if the divisor is greater than the dividend after operand alignment, the leading zero digit produced is counted and the effective precision of the result is reduced by one.
                 // -or-
-                // With the divisor (den) greater than the dividend (num), the algorithm generates a leading zero in the quotient. 
+                // With the divisor (den) greater than the dividend (num), the algorithm generates a leading zero in the quotient.
 
                 if (bDgtN)
                   {
@@ -12734,7 +12734,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 
                 set->digits = safe;
                 decContextSetRounding(set, safeR);              // restore rounding mode
-                
+
                 sim_debug (DBG_TRACEEXT, & cpu_dev, "CSFL TRUNC\n");
               } // s == CSFL
             else
@@ -12743,11 +12743,11 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                   {
                     enum rounding safeR = decContextGetRounding(set);         // save rounding mode
                     decContextSetRounding(set, DEC_ROUND_DOWN);     // Round towards 0 (truncation).
-                    
+
                     // re-rescale r with an eye towards truncation notrounding
-                    
+
                     r2 = decNumberRescale(r2, r, &_sf, set);
-                    
+
                     trunc = true;
 
                     if (r2->digits <= adjLen)
@@ -12764,16 +12764,16 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                         for(int i = 0 ; i < r2->digits; i += 1 )
                             out[i] += '0';
                         out[r2->digits] = 0;
-                        
+
                         memcpy(out, out + strlen((char *) out) - adjLen, (unsigned long) adjLen);
                         out[adjLen] = 0;
-                        
+
                         ovr = true;
                         trunc = false;
                       }
                     decContextSetRounding(set, safeR);              // restore rounding mode
                     sim_debug (DBG_TRACEEXT, & cpu_dev, "TRUNC\n");
-                    
+
                     //                else if ((r2->digits-sf) > adjLen)     // HWR 18 July 2014 was (r->digits > adjLen)
                   } // r2 < r
                 else if ((r2->digits) > adjLen)     // HWR 18 July 2014 was (r->digits > adjLen)
@@ -12783,13 +12783,13 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                     for(int i = 0 ; i < r2->digits ; i += 1 )
                         out[i] += '0';
                     out[r2->digits] = 0;
-                    
+
                     // HWR 24 Oct 2013
                     char temp[256];
                     strcpy(temp, (char *) out+r2->digits-adjLen);
                     strcpy((char *) out, temp);
                     //strcpy(out, out+r->digits-adjLen); // this generates a SIGABRT - probably because of overlapping strings.
-                    
+
                     sim_debug (DBG_TRACEEXT, & cpu_dev, "OVR\n");
                     ovr = true;
                   } // r2 >= r
@@ -12802,7 +12802,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                "formatDecimal(END): ovrflow=%d trunc=%d R=%d out[]='%s'\n", ovr, trunc, R, out);
     *OVR = ovr;
     *TRUNC = trunc;
-    
+
     decNumberCopy(r, r2);
     return (char *) out;
   }
@@ -12817,13 +12817,13 @@ void dv2d (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
     setupOperandDescriptorCache(3);
 #endif
-    
+
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
 
@@ -12836,7 +12836,7 @@ void dv2d (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bits 1-8 MBZ
     // ISOLTS test 840 and RJ78 says bit 9 (T) MBZ as well
     if (IWB_IRODD & 0377400000000)
@@ -12858,16 +12858,16 @@ void dv2d (void)
 
     PNL (L68_ (if (R)
       DU_CYCLE_FRND;))
-    
+
     uint srcTN = e->TN1;    // type of chars in src
-    
+
     uint dstTN = e->TN2;    // type of chars in dst
     uint dstCN = e->CN2;    // starting at char pos CN
-    
+
     e->ADDR3 = e->ADDR2;
-    
+
     int n1 = 0, n2 = 0, sc1 = 0, sc2 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -12876,7 +12876,7 @@ void dv2d (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -12888,13 +12888,13 @@ void dv2d (void)
                 n1 -= 1;    // 1 9-bit digit exponent
             sc1 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             sc1 = -e->SF1;
             break;
-            
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             sc1 = -e->SF1;
@@ -12903,7 +12903,7 @@ void dv2d (void)
 
     if (n1 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "dv2d adjusted n1<1");
-    
+
     switch(e->S2)
     {
         case CSFL:
@@ -12914,13 +12914,13 @@ void dv2d (void)
                 n2 -= 1;    // 1 9-bit digit exponent
             sc2 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             sc2 = -e->SF2;
             break;
-            
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             sc2 = -e->SF2;
@@ -12935,11 +12935,11 @@ void dv2d (void)
     decContextDefaultDPS8(&set);
 
     set.traps=0;
-    
+
     decNumber _1, _2, _3;
-    
+
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     decNumber *op1 = decBCD9ToNumber(e->inBuffer, n1, sc1, &_1);    // divisor
     if (e->sign == -1)
         op1->bits |= DECNEG;
@@ -12954,21 +12954,21 @@ void dv2d (void)
 
     word9   inBufferop1 [64];
     memcpy (inBufferop1,e->inBuffer,64); // save for clz1 calculation later
-    
+
     EISloadInputBufferNumeric (2);   // according to MF2
-    
+
     decNumber *op2 = decBCD9ToNumber(e->inBuffer, n2, sc2, &_2);    // dividend
     if (e->sign == -1)
         op2->bits |= DECNEG;
     if (e->S2 == CSFL)
         op2->exponent = e->exponent;
-    
+
     int NQ;
     if (e->S2 == CSFL)
     {
         NQ = n2;
-    } 
-    else 
+    }
+    else
     {
         // count leading zeroes
         // TODO optimize - can these be somehow extracted from decNumbers?
@@ -12994,7 +12994,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
     // Note: NQ is currently unused apart from this FAULT_DIV check. decNumber produces more digits than required, but they are then rounded/truncated
 
     // Yes, they're switched. op1=divisor
-    decNumber *op3 = decNumberDivide(&_3, op2, op1, &set); 
+    decNumber *op3 = decNumberDivide(&_3, op2, op1, &set);
     // Note DPS88 and DPS9000 are different when NQ <= 0
     // This is a flaw in the DPS8/70 hardware which was corrected in later models
     // ISOLTS-817 05b
@@ -13002,13 +13002,13 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
     PRINTDEC("op2", op2);
     PRINTDEC("op1", op1);
     PRINTDEC("op3", op3);
-    
+
     // let's check division results to see for anomalous conditions
     if (
         (set.status & DEC_Division_undefined) ||    // 0/0 will become NaN
         (set.status & DEC_Invalid_operation) ||
         (set.status & DEC_Division_by_zero)
-        ) { sim_debug (DBG_TRACEEXT, & cpu_dev, "oops! dv2d anomalous results"); }	// divide by zero has already been checked before
+        ) { sim_debug (DBG_TRACEEXT, & cpu_dev, "oops! dv2d anomalous results"); }      // divide by zero has already been checked before
 
     if (e->S2 == CSFL)
     {
@@ -13028,10 +13028,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
             PRINTDEC("Value 2", op3)
         }
     }
-    
+
     bool Ovr = false, EOvr = false, Trunc = false;
     uint8_t out[256];
-    
+
     // CSFL: If the divisor is greater than the dividend after operand
     // alignment, the leading zero digit produced is counted and the effective
     // precision of the result is reduced by one.
@@ -13081,14 +13081,14 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
         // same as all other decimal instructions
         res = formatDecimal(out, &set, op3, n2, (int) e->S2, e->SF2, R, &Ovr, &Trunc);
     }
-    
+
     if (decNumberIsZero(op3))
         op3->exponent = 127;
-    
+
     // now write to memory in proper format.....
-    
+
     int pos = (int) dstCN;
-    
+
     // 1st, take care of any leading sign .......
     switch(e->S2)
     {
@@ -13107,12 +13107,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
                     break;
             }
             break;
-            
+
         case CSTS:  // nuttin' to do here .....
         case CSNS:
             break;  // no sign wysiwyg
     }
-    
+
     // 2nd, write the digits .....
     for(int i = 0 ; i < n2 ; i++)
         switch(dstTN)
@@ -13124,7 +13124,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
                 EISwrite49(&e->ADDR3, &pos, (int) dstTN, (word9) res[i]);
                 break;
         }
-    
+
     // 3rd, take care of any trailing sign or exponent ...
     switch(e->S2)
     {
@@ -13142,7 +13142,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
                     break;
             }
             break;
-            
+
         case CSFL:  // floating-point, leading sign.
             // write the exponent
             switch(dstTN)
@@ -13156,12 +13156,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
                     break;
             }
             break;
-            
+
         case CSLS:  // fixed point, leading sign - already done
         case CSNS:  // fixed point, unsigned - nuttin' needed to do
             break;
     }
-    
+
     // set flags, etc ...
     if (e->S2 == CSFL)
     {
@@ -13176,12 +13176,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
             EOvr = true;
         }
     }
-    
+
     SC_I_NEG (decNumberIsNegative(op3) && !decNumberIsZero(op3));  // set negative indicator if op3 < 0
     SC_I_ZERO (decNumberIsZero(op3));     // set zero indicator if op3 == 0
-    
+
     //SC_I_TRUNC (!R && Trunc); // no truncation flag for divide
-    
+
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
@@ -13208,13 +13208,13 @@ void dv3d (void)
     EISstruct * e = & cpu.currentEISinstruction;
 
     fault_ipr_subtype_ mod_fault = 0;
-    
+
 #ifndef EIS_SETUP
     setupOperandDescriptor(1, &mod_fault);
     setupOperandDescriptor(2, &mod_fault);
     setupOperandDescriptor(3, &mod_fault);
 #endif
-    
+
     parseNumericOperandDescriptor(1, &mod_fault);
     parseNumericOperandDescriptor(2, &mod_fault);
     parseNumericOperandDescriptor(3, &mod_fault);
@@ -13228,7 +13228,7 @@ void dv3d (void)
                  "Illegal modifier");
       }
 #endif
-    
+
     // Bit 1 MBZ
     // ISOLTS test 840 and RJ78 says bit 9 (T) MBZ
     if (IWB_IRODD & 0200400000000)
@@ -13250,14 +13250,14 @@ void dv3d (void)
 
     PNL (L68_ (if (R)
       DU_CYCLE_FRND;))
-    
+
     uint srcTN = e->TN1;    // type of chars in src
-    
+
     uint dstTN = e->TN3;    // type of chars in dst
     uint dstCN = e->CN3;    // starting at char pos CN
-    
+
     int n1 = 0, n2 = 0, n3 = 0, sc1 = 0, sc2 = 0;
-    
+
     /*
      * Here we need to distinguish between 4 type of numbers.
      *
@@ -13266,7 +13266,7 @@ void dv3d (void)
      * CSTS - Scaled fixed-point, trailing sign
      * CSNS - Scaled fixed-point, unsigned
      */
-    
+
     // determine precision
     switch(e->S1)
     {
@@ -13278,13 +13278,13 @@ void dv3d (void)
                 n1 -= 1;    // 1 9-bit digit exponent
             sc1 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n1 = (int) e->N1 - 1; // only 1 sign
             sc1 = -e->SF1;
             break;
-            
+
         case CSNS:
             n1 = (int) e->N1;     // no sign
             sc1 = -e->SF1;
@@ -13304,13 +13304,13 @@ void dv3d (void)
                 n2 -= 1;    // 1 9-bit digit exponent
             sc2 = 0;        // no scaling factor
             break;
-            
+
         case CSLS:
         case CSTS:
             n2 = (int) e->N2 - 1; // 1 sign
             sc2 = -e->SF2;
             break;
-            
+
         case CSNS:
             n2 = (int) e->N2;     // no sign
             sc2 = -e->SF2;
@@ -13319,7 +13319,7 @@ void dv3d (void)
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "dv3d adjusted n2<1");
-    
+
     switch(e->S3)
     {
         case CSFL:
@@ -13329,12 +13329,12 @@ void dv3d (void)
             else
                 n3 -= 1;    // 1 9-bit digit exponent
             break;
-            
+
         case CSLS:
         case CSTS:
             n3 = (int) e->N3 - 1; // 1 sign
             break;
-            
+
         case CSNS:
             n3 = (int) e->N3;     // no sign
             break;  // no sign wysiwyg
@@ -13345,13 +13345,13 @@ void dv3d (void)
 
     decContext set;
     decContextDefaultDPS8(&set);
-    
+
     set.traps=0;
-    
+
     decNumber _1, _2, _3;
-    
+
     EISloadInputBufferNumeric (1);   // according to MF1
-    
+
     decNumber *op1 = decBCD9ToNumber(e->inBuffer, n1, sc1, &_1);
     //PRINTDEC("op1", op1);
     if (e->sign == -1)
@@ -13367,7 +13367,7 @@ void dv3d (void)
 
     word9   inBufferop1 [64];
     memcpy (inBufferop1,e->inBuffer,64); // save for clz1 calculation later
-    
+
     EISloadInputBufferNumeric (2);   // according to MF2
 
     decNumber *op2 = decBCD9ToNumber(e->inBuffer, n2, sc2, &_2);
@@ -13397,8 +13397,8 @@ void dv3d (void)
     if (e->S3 == CSFL)
     {
         NQ = n3;
-    } 
-    else 
+    }
+    else
     {
         // count leading zeroes
         // TODO optimize - can these be somehow extracted from decNumbers?
@@ -13424,7 +13424,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
     // Note: NQ is currently unused apart from this FAULT_DIV check. decNumber produces more digits than required, but they are then rounded/truncated
 
     // Yes, they're switched. op1=divisor
-    decNumber *op3 = decNumberDivide(&_3, op2, op1, &set); 
+    decNumber *op3 = decNumberDivide(&_3, op2, op1, &set);
     // Note DPS88 and DPS9000 are different when NQ <= 0
     // This is a flaw in the DPS8/70 hardware which was corrected in later models
     // ISOLTS-817 05b
@@ -13432,13 +13432,13 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
     PRINTDEC("op2", op2);
     PRINTDEC("op1", op1);
     PRINTDEC("op3", op3);
-    
+
     // let's check division results to see for anomalous conditions
     if (
         (set.status & DEC_Division_undefined) ||    // 0/0 will become NaN
         (set.status & DEC_Invalid_operation) ||
         (set.status & DEC_Division_by_zero)
-        ) { sim_debug (DBG_TRACEEXT, & cpu_dev, "oops! dv3d anomalous results"); }	// divide by zero has already been checked before
+        ) { sim_debug (DBG_TRACEEXT, & cpu_dev, "oops! dv3d anomalous results"); }      // divide by zero has already been checked before
 
     if (e->S3 == CSFL)
     {
@@ -13511,16 +13511,16 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
         // same as all other decimal instructions
         res = formatDecimal(out, &set, op3, n3, (int) e->S3, e->SF3, R, &Ovr, &Trunc);
     }
-    
+
     if (decNumberIsZero(op3))
         op3->exponent = 127;
 
     //printf("%s\r\n", res);
-    
+
     // now write to memory in proper format.....
-    
+
     int pos = (int) dstCN;
-    
+
     // 1st, take care of any leading sign .......
     switch(e->S3)
     {
@@ -13539,12 +13539,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
                     break;
             }
             break;
-            
+
         case CSTS:  // nuttin' to do here .....
         case CSNS:
             break;  // no sign wysiwyg
     }
-    
+
     // 2nd, write the digits .....
     for(int i = 0 ; i < n3 ; i++)
         switch(dstTN)
@@ -13556,7 +13556,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
                 EISwrite49(&e->ADDR3, &pos, (int) dstTN, (word9) res[i]);
                 break;
             }
-    
+
     // 3rd, take care of any trailing sign or exponent ...
     switch(e->S3)
     {
@@ -13574,7 +13574,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
                 break;
             }
             break;
-            
+
         case CSFL:  // floating-point, leading sign.
             // write the exponent
             switch(dstTN)
@@ -13588,12 +13588,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
                     break;
             }
             break;
-            
+
         case CSLS:  // fixed point, leading sign - already done
         case CSNS:  // fixed point, unsigned - nuttin' needed to do
             break;
     }
-    
+
     // set flags, etc ...
     if (e->S3 == CSFL)
     {
@@ -13608,16 +13608,16 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
             EOvr = true;
         }
     }
-    
+
     SC_I_NEG (decNumberIsNegative(op3) && !decNumberIsZero(op3));  // set negative indicator if op3 < 0
     SC_I_ZERO (decNumberIsZero(op3));     // set zero indicator if op3 == 0
-    
+
     // SC_I_TRUNC(!R && Trunc); // no truncation flag for divide
 
     cleanupOperandDescriptor (1);
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
-    
+
     //if (TST_I_TRUNC && T && tstOVFfault ())
     //  doFault(FAULT_OFL, fst_zero, "dv3d truncation(overflow) fault");
     if (EOvr && tstOVFfault ())

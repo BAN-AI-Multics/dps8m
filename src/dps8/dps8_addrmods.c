@@ -6,9 +6,9 @@
  *
  * All rights reserved.
  *
- * This software is made available under the terms of the ICU  
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 /**
@@ -371,7 +371,7 @@ void do_caf (void)
     word6 Tm = 0;
     word6 Td = 0;
 
-    word6 iTAG;   // tag of word preceeding an indirect fetch
+    /* word6 iTAG; */   // tag of word preceeding an indirect fetch
 
     cpu.ou.directOperandFlag = false;
 
@@ -394,7 +394,7 @@ startCA:;
     Tm = GET_TM (cpu.rTAG);
 
     // CT_HOLD is set to 0 on instruction setup; if it is non-zero here,
-    // we must have faulted during an indirect word fetch. Restore 
+    // we must have faulted during an indirect word fetch. Restore
     // state and restart the fetch.
     if (cpu.cu.CT_HOLD)
       {
@@ -517,18 +517,18 @@ startCA:;
 
             if (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)
               {
-		if (cpu.currentInstruction.b29)
-		  {
-		    word3 PRn = GET_PRN(IWB_IRODD);
-		    CPTUR (cptUsePRn + PRn);
-		    cpu.TPR.CA = Cr + cpu.PR [PRn].WORDNO;
-		    cpu.TPR.CA &= AMASK;
-		  }
-		else
-		  {
-		    cpu.TPR.CA = Cr;
-		  }
-	      }
+                if (cpu.currentInstruction.b29)
+                  {
+                    word3 PRn = GET_PRN(IWB_IRODD);
+                    CPTUR (cptUsePRn + PRn);
+                    cpu.TPR.CA = Cr + cpu.PR [PRn].WORDNO;
+                    cpu.TPR.CA &= AMASK;
+                  }
+                else
+                  {
+                    cpu.TPR.CA = Cr;
+                  }
+              }
             else
               {
                 cpu.TPR.CA += Cr;
@@ -548,7 +548,7 @@ startCA:;
           }
 
         // If the indirect word faults, on restart the CA will be the post
-        // register modification value, so we want to prevent it from 
+        // register modification value, so we want to prevent it from
         // happening again on restart
 
         word18 saveCA = cpu.TPR.CA;
@@ -682,7 +682,7 @@ startCA:;
                       {
                         case IT_F2:
                           cpu.TPR.CA = saveCA;
-                          doFault (FAULT_F2, fst_zero, "TM_IT: IT_F2 (1)"); 
+                          doFault (FAULT_F2, fst_zero, "TM_IT: IT_F2 (1)");
 
                         case IT_F3:
                           cpu.TPR.CA = saveCA;
@@ -734,7 +734,7 @@ startCA:;
               } // TM_IR
           } // Tm
 
-        sim_printf ("%s(IR_MOD): unknown Tm??? %o\n", 
+        sim_printf ("%s(IR_MOD): unknown Tm??? %o\n",
                     __func__, GET_TM (cpu.rTAG));
         return;
       } // IR_MOD
@@ -899,7 +899,7 @@ startCA:;
 
 // What if readOperands and/of writeOperands fault? On restart, doCAF will be
 // called again and the indirect word would incorrectly be updated a second
-// time. 
+// time.
 //
 // We don't care about read/write access violations; in general, they are not
 // restarted.
@@ -996,7 +996,7 @@ startCA:;
                 cpu.TPR.CA = cpu.ou.character_address;
                 return;
               } // IT_CI, IT_SC, IT_SCR
-   
+
             case IT_I: // Indirect (Td = 11)
               {
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -1379,7 +1379,7 @@ startCA:;
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_DIC): indword=%012"PRIo64" Yi=%06o "
-                           "tally=%04o idwtag=%02o\n", 
+                           "tally=%04o idwtag=%02o\n",
                            indword, Yi, cpu.AM_tally, idwtag);
 
 #ifdef ISOLTS
@@ -1428,7 +1428,7 @@ startCA:;
                 cpu.TPR.CA = Yi;
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
-                           "IT_MOD(IT_DIC): new CT_HOLD %02o new TAG %02o\n", 
+                           "IT_MOD(IT_DIC): new CT_HOLD %02o new TAG %02o\n",
                            cpu.rTAG, idwtag);
                 cpu.cu.CT_HOLD = cpu.rTAG;
                 cpu.rTAG = idwtag;
@@ -1455,7 +1455,7 @@ startCA:;
               } // IT_DIC
 
             // Increment address, decrement tally, and continue (Td = 17)
-            case IT_IDC: 
+            case IT_IDC:
               {
                 // The action for this variation is identical to that for the
                 // increment address, decrement tally variation except that the
@@ -1529,7 +1529,7 @@ startCA:;
 
 #ifdef LOCKLESS
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
-#else 
+#else
                 Write (saveCA, indword, APU_DATA_STORE);
 #endif
 
@@ -1552,7 +1552,7 @@ startCA:;
                 cpu.TPR.CA = YiSafe;
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
-                           "IT_MOD(IT_IDC): new CT_HOLD %02o new TAG %02o\n", 
+                           "IT_MOD(IT_IDC): new CT_HOLD %02o new TAG %02o\n",
                            cpu.rTAG, idwtag);
                 cpu.cu.CT_HOLD = cpu.rTAG;
                 cpu.rTAG = idwtag;
@@ -1579,5 +1579,3 @@ startCA:;
         return;
      } // IT_MOD
   } // do_caf
-
-

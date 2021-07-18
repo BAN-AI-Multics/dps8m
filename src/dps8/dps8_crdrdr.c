@@ -10,7 +10,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //
@@ -45,15 +45,13 @@
 
 #define DBG_CTR 1
 
-/*
- Copyright (c) 2007-2013 Michael Mondy
- 
- This software is made available under the terms of the
- ICU License -- ICU 1.8.1 and later.
- See the LICENSE file at the top-level directory of this distribution and
- at http://example.org/project/LICENSE.
- */
-
+ /*
+  * Copyright (c) 2007-2013 Michael Mondy
+  *
+  * This software is made available under the terms of the ICU
+  * License, version 1.8.1 or later.  For more details, see the
+  * LICENSE.md file at the top-level directory of this distribution.
+  */
 
 #define N_RDR_UNITS 1 // default
 
@@ -153,7 +151,7 @@ DEVICE rdr_dev = {
     8,            /* data radix */
     36,           /* data width */
     NULL,         /* examine */
-    NULL,         /* deposit */ 
+    NULL,         /* deposit */
     rdr_reset,   /* reset */
     NULL,         /* boot */
     NULL,         /* attach */
@@ -236,14 +234,14 @@ static t_stat rdr_reset (UNUSED DEVICE * dptr)
 
 // http://homepage.cs.uiowa.edu/~jones/cards/codes.html
 // General Electric
-// 
+//
 // General Electric used the following collating sequence on their machines,
 // including the GE 600 (the machine on which Multics was developed); this is
 // largely upward compatable from the IBM 026 commercial character set, and it
 // shows strong influence from the IBM 1401 character set while supporting the
 // full ASCII character set, with 64 printable characters, as it was understood
 // in the 1960's.
-// 
+//
 // GE   &-0123456789ABCDEFGHIJKLMNOPQR/STUVWXYZ[#@:>?+.](<\^$*);'_,%="!
 //      ________________________________________________________________
 //     /&-0123456789ABCDEFGHIJKLMNOPQR/STUVWXYZ #@:>V .¤(<§ $*);^±,%='"
@@ -407,7 +405,7 @@ static char * testDeck [] =
 
 static int testDeckLine = 0;
 #endif
- 
+
 #if 0
 static const char *bit_rep[16] = {
     [ 0] = "0000", [ 1] = "0001", [ 2] = "0010", [ 3] = "0011",
@@ -548,7 +546,7 @@ sim_printf ("hopper empty\n");
                   }
                   thisCard = cardDeck;
                   break;
-            
+
               case streamDeck:
                 {
                   l = (size_t) getCardData (rdr_state [unitIdx] . deckfd, (char *) cardImage);
@@ -603,7 +601,7 @@ sim_printf ("hopper empty\n");
           break;
       }
 
-           
+
 #if 0
     while (l > 0 && cardImage [l - 1] == '\n')
       cardImage [-- l] = 0;
@@ -826,7 +824,7 @@ static void scanForCards(uint16 readerIndex)
     sprintf(rdr_dir, "%s/%s%c", getenv("TEMP"), rdr_name, 'a' + readerIndex);
 #endif
 
-    if (rdr_path_prefix [0]) 
+    if (rdr_path_prefix [0])
       {
         sprintf(rdr_dir, "%s%s%c", rdr_path_prefix, rdr_name, 'a' + readerIndex);
       }
@@ -848,13 +846,13 @@ static void scanForCards(uint16 readerIndex)
         strcat (fqname, "/");
         strcat (fqname, entry -> d_name);
 
-        if (stat(fqname, &info) != 0) 
+        if (stat(fqname, &info) != 0)
           {
             sim_warn("crdrdr: scanForCards stat() error for %s: %s\n", fqname, strerror(errno));
             continue;
           }
 
-        if (S_ISDIR(info.st_mode)) 
+        if (S_ISDIR(info.st_mode))
           {
             // Found a directory so skip it
             continue;
@@ -901,7 +899,7 @@ static void scanForCards(uint16 readerIndex)
 
 void rdrProcessEvent ()
   {
-    if (rdr_path_prefix [0]) 
+    if (rdr_path_prefix [0])
       {
         // We support multiple card readers when path prefixing is turned on
         // so we need to check each possible reader to see if it is active
@@ -917,7 +915,7 @@ void rdrProcessEvent ()
         // (this is for backwards compatibility)
         if (! rdr_state [0] . running)
           return;
-        
+
         scanForCards(0);
       }
   }
@@ -1021,4 +1019,3 @@ static t_stat rdr_show_path (UNUSED FILE * st, UNIT * uptr,
     sim_printf("Path to card reader directories is %s\n", rdr_path_prefix);
     return SCPE_OK;
   }
-

@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 /**
@@ -556,7 +556,7 @@ struct opcode_s opcodes10[02000] = {
     {"qlr", PREPARE_CA | NO_RPL, NO_DDCSS, 0, ru_Q},
     {"llr", PREPARE_CA | NO_RPL, NO_DDCSS, 0, ru_AQ},
 // EIS
-     /* 000 - 017 */ 
+     /* 000 - 017 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -573,7 +573,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 020 - 037 */ 
+     /* 020 - 037 */
     {"mve", NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 3, is_DU},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -590,7 +590,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 040 - 057 */ 
+     /* 040 - 057 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -607,7 +607,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 060 - 077 */ 
+     /* 060 - 077 */
     {"csl", NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 2, is_DU},
     {"csr", NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 2, is_DU},
     {NULL, 0, 0, 0, 0},
@@ -624,7 +624,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 100 - 117 */ 
+     /* 100 - 117 */
     {"mlr",  NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 2, is_DU},
     {"mrl",  NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 2, is_DU},
     {NULL, 0, 0, 0, 0},
@@ -641,7 +641,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 120 - 137 */ 
+     /* 120 - 137 */
     {"scd",  NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 3, is_DU},
     {"scdr",  NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 3, is_DU},
     {NULL, 0, 0, 0, 0},
@@ -658,7 +658,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 140 - 157 */ 
+     /* 140 - 157 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -675,7 +675,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 167 - 177 */ 
+     /* 167 - 177 */
     {"mvt",  NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 3, is_DU},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -692,7 +692,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 200 - 217 */ 
+     /* 200 - 217 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {"ad2d",  NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 2, is_DU},
@@ -709,7 +709,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 220 - 237 */ 
+     /* 220 - 237 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {"ad3d",  NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 3, is_DU},
@@ -726,7 +726,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 240 - 257 */ 
+     /* 240 - 257 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -743,7 +743,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {"lptp", READ_YBLOCK16 | PRIV_INS | NO_RPT, NO_DDCSS, 0, 0},
-     /* 260 - 277 */ 
+     /* 260 - 277 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -760,7 +760,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 300 - 317 */ 
+     /* 300 - 317 */
     {"mvn",  NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 2, is_DU},
     {"btd",  NO_TAG | NO_XED | NO_RPT | IGN_B29, 0, 2, is_DU},
     {NULL, 0, 0, 0, 0},
@@ -777,7 +777,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 320 - 337 */ 
+     /* 320 - 337 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -794,7 +794,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 340 - 357 */ 
+     /* 340 - 357 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -811,7 +811,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 360 - 377 */ 
+     /* 360 - 377 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -828,7 +828,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 400 - 417 */ 
+     /* 400 - 417 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -845,11 +845,11 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-#if EMULATOR_ONLY 
+#if EMULATOR_ONLY
      /* 420 - 437 */
     {"emcall", IGN_B29, 0, 0, 0},  // 420 we add a emulator call instruction for SIMH use ONLY! (opcode 0420(1))
     {"fxe",  0, 0, 0, 0}, // 421 fxe fault handler
-  
+
 #ifdef DEPRECIATED
     // with the lack of a stack it makes it very cumbersome to write decent code for reentrant subroutines.
     // Yes, I *might* be able to use the DI, ID tally modifications, but you need to setup a indirect stack word to reference -
@@ -862,7 +862,7 @@ struct opcode_s opcodes10[02000] = {
 
     {"callx", READ_OPERAND | TRANSFER_INS, 0, 0, 0},// 422 and in the spirit of AIM-072...
     {"exit",                 TRANSFER_INS, 0, 0, 0}, // 423
-    
+
     // how 'bout push/pop a/q
     {"pusha", 0, 0, 0, 0}, // 424 push A onto stack via Xn
     {"popa",  0, 0, 0, 0}, // 425 pop word from stack via Xn into A
@@ -876,7 +876,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0}, // 426
     {NULL, 0, 0, 0, 0}, // 427
 #endif
-    
+
     {NULL, 0, 0, 0, 0}, // 430
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -885,10 +885,10 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0}, // 437
-    
-    
+
+
 #else
-     /* 420 - 437 */ 
+     /* 420 - 437 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -906,7 +906,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
 #endif
-     /* 440 - 457 */ 
+     /* 440 - 457 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -923,7 +923,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 460 - 477 */ 
+     /* 460 - 477 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -940,7 +940,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 500 - 517 */ 
+     /* 500 - 517 */
     {"a9bd", IGN_B29 | NO_RPT, ONLY_AU_QU_AL_QL_XN, 0, is_9},
     {"a6bd", IGN_B29 | NO_RPT, ONLY_AU_QU_AL_QL_XN, 0, is_6},
     {"a4bd", IGN_B29 | NO_RPT, ONLY_AU_QU_AL_QL_XN, 0, is_4},
@@ -957,7 +957,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 520 - 537 */ 
+     /* 520 - 537 */
     {"s9bd", IGN_B29 | NO_RPT, ONLY_AU_QU_AL_QL_XN, 0, is_9},
     {"s6bd", IGN_B29 | NO_RPT, ONLY_AU_QU_AL_QL_XN, 0, is_6},
     {"s4bd", IGN_B29 | NO_RPT, ONLY_AU_QU_AL_QL_XN, 0, is_4},
@@ -974,7 +974,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 540 - 557 */ 
+     /* 540 - 557 */
     {"ara0", RMW | NO_RPT, NO_DDCSS, 0, is_DU},
     {"ara1", RMW | NO_RPT, NO_DDCSS, 0, is_DU},
     {"ara2", RMW | NO_RPT, NO_DDCSS, 0, is_DU},
@@ -991,7 +991,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {"sptp", STORE_YBLOCK16 | PRIV_INS | NO_RPT, NO_DDCSS, 0, 0},
-     /* 560 - 577 */ 
+     /* 560 - 577 */
     {"aar0", READ_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
     {"aar1", READ_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
     {"aar2", READ_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
@@ -1008,7 +1008,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 600 - 617 */ 
+     /* 600 - 617 */
     {"trtn", TRANSFER_INS | NO_RPT, NO_DDCSS, 0, 0},
     {"trtf", TRANSFER_INS | NO_RPT, NO_DDCSS, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -1025,7 +1025,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 620 - 637 */ 
+     /* 620 - 637 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -1042,7 +1042,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 640 - 657 */ 
+     /* 640 - 657 */
     {"arn0", STORE_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
     {"arn1", STORE_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
     {"arn2", STORE_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
@@ -1059,7 +1059,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 660 - 677 */ 
+     /* 660 - 677 */
     {"nar0", READ_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
     {"nar1", READ_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
     {"nar2", READ_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
@@ -1076,7 +1076,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 700 - 717 */ 
+     /* 700 - 717 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -1093,7 +1093,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 720 - 737 */ 
+     /* 720 - 737 */
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
@@ -1110,7 +1110,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 740 - 757 */ 
+     /* 740 - 757 */
     {"sar0", STORE_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
     {"sar1", STORE_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
     {"sar2", STORE_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
@@ -1127,7 +1127,7 @@ struct opcode_s opcodes10[02000] = {
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
     {NULL, 0, 0, 0, 0},
-     /* 760 - 777 */ 
+     /* 760 - 777 */
     {"lar0", READ_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
     {"lar1", READ_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
     {"lar2", READ_OPERAND | NO_RPT, NO_DDCSS, 0, is_DU},
@@ -1183,7 +1183,7 @@ struct adrMods extMods[0100] = {    ///< address modifiers w/ extended info
     {"5*",  29, 0},
     {"6*",  30, 0},
     {"7*",  31, 0},
-    
+
     /* IT */
     {"f1",  32, 0},
     {"itp", 33, 0},
@@ -1201,7 +1201,7 @@ struct adrMods extMods[0100] = {    ///< address modifiers w/ extended info
     {"dic", 45, 0},
     {"id",  46, 0},
     {"idc", 47, 0},
-    
+
     /* IR */
     {"*n",  48, 0},
     {"*au", 49, 0},

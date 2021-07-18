@@ -360,31 +360,31 @@ main(int argc, char *argv[])
   if (compblank && lnblank)
   {
     fprintf(stderr, "ERROR: -B and -b are mutually exclusive\n");
-	exit(1);
+        exit(1);
   }
 
   if (symlist && ( ofilename != NULL || inplace || argc > 1 ))
   {
     fprintf(stderr, "ERROR: -s only works with one input file\n");
-	exit(1);
+        exit(1);
   }
 
   if (argc > 1 && ofilename != NULL)
   {
     fprintf(stderr, "ERROR: -o cannot be used with multiple input files\n");
-	exit(1);
+        exit(1);
   }
 
   if (argc > 1 && !inplace)
   {
     fprintf(stderr, "ERROR: multiple input files require -m or -M\n");
-	exit(1);
+        exit(1);
   }
 
   if (argc == 0 && inplace)
   {
     fprintf(stderr, "ERROR: -m requires an input file\n");
-	exit(1);
+        exit(1);
   }
 
   if (argc == 0)
@@ -451,7 +451,7 @@ processinout(const char *ifn, const char *ofn)
     if (input == NULL)
     {
       fprintf(stderr, "ERROR: can't open %s\n", ifn);
-	  exit(1);
+          exit(1);
     }
   }
 
@@ -468,7 +468,7 @@ processinout(const char *ifn, const char *ofn)
     if (output == NULL)
     {
       fprintf(stderr, "ERROR: can't create %s\n", ofn);
-	  exit(1);
+          exit(1);
     }
 
     process();
@@ -480,7 +480,7 @@ processinout(const char *ifn, const char *ofn)
   if (output == NULL)
   {
     fprintf(stderr, "ERROR: can't create %s\n", tempname);
-	exit(1);
+        exit(1);
   }
 
   process();
@@ -488,10 +488,11 @@ processinout(const char *ifn, const char *ofn)
   if (backext != NULL)
   {
     char *backname = astrcat(ofn, backext);
+        // deepcode ignore PathTraversal: vendored BSD code, not untrusted
     if (rename(ofn, backname) < 0)
     {
       fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\"\n", ofn, backname);
-	  exit(1);
+          exit(1);
     }
 
     free(backname);
@@ -508,7 +509,7 @@ processinout(const char *ifn, const char *ofn)
   else if (replace(tempname, ofn) < 0)
   {
     fprintf(stderr, "ERROR: can't rename \"%s\" to \"%s\"\n", tempname, ofn);
-	exit(1);
+        exit(1);
   }
 
   free(tempname);
@@ -1055,7 +1056,7 @@ closeio(void)
   if (output != NULL && ( ferror(output) || fclose(output) == EOF ))
   {
     fprintf(stderr, "ERROR: %s: can't write to output\n", filename);
-	exit(1);
+        exit(1);
   }
 
   fclose(input);
@@ -1201,7 +1202,7 @@ parseline(void)
       if (ferror(input))
       {
         fprintf(stderr, "ERROR: can't read %s\n", filename);
-		exit(1);
+                exit(1);
       }
 
       strcpy(tline + len, newline);
@@ -1646,7 +1647,7 @@ skiphash(void)
     if (ferror(input))
     {
       fprintf(stderr, "ERROR: can't read %s\n", filename);
-	  exit(1);
+          exit(1);
     }
     else
     {
@@ -2136,7 +2137,7 @@ addsym2(bool ignorethis, const char *sym, const char *val)
     if (nsyms >= MAXSYMS)
     {
       fprintf(stderr, "ERROR: too many symbols\n");
-	  exit(1);
+          exit(1);
     }
 
     symind = nsyms++;
@@ -2159,7 +2160,7 @@ defundefile(const char *fn)
   if (input == NULL)
   {
     fprintf(stderr, "ERROR: can't open %s\n", fn);
-	exit(1);
+        exit(1);
   }
 
   linenum = 0;
@@ -2170,7 +2171,7 @@ defundefile(const char *fn)
   if (ferror(input))
   {
     fprintf(stderr, "ERROR: can't read %s\n", filename);
-	exit(1);
+        exit(1);
   }
   else
   {
@@ -2270,7 +2271,7 @@ astrcat(const char *s1, const char *s2)
   if (len < 0)
   {
     fprintf(stderr, "ERROR: snprintf\n");
-	exit(1);
+        exit(1);
   }
 
   size = (size_t)len + 1;
@@ -2278,7 +2279,7 @@ astrcat(const char *s1, const char *s2)
   if (s == NULL)
   {
     fprintf(stderr, "ERROR: malloc\n");
-	exit(1);
+        exit(1);
   }
 
   snprintf(s, size, "%s%s", s1, s2);
@@ -2304,7 +2305,7 @@ xstrdup(const char *start, const char *end)
   if (s == NULL)
   {
     fprintf(stderr, "ERROR: malloc\n");
-	exit(1);
+        exit(1);
   }
 
   snprintf(s, n, "%s", start);

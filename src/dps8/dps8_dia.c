@@ -5,9 +5,9 @@
  *
  * All rights reserved.
  *
- * This software is made available under the terms of the ICU  
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #include <stdio.h>
@@ -83,7 +83,7 @@ static t_stat set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUS
           {
             case -2: // error
               cfg_parse_done (& cfg_state);
-              return SCPE_ARG; 
+              return SCPE_ARG;
 
             case -1: // done
               break;
@@ -95,7 +95,7 @@ static t_stat set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUS
             default:
               sim_printf ("error: DIA SET CONFIG: invalid cfg_parse rc <%d>\n", rc);
               cfg_parse_done (& cfg_state);
-              return SCPE_ARG; 
+              return SCPE_ARG;
           } // switch
         if (rc < 0)
           break;
@@ -104,13 +104,13 @@ static t_stat set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUS
     return SCPE_OK;
   }
 
-static t_stat show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val, 
+static t_stat show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
                            UNUSED const void * desc)
   {
     long unit_idx = DIA_UNIT_IDX (uptr);
     if (unit_idx >= (long) N_DIA_UNITS_MAX)
       {
-        sim_debug (DBG_ERR, & dia_dev, 
+        sim_debug (DBG_ERR, & dia_dev,
                    "DIA SHOW CONFIG: Invalid unit number %ld\n", unit_idx);
         sim_printf ("error: invalid unit number %ld\n", unit_idx);
         return SCPE_ARG;
@@ -120,18 +120,18 @@ static t_stat show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     struct dia_unit_data * dudp = dia_data.dia_unit_data + unit_idx;
 
     sim_printf ("DIA Mailbox Address:         %04o(8)\n", dudp -> mailbox_address);
- 
+
     return SCPE_OK;
   }
 
 
-static t_stat show_status (UNUSED FILE * st, UNIT * uptr, UNUSED int val, 
+static t_stat show_status (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
                              UNUSED const void * desc)
   {
     long dia_unit_idx = DIA_UNIT_IDX (uptr);
     if (dia_unit_idx >= (long) dia_dev.numunits)
       {
-        sim_debug (DBG_ERR, & dia_dev, 
+        sim_debug (DBG_ERR, & dia_dev,
                    "DIA SHOW STATUS: Invalid unit number %ld\n", dia_unit_idx);
         sim_printf ("error: invalid unit number %ld\n", dia_unit_idx);
         return SCPE_ARG;
@@ -144,14 +144,14 @@ static t_stat show_status (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     return SCPE_OK;
   }
 
-static t_stat show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, 
+static t_stat show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                            UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Number of DIA units in system is %d\n", dia_dev.numunits);
     return SCPE_OK;
   }
 
-static t_stat set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, 
+static t_stat set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
                              const char * cptr, UNUSED void * desc)
   {
     if (! cptr)
@@ -413,7 +413,7 @@ static uint virtToPhys (uint ptPtr, uint l66Address)
 
 static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word24 l66_addr)
   {
-    
+
     uint fnpno = dev_unit_idx; // XXX
     //iom_chan_data_t * p = & iom_chan_data [iom_unit_idx] [chan];
     struct dia_unit_data * dudp = & dia_data.dia_unit_data[fnpno];
@@ -421,7 +421,7 @@ static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word2
     word24 offset;
     int scu_unit_num =  query_IOM_SCU_bank_map (iom_unit_idx, dudp->mailbox_address, & offset);
     int scu_unit_idx = cables->cablesFromScus[iom_unit_idx][scu_unit_num].scu_unit_idx;
-    struct mailbox vol * mbxp = (struct mailbox *) & scu[scu_unit_idx].M[decoded.dudp->mailbox_address]; 
+    struct mailbox vol * mbxp = (struct mailbox *) & scu[scu_unit_idx].M[decoded.dudp->mailbox_address];
 #else
     struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailbox_address];
 #endif
@@ -462,7 +462,7 @@ static int interruptL66 (uint iom_unit_idx, uint chan)
 // AN85, pg 13-5
 // When the CS has control information or output data to send
 // to the FNP, it fills in a submailbox as described in Section 4
-// and sends an interrupt over the DIA. This interrupt is handled 
+// and sends an interrupt over the DIA. This interrupt is handled
 // by dail as described above; when the submailbox is read, the
 // transaction control word is set to "submailbox read" so that when
 // the I/O completes and dtrans runs, the mailbox decoder (decmbx)
@@ -563,7 +563,7 @@ static void processMBX (uint iom_unit_idx, uint chan)
 // Data Xfer to L6   076    L66 Addr  L66 Addr  L66 Addr
 //                           A6-A23    A0-A2     A3-A5
 
-// 
+//
 // fnp_util.pl1:
 //    075 tandd read
 //    076 tandd write
@@ -599,11 +599,11 @@ static void processMBX (uint iom_unit_idx, uint chan)
 //  dcl  INIT_ERROR fixed bin int static options (constant) init (4);
 //  dcl  UNWIRE_STATUS fixed bin int static options (constant) init (5);
 //  dcl  MAX_STATUS fixed bin int static options (constant) init (5);
- 
+
 
 // 3.5.1 Commands Issued by Central System
 //
-// In the issuing of an order by the Central System to the Coupler, the 
+// In the issuing of an order by the Central System to the Coupler, the
 // sequence occurs:
 //
 // 1. The L66 program creates a LPW and Pcw for the Central System Connect
@@ -620,7 +620,7 @@ static void processMBX (uint iom_unit_idx, uint chan)
 //
 
 // 4.1.1.2 Transfer Control Word.
-// The transfer control word, which is pointed to by the 
+// The transfer control word, which is pointed to by the
 // mailbox word in l66 memory on Op Codes 72, 7, 76 contains
 // a starting address which applies to L6 memory an a Tally
 // of the number of 36 bit words to be transfered. The l66
@@ -689,7 +689,7 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
         // mailbox word in L66 memory on Op Codes 72, 75, 76 contains
         // a starting address which applies to L6 memory and a Tally
         // of the number of 36 bit words to be transferred. The L66
-        // memory locations to/from which the transfers occur are 
+        // memory locations to/from which the transfers occur are
         // those immediately following the location where this word
         // was obtained.
         //
@@ -718,7 +718,7 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
 
 // My understanding is that the FNP shouldn't clear the MBX PCW until
 // the bootload is complete; but the timeout in fnp_util$connect_to_dia_paged
-// is short: 
+// is short:
 //   do i = 1 to 100000 while (unspec (a_dia_pcw) = old_pcw);
 // I am going ahead and acking, but it is unclear to me what the mechanism,
 // if any, is for FNP signaling completed successful bootload.
@@ -785,10 +785,10 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
         // The contents of M seem much more reasonable, bit still don't match
         // fnp_util$setup_dump_ctl_word. The left octet should be '1', not '0';
         // bit 18 should be 0 not 1. But the offsets and tallies match exactly.
-        // Huh... Looking at 'dump_6670_control' control instead, it matches 
+        // Huh... Looking at 'dump_6670_control' control instead, it matches
         // correctly. Apparently fnp_util thinks the FNP is a 6670, not a 335.
         // I can't decipher the call path, so I don't know why; but looking at
-        // multiplexer_types.incl.pl1, I would guess that by MR12.x, all FNPs 
+        // multiplexer_types.incl.pl1, I would guess that by MR12.x, all FNPs
         // were 6670s.
         //
         // So:

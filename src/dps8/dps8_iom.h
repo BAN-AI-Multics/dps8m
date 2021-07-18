@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #ifdef IO_THREADZ
@@ -17,7 +17,7 @@ extern __thread uint this_chan_num;
 //extern __thread bool thisIOMHaveLock;
 #endif
 
-//typedef enum 
+//typedef enum
   //{
     //cm_LPW_init_state, // No TDCWs encountered; state is:
                        ////    PCW64 (pcw64_pge): on   PAGE CHAN
@@ -45,7 +45,7 @@ typedef volatile struct
 // scratch pad
 
     // packed LPW
-    word36 LPW; 
+    word36 LPW;
     // unpacked LPW
     word18 LPW_DCW_PTR;
     word1 LPW_18_RES;
@@ -63,7 +63,7 @@ typedef volatile struct
     word18 LPWX_SIZE;  // MOD 1 (pg B16) 0-2^18
 
 // PCW_63_PTP indicates paging mode; indicates that a page table
-// is available. 
+// is available.
 // XXX pg B11: cleared by a terminate interrupt service with the
 // character size bit of the transaction command = 1. (bit 32)
 // what is the 'transaction command.?
@@ -84,7 +84,7 @@ typedef volatile struct
     word36 DCW;
     // unpacked DCW
     // TDCW only
-    word18 TDCW_DATA_ADDRESS; 
+    word18 TDCW_DATA_ADDRESS;
     word1  TDCW_34_RES;
     word1  TDCW_35_REL;
     // TDCW, PCW 64 = 0
@@ -100,7 +100,7 @@ typedef volatile struct
     word1  IDCW_EC;
     word2  IDCW_CONTROL; // 0 terminate, 2 process, 3 marker
     word6  IDCW_CHAN_CMD;
-    word6  IDCW_COUNT; 
+    word6  IDCW_COUNT;
     // DDCW only
     /*word18*/ uint DDCW_ADDR; // Allow overflow detection
     word12 DDCW_TALLY;
@@ -128,14 +128,14 @@ typedef volatile struct
 //  iom_list_service and/or doPayloadChannel would have to know the
 //  word or sub-word functionality of the channel. But it would
 //  be simpler to let the device handler just access the CP data,
-//  and make it's own decisions about "zeros". After all, it is 
+//  and make it's own decisions about "zeros". After all, it is
 //  not clear what a non-zero CP means for a word channel.]
 //
 // For sub-word channels which depent on IOM Central for packing and
 // unpacking words, [IOM Central uses and updates the CP to access
 // sub-words].
 //
-//  [CAC: Again, I think that this can be elided. It is simpler to 
+//  [CAC: Again, I think that this can be elided. It is simpler to
 //  to have the device handler pack and unpack.]
 //
 
@@ -165,7 +165,7 @@ typedef volatile struct
     word36 PTW_LPW;  // pg B6.
 
 // pg b11 defines two PTW flags to indicate the validity of the
-// PTW_DCW and PTW_LPW; it is simpler to simply always fetch 
+// PTW_DCW and PTW_LPW; it is simpler to simply always fetch
 // the PTWs on demand.
 
 //  flag
@@ -204,9 +204,9 @@ extern iom_chan_data_t iom_chan_data [N_IOM_UNITS_MAX] [MAX_CHANNELS];
 extern DEVICE iom_dev;
 
 // Indirect data service data type
-typedef enum 
-  {   
-    idsTypeW36  // Incoming data is array of word36 
+typedef enum
+  {
+    idsTypeW36  // Incoming data is array of word36
   } idsType;
 
 typedef enum
@@ -246,16 +246,16 @@ typedef struct pcw_t
     // Word 2
     uint chan;       // 6 bits; bits 3..8 of word 2
     uint ptPtr;        // 18 bits; bits 9..26 of word 2
-    uint ptp;    // 1 bit; bit 27 of word 2 
+    uint ptp;    // 1 bit; bit 27 of word 2
     uint pcw64_pge;    // 1 bit; bit 28 of word 2
     uint aux;    // 1 bit; bit 29 of word 2
   } pcw_t;
 #endif
 
-#define IOM_MBX_LPW	0
-#define IOM_MBX_LPWX	1
-#define IOM_MBX_SCW	2
-#define IOM_MBX_DCW	3
+#define IOM_MBX_LPW     0
+#define IOM_MBX_LPWX    1
+#define IOM_MBX_SCW     2
+#define IOM_MBX_DCW     3
 
 /* From AN70-1 May84
  *  ... The IOM determines an interrupt
@@ -267,7 +267,7 @@ typedef struct pcw_t
  * 2 - marker
  * 3 - special
  *
- * The low order three bits determines the IOM and IOM channel 
+ * The low order three bits determines the IOM and IOM channel
  * group.
  *
  * 0 - IOM 0 channels 32-63
@@ -297,7 +297,7 @@ enum iomImwPics
 
 int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic);
 
-int send_special_interrupt (uint iom_unit_idx, uint chanNum, uint devCode, 
+int send_special_interrupt (uint iom_unit_idx, uint chanNum, uint devCode,
                             word8 status0, word8 status1);
 //
 // iom_cmd_t returns:
@@ -308,11 +308,11 @@ int send_special_interrupt (uint iom_unit_idx, uint chanNum, uint devCode,
 //  3; command pending, don't sent terminate interrupt
 // -1: error
 
-#define IOM_CMD_OK	0
+#define IOM_CMD_OK      0
 #define IOM_CMD_IGNORED 1
-#define IOM_CMD_NO_DCW	2
+#define IOM_CMD_NO_DCW  2
 #define IOM_CMD_PENDING 3
-#define IOM_CMD_ERROR	-1
+#define IOM_CMD_ERROR   -1
 
 typedef int iom_cmd_t (uint iom_unit_idx, uint chan);
 int iom_list_service (uint iom_unit_idx, uint chan,

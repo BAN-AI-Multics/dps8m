@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #include <stdio.h>
@@ -16,6 +16,10 @@
 #include <netdb.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+
+#ifdef __sun__
+#include <strings.h>
+#endif /* __sun__ */
 
 #include "dps8.h"
 #include "dps8_socket_dev.h"
@@ -41,12 +45,12 @@ static struct {
 
 static struct
   {
-    int fd_unit[N_FDS]; // unit number that a FD is associated with; -1 is free.   
-    word6 fd_dev_code[N_FDS]; // dev_code that a FD is associated with; -1 is free.   
+    int fd_unit[N_FDS]; // unit number that a FD is associated with; -1 is free.
+    word6 fd_dev_code[N_FDS]; // dev_code that a FD is associated with; -1 is free.
     bool fd_nonblock[N_FDS]; // socket() call had NON_BLOCK set
     struct
       {
-        enum 
+        enum
           {
             unit_idle = 0,
             unit_accept,
@@ -62,14 +66,14 @@ static struct
 
 #define N_SKC_UNITS 64 // default
 
-static t_stat sk_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, 
+static t_stat sk_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                               UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Number of socket units in system is %d\n", skc_dev.numunits);
     return SCPE_OK;
   }
 
-static t_stat sk_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, 
+static t_stat sk_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
                              const char * cptr, UNUSED void * desc)
   {
     if (! cptr)
@@ -250,7 +254,7 @@ sim_printf ("socket() type EPROTOTYPE\n");
 sim_printf ("socket() protocol EPROTONOSUPPORT\n");
         _errno = EPROTONOSUPPORT;
       }
-    else 
+    else
       {
         fd = socket ((int) buffer[0], (int) buffer[1], (int) buffer[2]);
 sim_printf ("socket() returned %d\n", fd);
@@ -285,7 +289,7 @@ sim_printf ("errno %d\n", errno);
 static void skt_gethostbyname (word36 * buffer)
   {
 // dcl 1 SOCKETDEV_gethostbyname_data aligned,
-//       2 name char varying (255),  
+//       2 name char varying (255),
 //       3 addr fixed uns bin (32),
 //       3 errno char(8);
 //
@@ -344,7 +348,7 @@ sim_printf ("addr %08x\n", addr);
         addr = ntohl (addr);
 sim_printf ("addr %08x\n", addr);
         buffer[65] = ((word36) addr) << 4;
-        // Get the octets in the right order 
+        // Get the octets in the right order
         //putbits36_8 (& buffer[65],  0, (word8) (((unsigned char) (hostent->h_addr_list[0][0])) & 0xff));
         //putbits36_8 (& buffer[65],  8, (word8) (((unsigned char) (hostent->h_addr_list[0][1])) & 0xff));
         //putbits36_8 (& buffer[65], 16, (word8) (((unsigned char) (hostent->h_addr_list[0][2])) & 0xff));
@@ -439,7 +443,7 @@ static void skt_listen (uint unit_idx, word6 dev_code, word36 * buffer)
 //       3 backlog fixed bin, // 1
 //       2 rc fixed bin;      // 2
 //       2 errno char(8);   // 3, 4
-// 
+//
 // /* Tally 5 */
 // /* In: */
 // /*   sockfd */
@@ -474,6 +478,7 @@ sim_printf ("listen() setsockopt returned %d\n", rc);
         goto done;
       }
 
+#ifdef FIONBIO
     rc = ioctl (socket_fd, FIONBIO, (char *) & on);
 sim_printf ("listen() ioctl returned %d\n", rc);
     if (rc < 0)
@@ -481,6 +486,7 @@ sim_printf ("listen() ioctl returned %d\n", rc);
         _errno = errno;
         goto done;
       }
+#endif
 
     rc = listen (socket_fd, backlog);
 sim_printf ("listen() returned %d\n", rc);
@@ -529,7 +535,7 @@ static void skt_close (uint unit_idx, word6 dev_code, word36 * buffer)
 //       2 sockfd fixed bin,  // 0
 //       2 rc fixed bin,      // 1
 //       2 errno char(8);     // 2, 3
-// 
+//
 // /* Tally 4 */
 // /* In: */
 // /*   sockfd */
@@ -644,7 +650,7 @@ sim_printf ("write8() socket doesn't belong to us\n");
       }
 
    // Tally is at most 4096, so buffer words is at most 4096 - 5 => 4091
-   // count (4 chars/word) is at most 4091 * 4 
+   // count (4 chars/word) is at most 4091 * 4
     word36 count36 = buffer[1];
     if (count36 > (4091 * 4))
       {
@@ -652,7 +658,7 @@ sim_printf ("write8() socket doesn't belong to us\n");
         return IOM_CMD_ERROR;
       }
     uint count = (uint) count36;
- 
+
     uint count_words = (count + 3) / 4;
     if ((count_words + 5) > tally)
       {
@@ -961,7 +967,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
 
             iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                        & words_processed, true);
-	  return rc;
+          return rc;
           }
           break;
 
@@ -1042,9 +1048,9 @@ static void do_try_accept (uint unit_idx, word6 dev_code)
       }
     word36 buffer [7];
     // sign extend int into word36
-    buffer[0] = ((word36) ((word36s) sk_data.unit_data[unit_idx][dev_code].accept_fd)) & MASK36; 
-    buffer[1] = ((word36) ((word36s) fd)) & MASK36; 
-    buffer[2] = ((word36) ((word36s) from.sin_family)) & MASK36; 
+    buffer[0] = ((word36) ((word36s) sk_data.unit_data[unit_idx][dev_code].accept_fd)) & MASK36;
+    buffer[1] = ((word36) ((word36s) fd)) & MASK36;
+    buffer[2] = ((word36) ((word36s) from.sin_family)) & MASK36;
     uint16_t port = ntohs (from.sin_port);
     putbits36_16 (& buffer[3], 0, port);
     uint32_t addr = ntohl (from.sin_addr.s_addr);
@@ -1080,9 +1086,9 @@ static void do_try_read (uint unit_idx, word6 dev_code)
       }
 
     // sign extend int into word36
-    buffer[0] = ((word36) ((word36s) sk_data.unit_data[unit_idx][dev_code].read_fd)) & MASK36; 
-    buffer[1] = ((word36) (sk_data.unit_data[unit_idx][dev_code].read_buffer_sz)) & MASK36; 
-    buffer[2] = ((word36) ((word36s) nread)) & MASK36; 
+    buffer[0] = ((word36) ((word36s) sk_data.unit_data[unit_idx][dev_code].read_fd)) & MASK36;
+    buffer[1] = ((word36) (sk_data.unit_data[unit_idx][dev_code].read_buffer_sz)) & MASK36;
+    buffer[2] = ((word36) ((word36s) nread)) & MASK36;
     set_error (& buffer[3], _errno);
 
     for (ssize_t n = 0; n < nread; n ++)

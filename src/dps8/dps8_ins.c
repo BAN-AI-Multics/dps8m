@@ -9,7 +9,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //#define ISOLTS_BITNO
@@ -43,6 +43,8 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
 #endif
+
+#include "ver.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -104,10 +106,10 @@ static void writeOperands (void)
         //
 
 #ifdef LOCKLESS
-	word36 tmpdata;
-	core_read(cpu.char_word_address, &tmpdata, __func__);
-	if (tmpdata != cpu.ou.character_data)
-	  sim_warn("write char: data changed from %llo to %llo at %o\n", cpu.ou.character_data, tmpdata, cpu.char_word_address);
+        word36 tmpdata;
+        core_read(cpu.char_word_address, &tmpdata, __func__);
+        if (tmpdata != cpu.ou.character_data)
+          sim_warn("write char: data changed from %llo to %llo at %o\n", cpu.ou.character_data, tmpdata, cpu.char_word_address);
 #endif
 
         switch (cpu.ou.characterOperandSize)
@@ -128,8 +130,8 @@ static void writeOperands (void)
         PNL (cpu.prepare_state |= ps_SAW);
 
 #ifdef LOCKLESSXXX
-	// gives warnings as another lock is aquired in between
-	core_write_unlock (cpu.char_word_address, cpu.ou.character_data, __func__);
+        // gives warnings as another lock is aquired in between
+        core_write_unlock (cpu.char_word_address, cpu.ou.character_data, __func__);
 #else
         Write (cpu.ou.character_address, cpu.ou.character_data, OPERAND_STORE);
 #endif
@@ -276,28 +278,28 @@ static void read_tra_op (void)
                __func__, cpu.PPR.PSR, cpu.PPR.IC);
     if (cpu.PPR.IC & 1)
       {
-	cpu.cu.IWB   = cpu.CY;
-	cpu.cu.IRODD = cpu.CY;
+        cpu.cu.IWB   = cpu.CY;
+        cpu.cu.IRODD = cpu.CY;
       }
     else
       {
-	cpu.cu.IWB   = cpu.Ypair[0];
-	cpu.cu.IRODD = cpu.Ypair[1];
+        cpu.cu.IWB   = cpu.Ypair[0];
+        cpu.cu.IRODD = cpu.Ypair[1];
       }
   }
 
 static void dump_words (word36 * words)
   {
     sim_debug (DBG_FAULT, & cpu_dev, "CU: P %d IR %#o PSR %0#o IC %0#o TSR %0#o\n",
-	       getbits36_1  (words[0], 18), getbits36_18 (words[4], 18),
-	       getbits36_15 (words[0], 3), getbits36_18 (words[4], 0),  getbits36_15 (words[2], 3));
+               getbits36_1  (words[0], 18), getbits36_18 (words[4], 18),
+               getbits36_15 (words[0], 3), getbits36_18 (words[4], 0),  getbits36_15 (words[2], 3));
     sim_debug (DBG_FAULT, & cpu_dev, "CU: xsf %d rf %d rpt %d rd %d rl %d pot %d xde %d xdo %d itp %d rfi %d its %d fif %d hold %0#o\n",
-	       getbits36_1  (words[0], 19),
+               getbits36_1  (words[0], 19),
                getbits36_1  (words[5], 18), getbits36_1  (words[5], 19), getbits36_1  (words[5], 20), getbits36_1  (words[5], 21),
-	       getbits36_1  (words[5], 22), getbits36_1  (words[5], 24), getbits36_1  (words[5], 25), getbits36_1  (words[5], 26),
-	       getbits36_1  (words[5], 27), getbits36_1  (words[5], 28), getbits36_1  (words[5], 29), getbits36_6  (words[5], 30));
+               getbits36_1  (words[5], 22), getbits36_1  (words[5], 24), getbits36_1  (words[5], 25), getbits36_1  (words[5], 26),
+               getbits36_1  (words[5], 27), getbits36_1  (words[5], 28), getbits36_1  (words[5], 29), getbits36_6  (words[5], 30));
     sim_debug (DBG_FAULT, & cpu_dev, "CU: iwb %012"PRIo64" irodd %012"PRIo64"\n",
-	       words[6], words[7]);
+               words[6], words[7]);
   }
 
 static void scu2words (word36 *words)
@@ -450,74 +452,74 @@ static void scu2words (word36 *words)
 //sim_printf ("scu2words %lld %012llo\n", cpu.cycleCnt, words [6]);
 
     if_sim_debug (DBG_FAULT, & cpu_dev)
-	dump_words (words);
+        dump_words (words);
 
 #ifdef ISOLTS
     if (current_running_cpu_idx != 0)
       {
-	struct
-	{
-	  word36 should_be[8];
-	  word36 was[8];
-	  char *name;
-	}
-	rewrite_table[] =
-	  {
-	    { { 0000001400021, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000500, 0110015011000, 0110015011000 },
-	      { 0000001400011, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000100, 0110015011000, 0110015011000 },
-	      "pa865 test-03a inhibit", //                                                           rfi
-	    },
-	    { { 0000000401001, 0000000000041, 0000001000100, 0000000000000, 0101175000220, 0000006000000, 0100006235100, 0100006235100 },
-	      { 0000000601001, 0000000000041, 0000001000100, 0000000000000, 0101175000220, 0000006000000, 0100006235100, 0100006235100 },
-	      "pa870 test-01a dir. fault",
-	    },
-	    { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000003000000, 0200003716100, 0000005755000 },
-	      { 0000000651001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000003000000, 0200003716100, 0000005755000 },
-	      "pa885 test-05a xec inst",
-	    },
-	    { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000002000000, 0200002717100, 0110002001000 },
-	      { 0000000651001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000002000000, 0200002717100, 0110002001000 },
-	      "pa885 test-05b xed inst",
-	    },
-	    { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004004000, 0200004235100, 0000005755000 },
-	      { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004002000, 0200004235100, 0000005755000 },
-	      "pa885 test-05c xed inst", //                                                         xde/xdo
+        struct
+        {
+          word36 should_be[8];
+          word36 was[8];
+          char *name;
+        }
+        rewrite_table[] =
+          {
+            { { 0000001400021, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000500, 0110015011000, 0110015011000 },
+              { 0000001400011, 0000000000011, 0000001000100, 0000000000000, 0000016400000, 0110015000100, 0110015011000, 0110015011000 },
+              "pa865 test-03a inhibit", //                                                           rfi
+            },
+            { { 0000000401001, 0000000000041, 0000001000100, 0000000000000, 0101175000220, 0000006000000, 0100006235100, 0100006235100 },
+              { 0000000601001, 0000000000041, 0000001000100, 0000000000000, 0101175000220, 0000006000000, 0100006235100, 0100006235100 },
+              "pa870 test-01a dir. fault",
+            },
+            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000003000000, 0200003716100, 0000005755000 },
+              { 0000000651001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000003000000, 0200003716100, 0000005755000 },
+              "pa885 test-05a xec inst",
+            },
+            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000002000000, 0200002717100, 0110002001000 },
+              { 0000000651001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000002000000, 0200002717100, 0110002001000 },
+              "pa885 test-05b xed inst",
+            },
+            { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004004000, 0200004235100, 0000005755000 },
+              { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000000200200, 0000004002000, 0200004235100, 0000005755000 },
+              "pa885 test-05c xed inst", //                                                         xde/xdo
             },
             { { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004006000, 0200004235100, 0000005755000 },
               { 0000000451001, 0000000000041, 0000001000100, 0000000000000, 0000001200200, 0000004002000, 0200004235100, 0000005755000 },
-	      "pa885 test-05d xed inst", //                                                         xde/xdo
+              "pa885 test-05d xed inst", //                                                         xde/xdo
             },
             { { 0000000454201, 0000000000041, 0000000000100, 0000000000000, 0001777200200, 0002000000500, 0005600560201, 0005600560201 },
               { 0000000450201, 0000000000041, 0000000000100, 0000000000000, 0001777200200, 0002000000000, 0005600560201, 0005600560201 },
-	      "pa885 test-06a rpd inst", //                                                         rfi/fif
+              "pa885 test-06a rpd inst", //                                                         rfi/fif
             },
             { { 0000000451001, 0000000000041, 0000001000101, 0000000000000, 0002000200200, 0000003500001, 0200003235111, 0002005755012 },
               { 0000000651001, 0000000000041, 0000001000101, 0000000000000, 0002000202200, 0000003500000, 0200003235111, 0002005755012 },
-	      "pa885 test-06b rpd inst", //                                          tro               ct-hold
+              "pa885 test-06b rpd inst", //                                          tro               ct-hold
             },
             { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776200200, 0002015500001, 0002015235031, 0002017755032 },
               { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776202200, 0002015500000, 0002015235031, 0002017755032 },
-	      "pa885 test-06c rpd inst", //                                          tro               ct-hold
+              "pa885 test-06c rpd inst", //                                          tro               ct-hold
             },
             { { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776000200, 0002000100012, 0001775235011, 0001775755012 },
               { 0000000450201, 0000000000041, 0000000000101, 0000000000000, 0001776000200, 0002000100000, 0001775235011, 0001775755012 },
-	      "pa885 test-06d rpd inst", //                                                            ct-hold
-	    },
-	    { { 0000000404202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000500, 0001773755000, 0001773755000 },
-	      { 0000000400202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000100, 0001773755000, 0001773755000 },
-	      "pa885 test-10a scu snap (acv fault)", //                                              rfi
-	    }
-	  };
-	int i;
-	for (i=0; i < 11; i++)
-	  {
-	    if (memcmp (words, rewrite_table[i].was, 8*sizeof (word36)) == 0)
-	      {
-		memcpy (words, rewrite_table[i].should_be, 8*sizeof (word36));
-		sim_warn("%s: scu rewrite %d: %s\n", __func__, i, rewrite_table[i].name);
-		break;
-	      }
-	  }
+              "pa885 test-06d rpd inst", //                                                            ct-hold
+            },
+            { { 0000000404202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000500, 0001773755000, 0001773755000 },
+              { 0000000400202, 0000000000041, 0000000000100, 0000000000000, 0002000202200, 0002000000100, 0001773755000, 0001773755000 },
+              "pa885 test-10a scu snap (acv fault)", //                                              rfi
+            }
+          };
+        int i;
+        for (i=0; i < 11; i++)
+          {
+            if (memcmp (words, rewrite_table[i].was, 8*sizeof (word36)) == 0)
+              {
+                memcpy (words, rewrite_table[i].should_be, 8*sizeof (word36));
+                sim_warn("%s: scu rewrite %d: %s\n", __func__, i, rewrite_table[i].name);
+                break;
+              }
+          }
       }
 #endif
 
@@ -855,12 +857,12 @@ static char *PRalias[] = {"ap", "ab", "bp", "bb", "lp", "lb", "sp", "sb" };
 static bool _nodudl[] = {
     // Tm = 0 (register) R
     // --   au     qu     du     ic     al     ql     dl
-    false, false, false, true,  false, false, false, true, 
+    false, false, false, true,  false, false, false, true,
     // 0      1      2      3      4      5      6      7
      false, false, false, false, false, false, false, false,
     // Tm = 1 (register then indirect) RI
     // n*  au*    qu*    --     ic*    al*    al*    --
-    false, false, false, true, false, false, false, true, 
+    false, false, false, true, false, false, false, true,
     // 0*     1*     2*     3*     4*     5*     6*     7*
     false, false, false, false, false, false, false, false,
     // Tm = 2 (indirect then tally) IT
@@ -870,7 +872,7 @@ static bool _nodudl[] = {
     false, false, false, false, false, false, false, false,
     // Tm = 3 (indirect then register) IR
     // *n   *au    *qu    --     *ic   *al    *al    --
-    false, false, false, true, false, false, false, true, 
+    false, false, false, true, false, false, false, true,
     // *0     *1     *2     *3     *4     *5     *6     *7
     false, false, false, false, false, false, false, false,
 };
@@ -913,7 +915,7 @@ static bool _noddcss[] = {
     false, false, false, false, false, false, false, false,
     // Tm = 1 (register then indirect) RI
     // n*  au*    qu*    --     ic*    al*    al*    --
-    false, false, false, true, false, false, false, true, 
+    false, false, false, true, false, false, false, true,
     // 0*     1*     2*     3*     4*     5*     6*     7*
     false, false, false, false, false, false, false, false,
     // Tm = 2 (indirect then tally) IT
@@ -955,12 +957,12 @@ static bool _nodlcss[] = {
 static bool _onlyaqxn[] = {
     // Tm = 0 (register) R
     // --   au     qu     du     ic     al     ql     dl
-    false, false, false, true,  true, false, false, true, 
+    false, false, false, true,  true, false, false, true,
     // 0      1      2      3      4      5      6      7
      false, false, false, false, false, false, false, false,
     // Tm = 1 (register then indirect) RI
     // n*  au*    qu*    --     ic*    al*    al*    --
-    false, false, false, true, false, false, false, true, 
+    false, false, false, true, false, false, false, true,
     // 0*     1*     2*     3*     4*     5*     6*     7*
     false, false, false, false, false, false, false, false,
     // Tm = 2 (indirect then tally) IT
@@ -970,7 +972,7 @@ static bool _onlyaqxn[] = {
     false, false, false, false, false, false, false, false,
     // Tm = 3 (indirect then register) IR
     // *n   *au    *qu    --     *ic   *al    *al    --
-    false, false, false, true, false, false, false, true, 
+    false, false, false, true, false, false, false, true,
     // *0     *1     *2     *3     *4     *5     *6     *7
     false, false, false, false, false, false, false, false,
 };
@@ -984,7 +986,7 @@ static bool _illmod[] = {
     false, false, false, false, false, false, false, false,
     // Tm = 1 (register then indirect) RI
     // n*  au*    qu*    --     ic*    al*    al*    --
-    false, false, false, true, false, false, false, true, 
+    false, false, false, true, false, false, false, true,
     // 0*     1*     2*     3*     4*     5*     6*     7*
     false, false, false, false, false, false, false, false,
     // Tm = 2 (indirect then tally) IT
@@ -1100,20 +1102,20 @@ void fetchInstruction (word18 addr)
         if (cpu.cu.repeat_first)
           {
             CPT (cpt2U, 11); // fetch rpt even
-	    if (addr & 1)
-	      Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
-	    else
-	      {
-		word36 tmp[2];
-		Read2 (addr, tmp, INSTRUCTION_FETCH);
-		cpu.cu.IWB = tmp[0];
-		cpu.cu.IRODD = tmp[1];
-	      }
+            if (addr & 1)
+              Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+            else
+              {
+                word36 tmp[2];
+                Read2 (addr, tmp, INSTRUCTION_FETCH);
+                cpu.cu.IWB = tmp[0];
+                cpu.cu.IRODD = tmp[1];
+              }
           }
       }
     else
       {
-        CPT (cpt2U, 12); // fetch 
+        CPT (cpt2U, 12); // fetch
 // ISOLTS test pa870 expects IRODD to be set up.
 // If we are fetching an even instruction, also fetch the odd.
 // If we are fetching an odd instruction, copy it to IRODD as
@@ -1129,7 +1131,7 @@ void fetchInstruction (word18 addr)
         else // Odd
           {
             Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
-            cpu.cu.IRODD = cpu.cu.IWB; 
+            cpu.cu.IRODD = cpu.cu.IWB;
           }
       }
 }
@@ -1272,7 +1274,7 @@ bool chkOVF (void)
       }
     return true;
   }
-    
+
 bool tstOVFfault (void)
   {
     // Masked?
@@ -1298,7 +1300,7 @@ t_stat executeInstruction (void)
 #ifdef TRACKER
     trk (cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
 #endif
-    CPT (cpt2U, 13); // execute instruction 
+    CPT (cpt2U, 13); // execute instruction
 
 //
 // Decode the instruction
@@ -1399,7 +1401,7 @@ t_stat executeInstruction (void)
     if (unlikely (cpu.MR.emr && cpu.MR.OC_TRAP))
       {
         if (cpu.MR.OPCODE == opcode &&
-            cpu.MR.OPCODEX == opcodeX) 
+            cpu.MR.OPCODEX == opcodeX)
           {
             if (cpu.MR.ihrrs)
               {
@@ -1488,7 +1490,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF)
                  "XEC of RPx on even word");
     }
 
-    // ISOLTS wants both the not allowed in RPx and RPx illegal modifier 
+    // ISOLTS wants both the not allowed in RPx and RPx illegal modifier
     // tested.
     fault_ipr_subtype_ RPx_fault = 0;
 
@@ -1569,7 +1571,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF)
         // ISOLTS 791 03d, 792 03d
         // L68 wants ILL_MOD here - stca,stcq,stba,stbq,scpr,lcpr
         // all these instructions have a nonstandard TAG field interpretation. probably a HW bug in decoder
-        if (RPx_fault && !opcodeX && (opcode==0751 || opcode==0752 || opcode==0551 
+        if (RPx_fault && !opcodeX && (opcode==0751 || opcode==0752 || opcode==0551
             || opcode==0552 || opcode==0452 || opcode==0674))
           {
             RPx_fault |= FR_ILL_MOD;
@@ -1636,7 +1638,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF)
 #ifdef DPS8M
         // DPS8M illegal instructions lptp,lptr,lsdp,lsdr
         // ISOLTS 890 05abc
-        if (((opcode == 0232 || opcode == 0173) && opcodeX ) 
+        if (((opcode == 0232 || opcode == 0173) && opcodeX )
            || (opcode == 0257))
         {
             doFault (FAULT_IPR,
@@ -1650,12 +1652,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF)
             // ISOLTS 890 05abc,06abc
 #ifdef DPS8M
             if (((opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX )
-               || ((opcode == 0254 || opcode == 0774) && opcodeX ) 
+               || ((opcode == 0254 || opcode == 0774) && opcodeX )
                || (opcode == 0557 || opcode == 0154))
 #else // L68
             // on L68, lptp,lptr,lsdp,lsdr instructions are not illegal, so handle them here
             if (((opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX )
-               || ((opcode == 0254 || opcode == 0774 || opcode == 0232 || opcode == 0173) && opcodeX ) 
+               || ((opcode == 0254 || opcode == 0774 || opcode == 0232 || opcode == 0173) && opcodeX )
                || (opcode == 0557 || opcode == 0154 || opcode == 0257))
 #endif
             {
@@ -1949,11 +1951,11 @@ first = false;
 sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n");
 }}
 #else
-	    // append cycles updates cpu.PPR.IC to TPR.CA
-	    word18 saveIC = cpu.PPR.IC;
+            // append cycles updates cpu.PPR.IC to TPR.CA
+            word18 saveIC = cpu.PPR.IC;
             Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
                   INSTRUCTION_FETCH);
-	    cpu.PPR.IC = saveIC;
+            cpu.PPR.IC = saveIC;
             //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
             //      APU_DATA_READ);
 #endif
@@ -1996,7 +1998,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 #endif
 
 // Fix tst880: 'call6 pr1|0'. The instruction does a DF1; the fault handler
-// updates PRR in the CU save data. On restart, TRR is not updated. 
+// updates PRR in the CU save data. On restart, TRR is not updated.
 // Removing the 'if' appears to resolve the problem without regressions.
             //if (!restart)
               {
@@ -2004,18 +2006,18 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
                 cpu.TPR.TBR = GET_PR_BITNO (n);
 
                 cpu.TPR.TSR = cpu.PAR[n].SNR;
-		if (ci->info->flags & TRANSFER_INS)
-		  cpu.TPR.TRR = max (cpu.PAR[n].RNR, cpu.PPR.PRR);
-		else
-		  cpu.TPR.TRR = max3 (cpu.PAR[n].RNR, cpu.TPR.TRR, cpu.PPR.PRR);
+                if (ci->info->flags & TRANSFER_INS)
+                  cpu.TPR.TRR = max (cpu.PAR[n].RNR, cpu.PPR.PRR);
+                else
+                  cpu.TPR.TRR = max3 (cpu.PAR[n].RNR, cpu.TPR.TRR, cpu.PPR.PRR);
 
                 sim_debug (DBG_APPENDING, &cpu_dev,
                            "doPtrReg: n=%o offset=%05o TPR.CA=%06o "
                            "TPR.TBR=%o TPR.TSR=%05o TPR.TRR=%o\n",
-                           n, offset, cpu.TPR.CA, cpu.TPR.TBR, 
+                           n, offset, cpu.TPR.CA, cpu.TPR.TBR,
                            cpu.TPR.TSR, cpu.TPR.TRR);
-		//                cpu.cu.XSF = 1;
-		//sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction !restart !EIS sets XSF to %o\n", cpu.cu.XSF);
+                //                cpu.cu.XSF = 1;
+                //sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction !restart !EIS sets XSF to %o\n", cpu.cu.XSF);
                 //set_went_appending ();
             }
 
@@ -2093,7 +2095,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
             CPT (cpt2L, 2); // Read operands
             readOperands ();
 #ifdef LOCKLESS
-	    cpu.rmw_address = cpu.iefpFinalAddress;
+            cpu.rmw_address = cpu.iefpFinalAddress;
 #endif
             if (cpu.cu.rl)
               {
@@ -2154,7 +2156,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
     if (WRITEOP (ci))
       {
         CPT (cpt2L, 3); // Write operands
-	cpu.last_write = cpu.TPR.CA;
+        cpu.last_write = cpu.TPR.CA;
 #ifndef REORDER
         if (! READOP (ci))
           {
@@ -2163,16 +2165,16 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
           }
 #endif
 #ifdef LOCKLESS
-	if ((ci->info->flags & RMW) == RMW)
-	  {
-	      if (operand_size() != 1)
-		  sim_warn("executeInstruction: operand_size!= 1\n");
-	      if (cpu.iefpFinalAddress != cpu.rmw_address)
-		sim_warn("executeInstruction: write addr changed %o %d\n", cpu.iefpFinalAddress, cpu.rmw_address);
-	      core_write_unlock (cpu.iefpFinalAddress, cpu.CY, __func__);
+        if ((ci->info->flags & RMW) == RMW)
+          {
+              if (operand_size() != 1)
+                  sim_warn("executeInstruction: operand_size!= 1\n");
+              if (cpu.iefpFinalAddress != cpu.rmw_address)
+                sim_warn("executeInstruction: write addr changed %o %d\n", cpu.iefpFinalAddress, cpu.rmw_address);
+              core_write_unlock (cpu.iefpFinalAddress, cpu.CY, __func__);
          }
-	else
-	  writeOperands ();
+        else
+          writeOperands ();
 #else
         writeOperands ();
 #endif
@@ -2180,7 +2182,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 
     else if (flags & PREPARE_CA)
       {
-        // 'EPP ITS; TRA' confuses the APU by leaving last_cycle 
+        // 'EPP ITS; TRA' confuses the APU by leaving last_cycle
         // at INDIRECT_WORD_FETCH; defoobarize the APU:
         fauxDoAppendCycle (OPERAND_READ);
         cpu.TPR.TRR = cpu.PPR.PRR;
@@ -2293,7 +2295,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 //
 // ISOLTS test 769 claims in test-02a that 'rpt;div' with a divide
 // fault should delay the divide fault until after the tremination
-// check (it checks that the tally should be decremented) and in test-02b 
+// check (it checks that the tally should be decremented) and in test-02b
 // that 'rpl;div' with a divide fault should not due the termination
 // check (the tally should not be decremented).
 //
@@ -2475,7 +2477,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
         {
             sim_debug (DBG_REGDUMPPR, &cpu_dev,
                        "PR%d/%s: SNR=%05o RNR=%o WORDNO=%06o BITNO:%02o ARCHAR:%o ARBITNO:%02o\n",
-                       n, PRalias[n], cpu.PR[n].SNR, cpu.PR[n].RNR, 
+                       n, PRalias[n], cpu.PR[n].SNR, cpu.PR[n].RNR,
                        cpu.PR[n].WORDNO, GET_PR_BITNO (n),
                        GET_AR_CHAR (n), GET_AR_BITNO (n));
         }
@@ -2508,7 +2510,7 @@ static inline void overflow (bool ovf, bool dly, const char * msg)
         // If overflows are not masked
         if (tstOVFfault ())
           {
-            CPT (cpt2L, 16); // overflow 
+            CPT (cpt2L, 16); // overflow
             // ISOLTS test ps768: Overflows set TRO.
             if (cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl)
               {
@@ -3318,7 +3320,7 @@ static t_stat doInstruction (void)
           Read2 (cpu.TPR.CA, cpu.Ypair, RTCD_OPERAND_FETCH);
           // RTCD always ends up in append mode.
           set_addr_mode (APPEND_mode);
-            
+
           return CONT_RET;
 
         case x0 (0604):  // tmi
@@ -3377,7 +3379,7 @@ static t_stat doInstruction (void)
 
             // upper 14-bits of lower 18-bits
 
-            // AL39 ldi says that HEX is ignored, but the mode register 
+            // AL39 ldi says that HEX is ignored, but the mode register
             // description says that it isn't
 #ifdef DPS8M
             word18 tmp18 = GETLO (cpu.CY) & 0777770;
@@ -3607,7 +3609,7 @@ static t_stat doInstruction (void)
           // is given in Table 4-5.
 
           CPTUR (cptUseIR);
-            // AL39 sti says that HEX is ignored, but the mode register 
+            // AL39 sti says that HEX is ignored, but the mode register
             // description says that it isn't
 #ifdef DPS8M
           //SETLO (cpu.CY, (cpu.cu.IR & 0000000777770LL));
@@ -3963,7 +3965,7 @@ static t_stat doInstruction (void)
           // "C(Y)25 reflects the state of the tally runout indicator
           // prior to modification.
           SETHI (cpu.CY, (cpu.PPR.IC + 1) & MASK18);
-          // AL39 stc1 says that HEX is ignored, but the mode register 
+          // AL39 stc1 says that HEX is ignored, but the mode register
           // description says that it isn't
 #ifdef DPS8M
           SETLO (cpu.CY, cpu.cu.IR & 0777770);
@@ -4948,13 +4950,13 @@ static t_stat doInstruction (void)
 #ifdef L68
           cpu.ou.cycle |= ou_GD1;
 #endif
-          // RJ78: If the dividend = -2**35 and the divisor = +/-1, or if 
+          // RJ78: If the dividend = -2**35 and the divisor = +/-1, or if
           // the divisor is 0
 
           if ((cpu.rQ == MAXNEG && (cpu.CY == 1 || cpu.CY == NEG136)) ||
               (cpu.CY == 0))
             {
-//sim_printf ("DIV Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rQ, cpu.CY); 
+//sim_printf ("DIV Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rQ, cpu.CY);
 // case 1  400000000000 000000000000 --> 000000000000
 // case 2  000000000000 000000000000 --> 400000000000
               //cpu.rA = 0;  // works for case 1
@@ -6119,7 +6121,7 @@ static t_stat doInstruction (void)
               {
                 CLRF (tempIR, I_ABS);
               }
-            
+
 
             //sim_debug (DBG_TRACEEXT, & cpu_dev,
             //           "RET NBAR was %d now %d\n",
@@ -6269,14 +6271,14 @@ static t_stat doInstruction (void)
         case x0 (0715):  // tss
           CPTUR (cptUseBAR);
           do_caf ();
-	  if (get_bar_mode ())
-	    read_tra_op ();
-	  else
-	    {
-	      cpu.TPR.CA = get_BAR_address (cpu.TPR.CA);
-	      read_tra_op ();
-	      CLR_I_NBAR;
-	    }
+          if (get_bar_mode ())
+            read_tra_op ();
+          else
+            {
+              cpu.TPR.CA = get_BAR_address (cpu.TPR.CA);
+              read_tra_op ();
+              CLR_I_NBAR;
+            }
           return CONT_TRA;
 
 // Optimized to the top of the loop
@@ -6960,13 +6962,13 @@ static t_stat doInstruction (void)
                 tmp ^= (tmp & mask) >> 1;
                 mask >>= 1;
             }
-            
+
             cpu.rA = tmp;
             HDBGRegA ();
-            
+
             SC_I_ZERO (cpu.rA == 0);  // If C(A) = 0, then ON;
                                       // otherwise OFF
-            SC_I_NEG (cpu.rA & SIGN36);   // If C(A)0 = 1, then ON; 
+            SC_I_NEG (cpu.rA & SIGN36);   // If C(A)0 = 1, then ON;
                                           // otherwise OFF
           }
           break;
@@ -7078,7 +7080,7 @@ static t_stat doInstruction (void)
                       cpu.MR.solin = getbits36_1 (cpu.CY, 19);
                       cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
                       cpu.MR.separ = getbits36_1 (cpu.CY, 21);
-// tm/vm are only set if the processor maintainence panel PROG switch is on 
+// tm/vm are only set if the processor maintainence panel PROG switch is on
 #if 1
                       cpu.MR.tm = getbits36_2 (cpu.CY, 22);
                       cpu.MR.vm = getbits36_2 (cpu.CY, 24);
@@ -7098,7 +7100,7 @@ static t_stat doInstruction (void)
                   cpu.MR.solin = getbits36_1 (cpu.CY, 19);
                   cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
                   cpu.MR.separ = getbits36_1 (cpu.CY, 21);
-// tm/vm are only set if the processor maintainence panel PROG switch is on 
+// tm/vm are only set if the processor maintainence panel PROG switch is on
 #if 1
                   cpu.MR.tm = getbits36_2 (cpu.CY, 22);
                   cpu.MR.vm = getbits36_2 (cpu.CY, 24);
@@ -7116,7 +7118,7 @@ static t_stat doInstruction (void)
 
                   // Stop HR Strobe on HR Counter Overflow. (Setting bit 28
                   // shall cause the HR counter to be reset to zero.)
-                  // CAC: It is unclear if bit 28 is edge or level 
+                  // CAC: It is unclear if bit 28 is edge or level
                   // triggered; assuming level for simplicity.
                   if (cpu.MR.hrhlt)
                     {
@@ -7124,7 +7126,7 @@ static t_stat doInstruction (void)
                          cpu.history_cyclic[hset] = 0;
                     }
 
-#if 0 
+#if 0
                   if (cpu.MR.sdpap)
                     {
                       sim_warn ("LCPR set SDPAP\n");
@@ -7142,13 +7144,13 @@ static t_stat doInstruction (void)
                 {
                   for (uint i = 0; i < N_HIST_SETS; i ++)
                     add_history_force (i, 0, 0);
-// XXX ISOLTS pm700 test-01n 
+// XXX ISOLTS pm700 test-01n
 // The test clears the history registers but with ihr & emr set, causing
 // the registers to fill with alternating 0's and lcpr instructions.
 // Set flag to prevent the LCPR from being recorded.
                     //cpu.MR.ihr = 0;
                     cpu.skip_cu_hist = true;
-                     
+
                 }
                 break;
 
@@ -7156,7 +7158,7 @@ static t_stat doInstruction (void)
                 {
                   for (uint i = 0; i < N_HIST_SETS; i ++)
                     add_history_force (i, MASK36, MASK36);
-// XXX ISOLTS pm700 test-01n 
+// XXX ISOLTS pm700 test-01n
 // The test clears the history registers but with ihr & emr set, causing
 // the registers to fill with alternating 0's and lcpr instructions.
 // Set flag to prevent the LCPR from being recorded.
@@ -7382,7 +7384,7 @@ elapsedtime ();
                         putbits36_1 (& cpu.Ypair[0], 19, cpu.MR.solin);
                         putbits36_1 (& cpu.Ypair[0], 20, cpu.MR.sdpap);
                         putbits36_1 (& cpu.Ypair[0], 21, cpu.MR.separ);
-// tm/vm are only set if the processor maintainence panel PROG switch is on 
+// tm/vm are only set if the processor maintainence panel PROG switch is on
 #if 1
                         putbits36_2 (& cpu.Ypair[0], 22, cpu.MR.tm);
                         putbits36_2 (& cpu.Ypair[0], 24, cpu.MR.vm);
@@ -7398,7 +7400,7 @@ elapsedtime ();
                     putbits36_1 (& cpu.Ypair[0], 20, cpu.MR.sdpap);
                     putbits36_1 (& cpu.Ypair[0], 21, cpu.MR.separ);
 #endif
-// tm/vm are only set if the processor maintainence panel PROG switch is on 
+// tm/vm are only set if the processor maintainence panel PROG switch is on
 #if 1
                     putbits36_2 (& cpu.Ypair[0], 22, cpu.MR.tm);
                     putbits36_2 (& cpu.Ypair[0], 24, cpu.MR.vm);
@@ -7440,7 +7442,7 @@ elapsedtime ();
                     putbits36_1 (& cpu.Ypair[1], 61 - 36, cpu.CMR.col_ful);
                     putbits36_2 (& cpu.Ypair[1], 62 - 36, cpu.CMR.rro_AB);
 #ifdef DPS8M
-                    putbits36_1 (& cpu.Ypair[1], 68 - 36, 
+                    putbits36_1 (& cpu.Ypair[1], 68 - 36,
                                  cpu.CMR.bypass_cache);
 #endif
                     putbits36_2 (& cpu.Ypair[1], 70 - 36, cpu.CMR.luf);
@@ -7491,7 +7493,7 @@ elapsedtime ();
                     cpu.Ypair[0] =
                       cpu.history[DU_OU_HIST_REG]
                                  [cpu.history_cyclic[DU_OU_HIST_REG]][0];
-                    cpu.Ypair[1] = 
+                    cpu.Ypair[1] =
                      cpu.history[DU_OU_HIST_REG]
                                  [cpu.history_cyclic[DU_OU_HIST_REG]][1];
                     cpu.history_cyclic[DU_OU_HIST_REG] =
@@ -7501,7 +7503,7 @@ elapsedtime ();
                     cpu.Ypair[0] =
                       cpu.history[OU_HIST_REG]
                                  [cpu.history_cyclic[OU_HIST_REG]][0];
-                    cpu.Ypair[1] = 
+                    cpu.Ypair[1] =
                       cpu.history[OU_HIST_REG]
                                  [cpu.history_cyclic[OU_HIST_REG]][1];
                     cpu.history_cyclic[OU_HIST_REG] =
@@ -7549,7 +7551,7 @@ elapsedtime ();
             CPTUR (cptUseDSBR);
             // C(DSBR.ADDR) -> C(Y-pair) 0,23
             // 00...0 -> C(Y-pair) 24,36
-            cpu.Ypair[0] = ((word36) (cpu.DSBR.ADDR & PAMASK)) << (35 - 23); 
+            cpu.Ypair[0] = ((word36) (cpu.DSBR.ADDR & PAMASK)) << (35 - 23);
 
             // C(DSBR.BOUND) -> C(Y-pair) 37,50
             // 0000 -> C(Y-pair) 51,54
@@ -7595,7 +7597,7 @@ elapsedtime ();
                     parity = parity ^ (parity >>16);
                     parity = parity ^ (parity >> 8);
                     parity = parity ^ (parity >> 4);
-                    parity = ~ (0x6996u >> (parity & 0xf)); 
+                    parity = ~ (0x6996u >> (parity & 0xf));
                 }
                 putbits36_1 (& cpu.Yblock16[j], 23, (word1) (parity & 1));
 #endif
@@ -7603,7 +7605,7 @@ elapsedtime ();
                 putbits36_12 (& cpu.Yblock16[j], 15,
                            cpu.PTWAM[toffset + j].PAGENO);
 #endif
-                putbits36_1 (& cpu.Yblock16[j], 27, 
+                putbits36_1 (& cpu.Yblock16[j], 27,
                            cpu.PTWAM[toffset + j].FE);
 #ifdef DPS8M
                 putbits36_6 (& cpu.Yblock16[j], 30,
@@ -7722,7 +7724,7 @@ elapsedtime ();
                     //parity = parity ^ (parity >>16);
                     parity = parity ^ (parity >> 8);
                     parity = parity ^ (parity >> 4);
-                    parity = ~ (0x6996u >> (parity & 0xf)); 
+                    parity = ~ (0x6996u >> (parity & 0xf));
                 }
                 putbits36_1 (& cpu.Yblock16[j], 15, (word1) (parity & 1));
 
@@ -7993,9 +7995,9 @@ elapsedtime ();
           {
             // For the rscr instruction, the first 2 (DPS8M) or 3 (L68) bits of
             // the addr field of the instruction are used to specify which SCU.
-            // (2 bits for the DPS8M. (Expect for x6x and x7x below, where 
+            // (2 bits for the DPS8M. (Expect for x6x and x7x below, where
             // the selected SCU is the one holding the addressed memory).
-            
+
             // According to DH02:
             //   XXXXXX0X  SCU Mode Register (Level 66 only)
             //   XXXXXX1X  Configuration switches
@@ -8111,13 +8113,7 @@ elapsedtime ();
 //           Bit 5=1 RSCR (Clock) is Slave Mode included
 //           Bits 6-7 Reserved for later use.
 //       50: Operating System Use
-
-                unsigned char PROM[1024];
-                memset (PROM, 0, sizeof (PROM));
-                sprintf ((char *) PROM, "%13s%13d%8s",
-                  "DPS8/70M Emul",  //  0-12 CPU Model number
-                  cpu.switches.serno, // 13-25 CPU Serial number
-                  "20160304");      // 26-33 Ship date (YYMMDD)
+#include "dps8_prom.h"
                 word36 tmp = 0;
                 tmp |= (word36) ((cpu.switches.interlace[0] == 2 ? 1LL : 0LL)
                        << (35- 0));
@@ -8127,36 +8123,36 @@ elapsedtime ();
                        << (35- 2));
                 tmp |= (word36) ((cpu.switches.interlace[3] == 2 ? 1LL : 0LL)
                        << (35- 3));
-                tmp |= (word36) ((01L)  /* 0b01 DPS8M */                         
+                tmp |= (word36) ((01L)  /* 0b01 DPS8M */
                        << (35- 5));
-                tmp |= (word36) ((cpu.switches.FLT_BASE & 0177LL)             
+                tmp |= (word36) ((cpu.switches.FLT_BASE & 0177LL)
                        << (35-12));
-                tmp |= (word36) ((01L) /* 0b1 ID_PROM installed */               
+                tmp |= (word36) ((01L) /* 0b1 ID_PROM installed */
                        << (35-13));
                 tmp |= (word36) ((00L) /* 0b0000 */
                        << (35-17));
-                //tmp |= (word36) ((0b111L)                                   
+                //tmp |= (word36) ((0b111L)
                        //<< (35-20));
                 // According to rsw.incl.pl1, Multics ignores this bit.
                 tmp |= (word36) ((00L) // 0b0 BCD option off
                        << (35-18));
                 tmp |= (word36) ((01L) // 0b1 DPS option
                        << (35-19));
-                tmp |= (word36) ((cpu.switches.disable_cache ? 0 : 1)  //8K cache 
+                tmp |= (word36) ((cpu.switches.disable_cache ? 0 : 1)  //8K cache
                        << (35-20));
                 tmp |= (word36) ((00L) // 0b00
                        << (35-22));
                 tmp |= (word36) ((01L)  /* 0b1 DPS8M */
                        << (35-23));
-                tmp |= (word36) ((cpu.switches.proc_mode & 01LL)              
+                tmp |= (word36) ((cpu.switches.proc_mode & 01LL)
                        << (35-24));
                 tmp |= (word36) ((00L) // 0b0
                        << (35-25)); // new product line (CPL/NPL)
                 tmp |= (word36) ((0L) // 0b000
                        << (35-28));
-                tmp |= (word36) ((cpu.switches.proc_speed & 017LL)            
+                tmp |= (word36) ((cpu.switches.proc_speed & 017LL)
                        << (35-32));
-                tmp |= (word36) ((cpu.switches.cpu_num & 07LL)                
+                tmp |= (word36) ((cpu.switches.cpu_num & 07LL)
                        << (35-35));
                 // 36: bits 00-07
                 PROM[36] = getbits36_8 (tmp, 0);
@@ -8167,7 +8163,7 @@ elapsedtime ();
                 // 39: bits 24-31
                 PROM[39] = getbits36_8 (tmp, 24);
                 // 40: bits 32-35
-                // 40: bits 0-3: bits 32-35 of RSW 2 field 
+                // 40: bits 0-3: bits 32-35 of RSW 2 field
                 //     (this is dps8m, so only 32 is always 0)
                 //            4: hex option
                 //            5: RSCR clock is slave
@@ -8176,7 +8172,7 @@ elapsedtime ();
                    // | 0100  // hex option
                    // | 0040  // clock is slave
                   ;
-                            
+
                 cpu.rA = PROM[cpu.TPR.CA & 1023];
                 break;
               }
@@ -8306,7 +8302,7 @@ elapsedtime ();
 //
 // /* Set the A register to reflect switch info. */
 //                          mc.regs.a =
-// 
+//
 // /* (A-reg bits) */
 // /* (0-3) Port address expansion option:           */ (4)"0"b
 // /* (4-5) Reserved for future use:                 */ || (2)"0"b
@@ -8571,7 +8567,7 @@ elapsedtime ();
             word8 sub_mask = getbits36_8 (cpu.CY, 0);
             word3 expander_command = getbits36_3 (cpu.CY, 21);
             uint scu_port_num = (uint) getbits36_3 (cpu.CY, 33);
-            scu_cioc (current_running_cpu_idx, (uint) scuUnitIdx, scu_port_num, 
+            scu_cioc (current_running_cpu_idx, (uint) scuUnitIdx, scu_port_num,
                       expander_command, sub_mask);
           }
           break;
@@ -8590,7 +8586,7 @@ elapsedtime ();
             if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
                 sim_warn ("smcm to non-existent controller on "
-                          "cpu %d port %d\n", 
+                          "cpu %d port %d\n",
                           current_running_cpu_idx, cpu_port_num);
                 break;
               }
@@ -8622,7 +8618,7 @@ elapsedtime ();
               {
 #ifdef DPS8M
                 return SCPE_OK;
-#endif 
+#endif
 #ifdef L68
                 // CPTUR (cptUseFR) -- will be set by doFault
                 if (cpu_port_num == 0)
@@ -8638,7 +8634,7 @@ elapsedtime ();
 #endif
               }
             uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-            t_stat rc = scu_smic ((uint) scuUnitIdx, current_running_cpu_idx, 
+            t_stat rc = scu_smic ((uint) scuUnitIdx, current_running_cpu_idx,
                                   cpu_port_num, cpu.rA);
             if (rc)
               return rc;
@@ -8701,9 +8697,9 @@ elapsedtime ();
             }
 
           // XXX This is subtle; g7Pending below won't see the queued
-          // g7Fault. I don't understand how the real hardware dealt 
+          // g7Fault. I don't understand how the real hardware dealt
           // with this, but this seems to work. (I would hazard a guess
-          // that DIS was doing a continuous FETCH/EXECUTE cycle 
+          // that DIS was doing a continuous FETCH/EXECUTE cycle
           // ('if !interrupt goto .'))
           advanceG7Faults ();
 
@@ -8902,7 +8898,7 @@ elapsedtime ();
                   //   6      3    0
                   //   7      3    5
                   SET_AR_CHAR_BITNO (n, (word2) (CN/2), (CN % 2) ? 5 : 0);
-                        
+
                   break;
 
                 case CTA6:  // 1
@@ -9046,7 +9042,7 @@ elapsedtime ();
                     //   6      3    0
                     //   7      3    5
                     SET_AR_CHAR_BITNO (n, (word2) (CN/2), (CN % 2) ? 5 : 0);
-                        
+
                     break;
 
                 case CTN9:  // 0
@@ -9139,7 +9135,7 @@ elapsedtime ();
             }
             break;
 
-        // arnn Address Register n to Numeric Descriptor 
+        // arnn Address Register n to Numeric Descriptor
 
                         // aarn
         case x1 (0640): // aar0
@@ -9220,7 +9216,7 @@ elapsedtime ();
 #endif
           break;
 
-        // sareg Store Address Registers 
+        // sareg Store Address Registers
 
         case x1 (0443):  // sareg
             // a:AL39/ar1 According to ISOLTS ps805, the BITNO data is stored
@@ -9259,13 +9255,13 @@ elapsedtime ();
           asxbd (6, false);
           break;
 
-        // a9bd Add 9-bit Displacement to Address Register 
+        // a9bd Add 9-bit Displacement to Address Register
 
         case x1 (0500):  // a9bd
           asxbd (9, false);
           break;
 
-        // abd Add Bit Displacement to Address Register 
+        // abd Add Bit Displacement to Address Register
 
         case x1 (0503):  // abd
           asxbd (1, false);
@@ -9475,7 +9471,7 @@ elapsedtime ();
                    "Illegal instruction");
       }
 #ifdef L68
-    cpu.ou.STR_OP = (is_ou && (i->info->flags & (STORE_OPERAND | STORE_YPAIR))) ? 1 : 0; 
+    cpu.ou.STR_OP = (is_ou && (i->info->flags & (STORE_OPERAND | STORE_YPAIR))) ? 1 : 0;
     cpu.ou.cycle |= ou_GOF;
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr && is_ou)
       add_OU_history ();
@@ -9484,8 +9480,6 @@ elapsedtime ();
 #endif
     return SCPE_OK;
 }
-
-
 
 #ifdef TESTING
 #include <ctype.h>
@@ -9725,7 +9719,7 @@ elapsedtime ();
 
     if_sim_debug (DBG_FAULT, & cpu_dev)
       {
-	dump_words(cpu.Yblock8);
+        dump_words(cpu.Yblock8);
         //for (int i = 0; i < 8; i ++)
         //  {
         //    sim_debug (DBG_FAULT, & cpu_dev, "RCU %d %012"PRIo64"\n", i,
@@ -9907,8 +9901,6 @@ elapsedtime ();
 #endif
     // MME faults resume with the next instruction
 
-
-
 #ifdef rework
     if (fi_addr == FAULT_DIV ||
         fi_addr == FAULT_OFL ||
@@ -9933,11 +9925,6 @@ elapsedtime ();
         longjmp (cpu.jmpMain, JMP_SYNC_FAULT_RETURN);
       }
 #endif
-
-
-
-
-
 
     // LUF can happen during fetch or CAF. If fetch, handled above
     if (fi_addr == FAULT_LUF)

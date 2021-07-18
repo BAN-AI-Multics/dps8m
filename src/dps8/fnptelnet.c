@@ -6,7 +6,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 // XXX remember to call telnet_free on disconnect
@@ -183,7 +183,7 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
 
         case TELNET_EV_SUBNEGOTIATION:
           {
-            // 
+            //
           }
           break;
 

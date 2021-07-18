@@ -3,21 +3,21 @@
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * All rights reserved.
- * 
- * This software is made available under the terms of the ICU  
+ *
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //  The cable command
 //
-//  This command is responsible for managing the interconnection of 
+//  This command is responsible for managing the interconnection of
 //  major substems: CPU, SCU, IOM; contollers: MTP, IPC, MSP, URP;
 //  periperals:
 //
 //  The unit numbers for CPUs, IOMs, and SCUs (eg IOM3 is IOM unit 3) are
 //  simh unit numbers; these units can can indvidually configured to
-//  desired Multics unit numbers. However, it is somewhat easier to 
+//  desired Multics unit numbers. However, it is somewhat easier to
 //  adopt an one-to-one practice; IOM0 == IOMA, etc.
 //
 //
@@ -40,34 +40,34 @@
 //      Connect SCU i port j to CPU k port l.
 //      "cable SCU0 7 CPU0 7"
 //
-//   CABLE IOMi j MTPk 
+//   CABLE IOMi j MTPk
 //   CABLE IOMi j MTPk l
 //
 //      Connect IOM i channel j to MTP k port l (l defaults to 0).
 //
-//   CABLE IOMi j MSPk 
+//   CABLE IOMi j MSPk
 //   CABLE IOMi j MSPk l
 //
 //      Connect IOM i channel j to MSP k port l (l defaults to 0).
 //
-//   CABLE IOMi j IPCk 
+//   CABLE IOMi j IPCk
 //   CABLE IOMi j IPCk l
 //
 //      Connect IOM i channel j to IPC k port l (l defaults to 0).
 //
-//   CABLE IOMi j OPCk 
+//   CABLE IOMi j OPCk
 //
 //      Connect IOM i channel j to OPC k.
 //
-//   CABLE IOMi j FNPk 
+//   CABLE IOMi j FNPk
 //
 //      Connect IOM i channel j to FNP k.
 //
-//   CABLE IOMi j ABSIk 
+//   CABLE IOMi j ABSIk
 //
 //      Connect IOM i channel j to ABSI k.
 //
-//   CABLE IOMi j SKCk 
+//   CABLE IOMi j SKCk
 //
 //      Connect IOM i channel j to SKC k.
 //
@@ -134,7 +134,7 @@ struct cables_s * cables = NULL;
 
 char * ctlr_type_strs [/* enum ctlr_type_e */] =
   {
-    "none", "MTP", "MSP", "IPC", "OPC", 
+    "none", "MTP", "MSP", "IPC", "OPC",
     "URP", "FNP", "ABSI", "SKC"
   };
 
@@ -192,7 +192,7 @@ static bool name_match (const char * str, const char * pattern, uint * val)
     const char * p = str + pat_len;
 
     // Can't be empty
-    if (! rest)   
+    if (! rest)
       return false; // no tag
 
     // [A-Za-z]? XXX Assume a-z contiguous; won't work in EBCDIC
@@ -256,7 +256,7 @@ static t_stat cable_scu_to_iom (int uncable, uint scu_unit_idx, uint scu_port_nu
             return SCPE_ARG;
           }
 
-        // Unplug the other end of the cable 
+        // Unplug the other end of the cable
         t_stat rc = back_cable_iom_to_scu (uncable, iom_unit_idx, iom_port_num,
                                   scu_unit_idx, scu_port_num);
         if (rc)
@@ -338,7 +338,7 @@ static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_nu
             return SCPE_ARG;
           }
 
-        // Unplug the other end of the cable 
+        // Unplug the other end of the cable
         t_stat rc = back_cable_cpu_to_scu (uncable, cpu_unit_idx, cpu_port_num,
                                   scu_unit_idx, scu_port_num, scu_subport_num);
         if (rc)
@@ -394,7 +394,7 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
   {
     if (scu_unit_idx >= scu_dev.numunits)
       {
-        sim_printf ("cable_scu: SCU unit number out of range <%d>\n", 
+        sim_printf ("cable_scu: SCU unit number out of range <%d>\n",
                     scu_unit_idx);
         return SCPE_ARG;
       }
@@ -406,7 +406,7 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
 
     //    if (scu_port_num < 0 || scu_port_num >= N_SCU_PORTS)
     //      {
-    //        sim_printf ("cable_scu: SCU port number out of range <%d>\n", 
+    //        sim_printf ("cable_scu: SCU port number out of range <%d>\n",
     //                    scu_port_num);
     //        return SCPE_ARG;
     //      }
@@ -434,7 +434,7 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
 
         if (scu_port_num < 0 || scu_port_num >= N_SCU_PORTS)
           {
-            sim_printf ("cable_scu: SCU port number out of range <%d>\n", 
+            sim_printf ("cable_scu: SCU port number out of range <%d>\n",
                         scu_port_num);
             return SCPE_ARG;
           }
@@ -483,7 +483,7 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
             scu_subport_num = scu_port_num % 10;
             if (scu_subport_num < 0 || scu_subport_num >= N_SCU_SUBPORTS)
               {
-                sim_printf ("cable SCU: subport number out of range <%d>\n", 
+                sim_printf ("cable SCU: subport number out of range <%d>\n",
                             scu_subport_num);
                 return SCPE_ARG;
               }
@@ -492,7 +492,7 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
           }
         if (scu_port_num < 0 || scu_port_num >= N_SCU_PORTS)
           {
-            sim_printf ("cable SCU: port number out of range <%d>\n", 
+            sim_printf ("cable SCU: port number out of range <%d>\n",
                         scu_port_num);
             return SCPE_ARG;
           }
@@ -565,7 +565,7 @@ static t_stat cable_ctlr (int uncable,
   {
     if (ctlr_unit_idx >= devp->numunits)
       {
-        sim_printf ("%s: unit index out of range <%d>\n", 
+        sim_printf ("%s: unit index out of range <%d>\n",
                     service, ctlr_unit_idx);
         return SCPE_ARG;
       }
@@ -629,15 +629,15 @@ static t_stat cable_ctlr (int uncable,
 //    cable IOMx chan# MSPx [port#] // disk controller
 //    cable IOMx chah# IPCx [port#] // FIPS disk controller
 //    cable IOMx chan# OPCx       // Operator console
-//    cable IOMx chan# FNPx       // FNP 
-//    cable IOMx chan# ABSIx      // ABSI 
+//    cable IOMx chan# FNPx       // FNP
+//    cable IOMx chan# ABSIx      // ABSI
 //    cable IOMx chan# SKCx       // Socket controller
 
 static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
   {
     if (iom_unit_idx >= iom_dev.numunits)
       {
-        sim_printf ("error: CABLE IOM: unit number out of range <%d>\n", 
+        sim_printf ("error: CABLE IOM: unit number out of range <%d>\n",
                     iom_unit_idx);
         return SCPE_ARG;
       }
@@ -646,7 +646,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
 
     if (chan_num < 0 || chan_num >= MAX_CHANNELS)
       {
-        sim_printf ("error: CABLE IOM channel number out of range <%d>\n", 
+        sim_printf ("error: CABLE IOM channel number out of range <%d>\n",
                     chan_num);
         return SCPE_ARG;
       }
@@ -968,7 +968,7 @@ static t_stat cable_mtp (int uncable, uint ctlr_unit_idx, char * * name_save)
   {
     if (ctlr_unit_idx >= mtp_dev.numunits)
       {
-        sim_printf ("error: CABLE MTP: controller unit number out of range <%d>\n", 
+        sim_printf ("error: CABLE MTP: controller unit number out of range <%d>\n",
                     ctlr_unit_idx);
         return SCPE_ARG;
       }
@@ -977,7 +977,7 @@ static t_stat cable_mtp (int uncable, uint ctlr_unit_idx, char * * name_save)
 
     if (dev_code < 0 || dev_code >= MAX_CHANNELS)
       {
-        sim_printf ("error: CABLE MTP device code out of range <%d>\n", 
+        sim_printf ("error: CABLE MTP device code out of range <%d>\n",
                     dev_code);
         return SCPE_ARG;
       }
@@ -1022,7 +1022,7 @@ static t_stat cable_ipc (int uncable, uint ctlr_unit_idx, char * * name_save)
   {
     if (ctlr_unit_idx >= ipc_dev.numunits)
       {
-        sim_printf ("error: CABLE IPC: controller unit number out of range <%d>\n", 
+        sim_printf ("error: CABLE IPC: controller unit number out of range <%d>\n",
                     ctlr_unit_idx);
         return SCPE_ARG;
       }
@@ -1031,7 +1031,7 @@ static t_stat cable_ipc (int uncable, uint ctlr_unit_idx, char * * name_save)
 
     if (dev_code < 0 || dev_code >= MAX_CHANNELS)
       {
-        sim_printf ("error: CABLE IPC device code out of range <%d>\n", 
+        sim_printf ("error: CABLE IPC device code out of range <%d>\n",
                     dev_code);
         return SCPE_ARG;
       }
@@ -1076,7 +1076,7 @@ static t_stat cable_msp (int uncable, uint ctlr_unit_idx, char * * name_save)
   {
     if (ctlr_unit_idx >= msp_dev.numunits)
       {
-        sim_printf ("error: CABLE MSP: controller unit number out of range <%d>\n", 
+        sim_printf ("error: CABLE MSP: controller unit number out of range <%d>\n",
                     ctlr_unit_idx);
         return SCPE_ARG;
       }
@@ -1085,7 +1085,7 @@ static t_stat cable_msp (int uncable, uint ctlr_unit_idx, char * * name_save)
 
     if (dev_code < 0 || dev_code >= MAX_CHANNELS)
       {
-        sim_printf ("error: CABLE MSP device code out of range <%d>\n", 
+        sim_printf ("error: CABLE MSP device code out of range <%d>\n",
                     dev_code);
         return SCPE_ARG;
       }
@@ -1130,7 +1130,7 @@ static t_stat cable_urp (int uncable, uint ctlr_unit_idx, char * * name_save)
   {
     if (ctlr_unit_idx >= urp_dev.numunits)
       {
-        sim_printf ("error: CABLE URP: controller unit number out of range <%d>\n", 
+        sim_printf ("error: CABLE URP: controller unit number out of range <%d>\n",
                     ctlr_unit_idx);
         return SCPE_ARG;
       }
@@ -1139,7 +1139,7 @@ static t_stat cable_urp (int uncable, uint ctlr_unit_idx, char * * name_save)
 
     if (dev_code < 0 || dev_code >= MAX_CHANNELS)
       {
-        sim_printf ("error: CABLE URP device code out of range <%d>\n", 
+        sim_printf ("error: CABLE URP device code out of range <%d>\n",
                     dev_code);
         return SCPE_ARG;
       }
@@ -1291,7 +1291,7 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
           if (p->in_use)
             sim_printf (" %4u %4u    %4u %4u\n", u, prt, p->iom_unit_idx, p->iom_port_num);
         }
- 
+
     if (dump)
       {
         sim_printf ("   IOM port --> SCU port\n");
@@ -1315,7 +1315,7 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
             if (p->in_use)
               sim_printf (" %4u %4u    %4u %4u\n", u, prt, p->cpu_unit_idx, p->cpu_port_num);
           }
- 
+
     if (dump)
       {
         sim_printf ("   CPU port --> SCU port subport\n");
@@ -1350,7 +1350,7 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
           struct ctlr_to_iom_s * p = & cables->small ## _to_iom[u][prt]; \
           if (p->in_use) \
             sim_printf (" %4u %4u    %4u %4u\n", u, prt, p->iom_unit_idx, p->chan_num); \
-        } 
+        }
         CTLR_IOM (MTP, mtp)
         CTLR_IOM (MSP, msp)
         CTLR_IOM (IPC, ipc)
@@ -1377,7 +1377,7 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
           struct ctlr_to_dev_s * p = & cables->from_small ## _to_ ## to_small[u][prt]; \
           if (p->in_use) \
             sim_printf (" %4u  %4u        %4u %10p\n", u, prt, p->unit_idx, p->iom_cmd); \
-        } 
+        }
 #define DEV_CTLR(from_big,from_small, to_label, to_big, to_small) \
     sim_printf ("  %-4s --> %-4s dev_code type\n", #to_label, #from_big); \
     all (u, N_ ## to_big ## _UNITS_MAX) \
@@ -1385,7 +1385,7 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         struct dev_to_ctlr_s * p = & cables->to_small ## _to_ ## from_small[u]; \
         if (p->in_use) \
           sim_printf (" %4u    %4u   %4u    %5s\n", u, p->ctlr_unit_idx, p->dev_code, ctlr_type_strs[p->ctlr_type]); \
-      } 
+      }
     CTLR_DEV (MTP, mtp, TAPE, MT, tape);
     if (dump)
       {
@@ -1413,7 +1413,7 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
 
     return SCPE_OK;
   }
-    
+
 t_stat sys_cable_ripout (UNUSED int32 arg, UNUSED const char * buf)
   {
     cable_init ();
@@ -1444,5 +1444,3 @@ void sysCableInit (void)
     // Initialize data structures
     cable_init ();
   }
-
-

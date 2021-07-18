@@ -54,6 +54,7 @@ default:
     - cc --version 2> /dev/null || true > /dev/null 2>&1
     - lsb_release -d 2> /dev/null || true > /dev/null 2>&1
     - cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
+    - echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
@@ -147,6 +148,7 @@ build mingw64:
   artifacts:
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8.exe
+      - /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
 
 ############################################################################

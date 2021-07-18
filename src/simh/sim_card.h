@@ -1,6 +1,7 @@
 /* Card read/punch routines for 7000 simulators.
 
-   Copyright (c) 2005, Richard Cornwell
+   Copyright (c) 2005 Richard Cornwell
+   Copyright (c) 2021 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -31,7 +32,7 @@
         Binary Card format:
                 Each record 160 characters.
                 First character   21012345
-                                  111 
+                                  111
                 Second characters 6789----
                 Top 4 bits of second character are 0.
                 It is unlikely that ascii text or BCD format

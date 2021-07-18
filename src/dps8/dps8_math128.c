@@ -6,7 +6,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #ifndef DPS8_MATH128
@@ -129,7 +129,7 @@ uint128 add_128 (uint128 a, uint128 b)
   {
 // To do carry detection from low to high, bust the low into 1 bit/63
 // bit fields; add the 63 bit fields checking for carry in the "sign"
-// bit; add the 1 bit fields plus that carry 
+// bit; add the 1 bit fields plus that carry
 
     uint64_t al63 = a.l & MASK63;  // low 63 bits of a
     uint64_t bl63 = b.l & MASK63;  // low 63 bits of b
@@ -144,7 +144,7 @@ uint128 add_128 (uint128 a, uint128 b)
     unsigned int c64 = l64 > 1 ? 1 : 0;    // carry out of bit 64
     l64 = (l64 & 1) << 63;         // put bit 64 in the right place
     l64 |= l63;                    // put low 63 bits in
-    uint64_t h64 = a.h + b.h + c64;    // compute the high 
+    uint64_t h64 = a.h + b.h + c64;    // compute the high
     return construct_128 (h64, l64);
   }
 
@@ -276,173 +276,173 @@ int128 rshift_s128 (int128 a, unsigned int n)
 
 // http://www.icodeguru.com/Embedded/Hacker's-Delight/
 
-static void mulmn (uint32_t w[], uint32_t u[], 
+static void mulmn (uint32_t w[], uint32_t u[],
                    uint32_t v[], int m, int n)
   {
 //for (int i = m - 1; i >= 0; i --) printf ("%08x", u [i]);
 //printf ("  ");
 //for (int i = n - 1; i >= 0; i --) printf ("%08x", v [i]);
 //printf ("\n");
-    uint64_t k, t; 
-    int i, j; 
-  
-    for (i = 0; i < m; i++) 
-       w[i] = 0; 
- 
+    uint64_t k, t;
+    int i, j;
+
+    for (i = 0; i < m; i++)
+       w[i] = 0;
+
     for (j = 0; j < n; j++)
       {
-        k = 0; 
+        k = 0;
         for (i = 0; i < m; i++)
           {
-            t = (uint64_t) u[i] * (uint64_t) v[j] + (uint64_t) w[i + j] + k; 
+            t = (uint64_t) u[i] * (uint64_t) v[j] + (uint64_t) w[i + j] + k;
 //printf ("%d %d %016llx\n",i, j, t);
-            w[i + j] = (uint32_t) t;        // (I.e., t & 0xFFFF). 
-            k = t >> 32; 
-          } 
-        w[j + m] = (uint32_t) k; 
-      } 
+            w[i + j] = (uint32_t) t;        // (I.e., t & 0xFFFF).
+            k = t >> 32;
+          }
+        w[j + m] = (uint32_t) k;
+      }
   }
 
-static void mulmns (uint32_t w[], uint32_t u[], 
+static void mulmns (uint32_t w[], uint32_t u[],
                     uint32_t v[], int m, int n)
   {
     mulmn (w, u, v, m, n);
 
-    // Now w[] has the unsigned product. Correct by 
-    // subtracting v*2**16m if u < 0, and 
-    // subtracting u*2**16n if v < 0. 
- 
+    // Now w[] has the unsigned product. Correct by
+    // subtracting v*2**16m if u < 0, and
+    // subtracting u*2**16n if v < 0.
+
     if ((int32_t)u[m - 1] < 0)
       {
-        int b = 0;                  // Initialize borrow. 
+        int b = 0;                  // Initialize borrow.
         for (int j = 0; j < n; j++)
           {
-            int t = (int) w[j + m] - (int) v[j] - b; 
-            w[j + m] = (uint32_t) t; 
-            b = t >> 31; 
-          } 
-      } 
+            int t = (int) w[j + m] - (int) v[j] - b;
+            w[j + m] = (uint32_t) t;
+            b = t >> 31;
+          }
+      }
     if ((int32_t)v[n - 1] < 0)
       {
-        int b = 0; 
+        int b = 0;
         for (int i = 0; i < m; i++)
           {
-            int t = (int) w[i + n] - (int) u[i] - b; 
-            w[i + n] = (uint32_t) t; 
-            b = t >> 31; 
-          } 
-      } 
-    return; 
-  } 
+            int t = (int) w[i + n] - (int) u[i] - b;
+            w[i + n] = (uint32_t) t;
+            b = t >> 31;
+          }
+      }
+    return;
+  }
 
 static int32_t nlz (unsigned x)
   {
-    unsigned y; 
-    int n; 
- 
-    n = 32; 
-    y = x >>16; if (y != 0) {n = n -16;x = y;} 
-    y = x >> 8; if (y != 0) {n = n - 8;x = y;} 
-    y = x >> 4; if (y != 0) {n = n - 4;x = y;} 
-    y = x >> 2; if (y != 0) {n = n - 2;x = y;} 
-    y = x >> 1; if (y != 0) return n - 2; 
-    return n - (int) x; 
- } 
+    unsigned y;
+    int n;
 
-int divmnu (uint16_t q[], uint16_t r[], 
-            const uint16_t u[], const uint16_t v[], 
+    n = 32;
+    y = x >>16; if (y != 0) {n = n -16;x = y;}
+    y = x >> 8; if (y != 0) {n = n - 8;x = y;}
+    y = x >> 4; if (y != 0) {n = n - 4;x = y;}
+    y = x >> 2; if (y != 0) {n = n - 2;x = y;}
+    y = x >> 1; if (y != 0) return n - 2;
+    return n - (int) x;
+ }
+
+int divmnu (uint16_t q[], uint16_t r[],
+            const uint16_t u[], const uint16_t v[],
             int m, int n)
   {
- 
-    const uint32_t b = 65536; // Number base (16 bits). 
-    //uint16_t *un, *vn;        // Normalized form of u, v. 
-    unsigned qhat;            // Estimated quotient digit. 
-    unsigned rhat;            // A remainder. 
-    unsigned p;               // Product of two digits. 
-    int s, i, j, t, k; 
- 
-    if (m < n || n <= 0 || v[n-1] == 0) 
-      return 1;               // Return if invalid param. 
- 
+
+    const uint32_t b = 65536; // Number base (16 bits).
+    //uint16_t *un, *vn;        // Normalized form of u, v.
+    unsigned qhat;            // Estimated quotient digit.
+    unsigned rhat;            // A remainder.
+    unsigned p;               // Product of two digits.
+    int s, i, j, t, k;
+
+    if (m < n || n <= 0 || v[n-1] == 0)
+      return 1;               // Return if invalid param.
+
     // Take care of the case of a single-digit span
     if (n == 1)
       {
         k = 0;
         for (j = m - 1; j >= 0; j--)
           {
-            q[j] = (uint16_t) (((unsigned int) k*b + u[j])/v[0]);    // divisor here. 
-            k = (int) (((unsigned int) k*b + u[j]) - q[j]*v[0]); 
-          } 
-        if (r != NULL) r[0] = (uint16_t) k; 
-        return 0; 
-      } 
- 
-    // Normalize by shifting v left just enough so that 
-    // its high-order bit is on, and shift u left the 
-    // same amount. We may have to append a high-order 
-    // digit on the dividend; we do that unconditionally. 
- 
-    s = nlz (v[n-1]) - 16;      // 0 <= s <= 16. 
-    //vn = (uint16_t *) alloca (2*n); 
+            q[j] = (uint16_t) (((unsigned int) k*b + u[j])/v[0]);    // divisor here.
+            k = (int) (((unsigned int) k*b + u[j]) - q[j]*v[0]);
+          }
+        if (r != NULL) r[0] = (uint16_t) k;
+        return 0;
+      }
+
+    // Normalize by shifting v left just enough so that
+    // its high-order bit is on, and shift u left the
+    // same amount. We may have to append a high-order
+    // digit on the dividend; we do that unconditionally.
+
+    s = nlz (v[n-1]) - 16;      // 0 <= s <= 16.
+    //vn = (uint16_t *) alloca (2*n);
     uint16_t vn [n];
-    for (i = n - 1; i > 0; i--) 
-      vn[i] = (uint16_t) (v[i] << s) | (uint16_t) (v[i-1] >> (16-s)); 
-    vn[0] = (uint16_t) (v[0] << s); 
- 
-    //un = (uint16_t *)alloca(2*(m + 1)); 
+    for (i = n - 1; i > 0; i--)
+      vn[i] = (uint16_t) (v[i] << s) | (uint16_t) (v[i-1] >> (16-s));
+    vn[0] = (uint16_t) (v[0] << s);
+
+    //un = (uint16_t *)alloca(2*(m + 1));
     uint16_t un [m+1];
-    un[m] = u[m-1] >> (16-s); 
-    for (i = m - 1; i > 0; i--) 
-      un[i] = (uint16_t) (u[i] << s) | (uint16_t) (u[i-1] >> (16-s)); 
-    un[0] = (uint16_t) (u[0] << s); 
+    un[m] = u[m-1] >> (16-s);
+    for (i = m - 1; i > 0; i--)
+      un[i] = (uint16_t) (u[i] << s) | (uint16_t) (u[i-1] >> (16-s));
+    un[0] = (uint16_t) (u[0] << s);
     for (j = m - n; j >= 0; j--)
-      {       // Main loop. 
-        // Compute estimate qhat of q[j]. 
-        qhat = (un[j+n]*b + un[j+n-1])/vn[n-1]; 
-        rhat = (un[j+n]*b + un[j+n-1]) - qhat*vn[n-1]; 
-again: 
-        if (qhat >= b || qhat*vn[n-2] > b*rhat + un[j+n-2]) 
+      {       // Main loop.
+        // Compute estimate qhat of q[j].
+        qhat = (un[j+n]*b + un[j+n-1])/vn[n-1];
+        rhat = (un[j+n]*b + un[j+n-1]) - qhat*vn[n-1];
+again:
+        if (qhat >= b || qhat*vn[n-2] > b*rhat + un[j+n-2])
           {
-            qhat = qhat - 1; 
-            rhat = rhat + vn[n-1]; 
-            if (rhat < b) goto again; 
-          } 
- 
-        // Multiply and subtract. 
-        k = 0; 
+            qhat = qhat - 1;
+            rhat = rhat + vn[n-1];
+            if (rhat < b) goto again;
+          }
+
+        // Multiply and subtract.
+        k = 0;
         for (i = 0; i < n; i++)
           {
-            p = qhat*vn[i]; 
-            t = (int32_t) un[i+j] - k - (int32_t) (p & 0xFFFF); 
-            un[i+j] = (uint16_t) t; 
-            k = (int) (p >> 16) - (t >> 16); 
-          } 
-        t = un[j+n] - k; 
-        un[j+n] = (uint16_t) t; 
- 
-        q[j] = (uint16_t) qhat;            // Store quotient digit. 
+            p = qhat*vn[i];
+            t = (int32_t) un[i+j] - k - (int32_t) (p & 0xFFFF);
+            un[i+j] = (uint16_t) t;
+            k = (int) (p >> 16) - (t >> 16);
+          }
+        t = un[j+n] - k;
+        un[j+n] = (uint16_t) t;
+
+        q[j] = (uint16_t) qhat;            // Store quotient digit.
         if (t < 0)
-          {            // If we subtracted too 
-            q[j] = q[j] - 1;       // much, add back. 
-            k = 0; 
+          {            // If we subtracted too
+            q[j] = q[j] - 1;       // much, add back.
+            k = 0;
             for (i = 0; i < n; i++)
               {
-                t = un[i+j] + vn[i] + k; 
-                un[i+j] = (uint16_t) t; 
-                k = t >> 16; 
-               } 
-             un[j+n] = (uint16_t) (un[j+n] + k); 
-          } 
-      } // End j. 
-    // If the caller wants the remainder, unnormalize 
-    // it and pass it back. 
+                t = un[i+j] + vn[i] + k;
+                un[i+j] = (uint16_t) t;
+                k = t >> 16;
+               }
+             un[j+n] = (uint16_t) (un[j+n] + k);
+          }
+      } // End j.
+    // If the caller wants the remainder, unnormalize
+    // it and pass it back.
     if (r != NULL)
       {
-        for (i = 0; i < n; i++) 
-          r[i] = (uint16_t) (un[i] >> s) | (uint16_t) (un[i+1] << (16-s)); 
-      } 
-    return 0; 
-  } 
+        for (i = 0; i < n; i++)
+          r[i] = (uint16_t) (un[i] >> s) | (uint16_t) (un[i+1] << (16-s));
+      }
+    return 0;
+  }
 
 uint128 multiply_128 (uint128 a, uint128 b)
   {
@@ -566,7 +566,7 @@ uint128 divide_128_16 (uint128 a, uint16_t b, uint16_t * remp)
   }
 
 //divide_128_32 (
-//00000000000000010000000000000000, 00010000) returned 
+//00000000000000010000000000000000, 00010000) returned
 //00000000000000000001000000000000, 00000000
 //divide_128_32 (ffffffffffffffffffffffffffffffff, 00010000) returned f771ffffffffffffffffffffffffffff, 0000ffff
 
@@ -591,7 +591,7 @@ uint128 divide_128_32 (uint128 a, uint32_t b, uint32_t * remp)
     divmnu (q, remp ? r : NULL, u, v, m, n);
     if (remp)
       * remp = r [0] | (uint32_t) r[1] << 16;
-        
+
     return construct_128 (
        (((uint64_t) q [7]) << 48) |
        (((uint64_t) q [6]) << 32) |
@@ -868,63 +868,63 @@ UTItype __umodti3(UTItype div, UTItype dvd);
 
 UTItype __udivti3(UTItype div, UTItype dvd)
 {
-	UTItype result,remain;
+        UTItype result,remain;
 
-	__udivmodti3(div,dvd,&result,&remain);
+        __udivmodti3(div,dvd,&result,&remain);
 
-	return result;
+        return result;
 }
 
 void __udivmodti3(UTItype div, UTItype dvd,UTItype *result,UTItype *remain)
 {
-	UTItype z1 = dvd;
-	UTItype z2 = (UTItype)1;
+        UTItype z1 = dvd;
+        UTItype z2 = (UTItype)1;
 
-	*result = (UTItype)0;
-	*remain = div;
+        *result = (UTItype)0;
+        *remain = div;
 
-	if( z1 == (UTItype)0)
-		1/0;
+        if( z1 == (UTItype)0)
+                1/0;
 
-	while( z1 < *remain )
-	{
-		z1 <<= 1 ;
-		z2 <<= 1;
-	}
+        while( z1 < *remain )
+        {
+                z1 <<= 1 ;
+                z2 <<= 1;
+        }
 
-	do 
-	{
-		if( *remain >= z1 )
-		{
-			*remain -= z1;
-			*result += z2;
-		}
-		z1 >>= 1;
-		z2 >>= 1;
-	} while( z2 );
+        do
+        {
+                if( *remain >= z1 )
+                {
+                        *remain -= z1;
+                        *result += z2;
+                }
+                z1 >>= 1;
+                z2 >>= 1;
+        } while( z2 );
 
 }
 
 TItype __divti3(TItype div, TItype dvd)
 {
-	int sign=1;
+        int sign=1;
 
-	if (div < (TItype)0)
-	{
-		sign = -1;
-		div = -div;
-	}
+        if (div < (TItype)0)
+        {
+                sign = -1;
+                div = -div;
+        }
 
-	if (dvd < (TItype)0) 
-	{
-		sign = -sign;
-		dvd = -dvd;
-	}
+        if (dvd < (TItype)0)
+        {
+                sign = -sign;
+                dvd = -dvd;
+        }
 
-	if (sign > 0)
-		return (TItype)__udivti3(div,dvd);
-	else
-		return -((TItype)__udivti3(div,dvd));
+        if (sign > 0)
+                return (TItype)__udivti3(div,dvd);
+        else
+                return -((TItype)__udivti3(div,dvd));
 }
 
 TItype __modti3(TItype div, TItype dvd)
@@ -932,55 +932,55 @@ TItype __modti3(TItype div, TItype dvd)
         int sign=1;
 
         if (div < (TItype)0)
-	{
+        {
                 sign = -1;
-		div = -div;
-	}
+                div = -div;
+        }
 
         if (dvd < (TItype)0)
-	{
+        {
                 sign = -sign;
-		dvd = -dvd;
-	}
+                dvd = -dvd;
+        }
 
         if (sign > 0)
                 return (TItype)__umodti3(div,dvd);
         else
-		return ((TItype)0-(TItype)__umodti3(div,dvd));
+                return ((TItype)0-(TItype)__umodti3(div,dvd));
 }
 
 UTItype __umodti3(UTItype div, UTItype dvd)
 {
-	UTItype result,remain;
+        UTItype result,remain;
 
-	__udivmodti3(div,dvd,&result,&remain);
+        __udivmodti3(div,dvd,&result,&remain);
 
-	return remain;
+        return remain;
 }
 
 TItype __multi3 (TItype u, TItype v)
 {
-	TItype result = (TItype)0;
-	int sign = 1;
+        TItype result = (TItype)0;
+        int sign = 1;
 
-	if(u<0)
-	{
-		sign = -1;
-		u = -u;
-	}
+        if(u<0)
+        {
+                sign = -1;
+                u = -u;
+        }
 
-	while (u!=(TItype)0)
-	{
-		if( u&(TItype)1 )
-			result += v;
-		u>>=1;
-		v<<=1;
-	}
+        while (u!=(TItype)0)
+        {
+                if( u&(TItype)1 )
+                        result += v;
+                u>>=1;
+                v<<=1;
+        }
 
-	if ( sign < 0 )
-		return -result;
-	else
-		return result;
+        if ( sign < 0 )
+                return -result;
+        else
+                return result;
 
 }
 #endif

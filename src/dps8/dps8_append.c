@@ -6,9 +6,9 @@
  *
  * All rights reserved.
  *
- * This software is made available under the terms of the ICU  
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 /**
@@ -107,7 +107,7 @@ static char *str_sdw (char * buf, sdw_s *SDW);
 #endif
 
 //
-// 
+//
 //  The Use of Bit 29 in the Instruction Word
 //  The reader is reminded that there is a preliminary step of loading TPR.CA
 //  with the ADDRESS field of the instruction word during instruction decode.
@@ -161,9 +161,9 @@ void do_ldbr (word36 * Ypair)
   {
     CPTUR (cptUseDSBR);
 #ifdef WAM
-    if (! cpu.switches.disable_wam) 
+    if (! cpu.switches.disable_wam)
       {
-        if (cpu.cu.SD_ON) 
+        if (cpu.cu.SD_ON)
           {
             // If SDWAM is enabled, then
             //   0 -> C(SDWAM(i).FULL) for i = 0, 1, ..., 15
@@ -180,7 +180,7 @@ void do_ldbr (word36 * Ypair)
               }
           }
 
-        if (cpu.cu.PT_ON) 
+        if (cpu.cu.PT_ON)
           {
             // If PTWAM is enabled, then
             //   0 -> C(PTWAM(i).FULL) for i = 0, 1, ..., 15
@@ -223,11 +223,11 @@ void do_ldbr (word36 * Ypair)
     cpu.DSBR.STACK = (Ypair[1] >> (71 - 71)) & 07777;
     DBGAPP ("ldbr 0 -> SDWAM/PTWAM[*].F, i -> SDWAM/PTWAM[i].USE, "
             "DSBR.ADDR 0%o, DSBR.BND 0%o, DSBR.U 0%o, DSBR.STACK 0%o\n",
-            cpu.DSBR.ADDR, cpu.DSBR.BND, cpu.DSBR.U, cpu.DSBR.STACK); 
+            cpu.DSBR.ADDR, cpu.DSBR.BND, cpu.DSBR.U, cpu.DSBR.STACK);
   }
 
 
-    
+
 /**
  * fetch descriptor segment PTW ...
  */
@@ -260,13 +260,13 @@ static void fetch_dsptw (word15 segno)
 
     word36 PTWx1;
     core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
-    
+
     cpu.PTW0.ADDR = GETHI (PTWx1);
     cpu.PTW0.U = TSTBIT (PTWx1, 9);
     cpu.PTW0.M = TSTBIT (PTWx1, 6);
     cpu.PTW0.DF = TSTBIT (PTWx1, 2);
     cpu.PTW0.FC = PTWx1 & 3;
-    
+
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_APU_history (APUH_FDSPTW);
@@ -290,10 +290,10 @@ static void modify_dsptw (word15 segno)
 
     PNL (L68_ (cpu.apu.state |= apu_MDPT;))
 
-    set_apu_status (apuStatus_MDSPTW); 
+    set_apu_status (apuStatus_MDSPTW);
 
     word24 x1 = (2u * segno) / 1024u; // floor
-    
+
 #ifdef TEST_OLIN
           cmpxchg ();
 #endif
@@ -316,7 +316,7 @@ static void modify_dsptw (word15 segno)
     PTWx1 = SETBIT (PTWx1, 9);
     core_write ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
 #endif
-    
+
 #ifdef TEST_FENCE
     fence ();
 #endif
@@ -357,7 +357,7 @@ static word6 calc_hit_am (word6 LRU, uint hit_level)
 static sdw_s * fetch_sdw_from_sdwam (word15 segno)
   {
     DBGAPP ("%s(0):segno=%05o\n", __func__, segno);
-    
+
     if (cpu.switches.disable_wam || ! cpu.cu.SD_ON)
       {
         DBGAPP ("%s(0): SDWAM disabled\n", __func__);
@@ -374,16 +374,16 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
             DBGAPP ("%s(1):found match for segno %05o "
                     "at _n=%d\n",
                      __func__, segno, _n);
-            
+
             cpu.cu.SDWAMM = 1;
             cpu.SDWAMR = (word4) _n;
             cpu.SDW = & cpu.SDWAM[_n];
-            
+
             // If the SDWAM match logic circuitry indicates a hit, all usage
             // counts (SDWAM.USE) greater than the usage count of the register
             // hit are decremented by one, the usage count of the register hit
             // is set to 15, and the contents of the register hit are read out
-            // into the address preparation circuitry. 
+            // into the address preparation circuitry.
 
             for (int _h = 0; _h < nwam; _h++)
               {
@@ -391,7 +391,7 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
                   cpu.SDWAM[_h].USE -= 1;
               }
             cpu.SDW->USE = N_WAM_ENTRIES - 1;
- 
+
             char buf[256];
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                      __func__, _n, str_sdw (buf, cpu.SDW));
@@ -412,7 +412,7 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
             DBGAPP ("%s(1):found match for segno %05o "
                     "at _n=%d\n",
                     __func__, segno, toffset + setno);
-            
+
             cpu.cu.SDWAMM = 1;
             cpu.SDWAMR = (word6) (toffset + setno);
             cpu.SDW = p; // export pointer for appending
@@ -421,7 +421,7 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
             for (toffset = 0; toffset < 64; toffset += 16) // update LRU
               {
                 p = & cpu.SDWAM[toffset + setno];
-                if (p->FE) 
+                if (p->FE)
                   p->USE = u;
               }
 
@@ -453,12 +453,12 @@ static void fetch_psdw (word15 segno)
 
     set_apu_status (apuStatus_SDWP);
     word24 y1 = (2 * segno) % 1024;
-    
+
     word36 SDWeven, SDWodd;
-    
-    core_read2 (((((word24) cpu.PTW0.ADDR & 0777760) << 6) + y1) & PAMASK, 
+
+    core_read2 (((((word24) cpu.PTW0.ADDR & 0777760) << 6) + y1) & PAMASK,
                 & SDWeven, & SDWodd, __func__);
-    
+
     // even word
     cpu.SDW0.ADDR = (SDWeven >> 12) & 077777777;
     cpu.SDW0.R1 = (SDWeven >> 9) & 7;
@@ -466,7 +466,7 @@ static void fetch_psdw (word15 segno)
     cpu.SDW0.R3 = (SDWeven >> 3) & 7;
     cpu.SDW0.DF = TSTBIT (SDWeven, 2);
     cpu.SDW0.FC = SDWeven & 3;
-    
+
     // odd word
     cpu.SDW0.BOUND = (SDWodd >> 21) & 037777;
     cpu.SDW0.R = TSTBIT (SDWodd, 20);
@@ -477,7 +477,7 @@ static void fetch_psdw (word15 segno)
     cpu.SDW0.G = TSTBIT (SDWodd, 15);
     cpu.SDW0.C = TSTBIT (SDWodd, 14);
     cpu.SDW0.EB = SDWodd & 037777;
-    
+
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_APU_history (APUH_FSDWP);
@@ -521,7 +521,7 @@ static void fetch_nsdw (word15 segno)
     word36 SDWeven, SDWodd;
     core_read2 ((cpu.DSBR.ADDR + 2u * segno) & PAMASK,
                 & SDWeven, & SDWodd, __func__);
-    
+
     // even word
     cpu.SDW0.ADDR = (SDWeven >> 12) & 077777777;
     cpu.SDW0.R1 = (SDWeven >> 9) & 7;
@@ -529,7 +529,7 @@ static void fetch_nsdw (word15 segno)
     cpu.SDW0.R3 = (SDWeven >> 3) & 7;
     cpu.SDW0.DF = TSTBIT (SDWeven, 2);
     cpu.SDW0.FC = SDWeven & 3;
-    
+
     // odd word
     cpu.SDW0.BOUND = (SDWodd >> 21) & 037777;
     cpu.SDW0.R = TSTBIT (SDWodd, 20);
@@ -540,7 +540,7 @@ static void fetch_nsdw (word15 segno)
     cpu.SDW0.G = TSTBIT (SDWodd, 15);
     cpu.SDW0.C = TSTBIT (SDWodd, 14);
     cpu.SDW0.EB = SDWodd & 037777;
-    
+
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_APU_history (0 /* No fetch no paged bit */);
@@ -594,7 +594,7 @@ t_stat dump_sdwam (void)
     for (int _n = 0; _n < N_WAM_ENTRIES; _n++)
       {
         sdw_s *p = & cpu.SDWAM[_n];
-        
+
         if (p->FE)
           sim_printf ("SDWAM n:%d %s\n", _n, str_sdw (buf, p));
       }
@@ -634,11 +634,11 @@ static void load_sdwam (word15 segno, UNUSED bool nomatch)
 #ifndef WAM
     cpu.SDW0.POINTER = segno;
     cpu.SDW0.USE = 0;
-            
+
     cpu.SDW0.FE = true;     // in use by SDWAM
-            
+
     cpu.SDW = & cpu.SDW0;
-            
+
 #else
     if (nomatch || cpu.switches.disable_wam || ! cpu.cu.SD_ON)
       {
@@ -651,7 +651,7 @@ static void load_sdwam (word15 segno, UNUSED bool nomatch)
         return;
       }
 
-#ifdef L68    
+#ifdef L68
     // If the SDWAM match logic does not indicate a hit, the SDW is fetched
     // from the descriptor segment in main memory and loaded into the SDWAM
     // register with usage count 0 (the oldest), all usage counts are
@@ -665,31 +665,31 @@ static void load_sdwam (word15 segno, UNUSED bool nomatch)
         if (! p->FE || p->USE == 0)
           {
             DBGAPP ("%s(1):SDWAM[%d] FE=0 || USE=0\n", __func__, _n);
-            
+
             * p = cpu.SDW0;
             p->POINTER = segno;
             p->USE = 0;
             p->FE = true;     // in use by SDWAM
-            
+
             for (int _h = 0; _h < N_WAM_ENTRIES; _h++)
               {
                 sdw_s * q = & cpu.SDWAM[_h];
                 q->USE -= 1;
                 q->USE &= N_WAM_MASK;
               }
-            
+
             cpu.SDW = p;
-            
+
             char buf[256];
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                     __func__, _n, str_sdw (buf, p));
-            
+
             return;
           }
       }
     // if we reach this, USE is scrambled
     DBGAPP ("%s(3) no USE=0 found for segment=%d\n", __func__, segno);
-    
+
     sim_printf ("%s(%05o): no USE=0 found!\n", __func__, segno);
     dump_sdwam ();
 #endif
@@ -711,7 +711,7 @@ static void load_sdwam (word15 segno, UNUSED bool nomatch)
       }
     DBGAPP ("%s(1):SDWAM[%d] FE=0 || LRU\n",
             __func__, toffset + setno);
-            
+
     word6 u = calc_hit_am (p->USE, toffset >> 4); // before loading the SDWAM!
     * p = cpu.SDW0; // load the SDW
     p->POINTER = segno;
@@ -721,10 +721,10 @@ static void load_sdwam (word15 segno, UNUSED bool nomatch)
     for (uint toffset1 = 0; toffset1 < 64; toffset1 += 16) // update LRU
       {
         p = & cpu.SDWAM[toffset1 + setno];
-        if (p->FE) 
+        if (p->FE)
           p->USE = u;
       }
-            
+
     char buf[256];
     DBGAPP ("%s(2):SDWAM[%d]=%s\n",
             __func__, toffset + setno, str_sdw (buf, cpu.SDW));
@@ -740,7 +740,7 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
         DBGAPP ("%s: PTWAM disabled\n", __func__);
         return NULL;
       }
-    
+
 #ifdef L68
     int nwam = N_WAM_ENTRIES;
     for (int _n = 0; _n < nwam; _n++)
@@ -754,7 +754,7 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
             cpu.cu.PTWAMM = 1;
             cpu.PTWAMR = (word4) _n;
             cpu.PTW = & cpu.PTWAM[_n];
-            
+
             // If the PTWAM match logic circuitry indicates a hit, all usage
             // counts (PTWAM.USE) greater than the usage count of the register
             // hit are decremented by one, the usage count of the register hit
@@ -794,17 +794,17 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
             cpu.cu.PTWAMM = 1;
             cpu.PTWAMR = (word6) (toffset + setno);
             cpu.PTW = p; // export pointer for appending
-            
+
             word6 u = calc_hit_am (p->USE, toffset >> 4);
             for (toffset = 0; toffset < 64; toffset += 16) // update LRU
               {
                 p = & cpu.PTWAM[toffset + setno];
-                if (p->FE) 
+                if (p->FE)
                   p->USE = u;
               }
 
             DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
-                    __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, 
+                    __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M,
                     cpu.PTW->DF, cpu.PTW->FC);
             return cpu.PTW;
           }
@@ -827,9 +827,9 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
     word24 y2 = offset % 1024;
 #endif
     word24 x2 = (offset) / 1024; // floor
-    
+
     word36 PTWx2;
-    
+
     DBGAPP ("%s address %08o\n", __func__, sdw->ADDR + x2);
 
     PNL (cpu.lastPTWOffset = offset;)
@@ -851,7 +851,7 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
 #else
     core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
 #endif
-    
+
     cpu.PTW0.ADDR = GETHI (PTWx2);
     cpu.PTW0.U = TSTBIT (PTWx2, 9);
     cpu.PTW0.M = TSTBIT (PTWx2, 6);
@@ -865,13 +865,13 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
       {
         PTWx2 = SETBIT (PTWx2, 9);
 #ifdef LOCKLESS
-	core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+        core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #else
         core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #endif
         cpu.PTW0.U = 1;
       }
-    
+
 #ifdef TEST_FENCE
     fence ();
 #endif
@@ -898,7 +898,7 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
     cpu.PTW0.POINTER = segno;
     cpu.PTW0.USE = 0;
     cpu.PTW0.FE = true;
-            
+
     cpu.PTW = & cpu.PTW0;
 #else
     if (nomatch || cpu.switches.disable_wam || ! cpu.cu.PT_ON)
@@ -909,12 +909,12 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
         p->POINTER = segno;
         p->USE = 0;
         p->FE = true;
-            
+
         cpu.PTW = p;
         return;
       }
 
-#ifdef L68    
+#ifdef L68
     // If the PTWAM match logic does not indicate a hit, the PTW is fetched
     // from main memory and loaded into the PTWAM register with usage count 0
     // (the oldest), all usage counts are decremented by one with the newly
@@ -932,14 +932,14 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
             p->POINTER = segno;
             p->USE = 0;
             p->FE = true;
-            
+
             for (int _h = 0; _h < N_WAM_ENTRIES; _h++)
               {
                 ptw_s * q = & cpu.PTWAM[_h];
                 q->USE -= 1;
                 q->USE &= N_WAM_MASK;
               }
-            
+
             cpu.PTW = p;
             DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o "
                     "POINTER=%o PAGENO=%o USE=%d\n",
@@ -986,13 +986,13 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
     for (uint toffset1 = 0; toffset1 < 64; toffset1 += 16) // update LRU
       {
         p = & cpu.PTWAM[toffset1 + setno];
-        if (p->FE) 
+        if (p->FE)
           p->USE = u;
       }
 
     DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o POINTER=%o "
             "PAGENO=%o USE=%d\n",
-            cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF, 
+            cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
             cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO, cpu.PTW->USE);
 #endif
 #endif // WAM
@@ -1007,9 +1007,9 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
     PNL (L68_ (cpu.apu.state |= apu_MPTW;))
     //word24 y2 = offset % 1024;
     word24 x2 = offset / 1024; // floor
-    
+
     word36 PTWx2;
-    
+
     set_apu_status (apuStatus_MPTW);
 
 #ifdef TEST_OLIN
@@ -1027,7 +1027,7 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
     core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
     core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#else    
+#else
     core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
     core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
@@ -1055,20 +1055,20 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
     word24 y2 = offset % 1024;
 #endif
     word24 x2 = (offset) / 1024; // floor
-    
+
     word36 PTWx2n;
-    
+
     DBGAPP ("%s address %08o\n", __func__, sdw->ADDR + x2 + 1);
 
     core_read ((sdw->ADDR + x2 + 1) & PAMASK, & PTWx2n, __func__);
 
-    ptw_s PTW2; 
+    ptw_s PTW2;
     PTW2.ADDR = GETHI (PTWx2n);
     PTW2.U = TSTBIT (PTWx2n, 9);
     PTW2.M = TSTBIT (PTWx2n, 6);
     PTW2.DF = TSTBIT (PTWx2n, 2);
     PTW2.FC = PTWx2n & 3;
-    
+
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_APU_history (APUH_FPTW2);
@@ -1160,7 +1160,7 @@ static char *str_pct (processor_cycle_type t)
         default:
             return "Unhandled processor_cycle_type";
       }
-  
+
   }
 
 
@@ -1288,16 +1288,16 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
     PNL (L68_ (cpu.apu.state = 0;))
 
     cpu.RSDWH_R1 = 0;
-    
+
     cpu.acvFaults = 0;
 
 //#define FMSG(x) x
-#define FMSG(x) 
+#define FMSG(x)
     FMSG (char * acvFaultsMsg = "<unknown>";)
 
     word24 finalAddress = (word24) -1;  // not everything requires a final
                                         // address
-    
+
 ////////////////////////////////////////
 //
 // Sheet 1: "START APPEND"
@@ -1323,9 +1323,9 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
     if (thisCycle == RTCD_OPERAND_FETCH &&
         get_addr_mode() == ABSOLUTE_mode &&
         ! (cpu.cu.XSF || cpu.currentInstruction.b29) /*get_went_appending()*/)
-      { 
+      {
         cpu.TPR.TSR = 0;
-	DBGAPP ("RTCD_OPERAND_FETCH ABSOLUTE mode set TSR %05o TRR %o\n", cpu.TPR.TSR, cpu.TPR.TRR);
+        DBGAPP ("RTCD_OPERAND_FETCH ABSOLUTE mode set TSR %05o TRR %o\n", cpu.TPR.TSR, cpu.TPR.TRR);
       }
 
     goto A;
@@ -1346,7 +1346,7 @@ A:;
     PNL (cpu.APUMemAddr = cpu.TPR.CA;)
 
     DBGAPP ("do_append_cycle(A)\n");
-    
+
 #ifdef WAM
     // is SDW for C(TPR.TSR) in SDWAM?
     if (nomatch || ! fetch_sdw_from_sdwam (cpu.TPR.TSR))
@@ -1355,26 +1355,26 @@ A:;
         // No
         DBGAPP ("do_append_cycle(A):SDW for segment %05o not in SDWAM\n",
                  cpu.TPR.TSR);
-        
+
         DBGAPP ("do_append_cycle(A):DSBR.U=%o\n",
                 cpu.DSBR.U);
-        
+
         if (cpu.DSBR.U == 0)
           {
             fetch_dsptw (cpu.TPR.TSR);
-            
+
             if (! cpu.PTW0.DF)
               doFault (FAULT_DF0 + cpu.PTW0.FC, fst_zero,
                        "do_append_cycle(A): PTW0.F == 0");
-            
+
             if (! cpu.PTW0.U)
               modify_dsptw (cpu.TPR.TSR);
-            
+
             fetch_psdw (cpu.TPR.TSR);
           }
         else
           fetch_nsdw (cpu.TPR.TSR); // load SDW0 from descriptor segment table.
-        
+
         if (cpu.SDW0.DF == 0)
           {
             if (thisCycle != ABSA_CYCLE)
@@ -1407,7 +1407,7 @@ A:;
     DBGAPP ("do_append_cycle(B)\n");
 
     // check ring bracket consistency
-    
+
     //C(SDW.R1) <= C(SDW.R2) <= C(SDW .R3)?
     if (! (cpu.SDW->R1 <= cpu.SDW->R2 && cpu.SDW->R2 <= cpu.SDW->R3))
       {
@@ -1425,7 +1425,7 @@ A:;
     // the opcode is preserved accross faults and only replaced as the
     // INSTRUCTION_FETCH succeeds.
     if (thisCycle == INSTRUCTION_FETCH &&
-	i->opcode == 0610  && ! i->opcodeX)
+        i->opcode == 0610  && ! i->opcodeX)
       goto C;
     else if (lastCycle == RTCD_OPERAND_FETCH)
       sim_warn ("%s: lastCycle == RTCD_OPERAND_FETCH opcode %0#o\n", __func__, i->opcode);
@@ -1449,20 +1449,20 @@ A:;
     // an executable segment, and should be treated as READ_OPERAND here.
 
     bool boolA = (thisCycle == INSTRUCTION_FETCH ||
-		  ((i->info->flags & TRANSFER_INS) &&
-		   thisCycle != INDIRECT_WORD_FETCH &&
-		   thisCycle != RTCD_OPERAND_FETCH));
+                  ((i->info->flags & TRANSFER_INS) &&
+                   thisCycle != INDIRECT_WORD_FETCH &&
+                   thisCycle != RTCD_OPERAND_FETCH));
     bool boolB = (thisCycle == INSTRUCTION_FETCH ||
-		  ((i->info->flags & TRANSFER_INS) &&
-		   thisCycle == OPERAND_READ));
+                  ((i->info->flags & TRANSFER_INS) &&
+                   thisCycle == OPERAND_READ));
     if (boolA != boolB)
       sim_warn ("do_append_cycle(B) boolA %d != boolB %d cycle %s insflag %d\n",
-		boolA, boolB, str_pct (thisCycle), i->info->flags & TRANSFER_INS);
+                boolA, boolB, str_pct (thisCycle), i->info->flags & TRANSFER_INS);
 #endif
 
     // Transfer or instruction fetch?
     if (thisCycle == INSTRUCTION_FETCH ||
-	(thisCycle == OPERAND_READ && (i->info->flags & TRANSFER_INS)))
+        (thisCycle == OPERAND_READ && (i->info->flags & TRANSFER_INS)))
       goto F;
 
     //
@@ -1476,7 +1476,7 @@ A:;
 #endif
       {
         DBGAPP ("do_append_cycle(B):!STR-OP\n");
-        
+
         // No
         // C(TPR.TRR) > C(SDW .R2)?
         if (cpu.TPR.TRR > cpu.SDW->R2)
@@ -1488,11 +1488,11 @@ A:;
             PNL (L68_ (cpu.apu.state |= apu_FLT;))
             FMSG (acvFaultsMsg = "acvFaults(B) C(TPR.TRR) > C(SDW .R2)";)
           }
-        
+
         if (cpu.SDW->R == 0)
           {
-	    // isolts 870
-	    cpu.TPR.TRR = cpu.PPR.PRR;
+            // isolts 870
+            cpu.TPR.TRR = cpu.PPR.PRR;
 
             //C(PPR.PSR) = C(TPR.TSR)?
             if (cpu.PPR.PSR != cpu.TPR.TSR)
@@ -1504,10 +1504,10 @@ A:;
                 PNL (L68_ (cpu.apu.state |= apu_FLT;))
                 FMSG (acvFaultsMsg = "acvFaults(B) C(PPR.PSR) = C(TPR.TSR)";)
               }
-	    else
-	      {
-		// sim_warn ("do_append_cycle(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\n", cpu.PPR.PSR);
-	      }
+            else
+              {
+                // sim_warn ("do_append_cycle(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\n", cpu.PPR.PSR);
+              }
           }
       }
 
@@ -1522,9 +1522,9 @@ A:;
       {
         DBGAPP ("do_append_cycle(B):STR-OP\n");
 
-	// isolts 870
-	if (cpu.TPR.TSR == cpu.PPR.PSR)
-	    cpu.TPR.TRR = cpu.PPR.PRR;
+        // isolts 870
+        if (cpu.TPR.TSR == cpu.PPR.PSR)
+            cpu.TPR.TRR = cpu.PPR.PRR;
 
         // C(TPR.TRR) > C(SDW .R1)? Note typo in AL39, R2 should be R1
         if (cpu.TPR.TRR > cpu.SDW->R1)
@@ -1536,11 +1536,11 @@ A:;
             PNL (L68_ (cpu.apu.state |= apu_FLT;))
             FMSG (acvFaultsMsg = "acvFaults(B) C(TPR.TRR) > C(SDW .R1)";)
           }
-        
+
         if (! cpu.SDW->W)
           {
-	    // isolts 870
-	    cpu.TPR.TRR = cpu.PPR.PRR;
+            // isolts 870
+            cpu.TPR.TRR = cpu.PPR.PRR;
 
             DBGAPP ("ACV6\n");
             // Set fault ACV6 = W-OFF
@@ -1548,10 +1548,10 @@ A:;
             PNL (L68_ (cpu.apu.state |= apu_FLT;))
             FMSG (acvFaultsMsg = "acvFaults(B) ACV6 = W-OFF";)
           }
-        
+
       }
     goto G;
-    
+
 ////////////////////////////////////////
 //
 // Sheet 4: "C" "D"
@@ -1574,7 +1574,7 @@ C:;
       {
         DBGAPP ("ACV1 c\n");
         DBGAPP ("acvFaults(C) ACV1 ! ( C(SDW .R1) %o <= C(TPR.TRR) %o <= C(SDW .R2) %o )\n",
-		cpu.SDW->R1, cpu.TPR.TRR, cpu.SDW->R2);
+                cpu.SDW->R1, cpu.TPR.TRR, cpu.SDW->R2);
         //Set fault ACV1 = OEB
         cpu.acvFaults |= ACV1;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -1592,7 +1592,7 @@ C:;
       }
     if (cpu.TPR.TRR > cpu.PPR.PRR)
       sim_warn ("rtcd: outbound call cpu.TPR.TRR %d cpu.PPR.PRR %d\n",
-		cpu.TPR.TRR, cpu.PPR.PRR);
+                cpu.TPR.TRR, cpu.PPR.PRR);
     // C(TPR.TRR) >= C(PPR.PRR)
     if (cpu.TPR.TRR < cpu.PPR.PRR)
       {
@@ -1606,27 +1606,27 @@ C:;
 
 D:;
     DBGAPP ("do_append_cycle(D)\n");
-    
+
     // transfer or instruction fetch
 
     // check ring alarm to catch outbound transfers
 
     if (cpu.rRALR == 0)
         goto G;
-    
+
     // C(PPR.PRR) < RALR?
     if (! (cpu.PPR.PRR < cpu.rRALR))
       {
         DBGAPP ("ACV13\n");
-        DBGAPP ("acvFaults(D) C(PPR.PRR) %o < RALR %o\n", 
+        DBGAPP ("acvFaults(D) C(PPR.PRR) %o < RALR %o\n",
                 cpu.PPR.PRR, cpu.rRALR);
         cpu.acvFaults |= ACV13;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(D) C(PPR.PRR) < RALR";)
       }
-    
+
     goto G;
-    
+
 ////////////////////////////////////////
 //
 // Sheet 5: "E"
@@ -1657,15 +1657,15 @@ E:;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(E) SDW .E set OFF";)
       }
-    
+
     //SDW .G set ON?
     if (cpu.SDW->G)
       goto E1;
-    
+
     // C(PPR.PSR) = C(TPR.TSR)?
     if (cpu.PPR.PSR == cpu.TPR.TSR && ! TST_I_ABS)
       goto E1;
-    
+
     // XXX This doesn't seem right
     // EB is word 15; masking address makes no sense; rather 0-extend EB
     // Fixes ISOLTS 880-01
@@ -1678,7 +1678,7 @@ E:;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(E) TPR.CA4-17 >= SDW.CL";)
       }
-    
+
 E1:
     DBGAPP ("do_append_cycle(E1): CALL6 (cont'd)\n");
 
@@ -1692,7 +1692,7 @@ E1:
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(E1) C(TPR.TRR) > SDW.R3";)
       }
-    
+
     // C(TPR.TRR) < SDW.R1?
     if (cpu.TPR.TRR < cpu.SDW->R1)
       {
@@ -1703,8 +1703,8 @@ E1:
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(E1) C(TPR.TRR) < SDW.R1";)
       }
-    
-    
+
+
     // C(TPR.TRR) > C(PPR.PRR)?
     if (cpu.TPR.TRR > cpu.PPR.PRR)
       {
@@ -1721,7 +1721,7 @@ E1:
           }
       }
 
-    
+
     DBGAPP ("do_append_cycle(E1): CALL6 TPR.TRR %o SDW->R2 %o\n",
             cpu.TPR.TRR, cpu.SDW->R2);
 
@@ -1733,9 +1733,9 @@ E1:
       }
 
     DBGAPP ("do_append_cycle(E1): CALL6 TPR.TRR %o\n", cpu.TPR.TRR);
-    
+
     goto G;
-    
+
 ////////////////////////////////////////
 //
 // Sheet 6: "F"
@@ -1753,11 +1753,11 @@ F:;
     // C(TPR.TRR) < C(SDW .R1)?
     // C(TPR.TRR) > C(SDW .R2)?
     if (cpu.TPR.TRR < cpu.SDW->R1 ||
-	cpu.TPR.TRR > cpu.SDW->R2)
+        cpu.TPR.TRR > cpu.SDW->R2)
       {
         DBGAPP ("ACV1 a/b\n");
         DBGAPP ("acvFaults(F) ACV1 !( C(SDW .R1) %o <= C(TPR.TRR) %o <= C(SDW .R2) %o )\n",
-		cpu.SDW->R1, cpu.TPR.TRR, cpu.SDW->R2);
+                cpu.SDW->R1, cpu.TPR.TRR, cpu.SDW->R2);
         cpu.acvFaults |= ACV1;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(F) C(TPR.TRR) < C(SDW .R1)";)
@@ -1771,7 +1771,7 @@ F:;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(F) SDW .E set OFF";)
       }
-    
+
     // C(PPR.PRR) = C(TPR.TRR)?
     if (cpu.PPR.PRR != cpu.TPR.TRR)
       {
@@ -1782,7 +1782,7 @@ F:;
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         FMSG (acvFaultsMsg = "acvFaults(F) C(PPR.PRR) != C(TPR.TRR)";)
       }
-    
+
     goto D;
 
 ////////////////////////////////////////
@@ -1792,9 +1792,9 @@ F:;
 ////////////////////////////////////////
 
 G:;
-    
+
     DBGAPP ("do_append_cycle(G)\n");
-    
+
     //C(TPR.CA)0,13 > SDW.BOUND?
     if (((cpu.TPR.CA >> 4) & 037777) > cpu.SDW->BOUND)
       {
@@ -1807,7 +1807,7 @@ G:;
                 "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o",
                 cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
       }
-    
+
     if (cpu.acvFaults)
       {
         DBGAPP ("do_append_cycle(G) acvFaults\n");
@@ -1820,10 +1820,10 @@ G:;
     // is segment C(TPR.TSR) paged?
     if (cpu.SDW->U)
       goto H; // Not paged
-    
+
     // Yes. segment is paged ...
     // is PTW for C(TPR.CA) in PTWAM?
-    
+
     DBGAPP ("do_append_cycle(G) CA %06o\n", cpu.TPR.CA);
 #ifdef WAM
     if (nomatch ||
@@ -1842,7 +1842,7 @@ G:;
           }
         loadPTWAM (cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
       }
-    
+
     // Prepage mode?
     // check for "uninterruptible" EIS instruction
     // ISOLTS-878 02: mvn,cmpn,mvne,ad3d; obviously also
@@ -1852,9 +1852,9 @@ G:;
         || (i->opcode & 0770)== 020|| (i->opcode & 0770) == 0300))
       {
         do_ptw2 (cpu.SDW, cpu.TPR.CA);
-      } 
+      }
     goto I;
-    
+
 ////////////////////////////////////////
 //
 // Sheet 8: "H", "I"
@@ -1882,7 +1882,7 @@ H:;
     if (thisCycle == RTCD_OPERAND_FETCH &&
         get_addr_mode () == ABSOLUTE_mode &&
         ! (cpu.cu.XSF || cpu.currentInstruction.b29) /*get_went_appending ()*/)
-      { 
+      {
         finalAddress = cpu.TPR.CA;
       }
     else
@@ -1891,14 +1891,14 @@ H:;
         finalAddress &= 0xffffff;
       }
     PNL (cpu.APUMemAddr = finalAddress;)
-    
+
     DBGAPP ("do_append_cycle(H:FANP): (%05o:%06o) finalAddress=%08o\n",
             cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
-    
+
     //if (thisCycle == ABSA_CYCLE)
     //    goto J;
     goto HI;
-    
+
 I:;
 
 // Set PTW.M
@@ -1914,19 +1914,19 @@ I:;
       {
        modify_ptw (cpu.SDW, cpu.TPR.CA);
       }
-    
+
     // final address paged
     set_apu_status (apuStatus_FAP);
     PNL (L68_ (cpu.apu.state |= apu_FAP;))
-    
+
     word24 y2 = cpu.TPR.CA % 1024;
-    
+
     // AL39: The hardware ignores low order bits of the main memory page
-    // address according to page size    
-    finalAddress = (((word24)cpu.PTW->ADDR & 0777760) << 6) + y2; 
+    // address according to page size
+    finalAddress = (((word24)cpu.PTW->ADDR & 0777760) << 6) + y2;
     finalAddress &= 0xffffff;
     PNL (cpu.APUMemAddr = finalAddress;)
-    
+
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_APU_history (APUH_FAP);
@@ -1944,8 +1944,8 @@ HI:
     // isolts 870
     if (thisCycle != ABSA_CYCLE)
       {
-	cpu.cu.XSF = 1;
-	sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\n");
+        cpu.cu.XSF = 1;
+        sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\n");
       }
 
     if (thisCycle == OPERAND_STORE && cpu.useZone)
@@ -1959,16 +1959,16 @@ HI:
     else
       {
 #ifdef LOCKLESS
-	if ((thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) && nWords == 1)
-	  {
-	    core_read_lock (finalAddress, data, str_pct (thisCycle));
-	  }
-	else
-	  {
-	    if (thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
-	      sim_warn("do_append_cycle: RMW nWords %d !=1\n", nWords);
-	    core_readN (finalAddress, data, nWords, str_pct (thisCycle));
-	  }
+        if ((thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) && nWords == 1)
+          {
+            core_read_lock (finalAddress, data, str_pct (thisCycle));
+          }
+        else
+          {
+            if (thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
+              sim_warn("do_append_cycle: RMW nWords %d !=1\n", nWords);
+            core_readN (finalAddress, data, nWords, str_pct (thisCycle));
+          }
 #else
         core_readN (finalAddress, data, nWords, str_pct (thisCycle));
 #endif
@@ -1988,14 +1988,14 @@ HI:
 
     // Transfer or instruction fetch?
     if (thisCycle == INSTRUCTION_FETCH ||
-	(thisCycle == OPERAND_READ && (i->info->flags & TRANSFER_INS)))
+        (thisCycle == OPERAND_READ && (i->info->flags & TRANSFER_INS)))
       goto L;
 
     // APU data movement?
     //  handled above
    goto Exit;
 
-    
+
 ////////////////////////////////////////
 //
 // Sheet 9: "J"
@@ -2044,7 +2044,7 @@ J:;
         // f1  und    und    und    sd     scr    f2     f3
         false, false, false, false, true,  true,  false, false,
         // ci  i      sc     ad     di     dic    id     idc
-        true,  true,  true,  true,  true,  true,  true,  true, 
+        true,  true,  true,  true,  true,  true,  true,  true,
         // 48-63 IR_MOD
         true, true, true, true, true, true, true, true,
         true, true, true, true, true, true, true, true
@@ -2123,7 +2123,7 @@ L:; // Transfer or instruction fetch
       }
 
     // lastCycle == RTCD_OPERAND_FETCH
-    
+
     if (thisCycle == INSTRUCTION_FETCH &&
         i->opcode == 0610  && ! i->opcodeX)
       {
@@ -2161,7 +2161,7 @@ KL:
 
     // C(TPR.TSR) -> C(PPR.PSR)
     cpu.PPR.PSR = cpu.TPR.TSR;
-    // C(TPR.CA) -> C(PPR.IC) 
+    // C(TPR.CA) -> C(PPR.IC)
     cpu.PPR.IC = cpu.TPR.CA;
 
     goto M;
@@ -2172,7 +2172,7 @@ M: // Set P
     // C(TPR.TRR) = 0?
     if (cpu.TPR.TRR == 0)
       {
-        // C(SDW.P) -> C(PPR.P) 
+        // C(SDW.P) -> C(PPR.P)
         cpu.PPR.P = cpu.SDW->P;
       }
     else
@@ -2181,7 +2181,7 @@ M: // Set P
         cpu.PPR.P = 0;
       }
 
-    goto Exit; 
+    goto Exit;
 
 N: // CALL6
     DBGAPP ("do_append_cycle(N)\n");
@@ -2189,7 +2189,7 @@ N: // CALL6
     // C(TPR.TRR) = C(PPR.PRR)?
     if (cpu.TPR.TRR == cpu.PPR.PRR)
       {
-        // C(PR6.SNR) -> C(PR7.SNR) 
+        // C(PR6.SNR) -> C(PR7.SNR)
         cpu.PR[7].SNR = cpu.PR[6].SNR;
         DBGAPP ("do_append_cycle(N) PR7.SNR = PR6.SNR %05o\n", cpu.PR[7].SNR);
       }
@@ -2236,7 +2236,7 @@ O:; // ITS, RTCD
     DBGAPP ("do_append_cycle(O) Set TRR to %o\n", cpu.TPR.TRR);
 
     goto Exit;
-    
+
 P:; // ITP
 
     DBGAPP ("do_append_cycle(P)\n");
@@ -2251,7 +2251,7 @@ P:; // ITP
     DBGAPP ("do_append_cycle(P) Set TRR to %o\n", cpu.TPR.TRR);
 
     goto Exit;
-    
+
 
 Exit:;
 
@@ -2295,13 +2295,13 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
 
         word36 PTWx1;
         core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
-        
+
         PTW1.ADDR = GETHI (PTWx1);
         PTW1.U = TSTBIT (PTWx1, 9);
         PTW1.M = TSTBIT (PTWx1, 6);
         PTW1.DF = TSTBIT (PTWx1, 2);
         PTW1.FC = PTWx1 & 3;
-    
+
         if (! PTW1.DF)
           {
             if (msg)
@@ -2312,12 +2312,12 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
         // fetch_psdw
 
         y1 = (2 * segno) % 1024;
-    
+
         word36 SDWeven, SDWodd;
-    
-        core_read2 (((((word24)PTW1. ADDR & 0777760) << 6) + y1) & PAMASK, 
+
+        core_read2 (((((word24)PTW1. ADDR & 0777760) << 6) + y1) & PAMASK,
                     & SDWeven, & SDWodd, __func__);
-    
+
         // even word
         SDW1.ADDR = (SDWeven >> 12) & 077777777;
         SDW1.R1 = (SDWeven >> 9) & 7;
@@ -2325,7 +2325,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
         SDW1.R3 = (SDWeven >> 3) & 7;
         SDW1.DF = TSTBIT (SDWeven, 2);
         SDW1.FC = SDWeven & 3;
-    
+
         // odd word
         SDW1.BOUND = (SDWodd >> 21) & 037777;
         SDW1.R = TSTBIT (SDWodd, 20);
@@ -2342,10 +2342,10 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
         // fetch_nsdw
 
         word36 SDWeven, SDWodd;
-        
-        core_read2 ((cpu.DSBR.ADDR + 2 * segno) & PAMASK, 
+
+        core_read2 ((cpu.DSBR.ADDR + 2 * segno) & PAMASK,
                     & SDWeven, & SDWodd, __func__);
-        
+
         // even word
         SDW1.ADDR = (SDWeven >> 12) & 077777777;
         SDW1.R1 = (SDWeven >> 9) & 7;
@@ -2353,7 +2353,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
         SDW1.R3 = (SDWeven >> 3) & 7;
         SDW1.DF = TSTBIT (SDWeven, 2);
         SDW1.FC = SDWeven & 3;
-        
+
         // odd word
         SDW1.BOUND = (SDWodd >> 21) & 037777;
         SDW1.R = TSTBIT (SDWodd, 20);
@@ -2364,7 +2364,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
         SDW1.G = TSTBIT (SDWodd, 15);
         SDW1.C = TSTBIT (SDWodd, 14);
         SDW1.EB = SDWodd & 037777;
-    
+
       }
 
     if (SDW1.DF == 0)
@@ -2391,11 +2391,11 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
         // fetch_ptw
         word24 y2 = offset % 1024;
         word24 x2 = (offset) / 1024; // floor
-    
+
         word36 PTWx2;
-    
+
         core_read ((SDW1.ADDR + x2) & PAMASK, & PTWx2, __func__);
-    
+
         PTW1.ADDR = GETHI (PTWx2);
         PTW1.U = TSTBIT (PTWx2, 9);
         PTW1.M = TSTBIT (PTWx2, 6);
@@ -2410,13 +2410,10 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
           }
 
         y2 = offset % 1024;
-    
+
         * finalAddress = ((((word24)PTW1.ADDR & 0777760) << 6) + y2) & PAMASK;
       }
     if (msg)
       * msg = "";
     return 0;
   }
-
-
-

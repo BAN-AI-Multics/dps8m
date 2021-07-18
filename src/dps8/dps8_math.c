@@ -9,7 +9,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 /**
@@ -63,7 +63,7 @@ long double EAQToIEEElongdouble(void)
 
     if (iszero_128 (Mant))
         return 0;
-    
+
     bool S = isnonzero_128 (and_128 (Mant, SIGN72)); // sign of mantissa
     if (S)
         Mant = and_128 (negate_128 (Mant), MASK71); // 71 bits (not 72!)
@@ -71,7 +71,7 @@ long double EAQToIEEElongdouble(void)
 
     if (Mant == 0)
         return 0;
-    
+
     bool S = Mant & SIGN72; // sign of mantissa
     if (S)
         Mant = (-Mant) & MASK71; // 71 bits (not 72!)
@@ -103,12 +103,12 @@ long double EAQToIEEElongdouble(void)
 #endif
         v /= 2.0;
     }
-    
+
     /*if (m == 0 && e == -128)    // special case - normalized 0
         return 0;
     if (m == 0)
         return (S ? -1 : 1) * exp2l(e); */
-    
+
     return (S ? -1 : 1) * ldexpl(m, e);
 }
 
@@ -121,14 +121,14 @@ double EAQToIEEEdouble(void)
 #ifdef NEED_128
     if (iszero_128 (Mant))
         return 0;
-    
+
     bool S = isnonzero_128 (and_128 (Mant, SIGN72)); // sign of mantissa
     if (S)
         Mant = and_128 (negate_128 (Mant), MASK71); // 71 bits (not 72!)
 #else
     if (Mant == 0)
         return 0;
-    
+
     bool S = Mant & SIGN72; // sign of mantissa
     if (S)
         Mant = (-Mant) & MASK71; // 71 bits (not 72!)
@@ -141,7 +141,7 @@ double EAQToIEEEdouble(void)
     if (S && iszero_128 (Mant))// denormalized -1.0*2^e
         return -exp2(e);
 #else
-    if (S && Mant == 0)	// denormalized -1.0*2^e
+    if (S && Mant == 0) // denormalized -1.0*2^e
         return -exp2(e);
 #endif
     double v = 0.5;
@@ -160,7 +160,7 @@ double EAQToIEEEdouble(void)
 #endif
         v /= 2.0;
     }
-    
+
     return (S ? -1 : 1) * ldexp(m, e);
 }
 
@@ -172,18 +172,18 @@ float72 IEEElongdoubleToFloat72(long double f0)
 {
     if (f0 == 0)
         return (float72)((float72)0400000000000LL << 36);
-    
+
     bool sign = f0 < 0 ? true : false;
     long double f = fabsl(f0);
-    
+
     int exp;
     long double mant = frexpl(f, &exp);
     //sim_printf (sign=%d f0=%Lf mant=%Lf exp=%d\n", sign, f0, mant, exp);
-    
+
     word72 result = 0;
-    
+
     // now let's examine the mantissa and assign bits as necessary...
-    
+
     if (sign && mant == 0.5)
     {
         //result = bitfieldInsert72(result, 1, 63, 1);
@@ -191,7 +191,7 @@ float72 IEEElongdoubleToFloat72(long double f0)
         exp -= 1;
         mant -= 0.5;
     }
-    
+
     long double bitval = 0.5;    ///< start at 1/2 and go down .....
     for(int n = 62 ; n >= 0 && mant > 0; n -= 1)
     {
@@ -205,9 +205,9 @@ float72 IEEElongdoubleToFloat72(long double f0)
         bitval /= 2.0;
     }
     //sim_printf ("n=%d mant=%f\n", n, mant);
-    
+
     //sim_printf ("result=%012"PRIo64" %012"PRIo64"\n", (word36)((result >> 36) & DMASK), (word36)(result & DMASK));
-    
+
     // if f is < 0 then take 2-comp of result ...
     if (sign)
     {
@@ -218,9 +218,9 @@ float72 IEEElongdoubleToFloat72(long double f0)
     int e = (int)exp;
     //result = bitfieldInsert72(result, e & 0377, 64, 8);    ///< & 0777777777777LL;
     putbits72 (& result, 71-64, 8, e & 0377);
-    
+
     // XXX TODO test for exp under/overflow ...
-    
+
     return result;
 }
 #endif
@@ -231,49 +231,49 @@ static long double MYfrexpl(long double x, int *exp)
 {
     long double exponents[20], *next;
     int exponent, bit;
-    
+
     /* Check for zero, nan and infinity. */
     if (x != x || x + x == x )
     {
         *exp = 0;
         return x;
     }
-    
+
     if (x < 0)
         return -MYfrexpl(-x, exp);
-    
+
     exponent = 0;
     if (x > 1.0)
     {
         for (next = exponents, exponents[0] = 2.0L, bit = 1;
              *next <= x + x;
              bit <<= 1, next[1] = next[0] * next[0], next++);
-        
+
         for (; next >= exponents; bit >>= 1, next--)
             if (x + x >= *next)
             {
                 x /= *next;
                 exponent |= bit;
             }
-        
+
     }
-    
+
     else if (x < 0.5)
     {
         for (next = exponents, exponents[0] = 0.5L, bit = 1;
              *next > x;
              bit <<= 1, next[1] = next[0] * next[0], next++);
-        
+
         for (; next >= exponents; bit >>= 1, next--)
             if (x < *next)
             {
                 x /= *next;
                 exponent |= bit;
             }
-        
+
         exponent = -exponent;
     }
-    
+
     *exp = exponent;
     return x;
 }
@@ -293,15 +293,15 @@ void IEEElongdoubleToEAQ(long double f0)
         cpu . rE = 0200U; /*-128*/
         return;
     }
-    
+
     bool sign = f0 < 0 ? true : false;
     long double f = fabsl(f0);
-    
+
     int exp;
     long double mant = MYfrexpl(f, &exp);
-    
+
     word72 result = 0;
-    
+
     // now let's examine the mantissa and assign bits as necessary...
     if (sign && mant == 0.5)
     {
@@ -323,11 +323,11 @@ void IEEElongdoubleToEAQ(long double f0)
         }
         bitval /= 2.0;
     }
-    
+
     // if f is < 0 then take 2-comp of result ...
     if (sign)
         result = -result & (((word72)1 << 72) - 1);
-    
+
     cpu . rE = exp & MASK8;
     cpu . rA = (result >> 36) & MASK36;
     HDBGRegA ();
@@ -348,17 +348,17 @@ static double float36ToIEEEdouble(word36 f36)
     Mant = f36 & 01777777777LL;
     if (Mant == 0)
         return 0;
-    
+
     bool S = Mant & 01000000000LL; ///< sign of mantissa
     if (S)
         Mant = (-Mant) & 0777777777; // 27 bits (not 28!)
-    
+
     double m = 0;       ///< mantissa value;
     int e = (char)E;  ///< make signed
-    
+
     if (S && Mant == 0) // denormalized -1.0*2^e
         return -exp2(e);
-    
+
     double v = 0.5;
     for(int n = 26 ; n >= 0 ; n -= 1) // this also normalizes the mantissa
     {
@@ -368,7 +368,7 @@ static double float36ToIEEEdouble(word36 f36)
         }   //else
         v /= 2.0;
     }
-    
+
     return (S ? -1 : 1) * ldexp(m, e);
 }
 //#endif
@@ -382,21 +382,21 @@ float36 IEEEdoubleTofloat36(double f0)
 {
     if (f0 == 0)
         return 0400000000000LL;
- 
+
     double f = f0;
     bool sign = f0 < 0 ? true : false;
     if (sign)
         f = fabs(f0);
-    
+
     int exp;
     double mant = frexp(f, &exp);
-    
+
     //sim_printf (sign=%d f0=%f mant=%f exp=%d\n", sign, f0, mant, exp);
-    
+
     word36 result = 0;
-    
+
     // now let's examine the mantissa and assign bits as necessary...
-    
+
     double bitval = 0.5;    ///< start at 1/2 and go down .....
     for(int n = 26 ; n >= 0 && mant > 0; n -= 1)
     {
@@ -410,7 +410,7 @@ float36 IEEEdoubleTofloat36(double f0)
         bitval /= 2.0;
     }
     //sim_printf ("result=%012"PRIo64"\n", result);
-    
+
     // if f is < 0 then take 2-comp of result ...
     if (sign)
     {
@@ -421,9 +421,9 @@ float36 IEEEdoubleTofloat36(double f0)
     int e = (int)exp;
     //result = bitfieldInsert36(result, e, 28, 8) & 0777777777777LL;
     putbits36_8 (& result, 0, e);
-    
+
     // XXX TODO test for exp under/overflow ...
-    
+
     return result;
 }
 #endif
@@ -489,7 +489,7 @@ void ufa (bool sub)
     word72 m2 = ((word72) getbits36_28 (cpu.CY, 8)) << 44; // 28-bit mantissa (incl sign)
 #endif
 
-    int e1 = SIGNEXT8_int (cpu . rE & MASK8); 
+    int e1 = SIGNEXT8_int (cpu . rE & MASK8);
     int e2 = SIGNEXT8_int (getbits36_8 (cpu.CY, 0));
 
     // RJ78: The two's complement of the subtrahend is first taken and the
@@ -502,7 +502,7 @@ void ufa (bool sub)
        // I assume zero subtrahend is handled in a special way.
 
 #ifdef NEED_128
-       if (iszero_128 (m2)) 
+       if (iszero_128 (m2))
            m2zero = 1;
        if (iseq_128 (m2, SIGN72)) {  // -1.0 -> 0.5, increase exponent, ISOLTS-735 08i,j
 #ifdef HEX_MODE
@@ -516,7 +516,7 @@ void ufa (bool sub)
            m2 = and_128 (negate_128 (m2), MASK72);
     }
 #else // ! NEED_128
-       if (m2 == 0) 
+       if (m2 == 0)
            m2zero = 1;
        if (m2 == SIGN72) {  // -1.0 -> 0.5, increase exponent, ISOLTS-735 08i,j
 #ifdef HEX_MODE
@@ -536,7 +536,7 @@ void ufa (bool sub)
 
     // which exponent is smaller?
 #ifdef L68
-    cpu.ou.cycle |= ou_GOE;   
+    cpu.ou.cycle |= ou_GOE;
 #endif
     int shift_count = -1;
     word1 allones = 1;
@@ -585,7 +585,7 @@ void ufa (bool sub)
             if (sign)
                 m1 |= SIGN72;
         }
-        
+
 #ifdef HEX_MODE
         if (m1 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
             m1 = 0;
@@ -647,7 +647,7 @@ void ufa (bool sub)
         e3 = e1;
 #endif // NEED_128
     }
-    
+
     bool ovf;
     word72 m3;
     m3 = Add72b (m1, m2, 0, I_CARRY, & cpu.cu.IR, & ovf);
@@ -752,7 +752,7 @@ void ufa (bool sub)
         if (tstOVFfault ())
             dlyDoFault (FAULT_OFL, fst_zero, "ufa exp overflow fault");
     }
-    
+
     // EUFL: If exponent is less than -128, then ON
     if(e3 < -128)
     {
@@ -786,7 +786,7 @@ void fno (word8 * E, word36 * A, word36 * Q)
     // C(AQ)1 are met. Bits shifted out of AQ1 are lost.
     //
     // If C(AQ) = 0, then C(E) is set to -128 and the zero indicator is set ON.
-    
+
 #ifdef L68
     cpu.ou.cycle |= ou_GON;
 #endif
@@ -894,7 +894,7 @@ void fno (word8 * E, word36 * A, word36 * Q)
 
         return;
     }
-    
+
     // only normalize C(EAQ) if C(AQ) ≠ 0 and the overflow indicator is OFF
 #ifdef NEED_128
     if (iszero_128 (m)) /// C(AQ) == 0.
@@ -927,7 +927,7 @@ void fno (word8 * E, word36 * A, word36 * Q)
             // Negative
             // Until bits 1-4 != 014
             // Termination guarantee: Zeros are being shifted into the right
-	  // end, so the loop will terminate when the first shifted
+          // end, so the loop will terminate when the first shifted
             // zero enters bits 1-4.
 #ifdef NEED_128
             while (iseq_128 (and_128 (m, HEX_NORM), HEX_NORM))
@@ -940,7 +940,7 @@ void fno (word8 * E, word36 * A, word36 * Q)
             m = and_128 (m, MASK71);
             m = or_128 (m, SIGN72);
 #else
-            while ((m & HEX_NORM) == HEX_NORM) 
+            while ((m & HEX_NORM) == HEX_NORM)
               {
 //if (m == 0) // XXX: necessary??
 //    break;
@@ -990,7 +990,7 @@ void fno (word8 * E, word36 * A, word36 * Q)
         }
 
         m = and_128 (m, MASK71);
-        
+
         if (s)
           m = or_128 (m, SIGN72);
 #else
@@ -1003,7 +1003,7 @@ void fno (word8 * E, word36 * A, word36 * Q)
         }
 
         m &= MASK71;
-        
+
         if (s)
           m |= SIGN72;
 #endif
@@ -1019,7 +1019,7 @@ void fno (word8 * E, word36 * A, word36 * Q)
     }
 
     m = and_128 (m, MASK71);
-        
+
     if (s)
       m = or_128 (m, SIGN72);
 #else
@@ -1032,12 +1032,12 @@ void fno (word8 * E, word36 * A, word36 * Q)
     }
 
     m &= MASK71;
-        
+
     if (s)
       m |= SIGN72;
 #endif
 #endif
-      
+
     if (e < -128)
     {
         SET_I_EUFL;
@@ -1051,10 +1051,10 @@ void fno (word8 * E, word36 * A, word36 * Q)
     // EAQ is normalized, so if A is 0, so is Q, and the check can be elided
     if (*A == 0)    // set to normalized 0
         *E = 0200U; /*-128*/
-    
+
     // Zero: If C(AQ) = floating point 0, then ON; otherwise OFF
     SC_I_ZERO (*A == 0 && *Q == 0);
-    
+
     // Neg: If C(AQ)0 = 1, then ON; otherwise OFF
     SC_I_NEG ((*A) & SIGN36);
 }
@@ -1069,17 +1069,17 @@ void fnoEAQ(word8 *E, word36 *A, word36 *Q)
     //!    If the overflow indicator is ON, then C(AQ) is shifted one place to the right, C(AQ)0 is inverted to reconstitute the actual sign, and the overflow indicator is set OFF. This action makes the fno instruction useful in correcting overflows that occur with fixed point numbers.
     //!  Normalization is performed by shifting C(AQ)1,71 one place to the left and reducing C(E) by 1, repeatedly, until the conditions for C(AQ)0 and C(AQ)1 are met. Bits shifted out of AQ1 are lost.
     //!  If C(AQ) = 0, then C(E) is set to -128 and the zero indicator is set ON.
-    
+
     float72 m = ((word72)*A << 36) | (word72)*Q;
     if (TST_I_OFLOW)
     {
         m >>= 1;
         m &= MASK72;
-        
+
         m ^= ((word72)1 << 71);
-        
+
         CLR_I_OFLOW;
-        
+
         // Zero: If C(AQ) = floating point 0, then ON; otherwise OFF
         //SC_I_ZERO (*E == -128 && m == 0);
         //SC_I_ZERO (*E == 0200U /*-128*/ && m == 0);
@@ -1092,61 +1092,61 @@ void fnoEAQ(word8 *E, word36 *A, word36 *Q)
         CLR_I_NEG;
         return; // XXX: ???
     }
-    
+
     // only normalize C(EAQ) if C(AQ) ≠ 0 and the overflow indicator is OFF
     if (m == 0) // C(AQ) == 0.
     {
         *A = (m >> 36) & MASK36;
         *Q = m & MASK36;
         *E = 0200U; /*-128*/
-        
+
         // Zero: If C(AQ) = floating point 0, then ON; otherwise OFF
         //SC_I_ZERO(*E == -128 && m == 0);
         //SC_I_ZERO(*E == 0200U /*-128*/ && m == 0);
         SET_I_ZERO;
         // Neg:
         CLR_I_NEG;
-        
+
         return;
     }
     int8   e = (int8)*E;
-    
-    
+
+
     bool s = m & SIGN72;    ///< save sign bit
     while ((bool)(m & SIGN72) == (bool)(m & (SIGN72 >> 1))) // until C(AQ)0 ≠ C(AQ)1?
     {
         m <<= 1;
         m &= MASK72;
-        
+
         if (s)
             m |= SIGN72;
-        
+
         if ((e - 1) < -128)
             SET_I_EUFL;
         else    // XXX: my interpretation
             e -= 1;
-        
+
         if (m == 0) // XXX: necessary??
         {
             *E = (word8)-128;
             break;
         }
     }
-    
+
     *E = e & 0377;
     *A = (m >> 36) & MASK36;
     *Q = m & MASK36;
-    
+
     // EAQ is normalized, so if A is 0, so is Q, and the check can be elided
     if (*A == 0)    // set to normalized 0
         *E = (word8)-128;
-    
+
     // Zero: If C(AQ) = floating point 0, then ON; otherwise OFF
     SC_I_ZERO (*A == 0);
-    
+
     // Neg: If C(AQ)0 = 1, then ON; otherwise OFF
     SC_I_NEG (*A & SIGN36);
-    
+
 }
 #endif
 
@@ -1162,19 +1162,19 @@ void fneg (void)
     // Even if originally C(EAQ) were normalized, an exponent overflow can
     // still occur, namely when C(E) = +127 and C(AQ) = 100...0 which is the
     // twos complement approximation for the decimal value -1.0.
-    
+
 #if 0
     float72 m = ((word72)cpu . rA << 36) | (word72)cpu . rQ;
-    
+
     if (m == 0) // (if C(AQ) ≠ 0)
     {
         SET_I_ZERO;      // it's zero
         CLR_I_NEG;       // it ain't negative
         return; //XXX: ????
     }
-    
+
     int8 e = (int8)cpu . rE;
-    
+
     word72 mc = 0;
     if (m == FLOAT72SIGN)
     {
@@ -1182,8 +1182,8 @@ void fneg (void)
         e += 1;
     } else
         mc = ~m + 1;     // take 2-comp of mantissa
-    
-    
+
+
     //mc &= FLOAT72MASK;
     mc &= ((word72)1 << 72) - 1;
     /*
@@ -1199,13 +1199,13 @@ void fneg (void)
         mc >>= 1;
         //mc &= FLOAT72MASK;
         mc &= ((word72)1 << 72) - 1;
-        
+
         if ((e + 1) > 127)
             SET_I_EOFL;
         else    // XXX: this is my interpretation
             e += 1;
     }
-    
+
     cpu . rE = e & 0377;
     cpu . rA = (mc >> 36) & MASK36;
     cpu . rQ = mc & MASK36;
@@ -1265,12 +1265,12 @@ void ufm (void)
     // The ufm instruction is executed as follows:
     //      C(E) + C(Y)0,7 → C(E)
     //      ( C(AQ) × C(Y)8,35 )0,71 → C(AQ)
-    
+
     // Zero: If C(AQ) = 0, then ON; otherwise OFF
     // Neg: If C(AQ)0 = 1, then ON; otherwise OFF
     // Exp Ovr: If exponent is greater than +127, then ON
     // Exp Undr: If exponent is less than -128, then ON
-    
+
     CPTUR (cptUseE);
     word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ);
     int    e1 = SIGNEXT8_int (cpu . rE & MASK8);
@@ -1281,7 +1281,7 @@ void ufm (void)
     word72 m2 = ((word72) getbits36_28 (cpu.CY, 8)) << 44; ///< 28-bit mantissa (incl sign)
 #endif
     int    e2 = SIGNEXT8_int (getbits36_8 (cpu.CY, 0));
-    
+
 #ifdef NEED_128
     if (iszero_128 (m1) || iszero_128 (m2))
 #else
@@ -1290,17 +1290,17 @@ void ufm (void)
     {
         SET_I_ZERO;
         CLR_I_NEG;
-        
+
         cpu . rE = 0200U; /*-128*/
         cpu . rA = 0;
         HDBGRegA ();
         cpu . rQ = 0;
-        
+
         return; // normalized 0
     }
 
     int e3 = e1 + e2;
-    
+
     if (e3 >  127)
     {
       SET_I_EOFL;
@@ -1338,7 +1338,7 @@ void ufm (void)
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "m3a %016"PRIx64"%016"PRIx64"\n", (uint64_t) (m3a>>64), (uint64_t) m3a);
 #endif
 
-    // A normalization is performed only in the case of both factor mantissas being 100...0 
+    // A normalization is performed only in the case of both factor mantissas being 100...0
     // which is the twos complement approximation to the decimal value -1.0.
 #ifdef NEED_128
     if (iseq_128 (m1, SIGN72) && iseq_128 (m2, SIGN72))
@@ -1375,7 +1375,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fmp A %012"PRIo64" Q %012"PRIo64" E %03o\n"
     {
       CLR_I_ZERO;
     }
-}   
+}
 
 /*!
  * floating divide ...
@@ -1385,28 +1385,28 @@ static void fdvX(bool bInvert)
 {
     //! C(EAQ) / C (Y) → C(EA)
     //! C(Y) / C(EAQ) → C(EA) (Inverted)
-    
+
     //! 00...0 → C(Q)
-    
+
     //! The fdv instruction is executed as follows:
     //! The dividend mantissa C(AQ) is shifted right and the dividend exponent
     //! C(E) increased accordingly until | C(AQ)0,27 | < | C(Y)8,35 |
     //! C(E) - C(Y)0,7 → C(E)
     //! C(AQ) / C(Y)8,35 → C(A)
     //! 00...0 → C(Q)
-  
+
     CPTUR (cptUseE);
 #ifdef HEX_MODE
     uint shift_amt = isHex() ? 4 : 1;
 #endif
     word72 m1;
     int    e1;
-    
+
     word72 m2;
     int    e2;
 
     bool roundovf = 0;
-    
+
     if (!bInvert)
     {
         m1 = convert_to_word72 (cpu.rA, cpu.rQ);
@@ -1426,7 +1426,7 @@ static void fdvX(bool bInvert)
 
         // round divisor per RJ78
         // If AQ(28-71) is not equal to 0 and A(0) = 0, then 1 is added to AQ(27).
-        // 0 -> AQ(28-71) unconditionally. AQ(0-27) is then used as the divisor mantissa. 
+        // 0 -> AQ(28-71) unconditionally. AQ(0-27) is then used as the divisor mantissa.
 #ifdef NEED_128
         if ((iszero_128 (and_128 (m2, SIGN72))) &&
             (isnonzero_128 (and_128 (m2, construct_128 (0, 0377777777777777LL))))) {
@@ -1459,12 +1459,12 @@ static void fdvX(bool bInvert)
     {
         SET_I_ZERO;
         CLR_I_NEG;
-        
+
         cpu . rE = 0200U; /*-128*/
         cpu . rA = 0;
         HDBGRegA ();
         cpu . rQ = 0;
-        
+
         return; // normalized 0
     }
 
@@ -1504,7 +1504,7 @@ static void fdvX(bool bInvert)
     } else {
         CLR_I_NEG; // in case of divide fault
     }
-    
+
 #ifdef NEED_128
     if ((isnonzero_128 (and_128 (m2, SIGN72))) && !roundovf)
     {
@@ -1549,7 +1549,7 @@ static void fdvX(bool bInvert)
         // NEG already set
 
         // FDV: If the divisor mantissa C(Y)8,35 is zero after alignment (HWR: why after?), the division does
-        // not take place. Instead, a divide check fault occurs, C(AQ) contains the dividend magnitude, and 
+        // not take place. Instead, a divide check fault occurs, C(AQ) contains the dividend magnitude, and
         // the negative indicator reflects the dividend sign.
         // FDI: If the divisor mantissa C(AQ) is zero, the division does not take place.
         // Instead, a divide check fault occurs and all the registers remain unchanged.
@@ -1601,7 +1601,7 @@ static void fdvX(bool bInvert)
       if (tstOVFfault ())
           dlyDoFault (FAULT_OFL, fst_zero, "fdvX exp underflow fault");
     }
-    
+
     // We need 35 bits quotient + sign. Divisor is at most 28 bits.
     // Do a 63(28+35) by 35 fractional divide
     // lo 44bits are always zero
@@ -1615,7 +1615,7 @@ static void fdvX(bool bInvert)
 #else
     word72 m3 = (m1 >> (44-35)) / (m2 >> 44);
 #endif
-    
+
 #ifdef NEED_128
     m3 = lshift_128 (m3, 36);
     if (sign == -1)
@@ -1625,7 +1625,7 @@ static void fdvX(bool bInvert)
     if (sign == -1)
         m3 = (~m3 + 1) & MASK72;
 #endif
-    
+
     cpu . rE = (word8) e3 & MASK8;
 #ifdef NEED_128
     cpu.rA = rshift_128 (m3, 36u).l & MASK36;
@@ -1634,10 +1634,10 @@ static void fdvX(bool bInvert)
 #endif
     HDBGRegA ();
     cpu . rQ = 0;
-    
+
     SC_I_ZERO (cpu . rA == 0);
     SC_I_NEG (cpu . rA & SIGN36);
-    
+
     if (cpu . rA == 0)    // set to normalized 0
         cpu . rE = 0200U; /*-128*/
 }
@@ -1661,7 +1661,7 @@ void frd (void)
     // A true round is a rounding operation such that the sum of the result of
     // applying the operation to two numbers of equal magnitude but opposite
     // sign is exactly zero.
-    
+
     // The frd instruction is executed as follows:
     // C(AQ) + (11...1)29,71 -> C(AQ)
     // If C(AQ)0 = 0, then a carry is added at AQ71
@@ -1669,10 +1669,10 @@ void frd (void)
     // increased by 1.
     // If overflow does not occur, C(EAQ) is normalized.
     // If C(AQ) = 0, C(E) is set to -128 and the zero indicator is set ON.
-    
+
     // I believe AL39 is incorrect; bits 28-71 should be set to 0, not 29-71.
     // DH02-01 & Bull 9000 is correct.
-    
+
     // test case 15.5
     //                 rE                     rA                                     rQ
     // 014174000000 00000110 000111110000000000000000000000000000 000000000000000000000000000000000000
@@ -1685,16 +1685,16 @@ void frd (void)
     // after normalization .....
     // 010760000002 00000100 011111000000000000000000001000000000 000000000000000000000000000000000000
     // I think this is wrong
-    
+
     // 0 -> C(AQ)28,71
     //              00000110 000111110000000000000000000000000000 000000000000000000000000000000000000
     // after normalization .....
     // 010760000000 00000100 011111000000000000000000000000000000 000000000000000000000000000000000000
     // which I think is correct
-    
+
     //
     // GE CPB1004F, DH02-01 (DPS8/88) & Bull DPS9000 assembly ... have this ...
-    
+
     // The rounding operation is performed in the following way.
     // -  a) A constant (all 1s) is added to bits 29-71 of the mantissa.
     // -  b) If the number being rounded is positive, a carry is inserted into
@@ -1705,7 +1705,7 @@ void frd (void)
     // and a corresponding correction is made to the exponent.
     // If the mantissa does not overflow and is nonzero upon rounding,
     // normalization is performed.
-    
+
     // If the resultant mantissa is all zeros, the exponent is forced to -128
     // and the zero indicator is set.
     // If the exponent resulting from the operation is greater than +127, the
@@ -1713,10 +1713,10 @@ void frd (void)
     // If the exponent resulting from the operation is less than -128, the
     // exponent Underflow indicator is set.
     // The definition of normalization is located under the description of the FNO instruction.
-    
+
     // So, Either AL39 is wrong or the DPS8m did it wrong. (Which was fixed in
     // later models.) I'll assume AL39 is wrong.
-    
+
     CPTUR (cptUseE);
 #ifdef L68
     cpu.ou.cycle |= ou_GOS;
@@ -1734,7 +1734,7 @@ void frd (void)
         CLR_I_NEG;
         return;
       }
-    
+
 
 #if 1 // according to RJ78
     // C(AQ) + (11...1)29,71 → C(AQ)
@@ -1800,7 +1800,7 @@ void fstr (word36 *Y)
     // description of the frd instruction.  The definition of normalization is
     // located under the description of the fno instruction.  Attempted
     // repetition with the rpl instruction causes an illegal procedure fault.
-    
+
 #ifdef L68
     cpu.ou.cycle |= ou_GOS;
 #endif
@@ -1809,7 +1809,7 @@ void fstr (word36 *Y)
     //A &= DMASK;
     //Q &= DMASK;
     //E &= (int) MASK8;
-   
+
     float72 m = convert_to_word72 (A, Q);
 #ifdef NEED_128
     if (iszero_128 (m))
@@ -1824,7 +1824,7 @@ void fstr (word36 *Y)
         putbits36_8 (Y, 0, (word8) E & MASK8);
         return;
       }
-    
+
     // C(AQ) + (11...1)29,71 → C(AQ)
     bool ovf;
     word18 flags1 = 0;
@@ -1861,7 +1861,7 @@ void fstr (word36 *Y)
     convert_to_word36 (m, & A, & Q);
     fno (& E, & A, & Q);
     SC_I_OFLOW(savedovf);
-    
+
     * Y = setbits36_8 (A >> 8, 0, (word8) E);
   }
 
@@ -1872,16 +1872,16 @@ void fcmp(void)
   {
     // C(E) :: C(Y)0,7
     // C(AQ)0,27 :: C(Y)8,35
-    
+
     // Zero: If C(EAQ) = C(Y), then ON; otherwise OFF
     // Neg: If C(EAQ) < C(Y), then ON; otherwise OFF
-    
+
     // Notes: The fcmp instruction is executed as follows:
     // The mantissas are aligned by shifting the mantissa of the operand with
     // the algebraically smaller exponent to the right the number of places
     // equal to the difference in the two exponents.
     // The aligned mantissas are compared and the indicators set accordingly.
-    
+
     CPTUR (cptUseE);
 #ifdef NEED_128
     word72 m1= lshift_128 (construct_128 (0, cpu.rA & 0777777777400), 36);
@@ -1889,7 +1889,7 @@ void fcmp(void)
     word72 m1 = ((word72)cpu.rA & 0777777777400LL) << 36;
 #endif
     int    e1 = SIGNEXT8_int (cpu.rE & MASK8);
-    
+
     // 28-bit mantissa (incl sign)
 #ifdef NEED_128
     word72 m2 = lshift_128 (construct_128 (0, getbits36_28 (cpu.CY, 8)), 44);
@@ -1897,9 +1897,9 @@ void fcmp(void)
     word72 m2 = ((word72) getbits36_28 (cpu.CY, 8)) << 44;
 #endif
     int    e2 = SIGNEXT8_int (getbits36_8 (cpu.CY, 0));
-    
+
     //which exponent is smaller???
-    
+
 #ifdef L68
     cpu.ou.cycle = ou_GOE;
 #endif
@@ -1908,7 +1908,7 @@ void fcmp(void)
 #endif
     int shift_count = -1;
     word1 notallzeros = 0;
-    
+
     if (e1 == e2)
       {
         shift_count = 0;
@@ -2020,7 +2020,7 @@ void fcmp(void)
         //e3 = e1;
 #endif
       }
-    
+
     // need to do algebraic comparisons of mantissae
 #ifdef NEED_128
     SC_I_ZERO (iseq_128 (m1, m2));
@@ -2040,13 +2040,13 @@ void fcmg ()
     // | C(AQ)0,27 | :: | C(Y)8,35 |
     // * Zero: If | C(EAQ)| = | C(Y) |, then ON; otherwise OFF
     // * Neg : If | C(EAQ)| < | C(Y) |, then ON; otherwise OFF
-    
+
     // Notes: The fcmp instruction is executed as follows:
     // The mantissas are aligned by shifting the mantissa of the operand with
     // the algebraically smaller exponent to the right the number of places
     // equal to the difference in the two exponents.
     // The aligned mantissas are compared and the indicators set accordingly.
-    
+
    // The fcmg instruction is identical to the fcmp instruction except that the
    // magnitudes of the mantissas are compared instead of the algebraic values.
 
@@ -2083,13 +2083,13 @@ void fcmg ()
     //int e3 = -1;
 
     //which exponent is smaller???
-    
+
 #ifdef L68
     cpu.ou.cycle = ou_GOE;
 #endif
     int shift_count = -1;
     word1 notallzeros = 0;
-    
+
     if (e1 == e2)
       {
         shift_count = 0;
@@ -2200,7 +2200,7 @@ void fcmg ()
 #endif
         //e3 = e1;
     }
-    
+
 #ifdef NEED_128
     SC_I_ZERO (iseq_128 (m1, m2));
 #else
@@ -2245,7 +2245,7 @@ void fcmg ()
             if (s)
                 m1 |= SIGN36;
           }
-        
+
         m1 &= MASK36;
         e1 = e2;
       }
@@ -2275,7 +2275,7 @@ void fcmg ()
         CLR_I_ZERO;
         return;
       }
-// ISOLTS ps736    test-01u  
+// ISOLTS ps736    test-01u
     if (m1 == 0 && ! m2waszero)
       SET_I_NEG;
     else
@@ -2316,7 +2316,7 @@ void dufa (bool subtract)
   {
     // Except for the precision of the mantissa of the operand from main
     // memory, the dufa instruction is identical to the ufa instruction.
-    
+
     // C(EAQ) + C(Y) → C(EAQ)
     // The ufa instruction is executed as follows:
     // The mantissas are aligned by shifting the mantissa of the operand having
@@ -2329,7 +2329,7 @@ void dufa (bool subtract)
     // *  C(AQ) are shifted one place to the right.
     // *  C(AQ)0 is inverted to restore the sign.
     // *  C(E) is increased by one.
-    
+
     // The dufs instruction is identical to the dufa instruction with the
     // exception that the twos complement of the mantissa of the operand from
     // main memory (op2) is used.
@@ -2343,7 +2343,7 @@ void dufa (bool subtract)
 #endif
 
     word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ);
-    int e1 = SIGNEXT8_int (cpu . rE & MASK8); 
+    int e1 = SIGNEXT8_int (cpu . rE & MASK8);
 
     // 64-bit mantissa (incl sign)
 #ifdef NEED_128
@@ -2351,10 +2351,10 @@ void dufa (bool subtract)
            //m2 = or_128 (m2, construct_128 (0, cpu.Ypair[1] << 8));
            m2 = or_128 (m2, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
-    word72 m2 = ((word72) getbits36_28 (cpu.Ypair[0], 8)) << 44; 
+    word72 m2 = ((word72) getbits36_28 (cpu.Ypair[0], 8)) << 44;
            m2 |= (word72) cpu.Ypair[1] << 8;
 #endif
-    
+
     int e2 = SIGNEXT8_int (getbits36_8 (cpu.Ypair[0], 0));
 
     // see ufs
@@ -2362,7 +2362,7 @@ void dufa (bool subtract)
     if (subtract) {
 
 #ifdef NEED_128
-       if (iszero_128 (m2)) 
+       if (iszero_128 (m2))
            m2zero = 1;
        if (iseq_128 (m2, SIGN72)) {
 #ifdef HEX_MODE
@@ -2375,7 +2375,7 @@ void dufa (bool subtract)
        } else
            m2 = and_128 (negate_128 (m2), MASK72);
 #else
-       if (m2 == 0) 
+       if (m2 == 0)
            m2zero = 1;
        if (m2 == SIGN72) {
 #ifdef HEX_MODE
@@ -2393,7 +2393,7 @@ void dufa (bool subtract)
     int e3 = -1;
 
     // which exponent is smaller?
-    
+
 #ifdef L68
     cpu.ou.cycle |= ou_GOE;
 #endif
@@ -2512,7 +2512,7 @@ void dufa (bool subtract)
         e3 = e1;
       }
     //sim_printf ("shift_count = %d\n", shift_count);
-    
+
     bool ovf;
     word72 m3 = Add72b (m1, m2, 0, I_CARRY, & cpu.cu.IR, & ovf);
     if (m2zero)
@@ -2599,7 +2599,7 @@ void dufa (bool subtract)
         if (tstOVFfault ())
           dlyDoFault (FAULT_OFL, fst_zero, "dufa exp overflow fault");
       }
-    
+
     // EUFL: If exponent is less than -128, then ON
     if (e3 < -128)
       {
@@ -2617,33 +2617,33 @@ void dufs (void)
 {
     // Except for the precision of the mantissa of the operand from main memory,
     // the dufs instruction is identical with the ufs instruction.
-    
+
     // The ufs instruction is identical to the ufa instruction with the
     // exception that the twos complement of the mantissa of the operand from
     // main memory (op2) is used.
-    
+
     // They're probably a few gotcha's here but we'll see.
     // Yup ... when mantissa 1 000 000 .... 000 we can't do 2'c comp.
-    
+
     float72 m2 = 0;
     int e2 = -128;
-    
+
     YPairToExpMant(cpu.Ypair, &m2, &e2);
-    
+
     word72 m2c = ~m2 + 1;     ///< & 01777777777LL;     ///< take 2-comp of mantissa
     m2c &= MASK72;
-    
+
     /*!
      * When signs are the *same* after complement we have an overflow
      * (Treat as in addition when we get an overflow)
      */
     bool ov = ((m2 & SIGN72) == (m2c & SIGN72)); ///< the "weird" number.
-    
+
     if (ov && m2 != 0)
     {
         m2c >>= 1;
         m2c &= MASK72;
-        
+
         if (e2 == 127)
         {
             SET_I_EOFL;
@@ -2652,7 +2652,7 @@ void dufs (void)
         }
         e2 += 1;
     }
-    
+
     if (m2c == 0)
     {
 //      cpu.Ypair[0] = 0400000000000LL;
@@ -2666,9 +2666,9 @@ void dufs (void)
 //        cpu.Ypair[1]  = (m2c >> 8) &  0777777777400LL;
         ExpMantToYpair(m2c, e2, cpu.Ypair);
     }
-    
+
     dufa ();
-    
+
 }
 #endif
 
@@ -2679,23 +2679,23 @@ void dufm (void)
 {
     // Except for the precision of the mantissa of the operand from main memory,
     //the dufm instruction is identical to the ufm instruction.
-    
+
     // The ufm instruction is executed as follows:
     //      C(E) + C(Y)0,7 → C(E)
     //      ( C(AQ) × C(Y)8,35 )0,71 → C(AQ)
-    
+
     // * Zero: If C(AQ) = 0, then ON; otherwise OFF
     // * Neg: If C(AQ)0 = 1, then ON; otherwise OFF
     // * Exp Ovr: If exponent is greater than +127, then ON
     // * Exp Undr: If exponent is less than -128, then ON
-    
+
     CPTUR (cptUseE);
 #ifdef L68
     cpu.ou.cycle |= ou_GOS;
 #endif
     word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ);
     int    e1 = SIGNEXT8_int (cpu . rE & MASK8);
-    
+
 #ifndef NEED_128
     sim_debug (DBG_TRACEEXT, & cpu_dev, "dufm e1 %d %03o m1 %012"PRIo64" %012"PRIo64"\n", e1, e1, (word36) (m1 >> 36) & MASK36, (word36) m1 & MASK36);
 #endif
@@ -2705,10 +2705,10 @@ void dufm (void)
            //m2 = or_128 (m2, construct_128 (0, cpu.Ypair[1] << 8));
            m2 = or_128 (m2, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
-    word72 m2 = ((word72) getbits36_28 (cpu.Ypair[0], 8)) << 44; 
+    word72 m2 = ((word72) getbits36_28 (cpu.Ypair[0], 8)) << 44;
            m2 |= (word72) cpu.Ypair[1] << 8;
 #endif
-    
+
     // 8-bit signed integer (incl sign)
     int    e2 = SIGNEXT8_int (getbits36_8 (cpu.Ypair[0], 0));
 
@@ -2717,7 +2717,7 @@ void dufm (void)
                "dufm e2 %d %03o m2 %012"PRIo64" %012"PRIo64"\n", e2, e2, (word36) (m2 >> 36) & MASK36, (word36) m2 & MASK36);
 #endif
 
-    
+
 #ifdef NEED_128
     if (iszero_128 (m1) || iszero_128 (m2))
 #else
@@ -2726,17 +2726,17 @@ void dufm (void)
       {
         SET_I_ZERO;
         CLR_I_NEG;
-        
+
         cpu . rE = 0200U; /*-128*/
         cpu . rA = 0;
         HDBGRegA ();
         cpu . rQ = 0;
-        
+
         return; // normalized 0
       }
-    
+
     int e3 = e1 + e2;
-    
+
     if (e3 >  127)
     {
       SET_I_EOFL;
@@ -2758,9 +2758,9 @@ void dufm (void)
     // do a 128x64 signed multiplication
 #if 0
     // absolute value and unsigned multiplication
-	// does not work
+        // does not work
     uint128 m1a = m1;
-	uint128 m2a = m2;
+        uint128 m2a = m2;
     int sign = 1;
 
     if (m1 & SIGN72)
@@ -2823,7 +2823,7 @@ void dufm (void)
 #endif
 #endif
 
-    // A normalization is performed only in the case of both factor mantissas being 100...0 
+    // A normalization is performed only in the case of both factor mantissas being 100...0
     // which is the twos complement approximation to the decimal value -1.0.
 #ifdef NEED_128
     if (iseq_128 (m1, SIGN72) && iseq_128 (m2, SIGN72))
@@ -2865,21 +2865,21 @@ void dufm (void)
 /*!
  * floating divide ...
  */
-// CANFAULT 
+// CANFAULT
 static void dfdvX (bool bInvert)
   {
     // C(EAQ) / C (Y) → C(EA)
     // C(Y) / C(EAQ) → C(EA) (Inverted)
-    
+
     // 00...0 → C(Q)
-    
+
     // The dfdv instruction is executed as follows:
     // The dividend mantissa C(AQ) is shifted right and the dividend exponent
     // C(E) increased accordingly until
     //    | C(AQ)0,63 | < | C(Y-pair)8,71 |
     //    C(E) - C(Y-pair)0,7 → C(E)
     //    C(AQ) / C(Y-pair)8,71 → C(AQ)0,63 00...0 → C(Q)64,71
-    
+
     CPTUR (cptUseE);
 #ifdef L68
     cpu.ou.cycle |= ou_GOS;
@@ -2889,7 +2889,7 @@ static void dfdvX (bool bInvert)
 #endif
     word72 m1;
     int    e1;
-    
+
     word72 m2;
     int    e2;
 
@@ -2898,7 +2898,7 @@ static void dfdvX (bool bInvert)
     if (!bInvert)
       {
         m1 = convert_to_word72 (cpu.rA, cpu.rQ);
-        e1 = SIGNEXT8_int (cpu . rE & MASK8); 
+        e1 = SIGNEXT8_int (cpu . rE & MASK8);
 
         // 64-bit mantissa (incl sign)
 #ifdef NEED_128
@@ -2906,16 +2906,16 @@ static void dfdvX (bool bInvert)
         //m2 = or_128 (m2, construct_128 (0, cpu.Ypair[1] << 8));
         m2 = or_128 (m2, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
-        m2 = ((word72) getbits36_28 (cpu.Ypair[0], 8)) << 44; 
+        m2 = ((word72) getbits36_28 (cpu.Ypair[0], 8)) << 44;
         m2 |= (word72) cpu.Ypair[1] << 8;
 #endif
-        
+
         e2 = SIGNEXT8_int (getbits36_8 (cpu.Ypair[0], 0));
       }
     else
       { // invert
         m2 = convert_to_word72 (cpu.rA, cpu.rQ);
-        e2 = SIGNEXT8_int (cpu . rE & MASK8); 
+        e2 = SIGNEXT8_int (cpu . rE & MASK8);
 
         // round divisor per RJ78
         // If AQ(64-71) is not = 0 and A(0) = 0, a 1 is added to AQ(63). Zero is moved to
@@ -2948,13 +2948,13 @@ static void dfdvX (bool bInvert)
         //m1 = or_128 (m1, construct_128 (0, cpu.Ypair[1] << 8));
         m1 = or_128 (m1, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
-        m1 = ((word72) getbits36_28 (cpu.Ypair[0], 8)) << 44; 
+        m1 = ((word72) getbits36_28 (cpu.Ypair[0], 8)) << 44;
         m1 |= (word72) cpu.Ypair[1] << 8;
 #endif
-        
+
         e1 = SIGNEXT8_int (getbits36_8 (cpu.Ypair[0], 0));
       }
-    
+
 #ifdef NEED_128
     if (iszero_128 (m1))
 #else
@@ -2963,13 +2963,13 @@ static void dfdvX (bool bInvert)
       {
         SET_I_ZERO;
         CLR_I_NEG;
-        
+
         cpu.rE = 0200U; /*-128*/
         cpu.rA = 0;
         HDBGRegA ();
         cpu.rQ = 0;
-        
-        return;	// normalized 0 
+
+        return; // normalized 0
       }
 
     // make everything positive, but save sign info for later....
@@ -2992,7 +2992,7 @@ static void dfdvX (bool bInvert)
     } else {
         CLR_I_NEG; // in case of divide fault
     }
-    
+
     if ((isnonzero_128 (and_128 (m2, SIGN72))) && !roundovf)
     {
         if (iseq_128 (m2, SIGN72))
@@ -3025,7 +3025,7 @@ static void dfdvX (bool bInvert)
     } else {
         CLR_I_NEG; // in case of divide fault
     }
-    
+
     if ((m2 & SIGN72) && !roundovf)
     {
         if (m2 == SIGN72)
@@ -3041,7 +3041,7 @@ static void dfdvX (bool bInvert)
         sign = -sign;
     }
 #endif
-    
+
 #ifdef NEED_128
     if (iszero_128 (m2))
 #else
@@ -3054,7 +3054,7 @@ static void dfdvX (bool bInvert)
         // NEG already set
 
         // FDV: If the divisor mantissa C(Y-pair)8,71 is zero after alignment (HWR: why after?), the division does
-        // not take place. Instead, a divide check fault occurs, C(AQ) contains the dividend magnitude, and 
+        // not take place. Instead, a divide check fault occurs, C(AQ) contains the dividend magnitude, and
         // the negative indicator reflects the dividend sign.
         // FDI: If the divisor mantissa C(AQ) is zero, the division does not take place.
         // Instead, a divide check fault occurs and all the registers remain unchanged.
@@ -3064,7 +3064,7 @@ static void dfdvX (bool bInvert)
         }
         doFault (FAULT_DIV, fst_zero, "DFDV: divide check fault");
       }
-    
+
 #ifdef L68
     cpu.ou.cycle |= ou_GOA;
 #endif
@@ -3132,31 +3132,31 @@ static void dfdvX (bool bInvert)
     convert_to_word36 (m3, & cpu.rA, & cpu.rQ);
     HDBGRegA ();
     cpu.rE = (word8) e3 & MASK8;
-    
+
     SC_I_ZERO (cpu.rA == 0 && cpu . rQ == 0);
-    SC_I_NEG (cpu.rA & SIGN36); 
+    SC_I_NEG (cpu.rA & SIGN36);
 
     if (cpu.rA == 0 && cpu.rQ == 0)    // set to normalized 0
         cpu.rE = 0200U; /*-128*/
   }
 
-// CANFAULT 
+// CANFAULT
 void dfdv (void)
   {
     dfdvX (false);    // no inversion
   }
 
-// CANFAULT 
+// CANFAULT
 void dfdi (void)
   {
     dfdvX (true);
   }
 
 
-//#define DVF_HWR 
+//#define DVF_HWR
 //#define DVF_FRACTIONAL
 #define DVF_CAC
-// CANFAULT 
+// CANFAULT
 void dvf (void)
 {
 //#ifdef DBGCAC
@@ -3165,19 +3165,19 @@ void dvf (void)
     // C(AQ) / (Y)
     //  fractional quotient → C(A)
     //  fractional remainder → C(Q)
-    
-    // A 71-bit fractional dividend (including sign) is divided by a 36-bit 
-    // fractional divisor yielding a 36-bit fractional quotient (including 
-    // sign) and a 36-bit fractional remainder (including sign). C(AQ)71 is 
-    // ignored; bit position 35 of the remainder corresponds to bit position 
-    // 70 of the dividend. The remainder sign is equal to the dividend sign 
+
+    // A 71-bit fractional dividend (including sign) is divided by a 36-bit
+    // fractional divisor yielding a 36-bit fractional quotient (including
+    // sign) and a 36-bit fractional remainder (including sign). C(AQ)71 is
+    // ignored; bit position 35 of the remainder corresponds to bit position
+    // 70 of the dividend. The remainder sign is equal to the dividend sign
     // unless the remainder is zero.
     //
-    // If | dividend | >= | divisor | or if the divisor = 0, division does 
-    // not take place. Instead, a divide check fault occurs, C(AQ) contains 
-    // the dividend magnitude in absolute, and the negative indicator 
+    // If | dividend | >= | divisor | or if the divisor = 0, division does
+    // not take place. Instead, a divide check fault occurs, C(AQ) contains
+    // the dividend magnitude in absolute, and the negative indicator
     // reflects the dividend sign.
-    
+
 // HWR code
 //HWR--#ifdef DVF_HWR
 //HWR--    // m1 divedend
@@ -3196,13 +3196,13 @@ void dvf (void)
 //HWR--        // XXX check flags
 //HWR--        SET_I_ZERO;
 //HWR--        SC_I_NEG (cpu . rA & SIGN36);
-//HWR--        
+//HWR--
 //HWR--        cpu . rA = 0;
 //HWR--        cpu . rQ = 0;
-//HWR--        
+//HWR--
 //HWR--        return;
 //HWR--    }
-//HWR--    
+//HWR--
 //HWR--    // make everything positive, but save sign info for later....
 //HWR--    int sign = 1;
 //HWR--    int dividendSign = 1;
@@ -3212,39 +3212,39 @@ void dvf (void)
 //HWR--        sign = -sign;
 //HWR--        dividendSign = -1;
 //HWR--    }
-//HWR--    
+//HWR--
 //HWR--    if (m2 & SIGN72)
 //HWR--    {
 //HWR--        m2 = (~m2 + 1);
 //HWR--        sign = -sign;
 //HWR--    }
-//HWR--    
+//HWR--
 //HWR--    if (m1 >= m2 || m2 == 0)
-//HWR--    {        
+//HWR--    {
 //HWR--        //cpu . rA = m1;
 //HWR--        cpu . rA = (m1 >> 36) & MASK36;
 //HWR--        cpu . rQ = m1 & 0777777777776LLU;
-//HWR--        
+//HWR--
 //HWR--        SET_I_ZERO;
 //HWR--        SC_I_NEG (cpu . rA & SIGN36);
-//HWR--        
+//HWR--
 //HWR--        doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
 //HWR--    }
-//HWR--    
+//HWR--
 //HWR--    uint128 dividend = (uint128)m1 << 63;
 //HWR--    uint128 divisor = (uint128)m2;
-//HWR--    
+//HWR--
 //HWR--    //uint128 m3  = ((uint128)m1 << 63) / (uint128)m2;
 //HWR--    //uint128 m3r = ((uint128)m1 << 63) % (uint128)m2;
 //HWR--    int128 m3  = (int128)(dividend / divisor);
 //HWR--    int128 m3r = (int128)(dividend % divisor);
 //HWR--
-//HWR--    if (sign == -1) 
+//HWR--    if (sign == -1)
 //HWR--        m3 = -m3;   //(~m3 + 1);
-//HWR--    
+//HWR--
 //HWR--    if (dividendSign == -1) // The remainder sign is equal to the dividend sign unless the remainder is zero.
 //HWR--        m3r = -m3r; //(~m3r + 1);
-//HWR--    
+//HWR--
 //HWR--    cpu . rA = (m3 >> 64) & MASK36;
 //HWR--    cpu . rQ = m3r & MASK36;   //01777777777LL;
 //HWR--#endif
@@ -3282,8 +3282,8 @@ void dvf (void)
 
     // Get the 35 bits of the divisor (36 bits less the sign bit)
 
-    // divisor format: . d(0) .... d(34) 0 0 0 .... 0 
-    
+    // divisor format: . d(0) .... d(34) 0 0 0 .... 0
+
 #if 1
     // divisor goes in the high half
     uint128 dFrac = (cpu.CY & MASK35) << 35;
@@ -3355,13 +3355,13 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
       {
         SC_I_ZERO (cpu.rA == 0);
         SC_I_NEG (cpu.rA & SIGN36);
-        
+
         doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
       }
     cpu . rA = quot & MASK36;
     HDBGRegA ();
     cpu . rQ = remainder & MASK36;
- 
+
 #endif
 
 // MM code
@@ -3373,10 +3373,10 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
         // XXX check flags
         SET_I_ZERO;
         SC_I_NEG (cpu . rA & SIGN36);
-        
+
         cpu . rA = 0;
         cpu . rQ = 0;
-        
+
         return;
     }
 #endif
@@ -3432,8 +3432,8 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
 
     // Get the 35 bits of the divisor (36 bits less the sign bit)
 
-    // divisor format: . d(0) .... d(34) 0 0 0 .... 0 
-    
+    // divisor format: . d(0) .... d(34) 0 0 0 .... 0
+
     // divisor goes in the low half
     uint128 dFrac = convert_to_word72 (0, cpu.CY & MASK35);
 #ifdef NEED_128
@@ -3516,7 +3516,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
 // this got:
 //            s/b 373737373737 373737373740 200200
 //            was 373737373740 373737373740 000200
-//                          ~~ 
+//                          ~~
 #if 1
         bool Aneg = (cpu.rA & SIGN36) != 0; // blood type
         bool AQzero = cpu.rA == 0 && cpu.rQ == 0;
@@ -3549,7 +3549,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
         //SC_I_NEG (cpu . rA & SIGN36);
         SC_I_ZERO (AQzero);
         SC_I_NEG (Aneg);
-        
+
         dlyDoFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
         return;
       }
@@ -3579,7 +3579,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
     cpu . rQ = remainder & MASK36;
 #endif
     HDBGRegA ();
- 
+
 #endif
 
 //sim_debug (DBG_CAC, & cpu_dev, "Quotient %"PRId64" (%"PRIo64")\n", cpu . rA, cpu . rA);
@@ -3596,13 +3596,13 @@ void dfrd (void)
   {
     // The dfrd instruction is identical to the frd instruction except that the
     // rounding constant used is (11...1)65,71 instead of (11...1)29,71.
-    
+
     // If C(AQ) != 0, the frd instruction performs a true round to a precision
     // of 64 bits and a normalization on C(EAQ).
     // A true round is a rounding operation such that the sum of the result of
     // applying the operation to two numbers of equal magnitude but opposite
     // sign is exactly zero.
-    
+
     // The frd instruction is executed as follows:
     // C(AQ) + (11...1)65,71 -> C(AQ)
     // * If C(AQ)0 = 0, then a carry is added at AQ71
@@ -3610,7 +3610,7 @@ void dfrd (void)
     // is increased by 1.
     // * If overflow does not occur, C(EAQ) is normalized.
     // * If C(AQ) = 0, C(E) is set to -128 and the zero indicator is set ON.
-        
+
     CPTUR (cptUseE);
     float72 m = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
@@ -3622,7 +3622,7 @@ void dfrd (void)
         cpu.rE = 0200U; /*-128*/
         SET_I_ZERO;
         CLR_I_NEG;
-        
+
         return;
       }
 
@@ -3645,7 +3645,7 @@ void dfrd (void)
     m = Add72b (m, 0177, carry, I_OFLOW, & flags1, & ovf);
 #endif
 
-    // 0 -> C(AQ)64,71 
+    // 0 -> C(AQ)64,71
 #ifdef NEED_128
     putbits72 (& m, 64, 8, construct_128 (0, 0));  // 64-71 => 0 per DH02
 #else
@@ -3672,21 +3672,21 @@ void dfstr (word36 *Ypair)
     //! The definition of true round is located under the description of the frd instruction.
     //! The definition of normalization is located under the description of the fno instruction.
     //! Except for the precision of the stored result, the dfstr instruction is identical to the fstr instruction.
-        
+
     //! The dfrd instruction is identical to the frd instruction except that the rounding constant used is (11...1)65,71 instead of (11...1)29,71.
-    
+
     //! If C(AQ) ≠ 0, the frd instruction performs a true round to a precision of 28 bits and a normalization on C(EAQ).
     //! A true round is a rounding operation such that the sum of the result of applying the operation to two numbers of equal magnitude but opposite sign is exactly zero.
-    
+
     //! The frd instruction is executed as follows:
     //! C(AQ) + (11...1)29,71 → C(AQ)
     //! * If C(AQ)0 = 0, then a carry is added at AQ71
     //! * If overflow occurs, C(AQ) is shifted one place to the right and C(E) is increased by 1.
     //! * If overflow does not occur, C(EAQ) is normalized.
     //! * If C(AQ) = 0, C(E) is set to -128 and the zero indicator is set ON.
-    
+
     //! I believe AL39 is incorrect; bits 64-71 should be set to 0, not 65-71. DH02-01 & Bull 9000 is correct.
-    
+
     CPTUR (cptUseE);
     word36 A = cpu . rA, Q = cpu . rQ;
     word8 E = cpu . rE;
@@ -3703,14 +3703,14 @@ void dfstr (word36 *Ypair)
         E = (word8)-128;
         SET_I_ZERO;
         CLR_I_NEG;
-        
+
         Ypair[0] = ((word36) E & MASK8) << 28;
         Ypair[1] = 0;
 
         return;
     }
-    
-    
+
+
     // C(AQ) + (11...1)65,71 → C(AQ)
     bool ovf;
     word18 flags1 = 0;
@@ -3762,32 +3762,32 @@ void dfcmp (void)
 #if 0
     //! C(E) :: C(Y-pair)0,7
     //! C(AQ)0,63 :: C(Y-pair)8,71
-    
+
     //! Zero: If C(EAQ) = C(Y), then ON; otherwise OFF
     //! Neg: If C(EAQ) < C(Y), then ON; otherwise OFF
-    
+
     //! The dfcmp instruction is identical to the fcmp instruction except for the precision of the mantissas actually compared.
-    
+
     //! Notes: The fcmp instruction is executed as follows:
     //! The mantissas are aligned by shifting the mantissa of the operand with the algebraically smaller exponent to the right the number of places equal to the difference in the two exponents.
     //! The aligned mantissas are compared and the indicators set accordingly.
-    
+
     int64 m1 = (int64) ((cpu . rA << 28) | ((cpu . rQ & 0777777777400LL) >> 8));  ///< only keep the 1st 64-bits :(
     int   e1 = SIGNEXT8_int (cpu . rE & MASK8);
-    
+
     //int64 m2  = (int64) (bitfieldExtract36(cpu.Ypair[0], 0, 28) << 36);    ///< 64-bit mantissa (incl sign)
     int64 m2  = ((int64) (getbits36_28 (cpu.Ypair[0], 8)) << 36);    // 64-bit mantissa (incl sign)
           m2 |= cpu.Ypair[1];
     // CAC int64 m2  = (int64) (bitfieldExtract36(cpu.Ypair[0], 0, 28) << 44);    ///< 64-bit mantissa (incl sign)
           // CAC m2 |= cpu.Ypair[1] << 8;
-    
+
     //int8 e2 = (int8) (bitfieldExtract36(cpu.Ypair[0], 28, 8) & 0377U);    ///< 8-bit signed integer (incl sign)
     int   e2 = SIGNEXT8_int (getbits36_8 (cpu.Ypair[0], 0));
 
     //which exponent is smaller???
-    
+
     int shift_count = -1;
-    
+
     if (e1 == e2)
     {
         shift_count = 0;
@@ -3802,7 +3802,7 @@ void dfcmp (void)
         shift_count = abs(e1 - e2);
         m2 >>= shift_count;
     }
-    
+
     // need to do algebraic comparisons of mantissae
     SC_I_ZERO (m1 == m2);
     SC_I_NEG  (m1 <  m2);
@@ -3811,7 +3811,7 @@ void dfcmp (void)
     // C(AQ)0,63 :: C(Y-pair)8,71
     // * Zero: If | C(EAQ)| = | C(Y-pair) |, then ON; otherwise OFF
     // * Neg : If | C(EAQ)| < | C(Y-pair) |, then ON; otherwise OFF
-    
+
     // The dfcmp instruction is identical to the fcmp instruction except for
     // the precision of the mantissas actually compared.
 
@@ -3820,7 +3820,7 @@ void dfcmp (void)
     // the algebraically smaller exponent to the right the number of places
     // equal to the difference in the two exponents.
     // The aligned mantissas are compared and the indicators set accordingly.
-    
+
     // C(AQ)0,63
     CPTUR (cptUseE);
 #ifdef HEX_MODE
@@ -3835,18 +3835,18 @@ void dfcmp (void)
     //m2 = or_128 (m2, construct_128 (0, cpu.Ypair[1] << 8));
     m2 = or_128 (m2, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
-    word72 m2 = (word72) getbits36_28 (cpu.Ypair[0], 8) << (36 + 8);  
+    word72 m2 = (word72) getbits36_28 (cpu.Ypair[0], 8) << (36 + 8);
     m2 |= cpu.Ypair[1] << 8;
 #endif
     int   e2 = SIGNEXT8_int (getbits36_8 (cpu.Ypair[0], 0));
-    
+
     //int e3 = -1;
 
     //which exponent is smaller???
-    
+
     int shift_count = -1;
     word1 notallzeros = 0;
-    
+
 #ifdef NEED_128
     if (e1 == e2)
     {
@@ -3868,7 +3868,7 @@ void dfcmp (void)
             if (s)
                 m1 = or_128 (m1, SIGN72);
         }
-        
+
 #ifdef HEX_MODE
         if (iseq_128 (m1, MASK72) && notallzeros == 1 && shift_count * (int) shift_amt > 71)
             m1 = construct_128 (0, 0);
@@ -3905,7 +3905,7 @@ void dfcmp (void)
         m2 = and_128 (m2, MASK72);
         //e3 = e1;
     }
-    
+
     SC_I_ZERO (iseq_128 (m1, m2));
     int128 sm1 = SIGNEXT72_128 (m1);
     int128 sm2 = SIGNEXT72_128 (m2);
@@ -3931,7 +3931,7 @@ void dfcmp (void)
             if (s)
                 m1 |= SIGN72;
         }
-        
+
 #ifdef HEX_MODE
         if (m1 == MASK72 && notallzeros == 1 && shift_count * (int) shift_amt > 71)
             m1 = 0;
@@ -3968,7 +3968,7 @@ void dfcmp (void)
         m2 &= MASK72;
         //e3 = e1;
     }
-    
+
     SC_I_ZERO (m1 == m2);
     int128 sm1 = SIGNEXT72_128 (m1);
     int128 sm2 = SIGNEXT72_128 (m2);
@@ -3986,17 +3986,17 @@ void dfcmg (void)
     // | C(AQ)0,27 | :: | C(Y)8,35 |
     // * Zero: If | C(EAQ)| = | C(Y) |, then ON; otherwise OFF
     // * Neg : If | C(EAQ)| < | C(Y) |, then ON; otherwise OFF
-    
+
     // Notes: The fcmp instruction is executed as follows:
     // The mantissas are aligned by shifting the mantissa of the operand with
     // the algebraically smaller exponent to the right the number of places
     // equal to the difference in the two exponents.
     // The aligned mantissas are compared and the indicators set accordingly.
-    
+
     // The dfcmg instruction is identical to the dfcmp instruction except that
     // the magnitudes of the mantissas are compared instead of the algebraic
     // values.
-    
+
     CPTUR (cptUseE);
 #ifdef HEX_MODE
     uint shift_amt = isHex() ? 4 : 1;
@@ -4012,11 +4012,11 @@ void dfcmg (void)
     //m2 = or_128 (m2, construct_128 (0, cpu.Ypair[1] << 8));
     m2 = or_128 (m2, lshift_128 (construct_128 (0, cpu.Ypair[1]), 8u));
 #else
-    word72 m2 = (word72) getbits36_28 (cpu.Ypair[0], 8) << (36 + 8);  
+    word72 m2 = (word72) getbits36_28 (cpu.Ypair[0], 8) << (36 + 8);
     m2 |= cpu.Ypair[1] << 8;
 #endif
     int    e2 = SIGNEXT8_int (getbits36_8 (cpu.Ypair[0], 0));
-    
+
     //int e3 = -1;
 
     //which exponent is smaller???
@@ -4025,7 +4025,7 @@ void dfcmg (void)
 #endif
     int shift_count = -1;
     word1 notallzeros = 0;
-    
+
     if (e1 == e2)
       {
         shift_count = 0;
@@ -4125,7 +4125,7 @@ void dfcmg (void)
         //e3 = e1;
 #endif
       }
-    
+
 #ifdef NEED_128
     SC_I_ZERO (iseq_128 (m1, m2));
     int128 sm1 = SIGNEXT72_128 (m1);

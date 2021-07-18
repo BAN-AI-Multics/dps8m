@@ -2,12 +2,12 @@
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2015-2018 Charles Anthony
  * Copyright (c) 2021 The DPS8M Development Team
- * 
+ *
  * All rights reserved.
  *
- * This software is made available under the terms of the ICU  
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //
@@ -67,7 +67,7 @@ static t_stat absi_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat absi_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, 
+static t_stat absi_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
                                const char * cptr, UNUSED void * desc)
   {
     if (! cptr)
@@ -176,7 +176,7 @@ DEVICE absi_dev = {
     8,            /* data radix */
     36,           /* data width */
     NULL,         /* examine */
-    NULL,         /* deposit */ 
+    NULL,         /* deposit */
     absi_reset,   /* reset */
     NULL,         /* boot */
     absiAttach,         /* attach */
@@ -211,11 +211,11 @@ void absi_init (void)
 static int absi_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = &iom_chan_data[iomUnitIdx][chan];
-// sim_printf ("absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n", 
+// sim_printf ("absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n",
 //p->IDCW_CHAN_CMD, p->IDCW_DEV_CODE, p->IDCW_DEV_CMD, p->IDCW_COUNT);
-    sim_debug (DBG_TRACE, & absi_dev, 
-               "absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n", 
-               p->IDCW_CHAN_CMD, p->IDCW_DEV_CODE, p->IDCW_DEV_CMD, 
+    sim_debug (DBG_TRACE, & absi_dev,
+               "absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n",
+               p->IDCW_CHAN_CMD, p->IDCW_DEV_CODE, p->IDCW_DEV_CMD,
                p->IDCW_COUNT);
 
 
@@ -329,7 +329,7 @@ void absi_process_event (void)
               }
             // Send a NOP reply
             //int16_t reply[2] = 0x0040
-            int rc = udp_send (absi_state[unit].link, pkt, (uint16_t) sz, 
+            int rc = udp_send (absi_state[unit].link, pkt, (uint16_t) sz,
                                PFLG_FINAL);
             if (rc < 0)
               {
@@ -338,7 +338,3 @@ void absi_process_event (void)
           }
       }
   }
-
-
-
-

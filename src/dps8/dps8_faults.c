@@ -9,7 +9,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //
@@ -38,6 +38,8 @@
 
 #define DBG_CTR cpu.cycleCnt
 
+/* XXX(johnsonjh): ML */
+
 /*
  FAULT RECOGNITION
  For the discussion following, the term "function" is defined as a major processor functional cycle. Examples are: APPEND CYCLE, CA CYCLE, INSTRUCTION FETCH CYCLE, OPERAND STORE CYCLE, DIVIDE EXECUTION CYCLE. Some of these cycles are discussed in various sections of this manual.
@@ -52,9 +54,9 @@
  */
 
 /*
- 
+
                                 Table 7-1. List of Faults
- 
+
  Decimal fault     Octal (1)      Fault   Fault name            Priority    Group
      number      fault address   mnemonic
         0      ;         0     ;      sdf  ;   Shutdown             ;   27     ;     7
@@ -85,7 +87,7 @@
         25     ;        62     ;      f3   ;   Fault tag 3          ;   19     ;     5
         26     ;        64     ;           ;   Unassigned           ;          ;
         27     ;        66     ;           ;   Unassigned           ;          ;
- 
+
 */
 
 #ifndef QUIET_UNUSED
@@ -232,7 +234,7 @@ static int fault2prio[32] = {
 
 #ifdef TESTING
 // We stash a few things for debugging; they are accessed by emCall.
-static word18 fault_ic; 
+static word18 fault_ic;
 static word15 fault_psr;
 static char fault_msg [1024];
 
@@ -257,17 +259,17 @@ void clearFaultCycle (void)
 
 Faults in groups 1 and 2 cause the processor to abort all functions immediately
 by entering a FAULT CYCLE.
- 
+
 Faults in group 3 cause the processor to "close out" current functions without
 taking any irrevocable action (such as setting PTW.U in an APPEND CYCLE or
 modifying an indirect word in a CA CYCLE), then to discard any pending
 functions (such as an APPEND CYCLE needed during a CA CYCLE), and to enter a
 FAULT CYCLE.
- 
+
 Faults in group 4 cause the processor to suspend overlapped operation, to
 complete current and pending functions for the current instruction, and then to
 enter a FAULT CYCLE.
- 
+
 Faults in groups 5 or 6 are normally detected during virtual address formation
 and instruction decode. These faults cause the processor to suspend overlapped
 operation, to complete the current and pending instructions, and to enter a
@@ -278,15 +280,15 @@ fault is detected during execution of the current instruction (e.g., an access
 violation, out of segment bounds, fault during certain interruptible EIS
 instructions), the instruction is considered "complete" upon detection of the
 fault.
- 
+
 Faults in group 7 are held and processed (with interrupts) at the completion
 of the current instruction pair.
- 
+
 Group 7 faults are inhibitable by setting bit 28 of the instruction word.
- 
+
 Faults in groups 3 through 6 must wait for the system controller to acknowledge
 the last access request before entering the FAULT CYCLE.
- 
+
 After much rumination here are my thoughts for fault processing .....
 
 For now, at least, we must remember a few things:
@@ -296,16 +298,16 @@ etc.
 2) We have no overlapping instruction execution
 3) Becuase of 2) we have no pending instructions
 4) We have no system controller to wait for
- 
+
 Group 1 & 2 faults can be processed immediately and then proceed to next
 instruction as long as no transfer prevents us from returing from the XED pair.
- 
+
 Group 3 faults will probably also execute immediately since a G3 fault causes
 "the processor to "close out" current functions without taking any irrevocable
 action (such as setting PTW.U in an APPEND CYCLE or modifying an indirect word
 in a CA CYCLE), then to discard any pending functions (such as an APPEND CYCLE
 needed during a CA CYCLE), and to enter a FAULT CYCLE."
- 
+
 Group 4 faults will probably also execute immediately since a G4 fault causes
 "the processor to suspend overlapped operation, to complete current and pending
 functions for the current instruction, and then to enter a FAULT CYCLE."
@@ -325,11 +327,11 @@ fault."
 For furter justification of immediate execution since "Faults in groups 3
 through 6 must wait for the system controller to acknowledge the last access
 request before entering the FAULT CYCLE."
- 
+
 Group 7 faults will be processed after next even instruction decode instruction
 decode, but before instruction execution. In this way we can actually use
 bit-28 tp inhibit interrupts
- 
+
 */
 
 #ifdef LOOPTRC
@@ -351,9 +353,9 @@ const _fault_subtype fst_str_ptr = (_fault_subtype) {.fault_str_subtype=flt_str_
 const _fault_subtype fst_cmd_lprpn = (_fault_subtype) {.fault_cmd_subtype=flt_cmd_lprpn_bits};
 const _fault_subtype fst_cmd_ctl = (_fault_subtype) {.fault_cmd_subtype=flt_cmd_not_control};
 const _fault_subtype fst_onc_nem = (_fault_subtype) {.fault_onc_subtype=flt_onc_nem};
-#endif 
-// CANFAULT 
-void doFault (_fault faultNumber, _fault_subtype subFault, 
+#endif
+// CANFAULT
+void doFault (_fault faultNumber, _fault_subtype subFault,
               const char * faultMsg)
   {
 #ifdef LOOPTRC
@@ -369,14 +371,14 @@ else if (faultNumber == FAULT_ACV)
 }
 #endif
 //if (current_running_cpu_idx)
-    //sim_printf ("Fault %d(0%0o), sub %ld(0%lo), dfc %c, '%s'\n", 
-               //faultNumber, faultNumber, subFault, subFault, 
+    //sim_printf ("Fault %d(0%0o), sub %ld(0%lo), dfc %c, '%s'\n",
+               //faultNumber, faultNumber, subFault, subFault,
                //cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
 //if (current_running_cpu_idx)
     //sim_printf ("xde %d xdo %d\n", cpu.cu.xde, cpu.cu.xdo);
-    sim_debug (DBG_FAULT, & cpu_dev, 
-               "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\n", 
-               faultNumber, faultNumber, subFault.bits, subFault.bits, 
+    sim_debug (DBG_FAULT, & cpu_dev,
+               "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\n",
+               faultNumber, faultNumber, subFault.bits, subFault.bits,
                cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
 #ifdef HDBG
     hdbgFault (faultNumber, subFault, faultMsg);
@@ -398,7 +400,7 @@ else if (faultNumber == FAULT_ACV)
     //if (faultNumber < 0 || faultNumber > 31)
     if (faultNumber & ~037U)  // quicker?
     {
-        sim_printf ("fault(out-of-range): %d %"PRIo64" '%s'\n", 
+        sim_printf ("fault(out-of-range): %d %"PRIo64" '%s'\n",
                     faultNumber, subFault.bits, faultMsg ? faultMsg : "?");
         sim_warn ("fault out-of-range\n");
         faultNumber = FAULT_TRB;
@@ -410,7 +412,7 @@ else if (faultNumber == FAULT_ACV)
 
     // "The occurrence of a fault or interrupt sets the cache-to-register mode bit to OFF." a:AL39/cmr1
     CPTUR (cptUseCMR);
-    cpu.CMR.csh_reg = 0;   
+    cpu.CMR.csh_reg = 0;
 
     // Increment FCT
 
@@ -516,10 +518,10 @@ else if (faultNumber == FAULT_ACV)
 // Testing faultNumber fixes ISOLTS 890-04a
     // fixes 890-04a and 791 / 792
     SC_I_MIF (cpu.cycle == EXEC_cycle &&
-	      (cpu.currentInstruction.info->ndes > 0 ||
-	       (faultNumber == FAULT_IPR && (subFault.fault_ipr_subtype & FR_ILL_OP) &&
-		cpu.currentInstruction.opcodeX &&
-		(cpu.currentInstruction.opcode & 0410) == 0)));
+              (cpu.currentInstruction.info->ndes > 0 ||
+               (faultNumber == FAULT_IPR && (subFault.fault_ipr_subtype & FR_ILL_OP) &&
+                cpu.currentInstruction.opcodeX &&
+                (cpu.currentInstruction.opcode & 0410) == 0)));
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MIF %o\n", TST_I_MIF);
 #if 0
 sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu.currentInstruction.info->ndes, faultNumber, (cpu . cycle == EXEC_cycle && cpu . currentInstruction . info -> ndes > 0) || faultNumber == FAULT_IPR);
@@ -535,7 +537,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
 #endif
     if (faultNumber == FAULT_ACV)
       {
-        // This is annoyingly inefficent since the subFault value 
+        // This is annoyingly inefficent since the subFault value
         // is bitwise the same as the upper half of CU word1;
         // if the upperhalf were not broken out, then this would be
         // cpu . cu . word1_upper_half = subFault.
@@ -604,9 +606,9 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
 #ifdef L68
     // History registers
     // IHRRS; AL39 pg 47
-    // History register lock control. If this bit is set ON, set STROBE ¢ 
-    // (bit 30, key k) OFF, locking the history registers for all faults 
-    // including the floating faults. 
+    // History register lock control. If this bit is set ON, set STROBE ¢
+    // (bit 30, key k) OFF, locking the history registers for all faults
+    // including the floating faults.
     CPTUR (cptUseMR);
     if (cpu.MR.emr && cpu.MR.ihrrs)
       {
@@ -637,7 +639,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
           }
       }
     // Enable History Registers.  This bit will be reset by ... an Op Not
-    // Complete fault. It may be reset by other faults (see bit 31). 
+    // Complete fault. It may be reset by other faults (see bit 31).
     if (faultNumber == FAULT_ONC)
       {
         cpu.MR.ihr = 0;
@@ -660,7 +662,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
 #ifndef PANEL
 #ifndef ROUND_ROBIN
             if ((! sample_interrupts ()) &&
-                (sim_qcount () == 0))  // XXX If clk_svc is implemented it will 
+                (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                      // break this logic
               {
                 sim_printf ("Fault cascade @0%06o with no interrupts pending and no events in queue\n", cpu . PPR.IC);
@@ -683,8 +685,8 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
       {
         cpu . bTroubleFaultCycle = false;
       }
-    
-    // If doInstruction faults, the instruction cycle counter doesn't get 
+
+    // If doInstruction faults, the instruction cycle counter doesn't get
     // bumped.
     if (cpu . cycle == EXEC_cycle)
       cpu.instrCnt ++;
@@ -697,8 +699,8 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
 #ifdef L68
 void do_FFV_fault (uint fault_number, const char * fault_msg)
   {
-    sim_debug (DBG_FAULT, & cpu_dev, 
-               "Floating fault %d '%s'\n", 
+    sim_debug (DBG_FAULT, & cpu_dev,
+               "Floating fault %d '%s'\n",
                fault_number, fault_msg);
 #ifndef SPEED
     if_sim_debug (DBG_FAULT, & cpu_dev)
@@ -707,7 +709,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 
     if (fault_number < 1 || fault_number > 3)
       {
-        sim_printf ("floating fault(out-of-range): %d '%s'\n", 
+        sim_printf ("floating fault(out-of-range): %d '%s'\n",
                     fault_number, fault_msg ? fault_msg : "?");
         sim_warn ("fault out-of-range\n");
       }
@@ -717,7 +719,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 
     // "The occurrence of a fault or interrupt sets the cache-to-register mode bit to OFF." a:AL39/cmr1
     CPTUR (cptUseCMR);
-    cpu.CMR.csh_reg = 0;   
+    cpu.CMR.csh_reg = 0;
 
     // Increment FCT
 
@@ -779,9 +781,9 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 
     // History registers
     // IHRRS; AL39 pg 47
-    // History register lock control. If this bit is set ON, set STROBE ¢ 
-    // (bit 30, key k) OFF, locking the history registers for all faults 
-    // including the floating faults. 
+    // History register lock control. If this bit is set ON, set STROBE ¢
+    // (bit 30, key k) OFF, locking the history registers for all faults
+    // including the floating faults.
     CPTUR (cptUseMR);
     if (cpu.MR.emr && cpu.MR.ihrrs)
       {
@@ -800,7 +802,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 #ifndef PANEL
 #ifndef ROUND_ROBIN
             if ((! sample_interrupts ()) &&
-                (sim_qcount () == 0))  // XXX If clk_svc is implemented it will 
+                (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                      // break this logic
               {
                 sim_printf ("Fault cascade @0%06o with no interrupts pending and no events in queue\n", cpu.PPR.IC);
@@ -822,8 +824,8 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
         longjmp (cpu.jmpMain, JMP_REENTRY);
       }
     cpu.bTroubleFaultCycle = false;
-    
-    // If doInstruction faults, the instruction cycle counter doesn't get 
+
+    // If doInstruction faults, the instruction cycle counter doesn't get
     // bumped.
     if (cpu . cycle == EXEC_cycle)
       cpu.instrCnt ++;
@@ -834,7 +836,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 }
 #endif
 
-void dlyDoFault (_fault faultNumber, _fault_subtype subFault, 
+void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg)
   {
     cpu.dlyFlt = true;
@@ -849,7 +851,7 @@ void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
 
 // Note: The DIS code assumes that the only G7 fault is TRO. Adding any
 // other G7 faults will potentailly require changing the DIS code.
- 
+
 bool bG7Pending (void)
   {
 #ifdef DPS8M
@@ -872,7 +874,7 @@ bool bG7PendingNoTRO (void)
 
 void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
   {
-    sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o) sub %"PRId64" %"PRIo64"\n", 
+    sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o) sub %"PRId64" %"PRIo64"\n",
                cpuNo, faultNo, faultNo, subFault.bits, subFault.bits);
     cpus[cpuNo].g7FaultsPreset |= (1u << faultNo);
     //cpu.g7SubFaultsPreset [faultNo] = subFault;
@@ -914,9 +916,9 @@ void doG7Fault (bool allowTR)
          cpu.g7Faults &= ~(1u << FAULT_CON);
 
 #if defined(THREADZ) || defined(LOCKLESS)
-	 unlock_scu ();
+         unlock_scu ();
 #endif
-         doFault (FAULT_CON, cpu.g7SubFaults [FAULT_CON], "Connect"); 
+         doFault (FAULT_CON, cpu.g7SubFaults [FAULT_CON], "Connect");
        }
 
      if (allowTR && (cpu.g7Faults & (1u << FAULT_TRO)))
@@ -927,7 +929,7 @@ void doG7Fault (bool allowTR)
 #if defined(THREADZ) || defined(LOCKLESS)
          unlock_scu ();
 #endif
-	 doFault (FAULT_TRO, fst_zero, "Timer runout"); 
+         doFault (FAULT_TRO, fst_zero, "Timer runout");
        }
 
      // Strictly speaking EXF isn't a G7 fault, put if we treat is as one,
@@ -938,9 +940,9 @@ void doG7Fault (bool allowTR)
          cpu . g7Faults &= ~(1u << FAULT_EXF);
 
 #if defined(THREADZ) || defined(LOCKLESS)
-	 unlock_scu ();
+         unlock_scu ();
 #endif
-	 doFault (FAULT_EXF, fst_zero, "Execute fault");
+         doFault (FAULT_EXF, fst_zero, "Execute fault");
        }
 
 #ifdef L68
@@ -948,7 +950,7 @@ void doG7Fault (bool allowTR)
        {
          cpu.FFV_faults &= ~1u;
 #if defined(THREADZ) || defined(LOCKLESS)
-	 unlock_scu ();
+         unlock_scu ();
 #endif
          do_FFV_fault (1, "OC TRAP");
        }
@@ -956,7 +958,7 @@ void doG7Fault (bool allowTR)
        {
          cpu.FFV_faults &= ~2u;
 #if defined(THREADZ) || defined(LOCKLESS)
-	 unlock_scu ();
+         unlock_scu ();
 #endif
          do_FFV_fault (2, "CU HIST OVF TRAP");
        }
@@ -964,7 +966,7 @@ void doG7Fault (bool allowTR)
        {
          cpu.FFV_faults &= ~4u;
 #if defined(THREADZ) || defined(LOCKLESS)
-	 unlock_scu ();
+         unlock_scu ();
 #endif
          do_FFV_fault (3, "ADR TRAP");
        }

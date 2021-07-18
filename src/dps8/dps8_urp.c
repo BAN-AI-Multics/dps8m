@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //
@@ -37,17 +37,15 @@
 
 //-- // XXX We use this where we assume there is only one unit
 //-- #define ASSUME0 0
-//-- 
- 
-/*
- Copyright (c) 2007-2013 Michael Mondy
- 
- This software is made available under the terms of the
- ICU License -- ICU 1.8.1 and later.
- See the LICENSE file at the top-level directory of this distribution and
- at http://example.org/project/LICENSE.
- */
+//--
 
+ /*
+  * Copyright (c) 2007-2013 Michael Mondy
+  *
+  * This software is made available under the terms of the ICU
+  * License, version 1.8.1 or later.  For more details, see the
+  * LICENSE.md file at the top-level directory of this distribution.
+  */
 
 #define N_PRU_UNITS 1 // default
 
@@ -170,7 +168,7 @@ DEVICE urp_dev = {
     8,            /* data radix */
     36,           /* data width */
     NULL,         /* examine */
-    NULL,         /* deposit */ 
+    NULL,         /* deposit */
     urp_reset,   /* reset */
     NULL,         /* boot */
     NULL,         /* attach */
@@ -255,7 +253,7 @@ static int urp_cmd (uint iomUnitIdx, uint chan)
               }
 
             // We don't use the DDCW, so just pretend we do.
-            p -> stati = 04000; 
+            p -> stati = 04000;
           }
           break;
 
@@ -297,7 +295,7 @@ static int urp_cmd (uint iomUnitIdx, uint chan)
               }
 
             // We don't use the DDCW, so just pretend we do.
-            p -> stati = 04000; 
+            p -> stati = 04000;
           }
           break;
 
@@ -317,7 +315,7 @@ static int urp_cmd (uint iomUnitIdx, uint chan)
               sim_warn ("urp daze %o\n", p -> IDCW_DEV_CMD);
           }
           return IOM_CMD_ERROR;
-        }   
+        }
 
     if (p -> IDCW_CONTROL == 3) // marker bit set
       {

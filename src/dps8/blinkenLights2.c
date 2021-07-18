@@ -6,7 +6,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #include <stdbool.h>
@@ -91,7 +91,7 @@ static GtkWidget * createLightArray (int n, bool state [])
       }
     return grid;
   }
-        
+
 static bool PRR_state [3];
 static bool PSR_state [15];
 static bool P_state [1];
@@ -298,7 +298,7 @@ static gboolean time_handler (GtkWidget * widget)
           }
         //gtk_widget_queue_draw (E_display);
       }
-    
+
     for(int nreg = 0; nreg < 8; nreg ++) {
       if (memcmp (& cpun -> rX[nreg], & previous . rX[nreg], sizeof (previous . rX[nreg])))
         {
@@ -519,9 +519,9 @@ int main (int argc, char * argv [])
     gdk_rgba_parse (& lightOff, "black");
 
     GtkWidget * window;
-    
+
     gtk_init (& argc, & argv);
-    
+
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     GtkWidget * window_rows = gtk_grid_new ();
 
@@ -687,7 +687,7 @@ int main (int argc, char * argv [])
     GtkWidget * RNR_label[8];
     GtkWidget * BITNO_label[8];
     GtkWidget * WORDNO_label[8];
-    
+
     for(int nreg = 0; nreg < 8; nreg ++) {
       char PAR_text[6] = "PARn ";
 
@@ -919,12 +919,10 @@ int main (int argc, char * argv [])
 
     g_signal_connect (window, "delete-event", window_delete, NULL);
     gtk_widget_show_all  (window);
-    
+
     time_handler (window);
 
     gtk_main ();
-
-
 
     return 0;
   }

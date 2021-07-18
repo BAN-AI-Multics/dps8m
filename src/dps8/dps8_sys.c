@@ -7,10 +7,10 @@
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * All rights reserved.
- * 
+ *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 /**
@@ -140,7 +140,7 @@ t_stat sim_load (FILE *fileref, const char *cptr, const char *fnam, int flag)
 // simh Commands
 //
 
-// 
+//
 // System configuration commands
 //
 
@@ -162,7 +162,7 @@ static char * default_base_system_script [] =
     // ; SCUs. Thus, if memory port B of CPU C goes to SCU D, the memory port
     // ; B of all other CPUs and IOMs must go to SCU D. All CPUs and IOMs must
     // ; describe this SCU the same; all must agree in memory sizes. Also, all
-    // ; SCUs must agree on port assignments of CPUs and IOMs. This, if port 3 
+    // ; SCUs must agree on port assignments of CPUs and IOMs. This, if port 3
     // ; of SCU C goes to CPU A, the port 3 of all other SCUs must also go to
     // ; CPU A.
     // ;
@@ -170,9 +170,9 @@ static char * default_base_system_script [] =
     // ;
     // ; The actual memory size of the memory attached to the SCU attached to
     // ; the processor port in questions is 32K * 2 ** (encoded memory size).
-    // ; The port assignment couples with the memory size to determine the base 
+    // ; The port assignment couples with the memory size to determine the base
     // ; address of the SCU connected to the specified CPU port (absoulte
-    // ; address of the first location in the memory attached to that SCU). The 
+    // ; address of the first location in the memory attached to that SCU). The
     // ; base address of the SCU is the (actual memory size) * (port assignment).
     // ;
     // ; Pg. 8-6
@@ -193,7 +193,7 @@ static char * default_base_system_script [] =
 // IOM channel assignments
 //
 // IOM A
-//  
+//
 //  012 MTP0           tape drives
 //  013 IPC0 port 0    FIPS disk controller
 //  014 MSP0 port 0    disk controller
@@ -264,7 +264,7 @@ static char * default_base_system_script [] =
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
     // ;   each is 3 bits addr assignment
-    // ;           1 bit enabled 
+    // ;           1 bit enabled
     // ;           1 bit sysinit enabled
     // ;           1 bit interlace enabled (interlace?)
     // ;           3 bit memory size
@@ -275,7 +275,7 @@ static char * default_base_system_script [] =
     // ;              4 - 512K
     // ;              5 - 1M
     // ;              6 - 2M
-    // ;              7 - 4M  
+    // ;              7 - 4M
 
     "set cpu0 config=port=A",
     "set cpu0   config=assignment=0",
@@ -283,7 +283,7 @@ static char * default_base_system_script [] =
     "set cpu0   config=enable=1",
     "set cpu0   config=init_enable=1",
     "set cpu0   config=store_size=4M",
- 
+
     "set cpu0 config=port=B",
     "set cpu0   config=assignment=1",
     "set cpu0   config=interlace=0",
@@ -329,7 +329,7 @@ static char * default_base_system_script [] =
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
     // ;   each is 3 bits addr assignment
-    // ;           1 bit enabled 
+    // ;           1 bit enabled
     // ;           1 bit sysinit enabled
     // ;           1 bit interlace enabled (interlace?)
     // ;           3 bit memory size
@@ -340,7 +340,7 @@ static char * default_base_system_script [] =
     // ;              4 - 512K
     // ;              5 - 1M
     // ;              6 - 2M
-    // ;              7 - 4M  
+    // ;              7 - 4M
 
     "set cpu1 config=port=A",
     "set cpu1   config=assignment=0",
@@ -348,7 +348,7 @@ static char * default_base_system_script [] =
     "set cpu1   config=enable=1",
     "set cpu1   config=init_enable=1",
     "set cpu1   config=store_size=4M",
- 
+
     "set cpu1 config=port=B",
     "set cpu1   config=assignment=1",
     "set cpu1   config=interlace=0",
@@ -395,7 +395,7 @@ static char * default_base_system_script [] =
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
     // ;   each is 3 bits addr assignment
-    // ;           1 bit enabled 
+    // ;           1 bit enabled
     // ;           1 bit sysinit enabled
     // ;           1 bit interlace enabled (interlace?)
     // ;           3 bit memory size
@@ -406,7 +406,7 @@ static char * default_base_system_script [] =
     // ;              4 - 512K
     // ;              5 - 1M
     // ;              6 - 2M
-    // ;              7 - 4M  
+    // ;              7 - 4M
 
     "set cpu2 config=port=A",
     "set cpu2   config=assignment=0",
@@ -414,7 +414,7 @@ static char * default_base_system_script [] =
     "set cpu2   config=enable=1",
     "set cpu2   config=init_enable=1",
     "set cpu2   config=store_size=4M",
- 
+
     "set cpu2 config=port=B",
     "set cpu2   config=assignment=1",
     "set cpu2   config=interlace=0",
@@ -461,7 +461,7 @@ static char * default_base_system_script [] =
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
     // ;   each is 3 bits addr assignment
-    // ;           1 bit enabled 
+    // ;           1 bit enabled
     // ;           1 bit sysinit enabled
     // ;           1 bit interlace enabled (interlace?)
     // ;           3 bit memory size
@@ -472,7 +472,7 @@ static char * default_base_system_script [] =
     // ;              4 - 512K
     // ;              5 - 1M
     // ;              6 - 2M
-    // ;              7 - 4M  
+    // ;              7 - 4M
 
     "set cpu3 config=port=A",
     "set cpu3   config=assignment=0",
@@ -480,7 +480,7 @@ static char * default_base_system_script [] =
     "set cpu3   config=enable=1",
     "set cpu3   config=init_enable=1",
     "set cpu3   config=store_size=4M",
- 
+
     "set cpu3 config=port=B",
     "set cpu3   config=assignment=1",
     "set cpu3   config=interlace=0",
@@ -527,7 +527,7 @@ static char * default_base_system_script [] =
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
     // ;   each is 3 bits addr assignment
-    // ;           1 bit enabled 
+    // ;           1 bit enabled
     // ;           1 bit sysinit enabled
     // ;           1 bit interlace enabled (interlace?)
     // ;           3 bit memory size
@@ -538,7 +538,7 @@ static char * default_base_system_script [] =
     // ;              4 - 512K
     // ;              5 - 1M
     // ;              6 - 2M
-    // ;              7 - 4M  
+    // ;              7 - 4M
 
     "set cpu4 config=port=A",
     "set cpu4   config=assignment=0",
@@ -546,7 +546,7 @@ static char * default_base_system_script [] =
     "set cpu4   config=enable=1",
     "set cpu4   config=init_enable=1",
     "set cpu4   config=store_size=4M",
- 
+
     "set cpu4 config=port=B",
     "set cpu4   config=assignment=1",
     "set cpu4   config=interlace=0",
@@ -593,7 +593,7 @@ static char * default_base_system_script [] =
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
     // ;   each is 3 bits addr assignment
-    // ;           1 bit enabled 
+    // ;           1 bit enabled
     // ;           1 bit sysinit enabled
     // ;           1 bit interlace enabled (interlace?)
     // ;           3 bit memory size
@@ -604,7 +604,7 @@ static char * default_base_system_script [] =
     // ;              4 - 512K
     // ;              5 - 1M
     // ;              6 - 2M
-    // ;              7 - 4M  
+    // ;              7 - 4M
 
     "set cpu5 config=port=A",
     "set cpu5   config=assignment=0",
@@ -612,7 +612,7 @@ static char * default_base_system_script [] =
     "set cpu5   config=enable=1",
     "set cpu5   config=init_enable=1",
     "set cpu5   config=store_size=4M",
- 
+
     "set cpu5 config=port=B",
     "set cpu5   config=assignment=1",
     "set cpu5   config=interlace=0",
@@ -660,7 +660,7 @@ static char * default_base_system_script [] =
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
     // ;   each is 3 bits addr assignment
-    // ;           1 bit enabled 
+    // ;           1 bit enabled
     // ;           1 bit sysinit enabled
     // ;           1 bit interlace enabled (interlace?)
     // ;           3 bit memory size
@@ -671,7 +671,7 @@ static char * default_base_system_script [] =
     // ;              4 - 512K
     // ;              5 - 1M
     // ;              6 - 2M
-    // ;              7 - 4M  
+    // ;              7 - 4M
 
     "set cpu6 config=port=A",
     "set cpu6   config=assignment=0",
@@ -679,7 +679,7 @@ static char * default_base_system_script [] =
     "set cpu6   config=enable=1",
     "set cpu6   config=init_enable=1",
     "set cpu6   config=store_size=4M",
- 
+
     "set cpu6 config=port=B",
     "set cpu6   config=assignment=1",
     "set cpu6   config=interlace=0",
@@ -728,7 +728,7 @@ static char * default_base_system_script [] =
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
     // ;   each is 3 bits addr assignment
-    // ;           1 bit enabled 
+    // ;           1 bit enabled
     // ;           1 bit sysinit enabled
     // ;           1 bit interlace enabled (interlace?)
     // ;           3 bit memory size
@@ -739,7 +739,7 @@ static char * default_base_system_script [] =
     // ;              4 - 512K
     // ;              5 - 1M
     // ;              6 - 2M
-    // ;              7 - 4M  
+    // ;              7 - 4M
 
     "set cpu7 config=port=A",
     "set cpu7   config=assignment=0",
@@ -747,7 +747,7 @@ static char * default_base_system_script [] =
     "set cpu7   config=enable=1",
     "set cpu7   config=init_enable=1",
     "set cpu7   config=store_size=4M",
- 
+
     "set cpu7 config=port=B",
     "set cpu7   config=assignment=1",
     "set cpu7   config=interlace=0",
@@ -1567,7 +1567,7 @@ static char * default_base_system_script [] =
 // SCU2 --> CPU0-5
 
     // ; Attach SCU unit 2 port 7 to CPU unit A (1), port 2
-    "cable SCU2 7 CPU0 2", 
+    "cable SCU2 7 CPU0 2",
 
     // ; Attach SCU unit 2 port 6 to CPU unit B (1), port 2
     "cable SCU2 6 CPU1 2",
@@ -1718,7 +1718,7 @@ static t_stat boot_skip (int32 UNUSED arg, const char * UNUSED buf)
     uint32 skipped;
     return sim_tape_sprecsf (& mt_unit[0], 1, & skipped);
   }
-  
+
 // Simulate pressing the 'EXECUTE FAULT' button. Used as an
 // emergency interrupt of Multics if it hangs and becomes
 // unresponive to the operators console.
@@ -1952,7 +1952,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
         word36 SDWe, SDWo;
         core_read ((cpu.DSBR.ADDR + 2U * /*TPR.TSR*/ (uint) segno) & PAMASK,
                    & SDWe, __func__);
-        core_read ((cpu.DSBR.ADDR + 2U * /*TPR.TSR*/ (uint) segno  + 1) & PAMASK, 
+        core_read ((cpu.DSBR.ADDR + 2U * /*TPR.TSR*/ (uint) segno  + 1) & PAMASK,
                    & SDWo, __func__);
 
         // 3. If SDW.DF = 0, then generate directed fault n where n is given in
@@ -1973,7 +1973,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
           }
 
         // 5. If the access bits (SDW.R, SDW.E, etc.) of the segment are
-        //    incompatible with the reference, generate the appropriate access 
+        //    incompatible with the reference, generate the appropriate access
         //    violation fault.
 
         // abs_addr doesn't care
@@ -1991,7 +1991,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
         //word15 segno = TPR.TSR;
         //word18 offset = TPR.CA;
 
-        // 1. If 2 * segno >= 16 * (cpu.DSBR.BND + 1), then generate an access 
+        // 1. If 2 * segno >= 16 * (cpu.DSBR.BND + 1), then generate an access
         // violation, out of segment bounds, fault.
 
         if (2 * (uint) segno >= 16 * ((uint) cpu.DSBR.BND + 1))
@@ -2019,8 +2019,8 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
         PTW1.DF = TSTBIT(PTWx1, 2);
         PTW1.FC = PTWx1 & 3;
 
-        // 4. If PTW(x1).DF = 0, then generate directed fault n where n is 
-        // given in PTW(x1).FC. The value of n used here is the value 
+        // 4. If PTW(x1).DF = 0, then generate directed fault n where n is
+        // given in PTW(x1).FC. The value of n used here is the value
         // assigned to define a missing page fault or, simply, a
         // page fault.
 
@@ -2030,14 +2030,14 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
             return SCPE_ARG;
           }
 
-        // 5. Fetch the target segment SDW, SDW(segno), from the 
+        // 5. Fetch the target segment SDW, SDW(segno), from the
         // descriptor segment page at PTW(x1).ADDR + y1.
 
         word36 SDWeven, SDWodd;
         core_read2(((PTW1.ADDR << 6) + y1) & PAMASK, & SDWeven, & SDWodd,
                     __func__);
 
-        sdw0_s SDW0; 
+        sdw0_s SDW0;
         // even word
         SDW0.ADDR = (SDWeven >> 12) & PAMASK;
         SDW0.R1 = (SDWeven >> 9) & 7;
@@ -2057,7 +2057,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
         SDW0.C = TSTBIT(SDWodd, 14);
         SDW0.EB = SDWodd & 037777;
 
-        // 6. If SDW(segno).DF = 0, then generate directed fault n where 
+        // 6. If SDW(segno).DF = 0, then generate directed fault n where
         // n is given in SDW(segno).FC.
         // This is a segment fault as discussed earlier in this section.
 
@@ -2067,7 +2067,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
             return SCPE_ARG;
           }
 
-        // 7. If offset >= 16 * (SDW(segno).BOUND + 1), then generate an 
+        // 7. If offset >= 16 * (SDW(segno).BOUND + 1), then generate an
         // access violation, out of segment bounds, fault.
 
         if (((offset >> 4) & 037777) > SDW0.BOUND)
@@ -2076,8 +2076,8 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
             return SCPE_ARG;
           }
 
-        // 8. If the access bits (SDW(segno).R, SDW(segno).E, etc.) of the 
-        // segment are incompatible with the reference, generate the 
+        // 8. If the access bits (SDW(segno).R, SDW(segno).E, etc.) of the
+        // segment are incompatible with the reference, generate the
         // appropriate access violation fault.
 
         // Only the address is wanted, so no check
@@ -2091,12 +2091,12 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
 
             word24 y2 = offset % 1024;
             word24 x2 = (offset - y2) / 1024;
-    
+
             // 10. Fetch the target segment PTW(x2) from SDW(segno).ADDR + x2.
 
             word36 PTWx2;
             core_read ((SDW0.ADDR + x2) & PAMASK, & PTWx2, __func__);
-    
+
             ptw_s PTW2;
             PTW2.ADDR = GETHI(PTWx2);
             PTW2.U = TSTBIT(PTWx2, 9);
@@ -2104,7 +2104,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
             PTW2.DF = TSTBIT(PTWx2, 2);
             PTW2.FC = PTWx2 & 3;
 
-            // 11.If PTW(x2).DF = 0, then generate directed fault n where n is 
+            // 11.If PTW(x2).DF = 0, then generate directed fault n where n is
             // given in PTW(x2).FC. This is a page fault as in Step 4 above.
 
             // abs_addr only wants the address; it doesn't care if the page is
@@ -2117,7 +2117,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
             //     doFault(FAULT_DF0 + PTW2.FC, 0, "ABSA !PTW2.DF");
             //   }
 
-            // 12. Generate the 24-bit absolute main memory address 
+            // 12. Generate the 24-bit absolute main memory address
             // PTW(x2).ADDR + y2.
 
             res = (((word24) PTW2.ADDR) << 6)  + (word24) y2;
@@ -2213,9 +2213,9 @@ static int add_book_segment (char * name, int segno)
     n_book_segments ++;
     return n;
   }
- 
+
 static int add_book_component (int segnum, char * name, uint txt_start,
-                               uint txt_length, int intstat_start, 
+                               uint txt_length, int intstat_start,
                                int intstat_length, int symbol_start,
                                int symbol_length)
   {
@@ -2233,7 +2233,7 @@ static int add_book_component (int segnum, char * name, uint txt_start,
     n_book_components ++;
     return n;
   }
- 
+
 
 // Given a segno:offset, try to translate to
 // component name and offset in the component
@@ -2321,7 +2321,7 @@ char * lookup_address (word18 segno, word18 offset, char * * compname,
     // This little tweak allows source code level tracing for segment 0322,
     // and has no operational significance to the emulator
     // Hmmm. What is happening is that these segments are being loaded into
-    // ring 4, and assigned segment #'s; the assigned number will vary 
+    // ring 4, and assigned segment #'s; the assigned number will vary
     // depending on the exact sequence of events.
     if (segno == 0322)
       segno = 0162;
@@ -2346,7 +2346,7 @@ char * lookup_address (word18 segno, word18 offset, char * * compname,
             if (compoffset)
               * compoffset = offset;
             static char buf[129];
-            sprintf (buf, "bound_debug_util_:find_condition_info_+0%0o", 
+            sprintf (buf, "bound_debug_util_:find_condition_info_+0%0o",
                   offset - 0);
             return buf;
           }
@@ -2357,7 +2357,7 @@ char * lookup_address (word18 segno, word18 offset, char * * compname,
             if (compoffset)
               * compoffset = offset - IOPOS;
             static char buf[129];
-            sprintf (buf, "bound_debug_util_:interpret_op_ptr_+0%0o", 
+            sprintf (buf, "bound_debug_util_:interpret_op_ptr_+0%0o",
                   offset - IOPOS);
             return buf;
           }
@@ -2417,7 +2417,7 @@ void list_source (char * compname, word18 offset, uint dflag)
     char offset_str[17];
     sprintf (offset_str, "    %06o", offset);
 
-    char path[(source_search_path ? strlen (source_search_path) : 1) + 
+    char path[(source_search_path ? strlen (source_search_path) : 1) +
                1 + // "/"
                (compname ? strlen (compname) : 1) +
                 1 + strlen (".list") + 1];
@@ -2488,7 +2488,7 @@ void list_source (char * compname, word18 offset, uint dflag)
                     //     "     13 000705       275 000713  ...
                     // But some times
                     //     "     10 000156   21   84 000164
-                    //     "      8 000214        65 000222    4   84 000225    
+                    //     "      8 000214        65 000222    4   84 000225
                     //
                     //     "    349 001442       351 001445       353 001454    1    9 001456    1   11 001461    1   12 001463    1   13 001470
                     //     " 1   18 001477       357 001522       361 001525       363 001544       364 001546       365 001547       366 001553
@@ -2513,20 +2513,20 @@ void list_source (char * compname, word18 offset, uint dflag)
                         // deal with the extra numbers...
 
                         int cnt = sscanf (line,
-                          // " %d %o %d %o %d %o %d %o %d %o %d %o %d %o", 
+                          // " %d %o %d %o %d %o %d %o %d %o %d %o %d %o",
                           "%8c%o%*3c"
                           "%8c%o%*3c"
                           "%8c%o%*3c"
                           "%8c%o%*3c"
                           "%8c%o%*3c"
                           "%8c%o%*3c"
-                          "%8c%o", 
-                          (char *) & linenos[0], & loc[0], 
-                          (char *) & linenos[1], & loc[1], 
-                          (char *) & linenos[2], & loc[2], 
-                          (char *) & linenos[3], & loc[3], 
-                          (char *) & linenos[4], & loc[4], 
-                          (char *) & linenos[5], & loc[5], 
+                          "%8c%o",
+                          (char *) & linenos[0], & loc[0],
+                          (char *) & linenos[1], & loc[1],
+                          (char *) & linenos[2], & loc[2],
+                          (char *) & linenos[3], & loc[3],
+                          (char *) & linenos[4], & loc[4],
+                          (char *) & linenos[5], & loc[5],
                           (char *) & linenos[6], & loc[6]);
                         if (! (cnt == 2 || cnt == 4 || cnt == 6 ||
                                cnt == 8 || cnt == 10 || cnt == 12 ||
@@ -2610,14 +2610,14 @@ void list_source (char * compname, word18 offset, uint dflag)
                       }
                   } // if ! tableFound
               } // if PL/I listing
-                        
+
 fileDone:
             fclose (listing);
           } // if (listing)
       }
   }
 
-// STK 
+// STK
 
 #ifndef SCUMEM
 static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
@@ -2626,9 +2626,9 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
 
     word15 icSegno = cpu.PPR.PSR;
     word18 icOffset = cpu.PPR.IC;
-    
+
     sim_msg ("Entry ptr   %05o:%06o\n", icSegno, icOffset);
-    
+
     char * compname;
     word18 compoffset;
     char * where = lookup_address (icSegno, icOffset,
@@ -2652,7 +2652,7 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
 
     for (uint frameNo = 1; ; frameNo ++)
       {
-        sim_msg ("Frame %d %05o:%06o\n", 
+        sim_msg ("Frame %d %05o:%06o\n",
                     frameNo, fpSegno, fpOffset);
 
         word24 fp;
@@ -2662,17 +2662,17 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
                     fpSegno, fpOffset, msg);
             break;
           }
-    
+
         word15 prevfpSegno = (word15) ((M[fp + 16] >> 18) & MASK15);
         word18 prevfpOffset = (word18) ((M[fp + 17] >> 18) & MASK18);
-    
+
         sim_msg ("Previous FP %05o:%06o\n", prevfpSegno, prevfpOffset);
-    
+
         word15 returnSegno = (word15) ((M[fp + 20] >> 18) & MASK15);
         word18 returnOffset = (word18) ((M[fp + 21] >> 18) & MASK18);
-    
+
         sim_msg ("Return ptr  %05o:%06o\n", returnSegno, returnOffset);
-    
+
         if (returnOffset == 0)
           {
             if (frameNo == 1)
@@ -2702,9 +2702,9 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
 
         word15 entrySegno = (word15) ((M[fp + 22] >> 18) & MASK15);
         word18 entryOffset = (word18) ((M[fp + 23] >> 18) & MASK18);
-    
+
         sim_msg ("Entry ptr   %05o:%06o\n", entrySegno, entryOffset);
-    
+
         where = lookup_address (entrySegno, entryOffset,
                                 & compname, & compoffset);
         if (where)
@@ -2712,11 +2712,11 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
             sim_msg ("%05o:%06o %s\n", entrySegno, entryOffset, where);
             list_source (compname, compoffset, 0);
           }
-    
+
         word15 argSegno = (word15) ((M[fp + 26] >> 18) & MASK15);
         word18 argOffset = (word18) ((M[fp + 27] >> 18) & MASK18);
         sim_msg ("Arg ptr     %05o:%06o\n", argSegno, argOffset);
-    
+
         word24 ap;
         if (dbgLookupAddress (argSegno, argOffset, & ap, & msg))
           {
@@ -2724,7 +2724,7 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
                     argSegno, argOffset, msg);
             goto skipArgs;
           }
-    
+
         word16 argCount = (word16) ((M[ap + 0] >> 19) & MASK17);
         word18 callType = (word18) (M[ap + 0] & MASK18);
         word16 descCount = (word16) ((M[ap + 1] >> 19) & MASK17);
@@ -2745,7 +2745,7 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
               goto skipArgs;
               }
         sim_msg ("desc_count  %d\n", descCount);
-    
+
 #if 0
         if (descCount)
           {
@@ -2768,7 +2768,7 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
                   }
                 word36 argv = M[argnop];
                 sim_msg ("arg%d value   %05o:%06o[%08o] "
-                            "%012"PRIo64" (%"PRIu64")\n", 
+                            "%012"PRIo64" (%"PRIu64")\n",
                             argno, argSegno, argOffset, argnop, argv, argv);
                 sim_msg ("\n");
              }
@@ -2832,7 +2832,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
         int segno, p0, p1, p2;
 
         // 32 is BOOK_SEGMENT_NAME_LEN - 1
-        int cnt = sscanf (filebuf, "%32s %o  (%o, %o, %o)", name, & segno, 
+        int cnt = sscanf (filebuf, "%32s %o  (%o, %o, %o)", name, & segno,
           & p0, & p1, & p2);
         if (filebuf[0] != '\t' && cnt == 5)
           {
@@ -2850,7 +2850,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
           {
             // Check for collection 3 segment
             // 32 is BOOK_SEGMENT_NAME_LEN - 1
-            cnt = sscanf (filebuf, "%32s  (%o, %o, %o)", name, 
+            cnt = sscanf (filebuf, "%32s  (%o, %o, %o)", name,
               & p0, & p1, & p2);
             if (filebuf[0] != '\t' && cnt == 4)
               {
@@ -2907,7 +2907,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
             continue;
           }
 
-        cnt = sscanf (filebuf, "%32s %o  (%o, %o, %o)", name, & segno, 
+        cnt = sscanf (filebuf, "%32s %o  (%o, %o, %o)", name, & segno,
           & p0, & p1, & p2);
         if (filebuf[0] == '\t' && cnt == 5)
           {
@@ -2926,7 +2926,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
     fclose (fp);
 #if 0
     for (int i = 0; i < n_book_segments; i ++)
-      { 
+      {
         sim_msg ("  %-32s %6o\n", book_segments[i].segname,
                     book_segments[i].segno);
         for (int j = 0; j < n_book_components; j ++)
@@ -2934,12 +2934,12 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
             if (book_components[j].book_segment_number == i)
               {
                 printf ("    %-32s %6o %6o %6o %6o %6o %6o\n",
-                  book_components[j].compname, 
-                  book_components[j].txt_start, 
-                  book_components[j].txt_length, 
-                  book_components[j].intstat_start, 
-                  book_components[j].intstat_length, 
-                  book_components[j].symbol_start, 
+                  book_components[j].compname,
+                  book_components[j].txt_start,
+                  book_components[j].txt_length,
+                  book_components[j].intstat_start,
+                  book_components[j].intstat_length,
+                  book_components[j].symbol_start,
                   book_components[j].symbol_length);
               }
           }
@@ -2951,7 +2951,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
 
 static t_stat add_system_book_entry (UNUSED int32 arg, const char * buf)
   {
-    // asbe segname compname seg txt_start txt_len intstat_start intstat_length 
+    // asbe segname compname seg txt_start txt_len intstat_start intstat_length
     // symbol_start symbol_length
     char segname[BOOK_SEGMENT_NAME_LEN];
     char compname[BOOK_SEGMENT_NAME_LEN];
@@ -2961,9 +2961,9 @@ static t_stat add_system_book_entry (UNUSED int32 arg, const char * buf)
     uint  symbol_start, symbol_length;
 
     // 32 is BOOK_SEGMENT_NAME_LEN - 1
-    if (sscanf (buf, "%32s %32s %o %o %o %o %o %o %o", 
-                segname, compname, & segno, 
-                & txt_start, & txt_len, & intstat_start, & intstat_length, 
+    if (sscanf (buf, "%32s %32s %o %o %o %o %o %o %o",
+                segname, compname, & segno,
+                & txt_start, & txt_len, & intstat_start, & intstat_length,
                 & symbol_start, & symbol_length) != 9)
       return SCPE_ARG;
 
@@ -2972,7 +2972,7 @@ static t_stat add_system_book_entry (UNUSED int32 arg, const char * buf)
       return SCPE_ARG;
 
     if (add_book_component (idx, compname, txt_start, txt_len, (int) intstat_start,
-                           (int) intstat_length, (int) symbol_start, 
+                           (int) intstat_length, (int) symbol_start,
                            (int) symbol_length) < 0)
       return SCPE_ARG;
 
@@ -2984,7 +2984,7 @@ static t_stat add_system_book_entry (UNUSED int32 arg, const char * buf)
 //     sname:cname+offset
 //           given a segment name, component name and offset, return
 //           the segment number and offset
-   
+
 static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
   {
     char w1[strlen (buf)];
@@ -3022,7 +3022,7 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
     offset = strtol (w2, & end2, 8);
 
     if (* end1 == '\0' && * end2 == '\0' && * w3 == '\0')
-      { 
+      {
         // n:n
         char * ans = lookup_address ((word18) segno, (word18) offset, NULL, NULL);
         sim_warn ("%s\n", ans ? ans : "not found");
@@ -3083,10 +3083,10 @@ static t_stat virtAddrN (uint address)
             PTW1.M = TSTBIT(PTWx1, 6);
             PTW1.DF = TSTBIT(PTWx1, 2);
             PTW1.FC = PTWx1 & 3;
-           
+
             if (PTW1.DF == 0)
                 continue;
-            //sim_msg ("%06o  Addr %06o U %o M %o DF %o FC %o\n", 
+            //sim_msg ("%06o  Addr %06o U %o M %o DF %o FC %o\n",
             //            segno, PTW1.ADDR, PTW1.U, PTW1.M, PTW1.DF, PTW1.FC);
             //sim_msg ("    Target segment page table\n");
             for (word15 tspt = 0; tspt < 512u; tspt ++)
@@ -3119,7 +3119,7 @@ static t_stat virtAddrN (uint address)
                 //sim_msg ("    %06o Addr %06o %o,%o,%o F%o BOUND %06o "
                 //          "%c%c%c%c%c\n",
                 //          tspt, SDW0.ADDR, SDW0.R1, SDW0.R2, SDW0.R3, SDW0.F,
-                //          SDW0.BOUND, SDW0.R ? 'R' : '.', SDW0.E ? 'E' : '.', 
+                //          SDW0.BOUND, SDW0.R ? 'R' : '.', SDW0.E ? 'E' : '.',
                 //          SDW0.W ? 'W' : '.', SDW0.P ? 'P' : '.',
                 //          SDW0.U ? 'U' : '.');
                 if (SDW0.U == 0)
@@ -3145,7 +3145,7 @@ static t_stat virtAddrN (uint address)
                         PTW2.FC = PTWx2 & 3;
 
                         //sim_msg ("        %06o  Addr %06o U %o M %o F %o "
-                        //            "FC %o\n", 
+                        //            "FC %o\n",
                         //            offset, PTW2.ADDR, PTW2.U, PTW2.M, PTW2.F,
                         //            PTW2.FC);
                         if (address >= PTW2.ADDR + offset &&
@@ -3196,9 +3196,9 @@ static t_stat set_search_path (UNUSED int32 arg, UNUSED const char * buf)
 
 // Hook for gdb
 //
-// The idea is that if you want to set a gdb breakpoint for a particulary 
+// The idea is that if you want to set a gdb breakpoint for a particulary
 // complex condition, you can add a test for the condtion to the emulator
-// code and call brkbrk() when the condition is met; by doing a gdb 
+// code and call brkbrk() when the condition is met; by doing a gdb
 // 'b brkbrk', gdb will see when the condition is met.
 //
 
@@ -3433,7 +3433,7 @@ static t_stat search_memory (UNUSED int32 arg, const char * buf)
     word36 value;
     if (sscanf (buf, "%"PRIo64"", & value) != 1)
       return SCPE_ARG;
-    
+
     uint i;
     for (i = 0; i < MEMSIZE; i ++)
       if ((M[i] & DMASK) == value)
@@ -3455,7 +3455,7 @@ static t_stat set_dbg_cpu_mask (int32 UNUSED arg, const char * UNUSED buf)
     dbgCPUMask = msk;
     return SCPE_OK;
   }
-  
+
 #endif // TESTING
 
 //
@@ -3521,13 +3521,13 @@ static t_stat launch (int32 UNUSED arg, const char * buf)
 #else
      STARTUPINFO si;
      PROCESS_INFORMATION pi;
- 
+
      memset( &si, 0, sizeof(si) );
      si.cb = sizeof(si);
      memset( &pi, 0, sizeof(pi) );
- 
+
      if( !CreateProcess( NULL, (LPSTR)buf, NULL, NULL, FALSE, 0, NULL, NULL,
-                         &si, &pi ) ) 
+                         &si, &pi ) )
      {
          sim_msg ("fork failed\n");
          return SCPE_ARG;
@@ -3579,7 +3579,7 @@ static t_stat set_luf (int32 flag, UNUSED const char * cptr)
     luf_flag = flag;
     return SCPE_OK;
   }
- 
+
 #ifdef DBGEVENT
 uint n_dbgevents;
 struct dbgevent_t dbgevents[max_dbgevents];
@@ -3603,14 +3603,14 @@ static int dbgevent_compar (const void * a, const void * b)
 int dbgevent_lookup (word15 segno, word18 offset)
   {
     struct dbgevent_t key = {segno, offset, false};
-    struct dbgevent_t * p = (struct dbgevent_t *) bsearch (& key, dbgevents, (size_t) n_dbgevents, sizeof (struct dbgevent_t), dbgevent_compar); 
+    struct dbgevent_t * p = (struct dbgevent_t *) bsearch (& key, dbgevents, (size_t) n_dbgevents, sizeof (struct dbgevent_t), dbgevent_compar);
     if (! p)
       return -1;
     return (int) (p - dbgevents);
   }
 
 // "dbbevent segno:offset"
-// 
+//
 // arg: 0 set t0 event
 //      1 set event
 //      2 clear event
@@ -3902,36 +3902,110 @@ static void usr1_signal_handler (UNUSED int sig)
 
 static void dps8_init (void)
   {
-    sim_msg ("%s simulator    ", sim_name);
-#ifdef TESTING
-    sim_msg ("#### TESTING BUILD ####\n");
+        if (!sim_quiet)
+          {
+#if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_VERSION)
+#if defined(VER_H_GIT_PATCH_INT) && defined(VER_H_GIT_PATCH)
+#if VER_H_GIT_PATCH_INT < 1
+                sim_msg ("%s simulator %s", sim_name, VER_H_GIT_VERSION);
 #else
-    sim_msg ("Production build\n");
+            sim_msg ("%s simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
+#endif
+#else
+                sim_msg ("%s simulator %s", sim_name, VER_H_GIT_VERSION);
+#endif
+#endif
+#if !defined(VER_H_GIT_VERSION) || !defined(GENERATED_MAKE_VER_H)
+                sim_msg ("%s simulator", sim_name);
+#endif
+#ifdef TESTING
+    sim_msg ("\n Options: ");
+#ifndef HAVE_DPSOPT
+#define HAVE_DPSOPT 1
+#endif
+    sim_msg ("TESTING");
 #endif
 #ifdef ISOLTS
-    sim_msg ("#### ISOLTS BUILD ####\n");
+#ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#else
+    sim_msg ("\n Options: ");
+#endif
+#ifndef HAVE_DPSOPT
+#define HAVE_DPSOPT 1
+#endif
+    sim_msg ("ISOLTS");
 #endif
 #ifdef NEED_128
-    sim_msg ("#### NEED_128 BUILD ####\n");
+#ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#else
+    sim_msg ("\n Options: ");
+#endif
+#ifndef HAVE_DPSOPT
+#define HAVE_DPSOPT 1
+#endif
+    sim_msg ("NEED_128");
 #endif
 #ifdef WAM
-    sim_msg ("#### WAM BUILD ####\n");
+#ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#else
+    sim_msg ("\n Options: ");
+#endif
+#ifndef HAVE_DPSOPT
+#define HAVE_DPSOPT 1
+#endif
+    sim_msg ("WAM");
 #endif
 #ifdef HDBG
-    sim_msg ("#### HDBG BUILD ####\n");
+#ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#else
+    sim_msg ("\n Options: ");
+#endif
+#ifndef HAVE_DPSOPT
+#define HAVE_DPSOPT 1
+#endif
+    sim_msg ("HDBG");
 #endif
 #ifdef ROUND_ROBIN
-    sim_msg ("#### ROUND_ROBIN BUILD ####\n");
+#ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#else
+    sim_msg ("\n Options: ");
 #endif
-#ifdef M_SHARED
-    sim_msg ("#### M_SHARED BUILD ####\n");
+#ifndef HAVE_DPSOPT
+#define HAVE_DPSOPT 1
+#endif
+    sim_msg ("ROUND_ROBIN");
 #endif
 #ifdef LOCKLESS
-    sim_msg ("#### LOCKLESS BUILD ####\n");
+#ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#else
+    sim_msg ("\n Options: ");
+#endif
+#ifndef HAVE_DPSOPT
+#define HAVE_DPSOPT 1
+#endif
+    sim_msg ("LOCKLESS");
 #endif
 #ifdef TRACKER
-    sim_msg ("#### TRACKER BUILD ####\n");
+#ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#else
+    sim_msg ("\n Options: ");
 #endif
+#ifndef HAVE_DPSOPT
+#define HAVE_DPSOPT 1
+#endif
+    sim_msg ("TRACKER");
+#endif
+#if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
+                sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);
+#endif
+          }
 
     // special dps8 initialization stuff that cant be done in reset, etc .....
 
@@ -3970,7 +4044,7 @@ static void dps8_init (void)
 #endif
 
 #ifdef SCUMEM
-#warn SCUMEM not working with new shared memory model
+#error SCUMEM not working with new shared memory model
 #endif
 
 #ifdef __MINGW64__
@@ -3986,17 +4060,23 @@ static void dps8_init (void)
 
     if (strlen (system_state->commit_id) == 0)
       {
-        sim_printf ("Setting up new system state\r\n");
+                if (!sim_quiet)
+                  {
+                sim_printf ("\r\nSetting up new system state\r\n");
+                  }
       }
     else
       {
         if (strcmp (system_state->commit_id, VER_H_GIT_HASH) != 0)
           {
-            sim_warn ("WARNING: system_state hash changed; system state may be corrupt!\r\n");
+            sim_warn ("\r\n\r\nWARNING: system_state hash changed; system state may be corrupt!\r\n");
           }
         else
           {
-            sim_printf ("System state restored\r\n");
+                        if (!sim_quiet)
+                          {
+                    sim_printf ("\r\nSystem state restored\r\n");
+                          }
           }
       }
     strncpy (system_state->commit_id, VER_H_GIT_HASH, sizeof (system_state->commit_id));
@@ -4041,7 +4121,7 @@ static void dps8_init (void)
 
 
 
-#ifdef TESTING 
+#ifdef TESTING
 static struct pr_table
   {
     char  * alias;    // pr alias
@@ -4065,7 +4145,7 @@ static struct pr_table
     {"pr[5]", 5},
     {"pr[6]", 6},
     {"pr[7]", 7},
-    
+
     // from: ftp://ftp.stratus.com/vos/multics/pg/mvm.html
     {"ap",  0},
     {"ab",  1},
@@ -4075,7 +4155,7 @@ static struct pr_table
     {"lb",  5},
     {"sp",  6},
     {"sb",  7},
-    
+
     {0,     0}
   };
 
@@ -4090,9 +4170,9 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
     {
         static char addspec[256];
         strcpy(addspec, cptr);
-        
+
         *strchr(addspec, '|') = ' ';
-        
+
         char seg[256], off[256];
         int params = sscanf(addspec, "%s %s", seg, off);
         if (params != 2)
@@ -4101,7 +4181,7 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
             *optr = cptr;   // signal error
             return 0;
         }
-        
+
         // determine if segment is numeric or symbolic...
         char *endp;
         word18 PRoffset = 0;   // offset from PR[n] register (if any)
@@ -4119,10 +4199,10 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
                     PRoffset = cpu.PR[prt->n].WORDNO;
                     break;
                 }
-                
+
                 prt += 1;
             }
-            
+
             if (!prt->alias)    // not a PR or alias
             {
               return 0;
@@ -4131,13 +4211,13 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
                 {
                     sim_warn ("parse_addr(): segment '%s' not found\n", seg);
                     *optr = cptr;   // signal error
-                    
+
                     return 0;
                 }
                 segno = s->segno;
             }
         }
-        
+
         // determine if offset is numeric or symbolic entry point/segdef...
         uint offset = (uint)strtoll(off, &endp, 8);
         if (endp == off)
@@ -4154,16 +4234,16 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
             }
             offset = (uint) s->value;
         }
-        
+
         // if we get here then seg contains a segment# and offset.
         // So, fetch the actual address given the segment & offset ...
         // ... and return this absolute, 24-bit address
-        
+
         word24 abs_addr = (word24) getAddress(segno, (int) (offset + PRoffset));
-        
+
         // TODO: only luckily does this work FixMe
         *optr = endp;   //cptr + strlen(cptr);
-        
+
         return abs_addr;
     }
     else
@@ -4180,25 +4260,25 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
                 offset = cpu.PR[prt->n].WORDNO;
                 break;
             }
-            
+
             prt += 1;
         }
         if (prt->alias)    // a PR or alias
         {
             word24 abs_addr = (word24) getAddress(segno, (int) offset);
             *optr = cptr + strlen(prt->alias);
-        
+
             return abs_addr;
         }
     }
-    
+
     // No, determine absolute address given by cptr
     return (t_addr)strtol(cptr, (char **) optr, 8);
 #endif // !SCUMEM
 }
 #endif // TESTING
 
-#ifdef TESTING 
+#ifdef TESTING
 static void fprint_addr (FILE * stream, UNUSED DEVICE *  dptr, t_addr simh_addr)
 {
 #ifdef SCUMEM
@@ -4216,7 +4296,7 @@ static void fprint_addr (FILE * stream, UNUSED DEVICE *  dptr, t_addr simh_addr)
 
 // This is part of the simh interface
 // Based on the switch variable, symbolically output to stream ofile the data in
-//  array val at the specified addr in unit uptr.  
+//  array val at the specified addr in unit uptr.
 // simh "fprint_sym" – Based on the switch variable, symbolically output to
 // stream ofile the data in array val at the specified addr in unit uptr.
 
@@ -4226,39 +4306,39 @@ t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
 #ifdef TESTING
 // XXX Bug: assumes single cpu
 // XXX CAC: This seems rather bogus; deciding the output format based on the
-// address of the UNIT? Would it be better to use sim_unit.u3 (or some such 
+// address of the UNIT? Would it be better to use sim_unit.u3 (or some such
 // as a word width?
 
     if (!((uint) sw & SWMASK ('M')))
         return SCPE_ARG;
-    
+
     if (uptr == &cpu_dev.units[0])
     {
         word36 word1 = *val;
         char buf[256];
         // get base syntax
         char *d = disassemble(buf, word1);
-        
+
         fprintf(ofile, "%s", d);
-        
+
         // decode instruction
         DCDstruct ci;
         DCDstruct * p = & ci;
         decode_instruction (word1, p);
-        
+
         // MW EIS?
         if (p->info->ndes > 1)
         {
             // Yup, just output word values (for now)
-            
+
             // XXX Need to complete MW EIS support in disassemble()
-            
+
             for(uint n = 0 ; n < p->info->ndes; n += 1)
                 fprintf(ofile, " %012"PRIo64"", val[n + 1]);
-          
+
             return (t_stat) -p->info->ndes;
         }
-        
+
         return SCPE_OK;
 
         //fprintf(ofile, "%012"PRIo64"", *val);
@@ -4269,7 +4349,7 @@ t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
 }
 
 // This is part of the simh interface
-//  – Based on the switch variable, parse character string cptr for a 
+//  – Based on the switch variable, parse character string cptr for a
 //  symbolic value val at the specified addr in unit uptr.
 
 t_stat parse_sym (UNUSED const char * cptr, UNUSED t_addr addr,
@@ -4282,7 +4362,7 @@ t_stat parse_sym (UNUSED const char * cptr, UNUSED t_addr addr,
 
 sysinfo_t sys_opts;
 
-static t_stat sys_show_config (UNUSED FILE * st, UNUSED UNIT * uptr, 
+static t_stat sys_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int  val, UNUSED const void * desc)
   {
     sim_msg ("IOM connect time:         %d\n",
@@ -4298,14 +4378,14 @@ static config_value_list_t cfg_timing_list[] =
 
 bool breakEnable = false;
 
-static t_stat sys_set_break (UNUSED UNIT *  uptr, int32 value, 
+static t_stat sys_set_break (UNUSED UNIT *  uptr, int32 value,
                              UNUSED const char * cptr, UNUSED void * desc)
   {
     breakEnable = !! value;
     return SCPE_OK;
   }
 
-static t_stat sys_show_break (UNUSED FILE * st, UNUSED UNIT * uptr, 
+static t_stat sys_show_break (UNUSED FILE * st, UNUSED UNIT * uptr,
                               UNUSED int  val, UNUSED const void * desc)
   {
     sim_msg ("BREAK %s\r\n", breakEnable ? "ON" : "OFF" );
@@ -4328,7 +4408,7 @@ static config_list_t sys_config_list[] =
     { NULL, 0, 0, NULL }
  };
 
-static t_stat sys_set_config (UNUSED UNIT *  uptr, UNUSED int32 value, 
+static t_stat sys_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
                               const char * cptr, UNUSED void * desc)
   {
     config_state_t cfg_state = { NULL, NULL };
@@ -4358,7 +4438,7 @@ static t_stat sys_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
             sim_msg ("error: sys_set_config: invalid cfg_parse rc <%d>\n", rc);
             cfg_parse_done (& cfg_state);
             return SCPE_ARG;
-          } 
+          }
       } // process statements
     cfg_parse_done (& cfg_state);
     return SCPE_OK;
@@ -4740,7 +4820,7 @@ static void http_do_get (char * uri)
                      "<p>%c serial # %u MIPS %4.2f %s%s PPR %05o:%06o R%u P%u</p>\r\n",
                      cpus[i].switches.cpu_num + 'A',
                      cpus[i].switches.serno,
-                     (cpus[i].instrCntT1 - cpu.instrCntT0) / 1000000.0,
+                     (double)((cpus[i].instrCntT1 - cpu.instrCntT0) / 1000000.0L),
                      get_addr_mode () == ABSOLUTE_mode ? "ABS" : "APP",
                      get_bar_mode () ? "BAR" : "",
                      cpus[i].PPR.PSR,
@@ -4752,18 +4832,18 @@ static void http_do_get (char * uri)
 #define A(x) (getbits36_1 (cpu.rA, x) ? "1" : "0")
             sprintf (buf,
              "<p>   A %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s</p>\r\n",
-             A ( 0), A ( 1), A ( 2), A ( 3), A ( 4), A ( 5), A ( 6), A ( 7), A ( 8), 
-             A ( 9), A (10), A (11), A (12), A (13), A (14), A (15), A (16), A (17), 
-             A (18), A (19), A (20), A (21), A (22), A (23), A (24), A (25), A (26), 
+             A ( 0), A ( 1), A ( 2), A ( 3), A ( 4), A ( 5), A ( 6), A ( 7), A ( 8),
+             A ( 9), A (10), A (11), A (12), A (13), A (14), A (15), A (16), A (17),
+             A (18), A (19), A (20), A (21), A (22), A (23), A (24), A (25), A (26),
              A (27), A (28), A (29), A (30), A (31), A (32), A (33), A (34), A (35));
             W (buf);
 //#define Q(x) (getbits36_1 (cpu.rQ, x) ? "&bull" : " ")
 #define Q(x) (getbits36_1 (cpu.rQ, x) ? "1" : "0")
             sprintf (buf,
              "<p>   Q %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s</p>\r\n",
-             Q ( 0), Q ( 1), Q ( 2), Q ( 3), Q ( 4), Q ( 5), Q ( 6), Q ( 7), Q ( 8), 
-             Q ( 9), Q (10), Q (11), Q (12), Q (13), Q (14), Q (15), Q (16), Q (17), 
-             Q (18), Q (19), Q (20), Q (21), Q (22), Q (23), Q (24), Q (25), Q (26), 
+             Q ( 0), Q ( 1), Q ( 2), Q ( 3), Q ( 4), Q ( 5), Q ( 6), Q ( 7), Q ( 8),
+             Q ( 9), Q (10), Q (11), Q (12), Q (13), Q (14), Q (15), Q (16), Q (17),
+             Q (18), Q (19), Q (20), Q (21), Q (22), Q (23), Q (24), Q (25), Q (26),
              Q (27), Q (28), Q (29), Q (30), Q (31), Q (32), Q (33), Q (34), Q (35));
             W (buf);
           }

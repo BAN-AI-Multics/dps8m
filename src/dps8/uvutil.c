@@ -1,3 +1,15 @@
+/*
+ * Copyright (c) 2013-2019 Charles Anthony
+ * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
+ * Copyright (c) 2021 The DPS8M Development Team
+ *
+ * All rights reserved.
+ *
+ * This software is made available under the terms of the ICU
+ * License, version 1.8.1 or later.  For more details, see the
+ * LICENSE.md file at the top-level directory of this distribution.
+ */
+
 #include <uv.h>
 #include <ctype.h>
 #include "dps8.h"
@@ -17,7 +29,7 @@ static void accessTelnetReadCallback (uv_tcp_t * client,
 // alloc_buffer: libuv callback handler to allocate buffers for incoming data.
 //
 
-static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size, 
+static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size,
                           uv_buf_t * buf)
   {
     * buf = uv_buf_init ((char *) malloc (suggested_size),
@@ -304,7 +316,7 @@ static void accessCloseCallback (uv_handle_t * stream)
     //access->client = NULL;
   }
 
-  
+
 
 void accessCloseConnection (uv_stream_t* stream)
   {
@@ -479,7 +491,7 @@ static void * accessTelnetConnect (uv_tcp_t * client)
   {
     void * p = (void *) telnet_init (my_telopts, evHandler, 0, client);
     if (! p)
-      { 
+      {
         sim_warn ("telnet_init failed\n");
       }
     const telnet_telopt_t * q = my_telopts;

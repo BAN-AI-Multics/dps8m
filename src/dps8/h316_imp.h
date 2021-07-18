@@ -1,6 +1,7 @@
 /* h316_imp.h- BBN ARPAnet IMP/TIP Definitions
 
-   Copyright (c) 2013, Robert Armstrong, bob@jfcl.com
+   Copyright (c) 2013 Robert Armstrong <bob@jfcl.com>
+   Copyrighr (c) 2021 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -40,7 +41,7 @@
 #define MI1_RX_DMC       (DMC1-1+ 1)    // DMC channel for modem 1 receive
 #define MI1_TX_DMC       (DMC1-1+ 6)    // DMC channel for modem 1 transmit
 #define INT_V_MI1RX  (INT_V_EXTD+15)    // modem 1 receive interrupt
-#define INT_V_MI1TX  (INT_V_EXTD+10)     // modem 1 transmit interrupt
+#define INT_V_MI1TX  (INT_V_EXTD+10)    // modem 1 transmit interrupt
 
 // Modem interface, line #2 ...
 #define MI2                     072     // IO address for modem interface #2
@@ -67,8 +68,8 @@
 #define MI5                     075     // IO address for modem interface #5
 #define MI5_RX_DMC       (DMC1-1+ 5)    // DMC channel for modem 5 receive
 #define MI5_TX_DMC       (DMC1-1+10)    // DMC channel for modem 5 transmit
-#define INT_V_MI5RX  (INT_V_EXTD+11)     // modem 5 receive interrupt
-#define INT_V_MI5TX  (INT_V_EXTD+ 6)     // modem 5 transmit interrupt
+#define INT_V_MI5RX  (INT_V_EXTD+11)    // modem 5 receive interrupt
+#define INT_V_MI5TX  (INT_V_EXTD+ 6)    // modem 5 transmit interrupt
 
 // Host interface, line #1 ...
 #define HI1                     070     // device address for host interface #1
@@ -136,15 +137,15 @@
 // current state, COM port, UDP connection , etc...
 struct _MIDB {
   // Receiver data ...
-  bool      rxpending;        // TRUE if a read is pending on this line
-  bool      rxerror;          // TRUE if any modem error detected
+  bool          rxpending;        // TRUE if a read is pending on this line
+  bool          rxerror;          // TRUE if any modem error detected
   uint32_t      rxtotal;          // total number of H316 words received
   // Transmitter data ...
   uint32_t      txtotal;          // total number of H316 words transmitted
   uint32_t      txdelay;          // RTC ticks until TX done interrupt
   // Other data ...
-  bool      lloop;            // line loop back enabled
-  bool      iloop;            // interface loop back enabled
+  bool          lloop;            // line loop back enabled
+  bool          iloop;            // interface loop back enabled
   int32_t       link;             // h316_udp link number
   uint32_t      bps;              // simulated line speed or COM port baud rate
 };
@@ -158,22 +159,21 @@ struct _HIDB {
   // Transmitter (IMP -> HOST) data ...
   uint32_t      txtotal;          // total host messages sent
   // Other data ...
-  bool      lloop;            // local loop back enabled
-  bool      enabled;          // TRUE if the host is enabled
-  bool      error;            // TRUE for any host error
-  bool      ready;            // TRUE if the host is ready
-  bool      full;             // TRUE if the host buffer is full
-  bool      eom;              // TRUE when end of message is reached
+  bool          lloop;            // local loop back enabled
+  bool          enabled;          // TRUE if the host is enabled
+  bool          error;            // TRUE for any host error
+  bool          ready;            // TRUE if the host is ready
+  bool          full;             // TRUE if the host buffer is full
+  bool          eom;              // TRUE when end of message is reached
 };
 typedef struct _HIDB HIDB;
 
 // I can't believe Bob managed to live without these, but I can't!
 #ifndef LOBYTE  // these are in winsock.h too!
-#define LOBYTE(x)       ((uint8_t) ( (x)       & 0xFF))
-#define HIBYTE(x)       ((uint8_t) (((x) >> 8) & 0xFF))
-#define MKWORD(h,l)     ((uint16_t) ( (((h)&0xFF) << 8) | ((l)&0xFF) ))
+#define LOBYTE(x)        ((uint8_t) ( (x)        & 0xFF))
+#define HIBYTE(x)        ((uint8_t) (((x) >> 8)  & 0xFF))
+#define MKWORD(h,l)     ((uint16_t) ( (((h)&0xFF) << 8)  |  ((l)&0xFF) ))
 #define LOWORD(x)       ((uint16_t) ( (x)        & 0xFFFF))
 #define HIWORD(x)       ((uint16_t) (((x) >> 16) & 0xFFFF))
 #define MKLONG(h,l)     ((uint32_t) ( (((h)&0xFFFF) << 16) | ((l)&0xFFFF) ))
 #endif
-

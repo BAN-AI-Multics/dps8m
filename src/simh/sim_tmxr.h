@@ -1,6 +1,7 @@
 /* sim_tmxr.h: terminal multiplexer definitions
 
-   Copyright (c) 2001-2008, Robert M Supnik
+   Copyright (c) 2001-2008 Robert M Supnik
+   Copyright (c) 2021 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -26,7 +27,7 @@
    Based on the original DZ11 simulator by Thord Nilson, as updated by
    Arthur Krewat.
 
-   10-Oct-12    MP      Added extended attach support for serial, per line 
+   10-Oct-12    MP      Added extended attach support for serial, per line
                         listener and outgoing connections
    17-Jan-11    MP      Added buffered line capabilities
    20-Nov-08    RMS     Added three new standardized SHOW routines
@@ -313,12 +314,11 @@ void _tmxr_debug (uint32 dbits, TMLN *lp, const char *msg, char *buf, int bufsiz
 #define sim_activate tmxr_activate
 #define sim_activate_after tmxr_activate_after
 #define sim_activate_after_abs tmxr_activate_after_abs
-#define sim_clock_coschedule tmxr_clock_coschedule 
+#define sim_clock_coschedule tmxr_clock_coschedule
 #define sim_clock_coschedule_abs tmxr_clock_coschedule_abs
 #define sim_clock_coschedule_tmr tmxr_clock_coschedule_tmr
 #define sim_clock_coschedule_tmr_abs tmxr_clock_coschedule_tmr_abs
 #endif
-
 
 #ifdef  __cplusplus
 }

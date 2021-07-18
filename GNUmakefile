@@ -11,15 +11,33 @@
 #
 # This software is made available under the terms of the ICU
 # License, version 1.8.1 or later.  For more details, see the
-# LICENSE file at the top-level directory of this distribution.
+# LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
 
 ###############################################################################
 # Configuration:
 #
-#        V=1       Enable VERBOSE mode for compilation
-#        W=1       Enable extra warnings (-Wall) 
+#     Build flag (ex: make V=1)           Description of build flag
+#    ###########################    ######################################
+#
+#                  V=1                Enable verbose compilation output
+#                  W=1                Enable extra compilation warnings
+#            TESTING=1                Enable developmental testing code
+#        NO_LOCKLESS=1                Revert to previous threading code
+#              CROSS=MINGW64          Enable MinGW-64 cross-compilation
+#
+#     *** The following flags are inteded for use by developers, scripts,
+#     and packagers, and may have non-intuitive meanings or requirements.
+#
+#            TRACKER=1                Adds instruction snapshot support
+#               HDBG=1                Enables extra hardware debug code
+#        ROUND_ROBIN=1                Support un-threaded multiple CPUs
+#             ISOLTS=1                Support for running ISOLOTS tests
+#                WAM=1                Enable PTW/SDW associative memory
+#           NEED_128=1                Enables 128-bit type work-arounds
+#        USE_BUILDER="String"         Enable a custom "Built by" string
+#        USE_BUILDOS="String"         Enable a custom "Built OS" string
 #
 ###############################################################################
 # Build

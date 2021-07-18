@@ -4,9 +4,9 @@
  *
  * All rights reserved.
  *
- * This software is made available under the terms of the ICU  
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 extern char * ctlr_type_strs [/* *enum ctlr_type_e */];
@@ -132,8 +132,8 @@ struct cpu_to_scu_s
 //    cable IOMx chan# MSPx [port#] // disk controller
 //    cable IOMx chah# IPCx [port#] // FIPS disk controller
 //    cable IOMx chan# OPCx       // Operator console
-//    cable IOMx chan# FNPx       // FNP 
-//    cable IOMx chan# ABSIx      // ABSI 
+//    cable IOMx chan# FNPx       // FNP
+//    cable IOMx chan# ABSIx      // ABSI
 //    cable IOMx chan# URPx       // Unit record processor
 //    cable IOMx chan# SKx        // Socket
 //
@@ -164,7 +164,7 @@ struct ctlr_to_iom_s
 //
 //   msp ctlr to disk
 //
-//     cable MSPx dev_code DISKx 
+//     cable MSPx dev_code DISKx
 //
 //   ipc ctlr to disk
 //
@@ -203,7 +203,7 @@ struct dev_to_ctlr_s
     enum ctlr_type_e ctlr_type; // Used by disks to determine if the controler
                                 // is MSP or IPC
   };
-   
+
 struct cables_s
   {
     // SCU->unit
@@ -255,7 +255,6 @@ extern struct cables_s * cables;
 
 t_stat sys_cable (UNUSED int32 arg, const char * buf);
 
-
 // Accessors
 
 // Get controller index from (IOM index, channel)
@@ -273,12 +272,10 @@ t_stat sys_cable (UNUSED int32 arg, const char * buf);
 #define get_scu_idx(cpu_unit_idx, cpu_port_num) \
    (cables->cpu_to_scu[cpu_unit_idx][cpu_port_num].scu_unit_idx)
 
-
 // Get SCU in_use from (CPU index, port)
 
 #define get_scu_in_use(cpu_unit_idx, cpu_port_num) \
    (cables->cpu_to_scu[cpu_unit_idx][cpu_port_num].in_use)
-
 
 t_stat sys_cable (UNUSED int32 arg, const char * buf);
 t_stat sys_cable_ripout (UNUSED int32 arg, UNUSED const char * buf);

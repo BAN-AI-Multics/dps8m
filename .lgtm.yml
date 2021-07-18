@@ -1,0 +1,8 @@
+extraction:
+  cpp:
+    prepare:
+      packages:
+        - libuv1-dev
+    index:
+      build_command:
+        - make

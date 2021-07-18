@@ -12,7 +12,7 @@
 #
 # This software is made available under the terms of the ICU
 # License, version 1.8.1 or later.  For more details, see the
-# LICENSE file at the top-level directory of this distribution.
+# LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
 
@@ -36,6 +36,8 @@ CCACHE     ?= ccache
 SHELL      ?= sh
 SH         ?= $(SHELL)
 UNAME      ?= uname
+COMM       ?= comm
+CPPCPP     ?= $(CC) -E
 PREFIX     ?= /usr/local
 CSCOPE     ?= cscope
 MKDIR      ?= mkdir -p
@@ -43,6 +45,8 @@ NDKBUILD   ?= ndk-build
 PKGCONFIG  ?= pkg-config
 GIT        ?= git
 GREP       ?= grep
+SORT       ?= sort
+CUT        ?= cut
 SED        ?= sed
 AWK        ?= awk
 WEBDL      ?= wget
@@ -51,12 +55,14 @@ CMAKE      ?= cmake
 RMNF       ?= rm
 RMF        ?= $(RMNF) -f
 CTAGS      ?= ctags
+FIND       ?= find
 CP         ?= cp -f
 TOUCH      ?= touch
 TEST       ?= test
 PRINTF     ?= printf
-MAKETAR    ?= tar $(ZCTV)
-TARXT      ?= tar
+TAR        ?= tar
+MAKETAR    ?= $(TAR) --owner=dps8m --group=dps8m --posix -c --transform 's/^/.\/dps8\//g' -$(ZCTV)
+TARXT      ?= $(TAR)
 COMPRESS   ?= gzip -f -9
 GUNZIP     ?= gzip -d
 COMPRESSXT ?= gz
@@ -90,7 +96,7 @@ endif
 
 ifeq ($(msys_version),0)
 else
-  CROSS=MINGW64
+#  CROSS=MINGW64
 endif
 ifeq ($(CROSS),MINGW64)
   CC = x86_64-w64-mingw32-gcc
@@ -102,42 +108,120 @@ else
 endif
   EXE = .exe
 else
-CC = clang
-LD = clang
+CC ?= clang
+LD ?= clang
+endif
+
+###############################################################################
+# Fallback for compiler: clang -> gcc -> cc -> pcc
+
+ifeq ($(CC),clang)
+ifneq ($(shell clang --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
+	printf '%s\n' "1"),1)
+CC = gcc
+LD = gcc
+endif
+endif
+
+ifeq ($(LD),clang)
+ifneq ($(shell clang --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
+	printf '%s\n' "1"),1)
+CC = gcc
+LD = gcc
+endif
+endif
+
+ifeq ($(CC),gcc)
+ifneq ($(shell gcc --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
+	printf '%s\n' "1"),1)
+CC = cc
+LD = cc
+endif
+endif
+
+ifeq ($(LD),gcc)
+ifneq ($(shell gcc --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
+	printf '%s\n' "1"),1)
+CC = cc
+LD = cc
+endif
+endif
+
+ifeq ($(CC),cc)
+ifneq ($(shell gcc --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
+	printf '%s\n' "1"),1)
+CC = pcc
+LD = pcc
+endif
+endif
+
+ifeq ($(LD),cc)
+ifneq ($(shell gcc --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
+	printf '%s\n' "1"),1)
+CC = pcc
+LD = pcc
+endif
+endif
+
+ifeq ($(LD),ld)
+LD = $(CC)
 endif
 
 ###############################################################################
 
 # Default FLAGS
-CFLAGS  += -g -O3
+CFLAGS  += -g -O3 -fno-strict-aliasing
 CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 
 ###############################################################################
+# Windows MINGW
 
-# Our Cygwin users are using gcc.
 ifeq ($(OS),Windows_NT)
-    CC = gcc
-    LD = gcc
+#    CC = gcc
+#    LD = gcc
 ifeq ($(CROSS),MINGW64)
     CFLAGS  += -I../mingw_include
     LDFLAGS += -L../mingw_lib  
 endif
 
 ###############################################################################
+# macOS
 
 else
-    UNAME_S := $(shell $(UNAME) -s)
+    UNAME_S := $(shell $(UNAME) -s 2> /dev/null)
     ifeq ($(UNAME_S),Darwin)
-      CFLAGS += -I /usr/local/include
+      CFLAGS += -I/usr/local/include
       LDFLAGS += -L/usr/local/lib
     endif
 
 ###############################################################################
+# FreeBSD
 
     ifeq ($(UNAME_S),FreeBSD)
-      CFLAGS += -I /usr/local/include -pthread
+      CFLAGS += -I/usr/local/include -pthread
       LDFLAGS += -L/usr/local/lib
+    endif
+
+###############################################################################
+# SunOS
+
+# OpenIndiana illumos: GCC 7, GCC 10, Clang 9, all supported.
+# Oracle Solaris 11: GCC only. Clang and SunCC need some work.
+
+    ifeq ($(UNAME_S),SunOS)
+      ifeq ($(shell $(UNAME) -o 2> /dev/null),illumos)
+        ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
+        CFLAGS += -I/usr/local/include -m$(ISABITS)
+        LDFLAGS += -L/usr/local/lib -lsocket -lnsl -lm -lpthread -m$(ISABITS)
+      endif
+      ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
+        ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
+        CFLAGS += -I/usr/local/include -m$(ISABITS)
+        LDFLAGS += -L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat -ldl -m$(ISABITS)
+        CC = gcc
+        LD = gcc
+      endif
     endif
 endif
 
@@ -159,15 +243,13 @@ CFLAGS += -DUSE_INT64
 
 ###############################################################################
 
-ifneq ($(CROSS),MINGW64)
-CFLAGS += -DHAVE_DLOPEN=so
+ifneq ($(W),)
+CFLAGS += -Wno-array-bounds
 endif
 
 ###############################################################################
 
-ifneq ($(W),)
-CFLAGS += -Wno-array-bounds
-endif
+include ../Makefile.var
 
 ###############################################################################
 

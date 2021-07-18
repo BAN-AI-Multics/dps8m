@@ -9,7 +9,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 //
@@ -38,17 +38,15 @@
 
 //-- // XXX We use this where we assume there is only one unit
 //-- #define ASSUME0 0
-//-- 
- 
-/*
- Copyright (c) 2007-2013 Michael Mondy
- 
- This software is made available under the terms of the
- ICU License -- ICU 1.8.1 and later.
- See the LICENSE file at the top-level directory of this distribution and
- at http://example.org/project/LICENSE.
- */
+//--
 
+/*
+ * Copyright (c) 2007-2013 Michael Mondy
+ *
+ * This software is made available under the terms of the ICU
+ * License, version 1.8.1 or later.  For more details, see the
+ * LICENSE.md file at the top-level directory of this distribution.
+ */
 
 #define N_PUN_UNITS 1 // default
 
@@ -148,7 +146,7 @@ DEVICE pun_dev = {
     8,            /* data radix */
     36,           /* data width */
     NULL,         /* examine */
-    NULL,         /* deposit */ 
+    NULL,         /* deposit */
     pun_reset,   /* reset */
     NULL,         /* boot */
     NULL,         /* attach */
@@ -243,33 +241,33 @@ static void openPunFile (int pun_unit_num, UNUSED word36 * buffer, UNUSED uint t
 //    000077777777
 //    777777777777
 //    000000050000
-//  
-//     *****                                                                 *****  
-//     *****         *****  *****  *****  *   *  *****  *****  *****         *****  
-//     *****           *        *      *  *   *  *   *      *  *   *         *****  
-//     *****           *    *****   ****  *   *  * * *   ****  *****         *****  
-//     *****           *    *          *  *   *  **  *      *   *  *         *****  
-//     *****           *    *****  *****  *****  *****  *****  *   *         *****  
-//     *****                                                                 *****  
-//     *****                 *      ***    ***    ***    *                   *****  
-//     *****                 * *   *   *  *   *  *   *   * *                 *****  
+//
+//     *****                                                                 *****
+//     *****         *****  *****  *****  *   *  *****  *****  *****         *****
+//     *****           *        *      *  *   *  *   *      *  *   *         *****
+//     *****           *    *****   ****  *   *  * * *   ****  *****         *****
+//     *****           *    *          *  *   *  **  *      *   *  *         *****
+//     *****           *    *****  *****  *****  *****  *****  *   *         *****
+//     *****                                                                 *****
+//     *****                 *      ***    ***    ***    *                   *****
+//     *****                 * *   *   *  *   *  *   *   * *                 *****
 //  *  *****                 *     *   *  *   *  *   *   *                   ***** *
-//     *****                 *     *   *  *   *  *   *   *                   *****  
+//     *****                 *     *   *  *   *  *   *   *                   *****
 //  *  *****                 *      ***    ***    ***    *                   ***** *
-//  
-//    *****                                                                 *****   
-//    *****         *****  *****  *****  *   *  *****  *****  *****         *****   
-//    *****         *   *  *      *   *  *   *  *      *        *           *****   
-//    *****         *****  ****   * * *  *   *  ****   *****    *           *****   
-//    *****         *  *   *      *  **  *   *  *          *    *           *****   
-//    *****         *   *  *****  *****  *****  *****  *****    *           *****   
-//    *****                                                                 *****   
-//    *****                   *    ***    ***    ***      *                 *****   
-//    *****                 * *   *   *  *   *  *   *   * *                 *****   
+//
+//    *****                                                                 *****
+//    *****         *****  *****  *****  *   *  *****  *****  *****         *****
+//    *****         *   *  *      *   *  *   *  *      *        *           *****
+//    *****         *****  ****   * * *  *   *  ****   *****    *           *****
+//    *****         *  *   *      *  **  *   *  *          *    *           *****
+//    *****         *   *  *****  *****  *****  *****  *****    *           *****
+//    *****                                                                 *****
+//    *****                   *    ***    ***    ***      *                 *****
+//    *****                 * *   *   *  *   *  *   *   * *                 *****
 //  * *****                   *   *   *  *   *  *   *     *                 *****  *
-//    *****                   *   *   *  *   *  *   *     *                 *****   
+//    *****                   *   *   *  *   *  *   *     *                 *****
 //  * *****                   *    ***    ***    ***      *                 *****  *
-//  
+//
 //    000500000000
 //    270025002500
 //    250035000000
@@ -297,33 +295,33 @@ static void openPunFile (int pun_unit_num, UNUSED word36 * buffer, UNUSED uint t
 //    000037372424
 //    242424243737
 //    000000050000
-//  
-//                                                                                  
-//     *****  *   *  *****         *   *  *   *  *****  *   *  *****  *   *  *****  
-//         *   * *       *          * *   *  **  *   *  *   *    *    *  **  *   *  
-//     *****    *    *****           *    * * *  *   *  *****    *    * * *  *****  
-//     *        *    *       ***     *    **  *  *   *  *   *    *    **  *  *   *  
-//     *****    *    *****   ***     *    *   *  *****  *   *    *    *   *  *   *  
-//                                                                                  
-//                                 *****         *   *  *****  *   *   ****  *****  
-//                                 *   *         *  **    *    ** **  *   *  *   *  
+//
+//
+//     *****  *   *  *****         *   *  *   *  *****  *   *  *****  *   *  *****
+//         *   * *       *          * *   *  **  *   *  *   *    *    *  **  *   *
+//     *****    *    *****           *    * * *  *   *  *****    *    * * *  *****
+//     *        *    *       ***     *    **  *  *   *  *   *    *    **  *  *   *
+//     *****    *    *****   ***     *    *   *  *****  *   *    *    *   *  *   *
+//
+//                                 *****         *   *  *****  *   *   ****  *****
+//                                 *   *         *  **    *    ** **  *   *  *   *
 //  *                              *****         * * *    *    * * *  *   *  ***** *
-//                                 *   *   ***   **  *    *    *   *  *   *  *   *  
+//                                 *   *   ***   **  *    *    *   *  *   *  *   *
 //  *                              *   *   ***   *   *  *****  *   *   ****  *   * *
-//  
-//                                                                                  
-//    *****  *   *  *****  *   *  *****  *   *  *   *         *****  *   *  *****   
-//    *   *  **  *    *    *   *  *   *  **  *   * *          *       * *   *       
-//    *****  * * *    *    *****  *   *  * * *    *           *****    *    *****   
-//    *   *  *  **    *    *   *  *   *  *  **    *     ***       *    *        *   
-//    *   *  *   *    *    *   *  *****  *   *    *     ***   *****    *    *****   
-//                                                                                  
-//    *****  ****   *   *  *****  *   *         *****                               
-//    *   *  *   *  ** **    *    **  *         *   *                               
+//
+//
+//    *****  *   *  *****  *   *  *****  *   *  *   *         *****  *   *  *****
+//    *   *  **  *    *    *   *  *   *  **  *   * *          *       * *   *
+//    *****  * * *    *    *****  *   *  * * *    *           *****    *    *****
+//    *   *  *  **    *    *   *  *   *  *  **    *     ***       *    *        *
+//    *   *  *   *    *    *   *  *****  *   *    *     ***   *****    *    *****
+//
+//    *****  ****   *   *  *****  *   *         *****
+//    *   *  *   *  ** **    *    **  *         *   *
 //  * *****  *   *  * * *    *    * * *         *****                              *
-//    *   *  *   *  *   *    *    *  **   ***   *   *                               
+//    *   *  *   *  *   *    *    *  **   ***   *   *
 //  * *   *  ****   *   *  *****  *   *   ***   *   *                              *
-//  
+//
 
 #if 0
 // The first (spooled) write is a banner card; special case it and delay opening until
@@ -346,7 +344,7 @@ static void openPunFile (int pun_unit_num, UNUSED word36 * buffer, UNUSED uint t
 #else
     char template [PATH_MAX+1];
 
-    if (pun_path_prefix [0]) 
+    if (pun_path_prefix [0])
       {
         sprintf (template, "%s%s%c/%s", pun_path_prefix, pun_name, 'a' + pun_unit_num, pun_file_name_template);
       }
@@ -370,16 +368,16 @@ static void openPunFile (int pun_unit_num, UNUSED word36 * buffer, UNUSED uint t
 #endif
   }
 
-//                       *****  *   *  ****          *****  *****                 
-//                       *      **  *  *   *         *   *  *                     
-//                       ****   * * *  *   *         *   *  ****                  
-//                       *      *  **  *   *         *   *  *                     
-//                       *****  *   *  ****          *****  *                     
-//                                                                                
-//                              ****   *****  *****  *   *                        
-//                              *   *  *      *      *  *                         
+//                       *****  *   *  ****          *****  *****
+//                       *      **  *  *   *         *   *  *
+//                       ****   * * *  *   *         *   *  ****
+//                       *      *  **  *   *         *   *  *
+//                       *****  *   *  ****          *****  *
+//
+//                              ****   *****  *****  *   *
+//                              *   *  *      *      *  *
 //*                             *   *  ****   *      ***                         *
-//                              *   *  *      *      *  *                         
+//                              *   *  *      *      *  *
 //*                             ****   *****  *****  *   *                       *
 
 static word36 eodCard [27] =
@@ -510,7 +508,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
 
 //dcl 1 raw aligned,    /* raw column binary card image */
 //    2 col (1:80) bit (12) unal,                             /* 80 columns */
-//    2 pad bit (12) unal;           
+//    2 pad bit (12) unal;
 
             // Copy from core to buffer
             word36 buffer [p -> DDCW_TALLY];
@@ -530,7 +528,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
                 close (pun_state [pun_unit_num] . punfile);
                 pun_state [pun_unit_num] . punfile = -1;
               }
-            p -> stati = 04000; 
+            p -> stati = 04000;
           }
           break;
 
@@ -558,7 +556,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
             p -> chanStatus = chanStatIncorrectDCW;
           }
           return IOM_CMD_ERROR;
-        }   
+        }
 
     if (p -> IDCW_CONTROL == 3) // marker bit set
       {
@@ -662,4 +660,3 @@ static t_stat pun_show_path (UNUSED FILE * st, UNIT * uptr,
     sim_printf("Path to card punch directories is %s\n", pun_path_prefix);
     return SCPE_OK;
   }
-

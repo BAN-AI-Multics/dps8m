@@ -19,7 +19,6 @@
 /* This module comprises decQuad operations (including conversions)   */
 /* ------------------------------------------------------------------ */
 
-
 /* Constant mappings for shared code */
 #define DECPMAX     DECQUAD_Pmax
 #define DECEMIN     DECQUAD_Emin
@@ -132,4 +131,3 @@
 #include "decNumberLocal.h"   // local includes (need DECPMAX)
 #include "decCommon.c"        // non-arithmetic decFloat routines
 #include "decBasic.c"         // basic formats routines
-

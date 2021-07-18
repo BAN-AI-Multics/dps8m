@@ -7,9 +7,9 @@
  *
  * All rights reserved.
  *
- * This software is made available under the terms of the ICU  
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 extern UNIT dia_unit [N_DIA_UNITS_MAX];
@@ -30,12 +30,14 @@ typedef struct s_dia_data
 
 extern t_dia_data dia_data;
 
+/* XXX(johnsonjh): ML */
+
 #if 0
-// dn355_mailbox.incl.pl1 
+// dn355_mailbox.incl.pl1
 //   input_sub_mbx
 //       pad1:8, line_number:10, n_free_buffers:18
 //       n_chars:18, op_code:9, io_cmd:9
-//       n_buffers 
+//       n_buffers
 //       { abs_addr:24, tally:12 } [24]
 //       command_data
 

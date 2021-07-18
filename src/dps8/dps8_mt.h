@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 #define BUFSZ (4096 * 9 / 2)
@@ -29,7 +29,6 @@ struct tape_state
   };
 
 extern struct tape_state tape_states [N_MT_UNITS_MAX];
-
 
 extern UNIT mt_unit [N_MT_UNITS_MAX];
 extern DEVICE tape_dev;

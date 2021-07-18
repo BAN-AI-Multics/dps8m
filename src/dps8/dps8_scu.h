@@ -8,7 +8,7 @@
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
- * LICENSE file at the top-level directory of this distribution.
+ * LICENSE.md file at the top-level directory of this distribution.
  */
 
 // Devices connected to a SCU
@@ -23,12 +23,12 @@ typedef struct
 
     // Mask assignment.
     // 2 mask registers, A and B, each 32 bits wide.
-    // A CPU will be attached to port N. 
+    // A CPU will be attached to port N.
     // Mask assignment assigns a mask register (A or B) to a CPU
     // on port N.
     // That is, when interrupt I is set:
     //   For reg = A, B
-    //     
+    //
     // Mask A, B is set to Off or 0-7.
     // mask_enable [A|B] says that mask A or B is not off
     // if (mask_enable) then mask_assignment is a port number
@@ -63,12 +63,12 @@ typedef struct
         // if is_exp is false, then only [0] is used.
         // if true, one connection for each sub-port; -1 if not connected
         vol int dev_port [N_SCU_SUBPORTS];
-        vol bool subport_enables [N_SCU_SUBPORTS]; 
-        vol bool xipmask [N_SCU_SUBPORTS]; 
+        vol bool subport_enables [N_SCU_SUBPORTS];
+        vol bool xipmask [N_SCU_SUBPORTS];
         vol int xipmaskval;
       } ports [N_SCU_PORTS];
 
-    // system controller mode regsister    
+    // system controller mode regsister
     word4 id;
     word18 mode_reg;
 
@@ -91,7 +91,7 @@ extern DEVICE scu_dev;
 
 int scu_set_interrupt(uint scu_unit_idx, uint inum);
 void scu_init (void);
-t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_idx, uint cpu_port_num, word18 addr, 
+t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_idx, uint cpu_port_num, word18 addr,
                  word36 rega, word36 regq);
 t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_idx, uint cpu_port_num, word36 rega);
 t_stat scu_rscr (uint scu_unit_idx, uint cpu_unit_idx, word18 addr, word36 * rega, word36 * regq);
@@ -101,6 +101,6 @@ t_stat scu_smcm (uint scu_unit_idx, uint cpu_unit_idx, word36 rega, word36 regq)
 void scu_clear_interrupt (uint scu_unit_idx, uint inum);
 uint scu_get_highest_intr (uint scu_unit_idx);
 t_stat scu_reset (DEVICE *dptr);
-t_stat scu_reset_unit (UNIT * uptr, int32 value, const char * cptr, 
+t_stat scu_reset_unit (UNIT * uptr, int32 value, const char * cptr,
                        void * desc);
 void scu_unit_reset (int scu_unit_idx);
