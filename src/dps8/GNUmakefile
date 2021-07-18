@@ -397,8 +397,7 @@ slte.inc : system_book_12_3.ascii
 .PHONY: locallibs_then_dps8
 locallibs_then_dps8: 
 	@($(SETV); $(CD) "../decNumber" && $(MAKE))
-	@$(SETV); $(ENV) MAKE="$(MAKE)" \
-        $(MAKE) "ver.h"
+	@$(SETV); MAKE="$(MAKE)" $(MAKE) "ver.h"
 	@($(SETV); $(CD) $(SIMHx) && $(MAKE) -f "GNUmakefile")
 	@$(SETV); $(MAKE) "dps8$(EXE)"
 
@@ -520,7 +519,7 @@ kit dist:
 	@$(PRINTF) '%s\n' "ARCHIVE: $(KITNAME).$(TARXT)"
 	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)" || $(TRUE)
 	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)"."$(COMPRESSXT)" || $(TRUE)
-	@$(SETV); $(ENV) MAKE="$(MAKE)" $(MAKE) "ver.h"
+	@$(SETV); MAKE="$(MAKE)" $(MAKE) "ver.h"
 	@$(SETV); $(CP) "./ver.h" "./ver.h~"
 	@$(SETV); ($(CD) "../.." && \
 		$(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files | \
