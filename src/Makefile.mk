@@ -113,7 +113,7 @@ LD ?= clang
 endif
 
 ###############################################################################
-# Fallback for compiler: clang -> gcc -> cc -> pcc
+# Fallback for compiler: clang -> gcc -> cc
 
 ifeq ($(CC),clang)
 ifneq ($(shell clang --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
@@ -144,22 +144,6 @@ ifneq ($(shell gcc --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
 	printf '%s\n' "1"),1)
 CC = cc
 LD = cc
-endif
-endif
-
-ifeq ($(CC),cc)
-ifneq ($(shell gcc --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
-	printf '%s\n' "1"),1)
-CC = pcc
-LD = pcc
-endif
-endif
-
-ifeq ($(LD),cc)
-ifneq ($(shell gcc --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
-	printf '%s\n' "1"),1)
-CC = pcc
-LD = pcc
 endif
 endif
 
