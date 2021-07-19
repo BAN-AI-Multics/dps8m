@@ -2214,6 +2214,10 @@ int core_unlock_all();
 #define pthread_yield sched_yield
 #endif
 
+#if defined(MUSL_LIBC)
+#define pthread_yield sched_yield
+#endif
+
 #if defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
 #include <machine/atomic.h>
 

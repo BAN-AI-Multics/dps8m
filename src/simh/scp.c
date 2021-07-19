@@ -4809,46 +4809,42 @@ if (flag) {
     arch = " ARM";
 #elif defined(_M_ARM64) || defined(__aarch64__) || defined(__arm64__)
     arch = " ARM64";
-#elif defined(__aarch64__) && defined(__APPLE__) && defined(TARGET_OS_OSX)
-    arch = " Apple Silicon"
-#elif defined(__arm64__) && defined(__APPLE__) && defined(TARGET_OS_OSX)
-    arch = " Apple Silicon"
 #elif defined(__ia64__) || defined(_M_IA64) || defined(__itanium__)
     arch = " IA64";
 #elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
-    arch = " PPC"
+    arch = " PPC";
 #elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64)
-    arch = " PPC64"
+    arch = " PPC64";
 #elif defined(__s390__)
-    arch = " S390"
+    arch = " S390";
 #elif defined(__s390x__)
-    arch = " S390X"
+    arch = " S390X";
 #elif defined(__SH2__) || defined(__sh2__) || defined(__SH2) || defined(__sh2)
-    arch = " SH2"
+    arch = " SH2";
 #elif defined(__SH4__) || defined(__sh4__) || defined(__SH4) || defined(__sh4)
-    arch = " SH4"
+    arch = " SH4";
 #elif defined(__J2__) || defined(__J2P__) || defined(__j2__) || defined(__j2p__)
-    arch = " J2"
+    arch = " J2";
 #elif defined(__alpha__)
-    arch = " AXP"
+    arch = " AXP";
 #elif defined(__hppa__) || defined(__HPPA__) || defined(__PARISC__) || defined(__parisc__)
-    arch = " PA"
+    arch = " PA";
 #elif defined(mips) || defined(__mips__) || defined(MIPS) || defined(_MIPS_) || defined(__mips)
-    arch = " MIPS"
+    arch = " MIPS";
 #elif defined(mips64) || defined(__mips64__) || defined(MIPS64) || defined(_MIPS64_) || defined(__mips64)
-    arch = " MIPS64"
+    arch = " MIPS64";
 #elif defined(__ICE9__) || defined(__ice9__) || defined(__ICE9) || defined(__ice9)
-    arch = " ICE9"
+    arch = " ICE9";
 #elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__)
-    arch = " ORISC"
+    arch = " ORISC";
 #elif defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__)
-    arch = " OR1K"
+    arch = " OR1K";
 #elif defined(__sparc) || defined(__SPARC) || defined(__SPARC__) || defined(__sparc__)
-    arch = " SPARC"
+    arch = " SPARC";
 #elif defined(__sparc64) || defined(__SPARC64) || defined(__SPARC64__) || defined(__sparc64__)
-    arch = " SPARC64"
+    arch = " SPARC64";
 #elif defined(__riscv) || defined(__riscv__)
-    arch = " RISC-V"
+    arch = " RISC-V";
 #else
     arch = " ";
 #endif
