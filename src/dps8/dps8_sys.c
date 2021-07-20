@@ -1307,7 +1307,7 @@ static char * default_base_system_script [] =
     // ; Attach OPC unit 0 to IOM A, chan 036, dev_code 0
     "cable IOMA 036 opc0",
     "cable IOMA 053 opc1",
-    "set opc2 config=model=m6601",
+    "set opc1 config=model=m6601",
    // No devices for console, so no 'cable OPC0 # CONx'
 
     // ;;;
