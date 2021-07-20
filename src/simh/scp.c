@@ -7710,14 +7710,19 @@ if (prompt) {                                           /* interactive? */
             }
         }
     else {
+        fflush (stdout);                                /* flush output */
         printf ("%s", prompt);                          /* display prompt */
+        fflush (stdout);                                /* flush output */
         cptr = fgets (cptr, size, stream);              /* get cmd line */
         }
     }
 else cptr = fgets (cptr, size, stream);                 /* get cmd line */
 #else
-if (prompt)                                             /* interactive? */
+if (prompt) {                                           /* interactive? */
+    fflush (stdout);                                    /* flush output */
     printf ("%s", prompt);                              /* display prompt */
+    fflush (stdout);                                    /* flush output */
+}
 cptr = fgets (cptr, size, stream);                      /* get cmd line */
 #endif
 
