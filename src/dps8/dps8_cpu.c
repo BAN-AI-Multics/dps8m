@@ -32,7 +32,6 @@
 #include "dps8_append.h"
 #include "dps8_ins.h"
 #include "dps8_state.h"
-#include "dps8_loader.h"
 #include "dps8_math.h"
 #include "dps8_iefp.h"
 #include "dps8_console.h"
