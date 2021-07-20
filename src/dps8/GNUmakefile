@@ -40,12 +40,6 @@ include ../Makefile.mk
 
 ###############################################################################
 
-ifdef MUSL_LIBC
-CFLAGS += -DMUSL_LIBC=1
-endif
-
-###############################################################################
-
 ifdef BUILD_PROM_OSV_TEXT
 CFLAGS += -DBUILD_PROM_OSV_TEXT="\"$(BUILD_PROM_OSV_TEXT)\""
 endif
