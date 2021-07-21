@@ -682,9 +682,9 @@ debug_print "BUILD_TMP_RLT_LAST2 is ${BUILD_TMP_RLT_LAST2:-}"
 
 # /* ... Start Rules ... */
 
-# /* Our default state is "Z" */
-debug_print "Setting release type to 'Z'"
-BUILD_RLT="Z"
+# /* Our default state is "X" */
+debug_print "Setting release type to 'X'"
+BUILD_RLT="X"
 
 # /*
 #  * Our short version string starts off with "R"?
@@ -938,7 +938,7 @@ debug_print "Start ver fixup and exceptions"
 
 # /*
 #  * Now, do we have any post-tag patches per git?
-#  *    If so, we go back to default of "Z"
+#  *    If so, we go back to default of "X"
 #  */
 BUILD_PAT="$(printf '%s\n' "${BUILD_PAT:-0}" | \
 	tr -cd '[:digit:]' 2> /dev/null || \
@@ -947,8 +947,8 @@ BUILD_PAT="$(printf '%s\n' "${BUILD_PAT:-0}" | \
 # /* TODO(johnsonjh): Add additional branch-name heuristic here */
 if [ "${BUILD_PAT:-0}" -ne 0 ]; then
 	debug_print " ${BUILD_PAT:-} post-tag patches found."
-	debug_print "  Setting release type to 'Z'"
-	BUILD_RLT="Z"
+	debug_print "  Setting release type to 'X'"
+	BUILD_RLT="X"
 fi
 
 debug_print "End ver fixup and exceptions"
@@ -988,8 +988,8 @@ debug_print "End VER_H_PROM_SHIP processing"
 debug_print "Start BUILD_VER fixup"
 
 BUILD_VER="$(printf '%s\n' "${BUILD_VER:-0.0.0}" |
-	sed -e 's/^[AbBbCcDdRrZz]//')"
-BUILD_VER="${BUILD_RLT:-Z}${BUILD_VER:-0.0.0}"
+	sed -e 's/^[AbBbCcDdRrXxZz]//')"
+BUILD_VER="${BUILD_RLT:-X}${BUILD_VER:-0.0.0}"
 debug_print "BUILD_VER is ${BUILD_VER:-}"
 debug_print "End BUILD_VER fixup"
 
@@ -1007,8 +1007,8 @@ printf '%s\n'                                                                  \
 	"#define GENERATED_MAKE_VER_H"                                             \
 	""                                                                         \
 	"#define VER_H_GIT_DATE             \"${BUILD_DTE:-2020-01-01}\""          \
-	"#define VER_H_GIT_RELT             \"${BUILD_RLT:-Z}\""                   \
-	"#define VER_H_GIT_VERSION          \"${BUILD_VER:-Z0.0.0}\""              \
+	"#define VER_H_GIT_RELT             \"${BUILD_RLT:-X}\""                   \
+	"#define VER_H_GIT_VERSION          \"${BUILD_VER:-X0.0.0}\""              \
 	"#define VER_H_GIT_PATCH            \"${BUILD_PAT:-9999}\""                \
 	"#define VER_H_GIT_PATCH_INT        ${BUILD_PAT:-9999}"                    \
 	"#define VER_H_GIT_HASH             \"${BUILD_SHA:-${FALLBACK_SHA:?}}\""   \
