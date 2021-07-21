@@ -93,7 +93,6 @@
         sim_interval            simulator interval to next event
         sim_stop_messages[]     array of pointers to stop messages
         sim_instr()             instruction execution routine
-        sim_load()              binary loader routine
         sim_emax                maximum number of words in an instruction
 
    In addition, the simulator must supply routines to print and parse

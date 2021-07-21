@@ -44,7 +44,6 @@
 #include "dps8_cpu.h"
 #include "dps8_state.h"
 #include "dps8_ins.h"
-#include "dps8_loader.h"
 #include "dps8_math.h"
 #include "dps8_mt.h"
 #include "dps8_socket_dev.h"
@@ -115,26 +114,6 @@ static void fprint_addr(FILE *stream, DEVICE *dptr, t_addr addr);
 
 int32 luf_flag = 1;
 
-//
-// Session ID is used for shared memory name identification
-//
-
-//#ifndef __MINGW64__
-//static pid_t dps8m_sid; // Session id
-//#endif
-
-//
-// simh hooks
-//
-
-#ifndef LOADER
-// sim_load not supported
-t_stat sim_load (FILE *fileref, const char *cptr, const char *fnam, int flag)
-  {
-    return SCP_UNK;
-  }
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // simh Commands
@@ -143,7 +122,6 @@ t_stat sim_load (FILE *fileref, const char *cptr, const char *fnam, int flag)
 //
 // System configuration commands
 //
-
 
 // Script to string cables and set switches
 
@@ -3711,15 +3689,6 @@ static t_stat trkr (UNUSED int32 arg, const char * buf)
 
 static CTAB dps8_cmds[] =
   {
-
-// Loader not supported by default
-
-#ifdef LOADER
-    {"DPSINIT",             dpsCmd_Init,              0, "dpsinit: dps8/m initialize stuff ...\n", NULL, NULL},
-    {"DPSDUMP",             dpsCmd_Dump,              0, "dpsdump: dps8/m dump stuff ...\n", NULL, NULL},
-    {"SEGMENT",             dpsCmd_Segment,           0, "segment: dps8/m segment stuff ...\n", NULL, NULL},
-    {"SEGMENTS",            dpsCmd_Segments,          0, "segments: dps8/m segments stuff ...\n", NULL, NULL},
-#endif
 
 //
 // System configuration

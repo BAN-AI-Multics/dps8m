@@ -165,8 +165,6 @@ char *sim_encode_quoted_string (const uint8 *iptr, uint32 size);
 void fprint_buffer_string (FILE *st, const uint8 *buf, uint32 size);
 t_value strtotv (CONST char *cptr, CONST char **endptr, uint32 radix);
 int Fprintf (FILE *f, const char *fmt, ...) GCC_FMT_ATTR(2, 3);
-t_stat sim_set_memory_load_file (const unsigned char *data, size_t size);
-int Fgetc (FILE *f);
 t_stat fprint_val (FILE *stream, t_value val, uint32 rdx, uint32 wid, uint32 fmt);
 t_stat sprint_val (char *buf, t_value val, uint32 rdx, uint32 wid, uint32 fmt);
 t_stat sim_print_val (t_value val, uint32 radix, uint32 width, uint32 format);
@@ -297,7 +295,6 @@ extern DEVICE *sim_devices[];
 extern REG *sim_PC;
 extern const char *sim_stop_messages[];
 extern t_stat sim_instr (void);
-extern t_stat sim_load (FILE *ptr, CONST char *cptr, CONST char *fnam, int flag);
 extern int32 sim_emax;
 extern t_stat fprint_sym (FILE *ofile, t_addr addr, t_value *val,
     UNIT *uptr, int32 sw);

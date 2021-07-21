@@ -14,14 +14,11 @@
 ###############################################################################
 
 ###############################################################################
-# Set LOCKLESS to default for R2 - NO_LOCKLESS=1 to override
-# /* TODO(johnsonjh): Review */ # Set LOADER unconditionally
+# Set LOCKLESS as default for R2; use NO_LOCKLESS=1 to revert
 
 ifneq ($(NO_LOCKLESS),1)
 LOCKLESS=1
 endif
-
-LOADER=1
 
 ###############################################################################
 
@@ -49,13 +46,6 @@ endif
 ifdef TESTING
 TESTING=1
 CFLAGS += -DTESTING
-endif
-
-###############################################################################
-
-ifeq ($(LOADER),1)
-LOADER=1
-CFLAGS += -DLOADER
 endif
 
 ###############################################################################

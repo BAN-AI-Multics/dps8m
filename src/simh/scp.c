@@ -188,7 +188,6 @@
    15-May-01    RMS     Added features from Tim Litt
    12-May-01    RMS     Fixed missing return in disable_cmd
    25-Mar-01    RMS     Added ENABLE/DISABLE
-   14-Mar-01    RMS     Revised LOAD/DUMP interface (again)
    05-Mar-01    RMS     Added clock calibration support
    05-Feb-01    RMS     Fixed bug, DETACH buffered unit with hwmark = 0
    04-Feb-01    RMS     Fixed bug, RESTORE not using device's attach routine
@@ -800,20 +799,6 @@ static const char simh_help[] =
       " numeric value.  This is useful for obtaining numeric arguments for a search\n"
       " command:\n\n"
       "++EVAL <expression>\n"
-       /***************** 80 character line width template *************************/
-      "2Loading and Saving Programs\n"
-#define HLP_LOAD        "*Commands Loading_and_Saving_Programs LOAD"
-      "3LOAD\n"
-      " The LOAD command (abbreviation LO) loads a file in binary loader format:\n\n"
-      "++LOAD <filename> {implementation options}\n\n"
-      " The types of formats supported are implementation specific.  Options (such\n"
-      " as load within range) are also implementation specific.\n\n"
-#define HLP_DUMP        "*Commands Loading_and_Saving_Programs DUMP"
-      "3DUMP\n"
-      " The DUMP command (abbreviation DU) dumps memory in binary loader format:\n\n"
-      "++DUMP <filename> {implementation options}\n\n"
-      " The types of formats supported are implementation specific.  Options (such\n"
-      " as dump within range) are also implementation specific.\n"
        /***************** 80 character line width template *************************/
       "2Saving and Restoring State\n"
 #define HLP_SAVE        "*Commands Saving_and_Restoring_State SAVE"
@@ -1807,8 +1792,6 @@ static CTAB cmd_table[] = {
     { "SAVE",       &save_cmd,      0,          HLP_SAVE  },
     { "RESTORE",    &restore_cmd,   0,          HLP_RESTORE },
     { "GET",        &restore_cmd,   0,          NULL },
-    { "LOAD",       &load_cmd,      0,          HLP_LOAD },
-    { "DUMP",       &load_cmd,      1,          HLP_DUMP },
     { "EXIT",       &exit_cmd,      0,          HLP_EXIT },
     { "QUIT",       &exit_cmd,      0,          NULL },
     { "BYE",        &exit_cmd,      0,          NULL },
@@ -5647,64 +5630,6 @@ sim_switches = SWMASK ('P');
 r = reset_all (start);
 sim_switches = old_sw;
 return r;
-}
-
-/* Load and dump commands
-
-   lo[ad] filename {arg}        load specified file
-   du[mp] filename {arg}        dump to specified file
-*/
-
-/* Memory File use (for internal memory static ROM images)
-
-    when used to read ROM image with internally generated
-    load commands, calling code setups with sim_set_memory_file()
-    sim_load uses Fgetc() instead of fgetc() or getc()
-*/
-
-static const unsigned char *mem_data = NULL;
-static size_t mem_data_size = 0;
-
-t_stat sim_set_memory_load_file (const unsigned char *data, size_t size)
-{
-mem_data = data;
-mem_data_size = size;
-return SCPE_OK;
-}
-
-int Fgetc (FILE *f)
-{
-if (mem_data) {
-    if (mem_data_size == 0)
-        return EOF;
-    --mem_data_size;
-    return (int)(*mem_data++);
-    }
-else
-    return fgetc (f);
-}
-
-
-t_stat load_cmd (int32 flag, CONST char *cptr)
-{
-char gbuf[CBUFSIZE];
-FILE *loadfile = NULL;
-t_stat reason;
-
-GET_SWITCHES (cptr);                                    /* get switches */
-if (*cptr == 0)                                         /* must be more */
-    return SCPE_2FARG;
-cptr = get_glyph_nc (cptr, gbuf, 0);                    /* get file name */
-if (!mem_data) {
-    loadfile = sim_fopen (gbuf, flag? "wb": "rb");      /* open for wr/rd */
-    if (loadfile == NULL)
-        return SCPE_OPENERR;
-    }
-GET_SWITCHES (cptr);                                    /* get switches */
-reason = sim_load (loadfile, (CONST char *)cptr, gbuf, flag);/* load or dump */
-if (loadfile)
-    fclose (loadfile);
-return reason;
 }
 
 /* Attach command
