@@ -4801,50 +4801,64 @@ if (flag) {
 #undef S_str
 #undef S_xstr
 #endif
-#if defined(_M_IX86) || defined(__i386) || defined(__i486) || defined(__i586) || defined(__i686) || defined(__ix86)
-    arch = " x86";
-#elif defined(_M_X64) || defined(_M_AMD64) || defined(__amd64__) || defined(__x86_64__)
+#if defined(_M_X64) || defined(_M_AMD64) || defined(__amd64__) || defined(__x86_64__) || defined(__AMD64)
     arch = " x86_64";
-#elif defined(_M_ARM) || defined(__arm__)
-    arch = " ARM";
+#elif defined(_M_IX86) || defined(__i386) || defined(__i486) || defined(__i586) || defined(__i686) || defined(__ix86)
+    arch = " x86";
 #elif defined(_M_ARM64) || defined(__aarch64__) || defined(__arm64__)
-    arch = " ARM64";
+    arch = " arm64";
+#elif defined(_M_ARM) || defined(__arm__)
+    arch = " arm";
 #elif defined(__ia64__) || defined(_M_IA64) || defined(__itanium__)
-    arch = " IA64";
+    arch = " ia64";
+#elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
+#if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+    arch = " ppc64be";
+#else
+    arch = " ppc64"
+#endif
 #elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
-    arch = " PPC";
-#elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64)
-    arch = " PPC64";
-#elif defined(__s390__)
-    arch = " S390";
+#if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+    arch = " ppc";
+#else
+    arch = " ppcbe";
+#endif
 #elif defined(__s390x__)
-    arch = " S390X";
-#elif defined(__SH2__) || defined(__sh2__) || defined(__SH2) || defined(__sh2)
-    arch = " SH2";
-#elif defined(__SH4__) || defined(__sh4__) || defined(__SH4) || defined(__sh4)
-    arch = " SH4";
+    arch = " s390x";
+#elif defined(__s390__)
+    arch = " s390";
 #elif defined(__J2__) || defined(__J2P__) || defined(__j2__) || defined(__j2p__)
-    arch = " J2";
+    arch = " j2";
+#elif defined(__SH4__) || defined(__sh4__) || defined(__SH4) || defined(__sh4)
+    arch = " sh4";
+#elif defined(__SH2__) || defined(__sh2__) || defined(__SH2) || defined(__sh2)
+    arch = " sh2";
 #elif defined(__alpha__)
-    arch = " AXP";
+    arch = " alpha";
 #elif defined(__hppa__) || defined(__HPPA__) || defined(__PARISC__) || defined(__parisc__)
-    arch = " PA";
-#elif defined(mips) || defined(__mips__) || defined(MIPS) || defined(_MIPS_) || defined(__mips)
-    arch = " MIPS";
-#elif defined(mips64) || defined(__mips64__) || defined(MIPS64) || defined(_MIPS64_) || defined(__mips64)
-    arch = " MIPS64";
+    arch = " hppa";
 #elif defined(__ICE9__) || defined(__ice9__) || defined(__ICE9) || defined(__ice9)
-    arch = " ICE9";
-#elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__)
-    arch = " ORISC";
-#elif defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__)
-    arch = " OR1K";
-#elif defined(__sparc) || defined(__SPARC) || defined(__SPARC__) || defined(__sparc__)
-    arch = " SPARC";
+    arch = " ice9";
+#elif defined(mips64) || defined(__mips64__) || defined(MIPS64) || defined(_MIPS64_) || defined(__mips64)
+#if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+    arch = " mips64";
+#else
+    arch = " mips64be";
+#endif
+#elif defined(mips) || defined(__mips__) || defined(MIPS) || defined(_MIPS_) || defined(__mips)
+#if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+    arch = " mipsbe";
+#else
+    arch = " mips";
+#endif
+#elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__) || defined(__OPENRISC1200__)
+    arch = " openrisc";
 #elif defined(__sparc64) || defined(__SPARC64) || defined(__SPARC64__) || defined(__sparc64__)
-    arch = " SPARC64";
+    arch = " sparc64";
+#elif defined(__sparc) || defined(__SPARC) || defined(__SPARC__) || defined(__sparc__)
+    arch = " sparc";
 #elif defined(__riscv) || defined(__riscv__)
-    arch = " RISC-V";
+    arch = " risc-v";
 #else
     arch = " ";
 #endif
