@@ -24,11 +24,6 @@ test _$(printf '%s' "asdf" 2> /dev/null) != "_asdf" > /dev/null &&
 	exit 1
 
 ###############################################################################
-# Sanity check
-
-MAKE="${MAKE:?Error: MAKE undefined}"
-
-###############################################################################
 # Attempt to disable pedantic verification during environment normalization.
 
 set +e > /dev/null 2>&1
