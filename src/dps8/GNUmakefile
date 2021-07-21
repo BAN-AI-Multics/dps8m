@@ -120,9 +120,9 @@ endif
 # Configuration switches
 
 ifeq ($(CROSS),MINGW64)
-LOCALLIBS += $(SIMHx)/simh.a ../decNumber/decNumber.a 
+LOCALLIBS += ../decNumber/decNumber.a
 else
-LOCALLIBS += $(SIMHx)/simh.a ../decNumber/decNumber.a
+LOCALLIBS += ../decNumber/decNumber.a
 endif
 
 ###############################################################################
@@ -271,6 +271,10 @@ H_SRCS += ./uvutil.h
 
 ###############################################################################
 
+SIMH_OBJS = ../simh/scp.o ../simh/sim_console.o ../simh/sim_disk.o ../simh/sim_ether.o ../simh/sim_fio.o ../simh/sim_serial.o ../simh/sim_sock.o ../simh/sim_tape.o ../simh/sim_timer.o ../simh/sim_tmxr.o ../simh/sim_video.o
+
+###############################################################################
+
 .PHONY: all
 all: prt2pdf unifdef useddef.txt $(TAGS) locallibs_then_dps8
 
@@ -345,10 +349,10 @@ blinkenLightsCurses: blinkenLightsCurses.c shm.o
 
 ###############################################################################
 
-dps8$(EXE) : $(OBJS) $(LOCALOBJS) $(LOCALLIBS) 
+dps8$(EXE) : $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(SIMH_OBJS)
 	@$(PRINTF) '%s\n' "LD: dps8$(EXE)"
-	@$(SETV); $(LD) -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS) \
-        $(LOCALLIBS) $(LIBS)
+	@$(SETV); $(CC) -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS) \
+        $(SIMH_OBJS) $(LOCALLIBS) $(LIBS)
 
 ###############################################################################
 
@@ -570,8 +574,8 @@ errnos.h:
 ###############################################################################
 
 %.d: %.c
-	@$(RMNF) $@ 2> /dev/null; \
-        $(SETV); $(CC) -MM $(CFLAGS) $< > $@.$$$$; \
+	@$(SET) -e; @$(RMNF) $@ 2> /dev/null; \
+        @$(SETV); $(CC) -MM $(CFLAGS) $< > $@.$$$$; \
             $(SED) 's/ ver.h / /g' $@.$$$$ | \
                 $(SED) 's,\($*\)\.o[ :]*,\1.o $@ : ,g' > $@; \
                     $(RMF) $@.$$$$;
