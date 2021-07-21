@@ -81,7 +81,6 @@ struct ppr_s
   };
 
 /////
-
 // The terms "pointer register" and "address register" both apply to the same
 // physical hardware. The distinction arises from the manner in which the
 // register is used and in the interpretation of the register contents.
@@ -135,7 +134,7 @@ struct ppr_s
 //                    containing the first bit of the next data item element.
 //       - ARn.BITNO  The number of the bit within ARn.CHAR that is the
 //                    first bit of the next data item element.
-//
+/////
 
 struct par_s
   {
@@ -358,7 +357,6 @@ struct ptw_s
                      //  PTWs newly fetched from main memory replace the
                      //  PTW with USE value 0 (oldest) and the queue is
                      //  reordered.
-
   };
 
 typedef struct ptw_s ptw_s;
@@ -468,8 +466,8 @@ extern DEVICE cpu_dev;
 
 typedef struct MOP_struct_s
   {
-    char * mopName;   // name of microoperation
-    int (* f) (void); // pointer to mop() [returns character to be stored]
+    char * mopName;     // name of microoperation
+    int (* f) (void);   // pointer to mop() [returns character to be stored]
   } MOP_struct;
 
 // address of an EIS operand
@@ -490,9 +488,9 @@ typedef struct EISaddr_s
     // eisDataType _type;   // type of data - alphunumeric/numeric
 
 #ifndef EIS_PTR3
-    int     TA;   // type of Alphanumeric chars in src
+    int     TA;    // type of Alphanumeric chars in src
 #endif
-    int     TN;   // type of Numeric chars in src
+    int     TN;    // type of Numeric chars in src
     int     cPos;
     int     bPos;
 
@@ -1168,62 +1166,62 @@ enum du_cycle2_e
     //               = 0000000000001ll,
   };
 
-#define DU_CYCLE_GDLDA { clrmask (& cpu.du.cycle2, du2_nGDLDA); \
-                    setmask (& cpu.du.cycle2, du2_nGDLDB | du2_nGDLDC); }
-#define DU_CYCLE_GDLDB { clrmask (& cpu.du.cycle2, du2_nGDLDB); \
-                    setmask (& cpu.du.cycle2, du2_nGDLDA | du2_nGDLDC); }
-#define DU_CYCLE_GDLDC { clrmask (& cpu.du.cycle2, du2_nGDLDC); \
-                    setmask (& cpu.du.cycle2, du2_nGDLDA | du2_nGDLDB); }
-#define DU_CYCLE_FA_I1 setmask (& cpu.du.cycle1, du1_FA_I1)
-#define DU_CYCLE_FA_I2 setmask (& cpu.du.cycle1, du1_FA_I2)
-#define DU_CYCLE_FA_I3 setmask (& cpu.du.cycle1, du1_FA_I3)
-#define DU_CYCLE_ANLD1 setmask (& cpu.du.cycle2, du2_ANLD1)
-#define DU_CYCLE_ANLD2 setmask (& cpu.du.cycle2, du2_ANLD2)
-#define DU_CYCLE_NLD1  setmask (& cpu.du.cycle2, du2_NLD1)
-#define DU_CYCLE_NLD2  setmask (& cpu.du.cycle2, du2_NLD2)
-#define DU_CYCLE_FRND  setmask (& cpu.du.cycle2, du2_FRND)
-#define DU_CYCLE_DGBD  setmask (& cpu.du.cycle2, du2_DGBD)
-#define DU_CYCLE_DGDB  setmask (& cpu.du.cycle2, du2_DGDB)
-#define DU_CYCLE_DDU_LDEA clrmask (& cpu.du.cycle1, du1_nDDU_LDEA)
-#define DU_CYCLE_DDU_STEA clrmask (& cpu.du.cycle1, du1_nDDU_STEA)
-#define DU_CYCLE_END clrmask (& cpu.du.cycle1, du1_nEND)
-#define DU_CYCLE_LDWRT1  setmask (& cpu.du.cycle2, du2_LDWRT1)
-#define DU_CYCLE_LDWRT2  setmask (& cpu.du.cycle2, du2_LDWRT2)
-#define DU_CYCLE_FEXOP  setmask (& cpu.du.cycle2, du2_FEXOP)
-#define DU_CYCLE_ANSTR  setmask (& cpu.du.cycle2, du2_ANSTR)
-#define DU_CYCLE_GSTR  setmask (& cpu.du.cycle2, du2_GSTR)
+#define DU_CYCLE_GDLDA { clrmask (& cpu.du.cycle2, du2_nGDLDA);               \
+                        setmask (& cpu.du.cycle2, du2_nGDLDB | du2_nGDLDC); }
+#define DU_CYCLE_GDLDB { clrmask (& cpu.du.cycle2, du2_nGDLDB);               \
+                        setmask (& cpu.du.cycle2, du2_nGDLDA | du2_nGDLDC); }
+#define DU_CYCLE_GDLDC { clrmask (& cpu.du.cycle2, du2_nGDLDC);               \
+                        setmask (& cpu.du.cycle2, du2_nGDLDA | du2_nGDLDB); }
+#define DU_CYCLE_FA_I1     setmask (& cpu.du.cycle1, du1_FA_I1)
+#define DU_CYCLE_FA_I2     setmask (& cpu.du.cycle1, du1_FA_I2)
+#define DU_CYCLE_FA_I3     setmask (& cpu.du.cycle1, du1_FA_I3)
+#define DU_CYCLE_ANLD1     setmask (& cpu.du.cycle2, du2_ANLD1)
+#define DU_CYCLE_ANLD2     setmask (& cpu.du.cycle2, du2_ANLD2)
+#define DU_CYCLE_NLD1      setmask (& cpu.du.cycle2, du2_NLD1)
+#define DU_CYCLE_NLD2      setmask (& cpu.du.cycle2, du2_NLD2)
+#define DU_CYCLE_FRND      setmask (& cpu.du.cycle2, du2_FRND)
+#define DU_CYCLE_DGBD      setmask (& cpu.du.cycle2, du2_DGBD)
+#define DU_CYCLE_DGDB      setmask (& cpu.du.cycle2, du2_DGDB)
+#define DU_CYCLE_DDU_LDEA  clrmask (& cpu.du.cycle1, du1_nDDU_LDEA)
+#define DU_CYCLE_DDU_STEA  clrmask (& cpu.du.cycle1, du1_nDDU_STEA)
+#define DU_CYCLE_END       clrmask (& cpu.du.cycle1, du1_nEND)
+#define DU_CYCLE_LDWRT1    setmask (& cpu.du.cycle2, du2_LDWRT1)
+#define DU_CYCLE_LDWRT2    setmask (& cpu.du.cycle2, du2_LDWRT2)
+#define DU_CYCLE_FEXOP     setmask (& cpu.du.cycle2, du2_FEXOP)
+#define DU_CYCLE_ANSTR     setmask (& cpu.du.cycle2, du2_ANSTR)
+#define DU_CYCLE_GSTR      setmask (& cpu.du.cycle2, du2_GSTR)
 #define DU_CYCLE_FLEN_128  clrmask (& cpu.du.cycle2, du2_nFLEN_128)
 #define DU_CYCLE_FDUD  { cpu.du.cycle1 = \
-                      du1_nFPOL | \
-                      du1_nFPOP | \
-                      du1_nNEED_DESC | \
-                      du1_nSEL_DIR | \
+                      du1_nFPOL        | \
+                      du1_nFPOP        | \
+                      du1_nNEED_DESC   | \
+                      du1_nSEL_DIR     | \
                       du1_nDLEN_DIRECT | \
-                      du1_nDFRST | \
-                      du1_nFEXR | \
-                      du1_nLAST_DFRST | \
-                      du1_nDDU_LDEA | \
-                      du1_nDDU_STEA | \
-                      du1_nDREDO | \
-                      du1_nDLVL_WD_SZ | \
-                      du1_nEXH | \
-                      du1_nEND | \
-                      du1_nDU_RD_WRT | \
-                      du1_nWRD | \
-                      du1_nNINE | \
-                      du1_nSIX | \
-                      du1_nFOUR | \
-                      du1_nBIT | \
-                      du1_nINTRPTD | \
-                      du1_nINHIB; \
-                    cpu.du.cycle2 = \
-                      du2_DUD | \
-                      du2_nGDLDA | \
-                      du2_nGDLDB | \
-                      du2_nGDLDC | \
-                      du2_nDATA_AVLDU | \
-                      du2_nFEND_SEQ | \
-                      du2_nFLEN_128; \
+                      du1_nDFRST       | \
+                      du1_nFEXR        | \
+                      du1_nLAST_DFRST  | \
+                      du1_nDDU_LDEA    | \
+                      du1_nDDU_STEA    | \
+                      du1_nDREDO       | \
+                      du1_nDLVL_WD_SZ  | \
+                      du1_nEXH         | \
+                      du1_nEND         | \
+                      du1_nDU_RD_WRT   | \
+                      du1_nWRD         | \
+                      du1_nNINE        | \
+                      du1_nSIX         | \
+                      du1_nFOUR        | \
+                      du1_nBIT         | \
+                      du1_nINTRPTD     | \
+                      du1_nINHIB;        \
+                    cpu.du.cycle2 =      \
+                      du2_DUD          | \
+                      du2_nGDLDA       | \
+                      du2_nGDLDB       | \
+                      du2_nGDLDC       | \
+                      du2_nDATA_AVLDU  | \
+                      du2_nFEND_SEQ    | \
+                      du2_nFLEN_128;     \
                   }
 #define DU_CYCLE_nDUD clrmask (& cpu.du.cycle2, du2_DUD)
 #endif
@@ -1245,86 +1243,86 @@ enum du_cycle2_e
 //
 enum du_cycle1_e
   {
-    du1_FDUD  = 01000000000000ll, // Decimal Unit Idle
-    du1_GDLD  = 00400000000000ll, // Decimal Unit Load
-    du1_GLP1  = 00200000000000ll, // PR address bit 0
-    du1_GLP2  = 00100000000000ll, // PR address bit 1
-    du1_GEA1  = 00040000000000ll, // Descriptor 1 active
-    du1_GEM1  = 00020000000000ll, //
-    du1_GED1  = 00010000000000ll, // Prepare alignment count for first numeric
-                                  // operand load
-    du1_GDB   = 00004000000000ll, // Decimal to binary gate
-    du1_GBD   = 00002000000000ll, // Binary to decimal gate
-    du1_GSP   = 00001000000000ll, // Shift procedure gate
-    du1_GED2  = 00000400000000ll, // Prepare alignment count for second numeric
-                                  //  operand load
-    du1_GEA2  = 00000200000000ll, // Descriptor 2 active
-    du1_GADD  = 00000100000000ll, // Add subtract execute gate
-    du1_GCMP  = 00000040000000ll, //
-    du1_GMSY  = 00000020000000ll, //
-    du1_GMA   = 00000010000000ll, //
-    du1_GMS   = 00000004000000ll, //
-    du1_GQDF  = 00000002000000ll, //
-    du1_GQPA  = 00000001000000ll, //
-    du1_GQR1  = 00000000400000ll, // Load rewrite register one gate
-    du1_GQR2  = 00000000200000ll, // Load rewrite register two gate
-    du1_GRC   = 00000000100000ll, //
-    du1_GRND  = 00000000040000ll, //
-    du1_GCLZ  = 00000000020000ll, // Load with count less than word size
-    du1_GEDJ  = 00000000010000ll, // ? is the GED3?
-    du1_GEA3  = 00000000004000ll, // Descriptor 3 active
-    du1_GEAM  = 00000000002000ll, //
-    du1_GEDC  = 00000000001000ll, //
-    du1_GSTR  = 00000000000400ll, // Decimal unit store
-    du1_GSDR  = 00000000000200ll, //
-    du1_NSTR  = 00000000000100ll, // Numeric store gate
-    du1_SDUD  = 00000000000040ll, //
-    du1_U32   = 00000000000020ll, // ?
-    du1_U33   = 00000000000010ll, // ?
-    du1_U34   = 00000000000004ll, // ?
-    du1_FLTG  = 00000000000002ll, // Floating result flag
-    du1_FRND  = 00000000000001ll  // Rounding flag
+    du1_FDUD  = 01000000000000ll,   // Decimal Unit Idle
+    du1_GDLD  = 00400000000000ll,   // Decimal Unit Load
+    du1_GLP1  = 00200000000000ll,   // PR address bit 0
+    du1_GLP2  = 00100000000000ll,   // PR address bit 1
+    du1_GEA1  = 00040000000000ll,   // Descriptor 1 active
+    du1_GEM1  = 00020000000000ll,   //
+    du1_GED1  = 00010000000000ll,   // Prepare alignment count for 1st numeric
+                                    // operand load
+    du1_GDB   = 00004000000000ll,   // Decimal to binary gate
+    du1_GBD   = 00002000000000ll,   // Binary to decimal gate
+    du1_GSP   = 00001000000000ll,   // Shift procedure gate
+    du1_GED2  = 00000400000000ll,   // Prepare alignment count for 2nd numeric
+                                    //  operand load
+    du1_GEA2  = 00000200000000ll,   // Descriptor 2 active
+    du1_GADD  = 00000100000000ll,   // Add subtract execute gate
+    du1_GCMP  = 00000040000000ll,   //
+    du1_GMSY  = 00000020000000ll,   //
+    du1_GMA   = 00000010000000ll,   //
+    du1_GMS   = 00000004000000ll,   //
+    du1_GQDF  = 00000002000000ll,   //
+    du1_GQPA  = 00000001000000ll,   //
+    du1_GQR1  = 00000000400000ll,   // Load rewrite register one gate
+    du1_GQR2  = 00000000200000ll,   // Load rewrite register two gate
+    du1_GRC   = 00000000100000ll,   //
+    du1_GRND  = 00000000040000ll,   //
+    du1_GCLZ  = 00000000020000ll,   // Load with count less than word size
+    du1_GEDJ  = 00000000010000ll,   // ? is the GED3?
+    du1_GEA3  = 00000000004000ll,   // Descriptor 3 active
+    du1_GEAM  = 00000000002000ll,   //
+    du1_GEDC  = 00000000001000ll,   //
+    du1_GSTR  = 00000000000400ll,   // Decimal unit store
+    du1_GSDR  = 00000000000200ll,   //
+    du1_NSTR  = 00000000000100ll,   // Numeric store gate
+    du1_SDUD  = 00000000000040ll,   //
+    du1_U32   = 00000000000020ll,   // ?
+    du1_U33   = 00000000000010ll,   // ?
+    du1_U34   = 00000000000004ll,   // ?
+    du1_FLTG  = 00000000000002ll,   // Floating result flag
+    du1_FRND  = 00000000000001ll    // Rounding flag
   };
 
 enum du_cycle2_e
   {
-    du2_ALD1  = 01000000000000ll, // Alphanumeric operand one load gate
-    du2_ALD2  = 00400000000000ll, // Alphanumeric operand two load gate
-    du2_NLD1  = 00200000000000ll, // Numeric operand one load gate
-    du2_NLD2  = 00100000000000ll, // Numeric operand two load gate
-    du2_LWT1  = 00040000000000ll, // Load rewrite register one gate
-    du2_LWT2  = 00020000000000ll, // Load rewrite register two gate
-    du2_ASTR  = 00010000000000ll, // Alphanumeric store gate
-    du2_ANPK  = 00004000000000ll, // Alphanumeric packing cycle gate
-    du2_FGCH  = 00002000000000ll, // Character operation gate
-    du2_XMOP  = 00001000000000ll, // Execute MOP
-    du2_BLNK  = 00000400000000ll, // Blanking gate
-    du2_U11   = 00000200000000ll, //
-    du2_U12   = 00000100000000ll, //
-    du2_CS_0  = 00000040000000ll, //
-    du2_CU_0  = 00000020000000ll, //  CS=0
-    du2_FI_0  = 00000010000000ll, //  CU=0
-    du2_CU_V  = 00000004000000ll, //  CU=V
-    du2_UM_V  = 00000002000000ll, //  UM<V
-    du2_U18   = 00000001000000ll, // ?
-    du2_U19   = 00000000400000ll, // ?
-    du2_U20   = 00000000200000ll, // ?
-    du2_U21   = 00000000100000ll, // ?
-    du2_U22   = 00000000040000ll, // ?
-    du2_U23   = 00000000020000ll, // ?
-    du2_U24   = 00000000010000ll, // ?
-    du2_U25   = 00000000004000ll, // ?
-    du2_U26   = 00000000002000ll, // ?
-    du2_U27   = 00000000001000ll, // ?
-    du2_L128  = 00000000000400ll, // L<128 Length less than 128
+    du2_ALD1  = 01000000000000ll,   // Alphanumeric operand one load gate
+    du2_ALD2  = 00400000000000ll,   // Alphanumeric operand two load gate
+    du2_NLD1  = 00200000000000ll,   // Numeric operand one load gate
+    du2_NLD2  = 00100000000000ll,   // Numeric operand two load gate
+    du2_LWT1  = 00040000000000ll,   // Load rewrite register one gate
+    du2_LWT2  = 00020000000000ll,   // Load rewrite register two gate
+    du2_ASTR  = 00010000000000ll,   // Alphanumeric store gate
+    du2_ANPK  = 00004000000000ll,   // Alphanumeric packing cycle gate
+    du2_FGCH  = 00002000000000ll,   // Character operation gate
+    du2_XMOP  = 00001000000000ll,   // Execute MOP
+    du2_BLNK  = 00000400000000ll,   // Blanking gate
+    du2_U11   = 00000200000000ll,   //
+    du2_U12   = 00000100000000ll,   //
+    du2_CS_0  = 00000040000000ll,   //
+    du2_CU_0  = 00000020000000ll,   //  CS=0
+    du2_FI_0  = 00000010000000ll,   //  CU=0
+    du2_CU_V  = 00000004000000ll,   //  CU=V
+    du2_UM_V  = 00000002000000ll,   //  UM<V
+    du2_U18   = 00000001000000ll,   // ?
+    du2_U19   = 00000000400000ll,   // ?
+    du2_U20   = 00000000200000ll,   // ?
+    du2_U21   = 00000000100000ll,   // ?
+    du2_U22   = 00000000040000ll,   // ?
+    du2_U23   = 00000000020000ll,   // ?
+    du2_U24   = 00000000010000ll,   // ?
+    du2_U25   = 00000000004000ll,   // ?
+    du2_U26   = 00000000002000ll,   // ?
+    du2_U27   = 00000000001000ll,   // ?
+    du2_L128  = 00000000000400ll,   // L<128 Length less than 128
     du2_END_SEQ = 00000000000200ll, // End sequence flag
-    du2_U29   = 00000000000100ll, // ?
-    du2_U31   = 00000000000040ll, // ?
-    du2_U32   = 00000000000020ll, // ?
-    du2_U33   = 00000000000010ll, // ?
-    du2_U34   = 00000000000004ll, // ?
-    du2_U35   = 00000000000002ll, // ?
-    du2_U36   = 00000000000001ll  // ?
+    du2_U29   = 00000000000100ll,   // ?
+    du2_U31   = 00000000000040ll,   // ?
+    du2_U32   = 00000000000020ll,   // ?
+    du2_U33   = 00000000000010ll,   // ?
+    du2_U34   = 00000000000004ll,   // ?
+    du2_U35   = 00000000000002ll,   // ?
+    du2_U36   = 00000000000001ll    // ?
   };
 #endif
 #endif
@@ -1518,7 +1516,7 @@ typedef struct
     unsigned long long lockWait;
     unsigned long long lockWaitMax;
     unsigned long long lockYield;
-    unsigned long faultCnt [N_FAULTS];
+    unsigned long      faultCnt [N_FAULTS];
 
     // The following are all from the control unit history register:
 
@@ -1527,15 +1525,15 @@ typedef struct
     _fault faultNumber;      // fault number saved by doFault
     _fault_subtype subFault; // saved by doFault
 
-    bool wasXfer;  // The previous instruction was a transfer
+    bool wasXfer;      // The previous instruction was a transfer
 
     bool wasInhibited; // One or both of the previous instruction
                        // pair was interrupr inhibited.
 
     bool isExec;  // The instruction being executed is the target of
                   // an XEC or XED instruction
-    bool isXED; // The instruction being executed is the target of an
-                // XEC instruction
+    bool isXED;   // The instruction being executed is the target of an
+                  // XEC instruction
 
     DCDstruct currentInstruction;
     EISstruct currentEISinstruction;
@@ -1560,19 +1558,19 @@ typedef struct
     struct timespec rTRTime; // time when rTR was set
     uint     rTRsample;
 #endif
-    word24   rY;     // address operand
-    word6    rTAG;   // instruction tag
-    word3    rRALR;  // ring alarm [3b] [map: 33 0's, RALR]
+    word24   rY;       // address operand
+    word6    rTAG;     // instruction tag
+    word3    rRALR;    // ring alarm [3b] [map: 33 0's, RALR]
     word3    RSDWH_R1; // Track the ring number of the last SDW
     fault_acv_subtype_  acvFaults;   // pending ACV faults
 
     word18 lnk;  // rpl link value
 
-    struct tpr_s TPR;   // Temporary Pointer Register
-    struct ppr_s PPR;   // Procedure Pointer Register
+    struct tpr_s TPR;     // Temporary Pointer Register
+    struct ppr_s PPR;     // Procedure Pointer Register
     struct par_s PAR [8]; // pointer/address resisters
-    struct bar_s BAR;   // Base Address Register
-    struct dsbr_s DSBR; // Descriptor Segment Base Register
+    struct bar_s BAR;     // Base Address Register
+    struct dsbr_s DSBR;   // Descriptor Segment Base Register
 #ifdef WAM
     sdw_s SDWAM [N_WAM_ENTRIES]; // Segment Descriptor Word Associative Memory
 #endif
@@ -1583,7 +1581,7 @@ typedef struct
     word6 SDWAMR;
 #endif
     sdw_s * SDW; // working SDW
-    sdw_s SDW0; // a SDW not in SDWAM
+    sdw_s SDW0;  // a SDW not in SDWAM
     sdw_s _s;
 #ifdef PANEL
     // Intermediate data collection for APU SCROLL
@@ -1622,13 +1620,13 @@ typedef struct
     volatile word1  DATA_panel_validate_sw;
     volatile word1  DATA_panel_auto_fast_sw;  // lock
     volatile word1  DATA_panel_auto_slow_sw;  // lock
-    volatile word4  DATA_panel_cycle_sw;  // lock
-    volatile word1  DATA_panel_step_sw;  // lock
+    volatile word4  DATA_panel_cycle_sw;      // lock
+    volatile word1  DATA_panel_step_sw;       // lock
     volatile word1  DATA_panel_s_trig_sw;
-    volatile word1  DATA_panel_execute_sw;  // lock
+    volatile word1  DATA_panel_execute_sw;    // lock
     volatile word1  DATA_panel_scope_sw;
-    volatile word1  DATA_panel_init_sw;  // lock
-    volatile word1  DATA_panel_exec_sw;  // lock
+    volatile word1  DATA_panel_init_sw;       // lock
+    volatile word1  DATA_panel_exec_sw;       // lock
     volatile word4  DATA_panel_hr_sel_sw;
     volatile word4  DATA_panel_trackers_sw;
     volatile bool panelInitialize;
@@ -1687,13 +1685,12 @@ typedef struct
 #define cptUseBAR  1
 #define cptUseTR   2
 #define cptUseRALR 3
-#define cptUsePRn  4 // 4 - 11
+#define cptUsePRn  4  // 4 - 11
 #define cptUseDSBR 12
 #define cptUseFR   13
 #define cptUseMR   14
 #define cptUseCMR  15
 #define cptUseIR   16
-
 
     // Address Modification tally
     word12 AM_tally;
@@ -1805,7 +1802,6 @@ typedef struct
     bool restart;
     uint restart_address;
 
-
     // Caching some cabling data for interrupt handling.
     // When a CPU calls get_highest_intr(), it needs to know
     // what port on the SCU it is attached to. Because of port
@@ -1869,7 +1865,6 @@ static inline void SET_AR_CHAR_BITNO (uint n, word2 c, word4 b)
      cpu.PAR[n].AR_CHAR = c & MASK2;
   }
 
-
 bool sample_interrupts (void);
 t_stat simh_hooks (void);
 int operand_size (void);
@@ -1918,7 +1913,8 @@ extern const _fault_subtype fst_str_nea;
 int lookup_cpu_mem_map (word24 addr, word24 * offset);
 #endif
 
-static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
+static inline int core_read (word24 addr, word36 *data, \
+  UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
@@ -1971,7 +1967,8 @@ static inline int core_read (word24 addr, word36 *data, UNUSED const char * ctx)
     return 0;
   }
 
-static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
+static inline int core_write (word24 addr, word36 data, \
+  UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
@@ -2022,7 +2019,8 @@ static inline int core_write (word24 addr, word36 data, UNUSED const char * ctx)
     return 0;
   }
 
-static inline int core_write_zone (word24 addr, word36 data, UNUSED const char * ctx)
+static inline int core_write_zone (word24 addr, word36 data, \
+  UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
@@ -2202,54 +2200,41 @@ int core_unlock_all();
 #define MEM_LOCKED_BIT    61
 #define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
 
-#if defined(__APPLE__)
-#define pthread_yield pthread_yield_np
-#endif
-
-#if defined(__sun__) || defined(__sun)
-#define pthread_yield sched_yield
-#endif
-
-#if defined(__MINGW64__)
-#define pthread_yield sched_yield
-#endif
-
-#if defined(MUSL_LIBC)
-#define pthread_yield sched_yield
-#endif
-
 #if defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
 #include <machine/atomic.h>
 
-#define LOCK_CORE_WORD(addr)                    \
+#define LOCK_CORE_WORD(addr)                                            \
   do                                                                    \
     {                                                                   \
       unsigned int i = DEADLOCK_DETECT;                                 \
-      while ( atomic_testandset_64((volatile uint64_t *)&M[addr], MEM_LOCKED_BIT) == 1 && i > 0) \
+      while ( atomic_testandset_64((volatile uint64_t *)&M[addr],       \
+            MEM_LOCKED_BIT) == 1 && i > 0)                              \
         {                                                               \
           i--;                                                          \
           if ((i & 0xff) == 0) {                                        \
-            pthread_yield();                                            \
+            sched_yield();                                              \
             cpu.lockYield++;                                            \
           }                                                             \
         }                                                               \
       if (i == 0)                                                       \
         {                                                               \
-          sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__, cpu.locked_addr, addr); \
+          sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__,   \
+              cpu.locked_addr, addr);                                   \
         }                                                               \
       cpu.lockCnt++;                                                    \
       if (i == DEADLOCK_DETECT)                                         \
         cpu.lockImmediate++;                                            \
       cpu.lockWait += (DEADLOCK_DETECT-i);                              \
-      cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ? (DEADLOCK_DETECT-i) : cpu.lockWaitMax; \
+      cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ?       \
+          (DEADLOCK_DETECT-i) : cpu.lockWaitMax;                        \
     }                                                                   \
   while (0)
 
-#define LOAD_ACQ_CORE_WORD(res, addr)                   \
-  do                                                    \
-    {                                                   \
-      res = atomic_load_acq_64((volatile uint64_t *)&M[addr]);  \
-    }                                                           \
+#define LOAD_ACQ_CORE_WORD(res, addr)                                   \
+  do                                                                    \
+    {                                                                   \
+      res = atomic_load_acq_64((volatile uint64_t *)&M[addr]);          \
+    }                                                                   \
   while (0)
 
 #define STORE_REL_CORE_WORD(addr, data)                                 \
@@ -2270,34 +2255,36 @@ int core_unlock_all();
 #define LOCK_CORE_WORD(addr)                                            \
      do                                                                 \
        {                                                                \
-         unsigned int i = DEADLOCK_DETECT;                                      \
-         while ((__sync_fetch_and_or((volatile uint64_t *)&M[addr], MEM_LOCKED) & MEM_LOCKED) \
-                &&  i > 0)                                              \
+         unsigned int i = DEADLOCK_DETECT;                              \
+         while ((__sync_fetch_and_or((volatile uint64_t *)&M[addr],     \
+             MEM_LOCKED) & MEM_LOCKED) &&  i > 0)                       \
            {                                                            \
             i--;                                                        \
             if ((i & 0xff) == 0) {                                      \
-              pthread_yield();                                          \
+              sched_yield();                                            \
               cpu.lockYield++;                                          \
             }                                                           \
            }                                                            \
          if (i == 0)                                                    \
            {                                                            \
-            sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__, cpu.locked_addr, addr); \
+            sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__, \
+                cpu.locked_addr, addr);                                 \
             }                                                           \
          cpu.lockCnt++;                                                 \
          if (i == DEADLOCK_DETECT)                                      \
            cpu.lockImmediate++;                                         \
          cpu.lockWait += (DEADLOCK_DETECT-i);                           \
-         cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ? (DEADLOCK_DETECT-i) : cpu.lockWaitMax; \
+         cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ?    \
+             (DEADLOCK_DETECT-i) : cpu.lockWaitMax;                     \
        }                                                                \
      while (0)
 
-#define LOAD_ACQ_CORE_WORD(res, addr)                   \
-     do                                                 \
-       {                                                \
-         res = M[addr];                                 \
-         MEM_BARRIER();                                 \
-       }                                                \
+#define LOAD_ACQ_CORE_WORD(res, addr)                                   \
+     do                                                                 \
+       {                                                                \
+         res = M[addr];                                                 \
+         MEM_BARRIER();                                                 \
+       }                                                                \
      while (0)
 
 #define STORE_REL_CORE_WORD(addr, data)                                 \
