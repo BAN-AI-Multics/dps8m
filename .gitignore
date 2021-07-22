@@ -46,6 +46,7 @@ dps8m.state
 *.rar
 *.arj
 *.Z
+*.d.*
 
 # Vim
 *.*.swp
