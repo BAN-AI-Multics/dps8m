@@ -100,7 +100,6 @@ else
 endif
 ifeq ($(CROSS),MINGW64)
   CC = x86_64-w64-mingw32-gcc
-  LD = x86_64-w64-mingw32-gcc
 ifeq ($(msys_version),0)
   AR = x86_64-w64-mingw32-ar
 else
@@ -109,46 +108,6 @@ endif
   EXE = .exe
 else
 CC ?= clang
-LD ?= clang
-endif
-
-###############################################################################
-# Fallback for compiler: clang -> gcc -> cc
-
-ifeq ($(CC),clang)
-ifneq ($(shell clang --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
-	printf '%s\n' "1"),1)
-CC = gcc
-LD = gcc
-endif
-endif
-
-ifeq ($(LD),clang)
-ifneq ($(shell clang --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
-	printf '%s\n' "1"),1)
-CC = gcc
-LD = gcc
-endif
-endif
-
-ifeq ($(CC),gcc)
-ifneq ($(shell gcc --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
-	printf '%s\n' "1"),1)
-CC = cc
-LD = cc
-endif
-endif
-
-ifeq ($(LD),gcc)
-ifneq ($(shell gcc --version 2> /dev/null | $(GREP) -q "." 2> /dev/null && \
-	printf '%s\n' "1"),1)
-CC = cc
-LD = cc
-endif
-endif
-
-ifeq ($(LD),ld)
-LD = $(CC)
 endif
 
 ###############################################################################
@@ -162,8 +121,6 @@ LDFLAGS += $(X_FLAGS)
 # Windows MINGW
 
 ifeq ($(OS),Windows_NT)
-#    CC = gcc
-#    LD = gcc
 ifeq ($(CROSS),MINGW64)
     CFLAGS  += -I../mingw_include
     LDFLAGS += -L../mingw_lib  
@@ -177,7 +134,7 @@ else
     ifeq ($(UNAME_S),Darwin)
       CFLAGS += -I/usr/local/include
       LDFLAGS += -L/usr/local/lib
-    endif
+endif
 
 ###############################################################################
 # FreeBSD
@@ -204,16 +161,8 @@ else
         CFLAGS += -I/usr/local/include -m$(ISABITS)
         LDFLAGS += -L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat -ldl -m$(ISABITS)
         CC = gcc
-        LD = gcc
       endif
     endif
-endif
-
-###############################################################################
-
-ifneq ($(M32),)
-CC = gcc
-LD = gcc
 endif
 
 ###############################################################################
@@ -234,10 +183,6 @@ endif
 ###############################################################################
 
 include ../Makefile.var
-
-###############################################################################
-
-LDFLAGS   += -g
 
 ###############################################################################
 
