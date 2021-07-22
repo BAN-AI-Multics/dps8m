@@ -141,7 +141,8 @@ endif
 ###############################################################################
 
 ifneq "$(findstring gcc,$(CC))" ""
-CFLAGS += -fno-delete-null-pointer-checks
+CFLAGS += -fno-delete-null-pointer-checks -Wno-maybe-uninitialized \
+	      -Wno-unknown-warning-option
 endif
 
 ###############################################################################
