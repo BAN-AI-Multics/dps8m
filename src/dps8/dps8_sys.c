@@ -2343,11 +2343,6 @@ char * lookup_address (word18 segno, word18 offset, char * * compname,
 #endif
 
     char * ret = lookup_system_book_address (segno, offset, compname, compoffset);
-#ifndef SCUMEM
-    if (ret)
-      return ret;
-    ret = lookupSegmentAddress (segno, offset, compname, compoffset);
-#endif
     return ret;
   }
 
@@ -3035,6 +3030,41 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
   }
 
 #ifndef SCUMEM
+// Assumes unpaged DSBR
+
+static sdw0_s *fetchSDW (word15 segno)
+  {
+    word36 SDWeven, SDWodd;
+
+    core_read2 ((cpu.DSBR.ADDR + 2u * segno) & PAMASK, & SDWeven, & SDWodd,
+                 __func__);
+
+    // even word
+
+    sdw0_s *SDW = & cpu._s;
+    memset (SDW, 0, sizeof (cpu._s));
+
+    SDW->ADDR = (SDWeven >> 12) & 077777777;
+    SDW->R1 = (SDWeven >> 9) & 7;
+    SDW->R2 = (SDWeven >> 6) & 7;
+    SDW->R3 = (SDWeven >> 3) & 7;
+    SDW->DF = TSTBIT (SDWeven, 2);
+    SDW->FC = SDWeven & 3;
+
+    // odd word
+    SDW->BOUND = (SDWodd >> 21) & 037777;
+    SDW->R = TSTBIT (SDWodd, 20);
+    SDW->E = TSTBIT (SDWodd, 19);
+    SDW->W = TSTBIT (SDWodd, 18);
+    SDW->P = TSTBIT (SDWodd, 17);
+    SDW->U = TSTBIT (SDWodd, 16);
+    SDW->G = TSTBIT (SDWodd, 15);
+    SDW->C = TSTBIT (SDWodd, 14);
+    SDW->EB = SDWodd & 037777;
+
+    return SDW;
+  }
+
 static t_stat virtAddrN (uint address)
   {
     if (cpu.DSBR.U) {
@@ -4127,6 +4157,19 @@ static struct pr_table
     {0,     0}
   };
 
+
+#ifndef SCUMEM
+static int getAddress(int segno, int offset)
+{
+    // XXX Do we need to 1st check SDWAM for segment entry?
+
+
+    // get address of in-core segment descriptor word from DSBR
+    sdw0_s *s = fetchSDW ((word15) segno);
+
+    return (s->ADDR + (word18) offset) & 0xffffff; // keep to 24-bits
+}
+#endif // !SCUMEM
 static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
                           const char **optr)
   {
@@ -4174,15 +4217,6 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
             if (!prt->alias)    // not a PR or alias
             {
               return 0;
-                segment *s = findSegmentNoCase(seg);
-                if (s == NULL)
-                {
-                    sim_warn ("parse_addr(): segment '%s' not found\n", seg);
-                    *optr = cptr;   // signal error
-
-                    return 0;
-                }
-                segno = s->segno;
             }
         }
 
@@ -4192,15 +4226,6 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
         {
             // not numeric...
             return 0;
-            segdef *s = findSegdefNoCase(seg, off);
-            if (s == NULL)
-            {
-                sim_warn ("parse_addr(): entrypoint '%s' not found in segment '%s'", off, seg);
-                *optr = cptr;   // signal error
-
-                return 0;
-            }
-            offset = (uint) s->value;
         }
 
         // if we get here then seg contains a segment# and offset.
@@ -4249,16 +4274,7 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
 #ifdef TESTING
 static void fprint_addr (FILE * stream, UNUSED DEVICE *  dptr, t_addr simh_addr)
 {
-#ifdef SCUMEM
     fprintf(stream, "%06o", simh_addr);
-#else
-    char temp[256];
-    bool bFound = getSegmentAddressString((int)simh_addr, temp);
-    if (bFound)
-        fprintf(stream, "%s (%08o)", temp, simh_addr);
-    else
-        fprintf(stream, "%06o", simh_addr);
-#endif
 }
 #endif // TESTING
 
