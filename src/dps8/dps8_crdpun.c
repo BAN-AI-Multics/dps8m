@@ -57,6 +57,8 @@ static t_stat pun_show_device_name (FILE *st, UNIT *uptr, int val, const void *d
 static t_stat pun_set_device_name (UNIT * uptr, int32 value, const char * cptr, void * desc);
 static t_stat pun_show_path (UNUSED FILE * st, UNIT * uptr, UNUSED int val, UNUSED const void * desc);
 static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value, const UNUSED char * cptr, UNUSED void * desc);
+static t_stat pun_set_config (UNUSED UNIT *  uptr, UNUSED int32 value, const char * cptr, UNUSED void * desc);
+static t_stat pun_show_config (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int  val, UNUSED const void * desc);
 
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE )
@@ -129,6 +131,16 @@ static MTAB pun_mod [] =
       "Path to card punch directories", /* value descriptor */
       NULL // Help
     },
+    {
+      MTAB_XTD | MTAB_VUN, /* mask */
+      0,            /* match */
+      (char *) "CONFIG",     /* print string */
+      (char *) "CONFIG",         /* match string */
+      pun_set_config,         /* validation routine */
+      pun_show_config, /* display routine */
+      NULL,          /* value descriptor */
+      NULL,            /* help */
+    },
 
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
   };
@@ -164,14 +176,15 @@ DEVICE pun_dev = {
     NULL
 };
 
-static struct pun_state
+typedef struct 
   {
     char device_name [MAX_DEV_NAME_LEN];
     int punfile; // fd
-    // bool cachedBanner;
+    bool split; // Flag to split jobs into separate files
     bool sawEOD;
-  } pun_state [N_PUN_UNITS_MAX];
-
+  } pun_state_t ;
+  
+static pun_state_t pun_state[N_PUN_UNITS_MAX];
 static char pun_name[] = "pun";
 static char pun_file_name_template[] = "spool.XXXXXX";
 static char pun_path_prefix[PATH_MAX+1];
@@ -382,33 +395,33 @@ static void openPunFile (int pun_unit_num, UNUSED word36 * buffer, UNUSED uint t
 
 static word36 eodCard [27] =
   {
-    000500000000llu,
-    000000000000llu,
-    000000000000llu,
-    000000000000llu,
-    000000000000llu,
-    000000002000llu,
-    240024002400llu,
-    370000000000llu,
-    372121122104llu,
-    210437370000llu,
-    000000210021llu,
-    002100210037llu,
-    000000001621llu,
-    212521252125llu,
-    373700000000llu,
-    371602210421llu,
-    102137370000llu,
-    000021002500llu,
-    250025003700llu,
-    000000000000llu,
-    000000000000llu,
-    000000000000llu,
-    000000000000llu,
-    000000000000llu,
-    000000000000llu,
-    000000000000llu,
-    000000050000llu
+    0000500000000llu,
+    0000000000000llu,
+    0000000000000llu,
+    0000000000000llu,
+    0000000000000llu,
+    0000000002000llu,
+    0240024002400llu,
+    0370000000000llu,
+    0372121122104llu,
+    0210437370000llu,
+    0000000210021llu,
+    0002100210037llu,
+    0000000001621llu,
+    0212521252125llu,
+    0373700000000llu,
+    0371602210421llu,
+    0102137370000llu,
+    0000021002500llu,
+    0250025003700llu,
+    0000000000000llu,
+    0000000000000llu,
+    0000000000000llu,
+    0000000000000llu,
+    0000000000000llu,
+    0000000000000llu,
+    0000000000000llu,
+    0000000050000llu
   };
 
 static word36 bannerCard [27] =
@@ -446,12 +459,20 @@ static int eoj (uint pun_unit_num, word36 * buffer, uint tally)
   {
     if (tally == 27 && memcmp (buffer, eodCard, sizeof (eodCard)) == 0)
       {
+        sim_warn("*** Found End Of Deck Card ***\n");
         pun_state [pun_unit_num] . sawEOD = true;
         return 0;
       }
-    if (pun_state [pun_unit_num] . sawEOD &&
-       tally == 27 && memcmp (buffer, bannerCard, sizeof (bannerCard)) == 0)
-      return 1;
+
+    if (pun_state [pun_unit_num] . sawEOD 
+        && tally == 27 
+        && memcmp (buffer, bannerCard, sizeof (bannerCard)) == 0)
+         {
+           sim_warn("*** Found Post End Of Deck Banner Card ***\n");
+           pun_state [pun_unit_num] . sawEOD = false;
+           return 1;
+         }
+
     return 0;
   }
 
@@ -557,7 +578,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
             p -> initiate = false;
 
 //TODO: The following is currently disabled and will be made an option in a new issue
-#if 0
+#if 1
             sim_printf ("tally %d\n", p-> DDCW_TALLY);
 
             for (uint i = 0; i < p -> DDCW_TALLY; i ++)
@@ -607,7 +628,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
 
             if (eoj ((uint) pun_unit_num, buffer, p -> DDCW_TALLY))
               {
-                //sim_printf ("pun end of job\n");
+                sim_printf ("*** pun end of job\n");
                 close (pun_state [pun_unit_num] . punfile);
                 pun_state [pun_unit_num] . punfile = -1;
               }
@@ -741,5 +762,65 @@ static t_stat pun_show_path (UNUSED FILE * st, UNIT * uptr,
                                        UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Path to card punch directories is %s\n", pun_path_prefix);
+    return SCPE_OK;
+  }
+
+static config_value_list_t cfg_on_off[] =
+  {
+    { "off", 0 },
+    { "on", 1 },
+    { "disable", 0 },
+    { "enable", 1 },
+    { NULL, 0 }
+  };
+
+static config_list_t pun_config_list[] =
+  {
+   { "split", 0, 1, cfg_on_off },
+   { NULL, 0, 0, NULL }
+  };
+
+static t_stat pun_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
+                              const char * cptr, UNUSED void * desc)
+  {
+    int devUnitIdx = (int) PUN_UNIT_NUM (uptr);
+    pun_state_t * psp = pun_state + devUnitIdx;
+    config_state_t cfg_state = { NULL, NULL };
+
+    for (;;)
+      {
+        int64_t v;
+        int rc = cfg_parse (__func__, cptr, pun_config_list, & cfg_state, & v);
+        if (rc == -1) // done
+          break;
+
+        if (rc == -2) // error
+          {
+            cfg_parse_done (& cfg_state);
+            return SCPE_ARG;
+          }
+        const char * p = pun_config_list[rc].name;
+
+        if (strcmp (p, "split") == 0)
+          {
+            psp->split = v != 0;
+            continue;
+          }
+
+        sim_warn ("error: pun_set_config: invalid cfg_parse rc <%d>\n",
+                  rc);
+        cfg_parse_done (& cfg_state);
+        return SCPE_ARG;
+      } // process statements
+    cfg_parse_done (& cfg_state);
+    return SCPE_OK;
+  }
+
+static t_stat pun_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
+                               UNUSED int  val, UNUSED const void * desc)
+  {
+    int devUnitIdx = (int) PUN_UNIT_NUM (uptr);
+    pun_state_t * psp = pun_state + devUnitIdx;
+//    sim_msg ("split:  %d\n", psp->split);
     return SCPE_OK;
   }
