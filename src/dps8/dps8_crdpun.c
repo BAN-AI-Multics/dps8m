@@ -180,7 +180,7 @@ typedef struct
   {
     char device_name [MAX_DEV_NAME_LEN];
     int punfile; // fd
-    bool split; // Flag to split jobs into separate files
+    bool log_cards; // Flag to log card images
     bool sawEOD;
   } pun_state_t ;
   
@@ -515,6 +515,58 @@ static void write_punch_file (int fd, word36* in_buffer, int word_count)
       }
   }
 
+static void log_card(word12 tally, word36 * buffer)
+  {
+    sim_printf ("tally %d\n", tally);
+
+    for (uint i = 0; i < tally; i ++)
+      {
+        sim_printf ("  %012"PRIo64"\n", buffer [i]);
+      }
+    sim_printf ("\r\n");
+
+    if (tally != 27)
+      {
+        sim_warn("Unable to log punch card, tally is not 27 (%d)\n", tally);
+        return;
+      }
+
+    for (uint row = 0; row < 12; row ++)
+      {
+        for (uint col = 0; col < 80; col ++)
+          {
+            // 3 cols/word
+            uint wordno = col / 3;
+            uint fieldno = col % 3;
+            word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
+            if (bit)
+                sim_printf ("*");
+            else
+                sim_printf (" ");
+          }
+        sim_printf ("\r\n");
+      }
+    sim_printf ("\r\n");
+
+    for (uint row = 0; row < 12; row ++)
+      {
+        //for (uint col = 0; col < 80; col ++)
+        for (int col = 79; col >= 0; col --)
+          {
+            // 3 cols/word
+            uint wordno = (uint) col / 3;
+            uint fieldno = (uint) col % 3;
+            word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
+            if (bit)
+                sim_printf ("*");
+            else
+                sim_printf (" ");
+          }
+        sim_printf ("\r\n");
+      }
+    sim_printf ("\r\n");
+  }
+
 static int pun_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
@@ -577,48 +629,13 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
                                     & wordsProcessed, false);
             p -> initiate = false;
 
+            if (pun_state [pun_unit_num] . log_cards)
+              {
+                log_card(p -> DDCW_TALLY, buffer);
+              }
 //TODO: The following is currently disabled and will be made an option in a new issue
 #if 1
-            sim_printf ("tally %d\n", p-> DDCW_TALLY);
 
-            for (uint i = 0; i < p -> DDCW_TALLY; i ++)
-              sim_printf ("  %012"PRIo64"\n", buffer [i]);
-            sim_printf ("\n");
-
-            for (uint row = 0; row < 12; row ++)
-              {
-                for (uint col = 0; col < 80; col ++)
-                  {
-                    // 3 cols/word
-                    uint wordno = col / 3;
-                    uint fieldno = col % 3;
-                    word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
-                    if (bit)
-                      sim_printf ("*");
-                    else
-                      sim_printf (" ");
-                  }
-                sim_printf ("\r\n");
-              }
-            sim_printf ("\r\n");
-
-            for (uint row = 0; row < 12; row ++)
-              {
-                //for (uint col = 0; col < 80; col ++)
-                for (int col = 79; col >= 0; col --)
-                  {
-                    // 3 cols/word
-                    uint wordno = (uint) col / 3;
-                    uint fieldno = (uint) col % 3;
-                    word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
-                    if (bit)
-                      sim_printf ("*");
-                    else
-                      sim_printf (" ");
-                  }
-                sim_printf ("\r\n");
-              }
-            sim_printf ("\r\n");
 #endif
 
             if (pun_state [pun_unit_num] . punfile == -1)
@@ -776,7 +793,7 @@ static config_value_list_t cfg_on_off[] =
 
 static config_list_t pun_config_list[] =
   {
-   { "split", 0, 1, cfg_on_off },
+   { "logcards", 0, 1, cfg_on_off },
    { NULL, 0, 0, NULL }
   };
 
@@ -801,9 +818,9 @@ static t_stat pun_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
           }
         const char * p = pun_config_list[rc].name;
 
-        if (strcmp (p, "split") == 0)
+        if (strcmp (p, "logcards") == 0)
           {
-            psp->split = v != 0;
+            psp->log_cards = v != 0;
             continue;
           }
 
