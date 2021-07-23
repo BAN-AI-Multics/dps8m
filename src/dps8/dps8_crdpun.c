@@ -172,8 +172,8 @@ static struct pun_state
     bool sawEOD;
   } pun_state [N_PUN_UNITS_MAX];
 
-static char* pun_name = "pun";
-static char* pun_file_name_template = "spool.XXXXXX";
+static char pun_name[] = "pun";
+static char pun_file_name_template[] = "spool.XXXXXX";
 static char pun_path_prefix[PATH_MAX+1];
 
 /*
@@ -455,6 +455,45 @@ static int eoj (uint pun_unit_num, word36 * buffer, uint tally)
     return 0;
   }
 
+#define CARD_COL_COUNT 80
+#define NIBBLES_PER_COL 3
+
+static void write_punch_file (int fd, word36* in_buffer, int word_count)
+  {
+      if (word_count != 27)
+        {
+          sim_warn ("Unable to interpret punch buffer due to wrong length, not writing output!\n");
+          return;
+        }
+
+      uint8 out_buffer[120];
+      memset(&out_buffer, 0, sizeof(out_buffer));
+
+      for (int nibble_index = 0; nibble_index < (CARD_COL_COUNT * NIBBLES_PER_COL); nibble_index++)
+        {
+          int byte_offset = nibble_index / 2;
+          int word36_offset = nibble_index / 9;
+          int nibble_offset = nibble_index % 9;
+          uint8 nibble = (in_buffer[word36_offset] >> ((8 - nibble_offset) * 4)) & 0xF;
+
+          if (nibble_index & 0x1) 
+            {
+              // Low nibble of byte
+              out_buffer[byte_offset] |= nibble;
+            }
+          else
+            {
+              // High nibble of byte
+              out_buffer[byte_offset] |= (nibble << 4);
+            }
+
+        }
+
+      if (write(fd, out_buffer, sizeof(out_buffer)) != sizeof(out_buffer)) {
+        sim_warn ("Failed to write to card punch file!\n");
+      }
+  }
+
 static int pun_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
@@ -517,10 +556,54 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
                                     & wordsProcessed, false);
             p -> initiate = false;
 
-             if (pun_state [pun_unit_num] . punfile == -1)
+//TODO: The following is currently disabled and will be made an option in a new issue
+#if 0
+            sim_printf ("tally %d\n", p-> DDCW_TALLY);
+
+            for (uint i = 0; i < p -> DDCW_TALLY; i ++)
+              sim_printf ("  %012"PRIo64"\n", buffer [i]);
+            sim_printf ("\n");
+
+            for (uint row = 0; row < 12; row ++)
+              {
+                for (uint col = 0; col < 80; col ++)
+                  {
+                    // 3 cols/word
+                    uint wordno = col / 3;
+                    uint fieldno = col % 3;
+                    word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
+                    if (bit)
+                      sim_printf ("*");
+                    else
+                      sim_printf (" ");
+                  }
+                sim_printf ("\r\n");
+              }
+            sim_printf ("\r\n");
+
+            for (uint row = 0; row < 12; row ++)
+              {
+                //for (uint col = 0; col < 80; col ++)
+                for (int col = 79; col >= 0; col --)
+                  {
+                    // 3 cols/word
+                    uint wordno = (uint) col / 3;
+                    uint fieldno = (uint) col % 3;
+                    word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
+                    if (bit)
+                      sim_printf ("*");
+                    else
+                      sim_printf (" ");
+                  }
+                sim_printf ("\r\n");
+              }
+            sim_printf ("\r\n");
+#endif
+
+            if (pun_state [pun_unit_num] . punfile == -1)
                openPunFile ((int) pun_unit_num, buffer, p -> DDCW_TALLY);
 
-            write (pun_state [pun_unit_num] . punfile, buffer, sizeof (buffer));
+            write_punch_file (pun_state [pun_unit_num] . punfile, buffer, p -> DDCW_TALLY);
 
             if (eoj ((uint) pun_unit_num, buffer, p -> DDCW_TALLY))
               {
