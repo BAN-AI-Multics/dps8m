@@ -176,8 +176,7 @@ DEVICE pun_dev = {
     NULL
 };
 
-#define MAX_CARDS_IN_CACHE 10
-#define MAX_OCR_BUFFER_LEN 255
+#define MAX_OCR_BUFFER_LEN 1024
 
 enum parse_state {
     Idle, StartingJob, OcrCard, EndOfHeader, WritingDeck, EndOfDeck, EndOfJob
@@ -187,6 +186,17 @@ enum parse_event {
     NoEvent, BannerCard, EndOfDeckCard, Card, Done
 };
 
+typedef struct card_cache_node CARD_CACHE_ENTRY;
+
+struct card_cache_node
+  {
+      word12 tally;
+      word36 card_data[27];
+      CARD_CACHE_ENTRY *next_entry;
+  };
+
+
+
 typedef struct 
   {
     char device_name [MAX_DEV_NAME_LEN];
@@ -194,9 +204,9 @@ typedef struct
     bool log_cards; // Flag to log card images
     bool sawEOD;
     enum parse_state current_state;
-    int next_card_cache_entry;
     char ocr_buffer[MAX_OCR_BUFFER_LEN];
-    word36 card_cache[MAX_CARDS_IN_CACHE][27];
+    CARD_CACHE_ENTRY *first_cached_card;
+    CARD_CACHE_ENTRY *last_cached_card;
   } pun_state_t ;
   
 static pun_state_t pun_state[N_PUN_UNITS_MAX];
@@ -639,36 +649,57 @@ static void print_transition(enum parse_state old_state, enum parse_event event,
 
 static void clear_card_cache(pun_state_t * state)
   {
-    state -> next_card_cache_entry = 0;
-    memset(&state -> card_cache, 0, sizeof(state -> card_cache));
+    CARD_CACHE_ENTRY *current_entry = state -> first_cached_card;
+    while (current_entry != NULL)
+      {
+        CARD_CACHE_ENTRY *old_entry = current_entry;
+        current_entry = current_entry->next_entry;
+        free(old_entry);
+      }
+
+    state -> first_cached_card = NULL;
+    state -> last_cached_card = NULL;
+
   }
 
 static void dump_card_cache(pun_state_t * state)
   {
-    sim_printf("****\nCard Cache Dump\n****\nnext_card_cache_entry = %d\n", state -> next_card_cache_entry);
+    sim_printf("****\nCard Cache Dump\n****\n");
 
-    for (int card = 0; card < state -> next_card_cache_entry; card++)
+    int card = 0;
+
+    CARD_CACHE_ENTRY *current_entry = state -> first_cached_card;
+    while (current_entry != NULL)
       {
+        card++;
         sim_printf("\n----Card %d----\n", card);
         for (int i = 0; i < 27; i ++)
           {
-            sim_printf ("  %012"PRIo64"\n", state -> card_cache[card][i]);
+            sim_printf ("  %012"PRIo64"\n", current_entry -> card_data);
           }
         sim_printf ("\r\n");
+        current_entry = current_entry->next_entry;
       }
-
   }  
 
 static void save_card_in_cache(pun_state_t * state, word12 tally, word36 * card_buffer)
   {
-    if (state -> next_card_cache_entry >= MAX_CARDS_IN_CACHE)
-      {
-          sim_warn("*** Error: Punch card cache is full!\r\n");
-          return;
-      }
+    CARD_CACHE_ENTRY *new_entry = malloc(sizeof(CARD_CACHE_ENTRY));
 
-    sim_printf("*** > Saving card in cache entry %d\n", state -> next_card_cache_entry);
-    memcpy(&state -> card_cache[state -> next_card_cache_entry++], card_buffer, sizeof(word36) * tally);
+    new_entry -> tally = tally;
+    memcpy(&new_entry -> card_data, card_buffer, sizeof(word36) * tally);
+    new_entry -> next_entry = NULL;
+
+    if (state -> first_cached_card == NULL)
+      {
+        state -> first_cached_card = new_entry;
+        state -> last_cached_card = new_entry;
+      }
+    else
+      {
+        state -> last_cached_card -> next_entry = new_entry;
+        state -> last_cached_card = new_entry;
+      }
   }
 
 static enum parse_event do_state_idle(enum parse_event event, pun_state_t * state)
@@ -715,9 +746,11 @@ static enum parse_event do_state_end_of_header(enum parse_event event, pun_state
     create_punch_file(state);                           // Create spool file
 
     // Write cached cards to spool file
-    for (int i = 0; i < state -> next_card_cache_entry; i++)
+    CARD_CACHE_ENTRY *current_entry = state -> first_cached_card;
+    while (current_entry != NULL)
       {
-        write_punch_file (state -> punfile, state -> card_cache[i], 27);
+        write_punch_file (state -> punfile, current_entry -> card_data, 27);
+        current_entry = current_entry->next_entry;
       }
 
     dump_card_cache(state);
