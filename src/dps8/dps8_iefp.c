@@ -67,6 +67,7 @@ void Read (word18 address, word36 * result, processor_cycle_type cyctyp)
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Read (Actual) Read:       bar address=%08o  "
                            "readData=%012"PRIo64"\n", address, *result);
+                HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address);
                 HDBGMRead (cpu.iefpFinalAddress, * result);
                 return;
               }
@@ -85,6 +86,7 @@ void Read (word18 address, word36 * result, processor_cycle_type cyctyp)
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Read (Actual) Read:       abs address=%08o  "
                            "readData=%012"PRIo64"\n", address, *result);
+                HDBGIEFP (hdbgIEFP_abs_read, 0, address);
                 HDBGMRead (address, * result);
                 return;
               }
@@ -103,6 +105,7 @@ B29:;
                            "Read (Actual) Read:  bar iefpFinalAddress=%08o  "
                            "readData=%012"PRIo64"\n",
                            cpu.iefpFinalAddress, * result);
+                HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address);
                 HDBGMRead (cpu.iefpFinalAddress, * result);
 
                 return;
@@ -117,6 +120,7 @@ B29:;
                                "Read (Actual) Read:  iefpFinalAddress=%08o  "
                                "readData=%012"PRIo64"\n",
                                cpu.iefpFinalAddress, * result);
+                    HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address);
                     HDBGMRead (cpu.iefpFinalAddress, * result);
                   }
               }
@@ -160,6 +164,7 @@ void Read2 (word18 address, word36 * result, processor_cycle_type cyctyp)
                                   "  readData=%012"PRIo64"\n",
                                   address + i, result [i]);
                   }
+                HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address);
                 HDBGMRead (cpu.iefpFinalAddress, * result);
                 HDBGMRead (cpu.iefpFinalAddress+1, * (result+1));
                 return;
@@ -177,6 +182,7 @@ void Read2 (word18 address, word36 * result, processor_cycle_type cyctyp)
                                  "  readData=%012"PRIo64"\n",
                                  address + i, result [i]);
                   }
+                HDBGIEFP (hdbgIEFP_abs_read, 0, address);
                 HDBGMRead (cpu.iefpFinalAddress, * result);
                 HDBGMRead (cpu.iefpFinalAddress+1, * (result+1));
                 return;
@@ -200,6 +206,7 @@ B29:;
                                 "%08o  readData=%012"PRIo64"\n",
                                 cpu.iefpFinalAddress + i, result [i]);
                   }
+                HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address);
                 HDBGMRead (cpu.iefpFinalAddress, * result);
                 HDBGMRead (cpu.iefpFinalAddress+1, * (result+1));
                 return;
@@ -215,6 +222,7 @@ B29:;
                                  "  readData=%012"PRIo64"\n",
                                  cpu.iefpFinalAddress + i, result [i]);
                   }
+                HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address);
                 HDBGMRead (cpu.iefpFinalAddress, * result);
                 HDBGMRead (cpu.iefpFinalAddress+1, * (result+1));
               }
@@ -255,6 +263,7 @@ void Read8 (word18 address, word36 * result, bool isAR)
                                  address + i, result [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address);
                 for (uint i = 0; i < 8; i ++)
                   HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
 #endif
@@ -274,6 +283,7 @@ void Read8 (word18 address, word36 * result, bool isAR)
                                  address + i, result [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_abs_read, 0, address);
                 for (uint i = 0; i < 8; i ++)
                   HDBGMRead (address + i, result [i]);
 #endif
@@ -300,6 +310,7 @@ B29:;
                                 cpu.iefpFinalAddress + i, result [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address);
                 for (uint i = 0; i < 8; i ++)
                   HDBGMRead (cpu.iefpFinalAddress + i, result[i]);
 #endif
@@ -321,6 +332,7 @@ B29:;
                                      cpu.iefpFinalAddress + i, result [i]);
                       }
 #ifdef HDBG
+                    HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address);
                     for (uint i = 0; i < 8; i ++)
                       HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
 #endif
@@ -376,6 +388,7 @@ void ReadPage (word18 address, word36 * result, bool isAR)
                                   address + i, result [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address);
                 for (uint i = 0; i < PGSZ; i ++)
                   HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
 #endif
@@ -395,6 +408,7 @@ void ReadPage (word18 address, word36 * result, bool isAR)
                                  address + i, result [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_abs_read, 0, address);
                 for (uint i = 0; i < PGSZ; i ++)
                   HDBGMRead (address + i, result [i]);
 #endif
@@ -421,6 +435,7 @@ B29:;
                                 cpu.iefpFinalAddress + i, result [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address);
                 for (uint i = 0; i < PGSZ; i ++)
                   HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
 #endif
@@ -443,6 +458,7 @@ B29:;
                                      cpu.iefpFinalAddress + i, result [i]);
                       }
 #ifdef HDBG
+                    HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address);
                     for (uint i = 0; i < PGSZ; i ++)
                       HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
 #endif
@@ -484,6 +500,7 @@ void Write (word18 address, word36 data, processor_cycle_type cyctyp)
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Write(Actual) Write:      bar address=%08o "
                            "writeData=%012"PRIo64"\n", address, data);
+                HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data);
                 return;
               }
@@ -503,6 +520,7 @@ void Write (word18 address, word36 data, processor_cycle_type cyctyp)
                            "Write(Actual) Write:      abs address=%08o "
                            "writeData=%012"PRIo64"\n",
                            address, data);
+                HDBGIEFP (hdbgIEFP_abs_write, 0, address);
                 HDBGMWrite (address, data);
                 return;
               }
@@ -521,6 +539,7 @@ B29:
                            "Write(Actual) Write: bar iefpFinalAddress=%08o "
                            "writeData=%012"PRIo64"\n",
                            cpu.iefpFinalAddress, data);
+                HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data);
                 return;
               }
@@ -531,6 +550,7 @@ B29:
                            "Write(Actual) Write: iefpFinalAddress=%08o "
                            "writeData=%012"PRIo64"\n",
                            cpu.iefpFinalAddress, data);
+                HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data);
                 return;
               }
@@ -560,6 +580,7 @@ void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp)
                 fauxDoAppendCycle (cyctyp);
                 core_write2 (cpu.iefpFinalAddress, data [0], data [1],
                               __func__);
+                HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data [0]);
                 HDBGMWrite (cpu.iefpFinalAddress+1, data [1]);
                 sim_debug (DBG_FINAL, & cpu_dev,
@@ -572,6 +593,7 @@ void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp)
                 set_apu_status (apuStatus_FABS);
                 fauxDoAppendCycle (cyctyp);
                 core_write2 (address, data [0], data [1], __func__);
+                HDBGIEFP (hdbgIEFP_abs_write, 0, address);
                 HDBGMWrite (address, data [0]);
                 HDBGMWrite (address+1, data [1]);
                 sim_debug (DBG_FINAL, & cpu_dev,
@@ -595,6 +617,7 @@ B29:
                            "Write2 (Actual) Write: bar iefpFinalAddress=%08o "
                            "writeData=%012"PRIo64" %012"PRIo64"\n",
                            address, data [0], data [1]);
+                HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data[0]);
                 HDBGMWrite (cpu.iefpFinalAddress+1, data[1]);
               }
@@ -605,6 +628,7 @@ B29:
                            "Write2 (Actual) Write: iefpFinalAddress=%08o "
                            "writeData=%012"PRIo64" %012"PRIo64"\n",
                            address, data [0], data [1]);
+                HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data[0]);
                 HDBGMWrite (cpu.iefpFinalAddress+1, data[1]);
               }
@@ -635,6 +659,7 @@ void Write1 (word18 address, word36 data, bool isAR)
                            "Write1(Actual) Write:      bar address=%08o "
                            "writeData=%012"PRIo64"\n",
                            address, data);
+                HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data);
                 return;
               }
@@ -647,6 +672,7 @@ void Write1 (word18 address, word36 data, bool isAR)
                            "Write1(Actual) Write:      abs address=%08o "
                            "writeData=%012"PRIo64"\n",
                            address, data);
+                HDBGIEFP (hdbgIEFP_abs_write, 0, address);
                 HDBGMWrite (address, data);
                 return;
               }
@@ -666,6 +692,7 @@ B29:
                            "Write8(Actual) Write: bar iefpFinalAddress="
                            "%08o writeData=%012"PRIo64"\n",
                            cpu.iefpFinalAddress, data);
+                HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data);
                 return;
               }
@@ -677,6 +704,7 @@ B29:
                            "Write(Actual) Write: iefpFinalAddress=%08o "
                            "writeData=%012"PRIo64"\n",
                            cpu.iefpFinalAddress, data);
+                HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data);
                 return;
               }
@@ -716,6 +744,7 @@ void Write8 (word18 address, word36 * data, bool isAR)
                                  address + i, data [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address);
                 for (uint i = 0; i < 8; i ++)
                   HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
 #endif
@@ -735,6 +764,7 @@ void Write8 (word18 address, word36 * data, bool isAR)
                                   address + i, data [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_abs_write, 0, address);
                 for (uint i = 0; i < 8; i ++)
                   HDBGMWrite (address + i, data [i]);
 #endif
@@ -761,6 +791,7 @@ B29:
                                  cpu.iefpFinalAddress + i, data [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address);
                 for (uint i = 0; i < 8; i ++)
                   HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
 #endif
@@ -780,6 +811,7 @@ B29:
                                  cpu.iefpFinalAddress + i, data [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address);
                 for (uint i = 0; i < 8; i ++)
                   HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
 #endif
@@ -845,6 +877,7 @@ void WritePage (word18 address, word36 * data, bool isAR)
                                  address + i, data [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address);
                 for (uint i = 0; i < PGSZ; i ++)
                   HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
 #endif
@@ -864,6 +897,7 @@ void WritePage (word18 address, word36 * data, bool isAR)
                                  address + i, data [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_abs_write, 0, address);
                 for (uint i = 0; i < PGSZ; i ++)
                   HDBGMWrite (address + i, data [i]);
 #endif
@@ -890,6 +924,11 @@ B29:
                                  "\n",
                                  cpu.iefpFinalAddress + i, data [i]);
                   }
+#ifdef HDBG
+                HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address);
+                for (uint i = 0; i < 8; i ++)
+                  HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
+#endif
                 return;
               }
             else
@@ -905,6 +944,7 @@ B29:
                                  cpu.iefpFinalAddress + i, data [i]);
                   }
 #ifdef HDBG
+                HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address);
                 for (uint i = 0; i < PGSZ; i ++)
                   HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
 #endif

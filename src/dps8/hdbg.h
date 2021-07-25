@@ -18,6 +18,18 @@ t_stat hdbg_print (int32 arg, UNUSED const char * buf);
 #ifdef HDBG
 void hdbgTrace (void);
 void hdbgPrint (void);
+enum hdbgIEFP_e
+  {
+    hdbgIEFP_abs_bar_read,
+    hdbgIEFP_abs_read,
+    hdbgIEFP_bar_read,
+    hdbgIEFP_read,
+    hdbgIEFP_abs_bar_write,
+    hdbgIEFP_abs_write,
+    hdbgIEFP_bar_write,
+    hdbgIEFP_write
+  };
+void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset);
 void hdbgMRead (word24 addr, word36 data);
 void hdbgMWrite (word24 addr, word36 data);
 void hdbgFault (_fault faultNumber, _fault_subtype subFault,
@@ -45,6 +57,7 @@ void hdbgPAReg (enum hregs_t type, struct par_s * data);
 #define HDBGRegX(i) hdbgReg (hreg_X0+(i), (word36) cpu.rX[i])
 #define HDBGRegPR(i) hdbgPAReg (hreg_PR0+(i), & cpu.PAR[i]);
 #define HDBGRegAR(i) hdbgPAReg (hreg_AR0+(i), & cpu.PAR[i]);
+#define HDBGIEFP(t,s,o) hdbgIEFP (t, s, o);
 #else
 #define HDBGMRead(a, d)
 #define HDBGMWrite(a, d)
@@ -53,5 +66,6 @@ void hdbgPAReg (enum hregs_t type, struct par_s * data);
 #define HDBGRegX(i)
 #define HDBGRegPR(i)
 #define HDBGRegAR(i)
+#define HDBGIEFP(t,s,o)
 #endif
 #endif
