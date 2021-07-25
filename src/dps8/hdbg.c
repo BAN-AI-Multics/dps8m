@@ -24,7 +24,7 @@
 #ifdef HDBG
 #include "dps8_faults.h"
 
-enum hevtType { hevtEmpty = 0, hevtTrace, hevtMRead, hevtMWrite, hevtIWBUpdate, hevtRegs, hevtFault, hevtIntrSet, hevtIntr, hevtReg, hevtPAReg };
+enum hevtType { hevtEmpty = 0, hevtTrace, hevtMRead, hevtMWrite, hevtIWBUpdate, hevtRegs, hevtFault, hevtIntrSet, hevtIntr, hevtReg, hevtPAReg, hevtIEFP };
 
 struct hevt
   {
@@ -77,6 +77,13 @@ struct hevt
             enum hregs_t type;
             struct par_s data;
           } par;
+
+        struct
+          {
+            enum hdbgIEFP_e type;
+            word15 segno;
+            word18 offset;
+          } iefp;
       };
   };
 
@@ -138,6 +145,29 @@ if (current_running_cpu_idx == 0)
     hevents [hevtPtr] . trace . ic = cpu . PPR.IC;
     hevents [hevtPtr] . trace . ring = cpu . PPR.PRR;
     hevents [hevtPtr] . trace . inst = cpu.cu.IWB;
+    hdbg_inc ();
+done: ;
+#ifdef THREADZ
+    pthread_mutex_unlock (& hdbg_lock);
+#endif
+  }
+
+void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset)
+  {
+#ifdef THREADZ
+    pthread_mutex_lock (& hdbg_lock);
+#endif
+    if (! hevents)
+      goto done;
+#ifdef ISOLTS
+if (current_running_cpu_idx == 0)
+  goto done;
+#endif
+    hevents[hevtPtr].type = hevtIEFP;
+    hevents[hevtPtr].time = cpu.cycleCnt;
+    hevents [hevtPtr].iefp.type = type;
+    hevents [hevtPtr].iefp.segno = segno;
+    hevents [hevtPtr].iefp.offset = offset;
     hdbg_inc ();
 done: ;
 #ifdef THREADZ
@@ -409,6 +439,80 @@ static void printPAReg (struct hevt * p)
                p->par.data.RNR);
   }
 
+static void printIEFP (struct hevt * p)
+  {
+    switch (p->iefp.type)
+      {
+        case hdbgIEFP_abs_bar_read:
+          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP ABS BAR READ:  "
+               "|%06o\n",
+               p->time,
+               p->iefp.offset);
+          break;
+
+        case hdbgIEFP_abs_read:
+          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP ABS     READ:  "
+               ":%06o\n",
+               p->time,
+               p->iefp.offset);
+          break;
+
+        case hdbgIEFP_bar_read:
+          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP APP BAR READ:  "
+               "%05o|%06o\n",
+               p->time,
+               p->iefp.segno,
+               p->iefp.offset);
+          break;
+
+        case hdbgIEFP_read:
+          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP APP     READ:  "
+               "%05o:%06o\n",
+               p->time,
+               p->iefp.segno,
+               p->iefp.offset);
+          break;
+
+        case hdbgIEFP_abs_bar_write:
+          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP ABS BAR WRITE: "
+               "|%06o\n",
+               p->time,
+               p->iefp.offset);
+          break;
+
+        case hdbgIEFP_abs_write:
+          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP ABS     WRITE: "
+               ":%06o\n",
+               p->time,
+               p->iefp.offset);
+          break;
+
+        case hdbgIEFP_bar_write:
+          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP APP BAR WRITE: "
+               "%05o|%06o\n",
+               p->time,
+               p->iefp.segno,
+               p->iefp.offset);
+          break;
+
+        case hdbgIEFP_write:
+          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP APP     WRITE: "
+               "%05o:%06o\n",
+               p->time,
+               p->iefp.segno,
+               p->iefp.offset);
+          break;
+
+        default:
+          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP ??? ??? WRITE: "
+               "%05o?%06o\n",
+               p->time,
+               p->iefp.segno,
+               p->iefp.offset);
+          break;
+      }
+  }
+
 void hdbgPrint (void)
   {
 #ifdef THREADZ
@@ -465,6 +569,10 @@ void hdbgPrint (void)
 
             case hevtPAReg:
               printPAReg (evtp);
+              break;
+
+            case hevtIEFP:
+              printIEFP (evtp);
               break;
 
             default:
