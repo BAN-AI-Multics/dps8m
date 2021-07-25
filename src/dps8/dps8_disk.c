@@ -689,7 +689,8 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 //
     disk_statep -> seekPosition = seekData & MASK21;
 //sim_printf ("seek seekPosition %d\n", disk_statep -> seekPosition);
-    p -> stati = 00000; // Channel ready
+if (devUnitIdx) printf ("special seek seekPosition %d\r\n", disk_statep -> seekPosition);
+    p -> stati = 04000; // Channel ready
     return 0;
   }
 
@@ -765,7 +766,7 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 //
     disk_statep -> seekPosition = seekData & MASK21;
 //sim_printf ("seek seekPosition %d\n", disk_statep -> seekPosition);
-    p -> stati = 00000; // Channel ready
+    p -> stati = 04000; // Channel ready
     return 0;
   }
 
@@ -855,7 +856,9 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
           {
             if (ferror (unitp->fileref))
               {
+            sim_printf ("fread returned %d, errno %d\n", rc, errno);
                 p -> stati = 04202; // attn, seek incomplete
+if (devUnitIdx) printf ("stati 0%o\r\n", p->stati);
                 p -> chanStatus = chanStatIncorrectDCW;
                 return -1;
               }
@@ -1113,11 +1116,11 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
 #if 1
     word36 buffer [tally];
     memset (buffer, 0, sizeof (buffer));
-    buffer [0] = SIGN36;
+    //buffer [0] = SIGN36;
     uint wordsProcessed = tally;
     iom_indirect_data_service (iomUnitIdx, chan, buffer,
                             & wordsProcessed, true);
-    p -> initiate = false;
+    //p -> initiate = false;
 #else
     for (uint i = 0; i < tally; i ++)
       //M [daddr + i] = 0;
@@ -1429,6 +1432,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
 
     int rc = IOM_CMD_OK;
 
+if (devUnitIdx) printf ("cmd 0%o\r\n", p->IDCW_DEV_CMD);
     switch (p -> IDCW_DEV_CMD)
       {
         case 000: // CMD 00 Request status
@@ -1439,6 +1443,8 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
 
             disk_statep -> io_mode = disk_no_mode;
             sim_debug (DBG_NOTIFY, & dsk_dev, "Request status %d\n", devUnitIdx);
+//p -> stati = 04567;
+if (devUnitIdx) printf ("status %o\r\n", p->stati);
           }
           break;
 
@@ -1492,6 +1498,16 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
                 rc = IOM_CMD_ERROR;
                 break;
               }
+          }
+          break;
+
+        case 026: // CMD 26 READ CONTROL REGISTER
+          {
+            p -> stati = 04000;
+            if (! unitp -> fileref)
+              p -> stati = 04240; // device offline
+            sim_debug (DBG_NOTIFY, & dsk_dev, "Read control register %d\n", devUnitIdx);
+if (devUnitIdx) printf ("status %o\r\n", p->stati);
           }
           break;
 
@@ -1554,10 +1570,29 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
           }
           break;
 
+        case 036: // CMD 36 SPECIAL SEEK (T&D) // Make it work like SEEK_64 and
+                                               // hope for the best
+          {
+            // XXX is it correct to not process the DDCWs?
+            if (! unitp -> fileref)
+              {
+                p -> stati = 04240; // device offline
+                break;
+              }
+            int rc1 = diskSeek64 (devUnitIdx, iomUnitIdx, chan);
+            if (rc1)
+              {
+                rc = IOM_CMD_ERROR;
+                break;
+              }
+          }
+          break;
+
         case 040: // CMD 40 Reset status
           {
             p -> stati = 04000;
             p -> isRead = false;
+            p -> initiate = false;
             //if (! unitp -> fileref)
               //p -> stati = 04240; // device offline
             disk_statep -> io_mode = disk_no_mode;
@@ -1569,6 +1604,8 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
           {
             sim_debug (DBG_NOTIFY, & dsk_dev, "Restore %d\n", devUnitIdx);
             p -> stati = 04000;
+            p -> initiate = false;
+            p -> isRead = false;
             if (! unitp -> fileref)
               p -> stati = 04240; // device offline
           }
@@ -1585,6 +1622,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
 
         default:
           {
+if (devUnitIdx) printf ("unknown\r\n");
             p -> stati = 04501;
             p -> chanStatus = chanStatIncorrectDCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
@@ -1592,9 +1630,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
             sim_debug (DBG_ERR, & dsk_dev,
                        "%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
           }
-          return IOM_CMD_ERROR;
+          rc = IOM_CMD_ERROR;
       }
 
+if (devUnitIdx) printf ("stati 0%o\r\n", p->stati);
 #ifdef LOCKLESS
     unlock_ptr (& dsk_states->dsk_lock);
 #endif

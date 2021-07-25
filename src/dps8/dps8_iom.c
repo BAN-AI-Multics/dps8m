@@ -1637,6 +1637,8 @@ static int status_service (uint iom_unit_idx, uint chan, bool marker)
     sim_debug (DBG_TRACE, & iom_dev,
                "Writing status for chan %d dev_code %d to 0%o=>0%o\n",
                chan, p -> dev_code, scwAddr, addr);
+if (chan == 12)  printf ("Status: %012"PRIo64" %012"PRIo64"\r\n",
+               word1, word2);
     sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev, "%s: Status: 0%012"PRIo64" 0%012"PRIo64"\n",
                __func__, word1, word2);
     if (lq == 3)
