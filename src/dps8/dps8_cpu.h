@@ -2304,7 +2304,7 @@ static inline void core_readN (word24 addr, word36 * data, uint n,
     for (uint i = 0; i < n; i ++)
       {
         core_read (addr + i, data + i, ctx);
-        HDBGMRead (addr + i, * (data + i));
+        //HDBGMRead (addr + i, * (data + i));
       }
   }
 
