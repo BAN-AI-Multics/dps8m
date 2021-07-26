@@ -395,16 +395,26 @@ static void printIntr (struct hevt * p)
 
 static char * regNames [] =
   {
-    "A ",
-    "Q ",
-    "X0", "X1", "X2", "X3", "X4", "X5", "X6", "X7",
+    "A  ",
+    "Q  ",
+    "X0 ", "X1 ", "X2 ", "X3 ", "X4 ", "X5 ", "X6 ", "X7 ",
     "AR0", "AR1", "AR2", "AR3", "AR4", "AR5", "AR6", "AR7",
-    "PR0", "PR1", "PR2", "PR3", "PR4", "PR5", "PR6", "PR7"
+    "PR0", "PR1", "PR2", "PR3", "PR4", "PR5", "PR6", "PR7",
+    "Y  ", "Z  ",
+    "IR "
   };
 
 static void printReg (struct hevt * p)
   {
-    if (p->reg.type >= hreg_X0 && p->reg.type <= hreg_X7)
+    if (p->reg.type == hreg_IR)
+      {
+          fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s %012"PRIo64" Z%o N%o C %o O%o T%o \n",
+                   p->time,
+                   regNames[p->reg.type],
+                   p->reg.data,
+                   TST_I_ZERO, TST_I_NEG, TST_I_CARRY, TST_I_OFLOW, TST_I_TALLY);
+      }
+    else if (p->reg.type >= hreg_X0 && p->reg.type <= hreg_X7)
       fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s %06"PRIo64"\n",
                   p->time,
                   regNames[p->reg.type],
