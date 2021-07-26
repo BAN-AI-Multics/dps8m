@@ -5183,6 +5183,11 @@ static t_stat doInstruction (void)
           {
             word36 Z = ~cpu.rQ & (cpu.rA ^ cpu.CY);
             Z &= DMASK;
+            HDBGRegA ();
+            HDBGRegQ ();
+            HDBGRegY ();
+            HDBGRegZ (Z);
+            HDBGRegIR ();
 
 // Q  A  Y   ~Q   A^Y   Z
 // 0  0  0    1     0   0
