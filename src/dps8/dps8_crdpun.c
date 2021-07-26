@@ -196,6 +196,7 @@ static config_list_t pun_config_list[] =
 #define CARD_COL_COUNT 80
 #define NIBBLES_PER_COL 3
 #define OCR_CHARS_PER_CARD 22
+#define CHAR_MATRIX_BYTES 5
 
 enum parse_state {
     Idle, StartingJob, OcrCard, EndOfHeader, WritingDeck, EndOfDeck, EndOfJob
@@ -343,6 +344,105 @@ static word36 bannerCard [WORDS_PER_CARD] =
     0000000050000llu
   };
 
+#define NUM_OCR_CHAR_PATTERNS 42
+
+static uint8 ocr_char_patterns [NUM_OCR_CHAR_PATTERNS][CHAR_MATRIX_BYTES] =  
+  {
+      // Asterisk
+      { 037, 037, 037, 037, 037 },
+      // Space
+      { 000, 000, 000, 000, 000 },
+      // Period
+      { 000, 003, 003, 003, 000 },
+      // >
+      { 021, 000, 012, 000, 004 },
+      // A
+      { 037, 024, 024, 024, 037 },
+      // B
+      { 037, 025, 025, 025, 012 },
+      // C
+      { 037, 021, 021, 021, 021 },
+      // D
+      { 037, 021, 021, 021, 016 },
+      // E
+      { 037, 025, 025, 025, 021 },
+      // F
+      { 037, 024, 024, 024, 020 },
+      // G
+      { 037, 021, 021, 025, 027 },
+      // H
+      { 037, 004, 004, 004, 037 },
+      // I
+      { 021, 021, 037, 021, 021 },
+      // J
+      { 003, 001, 001, 001, 037 },
+      // K
+      { 037, 004, 004, 012, 021 },
+      // L
+      { 037, 001, 001, 001, 001 },
+      // M
+      { 037, 010, 004, 010, 037 },
+      // N
+      { 037, 010, 004, 002, 037 },
+      // O
+      { 037, 021, 021, 021, 037 },
+      // P
+      { 037, 024, 024, 024, 034 },
+      // Q
+      { 037, 021, 025, 023, 037 },
+      // R
+      { 037, 024, 024, 026, 035 },
+      // S
+      { 035, 025, 025, 025, 027 },
+      // T
+      { 020, 020, 037, 020, 020 },
+      // U
+      { 037, 001, 001, 001, 037 },
+      // V
+      { 030, 006, 001, 006, 030 },
+      // W
+      { 037, 002, 004, 002, 037 },
+      // X
+      { 021, 012, 004, 012, 021 },
+      // Y
+      { 020, 010, 007, 010, 020 },
+      // Z
+      { 021, 027, 025, 035, 021 },
+      // 0
+      { 016, 021, 021, 021, 016 },
+      // 1
+      { 000, 010, 000, 037, 000 },
+      // 2
+      { 023, 025, 025, 025, 035 },
+      // 3
+      { 021, 025, 025, 025, 037 },
+      // 4
+      { 034, 004, 004, 004, 037 },
+      // 5
+      { 035, 025, 025, 025, 022 },
+      // 6
+      { 037, 005, 005, 005, 007 },
+      // 7
+      { 020, 021, 022, 024, 030 },
+      // 8
+      { 012, 025, 025, 025, 012 },
+      // 9
+      { 034, 024, 024, 024, 037 },
+      // Underscore
+      { 001, 001, 001, 001, 001 },
+      // Hyphen
+      { 000, 004, 004, 004, 000 },
+  };
+
+static char ocr_chars [NUM_OCR_CHAR_PATTERNS] =
+  {
+      '*', ' ', '.', '>', 'A', 'B', 'C', 'D', 'E', 'F', 
+      'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 
+      'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+      '_', '-',
+  };
+
 static uint8 ocr_char_word_offset [11] =
   {
       24, 22, 19, 17, 15, 12, 10, 8, 5, 3, 1
@@ -352,6 +452,21 @@ static uint8 ocr_nibble_offset [11] =
   {
        1,  2,  0,  1,  2,  0,  1, 2, 0, 1, 2
   };
+
+static char search_ocr_patterns(uint8* matrix)
+  {
+    for (int pattern = 0; pattern < NUM_OCR_CHAR_PATTERNS; pattern++)
+      {
+        if (memcmp(matrix, &ocr_char_patterns[pattern], CHAR_MATRIX_BYTES) == 0)
+          {
+            return ocr_chars[pattern];
+          }
+      }
+
+      sim_warn("*** Warning: Punch found unknown OCR pattern\n");
+
+      return ' ';
+  }  
   
 static uint8 get_lace_char(word36* buffer, uint char_pos)
   {
@@ -387,10 +502,10 @@ static uint8 get_lace_char(word36* buffer, uint char_pos)
       }
 
     // Now shift the characters into the 5x5 matrix buffer
-    uint8 char_matrix[5];
+    uint8 char_matrix[CHAR_MATRIX_BYTES];
 
     sim_print("\nCol Matrix => Char Matrix\n");
-    for (uint col_offset = 0; col_offset < 5; col_offset++)
+    for (uint col_offset = 0; col_offset < CHAR_MATRIX_BYTES; col_offset++)
       {
         char_matrix[col_offset] = (col_buffer[col_offset] >> (top ? 6 : 0)) & 0x1F;
         sim_printf(" %05o  =>  %03o\n", col_buffer[col_offset], char_matrix[col_offset]);
@@ -399,7 +514,7 @@ static uint8 get_lace_char(word36* buffer, uint char_pos)
     sim_print("\r\n");
     for (uint row = 0; row < 5; row++)
       {
-        for (uint col = 0; col < 5; col++)
+        for (uint col = 0; col < CHAR_MATRIX_BYTES; col++)
           {
             if ((char_matrix[col] >> (4 - row)) & 0x1)
               {
@@ -412,6 +527,9 @@ static uint8 get_lace_char(word36* buffer, uint char_pos)
           }
           sim_print("\r\n");
       }
+
+    char c = search_ocr_patterns(&char_matrix);
+    sim_printf("<found char '%c'>\n", c);
 
     return 0;
   }
@@ -709,7 +827,7 @@ static enum parse_event do_state_end_of_header(enum parse_event event, pun_state
         current_entry = current_entry->next_entry;
       }
 
-    dump_card_cache(state);
+    //dump_card_cache(state);
 
     clear_card_cache(state);                            // Clear card cache
 
