@@ -192,14 +192,14 @@ static config_list_t pun_config_list[] =
   };
 
 #define WORDS_PER_CARD 27
-#define MAX_OCR_BUFFER_LEN 1024
+#define MAX_GLYPH_BUFFER_LEN 1024
 #define CARD_COL_COUNT 80
 #define NIBBLES_PER_COL 3
-#define OCR_CHARS_PER_CARD 22
+#define GLYPHS_PER_CARD 22
 #define CHAR_MATRIX_BYTES 5
 
 enum parse_state {
-    Idle, StartingJob, OcrCard, EndOfHeader, WritingDeck, EndOfDeck, EndOfJob
+    Idle, StartingJob, PunchGlyphLookup, EndOfHeader, WritingDeck, EndOfDeck, EndOfJob
 };
 
 enum parse_event {
@@ -224,7 +224,7 @@ typedef struct
     bool log_cards; // Flag to log card images
     bool sawEOD;
     enum parse_state current_state;
-    char ocr_buffer[MAX_OCR_BUFFER_LEN];
+    char glyph_buffer[MAX_GLYPH_BUFFER_LEN];
     CARD_CACHE_ENTRY *first_cached_card;
     CARD_CACHE_ENTRY *last_cached_card;
   } pun_state_t ;
@@ -344,9 +344,17 @@ static word36 bannerCard [WORDS_PER_CARD] =
     0000000050000llu
   };
 
-#define NUM_OCR_CHAR_PATTERNS 42
 
-static uint8 ocr_char_patterns [NUM_OCR_CHAR_PATTERNS][CHAR_MATRIX_BYTES] =  
+/*
+ *                  Glyph Pattern Lookup
+ * This is the parsing of the "lace" cards and extracting the ASCII characters
+ * have been punched into the cards (as glphys) so the operator knows how to 
+ * deliver the deck.
+ */
+
+#define NUM_GLYPH_CHAR_PATTERNS 45
+
+static uint8 glyph_char_patterns [NUM_GLYPH_CHAR_PATTERNS][CHAR_MATRIX_BYTES] =  
   {
       // Asterisk
       { 037, 037, 037, 037, 037 },
@@ -432,83 +440,39 @@ static uint8 ocr_char_patterns [NUM_OCR_CHAR_PATTERNS][CHAR_MATRIX_BYTES] =
       { 001, 001, 001, 001, 001 },
       // Hyphen
       { 000, 004, 004, 004, 000 },
+      // (
+      { 000, 004, 012, 021, 000 },
+      // )
+      { 000, 021, 012, 004, 000 },
+      // /
+      { 001, 002, 004, 010, 020 }
   };
 
-static char ocr_chars [NUM_OCR_CHAR_PATTERNS] =
+static char glyph_chars [NUM_GLYPH_CHAR_PATTERNS] =
   {
       '*', ' ', '.', '>', 'A', 'B', 'C', 'D', 'E', 'F', 
       'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 
       'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-      '_', '-',
+      '_', '-', '(', ')', '/'
   };
 
-static uint8 ocr_char_word_offset [11] =
+static uint8 glyph_char_word_offset [11] =
   {
       24, 22, 19, 17, 15, 12, 10, 8, 5, 3, 1
   };
 
-static uint8 ocr_nibble_offset [11] =
+static uint8 glyph_nibble_offset [11] =
   {
        1,  2,  0,  1,  2,  0,  1, 2, 0, 1, 2
   };
 
-static char search_ocr_patterns(uint8* matrix)
+static void log_char_matrix_pattern(uint8* char_matrix)
   {
-    for (int pattern = 0; pattern < NUM_OCR_CHAR_PATTERNS; pattern++)
-      {
-        if (memcmp(matrix, &ocr_char_patterns[pattern], CHAR_MATRIX_BYTES) == 0)
-          {
-            return ocr_chars[pattern];
-          }
-      }
-
-      sim_warn("*** Warning: Punch found unknown OCR pattern\n");
-
-      return ' ';
-  }  
-  
-static uint8 get_lace_char(word36* buffer, uint char_pos)
-  {
-    if (char_pos >= OCR_CHARS_PER_CARD)
-      {
-        sim_warn("*** Error: Attempt to read punch OCR character out of range (%u)\n", char_pos);
-        return 0;
-      }
-
-    bool top = char_pos < 11;                                       // Top or bottom line of characters
-    uint char_offset = (char_pos < 11) ? char_pos : char_pos - 11;  // Character number in the line
-    uint word_offset = ocr_char_word_offset[char_offset];           // Starting word in the buffer
-    uint nibble_offset = ocr_nibble_offset[char_offset];            // Starting nibble in the word
-    word12 col_buffer[5];                                           // The extracted 5 columns for the character
-
-    // Extract the five 12-bit words from the main buffer that make up the character
-    // Note that in this process we reverse the character image so it reads normally
-    // (characters are punched in reverse)
-    for (uint col_offset = 0; col_offset < 5; col_offset++)
-      {
-        col_buffer[4 - col_offset] = (buffer[word_offset] >> (nibble_offset * 12)) & 0xFFF;
-        sim_printf(">> col_offset = %u, word_offset = %u, nibble_offset = %u, buffer[word_offset] = %012"PRIo64"\n",
-            col_offset, word_offset, nibble_offset, buffer[word_offset]);
-        if (nibble_offset == 0)
-          {
-            nibble_offset = 2;
-            word_offset++;
-          }
-        else
-          {
-            nibble_offset--;
-          }
-      }
-
-    // Now shift the characters into the 5x5 matrix buffer
-    uint8 char_matrix[CHAR_MATRIX_BYTES];
-
-    sim_print("\nCol Matrix => Char Matrix\n");
+    sim_print("\nChar Matrix\n");
     for (uint col_offset = 0; col_offset < CHAR_MATRIX_BYTES; col_offset++)
       {
-        char_matrix[col_offset] = (col_buffer[col_offset] >> (top ? 6 : 0)) & 0x1F;
-        sim_printf(" %05o  =>  %03o\n", col_buffer[col_offset], char_matrix[col_offset]);
+        sim_printf(" %03o\n", char_matrix[col_offset]);
       }
 
     sim_print("\r\n");
@@ -527,18 +491,81 @@ static uint8 get_lace_char(word36* buffer, uint char_pos)
           }
           sim_print("\r\n");
       }
+    sim_print("\r\n");
 
-    char c = search_ocr_patterns(&char_matrix);
-    sim_printf("<found char '%c'>\n", c);
-
-    return 0;
   }
 
-static void ocr_card(word36* buffer)
+static char search_glyph_patterns(uint8* matrix)
   {
-    for (uint c = 0; c < 22; c++)
+    for (int pattern = 0; pattern < NUM_GLYPH_CHAR_PATTERNS; pattern++)
       {
-        get_lace_char(buffer, c);
+        if (memcmp(matrix, &glyph_char_patterns[pattern], CHAR_MATRIX_BYTES) == 0)
+          {
+            return glyph_chars[pattern];
+          }
+      }
+
+      sim_warn("*** Warning: Punch found unknown block character pattern\n");
+      log_char_matrix_pattern(matrix);
+
+      return ' ';
+  }  
+  
+static char get_lace_char(word36* buffer, uint char_pos)
+  {
+    if (char_pos >= GLYPHS_PER_CARD)
+      {
+        sim_warn("*** Error: Attempt to read punch block character out of range (%u)\n", char_pos);
+        return 0;
+      }
+
+    bool top = char_pos < 11;                                       // Top or bottom line of characters
+    uint char_offset = (char_pos < 11) ? char_pos : char_pos - 11;  // Character number in the line
+    uint word_offset = glyph_char_word_offset[char_offset];           // Starting word in the buffer
+    uint nibble_offset = glyph_nibble_offset[char_offset];            // Starting nibble in the word
+    word12 col_buffer[5];                                           // The extracted 5 columns for the character
+
+    // Extract the five 12-bit words from the main buffer that make up the character
+    // Note that in this process we reverse the character image so it reads normally
+    // (characters are punched in reverse)
+    for (uint col_offset = 0; col_offset < 5; col_offset++)
+      {
+        col_buffer[4 - col_offset] = (buffer[word_offset] >> (nibble_offset * 12)) & 0xFFF;
+        if (nibble_offset == 0)
+          {
+            nibble_offset = 2;
+            word_offset++;
+          }
+        else
+          {
+            nibble_offset--;
+          }
+      }
+
+    // Now shift the characters into the 5x5 matrix buffer
+    uint8 char_matrix[CHAR_MATRIX_BYTES];
+
+    for (uint col_offset = 0; col_offset < CHAR_MATRIX_BYTES; col_offset++)
+      {
+        char_matrix[col_offset] = (col_buffer[col_offset] >> (top ? 6 : 0)) & 0x1F;
+      }
+
+    char c = search_glyph_patterns(&char_matrix);
+
+    return c;
+  }
+
+static void scan_card_for_glyphs(pun_state_t * state, word36* buffer)
+  {
+    for (uint c_pos = 0; c_pos < 22; c_pos++)
+      {
+        char c = get_lace_char(buffer, c_pos);
+        uint8 current_length = strlen(state -> glyph_buffer);
+        if (current_length < (sizeof(state -> glyph_buffer) - 1))
+          {
+            state -> glyph_buffer[current_length++] = c;
+            state -> glyph_buffer[current_length] = 0;
+          }
       }
   }  
 
@@ -689,8 +716,8 @@ static void print_state(enum parse_state state)
         case StartingJob:
           sim_print("[Starting Job]");
           break;
-        case OcrCard:
-          sim_print("[Ocr Card]");
+        case PunchGlyphLookup:
+          sim_print("[Punch Glyph Lookup]");
           break;
         case EndOfHeader:
           sim_print("[End Of Header]");
@@ -790,18 +817,18 @@ static enum parse_event do_state_starting_job(enum parse_event event, pun_state_
     state -> current_state = StartingJob;
 
     clear_card_cache(state);                            // Clear card cache
-    state -> ocr_buffer[0] = 0;                         // Clear OCR Buffer
+    state -> glyph_buffer[0] = 0;                       // Clear Glyph Buffer
     save_card_in_cache(state, tally, card_buffer);      // Save card in cache
 
     return NoEvent;
   }
 
-static enum parse_event do_state_ocr_card(enum parse_event event, pun_state_t * state, word12 tally, word36 * card_buffer)
+static enum parse_event do_state_scan_card_for_glyphs(enum parse_event event, pun_state_t * state, word12 tally, word36 * card_buffer)
   {
-    print_transition(state -> current_state, event, OcrCard);
-    state -> current_state = OcrCard;
+    print_transition(state -> current_state, event, PunchGlyphLookup);
+    state -> current_state = PunchGlyphLookup;
 
-    ocr_card(card_buffer);
+    scan_card_for_glyphs(state, card_buffer);
 
     save_card_in_cache(state, tally, card_buffer);      // Save card in cache
 
@@ -815,7 +842,9 @@ static enum parse_event do_state_end_of_header(enum parse_event event, pun_state
 
     save_card_in_cache(state, tally, card_buffer);      // Save card in cache
 
-    //TODO: Parse OCR Buffer into file name
+    sim_printf("\n++++ Glyph Buffer ++++\n'%s'\n", state -> glyph_buffer);
+
+    //TODO: Parse Glyph Buffer into file name
 
     create_punch_file(state);                           // Create spool file
 
@@ -910,7 +939,7 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
                     event = do_state_starting_job(current_event, state, tally, card_buffer);
                     break;
 
-                  case OcrCard:
+                  case PunchGlyphLookup:
                     event = do_state_end_of_header(current_event, state, tally, card_buffer);
                     break;
 
@@ -931,7 +960,7 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
                     event = do_state_end_of_deck(current_event, state, tally, card_buffer);
                     break;
 
-                  case OcrCard:
+                  case PunchGlyphLookup:
                     event = do_state_end_of_deck(current_event, state, tally, card_buffer);
                     break;
 
@@ -957,11 +986,11 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
               switch (state -> current_state)
                 {
                   case StartingJob:
-                    event = do_state_ocr_card(current_event, state, tally, card_buffer);
+                    event = do_state_scan_card_for_glyphs(current_event, state, tally, card_buffer);
                     break;
 
-                  case OcrCard:
-                    event = do_state_ocr_card(current_event, state, tally, card_buffer);
+                  case PunchGlyphLookup:
+                    event = do_state_scan_card_for_glyphs(current_event, state, tally, card_buffer);
                     break;
 
                   case EndOfHeader:
