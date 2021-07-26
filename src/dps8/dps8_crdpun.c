@@ -159,14 +159,14 @@ DEVICE pun_dev = {
     36,           /* data width */
     NULL,         /* examine */
     NULL,         /* deposit */
-    pun_reset,   /* reset */
+    pun_reset,    /* reset */
     NULL,         /* boot */
     NULL,         /* attach */
     NULL,         /* detach */
     NULL,         /* context */
     DEV_DEBUG,    /* flags */
     0,            /* debug control flags */
-    pun_dt,      /* debug flag names */
+    pun_dt,       /* debug flag names */
     NULL,         /* memory size change */
     NULL,         /* logical name */
     NULL,         // help
@@ -176,7 +176,26 @@ DEVICE pun_dev = {
     NULL
 };
 
+static config_value_list_t cfg_on_off[] =
+  {
+    { "off", 0 },
+    { "on", 1 },
+    { "disable", 0 },
+    { "enable", 1 },
+    { NULL, 0 }
+  };
+
+static config_list_t pun_config_list[] =
+  {
+   { "logcards", 0, 1, cfg_on_off },
+   { NULL, 0, 0, NULL }
+  };
+
+#define WORDS_PER_CARD 27
 #define MAX_OCR_BUFFER_LEN 1024
+#define CARD_COL_COUNT 80
+#define NIBBLES_PER_COL 3
+#define OCR_CHARS_PER_CARD 22
 
 enum parse_state {
     Idle, StartingJob, OcrCard, EndOfHeader, WritingDeck, EndOfDeck, EndOfJob
@@ -191,7 +210,7 @@ typedef struct card_cache_node CARD_CACHE_ENTRY;
 struct card_cache_node
   {
       word12 tally;
-      word36 card_data[27];
+      word36 card_data[WORDS_PER_CARD];
       CARD_CACHE_ENTRY *next_entry;
   };
 
@@ -200,7 +219,7 @@ struct card_cache_node
 typedef struct 
   {
     char device_name [MAX_DEV_NAME_LEN];
-    int punfile; // fd
+    int punfile_raw; // fd
     bool log_cards; // Flag to log card images
     bool sawEOD;
     enum parse_state current_state;
@@ -227,7 +246,7 @@ void pun_init (void)
     memset (pun_state, 0, sizeof (pun_state));
     for (int i = 0; i < N_PUN_UNITS_MAX; i ++)
       {
-        pun_state [i] . punfile = -1;
+        pun_state [i] . punfile_raw = -1;
         pun_state [i] . current_state = Idle;
       }
   }
@@ -235,140 +254,6 @@ void pun_init (void)
 static t_stat pun_reset (UNUSED DEVICE * dptr)
   {
     return SCPE_OK;
-  }
-
-
-
-
-static void openPunFile (int pun_unit_num, UNUSED word36 * buffer, UNUSED uint tally)
-  {
-    if (pun_state [pun_unit_num] . punfile != -1)
-      return;
-
-// Some brave person needs to parse the binary card image to extract
-// the request # and user id out of it.
-
-//    000500000000
-//    777777777777
-//    777777770000
-//    000000000000
-//    000000000000
-//    000000002000
-//    200037002000
-//    200000000000
-//    270025372500
-//    251035000000
-//    000021162521
-//    252125213716
-//    000000003716
-//    012101210121
-//    371600000000
-//    371623212521
-//    212137160000
-//    000021002537
-//    250025103700
-//    000000003500
-//    260024002400
-//    370000000000
-//    000000000000
-//    000000000000
-//    000077777777
-//    777777777777
-//    000000050000
-//
-//     *****                                                                 *****
-//     *****         *****  *****  *****  *   *  *****  *****  *****         *****
-//     *****           *        *      *  *   *  *   *      *  *   *         *****
-//     *****           *    *****   ****  *   *  * * *   ****  *****         *****
-//     *****           *    *          *  *   *  **  *      *   *  *         *****
-//     *****           *    *****  *****  *****  *****  *****  *   *         *****
-//     *****                                                                 *****
-//     *****                 *      ***    ***    ***    *                   *****
-//     *****                 * *   *   *  *   *  *   *   * *                 *****
-//  *  *****                 *     *   *  *   *  *   *   *                   ***** *
-//     *****                 *     *   *  *   *  *   *   *                   *****
-//  *  *****                 *      ***    ***    ***    *                   ***** *
-//
-//    *****                                                                 *****
-//    *****         *****  *****  *****  *   *  *****  *****  *****         *****
-//    *****         *   *  *      *   *  *   *  *      *        *           *****
-//    *****         *****  ****   * * *  *   *  ****   *****    *           *****
-//    *****         *  *   *      *  **  *   *  *          *    *           *****
-//    *****         *   *  *****  *****  *****  *****  *****    *           *****
-//    *****                                                                 *****
-//    *****                   *    ***    ***    ***      *                 *****
-//    *****                 * *   *   *  *   *  *   *   * *                 *****
-//  * *****                   *   *   *  *   *  *   *     *                 *****  *
-//    *****                   *   *   *  *   *  *   *     *                 *****
-//  * *****                   *    ***    ***    ***      *                 *****  *
-//
-//    000500000000
-//    270025002500
-//    250035000000
-//    000020001000
-//    070010002000
-//    000000002700
-//    250025002500
-//    350000000000
-//    000003000300
-//    030000000000
-//    000020371024
-//    072410242037
-//    000000003700
-//    020304031003
-//    370000000000
-//    373721022104
-//    211037370000
-//    000037210421
-//    043704213721
-//    000000002037
-//    201037042010
-//    203700000000
-//    371602210421
-//    102137370000
-//    000037372424
-//    242424243737
-//    000000050000
-//
-//
-//     *****  *   *  *****         *   *  *   *  *****  *   *  *****  *   *  *****
-//         *   * *       *          * *   *  **  *   *  *   *    *    *  **  *   *
-//     *****    *    *****           *    * * *  *   *  *****    *    * * *  *****
-//     *        *    *       ***     *    **  *  *   *  *   *    *    **  *  *   *
-//     *****    *    *****   ***     *    *   *  *****  *   *    *    *   *  *   *
-//
-//                                 *****         *   *  *****  *   *   ****  *****
-//                                 *   *         *  **    *    ** **  *   *  *   *
-//  *                              *****         * * *    *    * * *  *   *  ***** *
-//                                 *   *   ***   **  *    *    *   *  *   *  *   *
-//  *                              *   *   ***   *   *  *****  *   *   ****  *   * *
-//
-//
-//    *****  *   *  *****  *   *  *****  *   *  *   *         *****  *   *  *****
-//    *   *  **  *    *    *   *  *   *  **  *   * *          *       * *   *
-//    *****  * * *    *    *****  *   *  * * *    *           *****    *    *****
-//    *   *  *  **    *    *   *  *   *  *  **    *     ***       *    *        *
-//    *   *  *   *    *    *   *  *****  *   *    *     ***   *****    *    *****
-//
-//    *****  ****   *   *  *****  *   *         *****
-//    *   *  *   *  ** **    *    **  *         *   *
-//  * *****  *   *  * * *    *    * * *         *****                              *
-//    *   *  *   *  *   *    *    *  **   ***   *   *
-//  * *   *  ****   *   *  *****  *   *   ***   *   *                              *
-//
-
-    char template [PATH_MAX+1];
-
-    if (pun_path_prefix [0])
-      {
-        sprintf (template, "%s%s%c/%s", pun_path_prefix, pun_name, 'a' + pun_unit_num, pun_file_name_template);
-      }
-    else
-      {
-        sprintf (template, "pun%c.%s", 'a' + pun_unit_num, pun_file_name_template);
-      }
-
-    pun_state [pun_unit_num] . punfile = mkstemp (template);
   }
 
 //                       *****  *   *  ****          *****  *****
@@ -383,7 +268,7 @@ static void openPunFile (int pun_unit_num, UNUSED word36 * buffer, UNUSED uint t
 //                              *   *  *      *      *  *
 //*                             ****   *****  *****  *   *                       *
 
-static word36 eodCard [27] =
+static word36 eodCard [WORDS_PER_CARD] =
   {
     0000500000000llu,
     0000000000000llu,
@@ -414,7 +299,20 @@ static word36 eodCard [27] =
     0000000050000llu
   };
 
-static word36 bannerCard [27] =
+//    *****         *****         *****         *****         *****         *****  
+//    *****         *****         *****         *****         *****         *****  
+//    *****         *****         *****         *****         *****         *****  
+//    *****   ***   *****   ***   *****   ***   *****   ***   *****   ***   *****  
+//    *****         *****         *****         *****         *****         *****  
+//    *****         *****         *****         *****         *****         *****  
+//           *****         *****         *****         *****         *****         
+//           *****         *****         *****         *****         *****         
+//           *****         *****         *****         *****         *****         
+// *   ***   *****   ***   *****   ***   *****   ***   *****   ***   *****   ***  *
+//           *****         *****         *****         *****         *****         
+// *         *****         *****         *****         *****         *****        *
+
+static word36 bannerCard [WORDS_PER_CARD] =
   {
     0000500000000llu,
     0770077047704llu,
@@ -445,36 +343,96 @@ static word36 bannerCard [27] =
     0000000050000llu
   };
 
-static int eoj (uint pun_unit_num, word36 * buffer, uint tally)
+static uint8 ocr_char_word_offset [11] =
   {
-    if (tally == 27 && memcmp (buffer, eodCard, sizeof (eodCard)) == 0)
+      24, 22, 19, 17, 15, 12, 10, 8, 5, 3, 1
+  };
+
+static uint8 ocr_nibble_offset [11] =
+  {
+       1,  2,  0,  1,  2,  0,  1, 2, 0, 1, 2
+  };
+  
+static uint8 get_lace_char(word36* buffer, uint char_pos)
+  {
+    if (char_pos >= OCR_CHARS_PER_CARD)
       {
-        sim_warn("*** Found End Of Deck Card ***\n");
-        pun_state [pun_unit_num] . sawEOD = true;
+        sim_warn("*** Error: Attempt to read punch OCR character out of range (%u)\n", char_pos);
         return 0;
       }
 
-    if (pun_state [pun_unit_num] . sawEOD 
-        && tally == 27 
-        && memcmp (buffer, bannerCard, sizeof (bannerCard)) == 0)
-         {
-           sim_warn("*** Found Post End Of Deck Banner Card ***\n");
-           pun_state [pun_unit_num] . sawEOD = false;
-           return 1;
-         }
+    bool top = char_pos < 11;                                       // Top or bottom line of characters
+    uint char_offset = (char_pos < 11) ? char_pos : char_pos - 11;  // Character number in the line
+    uint word_offset = ocr_char_word_offset[char_offset];           // Starting word in the buffer
+    uint nibble_offset = ocr_nibble_offset[char_offset];            // Starting nibble in the word
+    word12 col_buffer[5];                                           // The extracted 5 columns for the character
+
+    // Extract the five 12-bit words from the main buffer that make up the character
+    // Note that in this process we reverse the character image so it reads normally
+    // (characters are punched in reverse)
+    for (uint col_offset = 0; col_offset < 5; col_offset++)
+      {
+        col_buffer[4 - col_offset] = (buffer[word_offset] >> (nibble_offset * 12)) & 0xFFF;
+        sim_printf(">> col_offset = %u, word_offset = %u, nibble_offset = %u, buffer[word_offset] = %012"PRIo64"\n",
+            col_offset, word_offset, nibble_offset, buffer[word_offset]);
+        if (nibble_offset == 0)
+          {
+            nibble_offset = 2;
+            word_offset++;
+          }
+        else
+          {
+            nibble_offset--;
+          }
+      }
+
+    // Now shift the characters into the 5x5 matrix buffer
+    uint8 char_matrix[5];
+
+    sim_print("\nCol Matrix => Char Matrix\n");
+    for (uint col_offset = 0; col_offset < 5; col_offset++)
+      {
+        char_matrix[col_offset] = (col_buffer[col_offset] >> (top ? 6 : 0)) & 0x1F;
+        sim_printf(" %05o  =>  %03o\n", col_buffer[col_offset], char_matrix[col_offset]);
+      }
+
+    sim_print("\r\n");
+    for (uint row = 0; row < 5; row++)
+      {
+        for (uint col = 0; col < 5; col++)
+          {
+            if ((char_matrix[col] >> (4 - row)) & 0x1)
+              {
+                sim_print("*");
+              }
+            else
+              {
+                sim_print(" ");
+              }
+          }
+          sim_print("\r\n");
+      }
 
     return 0;
   }
+
+static void ocr_card(word36* buffer)
+  {
+    for (uint c = 0; c < 22; c++)
+      {
+        get_lace_char(buffer, c);
+      }
+  }  
 
 static void create_punch_file(pun_state_t * state)
   {
     char template [PATH_MAX+1];
 
-    if (state -> punfile != -1)
+    if (state -> punfile_raw != -1)
       {
           sim_warn("*** Error: Punch file already open when attempting to create new file, closing old file!\n");
-          close(state -> punfile);
-          state -> punfile = -1;
+          close(state -> punfile_raw);
+          state -> punfile_raw = -1;
       }
 
     if (pun_path_prefix [0])
@@ -486,15 +444,13 @@ static void create_punch_file(pun_state_t * state)
         sprintf (template, "%s.%s", 'a' + state -> device_name, pun_file_name_template);
       }
 
-    state -> punfile = mkstemp (template);
+    state -> punfile_raw = mkstemp (template);
   }  
 
-#define CARD_COL_COUNT 80
-#define NIBBLES_PER_COL 3
 
 static void write_punch_file (int fd, word36* in_buffer, int word_count)
   {
-      if (word_count != 27)
+      if (word_count != WORDS_PER_CARD)
         {
           sim_warn ("Unable to interpret punch buffer due to wrong length, not writing output!\n");
           return;
@@ -538,7 +494,7 @@ static void log_card(word12 tally, word36 * buffer)
       }
     sim_printf ("\r\n");
 
-    if (tally != 27)
+    if (tally != WORDS_PER_CARD)
       {
         sim_warn("Unable to log punch card, tally is not 27 (%d)\n", tally);
         return;
@@ -673,9 +629,9 @@ static void dump_card_cache(pun_state_t * state)
       {
         card++;
         sim_printf("\n----Card %d----\n", card);
-        for (int i = 0; i < 27; i ++)
+        for (int i = 0; i < WORDS_PER_CARD; i ++)
           {
-            sim_printf ("  %012"PRIo64"\n", current_entry -> card_data);
+            sim_printf ("  %012"PRIo64"\n", current_entry -> card_data[i]);
           }
         sim_printf ("\r\n");
         current_entry = current_entry->next_entry;
@@ -727,7 +683,7 @@ static enum parse_event do_state_ocr_card(enum parse_event event, pun_state_t * 
     print_transition(state -> current_state, event, OcrCard);
     state -> current_state = OcrCard;
 
-    //TODO: Scan card for characters and append to OCR Buffer
+    ocr_card(card_buffer);
 
     save_card_in_cache(state, tally, card_buffer);      // Save card in cache
 
@@ -749,7 +705,7 @@ static enum parse_event do_state_end_of_header(enum parse_event event, pun_state
     CARD_CACHE_ENTRY *current_entry = state -> first_cached_card;
     while (current_entry != NULL)
       {
-        write_punch_file (state -> punfile, current_entry -> card_data, 27);
+        write_punch_file (state -> punfile_raw, current_entry -> card_data, WORDS_PER_CARD);
         current_entry = current_entry->next_entry;
       }
 
@@ -765,7 +721,7 @@ static enum parse_event do_state_writing_deck(enum parse_event event, pun_state_
     print_transition(state -> current_state, event, WritingDeck);
     state -> current_state = WritingDeck;
 
-    write_punch_file (state -> punfile, card_buffer, tally);    // Write card to spool file
+    write_punch_file (state -> punfile_raw, card_buffer, tally);    // Write card to spool file
 
     return NoEvent;
   }
@@ -775,7 +731,7 @@ static enum parse_event do_state_end_of_deck(enum parse_event event, pun_state_t
     print_transition(state -> current_state, event, EndOfDeck);
     state -> current_state = EndOfDeck;
 
-    write_punch_file (state -> punfile, card_buffer, tally);    // Write card to spool file
+    write_punch_file (state -> punfile_raw, card_buffer, tally);    // Write card to spool file
 
     return NoEvent;
   }
@@ -785,11 +741,11 @@ static enum parse_event do_state_end_of_job(enum parse_event event, pun_state_t 
     print_transition(state -> current_state, event, EndOfJob);
     state -> current_state = EndOfJob;
 
-    write_punch_file (state -> punfile, card_buffer, tally);    // Write card to spool file
+    write_punch_file (state -> punfile_raw, card_buffer, tally);    // Write card to spool file
 
     // Close spool file
-    close (state -> punfile);
-    state -> punfile = -1;
+    close (state -> punfile_raw);
+    state -> punfile_raw = -1;
 
     return Done;
   }
@@ -810,13 +766,13 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
   {
     enum parse_event event = Card;
 
-    if (tally == 27 && memcmp (card_buffer, eodCard, sizeof (eodCard)) == 0)
+    if (tally == WORDS_PER_CARD && memcmp (card_buffer, eodCard, sizeof (eodCard)) == 0)
       {
         sim_warn("*** Found End Of Deck Card ***\n");
         event = EndOfDeckCard;
       }
 
-    if (tally == 27 && memcmp (card_buffer, bannerCard, sizeof (bannerCard)) == 0)
+    if (tally == WORDS_PER_CARD && memcmp (card_buffer, bannerCard, sizeof (bannerCard)) == 0)
       {
         sim_warn("*** Found Banner Card ***\n");
         event = BannerCard;
@@ -971,7 +927,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
                 break;
               }
 
-            if (p -> DDCW_TALLY != 27)
+            if (p -> DDCW_TALLY != WORDS_PER_CARD)
               {
                 sim_warn ("%s expected tally of 27\n", __func__);
                 p -> chanStatus = chanStatIncorrectDCW;
@@ -997,20 +953,6 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
               }
 
             parse_card( &pun_state [pun_unit_num], p -> DDCW_TALLY, buffer);
-
-#if 0
-            if (pun_state [pun_unit_num] . punfile == -1)
-               openPunFile ((int) pun_unit_num, buffer, p -> DDCW_TALLY);
-
-            write_punch_file (pun_state [pun_unit_num] . punfile, buffer, p -> DDCW_TALLY);
-
-            if (eoj ((uint) pun_unit_num, buffer, p -> DDCW_TALLY))
-              {
-                sim_printf ("*** pun end of job\n");
-                close (pun_state [pun_unit_num] . punfile);
-                pun_state [pun_unit_num] . punfile = -1;
-              }
-#endif
 
             p -> stati = 04000;
           }
@@ -1145,21 +1087,6 @@ static t_stat pun_show_path (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static config_value_list_t cfg_on_off[] =
-  {
-    { "off", 0 },
-    { "on", 1 },
-    { "disable", 0 },
-    { "enable", 1 },
-    { NULL, 0 }
-  };
-
-static config_list_t pun_config_list[] =
-  {
-   { "logcards", 0, 1, cfg_on_off },
-   { NULL, 0, 0, NULL }
-  };
-
 static t_stat pun_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
                               const char * cptr, UNUSED void * desc)
   {
@@ -1201,6 +1128,6 @@ static t_stat pun_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
   {
     int devUnitIdx = (int) PUN_UNIT_NUM (uptr);
     pun_state_t * psp = pun_state + devUnitIdx;
-//    sim_msg ("split:  %d\n", psp->split);
+    sim_msg ("logcards:  %d\n", psp->log_cards);
     return SCPE_OK;
   }
