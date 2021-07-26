@@ -467,6 +467,21 @@ static uint8 glyph_nibble_offset [11] =
        1,  2,  0,  1,  2,  0,  1, 2, 0, 1, 2
   };
 
+static void remove_spaces(char *str)
+{
+  int src = 0;
+  int dest = 0;
+  while (str[src])
+    {
+	  if (str[src] != ' ')
+        {
+          str[dest++] = str[src];
+        }
+	  src++;
+	}
+  str[dest] = 0;
+}
+
 static void log_char_matrix_pattern(uint8* char_matrix)
   {
     sim_print("\nChar Matrix\n");
@@ -550,7 +565,7 @@ static char get_lace_char(word36* buffer, uint char_pos)
         char_matrix[col_offset] = (col_buffer[col_offset] >> (top ? 6 : 0)) & 0x1F;
       }
 
-    char c = search_glyph_patterns(&char_matrix);
+    char c = search_glyph_patterns(char_matrix);
 
     return c;
   }
@@ -569,7 +584,7 @@ static void scan_card_for_glyphs(pun_state_t * state, word36* buffer)
       }
   }  
 
-static void create_punch_file(pun_state_t * state)
+static void create_punch_file(pun_state_t * state, char* punch_file_name)
   {
     char template [PATH_MAX+1];
 
@@ -580,15 +595,26 @@ static void create_punch_file(pun_state_t * state)
           state -> punfile_raw = -1;
       }
 
-    if (pun_path_prefix [0])
+    char file_name_template [PATH_MAX+1];
+
+    if (punch_file_name[0])
       {
-        sprintf (template, "%s%s/%s", pun_path_prefix, state -> device_name, pun_file_name_template);
+        strncpy(file_name_template, punch_file_name, sizeof(file_name_template));
       }
     else
       {
-        sprintf (template, "%s.%s", 'a' + state -> device_name, pun_file_name_template);
+        strncpy(file_name_template, pun_file_name_template, sizeof(file_name_template));
+      }
+    if (pun_path_prefix [0])
+      {
+        sprintf (template, "%s%s/%s.XXXXXX", pun_path_prefix, state -> device_name, file_name_template);
+      }
+    else
+      {
+        sprintf (template, "%s.%s.XXXXXX", 'a' + state -> device_name, file_name_template);
       }
 
+    sim_printf("--- Creating file '%s'\n", template);
     state -> punfile_raw = mkstemp (template);
   }  
 
@@ -844,9 +870,28 @@ static enum parse_event do_state_end_of_header(enum parse_event event, pun_state
 
     sim_printf("\n++++ Glyph Buffer ++++\n'%s'\n", state -> glyph_buffer);
 
-    //TODO: Parse Glyph Buffer into file name
+    char punch_file_name[PATH_MAX+1];
+    if (strlen(state -> glyph_buffer) < 86)
+      {
+        sim_warn("*** Punch: glyph buffer too short, unable to parse file name '%s'\n", state -> glyph_buffer);
+        punch_file_name[0] = 0;
+      }
+    else
+      {
+        sprintf(punch_file_name, "%7.7s%7.7s.%5.5s.%2.2s-%2.2s-%2.2s.%6.6s.%2.2s",
+            &state -> glyph_buffer[68],
+            &state -> glyph_buffer[79],
+            &state -> glyph_buffer[14],
+            &state -> glyph_buffer[46],
+            &state -> glyph_buffer[49],
+            &state -> glyph_buffer[52],
+            &state -> glyph_buffer[57],
+            &state -> glyph_buffer[35]
+        );
+        remove_spaces(punch_file_name);
+      }
 
-    create_punch_file(state);                           // Create spool file
+    create_punch_file(state, punch_file_name);                           // Create spool file
 
     // Write cached cards to spool file
     CARD_CACHE_ENTRY *current_entry = state -> first_cached_card;
