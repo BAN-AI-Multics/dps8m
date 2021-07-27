@@ -129,7 +129,6 @@ export VER_CURRENT_TIME
 ###############################################################################
 
 ifdef OS_IBMAIX
-  $(warning $(OS_IBMAIX))
   BUILD_OSAP_OSS_TEXT=$(shell printf '%s\n' "$(OS_IBMAIX)"  2> /dev/null  |   \
     tr -d '*'                                               2> /dev/null  |   \
       tr -s ' '                                             2> /dev/null ||   \
