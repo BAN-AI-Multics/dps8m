@@ -924,6 +924,7 @@ if (devUnitIdx) printf ("stati 0%o\r\n", p->stati);
             extractWord36FromBuffer (diskBuffer, p72ByteCnt, & wordsProcessed,
                                      & w);
             buffer [i] = w;
+if (devUnitIdx) printf ("%5d %012"PRIo64"\r\n", i, w);
           }
         iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                 & wordsProcessed, true);
@@ -1021,6 +1022,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
         word36 buffer [tally];
         iom_indirect_data_service (iomUnitIdx, chan, buffer,
                                 & wordsProcessed, false);
+if (devUnitIdx) for (uint i = 0; i < tally; i ++) printf ("%5d %012"PRIo64"\r\n", i, buffer [i]);
         p -> initiate = false;
 // XXX is this losing information?
         wordsProcessed = 0;
@@ -1463,6 +1465,19 @@ if (devUnitIdx) printf ("READ AND CLEAR STATISTICS\r\n");
             //p -> stati = 04000;
             break;
           }
+
+        case 017: // CMD 17 Format track
+          {
+if (devUnitIdx) printf ("FORMAT TRACK\r\n");
+            p -> stati = 04000;
+            if (! unitp -> fileref)
+              p -> stati = 04240; // device offline
+            p -> isRead = false;
+            p -> initiate = false;
+            sim_debug (DBG_NOTIFY, & dsk_dev, "Format track %d\n", devUnitIdx);
+          }
+          break;
+
         case 022: // CMD 22 Read Status Register
           {
 if (devUnitIdx) printf ("READ STATUS REGISTER\r\n");
@@ -1541,6 +1556,9 @@ if (devUnitIdx) printf ("SEEK 512\r\n");
           {
 if (devUnitIdx && p->IDCW_DEV_CMD == 031) printf ("WRITE\r\n");
 if (devUnitIdx && p->IDCW_DEV_CMD == 033) printf ("WRITE AND COMPARE\r\n");
+//#ifdef HDBG
+//if (devUnitIdx) hdbg_size (0, "1000000");
+//#endif
             // XXX is it correct to not process the DDCWs?
             if (! unitp -> fileref)
               {
@@ -1582,14 +1600,14 @@ if (devUnitIdx) printf ("SEEK 64\r\n");
           break;
 
 #ifdef HDBG
-static int specSeekCount = 0;
+//static int specSeekCount = 0;
 #endif
         case 036: // CMD 36 SPECIAL SEEK (T&D) // Make it work like SEEK_64 and
                                                // hope for the best
           {
 #ifdef HDBG
-if (devUnitIdx) specSeekCount ++;
-if (devUnitIdx && specSeekCount ==2) hdbg_size (0, "1000000");
+//if (devUnitIdx) specSeekCount ++;
+//if (devUnitIdx && specSeekCount ==2) hdbg_size (0, "1000000");
 #endif
 if (devUnitIdx) printf ("SPECIAL SEEK\r\n");
             // XXX is it correct to not process the DDCWs?
@@ -1600,7 +1618,7 @@ if (devUnitIdx) printf ("SPECIAL SEEK\r\n");
               }
             int rc1 = diskSeek64 (devUnitIdx, iomUnitIdx, chan);
 p->stati = 04000;
-p->initiate = false;
+p->initiate = true;
             if (rc1)
               {
 printf ("SPECIAL SEEK IOM_CMD_ERORR <<<<<<<<<<<<<<<<<<<<<<<\r\n");
@@ -1652,7 +1670,7 @@ if (devUnitIdx) printf ("unknown\r\n");
             p -> stati = 04501;
             p -> chanStatus = chanStatIncorrectDCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("disk daze %o\n", p->IDCW_DEV_CMD);
+              sim_warn ("disk daze %o <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n", p->IDCW_DEV_CMD);
             sim_debug (DBG_ERR, & dsk_dev,
                        "%s: Unknown command 0%o\n", __func__, p -> IDCW_DEV_CMD);
           }
