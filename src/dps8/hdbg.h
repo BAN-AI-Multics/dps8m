@@ -56,7 +56,7 @@ void hdbgPAReg (enum hregs_t type, struct par_s * data);
 #define HDBGMWrite(a, d) hdbgMWrite (a, d)
 #define HDBGRegA() hdbgReg (hreg_A, cpu.rA)
 #define HDBGRegQ() hdbgReg (hreg_Q, cpu.rQ)
-#define HDBGRegY() hdbgReg (hreg_Y, cpu.rY)
+#define HDBGRegY() hdbgReg (hreg_Y, cpu.CY)
 #define HDBGRegZ(z) hdbgReg (hreg_Z, z)
 #define HDBGRegIR() hdbgReg (hreg_IR, cpu.cu.IR)
 #define HDBGRegX(i) hdbgReg (hreg_X0+(i), (word36) cpu.rX[i])
