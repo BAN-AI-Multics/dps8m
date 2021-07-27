@@ -12,136 +12,176 @@
 # LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
+# src/Makefile.var: Variable processing logic and build configuration
+###############################################################################
 
 ###############################################################################
-# Set LOCKLESS as default for R2; use NO_LOCKLESS=1 to revert
+
+ifdef MAKETRACE
+  _SHELL := $(SHELL)
+  SHELL = $(info [TRACE] src/Makefile.var: [$@])$(_SHELL)
+endif
+
+###############################################################################
 
 ifneq ($(NO_LOCKLESS),1)
-LOCKLESS=1
+  LOCKLESS=1
 endif
 
 ###############################################################################
 
 ifneq ($(CROSS),MINGW64)
-CFLAGS += -DHAVE_DLOPEN=so
+  CFLAGS += -DHAVE_DLOPEN=so
 endif
 
 ###############################################################################
 
 ifdef HDBG
-HDBG=1
-CFLAGS += -DHDBG
+  HDBG=1
+  CFLAGS += -DHDBG
 endif
 
 ###############################################################################
 
 ifdef TRACKER
-TRACKER=1
-TESTING=1
-CFLAGS += -DTRACKER -DTESTING
+  TRACKER=1
+  TESTING=1
+  CFLAGS += -DTRACKER
+  CFLAGS += -DTESTING
 endif
 
 ###############################################################################
 
 ifdef TESTING
-TESTING=1
-CFLAGS += -DTESTING
+  TESTING=1
+  CFLAGS += -DTESTING
 endif
 
 ###############################################################################
 
 ifeq ($(OS),Windows_NT)
-CROSS=MINGW64
+  CROSS=MINGW64
 endif
 
 ###############################################################################
 
 ifeq ($(THREADZ),1)
-THREADZ=1
-CFLAGS += -pthread -DTHREADZ
-LIBS += -lpthread
+  THREADZ=1
+  CFLAGS += -pthread
+  CFLAGS += -DTHREADZ
+  LIBS += -lpthread
 endif
 
 ###############################################################################
 
 ifeq ($(ISOLTS),1)
-LOCKLESS=1
-ISOLTS=1
-CFLAGS += -DISOLTS
-CFLAGS += -DWAM
+  LOCKLESS=1
+  ISOLTS=1
+  CFLAGS += -DISOLTS
+  CFLAGS += -DWAM
 endif
 
 ###############################################################################
 
 ifeq ($(WAM),1)
-WAM=1
-CFLAGS += -DWAM
+  WAM=1
+  CFLAGS += -DWAM
 endif
 
 ###############################################################################
 
 ifeq ($(LOCKLESS),1)
-LOCKLESS=1
-CFLAGS += -pthread -DLOCKLESS
-LIBS += -lpthread
+  LOCKLESS=1
+  CFLAGS += -pthread
+  CFLAGS += -DLOCKLESS
+  LIBS += -lpthread
 endif
 
 ###############################################################################
 
 ifeq ($(SPEED),1)
-SPEED=1
+  SPEED=1
 endif
 
 ###############################################################################
 
 ifeq ($(NEED_128),1)
-NEED_128=1
-CFLAGS += -DNEED_128
+  NEED_128=1
+  CFLAGS += -DNEED_128
 endif
 
 ###############################################################################
 
 ifeq ($(ROUND_ROBIN),1)
-ROUND_ROBIN=1
-CFLAGS += -DROUND_ROBIN
+  ROUND_ROBIN=1
+  CFLAGS += -DROUND_ROBIN
 endif
 
 ###############################################################################
 # For embedding current time of building object
 
 ifndef VER_CURRENT_TIME
-VER_CURRENT_TIME=$(shell env TZ=UTC date -u "+%Y-%m-%d %H:%M:%S UTC" \
-	2> /dev/null || printf '%s\n' "2020-01-01 00:00:00 UTC")
+  VER_CURRENT_TIME=$(shell env TZ=UTC date -u "+%Y-%m-%d %H:%M:%S UTC"        \
+    2> /dev/null || printf '%s\n' "2020-01-01 00:00:00 UTC")
+endif
+export VER_CURRENT_TIME
+
+###############################################################################
+
+ifdef OS_IBMAIX
+  BUILD_OSAP_OSS_TEXT=$(shell printf '%s\n' "$(OS_IBMAIX)"  2> /dev/null  |   \
+    tr -d '*'                                               2> /dev/null  |   \
+      tr -s ' '                                             2> /dev/null ||   \
+        printf '%s\n' "Unknown")
+  export BUILD_OSAP_OSS_TEXT
+  BUILD_OSAP_OSM_TEXT=$(shell (uname -M                     2> /dev/null ||   \
+   uname -p 2> /dev/null)                                                 |   \
+    sed 's/ (emulated by ....)//'                           2> /dev/null ||   \
+      tr -d '*'                                             2> /dev/null  |   \
+        tr -s ' '                                           2> /dev/null ||   \
+          printf '%s\n' "Unknown")
+  export BUILD_OSAP_OSM_TEXT
 endif
 
 ###############################################################################
 
 ifndef BUILD_PROM_OSV_TEXT
-BUILD_OSAP_OSS_TEXT=$(shell uname -s 2> /dev/null | \
-	tr -d '*' 2> /dev/null | tr -s ' ' 2> /dev/null || \
-		printf '%s\n' "Unknown")
-export BUILD_OSAP_OSS_TEXT
-BUILD_PROM_OSV_TEXT=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSS_TEXT)" | \
-	cut -b 1-20 2> /dev/null)
+  ifndef BUILD_OSAP_OSS_TEXT
+    BUILD_OSAP_OSS_TEXT=$(shell uname -s  2> /dev/null  |                     \
+      tr -d '*'                           2> /dev/null  |                     \
+        tr -s ' '                         2> /dev/null ||                     \
+          printf '%s\n' "Unknown")
+    export BUILD_OSAP_OSS_TEXT
+  endif
+  BUILD_PROM_OSV_TEXT=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSS_TEXT)" |     \
+    cut -b 1-20 2> /dev/null)
 endif
 
 ###############################################################################
 
 ifndef BUILD_PROM_OSA_TEXT
-BUILD_OSAP_OSM_TEXT=$(shell uname -m 2> /dev/null | \
-	tr -d '*' 2> /dev/null | tr -s ' ' 2> /dev/null || \
-		printf '%s\n' "Unknown")
-export BUILD_OSAP_OSM_TEXT
-BUILD_PROM_OSA_TEXT=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSM_TEXT)" | \
-	cut -b 1-20 2> /dev/null)
+  ifndef BUILD_OSAP_OSM_TEXT
+    BUILD_OSAP_OSM_TEXT=$(shell uname -m  2> /dev/null  |                     \
+      tr -d '*'                           2> /dev/null  |                     \
+        tr -s ' '                         2> /dev/null ||                     \
+          printf '%s\n' "Unknown")
+    export BUILD_OSAP_OSM_TEXT
+  endif
+  BUILD_PROM_OSA_TEXT=$(shell printf '%-20s\n' "$(BUILD_OSAP_OSM_TEXT)" |     \
+    cut -b 1-20 2> /dev/null)
 endif
 
 ###############################################################################
 
 ifneq "$(findstring gcc,$(CC))" ""
-CFLAGS += -fno-delete-null-pointer-checks -Wno-maybe-uninitialized \
-	      -Wno-unknown-warning-option
+  CFLAGS += -fno-delete-null-pointer-checks
+  CFLAGS += -Wno-maybe-uninitialized
+  CFLAGS += -Wno-unknown-warning-option
 endif
+
+###############################################################################
+
+print-% : ; $(info src/var: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 

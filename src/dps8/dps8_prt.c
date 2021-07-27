@@ -368,8 +368,7 @@ static int parseID (word36 * b, uint tally, char * qno, char * name)
   }
 
 
-//#ifdef __MINGW64__
-#if defined (__MINGW64__) || defined (NEED_128)
+#if defined (__MINGW64__) || defined (_AIX) || defined (NEED_128)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -428,7 +427,12 @@ static int mkstemps (char *pattern, int suffix_len)
       v /= 62;
       XXXXXX[5] = letters[v % 62];
 
+#ifndef _AIX
       fd = open (pattern, O_BINARY|O_RDWR|O_CREAT|O_EXCL, 0600);
+#else
+      fd = open (pattern, O_RDWR|O_CREAT|O_EXCL, 0600);
+#endif /* ifndef _AIX */
+
       if (fd >= 0)
         /* The file does not exist.  */
         return fd;

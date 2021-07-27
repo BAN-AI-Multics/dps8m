@@ -30,15 +30,33 @@
 #     *** The following flags are inteded for use by developers, scripts,
 #     and packagers, and may have non-intuitive meanings or requirements.
 #
+#          MAKETRACE=1                Enable Makefile execution tracing
 #            TRACKER=1                Adds instruction snapshot support
-#               HDBG=1                Enables extra hardware debug code
+#               HDBG=1                Enable hardware debugging support
 #        ROUND_ROBIN=1                Support un-threaded multiple CPUs
 #             ISOLTS=1                Support for running ISOLOTS tests
 #                WAM=1                Enable PTW/SDW associative memory
-#           NEED_128=1                Enables 128-bit type work-arounds
+#           NEED_128=1                Enable 128-bit types work-arounds
 #        USE_BUILDER="String"         Enable a custom "Built by" string
 #        USE_BUILDOS="String"         Enable a custom "Built OS" string
 #
+###############################################################################
+# Makefile tracing.
+
+ifdef MAKETRACE
+  _SHELL := $(SHELL)
+  SHELL = $(info [TRACE] GNUmakefile: [$@])$(_SHELL)
+endif
+
+###############################################################################
+# Pre-build exceptions.
+
+include src/Makefile.pre
+
+ifdef OS_IBMAIX
+    export OS_IBMAIX
+endif
+
 ###############################################################################
 # Build
 
@@ -95,6 +113,11 @@ printmod:
 .PHONY: kit dist
 kit dist:
 	@$(MAKE) -C "src/dps8" "kit"
+
+###############################################################################
+# Variable debugging.
+
+print-% : ; $(info top: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 

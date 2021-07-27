@@ -2570,7 +2570,11 @@ return NULL;
 --*/
 
 typedef t_uint64    uint64;
+#ifdef _AIX
+typedef long        int64;
+#else
 typedef t_int64     int64;
+#endif
 
 typedef struct _VHD_Footer {
     /*

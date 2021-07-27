@@ -15,14 +15,14 @@
 # LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
-
+# src/Makefile.mk: Macro definitions and operating system detection defaults
 ###############################################################################
 # Default configuration
 
-TRUE      ?= true
-SET       ?= set
+TRUE       ?= true
+SET        ?= set
 ifdef V
-      VERBOSE = 1
+    VERBOSE = 1
 endif
 ifdef VERBOSE
        ZCTV = cvf
@@ -55,18 +55,27 @@ CMAKE      ?= cmake
 RMNF       ?= rm
 RMF        ?= $(RMNF) -f
 CTAGS      ?= ctags
+ETAGS      ?= etags
 FIND       ?= find
 CP         ?= cp -f
 TOUCH      ?= touch
 TEST       ?= test
 PRINTF     ?= printf
 TAR        ?= tar
-MAKETAR    ?= $(TAR) --owner=dps8m --group=dps8m --posix -c --transform 's/^/.\/dps8\//g' -$(ZCTV)
+MAKETAR    ?= $(TAR) --owner=dps8m --group=dps8m --posix -c                   \
+                     --transform 's/^/.\/dps8\//g' -$(ZCTV)
 TARXT      ?= $(TAR)
 COMPRESS   ?= gzip -f -9
 GUNZIP     ?= gzip -d
 COMPRESSXT ?= gz
 KITNAME    ?= sources
+
+###############################################################################
+
+ifdef MAKETRACE
+  _SHELL := $(SHELL)
+  SHELL = $(info [TRACE] src/Makefile.mk: [$@])$(_SHELL)
+endif
 
 ###############################################################################
 
@@ -86,18 +95,14 @@ endif
 ifeq ($(OS), OSX)
   msys_version = 0
 else
-  msys_version := \
-    $(if $(findstring Msys, $(shell \
-        $(UNAME) -o)),$(word 1, \
+  msys_version :=                                                             \
+    $(if $(findstring Msys, $(shell                                           \
+        $(UNAME) -o)),$(word 1,                                               \
             $(subst ., ,$(shell $(UNAME) -r))),0)
 endif
 
 ###############################################################################
 
-ifeq ($(msys_version),0)
-else
-#  CROSS=MINGW64
-endif
 ifeq ($(CROSS),MINGW64)
   CC = x86_64-w64-mingw32-gcc
 ifeq ($(msys_version),0)
@@ -145,6 +150,25 @@ endif
     endif
 
 ###############################################################################
+# IBM AIX
+
+# OS: IBM AIX 7.2-GA, 7.2 TL3, and 7.2 TL4 SP3 on IBM POWER7/8/9 64-bit pSeries
+# Compiler: IBM AIX Toolbox GCC 8.3.0 (gcc-8-1.ppc, powerpc-ibm-aix7.2.0.0)
+# libuv: IBM AIX Toolbox libuv 1.38.1 (libuv-1.38.1-1, libuv-devel-1.38.1-1)
+# 32-bit builds, previous releases, and older technology levels are untested.
+
+# Support for the IBM XLC C/C++ Compiler for POWER on AIX is currently planned.
+# Building using OSS4AIX/Perzl, AIXTOOLS, or Bull/Atos toolchains is untested.
+
+    ifeq ($(UNAME_S),AIX)
+      KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
+      CFLAGS += -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+      LDFLAGS += -lm -lpthread -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+      CC=gcc
+      LD=gcc
+    endif
+
+###############################################################################
 # SunOS
 
 # OpenIndiana illumos: GCC 7, GCC 10, Clang 9, all supported.
@@ -153,13 +177,14 @@ endif
     ifeq ($(UNAME_S),SunOS)
       ifeq ($(shell $(UNAME) -o 2> /dev/null),illumos)
         ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-        CFLAGS += -I/usr/local/include -m$(ISABITS)
+        CFLAGS  += -I/usr/local/include -m$(ISABITS)
         LDFLAGS += -L/usr/local/lib -lsocket -lnsl -lm -lpthread -m$(ISABITS)
       endif
       ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
         ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-        CFLAGS += -I/usr/local/include -m$(ISABITS)
-        LDFLAGS += -L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat -ldl -m$(ISABITS)
+        CFLAGS  += -I/usr/local/include -m$(ISABITS)
+        LDFLAGS += -L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat \
+                   -ldl -m$(ISABITS)
         CC = gcc
       endif
     endif
@@ -177,7 +202,13 @@ CFLAGS += -DUSE_INT64
 ###############################################################################
 
 ifneq ($(W),)
-CFLAGS += -Wno-array-bounds
+  CFLAGS += -Wno-array-bounds
+endif
+
+###############################################################################
+
+ifdef OS_IBMAIX
+  export OS_IBMAIX
 endif
 
 ###############################################################################
@@ -196,10 +227,19 @@ MAKEFLAGS += --no-print-directory
 
 ###############################################################################
 
-# This file is included as '../Makefile.mk', so local includes needs the ../
-ifneq (,$(wildcard ../Makefile.local))
-include ../Makefile.local
+ifneq (,$(wildcard ../GNUmakefile.local))
+  include ../GNUmakefile.local
 endif
+
+###############################################################################
+
+ifneq (,$(wildcard GNUmakefile.local))
+  include GNUmakefile.local
+endif
+
+###############################################################################
+
+print-% : ; $(info src/mk: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 
