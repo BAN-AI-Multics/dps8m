@@ -144,7 +144,7 @@ if (current_running_cpu_idx == 0)
     hevents [hevtPtr] . trace . segno = cpu . PPR.PSR;
     hevents [hevtPtr] . trace . ic = cpu . PPR.IC;
     hevents [hevtPtr] . trace . ring = cpu . PPR.PRR;
-    hevents [hevtPtr] . trace . inst = cpu.cu.IWB;
+    hevents [hevtPtr] . trace . inst = IWB_IRODD;
     hdbg_inc ();
 done: ;
 #ifdef THREADZ

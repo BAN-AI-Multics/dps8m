@@ -162,7 +162,7 @@ static void readOperands (void)
 
     sim_debug (DBG_ADDRMOD, &cpu_dev,
                "%s (%s):mne=%s flags=%x\n",
-               __func__, disassemble (buf, cpu.cu.IWB), i->info->mne, i->info->flags);
+               __func__, disassemble (buf, IWB_IRODD), i->info->mne, i->info->flags);
     sim_debug (DBG_ADDRMOD, &cpu_dev,
               "%s a %d address %08o\n", __func__, i->b29, cpu.TPR.CA);
 
