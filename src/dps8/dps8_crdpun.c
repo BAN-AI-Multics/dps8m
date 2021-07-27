@@ -199,7 +199,7 @@ static config_list_t pun_config_list[] =
 #define CHAR_MATRIX_BYTES 5
 
 enum parse_state {
-    Idle, StartingJob, PunchGlyphLookup, EndOfHeader, WritingDeck, EndOfDeck, EndOfJob
+    Idle, StartingJob, PunchGlyphLookup, EndOfHeader, CacheCard, EndOfDeck, EndOfJob
 };
 
 enum parse_event {
@@ -219,11 +219,13 @@ struct card_cache_node
 
 typedef struct 
   {
-    char device_name [MAX_DEV_NAME_LEN];
-    int punfile_raw; // fd
-    bool log_cards; // Flag to log card images
-    bool sawEOD;
+    char device_name[MAX_DEV_NAME_LEN];
+    int punfile_raw;                        // fd of file to get all cards in punch code (including banner cards)
+    int punfile_punch;                      // fd of file to get just data cards in punch code
+    bool log_cards;                         // Flag to log card images
     enum parse_state current_state;
+    char raw_file_name [PATH_MAX + 1];      // Name associated with punfile_raw
+    char punch_file_name [PATH_MAX + 1];    // Name associated with punfile_raw
     char glyph_buffer[MAX_GLYPH_BUFFER_LEN];
     CARD_CACHE_ENTRY *first_cached_card;
     CARD_CACHE_ENTRY *last_cached_card;
@@ -248,6 +250,7 @@ void pun_init (void)
     for (int i = 0; i < N_PUN_UNITS_MAX; i ++)
       {
         pun_state [i] . punfile_raw = -1;
+        pun_state [i] . punfile_punch = -1;
         pun_state [i] . current_state = Idle;
       }
   }
@@ -582,44 +585,95 @@ static void scan_card_for_glyphs(pun_state_t * state, word36* buffer)
             state -> glyph_buffer[current_length] = 0;
           }
       }
-  }  
+  }
 
-static void create_punch_file(pun_state_t * state, char* punch_file_name)
+static int create_new_file(char* file_name)
+  {
+    char template[PATH_MAX + 1];
+    char temp_file_name[PATH_MAX + 1];
+
+    sim_printf("--- Creating file '%s'\n", file_name);
+
+    int fd = open (file_name, O_RDONLY);
+    if (fd >= 0)
+      {
+        // File exists so we will use the create tempfile to create a unique file name
+        close(fd);
+        sprintf(temp_file_name, "%s.XXXXXX", file_name);
+        return mkstemp (template);
+      }
+
+    fd = creat(file_name, S_IRUSR | S_IWUSR);
+    if (fd < 0)
+      {
+        perror("punch file create\n");
+        return -1;
+      }
+    
+    sim_printf("For file %s, fd = %d\n", file_name, fd);
+    return fd;
+  }
+
+static void create_punch_files(pun_state_t * state)
   {
     char template [PATH_MAX+1];
 
     if (state -> punfile_raw != -1)
       {
-          sim_warn("*** Error: Punch file already open when attempting to create new file, closing old file!\n");
+          sim_warn("*** Error: Raw Punch file already open when attempting to create new file, closing old file!\n");
           close(state -> punfile_raw);
           state -> punfile_raw = -1;
       }
 
-    char file_name_template [PATH_MAX+1];
-
-    if (punch_file_name[0])
+    if (state -> punfile_punch != -1)
       {
-        strncpy(file_name_template, punch_file_name, sizeof(file_name_template));
+          sim_warn("*** Error: Data Card only punch file already open when attempting to create new file, closing old file!\n");
+          close(state -> punfile_punch);
+          state -> punfile_punch = -1;
+      }
+
+    char base_file_name [PATH_MAX+1];
+
+    if (state -> raw_file_name[0])
+      {
+        strncpy(base_file_name, state -> raw_file_name, sizeof(base_file_name));
       }
     else
       {
-        strncpy(file_name_template, pun_file_name_template, sizeof(file_name_template));
+        strncpy(base_file_name, "spool.", sizeof(base_file_name));
       }
+
+    base_file_name[sizeof(base_file_name) - 1] = 0;
+
     if (pun_path_prefix [0])
       {
-        sprintf (template, "%s%s/%s.XXXXXX", pun_path_prefix, state -> device_name, file_name_template);
+        sprintf (template, "%s%s/%s", pun_path_prefix, state -> device_name, base_file_name);
       }
     else
       {
-        sprintf (template, "%s.%s.XXXXXX", 'a' + state -> device_name, file_name_template);
+        sprintf (template, "%s.%s", state -> device_name, base_file_name);
       }
 
-    sim_printf("--- Creating file '%s'\n", template);
-    state -> punfile_raw = mkstemp (template);
+    strncpy(state -> raw_file_name, template, sizeof(state -> raw_file_name));
+    strcat(state -> raw_file_name, ".raw");
+    state -> punfile_raw = create_new_file(state -> raw_file_name);
+    if (state -> punfile_raw < 0)
+      {
+        perror("creating punch '.raw' file\n");
+      }
+
+    strncpy(state -> punch_file_name, template, sizeof(state -> punch_file_name));
+    strcat(state -> punch_file_name, ".punch");
+    state -> punfile_punch = create_new_file(state -> punch_file_name);
+    if (state -> punfile_punch < 0)
+      {
+        perror("creating punch '.punch' file\n");
+      }
+    
   }  
 
 
-static void write_punch_file (int fd, word36* in_buffer, int word_count)
+static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_count, bool banner_card)
   {
       if (word_count != WORDS_PER_CARD)
         {
@@ -650,9 +704,23 @@ static void write_punch_file (int fd, word36* in_buffer, int word_count)
 
         }
 
-      if (write(fd, out_buffer, sizeof(out_buffer)) != sizeof(out_buffer)) {
-        sim_warn ("Failed to write to card punch file!\n");
-      }
+      if (state -> punfile_raw >= 0)
+        {
+          sim_printf("-- state -> punfile_raw = %d\n", state -> punfile_raw);
+          if (write(state -> punfile_raw, out_buffer, sizeof(out_buffer)) != sizeof(out_buffer)) {
+            sim_warn ("Failed to write to .raw card punch file!\n");
+            perror("Writing .raw punch file\n");
+          }
+        }
+
+      if (!banner_card && (state -> punfile_punch >= 0))
+        {
+          sim_printf("-- state -> punfile_punch = %d\n", state -> punfile_punch);
+          if (write(state -> punfile_punch, out_buffer, sizeof(out_buffer)) != sizeof(out_buffer)) {
+            sim_warn ("Failed to write to .punch card punch file!\n");
+            perror("Writing .punch punch file\n");
+          }
+        }
   }  
 
 static void log_card(word12 tally, word36 * buffer)
@@ -748,8 +816,8 @@ static void print_state(enum parse_state state)
         case EndOfHeader:
           sim_print("[End Of Header]");
           break;
-        case WritingDeck:
-          sim_print("[Writing Deck]");
+        case CacheCard:
+          sim_print("[Cache Card]");
           break;
         case EndOfDeck:
           sim_print("[End Of Deck]");
@@ -891,13 +959,15 @@ static enum parse_event do_state_end_of_header(enum parse_event event, pun_state
         remove_spaces(punch_file_name);
       }
 
-    create_punch_file(state, punch_file_name);                           // Create spool file
+    strncpy(state -> raw_file_name, punch_file_name, sizeof(state -> raw_file_name));
+
+    create_punch_files(state);                           // Create spool file
 
     // Write cached cards to spool file
     CARD_CACHE_ENTRY *current_entry = state -> first_cached_card;
     while (current_entry != NULL)
       {
-        write_punch_file (state -> punfile_raw, current_entry -> card_data, WORDS_PER_CARD);
+        write_punch_files (state, current_entry -> card_data, WORDS_PER_CARD, true);
         current_entry = current_entry->next_entry;
       }
 
@@ -908,12 +978,12 @@ static enum parse_event do_state_end_of_header(enum parse_event event, pun_state
     return NoEvent;
   }
 
-static enum parse_event do_state_writing_deck(enum parse_event event, pun_state_t * state, word12 tally, word36 * card_buffer)
+static enum parse_event do_state_cache_card(enum parse_event event, pun_state_t * state, word12 tally, word36 * card_buffer)
   {
-    print_transition(state -> current_state, event, WritingDeck);
-    state -> current_state = WritingDeck;
+    print_transition(state -> current_state, event, CacheCard);
+    state -> current_state = CacheCard;
 
-    write_punch_file (state -> punfile_raw, card_buffer, tally);    // Write card to spool file
+    save_card_in_cache(state, tally, card_buffer);      // Save card in cache
 
     return NoEvent;
   }
@@ -923,7 +993,7 @@ static enum parse_event do_state_end_of_deck(enum parse_event event, pun_state_t
     print_transition(state -> current_state, event, EndOfDeck);
     state -> current_state = EndOfDeck;
 
-    write_punch_file (state -> punfile_raw, card_buffer, tally);    // Write card to spool file
+    save_card_in_cache(state, tally, card_buffer);      // Save card in cache
 
     return NoEvent;
   }
@@ -933,11 +1003,32 @@ static enum parse_event do_state_end_of_job(enum parse_event event, pun_state_t 
     print_transition(state -> current_state, event, EndOfJob);
     state -> current_state = EndOfJob;
 
-    write_punch_file (state -> punfile_raw, card_buffer, tally);    // Write card to spool file
+    // Write cached cards to spool file
+    CARD_CACHE_ENTRY *current_entry = state -> first_cached_card;
+    while (current_entry != NULL)
+      {
+        write_punch_files (state, current_entry -> card_data, WORDS_PER_CARD, (current_entry -> next_entry == NULL));
+        current_entry = current_entry->next_entry;
+      }
 
-    // Close spool file
-    close (state -> punfile_raw);
-    state -> punfile_raw = -1;
+    //dump_card_cache(state);
+
+    clear_card_cache(state);                            // Clear card cache
+
+    write_punch_files (state, card_buffer, tally, true);    // Write card to spool file
+
+    // Close punch files
+    if (state -> punfile_raw >= 0)
+      {
+        close (state -> punfile_raw);
+        state -> punfile_raw = -1;
+      }
+
+    if (state -> punfile_punch >= 0)
+      {
+        close (state -> punfile_punch);
+        state -> punfile_punch = -1;
+      }
 
     return Done;
   }
@@ -1013,7 +1104,7 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
                     event = do_state_end_of_deck(current_event, state, tally, card_buffer);
                     break;
 
-                  case WritingDeck:
+                  case CacheCard:
                     event = do_state_end_of_deck(current_event, state, tally, card_buffer);
                     break;
 
@@ -1039,15 +1130,15 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
                     break;
 
                   case EndOfHeader:
-                    event = do_state_writing_deck(current_event, state, tally, card_buffer);
+                    event = do_state_cache_card(current_event, state, tally, card_buffer);
                     break;
 
-                  case WritingDeck:
-                    event = do_state_writing_deck(current_event, state, tally, card_buffer);
+                  case CacheCard:
+                    event = do_state_cache_card(current_event, state, tally, card_buffer);
                     break;
 
                   case EndOfDeck:
-                    event = do_state_writing_deck(current_event, state, tally, card_buffer);
+                    event = do_state_cache_card(current_event, state, tally, card_buffer);
                     break;
 
                   default:
