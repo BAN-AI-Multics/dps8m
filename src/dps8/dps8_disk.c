@@ -1437,6 +1437,7 @@ if (devUnitIdx) printf ("cmd 0%o\r\n", p->IDCW_DEV_CMD);
       {
         case 000: // CMD 00 Request status
           {
+if (devUnitIdx) printf ("REQUEST STATUS\r\n");
             p -> stati = 04000;
             if (! unitp -> fileref)
               p -> stati = 04240; // device offline
@@ -1450,6 +1451,7 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
 
         case 016: // CMD 16 Read and Clear Statistics -- Model 800
           {
+if (devUnitIdx) printf ("READ AND CLEAR STATISTICS\r\n");
 // XXX missing. see poll_mpc.pl1, poll_mpc_data.incl.pl1
             int rc1 = read_and_clear_statistics (devUnitIdx, iomUnitIdx, chan);
             if (rc1)
@@ -1460,8 +1462,9 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
             //p -> stati = 04000;
             break;
           }
-        case 022: // CMD 22 Read Status Resgister
+        case 022: // CMD 22 Read Status Register
           {
+if (devUnitIdx) printf ("READ STATUS REGISTER\r\n");
             int rc1 = readStatusRegister (devUnitIdx, iomUnitIdx, chan);
             if (rc1)
               {
@@ -1474,6 +1477,7 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
         case 024: // CMD 24 Read configuration -- Model 800
           {
 // XXX missing. see poll_mpc.pl1, poll_mpc_data.incl.pl1
+if (devUnitIdx) printf ("READ CONFIGURATION\r\n");
             int rc1 = read_configuration (devUnitIdx, iomUnitIdx, chan);
             if (rc1)
               {
@@ -1486,6 +1490,7 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
 
         case 025: // CMD 25 READ
           {
+if (devUnitIdx) printf ("READ\r\n");
             // XXX is it correct to not process the DDCWs?
             if (! unitp -> fileref)
               {
@@ -1503,6 +1508,7 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
 
         case 026: // CMD 26 READ CONTROL REGISTER
           {
+if (devUnitIdx) printf ("READ CONTROL REGISTER\r\n");
             p -> stati = 04000;
             if (! unitp -> fileref)
               p -> stati = 04240; // device offline
@@ -1513,6 +1519,7 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
 
         case 030: // CMD 30 SEEK_512
           {
+if (devUnitIdx) printf ("SEEK 512\r\n");
             // XXX is it correct to not process the DDCWs?
             if (! unitp -> fileref)
               {
@@ -1531,6 +1538,8 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
         case 031: // CMD 31 WRITE
         case 033: // CMD 31 WRITE AND COMPARE
           {
+if (devUnitIdx && p->IDCW_DEV_CMD == 031) printf ("WRITE\r\n");
+if (devUnitIdx && p->IDCW_DEV_CMD == 033) printf ("WRITE AND COMPARE\r\n");
             // XXX is it correct to not process the DDCWs?
             if (! unitp -> fileref)
               {
@@ -1555,6 +1564,7 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
 
         case 034: // CMD 34 SEEK_64
           {
+if (devUnitIdx) printf ("SEEK 64\r\n");
             // XXX is it correct to not process the DDCWs?
             if (! unitp -> fileref)
               {
@@ -1573,6 +1583,8 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
         case 036: // CMD 36 SPECIAL SEEK (T&D) // Make it work like SEEK_64 and
                                                // hope for the best
           {
+if (devUnitIdx) printf ("SPECIAL SEEK\r\n");
+if (devUnitIdx) hdbg_size (0, "1000000");
             // XXX is it correct to not process the DDCWs?
             if (! unitp -> fileref)
               {
@@ -1580,8 +1592,10 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
                 break;
               }
             int rc1 = diskSeek64 (devUnitIdx, iomUnitIdx, chan);
+p->stati = 04600;
             if (rc1)
               {
+printf ("SPECIAL SEEK IOM_CMD_ERORR <<<<<<<<<<<<<<<<<<<<<<<\r\n");
                 rc = IOM_CMD_ERROR;
                 break;
               }
@@ -1590,6 +1604,7 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
 
         case 040: // CMD 40 Reset status
           {
+if (devUnitIdx) printf ("RESET STATUS\r\n");
             p -> stati = 04000;
             p -> isRead = false;
             p -> initiate = false;
@@ -1602,8 +1617,10 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
 
         case 042: // CMD 42 RESTORE
           {
+if (devUnitIdx) printf ("RESTORE\r\n");
             sim_debug (DBG_NOTIFY, & dsk_dev, "Restore %d\n", devUnitIdx);
             p -> stati = 04000;
+//p->tallyResidue=04567;
             p -> initiate = false;
             p -> isRead = false;
             if (! unitp -> fileref)
@@ -1613,6 +1630,7 @@ if (devUnitIdx) printf ("status %o\r\n", p->stati);
 
         case 072: // CMD 72 SET STANDBY
           {
+if (devUnitIdx) printf ("SET STANDBY\r\n");
             sim_debug (DBG_NOTIFY, & dsk_dev, "Standby %d\n", devUnitIdx);
             p -> stati = 04000;
             if (! unitp -> fileref)
