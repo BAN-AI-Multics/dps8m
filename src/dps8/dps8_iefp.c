@@ -388,9 +388,9 @@ void ReadPage (word18 address, word36 * result, bool isAR)
                                   address + i, result [i]);
                   }
 #ifdef HDBG
-                HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address);
-                for (uint i = 0; i < PGSZ; i ++)
-                  HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
+//              HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address);
+//              for (uint i = 0; i < PGSZ; i ++)
+//                HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
 #endif
                 return;
               }
@@ -408,9 +408,9 @@ void ReadPage (word18 address, word36 * result, bool isAR)
                                  address + i, result [i]);
                   }
 #ifdef HDBG
-                HDBGIEFP (hdbgIEFP_abs_read, 0, address);
-                for (uint i = 0; i < PGSZ; i ++)
-                  HDBGMRead (address + i, result [i]);
+//              HDBGIEFP (hdbgIEFP_abs_read, 0, address);
+//              for (uint i = 0; i < PGSZ; i ++)
+//                HDBGMRead (address + i, result [i]);
 #endif
                 return;
               }
@@ -435,9 +435,9 @@ B29:;
                                 cpu.iefpFinalAddress + i, result [i]);
                   }
 #ifdef HDBG
-                HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address);
-                for (uint i = 0; i < PGSZ; i ++)
-                  HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
+//              HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address);
+//              for (uint i = 0; i < PGSZ; i ++)
+//                HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
 #endif
 
                 return;
@@ -458,9 +458,9 @@ B29:;
                                      cpu.iefpFinalAddress + i, result [i]);
                       }
 #ifdef HDBG
-                    HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address);
-                    for (uint i = 0; i < PGSZ; i ++)
-                      HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
+//                  HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address);
+//                  for (uint i = 0; i < PGSZ; i ++)
+//                    HDBGMRead (cpu.iefpFinalAddress + i, result [i]);
 #endif
                   }
               }
@@ -877,9 +877,9 @@ void WritePage (word18 address, word36 * data, bool isAR)
                                  address + i, data [i]);
                   }
 #ifdef HDBG
-                HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address);
-                for (uint i = 0; i < PGSZ; i ++)
-                  HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
+//              HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address);
+//              for (uint i = 0; i < PGSZ; i ++)
+//                HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
 #endif
                 return;
               }
@@ -897,9 +897,9 @@ void WritePage (word18 address, word36 * data, bool isAR)
                                  address + i, data [i]);
                   }
 #ifdef HDBG
-                HDBGIEFP (hdbgIEFP_abs_write, 0, address);
-                for (uint i = 0; i < PGSZ; i ++)
-                  HDBGMWrite (address + i, data [i]);
+//              HDBGIEFP (hdbgIEFP_abs_write, 0, address);
+//              for (uint i = 0; i < PGSZ; i ++)
+//                HDBGMWrite (address + i, data [i]);
 #endif
                 return;
               }
@@ -925,9 +925,9 @@ B29:
                                  cpu.iefpFinalAddress + i, data [i]);
                   }
 #ifdef HDBG
-                HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address);
-                for (uint i = 0; i < 8; i ++)
-                  HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
+//              HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address);
+//              for (uint i = 0; i < 8; i ++)
+//                HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
 #endif
                 return;
               }
@@ -944,9 +944,9 @@ B29:
                                  cpu.iefpFinalAddress + i, data [i]);
                   }
 #ifdef HDBG
-                HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address);
-                for (uint i = 0; i < PGSZ; i ++)
-                  HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
+//              HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address);
+//              for (uint i = 0; i < PGSZ; i ++)
+//                HDBGMWrite (cpu.iefpFinalAddress + i, data [i]);
 #endif
 
                 return;
