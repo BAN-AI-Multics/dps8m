@@ -691,6 +691,7 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 //sim_printf ("seek seekPosition %d\n", disk_statep -> seekPosition);
 if (devUnitIdx) printf ("seek position %d\r\n", disk_statep -> seekPosition);
     p -> stati = 04000; // Channel ready
+p->initiate = true;
     return 0;
   }
 
@@ -1580,13 +1581,17 @@ if (devUnitIdx) printf ("SEEK 64\r\n");
           }
           break;
 
-//static int specSeekCount = 0;
+#ifdef HDBG
+static int specSeekCount = 0;
+#endif
         case 036: // CMD 36 SPECIAL SEEK (T&D) // Make it work like SEEK_64 and
                                                // hope for the best
           {
-//if (devUnitIdx) specSeekCount ++;
+#ifdef HDBG
+if (devUnitIdx) specSeekCount ++;
+if (devUnitIdx && specSeekCount ==2) hdbg_size (0, "1000000");
+#endif
 if (devUnitIdx) printf ("SPECIAL SEEK\r\n");
-//if (devUnitIdx && specSeekCount ==2) hdbg_size (0, "1000000");
             // XXX is it correct to not process the DDCWs?
             if (! unitp -> fileref)
               {
@@ -1594,7 +1599,8 @@ if (devUnitIdx) printf ("SPECIAL SEEK\r\n");
                 break;
               }
             int rc1 = diskSeek64 (devUnitIdx, iomUnitIdx, chan);
-p->stati = 06000;
+p->stati = 04000;
+p->initiate = false;
             if (rc1)
               {
 printf ("SPECIAL SEEK IOM_CMD_ERORR <<<<<<<<<<<<<<<<<<<<<<<\r\n");
