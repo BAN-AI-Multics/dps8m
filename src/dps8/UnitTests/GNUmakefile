@@ -1,6 +1,16 @@
+# DPS/8M simulator: src/dps8/UnitTests/GNUMakefile
+# vim: filetype=make:tabstop=4:tw=76
+#
 ###############################################################################
-# XXX(johnsonjh): Need copyright/license header block here
-# TODO(johnosnjh): Migrate to GNUmakefile and add wrapper
+#
+# Copyright (c) 2019-2021 The DPS8M Development Team
+#
+# All rights reserved.
+#
+# This software is made available under the terms of the ICU
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE.md file at the top-level directory of this distribution.
+#
 ###############################################################################
 
 ifdef MAKETRACE
@@ -49,3 +59,8 @@ TestIT.oct TestIT.test: TestIT.as8
 	$(AS8) -o TestIT.oct TestIT.pp
 
 ###############################################################################
+
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:
