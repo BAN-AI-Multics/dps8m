@@ -2289,6 +2289,16 @@ static void fetch_and_parse_PCW (uint iom_unit_idx, uint chan)
                "%s: chan %d pcw1: ae %d ptp %d pge %d ptp %#o\n",
                __func__, p -> PCW_CHAN, p -> PCW_AE, p -> PCW_63_PTP,
                p -> PCW_64_PGE, p -> PCW_PAGE_TABLE_PTR);
+if (chan == 12) {
+printf ("%s: pcw0 %012llo pcw1 %012llo\r\n", __func__, p->PCW0, p->PCW1);
+printf ("%s: chan %d pcw0: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\r\n",
+               __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
+               p -> IDCW_EC, p -> IDCW_CONTROL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
+printf ("%s: chan %d pcw1: ae %d ptp %d pge %d ptp %#\r\n",
+               __func__, p -> PCW_CHAN, p -> PCW_AE, p -> PCW_63_PTP,
+               p -> PCW_64_PGE, p -> PCW_PAGE_TABLE_PTR);
+}
+
   }
 
 static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_only)
@@ -2384,6 +2394,26 @@ sim_warn ("unhandled fetch_and_parse_DCW\n");
                    "%s: chan %d ddcw: address %#o char_pos %#o type %#o tally %#o\n",
                    __func__, p -> PCW_CHAN, p -> DDCW_ADDR, p -> DCW_18_20_CP,
                    p -> DDCW_22_23_TYPE, p -> DDCW_TALLY);
+
+
+if (chan == 12) {
+printf ("%s: dcw %012llo\r\n", __func__, p->DCW);
+    if (p -> DCW_18_20_CP == 07)
+                 printf ("%s: chan %d idcw: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\r\n",
+                 __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
+                 p -> IDCW_EC, p -> IDCW_CONTROL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
+    else
+      if (p -> DDCW_22_23_TYPE == 02)
+                   printf ("%s: chan %d tdcw: address %#o seg %d pdta %d pdcw/ec %d res %d rel %d\r\n",
+                   __func__, p -> PCW_CHAN, p -> TDCW_DATA_ADDRESS, p -> TDCW_31_SEG,
+                   p -> TDCW_32_PDTA, p -> TDCW_33_PDCW, p -> TDCW_34_RES, p -> TDCW_35_REL);
+      else
+                   printf ("%s: chan %d ddcw: address %#o char_pos %#o type %#o tally %#o\r\n",
+                   __func__, p -> PCW_CHAN, p -> DDCW_ADDR, p -> DCW_18_20_CP,
+                   p -> DDCW_22_23_TYPE, p -> DDCW_TALLY);
+}
+
+
   }
 
 /*
