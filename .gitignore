@@ -74,3 +74,6 @@ src/dps8/*.tap
 src/dps8/dps8.map
 src/dps8/*.d
 src/dps8/MR12.3/
+
+# Local
+GNUmakefile.local
