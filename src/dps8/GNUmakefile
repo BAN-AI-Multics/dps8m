@@ -18,14 +18,6 @@
 #
 ###############################################################################
 
-###############################################################################
-#
-# Condition builds
-#
-#  TESTING=1    Enables sim_debug and additional runtime checks
-#
-###############################################################################
-
 .PHONY: all
 all:
 
@@ -37,6 +29,13 @@ INSTALL_BIN  ?= $(INSTALL_ROOT)/bin
 ###############################################################################
 
 include ../Makefile.mk
+
+###############################################################################
+
+ifdef MAKETRACE
+  _SHELL := $(SHELL)
+  SHELL = $(info [TRACE] src/dps8/GNUmakefile: [$@])$(_SHELL)
+endif
 
 ###############################################################################
 
@@ -76,7 +75,7 @@ endif
 ifeq ($(shell $(UNAME) -o 2> /dev/null || true >/dev/null 2>&1),Cygwin)
 LIBS += -lwinmm -lws2_32 -lwsock32 -lws2_32 -luserenv -liphlpapi $(LIBUV)
 else
-LIBS += -lwinmm -lws2_32 -lmingwex -lwsock32 -lws2_32 -luserenv -liphlpapi \
+LIBS += -lwinmm -lws2_32 -lmingwex -lwsock32 -lws2_32 -luserenv -liphlpapi    \
         $(LIBUV) -L../../../libuv/.libs
 endif
 endif
@@ -114,15 +113,6 @@ ifneq ($(OS),OSX)
 #LDFLAGS += -lrt
 LIBS += -lrt
 endif
-endif
-
-###############################################################################
-# Configuration switches
-
-ifeq ($(CROSS),MINGW64)
-LOCALLIBS += ../decNumber/decNumber.a
-else
-LOCALLIBS += ../decNumber/decNumber.a
 endif
 
 ###############################################################################
@@ -271,7 +261,14 @@ H_SRCS += ./uvutil.h
 
 ###############################################################################
 
-SIMH_OBJS = ../simh/scp.o ../simh/sim_console.o ../simh/sim_disk.o ../simh/sim_ether.o ../simh/sim_fio.o ../simh/sim_serial.o ../simh/sim_sock.o ../simh/sim_tape.o ../simh/sim_timer.o ../simh/sim_tmxr.o ../simh/sim_video.o
+SIMH_OBJS = ../simh/scp.o        ../simh/sim_console.o  ../simh/sim_disk.o   \
+            ../simh/sim_ether.o  ../simh/sim_fio.o      ../simh/sim_serial.o \
+            ../simh/sim_sock.o   ../simh/sim_tape.o     ../simh/sim_timer.o  \
+            ../simh/sim_tmxr.o   ../simh/sim_video.o
+
+###############################################################################
+
+DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 
 ###############################################################################
 
@@ -294,19 +291,10 @@ cscope:
 
 ###############################################################################
 
-.PHONY: android
-android:
-	@$(PRINTF) '%s\n' "NDK-BUILD: Android, ABI=arm64-v8"
-	@$(SETV); $(NDKBUILD) APP_BUILD_SCRIPT=./Android.mk \
-                          APP_ABI=arm64-v8a \
-                          APP_PLATFORM=android-21
-
-###############################################################################
-
 .PHONY: printuk
 printuk:
 	@$(PRINTF) '%s\n' "*** Begin printuk (git untracked files):"
-	@$(SETV); ($(CD) "../.." && $(GIT) status -s --untracked-files="all" \
+	@$(SETV); ($(CD) "../.." && $(GIT) status -s --untracked-files="all"      \
 	    2> /dev/null | $(GREP) '^? ' || $(TRUE))
 	@$(PRINTF) '%s\n' "*** End printuk"
 
@@ -315,7 +303,7 @@ printuk:
 .PHONY: printmod
 printmod:
 	@$(PRINTF) '%s\n' "*** Begin printmod (git tracked modified files)"
-	@$(SETV); ($(CD) "../.." && $(GIT) status -s 2> /dev/null | \
+	@$(SETV); ($(CD) "../.." && $(GIT) status -s 2> /dev/null |               \
 	    $(GREP) '^\ \?M ' || $(TRUE))
 	@$(PRINTF) '%s\n' "*** End printmod"
 
@@ -323,36 +311,36 @@ printmod:
 
 blinkenLights: blinkenLights.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLights"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights.c \
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights.c                      \
         -o blinkenLights shm.o `$(PKGCONFIG) --cflags --libs gtk+-3.0`
 
 ###############################################################################
 
 blinkenLights2: blinkenLights2.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLights2s"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights2.c \
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights2.c                     \
         -o blinkenLights2 shm.o `$(PKGCONFIG) --cflags --libs gtk+-3.0` -lrt
 
 ###############################################################################
 
 blinkenLightsPi: blinkenLightsPi.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLightsPi"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsPi.c \
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsPi.c                    \
         -o blinkenLightsPi shm.o 
 
 ###############################################################################
 
 blinkenLightsCurses: blinkenLightsCurses.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLightsCurses"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsCurses.c \
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsCurses.c                \
         -o blinkenLightsCurses shm.o -lncurses
 
 ###############################################################################
 
-dps8$(EXE) : $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(SIMH_OBJS)
+dps8$(EXE) : $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(DECN_OBJS) $(SIMH_OBJS) ctags
 	@$(PRINTF) '%s\n' "LD: dps8$(EXE)"
-	@$(SETV); $(CC) -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS) \
-        $(SIMH_OBJS) $(LOCALLIBS) $(LIBS)
+	@$(SETV); $(CC) -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS)             \
+        $(DECN_OBJS) $(SIMH_OBJS) $(LOCALLIBS) $(LIBS)
 
 ###############################################################################
 
@@ -363,7 +351,7 @@ ifeq (,$(wildcard ver.h~))
 # not git, not kit
 ver.h:
 	@$(SETV); $(RMF) "./ver.h"
-	@$(PRINTF) '%s\n' "WARNING: This source tree does not appear to be a" \
+	@$(PRINTF) '%s\n' "WARNING: This source tree does not appear to be a"    \
 	                  "         full git clone or a complete source kit."
 	@$(SETV); $(TOUCH) "./ver.h"
 else
@@ -380,8 +368,8 @@ endif
 ifneq ($(USE_BUILDOS),)
 	@$(SETV); $(PRINTF) '%s\n' "$(USE_BUILDOS)" > "../../.buildos.txt"
 endif
-	@$(SETV); ./make_ver.sh || \
-		$(SHELL) ./make_ver.sh || \
+	@$(SETV); ./make_ver.sh ||                                                \
+		$(SHELL) ./make_ver.sh ||                                             \
 			{ $(PRINTF) '%s\n' "Error: Unable to run make_ver.sh"; exit 1; }
 endif
 
@@ -416,51 +404,20 @@ udplib: udplib.c udplib.h
 
 ###############################################################################
 
-.PHONY: zeromq czmq
-../lib/libzmq.a zeromq zmq:
-	@($(SETV); $(CD) "../zeromq-4.1.0" && \
-        ./configure --prefix="$$(pwd)/../" && \
-            $(MAKE) && \
-                $(MAKE) check && \
-                    $(MAKE) install)
-
-###############################################################################
-
-.PHONY: czmq
-../lib/libczmq.so czmq:
-	@($(SETV); $(CD) "../czmq-master-ff0d028b16" && \
-		$(CMAKE) "." -DZEROMQ_LIBRARIES="../lib/libzmq.so" \
-            -DZEROMQ_INCLUDE_DIRS="../include/" \
-            -DCMAKE_INSTALL_PREFIX=".." && \
-                $(MAKE) && \
-                    $(MAKE) install)
-
-###############################################################################
-
-.PHONY: zyre
-../lib/libzyre.so zyre:
-	@($(SETV); $(CD) "../zyre-master-9d7e62d2c9" && \
-        $(CMAKE) "." -DCZMQ_LIBRARIES="../lib/libczmq.so" \
-            -DCZMQ_INCLUDE_DIRS="../include" \
-            -DZEROMQ_LIBRARIES="../lib/libzmq.so" \
-            -DZEROMQ_INCLUDE_DIRS="../include/" \
-            -DCMAKE_INSTALL_PREFIX=".." && \
-                $(MAKE) && \
-                    $(MAKE) install)
-
-###############################################################################
-
 .PHONY: ctags
 tags ctags: $(C_SRCS) $(H_SRCS) ver.h
-	@$(PRINTF) '%s\n' "TAGS: dps8"
-	-@$(SETV); $(CTAGS) $(C_SRCS) $(H_SRCS) \
-        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]
+	@$(PRINTF) '%s\n' "CTAGS: dps8"
+	-@$(SETV); $(CTAGS) $(C_SRCS) $(H_SRCS)                                   \
+        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch] 2> /dev/null || $(TRUE)
+	@$(PRINTF) '%s\n' "ETAGS: dps8"
+	-@$(SETV); $(ETAGS) $(C_SRCS) $(H_SRCS)                                   \
+        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch] 2> /dev/null || $(TRUE)
 
 ###############################################################################
 
 .PHONY: tapes
-tapes: 88534.tap 88631.tap 88632.tap 88633.tap 88634.tap 88635.tap 88636.tap \
-       99020.tap 93085.tap 98570.tap 99019.tap 98577.tap 20184.tap 20185.tap \
+tapes: 88534.tap 88631.tap 88632.tap 88633.tap 88634.tap 88635.tap 88636.tap  \
+       99020.tap 93085.tap 98570.tap 99019.tap 98577.tap 20184.tap 20185.tap  \
        20186.tap 20187.tap 20188.tap t4d_b.2.tap 98580_1er.tap 98576_1er.tap
 
 %.tap:
@@ -505,8 +462,8 @@ clean:
 .PHONY: clean_dps8
 clean_dps8:
 	@$(PRINTF) '%s\n' "CLEAN: dps8"
-	-@$(SETV); $(RMF) $(OBJS) $(C_DEPS) $(EXECUTABLES) "dps8$(EXE)" \
-        "tags" $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*)) \
+	-@$(SETV); $(RMF) $(OBJS) $(C_DEPS) $(EXECUTABLES) "dps8$(EXE)"           \
+        "tags" "TAGS" $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*))      \
             "dps8.exe" "errnos.h" "udplib" || $(TRUE)
 
 ###############################################################################
@@ -519,12 +476,12 @@ kit dist:
 	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)"."$(COMPRESSXT)" || $(TRUE)
 	@$(SETV); MAKE="$(MAKE)" $(MAKE) "ver.h"
 	@$(SETV); $(CP) "./ver.h" "./ver.h~"
-	@$(SETV); ($(CD) "../.." && \
-		$(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files | \
-			$(GREP) -v '^.git' | $(GREP) -v '^.whitesource' | \
-				$(GREP) -v '^.lgtm.yml' | \
+	@$(SETV); ($(CD) "../.." &&                                               \
+		$(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files |                \
+			$(GREP) -v '^.git' | $(GREP) -v '^.whitesource' |                 \
+				$(GREP) -v '^.lgtm.yml' |                                     \
 					$(GREP) -v '^src/dps8/listings/' ) 'src/dps8/ver.h~' )
-	@$(PRINTF) '%s\n' \
+	@$(PRINTF) '%s\n'                                                         \
 		"COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
 	@$(SETV); $(COMPRESS) "../../$(KITNAME).$(TARXT)"
 
@@ -532,31 +489,46 @@ kit dist:
 
 unifdef.out: unifdef
 	@$(PRINTF) '%s\n' "UNIFDEF: *.[ch]"
-	@($(SETV); $(CD) ".." 2> /dev/null && $(FIND) $$($(GIT) ls-files 2> /dev/null 2> /dev/null | $(GREP) ".*\.[ch]" 2> /dev/null ) -exec "./unifdef/unifdef" "-s" "{}" 2> /dev/null \; | $(SORT) -u 2> /dev/null) > "./unifdef.out"|| $(TOUCH) "./unifdef.out" > /dev/null 2>&1
+	@($(SETV); $(CD) ".." 2> /dev/null && $(FIND) $$($(GIT) ls-files          \
+      2> /dev/null 2> /dev/null | $(GREP) ".*\.[ch]" 2> /dev/null )           \
+        -exec "./unifdef/unifdef" "-s" "{}" 2> /dev/null \; |                 \
+          $(SORT) -u 2> /dev/null) > "./unifdef.out" ||                       \
+            $(TOUCH) "./unifdef.out" > /dev/null 2>&1
 
 ###############################################################################
 
 procdef.out:
 	@$(PRINTF) '%s\n' "PROCDEF: $(CPPCPP)"
-	@($(SETV); ($(CPPCPP) -dM - < /dev/null 2> /dev/null ; $(CPPCPP) -dD - < /dev/null 2> /dev/null) | $(GREP) "^#define" 2> /dev/null | $(GREP) -v "^$$" 2> /dev/null | $(SORT) -u 2> /dev/null) | $(SED) 's/^#define //g' | $(SORT) > "./procdef.out" || $(TOUCH) "./procdef.out" > /dev/null 2>&1
+	@($(SETV); ($(CPPCPP) -dM - < /dev/null 2> /dev/null ;                    \
+      $(CPPCPP) -dD - < /dev/null 2> /dev/null) | $(GREP) "^#define"          \
+        2> /dev/null | $(GREP) -v "^$$" 2> /dev/null | $(SORT) -u             \
+          2> /dev/null) | $(SED) 's/^#define //g' |                           \
+            $(SORT) > "./procdef.out" ||                                      \
+              $(TOUCH) "./procdef.out" > /dev/null 2>&1
 
 ###############################################################################
 
 procsrt.out: procdef.out
 	@$(PRINTF) '%s\n' "PROCSRT: procdef.out"
-	@$(SETV); $(CUT) -d ' ' -f 1 < "./procdef.out" 2> /dev/null | $(SORT) > "./procsrt.out" 2> /dev/null || $(TOUCH) "./procsrt.out" > /dev/null 2>&1
+	@$(SETV); $(CUT) -d ' ' -f 1 < "./procdef.out" 2> /dev/null |             \
+      $(SORT) > "./procsrt.out" 2> /dev/null ||                               \
+        $(TOUCH) "./procsrt.out" > /dev/null 2>&1
 
 ###############################################################################
 
 compdef.out: procsrt.out unifdef.out
 	@$(PRINTF) '%s\n' "COMM: procsrt.out unifdef.out"
-	@$(SETV); $(COMM) -12 "procsrt.out" "unifdef.out" > "./compdef.out" 2> /dev/null || $(TOUCH) "./compdef.out" 2> /dev/null
+	@$(SETV); $(COMM) -12 "procsrt.out" "unifdef.out" > "./compdef.out"       \
+      2> /dev/null || $(TOUCH) "./compdef.out" 2> /dev/null
 
 ###############################################################################
 
 useddef.txt: compdef.out
 	@$(PRINTF) '%s\n' "USEDDEF: compdef.out"
-	@$(SETV); $(SH) -c 'while read -r line; do $(GREP) -i "$${line:-}" "./procdef.out" 2> /dev/null; done < compdef.out | $(SORT) -u > useddef.txt' || $(TRUE) > /dev/null 2>&1; $(TOUCH) "./useddef.txt" > /dev/null 2>&1
+	@$(SETV); $(SH) -c 'while read -r line; do $(GREP) -i "$${line:-}"        \
+      "./procdef.out" 2> /dev/null; done < compdef.out |                      \
+        $(SORT) -u > useddef.txt' || $(TRUE) > /dev/null 2>&1;                \
+          $(TOUCH) "./useddef.txt" > /dev/null 2>&1
 
 ###############################################################################
 
@@ -564,25 +536,29 @@ dps8_ins.c: ver.h
 dps8_sys.c: ver.h
 dps8_socket_dev.c: errnos.h
 errnos.h:
-	@$(PRINTF) '%s\n' \
+	@$(PRINTF) '%s\n'                                                         \
         '#include <errno.h>' > ./dump.c
-	@$(SETV); $(CC) -E -dD ./dump.c | \
-        $(AWK) '/^#define E/ { printf "{\"%s\",%s},\n", $$2, $$2 }' \
+	@$(SETV); $(CC) -E -dD ./dump.c |                                         \
+        $(AWK) '/^#define E/ { printf "{\"%s\",%s},\n", $$2, $$2 }'           \
             > ./errnos.h
 	@$(SETV); $(RMF) ./dump.c
 
 ###############################################################################
 
 %.d: %.c
-	@$(SET) -e; @$(RMNF) $@ 2> /dev/null; \
-        @$(SETV); $(CC) -MM $(CFLAGS) $< > $@.$$$$; \
-            $(SED) 's/ ver.h / /g' $@.$$$$ | \
-                $(SED) 's,\($*\)\.o[ :]*,\1.o $@ : ,g' > $@; \
+	@$(SET) -e; @$(RMNF) $@ 2> /dev/null;                                     \
+        @$(SETV); $(CC) -MM $(CFLAGS) $< > $@.$$$$;                           \
+            $(SED) 's/ ver.h / /g' $@.$$$$ |                                  \
+                $(SED) 's,\($*\)\.o[ :]*,\1.o $@ : ,g' > $@;                  \
                     $(RMF) $@.$$$$;
 
 ###############################################################################
 
 -include $(C_SRCS:.c=.d)
+
+###############################################################################
+
+print-% : ; $(info dps8: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 

@@ -11,6 +11,13 @@ a.out
 .project
 .settings/
 tags
+.tags
+ctags
+.ctags
+etags
+.etags
+.TAGS
+TAGS
 *.core
 core
 

@@ -15,7 +15,7 @@
   */
 
 #include <unistd.h>
-#include <unistd.h>
+#include <stdlib.h>
 #include <signal.h>
 
 #include "dps8.h"
@@ -385,7 +385,9 @@ void createCPUThread (uint cpuNum)
 #ifdef __APPLE__
     pthread_setname_np (nm);
 #else
+#ifndef _AIX // XXX(johnsonjh): AIX equiv?
     pthread_setname_np (p->cpuThread, nm);
+#endif
 #endif
 #endif
 

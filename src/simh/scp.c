@@ -4903,18 +4903,63 @@ if (flag) {
     if (1) {
         char osversion[2*PATH_MAX+1] = "";
         FILE *f;
-
-        if ((f = popen ("uname -mrs", "r"))) {
+#ifndef _AIX
+        if ((f = popen ("uname -mrs 2> /dev/null", "r"))) {
+#else
+        if ((f = popen                                              \
+          ("sh -c 'command -p env uname -svM   2> /dev/null'        \
+                                               2> /dev/null    ||   \
+              /bin/sh -c 'command -p env uname -svM                 \
+                                               2> /dev/null'        \
+                                               2> /dev/null    ||   \
+                  uname -svM                   2> /dev/null    ||   \
+                    sh -c 'command -p env uname -svp                \
+                                               2> /dev/null'        \
+                                               2> /dev/null    ||   \
+                        /bin/sh -c 'command -p env uname -svp       \
+                                               2> /dev/null'        \
+                                               2> /dev/null    ||   \
+                            uname -svp         2> /dev/null         \
+                              ", "r")))                             \
+         {
+#endif /* ifndef _AIX */
             memset (osversion, 0, sizeof(osversion));
             do {
-                if (NULL == fgets (osversion, sizeof(osversion)-1, f))
+                if (NULL == fgets (osversion, sizeof(osversion)-1, f)) {
                     break;
+                }
                 sim_trim_endspc (osversion);
                 } while (osversion[0] == '\0');
             pclose (f);
-            }
-        fprintf (st, "\n   Host OS: %s", osversion);
+            strremove(osversion, "0000000000000000 ");
+            strremove(osversion, " 0000000000000000");
+            strremove(osversion, "000000000000 ");
+            strremove(osversion, " 000000000000");
+            strremove(osversion, "IBM ");
+            strremove(osversion, " (emulated by qemu)");
+            strremove(osversion, " (emulated by QEMU)");
         }
+        if (osversion) {
+#ifndef _AIX
+            fprintf (st, "\n   Host OS: %s", osversion);
+#else
+            strremove(osversion, "AIX ");
+            fprintf (st, "\n   Host OS: IBM AIX %s", osversion);
+#endif /* ifndef _AIX */
+        } else {
+#ifndef _AIX
+            fprintf (st, "\n   Host OS: Unavailable");
+#else
+            fprintf (st, "\n   Host OS: IBM AIX");
+#endif /* ifndef _AIX */
+        }	
+    } else {
+#ifndef _AIX
+        fprintf (st, "\n   Host OS: Unknown");
+#else
+        fprintf (st, "\n   Host OS: IBM AIX");
+#endif /* ifndef _AIX */
+    }
 #endif
 #if defined(__APPLE__)
 	int isRosetta = processIsTranslated();

@@ -143,15 +143,26 @@ debug_print "Start of make_ver.sh processing."
 
 ###############################################################################
 
-SUNSOLARIS="$(command -p env uname -s 2> /dev/null || \
+debug_print "Start of OS exception processing."
+
+EARLYUNAME="$(command -p env uname -s 2> /dev/null || \
     true > /dev/null 2>&1)"
 
-if [ "${SUNSOLARIS:-}" = "SunOS" ]; then
+if [ "${EARLYUNAME:-}" = "SunOS" ]; then
+    debug_print "Enabling Solaris exceptions."
+    OS_SUNOS=1 && export OS_SUNOS
     NPATH="$(command -p env getconf PATH 2> /dev/null)" && \
         PATH="${NPATH:-${PATH:-}}:${PATH:-}" && \
             export PATH 2> /dev/null || \
                 true > /dev/null 2>&1
 fi
+
+if [ "${EARLYUNAME:-}" = "AIX" ]; then
+    debug_print "Enabling AIX exceptions."
+    OS_IBMAIX=1 && export OS_IBMAIX
+fi
+
+debug_print "End of OS exception processing."
 
 ###############################################################################
 # get_git_ptch() returns the number of additional commits from the last tag.
@@ -446,7 +457,7 @@ get_bld_user()
 			true > /dev/null 2>&1)"
 
 	printf '%s\n' \
-		"${BUILDERTXT:-${PREPAREDBY:-Unknown}@${MYNODENAME:-Unknown}}" | \
+		"${BUILDERTXT:-${PREPAREDBY:-Unknown}@${MYNODENAME:-Unknown}}"  | \
 			tr -s ' ' 2> /dev/null | sed -e 's/@Unknown//' 2> /dev/null | \
 				sed -e 's/\"//' \
 				    -e 's/\%//' \
@@ -465,21 +476,40 @@ get_bld_user()
 
 get_bld_osys()
 { # /* get_bld_osys() */
-	debug_print "Start of get_bld_osys()"
-	BLD_OSYS="$( (command -p env -i uname -mrs 2> /dev/null ||
-		true > /dev/null 2>&1) | \
-			tr -d '*' 2> /dev/null || \
-				true   > /dev/null 2>&1)"
+   debug_print "Start of get_bld_osys()"
+   if [ -n "${OS_IBMAIX:-}" ]; then
+    BLD_OSYS="IBM AIX $(command -p env -i oslevel -s   2> /dev/null         | \
+     cut -d '-' -f 1-3                                 2> /dev/null         | \
+     grep '[1-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' 2> /dev/null         | \
+      sed -e 's/-/ TL/'      -e 's/-/ SP/'             2> /dev/null         | \
+      sed -e 's/ SP00$//'    -e 's/ TL00$//'           2> /dev/null         | \
+      sed -e 's/ TL0/ TL/'   -e 's/ SP0/ SP/'          2> /dev/null         | \
+      sed -e 's/.\{1\}/&./g' -e 's/\. \./ /g'          2> /dev/null           \
+          -e 's/T\.L\./TL/'  -e 's/S\.P\./SP/'                                \
+          -e 's/\.$//'       -e 's/0\.0\.0 / /'                               \
+          -e 's/0\.0 / /'    -e 's/0 / /'                                     \
+          -e 's/\. / /'                                                    || \
+          head -n 1 /usr/lpp/bos/aix_release.level     2> /dev/null         | \
+             sed -e 's/\.0\.0\.0$//'                                          \
+                 -e 's/\.0\.0$//'                                             \
+                 -e 's/\.0$//'                         2> /dev/null        || \
+                    true                               1> /dev/null 2>&1)"
+    else
+        BLD_OSYS="$( (command -p env -i uname -mrs     2> /dev/null        || \
+        true                                           1> /dev/null 2>&1)   | \
+               tr -d '*'                               2> /dev/null        || \
+                   true                                1> /dev/null 2>&1)"
+    fi
 	if [ -f "../../.buildos.txt" ]; then
 		# shellcheck disable=SC2002
-		BLD_OSYS="$(cat ../../.buildos.txt 2> /dev/null | \
-			tr -d '\"' 2> /dev/null | \
-			tr -d '*'  2> /dev/null || \
-				true    > /dev/null 2>&1)"
+		BLD_OSYS="$(cat ../../.buildos.txt             2> /dev/null         | \
+			tr -d '\"'                                 2> /dev/null         | \
+            tr -d '*'                                  2> /dev/null        || \
+             true                                      1> /dev/null 2>&1)"
 	fi
 	printf '%s\n' \
 		"${BLD_OSYS:-Unknown}" | \
-			tr -s ' ' 2> /dev/null ||
+			tr -s ' '                                  2> /dev/null        ||
 				{ # /* BLD_OSYS */
 					printf >&2 '%s\n' \
 						"Error: tr failed."
@@ -513,10 +543,22 @@ get_bld_osnm()
 get_bld_osar()
 { # /* get_bld_osar() */
 	debug_print "Start of get_bld_osar()"
-	BLD_OSAR="$( (command -p env -i uname -m 2> /dev/null ||
-		true > /dev/null 2>&1) | \
-			tr -d '*' 2> /dev/null || \
-				true   > /dev/null 2>&1)"
+	if [ -n "${OS_IBMAIX:-}" ]; then
+      BLD_OSAR="$( (command -p env -i uname -p 2> /dev/null || \
+          command -p env -i uname -M 2> /dev/null || \
+              uname -M 2> /dev/null || uname -p 2> /dev/null || \
+                  printf '%s\n' 'Unknown') | \
+				      sed -e 's/^AIX //' 2> /dev/null | \
+                          sed -e 's/ (emulated by .....)//' 2> /dev/null | \
+                              tr -d '*' 2> /dev/null || \
+                                  true  1> /dev/null 2>&1)"
+    fi
+	if [ -z "${BLD_OSAR:-}" ]; then
+	  BLD_OSAR="$( (command -p env -i uname -m 2> /dev/null ||
+		  true > /dev/null 2>&1) | \
+			  tr -d '*' 2> /dev/null || \
+				true    1> /dev/null 2>&1)"
+    fi
 	printf '%s\n' \
 		"${BLD_OSAR:-Unknown}" | \
 			tr -s ' ' 2> /dev/null ||

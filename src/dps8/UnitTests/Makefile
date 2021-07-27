@@ -1,4 +1,14 @@
 ###############################################################################
+# XXX(johnsonjh): Need copyright/license header block here
+# TODO(johnosnjh): Migrate to GNUmakefile and add wrapper
+###############################################################################
+
+ifdef MAKETRACE
+  _SHELL := $(SHELL)
+  SHELL = $(info [TRACE] src/dps8/UnitTests/Makefile: [$@])$(_SHELL)
+endif
+
+###############################################################################
 
 PP=as8pp
 AS8=as8+
