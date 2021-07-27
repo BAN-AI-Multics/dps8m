@@ -138,6 +138,7 @@ void hdbgTrace (void)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
+if (TST_I_NBAR != 0) goto done;
     hevents [hevtPtr] . type = hevtTrace;
     hevents [hevtPtr] . time = cpu.cycleCnt;
     hevents [hevtPtr] . trace . addrMode = get_addr_mode ();
@@ -163,6 +164,7 @@ void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
+if (TST_I_NBAR != 0) goto done;
     hevents[hevtPtr].type = hevtIEFP;
     hevents[hevtPtr].time = cpu.cycleCnt;
     hevents [hevtPtr].iefp.type = type;
@@ -186,6 +188,7 @@ void hdbgMRead (word24 addr, word36 data)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
+if (TST_I_NBAR != 0) goto done;
     hevents [hevtPtr] . type = hevtMRead;
     hevents [hevtPtr] . time = cpu.cycleCnt;
     hevents [hevtPtr] . memref . addr = addr;
@@ -208,6 +211,7 @@ void hdbgMWrite (word24 addr, word36 data)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
+if (TST_I_NBAR != 0) goto done;
     hevents [hevtPtr] . type = hevtMWrite;
     hevents [hevtPtr] . time = cpu.cycleCnt;
     hevents [hevtPtr] . memref . addr = addr;
@@ -231,6 +235,7 @@ void hdbgFault (_fault faultNumber, _fault_subtype subFault,
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
+if (TST_I_NBAR != 0) goto done;
     hevents [hevtPtr] . type = hevtFault;
     hevents [hevtPtr] . time = cpu.cycleCnt;
     hevents [hevtPtr] . fault . faultNumber = faultNumber;
@@ -255,6 +260,7 @@ void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
+if (TST_I_NBAR != 0) goto done;
     hevents [hevtPtr].type = hevtIntrSet;
     hevents [hevtPtr].time = cpu.cycleCnt;
     hevents [hevtPtr].intrSet.inum = inum;
@@ -278,6 +284,7 @@ void hdbgIntr (uint intr_pair_addr)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
+if (TST_I_NBAR != 0) goto done;
     hevents [hevtPtr].type = hevtIntr;
     hevents [hevtPtr].time = cpu.cycleCnt;
     hevents [hevtPtr].intr.intr_pair_addr = intr_pair_addr;
@@ -299,6 +306,7 @@ void hdbgReg (enum hregs_t type, word36 data)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
+if (TST_I_NBAR != 0) goto done;
     hevents[hevtPtr].type = hevtReg;
     hevents[hevtPtr].time = cpu.cycleCnt;
     hevents[hevtPtr].reg.type = type;
@@ -322,6 +330,7 @@ void hdbgPAReg (enum hregs_t type, struct par_s * data)
 if (current_running_cpu_idx == 0)
   goto done;
 #endif
+if (TST_I_NBAR != 0) goto done;
     hevents[hevtPtr].type = hevtPAReg;
     hevents[hevtPtr].time = cpu.cycleCnt;
     hevents[hevtPtr].par.type = type;
