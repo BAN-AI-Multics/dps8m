@@ -1755,11 +1755,32 @@ typedef struct
 #ifdef ROUND_ROBIN
     bool isRunning;
 #endif
-    // Map memory to port
-    int scbank_map [N_SCBANKS];
-    word24 scbank_base [N_SCBANKS];
+    // Map memory address through memory configuraiton switches
+    // Minimum allocation chunk is 64K (SCBANK)
+    // addr / SCBANK => bank_number
+    // scbank_map[bank_number] is address of the bank in M. -1 is unmapped.
+    int sc_addr_map [N_SCBANKS];
+    // The SCU number holding each bank
+    int sc_scu_map [N_SCBANKS];
+    // Nmber of banks in each SCU
+    uint sc_num_banks [N_SCU_UNITS_MAX];
+
+#define SC_MAP_ADDR(addr,real_addr)                            \
+   if (cpu.switches.useMap)                                    \
+      {                                                        \
+        uint pgnum = addr / SCBANK;                            \
+        uint os = addr % SCBANK;                               \
+        int base = cpu.sc_addr_map[pgnum] < 0;                     \
+        if (base < 0)                                          \
+          {                                                    \
+            doFault (FAULT_STR, fst_str_nea,  __func__);       \
+          }                                                    \
+        real_addr = (uint) base + os;                          \
+      }
+
+    //word24 scbank_base [N_SCBANKS];
     // scu_unit_idx * 4u * 1024u * 1024u + scpg * SCBANK
-    int scbank_pg_os [N_SCBANKS];
+    //int scbank_pg_os [N_SCBANKS];
 
     uint history_cyclic [N_HIST_SETS]; // 0..63
     word36 history [N_HIST_SETS] [N_HIST_SIZE] [2];

@@ -88,6 +88,11 @@ bool stall_point_active = false;
 static void panel_process_event (void);
 #endif
 
+static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
+                                             UNUSED int32 value,
+                                             UNUSED const char * cptr,
+                                             UNUSED void * desc);
+
 static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                                UNUSED int val, UNUSED const void * desc)
   {
@@ -452,10 +457,11 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
             cpus[cpu_unit_idx].switches.isolts_mode = v;
             if (v)
               {
+                cpus[cpu_unit_idx].switches.data_switches = 00000030714000;
                 cpus[cpu_unit_idx].switches.useMap = true;
                 cpus[cpu_unit_idx].switches.enable [0] = false;
                 cpus[cpu_unit_idx].switches.init_enable [0] = false;
-#ifdef DPS8
+#ifdef DPS8M
                 cpus[cpu_unit_idx].switches.store_size [0] = 2;
 #endif
 #ifdef L68
@@ -464,7 +470,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
 
                 cpus[cpu_unit_idx].switches.enable [1] = true;
                 cpus[cpu_unit_idx].switches.init_enable [1] = false;
-#ifdef DPS8
+#ifdef DPS8M
                 cpus[cpu_unit_idx].switches.store_size [1] = 2;
 #endif
 #ifdef L68
@@ -473,7 +479,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
 
                 cpus[cpu_unit_idx].switches.enable [2] = false;
                 cpus[cpu_unit_idx].switches.init_enable [2] = false;
-#ifdef DPS8
+#ifdef DPS8M
                 cpus[cpu_unit_idx].switches.store_size [2] = 2;
 #endif
 #ifdef L68
@@ -482,7 +488,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
 
                 cpus[cpu_unit_idx].switches.enable [3] = false;
                 cpus[cpu_unit_idx].switches.init_enable [3] = false;
-#ifdef DPS8
+#ifdef DPS8M
                 cpus[cpu_unit_idx].switches.store_size [3] = 2;
 #endif
 #ifdef L68
@@ -491,10 +497,11 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
               }
             else
               {
+                cpus[cpu_unit_idx].switches.data_switches = 024000717200;
                 cpus[cpu_unit_idx].switches.useMap = false;
                 cpus[cpu_unit_idx].switches.enable [0] = true;
                 cpus[cpu_unit_idx].switches.init_enable [0] = true;
-#ifdef DPS8
+#ifdef DPS8M
                 cpus[cpu_unit_idx].switches.store_size [0] = 7;
 #endif
 #ifdef L68
@@ -503,7 +510,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
 
                 cpus[cpu_unit_idx].switches.enable [1] = true;
                 cpus[cpu_unit_idx].switches.init_enable [1] = true;
-#ifdef DPS8
+#ifdef DPS8M
                 cpus[cpu_unit_idx].switches.store_size [1] = 7;
 #endif
 #ifdef L68
@@ -512,7 +519,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
 
                 cpus[cpu_unit_idx].switches.enable [2] = true;
                 cpus[cpu_unit_idx].switches.init_enable [2] = true;
-#ifdef DPS8
+#ifdef DPS8M
                 cpus[cpu_unit_idx].switches.store_size [2] = 7;
 #endif
 #ifdef L68
@@ -521,13 +528,15 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
 
                 cpus[cpu_unit_idx].switches.enable [3] = true;
                 cpus[cpu_unit_idx].switches.init_enable [3] = true;
-#ifdef DPS8
+#ifdef DPS8M
                 cpus[cpu_unit_idx].switches.store_size [3] = 7;
 #endif
 #ifdef L68
                 cpus[cpu_unit_idx].switches.store_size [3] = 7;
 #endif
               }
+            cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
+            simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
           }
         else
           {
@@ -791,7 +800,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
 #endif
   }
 
-static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
+static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
                                              UNUSED int32 value,
                                              UNUSED const char * cptr,
                                              UNUSED void * desc)
@@ -800,15 +809,16 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
     if (cpu.switches.isolts_mode)
       {
         cpu_state_t * cpun = cpus + cpu_unit_idx;
+        // Currently isolts_mode requires useMap, so this is redundant
         if (cpun->switches.useMap)
           {
             for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++)
               {
-                int os = cpun->scbank_pg_os [pgnum];
-                if (os < 0)
+                int base = cpun->sc_addr_map [pgnum];
+                if (base < 0)
                   continue;
                 for (uint addr = 0; addr < SCBANK; addr ++)
-                  M [addr + (uint) os] = MEM_UNINITIALIZED;
+                  M [addr + (uint) base] = MEM_UNINITIALIZED;
               }
           }
       }
@@ -1031,43 +1041,74 @@ static t_stat cpu_boot (UNUSED int32 cpu_unit_idx, UNUSED DEVICE * dptr)
     return SCPE_ARG;
   }
 
+// The original h/w had one to four (dps8m) or eight (l68) SCUs; each SCU
+// held memory.
+// Memory accesses were sent to the SCU that held the region of memory
+// being addressed.
+//
+// eg, SCU 0 has 1 MW of memory and SCU 1 has 2 MW
+// Address
+//      0M +------------------+
+//         |                  |  SCU 0
+//      1M +------------------+
+//         |                  |  SCU 1
+//         |                  |
+//      3M +------------------+
+//
+// So SCU 0 has the first MW of addresses, and SCU1 has the second and third 
+// MWs.
+//
+// The simulator has a single 16MW array of memory. This code walks the SCUs
+// allocates memory regions out of that array to the SCUs based on their 
+// individual configurations. 
+//
+// The minimum SCU memory size increment is 64KW, which I will refer to as 
+// a 'bank'. To map a CPU address to the simulated array, the CPU address is 
+// divided into a bank number and an offset into that bank
+//
+//    bank_num = addr / SCBANK_SZ
+//    bank_offset = addr % SCBANK_SZ
+//
+// sc_addr_map[] maps bank numbers to offset in the simulated memory array
+//
+//    real_addr = sc_addr_map[bank_num] + bank_offset
+//
+
 void setup_scbank_map (void)
   {
-    sim_debug (DBG_DEBUG, & cpu_dev,
-               "setup_scbank_map: SCBANK %d N_SCBANKS %d MEM_SIZE_MAX %d\n",
-               SCBANK, N_SCBANKS, MEM_SIZE_MAX);
-
     // Initalize to unmapped
     for (uint pg = 0; pg < N_SCBANKS; pg ++)
       {
-        // The port number that the page of memory can be accessed through
-        cpu.scbank_map [pg] = -1;
-        // The offset in M of the page of memory on the other side of the
-        // port
-        cpu.scbank_pg_os [pg] = -1;
+        cpu.sc_addr_map [pg] = -1;
       }
 
-    // For each port (which is connected to a SCU
+    // As we walk the SCUs, accumulate the sizes of each SCU to track
+    // what memory address the next SCU will start at.
+
+    word24 port_base = 0;  // In bank units.
+
+    // For each port
     for (int port_num = 0; port_num < N_CPU_PORTS; port_num ++)
       {
+        // Ignore disabled ports
         if (! cpu.switches.enable [port_num])
           continue;
+
+        // Ignore disconnected ports
         // This will happen during SIMH early initialization before
         // the cables are run.
         if (! cables->cpu_to_scu[current_running_cpu_idx][port_num].in_use)
           {
-            //sim_warn ("%s SCU not cabled\n", __func__);
             continue;
           }
-        uint scu_unit_idx = cables->cpu_to_scu[current_running_cpu_idx][port_num].scu_unit_idx;
 
         // Calculate the amount of memory in the SCU in words
         uint store_size = cpu.switches.store_size [port_num];
-        // Map store size configuration switch (0-8) to memory size.
 #ifdef DPS8M
         uint store_table [8] =
           { 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304 };
         uint sz = store_table [store_size];
+//sim_printf ("setup_scbank_map store_size %d sz %d\n", store_size, sz);
 #endif
 #ifdef L68
 // ISOLTS sez:
@@ -1092,36 +1133,27 @@ void setup_scbank_map (void)
             isolts_store_table [store_size] :
             store_table [store_size];
 #endif
-        // Calculate the base address of the memory in words
-        uint assignment = cpu.switches.assignment [port_num];
-        uint base = assignment * sz;
 
-        // Now convert to SCBANK (number of pages, page number)
-        uint sz_pages = sz / SCBANK;
-        uint scbase = base / SCBANK;
+        // Now convert to SCBANK (number of banks)
+        uint num_banks = sz / SCBANK;
+        cpu.sc_num_banks[port_num] = num_banks;
 
-        sim_debug (DBG_DEBUG, & cpu_dev,
-                   "setup_scbank_map: port:%d ss:%u as:%u sz_pages:%u ba:%u\n",
-                   port_num, store_size, assignment, sz_pages, scbase);
-
-        for (uint pg = 0; pg < sz_pages; pg ++)
+        // For each page handled by the SCU
+        for (uint pg = 0; pg < num_banks; pg ++)
           {
-            uint scpg = scbase + pg;
+            uint scpg = port_base + pg;
             if (scpg < N_SCBANKS)
               {
-                if (cpu.scbank_map [scpg] != -1)
+                if (cpu.sc_addr_map [scpg] != -1)
                   {
                     sim_warn ("scbank overlap scpg %d (%o) old port %d "
                                 "newport %d\n",
-                                scpg, scpg, cpu.scbank_map [scpg], port_num);
+                                scpg, scpg, cpu.sc_addr_map [scpg], port_num);
                   }
                 else
                   {
-                    cpu.scbank_map [scpg] = port_num;
-                    cpu.scbank_base [scpg] = base;
-                    cpu.scbank_pg_os [scpg] =
-                      (int) ((uint) scu_unit_idx * 4u * 1024u * 1024u +
-                      scpg * SCBANK);
+                    cpu.sc_addr_map[scpg] = (port_base + pg) * SCBANK;
+                    cpu.sc_scu_map[scpg] = port_num;
                   }
               }
             else
@@ -1131,11 +1163,14 @@ void setup_scbank_map (void)
                             port_num, scpg, scpg, N_SCBANKS, N_SCBANKS);
               }
           }
-      }
-    for (uint pg = 0; pg < N_SCBANKS; pg ++)
-      sim_debug (DBG_DEBUG, & cpu_dev, "setup_scbank_map: %d:%d\n",
-                 pg, cpu.scbank_map [pg]);
-  }
+
+        // Calculate the start address for the next SCU.
+        port_base += num_banks;
+      } // for port_num
+
+    //for (uint pg = 0; pg < N_SCBANKS; pg ++)
+      //sim_printf ("pg %o map: %08o\n", pg, cpu.sc_addr_map[pg]);
+  } // sc_bank_map
 
 #ifdef SCUMEM
 int lookup_cpu_mem_map (word24 addr, word24 * offset)
@@ -1154,7 +1189,7 @@ int lookup_cpu_mem_map (word24 addr)
     uint scpg = addr / SCBANK;
     if (scpg < N_SCBANKS)
       {
-        return cpu.scbank_map[scpg];
+        return cpu.sc_scu_map[scpg];
       }
     return -1;
   }
@@ -3218,16 +3253,7 @@ static uint get_scu_unit_idx (word24 addr, word24 * offset)
 int32 core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-        addr = (uint) os + addr % SCBANK;
-      }
+    SC_MAP_ADDR (addr, addr)
 #ifndef SPEED
     else
       nem_check (addr,  "core_read nem");
@@ -3304,16 +3330,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 #ifdef LOCKLESS
 int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
 {
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-        addr = (uint) os + addr % SCBANK;
-      }
+   SC_MAP_ADDR (addr, addr)
 #ifndef SPEED
     else
       nem_check (addr,  "core_read nem");
@@ -3337,16 +3354,7 @@ int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
 int core_write (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-        addr = (uint) os + addr % SCBANK;
-      }
+    SC_MAP_ADDR (addr, addr)
 #ifndef SPEED
     else
       nem_check (addr,  "core_write nem");
@@ -3409,16 +3417,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
 #ifdef LOCKLESS
 int core_write_unlock (word24 addr, word36 data, const char * ctx)
 {
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-        addr = (uint) os + addr % SCBANK;
-      }
+    SC_MAP_ADDR (addr, addr)
 #ifndef SPEED
     else
       nem_check (addr,  "core_read nem");
@@ -3481,26 +3480,17 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
                     scu[sci_unit_idx].M[offset], ctx);
       }
 #else
+    SC_MAP_ADDR (addr, addr)
+#ifndef SPEED
+    else
+      nem_check (addr,  "core_read nem");
+#endif
 #ifdef LOCKLESS
     word36 v;
     core_read_lock(addr,  &v, ctx);
     v = (v & ~cpu.zone) | (data & cpu.zone);
     core_write_unlock(addr, v, ctx);
 #else
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-        addr = (uint) os + addr % SCBANK;
-      }
-#ifndef SPEED
-    else
-      nem_check (addr,  "core_read nem");
-#endif
     LOCK_MEM_WR;
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     UNLOCK_MEM;
@@ -3530,6 +3520,8 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 #if !defined(SPEED) || !defined(INLINE_CORE)
 int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
   {
+//        if (cpu.switches.isolts_mode) sim_printf ("core_read2 addr %08o useMap %o\n", addr, cpu.switches.useMap);
+
     PNL (cpu.portBusy = true;)
 #if defined(LOCKLESS)
     word36 v;
@@ -3541,16 +3533,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
                    "core_read2 (%s)\n", addr, ctx);
         addr &= (word24)~1; /* make it an even address */
       }
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-        addr = (uint) os + addr % SCBANK;
-      }
+    SC_MAP_ADDR (addr, addr);
 #ifdef SPEED
     else
       nem_check (addr,  "core_read2 nem");
@@ -3694,16 +3677,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
                    "(%s)\n", addr, ctx);
         addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
       }
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
-          }
-        addr = (word24)os + addr % SCBANK;
-      }
+    SC_MAP_ADDR (addr, addr)
 #ifndef SPEED
     else
       nem_check (addr,  "core_write2 nem");
