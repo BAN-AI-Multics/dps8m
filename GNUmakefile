@@ -19,7 +19,7 @@
 # Configuration:
 #
 #     Build flag (ex: make V=1)           Description of build flag
-#    ###########################    ######################################
+#    ###########################    #####################################
 #
 #                  V=1                Enable verbose compilation output
 #                  W=1                Enable extra compilation warnings
@@ -27,10 +27,9 @@
 #        NO_LOCKLESS=1                Revert to previous threading code
 #              CROSS=MINGW64          Enable MinGW-64 cross-compilation
 #
-#     *** The following flags are inteded for use by developers, scripts,
-#     and packagers, and may have non-intuitive meanings or requirements.
+#    ******* The following flags are intended for development and *******
+#    ******* may have non-intuitive side-effects or requirements! *******
 #
-#          MAKETRACE=1                Enable Makefile execution tracing
 #            TRACKER=1                Adds instruction snapshot support
 #               HDBG=1                Enable hardware debugging support
 #        ROUND_ROBIN=1                Support un-threaded multiple CPUs

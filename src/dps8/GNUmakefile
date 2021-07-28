@@ -136,62 +136,59 @@ endif
 ###############################################################################
 
 ifneq ($(CROSS),MINGW64)
-C_SRCS  = ./dps8_absi.c
+C_SRCS  = dps8_absi.c
 endif
-C_SRCS += ./dps8_addrmods.c 
-C_SRCS += ./dps8_append.c
-C_SRCS += ./dps8_cable.c
-C_SRCS += ./dps8_console.c
-C_SRCS += ./dps8_cpu.c
-C_SRCS += ./dps8_crdpun.c
-C_SRCS += ./dps8_crdrdr.c
-C_SRCS += ./dps8_decimal.c
-C_SRCS += ./dps8_disk.c
-C_SRCS += ./dps8_eis.c
-C_SRCS += ./dps8_faults.c
-C_SRCS += ./dps8_fnp2.c
-C_SRCS += ./dps8_fnp2_iomcmd.c
-C_SRCS += ./dps8_iefp.c
-C_SRCS += ./dps8_ins.c
-C_SRCS += ./dps8_iom.c
-C_SRCS += ./dps8_math.c
-C_SRCS += ./dps8_math128.c
-C_SRCS += ./dps8_mt.c
-C_SRCS += ./dps8_opcodetable.c
-C_SRCS += ./dps8_prt.c
-C_SRCS += ./dps8_scu.c
-C_SRCS += ./dps8_simh.c
+C_SRCS += dps8_addrmods.c
+C_SRCS += dps8_append.c
+C_SRCS += dps8_cable.c
+C_SRCS += dps8_console.c
+C_SRCS += dps8_cpu.c
+C_SRCS += dps8_crdpun.c
+C_SRCS += dps8_crdrdr.c
+C_SRCS += dps8_decimal.c
+C_SRCS += dps8_disk.c
+C_SRCS += dps8_eis.c
+C_SRCS += dps8_faults.c
+C_SRCS += dps8_fnp2.c
+C_SRCS += dps8_fnp2_iomcmd.c
+C_SRCS += dps8_iefp.c
+C_SRCS += dps8_ins.c
+C_SRCS += dps8_iom.c
+C_SRCS += dps8_math.c
+C_SRCS += dps8_math128.c
+C_SRCS += dps8_mt.c
+C_SRCS += dps8_opcodetable.c
+C_SRCS += dps8_prt.c
+C_SRCS += dps8_scu.c
+C_SRCS += dps8_simh.c
 ifneq ($(CROSS),MINGW64)
-C_SRCS += ./dps8_socket_dev.c
+C_SRCS += dps8_socket_dev.c
 endif
 ifeq ($(TRACKER),1)
-C_SRCS += ./tracker.c
+C_SRCS += tracker.c
 endif
-C_SRCS += ./dps8_sys.c
-C_SRCS += ./dps8_urp.c
-C_SRCS += ./dps8_utils.c
-C_SRCS += ./fnpuv.c
-C_SRCS += ./fnptelnet.c
-C_SRCS += ./libtelnet.c
-C_SRCS += ./hdbg.c
-# The system_state code relies on M_SHARED.
+C_SRCS += dps8_sys.c
+C_SRCS += dps8_urp.c
+C_SRCS += dps8_utils.c
+C_SRCS += fnpuv.c
+C_SRCS += fnptelnet.c
+C_SRCS += libtelnet.c
+C_SRCS += hdbg.c
 ifneq ($(CROSS),MINGW64)
-#ifeq ($(M_SHARED),1)
-C_SRCS += ./shm.c
-#endif
+C_SRCS += shm.c
 endif
 ifneq ($(CROSS),MINGW64)
-C_SRCS += ./udplib.c
+C_SRCS += udplib.c
 endif
 ifeq ($(THREADZ),1)
-C_SRCS += ./threadz.c
+C_SRCS += threadz.c
 endif
 ifeq ($(LOCKLESS),1)
-C_SRCS += ./threadz.c
+C_SRCS += threadz.c
 endif
-C_SRCS += ./uvutil.c
+C_SRCS += uvutil.c
 ifeq ($(TRACKER),1)
-H_SRCS += ./tracker.h
+H_SRCS += tracker.h
 endif
 
 ###############################################################################
@@ -225,7 +222,6 @@ H_SRCS += dps8_ins.h
 H_SRCS += dps8_iom.h
 H_SRCS += dps8_math.h
 H_SRCS += dps8_math128.h
-#H_SRCS += dps8_mp.h
 H_SRCS += dps8_mt.h
 H_SRCS += dps8_opcodetable.h
 H_SRCS += dps8_prom.h
@@ -241,10 +237,7 @@ H_SRCS += fnpuv.h
 H_SRCS += fnptelnet.h
 H_SRCS += h316_imp.h
 H_SRCS += hdbg.h
-# The system_state code relies on M_SHARED.
-#ifeq ($(M_SHARED),1)
 H_SRCS += shm.h
-#endif
 ifneq ($(CROSS),MINGW64)
 H_SRCS += udplib.h
 endif
@@ -252,12 +245,12 @@ H_SRCS += utarray.h
 H_SRCS += uthash.h
 H_SRCS += utlist.h
 ifeq ($(THREADZ),1)
-H_SRCS += ./threadz.h
+H_SRCS += threadz.h
 endif
 ifeq ($(LOCKLESS),1)
-H_SRCS += ./threadz.h
+H_SRCS += threadz.h
 endif
-H_SRCS += ./uvutil.h
+H_SRCS += uvutil.h
 
 ###############################################################################
 
@@ -273,7 +266,7 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all: prt2pdf unifdef useddef.txt $(TAGS) locallibs_then_dps8
+all: prt2pdf unifdef sysdefs.h $(TAGS) locallibs_then_dps8
 
 ###############################################################################
 
@@ -435,7 +428,7 @@ superclean realclean reallyclean: distclean
 
 .PHONY: distclean
 distclean: clean
-	@$(SETV); $(RMF) "../../dps8m.state" || $(TRUE)
+	@$(SETV); $(RMF) "../../dps8m.state"  || $(TRUE)
 	@$(SETV); $(RMF) "restoreMultics.log" || $(TRUE)
 
 ###############################################################################
@@ -456,6 +449,8 @@ clean:
 	@$(SETV); $(RMF) "procdef.out" || $(TRUE)
 	@$(SETV); $(RMF) "procsrt.out" || $(TRUE)
 	@$(SETV); $(RMF) "unifdef.out" || $(TRUE)
+	@$(SETV); $(RMF) "sysdefs.h"   || $(TRUE)
+	@$(SETV); $(RMF) "useddef.txt" || $(TRUE)
 
 ###############################################################################
 
@@ -526,9 +521,11 @@ compdef.out: procsrt.out unifdef.out
 useddef.txt: compdef.out
 	@$(PRINTF) '%s\n' "USEDDEF: compdef.out"
 	@$(SETV); $(SH) -c 'while read -r line; do $(GREP) -i "$${line:-}"        \
-      "./procdef.out" 2> /dev/null; done < compdef.out |                      \
-        $(SORT) -u > useddef.txt' || $(TRUE) > /dev/null 2>&1;                \
-          $(TOUCH) "./useddef.txt" > /dev/null 2>&1
+      "./procdef.out" 2> /dev/null; done < "compdef.out" 2> /dev/null |       \
+        $(SORT) -u | $(GREP) -v -e "^__VERSION__"  -e "^__clang_version__"    \
+          -e "^__GCC_HAVE_SYNC_COMPARE_AND_SWAP_." -e "^__ORDER_.*_ENDIAN__"  \
+            2> /dev/null > "useddef.txt"' || $(TRUE) > /dev/null 2>&1;        \
+              $(TOUCH) "./useddef.txt" > /dev/null 2>&1
 
 ###############################################################################
 
@@ -537,11 +534,22 @@ dps8_sys.c: ver.h
 dps8_socket_dev.c: errnos.h
 errnos.h:
 	@$(PRINTF) '%s\n'                                                         \
-        '#include <errno.h>' > ./dump.c
+        '#include <errno.h>' > "./dump.c"
 	@$(SETV); $(CC) -E -dD ./dump.c |                                         \
         $(AWK) '/^#define E/ { printf "{\"%s\",%s},\n", $$2, $$2 }'           \
-            > ./errnos.h
-	@$(SETV); $(RMF) ./dump.c
+            > "./errnos.h"
+	@$(SETV); $(RMF) "./dump.c"
+
+###############################################################################
+
+sysdefs.h: useddef.txt
+	@$(PRINTF) '%s\n' "SYSDEFS: useddef.txt"
+	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null |                   \
+      $(TR) ' ' '=' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null |        \
+        $(TR) '\n' ' ' 2> /dev/null | $(SED) -e 's/ $$//'                     \
+          -e 's/^-D$$//g' | $(SED) -e 's/^/#define\ SYSDEFS_USED\ \"/'        \
+            -e 's/$$/\"/' 2> /dev/null > "./sysdefs.h" ||                     \
+              $(TOUCH) "./sysdefs.h" > /dev/null 2>&1
 
 ###############################################################################
 
@@ -558,7 +566,14 @@ errnos.h:
 
 ###############################################################################
 
-print-% : ; $(info dps8: $* is a $(flavor $*) variable set to [$($*)]) @true
+print-% : ; $(info dps8: $* is a $(flavor $*) variable set to [$($*)]) @$(TRUE)
+
+###############################################################################
+
+ifdef LIBS
+   export LIBS
+   include ../Makefile.mk
+endif
 
 ###############################################################################
 

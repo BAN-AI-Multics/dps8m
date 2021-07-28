@@ -32,7 +32,12 @@
 
   /* Conditional code flag -- set this to match hardware platform     */
   #if !defined(DECLITEND)
-  #define DECLITEND 1         /* 1=little-endian, 0=big-endian        */
+    #if defined(_BIG_ENDIAN)    || defined(_BIG_ENDIAN_) || \
+        defined(__BIG_ENDIAN__) || defined(__BIG_ENDIAN)
+      #define DECLITEND 0     /* 1=little-endian, 0=big-endian        */
+    #else
+      #define DECLITEND 1
+    #endif
   #endif
 
   /* Conditional code flag -- set this to 1 for best performance      */

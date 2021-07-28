@@ -250,6 +250,7 @@
 #endif
 
 #include "../dps8/ver.h"
+#include "../dps8/sysdefs.h"
 
 #ifndef MAX
 #define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
@@ -435,6 +436,8 @@ t_stat show_dev_logicals (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST 
 t_stat show_dev_modifiers (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat show_dev_show_commands (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat show_version (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
+t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cprr);
+t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cprr);
 t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat show_default (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat show_break (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
@@ -1182,6 +1185,7 @@ static const char simh_help[] =
       "+sh{ow} th{rottle}           show simulation rate\n"
 #endif /* SIMH_THROTTLE */
       "+sh{ow} a{synch}             show asynchronouse I/O state\n"
+      "+sh{ow} b{uildinfo}          show build compilation information\n"
       "+sh{ow} ve{rsion}            show simulator version\n"
       "+sh{ow} p{rom}               show PROM initialization data\n"
       "+sh{ow} def{ault}            show current directory\n"
@@ -1215,6 +1219,7 @@ static const char simh_help[] =
 #define HLP_SHOW_NAMES          "*Commands SHOW"
 #define HLP_SHOW_SHOW           "*Commands SHOW"
 #define HLP_SHOW_VERSION        "*Commands SHOW"
+#define HLP_SHOW_BUILDINFO      "*Commands SHOW"
 #define HLP_SHOW_PROM           "*Commands SHOW"
 #define HLP_SHOW_DEFAULT        "*Commands SHOW"
 #define HLP_SHOW_CONSOLE        "*Commands SHOW"
@@ -1885,6 +1890,7 @@ static SHTAB show_glob_tab[] = {
     { "NAMES",          &show_log_names,            0, HLP_SHOW_NAMES },
     { "SHOW",           &show_show_commands,        0, HLP_SHOW_SHOW },
     { "VERSION",        &show_version,              1, HLP_SHOW_VERSION },
+    { "BUILDINFO",      &show_buildinfo,            1, HLP_SHOW_BUILDINFO },
     { "PROM",           &show_prom,                 0, HLP_SHOW_PROM },
     { "DEFAULT",        &show_default,              0, HLP_SHOW_DEFAULT },
     { "CONSOLE",        &sim_show_console,          0, HLP_SHOW_CONSOLE },
@@ -4521,6 +4527,19 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
         return 0;
 }
 
+t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
+{
+    fprintf (st, " Build information:");
+#if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
+    fprintf (st, "\n  Compilation info: %s %s\n", BUILDINFO_scp, SYSDEFS_USED );
+#elif defined(BUILDINFO_scp)
+	fprintf (st, "\n  Compilation info: %s\n", BUILDINFO_scp );
+#else
+ 	fprintf (st, "\n  Compilation info: Not available\n" );
+#endif
+	return 0;
+}
+
 t_stat show_version (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
 int32 vmaj = SIM_MAJOR, vmin = SIM_MINOR, vpat = SIM_PATCH, vdelt = SIM_DELTA;
@@ -4796,13 +4815,13 @@ if (flag) {
 #if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
     arch = " ppc64be";
 #else
-    arch = " ppc64"
+    arch = " ppc64el"
 #endif
 #elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
 #if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
     arch = " ppc";
 #else
-    arch = " ppcbe";
+    arch = " ppcel";
 #endif
 #elif defined(__s390x__)
     arch = " s390x";
@@ -4822,15 +4841,15 @@ if (flag) {
     arch = " ice9";
 #elif defined(mips64) || defined(__mips64__) || defined(MIPS64) || defined(_MIPS64_) || defined(__mips64)
 #if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
-    arch = " mips64";
-#else
     arch = " mips64be";
+#else
+    arch = " mips64el";
 #endif
 #elif defined(mips) || defined(__mips__) || defined(MIPS) || defined(_MIPS_) || defined(__mips)
 #if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
     arch = " mipsbe";
 #else
-    arch = " mips";
+    arch = " mipsel";
 #endif
 #elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__) || defined(__OPENRISC1200__)
     arch = " openrisc";
@@ -4939,20 +4958,12 @@ if (flag) {
             strremove(osversion, " (emulated by qemu)");
             strremove(osversion, " (emulated by QEMU)");
         }
-        if (osversion) {
 #ifndef _AIX
             fprintf (st, "\n   Host OS: %s", osversion);
 #else
             strremove(osversion, "AIX ");
             fprintf (st, "\n   Host OS: IBM AIX %s", osversion);
 #endif /* ifndef _AIX */
-        } else {
-#ifndef _AIX
-            fprintf (st, "\n   Host OS: Unavailable");
-#else
-            fprintf (st, "\n   Host OS: IBM AIX");
-#endif /* ifndef _AIX */
-        }	
     } else {
 #ifndef _AIX
         fprintf (st, "\n   Host OS: Unknown");

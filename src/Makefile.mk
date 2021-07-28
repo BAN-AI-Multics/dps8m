@@ -51,6 +51,8 @@ SED        ?= sed
 AWK        ?= awk
 WEBDL      ?= wget
 CD         ?= cd
+TR         ?= tr
+CAT        ?= cat
 CMAKE      ?= cmake
 RMNF       ?= rm
 RMF        ?= $(RMNF) -f
@@ -128,7 +130,7 @@ LDFLAGS += $(X_FLAGS)
 ifeq ($(OS),Windows_NT)
 ifeq ($(CROSS),MINGW64)
     CFLAGS  += -I../mingw_include
-    LDFLAGS += -L../mingw_lib  
+    LDFLAGS += -L../mingw_lib
 endif
 
 ###############################################################################
@@ -177,15 +179,15 @@ endif
     ifeq ($(UNAME_S),SunOS)
       ifeq ($(shell $(UNAME) -o 2> /dev/null),illumos)
         ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-        CFLAGS  += -I/usr/local/include -m$(ISABITS)
-        LDFLAGS += -L/usr/local/lib -lsocket -lnsl -lm -lpthread -m$(ISABITS)
+        CFLAGS  +=-I/usr/local/include -m$(ISABITS)
+        LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -m$(ISABITS)
       endif
       ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
         ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-        CFLAGS  += -I/usr/local/include -m$(ISABITS)
-        LDFLAGS += -L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat \
-                   -ldl -m$(ISABITS)
-        CC = gcc
+        CFLAGS  +=-I/usr/local/include -m$(ISABITS)
+        LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat \
+                  -ldl -m$(ISABITS)
+        CC=gcc
       endif
     endif
 endif
@@ -194,7 +196,7 @@ endif
 
 CFLAGS += -I../decNumber -I$(SIMHx) -I../include
 CFLAGS += -std=c99
-CFLAGS += -U__STRICT_ANSI__  
+CFLAGS += -U__STRICT_ANSI__
 CFLAGS += -D_GNU_SOURCE
 CFLAGS += -DUSE_READER_THREAD
 CFLAGS += -DUSE_INT64
@@ -202,7 +204,7 @@ CFLAGS += -DUSE_INT64
 ###############################################################################
 
 ifneq ($(W),)
-  CFLAGS += -Wno-array-bounds
+  CFLAGS +=-Wno-array-bounds
 endif
 
 ###############################################################################
@@ -223,7 +225,21 @@ MAKEFLAGS += --no-print-directory
 
 %.o: %.c
 	@$(PRINTF) '%s\n' "CC: $<"
-	@$(SETV); $(CC) -c $(CFLAGS) $(CPPFLAGS) $(X_FLAGS) $< -o $@
+	@$(SETV); $(CC) $(CFLAGS) $(CPPFLAGS) $(X_FLAGS) -c "$<" -o "$@"          \
+    -DBUILDINFO_"$(shell printf '%s\n' "$@"                               |   \
+    $(CUT) -f 1 -d '.'                                      2> /dev/null  |   \
+    $(TR) -cd '\ [:alnum:]_'                                2> /dev/null ||   \
+    $(PRINTF) '%s\n' "fallback"                             2> /dev/null      \
+    )"="\"$(shell printf '%s\n'                                               \
+    '$(CC) $(CFLAGS) $(CPPFLAGS) $(X_CFLAGS) $(LDFLAGS) $(LOCALLIBS) $(LIBS)' \
+	| $(TR) -d '\\"'                                        2> /dev/null  |   \
+    $(SED)  -e 's/ -DVER_CURRENT_TIME=....................... /\ /g'          \
+            -e 's/^[ \t]*//;s/[ \t]*$$//'                   2> /dev/null  |   \
+     $(AWK) -v RS='[,[:space:]]+' '!a[$$0]++{ printf "%s%s", $$0, RT }'       \
+         2> /dev/null | $(SED) -e 's/-I\.\.\/decNumber/\ /g'                  \
+             -e 's/-I\.\.\/simh/\ /' -e 's/-I\.\.\/include/\ /g'              \
+                 2> /dev/null | $(TR) -s ' '                             ||   \
+                     $(PRINTF) '%s\n' "fallback")\""
 
 ###############################################################################
 
@@ -239,7 +255,8 @@ endif
 
 ###############################################################################
 
-print-% : ; $(info src/mk: $* is a $(flavor $*) variable set to [$($*)]) @true
+print-% : ; $(info src/mk: $* is a $(flavor $*) variable set to [$($*)]) \
+              @(TRUE)
 
 ###############################################################################
 
