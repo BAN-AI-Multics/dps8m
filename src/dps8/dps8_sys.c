@@ -1593,11 +1593,7 @@ static char * default_base_system_script [] =
 #if defined(THREADZ) || defined(LOCKLESS)
     "set cpu nunits=6",
 #else
-#ifdef ISOLTS
-    "set cpu nunits=2",
-#else
     "set cpu nunits=1",
-#endif // ISOLTS
 #endif // THREADZ
     // "set sys config=activate_time=8",
     // "set sys config=terminate_time=8",
@@ -3782,6 +3778,7 @@ static CTAB dps8_cmds[] =
 #ifdef HDBG
     {"HDBG",                hdbg_size,                0, "hdbg: set history buffer size\n", NULL, NULL},
     {"PHDBG",               hdbg_print,               0, "phdbg: display history size\n", NULL, NULL},
+    {"HDBG_CPU_MASK",       hdbg_cpu_mask,            0, "hdbg_cpu_mask: Which CPUS to track\n", NULL, NULL},
 #endif
     {"ABSOLUTE",            abs_addr,                 0, "abs: Compute the absolute address of segno:offset\n", NULL, NULL},
 #ifndef SCUMEM
@@ -3922,17 +3919,6 @@ static void dps8_init (void)
 #define HAVE_DPSOPT 1
 #endif
     sim_msg ("TESTING");
-#endif
-#ifdef ISOLTS
-#ifdef HAVE_DPSOPT
-    sim_msg (", ");
-#else
-    sim_msg ("\n Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
-    sim_msg ("ISOLTS");
 #endif
 #ifdef NEED_128
 #ifdef HAVE_DPSOPT

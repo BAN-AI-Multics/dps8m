@@ -401,14 +401,14 @@ startCA:;
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "%s(startCA): restart; CT_HOLD %02o\n",
                    __func__, cpu.cu.CT_HOLD);
-#ifdef ISOLTS
-       if (GET_TM(cpu.cu.CT_HOLD) == TM_IT && GET_TD (cpu.cu.CT_HOLD) == IT_DIC &&
+       if (cpu.switches.isolts_mode &&
+           GET_TM(cpu.cu.CT_HOLD) == TM_IT && GET_TD (cpu.cu.CT_HOLD) == IT_DIC &&
                 cpu.cu.pot == 1 && GET_ADDR (IWB_IRODD) == cpu.TPR.CA)
          {
            cpu.TPR.CA--;
            sim_warn ("%s: correct CA\n", __func__);
          }
-#endif
+
        if (Tm == TM_IT && (Td == IT_IDC || Td == IT_DIC))
          {
            cpu.cu.pot = 1;
@@ -1382,9 +1382,9 @@ startCA:;
                            "tally=%04o idwtag=%02o\n",
                            indword, Yi, cpu.AM_tally, idwtag);
 
-#ifdef ISOLTS
+//#ifdef ISOLTS
                 word24 YiSafe2 = Yi; // save indirect address for later use
-#endif
+//#endif
 
                 Yi -= 1;
                 Yi &= MASK18;
@@ -1446,11 +1446,10 @@ startCA:;
 // Set the tally after the indirect word is processed; if it faults, the IR
 // should be unchanged. ISOLTS ps791 test-02g
                 SC_I_TALLY (cpu.AM_tally == 0);
-#ifdef ISOLTS
-                updateIWB (YiSafe2, cpu.rTAG);
-#else
-                updateIWB (cpu.TPR.CA, cpu.rTAG);
-#endif
+                if (cpu.switches.isolts_mode)
+                  updateIWB (YiSafe2, cpu.rTAG);
+                else
+                  updateIWB (cpu.TPR.CA, cpu.rTAG);
                 goto startCA;
               } // IT_DIC
 

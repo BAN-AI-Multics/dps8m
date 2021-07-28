@@ -532,9 +532,6 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
         //faultNumber == FAULT_IPR);
 #endif
 
-#ifdef ISOLTS
-//if (current_running_cpu_idx && faultNumber == FAULT_LUF) hdbgPrint ();
-#endif
     if (faultNumber == FAULT_ACV)
       {
         // This is annoyingly inefficent since the subFault value

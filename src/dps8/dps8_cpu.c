@@ -154,6 +154,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
       sim_msg ("CPU affinity              not set\n");
 #endif
 
+    sim_msg ("ISOLTS mode:              %01o(8)\n",
+                cpus[cpu_unit_idx].switches.isolts_mode);
     return SCPE_OK;
   }
 
@@ -339,6 +341,7 @@ static config_list_t cpu_config_list [] =
     { "affinity", -1, 32767, cfg_affinity },
 #endif
 
+    { "isolts", 0, 1, cfg_on_off },
     { NULL, 0, 0, NULL }
   };
 
@@ -444,6 +447,88 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
               cpus[cpu_unit_idx].affinity = (uint) v;
             }
 #endif
+        else if (strcmp (p, "isolts") == 0)
+          {
+            cpus[cpu_unit_idx].switches.isolts_mode = v;
+            if (v)
+              {
+                cpus[cpu_unit_idx].switches.useMap = true;
+                cpus[cpu_unit_idx].switches.enable [0] = false;
+                cpus[cpu_unit_idx].switches.init_enable [0] = false;
+#ifdef DPS8
+                cpus[cpu_unit_idx].switches.store_size [0] = 2;
+#endif
+#ifdef L68
+                cpus[cpu_unit_idx].switches.store_size [0] = 3;
+#endif
+
+                cpus[cpu_unit_idx].switches.enable [1] = true;
+                cpus[cpu_unit_idx].switches.init_enable [1] = false;
+#ifdef DPS8
+                cpus[cpu_unit_idx].switches.store_size [1] = 2;
+#endif
+#ifdef L68
+                cpus[cpu_unit_idx].switches.store_size [1] = 3;
+#endif
+
+                cpus[cpu_unit_idx].switches.enable [2] = false;
+                cpus[cpu_unit_idx].switches.init_enable [2] = false;
+#ifdef DPS8
+                cpus[cpu_unit_idx].switches.store_size [2] = 2;
+#endif
+#ifdef L68
+                cpus[cpu_unit_idx].switches.store_size [2] = 3;
+#endif
+
+                cpus[cpu_unit_idx].switches.enable [3] = false;
+                cpus[cpu_unit_idx].switches.init_enable [3] = false;
+#ifdef DPS8
+                cpus[cpu_unit_idx].switches.store_size [3] = 2;
+#endif
+#ifdef L68
+                cpus[cpu_unit_idx].switches.store_size [3] = 3;
+#endif
+              }
+            else
+              {
+                cpus[cpu_unit_idx].switches.useMap = false;
+                cpus[cpu_unit_idx].switches.enable [0] = true;
+                cpus[cpu_unit_idx].switches.init_enable [0] = true;
+#ifdef DPS8
+                cpus[cpu_unit_idx].switches.store_size [0] = 7;
+#endif
+#ifdef L68
+                cpus[cpu_unit_idx].switches.store_size [0] = 7;
+#endif
+
+                cpus[cpu_unit_idx].switches.enable [1] = true;
+                cpus[cpu_unit_idx].switches.init_enable [1] = true;
+#ifdef DPS8
+                cpus[cpu_unit_idx].switches.store_size [1] = 7;
+#endif
+#ifdef L68
+                cpus[cpu_unit_idx].switches.store_size [1] = 7;
+#endif
+
+                cpus[cpu_unit_idx].switches.enable [2] = true;
+                cpus[cpu_unit_idx].switches.init_enable [2] = true;
+#ifdef DPS8
+                cpus[cpu_unit_idx].switches.store_size [2] = 7;
+#endif
+#ifdef L68
+                cpus[cpu_unit_idx].switches.store_size [2] = 7;
+#endif
+
+                cpus[cpu_unit_idx].switches.enable [3] = true;
+                cpus[cpu_unit_idx].switches.init_enable [3] = true;
+#ifdef DPS8
+                cpus[cpu_unit_idx].switches.store_size [3] = 7;
+#endif
+#ifdef L68
+                cpus[cpu_unit_idx].switches.store_size [3] = 7;
+#endif
+              }
+          }
         else
           {
             sim_warn ("error: cpu_set_config: invalid cfg_parse rc <%d>\n",
@@ -659,10 +744,11 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
 //#if defined(THREADZ) || defined(LOCKLESS)
 //    clock_gettime (CLOCK_BOOTTIME, & cpu.rTRTime);
 //#endif
-#if ISOLTS
-    cpu.shadowTR = 0;
-    cpu.rTRlsb = 0;
-#endif
+    if (cpu.switches.isolts_mode)
+      {
+        cpu.shadowTR = 0;
+        cpu.rTRlsb = 0;
+      }
     cpu.rTR = MASK27;
     cpu.rTRticks = 0;
 
@@ -711,23 +797,26 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
                                              UNUSED void * desc)
   {
     long cpu_unit_idx = UNIT_IDX (uptr);
-#ifdef ISOLTS
-    cpu_state_t * cpun = cpus + cpu_unit_idx;
-    if (cpun->switches.useMap)
+    if (cpu.switches.isolts_mode)
       {
-        for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++)
+        cpu_state_t * cpun = cpus + cpu_unit_idx;
+        if (cpun->switches.useMap)
           {
-            int os = cpun->scbank_pg_os [pgnum];
-            if (os < 0)
-              continue;
-            for (uint addr = 0; addr < SCBANK; addr ++)
-              M [addr + (uint) os] = MEM_UNINITIALIZED;
+            for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++)
+              {
+                int os = cpun->scbank_pg_os [pgnum];
+                if (os < 0)
+                  continue;
+                for (uint addr = 0; addr < SCBANK; addr ++)
+                  M [addr + (uint) os] = MEM_UNINITIALIZED;
+              }
           }
       }
-#else
-    // Crashes console?
-    cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
-#endif
+    else
+      {
+        // Crashes console?
+        cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
+      }
     return SCPE_OK;
   }
 
@@ -978,9 +1067,9 @@ void setup_scbank_map (void)
 #ifdef DPS8M
         uint store_table [8] =
           { 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304 };
+        uint sz = store_table [store_size];
 #endif
 #ifdef L68
-#ifdef ISOLTS
 // ISOLTS sez:
 // for DPS88:
 //   3. set store size switches to 2222.
@@ -996,13 +1085,13 @@ void setup_scbank_map (void)
 // the swithes; presumably step 3 causes this. Fake it by tweaking store table:
 //
         uint store_table [8] =
-          { 32768, 65536, 4194304, 65536, 524288, 1048576, 2097152, 262144 };
-#else
-        uint store_table [8] =
           { 32768, 65536, 4194304, 131072, 524288, 1048576, 2097152, 262144 };
+        uint isolts_store_table [8] =
+          { 32768, 65536, 4194304, 65536, 524288, 1048576, 2097152, 262144 };
+        uint sz = cpu.switches.isolts_mode ?
+            isolts_store_table [store_size] :
+            store_table [store_size];
 #endif
-#endif
-        uint sz = store_table [store_size];
         // Calculate the base address of the memory in words
         uint assignment = cpu.switches.assignment [port_num];
         uint base = assignment * sz;
@@ -1452,19 +1541,18 @@ t_stat simh_hooks (void)
     if (breakEnable && stop_cpu)
       return STOP_STOP;
 
-#ifdef ISOLTS
-    if (current_running_cpu_idx == 0)
-#endif
-    // check clock queue
-    if (sim_interval <= 0)
+    if (cpu.switches.isolts_mode == 0)
       {
-        reason = sim_process_event ();
-        if ((! breakEnable) && reason == SCPE_STOP)
-          reason = SCPE_OK;
-        if (reason)
-          return reason;
+        // check clock queue
+        if (sim_interval <= 0)
+          {
+            reason = sim_process_event ();
+            if ((! breakEnable) && reason == SCPE_STOP)
+              reason = SCPE_OK;
+            if (reason)
+              return reason;
+          }
       }
-
     sim_interval --;
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
@@ -1750,7 +1838,6 @@ static void do_LUF_fault (void)
     CPT (cpt1U, 16); // LUF
     cpu.lufCounter = 0;
     cpu.lufOccurred = false;
-#ifdef ISOLTS
 // This is a hack to fix ISOLTS 776. ISOLTS checks that the TR has
 // decremented by the LUF timeout value. To implement this, we set
 // the TR to the expected value.
@@ -1769,8 +1856,8 @@ static void do_LUF_fault (void)
 //    / 0.0009765625
 //
 //  TR = 1024 << LUF
-    cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode () ? 4 : cpu.CMR.luf));
-
+    if (cpu.switches.isolts_mode)
+      cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode () ? 4 : cpu.CMR.luf));
 
 // That logic fails for test 785.
 //
@@ -1783,7 +1870,6 @@ static void do_LUF_fault (void)
 // With out accurate cycle timing or simply fudging the results, I don't
 // see how to fix this one.
 
-#endif
     doFault (FAULT_LUF, fst_zero, "instruction cycle lockup");
   }
 
@@ -1984,23 +2070,24 @@ setCPU:;
 
 #ifndef NO_EV_POLL
 #if !defined(THREADZ) && !defined(LOCKLESS)
-#ifdef ISOLTS
-        if (cpu.cycle != FETCH_cycle)
+        if (cpu.switches.isolts_mode)
           {
-            // Sync. the TR with the emulator clock.
-            cpu.rTRlsb ++;
-            if (cpu.rTRlsb >= 4)
+            if (cpu.cycle != FETCH_cycle)
               {
-                cpu.rTRlsb = 0;
-                cpu.shadowTR = (cpu.shadowTR - 1) & MASK27;
-                if (cpu.shadowTR == 0) // passing thorugh 0...
+                // Sync. the TR with the emulator clock.
+                cpu.rTRlsb ++;
+                if (cpu.rTRlsb >= 4)
                   {
-                    if (cpu.switches.tro_enable)
-                      setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
+                    cpu.rTRlsb = 0;
+                    cpu.shadowTR = (cpu.shadowTR - 1) & MASK27;
+                    if (cpu.shadowTR == 0) // passing thorugh 0...
+                      {
+                        if (cpu.switches.tro_enable)
+                          setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
+                      }
                   }
               }
           }
-#endif
 #endif
 #endif
 
@@ -2312,7 +2399,7 @@ setCPU:;
               {
                 CPT (cpt1U, 16); // LUF
                 cpu.lufCounter = 0;
-#ifdef ISOLTS
+
 // This is a hack to fix ISOLTS 776. ISOLTS checks that the TR has
 // decremented by the LUF timeout value. To implement this, we set
 // the TR to the expected value.
@@ -2331,8 +2418,9 @@ setCPU:;
 //    / 0.0009765625
 //
 //  TR = 1024 << LUF
-               cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode () ? 4 : cpu.CMR.luf));
-#endif
+               if (cpu.switches.isolts_mode)
+                 cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode () ? 4 : cpu.CMR.luf));
+
                 doFault (FAULT_LUF, fst_zero, "instruction cycle lockup");
               }
 #endif
@@ -3130,7 +3218,6 @@ static uint get_scu_unit_idx (word24 addr, word24 * offset)
 int32 core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3143,9 +3230,6 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
       }
 #ifndef SPEED
     else
-#endif
-#endif
-#ifndef SPEED
       nem_check (addr,  "core_read nem");
 #endif
 
@@ -3220,7 +3304,6 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 #ifdef LOCKLESS
 int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
 {
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3231,9 +3314,8 @@ int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (addr,  "core_read nem");
 #endif
     LOCK_CORE_WORD(addr);
@@ -3255,7 +3337,6 @@ int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
 int core_write (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3266,23 +3347,23 @@ int core_write (word24 addr, word36 data, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (addr,  "core_write nem");
 #endif
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
+    if (cpu.switches.isolts_mode)
       {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
+        if (cpu.MR.sdpap)
+          {
+            sim_warn ("failing to implement sdpap\n");
+            cpu.MR.sdpap = 0;
+          }
+        if (cpu.MR.separ)
+          {
+            sim_warn ("failing to implement separ\n");
+                cpu.MR.separ = 0;
+          }
       }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
 #ifdef SCUMEM
     word24 offset;
     uint sci_unit_idx = get_scu_unit_idx (addr, & offset);
@@ -3328,7 +3409,6 @@ int core_write (word24 addr, word36 data, const char * ctx)
 #ifdef LOCKLESS
 int core_write_unlock (word24 addr, word36 data, const char * ctx)
 {
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3339,9 +3419,8 @@ int core_write_unlock (word24 addr, word36 data, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (addr,  "core_read nem");
 #endif
     if (cpu.locked_addr != addr)
@@ -3374,18 +3453,19 @@ int core_unlock_all ()
 int core_write_zone (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
+    if (cpu.switches.isolts_mode)
       {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
+        if (cpu.MR.sdpap)
+          {
+            sim_warn ("failing to implement sdpap\n");
+            cpu.MR.sdpap = 0;
+          }
+        if (cpu.MR.separ)
+          {
+            sim_warn ("failing to implement separ\n");
+            cpu.MR.separ = 0;
+          }
       }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
 #ifdef SCUMEM
     word24 offset;
     uint sci_unit_idx = get_scu_unit_idx (addr, & offset);
@@ -3407,7 +3487,6 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
     v = (v & ~cpu.zone) | (data & cpu.zone);
     core_write_unlock(addr, v, ctx);
 #else
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3418,9 +3497,8 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (addr,  "core_read nem");
 #endif
     LOCK_MEM_WR;
@@ -3453,7 +3531,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#if defined(ISOLTS) || defined(LOCKLESS)
+#if defined(LOCKLESS)
     word36 v;
 #endif
     if (addr & 1)
@@ -3463,7 +3541,6 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
                    "core_read2 (%s)\n", addr, ctx);
         addr &= (word24)~1; /* make it an even address */
       }
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3476,10 +3553,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
       }
 #ifdef SPEED
     else
-#endif
-#endif
-#ifndef SPEED
-    nem_check (addr,  "core_read2 nem");
+      nem_check (addr,  "core_read2 nem");
 #endif
 
 #if 0 // XXX Controlled by TEST/NORMAL switch
@@ -3620,7 +3694,6 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
                    "(%s)\n", addr, ctx);
         addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
       }
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -3631,23 +3704,23 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
           }
         addr = (word24)os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (addr,  "core_write2 nem");
 #endif
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
+    if (cpu.switches.isolts_mode)
       {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
+        if (cpu.MR.sdpap)
+          {
+            sim_warn ("failing to implement sdpap\n");
+            cpu.MR.sdpap = 0;
+          }
+        if (cpu.MR.separ)
+          {
+            sim_warn ("failing to implement separ\n");
+            cpu.MR.separ = 0;
+          }
       }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
 
 #ifdef SCUMEM
     word24 offset;

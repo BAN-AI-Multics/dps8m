@@ -721,6 +721,7 @@ typedef struct
     uint serno;
     bool useMap;
     bool disable_cache;
+    bool isolts_mode;     // If true, CPU is configured to run ISOLTS.
   } switches_t;
 
 #ifdef L68
@@ -1459,10 +1460,8 @@ typedef struct du_unit_data_t
     // These values must be restored on instruction restart
     word7 MF [3]; // Modifier fields for each instruction.
 
-#ifdef ISOLTS
     // Image of LPL/SPL for ISOLTS compliance
     word36 image [8];
-#endif
 
 #ifdef PANEL
     word37 cycle1;
@@ -1743,9 +1742,12 @@ typedef struct
         word18 IC;
       } cu_data;            // For STCD instruction
     uint rTRticks;
-#ifdef ISOLTS
+
+    // ISOLTS fine grain TR estimation
     uint rTRlsb;
-#endif
+    uint shadowTR;
+    uint TR0; // The value that the TR was set to.
+
     uint64 lufCounter;
     bool lufOccurred;
     bool secret_addressing_mode;
@@ -1779,10 +1781,6 @@ typedef struct
     _fault_subtype dlySubFltNum;
     const char * dlyCtx;
 
-#ifdef ISOLTS
-    uint shadowTR;
-    uint TR0; // The value that the TR was set to.
-#endif
     word18 last_write;
 #ifdef LOCKLESS
     word24 locked_addr;
@@ -1917,7 +1915,6 @@ static inline int core_read (word24 addr, word36 *data, \
   UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -1928,7 +1925,6 @@ static inline int core_read (word24 addr, word36 *data, \
           }
         addr = (uint) os + addr % SCBANK;
       }
-#endif
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -1971,7 +1967,6 @@ static inline int core_write (word24 addr, word36 data, \
   UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -1982,19 +1977,19 @@ static inline int core_write (word24 addr, word36 data, \
           }
         addr = (uint) os + addr % SCBANK;
       }
-#endif
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
+    if (cpu.switches.isolts_mode)
       {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
+        if (cpu.MR.sdpap)
+          {
+            sim_warn ("failing to implement sdpap\n");
+            cpu.MR.sdpap = 0;
+          }
+        if (cpu.MR.separ)
+          {
+            sim_warn ("failing to implement separ\n");
+            cpu.MR.separ = 0;
+          }
+     }
 #ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
@@ -2023,7 +2018,6 @@ static inline int core_write_zone (word24 addr, word36 data, \
   UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -2034,19 +2028,19 @@ static inline int core_write_zone (word24 addr, word36 data, \
           }
         addr = (uint) os + addr % SCBANK;
       }
-#endif
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
+    if (cpu.switches.isolts_mode)
       {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
+        if (cpu.MR.sdpap)
+          {
+            sim_warn ("failing to implement sdpap\n");
+            cpu.MR.sdpap = 0;
+          }
+        if (cpu.MR.separ)
+          {
+            sim_warn ("failing to implement separ\n");
+            cpu.MR.separ = 0;
+          }
       }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
 #ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
@@ -2078,7 +2072,6 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
                               UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -2089,7 +2082,6 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
           }
         addr = (uint) os + addr % SCBANK;
       }
-#endif
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -2134,7 +2126,6 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
                                UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-#ifdef ISOLTS
     if (cpu.switches.useMap)
       {
         uint pgnum = addr / SCBANK;
@@ -2145,19 +2136,19 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
           }
         addr = (uint) os + addr % SCBANK;
       }
-#endif
-#ifdef ISOLTS
-    if (cpu.MR.sdpap)
+    if (cpu.switches.isolts_mode)
       {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
+        if (cpu.MR.sdpap)
+          {
+            sim_warn ("failing to implement sdpap\n");
+            cpu.MR.sdpap = 0;
+          }
+        if (cpu.MR.separ)
+          {
+            sim_warn ("failing to implement separ\n");
+            cpu.MR.separ = 0;
+          }
       }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#endif
 #ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (addr, & offset);

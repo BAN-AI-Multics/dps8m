@@ -522,11 +522,6 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
 word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 21); // Add72b
-#ifdef ISOLTS
-//if (current_running_cpu_idx)
-//sim_printf ("Add72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o ovf %o\n",
- //(word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags, * ovf);
-#endif
 
 // https://en.wikipedia.org/wiki/Two%27s_complement#Addition
 //
@@ -608,14 +603,6 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
-#ifdef ISOLTS
-//if (current_running_cpu_idx)
-//{
-////char buf [1024];
-////print_int128 (res, buf);
-//sim_printf ("res %012"PRIo64"%012"PRIo64"\nr72 %d r73 %d r74 %d ovf %d cry %d\n", ((word36) (res >> 36)) & MASK36, (word36) res & MASK36, r72, r73, r74, * ovf, cry);
-//}
-#endif
     if (flagsToSet & I_CARRY)
       {
         if (cry)
@@ -654,12 +641,6 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
           CLRF (* flags, I_NEG);
       }
 
-#ifdef ISOLTS
-//if (current_running_cpu_idx)
-//{
-//sim_printf ("Sub72b res %012"PRIo64"%012"PRIo64" flags %06o ovf %o\n", (word36) ((res >> 36) & MASK36), (word36) (res & MASK36), * flags, * ovf);
-//}
-#endif
     return res;
   }
 
@@ -667,11 +648,6 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
 word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 22); // Sub72b
-#ifdef ISOLTS
-//if (current_running_cpu_idx)
-//sim_printf ("Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o ovf %o\n",
- //(word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags, * ovf);
-#endif
 #ifdef NEED_128
     sim_debug (DBG_TRACEEXT, & cpu_dev, "Sub72b op1 %012"PRIo64"%012"PRIo64" op2 %012"PRIo64"%012"PRIo64" carryin %o flagsToSet %06o flags %06o\n",
  (word36) ((rshift_128 (op1, 36).l) & MASK36), (word36) (op1.l & MASK36), (word36) (rshift_128 (op2, 36).l & MASK36), (word36) (op2.l & MASK36), carryin, flagsToSet, * flags);
@@ -766,14 +742,6 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     // Check for carry
     bool cry = r74;
 
-#ifdef ISOLTS
-//if (current_running_cpu_idx)
-//{
-////char buf [1024];
-////print_int128 (res, buf);
-//sim_printf ("res %012"PRIo64"%012"PRIo64"\nr72 %d r73 %d r74 %d ovf %d cry %d\n", ((word36) (res >> 36)) & MASK36, (word36) res & MASK36, r72, r73, r74, * ovf, cry);
-//}
-#endif
 
 #ifdef PANEL
     if (cry) CPT (cpt2L, 28); // carry
