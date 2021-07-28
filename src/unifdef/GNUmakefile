@@ -25,12 +25,19 @@ include ../Makefile.mk
 
 ###############################################################################
 
+ifdef MAKETRACE
+   _SHELL := $(SHELL)
+   SHELL = $(info [TRACE] src/unifdef/GNUmakefile: [$@])$(_SHELL)
+endif
+
+###############################################################################
+
 .PHONY: all
 .NOTPARALLEL: all
 unifdef.$(EXE) all: unifdef.o unifdef.h version.h
-	@$(TEST) -f unifdef$(EXE) || \
+	@$(TEST) -f unifdef$(EXE) ||                                              \
 		$(PRINTF) '%s\n' "LD: unifdef" || $(TRUE)
-	-@$(SETV); $(TEST) -f unifdef$(EXE) || \
+	-@$(SETV); $(TEST) -f unifdef$(EXE) ||                                    \
 		$(CC) -Wall -Wextra $(LDFLAGS) -o unifdef$(EXE) unifdef.o
 
 ###############################################################################
@@ -42,6 +49,10 @@ clean:
 	@$(SETV); $(RMF) unifdef$(EXE) > /dev/null 2>&1 || $(TRUE)
 	@$(SETV); $(RMF) unifdef.exe > /dev/null 2>&1 || $(TRUE)
 	@$(SETV); $(RMF) unifdef.o > /dev/null 2>&1 || $(TRUE)
+
+###############################################################################
+
+print-% : ; $(info unifdef: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 

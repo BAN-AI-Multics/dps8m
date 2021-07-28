@@ -20,6 +20,13 @@ include ../Makefile.mk
 
 ###############################################################################
 
+ifdef MAKETRACE
+  _SHELL := $(SHELL)
+  SHELL = $(info [TRACE] src/decNumber/GNUmakefile: [$@])$(_SHELL)
+endif
+
+###############################################################################
+
 C_SRCS = decContext.c decNumber.c
 
 ###############################################################################
@@ -28,15 +35,13 @@ OBJS = decContext.o decNumber.o
 
 ###############################################################################
 
-CFLAGS += -Wall -Wextra -Wno-uninitialized -Wno-stringop-overflow \
+CFLAGS += -Wall -Wextra -Wno-uninitialized -Wno-stringop-overflow             \
           -Wpedantic -Wno-stringop-overread -Wno-unknown-warning-option
 
 ###############################################################################
 
-.PHONY: all
+.PHONY: all decNumber.a
 decNumber.a all: $(OBJS)
-	@$(PRINTF) '%s\n' "AR: $@"
-	@$(SETV); $(AR) cr $@ $?
 
 ###############################################################################
 
@@ -48,13 +53,17 @@ clean:
 ###############################################################################
 
 .PHONY: dependents
-$(OBJS): decContext.h  decimal128.h  decNumber.h  decQuad.h \
-         decDouble.h   decDPD.h      decimal32.h  decNumberLocal.h \
+$(OBJS): decContext.h  decimal128.h  decNumber.h  decQuad.h                   \
+         decDouble.h   decDPD.h      decimal32.h  decNumberLocal.h            \
 		 decSingle.h   decimal64.h   decPacked.h
 
 ###############################################################################
 
 .SECONDARY:
+
+###############################################################################
+
+print-% : ; $(info dn: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 

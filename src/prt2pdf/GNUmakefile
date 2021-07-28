@@ -19,12 +19,19 @@ include ../Makefile.mk
 
 ###############################################################################
 
+ifdef MAKETRACE
+  _SHELL := $(SHELL)
+  SHELL = $(info [TRACE] src/prt2pdf/GNUmakefile: [$@])$(_SHELL)
+endif
+
+###############################################################################
+
 .PHONY: all
 .NOTPARALLEL: all
 prt2pdf$(EXE) all: prt2pdf.o
-	@$(TEST) -f prt2pdf$(EXE) || \
+	@$(TEST) -f prt2pdf$(EXE) ||                                              \
 		$(PRINTF) '%s\n' "LD: prt2pdf" || $(TRUE)
-	@$(SETV); $(TEST) -f prt2pdf$(EXE) || \
+	@$(SETV); $(TEST) -f prt2pdf$(EXE) ||                                     \
 		$(CC) $(LDFLAGS) -o prt2pdf$(EXE) prt2pdf.o
 
 ###############################################################################
@@ -36,6 +43,10 @@ clean:
 	@$(SETV); $(RMF) prt2pdf$(EXE) > /dev/null 2>&1 || $(TRUE)
 	@$(SETV); $(RMF) prt2pdf.exe > /dev/null 2>&1 || $(TRUE)
 	@$(SETV); $(RMF) prt2pdf.o > /dev/null 2>&1 || $(TRUE)
+
+###############################################################################
+
+print-% : ; $(info prt2pdf: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 

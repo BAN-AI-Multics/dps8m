@@ -200,7 +200,11 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 typedef t_uint64    u_int64_t;
 #endif
 typedef t_uint64    uint64;
+#ifndef _AIX
 typedef t_int64     int64;
+#else
+typedef long        int64;
+#endif
 
 /* Data types */
 
