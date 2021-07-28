@@ -222,10 +222,12 @@ typedef struct
     char device_name[MAX_DEV_NAME_LEN];
     int punfile_raw;                        // fd of file to get all cards in punch code (including banner cards)
     int punfile_punch;                      // fd of file to get just data cards in punch code
+    int punfile_mcc;                        // fd of file that contains mcc->ascii mapping of cards (no banner cards)
     bool log_cards;                         // Flag to log card images
     enum parse_state current_state;
     char raw_file_name [PATH_MAX + 1];      // Name associated with punfile_raw
-    char punch_file_name [PATH_MAX + 1];    // Name associated with punfile_raw
+    char punch_file_name [PATH_MAX + 1];    // Name associated with punfile_punch
+    char mcc_file_name [PATH_MAX + 1];      // Name associated with punfile_mcc
     char glyph_buffer[MAX_GLYPH_BUFFER_LEN];
     CARD_CACHE_ENTRY *first_cached_card;
     CARD_CACHE_ENTRY *last_cached_card;
@@ -251,6 +253,7 @@ void pun_init (void)
       {
         pun_state [i] . punfile_raw = -1;
         pun_state [i] . punfile_punch = -1;
+        pun_state [i] . punfile_mcc = -1;
         pun_state [i] . current_state = Idle;
       }
   }
@@ -259,6 +262,172 @@ static t_stat pun_reset (UNUSED DEVICE * dptr)
   {
     return SCPE_OK;
   }
+
+/*
+ *   MCC Punch Codes -> ASCI Conversion Table
+ * The table entry is the MCC Punch Code and the 
+ * index of the entry is the ASCII character code.
+ */  
+
+static word12 mcc_punch_codes [128] = 
+  {
+    05403,  // ?   (9-12-0-8-1)  0xb03  2819
+    04401,  // ?   (9-12-1)  0x901  2305
+    04201,  // ?   (9-12-2)  0x881  2177
+    04101,  // ?   (9-12-3)  0x841  2113
+    00005,  // ?   (9-7)  0x5  5
+    01023,  // ?   (9-0-8-5)  0x213  531
+    01013,  // ?   (9-0-8-6)  0x20b  523
+    01007,  // ?   (9-0-8-7)  0x207  519
+    02011,  // ?   (9-11-6)  0x409  1033
+    04021,  // ?   (9-12-5)  0x811  2065
+    02021,  // ?   (9-11-5)  0x411  1041
+    04103,  // ?   (9-12-8-3)  0x843  2115
+    04043,  // ?   (9-12-8-4)  0x823  2083
+    04023,  // ?   (9-12-8-5)  0x813  2067
+    04013,  // ?   (9-12-8-6)  0x80b  2059
+    04007,  // ?   (9-12-8-7)  0x807  2055
+    06403,  // ?   (12-11-9-8-1)  0xd03  3331
+    02401,  // ?   (9-11-1)  0x501  1281
+    02201,  // ?   (9-11-2)  0x481  1153
+    02101,  // ?   (9-11-3)  0x441  1089
+    00043,  // ?   (9-8-4)  0x23  35
+    00023,  // ?   (9-8-5)  0x13  19
+    00201,  // ?   (9-2)  0x81  129
+    01011,  // ?   (9-0-6)  0x209  521
+    02003,  // ?   (9-11-8)  0x403  1027
+    02403,  // ?   (9-11-8-1)  0x503  1283
+    00007,  // ?   (9-8-7)  0x7  7
+    01005,  // ?   (9-0-7)  0x205  517
+    02043,  // ?   (9-11-8-4)  0x423  1059
+    02023,  // ?   (9-11-8-5)  0x413  1043
+    02013,  // ?   (9-11-8-6)  0x40b  1035
+    02007,  // ?   (9-11-8-7)  0x407  1031
+    00000,  //     ()  0x0  0
+    02202,  // !   (11-8-2)  0x482  1154
+    00006,  // "   (8-7)  0x6  6
+    00102,  // #   (8-3)  0x42  66
+    02102,  // $   (11-8-3)  0x442  1090
+    01042,  // %   (0-8-4)  0x222  546
+    04000,  // &   (12)  0x800  2048
+    00022,  // '   (8-5)  0x12  18
+    04022,  // (   (12-8-5)  0x812  2066
+    02022,  // )   (11-8-5)  0x412  1042
+    02042,  // *   (11-8-4)  0x422  1058
+    04012,  // +   (12-8-6)  0x80a  2058
+    01102,  // ,   (0-8-3)  0x242  578
+    02000,  // -   (11)  0x400  1024
+    04102,  // .   (12-8-3)  0x842  2114
+    01400,  // /   (0-1)  0x300  768
+    01000,  // 0   (0)  0x200  512
+    00400,  // 1   (1)  0x100  256
+    00200,  // 2   (2)  0x80  128
+    00100,  // 3   (3)  0x40  64
+    00040,  // 4   (4)  0x20  32
+    00020,  // 5   (5)  0x10  16
+    00010,  // 6   (6)  0x8  8
+    00004,  // 7   (7)  0x4  4
+    00002,  // 8   (8)  0x2  2
+    00001,  // 9   (9)  0x1  1
+    00202,  // :   (8-2)  0x82  130
+    02012,  // ;   (11-8-6)  0x40a  1034
+    04042,  // <   (12-8-4)  0x822  2082
+    00012,  // =   (8-6)  0xa  10
+    01012,  // >   (0-8-6)  0x20a  522
+    01006,  // ?   (0-8-7)  0x206  518
+    00042,  // @   (8-4)  0x22  34
+    04400,  // A   (12-1)  0x900  2304
+    04200,  // B   (12-2)  0x880  2176
+    04100,  // C   (12-3)  0x840  2112
+    04040,  // D   (12-4)  0x820  2080
+    04020,  // E   (12-5)  0x810  2064
+    04010,  // F   (12-6)  0x808  2056
+    04004,  // G   (12-7)  0x804  2052
+    04002,  // H   (12-8)  0x802  2050
+    04001,  // I   (12-9)  0x801  2049
+    02400,  // J   (11-1)  0x500  1280
+    02200,  // K   (11-2)  0x480  1152
+    02100,  // L   (11-3)  0x440  1088
+    02040,  // M   (11-4)  0x420  1056
+    02020,  // N   (11-5)  0x410  1040
+    02010,  // O   (11-6)  0x408  1032
+    02004,  // P   (11-7)  0x404  1028
+    02002,  // Q   (11-8)  0x402  1026
+    02001,  // R   (11-9)  0x401  1025
+    01200,  // S   (0-2)  0x280  640
+    01100,  // T   (0-3)  0x240  576
+    01040,  // U   (0-4)  0x220  544
+    01020,  // V   (0-5)  0x210  528
+    01010,  // W   (0-6)  0x208  520
+    01004,  // X   (0-7)  0x204  516
+    01002,  // Y   (0-8)  0x202  514
+    01001,  // Z   (0-9)  0x201  513
+    05022,  // [   (12-0-8-5)  0xa12  2578
+    04202,  // \   (12-8-2)  0x882  2178
+    06022,  // ]   (12-11-8-5)  0xc12  3090
+    02006,  // ^   (11-8-7)  0x406  1030
+    01022,  // _   (0-8-5)  0x212  530
+    00402,  // `   (8-1)  0x102  258
+    05400,  // a   (12-0-1)  0xb00  2816
+    05200,  // b   (12-0-2)  0xa80  2688
+    05100,  // c   (12-0-3)  0xa40  2624
+    05040,  // d   (12-0-4)  0xa20  2592
+    05020,  // e   (12-0-5)  0xa10  2576
+    05010,  // f   (12-0-6)  0xa08  2568
+    05004,  // g   (12-0-7)  0xa04  2564
+    05002,  // h   (12-0-8)  0xa02  2562
+    05001,  // i   (12-0-9)  0xa01  2561
+    06400,  // j   (12-11-1)  0xd00  3328
+    06200,  // k   (12-11-2)  0xc80  3200
+    06100,  // l   (12-11-3)  0xc40  3136
+    06040,  // m   (12-11-4)  0xc20  3104
+    06020,  // n   (12-11-5)  0xc10  3088
+    06010,  // o   (12-11-6)  0xc08  3080
+    06004,  // p   (12-11-7)  0xc04  3076
+    06002,  // q   (12-11-8)  0xc02  3074
+    06001,  // r   (12-11-9)  0xc01  3073
+    03200,  // s   (11-0-2)  0x680  1664
+    03100,  // t   (11-0-3)  0x640  1600
+    03040,  // u   (11-0-4)  0x620  1568
+    03020,  // v   (11-0-5)  0x610  1552
+    03010,  // w   (11-0-6)  0x608  1544
+    03004,  // x   (11-0-7)  0x604  1540
+    03002,  // y   (11-0-8)  0x602  1538
+    03001,  // z   (11-0-9)  0x601  1537
+    05000,  // {   (12-0)  0xa00  2560
+    04006,  // |   (12-8-7)  0x806  2054
+    03000,  // }   (11-0)  0x600  1536
+    03400,  // ~   (11-0-1)  0x700  1792
+    04005,  //    (12-7-9)  0x805  2053
+  };
+
+static int mcc_to_ascii(word12 punch_code)
+  {
+    for (uint i = 0; i < 128; i++)
+      {
+        if (mcc_punch_codes[i] == punch_code)
+          {
+            return i;
+          }
+      }
+      
+    return -1;
+  }
+
+static void convert_mcc_to_ascii(word12* buffer, char* ascii_string)
+  {
+      for (uint i = 0; i < CARD_COL_COUNT; i++)
+        {
+          int c = mcc_to_ascii(buffer[i]);
+          sim_printf("+++ Punch Code %04o = '%c'\n", buffer[i], c);
+          if (c == -1)
+            {
+                c = ' ';
+            }
+          ascii_string[i] = c;
+        }
+      ascii_string[CARD_COL_COUNT] = 0;
+  }  
 
 //                       *****  *   *  ****          *****  *****
 //                       *      **  *  *   *         *   *  *
@@ -632,6 +801,13 @@ static void create_punch_files(pun_state_t * state)
           state -> punfile_punch = -1;
       }
 
+    if (state -> punfile_mcc != -1)
+      {
+          sim_warn("*** Error: Data Card only mcc file already open when attempting to create new file, closing old file!\n");
+          close(state -> punfile_mcc);
+          state -> punfile_mcc = -1;
+      }
+
     char base_file_name [PATH_MAX+1];
 
     if (state -> raw_file_name[0])
@@ -670,6 +846,14 @@ static void create_punch_files(pun_state_t * state)
         perror("creating punch '.punch' file\n");
       }
     
+    strncpy(state -> mcc_file_name, template, sizeof(state -> mcc_file_name));
+    strcat(state -> mcc_file_name, ".mcc");
+    state -> punfile_mcc = create_new_file(state -> mcc_file_name);
+    if (state -> punfile_mcc < 0)
+      {
+        perror("creating punch '.mcc' file\n");
+      }
+        
   }  
 
 
@@ -681,8 +865,11 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
           return;
         }
 
-      uint8 out_buffer[120];
-      memset(&out_buffer, 0, sizeof(out_buffer));
+      uint8 byte_buffer[120];
+      memset(&byte_buffer, 0, sizeof(byte_buffer));
+
+      word12 word12_buffer[80];
+      memset(&word12_buffer, 0, sizeof(word12_buffer));
 
       for (int nibble_index = 0; nibble_index < (CARD_COL_COUNT * NIBBLES_PER_COL); nibble_index++)
         {
@@ -694,20 +881,30 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
           if (nibble_index & 0x1) 
             {
               // Low nibble of byte
-              out_buffer[byte_offset] |= nibble;
+              byte_buffer[byte_offset] |= nibble;
             }
           else
             {
               // High nibble of byte
-              out_buffer[byte_offset] |= (nibble << 4);
+              byte_buffer[byte_offset] |= (nibble << 4);
             }
 
+          int word12_offset = nibble_index / 3;
+          int word12_nibble_offset = 2 - (nibble_index % 3);
+
+          word12_buffer[word12_offset] |= nibble << (word12_nibble_offset * 4);
         }
+
+      sim_printf("word12_buffer:\n");
+      for (uint i = 0; i < 80; i++)
+        {
+          sim_printf("  %04o\n", word12_buffer[i]);
+        }
+      sim_printf("\r\n");
 
       if (state -> punfile_raw >= 0)
         {
-          sim_printf("-- state -> punfile_raw = %d\n", state -> punfile_raw);
-          if (write(state -> punfile_raw, out_buffer, sizeof(out_buffer)) != sizeof(out_buffer)) {
+          if (write(state -> punfile_raw, byte_buffer, sizeof(byte_buffer)) != sizeof(byte_buffer)) {
             sim_warn ("Failed to write to .raw card punch file!\n");
             perror("Writing .raw punch file\n");
           }
@@ -715,12 +912,25 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
 
       if (!banner_card && (state -> punfile_punch >= 0))
         {
-          sim_printf("-- state -> punfile_punch = %d\n", state -> punfile_punch);
-          if (write(state -> punfile_punch, out_buffer, sizeof(out_buffer)) != sizeof(out_buffer)) {
+          if (write(state -> punfile_punch, byte_buffer, sizeof(byte_buffer)) != sizeof(byte_buffer)) {
             sim_warn ("Failed to write to .punch card punch file!\n");
             perror("Writing .punch punch file\n");
           }
         }
+
+      if (!banner_card && (state -> punfile_mcc >= 0))
+        {
+          char ascii_card[CARD_COL_COUNT + 2];
+          convert_mcc_to_ascii(word12_buffer, ascii_card);
+          ascii_card[CARD_COL_COUNT] = 0;
+          strcat(ascii_card, "\n");
+          int write_length = strlen(ascii_card);
+          if (write(state -> punfile_mcc, ascii_card, write_length) != write_length) {
+            sim_warn ("Failed to write to .mcc card punch file!\n");
+            perror("Writing .mcc punch file\n");
+          }
+        }
+      
   }  
 
 static void log_card(word12 tally, word36 * buffer)
@@ -1028,6 +1238,12 @@ static enum parse_event do_state_end_of_job(enum parse_event event, pun_state_t 
       {
         close (state -> punfile_punch);
         state -> punfile_punch = -1;
+      }
+
+    if (state -> punfile_mcc >= 0)
+      {
+        close (state -> punfile_mcc);
+        state -> punfile_mcc = -1;
       }
 
     return Done;
