@@ -226,7 +226,7 @@ int GLOBAL_GREEN_BAR;
          dash patterns. As can be seen from the table, an empty dash array and zero phase can be used to restore the
          dash pattern to a solid line.
 
-                                               Table 56 ­ Examples of Line Dash Patterns
+                                               Table 56 - Examples of Line Dash Patterns
 
                               Dash Array       Appearance                   Description
                               and Phase
