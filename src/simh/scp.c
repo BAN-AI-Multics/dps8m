@@ -4814,7 +4814,7 @@ if (flag) {
 #if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
     arch = " ppc64be";
 #else
-    arch = " ppc64el"
+    arch = " ppc64el";
 #endif
 #elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
 #if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)

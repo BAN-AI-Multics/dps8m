@@ -877,7 +877,7 @@ int main(int argc, char **argv) {
            case 'h': showhelp(1);exit(1);                                                     break; /* help                     */
            case 'X': showhelp(2);
 		break;
-		   case 'V':
+		   case 'V': ;
 #ifdef BUILDINFO_prt2pdf
 #ifdef __VERSION__
 #ifdef __GNUC__
