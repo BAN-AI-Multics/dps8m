@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2013 Tony Finch <dot@dotat.at>
+ * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * Redistribution and use in source and binary forms, with or without

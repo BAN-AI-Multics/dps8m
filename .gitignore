@@ -34,6 +34,8 @@ src/dps8/UnitTests/*.pp
 .builder.txt
 .buildos.txt
 useddef.txt
+sysdefs.txt
+sysdefs.h
 src/prt2pdf/prt2pdf
 src/prt2pdf/prt2pdf.exe
 src/unifdef/unifdef
