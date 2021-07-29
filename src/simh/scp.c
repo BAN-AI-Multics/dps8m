@@ -4530,11 +4530,12 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 {
     fprintf (st, " Build information:");
 #if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
-    fprintf (st, "\n  Compilation info: %s %s\n", BUILDINFO_scp, SYSDEFS_USED );
+    fprintf (st, "\n      Compilation info: %s\n", BUILDINFO_scp );
+	fprintf (st, "  Relevant definitions: %s\n", SYSDEFS_USED );
 #elif defined(BUILDINFO_scp)
-	fprintf (st, "\n  Compilation info: %s\n", BUILDINFO_scp );
+	fprintf (st, "\n      Compilation info: %s\n", BUILDINFO_scp );
 #else
- 	fprintf (st, "\n  Compilation info: Not available\n" );
+ 	fprintf (st, "\n      Compilation info: Not available\n" );
 #endif
 	return 0;
 }
