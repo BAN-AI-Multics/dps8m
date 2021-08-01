@@ -57,12 +57,23 @@ typedef struct card_cache_node CARD_CACHE_ENTRY;
 
 struct card_cache_node
 {
-    word12 tally;
     card_image_t *card;
     CARD_CACHE_ENTRY *next_entry;
 };
 
+typedef struct
+{
+    CARD_CACHE_ENTRY *first_cache_card;
+    CARD_CACHE_ENTRY *last_cache_card;
+} CARD_CACHE;
+
+enum parse_state current_state = Idle;
+
 char glyph_buffer[MAX_GLYPH_BUFFER_LEN];
+
+CARD_CACHE banner_card_cache;
+CARD_CACHE data_card_cache;
+CARD_CACHE trailer_card_cache;
 
 // Card image of the banner card
 static word12 banner_card[] =
@@ -522,7 +533,7 @@ static uint8 glyph_nibble_offset[11] =
 
 static uint8 glyph_starting_column[11] =
     {
-        73, 66, 59, 52, 46, 39, 32, 25, 18, 11, 4};
+        73, 66, 59, 52, 45, 38, 31, 24, 17, 10, 3};
 
 static void remove_spaces(char *str)
 {
@@ -537,6 +548,19 @@ static void remove_spaces(char *str)
         src++;
     }
     str[dest] = 0;
+}
+
+static void print_card(card_image_t *card)
+{
+    printf("Card:\n");
+    for (int row = 0; row < 12; row++)
+    {
+        for (int col = 0; col < CARD_COL_COUNT; col++)
+        {
+            printf(card->column[col] & row_bit_masks[row] ? "*" : " ");
+        }
+        printf("\n");
+    }
 }
 
 static void log_char_matrix_pattern(uint8 *char_matrix)
@@ -599,7 +623,7 @@ static char get_lace_char(word12 *buffer, uint char_pos)
     // (characters are punched in reverse)
     for (uint col_offset = 0; col_offset < 5; col_offset++)
     {
-        col_buffer[4 - col_offset] = buffer[glyph_starting_column[char_offset + col_offset]];
+        col_buffer[4 - col_offset] = buffer[glyph_starting_column[char_offset]+col_offset];
     }
 
     // Now shift the characters into the 5x5 matrix buffer
@@ -615,7 +639,7 @@ static char get_lace_char(word12 *buffer, uint char_pos)
     return c;
 }
 
-static void scan_card_for_glyphs(card_image_t* card)
+static void scan_card_for_glyphs(card_image_t *card)
 {
     for (uint c_pos = 0; c_pos < 22; c_pos++)
     {
@@ -686,19 +710,10 @@ static card_image_t *read_card(FILE *in_file)
         nibble &= 0x00000F;
         card->column[col] |= (nibble << nibble_offset);
     }
-}
 
-static void print_card(card_image_t *card)
-{
-    printf("Card:\n");
-    for (int row = 0; row < 12; row++)
-    {
-        for (int col = 0; col < CARD_COL_COUNT; col++)
-        {
-            printf(card->column[col] & row_bit_masks[row] ? "*" : " ");
-        }
-        printf("\n");
-    }
+    print_card(card);
+
+    return card;
 }
 
 static void print_cards(FILE *in_file)
@@ -711,10 +726,381 @@ static void print_cards(FILE *in_file)
     }
 }
 
+static void save_card_in_cache(CARD_CACHE *card_cache, card_image_t *card)
+{
+    CARD_CACHE_ENTRY *new_entry = malloc(sizeof(CARD_CACHE_ENTRY));
+
+    new_entry->card = card;
+    new_entry->next_entry = NULL;
+
+    if (card_cache->first_cache_card == NULL)
+    {
+        card_cache->first_cache_card = new_entry;
+        card_cache->last_cache_card = new_entry;
+    }
+    else
+    {
+        card_cache->last_cache_card->next_entry = new_entry;
+        card_cache->last_cache_card = new_entry;
+    }
+}
+
+static void print_event(enum parse_event event)
+{
+    switch (event)
+    {
+    case NoEvent:
+        printf("[No Event]");
+        break;
+    case BannerCard:
+        printf("[Banner Card]");
+        break;
+    case EndOfDeckCard:
+        printf("[End Of Deck Card]");
+        break;
+    case Card:
+        printf("[Card]");
+        break;
+    case Done:
+        printf("[Done]");
+        break;
+    default:
+        printf("[unknown event %d]", event);
+        break;
+    }
+}
+
+static void print_state(enum parse_state state)
+{
+    switch (state)
+    {
+    case Idle:
+        printf("[Idle]");
+        break;
+    case StartingJob:
+        printf("[Starting Job]");
+        break;
+    case PunchGlyphLookup:
+        printf("[Punch Glyph Lookup]");
+        break;
+    case EndOfHeader:
+        printf("[End Of Header]");
+        break;
+    case CacheCard:
+        printf("[Cache Card]");
+        break;
+    case EndOfDeck:
+        printf("[End Of Deck]");
+        break;
+    case EndOfJob:
+        printf("[End Of Job]");
+        break;
+    default:
+        printf("[unknown state %d]", state);
+        break;
+    }
+}
+
+static void print_transition(enum parse_state old_state, enum parse_event event, enum parse_state new_state)
+{
+    printf(">>> Punch Transition: ");
+    print_event(event);
+    printf(" = ");
+    print_state(old_state);
+    printf(" -> ");
+    print_state(new_state);
+    printf("\r\n");
+}
+
+static enum parse_event do_state_idle(enum parse_event event)
+{
+    print_transition(current_state, event, Idle);
+    current_state = Idle;
+
+    return NoEvent;
+}
+
+static enum parse_event do_state_starting_job(enum parse_event event, card_image_t *card)
+{
+    print_transition(current_state, event, StartingJob);
+    current_state = StartingJob;
+
+    glyph_buffer[0] = 0;                          // Clear Glyph Buffer
+    save_card_in_cache(&banner_card_cache, card); // Save card in cache
+
+    return NoEvent;
+}
+
+static enum parse_event do_state_scan_card_for_glyphs(enum parse_event event, card_image_t *card)
+{
+    print_transition(current_state, event, PunchGlyphLookup);
+    current_state = PunchGlyphLookup;
+
+    scan_card_for_glyphs(card);
+
+    save_card_in_cache(&banner_card_cache, card); // Save card in cache
+
+    return NoEvent;
+}
+
+static enum parse_event do_state_end_of_header(enum parse_event event, card_image_t *card)
+{
+    print_transition(current_state, event, EndOfHeader);
+    current_state = EndOfHeader;
+
+    save_card_in_cache(&banner_card_cache, card); // Save card in cache
+
+    printf("\n++++ Glyph Buffer ++++\n'%s'\n", glyph_buffer);
+#if 0
+    char punch_file_name[PATH_MAX + 1];
+    if (strlen(glyph_buffer) < 86)
+    {
+        sim_warn("*** Punch: glyph buffer too short, unable to parse file name '%s'\n", glyph_buffer);
+        punch_file_name[0] = 0;
+    }
+    else
+    {
+        sprintf(punch_file_name, "%7.7s%7.7s.%5.5s.%2.2s-%2.2s-%2.2s.%6.6s.%2.2s",
+                &state->glyph_buffer[68],
+                &state->glyph_buffer[79],
+                &state->glyph_buffer[14],
+                &state->glyph_buffer[46],
+                &state->glyph_buffer[49],
+                &state->glyph_buffer[52],
+                &state->glyph_buffer[57],
+                &state->glyph_buffer[35]);
+        remove_spaces(punch_file_name);
+    }
+
+    strncpy(state->raw_file_name, punch_file_name, sizeof(state->raw_file_name));
+
+    create_punch_files(state); // Create spool file
+
+    // Write cached cards to spool file
+    CARD_CACHE_ENTRY *current_entry = state->first_cached_card;
+    while (current_entry != NULL)
+    {
+        write_punch_files(state, current_entry->card, WORDS_PER_CARD, true);
+        current_entry = current_entry->next_entry;
+    }
+
+    //dump_card_cache(state);
+
+    clear_card_cache(state); // Clear card cache
+#endif
+
+    return NoEvent;
+}
+
+static enum parse_event do_state_cache_card(enum parse_event event, card_image_t *card)
+{
+    print_transition(current_state, event, CacheCard);
+    current_state = CacheCard;
+
+    save_card_in_cache(&data_card_cache, card); // Save card in cache
+
+    return NoEvent;
+}
+
+static enum parse_event do_state_end_of_deck(enum parse_event event, card_image_t *card)
+{
+    print_transition(current_state, event, EndOfDeck);
+    current_state = EndOfDeck;
+
+    save_card_in_cache(&trailer_card_cache, card); // Save card in cache
+
+    return NoEvent;
+}
+
+static enum parse_event do_state_end_of_job(enum parse_event event, card_image_t *card)
+{
+    print_transition(current_state, event, EndOfJob);
+    current_state = EndOfJob;
+
+#if 0
+    // Write cached cards to spool file
+    CARD_CACHE_ENTRY *current_entry = first_cached_card;
+    while (current_entry != NULL)
+    {
+        write_punch_files(state, current_entry->card, WORDS_PER_CARD, (current_entry->next_entry == NULL));
+        current_entry = current_entry->next_entry;
+    }
+
+    //dump_card_cache(state);
+
+    clear_card_cache(state); // Clear card cache
+
+    write_punch_files(state, card, tally, true); // Write card to spool file
+
+    // Close punch files
+    if (state->punfile_raw >= 0)
+    {
+        close(state->punfile_raw);
+        state->punfile_raw = -1;
+    }
+
+    if (state->punfile_punch >= 0)
+    {
+        close(state->punfile_punch);
+        state->punfile_punch = -1;
+    }
+
+    if (state->punfile_mcc >= 0)
+    {
+        close(state->punfile_mcc);
+        state->punfile_mcc = -1;
+    }
+#endif
+    return Done;
+}
+
+static void unexpected_event(enum parse_event event)
+{
+    printf("*** Unexpected event ");
+    print_event(event);
+
+    printf(" in state ");
+    print_state(current_state);
+
+    printf("***\n");
+}
+
+static void parse_card(card_image_t *card)
+{
+    enum parse_event event = Card;
+
+    if (memcmp(card, end_of_deck_card, sizeof(end_of_deck_card)) == 0)
+    {
+        fprintf(stderr, "*** Found End Of Deck Card ***\n");
+        event = EndOfDeckCard;
+    }
+
+    if (memcmp(card, banner_card, sizeof(banner_card)) == 0)
+    {
+        fprintf(stderr, "*** Found Banner Card ***\n");
+        event = BannerCard;
+    }
+
+    while (event != NoEvent)
+    {
+        enum parse_event current_event = event;
+        event = NoEvent;
+
+        switch (current_event)
+        {
+        case BannerCard:
+            switch (current_state)
+            {
+            case Idle:
+                event = do_state_starting_job(current_event, card);
+                break;
+
+            case PunchGlyphLookup:
+                event = do_state_end_of_header(current_event, card);
+                break;
+
+            case EndOfDeck:
+                event = do_state_end_of_job(current_event, card);
+                break;
+
+            default:
+                unexpected_event(current_event);
+                break;
+            }
+            break;
+
+        case EndOfDeckCard:
+            switch (current_state)
+            {
+            case StartingJob:
+                event = do_state_end_of_deck(current_event, card);
+                break;
+
+            case PunchGlyphLookup:
+                event = do_state_end_of_deck(current_event, card);
+                break;
+
+            case EndOfHeader:
+                event = do_state_end_of_deck(current_event, card);
+                break;
+
+            case CacheCard:
+                event = do_state_end_of_deck(current_event, card);
+                break;
+
+            case EndOfDeck:
+                event = do_state_end_of_deck(current_event, card);
+                break;
+
+            default:
+                unexpected_event(current_event);
+                break;
+            }
+            break;
+
+        case Card:
+            switch (current_state)
+            {
+            case StartingJob:
+                event = do_state_scan_card_for_glyphs(current_event, card);
+                break;
+
+            case PunchGlyphLookup:
+                event = do_state_scan_card_for_glyphs(current_event, card);
+                break;
+
+            case EndOfHeader:
+                event = do_state_cache_card(current_event, card);
+                break;
+
+            case CacheCard:
+                event = do_state_cache_card(current_event, card);
+                break;
+
+            case EndOfDeck:
+                event = do_state_cache_card(current_event, card);
+                break;
+
+            default:
+                unexpected_event(current_event);
+                break;
+            }
+            break;
+
+        case Done:
+            switch (current_state)
+            {
+            case EndOfJob:
+                event = do_state_idle(current_event);
+                break;
+
+            default:
+                unexpected_event(current_event);
+                break;
+            }
+            break;
+
+        default:
+            fprintf(stderr, "*** Error: Punch received unknown event!\n");
+            break;
+        }
+    }
+}
+
+static void parse_cards(FILE *in_file)
+{
+    card_image_t *card;
+    while (card = read_card(in_file))
+    {
+        parse_card(card);
+        printf("\n");
+    }
+}
+
 int main(int argc, char *argv[])
 {
     printf("****\nPunch File Utility\n****\n");
 
     FILE *in_file = fopen("/home/deana/multics/kit-test-12.7/run/punches/puna/SYSADMIN.50001.07-31-21.0645.4.1.raw", "r");
-    print_cards(in_file);
+    parse_cards(in_file);
 }
