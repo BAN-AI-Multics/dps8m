@@ -3253,12 +3253,7 @@ static uint get_scu_unit_idx (word24 addr, word24 * offset)
 int32 core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    SC_MAP_ADDR (addr, addr)
-#ifndef SPEED
-    else
-      nem_check (addr,  "core_read nem");
-#endif
-
+    SC_MAP_ADDR (addr, addr);
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -3330,11 +3325,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 #ifdef LOCKLESS
 int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
 {
-   SC_MAP_ADDR (addr, addr)
-#ifndef SPEED
-    else
-      nem_check (addr,  "core_read nem");
-#endif
+    SC_MAP_ADDR (addr, addr);
     LOCK_CORE_WORD(addr);
     if (cpu.locked_addr != 0) {
       sim_warn ("core_read_lock: locked %08o locked_addr %08o %c %05o:%06o\n",
@@ -3354,11 +3345,7 @@ int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
 int core_write (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    SC_MAP_ADDR (addr, addr)
-#ifndef SPEED
-    else
-      nem_check (addr,  "core_write nem");
-#endif
+    SC_MAP_ADDR (addr, addr);
     if (cpu.switches.isolts_mode)
       {
         if (cpu.MR.sdpap)
@@ -3417,11 +3404,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
 #ifdef LOCKLESS
 int core_write_unlock (word24 addr, word36 data, const char * ctx)
 {
-    SC_MAP_ADDR (addr, addr)
-#ifndef SPEED
-    else
-      nem_check (addr,  "core_read nem");
-#endif
+    SC_MAP_ADDR (addr, addr);
     if (cpu.locked_addr != addr)
       {
         sim_warn ("core_write_unlock: locked %08o locked_addr %08o %c %05o:%06o\n",
@@ -3480,10 +3463,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
                     scu[sci_unit_idx].M[offset], ctx);
       }
 #else
-    SC_MAP_ADDR (addr, addr)
-#ifndef SPEED
-    else
-      nem_check (addr,  "core_read nem");
+    SC_MAP_ADDR (addr, addr);
 #endif
 #ifdef LOCKLESS
     word36 v;
@@ -3504,7 +3484,6 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
                     M [addr], ctx);
         traceInstruction (0);
       }
-#endif
 #endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -3534,10 +3513,6 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         addr &= (word24)~1; /* make it an even address */
       }
     SC_MAP_ADDR (addr, addr);
-#ifdef SPEED
-    else
-      nem_check (addr,  "core_read2 nem");
-#endif
 
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
@@ -3677,11 +3652,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
                    "(%s)\n", addr, ctx);
         addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
       }
-    SC_MAP_ADDR (addr, addr)
-#ifndef SPEED
-    else
-      nem_check (addr,  "core_write2 nem");
-#endif
+    SC_MAP_ADDR (addr, addr);
     if (cpu.switches.isolts_mode)
       {
         if (cpu.MR.sdpap)

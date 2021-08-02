@@ -1765,19 +1765,35 @@ typedef struct
     // Nmber of banks in each SCU
     uint sc_num_banks [N_SCU_UNITS_MAX];
 
+#ifdef SPEED
 #define SC_MAP_ADDR(addr,real_addr)                            \
    if (cpu.switches.useMap)                                    \
       {                                                        \
         uint pgnum = addr / SCBANK;                            \
         uint os = addr % SCBANK;                               \
-        int base = cpu.sc_addr_map[pgnum] < 0;                     \
+        int base = cpu.sc_addr_map[pgnum] < 0;                 \
         if (base < 0)                                          \
           {                                                    \
             doFault (FAULT_STR, fst_str_nea,  __func__);       \
           }                                                    \
         real_addr = (uint) base + os;                          \
       }
-
+#else // !SPEED
+#define SC_MAP_ADDR(addr,real_addr)                            \
+   if (cpu.switches.useMap)                                    \
+      {                                                        \
+        uint pgnum = addr / SCBANK;                            \
+        uint os = addr % SCBANK;                               \
+        int base = cpu.sc_addr_map[pgnum] < 0;                 \
+        if (base < 0)                                          \
+          {                                                    \
+            doFault (FAULT_STR, fst_str_nea,  __func__);       \
+          }                                                    \
+        real_addr = (uint) base + os;                          \
+      }                                                        \
+    else                                                       \
+      nem_check (addr, __func__);
+#endif
     //word24 scbank_base [N_SCBANKS];
     // scu_unit_idx * 4u * 1024u * 1024u + scpg * SCBANK
     //int scbank_pg_os [N_SCBANKS];
