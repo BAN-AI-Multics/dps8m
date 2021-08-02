@@ -32,6 +32,8 @@
 
 #define DBG_CTR 1
 
+#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+
 static struct {
     const char *name;
     int code;

@@ -3,7 +3,7 @@
 #
 ###############################################################################
 #
-# Copyright (c) 2019-2021 The DPS8M Development Team
+# Copyright (c) 2018-2021 The DPS8M Development Team
 #
 # All rights reserved.
 #
@@ -15,12 +15,12 @@
 
 ifdef MAKETRACE
   _SHELL := $(SHELL)
-  SHELL = $(info [TRACE] src/dps8/UnitTests/Makefile: [$@])$(_SHELL)
+  SHELL = $(info [TRACE] src/dps8/UnitTests/GNUmakefile: [$@])$(_SHELL)
 endif
 
 ###############################################################################
 
-PP=as8pp
+ PP=as8pp
 AS8=as8+
 
 ###############################################################################
@@ -36,27 +36,31 @@ TestFault.test: TestFaultKernel.oct TestFaultSeg1.oct TestFaultSeg2.oct
 ###############################################################################
 
 TestFaultKernel.oct: TestFaultKernel.as8
-	$(PP) < TestFaultKernel.as8 > TestFaultKernel.pp
-	$(AS8) -o TestFaultKernel.oct TestFaultKernel.pp
+	$(PP)  <  TestFaultKernel.as8 > TestFaultKernel.pp
+	$(AS8) -o TestFaultKernel.oct   TestFaultKernel.pp
 
 ###############################################################################
 
 TestFaultSeg1.oct: TestFaultSeg1.as8
-	$(PP) < TestFaultSeg1.as8 > TestFaultSeg1.pp
-	$(AS8) -o TestFaultSeg1.oct TestFaultSeg1.pp
+	$(PP)   < TestFaultSeg1.as8 > TestFaultSeg1.pp
+	$(AS8) -o TestFaultSeg1.oct   TestFaultSeg1.pp
 
 ###############################################################################
 
 TestFaultSeg2.oct: TestFaultSeg2.as8
-	$(PP) < TestFaultSeg2.as8 > TestFaultSeg2.pp
-	$(AS8) -o TestFaultSeg2.oct TestFaultSeg2.pp
+	$(PP)   < TestFaultSeg2.as8 > TestFaultSeg2.pp
+	$(AS8) -o TestFaultSeg2.oct   TestFaultSeg2.pp
 
 ###############################################################################
 
 .PHONY: TestIT.test
 TestIT.oct TestIT.test: TestIT.as8
-	$(PP) < TestIT.as8 > TestIT.pp
-	$(AS8) -o TestIT.oct TestIT.pp
+	$(PP)   < TestIT.as8 > TestIT.pp
+	$(AS8) -o TestIT.oct   TestIT.pp
+
+###############################################################################
+
+print-% : ; $(info local: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 

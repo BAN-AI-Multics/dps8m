@@ -35,13 +35,13 @@ OBJS = decContext.o decNumber.o
 
 ###############################################################################
 
-CFLAGS += -Wall -Wextra -Wno-uninitialized -Wno-stringop-overflow             \
+CFLAGS += -Wall -Wextra -Wno-uninitialized  -Wno-stringop-overflow            \
           -Wpedantic -Wno-stringop-overread -Wno-unknown-warning-option
 
 ###############################################################################
 
 .PHONY: all decNumber.a
-decNumber.a all: $(OBJS)
+all decNumber.a: $(OBJS)
 
 ###############################################################################
 
@@ -63,7 +63,8 @@ $(OBJS): decContext.h  decimal128.h  decNumber.h  decQuad.h                   \
 
 ###############################################################################
 
-print-% : ; $(info dn: $* is a $(flavor $*) variable set to [$($*)]) @true
+print-% : ; $(info decNumber: $* is a $(flavor $*) variable set to [$($*)])   \
+              @$(TRUE)
 
 ###############################################################################
 

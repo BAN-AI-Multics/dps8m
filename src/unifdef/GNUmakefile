@@ -17,7 +17,7 @@
 # Yost. It was rewritten to support ANSI C by Tony Finch. The original version
 # of unifdef.c carried the four-clause BSD copyright licence. None of its code
 # remains in this version (though some of the names remain) so it now carries
-# the more liberal two-clause BSD licence. 
+# the more liberal two-clause BSD licence.
 #
 ###############################################################################
 
@@ -32,13 +32,18 @@ endif
 
 ###############################################################################
 
+UIFLAGS=-Wall -Wextra -Wpedantic
+CFLAGS+=$(UIFLAGS)
+
+###############################################################################
+
 .PHONY: all
 .NOTPARALLEL: all
 unifdef.$(EXE) all: unifdef.o unifdef.h version.h
-	@$(TEST) -f unifdef$(EXE) ||                                              \
-		$(PRINTF) '%s\n' "LD: unifdef" || $(TRUE)
-	-@$(SETV); $(TEST) -f unifdef$(EXE) ||                                    \
-		$(CC) -Wall -Wextra $(LDFLAGS) -o unifdef$(EXE) unifdef.o
+	@$(TEST) -f unifdef$(EXE)            ||                                   \
+		$(PRINTF) '%s\n' "LD: unifdef"   ||  $(TRUE)
+	-@$(SETV); $(TEST) -f unifdef$(EXE)  ||                                   \
+		$(CC) $(CFLAGS) $(LDFLAGS) -o unifdef$(EXE) unifdef.o
 
 ###############################################################################
 
@@ -46,13 +51,19 @@ unifdef.$(EXE) all: unifdef.o unifdef.h version.h
 .NOTPARALLEL: clean
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: unifdef"
-	@$(SETV); $(RMF) unifdef$(EXE) > /dev/null 2>&1 || $(TRUE)
-	@$(SETV); $(RMF) unifdef.exe > /dev/null 2>&1 || $(TRUE)
-	@$(SETV); $(RMF) unifdef.o > /dev/null 2>&1 || $(TRUE)
+	@$(SETV); $(RMF) unifdef$(EXE)  > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) unifdef.exe    > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) unifdef.o      > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 
-print-% : ; $(info unifdef: $* is a $(flavor $*) variable set to [$($*)]) @true
+unifdef.o: unifdef.h
+unifdef.o: version.h
+
+###############################################################################
+
+print-% : ; $(info unifdef: $* is a $(flavor $*) variable set to [$($*)])     \
+              @$(TRUE)
 
 ###############################################################################
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2002-2020 Tony Finch <dot@dotat.at>
+ * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,43 +35,33 @@
  * of unifdef carried the 4-clause BSD copyright licence. None of its code
  * remains in this version (though some of the names remain) so it now
  * carries a more liberal licence.
- *
- *  Wishlist:
- *      provide an option which will append the name of the
- *        appropriate symbol after #else's and #endif's
- *      provide an option which will check symbols after
- *        #else's and #endif's to see that they match their
- *        corresponding #ifdef or #ifndef
- *
- *   These require better buffer handling, which would also make
- *   it possible to handle all "dodgy" directives correctly.
  */
 
 #include "unifdef.h"
 
 static const char copyright[] =
 #include "version.h"
-  "@(#) $Author: The DPS8M Development Team and Tony Finch <dot@dotat.at> $\n"
-  "@(#) $URL: https://gitlab.com/dps8m/dps8m/-/tree/master/src/unifdef $\n";
+  "@(#) $  Author: The DPS8M Development Team and Tony Finch <dot@dotat.at> $\n"
+  "@(#) $     URL: https://gitlab.com/dps8m/dps8m/-/tree/master/src/unifdef $\n";
 
 /* types of input lines: */
 typedef enum
 {
-  LT_TRUEI,   /* a true #if with ignore flag */
-  LT_FALSEI,  /* a false #if with ignore flag */
-  LT_IF,      /* an unknown #if */
-  LT_TRUE,    /* a true #if */
-  LT_FALSE,   /* a false #if */
-  LT_ELIF,    /* an unknown #elif */
-  LT_ELTRUE,  /* a true #elif */
-  LT_ELFALSE, /* a false #elif */
-  LT_ELSE,    /* #else */
-  LT_ENDIF,   /* #endif */
-  LT_DODGY,   /* flag: directive is not on one line */
+  LT_TRUEI,   /*  a true #if with ignore flag         */
+  LT_FALSEI,  /*  a false #if with ignore flag        */
+  LT_IF,      /*  an unknown #if                      */
+  LT_TRUE,    /*  a true #if                          */
+  LT_FALSE,   /*  a false #if                         */
+  LT_ELIF,    /*  an unknown #elif                    */
+  LT_ELTRUE,  /*  a true #elif                        */
+  LT_ELFALSE, /*  a false #elif                       */
+  LT_ELSE,    /*  #else                               */
+  LT_ENDIF,   /*  #endif                              */
+  LT_DODGY,   /*  flag: directive is not on one line  */
   LT_DODGY_LAST = LT_DODGY + LT_ENDIF,
-  LT_PLAIN, /* ordinary line */
-  LT_EOF,   /* end of file */
-  LT_ERROR, /* unevaluable #if */
+  LT_PLAIN,   /*  ordinary line                       */
+  LT_EOF,     /*  end of file                         */
+  LT_ERROR,   /*  unevaluable #if                     */
   LT_COUNT
 } Linetype;
 
@@ -81,45 +72,45 @@ typedef enum
 typedef enum
 {
   IS_OUTSIDE,
-  IS_FALSE_PREFIX,  /* false #if followed by false #elifs */
-  IS_TRUE_PREFIX,   /* first non-false #(el)if is true */
-  IS_PASS_MIDDLE,   /* first non-false #(el)if is unknown */
-  IS_FALSE_MIDDLE,  /* a false #elif after a pass state */
-  IS_TRUE_MIDDLE,   /* a true #elif after a pass state */
-  IS_PASS_ELSE,     /* an else after a pass state */
-  IS_FALSE_ELSE,    /* an else after a true state */
-  IS_TRUE_ELSE,     /* an else after only false states */
-  IS_FALSE_TRAILER, /* #elifs after a true are false */
+  IS_FALSE_PREFIX,  /*  false #if followed by false #elifs  */
+  IS_TRUE_PREFIX,   /*  first non-false #(el)if is true     */
+  IS_PASS_MIDDLE,   /*  first non-false #(el)if is unknown  */
+  IS_FALSE_MIDDLE,  /*  a false #elif after a pass state    */
+  IS_TRUE_MIDDLE,   /*  a true #elif after a pass state     */
+  IS_PASS_ELSE,     /*  an else after a pass state          */
+  IS_FALSE_ELSE,    /*  an else after a true state          */
+  IS_TRUE_ELSE,     /*  an else after only false states     */
+  IS_FALSE_TRAILER, /*  #elifs after a true are false       */
   IS_COUNT
 } Ifstate;
 
 /* state of comment parser */
 typedef enum
 {
-  NO_COMMENT = false, /* outside a comment */
-  C_COMMENT,          /* in a comment like this one */
-  CXX_COMMENT,        /* between // and end of line */
-  STARTING_COMMENT,   /* just after slash-backslash-newline */
-  FINISHING_COMMENT,  /* star-backslash-newline in a C comment */
-  CHAR_LITERAL,       /* inside '' */
-  STRING_LITERAL,     /* inside "" */
-  RAW_STRING_LITERAL  /* inside R"()" */
+  NO_COMMENT = false, /*  outside a comment                      */
+  C_COMMENT,          /*  in a comment like this one             */
+  CXX_COMMENT,        /*  between // and end of line             */
+  STARTING_COMMENT,   /*  just after slash-backslash-newline     */
+  FINISHING_COMMENT,  /*  star-backslash-newline in a C comment  */
+  CHAR_LITERAL,       /*  inside ''                              */
+  STRING_LITERAL,     /*  inside ""                              */
+  RAW_STRING_LITERAL  /*  inside R"()"                           */
 } Comment_state;
 
 /* state of preprocessor line parser */
 typedef enum
 {
-  LS_START, /* only space and comments on this line */
-  LS_HASH,  /* only space, comments, and a hash */
-  LS_DIRTY  /* this line can't be a preprocessor line */
+  LS_START, /*  only space and comments on this line    */
+  LS_HASH,  /*  only space, comments, and a hash        */
+  LS_DIRTY  /*  this line can't be a preprocessor line  */
 } Line_state;
 
 /*
  * Minimum translation limits from ISO/IEC 9899:1999 5.2.4.1
  */
-#define MAXDEPTH 64   /* maximum #if nesting */
-#define MAXLINE 4096  /* maximum length of line */
-#define MAXSYMS 16384 /* maximum number of symbols */
+#define MAXDEPTH   64  /*  maximum #if nesting        */
+#define MAXLINE  4096  /*  maximum length of line     */
+#define MAXSYMS 16384  /*  maximum number of symbols  */
 
 /*
  * Sometimes when editing a keyword the replacement text is longer, so
@@ -131,34 +122,33 @@ typedef enum
  * Globals.
  */
 
-static bool compblank;   /* -B: compress blank lines */
-static bool lnblank;     /* -b: blank deleted lines */
-static bool complement;  /* -c: do the complement */
-static bool inplace;     /* -m: modify in place */
-static bool iocccok;     /* -e: fewer IOCCC errors */
-static bool strictlogic; /* -K: keep ambiguous #ifs */
-static bool killconsts;  /* -k: eval constant #ifs */
-static bool lnnum;       /* -n: add #line directives */
-static bool symlist;     /* -s: output symbol list */
-static bool symdepth;    /* -S: output symbol depth */
-static bool text;        /* -t: this is a text file */
-
-static const char *symname[MAXSYMS]; /* symbol name */
-static const char *value[MAXSYMS];   /* -Dsym=value */
-static bool ignore[MAXSYMS];         /* -iDsym or -iUsym */
-static int nsyms;                    /* number of symbols */
-
-static FILE *input;           /* input file pointer */
-static const char *filename;  /* input file name */
-static int linenum;           /* current line number */
-static const char *linefile;  /* file name for #line */
-static FILE *output;          /* output file pointer */
-static const char *ofilename; /* output file name */
-static const char *backext;   /* backup extension */
-static char *tempname;        /* avoid splatting input */
-
-static char tline[MAXLINE + EDITSLOP]; /* input buffer plus space */
-static char *keyword;                  /* used for editing #elif's */
+static bool       compblank;                 /*  -B: compress blank lines  */
+static bool       lnblank;                   /*  -b: blank deleted lines   */
+static bool       complement;                /*  -c: do the complement     */
+static bool       inplace;                   /*  -m: modify in place       */
+static bool       iocccok;                   /*  -e: fewer IOCCC errors    */
+static bool       strictlogic;               /*  -K: keep ambiguous #ifs   */
+static bool       killconsts;                /*  -k: eval constant #ifs    */
+static bool       lnnum;                     /*  -n: add #line directives  */
+static bool       symlist;                   /*  -s: output symbol list    */
+static bool       symdepth;                  /*  -S: output symbol depth   */
+static bool       text;                      /*  -t: this is a text file   */
+static bool       showbuild;                 /*  -V: show full build info  */
+static bool       showversion;               /*  -v: show version          */
+static const char *symname[MAXSYMS];         /*  symbol name               */
+static const char *value[MAXSYMS];           /*  -Dsym=value               */
+static bool       ignore[MAXSYMS];           /*  -iDsym or -iUsym          */
+static int        nsyms;                     /*  number of symbols         */
+static FILE       *input;                    /*  input file pointer        */
+static const char *filename;                 /*  input file name           */
+static int        linenum;                   /*  current line number       */
+static const char *linefile;                 /*  file name for #line       */
+static FILE       *output;                   /*  output file pointer       */
+static const char *ofilename;                /*  output file name          */
+static const char *backext;                  /*  backup extension          */
+static char       *tempname;                 /*  avoid splatting input     */
+static char       tline[MAXLINE + EDITSLOP]; /*  input buffer plus space   */
+static char       *keyword;                  /*  used for editing #elif's  */
 
 /*
  * When processing a file, the output's newline style will match the
@@ -169,60 +159,59 @@ static char *keyword;                  /* used for editing #elif's */
  * debug / diagnostic messages) then unifdef uses native line endings.
  */
 
-static const char *newline; /* input file format */
-static const char newline_unix[] = "\n";
-static const char newline_crlf[] = "\r\n";
+static const char    newline_unix[] = "\n";
+static const char    newline_crlf[] = "\r\n";
 
-static Comment_state incomment;   /* comment parser state */
-static Line_state linestate;      /* #if line parser state */
-static Ifstate ifstate[MAXDEPTH]; /* #if processor state */
-static bool ignoring[MAXDEPTH];   /* ignore comments state */
-static int stifline[MAXDEPTH];    /* start of current #if */
-static int depth;                 /* current #if nesting */
-static int delcount;              /* count of deleted lines */
-static unsigned blankcount;       /* count of blank lines */
-static unsigned blankmax;         /* maximum recent blankcount */
-static bool constexpr;            /* constant #if expression */
-static bool zerosyms;             /* to format symdepth output */
-static bool firstsym;             /* ditto */
+static const char    *newline;              /*  input file format          */
+static Comment_state incomment;             /*  comment parser state       */
+static Line_state    linestate;             /*  #if line parser state      */
+static Ifstate       ifstate[MAXDEPTH];     /*  #if processor state        */
+static bool          ignoring[MAXDEPTH];    /*  ignore comments state      */
+static int           stifline[MAXDEPTH];    /*  start of current #if       */
+static int           depth;                 /*  current #if nesting        */
+static int           delcount;              /*  count of deleted lines     */
+static unsigned      blankcount;            /*  count of blank lines       */
+static unsigned      blankmax;              /*  maximum recent blankcount  */
+static bool          constexpr;             /*  constant #if expression    */
+static bool          zerosyms;              /*  to format symdepth output  */
+static bool          firstsym;              /*  ditto                      */
+static int           exitmode;              /*  exit status mode           */
+static int           exitstat;              /*  program exit status        */
+static bool          altered;               /*  was this file modified?    */
 
-static int exitmode; /* exit status mode */
-static int exitstat; /* program exit status */
-static bool altered; /* was this file modified? */
-
-static void addsym1(bool, bool, char *);
-static void addsym2(bool, const char *, const char *);
-static char *astrcat(const char *, const char *);
-static void cleantemp(void);
-static void closeio(void);
-static bool defundef(void);
-static void defundefile(const char *);
-static void done(void);
-static void error(const char *);
-static int findsym(const char **);
-static void flushline(bool);
-static void hashline(void);
-static void help(void);
-static Linetype ifeval(const char **);
-static void ignoreoff(void);
-static void ignoreon(void);
-static void indirectsym(void);
-static void keywordedit(const char *);
-static const char *matchsym(const char *, const char *);
-static void nest(void);
-static Linetype parseline(void);
-static void process(void);
-static void processinout(const char *, const char *);
-static const char *skipargs(const char *);
-static const char *skipcomment(const char *);
-static const char *skiphash(void);
-static const char *skipline(const char *);
-static const char *skipsym(const char *);
-static void state(Ifstate);
-static void unnest(void);
-static void usage(void);
-static void version(void);
-static const char *xstrdup(const char *, const char *);
+static void          addsym1                (bool, bool, char *);
+static void          addsym2                (bool, const char *, const char *);
+static char          *astrcat               (const char *, const char *);
+static void          cleantemp              (void);
+static void          closeio                (void);
+static bool          defundef               (void);
+static void          defundefile            (const char *);
+static void          done                   (void);
+static void          error                  (const char *);
+static int           findsym                (const char **);
+static void          flushline              (bool);
+static void          hashline               (void);
+static void          help                   (void);
+static Linetype      ifeval                 (const char **);
+static void          ignoreoff              (void);
+static void          ignoreon               (void);
+static void          indirectsym            (void);
+static void          keywordedit            (const char *);
+static const char    *matchsym              (const char *, const char *);
+static void          nest                   (void);
+static Linetype      parseline              (void);
+static void          process                (void);
+static void          processinout           (const char *, const char *);
+static const char    *skipargs              (const char *);
+static const char    *skipcomment           (const char *);
+static const char    *skiphash              (void);
+static const char    *skipline              (const char *);
+static const char    *skipsym               (const char *);
+static void          state                  (Ifstate);
+static void          unnest                 (void);
+static void          usage                  (void);
+static void          version                (void);
+static const char   *xstrdup                (const char *, const char *);
 
 #define endsym(c) ( !isalnum((unsigned char)c) && c != '_' )
 
@@ -234,8 +223,11 @@ main(int argc, char *argv[])
 {
   int opt;
 
+  showversion = false;
+  showbuild = false;
+
   while (( opt =
-             getopt(argc, argv, "i:D:U:f:I:M:o:x:bBcdehKklmnsStV")) != -1)
+             getopt(argc, argv, "i:D:U:f:I:M:o:x:bBcdehKklmnsStvV")) != -1)
   {
     switch (opt)
     {
@@ -338,9 +330,13 @@ main(int argc, char *argv[])
       text = true;
       break;
 
+    case 'v':
+      showversion = true;
+	break;
+
     case 'V':
-      version();
-      break;
+      showbuild = true;
+    break;
 
     case 'x':
       exitmode = atoi(optarg);
@@ -357,6 +353,13 @@ main(int argc, char *argv[])
   }
   argc -= optind;
   argv += optind;
+
+  if (showversion || showbuild)
+  {
+    version();
+        exit(0); /* unreachable */
+  }
+
   if (compblank && lnblank)
   {
     fprintf(stderr, "ERROR: -B and -b are mutually exclusive\n");
@@ -426,6 +429,7 @@ main(int argc, char *argv[])
 
   default:
     abort();  /* bug */
+    exit(3);  /* unreachable */
   }
 }
 
@@ -535,23 +539,56 @@ cleantemp(void)
 static void
 version(void)
 {
-  const char *c = copyright;
-
-  for (;;)
+  bool xbreak=false;
+  if (showversion)
   {
-    while (*++c != '$')
+    const char *c = copyright;
+    for (;;)
     {
-      if (*c == '\0')
+      while (*++c != '$')
       {
-        exit(0);
+        if (*c == '\0')
+        {
+          xbreak=true;
+          break;
+        }
       }
+      if (xbreak)
+      {
+        break;
+      }
+      while (*++c != '$')
+      {
+        putc(*c, stderr);
+      }
+      putc('\n', stderr);
     }
-    while (*++c != '$')
-    {
-      putc(*c, stderr);
-    }
-    putc('\n', stderr);
   }
+#ifdef BUILDINFO_unifdef
+  if (showbuild)
+  {
+#ifdef __VERSION__
+#ifdef __GNUC__
+#ifndef __clang_version__
+    char xcmp[2];
+	sprintf(xcmp, "%.1s", __VERSION__ );
+    if (!isdigit((int)xcmp[0]))
+    {
+      fprintf(stderr, "Compiler: %s\n", __VERSION__ );
+	} else {
+      fprintf(stderr, "Compiler: GCC %s\n", __VERSION__ );
+    }
+#else
+    fprintf(stderr, "Compiler: %s\n", __VERSION__ );
+#endif /* ifndef __clang_version__ */
+#else
+    fprintf(stderr, "Compiler: %s\n", __VERSION__ );
+#endif /* ifdef __GNUC__ */
+#endif /* ifdef __VERSION__ */
+	fprintf(stderr, "   Build: %s\n", BUILDINFO_unifdef );
+  }
+#endif /* ifdef BUILDINFO_unifdef */
+  exit(0);
 }
 
 static void
@@ -559,8 +596,8 @@ synopsis(FILE *fp)
 {
   fprintf(
     fp,
-    "usage:     unifdef [-bBcdehKkmnsStV] [-x{012}] [-Mext] [-opath] \\\n"
-    "           [-[i]Dsym[=val]] [-[i]Usym] [-fpath] ... [file] ...\n");
+    "Usage:	unifdef [-bBcdehKkmnsStV] [-x{012}] [-Mext] [-opath] \\\n"
+    "     	[-[i]Dsym[=val]] [-[i]Usym] [-fpath] ... [file] ...\n");
 }
 
 static void
@@ -597,7 +634,10 @@ help(void)
     "   -S      list #if control symbols with nesting\n"
     "   -s      list #if control symbols\n"
     "   -t      ignore C strings and comments\n"
-    "   -V      print version\n"
+    "   -v      show version\n"
+#ifdef BUILDINFO_unifdef
+    "   -V      show build information\n"
+#endif
     "   -x{012} exit status mode\n");
   exit(0);
 }
@@ -843,48 +883,45 @@ Melse(void)
 
 static state_fn *const trans_table[IS_COUNT][LT_COUNT] = {
   /* IS_OUTSIDE */
-  { Itrue, Ifalse, Fpass,  Ftrue,  Ffalse, Eelif,   Eelif,   Eelif,
-    Eelse, Eendif, Oiffy, Oiffy, Fpass, Oif, Oif, Eelif,
-    Eelif, Eelif, Eelse, Eendif, print, done, abort },
+  { Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Eelif,  Eelif,   Eelif,
+    Eelse,  Eendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Eelif,
+    Eelif,  Eelif,  Eelse,  Eendif, print,  done,   abort },
   /* IS_FALSE_PREFIX */
-  { Idrop, Idrop,  Fdrop,  Fdrop,  Fdrop,  Mpass,   Strue,   Sfalse,
-    Selse, Dendif, Idrop, Idrop, Fdrop, Fdrop, Fdrop, Mpass,
-    Eioccc, Eioccc, Eioccc, Eioccc, drop, Eeof, abort },
+  { Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,  Mpass,  Strue,   Sfalse,
+    Selse,  Dendif, Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,   Mpass,
+    Eioccc, Eioccc, Eioccc, Eioccc, drop,   Eeof,   abort },
   /* IS_TRUE_PREFIX */
-  { Itrue, Ifalse, Fpass,  Ftrue,  Ffalse, Dfalse,  Dfalse,  Dfalse,
-    Delse, Dendif, Oiffy, Oiffy, Fpass, Oif, Oif, Eioccc,
-    Eioccc, Eioccc, Eioccc, Eioccc, print, Eeof, abort },
+  { Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Dfalse, Dfalse,  Dfalse,
+    Delse,  Dendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Eioccc,
+    Eioccc, Eioccc, Eioccc, Eioccc, print,  Eeof,   abort },
   /* IS_PASS_MIDDLE */
-  { Itrue, Ifalse, Fpass,  Ftrue,  Ffalse, Pelif,   Mtrue,   Delif,
-    Pelse, Pendif, Oiffy, Oiffy, Fpass, Oif, Oif, Pelif,
-    Oelif, Oelif, Pelse, Pendif, print, Eeof, abort },
+  { Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Pelif,  Mtrue,   Delif,
+    Pelse,  Pendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Pelif,
+    Oelif,  Oelif,  Pelse,  Pendif, print,  Eeof,   abort },
   /* IS_FALSE_MIDDLE */
-  { Idrop, Idrop,  Fdrop,  Fdrop,  Fdrop,  Pelif,   Mtrue,   Delif,
-    Pelse, Pendif, Idrop, Idrop, Fdrop, Fdrop, Fdrop, Eioccc,
-    Eioccc, Eioccc, Eioccc, Eioccc, drop, Eeof, abort },
+  { Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,  Pelif,  Mtrue,   Delif,
+    Pelse,  Pendif, Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,   Eioccc,
+    Eioccc, Eioccc, Eioccc, Eioccc, drop,   Eeof,   abort },
   /* IS_TRUE_MIDDLE */
-  { Itrue, Ifalse, Fpass,  Ftrue,  Ffalse, Melif,   Melif,   Melif,
-    Melse, Pendif, Oiffy, Oiffy, Fpass, Oif, Oif, Eioccc,
-    Eioccc, Eioccc, Eioccc, Pendif, print, Eeof, abort },
+  { Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Melif,  Melif,   Melif,
+    Melse,  Pendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Eioccc,
+    Eioccc, Eioccc, Eioccc, Pendif, print,  Eeof,   abort },
   /* IS_PASS_ELSE */
-  { Itrue, Ifalse, Fpass,  Ftrue,  Ffalse, Eelif,   Eelif,   Eelif,
-    Eelse, Pendif, Oiffy, Oiffy, Fpass, Oif, Oif, Eelif,
-    Eelif, Eelif, Eelse, Pendif, print, Eeof, abort },
+  { Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Eelif,  Eelif,   Eelif,
+    Eelse,  Pendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Eelif,
+    Eelif,  Eelif,  Eelse,  Pendif, print,  Eeof,   abort },
   /* IS_FALSE_ELSE */
-  { Idrop, Idrop,  Fdrop,  Fdrop,  Fdrop,  Eelif,   Eelif,   Eelif,
-    Eelse, Dendif, Idrop, Idrop, Fdrop, Fdrop, Fdrop, Eelif,
-    Eelif, Eelif, Eelse, Eioccc, drop, Eeof, abort },
+  { Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,  Eelif,  Eelif,   Eelif,
+    Eelse,  Dendif, Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,   Eelif,
+    Eelif,  Eelif,  Eelse,  Eioccc, drop,   Eeof,   abort },
   /* IS_TRUE_ELSE */
-  { Itrue, Ifalse, Fpass,  Ftrue,  Ffalse, Eelif,   Eelif,   Eelif,
-    Eelse, Dendif, Oiffy, Oiffy, Fpass, Oif, Oif, Eelif,
-    Eelif, Eelif, Eelse, Eioccc, print, Eeof, abort },
+  { Itrue,  Ifalse, Fpass,  Ftrue,  Ffalse, Eelif,  Eelif,   Eelif,
+    Eelse,  Dendif, Oiffy,  Oiffy,  Fpass,  Oif,    Oif,     Eelif,
+    Eelif,  Eelif,  Eelse,  Eioccc, print,  Eeof,   abort },
   /* IS_FALSE_TRAILER */
-  { Idrop, Idrop,  Fdrop,  Fdrop,  Fdrop,  Dfalse,  Dfalse,  Dfalse,
-    Delse, Dendif, Idrop, Idrop, Fdrop, Fdrop, Fdrop, Dfalse,
-    Dfalse, Dfalse, Delse, Eioccc, drop, Eeof, abort }
-  /*TRUEI  FALSEI IF     TRUE   FALSE  ELIF   ELTRUE ELFALSE ELSE  ENDIF
-   * TRUEI  FALSEI IF     TRUE   FALSE  ELIF   ELTRUE ELFALSE ELSE  ENDIF
-   * (DODGY) PLAIN  EOF    ERROR */
+  { Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,  Dfalse, Dfalse,  Dfalse,
+    Delse,  Dendif, Idrop,  Idrop,  Fdrop,  Fdrop,  Fdrop,   Dfalse,
+    Dfalse, Dfalse, Delse,  Eioccc, drop,   Eeof,   abort }
 };
 
 /*
@@ -1385,22 +1422,24 @@ struct ops
   struct op op[5];
 };
 static const struct ops eval_ops[] = {
-  { eval_table, { { "||", op_or,    NULL      }      } },
-  { eval_table, { { "&&", op_and,   NULL      }      } },
-  { eval_table, { { "|",  op_bor,   "|"       }      } },
-  { eval_table, { { "^",  op_bxor,  NULL      }      } },
-  { eval_table, { { "&",  op_band,  "&"       }      } },
-  { eval_table, { { "==", op_eq,    NULL      }, { "!=", op_ne, NULL} } },
-  { eval_table,
-            { { "<=",     op_le, NULL },
-            { ">=",       op_ge, NULL },
-            { "<",        op_lt, "<=" },
-            { ">",        op_gt, ">=" } } },
-  { eval_table, { { "<<", op_blsh,  NULL      }, { ">>", op_brsh, NULL} } },
-  { eval_table, { { "+",  op_add,   NULL      }, { "-", op_sub, NULL} } },
-  { eval_unary,
-            { { "*",      op_mul, NULL },{ "/", op_div, NULL },
-            { "%",        op_mod, NULL } } },
+  { eval_table, { { "||", op_or,   NULL } } },
+  { eval_table, { { "&&", op_and,  NULL } } },
+  { eval_table, { { "|",  op_bor,  "|"  } } },
+  { eval_table, { { "^",  op_bxor, NULL } } },
+  { eval_table, { { "&",  op_band, "&"  } } },
+  { eval_table, { { "==", op_eq,   NULL },
+                  { "!=", op_ne,   NULL } } },
+  { eval_table, { { "<=", op_le,   NULL },
+                  { ">=", op_ge,   NULL },
+                  { "<",  op_lt,   "<=" },
+                  { ">",  op_gt,   ">=" } } },
+  { eval_table, { { "<<", op_blsh, NULL },
+                  { ">>", op_brsh, NULL } } },
+  { eval_table, { { "+",  op_add,  NULL },
+                  { "-",  op_sub , NULL } } },
+  { eval_unary, { { "*",  op_mul,  NULL },
+                  { "/",  op_div,  NULL },
+                  { "%",  op_mod,  NULL } } },
 };
 
 /*
@@ -1701,7 +1740,6 @@ skipline(const char *cp)
  * next character position that is not whitespace. Between calls we keep
  * the comment state in the global variable incomment, and we also adjust
  * the global variable linestate when we see a newline.
- * XXX: doesn't cope with the buffer splitting inside a state transition.
  */
 static const char *
 skipcomment(const char *cp)
@@ -2270,7 +2308,7 @@ astrcat(const char *s1, const char *s2)
   len = snprintf(NULL, 0, "%s%s", s1, s2);
   if (len < 0)
   {
-    fprintf(stderr, "ERROR: snprintf\n");
+    fprintf(stderr, "ERROR: snprintf failure in astrcat\n");
         exit(1);
   }
 
@@ -2278,7 +2316,7 @@ astrcat(const char *s1, const char *s2)
   s = (char *)malloc(size);
   if (s == NULL)
   {
-    fprintf(stderr, "ERROR: malloc\n");
+    fprintf(stderr, "ERROR: malloc failure in astrcat\n");
         exit(1);
   }
 
@@ -2304,7 +2342,7 @@ xstrdup(const char *start, const char *end)
   s = (char *)malloc(n);
   if (s == NULL)
   {
-    fprintf(stderr, "ERROR: malloc\n");
+    fprintf(stderr, "ERROR: malloc failure in xstrdup\n");
         exit(1);
   }
 
@@ -2316,6 +2354,6 @@ static void
 error(const char *msg)
 {
   closeio();
-  fprintf(stderr, "ERROR: Output may be truncated\n");
+  fprintf(stderr, "ERROR: %s\n**** Output may be truncated ****\n", msg);
   exit(1);
 }

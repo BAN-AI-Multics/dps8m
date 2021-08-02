@@ -56,7 +56,13 @@ endif
 ###############################################################################
 
 .PHONY: all simh.a
-simh.a all: ../dps8/ver.h $(OBJS)
+simh.a all: ../dps8/ver.h ../dps8/sysdefs.h $(OBJS)
+
+###############################################################################
+
+../dps8/sysdefs.h:
+	@($(SETV); $(CD) "../dps8" ; $(TEST) -f "./sysdefs.h" ||                  \
+        $(MAKE) "sysdefs.h")
 
 ###############################################################################
 
@@ -77,59 +83,66 @@ clean:
 
 ###############################################################################
 
-scp.o: sim_defs.h
-scp.o: sim_timer.h
-scp.o: sim_rev.h
-scp.o: sim_disk.h sim_tape.h sim_ether.h sim_sock.h
-scp.o: sim_serial.h
-scp.o: sim_tmxr.h sim_video.h sim_frontpanel.h
-scp.o: ../dps8/ver.h
-scp.o: ../dps8/dps8_prom.h
+scp.o:         sim_defs.h
+scp.o:         sim_timer.h
+scp.o:         sim_rev.h
+scp.o:         sim_disk.h sim_tape.h sim_ether.h sim_sock.h
+scp.o:         sim_serial.h
+scp.o:         sim_tmxr.h sim_video.h sim_frontpanel.h
+scp.o:         ../dps8/ver.h
+scp.o:         ../dps8/dps8_prom.h
 sim_console.o: sim_defs.h
 sim_console.o: scp.h sim_console.h sim_timer.h
 sim_console.o: sim_fio.h
 sim_console.o: sim_tmxr.h sim_sock.h
-sim_disk.o: sim_defs.h
-sim_disk.o: scp.h
-sim_disk.o: sim_console.h sim_timer.h
-sim_disk.o: sim_disk.h
-sim_disk.o: sim_ether.h sim_sock.h
-sim_ether.o: sim_defs.h
-sim_ether.o: scp.h
-sim_ether.o: sim_console.h sim_timer.h
-sim_ether.o: sim_sock.h
-sim_fio.o: sim_defs.h
-sim_fio.o: scp.h
-sim_fio.o: sim_console.h sim_timer.h
-sim_fio.o: sim_fio.h
-sim_serial.o: sim_defs.h
-sim_serial.o: scp.h sim_console.h sim_timer.h
-sim_serial.o: sim_fio.h
-sim_serial.o: sim_serial.h
-sim_serial.o: sim_sock.h
-sim_sock.o: sim_sock.h
-sim_tape.o: sim_defs.h
-sim_tape.o: scp.h
-sim_tape.o: sim_console.h sim_timer.h
-sim_tape.o: sim_tape.h
-sim_timer.o: sim_defs.h
-sim_timer.o: scp.h
-sim_timer.o: sim_console.h sim_timer.h
-sim_timer.o: sim_fio.h
-sim_tmxr.o: sim_defs.h
-sim_tmxr.o: scp.h
-sim_tmxr.o: sim_console.h sim_timer.h
-sim_tmxr.o: sim_fio.h
-sim_tmxr.o: sim_serial.h
-sim_tmxr.o: sim_sock.h
-sim_video.o: sim_video.h sim_defs.h
-sim_video.o: scp.h
-sim_video.o: sim_console.h sim_timer.h
-sim_video.o: sim_fio.h
+sim_disk.o:    sim_defs.h
+sim_disk.o:    scp.h
+sim_disk.o:    sim_console.h sim_timer.h
+sim_disk.o:    sim_disk.h
+sim_disk.o:    sim_ether.h sim_sock.h
+sim_ether.o:   sim_defs.h
+sim_ether.o:   scp.h
+sim_ether.o:   sim_console.h sim_timer.h
+sim_ether.o:   sim_sock.h
+sim_fio.o:     sim_defs.h
+sim_fio.o:     scp.h
+sim_fio.o:     sim_console.h sim_timer.h
+sim_fio.o:     sim_fio.h
+sim_serial.o:  sim_defs.h
+sim_serial.o:  scp.h sim_console.h sim_timer.h
+sim_serial.o:  sim_fio.h
+sim_serial.o:  sim_serial.h
+sim_serial.o:  sim_sock.h
+sim_sock.o:    sim_sock.h
+sim_tape.o:    sim_defs.h
+sim_tape.o:    scp.h
+sim_tape.o:    sim_console.h sim_timer.h
+sim_tape.o:    sim_tape.h
+sim_timer.o:   sim_defs.h
+sim_timer.o:   scp.h
+sim_timer.o:   sim_console.h sim_timer.h
+sim_timer.o:   sim_fio.h
+sim_tmxr.o:    sim_defs.h
+sim_tmxr.o:    scp.h
+sim_tmxr.o:    sim_console.h sim_timer.h
+sim_tmxr.o:    sim_fio.h
+sim_tmxr.o:    sim_serial.h
+sim_tmxr.o:    sim_sock.h
+sim_video.o:   sim_video.h sim_defs.h
+sim_video.o:   scp.h
+sim_video.o:   sim_console.h sim_timer.h
+sim_video.o:   sim_fio.h
 
 ###############################################################################
 
-print-% : ; $(info simh: $* is a $(flavor $*) variable set to [$($*)]) @true
+print-% : ; $(info simh: $* is a $(flavor $*) variable set to [$($*)]) @$(TRUE)
+
+###############################################################################
+
+ifdef CFLAGS
+  export CFLAGS
+  include ../Makefile.mk
+endif
 
 ###############################################################################
 

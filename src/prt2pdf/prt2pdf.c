@@ -19,8 +19,8 @@
 */
 
 /*
+ * Copyright (c) 2006 John S. Urban, USA. <urbanjost@comcast.net>
  *
- * Copyright (c) 2006 John S. Urban, USA. (urbanjost @ comcast. net)
  * All rights reserved.
  *
  * Permission to use, copy, modify and distribute this software and
@@ -32,52 +32,40 @@
  * JOHN S. URBAN ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
  * CONDITION.  JOHN S. URBAN DISCLAIMS ANY LIABILITY OF ANY KIND
  * FOR ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
- -----------------------------------------------------------------------------
-Modified:
-asa2pdf; John S. Urban, Apr 30, 2006
-
-Needed to emulate an old ASA 60 line by 132 column lineprinter quicky with
-output as a PDF file.
-
-Tested with xpdf, gv/ghostview, and acroread (PC version) PDF interpreters.
-
------------------------------------------------------------------------------
-V1:
-o Began with txt2pdf; Copyright 1998; P. G. Womack, Diss, Norfolk, UK.
-  "Do what you like, but don't claim you wrote it."
-o Added bar shading.
-o user-settable gray scale value via environment variable IMPACT_GRAY
-o placed Adobe-recommended "binary" flag at top of PDF file.
-o changed sizes to simulate a 60 line by 132 column lineprinter.
-o changed so obeys ASA carriage control (' 01+' in column 1).
------------------------------------------------------------------------------
-V2:
-o added command line options for
-   o margins, lines per page, page size
-   o gray scale, dash code pattern, shade spacing
-   o margin messages, font
------------------------------------------------------------------------------
-    Next time in:
-
-     o expand tabs (can use expand(1))                                   (T  0.1)
-     o 1/2 line feeds?                                                   (T  0.2)
-     o bold Courier font on overprint?                                   (T  0.3)
-     o underline? font color? shade color?                               (?  3.0)
-     o pick a color for overprinted text
-     o truncating lines can be done with fold(1)
-     o expanding tabs can be done with expand(1)
-     o cat -n to add line numbers ??
-     o font names? "Times-Roman"
-     o Swap left and right page margins for even-numbered pages.
-     o Print a table of contents to the end of the output.
-     o Intelligent color highlighting like enscript(1) or a2ps(1) or vim(1)?
-
-     But, if someone wants to get that fancy they can use
-     fpr(1)/asa(1)/nasa(1) to handle the ASA carriage control, and
-     something like a2ps(1)/enscript(1) and ps2pdf(1) if they have them
-     or build them for their system.                                     (?  0.0 -- 10.0)
-    -----------------------------------------------------------------------------
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Modified: asa2pdf - John S. Urban - Apr 30, 2006
+ *
+ * Needed to emulate an old ASA 60 line by 132 column lineprinter quicky with
+ * output as a PDF file.
+ *
+ * Tested with xpdf, gv/ghostview, and acroread (PC version) PDF interpreters.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * V1:
+ *
+ *   *  Began with txt2pdf; Copyright 1998; P. G. Womack, Diss, Norfolk, UK.
+ *          "Do what you like, but don't claim you wrote it."
+ *   *  Added bar shading.
+ *   *  user-settable gray scale value via environment variable IMPACT_GRAY
+ *   *  placed Adobe-recommended "binary" flag at top of PDF file.
+ *   *  changed sizes to simulate a 60 line by 132 column lineprinter.
+ *   *  changed so obeys ASA carriage control (' 01+' in column 1).
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * V2:
+ *
+ *   * added command line options for
+ *     * margins, lines per page, page size
+ *     * gray scale, dash code pattern, shade spacing
+ *     * margin messages, font
+ *
+ * ---------------------------------------------------------------------------
  */
+
 /* ============================================================================================================================== */
 
 #include <stdio.h>
@@ -87,9 +75,9 @@ o added command line options for
 #include <unistd.h>
 
 /* ============================================================================================================================== */
-#define MAX(x, y)       ((x) > (y) ? (x) : (y))
-#define MIN(x, y)       ((x) < (y) ? (x) : (y))
-#define ABS(x)          ((x) < 0 ? -(x) : (x))
+#define MAX(x, y)       ((x) > (y) ?  (x) : (y))
+#define MIN(x, y)       ((x) < (y) ?  (x) : (y))
+#define ABS(x)          ((x) <  0  ? -(x) : (x))
 /* ============================================================================================================================== */
 /* size of printable area */
 /* Default unit is 72 points per inch */
@@ -238,7 +226,7 @@ int GLOBAL_GREEN_BAR;
          dash patterns. As can be seen from the table, an empty dash array and zero phase can be used to restore the
          dash pattern to a solid line.
 
-                                               Table 56 ­ Examples of Line Dash Patterns
+                                               Table 56 - Examples of Line Dash Patterns
 
                               Dash Array       Appearance                   Description
                               and Phase
@@ -364,9 +352,10 @@ int GLOBAL_GREEN_BAR;
      }
 
      if(GLOBAL_PAGES != 0 ){
-
+        /* assuming fixed-space font Courier-Bold */
+        charwidth=GLOBAL_TITLE_SIZE*0.60;
         sprintf(line,"Page %4d",GLOBAL_PAGECOUNT);
-        start=GLOBAL_PAGE_WIDTH-GLOBAL_PAGE_MARGIN_RIGHT-(strlen(line)*charwidth); /* Right Justified */
+        start=((GLOBAL_PAGE_WIDTH-GLOBAL_PAGE_MARGIN_RIGHT)-(strlen(line)*charwidth)); /* Right Justified */
         printme(start,GLOBAL_PAGE_DEPTH-GLOBAL_PAGE_MARGIN_TOP+0.12*GLOBAL_TITLE_SIZE,line);
         printme(start,GLOBAL_PAGE_MARGIN_BOTTOM-GLOBAL_TITLE_SIZE,line);
      }
@@ -670,10 +659,10 @@ switch (itype){
 case 1:
    fprintf(stderr," +------------------------------------------------------------------------------+\n");
    fprintf(stderr," |NAME:                                                                         |\n");
-   fprintf(stderr," |asa2pdf: A filter to convert text files with ASA carriage control to a PDF.   |\n");
+   fprintf(stderr," |prt2pdf: A filter to convert text files with ASA carriage control to a PDF.   |\n");
    fprintf(stderr," +------------------------------------------------------------------------------+\n");
    fprintf(stderr," |SYNOPSIS:                                                                     |\n");
-   fprintf(stderr," |   asa2pdf(1) reads input from standard input. The first character            |\n");
+   fprintf(stderr," |   prt2pdf(1) reads input from standard input. The first character            |\n");
    fprintf(stderr," |   of each line is interpreted as a control character. Lines beginning with   |\n");
    fprintf(stderr," |   any character other than those listed in the ASA carriage-control          |\n");
    fprintf(stderr," |   characters table are interpreted as if they began with a blank,            |\n");
@@ -753,29 +742,29 @@ case 1:
    fprintf(stderr," |EXAMPLES:                                                                     |\n");
    fprintf(stderr," !-----------------                                                             |\n");
    fprintf(stderr," | # create non-ASA file in portrait mode with a dashed line under every line   |\n");
-   fprintf(stderr," | asa2pdf -S 1 -W 8.5 -H 11 -i 1 -d '2 4 1' -T 1 -B .75 < INFILE > junko.pdf   |\n");
+   fprintf(stderr," | prt2pdf -S 1 -W 8.5 -H 11 -i 1 -d '2 4 1' -T 1 -B .75 < INFILE > junko.pdf   |\n");
    fprintf(stderr," !-----------------                                                             |\n");
    fprintf(stderr," | # banner on top                                                              |\n");
-   fprintf(stderr," | env IMPACT_GRAY=1 IMPACT_TOP=CONFIDENTIAL asa2pdf < test.txt > test.pdf      |\n");
+   fprintf(stderr," | env IMPACT_GRAY=1 IMPACT_TOP=CONFIDENTIAL prt2pdf < test.txt > test.pdf      |\n");
    fprintf(stderr," !-----------------                                                             |\n");
    fprintf(stderr," | # 132 landscape                                                              |\n");
-   fprintf(stderr," |  asa2pdf -s LANDSCAPE <asa2pdf.c >junko.A.pdf                                |\n");
+   fprintf(stderr," |  prt2pdf -s LANDSCAPE <prt2pdf.c >junko.A.pdf                                |\n");
    fprintf(stderr," !-----------------                                                             |\n");
    fprintf(stderr," | # 132 landscape with line numbers with dashed lines                          |\n");
-   fprintf(stderr," |  asa2pdf -s 'LANDSCAPE LINE NUMBERS' -d '3 1 2' \\                            |\n");
-   fprintf(stderr," |  -N -T .9 <asa2pdf.c >test.pdf                                               |\n");
+   fprintf(stderr," |  prt2pdf -s 'LANDSCAPE LINE NUMBERS' -d '3 1 2' \\                            |\n");
+   fprintf(stderr," |  -N -T .9 <prt2pdf.c >test.pdf                                               |\n");
    fprintf(stderr," !-----------------                                                             |\n");
    fprintf(stderr," | # portrait 80 non-ASA file with dashed lines                                 |\n");
-   fprintf(stderr," |  asa2pdf -s PORTRAIT -S 1 -W 8.5 -H 11 -i 1 -d '2 4 1' \\                     |\n");
-   fprintf(stderr," |  -T 1 -B .75 < asa2pdf.c > test.pdf                                          |\n");
+   fprintf(stderr," |  prt2pdf -s PORTRAIT -S 1 -W 8.5 -H 11 -i 1 -d '2 4 1' \\                     |\n");
+   fprintf(stderr," |  -T 1 -B .75 < prt2pdf.c > test.pdf                                          |\n");
    fprintf(stderr," !-----------------                                                             |\n");
    fprintf(stderr," | # portrait 80 with line numbers , non-ASA                                    |\n");
-   fprintf(stderr," |  asa2pdf -s 'PORTRAIT LINE NUMBERS' -l 66 -S 1 -W 8.5 -H 11 \\                |\n");
-   fprintf(stderr," |  -i 1 -T 1 -B .75 -N < asa2pdf.c > test.pdf                                  |\n");
+   fprintf(stderr," |  prt2pdf -s 'PORTRAIT LINE NUMBERS' -l 66 -S 1 -W 8.5 -H 11 \\                |\n");
+   fprintf(stderr," |  -i 1 -T 1 -B .75 -N < prt2pdf.c > test.pdf                                  |\n");
    fprintf(stderr," !-----------------                                                             |\n");
    fprintf(stderr," | # titling                                                                    |\n");
-   fprintf(stderr," |  asa2pdf -d '1 0 1' -t \"$USER\" -i 1 -P -N -T 1 \\                             |\n");
-   fprintf(stderr," |  -s \"asa2pdf.c\" <asa2pdf.c >test.pdf                                         |\n");
+   fprintf(stderr," |  prt2pdf -d '1 0 1' -t \"$USER\" -i 1 -P -N -T 1 \\                             |\n");
+   fprintf(stderr," |  -s \"prt2pdf.c\" <prt2pdf.c >test.pdf                                         |\n");
    fprintf(stderr," +------------------------------------------------------------------------------+\n");
 
 break;
@@ -803,9 +792,10 @@ fprintf (stderr,"-t %s # margin left label\n", GLOBAL_LEFT_TITLE);
 fprintf (stderr,"-S %d # right shift\n", GLOBAL_SHIFT);
 
 fprintf (stderr,"-N [flag=%d]   # add line numbers \n", GLOBAL_LINENUMBERS);
-fprintf (stderr,"-P [flag=%d] # add page numbers\n", GLOBAL_PAGES);
+fprintf (stderr,"-P [flag=%d]   # add page numbers\n", GLOBAL_PAGES);
 
 fprintf (stderr,"-v %d # version number\n", GLOBAL_VERSION);
+fprintf (stderr,"-V    # display build info\n");
 fprintf (stderr,"-h    # display help\n");
 break;
 }
@@ -860,7 +850,7 @@ int main(int argc, char **argv) {
    strncpy(GLOBAL_FONT,"Courier",255);
    GLOBAL_TITLE_SIZE=20.0;
 
-   while ((c = getopt (argc, argv, "B:d:f:g:H:hi:L:l:GNPR:s:S:t:T:u:W:vX")) != -1)
+   while ((c = getopt (argc, argv, "B:d:f:g:H:hi:L:l:GNPR:s:S:t:T:u:W:vVX")) != -1)
          switch (c) {
            case 'L': GLOBAL_PAGE_MARGIN_LEFT =    strtod(optarg,NULL)*GLOBAL_UNIT_MULTIPLIER; break; /* Left margin              */
            case 'R': GLOBAL_PAGE_MARGIN_RIGHT =   strtod(optarg,NULL)*GLOBAL_UNIT_MULTIPLIER; break; /* Right margin             */
@@ -885,9 +875,33 @@ int main(int argc, char **argv) {
            case 'N': GLOBAL_LINENUMBERS=1;                                                    break; /* number lines             */
            case 'P': GLOBAL_PAGES=1;                                                          break; /* number pages             */
            case 'h': showhelp(1);exit(1);                                                     break; /* help                     */
-           case 'X': showhelp(2);                                                             break;
-           case 'v': fprintf (stderr, "asa2pdf version %d\n",GLOBAL_VERSION); exit(2);        break; /* version                  */
-
+           case 'X': showhelp(2);
+		break;
+		   case 'V': ;
+#ifdef BUILDINFO_prt2pdf
+#ifdef __VERSION__
+#ifdef __GNUC__
+#ifndef __clang_version__
+				     char xcmp[2];
+					 sprintf(xcmp, "%.1s", __VERSION__ );
+				     if (!isdigit((int)xcmp[0]))
+				     {
+				        fprintf (stderr, "Compiler: %s\n", __VERSION__ );
+					 } else {
+				        fprintf (stderr, "Compiler: GCC %s\n", __VERSION__ );
+				     }
+#else
+				     fprintf (stderr, "Compiler: %s\n", __VERSION__ );
+#endif /* ifndef __clang_version__ */
+#else
+				     fprintf (stderr, "Compiler: %s\n", __VERSION__ );
+#endif /* ifdef __GNUC__ */
+#endif /* ifdef __VERSION__ */
+					 fprintf (stderr, "   Build: %s\n", BUILDINFO_prt2pdf );
+#endif /* ifdef BUILDINFO_prt2pdf */
+					 exit(1);
+		break; /* build info               */
+           case 'v': fprintf (stderr, "prt2pdf version %d\n",GLOBAL_VERSION); exit(2);        break; /* version                  */
            case '?':
              fprintf(stderr," SWITCH IS %c\n",c);
              if (isprint (optopt)){
@@ -904,7 +918,7 @@ int main(int argc, char **argv) {
            }
 
            if(GLOBAL_SHADE_STEP < 1 ){
-              fprintf(stderr,"W-A-R-N-I-N-G: asa2pdf(1) resetting -i %d to -i 1\n",GLOBAL_SHADE_STEP);
+              fprintf(stderr,"W-A-R-N-I-N-G: prt2pdf(1) resetting -i %d to -i 1\n",GLOBAL_SHADE_STEP);
               GLOBAL_SHADE_STEP=1;
    }
 

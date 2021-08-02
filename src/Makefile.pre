@@ -22,7 +22,6 @@ ifdef MAKETRACE
   SHELL = $(info [TRACE] src/Makefile.pre: [$@])$(_SHELL)
 endif
 
-
 ###############################################################################
 # IBM AIX processing
 
