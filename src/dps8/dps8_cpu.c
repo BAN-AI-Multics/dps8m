@@ -3143,10 +3143,12 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
       }
 #ifndef SPEED
     else
+      nem_check (addr, "core_read nem");
 #endif
-#endif
+#else // !ISOLTS
 #ifndef SPEED
-      nem_check (addr,  "core_read nem");
+    nem_check (addr, "core_read nem");
+#endif
 #endif
 
 #if 0 // XXX Controlled by TEST/NORMAL switch
@@ -3231,10 +3233,14 @@ int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
-      nem_check (addr,  "core_read nem");
+    else
+      nem_check (addr, "core_read_lock nem");
+#endif
+#else // !ISOLTS
+#ifndef SPEED
+    nem_check (addr, "core_read_lock nem");
+#endif
 #endif
     LOCK_CORE_WORD(addr);
     if (cpu.locked_addr != 0) {
@@ -3266,10 +3272,14 @@ int core_write (word24 addr, word36 data, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
-      nem_check (addr,  "core_write nem");
+    else
+      nem_check (addr, "core_write nem");
+#endif
+#else // !ISOLTS
+#ifndef SPEED
+    nem_check (addr, "core_write nem");
+#endif
 #endif
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -3339,10 +3349,14 @@ int core_write_unlock (word24 addr, word36 data, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
-      nem_check (addr,  "core_read nem");
+    else
+      nem_check (addr, "core_write_unlock nem");
+#endif
+#else // !ISOLTS
+#ifndef SPEED
+    nem_check (addr, "core_write_unlock nem");
+#endif
 #endif
     if (cpu.locked_addr != addr)
       {
@@ -3418,10 +3432,14 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
-      nem_check (addr,  "core_read nem");
+    else
+      nem_check (addr, "core_write_zone nem");
+#endif
+#else // !ISOLTS
+#ifndef SPEED
+    nem_check (addr, "core_write_zone nem");
+#endif
 #endif
     LOCK_MEM_WR;
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
@@ -3474,12 +3492,14 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-#ifdef SPEED
-    else
-#endif
-#endif
 #ifndef SPEED
-    nem_check (addr,  "core_read2 nem");
+    else
+      nem_check (addr, "core_read2 nem");
+#endif
+#else // !ISOLTS
+#ifndef SPEED
+    nem_check (addr, "core_read2 nem");
+#endif
 #endif
 
 #if 0 // XXX Controlled by TEST/NORMAL switch
@@ -3631,10 +3651,14 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
           }
         addr = (word24)os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
-      nem_check (addr,  "core_write2 nem");
+    else
+      nem_check (addr, "core_write2 nem");
+#endif
+#else // !ISOLTS
+#ifndef SPEED
+    nem_check (addr, "core_write2 nem");
+#endif
 #endif
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
