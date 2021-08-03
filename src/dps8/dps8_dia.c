@@ -494,9 +494,7 @@ static int interruptL66 (uint iom_unit_idx, uint chan)
 //   12-15 Multics is done with mbx 8-11  (n - 4).
 
     word6 cell = getbits36_6 (dia_pcw, 24);
-#ifdef FNPDBG
-sim_printf ("CS interrupt %u\n", cell);
-#endif
+    sim_debug (DBG_TRACE, & dia_dev, "CS interrupt %u\n", cell);
     if (cell < 8)
       {
         //interruptL66_CS_to_FNP ();
@@ -649,9 +647,7 @@ static void processMBX (uint iom_unit_idx, uint chan)
 
     if (command == 000) // reset
       {
-#ifdef FNPDBG
-sim_printf ("reset??\n");
-#endif
+          sim_debug (DBG_TRACE, & dia_dev, "FNP reset??\n");
       }
     else if (command == 072) // bootload
       {
@@ -793,7 +789,8 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
         //
         // So:
         //
-        //   dcl  1 dump_6670_control aligned based (data_ptr),          /* word used to supply DIA address and tally for fdump */
+        //   dcl  1 dump_6670_control aligned based (data_ptr),
+        //         /* word used to supply DIA address and tally for fdump */
         //          2 fnp_address fixed bin (18) unsigned unaligned,
         //          2 unpaged bit (1) unaligned,
         //          2 mbz bit (5) unaligned,
@@ -802,10 +799,7 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
         // Since the data is marked 'paged', and I don't understand the
         // the paging mechanism or parameters, I'm going to punt here and
         // not actually transfer any data.
-#ifdef FNPDBG
-sim_printf ("data xfer??\n");
-#endif
-
+        sim_debug (DBG_TRACE, & dia_dev, "FNP data xfer??\n");
       }
     else
       {
@@ -815,9 +809,7 @@ sim_printf ("data xfer??\n");
 
     if (ok)
       {
-#ifdef FNPDBG
-//dmpmbx (dudp->mailbox_address);
-#endif
+        if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailbox_address);
         fnp_core_write (dudp -> mailbox_address, 0, "dia_iom_cmd clear dia_pcw");
         putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
         putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;
