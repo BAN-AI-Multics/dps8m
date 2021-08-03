@@ -346,7 +346,7 @@ static config_list_t cpu_config_list [] =
     { "affinity", -1, 32767, cfg_affinity },
 #endif
 
-    { "isolts", 0, 1, cfg_on_off },
+    { "isolts_mode", 0, 1, cfg_on_off },
     { NULL, 0, 0, NULL }
   };
 
@@ -452,7 +452,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
               cpus[cpu_unit_idx].affinity = (uint) v;
             }
 #endif
-        else if (strcmp (p, "isolts") == 0)
+        else if (strcmp (p, "isolts_mode") == 0)
           {
             cpus[cpu_unit_idx].switches.isolts_mode = v;
             if (v)
@@ -806,9 +806,9 @@ static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
                                              UNUSED void * desc)
   {
     long cpu_unit_idx = UNIT_IDX (uptr);
-    if (cpu.switches.isolts_mode)
+    cpu_state_t * cpun = cpus + cpu_unit_idx;
+    if (cpun->switches.isolts_mode)
       {
-        cpu_state_t * cpun = cpus + cpu_unit_idx;
         // Currently isolts_mode requires useMap, so this is redundant
         if (cpun->switches.useMap)
           {
@@ -817,16 +817,13 @@ static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
                 int base = cpun->sc_addr_map [pgnum];
                 if (base < 0)
                   continue;
-                for (uint addr = 0; addr < SCBANK; addr ++)
+                for (uint addr = 0; addr < SCBANK_SZ; addr ++)
                   M [addr + (uint) base] = MEM_UNINITIALIZED;
               }
           }
       }
-    else
-      {
-        // Crashes console?
-        cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
-      }
+    // Crashes console?
+    cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
     return SCPE_OK;
   }
 
@@ -1060,7 +1057,10 @@ static t_stat cpu_boot (UNUSED int32 cpu_unit_idx, UNUSED DEVICE * dptr)
 //
 // The simulator has a single 16MW array of memory. This code walks the SCUs
 // allocates memory regions out of that array to the SCUs based on their 
-// individual configurations. 
+// individual configurations. The 16MW is divided into 4 zones, one for each
+// SCU. (SCU0 uses the first 4MW, SCU1 the second 4MW, etc.
+//
+#define ZONE_SZ (MEM_SIZE_MAX / 4)
 //
 // The minimum SCU memory size increment is 64KW, which I will refer to as 
 // a 'bank'. To map a CPU address to the simulated array, the CPU address is 
@@ -1080,12 +1080,10 @@ void setup_scbank_map (void)
     for (uint pg = 0; pg < N_SCBANKS; pg ++)
       {
         cpu.sc_addr_map [pg] = -1;
+        cpu.sc_scu_map [pg] = -1;
       }
-
-    // As we walk the SCUs, accumulate the sizes of each SCU to track
-    // what memory address the next SCU will start at.
-
-    word24 port_base = 0;  // In bank units.
+    for (uint u = 0; u < N_SCU_UNITS_MAX; u ++)
+      cpu.sc_num_banks[u] = 0;
 
     // For each port
     for (int port_num = 0; port_num < N_CPU_PORTS; port_num ++)
@@ -1107,8 +1105,8 @@ void setup_scbank_map (void)
 #ifdef DPS8M
         uint store_table [8] =
           { 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304 };
-        uint sz = store_table [store_size];
-//sim_printf ("setup_scbank_map store_size %d sz %d\n", store_size, sz);
+        uint sz_wds = store_table [store_size];
+//sim_printf ("setup_scbank_map store_size %d sz_wds %d\n", store_size, sz_wds);
 #endif
 #ifdef L68
 // ISOLTS sez:
@@ -1129,53 +1127,59 @@ void setup_scbank_map (void)
           { 32768, 65536, 4194304, 131072, 524288, 1048576, 2097152, 262144 };
         uint isolts_store_table [8] =
           { 32768, 65536, 4194304, 65536, 524288, 1048576, 2097152, 262144 };
-        uint sz = cpu.switches.isolts_mode ?
+        uint sz_wds = cpu.switches.isolts_mode ?
             isolts_store_table [store_size] :
             store_table [store_size];
 #endif
 
-        // Now convert to SCBANK (number of banks)
-        uint num_banks = sz / SCBANK;
+        // Calculate the base address that will be assigned to the SCU
+        uint base_addr_wds = sz_wds * cpu.switches.assignment[port_num];
+
+        // Now convert to SCBANK_SZ (number of banks)
+        uint num_banks = sz_wds / SCBANK_SZ;
         cpu.sc_num_banks[port_num] = num_banks;
+        uint base_addr_bks = base_addr_wds / SCBANK_SZ;
 
         // For each page handled by the SCU
         for (uint pg = 0; pg < num_banks; pg ++)
           {
-            uint scpg = port_base + pg;
-            if (scpg < N_SCBANKS)
+            // What is the address of this bank?
+            uint addr_bks = base_addr_bks + pg;
+            // Past the end of memory?
+            if (addr_bks < N_SCBANKS)
               {
-                if (cpu.sc_addr_map [scpg] != -1)
+                // Has this address been already assigned?
+                if (cpu.sc_addr_map [addr_bks] != -1)
                   {
-                    sim_warn ("scbank overlap scpg %d (%o) old port %d "
+                    sim_warn ("scbank overlap addr_bks %d (%o) old port %d "
                                 "newport %d\n",
-                                scpg, scpg, cpu.sc_addr_map [scpg], port_num);
+                                addr_bks, addr_bks, cpu.sc_addr_map [addr_bks], port_num);
                   }
                 else
                   {
-                    cpu.sc_addr_map[scpg] = (port_base + pg) * SCBANK;
-                    cpu.sc_scu_map[scpg] = port_num;
+                    // Assign it
+                    cpu.sc_addr_map[addr_bks] = port_num * ZONE_SZ + pg * SCBANK_SZ;
+                    cpu.sc_scu_map[addr_bks] = port_num;
                   }
               }
             else
               {
-                sim_warn ("scpg too big port %d scpg %d (%o), "
+                sim_warn ("addr_bks too big port %d addr_bks %d (%o), "
                             "limit %d (%o)\n",
-                            port_num, scpg, scpg, N_SCBANKS, N_SCBANKS);
+                            port_num, addr_bks, addr_bks, N_SCBANKS, N_SCBANKS);
               }
           }
 
-        // Calculate the start address for the next SCU.
-        port_base += num_banks;
       } // for port_num
 
     //for (uint pg = 0; pg < N_SCBANKS; pg ++)
-      //sim_printf ("pg %o map: %08o\n", pg, cpu.sc_addr_map[pg]);
+     //sim_printf ("pg %o map: %08o\n", pg, cpu.sc_addr_map[pg]);
   } // sc_bank_map
 
 #ifdef SCUMEM
 int lookup_cpu_mem_map (word24 addr, word24 * offset)
   {
-    uint scpg = addr / SCBANK;
+    uint scpg = addr / SCBANK_SZ;
     if (scpg < N_SCBANKS)
       {
         * offset = addr - cpu.scbank_base[scpg];
@@ -1186,7 +1190,7 @@ int lookup_cpu_mem_map (word24 addr, word24 * offset)
 #else
 int lookup_cpu_mem_map (word24 addr)
   {
-    uint scpg = addr / SCBANK;
+    uint scpg = addr / SCBANK_SZ;
     if (scpg < N_SCBANKS)
       {
         return cpu.sc_scu_map[scpg];
@@ -3217,7 +3221,7 @@ t_stat set_mem_watch (int32 arg, const char * buf)
  */
 
 #ifndef SPEED
-static void nem_check (word24 addr, char * context)
+static void nem_check (word24 addr, const char * context)
   {
 #ifdef SCUMEM
     word24 offset;

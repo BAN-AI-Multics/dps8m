@@ -1756,8 +1756,8 @@ typedef struct
     bool isRunning;
 #endif
     // Map memory address through memory configuraiton switches
-    // Minimum allocation chunk is 64K (SCBANK)
-    // addr / SCBANK => bank_number
+    // Minimum allocation chunk is 64K (SCBANK_SZ)
+    // addr / SCBANK_SZ => bank_number
     // scbank_map[bank_number] is address of the bank in M. -1 is unmapped.
     int sc_addr_map [N_SCBANKS];
     // The SCU number holding each bank
@@ -1769,9 +1769,9 @@ typedef struct
 #define SC_MAP_ADDR(addr,real_addr)                            \
    if (cpu.switches.useMap)                                    \
       {                                                        \
-        uint pgnum = addr / SCBANK;                            \
-        uint os = addr % SCBANK;                               \
-        int base = cpu.sc_addr_map[pgnum] < 0;                 \
+        uint pgnum = addr / SCBANK_SZ;                         \
+        uint os = addr % SCBANK_SZ;                            \
+        int base = cpu.sc_addr_map[pgnum];                     \
         if (base < 0)                                          \
           {                                                    \
             doFault (FAULT_STR, fst_str_nea,  __func__);       \
@@ -1782,9 +1782,9 @@ typedef struct
 #define SC_MAP_ADDR(addr,real_addr)                            \
    if (cpu.switches.useMap)                                    \
       {                                                        \
-        uint pgnum = addr / SCBANK;                            \
-        uint os = addr % SCBANK;                               \
-        int base = cpu.sc_addr_map[pgnum] < 0;                 \
+        uint pgnum = addr / SCBANK_SZ;                         \
+        uint os = addr % SCBANK_SZ;                            \
+        int base = cpu.sc_addr_map[pgnum];                     \
         if (base < 0)                                          \
           {                                                    \
             doFault (FAULT_STR, fst_str_nea,  __func__);       \
@@ -1794,9 +1794,6 @@ typedef struct
     else                                                       \
       nem_check (addr, __func__);
 #endif
-    //word24 scbank_base [N_SCBANKS];
-    // scu_unit_idx * 4u * 1024u * 1024u + scpg * SCBANK
-    //int scbank_pg_os [N_SCBANKS];
 
     uint history_cyclic [N_HIST_SETS]; // 0..63
     word36 history [N_HIST_SETS] [N_HIST_SIZE] [2];
@@ -1954,13 +1951,13 @@ static inline int core_read (word24 addr, word36 *data, \
     PNL (cpu.portBusy = true;)
     if (cpu.switches.useMap)
       {
-        uint pgnum = addr / SCBANK;
+        uint pgnum = addr / SCBANK_SZ;
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
             doFault (FAULT_STR, fst_str_nea, __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+        addr = (uint) os + addr % SCBANK_SZ;
       }
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
@@ -2006,13 +2003,13 @@ static inline int core_write (word24 addr, word36 data, \
     PNL (cpu.portBusy = true;)
     if (cpu.switches.useMap)
       {
-        uint pgnum = addr / SCBANK;
+        uint pgnum = addr / SCBANK_SZ;
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
             doFault (FAULT_STR, fst_str_nea, __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+        addr = (uint) os + addr % SCBANK_SZ;
       }
     if (cpu.switches.isolts_mode)
       {
@@ -2057,13 +2054,13 @@ static inline int core_write_zone (word24 addr, word36 data, \
     PNL (cpu.portBusy = true;)
     if (cpu.switches.useMap)
       {
-        uint pgnum = addr / SCBANK;
+        uint pgnum = addr / SCBANK_SZ;
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
             doFault (FAULT_STR, fst_str_nea, __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+        addr = (uint) os + addr % SCBANK_SZ;
       }
     if (cpu.switches.isolts_mode)
       {
@@ -2111,13 +2108,13 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
     PNL (cpu.portBusy = true;)
     if (cpu.switches.useMap)
       {
-        uint pgnum = addr / SCBANK;
+        uint pgnum = addr / SCBANK_SZ;
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
             doFault (FAULT_STR, fst_str_nea, __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+        addr = (uint) os + addr % SCBANK_SZ;
       }
 #if 0 // XXX Controlled by TEST/NORMAL switch
 #ifdef ISOLTS
@@ -2165,13 +2162,13 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
     PNL (cpu.portBusy = true;)
     if (cpu.switches.useMap)
       {
-        uint pgnum = addr / SCBANK;
+        uint pgnum = addr / SCBANK_SZ;
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
             doFault (FAULT_STR, fst_str_nea, __func__);
           }
-        addr = (uint) os + addr % SCBANK;
+        addr = (uint) os + addr % SCBANK_SZ;
       }
     if (cpu.switches.isolts_mode)
       {

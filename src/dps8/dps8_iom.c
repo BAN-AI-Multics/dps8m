@@ -1401,8 +1401,8 @@ static map_t  iomScbankMap[N_IOM_UNITS_MAX][N_SCBANKS];
 static void setupIOMScbankMap (uint iom_unit_idx)
   {
     sim_debug (DBG_DEBUG, & cpu_dev,
-      "%s: setupIOMScbankMap: SCBANK %d N_SCBANKS %d MEM_SIZE_MAX %d\n",
-      __func__, SCBANK, N_SCBANKS, MEM_SIZE_MAX);
+      "%s: setupIOMScbankMap: SCBANK_SZ %d N_SCBANKS %d MEM_SIZE_MAX %d\n",
+      __func__, SCBANK_SZ, N_SCBANKS, MEM_SIZE_MAX);
 
     // Initalize to unmapped
     for (int pg = 0; pg < (int) N_SCBANKS; pg ++)
@@ -1433,8 +1433,8 @@ static void setupIOMScbankMap (uint iom_unit_idx)
         uint base = assignment * sz;
 
         // Now convert to SCBANKs
-        sz = sz / SCBANK;
-        uint scbase = base / SCBANK;
+        sz = sz / SCBANK_SZ;
+        uint scbase = base / SCBANK_SZ;
 
         sim_debug (DBG_DEBUG, & cpu_dev,
           "%s: unit:%u port:%d ss:%u as:%u sz:%u ba:%u\n",
@@ -1460,7 +1460,7 @@ static void setupIOMScbankMap (uint iom_unit_idx)
 
 int query_IOM_SCU_bank_map (uint iom_unit_idx, word24 addr, word24 * offset)
   {
-    uint scpg = addr / SCBANK;
+    uint scpg = addr / SCBANK_SZ;
     if (scpg < N_SCBANKS)
       {
         * offset = addr-iomScbankMap[iom_unit_idx][scpg].base;
