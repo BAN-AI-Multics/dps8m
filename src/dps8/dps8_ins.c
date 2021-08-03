@@ -162,7 +162,7 @@ static void readOperands (void)
 
     sim_debug (DBG_ADDRMOD, &cpu_dev,
                "%s (%s):mne=%s flags=%x\n",
-               __func__, disassemble (buf, cpu.cu.IWB), i->info->mne, i->info->flags);
+               __func__, disassemble (buf, IWB_IRODD), i->info->mne, i->info->flags);
     sim_debug (DBG_ADDRMOD, &cpu_dev,
               "%s a %d address %08o\n", __func__, i->b29, cpu.TPR.CA);
 
@@ -5176,6 +5176,11 @@ static t_stat doInstruction (void)
           {
             word36 Z = ~cpu.rQ & (cpu.rA ^ cpu.CY);
             Z &= DMASK;
+            HDBGRegA ();
+            HDBGRegQ ();
+            HDBGRegY ();
+            HDBGRegZ (Z);
+            HDBGRegIR ();
 
 // Q  A  Y   ~Q   A^Y   Z
 // 0  0  0    1     0   0
