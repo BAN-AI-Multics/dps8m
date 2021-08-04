@@ -58,6 +58,7 @@ WEBDL      ?= wget
 CD         ?= cd
 TR         ?= tr
 CAT        ?= cat
+GIT        ?= git
 CMAKE      ?= cmake
 RMNF       ?= rm
 RMF        ?= $(RMNF) -f

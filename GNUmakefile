@@ -127,6 +127,12 @@ endif
 
 ###############################################################################
 
+ifneq (,$(wildcard src/Makefile.dev))
+  include src/Makefile.dev
+endif
+
+###############################################################################
+
 .PHONY: help info
 .NOTPARALLEL: help info
 help info:                                                                    \
