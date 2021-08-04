@@ -80,9 +80,9 @@ SIMHx       = ../simh
 
 ###############################################################################
 
-ifndef MAKEFILE_LOCAL
+ifndef MAKEFILE_LOCAL_A
   ifneq (,$(wildcard ../GNUmakefile.local))
-    MAKEFILE_LOCAL=1
+    MAKEFILE_LOCAL_A=1
     include ../GNUmakefile.local
     $(info INCLUDE: ../GNUmakefile.local)
   endif
@@ -90,9 +90,9 @@ endif
 
 ###############################################################################
 
-ifndef MAKEFILE_LOCAL
+ifndef MAKEFILE_LOCAL_B
   ifneq (,$(wildcard GNUmakefile.local))
-    MAKEFILE_LOCAL=1
+    MAKEFILE_LOCAL_B=1
     include GNUmakefile.local
     $(info INCLUDE: GNUmakefile.local)
   endif
@@ -156,7 +156,7 @@ endif
 ###############################################################################
 
 # Default FLAGS
-CFLAGS  += -g -O3 -fno-strict-aliasing
+CFLAGS  += -g3 -O3 -fno-strict-aliasing
 CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 

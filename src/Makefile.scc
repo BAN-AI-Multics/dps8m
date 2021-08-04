@@ -1,0 +1,55 @@
+# DPS/8M simulator: src/Makefile.scc
+# vim: filetype=make:tabstop=4:tw=76
+#
+###############################################################################
+#
+# Copyright (c) 2016 Charles Anthony
+# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
+# Copyright (c) 2021 The DPS8M Development Team
+#
+# All rights reserved.
+#
+# This software is made available under the terms of the ICU
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE.md file at the top-level directory of this distribution.
+#
+###############################################################################
+
+###############################################################################
+# Source Code Control Targets                                                 \
+    # XXXX:    # ----------------------- Source Control ---------------------
+###############################################################################
+
+###############################################################################
+# List files that are not known to git.
+
+.PHONY: printuk
+.NOTPARALLEL: printuk
+printuk:                                                                      \
+    # printuk:    # Display files that are unknown to git
+	@$(MAKE) -C "src/dps8" "printuk"
+
+###############################################################################
+# List files known to git that have been modified.
+
+.PHONY: printmod
+.NOTPARALLEL: printmod
+printmod:                                                                     \
+    # printmod:    # Display files that have been modified
+	@$(MAKE) -C "src/dps8" "printmod"
+
+###############################################################################
+# Generate a redistributable source kit
+
+.PHONY: dist kit
+.NOTPARALLEL: dist kit
+dist kit:                                                                     \
+    # dist:    # Generate a redistributable source kit
+	@$(MAKE) -C "src/dps8" "dist"
+
+###############################################################################
+
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:

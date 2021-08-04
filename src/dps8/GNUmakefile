@@ -483,8 +483,11 @@ kit dist:
 	@$(SETV); ($(CD) "../.." &&                                               \
 		$(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files               |  \
 			$(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                |  \
-				$(GREP) -v '^.lgtm.yml' | $(GREP) -v '^src/dps8/cflags.L'  |  \
-					$(GREP) -v '^src/dps8/listings/' ) 'src/dps8/ver.h~' )
+				$(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'            |  \
+                    $(GREP) -v '^src/dps8/make_ver.sh'                     |  \
+                        $(GREP) -v '^src/Makefile.scc'                     |  \
+					        $(GREP) -v '^src/dps8/listings/' )                \
+                                'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n'                                                         \
 		"COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
 	@$(SETV); $(COMPRESS) "../../$(KITNAME).$(TARXT)"
