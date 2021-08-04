@@ -22,7 +22,10 @@
 TRUE       ?= true
 SET        ?= set
 ifdef V
+    V = 1
     VERBOSE = 1
+    export V
+    export VERBOSE
 endif
 ifdef VERBOSE
        ZCTV = cvf
