@@ -15,26 +15,25 @@
 #
 ###############################################################################
 
-include ../Makefile.mk
+.DEFAULT_GOAL := all
 
 ###############################################################################
 
-ifdef MAKETRACE
-   _SHELL := $(SHELL)
-   SHELL = $(info [TRACE] src/simh/GNUmakefile: [$@])$(_SHELL)
+ifneq (,$(wildcard ../Makefile.mk))
+  include ../Makefile.mk
 endif
 
 ###############################################################################
 
 ifneq ($(W),)
-CFLAGS += -Wno-array-bounds -Wno-pointer-bool-conversion                      \
-          -Wno-unknown-warning-option
+  CFLAGS += -Wno-array-bounds -Wno-pointer-bool-conversion                    \
+            -Wno-unknown-warning-option
 endif
 
 ###############################################################################
 
 ifdef VER_CURRENT_TIME
-CFLAGS += -DVER_CURRENT_TIME="\"$(VER_CURRENT_TIME)\""
+  CFLAGS += -DVER_CURRENT_TIME="\"$(VER_CURRENT_TIME)\""
 endif
 
 ###############################################################################
@@ -50,31 +49,35 @@ OBJS = scp.o sim_console.o sim_disk.o sim_ether.o sim_fio.o sim_serial.o      \
 ###############################################################################
 
 ifneq ($(W),)
-CFLAGS += -Wno-array-bounds -Wno-unevaluated-expression
+  CFLAGS += -Wno-array-bounds -Wno-unevaluated-expression
 endif
 
 ###############################################################################
 
-.PHONY: all simh.a
-simh.a all: ../dps8/ver.h ../dps8/sysdefs.h $(OBJS)
+.PHONY: all simh.a osconf
+simh.a all: osconf ../dps8/ver.h ../dps8/sysdefs.h $(OBJS)
 
 ###############################################################################
 
 ../dps8/sysdefs.h:
-	@($(SETV); $(CD) "../dps8" ; $(TEST) -f "./sysdefs.h" ||                  \
-        $(MAKE) "sysdefs.h")
+	@($(SETV); $(CD) "../dps8" && $(MAKE) "sysdefs.h")
 
 ###############################################################################
 
 ../dps8/ver.h:
-	@($(SETV); $(CD) "../dps8" ; $(MAKE) "ver.h")
+	@($(SETV); $(CD) "../dps8" && $(MAKE) "ver.h")
 
 ###############################################################################
 
 .PHONY: clean
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: simh"
-	-@$(SETV); $(RMF) $(OBJS) "simh.a" "tags" || $(TRUE)
+	-@$(SETV); $(RMF) $(OBJS)              ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "simh.a"             ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "tags"               ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "cflags.L"           ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "dps8m.state"        ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "../dps8/sysdefs.n"  ||  $(TRUE) > /dev/null 2>&1
 
 ###############################################################################
 
@@ -91,57 +94,67 @@ scp.o:         sim_serial.h
 scp.o:         sim_tmxr.h sim_video.h sim_frontpanel.h
 scp.o:         ../dps8/ver.h
 scp.o:         ../dps8/dps8_prom.h
+scp.o:         cflags.L
+scp.o:         ../dps8/sysdefs.h
 sim_console.o: sim_defs.h
 sim_console.o: scp.h sim_console.h sim_timer.h
 sim_console.o: sim_fio.h
 sim_console.o: sim_tmxr.h sim_sock.h
+sim_console.o: cflags.L
 sim_disk.o:    sim_defs.h
 sim_disk.o:    scp.h
 sim_disk.o:    sim_console.h sim_timer.h
 sim_disk.o:    sim_disk.h
 sim_disk.o:    sim_ether.h sim_sock.h
+sim_disk.o:    cflags.L
 sim_ether.o:   sim_defs.h
 sim_ether.o:   scp.h
 sim_ether.o:   sim_console.h sim_timer.h
 sim_ether.o:   sim_sock.h
+sim_ether.o:   cflags.L
 sim_fio.o:     sim_defs.h
 sim_fio.o:     scp.h
 sim_fio.o:     sim_console.h sim_timer.h
 sim_fio.o:     sim_fio.h
+sim_fio.o:     cflags.L
 sim_serial.o:  sim_defs.h
 sim_serial.o:  scp.h sim_console.h sim_timer.h
 sim_serial.o:  sim_fio.h
 sim_serial.o:  sim_serial.h
 sim_serial.o:  sim_sock.h
+sim_serial.o:  cflags.L
 sim_sock.o:    sim_sock.h
+sim_sock.o:    cflags.L
 sim_tape.o:    sim_defs.h
 sim_tape.o:    scp.h
 sim_tape.o:    sim_console.h sim_timer.h
 sim_tape.o:    sim_tape.h
+sim_tape.o:    cflags.L
 sim_timer.o:   sim_defs.h
 sim_timer.o:   scp.h
 sim_timer.o:   sim_console.h sim_timer.h
 sim_timer.o:   sim_fio.h
+sim_timer.o:   cflags.L
 sim_tmxr.o:    sim_defs.h
 sim_tmxr.o:    scp.h
 sim_tmxr.o:    sim_console.h sim_timer.h
 sim_tmxr.o:    sim_fio.h
 sim_tmxr.o:    sim_serial.h
 sim_tmxr.o:    sim_sock.h
+sim_tmxr.o:    cflags.L
 sim_video.o:   sim_video.h sim_defs.h
 sim_video.o:   scp.h
 sim_video.o:   sim_console.h sim_timer.h
 sim_video.o:   sim_fio.h
-
-###############################################################################
-
-print-% : ; $(info simh: $* is a $(flavor $*) variable set to [$($*)]) @$(TRUE)
+sim_video.o:   cflags.L
 
 ###############################################################################
 
 ifdef CFLAGS
   export CFLAGS
-  include ../Makefile.mk
+  ifneq (,$(wildcard ../Makefile.mk))
+    include ../Makefile.mk
+  endif
 endif
 
 ###############################################################################

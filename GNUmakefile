@@ -24,7 +24,7 @@
 #                  V=1                Enable verbose compilation output
 #                  W=1                Enable extra compilation warnings
 #            TESTING=1                Enable developmental testing code
-#        NO_LOCKLESS=1                Revert to previous threading code
+#        NO_LOCKLESS=1                Enable (old) non-threaded MP mode
 #              CROSS=MINGW64          Enable MinGW-64 cross-compilation
 #
 #    ******* The following flags are intended for development and *******
@@ -40,31 +40,35 @@
 #        USE_BUILDOS="String"         Enable a custom "Built OS" string
 #
 ###############################################################################
-# Makefile tracing.
 
-ifdef MAKETRACE
-  _SHELL := $(SHELL)
-  SHELL = $(info [TRACE] GNUmakefile: [$@])$(_SHELL)
-endif
+.DEFAULT_GOAL := all
 
 ###############################################################################
 # Pre-build exceptions.
 
-include src/Makefile.pre
-
-ifdef OS_IBMAIX
+ifneq (,$(wildcard src/Makefile.pre))
+  include src/Makefile.pre
+  ifdef OS_IBMAIX
     export OS_IBMAIX
+  endif
 endif
 
+ifneq (,$(wildcard src/Makefile.mk))
+  include src/Makefile.mk
+endif
+
+MAKE_TOPLEVEL=1
+export MAKE_TOPLEVEL
+
 ###############################################################################
-# Build
+# Build.
 
 .PHONY: build default all
 build default all:
-	@$(MAKE) -C "src/dps8"
+	@$(MAKE) -C "src/dps8" "all"
 
 ###############################################################################
-# Install
+# Install.
 
 .PHONY: install
 install:
@@ -107,16 +111,10 @@ printmod:
 	@$(MAKE) -C "src/dps8" "printmod"
 
 ###############################################################################
-# Create a distribution archive kit.
 
-.PHONY: kit dist
-kit dist:
-	@$(MAKE) -C "src/dps8" "kit"
-
-###############################################################################
-# Variable debugging.
-
-print-% : ; $(info top: $* is a $(flavor $*) variable set to [$($*)]) @true
+ifneq (,$(wildcard src/Makefile.env))
+  include src/Makefile.env
+endif
 
 ###############################################################################
 

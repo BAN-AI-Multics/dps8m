@@ -15,20 +15,19 @@
 #
 ###############################################################################
 
-include ../Makefile.mk
+.DEFAULT_GOAL := all
 
 ###############################################################################
 
-ifdef MAKETRACE
-  _SHELL := $(SHELL)
-  SHELL = $(info [TRACE] src/prt2pdf/GNUmakefile: [$@])$(_SHELL)
+ifneq (,$(wildcard ../Makefile.mk))
+  include ../Makefile.mk
 endif
 
 ###############################################################################
 
-.PHONY: all
-.NOTPARALLEL: all
-prt2pdf$(EXE) all: prt2pdf.o
+.PHONY: all osconf
+.NOTPARALLEL: all osconf
+prt2pdf$(EXE) all: osconf prt2pdf.o cflags.L
 	@$(TEST) -f prt2pdf$(EXE) ||                                              \
 		$(PRINTF) '%s\n' "LD: prt2pdf" || $(TRUE)
 	@$(SETV); $(TEST) -f prt2pdf$(EXE) ||                                     \
@@ -40,14 +39,15 @@ prt2pdf$(EXE) all: prt2pdf.o
 .NOTPARALLEL: clean
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: prt2pdf"
-	@$(SETV); $(RMF) prt2pdf$(EXE)  > /dev/null 2>&1  ||  $(TRUE)
-	@$(SETV); $(RMF) prt2pdf.exe    > /dev/null 2>&1  ||  $(TRUE)
-	@$(SETV); $(RMF) prt2pdf.o      > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "prt2pdf$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "prt2pdf.exe"    > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "prt2pdf.o"      > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "cflags.L"       > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 
-print-% : ; $(info prt2pdf: $* is a $(flavor $*) variable set to [$($*)])     \
-              @$(TRUE)
+prt2pdf.o: prt2pdf.c
+prt2pdf.o: cflags.L
 
 ###############################################################################
 

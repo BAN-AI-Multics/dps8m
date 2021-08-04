@@ -31,6 +31,7 @@ src/dps8/UnitTests/*.oct
 src/dps8/UnitTests/*.pp
 
 # Generated
+cflags.L
 .builder.txt
 .buildos.txt
 useddef.txt
@@ -79,3 +80,12 @@ src/dps8/MR12.3/
 
 # Local
 GNUmakefile.local
+
+# Common Targets
+all
+clean
+osconf
+distclean
+superclean
+realclean
+reallyclean

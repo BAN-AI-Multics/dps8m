@@ -13,15 +13,8 @@
 #
 ###############################################################################
 
-ifdef MAKETRACE
-  _SHELL := $(SHELL)
-  SHELL = $(info [TRACE] src/dps8/UnitTests/GNUmakefile: [$@])$(_SHELL)
-endif
-
-###############################################################################
-
- PP=as8pp
-AS8=as8+
+PP  = as8pp
+AS8 = as8+
 
 ###############################################################################
 
@@ -57,10 +50,6 @@ TestFaultSeg2.oct: TestFaultSeg2.as8
 TestIT.oct TestIT.test: TestIT.as8
 	$(PP)   < TestIT.as8 > TestIT.pp
 	$(AS8) -o TestIT.oct   TestIT.pp
-
-###############################################################################
-
-print-% : ; $(info local: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 
