@@ -28,7 +28,6 @@
 
 .PHONY: all
 .DEFAULT: all
-.NOTPARALLEL: all
 all:
 	@$(MAKE) -C ".." $@
 
@@ -36,7 +35,6 @@ all:
 # GNU Make fallback
 
 .PHONY: build default all %
-.NOTPARALLEL: build default all %
 %:
 	@$(MAKE) -C ".." $@
 

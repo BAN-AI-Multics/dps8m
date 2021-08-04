@@ -101,6 +101,7 @@ endif
 ###############################################################################
 
 .PHONY: osconf
+.NOTPARALLEL: cflags.L osconf
 cflags.L: osconf
 
 ###############################################################################
@@ -108,6 +109,7 @@ cflags.L: osconf
 ifndef MK_OSCONF_O
 MK_OSCONF_O=1
 .PHONY: osconf
+.NOTPARALLEL: osconf cflags.L
 osconf:
 	@$(SETV); $(PRINTF) '%s\n'                                                \
      '$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) $(CROSS) $(CPPFLAGS) $(XFLAGS)'    | \

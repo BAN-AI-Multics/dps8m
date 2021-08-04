@@ -59,17 +59,20 @@ simh.a all: osconf ../dps8/ver.h ../dps8/sysdefs.h $(OBJS)
 
 ###############################################################################
 
+.NOTPARALLEL: ../dps8/sysdefs.h
 ../dps8/sysdefs.h:
 	@($(SETV); $(CD) "../dps8" && $(MAKE) "sysdefs.h")
 
 ###############################################################################
 
+.NOTPARALLEL: ../dps8/ver.h
 ../dps8/ver.h:
 	@($(SETV); $(CD) "../dps8" && $(MAKE) "ver.h")
 
 ###############################################################################
 
 .PHONY: clean
+.NOTPARALLEL: clean
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: simh"
 	-@$(SETV); $(RMF) $(OBJS)              ||  $(TRUE) > /dev/null 2>&1
