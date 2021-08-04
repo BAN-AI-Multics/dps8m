@@ -26,7 +26,6 @@ endif
 ###############################################################################
 
 .PHONY: all osconf
-.NOTPARALLEL: all osconf
 prt2pdf$(EXE) all: osconf prt2pdf.o cflags.L
 	@$(TEST) -f prt2pdf$(EXE) ||                                              \
 		$(PRINTF) '%s\n' "LD: prt2pdf" || $(TRUE)

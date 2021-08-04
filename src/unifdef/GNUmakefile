@@ -37,7 +37,6 @@ CFLAGS+=$(UIFLAGS)
 ###############################################################################
 
 .PHONY: all
-.NOTPARALLEL: all
 unifdef$(EXE) all: unifdef.o
 	@$(TEST) -f unifdef$(EXE)            ||                                   \
 		$(PRINTF) '%s\n' "LD: unifdef"   ||  $(TRUE)
