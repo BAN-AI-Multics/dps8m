@@ -69,8 +69,8 @@ endif
 ifeq ($(ISOLTS),1)
   LOCKLESS=1
   ISOLTS=1
+  WAM=1
   CFLAGS += -DISOLTS
-  CFLAGS += -DWAM
 endif
 
 ###############################################################################

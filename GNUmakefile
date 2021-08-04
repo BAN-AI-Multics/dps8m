@@ -46,6 +46,8 @@
 ###############################################################################
 # Pre-build exceptions.
 
+MAKE_TOPLEVEL = 1
+
 ifneq (,$(wildcard src/Makefile.pre))
   include src/Makefile.pre
   ifdef OS_IBMAIX
@@ -57,21 +59,28 @@ ifneq (,$(wildcard src/Makefile.mk))
   include src/Makefile.mk
 endif
 
-MAKE_TOPLEVEL=1
 export MAKE_TOPLEVEL
+
+###############################################################################
+# DPS8M Simulator
+    # XXXX:    # ---------------------- DPS8/M Simulator --------------------
+###############################################################################
 
 ###############################################################################
 # Build.
 
 .PHONY: build default all
-build default all:
+build default all:                                                            \
+    # build:    # Builds the DPS8/M simulator and tools
 	@$(MAKE) -C "src/dps8" "all"
 
 ###############################################################################
 # Install.
 
 .PHONY: install
-install:
+.NOTPARALLEL: install
+install:                                                                      \
+    # install:    # Builds and installs the sim and tools
 	@$(MAKE) -C "src/dps8" "install"
 
 ###############################################################################
@@ -79,42 +88,62 @@ install:
 
 .PHONY: clean
 .NOTPARALLEL: clean
-clean:
+clean:                                                                        \
+    # clean:    # Cleans up executable and object files
 	@$(MAKE) -C "src/dps8" "clean"
 
 ###############################################################################
 # Cleans everything `clean` does, plus version info, logs, and state files.
 
 .PHONY: distclean
-distclean: clean
+.NOTPARALLEL: distclean
+distclean: clean                                                              \
+    # distclean:    # Cleans up tree to pristine conditions
 	@$(MAKE) -C "src/dps8" "distclean"
 
 ###############################################################################
 # Cleans everything `distclean` does, plus attempts to flush compiler caches.
 
 .PHONY: superclean realclean reallyclean
-superclean realclean reallyclean: distclean
+.NOTPARALLEL: superclean realclean reallyclean
+superclean realclean reallyclean: distclean                                   \
+    # superclean:    # Cleans up tree fully and flush ccache
 	@$(MAKE) -C "src/dps8" "superclean"
-
-###############################################################################
-# List files that are not known to git.
-
-.PHONY: printuk
-printuk:
-	@$(MAKE) -C "src/dps8" "printuk"
-
-###############################################################################
-# List files known to git that have been modified.
-
-.PHONY: printmod
-printmod:
-	@$(MAKE) -C "src/dps8" "printmod"
 
 ###############################################################################
 
 ifneq (,$(wildcard src/Makefile.env))
   include src/Makefile.env
 endif
+
+###############################################################################
+# Help and Debugging Targets                                                  \
+    # XXXX:    # --------------------- Help and Debugging -------------------
+###############################################################################
+
+ifneq (,$(wildcard src/Makefile.scc))
+  include src/Makefile.scc
+endif
+
+###############################################################################
+
+.PHONY: help info
+.NOTPARALLEL: help info
+help info:                                                                    \
+    # help:    # Display this list of Makefile targets
+	@$(GREP) -E '^.* # .*:    # .*$$' $(MAKEFILE_LIST) 2> /dev/null     |     \
+		$(AWK) 'BEGIN { FS = "    # " };                                      \
+          { printf "%s%-18s %-40s (%-19s)\n", $$1, $$2, $$3, $$1 }'           \
+		    2> /dev/null | $(CUT) -d ':' -f 2- 2> /dev/null             |     \
+              $(SED) -e 's/:\ \+)$$/)/' -e 's/XXXX:/\n/g'                     \
+                -e 's/---- (.*)$$/------------\n/'                            \
+                  -e 's/              ---/-------------/' 2> /dev/null  |     \
+                    $(GREP) -v 'GREP' 2> /dev/null                      |     \
+                      $(GREP) -v '_LIST' 2> /dev/null                  || {   \
+                        $(PRINTF) '%s\n' "Error: Unable to display help.";    \
+                          $(TRUE) > /dev/null 2>&1; }                  ||     \
+                            $(TRUE) > /dev/null 2>&1
+	@$(PRINTF) '%s\n' "" 2> /dev/null || $(TRUE) > /dev/null 2>&1
 
 ###############################################################################
 
