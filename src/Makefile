@@ -13,18 +13,14 @@
 # LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
-# src/Makefile: Simple compatability wrapper to invole `gmake`
-###############################################################################
-
-GNUMAKE?= gmake
-
-###############################################################################
 
 all:
-	@${GNUMAKE} $@
+	@printf '%s\n'                                                            \
+		"*** GNU Make is required; try \"gmake\"."
 
 .DEFAULT:
-	@${GNUMAKE} $@
+	@printf '%s\n'                                                            \
+		"*** GNU Make is required; try \"gmake\"."
 
 .PHONY: all
 

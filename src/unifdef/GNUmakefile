@@ -21,13 +21,12 @@
 #
 ###############################################################################
 
-include ../Makefile.mk
+.DEFAULT_GOAL := all
 
 ###############################################################################
 
-ifdef MAKETRACE
-   _SHELL := $(SHELL)
-   SHELL = $(info [TRACE] src/unifdef/GNUmakefile: [$@])$(_SHELL)
+ifneq (,$(wildcard ../Makefile.mk))
+  include ../Makefile.mk
 endif
 
 ###############################################################################
@@ -39,7 +38,7 @@ CFLAGS+=$(UIFLAGS)
 
 .PHONY: all
 .NOTPARALLEL: all
-unifdef.$(EXE) all: unifdef.o unifdef.h version.h
+unifdef$(EXE) all: unifdef.o
 	@$(TEST) -f unifdef$(EXE)            ||                                   \
 		$(PRINTF) '%s\n' "LD: unifdef"   ||  $(TRUE)
 	-@$(SETV); $(TEST) -f unifdef$(EXE)  ||                                   \
@@ -51,19 +50,17 @@ unifdef.$(EXE) all: unifdef.o unifdef.h version.h
 .NOTPARALLEL: clean
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: unifdef"
-	@$(SETV); $(RMF) unifdef$(EXE)  > /dev/null 2>&1  ||  $(TRUE)
-	@$(SETV); $(RMF) unifdef.exe    > /dev/null 2>&1  ||  $(TRUE)
-	@$(SETV); $(RMF) unifdef.o      > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) "unifdef$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) "unifdef.exe"    > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) "unifdef.o"      > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) "cflags.L"       > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 
 unifdef.o: unifdef.h
 unifdef.o: version.h
-
-###############################################################################
-
-print-% : ; $(info unifdef: $* is a $(flavor $*) variable set to [$($*)])     \
-              @$(TRUE)
+unifdef.o: unifdef.c
+unifdef.o: cflags.L
 
 ###############################################################################
 

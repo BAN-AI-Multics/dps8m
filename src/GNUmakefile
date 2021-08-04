@@ -16,20 +16,15 @@
 
 ###############################################################################
 #
-# This is a fallback and wraper for the case of the user executing "make"
-# from within the `src` directory, rather than one of the subdirectories
-# or the top-level of the source directory, and also works around a very
-# specific FreeBSD-related CI/CD pipeline corner case in a harmless way.
+# This is a fallback and wraper for the case of the user executing "gmake" or
+# "make" from within the `src` directory, rather than from one of the source
+# subdirectories or the top-level of the source tree, and also works around a
+# very specific FreeBSD-related CI/CD pipeline corner case in a harmless way.
 #
 ###############################################################################
 
-ifdef MAKETRACE
-  _SHELL := $(SHELL)
-  SHELL = $(info [TRACE] src/GNUmakefile: [$@])$(_SHELL)
-endif
-
 ###############################################################################
-# BSD Make fallback
+# BSD Make fallback (BSDmake parsing GNUmakefile)
 
 .PHONY: all
 .DEFAULT: all
@@ -44,10 +39,6 @@ all:
 .NOTPARALLEL: build default all %
 %:
 	@$(MAKE) -C ".." $@
-
-###############################################################################
-
-print-% : ; $(info src: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 
