@@ -224,16 +224,15 @@ static int wcd (struct decoded_t *decoded_p)
 
 // bisync_line_data.inc.pl1
             word18 op = getbits36_18 (command_data[0], 0);
-            if_sim_debug (DBG_TRACE, & fnp_dev) {
-                word18 val1 = getbits36_18 (command_data[0], 18);
-                word18 val2 = getbits36_18 (command_data[1], 0);
-            }
+            //word18 val1 = getbits36_18 (command_data[0], 18);
+            //word18 val2 = getbits36_18 (command_data[1], 0);
             //word18 val3 = getbits36_18 (command_data1, 18);
 //sim_printf ("line_control %d op %d. %o\r\n", decoded_p->slot_no, op, op);
             switch (op)
               {
                 case 1:
                   //if_sim_debug (DBG_TRACE, & fnp_dev) {
+                  //    word18 val1 = getbits36_18 (command_data[0], 18);
                   //    sim_debug (DBG_TRACE, & fnp_dev, "SET_BID_LIMIT\n");
                   //    sim_debug (DBG_TRACE, & fnp_dev, "    %u\n", val1);
                   //}
@@ -243,6 +242,7 @@ static int wcd (struct decoded_t *decoded_p)
                   break;
                 case 3:
                   //if_sim_debug (DBG_TRACE, & fnp_dev) {
+                  //    word18 val1 = getbits36_18 (command_data[0], 18);
                   //    sim_debug (DBG_TRACE, & fnp_dev, "CONFIGURE\n");
                   //    if (val1 == 0)
                   //      sim_debug (DBG_TRACE, & fnp_dev, "    non-transparent ASCII\n");
@@ -257,9 +257,13 @@ static int wcd (struct decoded_t *decoded_p)
                   //}
                   break;
                 case 4:
-                  //sim_debug (DBG_TRACE, & fnp_dev, "SET_TTD_PARAMS\n");
-                  //sim_debug (DBG_TRACE, & fnp_dev, "    ttd_time  %u\n", val1);
-                  //sim_debug (DBG_TRACE, & fnp_dev, "    ttd_limit %u\n", val2);
+                  //if_sim_debug (DBG_TRACE, & fnp_dev) {
+                  //    word18 val1 = getbits36_18 (command_data[0], 18);
+                  //    word18 val2 = getbits36_18 (command_data[1], 0);
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "SET_TTD_PARAMS\n");
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "    ttd_time  %u\n", val1);
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "    ttd_limit %u\n", val2);
+                  //}
                   break;
                 case 5:
                   sim_debug (DBG_TRACE, & fnp_dev, "REPORT_WRITE_STATUS\n");
@@ -344,6 +348,7 @@ static int wcd (struct decoded_t *decoded_p)
                   break;
                 case 11:
                   //if_sim_debug (DBG_TRACE, & fnp_dev) {
+                  //    word18 val1 = getbits36_18 (command_data[0], 18);
                   //    sim_debug (DBG_TRACE, & fnp_dev, "SET_MASTER_SLAVE_MODE\n");
                   //    if (val1 == 0)
                   //      sim_debug (DBG_TRACE, & fnp_dev, "    slave\n");
