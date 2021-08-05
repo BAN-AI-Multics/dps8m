@@ -14,6 +14,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <getopt.h>
 
 #define CARD_COL_COUNT 80
 #define NIBBLES_PER_COL 3
@@ -66,6 +67,12 @@ typedef struct
     CARD_CACHE_ENTRY *first_cache_card;
     CARD_CACHE_ENTRY *last_cache_card;
 } CARD_CACHE;
+
+static bool output_auto = true;
+static bool output_glyphs = false;
+static bool output_mcc = false;
+static bool output_punch = false;
+static bool output_help = false;
 
 enum parse_state current_state = Idle;
 
@@ -398,6 +405,25 @@ static int mcc_to_ascii(word12 punch_code)
     return -1;
 }
 
+// Scans data cards to determine if they contain all valid MCC punch codes
+static bool check_for_valid_mcc_cards()
+{
+    CARD_CACHE_ENTRY *current_card = data_card_cache.first_cache_card;
+    while (current_card != NULL)
+    {
+        for (uint col = 0; col < CARD_COL_COUNT; col++)
+        {
+            if (mcc_to_ascii(current_card->card->column[col]) == -1)
+            {
+                return false;
+            }
+        }
+
+        current_card = current_card->next_entry;
+    }
+    return true;
+}
+
 static void convert_mcc_to_ascii(word12 *buffer, char *ascii_string)
 {
     for (uint i = 0; i < CARD_COL_COUNT; i++)
@@ -623,7 +649,7 @@ static char get_lace_char(word12 *buffer, uint char_pos)
     // (characters are punched in reverse)
     for (uint col_offset = 0; col_offset < 5; col_offset++)
     {
-        col_buffer[4 - col_offset] = buffer[glyph_starting_column[char_offset]+col_offset];
+        col_buffer[4 - col_offset] = buffer[glyph_starting_column[char_offset] + col_offset];
     }
 
     // Now shift the characters into the 5x5 matrix buffer
@@ -1097,10 +1123,100 @@ static void parse_cards(FILE *in_file)
     }
 }
 
+static void init()
+{
+    memset(&banner_card_cache, 0, sizeof(banner_card_cache));
+    memset(&data_card_cache, 0, sizeof(data_card_cache));
+    memset(&trailer_card_cache, 0, sizeof(trailer_card_cache));
+}
+
+static void print_help(char* program)
+{
+    printf("\nMultics Punch Utility Program\n");
+    printf("\nInvoking:\n");
+    printf("    %s [options]", program);
+    printf("where options are:\n");
+    printf("  --help          = Output this message\n");
+    printf("  --noauto        = Disable auto selection of the card format (you must specify\n");
+    printf("                    one of the output control options below)\n");
+    printf("\nOutput control options:\n");
+    printf("    By default 'auto' mode is active where a scan attempts to determine the type\n");
+    printf("    of deck. The scan order is: MCC, 7punch and then defaults to raw if neither\n");
+    printf("    of the first two seems to apply. Note that the options below are mutually\n");
+    printf("    exclusive.\n");
+    printf("  --7punch        = Interpret the cards as 7punch data and output the data\n");
+    printf("                      (currently not supported!)\n");
+    printf("  --cards         = Output an ASCII art form of the punched cards with an '*'\n");
+    printf("                      representing the punches\n");
+    printf("  --glyphs        = Output the glyphs parsed from the banner cards as an ASCII string\n");
+    printf("  --mcc           = Interpret the cards as MCC Punch Codes (invalid punch codes\n");
+    printf("                      will be converted to spaces)\n");
+    printf("  --raw           = Dump the raw card data as 12-bit words in column order\n");
+    printf("\nThis program will read a card spool file produced by the DPS8 Simulator,\n");
+    printf("parse it, and produce the requested output on standard output. Note that only\n");
+    printf("one output mode may be selected.\n");
+}
+
+
+static struct option long_options[] = {
+    {"7punch", no_argument, 0, 0},
+    {"cards", no_argument, 0, 0},
+    {"glyphs", no_argument, 0, 0},
+    {"help", no_argument, 0, 0},
+    {"mcc", no_argument, 0, 0},
+    {"noauto", no_argument, 0, 0},
+    {"raw", no_argument, 0, 0},
+    {0, 0, 0, 0}};
+
+static void parse_options(int argc, char *argv[])
+{
+    int c;
+    bool done = false;
+
+    while (!done)
+    {
+        int option_index = 0;
+
+        c = getopt_long(argc, argv, "", long_options, &option_index);
+
+        switch (c)
+        {
+        case -1:
+            done = true;
+            break;
+
+        case '?':
+            print_help(argv[0]);
+            exit(1);
+
+        case 0:
+            printf("option %s\n", long_options[option_index].name);
+            break;
+
+        default:
+            fprintf(stderr, "*** Error: did not expect non-zero when parsing options, got %d\n", c);
+            exit(1);
+        }
+    }
+}
+
 int main(int argc, char *argv[])
 {
     printf("****\nPunch File Utility\n****\n");
 
+    init();
+
     FILE *in_file = fopen("/home/deana/multics/kit-test-12.7/run/punches/puna/SYSADMIN.50001.07-31-21.0645.4.1.raw", "r");
     parse_cards(in_file);
+
+    if (check_for_valid_mcc_cards())
+    {
+        printf(">> All data cards appear to be valid MCC cards\n");
+    }
+    else
+    {
+        printf("** Data cards contain invalid MCC punch codes\n");
+    }
+
+    parse_options(argc, argv);
 }
