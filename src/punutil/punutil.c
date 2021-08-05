@@ -431,7 +431,10 @@ static void convert_mcc_to_ascii(word12 *buffer, char *ascii_string)
     for (uint i = 0; i < CARD_COL_COUNT; i++)
     {
         int c = mcc_to_ascii(buffer[i]);
-        printf("+++ Punch Code %04o = '%c'\n", buffer[i], c);
+        if (output_debug)
+        {
+            fprintf(stderr, "+++ Punch Code %04o = '%c'\n", buffer[i], c);
+        }
         if (c == -1)
         {
             c = ' ';
@@ -1232,6 +1235,18 @@ static void parse_options(int argc, char *argv[])
     }
 }
 
+static void dump_mcc(FILE *out_file)
+{
+    char ascii_string[CARD_COL_COUNT + 1];
+    CARD_CACHE_ENTRY *current_entry = data_card_cache.first_cache_card;
+    while (current_entry != NULL)
+    {
+        convert_mcc_to_ascii(current_entry->card->column, ascii_string);
+        fprintf(out_file, "%s\n", ascii_string);
+        current_entry = current_entry->next_entry;
+    }
+}
+
 static void dump_raw(FILE *out_file)
 {
     CARD_CACHE_ENTRY *current_entry = data_card_cache.first_cache_card;
@@ -1287,6 +1302,12 @@ int main(int argc, char *argv[])
     {
         fprintf(stderr, "\n*****\nWriting raw output\n*****\n");
         dump_raw(stdout);
+    }
+
+    if (output_mcc)
+    {
+        fprintf(stderr, "\n*****\nWriting MCC output\n*****\n");
+        dump_mcc(stdout);
     }
 
 #if 0
