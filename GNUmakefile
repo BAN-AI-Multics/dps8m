@@ -141,8 +141,9 @@ help info:                                                                    \
 		$(AWK) 'BEGIN { FS = "    # " };                                      \
           { printf "%s%-18s %-40s (%-19s)\n", $$1, $$2, $$3, $$1 }'           \
 		    2> /dev/null | $(CUT) -d ':' -f 2- 2> /dev/null             |     \
-              $(SED) -e 's/:\ \+)$$/)/' -e 's/XXXX:/\n/g'                     \
-                -e 's/---- (.*)$$/------------\n/'                            \
+              $(SED) -e 's/:\ \+)$$/)/' -e 's/XXXX:/\n/g' 2> /dev/null  |     \
+                $(SED) -e 's/---- (.*)$$/------------\n/'                     \
+				 -e 's/:  )/)/g' -e 's/:       )/)/g'                         \
                   -e 's/              ---/-------------/' 2> /dev/null  |     \
                     $(GREP) -v 'GREP' 2> /dev/null                      |     \
                       $(GREP) -v '_LIST' 2> /dev/null                  || {   \
