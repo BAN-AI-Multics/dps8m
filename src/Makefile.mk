@@ -48,10 +48,10 @@ MKDIR      ?= mkdir -p
 NDKBUILD   ?= ndk-build
 PKGCONFIG  ?= pkg-config
 GIT        ?= git
-GREP       ?= command -p env grep
+GREP       ?= $(ENV) PATH=$$(command -p env getconf PATH) grep
 SORT       ?= sort
 CUT        ?= cut
-SED        ?= sed
+SED        ?= $(ENV) PATH=$$(command -p env getconf PATH) sed
 AWK        ?= $(ENV) PATH=$$(command -p env getconf PATH) awk
 CMP        ?= cmp
 WEBDL      ?= wget
