@@ -52,7 +52,7 @@ GREP       ?= command -p env grep
 SORT       ?= sort
 CUT        ?= cut
 SED        ?= sed
-AWK        ?= awk
+AWK        ?= $(ENV) PATH=$$(command -p env getconf PATH) awk
 CMP        ?= cmp
 WEBDL      ?= wget
 CD         ?= cd
