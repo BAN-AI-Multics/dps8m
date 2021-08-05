@@ -71,8 +71,10 @@ typedef struct
 static bool output_auto = true;
 static bool output_glyphs = false;
 static bool output_mcc = false;
-static bool output_punch = false;
-static bool output_help = false;
+static bool output_cards = false;
+static bool output_flip = false;
+static bool output_raw = false;
+static bool output_debug = false;
 
 enum parse_state current_state = Idle;
 
@@ -578,42 +580,45 @@ static void remove_spaces(char *str)
 
 static void print_card(card_image_t *card)
 {
-    printf("Card:\n");
-    for (int row = 0; row < 12; row++)
+    if (output_cards)
     {
-        for (int col = 0; col < CARD_COL_COUNT; col++)
+        printf("Card:\n");
+        for (int row = 0; row < 12; row++)
         {
-            printf(card->column[col] & row_bit_masks[row] ? "*" : " ");
+            for (int col = 0; col < CARD_COL_COUNT; col++)
+            {
+                printf(card->column[col] & row_bit_masks[row] ? "*" : " ");
+            }
+            printf("\n");
         }
-        printf("\n");
     }
 }
 
 static void log_char_matrix_pattern(uint8 *char_matrix)
 {
-    printf("\nChar Matrix\n");
+    fprintf(stderr, "\nChar Matrix\n");
     for (uint col_offset = 0; col_offset < CHAR_MATRIX_BYTES; col_offset++)
     {
-        printf(" %03o\n", char_matrix[col_offset]);
+        fprintf(stderr, " %03o\n", char_matrix[col_offset]);
     }
 
-    printf("\r\n");
+    fprintf(stderr, "\r\n");
     for (uint row = 0; row < 5; row++)
     {
         for (uint col = 0; col < CHAR_MATRIX_BYTES; col++)
         {
             if ((char_matrix[col] >> (4 - row)) & 0x1)
             {
-                printf("*");
+                fprintf(stderr, "*");
             }
             else
             {
-                printf(" ");
+                fprintf(stderr, " ");
             }
         }
-        printf("\r\n");
+        fprintf(stderr, "\r\n");
     }
-    printf("\r\n");
+    fprintf(stderr, "\r\n");
 }
 
 static char search_glyph_patterns(uint8 *matrix)
@@ -776,22 +781,22 @@ static void print_event(enum parse_event event)
     switch (event)
     {
     case NoEvent:
-        printf("[No Event]");
+        fprintf(stderr, "[No Event]");
         break;
     case BannerCard:
-        printf("[Banner Card]");
+        fprintf(stderr, "[Banner Card]");
         break;
     case EndOfDeckCard:
-        printf("[End Of Deck Card]");
+        fprintf(stderr, "[End Of Deck Card]");
         break;
     case Card:
-        printf("[Card]");
+        fprintf(stderr, "[Card]");
         break;
     case Done:
-        printf("[Done]");
+        fprintf(stderr, "[Done]");
         break;
     default:
-        printf("[unknown event %d]", event);
+        fprintf(stderr, "[unknown event %d]", event);
         break;
     }
 }
@@ -801,41 +806,44 @@ static void print_state(enum parse_state state)
     switch (state)
     {
     case Idle:
-        printf("[Idle]");
+        fprintf(stderr, "[Idle]");
         break;
     case StartingJob:
-        printf("[Starting Job]");
+        fprintf(stderr, "[Starting Job]");
         break;
     case PunchGlyphLookup:
-        printf("[Punch Glyph Lookup]");
+        fprintf(stderr, "[Punch Glyph Lookup]");
         break;
     case EndOfHeader:
-        printf("[End Of Header]");
+        fprintf(stderr, "[End Of Header]");
         break;
     case CacheCard:
-        printf("[Cache Card]");
+        fprintf(stderr, "[Cache Card]");
         break;
     case EndOfDeck:
-        printf("[End Of Deck]");
+        fprintf(stderr, "[End Of Deck]");
         break;
     case EndOfJob:
-        printf("[End Of Job]");
+        fprintf(stderr, "[End Of Job]");
         break;
     default:
-        printf("[unknown state %d]", state);
+        fprintf(stderr, "[unknown state %d]", state);
         break;
     }
 }
 
 static void print_transition(enum parse_state old_state, enum parse_event event, enum parse_state new_state)
 {
-    printf(">>> Punch Transition: ");
-    print_event(event);
-    printf(" = ");
-    print_state(old_state);
-    printf(" -> ");
-    print_state(new_state);
-    printf("\r\n");
+    if (output_debug)
+    {
+        fprintf(stderr, ">>> Punch Transition: ");
+        print_event(event);
+        fprintf(stderr, " = ");
+        print_state(old_state);
+        fprintf(stderr, " -> ");
+        print_state(new_state);
+        fprintf(stderr, "\r\n");
+    }
 }
 
 static enum parse_event do_state_idle(enum parse_event event)
@@ -876,44 +884,10 @@ static enum parse_event do_state_end_of_header(enum parse_event event, card_imag
 
     save_card_in_cache(&banner_card_cache, card); // Save card in cache
 
-    printf("\n++++ Glyph Buffer ++++\n'%s'\n", glyph_buffer);
-#if 0
-    char punch_file_name[PATH_MAX + 1];
-    if (strlen(glyph_buffer) < 86)
+    if (output_debug)
     {
-        sim_warn("*** Punch: glyph buffer too short, unable to parse file name '%s'\n", glyph_buffer);
-        punch_file_name[0] = 0;
+        fprintf(stderr, "\n++++ Glyph Buffer ++++\n'%s'\n", glyph_buffer);
     }
-    else
-    {
-        sprintf(punch_file_name, "%7.7s%7.7s.%5.5s.%2.2s-%2.2s-%2.2s.%6.6s.%2.2s",
-                &state->glyph_buffer[68],
-                &state->glyph_buffer[79],
-                &state->glyph_buffer[14],
-                &state->glyph_buffer[46],
-                &state->glyph_buffer[49],
-                &state->glyph_buffer[52],
-                &state->glyph_buffer[57],
-                &state->glyph_buffer[35]);
-        remove_spaces(punch_file_name);
-    }
-
-    strncpy(state->raw_file_name, punch_file_name, sizeof(state->raw_file_name));
-
-    create_punch_files(state); // Create spool file
-
-    // Write cached cards to spool file
-    CARD_CACHE_ENTRY *current_entry = state->first_cached_card;
-    while (current_entry != NULL)
-    {
-        write_punch_files(state, current_entry->card, WORDS_PER_CARD, true);
-        current_entry = current_entry->next_entry;
-    }
-
-    //dump_card_cache(state);
-
-    clear_card_cache(state); // Clear card cache
-#endif
 
     return NoEvent;
 }
@@ -943,52 +917,21 @@ static enum parse_event do_state_end_of_job(enum parse_event event, card_image_t
     print_transition(current_state, event, EndOfJob);
     current_state = EndOfJob;
 
-#if 0
-    // Write cached cards to spool file
-    CARD_CACHE_ENTRY *current_entry = first_cached_card;
-    while (current_entry != NULL)
-    {
-        write_punch_files(state, current_entry->card, WORDS_PER_CARD, (current_entry->next_entry == NULL));
-        current_entry = current_entry->next_entry;
-    }
-
-    //dump_card_cache(state);
-
-    clear_card_cache(state); // Clear card cache
-
-    write_punch_files(state, card, tally, true); // Write card to spool file
-
-    // Close punch files
-    if (state->punfile_raw >= 0)
-    {
-        close(state->punfile_raw);
-        state->punfile_raw = -1;
-    }
-
-    if (state->punfile_punch >= 0)
-    {
-        close(state->punfile_punch);
-        state->punfile_punch = -1;
-    }
-
-    if (state->punfile_mcc >= 0)
-    {
-        close(state->punfile_mcc);
-        state->punfile_mcc = -1;
-    }
-#endif
     return Done;
 }
 
 static void unexpected_event(enum parse_event event)
 {
-    printf("*** Unexpected event ");
-    print_event(event);
+    if (output_debug)
+    {
+        printf("*** Unexpected event ");
+        print_event(event);
 
-    printf(" in state ");
-    print_state(current_state);
+        printf(" in state ");
+        print_state(current_state);
 
-    printf("***\n");
+        printf("***\n");
+    }
 }
 
 static void parse_card(card_image_t *card)
@@ -997,13 +940,19 @@ static void parse_card(card_image_t *card)
 
     if (memcmp(card, end_of_deck_card, sizeof(end_of_deck_card)) == 0)
     {
-        fprintf(stderr, "*** Found End Of Deck Card ***\n");
+        if (output_debug)
+        {
+            fprintf(stderr, "*** Found End Of Deck Card ***\n");
+        }
         event = EndOfDeckCard;
     }
 
     if (memcmp(card, banner_card, sizeof(banner_card)) == 0)
     {
-        fprintf(stderr, "*** Found Banner Card ***\n");
+        if (output_debug)
+        {
+            fprintf(stderr, "*** Found Banner Card ***\n");
+        }
         event = BannerCard;
     }
 
@@ -1119,7 +1068,10 @@ static void parse_cards(FILE *in_file)
     while (card = read_card(in_file))
     {
         parse_card(card);
-        printf("\n");
+        if (output_debug)
+        {
+            printf("\n");
+        }
     }
 }
 
@@ -1130,14 +1082,16 @@ static void init()
     memset(&trailer_card_cache, 0, sizeof(trailer_card_cache));
 }
 
-static void print_help(char* program)
+static void print_help(char *program)
 {
     printf("\nMultics Punch Utility Program\n");
     printf("\nInvoking:\n");
-    printf("    %s [options]", program);
+    printf("    %s [options]\n", program);
     printf("where options are:\n");
     printf("  --help          = Output this message\n");
-    printf("  --noauto        = Disable auto selection of the card format (you must specify\n");
+    printf("  --auto          = (Default) Attempt to automatically determine the type of card deck\n");
+    printf("                      (this will turn off any previously selected output options)\n");
+    printf("  --no-auto       = Disable auto selection of the card format (you must specify\n");
     printf("                    one of the output control options below)\n");
     printf("\nOutput control options:\n");
     printf("    By default 'auto' mode is active where a scan attempts to determine the type\n");
@@ -1148,6 +1102,8 @@ static void print_help(char* program)
     printf("                      (currently not supported!)\n");
     printf("  --cards         = Output an ASCII art form of the punched cards with an '*'\n");
     printf("                      representing the punches\n");
+    printf("  --flip          = If --cards is specified, causes the banner cards to be 'flipped'\n");
+    printf("                      so they can be read normally\n");
     printf("  --glyphs        = Output the glyphs parsed from the banner cards as an ASCII string\n");
     printf("  --mcc           = Interpret the cards as MCC Punch Codes (invalid punch codes\n");
     printf("                      will be converted to spaces)\n");
@@ -1155,17 +1111,26 @@ static void print_help(char* program)
     printf("\nThis program will read a card spool file produced by the DPS8 Simulator,\n");
     printf("parse it, and produce the requested output on standard output. Note that only\n");
     printf("one output mode may be selected.\n");
+
+    printf("\n");
+    printf("\n This software is made available under the terms of the ICU License,");
+    printf("\n version 1.8.1 or later.  For complete details, see the \"LICENSE.md\"");
+    printf("\n included or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
+    printf("\n");
 }
 
-
 static struct option long_options[] = {
-    {"7punch", no_argument, 0, 0},
-    {"cards", no_argument, 0, 0},
-    {"glyphs", no_argument, 0, 0},
-    {"help", no_argument, 0, 0},
-    {"mcc", no_argument, 0, 0},
-    {"noauto", no_argument, 0, 0},
-    {"raw", no_argument, 0, 0},
+    {"7punch", no_argument, 0, '7'},
+    {"auto", no_argument, 0, 'a'},
+    {"cards", no_argument, 0, 'c'},
+    {"debug", no_argument, 0, 'd'},
+    {"flip", no_argument, 0, 'f'},
+    {"glyphs", no_argument, 0, 'g'},
+    {"help", no_argument, 0, 'h'},
+    {"mcc", no_argument, 0, 'm'},
+    {"no-auto", no_argument, 0, 'n'},
+    {"raw", no_argument, 0, 'r'},
+    {"version", no_argument, 0, 'v'},
     {0, 0, 0, 0}};
 
 static void parse_options(int argc, char *argv[])
@@ -1177,7 +1142,7 @@ static void parse_options(int argc, char *argv[])
     {
         int option_index = 0;
 
-        c = getopt_long(argc, argv, "", long_options, &option_index);
+        c = getopt_long(argc, argv, "vV", long_options, &option_index);
 
         switch (c)
         {
@@ -1185,38 +1150,153 @@ static void parse_options(int argc, char *argv[])
             done = true;
             break;
 
+        case '7':
+            fprintf(stderr, "*** Sorry: 7punch format is not yet supported!\n");
+            exit(1);
+
+        case 'a':
+            output_auto = true;
+            output_cards = false;
+            output_glyphs = false;
+            output_mcc = false;
+            output_raw = false;
+            break;
+
+        case 'c':
+            output_auto = false;
+            output_cards = true;
+            output_glyphs = false;
+            output_mcc = false;
+            output_raw = false;
+            break;
+
+        case 'd':
+            output_debug = true;
+            break;
+
+        case 'f':
+            output_flip = true;
+            break;
+
+        case 'g':
+            output_auto = false;
+            output_cards = false;
+            output_glyphs = true;
+            output_mcc = false;
+            output_raw = false;
+            break;
+
+        case 'm':
+            output_auto = false;
+            output_cards = false;
+            output_glyphs = false;
+            output_mcc = true;
+            output_raw = false;
+            break;
+
+        case 'n':
+            output_auto = false;
+            break;
+
+        case 'r':
+            output_auto = false;
+            output_cards = false;
+            output_glyphs = false;
+            output_mcc = false;
+            output_raw = true;
+            break;
+
+        case 'v':
+        case 'V':
+            fprintf(stderr, "\nVersion 0.1\n");
+            break;
+
+        case 'h':
         case '?':
             print_help(argv[0]);
             exit(1);
 
-        case 0:
-            printf("option %s\n", long_options[option_index].name);
-            break;
-
         default:
-            fprintf(stderr, "*** Error: did not expect non-zero when parsing options, got %d\n", c);
+            fprintf(stderr, "*** Internal Error: did not recognize option when parsing options, got %d\n", c);
             exit(1);
         }
+    }
+
+    // Verify selected options
+    bool override_in_effect = output_cards || output_glyphs || output_mcc || output_raw;
+
+    if (!output_auto && !override_in_effect)
+    {
+        fprintf(stderr, "*** Error: auto mode was disabled with no override mode selected!\n");
+        exit(1);
+    }
+}
+
+static void dump_raw(FILE *out_file)
+{
+    CARD_CACHE_ENTRY *current_entry = data_card_cache.first_cache_card;
+    while (current_entry != NULL)
+    {
+        if (output_debug)
+        {
+            fprintf(stderr, "\nCard:\n");
+            for (uint col = 0; col < CARD_COL_COUNT; col++)
+            {
+                fprintf(stderr, "  0x%03X\n", current_entry->card->column[col]);
+            }
+        }
+        for (int current_nibble = 0; current_nibble < NIBBLES_PER_CARD; current_nibble += 2)
+        {
+            uint8 byte = 0;
+
+            uint col = current_nibble / 3;
+            uint nibble_offset = 2 - (current_nibble % 3);
+
+            uint nibble = (current_entry->card->column[col] >> (nibble_offset * 4)) & 0x00F;
+            byte |= nibble << 4;
+
+            col = (current_nibble + 1) / 3;
+            nibble_offset = 2 - ((current_nibble + 1) % 3);
+
+            nibble = (current_entry->card->column[col] >> (nibble_offset * 4)) & 0x00F;
+            byte |= nibble;
+
+            if (fwrite(&byte, 1, 1, out_file) != 1)
+            {
+                perror("Failed to write output file\n");
+                exit(5);
+            }
+        }
+        current_entry = current_entry->next_entry;
     }
 }
 
 int main(int argc, char *argv[])
 {
-    printf("****\nPunch File Utility\n****\n");
+    fprintf(stderr, "****\nPunch File Utility\n****\n");
+
+    parse_options(argc, argv);
 
     init();
 
-    FILE *in_file = fopen("/home/deana/multics/kit-test-12.7/run/punches/puna/SYSADMIN.50001.07-31-21.0645.4.1.raw", "r");
-    parse_cards(in_file);
+    parse_cards(stdin);
+    //    FILE *in_file = fopen("/home/deana/multics/kit-test-12.7/run/punches/puna/SYSADMIN.50001.07-31-21.0645.4.1.raw", "r");
+    //    parse_cards(in_file);
 
+    if (output_raw)
+    {
+        fprintf(stderr, "\n*****\nWriting raw output\n*****\n");
+        dump_raw(stdout);
+    }
+
+#if 0
     if (check_for_valid_mcc_cards())
     {
-        printf(">> All data cards appear to be valid MCC cards\n");
+        fprintf(stderr, ">> All data cards appear to be valid MCC cards\n");
     }
     else
     {
-        printf("** Data cards contain invalid MCC punch codes\n");
+        fprintf(stderr, "** Data cards contain invalid MCC punch codes\n");
     }
-
-    parse_options(argc, argv);
+#endif
 }
