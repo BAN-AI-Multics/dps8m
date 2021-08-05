@@ -581,19 +581,33 @@ static void remove_spaces(char *str)
     str[dest] = 0;
 }
 
-static void print_card(card_image_t *card)
+static char row_prefix_chars[] = "&-0123456789";
+
+static void print_card(FILE* out_file, card_image_t *card, bool flip_card)
 {
     if (output_cards)
     {
-        printf("Card:\n");
+        fprintf(out_file, " +--------------------------------------------------------------------------------+\n");
         for (int row = 0; row < 12; row++)
         {
-            for (int col = 0; col < CARD_COL_COUNT; col++)
+            fprintf(out_file, "%c|", row_prefix_chars[row]);
+            if (flip_card)
             {
-                printf(card->column[col] & row_bit_masks[row] ? "*" : " ");
+                for (int col = CARD_COL_COUNT - 1; col >= 0; col--)
+                {
+                    fprintf(out_file, card->column[col] & row_bit_masks[row] ? "*" : " ");
+                }
             }
-            printf("\n");
+            else
+            {
+                for (int col = 0; col < CARD_COL_COUNT; col++)
+                {
+                    fprintf(out_file, card->column[col] & row_bit_masks[row] ? "*" : " ");
+                }
+            }
+            fprintf(out_file, "|\n");
         }
+        fprintf(out_file, " +--------------------------------------------------------------------------------+\n\n");
     }
 }
 
@@ -745,19 +759,12 @@ static card_image_t *read_card(FILE *in_file)
         card->column[col] |= (nibble << nibble_offset);
     }
 
-    print_card(card);
+    if (output_debug)
+    {
+        print_card(stderr, card, false);
+    }
 
     return card;
-}
-
-static void print_cards(FILE *in_file)
-{
-    card_image_t *card;
-    while (card = read_card(in_file))
-    {
-        print_card(card);
-        printf("\n");
-    }
 }
 
 static void save_card_in_cache(CARD_CACHE *card_cache, card_image_t *card)
@@ -919,6 +926,8 @@ static enum parse_event do_state_end_of_job(enum parse_event event, card_image_t
 {
     print_transition(current_state, event, EndOfJob);
     current_state = EndOfJob;
+
+    save_card_in_cache(&trailer_card_cache, card); // Save card in cache
 
     return Done;
 }
@@ -1235,6 +1244,30 @@ static void parse_options(int argc, char *argv[])
     }
 }
 
+static void dump_cards(FILE *out_file)
+{
+    CARD_CACHE_ENTRY *current_entry = banner_card_cache.first_cache_card;
+    while (current_entry != NULL)
+    {
+        print_card(out_file, current_entry->card, output_flip);
+        current_entry = current_entry->next_entry;
+    }
+
+    current_entry = data_card_cache.first_cache_card;
+    while (current_entry != NULL)
+    {
+        print_card(out_file, current_entry->card, false);
+        current_entry = current_entry->next_entry;
+    }
+
+    current_entry = trailer_card_cache.first_cache_card;
+    while (current_entry != NULL)
+    {
+        print_card(out_file, current_entry->card, output_flip);
+        current_entry = current_entry->next_entry;
+    }
+}
+
 static void dump_mcc(FILE *out_file)
 {
     char ascii_string[CARD_COL_COUNT + 1];
@@ -1297,6 +1330,18 @@ int main(int argc, char *argv[])
     parse_cards(stdin);
     //    FILE *in_file = fopen("/home/deana/multics/kit-test-12.7/run/punches/puna/SYSADMIN.50001.07-31-21.0645.4.1.raw", "r");
     //    parse_cards(in_file);
+
+    if (output_cards)
+    {
+        fprintf(stderr, "\n*****\nWriting ASCII Art Card Images (banner cards%s flipped)\n*****\n", output_flip ? "" : " not");
+        dump_cards(stdout);
+    }
+
+    if (output_glyphs)
+    {
+        fprintf(stderr, "\n*****\nWriting Banner Glyphs as ASCII\n*****\n");
+        fprintf(stdout, "%s\n", glyph_buffer);
+    }
 
     if (output_raw)
     {
