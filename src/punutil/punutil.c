@@ -407,6 +407,7 @@ static int mcc_to_ascii(word12 punch_code)
     return -1;
 }
 
+#if 0
 // Scans data cards to determine if they contain all valid MCC punch codes
 static bool check_for_valid_mcc_cards()
 {
@@ -425,6 +426,7 @@ static bool check_for_valid_mcc_cards()
     }
     return true;
 }
+#endif
 
 static void convert_mcc_to_ascii(word12 *buffer, char *ascii_string)
 {
@@ -554,6 +556,7 @@ static char glyph_chars[NUM_GLYPH_CHAR_PATTERNS] =
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         '_', '-', '(', ')', '/'};
 
+#if 0
 static uint8 glyph_char_word_offset[11] =
     {
         24, 22, 19, 17, 15, 12, 10, 8, 5, 3, 1};
@@ -561,11 +564,13 @@ static uint8 glyph_char_word_offset[11] =
 static uint8 glyph_nibble_offset[11] =
     {
         1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2};
+#endif
 
 static uint8 glyph_starting_column[11] =
     {
         73, 66, 59, 52, 45, 38, 31, 24, 17, 10, 3};
 
+#if 0
 static void remove_spaces(char *str)
 {
     int src = 0;
@@ -580,6 +585,7 @@ static void remove_spaces(char *str)
     }
     str[dest] = 0;
 }
+#endif
 
 static char row_prefix_chars[] = "&-0123456789";
 
@@ -692,7 +698,7 @@ static void scan_card_for_glyphs(card_image_t *card)
     for (uint c_pos = 0; c_pos < 22; c_pos++)
     {
         char c = get_lace_char(card->column, c_pos);
-        uint8 current_length = strlen(glyph_buffer);
+        uint16 current_length = strlen(glyph_buffer); /* XXX(johnsonjh): @n0en? */
         if (current_length < (sizeof(glyph_buffer) - 1))
         {
             glyph_buffer[current_length++] = c;
@@ -1077,7 +1083,7 @@ static void parse_card(card_image_t *card)
 static void parse_cards(FILE *in_file)
 {
     card_image_t *card;
-    while (card = read_card(in_file))
+    while ( (card = ( read_card(in_file) ) ) )
     {
         parse_card(card);
         if (output_debug)

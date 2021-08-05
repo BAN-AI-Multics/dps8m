@@ -14,7 +14,6 @@
 
 //
 //  dps8_crdpun.c
-//  dps8
 //
 //  Created by Harry Reed on 6/16/13.
 //  Copyright (c) 2013 Harry Reed. All rights reserved.
@@ -645,12 +644,12 @@ static void remove_spaces(char *str)
   int dest = 0;
   while (str[src])
     {
-	  if (str[src] != ' ')
+      if (str[src] != ' ')
         {
           str[dest++] = str[src];
         }
-	  src++;
-	}
+          src++;
+        }
   str[dest] = 0;
 }
 

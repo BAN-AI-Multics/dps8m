@@ -3,8 +3,6 @@
 #
 ###############################################################################
 #
-# Copyright (c) 2013-2016 Charles Anthony
-# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
 # Copyright (c) 2021 The DPS8M Development Team
 #
 # All rights reserved.
@@ -15,17 +13,26 @@
 #
 ###############################################################################
 
-include ../Makefile.mk
+.DEFAULT_GOAL := all
+
+###############################################################################
+
+ifneq (,$(wildcard ../Makefile.mk))
+  include ../Makefile.mk
+endif
+
+###############################################################################
+
+PUFLAGS=-Wall -Wextra -Wpedantic -D_FORTIFY_SOURCE=2
+CFLAGS+=$(PUFLAGS)
 
 ###############################################################################
 
 .PHONY: all
 .NOTPARALLEL: all
 punutil$(EXE) all: punutil.o
-	@$(TEST) -f punutil$(EXE) || \
-		$(PRINTF) '%s\n' "LD: punutil" || $(TRUE)
 	@$(SETV); $(TEST) -f punutil$(EXE) || \
-		$(CC) $(LDFLAGS) -o punutil$(EXE) punutil.o
+		$(CC) $(CFLAGS) $(LDFLAGS) -o punutil$(EXE) punutil.o
 
 ###############################################################################
 
@@ -33,9 +40,15 @@ punutil$(EXE) all: punutil.o
 .NOTPARALLEL: clean
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: punutil"
-	@$(SETV); $(RMF) punutil$(EXE) > /dev/null 2>&1 || $(TRUE)
-	@$(SETV); $(RMF) punutil.exe > /dev/null 2>&1 || $(TRUE)
-	@$(SETV); $(RMF) punutil.o > /dev/null 2>&1 || $(TRUE)
+	@$(SETV); $(RMF) "punutil$(EXE)" > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) "punutil.exe"   > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) "punutil.o"     > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) "cflags.L"      > /dev/null 2>&1  ||  $(TRUE)
+
+###############################################################################
+
+punutil.o: punutil.c
+#punutil.o: cflags.L # /* XXX(johnsonjh) */
 
 ###############################################################################
 

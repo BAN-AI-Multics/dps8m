@@ -266,7 +266,7 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all: prt2pdf unifdef sysdefs.h $(TAGS) locallibs_then_dps8
+all: sysdefs.h unifdef prt2pdf punutil $(TAGS) locallibs_then_dps8
 
 ###############################################################################
 
@@ -392,6 +392,11 @@ unifdef:
 
 ###############################################################################
 
+punutil:
+	-@$(SETV); $(MAKE) -C "../punutil"
+
+###############################################################################
+
 udplib: udplib.c udplib.h
 	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
 
@@ -438,6 +443,7 @@ clean:
 	@$(SETV); $(MAKE) -C "$(SIMHx)" -f "GNUmakefile" "clean"
 	@$(SETV); $(MAKE) -C "../decNumber" "clean"
 	@$(SETV); $(MAKE) -C "../prt2pdf" "clean"
+	@$(SETV); $(MAKE) -C "../punutil" "clean"
 	@$(SETV); $(MAKE) -C "../unifdef" "clean"
 	@$(SETV); $(MAKE) "clean_dps8"
 	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)" || $(TRUE)
