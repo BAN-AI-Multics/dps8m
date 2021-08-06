@@ -31,7 +31,7 @@ endif
 
 ###############################################################################
 
-UIFLAGS=-Wall -Wextra -Wpedantic
+UIFLAGS=-Wall -Wextra -Wpedantic -D_FORTIFY_SOURCE=2
 CFLAGS+=$(UIFLAGS)
 
 ###############################################################################
