@@ -37,9 +37,9 @@ all: prt2pdf$(EXE)
 ###############################################################################
 
 .NOTPARALLEL: prt2pdf$(EXE)
-prt2pdf$(EXE): prt2pdf.o prt2pdf.c
+prt2pdf$(EXE): prt2pdf.c
 	@$(PRINTF) '%s\n' "CC: prt2pdf"     ||  $(TRUE)
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o prt2pdf$(EXE) prt2pdf.o
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o prt2pdf$(EXE) prt2pdf.c
 
 ###############################################################################
 
