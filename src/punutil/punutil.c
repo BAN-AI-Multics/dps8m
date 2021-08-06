@@ -575,32 +575,9 @@ static char glyph_chars[NUM_GLYPH_CHAR_PATTERNS] =
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         '_', '-', '(', ')', '/'};
 
-static uint8 glyph_char_word_offset[11] =
-    {
-        24, 22, 19, 17, 15, 12, 10, 8, 5, 3, 1};
-
-static uint8 glyph_nibble_offset[11] =
-    {
-        1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2};
-
 static uint8 glyph_starting_column[11] =
     {
         73, 66, 59, 52, 45, 38, 31, 24, 17, 10, 3};
-
-static void remove_spaces(char *str)
-{
-    int src = 0;
-    int dest = 0;
-    while (str[src])
-    {
-        if (str[src] != ' ')
-        {
-            str[dest++] = str[src];
-        }
-        src++;
-    }
-    str[dest] = 0;
-}
 
 static char row_prefix_chars[] = "&-0123456789";
 
@@ -713,7 +690,7 @@ static void scan_card_for_glyphs(card_image_t *card)
     for (uint c_pos = 0; c_pos < 22; c_pos++)
     {
         char c = get_lace_char(card->column, c_pos);
-        uint8 current_length = strlen(glyph_buffer); /* XXX(johnsonjh): @n0en? */
+        uint current_length = strlen(glyph_buffer);
         if (current_length < (sizeof(glyph_buffer) - 1))
         {
             glyph_buffer[current_length++] = c;
@@ -730,6 +707,9 @@ static card_image_t *allocate_card()
         fprintf(stderr, "*** Error: Failed to allocate card image!\n");
         exit(1);
     }
+
+    memset(card, 0, sizeof(card_image_t));
+    
     return card;
 }
 
