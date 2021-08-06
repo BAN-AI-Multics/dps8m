@@ -296,45 +296,40 @@ printmod:
 
 ###############################################################################
 
-.PHONY: osconf
-.NOTPARALLEL: osconf blinkenLights
-blinkenLights: osconf blinkenLights.c shm.o
+.NOTPARALLEL: blinkenLights
+blinkenLights: blinkenLights.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLights"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights.c                      \
         -o blinkenLights shm.o `$(PKGCONFIG) --cflags --libs gtk+-3.0`
 
 ###############################################################################
 
-.PHONY: osconf
-.NOTPARALLEL: osconf blinkenLights2
-blinkenLights2: osconf blinkenLights2.c shm.o
+.NOTPARALLEL: blinkenLights2
+blinkenLights2: blinkenLights2.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLights2s"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights2.c                     \
         -o blinkenLights2 shm.o `$(PKGCONFIG) --cflags --libs gtk+-3.0` -lrt
 
 ###############################################################################
 
-.PHONY: osconf
-.NOTPARALLEL: osconf blinkenLightsPi
-blinkenLightsPi: osconf blinkenLightsPi.c shm.o
+.NOTPARALLEL: blinkenLightsPi
+blinkenLightsPi: blinkenLightsPi.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLightsPi"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsPi.c                    \
         -o blinkenLightsPi shm.o
 
 ###############################################################################
 
-.PHONY: osconf
-.NOTPARALLEL: osconf blinkenLightsCurses
-blinkenLightsCurses: osconf blinkenLightsCurses.c shm.o
+.NOTPARALLEL: blinkenLightsCurses
+blinkenLightsCurses: blinkenLightsCurses.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLightsCurses"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsCurses.c                \
         -o blinkenLightsCurses shm.o -lncurses
 
 ###############################################################################
 
-.PHONY: all osconf ctags
-dps8$(EXE): osconf $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(DECN_OBJS)           \
-            ctags  $(SIMH_OBJS)
+.PHONY: all ctags
+dps8$(EXE): $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(DECN_OBJS) $(SIMH_OBJS) ctags
 	@$(PRINTF) '%s\n' "LD: dps8$(EXE)"
 	@$(SETV); $(CC) -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS)             \
         $(DECN_OBJS) $(SIMH_OBJS) $(LOCALLIBS) $(LIBS)
@@ -413,7 +408,7 @@ punutil:
 ###############################################################################
 
 udplib: udplib.c udplib.h
-udplib$(EXE): osconf udplib.c udplib.h
+udplib$(EXE): udplib.c udplib.h
 	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
 
 ###############################################################################
@@ -489,7 +484,7 @@ clean_dps8:
 	@$(PRINTF) '%s\n' "CLEAN: dps8"
 	@$(SETV); $(RMF) $(OBJS) $(C_DEPS) $(EXECUTABLES) "dps8$(EXE)"            \
         "tags" "TAGS" $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*))      \
-            "dps8.exe" "errnos.h" "udplib" "cflags.L" || $(TRUE)
+            "dps8.exe" "errnos.h" "udplib"  ||  $(TRUE)
 
 ###############################################################################
 
@@ -601,7 +596,6 @@ blinkenLights2.o:   dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 blinkenLights2.o:   dps8_sys.h
 blinkenLights2.o:   hdbg.h
 blinkenLights2.o:   shm.h
-blinkenLights2.o:   cflags.L
 blinkenLightsPi.o:  dps8.h
 blinkenLightsPi.o:  dps8_simh.h
 blinkenLightsPi.o:  dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -609,7 +603,6 @@ blinkenLightsPi.o:  dps8_sys.h
 blinkenLightsPi.o:  dps8_faults.h
 blinkenLightsPi.o:  dps8_cpu.h hdbg.h dps8_iom.h dps8_cable.h dps8_state.h
 blinkenLightsPi.o:  shm.h
-blinkenLightsPi.o:  cflags.L
 dps8_absi.o:        dps8.h
 dps8_absi.o:        dps8_simh.h
 dps8_absi.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -617,7 +610,6 @@ dps8_absi.o:        dps8_iom.h
 dps8_absi.o:        dps8_absi.h dps8_sys.h
 dps8_absi.o:        dps8_scu.h
 dps8_absi.o:        dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h udplib.h
-dps8_absi.o:        cflags.L
 dps8_addrmods.o:    dps8.h
 dps8_addrmods.o:    dps8_simh.h
 dps8_addrmods.o:    dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -626,14 +618,12 @@ dps8_addrmods.o:    dps8_faults.h
 dps8_addrmods.o:    dps8_scu.h dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h
 dps8_addrmods.o:    dps8_append.h dps8_ins.h dps8_iefp.h dps8_opcodetable.h
 dps8_addrmods.o:    dps8_utils.h
-dps8_addrmods.o:    cflags.L
 dps8_append.o:      dps8_simh.h
 dps8_append.o:      dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_append.o:      dps8_sys.h
 dps8_append.o:      dps8_scu.h
 dps8_append.o:      dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_append.h
 dps8_append.o:      dps8_addrmods.h dps8_utils.h
-dps8_append.o:      cflags.L
 dps8_cable.o:       dps8.h
 dps8_cable.o:       dps8_simh.h
 dps8_cable.o:       dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -644,7 +634,6 @@ dps8_cable.o:       dps8_cable.h dps8_cpu.h hdbg.h dps8_state.h dps8_console.h
 dps8_cable.o:       dps8_disk.h dps8_fnp2.h libtelnet.h dps8_urp.h
 dps8_cable.o:       dps8_crdrdr.h
 dps8_cable.o:       dps8_crdpun.h dps8_prt.h dps8_utils.h dps8_absi.h
-dps8_cable.o:       cflags.L
 dps8_console.o:     dps8.h
 dps8_console.o:     dps8_simh.h
 dps8_console.o:     dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -653,7 +642,6 @@ dps8_console.o:     dps8_console.h dps8_sys.h
 dps8_console.o:     dps8_faults.h
 dps8_console.o:     dps8_scu.h dps8_cable.h dps8_cpu.h hdbg.h dps8_mt.h
 dps8_console.o:     dps8_disk.h dps8_utils.h libtelnet.h
-dps8_console.o:     cflags.L
 dps8_cpu.o:         dps8.h
 dps8_cpu.o:         dps8_simh.h
 dps8_cpu.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -665,7 +653,6 @@ dps8_cpu.o:         dps8_math.h dps8_iefp.h dps8_console.h dps8_fnp2.h
 dps8_cpu.o:         libtelnet.h
 dps8_cpu.o:         dps8_socket_dev.h dps8_crdrdr.h dps8_absi.h dps8_utils.h
 dps8_cpu.o:         dps8_opcodetable.h
-dps8_cpu.o:         cflags.L
 dps8_crdpun.o:      dps8.h
 dps8_crdpun.o:      dps8_simh.h
 dps8_crdpun.o:      dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -673,7 +660,6 @@ dps8_crdpun.o:      dps8_iom.h
 dps8_crdpun.o:      dps8_crdpun.h dps8_sys.h
 dps8_crdpun.o:      dps8_scu.h
 dps8_crdpun.o:      dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
-dps8_crdpun.o:      cflags.L
 dps8_crdrdr.o:      dps8.h
 dps8_crdrdr.o:      dps8_simh.h
 dps8_crdrdr.o:      dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -681,14 +667,12 @@ dps8_crdrdr.o:      dps8_iom.h
 dps8_crdrdr.o:      dps8_crdrdr.h dps8_sys.h
 dps8_crdrdr.o:      dps8_scu.h
 dps8_crdrdr.o:      dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
-dps8_crdrdr.o:      cflags.L
 dps8_decimal.o:     dps8_simh.h
 dps8_decimal.o:     dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_decimal.o:     dps8_sys.h
 dps8_decimal.o:     dps8_faults.h
 dps8_decimal.o:     dps8_scu.h dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h
 dps8_decimal.o:     dps8_decimal.h dps8_eis.h dps8_utils.h
-dps8_decimal.o:     cflags.L
 dps8_dia.o:         dps8_simh.h
 dps8_dia.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_dia.o:         dps8_dia.h
@@ -696,42 +680,36 @@ dps8_dia.o:         dps8_sys.h
 dps8_dia.o:         dps8_scu.h
 dps8_dia.o:         dps8_cpu.h hdbg.h dps8_iom.h dps8_cable.h dps8_utils.h
 dps8_dia.o:         udplib.h
-dps8_dia.o:         cflags.L
 dps8_disk.o:        dps8_simh.h
 dps8_disk.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_disk.o:        dps8_iom.h
 dps8_disk.o:        dps8_disk.h dps8_sys.h
 dps8_disk.o:        dps8_scu.h
 dps8_disk.o:        dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
-dps8_disk.o:        cflags.L
 dps8_eis.o:         dps8_simh.h
 dps8_eis.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_eis.o:         dps8_sys.h
 dps8_eis.o:         dps8_scu.h
 dps8_eis.o:         dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_iefp.h
 dps8_eis.o:         dps8_decimal.h dps8_ins.h dps8_eis.h dps8_utils.h
-dps8_eis.o:         cflags.L
 dps8_faults.o:      dps8_simh.h
 dps8_faults.o:      dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_faults.o:      dps8_sys.h
 dps8_faults.o:      dps8_scu.h
 dps8_faults.o:      dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_append.h
 dps8_faults.o:      dps8_ins.h dps8_utils.h
-dps8_faults.o:      cflags.L
 dps8_fnp2.o:        dps8_simh.h
 dps8_fnp2.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_fnp2.o:        dps8_sys.h
 dps8_fnp2.o:        dps8_scu.h
 dps8_fnp2.o:        dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_fnp2.h
 dps8_fnp2.o:        libtelnet.h fnptelnet.h fnpuv.h dps8_utils.h utlist.h
-dps8_fnp2.o:        cflags.L
 dps8_fnp2_iomcmd.o: dps8.h
 dps8_fnp2_iomcmd.o: dps8_simh.h dps8_math128.h dps8_hw_consts.h
 dps8_fnp2_iomcmd.o: dps8_em_consts.h dps8_sys.h
 dps8_fnp2_iomcmd.o: dps8_scu.h
 dps8_fnp2_iomcmd.o: dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_fnp2.h
 dps8_fnp2_iomcmd.o: libtelnet.h dps8_fnp2_iomcmd.h dps8_utils.h fnpuv.h
-dps8_fnp2_iomcmd.o: cflags.L
 dps8_iefp.o:        dps8.h
 dps8_iefp.o:        dps8_simh.h
 dps8_iefp.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -739,7 +717,6 @@ dps8_iefp.o:        dps8_sys.h
 dps8_iefp.o:        dps8_scu.h
 dps8_iefp.o:        dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_append.h
 dps8_iefp.o:        dps8_iefp.h dps8_addrmods.h dps8_utils.h
-dps8_iefp.o:        cflags.L
 dps8_ins.o:         dps8_simh.h
 dps8_ins.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_ins.o:         dps8_addrmods.h
@@ -750,7 +727,6 @@ dps8_ins.o:         dps8_math.h
 dps8_ins.o:         dps8_opcodetable.h dps8_decimal.h dps8_iefp.h dps8_utils.h
 dps8_ins.o:         ver.h
 dps8_ins.o:         dps8_prom.h
-dps8_ins.o:         cflags.L
 dps8_iom.o:         dps8.h
 dps8_iom.o:         dps8_simh.h
 dps8_iom.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -758,11 +734,9 @@ dps8_iom.o:         dps8_sys.h
 dps8_iom.o:         uvutil.h dps8_faults.h dps8_scu.h dps8_iom.h dps8_cable.h
 dps8_iom.o:         dps8_cpu.h hdbg.h dps8_console.h dps8_fnp2.h libtelnet.h
 dps8_iom.o:         dps8_utils.h
-dps8_iom.o:         cflags.L
 dps8_math128.o:     dps8.h
 dps8_math128.o:     dps8_simh.h
 dps8_math128.o:     dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
-dps8_math128.o:     cflags.L
 dps8_math.o:        dps8_simh.h
 dps8_math.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_math.o:        dps8_sys.h
@@ -770,17 +744,14 @@ dps8_math.o:        dps8_scu.h
 dps8_math.o:        dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_ins.h
 dps8_math.o:        dps8_math.h
 dps8_math.o:        dps8_utils.h
-dps8_math.o:        cflags.L
 dps8_mt.o:          dps8_simh.h
 dps8_mt.o:          dps8_math128.h dps8_hw_consts.h dps8_em_consts.h dps8_mt.h
 dps8_mt.o:          dps8_sys.h
 dps8_mt.o:          dps8_scu.h
 dps8_mt.o:          dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
-dps8_mt.o:          cflags.L
 dps8_opcodetable.o: dps8.h
 dps8_opcodetable.o: dps8_simh.h dps8_math128.h dps8_hw_consts.h
 dps8_opcodetable.o: dps8_em_consts.h dps8_opcodetable.h
-dps8_opcodetable.o: cflags.L
 dps8_prt.o:         dps8.h
 dps8_prt.o:         dps8_simh.h
 dps8_prt.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -788,11 +759,9 @@ dps8_prt.o:         dps8_iom.h
 dps8_prt.o:         dps8_prt.h dps8_sys.h
 dps8_prt.o:         dps8_scu.h
 dps8_prt.o:         dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
-dps8_prt.o:         cflags.L
 dps8_scu.o:         dps8.h
 dps8_scu.o:         dps8_simh.h
 dps8_scu.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
-dps8_scu.o:         cflags.L
 dps8_scu.o:         dps8_sys.h
 dps8_scu.o:         uvutil.h dps8_faults.h dps8_scu.h dps8_iom.h dps8_cable.h
 dps8_scu.o:         dps8_cpu.h hdbg.h dps8_utils.h
@@ -801,14 +770,12 @@ dps8_simh.o:        dps8_simh.h
 dps8_simh.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_simh.o:        dps8_sys.h
 dps8_simh.o:        uvutil.h
-dps8_simh.o:        cflags.L
 dps8_socket_dev.o:  dps8_simh.h
 dps8_socket_dev.o:  dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_socket_dev.o:  dps8_socket_dev.h dps8_sys.h
 dps8_socket_dev.o:  dps8_faults.h
 dps8_socket_dev.o:  dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
 dps8_socket_dev.o:  errnos.h
-dps8_socket_dev.o:  cflags.L
 dps8_sys.o:         dps8_simh.h
 dps8_sys.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_sys.o:         dps8_console.h
@@ -822,7 +789,6 @@ dps8_sys.o:         dps8_fnp2.h libtelnet.h dps8_crdrdr.h dps8_crdpun.h
 dps8_sys.o:         dps8_prt.h
 dps8_sys.o:         dps8_urp.h dps8_absi.h dps8_utils.h shm.h utlist.h
 dps8_sys.o:         ver.h
-dps8_sys.o:         cflags.L
 dps8_urp.o:         dps8.h
 dps8_urp.o:         dps8_simh.h
 dps8_urp.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -830,21 +796,18 @@ dps8_urp.o:         dps8_iom.h
 dps8_urp.o:         dps8_urp.h dps8_sys.h
 dps8_urp.o:         dps8_scu.h
 dps8_urp.o:         dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
-dps8_urp.o:         cflags.L
 dps8_utils.o:       dps8_simh.h
 dps8_utils.o:       dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_utils.o:       dps8_sys.h
 dps8_utils.o:       dps8_scu.h
 dps8_utils.o:       dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_ins.h
 dps8_utils.o:       dps8_opcodetable.h dps8_utils.h
-dps8_utils.o:       cflags.L
 fnptelnet.o:        dps8_simh.h
 fnptelnet.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 fnptelnet.o:        dps8_sys.h
 fnptelnet.o:        dps8_scu.h
 fnptelnet.o:        dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_fnp2.h
 fnptelnet.o:        libtelnet.h dps8_utils.h fnpuv.h fnptelnet.h
-fnptelnet.o:        cflags.L
 fnpuv.o:            dps8_simh.h
 fnpuv.o:            dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 fnpuv.o:            dps8_scu.h
@@ -853,17 +816,13 @@ fnpuv.o:            dps8_cable.h
 fnpuv.o:            dps8_cpu.h hdbg.h dps8_fnp2.h libtelnet.h dps8_utils.h
 fnpuv.o:            fnpuv.h
 fnpuv.o:            fnptelnet.h
-fnpuv.o:            cflags.L
 hdbg.o:             dps8.h
 hdbg.o:             dps8_simh.h
 hdbg.o:             dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 hdbg.o:             dps8_sys.h
 hdbg.o:             uvutil.h dps8_cpu.h hdbg.h dps8_utils.h
-hdbg.o:             cflags.L
 libtelnet.o:        libtelnet.h
-libtelnet.o:        cflags.L
 shm.o:              shm.h
-shm.o:              cflags.L
 threadz.o:          dps8.h
 threadz.o:          dps8_simh.h
 threadz.o:          dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -871,17 +830,13 @@ threadz.o:          dps8_sys.h
 threadz.o:          uvutil.h dps8_cpu.h hdbg.h dps8_faults.h dps8_iom.h
 threadz.o:          dps8_utils.h
 threadz.o:          threadz.h
-threadz.o:          cflags.L
 tracker.o:          tracker.h
-tracker.o:          cflags.L
 udplib.o:           h316_imp.h
-udplib.o:           cflags.L
 uvutil.o:           dps8.h
 uvutil.o:           dps8_hw_consts.h
 uvutil.o:           dps8_em_consts.h dps8_sys.h uvutil.h dps8_cpu.h hdbg.h
 uvutil.o:           dps8_utils.h
 uvutil.o:           libtelnet.h
-uvutil.o:           cflags.L
 
 ###############################################################################
 

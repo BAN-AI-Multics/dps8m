@@ -25,8 +25,8 @@ endif
 
 ###############################################################################
 
-.PHONY: all osconf
-prt2pdf$(EXE) all: osconf prt2pdf.o cflags.L
+.PHONY: all
+prt2pdf$(EXE) all: prt2pdf.o
 	@$(TEST) -f prt2pdf$(EXE) ||                                              \
 		$(PRINTF) '%s\n' "LD: prt2pdf" || $(TRUE)
 	@$(SETV); $(TEST) -f prt2pdf$(EXE) ||                                     \
@@ -41,12 +41,10 @@ clean:
 	-@$(SETV); $(RMF) "prt2pdf$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "prt2pdf.exe"    > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "prt2pdf.o"      > /dev/null 2>&1  ||  $(TRUE)
-	-@$(SETV); $(RMF) "cflags.L"       > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 
 prt2pdf.o: prt2pdf.c
-prt2pdf.o: cflags.L
 
 ###############################################################################
 
