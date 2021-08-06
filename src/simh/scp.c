@@ -4769,6 +4769,8 @@ if (flag) {
     strremove(postver, "git://github.com/OpenIndiana/oi-userland.git ");
     strremove(postver, "4.2.1 Compatible ");
     strremove(postver, "git@github.com:llvm/llvm-project.git ");
+    strremove(postver, " (https://github.com/yrnkrn/zapcc)");
+    strremove(postver, "https://github.com/yrnkrn/zapcc ");
 #endif
 #if defined (__GNUC__) && defined (__VERSION__)
 #ifndef __clang_version__

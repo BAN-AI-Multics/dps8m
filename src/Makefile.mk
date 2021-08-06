@@ -170,18 +170,20 @@ else
 ###############################################################################
 # IBM AIX
 
-# OS: IBM AIX 7.2-GA, 7.2 TL3, and 7.2 TL4 SP3 on IBM POWER7/8/9 64-bit pSeries
-# Compiler: IBM AIX Toolbox GCC 8.3.0 (gcc-8-1.ppc, powerpc-ibm-aix7.2.0.0)
-# libuv: IBM AIX Toolbox libuv 1.38.1 (libuv-1.38.1-1, libuv-devel-1.38.1-1)
-# 32-bit builds, previous releases, and older technology levels are untested.
+# OS: IBM AIX 7.1-GA, 7.2-GA, 7.2 TL3, and 7.2 TL4 SP3+ on IBM POWER7+ pSeries
+# Compiler: IBM AIX Toolbox GCC 8.3.0 (gcc-8-1.ppc, powerpc-ibm-aix7.2.0.0),
+# libuv: IBM AIX Toolbox libuv 1.38.1 (libuv-1.38.1-1, libuv-devel-1.38.1-1),
+# libpot: IBM AIX Toolbox libpopt 1.18-1 (libpopt-1.18-1) or later is required.
 
+# 32-bit builds, previous releases, and older technology levels are untested.
 # Support for the IBM XLC C/C++ Compiler for POWER on AIX is currently planned.
 # Building using OSS4AIX/Perzl, AIXTOOLS, or Bull/Atos toolchains is untested.
 
   ifeq ($(UNAME_S),AIX)
     KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
-    CFLAGS += -maix$(KRNBITS) -Wl,-b$(KRNBITS)
-    LDFLAGS += -lm -lpthread -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+    CFLAGS += -maix$(KRNBITS) -Wl,-b$(KRNBITS)                                \
+              -I/opt/freeware/include -DHAVE_POPT=1
+    LDFLAGS += -lm -lpthread -lpopt -maix$(KRNBITS) -Wl,-b$(KRNBITS)
     CC=gcc
     LD=gcc
   endif
