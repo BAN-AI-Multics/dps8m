@@ -1141,7 +1141,6 @@ static void print_help(char *program)
     printf("  -m, --mcc       = Interpret the cards as MCC Punch Codes\n");
     printf("                      (Invalid punch codes will be converted to spaces)\n");
     printf("  -r, --raw       = Dump the raw card data as 12-bit words in column order\n");
-    printf("  -d, --debug     = Enable debugging information\n");
     printf("\nThis program will  read a  card  spool file produced  by the DPS8M Simulator,\n");
     printf("parse it, and produce the requested output on standard output. Note that only\n");
     printf("one output mode may be selected.\n");
