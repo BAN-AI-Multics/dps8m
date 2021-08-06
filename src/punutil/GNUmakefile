@@ -35,9 +35,9 @@ all: punutil$(EXE)
 ###############################################################################
 
 .NOTPARALLEL: punutil$(EXE)
-punutil$(EXE): punutil.o
+punutil$(EXE): punutil.c
 	@$(PRINTF) '%s\n' "CC: punutil"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o punutil$(EXE) punutil.o
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o punutil$(EXE) punutil.c
 
 ###############################################################################
 
