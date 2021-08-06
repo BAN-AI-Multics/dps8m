@@ -698,7 +698,7 @@ static void scan_card_for_glyphs(card_image_t *card)
     for (uint c_pos = 0; c_pos < 22; c_pos++)
     {
         char c = get_lace_char(card->column, c_pos);
-        uint16 current_length = strlen(glyph_buffer); /* XXX(johnsonjh): @n0en? */
+        uint8 current_length = strlen(glyph_buffer); /* XXX(johnsonjh): @n0en? */
         if (current_length < (sizeof(glyph_buffer) - 1))
         {
             glyph_buffer[current_length++] = c;
