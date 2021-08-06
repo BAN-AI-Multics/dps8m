@@ -68,13 +68,13 @@ typedef struct
     CARD_CACHE_ENTRY *last_cache_card;
 } CARD_CACHE;
 
-static bool output_auto = true;
+static bool output_auto   = true;
 static bool output_glyphs = false;
-static bool output_mcc = false;
-static bool output_cards = false;
-static bool output_flip = false;
-static bool output_raw = false;
-static bool output_debug = false;
+static bool output_mcc    = false;
+static bool output_cards  = false;
+static bool output_flip   = false;
+static bool output_raw    = false;
+static bool output_debug  = false;
 
 enum parse_state current_state = Idle;
 
@@ -392,7 +392,21 @@ static word12 mcc_punch_codes[128] =
         04005, //    (12-7-9)  0x805  2053
 };
 
-static word12 row_bit_masks[] = {0x800, 0x400, 0x200, 0x100, 0x080, 0x040, 0x020, 0x010, 0x008, 0x004, 0x002, 0x001};
+static word12 row_bit_masks[] =
+    { 
+        0x800,
+        0x400,
+        0x200,
+        0x100,
+        0x080,
+        0x040,
+        0x020,
+        0x010,
+        0x008,
+        0x004,
+        0x002,
+        0x001,
+};
 
 static int mcc_to_ascii(word12 punch_code)
 {
@@ -1112,7 +1126,6 @@ static void print_help(char *program)
     printf("  -n, --no-auto   = Disable auto selection of the card format\n");
     printf("                      (You must specify output control options)\n");
     printf("  -v, --version   = Output version information\n");
-    printf("  -d, --debug     = Enable debugging information\n");
     printf("\nOutput control options:\n");
     printf("    By default 'auto' mode is active, where a scan attempts to determine the\n");
     printf("    type of deck.  The scan order is: 'MCC', '7punch', and 'raw' (if neither\n");
@@ -1128,6 +1141,7 @@ static void print_help(char *program)
     printf("  -m, --mcc       = Interpret the cards as MCC Punch Codes\n");
     printf("                      (Invalid punch codes will be converted to spaces)\n");
     printf("  -r, --raw       = Dump the raw card data as 12-bit words in column order\n");
+    printf("  -d, --debug     = Enable debugging information\n");
     printf("\nThis program will  read a  card  spool file produced  by the DPS8M Simulator,\n");
     printf("parse it, and produce the requested output on standard output. Note that only\n");
     printf("one output mode may be selected.\n");
@@ -1140,18 +1154,19 @@ static void print_help(char *program)
 }
 
 static struct option long_options[] = {
-    {"7punch", no_argument, 0, '7'},
-    {"auto", no_argument, 0, 'a'},
-    {"cards", no_argument, 0, 'c'},
-    {"debug", no_argument, 0, 'd'},
-    {"flip", no_argument, 0, 'f'},
-    {"glyphs", no_argument, 0, 'g'},
-    {"help", no_argument, 0, 'h'},
-    {"mcc", no_argument, 0, 'm'},
+    {"7punch",  no_argument, 0, '7'},
+    {"auto",    no_argument, 0, 'a'},
+    {"cards",   no_argument, 0, 'c'},
+    {"debug",   no_argument, 0, 'd'},
+    {"flip",    no_argument, 0, 'f'},
+    {"glyphs",  no_argument, 0, 'g'},
+    {"help",    no_argument, 0, 'h'},
+    {"mcc",     no_argument, 0, 'm'},
     {"no-auto", no_argument, 0, 'n'},
-    {"raw", no_argument, 0, 'r'},
+    {"raw",     no_argument, 0, 'r'},
     {"version", no_argument, 0, 'v'},
-    {0, 0, 0, 0}};
+    {0,         0,           0,  0 }
+};
 
 static void parse_options(int argc, char *argv[])
 {
@@ -1162,7 +1177,7 @@ static void parse_options(int argc, char *argv[])
     {
         int option_index = 0;
 
-        c = getopt_long(argc, argv, "vV", long_options, &option_index);
+        c = getopt_long(argc, argv, "7acdfghmnrvV", long_options, &option_index);
 
         switch (c)
         {
@@ -1229,7 +1244,7 @@ static void parse_options(int argc, char *argv[])
         case 'v':
         case 'V':
             fprintf(stderr, "\nVersion 0.1\n");
-            break;
+            exit(1);
 
         case 'h':
         case '?':
