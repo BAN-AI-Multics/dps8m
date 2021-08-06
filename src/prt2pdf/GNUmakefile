@@ -25,12 +25,21 @@ endif
 
 ###############################################################################
 
+PRFLAGS=-Wall -Wextra -Wpedantic -D_FORTIFY_SOURCE=2
+CFLAGS+=$(PRFLAGS)
+
+###############################################################################
+
 .PHONY: all
-prt2pdf$(EXE) all: prt2pdf.o
-	@$(TEST) -f prt2pdf$(EXE) ||                                              \
-		$(PRINTF) '%s\n' "LD: prt2pdf" || $(TRUE)
-	@$(SETV); $(TEST) -f prt2pdf$(EXE) ||                                     \
-		$(CC) $(LDFLAGS) -o prt2pdf$(EXE) prt2pdf.o
+.NOTPARALLEL: all
+all: prt2pdf$(EXE)
+
+###############################################################################
+
+.NOTPARALLEL: prt2pdf$(EXE)
+prt2pdf$(EXE): prt2pdf.o prt2pdf.c
+	@$(PRINTF) '%s\n' "CC: prt2pdf"     ||  $(TRUE)
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o prt2pdf$(EXE) prt2pdf.o
 
 ###############################################################################
 
@@ -41,10 +50,6 @@ clean:
 	-@$(SETV); $(RMF) "prt2pdf$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "prt2pdf.exe"    > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "prt2pdf.o"      > /dev/null 2>&1  ||  $(TRUE)
-
-###############################################################################
-
-prt2pdf.o: prt2pdf.c
 
 ###############################################################################
 
