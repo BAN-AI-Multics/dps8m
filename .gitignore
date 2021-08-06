@@ -91,3 +91,6 @@ distclean
 superclean
 realclean
 reallyclean
+
+# Local libuv
+libuv/
