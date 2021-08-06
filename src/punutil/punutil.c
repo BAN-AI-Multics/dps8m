@@ -1105,7 +1105,7 @@ static void print_help(char *program)
     printf("\nMultics Punch Utility Program\n");
     printf("\nInvoking:\n");
     printf("    %s [options]\n", program);
-    printf("where options are:\n");
+    printf("Where options are:\n");
     printf("  -h, --help      = Output this message\n");
     printf("  -a, --auto      = Attempt to automatically determine the type of card deck\n");
     printf("                      (Default; disables any previously enabled output options)\n");
