@@ -37,11 +37,15 @@ CFLAGS+=$(UIFLAGS)
 ###############################################################################
 
 .PHONY: all
-unifdef$(EXE) all: unifdef.o
-	@$(TEST) -f unifdef$(EXE)            ||                                   \
-		$(PRINTF) '%s\n' "LD: unifdef"   ||  $(TRUE)
-	-@$(SETV); $(TEST) -f unifdef$(EXE)  ||                                   \
-		$(CC) $(CFLAGS) $(LDFLAGS) -o unifdef$(EXE) unifdef.o
+.NOTPARALLEL: all
+all: unifdef$(EXE)
+
+###############################################################################
+
+.NOTPARALLEL: unifdef$(EXE)
+unifdef$(EXE): unifdef.o unifdef.h version.h unifdef.c
+	@$(PRINTF) '%s\n' "CC: unifdef"
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o unifdef$(EXE) unifdef.o
 
 ###############################################################################
 
@@ -52,14 +56,6 @@ clean:
 	@$(SETV); $(RMF) "unifdef$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)
 	@$(SETV); $(RMF) "unifdef.exe"    > /dev/null 2>&1  ||  $(TRUE)
 	@$(SETV); $(RMF) "unifdef.o"      > /dev/null 2>&1  ||  $(TRUE)
-	@$(SETV); $(RMF) "cflags.L"       > /dev/null 2>&1  ||  $(TRUE)
-
-###############################################################################
-
-unifdef.o: unifdef.h
-unifdef.o: version.h
-unifdef.o: unifdef.c
-unifdef.o: cflags.L
 
 ###############################################################################
 

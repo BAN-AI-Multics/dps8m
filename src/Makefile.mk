@@ -101,29 +101,6 @@ endif
 
 ###############################################################################
 
-.PHONY: osconf
-.NOTPARALLEL: cflags.L osconf
-cflags.L: osconf
-
-###############################################################################
-
-ifndef MK_OSCONF_O
-MK_OSCONF_O=1
-.PHONY: osconf
-.NOTPARALLEL: osconf cflags.L
-osconf:
-	@$(SETV); $(PRINTF) '%s\n'                                                \
-     '$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) $(CROSS) $(CPPFLAGS) $(XFLAGS)'    | \
-      $(SED) -e 's/ -DVER_CURRENT_TIME="\\".*\\""/ -DVER_CURRENT_TIME/g'      \
-	   2> /dev/null | $(CMP) -s - "cflags.L" 2> /dev/null || {                \
-	    2> /dev/null $(PRINTF) '%s\n'                                         \
-         '$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) $(CROSS) $(CPPFLAGS) $(XFLAGS)'  \
-         | $(SED) -e 's/ -DVER_CURRENT_TIME="\\".*\\""/ -DVER_CURRENT_TIME/g' \
-            2> /dev/null > "cflags.L"; }; $(PRINTF) '%s\n' "" > /dev/null
-endif
-
-###############################################################################
-
 ifneq ($(OS),Windows_NT)
   UNAME_S := $(shell  $(UNAME) -s)
   ifeq ($(UNAME_S),Darwin)
