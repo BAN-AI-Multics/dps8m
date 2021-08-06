@@ -477,7 +477,7 @@ static int openPrtFile (int prt_unit_num, word36 * buffer, uint tally)
 
     char qno[6], name[LONGEST + 1];
     int rc = parseID (buffer, tally, qno, name);
-    char template[129 + LONGEST];
+    char template[1024 + 129 + LONGEST];
     char unit_designator = 'a' + (char) prt_unit_num;
     char split_prefix[6];
     split_prefix[0] = 0;
@@ -548,7 +548,7 @@ static int eoj (word36 * buffer, uint tally)
 //
 
 
-static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint chan)
+static int prt_read_status_register (UNUSED uint dev_unit_idx, uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     //UNIT * unitp = & prt_unit[dev_unit_idx];
@@ -1574,7 +1574,7 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
-    return IOM_CMD_OK;
+    return rc;
   }
 
 // 1 ignored command
@@ -1670,7 +1670,7 @@ static t_stat prt_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat prt_show_path (UNUSED FILE * st, UNIT * uptr,
+static t_stat prt_show_path (UNUSED FILE * st, UNUSED UNUSED UNIT * uptr,
                                        UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Path to PRT files is %s\n", prt_path);

@@ -1161,7 +1161,7 @@ static void do_stats (void)
 #ifndef NO_EV_POLL
 // The 100Hz timer as expired; poll I/O
 
-static void ev_poll_cb (uv_timer_t * UNUSED handle)
+static void ev_poll_cb (UNUSED uv_timer_t * handle)
   {
     // Call the one hertz stuff every 100 loops
     static uint oneHz = 0;
@@ -3218,7 +3218,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
+int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
     if (cpu.switches.useMap)
@@ -3326,7 +3326,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int core_write_unlock (word24 addr, word36 data, const char * ctx)
+int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
     if (cpu.switches.useMap)

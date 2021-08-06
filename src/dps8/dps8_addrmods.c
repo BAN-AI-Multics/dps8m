@@ -690,7 +690,8 @@ startCA:;
                       }
                   }
                 // fall through to TM_R
-                } // TM_IT
+                __attribute__ ((fallthrough));
+              } // TM_IT
 
             case TM_R:
               {

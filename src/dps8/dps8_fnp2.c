@@ -2087,7 +2087,7 @@ static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
       {
         sim_printf ("line: %d\n", l);
         sim_printf ("service:                     %d\n", fudp->MState.line[l].service);
-        sim_printf ("line_client:                 %p\n", fudp->MState.line[l].line_client);
+        sim_printf ("line_client:                 %p\n", (void *) fudp->MState.line[l].line_client);
         sim_printf ("was_CR:                      %d\n", fudp->MState.line[l].was_CR);
         sim_printf ("listen:                      %d\n", fudp->MState.line[l].listen);
         sim_printf ("inputBufferSize:             %d\n", fudp->MState.line[l].inputBufferSize);
@@ -2105,7 +2105,7 @@ static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
         sim_printf ("input_reply_pending:         %d\n", fudp->MState.line[l].input_reply_pending);
         sim_printf ("input_break:                 %d\n", fudp->MState.line[l].input_break);
         sim_printf ("nPos:                        %d\n", fudp->MState.line[l].nPos);
-        sim_printf ("inBuffer:                    %p\n", fudp->MState.line[l].inBuffer);
+        sim_printf ("inBuffer:                    %p\n", (void *) fudp->MState.line[l].inBuffer);
         sim_printf ("inSize:                      %d\n", fudp->MState.line[l].inSize);
         sim_printf ("inUsed:                      %d\n", fudp->MState.line[l].inUsed);
         //sim_printf ("doConnect:                   %p\n", fudp->MState.line[l].doConnect);

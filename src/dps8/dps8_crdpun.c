@@ -342,7 +342,7 @@ static void openPunFile (int pun_unit_num, UNUSED word36 * buffer, UNUSED uint t
     else
       sprintf (template, "pun%c.spool.%s.%s.XXXXXX", 'a' + pun_unit_num, qno, name);
 #else
-    char template [PATH_MAX+1];
+    char template [2 * PATH_MAX+1];
 
     if (pun_path_prefix [0])
       {
@@ -737,7 +737,7 @@ static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat pun_show_path (UNUSED FILE * st, UNIT * uptr,
+static t_stat pun_show_path (UNUSED FILE * st, UNUSED UNIT * uptr,
                                        UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Path to card punch directories is %s\n", pun_path_prefix);
