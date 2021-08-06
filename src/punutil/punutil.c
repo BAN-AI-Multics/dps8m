@@ -428,7 +428,6 @@ static int mcc_to_ascii(word12 punch_code)
     return -1;
 }
 
-#if 0
 // Scans data cards to determine if they contain all valid MCC punch codes
 static bool check_for_valid_mcc_cards()
 {
@@ -447,7 +446,6 @@ static bool check_for_valid_mcc_cards()
     }
     return true;
 }
-#endif
 
 static void convert_mcc_to_ascii(word12 *buffer, char *ascii_string)
 {
@@ -577,7 +575,6 @@ static char glyph_chars[NUM_GLYPH_CHAR_PATTERNS] =
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         '_', '-', '(', ')', '/'};
 
-#if 0
 static uint8 glyph_char_word_offset[11] =
     {
         24, 22, 19, 17, 15, 12, 10, 8, 5, 3, 1};
@@ -585,13 +582,11 @@ static uint8 glyph_char_word_offset[11] =
 static uint8 glyph_nibble_offset[11] =
     {
         1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2};
-#endif
 
 static uint8 glyph_starting_column[11] =
     {
         73, 66, 59, 52, 45, 38, 31, 24, 17, 10, 3};
 
-#if 0
 static void remove_spaces(char *str)
 {
     int src = 0;
@@ -606,11 +601,10 @@ static void remove_spaces(char *str)
     }
     str[dest] = 0;
 }
-#endif
 
 static char row_prefix_chars[] = "&-0123456789";
 
-static void print_card(FILE* out_file, card_image_t *card, bool flip_card)
+static void print_card(FILE *out_file, card_image_t *card, bool flip_card)
 {
     if (output_cards)
     {
@@ -869,32 +863,34 @@ static void print_state(enum parse_state state)
     }
 }
 
-static void print_transition(enum parse_state old_state, enum parse_event event, enum parse_state new_state)
+static void transition_state(enum parse_event event, enum parse_state new_state)
 {
     if (output_debug)
     {
-        fprintf(stderr, ">>> Punch Transition: ");
+        fprintf(stderr, ">>> State Transition: ");
         print_event(event);
         fprintf(stderr, " = ");
-        print_state(old_state);
+        print_state(current_state);
         fprintf(stderr, " -> ");
         print_state(new_state);
         fprintf(stderr, "\r\n");
     }
+
+    current_state = new_state;
 }
 
 static enum parse_event do_state_idle(enum parse_event event)
 {
-    print_transition(current_state, event, Idle);
-    current_state = Idle;
+    transition_state(event, Idle);
+
+    // no action
 
     return NoEvent;
 }
 
 static enum parse_event do_state_starting_job(enum parse_event event, card_image_t *card)
 {
-    print_transition(current_state, event, StartingJob);
-    current_state = StartingJob;
+    transition_state(event, StartingJob);
 
     glyph_buffer[0] = 0;                          // Clear Glyph Buffer
     save_card_in_cache(&banner_card_cache, card); // Save card in cache
@@ -904,8 +900,7 @@ static enum parse_event do_state_starting_job(enum parse_event event, card_image
 
 static enum parse_event do_state_scan_card_for_glyphs(enum parse_event event, card_image_t *card)
 {
-    print_transition(current_state, event, PunchGlyphLookup);
-    current_state = PunchGlyphLookup;
+    transition_state(event, PunchGlyphLookup);
 
     scan_card_for_glyphs(card);
 
@@ -916,8 +911,7 @@ static enum parse_event do_state_scan_card_for_glyphs(enum parse_event event, ca
 
 static enum parse_event do_state_end_of_header(enum parse_event event, card_image_t *card)
 {
-    print_transition(current_state, event, EndOfHeader);
-    current_state = EndOfHeader;
+    transition_state(event, EndOfHeader);
 
     save_card_in_cache(&banner_card_cache, card); // Save card in cache
 
@@ -931,8 +925,7 @@ static enum parse_event do_state_end_of_header(enum parse_event event, card_imag
 
 static enum parse_event do_state_cache_card(enum parse_event event, card_image_t *card)
 {
-    print_transition(current_state, event, CacheCard);
-    current_state = CacheCard;
+    transition_state(event, CacheCard);
 
     save_card_in_cache(&data_card_cache, card); // Save card in cache
 
@@ -941,8 +934,7 @@ static enum parse_event do_state_cache_card(enum parse_event event, card_image_t
 
 static enum parse_event do_state_end_of_deck(enum parse_event event, card_image_t *card)
 {
-    print_transition(current_state, event, EndOfDeck);
-    current_state = EndOfDeck;
+    transition_state(event, EndOfDeck);
 
     save_card_in_cache(&trailer_card_cache, card); // Save card in cache
 
@@ -951,8 +943,7 @@ static enum parse_event do_state_end_of_deck(enum parse_event event, card_image_
 
 static enum parse_event do_state_end_of_job(enum parse_event event, card_image_t *card)
 {
-    print_transition(current_state, event, EndOfJob);
-    current_state = EndOfJob;
+    transition_state(event, EndOfJob);
 
     save_card_in_cache(&trailer_card_cache, card); // Save card in cache
 
@@ -963,13 +954,13 @@ static void unexpected_event(enum parse_event event)
 {
     if (output_debug)
     {
-        printf("*** Unexpected event ");
+        fprintf(stderr, "*** Unexpected event ");
         print_event(event);
 
-        printf(" in state ");
+        fprintf(stderr, " in state ");
         print_state(current_state);
 
-        printf("***\n");
+        fprintf(stderr, "***\n");
     }
 }
 
@@ -1109,7 +1100,7 @@ static void parse_cards(FILE *in_file)
         parse_card(card);
         if (output_debug)
         {
-            printf("\n");
+            fprintf(stderr, "\n");
         }
     }
 }
@@ -1132,7 +1123,7 @@ static void print_help(char *program)
     printf("                      (Default; disables any previously enabled output options)\n");
     printf("  -n, --no-auto   = Disable auto selection of the card format\n");
     printf("                      (You must specify output control options)\n");
-    printf("  -v, --version   = Output version information\n");
+    printf("  -v, --version   = Add version information to stderr output\n");
     printf("\nOutput control options:\n");
     printf("    By default 'auto' mode is active, where a scan attempts to determine the\n");
     printf("    type of deck.  The scan order is: 'MCC', '7punch', and 'raw' (if neither\n");
@@ -1272,7 +1263,7 @@ static void parse_options(int argc, char *argv[])
 
         case 'v':
             fprintf(stderr, "\nVersion 0.1\n");
-            exit(1);
+            break;
 
         case 'h':
         case '?':
@@ -1382,8 +1373,20 @@ int main(int argc, char *argv[])
     init();
 
     parse_cards(stdin);
-    //    FILE *in_file = fopen("/home/deana/multics/kit-test-12.7/run/punches/puna/SYSADMIN.50001.07-31-21.0645.4.1.raw", "r");
-    //    parse_cards(in_file);
+
+    if (output_auto)
+    {
+        if (check_for_valid_mcc_cards())
+        {
+            output_mcc = true;
+            fprintf(stderr, ">> Auto-detected MCC Punch Codes <<\n");
+        }
+        else
+        {
+            output_raw = true;
+            fprintf(stderr, ">> Auto-detection did not recognize format so output mode set to raw <<\n");
+        }
+    }
 
     if (output_cards)
     {
@@ -1409,14 +1412,4 @@ int main(int argc, char *argv[])
         dump_mcc(stdout);
     }
 
-#if 0
-    if (check_for_valid_mcc_cards())
-    {
-        fprintf(stderr, ">> All data cards appear to be valid MCC cards\n");
-    }
-    else
-    {
-        fprintf(stderr, "** Data cards contain invalid MCC punch codes\n");
-    }
-#endif
 }
