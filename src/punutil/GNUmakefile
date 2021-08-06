@@ -30,9 +30,14 @@ CFLAGS+=$(PUFLAGS)
 
 .PHONY: all
 .NOTPARALLEL: all
-punutil$(EXE) all: punutil.o
-	@$(SETV); $(TEST) -f punutil$(EXE) || \
-		$(CC) $(CFLAGS) $(LDFLAGS) -o punutil$(EXE) punutil.o
+all: punutil$(EXE)
+
+###############################################################################
+
+.NOTPARALLEL: punutil$(EXE)
+punutil$(EXE): punutil.o
+	@$(PRINTF) '%s\n' "CC: punutil"
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o punutil$(EXE) punutil.o
 
 ###############################################################################
 
@@ -47,7 +52,6 @@ clean:
 
 ###############################################################################
 
-punutil.o: punutil.c
 #punutil.o: cflags.L # /* XXX(johnsonjh) */
 
 ###############################################################################
