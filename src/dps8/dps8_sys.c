@@ -86,13 +86,6 @@ struct system_state_s * system_state;
 vol word36 * M = NULL;                                          // memory
 #endif
 
-#ifdef TEST_OLIN
-int64_t cmpxchg_data;
-#endif
-
-#ifdef TEST_FENCE
-pthread_mutex_t fenceLock = PTHREAD_MUTEX_INITIALIZER;
-#endif
 //
 // These are part of the simh interface
 //
