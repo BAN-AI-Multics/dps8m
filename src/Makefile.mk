@@ -174,9 +174,6 @@ else
 # Compiler: IBM AIX Toolbox GCC 8.3.0 (gcc-8-1.ppc -- powerpc-ibm-aix7.2.0.0),
 # libuv: IBM AIX Toolbox libuv 1.38.1 (libuv-{devel}-1.38.1-1), or later, and,
 # libpopt: IBM AIX Toolbox libpopt 1.18 (libpopt-1.18-1) or later is required.
-# 32-bit builds, older OS versions, or older technology levels are not tested.
-# Support for IBM XLC C/C++ Compiler on AIX is currently planned. Builds using
-# the OSS4AIX/Perzl RPMs or the Bull/Atos toolchains are currently not tested.
 
     ifeq ($(UNAME_S),AIX)
       KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
