@@ -584,7 +584,7 @@ static void scan_card_for_glyphs(pun_state_t * state, word36* buffer)
 
 static void create_punch_file(pun_state_t * state)
   {
-    char template [PATH_MAX+1];
+    char template [4 * PATH_MAX+1];
 
     if (state -> punfile_raw != -1)
       {
@@ -1279,7 +1279,7 @@ static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat pun_show_path (UNUSED FILE * st, UNIT * uptr,
+static t_stat pun_show_path (UNUSED FILE * st, UNUSED UNIT * uptr,
                                        UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Path to card punch directories is %s\n", pun_path_prefix);
