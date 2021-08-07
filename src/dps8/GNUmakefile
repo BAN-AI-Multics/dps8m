@@ -187,6 +187,7 @@ ifeq ($(LOCKLESS),1)
 C_SRCS += threadz.c
 endif
 C_SRCS += uvutil.c
+C_SRCS += segldr.c
 ifeq ($(TRACKER),1)
 H_SRCS += tracker.h
 endif
@@ -251,6 +252,7 @@ ifeq ($(LOCKLESS),1)
 H_SRCS += threadz.h
 endif
 H_SRCS += uvutil.h
+H_SRCS += segldr.h
 
 ###############################################################################
 
