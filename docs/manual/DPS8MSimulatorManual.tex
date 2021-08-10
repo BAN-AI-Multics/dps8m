@@ -22,6 +22,7 @@
 \definecolor{blue}{RGB}{68,102,148}
 \definecolor{white}{RGB}{255,255,255}
 
+\usepackage{multirow}
 \newcommand{\mybox}[1]{\par\noindent\colorbox{blue}
 {\parbox{\dimexpr\textwidth-2\fboxsep\relax}{#1}}}
 
@@ -103,11 +104,13 @@ CAC: #1
 \newpage
 \include{iom}
 \newpage
+\include{punch}
+\newpage
 \include{console}
 \newpage
-\include{tape}
-\newpage
 \include{printer}
+\newpage
+\include{tape}
 \newpage
 \include{cable}
 \newpage
