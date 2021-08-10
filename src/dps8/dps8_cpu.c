@@ -643,7 +643,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
         for (uint i = 0; i < MEMSIZE; i ++)
           {
             //M [i] = MEM_UNINITIALIZED;
-            M[i] &= (MASK36 | MEM_UNINITIALIZED);
+            M[i] &= ((~MASK36) | MEM_UNINITIALIZED);
           }
 #endif
       }
