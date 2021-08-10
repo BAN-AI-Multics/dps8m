@@ -1289,11 +1289,20 @@ t_stat ReadOP(DCDstruct *i, word18 addr, _processor_cycle_type cyctyp, bool b29)
     {
         case 1:
             Read(i, addr, &CY, cyctyp, b29);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_read %08o %012llo\n",
+                addr, CY);
             return SCPE_OK;
         case 2:
             addr &= 0777776;   // make even
             Read(i, addr + 0, Ypair + 0, cyctyp, b29);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_read2 %08o %012llo\n",
+                addr, Ypair[0]);
             Read(i, addr + 1, Ypair + 1, cyctyp, b29);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_read2 %08o %012llo\n",
+                addr+1, Ypair[1]);
             break;
         case 8:
             addr &= 0777770;   // make on 8-word boundary
@@ -1326,11 +1335,21 @@ t_stat WriteOP(DCDstruct *i, word18 addr, _processor_cycle_type cyctyp, bool b29
     {
         case 1:
             Write(i, addr, CY, OPERAND_STORE, b29);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_write %08o %012llo\n",
+                addr, CY);
             return SCPE_OK;
         case 2:
             addr &= 0777776;   // make even
             Write(i, addr + 0, Ypair[0], OPERAND_STORE, b29);
             Write(i, addr + 1, Ypair[1], OPERAND_STORE, b29);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_write2 %08o %012llo\n",
+                addr, Ypair[0]);
+            Read(i, addr + 1, Ypair + 1, cyctyp, b29);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_write2 %08o %012llo\n",
+                addr+1, Ypair[1]);
             break;
         case 8:
             addr &= 0777770;   // make on 8-word boundary
@@ -1360,6 +1379,9 @@ int32 core_read(word24 addr, word36 *data)
     } else {
         *data = M[addr] & DMASK;
     }
+//    sim_debug (DBG_TRACE, & cpu_dev,
+//               "core_read   %08o %012llo\n",
+//                addr, * data);
     return 0;
 }
 
@@ -1369,6 +1391,9 @@ int core_write(word24 addr, word36 data) {
     } else {
         M[addr] = data & DMASK;
     }
+//    sim_debug (DBG_TRACE, & cpu_dev,
+//               "core_write  %08o %012llo\n",
+//                addr, data);
     return 0;
 }
 
@@ -1383,7 +1408,13 @@ int core_read2(word24 addr, word36 *even, word36 *odd) {
             addr &= ~1; /* make it an even address */
         }
         *even = M[addr++] & DMASK;
+//    sim_debug (DBG_TRACE, & cpu_dev,
+//               "core_read2  %08o %012llo\n",
+//                addr-1, *even);
         *odd = M[addr] & DMASK;
+//    sim_debug (DBG_TRACE, & cpu_dev,
+//               "core_read2  %08o %012llo\n",
+//                addr, *odd);
         return 0;
     }
 }
@@ -1408,6 +1439,12 @@ int core_write2(word24 addr, word36 even, word36 odd) {
         }
         M[addr++] = even;
         M[addr] = odd;
+//    sim_debug (DBG_TRACE, & cpu_dev,
+//               "core_write2 %08o %012llo\n",
+//                addr-1, even);
+//    sim_debug (DBG_TRACE, & cpu_dev,
+//               "core_write2 %08o %012llo\n",
+//                addr, odd);
     }
     return 0;
 }

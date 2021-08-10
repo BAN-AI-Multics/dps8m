@@ -23,10 +23,10 @@ sim_tape.o \
 sim_timer.o \
 sim_tmxr.o
 
-#CC = gcc
-#LD = gcc
-CC = clang
-LD = clang
+CC = gcc
+LD = gcc
+#CC = clang
+#LD = clang
 
 # for Linux (Ubuntu 12.10 64-bit) or Apple OS/X 10.8
 CFLAGS  = -g -O0
@@ -38,6 +38,8 @@ CFLAGS += -std=c99 -U__STRICT_ANSI__
 CFLAGS += -D_GNU_SOURCE -DUSE_READER_THREAD -DHAVE_DLOPEN=so 
 CFLAGS += -Wall 
 CFLAGS += -DUSE_INT64
+CFLAGS += -fcommon -fdata-sections -ffunction-sections
+
 
 LDFLAGS = -g
 

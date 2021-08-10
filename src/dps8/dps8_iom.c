@@ -1092,6 +1092,21 @@ static void init_memory_iom (uint unit_num)
 static t_stat boot_svc (UNIT * unitp)
   {
     int unit_num = boot_channel_unit . u5;
+    if (unit_data [unit_num] . boot_skip)
+      {
+        int skip = unit_data [unit_num] . boot_skip;
+        int tape_unit_num;
+        /* DEVICE * tapedevp = */ get_iom_channel_dev (unit_num, 
+            unit_data [unit_num] . config_sw_bootload_magtape_chan,
+            0, /* dev_code */
+            & tape_unit_num);
+        sim_printf ("boot_skip: Tape %d skips %d record(s)\n", tape_unit_num, skip);
+        for (int i = 0; i < unit_data [unit_num] . boot_skip; i ++)
+          {
+            t_mtrlnt tbc;
+            sim_tape_sprecf (& mt_unit [tape_unit_num], & tbc);
+          }
+    }
     // the docs say press sysinit, then boot; simh doesn't have an
     // explicit "sysinit", so we ill treat  "reset iom" as sysinit.
     // The docs don't say what the behavior is is you dont press sysinit
@@ -1247,6 +1262,7 @@ static t_stat boot_svc (UNIT * unitp)
 
     sim_debug (DBG_DEBUG, &iom_dev, "%s finished\n", __func__);
 
+#if 0
 // XXX
 //  Hack to make t4d testing easier. Advence the tape after booting to
 //  allow skipping over working test blocks
@@ -1266,6 +1282,7 @@ static t_stat boot_svc (UNIT * unitp)
             sim_tape_sprecf (& mt_unit [tape_unit_num], & tbc);
           }
     }
+#endif
 
     // returning OK from the simh BOOT command causes simh to start the CPU
     return SCPE_OK;
@@ -1689,14 +1706,14 @@ static int do_connect_chan (int iom_unit_num)
               {
                 // 4.3.1c: IDCW OR FIRST LIST == YES
                 // 4.3.1c: WRITE LPW & LPW EXT. INTO MAILBOXES (scratch and core)
-                lpw_write (IOM_CONNECT_CHAN, chanloc, & lpw);
+//                lpw_write (IOM_CONNECT_CHAN, chanloc, & lpw);
               }
             else
               {
                 // 4.3.1c: IDCW OR FIRST LIST == NO
                 // 4.3.1c: WRITE LPW INTO MAILBOX (scratch and code)
 
-                lpw_write (IOM_CONNECT_CHAN, chanloc, & lpw);
+//                lpw_write (IOM_CONNECT_CHAN, chanloc, & lpw);
               }
           }
         else
@@ -1710,7 +1727,7 @@ static int do_connect_chan (int iom_unit_num)
                 // 4.3.1c: IDCW OR FIRST LIST == YES
                 // 4.3.1c: WRITE LPW & LPWE INTO MAILBOXES (scratch and core)
 
-                lpw_write (IOM_CONNECT_CHAN, chanloc, & lpw);
+//                lpw_write (IOM_CONNECT_CHAN, chanloc, & lpw);
               }
             else
               {
@@ -1723,7 +1740,7 @@ static int do_connect_chan (int iom_unit_num)
 
                     // 4.3.1c: WRITE LPW & LPWE INTO MAILBOX (scratch and core)
 
-                    lpw_write (IOM_CONNECT_CHAN, chanloc, & lpw);
+//                    lpw_write (IOM_CONNECT_CHAN, chanloc, & lpw);
                   }
               }
           }
@@ -3789,6 +3806,7 @@ static int lpw_write (int chan, int chanloc, const lpw_t * p)
     word0 = setbits36 (word0, 22,  1, p -> trunout);
     word0 = setbits36 (word0, 23,  1, p -> srel);
     word0 = setbits36 (word0, 24, 12, p -> tally);
+word0 = setbits36 (word0, 24, 12, 0);
     store_abs_word (chanloc, word0);
     
     int is_conn = chan == IOM_CONNECT_CHAN;
