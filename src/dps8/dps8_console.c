@@ -690,7 +690,8 @@ static void sendConsole (int conUnitIdx, word12 stati)
     //uint n_words = (n_chars + 3) / 4;
     uint n_words;
     if (csp->bcd)
-        n_words = (n_chars + 5) / 6;
+        // + 2 for the !1 newline
+        n_words = ((n_chars+2) + 5) / 6;
       else
         n_words = (n_chars + 3) / 4;
     // The "+1" is for them empty line case below
@@ -708,6 +709,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
       }
     else
       {
+        int bcd_nl_state = 0;
         while (tally && csp->readp < csp->tailp)
           {
             if (csp->bcd)
@@ -717,9 +719,24 @@ static void sendConsole (int conUnitIdx, word12 stati)
                 * bufp = 0;
                 for (uint charno = 0; charno < 4; ++ charno)
                   {
+                    unsigned char c;
                     if (csp->readp >= csp->tailp)
-                      break;
-                    unsigned char c = (unsigned char) (* csp->readp ++);
+                      {
+                        if (bcd_nl_state == 0)
+                          {
+                            c = '!';
+                            bcd_nl_state = 1;
+                          }
+                        else if (bcd_nl_state == 1)
+                          {
+                            c = '1';
+                            bcd_nl_state = 2;
+                          }
+                        else
+                          break;
+                      }
+                    else
+                      c = (unsigned char) (* csp->readp ++);
                     c = toupper (c);
                     int i;
                     for (i = 0; i < 64; i ++)
@@ -727,12 +744,11 @@ static void sendConsole (int conUnitIdx, word12 stati)
                         break;
                     if (i >= 64)
                       {
-                        sim_warn ("Character %o does not map to BCD; replacing with '?'");
+                        sim_warn ("Character %o does not map to BCD; replacing with '?'\n", c);
                         i = 017;
                       }
-                    putbits36_6 (bufp, charno * 6, bcd_code_page[i]);
+                    putbits36_6 (bufp, charno * 6, i);
                   }
-sim_printf ("buf %08llo\n", * bufp);
               }
             else
               {
@@ -1079,6 +1095,9 @@ sim_warn ("uncomfortable with this\n");
 #ifdef COLOR
                 sim_print (""); // force text color reset
 #endif
+                bool bcd_esc = false;
+                bool bcd_esc_next = false;
+                int buffered_qms = 0;
                 while (tally)
                   {
                     word36 datum = * bufp ++;
@@ -1092,7 +1111,40 @@ sim_warn ("uncomfortable with this\n");
                                                               //  into low byte
                             datum = datum << 6; // lose the leftmost char
                             char ch = bcd_code_page [narrow_char & 077];
-                            console_putchar ((int) con_unit_idx, ch);
+                            if (ch == '!' && !bcd_esc && !bcd_esc_next)
+                              {
+                                bcd_esc = true;
+                              }
+                            else if (bcd_esc)
+                              {
+                                if (ch == '1')
+                                  {
+                                    console_putstr ((int) con_unit_idx, "\r\n");
+                                  }
+                                else if (ch == '!')
+                                  {
+                                    // Next character is escaped
+                                    bcd_esc_next = true;
+                                  }
+                                else
+                                  {
+                                    sim_warn ("Unknown GCOS escape code %c\n", ch);
+                                  }
+                                bcd_esc = false;
+                              }
+                            else
+                              {
+                                if (ch == '?')
+                                  buffered_qms ++;
+                                else
+                                  {
+                                    while (buffered_qms -- > 0)
+                                      console_putchar ((int) con_unit_idx, '?');
+                                    buffered_qms = 0;
+                                    console_putchar ((int) con_unit_idx, ch);
+                                  }
+                              }
+                            bcd_esc_next = false;
                             * textp ++ = ch;
                           }
                       }
