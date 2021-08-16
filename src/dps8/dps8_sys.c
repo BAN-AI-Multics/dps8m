@@ -3819,7 +3819,6 @@ static CTAB dps8_cmds[] =
     {"VIRTUAL",             virt_address,             0, "virtual: Compute the virtural address(es) of segno:offset\n", NULL, NULL},
 #endif
     {"SPATH",               set_search_path,          0, "spath: Set source code search path\n", NULL, NULL},
-    {"BT2",                 boot2,                    0, "boot2: Boot CPU-B\n", NULL, NULL},
     {"TEST",                brkbrk,                   0, "test: GDB hook\n", NULL, NULL},
 #ifdef DBGEVENT
     {"DBG0EVENT",           set_dbgevent,             0, "dbg0event: set t0 event\n", NULL, NULL},

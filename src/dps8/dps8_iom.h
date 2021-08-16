@@ -11,6 +11,12 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
+// IDCW Instruction                   18-20 111
+// TDCW Transfer                      18-20 !111,  22-23 10
+// IOTD IO Transfer and disconnect    18-20 !111,  22-23 00
+// IOTP IO Transfer and proceed       18-20 !111,  22-23 01
+// IONTP IO Non-Transfer and proceed  18-20 !111,  22-23 11
+
 #ifdef IO_THREADZ
 extern __thread uint this_iom_idx;
 extern __thread uint this_chan_num;
@@ -342,9 +348,10 @@ void iom_core_write (uint iom_unit_idx, word24 addr, word36 data, UNUSED const c
 void iom_core_write2 (uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx);
 void iom_core_read_lock (uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx);
 void iom_core_write_unlock (uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx);
-t_stat boot2 (UNUSED int32 arg, UNUSED const char * buf);
 t_stat iom_unit_reset_idx (uint iom_unit_idx);
 
 #if defined(IO_ASYNC_PAYLOAD_CHAN) || defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
 void iomProcess (void);
 #endif
+
+char iomChar (uint iomUnitIdx);
