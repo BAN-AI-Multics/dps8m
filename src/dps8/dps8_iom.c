@@ -1674,9 +1674,6 @@ static uint mbxLoc (uint iom_unit_idx, uint chan)
 //   abort is reported by tape, but not used
 //   char_pos is used by tape, console
 
-// tape_ioi_io.pl1  "If the initiate bit is set in the status, no data was
-//                   transferred (no tape movement occurred)."
-
 // pg B26: "The DCW residues stored in the status in page mode will
 // represent the next absoulute address (bits 6-23) of data prior to
 // the application of the Page Table Word"
@@ -1986,6 +1983,10 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
 
     if (p -> masked)
       return;
+
+// tape_ioi_io.pl1  "If the initiate bit is set in the status, no data was
+//                   transferred (no tape movement occurred)."
+    p->initiate = false;
 
     uint tally = p -> DDCW_TALLY;
     uint daddr = p -> DDCW_ADDR;
