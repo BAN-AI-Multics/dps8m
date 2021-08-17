@@ -22,10 +22,10 @@
 #endif
 
 #include "dps8.h"
-#include "dps8_socket_dev.h"
 #include "dps8_sys.h"
 #include "dps8_faults.h"
 #include "dps8_iom.h"
+#include "dps8_socket_dev.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
@@ -568,12 +568,12 @@ sim_printf ("accept() socket     %d\n", socket_fd);
     if (sk_data.fd_unit[socket_fd] != (int) unit_idx || sk_data.fd_dev_code[socket_fd] != dev_code)
       {
         set_error (& buffer[4], EBADF);
-        return IOM_CMD_NO_DCW; // send terminate interrupt
+        return IOM_CMD_DISCONNECT; // send terminate interrupt
       }
     //FD_SET (socket_fd, & sk_data.unit_data[unit_idx][dev_code].accept_fds);
     sk_data.unit_data[unit_idx][dev_code].accept_fd = socket_fd;
     sk_data.unit_data[unit_idx][dev_code].unit_state = unit_accept;
-    return IOM_CMD_PENDING; // don't send terminate interrupt
+    return IOM_CMD_DISCONNECT; // don't send terminate interrupt
   }
 
 static void skt_close (uint unit_idx, word6 dev_code, word36 * buffer)
@@ -650,12 +650,12 @@ sim_printf ("read8() socket     %d\n", socket_fd);
       {
 sim_printf ("read8() socket doesn't belong to us\n");
         set_error (& buffer[4], EBADF);
-        return IOM_CMD_NO_DCW; // send terminate interrupt
+        return IOM_CMD_DISCONNECT; // send terminate interrupt
       }
     sk_data.unit_data[unit_idx][dev_code].read_fd = socket_fd;
     sk_data.unit_data[unit_idx][dev_code].read_buffer_sz = count;
     sk_data.unit_data[unit_idx][dev_code].unit_state = unit_read;
-    return IOM_CMD_PENDING; // don't send terminate interrupt
+    return IOM_CMD_DISCONNECT; // don't send terminate interrupt
   }
 
 static int skt_write8 (uint iom_unit_idx, uint chan, uint unit_idx, word6 dev_code, uint tally, word36 * buffer)
@@ -693,7 +693,7 @@ sim_printf ("write8() socket     %d\n", socket_fd);
       {
 sim_printf ("write8() socket doesn't belong to us\n");
         set_error (& buffer[3], EBADF);
-        return IOM_CMD_NO_DCW; // send terminate interrupt
+        return IOM_CMD_DISCONNECT; // send terminate interrupt
       }
 
    // Tally is at most 4096, so buffer words is at most 4096 - 5 => 4091
@@ -728,7 +728,7 @@ sim_printf ("write8() socket doesn't belong to us\n");
 
     buffer[2] = ((word36) ((word36s) rc)) & MASK36; // rc
     set_error (& buffer[3], _errno);
-    return IOM_CMD_NO_DCW; // send terminate interrupt
+    return IOM_CMD_DISCONNECT; // send terminate interrupt
   }
 
 static int get_ddcw (iom_chan_data_t * p, uint iom_unit_idx, uint chan, bool * ptro, uint expected_tally, uint * tally)
@@ -749,7 +749,7 @@ static int get_ddcw (iom_chan_data_t * p, uint iom_unit_idx, uint chan, bool * p
       {
         sim_warn ("%s nothing to send\n", __func__);
         p->stati = 05001; // BUG: arbitrary error code; config switch
-        return IOM_CMD_IGNORED;
+        return IOM_CMD_ERROR;
       }
     if (p->DCW_18_20_CP == 07 || p->DDCW_22_23_TYPE == 2)
       {
@@ -776,7 +776,7 @@ static int get_ddcw (iom_chan_data_t * p, uint iom_unit_idx, uint chan, bool * p
         p->stati = 05001; // BUG: arbitrary error code; config switch
         return IOM_CMD_ERROR;
       }
-    return IOM_CMD_OK;
+    return IOM_CMD_PROCEED;
   }
 
 static int sk_cmd (uint iom_unit_idx, uint chan)
@@ -1024,7 +1024,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             sim_debug (DBG_DEBUG, & skc_dev,
                        "%s: Reset status is %04o.\n",
                        __func__, p->stati);
-            return IOM_CMD_OK;
+            return IOM_CMD_PROCEED;
           }
 
         default:
@@ -1046,11 +1046,11 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
         send_marker_interrupt (iom_unit_idx, (int) chan);
       }
 #endif
-    return IOM_CMD_NO_DCW; // don't continue down the dcw list.
+    return IOM_CMD_DISCONNECT; // don't continue down the dcw list.
   }
 
 
-int skc_iom_cmd (uint iom_unit_idx, uint chan)
+iom_cmd_rc_t skc_iom_cmd (uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx] [chan];
 // Is it an IDCW?

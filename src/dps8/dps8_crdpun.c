@@ -1188,13 +1188,13 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
-    return IOM_CMD_OK;
+    return IOM_CMD_PROCEED;
   }
 
 // 1 ignored command
 // 0 ok
 // -1 problem
-int pun_iom_cmd (uint iomUnitIdx, uint chan)
+iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 // Is it an IDCW?
@@ -1208,7 +1208,7 @@ int pun_iom_cmd (uint iomUnitIdx, uint chan)
         sim_printf ("%s expected IDCW\n", __func__);
         return IOM_CMD_ERROR;
       }
-    return IOM_CMD_OK;
+    return IOM_CMD_PROCEED;
   }
 
 static t_stat pun_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)

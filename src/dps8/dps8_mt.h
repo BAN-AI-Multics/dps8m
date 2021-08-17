@@ -47,5 +47,5 @@ int get_mt_numunits (void);
 void loadTape (uint driveNumber, char * tapeFilename, bool ro);
 t_stat attachTape (char * label, bool withring, char * drive);
 t_stat detachTape (char * drive);
-int mt_iom_cmd (uint iomUnitIdx, uint chan);
+iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan);
 t_stat mount_tape (int32 arg, const char * buf);

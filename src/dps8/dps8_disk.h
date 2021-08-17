@@ -22,4 +22,4 @@ extern UNIT msp_unit [N_IPC_UNITS_MAX];
 
 void disk_init(void);
 t_stat attachDisk (char * label);
-int dsk_iom_cmd (uint iomUnitIdx, uint chan);
+iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan);

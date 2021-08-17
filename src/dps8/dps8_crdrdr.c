@@ -715,7 +715,7 @@ sim_printf ("\n");
       {
         sim_printf ("%s nothing to send\n", __func__);
         p -> stati = 05001; // BUG: arbitrary error code; config switch
-        return IOM_CMD_IGNORED;
+        return IOM_CMD_ERROR;
       }
     if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
       {
@@ -734,7 +734,7 @@ sim_printf ("\n");
     if (p -> DDCW_22_23_TYPE != 0)
       sim_warn ("curious... a card read with more than one DDCW?\n");
 
-    return IOM_CMD_OK;
+    return IOM_CMD_PROCEED;
   }
 
 static int rdr_cmd (uint iomUnitIdx, uint chan)
@@ -785,7 +785,7 @@ static int rdr_cmd (uint iomUnitIdx, uint chan)
           }
           return IOM_CMD_ERROR;
       }
-    return IOM_CMD_OK;
+    return IOM_CMD_PROCEED;
   }
 
 static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
@@ -931,7 +931,7 @@ void rdrCardReady (int unitNum)
     send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0377, 0377 /* card reader to ready */);
   }
 
-int rdr_iom_cmd (uint iomUnitIdx, uint chan)
+iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 

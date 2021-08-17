@@ -365,7 +365,7 @@ static int parseID (word36 * b, uint tally, char * qno, char * name)
         name[i] = (char) ch;
       }
     name[i] = 0;
-    return IOM_CMD_IGNORED;
+    return -1;
   }
 
 
@@ -448,7 +448,7 @@ static int eoj (word36 * buffer, uint tally)
       return 0;
     if (getbits36_9 (buffer[2], 0) != 005)
       return 0;
-    return IOM_CMD_IGNORED;
+    return -1;
   }
 
 // Based on prt_status_table_.alm
@@ -931,7 +931,7 @@ static int print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, bool is_BC
           {
             sim_printf ("%s nothing to send\n", __func__);
             p -> stati = 05001; // BUG: arbitrary error code; config switch
-            return IOM_CMD_IGNORED;
+            return IOM_CMD_ERROR;
           }
         if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
           {
@@ -997,10 +997,10 @@ sim_printf ("\n");
 
     p -> tallyResidue = 0;
     p -> stati = 04000;
-    return IOM_CMD_OK;
+    return IOM_CMD_PROCEED;
   }
 
-static int prt_cmd (uint iomUnitIdx, uint chan)
+static iom_cmd_rc_t prt_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
     uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
@@ -1008,7 +1008,7 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
     UNIT * unitp = & prt_unit[devUnitIdx];
     int prt_unit_num = (int) PRT_UNIT_NUM (unitp);
 
-    int rc = IOM_CMD_OK;
+    int rc = IOM_CMD_PROCEED;
 
     switch (model_type [prt_state[prt_unit_num].model])
       {
@@ -1493,7 +1493,7 @@ static int prt_cmd (uint iomUnitIdx, uint chan)
 // 1 ignored command
 // 0 ok
 // -1 problem
-int prt_iom_cmd (uint iomUnitIdx, uint chan)
+iom_cmd_rc_t prt_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
 
