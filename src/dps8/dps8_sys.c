@@ -1702,11 +1702,15 @@ static t_stat set_machine_room_pw (UNUSED int32 arg, UNUSED const char * buf)
 // The T&D tape first record is for testing DPS8s, the
 // second record (1st record / tape mark / 2nd record)
 // is for testing DPS8/Ms.
+// XXX assumes the boot tape is on SIMH tape unit 0 XXX
 
 static t_stat boot_skip (int32 UNUSED arg, UNUSED const char * buf)
   {
     uint32 skipped;
-    return sim_tape_sprecsf (& mt_unit[0], 1, & skipped);
+    t_stat rc = sim_tape_sprecsf (& mt_unit[0], 1, & skipped);
+    if (rc == SCPE_OK)
+      tape_states[0].rec_num ++;
+    return rc;
   }
 
 // Simulate pressing the 'EXECUTE FAULT' button. Used as an

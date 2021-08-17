@@ -2169,7 +2169,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
         return IOM_CMD_PROCEED;
       } // if IDCW
 
-    // Not IDCW; TDCW are captured in IOM, so must be IOTD or IOTP
+    // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
 //sim_printf ("io_mode %d\n", tape_statep->io_mode);
     switch (tape_statep->io_mode)
       {
