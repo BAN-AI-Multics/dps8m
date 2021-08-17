@@ -1424,7 +1424,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
                __func__, iomChar (iomUnitIdx), chan, dev_code);
 
     uint devUnitIdx = cables->mtp_to_tape[ctlr_unit_idx][dev_code].unit_idx;
-    //UNIT * unitp = & mt_unit [devUnitIdx];
+    UNIT * unitp = & mt_unit [devUnitIdx];
     struct tape_state * tape_statep = & tape_states [devUnitIdx];
 
     // IDCW?
@@ -1446,17 +1446,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
 // Although, the install process identifies tapa_00 as a device;
 // check the survey code to make sure it's not incorrectly
 // reporting 0 as a valid device.
-
-// Simplifying design decision: tapa_00 is hidden, always has the boot tape.
-
-        uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-        uint dev_code = p -> IDCW_DEV_CODE;
-        if (p -> IDCW_DEV_CODE == 0)
-          dev_code = mtp_state[ctlr_unit_idx].boot_drive;
-
-        uint devUnitIdx = cables->mtp_to_tape[ctlr_unit_idx][dev_code].unit_idx;
-        UNIT * unitp = & mt_unit [devUnitIdx];
-        struct tape_state * tape_statep = & tape_states [devUnitIdx];
 
         tape_statep->io_mode = tape_no_mode;
         sim_debug (DBG_DEBUG, & tape_dev, "%s: IDCW_DEV_CMD %oo %d.\n", __func__, p->IDCW_DEV_CMD, p->IDCW_DEV_CMD);
@@ -2171,8 +2160,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
             default:
               p -> stati = 04501;
               p -> chanStatus = chanStatIncorrectDCW;
-              if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-                sim_warn ("mt unrecognized device command  %02o\n", p->IDCW_DEV_CMD);
+              sim_warn ("mt unrecognized device command  %02o\n", p->IDCW_DEV_CMD);
               return IOM_CMD_ERROR;
 
           } // switch IDCW_DEV_CMD
