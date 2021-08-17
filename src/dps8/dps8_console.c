@@ -1349,7 +1349,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
                 ta_flush ();
                 sim_printf ("\r\nScript wedged and abandoned; autoinput and typeahead buffers flushed\r\n");
               }
-            rc = IOM_CMD_DISCONNECT; // command in progress; do not send terminate interrupt
+            rc = IOM_CMD_PENDING; // command in progress; do not send terminate interrupt
             goto done;
           } // case opc_read_mode
 

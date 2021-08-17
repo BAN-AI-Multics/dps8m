@@ -325,6 +325,7 @@ typedef enum
      IOM_CMD_ERROR = -1,
      IOM_CMD_PROCEED = 0,
      IOM_CMD_DISCONNECT,
+     IOM_CMD_PENDING
   } iom_cmd_rc_t;
 
 typedef iom_cmd_rc_t iom_cmd_t (uint iom_unit_idx, uint chan);

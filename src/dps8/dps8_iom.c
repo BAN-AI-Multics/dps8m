@@ -3166,13 +3166,11 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
 
         rc2 = d->iom_cmd (iomUnitIdx, chan);
 
-        if (rc2 == IOM_CMD_DISCONNECT) // handler still processing command, don't set
-                     // terminate intrrupt.
+        if (rc2 == IOM_CMD_DISCONNECT) 
           terminate = true;
-          //{
-            //sim_debug (DBG_DEBUG, & iom_dev, "%s: handler processing cmd\n", __func__);
-            //return 0;
-          //}
+
+        if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
+          goto pending;                // terminate intrrupt.
 
         if (ptro)
           terminate = true;
@@ -3204,7 +3202,9 @@ sim_debug (DBG_DEBUG, & iom_dev, "XXXXXX NC %o TAL %o tally %o\n", p->LPW_21_NC,
 
 terminate:;
     send_terminate_interrupt (iomUnitIdx, chan);
+    return 0;
 
+pending:;
     return 0;
   }
 
