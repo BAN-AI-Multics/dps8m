@@ -760,6 +760,7 @@ static void consoleProcessIdx (int conUnitIdx)
           {
             char buf[256];
             char cms[3] = "?RW";
+            // XXX Assumes console 0
             sprintf (buf, "^T attn %c %c cnt %d next %d\r\n",
                      console_state[0].attn_pressed+'0',
                      cms[console_state[0].io_mode],
@@ -1166,7 +1167,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 
             case 040:               // Reset
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Reset\n", __func__);
-              csp->io_mode = opc_no_mode;
               p->stati = 04000;
               break;
 
@@ -1180,7 +1180,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 
             case 051:               // Write Alert -- Ring Bell
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Alert\n", __func__);
-              csp->io_mode = opc_no_mode;
               p->isRead = false;
               console_putstr ((int) con_unit_idx,  "CONSOLE: ALERT\r\n");
               console_putchar ((int) con_unit_idx, '\a');
@@ -1198,7 +1197,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               // concerned about the device responding, rather then the actual
               // returned value. Make some thing up.
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Read ID\n", __func__);
-              csp->io_mode = opc_no_mode;
               p->stati = 04500;
               if (csp->model == m6001 && p->isPCW)
                 {
@@ -1210,21 +1208,18 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
             case 060:               // LOCK MCA
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Lock\n", __func__);
               console_putstr ((int) con_unit_idx,  "CONSOLE: LOCK\r\n");
-              csp->io_mode = opc_no_mode;
               p->stati = 04000;
               break;
 
             case 063:               // UNLOCK MCA
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Unlock\n", __func__);
               console_putstr ((int) con_unit_idx,  "CONSOLE: UNLOCK\r\n");
-              csp->io_mode = opc_no_mode;
               p->stati = 04000;
               break;
 
             default:
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
               p->stati = 04501; // command reject, invalid instruction code
-              csp->io_mode = opc_no_mode;
               p->chanStatus = chanStatIncorrectDCW;
               rc = IOM_CMD_ERROR;
               goto done;
@@ -1262,7 +1257,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 
             csp->tailp = csp->buf;
             csp->readp = csp->buf;
-            csp->io_mode = opc_read_mode;
             csp->startTime = time (NULL);
             csp->tally = tally;
             csp->daddr = daddr;

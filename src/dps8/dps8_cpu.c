@@ -634,16 +634,14 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
                 // Clear lock bits
                 for (uint i = 0; i < SCU_MEM_SIZE; i ++)
                   {
-                    //scu [sci_unit_idx].M[i] = MEM_UNINITIALIZED;
-                    scu [sci_unit_idx].M[i] &= (~MASK36) | MEM_UNINITIALIZED;
+                    scu [sci_unit_idx].M[i] = MEM_UNINITIALIZED;
                   }
               }
           }
 #else
         for (uint i = 0; i < MEMSIZE; i ++)
           {
-            //M [i] = MEM_UNINITIALIZED;
-            M[i] &= (~MASK36) | MEM_UNINITIALIZED;
+            M [i] = MEM_UNINITIALIZED;
           }
 #endif
       }
