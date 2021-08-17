@@ -199,7 +199,7 @@ void urp_init (void)
   }
 
 
-static int urp_cmd (uint iomUnitIdx, uint chan)
+static iom_cmd_rc_t urp_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
     uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
@@ -326,13 +326,13 @@ static int urp_cmd (uint iomUnitIdx, uint chan)
 // Removing this test fixs POLTS and does not seem to break Multics
     //if (p -> IDCW_CHAN_CMD == 0)
       //return IOM_CMD_NO_DCW; // don't do DCW list
-    return IOM_CMD_OK;
+    return IOM_CMD_PROCEED;
   }
 
 // 1 ignored command
 // 0 ok
 // -1 problem
-int urp_iom_cmd (uint iomUnitIdx, uint chan)
+iom_cmd_rc_t urp_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 // Is it an IDCW?

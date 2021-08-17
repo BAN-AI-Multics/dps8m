@@ -1427,7 +1427,7 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
     disk_statep -> io_mode = disk_no_mode;
     p -> stati = 0;
 
-    int rc = IOM_CMD_OK;
+    int rc = IOM_CMD_PROCEED;
 
     switch (p -> IDCW_DEV_CMD)
       {
@@ -1602,10 +1602,10 @@ static int disk_cmd (uint iomUnitIdx, uint chan)
     return rc;
   }
 
-int dsk_iom_cmd (uint iomUnitIdx, uint chan)
+iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-    int rc = IOM_CMD_OK;
+    int rc = IOM_CMD_PROCEED;
 
 // Is it an IDCW?
 

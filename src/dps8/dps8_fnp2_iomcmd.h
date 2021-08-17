@@ -11,4 +11,4 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-int fnp_iom_cmd (uint iomUnitIdx, uint chan);
+iom_cmd_rc_t fnp_iom_cmd (uint iomUnitIdx, uint chan);

@@ -2487,7 +2487,7 @@ static int fnpCmd (uint iomUnitIdx, uint chan)
             // no status_service and no additional terminate interrupt
             // ???
           }
-          return IOM_CMD_PENDING;
+          return IOM_CMD_DISCONNECT;
 
         default:
           {
@@ -2498,7 +2498,7 @@ static int fnpCmd (uint iomUnitIdx, uint chan)
             sim_debug (DBG_ERR, & fnp_dev,
                        "%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
           }
-          return IOM_CMD_NO_DCW;
+          return IOM_CMD_ERROR;
       }
   }
 
@@ -2511,7 +2511,7 @@ static int fnpCmd (uint iomUnitIdx, uint chan)
 // 0 ok
 // -1 problem
 
-int fnp_iom_cmd (uint iomUnitIdx, uint chan)
+iom_cmd_rc_t fnp_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 // Is it an IDCW?

@@ -208,7 +208,7 @@ void absi_init (void)
       absi_state[i].link = NOLINK;
   }
 
-static int absi_cmd (uint iomUnitIdx, uint chan)
+static iom_cmd_rc_t absi_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = &iom_chan_data[iomUnitIdx][chan];
 // sim_printf ("absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n",
@@ -280,14 +280,14 @@ sim_printf ("absi marker\n");
       }
 
     if (p->IDCW_CHAN_CMD == 0)
-      return IOM_CMD_NO_DCW; // don't do DCW list
-    return IOM_CMD_OK;
+      return IOM_CMD_DISCONNECT; // don't do DCW list
+    return IOM_CMD_PROCEED;
   }
 
 // 1 ignored command
 // 0 ok
 // -1 problem
-int absi_iom_cmd (uint iomUnitIdx, uint chan)
+iom_cmd_rc_t absi_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
 // Is it an IDCW?
