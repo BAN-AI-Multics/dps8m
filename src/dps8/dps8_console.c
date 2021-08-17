@@ -284,6 +284,7 @@ typedef struct opc_state_t
     char simh_buffer[simh_buffer_sz];
     int simh_buffer_cnt;
 
+    bool bcd;
     uv_access console_access;
 
     // ^T
@@ -292,6 +293,16 @@ typedef struct opc_state_t
  } opc_state_t;
 
 static opc_state_t console_state[N_OPC_UNITS_MAX];
+
+static char * bcd_code_page =
+  "01234567"
+  "89[#@;>?"
+  " ABCDEFG"
+  "HI&.](<\\"
+  "^JKLMNOP"
+  "QR-$*);'"
+  "+/STUVWX"
+  "YZ_,%=\"!";
 
 //
 // Typeahead buffer
@@ -412,16 +423,12 @@ static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
           }
         else
           csp->auto_input = new;
-        sim_debug (DBG_DEBUG, & opc_dev,
-                   "%s: Auto-input now: %s\n", __func__, cptr);
       }
     else
       {
         if (csp->auto_input)
           free (csp->auto_input);
         csp->auto_input = NULL;
-        sim_debug (DBG_DEBUG, & opc_dev,
-                   "%s: Auto-input disabled.\n", __func__);
       }
     csp->autop = csp->auto_input;
     return SCPE_OK;
@@ -433,7 +440,6 @@ int clear_opc_autoinput (int32 flag, UNUSED const char * cptr)
     if (csp->auto_input)
       free (csp->auto_input);
     csp->auto_input = NULL;
-    sim_debug (DBG_DEBUG, & opc_dev, "%s: Auto-input disabled.\n", __func__);
     csp->autop = csp->auto_input;
     return SCPE_OK;
   }
@@ -454,8 +460,6 @@ int add_opc_autoinput (int32 flag, const char * cptr)
       }
     else
       csp->auto_input = new;
-    //sim_debug (DBG_DEBUG, & opc_dev,
-               //"%s: Auto-input now: %s\n", __func__, cptr);
     csp->autop = csp->auto_input;
     return SCPE_OK;
   }
@@ -465,9 +469,6 @@ static int opc_autoinput_show (UNUSED FILE * st, UNIT * uptr,
   {
     int conUnitIdx = (int) OPC_UNIT_IDX (uptr);
     opc_state_t * csp = console_state + conUnitIdx;
-    sim_debug (DBG_DEBUG, & opc_dev,
-               "%s: FILE=%p, uptr=%p, val=%d,desc=%p\n",
-               __func__, (void *) st, (void *) uptr, val, desc);
     if (csp->auto_input)
       sim_print ("Autoinput: '%s'\n", csp->auto_input);
     else
@@ -612,14 +613,19 @@ static void sendConsole (int conUnitIdx, word12 stati)
       }
 
     uint n_chars = (uint) (csp->tailp - csp->readp);
-    uint n_words = (n_chars + 3) / 4;
+    uint n_words;
+    if (csp->bcd)
+        // + 2 for the !1 newline
+        n_words = ((n_chars+2) + 5) / 6;
+      else
+        n_words = (n_chars + 3) / 4;
     // The "+1" is for them empty line case below
     word36 buf[n_words + 1];
     word36 * bufp = buf;
 
     // Multics doesn't seem to like empty lines; it the line buffer
     // is empty and there is room in the I/O buffer, send a line kill.
-    if (csp->noempty && n_chars == 0 && tally)
+    if ((!csp->bcd) && csp->noempty && n_chars == 0 && tally)
       {
         n_chars = 1;
         n_words = 1;
@@ -628,15 +634,57 @@ static void sendConsole (int conUnitIdx, word12 stati)
       }
     else
       {
+        int bcd_nl_state = 0;
         while (tally && csp->readp < csp->tailp)
           {
-            * bufp = 0ul;
-            for (uint charno = 0; charno < 4; ++ charno)
+            if (csp->bcd)
               {
-                if (csp->readp >= csp->tailp)
-                  break;
-                unsigned char c = (unsigned char) (* csp->readp ++);
-                putbits36_9 (bufp, charno * 9, c);
+                //* bufp = 0171717171717ul;
+                //* bufp = 0202020202020ul;
+                * bufp = 0;
+                for (uint charno = 0; charno < 4; ++ charno)
+                  {
+                    unsigned char c;
+                    if (csp->readp >= csp->tailp)
+                      {
+                        if (bcd_nl_state == 0)
+                          {
+                            c = '!';
+                            bcd_nl_state = 1;
+                          }
+                        else if (bcd_nl_state == 1)
+                          {
+                            c = '1';
+                            bcd_nl_state = 2;
+                          }
+                        else
+                          break;
+                      }
+                    else
+                      c = (unsigned char) (* csp->readp ++);
+                    c = toupper (c);
+                    int i;
+                    for (i = 0; i < 64; i ++)
+                      if (bcd_code_page[i] == c)
+                        break;
+                    if (i >= 64)
+                      {
+                        sim_warn ("Character %o does not map to BCD; replacing with '?'\n", c);
+                        i = 017;
+                      }
+                    putbits36_6 (bufp, charno * 6, i);
+                  }
+              }
+            else
+              {
+                * bufp = 0ul;
+                for (uint charno = 0; charno < 4; ++ charno)
+                  {
+                    if (csp->readp >= csp->tailp)
+                      break;
+                    unsigned char c = (unsigned char) (* csp->readp ++);
+                    putbits36_9 (bufp, charno * 9, c);
+                  }
               }
             bufp ++;
             tally --;
@@ -936,8 +984,6 @@ static void consoleProcessIdx (int conUnitIdx)
                 free (csp->auto_input);
                 csp->auto_input = NULL;
                 csp->autop = NULL;
-                sim_debug (DBG_DEBUG, & opc_dev,
-                           "getConsoleInput: Got auto-input EOS\n");
                 goto eol;
               }
             if (announce)
@@ -947,20 +993,11 @@ static void consoleProcessIdx (int conUnitIdx)
               }
             csp->autop ++;
 
-            if (isprint ((char) c))
-              sim_debug (DBG_DEBUG, & opc_dev,
-                         "getConsoleInput: Used auto-input char '%c'\n", c);
-            else
-              sim_debug (DBG_DEBUG, & opc_dev,
-                         "getConsoleInput: Used auto-input char '\\%03o'\n", c);
-
             if (c == '\012' || c == '\015')
               {
 eol:
                 if (csp->echo)
                   console_putstr (conUnitIdx,  "\r\n");
-                sim_debug (DBG_DEBUG, & opc_dev,
-                           "getConsoleInput: Got EOL\n");
                 sendConsole (conUnitIdx, 04000); // Normal status
                 return;
               }
@@ -1151,26 +1188,34 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               p->stati = 04000;
               break;
 
-            case 023:               // Read ASCII
-              sim_debug (DBG_DEBUG, & tape_dev,
-                         "%s: Read ASII echoed\n", __func__);
+            case 003:               // Read BCD
+              sim_debug (DBG_DEBUG, & tape_dev, "%s: Read BCD echoed\n", __func__);
               csp->io_mode = opc_read_mode;
               csp->echo = true;
+              csp->bcd = true;
               p->stati = 04000;
               break;
 
-            case 043:               // Read ASCII unechoed
-              sim_debug (DBG_DEBUG, & tape_dev,
-                         "%s: Read ASII unechoed\n", __func__);
+            case 013:               // Write BCD
+              sim_debug (DBG_DEBUG, & opc_dev, "%s: Write BCD\n", __func__);
+              p->isRead = false;
+              csp->bcd = true;
+              csp->io_mode = opc_write_mode;
+              p->stati = 04000;
+              break;
+
+            case 023:               // Read ASCII
+              sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII echoed\n", __func__);
               csp->io_mode = opc_read_mode;
-              csp->echo = false;
+              csp->echo = true;
+              csp->bcd = false;
               p->stati = 04000;
               break;
-
 
             case 033:               // Write ASCII
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Write ASCII\n", __func__);
               p->isRead = false;
+              csp->bcd = false;
               csp->io_mode = opc_write_mode;
               p->stati = 04000;
               break;
@@ -1188,6 +1233,14 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
             case 040:               // Reset
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Reset\n", __func__);
               csp->io_mode = opc_no_mode;
+              p->stati = 04000;
+              break;
+
+            case 043:               // Read ASCII unechoed
+              sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII unechoed\n", __func__);
+              csp->io_mode = opc_read_mode;
+              csp->echo = false;
+              csp->bcd = false;
               p->stati = 04000;
               break;
 
@@ -1221,25 +1274,24 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               break;
 
             case 060:               // LOCK MCA
-              console_putstr ((int) con_unit_idx,  "CONSOLE: LOCK\r\n");
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Lock\n", __func__);
+              console_putstr ((int) con_unit_idx,  "CONSOLE: LOCK\r\n");
               csp->io_mode = opc_no_mode;
               p->stati = 04000;
               break;
 
             case 063:               // UNLOCK MCA
-              console_putstr ((int) con_unit_idx,  "CONSOLE: UNLOCK\r\n");
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Unlock\n", __func__);
+              console_putstr ((int) con_unit_idx,  "CONSOLE: UNLOCK\r\n");
               csp->io_mode = opc_no_mode;
               p->stati = 04000;
               break;
 
             default:
+              sim_debug (DBG_DEBUG, & opc_dev, "%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
               p->stati = 04501; // command reject, invalid instruction code
               csp->io_mode = opc_no_mode;
               p->chanStatus = chanStatIncorrectDCW;
-              sim_debug (DBG_DEBUG, & opc_dev, "%s: Unknown command 0%o\n",
-                         __func__, p->IDCW_DEV_CMD);
               rc = IOM_CMD_ERROR;
               goto done;
           } // switch IDCW_DEV_CMD
@@ -1260,9 +1312,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 
         case opc_read_mode:
           {
-            sim_debug (DBG_DEBUG, & opc_dev,
-                       "%s: Read IOTx\n", __func__);
-
             if (csp->tailp != csp->buf)
               {
                 sim_warn ("%s: Discarding previously buffered input.\n",
@@ -1274,9 +1323,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 
             if (tally == 0)
               {
-                sim_debug (DBG_DEBUG, & iom_dev,
-                           "%s: Tally of zero interpreted as 010000(4096)\n",
-                           __func__);
                 tally = 4096;
               }
 
@@ -1315,9 +1361,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 
         case opc_write_mode:
           {
-            sim_debug (DBG_DEBUG, & opc_dev,
-                       "%s: Read IOTx\n", __func__);
-
             uint tally = p->DDCW_TALLY;
 
 // We would hope that number of valid characters in the last word
@@ -1325,10 +1368,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 
             if (tally == 0)
               {
-                sim_debug (DBG_DEBUG, & iom_dev,
-                           "%s: Tally of zero interpreted as "
-                           "010000(4096)\n",
-                           __func__);
                 tally = 4096;
               }
 
@@ -1344,21 +1383,72 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 #ifndef __MINGW64__
             newlineOff ();
 #endif
+            bool bcd_esc = false;
+            bool bcd_esc_next = false;
+            int buffered_qms = 0;
+
             while (tally)
               {
                 word36 datum = * bufp ++;
                 tally --;
-
-                for (int i = 0; i < 4; i ++)
+                if (csp->bcd)
                   {
-                    word36 wide_char = datum >> 27; // slide leftmost char
-                                                    //  into low byte
-                    datum = datum << 9; // lose the leftmost char
-                    char ch = wide_char & 0x7f;
-                    if (ch != 0177 && ch != 0)
+                    for (int i = 0; i < 6; i ++)
                       {
-                        console_putchar ((int) con_unit_idx, ch);
+                        word36 narrow_char = datum >> 30; // slide leftmost char
+                                                          //  into low byte
+                        datum = datum << 6; // lose the leftmost char
+                        char ch = bcd_code_page [narrow_char & 077];
+                        if (ch == '!' && !bcd_esc && !bcd_esc_next)
+                          {
+                            bcd_esc = true;
+                          }
+                        else if (bcd_esc)
+                          {
+                            if (ch == '1')
+                              {
+                                console_putstr ((int) con_unit_idx, "\r\n");
+                              }
+                            else if (ch == '!')
+                              {
+                                // Next character is escaped
+                                bcd_esc_next = true;
+                              }
+                            else
+                              {
+                                sim_warn ("Unknown GCOS escape code %c\n", ch);
+                              }
+                            bcd_esc = false;
+                          }
+                        else
+                          {
+                            if (ch == '?')
+                              buffered_qms ++;
+                            else
+                              {
+                                while (buffered_qms -- > 0)
+                                  console_putchar ((int) con_unit_idx, '?');
+                                buffered_qms = 0;
+                                console_putchar ((int) con_unit_idx, ch);
+                              }
+                          }
+                        bcd_esc_next = false;
                         * textp ++ = ch;
+                      }
+                  }
+                else
+                  {
+                    for (int i = 0; i < 4; i ++)
+                      {
+                        word36 wide_char = datum >> 27; // slide leftmost char
+                                                        //  into low byte
+                        datum = datum << 9; // lose the leftmost char
+                        char ch = wide_char & 0x7f;
+                        if (ch != 0177 && ch != 0)
+                          {
+                            console_putchar ((int) con_unit_idx, ch);
+                            * textp ++ = ch;
+                          }
                       }
                   }
               }
