@@ -652,7 +652,6 @@ static void sendConsole (int conUnitIdx, word12 stati)
       }
 
     iom_indirect_data_service (iomUnitIdx, chan_num, buf, & n_words, true);
-    p->initiate = false;
 
     p->charPos = n_chars % 4;
     p->stati = (word12) stati;
@@ -1313,7 +1312,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 #endif
             bool bcd_esc = false;
             bool bcd_esc_next = false;
-            int buffered_qms = 0;
 
             while (tally)
               {
@@ -1326,39 +1324,36 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
                         word36 narrow_char = datum >> 30; // slide leftmost char
                                                           //  into low byte
                         datum = datum << 6; // lose the leftmost char
-                        char ch = bcd_code_page [narrow_char & 077];
+                        narrow_char &= 077;
+                        char ch = bcd_code_page [narrow_char];
                         if (ch == '!' && !bcd_esc && !bcd_esc_next)
                           {
                             bcd_esc = true;
                           }
                         else if (bcd_esc)
                           {
-                            if (ch == '1')
-                              {
-                                console_putstr ((int) con_unit_idx, "\r\n");
-                              }
-                            else if (ch == '!')
+                            if (ch == '!')
                               {
                                 // Next character is escaped
                                 bcd_esc_next = true;
                               }
                             else
                               {
-                                sim_warn ("Unknown GCOS escape code %c\n", ch);
+                                uint lp = narrow_char;
+                                if (lp == 0)
+                                  lp = 1;
+                                for (uint i = 0; i < lp; i ++)
+                                  console_putstr ((int) con_unit_idx, "\r\n");
                               }
                             bcd_esc = false;
                           }
+                        else if (ch == '?')
+                          {
+                            // Drop unescaped question marks
+                          }
                         else
                           {
-                            if (ch == '?')
-                              buffered_qms ++;
-                            else
-                              {
-                                while (buffered_qms -- > 0)
-                                  console_putchar ((int) con_unit_idx, '?');
-                                buffered_qms = 0;
-                                console_putchar ((int) con_unit_idx, ch);
-                              }
+                            console_putchar ((int) con_unit_idx, ch);
                           }
                         bcd_esc_next = false;
                         * textp ++ = ch;
