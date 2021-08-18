@@ -1376,6 +1376,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 #ifndef __MINGW64__
             newlineOff ();
 #endif
+#if 0
             bool bcd_esc = false;
             bool bcd_esc_next = false;
 
@@ -1413,13 +1414,10 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
                               }
                             bcd_esc = false;
                           }
-                        else if (ch == '?')
-                          {
-                            // Drop unescaped question marks
-                          }
                         else
                           {
-                            console_putchar ((int) con_unit_idx, ch);
+                            if (bcd_esc_next || ch != '?')
+                              console_putchar ((int) con_unit_idx, ch);
                           }
                         bcd_esc_next = false;
                         * textp ++ = ch;
@@ -1441,6 +1439,84 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
                       }
                   }
               }
+#else
+            int escape_cnt = 0;
+
+            while (tally)
+              {
+                word36 datum = * bufp ++;
+                tally --;
+                if (csp->bcd)
+                  {
+                    // Lifted from tolts_util_.pl1:bci_to_ascii
+                    for (int i = 0; i < 6; i ++)
+                      {
+                        word36 narrow_char = datum >> 30; // slide leftmost char
+                                                          //  into low byte
+                        datum = datum << 6; // lose the leftmost char
+                        narrow_char &= 077;
+                        char ch = bcd_code_page [narrow_char];
+                        if (escape_cnt == 2)
+                          {
+                            console_putchar ((int) con_unit_idx, ch);
+                            * textp ++ = ch;
+                            escape_cnt = 0;
+                          }
+                        else if (ch == '!')
+                          {
+                            escape_cnt ++;
+                          }
+                        else if (escape_cnt == 1)
+                          {
+                            uint lp = narrow_char;
+                            if (lp == 0)
+                              lp = 1;
+                            if (lp >= 16)
+                              {
+                                console_putstr ((int) con_unit_idx, "\f");
+                                //* textp ++ = '\f';
+                              }
+                            else
+                              {
+                                for (uint i = 0; i < lp; i ++)
+                                  {
+                                    console_putstr ((int) con_unit_idx, "\r\n");
+                                    //* textp ++ = '\r';
+                                    //* textp ++ = '\n';
+                                  }
+                              }
+                            escape_cnt = 0;
+                          }
+                        else if (ch == '?')
+                          {
+                            escape_cnt = 0;
+                          }
+                        else
+                          {
+                            console_putchar ((int) con_unit_idx, ch);
+                            * textp ++ = ch;
+                            escape_cnt = 0;
+                          }
+                      }
+                  }
+                else
+                  {
+                    for (int i = 0; i < 4; i ++)
+                      {
+                        word36 wide_char = datum >> 27; // slide leftmost char
+                                                        //  into low byte
+                        datum = datum << 9; // lose the leftmost char
+                        char ch = wide_char & 0x7f;
+                        if (ch != 0177 && ch != 0)
+                          {
+                            console_putchar ((int) con_unit_idx, ch);
+                            * textp ++ = ch;
+                          }
+                      }
+                  }
+              }
+
+#endif
             * textp ++ = 0;
 
             // autoinput expect
