@@ -180,8 +180,11 @@ enum deckFormat { sevenDeck, cardDeck, streamDeck };
 //  -- Add unlink calls at eof close
 static struct rdr_state
   {
+    enum rdr_mode
+      {
+        rdr_no_mode, rdr_rd_bin
+      } io_mode;
     char device_name [MAX_DEV_NAME_LEN];
-    //FILE * deckfd;
     int deckfd;
     bool running;
     enum { deckStart = 0, eof1Sent, uid1Sent, inputSent, eof2Sent } deckState;
@@ -737,6 +740,7 @@ sim_printf ("\n");
     return IOM_CMD_PROCEED;
   }
 
+#if 0
 static int rdr_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
@@ -787,7 +791,7 @@ static int rdr_cmd (uint iomUnitIdx, uint chan)
       }
     return IOM_CMD_PROCEED;
   }
-
+#endif
 static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
   {
     if (readerIndex >= N_RDR_UNITS_MAX) {
@@ -933,6 +937,7 @@ void rdrCardReady (int unitNum)
 
 iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan)
   {
+#if 0
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 
     // Is it an IDCW?
@@ -942,6 +947,95 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan)
       }
     sim_printf ("%s expected IDCW\n", __func__);
     return IOM_CMD_ERROR;
+#endif
+    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+    uint dev_code = p -> IDCW_DEV_CODE;
+
+    sim_debug (DBG_TRACE, & rdr_dev, "%s: RDR %c%02o_%02o\n",
+               __func__, iomChar (iomUnitIdx), chan, dev_code);
+
+    uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+    uint unitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
+    struct rdr_state * statep = & rdr_state[unitIdx];
+    statep->running = true;
+
+    // IDCW?
+    if (p -> DCW_18_20_CP == 7)
+      {
+        // IDCW
+        statep->io_mode = rdr_no_mode;
+
+        switch (p -> IDCW_DEV_CMD)
+          {
+            case 000: // CMD 00 Request status
+              sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
+              p->stati = 04000;
+              break;
+
+            case 001: // CMD 01 Read binary
+              sim_debug (DBG_DEBUG, & rdr_dev, "%s: Read Binary\n", __func__);
+              statep->io_mode = rdr_rd_bin;
+              p->stati = 04000;
+              break;
+
+#if 0 // REWRITE7
+              {
+            int rc = rdrReadRecord (iomUnitIdx, chan);
+            if (rc)
+              return rc;
+          }
+          break;
+#endif
+
+
+            case 040: // CMD 40 Reset status
+              sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
+              p->stati = 04000;
+              p->isRead = false;
+              break;
+
+            default:
+              if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+                sim_warn ("%s: RDR unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+              p->stati = 04501; // cmd reject, invalid opcode
+              p->chanStatus = chanStatIncorrectDCW;
+              return IOM_CMD_ERROR;
+          } // switch IDCW_DEV_CMD
+    
+        sim_debug (DBG_DEBUG, & rdr_dev, "%s: stati %04o\n", __func__, p -> stati);
+        return IOM_CMD_PROCEED;
+      } // if IDCW
+
+    // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
+    switch (statep->io_mode)
+      {
+        case rdr_no_mode:
+sim_printf ("%s: Unexpected IOTx\n", __func__);
+          sim_warn ("%s: Unexpected IOTx\n", __func__);
+          return IOM_CMD_ERROR;
+
+        case rdr_rd_bin:
+          {
+            int rc = rdrReadRecord (iomUnitIdx, chan);
+            if (rc)
+              return IOM_CMD_ERROR;
+          }
+          break;
+
+         default:
+          sim_warn ("%s: Unrecognized io_mode %d\n", __func__, statep->io_mode);
+          return IOM_CMD_ERROR;
+      }
+
+    // IOTD?
+    if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
+      {
+        sim_debug (DBG_DEBUG | DBG_TRACE, & rdr_dev, "%s: Terminate on IOTD\n", __func__);
+        return IOM_CMD_DISCONNECT;
+      }
+
+    return IOM_CMD_PROCEED;
+
   }
 
 static t_stat rdr_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
