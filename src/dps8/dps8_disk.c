@@ -1190,6 +1190,12 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
               p->stati = 04000;
               p->initiate = false; // According to POLTS
               p->isRead = false;
+              // T&D probing
+              if (p->IDCW_DEV_CODE == 077)
+                {
+                  p->stati = 04502; // invalid device code
+                  return IOM_CMD_DISCONNECT;
+                }
               //if (! unitp->fileref)
                 //p->stati = 04240; // device offline
               break;

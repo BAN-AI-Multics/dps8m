@@ -1836,6 +1836,8 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
                   p -> stati |= 2;
                 //if (sim_tape_eom (unitp))
                   //p -> stati |= 0340;
+// XXX TERMINATE_BUG
+if (p->IDCW_CONTROL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__);  return IOM_CMD_DISCONNECT; }
               }
               break;
 

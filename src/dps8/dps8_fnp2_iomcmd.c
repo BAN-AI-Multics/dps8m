@@ -2435,12 +2435,10 @@ static int fnpCmd (uint iomUnitIdx, uint chan)
 
         default:
           {
-            p->stati = 04501;
+            p->stati = 04501; // cmd reject, invalid opcode
             p->chanStatus = chanStatIncorrectDCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("fnp daze %o\n", p->IDCW_DEV_CMD);
-            sim_debug (DBG_ERR, & fnp_dev,
-                       "%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
+              sim_warn ("%s: FNP unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
           }
           return IOM_CMD_ERROR;
       }
@@ -2450,10 +2448,6 @@ static int fnpCmd (uint iomUnitIdx, uint chan)
  * fnp_iom_cmd()
  *
  */
-
-// 1 ignored command
-// 0 ok
-// -1 problem
 
 iom_cmd_rc_t fnp_iom_cmd (uint iomUnitIdx, uint chan)
   {
@@ -2465,6 +2459,6 @@ iom_cmd_rc_t fnp_iom_cmd (uint iomUnitIdx, uint chan)
         return fnpCmd (iomUnitIdx, chan);
       }
     // else // DDCW/TDCW
-    sim_printf ("%s expected IDCW\n", __func__);
+    sim_warn ("%s expected IDCW\n", __func__);
     return IOM_CMD_ERROR;
   }
