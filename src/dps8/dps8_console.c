@@ -1515,7 +1515,7 @@ if (p->IDCW_CONTROL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return I
     // IOTD?
     if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
       {
-        sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev, "%s: Terminate on IOTD\n", __func__);
+        sim_debug (DBG_DEBUG | DBG_TRACE, & opc_dev, "%s: Terminate on IOTD\n", __func__);
         rc = IOM_CMD_DISCONNECT;
       }
 

@@ -2220,7 +2220,6 @@ if (p->IDCW_CONTROL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__);  return 
       } // if IDCW
 
     // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
-//sim_printf ("io_mode %d\n", tape_statep->io_mode);
     switch (tape_statep->io_mode)
       {
         case tape_no_mode:
@@ -2274,7 +2273,7 @@ sim_printf ("%s: Unexpected IOTx\n", __func__);
     // IOTD?
     if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
       {
-        sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev, "%s: Terminate on IOTD\n", __func__);
+        sim_debug (DBG_DEBUG | DBG_TRACE, & tape_dev, "%s: Terminate on IOTD\n", __func__);
         return IOM_CMD_DISCONNECT;
       }
 
