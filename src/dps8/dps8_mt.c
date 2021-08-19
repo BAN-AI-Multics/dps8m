@@ -1397,9 +1397,6 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
 // set file protect, reserve device, release device, read control registers
 //   no idcw.
 
-// 1 ignored command
-// 0 ok
-// -1 problem
 iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
@@ -1692,7 +1689,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
               // T&D probing
               if (dev_code == 077)
                 {
-sim_printf ("mt saw 77\n");
                   p->stati = 04502; // invalid device code
                   return IOM_CMD_DISCONNECT;
                 }
@@ -2030,6 +2026,8 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
                   //p -> stati |= 0340;
                 sim_debug (DBG_DEBUG, & tape_dev,
                            "%s: Reset device status: %o\n", __func__, p -> stati);
+// XXX TERMINATE_BUG
+if (p->IDCW_CONTROL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__);  return IOM_CMD_DISCONNECT; }
               }
               break;
 
@@ -2272,6 +2270,14 @@ sim_printf ("%s: Unexpected IOTx\n", __func__);
           sim_warn ("%s: Unrecognized io_mode %d\n", __func__, tape_statep->io_mode);
           return IOM_CMD_ERROR;
       }
+
+    // IOTD?
+    if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
+      {
+        sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev, "%s: Terminate on IOTD\n", __func__);
+        return IOM_CMD_DISCONNECT;
+      }
+
     return IOM_CMD_PROCEED;
   } // mt_iom_command
 

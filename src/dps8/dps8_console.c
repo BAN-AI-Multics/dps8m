@@ -1233,6 +1233,14 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
             case 040:               // Reset
               sim_debug (DBG_DEBUG, & opc_dev, "%s: Reset\n", __func__);
               p->stati = 04000;
+              // T&D probing
+              if (p->IDCW_DEV_CODE == 077)
+                {
+                  // T&D uses dev code 77 to test for the console device;
+                  // it ignores dev code, and so returns OK here.
+                  //p->stati = 04502; // invalid device code
+if (p->IDCW_CONTROL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return IOM_CMD_DISCONNECT; }
+                }
               break;
 
             case 043:               // Read ASCII unechoed
@@ -1569,6 +1577,14 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
             p->stati = 04000;
           } // case opc_write_mode
       } // switch io_mode
+
+    // IOTD?
+    if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
+      {
+        sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev, "%s: Terminate on IOTD\n", __func__);
+        rc = IOM_CMD_DISCONNECT;
+      }
+
 done:
 #ifdef LOCKLESS
     unlock_libuv ();
