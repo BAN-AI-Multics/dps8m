@@ -3095,8 +3095,10 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
         goto terminate;
       }
     bool ptro, send, uff;
+#if 0
 // XXX Temporary hack until I can figure chan cmd 0
     bool saw_chan_terminate = false;
+#endif
     bool terminate = false;
     p->isPCW = false;
 
@@ -3151,14 +3153,14 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
             p -> chanStatus = chanStatNormal;
           }
 
-// The device code is per IDCW; look up the device for this IDCW
-
+#if 0 // already checked above for PTW
         d = & cables->iom_to_ctlr[iomUnitIdx][chan];
         if ((!d->in_use) || (!d->iom_cmd))
           {
             p -> stati = 06000; // t, power off/missing
             goto terminate;
           }
+#endif
 
 // Send the DCW list's DCW
 
@@ -3170,24 +3172,31 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
         if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
           goto pending;                // terminate intrrupt.
 
+#if 0 // ptro is never set for payload channels
         if (ptro)
           terminate = true;
+#endif
 
 // The IOM boot code and BCE sets IDCW_CONTROL to 0; this stops the IOTs from being processed.
         //if (rc2 || p -> IDCW_CONTROL == 0)
           //ptro = true;
 
+#if 0
         if (p->DCW_18_20_CP == 07 && saw_chan_terminate)
           terminate = true;
         if (p->DCW_18_20_CP == 07 && p->IDCW_CONTROL == 0)
           saw_chan_terminate = true;
+#endif
 
+#if 0 // done in the channel adaptor
         // IOTD?
         if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
           {
             terminate = true;
             sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev, "%s: Terminate on IOTD\n", __func__);
           }
+#endif
+
 #if 0
 // This should work but IOM boot and BCE set it to 0 and expect life to go on
         if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 0 && p->IDCW_CONTROL == 0)
