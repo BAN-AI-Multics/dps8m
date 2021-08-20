@@ -596,13 +596,13 @@ static char * cmdNames [] =
     "",                      // 17
     "Release Ctlr",          // 20
     "",                      // 21
-    "",                      // 22
+    "RdStatReg",             // 22
     "",                      // 23
     "",                      // 24
-    "",                      // 25
+    "Read",                  // 25
     "",                      // 26
     "",                      // 27
-    "",                      // 30
+    "Seek 512",              // 30
     "",                      // 31
     "MTP Wr Mem",            // 32
     "Write ASCII",           // 33
