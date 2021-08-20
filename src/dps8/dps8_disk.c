@@ -419,7 +419,6 @@ static t_stat signal_disk_ready (uint dsk_unit_idx)
         // If None, assume that the cabling hasn't happend yey.
         if (ctlr_type != CTLR_T_NONE)
           {
-sim_printf ("lost %u\n", ctlr_type);
             sim_warn ("loadDisk lost\n");
             return SCPE_ARG;
           }
@@ -1108,7 +1107,6 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
     if (p->DCW_18_20_CP == 7)
       {
         // IDCW
-
         disk_statep->io_mode = disk_no_mode;
         switch (p->IDCW_DEV_CMD)
           {
@@ -1142,6 +1140,8 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
                   p->stati = 04240; // device offline
                   break;
                 }
+              //if (p->IDCW_CONTROL == 0)
+                //rc = IOM_CMD_DISCONNECT;
               break;
 
             case 030: // CMD 30 SEEK_512
@@ -1198,6 +1198,8 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
                 }
               //if (! unitp->fileref)
                 //p->stati = 04240; // device offline
+              if (p->IDCW_CONTROL == 0)
+                rc = IOM_CMD_DISCONNECT;
               break;
 
             case 042: // CMD 42 RESTORE
@@ -1221,6 +1223,10 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
               rc =  IOM_CMD_ERROR;
               goto done;
           }
+        if (disk_statep->io_mode == disk_no_mode && p->IDCW_CONTROL == 0)
+          rc = IOM_CMD_DISCONNECT;
+
+        goto done;
       } // IDCW
 
     // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
@@ -1311,12 +1317,16 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
           break;
       }
 
+    if (p->IDCW_CONTROL == 0)
+      rc = IOM_CMD_DISCONNECT;
+#if 0
     // IOTD?
     if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
       {
         sim_debug (DBG_DEBUG | DBG_TRACE, & dsk_dev, "%s: Terminate on IOTD\n", __func__);
         rc = IOM_CMD_DISCONNECT;
       }
+#endif
 
 done:
 #ifdef LOCKLESS
