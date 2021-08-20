@@ -219,6 +219,13 @@ static iom_cmd_rc_t absi_cmd (uint iomUnitIdx, uint chan)
                p->IDCW_COUNT);
 
 
+    // Not IDCW?
+    if (p -> DCW_18_20_CP != 7)
+      {
+        sim_warn ("%s: Unexpected IOTx\n", __func__);
+        return IOM_CMD_ERROR;
+      }
+
     switch (p->IDCW_DEV_CMD)
       {
         case 000: // CMD 00 Request status
@@ -266,17 +273,11 @@ sim_printf ("absi host switch up\n");
         default:
           {
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("absi daze %o\n", p->IDCW_DEV_CMD);
+              sim_warn ("%s: ABSI unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
             p->stati = 04501; // cmd reject, invalid opcode
             p->chanStatus = chanStatIncorrectDCW;
           }
           return IOM_CMD_ERROR;
-      }
-
-    if (p->IDCW_CONTROL == 3) // marker bit set
-      {
-sim_printf ("absi marker\n");
-        send_marker_interrupt (iomUnitIdx, (int) chan);
       }
 
     if (p->IDCW_CHAN_CMD == 0)
