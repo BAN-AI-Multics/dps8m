@@ -160,9 +160,9 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
 
 void accessStartWrite (uv_tcp_t * client, char * data, ssize_t datalen)
   {
-    uv_access * access = (uv_access *) client->data;
-    if (! client || uv_is_closing ((uv_handle_t *) client))
+    if ((client == NULL) || uv_is_closing ((uv_handle_t *) client))
       return;
+    uv_access * access = (uv_access *) client->data;
     if (access->telnetp)
       telnet_send (access->telnetp, data, (size_t) datalen);
     else
