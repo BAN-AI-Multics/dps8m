@@ -1026,7 +1026,7 @@ ddcws:;
     while (p -> DDCW_22_23_TYPE != 0); // while not IOTD
     //if (sim_tape_wrp (unitp))
       //p -> stati |= 1;
-    return 0;
+    return IOM_CMD_NO_DCW;
   }
 
 static int mtWriteRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
@@ -1350,6 +1350,8 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 
+    int mt_cmd_rc = IOM_CMD_OK;
+
 // According to poll_mpc.pl1
 // Note: XXX should probably be checking these...
 //  idcw.chan_cmd = "40"b3; /* Indicate special controller command */
@@ -1510,9 +1512,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
         case 3: // CMD 03 -- Read 9 Record
         case 5: // CMD 05 -- Read Binary Record
           {
-            int rc = mtReadRecord (devUnitIdx, iomUnitIdx, chan);
-            if (rc)
-              return IOM_CMD_ERROR;
+            mt_cmd_rc = mtReadRecord (devUnitIdx, iomUnitIdx, chan);
           }
           break;
 
@@ -2281,7 +2281,7 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
-    return IOM_CMD_OK;
+    return mt_cmd_rc;
   }
 
 // 031 read statistics

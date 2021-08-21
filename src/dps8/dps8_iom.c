@@ -1903,6 +1903,7 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
 
     uint tally = p -> DDCW_TALLY;
     uint daddr = p -> DDCW_ADDR;
+//sim_printf ("ddcw_addr %o\n", p->DDCW_ADDR);
     if (tally == 0)
       {
         sim_debug (DBG_DEBUG, & iom_dev,
@@ -2970,6 +2971,16 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
       {
         p->stati = 04501;
         p->chanStatus = chanStatIncorrectDCW;
+        send_terminate_interrupt (iom_unit_idx, chan);
+        return 0;
+      }
+
+//sim_printf ("chan %d cmd %o dev_code %o\n", chan, p->IDCW_DEV_CMD, p->IDCW_DEV_CODE == 077);
+//
+// This black magic code makes T&D recognize the console.
+    if (p->IDCW_DEV_CMD == 040 && p->IDCW_DEV_CODE == 077)
+      {
+        p->stati = 04000;
         send_terminate_interrupt (iom_unit_idx, chan);
         return 0;
       }

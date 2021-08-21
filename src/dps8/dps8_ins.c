@@ -8695,6 +8695,7 @@ elapsedtime ();
 
         case x0 (0616):  // dis
 
+//sim_printf ("dis @ %lld\n", cpu.cycleCnt);
           if (! cpu.switches.dis_enable)
             {
               return STOP_STOP;

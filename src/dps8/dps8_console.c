@@ -236,6 +236,7 @@ typedef struct opc_state_t
     char simh_buffer[simh_buffer_sz];
     int simh_buffer_cnt;
 
+    bool bcd;
     uv_access console_access;
 
     // ^T
@@ -244,6 +245,16 @@ typedef struct opc_state_t
  } opc_state_t;
 
 static opc_state_t console_state[N_OPC_UNITS_MAX];
+
+static char * bcd_code_page =
+  "01234567"
+  "89[#@;>?"
+  " ABCDEFG"
+  "HI&.](<\\"
+  "^JKLMNOP"
+  "QR-$*);'"
+  "+/STUVWX"
+  "YZ_,%=\"!";
 
 //
 // Typeahead buffer
@@ -676,14 +687,20 @@ static void sendConsole (int conUnitIdx, word12 stati)
     oscar (text);
 #endif
     uint n_chars = (uint) (csp->tailp - csp->readp);
-    uint n_words = (n_chars + 3) / 4;
+    //uint n_words = (n_chars + 3) / 4;
+    uint n_words;
+    if (csp->bcd)
+        // + 2 for the !1 newline
+        n_words = ((n_chars+2) + 5) / 6;
+      else
+        n_words = (n_chars + 3) / 4;
     // The "+1" is for them empty line case below
     word36 buf[n_words + 1];
     word36 * bufp = buf;
 
     // Multics doesn't seem to like empty lines; it the line buffer
     // is empty and there is room in the I/O buffer, send a line kill.
-    if (csp->noempty && n_chars == 0 && tally)
+    if ((!csp->bcd) && csp->noempty && n_chars == 0 && tally)
       {
         n_chars = 1;
         n_words = 1;
@@ -692,15 +709,57 @@ static void sendConsole (int conUnitIdx, word12 stati)
       }
     else
       {
+        int bcd_nl_state = 0;
         while (tally && csp->readp < csp->tailp)
           {
-            * bufp = 0ul;
-            for (uint charno = 0; charno < 4; ++ charno)
+            if (csp->bcd)
               {
-                if (csp->readp >= csp->tailp)
-                  break;
-                unsigned char c = (unsigned char) (* csp->readp ++);
-                putbits36_9 (bufp, charno * 9, c);
+                //* bufp = 0171717171717ul;
+                //* bufp = 0202020202020ul;
+                * bufp = 0;
+                for (uint charno = 0; charno < 4; ++ charno)
+                  {
+                    unsigned char c;
+                    if (csp->readp >= csp->tailp)
+                      {
+                        if (bcd_nl_state == 0)
+                          {
+                            c = '!';
+                            bcd_nl_state = 1;
+                          }
+                        else if (bcd_nl_state == 1)
+                          {
+                            c = '1';
+                            bcd_nl_state = 2;
+                          }
+                        else
+                          break;
+                      }
+                    else
+                      c = (unsigned char) (* csp->readp ++);
+                    c = toupper (c);
+                    int i;
+                    for (i = 0; i < 64; i ++)
+                      if (bcd_code_page[i] == c)
+                        break;
+                    if (i >= 64)
+                      {
+                        sim_warn ("Character %o does not map to BCD; replacing with '?'\n", c);
+                        i = 017;
+                      }
+                    putbits36_6 (bufp, charno * 6, i);
+                  }
+              }
+            else
+              {
+                * bufp = 0ul;
+                for (uint charno = 0; charno < 4; ++ charno)
+                  {
+                    if (csp->readp >= csp->tailp)
+                      break;
+                    unsigned char c = (unsigned char) (* csp->readp ++);
+                    putbits36_9 (bufp, charno * 9, c);
+                  }
               }
             bufp ++;
             tally --;
@@ -775,6 +834,7 @@ static int opc_cmd (uint iomUnitIdx, uint chan)
           }
           break;
 
+        case 003:               // Read (presumably BCD)
         case 023:               // Read ASCII
         case 043:               // Read ASCII unechoed
           {
@@ -847,7 +907,7 @@ sim_warn ("uncomfortable with this\n");
                 tally = 4096;
               }
 
-            csp->echo = p->IDCW_DEV_CMD == 023;
+            csp->echo = p->IDCW_DEV_CMD == 023 || p->IDCW_DEV_CMD == 003;
             csp->tailp = csp->buf;
             csp->readp = csp->buf;
             csp->io_mode = opc_read_mode;
@@ -856,6 +916,7 @@ sim_warn ("uncomfortable with this\n");
             csp->daddr = daddr;
             csp->unitp = unitp;
             csp->chan = (int) chan;
+            csp->bcd = p->IDCW_DEV_CMD == 003;
 
             // If Multics has gone seriously awry (eg crash
             // to BCE during boot), the autoinput will become
@@ -881,10 +942,12 @@ sim_warn ("uncomfortable with this\n");
           return IOM_CMD_PENDING; // command in progress; do not send terminate interrupt
 
 
+        case 013:               // Write (presumably BCD)
         case 033:               // Write ASCII
           {
             p->isRead = false;
             csp->io_mode = opc_write_mode;
+            csp->bcd = p->IDCW_DEV_CMD == 013;
 
             sim_debug (DBG_NOTIFY, & opc_dev,
                        "%s: Write ASCII cmd received\n", __func__);
@@ -1032,21 +1095,72 @@ sim_warn ("uncomfortable with this\n");
 #ifdef COLOR
                 sim_print (""); // force text color reset
 #endif
+                bool bcd_esc = false;
+                bool bcd_esc_next = false;
+                int buffered_qms = 0;
                 while (tally)
                   {
                     word36 datum = * bufp ++;
                     tally --;
 
-                    for (int i = 0; i < 4; i ++)
+                    if (csp->bcd)
                       {
-                        word36 wide_char = datum >> 27; // slide leftmost char
-                                                        //  into low byte
-                        datum = datum << 9; // lose the leftmost char
-                        char ch = wide_char & 0x7f;
-                        if (ch != 0177 && ch != 0)
+                        for (int i = 0; i < 6; i ++)
                           {
-                            console_putchar ((int) con_unit_idx, ch);
+                            word36 narrow_char = datum >> 30; // slide leftmost char
+                                                              //  into low byte
+                            datum = datum << 6; // lose the leftmost char
+                            char ch = bcd_code_page [narrow_char & 077];
+                            if (ch == '!' && !bcd_esc && !bcd_esc_next)
+                              {
+                                bcd_esc = true;
+                              }
+                            else if (bcd_esc)
+                              {
+                                if (ch == '1')
+                                  {
+                                    console_putstr ((int) con_unit_idx, "\r\n");
+                                  }
+                                else if (ch == '!')
+                                  {
+                                    // Next character is escaped
+                                    bcd_esc_next = true;
+                                  }
+                                else
+                                  {
+                                    sim_warn ("Unknown GCOS escape code %c\n", ch);
+                                  }
+                                bcd_esc = false;
+                              }
+                            else
+                              {
+                                if (ch == '?')
+                                  buffered_qms ++;
+                                else
+                                  {
+                                    while (buffered_qms -- > 0)
+                                      console_putchar ((int) con_unit_idx, '?');
+                                    buffered_qms = 0;
+                                    console_putchar ((int) con_unit_idx, ch);
+                                  }
+                              }
+                            bcd_esc_next = false;
                             * textp ++ = ch;
+                          }
+                      }
+                    else
+                      {
+                        for (int i = 0; i < 4; i ++)
+                          {
+                            word36 wide_char = datum >> 27; // slide leftmost char
+                                                            //  into low byte
+                            datum = datum << 9; // lose the leftmost char
+                            char ch = wide_char & 0x7f;
+                            if (ch != 0177 && ch != 0)
+                              {
+                                console_putchar ((int) con_unit_idx, ch);
+                                * textp ++ = ch;
+                              }
                           }
                       }
                   }

@@ -643,7 +643,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
         for (uint i = 0; i < MEMSIZE; i ++)
           {
             //M [i] = MEM_UNINITIALIZED;
-            M[i] &= (MASK36 | MEM_UNINITIALIZED);
+            M[i] &= ((~MASK36) | MEM_UNINITIALIZED);
           }
 #endif
       }
@@ -2987,11 +2987,20 @@ t_stat read_operand (word18 addr, processor_cycle_type cyctyp)
         case 1:
             CPT (cpt1L, 7); // word
             Read (addr, & cpu.CY, cyctyp);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_read %08o %012llo\n",
+                addr, cpu.CY);
             return SCPE_OK;
         case 2:
             CPT (cpt1L, 8); // double word
             addr &= 0777776;   // make even
             Read2 (addr, cpu.Ypair, cyctyp);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_read2 %08o %012llo\n",
+                addr, cpu.Ypair[0]);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_read2 %08o %012llo\n",
+                addr+1, cpu.Ypair[1]);
             break;
         case 8:
             CPT (cpt1L, 9); // oct word
@@ -3026,11 +3035,20 @@ t_stat write_operand (word18 addr, UNUSED processor_cycle_type cyctyp)
         case 1:
             CPT (cpt1L, 12); // word
             Write (addr, cpu.CY, OPERAND_STORE);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_write %08o %012llo\n",
+                addr, cpu.CY);
             break;
         case 2:
             CPT (cpt1L, 13); // double word
             addr &= 0777776;   // make even
             Write2 (addr + 0, cpu.Ypair, OPERAND_STORE);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_write2 %08o %012llo\n",
+                addr, cpu.Ypair[0]);
+    sim_debug (DBG_TRACE, & cpu_dev,
+               "core_write2 %08o %012llo\n",
+                addr+1, cpu.Ypair[1]);
             break;
         case 8:
             CPT (cpt1L, 14); // 8 words
