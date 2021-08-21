@@ -1345,7 +1345,7 @@ static t_stat iom_boot (int unitNum, UNUSED DEVICE * dptr)
 #if defined(THREADZ) || defined(LOCKLESS)
     sim_activate (& boot_channel_unit[iom_unit_idx], 1);
 #else
-    sim_activate (& boot_channel_unit[iom_unit_idx], 1);
+    sim_activate (& boot_channel_unit[iom_unit_idx], 1000);
 #endif
     // returning OK from the simh BOOT command causes simh to start the CPU
 #endif
