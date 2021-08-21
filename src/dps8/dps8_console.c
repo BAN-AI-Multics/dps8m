@@ -532,7 +532,7 @@ static void newlineOn (void)
   }
 #endif
 
-static void handleRCP (char * text)
+static void handleRCP (uint con_unit_idx, char * text)
   {
 // It appears that Cygwin doesn't grok "%ms"
 #if 0
@@ -573,19 +573,19 @@ static void handleRCP (char * text)
 
 //  1629  as   dial_ctl_: Channel d.h000 dialed to Initializer
 
-    if (console_state[ASSUME0].autoaccept)
+    if (console_state[con_unit_idx].autoaccept)
       {
         rc = sscanf (text, "%*d  as   dial_ctl_: Channel %s dialed to Initializer",
                      label);
         if (rc == 1)
           {
             //sim_printf (" dial system <%s>\r\n", label);
-            opc_autoinput_set (opc_unit + ASSUME0, 0, "accept ", NULL);
-            opc_autoinput_set (opc_unit + ASSUME0, 0, label, NULL);
-            opc_autoinput_set (opc_unit + ASSUME0, 0, "\r", NULL);
+            opc_autoinput_set (opc_unit + con_unit_idx, 0, "accept ", NULL);
+            opc_autoinput_set (opc_unit + con_unit_idx, 0, label, NULL);
+            opc_autoinput_set (opc_unit + con_unit_idx, 0, "\r", NULL);
 // XXX This is subject to race conditions
-            if (console_state[ASSUME0].io_mode != opc_read_mode)
-              console_state[ASSUME0].attn_pressed = true;
+            if (console_state[con_unit_idx].io_mode != opc_read_mode)
+              console_state[con_unit_idx].attn_pressed = true;
             return;
           }
       }
@@ -882,7 +882,7 @@ sim_warn ("uncomfortable with this\n");
                 // expect wait and any remaining script, returning
                 // control of the console to the user.
                 // Assuming opc0.
-                clear_opc_autoinput (ASSUME0, NULL);
+                clear_opc_autoinput (con_unit_idx, NULL);
                 ta_flush ();
                 sim_printf ("\r\nScript wedged and abandoned; autoinput and typeahead buffers flushed\r\n");
               }
@@ -1104,7 +1104,7 @@ sim_warn ("uncomfortable with this\n");
 #endif
                       }
                   }
-                handleRCP (text);
+                handleRCP (con_unit_idx, text);
 #ifndef __MINGW64__
                 newlineOn ();
 #endif
@@ -1280,7 +1280,7 @@ static void consoleProcessIdx (int conUnitIdx)
             // expect wait and any remaining script, returning
             // control of the console to the user.
             // Assuming opc0.
-            clear_opc_autoinput (ASSUME0, NULL);
+            clear_opc_autoinput (con_unit_idx, NULL);
             ta_flush ();
             sim_printf ("\r\nAutoinput and typeahead buffers flushed\r\n");
             continue;
