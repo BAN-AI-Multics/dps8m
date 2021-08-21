@@ -8379,7 +8379,7 @@ elapsedtime ();
                             << (35-20));
                   cpu.rA |= (word36) ((00L) // 0b00
                             << (35-22));
-                  cpu.rA |= (word36) ((01L)  /* 0b1 DPS8M */
+                  cpu.rA |= (word36) ((cpu.switches.procMode)  /* 0b1 DPS8M */
                             << (35-23));
                   cpu.rA |= (word36) ((cpu.switches.procMode & 1U)
                             << (35-24));
@@ -8696,7 +8696,7 @@ elapsedtime ();
         case x0 (0616):  // dis
 
 //sim_printf ("dis @ %lld\n", cpu.cycleCnt);
-          if (! cpu.switches.dis_enable)
+          if (! cpu.switches.dis_enable && cpu.PPR.IC != 06607)
             {
               return STOP_STOP;
             }

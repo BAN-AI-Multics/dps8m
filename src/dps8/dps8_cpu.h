@@ -695,7 +695,7 @@ typedef struct
 
 // Physical Switches
 
-enum procModeSettings { procModeGCOS = 0, procModeMultics = 1 };
+enum procModeSettings { procModeGCOS = 1, procModeMultics = 0 };
 typedef struct
   {
     // Switches on the Processor's maintenance and configuration panels
