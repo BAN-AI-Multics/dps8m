@@ -3619,12 +3619,11 @@ static t_stat doInstruction (void)
           //SETLO (cpu.CY, (cpu.cu.IR & 0000000777760LL));
           cpu.CY = cpu.cu.IR & 0000000777760LL;
 #endif
+          if (cpu.switches.procMode == procModeGCOS)
+            cpu.CY = cpu.cu.IR & 0000000777600LL;
           cpu.zone = 0000000777777;
           cpu.useZone = true;
           SCF (i->stiTally, cpu.CY, I_TALLY);
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
           break;
 
 
@@ -8149,7 +8148,7 @@ elapsedtime ();
                        << (35-22));
                 tmp |= (word36) ((01L)  /* 0b1 DPS8M */
                        << (35-23));
-                tmp |= (word36) ((cpu.switches.proc_mode & 01LL)
+                tmp |= (word36) ((cpu.switches.procMode & 1U)
                        << (35-24));
                 tmp |= (word36) ((00L) // 0b0
                        << (35-25)); // new product line (CPL/NPL)
@@ -8382,7 +8381,7 @@ elapsedtime ();
                             << (35-22));
                   cpu.rA |= (word36) ((01L)  /* 0b1 DPS8M */
                             << (35-23));
-                  cpu.rA |= (word36) ((cpu.switches.proc_mode & 01LL)
+                  cpu.rA |= (word36) ((cpu.switches.procMode & 1U)
                             << (35-24));
                   cpu.rA |= (word36) ((00L) // 0b0 new product line (CPL/NPL)
                             << (35-25));
