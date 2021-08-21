@@ -8379,7 +8379,7 @@ elapsedtime ();
                             << (35-20));
                   cpu.rA |= (word36) ((00L) // 0b00
                             << (35-22));
-                  cpu.rA |= (word36) ((01L)  /* 0b1 DPS8M */
+                  cpu.rA |= (word36) ((cpu.switches.procMode)  /* 0b1 DPS8M */
                             << (35-23));
                   cpu.rA |= (word36) ((cpu.switches.procMode & 1U)
                             << (35-24));
