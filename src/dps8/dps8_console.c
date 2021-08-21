@@ -55,6 +55,7 @@
 
 #define ASSUME0 0
 
+
 // config switch -- The bootload console has a 30-second timer mechanism. When
 // reading from the console, if no character is typed within 30 seconds, the
 // read operation is terminated. The timer is controlled by an enable switch,
@@ -73,6 +74,18 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
                               const char * cptr, UNUSED void * desc);
 static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int  val, UNUSED const void * desc);
+static t_stat opc_set_console_port (UNIT * uptr, UNUSED int32 value,
+                                    const char * cptr, UNUSED void * desc);
+static t_stat opc_show_console_port (UNUSED FILE * st, UNIT * uptr,
+                                       UNUSED int val, UNUSED const void * desc);
+static t_stat opc_set_console_address (UNIT * uptr, UNUSED int32 value,
+                                    const char * cptr, UNUSED void * desc);
+static t_stat opc_show_console_address (UNUSED FILE * st, UNIT * uptr,
+                                       UNUSED int val, UNUSED const void * desc);
+static t_stat opc_set_console_pw (UNIT * uptr, UNUSED int32 value,
+                                    const char * cptr, UNUSED void * desc);
+static t_stat opc_show_console_pw (UNUSED FILE * st, UNIT * uptr,
+                                       UNUSED int val, UNUSED const void * desc);
 
 static MTAB opc_mtab[] =
   {
@@ -109,6 +122,39 @@ static MTAB opc_mtab[] =
       NULL,            /* help */
     },
 
+    {
+      MTAB_unit_valr_nouc, /* mask */
+      0,            /* match */
+      "PORT",     /* print string */
+      "PORT",         /* match string */
+      opc_set_console_port, /* validation routine */
+      opc_show_console_port, /* display routine */
+      "Set the console port number", /* value descriptor */
+      NULL          // help
+    },
+
+    {
+      MTAB_unit_valr_nouc, /* mask */
+      0,            /* match */
+      "ADDRESS",     /* print string */
+      "ADDRESS",         /* match string */
+      opc_set_console_address, /* validation routine */
+      opc_show_console_address, /* display routine */
+      "Set the console IP Address", /* value descriptor */
+      NULL          // help
+    },
+
+    {
+      MTAB_unit_valr_nouc, /* mask */
+      0,            /* match */
+      "PW",     /* print string */
+      "PW",         /* match string */
+      opc_set_console_pw, /* validation routine */
+      opc_show_console_pw, /* display routine */
+      "Set the console password", /* value descriptor */
+      NULL          // help
+    },
+
     MTAB_eol
 };
 
@@ -126,7 +172,8 @@ static DEBTAB opc_dt[] =
 
 // Multics only supports a single operator console; but
 // it is possible to run multiple Multics instances in a
-// cluster.
+// cluster. It is also possible to route message output to
+// alternate console(s) as I/O devices.
 
 #define N_OPC_UNITS 1 // default
 #define OPC_UNIT_NUM(uptr) ((uptr) - opc_unit)
@@ -186,14 +233,6 @@ DEVICE opc_dev = {
     NULL
 };
 
-/*
- Copyright (c) 2007-2013 Michael Mondy
-
- This software is made available under the terms of the
- ICU License -- ICU 1.8.1 and later.
- See the LICENSE.md file at the top-level directory of this distribution and
- at http://example.org/project/LICENSE.
- */
 
 enum console_model { m6001 = 0, m6601 = 1 };
 
@@ -295,15 +334,6 @@ static int ta_get (void)
     return c;
   }
 
-#if 0
-static bool ta_scan (int c)
-  {
-    for (uint i = ta_next; i < ta_cnt; i ++)
-      if (c == ta_buffer[i])
-        return true;
-    return false;
-  }
-#endif
 
 static t_stat opc_reset (UNUSED DEVICE * dptr)
   {
@@ -319,16 +349,6 @@ static t_stat opc_reset (UNUSED DEVICE * dptr)
     return SCPE_OK;
   }
 
-
-#if 0
-//#ifndef __MINGW64__
-static void quit_sig_hndlr (int UNUSED signum)
-  {
-    //printf ("quit\n");
-    csp->attn_pressed = true;
-  }
-//#endif
-#endif
 
 int check_attn_key (void)
   {
@@ -368,17 +388,6 @@ void console_init (void)
         csp->attn_flush = 1;
       }
 
-#if 0
-//#ifndef __MINGW64__
-    // The quit signal is used has the console ATTN key
-    struct sigaction quit_action;
-    quit_action.sa_handler = quit_sig_hndlr;
-    quit_action.sa_flags = SA_RESTART;
-    sigemptyset (& quit_action.sa_mask);
-    sigaction (SIGQUIT, & quit_action, NULL);
-//#endif
-#endif
-    //uv_open_console (ASSUME0, console_port);
   }
 
 static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
@@ -1790,7 +1799,7 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
 static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int  val, UNUSED const void * desc)
   {
-    int devUnitIdx = (int) OPC_UNIT_NUM (uptr);
+    int devUnitIdx = OPC_UNIT_NUM (uptr);
     opc_state_t * csp = console_state + devUnitIdx;
 #ifdef ATTN_HACK
     sim_msg ("attn_hack:  %d\n", csp->attn_hack);
@@ -1815,6 +1824,71 @@ t_stat set_console_port (int32 arg, const char * buf)
     return SCPE_OK;
   }
 
+static t_stat opc_set_console_port (UNIT * uptr, UNUSED int32 value,
+                                    const char * cptr, UNUSED void * desc)
+  {
+    int dev_idx = OPC_UNIT_NUM (uptr);
+    if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
+      return SCPE_ARG;
+
+    if (cptr)
+      {
+        int port = atoi (cptr);
+        if (port < 0 || port > 65535) // 0 is 'disable'
+          return SCPE_ARG;
+        console_state[dev_idx].console_access.port = port;
+        sim_msg ("Console %d port set to %d\n", dev_idx, port);
+      }
+    else
+      console_state[dev_idx].console_access.port = 0;
+    return SCPE_OK;
+  }
+
+
+static t_stat opc_show_console_port (UNUSED FILE * st, UNIT * uptr,
+                                       UNUSED int val, UNUSED const void * desc)
+  {
+    int dev_idx = OPC_UNIT_NUM (uptr);
+    if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
+      return SCPE_ARG;
+    sim_printf("Console %d port set to %d\n", dev_idx, console_state[dev_idx].console_access.port);
+    return SCPE_OK;
+  }
+
+static t_stat opc_set_console_address (UNIT * uptr, UNUSED int32 value,
+                                    const char * cptr, UNUSED void * desc)
+  {
+    int dev_idx = OPC_UNIT_NUM (uptr);
+    if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
+      return SCPE_ARG;
+
+    if (console_state[dev_idx].console_access.address)
+      {
+        free (console_state[dev_idx].console_access.address);
+        console_state[dev_idx].console_access.address = NULL;
+      }
+
+    if (cptr)
+      {
+        console_state[dev_idx].console_access.address = strdup (cptr);
+        sim_msg ("Console %d address set to %s\n", dev_idx, console_state[dev_idx].console_access.address);
+      }
+
+    return SCPE_OK;
+  }
+
+
+static t_stat opc_show_console_address (UNUSED FILE * st, UNIT * uptr,
+                                       UNUSED int val, UNUSED const void * desc)
+  {
+    int dev_idx = OPC_UNIT_NUM (uptr);
+    if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
+      return SCPE_ARG;
+    sim_printf("Console %d address set to %s\n", dev_idx, console_state[dev_idx].console_access.address);
+    return SCPE_OK;
+  }
+
+
 t_stat set_console_address (int32 arg, const char * buf)
   {
     if (arg < 0 || arg >= N_OPC_UNITS_MAX)
@@ -1823,6 +1897,43 @@ t_stat set_console_address (int32 arg, const char * buf)
       free (console_state[arg].console_access.address);
     console_state[arg].console_access.address = strdup (buf);
     sim_msg ("Console %d address set to %s\n", arg, console_state[arg].console_access.address);
+    return SCPE_OK;
+  }
+
+static t_stat opc_set_console_pw (UNIT * uptr, UNUSED int32 value,
+                                    const char * cptr, UNUSED void * desc)
+  {
+    long dev_idx = OPC_UNIT_NUM (uptr);
+    if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
+      return SCPE_ARG;
+
+    if (cptr && (strlen(cptr) > 0))
+      {
+        char token[strlen (cptr)];
+        int rc = sscanf (cptr, "%s", token);
+        if (rc != 1)
+          return SCPE_ARG;
+        if (strlen (token) > PW_SIZE)
+          return SCPE_ARG;
+        strcpy (console_state[dev_idx].console_access.pw, token);
+      }
+    else
+      {
+        sim_msg ("no password\n");
+        console_state[dev_idx].console_access.pw[0] = 0;
+      }
+
+    return SCPE_OK;
+  }
+
+
+static t_stat opc_show_console_pw (UNUSED FILE * st, UNIT * uptr,
+                                       UNUSED int val, UNUSED const void * desc)
+  {
+    int dev_idx = OPC_UNIT_NUM (uptr);
+    if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
+      return SCPE_ARG;
+    sim_printf("Console %d password set to %s\n", dev_idx, console_state[dev_idx].console_access.pw);
     return SCPE_OK;
   }
 
