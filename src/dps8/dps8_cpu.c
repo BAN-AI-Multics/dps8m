@@ -122,8 +122,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                     'A' + i, cpus[cpu_unit_idx].switches.store_size [i]);
       }
     sim_msg ("Processor mode:           %s [%o]\n",
-                cpus[cpu_unit_idx].switches.proc_mode ? "Multics" : "GCOS",
-                cpus[cpu_unit_idx].switches.proc_mode);
+                cpus[cpu_unit_idx].switches.procMode == procModeMultics ? "Multics" : cpus[cpu_unit_idx].switches.procMode == procModeGCOS ? "GCOS" : "???",
+                cpus[cpu_unit_idx].switches.procMode);
     sim_msg ("Processor speed:          %02o(8)\n",
                 cpus[cpu_unit_idx].switches.proc_speed);
     sim_msg ("DIS enable:               %01o(8)\n",
@@ -397,7 +397,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
         else if (strcmp (p, "address") == 0)
           cpus[cpu_unit_idx].switches.addr_switches = (word18) v;
         else if (strcmp (p, "mode") == 0)
-          cpus[cpu_unit_idx].switches.proc_mode = (uint) v;
+          cpus[cpu_unit_idx].switches.procMode = v ? procModeMultics : procModeGCOS;
         else if (strcmp (p, "speed") == 0)
           cpus[cpu_unit_idx].switches.proc_speed = (uint) v;
         else if (strcmp (p, "port") == 0)

@@ -695,6 +695,7 @@ typedef struct
 
 // Physical Switches
 
+enum procModeSettings { procModeGCOS = 1, procModeMultics = 0 };
 typedef struct
   {
     // Switches on the Processor's maintenance and configuration panels
@@ -707,7 +708,7 @@ typedef struct
     uint enable [N_CPU_PORTS];
     uint init_enable [N_CPU_PORTS];
     uint store_size [N_CPU_PORTS]; // 0-7 encoding 32K-4M
-    uint proc_mode;  // 1 bit  Read by rsw instruction; format unknown
+    enum procModeSettings procMode;  // 1 bit  Read by rsw instruction; format unknown
     uint proc_speed; // 4 bits Read by rsw instruction; format unknown
 
     // Emulator run-time options (virtual switches)
