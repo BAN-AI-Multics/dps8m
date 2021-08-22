@@ -1810,8 +1810,10 @@ static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
     return SCPE_OK;
   }
 
+//TODO: This is a deprecated function to be removed in the next major release
 t_stat set_console_port (int32 arg, const char * buf)
   {
+    sim_warn("WARNING: CONSOLEPORT and CONSOLEPORT1 are deprecated and will be removed in a future release!\n       Use: SET OPC0 PORT=n\n");
     if (! buf)
       return SCPE_ARG;
     int n = atoi (buf);
@@ -1889,8 +1891,10 @@ static t_stat opc_show_console_address (UNUSED FILE * st, UNIT * uptr,
   }
 
 
+//TODO: This is a deprecated function to be removed in the next major release
 t_stat set_console_address (int32 arg, const char * buf)
   {
+    sim_warn("WARNING: CONSOLEADDRESS and CONSOLEADDRESS1 are deprecated and will be removed in a future release!\n       Use: SET OPC0 ADDRESS=xxx\n");
     if (arg < 0 || arg >= N_OPC_UNITS_MAX)
       return SCPE_ARG;
     if (console_state[arg].console_access.address)
@@ -1937,8 +1941,10 @@ static t_stat opc_show_console_pw (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
+//TODO: This is a deprecated function to be removed in the next major release
 t_stat set_console_pw (int32 arg, UNUSED const char * buf)
   {
+    sim_warn("WARNING: CONSOLEPW and CONSOLEPW1 are deprecated and will be removed in a future release!\n       Use: SET OPC0 PW=xxx\n");
     if (arg < 0 || arg >= N_OPC_UNITS_MAX)
       return SCPE_ARG;
     if (strlen (buf) == 0)
