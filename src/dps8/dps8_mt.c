@@ -748,7 +748,7 @@ static void deterimeFullTapeFileName(char * tapeFileName, char * buffer, int buf
       }
 
     // Verify we won't overrun the output buffer
-    if (bufferLength < (strlen(selected_path) + strlen(tapeFileName) + 1))
+    if ((size_t) bufferLength < (strlen(selected_path) + strlen(tapeFileName) + 1))
       {
           // Bad news, we are going to overrun the buffer so we just use as much of the tape file name as we can
           strncpy(buffer, tapeFileName, (unsigned long)bufferLength);
@@ -1760,6 +1760,7 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
 
             p -> stati = 04000;
           }
+          break;
 
         case 040:               // CMD 040 -- Reset Status
           {

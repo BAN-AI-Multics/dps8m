@@ -811,7 +811,7 @@ static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
 
 static void scanForCards(uint16 readerIndex)
   {
-    char rdr_dir [PATH_MAX+1];
+    char rdr_dir [2 * PATH_MAX+1];
 
     if (readerIndex >= N_RDR_UNITS_MAX) {
       sim_warn("crdrdr: scanForCards called with invalid reader index %d\n", readerIndex);
@@ -1013,7 +1013,7 @@ static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat rdr_show_path (UNUSED FILE * st, UNIT * uptr,
+static t_stat rdr_show_path (UNUSED FILE * st, UNUSED UNIT * uptr,
                                        UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Path to card reader directories is %s\n", rdr_path_prefix);

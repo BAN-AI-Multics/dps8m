@@ -818,6 +818,7 @@ static int wcd (struct decoded_t *decoded_p)
                     linep->inputBufferSize = sz;
 //sim_printf ("Set_buffer_size %u\n", sz);
                   }
+                  break;
 
                 case 27: // Breakall
                   {
@@ -1271,7 +1272,7 @@ static void fnp_rtx_input_accepted (struct decoded_t *decoded_p)
 #if 1
 if_sim_debug (DBG_TRACE, & fnp_dev) {
 { sim_printf ("[%u][FNP emulator: nPos %d long IN: '", decoded_p->slot_no, linep->nPos);
-for (int i = 0; i < linep->nPos; i ++)
+for (uint i = 0; i < linep->nPos; i ++)
 {
 if (isgraph (linep->buffer [i]))
 sim_printf ("%c", linep->buffer [i]);

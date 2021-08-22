@@ -86,13 +86,6 @@ struct system_state_s * system_state;
 vol word36 * M = NULL;                                          // memory
 #endif
 
-#ifdef TEST_OLIN
-int64_t cmpxchg_data;
-#endif
-
-#ifdef TEST_FENCE
-pthread_mutex_t fenceLock = PTHREAD_MUTEX_INITIALIZER;
-#endif
 //
 // These are part of the simh interface
 //
@@ -1686,7 +1679,7 @@ static t_stat set_machine_room_pw (UNUSED int32 arg, UNUSED const char * buf)
 // second record (1st record / tape mark / 2nd record)
 // is for testing DPS8/Ms.
 
-static t_stat boot_skip (int32 UNUSED arg, const char * UNUSED buf)
+static t_stat boot_skip (int32 UNUSED arg, UNUSED const char * buf)
   {
     uint32 skipped;
     return sim_tape_sprecsf (& mt_unit[0], 1, & skipped);
@@ -2131,11 +2124,11 @@ static t_stat abs_addr_n (int segno, uint offset)
 
 static t_stat abs_addr (UNUSED int32 arg, const char * buf)
   {
-    int segno;
+    uint segno;
     uint offset;
     if (sscanf (buf, "%o:%o", & segno, & offset) != 2)
       return SCPE_ARG;
-    return abs_addr_n (segno, offset);
+    return abs_addr_n ((int) segno, offset);
   }
 
 // LOAD_SYSTEM_BOOK <filename>
@@ -2489,13 +2482,13 @@ void list_source (char * compname, word18 offset, uint dflag)
                           "%8c%o%*3c"
                           "%8c%o%*3c"
                           "%8c%o",
-                          (char *) & linenos[0], & loc[0],
-                          (char *) & linenos[1], & loc[1],
-                          (char *) & linenos[2], & loc[2],
-                          (char *) & linenos[3], & loc[3],
-                          (char *) & linenos[4], & loc[4],
-                          (char *) & linenos[5], & loc[5],
-                          (char *) & linenos[6], & loc[6]);
+                          (char *) & linenos[0], (uint *) & loc[0],
+                          (char *) & linenos[1], (uint *) & loc[1],
+                          (char *) & linenos[2], (uint *) & loc[2],
+                          (char *) & linenos[3], (uint *) & loc[3],
+                          (char *) & linenos[4], (uint *) & loc[4],
+                          (char *) & linenos[5], (uint *) & loc[5],
+                          (char *) & linenos[6], (uint *) & loc[6]);
                         if (! (cnt == 2 || cnt == 4 || cnt == 6 ||
                                cnt == 8 || cnt == 10 || cnt == 12 ||
                                cnt == 14))
@@ -2757,7 +2750,7 @@ skipArgs:;
 static t_stat list_source_at (UNUSED int32 arg, UNUSED const char *  buf)
   {
     // list seg:offset
-    int segno;
+    uint segno;
     uint offset;
     if (sscanf (buf, "%o:%o", & segno, & offset) != 2)
       return SCPE_ARG;
@@ -2797,7 +2790,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
           break;
         //sim_msg ("<%s\n>", filebuf);
         char name[BOOK_SEGMENT_NAME_LEN];
-        int segno, p0, p1, p2;
+        uint segno, p0, p1, p2;
 
         // 32 is BOOK_SEGMENT_NAME_LEN - 1
         int cnt = sscanf (filebuf, "%32s %o  (%o, %o, %o)", name, & segno,
@@ -2805,7 +2798,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
         if (filebuf[0] != '\t' && cnt == 5)
           {
             //sim_msg ("A: %s %d\n", name, segno);
-            int rc = add_book_segment (name, segno);
+            int rc = add_book_segment (name, (int) segno);
             if (rc < 0)
               {
                 sim_warn ("error adding segment name\n");
@@ -2880,7 +2873,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
         if (filebuf[0] == '\t' && cnt == 5)
           {
             //sim_msg ("D: %s %d\n", name, segno);
-            int rc = add_book_segment (name, segno);
+            int rc = add_book_segment (name, (int) segno);
             if (rc < 0)
               {
                 sim_warn ("error adding segment name\n");

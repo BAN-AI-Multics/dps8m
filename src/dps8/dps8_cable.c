@@ -1337,7 +1337,7 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         {
           struct iom_to_ctlr_s * p = & cables->iom_to_ctlr[u][c];
           if (p->in_use)
-            sim_printf (" %4u %4u     %4u  %4u %-6s  %-6s %10p %10p %10p\n", u, c, p->ctlr_unit_idx, p->port_num, ctlr_type_strs[p->ctlr_type], chan_type_strs[p->chan_type], p->dev, p->board, p->iom_cmd);
+            sim_printf (" %4u %4u     %4u  %4u %-6s  %-6s %10p %10p %10p\n", u, c, p->ctlr_unit_idx, p->port_num, ctlr_type_strs[p->ctlr_type], chan_type_strs[p->chan_type], (void *) p->dev, (void *) p->board, (void *) p->iom_cmd);
         }
 
     if (dump)
@@ -1376,7 +1376,7 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         { \
           struct ctlr_to_dev_s * p = & cables->from_small ## _to_ ## to_small[u][prt]; \
           if (p->in_use) \
-            sim_printf (" %4u  %4u        %4u %10p\n", u, prt, p->unit_idx, p->iom_cmd); \
+            sim_printf (" %4u  %4u        %4u %10p\n", u, prt, p->unit_idx, (void *) p->iom_cmd); \
         }
 #define DEV_CTLR(from_big,from_small, to_label, to_big, to_small) \
     sim_printf ("  %-4s --> %-4s dev_code type\n", #to_label, #from_big); \

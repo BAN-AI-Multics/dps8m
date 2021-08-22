@@ -339,7 +339,7 @@ static void skt_gethostbyname (word36 * buffer)
     name[cnt] = 0;
 
     struct hostent * hostent = gethostbyname ((char *)name);
-sim_printf ("gethostbyname returned %p\n", hostent);
+sim_printf ("gethostbyname returned %p\n", (void *) hostent);
     if (hostent)
       {
 sim_printf ("addr_len %d\n", hostent->h_length);
