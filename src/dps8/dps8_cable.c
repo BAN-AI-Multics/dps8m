@@ -595,7 +595,6 @@ static t_stat cable_ctlr (int uncable,
             return rc;
           }
         p->in_use = false;
-        p->iom_cmd = NULL;
       }
     else
       {
@@ -935,7 +934,6 @@ static t_stat cable_periph (int uncable,
           }
 
         here->in_use = false;
-        here->iom_cmd = NULL;
       }
     else
       {
