@@ -1,0 +1,252 @@
+" STORAGE FOR AUTOMATIC VARIABLES.
+" 
+" STACK FRAME                 LOC IDENTIFIER                  BLOCK NAME
+" nqueens                  000100-112  a [11]                 nqueens
+	temp	a(11)
+"                          000113 count                       nqueens
+	temp	count
+	tempd	place_ret, place_argp
+"                             114,115                         return address for place (pr4)
+"                             116,117                         saved arg ptr pr2 for place
+	temp	i
+"                          000122 i                           place
+	temp	place_limit
+"                             124                             loop limit value for place
+	tempd	queen_ret, queen_argp
+"                             126,127 queen return address (ptr)
+"                             130,131 queen arg ptr
+	temp	k
+"                          000134 k                           queen
+	temp	queen_arg_1,queen_limit
+"                             135                             argument for queen() 
+"                             136    temp for queen
+	temp	place_ret_val
+"                             140    place return value
+	tempd	nqueens_ret
+"                        200 nqueens return address
+" THE FOLLOWING EXTERNAL OPERATORS ARE USED BY THIS PROGRAM.
+" r_e_as              r_le_a              return_mac          ext_entry
+
+
+" nqueens: proc;
+" 
+" 000001  da     000017200000
+" 000002  aa   000160 6270 00   eax7      112
+" 000003  aa  7 00034 3521 20   epp2      pr7|28,*
+" 000004  aa  2 01045 2721 00   tsp2      pr2|549             ext_entry
+" 000005  aa     000000000000
+" 000006  aa     000000000000
+
+" count = 0;
+
+nqueens:	spri4	pr6|nqueens_ret
+	sreg	pr6|32
+	stz	pr6|count	" count	" 000007  aa  6 00113 4501 00   stz       pr6|75              count
+
+" call queen(11);
+
+"	ldq	11,dl
+	ldq	3,dl
+	stq	pr6|queen_arg_1		" 000011  aa  6 00135 7561 00   stq       pr6|93
+	epp2	l174		" 000012  aa   000162 3520 04   epp2      114,ic              000174 = 000002000000
+	tsp4	queen		" 000013  aa   000063 6700 04   tsp4      51,ic               000076
+" return;
+
+	rtcd	pr6|nqueens_ret	" 000014  aa  0 00631 7101 00   tra       pr0|409             return_mac
+
+" end nqueens;
+
+" place: procedure (ps) returns (fixed bin (35));
+
+place:	spri4	pr6|place_ret		" 000015  aa  6 00114 6501 00   spri4     pr6|76
+	spri2	pr6|place_argp		" 000016  aa  6 00116 2521 00   spri2     pr6|78
+	stz	pr6|i	" i	" 000017  aa  6 00122 4501 00   stz       pr6|82              i
+
+" do i=1 to ps-1;
+
+	ldq	pr2|2,*	" ps
+	sbq	1,dl
+	stq	pr6|place_limit
+	ldq	1,dl
+	stq	pr6|i
+	nop	0,du
+l30:	ldq	pr6|i
+	cmpq	pr6|place_limit
+	tpnz	l72
+
+" if a(i) = a(ps) then  return(0);
+
+	ldq	pr6|a-1,ql
+	epp7	pr6|place_argp,*
+	lxl7	pr7|2,*	" ps
+	cmpq	pr6|a-1,7
+	tnz	l44
+	stz	pr7|4,*
+	rtcd	pr6|place_ret
+
+" if abs ( a(i) - a(ps) ) = (ps-i) then return(0);
+
+l44:	ldq	pr7|2,*	" ps
+	sbq	pr6|i
+	stq	pr6|queen_limit
+	lxl6	pr6|i
+	ldq	pr6|a-i,6
+	sbq	pr6|a-1,7
+	tpl	l61
+	erq	pr0|72	" = 777777777777
+	adq	1,dl
+l61:	cmpq	pr6|queen_limit
+	tnz	l65
+	stz	pr7|4,*
+	rtcd	pr6|place_ret
+
+" end;
+
+l65:	aos	pr6|i
+	tra	l30
+
+" return (1);
+
+l72:	ldq	1,dl
+	epp7	pr6|place_argp,*
+	stq	pr7|4,*
+	rtcd	pr6|place_ret
+
+" end place;
+
+" queen: procedure (n);
+
+queen:	spri4	pr6|queen_ret
+	spri2	pr6|queen_argp
+
+" k = 1;
+
+	ldq	1,dl
+	stq	pr6|k
+
+" a(k) = 0;
+
+	stz	pr6|a-1,ql
+
+" do while (k > 0);
+
+l104:	ldq	pr6|k
+	tmoz	l165
+
+" a(k) = a(k) + 1;
+
+	aos	pr6|a-1,ql
+
+" do while ( ( a(k)<= n) & (place(k) =0) );
+
+	nop	0,du
+l114:	epp2	l166
+	tsp4	place
+	ldq	pr6|place_ret_val
+	"tsx0	pr0|330		" r_e_as
+	tze	t1 " is eq
+	lda	0,dl
+	tra	t2
+t1:	lda	=o400000,du
+t2:	sta	pr6|place_ret_val
+	lxl7	pr6|k
+	ldq	pr6|a-1,7
+	epp7	pr6|queen_argp,*
+	cmpq	pr7|2,*
+	"tsx0	pr0|336		" r_le_a
+	tmi	t3
+	tze	t3
+	lda	0,dl
+	tra	t4
+t3:	lda	=o400000,du
+t4:	cana	pr6|place_ret_val
+	tze	l135
+
+" a(k) = a(k) +1;
+
+	aos	pr6|a-1,ql
+
+" end;
+
+	tra	l114
+
+" if (a(k) <= n) then do;
+
+l135:	ldq	pr6|a-1,7
+	cmpq	pr7|2,*
+	tpnz	l156
+
+" if (k = n ) then do;
+
+	ldq	pr6|k
+	cmpq	pr7|2,*
+	tnz	l150
+
+" count = count + 1;
+
+	lda	pr6|count
+	lrs	36
+	adl	1,dl
+	stq	pr6|count
+
+" end;
+
+	tra	l104
+
+" else do;
+
+" k= k +1;
+
+l150:	aos	pr6|k
+
+" a(k) = 0;
+
+	lxl7	pr6|k
+	stz	pr6|a-1,7
+
+" end;
+
+" end;
+
+	tra	l104
+
+" else do;
+
+" k = k -1;
+
+l156:	lcq	1,dl
+	asq	pr6|k
+
+" end;
+
+" end;
+
+	tra	l104
+
+" end queen;
+
+l165:	rtcd	pr6|queen_ret		" 000165  aa  6 00126 6101 00   rtcd      pr6|86
+
+" CONSTANTS
+" argument list for call to place
+	even
+l166:	oct	000004000000
+	oct	000000000000
+	"itp	6,k	"oct	600000000041	" ITP PR6|41
+	"		"oct	000134000000 	" offset of k in stack
+	vfd	3/6,33/041
+	vfd	18/k,18/0
+	"itp	6,place_ret_val	" oct	600000000041
+	"			" oct	000140000000
+	vfd	3/6,33/041
+	vfd	18/place_ret_val,18/0
+" Arg list for call to queen
+l174:	oct	000002000000
+	oct	000000000000
+	"itp	6,queen_arg_1	" oct	600000000041
+	"			" oct	000135000000
+	vfd	3/6,33/041
+	vfd	18/queen_arg_1,18/0
+
+" 000000  aa     404000000043
+	end
