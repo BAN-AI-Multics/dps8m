@@ -1,0 +1,45 @@
+#!/bin/sh
+sed 's///g' | \
+sed 's///g' | \
+tr -d '\000' | \
+sed -r '
+s/^[0-9][0-9][0-9][0-9][.][0-9]  /????.?  /
+s/^r [0-9][0-9]:[0-9][0-9] [0-9]+[.][0-9]+ [0-9]+$/r ??:?? ?.??? /
+s/^simCycles = [0-9]+$/simCycles = ???????/
+s/^cpuCycles = [0-9]+$/cpuCycles = ???????/
+s/^Timer runout faults = [0-9]+$/Timer runout faults = ???????/
+s/^Connect faults = [0-9]+$/Connect faults = ???????/
+s/^Access violation faults = [0-9]+$/Access violation faults = ???????/
+s/^bce \(early\) [0-9][0-9][0-9][0-9][.][0-9]:/bce (early) ????.?:/
+s/^bce \(boot\) [0-9][0-9][0-9][0-9][.][0-9]:/bce (boot) ????.?:/
+s/^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), (January|February|March|April|May|June|July|August|September|October|November|December) [0-9]+, [0-9][0-9][0-9][0-9] [0-9]+:[0-9][0-9]:[0-9][0-9] pst/dayofweek, month day, year time pst/
+s/^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[ ]+[0-9]+ [0-9][0-9]:[0-9][0-9]:[0-9][0-9] PST [0-9][0-9][0-9][0-9]/dayofweek month day time PST year/
+s/(Sun|Mon|Tue|Wed|Thu|Fri|Sat) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[ ]+[0-9]+ [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]/dayofweek month day time year/
+s/^Current system time is:.+$/Current system time is dayofweek, month day, year time pst./
+s/^Multics MR12\.[0-9]+[a-z]* - [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9]  [0-9][0-9][0-9][0-9]\.[0-9] pst (Sun|Mon|Tue|Wed|Thu|Fri|Sat)$/Multics MR12.?? - ??\/??\/?? ????.? pst ???/
+s/[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9]  [0-9][0-9][0-9][0-9]\.[0-9] pst (Sun|Mon|Tue|Wed|Thu|Fri|Sat)/??\/??\/?? ????.? pst ???/
+s/^DBG\([0-9]+\)/DBG(??????????)/
+s/^ [0-9][0-9][0-9][0-9][ ]+(vinc|s0  |s1  |as  |cord|bk  |ut  |prta) r [0-9][0-9]:[0-9][0-9] [0-9]+[.][0-9]+ [0-9]+$/ ????  \1 r ??:?? ?.? ?/
+s/^ [0-9][0-9][0-9][0-9]  as   act_ctl_: shutdown, [0-9] [0-9]+\.[0-9]+ [0-9]+\.[0-9]+ [0-9]+\.[0-9]+ [0-9]+\.[0-9]+ [0-9]+:[0-9]+:[0-9]+ \$[0-9]+\.[0-9]+$/ ????  as   act_ctl_: shutdown, ? ?.?? ?.?? ?.?? ?.?? ?:?:? $???.??/
+s/^ [0-9][0-9][0-9][0-9]  ut   166172[ ]+[0-9]+[ ]+[0-9]+[ ]+42218[ ]+[0-9]+[ ]+[0-9]+  pb     root$/ ????  ut   166172  ??????  ??   42218   ?????  ??  pb     root/
+s/^ [0-9][0-9][0-9][0-9][ ]+(vinc|s0  |s1  |as  |cord|bk  |ut  |prta|puna|rdra) / ????  \1 /
+s/^Directed fault 0 faults = [0-9]+$/Directed fault 0 faults = ?/
+s/^Directed fault 1 faults = [0-9]+$/Directed fault 1 faults = ?/
+s/^Fault tag 2 faults = [0-9]+$/Fault tag 2 faults = ?/
+s/\(git [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]\)/(git ????????)/
+s/\(pvid [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\)/(pvid ????????????)/
+s/ lvid [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\)/ lvid ????????????)/
+s/dska_00a  29950[ ]+[0-9]+[ ]+[0-9]+[ ]+14974[ ]+[0-9]+[ ]+[0-9]+[ ]+[0-9]+[ ]+rpv      pb    root/dska_00a  29950 ?????  ??  14974 ?????  ??    ? rpv      pb    root/
+s/dska_00b  68111[ ]+[0-9]+[ ]+[0-9]+[ ]+13622[ ]+[0-9]+[ ]+[0-9]+[ ]+[0-9]+[ ]+root2    pb    root/dska_00b  68111 ?????  ??  13622 ?????  ??    ? root2    pb    root/
+s/dska_00c  68111[ ]+[0-9]+[ ]+[0-9]+[ ]+13622[ ]+[0-9]+[ ]+[0-9]+[ ]+[0-9]+[ ]+root3    pb    root/dska_00c  68111 ?????  ??  13622 ?????  ??    ? root3    pb    root/
+s/YourPasswordXWXWXWXWXWXW986986986986............/YourPasswordXWXWXWXWXWXW986986986986?????????????/
+s/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9] 100([0-9]+)  0 r [0-9]+:[0-9]+ [0-9]+\.[0-9]+ [0-9]+/??:??:?? 100\1  0 r ??:?? ?.??? ?/
+s/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9] 100/??:??:?? 100/
+s/^r  [0-9][0-9][0-9][0-9]$/r ????/
+' | \
+sed '
+s/^yoyodyne.ini-[0-9]*>/yoyodyne.ini-???>/
+s/^MR12.7_install.ini-[0-9]*>/MR12.7_install.ini-???>/
+s/^yoyodyne_start.ini-[0-9]*>/yoyodyne_start.ini-???>/
+s/^??:??:?? [0-9][0-9][0-9][0-9][0-9][0-9][0-9]/??:??:?? ???????/
+'
