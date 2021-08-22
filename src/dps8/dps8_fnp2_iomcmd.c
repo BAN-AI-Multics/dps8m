@@ -37,8 +37,6 @@
 #include "threadz.h"
 #endif
 
-
-#ifdef FNPDBG
 static inline void fnp_core_read_n (word24 addr, word36 *data, uint n, UNUSED const char * ctx)
   {
 #ifdef THREADZ
@@ -54,7 +52,6 @@ static inline void fnp_core_read_n (word24 addr, word36 *data, uint n, UNUSED co
     unlock_mem ();
 #endif
   }
-#endif
 
 #ifdef THREADZ
 static inline void l_putbits36_1 (vol word36 * x, uint p, word1 val)
@@ -102,7 +99,6 @@ struct decoded_t
 // Debugging...
 //
 
-#ifdef FNPDBG
 static void dmpmbx (uint mailboxAddress)
   {
     struct mailbox mbx;
@@ -145,7 +141,6 @@ static void dmpmbx (uint mailboxAddress)
       }
 
   }
-#endif
 
 //
 // wcd; Multics has sent a Write Control Data command to the FNP
@@ -229,62 +224,56 @@ static int wcd (struct decoded_t *decoded_p)
 
 // bisync_line_data.inc.pl1
             word18 op = getbits36_18 (command_data[0], 0);
-#ifdef FNP2_DEBUG
-            word18 val1 = getbits36_18 (command_data[0], 18);
-            word18 val2 = getbits36_18 (command_data[1], 0);
-#endif
+            //word18 val1 = getbits36_18 (command_data[0], 18);
+            //word18 val2 = getbits36_18 (command_data[1], 0);
             //word18 val3 = getbits36_18 (command_data1, 18);
 //sim_printf ("line_control %d op %d. %o\r\n", decoded_p->slot_no, op, op);
             switch (op)
               {
                 case 1:
-#ifdef FNP2_DEBUG
-                  sim_printf ("SET_BID_LIMIT\n");
-                  sim_printf ("    %u\n", val1);
-#endif
+                  //if_sim_debug (DBG_TRACE, & fnp_dev) {
+                  //    word18 val1 = getbits36_18 (command_data[0], 18);
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "SET_BID_LIMIT\n");
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "    %u\n", val1);
+                  //}
                   break;
                 case 2:
-#ifdef FNP2_DEBUG
-                  sim_printf ("ACCEPT_BID\n");
-#endif
+                  sim_debug (DBG_TRACE, & fnp_dev, "ACCEPT_BID\n");
                   break;
                 case 3:
-#ifdef FNP2_DEBUG
-                  sim_printf ("CONFIGURE\n");
-                  if (val1 == 0)
-                    sim_printf ("    non-transparent ASCII\n");
-                  else if (val1 == 1)
-                    sim_printf ("    non-transparent EBCDIC\n");
-                  else if (val1 == 2)
-                    sim_printf ("    transparent ASCII\n");
-                  else if (val1 == 3)
-                    sim_printf ("    transparent EBCDIC\n");
-                  else
-                    sim_printf ("    unknown %u. %o\n", val1, val1);
-#endif
+                  //if_sim_debug (DBG_TRACE, & fnp_dev) {
+                  //    word18 val1 = getbits36_18 (command_data[0], 18);
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "CONFIGURE\n");
+                  //    if (val1 == 0)
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    non-transparent ASCII\n");
+                  //    else if (val1 == 1)
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    non-transparent EBCDIC\n");
+                  //    else if (val1 == 2)
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    transparent ASCII\n");
+                  //    else if (val1 == 3)
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    transparent EBCDIC\n");
+                  //    else
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    unknown %u. %o\n", val1, val1);
+                  //}
                   break;
                 case 4:
-#ifdef FNP2_DEBUG
-                  sim_printf ("SET_TTD_PARAMS\n");
-                  sim_printf ("    ttd_time  %u\n", val1);
-                  sim_printf ("    ttd_limit %u\n", val2);
-#endif
+                  //if_sim_debug (DBG_TRACE, & fnp_dev) {
+                  //    word18 val1 = getbits36_18 (command_data[0], 18);
+                  //    word18 val2 = getbits36_18 (command_data[1], 0);
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "SET_TTD_PARAMS\n");
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "    ttd_time  %u\n", val1);
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "    ttd_limit %u\n", val2);
+                  //}
                   break;
                 case 5:
-#ifdef FNP2_DEBUG
-                  sim_printf ("REPORT_WRITE_STATUS\n");
-#endif
+                  sim_debug (DBG_TRACE, & fnp_dev, "REPORT_WRITE_STATUS\n");
                   break;
                 case 6:
-#ifdef FNP2_DEBUG
-                  sim_printf ("SET_3270_MODE\n");
-#endif
+                  sim_debug (DBG_TRACE, & fnp_dev, "SET_3270_MODE\n");
                   break;
                 case 7:
                   {
-#ifdef FNP2_DEBUG
-                    sim_printf ("SET_POLLING_ADDR\n");
-#endif
+                    sim_debug (DBG_TRACE, & fnp_dev, "SET_POLLING_ADDR\n");
 //word36 command_data2 = decoded_p->smbxp -> command_data [2];
 //sim_printf ("XXX line_control %d %012"PRIo64" %012"PRIo64" %012"PRIo64"\n", decoded_p->slot_no, command_data0, command_data1, command_data2);
                     //word9 len = getbits36_9 (command_data0, 18);
@@ -292,13 +281,8 @@ static int wcd (struct decoded_t *decoded_p)
                     //word9 c2 = getbits36_9 (command_data1, 0);
                     word9 c3 = getbits36_9 (command_data[1], 9);
                     //word9 c4 = getbits36_9 (command_data1, 18);
-#ifdef FNP2_DEBUG
-                    //sim_printf ("    data_len %u\n", len);
-                    sim_printf ("    char1 %u\n", c1);
-                    //sim_printf ("    char2 %u\n", c2);
-                    sim_printf ("    char3 %u\n", c3);
-                    //sim_printf ("    char4 %u\n", c4);
-#endif
+                    sim_debug (DBG_TRACE, & fnp_dev, "    char1 %u\n", c1);
+                    sim_debug (DBG_TRACE, & fnp_dev, "    char3 %u\n", c3);
                     fnpData.ibm3270ctlr[ASSUME0].pollCtlrChar = (unsigned char) (c1 & 0xff);
                     fnpData.ibm3270ctlr[ASSUME0].pollDevChar = (unsigned char) (c3 & 0xff);
                     fnpData.
@@ -309,28 +293,19 @@ static int wcd (struct decoded_t *decoded_p)
                   }
                   break;
                 case 8:
-#ifdef FNP2_DEBUG
-                  sim_printf ("START_POLL\n");
-#endif
+                  sim_debug (DBG_TRACE, & fnp_dev, "START_POLL\n");
                   fnpuv3270Poll (true);
                   break;
                 case 9:
                   {
-#ifdef FNP2_DEBUG
-                    sim_printf ("SET_SELECT_ADDR\n");
-#endif
+                    sim_debug (DBG_TRACE, & fnp_dev, "SET_SELECT_ADDR\n");
                     //word9 len = getbits36_9 (command_data0, 18);
                     word9 c1 = getbits36_9 (command_data[0], 27);
                     //word9 c2 = getbits36_9 (command_data1, 0);
                     word9 c3 = getbits36_9 (command_data[1], 9);
                     //word9 c4 = getbits36_9 (command_data1, 18);
-#ifdef FNP2_DEBUG
-                    //sim_printf ("    data_len %u\n", len);
-                    sim_printf ("    char1 %u\n", c1);
-                    //sim_printf ("    char2 %u\n", c2);
-                    sim_printf ("    char3 %u\n", c3);
-                    //sim_printf ("    char4 %u\n", c4);
-#endif
+                    sim_debug (DBG_TRACE, & fnp_dev, "    char1 %u\n", c1);
+                    sim_debug (DBG_TRACE, & fnp_dev, "    char3 %u\n", c3);
                     fnpData.ibm3270ctlr[ASSUME0].selCtlrChar = (unsigned char) (c1 & 0xff);
                     fnpData.ibm3270ctlr[ASSUME0].selDevChar = (unsigned char) (c3 & 0xff);
 
@@ -369,36 +344,28 @@ static int wcd (struct decoded_t *decoded_p)
                   }
                   break;
                 case 10:
-#ifdef FNP2_DEBUG
-                  sim_printf ("STOP_AUTO_POLL\n");
-#endif
+                  sim_debug (DBG_TRACE, & fnp_dev, "STOP_AUTO_POLL\n");
                   break;
                 case 11:
-#ifdef FNP2_DEBUG
-                  sim_printf ("SET_MASTER_SLAVE_MODE\n");
-                  if (val1 == 0)
-                    sim_printf ("    slave\n");
-                  else if (val1 == 1)
-                    sim_printf ("    master\n");
-                  else
-                    sim_printf ("    unknown %u. %o\n", val1, val1);
-#endif
+                  //if_sim_debug (DBG_TRACE, & fnp_dev) {
+                  //    word18 val1 = getbits36_18 (command_data[0], 18);
+                  //    sim_debug (DBG_TRACE, & fnp_dev, "SET_MASTER_SLAVE_MODE\n");
+                  //    if (val1 == 0)
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    slave\n");
+                  //    else if (val1 == 1)
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    master\n");
+                  //    else
+                  //      sim_debug (DBG_TRACE, & fnp_dev, "    unknown %u. %o\n", val1, val1);
+                  //}
                   break;
                 case 12:
-#ifdef FNP2_DEBUG
-                  sim_printf ("SET_HASP_MODE\n");
-#endif
+                  sim_debug (DBG_TRACE, & fnp_dev, "SET_HASP_MODE\n");
                   break;
                 case 13:
-#ifdef FNP2_DEBUG
-                  sim_printf ("SET_NAK_LIMIT\n");
-                  sim_printf ("    %u\n", val1);
-#endif
+                  sim_debug (DBG_TRACE, & fnp_dev, "SET_NAK_LIMIT\n");
                   break;
                 case 14:
-#ifdef FNP2_DEBUG
-                  sim_printf ("SET_HASP_TIMERS\n");
-#endif
+                  sim_debug (DBG_TRACE, & fnp_dev, "SET_HASP_TIMERS\n");
                   break;
                 default:
                   sim_printf ("unknown %u. %o\n", op, op);
@@ -1077,9 +1044,7 @@ word36 pad;
 
         default:
           {
-            sim_debug (DBG_TRACE, & fnp_dev, "[%u]    illegal opcode\n", decoded_p->slot_no);
-            sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp illegal opcode %d (%o)\n", decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);
-            sim_warn ("fnp illegal opcode %d (%o)\n", decoded_p->op_code, decoded_p->op_code);
+            sim_debug (DBG_TRACE, & fnp_dev, "[%u]fnp illegal opcode %d (%o)\n", decoded_p->slot_no, decoded_p->op_code, decoded_p->op_code);
             // doFNPfault (...) // XXX
             return -1;
           }
@@ -1089,9 +1054,6 @@ word36 pad;
 
     send_general_interrupt (decoded_p->iom_unit, decoded_p->chan_num, imwTerminatePic);
 
-#ifdef FNPDBG
-sim_printf ("wcd sets the TIMW??\n");
-#endif
     return 0;
   }
 
@@ -1381,9 +1343,7 @@ static int interruptL66_CS_to_FNP (struct decoded_t *decoded_p)
     iom_direct_data_service (decoded_p->iom_unit, decoded_p->chan_num, decoded_p->smbx+WORD1, & word1, direct_load);
     decoded_p->slot_no = getbits36_6 (word1, 12);
 
-#ifdef FNPDBG
-sim_printf ("io_cmd %u\n", io_cmd);
-#endif
+    sim_debug (DBG_TRACE, & fnp_dev, "io_cmd %u\n", io_cmd);
     switch (io_cmd)
       {
 #if 0
@@ -1620,21 +1580,15 @@ static int interruptL66_CS_done (struct decoded_t *decoded_p)
       }
     else
       {
-#ifdef FNPDBG
-sim_printf ("Multics marked cell %d (mbx %d) as unused; was %o\n", decoded_p->cell, mbx, decoded_p->fudp -> fnpMBXinUse [mbx]);
-#endif
+        sim_debug (DBG_TRACE, & fnp_dev, "Multics marked cell %d (mbx %d) as unused; was %o\n", decoded_p->cell, mbx, decoded_p->fudp -> fnpMBXinUse [mbx]);
         decoded_p->fudp -> fnpMBXinUse [mbx] = false;
         if (decoded_p->fudp->lineWaiting[mbx])
           {
             struct t_line * linep = & decoded_p->fudp->MState.line[decoded_p->fudp->fnpMBXlineno[mbx]];
-#ifdef FNPDBG
-sim_printf ("clearing wait; was %d\n", linep->waitForMbxDone);
-#endif
+            sim_debug (DBG_TRACE, & fnp_dev, "clearing wait; was %d\n", linep->waitForMbxDone);
             linep->waitForMbxDone = false;
           }
-#ifdef FNPDBG
-sim_printf ("  %d %d %d %d\n", decoded_p->fudp->fnpMBXinUse [0], decoded_p->fudp->fnpMBXinUse [1], decoded_p->fudp->fnpMBXinUse [2], decoded_p->fudp->fnpMBXinUse [3]);
-#endif
+          sim_debug (DBG_TRACE, & fnp_dev, "  %d %d %d %d\n", decoded_p->fudp->fnpMBXinUse [0], decoded_p->fudp->fnpMBXinUse [1], decoded_p->fudp->fnpMBXinUse [2], decoded_p->fudp->fnpMBXinUse [3]);
       }
     return 0;
   }
@@ -1693,9 +1647,7 @@ static int interruptL66 (uint iomUnitIdx, uint chan)
 //   12-15 Multics is done with mbx 8-11  (n - 4).
 
     decoded_p->cell = getbits36_6 (dia_pcw, 24);
-#ifdef FNPDBG
-sim_printf ("CS interrupt %u\n", decoded_p->cell);
-#endif
+    sim_debug (DBG_TRACE, & fnp_dev, "CS interrupt %u\n", decoded_p->cell);
     if (decoded_p->cell < 8)
       {
         interruptL66_CS_to_FNP (decoded_p);
@@ -1733,10 +1685,8 @@ static void fnpcmdBootload (uint devUnitIdx)
           }
         if (fnpData.fnpUnitData[devUnitIdx].MState.line[lineno].service == service_3270)
           {
-#ifdef FNP2_DEBUG
-sim_printf ("3270 controller found at unit %u line %u\r\n", devUnitIdx, lineno);
-#endif
-// XXX assuming only single controller
+              sim_debug (DBG_TRACE, & fnp_dev, "3270 controller found at unit %u line %u\r\n", devUnitIdx, lineno);
+            // XXX assuming only single controller
             if (fnpData.ibm3270ctlr[ASSUME0].configured)
               {
                 sim_warn ("Too many 3270 controllers configured");
@@ -2437,9 +2387,6 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         // Since the data is marked 'paged', and I don't understand the
         // the paging mechanism or parameters, I'm going to punt here and
         // not actually transfer any data.
-#ifdef FNPDBG
-sim_printf ("data xfer??\n");
-#endif
 
       }
     else
@@ -2450,9 +2397,7 @@ sim_printf ("data xfer??\n");
 
     if (ok)
       {
-#ifdef FNPDBG
-dmpmbx (fudp->mailboxAddress);
-#endif
+        if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (fudp->mailboxAddress);
         iom_chan_data [iomUnitIdx] [chan] . in_use = false;
         dia_pcw = 0;
         iom_direct_data_service (iomUnitIdx, chan, fudp -> mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
@@ -2464,10 +2409,8 @@ dmpmbx (fudp->mailboxAddress);
       }
     else
       {
-#ifdef FNPDBG
-        dmpmbx (fudp->mailboxAddress);
-#endif
-// 3 error bit (1) unaligned, /* set to "1"b if error on connect */
+        if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (fudp->mailboxAddress);
+        // 3 error bit (1) unaligned, /* set to "1"b if error on connect */
         iom_chan_data [iomUnitIdx] [chan] . in_use = false;
         putbits36_1 (& dia_pcw, 18, 1); // set bit 18
         iom_direct_data_service (iomUnitIdx, chan, fudp -> mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
