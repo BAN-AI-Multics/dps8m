@@ -40,6 +40,8 @@ src/prt2pdf/prt2pdf
 src/prt2pdf/prt2pdf.exe
 src/unifdef/unifdef
 src/unifdef/unifdef.exe
+src/punutil/punutil
+src/punutil/punutil.exe
 src/dps8/dps8
 src/dps8/dps8.exe
 src/dps8/ver.h
