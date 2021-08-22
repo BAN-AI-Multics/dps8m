@@ -2974,7 +2974,7 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
         return 0;
       }
 
-    if (! d->iom_cmd)
+    if ((!d->in_use) || (!d->iom_cmd))
       {
 #if 0
         // XXX: no device connected; what's the appropriate fault code (s) ?
@@ -3118,7 +3118,7 @@ static int do_payload_chan (uint iom_unit_idx, uint chan)
 // The device code is per IDCW; look up the device for this IDCW
 
         d = & cables->iom_to_ctlr[iom_unit_idx][chan];
-        if (! d->iom_cmd)
+        if ((!d->in_use) || (!d->iom_cmd))
           {
             p -> stati = 06000; // t, power off/missing
             goto done;
