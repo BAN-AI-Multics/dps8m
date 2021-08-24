@@ -1,27 +1,31 @@
 " STORAGE FOR AUTOMATIC VARIABLES.
 " 
 " nqueens
-	temp	a(11)		" 0050
-	temp	count		" 0063
-	tempd	nqueens_ret	" 0064
+	bool	start,50
+	bool	a,50		" temp a[16]
+	bool	count,70		" temp count
+	"bool	unused,71		" even
+	bool	nqueens_ret,72	" tempd nqueens_ret
 " place
-	tempd	place_ret 	" 0066  return address
-	tempd	place_argp	" 0070  argument pointer
-	temp	i		" 0072
-	temp	place_limit	" 0073  do while loop limit value
-	temp	place_temp	" 0074
+	bool	place_ret,74	" tempd place_ret
+	bool	place_argp,76	" tempd place_arp
+	bool	i,100		" temp i
+	bool	place_limit,101	" temp place_limit
+	bool	place_temp,102	" temp place_temp
+	"bool	unused,103	" even
 " queen
-" as8 is getting confused
-	bool	queen_ret,76	" tempd	queen_ret		" 0076  return address
-	bool	queen_argp,100	" tempd	queen_argp	" 0100  argument pointer
-	bool	k,102		" temp	k		" 0102
-	bool	queen_arg_1,103	" temp	queen_arg_1	" 0103
-	bool	place_ret_val,104	" temp	place_ret_val	" 0104
+	bool	queen_ret,104	" tempd	queen_ret
+	bool	queen_argp,106	" tempd	queen_argp
+	bool	k,110		" temp	k
+	bool	queen_arg_1,111	" temp	queen_arg_1
+	bool	place_ret_val,112	" temp	place_ret_val
+	bool	top_of_temps,200
 
 " nqueens: proc;
 
 nqueens:	spri4	pr6|nqueens_ret
-	sreg	pr6|32
+" we entered thorugh "tsp4 pr1|0", so pr1 has out segment number. Set up tbp...
+	spbp1	pr6|38	" tbp?
 
 " count = 0;
 
@@ -127,22 +131,30 @@ l104:	ldq	pr6|k
 l114:	epp2	l166
 	tsp4	place
 	ldq	pr6|place_ret_val
-	"tsx0	pr0|330		" r_e_as
-	tze	t1 " is eq
-	lda	0,dl
-	tra	t2
-t1:	lda	=o400000,du
-t2:	sta	pr6|place_ret_val
+
+	tsx0	pr0|330		" r_e_as
+	sta	pr6|place_ret_val
+
+"	tze	t1 " is eq
+"	lda	0,dl
+"	tra	t2
+"t1:	lda	=o400000,du
+"t2:	sta	pr6|place_ret_val
+
 	lxl7	pr6|k
 	ldq	pr6|a-1,7
 	epp7	pr6|queen_argp,*
 	cmpq	pr7|2,*
-	"tsx0	pr0|336		" r_le_a
-	tmi	t3
-	tze	t3
-	lda	0,dl
-	tra	t4
-t3:	lda	=o400000,du
+
+	tsx0	pr0|336		" r_le_a
+	lda	=o400000,du
+
+"	tmi	t3
+"	tze	t3
+"	lda	0,dl
+"	tra	t4
+"t3:	lda	=o400000,du
+
 t4:	cana	pr6|place_ret_val
 	tze	l135
 
