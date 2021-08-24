@@ -30,30 +30,24 @@
  *
  * 2000   Bootstrap code entry
  * 
- * 3000   Page tables
- * 
- * Unpaged segemnts
- * 
- *     3000  seg. 0 SDW
- *     3002  seg. 1 SDW
- *     3003  seg. 2 SDW
- *     ...
- *     3600  seg. 300 SDW
- *     ...
- *     3776  seg. 377 SDW
+ * 4000   Page tables
  * 
  * Paged segments
  *
- *     3000 descriptor segment page table
- *        3000 PTW for segements 0-512. 0-1000
- *     5000
- * 4000  Segment storage
+ *     4000 descriptor segment page table
+ *        4000 PTW for segments 0-511. 0-777
+ *     6000 descriptor segment page for segments 0-777
+ *     7000 segment page tables
+ *    10000  Segment storage
  * 
  */ 
 
-#define ADDR_BOOT 02000
-#define ADDR_PG_TABLE 03000
-#define ADDR_SEGS 010000
+
+#define ADDR_BOOT   02000
+#define ADDR_DSPT   04000
+#define ADDR_DSP    06000
+#define ADDR_PGS    07000
+#define ADDR_SEGS 0100000
 
 #define MAX_SEG_NO 0377
 
@@ -67,18 +61,85 @@
  *  al stack <segno> <n_pages>
  */
 
-static word24 nextAddr = ADDR_SEGS;
+static word24 nextSegAddr = ADDR_SEGS;
+static word24 nextPageAddr = ADDR_PGS;
 
 static void initPageTables (void)
   {
-#ifdef PAGED
-
-#else
-        for (uint addr = ADDR_PG_TABLE; addr < ADDR_SEGS; addr ++)
+        for (uint addr = ADDR_DSPT; addr < ADDR_SEGS; addr ++)
           M[addr] = 0;
-#endif
+        // Place the PTW for the first 512 segments in the DSPT
+        uint x1 = 0;
+        word36 * ptwp = (word36 *) M + x1 + ADDR_DSPT;
+        putbits36_18 (ptwp,  0, ADDR_DSP >> 6);  // points to the Descriptor Segment Page
+        putbits36_1  (ptwp, 26,        0);  // unused
+        putbits36_1  (ptwp, 29,        0);  // unmodified
+        putbits36_1  (ptwp, 29,        0);  // unmodified
+        putbits36_1  (ptwp, 33,        1);  // page is in memory
+        putbits36_2  (ptwp, 34,        0);  // fault code
   }
 
+static void addSDW (word24 addr, long segnum, long length)
+  {
+    // Round length up to page boundary
+    //long lengthp = (length + 01777) & 077776000;
+
+    // Number of pages
+    long npages = length / 1024;
+
+    // Add SDW, allocate space
+    word14 bound = ((length + 15) >> 4) + 1;
+
+    // Add PTW to DSPT
+    word24 y1 = (2u * segnum) % 1024u;
+
+    // Allocate target segment page table
+    word24 pgTblAddr = nextPageAddr;
+    nextPageAddr += 1024;
+
+    // Build Descriptor Segment Page SDW
+    // word36 * sdwp = (word36 *) M + ADDR_DSP + y1;
+    word24 sdw0 = ADDR_DSP + y1 + 0;
+    word24 sdw1 = ADDR_DSP + y1 + 1;
+    //sim_printf ("segnum %lo length %lu bound %u sdw0 %o sdw1 %o ADDR %06o\n", (unsigned long) segnum, length, bound, sdw0, sdw1, pgTblAddr);
+    putbits36_24 (& M[sdw0],  0, pgTblAddr); // ADDR
+// I can't get segldr_boot to cross to ring 4
+//    putbits36_3  (& M[sdw0], 24, 4);         // R1
+//    putbits36_3  (& M[sdw0], 27, 4);         // R2
+//    putbits36_3  (& M[sdw0], 30, 4);         // R3
+    putbits36_3  (& M[sdw0], 24, 0);         // R1
+    putbits36_3  (& M[sdw0], 27, 0);         // R2
+    putbits36_3  (& M[sdw0], 30, 0);         // R3
+    putbits36_1  (& M[sdw0], 33, 1);         // F
+    putbits36_2  (& M[sdw0], 34, 0);         // FC
+    putbits36_1  (& M[sdw1], 0, 0);      // 0
+    putbits36_14 (& M[sdw1],  1, bound); // BOUND
+    putbits36_1  (& M[sdw1], 15, 1);     // R
+    putbits36_1  (& M[sdw1], 16, 1);     // E
+    putbits36_1  (& M[sdw1], 17, 1);     // W
+    putbits36_1  (& M[sdw1], 18, 0);     // P
+    putbits36_1  (& M[sdw1], 19, 0);     // U
+    putbits36_1  (& M[sdw1], 20, 1);     // G
+    putbits36_1  (& M[sdw1], 21, 1);     // C
+    putbits36_14 (& M[sdw1], 21, 0);     // EB
+
+    // Fill out PTWs on Segment page table
+
+    for (word24 pg = 0; pg <= npages; pg ++)
+      {
+        //word36 * ptwp = (word36 *) M + pgTblAddr + pg;
+        word24 ptw = pgTblAddr + pg;
+        word18 pgAddr = (addr + pg * 1024) >> 6;
+        putbits36_18 (& M[ptw],  0,    pgAddr); // points to the Segment Page
+        putbits36_1  (& M[ptw], 26,         0);  // unused
+        putbits36_1  (& M[ptw], 29,         0);  // unmodified
+        putbits36_1  (& M[ptw], 29,         0);  // unmodified
+        putbits36_1  (& M[ptw], 33,         1);  // page is in memory
+        putbits36_2  (& M[ptw], 34,         0);  // fault code
+        //sim_printf ("   ptw pg %u at %o addr %o\n", pg, pgTblAddr + pg, pgAddr);
+      }
+  }
+#if 0
 static void addSDW (word24 addr, long segnum, long length)
   {
     // Add SDW, allocate space
@@ -108,6 +169,7 @@ bound=037777;
     putbits36_1  (sdwp + 1, 21, 1);                   // C
     putbits36_14 (sdwp + 1, 21, 0);                   // EB
   }
+#endif
 
 static t_stat stack (char * p2, char * p3)
   {
@@ -135,11 +197,11 @@ static t_stat stack (char * p2, char * p3)
     long length = len * 1024;
 
     // Add SDW
-    addSDW (nextAddr, segnum, length);
+    addSDW (nextSegAddr, segnum, length);
 
-    sim_printf ("Placed stack (%o) at %llo length %llo allocated %lo\n", segnum, nextAddr, len, length);
+    sim_printf ("Placed stack (%lo) at %o length %lo allocated %lo\n", (unsigned long) segnum, nextSegAddr, (unsigned long) len, length);
     // Mark the pages as used
-    nextAddr += length;
+    nextSegAddr += length;
 
     return SCPE_OK;
   }
@@ -170,18 +232,18 @@ static t_stat bload (char * p2, char * p3)
     int deckfd = open (p3, O_RDONLY);
     if (deckfd < 0)
       {
-        sim_printf ("Unable to open '%s'\n");
+        sim_printf ("Unable to open '%s'\n", p3);
         return SCPE_ARG;
       }
 
 
     // Copy segment into memory
-    word24 addr = nextAddr;
+    word24 addr = nextSegAddr;
     word24 startAddr;
     if (segnum < 0)
       addr = 0;
     else
-      addr = nextAddr;
+      addr = nextSegAddr;
 
     startAddr = addr;
 
@@ -213,7 +275,7 @@ static t_stat bload (char * p2, char * p3)
         lengthp = (length + 01777) & 077776000;
 
         // Mark the pages as used
-        nextAddr += lengthp;
+        nextSegAddr += lengthp;
       }
     else
       {
@@ -221,7 +283,7 @@ static t_stat bload (char * p2, char * p3)
         addSDW (0, 0, lengthp);
       }
 
-    sim_printf ("Loaded %s (%o) at %llo length %llo allocated %lo\n", p3, segnum < 0 ? 0 : segnum, startAddr, length, lengthp);
+    sim_printf ("Loaded %s (%lo) at %o length %o allocated %o\n", p3, segnum < 0 ? 0 : (unsigned long) segnum, startAddr, length, lengthp);
     close (deckfd);
     return SCPE_OK;
   }
@@ -237,7 +299,7 @@ t_stat segment_loader (int32 arg, const char * buf)
       {
         if (nParams != 1)
           goto err;
-        nextAddr = ADDR_SEGS;
+        nextSegAddr = ADDR_SEGS;
         initPageTables ();
       }
     else if (strcasecmp ("bload", p1) == 0)
