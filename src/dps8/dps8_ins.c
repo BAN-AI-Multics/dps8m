@@ -9440,7 +9440,7 @@ static int emCall (void)
            uint64_t milliseconds = (delta / ns_msec) % 1000;
            uint64_t microseconds = (delta / ns_usec) % 1000;
            uint64_t nanoseconds = delta  % 1000;
-           sim_printf ("CPU time %llu.%04llu,%04llu,%04llu\n", seconds, milliseconds, microseconds, nanoseconds);
+           sim_printf ("CPU time %llu.%03llu,%03llu,%03llu\n", seconds, milliseconds, microseconds, nanoseconds);
            break;
          }
        default:
