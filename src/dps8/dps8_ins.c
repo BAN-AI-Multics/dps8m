@@ -9506,7 +9506,7 @@ static int emCall (void)
        // OP 1: Print the unsigned decimal representation of the first data
        //       word.
        case 1: 
-         sim_printf ("%lld\n", (int64_t) M[i->address+1]);
+         sim_printf ("%ld\n", (int64_t) M[i->address+1]);
          break;
 
        // OP 2: Halt the simulation
@@ -9534,7 +9534,7 @@ static int emCall (void)
            uint64_t milliseconds = (delta / ns_msec) % 1000;
            uint64_t microseconds = (delta / ns_usec) % 1000;
            uint64_t nanoseconds = delta  % 1000;
-           sim_printf ("CPU time %llu.%03llu,%03llu,%03llu\n", seconds, milliseconds, microseconds, nanoseconds);
+           sim_printf ("CPU time %lu.%03lu,%03lu,%03lu\n", seconds, milliseconds, microseconds, nanoseconds);
            break;
          }
        default:
