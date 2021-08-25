@@ -1861,14 +1861,6 @@ static int mt_cmd (uint iomUnitIdx, uint chan)
                        "mt_cmd: Forward Skip File\n");
             uint tally = 1;
 
-            if (tally != 1)
-              {
-                sim_debug (DBG_DEBUG, & tape_dev,
-                           "%s: Forward space file: setting tally %d to 1\n",
-                           __func__, tally);
-                tally = 1;
-              }
-
             sim_debug (DBG_DEBUG, & tape_dev,
                        "mt_iom_cmd: Forward space file tally %d\n", tally);
 
