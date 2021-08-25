@@ -695,6 +695,7 @@ typedef struct
 
 // Physical Switches
 
+enum procModeSettings { procModeGCOS = 1, procModeMultics = 0 };
 typedef struct
   {
     // Switches on the Processor's maintenance and configuration panels
@@ -707,7 +708,7 @@ typedef struct
     uint enable [N_CPU_PORTS];
     uint init_enable [N_CPU_PORTS];
     uint store_size [N_CPU_PORTS]; // 0-7 encoding 32K-4M
-    uint proc_mode;  // 1 bit  Read by rsw instruction; format unknown
+    enum procModeSettings procMode;  // 1 bit  Read by rsw instruction; format unknown
     uint proc_speed; // 4 bits Read by rsw instruction; format unknown
 
     // Emulator run-time options (virtual switches)
@@ -1883,26 +1884,6 @@ static inline void trackport (word24 a, word36 d)
   }
 #endif
 
-#ifdef THREADZ
-// Ugh. Circular dependencies XXX
-void lock_mem_rd (void);
-void lock_mem_wr (void);
-void unlock_mem (void);
-#define LOCK_MEM_RD lock_mem_rd ();
-#define LOCK_MEM_WR lock_mem_wr ();
-#define UNLOCK_MEM unlock_mem ();
-#else // ! THREADZ
-#ifdef TEST_FENCE
-#define LOCK_MEM_RD fence ();
-#define LOCK_MEM_WR fence ();
-#define UNLOCK_MEM fence ();
-#else
-#define LOCK_MEM_RD
-#define LOCK_MEM_WR
-#define UNLOCK_MEM
-#endif
-#endif // ! THREADZ
-
 #if defined(SPEED) && defined(INLINE_CORE)
 // Ugh. Circular dependencies XXX
 void doFault (_fault faultNumber, _fault_subtype faultSubtype,
@@ -1952,13 +1933,9 @@ static inline int core_read (word24 addr, word36 *data, \
         doFault (FAULT_STR, fst_str_nea, __func__);
       }
     uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    LOCK_MEM_RD;
     *data = scu [scuUnitIdx].M[offset] & DMASK;
-    UNLOCK_MEM;
 #else
-    LOCK_MEM_RD;
     *data = M[addr] & DMASK;
-    UNLOCK_MEM;
 #endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -2004,13 +1981,9 @@ static inline int core_write (word24 addr, word36 data, \
         doFault (FAULT_STR, fst_str_nea, __func__);
       }
     uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    LOCK_MEM_WR;
     scu[scuUnitIdx].M[offset] = data & DMASK;
-    UNLOCK_MEM;
 #else
-    LOCK_MEM_WR;
     M[addr] = data & DMASK;
-    UNLOCK_MEM;
 #endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -2056,16 +2029,12 @@ static inline int core_write_zone (word24 addr, word36 data, \
         doFault (FAULT_STR, fst_str_nea, __func__);
       }
     uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    LOCK_MEM_WR;
     scu[scuUnitIdx].M[offset] = (scu[scuUnitIdx].M[offset] & ~cpu.zone) |
                               (data & cpu.zone);
     cpu.useZone = false; // Safety
-    UNLOCK_MEM;
 #else
-    LOCK_MEM_WR;
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     cpu.useZone = false; // Safety
-    UNLOCK_MEM;
 #endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -2113,15 +2082,11 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
         doFault (FAULT_STR, fst_str_nea, __func__);
       }
     uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    LOCK_MEM_WR;
     *even = scu [scuUnitIdx].M[offset++] & DMASK;
     *odd = scu [scuUnitIdx].M[offset] & DMASK;
-    UNLOCK_MEM;
 #else
-    LOCK_MEM_WR;
     *even = M[addr++] & DMASK;
     *odd = M[addr] & DMASK;
-    UNLOCK_MEM;
 #endif
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -2167,15 +2132,11 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
         doFault (FAULT_STR, fst_str_nea, __func__);
       }
     uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    LOCK_MEM_WR;
     scu [scuUnitIdx].M[offset++] = even & DMASK;
     scu [scuUnitIdx].M[offset] = odd & DMASK;
-    UNLOCK_MEM;
 #else
-    LOCK_MEM_WR;
     M[addr++] = even;
     M[addr] = odd;
-    UNLOCK_MEM;
 #endif
     PNL (trackport (addr - 1, even);)
 #ifdef TR_WORK_MEM
@@ -2304,7 +2265,7 @@ static inline void core_readN (word24 addr, word36 * data, uint n,
     for (uint i = 0; i < n; i ++)
       {
         core_read (addr + i, data + i, ctx);
-        HDBGMRead (addr + i, * (data + i));
+        //HDBGMRead (addr + i, * (data + i));
       }
   }
 

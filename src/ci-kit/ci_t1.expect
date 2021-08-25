@@ -1,0 +1,111 @@
+#!/usr/bin/expect -f
+
+set word l
+set userName Clayton
+set projName SysAdmin
+set password password
+
+set timeout 200000
+
+cd ./run
+
+spawn ./dps8 -v yoyodyne_start.ini
+set dps8ID $spawn_id
+
+expect "M-> CONSOLE: RELEASED"
+
+exec mkdir -p ./cards/rdra
+exec mkdir -p ./cards/rdrb
+exec mkdir -p ./cards/rdrc
+
+exec cp sdeck.create_hardcore_listings.ec ./cards/rdra
+
+set spawn_id $dps8ID
+
+proc w {} { expect  -re {\nr [0-9]+:[0-9]+ .*\r}; sleep .1}
+proc wi {} { expect  -re {Input.\r}; sleep .1}
+proc wn {} { expect  -re {\n}; sleep .1}
+proc sw { txt } { send $txt; send "\r"; w }
+proc swi { txt } { send $txt; send "\r"; wi }
+proc swn { txt } { send $txt; send "\r"; wn }
+proc wf {} { expect  -re {\nr  [0-9]+\r}; sleep .1}
+proc swf { txt } { send $txt; send "\r"; wf }
+
+if {![fork]} {
+    puts "----------- Starting T2"
+    cd ..
+    exec ./ci_t2.expect >ci_t2.log
+    puts "----------- Starting T3"
+    exec ./ci_t3.expect >ci_t3.log
+    puts "----------- Finished T3"
+    exit
+}
+
+sleep 2
+
+set spawn_id $dps8ID
+
+puts "----------- waiting for 'LOGOUT'"
+expect "LOGOUT"; sleep 1
+
+puts "----------- sending escape"
+send "\x1b"
+puts "----------- waiting for prompt"
+expect "M->"
+send "\x1b"
+
+
+puts "----------- waiting for 2nd 'LOGOUT'"
+expect "LOGOUT"; sleep 1
+
+puts "----------- sending escape"
+send "\x1b"
+puts "----------- waiting for prompt"
+expect "M->"
+
+
+
+
+
+sleep 1
+send "logout * * *\r"
+puts "----------- waiting for prompt"
+expect "M->"
+sleep 1
+puts "----------- sending escape"
+send "\x1b"
+sleep 60
+
+puts "----------- sending escape"
+send "\x1b"
+puts "----------- waiting for prompt"
+expect "M->"
+sleep 1
+send "shut\r"
+
+puts "----------- waiting for prompt"
+expect "bce (boot)"
+sleep 1
+
+puts "----------- sending escape"
+send "\x1b"
+
+puts "----------- waiting for prompt"
+expect "M->"
+sleep 1
+
+puts "----------- sending die"
+send "die\r"
+
+puts "----------- waiting for prompt"
+expect "M->"
+sleep 1
+
+send "y\r"
+
+expect eof
+
+
+
+
+

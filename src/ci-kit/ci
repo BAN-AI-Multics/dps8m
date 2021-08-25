@@ -1,0 +1,5 @@
+#!/bin/tcsh
+rm *.log
+date |& tee ci.log
+make -f ci.makefile $* s1 s2 s3 s4 s5 |& tee -a ci.log
+date |& tee -a ci.log

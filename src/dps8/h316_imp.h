@@ -1,7 +1,7 @@
 /* h316_imp.h- BBN ARPAnet IMP/TIP Definitions
 
    Copyright (c) 2013 Robert Armstrong <bob@jfcl.com>
-   Copyrighr (c) 2021 The DPS8M Development Team
+   Copyright (c) 2021 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),

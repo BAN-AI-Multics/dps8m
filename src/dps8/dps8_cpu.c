@@ -122,8 +122,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                     'A' + i, cpus[cpu_unit_idx].switches.store_size [i]);
       }
     sim_msg ("Processor mode:           %s [%o]\n",
-                cpus[cpu_unit_idx].switches.proc_mode ? "Multics" : "GCOS",
-                cpus[cpu_unit_idx].switches.proc_mode);
+                cpus[cpu_unit_idx].switches.procMode == procModeMultics ? "Multics" : cpus[cpu_unit_idx].switches.procMode == procModeGCOS ? "GCOS" : "???",
+                cpus[cpu_unit_idx].switches.procMode);
     sim_msg ("Processor speed:          %02o(8)\n",
                 cpus[cpu_unit_idx].switches.proc_speed);
     sim_msg ("DIS enable:               %01o(8)\n",
@@ -397,7 +397,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
         else if (strcmp (p, "address") == 0)
           cpus[cpu_unit_idx].switches.addr_switches = (word18) v;
         else if (strcmp (p, "mode") == 0)
-          cpus[cpu_unit_idx].switches.proc_mode = (uint) v;
+          cpus[cpu_unit_idx].switches.procMode = v ? procModeMultics : procModeGCOS;
         else if (strcmp (p, "speed") == 0)
           cpus[cpu_unit_idx].switches.proc_speed = (uint) v;
         else if (strcmp (p, "port") == 0)
@@ -631,19 +631,18 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
             if (get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
                 uint sci_unit_idx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-                // Clear lock bits
+                // Clear lock bits and data field
                 for (uint i = 0; i < SCU_MEM_SIZE; i ++)
                   {
-                    //scu [sci_unit_idx].M[i] = MEM_UNINITIALIZED;
-                    scu [sci_unit_idx].M[i] &= (MASK36 | MEM_UNINITIALIZED);
+                    scu [sci_unit_idx].M[i] &= (~MASK36) | MEM_UNINITIALIZED;
                   }
               }
           }
 #else
         for (uint i = 0; i < MEMSIZE; i ++)
           {
-            //M [i] = MEM_UNINITIALIZED;
-            M[i] &= (MASK36 | MEM_UNINITIALIZED);
+            // Clear lock bits and data field
+            M[i] &= (~MASK36) | MEM_UNINITIALIZED;
           }
 #endif
       }
@@ -694,12 +693,6 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
 
     tidy_cu ();
     set_cpu_idx (save);
-#ifdef TEST_OLIN
-          cmpxchg ();
-#endif
-#ifdef TEST_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
     fence ();
 #endif
@@ -1161,7 +1154,7 @@ static void do_stats (void)
 #ifndef NO_EV_POLL
 // The 100Hz timer as expired; poll I/O
 
-static void ev_poll_cb (uv_timer_t * UNUSED handle)
+static void ev_poll_cb (UNUSED uv_timer_t * handle)
   {
     // Call the one hertz stuff every 100 loops
     static uint oneHz = 0;
@@ -3218,7 +3211,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int32 core_read_lock (word24 addr, word36 *data, const char * ctx)
+int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
     if (cpu.switches.useMap)
@@ -3326,7 +3319,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int core_write_unlock (word24 addr, word36 data, const char * ctx)
+int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
     if (cpu.switches.useMap)

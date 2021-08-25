@@ -237,13 +237,13 @@ void ltnEOR (telnet_t * tclient)
     telnet_iac (tclient, TELNET_EOR);
   }
 
-void ltnRaw (telnet_t * UNUSED tclient)
+void ltnRaw (UNUSED telnet_t * tclient)
   {
     //telnet_negotiate (tclient, TELNET_WILL, TELNET_TELOPT_SGA);
     //telnet_negotiate (tclient, TELNET_WILL, TELNET_TELOPT_ECHO);
   }
 
-void ltnDialout (telnet_t * UNUSED tclient)
+void ltnDialout (UNUSED telnet_t * tclient)
   {
     // dialout telnet: We are a teletype. What settings should we be doing?
     //telnet_negotiate (tclient, TELNET_WILL, TELNET_TELOPT_SGA);
