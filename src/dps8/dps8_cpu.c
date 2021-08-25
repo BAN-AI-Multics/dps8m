@@ -3193,9 +3193,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
     LOAD_ACQ_CORE_WORD(v, addr);
     *data = v & DMASK;
 #else
-    LOCK_MEM_RD;
     *data = M[addr] & DMASK;
-    UNLOCK_MEM;
 #endif
 
 #endif
@@ -3293,9 +3291,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, data);
 #else
-    LOCK_MEM_WR;
     M[addr] = data & DMASK;
-    UNLOCK_MEM;
 #endif
 #ifndef SPEED
     if (watch_bits [addr])
@@ -3416,9 +3412,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 #ifndef SPEED
       nem_check (addr,  "core_read nem");
 #endif
-    LOCK_MEM_WR;
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
-    UNLOCK_MEM;
 #endif
     cpu.useZone = false; // Safety
 #ifndef SPEED
@@ -3550,9 +3544,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
     *even = v & DMASK;
     addr++;
 #else
-    LOCK_MEM_RD;
     *even = M[addr++] & DMASK;
-    UNLOCK_MEM;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
                "core_read2 %08o %012"PRIo64" (%s)\n",
@@ -3586,9 +3578,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
                 cpu.PPR.PSR, cpu.PPR.IC);
     *odd = v & DMASK;
 #else
-    LOCK_MEM_RD;
     *odd = M[addr] & DMASK;
-    UNLOCK_MEM;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
                "core_read2 %08o %012"PRIo64" (%s)\n",
@@ -3676,9 +3666,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
     STORE_REL_CORE_WORD(addr, even);
     addr++;
 #else
-    LOCK_MEM_WR;
     M[addr++] = even & DMASK;
-    UNLOCK_MEM;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
                "core_write2 %08o %012"PRIo64" (%s)\n",
@@ -3700,9 +3688,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, odd);
 #else
-    LOCK_MEM_WR;
     M[addr] = odd & DMASK;
-    UNLOCK_MEM;
 #endif
 #endif
 #ifdef TR_WORK_MEM
