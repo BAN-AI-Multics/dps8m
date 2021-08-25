@@ -316,13 +316,6 @@ blinkenLights2: blinkenLights2.c shm.o
 
 ###############################################################################
 
-blinkenLightsPi: blinkenLightsPi.c shm.o
-	@$(PRINTF) '%s\n' "LD: blinkenLightsPi"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsPi.c                    \
-        -o blinkenLightsPi shm.o
-
-###############################################################################
-
 blinkenLightsCurses: blinkenLightsCurses.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLightsCurses"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsCurses.c                \
@@ -565,13 +558,6 @@ blinkenLights2.o:   dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 blinkenLights2.o:   dps8_sys.h
 blinkenLights2.o:   hdbg.h
 blinkenLights2.o:   shm.h
-blinkenLightsPi.o:  dps8.h
-blinkenLightsPi.o:  dps8_simh.h
-blinkenLightsPi.o:  dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
-blinkenLightsPi.o:  dps8_sys.h
-blinkenLightsPi.o:  dps8_faults.h
-blinkenLightsPi.o:  dps8_cpu.h hdbg.h dps8_iom.h dps8_cable.h dps8_state.h
-blinkenLightsPi.o:  shm.h
 dps8_absi.o:        dps8.h
 dps8_absi.o:        dps8_simh.h
 dps8_absi.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
