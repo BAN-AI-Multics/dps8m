@@ -186,6 +186,7 @@ endif
 ifeq ($(LOCKLESS),1)
 C_SRCS += threadz.c
 endif
+C_SRCS += utfile.c
 C_SRCS += uvutil.c
 ifeq ($(TRACKER),1)
 H_SRCS += tracker.h
@@ -243,6 +244,7 @@ H_SRCS += udplib.h
 endif
 H_SRCS += utarray.h
 H_SRCS += uthash.h
+H_SRCS += utfile.h
 H_SRCS += utlist.h
 ifeq ($(THREADZ),1)
 H_SRCS += threadz.h
