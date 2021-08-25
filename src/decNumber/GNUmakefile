@@ -16,13 +16,12 @@
 #
 ###############################################################################
 
-include ../Makefile.mk
+.DEFAULT_GOAL := all
 
 ###############################################################################
 
-ifdef MAKETRACE
-  _SHELL := $(SHELL)
-  SHELL = $(info [TRACE] src/decNumber/GNUmakefile: [$@])$(_SHELL)
+ifneq (,$(wildcard ../Makefile.mk))
+  include ../Makefile.mk
 endif
 
 ###############################################################################
@@ -40,15 +39,16 @@ CFLAGS += -Wall -Wextra -Wno-uninitialized  -Wno-stringop-overflow            \
 
 ###############################################################################
 
-.PHONY: all decNumber.a
-all decNumber.a: $(OBJS)
+.PHONY: all decNumber.a osconf
+all decNumber.a: osconf $(OBJS)
 
 ###############################################################################
 
 .PHONY: clean
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: decNumber"
-	-@$(SETV); $(RMF) $(OBJS) "decNumber.a" || $(TRUE)
+	-@$(SETV); $(RMF) $(OBJS) "decNumber.a"  ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "cflags.L"             ||  $(TRUE) > /dev/null 2>&1
 
 ###############################################################################
 
@@ -63,8 +63,14 @@ $(OBJS): decContext.h  decimal128.h  decNumber.h  decQuad.h                   \
 
 ###############################################################################
 
-print-% : ; $(info decNumber: $* is a $(flavor $*) variable set to [$($*)])   \
-              @$(TRUE)
+decContext.o: decContext.h decimal128.h decNumber.h decQuad.h decDouble.h
+decContext.o: decDPD.h decimal32.h decNumberLocal.h decSingle.h decimal64.h
+decContext.o: decPacked.h
+decContext.o: cflags.L
+decNumber.o:  decContext.h decimal128.h decNumber.h decQuad.h decDouble.h
+decNumber.o:  decDPD.h decimal32.h decNumberLocal.h decSingle.h decimal64.h
+decNumber.o:  decPacked.h
+decNumber.o:  cflags.L
 
 ###############################################################################
 
