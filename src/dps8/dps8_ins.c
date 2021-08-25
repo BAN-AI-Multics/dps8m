@@ -9396,8 +9396,8 @@ elapsedtime ();
  */
 
 static clockid_t clockID;
-struct timespec startTime;
-
+static struct timespec startTime;
+static unsigned long long startInstrCnt;
 static int emCall (void)
 {
     DCDstruct * i = & cpu.currentInstruction;
@@ -9421,6 +9421,7 @@ static int emCall (void)
 
        // OP 3: Start CPU clock
        case 3:
+         startInstrCnt = cpu.instrCnt;
          clock_getcpuclockid (0, & clockID);
          clock_gettime (clockID, & startTime);
          break;
@@ -9440,7 +9441,14 @@ static int emCall (void)
            uint64_t milliseconds = (delta / ns_msec) % 1000;
            uint64_t microseconds = (delta / ns_usec) % 1000;
            uint64_t nanoseconds = delta  % 1000;
+           unsigned long long nInsts = cpu.instrCnt - startInstrCnt;
+           double secs = ((double) delta) / (double) ns_sec;
+           double ips = ((double) nInsts) / secs;
+           double mips = ips / 1000000;
+
            sim_printf ("CPU time %lu.%03lu,%03lu,%03lu\n", seconds, milliseconds, microseconds, nanoseconds);
+           sim_printf ("%lld instructions\n", nInsts);
+           sim_printf ("%lf MIPS\n", mips);
            break;
          }
        default:
