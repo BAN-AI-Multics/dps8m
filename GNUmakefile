@@ -143,18 +143,19 @@ endif
 .NOTPARALLEL: help info
 help info:                                                                    \
     # help:    # Display this list of Makefile targets
-	@$(GREP) -E '^.* # .*:    # .*$$' $(MAKEFILE_LIST) 2> /dev/null     |     \
+	@$(GREP) -E '^.* # .*:    # .*$$' $(MAKEFILE_LIST) 2> /dev/null         | \
 		$(AWK) 'BEGIN { FS = "    # " };                                      \
           { printf "%s%-18s %-40s (%-19s)\n", $$1, $$2, $$3, $$1 }'           \
-		    2> /dev/null | $(CUT) -d ':' -f 2- 2> /dev/null             |     \
-              $(SED) -e 's/:\ \+)$$/)/' -e 's/XXXX:/\n/g' 2> /dev/null  |     \
+		    2> /dev/null | $(CUT) -d ':' -f 2- 2> /dev/null                 | \
+              $(SED) -e 's/:\ \+)$$/)/' -e 's/XXXX:/\n/g' 2> /dev/null      | \
                 $(SED) -e 's/---- (.*)$$/------------\n/'                     \
 				 -e 's/:  )/)/g' -e 's/:       )/)/g'                         \
-                  -e 's/              ---/-------------/' 2> /dev/null  |     \
-                    $(GREP) -v 'GREP' 2> /dev/null                      |     \
-                      $(GREP) -v '_LIST' 2> /dev/null                  || {   \
-                        $(PRINTF) '%s\n' "Error: Unable to display help.";    \
-                          $(TRUE) > /dev/null 2>&1; }                  ||     \
+                  -e 's/              ---/-------------/' 2> /dev/null      | \
+                    $(GREP) -v 'GREP' 2> /dev/null                          | \
+                      $(GREP) -v '_LIST' 2> /dev/null | $(SED) 's/^n//g'    | \
+					   $(SED) 's/n$$//g'                                   || \
+					    { $(PRINTF) '%s\n' "Error: Unable to display help.";  \
+                          $(TRUE) > /dev/null 2>&1; }                      || \
                             $(TRUE) > /dev/null 2>&1
 	@$(PRINTF) '%s\n' "" 2> /dev/null || $(TRUE) > /dev/null 2>&1
 
