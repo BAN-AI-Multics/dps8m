@@ -31,7 +31,7 @@
 #    ******* may have non-intuitive side-effects or requirements! *******
 #
 #            TRACKER=1                Adds instruction snapshot support
-#               HDBG=1                Enable hardware debugging support
+#               HDBG=1                Enables extended history debugger
 #        ROUND_ROBIN=1                Support un-threaded multiple CPUs
 #             ISOLTS=1                Support for running ISOLOTS tests
 #                WAM=1                Enable PTW/SDW associative memory
