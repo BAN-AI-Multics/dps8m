@@ -153,7 +153,17 @@
           equ       stack_frame.on_unit_rel_ptrs,30
           equ       stack_frame.operator_ret_ptr,31
           equ       stack_frame.translator_id,31
+ 	" pl1_operators_		" I think 240|760310, obs  000257000043 021736000000
           equ       stack_frame.regs,32
+          equ       stack_frame.regs_pr0_ap,32    " 40
+          equ       stack_frame.regs_pr1_ab,34    " 42
+          equ       stack_frame.regs_pr2_bp,36    " 44
+          equ       stack_frame.regs_pr3_bb,38    " 46
+          equ       stack_frame.regs_pr4_lp,40    " 50
+          equ       stack_frame.regs_pr5_lb,42    " 52
+          equ       stack_frame.regs_pr6_sp,44    " 54
+          equ       stack_frame.regs_pr7_sb,46    " 56
+
           equ       stack_frame.min_length,48
           equ       stack_frame.flag_word,16
           bool      stack_frame.main_proc_bit,020000        " (DL)
@@ -254,23 +264,19 @@ apptar:
 
 	epp0	our_lp,*
 	spri0	pr6|stack_frame.lp_ptr
-	
+          spri0     pr6|stack_frame.regs_pr2_bp
+
           emCall	emc3
 
-" Call the code at 300|4
+" Call the code at 300
 
-"	call	300|4
-"	spri	pr6|0
-"	sreg	pr6|32
-	epp0	arglist
+	epp0	pl1op,*
+	eax1	arglist
+	fld	0,dl
 	epp2	prog_entry,*
 	emCall	emcstart
-"	tsp4	pr7|stack_header.call_op_ptr,*
-	epp0	pl1op,*
-	tsx0	pr0|403
+	tsx0	pr0|403	" call_ext_out
 	emCall	emcstop
-"	lpri	pr6|0
-"	lreg	pr6|32
 
 
           emCall	emc4
@@ -303,9 +309,9 @@ pl1op:	vfd	3/0,15/0240,3/0,9/0,6/043
 "tvptr:	its	0240,tv_offset
 prog_entry:
 " nqueens
-"	its	0300,2
+	its	0300,2
 " trivial
-	its	0300,1
+"	its	0300,1
 " Fake lot
 fake_lot:
 	oct	0,0,0,0,0,0,0,0	"   0
