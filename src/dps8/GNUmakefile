@@ -411,6 +411,7 @@ punutil:
 ###############################################################################
 
 udplib: udplib.c udplib.h
+udplib$(EXE): udplib.c udplib.h
 	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
 
 ###############################################################################
@@ -460,23 +461,23 @@ distclean: clean
 .PHONY: distclean clean
 .NOTPARALLEL: distclean clean
 clean:
-	@$(SETV); $(MAKE) -C "$(SIMHx)" -f "GNUmakefile" "clean"
-	@$(SETV); $(MAKE) -C "../decNumber" "clean"
-	@$(SETV); $(MAKE) -C "../prt2pdf" "clean"
-	@$(SETV); $(MAKE) -C "../punutil" "clean"
-	@$(SETV); $(MAKE) -C "../unifdef" "clean"
+	@$(SETV); $(MAKE) -C "$(SIMHx)"      -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../decNumber"  -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../prt2pdf"    -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../punutil"    -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../unifdef"    -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) "clean_dps8"
-	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)" || $(TRUE)
-	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)".* || $(TRUE)
-	@$(SETV); $(RMF) "../../.builder.txt" || $(TRUE)
-	@$(SETV); $(RMF) "../../.buildos.txt" || $(TRUE)
-	@$(SETV); $(RMF) "ver.h" || $(TRUE)
-	@$(SETV); $(RMF) "compdef.out" || $(TRUE)
-	@$(SETV); $(RMF) "procdef.out" || $(TRUE)
-	@$(SETV); $(RMF) "procsrt.out" || $(TRUE)
-	@$(SETV); $(RMF) "unifdef.out" || $(TRUE)
-	@$(SETV); $(RMF) "sysdefs.h"   || $(TRUE)
-	@$(SETV); $(RMF) "useddef.txt" || $(TRUE)
+	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
+	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)".*  ||  $(TRUE)
+	@$(SETV); $(RMF)  "../../.builder.txt"             ||  $(TRUE)
+	@$(SETV); $(RMF)  "../../.buildos.txt"             ||  $(TRUE)
+	@$(SETV); $(RMF)  "ver.h"                          ||  $(TRUE)
+	@$(SETV); $(RMF)  "compdef.out"                    ||  $(TRUE)
+	@$(SETV); $(RMF)  "procdef.out"                    ||  $(TRUE)
+	@$(SETV); $(RMF)  "procsrt.out"                    ||  $(TRUE)
+	@$(SETV); $(RMF)  "unifdef.out"                    ||  $(TRUE)
+	@$(SETV); $(RMF)  "sysdefs.h"                      ||  $(TRUE)
+	@$(SETV); $(RMF)  "useddef.txt"                    ||  $(TRUE)
 
 ###############################################################################
 
