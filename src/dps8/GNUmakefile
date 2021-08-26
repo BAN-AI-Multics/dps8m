@@ -85,13 +85,13 @@ endif
 CFLAGS += -I../decNumber -I$(SIMHx)
 
 ###############################################################################
-# Fix for gcc reporting bogus 'conversion' warnings
+# Fix for gcc reporting bogus warnings
 
 ifneq ($(W),)
 ifeq ($(CC),clang)
 CFLAGS += -Wall -Wconversion -Wsign-conversion
 else
-CFLAGS += -Wall -Wno-conversion -Wsign-conversion
+CFLAGS += -Wall -Wno-conversion -Wsign-conversion -Wno-psabi -Wno-abi
 endif
 endif
 
@@ -480,7 +480,7 @@ kit dist:
 	@$(SETV); ($(CD) "../.." &&                                               \
 		$(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files |                \
 			$(GREP) -v '^.git' | $(GREP) -v '^.whitesource' |                 \
-				$(GREP) -v '^.lgtm.yml' |                                     \
+				$(GREP) -v '^.lgtm.yml' | $(GREP) -v '^ci-kit' |              \
 					$(GREP) -v '^src/dps8/listings/' ) 'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n'                                                         \
 		"COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"

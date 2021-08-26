@@ -1717,11 +1717,11 @@ while (*cptr != 0) {                                    /* do all mods */
         if (serport != INVALID_HANDLE) {
             sim_close_serial (serport);
             if (r == SCPE_OK) {
-                char cbuf[CBUFSIZE];
+                char cbuf[CBUFSIZE+2];
                 if ((sim_con_tmxr.master) ||            /* already open? */
                     (sim_con_ldsc.serport))
                     sim_set_noserial (0, NULL);         /* close first */
-                sprintf(cbuf, "Connect=%s", gbuf);
+                sprintf(cbuf, "C=%s", gbuf);
                 r = tmxr_attach (&sim_con_tmxr, &sim_con_unit, cbuf);/* open master socket */
                 sim_con_ldsc.rcve = 1;                  /* rcv enabled */
                 if (r == SCPE_OK)
@@ -3139,7 +3139,7 @@ static t_stat sim_os_putchar (int32 out)
 char c;
 
 c = out;
-(void)write (1, &c, 1);
+(void)!write (1, &c, 1);
 return SCPE_OK;
 }
 

@@ -418,7 +418,9 @@ t_stat eth_mac_scan_ex (ETH_MAC* mac, const char* strmac, UNIT *uptr)
   memset (&state, 0, sizeof(state));
   _eth_get_system_id (state.system_id, sizeof(state.system_id));
   strncpy (state.sim, sim_name, sizeof(state.sim));
-  getcwd (state.cwd, sizeof(state.cwd));
+  if (!(getcwd (state.cwd, sizeof(state.cwd)))) {
+    sim_printf("getcwd failed.\n");
+  }
   if (uptr)
     strncpy (state.uname, sim_uname (uptr), sizeof(state.uname));
   cptr = strchr (strmac, '>');
@@ -426,7 +428,7 @@ t_stat eth_mac_scan_ex (ETH_MAC* mac, const char* strmac, UNIT *uptr)
     strncpy (state.file, cptr + 1, sizeof(state.file));
     if ((f = fopen (state.file, "r"))) {
       filebuf[sizeof(filebuf)-1] = '\0';
-      fgets (filebuf, sizeof(filebuf)-1, f);
+      if(fgets (filebuf, sizeof(filebuf)-1, f)){};
       strmac = filebuf;
       fclose (f);
       strcpy (state.file, "");  /* avoid saving */
