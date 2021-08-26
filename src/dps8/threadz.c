@@ -385,11 +385,13 @@ void createCPUThread (uint cpuNum)
 #ifdef __APPLE__
     pthread_setname_np (nm);
 #else
-#ifndef _AIX // XXX(johnsonjh): AIX equiv?
+#ifndef _AIX
+#ifndef __gnu_hurd__
     pthread_setname_np (p->cpuThread, nm);
-#endif
-#endif
-#endif
+#endif /* ifndef __gnu_hurd__ */
+#endif /* ifndef _AIX */
+#endif /* ifdef __APPLE__ */
+#endif /* ifdef __FreeBSD__ */
 
 #ifdef AFFINITY
     if (cpus[cpuNum].set_affinity)

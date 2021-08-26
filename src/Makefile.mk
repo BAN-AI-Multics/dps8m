@@ -171,6 +171,19 @@ endif
     endif
 
 ###############################################################################
+# GNU/Hurd
+
+# Debian GNU/Hurd 2021: GNU-Mach 1.8+git20210821 / Hurd-0.9 / i686-AT386
+# GCC: Debian 10.2.1-6+hurd.1 and Debian GCC 11.2.0-2
+# Clang: Debian clang version 11.0.1-2 and Debian clang version 12.0.1-1
+
+  ifeq ($(UNAME_S),GNU)
+    export NEED_128=1
+    export OS=GNU
+    CFLAGS +=-UHAVE_DLOPEN
+  endif
+
+###############################################################################
 # SunOS
 
 # OpenIndiana illumos: GCC 7, GCC 10, Clang 9, all supported.
@@ -228,10 +241,10 @@ include ../Makefile.var
     $(PRINTF) '%s\n' "fallback"                             2> /dev/null      \
     )"="\"$(shell printf '%s\n'                                               \
     '$(CC) $(CFLAGS) $(CPPFLAGS) $(X_CFLAGS) $(LDFLAGS) $(LOCALLIBS) $(LIBS)' \
-	| $(TR) -d '\\"'                                        2> /dev/null  |   \
+	| $(TR) -d '\\"'                                    2> /dev/null  |   \
     $(SED)  -e 's/ -DVER_CURRENT_TIME=....................... /\ /g'          \
             -e 's/^[ \t]*//;s/[ \t]*$$//'                   2> /dev/null  |   \
-     $(AWK) -v RS='[,[:space:]]+' '!a[$$0]++{ printf "%s%s", $$0, RT }'       \
+     $(AWK) -v RS='[,[:space:]]+' '!a[$$0]++{ printf " %s %s ", $$0, RT }'    \
          2> /dev/null | $(SED) -e 's/-I\.\.\/decNumber/\ /g'                  \
              -e 's/-I\.\.\/simh/\ /' -e 's/-I\.\.\/include/\ /g'              \
                  2> /dev/null | $(TR) -s ' '                             ||   \

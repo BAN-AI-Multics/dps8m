@@ -134,6 +134,13 @@ else
 endif
 
 ###############################################################################
+# Need to link math library with explicit order?
+
+ifeq ($(OSTYPE),GNU)
+  LIBS += -lm
+endif
+
+###############################################################################
 
 ifneq ($(CROSS),MINGW64)
 C_SRCS  = dps8_absi.c
@@ -539,9 +546,9 @@ dps8_ins.c: ver.h
 dps8_sys.c: ver.h
 dps8_socket_dev.c: errnos.h
 errnos.h:
-	@$(PRINTF) '%s\n'                                                         \
+	@$(PRINTF) '%s\n'                                                     \
         '#include <errno.h>' > "./dump.c"
-	@$(SETV); $(CC) -E -dD ./dump.c |                                         \
+	@$(SETV); $(CC) -E -dD ./dump.c |                                     \
         $(AWK) '/^#define E/ { printf "{\"%s\",%s},\n", $$2, $$2 }'           \
             > "./errnos.h"
 	@$(SETV); $(RMF) "./dump.c"
@@ -550,7 +557,7 @@ errnos.h:
 
 sysdefs.h: useddef.txt
 	@$(PRINTF) '%s\n' "SYSDEFS: useddef.txt"
-	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null |                   \
+	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null |               \
       $(TR) ' ' '=' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null |        \
         $(TR) '\n' ' ' 2> /dev/null | $(SED) -e 's/ $$//'                     \
           -e 's/^-D$$//g' | $(SED) -e 's/^/#define\ SYSDEFS_USED\ \"/'        \
