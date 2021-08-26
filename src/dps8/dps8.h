@@ -11,6 +11,7 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
+#define PERF_STRIP
 /**
  * \file dps8.h
  * \project dps8

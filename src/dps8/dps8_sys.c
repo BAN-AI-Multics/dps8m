@@ -1638,9 +1638,13 @@ static void do_ini_line (char * text)
 
 static t_stat set_default_base_system (UNUSED int32 arg, UNUSED const char * buf)
   {
+#ifdef PERF_STRIP
+    cpu_dev.numunits = 1;
+#else
     int n_lines = sizeof (default_base_system_script) / sizeof (char *);
     for (int line = 0; line < n_lines; line ++)
       do_ini_line (default_base_system_script [line]);
+#endif
     return SCPE_OK;
   }
 
@@ -4092,6 +4096,9 @@ static void dps8_init (void)
     // sys_poll_check_rate in CPU cycles
     sys_opts.sys_poll_check_rate = 1024;
 
+#ifdef PREF_STRIP
+    cpu_init ();
+#else
     sysCableInit ();
     iom_init ();
     disk_init ();
@@ -4114,6 +4121,7 @@ static void dps8_init (void)
     set_default_base_system (0, NULL);
 #ifdef PANEL
     panelScraperInit ();
+#endif
 #endif
 #if defined(THREADZ) || defined(LOCKLESS)
     initThreadz ();
