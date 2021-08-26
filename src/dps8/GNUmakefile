@@ -79,14 +79,14 @@ endif
 CFLAGS += -I../decNumber -I$(SIMHx)
 
 ###############################################################################
-# Fix for GCC reporting bogus 'conversion' warnings
+# Fix for gcc reporting bogus warnings
 
 ifneq ($(W),)
-  ifeq ($(CC),clang)
-    CFLAGS += -Wall -Wconversion -Wsign-conversion
-  else
-    CFLAGS += -Wall -Wno-conversion -Wsign-conversion
-  endif
+ifeq ($(CC),clang)
+CFLAGS += -Wall -Wconversion -Wsign-conversion
+else
+CFLAGS += -Wall -Wno-conversion -Wsign-conversion -Wno-psabi -Wno-abi
+endif
 endif
 
 ###############################################################################
@@ -164,8 +164,8 @@ C_SRCS += fnpuv.c
 C_SRCS += fnptelnet.c
 C_SRCS += libtelnet.c
 C_SRCS += hdbg.c
-  ifneq ($(CROSS),MINGW64)
-C_SRCS += shm.c
+ifneq ($(CROSS),MINGW64)
+  C_SRCS += shm.c
 endif
 ifneq ($(CROSS),MINGW64)
   C_SRCS += udplib.c
@@ -176,10 +176,8 @@ endif
 ifeq ($(LOCKLESS),1)
   C_SRCS += threadz.c
 endif
-  C_SRCS += uvutil.c
-
-
-
+C_SRCS += utfile.c
+C_SRCS += uvutil.c
 
 ###############################################################################
 
@@ -233,6 +231,7 @@ ifneq ($(CROSS),MINGW64)
 endif
 H_SRCS += utarray.h
 H_SRCS += uthash.h
+H_SRCS += utfile.h
 H_SRCS += utlist.h
 ifeq ($(THREADZ),1)
   H_SRCS += threadz.h
@@ -312,14 +311,6 @@ blinkenLights2: blinkenLights2.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLights2s"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights2.c                     \
         -o blinkenLights2 shm.o `$(PKGCONFIG) --cflags --libs gtk+-3.0` -lrt
-
-###############################################################################
-
-.NOTPARALLEL: blinkenLightsPi
-blinkenLightsPi: blinkenLightsPi.c shm.o
-	@$(PRINTF) '%s\n' "LD: blinkenLightsPi"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsPi.c                    \
-        -o blinkenLightsPi shm.o
 
 ###############################################################################
 
@@ -502,12 +493,12 @@ kit dist:
 	@$(SETV); $(CP) "./ver.h" "./ver.h~"
 	@$(SETV); ($(CD) "../.." &&                                               \
 		$(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files               |  \
-			$(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                |  \
-				$(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'            |  \
-                    $(GREP) -v '^src/dps8/make_ver.sh'                     |  \
-                        $(GREP) -v '^src/Makefile.scc'                     |  \
-					        $(GREP) -v '^src/dps8/listings/' )                \
-                                'src/dps8/ver.h~' )
+         $(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                   |  \
+          $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
+           $(GREP) -v '^src/dps8/make_ver.sh'                              |  \
+            $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
+             $(GREP) -v '^src/dps8/listings/' )                               \
+                              'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n'                                                         \
 		"COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
 	@$(SETV); $(COMPRESS) "../../$(KITNAME).$(TARXT)"
@@ -599,13 +590,6 @@ blinkenLights2.o:   dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 blinkenLights2.o:   dps8_sys.h
 blinkenLights2.o:   hdbg.h
 blinkenLights2.o:   shm.h
-blinkenLightsPi.o:  dps8.h
-blinkenLightsPi.o:  dps8_simh.h
-blinkenLightsPi.o:  dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
-blinkenLightsPi.o:  dps8_sys.h
-blinkenLightsPi.o:  dps8_faults.h
-blinkenLightsPi.o:  dps8_cpu.h hdbg.h dps8_iom.h dps8_cable.h dps8_state.h
-blinkenLightsPi.o:  shm.h
 dps8_absi.o:        dps8.h
 dps8_absi.o:        dps8_simh.h
 dps8_absi.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h

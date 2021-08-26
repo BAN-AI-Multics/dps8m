@@ -239,6 +239,7 @@
 #endif
 #include <sys/stat.h>
 #include <setjmp.h>
+#include <limits.h>
 
 #if defined(HAVE_DLOPEN)                                /* Dynamic Readline support */
 #include <dlfcn.h>
@@ -5397,7 +5398,9 @@ if ((*cptr != '/') || (0 == memcmp (cptr, "./", 2)) || (0 == memcmp (cptr, "../"
 #if defined (VMS)
     getcwd (WholeName, PATH_MAX, 0);
 #else
-    getcwd (WholeName, PATH_MAX);
+    if (!(getcwd (WholeName, PATH_MAX))) {
+        sim_printf("getcwd failed.\n");
+    }
 #endif
     strcat (WholeName, "/");
     strcat (WholeName, cptr);
@@ -5426,7 +5429,9 @@ else
 #if defined (VMS)
     getcwd (WholeName, PATH_MAX, 0);
 #else
-    getcwd (WholeName, PATH_MAX);
+    if (!(getcwd (WholeName, PATH_MAX))) {
+        sim_printf("getcwd failed.\n");
+    }
 #endif
 cptr = WholeName;
 #if defined (HAVE_GLOB)
@@ -5439,7 +5444,7 @@ if (dir) {
 #endif
     t_offset FileSize, TotalSize = 0;
     int DirCount = 0, FileCount = 0;
-    char FileName[PATH_MAX + 1];
+    char FileName[4096 + PATH_MAX + 1];
 #if defined (HAVE_FNMATCH)
     char *MatchName = 1 + strrchr (cptr, '/');;
 #endif
@@ -11587,7 +11592,7 @@ rewind (tmp);
 /* Discard leading blank lines/redundant titles */
 
 for (i =0; i < skiplines; i++)
-    fgets (tbuf, sizeof (tbuf), tmp);
+    if(fgets (tbuf, sizeof (tbuf), tmp)){};
 
 while (fgets (tbuf, sizeof (tbuf), tmp)) {
     if (tbuf[0] != '\n')
