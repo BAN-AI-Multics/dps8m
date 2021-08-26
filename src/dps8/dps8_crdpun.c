@@ -32,6 +32,7 @@
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
+#include "utfile.h"
 
 #define DBG_CTR 1
 
@@ -602,7 +603,7 @@ static void create_punch_file(pun_state_t * state)
         sprintf (template, "%s.spool.%s.XXXXXX.pun", state -> device_name, state -> raw_file_name);
       }
 
-    state -> punfile_raw = mkstemps(template, 4);
+    state -> punfile_raw = utfile_mkstemps(template, 4);
     if (state -> punfile_raw < 0)
       {
         perror("creating punch '.pun' file\n");
