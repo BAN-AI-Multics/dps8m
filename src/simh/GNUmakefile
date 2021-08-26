@@ -15,26 +15,25 @@
 #
 ###############################################################################
 
-include ../Makefile.mk
+.DEFAULT_GOAL := all
 
 ###############################################################################
 
-ifdef MAKETRACE
-   _SHELL := $(SHELL)
-   SHELL = $(info [TRACE] src/simh/GNUmakefile: [$@])$(_SHELL)
+ifneq (,$(wildcard ../Makefile.mk))
+  include ../Makefile.mk
 endif
 
 ###############################################################################
 
 ifneq ($(W),)
-CFLAGS += -Wno-array-bounds -Wno-pointer-bool-conversion                      \
-          -Wno-unknown-warning-option
+  CFLAGS += -Wno-array-bounds -Wno-pointer-bool-conversion                    \
+            -Wno-unknown-warning-option
 endif
 
 ###############################################################################
 
 ifdef VER_CURRENT_TIME
-CFLAGS += -DVER_CURRENT_TIME="\"$(VER_CURRENT_TIME)\""
+  CFLAGS += -DVER_CURRENT_TIME="\"$(VER_CURRENT_TIME)\""
 endif
 
 ###############################################################################
@@ -50,7 +49,7 @@ OBJS = scp.o sim_console.o sim_disk.o sim_ether.o sim_fio.o sim_serial.o      \
 ###############################################################################
 
 ifneq ($(W),)
-CFLAGS += -Wno-array-bounds -Wno-unevaluated-expression
+  CFLAGS += -Wno-array-bounds -Wno-unevaluated-expression
 endif
 
 ###############################################################################
@@ -60,21 +59,27 @@ simh.a all: ../dps8/ver.h ../dps8/sysdefs.h $(OBJS)
 
 ###############################################################################
 
+.NOTPARALLEL: ../dps8/sysdefs.h
 ../dps8/sysdefs.h:
-	@($(SETV); $(CD) "../dps8" ; $(TEST) -f "./sysdefs.h" ||                  \
-        $(MAKE) "sysdefs.h")
+	@($(SETV); $(CD) "../dps8" && $(MAKE) "sysdefs.h")
 
 ###############################################################################
 
+.NOTPARALLEL: ../dps8/ver.h
 ../dps8/ver.h:
-	@($(SETV); $(CD) "../dps8" ; $(MAKE) "ver.h")
+	@($(SETV); $(CD) "../dps8" && $(MAKE) "ver.h")
 
 ###############################################################################
 
 .PHONY: clean
+.NOTPARALLEL: clean
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: simh"
-	-@$(SETV); $(RMF) $(OBJS) "simh.a" "tags" || $(TRUE)
+	-@$(SETV); $(RMF) $(OBJS)              ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "simh.a"             ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "tags"               ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "dps8m.state"        ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "../dps8/sysdefs.n"  ||  $(TRUE) > /dev/null 2>&1
 
 ###############################################################################
 
@@ -91,6 +96,7 @@ scp.o:         sim_serial.h
 scp.o:         sim_tmxr.h sim_video.h sim_frontpanel.h
 scp.o:         ../dps8/ver.h
 scp.o:         ../dps8/dps8_prom.h
+scp.o:         ../dps8/sysdefs.h
 sim_console.o: sim_defs.h
 sim_console.o: scp.h sim_console.h sim_timer.h
 sim_console.o: sim_fio.h
@@ -135,13 +141,11 @@ sim_video.o:   sim_fio.h
 
 ###############################################################################
 
-print-% : ; $(info simh: $* is a $(flavor $*) variable set to [$($*)]) @$(TRUE)
-
-###############################################################################
-
 ifdef CFLAGS
   export CFLAGS
-  include ../Makefile.mk
+  ifneq (,$(wildcard ../Makefile.mk))
+    include ../Makefile.mk
+  endif
 endif
 
 ###############################################################################

@@ -635,9 +635,7 @@ help(void)
     "   -s      list #if control symbols\n"
     "   -t      ignore C strings and comments\n"
     "   -v      show version\n"
-#ifdef BUILDINFO_unifdef
     "   -V      show build information\n"
-#endif
     "   -x{012} exit status mode\n");
   exit(0);
 }
@@ -1275,7 +1273,7 @@ op_strict(long *p, long v, Linetype at, Linetype bt)
     return ( LT_IF );
   }
 
-  return ( *p = v, v ? LT_TRUE : LT_FALSE );
+  return ( (void)( *p = v ), v ? LT_TRUE : LT_FALSE );
 }
 static Linetype
 op_lt(long *p, Linetype at, long a, Linetype bt, long b)
@@ -1312,7 +1310,7 @@ op_or(long *p, Linetype at, long a, Linetype bt, long b)
 {
   if (!strictlogic && ( at == LT_TRUE || bt == LT_TRUE ))
   {
-    return ( *p = 1, LT_TRUE );
+    return ( (void)( *p = 1 ), LT_TRUE );
   }
 
   return ( op_strict(p, a || b, at, bt));
@@ -1322,7 +1320,7 @@ op_and(long *p, Linetype at, long a, Linetype bt, long b)
 {
   if (!strictlogic && ( at == LT_FALSE || bt == LT_FALSE ))
   {
-    return ( *p = 0, LT_FALSE );
+    return ( (void)( *p = 0 ), LT_FALSE );
   }
 
   return ( op_strict(p, a && b, at, bt));
@@ -2040,7 +2038,7 @@ matchsym(const char *s, const char *t)
     }
     else
     {
-      ++s, ++t;
+      (void)( ++s ), ++t;
     }
   }
   if (*s == '\0' && endsym(*t))
