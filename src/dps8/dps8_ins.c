@@ -9417,6 +9417,7 @@ static int emCall (void)
 
        // OP 2: Halt the simulation
        case 2:
+         bce_dis_called = true;
          return STOP_STOP;
 
        // OP 3: Start CPU clock

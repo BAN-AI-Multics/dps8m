@@ -171,6 +171,8 @@
 
 
 	org	0
+" LOCKLESS seems to be losing the 2000 in "go 02000" and starting at 0, so:
+	tra	start
 
 " Fault vectors
 
