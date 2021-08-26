@@ -496,7 +496,7 @@ kit dist:
          $(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                   |  \
           $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
            $(GREP) -v '^src/dps8/make_ver.sh'                              |  \
-            $(GREP) -v '^src/Makefile.scc' | $(GREP) -v '^ci-kit'          |  \
+            $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
              $(GREP) -v '^src/dps8/listings/' )                               \
                               'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n'                                                         \
