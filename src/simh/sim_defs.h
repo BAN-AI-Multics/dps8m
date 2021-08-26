@@ -294,9 +294,9 @@ typedef uint32          t_addr;
 #define PATH_MAX        512
 #endif
 #if (PATH_MAX >= 128)
-#define CBUFSIZE        (128 + PATH_MAX)                /* string buf size */
+#define CBUFSIZE        (4096 + PATH_MAX)                /* string buf size */
 #else
-#define CBUFSIZE        256
+#define CBUFSIZE        4224
 #endif
 
 /* Breakpoint spaces definitions */
