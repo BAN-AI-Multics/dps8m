@@ -102,26 +102,26 @@ static void addSDW (word24 addr, long segnum, long length)
     word24 sdw0 = ADDR_DSP + y1 + 0;
     word24 sdw1 = ADDR_DSP + y1 + 1;
     //sim_printf ("segnum %lo length %lu bound %u sdw0 %o sdw1 %o ADDR %06o\n", (unsigned long) segnum, length, bound, sdw0, sdw1, pgTblAddr);
-    putbits36_24 (& M[sdw0],  0, pgTblAddr); // ADDR
+    putbits36_24 ((word36 *) & M[sdw0],  0, pgTblAddr); // ADDR
 // I can't get segldr_boot to cross to ring 4
 //    putbits36_3  (& M[sdw0], 24, 4);         // R1
 //    putbits36_3  (& M[sdw0], 27, 4);         // R2
 //    putbits36_3  (& M[sdw0], 30, 4);         // R3
-    putbits36_3  (& M[sdw0], 24, 0);         // R1
-    putbits36_3  (& M[sdw0], 27, 0);         // R2
-    putbits36_3  (& M[sdw0], 30, 0);         // R3
-    putbits36_1  (& M[sdw0], 33, 1);         // F
-    putbits36_2  (& M[sdw0], 34, 0);         // FC
-    putbits36_1  (& M[sdw1], 0, 0);      // 0
-    putbits36_14 (& M[sdw1],  1, bound); // BOUND
-    putbits36_1  (& M[sdw1], 15, 1);     // R
-    putbits36_1  (& M[sdw1], 16, 1);     // E
-    putbits36_1  (& M[sdw1], 17, 1);     // W
-    putbits36_1  (& M[sdw1], 18, 0);     // P
-    putbits36_1  (& M[sdw1], 19, 0);     // U
-    putbits36_1  (& M[sdw1], 20, 1);     // G
-    putbits36_1  (& M[sdw1], 21, 1);     // C
-    putbits36_14 (& M[sdw1], 21, 0);     // EB
+    putbits36_3  ((word36 *) & M[sdw0], 24, 0);         // R1
+    putbits36_3  ((word36 *) & M[sdw0], 27, 0);         // R2
+    putbits36_3  ((word36 *) & M[sdw0], 30, 0);         // R3
+    putbits36_1  ((word36 *) & M[sdw0], 33, 1);         // F
+    putbits36_2  ((word36 *) & M[sdw0], 34, 0);         // FC
+    putbits36_1  ((word36 *) & M[sdw1], 0, 0);      // 0
+    putbits36_14 ((word36 *) & M[sdw1],  1, bound); // BOUND
+    putbits36_1  ((word36 *) & M[sdw1], 15, 1);     // R
+    putbits36_1  ((word36 *) & M[sdw1], 16, 1);     // E
+    putbits36_1  ((word36 *) & M[sdw1], 17, 1);     // W
+    putbits36_1  ((word36 *) & M[sdw1], 18, 0);     // P
+    putbits36_1  ((word36 *) & M[sdw1], 19, 0);     // U
+    putbits36_1  ((word36 *) & M[sdw1], 20, 1);     // G
+    putbits36_1  ((word36 *) & M[sdw1], 21, 1);     // C
+    putbits36_14 ((word36 *) & M[sdw1], 21, 0);     // EB
 
     // Fill out PTWs on Segment page table
 
@@ -130,12 +130,12 @@ static void addSDW (word24 addr, long segnum, long length)
         //word36 * ptwp = (word36 *) M + pgTblAddr + pg;
         word24 ptw = pgTblAddr + pg;
         word18 pgAddr = (addr + pg * 1024) >> 6;
-        putbits36_18 (& M[ptw],  0,    pgAddr); // points to the Segment Page
-        putbits36_1  (& M[ptw], 26,         0);  // unused
-        putbits36_1  (& M[ptw], 29,         0);  // unmodified
-        putbits36_1  (& M[ptw], 29,         0);  // unmodified
-        putbits36_1  (& M[ptw], 33,         1);  // page is in memory
-        putbits36_2  (& M[ptw], 34,         0);  // fault code
+        putbits36_18 ((word36 *) & M[ptw],  0,    pgAddr); // points to the Segment Page
+        putbits36_1  ((word36 *) & M[ptw], 26,         0);  // unused
+        putbits36_1  ((word36 *) & M[ptw], 29,         0);  // unmodified
+        putbits36_1  ((word36 *) & M[ptw], 29,         0);  // unmodified
+        putbits36_1  ((word36 *) & M[ptw], 33,         1);  // page is in memory
+        putbits36_2  ((word36 *) & M[ptw], 34,         0);  // fault code
         //sim_printf ("   ptw pg %u at %o addr %o\n", pg, pgTblAddr + pg, pgAddr);
       }
   }
