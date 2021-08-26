@@ -3467,7 +3467,8 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
                     scu[sci_unit_idx].M[offset], ctx);
       }
 #else
-    SC_MAP_ADDR (addr, addr);
+    word24 mapAddr;
+    SC_MAP_ADDR (addr, mapAddr);
 #endif
 #ifdef LOCKLESS
     word36 v;
@@ -3476,16 +3477,16 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
     core_write_unlock(addr, v, ctx);
 #else
     LOCK_MEM_WR;
-    M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
+    M[mapAddr] = (M[mapAddr] & ~cpu.zone) | (data & cpu.zone);
     UNLOCK_MEM;
 #endif
     cpu.useZone = false; // Safety
 #ifndef SPEED
-    if (watch_bits [addr])
+    if (watch_bits [mapAddr])
       {
         sim_msg ("WATCH [%"PRId64"] %05o:%06o writez %08o %012"PRIo64" "
-                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
-                    M [addr], ctx);
+                    "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, mapAddr,
+                    M [mapAddr], ctx);
         traceInstruction (0);
       }
 #endif
@@ -3494,8 +3495,8 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
                "core_write_zone %08o %012"PRIo64" (%s)\n",
-                addr, data, ctx);
-    PNL (trackport (addr, data));
+                mapAddr, data, ctx);
+    PNL (trackport (mapAddr, data));
     return 0;
   }
 #endif
