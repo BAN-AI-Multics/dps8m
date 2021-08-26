@@ -261,9 +261,9 @@ H_SRCS += uvutil.h
 
 ###############################################################################
 
-SIMH_OBJS = ../simh/scp.o        ../simh/sim_console.o  ../simh/sim_disk.o   \
-            ../simh/sim_ether.o  ../simh/sim_fio.o      ../simh/sim_serial.o \
-            ../simh/sim_sock.o   ../simh/sim_tape.o     ../simh/sim_timer.o  \
+SIMH_OBJS = ../simh/scp.o        ../simh/sim_console.o  ../simh/sim_disk.o    \
+            ../simh/sim_ether.o  ../simh/sim_fio.o      ../simh/sim_serial.o  \
+            ../simh/sim_sock.o   ../simh/sim_tape.o     ../simh/sim_timer.o   \
             ../simh/sim_tmxr.o   ../simh/sim_video.o
 
 ###############################################################################
@@ -546,9 +546,9 @@ dps8_ins.c: ver.h
 dps8_sys.c: ver.h
 dps8_socket_dev.c: errnos.h
 errnos.h:
-	@$(PRINTF) '%s\n'                                                     \
+	@$(PRINTF) '%s\n'                                                         \
         '#include <errno.h>' > "./dump.c"
-	@$(SETV); $(CC) -E -dD ./dump.c |                                     \
+	@$(SETV); $(CC) -E -dD ./dump.c |                                         \
         $(AWK) '/^#define E/ { printf "{\"%s\",%s},\n", $$2, $$2 }'           \
             > "./errnos.h"
 	@$(SETV); $(RMF) "./dump.c"
@@ -557,7 +557,7 @@ errnos.h:
 
 sysdefs.h: useddef.txt
 	@$(PRINTF) '%s\n' "SYSDEFS: useddef.txt"
-	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null |               \
+	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null |                   \
       $(TR) ' ' '=' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null |        \
         $(TR) '\n' ' ' 2> /dev/null | $(SED) -e 's/ $$//'                     \
           -e 's/^-D$$//g' | $(SED) -e 's/^/#define\ SYSDEFS_USED\ \"/'        \

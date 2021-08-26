@@ -198,7 +198,7 @@ endif
       ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
         ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
         CFLAGS  +=-I/usr/local/include -m$(ISABITS)
-        LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat \
+        LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat  \
                   -ldl -m$(ISABITS)
         CC=gcc
       endif
@@ -241,10 +241,10 @@ include ../Makefile.var
     $(PRINTF) '%s\n' "fallback"                             2> /dev/null      \
     )"="\"$(shell printf '%s\n'                                               \
     '$(CC) $(CFLAGS) $(CPPFLAGS) $(X_CFLAGS) $(LDFLAGS) $(LOCALLIBS) $(LIBS)' \
-	| $(TR) -d '\\"'                                    2> /dev/null  |   \
+	| $(TR) -d '\\"'                                        2> /dev/null  |   \
     $(SED)  -e 's/ -DVER_CURRENT_TIME=....................... /\ /g'          \
             -e 's/^[ \t]*//;s/[ \t]*$$//'                   2> /dev/null  |   \
-     $(AWK) -v RS='[,[:space:]]+' '!a[$$0]++{ printf " %s %s ", $$0, RT }'    \
+     $(AWK) -v RS='[,[:space:]]+' '!a[$$0]++{ printf "%s %s ", $$0, RT }'     \
          2> /dev/null | $(SED) -e 's/-I\.\.\/decNumber/\ /g'                  \
              -e 's/-I\.\.\/simh/\ /' -e 's/-I\.\.\/include/\ /g'              \
                  2> /dev/null | $(TR) -s ' '                             ||   \
