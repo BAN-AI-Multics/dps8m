@@ -134,6 +134,13 @@ else
 endif
 
 ###############################################################################
+# Need to link math library with explicit order?
+
+ifeq ($(OSTYPE),GNU)
+  LIBS += -lm
+endif
+
+###############################################################################
 
 ifneq ($(CROSS),MINGW64)
 C_SRCS  = dps8_absi.c
@@ -256,9 +263,9 @@ H_SRCS += uvutil.h
 
 ###############################################################################
 
-SIMH_OBJS = ../simh/scp.o        ../simh/sim_console.o  ../simh/sim_disk.o   \
-            ../simh/sim_ether.o  ../simh/sim_fio.o      ../simh/sim_serial.o \
-            ../simh/sim_sock.o   ../simh/sim_tape.o     ../simh/sim_timer.o  \
+SIMH_OBJS = ../simh/scp.o        ../simh/sim_console.o  ../simh/sim_disk.o    \
+            ../simh/sim_ether.o  ../simh/sim_fio.o      ../simh/sim_serial.o  \
+            ../simh/sim_sock.o   ../simh/sim_tape.o     ../simh/sim_timer.o   \
             ../simh/sim_tmxr.o   ../simh/sim_video.o
 
 ###############################################################################
