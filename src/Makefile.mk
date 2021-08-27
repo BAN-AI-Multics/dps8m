@@ -125,6 +125,13 @@ CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 
 ###############################################################################
+# Performance test strip
+
+ifdef PERF_STRIP
+    CFLAGS  += -DPERF_STRIP
+endif
+
+###############################################################################
 # Windows MINGW
 
 ifeq ($(OS),Windows_NT)

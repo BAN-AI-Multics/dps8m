@@ -3908,6 +3908,7 @@ static void usr1_signal_handler (UNUSED int sig)
 
 static void dps8_init (void)
   {
+#ifndef PERF_STRIP
         if (!sim_quiet)
           {
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_VERSION)
@@ -4052,6 +4053,7 @@ static void dps8_init (void)
 #ifdef SCUMEM
 #error SCUMEM not working with new shared memory model
 #endif
+#endif // ! PERF_STRIP
 
 #ifdef __MINGW64__
     system_state = malloc (sizeof (struct system_state_s));
@@ -4059,6 +4061,8 @@ static void dps8_init (void)
     system_state = (struct system_state_s *)
       create_shm ("state", sizeof (struct system_state_s));
 #endif
+
+#ifndef PERF_STRIP
 
 #ifndef VER_H_GIT_HASH
 #define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
@@ -4095,8 +4099,9 @@ static void dps8_init (void)
     sys_opts.sys_slow_poll_interval = 100;
     // sys_poll_check_rate in CPU cycles
     sys_opts.sys_poll_check_rate = 1024;
+#endif // ! PERF_STRIP
 
-#ifdef PREF_STRIP
+#ifdef PERF_STRIP
     cpu_init ();
 #else
     sysCableInit ();
@@ -5105,3 +5110,11 @@ void start_machine_room (void)
 #endif
 #endif
   }
+
+#ifdef PERF_STRIP
+void dps8_init_strip (void)
+  {
+    dps8_init ();
+  }
+#endif
+
