@@ -76,8 +76,8 @@
 
 /* ============================================================================================================================== */
 #define MAX(x, y)       ((x) > (y) ?  (x) : (y))
-#define MIN(x, y)       ((x) < (y) ?  (x) : (y))
-#define ABS(x)          ((x) <  0  ? -(x) : (x))
+/* #define MIN(x, y)       ((x) < (y) ?  (x) : (y)) */
+/* #define ABS(x)          ((x) <  0  ? -(x) : (x)) */
 /* ============================================================================================================================== */
 /* size of printable area */
 /* Default unit is 72 points per inch */
@@ -124,7 +124,8 @@ int GLOBAL_GREEN_BAR;
 
     struct _PageList *next;
 
-        int page_id;
+        int  page_id;
+        char pad[sizeof(void(*)(void))-sizeof(int)];
 
  } PageList;
 

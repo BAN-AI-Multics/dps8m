@@ -1,8 +1,9 @@
-# DPS/8M simulator: src/GNUmakefile
+# DPS/8M simulator: src/Makefile.scc
 # vim: filetype=make:tabstop=4:tw=76
 #
 ###############################################################################
 #
+# Copyright (c) 2016 Charles Anthony
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
 # Copyright (c) 2021 The DPS8M Development Team
 #
@@ -15,39 +16,36 @@
 ###############################################################################
 
 ###############################################################################
-#
-# This is a fallback and wraper for the case of the user executing "make"
-# from within the `src` directory, rather than one of the subdirectories
-# or the top-level of the source directory, and also works around a very
-# specific FreeBSD-related CI/CD pipeline corner case in a harmless way.
-#
+# Source Code Control Targets                                                 \
+    # XXXX:    # ----------------------- Source Control ---------------------
 ###############################################################################
 
-ifdef MAKETRACE
-  _SHELL := $(SHELL)
-  SHELL = $(info [TRACE] src/GNUmakefile: [$@])$(_SHELL)
-endif
+###############################################################################
+# List files that are not known to git.
+
+.PHONY: printuk
+.NOTPARALLEL: printuk
+printuk:                                                                      \
+    # printuk:    # Display files that are unknown to git
+	@$(MAKE) -C "src/dps8" "printuk"
 
 ###############################################################################
-# BSD Make fallback
+# List files known to git that have been modified.
 
-.PHONY: all
-.DEFAULT: all
-.NOTPARALLEL: all
-all:
-	@$(MAKE) -C ".." $@
-
-###############################################################################
-# GNU Make fallback
-
-.PHONY: build default all %
-.NOTPARALLEL: build default all %
-%:
-	@$(MAKE) -C ".." $@
+.PHONY: printmod
+.NOTPARALLEL: printmod
+printmod:                                                                     \
+    # printmod:    # Display files that have been modified
+	@$(MAKE) -C "src/dps8" "printmod"
 
 ###############################################################################
+# Generate a redistributable source kit
 
-print-% : ; $(info src: $* is a $(flavor $*) variable set to [$($*)]) @true
+.PHONY: dist kit
+.NOTPARALLEL: dist kit
+dist kit:                                                                     \
+    # dist:    # Generate a redistributable source kit
+	@$(MAKE) -C "src/dps8" "dist"
 
 ###############################################################################
 

@@ -22,7 +22,10 @@
 TRUE       ?= true
 SET        ?= set
 ifdef V
+    V = 1
     VERBOSE = 1
+    export V
+    export VERBOSE
 endif
 ifdef VERBOSE
        ZCTV = cvf
@@ -30,6 +33,7 @@ ifdef VERBOSE
 else
        ZCTV = cf
        SETV = $(TRUE)
+       MAKEFLAGS += --no-print-directory
 endif
 ENV        ?= env
 CCACHE     ?= ccache
@@ -44,15 +48,17 @@ MKDIR      ?= mkdir -p
 NDKBUILD   ?= ndk-build
 PKGCONFIG  ?= pkg-config
 GIT        ?= git
-GREP       ?= grep
+GREP       ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" grep
 SORT       ?= sort
 CUT        ?= cut
-SED        ?= sed
-AWK        ?= awk
+SED        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" sed
+AWK        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" awk
+CMP        ?= cmp
 WEBDL      ?= wget
 CD         ?= cd
 TR         ?= tr
 CAT        ?= cat
+GIT        ?= git
 CMAKE      ?= cmake
 RMNF       ?= rm
 RMF        ?= $(RMNF) -f
@@ -66,22 +72,32 @@ PRINTF     ?= printf
 TAR        ?= tar
 MAKETAR    ?= $(TAR) --owner=dps8m --group=dps8m --posix -c                   \
                      --transform 's/^/.\/dps8\//g' -$(ZCTV)
-TARXT      ?= $(TAR)
+TARXT      ?= tar
 COMPRESS   ?= gzip -f -9
 GUNZIP     ?= gzip -d
 COMPRESSXT ?= gz
 KITNAME    ?= sources
+SIMHx       = ../simh
 
 ###############################################################################
 
-ifdef MAKETRACE
-  _SHELL := $(SHELL)
-  SHELL = $(info [TRACE] src/Makefile.mk: [$@])$(_SHELL)
+ifndef MAKEFILE_LOCAL_A
+  ifneq (,$(wildcard ../GNUmakefile.local))
+    MAKEFILE_LOCAL_A=1
+    include ../GNUmakefile.local
+    $(info INCLUDE: ../GNUmakefile.local)
+  endif
 endif
 
 ###############################################################################
 
-SIMHx=../simh
+ifndef MAKEFILE_LOCAL_B
+  ifneq (,$(wildcard GNUmakefile.local))
+    MAKEFILE_LOCAL_B=1
+    include GNUmakefile.local
+    $(info INCLUDE: GNUmakefile.local)
+  endif
+endif
 
 ###############################################################################
 
@@ -120,7 +136,7 @@ endif
 ###############################################################################
 
 # Default FLAGS
-CFLAGS  += -g -O3 -fno-strict-aliasing
+CFLAGS  += -g3 -O3 -fno-strict-aliasing
 CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 
@@ -128,28 +144,28 @@ LDFLAGS += $(X_FLAGS)
 # Windows MINGW
 
 ifeq ($(OS),Windows_NT)
-ifeq ($(CROSS),MINGW64)
+  ifeq ($(CROSS),MINGW64)
     CFLAGS  += -I../mingw_include
     LDFLAGS += -L../mingw_lib
-endif
+  endif
 
 ###############################################################################
 # macOS
 
 else
-    UNAME_S := $(shell $(UNAME) -s 2> /dev/null)
-    ifeq ($(UNAME_S),Darwin)
-      CFLAGS += -I/usr/local/include
-      LDFLAGS += -L/usr/local/lib
-endif
+  UNAME_S := $(shell $(UNAME) -s 2> /dev/null)
+  ifeq ($(UNAME_S),Darwin)
+    CFLAGS += -I/usr/local/include
+    LDFLAGS += -L/usr/local/lib
+  endif
 
 ###############################################################################
 # FreeBSD
 
-    ifeq ($(UNAME_S),FreeBSD)
-      CFLAGS += -I/usr/local/include -pthread
-      LDFLAGS += -L/usr/local/lib
-    endif
+  ifeq ($(UNAME_S),FreeBSD)
+    CFLAGS += -I/usr/local/include -pthread
+    LDFLAGS += -L/usr/local/lib
+  endif
 
 ###############################################################################
 # IBM AIX
@@ -158,9 +174,6 @@ endif
 # Compiler: IBM AIX Toolbox GCC 8.3.0 (gcc-8-1.ppc -- powerpc-ibm-aix7.2.0.0),
 # libuv: IBM AIX Toolbox libuv 1.38.1 (libuv-{devel}-1.38.1-1), or later, and,
 # libpopt: IBM AIX Toolbox libpopt 1.18 (libpopt-1.18-1) or later is required.
-# 32-bit builds, older OS versions, or older technology levels are not tested.
-# Support for IBM XLC C/C++ Compiler on AIX is currently planned. Builds using
-# the OSS4AIX/Perzl RPMs or the Bull/Atos toolchains are currently not tested.
 
     ifeq ($(UNAME_S),AIX)
       KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
@@ -203,6 +216,13 @@ endif
         CC=gcc
       endif
     endif
+    ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
+      ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
+      CFLAGS  +=-I/usr/local/include -m$(ISABITS)
+      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat    \
+                -ldl -m$(ISABITS)
+      CC=gcc
+    endif
 endif
 
 ###############################################################################
@@ -228,7 +248,9 @@ endif
 
 ###############################################################################
 
-include ../Makefile.var
+ifneq (,$(wildcard ../Makefile.var))
+  include ../Makefile.var
+endif
 
 ###############################################################################
 
@@ -252,20 +274,9 @@ include ../Makefile.var
 
 ###############################################################################
 
-ifneq (,$(wildcard ../GNUmakefile.local))
-  include ../GNUmakefile.local
+ifneq (,$(wildcard ../Makefile.env))
+  include ../Makefile.env
 endif
-
-###############################################################################
-
-ifneq (,$(wildcard GNUmakefile.local))
-  include GNUmakefile.local
-endif
-
-###############################################################################
-
-print-% : ; $(info src/mk: $* is a $(flavor $*) variable set to [$($*)]) \
-              @(TRUE)
 
 ###############################################################################
 

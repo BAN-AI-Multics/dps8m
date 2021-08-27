@@ -1,0 +1,49 @@
+# DPS/8M simulator: src/Makefile.scc
+# vim: filetype=make:tabstop=4:tw=76
+#
+###############################################################################
+#
+# Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
+# Copyright (c) 2021 The DPS8M Development Team
+#
+# All rights reserved.
+#
+# This software is made available under the terms of the ICU
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE.md file at the top-level directory of this distribution.
+#
+###############################################################################
+
+###############################################################################
+# Development Tools Targets                                                 \
+    # XXXX:    # --------------------- Development Tools --------------------
+###############################################################################
+
+###############################################################################
+# Displays preprocessor definitions
+
+.PHONY: printdefs
+.NOTPARALLEL: printdefs
+printdefs:                                                                    \
+    # printdefs:    # Display selected preprocessor defines
+	@( ( $(MAKE) "$$($(GIT) rev-parse --show-toplevel)/./src/unifdef/unifdef" \
+     2> /dev/null; $(FIND) . -name '*.[ch]' -exec $(SH) -c "export n2=\"{}\"; \
+      $(PRINTF) '%s ' \"\$${n2:?}\";                                          \
+       "$$($(GIT) rev-parse --show-toplevel)/./src/unifdef/unifdef" "-Stn"    \
+        \"\$${n2:?}\"" \; | while read -r n; do $(PRINTF) '%s  %s \n'         \
+         $$($(PRINTF) '%s ' "$${n:?}" | wc -w) "$${n:?}"; done              | \
+          $(SORT) -urn | expand | $(CUT) -d ' ' -f 2-                       | \
+           $(SED) -e 's/ S.._.*H_ / /g' -e 's/ DEC.* / /g' | $(TR) -s ' '   | \
+            $(SED) -e 's/^\ //g' | $(SED) -e 's/^\.\/.*\.[ch] \./\./g'        \
+             -e 's/^\.\/.*[ch] $$//g' | $(GREP) -v '^$$') ) | while read      \
+              line; do $(PRINTF) '%s\n' "$${line:?} "                       | \
+               $(AWK) '{ for (i=1; i<=NF; i++) if (!a[$$i]++)                 \
+                printf("%s%s", $$i, FS); } { printf("\n"); }'; done         | \
+                 $(SED) 's/ /: /'
+
+###############################################################################
+
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:
