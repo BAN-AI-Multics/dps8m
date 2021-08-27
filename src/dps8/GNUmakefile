@@ -145,6 +145,7 @@ endif
 ifneq ($(CROSS),MINGW64)
 C_SRCS  = dps8_absi.c
 endif
+C_SRCS += bsd_random.c
 C_SRCS += dps8_addrmods.c
 C_SRCS += dps8_append.c
 C_SRCS += dps8_cable.c
@@ -208,6 +209,7 @@ OBJS  := $(patsubst %.c,%.o,$(C_SRCS))
 ifneq ($(CROSS),MINGW64)
 H_SRCS  = dps8_absi.h
 endif
+H_SRCS += bsd_random.h
 H_SRCS += dps8_addrmods.h
 H_SRCS += dps8_append.h
 H_SRCS += dps8_cable.h
@@ -624,6 +626,7 @@ dps8_crdpun.o:      dps8_iom.h
 dps8_crdpun.o:      dps8_crdpun.h dps8_sys.h
 dps8_crdpun.o:      dps8_scu.h
 dps8_crdpun.o:      dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
+dps8_crdpun.o:      utfile.h
 dps8_crdrdr.o:      dps8.h
 dps8_crdrdr.o:      dps8_simh.h
 dps8_crdrdr.o:      dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -723,6 +726,7 @@ dps8_prt.o:         dps8_iom.h
 dps8_prt.o:         dps8_prt.h dps8_sys.h
 dps8_prt.o:         dps8_scu.h
 dps8_prt.o:         dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
+dps8_prt.o:         utfile.h
 dps8_scu.o:         dps8.h
 dps8_scu.o:         dps8_simh.h
 dps8_scu.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
@@ -801,6 +805,8 @@ uvutil.o:           dps8_hw_consts.h
 uvutil.o:           dps8_em_consts.h dps8_sys.h uvutil.h dps8_cpu.h hdbg.h
 uvutil.o:           dps8_utils.h
 uvutil.o:           libtelnet.h
+utfile.o:           utfile.h
+bsd_random.o:       bsd_random.h
 
 ###############################################################################
 
