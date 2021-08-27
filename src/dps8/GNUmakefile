@@ -504,7 +504,7 @@ kit dist:
 		$(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files               |  \
          $(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                   |  \
           $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
-           $(GREP) -v '^src/dps8/make_ver.sh'                              |  \
+           $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v 'docs/manual'   |  \
             $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
              $(GREP) -v '^src/dps8/listings/' )                               \
                               'src/dps8/ver.h~' )
