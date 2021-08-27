@@ -125,7 +125,9 @@ int GLOBAL_GREEN_BAR;
     struct _PageList *next;
 
         int  page_id;
+#ifndef __MINGW64__
         char pad[sizeof(void(*)(void))-sizeof(int)];
+#endif /* ifndef __MINGW64__ */
 
  } PageList;
 
