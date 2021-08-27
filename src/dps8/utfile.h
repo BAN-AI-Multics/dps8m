@@ -8,4 +8,9 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
+#ifndef UTFILE_H
+#define UTFILE_H
+
 int utfile_mkstemps(char *request_pattern, int suffix_length);
+
+#endif /* ifndef UTFILE_H */
