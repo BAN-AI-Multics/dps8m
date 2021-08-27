@@ -24,14 +24,14 @@
 #                  V=1                Enable verbose compilation output
 #                  W=1                Enable extra compilation warnings
 #            TESTING=1                Enable developmental testing code
-#        NO_LOCKLESS=1                Revert to previous threading code
+#        NO_LOCKLESS=1                Enable (old) non-threaded MP mode
 #              CROSS=MINGW64          Enable MinGW-64 cross-compilation
 #
 #    ******* The following flags are intended for development and *******
 #    ******* may have non-intuitive side-effects or requirements! *******
 #
 #            TRACKER=1                Adds instruction snapshot support
-#               HDBG=1                Enable hardware debugging support
+#               HDBG=1                Enables extended history debugger
 #        ROUND_ROBIN=1                Support un-threaded multiple CPUs
 #             ISOLTS=1                Support for running ISOLOTS tests
 #                WAM=1                Enable PTW/SDW associative memory
@@ -40,34 +40,47 @@
 #        USE_BUILDOS="String"         Enable a custom "Built OS" string
 #
 ###############################################################################
-# Makefile tracing.
 
-ifdef MAKETRACE
-  _SHELL := $(SHELL)
-  SHELL = $(info [TRACE] GNUmakefile: [$@])$(_SHELL)
-endif
+.DEFAULT_GOAL := all
 
 ###############################################################################
 # Pre-build exceptions.
 
-include src/Makefile.pre
+MAKE_TOPLEVEL = 1
 
-ifdef OS_IBMAIX
+ifneq (,$(wildcard src/Makefile.pre))
+  include src/Makefile.pre
+  ifdef OS_IBMAIX
     export OS_IBMAIX
+  endif
 endif
 
+ifneq (,$(wildcard src/Makefile.mk))
+  include src/Makefile.mk
+endif
+
+export MAKE_TOPLEVEL
+
 ###############################################################################
-# Build
+# DPS8M Simulator
+    # XXXX:    # ---------------------- DPS8/M Simulator --------------------
+###############################################################################
+
+###############################################################################
+# Build.
 
 .PHONY: build default all
-build default all:
-	@$(MAKE) -C "src/dps8"
+build default all:                                                            \
+    # build:    # Builds the DPS8/M simulator and tools
+	@$(MAKE) -C "src/dps8" "all"
 
 ###############################################################################
-# Install
+# Install.
 
 .PHONY: install
-install:
+.NOTPARALLEL: install
+install:                                                                      \
+    # install:    # Builds and installs the sim and tools
 	@$(MAKE) -C "src/dps8" "install"
 
 ###############################################################################
@@ -75,48 +88,76 @@ install:
 
 .PHONY: clean
 .NOTPARALLEL: clean
-clean:
+clean:                                                                        \
+    # clean:    # Cleans up executable and object files
 	@$(MAKE) -C "src/dps8" "clean"
 
 ###############################################################################
 # Cleans everything `clean` does, plus version info, logs, and state files.
 
 .PHONY: distclean
-distclean: clean
+.NOTPARALLEL: distclean
+distclean: clean                                                              \
+    # distclean:    # Cleans up tree to pristine conditions
 	@$(MAKE) -C "src/dps8" "distclean"
 
 ###############################################################################
 # Cleans everything `distclean` does, plus attempts to flush compiler caches.
 
 .PHONY: superclean realclean reallyclean
-superclean realclean reallyclean: distclean
+.NOTPARALLEL: superclean realclean reallyclean
+superclean realclean reallyclean: distclean                                   \
+    # superclean:    # Cleans up tree fully and flush ccache
 	@$(MAKE) -C "src/dps8" "superclean"
 
 ###############################################################################
-# List files that are not known to git.
 
-.PHONY: printuk
-printuk:
-	@$(MAKE) -C "src/dps8" "printuk"
-
-###############################################################################
-# List files known to git that have been modified.
-
-.PHONY: printmod
-printmod:
-	@$(MAKE) -C "src/dps8" "printmod"
+ifneq (,$(wildcard src/Makefile.env))
+  include src/Makefile.env
+endif
 
 ###############################################################################
-# Create a distribution archive kit.
+# Help and Debugging Targets                                                  \
+    # XXXX:    # --------------------- Help and Debugging -------------------
+###############################################################################
 
-.PHONY: kit dist
-kit dist:
-	@$(MAKE) -C "src/dps8" "kit"
+ifneq (,$(wildcard src/Makefile.scc))
+  include src/Makefile.scc
+endif
 
 ###############################################################################
-# Variable debugging.
 
-print-% : ; $(info top: $* is a $(flavor $*) variable set to [$($*)]) @true
+ifneq (,$(wildcard src/Makefile.dev))
+  include src/Makefile.dev
+endif
+
+###############################################################################
+
+ifneq (,$(wildcard src/Makefile.dep))
+  include src/Makefile.dep
+endif
+
+###############################################################################
+
+.PHONY: help info
+.NOTPARALLEL: help info
+help info:                                                                    \
+    # help:    # Display this list of Makefile targets
+	@$(GREP) -E '^.* # .*:    # .*$$' $(MAKEFILE_LIST) 2> /dev/null         | \
+		$(AWK) 'BEGIN { FS = "    # " };                                      \
+          { printf "%s%-18s %-40s (%-19s)\n", $$1, $$2, $$3, $$1 }'           \
+		    2> /dev/null | $(CUT) -d ':' -f 2- 2> /dev/null                 | \
+              $(SED) -e 's/:\ \+)$$/)/' -e 's/XXXX:/\n/g' 2> /dev/null      | \
+                $(SED) -e 's/---- (.*)$$/------------\n/'                     \
+				 -e 's/:  )/)/g' -e 's/:       )/)/g'                         \
+                  -e 's/              ---/-------------/' 2> /dev/null      | \
+                    $(GREP) -v 'GREP' 2> /dev/null                          | \
+                      $(GREP) -v '_LIST' 2> /dev/null | $(SED) 's/^n//g'    | \
+					   $(SED) 's/n$$//g'                                   || \
+					    { $(PRINTF) '%s\n' "Error: Unable to display help.";  \
+                          $(TRUE) > /dev/null 2>&1; }                      || \
+                            $(TRUE) > /dev/null 2>&1
+	@$(PRINTF) '%s\n' "" 2> /dev/null || $(TRUE) > /dev/null 2>&1
 
 ###############################################################################
 

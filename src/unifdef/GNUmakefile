@@ -21,29 +21,31 @@
 #
 ###############################################################################
 
-include ../Makefile.mk
+.DEFAULT_GOAL := all
 
 ###############################################################################
 
-ifdef MAKETRACE
-   _SHELL := $(SHELL)
-   SHELL = $(info [TRACE] src/unifdef/GNUmakefile: [$@])$(_SHELL)
+ifneq (,$(wildcard ../Makefile.mk))
+  include ../Makefile.mk
 endif
 
 ###############################################################################
 
-UIFLAGS=-Wall -Wextra -Wpedantic
+UIFLAGS=-Wall -Wextra -Wpedantic -D_FORTIFY_SOURCE=2
 CFLAGS+=$(UIFLAGS)
 
 ###############################################################################
 
 .PHONY: all
 .NOTPARALLEL: all
-unifdef.$(EXE) all: unifdef.o unifdef.h version.h
-	@$(TEST) -f unifdef$(EXE)            ||                                   \
-		$(PRINTF) '%s\n' "LD: unifdef"   ||  $(TRUE)
-	-@$(SETV); $(TEST) -f unifdef$(EXE)  ||                                   \
-		$(CC) $(CFLAGS) $(LDFLAGS) -o unifdef$(EXE) unifdef.o
+all: unifdef$(EXE)
+
+###############################################################################
+
+.NOTPARALLEL: unifdef$(EXE)
+unifdef$(EXE): unifdef.o unifdef.h version.h unifdef.c
+	@$(PRINTF) '%s\n' "CC: unifdef"
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o unifdef$(EXE) unifdef.o
 
 ###############################################################################
 
@@ -51,19 +53,9 @@ unifdef.$(EXE) all: unifdef.o unifdef.h version.h
 .NOTPARALLEL: clean
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: unifdef"
-	@$(SETV); $(RMF) unifdef$(EXE)  > /dev/null 2>&1  ||  $(TRUE)
-	@$(SETV); $(RMF) unifdef.exe    > /dev/null 2>&1  ||  $(TRUE)
-	@$(SETV); $(RMF) unifdef.o      > /dev/null 2>&1  ||  $(TRUE)
-
-###############################################################################
-
-unifdef.o: unifdef.h
-unifdef.o: version.h
-
-###############################################################################
-
-print-% : ; $(info unifdef: $* is a $(flavor $*) variable set to [$($*)])     \
-              @$(TRUE)
+	@$(SETV); $(RMF) "unifdef$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) "unifdef.exe"    > /dev/null 2>&1  ||  $(TRUE)
+	@$(SETV); $(RMF) "unifdef.o"      > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 

@@ -1,4 +1,4 @@
-# DPS/8M simulator: src/dps8/GNUmakefile.local.sam
+# DPS/8M simulator: src/dps8/GNUmakefile.local(.sam)
 # vim: filetype=make:tabstop=4:tw=76
 #
 ###############################################################################
@@ -14,54 +14,20 @@
 # LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
-
-ifdef MAKETRACE
-  _SHELL := $(SHELL)
-  SHELL = $(info [TRACE] src/dps8/GNUmakefile.local: [$@])$(_SHELL)
-endif
-
-###############################################################################
-# Enables sim_debug
-
-#TESTING=1
-
-###############################################################################
-# Enable round-robin multiple CPUs
-
-#CFLAGS += -DROUND_ROBIN
-
-###############################################################################
-# Enable history debug tool
-
-#CFLAGS += -DHDBG
-
-###############################################################################
-# Enable ISOLTS compatibility
-
-#CFLAGS += -DISOLTS -DL68 -DWAM
+# Developer localized settings (sample)
 
 ###############################################################################
 # Enable Level-68 mode
-
 #CFLAGS += -DL68
 
 ###############################################################################
 # Enable panel display support
-
 #CFLAGS += -DPANEL
 
 ###############################################################################
-# Enable WAM
-
+# Enable WAM support
 #CFLAGS += -DWAM
 #CFLAGS += -Ddo_selftestPTWAM
-
-###############################################################################
-# Other local settings here
-
-###############################################################################
-
-print-% : ; $(info local: $* is a $(flavor $*) variable set to [$($*)]) @true
 
 ###############################################################################
 
