@@ -37,11 +37,11 @@
 #include "dps8.h"
 #include "dps8_console.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
 #include "dps8_scu.h"
+#include "dps8_cpu.h"
+#include "dps8_faults.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
-#include "dps8_cpu.h"
 #include "dps8_state.h"
 #include "dps8_ins.h"
 #include "dps8_math.h"
@@ -1692,7 +1692,7 @@ static t_stat boot_skip (int32 UNUSED arg, UNUSED const char * buf)
 static t_stat do_execute_fault (UNUSED int32 arg,  UNUSED const char * buf)
   {
     // Assume bootload CPU
-    setG7fault (0, FAULT_EXF, fst_zero);
+    setG7fault (ASSUME0, FAULT_EXF, fst_zero);
     return SCPE_OK;
   }
 
@@ -1724,12 +1724,12 @@ static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
     cpu.isExec = true;
     cpu.isXED = true;
     cpu.cycle = FAULT_EXEC_cycle;
-    set_addr_mode (ABSOLUTE_mode);
+    set_addr_mode (cpu_p, ABSOLUTE_mode);
 #endif
 
     cpu_reset_unit_idx (0, false);
-    cpu.restart = true;
-    cpu.restart_address = (uint) n;
+    cpus[ASSUME0].restart = true;
+    cpus[ASSUME0].restart_address = (uint) n;
 
     t_stat rc = run_cmd (RU_CONT, "");
     return rc;
@@ -1899,7 +1899,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
   {
     word24 res;
 
-    if (get_addr_mode () != APPEND_mode)
+    if (get_addr_mode (cpu_p) != APPEND_mode)
       {
         sim_warn ("CPU not in append mode\n");
         return SCPE_ARG;
@@ -1916,9 +1916,9 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
         // 2. Fetch the target segment SDW from cpu.DSBR.ADDR + 2 * segno.
 
         word36 SDWe, SDWo;
-        core_read ((cpu.DSBR.ADDR + 2U * /*TPR.TSR*/ (uint) segno) & PAMASK,
+        core_read (cpu_p, (cpu.DSBR.ADDR + 2U * /*TPR.TSR*/ (uint) segno) & PAMASK,
                    & SDWe, __func__);
-        core_read ((cpu.DSBR.ADDR + 2U * /*TPR.TSR*/ (uint) segno  + 1) & PAMASK,
+        core_read (cpu_p, (cpu.DSBR.ADDR + 2U * /*TPR.TSR*/ (uint) segno  + 1) & PAMASK,
                    & SDWo, __func__);
 
         // 3. If SDW.DF = 0, then generate directed fault n where n is given in
@@ -1976,7 +1976,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
         // 3. Fetch the descriptor segment PTW(x1) from DSBR.ADR + x1.
 
         word36 PTWx1;
-        core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+        core_read (cpu_p, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
 
         ptw_s PTW1;
         PTW1.ADDR = GETHI(PTWx1);
@@ -2000,7 +2000,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
         // descriptor segment page at PTW(x1).ADDR + y1.
 
         word36 SDWeven, SDWodd;
-        core_read2(((PTW1.ADDR << 6) + y1) & PAMASK, & SDWeven, & SDWodd,
+        core_read2(cpu_p, ((PTW1.ADDR << 6) + y1) & PAMASK, & SDWeven, & SDWodd,
                     __func__);
 
         sdw0_s SDW0;
@@ -2061,7 +2061,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
             // 10. Fetch the target segment PTW(x2) from SDW(segno).ADDR + x2.
 
             word36 PTWx2;
-            core_read ((SDW0.ADDR + x2) & PAMASK, & PTWx2, __func__);
+            core_read (cpu_p, (SDW0.ADDR + x2) & PAMASK, & PTWx2, __func__);
 
             ptw_s PTW2;
             PTW2.ADDR = GETHI(PTWx2);
@@ -2080,7 +2080,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
             //   {
             //     sim_debug (DBG_APPENDING, & cpu_dev, "absa fault !PTW2.DF\n");
             //     // initiate a directed fault
-            //     doFault(FAULT_DF0 + PTW2.FC, 0, "ABSA !PTW2.DF");
+            //     doFault(cpu_p, FAULT_DF0 + PTW2.FC, 0, "ABSA !PTW2.DF");
             //   }
 
             // 12. Generate the 24-bit absolute main memory address
@@ -2112,7 +2112,7 @@ static t_stat abs_addr_n (int segno, uint offset)
     word24 res;
 
     //t_stat rc = computeAbsAddrN (& res, segno, offset);
-    if (dbgLookupAddress ((word18) segno, offset, & res, NULL))
+    if (dbgLookupAddress (cpus + ASSUME0, (word18) segno, offset, & res, NULL))
       return SCPE_ARG;
 
     sim_msg ("Address is %08o\n", res);
@@ -2373,6 +2373,8 @@ static char * source_search_path = NULL;
 
 void list_source (char * compname, word18 offset, uint dflag)
   {
+    cpu_state_t *cpu_p = cpus + ASSUME0;
+
     const int offset_str_len = 10;
     //char offset_str[offset_str_len + 1];
     char offset_str[17];
@@ -2583,6 +2585,7 @@ fileDone:
 #ifndef SCUMEM
 static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
   {
+    cpu_state_t *cpu_p = cpus + ASSUME0;
     char * msg;
 
     word15 icSegno = cpu.PPR.PSR;
@@ -2617,7 +2620,7 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
                     frameNo, fpSegno, fpOffset);
 
         word24 fp;
-        if (dbgLookupAddress (fpSegno, fpOffset, & fp, & msg))
+        if (dbgLookupAddress (cpu_p, fpSegno, fpOffset, & fp, & msg))
           {
             sim_msg ("can't lookup fp (%05o:%06o) because %s\n",
                     fpSegno, fpOffset, msg);
@@ -2679,7 +2682,7 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
         sim_msg ("Arg ptr     %05o:%06o\n", argSegno, argOffset);
 
         word24 ap;
-        if (dbgLookupAddress (argSegno, argOffset, & ap, & msg))
+        if (dbgLookupAddress (cpu_p, argSegno, argOffset, & ap, & msg))
           {
             sim_msg ("can't lookup arg ptr (%05o:%06o) because %s\n",
                     argSegno, argOffset, msg);
@@ -2721,7 +2724,7 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
                 word15 argnoSegno = (word15) ((M[argnoos] >> 18) & MASK15);
                 word18 argnoOffset = (word18) ((M[argnoos + 1] >> 18) & MASK18);
                 word24 argnop;
-                if (dbgLookupAddress (argnoSegno, argnoOffset, & argnop, & msg))
+                if (dbgLookupAddress (cpu_p, argnoSegno, argnoOffset, & argnop, & msg))
                   {
                     sim_msg ("can't lookup arg%d ptr (%05o:%06o) because %s\n",
                                 argno, argSegno, argOffset, msg);
@@ -3023,9 +3026,10 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
 
 static sdw0_s *fetchSDW (word15 segno)
   {
+    cpu_state_t *cpu_p = cpus + ASSUME0;
     word36 SDWeven, SDWodd;
 
-    core_read2 ((cpu.DSBR.ADDR + 2u * segno) & PAMASK, & SDWeven, & SDWodd,
+    core_read2 (cpu_p, (cpu.DSBR.ADDR + 2u * segno) & PAMASK, & SDWeven, & SDWodd,
                  __func__);
 
     // even word
@@ -3056,6 +3060,7 @@ static sdw0_s *fetchSDW (word15 segno)
 
 static t_stat virtAddrN (uint address)
   {
+    cpu_state_t *cpu_p = cpus + ASSUME0;
     if (cpu.DSBR.U) {
         for(word15 segno = 0; 2u * segno < 16u * (cpu.DSBR.BND + 1u); segno += 1)
         {
@@ -3071,7 +3076,7 @@ static t_stat virtAddrN (uint address)
             word24 y1 = (2u * segno) % 1024u;
             word24 x1 = (2u * segno - y1) / 1024u;
             word36 PTWx1;
-            core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+            core_read (cpu_p, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
 
             ptw_s PTW1;
             PTW1.ADDR = GETHI(PTWx1);
@@ -3088,7 +3093,7 @@ static t_stat virtAddrN (uint address)
             for (word15 tspt = 0; tspt < 512u; tspt ++)
             {
                 word36 SDWeven, SDWodd;
-                core_read2(((PTW1.ADDR << 6) + tspt * 2u) & PAMASK, & SDWeven,
+                core_read2(cpu_p, ((PTW1.ADDR << 6) + tspt * 2u) & PAMASK, & SDWeven,
                            & SDWodd, __func__);
                 sdw0_s SDW0;
                 // even word
@@ -3131,7 +3136,7 @@ static t_stat virtAddrN (uint address)
                         //     SDW(segno).ADDR + x2.
 
                         word36 PTWx2;
-                        core_read ((SDW0.ADDR + x2) & PAMASK, & PTWx2, __func__);
+                        core_read (cpu_p, (SDW0.ADDR + x2) & PAMASK, & PTWx2, __func__);
 
                         ptw_s PTW2;
                         PTW2.ADDR = GETHI(PTWx2);
@@ -3234,7 +3239,7 @@ static t_stat dfx1entry (UNUSED int32 arg, UNUSED const char * buf)
     // sp:tbp -> PR[6].SNR:046
     word24 pa;
     char * msg;
-    if (dbgLookupAddress (cpu.PR[6].SNR, 046, & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[6].SNR, 046, & pa, & msg))
       {
         sim_msg ("text segment number lookup failed because %s\n", msg);
       }
@@ -3244,7 +3249,7 @@ static t_stat dfx1entry (UNUSED int32 arg, UNUSED const char * buf)
       }
 sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
 //dbgStackTrace ();
-    if (dbgLookupAddress (cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
       {
         sim_msg ("return address lookup failed because %s\n", msg);
       }
@@ -3252,7 +3257,7 @@ sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
       {
         sim_msg ("scale %012"PRIo64" (%llu)\n", M[pa], M[pa]);
       }
-    if (dbgLookupAddress (cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
       {
         sim_msg ("divisor address lookup failed because %s\n", msg);
       }
@@ -3288,7 +3293,7 @@ static t_stat dfx2entry (UNUSED int32 arg, UNUSED const char * buf)
     // sp:tbp -> PR[6].SNR:046
     word24 pa;
     char * msg;
-    if (dbgLookupAddress (cpu.PR[6].SNR, 046, & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[6].SNR, 046, & pa, & msg))
       {
         sim_msg ("text segment number lookup failed because %s\n", msg);
       }
@@ -3299,7 +3304,7 @@ static t_stat dfx2entry (UNUSED int32 arg, UNUSED const char * buf)
 #if 0
 sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
 //dbgStackTrace ();
-    if (dbgLookupAddress (cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
       {
         sim_msg ("return address lookup failed because %s\n", msg);
       }
@@ -3311,7 +3316,7 @@ sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
             word15 segno = (M[pa] >> 18u) & MASK15;
             word18 offset = (M[pa + 1] >> 18u) & MASK18;
             word24 ipa;
-            if (dbgLookupAddress (segno, offset, & ipa, & msg))
+            if (dbgLookupAddress (cpu_p, segno, offset, & ipa, & msg))
               {
                 sim_msg ("divisor address lookup failed because %s\n", msg);
               }
@@ -3322,7 +3327,7 @@ sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
           }
       }
 #endif
-    if (dbgLookupAddress (cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
       {
         sim_msg ("divisor address lookup failed because %s\n", msg);
       }
@@ -3347,7 +3352,7 @@ static t_stat mdfx3entry (UNUSED int32 arg, UNUSED const char * buf)
     // sp:tbp -> PR[6].SNR:046
     word24 pa;
     char * msg;
-    if (dbgLookupAddress (cpu.PR[6].SNR, 046, & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[6].SNR, 046, & pa, & msg))
       {
         sim_msg ("text segment number lookup failed because %s\n", msg);
       }
@@ -3358,7 +3363,7 @@ static t_stat mdfx3entry (UNUSED int32 arg, UNUSED const char * buf)
 //sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
 //dbgStackTrace ();
 #if 0
-    if (dbgLookupAddress (cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
       {
         sim_msg ("return address lookup failed because %s\n", msg);
       }
@@ -3367,7 +3372,7 @@ static t_stat mdfx3entry (UNUSED int32 arg, UNUSED const char * buf)
         sim_msg ("scale %012"PRIo64" (%llu)\n", M[pa], M[pa]);
       }
 #endif
-    if (dbgLookupAddress (cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
       {
         sim_msg ("divisor address lookup failed because %s\n", msg);
       }
@@ -3391,7 +3396,7 @@ static t_stat smfx1entry (UNUSED int32 arg, UNUSED const char * buf)
     // sp:tbp -> PR[6].SNR:046
     word24 pa;
     char * msg;
-    if (dbgLookupAddress (cpu.PR[6].SNR, 046, & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[6].SNR, 046, & pa, & msg))
       {
         sim_msg ("text segment number lookup failed because %s\n", msg);
       }
@@ -3401,7 +3406,7 @@ static t_stat smfx1entry (UNUSED int32 arg, UNUSED const char * buf)
       }
 sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
 //dbgStackTrace ();
-    if (dbgLookupAddress (cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
       {
         sim_msg ("return address lookup failed because %s\n", msg);
       }
@@ -3409,7 +3414,7 @@ sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
       {
         sim_msg ("scale %012"PRIo64" (%llu)\n", M[pa], M[pa]);
       }
-    if (dbgLookupAddress (cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
+    if (dbgLookupAddress (cpu_p, cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
       {
         sim_msg ("divisor address lookup failed because %s\n", msg);
       }
@@ -4088,7 +4093,7 @@ static void dps8_init (void)
     console_init (); // must come after fnpInit due to libuv initiailization
     //mpc_init ();
     scu_init ();
-    cpu_init ();
+    cpu_init (cpus + ASSUME0);
     rdr_init ();
     pun_init ();
     prt_init ();
@@ -4162,6 +4167,7 @@ static int getAddress(int segno, int offset)
 static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
                           const char **optr)
   {
+    cpu_state_t *cpu_p = cpus + ASSUME0;
 #ifdef SCUMEM
     return 0;
 #else
@@ -4277,6 +4283,7 @@ t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
                    UNUSED t_value *val, UNUSED UNIT *uptr, int32 UNUSED sw)
 {
 #ifdef TESTING
+    cpu_state_t *cpu_p = cpus + ASSUME0;
 // XXX Bug: assumes single cpu
 // XXX CAC: This seems rather bogus; deciding the output format based on the
 // address of the UNIT? Would it be better to use sim_unit.u3 (or some such
@@ -4297,7 +4304,7 @@ t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
         // decode instruction
         DCDstruct ci;
         DCDstruct * p = & ci;
-        decode_instruction (word1, p);
+        decode_instruction (cpu_p, word1, p);
 
         // MW EIS?
         if (p->info->ndes > 1)
@@ -4789,17 +4796,18 @@ static void http_do_get (char * uri)
         //W ("<p>This is a paragraph.</p>\r\n");
         for (uint i = 0; i < cpu_dev.numunits; i ++)
           {
+            cpu_state_t * cpu_p = cpus + i;
             sprintf (buf,
                      "<p>%c serial # %u MIPS %4.2f %s%s PPR %05o:%06o R%u P%u</p>\r\n",
-                     cpus[i].switches.cpu_num + 'A',
-                     cpus[i].switches.serno,
-                     (double)((cpus[i].instrCntT1 - cpu.instrCntT0) / 1000000.0L),
-                     get_addr_mode () == ABSOLUTE_mode ? "ABS" : "APP",
-                     get_bar_mode () ? "BAR" : "",
-                     cpus[i].PPR.PSR,
-                     cpus[i].PPR.IC,
-                     cpus[i].PPR.PRR,
-                     cpus[i].PPR.P);
+                     cpu_p->switches.cpu_num + 'A',
+                     cpu_p->switches.serno,
+                     (double)((cpup->instrCntT1 - cpup->instrCntT0) / 1000000.0L),
+                     get_addr_mode (cpu_p) == ABSOLUTE_mode ? "ABS" : "APP",
+                     get_bar_mode (cpu_p) ? "BAR" : "",
+                     cpu_p->PPR.PSR,
+                     cpu_p->PPR.IC,
+                     cpu_p->PPR.PRR,
+                     cpu_p->PPR.P);
             W (buf);
 //#define A(x) (getbits36_1 (cpu.rA, x) ? "&bull" : " ")
 #define A(x) (getbits36_1 (cpu.rA, x) ? "1" : "0")

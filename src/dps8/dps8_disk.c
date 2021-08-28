@@ -26,13 +26,13 @@
 #include <stdio.h>
 
 #include "dps8.h"
-#include "dps8_iom.h"
 #include "dps8_disk.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
 #include "dps8_scu.h"
-#include "dps8_cable.h"
 #include "dps8_cpu.h"
+#include "dps8_iom.h"
+#include "dps8_faults.h"
+#include "dps8_cable.h"
 #include "sim_disk.h"
 #include "dps8_utils.h"
 
@@ -1009,7 +1009,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
         for (uint i = 0; i < tally; i ++)
           {
             word36 w;
-            core_read (daddr + i, & w, "Disk write");
+            core_read (cpu_p, daddr + i, & w, "Disk write");
             insertWord36toBuffer (diskBuffer, p72ByteCnt, & wordsProcessed,
                                   w);
           }
@@ -1121,10 +1121,10 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
 #else
     for (uint i = 0; i < tally; i ++)
       //M [daddr + i] = 0;
-      core_write (daddr + i, 0, "Disk status register");
+      core_write (cpu_p, daddr + i, 0, "Disk status register");
 
     //M [daddr] = SIGN36;
-    core_write (daddr, SIGN36, "Disk status register");
+    core_write (cpu_p, daddr, SIGN36, "Disk status register");
 #endif
     p -> charPos = 0;
     p -> stati = 04000;
@@ -1300,10 +1300,10 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 #else
     for (uint i = 0; i < tally; i ++)
       //M [daddr + i] = 0;
-      core_write (daddr + i, 0, "Disk status register");
+      core_write (cpu_p, daddr + i, 0, "Disk status register");
 
     //M [daddr] = SIGN36;
-    core_write (daddr, SIGN36, "Disk status register");
+    core_write (cpu_p, daddr, SIGN36, "Disk status register");
 #endif
 #endif
     p -> charPos = 0;
@@ -1382,10 +1382,10 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
 #else
     for (uint i = 0; i < tally; i ++)
       //M [daddr + i] = 0;
-      core_write (daddr + i, 0, "Disk status register");
+      core_write (cpu_p, daddr + i, 0, "Disk status register");
 
     //M [daddr] = SIGN36;
-    core_write (daddr, SIGN36, "Disk status register");
+    core_write (cpu_p, daddr, SIGN36, "Disk status register");
 #endif
 #endif
     p -> charPos = 0;

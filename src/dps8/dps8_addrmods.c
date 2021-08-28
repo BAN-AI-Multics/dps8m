@@ -21,13 +21,12 @@
 
 #include <stdio.h>
 #include "dps8.h"
-#include "dps8_addrmods.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
 #include "dps8_scu.h"
+#include "dps8_cpu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
-#include "dps8_cpu.h"
+#include "dps8_faults.h"
 #include "dps8_append.h"
 #include "dps8_ins.h"
 #include "dps8_iefp.h"
@@ -36,6 +35,7 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
 #endif
+#include "dps8_addrmods.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -45,7 +45,7 @@
 // return contents of register indicated by Td
 //
 
-static word18 get_Cr (word4 Tdes)
+static word18 get_Cr (cpu_state_t *cpu_p, word4 Tdes)
   {
     cpu.ou.directOperandFlag = false;
 
@@ -100,7 +100,7 @@ static word18 get_Cr (word4 Tdes)
     return 0;
   }
 
-static char * op_desc_str (char * temp)
+static char * op_desc_str (cpu_state_t *cpu_p, char * temp)
   {
     DCDstruct * i = & cpu.currentInstruction;
 
@@ -108,7 +108,7 @@ static char * op_desc_str (char * temp)
 
     if (READOP (i))
       {
-        switch (operand_size ())
+        switch (operand_size (cpu_p))
           {
             case 1:
               strcat (temp, "readCY");
@@ -137,7 +137,7 @@ static char * op_desc_str (char * temp)
         if (strlen (temp))
           strcat (temp, "/");
 
-        switch (operand_size ())
+        switch (operand_size (cpu_p))
           {
             case 1:
               strcat (temp, "writeCY");
@@ -181,7 +181,7 @@ static char * op_desc_str (char * temp)
     return temp;    //"op_desc_str (???)";
   }
 
-static void do_ITP (void)
+static void do_ITP (cpu_state_t *cpu_p)
   {
     sim_debug (DBG_APPENDING, & cpu_dev,
                "ITP Pair: PRNUM=%o BITNO=%o WORDNO=%o MOD=%o\n",
@@ -222,7 +222,7 @@ static void do_ITP (void)
     return;
   }
 
-static void do_ITS (void)
+static void do_ITS (cpu_state_t *cpu_p)
   {
     sim_debug (DBG_APPENDING, & cpu_dev,
                "ITS Pair: SEGNO=%o RN=%o WORDNO=%o BITNO=%o MOD=%o\n",
@@ -265,7 +265,7 @@ static void do_ITS (void)
 
 
 // CANFAULT
-static void do_ITS_ITP ()
+static void do_ITS_ITP (cpu_state_t *cpu_p)
   {
     word6 ind_tag = GET_TAG (cpu.itxPair [0]);
 
@@ -296,9 +296,9 @@ static void do_ITS_ITP ()
 
 
     if (ISITS (ind_tag))
-        do_ITS ();
+        do_ITS (cpu_p);
     else
-        do_ITP ();
+        do_ITP (cpu_p);
 
     //set_went_appending ();
     cpu.cu.XSF = 1;
@@ -306,7 +306,7 @@ static void do_ITS_ITP ()
   }
 
 
-void updateIWB (word18 addr, word6 tag)
+void updateIWB (cpu_state_t *cpu_p, word18 addr, word6 tag)
   {
     word36 * wb;
     if (USE_IRODD)
@@ -327,7 +327,7 @@ void updateIWB (word18 addr, word6 tag)
                * wb, GET_ADDR (* wb),
                extMods [GET_TAG (* wb)].mod);
 
-    decode_instruction (IWB_IRODD, & cpu.currentInstruction);
+    decode_instruction (cpu_p, IWB_IRODD, & cpu.currentInstruction);
   }
 
 //
@@ -345,7 +345,7 @@ void updateIWB (word18 addr, word6 tag)
 //
 // CANFAULT
 
-void do_caf (void)
+void do_caf (cpu_state_t *cpu_p)
   {
     if (cpu.currentInstruction.b29 == 0)
       {
@@ -361,7 +361,7 @@ void do_caf (void)
     char buf [256];
     sim_debug (DBG_ADDRMOD, & cpu_dev,
                "%s(Entry): operType:%s TPR.CA=%06o\n",
-                __func__, op_desc_str (buf), cpu.TPR.CA);
+                __func__, op_desc_str (cpu_p, buf), cpu.TPR.CA);
     sim_debug (DBG_ADDRMOD, & cpu_dev,
                "%s(Entry): CT_HOLD %o\n",
                 __func__, cpu.cu.CT_HOLD);
@@ -387,7 +387,7 @@ startCA:;
 
     if (++ lockupCnt > lockupLimit)
       {
-        doFault (FAULT_LUF, fst_zero, "Lockup in addrmod");
+        doFault (cpu_p, FAULT_LUF, fst_zero, "Lockup in addrmod");
       }
 
     Td = GET_TD (cpu.rTAG);
@@ -455,7 +455,7 @@ startCA:;
             return;
           }
 
-        word18 Cr = get_Cr (Td);
+        word18 Cr = get_Cr (cpu_p, Td);
 
         sim_debug (DBG_ADDRMOD, & cpu_dev, "R_MOD: Cr=%06o\n", Cr);
 
@@ -502,12 +502,12 @@ startCA:;
         sim_debug (DBG_ADDRMOD, & cpu_dev, "RI_MOD: Td=%o\n", Td);
 
         if (Td == TD_DU || Td == TD_DL)
-          doFault (FAULT_IPR, fst_ill_mod,
+          doFault (cpu_p, FAULT_IPR, fst_ill_mod,
                    "RI_MOD: Td == TD_DU || Td == TD_DL");
 
         if (Td != TD_N)
           {
-            word18 Cr = get_Cr (Td);  // C(r)
+            word18 Cr = get_Cr (cpu_p, Td);  // C(r)
 
             // We don''t need to worry about direct operand here, since du
             // and dl are disallowed above
@@ -552,12 +552,12 @@ startCA:;
         // happening again on restart
 
         word18 saveCA = cpu.TPR.CA;
-        ReadIndirect ();
+        ReadIndirect (cpu_p);
 
         if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
           {
-            do_ITS_ITP ();
-            updateIWB (cpu.TPR.CA, cpu.rTAG);
+            do_ITS_ITP (cpu_p);
+            updateIWB (cpu_p, cpu.TPR.CA, cpu.rTAG);
           }
         else
           {
@@ -566,23 +566,23 @@ startCA:;
               {
                 sim_warn ("%s: itp/its at odd address\n", __func__);
 #ifdef TESTING
-                traceInstruction (0);
+                traceInstruction (cpu_p, 0);
 #endif
               }
             if (!(cpu.cu.rpt || cpu.cu.rd || cpu.cu.rl))
               {
-                updateIWB (GET_ADDR (cpu.itxPair[0]), cpu.rTAG);
+                updateIWB (cpu_p, GET_ADDR (cpu.itxPair[0]), cpu.rTAG);
               }
             // F2 and F3 fault tests after updateIW
             if (GET_TM (cpu.rTAG) == TM_IT)
               {
                 if (GET_TD (cpu.rTAG) == IT_F2)
                   {
-                    doFault (FAULT_F2, fst_zero, "RI_MOD: IT_F2 (0)");
+                    doFault (cpu_p, FAULT_F2, fst_zero, "RI_MOD: IT_F2 (0)");
                   }
                 if (GET_TD (cpu.rTAG) == IT_F3)
                   {
-                    doFault (FAULT_F3, fst_zero, "RI_MOD: IT_F3");
+                    doFault (cpu_p, FAULT_F3, fst_zero, "RI_MOD: IT_F3");
                   }
               }
             cpu.TPR.CA = GETHI (cpu.itxPair[0]);
@@ -622,7 +622,7 @@ startCA:;
 
         if (++ lockupCnt > lockupLimit)
           {
-            doFault (FAULT_LUF, fst_zero, "Lockup in addrmod IR mode");
+            doFault (cpu_p, FAULT_LUF, fst_zero, "Lockup in addrmod IR mode");
           }
 
         sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -630,7 +630,7 @@ startCA:;
                    cpu.TPR.CA);
 
         word18 saveCA = cpu.TPR.CA;
-        ReadIndirect ();
+        ReadIndirect (cpu_p);
 
         // ReadIndirect does NOT update cpu.rTAG anymore
         if (GET_TM(cpu.rTAG) == TM_IR)
@@ -639,7 +639,7 @@ startCA:;
 
         if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
           {
-            do_ITS_ITP ();
+            do_ITS_ITP (cpu_p);
           }
         else
           {
@@ -647,7 +647,7 @@ startCA:;
               {
                 sim_warn ("%s: itp/its at odd address\n", __func__);
 #ifdef TESTING
-                traceInstruction (0);
+                traceInstruction (cpu_p, 0);
 #endif
               }
             cpu.TPR.CA = GETHI (cpu.itxPair[0]);
@@ -676,17 +676,17 @@ startCA:;
 
                 if (Td == IT_F2 || Td == IT_F3)
                   {
-                    updateIWB(cpu.TPR.CA, cpu.rTAG);
+                    updateIWB (cpu_p, cpu.TPR.CA, cpu.rTAG);
                     // Abort. FT2 or 3
                     switch (Td)
                       {
                         case IT_F2:
                           cpu.TPR.CA = saveCA;
-                          doFault (FAULT_F2, fst_zero, "TM_IT: IT_F2 (1)");
+                          doFault (cpu_p, FAULT_F2, fst_zero, "TM_IT: IT_F2 (1)");
 
                         case IT_F3:
                           cpu.TPR.CA = saveCA;
-                          doFault (FAULT_F3, fst_zero, "TM_IT: IT_F3");
+                          doFault (cpu_p, FAULT_F3, fst_zero, "TM_IT: IT_F3");
                       }
                   }
                 // fall through to TM_R
@@ -697,17 +697,17 @@ startCA:;
               {
                 word6 Td_hold = GET_TD (cpu.cu.CT_HOLD);
                 cpu.rTAG = (TM_R | Td_hold);
-                updateIWB (cpu.TPR.CA, cpu.rTAG);
+                updateIWB (cpu_p, cpu.TPR.CA, cpu.rTAG);
                 goto startCA;
               } // TM_R
 
             case TM_RI:
               {
                 if (Td == TD_DU || Td == TD_DL)
-                  doFault (FAULT_IPR, fst_ill_mod,
+                  doFault (cpu_p, FAULT_IPR, fst_ill_mod,
                            "RI_MOD: Td == TD_DU || Td == TD_DL");
 
-                word18 Cr = get_Cr (Td);
+                word18 Cr = get_Cr (cpu_p, Td);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IR_MOD(TM_RI): Td=%o Cr=%06o TPR.CA(Before)=%06o\n",
@@ -724,13 +724,13 @@ startCA:;
                            cpu.TPR.CA);
 
                 // don't add register twice if next indirection faults
-                updateIWB (cpu.TPR.CA, (TM_RI|TD_N));
+                updateIWB (cpu_p, cpu.TPR.CA, (TM_RI|TD_N));
                 goto IR_MOD_2;
               } // TM_RI
 
             case TM_IR:
               {
-                updateIWB (cpu.TPR.CA, cpu.rTAG); // XXX guessing here...
+                updateIWB (cpu_p, cpu.TPR.CA, cpu.rTAG); // XXX guessing here...
                 goto IR_MOD_1;
               } // TM_IR
           } // Tm
@@ -761,7 +761,7 @@ startCA:;
             case SPEC_ITP:
             case SPEC_ITS:
               {
-                doFault(FAULT_IPR, fst_ill_mod, "ITx in IT_MOD)");
+                doFault(cpu_p, FAULT_IPR, fst_ill_mod, "ITx in IT_MOD)");
               }
 
             case 2:
@@ -769,24 +769,24 @@ startCA:;
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(): illegal procedure, illegal modifier, "
                            "fault Td=%o\n", Td);
-                doFault (FAULT_IPR, fst_ill_mod,
+                doFault (cpu_p, FAULT_IPR, fst_ill_mod,
                          "IT_MOD(): illegal procedure, illegal modifier, "
                          "fault");
               }
 
             case IT_F1:
               {
-                doFault(FAULT_F1, fst_zero, "IT_MOD: IT_F1");
+                doFault(cpu_p, FAULT_F1, fst_zero, "IT_MOD: IT_F1");
               }
 
             case IT_F2:
               {
-                doFault(FAULT_F2, fst_zero, "IT_MOD: IT_F2 (2)");
+                doFault(cpu_p, FAULT_F2, fst_zero, "IT_MOD: IT_F2 (2)");
               }
 
             case IT_F3:
               {
-                doFault(FAULT_F3, fst_zero, "IT_MOD: IT_F3");
+                doFault(cpu_p, FAULT_F3, fst_zero, "IT_MOD: IT_F3");
               }
 
 
@@ -810,7 +810,7 @@ startCA:;
 
                 word36 indword;
                 word18 indaddr = cpu.TPR.CA;
-                Read (indaddr, & indword, APU_DATA_READ);
+                Read (cpu_p, indaddr, & indword, APU_DATA_READ);
 #ifdef LOCKLESS
                 word24 phys_address = cpu.iefpFinalAddress;
 #endif
@@ -833,12 +833,12 @@ startCA:;
 
                 if (sz == TB6 && os > 5)
                   // generate an illegal procedure, illegal modifier fault
-                  doFault (FAULT_IPR, fst_ill_mod,
+                  doFault (cpu_p, FAULT_IPR, fst_ill_mod,
                            "co size == TB6 && offset > 5");
 
                 if (sz == TB9 && os > 3)
                   // generate an illegal procedure, illegal modifier fault
-                  doFault (FAULT_IPR, fst_ill_mod,
+                  doFault (cpu_p, FAULT_IPR, fst_ill_mod,
                            "co size == TB9 && offset > 3");
 
                 // Save data in OU registers for readOperands/writeOperands
@@ -915,9 +915,9 @@ startCA:;
 
 #ifdef LOCKLESSXXX
                 // gives warnings as another lock is aquired in between
-                Read (cpu.TPR.CA, & cpu.ou.character_data, (i->info->flags & RMW) == STORE_OPERAND ? OPERAND_RMW : OPERAND_READ);
+                Read (cpu_p, cpu.TPR.CA, & cpu.ou.character_data, (i->info->flags & RMW) == STORE_OPERAND ? OPERAND_RMW : OPERAND_READ);
 #else
-                Read (cpu.TPR.CA, & cpu.ou.character_data, OPERAND_READ);
+                Read (cpu_p, cpu.TPR.CA, & cpu.ou.character_data, OPERAND_READ);
 #endif
 #ifdef LOCKLESS
                 cpu.char_word_address = cpu.iefpFinalAddress;
@@ -966,10 +966,10 @@ startCA:;
                     //                    (((word36) tally & 07777) << 6) |
                     //                    cpu.ou.characterOperandSize |
                     //                    cpu.ou.characterOperandOffset);
-                    //Write (cpu.TPR.CA,  new_indword, APU_DATA_STORE);
+                    //Write (cpu_p, cpu.TPR.CA,  new_indword, APU_DATA_STORE);
 #ifdef LOCKLESS
                     word36 indword_new;
-                    core_read_lock(phys_address, &indword_new, __func__);
+                    core_read_lock(cpu_p, phys_address, &indword_new, __func__);
                     if (indword_new != indword)
                       sim_warn("indword changed from %llo to %llo\n", indword, indword_new);
 #endif
@@ -977,9 +977,9 @@ startCA:;
                     putbits36_12 (& indword, 18, tally);
                     putbits36_3  (& indword, 33, os);
 #ifdef LOCKLESS
-                    core_write_unlock(phys_address, indword, __func__);
+                    core_write_unlock(cpu_p, phys_address, indword, __func__);
 #else
-                    Write (indaddr, indword, APU_DATA_STORE);
+                    Write (cpu_p, indaddr, indword, APU_DATA_STORE);
 #endif
 
                     SC_I_TALLY (tally == 0);
@@ -1005,14 +1005,14 @@ startCA:;
                            cpu.TPR.CA);
 
                 //Read2 (cpu.TPR.CA, cpu.itxPair, INDIRECT_WORD_FETCH);
-                ReadIndirect ();
+                ReadIndirect (cpu_p);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_I): indword=%012"PRIo64"\n",
                            cpu.itxPair[0]);
 
                 cpu.TPR.CA = GET_ADDR (cpu.itxPair[0]);
-                updateIWB (cpu.TPR.CA, (TM_R|TD_N));
+                updateIWB (cpu_p, cpu.TPR.CA, (TM_R|TD_N));
                 return;
               } // IT_I
 
@@ -1038,7 +1038,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                Read (cpu_p, cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
                 delta = GET_DELTA (indword); // 6-bits
@@ -1068,9 +1068,9 @@ startCA:;
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
 #ifdef LOCKLESS
-                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu_p, cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                Write (cpu_p, saveCA, indword, APU_DATA_STORE);
 #endif
 
 #ifdef THREADZ
@@ -1083,7 +1083,7 @@ startCA:;
                            indword, saveCA);
 
                 cpu.TPR.CA = computedAddress;
-                updateIWB (cpu.TPR.CA, (TM_R|TD_N));
+                updateIWB (cpu_p, cpu.TPR.CA, (TM_R|TD_N));
                 return;
               } // IT_AD
 
@@ -1105,7 +1105,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                Read (cpu_p, cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_SD): reading indirect word from %06o\n",
@@ -1136,9 +1136,9 @@ startCA:;
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
 #ifdef LOCKLESS
-                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu_p, cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                Write (cpu_p, saveCA, indword, APU_DATA_STORE);
 #endif
 
 #ifdef THREADZ
@@ -1152,7 +1152,7 @@ startCA:;
 
 
                 cpu.TPR.CA = Yi;
-                updateIWB (cpu.TPR.CA, (TM_R|TD_N));
+                updateIWB (cpu_p, cpu.TPR.CA, (TM_R|TD_N));
                 return;
               } // IT_SD
 
@@ -1177,7 +1177,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                Read (cpu_p, cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 Yi = GETHI (indword);
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
@@ -1210,16 +1210,16 @@ startCA:;
                            indword, saveCA);
 
 #ifdef LOCKLESS
-                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu_p, cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                Write (cpu_p, saveCA, indword, APU_DATA_STORE);
 #endif
 
 #ifdef THREADZ
                 unlock_rmw ();
 #endif
                 cpu.TPR.CA = Yi;
-                updateIWB (cpu.TPR.CA, (TM_R|TD_N));
+                updateIWB (cpu_p, cpu.TPR.CA, (TM_R|TD_N));
                 return;
               } // IT_DI
 
@@ -1245,7 +1245,7 @@ startCA:;
 #endif
 
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                Read (cpu_p, cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 Yi = GETHI (indword);
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
@@ -1281,9 +1281,9 @@ startCA:;
                            indword, saveCA);
 
 #ifdef LOCKLESS
-                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu_p, cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                Write (cpu_p, saveCA, indword, APU_DATA_STORE);
 #endif
 
 #ifdef THREADZ
@@ -1291,7 +1291,7 @@ startCA:;
 #endif
 
                 cpu.TPR.CA = computedAddress;
-                updateIWB (cpu.TPR.CA, (TM_R|TD_N));
+                updateIWB (cpu_p, cpu.TPR.CA, (TM_R|TD_N));
                 return;
               } // IT_ID
 
@@ -1328,7 +1328,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                Read (cpu_p, cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 cpu.cu.pot = 0;
 
@@ -1365,9 +1365,9 @@ startCA:;
                            "addr %06o\n", indword, saveCA);
 
 #ifdef LOCKLESS
-                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu_p, cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                Write (cpu_p, saveCA, indword, APU_DATA_STORE);
 #endif
 
 #ifdef THREADZ
@@ -1394,7 +1394,7 @@ startCA:;
                   {
                      if (GET_TD (cpu.rTAG) != 0)
                        {
-                         doFault (FAULT_IPR, fst_ill_mod,
+                         doFault (cpu_p, FAULT_IPR, fst_ill_mod,
                                   "DIC Incorrect address modifier");
                        }
                   }
@@ -1403,9 +1403,9 @@ startCA:;
 // should be unchanged. ISOLTS ps791 test-02g
                 SC_I_TALLY (cpu.AM_tally == 0);
 #ifdef ISOLTS
-                updateIWB (YiSafe2, cpu.rTAG);
+                updateIWB (cpu_p, YiSafe2, cpu.rTAG);
 #else
-                updateIWB (cpu.TPR.CA, cpu.rTAG);
+                updateIWB (cpu_p, cpu.TPR.CA, cpu.rTAG);
 #endif
                 goto startCA;
               } // IT_DIC
@@ -1443,7 +1443,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                Read (cpu_p, cpu.TPR.CA, & indword, APU_DATA_RMW);
 
                 cpu.cu.pot = 0;
 
@@ -1478,9 +1478,9 @@ startCA:;
                            indword, saveCA);
 
 #ifdef LOCKLESS
-                core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
+                core_write_unlock(cpu_p, cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                Write (cpu_p, saveCA, indword, APU_DATA_STORE);
 #endif
 
 #ifdef THREADZ
@@ -1509,7 +1509,7 @@ startCA:;
                   {
                      if (GET_TD (cpu.rTAG) != 0)
                        {
-                         doFault (FAULT_IPR, fst_ill_mod,
+                         doFault (cpu_p, FAULT_IPR, fst_ill_mod,
                                   "IDC Incorrect address modifier");
                        }
                   }
@@ -1517,7 +1517,7 @@ startCA:;
 // Set the tally after the indirect word is processed; if it faults, the IR
 // should be unchanged. ISOLTS ps791 test-02f
                 SC_I_TALLY (cpu.AM_tally == 0);
-                updateIWB (cpu.TPR.CA, cpu.rTAG);
+                updateIWB (cpu_p, cpu.TPR.CA, cpu.rTAG);
 
                 goto startCA;
               } // IT_IDC

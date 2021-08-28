@@ -21,11 +21,11 @@
 #include <stdio.h>
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
 #include "dps8_scu.h"
+#include "dps8_cpu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
-#include "dps8_cpu.h"
+#include "dps8_faults.h"
 #include "dps8_append.h"
 #include "dps8_addrmods.h"
 #include "dps8_utils.h"
@@ -47,7 +47,7 @@
 #endif
 
 #if 0
-void set_apu_status (apuStatusBits status)
+void set_apu_status (cpu_p, cpu_state_t *cpu_p, apuStatusBits status)
   {
 #if 1
     word12 FCT = cpu.cu.APUCycleBits & MASK3;
@@ -157,7 +157,7 @@ static void selftest_ptwaw (void)
  * implement ldbr instruction
  */
 
-void do_ldbr (word36 * Ypair)
+void do_ldbr (cpu_state_t *cpu_p, word36 * Ypair)
   {
     CPTUR (cptUseDSBR);
 #ifdef WAM
@@ -234,7 +234,7 @@ void do_ldbr (word36 * Ypair)
 
 // CANFAULT
 
-static void fetch_dsptw (word15 segno)
+static void fetch_dsptw (cpu_state_t *cpu_p, word15 segno)
   {
     DBGAPP ("%s segno 0%o\n", __func__, segno);
     PNL (L68_ (cpu.apu.state |= apu_FDPT;))
@@ -245,10 +245,10 @@ static void fetch_dsptw (word15 segno)
         // generate access violation, out of segment bounds fault
         PNL (cpu.acvFaults |= ACV15;)
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
-        doFault (FAULT_ACV, fst_acv15,
+        doFault (cpu_p, FAULT_ACV, fst_acv15,
                  "acvFault: fetch_dsptw out of segment bounds fault");
       }
-    set_apu_status (apuStatus_DSPTW);
+    set_apu_status (cpu_p, apuStatus_DSPTW);
 
 #ifndef SPEED
     word24 y1 = (2u * segno) % 1024u;
@@ -259,7 +259,7 @@ static void fetch_dsptw (word15 segno)
     PNL (cpu.lastPTWIsDS = true;)
 
     word36 PTWx1;
-    core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+    core_read (cpu_p, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
 
     cpu.PTW0.ADDR = GETHI (PTWx1);
     cpu.PTW0.U = TSTBIT (PTWx1, 9);
@@ -269,7 +269,7 @@ static void fetch_dsptw (word15 segno)
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_FDSPTW);
+      add_APU_history (cpu_p, APUH_FDSPTW);
 #endif
 
     DBGAPP ("%s x1 0%o y1 0%o DSBR.ADDR 0%o PTWx1 0%012"PRIo64" "
@@ -285,12 +285,12 @@ static void fetch_dsptw (word15 segno)
 
 // CANFAULT
 
-static void modify_dsptw (word15 segno)
+static void modify_dsptw (cpu_state_t *cpu_p, word15 segno)
   {
 
     PNL (L68_ (cpu.apu.state |= apu_MDPT;))
 
-    set_apu_status (apuStatus_MDSPTW);
+    set_apu_status (cpu_p, apuStatus_MDSPTW);
 
     word24 x1 = (2u * segno) / 1024u; // floor
 
@@ -302,13 +302,13 @@ static void modify_dsptw (word15 segno)
 
     word36 PTWx1;
 #ifdef LOCKLESS
-    core_read_lock ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+    core_read_lock (cpu_p, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
     PTWx1 = SETBIT (PTWx1, 9);
-    core_write_unlock ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
+    core_write_unlock (cpu_p, (cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
 #else
-    core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+    core_read (cpu_p, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
     PTWx1 = SETBIT (PTWx1, 9);
-    core_write ((cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
+    core_write (cpu_p, (cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
 #endif
 
 #ifdef THREADZ
@@ -319,7 +319,7 @@ static void modify_dsptw (word15 segno)
     cpu.PTW0.U = 1;
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_MDSPTW);
+      add_APU_history (cpu_p, APUH_MDSPTW);
 #endif
   }
 
@@ -435,19 +435,19 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
  */
 // CANFAULT
 
-static void fetch_psdw (word15 segno)
+static void fetch_psdw (cpu_state_t *cpu_p, word15 segno)
   {
     DBGAPP ("%s(0):segno=%05o\n",
             __func__, segno);
 
     PNL (L68_ (cpu.apu.state |= apu_FSDP;))
 
-    set_apu_status (apuStatus_SDWP);
+    set_apu_status (cpu_p, apuStatus_SDWP);
     word24 y1 = (2 * segno) % 1024;
 
     word36 SDWeven, SDWodd;
 
-    core_read2 (((((word24) cpu.PTW0.ADDR & 0777760) << 6) + y1) & PAMASK,
+    core_read2 (cpu_p, ((((word24) cpu.PTW0.ADDR & 0777760) << 6) + y1) & PAMASK,
                 & SDWeven, & SDWodd, __func__);
 
     // even word
@@ -471,7 +471,7 @@ static void fetch_psdw (word15 segno)
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_FSDWP);
+      add_APU_history (cpu_p, APUH_FSDWP);
 #endif
     DBGAPP ("%s y1 0%o p->ADDR 0%o SDW 0%012"PRIo64" 0%012"PRIo64" "
             "ADDR %o R %o%o%o BOUND 0%o REWPUGC %o%o%o%o%o%o%o "
@@ -487,13 +487,13 @@ static void fetch_psdw (word15 segno)
 // Fetches an SDW from an unpaged descriptor segment.
 // CANFAULT
 
-static void fetch_nsdw (word15 segno)
+static void fetch_nsdw (cpu_state_t *cpu_p, word15 segno)
   {
     DBGAPP ("%s (0):segno=%05o\n", __func__, segno);
 
     PNL (L68_ (cpu.apu.state |= apu_FSDN;))
 
-    set_apu_status (apuStatus_SDWNP);
+    set_apu_status (cpu_p, apuStatus_SDWNP);
 
     if (2 * segno >= 16 * (cpu.DSBR.BND + 1))
       {
@@ -503,14 +503,14 @@ static void fetch_nsdw (word15 segno)
         // generate access violation, out of segment bounds fault
         PNL (cpu.acvFaults |= ACV15;)
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
-        doFault (FAULT_ACV, fst_acv15,
+        doFault (cpu_p, FAULT_ACV, fst_acv15,
                  "acvFault fetch_dsptw: out of segment bounds fault");
       }
     DBGAPP ("%s (2):fetching SDW from %05o\n",
             __func__, cpu.DSBR.ADDR + 2u * segno);
 
     word36 SDWeven, SDWodd;
-    core_read2 ((cpu.DSBR.ADDR + 2u * segno) & PAMASK,
+    core_read2 (cpu_p, (cpu.DSBR.ADDR + 2u * segno) & PAMASK,
                 & SDWeven, & SDWodd, __func__);
 
     // even word
@@ -534,7 +534,7 @@ static void fetch_nsdw (word15 segno)
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (0 /* No fetch no paged bit */);
+      add_APU_history (cpu_p, 0 /* No fetch no paged bit */);
 #endif
 #ifndef SPEED
     char buf[256];
@@ -620,7 +620,7 @@ static uint to_be_discarded_am (word6 LRU)
  * load the current in-core SDW0 into the SDWAM ...
  */
 
-static void load_sdwam (word15 segno, UNUSED bool nomatch)
+static void load_sdwam (cpu_state_t *cpu_p, word15 segno, UNUSED bool nomatch)
   {
 #ifndef WAM
     cpu.SDW0.POINTER = segno;
@@ -806,13 +806,13 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
   }
 #endif // WAM
 
-static void fetch_ptw (sdw_s *sdw, word18 offset)
+static void fetch_ptw (cpu_state_t *cpu_p, sdw_s *sdw, word18 offset)
   {
     // AL39 p.5-7
     // Fetches a PTW from a page table other than a descriptor segment page
     // table and sets the page accessed bit (PTW.U)
     PNL (L68_ (cpu.apu.state |= apu_FPTW;))
-    set_apu_status (apuStatus_PTW);
+    set_apu_status (cpu_p, apuStatus_PTW);
 
 #ifndef SPEED
     word24 y2 = offset % 1024;
@@ -832,9 +832,9 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
       lock_rmw ();
 #endif
 #ifdef LOCKLESS
-    core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+    core_read_lock (cpu_p, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
 #else
-    core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+    core_read (cpu_p, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
 #endif
 
     cpu.PTW0.ADDR = GETHI (PTWx2);
@@ -850,9 +850,9 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
       {
         PTWx2 = SETBIT (PTWx2, 9);
 #ifdef LOCKLESS
-        core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+        core_write_unlock (cpu_p, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #else
-        core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+        core_write (cpu_p, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #endif
         cpu.PTW0.U = 1;
       }
@@ -864,7 +864,7 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_FPTW);
+      add_APU_history (cpu_p, APUH_FPTW);
 #endif
 
     DBGAPP ("%s x2 0%o y2 0%o sdw->ADDR 0%o PTWx2 0%012"PRIo64" "
@@ -873,7 +873,7 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
             cpu.PTW0.M, cpu.PTW0.DF, cpu.PTW0.FC);
   }
 
-static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
+static void loadPTWAM (cpu_state_t *cpu_p, word15 segno, word18 offset, UNUSED bool nomatch)
   {
 #ifndef WAM
     cpu.PTW0.PAGENO = (offset >> 6) & 07760;
@@ -984,7 +984,7 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
  * modify target segment PTW (Set M=1) ...
  */
 
-static void modify_ptw (sdw_s *sdw, word18 offset)
+static void modify_ptw (cpu_state_t *cpu_p, sdw_s *sdw, word18 offset)
   {
     PNL (L68_ (cpu.apu.state |= apu_MPTW;))
     //word24 y2 = offset % 1024;
@@ -992,7 +992,7 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
 
     word36 PTWx2;
 
-    set_apu_status (apuStatus_MPTW);
+    set_apu_status (cpu_p, apuStatus_MPTW);
 
 #ifdef THREADZ
     bool lck = get_rmw_lock ();
@@ -1000,13 +1000,13 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
       lock_rmw ();
 #endif
 #ifdef LOCKLESS
-    core_read_lock ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+    core_read_lock (cpu_p, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
-    core_write_unlock ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+    core_write_unlock (cpu_p, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #else
-    core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+    core_read (cpu_p, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
-    core_write ((sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+    core_write (cpu_p, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
 #endif
 #ifdef THREADZ
     if (! lck)
@@ -1015,14 +1015,14 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
     cpu.PTW->M = 1;
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_MPTW);
+      add_APU_history (cpu_p, APUH_MPTW);
 #endif
   }
 
-static void do_ptw2 (sdw_s *sdw, word18 offset)
+static void do_ptw2 (cpu_state_t *cpu_p, sdw_s *sdw, word18 offset)
   {
     PNL (L68_ (cpu.apu.state |= apu_FPTW2;))
-    set_apu_status (apuStatus_PTW2);
+    set_apu_status (cpu_p, apuStatus_PTW2);
 
 #ifndef SPEED
     word24 y2 = offset % 1024;
@@ -1033,7 +1033,7 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
 
     DBGAPP ("%s address %08o\n", __func__, sdw->ADDR + x2 + 1);
 
-    core_read ((sdw->ADDR + x2 + 1) & PAMASK, & PTWx2n, __func__);
+    core_read (cpu_p, (sdw->ADDR + x2 + 1) & PAMASK, & PTWx2n, __func__);
 
     ptw_s PTW2;
     PTW2.ADDR = GETHI (PTWx2n);
@@ -1044,7 +1044,7 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_FPTW2);
+      add_APU_history (cpu_p, APUH_FPTW2);
 #endif
 
     DBGAPP ("%s x2 0%o y2 0%o sdw->ADDR 0%o PTW2 0%012"PRIo64" "
@@ -1058,7 +1058,7 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
        //Is PTW2.F set ON?
        if (! PTW2.DF)
            // initiate a directed fault
-           doFault (FAULT_DF0 + PTW2.FC, fst_zero, "PTW2.F == 0");
+           doFault (cpu_p, FAULT_DF0 + PTW2.FC, fst_zero, "PTW2.F == 0");
 
   }
 
@@ -1212,7 +1212,7 @@ static char *str_pct (processor_cycle_type t)
 
 // CANFAULT
 
-word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
+word24 do_append_cycle (cpu_state_t *cpu_p, processor_cycle_type thisCycle, word36 * data,
                       uint nWords)
   {
     DCDstruct * i = & cpu.currentInstruction;
@@ -1294,7 +1294,7 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
     //   implying that control is always transferred into ring 0.
     //
     if (thisCycle == RTCD_OPERAND_FETCH &&
-        get_addr_mode() == ABSOLUTE_mode &&
+        get_addr_mode(cpu_p) == ABSOLUTE_mode &&
         ! (cpu.cu.XSF || cpu.currentInstruction.b29) /*get_went_appending()*/)
       {
         cpu.TPR.TSR = 0;
@@ -1334,19 +1334,19 @@ A:;
 
         if (cpu.DSBR.U == 0)
           {
-            fetch_dsptw (cpu.TPR.TSR);
+            fetch_dsptw (cpu_p, cpu.TPR.TSR);
 
             if (! cpu.PTW0.DF)
-              doFault (FAULT_DF0 + cpu.PTW0.FC, fst_zero,
+              doFault (cpu_p, FAULT_DF0 + cpu.PTW0.FC, fst_zero,
                        "do_append_cycle(A): PTW0.F == 0");
 
             if (! cpu.PTW0.U)
-              modify_dsptw (cpu.TPR.TSR);
+              modify_dsptw (cpu_p, cpu.TPR.TSR);
 
-            fetch_psdw (cpu.TPR.TSR);
+            fetch_psdw (cpu_p, cpu.TPR.TSR);
           }
         else
-          fetch_nsdw (cpu.TPR.TSR); // load SDW0 from descriptor segment table.
+          fetch_nsdw (cpu_p, cpu.TPR.TSR); // load SDW0 from descriptor segment table.
 
         if (cpu.SDW0.DF == 0)
           {
@@ -1355,11 +1355,11 @@ A:;
                 DBGAPP ("do_append_cycle(A): SDW0.F == 0! "
                         "Initiating directed fault\n");
                 // initiate a directed fault ...
-                doFault (FAULT_DF0 + cpu.SDW0.FC, fst_zero, "SDW0.F == 0");
+                doFault (cpu_p, FAULT_DF0 + cpu.SDW0.FC, fst_zero, "SDW0.F == 0");
               }
           }
         // load SDWAM .....
-        load_sdwam (cpu.TPR.TSR, nomatch);
+        load_sdwam (cpu_p, cpu.TPR.TSR, nomatch);
       }
     DBGAPP ("do_append_cycle(A) R1 %o R2 %o R3 %o E %o\n",
             cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
@@ -1786,7 +1786,7 @@ G:;
         DBGAPP ("do_append_cycle(G) acvFaults\n");
         PNL (L68_ (cpu.apu.state |= apu_FLT;))
         // Initiate an access violation fault
-        doFault (FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults},
+        doFault (cpu_p, FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults},
                  "ACV fault");
       }
 
@@ -1803,17 +1803,17 @@ G:;
         ! fetch_ptw_from_ptwam (cpu.SDW->POINTER, cpu.TPR.CA))  //TPR.CA))
 #endif
       {
-        fetch_ptw (cpu.SDW, cpu.TPR.CA);
+        fetch_ptw (cpu_p, cpu.SDW, cpu.TPR.CA);
         if (! cpu.PTW0.DF)
           {
             if (thisCycle != ABSA_CYCLE)
               {
                 // initiate a directed fault
-                doFault (FAULT_DF0 + cpu.PTW0.FC, (_fault_subtype) {.bits=0},
+                doFault (cpu_p, FAULT_DF0 + cpu.PTW0.FC, (_fault_subtype) {.bits=0},
                          "PTW0.F == 0");
               }
           }
-        loadPTWAM (cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
+        loadPTWAM (cpu_p, cpu.SDW->POINTER, cpu.TPR.CA, nomatch); // load PTW0 to PTWAM
       }
 
     // Prepage mode?
@@ -1824,7 +1824,7 @@ G:;
     if (i->opcodeX && ((i->opcode & 0770)== 0200|| (i->opcode & 0770) == 0220
         || (i->opcode & 0770)== 020|| (i->opcode & 0770) == 0300))
       {
-        do_ptw2 (cpu.SDW, cpu.TPR.CA);
+        do_ptw2 (cpu_p, cpu.SDW, cpu.TPR.CA);
       }
     goto I;
 
@@ -1840,20 +1840,20 @@ H:;
     PNL (L68_ (cpu.apu.state |= apu_FANP;))
 #if 0
     // ISOLTS pa865 test-01a 101232
-    if (get_bar_mode ())
+    if (get_bar_mode (cpu_p))
       {
-        set_apu_status (apuStatus_FABS);
+        set_apu_status (cpu_p, apuStatus_FABS);
       }
     else
       ....
 #endif
-    set_apu_status (apuStatus_FANP);
+    set_apu_status (cpu_p, apuStatus_FANP);
 
     DBGAPP ("do_append_cycle(H): SDW->ADDR=%08o CA=%06o \n",
             cpu.SDW->ADDR, cpu.TPR.CA);
 
     if (thisCycle == RTCD_OPERAND_FETCH &&
-        get_addr_mode () == ABSOLUTE_mode &&
+        get_addr_mode (cpu_p) == ABSOLUTE_mode &&
         ! (cpu.cu.XSF || cpu.currentInstruction.b29) /*get_went_appending ()*/)
       {
         finalAddress = cpu.TPR.CA;
@@ -1885,11 +1885,11 @@ I:;
     if (StrOp && cpu.PTW->M == 0)  // is this the right way to do this?
 #endif
       {
-       modify_ptw (cpu.SDW, cpu.TPR.CA);
+       modify_ptw (cpu_p, cpu.SDW, cpu.TPR.CA);
       }
 
     // final address paged
-    set_apu_status (apuStatus_FAP);
+    set_apu_status (cpu_p, apuStatus_FAP);
     PNL (L68_ (cpu.apu.state |= apu_FAP;))
 
     word24 y2 = cpu.TPR.CA % 1024;
@@ -1902,7 +1902,7 @@ I:;
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_FAP);
+      add_APU_history (cpu_p, APUH_FAP);
 #endif
     DBGAPP ("do_append_cycle(H:FAP): (%05o:%06o) finalAddress=%08o\n",
             cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
@@ -1923,27 +1923,27 @@ HI:
 
     if (thisCycle == OPERAND_STORE && cpu.useZone)
       {
-        core_write_zone (finalAddress, * data, str_pct (thisCycle));
+        core_write_zone (cpu_p, finalAddress, * data, str_pct (thisCycle));
       }
     else if (StrOp)
       {
-        core_writeN (finalAddress, data, nWords, str_pct (thisCycle));
+        core_writeN (cpu_p, finalAddress, data, nWords, str_pct (thisCycle));
       }
     else
       {
 #ifdef LOCKLESS
         if ((thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) && nWords == 1)
           {
-            core_read_lock (finalAddress, data, str_pct (thisCycle));
+            core_read_lock (cpu_p, finalAddress, data, str_pct (thisCycle));
           }
         else
           {
             if (thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
               sim_warn("do_append_cycle: RMW nWords %d !=1\n", nWords);
-            core_readN (finalAddress, data, nWords, str_pct (thisCycle));
+            core_readN (cpu_p, finalAddress, data, nWords, str_pct (thisCycle));
           }
 #else
-        core_readN (finalAddress, data, nWords, str_pct (thisCycle));
+        core_readN (cpu_p, finalAddress, data, nWords, str_pct (thisCycle));
 #endif
       }
 
@@ -2088,10 +2088,10 @@ L:; // Transfer or instruction fetch
         cpu.PR[n].RNR = cpu.PPR.PRR;
 // According the AL39, the PSR is 'undefined' in absolute mode.
 // ISOLTS thinks means don't change the operand
-        if (get_addr_mode () == APPEND_mode)
+        if (get_addr_mode (cpu_p) == APPEND_mode)
           cpu.PR[n].SNR = cpu.PPR.PSR;
         cpu.PR[n].WORDNO = (cpu.PPR.IC + 1) & MASK18;
-        SET_PR_BITNO (n, 0);
+        SET_PR_BITNO (cpu_p, n, 0);
         HDBGRegPR (n);
       }
 
@@ -2180,7 +2180,7 @@ N: // CALL6
     // 00...0 -> C(PR7.WORDNO)
     cpu.PR[7].WORDNO = 0;
     // 000000 -> C(PR7.BITNO)
-    SET_PR_BITNO (7, 0);
+    SET_PR_BITNO (cpu_p, 7, 0);
     HDBGRegPR (7);
     // C(TPR.TRR) -> C(PPR.PRR)
     cpu.PPR.PRR = cpu.TPR.TRR;
@@ -2244,7 +2244,7 @@ Exit:;
 // Translate a segno:offset to a absolute address.
 // Return 0 if successful.
 
-int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
+int dbgLookupAddress (cpu_state_t *cpu_p, word18 segno, word18 offset, word24 * finalAddress,
                       char * * msg)
   {
     // Local copies so we don't disturb machine state
@@ -2267,7 +2267,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
         word24 x1 = (2 * segno) / 1024; // floor
 
         word36 PTWx1;
-        core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+        core_read (cpu_p, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
 
         PTW1.ADDR = GETHI (PTWx1);
         PTW1.U = TSTBIT (PTWx1, 9);
@@ -2288,7 +2288,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
 
         word36 SDWeven, SDWodd;
 
-        core_read2 (((((word24)PTW1. ADDR & 0777760) << 6) + y1) & PAMASK,
+        core_read2 (cpu_p, ((((word24)PTW1. ADDR & 0777760) << 6) + y1) & PAMASK,
                     & SDWeven, & SDWodd, __func__);
 
         // even word
@@ -2316,7 +2316,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
 
         word36 SDWeven, SDWodd;
 
-        core_read2 ((cpu.DSBR.ADDR + 2 * segno) & PAMASK,
+        core_read2 (cpu_p, (cpu.DSBR.ADDR + 2 * segno) & PAMASK,
                     & SDWeven, & SDWodd, __func__);
 
         // even word
@@ -2367,7 +2367,7 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
 
         word36 PTWx2;
 
-        core_read ((SDW1.ADDR + x2) & PAMASK, & PTWx2, __func__);
+        core_read (cpu_p, (SDW1.ADDR + x2) & PAMASK, & PTWx2, __func__);
 
         PTW1.ADDR = GETHI (PTWx2);
         PTW1.U = TSTBIT (PTWx2, 9);

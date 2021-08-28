@@ -28,10 +28,10 @@
 #include "dps8_iom.h"
 #include "dps8_prt.h"
 #include "dps8_sys.h"
+#include "dps8_cpu.h"
 #include "dps8_faults.h"
 #include "dps8_scu.h"
 #include "dps8_cable.h"
-#include "dps8_cpu.h"
 #include "dps8_utils.h"
 #include "utfile.h"
 
@@ -546,10 +546,10 @@ static int prt_read_status_register (UNUSED uint dev_unit_idx, uint iom_unit_idx
 #else
     for (uint i = 0; i < tally; i ++)
       //M[daddr + i] = 0;
-      core_write (daddr + i, 0, "Disk status register");
+      core_write (cpu_p, daddr + i, 0, "Disk status register");
 
     //M[daddr] = SIGN36;
-    core_write (daddr, SIGN36, "Disk status register");
+    core_write (cpu_p, daddr, SIGN36, "Disk status register");
 #endif
     p -> charPos = 0;
     p -> stati = 04000;
