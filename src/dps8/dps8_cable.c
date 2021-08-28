@@ -103,14 +103,14 @@
 
 #include "dps8.h"
 #include "dps8_simh.h"
-#include "dps8_iom.h"
 #include "dps8_mt.h"
 #include "dps8_socket_dev.h"
 #include "dps8_scu.h"
 #include "dps8_sys.h"
+#include "dps8_cpu.h"
+#include "dps8_iom.h"
 #include "dps8_faults.h"
 #include "dps8_cable.h"
-#include "dps8_cpu.h"
 #include "dps8_state.h"
 #include "dps8_console.h"
 #include "dps8_disk.h"
@@ -329,6 +329,7 @@ static t_stat back_cable_cpu_to_scu (int uncable, uint cpu_unit_idx, uint cpu_po
 
 static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_num, uint scu_subport_num, uint cpu_unit_idx, uint cpu_port_num, bool is_exp)
   {
+    cpu_state_t * cpu_p = cpus + cpu_unit_idx;
     struct scu_to_cpu_s * p = & cables->scu_to_cpu[scu_unit_idx][scu_port_num][scu_subport_num];
     if (uncable)
       {
@@ -383,7 +384,8 @@ static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_nu
         cpus[cpu_unit_idx].scu_port[scu_unit_idx] = scu_port_num;
       }
     // Taking this out breaks the unit test segment loader.
-    setup_scbank_map ();
+    setup_scbank_map (cpu_p);
+
     return SCPE_OK;
   }
 

@@ -543,11 +543,11 @@
 #include <sys/time.h>
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
 #include "dps8_scu.h"
+#include "dps8_cpu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
-#include "dps8_cpu.h"
+#include "dps8_faults.h"
 #include "dps8_utils.h"
 #if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
@@ -1163,6 +1163,7 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
 // allowing reproducible behavior. In real, the clock is
 // coupled to the actual time-of-day.
 
+#if 0
     if (scu [0].steady_clock)
       {
         // The is a bit of code that is waiting for 5000 ms; this
@@ -1224,6 +1225,7 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
         scu [scu_unit_idx].last_time = Multics_usecs;
         goto done;
       }
+#endif
 
     // The calendar clock consists of a 52-bit register which counts
     // microseconds and is readable as a double-precision integer by a
@@ -1311,7 +1313,7 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
         Multics_usecs = scu [scu_unit_idx].last_time + 1;
     scu [scu_unit_idx].last_time = Multics_usecs;
 
-done:
+//done:
 #if defined(THREADZ) || defined(LOCKLESS)
     pthread_mutex_unlock (& clock_lock);
 #endif
@@ -1764,8 +1766,8 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
         case 00005:
           {
             // AQ: 20-35 clock bits 0-15, 36-71 clock bits 16-51
-            word16 b0_15 = (word16) getbits36_16 (cpu.rA, 20);
-            word36 b16_51 = cpu.rQ;
+            word16 b0_15 = (word16) getbits36_16 (rega, 20);
+            word36 b16_51 = regq;
             uint64 new_clk = (((uint64) b0_15) << 36) | b16_51;
 #if defined(THREADZ) || defined(LOCKLESS)
             lock_scu ();
@@ -2038,9 +2040,13 @@ gotit:;
         case 00005:
           {
             uint64 clk = set_SCU_clock (scu_unit_idx);
-            cpu.rQ =  clk & 0777777777777;     // lower 36-bits of clock
-            cpu.rA = (clk >> 36) & 0177777;    // upper 16-bits of clock
-            HDBGRegA ();
+            * regq =  clk & 0777777777777;     // lower 36-bits of clock
+            * regq = (clk >> 36) & 0177777;    // upper 16-bits of clock
+            // cpu_p not here
+            // HDBGRegA ();
+#ifdef HDBG
+	hdbgReg (hreg_A, * rega);
+#endif
           }
         break;
 

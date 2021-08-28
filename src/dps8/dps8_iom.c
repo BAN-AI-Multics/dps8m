@@ -214,11 +214,11 @@
 
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
 #include "dps8_scu.h"
+#include "dps8_cpu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
-#include "dps8_cpu.h"
+#include "dps8_faults.h"
 #include "dps8_console.h"
 #include "dps8_fnp2.h"
 #include "dps8_utils.h"
@@ -348,6 +348,13 @@ typedef struct
     iom_status_t iomStatus;
 
     uint invokingScuUnitIdx; // the unit number of the SCU that did the connect.
+
+    unsigned long long lockCnt;
+    unsigned long long lockImmediate;
+    unsigned long long lockWait;
+    unsigned long long lockWaitMax;
+    unsigned long long lockYield;
+
   } iom_unit_data_t;
 
 static iom_unit_data_t iom_unit_data[N_IOM_UNITS_MAX];
@@ -532,7 +539,7 @@ void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36
 #endif
   }
 
-void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
+void iom_core_write (uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
   {
 #ifdef THREADZ
 #ifdef lockread
@@ -540,7 +547,7 @@ void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED 
 #endif
 #endif
 #ifdef LOCKLESS
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, iom_unit_data + iom_unit_idx);
     STORE_REL_CORE_WORD(addr, data);
 #else
     M[addr] = data & DMASK;
@@ -552,7 +559,7 @@ void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED 
 #endif
   }
 
-void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
+void iom_core_write2 (uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
   {
 #ifdef THREADZ
 #ifdef lockread
@@ -560,10 +567,10 @@ void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36
 #endif
 #endif
 #ifdef LOCKLESS
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, iom_unit_data + iom_unit_idx);
     STORE_REL_CORE_WORD(addr, even);
     addr++;
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, iom_unit_data + iom_unit_idx);
     STORE_REL_CORE_WORD(addr, odd);
 #else
     M[addr ++] = even;
@@ -578,10 +585,10 @@ void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36
 #endif
 
 
-void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
+void iom_core_read_lock (uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, iom_unit_data + iom_unit_idx);
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
@@ -1345,7 +1352,7 @@ static t_stat iom_boot (int unitNum, UNUSED DEVICE * dptr)
 #if defined(THREADZ) || defined(LOCKLESS)
     sim_activate (& boot_channel_unit[iom_unit_idx], 1);
 #else
-    sim_activate (& boot_channel_unit[iom_unit_idx], 1000);
+    sim_activate (& boot_channel_unit[iom_unit_idx], 1);
 #endif
     // returning OK from the simh BOOT command causes simh to start the CPU
 #endif
@@ -1400,7 +1407,7 @@ static map_t  iomScbankMap[N_IOM_UNITS_MAX][N_SCBANKS];
 
 static void setupIOMScbankMap (uint iom_unit_idx)
   {
-    sim_debug (DBG_DEBUG, & cpu_dev,
+    sim_debug (DBG_DEBUG, & iom_dev,
       "%s: setupIOMScbankMap: SCBANK %d N_SCBANKS %d MEM_SIZE_MAX %d\n",
       __func__, SCBANK, N_SCBANKS, MEM_SIZE_MAX);
 
@@ -1429,14 +1436,13 @@ static void setupIOMScbankMap (uint iom_unit_idx)
 
         // Calculate the base address of the memory in words
         uint assignment = p -> configSwPortAddress[port_num];
-        //uint assignment = cpu.switches.assignment[port_num];
         uint base = assignment * sz;
 
         // Now convert to SCBANKs
         sz = sz / SCBANK;
         uint scbase = base / SCBANK;
 
-        sim_debug (DBG_DEBUG, & cpu_dev,
+        sim_debug (DBG_DEBUG, & iom_dev,
           "%s: unit:%u port:%d ss:%u as:%u sz:%u ba:%u\n",
           __func__, iom_unit_idx, port_num, store_size, assignment, sz,
           scbase);
@@ -3350,10 +3356,10 @@ int send_terminate_interrupt (uint iom_unit_idx, uint chan)
 
 void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx)
   {
-    sim_debug (DBG_DEBUG, & iom_dev,
-               "%s: IOM %c starting. [%"PRId64"] %05o:%08o\n",
-               __func__, 'A' + iom_unit_idx,
-               cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC);
+    //sim_debug (DBG_DEBUG, & iom_dev,
+               //"%s: IOM %c starting. [%"PRId64"] %05o:%08o\n",
+               //__func__, 'A' + iom_unit_idx,
+               //cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC);
 
     iom_unit_data[iom_unit_idx].invokingScuUnitIdx = scu_unit_idx;
 

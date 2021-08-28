@@ -22,13 +22,13 @@
 #include <unistd.h>
 
 #include "dps8.h"
-#include "dps8_addrmods.h"
 #include "dps8_sys.h"
-#include "dps8_faults.h"
 #include "dps8_scu.h"
+#include "dps8_cpu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
-#include "dps8_cpu.h"
+#include "dps8_faults.h"
+#include "dps8_addrmods.h"
 #include "dps8_append.h"
 #include "dps8_ins.h"
 #include "dps8_state.h"
@@ -47,6 +47,8 @@
 #include "sim_defs.h"
 #if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
+
+static void add_CU_history (cpu_state_t *cpu_p);
 
 __thread uint current_running_cpu_idx;
 #endif
@@ -596,7 +598,7 @@ static char * cycle_str (cycles_e cycle)
       }
   }
 
-static void set_cpu_cycle (cycles_e cycle)
+static void set_cpu_cycle (cpu_state_t *cpu_p, cycles_e cycle)
   {
     sim_debug (DBG_CYCLE, & cpu_dev, "Setting cycle to %s\n",
                cycle_str (cycle));
@@ -622,6 +624,7 @@ uint set_cpu_idx (UNUSED uint cpu_idx)
 
 void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
   {
+    cpu_state_t * cpu_p = cpus + cpun;
     uint save = set_cpu_idx (cpun);
     if (clear_mem)
       {
@@ -665,14 +668,14 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     cpu.rTR = MASK27;
     cpu.rTRticks = 0;
 
-    set_addr_mode (ABSOLUTE_mode);
+    set_addr_mode (cpu_p, ABSOLUTE_mode);
     SET_I_NBAR;
 
     cpu.CMR.luf = 3;    // default of 16 mS
     cpu.cu.SD_ON = cpu.switches.disable_wam ? 0 : 1;
     cpu.cu.PT_ON = cpu.switches.disable_wam ? 0 : 1;
 
-    set_cpu_cycle (FETCH_cycle);
+    set_cpu_cycle (cpu_p, FETCH_cycle);
 
     cpu.wasXfer = false;
     cpu.wasInhibited = false;
@@ -689,9 +692,9 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
 
     memset (& cpu.PPR, 0, sizeof (struct ppr_s));
 
-    setup_scbank_map ();
+    setup_scbank_map (cpu_p);
 
-    tidy_cu ();
+    tidy_cu (cpu_p);
     set_cpu_idx (save);
 #ifdef THREADZ
     fence ();
@@ -730,6 +733,7 @@ static t_stat simh_cpu_reset_unit (UNIT * uptr,
                                    UNUSED void * desc)
   {
     long cpu_unit_idx = UNIT_IDX (uptr);
+    //cpu_state_t * cpu_p = cpus + cpu_unit_idx;
     cpu_reset_unit_idx ((uint) cpu_unit_idx, false); // no clear memory
     return SCPE_OK;
   }
@@ -935,7 +939,7 @@ static t_stat cpu_boot (UNUSED int32 cpu_unit_idx, UNUSED DEVICE * dptr)
     return SCPE_ARG;
   }
 
-void setup_scbank_map (void)
+void setup_scbank_map (cpu_state_t *cpu_p)
   {
     sim_debug (DBG_DEBUG, & cpu_dev,
                "setup_scbank_map: SCBANK %d N_SCBANKS %d MEM_SIZE_MAX %d\n",
@@ -1042,7 +1046,7 @@ void setup_scbank_map (void)
   }
 
 #ifdef SCUMEM
-int lookup_cpu_mem_map (word24 addr, word24 * offset)
+int lookup_cpu_mem_map (cpu_state_t *cpu_p, word24 addr, word24 * offset)
   {
     uint scpg = addr / SCBANK;
     if (scpg < N_SCBANKS)
@@ -1053,7 +1057,7 @@ int lookup_cpu_mem_map (word24 addr, word24 * offset)
     return -1;
   }
 #else
-int lookup_cpu_mem_map (word24 addr)
+int lookup_cpu_mem_map (cpu_state_t *cpu_p, word24 addr)
   {
     uint scpg = addr / SCBANK;
     if (scpg < N_SCBANKS)
@@ -1071,7 +1075,7 @@ int lookup_cpu_mem_map (word24 addr)
 //  Additional numbers will be for multi-cpu systems.
 //  Other fields to be added.
 
-static void get_serial_number (void)
+static void get_serial_number (cpu_state_t *cpu_p)
   {
     bool havesn = false;
     FILE * fp = fopen ("./serial.txt", "r");
@@ -1165,9 +1169,10 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
 #ifdef STATS
         do_stats ();
 #endif
+#if 0 // cpu_p not meaningful here.
         cpu.instrCntT0 = cpu.instrCntT1;
         cpu.instrCntT1 = cpu.instrCnt;
-
+#endif
       }
     fnpProcessEvent ();
 #ifndef __MINGW64__
@@ -1188,7 +1193,7 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
 
 // called once initialization
 
-void cpu_init (void)
+void cpu_init (cpu_state_t *cpu_p)
   {
 
 // !!!! Do not use 'cpu' in this routine; usage of 'cpus' violates 'restrict'
@@ -1241,7 +1246,7 @@ void cpu_init (void)
     memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
     cpus [0].switches.FLT_BASE = 2; // Some of the UnitTests assume this
 
-    get_serial_number ();
+    get_serial_number (cpu_p);
 
 #ifndef NO_EV_POLL
     ev_poll_loop = uv_default_loop ();
@@ -1252,10 +1257,10 @@ void cpu_init (void)
 
     // TODO: reset *all* other structures to zero
 
-    cpu.instrCnt = 0;
-    cpu.cycleCnt = 0;
+    cpus[ASSUME0].instrCnt = 0;
+    cpus[ASSUME0].cycleCnt = 0;
     for (int i = 0; i < N_FAULTS; i ++)
-      cpu.faultCnt [i] = 0;
+      cpus[ASSUME0].faultCnt [i] = 0;
 
 
 #ifdef MATRIX
@@ -1263,7 +1268,7 @@ void cpu_init (void)
 #endif
   }
 
-static void cpu_reset (void)
+static void cpu_reset (cpu_state_t *cpu_p)
   {
     for (uint i = 0; i < N_CPU_UNITS_MAX; i ++)
       {
@@ -1284,7 +1289,7 @@ static t_stat sim_cpu_reset (UNUSED DEVICE *dptr)
     // marking the memory as uninitialized.
 
 
-    cpu_reset ();
+    // cpu_reset (cpu_p);
     return SCPE_OK;
   }
 
@@ -1305,7 +1310,7 @@ static t_stat cpu_ex (t_value *vptr, t_addr addr, UNUSED UNIT * uptr,
       {
 #ifdef SCUMEM
         word36 w;
-        core_read (addr, & w, __func__);
+        core_read (cpu_p, addr, & w, __func__);
         *vptr = w;
 #else
         *vptr = M[addr] & DMASK;
@@ -1322,7 +1327,7 @@ static t_stat cpu_dep (t_value val, t_addr addr, UNUSED UNIT * uptr,
     if (addr >= MEMSIZE) return SCPE_NXM;
 #ifdef SCUMEM
     word36 w = val & DMASK;
-    core_write (addr, w, __func__);
+    core_write (cpu_p, addr, w, __func__);
 #else
     M[addr] = val & DMASK;
 #endif
@@ -1410,7 +1415,7 @@ uint current_running_cpu_idx;
 
 // Called with SCU lock set
 
-static uint get_highest_intr (void)
+static uint get_highest_intr (cpu_state_t *cpu_p)
   {
     uint fp = 1;
     for (uint scu_unit_idx = 0; scu_unit_idx < N_SCU_UNITS_MAX; scu_unit_idx ++)
@@ -1425,7 +1430,7 @@ static uint get_highest_intr (void)
     return fp;
   }
 
-bool sample_interrupts (void)
+bool sample_interrupts (cpu_state_t *cpu_p)
   {
     cpu.lufCounter = 0;
     for (uint scu_unit_idx = 0; scu_unit_idx < N_SCU_UNITS_MAX; scu_unit_idx ++)
@@ -1510,7 +1515,7 @@ static void panel_process_event (void)
           {
             cpu_reset_unit_idx (ASSUME0, false);
             cpu.cu.IWB = cpu.switches.data_switches;
-            set_cpu_cycle (EXEC_cycle);
+            set_cpu_cycle (cpu_p, EXEC_cycle);
           }
          else // EXECUTE FAULT
           {
@@ -1728,17 +1733,18 @@ static uint fast_queue_subsample = 0;
 void * cpu_thread_main (void * arg)
   {
     int myid = * (int *) arg;
+    cpu_state_t * cpu_p =  cpus + myid;
     set_cpu_idx ((uint) myid);
 
     sim_msg ("CPU %c thread created\n", 'a' + myid);
 
     setSignals ();
-    threadz_sim_instr ();
+    threadz_sim_instr (cpu_p);
     return NULL;
   }
 #endif // THREADZ
 
-static void do_LUF_fault (void)
+static void do_LUF_fault (cpu_state_t *cpu_p)
   {
     CPT (cpt1U, 16); // LUF
     cpu.lufCounter = 0;
@@ -1762,7 +1768,7 @@ static void do_LUF_fault (void)
 //    / 0.0009765625
 //
 //  TR = 1024 << LUF
-    cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode () ? 4 : cpu.CMR.luf));
+    cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode (cpu_p) ? 4 : cpu.CMR.luf));
 
 
 // That logic fails for test 785.
@@ -1777,7 +1783,7 @@ static void do_LUF_fault (void)
 // see how to fix this one.
 
 #endif
-    doFault (FAULT_LUF, fst_zero, "instruction cycle lockup");
+    doFault (cpu_p, FAULT_LUF, fst_zero, "instruction cycle lockup");
   }
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
@@ -1794,7 +1800,7 @@ static void do_LUF_fault (void)
  *
  */
 
-static void set_temporary_absolute_mode (void)
+static void set_temporary_absolute_mode (cpu_state_t *cpu_p)
   {
     CPT (cpt1L, 20); // set temp. abs. mode
     cpu.secret_addressing_mode = true;
@@ -1803,7 +1809,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "set_temporary_absolute_mode bit 29 sets XSF
     //cpu.went_appending = false;
   }
 
-static bool clear_temporary_absolute_mode (void)
+static bool clear_temporary_absolute_mode (cpu_state_t *cpu_p)
   {
     CPT (cpt1L, 21); // clear temp. abs. mode
     cpu.secret_addressing_mode = false;
@@ -1811,7 +1817,7 @@ static bool clear_temporary_absolute_mode (void)
     //return cpu.went_appending;
   }
 
-t_stat threadz_sim_instr (void)
+t_stat threadz_sim_instr (cpu_state_t *cpu_p)
   {
 //cpu.have_tst_lock = false;
 
@@ -1860,7 +1866,7 @@ setCPU:;
             reason = 0;
             break;
         case JMP_SYNC_FAULT_RETURN:
-            set_cpu_cycle (SYNC_FAULT_RTN_cycle);
+            set_cpu_cycle (cpu_p, SYNC_FAULT_RTN_cycle);
             break;
         case JMP_STOP:
             reason = STOP_STOP;
@@ -1875,10 +1881,10 @@ setCPU:;
             // can happen.
             cpu.wasXfer = false;
 
-            set_cpu_cycle (FETCH_cycle);
+            set_cpu_cycle (cpu_p, FETCH_cycle);
             break;
         case JMP_RESTART:
-            set_cpu_cycle (EXEC_cycle);
+            set_cpu_cycle (cpu_p, EXEC_cycle);
             break;
         default:
           sim_warn ("longjmp value of %d unhandled\n", val);
@@ -1891,7 +1897,7 @@ setCPU:;
 
     if (cpu.restart)
       {
-        set_cpu_cycle (FAULT_cycle);
+        set_cpu_cycle (cpu_p, FAULT_cycle);
       }
 
     do
@@ -1962,13 +1968,13 @@ setCPU:;
         cpuRunningWait ();
 #endif // THREADZ
 #ifdef LOCKLESS
-        core_unlock_all ();
+        core_unlock_all (cpu_p);
         // wait on run/switch
         // cpuRunningWait ();
 #endif
 
 #ifdef LOCKLESS
-        core_unlock_all();
+        core_unlock_all(cpu_p);
 #endif // LOCKLESS
 
         int con_unit_idx = check_attn_key ();
@@ -2043,18 +2049,18 @@ setCPU:;
                 // port for which there is a bit set in the interrupt
                 // present register.
 
-                uint intr_pair_addr = get_highest_intr ();
+                uint intr_pair_addr = get_highest_intr (cpu_p);
 #ifdef HDBG
                 hdbgIntr (intr_pair_addr);
 #endif
                 cpu.cu.FI_ADDR = (word5) (intr_pair_addr / 2);
-                cu_safe_store ();
+                cu_safe_store (cpu_p);
                 // XXX the whole interrupt cycle should be rewritten as an xed
                 // instruction pushed to IWB and executed
 
                 CPT (cpt1U, 1); // safe store complete
                 // Temporary absolute mode
-                set_temporary_absolute_mode ();
+                set_temporary_absolute_mode (cpu_p);
 
                 // Set to ring 0
                 cpu.PPR.PRR = 0;
@@ -2064,7 +2070,7 @@ setCPU:;
                            intr_pair_addr, cpu.interrupt_flag);
 #ifndef SPEED
                 if_sim_debug (DBG_INTR, & cpu_dev)
-                    traceInstruction (DBG_INTR);
+                    traceInstruction (cpu_p, DBG_INTR);
 #endif
                 // Check that an interrupt is actually pending
                 if (cpu.interrupt_flag)
@@ -2082,7 +2088,7 @@ setCPU:;
                         CPT (cpt1U, 3); // interrupt identified
 
                         // get interrupt pair
-                        core_read2 (intr_pair_addr,
+                        core_read2 (cpu_p, intr_pair_addr,
                                     & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
                         cpu.cu.xde = 1;
                         cpu.cu.xdo = 1;
@@ -2091,7 +2097,7 @@ setCPU:;
 
                         CPT (cpt1U, 4); // interrupt pair fetched
                         cpu.interrupt_flag = false;
-                        set_cpu_cycle (INTERRUPT_EXEC_cycle);
+                        set_cpu_cycle (cpu_p, INTERRUPT_EXEC_cycle);
                         break;
                       } // int_pair != 1
                   } // interrupt_flag
@@ -2100,15 +2106,15 @@ setCPU:;
 
                 CPT (cpt1U, 5); // interrupt pair spurious
                 cpu.interrupt_flag = false;
-                clear_temporary_absolute_mode ();
+                clear_temporary_absolute_mode (cpu_p);
                 // Restores addressing mode
-                cu_safe_restore ();
+                cu_safe_restore (cpu_p);
                 // We can only get here if wasXfer was
                 // false, so we can assume it still is.
                 cpu.wasXfer = false;
 // The only place cycle is set to INTERRUPT_cycle in FETCH_cycle; therefore
 // we can safely assume that is the state that should be restored.
-                set_cpu_cycle (FETCH_cycle);
+                set_cpu_cycle (cpu_p, FETCH_cycle);
               }
               break;
 
@@ -2157,13 +2163,13 @@ setCPU:;
 
                 // check BAR bound and raise store fault if above
                 // pft 04d 10070, ISOLTS-776 06ad
-                if (get_bar_mode ())
-                    get_BAR_address (cpu.PPR.IC);
+                if (get_bar_mode (cpu_p))
+                    get_BAR_address (cpu_p, cpu.PPR.IC);
 
                 // Don't check timer runout if privileged
                 // ISOLTS-776 04bcf, 785 02c
                 // (but do if in a DIS instruction with bit28 clear)
-                bool tmp_priv_mode = is_priv_mode ();
+                bool tmp_priv_mode = is_priv_mode (cpu_p);
                 bool is_dis = cpu.currentInstruction.opcode == 0616 &&
                               cpu.currentInstruction.opcodeX == 0;
                 bool noCheckTR = tmp_priv_mode &&
@@ -2173,9 +2179,9 @@ setCPU:;
                   {
                     // take interrupts and g7 faults as long as
                     // last instruction is DIS (??)
-                    cpu.interrupt_flag = sample_interrupts ();
+                    cpu.interrupt_flag = sample_interrupts (cpu_p);
                     cpu.g7_flag =
-                              noCheckTR ? bG7PendingNoTRO () : bG7Pending ();
+                              noCheckTR ? bG7PendingNoTRO (cpu_p) : bG7Pending (cpu_p);
                   }
                 else if (! (cpu.cu.xde | cpu.cu.xdo |
                        cpu.cu.rpt | cpu.cu.rd | cpu.cu.rl))
@@ -2185,9 +2191,9 @@ setCPU:;
                         (! cpu.wasXfer))
                       {
                         CPT (cpt1U, 14); // sampling interrupts
-                        cpu.interrupt_flag = sample_interrupts ();
+                        cpu.interrupt_flag = sample_interrupts (cpu_p);
                         cpu.g7_flag =
-                          noCheckTR ? bG7PendingNoTRO () : bG7Pending ();
+                          noCheckTR ? bG7PendingNoTRO (cpu_p) : bG7Pending (cpu_p);
                       }
                     cpu.wasInhibited = false;
                   }
@@ -2238,7 +2244,7 @@ setCPU:;
 // not necessary any more because of is_dis logic
 #if 0
                 if (cpu.interrupt_flag)
-                  cpu.g7_flag = noCheckTR ? bG7PendingNoTRO () : bG7Pending ();
+                  cpu.g7_flag = noCheckTR ? bG7PendingNoTRO (cpu_p) : bG7Pending (cpu_p);
 #endif
                 if (cpu.g7_flag)
                   {
@@ -2246,7 +2252,7 @@ setCPU:;
                       cpu.interrupt_flag = false;
                       sim_debug (DBG_CYCLE, & cpu_dev,
                                  "call doG7Fault (%d)\n", !noCheckTR);
-                      doG7Fault (!noCheckTR);
+                      doG7Fault (cpu_p, !noCheckTR);
                   }
                 if (cpu.interrupt_flag)
                   {
@@ -2254,7 +2260,7 @@ setCPU:;
 // return from interrupt can safely assume the it should set the cycle
 // to FETCH_cycle.
                     CPT (cpt1U, 15); // interrupt
-                    set_cpu_cycle (INTERRUPT_cycle);
+                    set_cpu_cycle (cpu_p, INTERRUPT_cycle);
                     break;
                   }
 
@@ -2268,7 +2274,7 @@ setCPU:;
                 // fall through
           case PSEUDO_FETCH_cycle:
 
-            tmp_priv_mode = is_priv_mode ();
+            tmp_priv_mode = is_priv_mode (cpu_p);
             if (! (luf_flag && tmp_priv_mode))
               cpu.lufCounter ++;
 #if 1
@@ -2281,7 +2287,7 @@ setCPU:;
                   }
                 else
                   {
-                    do_LUF_fault ();
+                    do_LUF_fault (cpu_p);
                   }
               } // lufCounter > luf_limit
 
@@ -2289,14 +2295,14 @@ setCPU:;
             // After 32ms, the LUF fires regardless of priv.
             if (cpu.lufCounter > luf_limits[4])
               {
-                do_LUF_fault ();
+                do_LUF_fault (cpu_p);
               }
 
             // If the LUF occured in priv. mode and we left priv. mode,
             // fault.
             if (! tmp_priv_mode && cpu.lufOccurred)
               {
-                do_LUF_fault ();
+                do_LUF_fault (cpu_p);
               }
 #else
             if ((tmp_priv_mode && cpu.lufCounter > luf_limits[4]) ||
@@ -2324,9 +2330,9 @@ setCPU:;
 //    / 0.0009765625
 //
 //  TR = 1024 << LUF
-               cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode () ? 4 : cpu.CMR.luf));
+               cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode (cpu_p) ? 4 : cpu.CMR.luf));
 #endif
-                doFault (FAULT_LUF, fst_zero, "instruction cycle lockup");
+                doFault (cpu_p, FAULT_LUF, fst_zero, "instruction cycle lockup");
               }
 #endif
             if (cpu.cycle == PSEUDO_FETCH_cycle)
@@ -2353,12 +2359,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 cpu.TPR.TRR = cpu.PPR.PRR;
                 PNL (cpu.prepare_state = ps_PIA);
                 PNL (L68_ (cpu.INS_FETCH = true;))
-                fetchInstruction (cpu.PPR.IC);
+                fetchInstruction (cpu_p, cpu.PPR.IC);
               }
 
             CPT (cpt1U, 21); // go to exec cycle
-            advanceG7Faults ();
-            set_cpu_cycle (EXEC_cycle);
+            advanceG7Faults (cpu_p);
+            set_cpu_cycle (cpu_p, EXEC_cycle);
             break;
 
           case EXEC_cycle:
@@ -2391,13 +2397,13 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               if (GET_I (cpu.cu.IWB))
                 cpu.wasInhibited = true;
 
-              t_stat ret = executeInstruction ();
+              t_stat ret = executeInstruction (cpu_p);
 #ifdef TR_WORK_EXEC
               cpu.rTRticks ++;
 #endif
               CPT (cpt1U, 23); // execution complete
 
-              add_CU_history ();
+              add_CU_history (cpu_p);
 
               if (ret > 0)
                 {
@@ -2432,7 +2438,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   if (cpu.cycle != EXEC_cycle) // fault or interrupt
                     {
 
-                      clearFaultCycle ();
+                      clearFaultCycle (cpu_p);
 
 // BAR mode:  [NBAR] is set ON (taking the processor
 // out of BAR mode) by the execution of any transfer instruction
@@ -2445,13 +2451,13 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                           SET_I_NBAR;
                         }
 
-                      if (!clear_temporary_absolute_mode ())
+                      if (!clear_temporary_absolute_mode (cpu_p))
                         {
                           // didn't go appending
                           sim_debug (DBG_TRACEEXT, & cpu_dev,
                                      "setting ABS mode\n");
                           CPT (cpt1U, 10); // temporary absolute mode
-                          set_addr_mode (ABSOLUTE_mode);
+                          set_addr_mode (cpu_p, ABSOLUTE_mode);
                         }
                       else
                         {
@@ -2466,17 +2472,17 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   //if (TST_I_ABS && get_went_appending ())
                   if (TST_I_ABS && cpu.cu.XSF)
                     {
-                      set_addr_mode (APPEND_mode);
+                      set_addr_mode (cpu_p, APPEND_mode);
                     }
 
                   if (ret == CONT_TRA)
                     {
                       // PSEUDO_FETCH_cycle does not check interrupts/g7faults
                       cpu.wasXfer = false;
-                      set_cpu_cycle (PSEUDO_FETCH_cycle);
+                      set_cpu_cycle (cpu_p, PSEUDO_FETCH_cycle);
                     }
                   else
-                    set_cpu_cycle (FETCH_cycle);
+                    set_cpu_cycle (cpu_p, FETCH_cycle);
                   break;   // don't bump PPR.IC, instruction already did it
                 }
 
@@ -2558,7 +2564,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 #else // !NO_TIMEWAIT
                   unsigned long left = cpu.rTR * 125u / 64u;
                   lock_scu ();
-                  if (!sample_interrupts ())
+                  if (!sample_interrupts (cpu_p))
                     {
                       left = sleepCPU (left);
                     }
@@ -2646,7 +2652,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   if (cpu.cu.rd)
                     -- cpu.PPR.IC;
                   cpu.wasXfer = false;
-                  set_cpu_cycle (FETCH_cycle);
+                  set_cpu_cycle (cpu_p, FETCH_cycle);
                   break;
                 }
 
@@ -2654,10 +2660,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               if (cpu.cycle == FAULT_EXEC_cycle &&
                   !cpu.cu.xde && cpu.cu.xdo)
                 {
-                  clear_temporary_absolute_mode ();
-                  cu_safe_restore ();
+                  clear_temporary_absolute_mode (cpu_p);
+                  cu_safe_restore (cpu_p);
                   CPT (cpt1U, 12); // cu restored
-                  clearFaultCycle ();
+                  clearFaultCycle (cpu_p);
                   // cu_safe_restore calls decode_instruction ()
                   // we can determine the instruction length.
                   // decode_instruction() restores ci->info->ndes
@@ -2668,7 +2674,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   cpu.PPR.IC += ci->info->ndes;
                   cpu.PPR.IC ++;
 
-                  set_cpu_cycle (FETCH_cycle);
+                  set_cpu_cycle (cpu_p, FETCH_cycle);
                   break;
                 }
 
@@ -2676,8 +2682,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               if (cpu.cycle == INTERRUPT_EXEC_cycle &&
                   !cpu.cu.xde && cpu.cu.xdo)
                 {
-                  clear_temporary_absolute_mode ();
-                  cu_safe_restore ();
+                  clear_temporary_absolute_mode (cpu_p);
+                  cu_safe_restore (cpu_p);
                   // cpu.cu.xdo = 0;
 // The only place cycle is set to INTERRUPT_cycle in FETCH_cycle; therefore
 // we can safely assume that is the state that should be restored.
@@ -2686,7 +2692,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   cpu.isExec = false;
                   cpu.isXED = false;
 
-                  set_cpu_cycle (FETCH_cycle);
+                  set_cpu_cycle (cpu_p, FETCH_cycle);
                   break;
                 }
 
@@ -2716,7 +2722,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   if (ci->info->ndes > 0)
                     cpu.PPR.IC += ci->info->ndes;
                   cpu.wasInhibited = true;
-                  set_cpu_cycle (FETCH_cycle);
+                  set_cpu_cycle (cpu_p, FETCH_cycle);
                   break;
                 }
 
@@ -2746,7 +2752,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   cpu.PPR.IC ++;
                   cpu.wasXfer = false;
                   cpu.cu.IWB = cpu.cu.IRODD;
-                  set_cpu_cycle (PSEUDO_FETCH_cycle);
+                  set_cpu_cycle (cpu_p, PSEUDO_FETCH_cycle);
                   break;
                 }
 
@@ -2756,7 +2762,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 
               CPT (cpt1U, 28); // enter fetch cycle
               cpu.wasXfer = false;
-              set_cpu_cycle (FETCH_cycle);
+              set_cpu_cycle (cpu_p, FETCH_cycle);
             }
             break;
 
@@ -2771,7 +2777,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               cpu.PPR.IC += ci->info->ndes;
               cpu.PPR.IC ++;
               cpu.wasXfer = false;
-              set_cpu_cycle (FETCH_cycle);
+              set_cpu_cycle (cpu_p, FETCH_cycle);
             }
             break;
 
@@ -2800,7 +2806,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               // last append cycle has made it as far as H/I without a fault.
               // Also reset it on TRB fault. ISOLTS-870 05a
               if ((cpu.cu.APUCycleBits & 060) || cpu.secret_addressing_mode)
-                  set_apu_status (apuStatus_FABS);
+                  set_apu_status (cpu_p, apuStatus_FABS);
 
               // XXX the whole fault cycle should be rewritten as an xed
               // instruction pushed to IWB and executed
@@ -2814,18 +2820,18 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               // keep IRODD untouched if TRB occurred in an even location
               if (cpu.faultNumber != FAULT_TRB || cpu.cu.xde == 0)
                 {
-                  cu_safe_store ();
+                  cu_safe_store (cpu_p);
                 }
               else
                 {
                   word36 tmpIRODD = cpu.scu_data[7];
-                  cu_safe_store ();
+                  cu_safe_store (cpu_p);
                   cpu.scu_data[7] = tmpIRODD;
                 }
               CPT (cpt1U, 31); // safe store complete
 
               // Temporary absolute mode
-              set_temporary_absolute_mode ();
+              set_temporary_absolute_mode (cpu_p);
 
               // Set to ring 0
               cpu.PPR.PRR = 0;
@@ -2852,14 +2858,14 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   addr = cpu.restart_address;
                 }
 
-              core_read2 (addr, & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
+              core_read2 (cpu_p, addr, & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
               cpu.cu.xde = 1;
               cpu.cu.xdo = 1;
               cpu.isExec = true;
               cpu.isXED = true;
 
               CPT (cpt1U, 33); // set fault exec cycle
-              set_cpu_cycle (FAULT_EXEC_cycle);
+              set_cpu_cycle (cpu_p, FAULT_EXEC_cycle);
 
               break;
             }
@@ -2934,7 +2940,7 @@ request.
 
  */
 
-int operand_size (void)
+int operand_size (cpu_state_t *cpu_p)
   {
     DCDstruct * i = & cpu.currentInstruction;
     if (i->info->flags & (READ_OPERAND | STORE_OPERAND))
@@ -2952,7 +2958,7 @@ int operand_size (void)
 
 // read instruction operands
 
-t_stat read_operand (word18 addr, processor_cycle_type cyctyp)
+t_stat read_operand (cpu_state_t *cpu_p, word18 addr, processor_cycle_type cyctyp)
   {
     CPT (cpt1L, 6); // read_operand
 
@@ -2975,32 +2981,32 @@ t_stat read_operand (word18 addr, processor_cycle_type cyctyp)
       }
 #endif
 
-    switch (operand_size ())
+    switch (operand_size (cpu_p))
       {
         case 1:
             CPT (cpt1L, 7); // word
-            Read (addr, & cpu.CY, cyctyp);
+            Read (cpu_p, addr, & cpu.CY, cyctyp);
             return SCPE_OK;
         case 2:
             CPT (cpt1L, 8); // double word
             addr &= 0777776;   // make even
-            Read2 (addr, cpu.Ypair, cyctyp);
+            Read2 (cpu_p, addr, cpu.Ypair, cyctyp);
             break;
         case 8:
             CPT (cpt1L, 9); // oct word
             addr &= 0777770;   // make on 8-word boundary
-            Read8 (addr, cpu.Yblock8, cpu.currentInstruction.b29);
+            Read8 (cpu_p, addr, cpu.Yblock8, cpu.currentInstruction.b29);
             break;
         case 16:
             CPT (cpt1L, 10); // 16 words
             addr &= 0777770;   // make on 8-word boundary
-            Read16 (addr, cpu.Yblock16);
+            Read16 (cpu_p, addr, cpu.Yblock16);
             break;
         case 32:
             CPT (cpt1L, 11); // 32 words
             addr &= 0777740;   // make on 32-word boundary
             for (uint j = 0 ; j < 32 ; j += 1)
-                Read (addr + j, cpu.Yblock32 + j, cyctyp);
+                Read (cpu_p, addr + j, cpu.Yblock32 + j, cyctyp);
 
             break;
       }
@@ -3012,35 +3018,35 @@ t_stat read_operand (word18 addr, processor_cycle_type cyctyp)
 
 // write instruction operands
 
-t_stat write_operand (word18 addr, UNUSED processor_cycle_type cyctyp)
+t_stat write_operand (cpu_state_t *cpu_p, word18 addr, UNUSED processor_cycle_type cyctyp)
   {
-    switch (operand_size ())
+    switch (operand_size (cpu_p))
       {
         case 1:
             CPT (cpt1L, 12); // word
-            Write (addr, cpu.CY, OPERAND_STORE);
+            Write (cpu_p, addr, cpu.CY, OPERAND_STORE);
             break;
         case 2:
             CPT (cpt1L, 13); // double word
             addr &= 0777776;   // make even
-            Write2 (addr + 0, cpu.Ypair, OPERAND_STORE);
+            Write2 (cpu_p, addr + 0, cpu.Ypair, OPERAND_STORE);
             break;
         case 8:
             CPT (cpt1L, 14); // 8 words
             addr &= 0777770;   // make on 8-word boundary
-            Write8 (addr, cpu.Yblock8, cpu.currentInstruction.b29);
+            Write8 (cpu_p, addr, cpu.Yblock8, cpu.currentInstruction.b29);
             break;
         case 16:
             CPT (cpt1L, 15); // 16 words
             addr &= 0777770;   // make on 8-word boundary
-            Write16 (addr, cpu.Yblock16);
+            Write16 (cpu_p, addr, cpu.Yblock16);
             break;
         case 32:
             CPT (cpt1L, 16); // 32 words
             addr &= 0777740;   // make on 32-word boundary
             //for (uint j = 0 ; j < 32 ; j += 1)
-                //Write (addr + j, cpu.Yblock32[j], OPERAND_STORE);
-            Write32 (addr, cpu.Yblock32);
+                //Write (cpu_p, addr + j, cpu.Yblock32[j], OPERAND_STORE);
+            Write32 (cpu_p, addr, cpu.Yblock32);
             break;
       }
 
@@ -3087,18 +3093,18 @@ t_stat set_mem_watch (int32 arg, const char * buf)
  */
 
 #ifndef SPEED
-static void nem_check (word24 addr, char * context)
+static void nem_check (cpu_state_t *cpu_p, word24 addr, char * context)
   {
 #ifdef SCUMEM
     word24 offset;
-    if (lookup_cpu_mem_map (addr, & offset) < 0)
+    if (lookup_cpu_mem_map (cpu_p, addr, & offset) < 0)
       {
-        doFault (FAULT_STR, fst_str_nea,  context);
+        doFault (cpu_p, FAULT_STR, fst_str_nea,  context);
       }
 #else
-    if (lookup_cpu_mem_map (addr) < 0)
+    if (lookup_cpu_mem_map (cpu_p, addr) < 0)
       {
-        doFault (FAULT_STR, fst_str_nea,  context);
+        doFault (cpu_p, FAULT_STR, fst_str_nea,  context);
       }
 #endif
   }
@@ -3108,11 +3114,11 @@ static void nem_check (word24 addr, char * context)
 #ifndef SPEED
 static uint get_scu_unit_idx (word24 addr, word24 * offset)
   {
-    int cpu_port_num = lookup_cpu_mem_map (addr, offset);
+    int cpu_port_num = lookup_cpu_mem_map (cpu_p, addr, offset);
     if (cpu_port_num < 0) // Can't happen, we passed nem_check above
       {
         sim_warn ("cpu_port_num < 0");
-        doFault (FAULT_STR, fst_str_nea,  __func__);
+        doFault (cpu_p, FAULT_STR, fst_str_nea,  __func__);
       }
     return cables->cpu_to_scu [current_running_cpu_idx][cpu_port_num].scu_unit_idx;
   }
@@ -3120,7 +3126,7 @@ static uint get_scu_unit_idx (word24 addr, word24 * offset)
 #endif
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
-int32 core_read (word24 addr, word36 *data, const char * ctx)
+int32 core_read (cpu_state_t *cpu_p, word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
@@ -3130,7 +3136,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
+            doFault (cpu_p, FAULT_STR, fst_str_nea,  __func__);
           }
         addr = (uint) os + addr % SCBANK;
       }
@@ -3139,7 +3145,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 #endif
 #endif
 #ifndef SPEED
-      nem_check (addr,  "core_read nem");
+      nem_check (cpu_p, addr,  "core_read nem");
 #endif
 
 #if 0 // XXX Controlled by TEST/NORMAL switch
@@ -3185,7 +3191,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
                     "(%s)\n",
                     cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, M [addr],
                     ctx);
-        traceInstruction (0);
+        traceInstruction (cpu_p, 0);
       }
 #endif
 #ifdef LOCKLESS
@@ -3209,7 +3215,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
+int32 core_read_lock (cpu_state_t *cpu_p, word24 addr, word36 *data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
     if (cpu.switches.useMap)
@@ -3218,21 +3224,21 @@ int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
+            doFault (cpu_p, FAULT_STR, fst_str_nea,  __func__);
           }
         addr = (uint) os + addr % SCBANK;
       }
     else
 #endif
 #ifndef SPEED
-      nem_check (addr,  "core_read nem");
+      nem_check (cpu_p, addr,  "core_read nem");
 #endif
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, cpu_p);
     if (cpu.locked_addr != 0) {
       sim_warn ("core_read_lock: locked %08o locked_addr %08o %c %05o:%06o\n",
                 addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
-      core_unlock_all ();
+      core_unlock_all (cpu_p);
     }
     cpu.locked_addr = addr;
     word36 v;
@@ -3243,7 +3249,7 @@ int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 #endif
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
-int core_write (word24 addr, word36 data, const char * ctx)
+int core_write (cpu_state_t *cpu_p, word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
@@ -3253,14 +3259,14 @@ int core_write (word24 addr, word36 data, const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
+            doFault (cpu_p, FAULT_STR, fst_str_nea,  __func__);
           }
         addr = (uint) os + addr % SCBANK;
       }
     else
 #endif
 #ifndef SPEED
-      nem_check (addr,  "core_write nem");
+      nem_check (cpu_p, addr,  "core_write nem");
 #endif
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -3288,7 +3294,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
       }
 #else
 #ifdef LOCKLESS
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, cpu_p);
     STORE_REL_CORE_WORD(addr, data);
 #else
     M[addr] = data & DMASK;
@@ -3299,7 +3305,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
         sim_msg ("WATCH [%"PRId64"] %05o:%06o write  %08o %012"PRIo64" "
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
                     M [addr], ctx);
-        traceInstruction (0);
+        traceInstruction (cpu_p, 0);
       }
 #endif
 #endif
@@ -3315,7 +3321,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
 #endif
 
 #ifdef LOCKLESS
-int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
+int core_write_unlock (cpu_state_t *cpu_p, word24 addr, word36 data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
     if (cpu.switches.useMap)
@@ -3324,21 +3330,21 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
+            doFault (cpu_p, FAULT_STR, fst_str_nea,  __func__);
           }
         addr = (uint) os + addr % SCBANK;
       }
     else
 #endif
 #ifndef SPEED
-      nem_check (addr,  "core_read nem");
+      nem_check (cpu_p, addr,  "core_read nem");
 #endif
     if (cpu.locked_addr != addr)
       {
         sim_warn ("core_write_unlock: locked %08o locked_addr %08o %c %05o:%06o\n",
                   addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                   cpu.PPR.PSR, cpu.PPR.IC);
-       core_unlock_all ();
+       core_unlock_all (cpu_p);
       }
 
     STORE_REL_CORE_WORD(addr, data);
@@ -3346,7 +3352,7 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
     return 0;
 }
 
-int core_unlock_all ()
+int core_unlock_all (cpu_state_t *cpu_p)
 {
   if (cpu.locked_addr != 0) {
       sim_warn ("core_unlock_all: locked %08o %c %05o:%06o\n",
@@ -3360,7 +3366,7 @@ int core_unlock_all ()
 #endif
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
-int core_write_zone (word24 addr, word36 data, const char * ctx)
+int core_write_zone (cpu_state_t *cpu_p, word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
@@ -3392,9 +3398,9 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 #else
 #ifdef LOCKLESS
     word36 v;
-    core_read_lock(addr,  &v, ctx);
+    core_read_lock(cpu_p, addr,  &v, ctx);
     v = (v & ~cpu.zone) | (data & cpu.zone);
-    core_write_unlock(addr, v, ctx);
+    core_write_unlock(cpu_p, addr, v, ctx);
 #else
 #ifdef ISOLTS
     if (cpu.switches.useMap)
@@ -3403,14 +3409,14 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
+            doFault (cpu_p, FAULT_STR, fst_str_nea,  __func__);
           }
         addr = (uint) os + addr % SCBANK;
       }
     else
 #endif
 #ifndef SPEED
-      nem_check (addr,  "core_read nem");
+      nem_check (cpu_p, addr,  "core_read nem");
 #endif
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
 #endif
@@ -3421,7 +3427,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
         sim_msg ("WATCH [%"PRId64"] %05o:%06o writez %08o %012"PRIo64" "
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
                     M [addr], ctx);
-        traceInstruction (0);
+        traceInstruction (cpu_p, 0);
       }
 #endif
 #endif
@@ -3437,7 +3443,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
 #endif
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
-int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
+int core_read2 (cpu_state_t *cpu_p, word24 addr, word36 *even, word36 *odd, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #if defined(ISOLTS) || defined(LOCKLESS)
@@ -3457,7 +3463,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
+            doFault (cpu_p, FAULT_STR, fst_str_nea,  __func__);
           }
         addr = (uint) os + addr % SCBANK;
       }
@@ -3466,7 +3472,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
 #endif
 #endif
 #ifndef SPEED
-    nem_check (addr,  "core_read2 nem");
+    nem_check (cpu_p, addr,  "core_read2 nem");
 #endif
 
 #if 0 // XXX Controlled by TEST/NORMAL switch
@@ -3532,7 +3538,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         sim_msg ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" "
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
                     M [addr], ctx);
-        traceInstruction (0);
+        traceInstruction (cpu_p, 0);
       }
 #endif
 #ifdef LOCKLESS
@@ -3567,7 +3573,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         sim_msg ("WATCH [%"PRId64"] %05o:%06o read2  %08o %012"PRIo64" "
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
                     M [addr], ctx);
-        traceInstruction (0);
+        traceInstruction (cpu_p, 0);
       }
 #endif
 #ifdef LOCKLESS
@@ -3593,7 +3599,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
 #endif
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
-int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
+int core_write2 (cpu_state_t *cpu_p, word24 addr, word36 even, word36 odd, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     if (addr & 1)
@@ -3610,14 +3616,14 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
         int os = cpu.scbank_pg_os [pgnum];
         if (os < 0)
           {
-            doFault (FAULT_STR, fst_str_nea,  __func__);
+            doFault (cpu_p, FAULT_STR, fst_str_nea,  __func__);
           }
         addr = (word24)os + addr % SCBANK;
       }
     else
 #endif
 #ifndef SPEED
-      nem_check (addr,  "core_write2 nem");
+      nem_check (cpu_p, addr,  "core_write2 nem");
 #endif
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -3658,11 +3664,11 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
         sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" "
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
                     even, ctx);
-        traceInstruction (0);
+        traceInstruction (cpu_p, 0);
       }
 #endif
 #ifdef LOCKLESS
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, cpu_p);
     STORE_REL_CORE_WORD(addr, even);
     addr++;
 #else
@@ -3681,11 +3687,11 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
         sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" "
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
                     odd, ctx);
-        traceInstruction (0);
+        traceInstruction (cpu_p, 0);
       }
 #endif
 #ifdef LOCKLESS
-    LOCK_CORE_WORD(addr);
+    LOCK_CORE_WORD(addr, cpu_p);
     STORE_REL_CORE_WORD(addr, odd);
 #else
     M[addr] = odd & DMASK;
@@ -3714,7 +3720,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
  *
  */
 
-void decode_instruction (word36 inst, DCDstruct * p)
+void decode_instruction (cpu_state_t *cpu_p, word36 inst, DCDstruct * p)
   {
     CPT (cpt1L, 17); // instruction decoder
     memset (p, 0, sizeof (DCDstruct));
@@ -3763,17 +3769,17 @@ void decode_instruction (word36 inst, DCDstruct * p)
 // procedure is 1; otherwise, its value is 0.
 //
 
-int is_priv_mode (void)
+int is_priv_mode (cpu_state_t *cpu_p)
   {
 
 // Back when it was ABS/APP/BAR, this test was right; now that
 // it is ABS/APP,BAR/NBAR, check bar mode.
 // Fixes ISOLTS 890 05a.
-    if (get_bar_mode ())
+    if (get_bar_mode (cpu_p))
       return 0;
 
 // PPR.P is only relevant if we're in APPEND mode. ABSOLUTE mode ignores it.
-    if (get_addr_mode () == ABSOLUTE_mode)
+    if (get_addr_mode (cpu_p) == ABSOLUTE_mode)
       return 1;
     else if (cpu.PPR.P)
       return 1;
@@ -3789,12 +3795,12 @@ int is_priv_mode (void)
  * direct us to ignore the I_NBAR indicator register.
  */
 
-bool get_bar_mode (void)
+bool get_bar_mode (cpu_state_t *cpu_p)
   {
     return ! (cpu.secret_addressing_mode || TST_I_NBAR);
   }
 
-addr_modes_e get_addr_mode (void)
+addr_modes_e get_addr_mode (cpu_state_t *cpu_p)
   {
     if (cpu.secret_addressing_mode)
         return ABSOLUTE_mode; // This is not the mode you are looking for
@@ -3824,7 +3830,7 @@ addr_modes_e get_addr_mode (void)
  *
  */
 
-void set_addr_mode (addr_modes_e mode)
+void set_addr_mode (cpu_state_t *cpu_p, addr_modes_e mode)
   {
 //    cpu.cu.XSF = false;
 //sim_debug (DBG_TRACEEXT, & cpu_dev, "set_addr_mode bit 29 sets XSF to 0\n");
@@ -3891,11 +3897,11 @@ void set_addr_mode (addr_modes_e mode)
  */
 
 // CANFAULT
-word18 get_BAR_address (word18 addr)
+word18 get_BAR_address (cpu_state_t *cpu_p, word18 addr)
   {
     if (cpu . BAR.BOUND == 0)
         // store fault, out of bounds.
-        doFault (FAULT_STR, fst_str_oob, "BAR store fault; out of bounds");
+        doFault (cpu_p, FAULT_STR, fst_str_oob, "BAR store fault; out of bounds");
 
     // A program is kept within certain limits by subtracting the
     // unrelocated computed address from the address bound. If the result
@@ -3908,7 +3914,7 @@ word18 get_BAR_address (word18 addr)
     //
     if (addr >= (((word18) cpu . BAR.BOUND) << 9))
         // store fault, out of bounds.
-        doFault (FAULT_STR, fst_str_oob, "BAR store fault; out of bounds");
+        doFault (cpu_p, FAULT_STR, fst_str_oob, "BAR store fault; out of bounds");
 
     word18 barAddr = (addr + (((word18) cpu . BAR.BASE) << 9)) & 0777777;
     return barAddr;
@@ -3916,7 +3922,7 @@ word18 get_BAR_address (word18 addr)
 
 //=============================================================================
 
-static void add_history (uint hset, word36 w0, word36 w1)
+static void add_history (cpu_state_t *cpu_p, uint hset, word36 w0, word36 w1)
   {
     //if (cpu.MR.emr)
       {
@@ -3926,7 +3932,7 @@ static void add_history (uint hset, word36 w0, word36 w1)
       }
   }
 
-void add_history_force (uint hset, word36 w0, word36 w1)
+void add_history_force (cpu_state_t *cpu_p, uint hset, word36 w0, word36 w1)
   {
     cpu.history [hset] [cpu.history_cyclic[hset]] [0] = w0;
     cpu.history [hset] [cpu.history_cyclic[hset]] [1] = w1;
@@ -3934,7 +3940,7 @@ void add_history_force (uint hset, word36 w0, word36 w1)
   }
 
 #ifdef DPS8M
-void add_CU_history (void)
+static void add_CU_history (cpu_state_t *cpu_p)
   {
     if (cpu.skip_cu_hist)
       return;
@@ -3954,19 +3960,21 @@ void add_CU_history (void)
     w1 |= (cpu.iefpFinalAddress & MASK24) << 12;
     w1 |= (proccmd & MASK5) << 7;
     w1 |= flags2 & 0176;
-    add_history (CU_HIST_REG, w0, w1);
+    add_history (cpu_p, CU_HIST_REG, w0, w1);
   }
 
-void add_DUOU_history (word36 flags, word18 ICT, word9 RS_REG, word9 flags2)
+#if 0 // unused?
+void add_DUOU_history (cpu_state_t *cpu_p, word36 flags, word18 ICT, word9 RS_REG, word9 flags2)
   {
     word36 w0 = flags, w1 = 0;
     w1 |= (ICT & MASK18) << 18;
     w1 |= (RS_REG & MASK9) << 9;
     w1 |= flags2 & MASK9;
-    add_history (DU_OU_HIST_REG, w0, w1);
+    add_history (cpu_p, DU_OU_HIST_REG, w0, w1);
   }
+#endif
 
-void add_APU_history (word15 ESN, word21 flags, word24 RMA, word3 RTRR, word9 flags2)
+void add_APU_history (cpu_state_t *cpu_p, word15 ESN, word21 flags, word24 RMA, word3 RTRR, word9 flags2)
   {
     word36 w0 = 0, w1 = 0;
     w0 |= (ESN & MASK15) << 21;
@@ -3974,20 +3982,22 @@ void add_APU_history (word15 ESN, word21 flags, word24 RMA, word3 RTRR, word9 fl
     w1 |= (RMA & MASK24) << 12;
     w1 |= (RTRR & MASK3) << 9;
     w1 |= flags2 & MASK9;
-    add_history (APU_HIST_REG, w0, w1);
+    add_history (cpu_p, APU_HIST_REG, w0, w1);
   }
 
-void add_EAPU_history (word18 ZCA, word18 opcode)
+#if 0 // Unused>
+void add_EAPU_history (cpu_state_t *cpu_p, word18 ZCA, word18 opcode)
   {
     word36 w0 = 0;
     w0 |= (ZCA & MASK18) << 18;
     w0 |= opcode & MASK18;
-    add_history (EAPU_HIST_REG, w0, 0);
+    add_history (cpu_p, EAPU_HIST_REG, w0, 0);
     //cpu.eapu_hist[cpu.eapu_cyclic].ZCA = ZCA;
     //cpu.eapu_hist[cpu.eapu_cyclic].opcode = opcode;
     //cpu.history_cyclic[EAPU_HIST_REG] =
       //(cpu.history_cyclic[EAPU_HIST_REG] + 1) % N_HIST_SIZE;
   }
+#endif
 #endif // DPS8M
 
 #ifdef L68
@@ -4026,7 +4036,7 @@ void add_EAPU_history (word18 ZCA, word18 opcode)
 //  46 -PC BUSY
 //  47 PORT BUSY
 
-void add_CU_history (void)
+static void add_CU_history (cpu_state_t *cpu_p)
   {
     CPT (cpt1L, 24); // add cu hist
 // XXX strobe on opcode match
@@ -4090,7 +4100,7 @@ void add_CU_history (void)
     // 70 -PC-BUSY Port control logic not busy XXX
     // 71 BUSY Port interface busy XXX
 
-    add_history (CU_HIST_REG, w0, w1);
+    add_history (cpu_p, CU_HIST_REG, w0, w1);
 
     // Check for overflow
     CPTUR (cptUseMR);
@@ -4101,7 +4111,7 @@ void add_CU_history (void)
           {
             cpu.MR.ihr = 0;
           }
-        set_FFV_fault (4);
+        set_FFV_fault (cpu_p, 4);
         return;
       }
   }
@@ -4147,7 +4157,7 @@ void add_CU_history (void)
 void add_DU_history (void)
   {
     CPT (cpt1L, 25); // add du hist
-    PNL (add_history (DU_HIST_REG, cpu.du.cycle1, cpu.du.cycle2);)
+    PNL (add_history (cpu_p, DU_HIST_REG, cpu.du.cycle1, cpu.du.cycle2);)
   }
 
 
@@ -4208,7 +4218,7 @@ void add_OU_history (void)
     // 54-71 ICT TRACKER
     putbits36_18 (& w1, 54 - 36, cpu.PPR.IC);
 
-    add_history (OU_HIST_REG, w0, w1);
+    add_history (cpu_p, OU_HIST_REG, w0, w1);
   }
 
 // According to ISOLTS
@@ -4260,7 +4270,7 @@ void add_OU_history (void)
 // 28 TRR #
 // 29 FLT HLD
 
-void add_APU_history (enum APUH_e op)
+void add_APU_history (cpu_state_t *cpu_p, enum APUH_e op)
   {
     CPT (cpt1L, 28); // add apu hist
     word36 w0 = 0, w1 = 0;
@@ -4296,7 +4306,7 @@ void add_APU_history (enum APUH_e op)
     putbits36_1 (& w1, 34, cpu.SDW0.C);
     // 71 XXX Multiple match error in PTWAM
 
-    add_history (APU_HIST_REG, w0, w1);
+    add_history (cpu_p, APU_HIST_REG, w0, w1);
   }
 
 #endif

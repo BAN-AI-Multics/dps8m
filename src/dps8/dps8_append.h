@@ -108,24 +108,24 @@ typedef enum apuStatusBits
     apuStatus_MPTW   = 1u << (35 - 28)  //  Fetch PTW
   } apuStatusBits;
 
-static inline void set_apu_status (apuStatusBits status)
+static inline void set_apu_status (cpu_state_t *cpu_p, apuStatusBits status)
   {
     word12 FCT = cpu.cu.APUCycleBits & MASK3;
     cpu.cu.APUCycleBits = (status & 07770) | FCT;
   }
 
 t_stat dump_sdwam (void);
-word24 do_append_cycle (processor_cycle_type thisCycle,
+word24 do_append_cycle (cpu_state_t *cpu_p, processor_cycle_type thisCycle,
                       word36 * data, uint nWords);
-void do_ldbr (word36 * Ypair);
+void do_ldbr (cpu_state_t *cpu_p, word36 * Ypair);
 void do_sdbr (word36 * Ypair);
 void do_camp (word36 Y);
 void do_cams (word36 Y);
-int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
+int dbgLookupAddress (cpu_state_t *cpu_p, word18 segno, word18 offset, word24 * finalAddress,
                       char * * msg);
 sdw0_s * getSDW (word15 segno);
 
-static inline void fauxDoAppendCycle (processor_cycle_type thisCycle)
+static inline void fauxDoAppendCycle (cpu_state_t *cpu_p, processor_cycle_type thisCycle)
   {
     cpu.apu.lastCycle = thisCycle;
   }
