@@ -616,7 +616,7 @@ B29:
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                            "Write2 (Actual) Write: bar iefpFinalAddress=%08o "
                            "writeData=%012"PRIo64" %012"PRIo64"\n",
-                           cpu.iefpFinalAddress, data [0], data [1]);
+                           address, data [0], data [1]);
                 HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data[0]);
                 HDBGMWrite (cpu.iefpFinalAddress+1, data[1]);
@@ -627,7 +627,7 @@ B29:
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                            "Write2 (Actual) Write: iefpFinalAddress=%08o "
                            "writeData=%012"PRIo64" %012"PRIo64"\n",
-                           cpu.iefpFinalAddress, data [0], data [1]);
+                           address, data [0], data [1]);
                 HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address);
                 HDBGMWrite (cpu.iefpFinalAddress, data[0]);
                 HDBGMWrite (cpu.iefpFinalAddress+1, data[1]);
