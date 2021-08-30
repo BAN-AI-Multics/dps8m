@@ -69,7 +69,7 @@ ifeq ($(CROSS),MINGW64)
   ifeq ($(shell $(UNAME) -o 2> /dev/null || true >/dev/null 2>&1),Cygwin)
     LIBS += -lwinmm -lws2_32 -lwsock32 -lws2_32 -luserenv -liphlpapi $(LIBUV)
   else
-    LIBS += -lwinmm -lws2_32 -lmingwex -lwsock32 -lws2_32 -luserenv           \
+    LIBS += -lwinmm -lws2_32 -lssp -lmingwex -lwsock32 -lws2_32 -luserenv     \
             -liphlpapi $(LIBUV) -L../../../libuv/.libs
   endif
 endif
@@ -835,7 +835,7 @@ uvutil.o:           dps8_hw_consts.h
 uvutil.o:           dps8_em_consts.h dps8_sys.h uvutil.h dps8_cpu.h hdbg.h
 uvutil.o:           dps8_utils.h
 uvutil.o:           libtelnet.h
-utfile.o:           utfile.h
+utfile.o:           utfile.h bsd_random.h
 bsd_random.o:       bsd_random.h
 
 ###############################################################################
