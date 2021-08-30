@@ -4,7 +4,7 @@
 
 ### DPS8M Simulator
 
-* The **DPS8M** simulator is distributed under the ICU License.
+* The **DPS8M Simulator** (“**DPS8M**”) is distributed under the ICU License.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -76,7 +76,7 @@ property of their respective owners.
 
 ## Third-party software
 
-* **DPS8M** incorporates, adapts, or utilizes other software from
+* **DPS8M** incorporates, adapts, or utilizes software from
   third-parties. This software is copyrighted by their respective
   owners and licensed as indicated in the following disclosures.
 
@@ -84,12 +84,12 @@ property of their respective owners.
 
 ### UNIFDEF
 
-* **UNIFDEF** is a utility to selectively processes conditional C
+* **UNIFDEF** is a utility that selectively processes conditional C
   preprocessor directives derived from software contributed to the
   *Computer Systems Research Group* at the *University of California,
   Berkeley* by Dave Yost. It was rewritten to support ANSI C by Tony
-  Finch, and modified to support Windows by The DPS8M Development
-  Team. It is distributed under a two-clause BSD licence.
+  Finch, and modified for portability by **The DPS8M Development Team**.
+  It is distributed under a two-clause BSD licence.
 
 ```text
 Copyright (c) 2002‑2020 Tony Finch <dot@dotat.at>
@@ -106,7 +106,7 @@ are met:
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS “AS IS” AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
@@ -123,9 +123,9 @@ SUCH DAMAGE.
 
 ### UDPLIB
 
-* **UDPLIB** is a library that implements the BBN *ARPAnet*
-  **IMP**∕**TIP** Modem∕Host Interface over UDP. It was written by
-  Robert Armstrong, and is distributed under a modified BSD license.
+* **UDPLIB** is a library that implements the BBN ARPAnet IMP/TIP
+  Modem/Host Interface over UDP. It was written by Robert Armstrong,
+  and is distributed under a modified BSD license.
 
 ```text
 Copyright (c) 2013 Robert Armstrong, bob@jfcl.com
@@ -159,8 +159,8 @@ in this Software without prior written authorization from Robert Armstrong.
 * **UTHASH** (*UTLIST*, *UTARRAY*, and *UTHASH*), a hash table for C
   structures, was written by
   [Troy D. Hanson](https://troydhanson.github.io/uthash/) and modified
-  by The DPS8M Development Team. It is distributed under a modified BSD
-  license.
+  by **The DPS8M Development Team**. It is distributed under a modified
+  one-clause BSD license.
 
 ```text
 Copyright (c) 2005‑2021 Troy D. Hanson
@@ -192,8 +192,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #### SIMH
 
-* **SIMH** is a portable systems simulation framework, was written by
-  Robert M Supnik and others, and distributed under a modified MIT license.
+* **SIMH** is a portable systems simulation framework, written by
+  Robert M. Supnik and others, and distributed under a modified MIT license.
 
 ```text
 
@@ -233,8 +233,8 @@ in this Software without prior written authorization from the authors.
 ### PUNUTIL
 
 * **PUNUTIL** is a utility to process the output of the **DPS8M** punch
-  device. It was written by Dean S. Anderson and is distributed under
-  the ICU License.
+  device. It was written by Dean S. Anderson of **The DPS8M Development
+  Team** and is distributed under the ICU License.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -278,9 +278,9 @@ property of their respective owners.
 
 ### PRT2PDF
 
-* **PRT2PDF** is a utility to convert the output of the **DPS8M** line
-  printer to ISO 32000 Portable Document Format (PDF) format, and is
-  distributed under the ICU License.
+* **PRT2PDF** is a utility to convert the output of the simulated
+  **DPS8M** line printer device to ISO 32000 Portable Document Format
+  (*PDF*), and is distributed under the ICU License.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -325,14 +325,14 @@ property of their respective owners.
 
 ### TXT2PDF
 
-* **PRT2PDF** is derived from **TXT2PDF**, a utility to convert text to
-  Adobe Acrobat PDF format, written by P. G. Womack, distributed with
-  the following restrictions.
+* **PRT2PDF** is derived from **TXT2PDF**, a utility to transform ASCII
+  text files to Adobe Acrobat PDF documents, written by P. G. Womack, and
+  distributed with the following restrictions.
 
 ```text
 * Copyright (c) 1998 P. G. Womack, Diss, Norfolk, UK.
 
-“Do what you like, but don't claim you wrote it.”
+“Do what you like, but don’t claim you wrote it.”
 ```
 
 ----
@@ -341,8 +341,8 @@ property of their respective owners.
 
 * **DECNUMBER** is an ANSI C reference implementation of the *IBM General
   Decimal Arithmetic* standard, implementing decimal floating‑point
-  arithmetic and the '*Strawman 4d*' decimal encoding formats described
-  by the revised IEEE 754 specification and is distributed under the
+  arithmetic and the ‘*Strawman 4d*’ decimal encoding formats described
+  by the revised IEEE 754 specification, and is distributed under the
   ICU License.
 
 ```text
@@ -392,6 +392,14 @@ property of their respective owners.
   RFC‑854, RFC‑855, RFC‑1091, RFC‑1143, RFC‑1408, and RFC‑1572 — the TELNET
   protocol and the Q method for TELNET protocol option negotiation — written
   by Sean Middleditch and other contributors.
+
+  * **LIBTELNET** has been **identified** by **The DPS8M Development Team**
+    as being free of known restrictions under copyright law, including all
+    related and neighboring rights.
+
+  * **The DPS8M Development Team** makes no warranties about **LIBTELNET**,
+    and disclaims liability for all uses of **LIBTELNET** to the fullest
+    extent permitted by applicable law.
 
 ```text
 The author or authors of this code dedicate any and all copyright interest
@@ -479,5 +487,46 @@ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
 ```
+
+----
+
+## Scope of Intended Application
+
+* The **DPS8M Simulator** is **not designed or intended** for use in any
+  safety-critical, life-critical, or life-sustaining applications or
+  activities.
+
+* These applications and activies include, but are not limited to, military,
+  nuclear reactor control, power generation and transmission, factory
+  automation, industrial process control, robotics, avionics, aerospace,
+  railway, marine, motor vehicle, fire suppression, pharmaceutical,
+  medical or safety devices, any conventional, nuclear, biological or
+  chemical weaponry, or any other applications or activities that could
+  reasonably be expected to potentially impact human health and safety.
+
+----
+
+## Disclaimer of Liability and Endorsement
+
+* While **The DPS8M Development Team** (“*the Team*”) has expended reasonable
+  efforts to make the information available in this document as accurate as
+  possible, the Team makes no claims, promises, or guarantees regarding
+  accuracy, completeness, or adequacy of any information contained in this
+  document.
+
+* **The DPS8M Development Team** expressly disclaims liability for any
+  errors and omissions in the contents of this document.
+
+* **NO WARRANTY OF ANY KIND**, either express or implied, including but not
+  limited to the warranties of non-infringement, merchantability, or fitness
+  for a particular purpose, is given with respect to the contents of this
+  document or the contents of linked external resources.  Linked external
+  resources are not under the control of **The DPS8M Development Team**.
+
+* Any reference in this document to any specific entity, process, or service,
+  or the use of any trade, firm, or corporation name, or any links to
+  external resources are provided for information and convenience purposes
+  only, and in no way constitute endorsement, sponsorship, affiliation, or
+  recommendation by **The DPS8M Development Team**.
 
 ----
