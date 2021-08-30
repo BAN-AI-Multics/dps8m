@@ -41,11 +41,13 @@ SHELL      ?= sh
 SH         ?= $(SHELL)
 UNAME      ?= uname
 COMM       ?= comm
+BREW       ?= brew
 CPPCPP     ?= $(CC) -E
 PREFIX     ?= /usr/local
 CSCOPE     ?= cscope
 MKDIR      ?= mkdir -p
 NDKBUILD   ?= ndk-build
+DIRNAME    ?= dirname
 PKGCONFIG  ?= pkg-config
 GIT        ?= git
 GREP       ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" grep
@@ -70,6 +72,7 @@ TOUCH      ?= touch
 TEST       ?= test
 PRINTF     ?= printf
 TAR        ?= tar
+XARGS      ?= xargs
 MAKETAR    ?= $(TAR) --owner=dps8m --group=dps8m --posix -c                   \
                      --transform 's/^/.\/dps8\//g' -$(ZCTV)
 TARXT      ?= tar
@@ -155,8 +158,26 @@ ifeq ($(OS),Windows_NT)
 else
   UNAME_S := $(shell $(UNAME) -s 2> /dev/null)
   ifeq ($(UNAME_S),Darwin)
-    CFLAGS += -I/usr/local/include
-    LDFLAGS += -L/usr/local/lib
+    ifndef LIBUV
+      ifndef NO_HOMEBREW_LIBS
+        HOMEBREW_LIB := $(shell $(PRINTF) '%s\n' $$($(BREW) list -1 libuv     \
+         2> /dev/null < /dev/null | $(GREP) -E 'libuv.(a|so)$$' 2> /dev/null  \
+          | 2> /dev/null $(XARGS) -n 1 $(DIRNAME) 2> /dev/null | $(SORT) -u   \
+           2> /dev/null | while read -r brewpath; do $(PRINTF) '\\-L%s '      \
+            "$${brewpath:?}"; done))
+        export HOMEBREW_LIB
+        HOMEBREW_INC := $(shell $(PRINTF) '%s\n' $$($(BREW) list -1 libuv     \
+         2> /dev/null < /dev/null | $(GREP) -E 'uv.h$$' 2> /dev/null          \
+          | 2> /dev/null $(XARGS) -n 1 $(DIRNAME) 2> /dev/null | $(SORT) -u   \
+           2> /dev/null | while read -r brewpath; do $(PRINTF) '\\-I%s '      \
+            "$${brewpath:?}"; done))
+        export HOMEBREW_INC
+        NO_HOMEBREW_LIBS=complete
+        export NO_HOMEBREW_LIBS
+      endif
+    endif
+  CFLAGS += $(HOMEBREW_INC)
+  LDFLAGS += $(HOMEBREW_LIB)
   endif
 
 ###############################################################################
@@ -257,11 +278,11 @@ endif
 %.o: %.c
 	@$(PRINTF) '%s\n' "CC: $<"
 	@$(SETV); $(CC) $(CFLAGS) $(CPPFLAGS) $(X_FLAGS) -c "$<" -o "$@"          \
-    -DBUILDINFO_"$(shell printf '%s\n' "$@"                               |   \
+    -DBUILDINFO_"$(shell $(PRINTF) '%s\n' "$@"                            |   \
     $(CUT) -f 1 -d '.'                                      2> /dev/null  |   \
     $(TR) -cd '\ [:alnum:]_'                                2> /dev/null ||   \
     $(PRINTF) '%s\n' "fallback"                             2> /dev/null      \
-    )"="\"$(shell printf '%s\n'                                               \
+    )"="\"$(shell $(PRINTF) '%s\n'                                            \
     '$(CC) $(CFLAGS) $(CPPFLAGS) $(X_CFLAGS) $(LDFLAGS) $(LOCALLIBS) $(LIBS)' \
 	| $(TR) -d '\\"'                                        2> /dev/null  |   \
     $(SED)  -e 's/ -DVER_CURRENT_TIME=....................... /\ /g'          \
