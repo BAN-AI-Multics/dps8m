@@ -2583,14 +2583,13 @@ static t_stat doInstruction (void)
         uint col = grp % 36;
         CPT (cpt3U + row, col); // 3U 0-35, 3L 0-17
       }
+#endif
 #ifdef L68
     bool is_ou = false;
-#endif
     if (opcodes10[opcode10].reg_use & is_OU)
       {
-#ifdef L68
         is_ou = true;
-#endif
+#ifdef PANEL
     // XXX Punt on RP FULL, RS FULL
         cpu.ou.RB1_FULL = cpu.ou.RP_FULL = cpu.ou.RS_FULL = 1;
         cpu.ou.cycle |= ou_GIN;
@@ -2607,6 +2606,7 @@ static t_stat doInstruction (void)
         if (reguse & ru_X5) CPT (cpt5U, 11);
         if (reguse & ru_X6) CPT (cpt5U, 12);
         if (reguse & ru_X7) CPT (cpt5U, 13);
+#endif
       }
 #ifdef L68
     bool is_du = false;
