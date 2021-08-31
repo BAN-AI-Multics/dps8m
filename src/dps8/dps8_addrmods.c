@@ -401,6 +401,7 @@ startCA:;
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "%s(startCA): restart; CT_HOLD %02o\n",
                    __func__, cpu.cu.CT_HOLD);
+// Part of ISOLTS tst885 ir
        if (cpu.switches.isolts_mode &&
            GET_TM(cpu.cu.CT_HOLD) == TM_IT && GET_TD (cpu.cu.CT_HOLD) == IT_DIC &&
                 cpu.cu.pot == 1 && GET_ADDR (IWB_IRODD) == cpu.TPR.CA)
