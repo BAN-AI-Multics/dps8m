@@ -1400,9 +1400,7 @@ cpu_state_t * cpus = NULL;
 #else
 cpu_state_t cpus [N_CPU_UNITS_MAX];
 #endif
-#if defined(THREADZ) || defined(LOCKLESS)
-//__thread cpu_state_t * restrict cpup;
-#else
+#if !defined(THREADZ) && !defined(LOCKLESS)
 cpu_state_t * restrict cpup;
 #endif
 #ifdef ROUND_ROBIN
