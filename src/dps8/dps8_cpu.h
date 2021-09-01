@@ -1821,9 +1821,7 @@ extern cpu_state_t * cpus;
 extern cpu_state_t cpus [N_CPU_UNITS_MAX];
 #endif
 
-#if defined(THREADZ) || defined(LOCKLESS)
-//extern __thread cpu_state_t * restrict cpup;
-#else
+#if !defined(THREADZ) && !defined(LOCKLESS)
 extern cpu_state_t * restrict cpup;
 #endif
 #define cpu (* cpu_p)
