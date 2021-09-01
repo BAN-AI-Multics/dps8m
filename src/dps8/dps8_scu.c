@@ -543,8 +543,8 @@
 #include <sys/time.h>
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_scu.h"
 #include "dps8_cpu.h"
+#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_faults.h"
@@ -1152,7 +1152,7 @@ static pthread_mutex_t clock_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 // The SCU clock is 52 bits long; fits in t_uint64
-static uint64 set_SCU_clock (uint scu_unit_idx)
+static uint64 set_SCU_clock (cpu_state_t * cpu_p, uint scu_unit_idx)
   {
 #if defined(THREADZ) || defined(LOCKLESS)
     pthread_mutex_lock (& clock_lock);
@@ -1163,7 +1163,7 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
 // allowing reproducible behavior. In real, the clock is
 // coupled to the actual time-of-day.
 
-#if 0
+#if 1
     if (scu [0].steady_clock)
       {
         // The is a bit of code that is waiting for 5000 ms; this
@@ -1313,7 +1313,7 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
         Multics_usecs = scu [scu_unit_idx].last_time + 1;
     scu [scu_unit_idx].last_time = Multics_usecs;
 
-//done:
+done:
 #if defined(THREADZ) || defined(LOCKLESS)
     pthread_mutex_unlock (& clock_lock);
 #endif
@@ -1525,7 +1525,7 @@ t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_udx,
 // x = any octal digit
 //
 
-t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
+t_stat scu_sscr (cpu_state_t * cpu_p, uint scu_unit_idx, UNUSED uint cpu_unit_udx,
                  UNUSED uint cpu_port_num, word18 addr,
                  word36 rega, word36 regq)
   {
@@ -1773,7 +1773,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
             lock_scu ();
 #endif
             scu [scu_unit_idx].user_correction =
-              (int64) (new_clk - set_SCU_clock (scu_unit_idx));
+              (int64) (new_clk - set_SCU_clock (cpu_p, scu_unit_idx));
 #if defined(THREADZ) || defined(LOCKLESS)
             unlock_scu ();
 #endif
@@ -1799,7 +1799,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
     return SCPE_OK;
   }
 
-t_stat scu_rscr (uint scu_unit_idx, uint cpu_unit_udx, word18 addr,
+t_stat scu_rscr (cpu_state_t * cpu_p, uint scu_unit_idx, uint cpu_unit_udx, word18 addr,
                  word36 * rega, word36 * regq)
   {
     // Only valid for a 4MW SCU
@@ -2039,9 +2039,9 @@ gotit:;
         case 00004: // Get calendar clock (4MW SCU only)
         case 00005:
           {
-            uint64 clk = set_SCU_clock (scu_unit_idx);
+            uint64 clk = set_SCU_clock (cpu_p, scu_unit_idx);
             * regq =  clk & 0777777777777;     // lower 36-bits of clock
-            * regq = (clk >> 36) & 0177777;    // upper 16-bits of clock
+            * rega = (clk >> 36) & 0177777;    // upper 16-bits of clock
             // cpu_p not here
             // HDBGRegA ();
 #ifdef HDBG
