@@ -48,10 +48,10 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
 
-static void add_CU_history (cpu_state_t *cpu_p);
-
 __thread uint current_running_cpu_idx;
 #endif
+
+static void add_CU_history (cpu_state_t *cpu_p);
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -1470,8 +1470,8 @@ t_stat simh_hooks (void)
     // sim_brk_test expects a 32 bit address; PPR.IC into the low 18, and
     // PPR.PSR into the high 12
     if (sim_brk_summ &&
-        sim_brk_test ((cpu.PPR.IC & 0777777) |
-                      ((((t_addr) cpu.PPR.PSR) & 037777) << 18),
+        sim_brk_test ((cpus[0].PPR.IC & 0777777) |
+                      ((((t_addr) cpus[0].PPR.PSR) & 037777) << 18),
                       SWMASK ('E')))  /* breakpoint? */
       return STOP_BKPT; /* stop simulation */
 #ifndef SPEED
@@ -1817,8 +1817,16 @@ static bool clear_temporary_absolute_mode (cpu_state_t *cpu_p)
     //return cpu.went_appending;
   }
 
+#if defined(THREADZ) || defined(LOCKLESS)
 t_stat threadz_sim_instr (cpu_state_t *cpu_p)
+#else
+t_stat threadz_sim_instr (void)
+#endif
   {
+#if !defined(THREADZ) && !defined(LOCKLESS)
+    cpu_state_t * cpu_p = & cpus [0];
+#endif
+
 //cpu.have_tst_lock = false;
 
     t_stat reason = 0;
