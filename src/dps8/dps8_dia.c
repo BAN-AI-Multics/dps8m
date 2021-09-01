@@ -361,7 +361,7 @@ static inline void fnp_core_write (word24 addr, word36 data, UNUSED const char *
     lock_mem_wr ();
 #endif
 #ifdef SCUMEM
-    iom_core_write (cpu_p, addr, data, ctx);
+    iom_core_write (cpuPtr, addr, data, ctx);
 #else
     M [addr] = data & DMASK;
 #endif

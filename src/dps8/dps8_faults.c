@@ -239,7 +239,7 @@ static word15 fault_psr;
 static char fault_msg [1024];
 
 
-void emCallReportFault (cpu_state_t *cpu_p)
+void emCallReportFault (cpu_state_t *cpuPtr)
   {
            sim_printf ("fault report:\n");
            sim_printf ("  fault number %d (%o)\n", cpu . faultNumber, cpu . faultNumber);
@@ -250,7 +250,7 @@ void emCallReportFault (cpu_state_t *cpu_p)
 #endif
 
 
-void clearFaultCycle (cpu_state_t *cpu_p)
+void clearFaultCycle (cpu_state_t *cpuPtr)
   {
     cpu . bTroubleFaultCycle = false;
   }
@@ -355,7 +355,7 @@ const _fault_subtype fst_cmd_ctl = (_fault_subtype) {.fault_cmd_subtype=flt_cmd_
 const _fault_subtype fst_onc_nem = (_fault_subtype) {.fault_onc_subtype=flt_onc_nem};
 #endif
 // CANFAULT
-void doFault (cpu_state_t *cpu_p, _fault faultNumber, _fault_subtype subFault,
+void doFault (cpu_state_t *cpuPtr, _fault faultNumber, _fault_subtype subFault,
               const char * faultMsg)
   {
 #ifdef LOOPTRC
@@ -385,7 +385,7 @@ else if (faultNumber == FAULT_ACV)
 #endif
 #ifndef SPEED
     if_sim_debug (DBG_FAULT, & cpu_dev)
-      traceInstruction (cpu_p, DBG_FAULT);
+      traceInstruction (cpuPtr, DBG_FAULT);
 #endif
 
     PNL (cpu.DACVpDF = faultNumber >=  FAULT_DF0 && faultNumber <= FAULT_ACV;)
@@ -661,7 +661,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
 #if !defined(THREADZ) && !defined(LOCKLESS)
 #ifndef PANEL
 #ifndef ROUND_ROBIN
-            if ((! sample_interrupts (cpu_p)) &&
+            if ((! sample_interrupts (cpuPtr)) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                      // break this logic
               {
@@ -704,7 +704,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
                fault_number, fault_msg);
 #ifndef SPEED
     if_sim_debug (DBG_FAULT, & cpu_dev)
-      traceInstruction (cpu_p, DBG_FAULT);
+      traceInstruction (cpuPtr, DBG_FAULT);
 #endif
 
     if (fault_number < 1 || fault_number > 3)
@@ -801,7 +801,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 #if !defined(THREADZ) && !defined(LOCKLESS)
 #ifndef PANEL
 #ifndef ROUND_ROBIN
-            if ((! sample_interrupts (cpu_p)) &&
+            if ((! sample_interrupts (cpuPtr)) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                      // break this logic
               {
@@ -836,7 +836,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 }
 #endif
 
-void dlyDoFault (cpu_state_t *cpu_p, _fault faultNumber, _fault_subtype subFault,
+void dlyDoFault (cpu_state_t *cpuPtr, _fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg)
   {
     cpu.dlyFlt = true;
@@ -852,7 +852,7 @@ void dlyDoFault (cpu_state_t *cpu_p, _fault faultNumber, _fault_subtype subFault
 // Note: The DIS code assumes that the only G7 fault is TRO. Adding any
 // other G7 faults will potentailly require changing the DIS code.
 
-bool bG7Pending (cpu_state_t *cpu_p)
+bool bG7Pending (cpu_state_t *cpuPtr)
   {
 #ifdef DPS8M
     return cpu.g7Faults != 0;
@@ -862,7 +862,7 @@ bool bG7Pending (cpu_state_t *cpu_p)
 #endif
   }
 
-bool bG7PendingNoTRO (cpu_state_t *cpu_p)
+bool bG7PendingNoTRO (cpu_state_t *cpuPtr)
   {
 #ifdef DPS8M
     return (cpu.g7Faults & (~ (1u << FAULT_TRO))) != 0;
@@ -874,7 +874,7 @@ bool bG7PendingNoTRO (cpu_state_t *cpu_p)
 
 void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
   {
-    cpu_state_t * cpu_p = cpus + cpuNo;
+    cpu_state_t * cpuPtr = cpus + cpuNo;
     sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o) sub %"PRId64" %"PRIo64"\n",
                cpuNo, faultNo, faultNo, subFault.bits, subFault.bits);
     cpus[cpuNo].g7FaultsPreset |= (1u << faultNo);
@@ -886,7 +886,7 @@ void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
   }
 
 #ifdef L68
-void set_FFV_fault (cpu_state_t *cpu_p, uint f_fault_no)
+void set_FFV_fault (cpu_state_t *cpuPtr, uint f_fault_no)
   {
     sim_debug (DBG_FAULT, & cpu_dev, "set_FFV_fault CPU f_fault_no %u\n",
                f_fault_no);
@@ -895,12 +895,12 @@ void set_FFV_fault (cpu_state_t *cpu_p, uint f_fault_no)
   }
 #endif
 
-void clearTROFault (cpu_state_t *cpu_p)
+void clearTROFault (cpu_state_t *cpuPtr)
   {
     cpu . g7Faults &= ~(1u << FAULT_TRO);
   }
 
-void doG7Fault (cpu_state_t *cpu_p, bool allowTR)
+void doG7Fault (cpu_state_t *cpuPtr, bool allowTR)
   {
     // sim_printf ("doG7fault %08o [%"PRId64"]\n", cpu . g7Faults, cpu.cycleCnt);
     // if (cpu . g7Faults)
@@ -919,7 +919,7 @@ void doG7Fault (cpu_state_t *cpu_p, bool allowTR)
 #if defined(THREADZ) || defined(LOCKLESS)
          unlock_scu ();
 #endif
-         doFault (cpu_p, FAULT_CON, cpu.g7SubFaults [FAULT_CON], "Connect");
+         doFault (cpuPtr, FAULT_CON, cpu.g7SubFaults [FAULT_CON], "Connect");
        }
 
      if (allowTR && (cpu.g7Faults & (1u << FAULT_TRO)))
@@ -930,7 +930,7 @@ void doG7Fault (cpu_state_t *cpu_p, bool allowTR)
 #if defined(THREADZ) || defined(LOCKLESS)
          unlock_scu ();
 #endif
-         doFault (cpu_p, FAULT_TRO, fst_zero, "Timer runout");
+         doFault (cpuPtr, FAULT_TRO, fst_zero, "Timer runout");
        }
 
      // Strictly speaking EXF isn't a G7 fault, put if we treat is as one,
@@ -943,7 +943,7 @@ void doG7Fault (cpu_state_t *cpu_p, bool allowTR)
 #if defined(THREADZ) || defined(LOCKLESS)
          unlock_scu ();
 #endif
-         doFault (cpu_p, FAULT_EXF, fst_zero, "Execute fault");
+         doFault (cpuPtr, FAULT_EXF, fst_zero, "Execute fault");
        }
 
 #ifdef L68
@@ -975,10 +975,10 @@ void doG7Fault (cpu_state_t *cpu_p, bool allowTR)
 #if defined(THREADZ) || defined(LOCKLESS)
      unlock_scu ();
 #endif
-     doFault (cpu_p, FAULT_TRB, (_fault_subtype) {.bits=cpu.g7Faults}, "Dazed and confused in doG7Fault");
+     doFault (cpuPtr, FAULT_TRB, (_fault_subtype) {.bits=cpu.g7Faults}, "Dazed and confused in doG7Fault");
   }
 
-void advanceG7Faults (cpu_state_t *cpu_p)
+void advanceG7Faults (cpu_state_t *cpuPtr)
   {
 #if defined(THREADZ) || defined(LOCKLESS)
     lock_scu ();

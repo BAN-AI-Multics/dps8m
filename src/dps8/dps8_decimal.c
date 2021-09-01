@@ -99,7 +99,7 @@ decContext * decContextDefaultDPS8_80(decContext *context)
 #endif
 
 
-decNumber * decBCD9ToNumber(cpu_state_t *cpu_p, const word9 *bcd, Int length, const Int scale, decNumber *dn)
+decNumber * decBCD9ToNumber(cpu_state_t *cpuPtr, const word9 *bcd, Int length, const Int scale, decNumber *dn)
 {
     const word9 *last=bcd+length-1;  // -> last byte
     const word9 *first;              // -> first non-zero byte
@@ -136,7 +136,7 @@ decNumber * decBCD9ToNumber(cpu_state_t *cpu_p, const word9 *bcd, Int length, co
             decNumberZero(dn);
             //return NULL;
             // XXX check subfault
-            doFault (cpu_p, FAULT_IPR, fst_ill_proc, "decBCD9ToNumber underflow");
+            doFault (cpuPtr, FAULT_IPR, fst_ill_proc, "decBCD9ToNumber underflow");
         }
     }
     else  // -ve scale; +ve exponent
@@ -148,7 +148,7 @@ decNumber * decBCD9ToNumber(cpu_state_t *cpu_p, const word9 *bcd, Int length, co
             decNumberZero(dn);
             //return NULL;
             // XXX check subfault
-            doFault (cpu_p, FAULT_IPR, fst_ill_proc, "decBCD9ToNumber overflow");
+            doFault (cpuPtr, FAULT_IPR, fst_ill_proc, "decBCD9ToNumber overflow");
         }
     }
     if (digits==0)
@@ -162,7 +162,7 @@ decNumber * decBCD9ToNumber(cpu_state_t *cpu_p, const word9 *bcd, Int length, co
         // got a digit, in nib
         //if (nib>9) {decNumberZero(dn); return NULL;}    // bad digit
         if (nib > 9)
-          doFault (cpu_p, FAULT_IPR, fst_ill_dig, "decBCD9ToNumber ill digit");
+          doFault (cpuPtr, FAULT_IPR, fst_ill_dig, "decBCD9ToNumber ill digit");
 
         if (cut==0)
           *up=(Unit)nib;
