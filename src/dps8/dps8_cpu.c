@@ -618,7 +618,6 @@ uint set_cpu_idx (UNUSED uint cpu_idx)
 #ifdef ROUND_ROBIN
     current_running_cpu_idx = cpu_idx;
 #endif
-    //cpup = & cpus [current_running_cpu_idx];
     return prev;
   }
 
@@ -1399,9 +1398,6 @@ DEVICE cpu_dev =
 cpu_state_t * cpus = NULL;
 #else
 cpu_state_t cpus [N_CPU_UNITS_MAX];
-#endif
-#if !defined(THREADZ) && !defined(LOCKLESS)
-cpu_state_t * restrict cpup;
 #endif
 #ifdef ROUND_ROBIN
 uint current_running_cpu_idx;
