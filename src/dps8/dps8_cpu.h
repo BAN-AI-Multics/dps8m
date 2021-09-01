@@ -1822,7 +1822,7 @@ extern cpu_state_t cpus [N_CPU_UNITS_MAX];
 #endif
 
 #if defined(THREADZ) || defined(LOCKLESS)
-extern __thread cpu_state_t * restrict cpup;
+//extern __thread cpu_state_t * restrict cpup;
 #else
 extern cpu_state_t * restrict cpup;
 #endif

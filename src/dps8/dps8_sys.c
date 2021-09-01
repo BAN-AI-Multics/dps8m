@@ -4805,7 +4805,7 @@ static void http_do_get (char * uri)
                      "<p>%c serial # %u MIPS %4.2f %s%s PPR %05o:%06o R%u P%u</p>\r\n",
                      cpu_p->switches.cpu_num + 'A',
                      cpu_p->switches.serno,
-                     (double)((cpup->instrCntT1 - cpup->instrCntT0) / 1000000.0L),
+                     (double)((cpu_p->instrCntT1 - cpu_p->instrCntT0) / 1000000.0L),
                      get_addr_mode (cpu_p) == ABSOLUTE_mode ? "ABS" : "APP",
                      get_bar_mode (cpu_p) ? "BAR" : "",
                      cpu_p->PPR.PSR,
