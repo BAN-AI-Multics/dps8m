@@ -25,8 +25,8 @@
 
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_scu.h"
 #include "dps8_cpu.h"
+#include "dps8_scu.h"
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_faults.h"
@@ -6604,7 +6604,7 @@ static t_stat doInstruction (cpu_state_t *cpu_p)
               }
             uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
 
-            t_stat rc = scu_rscr ((uint) scuUnitIdx, current_running_cpu_idx,
+            t_stat rc = scu_rscr (cpu_p, (uint) scuUnitIdx, current_running_cpu_idx,
                                   040, & cpu.rA, & cpu.rQ);
             HDBGRegA ();
             HDBGRegQ ();
@@ -7978,7 +7978,7 @@ elapsedtime ();
                CPT (cpt13L, function);
             }
 #endif
-            t_stat rc = scu_rscr ((uint) scuUnitIdx, current_running_cpu_idx,
+            t_stat rc = scu_rscr (cpu_p, (uint) scuUnitIdx, current_running_cpu_idx,
                                   cpu.iefpFinalAddress & MASK15,
                                   & cpu.rA, & cpu.rQ);
             HDBGRegA ();
@@ -8583,7 +8583,7 @@ elapsedtime ();
                 doFault (cpu_p, FAULT_CMD, fst_cmd_ctl, "(sscr)");
               }
             uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-            t_stat rc = scu_sscr ((uint) scuUnitIdx, current_running_cpu_idx,
+            t_stat rc = scu_sscr (cpu_p, (uint) scuUnitIdx, current_running_cpu_idx,
                                   cpu_port_num, cpu.iefpFinalAddress & MASK15,
                                   cpu.rA, cpu.rQ);
 
