@@ -9,5 +9,5 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-void do_caf (cpu_state_t *cpu_p);
-void updateIWB (cpu_state_t *cpu_p, word18 addr, word6 tag);
+void do_caf (cpu_state_t *cpuPtr);
+void updateIWB (cpu_state_t *cpuPtr, word18 addr, word6 tag);

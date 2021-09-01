@@ -1152,7 +1152,7 @@ static pthread_mutex_t clock_lock = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 // The SCU clock is 52 bits long; fits in t_uint64
-static uint64 set_SCU_clock (cpu_state_t * cpu_p, uint scu_unit_idx)
+static uint64 set_SCU_clock (cpu_state_t * cpuPtr, uint scu_unit_idx)
   {
 #if defined(THREADZ) || defined(LOCKLESS)
     pthread_mutex_lock (& clock_lock);
@@ -1525,7 +1525,7 @@ t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_udx,
 // x = any octal digit
 //
 
-t_stat scu_sscr (cpu_state_t * cpu_p, uint scu_unit_idx, UNUSED uint cpu_unit_udx,
+t_stat scu_sscr (cpu_state_t * cpuPtr, uint scu_unit_idx, UNUSED uint cpu_unit_udx,
                  UNUSED uint cpu_port_num, word18 addr,
                  word36 rega, word36 regq)
   {
@@ -1773,7 +1773,7 @@ t_stat scu_sscr (cpu_state_t * cpu_p, uint scu_unit_idx, UNUSED uint cpu_unit_ud
             lock_scu ();
 #endif
             scu [scu_unit_idx].user_correction =
-              (int64) (new_clk - set_SCU_clock (cpu_p, scu_unit_idx));
+              (int64) (new_clk - set_SCU_clock (cpuPtr, scu_unit_idx));
 #if defined(THREADZ) || defined(LOCKLESS)
             unlock_scu ();
 #endif
@@ -1799,7 +1799,7 @@ t_stat scu_sscr (cpu_state_t * cpu_p, uint scu_unit_idx, UNUSED uint cpu_unit_ud
     return SCPE_OK;
   }
 
-t_stat scu_rscr (cpu_state_t * cpu_p, uint scu_unit_idx, uint cpu_unit_udx, word18 addr,
+t_stat scu_rscr (cpu_state_t * cpuPtr, uint scu_unit_idx, uint cpu_unit_udx, word18 addr,
                  word36 * rega, word36 * regq)
   {
     // Only valid for a 4MW SCU
@@ -2039,10 +2039,10 @@ gotit:;
         case 00004: // Get calendar clock (4MW SCU only)
         case 00005:
           {
-            uint64 clk = set_SCU_clock (cpu_p, scu_unit_idx);
+            uint64 clk = set_SCU_clock (cpuPtr, scu_unit_idx);
             * regq =  clk & 0777777777777;     // lower 36-bits of clock
             * rega = (clk >> 36) & 0177777;    // upper 16-bits of clock
-            // cpu_p not here
+            // cpuPtr not here
             // HDBGRegA ();
 #ifdef HDBG
 	hdbgReg (hreg_A, * rega);

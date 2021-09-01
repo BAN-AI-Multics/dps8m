@@ -12,18 +12,18 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-void Read (cpu_state_t *cpu_p, word18 addr, word36 *dat, processor_cycle_type cyctyp);
-void Read2 (cpu_state_t *cpu_p, word18 addr, word36 *dat, processor_cycle_type cyctyp);
-void Write (cpu_state_t *cpu_p, word18 addr, word36 dat, processor_cycle_type cyctyp);
-void Write2 (cpu_state_t *cpu_p, word18 address, word36 * data, processor_cycle_type cyctyp);
+void Read (cpu_state_t *cpuPtr, word18 addr, word36 *dat, processor_cycle_type cyctyp);
+void Read2 (cpu_state_t *cpuPtr, word18 addr, word36 *dat, processor_cycle_type cyctyp);
+void Write (cpu_state_t *cpuPtr, word18 addr, word36 dat, processor_cycle_type cyctyp);
+void Write2 (cpu_state_t *cpuPtr, word18 address, word36 * data, processor_cycle_type cyctyp);
 #ifdef CWO
-void Write1 (cpu_state_t *cpu_p, word18 address, word36 data, bool isAR);
+void Write1 (cpu_state_t *cpuPtr, word18 address, word36 data, bool isAR);
 #endif
-void Write8 (cpu_state_t *cpu_p, word18 address, word36 * data, bool isAR);
-void Write16 (cpu_state_t *cpu_p, word18 address, word36 * data);
-void Write32 (cpu_state_t *cpu_p, word18 address, word36 * data);
-void Read8 (cpu_state_t *cpu_p, word18 address, word36 * result, bool isAR);
-void Read16 (cpu_state_t *cpu_p, word18 address, word36 * result);
-void WritePage (cpu_state_t *cpu_p, word18 address, word36 * data, bool isAR);
-void ReadPage (cpu_state_t *cpu_p, word18 address, word36 * result, bool isAR);
-void ReadIndirect (cpu_state_t *cpu_p);
+void Write8 (cpu_state_t *cpuPtr, word18 address, word36 * data, bool isAR);
+void Write16 (cpu_state_t *cpuPtr, word18 address, word36 * data);
+void Write32 (cpu_state_t *cpuPtr, word18 address, word36 * data);
+void Read8 (cpu_state_t *cpuPtr, word18 address, word36 * result, bool isAR);
+void Read16 (cpu_state_t *cpuPtr, word18 address, word36 * result);
+void WritePage (cpu_state_t *cpuPtr, word18 address, word36 * data, bool isAR);
+void ReadPage (cpu_state_t *cpuPtr, word18 address, word36 * result, bool isAR);
+void ReadIndirect (cpu_state_t *cpuPtr);
