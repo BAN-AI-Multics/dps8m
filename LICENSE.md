@@ -417,16 +417,17 @@ of all present and future rights to this code under copyright law.
   techniques (the “Routines”), written or distributed by
   [Thorsten “mirabilos” Glaser](https://www.mirbsd.org/).
 
-* The Routines have been identified as being free of known restrictions
-  under copyright law, including all related and neighboring rights.
+  * The Routines have been identified as being free of known restrictions
+    under copyright law, including all related and neighboring rights.
 
-* The Routines are in the public domain as they do not meet the threshold
-  of originality required for copyright protection in most jurisdictions.
+  * The Routines are in the public domain as they do not meet the threshold
+    of originality required for copyright protection in most jurisdictions.
 
-* The Routines are also distributed under the terms and conditions of the BSD
-  “Zero Clause” license, or at your option, any other license which meets the
-  Open Source Definition and is approved by Open Source Initiative, should
-  the Routines **not** be in the public domain in your legal jurisdiction.
+  * The Routines are also distributed under the terms and conditions of the
+    BSD “Zero Clause” license, or at your option, any other license which
+    meets the Open Source Definition and is approved by Open Source
+    Initiative, should the Routines **not** be in the public domain in your
+    legal jurisdiction.
 
 ```text
 Copyright (c) 2011 Thorsten “mirabilos” Glaser <m@mirbsd.org>
@@ -486,6 +487,58 @@ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
+```
+
+----
+
+### MULTICS SOFTWARE MATERIALS AND DOCUMENTATION
+
+* **DPS8** includes some **Multics** software materials and documentation.
+  These materials and documentation are distributed under the terms of the
+  **Multics License**.
+
+```text
+Copyright (c) 1972 by the Massachusetts Institute of Technology and
+  Honeywell Information Systems, Inc.
+Copyright (c) 2006 by Bull HN Information Systems, Inc.
+Copyright (c) 2006 by Bull SAS.
+
+All Rights Reserved.
+
+Historical Background
+
+* This edition of the Multics software materials and documentation is
+  provided and donated to the Massachusetts Institute of Technology by
+  Group BULL including BULL HN Information Systems, Inc. as a
+  contribution to computer science knowledge.
+
+* This donation is made also to give evidence of the common contributions
+  of the Massachusetts Institute of Technology, Bell Laboratories,
+  General Electric, Honeywell Information Systems, Inc., Honeywell BULL,
+  Inc., Groupe BULL and BULL HN Information Systems, Inc. to the
+  development of this operating system.
+
+* Multics development was initiated by the Massachusetts Institute of
+  Technology Project MAC (1963-1970), renamed the MIT Laboratory for
+  Computer Science and Artificial Intelligence in the mid 1970s, under
+  the leadership of Professor Fernando José Corbató.  Users consider
+  that Multics provided the best software architecture for managing
+  computer hardware properly and for executing  programs.  Many
+  subsequent operating systems incorporated Multics principles.
+
+* Multics was distributed in 1975 to 2000 by Group Bull in Europe, and
+  in the U.S. by Bull HN Information Systems, Inc., as successor in
+  interest by change in name only to Honeywell Bull, Inc. and Honeywell
+  Information Systems, Inc.
+
+Permission to use, copy, modify, and distribute these programs and their
+documentation for any purpose and without fee is hereby granted, provided
+that this copyright notice and the above historical background appear in
+all copies and that both the copyright notice and historical background
+and this permission notice appear in supporting documentation, and that
+the names of MIT, HIS, BULL or BULL HN not be used in advertising or
+publicity pertaining to distribution of the programs without specific
+prior written permission.
 ```
 
 ----
