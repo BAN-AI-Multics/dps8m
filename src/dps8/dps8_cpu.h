@@ -724,6 +724,7 @@ typedef struct
     uint serno;
     bool useMap;
     bool disable_cache;
+    bool enable_emcall;
   } switches_t;
 
 #ifdef L68

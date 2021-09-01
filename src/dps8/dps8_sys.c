@@ -67,6 +67,8 @@
 #include "panelScraper.h"
 #endif
 
+#include "segldr.h"
+
 #define DBG_CTR cpu.cycleCnt
 
 #define ASSUME0 0
@@ -3826,6 +3828,8 @@ static CTAB dps8_cmds[] =
 #endif
     {"DBGCPUMASK",          set_dbg_cpu_mask,         0, "dbgcpumask: Set per CPU debug enable", NULL, NULL},
 #endif // TESTING
+
+    {"SEGLDR",              segment_loader,           0, "Segment Loader", NULL, NULL},
 
 //
 // Statistics

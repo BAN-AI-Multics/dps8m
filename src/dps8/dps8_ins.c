@@ -52,11 +52,7 @@
 
 static int doABSA (cpu_state_t *cpu_p, word36 * result);
 static t_stat doInstruction (cpu_state_t *cpu_p);
-#ifdef TESTING
-#if EMULATOR_ONLY
-static int emCall (void);
-#endif
-#endif
+static int emCall (cpu_state_t * cpu_p);
 static void doRCU (cpu_state_t *cpu_p);
 
 #ifdef LOOPTRC
@@ -2185,7 +2181,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
       {
         // 'EPP ITS; TRA' confuses the APU by leaving last_cycle
         // at INDIRECT_WORD_FETCH; defoobarize the APU:
-        fauxDoAppendCycle (cpup, OPERAND_READ);
+        fauxDoAppendCycle (cpu_p, OPERAND_READ);
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.TPR.TSR = cpu.PPR.PSR;
         cpu.TPR.TBR = 0;
@@ -9361,21 +9357,21 @@ elapsedtime ();
             dv3d (cpu_p);
             break;
 
-#ifdef TESTING
-#if EMULATOR_ONLY
-
         case x1 (0420):  // emcall instruction Custom, for an emulator call for
                     //  simh stuff ...
         {
-            int ret = emCall ();
-            if (ret)
-              return ret;
-            break;
+            if (cpu.switches.enable_emcall)
+              {
+                int ret = emCall (cpu_p);
+                if (ret)
+                  return (ret);
+                break;
+              }
+            goto unimp;
         }
-#endif
-#endif
 
         default:
+        unimp:
           if (cpu.switches.halt_on_unimp)
             return STOP_STOP;
           doFault (cpu_p, FAULT_IPR,
@@ -9393,16 +9389,77 @@ elapsedtime ();
     return SCPE_OK;
 }
 
-#ifdef TESTING
 #include <ctype.h>
+#include <time.h>
 
-#if EMULATOR_ONLY
 /**
  * emulator call instruction. Do whatever address field sez' ....
  */
-static int emCall (void)
+
+static clockid_t clockID;
+static struct timespec startTime;
+static unsigned long long startInstrCnt;
+static int emCall (cpu_state_t * cpu_p)
 {
     DCDstruct * i = & cpu.currentInstruction;
+
+// The address is absolute address of a structure consisting of a
+// operation code word and optional following words containing
+// data for the operation.
+
+   word36 op = M[i->address];
+   switch (op)
+     {
+       // OP 1: Print the unsigned decimal representation of the first data
+       //       word.
+       case 1: 
+         sim_printf ("%ld\n", (int64_t) M[i->address+1]);
+         break;
+
+       // OP 2: Halt the simulation
+       case 2:
+#ifdef LOCKLESS
+         bce_dis_called = true;
+#endif
+         return STOP_STOP;
+
+       // OP 3: Start CPU clock
+       case 3:
+         startInstrCnt = cpu.instrCnt;
+         clock_getcpuclockid (0, & clockID);
+         clock_gettime (clockID, & startTime);
+         break;
+
+       // OP 4: Report CPU clock
+       case 4:
+         {
+#define ns_sec (1000000000)
+#define ns_msec (1000000000 / 1000)
+#define ns_usec (1000000000 / 1000 / 1000)
+           struct timespec now;
+           clock_gettime (clockID, & now);
+           uint64_t start = startTime.tv_nsec + startTime.tv_sec * ns_sec;
+           uint64_t stop = now.tv_nsec + now.tv_sec * ns_sec;
+           uint64_t delta = stop - start;
+	 uint64_t seconds = delta / ns_sec;
+           uint64_t milliseconds = (delta / ns_msec) % 1000;
+           uint64_t microseconds = (delta / ns_usec) % 1000;
+           uint64_t nanoseconds = delta  % 1000;
+           unsigned long long nInsts = cpu.instrCnt - startInstrCnt;
+           double secs = ((double) delta) / (double) ns_sec;
+           double ips = ((double) nInsts) / secs;
+           double mips = ips / 1000000;
+
+           sim_printf ("CPU time %lu.%03lu,%03lu,%03lu\n", seconds, milliseconds, microseconds, nanoseconds);
+           sim_printf ("%lld instructions\n", nInsts);
+           sim_printf ("%lf MIPS\n", mips);
+           break;
+         }
+       default:
+         sim_printf ("emcall unknown op %llo\n", op);
+      }
+    return 0;
+#if 0
     switch (i->address) // address field
     {
         case 1:     // putc9 - put 9-bit char in AL to stdout
@@ -9444,7 +9501,7 @@ static int emCall (void)
         case 4:     // putoctZ - put octal contents of A to stdout
                     // (zero-suppressed)
         {
-            sim_printf ("%"PRIo64"", cpu.rA);
+            sim_printf ("%"PRIo64"\n", cpu.rA);
             break;
         }
         case 5:     // putdec - put decimal contents of A to stdout
@@ -9570,6 +9627,7 @@ static int emCall (void)
         // case 17 used above
 
         case 18:     // halt
+            sim_printf ("emCall Halt\n");
             return STOP_STOP;
 
         case 19:     // putdecaq - put decimal contents of AQ to stdout
@@ -9591,9 +9649,8 @@ static int emCall (void)
 
     }
     return 0;
-}
 #endif
-#endif // TESTING
+  }
 
 // CANFAULT
 static int doABSA (cpu_state_t *cpu_p, word36 * result)
@@ -9658,7 +9715,7 @@ elapsedtime ();
       }
 
     // Resync the append unit
-    fauxDoAppendCycle (cpup, INSTRUCTION_FETCH);
+    fauxDoAppendCycle (cpu_p, INSTRUCTION_FETCH);
 
 // All of the faults list as having handlers have actually
 // been encountered in Multics operation and are believed

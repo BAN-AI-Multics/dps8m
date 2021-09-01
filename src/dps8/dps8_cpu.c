@@ -334,6 +334,7 @@ static config_list_t cpu_config_list [] =
     { "useMap", 0, 1, cfg_on_off },
     { "address", 0, 0777777, NULL },
     { "disable_cache", 0, 1, cfg_on_off },
+    { "enable_emcall", 0, 1, cfg_on_off },
 
     // Tuning
 
@@ -434,6 +435,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.useMap = v;
         else if (strcmp (p, "disable_cache") == 0)
           cpus[cpu_unit_idx].switches.disable_cache = v;
+        else if (strcmp (p, "enable_emcall") == 0)
+          cpus[cpu_unit_idx].switches.enable_emcall = v;
 #ifdef AFFINITY
         else if (strcmp (p, "affinity") == 0)
           if (v < 0)

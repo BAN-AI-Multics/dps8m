@@ -285,6 +285,7 @@ t_stat sim_os_set_thread_priority (int below_normal_above)
 int sched_policy, min_prio, max_prio;
 struct sched_param sched_priority;
 
+#ifndef __gnu_hurd__
 if ((below_normal_above < -1) || (below_normal_above > 1))
     return SCPE_ARG;
 
@@ -303,6 +304,7 @@ switch (below_normal_above) {
         break;
     }
 pthread_setschedparam (pthread_self(), sched_policy, &sched_priority);
+#endif /* ifndef __gnu_hurd__ */
 return SCPE_OK;
 }
 #endif

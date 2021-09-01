@@ -32,7 +32,9 @@
 
 #define DBG_CTR 1
 
+#ifndef bzero
 #define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+#endif /* ifndef bzero */
 
 static struct {
     const char *name;
