@@ -55,7 +55,7 @@ void Read (cpu_state_t *cpu_p, word18 address, word36 * result, processor_cycle_
               {
                 set_apu_status (cpu_p, apuStatus_FABS); // XXX maybe...
                 cpu.iefpFinalAddress = get_BAR_address (cpu_p, address);
-                fauxDoAppendCycle (cpup, cyctyp);
+                fauxDoAppendCycle (cpu_p, cyctyp);
 #ifdef LOCKLESS
                 if (cyctyp == OPERAND_RMW || cyctyp == APU_DATA_RMW)
                   core_read_lock (cpu_p, cpu.iefpFinalAddress, result, __func__);
@@ -74,7 +74,7 @@ void Read (cpu_state_t *cpu_p, word18 address, word36 * result, processor_cycle_
             else
               {
                 set_apu_status (cpu_p, apuStatus_FABS);
-                fauxDoAppendCycle (cpup, cyctyp);
+                fauxDoAppendCycle (cpu_p, cyctyp);
 #ifdef LOCKLESS
                 if (cyctyp == OPERAND_RMW || cyctyp == APU_DATA_RMW)
                   core_read_lock (cpu_p, address, result, __func__);
@@ -153,7 +153,7 @@ void Read2 (cpu_state_t *cpu_p, word18 address, word36 * result, processor_cycle
                 set_apu_status (cpu_p, apuStatus_FABS); // XXX maybe...
                 cpu.iefpFinalAddress = get_BAR_address (cpu_p, address);
 
-                fauxDoAppendCycle (cpup, cyctyp);
+                fauxDoAppendCycle (cpu_p, cyctyp);
                 core_read2 (cpu_p, cpu.iefpFinalAddress, result + 0, result + 1,
                             __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
@@ -172,7 +172,7 @@ void Read2 (cpu_state_t *cpu_p, word18 address, word36 * result, processor_cycle
             else
               {
                 set_apu_status (cpu_p, apuStatus_FABS);
-                fauxDoAppendCycle (cpup, cyctyp);
+                fauxDoAppendCycle (cpu_p, cyctyp);
                 core_read2 (cpu_p, address, result + 0, result + 1, __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {
@@ -252,7 +252,7 @@ void Read8 (cpu_state_t *cpu_p, word18 address, word36 * result, bool isAR)
                 set_apu_status (cpu_p, apuStatus_FABS); // XXX maybe...
                 cpu.iefpFinalAddress = get_BAR_address (cpu_p, address);
 
-                fauxDoAppendCycle (cpup, APU_DATA_READ);
+                fauxDoAppendCycle (cpu_p, APU_DATA_READ);
                 core_readN (cpu_p, cpu.iefpFinalAddress, result, 8, __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {
@@ -272,7 +272,7 @@ void Read8 (cpu_state_t *cpu_p, word18 address, word36 * result, bool isAR)
             else
               {
                 set_apu_status (cpu_p, apuStatus_FABS);
-                fauxDoAppendCycle (cpup, APU_DATA_READ);
+                fauxDoAppendCycle (cpu_p, APU_DATA_READ);
                 core_readN (cpu_p, address, result, 8, __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {
@@ -377,7 +377,7 @@ void ReadPage (cpu_state_t *cpu_p, word18 address, word36 * result, bool isAR)
                 set_apu_status (cpu_p, apuStatus_FABS); // XXX maybe...
                 cpu.iefpFinalAddress = get_BAR_address (cpu_p, address);
 
-                fauxDoAppendCycle (cpup, APU_DATA_READ);
+                fauxDoAppendCycle (cpu_p, APU_DATA_READ);
                 core_readN (cpu_p, cpu.iefpFinalAddress, result, PGSZ, __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {
@@ -397,7 +397,7 @@ void ReadPage (cpu_state_t *cpu_p, word18 address, word36 * result, bool isAR)
             else
               {
                 set_apu_status (cpu_p, apuStatus_FABS);
-                fauxDoAppendCycle (cpup, APU_DATA_READ);
+                fauxDoAppendCycle (cpu_p, APU_DATA_READ);
                 core_readN (cpu_p, address, result, PGSZ, __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {
@@ -488,7 +488,7 @@ void Write (cpu_state_t *cpu_p, word18 address, word36 data, processor_cycle_typ
               {
                 cpu.iefpFinalAddress = get_BAR_address (cpu_p, address);
                 set_apu_status (cpu_p, apuStatus_FABS); // XXX maybe...
-                fauxDoAppendCycle (cpup, cyctyp);
+                fauxDoAppendCycle (cpu_p, cyctyp);
                 if (cyctyp == OPERAND_STORE && cpu.useZone)
                   {
                     core_write_zone (cpu_p, cpu.iefpFinalAddress, data, __func__);
@@ -507,7 +507,7 @@ void Write (cpu_state_t *cpu_p, word18 address, word36 data, processor_cycle_typ
             else
               {
                 set_apu_status (cpu_p, apuStatus_FABS);
-                fauxDoAppendCycle (cpup, cyctyp);
+                fauxDoAppendCycle (cpu_p, cyctyp);
                 if (cyctyp == OPERAND_STORE && cpu.useZone)
                   {
                     core_write_zone (cpu_p, address, data, __func__);
@@ -577,7 +577,7 @@ void Write2 (cpu_state_t *cpu_p, word18 address, word36 * data, processor_cycle_
               {
                 cpu.iefpFinalAddress = get_BAR_address (cpu_p, address);
                 set_apu_status (cpu_p, apuStatus_FABS); // XXX maybe...
-                fauxDoAppendCycle (cpup, cyctyp);
+                fauxDoAppendCycle (cpu_p, cyctyp);
                 core_write2 (cpu_p, cpu.iefpFinalAddress, data [0], data [1],
                               __func__);
                 HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address);
@@ -591,7 +591,7 @@ void Write2 (cpu_state_t *cpu_p, word18 address, word36 * data, processor_cycle_
             else
               {
                 set_apu_status (cpu_p, apuStatus_FABS);
-                fauxDoAppendCycle (cpup, cyctyp);
+                fauxDoAppendCycle (cpu_p, cyctyp);
                 core_write2 (cpu_p, address, data [0], data [1], __func__);
                 HDBGIEFP (hdbgIEFP_abs_write, 0, address);
                 HDBGMWrite (address, data [0]);
@@ -653,7 +653,7 @@ void Write1 (cpu_state_t *cpu_p, word18 address, word36 data, bool isAR)
              {
                 cpu.iefpFinalAddress = get_BAR_address (cpu_p, address);
                 set_apu_status (cpu_p, apuStatus_FABS); // XXX maybe...
-                fauxDoAppendCycle (cpup, APU_DATA_STORE);
+                fauxDoAppendCycle (cpu_p, APU_DATA_STORE);
                 core_write (cpu_p, cpu.iefpFinalAddress, data, __func__);
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Write1(Actual) Write:      bar address=%08o "
@@ -666,7 +666,7 @@ void Write1 (cpu_state_t *cpu_p, word18 address, word36 data, bool isAR)
             else
               {
                 set_apu_status (cpu_p, apuStatus_FABS);
-                fauxDoAppendCycle (cpup, APU_DATA_STORE);
+                fauxDoAppendCycle (cpu_p, APU_DATA_STORE);
                 core_write (cpu_p, address, data, __func__);
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Write1(Actual) Write:      abs address=%08o "
@@ -733,7 +733,7 @@ void Write8 (cpu_state_t *cpu_p, word18 address, word36 * data, bool isAR)
              {
                 cpu.iefpFinalAddress = get_BAR_address (cpu_p, address);
                 set_apu_status (cpu_p, apuStatus_FABS); // XXX maybe...
-                fauxDoAppendCycle (cpup, APU_DATA_STORE);
+                fauxDoAppendCycle (cpu_p, APU_DATA_STORE);
                 core_writeN (cpu_p, cpu.iefpFinalAddress, data, 8, __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {
@@ -753,7 +753,7 @@ void Write8 (cpu_state_t *cpu_p, word18 address, word36 * data, bool isAR)
             else
               {
                 set_apu_status (cpu_p, apuStatus_FABS);
-                fauxDoAppendCycle (cpup, APU_DATA_STORE);
+                fauxDoAppendCycle (cpu_p, APU_DATA_STORE);
                 core_writeN (cpu_p, address, data, 8, __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {
@@ -866,7 +866,7 @@ void WritePage (cpu_state_t *cpu_p, word18 address, word36 * data, bool isAR)
              {
                 cpu.iefpFinalAddress = get_BAR_address (cpu_p, address);
                 set_apu_status (cpu_p, apuStatus_FABS); // XXX maybe...
-                fauxDoAppendCycle (cpup, APU_DATA_STORE);
+                fauxDoAppendCycle (cpu_p, APU_DATA_STORE);
                 core_writeN (cpu_p, cpu.iefpFinalAddress, data, PGSZ, __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {
@@ -886,7 +886,7 @@ void WritePage (cpu_state_t *cpu_p, word18 address, word36 * data, bool isAR)
             else
               {
                 set_apu_status (cpu_p, apuStatus_FABS);
-                fauxDoAppendCycle (cpup, APU_DATA_STORE);
+                fauxDoAppendCycle (cpu_p, APU_DATA_STORE);
                 core_writeN (cpu_p, address, data, PGSZ, __func__);
                 if_sim_debug (DBG_FINAL, & cpu_dev)
                   {

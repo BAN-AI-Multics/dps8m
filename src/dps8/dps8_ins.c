@@ -2185,7 +2185,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
       {
         // 'EPP ITS; TRA' confuses the APU by leaving last_cycle
         // at INDIRECT_WORD_FETCH; defoobarize the APU:
-        fauxDoAppendCycle (cpup, OPERAND_READ);
+        fauxDoAppendCycle (cpu_p, OPERAND_READ);
         cpu.TPR.TRR = cpu.PPR.PRR;
         cpu.TPR.TSR = cpu.PPR.PSR;
         cpu.TPR.TBR = 0;
@@ -9658,7 +9658,7 @@ elapsedtime ();
       }
 
     // Resync the append unit
-    fauxDoAppendCycle (cpup, INSTRUCTION_FETCH);
+    fauxDoAppendCycle (cpu_p, INSTRUCTION_FETCH);
 
 // All of the faults list as having handlers have actually
 // been encountered in Multics operation and are believed
