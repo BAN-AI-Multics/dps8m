@@ -1,4 +1,72 @@
-# LICENSE
+# Licenses and Acknowledgements
+<!--
+
+Copyright (c) 2008-2021 The DPS8M Development Team
+
+This file is provided "AS IS", without any express or implied
+warranties, including but not limited to the implied warranties of
+merchantability and fitness for a particular purpose.  In no event will
+the authors or contributors be held liable for any direct, indirect,
+incidental, special, exemplary, or consequential damages however caused
+and on any theory of liability, whether in contract, strict liability,
+or tort (including negligence or otherwise), arising in any way out of
+the use of this file, even if advised of the possibility of such damage.
+
+Permission is granted to anyone to use this file for any purpose,
+including commercial applications, and to alter and distribute it freely
+in any form, provided that the following conditions are met:
+
+  1. The origin of this file must not be misrepresented; you must not
+     claim that you authored the original file. If you use this file in
+     a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+
+  2. Altered versions in any form may not be misrepresented as being the
+     original file, and neither the name of The DPS8M Development Team
+     nor the names of authors or contributors may be used to endorse or
+     promote products derived from this file without specific prior
+     written permission.
+
+  3. The text of this notice must be included, unaltered, with any
+     distribution.
+
+-->
+<!--
+
+ Notice: While there is no direct legal obligation under the terms
+         of the license, The DPS8M Development Team requests that:
+
+   1. Alterations to this file should be conspiciously marked, and,
+
+   2. Alterations should not be made to any part of this file that
+      describe actions or views of The DPS8M Development Team,
+      authors, or contributors, and,
+
+   3. Alterations should be throughly checked for factual accuracy.
+
+-->
+<!-- toc -->
+
+- [DPS8M Software](#dps8m)
+  * [DPS8M Simulator](#dps8m-simulator)
+    * [The DPS8M Development Team](#dps8m-development-team)
+- [Third-party Software](#third-party-software)
+  * [Unifdef](#unifdef)
+  * [UDPLib](#udplib)
+  * [UtHash](#uthash)
+  * [SimH](#simh)
+  * [PunUtil](#punutil)
+  * [Prt2PDF](#prt2pdf)
+  * [Txt2PDF](#txt2pdf)
+  * [DecNumber](#decnumber)
+  * [libTELNET](#libtelnet)
+  * [Shell Routines](#shell-routines)
+  * [BSD Random](#bsd-random)
+  * [Multics Software Materials and Documentation](#multics-software-materials-and-documentation)
+- [Scope of Intended Application](#scope-of-intended-application)
+- [Disclaimer of Liability and Endorsement](#disclaimer-of-liability-and-endorsement)
+
+<!-- tocstop -->
 
 ## DPS8M
 
@@ -11,11 +79,14 @@ ICU License —— ICU 1.8.1 to ICU 57.1
 
 COPYRIGHT AND PERMISSION NOTICE
 
-Copyright (c) 2006‑2019 Michael Mondy, Harry Reed, Charles Anthony, and others
+Copyright (c) 2006‑2021 Michael Mondy, Harry Reed, Charles Anthony, and others
 Copyright (c) 2015‑2016 Craig Ruff
+Copyright (c) 2015‑2021 Eric Swenson
 Copyright (c) 2016 Michal Tomek
 Copyright (c) 2016 Jean‑Michel Merliot
+Copyright (c) 2017‑2021 Jeffrey H. Johnson
 Copyright (c) 2018‑2021 Juergen Weiss
+Copyright (c) 2021 Dean S. Anderson
 Copyright (c) 2021 The DPS8M Development Team
 
 All rights reserved.
@@ -74,7 +145,7 @@ property of their respective owners.
 
 ----
 
-## Third-party software
+## Third-party Software
 
 * **DPS8M** incorporates, adapts, or utilizes software from
   third-parties. This software is copyrighted by their respective
@@ -82,9 +153,9 @@ property of their respective owners.
 
 ----
 
-### UNIFDEF
+### Unifdef
 
-* **UNIFDEF** is a utility that selectively processes conditional C
+* **Unifdef** is a utility that selectively processes conditional C
   preprocessor directives derived from software contributed to the
   *Computer Systems Research Group* at the *University of California,
   Berkeley* by Dave Yost. It was rewritten to support ANSI C by Tony
@@ -121,9 +192,9 @@ SUCH DAMAGE.
 
 ----
 
-### UDPLIB
+### UDPLib
 
-* **UDPLIB** is a library that implements the BBN ARPAnet IMP/TIP
+* **UDPLib** is a library that implements the BBN ARPAnet IMP/TIP
   Modem/Host Interface over UDP. It was written by Robert Armstrong,
   and is distributed under a modified BSD license.
 
@@ -154,9 +225,9 @@ in this Software without prior written authorization from Robert Armstrong.
 
 ----
 
-### UTHASH
+### UtHash
 
-* **UTHASH** (*UTLIST*, *UTARRAY*, and *UTHASH*), a hash table for C
+* **UtHash** (*UtList*, *UtArray*, and *UtHash*), a hash table for C
   structures, was written by
   [Troy D. Hanson](https://troydhanson.github.io/uthash/) and modified
   by **The DPS8M Development Team**. It is distributed under a modified
@@ -190,9 +261,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-#### SIMH
+### SimH
 
-* **SIMH** is a portable systems simulation framework, written by
+* **SimH** is a portable systems simulation framework, written by
   Robert M. Supnik and others, and distributed under a modified MIT license.
 
 ```text
@@ -230,9 +301,9 @@ in this Software without prior written authorization from the authors.
 
 ----
 
-### PUNUTIL
+### PunUtil
 
-* **PUNUTIL** is a utility to process the output of the **DPS8M** punch
+* **PunUtil** is a utility to process the output of the **DPS8M** punch
   device. It was written by Dean S. Anderson of **The DPS8M Development
   Team** and is distributed under the ICU License.
 
@@ -276,9 +347,9 @@ property of their respective owners.
 
 ----
 
-### PRT2PDF
+### Prt2PDF
 
-* **PRT2PDF** is a utility to convert the output of the simulated
+* **Prt2PDF** is a utility to convert the output of the simulated
   **DPS8M** line printer device to ISO 32000 Portable Document Format
   (*PDF*), and is distributed under the ICU License.
 
@@ -323,9 +394,9 @@ property of their respective owners.
 
 ----
 
-### TXT2PDF
+### Txt2PDF
 
-* **PRT2PDF** is derived from **TXT2PDF**, a utility to transform ASCII
+* **Prt2PDF** is derived from **Txt2PDF**, a utility to transform ASCII
   text files to Adobe Acrobat PDF documents, written by P. G. Womack, and
   distributed with the following restrictions.
 
@@ -337,9 +408,9 @@ property of their respective owners.
 
 ----
 
-### DECNUMBER
+### DecNumber
 
-* **DECNUMBER** is an ANSI C reference implementation of the *IBM General
+* **DecNumber** is an ANSI C reference implementation of the *IBM General
   Decimal Arithmetic* standard, implementing decimal floating‑point
   arithmetic and the ‘*Strawman 4d*’ decimal encoding formats described
   by the revised IEEE 754 specification, and is distributed under the
@@ -385,20 +456,20 @@ property of their respective owners.
 
 ----
 
-### LIBTELNET
+### LibTELNET
 
-* **LIBTELNET** is an implementation of the protocol specified by the Network
+* **LibTELNET** is an implementation of the protocol specified by the Network
   Working Group of the Internet Engineering Task Force, as described in
   RFC‑854, RFC‑855, RFC‑1091, RFC‑1143, RFC‑1408, and RFC‑1572 — the TELNET
   protocol and the Q method for TELNET protocol option negotiation — written
   by Sean Middleditch and other contributors.
 
-  * **LIBTELNET** has been **identified** by **The DPS8M Development Team**
-    as being free of known restrictions under copyright law, including all
+  * **LibTELNET** has been identified by **The DPS8M Development Team** as
+    being free of known restrictions under copyright law, including all
     related and neighboring rights.
 
-  * **The DPS8M Development Team** makes no warranties about **LIBTELNET**,
-    and disclaims liability for all uses of **LIBTELNET** to the fullest
+  * **The DPS8M Development Team** makes no warranties about **LibTELNET**,
+    and disclaims liability for all uses of **LibTELNET** to the fullest
     extent permitted by applicable law.
 
 ```text
@@ -411,22 +482,23 @@ of all present and future rights to this code under copyright law.
 
 ----
 
-### SHELL‑TOOLKIT
+### Shell Routines
 
 * Shell scripts may adapt or incorporate POSIX shell functions, routines, and
-  techniques (the “Routines”), written or distributed by
+  techniques (“the Routines”), written or distributed by
   [Thorsten “mirabilos” Glaser](https://www.mirbsd.org/).
 
-* The Routines have been identified as being free of known restrictions
-  under copyright law, including all related and neighboring rights.
+  * The Routines have been identified as being free of known restrictions
+    under copyright law, including all related and neighboring rights.
 
-* The Routines are in the public domain as they do not meet the threshold
-  of originality required for copyright protection in most jurisdictions.
+  * The Routines are in the public domain as they do not meet the threshold
+    of originality required for copyright protection in most jurisdictions.
 
-* The Routines are also distributed under the terms and conditions of the BSD
-  “Zero Clause” license, or at your option, any other license which meets the
-  Open Source Definition and is approved by Open Source Initiative, should
-  the Routines **not** be in the public domain in your legal jurisdiction.
+  * The Routines are also distributed under the terms and conditions of the
+    BSD “Zero Clause” license, or at your option, any other license which
+    meets the Open Source Definition and is approved by Open Source
+    Initiative, should the Routines **not** be in the public domain in your
+    legal jurisdiction.
 
 ```text
 Copyright (c) 2011 Thorsten “mirabilos” Glaser <m@mirbsd.org>
@@ -446,7 +518,7 @@ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ----
 
-### BSD RANDOM
+### BSD Random
 
 * **BSD random** is a collection of random number generation functions
   derived from software originally developed for the *Berkeley Software
@@ -464,16 +536,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
 
-3. Neither the name of the University nor the names of its contributors
-   may be used to endorse or promote products derived from this software
-   without specific prior written permission.
+ 3. Neither the name of the University nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS “AS IS” AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -490,19 +562,73 @@ SUCH DAMAGE.
 
 ----
 
+### Multics Software Materials and Documentation
+
+* **DPS8** includes some **Multics** software materials and documentation.
+  These materials and documentation are distributed under the terms of the
+  **Multics License**.
+
+```text
+Copyright (c) 1972 by the Massachusetts Institute of Technology and
+  Honeywell Information Systems, Inc.
+Copyright (c) 2006 by Bull HN Information Systems, Inc.
+Copyright (c) 2006 by Bull SAS.
+
+All Rights Reserved.
+
+Historical Background
+
+* This edition of the Multics software materials and documentation is
+  provided and donated to the Massachusetts Institute of Technology by
+  Group BULL including BULL HN Information Systems, Inc. as a
+  contribution to computer science knowledge.
+
+* This donation is made also to give evidence of the common contributions
+  of the Massachusetts Institute of Technology, Bell Laboratories,
+  General Electric, Honeywell Information Systems, Inc., Honeywell BULL,
+  Inc., Groupe BULL and BULL HN Information Systems, Inc. to the
+  development of this operating system.
+
+* Multics development was initiated by the Massachusetts Institute of
+  Technology Project MAC (1963-1970), renamed the MIT Laboratory for
+  Computer Science and Artificial Intelligence in the mid 1970s, under
+  the leadership of Professor Fernando José Corbató.  Users consider
+  that Multics provided the best software architecture for managing
+  computer hardware properly and for executing  programs.  Many
+  subsequent operating systems incorporated Multics principles.
+
+* Multics was distributed in 1975 to 2000 by Group Bull in Europe, and
+  in the U.S. by Bull HN Information Systems, Inc., as successor in
+  interest by change in name only to Honeywell Bull, Inc. and Honeywell
+  Information Systems, Inc.
+
+Permission to use, copy, modify, and distribute these programs and their
+documentation for any purpose and without fee is hereby granted, provided
+that this copyright notice and the above historical background appear in
+all copies and that both the copyright notice and historical background
+and this permission notice appear in supporting documentation, and that
+the names of MIT, HIS, BULL or BULL HN not be used in advertising or
+publicity pertaining to distribution of the programs without specific
+prior written permission.
+```
+
+----
+
 ## Scope of Intended Application
 
 * The **DPS8M Simulator** is **not designed or intended** for use in any
   safety-critical, life-critical, or life-sustaining applications or
   activities.
 
-* These applications and activies include, but are not limited to, military,
-  nuclear reactor control, power generation and transmission, factory
-  automation, industrial process control, robotics, avionics, aerospace,
-  railway, marine, motor vehicle, fire suppression, pharmaceutical,
-  medical or safety devices, any conventional, nuclear, biological or
-  chemical weaponry, or any other applications or activities that could
-  reasonably be expected to potentially impact human health and safety.
+* These applications and activies include, but are not limited to,
+  military, nuclear reactor control, power generation and transmission,
+  factory automation, industrial process control, robotics, avionics,
+  aerospace, air traffic control, emergency communications, railway,
+  marine, motor vehicle, fire suppression, pharmaceutical, medical or
+  safety devices, any conventional, nuclear, biological or chemical
+  weaponry, or any other applications or activities that could reasonably
+  be expected to potentially impact human health and safety or lead to
+  environmental damage.
 
 ----
 
