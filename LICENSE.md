@@ -31,8 +31,28 @@ in any form, provided that the following conditions are met:
      distribution.
 
 -->
-
 <!-- toc -->
+
+- [DPS8M](#dps8m)
+  * [DPS8M Simulator](#dps8m-simulator)
+    * [DPS8M Development Team](#dps8m-development-team)
+- [Third-party software](#third-party-software)
+  * [Unifdef](#unifdef)
+  * [UDPLib](#udplib)
+  * [UtHash](#uthash)
+  * [SimH](#simh)
+  * [PunUtil](#punutil)
+  * [Prt2PDF](#prt2pdf)
+  * [Txt2PDF](#txt2pdf)
+  * [DecNumber](#decnumber)
+  * [libTELNET](#libtelnet)
+  * [Shell Routines](#shell-scripts)
+  * [BSD Random](#bsd-random)
+  * [Multics Software Materials and Documentation](#multics-software-materials-and-documentation)
+- [Scope of Intended Application](#scope-of-intended-application)
+- [Disclaimer of Liability and Endorsement](#disclaimer-of-liability-and-endorsement)
+
+<!-- tocstop -->
 
 ## DPS8M
 
@@ -119,9 +139,9 @@ property of their respective owners.
 
 ----
 
-### UNIFDEF
+### Unifdef
 
-* **UNIFDEF** is a utility that selectively processes conditional C
+* **Unifdef** is a utility that selectively processes conditional C
   preprocessor directives derived from software contributed to the
   *Computer Systems Research Group* at the *University of California,
   Berkeley* by Dave Yost. It was rewritten to support ANSI C by Tony
@@ -158,9 +178,9 @@ SUCH DAMAGE.
 
 ----
 
-### UDPLIB
+### UDPLib
 
-* **UDPLIB** is a library that implements the BBN ARPAnet IMP/TIP
+* **UDPLib** is a library that implements the BBN ARPAnet IMP/TIP
   Modem/Host Interface over UDP. It was written by Robert Armstrong,
   and is distributed under a modified BSD license.
 
@@ -191,9 +211,9 @@ in this Software without prior written authorization from Robert Armstrong.
 
 ----
 
-### UTHASH
+### UtHash
 
-* **UTHASH** (*UTLIST*, *UTARRAY*, and *UTHASH*), a hash table for C
+* **UtHash** (*UtList*, *UtArray*, and *UtHash*), a hash table for C
   structures, was written by
   [Troy D. Hanson](https://troydhanson.github.io/uthash/) and modified
   by **The DPS8M Development Team**. It is distributed under a modified
@@ -227,9 +247,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-### SIMH
+### SimH
 
-* **SIMH** is a portable systems simulation framework, written by
+* **SimH** is a portable systems simulation framework, written by
   Robert M. Supnik and others, and distributed under a modified MIT license.
 
 ```text
@@ -267,9 +287,9 @@ in this Software without prior written authorization from the authors.
 
 ----
 
-### PUNUTIL
+### PunUtil
 
-* **PUNUTIL** is a utility to process the output of the **DPS8M** punch
+* **PunUtil** is a utility to process the output of the **DPS8M** punch
   device. It was written by Dean S. Anderson of **The DPS8M Development
   Team** and is distributed under the ICU License.
 
@@ -313,9 +333,9 @@ property of their respective owners.
 
 ----
 
-### PRT2PDF
+### Prt2PDF
 
-* **PRT2PDF** is a utility to convert the output of the simulated
+* **Prt2PDF** is a utility to convert the output of the simulated
   **DPS8M** line printer device to ISO 32000 Portable Document Format
   (*PDF*), and is distributed under the ICU License.
 
@@ -360,9 +380,9 @@ property of their respective owners.
 
 ----
 
-### TXT2PDF
+### Txt2PDF
 
-* **PRT2PDF** is derived from **TXT2PDF**, a utility to transform ASCII
+* **Prt2PDF** is derived from **Txt2PDF**, a utility to transform ASCII
   text files to Adobe Acrobat PDF documents, written by P. G. Womack, and
   distributed with the following restrictions.
 
@@ -374,9 +394,9 @@ property of their respective owners.
 
 ----
 
-### DECNUMBER
+### DecNumber
 
-* **DECNUMBER** is an ANSI C reference implementation of the *IBM General
+* **DecNumber** is an ANSI C reference implementation of the *IBM General
   Decimal Arithmetic* standard, implementing decimal floating‑point
   arithmetic and the ‘*Strawman 4d*’ decimal encoding formats described
   by the revised IEEE 754 specification, and is distributed under the
@@ -422,20 +442,20 @@ property of their respective owners.
 
 ----
 
-### LIBTELNET
+### LibTELNET
 
-* **LIBTELNET** is an implementation of the protocol specified by the Network
+* **LibTELNET** is an implementation of the protocol specified by the Network
   Working Group of the Internet Engineering Task Force, as described in
   RFC‑854, RFC‑855, RFC‑1091, RFC‑1143, RFC‑1408, and RFC‑1572 — the TELNET
   protocol and the Q method for TELNET protocol option negotiation — written
   by Sean Middleditch and other contributors.
 
-  * **LIBTELNET** has been **identified** by **The DPS8M Development Team**
+  * **LibTELNET** has been **identified** by **The DPS8M Development Team**
     as being free of known restrictions under copyright law, including all
     related and neighboring rights.
 
-  * **The DPS8M Development Team** makes no warranties about **LIBTELNET**,
-    and disclaims liability for all uses of **LIBTELNET** to the fullest
+  * **The DPS8M Development Team** makes no warranties about **LibTELNET**,
+    and disclaims liability for all uses of **LibTELNET** to the fullest
     extent permitted by applicable law.
 
 ```text
@@ -448,10 +468,10 @@ of all present and future rights to this code under copyright law.
 
 ----
 
-### SHELL SCRIPTS
+### Shell Routines
 
 * Shell scripts may adapt or incorporate POSIX shell functions, routines, and
-  techniques (the “Routines”), written or distributed by
+  techniques (“the Routines”), written or distributed by
   [Thorsten “mirabilos” Glaser](https://www.mirbsd.org/).
 
   * The Routines have been identified as being free of known restrictions
@@ -484,7 +504,7 @@ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 ----
 
-### BSD RANDOM
+### BSD Random
 
 * **BSD random** is a collection of random number generation functions
   derived from software originally developed for the *Berkeley Software
