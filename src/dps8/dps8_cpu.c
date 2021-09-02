@@ -621,18 +621,17 @@ uint set_cpu_idx (UNUSED uint cpu_idx)
     return prev;
   }
 
-void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
+void cpu_reset_unit_idx (uint cpun, bool clear_mem)
   {
     cpu_state_t * cpuPtr = cpus + cpun;
-    uint save = set_cpu_idx (cpun);
     if (clear_mem)
       {
 #ifdef SCUMEM
         for (int cpu_port_num = 0; cpu_port_num < N_CPU_PORTS; cpu_port_num ++)
           {
-            if (get_scu_in_use (current_running_cpu_idx, cpu_port_num))
+            if (get_scu_in_use (cpun, cpu_port_num))
               {
-                uint sci_unit_idx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
+                uint sci_unit_idx = get_scu_idx (cpun, cpu_port_num);
                 // Clear lock bits and data field
                 for (uint i = 0; i < SCU_MEM_SIZE; i ++)
                   {
@@ -694,7 +693,6 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     setup_scbank_map (cpuPtr);
 
     tidy_cu (cpuPtr);
-    set_cpu_idx (save);
 #ifdef THREADZ
     fence ();
 #endif
@@ -1074,7 +1072,7 @@ int lookup_cpu_mem_map (cpu_state_t *cpuPtr, word24 addr)
 //  Additional numbers will be for multi-cpu systems.
 //  Other fields to be added.
 
-static void get_serial_number (cpu_state_t *cpuPtr)
+static void get_serial_number (void)
   {
     bool havesn = false;
     FILE * fp = fopen ("./serial.txt", "r");
@@ -1084,37 +1082,38 @@ static void get_serial_number (cpu_state_t *cpuPtr)
         char * checksn = fgets (buffer, sizeof (buffer), fp);
         (void)checksn;
         uint cpun, sn;
-        if (sscanf (buffer, "sn: %u", & cpu.switches.serno) == 1)
+        if (sscanf (buffer, "sn: %u", & sn) == 1)
           {
-                        if (!sim_quiet)
-                          {
-                    sim_msg ("%s CPU serial number: %u\n", sim_name, cpu.switches.serno);
-                          }
-                        havesn = true;
+            cpus[0].switches.serno = sn;
+            if (!sim_quiet)
+              {
+                sim_msg ("%s CPU serial number: %u\n", sim_name, cpus[0].switches.serno);
+              }
+            havesn = true;
           }
         else if (sscanf (buffer, "sn%u: %u", & cpun, & sn) == 2)
           {
             if (cpun < N_CPU_UNITS_MAX)
               {
                 cpus[cpun].switches.serno = sn;
-                                if (!sim_quiet)
-                                  {
-                        sim_msg ("%s CPU %u serial number: %u\n",
-                                sim_name, cpun, cpus[cpun].switches.serno);
-                                  }
+                if (!sim_quiet)
+                  {
+                    sim_msg ("%s CPU %u serial number: %u\n",
+                             sim_name, cpun, cpus[cpun].switches.serno);
+                  }
                 havesn = true;
               }
           }
       }
     if (!havesn)
       {
-                if (!sim_quiet)
-                  {
-                sim_msg ("\r\nPlease register your system at "
-                        "https://ringzero.wikidot.com/wiki:register\n");
-                sim_msg ("or create the file 'serial.txt' containing the line "
-                        "'sn: 0'.\r\n\r\n");
-                  }
+        if (!sim_quiet)
+          {
+            sim_msg ("\r\nPlease register your system at "
+                     "https://ringzero.wikidot.com/wiki:register\n");
+            sim_msg ("or create the file 'serial.txt' containing the line "
+                     "'sn: 0'.\r\n\r\n");
+          }
       }
     if (fp)
       fclose (fp);
@@ -1194,43 +1193,8 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
 
 void cpu_init (cpu_state_t *cpuPtr)
   {
-
 // !!!! Do not use 'cpu' in this routine; usage of 'cpus' violates 'restrict'
 // !!!! attribute
-
-#if 0
-#ifndef SCUMEM
-#ifdef M_SHARED
-    if (! M)
-      {
-        M = (word36 *) create_shm ("M", MEMSIZE * sizeof (word36));
-      }
-#else
-    if (! M)
-      {
-        M = (word36 *) calloc (MEMSIZE, sizeof (word36));
-      }
-#endif
-    if (! M)
-      {
-        sim_fatal ("create M failed\n");
-      }
-#endif
-
-#ifdef M_SHARED
-    if (! cpus)
-      {
-        cpus = (cpu_state_t *) create_shm ("cpus",
-                                           N_CPU_UNITS_MAX *
-                                             sizeof (cpu_state_t));
-      }
-    if (! cpus)
-      {
-        sim_fatal ("create cpus failed\n");
-      }
-#endif
-#endif
-
     M = system_state->M;
 #ifdef M_SHARED
     cpus = system_state->cpus;
@@ -1240,12 +1204,21 @@ void cpu_init (cpu_state_t *cpuPtr)
     memset (& watch_bits, 0, sizeof (watch_bits));
 #endif
 
-    set_cpu_idx (0);
-
     memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
-    cpus [0].switches.FLT_BASE = 2; // Some of the UnitTests assume this
+    for (uint cpun = 0; cpun < N_CPU_UNITS_MAX; cpun ++)
+      {
+        cpu_state_t * cpuPtr = cpus + cpun;
+        cpuPtr->switches.FLT_BASE = 2; // Some of the UnitTests assume this
 
-    get_serial_number (cpuPtr);
+        // TODO: reset *all* other structures to zero
+
+        cpuPtr->instrCnt = 0;
+        cpuPtr->cycleCnt = 0;
+        for (int i = 0; i < N_FAULTS; i ++)
+          cpuPtr->faultCnt [i] = 0;
+      }
+
+    get_serial_number ();
 
 #ifndef NO_EV_POLL
     ev_poll_loop = uv_default_loop ();
@@ -1253,14 +1226,6 @@ void cpu_init (cpu_state_t *cpuPtr)
     // 10 ms == 100Hz
     uv_timer_start (& ev_poll_handle, ev_poll_cb, sys_opts.sys_poll_interval, sys_opts.sys_poll_interval);
 #endif
-
-    // TODO: reset *all* other structures to zero
-
-    cpus[ASSUME0].instrCnt = 0;
-    cpus[ASSUME0].cycleCnt = 0;
-    for (int i = 0; i < N_FAULTS; i ++)
-      cpus[ASSUME0].faultCnt [i] = 0;
-
 
 #ifdef MATRIX
     initializeTheMatrix ();
@@ -1273,11 +1238,8 @@ static void cpu_reset (cpu_state_t *cpuPtr)
       {
         cpu_reset_unit_idx (i, true);
       }
-
     set_cpu_idx (0);
-
     sim_debug (DBG_INFO, & cpu_dev, "CPU reset: Running\n");
-
   }
 
 static t_stat sim_cpu_reset (UNUSED DEVICE *dptr)
@@ -1437,7 +1399,7 @@ bool sample_interrupts (cpu_state_t *cpuPtr)
     return false;
   }
 
-t_stat simh_hooks (void)
+t_stat simh_hooks (cpu_state_t * cpuPtr)
   {
     int reason = 0;
 
@@ -1463,13 +1425,14 @@ t_stat simh_hooks (void)
 // This is needed for BCE_TRAP in install scripts
     // sim_brk_test expects a 32 bit address; PPR.IC into the low 18, and
     // PPR.PSR into the high 12
-    if (sim_brk_summ &&
+    if (cpuPtr &&
+        sim_brk_summ &&
         sim_brk_test ((cpus[0].PPR.IC & 0777777) |
                       ((((t_addr) cpus[0].PPR.PSR) & 037777) << 18),
                       SWMASK ('E')))  /* breakpoint? */
       return STOP_BKPT; /* stop simulation */
 #ifndef SPEED
-    if (sim_deb_break && cpu.cycleCnt >= sim_deb_break)
+    if (cpuPtr && sim_deb_break && cpu.cycleCnt >= sim_deb_break)
       return STOP_BKPT; /* stop simulation */
 #endif
 #endif
@@ -1577,7 +1540,7 @@ t_stat sim_instr (void)
       {
         reason = 0;
         // Process deferred events and breakpoints
-        reason = simh_hooks ();
+        reason = simh_hooks (NULL);
         if (reason)
           {
             break;
@@ -1908,7 +1871,7 @@ setCPU:;
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
         // Process deferred events and breakpoints
-        reason = simh_hooks ();
+        reason = simh_hooks (cpuPtr);
         if (reason)
           {
             break;
