@@ -421,8 +421,6 @@ static void scu2words (cpu_state_t *cpuPtr, word36 *words)
 //{
   //putbits36 (& words[4], 31, 1, 0);
 //  putbits36 (& words[4], 31, 1, cpu.PPR.P ? 0 : 1);
-//if (current_running_cpu_idx)
-//sim_printf ("cleared ABS\n");
 //}
 #endif
 
@@ -456,7 +454,7 @@ static void scu2words (cpu_state_t *cpuPtr, word36 *words)
         dump_words (cpuPtr, words);
 
 #ifdef ISOLTS
-    if (current_running_cpu_idx != 0)
+    if (cpuPtr->myIdx != 0)
       {
         struct
         {
@@ -1187,7 +1185,7 @@ force:;
                 sim_debug (flag, &cpu_dev,
                   "%d: "
                   "%05o|%06o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\n",
-                  current_running_cpu_idx,
+                  cpuPtr->myIdx,
                   cpu.BAR.BASE,
                   cpu.PPR.IC,
                   IWB_IRODD,
@@ -1205,7 +1203,7 @@ force:;
                 sim_debug (flag, &cpu_dev,
                   "%d: "
                   "%06o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\n",
-                  current_running_cpu_idx,
+                  cpuPtr->myIdx,
                   cpu.PPR.IC,
                   IWB_IRODD,
                   disassemble (buf, IWB_IRODD),
@@ -1225,7 +1223,7 @@ force:;
                 sim_debug (flag, &cpu_dev,
                   "%d: "
                  "%05o:%06o|%06o %o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\n",
-                  current_running_cpu_idx,
+                  cpuPtr->myIdx,
                   cpu.PPR.PSR,
                   cpu.BAR.BASE,
                   cpu.PPR.IC,
@@ -1244,7 +1242,7 @@ force:;
                 sim_debug (flag, &cpu_dev,
                   "%d: "
                   "%05o:%06o %o %012"PRIo64" (%s) %06o %03o(%d) %o %o %o %02o\n",
-                  current_running_cpu_idx,
+                  cpuPtr->myIdx,
                   cpu.PPR.PSR,
                   cpu.PPR.IC,
                   cpu.PPR.PRR,
@@ -1762,14 +1760,14 @@ restart_1:
 #endif
 
 #ifdef HDBG
-        hdbgTrace ();
+        hdbgTrace (cpuPtr);
 #endif // HDBG
       }
 #else  // !SPEED
 #ifdef HDBG
     // Don't trace Multics idle loop
     //if (cpu.PPR.PSR != 061 || cpu.PPR.IC != 0307)
-      hdbgTrace ();
+      hdbgTrace (cpuPtr);
 #endif // HDBG
 #endif // !SPEED
 
@@ -3873,7 +3871,7 @@ static t_stat doInstruction (cpu_state_t *cpuPtr)
           HDBGRegQ ();
           cpu.Yblock8[6] = ((word36)(cpu.rE & MASK8)) << 28;
 #ifdef ISOLTS
-          if (current_running_cpu_idx)
+          if (cpuPtr->myIdx)
             cpu.Yblock8[7] = (((-- cpu.shadowTR) & MASK27) << 9) | (cpu.rRALR & 07);
           else
             cpu.Yblock8[7] = ((cpu.rTR & MASK27) << 9) | (cpu.rRALR & 07);
@@ -4044,7 +4042,7 @@ static t_stat doInstruction (cpu_state_t *cpuPtr)
         case x0 (0454):  // stt
           CPTUR (cptUseTR);
 #ifdef ISOLTS
-          if (current_running_cpu_idx)
+          if (cpuPtr->myIdx)
             cpu.CY = ((-- cpu.shadowTR) & MASK27) << 9;
           else
             cpu.CY = (cpu.rTR & MASK27) << 9;
@@ -6596,15 +6594,15 @@ static t_stat doInstruction (cpu_state_t *cpuPtr)
 #ifdef L68
             uint cpu_port_num = (cpu.TPR.CA >> 15) & 07;
 #endif
-            if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
+            if (! get_scu_in_use (cpuPtr->myIdx, cpu_port_num))
               {
                 sim_warn ("rccl on CPU %u port %d has no SCU; faulting\n",
-                          current_running_cpu_idx, cpu_port_num);
+                          cpuPtr->myIdx, cpu_port_num);
                 doFault (cpuPtr, FAULT_ONC, fst_onc_nem, "(rccl)");
               }
-            uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
+            uint scuUnitIdx = get_scu_idx (cpuPtr->myIdx, cpu_port_num);
 
-            t_stat rc = scu_rscr (cpuPtr, (uint) scuUnitIdx, current_running_cpu_idx,
+            t_stat rc = scu_rscr (cpuPtr, (uint) scuUnitIdx, cpuPtr->myIdx,
                                   040, & cpu.rA, & cpu.rQ);
             HDBGRegA ();
             HDBGRegQ ();
@@ -7889,16 +7887,16 @@ elapsedtime ();
 #ifdef L68
             uint cpu_port_num = (cpu.TPR.CA >> 15) & 07;
 #endif
-            if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
+            if (! get_scu_in_use (cpuPtr->myIdx, cpu_port_num))
               {
                 sim_warn ("rmcm to non-existent controller on "
                           "cpu %d port %d\n",
-                          current_running_cpu_idx, cpu_port_num);
+                          cpuPtr->myIdx, cpu_port_num);
                 break;
               }
-            uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
+            uint scuUnitIdx = get_scu_idx (cpuPtr->myIdx, cpu_port_num);
             t_stat rc = scu_rmcm ((uint) scuUnitIdx,
-                                  current_running_cpu_idx,
+                                  cpuPtr->myIdx,
                                   & cpu.rA, & cpu.rQ);
             HDBGRegA ();
             HDBGRegQ ();
@@ -7955,7 +7953,7 @@ elapsedtime ();
 
             // Trace the cable from the port to find the SCU number
             // connected to that port
-            if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
+            if (! get_scu_in_use (cpuPtr->myIdx, cpu_port_num))
               {
                 // CPTUR (cptUseFR) -- will be set by doFault
 
@@ -7971,14 +7969,14 @@ elapsedtime ();
 
                 doFault (cpuPtr, FAULT_CMD, fst_cmd_ctl, "(rscr)");
               }
-            uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
+            uint scuUnitIdx = get_scu_idx (cpuPtr->myIdx, cpu_port_num);
 #ifdef PANEL
             {
                uint function = (cpu.iefpFinalAddress >> 3) & 07;
                CPT (cpt13L, function);
             }
 #endif
-            t_stat rc = scu_rscr (cpuPtr, (uint) scuUnitIdx, current_running_cpu_idx,
+            t_stat rc = scu_rscr (cpuPtr, (uint) scuUnitIdx, cpuPtr->myIdx,
                                   cpu.iefpFinalAddress & MASK15,
                                   & cpu.rA, & cpu.rQ);
             HDBGRegA ();
@@ -8464,11 +8462,11 @@ elapsedtime ();
               {
                 doFault (cpuPtr, FAULT_ONC, fst_onc_nem, "(cioc)");
               }
-            if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
+            if (! get_scu_in_use (cpuPtr->myIdx, cpu_port_num))
               {
                 doFault (cpuPtr, FAULT_ONC, fst_onc_nem, "(cioc)");
               }
-            uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
+            uint scuUnitIdx = get_scu_idx (cpuPtr->myIdx, cpu_port_num);
 
 // expander word
 // dcl  1 scs$reconfig_general_cow aligned external, /* Used during reconfig
@@ -8485,7 +8483,7 @@ elapsedtime ();
             word8 sub_mask = getbits36_8 (cpu.CY, 0);
             word3 expander_command = getbits36_3 (cpu.CY, 21);
             uint scu_port_num = (uint) getbits36_3 (cpu.CY, 33);
-            scu_cioc (current_running_cpu_idx, (uint) scuUnitIdx, scu_port_num,
+            scu_cioc (cpuPtr->myIdx, (uint) scuUnitIdx, scu_port_num,
                       expander_command, sub_mask);
           }
           break;
@@ -8501,16 +8499,16 @@ elapsedtime ();
 #ifdef L68
             uint cpu_port_num = (cpu.TPR.CA >> 15) & 07;
 #endif
-            if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
+            if (! get_scu_in_use (cpuPtr->myIdx, cpu_port_num))
               {
                 sim_warn ("smcm to non-existent controller on "
                           "cpu %d port %d\n",
-                          current_running_cpu_idx, cpu_port_num);
+                          cpuPtr->myIdx, cpu_port_num);
                 break;
               }
-            uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
+            uint scuUnitIdx = get_scu_idx (cpuPtr->myIdx, cpu_port_num);
             t_stat rc = scu_smcm ((uint) scuUnitIdx,
-                                  current_running_cpu_idx, cpu.rA, cpu.rQ);
+                                  cpuPtr->myIdx, cpu.rA, cpu.rQ);
             if (rc)
               return rc;
           }
@@ -8532,7 +8530,7 @@ elapsedtime ();
 #ifdef L68
             uint cpu_port_num = (cpu.TPR.CA >> 15) & 07;
 #endif
-            if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
+            if (! get_scu_in_use (cpuPtr->myIdx, cpu_port_num))
               {
 #ifdef DPS8M
                 return SCPE_OK;
@@ -8551,8 +8549,8 @@ elapsedtime ();
                 doFault (cpuPtr, FAULT_CMD, fst_cmd_ctl, "(smic)");
 #endif
               }
-            uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-            t_stat rc = scu_smic ((uint) scuUnitIdx, current_running_cpu_idx,
+            uint scuUnitIdx = get_scu_idx (cpuPtr->myIdx, cpu_port_num);
+            t_stat rc = scu_smic ((uint) scuUnitIdx, cpuPtr->myIdx,
                                   cpu_port_num, cpu.rA);
             if (rc)
               return rc;
@@ -8569,7 +8567,7 @@ elapsedtime ();
 #ifdef L68
             uint cpu_port_num = (cpu.TPR.CA >> 10) & 07;
 #endif
-            if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
+            if (! get_scu_in_use (cpuPtr->myIdx, cpu_port_num))
               {
                 // CPTUR (cptUseFR) -- will be set by doFault
                 if (cpu_port_num == 0)
@@ -8582,8 +8580,8 @@ elapsedtime ();
                   putbits36 (& cpu.faultRegister[0], 28, 4, 010);
                 doFault (cpuPtr, FAULT_CMD, fst_cmd_ctl, "(sscr)");
               }
-            uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-            t_stat rc = scu_sscr (cpuPtr, (uint) scuUnitIdx, current_running_cpu_idx,
+            uint scuUnitIdx = get_scu_idx (cpuPtr->myIdx, cpu_port_num);
+            t_stat rc = scu_sscr (cpuPtr, (uint) scuUnitIdx, cpuPtr->myIdx,
                                   cpu_port_num, cpu.iefpFinalAddress & MASK15,
                                   cpu.rA, cpu.rQ);
 
@@ -8739,9 +8737,8 @@ elapsedtime ();
               sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\n");
 #ifdef ROUND_ROBIN
 #ifdef ISOLTS
-              if (current_running_cpu_idx)
+              if (cpuPtr->myIdx)
               {
-//sim_printf ("stopping CPU %c\n", current_running_cpu_idx + 'A');
                 cpu.isRunning = false;
               }
 #endif

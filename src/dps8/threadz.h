@@ -146,11 +146,11 @@ struct cpuThreadz_t
 extern struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
 
 void createCPUThread (uint cpuNum);
-void stopCPUThread(void);
+void stopCPUThread(cpu_state_t * cpuPtr);
 void cpuRdyWait (uint cpuNum);
 void setCPURun (uint cpuNum, bool run);
-void cpuRunningWait (void);
-unsigned long sleepCPU (unsigned long usec);
+void cpuRunningWait (cpu_state_t * cpuPtr);
+unsigned long sleepCPU (cpu_state_t * cpuPtr, unsigned long usec);
 void wakeCPU (uint cpuNum);
 
 #ifdef IO_THREADZ
