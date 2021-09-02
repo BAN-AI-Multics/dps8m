@@ -464,8 +464,8 @@ property of their respective owners.
   protocol and the Q method for TELNET protocol option negotiation — written
   by Sean Middleditch and other contributors.
 
-  * **LibTELNET** has been **identified** by **The DPS8M Development Team**
-    as being free of known restrictions under copyright law, including all
+  * **LibTELNET** has been identified by **The DPS8M Development Team** as
+    being free of known restrictions under copyright law, including all
     related and neighboring rights.
 
   * **The DPS8M Development Team** makes no warranties about **LibTELNET**,
@@ -536,16 +536,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
 
-3. Neither the name of the University nor the names of its contributors
-   may be used to endorse or promote products derived from this software
-   without specific prior written permission.
+ 3. Neither the name of the University nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS “AS IS” AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -620,13 +620,15 @@ prior written permission.
   safety-critical, life-critical, or life-sustaining applications or
   activities.
 
-* These applications and activies include, but are not limited to, military,
-  nuclear reactor control, power generation and transmission, factory
-  automation, industrial process control, robotics, avionics, aerospace,
-  railway, marine, motor vehicle, fire suppression, pharmaceutical,
-  medical or safety devices, any conventional, nuclear, biological or
-  chemical weaponry, or any other applications or activities that could
-  reasonably be expected to potentially impact human health and safety.
+* These applications and activies include, but are not limited to,
+  military, nuclear reactor control, power generation and transmission,
+  factory automation, industrial process control, robotics, avionics,
+  aerospace, air traffic control, emergency communications, railway,
+  marine, motor vehicle, fire suppression, pharmaceutical, medical or
+  safety devices, any conventional, nuclear, biological or chemical
+  weaponry, or any other applications or activities that could reasonably
+  be expected to potentially impact human health and safety or lead to
+  environmental damage.
 
 ----
 
