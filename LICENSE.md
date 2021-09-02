@@ -1,5 +1,7 @@
 # LICENSE
 
+<!-- toc -->
+
 ## DPS8M
 
 ### DPS8M Simulator
