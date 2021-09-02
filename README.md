@@ -1,7 +1,7 @@
 # DPS8M
 <!--
 
-Copyright (c) 2008-2021 The DPS8M Development Team
+Copyright (c) 2006-2021 The DPS8M Development Team
 
 This work is provided "AS IS", without any express or implied
 warranties, including but not limited to the implied warranties of
