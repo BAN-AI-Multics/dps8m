@@ -47,6 +47,8 @@
 #include "sim_defs.h"
 #if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
+
+__thread uint current_running_cpu_idx;
 #endif
 
 static void add_CU_history (cpu_state_t *cpuPtr);
@@ -607,17 +609,30 @@ static void set_cpu_cycle (cpu_state_t *cpuPtr, cycles_e cycle)
 // Put state information into the unused high order bits.
 #define MEM_UNINITIALIZED (1LLU<<62)
 
+uint set_cpu_idx (UNUSED uint cpu_idx)
+  {
+    uint prev = current_running_cpu_idx;
+#if defined(THREADZ) || defined(LOCKLESS)
+    current_running_cpu_idx = cpu_idx;
+#endif
+#ifdef ROUND_ROBIN
+    current_running_cpu_idx = cpu_idx;
+#endif
+    return prev;
+  }
+
 void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
   {
     cpu_state_t * cpuPtr = cpus + cpun;
+    uint save = set_cpu_idx (cpun);
     if (clear_mem)
       {
 #ifdef SCUMEM
         for (int cpu_port_num = 0; cpu_port_num < N_CPU_PORTS; cpu_port_num ++)
           {
-            if (get_scu_in_use (cpun, cpu_port_num))
+            if (get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
-                uint sci_unit_idx = get_scu_idx (cpun, cpu_port_num);
+                uint sci_unit_idx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
                 // Clear lock bits and data field
                 for (uint i = 0; i < SCU_MEM_SIZE; i ++)
                   {
@@ -679,6 +694,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     setup_scbank_map (cpuPtr);
 
     tidy_cu (cpuPtr);
+    set_cpu_idx (save);
 #ifdef THREADZ
     fence ();
 #endif
@@ -924,7 +940,6 @@ static t_stat cpu_boot (UNUSED int32 cpu_unit_idx, UNUSED DEVICE * dptr)
 
 void setup_scbank_map (cpu_state_t *cpuPtr)
   {
-    uint cpun = cpu.myIdx;
     sim_debug (DBG_DEBUG, & cpu_dev,
                "setup_scbank_map: SCBANK %d N_SCBANKS %d MEM_SIZE_MAX %d\n",
                SCBANK, N_SCBANKS, MEM_SIZE_MAX);
@@ -946,12 +961,12 @@ void setup_scbank_map (cpu_state_t *cpuPtr)
           continue;
         // This will happen during SIMH early initialization before
         // the cables are run.
-        if (! cables->cpu_to_scu[cpun][port_num].in_use)
+        if (! cables->cpu_to_scu[current_running_cpu_idx][port_num].in_use)
           {
             //sim_warn ("%s SCU not cabled\n", __func__);
             continue;
           }
-        uint scu_unit_idx = cables->cpu_to_scu[cpun][port_num].scu_unit_idx;
+        uint scu_unit_idx = cables->cpu_to_scu[current_running_cpu_idx][port_num].scu_unit_idx;
 
         // Calculate the amount of memory in the SCU in words
         uint store_size = cpu.switches.store_size [port_num];
@@ -1059,7 +1074,7 @@ int lookup_cpu_mem_map (cpu_state_t *cpuPtr, word24 addr)
 //  Additional numbers will be for multi-cpu systems.
 //  Other fields to be added.
 
-static void get_serial_number (void)
+static void get_serial_number (cpu_state_t *cpuPtr)
   {
     bool havesn = false;
     FILE * fp = fopen ("./serial.txt", "r");
@@ -1069,38 +1084,37 @@ static void get_serial_number (void)
         char * checksn = fgets (buffer, sizeof (buffer), fp);
         (void)checksn;
         uint cpun, sn;
-        if (sscanf (buffer, "sn: %u", & sn) == 1)
+        if (sscanf (buffer, "sn: %u", & cpu.switches.serno) == 1)
           {
-             cpus[0].switches.serno = sn;
-             if (!sim_quiet)
-               {
-                 sim_msg ("%s CPU serial number: %u\n", sim_name, cpus[0].switches.serno);
-               }
-             havesn = true;
+                        if (!sim_quiet)
+                          {
+                    sim_msg ("%s CPU serial number: %u\n", sim_name, cpu.switches.serno);
+                          }
+                        havesn = true;
           }
         else if (sscanf (buffer, "sn%u: %u", & cpun, & sn) == 2)
           {
             if (cpun < N_CPU_UNITS_MAX)
               {
                 cpus[cpun].switches.serno = sn;
-                if (!sim_quiet)
-                  {
-                    sim_msg ("%s CPU %u serial number: %u\n",
-                              sim_name, cpun, cpus[cpun].switches.serno);
-                  }
+                                if (!sim_quiet)
+                                  {
+                        sim_msg ("%s CPU %u serial number: %u\n",
+                                sim_name, cpun, cpus[cpun].switches.serno);
+                                  }
                 havesn = true;
               }
           }
       }
     if (!havesn)
       {
-        if (!sim_quiet)
-          {
-            sim_msg ("\r\nPlease register your system at "
-                     "https://ringzero.wikidot.com/wiki:register\n");
-            sim_msg ("or create the file 'serial.txt' containing the line "
-                      "'sn: 0'.\r\n\r\n");
-          }
+                if (!sim_quiet)
+                  {
+                sim_msg ("\r\nPlease register your system at "
+                        "https://ringzero.wikidot.com/wiki:register\n");
+                sim_msg ("or create the file 'serial.txt' containing the line "
+                        "'sn: 0'.\r\n\r\n");
+                  }
       }
     if (fp)
       fclose (fp);
@@ -1178,8 +1192,45 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
 
 // called once initialization
 
-void cpu_init (void)
+void cpu_init (cpu_state_t *cpuPtr)
   {
+
+// !!!! Do not use 'cpu' in this routine; usage of 'cpus' violates 'restrict'
+// !!!! attribute
+
+#if 0
+#ifndef SCUMEM
+#ifdef M_SHARED
+    if (! M)
+      {
+        M = (word36 *) create_shm ("M", MEMSIZE * sizeof (word36));
+      }
+#else
+    if (! M)
+      {
+        M = (word36 *) calloc (MEMSIZE, sizeof (word36));
+      }
+#endif
+    if (! M)
+      {
+        sim_fatal ("create M failed\n");
+      }
+#endif
+
+#ifdef M_SHARED
+    if (! cpus)
+      {
+        cpus = (cpu_state_t *) create_shm ("cpus",
+                                           N_CPU_UNITS_MAX *
+                                             sizeof (cpu_state_t));
+      }
+    if (! cpus)
+      {
+        sim_fatal ("create cpus failed\n");
+      }
+#endif
+#endif
+
     M = system_state->M;
 #ifdef M_SHARED
     cpus = system_state->cpus;
@@ -1189,30 +1240,27 @@ void cpu_init (void)
     memset (& watch_bits, 0, sizeof (watch_bits));
 #endif
 
-    memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
-    for (uint cpun = 0; cpun < N_CPU_UNITS_MAX; cpun ++)
-      {
-        cpu_state_t * cpuPtr = cpus + cpun;
-        cpu.myIdx = cpun;
-        cpu.switches.FLT_BASE = 2; // Some of the UnitTests assume this
+    set_cpu_idx (0);
 
+    memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
+    cpus [0].switches.FLT_BASE = 2; // Some of the UnitTests assume this
+
+    get_serial_number (cpuPtr);
+
+#ifndef NO_EV_POLL
+    ev_poll_loop = uv_default_loop ();
+    uv_timer_init (ev_poll_loop, & ev_poll_handle);
+    // 10 ms == 100Hz
+    uv_timer_start (& ev_poll_handle, ev_poll_cb, sys_opts.sys_poll_interval, sys_opts.sys_poll_interval);
+#endif
 
     // TODO: reset *all* other structures to zero
 
-        cpu.instrCnt = 0;
-        cpu.cycleCnt = 0;
-        for (int i = 0; i < N_FAULTS; i ++)
-          cpu.faultCnt [i] = 0;
-       }
+    cpus[ASSUME0].instrCnt = 0;
+    cpus[ASSUME0].cycleCnt = 0;
+    for (int i = 0; i < N_FAULTS; i ++)
+      cpus[ASSUME0].faultCnt [i] = 0;
 
-     get_serial_number ();
-
-#ifndef NO_EV_POLL
-        ev_poll_loop = uv_default_loop ();
-        uv_timer_init (ev_poll_loop, & ev_poll_handle);
-        // 10 ms == 100Hz
-        uv_timer_start (& ev_poll_handle, ev_poll_cb, sys_opts.sys_poll_interval, sys_opts.sys_poll_interval);
-#endif
 
 #ifdef MATRIX
     initializeTheMatrix ();
@@ -1225,7 +1273,11 @@ static void cpu_reset (cpu_state_t *cpuPtr)
       {
         cpu_reset_unit_idx (i, true);
       }
+
+    set_cpu_idx (0);
+
     sim_debug (DBG_INFO, & cpu_dev, "CPU reset: Running\n");
+
   }
 
 static t_stat sim_cpu_reset (UNUSED DEVICE *dptr)
@@ -1347,6 +1399,9 @@ cpu_state_t * cpus = NULL;
 #else
 cpu_state_t cpus [N_CPU_UNITS_MAX];
 #endif
+#ifdef ROUND_ROBIN
+uint current_running_cpu_idx;
+#endif
 
 // Scan the SCUs; it one has an interrupt present, return the fault pair
 // address for the highest numbered interrupt on that SCU. If no interrupts
@@ -1361,7 +1416,7 @@ static uint get_highest_intr (cpu_state_t *cpuPtr)
       {
         if (cpu.events.XIP [scu_unit_idx])
           {
-            fp = scu_get_highest_intr (cpuPtr, scu_unit_idx); // CALLED WITH SCU LOCK
+            fp = scu_get_highest_intr (scu_unit_idx); // CALLED WITH SCU LOCK
             if (fp != 1)
               break;
           }
@@ -1382,7 +1437,7 @@ bool sample_interrupts (cpu_state_t *cpuPtr)
     return false;
   }
 
-t_stat simh_hooks (cpu_state_t * cpuPtr)
+t_stat simh_hooks (void)
   {
     int reason = 0;
 
@@ -1390,7 +1445,7 @@ t_stat simh_hooks (cpu_state_t * cpuPtr)
       return STOP_STOP;
 
 #ifdef ISOLTS
-    if (cpuPtr && cpuPtr->myIdx == 0)
+    if (current_running_cpu_idx == 0)
 #endif
     // check clock queue
     if (sim_interval <= 0)
@@ -1408,14 +1463,13 @@ t_stat simh_hooks (cpu_state_t * cpuPtr)
 // This is needed for BCE_TRAP in install scripts
     // sim_brk_test expects a 32 bit address; PPR.IC into the low 18, and
     // PPR.PSR into the high 12
-    if (cpuPtr &&
-        sim_brk_summ &&
+    if (sim_brk_summ &&
         sim_brk_test ((cpus[0].PPR.IC & 0777777) |
                       ((((t_addr) cpus[0].PPR.PSR) & 037777) << 18),
                       SWMASK ('E')))  /* breakpoint? */
       return STOP_BKPT; /* stop simulation */
 #ifndef SPEED
-    if (cpuPtr && sim_deb_break && cpu.cycleCnt >= sim_deb_break)
+    if (sim_deb_break && cpu.cycleCnt >= sim_deb_break)
       return STOP_BKPT; /* stop simulation */
 #endif
 #endif
@@ -1459,7 +1513,7 @@ static void panel_process_event (void)
           }
          else // EXECUTE FAULT
           {
-            setG7fault (cpu.myIdx, FAULT_EXF, fst_zero);
+            setG7fault (current_running_cpu_idx, FAULT_EXF, fst_zero);
           }
       }
   }
@@ -1523,7 +1577,7 @@ t_stat sim_instr (void)
       {
         reason = 0;
         // Process deferred events and breakpoints
-        reason = simh_hooks (NULL);
+        reason = simh_hooks ();
         if (reason)
           {
             break;
@@ -1674,7 +1728,7 @@ void * cpu_thread_main (void * arg)
   {
     int myid = * (int *) arg;
     cpu_state_t * cpuPtr =  cpus + myid;
-    cpu.myIdx = myid;
+    set_cpu_idx ((uint) myid);
 
     sim_msg ("CPU %c thread created\n", 'a' + myid);
 
@@ -1772,22 +1826,24 @@ t_stat threadz_sim_instr (void)
     t_stat reason = 0;
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
+    set_cpu_idx (0);
 #ifdef M_SHARED
 // simh needs to have the IC statically allocated, so a placeholder was
 // created. Copy the placeholder in so the IC can be set by simh.
 
-    cpus[0].PPR.IC = dummy_IC;
+    cpus [0].PPR.IC = dummy_IC;
 #endif
 
 #ifdef ROUND_ROBIN
-    cpus[0].isRunning = true;
+    cpu.isRunning = true;
+    set_cpu_idx (cpu_dev.numunits - 1);
 
 setCPU:;
-    cpu_state_t * cpuPtr = NULL:
+    uint current = current_running_cpu_idx;
     uint c;
     for (c = 0; c < cpu_dev.numunits; c ++)
       {
-        cpuPtr = cpus + c;
+        set_cpu_idx (c);
         if (cpu.isRunning)
           break;
       }
@@ -1796,7 +1852,8 @@ setCPU:;
         sim_msg ("All CPUs stopped\n");
         goto leave;
       }
-    if (! cpu.isRunning)
+    set_cpu_idx ((current + 1) % cpu_dev.numunits);
+    if (! cpu . isRunning)
       goto setCPU;
 #endif
 #endif
@@ -1851,7 +1908,7 @@ setCPU:;
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
         // Process deferred events and breakpoints
-        reason = simh_hooks (cpuPtr);
+        reason = simh_hooks ();
         if (reason)
           {
             break;
@@ -1910,12 +1967,12 @@ setCPU:;
         unlock_mem_force ();
 
         // wait on run/switch
-        cpuRunningWait (cpuPtr);
+        cpuRunningWait ();
 #endif // THREADZ
 #ifdef LOCKLESS
         core_unlock_all (cpuPtr);
         // wait on run/switch
-        // cpuRunningWait (cpuPtr);
+        // cpuRunningWait ();
 #endif
 
 #ifdef LOCKLESS
@@ -1940,7 +1997,7 @@ setCPU:;
                 if (cpu.shadowTR == 0) // passing thorugh 0...
                   {
                     if (cpu.switches.tro_enable)
-                      setG7fault (cpu.myIdx, FAULT_TRO, fst_zero);
+                      setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
                   }
               }
           }
@@ -1972,7 +2029,7 @@ setCPU:;
           {
             cpu.rTR &= MASK27;
             if (cpu.switches.tro_enable)
-              setG7fault (cpu.myIdx, FAULT_TRO, fst_zero);
+              setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
           }
 
         sim_debug (DBG_CYCLE, & cpu_dev, "Cycle is %s\n",
@@ -2326,7 +2383,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                           stall_points[i].offset && stall_points[i].offset == cpu.PPR.IC)
                         {
 #ifdef CTRACE
-                          fprintf (stderr, "%10lu %s stall %d\n", seqno (), cpunstr[cpu.myIdx], i);
+                          fprintf (stderr, "%10lu %s stall %d\n", seqno (), cpunstr[current_running_cpu_idx], i);
 #endif
                           //sim_printf ("stall %2d %05o:%06o\n", i, stall_points[i].segno, stall_points[i].offset);
                           //pthread_yield ();
@@ -2502,7 +2559,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   if (cpu.rTR <= ticks)
                     {
                       if (cpu.switches.tro_enable)
-                        setG7fault (cpu.myIdx, FAULT_TRO,
+                        setG7fault (current_running_cpu_idx, FAULT_TRO,
                                     fst_zero);
                     }
                   cpu.rTR = (cpu.rTR - ticks) & MASK27;
@@ -2511,7 +2568,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   lock_scu ();
                   if (!sample_interrupts (cpuPtr))
                     {
-                      left = sleepCPU (cpuPtr, left);
+                      left = sleepCPU (left);
                     }
                   unlock_scu ();
                   if (left)
@@ -2523,7 +2580,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                       if (cpu.switches.tro_enable)
                         {
                           lock_scu ();
-                          setG7fault (cpu.myIdx, FAULT_TRO,
+                          setG7fault (current_running_cpu_idx, FAULT_TRO,
                                       fst_zero);
                           unlock_scu ();
                         }
@@ -2572,7 +2629,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   if (cpu.rTR <= sys_opts.sys_poll_interval * 512)
                     {
                       if (cpu.switches.tro_enable)
-                        setG7fault (cpu.myIdx, FAULT_TRO,
+                        setG7fault (current_running_cpu_idx, FAULT_TRO,
                                     fst_zero);
                     }
                   cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
@@ -2828,6 +2885,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 
 leave:
 
+#if defined(THREADZ) || defined(LOCKLESS)
+    //    setCPURun (current_running_cpu_idx, false);
+#endif
+
 #ifdef HDBG
     hdbgPrint ();
 #endif
@@ -2848,7 +2909,7 @@ leave:
 #endif
 
 #if defined(THREADZ) || defined(LOCKLESS)
-    stopCPUThread(cpuPtr);
+    stopCPUThread();
 #endif
 
 #ifdef M_SHARED
@@ -2856,7 +2917,8 @@ leave:
 // created. Update the placeholder in so the IC can be seen by simh, and
 // restarting sim_instr doesn't lose the place.
 
-    dummy_IC = cpus[0].PPR.IC;
+    set_cpu_idx (0);
+    dummy_IC = cpu.PPR.IC;
 #endif
 
     return reason;
@@ -3060,7 +3122,7 @@ static uint get_scu_unit_idx (word24 addr, word24 * offset)
         sim_warn ("cpu_port_num < 0");
         doFault (cpuPtr, FAULT_STR, fst_str_nea,  __func__);
       }
-    return cables->cpu_to_scu [cpu.myIdx][cpu_port_num].scu_unit_idx;
+    return cables->cpu_to_scu [current_running_cpu_idx][cpu_port_num].scu_unit_idx;
   }
 #endif
 #endif
@@ -3176,7 +3238,7 @@ int32 core_read_lock (cpu_state_t *cpuPtr, word24 addr, word36 *data, UNUSED con
     LOCK_CORE_WORD(addr, cpuPtr);
     if (cpu.locked_addr != 0) {
       sim_warn ("core_read_lock: locked %08o locked_addr %08o %c %05o:%06o\n",
-                addr, cpu.locked_addr, cpu.myIdx + 'A',
+                addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
       core_unlock_all (cpuPtr);
     }
@@ -3282,7 +3344,7 @@ int core_write_unlock (cpu_state_t *cpuPtr, word24 addr, word36 data, UNUSED con
     if (cpu.locked_addr != addr)
       {
         sim_warn ("core_write_unlock: locked %08o locked_addr %08o %c %05o:%06o\n",
-                  addr, cpu.locked_addr, cpu.myIdx + 'A',
+                  addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                   cpu.PPR.PSR, cpu.PPR.IC);
        core_unlock_all (cpuPtr);
       }
@@ -3296,7 +3358,7 @@ int core_unlock_all (cpu_state_t *cpuPtr)
 {
   if (cpu.locked_addr != 0) {
       sim_warn ("core_unlock_all: locked %08o %c %05o:%06o\n",
-                cpu.locked_addr, cpu.myIdx + 'A',
+                cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
       STORE_REL_CORE_WORD(cpu.locked_addr, M[cpu.locked_addr]);
       cpu.locked_addr = 0;
@@ -3485,7 +3547,7 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: even locked %08o locked_addr %08o %c %05o:%06o\n",
-                addr, cpu.locked_addr, cpu.myIdx + 'A',
+                addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
     *even = v & DMASK;
     addr++;
@@ -3520,7 +3582,7 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: odd locked %08o locked_addr %08o %c %05o:%06o\n",
-                addr, cpu.locked_addr, cpu.myIdx + 'A',
+                addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
     *odd = v & DMASK;
 #else
@@ -4333,9 +4395,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
                   {
                     if ((i != j) || (i == 0))
                       {
-// XXX BUG getting rid of current_running_cpu_idx means a generic sim_debug call has no way of knowing the current cpu
-                          //fprintf (sim_deb, "%ld.%06ld: DBG(%lld) %o: %s %s %.*s\r\n", t.tv_sec, t.tv_nsec/1000, cnt, current_running_cpu_idx, dptr->name, debug_type, i-j, &buf[j]);
-                          fprintf (sim_deb, "%ld.%06ld: DBG(%lld) %s %s %.*s\r\n", t.tv_sec, t.tv_nsec/1000, cnt, /* current_running_cpu_idx, */ dptr->name, debug_type, i-j, &buf[j]);
+                          fprintf (sim_deb, "%ld.%06ld: DBG(%lld) %o: %s %s %.*s\r\n", t.tv_sec, t.tv_nsec/1000, cnt, current_running_cpu_idx, dptr->name, debug_type, i-j, &buf[j]);
                       }
                   }
                 j = i + 1;

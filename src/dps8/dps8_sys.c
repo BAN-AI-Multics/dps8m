@@ -4093,7 +4093,7 @@ static void dps8_init (void)
     console_init (); // must come after fnpInit due to libuv initiailization
     //mpc_init ();
     scu_init ();
-    cpu_init ();
+    cpu_init (cpus + ASSUME0);
     rdr_init ();
     pun_init ();
     prt_init ();

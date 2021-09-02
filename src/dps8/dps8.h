@@ -147,11 +147,11 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 #endif
 
 // debugging tool
-//#ifdef ISOLTS
-//#define IF1 if (current_running_cpu_idx && sim_deb)
-//#else
+#ifdef ISOLTS
+#define IF1 if (current_running_cpu_idx && sim_deb)
+#else
 #define IF1 if (0)
-//#endif
+#endif
 
 //#define OSCAR
 
