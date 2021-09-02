@@ -46,7 +46,7 @@ in any form, provided that the following conditions are met:
   * [Txt2PDF](#txt2pdf)
   * [DecNumber](#decnumber)
   * [libTELNET](#libtelnet)
-  * [Shell Routines](#shell-scripts)
+  * [Shell Routines](#shell-routines)
   * [BSD Random](#bsd-random)
   * [Multics Software Materials and Documentation](#multics-software-materials-and-documentation)
 - [Scope of Intended Application](#scope-of-intended-application)
@@ -548,7 +548,7 @@ SUCH DAMAGE.
 
 ----
 
-### MULTICS SOFTWARE MATERIALS AND DOCUMENTATION
+### Multics Software Materials and Documentation
 
 * **DPS8** includes some **Multics** software materials and documentation.
   These materials and documentation are distributed under the terms of the
