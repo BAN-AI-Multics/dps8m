@@ -1,5 +1,19 @@
 # LICENSE
 
+<!--
+ /*
+  *  LICENSE.md
+  *
+  *  Copyright (c) 2008-2021 The DPS8M Development Team
+  *
+  *  Copying and distribution of this file, with or without modification,
+  *  are permitted  in any medium without royalty  provided the copyright
+  *  notice and this notice  are preserved.  This file  is offered as-is,
+  *  without any warranty.
+  *
+  */
+-->
+
 <!-- toc -->
 
 ## DPS8M
@@ -416,7 +430,7 @@ of all present and future rights to this code under copyright law.
 
 ----
 
-### SHELL‑TOOLKIT
+### SHELL SCRIPTS
 
 * Shell scripts may adapt or incorporate POSIX shell functions, routines, and
   techniques (the “Routines”), written or distributed by
