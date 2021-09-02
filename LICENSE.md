@@ -11,12 +11,12 @@ ICU License —— ICU 1.8.1 to ICU 57.1
 
 COPYRIGHT AND PERMISSION NOTICE
 
-Copyright (c) 2006‑2019 Michael Mondy, Harry Reed, Charles Anthony, and others
+Copyright (c) 2006‑2021 Michael Mondy, Harry Reed, Charles Anthony, and others
 Copyright (c) 2015‑2016 Craig Ruff
-Copyright (c) 2015-2021 Eric Swenson
+Copyright (c) 2015‑2021 Eric Swenson
 Copyright (c) 2016 Michal Tomek
 Copyright (c) 2016 Jean‑Michel Merliot
-Copyright (c) 2017-2021 Jeffrey H. Johnson
+Copyright (c) 2017‑2021 Jeffrey H. Johnson
 Copyright (c) 2018‑2021 Juergen Weiss
 Copyright (c) 2021 Dean S. Anderson
 Copyright (c) 2021 The DPS8M Development Team
