@@ -3,7 +3,7 @@
 
 Copyright (c) 2008-2021 The DPS8M Development Team
 
-This work is provided "as is", without any express or implied
+This work is provided "AS IS", without any express or implied
 warranties, including but not limited to the implied warranties of
 merchantability and fitness for a particular purpose.  In no event will
 the authors or contributors be held liable for any direct, indirect,
