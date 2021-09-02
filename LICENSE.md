@@ -193,7 +193,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-#### SIMH
+### SIMH
 
 * **SIMH** is a portable systems simulation framework, written by
   Robert M. Supnik and others, and distributed under a modified MIT license.
