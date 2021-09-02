@@ -1812,8 +1812,6 @@ typedef struct cpu_state_t
     // mapping from the CPU to the SCU is easier to query
     uint scu_port[N_SCU_UNITS_MAX];
 
-    uint myIdx;
-
   } cpu_state_t;
 
 #ifdef M_SHARED
@@ -1837,7 +1835,14 @@ extern bool stall_point_active;
 
 uint set_cpu_idx (uint cpuNum);
 #if defined(THREADZ) || defined(LOCKLESS)
+extern __thread uint current_running_cpu_idx;
 extern bool bce_dis_called;
+#else
+#ifdef ROUND_ROBIN
+extern uint current_running_cpu_idx;
+#else
+#define current_running_cpu_idx 0
+#endif
 #endif
 
 // Support code to access ARn.BITNO, ARn.CHAR, PRn.BITNO
@@ -1859,6 +1864,7 @@ static inline void SET_AR_CHAR_BITNO (cpu_state_t *cpuPtr, uint n, word2 c, word
   }
 
 bool sample_interrupts (cpu_state_t *cpuPtr);
+t_stat simh_hooks (void);
 int operand_size (cpu_state_t *cpuPtr);
 t_stat read_operand (cpu_state_t *cpuPtr, word18 addr, processor_cycle_type cyctyp);
 t_stat write_operand (cpu_state_t *cpuPtr, word18 addr, processor_cycle_type acctyp);
@@ -1918,12 +1924,12 @@ static inline int core_read (cpu_state_t *cpuPtr, word24 addr, word36 *data, \
 #ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (cpuPtr, addr, & offset);
-    if (! get_scu_in_use (cpuPtr.myIdx, cpu_port_num))
+    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
       {
         sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
         doFault (cpuPtr, FAULT_STR, fst_str_nea, __func__);
       }
-    uint scuUnitIdx = get_scu_idx (cpuPtr.myIdx, cpu_port_num);
+    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
     *data = scu [scuUnitIdx].M[offset] & DMASK;
 #else
     *data = M[addr] & DMASK;
@@ -1966,12 +1972,12 @@ static inline int core_write (cpu_state_t *cpuPtr, word24 addr, word36 data, \
 #ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (cpuPtr, addr, & offset);
-    if (! get_scu_in_use (cpuPtr.myIdx, cpu_port_num))
+    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
       {
         sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
         doFault (cpuPtr, FAULT_STR, fst_str_nea, __func__);
       }
-    uint scuUnitIdx = get_scu_idx (cpuPtr.myIdx, cpu_port_num);
+    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
     scu[scuUnitIdx].M[offset] = data & DMASK;
 #else
     M[addr] = data & DMASK;
@@ -2014,12 +2020,12 @@ static inline int core_write_zone (cpu_state_t *cpuPtr, word24 addr, word36 data
 #ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (cpuPtr, addr, & offset);
-    if (! get_scu_in_use (cpuPtr.myIdx, cpu_port_num))
+    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
       {
         sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
         doFault (cpuPtr, FAULT_STR, fst_str_nea, __func__);
       }
-    uint scuUnitIdx = get_scu_idx (cpuPtr.myIdx, cpu_port_num);
+    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
     scu[scuUnitIdx].M[offset] = (scu[scuUnitIdx].M[offset] & ~cpu.zone) |
                               (data & cpu.zone);
     cpu.useZone = false; // Safety
@@ -2067,12 +2073,12 @@ static inline int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, wo
 #ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (cpuPtr, addr, & offset);
-    if (! get_scu_in_use (cpuPtr.myIdx, cpu_port_num))
+    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
       {
         sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
         doFault (cpuPtr, FAULT_STR, fst_str_nea, __func__);
       }
-    uint scuUnitIdx = get_scu_idx (cpuPtr.myIdx, cpu_port_num);
+    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
     *even = scu [scuUnitIdx].M[offset++] & DMASK;
     *odd = scu [scuUnitIdx].M[offset] & DMASK;
 #else
@@ -2117,12 +2123,12 @@ static inline int core_write2 (cpu_state_t *cpuPtr, word24 addr, word36 even, wo
 #ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (cpuPtr, addr, & offset);
-    if (! get_scu_in_use (cpuPtr.myIdx, cpu_port_num))
+    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
       {
         sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
         doFault (cpuPtr, FAULT_STR, fst_str_nea, __func__);
       }
-    uint scuUnitIdx = get_scu_idx (cpuPtr.myIdx, cpu_port_num);
+    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
     scu [scuUnitIdx].M[offset++] = even & DMASK;
     scu [scuUnitIdx].M[offset] = odd & DMASK;
 #else
@@ -2286,7 +2292,7 @@ int lookup_cpu_mem_map (cpu_state_t *cpuPtr, word24 addr, word24 * offset);
 #else
 int lookup_cpu_mem_map (cpu_state_t *cpuPtr, word24 addr);
 #endif
-void cpu_init (void);
+void cpu_init (cpu_state_t *cpuPtr);
 void setup_scbank_map (cpu_state_t *cpuPtr);
 #ifdef DPS8M
 // void add_DUOU_history (cpu_state_t *cpuPtr, word36 flags, word18 ICT, word9 RS_REG, word9 flags2);
