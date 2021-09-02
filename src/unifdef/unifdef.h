@@ -44,9 +44,13 @@
 #define replace(old, new) rename(old, new)
 
 #ifdef _WIN32
+#ifdef __MINGW64__
+static inline int fchmod()
+#else
 static inline int fchmod(int fildes, mode_t mode)
+#endif /* __MINGW64__ */
 { errno = ENOSYS; return -1; }
-#endif
+#endif /* ifdef _WIN32 */
 
 static FILE *
 mktempmode(char *tmp, int mode)
