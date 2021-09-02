@@ -1,17 +1,35 @@
 # LICENSE
-
 <!--
- /*
-  *  LICENSE.md
-  *
-  *  Copyright (c) 2008-2021 The DPS8M Development Team
-  *
-  *  Copying and distribution of this file, with or without modification,
-  *  are permitted  in any medium without royalty  provided the copyright
-  *  notice and this notice  are preserved.  This file  is offered as-is,
-  *  without any warranty.
-  *
-  */
+
+Copyright (c) 2008-2021 The DPS8M Development Team
+
+This work is provided "as is", without any express or implied
+warranties, including but not limited to the implied warranties of
+merchantability and fitness for a particular purpose.  In no event will
+the authors or contributors be held liable for any direct, indirect,
+incidental, special, exemplary, or consequential damages however caused
+and on any theory of liability, whether in contract, strict liability,
+or tort (including negligence or otherwise), arising in any way out of
+the use of this work, even if advised of the possibility of such damage.
+
+Permission is granted to anyone to use this work for any purpose,
+including commercial applications, and to alter and distribute it freely
+in any form, provided that the following conditions are met:
+
+  1. The origin of this work must not be misrepresented; you must not
+     claim that you authored the original work. If you use this work in
+     a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+
+  2. Altered versions in any form may not be misrepresented as being the
+     original work, and neither the name of The DPS8M Development Team
+     nor the names of authors or contributors may be used to endorse or
+     promote products derived from this work without specific prior
+     written permission.
+
+  3. The text of this notice must be included, unaltered, with any
+     distribution.
+
 -->
 
 <!-- toc -->
