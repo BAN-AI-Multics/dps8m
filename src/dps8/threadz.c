@@ -407,9 +407,9 @@ void createCPUThread (uint cpuNum)
 #endif
   }
 
-void stopCPUThread()
+void stopCPUThread (cpu_state_t * cpuPtr)
   {
-    struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
+    struct cpuThreadz_t * p = & cpuThreadz[cpuPtr->myIdx];
     p->run = false;
     pthread_exit(NULL);
   }
@@ -443,10 +443,10 @@ void setCPURun (uint cpuNum, bool run)
 
 // Called by CPU thread to block on run/sleep
 
-void cpuRunningWait (void)
+void cpuRunningWait (cpu_state_t * cpuPtr)
   {
     int rc;
-    struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
+    struct cpuThreadz_t * p = & cpuThreadz[cpuPtr->myIdx];
     if (p->run)
       return;
     rc = pthread_mutex_lock (& p->runLock);
@@ -465,10 +465,10 @@ void cpuRunningWait (void)
 
 // Called by CPU thread to sleep until time up or signaled
 // Return time left
-unsigned long  sleepCPU (unsigned long usec)
+unsigned long  sleepCPU (cpu_state_t * cpuPtr, unsigned long usec)
   {
     int rc;
-    struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
+    struct cpuThreadz_t * p = & cpuThreadz[cpuPtr->myIdx];
     struct timespec abstime;
     clock_gettime (CLOCK_REALTIME, & abstime);
     abstime.tv_nsec += (long int) usec * 1000;
@@ -478,7 +478,6 @@ unsigned long  sleepCPU (unsigned long usec)
     rc = pthread_cond_timedwait (& p->sleepCond,
                                  & scu_lock,
                                  & abstime);
-//sim_printf ("wake %u %u %lu\n", cpu.rTR, current_running_cpu_idx, usec);
     if (rc && rc != ETIMEDOUT)
       sim_printf ("sleepCPU pthread_cond_timedwait %d\n", rc);
     if (rc == ETIMEDOUT)
@@ -486,7 +485,6 @@ unsigned long  sleepCPU (unsigned long usec)
     struct timespec newtime, delta;
     clock_gettime (CLOCK_REALTIME, & newtime);
     timespec_diff (& abstime, & newtime, & delta);
-//sim_printf ("wake %u %u %lu %lu\n", cpu.rTR, current_running_cpu_idx, usec, delta.tv_nsec / 1000);
     if (delta.tv_nsec < 0)
       return 0; // safety
     return (unsigned long) delta.tv_nsec / 1000;

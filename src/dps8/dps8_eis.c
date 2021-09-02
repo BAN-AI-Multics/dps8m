@@ -1982,22 +1982,16 @@ void a4bd (cpu_state_t *cpuPtr)
     uint ARn = GET_ARN (cpu.cu.IWB);
     CPTUR (cptUsePRn + ARn);
     int32_t address = SIGNEXT15_32 (GET_OFFSET (cpu.cu.IWB));
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd address %o %d.\n", address, address);
 
     word4 reg = GET_TD (cpu.cu.IWB); // 4-bit register modification (None except
                                      // au, qu, al, ql, xn)
     // r is the count of 4bit characters
     word36 ur = getCrAR (cpuPtr, reg);
     int32 r = SIGNEXT22_32 ((word22) ur);
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd r %o %d.\n", r, r);
 
     uint augend = 0; // in 4bit characters
     if (GET_A (cpu.cu.IWB))
        {
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd AR%d WORDNO %o %d. CHAR %o BITNO %o\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO);
 
          //augend = cpu.AR[ARn].WORDNO * 32u + cntFromBit [GET_AR_BITNO (ARn)];
          // force to 4 bit character boundary
@@ -2010,30 +2004,15 @@ void a4bd (cpu_state_t *cpuPtr)
            augend ++;
        }
 
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd augend %o %d.\n", augend, augend);
-
     int32_t addend = address * 8 + r;  // in characters
-
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd addend %o %d.\n", addend, addend);
-
     int32_t sum = (int32_t) augend + addend;
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd sum %o %d.\n", sum, sum);
-
 
     // Handle over/under flow
     while (sum < 0)
       sum += n4chars;
     sum = sum % n4chars;
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd sum %o %d.\n", sum, sum);
-
 
     cpu.AR[ARn].WORDNO = (word18) (sum / 8) & AMASK;
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd WORDNO %o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO);
 
 //    // 0aaaabbbb0ccccdddd0eeeeffff0gggghhhh
 //    //             111111 11112222 22222233
@@ -2048,15 +2027,8 @@ void a4bd (cpu_state_t *cpuPtr)
     //cpu.AR [ARn].BITNO = bitFromCnt[bitno % 8];
     //SET_PR_BITNO (cpuPtr, cpuPtr, cpuPtr, ARn, bitFromCnt[bitno % 8]);
     uint char4no = (uint) (sum % 8);
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd char4no %d.\n", char4no);
-
     SET_AR_CHAR_BITNO (cpuPtr, ARn, (word2) (char4no / 2), (char4no % 2) ? 5 : 0);
     HDBGRegAR (ARn);
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd CHAR %o %d.\n", cpu.AR[ARn].CHAR, cpu.AR[ARn].CHAR);
-//if (current_running_cpu_idx)
-//sim_printf ("a4bd BITNO %o %d.\n", cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
 
 
@@ -2149,8 +2121,6 @@ void axbd (cpu_state_t *cpuPtr, uint sz)
 //    if (sz == 9)
 //      {
 //        r *= 9;
-//if (current_running_cpu_idx)
-//sim_printf ("axbd force chars 0%o %d. bits\n", r, r);
 //      }
 
     int32_t addend = address * 36 + r * (int32_t) sz;
@@ -2176,29 +2146,15 @@ void abd (cpu_state_t *cpuPtr)
     CPTUR (cptUsePRn + ARn);
 
     word18 address = SIGNEXT15_18 (GET_OFFSET (cpu.cu.IWB));
-//if (current_running_cpu_idx)
-//sim_printf ("address %o\n", address);
     word4 reg = (word4) GET_TD (cpu.cu.IWB);
     // r is the count of bits (0 - 2^18 * 36 -1); 24 bits
     word24 r = getCrAR (cpuPtr, (word4) reg) & MASK24;
-//if (current_running_cpu_idx)
-//sim_printf ("r 0%o %d.\n", r, r);
-//if (current_running_cpu_idx)
-//sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
-
-    //if (cpu.AR[ARn].BITNO > 8)
-      //cpu.AR[ARn].BITNO = 8;
     if (GET_AR_BITNO (ARn) > 8)
       SET_AR_CHAR_BITNO (cpuPtr, ARn, GET_AR_CHAR (ARn), 8);
 
     if (GET_A (cpu.cu.IWB))
       {
-//if (current_running_cpu_idx)
-//sim_printf ("A 1\n");
-        //word24 bits = 9 * cpu.AR[ARn].CHAR + cpu.AR[ARn].BITNO + r;
         word24 bits = 9u * GET_AR_CHAR (ARn) + GET_AR_BITNO (ARn) + r;
-//if (current_running_cpu_idx)
-//sim_printf ("bits 0%o %d.\n", bits, bits);
         cpu.AR[ARn].WORDNO = (cpu.AR[ARn].WORDNO + address +
                               bits / 36) & MASK18;
         if (r % 36)
@@ -2211,8 +2167,6 @@ void abd (cpu_state_t *cpuPtr)
       }
     else
       {
-//if (current_running_cpu_idx)
-//sim_printf ("A 0\n");
         cpu.AR[ARn].WORDNO = (address + r / 36) & MASK18;
         if (r % 36)
           {
@@ -2223,9 +2177,6 @@ void abd (cpu_state_t *cpuPtr)
           }
       }
     HDBGRegAR (ARn);
-
-//if (current_running_cpu_idx)
-//sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
 #else
 void abd (cpu_state_t *cpuPtr)
@@ -2234,9 +2185,6 @@ void abd (cpu_state_t *cpuPtr)
     CPTUR (cptUsePRn + ARn);
     int32_t address = SIGNEXT15_32 (GET_OFFSET (cpu.cu.IWB));
 
-if (current_running_cpu_idx)
-sim_printf ("abd address 0%o %d.\n", address, address);
-
     // 4-bit register modification (None except
     // au, qu, al, ql, xn)
     uint reg = GET_TD (cpu.cu.IWB);
@@ -2244,13 +2192,7 @@ sim_printf ("abd address 0%o %d.\n", address, address);
     // r is the count of bits
     int32_t r = getCrAR (cpuPtr, reg);
 
-if (current_running_cpu_idx)
-sim_printf ("abd r 0%o %d.\n", r, r);
-
     r = SIGNEXT24_32 (r);
-
-if (current_running_cpu_idx)
-sim_printf ("abd r 0%o %d.\n", r, r);
 
 #define SEPARATE
 
@@ -2262,8 +2204,6 @@ sim_printf ("abd r 0%o %d.\n", r, r);
     if (GET_A (cpu.cu.IWB))
       {
 
-if (current_running_cpu_idx)
-sim_printf ("abd ARn %d WORDNO %o CHAR %o BITNO %0o %d. PR_BITNO %0o %d.\n", ARn, cpu.PAR[ARn].WORDNO, cpu.PAR[ARn].CHAR, cpu.PAR[ARn].BITNO, cpu.PAR[ARn].BITNO, GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
        sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "abd ARn %d WORDNO %o BITNO %0o %d.\n", ARn, cpu.PAR[ARn].WORDNO, GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
 
 #ifdef SEPARATE
@@ -2276,34 +2216,20 @@ sim_printf ("abd ARn %d WORDNO %o CHAR %o BITNO %0o %d. PR_BITNO %0o %d.\n", ARn
 #endif
       }
 
-if (current_running_cpu_idx)
-sim_printf ("abd augend 0%o %d.\n", augend, augend);
-
 #ifdef SEPARATE
     if (GET_A (cpu.cu.IWB))
       {
 
-if (current_running_cpu_idx)
-sim_printf ("abd bitno 0%o %d.\n", bitno, bitno);
-
         int32_t rBitcnt = r % 36;
-
-if (current_running_cpu_idx)
-sim_printf ("abd rBitcnt 0%o %d.\n", rBitcnt, rBitcnt);
 
         r -= rBitcnt;
 
-if (current_running_cpu_idx)
-sim_printf ("abd r 0%o %d.\n", r, r);
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "abd augend 0%o\n", augend);
 
 
         // BITNO overflows oddly; handle separately
 
         int32_t deltaBits = rBitcnt + bitno;
-
-if (current_running_cpu_idx)
-sim_printf ("abd deltaBits 0%o %d.\n", deltaBits, deltaBits);
 
         while (deltaBits < 0)
           {
@@ -2316,12 +2242,6 @@ sim_printf ("abd deltaBits 0%o %d.\n", deltaBits, deltaBits);
             r += 9;
           }
         cpu.AR[ARn].BITNO = deltaBits;
-
-if (current_running_cpu_idx)
-sim_printf ("abd deltaBits 0%o %d.\n", deltaBits, deltaBits);
-if (current_running_cpu_idx)
-sim_printf ("abd r 0%o %d.\n", r, r);
-
       }
     else
       {
@@ -2330,24 +2250,12 @@ sim_printf ("abd r 0%o %d.\n", r, r);
 #endif
 
     int32_t addend = address * 36 + r;
-
-if (current_running_cpu_idx)
-sim_printf ("abd addend 0%o %d.\n", addend, addend);
-
     int32_t sum = augend + addend;
-
-if (current_running_cpu_idx)
-sim_printf ("abd sum 0%o %d.\n", sum, sum);
-
-
 
     // Handle over/under flow
     while (sum < 0)
       sum += nxbits;
     sum = sum % nxbits;
-
-if (current_running_cpu_idx)
-sim_printf ("abd sum 0%o %d.\n", sum, sum);
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "abd augend 0%o addend 0%o sum 0%o\n", augend, addend, sum);
 
@@ -2366,10 +2274,6 @@ sim_printf ("abd sum 0%o %d.\n", sum, sum);
     //uint bitno = sum % 36;
     //cpu.AR[ARn].CHAR = (bitno >> 4) & MASK2;
     //cpu.AR[ARn].BITNO = bitno & MASK4;
-
-
-if (current_running_cpu_idx)
-sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
 #endif
 
@@ -2523,9 +2427,6 @@ void s9bd (cpu_state_t *cpuPtr)
       }
     //cpu.AR[ARn].BITNO = 0;
     HDBGRegAR (ARn);
-
-//if (current_running_cpu_idx)
-//sim_printf ("s9bd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
 
 

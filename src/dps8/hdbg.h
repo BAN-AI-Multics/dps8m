@@ -16,7 +16,7 @@ void hdbg_mark (void);
 t_stat hdbg_size (int32 arg, UNUSED const char * buf);
 t_stat hdbg_print (int32 arg, UNUSED const char * buf);
 #ifdef HDBG
-void hdbgTrace (void);
+void hdbgTrace (cpu_state_t * cpuPtr);
 void hdbgPrint (void);
 enum hdbgIEFP_e
   {
@@ -29,13 +29,13 @@ enum hdbgIEFP_e
     hdbgIEFP_bar_write,
     hdbgIEFP_write
   };
-void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset);
-void hdbgMRead (word24 addr, word36 data);
-void hdbgMWrite (word24 addr, word36 data);
-void hdbgFault (_fault faultNumber, _fault_subtype subFault,
+void hdbgIEFP (cpu_state_t cpuPtr, enum hdbgIEFP_e type, word15 segno, word18 offset);
+void hdbgMRead (cpu_state_t cpuPtr, word24 addr, word36 data);
+void hdbgMWrite (cpu_state_t * cpuPtr, word24 addr, word36 data);
+void hdbgFault (cpu_state_t * cpuPtr, _fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg);
-void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx);
-void hdbgIntr (uint intr_pair_addr);
+void hdbgIntrSet (cpu_state_t * cpuPtr, uint inum, uint cpuUnitIdx, uint scuUnitIdx);
+void hdbgIntr (cpu_state_t * cpuPtr, uint intr_pair_addr);
 enum hregs_t
   {
     hreg_A,
@@ -46,23 +46,23 @@ enum hregs_t
     hreg_Y, hreg_Z,
     hreg_IR
   };
-void hdbgReg (enum hregs_t type, word36 data);
+void hdbgReg (cpu_state_t * cpuPtr, enum hregs_t type, word36 data);
 struct par_s;
-void hdbgPAReg (enum hregs_t type, struct par_s * data);
+void hdbgPAReg (cpu_state_t * cpuPtr, enum hregs_t type, struct par_s * data);
 #endif
 
 #ifdef HDBG
-#define HDBGMRead(a, d) hdbgMRead (a, d)
-#define HDBGMWrite(a, d) hdbgMWrite (a, d)
-#define HDBGRegA() hdbgReg (hreg_A, cpu.rA)
-#define HDBGRegQ() hdbgReg (hreg_Q, cpu.rQ)
-#define HDBGRegY() hdbgReg (hreg_Y, cpu.CY)
-#define HDBGRegZ(z) hdbgReg (hreg_Z, z)
-#define HDBGRegIR() hdbgReg (hreg_IR, cpu.cu.IR)
-#define HDBGRegX(i) hdbgReg (hreg_X0+(i), (word36) cpu.rX[i])
-#define HDBGRegPR(i) hdbgPAReg (hreg_PR0+(i), & cpu.PAR[i]);
-#define HDBGRegAR(i) hdbgPAReg (hreg_AR0+(i), & cpu.PAR[i]);
-#define HDBGIEFP(t,s,o) hdbgIEFP (t, s, o);
+#define HDBGMRead(a, d) hdbgMRead (cpuPtr, a, d)
+#define HDBGMWrite(a, d) hdbgMWrite (cpuPtr, a, d)
+#define HDBGRegA() hdbgReg (cpuPtr, hreg_A, cpu.rA)
+#define HDBGRegQ() hdbgReg (cpuPtr, hreg_Q, cpu.rQ)
+#define HDBGRegY() hdbgReg (cpuPtr, hreg_Y, cpu.CY)
+#define HDBGRegZ(z) hdbgReg (cpuPtr, hreg_Z, z)
+#define HDBGRegIR() hdbgReg (cpuPtr, hreg_IR, cpu.cu.IR)
+#define HDBGRegX(i) hdbgReg (cpuPtr, hreg_X0+(i), (word36) cpu.rX[i])
+#define HDBGRegPR(i) hdbgPAReg (cpuPtr, hreg_PR0+(i), & cpu.PAR[i]);
+#define HDBGRegAR(i) hdbgPAReg (cpuPtr, hreg_AR0+(i), & cpu.PAR[i]);
+#define HDBGIEFP(t,s,o) hdbgIEFP (cpuPtr, t, s, o);
 #else
 #define HDBGMRead(a, d)
 #define HDBGMWrite(a, d)

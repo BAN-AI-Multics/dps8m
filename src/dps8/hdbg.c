@@ -129,18 +129,13 @@ static void hdbg_inc (void)
 
 static bool wasDis;
 
-void hdbgTrace (void)
+void hdbgTrace (cpu_state_t * cpuPtr)
   {
 #ifdef THREADZ
     pthread_mutex_lock (& hdbg_lock);
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    cpu_state_t *cpuPtr = cpus + current_running_cpu_idx;
     if ((IWB_IRODD & 0000000777400) == 0616000)
       {
         if (wasDis)
@@ -164,18 +159,13 @@ done: ;
 #endif
   }
 
-void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset)
+void hdbgIEFP (cpu_state_t * cpuPtr, enum hdbgIEFP_e type, word15 segno, word18 offset)
   {
 #ifdef THREADZ
     pthread_mutex_lock (& hdbg_lock);
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    cpu_state_t *cpuPtr = cpus + current_running_cpu_idx;
     hevents[hevtPtr].type = hevtIEFP;
     hevents[hevtPtr].time = cpu.cycleCnt;
     hevents [hevtPtr].iefp.type = type;
@@ -188,18 +178,13 @@ done: ;
 #endif
   }
 
-void hdbgMRead (word24 addr, word36 data)
+void hdbgMRead (cpu_state_t * cpuPtr, word24 addr, word36 data)
   {
 #ifdef THREADZ
     pthread_mutex_lock (& hdbg_lock);
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    cpu_state_t *cpuPtr = cpus + current_running_cpu_idx;
     hevents [hevtPtr] . type = hevtMRead;
     hevents [hevtPtr] . time = cpu.cycleCnt;
     hevents [hevtPtr] . memref . addr = addr;
@@ -211,18 +196,13 @@ done: ;
 #endif
   }
 
-void hdbgMWrite (word24 addr, word36 data)
+void hdbgMWrite (cpu_state_t * cpuPtr, word24 addr, word36 data)
   {
 #ifdef THREADZ
     pthread_mutex_lock (& hdbg_lock);
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    cpu_state_t *cpuPtr = cpus + current_running_cpu_idx;
     hevents [hevtPtr] . type = hevtMWrite;
     hevents [hevtPtr] . time = cpu.cycleCnt;
     hevents [hevtPtr] . memref . addr = addr;
@@ -234,7 +214,7 @@ done: ;
 #endif
   }
 
-void hdbgFault (_fault faultNumber, _fault_subtype subFault,
+void hdbgFault (cpu_state_t * cpuPtr, _fault faultNumber, _fault_subtype subFault,
                 const char * faultMsg)
   {
 #ifdef THREADZ
@@ -242,11 +222,6 @@ void hdbgFault (_fault faultNumber, _fault_subtype subFault,
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    cpu_state_t *cpuPtr = cpus + current_running_cpu_idx;
     hevents [hevtPtr] . type = hevtFault;
     hevents [hevtPtr] . time = cpu.cycleCnt;
     hevents [hevtPtr] . fault . faultNumber = faultNumber;
@@ -260,18 +235,13 @@ done: ;
 #endif
   }
 
-void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx)
+void hdbgIntrSet (cpu_state_t * cpuPtr, uint inum, uint cpuUnitIdx, uint scuUnitIdx)
   {
 #ifdef THREADZ
     pthread_mutex_lock (& hdbg_lock);
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    cpu_state_t *cpuPtr = cpus + current_running_cpu_idx;
     hevents [hevtPtr].type = hevtIntrSet;
     hevents [hevtPtr].time = cpu.cycleCnt;
     hevents [hevtPtr].intrSet.inum = inum;
@@ -284,18 +254,13 @@ done: ;
 #endif
   }
 
-void hdbgIntr (uint intr_pair_addr)
+void hdbgIntr (cpu_state_t * cpuPtr, uint intr_pair_addr)
   {
 #ifdef THREADZ
     pthread_mutex_lock (& hdbg_lock);
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    cpu_state_t *cpuPtr = cpus + current_running_cpu_idx;
     hevents [hevtPtr].type = hevtIntr;
     hevents [hevtPtr].time = cpu.cycleCnt;
     hevents [hevtPtr].intr.intr_pair_addr = intr_pair_addr;
@@ -306,18 +271,13 @@ done: ;
 #endif
   }
 
-void hdbgReg (enum hregs_t type, word36 data)
+void hdbgReg (cpu_state_t * cpuPtr, enum hregs_t type, word36 data)
   {
 #ifdef THREADZ
     pthread_mutex_lock (& hdbg_lock);
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    cpu_state_t *cpuPtr = cpus + current_running_cpu_idx;
     hevents[hevtPtr].type = hevtReg;
     hevents[hevtPtr].time = cpu.cycleCnt;
     hevents[hevtPtr].reg.type = type;
@@ -330,18 +290,13 @@ done: ;
   }
 
 
-void hdbgPAReg (enum hregs_t type, struct par_s * data)
+void hdbgPAReg (cpu_state_t * cpuPtr, enum hregs_t type, struct par_s * data)
   {
 #ifdef THREADZ
     pthread_mutex_lock (& hdbg_lock);
 #endif
     if (! hevents)
       goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    cpu_state_t *cpuPtr = cpus + current_running_cpu_idx;
     hevents[hevtPtr].type = hevtPAReg;
     hevents[hevtPtr].time = cpu.cycleCnt;
     hevents[hevtPtr].par.type = type;

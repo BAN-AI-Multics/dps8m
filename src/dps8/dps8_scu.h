@@ -99,7 +99,7 @@ int scu_cioc (uint cpu_unit_idx, uint scu_unit_idx, uint scu_port_num, uint expa
 t_stat scu_rmcm (uint scu_unit_idx, uint cpu_unit_idx, word36 * rega, word36 * regq);
 t_stat scu_smcm (uint scu_unit_idx, uint cpu_unit_idx, word36 rega, word36 regq);
 void scu_clear_interrupt (uint scu_unit_idx, uint inum);
-uint scu_get_highest_intr (uint scu_unit_idx);
+uint scu_get_highest_intr (cpu_state_t * cpuPtr, uint scu_unit_idx);
 t_stat scu_reset (DEVICE *dptr);
 t_stat scu_reset_unit (UNIT * uptr, int32 value, const char * cptr,
                        void * desc);
