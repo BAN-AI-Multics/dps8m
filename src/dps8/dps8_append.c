@@ -294,12 +294,6 @@ static void modify_dsptw (cpu_state_t *cpuPtr, word15 segno)
 
     word24 x1 = (2u * segno) / 1024u; // floor
 
-#ifdef THREADZ
-    bool lck = get_rmw_lock ();
-    if (! lck)
-      lock_rmw ();
-#endif
-
     word36 PTWx1;
 #ifdef LOCKLESS
     core_read_lock (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
@@ -309,11 +303,6 @@ static void modify_dsptw (cpu_state_t *cpuPtr, word15 segno)
     core_read (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
     PTWx1 = SETBIT (PTWx1, 9);
     core_write (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
-#endif
-
-#ifdef THREADZ
-    if (! lck)
-      unlock_rmw ();
 #endif
 
     cpu.PTW0.U = 1;
@@ -826,11 +815,6 @@ static void fetch_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
     PNL (cpu.lastPTWOffset = offset;)
     PNL (cpu.lastPTWIsDS = false;)
 
-#ifdef THREADZ
-    bool lck = get_rmw_lock ();
-    if (! lck)
-      lock_rmw ();
-#endif
 #ifdef LOCKLESS
     core_read_lock (cpuPtr, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
 #else
@@ -856,11 +840,6 @@ static void fetch_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
 #endif
         cpu.PTW0.U = 1;
       }
-
-#ifdef THREADZ
-    if (! lck)
-      unlock_rmw ();
-#endif
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
@@ -994,11 +973,6 @@ static void modify_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
 
     set_apu_status (cpuPtr, apuStatus_MPTW);
 
-#ifdef THREADZ
-    bool lck = get_rmw_lock ();
-    if (! lck)
-      lock_rmw ();
-#endif
 #ifdef LOCKLESS
     core_read_lock (cpuPtr, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
@@ -1007,10 +981,6 @@ static void modify_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
     core_read (cpuPtr, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
     PTWx2 = SETBIT (PTWx2, 6);
     core_write (cpuPtr, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#endif
-#ifdef THREADZ
-    if (! lck)
-      unlock_rmw ();
 #endif
     cpu.PTW->M = 1;
 #ifdef L68

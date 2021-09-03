@@ -104,118 +104,6 @@ bool test_libuv_lock (void)
 // mem_lock -- memory atomicity lock
 // rmw_lock -- big R/M/W cycle lock
 
-#ifndef LOCKLESS
-pthread_rwlock_t mem_lock = PTHREAD_RWLOCK_INITIALIZER;
-static __thread bool have_mem_lock = false;
-static __thread bool have_rmw_lock = false;
-
-bool get_rmw_lock (void)
-  {
-    return have_rmw_lock;
-  }
-
-void lock_rmw (void)
-  {
-    if (have_rmw_lock)
-      {
-        sim_warn ("%s: Already have RMW lock\n", __func__);
-        return;
-      }
-    if (have_mem_lock)
-      {
-        sim_warn ("%s: Already have memory lock\n", __func__);
-        return;
-      }
-    int rc= pthread_rwlock_wrlock (& mem_lock);
-    if (rc)
-      sim_printf ("%s pthread_rwlock_rdlock mem_lock %d\n", __func__, rc);
-    have_mem_lock = true;
-    have_rmw_lock = true;
-  }
-
-void lock_mem_rd (void)
-  {
-    // If the big RMW lock is on, do nothing.
-    if (have_rmw_lock)
-      return;
-
-    if (have_mem_lock)
-      {
-        sim_warn ("%s: Already have memory lock\n", __func__);
-        return;
-      }
-    int rc= pthread_rwlock_rdlock (& mem_lock);
-    if (rc)
-      sim_printf ("%s pthread_rwlock_rdlock mem_lock %d\n", __func__, rc);
-    have_mem_lock = true;
-  }
-
-void lock_mem_wr (void)
-  {
-    // If the big RMW lock is on, do nothing.
-    if (have_rmw_lock)
-      return;
-
-    if (have_mem_lock)
-      {
-        sim_warn ("%s: Already have memory lock\n", __func__);
-        return;
-      }
-    int rc= pthread_rwlock_wrlock (& mem_lock);
-    if (rc)
-      sim_printf ("%s pthread_rwlock_wrlock mem_lock %d\n", __func__, rc);
-    have_mem_lock = true;
-  }
-
-void unlock_rmw (void)
-  {
-    if (! have_mem_lock)
-      {
-        sim_warn ("%s: Don't have memory lock\n", __func__);
-        return;
-      }
-    if (! have_rmw_lock)
-      {
-        sim_warn ("%s: Don't have RMW lock\n", __func__);
-        return;
-      }
-
-    int rc = pthread_rwlock_unlock (& mem_lock);
-    if (rc)
-      sim_printf ("%s pthread_rwlock_ublock mem_lock %d\n", __func__, rc);
-    have_mem_lock = false;
-    have_rmw_lock = false;
-  }
-
-void unlock_mem (void)
-  {
-    if (have_rmw_lock)
-      return;
-    if (! have_mem_lock)
-      {
-        sim_warn ("%s: Don't have memory lock\n", __func__);
-        return;
-      }
-
-    int rc = pthread_rwlock_unlock (& mem_lock);
-    if (rc)
-      sim_printf ("%s pthread_rwlock_ublock mem_lock %d\n", __func__, rc);
-    have_mem_lock = false;
-  }
-
-void unlock_mem_force (void)
-  {
-    if (have_mem_lock)
-      {
-        int rc = pthread_rwlock_unlock (& mem_lock);
-        if (rc)
-          sim_printf ("%s pthread_rwlock_unlock mem_lock %d\n", __func__, rc);
-      }
-    have_mem_lock = false;
-    have_rmw_lock = false;
-  }
-#endif
-
 // local serializer
 
 void lock_ptr (pthread_mutex_t * lock)
@@ -806,11 +694,6 @@ void initThreadz (void)
     memset (chnThreadz, 0, sizeof (chnThreadz));
 #endif
 
-#ifndef LOCKLESS
-    //pthread_rwlock_init (& mem_lock, PTHREAD_PROCESS_PRIVATE);
-    have_mem_lock = false;
-    have_rmw_lock = false;
-#endif
 #ifdef __FreeBSD__
     pthread_mutexattr_t scu_attr;
     pthread_mutexattr_init(&scu_attr);

@@ -77,12 +77,6 @@ static inline int cthread_cond_timedwait (pthread_cond_t * restrict cond,
   }
 #endif
 
-
-
-#ifndef LOCKLESS
-extern pthread_rwlock_t mem_lock;
-#endif
-
 // local lock
 
 void lock_ptr (pthread_mutex_t * lock);
@@ -99,17 +93,6 @@ bool test_libuv_lock (void);
 
 void lock_simh (void);
 void unlock_simh (void);
-
-#ifndef LOCKLESS
-// atomic memory lock
-bool get_rmw_lock (void);
-void lock_rmw (void);
-void lock_mem_rd (void);
-void lock_mem_wr (void);
-void unlock_rmw (void);
-void unlock_mem (void);
-void unlock_mem_force (void);
-#endif
 
 // scu lock
 void lock_scu (void);

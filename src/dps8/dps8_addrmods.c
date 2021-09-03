@@ -1032,10 +1032,6 @@ startCA:;
                            "IT_MOD(IT_AD): reading indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef THREADZ
-                lock_rmw ();
-#endif
-
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
                 Read (cpuPtr, cpu.TPR.CA, & indword, APU_DATA_RMW);
@@ -1073,10 +1069,6 @@ startCA:;
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef THREADZ
-                unlock_rmw ();
-#endif
-
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_AD): wrote tally word %012"PRIo64
                            " to %06o\n",
@@ -1098,10 +1090,6 @@ startCA:;
                 // field overflows to 0, the tally runout indicator is set ON,
                 // otherwise it is set OFF. The computed address is the value
                 // of the decremented ADDRESS field of the indirect word.
-
-#ifdef THREADZ
-                lock_rmw ();
-#endif
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
@@ -1141,10 +1129,6 @@ startCA:;
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef THREADZ
-                unlock_rmw ();
-#endif
-
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_SD): wrote tally word %012"PRIo64
                            " to %06o\n",
@@ -1170,10 +1154,6 @@ startCA:;
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_DI): reading indirect word from %06o\n",
                            cpu.TPR.CA);
-
-#ifdef THREADZ
-                lock_rmw ();
-#endif
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
@@ -1214,10 +1194,6 @@ startCA:;
 #else
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
 #endif
-
-#ifdef THREADZ
-                unlock_rmw ();
-#endif
                 cpu.TPR.CA = Yi;
                 updateIWB (cpuPtr, cpu.TPR.CA, (TM_R|TD_N));
                 return;
@@ -1239,10 +1215,6 @@ startCA:;
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_ID): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
-
-#ifdef THREADZ
-                lock_rmw ();
-#endif
 
                 word36 indword;
                 Read (cpuPtr, cpu.TPR.CA, & indword, APU_DATA_RMW);
@@ -1286,10 +1258,6 @@ startCA:;
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef THREADZ
-                unlock_rmw ();
-#endif
-
                 cpu.TPR.CA = computedAddress;
                 updateIWB (cpuPtr, cpu.TPR.CA, (TM_R|TD_N));
                 return;
@@ -1321,10 +1289,6 @@ startCA:;
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_DIC): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
-
-#ifdef THREADZ
-                lock_rmw ();
-#endif
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
@@ -1370,9 +1334,6 @@ startCA:;
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
 #endif
 
-#ifdef THREADZ
-                unlock_rmw ();
-#endif
                 // If the TAG of the indirect word invokes a register, that is,
                 // specifies r, ri, or ir modification, the effective Td value
                 // for the register is forced to "null" before the next
@@ -1437,10 +1398,6 @@ startCA:;
                            "IT_MOD(IT_IDC): fetching indirect word from %06o\n",
                            cpu.TPR.CA);
 
-#ifdef THREADZ
-                lock_rmw ();
-#endif
-
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
                 Read (cpuPtr, cpu.TPR.CA, & indword, APU_DATA_RMW);
@@ -1481,10 +1438,6 @@ startCA:;
                 core_write_unlock(cpuPtr, cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
-#endif
-
-#ifdef THREADZ
-                unlock_rmw ();
 #endif
 
                 // If the TAG of the indirect word invokes a register, that is,

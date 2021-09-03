@@ -33,16 +33,10 @@
 
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
-#ifdef THREADZ
-    lock_mem_rd ();
-#endif
 #ifdef SCUMEM
     iom_core_read (addr, data, ctx);
 #else
     * data = M [addr] & DMASK;
-#endif
-#ifdef THREADZ
-    unlock_mem ();
 #endif
   }
 #define N_DIA_UNITS 1 // default
@@ -357,16 +351,10 @@ void dia_init (void)
 
 static inline void fnp_core_write (word24 addr, word36 data, UNUSED const char * ctx)
   {
-#ifdef THREADZ
-    lock_mem_wr ();
-#endif
 #ifdef SCUMEM
     iom_core_write (cpuPtr, addr, data, ctx);
 #else
     M [addr] = data & DMASK;
-#endif
-#ifdef THREADZ
-    unlock_mem ();
 #endif
   }
 

@@ -1925,13 +1925,6 @@ setCPU:;
 
         cpu.cycleCnt ++;
 
-#ifdef THREADZ
-        // If we faulted somewhere with the memory lock set, clear it.
-        unlock_mem_force ();
-
-        // wait on run/switch
-        cpuRunningWait ();
-#endif // THREADZ
 #ifdef LOCKLESS
         core_unlock_all (cpuPtr);
         // wait on run/switch
@@ -2927,23 +2920,12 @@ t_stat read_operand (cpu_state_t *cpuPtr, word18 addr, processor_cycle_type cyct
   {
     CPT (cpt1L, 6); // read_operand
 
-#ifdef THREADZ
-    if (cyctyp == OPERAND_READ)
-      {
-        DCDstruct * i = & cpu.currentInstruction;
-#if 1
-        if (RMWOP (i))
-#else
+#if 0
         if ((i -> opcode == 0034 && ! i -> opcodeX) ||  // ldac
             (i -> opcode == 0032 && ! i -> opcodeX) ||  // ldqc
             (i -> opcode == 0354 && ! i -> opcodeX) ||  // stac
             (i -> opcode == 0654 && ! i -> opcodeX) ||  // stacq
             (i -> opcode == 0214 && ! i -> opcodeX))    // sznc
-#endif
-          {
-            lock_rmw ();
-          }
-      }
 #endif
 
     switch (operand_size (cpuPtr))
@@ -3014,17 +2996,7 @@ t_stat write_operand (cpu_state_t *cpuPtr, word18 addr, UNUSED processor_cycle_t
             Write32 (cpuPtr, addr, cpu.Yblock32);
             break;
       }
-
-#ifdef THREADZ
-    if (cyctyp == OPERAND_STORE)
-      {
-        DCDstruct * i = & cpu.currentInstruction;
-        if (RMWOP (i))
-          unlock_mem ();
-      }
-#endif
     return SCPE_OK;
-
   }
 
 #ifndef SPEED
