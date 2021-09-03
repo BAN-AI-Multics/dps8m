@@ -967,6 +967,13 @@ startCA:;
                     //                    cpu.ou.characterOperandSize |
                     //                    cpu.ou.characterOperandOffset);
                     //Write (cpuPtr, cpu.TPR.CA,  new_indword, APU_DATA_STORE);
+#if 1
+                    putbits36_18 (& indword, 0, Yi);
+                    putbits36_12 (& indword, 18, tally);
+                    putbits36_3  (& indword, 33, os);
+                    cpu.zone = 0777777777707;
+                    core_write_zone (cpuPtr, phys_address, indword, "IT_SC/IT_SCR");
+#else
 #ifdef LOCKLESS
                     word36 indword_new;
                     core_read_lock(cpuPtr, phys_address, &indword_new, __func__);
@@ -980,6 +987,7 @@ startCA:;
                     core_write_unlock(cpuPtr, phys_address, indword, __func__);
 #else
                     Write (cpuPtr, indaddr, indword, APU_DATA_STORE);
+#endif
 #endif
 
                     SC_I_TALLY (tally == 0);
