@@ -1883,7 +1883,7 @@ static inline void SET_AR_CHAR_BITNO (cpu_state_t *cpuPtr, uint n, word2 c, word
 bool sample_interrupts (cpu_state_t *cpuPtr);
 t_stat simh_hooks (cpu_state_t * cpuPtr);
 int operand_size (cpu_state_t *cpuPtr);
-t_stat read_operand (cpu_state_t *cpuPtr, word18 addr, processor_cycle_type cyctyp);
+t_stat read_operand (cpu_state_t *cpuPtr, word18 addr);
 t_stat write_operand (cpu_state_t *cpuPtr, word18 addr, processor_cycle_type acctyp);
 
 #ifdef PANEL

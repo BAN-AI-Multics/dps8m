@@ -2916,7 +2916,7 @@ int operand_size (cpu_state_t *cpuPtr)
 
 // read instruction operands
 
-t_stat read_operand (cpu_state_t *cpuPtr, word18 addr, processor_cycle_type cyctyp)
+t_stat read_operand (cpu_state_t *cpuPtr, word18 addr)
   {
     CPT (cpt1L, 6); // read_operand
 
@@ -2932,12 +2932,12 @@ t_stat read_operand (cpu_state_t *cpuPtr, word18 addr, processor_cycle_type cyct
       {
         case 1:
             CPT (cpt1L, 7); // word
-            Read (cpuPtr, addr, & cpu.CY, cyctyp);
+            Read (cpuPtr, addr, & cpu.CY, OPERAND_READ);
             return SCPE_OK;
         case 2:
             CPT (cpt1L, 8); // double word
             addr &= 0777776;   // make even
-            Read2 (cpuPtr, addr, cpu.Ypair, cyctyp);
+            Read2 (cpuPtr, addr, cpu.Ypair, OPERAND_READ);
             break;
         case 8:
             CPT (cpt1L, 9); // oct word
@@ -2953,7 +2953,7 @@ t_stat read_operand (cpu_state_t *cpuPtr, word18 addr, processor_cycle_type cyct
             CPT (cpt1L, 11); // 32 words
             addr &= 0777740;   // make on 32-word boundary
             for (uint j = 0 ; j < 32 ; j += 1)
-                Read (cpuPtr, addr + j, cpu.Yblock32 + j, cyctyp);
+                Read (cpuPtr, addr + j, cpu.Yblock32 + j, OPERAND_READ);
 
             break;
       }

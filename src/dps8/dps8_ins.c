@@ -236,7 +236,7 @@ static void readOperands (cpu_state_t *cpuPtr)
         return;
       } // IT
 
-    read_operand (cpuPtr, cpu.TPR.CA, OPERAND_READ);
+    read_operand (cpuPtr, cpu.TPR.CA);
     return;
   }
 
