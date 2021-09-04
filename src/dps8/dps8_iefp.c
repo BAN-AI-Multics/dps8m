@@ -56,14 +56,7 @@ void Read (cpu_state_t *cpuPtr, word18 address, word36 * result, processor_cycle
                 set_apu_status (cpuPtr, apuStatus_FABS); // XXX maybe...
                 cpu.iefpFinalAddress = get_BAR_address (cpuPtr, address);
                 fauxDoAppendCycle (cpuPtr, cyctyp);
-//#ifdef LOCKLESS
-//                if (cyctyp == OPERAND_RMW || cyctyp == APU_DATA_RMW)
-//                  core_read_lock (cpuPtr, cpu.iefpFinalAddress, result, __func__);
-//                else
-//                  core_read (cpuPtr, cpu.iefpFinalAddress, result, __func__);
-//#else
                 core_read (cpuPtr, cpu.iefpFinalAddress, result, __func__);
-//#endif
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Read (Actual) Read:       bar address=%08o  "
                            "readData=%012"PRIo64"\n", address, *result);
@@ -75,14 +68,7 @@ void Read (cpu_state_t *cpuPtr, word18 address, word36 * result, processor_cycle
               {
                 set_apu_status (cpuPtr, apuStatus_FABS);
                 fauxDoAppendCycle (cpuPtr, cyctyp);
-//#ifdef LOCKLESS
-//                if (cyctyp == OPERAND_RMW || cyctyp == APU_DATA_RMW)
-//                  core_read_lock (cpuPtr, address, result, __func__);
-//                else
-//                  core_read (cpuPtr, address, result, __func__);
-//#else
                 core_read (cpuPtr, address, result, __func__);
-//#endif
                 sim_debug (DBG_FINAL, & cpu_dev,
                            "Read (Actual) Read:       abs address=%08o  "
                            "readData=%012"PRIo64"\n", address, *result);

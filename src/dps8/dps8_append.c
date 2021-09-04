@@ -1395,11 +1395,7 @@ A:;
     // check read bracket for read access
     //
 
-#ifdef LOCKLESS
-    if (!StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
-#else
     if (!StrOp)
-#endif
       {
         DBGAPP ("do_append_cycle(B):!STR-OP\n");
 
@@ -1440,11 +1436,7 @@ A:;
     //
     // check write bracket for write access
     //
-#ifdef LOCKLESS
-    if (StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
-#else
     if (StrOp)
-#endif
       {
         DBGAPP ("do_append_cycle(B):STR-OP\n");
 
@@ -1830,13 +1822,7 @@ I:;
 // Set PTW.M
 
     DBGAPP ("do_append_cycle(I): FAP\n");
-#ifdef LOCKLESS
-    if ((StrOp ||
-        thisCycle == OPERAND_RMW ||
-        thisCycle == APU_DATA_RMW) && cpu.PTW->M == 0)  // is this the right way to do this?
-#else
     if (StrOp && cpu.PTW->M == 0)  // is this the right way to do this?
-#endif
       {
        modify_ptw (cpuPtr, cpu.SDW, cpu.TPR.CA);
       }
