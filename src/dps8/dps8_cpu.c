@@ -3079,11 +3079,11 @@ int32 core_read (cpu_state_t *cpuPtr, word24 addr, word36 *data, const char * ct
       }
 #ifndef SPEED
     else
-      nem_check (cpuPtr, addr,  "core_read nem");
+      nem_check (cpuPtr, addr, __func__);
 #endif
 #else
 #ifndef SPEED
-    nem_check (cpuPtr, addr,  "core_read nem");
+    nem_check (cpuPtr, addr __func__);
 #endif
 #endif
 
@@ -3146,8 +3146,8 @@ int32 core_read (cpu_state_t *cpuPtr, word24 addr, word36 *data, const char * ct
     cpu.rTRticks ++;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
-               "core_read  %08o %012"PRIo64" (%s)\n",
-                addr, * data, ctx);
+               "%s  %08o %012"PRIo64" (%s)\n",
+                __func__, addr, * data, ctx);
     PNL (trackport (addr, * data));
     return 0;
   }
@@ -3169,11 +3169,11 @@ int32 core_read_lock (cpu_state_t *cpuPtr, word24 addr, word36 *data, UNUSED con
       }
 #ifndef SPEED
     else
-      nem_check (cpuPtr, addr,  "core_read nem");
+      nem_check (cpuPtr, addr, __func__);
 #endif
 #else
 #ifndef SPEED
-    nem_check (cpuPtr, addr,  "core_read nem");
+    nem_check (cpuPtr, addr, __func__);
 #endif
 #endif
     LOCK_CORE_WORD(addr, cpuPtr);
@@ -3208,11 +3208,11 @@ int core_write (cpu_state_t *cpuPtr, word24 addr, word36 data, const char * ctx)
       }
 #ifndef SPEED
     else
-      nem_check (cpuPtr, addr,  "core_write nem");
+      nem_check (cpuPtr, addr, __func__);
 #endif
 #else
 #ifndef SPEED
-    nem_check (cpuPtr, addr,  "core_write nem");
+    nem_check (cpuPtr, addr, __func__);
 #endif
 #endif
 #ifdef ISOLTS
@@ -3260,8 +3260,8 @@ int core_write (cpu_state_t *cpuPtr, word24 addr, word36 data, const char * ctx)
     cpu.rTRticks ++;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
-               "core_write %08o %012"PRIo64" (%s)\n",
-                addr, data, ctx);
+               "%s %08o %012"PRIo64" (%s)\n",
+                __func__, addr, data, ctx);
     PNL (trackport (addr, data));
     return 0;
   }
@@ -3283,11 +3283,11 @@ int core_write_unlock (cpu_state_t *cpuPtr, word24 addr, word36 data, UNUSED con
       }
 #ifndef SPEED
     else
-      nem_check (cpuPtr, addr,  "core_read nem");
+      nem_check (cpuPtr, addr, __func__);
 #endif
 #else
 #ifndef SPEED
-    nem_check (cpuPtr, addr,  "core_read nem");
+    nem_check (cpuPtr, addr, __func__);
 #endif
 #endif
     if (cpu.locked_addr != addr)
@@ -3306,7 +3306,7 @@ int core_write_unlock (cpu_state_t *cpuPtr, word24 addr, word36 data, UNUSED con
 int core_unlock_all (cpu_state_t *cpuPtr)
 {
   if (cpu.locked_addr != 0) {
-      sim_warn ("core_unlock_all: locked %08o %c %05o:%06o\n",
+      sim_warn ("%s: locked %08o %c %05o:%06o\n", __func__,
                 cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
       STORE_REL_CORE_WORD(cpu.locked_addr, M[cpu.locked_addr]);
@@ -3347,12 +3347,6 @@ int core_write_zone (cpu_state_t *cpuPtr, word24 addr, word36 data, const char *
                     scu[sci_unit_idx].M[offset], ctx);
       }
 #else // !SCUMEM
-//#ifdef LOCKLESS
-//    word36 v;
-//    core_read_lock(cpuPtr, addr,  &v, ctx);
-//    v = (v & ~cpu.zone) | (data & cpu.zone);
-//    core_write_unlock(cpuPtr, addr, v, ctx);
-//#else
 #ifdef ISOLTS
     if (cpu.switches.useMap)
       {
@@ -3366,11 +3360,11 @@ int core_write_zone (cpu_state_t *cpuPtr, word24 addr, word36 data, const char *
       }
 #ifndef SPEED
     else
-      nem_check (cpuPtr, addr,  "core_read nem");
+      nem_check (cpuPtr, addr, __func__);
 #endif // SPEED
 #else  // !ISOLTS
 #ifndef SPEED
-    nem_check (cpuPtr, addr,  "core_read nem");
+    nem_check (cpuPtr, addr, __func__);
 #endif // SPEED
 #endif // !ISOLTS
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
@@ -3389,8 +3383,8 @@ int core_write_zone (cpu_state_t *cpuPtr, word24 addr, word36 data, const char *
     cpu.rTRticks ++;
 #endif // TR_WORK_MEM
     sim_debug (DBG_CORE, & cpu_dev,
-               "core_write_zone %08o %012"PRIo64" (%s)\n",
-                addr, data, ctx);
+               "%s %08o %012"PRIo64" (%s)\n",
+                __func__, addr, data, ctx);
     PNL (trackport (addr, data));
     return 0;
   }
@@ -3437,11 +3431,11 @@ int core_write_zonex (cpu_state_t *cpuPtr, word24 addr, word36 data, word36 zone
       }
 #ifndef SPEED
     else
-      nem_check (cpuPtr, addr,  "core_read nem");
+      nem_check (cpuPtr, addr, __func__);
 #endif
 #else // !ISOLTS
 #ifndef SPEED
-    nem_check (cpuPtr, addr,  "core_read nem");
+    nem_check (cpuPtr, addr, __func__);
 #endif
 #endif // !ISOLTS
     M[addr] = (M[addr] & ~zone) | (data & zone);
@@ -3475,8 +3469,7 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
     if (addr & 1)
       {
         sim_debug (DBG_MSG, & cpu_dev,
-                   "warning: subtracting 1 from pair at %o in "
-                   "core_read2 (%s)\n", addr, ctx);
+                   "%s: warning: subtracting 1 from pair at %o (%s)\n", __func__, addr, ctx);
         addr &= (word24)~1; /* make it an even address */
       }
 #ifdef ISOLTS
@@ -3492,11 +3485,11 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
       }
 #ifdef SPEED
     else
-      nem_check (cpuPtr, addr,  "core_read2 nem");
+      nem_check (cpuPtr, addr, __func__);
 #endif
 #else
 #ifndef SPEED
-    nem_check (cpuPtr, addr,  "core_read2 nem");
+    nem_check (cpuPtr, addr, __func__);
 #endif
 #endif
 
@@ -3530,8 +3523,8 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
 #endif
 
     sim_debug (DBG_CORE, & cpu_dev,
-               "core_read2 %08o %012"PRIo64" (%s)\n",
-                addr, * even, ctx);
+               "%s: %08o %012"PRIo64" (%s)\n",
+                __func__, addr, * even, ctx);
     LOCK_MEM_RD;
     *odd = scu [sci_unit_idx].M[offset] & DMASK;
     UNLOCK_MEM;
@@ -3545,8 +3538,8 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
 #endif
 
     sim_debug (DBG_CORE, & cpu_dev,
-               "core_read2 %08o %012"PRIo64" (%s)\n",
-                addr+1, * odd, ctx);
+               "%s: %08o %012"PRIo64" (%s)\n",
+                __func__, addr+1, * odd, ctx);
 #else
 #ifndef LOCKLESS
     if (M[addr] & MEM_UNINITIALIZED)
@@ -3569,7 +3562,7 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
 #ifdef LOCKLESS
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
-      sim_warn ("core_read2: even locked %08o locked_addr %08o %c %05o:%06o\n",
+      sim_warn ("%s: even locked %08o locked_addr %08o %c %05o:%06o\n", __func__,
                 addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
     *even = v & DMASK;
@@ -3578,11 +3571,11 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
     *even = M[addr++] & DMASK;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
-               "core_read2 %08o %012"PRIo64" (%s)\n",
+               "%s %08o %012"PRIo64" (%s)\n", __func__,
                 addr - 1, * even, ctx);
 
     // if the even address is OK, the odd will be
-    //nem_check (addr,  "core_read2 nem");
+    //nem_check (addr, __func__);
 #ifndef LOCKLESS
     if (M[addr] & MEM_UNINITIALIZED)
       {
@@ -3604,7 +3597,7 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
 #ifdef LOCKLESS
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
-      sim_warn ("core_read2: odd locked %08o locked_addr %08o %c %05o:%06o\n",
+      sim_warn ("%s: odd locked %08o locked_addr %08o %c %05o:%06o\n", __func__,
                 addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
     *odd = v & DMASK;
@@ -3612,7 +3605,7 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
     *odd = M[addr] & DMASK;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
-               "core_read2 %08o %012"PRIo64" (%s)\n",
+               "%s %08o %012"PRIo64" (%s)\n", __func__,
                 addr, * odd, ctx);
 #endif
 #ifdef TR_WORK_MEM
@@ -3630,8 +3623,7 @@ int core_write2 (cpu_state_t *cpuPtr, word24 addr, word36 even, word36 odd, cons
     if (addr & 1)
       {
         sim_debug (DBG_MSG, & cpu_dev,
-                   "warning: subtracting 1 from pair at %o in core_write2 "
-                   "(%s)\n", addr, ctx);
+                   "%s: warning: subtracting 1 from pair at %o (%s)\n", __func__, addr, ctx);
         addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
       }
 #ifdef ISOLTS
@@ -3647,11 +3639,11 @@ int core_write2 (cpu_state_t *cpuPtr, word24 addr, word36 even, word36 odd, cons
       }
 #ifndef SPEED
     else
-      nem_check (cpuPtr, addr,  "core_write2 nem");
+      nem_check (cpuPtr, addr, __func__);
 #endif
 #else
 #ifndef SPEED
-    nem_check (cpuPtr, addr,  "core_write2 nem");
+    nem_check (cpuPtr, addr, __func__);
 #endif
 #endif
 #ifdef ISOLTS
@@ -3704,11 +3696,11 @@ int core_write2 (cpu_state_t *cpuPtr, word24 addr, word36 even, word36 odd, cons
     M[addr++] = even & DMASK;
 #endif
     sim_debug (DBG_CORE, & cpu_dev,
-               "core_write2 %08o %012"PRIo64" (%s)\n",
-                addr - 1, even, ctx);
+               "%s %08o %012"PRIo64" (%s)\n",
+                __func__, addr - 1, even, ctx);
 
     // If the even address is OK, the odd will be
-    //nem_check (addr,  "core_write2 nem");
+    //nem_check (addr, __func__);
 
 #ifndef SPEED
     if (watch_bits [addr])
@@ -3731,8 +3723,8 @@ int core_write2 (cpu_state_t *cpuPtr, word24 addr, word36 even, word36 odd, cons
 #endif
     PNL (trackport (addr - 1, even));
     sim_debug (DBG_CORE, & cpu_dev,
-               "core_write2 %08o %012"PRIo64" (%s)\n",
-                addr, odd, ctx);
+               "%s %08o %012"PRIo64" (%s)\n",
+                __func__, addr, odd, ctx);
     return 0;
   }
 #endif
