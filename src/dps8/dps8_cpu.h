@@ -1789,8 +1789,8 @@ typedef struct cpu_state_t
     word18 last_write;
 #ifdef LOCKLESS
     word24 locked_addr;
-    word24 char_word_address;
 #endif
+    word24 char_word_address;
     word24 rmw_address;
     word24 pad[16];
 //#ifdef THREADZ
@@ -2040,6 +2040,54 @@ static inline int core_write_zone (cpu_state_t *cpuPtr, word24 addr, word36 data
     return 0;
   }
 
+static inline int core_write_zonex (cpu_state_t *cpuPtr, word24 addr, word36 data, word36 zone)
+  {
+    PNL (cpu.portBusy = true;)
+#ifdef ISOLTS
+    if (cpu.switches.useMap)
+      {
+        uint pgnum = addr / SCBANK;
+        int os = cpu.scbank_pg_os [pgnum];
+        if (os < 0)
+          {
+            doFault (cpuPtr, FAULT_STR, fst_str_nea, __func__);
+          }
+        addr = (uint) os + addr % SCBANK;
+      }
+#endif
+#ifdef ISOLTS
+    if (cpu.MR.sdpap)
+      {
+        sim_warn ("failing to implement sdpap\n");
+        cpu.MR.sdpap = 0;
+      }
+    if (cpu.MR.separ)
+      {
+        sim_warn ("failing to implement separ\n");
+        cpu.MR.separ = 0;
+      }
+#endif
+#ifdef SCUMEM
+    word24 offset;
+    int cpu_port_num = lookup_cpu_mem_map (cpuPtr, addr, & offset);
+    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
+      {
+        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
+        doFault (cpuPtr, FAULT_STR, fst_str_nea, __func__);
+      }
+    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
+    scu[scuUnitIdx].M[offset] = (scu[scuUnitIdx].M[offset] & ~zone) |
+                              (data & zone);
+#else
+    M[addr] = (M[addr] & ~zone) | (data & zone);
+#endif
+#ifdef TR_WORK_MEM
+    cpu.rTRticks ++;
+#endif
+    PNL (trackport (addr, data);)
+    return 0;
+  }
+
 static inline int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd,
                               UNUSED const char * ctx)
   {
@@ -2145,6 +2193,7 @@ static inline int core_write2 (cpu_state_t *cpuPtr, word24 addr, word36 even, wo
 int core_read (cpu_state_t *cpuPtr, word24 addr, word36 *data, const char * ctx);
 int core_write (cpu_state_t *cpuPtr, word24 addr, word36 data, const char * ctx);
 int core_write_zone (cpu_state_t *cpuPtr, word24 addr, word36 data, const char * ctx);
+int core_write_zonex (cpu_state_t *cpuPtr, word24 addr, word36 data, word36 zone);
 int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, const char * ctx);
 int core_write2 (cpu_state_t *cpuPtr, word24 addr, word36 even, word36 odd, const char * ctx);
 #endif // defined(SPEED) && defined(INLINE_CORE)

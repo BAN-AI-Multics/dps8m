@@ -295,6 +295,11 @@ static void modify_dsptw (cpu_state_t *cpuPtr, word15 segno)
     word24 x1 = (2u * segno) / 1024u; // floor
 
     word36 PTWx1;
+#if 1
+    cpuPtr->zone = SETBIT (0, 9);
+    cpuPtr->useZone = true;
+    core_write_zone (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, SETBIT (0, 9), __func__);
+#else
 #ifdef LOCKLESS
     core_read_lock (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
     PTWx1 = SETBIT (PTWx1, 9);
@@ -303,6 +308,7 @@ static void modify_dsptw (cpu_state_t *cpuPtr, word15 segno)
     core_read (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
     PTWx1 = SETBIT (PTWx1, 9);
     core_write (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
+#endif
 #endif
 
     cpu.PTW0.U = 1;
@@ -815,11 +821,11 @@ static void fetch_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
     PNL (cpu.lastPTWOffset = offset;)
     PNL (cpu.lastPTWIsDS = false;)
 
-#ifdef LOCKLESS
-    core_read_lock (cpuPtr, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
-#else
+//#ifdef LOCKLESS
+//    core_read_lock (cpuPtr, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
+//#else
     core_read (cpuPtr, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
-#endif
+//#endif
 
     cpu.PTW0.ADDR = GETHI (PTWx2);
     cpu.PTW0.U = TSTBIT (PTWx2, 9);
@@ -828,16 +834,16 @@ static void fetch_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
     cpu.PTW0.FC = PTWx2 & 3;
 
     // ISOLTS-861 02
-#ifndef LOCKLESS
+//#ifndef LOCKLESS
     if (! cpu.PTW0.U)
-#endif
+//#endif
       {
         PTWx2 = SETBIT (PTWx2, 9);
-#ifdef LOCKLESS
-        core_write_unlock (cpuPtr, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#else
+//#ifdef LOCKLESS
+//        core_write_unlock (cpuPtr, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
+//#else
         core_write (cpuPtr, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#endif
+//#endif
         cpu.PTW0.U = 1;
       }
 
@@ -969,19 +975,8 @@ static void modify_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
     //word24 y2 = offset % 1024;
     word24 x2 = offset / 1024; // floor
 
-    word36 PTWx2;
-
     set_apu_status (cpuPtr, apuStatus_MPTW);
-
-#ifdef LOCKLESS
-    core_read_lock (cpuPtr, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
-    PTWx2 = SETBIT (PTWx2, 6);
-    core_write_unlock (cpuPtr, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#else
-    core_read (cpuPtr, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
-    PTWx2 = SETBIT (PTWx2, 6);
-    core_write (cpuPtr, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-#endif
+    core_write_zonex (cpuPtr, (sdw->ADDR + x2) & PAMASK, SETBIT (0, 6), SETBIT (0, 6));
     cpu.PTW->M = 1;
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
@@ -1901,20 +1896,20 @@ HI:
       }
     else
       {
-#ifdef LOCKLESS
-        if ((thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) && nWords == 1)
-          {
-            core_read_lock (cpuPtr, finalAddress, data, str_pct (thisCycle));
-          }
-        else
-          {
-            if (thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
-              sim_warn("do_append_cycle: RMW nWords %d !=1\n", nWords);
-            core_readN (cpuPtr, finalAddress, data, nWords, str_pct (thisCycle));
-          }
-#else
+//#ifdef LOCKLESS
+//        if ((thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) && nWords == 1)
+//          {
+//            core_read_lock (cpuPtr, finalAddress, data, str_pct (thisCycle));
+//          }
+//        else
+//          {
+//            if (thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
+//              sim_warn("do_append_cycle: RMW nWords %d !=1\n", nWords);
+//            core_readN (cpuPtr, finalAddress, data, nWords, str_pct (thisCycle));
+//          }
+//#else
         core_readN (cpuPtr, finalAddress, data, nWords, str_pct (thisCycle));
-#endif
+//#endif
       }
 
     // Was this an indirect word fetch?

@@ -130,11 +130,15 @@ static void writeOperands (cpu_state_t *cpuPtr)
 
         PNL (cpu.prepare_state |= ps_SAW);
 
+#if 1
+        core_write (cpuPtr, cpu.char_word_address, cpu.ou.character_data, __func__);
+#else
 #ifdef LOCKLESSXXX
         // gives warnings as another lock is aquired in between
         core_write_unlock (cpuPtr, cpu.char_word_address, cpu.ou.character_data, __func__);
 #else
         Write (cpuPtr, cpu.ou.character_address, cpu.ou.character_data, OPERAND_STORE);
+#endif
 #endif
 
         sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -2165,20 +2169,20 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
             cpu.iefpFinalAddress = cpu.TPR.CA;
           }
 #endif
-#ifdef LOCKLESS
-        if ((ci->info->flags & RMW) == RMW)
-          {
-              if (operand_size(cpuPtr) != 1)
-                  sim_warn("executeInstruction: operand_size!= 1\n");
-              if (cpu.iefpFinalAddress != cpu.rmw_address)
-                sim_warn("executeInstruction: write addr changed %o %d\n", cpu.iefpFinalAddress, cpu.rmw_address);
-              core_write_unlock (cpuPtr, cpu.iefpFinalAddress, cpu.CY, __func__);
-         }
-        else
-          writeOperands (cpuPtr);
-#else
+//#ifdef LOCKLESS
+//        if ((ci->info->flags & RMW) == RMW)
+//          {
+//              if (operand_size(cpuPtr) != 1)
+//                  sim_warn("executeInstruction: operand_size!= 1\n");
+//              if (cpu.iefpFinalAddress != cpu.rmw_address)
+//                sim_warn("executeInstruction: write addr changed %o %d\n", cpu.iefpFinalAddress, cpu.rmw_address);
+//              core_write_unlock (cpuPtr, cpu.iefpFinalAddress, cpu.CY, __func__);
+//         }
+//        else
+//          writeOperands (cpuPtr);
+//#else
         writeOperands (cpuPtr);
-#endif
+//#endif
       }
 
     else if (flags & PREPARE_CA)

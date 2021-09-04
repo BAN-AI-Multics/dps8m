@@ -3079,10 +3079,12 @@ int32 core_read (cpu_state_t *cpuPtr, word24 addr, word36 *data, const char * ct
       }
 #ifndef SPEED
     else
-#endif
-#endif
-#ifndef SPEED
       nem_check (cpuPtr, addr,  "core_read nem");
+#endif
+#else
+#ifndef SPEED
+    nem_check (cpuPtr, addr,  "core_read nem");
+#endif
 #endif
 
 #if 0 // XXX Controlled by TEST/NORMAL switch
@@ -3165,14 +3167,18 @@ int32 core_read_lock (cpu_state_t *cpuPtr, word24 addr, word36 *data, UNUSED con
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (cpuPtr, addr,  "core_read nem");
+#endif
+#else
+#ifndef SPEED
+    nem_check (cpuPtr, addr,  "core_read nem");
+#endif
 #endif
     LOCK_CORE_WORD(addr, cpuPtr);
     if (cpu.locked_addr != 0) {
-      sim_warn ("core_read_lock: locked %08o locked_addr %08o %c %05o:%06o\n",
+      sim_warn ("%s: locked %08o locked_addr %08o %c %05o:%06o\n", __func__,
                 addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
       core_unlock_all (cpuPtr);
@@ -3200,10 +3206,14 @@ int core_write (cpu_state_t *cpuPtr, word24 addr, word36 data, const char * ctx)
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (cpuPtr, addr,  "core_write nem");
+#endif
+#else
+#ifndef SPEED
+    nem_check (cpuPtr, addr,  "core_write nem");
+#endif
 #endif
 #ifdef ISOLTS
     if (cpu.MR.sdpap)
@@ -3271,14 +3281,18 @@ int core_write_unlock (cpu_state_t *cpuPtr, word24 addr, word36 data, UNUSED con
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (cpuPtr, addr,  "core_read nem");
+#endif
+#else
+#ifndef SPEED
+    nem_check (cpuPtr, addr,  "core_read nem");
+#endif
 #endif
     if (cpu.locked_addr != addr)
       {
-        sim_warn ("core_write_unlock: locked %08o locked_addr %08o %c %05o:%06o\n",
+        sim_warn ("%s: locked %08o locked_addr %08o %c %05o:%06o\n", __func__,
                   addr, cpu.locked_addr, current_running_cpu_idx + 'A',
                   cpu.PPR.PSR, cpu.PPR.IC);
        core_unlock_all (cpuPtr);
@@ -3332,13 +3346,13 @@ int core_write_zone (cpu_state_t *cpuPtr, word24 addr, word36 data, const char *
                     "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr,
                     scu[sci_unit_idx].M[offset], ctx);
       }
-#else
-#ifdef LOCKLESS
-    word36 v;
-    core_read_lock(cpuPtr, addr,  &v, ctx);
-    v = (v & ~cpu.zone) | (data & cpu.zone);
-    core_write_unlock(cpuPtr, addr, v, ctx);
-#else
+#else // !SCUMEM
+//#ifdef LOCKLESS
+//    word36 v;
+//    core_read_lock(cpuPtr, addr,  &v, ctx);
+//    v = (v & ~cpu.zone) | (data & cpu.zone);
+//    core_write_unlock(cpuPtr, addr, v, ctx);
+//#else
 #ifdef ISOLTS
     if (cpu.switches.useMap)
       {
@@ -3350,13 +3364,16 @@ int core_write_zone (cpu_state_t *cpuPtr, word24 addr, word36 data, const char *
           }
         addr = (uint) os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (cpuPtr, addr,  "core_read nem");
-#endif
+#endif // SPEED
+#else  // !ISOLTS
+#ifndef SPEED
+    nem_check (cpuPtr, addr,  "core_read nem");
+#endif // SPEED
+#endif // !ISOLTS
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
-#endif
     cpu.useZone = false; // Safety
 #ifndef SPEED
     if (watch_bits [addr])
@@ -3366,18 +3383,87 @@ int core_write_zone (cpu_state_t *cpuPtr, word24 addr, word36 data, const char *
                     M [addr], ctx);
         traceInstruction (cpuPtr, 0);
       }
-#endif
-#endif
+#endif // SPEED
+#endif // !SCUMEM
 #ifdef TR_WORK_MEM
     cpu.rTRticks ++;
-#endif
+#endif // TR_WORK_MEM
     sim_debug (DBG_CORE, & cpu_dev,
                "core_write_zone %08o %012"PRIo64" (%s)\n",
                 addr, data, ctx);
     PNL (trackport (addr, data));
     return 0;
   }
+
+int core_write_zonex (cpu_state_t *cpuPtr, word24 addr, word36 data, word36 zone)
+  {
+    PNL (cpu.portBusy = true;)
+#ifdef ISOLTS
+    if (cpu.MR.sdpap)
+      {
+        sim_warn ("failing to implement sdpap\n");
+        cpu.MR.sdpap = 0;
+      }
+    if (cpu.MR.separ)
+      {
+        sim_warn ("failing to implement separ\n");
+        cpu.MR.separ = 0;
+      }
 #endif
+#ifdef SCUMEM
+    word24 offset;
+    uint sci_unit_idx = get_scu_unit_idx (addr, & offset);
+    LOCK_MEM_WR;
+    scu[sci_unit_idx].M[offset] = (scu[sci_unit_idx].M[offset] & ~zone) |
+                              (data & zone);
+    UNLOCK_MEM;
+    if (watch_bits [addr])
+      {
+        sim_msg ("WATCH [%"PRId64"] %05o:%06o writez %08o %012"PRIo64"\n",
+                 cycleCnt, PPR.PSR, PPR.IC, addr,
+                 scu[sci_unit_idx].M[offset]);
+      }
+#else // !SCUMEM
+#ifdef ISOLTS
+    if (cpu.switches.useMap)
+      {
+        uint pgnum = addr / SCBANK;
+        int os = cpu.scbank_pg_os [pgnum];
+        if (os < 0)
+          {
+            doFault (cpuPtr, FAULT_STR, fst_str_nea, __func__);
+          }
+        addr = (uint) os + addr % SCBANK;
+      }
+#ifndef SPEED
+    else
+      nem_check (cpuPtr, addr,  "core_read nem");
+#endif
+#else // !ISOLTS
+#ifndef SPEED
+    nem_check (cpuPtr, addr,  "core_read nem");
+#endif
+#endif // !ISOLTS
+    M[addr] = (M[addr] & ~zone) | (data & zone);
+#ifndef SPEED
+    if (watch_bits [addr])
+      {
+        sim_msg ("WATCH [%"PRId64"] %05o:%06o writez %08o %012"PRIo64"\n",
+                    cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, M [addr]);
+        traceInstruction (cpuPtr, 0);
+      }
+#endif
+#endif // !SCUMEM
+#ifdef TR_WORK_MEM
+    cpu.rTRticks ++;
+#endif
+    sim_debug (DBG_CORE, & cpu_dev,
+               "%s %08o %012"PRIo64"\n", __func__,
+                addr, data);
+    PNL (trackport (addr, data));
+    return 0;
+  }
+#endif // !defined(SPEED) || !defined(INLINE_CORE)
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
 int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, const char * ctx)
@@ -3406,10 +3492,12 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
       }
 #ifdef SPEED
     else
+      nem_check (cpuPtr, addr,  "core_read2 nem");
 #endif
-#endif
+#else
 #ifndef SPEED
     nem_check (cpuPtr, addr,  "core_read2 nem");
+#endif
 #endif
 
 #if 0 // XXX Controlled by TEST/NORMAL switch
@@ -3533,7 +3621,7 @@ int core_read2 (cpu_state_t *cpuPtr, word24 addr, word36 *even, word36 *odd, con
     PNL (trackport (addr - 1, * even));
     return 0;
   }
-#endif
+#endif // !defined(SPEED) || !defined(INLINE_CORE)
 
 #if !defined(SPEED) || !defined(INLINE_CORE)
 int core_write2 (cpu_state_t *cpuPtr, word24 addr, word36 even, word36 odd, const char * ctx)
@@ -3557,10 +3645,14 @@ int core_write2 (cpu_state_t *cpuPtr, word24 addr, word36 even, word36 odd, cons
           }
         addr = (word24)os + addr % SCBANK;
       }
-    else
-#endif
 #ifndef SPEED
+    else
       nem_check (cpuPtr, addr,  "core_write2 nem");
+#endif
+#else
+#ifndef SPEED
+    nem_check (cpuPtr, addr,  "core_write2 nem");
+#endif
 #endif
 #ifdef ISOLTS
     if (cpu.MR.sdpap)

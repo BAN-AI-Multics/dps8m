@@ -811,9 +811,9 @@ startCA:;
                 word36 indword;
                 word18 indaddr = cpu.TPR.CA;
                 Read (cpuPtr, indaddr, & indword, APU_DATA_READ);
-#ifdef LOCKLESS
+//#ifdef LOCKLESS
                 word24 phys_address = cpu.iefpFinalAddress;
-#endif
+//#endif
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD CI/SC/SCR indword=%012"PRIo64"\n", indword);
@@ -919,9 +919,9 @@ startCA:;
 #else
                 Read (cpuPtr, cpu.TPR.CA, & cpu.ou.character_data, OPERAND_READ);
 #endif
-#ifdef LOCKLESS
+//#ifdef LOCKLESS
                 cpu.char_word_address = cpu.iefpFinalAddress;
-#endif
+//#endif
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD CI/SC/SCR data=%012"PRIo64"\n",
@@ -1071,10 +1071,14 @@ startCA:;
                 indword = (word36) (((word36) Yi << 18) |
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
+#if 1
+                core_write (cpuPtr, cpu.iefpFinalAddress, indword, __func__);
+#else
 #ifdef LOCKLESS
                 core_write_unlock(cpuPtr, cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
+#endif
 #endif
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -1131,10 +1135,14 @@ startCA:;
                 indword = (word36) (((word36) Yi << 18) |
                                     (((word36) cpu.AM_tally & 07777) << 6) |
                                     delta);
+#if 1
+                core_write (cpuPtr, cpu.iefpFinalAddress, indword, __func__);
+#else
 #ifdef LOCKLESS
                 core_write_unlock(cpuPtr, cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
+#endif
 #endif
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -1197,10 +1205,14 @@ startCA:;
                            "addr %06o\n",
                            indword, saveCA);
 
+#if 1
+                core_write (cpuPtr, cpu.iefpFinalAddress, indword, __func__);
+#else
 #ifdef LOCKLESS
                 core_write_unlock(cpuPtr, cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
+#endif
 #endif
                 cpu.TPR.CA = Yi;
                 updateIWB (cpuPtr, cpu.TPR.CA, (TM_R|TD_N));
@@ -1260,10 +1272,14 @@ startCA:;
                            "addr %06o\n",
                            indword, saveCA);
 
+#if 1
+                core_write (cpuPtr, cpu.iefpFinalAddress, indword, __func__);
+#else
 #ifdef LOCKLESS
                 core_write_unlock(cpuPtr, cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
+#endif
 #endif
 
                 cpu.TPR.CA = computedAddress;
@@ -1336,10 +1352,14 @@ startCA:;
                            "IT_MOD(IT_DIC): writing indword=%012"PRIo64" to "
                            "addr %06o\n", indword, saveCA);
 
+#if 1
+                core_write (cpuPtr, cpu.iefpFinalAddress, indword, __func__);
+#else
 #ifdef LOCKLESS
                 core_write_unlock(cpuPtr, cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
+#endif
 #endif
 
                 // If the TAG of the indirect word invokes a register, that is,
@@ -1442,10 +1462,14 @@ startCA:;
                            " to addr %06o\n",
                            indword, saveCA);
 
+#if 1
+                core_write (cpuPtr, cpu.iefpFinalAddress, indword, __func__);
+#else
 #ifdef LOCKLESS
                 core_write_unlock(cpuPtr, cpu.iefpFinalAddress, indword, __func__);
 #else
                 Write (cpuPtr, saveCA, indword, APU_DATA_STORE);
+#endif
 #endif
 
                 // If the TAG of the indirect word invokes a register, that is,
