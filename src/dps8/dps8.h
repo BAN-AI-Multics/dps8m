@@ -381,6 +381,8 @@ typedef enum
 
     READ_YBLOCK32   = (1U << 27),  // fetches/reads Y-block16 operands from memory
     STORE_YBLOCK32  = (1U << 28),  // fetches/reads Y-block16 operands from memory
+
+    OPEN_GATE       = (1u << 29),  // ldac, ldqc, stac, stacq lock memory across R/M/W
   } opc_flag;
 
 

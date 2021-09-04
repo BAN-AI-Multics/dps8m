@@ -381,6 +381,23 @@ struct ptw0_s
 typedef struct ptw0_s ptw0_s;
 #endif
 
+// PTW bits
+//          1 1      2 2   2  2  2   2  2  3   3  3  3  3
+//  0       7 8      3 4   5  6  7   8  9  0   2  3  4  5
+// |  ADDR   | xxxxxx | 0 0 | U | 0 0 | M | xxx | F | FC |
+//         18        6     2   1     2   1     3   1    2
+
+#define PTW_ADDR_BITNO   0
+#define PTW_U_BITNO     26
+#define PTW_M_BITNO     29
+#define PTW_F_BITNO     33
+#define PTW_FC_BITNO    34
+#define PTW_ADDR_MASK   0777777000000LLU
+#define PTW_U_MASK      0000000001000LLU
+#define PTW_M_MASK      0000000000100LLU
+#define PTW_F_MASK      0000000000004LLU
+#define PTW_FC_MASK     0000000000003LLU
+
 //
 // Cache Mode Regsiter
 //

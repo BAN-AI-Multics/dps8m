@@ -809,9 +809,7 @@ static void fetch_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
     PNL (L68_ (cpu.apu.state |= apu_FPTW;))
     set_apu_status (cpuPtr, apuStatus_PTW);
 
-#ifndef SPEED
-    word24 y2 = offset % 1024;
-#endif
+    //word24 y2 = offset % 1024;
     word24 x2 = (offset) / 1024; // floor
 
     word36 PTWx2;
@@ -821,11 +819,7 @@ static void fetch_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
     PNL (cpu.lastPTWOffset = offset;)
     PNL (cpu.lastPTWIsDS = false;)
 
-//#ifdef LOCKLESS
-//    core_read_lock (cpuPtr, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
-//#else
     core_read (cpuPtr, (sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
-//#endif
 
     cpu.PTW0.ADDR = GETHI (PTWx2);
     cpu.PTW0.U = TSTBIT (PTWx2, 9);
@@ -834,16 +828,10 @@ static void fetch_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
     cpu.PTW0.FC = PTWx2 & 3;
 
     // ISOLTS-861 02
-//#ifndef LOCKLESS
     if (! cpu.PTW0.U)
-//#endif
       {
-        PTWx2 = SETBIT (PTWx2, 9);
-//#ifdef LOCKLESS
-//        core_write_unlock (cpuPtr, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-//#else
-        core_write (cpuPtr, (sdw->ADDR + x2) & PAMASK, PTWx2, __func__);
-//#endif
+        setbits36_1 (PTWx2, PTW_U_BITNO, 1);
+        core_write_zonex (cpuPtr, (sdw->ADDR + x2) & PAMASK, PTW_U_MASK, PTW_U_MASK);
         cpu.PTW0.U = 1;
       }
 
@@ -852,9 +840,9 @@ static void fetch_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
       add_APU_history (cpuPtr, APUH_FPTW);
 #endif
 
-    DBGAPP ("%s x2 0%o y2 0%o sdw->ADDR 0%o PTWx2 0%012"PRIo64" "
+    DBGAPP ("%s x2 0%o sdw->ADDR 0%o PTWx2 0%012"PRIo64" "
             "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
-            __func__, x2, y2, sdw->ADDR, PTWx2, cpu.PTW0.ADDR, cpu.PTW0.U,
+            __func__, x2, sdw->ADDR, PTWx2, cpu.PTW0.ADDR, cpu.PTW0.U,
             cpu.PTW0.M, cpu.PTW0.DF, cpu.PTW0.FC);
   }
 
@@ -976,7 +964,7 @@ static void modify_ptw (cpu_state_t *cpuPtr, sdw_s *sdw, word18 offset)
     word24 x2 = offset / 1024; // floor
 
     set_apu_status (cpuPtr, apuStatus_MPTW);
-    core_write_zonex (cpuPtr, (sdw->ADDR + x2) & PAMASK, SETBIT (0, 6), SETBIT (0, 6));
+    core_write_zonex (cpuPtr, (sdw->ADDR + x2) & PAMASK, PTW_M_MASK, PTW_M_MASK);
     cpu.PTW->M = 1;
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
