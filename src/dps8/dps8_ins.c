@@ -153,7 +153,7 @@ static void writeOperands (cpu_state_t *cpuPtr)
         return;
       } // IT
 
-    write_operand (cpuPtr, cpu.TPR.CA, OPERAND_STORE);
+    write_operand (cpuPtr, cpu.TPR.CA);
 
     return;
 }

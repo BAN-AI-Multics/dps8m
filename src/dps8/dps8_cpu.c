@@ -2965,7 +2965,7 @@ t_stat read_operand (cpu_state_t *cpuPtr, word18 addr)
 
 // write instruction operands
 
-t_stat write_operand (cpu_state_t *cpuPtr, word18 addr, UNUSED processor_cycle_type cyctyp)
+t_stat write_operand (cpu_state_t *cpuPtr, word18 addr)
   {
     switch (operand_size (cpuPtr))
       {
