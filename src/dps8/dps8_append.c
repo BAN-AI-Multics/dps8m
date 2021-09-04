@@ -1078,10 +1078,6 @@ static char *str_pct (processor_cycle_type t)
         case APU_DATA_READ: return "APU_DATA_READ";
         case APU_DATA_STORE: return "APU_DATA_STORE";
         case ABSA_CYCLE : return "ABSA_CYCLE";
-#ifdef LOCKLESS
-        case OPERAND_RMW : return "OPERAND_RMW";
-        case APU_DATA_RMW : return "APU_DATA_RMW";
-#endif
 
         default:
             return "Unhandled processor_cycle_type";

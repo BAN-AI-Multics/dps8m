@@ -282,16 +282,7 @@ typedef enum
     APU_DATA_READ,
     APU_DATA_STORE,
     ABSA_CYCLE,
-#ifdef LOCKLESS
-    OPERAND_RMW,
-    APU_DATA_RMW,
-#endif
   } processor_cycle_type;
-
-#ifndef LOCKLESS
-#define OPERAND_RMW   OPERAND_READ
-#define APU_DATA_RMW  APU_DATA_READ
-#endif
 
 #ifndef EIS_PTR4
 // some breakpoint stuff ...

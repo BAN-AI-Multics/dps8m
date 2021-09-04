@@ -236,12 +236,7 @@ static void readOperands (cpu_state_t *cpuPtr)
         return;
       } // IT
 
-#ifdef LOCKLESS
-    read_operand (cpuPtr, cpu.TPR.CA, ((i->info->flags & RMW) == RMW) ? OPERAND_RMW : OPERAND_READ);
-#else
     read_operand (cpuPtr, cpu.TPR.CA, OPERAND_READ);
-#endif
-
     return;
   }
 
