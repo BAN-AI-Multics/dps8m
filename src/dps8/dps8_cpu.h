@@ -1807,6 +1807,8 @@ typedef struct cpu_state_t
 #ifdef LOCKLESS
     word24 locked_addr;
 #endif
+    // ldac ldqc stac stacq set this to set memory lock across r/m/w.
+    bool openGate;
     word24 char_word_address;
     word24 rmw_address;
     word24 pad[16];
