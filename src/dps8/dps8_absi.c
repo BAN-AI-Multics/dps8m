@@ -35,7 +35,6 @@
 
 static struct absi_state
   {
-    char device_name [MAX_DEV_NAME_LEN];
     int link;
   } absi_state [N_ABSI_UNITS_MAX];
 
@@ -48,7 +47,7 @@ UNIT absi_unit[N_ABSI_UNITS_MAX] =
     {UDATA (NULL, UNIT_FLAGS, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL}
   };
 
-#define ABSI_UNIT_IDX(uptr) ((uptr) - absi_unit)
+#define ABSIUNIT_NUM(uptr) ((uptr) - absi_unit)
 
 static DEBTAB absi_dt[] =
   {
@@ -80,33 +79,6 @@ static t_stat absi_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat absi_show_device_name (UNUSED FILE * st, UNIT * uptr, 
-                                    UNUSED int val, UNUSED const void * desc)
-  {
-    int n = (int) ABSI_UNIT_IDX (uptr);
-    if (n < 0 || n >= N_ABSI_UNITS_MAX)
-      return SCPE_ARG;
-    sim_printf("Controller device name is %s\n", absi_state [n].device_name);
-    return SCPE_OK;
-  }
-
-static t_stat absi_set_device_name (UNIT * uptr, UNUSED int32 value, 
-                                   const char * cptr, UNUSED void * desc)
-  {
-    int n = (int) ABSI_UNIT_IDX (uptr);
-    if (n < 0 || n >= N_ABSI_UNITS_MAX)
-      return SCPE_ARG;
-    if (cptr)
-      {
-        strncpy (absi_state[n].device_name, cptr, MAX_DEV_NAME_LEN-1);
-        absi_state[n].device_name[MAX_DEV_NAME_LEN-1] = 0;
-      }
-    else
-      absi_state[n].device_name[0] = 0;
-    return SCPE_OK;
-  }
-
-
 #define UNIT_WATCH UNIT_V_UF
 
 static MTAB absi_mod[] =
@@ -123,17 +95,8 @@ static MTAB absi_mod[] =
       "Number of ABSIunits in the system", /* value descriptor */
       NULL // Help
     },
-    {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      absi_set_device_name, /* validation routine */
-      absi_show_device_name, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL          // help
-    },
-    MTAB_eol
+
+    { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
   };
 
 static t_stat absi_reset (UNUSED DEVICE * dptr)
