@@ -294,22 +294,9 @@ static void modify_dsptw (cpu_state_t *cpuPtr, word15 segno)
 
     word24 x1 = (2u * segno) / 1024u; // floor
 
-    word36 PTWx1;
-#if 1
     cpuPtr->zone = SETBIT (0, 9);
     cpuPtr->useZone = true;
     core_write_zone (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, SETBIT (0, 9), __func__);
-#else
-#ifdef LOCKLESS
-    core_read_lock (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
-    PTWx1 = SETBIT (PTWx1, 9);
-    core_write_unlock (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
-#else
-    core_read (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
-    PTWx1 = SETBIT (PTWx1, 9);
-    core_write (cpuPtr, (cpu.DSBR.ADDR + x1) & PAMASK, PTWx1, __func__);
-#endif
-#endif
 
     cpu.PTW0.U = 1;
 #ifdef L68
@@ -1862,23 +1849,25 @@ HI:
       }
     else if (StrOp)
       {
+#ifdef LOCKLESS
+        if (GATEOP (i) && thisCycle == OPERAND_STORE)
+          core_write_unlock (cpuPtr, finalAddress, * data, str_pct (thisCycle));
+        else
+          core_writeN (cpuPtr, finalAddress, data, nWords, str_pct (thisCycle));
+#else
         core_writeN (cpuPtr, finalAddress, data, nWords, str_pct (thisCycle));
+#endif
       }
     else
       {
-//#ifdef LOCKLESS
-//        if ((thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) && nWords == 1)
-//          {
-//            core_read_lock (cpuPtr, finalAddress, data, str_pct (thisCycle));
-//          }
-//        else
-//          {
-//            if (thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
-//              sim_warn("do_append_cycle: RMW nWords %d !=1\n", nWords);
-//            core_readN (cpuPtr, finalAddress, data, nWords, str_pct (thisCycle));
-//          }
-//#else
+#ifdef LOCKLESS
+        if (GATEOP (i) && thisCycle == OPERAND_READ)
+          core_read_lock (cpuPtr, finalAddress, data, str_pct (thisCycle));
+        else
+          core_readN (cpuPtr, finalAddress, data, nWords, str_pct (thisCycle));
+#else
         core_readN (cpuPtr, finalAddress, data, nWords, str_pct (thisCycle));
+#endif
 //#endif
       }
 

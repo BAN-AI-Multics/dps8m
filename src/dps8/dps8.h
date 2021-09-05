@@ -517,6 +517,8 @@ typedef enum eCAFoper eCAFoper;
 
 #define TRANSOP(i) ((bool) (i->info->flags & (TRANSFER_INS) ))
 
+#define GATEOP(i) ((bool) (i->info->flags & (OPEN_GATE)))
+
 //
 // EIS stuff ...
 //

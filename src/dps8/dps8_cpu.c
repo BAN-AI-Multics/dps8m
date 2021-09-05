@@ -1762,8 +1762,6 @@ static void set_temporary_absolute_mode (cpu_state_t *cpuPtr)
     CPT (cpt1L, 20); // set temp. abs. mode
     cpu.secret_addressing_mode = true;
     cpu.cu.XSF = false;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "set_temporary_absolute_mode bit 29 sets XSF to 0\n");
-    //cpu.went_appending = false;
   }
 
 static bool clear_temporary_absolute_mode (cpu_state_t *cpuPtr)
@@ -2311,7 +2309,6 @@ setCPU:;
                 //clr_went_appending (); // XXX not sure this is the right
                                          //  place
                 cpu.cu.XSF = 0;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 cpu.cu.TSN_VALID [0] = 0;
                 cpu.TPR.TSR = cpu.PPR.PSR;
                 cpu.TPR.TRR = cpu.PPR.PRR;
@@ -3030,7 +3027,7 @@ t_stat set_mem_watch (int32 arg, const char * buf)
  */
 
 #ifndef SPEED
-static void nem_check (cpu_state_t *cpuPtr, word24 addr, char * context)
+static void nem_check (cpu_state_t *cpuPtr, word24 addr, const char * context)
   {
 #ifdef SCUMEM
     word24 offset;
@@ -3083,7 +3080,7 @@ int32 core_read (cpu_state_t *cpuPtr, word24 addr, word36 *data, const char * ct
 #endif
 #else
 #ifndef SPEED
-    nem_check (cpuPtr, addr __func__);
+    nem_check (cpuPtr, addr, __func__);
 #endif
 #endif
 

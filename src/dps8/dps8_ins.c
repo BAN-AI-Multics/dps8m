@@ -562,7 +562,6 @@ static void words2scu (cpu_state_t *cpuPtr, word36 * words)
     cpu.PPR.PSR         = getbits36_15 (words[0], 3);
     cpu.PPR.P           = getbits36_1  (words[0], 18);
     cpu.cu.XSF          = getbits36_1  (words[0], 19);
-sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF);
     //cpu.cu.SDWAMM       = getbits36_1  (words[0], 20);
     //cpu.cu.SD_ON        = getbits36_1  (words[0], 21);
     //cpu.cu.PTWAMM       = getbits36_1  (words[0], 22);
@@ -1427,8 +1426,6 @@ t_stat executeInstruction (cpu_state_t *cpuPtr)
 //
 
     cpu.cu.XSF = 0;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF);
-
     cpu.cu.pot = 0;
     cpu.cu.its = 0;
     cpu.cu.itp = 0;
@@ -2035,7 +2032,6 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
                     cpu.RSDWH_R1 = 0;
                   }
                 //cpu.cu.XSF = 0;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n", cpu.cu.XSF);
                 //clr_went_appending ();
               }
           }
