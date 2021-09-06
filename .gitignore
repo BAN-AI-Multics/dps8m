@@ -68,7 +68,6 @@ dps8m.state
 
 # Docs
 *.toc
-*.ps
 *.log
 *.aux
 *.out
