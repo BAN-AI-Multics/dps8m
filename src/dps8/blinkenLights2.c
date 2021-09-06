@@ -21,17 +21,13 @@
 #include <string.h>
 
 
+#include <gtk/gtk.h>
 
 #include "dps8.h"
 #include "dps8_sys.h"
-#include "dps8_iom.h"
 #include "dps8_cpu.h"
-#include "dps8_cable.h"
-#include "dps8_state.h"
 
 #include "shm.h"
-
-#include <gtk/gtk.h>
 
 #define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
 
@@ -466,6 +462,7 @@ static gboolean time_handler (GtkWidget * widget)
         //gtk_widget_queue_draw (fault_display[1]);
       }
 
+
     if (update)
       gtk_widget_queue_draw (widget);
     previous = * cpun;
@@ -481,7 +478,6 @@ int main (int argc, char * argv [])
     quit_action . sa_flags = SA_RESTART;
     sigaction (SIGQUIT, & quit_action, NULL);
 
-#if 0
     sid = getsid (0);
     if (argc > 1 && strlen (argv [1]))
       {
@@ -493,13 +489,12 @@ int main (int argc, char * argv [])
             argv [1] [0] = 0;
           }
       }
-#endif
 
     int cpunum = 0;
-    if (argc > 1 && strlen (argv [1]))
+    if (argc > 2 && strlen (argv [2]))
       {
         char * end;
-        long p = strtol (argv [1], & end, 0);
+        long p = strtol (argv [2], & end, 0);
         if (* end == 0)
           {
             cpunum = p;
@@ -512,14 +507,12 @@ int main (int argc, char * argv [])
         return 1;
       }
 
-    //cpus = (cpu_state_t *) open_shm ("cpus", sid, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
-    struct system_state_s * system_state = (struct system_state_s *) open_shm ("state", sizeof (struct system_state_s));
-    if (! system_state)
+    cpus = (cpu_state_t *) open_shm ("cpus", sid, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
+    if (! cpus)
       {
         perror ("cpus open_shm");
         return 1;
       }
-    cpus = system_state -> cpus;
     cpun = cpus + cpunum;
 
     gdk_rgba_parse (& lightOn, "white");
@@ -924,7 +917,7 @@ int main (int argc, char * argv [])
     // 10 = 100Hz
     g_timeout_add (10, (GSourceFunc) time_handler, (gpointer) window);
 
-    g_signal_connect (window, "delete-event", G_CALLBACK (window_delete), NULL);
+    g_signal_connect (window, "delete-event", window_delete, NULL);
     gtk_widget_show_all  (window);
 
     time_handler (window);
