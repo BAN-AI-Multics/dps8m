@@ -521,9 +521,7 @@ typedef struct EISaddr_s
 #define paragraphMask 077777770
 #define paragraphOffsetMask 07
     word36 cachedParagraph [paragraphSz];
-#ifdef CWO
     bool wordDirty [paragraphSz];
-#endif
     word18 cachedAddr;
 
   } EISaddr;
