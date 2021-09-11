@@ -537,29 +537,21 @@ static void EISWriteCache (EISaddr * p)
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
               {
                 for (uint i = 0; i < 8; i ++)
-#ifdef CWO
                   if (p->wordDirty[i])
                     {
-#endif
                   sim_debug (DBG_TRACEEXT, & cpu_dev,
                              "%s: writeCache (PR) %012"PRIo64"@%o:%06o\n",
                              __func__, p -> cachedParagraph [i], p -> SNR, p -> cachedAddr + i);
-#ifdef CWO
                    }
-#endif
               }
 { long eisaddr_idx = EISADDR_IDX (p);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 TRR %o TSR %05o\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
-#ifdef CWO
             for (uint i = 0; i < 8; i ++)
               if (p->wordDirty[i])
                 {
                   Write1 (p->cachedAddr+i, p -> cachedParagraph[i], true);
                   p->wordDirty[i] = false;
                 }
-#else
-            Write8 (p->cachedAddr, p -> cachedParagraph, true);
-#endif
           }
         else
           {
@@ -573,29 +565,21 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 TRR %o TSR %05o\n", eisaddr_
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
               {
                 for (uint i = 0; i < 8; i ++)
-#ifdef CWO
                   if (p->wordDirty[i])
                     {
-#endif
                   sim_debug (DBG_TRACEEXT, & cpu_dev,
                              "%s: writeCache %012"PRIo64"@%o:%06o\n",
                              __func__, p -> cachedParagraph [i], cpu.TPR.TSR, p -> cachedAddr + i);
-#ifdef CWO
                      }
-#endif
               }
 { long eisaddr_idx = EISADDR_IDX (p);
 sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Write8 NO PR TRR %o TSR %05o\n", eisaddr_idx, cpu.TPR.TRR, cpu.TPR.TSR); }
-#ifdef CWO
             for (uint i = 0; i < 8; i ++)
               if (p->wordDirty[i])
                 {
                   Write1 (p->cachedAddr+i, p -> cachedParagraph[i], false);
                   p->wordDirty[i] = false;
                 }
-#else
-            Write8 (p->cachedAddr, p -> cachedParagraph, false);
-#endif
           }
       }
     p -> cacheDirty = false;
@@ -661,10 +645,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "EIS %ld Read8 NO PR TRR %o TSR %05o\n", eis
       }
     p -> cacheValid = true;
     p -> cacheDirty = false;
-#ifdef CWO
     for (uint i = 0; i < 8; i ++)
       p->wordDirty[i] = false;
-#endif
     p -> cachedAddr = paragraphAddress;
     cpu.TPR.TRR = saveTRR;
   }
@@ -694,9 +676,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         EISReadCache (p, paragraphAddress);
       }
     p -> cacheDirty = true;
-#ifdef CWO
     p -> wordDirty[paragraphOffset] = true;
-#endif
     p -> cachedParagraph [paragraphOffset] = data;
     p -> cachedAddr = paragraphAddress;
 // XXX ticket #31

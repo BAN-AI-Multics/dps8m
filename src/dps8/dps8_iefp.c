@@ -649,7 +649,6 @@ B29:
     return ;//SCPE_UNK;
   }
 
-#ifdef CWO
 void Write1 (word18 address, word36 data, bool isAR)
   {
     cpu.TPR.CA = cpu.iefpFinalAddress = address;
@@ -723,7 +722,6 @@ B29:
       }
     return ;//SCPE_UNK;
   }
-#endif
 
 void Write8 (word18 address, word36 * data, bool isAR)
   {
