@@ -1021,7 +1021,8 @@ debug_print "End VER_H_PROM_OSV_TEXT processing"
 debug_print "Start VER_H_PROM_SHIP processing"
 PROM_SHIP="$(printf '%s\n' "${BUILD_DTE:?Error: BUILD_DTE unset.}" |
 	cut -d ' ' -f 1 2> /dev/null |
-		tr -d '\ \-' 2> /dev/null)"
+		tr -d '\ \-' 2> /dev/null |
+          cut -c 3- 2> /dev/null)"
 debug_print "End VER_H_PROM_SHIP processing"
 
 ###############################################################################
@@ -1063,8 +1064,8 @@ printf '%s\n'                                                                  \
 	"#define VER_H_PROM_VER_TEXT        ${VER_H_PROM_VER_TEXT:?}"              \
 	"#define VER_H_PROM_OSV_TEXT        ${VER_H_PROM_OSV_TEXT:?}"              \
 	"#define VER_H_PROM_OSA_TEXT        ${VER_H_PROM_OSA_TEXT:?}"              \
-	"#define VER_H_PROM_SHIP            \"${PROM_SHIP:-20200101}\""            \
-	"#define VER_H_PROM_SHIP_INT        ${PROM_SHIP:-20200101}"                \
+	"#define VER_H_PROM_SHIP            \"${PROM_SHIP:-200101}\""            \
+	"#define VER_H_PROM_SHIP_INT        ${PROM_SHIP:-200101}"                \
 	"#define VER_H_PROM_MAJOR_VER       \"${VER_H_PROM_MAJOR_VER_FMT:-999}\""  \
 	"#define VER_H_PROM_MAJOR_VER_INT   ${VER_H_PROM_MAJOR_VER:-999}"          \
 	"#define VER_H_PROM_MINOR_VER       \"${VER_H_PROM_MINOR_VER_FMT:-999}\""  \

@@ -7998,7 +7998,9 @@ elapsedtime ();
               {
 
 // 58009997-040 MULTICS Differences Manual DPS 8-70M Aug83
-// disagress with Multics source, but probably a typo,
+//
+// THESE OFFSETS ARE IN OCTAL
+//
 //  0-13 CPU Model Number
 // 13-25 CPU Serial Number
 // 26-33 Date-Ship code (YYMMDD)
@@ -8020,16 +8022,20 @@ elapsedtime ();
 //       ignored and the bits represnting this information in
 //       the PROM should be treated as valid.
 
+// "0-13" disagress with Multics source (start_pl1); it interprets
+// it as "0-12"; most likely a typo in 58009997-040.
+
 // CAC notes: I interpret the fields as
-//  0-12 CPU Model Number  // 13 chars, typo
-// 13-25 CPU Serial Number // 13 chars
-// 26-33 Date-Ship code (YYMMDD) // 8 chars (enough for YYYYMMDD).
-// 34-40 CPU ID Field (reference RSW 2)
-//  Byte 40: Bits 03 (Bits 32-35 of RSW 2 Field
+//  0-12 CPU Model Number                                          //  0-10  11 chars
+// 13-25 CPU Serial Number // 13 chars                             // 11-21  11 chars
+// 26-33 Date-Ship code (YYMMDD) // 8 chars (enough for YYYYMMDD). // 22-27   6 chars
+// 34-40 CPU ID Field (reference RSW 2)                            // 28-32   5 chars
+//  Byte 40: Bits 03 (Bits 32-35 of RSW 2 Field                    //    32
 //           Bit 4=1 Hex Option included
 //           Bit 5=1 RSCR (Clock) is Slave Mode included
 //           Bits 6-7 Reserved for later use.
-//       50: Operating System Use
+//       50: Operating System Use                                  //    40
+
 #include "dps8_prom.h"
                 word36 tmp = 0;
                 tmp |= (word36) ((cpu.switches.interlace[0] == 2 ? 1LL : 0LL)
@@ -8072,20 +8078,20 @@ elapsedtime ();
                 tmp |= (word36) ((cpu.switches.cpu_num & 07LL)
                        << (35-35));
                 // 36: bits 00-07
-                PROM[36] = getbits36_8 (tmp, 0);
+                PROM[034] = getbits36_8 (tmp, 0);
                 // 37: bits 08-15
-                PROM[37] = getbits36_8 (tmp, 8);
+                PROM[035] = getbits36_8 (tmp, 8);
                 // 38: bits 16-23
-                PROM[38] = getbits36_8 (tmp, 16);
+                PROM[036] = getbits36_8 (tmp, 16);
                 // 39: bits 24-31
-                PROM[39] = getbits36_8 (tmp, 24);
+                PROM[037] = getbits36_8 (tmp, 24);
                 // 40: bits 32-35
                 // 40: bits 0-3: bits 32-35 of RSW 2 field
                 //     (this is dps8m, so only 32 is always 0)
                 //            4: hex option
                 //            5: RSCR clock is slave
                 //          6-7: reserved
-                PROM[40] = ((unsigned char) ((tmp & 017) << 4))
+                PROM[040] = ((unsigned char) ((tmp & 017) << 4))
                    // | 0100  // hex option
                    // | 0040  // clock is slave
                   ;

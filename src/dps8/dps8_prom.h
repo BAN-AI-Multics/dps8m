@@ -15,16 +15,19 @@
 unsigned char PROM[1024];
 memset (PROM, 255, sizeof (PROM));
 sprintf ((char *) PROM, \
-"%13s%13d%8s%26s%1s%19s%3s%3s%3s%3s%8s%1s%26s%2s%20s%20s",
-  "DPS8/70M Emul",       //    0-12  CPU model          ("XXXXXXXXXXXXX"/%13s)
+"%11s%11u%6s%32s%1s%19s%3s%3s%3s%3s%8s%1s%26s%2s%20s%20s",
+  "DPS 8/EM   ",         //    0-10  CPU model          ("XXXXXXXXXXX"/%11s)
 #ifdef DPS8_SCP
-  1,
+  0,
 #else
-  cpu.switches.serno,    //   13-25  CPU serial         ("DDDDDDDDDDDDD"/%13d)
+  cpu.switches.serno,    //   11-21  CPU serial         ("DDDDDDDDDDD"/%11d)
 #endif
-  VER_H_PROM_SHIP,       //   26-33  CPU ship date            ("YYYYMMDD"/%8s)
-  "\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377",
-                         //   34-59                                     (%26s)
+  VER_H_PROM_SHIP,       //   22-27  CPU ship date            ("YYMMDD"/%6s)
+  "\377\377\377\377\377\377\377\377"
+  "\377\377\377\377\377\377\377\377"
+  "\377\377\377\377\377\377\377\377"
+  "\377\377\377\377\377\377\377\377",
+                         //   28-59                                     (%32s)
   "1",                   //      60  layout_version number           ("N"/%1s)
   "\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377",
                          //   61-79                                     (%19s)
