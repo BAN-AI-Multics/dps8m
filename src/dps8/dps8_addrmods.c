@@ -61,9 +61,11 @@ static word18 get_Cr (word4 Tdes)
           return 0;
 
         case TD_AU: // rY + C(A)0,17
+          HDBGRegAR ("au");
           return GETHI (cpu.rA);
 
         case TD_QU: // rY + C(Q)0,17
+          HDBGRegAR ("qu");
           return GETHI (cpu.rQ);
 
         case TD_DU: // none; operand has the form y || (00...0)18
@@ -78,13 +80,15 @@ static word18 get_Cr (word4 Tdes)
           return 0;
 
         case TD_IC: // rY + C (PPR.IC)
-            return cpu.PPR.IC;
+          return cpu.PPR.IC;
 
         case TD_AL: // rY + C(A)18,35
-            return GETLO (cpu.rA);
+          HDBGRegAR ("al");
+          return GETLO (cpu.rA);
 
         case TD_QL: // rY + C(Q)18,35
-            return GETLO (cpu.rQ);
+          HDBGRegAR ("ql");
+          return GETLO (cpu.rQ);
 
         case TD_DL: // none; operand has the form (00...0)18 || y
             cpu.ou.directOperand = 0;
@@ -206,6 +210,7 @@ static void do_ITP (void)
 
     word3 n = GET_ITP_PRNUM (cpu.itxPair);
     CPTUR (cptUsePRn + n);
+    HDBGRegPRR (n, "ITP");
     cpu.TPR.TSR = cpu.PR[n].SNR;
     cpu.TPR.TRR = max3 (cpu.PR[n].RNR, cpu.RSDWH_R1, cpu.TPR.TRR);
     cpu.TPR.TBR = GET_ITP_BITNO (cpu.itxPair);
@@ -354,6 +359,7 @@ void do_caf (void)
     else
       {
         word3 n = GET_PRN(IWB_IRODD);  // get PRn
+        HDBGRegPRR (n, "b29");
         word15 offset = GET_OFFSET(IWB_IRODD);
         cpu.TPR.CA = (cpu.PAR[n].WORDNO + SIGNEXT15_18 (offset))
                       & MASK18;
@@ -474,6 +480,7 @@ startCA:;
             if (cpu.currentInstruction.b29)
               {
                 word3 PRn = GET_PRN(IWB_IRODD);
+                HDBGRegPRR (PRn, "rpx b29");
                 CPTUR (cptUsePRn + PRn);
                 cpu.TPR.CA = Cr + cpu.PR [PRn].WORDNO;
                 cpu.TPR.CA &= AMASK;
@@ -520,14 +527,15 @@ startCA:;
                 if (cpu.currentInstruction.b29)
                   {
                     word3 PRn = GET_PRN(IWB_IRODD);
+                    HDBGRegPRR (PRn, "rpx b29");
                     CPTUR (cptUsePRn + PRn);
                     cpu.TPR.CA = Cr + cpu.PR [PRn].WORDNO;
-                    cpu.TPR.CA &= AMASK;
                   }
                 else
                   {
                     cpu.TPR.CA = Cr;
                   }
+                cpu.TPR.CA &= AMASK;
               }
             else
               {

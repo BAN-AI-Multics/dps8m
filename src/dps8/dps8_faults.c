@@ -380,9 +380,10 @@ else if (faultNumber == FAULT_ACV)
                "Fault %d(0%0o), sub %"PRIu64"(0%"PRIo64"), dfc %c, '%s'\n",
                faultNumber, faultNumber, subFault.bits, subFault.bits,
                cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
-#ifdef HDBG
-    hdbgFault (faultNumber, subFault, faultMsg);
+#ifdef PROFILER
+    __atomic_add_fetch (& cpu.faults[faultNumber], 1u, __ATOMIC_ACQUIRE);
 #endif
+    HDBGFault (faultNumber, subFault, faultMsg, "");
 #ifndef SPEED
     if_sim_debug (DBG_FAULT, & cpu_dev)
       traceInstruction (DBG_FAULT);
@@ -533,7 +534,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
 #endif
 
 #ifdef ISOLTS
-//if (current_running_cpu_idx && faultNumber == FAULT_LUF) hdbgPrint ();
+//if (current_running_cpu_idx && faultNumber == FAULT_LUF) HDBGPrint ();
 #endif
     if (faultNumber == FAULT_ACV)
       {

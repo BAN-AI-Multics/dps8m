@@ -24,624 +24,594 @@
 #ifdef HDBG
 #include "dps8_faults.h"
 
-enum hevtType { hevtEmpty = 0, hevtTrace, hevtMRead, hevtMWrite, hevtIWBUpdate, hevtRegs, hevtFault, hevtIntrSet, hevtIntr, hevtReg, hevtPAReg, hevtIEFP };
+enum hevtType {
+  hevtEmpty = 0,
+  hevtTrace,
+  hevtM,
+  hevtAPU,
+  //hevtIWBUpdate,
+  //hevtRegs,
+  hevtFault,
+  hevtIntrSet,
+  hevtIntr,
+  hevtReg,
+  hevtPAReg,
+  hevtDSBRReg,
+  hevtIEFP,
+};
 
-struct hevt
-  {
-    enum hevtType type;
-    uint64 time;
-    union
-      {
-        struct
-          {
-            addr_modes_e addrMode;
-            word15 segno;
-            word18 ic;
-            word3 ring;
-            word36 inst;
-          } trace;
+struct hevt {
+  enum hevtType type;
+  uint64 time;
+  uint cpu_idx;
+  char ctx[16];
+  bool rw; // F: read  T: write
+  union {
+    struct {
+      addr_modes_e addrMode;
+      word15 segno;
+      word18 ic;
+      word3 ring;
+      word36 inst;
+    } trace;
 
-        struct
-          {
-            word24 addr;
-            word36 data;
-          } memref;
+    struct {
+      word24 addr;
+      word36 data;
+    } memref;
 
-        struct
-          {
-            _fault faultNumber;
-            _fault_subtype subFault;
-            char faultMsg [64];
-          } fault;
+    struct {
+      _fault faultNumber;
+      _fault_subtype subFault;
+      char faultMsg [64];
+    } fault;
 
-        struct
-          {
-            uint inum;
-            uint cpuUnitIdx;
-            uint scuUnitIdx;
-          } intrSet;
+    struct {
+      uint inum;
+      uint cpuUnitIdx;
+      uint scuUnitIdx;
+    } intrSet;
 
-        struct
-          {
-            uint intr_pair_addr;
-          } intr;
+    struct {
+      uint intr_pair_addr;
+    } intr;
 
-        struct
-          {
-            enum hregs_t type;
-            word36 data;
-          } reg;
+    struct {
+      enum hregs_t type;
+      word36 data;
+    } reg;
 
-        struct
-          {
-            enum hregs_t type;
-            struct par_s data;
-          } par;
+    struct {
+      enum hregs_t type;
+      struct par_s data;
+    } par;
 
-        struct
-          {
-            enum hdbgIEFP_e type;
-            word15 segno;
-            word18 offset;
-          } iefp;
-      };
+    struct {
+      enum hdbgIEFP_e type;
+      word15 segno;
+      word18 offset;
+    } iefp;
+
+    struct {
+      enum hregs_t type;
+      struct dsbr_s data;
+    } dsbr;
+
+    struct {
+      enum hregs_t type;
+      word15 segno;
+      word18 offset;
+      word36 data;
+    } apu;
   };
+};
 
 static struct hevt * hevents = NULL;
-static unsigned long hdbgSize = 0;
-static unsigned long hevtPtr = 0;
-static unsigned long hevtMark = 0;
+static long hdbgSize = 0;
+static long hevtPtr = 0;
+static long hevtMark = 0;
 
-#ifdef THREADZ
-static pthread_mutex_t hdbg_lock = PTHREAD_MUTEX_INITIALIZER;
-#endif
-
-static void createBuffer (void)
-  {
-    if (hevents)
-      {
-        free (hevents);
-        hevents = NULL;
-      }
-    if (! hdbgSize)
-      return;
-    hevents = malloc (sizeof (struct hevt) * hdbgSize);
-    if (! hevents)
-      {
-        sim_printf ("hdbg createBuffer failed\n");
-        return;
-      }
-    memset (hevents, 0, sizeof (struct hevt) * hdbgSize);
-
-    hevtPtr = 0;
+static void createBuffer (void) {
+  if (hevents) {
+    free (hevents);
+    hevents = NULL;
   }
-
-static void hdbg_inc (void)
-  {
-    hevtPtr = (hevtPtr + 1) % hdbgSize;
-    if (hevtMark)
-      {
-        hevtMark --;
-        if (hevtMark == 0)
-          hdbgPrint ();
-      }
+  if (hdbgSize <= 0)
+    return;
+  hevents = malloc (sizeof (struct hevt) * hdbgSize);
+  if (! hevents) {
+    sim_printf ("hdbg createBuffer failed\n");
+    return;
   }
+  memset (hevents, 0, sizeof (struct hevt) * hdbgSize);
 
-void hdbgTrace (void)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    if (! hevents)
-      goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    hevents [hevtPtr] . type = hevtTrace;
-    hevents [hevtPtr] . time = cpu.cycleCnt;
-    hevents [hevtPtr] . trace . addrMode = get_addr_mode ();
-    hevents [hevtPtr] . trace . segno = cpu . PPR.PSR;
-    hevents [hevtPtr] . trace . ic = cpu . PPR.IC;
-    hevents [hevtPtr] . trace . ring = cpu . PPR.PRR;
-    hevents [hevtPtr] . trace . inst = IWB_IRODD;
-    hdbg_inc ();
+  hevtPtr = 0;
+}
+
+static long hdbg_inc (void) {
+  //hevtPtr = (hevtPtr + 1) % hdbgSize;
+  long ret = __sync_fetch_and_add (& hevtPtr, 1l) % hdbgSize;
+
+  if (hevtMark > 0) {
+    long ret = __sync_fetch_and_sub (& hevtMark, 1l);
+    if (ret <= 0)
+      hdbgPrint ();
+  }
+  return ret;
+}
+
+#define hev(t, tf) \
+  if (! hevents) \
+    goto done; \
+  unsigned long p = hdbg_inc (); \
+  hevents[p].type = t; \
+  hevents[p].cpu_idx = current_running_cpu_idx; \
+  hevents[p].time = cpu.cycleCnt; \
+  strncpy (hevents[p].ctx, ctx, 15); \
+  hevents[p].ctx[15] = 0; \
+  hevents[p].rw = tf;
+
+
+void hdbgTrace (const char * ctx) {
+  hev (hevtTrace, false);
+  hevents[p].trace.addrMode = get_addr_mode ();
+  hevents[p].trace.segno = cpu.PPR.PSR;
+  hevents[p].trace.ic = cpu.PPR.IC;
+  hevents[p].trace.ring = cpu.PPR.PRR;
+  hevents[p].trace.inst = IWB_IRODD;
 done: ;
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+}
 
-void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    if (! hevents)
-      goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    hevents[hevtPtr].type = hevtIEFP;
-    hevents[hevtPtr].time = cpu.cycleCnt;
-    hevents [hevtPtr].iefp.type = type;
-    hevents [hevtPtr].iefp.segno = segno;
-    hevents [hevtPtr].iefp.offset = offset;
-    hdbg_inc ();
+void hdbgMRead (word24 addr, word36 data, const char * ctx) {
+  hev (hevtM, false);
+  hevents[p].memref.addr = addr;
+  hevents[p].memref.data = data;
 done: ;
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+}
 
-void hdbgMRead (word24 addr, word36 data)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    if (! hevents)
-      goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    hevents [hevtPtr] . type = hevtMRead;
-    hevents [hevtPtr] . time = cpu.cycleCnt;
-    hevents [hevtPtr] . memref . addr = addr;
-    hevents [hevtPtr] . memref . data = data;
-    hdbg_inc ();
+void hdbgMWrite (word24 addr, word36 data, const char * ctx) {
+  hev (hevtM, true);
+  hevents[p].memref.addr = addr;
+  hevents[p].memref.data = data;
 done: ;
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+}
 
-void hdbgMWrite (word24 addr, word36 data)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    if (! hevents)
-      goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    hevents [hevtPtr] . type = hevtMWrite;
-    hevents [hevtPtr] . time = cpu.cycleCnt;
-    hevents [hevtPtr] . memref . addr = addr;
-    hevents [hevtPtr] . memref . data = data;
-    hdbg_inc ();
+void hdbgAPURead (word15 segno, word18 offset, word36 data, const char * ctx) {
+  hev (hevtAPU, false);
+  hevents[p].apu.segno = segno;
+  hevents[p].apu.offset = offset;
+  hevents[p].apu.data = data;
 done: ;
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+}
 
-void hdbgFault (_fault faultNumber, _fault_subtype subFault,
-                const char * faultMsg)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    if (! hevents)
-      goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    hevents [hevtPtr] . type = hevtFault;
-    hevents [hevtPtr] . time = cpu.cycleCnt;
-    hevents [hevtPtr] . fault . faultNumber = faultNumber;
-    hevents [hevtPtr] . fault . subFault = subFault;
-    strncpy (hevents [hevtPtr] . fault . faultMsg, faultMsg, 63);
-    hevents [hevtPtr] . fault . faultMsg [63] = 0;
-    hdbg_inc ();
+void hdbgAPUWrite (word15 segno, word18 offset, word36 data, const char * ctx) {
+  hev (hevtAPU, true);
+  hevents[p].apu.segno = segno;
+  hevents[p].apu.offset = offset;
+  hevents[p].apu.data = data;
 done: ;
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+}
 
-void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    if (! hevents)
-      goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    hevents [hevtPtr].type = hevtIntrSet;
-    hevents [hevtPtr].time = cpu.cycleCnt;
-    hevents [hevtPtr].intrSet.inum = inum;
-    hevents [hevtPtr].intrSet.cpuUnitIdx = cpuUnitIdx;
-    hevents [hevtPtr].intrSet.scuUnitIdx = scuUnitIdx;
-    hdbg_inc ();
+void hdbgFault (_fault faultNumber, _fault_subtype subFault, const char * faultMsg, const char * ctx) {
+  hev (hevtFault, false);
+  hevents[p].fault.faultNumber = faultNumber;
+  hevents[p].fault.subFault = subFault;
+  strncpy (hevents[p].fault.faultMsg, faultMsg, 63);
+  hevents[p].fault.faultMsg[63] = 0;
 done: ;
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+}
 
-void hdbgIntr (uint intr_pair_addr)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    if (! hevents)
-      goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    hevents [hevtPtr].type = hevtIntr;
-    hevents [hevtPtr].time = cpu.cycleCnt;
-    hevents [hevtPtr].intr.intr_pair_addr = intr_pair_addr;
-    hdbg_inc ();
+void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx, const char * ctx) {
+  hev (hevtIntrSet, false);
+  hevents[p].intrSet.inum = inum;
+  hevents[p].intrSet.cpuUnitIdx = cpuUnitIdx;
+  hevents[p].intrSet.scuUnitIdx = scuUnitIdx;
 done: ;
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+}
 
-void hdbgReg (enum hregs_t type, word36 data)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    if (! hevents)
-      goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    hevents[hevtPtr].type = hevtReg;
-    hevents[hevtPtr].time = cpu.cycleCnt;
-    hevents[hevtPtr].reg.type = type;
-    hevents[hevtPtr].reg.data = data;
-    hdbg_inc ();
+void hdbgIntr (uint intr_pair_addr, const char * ctx) {
+  hev (hevtIntr, false);
+  hevents[p].cpu_idx = current_running_cpu_idx;
+  hevents[p].time = cpu.cycleCnt;
+  strncpy (hevents[p].ctx, ctx, 15);
+  hevents[p].ctx[15] = 0;
+  hevents[p].intr.intr_pair_addr = intr_pair_addr;
 done: ;
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+}
 
-
-void hdbgPAReg (enum hregs_t type, struct par_s * data)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    if (! hevents)
-      goto done;
-#ifdef ISOLTS
-if (current_running_cpu_idx == 0)
-  goto done;
-#endif
-    hevents[hevtPtr].type = hevtPAReg;
-    hevents[hevtPtr].time = cpu.cycleCnt;
-    hevents[hevtPtr].par.type = type;
-    hevents[hevtPtr].par.data =  * data;
-    hdbg_inc ();
+void hdbgRegR (enum hregs_t type, word36 data, const char * ctx) {
+  hev (hevtReg, false);
+  hevents[p].reg.type = type;
+  hevents[p].reg.data = data;
 done: ;
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+}
+
+
+void hdbgRegW (enum hregs_t type, word36 data, const char * ctx) {
+  hev (hevtReg, true);
+  hevents[p].reg.type = type;
+  hevents[p].reg.data = data;
+done: ;
+}
+
+
+void hdbgPARegR (enum hregs_t type, struct par_s * data, const char * ctx) {
+  hev (hevtPAReg, false);
+  hevents[p].par.type = type;
+  hevents[p].par.data = * data;
+done: ;
+}
+
+void hdbgPARegW (enum hregs_t type, struct par_s * data, const char * ctx) {
+  hev (hevtPAReg, true);
+    hevents[p].par.type = type;
+    hevents[p].par.data = * data;
+done: ;
+}
+
+void hdbgDSBRRegR (enum hregs_t type, struct dsbr_s * data, const char * ctx) {
+  hev (hevtDSBRReg, false);
+    hevents[p].dsbr.type = type;
+    hevents[p].dsbr.data = * data;
+done: ;
+}
+
+void hdbgDSBRRegW (enum hregs_t type, struct dsbr_s * data, const char * ctx) {
+  hev (hevtDSBRReg, true);
+    hevents[p].dsbr.type = type;
+    hevents[p].dsbr.data = * data;
+done: ;
+}
+
+void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset, const char * ctx) {
+  hev (hevtIEFP, false);
+  hevents [p].iefp.type = type;
+  hevents [p].iefp.segno = segno;
+  hevents [p].iefp.offset = offset;
+done: ;
+}
 
 static FILE * hdbgOut = NULL;
 
-static void printMRead (struct hevt * p)
-  {
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU FINAL: Read %08o %012"PRIo64"\n",
-                p -> time,
-                p -> memref . addr, p -> memref . data);
-  }
+static void printM (struct hevt * p) {
+  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d FINAL: %s %s %08o %012"PRIo64"\n",
+           p->time, 
+           p->cpu_idx,
+           p->ctx,
+           p->rw ? "write" : "read ",
+           p->memref.addr,
+           p->memref.data);
+}
 
-static void printMWrite (struct hevt * p)
-  {
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU FINAL: Write %08o %012"PRIo64"\n",
-                p -> time,
-                p -> memref . addr, p -> memref . data);
-  }
+static void printAPU (struct hevt * p) {
+  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d APU: %s %s %05o:%06o %012"PRIo64"\n",
+           p->time, 
+           p->cpu_idx,
+           p->ctx,
+           p->rw ? "write" : "read ",
+           p->apu.segno,
+           p->apu.offset,
+           p->apu.data);
+}
 
-static void printTrace (struct hevt * p)
-  {
-    char buf [256];
-    if (p -> trace . addrMode == ABSOLUTE_mode)
-      {
-        fprintf (hdbgOut, "DBG(%"PRId64")> CPU TRACE: %06o %o %012"PRIo64" (%s)\n",
-                    p -> time,
-                    p -> trace . ic, p -> trace . ring,
-                    p -> trace . inst, disassemble (buf, p -> trace . inst));
-      }
-    else
-      {
-        fprintf (hdbgOut, "DBG(%"PRId64")> CPU TRACE: %05o:%06o %o %012"PRIo64" (%s)\n",
-                    p -> time, p -> trace . segno,
-                    p -> trace . ic, p -> trace . ring,
-                    p -> trace . inst, disassemble (buf, p -> trace . inst));
-      }
+static void printTrace (struct hevt * p) {
+  char buf[256];
+  if (p -> trace.addrMode == ABSOLUTE_mode) {
+    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d TRACE: %s %06o %o %012"PRIo64" (%s)\n",
+             p->time, 
+             p->cpu_idx,
+             p->ctx,
+             p->trace.ic,
+             p->trace.ring,
+             p->trace.inst,
+             disassemble (buf, p->trace.inst));
+  } else {
+    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d TRACE: %s %05o:%06o %o %012"PRIo64" (%s)\n",
+             p->time,
+             p->cpu_idx,
+             p->ctx,
+             p->trace.segno,
+             p->trace.ic,
+             p->trace.ring,
+             p->trace.inst,
+             disassemble (buf, p->trace.inst));
   }
+}
 
-static void printFault (struct hevt * p)
-  {
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU FAULT: Fault %d(0%o), sub %"PRId64"(0%"PRIo64"), '%s'\n",
-                p -> time,
-                p -> fault.faultNumber, p -> fault.faultNumber,
-                p -> fault.subFault.bits, p -> fault.subFault.bits,
-                p -> fault.faultMsg);
-  }
+static void printFault (struct hevt * p) {
+  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d FAULT: %s Fault %d(0%o), sub %"PRId64"(0%"PRIo64"), '%s'\n",
+           p->time, 
+           p->cpu_idx,
+           p->ctx,
+           p->fault.faultNumber,
+           p->fault.faultNumber,
+           p->fault.subFault.bits,
+           p->fault.subFault.bits,
+           p->fault.faultMsg);
+}
 
-static void printIntrSet (struct hevt * p)
-  {
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU INTR_SET: Number %d(0%o), CPU %u SCU %u\n",
-                p -> time,
-                p -> intrSet.inum, p -> intrSet.inum,
-                p -> intrSet.cpuUnitIdx,
-                p -> intrSet.scuUnitIdx);
-  }
+static void printIntrSet (struct hevt * p) {
+  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d INTR_SET: %s number %d(0%o), CPU %u SCU %u\n",
+           p->time, 
+           p->cpu_idx,
+           p->ctx,
+           p->intrSet.inum,
+           p->intrSet.inum,
+           p->intrSet.cpuUnitIdx,
+           p->intrSet.scuUnitIdx);
+}
 
-static void printIntr (struct hevt * p)
-  {
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU INTR: Interrupt pair address %o\n",
-                p -> time,
-                p -> intr.intr_pair_addr);
-  }
+static void printIntr (struct hevt * p) {
+  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d INTR: %s Interrupt pair address %o\n",
+           p->time, 
+           p->cpu_idx,
+           p->ctx,
+           p->intr.intr_pair_addr);
+}
 
-static char * regNames [] =
-  {
-    "A  ",
-    "Q  ",
-    "X0 ", "X1 ", "X2 ", "X3 ", "X4 ", "X5 ", "X6 ", "X7 ",
-    "AR0", "AR1", "AR2", "AR3", "AR4", "AR5", "AR6", "AR7",
-    "PR0", "PR1", "PR2", "PR3", "PR4", "PR5", "PR6", "PR7",
-    "Y  ", "Z  ",
-    "IR "
-  };
+// Keep sync'd with hregs_t
+static char * regNames[] = {
+  "A  ",
+  "Q  ",
+  "X0", "X1", "X2", "X3", "X4", "X5", "X6", "X7",
+  "AR0", "AR1", "AR2", "AR3", "AR4", "AR5", "AR6", "AR7",
+  "PR0", "PR1", "PR2", "PR3", "PR4", "PR5", "PR6", "PR7",
+  "Y  ", "Z  ",
+  "IR ",
+  "DSBR",
+};
 
-static void printReg (struct hevt * p)
-  {
-    if (p->reg.type == hreg_IR)
-      {
-          fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s %012"PRIo64" Z%o N%o C %o O%o T%o \n",
-                   p->time,
-                   regNames[p->reg.type],
-                   p->reg.data,
-                   TST_I_ZERO, TST_I_NEG, TST_I_CARRY, TST_I_OFLOW, TST_I_TALLY);
-      }
-    else if (p->reg.type >= hreg_X0 && p->reg.type <= hreg_X7)
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s %06"PRIo64"\n",
-                  p->time,
-                  regNames[p->reg.type],
-                  p->reg.data);
-    else
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s %012"PRIo64"\n",
-                  p->time,
-                  regNames[p->reg.type],
-                  p->reg.data);
-  }
+static void printReg (struct hevt * p) {
+  if (p->reg.type == hreg_IR)
+    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %012"PRIo64" Z%o N%o C %o O%o T%o \n",
+             p->time,
+             p->cpu_idx,
+             p->ctx,
+             p->rw ? "write" : "read ",
+             regNames[p->reg.type],
+             p->reg.data,
+             TSTF (p->reg.data, I_ZERO),
+             TSTF (p->reg.data, I_NEG),
+             TSTF (p->reg.data, I_CARRY),
+             TSTF (p->reg.data, I_OFLOW),
+             TSTF (p->reg.data, I_TALLY));
+  else if (p->reg.type >= hreg_X0 && p->reg.type <= hreg_X7)
+    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %06"PRIo64"\n",
+             p->time, 
+             p->cpu_idx,
+             p->ctx,
+             p->rw ? "write" : "read ",
+             regNames[p->reg.type],
+             p->reg.data);
+  else
+    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s  %s %012"PRIo64"\n",
+             p->time, 
+             p->cpu_idx,
+             p->ctx,
+             p->rw ? "write" : "read ",
+             regNames[p->reg.type],
+             p->reg.data);
+}
 
 static void printPAReg (struct hevt * p)
-  {
-    if (p->reg.type >= hreg_PR0 && p->reg.type <= hreg_PR7)
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s "
-               "%05o:%06o BIT %2o RNR %o\n",
+{
+  if (p->reg.type >= hreg_PR0 && p->reg.type <= hreg_PR7)
+    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
+             p->time, 
+             p->cpu_idx,
+             p->ctx,
+             p->rw ? "write" : "read ",
+             regNames[p->reg.type],
+             p->par.data.SNR,
+             p->par.data.WORDNO,
+             p->par.data.PR_BITNO,
+             p->par.data.RNR);
+  else
+    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s write %s %05o:%06o CHAR %o BIT %2o RNR %o\n",
+             p->time, 
+             p->cpu_idx,
+             p->ctx,
+             regNames[p->reg.type],
+             p->par.data.SNR,
+             p->par.data.WORDNO,
+             p->par.data.AR_CHAR,
+             p->par.data.AR_BITNO,
+             p->par.data.RNR);
+}
+
+static void printDSBRReg (struct hevt * p) {
+  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
+           p->time, 
+           p->cpu_idx,
+           p->ctx,
+           p->rw ? "write" : "read ",
+           regNames[p->reg.type],
+           p->par.data.SNR,
+           p->par.data.WORDNO,
+           p->par.data.PR_BITNO,
+           p->par.data.RNR);
+}
+
+static void printIEFP (struct hevt * p) {
+  switch (p->iefp.type) {
+    case hdbgIEFP_abs_bar_read:
+      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP ABS BAR READ:  |%06o\n",
                p->time,
-               regNames[p->reg.type],
-               p->par.data.SNR,
-               p->par.data.WORDNO,
-               p->par.data.PR_BITNO,
-               p->par.data.RNR);
-    else
-      fprintf (hdbgOut, "DBG(%"PRId64")> CPU REG: %s "
-               "%05o:%06o CHAR %o BIT %2o RNR %o\n",
+               p->cpu_idx,
+               p->iefp.offset);
+      break;
+
+    case hdbgIEFP_abs_read:
+      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP ABS     READ:  :%06o\n",
                p->time,
-               regNames[p->reg.type],
-               p->par.data.SNR,
-               p->par.data.WORDNO,
-               p->par.data.AR_CHAR,
-               p->par.data.AR_BITNO,
-               p->par.data.RNR);
+               p->cpu_idx,
+               p->iefp.offset);
+      break;
+
+    case hdbgIEFP_bar_read:
+      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP APP BAR READ:  %05o|%06o\n",
+               p->time,
+               p->cpu_idx,
+               p->iefp.segno,
+               p->iefp.offset);
+      break;
+
+    case hdbgIEFP_read:
+      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP APP     READ:  %05o:%06o\n",
+               p->time,
+               p->cpu_idx,
+               p->iefp.segno,
+               p->iefp.offset);
+      break;
+
+    case hdbgIEFP_abs_bar_write:
+      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP ABS BAR WRITE: |%06o\n",
+               p->time,
+               p->cpu_idx,
+               p->iefp.offset);
+      break;
+
+    case hdbgIEFP_abs_write:
+      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP ABS     WRITE: :%06o\n",
+               p->time,
+               p->cpu_idx,
+               p->iefp.offset);
+      break;
+
+    case hdbgIEFP_bar_write:
+      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP APP BAR WRITE: %05o|%06o\n",
+               p->time,
+               p->cpu_idx,
+               p->iefp.segno,
+               p->iefp.offset);
+      break;
+
+    case hdbgIEFP_write:
+      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP APP     WRITE: %05o:%06o\n",
+               p->time,
+               p->cpu_idx,
+               p->iefp.segno,
+               p->iefp.offset);
+      break;
+
+    default:
+      fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d IEFP ??? ??? WRITE: %05o?%06o\n",
+               p->time,
+               p->cpu_idx,
+               p->iefp.segno,
+               p->iefp.offset);
+      break;
   }
+}
 
-static void printIEFP (struct hevt * p)
-  {
-    switch (p->iefp.type)
-      {
-        case hdbgIEFP_abs_bar_read:
-          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP ABS BAR READ:  "
-               "|%06o\n",
-               p->time,
-               p->iefp.offset);
-          break;
-
-        case hdbgIEFP_abs_read:
-          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP ABS     READ:  "
-               ":%06o\n",
-               p->time,
-               p->iefp.offset);
-          break;
-
-        case hdbgIEFP_bar_read:
-          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP APP BAR READ:  "
-               "%05o|%06o\n",
-               p->time,
-               p->iefp.segno,
-               p->iefp.offset);
-          break;
-
-        case hdbgIEFP_read:
-          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP APP     READ:  "
-               "%05o:%06o\n",
-               p->time,
-               p->iefp.segno,
-               p->iefp.offset);
-          break;
-
-        case hdbgIEFP_abs_bar_write:
-          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP ABS BAR WRITE: "
-               "|%06o\n",
-               p->time,
-               p->iefp.offset);
-          break;
-
-        case hdbgIEFP_abs_write:
-          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP ABS     WRITE: "
-               ":%06o\n",
-               p->time,
-               p->iefp.offset);
-          break;
-
-        case hdbgIEFP_bar_write:
-          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP APP BAR WRITE: "
-               "%05o|%06o\n",
-               p->time,
-               p->iefp.segno,
-               p->iefp.offset);
-          break;
-
-        case hdbgIEFP_write:
-          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP APP     WRITE: "
-               "%05o:%06o\n",
-               p->time,
-               p->iefp.segno,
-               p->iefp.offset);
-          break;
-
-        default:
-          fprintf (hdbgOut, "DBG(%"PRId64")> CPU IEFP ??? ??? WRITE: "
-               "%05o?%06o\n",
-               p->time,
-               p->iefp.segno,
-               p->iefp.offset);
-          break;
-      }
+void hdbgPrint (void) {
+  sim_printf ("hdbg print\n");
+  if (! hevents)
+    goto done;
+  struct hevt * t = hevents;
+  hevents = NULL;
+  hdbgOut = fopen ("hdbg.list", "w");
+  if (! hdbgOut) {
+    sim_printf ("can't open hdbg.list\n");
+    goto done;
   }
+  time_t curtime;
+  time (& curtime);
+  fprintf (hdbgOut, "%s\n", ctime (& curtime));
 
-void hdbgPrint (void)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
+  for (unsigned long p = 0; p < hdbgSize; p ++) {
+    unsigned long q = (hevtPtr + p) % hdbgSize;
+    struct hevt * evtp = t + q;
+    switch (evtp -> type) {
+      case hevtEmpty:
+        break;
+
+      case hevtTrace:
+        printTrace (evtp);
+        break;
+                
+      case hevtM:
+        printM (evtp);
+        break;
+                
+      case hevtAPU:
+        printAPU (evtp);
+        break;
+                
+#if 0
+      case hevtIWBUpdate:
+        printIWBUpdate (evtp);
+        break;
 #endif
-    if (! hevents)
-      goto done;
-    hdbgOut = fopen ("hdbg.list", "w");
-    if (! hdbgOut)
-      {
-        sim_printf ("can't open hdbg.list\n");
-        goto done;
-      }
-    time_t curtime;
-    time (& curtime);
-    fprintf (hdbgOut, "%s\n", ctime (& curtime));
+                
+#if 0
+      case hevtRegs:
+        printRegs (evtp);
+        break;
+#endif
+                
+      case hevtFault:
+        printFault (evtp);
+        break;
+                
+      case hevtIntrSet:
+        printIntrSet (evtp);
+        break;
+                
+      case hevtIntr:
+        printIntr (evtp);
+        break;
+                
+      case hevtReg:
+        printReg (evtp);
+        break;
+                
+      case hevtPAReg:
+        printPAReg (evtp);
+        break;
+                
+      case hevtDSBRReg:
+        printDSBRReg (evtp);
+        break;
+                
+      case hevtIEFP:
+        printIEFP (evtp);
+        break;
+                
+      default:
+        fprintf (hdbgOut, "hdbgPrint ? %d\n", evtp -> type);
+        break;
+    }
+  }
+  fclose (hdbgOut);
 
-    for (unsigned long p = 0; p < hdbgSize; p ++)
-      {
-        unsigned long q = (hevtPtr + p) % hdbgSize;
-        struct hevt * evtp = hevents + q;
-        switch (evtp -> type)
-          {
-            case hevtEmpty:
-              break;
-
-            case hevtTrace:
-              printTrace (evtp);
-              break;
-
-            case hevtMRead:
-              printMRead (evtp);
-              break;
-
-            case hevtMWrite:
-              printMWrite (evtp);
-              break;
-
-            case hevtFault:
-              printFault (evtp);
-              break;
-
-            case hevtIntrSet:
-              printIntrSet (evtp);
-              break;
-
-            case hevtIntr:
-              printIntr (evtp);
-              break;
-
-            case hevtReg:
-              printReg (evtp);
-              break;
-
-            case hevtPAReg:
-              printPAReg (evtp);
-              break;
-
-            case hevtIEFP:
-              printIEFP (evtp);
-              break;
-
-            default:
-              fprintf (hdbgOut, "hdbgPrint ? %d\n", evtp -> type);
-              break;
-          }
-      }
-    fclose (hdbgOut);
-    int fd = open ("M.dump", O_WRONLY | O_CREAT, 0660);
-    if (fd == -1)
-      {
-        sim_printf ("can't open M.dump\n");
-        goto done;
-      }
-    // cast discards volatile
-    /* ssize_t n = */ write (fd, (const void *) M, MEMSIZE * sizeof (word36));
-    close (fd);
+  int fd = open ("M.dump", O_WRONLY | O_CREAT, 0660);
+  if (fd == -1) {
+    sim_printf ("can't open M.dump\n");
+    goto done;
+  }
+  // cast discards volatile
+  /* ssize_t n = */ write (fd, (const void *) M, MEMSIZE * sizeof (word36));
+  close (fd);
 done: ;
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+}
 
-void hdbg_mark (void)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    hevtMark = hdbgSize;
-    sim_printf ("hdbg mark set to %ld\n", hevtMark);
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-  }
+void hdbg_mark (void) {
+  hevtMark = hdbgSize;
+  sim_printf ("hdbg mark set to %ld\n", hevtMark);
+}
 
-// set buffer size
-t_stat hdbg_size (UNUSED int32 arg, const char * buf)
-  {
-#ifdef THREADZ
-    pthread_mutex_lock (& hdbg_lock);
-#endif
-    hdbgSize = strtoul (buf, NULL, 0);
-    sim_printf ("hdbg size set to %ld\n", hdbgSize);
-    createBuffer ();
-#ifdef THREADZ
-    pthread_mutex_unlock (& hdbg_lock);
-#endif
-    return SCPE_OK;
-  }
+// set buffer size 
+t_stat hdbg_size (UNUSED int32 arg, const char * buf) {
+  hdbgSize = strtoul (buf, NULL, 0);
+  sim_printf ("hdbg size set to %ld\n", hdbgSize);
+  createBuffer ();
+  return SCPE_OK;
+}
 
-t_stat hdbg_print (UNUSED int32 arg, const char * buf)
-  {
-    hdbgPrint ();
-    return SCPE_OK;
-  }
-#else
-t_stat hdbg_size (UNUSED int32 arg, UNUSED const char * buf)
-  {
-    sim_printf ("hdbg not enabled; ignoring\n");
-    return SCPE_OK;
-  }
+t_stat hdbg_print (UNUSED int32 arg, const char * buf) {
+  hdbgPrint ();
+  return SCPE_OK;
+}
+
 #endif // HDBG

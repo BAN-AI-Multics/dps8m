@@ -1402,9 +1402,7 @@ static void deliver_interrupts (uint scu_unit_idx)
                 uint cpu_unit_udx = cables->scu_to_cpu[scu_unit_idx][port][sn].cpu_unit_idx;
 #if defined(THREADZ) || defined(LOCKLESS)
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
-#ifdef HDBG
-                hdbgIntrSet (inum, cpu_unit_udx, scu_unit_idx);
-#endif
+                HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx, __func__);
                 createCPUThread((uint) cpu_unit_udx);
 #ifndef NO_TIMEWAIT
                 wakeCPU ((uint) cpu_unit_udx);
@@ -2040,7 +2038,8 @@ gotit:;
             uint64 clk = set_SCU_clock (scu_unit_idx);
             cpu.rQ =  clk & 0777777777777;     // lower 36-bits of clock
             cpu.rA = (clk >> 36) & 0177777;    // upper 16-bits of clock
-            HDBGRegA ();
+            HDBGRegAW ("rscr get clock");
+            HDBGRegQW ("rscr get clock");
           }
         break;
 
