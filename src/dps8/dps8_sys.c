@@ -4041,6 +4041,15 @@ static void dps8_init (void)
       create_shm ("state", sizeof (struct system_state_s));
 #endif
 
+    if (! system_state) {
+      int svErrno = errno;
+      sim_warn ("Unable to create or access system state\r\n"
+                "Error (%d) is %s\r\n"
+                "Aborting run...\r\n",
+                svErrno, strerror (svErrno));
+      exit (svErrno);
+   }
+
 #ifndef VER_H_GIT_HASH
 #define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
 #endif
