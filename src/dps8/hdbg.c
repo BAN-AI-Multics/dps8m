@@ -363,7 +363,7 @@ static char * regNames[] = {
 
 static void printReg (struct hevt * p) {
   if (p->reg.type == hreg_IR)
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %012"PRIo64" Z%o N%o C %o O%o T%o \n",
+    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %012"PRIo64" Z%o N%o C %o O%o T%o \n",
              p->time,
              p->cpu_idx,
              p->ctx,
