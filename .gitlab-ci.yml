@@ -62,12 +62,17 @@ default:
   before_script:
     - uname -a 2> /dev/null || true > /dev/null 2>&1
     - apt-get update -y -qq || true > /dev/null 2>&1
-    - apt-get install -y -qq mingw-w64 gcc libtool unzip autoconf-archive timelimit
+    - apt-get update -y -qq
+    - apt-get install -y -qq mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux || true > /dev/null 2>&1
+    - apt-get install -y -qq mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux
+    - apt-get install -y -qq virt-what || true > /dev/null 2>&1
     - clang --version 2> /dev/null || true > /dev/null 2>&1
     - gcc --version 2> /dev/null ||  true > /dev/null 2>&1
     - cc --version 2> /dev/null || true > /dev/null 2>&1
     - lsb_release -d 2> /dev/null || true > /dev/null 2>&1
     - cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
+    - lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
+    - virt-what 2> /dev/null || true > /dev/null 2>&1
     - echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
