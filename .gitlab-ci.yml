@@ -41,7 +41,7 @@
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
     CC=gcc ./configure --disable-shared --enable-static
-    make && make install && cd ..
+    make -j 4 && make install && cd ..
 
 ############################################################################
 
@@ -50,7 +50,7 @@
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
     ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32
-    make && make install && cd ..
+    make -j 4 && make install && cd ..
 
 ############################################################################
 
@@ -73,18 +73,12 @@ default:
 ############################################################################
 
 stages:
-  - build_linuxclang
-  - build_linuxclang_nolockless
-  - build_linuxgcc
-  - build_linuxgcc_nolockless
-  - build_mingw64
-  - build_mingw64_nolockless
-  - build_sourcekit
+  - build
 
 ############################################################################
 
 build linuxclang:
-  stage: build_linuxclang
+  stage: build
   tags:
     - Docker-amd64
   script:
@@ -103,7 +97,7 @@ build linuxclang:
 ############################################################################
 
 build linuxgcc:
-  stage: build_linuxgcc
+  stage: build
   tags:
     - Docker-amd64
   script:
@@ -122,7 +116,7 @@ build linuxgcc:
 ############################################################################
 
 build linuxclang_nolockless:
-  stage: build_linuxclang_nolockless
+  stage: build
   tags:
     - Docker-amd64
   script:
@@ -141,7 +135,7 @@ build linuxclang_nolockless:
 ############################################################################
 
 build linuxgcc_nolockless:
-  stage: build_linuxgcc_nolockless
+  stage: build
   tags:
     - Docker-amd64
   script:
@@ -160,7 +154,7 @@ build linuxgcc_nolockless:
 ############################################################################
 
 build mingw64:
-  stage: build_mingw64
+  stage: build
   tags:
     - Docker-amd64
   script:
@@ -178,7 +172,7 @@ build mingw64:
 ############################################################################
 
 build mingw64_nolockless:
-  stage: build_mingw64_nolockless
+  stage: build
   tags:
     - Docker-amd64
   script:
@@ -196,7 +190,7 @@ build mingw64_nolockless:
 ############################################################################
 
 build sourcekit:
-  stage: build_sourcekit
+  stage: build
   tags:
     - Docker-amd64
   script:
