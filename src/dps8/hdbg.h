@@ -15,6 +15,7 @@
 void hdbg_mark (void);
 t_stat hdbg_size (int32 arg, UNUSED const char * buf);
 t_stat hdbg_print (int32 arg, UNUSED const char * buf);
+t_stat hdbgSegmentNumber (UNUSED int32 arg, const char * buf);
 #ifdef HDBG
 void hdbgTrace (const char * ctx);
 void hdbgPrint (void);

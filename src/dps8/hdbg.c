@@ -110,6 +110,7 @@ static struct hevt * hevents = NULL;
 static long hdbgSize = 0;
 static long hevtPtr = 0;
 static long hevtMark = 0;
+static long hdbgSegNum = -1;
 
 static void createBuffer (void) {
   if (hevents) {
@@ -142,6 +143,8 @@ static long hdbg_inc (void) {
 
 #define hev(t, tf) \
   if (! hevents) \
+    goto done; \
+  if (hdbgSegNum >= 0 && hdbgSegNum != cpu.PPR.PSR) \
     goto done; \
   unsigned long p = hdbg_inc (); \
   hevents[p].type = t; \
@@ -605,6 +608,14 @@ void hdbg_mark (void) {
 t_stat hdbg_size (UNUSED int32 arg, const char * buf) {
   hdbgSize = strtoul (buf, NULL, 0);
   sim_printf ("hdbg size set to %ld\n", hdbgSize);
+  createBuffer ();
+  return SCPE_OK;
+}
+
+// set target segment number
+t_stat hdbgSegmentNumber (UNUSED int32 arg, const char * buf) {
+  hdbgSegNum = strtoul (buf, NULL, 8);
+  sim_printf ("hdbg target segment number set to %lu\n", hdbgSize);
   createBuffer ();
   return SCPE_OK;
 }
