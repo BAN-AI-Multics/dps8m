@@ -98,6 +98,7 @@ build linuxclang:
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
 
 ############################################################################
 
@@ -117,6 +118,7 @@ build linuxgcc:
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
 
 ############################################################################
 
@@ -136,6 +138,7 @@ build linuxclang_nolockless:
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
 
 ############################################################################
 
@@ -155,6 +158,7 @@ build linuxgcc_nolockless:
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
 
 ############################################################################
 
@@ -173,6 +177,7 @@ build mingw64:
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
 
 ############################################################################
 
@@ -191,6 +196,7 @@ build mingw64_nolockless:
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
 
 ############################################################################
 
@@ -206,5 +212,6 @@ build sourcekit:
   artifacts:
     paths:
       - /builds/dps8m/dps8m/sources.tar.gz
+  retry: 2
 
 ############################################################################
