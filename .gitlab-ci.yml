@@ -85,8 +85,8 @@ stages:
 
 build linuxclang:
   stage: build_linuxclang
-  only:
-    - master
+  tags:
+    - Docker-amd64
   script:
     - *scriptCommon
     - *scriptBuildlibuvCLANG
@@ -104,8 +104,8 @@ build linuxclang:
 
 build linuxgcc:
   stage: build_linuxgcc
-  only:
-    - master
+  tags:
+    - Docker-amd64
   script:
     - *scriptCommon
     - *scriptBuildlibuvGCC
@@ -123,8 +123,8 @@ build linuxgcc:
 
 build linuxclang_nolockless:
   stage: build_linuxclang_nolockless
-  only:
-    - master
+  tags:
+    - Docker-amd64
   script:
     - *scriptCommon
     - *scriptBuildlibuvCLANG
@@ -142,8 +142,8 @@ build linuxclang_nolockless:
 
 build linuxgcc_nolockless:
   stage: build_linuxgcc_nolockless
-  only:
-    - master
+  tags:
+    - Docker-amd64
   script:
     - *scriptCommon
     - *scriptBuildlibuvGCC
@@ -161,8 +161,8 @@ build linuxgcc_nolockless:
 
 build mingw64:
   stage: build_mingw64
-  only:
-    - master
+  tags:
+    - Docker-amd64
   script:
     - *scriptCommon
     - *scriptBuildlibuvMGW64
@@ -179,8 +179,8 @@ build mingw64:
 
 build mingw64_nolockless:
   stage: build_mingw64_nolockless
-  only:
-    - master
+  tags:
+    - Docker-amd64
   script:
     - *scriptCommon
     - *scriptBuildlibuvMGW64
@@ -197,8 +197,8 @@ build mingw64_nolockless:
 
 build sourcekit:
   stage: build_sourcekit
-  only:
-    - master
+  tags:
+    - Docker-amd64
   script:
     - *scriptCommon
     - sh -x -c 'make reallyclean V=1 -j 3 --output-sync --print-directory -k; exit "${?}"'
