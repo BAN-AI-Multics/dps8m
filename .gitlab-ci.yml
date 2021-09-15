@@ -476,7 +476,7 @@ L68 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
 
 ############################################################################
 
-DPS8 Source Kit:
+Source Kit:
   stage: build
   tags:
     - Docker-amd64
