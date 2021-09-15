@@ -23,7 +23,7 @@
 # Displays preprocessor definitions
 
 .PHONY: printdefs
-
+.NOTPARALLEL: printdefs
 printdefs:                                                                    \
     # printdefs:    # Display selected preprocessor defines
 	@( ( $(MAKE) "$$($(GIT) rev-parse --show-toplevel)/./src/unifdef/unifdef" \

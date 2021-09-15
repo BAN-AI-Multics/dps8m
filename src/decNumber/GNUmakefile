@@ -45,7 +45,7 @@ all decNumber.a: $(OBJS)
 ###############################################################################
 
 .PHONY: clean
-
+.NOTPARALLEL: clean
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: decNumber"
 	-@$(SETV); $(RMF) $(OBJS) "decNumber.a"  ||  $(TRUE) > /dev/null 2>&1
