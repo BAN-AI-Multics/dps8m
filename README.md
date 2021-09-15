@@ -1,4 +1,3 @@
-# DPS8M
 <!--
 
 Copyright (c) 2008-2021 The DPS8M Development Team
