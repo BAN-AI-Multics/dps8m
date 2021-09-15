@@ -82,7 +82,7 @@ stages:
 
 ############################################################################
 
-Build DPS8 Linux Clang:
+DPS8 Linux Clang:
   stage: build
   tags:
     - Docker-amd64
@@ -102,7 +102,7 @@ Build DPS8 Linux Clang:
 
 ############################################################################
 
-Build DPS8 Linux Clang TESTING:
+DPS8 Linux Clang TESTING:
   stage: build
   tags:
     - Docker-amd64
@@ -122,7 +122,7 @@ Build DPS8 Linux Clang TESTING:
 
 ############################################################################
 
-Build DPS8 Linux Clang TESTING TRACKER HDBG:
+DPS8 Linux Clang TESTING TRACKER HDBG:
   stage: build
   tags:
     - Docker-amd64
@@ -142,7 +142,7 @@ Build DPS8 Linux Clang TESTING TRACKER HDBG:
 
 ############################################################################
 
-Build L68 Linux Clang:
+L68 Linux Clang:
   stage: build
   tags:
     - Docker-amd64
@@ -162,7 +162,7 @@ Build L68 Linux Clang:
 
 ############################################################################
 
-Build DPS8 Linux GCC:
+DPS8 Linux GCC:
   stage: build
   tags:
     - Docker-amd64
@@ -182,7 +182,7 @@ Build DPS8 Linux GCC:
 
 ############################################################################
 
-Build L68 Linux GCC:
+L68 Linux GCC:
   stage: build
   tags:
     - Docker-amd64
@@ -202,7 +202,7 @@ Build L68 Linux GCC:
 
 ############################################################################
 
-Build DPS8 Linux Clang NO_LOCKLESS:
+DPS8 Linux Clang NO_LOCKLESS:
   stage: build
   tags:
     - Docker-amd64
@@ -222,7 +222,7 @@ Build DPS8 Linux Clang NO_LOCKLESS:
 
 ############################################################################
 
-Build DPS8 Linux Clang NO_LOCKLESS ROUND_ROBIN:
+DPS8 Linux Clang NO_LOCKLESS ROUND_ROBIN:
   stage: build
   tags:
     - Docker-amd64
@@ -242,7 +242,7 @@ Build DPS8 Linux Clang NO_LOCKLESS ROUND_ROBIN:
 
 ############################################################################
 
-Build L68 Linux Clang NO_LOCKLESS:
+L68 Linux Clang NO_LOCKLESS:
   stage: build
   tags:
     - Docker-amd64
@@ -262,7 +262,7 @@ Build L68 Linux Clang NO_LOCKLESS:
 
 ############################################################################
 
-Build L68 Linux Clang NO_LOCKLESS:
+L68 Linux Clang NO_LOCKLESS:
   stage: build
   tags:
     - Docker-amd64
@@ -282,7 +282,7 @@ Build L68 Linux Clang NO_LOCKLESS:
 
 ############################################################################
 
-Build DPS8 Linux GCC NO_LOCKLESS ROUND_ROBIN:
+DPS8 Linux GCC NO_LOCKLESS ROUND_ROBIN:
   stage: build
   tags:
     - Docker-amd64
@@ -302,7 +302,7 @@ Build DPS8 Linux GCC NO_LOCKLESS ROUND_ROBIN:
 
 ############################################################################
 
-Build L68 Linux GCC NO_LOCKLESS:
+L68 Linux GCC NO_LOCKLESS:
   stage: build
   tags:
     - Docker-amd64
@@ -322,7 +322,7 @@ Build L68 Linux GCC NO_LOCKLESS:
 
 ############################################################################
 
-Build L68 Linux GCC NO_LOCKLESS ROUND_ROBIN:
+L68 Linux GCC NO_LOCKLESS ROUND_ROBIN:
   stage: build
   tags:
     - Docker-amd64
@@ -342,7 +342,7 @@ Build L68 Linux GCC NO_LOCKLESS ROUND_ROBIN:
 
 ############################################################################
 
-Build DPS8 Windows MinGW64:
+DPS8 Windows MinGW64:
   stage: build
   tags:
     - Docker-amd64
@@ -361,7 +361,7 @@ Build DPS8 Windows MinGW64:
 
 ############################################################################
 
-Build L68 Windows MinGW64:
+L68 Windows MinGW64:
   stage: build
   tags:
     - Docker-amd64
@@ -380,7 +380,7 @@ Build L68 Windows MinGW64:
 
 ############################################################################
 
-Build DPS8 Windows MinGW64 NO_LOCKLESS:
+DPS8 Windows MinGW64 NO_LOCKLESS:
   stage: build
   tags:
     - Docker-amd64
@@ -399,7 +399,7 @@ Build DPS8 Windows MinGW64 NO_LOCKLESS:
 
 ############################################################################
 
-Build DPS8 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
+DPS8 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
   stage: build
   tags:
     - Docker-amd64
@@ -418,7 +418,7 @@ Build DPS8 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
 
 ############################################################################
 
-Build L68 Windows MinGW64 NO_LOCKLESS:
+L68 Windows MinGW64 NO_LOCKLESS:
   stage: build
   tags:
     - Docker-amd64
@@ -437,7 +437,7 @@ Build L68 Windows MinGW64 NO_LOCKLESS:
 
 ############################################################################
 
-Build L68 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
+L68 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
   stage: build
   tags:
     - Docker-amd64
@@ -456,7 +456,7 @@ Build L68 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
 
 ############################################################################
 
-Build DPS8 Source Kit:
+DPS8 Source Kit:
   stage: build
   tags:
     - Docker-amd64
