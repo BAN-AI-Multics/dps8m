@@ -61,6 +61,8 @@ image: debian:sid
 default:
   before_script:
     - uname -a 2> /dev/null || true > /dev/null 2>&1
+    - apt-get install -y -qq bash curl wget git lsb-release software-properties-common time || apt-get install -y -qq bash curl wget git lsb-release software-properties-common time
+    - bash -c "$(wget -O - https://apt.llvm.org/llvm.sh 2> /dev/null)" 2> /dev/null
     - apt-get update -y -qq || apt-get update -y -qq
     - apt-get upgrade -y -qq || apt-get upgrade -y -qq
     - apt-get dist-upgrade -y -qq || apt-get dist-upgrade -y -qq
