@@ -118,7 +118,7 @@ DPS8 Linux Clang:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -139,7 +139,7 @@ DPS8 Linux Clang TESTING:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -160,7 +160,7 @@ DPS8 Linux Clang TESTING TRACKER HDBG:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -181,7 +181,7 @@ DPS8 Linux Clang TESTING TRACKER HDBG WAM ISOLTS:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -202,7 +202,7 @@ L68 Linux Clang:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -223,7 +223,7 @@ DPS8 Linux GCC:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -244,7 +244,7 @@ L68 Linux GCC:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -265,7 +265,7 @@ DPS8 Linux Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -286,7 +286,7 @@ DPS8 Linux Clang NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -307,7 +307,7 @@ L68 Linux Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -328,7 +328,7 @@ L68 Linux Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -349,7 +349,7 @@ DPS8 Linux GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -370,7 +370,7 @@ L68 Linux GCC NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -391,7 +391,7 @@ L68 Linux GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -411,7 +411,7 @@ DPS8 Windows MinGW64:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -431,7 +431,7 @@ L68 Windows MinGW64:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -451,7 +451,7 @@ DPS8 Windows MinGW64 NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -471,7 +471,7 @@ DPS8 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -491,7 +491,7 @@ L68 Windows MinGW64 NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -511,7 +511,7 @@ L68 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
 
@@ -528,6 +528,6 @@ Source Kit:
     paths:
       - /builds/dps8m/dps8m/sources.tar.gz
   retry: 2
-  timeout: 20 minutes
+  timeout: 30 minutes
 
 ############################################################################
