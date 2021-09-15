@@ -63,6 +63,10 @@ default:
     - uname -a 2> /dev/null || true > /dev/null 2>&1
     - apt-get update -y -qq || true > /dev/null 2>&1
     - apt-get update -y -qq
+    - apt-get upgrade -y -qq || true > /dev/null 2>&1
+    - apt-get upgrade -y -qq
+    - apt-get dist-upgrade -y -qq || true > /dev/null 2>&1
+    - apt-get dist-upgrade -y -qq
     - apt-get install -y -qq mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux || true > /dev/null 2>&1
     - apt-get install -y -qq mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux
     - apt-get install -y -qq virt-what || true > /dev/null 2>&1
