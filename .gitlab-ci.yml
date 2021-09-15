@@ -73,6 +73,7 @@ default:
     - cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
     - lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
     - virt-what 2> /dev/null || true > /dev/null 2>&1
+    - df 2> /dev/null || true > /dev/null 2>&1
     - echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
