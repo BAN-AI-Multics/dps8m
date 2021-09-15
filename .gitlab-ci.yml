@@ -88,9 +88,8 @@ default:
     - free 2> /dev/null || true > /dev/null 2>&1
     - echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
     - sed -i -s 's/\.NOTPARALLEL.*$//g' $(find . -name '*akefile*' 2> /dev/null) 2> /dev/null || true > /dev/null 2>&1
-    - echo 'eval exec $( ( ls -1 /usr/bin/clang-* 2> /dev/null | grep "clang-[0-9]" 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo clang) "$@"' | tee /usr/bin/clang-latest
-    - echo 'eval exec $( ( ls -1 /usr/bin/gcc-* 2> /dev/null | grep "gcc-[0-9]" 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo gcc) "$@"' | tee /usr/bin/gcc-latest
-    - chmod a+x /usr/bin/gcc-latest /usr/bin/clang-latest
+    - ln -fs "$( ( ls -1 /usr/bin/clang-* 2> /dev/null | grep 'clang-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/clang)" /usr/bin/clang-latest
+    - ln -fs "$( ( ls -1 /usr/bin/gcc-* 2> /dev/null | grep 'gcc-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/gcc)" /usr/bin/gcc-latest
     - /usr/bin/clang-latest --version
     - /usr/bin/gcc-latest --version
 
