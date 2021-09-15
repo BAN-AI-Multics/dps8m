@@ -37,7 +37,7 @@
 #                WAM=1                Enable PTW/SDW associative memory
 #           NEED_128=1                Enable 128-bit types work-arounds
 #        USE_BUILDER="String"         Enable a custom "Built by" string
-#        USE_BUILDOS="String"         Enable a custom "Built OS" string
+#        USE_BUILDOS="String"         Enable a custom "Build OS" string
 #
 ###############################################################################
 
