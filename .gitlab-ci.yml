@@ -61,23 +61,27 @@ image: silkeh/clang
 default:
   before_script:
     - uname -a 2> /dev/null || true > /dev/null 2>&1
-    - apt-get update -y -qq || true > /dev/null 2>&1
-    - apt-get update -y -qq
-    - apt-get upgrade -y -qq || true > /dev/null 2>&1
-    - apt-get upgrade -y -qq
-    - apt-get dist-upgrade -y -qq || true > /dev/null 2>&1
-    - apt-get dist-upgrade -y -qq
-    - apt-get install -y -qq mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux || true > /dev/null 2>&1
-    - apt-get install -y -qq mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux
-    - apt-get install -y -qq virt-what || true > /dev/null 2>&1
+    - apt-get update -y -qq || apt-get update -y -qq
+    - apt-get upgrade -y -qq || apt-get upgrade -y -qq
+    - apt-get dist-upgrade -y -qq --with-new-pkgs || apt-get dist-upgrade -y -qq --with-new-pkgs
+    - apt-get install -y -qq --with-new-pkgs mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz || apt-get install -y -qq --with-new-pkgs mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz
+    - apt-get install -y -qq --with-new-pkgs cpuid global cscope virt-what || true > /dev/null 2>&1
     - clang --version 2> /dev/null || true > /dev/null 2>&1
     - gcc --version 2> /dev/null ||  true > /dev/null 2>&1
     - cc --version 2> /dev/null || true > /dev/null 2>&1
+    - ld --version 2> /dev/null || true > /dev/null 2>&1
+    - lld --version 2> /dev/null || true > /dev/null 2>&1
     - lsb_release -d 2> /dev/null || true > /dev/null 2>&1
     - cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
+    - whoami 2> /dev/null || true > /dev/null 2>&1
+    - w 2> /dev/null || true > /dev/null 2>&1
+    - pstree 2> /dev/null || true > /dev/null 2>&1
+    - uptime 2> /dev/null || true > /dev/null 2>&1
     - lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
+    - cpuid -1 2> /dev/null || true > /dev/null 2>&1
     - virt-what 2> /dev/null || true > /dev/null 2>&1
     - df 2> /dev/null || true > /dev/null 2>&1
+    - free 2> /dev/null || true > /dev/null 2>&1
     - echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
     - sed -i -s 's/\.NOTPARALLEL.*$//g' $(find . -name '*akefile*' 2> /dev/null) 2> /dev/null || true > /dev/null 2>&1
 
@@ -105,6 +109,7 @@ DPS8 Linux Clang:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -125,6 +130,7 @@ DPS8 Linux Clang TESTING:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -145,6 +151,7 @@ DPS8 Linux Clang TESTING TRACKER HDBG:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -165,6 +172,7 @@ DPS8 Linux Clang TESTING TRACKER HDBG WAM ISOLTS:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -185,6 +193,7 @@ L68 Linux Clang:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -205,6 +214,7 @@ DPS8 Linux GCC:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -225,6 +235,7 @@ L68 Linux GCC:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -245,6 +256,7 @@ DPS8 Linux Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -265,6 +277,7 @@ DPS8 Linux Clang NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -285,6 +298,7 @@ L68 Linux Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -305,6 +319,7 @@ L68 Linux Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -325,6 +340,7 @@ DPS8 Linux GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -345,6 +361,7 @@ L68 Linux GCC NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -365,6 +382,7 @@ L68 Linux GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -384,6 +402,7 @@ DPS8 Windows MinGW64:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -403,6 +422,7 @@ L68 Windows MinGW64:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -422,6 +442,7 @@ DPS8 Windows MinGW64 NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -441,6 +462,7 @@ DPS8 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -460,6 +482,7 @@ L68 Windows MinGW64 NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -479,6 +502,7 @@ L68 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
 
@@ -489,11 +513,12 @@ Source Kit:
   script:
     - *scriptCommon
     - sh -x -c 'make reallyclean V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'make dist V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'make dist V=1 COMPRESS="pigz -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
       - /builds/dps8m/dps8m/sources.tar.gz
   retry: 2
+  timeout: 20 minutes
 
 ############################################################################
