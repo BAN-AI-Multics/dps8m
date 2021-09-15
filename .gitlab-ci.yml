@@ -222,6 +222,26 @@ Build DPS8 Linux Clang NO_LOCKLESS:
 
 ############################################################################
 
+Build DPS8 Linux Clang NO_LOCKLESS ROUND_ROBIN:
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptCommon
+    - *scriptBuildlibuvCLANG
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j 4 --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
+      - /builds/dps8m/dps8m/src/punutil/punutil
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+
+############################################################################
+
 Build L68 Linux Clang NO_LOCKLESS:
   stage: build
   tags:
@@ -242,14 +262,34 @@ Build L68 Linux Clang NO_LOCKLESS:
 
 ############################################################################
 
-Build DPS8 Linux GCC NO_LOCKLESS:
+Build L68 Linux Clang NO_LOCKLESS:
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptCommon
+    - *scriptBuildlibuvCLANG
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j 4 --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
+      - /builds/dps8m/dps8m/src/punutil/punutil
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+
+############################################################################
+
+Build DPS8 Linux GCC NO_LOCKLESS ROUND_ROBIN:
   stage: build
   tags:
     - Docker-amd64
   script:
     - *scriptCommon
     - *scriptBuildlibuvGCC
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j 4 --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j 4 --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -270,6 +310,26 @@ Build L68 Linux GCC NO_LOCKLESS:
     - *scriptCommon
     - *scriptBuildlibuvGCC
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j 4 --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
+      - /builds/dps8m/dps8m/src/punutil/punutil
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+
+############################################################################
+
+Build L68 Linux GCC NO_LOCKLESS ROUND_ROBIN:
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptCommon
+    - *scriptBuildlibuvGCC
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 -j 4 --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -339,6 +399,25 @@ Build DPS8 Windows MinGW64 NO_LOCKLESS:
 
 ############################################################################
 
+Build DPS8 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptCommon
+    - *scriptBuildlibuvMGW64
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 NO_LOCKLESS=1 -j 4 --output-sync --print-directory -k; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.exe
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
+      - /builds/dps8m/dps8m/src/punutil/punutil.exe
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+
+############################################################################
+
 Build L68 Windows MinGW64 NO_LOCKLESS:
   stage: build
   tags:
@@ -347,6 +426,25 @@ Build L68 Windows MinGW64 NO_LOCKLESS:
     - *scriptCommon
     - *scriptBuildlibuvMGW64
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 NO_LOCKLESS=1 -j 4 --output-sync --print-directory -k; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.exe
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
+      - /builds/dps8m/dps8m/src/punutil/punutil.exe
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+
+############################################################################
+
+Build L68 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptCommon
+    - *scriptBuildlibuvMGW64
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 NO_LOCKLESS=1 -j 4 --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
