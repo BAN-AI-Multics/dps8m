@@ -62,7 +62,7 @@ default:
   before_script:
     - uname -a 2> /dev/null || true > /dev/null 2>&1
     - apt-get update -y -qq || apt-get update -y -qq
-    - apt-get install -y -qq bash curl wget git lsb-release software-properties-common time || apt-get install -y -qq bash curl wget git lsb-release software-properties-common time
+    - apt-get install -y -qq dash gnupg2 bash curl wget git lsb-release software-properties-common time || apt-get install -y -qq dash gnupg2 bash curl wget git lsb-release software-properties-common time
     - wget -nv https://apt.llvm.org/llvm.sh || wget -nv https://apt.llvm.org/llvm.sh
     - chmod a+x ./llvm.sh || true > /dev/null 2>&1
     - bash ./llvm.sh
