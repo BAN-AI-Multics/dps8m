@@ -64,7 +64,7 @@ default:
     - apt-get update -y -qq || apt-get update -y -qq
     - apt-get upgrade -y -qq || apt-get upgrade -y -qq
     - apt-get dist-upgrade -y -qq || apt-get dist-upgrade -y -qq
-    - apt-get install -y -qq mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache || apt-get install -y -qq mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache
+    - apt-get install -y -qq dash bash wget mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache || apt-get install -y -qq dash bash wget mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache
     - apt-get install -y -qq cpuid global cscope virt-what || true > /dev/null 2>&1
     - clang --version 2> /dev/null || true > /dev/null 2>&1
     - gcc --version 2> /dev/null ||  true > /dev/null 2>&1
