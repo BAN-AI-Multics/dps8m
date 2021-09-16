@@ -146,8 +146,8 @@
 .scriptDnfSetup: &scriptDnfSetup |
     # scriptDnfSetup
     uname -a 2> /dev/null || true > /dev/null 2>&1
-    dnf --refresh --allowerasing --nobest update || dnf --refresh --allowerasing --nobest update
-    dnf --allowerasing --nobest install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base" \@"Minimal Install" \@"RPM Development Tools" \@"Development Tools" \@"C Development Tools and Libraries" || dnf --allowerasing --nobest install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base" \@"Minimal Install" \@"RPM Development Tools" \@"Development Tools" \@"C Development Tools and Libraries"
+    dnf -y --refresh --allowerasing --nobest update || dnf -y --refresh --allowerasing --nobest update
+    dnf -y --allowerasing --nobest install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base" \@"Minimal Install" \@"RPM Development Tools" \@"Development Tools" \@"C Development Tools and Libraries" || dnf -y --allowerasing --nobest install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base" \@"Minimal Install" \@"RPM Development Tools" \@"Development Tools" \@"C Development Tools and Libraries"
     clang --version 2> /dev/null || true > /dev/null 2>&1
     gcc --version 2> /dev/null ||  true > /dev/null 2>&1
     cc --version 2> /dev/null || true > /dev/null 2>&1
@@ -169,16 +169,13 @@
 
 ############################################################################
 
-image: debian:sid
-
-############################################################################
-
 stages:
   - build
 
 ############################################################################
 
-DPS8 Linux Clang:
+Linux/x86_64, Debian sid, clang/upstream, libuv/upstream:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -201,7 +198,8 @@ DPS8 Linux Clang:
 
 ############################################################################
 
-DPS8 Linux Clang TESTING:
+Linux/x86_64, Debian sid, clang/upstream, libuv/upstream, TESTING:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -224,7 +222,8 @@ DPS8 Linux Clang TESTING:
 
 ############################################################################
 
-DPS8 Linux Clang TESTING TRACKER HDBG:
+Linux/x86_64, Debian sid, clang/upstream, libuv/upstream, TESTING TRACKER HDBG:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -247,7 +246,8 @@ DPS8 Linux Clang TESTING TRACKER HDBG:
 
 ############################################################################
 
-DPS8 Linux Clang TESTING TRACKER HDBG WAM ISOLTS:
+Linux/x86_64, Debian sid, clang/upstream, libuv/upstream, TESTING TRACKER HDBG WAM ISOLTS:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -270,7 +270,8 @@ DPS8 Linux Clang TESTING TRACKER HDBG WAM ISOLTS:
 
 ############################################################################
 
-L68 Linux Clang:
+Linux/x86_64, Debian sid, clang/upstream, libuv/upstream, L68:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -293,7 +294,8 @@ L68 Linux Clang:
 
 ############################################################################
 
-DPS8 Linux GCC:
+Linux/x86_64, Debian sid, gcc, libuv/upstream:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -316,30 +318,8 @@ DPS8 Linux GCC:
 
 ############################################################################
 
-L68 Linux GCC:
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - *scriptBuildlibuvGCClatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Clang NO_LOCKLESS:
+Linux/x86_64, Debian sid, clang/upstream, libuv/upstream, NO_LOCKLESS:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -362,7 +342,8 @@ DPS8 Linux Clang NO_LOCKLESS:
 
 ############################################################################
 
-DPS8 Linux Clang NO_LOCKLESS ROUND_ROBIN:
+Linux/x86_64, Debian sid, clang/upstream, libuv/upstream, NO_LOCKLESS ROUND_ROBIN:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -385,7 +366,8 @@ DPS8 Linux Clang NO_LOCKLESS ROUND_ROBIN:
 
 ############################################################################
 
-L68 Linux Clang NO_LOCKLESS:
+Linux/x86_64, Debian sid, clang/upstream, libuv/upstream, L68 NO_LOCKLESS:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -408,99 +390,8 @@ L68 Linux Clang NO_LOCKLESS:
 
 ############################################################################
 
-L68 Linux Clang NO_LOCKLESS:
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetupLLVM
-    - *scriptCommon
-    - *scriptBuildlibuvCLANGlatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux GCC NO_LOCKLESS ROUND_ROBIN:
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetupLLVM
-    - *scriptCommon
-    - *scriptBuildlibuvGCClatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux GCC NO_LOCKLESS:
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - *scriptBuildlibuvGCClatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux GCC NO_LOCKLESS ROUND_ROBIN:
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - *scriptBuildlibuvGCClatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Windows MinGW64:
+Windows/MinGW64, Debian sid, MinGW64-gcc, libuv/upstream:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -522,117 +413,8 @@ DPS8 Windows MinGW64:
 
 ############################################################################
 
-L68 Windows MinGW64:
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - *scriptBuildlibuvMGW64
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.exe
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
-      - /builds/dps8m/dps8m/src/punutil/punutil.exe
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Windows MinGW64 NO_LOCKLESS:
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - *scriptBuildlibuvMGW64
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 NO_LOCKLESS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.exe
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
-      - /builds/dps8m/dps8m/src/punutil/punutil.exe
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - *scriptBuildlibuvMGW64
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 NO_LOCKLESS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.exe
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
-      - /builds/dps8m/dps8m/src/punutil/punutil.exe
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Windows MinGW64 NO_LOCKLESS:
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - *scriptBuildlibuvMGW64
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 NO_LOCKLESS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.exe
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
-      - /builds/dps8m/dps8m/src/punutil/punutil.exe
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - *scriptBuildlibuvMGW64
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 NO_LOCKLESS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.exe
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
-      - /builds/dps8m/dps8m/src/punutil/punutil.exe
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
 Source Kit:
+  image: debian:sid
   stage: build
   tags:
     - Docker-amd64
@@ -650,8 +432,8 @@ Source Kit:
 
 ############################################################################
 
-DPS8 Linux Ubuntu Focal Clang:
-  image: ubuntu:focal
+Linux/x86_64, Ubuntu LTS, clang:
+  image: ubuntu:latest
   stage: build
   tags:
     - Docker-amd64
@@ -674,104 +456,8 @@ DPS8 Linux Ubuntu Focal Clang:
 
 ############################################################################
 
-DPS8 Linux Ubuntu Focal Clang TESTING:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Focal Clang TESTING TRACKER HDBG:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Focal Clang TESTING TRACKER HDBG WAM ISOLTS:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Focal Clang:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Focal GCC:
-  image: ubuntu:focal
+Linux/x86_64, Ubuntu LTS, gcc:
+  image: ubuntu:latest
   stage: build
   tags:
     - Docker-amd64
@@ -794,199 +480,7 @@ DPS8 Linux Ubuntu Focal GCC:
 
 ############################################################################
 
-L68 Linux Ubuntu Focal GCC:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Focal Clang NO_LOCKLESS:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Focal Clang NO_LOCKLESS ROUND_ROBIN:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Focal Clang NO_LOCKLESS:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Focal Clang NO_LOCKLESS:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Focal GCC NO_LOCKLESS ROUND_ROBIN:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Focal GCC NO_LOCKLESS:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Focal GCC NO_LOCKLESS ROUND_ROBIN:
-  image: ubuntu:focal
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Fedora Rawhide Clang:
+Linux/x86_64, Fedora Rawhide, clang:
   image: fedora:rawhide
   stage: build
   tags:
@@ -1009,7 +503,7 @@ DPS8 Linux Fedora Rawhide Clang:
 
 ############################################################################
 
-DPS8 Linux Fedora Rawhide GCC:
+Linux/x86_64, Fedora Rawhide, gcc:
   image: fedora:rawhide
   stage: build
   tags:
@@ -1032,7 +526,7 @@ DPS8 Linux Fedora Rawhide GCC:
 
 ############################################################################
 
-DPS8 Linux Fedora Latest Clang:
+Linux/x86_64, Fedora, clang:
   image: fedora:latest
   stage: build
   tags:
@@ -1055,7 +549,7 @@ DPS8 Linux Fedora Latest Clang:
 
 ############################################################################
 
-DPS8 Linux Fedora Latest GCC:
+Linux/x86_64, Fedora, gcc:
   image: fedora:latest
   stage: build
   tags:
@@ -1078,8 +572,8 @@ DPS8 Linux Fedora Latest GCC:
 
 ############################################################################
 
-DPS8 Linux RHEL Latest Clang:
-  image: almalinux:latest
+Linux/x86_64, Oracle Linux 8, clang:
+  image: oraclelinux:latest
   stage: build
   tags:
     - Docker-amd64
@@ -1101,8 +595,8 @@ DPS8 Linux RHEL Latest Clang:
 
 ############################################################################
 
-DPS8 Linux RHEL Latest GCC:
-  image: almalinux:latest
+Linux/x86_64, Oracle Linux 8, gcc:
+  image: oraclelinux:8
   stage: build
   tags:
     - Docker-amd64
@@ -1124,7 +618,7 @@ DPS8 Linux RHEL Latest GCC:
 
 ############################################################################
 
-DPS8 Linux Ubuntu Rolling Clang:
+Linux/x86_64, Ubuntu, clang:
   image: ubuntu:rolling
   stage: build
   tags:
@@ -1148,103 +642,7 @@ DPS8 Linux Ubuntu Rolling Clang:
 
 ############################################################################
 
-DPS8 Linux Ubuntu Rolling Clang TESTING:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Rolling Clang TESTING TRACKER HDBG:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Rolling Clang TESTING TRACKER HDBG WAM ISOLTS:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Rolling Clang:
-  image: ubuntu:Rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Rolling GCC:
+Linux/x86_64, Ubuntu, gcc:
   image: ubuntu:rolling
   stage: build
   tags:
@@ -1254,198 +652,6 @@ DPS8 Linux Ubuntu Rolling GCC:
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Rolling GCC:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Rolling Clang NO_LOCKLESS:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Rolling Clang NO_LOCKLESS ROUND_ROBIN:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Rolling Clang NO_LOCKLESS:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Rolling Clang NO_LOCKLESS:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-DPS8 Linux Ubuntu Rolling GCC NO_LOCKLESS ROUND_ROBIN:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Rolling GCC NO_LOCKLESS:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-L68 Linux Ubuntu Rolling GCC NO_LOCKLESS ROUND_ROBIN:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAptSetup
-    - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
