@@ -72,14 +72,48 @@
 
 ############################################################################
 
-.scriptAptSetup: &scriptAptSetup |
-    # scriptAptSetup
+.scriptAptSetupLLVM: &scriptAptSetupLLVM |
+    # scriptAptSetupLLVM
     uname -a 2> /dev/null || true > /dev/null 2>&1
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash gnupg2 bash curl wget git lsb-release software-properties-common time || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash gnupg2 bash curl wget git lsb-release software-properties-common time
     wget -nv https://apt.llvm.org/llvm.sh || wget -nv https://apt.llvm.org/llvm.sh
     chmod a+x ./llvm.sh || true > /dev/null 2>&1
     bash ./llvm.sh
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash bash wget mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash bash wget mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq cpuid global cscope virt-what || true > /dev/null 2>&1
+    clang --version 2> /dev/null || true > /dev/null 2>&1
+    gcc --version 2> /dev/null ||  true > /dev/null 2>&1
+    cc --version 2> /dev/null || true > /dev/null 2>&1
+    ld --version 2> /dev/null || true > /dev/null 2>&1
+    lld --version 2> /dev/null || true > /dev/null 2>&1
+    lsb_release -d 2> /dev/null || true > /dev/null 2>&1
+    cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
+    whoami 2> /dev/null || true > /dev/null 2>&1
+    w 2> /dev/null || true > /dev/null 2>&1
+    pstree 2> /dev/null || true > /dev/null 2>&1
+    uptime 2> /dev/null || true > /dev/null 2>&1
+    lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
+    cpuid -1 2> /dev/null || true > /dev/null 2>&1
+    virt-what 2> /dev/null || true > /dev/null 2>&1
+    df 2> /dev/null || true > /dev/null 2>&1
+    free 2> /dev/null || true > /dev/null 2>&1
+    echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
+    sed -i -s 's/\.NOTPARALLEL.*$//g' $(find . -name '*akefile*' 2> /dev/null) 2> /dev/null || true > /dev/null 2>&1
+    ln -fs "$( ( ls -1 /usr/bin/clang-* 2> /dev/null | grep 'clang-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/clang)" /usr/bin/clang-latest
+    ln -fs "$( ( ls -1 /usr/bin/gcc-* 2> /dev/null | grep 'gcc-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/gcc)" /usr/bin/gcc-latest
+    /usr/bin/clang-latest --version
+    /usr/bin/gcc-latest --version
+
+############################################################################
+
+.scriptAptSetup: &scriptAptSetup |
+    # scriptAptSetup
+    uname -a 2> /dev/null || true > /dev/null 2>&1
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash gnupg2 bash curl wget git lsb-release software-properties-common time || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash gnupg2 bash curl wget git lsb-release software-properties-common time
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash bash wget mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash bash wget mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache
@@ -149,7 +183,7 @@ DPS8 Linux Clang:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
+    - *scriptAptSetupLLVM
     - *scriptCommon
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
@@ -172,7 +206,7 @@ DPS8 Linux Clang TESTING:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
+    - *scriptAptSetupLLVM
     - *scriptCommon
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
@@ -195,7 +229,7 @@ DPS8 Linux Clang TESTING TRACKER HDBG:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
+    - *scriptAptSetupLLVM
     - *scriptCommon
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
@@ -218,7 +252,7 @@ DPS8 Linux Clang TESTING TRACKER HDBG WAM ISOLTS:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
+    - *scriptAptSetupLLVM
     - *scriptCommon
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
@@ -241,7 +275,7 @@ L68 Linux Clang:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
+    - *scriptAptSetupLLVM
     - *scriptCommon
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
@@ -310,7 +344,7 @@ DPS8 Linux Clang NO_LOCKLESS:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
+    - *scriptAptSetupLLVM
     - *scriptCommon
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
@@ -333,7 +367,7 @@ DPS8 Linux Clang NO_LOCKLESS ROUND_ROBIN:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
+    - *scriptAptSetupLLVM
     - *scriptCommon
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
@@ -356,7 +390,7 @@ L68 Linux Clang NO_LOCKLESS:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
+    - *scriptAptSetupLLVM
     - *scriptCommon
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
@@ -379,7 +413,7 @@ L68 Linux Clang NO_LOCKLESS:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
+    - *scriptAptSetupLLVM
     - *scriptCommon
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
@@ -402,7 +436,7 @@ DPS8 Linux GCC NO_LOCKLESS ROUND_ROBIN:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
+    - *scriptAptSetupLLVM
     - *scriptCommon
     - *scriptBuildlibuvGCClatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
