@@ -27,6 +27,18 @@
 
 ############################################################################
 
+.scriptAptInstallLibuv1: &scriptAptInstallLibuv1 |
+    # scriptAptInstallLibuv1
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
+
+############################################################################
+
+.scriptAptInstallMinGW64: &scriptAptInstallMinGW64 |
+    # scriptAptInstallMinGW64
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq mingw-w64 || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq mingw-w64
+
+############################################################################
+
 .scriptBuildlibuvCLANGlatest: &scriptBuildlibuvCLANGlatest |
     # scriptBuildlibuvCLANGlatest
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
@@ -72,103 +84,86 @@
 
 ############################################################################
 
-.scriptAptSetupLLVM: &scriptAptSetupLLVM |
-    # scriptAptSetupLLVM
-    uname -a 2> /dev/null || true > /dev/null 2>&1
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq apt-utils moreutils gawk dash gnupg2 bash curl wget git lsb-release software-properties-common time || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq apt-utils moreutils gawk dash gnupg2 bash curl wget git lsb-release software-properties-common time
+.scriptBuildlibuvLLVMMGW64-x86_64: &scriptBuildlibuvLLVMMGW64-x86_64 |
+    # scriptBuildlibuvLLVMMGW64-x86_64
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32-clang
+    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
+
+############################################################################
+
+.scriptBuildlibuvLLVMMGW64-aarch64: &scriptBuildlibuvLLVMMGW64-aarch64 |
+    # scriptBuildlibuvLLVMMGW64-aarch64
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    ./configure --disable-shared --enable-static --host=aarch64-w64-mingw32-clang
+    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
+
+############################################################################
+
+.scriptAptSetupLatest: &scriptAptSetupLatest |
+    # scriptAptSetupLatest
     wget -nv https://apt.llvm.org/llvm.sh || wget -nv https://apt.llvm.org/llvm.sh
     chmod a+x ./llvm.sh
     grep -v '^set -eux' ./llvm.sh | sponge ./llvm.sh
     bash ./llvm.sh $(grep '^LLVM_VERSION_PATTERNS' ./llvm.sh | cut -d '[' -f 2 | cut -d ']' -f 1 | sort -rn | head -n 1)
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash bash wget mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash bash wget mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq cpuid global cscope virt-what || true > /dev/null 2>&1
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search gcc 2> /dev/null | grep "^gcc-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo gcc)
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search clang 2> /dev/null | grep "^clang-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo clang)
-    clang --version 2> /dev/null || true > /dev/null 2>&1
-    gcc --version 2> /dev/null ||  true > /dev/null 2>&1
-    cc --version 2> /dev/null || true > /dev/null 2>&1
-    ld --version 2> /dev/null || true > /dev/null 2>&1
-    lld --version 2> /dev/null || true > /dev/null 2>&1
+    ln -fs "$( ( ls -1 /usr/bin/clang-* 2> /dev/null | grep 'clang-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/clang)" /usr/bin/clang-latest
+    ln -fs "$( ( ls -1 /usr/bin/gcc-* 2> /dev/null | grep 'gcc-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/gcc)" /usr/bin/gcc-latest
+
+############################################################################
+
+.scriptExtraInfo: &scriptExtraInfo |
+    # scriptExtraInfo
+    uname -a 2> /dev/null || true > /dev/null 2>&1
     lsb_release -d 2> /dev/null || true > /dev/null 2>&1
     cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
-    whoami 2> /dev/null || true > /dev/null 2>&1
-    w 2> /dev/null || true > /dev/null 2>&1
-    pstree 2> /dev/null || true > /dev/null 2>&1
     uptime 2> /dev/null || true > /dev/null 2>&1
     lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
     cpuid -1 2> /dev/null || true > /dev/null 2>&1
-    virt-what 2> /dev/null || true > /dev/null 2>&1
     df 2> /dev/null || true > /dev/null 2>&1
     free 2> /dev/null || true > /dev/null 2>&1
-    echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
+
+############################################################################
+
+.scriptDPS8Mods: &scriptDPS8Mods |
+    # scriptDPS8Mods
     sed -i -s 's/\.NOTPARALLEL.*$//g' $(find . -name '*akefile*' 2> /dev/null) 2> /dev/null || true > /dev/null 2>&1
-    ln -fs "$( ( ls -1 /usr/bin/clang-* 2> /dev/null | grep 'clang-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/clang)" /usr/bin/clang-latest
-    ln -fs "$( ( ls -1 /usr/bin/gcc-* 2> /dev/null | grep 'gcc-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/gcc)" /usr/bin/gcc-latest
-    /usr/bin/clang-latest --version
-    /usr/bin/gcc-latest --version
+    echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
 .scriptAptSetup: &scriptAptSetup |
     # scriptAptSetup
-    uname -a 2> /dev/null || true > /dev/null 2>&1
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash gnupg2 bash curl wget git lsb-release software-properties-common time || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash gnupg2 bash curl wget git lsb-release software-properties-common time
+    ARGS="gawk apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash bash wget mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq dash bash wget mingw-w64 gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq cpuid global cscope virt-what || true > /dev/null 2>&1
-    clang --version 2> /dev/null || true > /dev/null 2>&1
-    gcc --version 2> /dev/null ||  true > /dev/null 2>&1
-    cc --version 2> /dev/null || true > /dev/null 2>&1
-    ld --version 2> /dev/null || true > /dev/null 2>&1
-    lld --version 2> /dev/null || true > /dev/null 2>&1
-    lsb_release -d 2> /dev/null || true > /dev/null 2>&1
-    cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
-    whoami 2> /dev/null || true > /dev/null 2>&1
-    w 2> /dev/null || true > /dev/null 2>&1
-    pstree 2> /dev/null || true > /dev/null 2>&1
-    uptime 2> /dev/null || true > /dev/null 2>&1
-    lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
-    cpuid -1 2> /dev/null || true > /dev/null 2>&1
-    virt-what 2> /dev/null || true > /dev/null 2>&1
-    df 2> /dev/null || true > /dev/null 2>&1
-    free 2> /dev/null || true > /dev/null 2>&1
-    echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
-    sed -i -s 's/\.NOTPARALLEL.*$//g' $(find . -name '*akefile*' 2> /dev/null) 2> /dev/null || true > /dev/null 2>&1
-    ln -fs "$( ( ls -1 /usr/bin/clang-* 2> /dev/null | grep 'clang-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/clang)" /usr/bin/clang-latest
-    ln -fs "$( ( ls -1 /usr/bin/gcc-* 2> /dev/null | grep 'gcc-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/gcc)" /usr/bin/gcc-latest
-    /usr/bin/clang-latest --version
-    /usr/bin/gcc-latest --version
+    ARGS="dash bash wget gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq cpuid global cscope || true > /dev/null 2>&1
+
+############################################################################
+
+.scriptOUL8Setup: &scriptOULSetup |
+    # scriptOULSetup
+    dnf -y --refresh --allowerasing --nobest install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm       
+    echo '[OL8_codeready_builder]' > /etc/yum.repos.d/codeready_builder.repo
+    echo 'name=OL8_codeready_builder' >> /etc/yum.repos.d/codeready_builder.repo
+    echo 'baseurl=https://yum.oracle.com/repo/OracleLinux/OL8/codeready/builder/x86_64/' >> /etc/yum.repos.d/codeready_builder.repo
+    echo 'enabled=1' >> /etc/yum.repos.d/codeready_builder.repo
+    echo 'gpgcheck=0' >> /etc/yum.repos.d/codeready_builder.repo
+    dnf -y module disable virt-devel 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
 .scriptDnfSetup: &scriptDnfSetup |
     # scriptDnfSetup
-    uname -a 2> /dev/null || true > /dev/null 2>&1
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
-    dnf -y --allowerasing --best install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base" || dnf -y --allowerasing --nobest install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base"
-    clang --version 2> /dev/null || true > /dev/null 2>&1
-    gcc --version 2> /dev/null ||  true > /dev/null 2>&1
-    cc --version 2> /dev/null || true > /dev/null 2>&1
-    ld --version 2> /dev/null || true > /dev/null 2>&1
-    lld --version 2> /dev/null || true > /dev/null 2>&1
-    lsb_release -d 2> /dev/null || true > /dev/null 2>&1
-    cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
-    whoami 2> /dev/null || true > /dev/null 2>&1
-    w 2> /dev/null || true > /dev/null 2>&1
-    pstree 2> /dev/null || true > /dev/null 2>&1
-    uptime 2> /dev/null || true > /dev/null 2>&1
-    lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
-    cpuid -1 2> /dev/null || true > /dev/null 2>&1
-    virt-what 2> /dev/null || true > /dev/null 2>&1
-    df 2> /dev/null || true > /dev/null 2>&1
-    free 2> /dev/null || true > /dev/null 2>&1
-    echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
-    sed -i -s 's/\.NOTPARALLEL.*$//g' $(find . -name '*akefile*' 2> /dev/null) 2> /dev/null || true > /dev/null 2>&1
+    ARGS="libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
 
 ############################################################################
 
@@ -183,8 +178,11 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetupLLVM
+    - *scriptAptSetup
+    - *scriptAptSetupLatest
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
@@ -207,8 +205,11 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetupLLVM
+    - *scriptAptSetup
+    - *scriptAptSetupLatest
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
@@ -231,8 +232,11 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetupLLVM
+    - *scriptAptSetup
+    - *scriptAptSetupLatest
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
@@ -255,8 +259,11 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetupLLVM
+    - *scriptAptSetup
+    - *scriptAptSetupLatest
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
@@ -281,6 +288,8 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
   script:
     - *scriptAptSetup
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - *scriptBuildlibuvGCClatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
@@ -303,8 +312,11 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetupLLVM
+    - *scriptAptSetup
+    - *scriptAptSetupLatest
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
@@ -327,8 +339,11 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetupLLVM
+    - *scriptAptSetup
+    - *scriptAptSetupLatest
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
@@ -351,8 +366,11 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetupLLVM
+    - *scriptAptSetup
+    - *scriptAptSetupLatest
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
@@ -369,14 +387,17 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
 
 ############################################################################
 
-Windows/MinGW64, Debian sid, MinGW64-gcc, libuv/git:
+Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
   image: debian:sid
   stage: build
   tags:
     - Docker-amd64
   script:
     - *scriptAptSetup
+    - *scriptAptInstallMinGW64
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - *scriptBuildlibuvMGW64
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
@@ -419,7 +440,9 @@ Linux/x86_64, Ubuntu LTS, clang:
   script:
     - *scriptAptSetup
     - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
+    - *scriptAptInstallLibuv1
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
@@ -443,7 +466,9 @@ Linux/x86_64, Ubuntu LTS, gcc:
   script:
     - *scriptAptSetup
     - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
+    - *scriptAptInstallLibuv1
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
@@ -467,6 +492,8 @@ Linux/x86_64, Fedora Rawhide, clang:
   script:
     - *scriptDnfSetup
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
@@ -490,6 +517,8 @@ Linux/x86_64, Fedora Rawhide, gcc:
   script:
     - *scriptDnfSetup
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
@@ -513,6 +542,8 @@ Linux/x86_64, Fedora, clang:
   script:
     - *scriptDnfSetup
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
@@ -536,6 +567,8 @@ Linux/x86_64, Fedora, gcc:
   script:
     - *scriptDnfSetup
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
@@ -552,13 +585,16 @@ Linux/x86_64, Fedora, gcc:
 ############################################################################
 
 Linux/x86_64, Oracle Linux 8, clang:
-  image: oraclelinux:latest
+  image: oraclelinux:8
   stage: build
   tags:
     - Docker-amd64
   script:
+    - *scriptOUL8Setup
     - *scriptDnfSetup
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
@@ -580,8 +616,11 @@ Linux/x86_64, Oracle Linux 8, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptOUL8Setup
     - *scriptDnfSetup
     - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
@@ -605,7 +644,9 @@ Linux/x86_64, Ubuntu, clang:
   script:
     - *scriptAptSetup
     - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
+    - *scriptAptInstallLibuv1
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
@@ -629,7 +670,9 @@ Linux/x86_64, Ubuntu, gcc:
   script:
     - *scriptAptSetup
     - *scriptCommon
-    - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
+    - *scriptAptInstallLibuv1
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
@@ -638,6 +681,56 @@ Linux/x86_64, Ubuntu, gcc:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
       - /builds/dps8m/dps8m/src/punutil/punutil
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Windows/x86_64, Ubuntu, LLVM-MinGW, libuv/git:
+  image: mstorsjo/llvm-mingw:dev
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptAptSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - *scriptBuildlibuvLLVMMGW64-x86_64
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.exe
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
+      - /builds/dps8m/dps8m/src/punutil/punutil.exe
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
+  image: mstorsjo/llvm-mingw:dev
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptAptSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - *scriptBuildlibuvLLVMMGW64-aarch64
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.exe
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
+      - /builds/dps8m/dps8m/src/punutil/punutil.exe
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
