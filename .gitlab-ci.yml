@@ -163,6 +163,7 @@ DPS8 Linux Clang:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -185,6 +186,7 @@ DPS8 Linux Clang TESTING:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -207,6 +209,7 @@ DPS8 Linux Clang TESTING TRACKER HDBG:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -229,6 +232,7 @@ DPS8 Linux Clang TESTING TRACKER HDBG WAM ISOLTS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -251,6 +255,7 @@ L68 Linux Clang:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -273,6 +278,7 @@ DPS8 Linux GCC:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -295,6 +301,7 @@ L68 Linux GCC:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -317,6 +324,7 @@ DPS8 Linux Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -339,6 +347,7 @@ DPS8 Linux Clang NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -361,6 +370,7 @@ L68 Linux Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -383,6 +393,7 @@ L68 Linux Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -405,6 +416,7 @@ DPS8 Linux GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -427,6 +439,7 @@ L68 Linux GCC NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -449,6 +462,7 @@ L68 Linux GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -470,6 +484,7 @@ DPS8 Windows MinGW64:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -491,6 +506,7 @@ L68 Windows MinGW64:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -512,6 +528,7 @@ DPS8 Windows MinGW64 NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -533,6 +550,7 @@ DPS8 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -554,6 +572,7 @@ L68 Windows MinGW64 NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -575,6 +594,7 @@ L68 Windows MinGW64 NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -592,6 +612,7 @@ Source Kit:
       - /builds/dps8m/dps8m/sources.tar.gz
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -615,6 +636,7 @@ DPS8 Linux Ubuntu Focal Clang:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -638,6 +660,7 @@ DPS8 Linux Ubuntu Focal Clang TESTING:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -661,6 +684,7 @@ DPS8 Linux Ubuntu Focal Clang TESTING TRACKER HDBG:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -684,6 +708,7 @@ DPS8 Linux Ubuntu Focal Clang TESTING TRACKER HDBG WAM ISOLTS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -707,6 +732,7 @@ L68 Linux Ubuntu Focal Clang:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -730,6 +756,7 @@ DPS8 Linux Ubuntu Focal GCC:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -753,6 +780,7 @@ L68 Linux Ubuntu Focal GCC:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -776,6 +804,7 @@ DPS8 Linux Ubuntu Focal Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -799,6 +828,7 @@ DPS8 Linux Ubuntu Focal Clang NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -822,6 +852,7 @@ L68 Linux Ubuntu Focal Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -845,6 +876,7 @@ L68 Linux Ubuntu Focal Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -868,6 +900,7 @@ DPS8 Linux Ubuntu Focal GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -891,6 +924,7 @@ L68 Linux Ubuntu Focal GCC NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -914,6 +948,7 @@ L68 Linux Ubuntu Focal GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -937,6 +972,7 @@ DPS8 Linux Ubuntu Devel Clang:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -960,6 +996,7 @@ DPS8 Linux Ubuntu Devel Clang TESTING:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -983,6 +1020,7 @@ DPS8 Linux Ubuntu Devel Clang TESTING TRACKER HDBG:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1006,6 +1044,7 @@ DPS8 Linux Ubuntu Devel Clang TESTING TRACKER HDBG WAM ISOLTS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1029,6 +1068,7 @@ L68 Linux Ubuntu Devel Clang:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1052,6 +1092,7 @@ DPS8 Linux Ubuntu Devel GCC:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1075,6 +1116,7 @@ L68 Linux Ubuntu Devel GCC:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1098,6 +1140,7 @@ DPS8 Linux Ubuntu Devel Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1121,6 +1164,7 @@ DPS8 Linux Ubuntu Devel Clang NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1144,6 +1188,7 @@ L68 Linux Ubuntu Devel Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1167,6 +1212,7 @@ L68 Linux Ubuntu Devel Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1190,6 +1236,7 @@ DPS8 Linux Ubuntu Devel GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1213,6 +1260,7 @@ L68 Linux Ubuntu Devel GCC NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1236,6 +1284,7 @@ L68 Linux Ubuntu Devel GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1258,6 +1307,7 @@ DPS8 Linux Fedora Rawhide Clang:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1280,6 +1330,7 @@ DPS8 Linux Fedora Rawhide GCC:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1303,6 +1354,7 @@ DPS8 Linux Ubuntu Rolling Clang:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1326,6 +1378,7 @@ DPS8 Linux Ubuntu Rolling Clang TESTING:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1349,6 +1402,7 @@ DPS8 Linux Ubuntu Rolling Clang TESTING TRACKER HDBG:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1372,6 +1426,7 @@ DPS8 Linux Ubuntu Rolling Clang TESTING TRACKER HDBG WAM ISOLTS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1395,6 +1450,7 @@ L68 Linux Ubuntu Rolling Clang:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1418,6 +1474,7 @@ DPS8 Linux Ubuntu Rolling GCC:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1441,6 +1498,7 @@ L68 Linux Ubuntu Rolling GCC:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1464,6 +1522,7 @@ DPS8 Linux Ubuntu Rolling Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1487,6 +1546,7 @@ DPS8 Linux Ubuntu Rolling Clang NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1510,6 +1570,7 @@ L68 Linux Ubuntu Rolling Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1533,6 +1594,7 @@ L68 Linux Ubuntu Rolling Clang NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1556,6 +1618,7 @@ DPS8 Linux Ubuntu Rolling GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1579,6 +1642,7 @@ L68 Linux Ubuntu Rolling GCC NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
 
@@ -1602,5 +1666,6 @@ L68 Linux Ubuntu Rolling GCC NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
+  interruptible: true
 
 ############################################################################
