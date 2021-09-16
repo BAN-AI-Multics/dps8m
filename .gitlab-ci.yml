@@ -102,17 +102,24 @@
 
 ############################################################################
 
-.scriptAptSetupLatest: &scriptAptSetupLatest |
-    # scriptAptSetupLatest
+.scriptAptSetupLatestClang: &scriptAptSetupLatestClang |
+    # scriptAptSetupLatestClang
     wget -nv https://apt.llvm.org/llvm.sh || wget -nv https://apt.llvm.org/llvm.sh
     chmod a+x ./llvm.sh
     grep -v '^set -eux' ./llvm.sh | sponge ./llvm.sh
     bash ./llvm.sh $(grep '^LLVM_VERSION_PATTERNS' ./llvm.sh | cut -d '[' -f 2 | cut -d ']' -f 1 | sort -rn | head -n 1)
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search gcc 2> /dev/null | grep "^gcc-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo gcc)
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search clang 2> /dev/null | grep "^clang-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo clang)
     ln -fs "$( ( ls -1 /usr/bin/clang-* 2> /dev/null | grep 'clang-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/clang)" /usr/bin/clang-latest
+
+############################################################################
+
+.scriptAptSetupLatestGCC: &scriptAptSetupLatestGCC |
+    # scriptAptSetupLatestGCC
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search gcc 2> /dev/null | grep "^gcc-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo gcc)
     ln -fs "$( ( ls -1 /usr/bin/gcc-* 2> /dev/null | grep 'gcc-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/gcc)" /usr/bin/gcc-latest
 
 ############################################################################
@@ -124,7 +131,6 @@
     cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
     uptime 2> /dev/null || true > /dev/null 2>&1
     lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
-    cpuid -1 2> /dev/null || true > /dev/null 2>&1
     df 2> /dev/null || true > /dev/null 2>&1
     free 2> /dev/null || true > /dev/null 2>&1
 
@@ -143,8 +149,8 @@
     ARGS="gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    ARGS="dash bash wget gcc libtool unzip autoconf-archive timelimit util-linux psmisc clang zip pigz make ccache"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq cpuid global cscope || true > /dev/null 2>&1
+    ARGS="dash bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make ccache"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq global cscope || true > /dev/null 2>&1
 
 ############################################################################
 
@@ -163,7 +169,7 @@
 .scriptDnfSetup: &scriptDnfSetup |
     # scriptDnfSetup
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
-    ARGS="libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
+    ARGS="libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make ccache global cscope dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
 
 ############################################################################
 
@@ -179,13 +185,13 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
     - Docker-amd64
   script:
     - *scriptAptSetup
-    - *scriptAptSetupLatest
+    - *scriptAptSetupLatestClang
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -206,13 +212,13 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
     - Docker-amd64
   script:
     - *scriptAptSetup
-    - *scriptAptSetupLatest
+    - *scriptAptSetupLatestClang
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -233,13 +239,13 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
     - Docker-amd64
   script:
     - *scriptAptSetup
-    - *scriptAptSetupLatest
+    - *scriptAptSetupLatestClang
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -260,13 +266,13 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
     - Docker-amd64
   script:
     - *scriptAptSetup
-    - *scriptAptSetupLatest
+    - *scriptAptSetupLatestClang
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -287,12 +293,13 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
     - Docker-amd64
   script:
     - *scriptAptSetup
+    - *scriptAptSetupLatestGCC
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - *scriptBuildlibuvGCClatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -313,13 +320,13 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
     - Docker-amd64
   script:
     - *scriptAptSetup
-    - *scriptAptSetupLatest
+    - *scriptAptSetupLatestClang
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -340,13 +347,13 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
     - Docker-amd64
   script:
     - *scriptAptSetup
-    - *scriptAptSetupLatest
+    - *scriptAptSetupLatestClang
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -367,13 +374,13 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
     - Docker-amd64
   script:
     - *scriptAptSetup
-    - *scriptAptSetupLatest
+    - *scriptAptSetupLatestClang
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -444,7 +451,7 @@ Linux/x86_64, Ubuntu LTS, clang:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -470,7 +477,7 @@ Linux/x86_64, Ubuntu LTS, gcc:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -495,7 +502,7 @@ Linux/x86_64, Fedora Rawhide, clang:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -520,7 +527,7 @@ Linux/x86_64, Fedora Rawhide, gcc:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -545,7 +552,7 @@ Linux/x86_64, Fedora, clang:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -570,7 +577,7 @@ Linux/x86_64, Fedora, gcc:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -596,7 +603,7 @@ Linux/x86_64, Oracle Linux 8, clang:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -622,7 +629,7 @@ Linux/x86_64, Oracle Linux 8, gcc:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -648,7 +655,7 @@ Linux/x86_64, Ubuntu, clang:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
@@ -674,7 +681,7 @@ Linux/x86_64, Ubuntu, gcc:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
     paths:
