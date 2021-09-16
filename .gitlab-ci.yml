@@ -76,7 +76,7 @@
     # scriptAptSetupLLVM
     uname -a 2> /dev/null || true > /dev/null 2>&1
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq moreutils gawk dash gnupg2 bash curl wget git lsb-release software-properties-common time || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq moreutils gawk dash gnupg2 bash curl wget git lsb-release software-properties-common time
+    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq apt-utils moreutils gawk dash gnupg2 bash curl wget git lsb-release software-properties-common time || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq apt-utils moreutils gawk dash gnupg2 bash curl wget git lsb-release software-properties-common time
     wget -nv https://apt.llvm.org/llvm.sh || wget -nv https://apt.llvm.org/llvm.sh
     chmod a+x ./llvm.sh
     grep -v '^set -eux' ./llvm.sh | sponge ./llvm.sh
