@@ -27,12 +27,30 @@
 
 ############################################################################
 
+.buildInfo: &buildInfo |
+    # buildInfo
+    file /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    ldd /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    file /builds/dps8m/dps8m/src/dps8/dps8.exe 2> /dev/null || true > /dev/null 2>&1
+    file /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
+    ldd /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
+    file /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
+    file /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
+    ldd /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
+    file /builds/dps8m/dps8m/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
+
+############################################################################
+
 .compressArtifacts: &compressArtifacts |
     # compressArtifacts
-    lzip -9v /builds/dps8m/dps8m/src/dps8/dps8 || true > /dev/null 2>&1
-    lzip -9v /builds/dps8m/dps8m/src/prt2pdf/prt2pdf || true > /dev/null 2>&1
-    lzip -9v /builds/dps8m/dps8m/src/punutil/punutil || true > /dev/null 2>&1
-    lzip -9v /builds/dps8m/dps8m/src/dps/useddef.txt || true > /dev/null 2>&1
+    lzip -9v /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    lzip -9v /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
+    lzip -9v /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
+    lzip -9v /builds/dps8m/dps8m/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
+    zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/dps8/dps8.exe  2> /dev/null || true > /dev/null 2>&1
+    zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
+    zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
+    zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
@@ -208,6 +226,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -237,6 +256,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -266,6 +286,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -295,6 +316,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -324,6 +346,7 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
     - *scriptBuildlibuvGCClatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -353,6 +376,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -382,6 +406,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -411,6 +436,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -439,15 +465,13 @@ Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
     - *scriptExtraInfo
     - *scriptBuildlibuvMGW64
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.exe
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
-      - /builds/dps8m/dps8m/src/punutil/punutil.exe
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - /builds/dps8m/dps8m/dps8m.zip
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -487,6 +511,7 @@ Linux/x86_64, Ubuntu LTS, clang:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -515,6 +540,7 @@ Linux/x86_64, Ubuntu LTS, gcc:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -542,6 +568,7 @@ Linux/x86_64, Fedora, clang:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -569,6 +596,7 @@ Linux/x86_64, Fedora, gcc:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -597,6 +625,7 @@ Linux/x86_64, Oracle Linux 8, clang:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -625,6 +654,7 @@ Linux/x86_64, Oracle Linux 8, gcc:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -653,6 +683,7 @@ Linux/x86_64, Ubuntu, clang:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -681,6 +712,7 @@ Linux/x86_64, Ubuntu, gcc:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -708,14 +740,13 @@ Windows/x86_64, Ubuntu, LLVM-MinGW, libuv/git:
     - *scriptExtraInfo
     - *scriptBuildlibuvLLVMMGW64-x86_64
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.exe
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
-      - /builds/dps8m/dps8m/src/punutil/punutil.exe
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/dps8m.zip
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -734,14 +765,13 @@ Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
     - *scriptExtraInfo
     - *scriptBuildlibuvLLVMMGW64-aarch64
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.exe
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
-      - /builds/dps8m/dps8m/src/punutil/punutil.exe
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/dps8m.zip
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -761,6 +791,7 @@ Linux/x86_64, AlmaLinux 8, clang:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
@@ -789,36 +820,7 @@ Linux/x86_64, AlmaLinux 8, gcc:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, AlmaLinux 8, gcc-toolset-10:
-  image: almalinux:8
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptAlma8Setup
-    - *scriptDnfSetup
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - dnf -y install --best --allowerasing gcc-toolset-10 || dnf -y install --nobest --allowerasing gcc-toolset-10
-    - scl run gcc-toolset-10 gcc --version
-    - scl run gcc-toolset-10 sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
     - *compressArtifacts
   dependencies: []
   artifacts:
