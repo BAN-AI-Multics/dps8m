@@ -148,8 +148,8 @@
 
 ############################################################################
 
-.scriptOUL8Setup: &scriptOULSetup |
-    # scriptOULSetup
+.scriptOUL8Setup: &scriptOUL8Setup |
+    # scriptOUL8Setup
     dnf -y --refresh --allowerasing --nobest install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm       
     echo '[OL8_codeready_builder]' > /etc/yum.repos.d/codeready_builder.repo
     echo 'name=OL8_codeready_builder' >> /etc/yum.repos.d/codeready_builder.repo
