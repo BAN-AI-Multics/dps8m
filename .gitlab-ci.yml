@@ -210,6 +210,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -237,6 +238,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -264,6 +266,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -291,6 +294,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -318,6 +322,7 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -345,6 +350,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -372,6 +378,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -399,6 +406,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -425,6 +433,7 @@ Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -444,6 +453,7 @@ Source Kit:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -470,6 +480,7 @@ Linux/x86_64, Ubuntu LTS, clang:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -496,6 +507,7 @@ Linux/x86_64, Ubuntu LTS, gcc:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -521,6 +533,7 @@ Linux/x86_64, Fedora, clang:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -546,6 +559,7 @@ Linux/x86_64, Fedora, gcc:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -572,6 +586,7 @@ Linux/x86_64, Oracle Linux 8, clang:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -598,6 +613,7 @@ Linux/x86_64, Oracle Linux 8, gcc:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -624,6 +640,7 @@ Linux/x86_64, Ubuntu, clang:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -650,6 +667,7 @@ Linux/x86_64, Ubuntu, gcc:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -675,6 +693,7 @@ Windows/x86_64, Ubuntu, LLVM-MinGW, libuv/git:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -700,6 +719,7 @@ Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -726,6 +746,7 @@ Linux/x86_64, AlmaLinux 8, clang:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -752,6 +773,7 @@ Linux/x86_64, AlmaLinux 8, gcc:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
 
@@ -780,5 +802,6 @@ Linux/x86_64, AlmaLinux 8, gcc-toolset-10:
   retry: 2
   timeout: 40 minutes
   interruptible: true
+  expire_in: 1 day
 
 ############################################################################
