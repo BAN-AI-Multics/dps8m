@@ -164,6 +164,17 @@
 
 ############################################################################
 
+.scriptAlma8Setup: &scriptAlma8Setup |
+    # scriptAlma8Setup
+    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
+    dnf -y --allowerasing --nobest install epel-release
+    curl -fsSL https://repo.almalinux.org/almalinux/8/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo
+    sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/almalinux-devel.repo
+    sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/almalinux-powertools.repo
+    sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/almalinux-ha.repo
+
+############################################################################
+
 .scriptDnfSetup: &scriptDnfSetup |
     # scriptDnfSetup
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
@@ -686,6 +697,86 @@ Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
       - /builds/dps8m/dps8m/src/dps8/dps8.exe
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, AlmaLinux 8, clang:
+  image: almalinux:8
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptAlma8Setup
+    - *scriptDnfSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
+      - /builds/dps8m/dps8m/src/punutil/punutil
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, AlmaLinux 8, gcc:
+  image: almalinux:8
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptAlma8Setup
+    - *scriptDnfSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
+      - /builds/dps8m/dps8m/src/punutil/punutil
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, AlmaLinux 8, gcc-toolset-10:
+  image: almalinux:8
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptAlma8Setup
+    - *scriptDnfSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - dnf -y install --best --allowerasing gcc-toolset-10 || dnf -y install --nobest --allowerasing gcc-toolset-10
+    - scl run gcc-toolset-10 gcc --version
+    - scl run gcc-toolset-10 sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
+      - /builds/dps8m/dps8m/src/punutil/punutil
       - /builds/dps8m/dps8m/src/dps8/useddef.txt
   retry: 2
   timeout: 40 minutes
