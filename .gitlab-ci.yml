@@ -578,7 +578,7 @@ DPS8 Linux Ubuntu Focal Clang:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -601,7 +601,7 @@ DPS8 Linux Ubuntu Focal Clang TESTING:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -624,7 +624,7 @@ DPS8 Linux Ubuntu Focal Clang TESTING TRACKER HDBG:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -647,7 +647,7 @@ DPS8 Linux Ubuntu Focal Clang TESTING TRACKER HDBG WAM ISOLTS:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -670,7 +670,7 @@ L68 Linux Ubuntu Focal Clang:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -693,7 +693,7 @@ DPS8 Linux Ubuntu Focal GCC:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -716,7 +716,7 @@ L68 Linux Ubuntu Focal GCC:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -739,7 +739,7 @@ DPS8 Linux Ubuntu Focal Clang NO_LOCKLESS:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -762,7 +762,7 @@ DPS8 Linux Ubuntu Focal Clang NO_LOCKLESS ROUND_ROBIN:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -785,7 +785,7 @@ L68 Linux Ubuntu Focal Clang NO_LOCKLESS:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -808,7 +808,7 @@ L68 Linux Ubuntu Focal Clang NO_LOCKLESS:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -831,7 +831,7 @@ DPS8 Linux Ubuntu Focal GCC NO_LOCKLESS ROUND_ROBIN:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -854,7 +854,7 @@ L68 Linux Ubuntu Focal GCC NO_LOCKLESS:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -877,7 +877,7 @@ L68 Linux Ubuntu Focal GCC NO_LOCKLESS ROUND_ROBIN:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -900,7 +900,7 @@ DPS8 Linux Ubuntu Rolling Clang:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -923,7 +923,7 @@ DPS8 Linux Ubuntu Rolling Clang TESTING:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -946,7 +946,7 @@ DPS8 Linux Ubuntu Rolling Clang TESTING TRACKER HDBG:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -969,7 +969,7 @@ DPS8 Linux Ubuntu Rolling Clang TESTING TRACKER HDBG WAM ISOLTS:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -992,7 +992,7 @@ L68 Linux Ubuntu Rolling Clang:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -1015,7 +1015,7 @@ DPS8 Linux Ubuntu Rolling GCC:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -1038,7 +1038,7 @@ L68 Linux Ubuntu Rolling GCC:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -1061,7 +1061,7 @@ DPS8 Linux Ubuntu Rolling Clang NO_LOCKLESS:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -1084,7 +1084,7 @@ DPS8 Linux Ubuntu Rolling Clang NO_LOCKLESS ROUND_ROBIN:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -1107,7 +1107,7 @@ L68 Linux Ubuntu Rolling Clang NO_LOCKLESS:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -1130,7 +1130,7 @@ L68 Linux Ubuntu Rolling Clang NO_LOCKLESS:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -1153,7 +1153,7 @@ DPS8 Linux Ubuntu Rolling GCC NO_LOCKLESS ROUND_ROBIN:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -1176,7 +1176,7 @@ L68 Linux Ubuntu Rolling GCC NO_LOCKLESS:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
@@ -1199,7 +1199,7 @@ L68 Linux Ubuntu Rolling GCC NO_LOCKLESS ROUND_ROBIN:
     - *scriptAptSetup
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
