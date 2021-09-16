@@ -43,7 +43,7 @@
     # scriptBuildlibuvCLANGlatest
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    CC=clang-latest ./configure --disable-shared --enable-static
+    CC=clang-latest ./configure --disable-shared --enable-static --disable-dependency-tracking
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
 
 ############################################################################
@@ -52,7 +52,7 @@
     # scriptBuildlibuvGCClatest
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    CC=gcc-latest ./configure --disable-shared --enable-static
+    CC=gcc-latest ./configure --disable-shared --enable-static --disable-dependency-tracking
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
 
 ############################################################################
@@ -61,7 +61,7 @@
     # scriptBuildlibuvCLANG
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    CC=clang ./configure --disable-shared --enable-static
+    CC=clang ./configure --disable-shared --enable-static --disable-dependency-tracking
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
 
 ############################################################################
@@ -70,7 +70,7 @@
     # scriptBuildlibuvGCC
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    CC=gcc ./configure --disable-shared --enable-static
+    CC=gcc ./configure --disable-shared --enable-static --disable-dependency-tracking
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
 
 ############################################################################
@@ -79,7 +79,7 @@
     # scriptBuildlibuvMGW64
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32
+    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
 
 ############################################################################
@@ -88,7 +88,7 @@
     # scriptBuildlibuvLLVMMGW64-x86_64
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32
+    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
 
 ############################################################################
@@ -97,7 +97,7 @@
     # scriptBuildlibuvLLVMMGW64-aarch64
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    ./configure --disable-shared --enable-static --host=aarch64-w64-mingw32
+    ./configure --disable-shared --enable-static --host=aarch64-w64-mingw32 --disable-dependency-tracking
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
 
 ############################################################################
@@ -105,9 +105,8 @@
 .scriptAptSetupLatestClang: &scriptAptSetupLatestClang |
     # scriptAptSetupLatestClang
     wget -nv https://apt.llvm.org/llvm.sh || wget -nv https://apt.llvm.org/llvm.sh
-    chmod a+x ./llvm.sh
-    grep -v '^set -eux' ./llvm.sh | sponge ./llvm.sh
-    bash ./llvm.sh $(grep '^LLVM_VERSION_PATTERNS' ./llvm.sh | cut -d '[' -f 2 | cut -d ']' -f 1 | sort -rn | head -n 1)
+    grep -v '^set -eux' ./llvm.sh > ./llvm2.sh
+    sh ./llvm2.sh $(grep '^LLVM_VERSION_PATTERNS' ./llvm2.sh | cut -d '[' -f 2 | cut -d ']' -f 1 | sort -rn | head -n 1)
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search clang 2> /dev/null | grep "^clang-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo clang)
@@ -149,8 +148,7 @@
     ARGS="gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    ARGS="dash bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make ccache"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq global cscope || true > /dev/null 2>&1
+    ARGS="dash bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
 
 ############################################################################
 
@@ -169,7 +167,7 @@
 .scriptDnfSetup: &scriptDnfSetup |
     # scriptDnfSetup
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
-    ARGS="libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make ccache global cscope dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
+    ARGS="libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
 
 ############################################################################
 
