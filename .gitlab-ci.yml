@@ -202,6 +202,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -210,7 +211,6 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -230,6 +230,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -238,7 +239,6 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -258,6 +258,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -266,7 +267,6 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -286,6 +286,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -294,7 +295,6 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -314,6 +314,7 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -322,7 +323,6 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -342,6 +342,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -350,7 +351,6 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -370,6 +370,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -378,7 +379,6 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -398,6 +398,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -406,7 +407,6 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -425,6 +425,7 @@ Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8.exe
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
@@ -433,7 +434,6 @@ Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -448,12 +448,12 @@ Source Kit:
     - sh -x -c 'make dist V=1 COMPRESS="pigz -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/sources.tar.gz
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -472,6 +472,7 @@ Linux/x86_64, Ubuntu LTS, clang:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -480,7 +481,6 @@ Linux/x86_64, Ubuntu LTS, clang:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -499,6 +499,7 @@ Linux/x86_64, Ubuntu LTS, gcc:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -507,7 +508,6 @@ Linux/x86_64, Ubuntu LTS, gcc:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -525,6 +525,7 @@ Linux/x86_64, Fedora, clang:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -533,7 +534,6 @@ Linux/x86_64, Fedora, clang:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -551,6 +551,7 @@ Linux/x86_64, Fedora, gcc:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -559,7 +560,6 @@ Linux/x86_64, Fedora, gcc:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -578,6 +578,7 @@ Linux/x86_64, Oracle Linux 8, clang:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -586,7 +587,6 @@ Linux/x86_64, Oracle Linux 8, clang:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -605,6 +605,7 @@ Linux/x86_64, Oracle Linux 8, gcc:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -613,7 +614,6 @@ Linux/x86_64, Oracle Linux 8, gcc:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -632,6 +632,7 @@ Linux/x86_64, Ubuntu, clang:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -640,7 +641,6 @@ Linux/x86_64, Ubuntu, clang:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -659,6 +659,7 @@ Linux/x86_64, Ubuntu, gcc:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -667,7 +668,6 @@ Linux/x86_64, Ubuntu, gcc:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -685,6 +685,7 @@ Windows/x86_64, Ubuntu, LLVM-MinGW, libuv/git:
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8.exe
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
@@ -693,7 +694,6 @@ Windows/x86_64, Ubuntu, LLVM-MinGW, libuv/git:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -711,6 +711,7 @@ Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8.exe
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
@@ -719,7 +720,6 @@ Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -738,6 +738,7 @@ Linux/x86_64, AlmaLinux 8, clang:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -746,7 +747,6 @@ Linux/x86_64, AlmaLinux 8, clang:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -765,6 +765,7 @@ Linux/x86_64, AlmaLinux 8, gcc:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -773,7 +774,6 @@ Linux/x86_64, AlmaLinux 8, gcc:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
 
@@ -794,6 +794,7 @@ Linux/x86_64, AlmaLinux 8, gcc-toolset-10:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
   dependencies: []
   artifacts:
+    expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/src/dps8/dps8
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
@@ -802,6 +803,5 @@ Linux/x86_64, AlmaLinux 8, gcc-toolset-10:
   retry: 2
   timeout: 40 minutes
   interruptible: true
-  expire_in: 1 day
 
 ############################################################################
