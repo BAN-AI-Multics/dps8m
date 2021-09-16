@@ -29,28 +29,28 @@
 
 .buildInfo: &buildInfo |
     # buildInfo
-    file /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
-    ldd /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
-    file /builds/dps8m/dps8m/src/dps8/dps8.exe 2> /dev/null || true > /dev/null 2>&1
-    file /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
-    ldd /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
-    file /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
-    file /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
-    ldd /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
-    file /builds/dps8m/dps8m/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/dps8/dps8 && file /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/dps8/dps8 && ldd /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/dps8/dps8.exe && file /builds/dps8m/dps8m/src/dps8/dps8.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/prt2pdf/prt2pdf && file /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/prt2pdf/prt2pdf && ldd /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe && file /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/punutil/punutil && file /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/punutil/punutil && ldd /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/punutil/punutil.exe && file /builds/dps8m/dps8m/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
 .compressArtifacts: &compressArtifacts |
     # compressArtifacts
-    lzip -9v /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
-    lzip -9v /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
-    lzip -9v /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
-    lzip -9v /builds/dps8m/dps8m/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
-    zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/dps8/dps8.exe  2> /dev/null || true > /dev/null 2>&1
-    zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
-    zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
-    zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/dps8/dps8 && lzip -9v /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/prt2pdf/prt2pdf && lzip -9v /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/punutil/punutil && lzip -9v /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/dps8/useddef.txt && lzip -9v /builds/dps8m/dps8m/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/dps8/dps8.exe && zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/dps8/dps8.exe  2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe && zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/punutil/punutil.exe && zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f /builds/dps8m/dps8m/src/dps8/useddef.txt && zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
