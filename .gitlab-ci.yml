@@ -27,6 +27,15 @@
 
 ############################################################################
 
+.compressArtifacts: &compressArtifacts |
+    # compressArtifacts
+    lzip -9v /builds/dps8m/dps8m/src/dps8/dps8 || true > /dev/null 2>&1
+    lzip -9v /builds/dps8m/dps8m/src/prt2pdf/prt2pdf || true > /dev/null 2>&1
+    lzip -9v /builds/dps8m/dps8m/src/punutil/punutil || true > /dev/null 2>&1
+    lzip -9v /builds/dps8m/dps8m/src/dps/useddef.txt || true > /dev/null 2>&1
+
+############################################################################
+
 .scriptAptInstallLibuv1: &scriptAptInstallLibuv1 |
     # scriptAptInstallLibuv1
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
@@ -147,7 +156,7 @@
     ARGS="gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    ARGS="dash bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    ARGS="lzip dash bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
 
 ############################################################################
 
@@ -159,7 +168,6 @@
     echo 'baseurl=https://yum.oracle.com/repo/OracleLinux/OL8/codeready/builder/x86_64/' >> /etc/yum.repos.d/codeready_builder.repo
     echo 'enabled=1' >> /etc/yum.repos.d/codeready_builder.repo
     echo 'gpgcheck=0' >> /etc/yum.repos.d/codeready_builder.repo
-    dnf -y module disable virt-devel 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
@@ -177,7 +185,7 @@
 .scriptDnfSetup: &scriptDnfSetup |
     # scriptDnfSetup
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
-    ARGS="libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
+    ARGS="lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
 
 ############################################################################
 
@@ -200,14 +208,15 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -228,14 +237,15 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -256,14 +266,15 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -284,14 +295,15 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -312,14 +324,15 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
     - *scriptBuildlibuvGCClatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -340,14 +353,15 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -368,14 +382,15 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -396,14 +411,15 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
     - *scriptBuildlibuvCLANGlatest
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -423,6 +439,7 @@ Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
     - *scriptExtraInfo
     - *scriptBuildlibuvMGW64
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -430,7 +447,7 @@ Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
       - /builds/dps8m/dps8m/src/dps8/dps8.exe
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe
       - /builds/dps8m/dps8m/src/punutil/punutil.exe
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -445,7 +462,7 @@ Source Kit:
   script:
     - *scriptAptSetup
     - *scriptCommon
-    - sh -x -c 'make dist V=1 COMPRESS="pigz -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'make dist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -470,14 +487,15 @@ Linux/x86_64, Ubuntu LTS, clang:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -497,14 +515,15 @@ Linux/x86_64, Ubuntu LTS, gcc:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -523,14 +542,15 @@ Linux/x86_64, Fedora, clang:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -549,14 +569,15 @@ Linux/x86_64, Fedora, gcc:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -576,14 +597,15 @@ Linux/x86_64, Oracle Linux 8, clang:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -603,14 +625,15 @@ Linux/x86_64, Oracle Linux 8, gcc:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -630,14 +653,15 @@ Linux/x86_64, Ubuntu, clang:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -657,14 +681,15 @@ Linux/x86_64, Ubuntu, gcc:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -736,14 +761,15 @@ Linux/x86_64, AlmaLinux 8, clang:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -763,14 +789,15 @@ Linux/x86_64, AlmaLinux 8, gcc:
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
@@ -792,14 +819,15 @@ Linux/x86_64, AlmaLinux 8, gcc-toolset-10:
     - scl run gcc-toolset-10 gcc --version
     - scl run gcc-toolset-10 sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
