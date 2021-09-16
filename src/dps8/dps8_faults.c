@@ -371,9 +371,8 @@ else if (faultNumber == FAULT_ACV)
 }
 #endif
 //if (current_running_cpu_idx)
-    //sim_printf ("Fault %d(0%0o), sub %ld(0%lo), dfc %c, '%s'\n",
-               //faultNumber, faultNumber, subFault, subFault,
-               //cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
+//if (faultNumber == FAULT_DF1)
+    //sim_printf ("%o:%o Fault %o(%0d.), sub %llo(%lld.), dfc %c, '%s'\n", cpu.PPR.PSR, cpu.PPR.IC, faultNumber, faultNumber, subFault.bits, subFault.bits, cpu.bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
 //if (current_running_cpu_idx)
     //sim_printf ("xde %d xdo %d\n", cpu.cu.xde, cpu.cu.xdo);
     sim_debug (DBG_FAULT, & cpu_dev,
