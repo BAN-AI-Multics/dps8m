@@ -6771,6 +6771,8 @@ static t_stat doInstruction (void)
           // is obtained from the FAULT VECTOR switches on the processor
           // configuration panel.
 
+//hdbg_print (0, NULL);
+//exit (1);
           if (cpu.switches.drl_fatal)
             {
               return STOP_STOP;
