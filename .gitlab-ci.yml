@@ -149,8 +149,8 @@
 .scriptDnfSetup: &scriptDnfSetup |
     # scriptDnfSetup
     uname -a 2> /dev/null || true > /dev/null 2>&1
-    dnf -y --refresh --allowerasing --nobest update || dnf -y --refresh --allowerasing --nobest update
-    dnf -y --allowerasing --nobest install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base" \@"Minimal Install" \@"RPM Development Tools" \@"Development Tools" \@"C Development Tools and Libraries" || dnf -y --allowerasing --nobest install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base" \@"Minimal Install" \@"RPM Development Tools" \@"Development Tools" \@"C Development Tools and Libraries"
+    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
+    dnf -y --allowerasing --best install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base" || dnf -y --allowerasing --nobest install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base"
     clang --version 2> /dev/null || true > /dev/null 2>&1
     gcc --version 2> /dev/null ||  true > /dev/null 2>&1
     cc --version 2> /dev/null || true > /dev/null 2>&1
