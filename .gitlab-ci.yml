@@ -489,56 +489,6 @@ Linux/x86_64, Ubuntu LTS, gcc:
 
 ############################################################################
 
-Linux/x86_64, Fedora Rawhide, clang:
-  image: fedora:rawhide
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptDnfSetup
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Fedora Rawhide, gcc:
-  image: fedora:rawhide
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptDnfSetup
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-  dependencies: []
-  artifacts:
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
-      - /builds/dps8m/dps8m/src/punutil/punutil
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt
-  retry: 2
-  timeout: 40 minutes
-  interruptible: true
-
-############################################################################
-
 Linux/x86_64, Fedora, clang:
   image: fedora:latest
   stage: build
