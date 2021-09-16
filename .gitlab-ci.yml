@@ -88,7 +88,7 @@
     # scriptBuildlibuvLLVMMGW64-x86_64
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32-clang
+    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
 
 ############################################################################
@@ -97,7 +97,7 @@
     # scriptBuildlibuvLLVMMGW64-aarch64
     wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    ./configure --disable-shared --enable-static --host=aarch64-w64-mingw32-clang
+    ./configure --disable-shared --enable-static --host=aarch64-w64-mingw32
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
 
 ############################################################################
