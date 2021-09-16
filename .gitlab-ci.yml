@@ -105,8 +105,8 @@
 .scriptAptSetupLatestClang: &scriptAptSetupLatestClang |
     # scriptAptSetupLatestClang
     wget -nv https://apt.llvm.org/llvm.sh || wget -nv https://apt.llvm.org/llvm.sh
-    grep -v '^set -eux' ./llvm.sh > ./llvm2.sh
-    sh ./llvm2.sh $(grep '^LLVM_VERSION_PATTERNS' ./llvm2.sh | cut -d '[' -f 2 | cut -d ']' -f 1 | sort -rn | head -n 1)
+    grep -v '^set -eux' ./llvm.sh > ./llvmq.sh
+    bash ./llvmq.sh $(grep '^LLVM_VERSION_PATTERNS' ./llvm.sh | cut -d '[' -f 2 | cut -d ']' -f 1 | sort -rn | head -n 1)
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search clang 2> /dev/null | grep "^clang-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo clang)
