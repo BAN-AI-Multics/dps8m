@@ -131,7 +131,7 @@
     cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
     uptime 2> /dev/null || true > /dev/null 2>&1
     lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
-    df 2> /dev/null || true > /dev/null 2>&1
+    df . 2> /dev/null || true > /dev/null 2>&1
     free 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
