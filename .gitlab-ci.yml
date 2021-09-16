@@ -166,7 +166,7 @@
 
 .scriptAlma8Setup: &scriptAlma8Setup |
     # scriptAlma8Setup
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
+    dnf -y --refresh --allowerasing --best --disablerepo=appstream update || dnf -y --refresh --allowerasing --nobest --disablerepo=appstream update
     dnf -y --allowerasing --nobest install epel-release
     curl -fsSL https://repo.almalinux.org/almalinux/8/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo
     sed -i 's/^enabled=0/enabled=1/' /etc/yum.repos.d/almalinux-devel.repo
