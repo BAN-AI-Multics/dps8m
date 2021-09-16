@@ -137,7 +137,6 @@
 
 .scriptDPS8Mods: &scriptDPS8Mods |
     # scriptDPS8Mods
-    sed -i -s 's/\.NOTPARALLEL.*$//g' $(find . -name '*akefile*' 2> /dev/null) 2> /dev/null || true > /dev/null 2>&1
     echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
