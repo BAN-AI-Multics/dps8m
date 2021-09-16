@@ -109,6 +109,32 @@
 
 ############################################################################
 
+.scriptDnfSetup: &scriptDnfSetup |
+    # scriptDnfSetup
+    uname -a 2> /dev/null || true > /dev/null 2>&1
+    dnf --refresh --allowerasing --nobest update || dnf --refresh --allowerasing --nobest update
+    dnf --allowerasing --nobest install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base" \@"Minimal Install" \@"RPM Development Tools" \@"Development Tools" \@"C Development Tools and Libraries" || dnf --allowerasing --nobest install libuv-devel libtool unzip autoconf autoconf-archive timelimit util-linux psmisc zip pigz make ccache cpuid global cscope virt-what dash gnupg2 bash curl wget git redhat-lsb time gcc clang \@"base" \@"Minimal Install" \@"RPM Development Tools" \@"Development Tools" \@"C Development Tools and Libraries"
+    clang --version 2> /dev/null || true > /dev/null 2>&1
+    gcc --version 2> /dev/null ||  true > /dev/null 2>&1
+    cc --version 2> /dev/null || true > /dev/null 2>&1
+    ld --version 2> /dev/null || true > /dev/null 2>&1
+    lld --version 2> /dev/null || true > /dev/null 2>&1
+    lsb_release -d 2> /dev/null || true > /dev/null 2>&1
+    cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
+    whoami 2> /dev/null || true > /dev/null 2>&1
+    w 2> /dev/null || true > /dev/null 2>&1
+    pstree 2> /dev/null || true > /dev/null 2>&1
+    uptime 2> /dev/null || true > /dev/null 2>&1
+    lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
+    cpuid -1 2> /dev/null || true > /dev/null 2>&1
+    virt-what 2> /dev/null || true > /dev/null 2>&1
+    df 2> /dev/null || true > /dev/null 2>&1
+    free 2> /dev/null || true > /dev/null 2>&1
+    echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
+    sed -i -s 's/\.NOTPARALLEL.*$//g' $(find . -name '*akefile*' 2> /dev/null) 2> /dev/null || true > /dev/null 2>&1
+
+############################################################################
+
 image: debian:sid
 
 ############################################################################
@@ -1007,7 +1033,7 @@ L68 Linux Ubuntu Rolling Clang:
 ############################################################################
 
 DPS8 Linux Ubuntu Rolling GCC:
-  image: ubuntu:Rolling
+  image: ubuntu:rolling
   stage: build
   tags:
     - Docker-amd64
@@ -1030,7 +1056,7 @@ DPS8 Linux Ubuntu Rolling GCC:
 ############################################################################
 
 L68 Linux Ubuntu Rolling GCC:
-  image: ubuntu:Rolling
+  image: ubuntu:rolling
   stage: build
   tags:
     - Docker-amd64
@@ -1200,6 +1226,50 @@ L68 Linux Ubuntu Rolling GCC NO_LOCKLESS ROUND_ROBIN:
     - *scriptCommon
     - env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
+      - /builds/dps8m/dps8m/src/punutil/punutil
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+  timeout: 40 minutes
+
+############################################################################
+
+DPS8 Linux Fedora Rawhide Clang:
+  image: fedora:rawhide
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptDnfSetup
+    - *scriptCommon
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion -Weverything"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
+  dependencies: []
+  artifacts:
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf
+      - /builds/dps8m/dps8m/src/punutil/punutil
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt
+  retry: 2
+  timeout: 40 minutes
+
+############################################################################
+
+DPS8 Linux Fedora Rawhide GCC:
+  image: fedora:rawhide
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptDnfSetup
+    - *scriptCommon
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wshadow -Wdouble-promotion -Wformat=2 -Wformat-truncation -Wundef -Wconversion"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | timelimit -T 10 "./src/dps8/dps8" ; exit "${?}"'
   dependencies: []
   artifacts:
