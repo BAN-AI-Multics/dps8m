@@ -168,6 +168,22 @@
 
 ############################################################################
 
+.scriptAlpineSetup: &scriptAlpineSetup |
+    # scriptAlpineSetup
+    printf '%s\n' "https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+    apk -U upgrade || apk -U upgrade
+    env ARGS="libc-dev musl-dev gcc g++ clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja"; apk add ${ARGS:?} || apk add ${ARGS:?}
+
+############################################################################
+
+.scriptVoidSetup: &scriptVoidSetup |
+    # scriptVoidSetup
+    xbps-install -Suy xbps || xbps-install -Suy xbps
+    xbps-install -Suy || xbps-install -Suy
+    env ARGS="mksh gcc clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-devel psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
+
+############################################################################
+
 .scriptAptSetup: &scriptAptSetup |
     # scriptAptSetup
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
@@ -180,7 +196,7 @@
 
 .scriptOUL8Setup: &scriptOUL8Setup |
     # scriptOUL8Setup
-    dnf -y --refresh --allowerasing --nobest install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm       
+    dnf -y --refresh --allowerasing --nobest install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || dnf -y --refresh --allowerasing install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     echo '[OL8_codeready_builder]' > /etc/yum.repos.d/codeready_builder.repo
     echo 'name=OL8_codeready_builder' >> /etc/yum.repos.d/codeready_builder.repo
     echo 'baseurl=https://yum.oracle.com/repo/OracleLinux/OL8/codeready/builder/x86_64/' >> /etc/yum.repos.d/codeready_builder.repo
@@ -193,10 +209,17 @@
     # scriptAlma8Setup
     dnf -y --refresh --allowerasing --best --disablerepo=appstream update || dnf -y --refresh --allowerasing --nobest --disablerepo=appstream update
     dnf -y --allowerasing --best install epel-release || dnf -y --allowerasing --nobest epel-release
-    curl -fsSL https://repo.almalinux.org/almalinux/8/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo
+    curl -fsSL https://repo.almalinux.org/almalinux/8/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || curl -fsSL https://repo.almalinux.org/almalinux/8/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-devel.repo
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-powertools.repo
     sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-ha.repo
+
+############################################################################
+
+.scriptAmazonSetup: &scriptAmazonSetup |
+    # scriptAmazonSetup
+    yum -q -y update || yum -q -y update
+    ARGS="system-lsb lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; yum -q -y install ${ARGS:?} || yum -q -y install ${ARGS:?}
 
 ############################################################################
 
@@ -815,6 +838,234 @@ Linux/x86_64, AlmaLinux 8, gcc:
   script:
     - *scriptAlma8Setup
     - *scriptDnfSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Alpine Edge, gcc, mimalloc, static:
+  image: alpine:edge
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptAlpineSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - dash -x -c '(CC=gcc git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install && ldconfig)'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Alpine Edge, clang, mimalloc, static:
+  image: alpine:edge
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptAlpineSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - dash -x -c '(CC=clang git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install && ldconfig)'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Void musl, gcc, mimalloc, static:
+  image: voidlinux/voidlinux-musl:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptVoidSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - dash -x -c '(git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install && ldconfig)'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Void musl, clang, mimalloc, static:
+  image: voidlinux/voidlinux-musl:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptVoidSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - dash -x -c '(git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=clang cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install && ldconfig)'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Void glibc, gcc:
+  image: voidlinux/voidlinux:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptVoidSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Void glibc, clang:
+  image: voidlinux/voidlinux:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptVoidSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Amazon Linux, clang:
+  image: amazonlinux:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptAmazonSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Amazon Linux, gcc:
+  image: amazonlinux:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptAmazonSetup
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
