@@ -173,7 +173,7 @@
     sed -i 's/https/http/g' /etc/apk/repositories
     apk update || apk update
     apk upgrade || apk upgrade
-    env ARGS="libc-dev musl-dev gcc g++ clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja"; apk add ${ARGS:?} || apk add ${ARGS:?}
+    export ARGS="libc-dev musl-dev gcc g++ clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja"; apk add ${ARGS:?} || apk add ${ARGS:?}
 
 ############################################################################
 
@@ -181,17 +181,17 @@
     # scriptVoidSetup
     xbps-install -Suy xbps || xbps-install -Suy xbps
     xbps-install -Suy || xbps-install -Suy
-    env ARGS="mksh gcc clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-devel psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
+    export ARGS="mksh gcc clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-devel psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
 
 ############################################################################
 
 .scriptAptSetup: &scriptAptSetup |
     # scriptAptSetup
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
-    ARGS="gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    export ARGS="gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    ARGS="lzip dash bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    export ARGS="lzip dash bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
 
 ############################################################################
 
@@ -220,14 +220,14 @@
 .scriptAmazonSetup: &scriptAmazonSetup |
     # scriptAmazonSetup
     yum -q -y update || yum -q -y update
-    ARGS="system-lsb lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; yum -q -y install ${ARGS:?} || yum -q -y install ${ARGS:?}
+    export ARGS="system-lsb lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; yum -q -y install ${ARGS:?} || yum -q -y install ${ARGS:?}
 
 ############################################################################
 
 .scriptDnfSetup: &scriptDnfSetup |
     # scriptDnfSetup
     dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
-    ARGS="lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
+    export ARGS="lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
 
 ############################################################################
 
@@ -921,7 +921,7 @@ Linux/x86_64, Alpine Edge, clang, mimalloc, static:
 Linux/x86_64, Void musl, gcc, mimalloc, static:
   image:
     name: voidlinux/voidlinux-musl:latest
-    entrypoint: [""]
+    entrypoint: [ '/bin/bash', '-c', 'ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
   stage: build
   tags:
     - Docker-amd64
