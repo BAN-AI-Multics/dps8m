@@ -170,8 +170,8 @@
 
 .scriptAlpineSetup: &scriptAlpineSetup |
     # scriptAlpineSetup
-    printf '%s\n' "https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-    apk -U upgrade || apk -U upgrade
+    apk update || apk update
+    apk upgrade || apk upgrade
     env ARGS="libc-dev musl-dev gcc g++ clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja"; apk add ${ARGS:?} || apk add ${ARGS:?}
 
 ############################################################################
