@@ -170,6 +170,7 @@
 
 .scriptAlpineSetup: &scriptAlpineSetup |
     # scriptAlpineSetup
+    sed -i 's/https/http/g' /etc/apk/repositories
     apk update || apk update
     apk upgrade || apk upgrade
     env ARGS="libc-dev musl-dev gcc g++ clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja"; apk add ${ARGS:?} || apk add ${ARGS:?}
@@ -919,6 +920,7 @@ Linux/x86_64, Alpine Edge, clang, mimalloc, static:
 
 Linux/x86_64, Void musl, gcc, mimalloc, static:
   image: voidlinux/voidlinux-musl:latest
+    entrypoint: [""]
   stage: build
   tags:
     - Docker-amd64
@@ -948,6 +950,7 @@ Linux/x86_64, Void musl, gcc, mimalloc, static:
 
 Linux/x86_64, Void musl, clang, mimalloc, static:
   image: voidlinux/voidlinux-musl:latest
+    entrypoint: [""]
   stage: build
   tags:
     - Docker-amd64
@@ -977,6 +980,7 @@ Linux/x86_64, Void musl, clang, mimalloc, static:
 
 Linux/x86_64, Void glibc, gcc:
   image: voidlinux/voidlinux:latest
+    entrypoint: [""]
   stage: build
   tags:
     - Docker-amd64
@@ -1005,6 +1009,7 @@ Linux/x86_64, Void glibc, gcc:
 
 Linux/x86_64, Void glibc, clang:
   image: voidlinux/voidlinux:latest
+    entrypoint: [""]
   stage: build
   tags:
     - Docker-amd64
