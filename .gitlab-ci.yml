@@ -862,7 +862,7 @@ Linux/x86_64, AlmaLinux 8, gcc:
 Linux/x86_64, Alpine Edge, gcc, mimalloc, static:
   image:
     name: alpine:edge
-    entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk -U install bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
+    entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk update; apk install bash; apk install bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
   stage: build
   tags:
     - Docker-amd64
