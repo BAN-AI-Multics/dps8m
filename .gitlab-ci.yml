@@ -919,7 +919,8 @@ Linux/x86_64, Alpine Edge, clang, mimalloc, static:
 ############################################################################
 
 Linux/x86_64, Void musl, gcc, mimalloc, static:
-  image: voidlinux/voidlinux-musl:latest
+  image:
+    name: voidlinux/voidlinux-musl:latest
     entrypoint: [""]
   stage: build
   tags:
@@ -949,7 +950,8 @@ Linux/x86_64, Void musl, gcc, mimalloc, static:
 ############################################################################
 
 Linux/x86_64, Void musl, clang, mimalloc, static:
-  image: voidlinux/voidlinux-musl:latest
+  image:
+    name: voidlinux/voidlinux-musl:latest
     entrypoint: [""]
   stage: build
   tags:
@@ -979,7 +981,8 @@ Linux/x86_64, Void musl, clang, mimalloc, static:
 ############################################################################
 
 Linux/x86_64, Void glibc, gcc:
-  image: voidlinux/voidlinux:latest
+  image:
+    name: voidlinux/voidlinux:latest
     entrypoint: [""]
   stage: build
   tags:
@@ -1008,7 +1011,8 @@ Linux/x86_64, Void glibc, gcc:
 ############################################################################
 
 Linux/x86_64, Void glibc, clang:
-  image: voidlinux/voidlinux:latest
+  image:
+    name: voidlinux/voidlinux:latest
     entrypoint: [""]
   stage: build
   tags:
