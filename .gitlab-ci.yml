@@ -871,7 +871,7 @@ Linux/x86_64, Alpine Edge, gcc, mimalloc, static:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - dash -x -c '(CC=gcc git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install && ldconfig)'
+    - dash -x -c '(CC=gcc git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
     - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *buildInfo
@@ -891,7 +891,9 @@ Linux/x86_64, Alpine Edge, gcc, mimalloc, static:
 ############################################################################
 
 Linux/x86_64, Alpine Edge, clang, mimalloc, static:
-  image: alpine:edge
+  image:
+    name: alpine:edge
+    entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk update; apk add bash; apk add bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
   stage: build
   tags:
     - Docker-amd64
@@ -900,7 +902,7 @@ Linux/x86_64, Alpine Edge, clang, mimalloc, static:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - dash -x -c '(CC=clang git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install && ldconfig)'
+    - dash -x -c '(CC=clang git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
     - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *buildInfo
@@ -922,7 +924,7 @@ Linux/x86_64, Alpine Edge, clang, mimalloc, static:
 Linux/x86_64, Void musl, gcc, mimalloc, static:
   image:
     name: voidlinux/voidlinux-musl:latest
-    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
+    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
   stage: build
   tags:
     - Docker-amd64
@@ -931,7 +933,7 @@ Linux/x86_64, Void musl, gcc, mimalloc, static:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - dash -x -c '(git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install && ldconfig)'
+    - dash -x -c '(git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
     - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *buildInfo
@@ -953,7 +955,7 @@ Linux/x86_64, Void musl, gcc, mimalloc, static:
 Linux/x86_64, Void musl, clang, mimalloc, static:
   image:
     name: voidlinux/voidlinux-musl:latest
-    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
+    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
   stage: build
   tags:
     - Docker-amd64
@@ -962,7 +964,7 @@ Linux/x86_64, Void musl, clang, mimalloc, static:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - dash -x -c '(git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=clang cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install && ldconfig)'
+    - dash -x -c '(git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=clang cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
     - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *buildInfo
@@ -984,7 +986,7 @@ Linux/x86_64, Void musl, clang, mimalloc, static:
 Linux/x86_64, Void glibc, gcc:
   image:
     name: voidlinux/voidlinux:latest
-    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
+    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
   stage: build
   tags:
     - Docker-amd64
@@ -1014,7 +1016,7 @@ Linux/x86_64, Void glibc, gcc:
 Linux/x86_64, Void glibc, clang:
   image:
     name: voidlinux/voidlinux:latest
-    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
+    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
   stage: build
   tags:
     - Docker-amd64
