@@ -169,8 +169,7 @@
 ############################################################################
 
 .scriptAlpineSetup: &scriptAlpineSetup |
-    # scriptAlpineSetup
-    sed -i 's/https/http/g' /etc/apk/repositories
+    # scriptAlpineSetup 
     apk update || apk update
     apk upgrade || apk upgrade
     export ARGS="libc-dev musl-dev gcc g++ clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja"; apk add ${ARGS:?} || apk add ${ARGS:?}
@@ -861,7 +860,9 @@ Linux/x86_64, AlmaLinux 8, gcc:
 ############################################################################
 
 Linux/x86_64, Alpine Edge, gcc, mimalloc, static:
-  image: alpine:edge
+  image:
+    name: alpine:edge
+    entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk -U install bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
   stage: build
   tags:
     - Docker-amd64
