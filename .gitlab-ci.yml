@@ -171,11 +171,12 @@
 
 .scriptSlackSetup: &scriptSlackSetup |
     # scriptSlackSetup
-    (yes | slackpkg update) || (yes | slackpkg update)
-    (yes | slackpkg upgrade slackpkg) || (yes | slackpkg upgrade slackpkg)
-    (yes | slackpkg update) || (yes | slackpkg update)
-    (yes | slackpkg upgrade-all) || (yes | slackpkg upgrade-all)
-    export ARGS="libffi cscope flex bison ed patch cpio guile gc glibc binutils kernel-headers nghttp2 brotli sasl libuv ca-certificates perl git gcc llvm lzip wget curl make psmisc moreutils gnupg util-linux pigz autoconf autoconf-archive bzip2 ccache popt cmake libarchive openssl lz4 libxml2 automake libtool infozip"; (yes | slackpkg install ${ARGS:?}) || (yes | slackpkg install ${ARGS:?})
+    (yes | slackpkg update) || true
+    (yes | slackpkg upgrade slackpkg) || true
+    (yes | slackpkg update) || true
+    (yes | slackpkg upgrade-all) || true
+    export ARGS="libffi cscope flex bison ed patch cpio guile gc glibc binutils kernel-headers nghttp2 brotli sasl libuv ca-certificates perl git gcc llvm lzip wget curl make psmisc moreutils gnupg util-linux pigz autoconf autoconf-archive bzip2 ccache popt cmake libarchive openssl lz4 libxml2 automake libtool infozip"; (yes | slackpkg install ${ARGS:?}) || true
+    export ARGS="libffi cscope flex bison ed patch cpio guile gc glibc binutils kernel-headers nghttp2 brotli sasl libuv ca-certificates perl git gcc llvm lzip wget curl make psmisc moreutils gnupg util-linux pigz autoconf autoconf-archive bzip2 ccache popt cmake libarchive openssl lz4 libxml2 automake libtool infozip"; (yes | slackpkg install ${ARGS:?}) || true
     /usr/sbin/update-ca-certificates --fresh 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
