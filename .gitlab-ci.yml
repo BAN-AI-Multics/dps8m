@@ -129,6 +129,24 @@
 
 ############################################################################
 
+.scriptBuildlibuvLLVMMGW64-armv7: &scriptBuildlibuvLLVMMGW64-armv7 |
+    # scriptBuildlibuvLLVMMGW64-armv7
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    ./configure --disable-shared --enable-static --host=armv7-w64-mingw32 --disable-dependency-tracking
+    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
+
+############################################################################
+
+.scriptBuildlibuvLLVMMGW64-i686: &scriptBuildlibuvLLVMMGW64-i686 |
+    # scriptBuildlibuvLLVMMGW64-i686
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    ./configure --disable-shared --enable-static --host=i686-w64-mingw32 --disable-dependency-tracking
+    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
+
+############################################################################
+
 .scriptAptSetupLatestClang: &scriptAptSetupLatestClang |
     # scriptAptSetupLatestClang
     wget -nv https://apt.llvm.org/llvm.sh || wget -nv https://apt.llvm.org/llvm.sh
@@ -757,7 +775,6 @@ Windows/x86_64, Ubuntu, LLVM-MinGW, libuv/git:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -782,7 +799,6 @@ Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
   tags:
     - Docker-amd64
   script:
-    - *scriptAptSetup
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1093,6 +1109,54 @@ Linux/x86_64, Amazon Linux, gcc:
       - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Windows/i686, Ubuntu, LLVM-MinGW, libuv/git:
+  image: mstorsjo/llvm-mingw:dev
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - *scriptBuildlibuvLLVMMGW64-i686
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -D__int64_t=int64_t -D__MINGW64__" NEED_128=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/dps8m.zip
+  retry: 2
+  timeout: 40 minutes
+  interruptible: true
+
+############################################################################
+
+Windows/ARMv7, Ubuntu, LLVM-MinGW, libuv/git:
+  image: mstorsjo/llvm-mingw:dev
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - *scriptBuildlibuvLLVMMGW64-armv7
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -D__int64_t=int64_t -D__MINGW64__" NEED_128=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/dps8m.zip
   retry: 2
   timeout: 40 minutes
   interruptible: true
