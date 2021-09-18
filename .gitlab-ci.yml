@@ -209,7 +209,7 @@
 .scriptOSUSESetup: &scriptOSUSESetup |
     # scriptOSUSESetup
     zypper -qn update || zypper -qn update
-    export ARGS="mksh gcc clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; zypper -qn install ${ARGS:?} || zypper -qn ${ARGS:?}
+    export ARGS="gcc clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; zypper -qn install ${ARGS:?} || zypper -qn install ${ARGS:?}
 
 ############################################################################
 
