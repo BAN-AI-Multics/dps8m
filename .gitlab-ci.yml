@@ -1351,17 +1351,18 @@ Linux/x86_64, Slackware64 Current, clang:
 
 ############################################################################
 
-Linux/x86_64, Slackware64, gcc:
+Linux/x86_64, Slackware64, gcc, libuv/git:
   image: vbatts/slackware:latest
   stage: build
   tags:
     - Docker-amd64
   script:
     - *scriptSlackSetup
+    - *scriptBuildlibuvGCC
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory --output-sync -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-I/usr/local/include ${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LIBUV="-L/usr/local/lib -luv" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory --output-sync -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *buildInfo
     - *compressArtifacts
@@ -1379,17 +1380,18 @@ Linux/x86_64, Slackware64, gcc:
 
 ############################################################################
 
-Linux/x86_64, Slackware64, clang:
+Linux/x86_64, Slackware64, clang, libuv/git:
   image: vbatts/slackware:latest
   stage: build
   tags:
     - Docker-amd64
   script:
     - *scriptSlackSetup
+    - *scriptBuildlibuvCLANG
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory --output-sync -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-I/usr/local/include ${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LIBUV="-L/usr/local/lib -luv" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory --output-sync -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *buildInfo
     - *compressArtifacts
