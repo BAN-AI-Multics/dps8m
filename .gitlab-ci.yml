@@ -16,14 +16,15 @@
 
 .scriptCommon: &scriptCommon |
     # scriptCommon
-    echo "Project Name              : $CI_PROJECT_TITLE"
-    echo "Project Git Commit        : $CI_COMMIT_SHA"
-    echo "Project Git Branch        : $CI_COMMIT_BRANCH"
-    echo "GitLab CI User Details    : $GITLAB_USER_LOGIN - $GITLAB_USER_NAME ($GITLAB_USER_ID) $GITLAB_USER_EMAIL"
-    echo "GitLab CI Job Name        : $CI_JOB_NAME"
-    echo "GitLab CI Job ID          : $CI_JOB_ID"
-    echo "GitLab CI Job Stage       : $CI_JOB_STAGE"
-    echo "GitLab CI Runner Details  : $CI_RUNNER_VERSION ($CI_RUNNER_REVISION)"
+    echo "Project Name              : ${CI_PROJECT_TITLE:-}"
+    echo "Project Git Commit        : ${CI_COMMIT_SHA:-}"
+    echo "Project Git Branch        : ${CI_COMMIT_BRANCH:-}"
+    echo "GitLab CI User Details    : ${GITLAB_USER_LOGIN:-} - ${GITLAB_USER_NAME:-} (${GITLAB_USER_ID:-}) ${GITLAB_USER_EMAIL:-}"
+    echo "GitLab CI Job Name        : ${CI_JOB_NAME:-}"
+    echo "GitLab CI Job ID          : ${CI_JOB_ID:-}"
+    echo "GitLab CI Job Stage       : ${CI_JOB_STAGE:-}"
+    echo "GitLab CI Runner Details  : ${CI_RUNNER_VERSION:-} (${CI_RUNNER_REVISION:-})"
+    git branch -C "${CI_COMMIT_BRANCH:-master}"
 
 ############################################################################
 
@@ -202,6 +203,7 @@
     lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
     df . 2> /dev/null || true > /dev/null 2>&1
     free 2> /dev/null || true > /dev/null 2>&1
+    git status 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
