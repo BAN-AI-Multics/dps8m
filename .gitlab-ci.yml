@@ -615,14 +615,15 @@ Source Kits:
   script:
     - *scriptAptSetup
     - *scriptCommon
-    - sh -x -c 'make distclean && make dist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'make distclean && make dist V=1 COMPRESS="lzip -9 -f" COMPRESSXT="lz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - mkdir -p /output
+    - sh -x -c 'make distclean && make dist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"' && mv -f sources.tar.gz /dps8m-source.tar.gz
+    - sh -x -c 'make distclean && make dist V=1 COMPRESS="lzip -9 -f" COMPRESSXT="lz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"' && mv -f sources.tar.lz /dps8m-source.tar.lz
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/sources.tar.gz
-      - /builds/dps8m/dps8m/sources.tar.lz
+      - /dps8m-source.tar.gz
+      - /dps8m-source.tar.lz
   retry: 2
   timeout: 40 minutes
   interruptible: true
