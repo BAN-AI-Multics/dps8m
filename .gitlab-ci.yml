@@ -312,7 +312,7 @@ Linux/x86_64, Clear Linux, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -340,7 +340,7 @@ Linux/x86_64, Clear Linux, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -370,7 +370,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -400,7 +400,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -430,7 +430,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -460,7 +460,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -490,7 +490,7 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -520,7 +520,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -550,7 +550,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -580,7 +580,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -606,7 +606,7 @@ Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
     paths:
       - /builds/dps8m/dps8m/dps8m.zip
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -626,7 +626,7 @@ Source Kits:
     paths:
       - /builds/dps8m/dps8m/sources.tar.gz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -655,7 +655,7 @@ Linux/x86_64, Ubuntu LTS, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -684,7 +684,7 @@ Linux/x86_64, Ubuntu LTS, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -712,7 +712,7 @@ Linux/x86_64, Fedora, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -740,7 +740,7 @@ Linux/x86_64, Fedora, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -769,7 +769,7 @@ Linux/x86_64, Oracle Linux 8, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -798,7 +798,7 @@ Linux/x86_64, Oracle Linux 8, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -827,7 +827,7 @@ Linux/x86_64, Ubuntu, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -856,7 +856,7 @@ Linux/x86_64, Ubuntu, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -880,7 +880,7 @@ Windows/x86_64, Ubuntu, LLVM-MinGW, libuv/git:
     paths:
       - /builds/dps8m/dps8m/dps8m.zip
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -904,7 +904,7 @@ Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
     paths:
       - /builds/dps8m/dps8m/dps8m.zip
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -933,7 +933,7 @@ Linux/x86_64, AlmaLinux 8, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -962,7 +962,7 @@ Linux/x86_64, AlmaLinux 8, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -993,7 +993,7 @@ Linux/x86_64, Alpine Edge, gcc, mimalloc, static:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1024,7 +1024,7 @@ Linux/x86_64, Alpine Edge, clang, mimalloc, static:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1055,7 +1055,7 @@ Linux/x86_64, Void musl, gcc, mimalloc, static:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1086,7 +1086,7 @@ Linux/x86_64, Void musl, clang, mimalloc, static:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1116,7 +1116,7 @@ Linux/x86_64, Void glibc, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1146,7 +1146,7 @@ Linux/x86_64, Void glibc, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1174,7 +1174,7 @@ Linux/x86_64, Amazon Linux, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1202,7 +1202,7 @@ Linux/x86_64, Amazon Linux, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1226,7 +1226,7 @@ Windows/i686, Ubuntu, LLVM-MinGW, libuv/git:
     paths:
       - /builds/dps8m/dps8m/dps8m.zip
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1250,7 +1250,7 @@ Windows/ARMv7, Ubuntu, LLVM-MinGW, libuv/git:
     paths:
       - /builds/dps8m/dps8m/dps8m.zip
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1278,7 +1278,7 @@ Linux/x86_64, OpenSUSE Tumbleweed, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1306,7 +1306,7 @@ Linux/x86_64, OpenSUSE Leap, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1334,7 +1334,7 @@ Linux/x86_64, OpenSUSE Tumbleweed, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1362,7 +1362,7 @@ Linux/x86_64, OpenSUSE Leap, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1390,7 +1390,7 @@ Linux/x86_64, Slackware64 Current, gcc:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1418,7 +1418,7 @@ Linux/x86_64, Slackware64 Current, clang:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 40 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
