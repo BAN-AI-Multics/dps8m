@@ -171,8 +171,8 @@
 
 .scriptClearSetup: &scriptClearSetup |
     # scriptClearSetup
-    swupd -y --quiet update
-    swupd -y --quiet bundle-add llvm c-basic dev-utils global shells devpkg-libuv zip unzip plzip which
+    swupd update -y --quiet 
+    swupd bundle-add -y --quiet llvm c-basic dev-utils global shells devpkg-libuv zip unzip plzip which
 
 ############################################################################
 
