@@ -617,14 +617,12 @@ Source Kits:
     - *scriptCommon
     - sh -x -c 'make distclean && make dist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'make distclean && make dist V=1 COMPRESS="lzip -9 -f" COMPRESSXT="lz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'make distclean && make dist V=1 COMPRESS="bzip2 -9 -f" COMPRESSXT="bz2" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
       - /builds/dps8m/dps8m/sources.tar.gz
       - /builds/dps8m/dps8m/sources.tar.lz
-      - /builds/dps8m/dps8m/sources.tar.bz2
   retry: 2
   timeout: 40 minutes
   interruptible: true
