@@ -273,7 +273,7 @@
     # scriptAmazonSetup
     yum -q -y update || yum -q -y update
     export ARGS="system-lsb lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; yum -q -y install ${ARGS:?} || yum -q -y install ${ARGS:?}
-    export ARGS="https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/l/lzip-1.21-1.el8.x86_64.rpm"; yum -q -y localinstall ${ARGS:?}" || yum -q -y localinstall ${ARGS:?}
+    export ARGS="https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/l/lzip-1.21-1.el8.x86_64.rpm"; yum -q -y localinstall ${ARGS:?} || yum -q -y localinstall ${ARGS:?}
 
 ############################################################################
 
