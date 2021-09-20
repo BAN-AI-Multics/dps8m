@@ -192,9 +192,9 @@
 
 .scriptExtraInfo: &scriptExtraInfo |
     # scriptExtraInfo
-    echo "${CFLAGS:?}" 2> /dev/null || true > /dev/null 2>&1
-    echo "${CXXFLAGS:?}" 2> /dev/null || true > /dev/null 2>&1
-    echo "${LDFLAGS:?}" 2> /dev/null || true > /dev/null 2>&1
+    echo "${CFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1
+    echo "${CXXFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1
+    echo "${LDFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1
     uname -a 2> /dev/null || true > /dev/null 2>&1
     lsb_release -d 2> /dev/null || true > /dev/null 2>&1
     cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
