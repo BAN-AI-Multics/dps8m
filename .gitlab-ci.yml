@@ -1433,7 +1433,7 @@ FreeBSD/PPC64, 13-STABLE, clang, static:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'wget https://ban.ai/~jhj/misc/ppc64fbsd.tar && tar xvf ppc64fbsd.tar && rm -f ppc64fbsd.tar && bash -x ./ppc64bsd.sh'
+    - sh -x -c 'wget https://ban.ai/~jhj/misc/ppc64fbsd.tar && tar xvf ppc64fbsd.tar && rm -f ppc64fbsd.tar && sed -i "s/cat -f tar.log/sleep 15/" ppc64bsd.sh; sleep 2; bash -x ./ppc64bsd.sh'
     - *buildInfo
     - *compressArtifacts
   dependencies: []
