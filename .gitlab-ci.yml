@@ -1429,6 +1429,7 @@ FreeBSD/PPC64, 13-STABLE, clang, static:
   tags:
     - Docker-amd64
   script:
+    - *scriptDnfSetup
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
