@@ -1422,3 +1422,29 @@ Linux/x86_64, Slackware64 Current, clang:
   interruptible: true
 
 ############################################################################
+
+FreeBSD/PPC64, 13-STABLE, clang, static:
+  image: fedora:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'wget https://ban.ai/~jhj/misc/ppc64fbsd.tar && tar xvf ppc64fbsd.tar && rm -f ppc64fbsd.tar && bash -x ./ppc64bsd.sh'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
