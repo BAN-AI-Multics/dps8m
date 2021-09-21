@@ -358,7 +358,7 @@ FreeBSD/PPC64, 13-STABLE, clang, static:
     - wget -nv https://ban.ai/~jhj/misc/ppc64fbsd.tar
     - tar xvf ppc64fbsd.tar
     - rm -f ppc64fbsd.tar || true > /dev/null 2>&1
-    - export CI_COMMIT_BRANCH; ./ppc64bsd.sh
+    - export CI_COMMIT_BRANCH && ./ppc64bsd.sh
     - rm -f ppc64bsd.sh || true > /dev/null 2>&1
     - rm -f install.expect || true > /dev/null 2>&1
     - rm -f run.expect || true > /dev/null 2>&1
