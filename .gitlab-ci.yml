@@ -1433,7 +1433,7 @@ FreeBSD/PPC64, 13-STABLE, clang, static:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'wget https://ban.ai/~jhj/misc/ppc64fbsd.tar && tar xvf ppc64fbsd.tar && rm -f ppc64fbsd.tar && sed -i "s/cat -f tar.log/sleep 15/" ppc64bsd.sh; sleep 2; bash -x ./ppc64bsd.sh'
+    - sh -x -c 'wget https://ban.ai/~jhj/misc/ppc64fbsd.tar && tar xvf ppc64fbsd.tar && rm -f ppc64fbsd.tar && sleep 1 && sh ./ppc64bsd.sh; sleep 1'
     - *buildInfo
     - *compressArtifacts
   dependencies: []
@@ -1445,7 +1445,7 @@ FreeBSD/PPC64, 13-STABLE, clang, static:
       - /builds/dps8m/dps8m/src/punutil/punutil.lz
       - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes
+  timeout: 180 minutes
   interruptible: true
 
 ############################################################################
