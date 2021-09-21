@@ -345,6 +345,39 @@ Linux/x86_64, Clear Linux, clang:
 
 ############################################################################
 
+FreeBSD/PPC64, 13-STABLE, clang, static:
+  image: fedora:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptDnfSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - wget -nv https://ban.ai/~jhj/misc/ppc64fbsd.tar
+    - tar xvf ppc64fbsd.tar
+    - rm -f ppc64fbsd.tar || true > /dev/null 2>&1
+    - export CI_COMMIT_BRANCH; ./ppc64bsd.sh
+    - rm -f ppc64bsd.sh || true > /dev/null 2>&1
+    - rm -f install.expect || true > /dev/null 2>&1
+    - rm -f run.expect || true > /dev/null 2>&1
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 180 minutes
+  interruptible: true
+
+############################################################################
+
 Linux/x86_64, Debian sid, clang/git, libuv/git:
   image: debian:sid
   stage: build
@@ -1423,29 +1456,35 @@ Linux/x86_64, Slackware64 Current, clang:
 
 ############################################################################
 
-FreeBSD/PPC64, 13-STABLE, clang, static:
-  image: fedora:latest
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptDnfSetup
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'wget https://ban.ai/~jhj/misc/ppc64fbsd.tar && tar xvf ppc64fbsd.tar && rm -f ppc64fbsd.tar && sleep 1 && sh ./ppc64bsd.sh; sleep 1'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 180 minutes
-  interruptible: true
 
-############################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
