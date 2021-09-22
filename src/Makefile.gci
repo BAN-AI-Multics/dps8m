@@ -38,13 +38,14 @@ execgci:                                                                      \
     # execgci:    # Execute, locally, a GitLab CI/CD task
 	@$(TEST) -z "$(TASK)" && $(PRINTF) '%s\n'                                 \
                                  "Error: Variable TASK is unset." || $(TRUE)
-	@$(TEST) -z "$(TASK)" || $(GLRUNNER) exec docker "$${TASK:?}" --timeout   \
-     9900 --env "CI_COMMIT_BRANCH=\"$$($(GIT) rev-parse --abbrev-ref HEAD     \
-      2> /dev/null || $(ECHO) master)\"" --env "CI_PROJECT_TITLE=dps8m" --env \
-       "GITLAB_USER_LOGIN=\"$$(whoami 2> /dev/null || $(ECHO) ci)\"" --env    \
-        "GITLAB_USER_NAME=\"$$(whoami 2> /dev/null || $(ECHO) ci)\"" --env    \
-         "GITLAB_USER_ID=\"$$(whoami 2> /dev/null || $(ECHO) ci)\"" --env     \
-          "GITLAB_USER_EMAIL=\"ci@localhost\""
+	@$(TEST) -z "$(TASK)" || $(SET) -x; $(GLRUNNER) exec docker "$${TASK:?}"  \
+     --timeout 9900 --env "CI_COMMIT_BRANCH=\"$$($(GIT) rev-parse             \
+      --abbrev-ref HEAD 2> /dev/null || $(ECHO) master)\"" --env              \
+       "CI_PROJECT_TITLE=dps8m" --env "GITLAB_USER_LOGIN=\"$$(whoami          \
+        2> /dev/null || $(ECHO) ci)\"" --env                                  \
+         "GITLAB_USER_NAME=\"$$(whoami 2> /dev/null || $(ECHO) ci)\"" --env   \
+          "GITLAB_USER_ID=\"$$(whoami 2> /dev/null || $(ECHO) ci)\"" --env    \
+           "GITLAB_USER_EMAIL=\"ci@localhost\""
 
 ###############################################################################
 # Locally run all GitLab CI/CD tasks
