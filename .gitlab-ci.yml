@@ -378,6 +378,192 @@ FreeBSD/PPC64, 13-STABLE, clang, static:
 
 ############################################################################
 
+FreeBSD/ARM64, 13-STABLE, clang, static:
+  image: fedora:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptDnfSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - echo '#!/usr/bin/expect -f' > run.expect
+    - echo 'set timeout 450000' >> run.expect
+    - echo 'spawn telnet 127.0.0.1 5555' >> run.expect
+    - echo 'set telnetID $spawn_id' >> run.expect
+    - echo 'sleep 8' >> run.expect
+    - echo 'expect "login:"' >> run.expect
+    - echo 'send -- "root\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "\n"' >> run.expect
+    - echo 'sleep 5' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg install libuv gmake git mksh\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "exec mksh\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "set -o pipefail\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "git clone -v https://gitlab.com/dps8m/dps8m.git -b XXXXXXXX\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "cd dps8m\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "gmake CC=cc V=1 W=1 LDFLAGS='-L/usr/local/lib -static'\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
+    - echo 'sleep 3' >> run.expect
+    - echo 'exit' >> run.expect
+    - echo '#!/usr/bin/env sh' > fbsdarm64.sh
+    - echo '(dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update)' >> fbsdarm64.sh
+    - echo '(export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest)' >> fbsdarm64.sh
+    - echo '(curl -fsSL "https://download.freebsd.org/ftp/snapshots/VM-IMAGES/13.0-STABLE/aarch64/Latest/FreeBSD-13.0-STABLE-arm64-aarch64.qcow2.xz" | xz -dv > freebsd-aarch64.qcow2)' >> fbsdarm64.sh
+    - echo '(qemu-img resize freebsd-aarch64.qcow2 "+8G")' >> fbsdarm64.sh
+    - echo 'tmux -u -2 new -d -s runarm64qemu "qemu-system-aarch64 -m 1280M -cpu cortex-a57 -M virt -bios /usr/share/edk2/aarch64/QEMU_EFI.fd -serial telnet::5555,server -nographic -drive if=none,file=freebsd-aarch64.qcow2,id=hd0 -device virtio-blk-device,drive=hd0 -device virtio-net-device,netdev=net0 -netdev user,id=net0"' >> fbsdarm64.sh
+    - echo 'tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"' >> fbsdarm64.sh
+    - echo 'sleep 5' >> fbsdarm64.sh
+    - sed -i "s/XXXXXXXX/${CI_COMMIT_BRANCH:?}/" ./run.expect
+    - echo './run.expect' >> fbsdarm64.sh
+    - echo 'sleep 5' >> fbsdarm64.sh
+    - echo 'while (ps auxwww | grep qemu | grep -v grep | grep -q freebsd-aarch64.qcow2); do sleep 1; echo -n . ; done && tar axvf out.tar && rm -f out.tar' >> fbsdarm64.sh
+    - echo 'test -f src/dps8/dps8 || exit 1' >> fbsdarm64.sh
+    - chmod a+x fbsdarm64.sh
+    - chmod a+x run.expect
+    - ./fbsdarm64.sh
+    - rm -f fbsdarm64.sh || true > /dev/null 2>&1
+    - rm -f run.expect || true > /dev/null 2>&1
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 180 minutes
+  interruptible: true
+
+############################################################################
+
+FreeBSD/AMD64, 13-STABLE, clang, static:
+  image: fedora:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptDnfSetup
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - echo '#!/usr/bin/expect -f' > run.expect
+    - echo 'set timeout 450000' >> run.expect
+    - echo 'spawn telnet 127.0.0.1 5555' >> run.expect
+    - echo 'set telnetID $spawn_id' >> run.expect
+    - echo 'expect "Hard Disk"' >> run.expect
+    - echo 'send -- "-h\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "login:"' >> run.expect
+    - echo 'send -- "root\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "\n"' >> run.expect
+    - echo 'sleep 5' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg install libuv gmake git mksh\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "exec mksh\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "set -o pipefail\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "git clone -v https://gitlab.com/dps8m/dps8m.git -b XXXXXXXX\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "cd dps8m\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "gmake CC=cc V=1 W=1 LDFLAGS='-L/usr/local/lib -static'\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
+    - echo 'sleep 3' >> run.expect
+    - echo 'exit' >> run.expect
+    - echo '#!/usr/bin/env sh' > fbsdamd64.sh
+    - echo '(dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update)' >> fbsdamd64.sh
+    - echo '(export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest)' >> fbsdamd64.sh
+    - echo '(curl -fsSL "https://download.freebsd.org/ftp/snapshots/VM-IMAGES/13.0-STABLE/amd64/Latest/FreeBSD-13.0-STABLE-amd64.qcow2.xz" | xz -dv > freebsd-amd64.qcow2)' >> fbsdamd64.sh
+    - echo '(qemu-img resize freebsd-amd64.qcow2 "+8G")' >> fbsdamd64.sh
+    - echo 'tmux -u -2 new -d -s fbsdamd64 qemu-system-x86_64 -m 1280M -cpu qemu64 -M q35 -serial telnet::5555,server -nographic -drive if=none,file=freebsd-amd64.qcow2,id=hd0 -device virtio-blk-pci,drive=hd0 -device virtio-net-pci,netdev=net0 -netdev user,id=net0' >> fbsdamd64.sh
+    - echo 'tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"' >> fbsdamd64.sh
+    - echo 'sleep 5' >> fbsdamd64.sh
+    - sed -i "s/XXXXXXXX/${CI_COMMIT_BRANCH:?}/" ./run.expect
+    - echo './run.expect' >> fbsdamd64.sh
+    - echo 'sleep 5' >> fbsdamd64.sh
+    - echo 'while (ps auxwww | grep qemu | grep -v grep | grep -q freebsd-amd64.qcow2); do sleep 1; echo -n . ; done && tar axvf out.tar && rm -f out.tar' >> fbsdamd64.sh
+    - echo 'test -f src/dps8/dps8 || exit 1' >> fbsdamd64.sh
+    - chmod a+x fbsdamd64.sh
+    - chmod a+x run.expect
+    - ./fbsdamd64.sh
+    - rm -f fbsdamd64.sh || true > /dev/null 2>&1
+    - rm -f run.expect || true > /dev/null 2>&1
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 180 minutes
+  interruptible: true
+
+############################################################################
+
 Linux/x86_64, Debian sid, clang/git, libuv/git:
   image: debian:sid
   stage: build
