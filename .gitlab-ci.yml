@@ -451,6 +451,7 @@ FreeBSD/ARM64, 13-STABLE, clang, static:
     - echo '#!/usr/bin/env sh' > fbsdarm64.sh
     - echo '(dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update)' >> fbsdarm64.sh
     - echo '(export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest)' >> fbsdarm64.sh
+    - echo 'echo "Downloading FreeBSD ARM64 13-STABLE VM image..."' >> fbsdarm64.sh
     - echo '(curl -fsSL "https://download.freebsd.org/ftp/snapshots/VM-IMAGES/13.0-STABLE/aarch64/Latest/FreeBSD-13.0-STABLE-arm64-aarch64.qcow2.xz" | xz -dv > freebsd-aarch64.qcow2)' >> fbsdarm64.sh
     - echo '(qemu-img resize freebsd-aarch64.qcow2 "+8G")' >> fbsdarm64.sh
     - echo 'tmux -u -2 new -d -s runarm64qemu "qemu-system-aarch64 -m 1280M -cpu cortex-a57 -M virt -bios /usr/share/edk2/aarch64/QEMU_EFI.fd -serial telnet::5555,server -nographic -drive if=none,file=freebsd-aarch64.qcow2,id=hd0 -device virtio-blk-device,drive=hd0 -device virtio-net-device,netdev=net0 -netdev user,id=net0"' >> fbsdarm64.sh
