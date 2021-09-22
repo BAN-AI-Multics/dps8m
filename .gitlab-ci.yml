@@ -436,7 +436,10 @@ FreeBSD/ARM64, 13-STABLE, clang, static:
     - echo 'send -- "cd dps8m\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "gmake CC=cc V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\\n"' >> run.expect
+    - echo 'send -- "export LDFLAGS=\"-L/usr/local/lib -static\"\\n"' >> run.expect
+    - echo 'sleep 1' >> run.expect
+    - echo 'expect "#"' >> run.expect
+    - echo 'send -- "gmake CC=cc V=1 W=1\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
     - echo 'send -- "rm -f dps8m.state\\n"' >> run.expect
