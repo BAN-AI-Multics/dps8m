@@ -14,9 +14,9 @@
 # GitLab CI/CD Configuraton
 ############################################################################
 
-default:
-  before_script:
-    - echo "Branch: ${CI_COMMIT_BRANCH:?}"
+.scriptSanity: &scriptSanity |
+    # scriptSanity
+    echo "Branch: ${CI_COMMIT_BRANCH:?}"
 
 ############################################################################
 
@@ -301,6 +301,7 @@ Linux/x86_64, Clear Linux, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptClearSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -329,6 +330,7 @@ Linux/x86_64, Clear Linux, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptClearSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -357,6 +359,7 @@ FreeBSD/PPC64, 13-STABLE, clang, static:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptDnfSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -391,6 +394,7 @@ FreeBSD/ARM64, 13-STABLE, clang, static:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptDnfSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -484,6 +488,7 @@ FreeBSD/AMD64, 13-STABLE, clang, static:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptDnfSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -580,6 +585,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
     - *scriptCommon
@@ -610,6 +616,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
     - *scriptCommon
@@ -640,6 +647,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
     - *scriptCommon
@@ -670,6 +678,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
     - *scriptCommon
@@ -700,6 +709,7 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestGCC
     - *scriptCommon
@@ -730,6 +740,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
     - *scriptCommon
@@ -760,6 +771,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
     - *scriptCommon
@@ -790,6 +802,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
     - *scriptCommon
@@ -820,6 +833,7 @@ Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptAptInstallMinGW64
     - *scriptCommon
@@ -846,6 +860,7 @@ Source Kits:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptCommon
     - sh -x -c 'make distclean && make dist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
@@ -866,6 +881,7 @@ Linux/x86_64, Ubuntu LTS, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptCommon
     - *scriptAptInstallLibuv1
@@ -895,6 +911,7 @@ Linux/x86_64, Ubuntu LTS, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptCommon
     - *scriptAptInstallLibuv1
@@ -924,6 +941,7 @@ Linux/x86_64, Fedora, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptDnfSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -952,6 +970,7 @@ Linux/x86_64, Fedora, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptDnfSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -980,6 +999,7 @@ Linux/x86_64, Oracle Linux 8, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptOUL8Setup
     - *scriptDnfSetup
     - *scriptCommon
@@ -1009,6 +1029,7 @@ Linux/x86_64, Oracle Linux 8, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptOUL8Setup
     - *scriptDnfSetup
     - *scriptCommon
@@ -1038,6 +1059,7 @@ Linux/x86_64, Ubuntu, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptCommon
     - *scriptAptInstallLibuv1
@@ -1067,6 +1089,7 @@ Linux/x86_64, Ubuntu, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAptSetup
     - *scriptCommon
     - *scriptAptInstallLibuv1
@@ -1096,6 +1119,7 @@ Windows/x86_64, Ubuntu, LLVM-MinGW, libuv/git:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1120,6 +1144,7 @@ Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1144,6 +1169,7 @@ Linux/x86_64, AlmaLinux 8, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAlma8Setup
     - *scriptDnfSetup
     - *scriptCommon
@@ -1173,6 +1199,7 @@ Linux/x86_64, AlmaLinux 8, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAlma8Setup
     - *scriptDnfSetup
     - *scriptCommon
@@ -1204,6 +1231,7 @@ Linux/x86_64, Alpine Edge, gcc, mimalloc, static:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAlpineSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1235,6 +1263,7 @@ Linux/x86_64, Alpine Edge, clang, mimalloc, static:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAlpineSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1266,6 +1295,7 @@ Linux/x86_64, Void musl, gcc, mimalloc, static:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptVoidSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1297,6 +1327,7 @@ Linux/x86_64, Void musl, clang, mimalloc, static:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptVoidSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1328,6 +1359,7 @@ Linux/x86_64, Void glibc, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptVoidSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1358,6 +1390,7 @@ Linux/x86_64, Void glibc, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptVoidSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1386,6 +1419,7 @@ Linux/x86_64, Amazon Linux, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAmazonSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1414,6 +1448,7 @@ Linux/x86_64, Amazon Linux, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptAmazonSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1442,6 +1477,7 @@ Windows/i686, Ubuntu, LLVM-MinGW, libuv/git:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1466,6 +1502,7 @@ Windows/ARMv7, Ubuntu, LLVM-MinGW, libuv/git:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1490,6 +1527,7 @@ Linux/x86_64, OpenSUSE Tumbleweed, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptOSUSESetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1518,6 +1556,7 @@ Linux/x86_64, OpenSUSE Leap, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptOSUSESetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1546,6 +1585,7 @@ Linux/x86_64, OpenSUSE Tumbleweed, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptOSUSESetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1574,6 +1614,7 @@ Linux/x86_64, OpenSUSE Leap, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptOSUSESetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1602,6 +1643,7 @@ Linux/x86_64, Slackware64 Current, gcc:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptSlackSetup
     - *scriptCommon
     - *scriptDPS8Mods
@@ -1630,6 +1672,7 @@ Linux/x86_64, Slackware64 Current, clang:
   tags:
     - Docker-amd64
   script:
+    - *scriptSanity
     - *scriptSlackSetup
     - *scriptCommon
     - *scriptDPS8Mods
