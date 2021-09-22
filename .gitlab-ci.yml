@@ -430,7 +430,7 @@ FreeBSD/ARM64, 13-STABLE, clang, static:
     - echo 'send -- "set -o pipefail\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - export CI_COMMIT_BRANCH && echo "send -- \"git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
+    - export CI_COMMIT_BRANCH && echo "send -- \"git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\\\n\"" >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
     - echo 'send -- "cd dps8m\n"' >> run.expect
@@ -526,7 +526,7 @@ FreeBSD/AMD64, 13-STABLE, clang, static:
     - echo 'send -- "set -o pipefail\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - export CI_COMMIT_BRANCH && echo "send -- \"git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
+    - export CI_COMMIT_BRANCH && echo "send -- \"git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\\\n\"" >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
     - echo 'send -- "cd dps8m\n"' >> run.expect
