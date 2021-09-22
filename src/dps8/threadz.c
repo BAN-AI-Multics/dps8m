@@ -855,6 +855,7 @@ void setSignals (void)
 #endif /* __MINGW64__ */
   }
 
+#if 0
 // Force cache coherency
 
 static pthread_mutex_t fenceLock = PTHREAD_MUTEX_INITIALIZER;
@@ -863,3 +864,4 @@ void fence (void)
     pthread_mutex_lock (& fenceLock);
     pthread_mutex_unlock (& fenceLock);
   }
+#endif

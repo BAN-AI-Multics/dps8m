@@ -1840,10 +1840,6 @@ static void fetch_LPWPTW (uint iom_unit_idx, uint chan)
 void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36 * data,
                            iom_direct_data_service_op op)
   {
-#ifdef THREADZ
-    // Force mailbox and dma data to be up-to-date
-    fence ();
-#endif
     // The direct data service consists of one core storage cycle (Read Clear, Read
     // Restore or Clear Write, Double or Single Precision) using an absolute
     // 24-bit address supplied by the channel. This service is used by
@@ -1876,11 +1872,6 @@ void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36
         iom_core_read_lock (iom_unit_idx, daddr, data, __func__);
         iom_core_write_unlock (iom_unit_idx, daddr, 0, __func__);
       }
-#ifdef THREADZ
-    // Force mailbox and dma data to be up-to-date
-    fence ();
-#endif
-
   }
 
 // 'tally' is the transfer size request by Multics.
@@ -1891,11 +1882,6 @@ void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36
 void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
                              uint * cnt, bool write)
   {
-#ifdef THREADZ
-    // Force mailbox and dma data to be up-to-date
-    fence ();
-#endif
-
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
     if (p -> masked)
@@ -1976,11 +1962,6 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
           }
         * cnt = c;
       }
-#ifdef THREADZ
-    // Force mailbox and dma data to be up-to-date
-    fence ();
-#endif
-
   }
 
 static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
@@ -2118,11 +2099,6 @@ static void write_LPW (uint iom_unit_idx, uint chan)
                    "%s: chan %d lpwx %012"PRIo64"\n",
                    __func__, chan, p -> LPWX);
       }
-#ifdef THREADZ
-    // Force mailbox and dma data to be up-to-date
-    fence ();
-#endif
-
   }
 
 static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
@@ -2130,11 +2106,6 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
     uint chanLoc = mbxLoc (iom_unit_idx, chan);
-
-#ifdef THREADZ
-    // Force mailbox and dma data to be up-to-date
-    fence ();
-#endif
 
     iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPW, (word36 *) & p -> LPW, __func__);
     sim_debug (DBG_DEBUG, & iom_dev, "lpw %012"PRIo64"\n", p -> LPW);
@@ -2258,10 +2229,6 @@ static void pack_LPW (uint iom_unit_idx, uint chan)
 static void fetch_and_parse_PCW (uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
-#ifdef THREADZ
-    // Force mailbox and dma data to be up-to-date
-    fence ();
-#endif
 
     iom_core_read2 (iom_unit_idx, p -> LPW_DCW_PTR, (word36 *) & p -> PCW0, (word36 *) & p -> PCW1, __func__);
     p -> PCW_CHAN = getbits36_6 (p -> PCW1, 3);
@@ -2316,10 +2283,6 @@ sim_warn ("unhandled fetch_and_parse_DCW\n");
       }
 
     iom_core_read (iom_unit_idx, addr, (word36 *) & p -> DCW, __func__);
-#endif
-#ifdef THREADZ
-    // Force mailbox and dma data to be up-to-date
-    fence ();
 #endif
 
     switch (p -> chanMode)
@@ -2394,9 +2357,6 @@ sim_warn ("unhandled fetch_and_parse_DCW\n");
 int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic)
   {
 
-#ifdef IO_FENCE
-    fence ();
-#endif
 #ifdef THREADZ
     lock_mem_wr ();
 #endif
@@ -2440,11 +2400,6 @@ int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic)
 
 #ifdef THREADZ
     unlock_mem ();
-#endif
-
-#ifdef THREADZ
-    // Force mailbox and dma data to be up-to-date
-    fence ();
 #endif
 
     return scu_set_interrupt (iom_unit_data[iom_unit_idx].invokingScuUnitIdx, interrupt_num);
