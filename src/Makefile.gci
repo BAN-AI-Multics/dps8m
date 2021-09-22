@@ -50,11 +50,11 @@ execgci:                                                                      \
 ###############################################################################
 # Locally run all GitLab CI/CD tasks
 
-.PHONY: testgci
-.NOTPARALLEL: testgci
-testgci:                                                                      \
-    # testgci:    # Executes all defined CI tasks locally
-	@($(MAKE) "listgci" | $(XARGS) -I{} $(ECHO) $(MAKE) execgci TASK=\"{}\" | \
-       $(SHELL) -x)
+# #####.PHONY: testgci
+# #####.NOTPARALLEL: testgci
+# #####testgci:                                                                      \
+# #####    # testgci: #  # Executes all defined CI tasks locally
+# #####	@($(MAKE) "listgci" | $(XARGS) -I{} $(ECHO) $(MAKE) execgci TASK=\"{}\" | \
+# #####       $(SHELL) -x)
 
 ###############################################################################
