@@ -406,46 +406,46 @@ FreeBSD/ARM64, 13-STABLE, clang, static:
     - echo 'set telnetID $spawn_id' >> run.expect
     - echo 'sleep 8' >> run.expect
     - echo 'expect "login:"' >> run.expect
-    - echo 'send -- "root\n"' >> run.expect
+    - echo 'send -- "root\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
+    - echo 'send -- "\\n"' >> run.expect
     - echo 'sleep 5' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
+    - echo 'send -- "\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
+    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
+    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg install libuv gmake git mksh\n"' >> run.expect
+    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg install libuv gmake git mksh\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "exec mksh\n"' >> run.expect
+    - echo 'send -- "exec mksh\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "set -o pipefail\n"' >> run.expect
+    - echo 'send -- "set -o pipefail\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
     - export CI_COMMIT_BRANCH && echo "send -- \"git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "cd dps8m\n"' >> run.expect
+    - echo 'send -- "cd dps8m\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "gmake CC=cc V=1 W=1 LDFLAGS='-L/usr/local/lib -static'\n"' >> run.expect
+    - echo 'send -- "gmake CC=cc V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
+    - echo 'send -- "rm -f dps8m.state\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
+    - echo 'send -- "\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
+    - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\\n"' >> run.expect
     - echo 'sleep 3' >> run.expect
     - echo 'exit' >> run.expect
     - echo '#!/usr/bin/env sh' > fbsdarm64.sh
@@ -534,7 +534,7 @@ FreeBSD/AMD64, 13-STABLE, clang, static:
     - echo 'send -- "cd dps8m\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "gmake CC=cc V=1 W=1 LDFLAGS='-L/usr/local/lib -static'\n"' >> run.expect
+    - echo 'send -- "gmake CC=cc V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
     - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
