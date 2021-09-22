@@ -463,6 +463,8 @@ FreeBSD/ARM64, 13-STABLE, clang, static:
     - echo 'test -f src/dps8/dps8 || exit 1' >> fbsdarm64.sh
     - chmod a+x fbsdarm64.sh
     - chmod a+x run.expect
+    - test -z $LOCALCI || cat run.expect
+    - test -z $LOCALCI || cat fbsdarm64.sh
     - ./fbsdarm64.sh
     - rm -f fbsdarm64.sh || true > /dev/null 2>&1
     - rm -f run.expect || true > /dev/null 2>&1
@@ -559,6 +561,8 @@ FreeBSD/AMD64, 13-STABLE, clang, static:
     - echo 'test -f src/dps8/dps8 || exit 1' >> fbsdamd64.sh
     - chmod a+x fbsdamd64.sh
     - chmod a+x run.expect
+    - test -z $LOCALCI || cat run.expect
+    - test -z $LOCALCI || cat fbsdamd64.sh
     - ./fbsdamd64.sh
     - rm -f fbsdamd64.sh || true > /dev/null 2>&1
     - rm -f run.expect || true > /dev/null 2>&1
