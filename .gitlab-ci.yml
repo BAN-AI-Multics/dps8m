@@ -454,7 +454,7 @@ FreeBSD/ARM64, 13-STABLE, clang, static:
     - echo 'echo "Downloading FreeBSD ARM64 13-STABLE VM image..."' >> fbsdarm64.sh
     - echo '(curl -fsSL "https://download.freebsd.org/ftp/snapshots/VM-IMAGES/13.0-STABLE/aarch64/Latest/FreeBSD-13.0-STABLE-arm64-aarch64.qcow2.xz" | pv | xz -d > freebsd-aarch64.qcow2)' >> fbsdarm64.sh
     - echo '(qemu-img resize freebsd-aarch64.qcow2 "+8G")' >> fbsdarm64.sh
-    - echo 'export CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dec/null || echo 1); if [ $CPUS -gt 8 ]; then CPUS=8; fi; export CPUS; tmux -u -2 new -d -s runarm64qemu qemu-system-aarch64 -smp ${CPUS:-1} -m 1280M -cpu cortex-a57 -M virt -bios /usr/share/edk2/aarch64/QEMU_EFI.fd -serial telnet::5555,server -nographic -drive if=none,file=freebsd-aarch64.qcow2,id=hd0 -device virtio-blk-device,drive=hd0 -device virtio-net-device,netdev=net0 -netdev user,id=net0' >> fbsdarm64.sh
+    - echo 'export CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); if [ $CPUS -gt 8 ]; then CPUS=8; fi; export CPUS; tmux -u -2 new -d -s runarm64qemu qemu-system-aarch64 -smp ${CPUS:-1} -m 1280M -cpu cortex-a57 -M virt -bios /usr/share/edk2/aarch64/QEMU_EFI.fd -serial telnet::5555,server -nographic -drive if=none,file=freebsd-aarch64.qcow2,id=hd0 -device virtio-blk-device,drive=hd0 -device virtio-net-device,netdev=net0 -netdev user,id=net0' >> fbsdarm64.sh
     - echo 'tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"' >> fbsdarm64.sh
     - echo 'sleep 5' >> fbsdarm64.sh
     - echo './run.expect' >> fbsdarm64.sh
