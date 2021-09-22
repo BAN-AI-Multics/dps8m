@@ -24,7 +24,7 @@
     echo "GitLab CI Job ID          : ${CI_JOB_ID:-Unknown}"
     echo "GitLab CI Job Stage       : ${CI_JOB_STAGE:-Unknown}"
     echo "GitLab CI Runner Details  : ${CI_RUNNER_VERSION:-Unknown} (${CI_RUNNER_REVISION:-Unknown})"
-    git checkout -b "${CI_COMMIT_BRANCH:-unknown_branch}" || true > /dev/null 2>&1
+    git checkout -b "${CI_COMMIT_BRANCH:?}"
     git status || true > /dev/null 2>&1
 
 ############################################################################
