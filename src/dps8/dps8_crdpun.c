@@ -646,7 +646,7 @@ static int pun_cmd (uint iomUnitIdx, uint chan)
           return IOM_CMD_ERROR;
         }
 
-    if (p -> IDCW_CONTROL == 3) // marker bit set
+    if (p -> IDCW_CHAN_CTRL == 3) // marker bit set
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
@@ -746,6 +746,7 @@ static int punWriteRecord (uint iomUnitIdx, uint chan)
 
 iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan)
   {
+    iom_cmd_rc_t rc = IOM_CMD_PROCEED;
 #if 0
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 // Is it an IDCW?
@@ -784,6 +785,7 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan)
               sim_debug (DBG_DEBUG, & pun_dev, "%s: Punch Binary\n", __func__);
               statep->ioMode = punWrBin;
               p->stati = 04000;
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
 #if 0 // REWRITE7
@@ -948,7 +950,7 @@ sim_printf ("%s: Unexpected IOTx\n", __func__);
         return IOM_CMD_DISCONNECT;
       }
 
-    return IOM_CMD_PROCEED;
+    return rc;
 
   }
 

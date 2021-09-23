@@ -1120,16 +1120,19 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
             case 016: // CMD 16 Read and Clear Statistics -- Model 800
               disk_statep->io_mode = disk_rd_clr_stats;
               p->stati = 04000;
+              rc = IOM_CMD_NEED_DDCW;
               break;
             
             case 022: // CMD 22 Read Status Resgister
               disk_statep->io_mode = disk_rd_status_reg;
               p->stati = 04000;
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 024: // CMD 24 Read configuration -- Model 800
               disk_statep->io_mode = disk_rd_config;
               p->stati = 04000;
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 025: // CMD 25 READ
@@ -1140,8 +1143,9 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
                   p->stati = 04240; // device offline
                   break;
                 }
-              //if (p->IDCW_CONTROL == 0)
+              //if (p->IDCW_CHAN_CTRL == 0)
                 //rc = IOM_CMD_DISCONNECT;
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 030: // CMD 30 SEEK_512
@@ -1152,6 +1156,7 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
                   p->stati = 04240; // device offline
                   break;
                 }
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 031: // CMD 31 WRITE
@@ -1163,6 +1168,7 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
                   p->stati = 04240; // device offline
                   break;
                 }
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 034: // CMD 34 SEEK_64
@@ -1173,6 +1179,7 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
                   p->stati = 04240; // device offline
                   break;
                 }
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 036: // CMD 36 SPECIAL SEEK (T&D) // Make it work like SEEK_64 and
@@ -1184,6 +1191,7 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
                   p->stati = 04240; // device offline
                   break;
                 }
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 040: // CMD 40 Reset status
@@ -1198,8 +1206,8 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
                 }
               //if (! unitp->fileref)
                 //p->stati = 04240; // device offline
-              if (p->IDCW_CONTROL == 0)
-                rc = IOM_CMD_DISCONNECT;
+              //if (p->IDCW_CHAN_CTRL == 0)
+                //rc = IOM_CMD_DISCONNECT;
               break;
 
             case 042: // CMD 42 RESTORE
@@ -1223,8 +1231,8 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
               rc =  IOM_CMD_ERROR;
               goto done;
           }
-        if (disk_statep->io_mode == disk_no_mode && p->IDCW_CONTROL == 0)
-          rc = IOM_CMD_DISCONNECT;
+        //if (disk_statep->io_mode == disk_no_mode && p->IDCW_CHAN_CTRL == 0)
+          //rc = IOM_CMD_DISCONNECT;
 
         goto done;
       } // IDCW
@@ -1317,8 +1325,8 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
           break;
       }
 
-    if (p->IDCW_CONTROL == 0)
-      rc = IOM_CMD_DISCONNECT;
+    //if (p->IDCW_CHAN_CTRL == 0)
+      //rc = IOM_CMD_DISCONNECT;
 #if 0
     // IOTD?
     if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 

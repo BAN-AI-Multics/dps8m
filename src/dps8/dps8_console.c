@@ -1088,7 +1088,7 @@ void consoleProcess (void)
 iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 
   {
-    t_stat rc = IOM_CMD_PROCEED;
+    iom_cmd_rc_t rc = IOM_CMD_PROCEED;
 
 #ifdef LOCKLESS
     lock_libuv ();
@@ -1128,6 +1128,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               csp->echo = true;
               csp->bcd = true;
               p->stati = 04000;
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 013:               // Write BCD
@@ -1136,6 +1137,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               csp->bcd = true;
               csp->io_mode = opc_write_mode;
               p->stati = 04000;
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 023:               // Read ASCII
@@ -1144,6 +1146,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               csp->echo = true;
               csp->bcd = false;
               p->stati = 04000;
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 033:               // Write ASCII
@@ -1152,6 +1155,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               csp->bcd = false;
               csp->io_mode = opc_write_mode;
               p->stati = 04000;
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
 
@@ -1173,7 +1177,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
                   // T&D uses dev code 77 to test for the console device;
                   // it ignores dev code, and so returns OK here.
                   //p->stati = 04502; // invalid device code
-if (p->IDCW_CONTROL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return IOM_CMD_DISCONNECT; }
+if (p->IDCW_CHAN_CTRL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return IOM_CMD_DISCONNECT; }
                 }
               break;
 
@@ -1183,6 +1187,7 @@ if (p->IDCW_CONTROL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return I
               csp->echo = false;
               csp->bcd = false;
               p->stati = 04000;
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 051:               // Write Alert -- Ring Bell
@@ -1234,7 +1239,7 @@ if (p->IDCW_CONTROL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return I
         // If we get here, Multics is either in bootload, or is configured for
         // 6001; so don't read the DCW list.
         //return IOM_CMD_DISCONNECT;
-        rc = IOM_CMD_PROCEED;
+        //rc = IOM_CMD_PROCEED;
         goto done;
       } // IDCW
 
@@ -1512,13 +1517,14 @@ if (p->IDCW_CONTROL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return I
           } // case opc_write_mode
       } // switch io_mode
 
+#if 0
     // IOTD?
     if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
       {
         sim_debug (DBG_DEBUG | DBG_TRACE, & opc_dev, "%s: Terminate on IOTD\n", __func__);
         rc = IOM_CMD_DISCONNECT;
       }
-
+#endif
 done:
 #ifdef LOCKLESS
     unlock_libuv ();

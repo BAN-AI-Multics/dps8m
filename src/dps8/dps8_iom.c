@@ -55,46 +55,362 @@
 //   It then walks the channel DCW list, passing DCWs to the handler.
 //
 
+//        make_idcw IDCW_name,
+//                  Command,
+//                  Device,
+//                  {record,multirecord,character,nondata},
+//                  {proceed,terminate,marker},
+//                  [ChanData,]
+//                  [Extension,]
+//                  [mask,]
+//
+//   record      0
+//   nondata     2
+//   multirecord 6
+//   character   8
+//
+//   terminate   0
+//   proceed     2
+//   marker      3  
 //
 // Observed channel command dialects
 //
 // IOM boot
-//    Connect Channel LPW  000000040000 (case c)
-//      DCW pointer 000000
-//      RES              0
-//      REL              0
-//      AE               0
-//      NC 21            1
-//      TAL 22           0
-//      REL              0
-//      TALLY         0000
-//    PCW 000000720201 012000000000 
-//      Chan info     0000
-//      Addr ext        00
-//      111              7
-//      M                0
-//      Chan info    20201
-//      Chan            12
-//      Pg Tbl Ptr  000000
-//      PTP              0
-//      PGE              0
-//      AUX              0
-//    IDCW 000000720201
-//      cmd             00 (Request Status)
-//      dev             00
-//      ctrl             2
-//      chancmd          2
+// CIOC 0
+// Connect channel LPW 000000040000 (case c)
+//   DCW pointer 000000
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            1
+//     TAL 22           0
+//     REL              0
+//     TALLY         0000
 //
-//    Payload channel
-//    IDCW 050000700000
-//      cmd             05 (Read Binary Record)
-//      dev             00
-//      ctrl             0
-//      chancmd          0
-//    IOTD 000030000000
-//      tally 0000
-//      addr 000030 
+// PCW 000000720201 012000000000
+//   Chan info     0012
+//   Addr ext        00
+//   111              7
+//   M                0
+//   Chan info  22046447
+//   Pg Tbl Ptr  000000
+//   PTP              0
+//   PGE              0
+//   AUX              0
 //
+// MTP Tape channel LPW 000004020002 (case b)
+//   DCW pointer 000004
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            0
+//     TAL 22           1
+//     REL              0
+//     TALLY         0002
+//
+// DCW list dump:
+//   IDCW 000000720201
+//     cmd             00 Request Status
+//     dev code        00
+//     ctrl             2 (proceed)
+//     chancmd          2 (nondata)
+//   IDCW 050000700000
+//     cmd             05 Rd Bin Rcrd
+//     dev code        00
+//     ctrl             0 (terminate)
+//     chancmd          0 (record)
+//   IOTD (0) 000030000000
+//     tally       0000
+//     addr            30
+//     cp               0
+//   IOTD (0) 400000000000000000000
+//     tally       0000
+//     addr            00
+//     cp               0
+//   IOTD (0) 400000000000000000000
+//     tally       0000
+//     addr            00
+//     cp               0
+//
+// Tape commands done:
+//   Tape Request Status
+//   Tape Read Binary Record
+//   IOTD (0) 000030000000
+//     tally       0000
+//     addr            30
+//     cp               0
+//   Tape IOT Read
+//     Tape 0 reads record 1
+//   ctrl == 0 in chan 10 (12) DCW
+
+
+// Bootload check tape controller firmware loaded test
+//
+// CIOC 138
+// Connect channel LPW 000000040000 (case c)
+//   DCW pointer 000000
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            1
+//     TAL 22           0
+//     REL              0
+//     TALLY         0000
+//
+// PCW 000000720201 012000000000
+//   Chan info     0012
+//   Addr ext        00
+//   111              7
+//   M                0
+//   Chan info    22046447
+//   Pg Tbl Ptr  000000
+//   PTP              0
+//   PGE              0
+//   AUX              0
+//
+// MTP Tape channel LPW 000540007777 (case a)
+//   DCW pointer 000540
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            0
+//     TAL 22           0
+//     REL              0
+//     TALLY         7777
+//
+// DCW list dump:
+//   IDCW 000000720201
+//     cmd             00 Request Status
+//     dev code        00
+//     ctrl             2 (proceed)
+//     chancmd          2 (nondata)
+//   IDCW 510000700200
+//     cmd             51 Reset Dev Stat/Alert
+//     dev code        00
+//     ctrl             0 (terminate)
+//     chancmd          2 (nondata)
+//   IDCW 000000700200
+//     cmd             00 Request Status
+//     dev code        00
+//     ctrl             0 (terminate)
+//     chancmd          2 (nondata)
+//   IOTD (0) 200000000000
+//     tally       0000
+//     addr            200000
+//     cp               0
+//
+// Tape commands done:
+//   Tape Request Status
+//   Tape Reset Device Status
+//   ctrl == 0 in chan 10 (12) DCW
+
+
+
+// Bootload tape read
+//
+// CIOC 7999826
+// Connect channel LPW 000000040000 (case c)
+//   DCW pointer 000000
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            1
+//     TAL 22           0
+//     REL              0
+//     TALLY         0000
+//
+// PCW 000000720201 012000000000
+//   Chan info     0012
+//   Addr ext        00
+//   111              7
+//   M                0
+//   Chan info    22046447
+//   Pg Tbl Ptr  000000
+//   PTP              0
+//   PGE              0
+//   AUX              0
+//
+// MTP Tape channel LPW 000621007777 (case a)
+//   DCW pointer 000621
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            0
+//     TAL 22           0
+//     REL              0
+//     TALLY         7777
+//
+// DCW list dump:
+//   IDCW 000000720201
+//     cmd             00 Request Status
+//     dev code        00
+//     ctrl             2 (proceed)
+//     chancmd          2 (nondata)
+//   IDCW 050000700000
+//     cmd             05 Rd Bin Rcrd
+//     dev code        00
+//     ctrl             0 (terminate)
+//     chancmd          0 (record)
+//   IOTD (0) 060001002020
+//     tally       2020
+//     addr            60001
+//     cp               0
+//   IOTD (0) 024000000000
+//     tally       0000
+//     addr            24000
+//     cp               0
+//
+// Tape commands done:
+//   Tape Request Status
+//   Tape Read Binary Record
+//   IOTD (0) 060001002020
+//     tally       2020
+//     addr            60001
+//     cp               0
+//   Tape IOT Read
+//   ctrl == 0 in chan 10 (12) DCW
+
+
+// Bootload searching for console
+//
+// CIOC 8191828
+// Connect channel LPW 037312020000 (case b)
+//   DCW pointer 037312
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            0
+//     TAL 22           1
+//     REL              0
+//     TALLY         0000
+//
+// PCW 510000700200 010000000000
+//   Chan info     0010
+//   Addr ext        00
+//   111              7
+//   M                0
+//   Chan info 22046447
+//   Pg Tbl Ptr  000000
+//   PTP              0
+//   PGE              0
+//   AUX              0
+//
+
+
+// Bootload finding console
+//
+// CIOC 8324312
+// Connect channel LPW 037312020000 (case b)
+//   DCW pointer 037312
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            0
+//     TAL 22           1
+//     REL              0
+//     TALLY         0000
+//
+// PCW 510000700200 036000000000
+//   Chan info     0036
+//   Addr ext        00
+//   111              7
+//   M                0
+//   Chan info 22046447
+//   Pg Tbl Ptr  000000
+//   PTP              0
+//   PGE              0
+//   AUX              0
+//
+// CONSOLE: ALERT
+
+
+// Bootload console read ID
+//
+// Connect channel LPW 037312020000 (case b)
+//   DCW pointer 037312
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            0
+//     TAL 22           1
+//     REL              0
+//     TALLY         0000
+//
+// PCW 570000700200 036000000000
+//   Chan info     0036
+//   Addr ext        00
+//   111              7
+//   M                0
+//   Chan info 22046447
+//   Pg Tbl Ptr  000000
+//   PTP              0
+//   PGE              0
+//   AUX              0
+//
+
+
+// Bootload console write ASCII
+//
+// Connect channel LPW 037312020000 (case b)
+//   DCW pointer 037312
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            0
+//     TAL 22           1
+//     REL              0
+//     TALLY         0000
+//
+// PCW 330000700000 036000000000
+//   Chan info     0036
+//   Addr ext        00
+//   111              7
+//   M                0
+//   Chan info 22046447
+//   Pg Tbl Ptr  000000
+//   PTP              0
+//   PGE              0
+//   AUX              0
+//
+// IOTD (0) 033624000022
+//   tally       0022
+//   addr            33624
+//   cp               0
+// Console channel LPW 033357007777 (case a)
+//   DCW pointer 033357
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            0
+//     TAL 22           0
+//     REL              0
+//     TALLY         7777
+//
+// DCW list dump:
+//   IDCW 330000700000
+//     cmd             33 Write ASCII
+//     dev code        00
+//     ctrl             0 (terminate)
+//     chancmd          0 (record)
+//   IOTD (0) 033624000022
+//     tally       0022
+//     addr            33624
+//     cp               0
+//   IDCW 510000700000
+//     cmd             51 Reset Dev Stat/Alert
+//     dev code        00
+//     ctrl             0 (terminate)
+//     chancmd          0 (record)
+
+
+
+
+
+
+
+
+
+
 //
 //  T&D Read block 3
 //    Connect Channel LPW 006312040001 (case c)
@@ -129,112 +445,9 @@
 //        addr      010000
 //
 //
-//  Multics bootload_tape_label check if tape controller alive
-//    Connect Channel LPW 000000040000 (case c)
-//      DCW pointer 000000
-//      RES              0
-//      REL              0
-//      AE               0
-//      NC 21            1
-//      TAL 22           0
-//      REL              0
-//      TALLY         0001
-//    PCW 000000720201 012000000000 
-//      Chan info     0000
-//      Addr ext        00
-//      111              7
-//      M                0
-//      Chan info    00201
-//      Chan            12
-//      Pg Tbl Ptr  000000
-//      PTP              0
-//      PGE              0
-//      AUX              0
-//    IDCW 000000720201
-//      cmd             00 (Request status)
-//      dev             00
-//      ctrl             2
-//      chancmd          2
-//
-//    Payload channel
-//      IDCW 510000700200
-//        cmd           51 (Reset Device Status)
-//        dev           00
-//        ctrl           0
-//        chancmd        2
-//      IDCW 000000700200
-//        cmd           00 (Request Status)
-//        dev           00
-//        ctrl           0
-//        chancmd        2
-//      IOTD 010000000000
-//        tally       0000
-//        addr      010000
-//
-//
-//  Multics bootload_tape_label read record
-//    Connect Channel LPW 000000040000 (case c)
-//      DCW pointer 000000
-//      RES              0
-//      REL              0
-//      AE               0
-//      NC 21            1
-//      TAL 22           0
-//      REL              0
-//      TALLY         0001
-//    PCW 000000720201 012000000000
-//      Chan info     0000
-//      Addr ext        00
-//      111              7
-//      M                0
-//      Chan info    20201
-//      Chan            12
-//      Pg Tbl Ptr  000000
-//      PTP              0
-//      PGE              0
-//      AUX              0
-//    IDCW 000000720201
-//      cmd             00 (Request status)
-//      dev             00
-//      ctrl             2
-//      chancmd          2
-//
-//    Payload channel
-//      IDCW 050000700000
-//        cmd           05 (Read Binary Record)
-//        dev           00
-//        ctrl           0
-//        chancmd        0
-//      IOTD 060001002020
-//        tally       2020
-//        addr      060001
-//
-//  Multics probe for console
-//    Connect Channel LPW 060001002020 (case a)
-//      DCW pointer 060001
-//      RES              0
-//      REL              0
-//      AE               0
-//      NC 21            0
-//      TAL 22           0
-//      REL              0
-//      TALLY         2020
-//    PCW 510000700200 010000000000
-//      Chan info     5100
-//      Addr ext        00
-//      111              7
-//      M                0
-//      Chan info    00200
-//      Chan            10
-//      Pg Tbl Ptr  000000
-//      PTP              0
-//      PGE              0
-//      AUX              0
-//    IDCW 510000700200
-//      cmd             51 (Alert)
-//      dev             00
-//      ctrl             0
-//      chancmd          2
+
+
+
 
 // Table 3.2.1 Updating of LPW address and tally and indication of PTRO and TRO
 //
@@ -2202,13 +2415,159 @@ static void write_LPW (uint iom_unit_idx, uint chan)
       }
   }
 
+#ifdef TESTING
+static void dumpDCW (word36 DCW, word1 LPW_23_REL) {
+  static char * charCtrls[4] = {"terminate", "undefined", "proceed", "marker"};
+  static char * chanCmds[16] = {"record", "undefined", "nondata", "undefined", "undefined", "undefined", "multirecord", "undefined", "character", "undefined", "undefined", "undefined", "undefined", "undefined", "undefined", "undefined"};
+  word3 DCW_18_20_CP =      getbits36_3 (DCW, 18);
+
+  if (DCW_18_20_CP == 07) { // IDCW
+    word6 IDCW_DEV_CMD =      getbits36_6 (DCW,  0);
+    word6 IDCW_DEV_CODE =     getbits36_6 (DCW,  6);
+    word6 IDCW_AE =           getbits36_6 (DCW,  12);
+    word1 IDCW_EC;
+    if (LPW_23_REL)
+      IDCW_EC = 0;
+    else
+      IDCW_EC =               getbits36_1 (DCW, 21);
+    word2 IDCW_CHAN_CTRL =    getbits36_2 (DCW, 22);
+    word6 IDCW_CHAN_CMD =     getbits36_6 (DCW, 24);
+    word6 IDCW_COUNT =        getbits36_6 (DCW, 30);
+    if_sim_debug (DBG_TRACE, & iom_dev) {
+      sim_printf ("//   IDCW %012llo\r\n", DCW);
+      sim_printf ("//     cmd             %02o %s\r\n", IDCW_DEV_CMD, cmdNames[IDCW_DEV_CMD]);
+      sim_printf ("//     dev code        %02o\r\n", IDCW_DEV_CODE);
+      sim_printf ("//     ctrl             %o (%s)\r\n", IDCW_CHAN_CTRL, charCtrls[IDCW_CHAN_CTRL]);
+      sim_printf ("//     chancmd          %o (%s)\r\n", IDCW_CHAN_CMD, IDCW_CHAN_CMD < 16 ? chanCmds[IDCW_CHAN_CMD] : "unknown");
+    }
+  } else { // TDCW or DDCW
+    word18 TDCW_DATA_ADDRESS = getbits36_18 (DCW,  0);
+    word1  TDCW_31_SEG =       getbits36_1 (DCW, 31);
+    word1  TDCW_32_PDTA =      getbits36_1 (DCW, 32);
+    word1  TDCW_33_PDCW =      getbits36_1 (DCW, 33);
+    word1  TDCW_33_EC =        getbits36_1 (DCW, 33);
+    word1  TDCW_34_RES =       getbits36_1 (DCW, 34);
+    word1  TDCW_35_REL =       getbits36_1 (DCW, 35);
+
+    word12 DDCW_TALLY =        getbits36_12 (DCW, 24);
+    word18 DDCW_ADDR =         getbits36_18 (DCW,  0);
+    word2  DDCW_22_23_TYPE =   getbits36_2 (DCW, 22);
+    if_sim_debug (DBG_TRACE, & iom_dev) {
+      static char * types[4] = { "IOTD", "IOTP", "TDCW", "IONTP" };
+      if (DDCW_22_23_TYPE == 2) {
+        sim_printf ("//   TDCW (2) %012llo\r\n", DCW);
+        sim_printf ("//     dcw ptr   %06o\r\n", TDCW_DATA_ADDRESS);
+        sim_printf ("//     seg            %o\r\n", TDCW_31_SEG);
+        sim_printf ("//     pdta           %o\r\n", TDCW_32_PDTA);
+        sim_printf ("//     pdcw           %o\r\n", TDCW_33_PDCW);
+        sim_printf ("//     ec             %o\r\n", TDCW_33_EC);
+        sim_printf ("//     res            %o\r\n", TDCW_34_RES);
+        sim_printf ("//     rel            %o\r\n", TDCW_35_REL);
+      } else {
+        sim_printf ("//   %s (%o) %012llo\r\n", types[DDCW_22_23_TYPE], DDCW_22_23_TYPE, DCW);
+        sim_printf ("//     tally       %04o\r\n", DDCW_TALLY);
+        sim_printf ("//     addr            %02o\r\n", DDCW_ADDR);
+        sim_printf ("//     cp               %o\r\n", getbits36_3 (DCW, 18));
+      }
+    }
+  }
+}
+
+static void dumpLPW (uint iom_unit_idx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+  char updateCase;
+  if (p->LPW_21_NC)
+    updateCase = 'c';
+  else if (p->LPW_22_TAL)
+    updateCase = 'b';
+  else
+    updateCase = 'a';
+  static char * chanName[64] = {
+        "0.",           //  0.   0
+        "1.",           //  1.   1
+        "Connect",      //  2.   2
+        "3.",           //  3.   3
+        "4.",           //  4.   4
+        "5.",           //  5.   5
+        "6.",           //  6.   6
+        "7.",           //  7.   7
+        "8.",           //  8.  10
+        "9.",           //  9.  11
+        "MTP Tape",     // 10.  12
+        "IPC Disk",     // 11.  13
+        "MPC Disk",     // 12.  14
+        "Card reader",  // 13.  15
+        "Card punch",   // 14.  16
+        "Printer",      // 15.  17
+        "FNP",          // 16.  20
+        "FNP",          // 17.  21
+        "FNP",          // 18.  22
+        "FNP",          // 19.  23
+        "FNP",          // 20.  24
+        "FNP",          // 21.  25
+        "FNP",          // 22.  26
+        "FNP",          // 23.  27
+        "24.",          // 24.  30
+        "25.",          // 25.  31
+        "ABSI",         // 26.  32
+        "27.",          // 27.  33
+        "28.",          // 28.  34
+        "29.",          // 29.  35
+        "Console",      // 30.  36
+        "31.",          // 31.  37
+        "Socket",       // 32.  40
+        "Socket",       // 33.  41
+        "Socket",       // 34.  42
+        "Socket",       // 35.  43
+        "Socket",       // 36.  44
+        "Socket",       // 37.  45
+        "Socket",       // 38.  46
+        "39.",
+        "40.",
+        "41.",
+        "42.",
+        "43.",
+        "44.",
+        "45.",
+        "46.",
+        "47.",
+        "48.",
+        "49.",
+        "50.",
+        "51.",
+        "52.",
+        "53.",
+        "54.",
+        "55.",
+        "56.",
+        "57.",
+        "58.",
+        "59.",
+        "60.",
+        "61.",
+        "62.",
+        "63."
+  };
+  sim_printf ("// %s channel LPW %012llo (case %c)\r\n", chanName[chan], p->LPW, updateCase);
+  sim_printf ("//   DCW pointer %06o\r\n", p->LPW_DCW_PTR);
+  sim_printf ("//     RES              %o\r\n", p->LPW_18_RES);
+  sim_printf ("//     REL              %o\r\n", p->LPW_19_REL);
+  sim_printf ("//     AE               %o\r\n", p->LPW_20_AE);
+  sim_printf ("//     NC 21            %o\r\n", p->LPW_21_NC);
+  sim_printf ("//     TAL 22           %o\r\n", p->LPW_22_TAL);
+  sim_printf ("//     REL              %o\r\n", p->LPW_23_REL);
+  sim_printf ("//     TALLY         %04o\r\n", p->LPW_TALLY);
+  sim_printf ("// \r\n");
+}
+#endif
+
 static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     uint chanLoc = mbxLoc (iom_unit_idx, chan);
 
     iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPW, (word36 *) & p -> LPW, __func__);
-    sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev,
+    sim_debug (DBG_DEBUG, & iom_dev,
                "%s: lpw %08o %012"PRIo64"\n", __func__, chanLoc + IOM_MBX_LPW, p->LPW);
 
     p -> LPW_DCW_PTR = getbits36_18 (p -> LPW,  0);
@@ -2284,13 +2643,22 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
           p -> IDCW_EC =         getbits36_1 (p -> DCW, 21);
         if (p -> IDCW_EC)
           p -> SEG = 1; // pat. step 45
-        p -> IDCW_CONTROL =      getbits36_2 (p -> DCW, 22);
+        p -> IDCW_CHAN_CTRL =      getbits36_2 (p -> DCW, 22);
         p -> IDCW_CHAN_CMD =     getbits36_6 (p -> DCW, 24);
         p -> IDCW_COUNT =        getbits36_6 (p -> DCW, 30);
-        sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev,
+        sim_debug (DBG_DEBUG, & iom_dev,
                    "%s: IDCW %012llo cmd %02o (%s) dev %02o ctrl %o chancmd %o\n", 
                    __func__, p->DCW, p->IDCW_DEV_CMD, cmdNames[p->IDCW_DEV_CMD], 
-                   p->IDCW_DEV_CODE, p->IDCW_CONTROL, p->IDCW_CHAN_CMD);
+                   p->IDCW_DEV_CODE, p->IDCW_CHAN_CTRL, p->IDCW_CHAN_CMD);
+#if 0
+        if_sim_debug (DBG_TRACE, & iom_dev) {
+          sim_printf ("// IDCW %012llo\r\n", p->DCW);
+          sim_printf ("//   cmd             %02o %s\r\n", p->IDCW_DEV_CMD, cmdNames[p->IDCW_DEV_CMD]);
+          sim_printf ("//   dev code        %02o\r\n", p->IDCW_DEV_CODE);
+          sim_printf ("//   ctrl             %o\r\n", p->IDCW_CHAN_CTRL);
+          sim_printf ("//   chancmd          %o\r\n", p->IDCW_CHAN_CMD);
+        }
+#endif
       }
     else // TDCW or DDCW
       {
@@ -2305,9 +2673,27 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
         p -> DDCW_TALLY =        getbits36_12 (p -> DCW, 24);
         p -> DDCW_ADDR =         getbits36_18 (p -> DCW,  0);
         p -> DDCW_22_23_TYPE =   getbits36_2 (p -> DCW, 22);
-        sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev,
+        sim_debug (DBG_DEBUG, & iom_dev,
                    "%s: TDCW/DDCW %012llo tally %04o addr %06o type %o\n",
                    __func__, p->DCW, p->DDCW_TALLY, p->DDCW_ADDR, p->DDCW_22_23_TYPE);
+        if_sim_debug (DBG_TRACE, & iom_dev) {
+          static char * types[4] = { "IOTD", "IOTP", "TDCW", "IONTP" };
+          if (p->DDCW_22_23_TYPE == 2) {
+            sim_printf ("// TDCW (2) %012llo\r\n", p->DCW);
+            sim_printf ("//   dcw ptr   %06o\r\n", p->TDCW_DATA_ADDRESS);
+            sim_printf ("//   seg            %o\r\n", p->TDCW_31_SEG);
+            sim_printf ("//   pdta           %o\r\n", p->TDCW_32_PDTA);
+            sim_printf ("//   pdcw           %o\r\n", p->TDCW_33_PDCW);
+            sim_printf ("//   ec             %o\r\n", p->TDCW_33_EC);
+            sim_printf ("//   res            %o\r\n", p->TDCW_34_RES);
+            sim_printf ("//   rel            %o\r\n", p->TDCW_35_REL);
+          } else {
+            sim_printf ("// %s (%o) %012llo\r\n", types[p->DDCW_22_23_TYPE], p->DDCW_22_23_TYPE, p->DCW);
+            sim_printf ("//   tally       %04o\r\n", p->DDCW_TALLY);
+            sim_printf ("//   addr            %02o\r\n", p->DDCW_ADDR);
+            sim_printf ("//   cp               %o\r\n", getbits36_3 (p->DCW, 18));
+          }
+        }
       }
   }
 
@@ -2357,7 +2743,7 @@ static void fetch_and_parse_PCW (uint iom_unit_idx, uint chan)
 //    sim_debug (DBG_DEBUG, & iom_dev,
 //               "%s: chan %d pcw0: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
 //               __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
-//               p -> IDCW_EC, p -> IDCW_CONTROL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
+//               p -> IDCW_EC, p -> IDCW_CHAN_CTRL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
 //    sim_debug (DBG_DEBUG, & iom_dev,
 //               "%s: chan %d pcw1: ae %d ptp %d pge %d ptp %#o\n",
 //               __func__, p -> PCW_CHAN, p -> PCW_AE, p -> PCW_63_PTP,
@@ -2442,7 +2828,7 @@ sim_warn ("unhandled fetch_and_parse_DCW\n");
       sim_debug (DBG_DEBUG, & iom_dev,
                  "%s: chan %d idcw: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
                  __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
-                 p -> IDCW_EC, p -> IDCW_CONTROL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
+                 p -> IDCW_EC, p -> IDCW_CHAN_CTRL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
     else
       if (p -> DDCW_22_23_TYPE == 02)
         sim_debug (DBG_DEBUG, & iom_dev,
@@ -2979,7 +3365,7 @@ D:;
 // -1 uff
 static int doPayloadChannel (uint iomUnitIdx, uint chan)
   {
-    sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev, "%s: Payload channel %c%02o\n",
+    sim_debug (DBG_DEBUG, & iom_dev, "%s: Payload channel %c%02o\n",
                __func__, iomChar (iomUnitIdx), chan);
 // A dubious assumption being made is that the device code will always
 // be in bits 6-12 of the DCw. Normally, the controller would
@@ -3000,6 +3386,10 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
 
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
 
+#ifdef TESTING
+    word36 PCW_DCW = p->DCW;
+    word1  PCW_LPW_23_REL = p->LPW_23_REL;
+#endif
     p -> chanMode = cm1;
     p -> LPW_18_RES = 0;
     p -> LPW_20_AE = 0;
@@ -3067,7 +3457,7 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
         goto terminate;
       }
 
-    if (p->DCW_18_20_CP == 7 && p->IDCW_CONTROL == 3) // IDCW marker bit set
+    if (p->DCW_18_20_CP == 7 && p->IDCW_CHAN_CTRL == 3) // IDCW marker bit set
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
@@ -3078,11 +3468,20 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
       }
 
 #if 0
+    if (rc != IOM_CMD_NEED_DDCW) {
+      if (p -> IDCW_CHAN_CTRL == 0) {
+if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) PCW\n", chan, chan);
+        goto terminate;
+      }
+    }
+#endif
+
+#if 0
 // The boot tape loader sends PCWs with control == 0 when it shouldn't
 // BCE sends disk PCWs with control == 0 when it shouldn't
 
-    //if (p -> IDCW_CONTROL == 0)
-    if (p -> IDCW_CONTROL == 0 && d -> type != DEVT_TAPE && d -> type != DEVT_DISK)
+    //if (p -> IDCW_CHAN_CTRL == 0)
+    if (p -> IDCW_CHAN_CTRL == 0 && d -> type != DEVT_TAPE && d -> type != DEVT_DISK)
       {
         //sim_printf ("ctrl == 0 in chan %d (%o) PCW\n", chan, chan);
         goto terminate;
@@ -3102,6 +3501,9 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
     bool terminate = false;
     p->isPCW = false;
 
+#ifdef TESTING
+    bool first = true;
+#endif
     do
       {
         int rc2 = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
@@ -3117,12 +3519,26 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
             // We get a uff if the LPW tally hit 0
             goto terminate;
           }
-        // List service failed to get a DVW
+        // List service failed to get a DCW
         if (! send)
           {
             sim_warn ("%s nothing to send\n", __func__);
             return 1;
           }
+
+#ifdef TESTING
+        if_sim_debug (DBG_TRACE, & iom_dev) {
+          if (first) {
+            first = false;
+            dumpLPW (iomUnitIdx, chan);
+            sim_printf ("// DCW list dump: \r\n");
+            dumpDCW (PCW_DCW, PCW_LPW_23_REL);
+            for (int i = 0; i < 8; i ++)
+              dumpDCW (M[p->LPW_DCW_PTR - 1 + i], p->LPW_23_REL);
+            sim_printf ("// \r\n");
+          }
+    }
+#endif
 
 #if 0
         if (p -> DCW_18_20_CP != 07) // Not IDCW
@@ -3177,29 +3593,44 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
           terminate = true;
 #endif
 
-// The IOM boot code and BCE sets IDCW_CONTROL to 0; this stops the IOTs from being processed.
-        //if (rc2 || p -> IDCW_CONTROL == 0)
+        if (rc2 != IOM_CMD_NEED_DDCW) {
+          if (p -> IDCW_CHAN_CTRL == 0) {
+if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+            goto terminate;
+          }
+        }
+
+// The IOM boot code and BCE sets IDCW_CHAN_CTRL to 0; this stops the IOTs from being processed.
+        //if (rc2 || p -> IDCW_CHAN_CTRL == 0)
           //ptro = true;
 
 #if 0
         if (p->DCW_18_20_CP == 07 && saw_chan_terminate)
           terminate = true;
-        if (p->DCW_18_20_CP == 07 && p->IDCW_CONTROL == 0)
+        if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == 0)
           saw_chan_terminate = true;
 #endif
+
+        // IOTD?
+        if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
+          {
+            sim_debug (DBG_DEBUG, & iom_dev, "%s: Terminate on IOTD\n", __func__);
+if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("IOTD in chan %d (%o) DCW\n", chan, chan);
+            goto terminate;
+          }
 
 #if 0 // done in the channel adaptor
         // IOTD?
         if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
           {
             terminate = true;
-            sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev, "%s: Terminate on IOTD\n", __func__);
+            sim_debug (DBG_DEBUG, & iom_dev, "%s: Terminate on IOTD\n", __func__);
           }
 #endif
 
 #if 0
 // This should work but IOM boot and BCE set it to 0 and expect life to go on
-        if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 0 && p->IDCW_CONTROL == 0)
+        if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 0 && p->IDCW_CHAN_CTRL == 0)
           {
             ptro = true;
 sim_debug (DBG_DEBUG, & iom_dev, "XXXXXX NC %o TAL %o tally %o\n", p->LPW_21_NC, p->LPW_22_TAL, p->LPW_TALLY);
@@ -3239,10 +3670,13 @@ static int doConnectChan (uint iom_unit_idx)
     //
     // The DCW and SCW mailboxes for the connect channel are not used by
     // the IOM.
-    sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev, "%s: Connect channel\n", __func__);
+    sim_debug (DBG_DEBUG, & iom_dev, "%s: Connect channel\n", __func__);
 //int loops = 0;
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][IOM_CONNECT_CHAN];
     p -> lsFirst = true;
+#ifdef TESTING
+    bool first = true;
+#endif
     bool ptro, send, uff;
     do
       {
@@ -3263,6 +3697,24 @@ static int doConnectChan (uint iom_unit_idx)
           }
         else
           {
+            if_sim_debug (DBG_TRACE, & iom_dev) {
+              if (first) {
+                first = false;
+                sim_printf ("// CIOC %lld\r\n", cpu.cycleCnt);
+                dumpLPW (iom_unit_idx, IOM_CONNECT_CHAN);
+                sim_printf ("// PCW %012llo %012llo\r\n", p->PCW0, p->PCW1);
+                sim_printf ("//   Chan info     %04o\r\n", p->PCW_CHAN);
+                sim_printf ("//   Addr ext        %02o\r\n", p->PCW_AE);
+                sim_printf ("//   111              %o\r\n", getbits36_3 (p->PCW0, 18));
+                sim_printf ("//   M                %o\r\n", p->PCW_21_MSK);
+                sim_printf ("//   Chan info %08o\r\n", getbits36_14, p->PCW0);
+                sim_printf ("//   Pg Tbl Ptr  %06o\r\n", p->PCW_PAGE_TABLE_PTR);
+                sim_printf ("//   PTP              %o\r\n", p->PCW_63_PTP);
+                sim_printf ("//   PGE              %o\r\n", p->PCW_64_PGE);
+                sim_printf ("//   AUX              %o\r\n", p->PCW_65_AUX);
+                sim_printf ("//\r\n");
+              }
+            }
             // Copy the PCW's DCW to the payload channel
 //loops ++;
             iom_chan_data_t * q = & iom_chan_data[iom_unit_idx][p -> PCW_CHAN];

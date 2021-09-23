@@ -937,6 +937,7 @@ void rdrCardReady (int unitNum)
 
 iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan)
   {
+    iom_cmd_rc_t rc = IOM_CMD_PROCEED;
 #if 0
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 
@@ -976,6 +977,7 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan)
               sim_debug (DBG_DEBUG, & rdr_dev, "%s: Read Binary\n", __func__);
               statep->io_mode = rdr_rd_bin;
               p->stati = 04000;
+              rc = IOM_CMD_NEED_DDCW;
               break;
 
 #if 0 // REWRITE7
@@ -1027,14 +1029,15 @@ sim_printf ("%s: Unexpected IOTx\n", __func__);
           return IOM_CMD_ERROR;
       }
 
+#if 0
     // IOTD?
     if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
       {
         sim_debug (DBG_DEBUG | DBG_TRACE, & rdr_dev, "%s: Terminate on IOTD\n", __func__);
         return IOM_CMD_DISCONNECT;
       }
-
-    return IOM_CMD_PROCEED;
+#endif
+    return rc;
 
   }
 

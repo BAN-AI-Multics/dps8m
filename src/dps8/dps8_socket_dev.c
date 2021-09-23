@@ -750,7 +750,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             sim_debug (DBG_DEBUG, & skc_dev,
                        "%s: Request status: %04o\n", __func__, p->stati);
             sim_debug (DBG_DEBUG, & skc_dev,
-                       "%s: Request status control: %o\n", __func__, p->IDCW_CONTROL);
+                       "%s: Request status control: %o\n", __func__, p->IDCW_CHAN_CTRL);
             sim_debug (DBG_DEBUG, & skc_dev,
                        "%s: Request status channel command: %o\n", __func__, p->IDCW_CHAN_CMD);
           }
@@ -996,7 +996,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
     sim_debug (DBG_DEBUG, & skc_dev, "stati %04o\n", p->stati);
 
 #if 0
-    if (p->IDCW_CONTROL == 3) // marker bit set
+    if (p->IDCW_CHAN_CTRL == 3) // marker bit set
       {
         send_marker_interrupt (iom_unit_idx, (int) chan);
       }

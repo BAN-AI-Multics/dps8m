@@ -1645,7 +1645,7 @@ static iom_cmd_rc_t prt_cmd (uint iomUnitIdx, uint chan)
             break;
       }
 
-    if (p -> IDCW_CONTROL == 3) // marker bit set
+    if (p -> IDCW_CHAN_CTRL == 3) // marker bit set
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
