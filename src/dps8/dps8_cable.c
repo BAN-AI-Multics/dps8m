@@ -121,8 +121,14 @@
 #include "dps8_prt.h"
 #include "dps8_utils.h"
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW64
+#ifndef CROSS_MINGW32
 #include "dps8_absi.h"
-#endif
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 #ifdef M_SHARED
 #include <unistd.h>
 #include "shm.h"
@@ -823,6 +829,9 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
       }
 
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW64
+#ifndef CROSS_MINGW32
 // IOMx ABSIx
     if (name_match (param, "ABSI", & unit_idx))
       {
@@ -842,9 +851,15 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            CTLR_T_ABSI, chan_type_direct,
                            & absi_unit [unit_idx], absi_iom_cmd);
       }
-#endif
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
 // IOMx SKCx
     if (name_match (param, "SKC", & unit_idx))
       {
@@ -864,7 +879,10 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            CTLR_T_SKC, chan_type_direct,
                            & sk_unit [unit_idx], skc_iom_cmd);
       }
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW64__ */
+#endif /* ifndef __MINGW32__ */
 
     sim_printf ("cable IOM: can't parse controller type\n");
     return SCPE_ARG;
@@ -1358,11 +1376,23 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         CTLR_IOM (FNP, fnp)
         CTLR_IOM (DIA, dia)
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
         CTLR_IOM (ABSI, absi)
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
+#ifndef __MINGW32__
 #ifndef __MINGW64__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
         CTLR_IOM (SKC, sk)
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW64__ */
+#endif /* ifndef __MINGW32__ */
         CTLR_IOM (OPC, opc)
       }
     sim_printf ("\n");

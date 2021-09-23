@@ -60,17 +60,55 @@ endif
 LIBS += $(LIBUV)
 
 ###############################################################################
+# Support for MinGW-W32, MinGW-W64, LLVM-MinGW32/64 (i686/x86_64/ARM/AArch64)
+
+ifneq ($(msys_version),0)
+  CROSS=MINGW64
+  MINGW_FLAVOR=64
+  MINGW_CROSS=1
+  export CROSS
+  export MINGW_FLAVOR
+  export MINGW_CROSS
+endif
+
+ifeq ($(CROSS),MINGW32)
+  MINGW_CROSS=1
+  MINGW_FLAVOR=32
+  M32=$(MINGW_FLAVOR)
+  ifeq ($(msys_version),)
+    MINGWEX=-lmingwex
+    export MINGWEX
+  endif
+  export MINGW_CROSS
+  export MINGW_FLAVOR
+  export M32
+endif
 
 ifeq ($(CROSS),MINGW64)
-  CFLAGS += -DCROSS_MINGW64 -I../../../libuv/include
-  ifneq ($(W),)
-    CFLAGS += -Wno-misleading-indentation
+  MINGW_CROSS=1
+  MINGW_FLAVOR=64
+  ifeq ($(msys_version),)
+    MINGWEX=-lmingwex
+    export MINGWEX
+  endif
+  export MINGW_CROSS
+  export MINGW_FLAVOR
+endif
+
+ifeq ($(MINGW_CROSS),1)
+  CFLAGS += -DCROSS_MINGW$(MINGW_FLAVOR) -I../../../libuv/include
+  # Cross-compilation with Cygwin host to MinGW target
+  ifeq ($(CYGWIN_MINGW_CROSS),1)
+    LIBS += -lwinmm -lws2_32 -lssp $(MINGWEX) -lwsock32 -luserenv -liplpapi   \
+            -L../../../libuv/.libs $(LIBUV)
   endif
   ifeq ($(shell $(UNAME) -o 2> /dev/null || true >/dev/null 2>&1),Cygwin)
-    LIBS += -lwinmm -lws2_32 -lwsock32 -lws2_32 -luserenv -liphlpapi $(LIBUV)
+  # Standard Cygwin build
+    LIBS += -lwinmm -lws2_32 -lwsock32 -luserenv -liphlpapi $(LIBUV)
   else
-    LIBS += -lwinmm -lws2_32 -lssp -lmingwex -lwsock32 -lws2_32 -luserenv     \
-            -liphlpapi $(LIBUV) -L../../../libuv/.libs
+  # Cross-compilation to MinGW
+    LIBS += -lwinmm -lws2_32 -lssp $(MINGWEX) -lwsock32 -luserenv -liphlpapi  \
+            -L../../../libuv/.libs $(LIBUV)
   endif
 endif
 
@@ -101,7 +139,7 @@ endif
 ###############################################################################
 # The system_state code relies on M_SHARED.
 
-ifneq ($(CROSS),MINGW64)
+ifneq ($(MINGW_CROSS),1)
   CFLAGS += -DM_SHARED
   ifneq ($(OS),OSX)
     LIBS += -lrt
@@ -111,11 +149,14 @@ endif
 ###############################################################################
 # What needs -ldl?
 
-OSTYPE = $(shell $(UNAME) -s)
+OSTYPE = $(shell $(UNAME) -s 2> /dev/null)
 ifeq ($(OSTYPE),FreeBSD)
   LIBS += -lm -pthread
 endif
 ifeq ($(OSTYPE),Linux)
+  ifeq ($(CROSS),MINGW32)
+    LIBS += -lm
+  endif
   ifeq ($(CROSS),MINGW64)
     LIBS += -lm
   else
@@ -124,15 +165,21 @@ ifeq ($(OSTYPE),Linux)
 endif
 
 ###############################################################################
-# Need to link math library with explicit order?
 
+OSTYPE = $(shell $(UNAME) -s)
+ifeq ($(OSTYPE),FreeBSD)
+  LIBS += -lm -pthread
+endif
+ifeq ($(OSTYPE),Linux)
+  LIBS += -lm
+endif
 ifeq ($(OSTYPE),GNU)
   LIBS += -lm
 endif
 
 ###############################################################################
 
-ifneq ($(CROSS),MINGW64)
+ifneq ($(MINGW_CROSS),1)
   C_SRCS  = dps8_absi.c
 endif
 C_SRCS += bsd_random.c
@@ -159,7 +206,7 @@ C_SRCS += dps8_opcodetable.c
 C_SRCS += dps8_prt.c
 C_SRCS += dps8_scu.c
 C_SRCS += dps8_simh.c
-ifneq ($(CROSS),MINGW64)
+ifneq ($(MINGW_CROSS),1)
   C_SRCS += dps8_socket_dev.c
 endif
 ifeq ($(TRACKER),1)
@@ -172,10 +219,8 @@ C_SRCS += fnpuv.c
 C_SRCS += fnptelnet.c
 C_SRCS += libtelnet.c
 C_SRCS += hdbg.c
-ifneq ($(CROSS),MINGW64)
+ifneq ($(MINGW_CROSS),1)
   C_SRCS += shm.c
-endif
-ifneq ($(CROSS),MINGW64)
   C_SRCS += udplib.c
 endif
 ifeq ($(THREADZ),1)
@@ -193,7 +238,7 @@ OBJS  := $(patsubst %.c,%.o,$(C_SRCS))
 
 ###############################################################################
 
-ifneq ($(CROSS),MINGW64)
+ifneq ($(MINGW_CROSS),1)
   H_SRCS  = dps8_absi.h
 endif
 H_SRCS += bsd_random.h
@@ -235,7 +280,7 @@ H_SRCS += fnptelnet.h
 H_SRCS += h316_imp.h
 H_SRCS += hdbg.h
 H_SRCS += shm.h
-ifneq ($(CROSS),MINGW64)
+ifneq ($(MINGW_CROSS),1)
   H_SRCS += udplib.h
 endif
 H_SRCS += utarray.h
@@ -256,9 +301,8 @@ H_SRCS += uvutil.h
 ###############################################################################
 
 SIMH_OBJS = ../simh/scp.o        ../simh/sim_console.o  ../simh/sim_disk.o    \
-            ../simh/sim_ether.o  ../simh/sim_fio.o      ../simh/sim_serial.o  \
-            ../simh/sim_sock.o   ../simh/sim_tape.o     ../simh/sim_timer.o   \
-            ../simh/sim_tmxr.o   ../simh/sim_video.o
+            ../simh/sim_fio.o    ../simh/sim_serial.o   ../simh/sim_sock.o    \
+            ../simh/sim_tape.o   ../simh/sim_timer.o    ../simh/sim_tmxr.o
 
 ###############################################################################
 
@@ -276,14 +320,6 @@ all: sysdefs.h unifdef prt2pdf punutil $(TAGS) locallibs_then_dps8
 install: all
 	@$(SETV); $(MKDIR) "$(DESTDIR)$(INSTALL_BIN)"
 	@$(SETV); $(CP) "dps8$(EXE)" "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)"
-
-###############################################################################
-
-.PHONY: cscope
-.NOTPARALLEL: cscope
-cscope:
-	@$(PRINTF) '%s\n' "CSCOPE: dps8"
-	@$(SETV); $(CSCOPE) $(C_SRCS)
 
 ###############################################################################
 
@@ -421,10 +457,19 @@ udplib$(EXE): udplib.c udplib.h
 tags TAGS ctags: $(C_SRCS) $(H_SRCS) ver.h
 	@$(PRINTF) '%s\n' "CTAGS: dps8"
 	-@$(SETV); $(CTAGS) $(C_SRCS) $(H_SRCS)                                   \
-        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch] 2> /dev/null || $(TRUE)
+        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]    2> /dev/null   || $(TRUE)
 	@$(PRINTF) '%s\n' "ETAGS: dps8"
 	-@$(SETV); $(ETAGS) $(C_SRCS) $(H_SRCS)                                   \
-        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch] 2> /dev/null || $(TRUE)
+        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]    2> /dev/null   || $(TRUE)
+	@$(PRINTF) '%s\n' "GTAGS: dps8"
+	-@($(SETV); $(CD) ../.. && $(GIT) ls-files    2> /dev/null    |           \
+        $(GREP) '\.[ch]'                          2> /dev/null    |           \
+         $(GREP) -E '(dps8|decNumber|simh)'       2> /dev/null    |           \
+          $(GREP) -vE '(blinkenLights|\.Attic/)'  2> /dev/null    |           \
+		  $(GTAGS) -f -                           2> /dev/null)  || $(TRUE)
+	@$(PRINTF) '%s\n' "CSCOPE: dps8"
+	-@$(SETV); $(CSCOPE) -bcq $(C_SRCS) $(H_SRCS)                             \
+		$(SIMHx)/*.[ch] ../decNumber/dec*.[ch]    2> /dev/null   || $(TRUE)
 
 ###############################################################################
 
@@ -455,6 +500,14 @@ distclean: clean
 	@$(SETV); $(RMF) "../dps8m.state"         ||  $(TRUE)
 	@$(SETV); $(RMF) "dps8m.state"            ||  $(TRUE)
 	@$(SETV); $(RMF) "restoreMultics.log"     ||  $(TRUE)
+	@$(SETV); $(RMF)  "TAGS"                  ||  $(TRUE)
+	@$(SETV); $(RMF)  "tags"                  ||  $(TRUE)
+	@$(SETV); $(RMF)  "../../GPATH"           ||  $(TRUE)
+	@$(SETV); $(RMF)  "../../GRTAGS"          ||  $(TRUE)
+	@$(SETV); $(RMF)  "../../GTAGS"           ||  $(TRUE)
+	@$(SETV); $(RMF)  "cscope.in.out"         ||  $(TRUE)
+	@$(SETV); $(RMF)  "cscope.out"            ||  $(TRUE)
+	@$(SETV); $(RMF)  "cscope.po.out"         ||  $(TRUE)
 
 ###############################################################################
 

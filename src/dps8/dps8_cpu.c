@@ -1171,16 +1171,28 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
       }
     fnpProcessEvent ();
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
     sk_process_event ();
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
     consoleProcess ();
     machine_room_process ();
 #ifdef IO_ASYNC_PAYLOAD_CHAN
     iomProcess ();
 #endif
+#ifndef __MINGW32__
 #ifndef __MINGW64__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
     absi_process_event ();
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW64__ */
+#endif /* ifndef __MINGW32__ */
     PNL (panel_process_event ());
   }
 #endif

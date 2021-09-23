@@ -25,6 +25,7 @@
 #                  W=1                Enable extra compilation warnings
 #            TESTING=1                Enable developmental testing code
 #        NO_LOCKLESS=1                Enable (old) non-threaded MP mode
+#                L68=1                Build as H6180/Level-68 simulator
 #              CROSS=MINGW64          Enable MinGW-64 cross-compilation
 #
 #    ******* The following flags are intended for development and *******

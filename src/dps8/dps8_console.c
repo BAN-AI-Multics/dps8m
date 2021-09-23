@@ -19,16 +19,14 @@
 //  Copyright (c) 2013 Harry Reed. All rights reserved.
 //
 
-//#ifdef __MINGW64__
-//#include <inttypes.h>
-//#include "signal_gnu.h"
-//#endif
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
 #ifndef __MINGW64__
+#ifndef __MINGW32__
 #include <termios.h>
-#endif
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 #include <ctype.h>
 
 #include "dps8.h"
@@ -517,6 +515,7 @@ void console_attn_idx (int conUnitIdx)
   }
 
 #ifndef __MINGW64__
+#ifndef __MINGW32__
 static struct termios ttyTermios;
 static bool ttyTermiosOk = false;
 
@@ -545,7 +544,8 @@ static void newlineOn (void)
       return;
     tcsetattr (0, TCSAFLUSH, & ttyTermios);
   }
-#endif
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 
 static void handleRCP (uint con_unit_idx, char * text)
   {
@@ -1051,8 +1051,10 @@ sim_warn ("uncomfortable with this\n");
                 word36 * bufp = buf;
                 * textp = 0;
 #ifndef __MINGW64__
+#ifndef __MINGW32__
                 newlineOff ();
-#endif
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 #ifdef COLOR
                 sim_print (""); // force text color reset
 #endif
@@ -1121,8 +1123,10 @@ sim_warn ("uncomfortable with this\n");
                   }
                 handleRCP (con_unit_idx, text);
 #ifndef __MINGW64__
+#ifndef __MINGW32__
                 newlineOn ();
-#endif
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
                 p->stati = 04000;
 
                if (p->DDCW_22_23_TYPE != 0)

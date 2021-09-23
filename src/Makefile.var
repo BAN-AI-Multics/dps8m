@@ -22,17 +22,16 @@ endif
 
 ###############################################################################
 
-ifneq ($(CROSS),MINGW64)
-ifneq ($(OS),GNU)
-  CFLAGS += -DHAVE_DLOPEN=so
-endif
+ifdef HDBG
+  HDBG=1
+  CFLAGS += -DHDBG
 endif
 
 ###############################################################################
 
-ifdef HDBG
-  HDBG=1
-  CFLAGS += -DHDBG
+ifdef L68
+  L68=1
+  CFLAGS += -DL68
 endif
 
 ###############################################################################
@@ -115,8 +114,8 @@ endif
 # For embedding current time of building object
 
 ifndef VER_CURRENT_TIME
-  VER_CURRENT_TIME=$(shell env TZ=UTC date -u "+%Y-%m-%d %H:%M:%S UTC"        \
-    2> /dev/null || printf '%s\n' "2020-01-01 00:00:00 UTC")
+  VER_CURRENT_TIME=$(shell env TZ=UTC date -u "+%Y-%m-%d %H:%M UTC"           \
+    2> /dev/null || printf '%s\n' "2020-01-01 00:00 UTC")
 endif
 export VER_CURRENT_TIME
 

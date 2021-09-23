@@ -323,8 +323,10 @@ static inline int128 SIGNEXT72_128 (word72 w)
         return cast_s128 (v);
       }
     uint128 v =  and_128 (w, MASK72);
-#ifdef __sun__
+#if defined(__sun__)
     return (int128) { (uint64_t) v.h, v.l};
+#elif defined(__MINGW32__)
+    return (int128) { (int64_t) v.h, v.l};
 #else
     return (int128) { (__int64_t) v.h, v.l};
 #endif

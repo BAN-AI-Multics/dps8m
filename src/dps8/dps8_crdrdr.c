@@ -818,11 +818,11 @@ static void scanForCards(uint16 readerIndex)
       return;
     }
 
-#ifndef __MINGW64__
+#if !defined(__MINGW64__) || !defined(__MINGW32__)
     sprintf(rdr_dir, "/tmp/%s%c", rdr_name, 'a' + readerIndex);
 #else
     sprintf(rdr_dir, "%s/%s%c", getenv("TEMP"), rdr_name, 'a' + readerIndex);
-#endif
+#endif /* if !defined(__MINGW64__) || !defined(__MINGW32__) */
 
     if (rdr_path_prefix [0])
       {

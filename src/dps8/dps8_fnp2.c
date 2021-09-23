@@ -86,14 +86,16 @@
 #include "sim_tmxr.h"
 
 #ifndef CROSS_MINGW64
+#ifndef CROSS_MINGW32
 #include <regex.h>
-#endif
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef CROSS_MINGW64 */
 
 #define DBG_CTR 1
 
 #if defined(THREADZ) || defined(LOCKLESS)
 #include "threadz.h"
-#endif
+#endif /* defined(THREADZ) || defined(LOCKLESS) */
 
 static t_stat fnpShowConfig (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat fnpSetConfig (UNIT * uptr, int value, const char * cptr, void * desc);
@@ -2550,7 +2552,7 @@ void process3270Input (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
         return;
       }
     if_sim_debug (DBG_TRACE, & fnp_dev) {
-        sim_debug (DBG_TRACE, & fnp_dev, "process3270Input nread %ld\n", nread);
+        sim_debug (DBG_TRACE, & fnp_dev, "process3270Input nread %ld\n", (long)nread);
         for (int i = 0; i < nread; i ++) sim_debug (DBG_TRACE, & fnp_dev, "%c", isgraph (e2a[buf[i]]) ? e2a[buf[i]] : '.');
         sim_debug (DBG_TRACE, & fnp_dev, "\r\n");
         for (int i = 0; i < nread; i ++) sim_debug (DBG_TRACE, & fnp_dev, " %02x", buf[i]);
@@ -2605,7 +2607,7 @@ void process3270Input (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
         stn_p->stn_in_used = 0;
       }
 
-sim_debug (DBG_TRACE, & fnp_dev, "process3270Input stashed %lu bytes in stn %u; stn_in_size now %u\n", nread, stn_no, stn_p->stn_in_size);
+sim_debug (DBG_TRACE, & fnp_dev, "process3270Input stashed %lu bytes in stn %u; stn_in_size now %u\n", (unsigned long)nread, stn_no, stn_p->stn_in_size);
 done:;
     // Prevent further reading until this buffer is consumed
     // Rely on 3270 keyboard logic protocol to prevent buffer collision

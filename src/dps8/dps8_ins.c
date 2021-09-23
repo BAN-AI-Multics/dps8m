@@ -2453,7 +2453,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
                    "A=%012"PRIo64" Q=%012"PRIo64" IR:%s\n",
                    cpu.rA, cpu.rQ, dump_flags (buf, cpu.cu.IR));
 
-#ifndef __MINGW64__
+#if !defined(__MINGW64__) || !defined(__MINGW32__)
         sim_debug (DBG_REGDUMPFLT, &cpu_dev,
                    "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10Lg\n",
                    cpu.rE, cpu.rA, cpu.rQ, EAQToIEEElongdouble ());
@@ -2577,14 +2577,13 @@ static t_stat doInstruction (void)
         uint col = grp % 36;
         CPT (cpt3U + row, col); // 3U 0-35, 3L 0-17
       }
+#endif
 #ifdef L68
     bool is_ou = false;
-#endif
     if (opcodes10[opcode10].reg_use & is_OU)
       {
-#ifdef L68
         is_ou = true;
-#endif
+#ifdef PANEL
     // XXX Punt on RP FULL, RS FULL
         cpu.ou.RB1_FULL = cpu.ou.RP_FULL = cpu.ou.RS_FULL = 1;
         cpu.ou.cycle |= ou_GIN;
@@ -2601,6 +2600,7 @@ static t_stat doInstruction (void)
         if (reguse & ru_X5) CPT (cpt5U, 11);
         if (reguse & ru_X6) CPT (cpt5U, 12);
         if (reguse & ru_X7) CPT (cpt5U, 13);
+#endif
       }
 #ifdef L68
     bool is_du = false;
@@ -9579,7 +9579,7 @@ static int emCall (void)
         }
         case 6:     // putEAQ - put float contents of C(EAQ) to stdout
         {
-#ifndef __MINGW64__
+#if !defined(__MINGW64__) || !defined(__MINGW32__)
             long double eaq = EAQToIEEElongdouble ();
             sim_printf ("%12.8Lg", eaq);
 #else

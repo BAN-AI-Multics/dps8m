@@ -22,11 +22,17 @@
 
 #include <stdio.h>
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW64
+#ifndef CROSS_MINGW32
 #ifndef __OpenBSD__
 #include <wordexp.h>
-#endif
+#endif /* ifndef __OpenBSD__ */
 #include <signal.h>
-#endif
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 #include <unistd.h>
 #include <ctype.h>
 
@@ -218,9 +224,15 @@ static char * default_base_system_script [] =
     "set pun nunits=3",
     "set prt nunits=4",
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW64
+#ifndef CROSS_MINGW32
     "set skc nunits=64",
     "set absi nunits=1",
-#endif
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 
 
 // CPU0
@@ -1391,6 +1403,9 @@ static char * default_base_system_script [] =
     "cable urp9 1 punc",
 
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
     "cable IOMA 040 SKCA",
     "cable IOMA 041 SKCB",
     "cable IOMA 042 SKCC",
@@ -1399,7 +1414,10 @@ static char * default_base_system_script [] =
     "cable IOMA 045 SKCF",
     "cable IOMA 046 SKCG",
     "cable IOMA 047 SKCH",
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 
 #if 0
     // ; Attach PRT unit 1 to IOM 0, chan 017, dev_code 2
@@ -1466,9 +1484,15 @@ static char * default_base_system_script [] =
 #endif
 
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW64
+#ifndef CROSS_MINGW32
     // ; Attach ABSI unit 0 to IOM 0, chan 032, dev_code 0
     "cable IOM0 032 ABSI0",
-#endif
+#endif /* CROSS_MINGW32 */
+#endif /* CROSS_MINGW64 */
+#endif /* __MINGW32__ */
+#endif /* __MINGW64__ */
 
     // ; Attach IOM unit 0 port A (0) to SCU unit 0, port 0
     "cable SCU0 0 IOM0 0", // SCU0 port 0 IOM0 port 0
@@ -3468,7 +3492,10 @@ static void cleanupChildren (void)
     printf ("cleanupChildren\n");
     for (int i = 0; i < nChildren; i ++)
       {
-#ifndef __MINGW64__
+#if !defined(__MINGW64__)   || \
+    !defined(__MINGW32__)   || \
+    !defined(CROSS_MINGW64) || \
+    !defined(CROSS_MINGW32)
         printf ("  kill %d\n", childrenList[i]);
         kill (childrenList[i], SIGHUP);
 #else
@@ -3490,6 +3517,9 @@ static void addChild (pid_t pid)
 static t_stat launch (int32 UNUSED arg, const char * buf)
   {
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
 #ifndef __OpenBSD__
     wordexp_t p;
     int rc = wordexp (buf, & p, WRDE_SHOWERR | WRDE_UNDEF);
@@ -3529,11 +3559,15 @@ static t_stat launch (int32 UNUSED arg, const char * buf)
          return SCPE_ARG;
      }
      addChild ((pid_t)pi.hProcess);
-#endif
+#endif /* ifndef __OpenBSD__ */
     return SCPE_OK;
   }
-#endif
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
+
+#endif /* LAUNCH */
 
 #ifdef PANEL
 static t_stat scraper (UNUSED int32 arg, const char * buf)
@@ -3876,6 +3910,9 @@ static CTAB dps8_cmds[] =
   }; // dps8_cmds
 
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW64
+#ifndef CROSS_MINGW32
 static void usr1_signal_handler (UNUSED int sig)
   {
     sim_msg ("USR1 signal caught; pressing the EXF button\n");
@@ -3883,7 +3920,10 @@ static void usr1_signal_handler (UNUSED int sig)
     setG7fault (ASSUME0, FAULT_EXF, fst_zero);
     return;
   }
-#endif
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 
 // Once-only initialization; invoked by simh
 
@@ -4021,20 +4061,35 @@ static void dps8_init (void)
 //#endif
 
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
     // Wire the XF button to signal USR1
     signal (SIGUSR1, usr1_signal_handler);
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
 // On line 4,739 of the libuv man page, it recommends this.
     signal(SIGPIPE, SIG_IGN);
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
 
 #ifdef SCUMEM
 #error SCUMEM not working with new shared memory model
 #endif
 
-#ifdef __MINGW64__
+#if defined(__MINGW64__)   || \
+    defined(__MINGW32__)   || \
+    defined(CROSS_MINGW32) || \
+    defined(CROSS_MINGW64)
     system_state = malloc (sizeof (struct system_state_s));
 #else
     system_state = (struct system_state_s *)
@@ -4082,11 +4137,17 @@ static void dps8_init (void)
     disk_init ();
     mt_init ();
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW64
+#ifndef CROSS_MINGW32
     sk_init ();
-#endif
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef __MINGW64__ */
+#endif /* ifndef __MINGW32__ */
     fnpInit ();
     console_init (); // must come after fnpInit due to libuv initiailization
-    //mpc_init ();
+ /* mpc_init (); */
     scu_init ();
     cpu_init ();
     rdr_init ();
@@ -4094,15 +4155,21 @@ static void dps8_init (void)
     prt_init ();
     urp_init ();
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW64
+#ifndef CROSS_MINGW32
     absi_init ();
-#endif
+#endif /* CROSS_MINGW32 */
+#endif /* CROSS_MINGW64 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
     set_default_base_system (0, NULL);
 #ifdef PANEL
     panelScraperInit ();
-#endif
+#endif /* ifdef PANEL */
 #if defined(THREADZ) || defined(LOCKLESS)
     initThreadz ();
-#endif
+#endif /* if defined(THREADZ) || defined(LOCKLESS) */
   }
 
 
@@ -4499,15 +4566,21 @@ DEVICE * sim_devices[] =
     & iom_dev,
     & tape_dev,
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
     & skc_dev,
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
     & mtp_dev,
     & fnp_dev,
     & dsk_dev,
     & ipc_dev,
     & msp_dev,
     & scu_dev,
-    // & mpc_dev,
+ /* & mpc_dev, */
     & opc_dev,
     & sys_dev,
     & urp_dev,
@@ -4515,8 +4588,14 @@ DEVICE * sim_devices[] =
     & pun_dev,
     & prt_dev,
 #ifndef __MINGW64__
+#ifndef __MINGW32__
+#ifndef CROSS_MINGW32
+#ifndef CROSS_MINGW64
     & absi_dev,
-#endif
+#endif /* ifndef CROSS_MINGW64 */
+#endif /* ifndef CROSS_MINGW32 */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
     NULL
   };
 
