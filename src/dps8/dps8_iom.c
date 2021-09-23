@@ -587,9 +587,9 @@
 // iom_word_macros.incl.alm
 //
 // Channel control
-//   terminate   0
-//   proceed     2
-//   marker      3
+#define CHAN_CTRL_TERMINATE 0
+#define CHAN_CTRL_PROCEED 2
+#define CHAN_CTRL_MARKER 3
 
 #include "dps8.h"
 #include "dps8_sys.h"
@@ -2643,7 +2643,7 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
           p -> IDCW_EC =         getbits36_1 (p -> DCW, 21);
         if (p -> IDCW_EC)
           p -> SEG = 1; // pat. step 45
-        p -> IDCW_CHAN_CTRL =      getbits36_2 (p -> DCW, 22);
+        p -> IDCW_CHAN_CTRL =    getbits36_2 (p -> DCW, 22);
         p -> IDCW_CHAN_CMD =     getbits36_6 (p -> DCW, 24);
         p -> IDCW_COUNT =        getbits36_6 (p -> DCW, 30);
         sim_debug (DBG_DEBUG, & iom_dev,
@@ -3457,7 +3457,7 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
         goto terminate;
       }
 
-    if (p->DCW_18_20_CP == 7 && p->IDCW_CHAN_CTRL == 3) // IDCW marker bit set
+    if (p->DCW_18_20_CP == 7 && p->IDCW_CHAN_CTRL == CHAN_CTRL_MARKER) // IDCW marker bit set
       {
         send_marker_interrupt (iomUnitIdx, (int) chan);
       }
@@ -3469,7 +3469,7 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
 
 #if 0
     if (rc != IOM_CMD_NEED_DDCW) {
-      if (p -> IDCW_CHAN_CTRL == 0) {
+      if (p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE) {
 if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) PCW\n", chan, chan);
         goto terminate;
       }
@@ -3480,8 +3480,8 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) PCW\n
 // The boot tape loader sends PCWs with control == 0 when it shouldn't
 // BCE sends disk PCWs with control == 0 when it shouldn't
 
-    //if (p -> IDCW_CHAN_CTRL == 0)
-    if (p -> IDCW_CHAN_CTRL == 0 && d -> type != DEVT_TAPE && d -> type != DEVT_DISK)
+    //if (p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE)
+    if (p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && d -> type != DEVT_TAPE && d -> type != DEVT_DISK)
       {
         //sim_printf ("ctrl == 0 in chan %d (%o) PCW\n", chan, chan);
         goto terminate;
@@ -3504,6 +3504,8 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) PCW\n
 #ifdef TESTING
     bool first = true;
 #endif
+
+    bool idcw_terminate = p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE;
     do
       {
         int rc2 = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
@@ -3559,6 +3561,7 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) PCW\n
 
         if (p -> DCW_18_20_CP == 07) // IDCW
           {
+            idcw_terminate = p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE;
             if (p -> LPW_23_REL == 0 && p -> IDCW_EC == 1)
               p -> ADDR_EXT = getbits36_6 (p -> DCW, 12);
 
@@ -3593,24 +3596,30 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) PCW\n
           terminate = true;
 #endif
 
-        if (rc2 != IOM_CMD_NEED_DDCW) {
-          if (p -> IDCW_CHAN_CTRL == 0) {
-if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+        // If IDCW and terminate and nondata
+        if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == 2) {
+            if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
             goto terminate;
-          }
+        }
+        if (p->DCW_18_20_CP != 07 && idcw_terminate) {
+            if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
+            goto terminate;
         }
 
+        // If IOTP and last IDCW was terminate
+
 // The IOM boot code and BCE sets IDCW_CHAN_CTRL to 0; this stops the IOTs from being processed.
-        //if (rc2 || p -> IDCW_CHAN_CTRL == 0)
+        //if (rc2 || p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE)
           //ptro = true;
 
 #if 0
         if (p->DCW_18_20_CP == 07 && saw_chan_terminate)
           terminate = true;
-        if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == 0)
+        if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE)
           saw_chan_terminate = true;
 #endif
 
+#if 0
         // IOTD?
         if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
           {
@@ -3618,6 +3627,7 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) DCW\n
 if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("IOTD in chan %d (%o) DCW\n", chan, chan);
             goto terminate;
           }
+#endif
 
 #if 0 // done in the channel adaptor
         // IOTD?
@@ -3630,7 +3640,7 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("IOTD in chan %d (%o) DCW\n", ch
 
 #if 0
 // This should work but IOM boot and BCE set it to 0 and expect life to go on
-        if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 0 && p->IDCW_CHAN_CTRL == 0)
+        if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 0 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE)
           {
             ptro = true;
 sim_debug (DBG_DEBUG, & iom_dev, "XXXXXX NC %o TAL %o tally %o\n", p->LPW_21_NC, p->LPW_22_TAL, p->LPW_TALLY);

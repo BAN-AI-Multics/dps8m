@@ -1128,7 +1128,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               csp->echo = true;
               csp->bcd = true;
               p->stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 013:               // Write BCD
@@ -1137,7 +1136,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               csp->bcd = true;
               csp->io_mode = opc_write_mode;
               p->stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 023:               // Read ASCII
@@ -1146,7 +1144,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               csp->echo = true;
               csp->bcd = false;
               p->stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 033:               // Write ASCII
@@ -1155,7 +1152,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
               csp->bcd = false;
               csp->io_mode = opc_write_mode;
               p->stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
 
@@ -1187,7 +1183,6 @@ if (p->IDCW_CHAN_CTRL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return
               csp->echo = false;
               csp->bcd = false;
               p->stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 051:               // Write Alert -- Ring Bell
