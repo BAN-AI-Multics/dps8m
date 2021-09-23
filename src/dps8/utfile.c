@@ -20,11 +20,11 @@
 
 #define MAX_MKSTEMPS_TRIES 10000
 
-#ifdef __MINGW64__
+#if defined(__MINGW64__) || defined(__MINGW32__)
 #include "bsd_random.h"
 #define random  bsd_random
 #define srandom bsd_srandom
-#endif /* ifdef __MINGW64__ */
+#endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
 
 static char valid_file_name_chars[]
   = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";

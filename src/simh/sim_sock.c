@@ -56,10 +56,6 @@ extern "C" {
 #include <ws2tcpip.h>
 #endif
 
-#ifdef HAVE_DLOPEN
-#include <dlfcn.h>
-#endif
-
 #ifndef WSAAPI
 #define WSAAPI
 #endif
@@ -207,6 +203,7 @@ typedef size_t socklen_t;
 typedef int (WSAAPI *getnameinfo_func) (const struct sockaddr *sa, socklen_t salen, char *host, size_t hostlen, char *serv, size_t servlen, int flags);
 static getnameinfo_func p_getnameinfo;
 
+#if defined(_WIN32) || defined(__CYGWIN__)
 static void    WSAAPI s_freeaddrinfo (struct addrinfo *ai)
 {
 struct addrinfo *a, *an;
@@ -378,6 +375,7 @@ return 0;
 #define EAI_OVERFLOW WSAENAMETOOLONG
 #endif
 
+
 static int     WSAAPI s_getnameinfo (const struct sockaddr *sa, socklen_t salen,
                                      char *host, size_t hostlen,
                                      char *serv, size_t servlen,
@@ -434,7 +432,6 @@ if ((host) && (hostlen > 0)) {
 return 0;
 }
 
-#if defined(_WIN32) || defined(__CYGWIN__)
 
 #if !defined(IPV6_V6ONLY)           /* Older XP environments may not define IPV6_V6ONLY */
 #define IPV6_V6ONLY           27    /* Treat wildcard bind as AF_INET6-only. */
@@ -468,7 +465,7 @@ int load_ws2(void) {
   switch(lib_loaded) {
     case 0:                  /* not loaded */
             /* attempt to load DLL */
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
       hLib = LoadLibraryA(lib_name);
 #else
       hLib = dlopen(lib_name, RTLD_NOW);

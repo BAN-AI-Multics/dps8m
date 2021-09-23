@@ -157,6 +157,7 @@ static uint32 sim_os_clock_resoluton_ms = 0;
 static uint32 sim_os_tick_hz = 0;
 static uint32 sim_idle_stable = SIM_IDLE_STDFLT;
 static uint32 sim_idle_calib_pct = 0;
+#ifdef SIMH_THROTTLE
 static uint32 sim_throt_ms_start = 0;
 static uint32 sim_throt_ms_stop = 0;
 static uint32 sim_throt_type = 0;
@@ -166,6 +167,7 @@ static double sim_throt_cps;
 static double sim_throt_inst_start;
 static uint32 sim_throt_sleep_time = 0;
 static int32 sim_throt_wait = 0;
+#endif /* endif SIMH_THROTTLE */
 static UNIT *sim_clock_unit[SIM_NTIMERS+1] = {NULL};
 UNIT * volatile sim_clock_cosched_queue[SIM_NTIMERS+1] = {NULL};
 static int32 sim_cosched_interval[SIM_NTIMERS+1];
@@ -487,68 +489,6 @@ uint32 sim_os_ms_sleep (unsigned int msec)
 return 0;
 }
 
-/* Metrowerks CodeWarrior Macintosh routines, from Ben Supnik */
-
-#elif defined (__MWERKS__) && defined (macintosh)
-
-#include <Timer.h>
-#include <Mactypes.h>
-#include <sioux.h>
-#include <unistd.h>
-#include <siouxglobals.h>
-#define NANOS_PER_MILLI     1000000
-#define MILLIS_PER_SEC      1000
-
-const t_bool rtc_avail = TRUE;
-
-uint32 sim_os_msec (void)
-{
-unsigned long long micros;
-UnsignedWide macMicros;
-unsigned long millis;
-
-Microseconds (&macMicros);
-micros = *((unsigned long long *) &macMicros);
-millis = micros / 1000LL;
-return (uint32) millis;
-}
-
-void sim_os_sleep (unsigned int sec)
-{
-sleep (sec);
-return;
-}
-
-uint32 sim_os_ms_sleep_init (void)
-{
-return _compute_minimum_sleep ();
-}
-
-uint32 sim_os_ms_sleep (unsigned int milliseconds)
-{
-uint32 stime = sim_os_msec ();
-struct timespec treq;
-
-treq.tv_sec = milliseconds / MILLIS_PER_SEC;
-treq.tv_nsec = (milliseconds % MILLIS_PER_SEC) * NANOS_PER_MILLI;
-(void) nanosleep (&treq, NULL);
-return sim_os_msec () - stime;
-}
-
-#if defined(NEED_CLOCK_GETTIME)
-int clock_gettime(int clk_id, struct timespec *tp)
-{
-struct timeval cur;
-
-if (clk_id != CLOCK_REALTIME)
-  return -1;
-gettimeofday (&cur, NULL);
-tp->tv_sec = cur.tv_sec;
-tp->tv_nsec = cur.tv_usec*1000;
-return 0;
-}
-#endif
-
 #else
 
 /* UNIX routines */
@@ -687,8 +627,10 @@ static void _double_to_timespec (struct timespec *time, double dtime);
 static t_bool _rtcn_tick_catchup_check (int32 tmr, int32 time);
 static void _rtcn_configure_calibrated_clock (int32 newtmr);
 static void _sim_coschedule_cancel(UNIT *uptr);
+#if defined(SIM_ASYNCH_CLOCKS)
 static void _sim_wallclock_cancel (UNIT *uptr);
 static t_bool _sim_wallclock_is_active (UNIT *uptr);
+#endif /* if defined(SIM_ASYNCH_CLOCKS) */
 
 #if defined(SIM_ASYNCH_CLOCKS)
 static int sim_timespec_compare (struct timespec *a, struct timespec *b)
@@ -881,6 +823,7 @@ if (rtc_ticks[tmr] < ticksper) {                        /* 1 sec yet? */
     }
 rtc_ticks[tmr] = 0;                                     /* reset ticks */
 rtc_elapsed[tmr] = rtc_elapsed[tmr] + 1;                /* count sec */
+#ifdef SIMH_THROTTLE
 if (sim_throt_type != SIM_THROT_NONE) {
     rtc_gtime[tmr] = sim_gtime();                       /* save instruction time */
     rtc_currd[tmr] = (int32)(sim_throt_cps / ticksper); /* use throttle calibration */
@@ -888,6 +831,7 @@ if (sim_throt_type != SIM_THROT_NONE) {
     sim_debug (DBG_CAL, &sim_timer_dev, "using throttle calibrated value - result: %d\n", rtc_currd[tmr]);
     return rtc_currd[tmr];
     }
+#endif /* ifdef SIMH_THROTTLE */
 if (!rtc_avail) {                                       /* no timer? */
     return rtc_currd[tmr];
     }
@@ -1092,6 +1036,7 @@ for (tmr=clocks=0; tmr<=SIM_NTIMERS; ++tmr) {
         }
     if (rtc_gtime[tmr])
         fprintf (st, "  Instruction Time:          %.0f\n", rtc_gtime[tmr]);
+#ifdef SIMH_THROTTLE
     if ((!sim_asynch_timer) && (sim_throt_type == SIM_THROT_NONE)) {
         fprintf (st, "  Real Time:                 %u\n",   rtc_rtime[tmr]);
         fprintf (st, "  Virtual Time:              %u\n",   rtc_vtime[tmr]);
@@ -1099,6 +1044,7 @@ for (tmr=clocks=0; tmr<=SIM_NTIMERS; ++tmr) {
         fprintf (st, "  Base Tick Delay:           %d\n",   rtc_based[tmr]);
         fprintf (st, "  Initial Insts Per Tick:    %d\n",   rtc_initd[tmr]);
         }
+#endif /* ifdef SIMH_THROTTLE */
     fprintf (st, "  Current Insts Per Tick:    %d\n",   rtc_currd[tmr]);
     fprintf (st, "  Initializations:           %d\n",   rtc_calib_initializations[tmr]);
     fprintf (st, "  Total Ticks:               %u\n", rtc_clock_ticks_tot[tmr]+rtc_clock_ticks[tmr]);
@@ -1441,10 +1387,12 @@ if (cptr && *cptr) {
     sim_idle_stable = v;
     }
 sim_idle_enab = TRUE;
+#ifdef SIMH_THROTTLE
 if (sim_throt_type != SIM_THROT_NONE) {
     sim_set_throt (0, NULL);
     sim_printf ("Throttling disabled\n");
     }
+#endif /* ifdef SIMH_THROTTLE */
 return SCPE_OK;
 }
 

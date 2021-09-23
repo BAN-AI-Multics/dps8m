@@ -856,7 +856,7 @@ int main (int argc, char * argv [])
 
 #else
 
-#if __SIZEOF_LONG__ < 8 && ! defined (__MINGW64__)
+#if (__SIZEOF_LONG__ < 8) && ( !defined(__MINGW64__) || !defined(__MINGW32__) )
 
 #include "dps8_math128.h"
 

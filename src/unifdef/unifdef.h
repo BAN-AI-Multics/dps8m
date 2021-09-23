@@ -43,25 +43,23 @@
 
 #define replace(old, new) rename(old, new)
 
-#ifdef _WIN32
-#ifdef __MINGW64__
-static inline int fchmod()
-#else
-static inline int fchmod(int fildes, mode_t mode)
-#endif /* __MINGW64__ */
-{ errno = ENOSYS; return -1; }
-#endif /* ifdef _WIN32 */
-
 static FILE *
 mktempmode(char *tmp, int mode)
 {
   int fd = mkstemp(tmp);
+  (void)mode;
 
   if (fd < 0)
   {
     return ( NULL );
   }
 
+#ifdef _WIN32
+#ifndef __MINGW64__
+#ifndef __MINGW32__
   fchmod(fd, mode & ( S_IRWXU | S_IRWXG | S_IRWXO ));
+#endif /* ifndef __MINGW64__ */
+#endif /* ifndef __MINGW32__ */
+#endif /* ifdef _WIN32 */
   return ( fdopen(fd, "wb"));
 }

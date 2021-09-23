@@ -139,7 +139,9 @@
 /* Forward Declaraations of Platform specific routines */
 
 static t_stat sim_os_poll_kbd (void);
+#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
 static t_bool sim_os_poll_kbd_ready (int ms_timeout);
+#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
 static t_stat sim_os_putchar (int32 out);
 static t_stat sim_os_ttinit (void);
 static t_stat sim_os_ttrun (void);
@@ -167,7 +169,7 @@ static t_stat sim_set_delay (int32 flag, CONST char *cptr);
 int32 sim_int_char = 005;                               /* interrupt character */
 int32 sim_brk_char = 000;                               /* break character */
 int32 sim_tt_pchar = 0x00002780;
-#if defined (_WIN32) || defined (__OS2__) || (defined (__MWERKS__) && defined (macintosh))
+#if defined (_WIN32) || defined (__OS2__)
 int32 sim_del_char = '\b';                              /* delete character */
 #else
 int32 sim_del_char = 0177;
@@ -2424,6 +2426,7 @@ if (response = buffered_character) {
 return sim_os_poll_kbd_data ();
 }
 
+#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
 static t_bool sim_os_poll_kbd_ready (int ms_timeout)
 {
 unsigned int status, term[2];
@@ -2445,7 +2448,7 @@ else
         buffered_character = (buf[0] | SCPE_KFLAG);
 return TRUE;
 }
-
+#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
 
 static t_stat sim_os_putchar (int32 out)
 {
@@ -2598,6 +2601,7 @@ if ((sim_brk_char && ((c & 0177) == sim_brk_char)) || (c & SCPE_BREAK))
 return c | SCPE_KFLAG;
 }
 
+#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
 static t_bool sim_os_poll_kbd_ready (int ms_timeout)
 {
 sim_debug (DBG_TRC, &sim_con_telnet, "sim_os_poll_kbd_ready()\n");
@@ -2608,6 +2612,7 @@ if ((std_input == NULL) ||                              /* No keyboard for */
     }
 return (WAIT_OBJECT_0 == WaitForSingleObject (std_input, ms_timeout));
 }
+#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
 
 #define BELL_CHAR         7         /* Bell Character */
 #define BELL_INTERVAL_MS  500       /* No more than 2 Bell Characters Per Second */
@@ -2693,11 +2698,13 @@ if (sim_brk_char && ((c & 0177) == sim_brk_char))
 return c | SCPE_KFLAG;
 }
 
+#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
 static t_bool sim_os_poll_kbd_ready (int ms_timeout)   /* Don't know how to do this on this platform */
 {
 sim_os_ms_sleep (MIN(20,ms_timeout));           /* Wait a little */
 return TRUE;                                    /* force a poll */
 }
+#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
 
 static t_stat sim_os_putchar (int32 c)
 {
@@ -2707,192 +2714,6 @@ if (c != 0177) {
 #else
     putch (c);
 #endif
-    fflush (stdout);
-    }
-return SCPE_OK;
-}
-
-/* Metrowerks CodeWarrior Macintosh routines, from Louis Chretien and
-   Peter Schorn */
-
-#elif defined (__MWERKS__) && defined (macintosh)
-
-#include <console.h>
-#include <Mactypes.h>
-#include <string.h>
-#include <sioux.h>
-#include <unistd.h>
-#include <siouxglobals.h>
-#include <Traps.h>
-#include <LowMem.h>
-
-/* function prototypes */
-
-Boolean SIOUXIsAppWindow(WindowPtr window);
-void SIOUXDoMenuChoice(long menuValue);
-void SIOUXUpdateMenuItems(void);
-void SIOUXUpdateScrollbar(void);
-int ps_kbhit(void);
-int ps_getch(void);
-
-extern pSIOUXWin SIOUXTextWindow;
-static CursHandle iBeamCursorH = NULL;                  /* contains the iBeamCursor */
-
-static void updateCursor(void) {
-    WindowPtr window;
-    window = FrontWindow();
-    if (SIOUXIsAppWindow(window)) {
-        GrafPtr savePort;
-        Point localMouse;
-        GetPort(&savePort);
-        SetPort(window);
-#if TARGET_API_MAC_CARBON
-        GetGlobalMouse(&localMouse);
-#else
-        localMouse = LMGetMouseLocation();
-#endif
-        GlobalToLocal(&localMouse);
-        if (PtInRect(localMouse, &(*SIOUXTextWindow->edit)->viewRect) && iBeamCursorH) {
-            SetCursor(*iBeamCursorH);
-        }
-        else {
-            SetCursor(&qd.arrow);
-        }
-        TEIdle(SIOUXTextWindow->edit);
-        SetPort(savePort);
-    }
-    else {
-        SetCursor(&qd.arrow);
-        TEIdle(SIOUXTextWindow->edit);
-    }
-    return;
-}
-
-int ps_kbhit(void) {
-    EventRecord event;
-    int c;
-    updateCursor();
-    SIOUXUpdateScrollbar();
-    while (GetNextEvent(updateMask | osMask | mDownMask | mUpMask | activMask |
-             highLevelEventMask | diskEvt, &event)) {
-        SIOUXHandleOneEvent(&event);
-    }
-    if (SIOUXQuitting) {
-        exit(1);
-    }
-    if (EventAvail(keyDownMask,&event)) {
-        c = event.message&charCodeMask;
-        if ((event.modifiers & cmdKey) && (c > 0x20)) {
-            GetNextEvent(keyDownMask, &event);
-            SIOUXHandleOneEvent(&event);
-            if (SIOUXQuitting) {
-                exit(1);
-            }
-            return false;
-        }
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-
-int ps_getch(void) {
-    int c;
-    EventRecord event;
-    fflush(stdout);
-    updateCursor();
-    while(!GetNextEvent(keyDownMask,&event)) {
-        if (GetNextEvent(updateMask | osMask | mDownMask | mUpMask | activMask |
-             highLevelEventMask | diskEvt, &event)) {
-            SIOUXUpdateScrollbar();
-            SIOUXHandleOneEvent(&event);
-        }
-    }
-    if (SIOUXQuitting) {
-        exit(1);
-    }
-    c = event.message&charCodeMask;
-    if ((event.modifiers & cmdKey) && (c > 0x20)) {
-        SIOUXUpdateMenuItems();
-        SIOUXDoMenuChoice(MenuKey(c));
-    }
-    if (SIOUXQuitting) {
-        exit(1);
-    }
-   return c;
-}
-
-/* Note that this only works if the call to sim_ttinit comes before any output to the console */
-
-static t_stat sim_os_ttinit (void) {
-    int i;
-    /* this blank will later be replaced by the number of characters */
-    char title[50] = " ";
-    unsigned char ptitle[50];
-    SIOUXSettings.autocloseonquit       = TRUE;
-    SIOUXSettings.asktosaveonclose = FALSE;
-    SIOUXSettings.showstatusline = FALSE;
-    SIOUXSettings.columns = 80;
-    SIOUXSettings.rows = 40;
-    SIOUXSettings.toppixel = 42;
-    SIOUXSettings.leftpixel     = 6;
-    iBeamCursorH = GetCursor(iBeamCursor);
-    strcat(title, sim_name);
-    strcat(title, " Simulator");
-    title[0] = strlen(title) - 1;                       /* Pascal string done */
-    for (i = 0; i <= title[0]; i++) {                   /* copy to unsigned char */
-        ptitle[i] = title[i];
-    }
-    SIOUXSetTitle(ptitle);
-    return SCPE_OK;
-}
-
-static t_stat sim_os_ttrun (void)
-{
-return SCPE_OK;
-}
-
-static t_stat sim_os_ttcmd (void)
-{
-return SCPE_OK;
-}
-
-static t_stat sim_os_ttclose (void)
-{
-return SCPE_OK;
-}
-
-static t_bool sim_os_ttisatty (void)
-{
-return 1;
-}
-
-static t_stat sim_os_poll_kbd (void)
-{
-int c;
-
-if (!ps_kbhit ())
-    return SCPE_OK;
-c = ps_getch();
-if ((c & 0177) == sim_del_char)
-    c = 0177;
-if ((c & 0177) == sim_int_char) return SCPE_STOP;
-if (sim_brk_char && ((c & 0177) == sim_brk_char))
-    return SCPE_BREAK;
-return c | SCPE_KFLAG;
-}
-
-static t_bool sim_os_poll_kbd_ready (int ms_timeout)   /* Don't know how to do this on this platform */
-{
-sim_os_ms_sleep (MIN(20,ms_timeout));           /* Wait a little */
-return TRUE;                                    /* force a poll */
-}
-
-static t_stat sim_os_putchar (int32 c)
-{
-if (c != 0177) {
-    putchar (c);
     fflush (stdout);
     }
 return SCPE_OK;
@@ -2989,6 +2810,7 @@ if (sim_int_char && (buf[0] == sim_int_char))
 return (buf[0] | SCPE_KFLAG);
 }
 
+#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
 static t_bool sim_os_poll_kbd_ready (int ms_timeout)
 {
 fd_set readfds;
@@ -3004,6 +2826,7 @@ timeout.tv_sec = (ms_timeout*1000)/1000000;
 timeout.tv_usec = (ms_timeout*1000)%1000000;
 return (1 == select (1, &readfds, NULL, NULL, &timeout));
 }
+#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
 
 static t_stat sim_os_putchar (int32 out)
 {
@@ -3033,11 +2856,7 @@ runtty = cmdtty;
 runtty.c_lflag = runtty.c_lflag & ~(ECHO | ICANON);     /* no echo or edit */
 runtty.c_oflag = runtty.c_oflag & ~OPOST;               /* no output edit */
 runtty.c_iflag = runtty.c_iflag & ~ICRNL;               /* no cr conversion */
-#if defined(USE_SIM_VIDEO) && defined(HAVE_LIBSDL)
-runtty.c_cc[VINTR] = 0;                                 /* OS X doesn't deliver SIGINT to main thread when enabled */
-#else
 runtty.c_cc[VINTR] = sim_int_char;                      /* interrupt */
-#endif
 runtty.c_cc[VQUIT] = 0;                                 /* no quit */
 runtty.c_cc[VERASE] = 0;
 runtty.c_cc[VKILL] = 0;
@@ -3073,11 +2892,7 @@ static t_stat sim_os_ttrun (void)
 {
 if (!isatty (fileno (stdin)))                           /* skip if !tty */
     return SCPE_OK;
-#if defined(USE_SIM_VIDEO) && defined(HAVE_LIBSDL)
-runtty.c_cc[VINTR] = 0;                                 /* OS X doesn't deliver SIGINT to main thread when enabled */
-#else
 runtty.c_cc[VINTR] = sim_int_char;                      /* in case changed */
-#endif
 if (tcsetattr (0, TCSAFLUSH, &runtty) < 0)
     return SCPE_TTIERR;
 sim_os_set_thread_priority (PRIORITY_BELOW_NORMAL);     /* try to lower pri */
@@ -3118,6 +2933,7 @@ if (sim_int_char && (buf[0] == sim_int_char))
 return (buf[0] | SCPE_KFLAG);
 }
 
+#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
 static t_bool sim_os_poll_kbd_ready (int ms_timeout)
 {
 fd_set readfds;
@@ -3133,6 +2949,7 @@ timeout.tv_sec = (ms_timeout*1000)/1000000;
 timeout.tv_usec = (ms_timeout*1000)%1000000;
 return (1 == select (1, &readfds, NULL, NULL, &timeout));
 }
+#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
 
 static t_stat sim_os_putchar (int32 out)
 {

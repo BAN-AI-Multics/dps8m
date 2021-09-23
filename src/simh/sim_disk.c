@@ -75,7 +75,6 @@ Internal routines:
 
 #include "sim_defs.h"
 #include "sim_disk.h"
-#include "sim_ether.h"
 #include <ctype.h>
 #include <sys/stat.h>
 
@@ -284,7 +283,6 @@ static t_bool sim_os_disk_isavailable_raw (FILE *f);
 static t_stat sim_os_disk_rdsect (UNIT *uptr, t_lba lba, uint8 *buf, t_seccnt *sectsread, t_seccnt sects);
 static t_stat sim_os_disk_wrsect (UNIT *uptr, t_lba lba, uint8 *buf, t_seccnt *sectswritten, t_seccnt sects);
 static t_stat sim_os_disk_info_raw (FILE *f, uint32 *sector_size, uint32 *removable);
-static t_stat sim_disk_pdp11_bad_block (UNIT *uptr, int32 sec);
 static char *HostPathToVhdPath (const char *szHostPath, char *szVhdPath, size_t VhdPathSize);
 static char *VhdPathToHostPath (const char *szVhdPath, char *szHostPath, size_t HostPathSize);
 
@@ -968,7 +966,7 @@ static uint16
 ODS2Checksum (void *Buffer, uint16 WordCount)
     {
     int i;
-    uint16 Sum = 0;
+//    uint16 Sum = 0;
     uint16 CheckSum = 0;
     uint16 *Buf = (uint16 *)Buffer;
 
@@ -976,7 +974,6 @@ ODS2Checksum (void *Buffer, uint16 WordCount)
         CheckSum += Buf[i];
     return CheckSum;
     }
-
 
 static t_offset get_filesystem_size (UNIT *uptr)
 {
@@ -1420,8 +1417,6 @@ if ((created) && (!copied)) {
         if (!sim_quiet)
             sim_printf ("%s%d: Initialized To Sector Address %dMB.  100%% complete.\n", sim_dname (dptr), (int)(uptr-dptr->units), (int)((((float)lba)*sector_size)/1000000));
         }
-    if (pdp11tracksize)
-        sim_disk_pdp11_bad_block (uptr, pdp11tracksize);
     }
 
 if (sim_switches & SWMASK ('K')) {
@@ -1754,74 +1749,6 @@ return SCPE_OK;
 }
 
 
-/* Factory bad block table creation routine
-
-   This routine writes a DEC standard 144 compliant bad block table on the
-   last track of the specified unit as described in:
-      EL-00144_B_DEC_STD_144_Disk_Standard_for_Recording_and_Handling_Bad_Sectors_Nov76.pdf
-   The bad block table consists of 10 repetitions of the same table,
-   formatted as follows:
-
-        words 0-1       pack id number
-        words 2-3       cylinder/sector/surface specifications
-         :
-        words n-n+1     end of table (-1,-1)
-
-   Inputs:
-        uptr    =       pointer to unit
-        sec     =       number of sectors per surface
-   Outputs:
-        sta     =       status code
-*/
-
-static t_stat sim_disk_pdp11_bad_block (UNIT *uptr, int32 sec)
-{
-struct disk_context *ctx = (struct disk_context *)uptr->disk_ctx;
-int32 i;
-t_addr da;
-int32 wds = ctx->sector_size/sizeof (uint16);
-uint16 *buf;
-DEVICE *dptr;
-char *namebuf, *c;
-uint32 packid;
-
-if ((sec < 2) || (wds < 16))
-    return SCPE_ARG;
-if ((uptr->flags & UNIT_ATT) == 0)
-    return SCPE_UNATT;
-if ((dptr = find_dev_from_unit (uptr)) == NULL)
-    return SCPE_NOATT;
-if (uptr->flags & UNIT_RO)
-    return SCPE_RO;
-if (ctx->capac_factor != 2)                  /* Must be Word oriented Capacity */
-    return SCPE_IERR;
-if (!get_yn ("Overwrite last track? [N]", FALSE))
-    return SCPE_OK;
-if ((buf = (uint16 *) malloc (wds * sizeof (uint16))) == NULL)
-    return SCPE_MEM;
-namebuf = uptr->filename;
-if ((c = strrchr (namebuf, '/')))
-    namebuf = c+1;
-if ((c = strrchr (namebuf, '\\')))
-    namebuf = c+1;
-if ((c = strrchr (namebuf, ']')))
-    namebuf = c+1;
-packid = eth_crc32(0, namebuf, strlen (namebuf));
-buf[0] = (uint16)packid;
-buf[1] = (uint16)(packid >> 16) & 0x7FFF;   /* Make sure MSB is clear */
-buf[2] = buf[3] = 0;
-for (i = 4; i < wds; i++)
-    buf[i] = 0177777u;
-da = (uptr->capac*((dptr->flags & DEV_SECTORS) ? 512 : 1)) - (sec * wds);
-for (i = 0; (i < sec) && (i < 10); i++, da += wds)
-    if (sim_disk_wrsect (uptr, (t_lba)(da/wds), (uint8 *)buf, NULL, 1)) {
-        free (buf);
-        return SCPE_IOERR;
-        }
-free (buf);
-return SCPE_OK;
-}
-
 void sim_disk_data_trace(UNIT *uptr, const uint8 *data, size_t lba, size_t len, const char* txt, int detail, uint32 reason)
 {
 struct disk_context *ctx = (struct disk_context *)uptr->disk_ctx;
@@ -1910,16 +1837,21 @@ if ((dwStatus >= ERROR_INVALID_STARTING_CODESEG) && (dwStatus <= ERROR_INFLOOP_I
     }
 errno = EINVAL;
 }
+
 #if defined(__GNUC__)
-#ifdef __MINGW64__
+
+#if defined(__MINGW64__) || defined(__MINGW32__)
 #include <ntddstor.h>
 #include <ntdddisk.h>
 #else
 #include <ddk/ntddstor.h>
 #include <ddk/ntdddisk.h>
 #endif
+
 #else
+
 #include <winioctl.h>
+
 #endif
 
 #if defined(__cplusplus)
@@ -3499,67 +3431,6 @@ return (t_offset)(NtoHll (hVHD->Footer.CurrentSize));
 
 #include <stdlib.h>
 #include <time.h>
-static void
-_rand_uuid_gen (void *uuidaddr)
-{
-int i;
-uint8 *b = (uint8 *)uuidaddr;
-uint32 timenow = (uint32)time (NULL);
-
-memcpy (uuidaddr, &timenow, sizeof (timenow));
-srand ((unsigned)timenow);
-for (i=4; i<16; i++) {
-    b[i] = (uint8)rand();
-    }
-}
-
-#if defined (_WIN32)
-static void
-uuid_gen (void *uuidaddr)
-{
-static
-RPC_STATUS
-(RPC_ENTRY *UuidCreate_c) (void *);
-
-if (!UuidCreate_c) {
-    HINSTANCE hDll;
-    hDll = LoadLibraryA("rpcrt4.dll");
-    UuidCreate_c = (RPC_STATUS (RPC_ENTRY *) (void *))GetProcAddress(hDll, "UuidCreate");
-    }
-if (UuidCreate_c)
-    UuidCreate_c(uuidaddr);
-else
-    _rand_uuid_gen (uuidaddr);
-}
-#elif defined (HAVE_DLOPEN)
-#include <dlfcn.h>
-
-static void
-uuid_gen (void *uuidaddr)
-{
-void (*uuid_generate_c) (void *) = NULL;
-void *handle;
-
-#define S__STR_QUOTE(tok) #tok
-#define S__STR(tok) S__STR_QUOTE(tok)
-    handle = dlopen("libuuid." S__STR(HAVE_DLOPEN), RTLD_NOW|RTLD_GLOBAL);
-    if (handle)
-        uuid_generate_c = (void (*)(void *))((size_t)dlsym(handle, "uuid_generate"));
-if (uuid_generate_c)
-    uuid_generate_c(uuidaddr);
-else
-    _rand_uuid_gen (uuidaddr);
-    if (handle)
-        dlclose(handle);
-}
-#else
-static void
-uuid_gen (void *uuidaddr)
-{
-_rand_uuid_gen (uuidaddr);
-}
-#endif
-
 static VHDHANDLE
 CreateVirtDisk(const char *szVHDPath,
                   uint32 SizeInSectors,
@@ -3608,7 +3479,6 @@ Footer.CreatorVersion = NtoHl (0x00040000);
 memcpy (Footer.CreatorHostOS, "Wi2k", 4);
 Footer.OriginalSize = NtoHll (SizeInBytes);
 Footer.CurrentSize = NtoHll (SizeInBytes);
-uuid_gen (Footer.UniqueID);
 Footer.DiskType = NtoHl (bFixedVHD ? VHD_DT_Fixed : VHD_DT_Dynamic);
 Footer.DiskGeometry = NtoHl (0xFFFF10FF);
 if (1) { /* CHS Calculation */

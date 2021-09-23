@@ -66,6 +66,7 @@ RMNF       ?= rm
 RMF        ?= $(RMNF) -f
 CTAGS      ?= ctags
 ETAGS      ?= etags
+GTAGS      ?= gtags
 FIND       ?= find
 CP         ?= cp -f
 TOUCH      ?= touch
@@ -121,13 +122,29 @@ else
         $(UNAME) -o)),$(word 1,                                               \
             $(subst ., ,$(shell $(UNAME) -r))),0)
 endif
+export msys_version
 
 ###############################################################################
+# Try to be smart about finding an appropriate compiler - but not too smart ...
+
+ifeq ($(CROSS),MINGW32)
+  ifeq ($(CYGWIN_MINGW_CROSS),1)
+    CC = x86_64-w32-mingw32-gcc
+  endif
+  EXE = .exe
+ifneq ($(msys_version),0)
+  CC = gcc
+  EXE = .exe
+endif
+endif
 
 ifeq ($(CROSS),MINGW64)
-  CC = x86_64-w64-mingw32-gcc
-ifeq ($(msys_version),0)
-  AR = x86_64-w64-mingw32-ar
+  ifeq ($(CYGWIN_MINGW_CROSS),1)
+    CC = x86_64-w64-mingw32-gcc
+  endif
+ifneq ($(msys_version),0)
+  CC = gcc
+  EXE = .exe
 else
   AR = ar
 endif
@@ -137,19 +154,23 @@ CC ?= clang
 endif
 
 ###############################################################################
-
 # Default FLAGS
+
 CFLAGS  += -g3 -O3 -fno-strict-aliasing
 CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 
 ###############################################################################
-# Windows MINGW
+# Windows/MinGW-W32/MinGW-W64
 
 ifeq ($(OS),Windows_NT)
   ifeq ($(CROSS),MINGW64)
-    CFLAGS  += -I../mingw_include
-    LDFLAGS += -L../mingw_lib
+    CFLAGS  += -I../mingw_include -I../mingw64_include
+    LDFLAGS += -L../mingw_lib -L ../mingw64_lib
+  endif
+  ifeq ($(CROSS),MINGW32)
+    CFLAGS  += -I../mingw_include -I../mingw32_include
+    LDFLAGS += -L../mingw_lib -L ../mingw32_lib
   endif
 
 ###############################################################################
@@ -214,7 +235,6 @@ else
   ifeq ($(UNAME_S),GNU)
     export NEED_128=1
     export OS=GNU
-    CFLAGS +=-UHAVE_DLOPEN
   endif
 
 ###############################################################################

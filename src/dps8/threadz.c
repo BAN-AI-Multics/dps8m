@@ -845,13 +845,14 @@ void int_handler (int signal);
 void setSignals (void)
   {
 #ifndef __MINGW64__
+#ifndef __MINGW32__
     struct sigaction act;
     memset (& act, 0, sizeof (act));
     act.sa_handler = int_handler;
     act.sa_flags = 0;
     sigaction (SIGINT, & act, NULL);
-    //sigaction (SIGHUP, & act, NULL);
     sigaction (SIGTERM, & act, NULL);
+#endif /* __MINGW32__ */
 #endif /* __MINGW64__ */
   }
 

@@ -10,6 +10,8 @@ a.out
 .cproject
 .project
 .settings/
+
+# Tags
 tags
 .tags
 ctags
@@ -18,6 +20,11 @@ etags
 .etags
 .TAGS
 TAGS
+GRTAGS
+GTAGS
+GPATH
+
+# Cores
 *.core
 core
 

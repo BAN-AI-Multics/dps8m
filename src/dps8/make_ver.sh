@@ -32,7 +32,7 @@ set +u > /dev/null 2>&1
 ###############################################################################
 # Attempt to setup a standard POSIX locale.
 
-eval export $(command -p env -i locale 2> /dev/null) > /dev/null 2>&1 || true
+eval export $(command -p env locale 2> /dev/null) > /dev/null 2>&1 || true
 DUALCASE=1 && export DUALCASE || true
 LC_ALL=C && export LC_ALL || true
 LANGUAGE=C && export LANGUAGE || true
@@ -99,14 +99,14 @@ done # /* as_var */
 ###############################################################################
 # Set format string for dates.
 
-{ DATEFORMAT="%Y-%m-%d %H:%M:%S ${TZ:-UTC}" && export DATEFORMAT; } ||
+{ DATEFORMAT="%Y-%m-%d %H:%M ${TZ:-UTC}" && export DATEFORMAT; } ||
 	{
 		printf >&2 '%s\n' \
 			"Error: Exporting DATEFORMAT to environment failed."
 		exit 1
 	}
 
-{ DATEFALLBACK="2020-01-01 00:00:00 UTC" && export DATEFALLBACK; } ||
+{ DATEFALLBACK="2020-01-01 00:00 UTC" && export DATEFALLBACK; } ||
 	{
 		printf >&2 '%s\n' \
 			"Error: Exporting DATEFALLBACK to environment failed."
@@ -413,7 +413,7 @@ get_git_date()
 get_utc_date()
 { # /* get_utc_date() */
 	debug_print "Start of get_utc_date()"
-	UTC_BLD_DATE=$(command -p env -i TZ=UTC \
+	UTC_BLD_DATE=$(command -p env TZ=UTC \
 		date -u "+${DATEFORMAT:?}" 2> /dev/null) ||
 			{ # /* UTC_BLD_DATE */
 				printf >&2 '%s\n' \
@@ -442,13 +442,13 @@ get_utc_date()
 get_bld_user()
 { # /* get_bld_user() */
 	debug_print "Start of get_bld_user()"
-	MYNODENAME=$( (command -p env -i uname -n 2> /dev/null || \
+	MYNODENAME=$( (command -p env uname -n 2> /dev/null || \
 		true > /dev/null 2>&1) | \
 			cut -d " " -f 1 2> /dev/null || \
 				true > /dev/null 2>&1)
-	WHOAMIOUTP=$(command -p env -i who am i 2> /dev/null || \
+	WHOAMIOUTP=$(command -p env who am i 2> /dev/null || \
 		true > /dev/null 2>&1)
-	WHOAMIOUTG=$(command -p env -i whoami 2> /dev/null || \
+	WHOAMIOUTG=$(command -p env whoami 2> /dev/null || \
 		true > /dev/null 2>&1)
 	PREPAREDBY="${WHOAMIOUTP:-${WHOAMIOUTG:-}}"
 	# shellcheck disable=SC2002
@@ -478,7 +478,7 @@ get_bld_osys()
 { # /* get_bld_osys() */
    debug_print "Start of get_bld_osys()"
    if [ -n "${OS_IBMAIX:-}" ]; then
-    BLD_OSYS="IBM AIX $(command -p env -i oslevel -s   2> /dev/null         | \
+    BLD_OSYS="IBM AIX $(command -p env oslevel -s      2> /dev/null         | \
      cut -d '-' -f 1-3                                 2> /dev/null         | \
      grep '[1-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' 2> /dev/null         | \
       sed -e 's/-/ TL/'      -e 's/-/ SP/'             2> /dev/null         | \
@@ -495,7 +495,7 @@ get_bld_osys()
                  -e 's/\.0$//'                         2> /dev/null        || \
                     true                               1> /dev/null 2>&1)"
     else
-        BLD_OSYS="$( (command -p env -i uname -mrs     2> /dev/null        || \
+        BLD_OSYS="$( (command -p env uname -mrs        2> /dev/null        || \
         true                                           1> /dev/null 2>&1)   | \
                tr -d '*'                               2> /dev/null        || \
                    true                                1> /dev/null 2>&1)"
@@ -523,7 +523,7 @@ get_bld_osys()
 get_bld_osnm()
 { # /* get_bld_osnm() */
 	debug_print "Start of get_bld_osnm()"
-	BLD_OSNM="$( (command -p env -i uname -s 2> /dev/null ||
+	BLD_OSNM="$( (command -p env uname -s 2> /dev/null ||
 		true > /dev/null 2>&1) | \
 			tr -d '*' 2> /dev/null || \
 				true   > /dev/null 2>&1)"
@@ -544,8 +544,8 @@ get_bld_osar()
 { # /* get_bld_osar() */
 	debug_print "Start of get_bld_osar()"
 	if [ -n "${OS_IBMAIX:-}" ]; then
-      BLD_OSAR="$( (command -p env -i uname -p 2> /dev/null || \
-          command -p env -i uname -M 2> /dev/null || \
+      BLD_OSAR="$( (command -p env uname -p 2> /dev/null || \
+          command -p env uname -M 2> /dev/null || \
               uname -M 2> /dev/null || uname -p 2> /dev/null || \
                   printf '%s\n' 'Unknown') | \
 				      sed -e 's/^AIX //' 2> /dev/null | \
@@ -554,7 +554,7 @@ get_bld_osar()
                                   true  1> /dev/null 2>&1)"
     fi
 	if [ -z "${BLD_OSAR:-}" ]; then
-	  BLD_OSAR="$( (command -p env -i uname -m 2> /dev/null ||
+	  BLD_OSAR="$( (command -p env uname -m 2> /dev/null ||
 		  true > /dev/null 2>&1) | \
 			  tr -d '*' 2> /dev/null || \
 				true    1> /dev/null 2>&1)"
@@ -575,7 +575,7 @@ get_bld_osar()
 get_bld_osvr()
 { # /* get_bld_osvr() */
 	debug_print "Start of get_bld_osvr()"
-	BLD_OSVR="$( (command -p env -i uname -r 2> /dev/null ||
+	BLD_OSVR="$( (command -p env uname -r 2> /dev/null ||
 		true > /dev/null 2>&1) | \
 			tr -d '*' 2> /dev/null || \
 				true   > /dev/null 2>&1)"

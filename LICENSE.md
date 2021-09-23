@@ -1,50 +1,5 @@
 # Licenses and Acknowledgements
-<!--
 
-Copyright (c) 2008-2021 The DPS8M Development Team
-
-This file is provided "AS IS", without any express or implied
-warranties, including but not limited to the implied warranties of
-merchantability and fitness for a particular purpose.  In no event will
-the authors or contributors be held liable for any direct, indirect,
-incidental, special, exemplary, or consequential damages however caused
-and on any theory of liability, whether in contract, strict liability,
-or tort (including negligence or otherwise), arising in any way out of
-the use of this file, even if advised of the possibility of such damage.
-
-Permission is granted to anyone to use this file for any purpose,
-including commercial applications, and to alter and distribute it freely
-in any form, provided that the following conditions are met:
-
-  1. The origin of this file must not be misrepresented; you must not
-     claim that you authored the original file. If you use this file in
-     a product, an acknowledgment in the product documentation would be
-     appreciated but is not required.
-
-  2. Altered versions in any form may not be misrepresented as being the
-     original file, and neither the name of The DPS8M Development Team
-     nor the names of authors or contributors may be used to endorse or
-     promote products derived from this file without specific prior
-     written permission.
-
-  3. The text of this notice must be included, unaltered, with any
-     distribution.
-
--->
-<!--
-
- Notice: While there is no direct legal obligation under the terms
-         of the license, The DPS8M Development Team requests that:
-
-   1. Alterations to this file should be conspiciously marked, and,
-
-   2. Alterations should not be made to any part of this file that
-      describe actions or views of The DPS8M Development Team,
-      authors, or contributors, and,
-
-   3. Alterations should be throughly checked for factual accuracy.
-
--->
 <!-- toc -->
 
 - [DPS8M Software](#dps8m)
@@ -82,7 +37,6 @@ COPYRIGHT AND PERMISSION NOTICE
 Copyright (c) 2006‑2021 Michael Mondy, Harry Reed, Charles Anthony, and others
 Copyright (c) 2015‑2016 Craig Ruff
 Copyright (c) 2015‑2021 Eric Swenson
-Copyright (c) 2016 Michal Tomek
 Copyright (c) 2016 Jean‑Michel Merliot
 Copyright (c) 2017‑2021 Jeffrey H. Johnson
 Copyright (c) 2018‑2021 Juergen Weiss
@@ -137,7 +91,7 @@ property of their respective owners.
   * Craig Ruff,
   * Eric Swenson
     \<[eric@swenson.org](mailto:eric@swenson.org)\>,
-  * Michal Tomek,
+  * M⸻ T⸻
   * Juergen Weiss
     \<[weiss@uni-mainz.de](mailto:weiss@uni-mainz.de)\>,
   * M. Williams (OrangeSquid),

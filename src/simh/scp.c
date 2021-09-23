@@ -221,9 +221,7 @@
 #include "sim_rev.h"
 #include "sim_disk.h"
 #include "sim_tape.h"
-#include "sim_ether.h"
 #include "sim_serial.h"
-#include "sim_video.h"
 #include "sim_sock.h"
 #include "sim_frontpanel.h"
 #include <signal.h>
@@ -601,7 +599,7 @@ const char *sim_savename = sim_name;      /* Simulator Name used in SAVE/RESTORE
 
 /* Tables and strings */
 
-const char save_vercur[] = "V4.0";
+const char save_vercur[] = "V4.1";
 const char save_ver40[] = "V4.0";
 const char save_ver35[] = "V3.5";
 const char save_ver32[] = "V3.2";
@@ -1200,9 +1198,6 @@ static const char simh_help[] =
       "+sh{ow} ethernet             show ethernet devices\n"
       "+sh{ow} serial               show serial devices\n"
       "+sh{ow} multiplexer          show open multiplexer devices\n"
-#if defined(USE_SIM_VIDEO)
-      "+sh{ow} video                show video capabilities\n"
-#endif
       "+sh{ow} clocks               show calibrated timers\n"
 #ifdef SIMH_THROTTLE
       "+sh{ow} throttle             show throttle info\n"
@@ -1231,10 +1226,8 @@ static const char simh_help[] =
 #define HLP_SHOW_THROTTLE       "*Commands SHOW"
 #endif /* SIMH_THROTTLE */
 #define HLP_SHOW_ASYNCH         "*Commands SHOW"
-#define HLP_SHOW_ETHERNET       "*Commands SHOW"
 #define HLP_SHOW_SERIAL         "*Commands SHOW"
 #define HLP_SHOW_MULTIPLEXER    "*Commands SHOW"
-#define HLP_SHOW_VIDEO          "*Commands SHOW"
 #define HLP_SHOW_CLOCKS         "*Commands SHOW"
 #define HLP_SHOW_ON             "*Commands SHOW"
 #define HLP_SHOW_SEND           "*Commands SHOW"
@@ -1824,9 +1817,6 @@ static CTAB cmd_table[] = {
     { "NOEXPECT",   &expect_cmd,    0,          HLP_EXPECT },
     { "!",          &spawn_cmd,     0,          HLP_SPAWN },
     { "HELP",       &help_cmd,      0,          HLP_HELP },
-#if defined(USE_SIM_VIDEO)
-    { "SCREENSHOT", &screenshot_cmd,0,          HLP_SCREENSHOT },
-#endif
     { NULL, NULL, 0 }
     };
 
@@ -1903,13 +1893,9 @@ static SHTAB show_glob_tab[] = {
     { "THROTTLE",       &sim_show_throt,            0, HLP_SHOW_THROTTLE },
 #endif /* SIMH_THROTTLE */
     { "ASYNCH",         &sim_show_asynch,           0, HLP_SHOW_ASYNCH },
-    { "ETHERNET",       &eth_show_devices,          0, HLP_SHOW_ETHERNET },
     { "SERIAL",         &sim_show_serial,           0, HLP_SHOW_SERIAL },
     { "MULTIPLEXER",    &tmxr_show_open_devices,    0, HLP_SHOW_MULTIPLEXER },
     { "MUX",            &tmxr_show_open_devices,    0, HLP_SHOW_MULTIPLEXER },
-#if defined(USE_SIM_VIDEO)
-    { "VIDEO",          &vid_show,                  0, HLP_SHOW_VIDEO },
-#endif
     { "CLOCKS",         &sim_show_timers,           0, HLP_SHOW_CLOCKS },
     { "SEND",           &sim_show_send,             0, HLP_SHOW_SEND },
     { "EXPECT",         &sim_show_expect,           0, HLP_SHOW_EXPECT },
@@ -2000,10 +1986,6 @@ char **targv = NULL;
 int32 i, sw;
 t_bool lookswitch;
 t_stat stat;
-
-#if defined (__MWERKS__) && defined (macintosh)
-argc = ccommand (&argv);
-#endif
 
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
@@ -2138,7 +2120,6 @@ detach_all (0, TRUE);                                   /* close files */
 sim_set_deboff (0, NULL);                               /* close debug */
 sim_set_logoff (0, NULL);                               /* close log */
 sim_set_notelnet (0, NULL);                             /* close Telnet */
-vid_close ();                                           /* close video */
 sim_ttclose ();                                         /* close console */
 AIO_CLEANUP;                                            /* Asynch I/O */
 sim_cleanup_sock ();                                    /* cleanup sockets */
@@ -2390,11 +2371,6 @@ if (DEV_TYPE(dptr) == DEV_DISK) {
 if (DEV_TYPE(dptr) == DEV_TAPE) {
     fprintf (st, "\n%s device attach commands:\n\n", dptr->name);
     sim_tape_attach_help (st, dptr, NULL, 0, NULL);
-    return;
-    }
-if (DEV_TYPE(dptr) == DEV_ETHER) {
-    fprintf (st, "\n%s device attach commands:\n\n", dptr->name);
-    eth_attach_help (st, dptr, NULL, 0, NULL);
     return;
     }
 if (!silent) {
@@ -2801,19 +2777,6 @@ printf ("\n");
 return status;
 }
 
-/* Screenshot command */
-
-t_stat screenshot_cmd (int32 flag, CONST char *cptr)
-{
-if ((cptr == NULL) || (strlen (cptr) == 0))
-    return SCPE_ARG;
-#if defined (USE_SIM_VIDEO)
-return vid_screenshot (cptr);
-#else
-sim_printf ("No video device\n");
-return SCPE_UNK|SCPE_NOMESSAGE;
-#endif
-}
 
 /* Echo command */
 
@@ -4543,9 +4506,9 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 
 t_stat show_version (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-int32 vmaj = SIM_MAJOR, vmin = SIM_MINOR, vpat = SIM_PATCH, vdelt = SIM_DELTA;
-const char *cpp = "";
-const char *build = "";
+//int32 vmaj = SIM_MAJOR, vmin = SIM_MINOR, vpat = SIM_PATCH, vdelt = SIM_DELTA;
+//const char *cpp = "";
+//const char *build = "";
 const char *arch = "";
 int dirty = 0;
 
@@ -4558,7 +4521,6 @@ if (flag) {
 //  fprintf (st, "\n\t%s Simulator Capabilities:", sim_name);
 //  fprintf (st, "\n\t\t%s", sim_si64);
 //  fprintf (st, "\n\t\t%s", sim_sa64);
-//  fprintf (st, "\n\t\t%s", eth_capabilities());
 //  idle_capable = sim_timer_idle_capable (&os_ms_sleep_1, &os_tick_size);
 //  fprintf (st, "\n\t\tIdle/Throttling support is %savailable", idle_capable ? "" : "NOT ");
 //  if (sim_disk_vhd_support())
@@ -4734,24 +4696,24 @@ if (flag) {
 #ifdef VER_CURRENT_TIME
         fprintf (st, "\n  Compiled: %s", VER_CURRENT_TIME);
 #endif
-#if defined(SIM_GIT_COMMIT_ID)
-        fprintf (st, "\r\n\r\n Built using the SIMH Simulation Framework:");
-        fprintf (st, "\n   Version: V%d.%d-%d", vmaj, vmin, vpat);
-        if (vdelt)
-                {
-                fprintf (st, " delta %d", vdelt);
-                }
-#if defined (SIM_VERSION_MODE)
-        fprintf (st, " %s", SIM_VERSION_MODE);
-#endif
-#endif
-#if defined(SIM_GIT_COMMIT_ID)
-#define S_xstr(a) S_str(a)
-#define S_str(a) #a
-        fprintf (st, " (%s)", S_xstr(SIM_GIT_COMMIT_ID));
-#undef S_str
-#undef S_xstr
-#endif
+//#if defined(SIM_GIT_COMMIT_ID)
+//        fprintf (st, "\r\n\r\n Built using the SIMH Simulation Framework:");
+//        fprintf (st, "\n   Version: V%d.%d-%d", vmaj, vmin, vpat);
+//        if (vdelt)
+//                {
+//                fprintf (st, " delta %d", vdelt);
+//                }
+//#if defined (SIM_VERSION_MODE)
+//        fprintf (st, " %s", SIM_VERSION_MODE);
+//#endif
+//#endif
+//#if defined(SIM_GIT_COMMIT_ID)
+//#define S_xstr(a) S_str(a)
+//#define S_str(a) #a
+//        fprintf (st, " (%s)", S_xstr(SIM_GIT_COMMIT_ID));
+//#undef S_str
+//#undef S_xstr
+//#endif
         if (dirty)
                 {
                         fprintf (st, "\r\n\r\n ****** THIS BUILD IS NOT SUPPORTED BY THE DPS8M DEVELOPMENT TEAM ******");
@@ -4770,6 +4732,7 @@ if (flag) {
     strremove(postver, "git://github.com/OpenIndiana/oi-userland.git ");
     strremove(postver, "4.2.1 Compatible ");
     strremove(postver, "git@github.com:llvm/llvm-project.git ");
+    strremove(postver, "https://github.com/llvm/llvm-project.git ");
     strremove(postver, " (https://github.com/yrnkrn/zapcc)");
     strremove(postver, "https://github.com/yrnkrn/zapcc ");
 #endif
@@ -6105,10 +6068,10 @@ REG *rptr;
 
 /* Don't make changes below without also changing save_vercur above */
 
-fprintf (sfile, "%s\n%s\n%s\n%s\n%s\n%.0f\n",
+fprintf (sfile, "%s\n%s\n%s\n%s\n%.0f\n",
     save_vercur,                                        /* [V2.5] save format */
     sim_savename,                                       /* sim name */
-    sim_si64, sim_sa64, eth_capabilities(),             /* [V3.5] options */
+    sim_si64, sim_sa64,                                 /* [V3.5] options */
     sim_time);                                          /* [V3.2] sim time */
 WRITE_I (sim_rtime);                                    /* [V2.6] sim rel time */
 #if defined(SIM_GIT_COMMIT_ID)
