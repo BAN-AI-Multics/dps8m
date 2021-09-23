@@ -362,224 +362,224 @@ Linux/x86_64, Clear Linux, Clang:
   interruptible: true
 
 ############################################################################
-
-FreeBSD/powerpc64, 13-STABLE:
-  image: fedora:latest
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptDnfSetup
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - echo 'Setting up FreeBSD PPC64 QEMU environment'
-    - echo '#!/usr/bin/expect -f' > run.expect
-    - echo 'set timeout 450000' >> run.expect
-    - echo 'spawn telnet 127.0.0.1 5555' >> run.expect
-    - echo 'set telnetID $spawn_id' >> run.expect
-    - echo 'sleep 5' >> run.expect
-    - echo 'expect "command"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 5' >> run.expect
-    - echo 'expect "login:"' >> run.expect
-    - echo 'send -- "root\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "assword:"' >> run.expect
-    - echo 'send -- "freebsd123\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 5' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg install libuv gmake git mksh\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "exec mksh\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "set -o pipefail\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - export CI_COMMIT_BRANCH && echo "send -- \"git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "cd dps8m\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "gmake CC=\"cc -DUSE_COMPILER_ATOMICS=1 -DCPP11_ATOMICS=1\" V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
-    - echo 'sleep 3' >> run.expect
-    - echo 'exit' >> run.expect
-    - echo '#!/usr/bin/expect -f' > install.expect
-    - echo 'set timeout 450000' >> install.expect
-    - echo 'spawn telnet 127.0.0.1 4444' >> install.expect
-    - echo 'set telnetID $spawn_id' >> install.expect
-    - echo 'sleep 5' >> install.expect
-    - echo 'expect "command prompt"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 5' >> install.expect
-    - echo 'expect "Console type"' >> install.expect
-    - echo 'send -- "vt100\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "CD"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "ENTER"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "name"' >> install.expect
-    - echo 'send -- "freebsdppc64\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "OK"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "Internet"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "OK"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "interface"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "interface"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "interface"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "SLAAC"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "Configuration"' >> install.expect
-    - echo 'send -- "\t\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "OK"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "Disk"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "OK"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "Finish"' >> install.expect
-    - echo 'send -- "\t\t\t\t\t\t\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "Commit"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "Select a site"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 20' >> install.expect
-    - echo 'expect "assword:"' >> install.expect
-    - echo 'send -- "freebsd123\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "assword:"' >> install.expect
-    - echo 'send -- "freebsd123\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "clock"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "region"' >> install.expect
-    - echo 'send -- "0\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "Yes"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "Date"' >> install.expect
-    - echo 'send -- "\t\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "Date"' >> install.expect
-    - echo 'send -- "\t\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "OK"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "OK"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "Accounts"' >> install.expect
-    - echo 'send -- "\t\n"' >> install.expect
-    - echo 'sleep 2' >> install.expect
-    - echo 'expect "installer"' >> install.expect
-    - echo 'send -- "\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "modifications"' >> install.expect
-    - echo 'send -- "\t\n"' >> install.expect
-    - echo 'sleep 1' >> install.expect
-    - echo 'expect "shell"' >> install.expect
-    - echo 'send -- "\nsync\nsync\n\nsleep 30\nsync\npoweroff\n"' >> install.expect
-    - echo 'sleep 15' >> install.expect
-    - echo 'send -- "sleep 2; poweroff\n"' >> install.expect
-    - echo 'exit' >> install.expect
-    - chmod a+x install.expect
-    - chmod a+x run.expect
-    - (dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update)
-    - sleep 2
-    - export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest
-    - sleep 2
-    - tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"
-    - sleep 5
-    - curl -fsSL "https://download.freebsd.org/ftp/snapshots/powerpc/powerpc64/ISO-IMAGES/13.0/$(elinks -dump "https://download.freebsd.org/ftp/snapshots/powerpc/powerpc64/ISO-IMAGES/13.0/?C=M&O=D" | grep "^\ *[1-9]" | cut -d "." -f 2- | cut -d " " -f 2- | grep "bootonly.iso.xz$" | head -n 1)" | xz -dv > freebsd-ppc64.iso
-    - sleep 1
-    - qemu-img create freebsd-ppc64.qcow2 8G -f qcow2
-    - sleep 1
-    - echo 'Performing installation of FreeBSD/PPC64 .....................'
-    - echo ''
-    - echo 'Be patient - expect 10 to 90 minutes without feedback.'
-    - sleep 2
-    - CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); export CPUS; if [ $CPUS -gt 1024 ]; then CPUS=1024; fi; export CPUS; tmux -2 -u new -d -s instppc64 qemu-system-ppc64 -smp 1 -m 1280M -M pseries,max-cpu-compat=power8,cap-ccf-assist=off,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken -cpu POWER8 -accel tcg -serial telnet::4444,server -vga none -nographic -cdrom freebsd-ppc64.iso -drive if=none,file=freebsd-ppc64.qcow2,id=drive-virtio-disk0,format=qcow2 -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=drive-virtio-disk0 -net user -net nic,model=virtio 
-    - sleep 10
-    - ./install.expect
-    - sleep 120
-    - kill $(ps auxwww | grep qemu-system-ppc64 | grep -v grep | grep :4444 | awk "{print \$2}" | head -n 1) || true
-    - sleep 15
-    - kill -9 $(ps auxwww | grep qemu-system-ppc64 | grep -v grep | grep :4444 | awk "{print \$2}" | head -n 1) || true
-    - while (ps auxwww | grep qemu | grep -v grep | grep -q \.iso); do sleep 1; echo -n . ; done && CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); export CPUS; if [ $CPUS -gt 1024 ]; then CPUS=1024; fi; export CPUS; tmux -2 -u new -d -s fbsdppc64 qemu-system-ppc64 -smp 1 -m 1280M -M pseries,max-cpu-compat=power8,cap-ccf-assist=off,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken -cpu POWER8 -accel tcg -serial telnet::5555,server -vga none -nographic -drive if=none,file=freebsd-ppc64.qcow2,id=drive-virtio-disk0,format=qcow2 -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=drive-virtio-disk0 -net user -net nic,model=virtio 
-    - sleep 5
-    - ./run.expect
-    - while (ps auxwww | grep qemu | grep -v grep | grep -q freebsd-ppc64.qcow2); do sleep 1; echo -n . ; done && tar axvf out.tar && rm -f out.tar
-    - test -f src/dps8/dps8 || exit 1
-    - rm -f install.expect
-    - rm -f run.expect
-    - rm -f tar.log
-    - rm -f out.tar
-    - rm -f freebsd-ppc64.iso
-    - rm -f freebsd-ppc64.qcow2
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 240 minutes
-  interruptible: true
-
+#
+#FreeBSD/powerpc64, 13-STABLE:
+#  image: fedora:latest
+#  stage: build
+#  tags:
+#    - Docker-amd64
+#  script:
+#    - *scriptSanity
+#    - *scriptDnfSetup
+#    - *scriptCommon
+#    - *scriptDPS8Mods
+#    - *scriptExtraInfo
+#    - echo 'Setting up FreeBSD PPC64 QEMU environment'
+#    - echo '#!/usr/bin/expect -f' > run.expect
+#    - echo 'set timeout 450000' >> run.expect
+#    - echo 'spawn telnet 127.0.0.1 5555' >> run.expect
+#    - echo 'set telnetID $spawn_id' >> run.expect
+#    - echo 'sleep 5' >> run.expect
+#    - echo 'expect "command"' >> run.expect
+#    - echo 'send -- "\n"' >> run.expect
+#    - echo 'sleep 5' >> run.expect
+#    - echo 'expect "login:"' >> run.expect
+#    - echo 'send -- "root\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "assword:"' >> run.expect
+#    - echo 'send -- "freebsd123\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "\n"' >> run.expect
+#    - echo 'sleep 5' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg install libuv gmake git mksh\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "exec mksh\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "set -o pipefail\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - export CI_COMMIT_BRANCH && echo "send -- \"git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "cd dps8m\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "gmake CC=\"cc -DUSE_COMPILER_ATOMICS=1 -DCPP11_ATOMICS=1\" V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "\n"' >> run.expect
+#    - echo 'sleep 1' >> run.expect
+#    - echo 'expect "#"' >> run.expect
+#    - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
+#    - echo 'sleep 3' >> run.expect
+#    - echo 'exit' >> run.expect
+#    - echo '#!/usr/bin/expect -f' > install.expect
+#    - echo 'set timeout 450000' >> install.expect
+#    - echo 'spawn telnet 127.0.0.1 4444' >> install.expect
+#    - echo 'set telnetID $spawn_id' >> install.expect
+#    - echo 'sleep 5' >> install.expect
+#    - echo 'expect "command prompt"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 5' >> install.expect
+#    - echo 'expect "Console type"' >> install.expect
+#    - echo 'send -- "vt100\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "CD"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "ENTER"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "name"' >> install.expect
+#    - echo 'send -- "freebsdppc64\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "OK"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "Internet"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "OK"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "interface"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "interface"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "interface"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "SLAAC"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "Configuration"' >> install.expect
+#    - echo 'send -- "\t\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "OK"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "Disk"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "OK"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "Finish"' >> install.expect
+#    - echo 'send -- "\t\t\t\t\t\t\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "Commit"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "Select a site"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 20' >> install.expect
+#    - echo 'expect "assword:"' >> install.expect
+#    - echo 'send -- "freebsd123\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "assword:"' >> install.expect
+#    - echo 'send -- "freebsd123\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "clock"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "region"' >> install.expect
+#    - echo 'send -- "0\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "Yes"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "Date"' >> install.expect
+#    - echo 'send -- "\t\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "Date"' >> install.expect
+#    - echo 'send -- "\t\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "OK"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "OK"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "Accounts"' >> install.expect
+#    - echo 'send -- "\t\n"' >> install.expect
+#    - echo 'sleep 2' >> install.expect
+#    - echo 'expect "installer"' >> install.expect
+#    - echo 'send -- "\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "modifications"' >> install.expect
+#    - echo 'send -- "\t\n"' >> install.expect
+#    - echo 'sleep 1' >> install.expect
+#    - echo 'expect "shell"' >> install.expect
+#    - echo 'send -- "\nsync\nsync\n\nsleep 30\nsync\npoweroff\n"' >> install.expect
+#    - echo 'sleep 15' >> install.expect
+#    - echo 'send -- "sleep 2; poweroff\n"' >> install.expect
+#    - echo 'exit' >> install.expect
+#    - chmod a+x install.expect
+#    - chmod a+x run.expect
+#    - (dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update)
+#    - sleep 2
+#    - export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest
+#    - sleep 2
+#    - tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"
+#    - sleep 5
+#    - curl -fsSL "https://download.freebsd.org/ftp/snapshots/powerpc/powerpc64/ISO-IMAGES/13.0/$(elinks -dump "https://download.freebsd.org/ftp/snapshots/powerpc/powerpc64/ISO-IMAGES/13.0/?C=M&O=D" | grep "^\ *[1-9]" | cut -d "." -f 2- | cut -d " " -f 2- | grep "bootonly.iso.xz$" | head -n 1)" | xz -dv > freebsd-ppc64.iso
+#    - sleep 1
+#    - qemu-img create freebsd-ppc64.qcow2 8G -f qcow2
+#    - sleep 1
+#    - echo 'Performing installation of FreeBSD/PPC64 .....................'
+#    - echo ''
+#    - echo 'Be patient - expect 10 to 90 minutes without feedback.'
+#    - sleep 2
+#    - CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); export CPUS; if [ $CPUS -gt 1024 ]; then CPUS=1024; fi; export CPUS; tmux -2 -u new -d -s instppc64 qemu-system-ppc64 -smp 1 -m 1280M -M pseries,max-cpu-compat=power8,cap-ccf-assist=off,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken -cpu POWER8 -accel tcg -serial telnet::4444,server -vga none -nographic -cdrom freebsd-ppc64.iso -drive if=none,file=freebsd-ppc64.qcow2,id=drive-virtio-disk0,format=qcow2 -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=drive-virtio-disk0 -net user -net nic,model=virtio 
+#    - sleep 10
+#    - ./install.expect
+#    - sleep 120
+#    - kill $(ps auxwww | grep qemu-system-ppc64 | grep -v grep | grep :4444 | awk "{print \$2}" | head -n 1) || true
+#    - sleep 15
+#    - kill -9 $(ps auxwww | grep qemu-system-ppc64 | grep -v grep | grep :4444 | awk "{print \$2}" | head -n 1) || true
+#    - while (ps auxwww | grep qemu | grep -v grep | grep -q \.iso); do sleep 1; echo -n . ; done && CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); export CPUS; if [ $CPUS -gt 1024 ]; then CPUS=1024; fi; export CPUS; tmux -2 -u new -d -s fbsdppc64 qemu-system-ppc64 -smp 1 -m 1280M -M pseries,max-cpu-compat=power8,cap-ccf-assist=off,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken -cpu POWER8 -accel tcg -serial telnet::5555,server -vga none -nographic -drive if=none,file=freebsd-ppc64.qcow2,id=drive-virtio-disk0,format=qcow2 -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=drive-virtio-disk0 -net user -net nic,model=virtio 
+#    - sleep 5
+#    - ./run.expect
+#    - while (ps auxwww | grep qemu | grep -v grep | grep -q freebsd-ppc64.qcow2); do sleep 1; echo -n . ; done && tar axvf out.tar && rm -f out.tar
+#    - test -f src/dps8/dps8 || exit 1
+#    - rm -f install.expect
+#    - rm -f run.expect
+#    - rm -f tar.log
+#    - rm -f out.tar
+#    - rm -f freebsd-ppc64.iso
+#    - rm -f freebsd-ppc64.qcow2
+#    - *buildInfo
+#    - *compressArtifacts
+#  dependencies: []
+#  artifacts:
+#    expire_in: 1 day
+#    paths:
+#      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+#      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+#      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+#      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+#  retry: 2
+#  timeout: 240 minutes
+#  interruptible: true
+#
 ############################################################################
 
 FreeBSD/riscv64, 13-STABLE:
