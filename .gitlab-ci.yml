@@ -528,9 +528,9 @@ FreeBSD/powerpc64, 13-STABLE, clang, static:
     - echo 'send -- "\t\n"' >> install.expect
     - echo 'sleep 1' >> install.expect
     - echo 'expect "shell"' >> install.expect
-    - echo 'puts "Restart in 30s or less"' >> install.expect
-    - echo 'send -- "sleep 15 && poweroff\n"' >> install.expect
+    - echo 'send -- "\nsync\nsync\n\nsleep 30\nsync\npoweroff\n"' >> install.expect
     - echo 'sleep 15' >> install.expect
+    - echo 'send -- "sleep 2; poweroff\n"' >> install.expect
     - echo 'exit' >> install.expect
     - chmod a+x install.expect
     - chmod a+x run.expect
@@ -551,7 +551,9 @@ FreeBSD/powerpc64, 13-STABLE, clang, static:
     - CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); export CPUS; if [ $CPUS -gt 1024 ]; then CPUS=1024; fi; export CPUS; tmux -2 -u new -d -s instppc64 qemu-system-ppc64 -smp 1 -m 1280M -M pseries,max-cpu-compat=power8,cap-ccf-assist=off,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken -cpu POWER8 -accel tcg -serial telnet::4444,server -vga none -nographic -cdrom freebsd-ppc64.iso -drive if=none,file=freebsd-ppc64.qcow2,id=drive-virtio-disk0,format=qcow2 -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=drive-virtio-disk0 -net user -net nic,model=virtio 
     - sleep 10
     - ./install.expect
-    - sleep 2
+    - echo "Waiting 2m"
+    - sleep 120
+    - kill $(ps auxwww | grep qemu-system-ppc64 | grep -v grep | grep :4444 | awk "{print \$2}" | head -n 1)
     - while (ps auxwww | grep qemu | grep -v grep | grep -q \.iso); do sleep 1; echo -n . ; done && CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); export CPUS; if [ $CPUS -gt 1024 ]; then CPUS=1024; fi; export CPUS; tmux -2 -u new -d -s fbsdppc64 qemu-system-ppc64 -smp 1 -m 1280M -M pseries,max-cpu-compat=power8,cap-ccf-assist=off,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken -cpu POWER8 -accel tcg -serial telnet::5555,server -vga none -nographic -drive if=none,file=freebsd-ppc64.qcow2,id=drive-virtio-disk0,format=qcow2 -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=drive-virtio-disk0 -net user -net nic,model=virtio 
     - sleep 5
     - ./run.expect
@@ -618,24 +620,24 @@ FreeBSD/riscv64, 13-STABLE, clang, static:
     - echo 'send -- "exec mksh\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "set -o pipefail\n"' >> run.expect
+    - echo 'send -- "set -o pipefail; export PS1=PROMPT; export PS2=PROMPT; export PS3=PROMPT; export PS4=PROMPT\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - export CI_COMMIT_BRANCH && echo "send -- \"git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - echo 'send -- "cd dps8m\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - echo 'send -- "gmake CC=\"cc -DUSE_COMPILER_ATOMICS=1 -DCPP11_ATOMICS=1\" V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - echo 'send -- "\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
     - echo 'sleep 3' >> run.expect
     - echo 'exit' >> run.expect
