@@ -106,7 +106,7 @@ B29:;
                            "readData=%012"PRIo64"\n",
                            cpu.iefpFinalAddress, * result);
                 HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "Read BAR");
-                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, * result, "Read BAR");
+                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "Read BAR");
 
                 return;
               }
@@ -121,7 +121,7 @@ B29:;
                                "readData=%012"PRIo64"\n",
                                cpu.iefpFinalAddress, * result);
                     HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "Read");
-                    HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, * result, "Read");
+                    HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "Read");
                   }
               }
             return;
@@ -207,8 +207,8 @@ B29:;
                                 cpu.iefpFinalAddress + i, result [i]);
                   }
                 HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "Read2 BR");
-                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, * result, "Read2 BR evn");
-                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + 1, * (result+1), "Read2 BR odd");
+                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "Read2 BR evn");
+                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, * (result+1), "Read2 BR odd");
                 return;
               }
             else
@@ -234,8 +234,8 @@ B29:;
                       }
                   }
                 HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "Read2");
-                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, * result, "Read2 evn");
-                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA+1, * (result+1), "Read2 odd");
+                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "Read2 evn");
+                HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, * (result+1), "Read2 odd");
               }
             return;
           }
@@ -323,7 +323,7 @@ B29:;
 #ifdef HDBG
                 HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "Read8 BAR");
                 for (uint i = 0; i < 8; i ++)
-                  HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + i, result[i], "Read8 BAR");
+                  HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + i, cpu.iefpFinalAddress + i, result[i], "Read8 BAR");
 #endif
                 return;
               }
@@ -345,7 +345,7 @@ B29:;
 #ifdef HDBG
                     HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "Read8");
                     for (uint i = 0; i < 8; i ++)
-                      HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + i, result [i], "Read8");
+                      HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + i, cpu.iefpFinalAddress + i, result [i], "Read8");
 #endif
                   }
               }
@@ -448,7 +448,7 @@ B29:;
 #ifdef HDBG
                 HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "ReadPage B");
                 for (uint i = 0; i < PGSZ; i ++)
-                  HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + i, result [i], "ReadPage B");
+                  HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + i, cpu.iefpFinalAddress + i, result [i], "ReadPage B");
 #endif
 
                 return;
@@ -471,7 +471,7 @@ B29:;
 #ifdef HDBG
                     HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "ReadPage");
                     for (uint i = 0; i < PGSZ; i ++)
-                      HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + i, result [i], "ReadPage");
+                      HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + i, cpu.iefpFinalAddress + i, result [i], "ReadPage");
 #endif
                   }
               }
@@ -551,7 +551,7 @@ B29:
                            "writeData=%012"PRIo64"\n",
                            cpu.iefpFinalAddress, data);
                 HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "Write BR");
-                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, data, "Write BR");
+                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, data, "Write BR");
                 return;
               }
             else
@@ -562,7 +562,7 @@ B29:
                            "writeData=%012"PRIo64"\n",
                            cpu.iefpFinalAddress, data);
                 HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "Write");
-                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, data, "Write");
+                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, data, "Write");
                 return;
               }
           }
@@ -629,8 +629,8 @@ B29:
                            "writeData=%012"PRIo64" %012"PRIo64"\n",
                            address, data [0], data [1]);
                 HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "Write2 BR");
-                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, data[0], "Write2 BR evn");
-                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA+1, data[1], "Write2 BR odd");
+                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, data[0], "Write2 BR evn");
+                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, data[1], "Write2 BR odd");
               }
             else
               {
@@ -640,8 +640,8 @@ B29:
                            "writeData=%012"PRIo64" %012"PRIo64"\n",
                            address, data [0], data [1]);
                 HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "Write2");
-                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, data[0], "Write2 evn");
-                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA+1, data[1], "Write2 odd");
+                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, data[0], "Write2 evn");
+                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, data[1], "Write2 odd");
               }
           }
           break;
@@ -703,7 +703,7 @@ B29:
                            "%08o writeData=%012"PRIo64"\n",
                            cpu.iefpFinalAddress, data);
                 HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "Write1 BR");
-                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, data, "Write1 BR");
+                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, data, "Write1 BR");
                 return;
               }
             else
@@ -715,7 +715,7 @@ B29:
                            "writeData=%012"PRIo64"\n",
                            cpu.iefpFinalAddress, data);
                 HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "Write1");
-                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, data, "Write1");
+                HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, data, "Write1");
                 return;
               }
           }
@@ -802,7 +802,7 @@ B29:
 #ifdef HDBG
                 HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "Write8 BR");
                 for (uint i = 0; i < 8; i ++)
-                  HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + i, data [i], "Write8 BR");
+                  HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + i, cpu.iefpFinalAddress + i, data [i], "Write8 BR");
 #endif
 
                 return;
@@ -822,7 +822,7 @@ B29:
 #ifdef HDBG
                 HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "Write8");
                 for (uint i = 0; i < 8; i ++)
-                  HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + i, data [i], "Write8");
+                  HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + i, cpu.iefpFinalAddress + i, data [i], "Write8");
 #endif
 
                 return;
@@ -936,7 +936,7 @@ B29:
 #ifdef HDBG
                 HDBGIEFP (hdbgIEFP_bar_write, cpu.TPR.TSR, address, "WritePage BR");
                 for (uint i = 0; i < PGSZ; i ++)
-                  HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + i, data [i], "WritePage BR");
+                  HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + i, cpu.iefpFinalAddress + i, data [i], "WritePage BR");
 #endif
                 return;
               }
@@ -955,7 +955,7 @@ B29:
 #ifdef HDBG
                 HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "WritePage");
                 for (uint i = 0; i < PGSZ; i ++)
-                  HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + i, data [i], "WritePage");
+                  HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + i, cpu.iefpFinalAddress + i, data [i], "WritePage");
 #endif
 
                 return;
