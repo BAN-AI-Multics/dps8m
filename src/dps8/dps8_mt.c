@@ -1537,7 +1537,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
 
               tape_statep->io_mode = tape_rd_ctlr;
               p -> stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 003: // CMD 03 -- Read 9 Record
@@ -1553,7 +1552,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
                   return IOM_CMD_ERROR;
                 }
               p -> stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
 //          case 004: Read BCD Record
@@ -1571,7 +1569,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
                   return IOM_CMD_ERROR;
                 }
               p -> stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
 // How is the mpc memory sent?
@@ -1602,7 +1599,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
                          "%s: initiate read data transfer\n", __func__);
               tape_statep->io_mode = tape_initiate_rd_mem;
               p -> stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
 //          case 007: Reread Binary Record
@@ -1625,7 +1621,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
                   return IOM_CMD_ERROR;
                 }
               p -> stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
 //          case 014: Write BCD Record
@@ -1642,7 +1637,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
                   return IOM_CMD_ERROR;
                 }
               p -> stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
             case 016:               // CMD 016 -- Write Control Registers
@@ -1652,7 +1646,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
               sim_debug (DBG_DEBUG, & tape_dev, "%s: Write Control Registers\n", __func__);
               tape_statep->io_mode = tape_wr_bin;
               p -> stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
 //          case 012: Unassigned
@@ -1709,7 +1702,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
                          "%s: Write controller main memory\n", __func__);
               tape_statep->io_mode = tape_MTP_wr;
               p -> stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
 //          case 033: Unassigned
@@ -2180,7 +2172,6 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
                          "%s: survey_devices\n", __func__);
               tape_statep->io_mode = tape_survey;
               p -> stati = 04000;
-              rc = IOM_CMD_NEED_DDCW;
               break;
 
 //          case 060: Set 800 bpi; see case 042:
