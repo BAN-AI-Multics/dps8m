@@ -461,7 +461,8 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event,
                 sim_warn ("libtelnet dropping unassociated BRK/IP\n");
               }
             else
-              sim_warn ("libtelnet unhandled IAC event %d\n", event->iac.cmd);
+              if ((!sim_quiet) || (event->iac.cmd != 241))
+                sim_warn ("libtelnet unhandled IAC event %d\n", event->iac.cmd);
           }
           break;
 

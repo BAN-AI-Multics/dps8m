@@ -165,7 +165,8 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
                 fnpuv_recv_eor (client);
               }
             else
-              sim_warn ("libtelnet unhandled IAC event %d\n", event->iac.cmd);
+              if ((!sim_quiet) || (event->iac.cmd != 241))
+                sim_warn ("libtelnet unhandled IAC event %d\n", event->iac.cmd);
           }
           break;
 
@@ -183,7 +184,7 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
 
         case TELNET_EV_SUBNEGOTIATION:
           {
-            //
+            /* no subnegotiation */
           }
           break;
 
