@@ -303,7 +303,7 @@ stages:
 
 ############################################################################
 
-Linux/x86_64, Clear Linux, gcc:
+Linux/x86_64, Clear Linux, GCC:
   image: clearlinux:latest
   stage: build
   tags:
@@ -333,7 +333,7 @@ Linux/x86_64, Clear Linux, gcc:
 
 ############################################################################
 
-Linux/x86_64, Clear Linux, clang:
+Linux/x86_64, Clear Linux, Clang:
   image: clearlinux:latest
   stage: build
   tags:
@@ -363,7 +363,7 @@ Linux/x86_64, Clear Linux, clang:
 
 ############################################################################
 
-FreeBSD/powerpc64, 13-STABLE, clang, static:
+FreeBSD/powerpc64, 13-STABLE:
   image: fedora:latest
   stage: build
   tags:
@@ -582,7 +582,7 @@ FreeBSD/powerpc64, 13-STABLE, clang, static:
 
 ############################################################################
 
-FreeBSD/riscv64, 13-STABLE, clang, static:
+FreeBSD/riscv64, 13-STABLE:
   image: fedora:latest
   stage: build
   tags:
@@ -647,7 +647,7 @@ FreeBSD/riscv64, 13-STABLE, clang, static:
     - echo '(export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat pv"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest)' >> fbsdrsv64.sh
     - echo 'echo "Downloading FreeBSD RISCV64 13-STABLE VM image..."' >> fbsdrsv64.sh
     - echo '(curl -fsSL "https://download.freebsd.org/ftp/snapshots/VM-IMAGES/13.0-STABLE/riscv64/Latest/FreeBSD-13.0-STABLE-riscv-riscv64.qcow2.xz" | pv | xz -d > freebsd-riscv64.qcow2)' >> fbsdrsv64.sh
-    - echo '(qemu-img resize freebsd-riscv64.qcow2 "+8G")' >> fbsdrsv64.sh
+    - echo '(qemu-img resize freebsd-riscv64.qcow2 "+4G")' >> fbsdrsv64.sh
     - (cd / && curl -fsSL https://pkg.freebsd.org/FreeBSD:13:aarch64/latest/All/u-boot-qemu-riscv64-2020.10.txz | xz -d | tar axvf -)
     - echo 'export CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); if [ $CPUS -gt 8 ]; then CPUS=8; fi; export CPUS; tmux -u -2 new -d -s runrsv64qemu qemu-system-riscv64 -smp ${CPUS:-1} -m 1280M -M virt -bios /usr/share/qemu/opensbi-riscv64-generic-fw_dynamic.elf -kernel /usr/local/share/u-boot/u-boot-qemu-riscv64/u-boot.bin -serial telnet::5555,server -nographic -drive if=none,file=freebsd-riscv64.qcow2,id=hd0 -device virtio-blk-device,drive=hd0 -device virtio-net-device,netdev=net0 -netdev user,id=net0' >> fbsdrsv64.sh
     - echo 'tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"' >> fbsdrsv64.sh
@@ -679,7 +679,7 @@ FreeBSD/riscv64, 13-STABLE, clang, static:
 
 ############################################################################
 
-FreeBSD/aarch64, 13-STABLE, clang, static:
+FreeBSD/aarch64, 13-STABLE:
   image: fedora:latest
   stage: build
   tags:
@@ -718,24 +718,24 @@ FreeBSD/aarch64, 13-STABLE, clang, static:
     - echo 'send -- "exec mksh\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
     - echo 'expect "#"' >> run.expect
-    - echo 'send -- "set -o pipefail\n"' >> run.expect
+    - echo 'send -- "set -o pipefail; export PS1=PROMPT; export PS2=PROMPT; export PS3=PROMPT; export PS4=PROMPT\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - export CI_COMMIT_BRANCH && echo "send -- \"git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - echo 'send -- "cd dps8m\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - echo 'send -- "gmake CC=cc V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - echo 'send -- "\n"' >> run.expect
     - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
+    - echo 'expect "PROMPT"' >> run.expect
     - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
     - echo 'sleep 3' >> run.expect
     - echo 'exit' >> run.expect
@@ -744,7 +744,7 @@ FreeBSD/aarch64, 13-STABLE, clang, static:
     - echo '(export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat pv"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest)' >> fbsdarm64.sh
     - echo 'echo "Downloading FreeBSD ARM64 13-STABLE VM image..."' >> fbsdarm64.sh
     - echo '(curl -fsSL "https://download.freebsd.org/ftp/snapshots/VM-IMAGES/13.0-STABLE/aarch64/Latest/FreeBSD-13.0-STABLE-arm64-aarch64.qcow2.xz" | pv | xz -d > freebsd-aarch64.qcow2)' >> fbsdarm64.sh
-    - echo '(qemu-img resize freebsd-aarch64.qcow2 "+8G")' >> fbsdarm64.sh
+    - echo '(qemu-img resize freebsd-aarch64.qcow2 "+4G")' >> fbsdarm64.sh
     - echo 'export CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); if [ $CPUS -gt 8 ]; then CPUS=8; fi; export CPUS; tmux -u -2 new -d -s runarm64qemu qemu-system-aarch64 -smp ${CPUS:-1} -m 1280M -cpu cortex-a57 -M virt -bios /usr/share/edk2/aarch64/QEMU_EFI.fd -serial telnet::5555,server -nographic -drive if=none,file=freebsd-aarch64.qcow2,id=hd0 -device virtio-blk-device,drive=hd0 -device virtio-net-device,netdev=net0 -netdev user,id=net0' >> fbsdarm64.sh
     - echo 'tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"' >> fbsdarm64.sh
     - echo 'sleep 5' >> fbsdarm64.sh
@@ -775,7 +775,7 @@ FreeBSD/aarch64, 13-STABLE, clang, static:
 
 ############################################################################
 
-FreeBSD/amd64, 13-STABLE, clang, static:
+FreeBSD/amd64, 13-STABLE:
   image: fedora:latest
   stage: build
   tags:
@@ -842,7 +842,7 @@ FreeBSD/amd64, 13-STABLE, clang, static:
     - echo '(export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat pv"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest)' >> fbsdamd64.sh
     - echo 'echo "Downloading FreeBSD AMD64 13-STABLE VM image..."' >> fbsdamd64.sh
     - echo '(curl -fsSL "https://download.freebsd.org/ftp/snapshots/VM-IMAGES/13.0-STABLE/amd64/Latest/FreeBSD-13.0-STABLE-amd64.qcow2.xz" | pv | xz -d > freebsd-amd64.qcow2)' >> fbsdamd64.sh
-    - echo '(qemu-img resize freebsd-amd64.qcow2 "+8G")' >> fbsdamd64.sh
+    - echo '(qemu-img resize freebsd-amd64.qcow2 "+4G")' >> fbsdamd64.sh
     - echo 'export CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); if [ $CPUS -gt 255 ]; then CPUS=255; fi; export CPUS; tmux -u -2 new -d -s fbsdamd64 qemu-system-x86_64 -smp $(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1) -m 1280M -cpu qemu64 -M q35 -serial telnet::5555,server -nographic -drive if=none,file=freebsd-amd64.qcow2,id=hd0 -device virtio-blk-pci,drive=hd0 -device virtio-net-pci,netdev=net0 -netdev user,id=net0' >> fbsdamd64.sh
     - echo 'tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"' >> fbsdamd64.sh
     - echo 'sleep 5' >> fbsdamd64.sh
@@ -873,7 +873,7 @@ FreeBSD/amd64, 13-STABLE, clang, static:
 
 ############################################################################
 
-Linux/x86_64, Debian sid, clang/git, libuv/git:
+Linux/x86_64, Debian sid, Clang/git, libuv/git:
   image: debian:sid
   stage: build
   tags:
@@ -905,7 +905,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
 
 ############################################################################
 
-Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
+Linux/x86_64, Debian sid, Clang/git, libuv/git, TESTING:
   image: debian:sid
   stage: build
   tags:
@@ -937,7 +937,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
 
 ############################################################################
 
-Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
+Linux/x86_64, Debian sid, Clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
   image: debian:sid
   stage: build
   tags:
@@ -969,7 +969,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
 
 ############################################################################
 
-Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
+Linux/x86_64, Debian sid, Clang/git, libuv/git, L68:
   image: debian:sid
   stage: build
   tags:
@@ -1001,7 +1001,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
 
 ############################################################################
 
-Linux/x86_64, Debian sid, gcc, libuv/git:
+Linux/x86_64, Debian sid, GCC, libuv/git:
   image: debian:sid
   stage: build
   tags:
@@ -1033,7 +1033,7 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
 
 ############################################################################
 
-Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
+Linux/x86_64, Debian sid, Clang/git, libuv/git, NO_LOCKLESS:
   image: debian:sid
   stage: build
   tags:
@@ -1065,7 +1065,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
 
 ############################################################################
 
-Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
+Linux/x86_64, Debian sid, Clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
   image: debian:sid
   stage: build
   tags:
@@ -1097,7 +1097,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
 
 ############################################################################
 
-Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
+Linux/x86_64, Debian sid, Clang/git, libuv/git, L68 NO_LOCKLESS:
   image: debian:sid
   stage: build
   tags:
@@ -1129,7 +1129,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
 
 ############################################################################
 
-Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
+Windows/x86_64, MinGW64-GCC:
   image: debian:sid
   stage: build
   tags:
@@ -1178,7 +1178,7 @@ Source Kits:
 
 ############################################################################
 
-Linux/x86_64, Ubuntu LTS, clang:
+Linux/x86_64, Ubuntu LTS, Clang:
   image: ubuntu:latest
   stage: build
   tags:
@@ -1209,7 +1209,7 @@ Linux/x86_64, Ubuntu LTS, clang:
 
 ############################################################################
 
-Linux/x86_64, Ubuntu LTS, gcc:
+Linux/x86_64, Ubuntu LTS, GCC:
   image: ubuntu:latest
   stage: build
   tags:
@@ -1240,7 +1240,7 @@ Linux/x86_64, Ubuntu LTS, gcc:
 
 ############################################################################
 
-Linux/x86_64, Fedora, clang:
+Linux/x86_64, Fedora, Clang:
   image: fedora:latest
   stage: build
   tags:
@@ -1270,7 +1270,7 @@ Linux/x86_64, Fedora, clang:
 
 ############################################################################
 
-Linux/x86_64, Fedora, gcc:
+Linux/x86_64, Fedora, GCC:
   image: fedora:latest
   stage: build
   tags:
@@ -1300,7 +1300,7 @@ Linux/x86_64, Fedora, gcc:
 
 ############################################################################
 
-Linux/x86_64, Oracle Linux 8, clang:
+Linux/x86_64, Oracle Linux 8, Clang:
   image: oraclelinux:8
   stage: build
   tags:
@@ -1331,7 +1331,7 @@ Linux/x86_64, Oracle Linux 8, clang:
 
 ############################################################################
 
-Linux/x86_64, Oracle Linux 8, gcc:
+Linux/x86_64, Oracle Linux 8, GCC:
   image: oraclelinux:8
   stage: build
   tags:
@@ -1362,7 +1362,7 @@ Linux/x86_64, Oracle Linux 8, gcc:
 
 ############################################################################
 
-Linux/x86_64, Ubuntu, clang:
+Linux/x86_64, Ubuntu, Clang:
   image: ubuntu:rolling
   stage: build
   tags:
@@ -1393,7 +1393,7 @@ Linux/x86_64, Ubuntu, clang:
 
 ############################################################################
 
-Linux/x86_64, Ubuntu, gcc:
+Linux/x86_64, Ubuntu, GCC:
   image: ubuntu:rolling
   stage: build
   tags:
@@ -1424,7 +1424,7 @@ Linux/x86_64, Ubuntu, gcc:
 
 ############################################################################
 
-Windows/x86_64, Ubuntu, LLVM-MinGW, libuv/git:
+Windows/x86_64, LLVM-MinGW:
   image: mstorsjo/llvm-mingw:dev
   stage: build
   tags:
@@ -1449,7 +1449,7 @@ Windows/x86_64, Ubuntu, LLVM-MinGW, libuv/git:
 
 ############################################################################
 
-Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
+Windows/ARM64, LLVM-MinGW:
   image: mstorsjo/llvm-mingw:dev
   stage: build
   tags:
@@ -1474,7 +1474,7 @@ Windows/ARM64, Ubuntu, LLVM-MinGW, libuv/git:
 
 ############################################################################
 
-Linux/x86_64, AlmaLinux 8, clang:
+Linux/x86_64, AlmaLinux 8, Clang:
   image: almalinux:8
   stage: build
   tags:
@@ -1505,7 +1505,7 @@ Linux/x86_64, AlmaLinux 8, clang:
 
 ############################################################################
 
-Linux/x86_64, AlmaLinux 8, gcc:
+Linux/x86_64, AlmaLinux 8, GCC:
   image: almalinux:8
   stage: build
   tags:
@@ -1536,7 +1536,40 @@ Linux/x86_64, AlmaLinux 8, gcc:
 
 ############################################################################
 
-Linux/x86_64, Alpine Edge, gcc, mimalloc, static:
+Linux/x86_64, Alpine, GCC:
+  image:
+    name: alpine:latest
+    entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk update; apk add bash; apk add bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptSanity
+    - *scriptAlpineSetup
+    - *scriptInstallNfpm
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - dash -x -c '(git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - /builds/dps8m/dps8m/src/dps8/dps8.lz
+      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
+      - /builds/dps8m/dps8m/src/punutil/punutil.lz
+      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Alpine Edge, GCC:
   image:
     name: alpine:edge
     entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk update; apk add bash; apk add bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1569,7 +1602,7 @@ Linux/x86_64, Alpine Edge, gcc, mimalloc, static:
 
 ############################################################################
 
-Linux/x86_64, Alpine Edge, clang, mimalloc, static:
+Linux/x86_64, Alpine Edge, Clang:
   image:
     name: alpine:edge
     entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk update; apk add bash; apk add bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1602,7 +1635,7 @@ Linux/x86_64, Alpine Edge, clang, mimalloc, static:
 
 ############################################################################
 
-Linux/x86_64, Void musl, gcc, mimalloc, static:
+Linux/x86_64, Void musl, GCC, mimalloc, static:
   image:
     name: voidlinux/voidlinux-musl:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1635,7 +1668,7 @@ Linux/x86_64, Void musl, gcc, mimalloc, static:
 
 ############################################################################
 
-Linux/x86_64, Void musl, clang, mimalloc, static:
+Linux/x86_64, Void musl, Clang, mimalloc, static:
   image:
     name: voidlinux/voidlinux-musl:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1668,7 +1701,7 @@ Linux/x86_64, Void musl, clang, mimalloc, static:
 
 ############################################################################
 
-Linux/x86_64, Void glibc, gcc:
+Linux/x86_64, Void glibc, GCC:
   image:
     name: voidlinux/voidlinux:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1700,7 +1733,7 @@ Linux/x86_64, Void glibc, gcc:
 
 ############################################################################
 
-Linux/x86_64, Void glibc, clang:
+Linux/x86_64, Void glibc, Clang:
   image:
     name: voidlinux/voidlinux:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1732,7 +1765,7 @@ Linux/x86_64, Void glibc, clang:
 
 ############################################################################
 
-Linux/x86_64, Amazon Linux, clang:
+Linux/x86_64, Amazon Linux, Clang:
   image: amazonlinux:latest
   stage: build
   tags:
@@ -1762,7 +1795,7 @@ Linux/x86_64, Amazon Linux, clang:
 
 ############################################################################
 
-Linux/x86_64, Amazon Linux, gcc:
+Linux/x86_64, Amazon Linux, GCC:
   image: amazonlinux:latest
   stage: build
   tags:
@@ -1792,7 +1825,7 @@ Linux/x86_64, Amazon Linux, gcc:
 
 ############################################################################
 
-Windows/i686, Ubuntu, LLVM-MinGW, libuv/git:
+Windows/i686, LLVM-MinGW:
   image: mstorsjo/llvm-mingw:dev
   stage: build
   tags:
@@ -1817,7 +1850,7 @@ Windows/i686, Ubuntu, LLVM-MinGW, libuv/git:
 
 ############################################################################
 
-Windows/ARMv7, Ubuntu, LLVM-MinGW, libuv/git:
+Windows/ARMv7, LLVM-MinGW:
   image: mstorsjo/llvm-mingw:dev
   stage: build
   tags:
@@ -1842,7 +1875,7 @@ Windows/ARMv7, Ubuntu, LLVM-MinGW, libuv/git:
 
 ############################################################################
 
-Linux/x86_64, OpenSUSE Leap, clang:
+Linux/x86_64, OpenSUSE Leap, Clang:
   image: opensuse/leap:latest
   stage: build
   tags:
@@ -1872,7 +1905,7 @@ Linux/x86_64, OpenSUSE Leap, clang:
 
 ############################################################################
 
-Linux/x86_64, OpenSUSE Leap, gcc:
+Linux/x86_64, OpenSUSE Leap, GCC:
   image: opensuse/leap:latest
   stage: build
   tags:
@@ -1902,7 +1935,7 @@ Linux/x86_64, OpenSUSE Leap, gcc:
 
 ############################################################################
 
-Linux/x86_64, Slackware64 Current, gcc:
+Linux/x86_64, Slackware Current, GCC:
   image: vbatts/slackware:current
   stage: build
   tags:
@@ -1931,7 +1964,7 @@ Linux/x86_64, Slackware64 Current, gcc:
 
 ############################################################################
 
-Linux/x86_64, Slackware64 Current, clang:
+Linux/x86_64, Slackware Current, Clang:
   image: vbatts/slackware:current
   stage: build
   tags:
