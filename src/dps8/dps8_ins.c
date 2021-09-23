@@ -2982,7 +2982,7 @@ static t_stat doInstruction (void)
 
         case x0 (0756): // stq
           cpu.CY = cpu.rQ;
-          HDBGRegQW ("stq");
+          HDBGRegQR ("stq");
           break;
 
         case x0 (0116):  // cmpq

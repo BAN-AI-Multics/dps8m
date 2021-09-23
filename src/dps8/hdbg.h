@@ -56,16 +56,16 @@ void hdbgPARegW (enum hregs_t type, struct par_s * data, const char * ctx);
 struct dsbr_s;
 void hdbgDSBRRegR (enum hregs_t type, struct dsbr_s * data, const char * ctx);
 void hdbgDSBRRegW (enum hregs_t type, struct dsbr_s * data, const char * ctx);
-void hdbgAPURead (word15 segno, word18 offset, word36 data, const char * ctx);
-void hdbgAPUWrite (word15 segno, word18 offset, word36 data, const char * ctx);
+void hdbgAPURead (word15 segno, word18 offset, word24 final, word36 data, const char * ctx);
+void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const char * ctx);
 #endif
 
 #ifdef HDBG
 #define HDBGMRead(a, d, c) hdbgMRead (a, d, c)
 #define HDBGMWrite(a, d, c) hdbgMWrite (a, d, c)
 #define HDBGIEFP(t, s, o, c) hdbgIEFP (t, s, o, c);
-#define HDBGAPURead(s, o, d, c) hdbgAPURead (s, o, d, c)
-#define HDBGAPUWrite(s, o, d, c) hdbgAPUWrite (s, o, d, c)
+#define HDBGAPURead(s, o, f, d, c) hdbgAPURead (s, o, f, d, c)
+#define HDBGAPUWrite(s, o, f, d, c) hdbgAPUWrite (s, o, f, d, c)
 #define HDBGRegAR(c) hdbgRegR (hreg_A, cpu.rA, c)
 #define HDBGRegAW(c) hdbgRegW (hreg_A, cpu.rA, c)
 #define HDBGRegQR(c) hdbgRegR (hreg_Q, cpu.rQ, c)
@@ -92,8 +92,8 @@ void hdbgAPUWrite (word15 segno, word18 offset, word36 data, const char * ctx);
 #define HDBGMRead(a, d, c) 
 #define HDBGMWrite(a, d, c)
 #define HDBGIEFP(t,s,o, c)
-#define HDBGAPURead(s, o, d, c)
-#define HDBGAPUWrite(s, o, d, c)
+#define HDBGAPURead(s, o, f, d, c)
+#define HDBGAPUWrite(s, o, f, d, c)
 #define HDBGRegAR(c)
 #define HDBGRegAW(c)
 #define HDBGRegQR(c)

@@ -101,6 +101,7 @@ struct hevt {
       enum hregs_t type;
       word15 segno;
       word18 offset;
+      word24 final;
       word36 data;
     } apu;
   };
@@ -176,18 +177,20 @@ void hdbgMWrite (word24 addr, word36 data, const char * ctx) {
 done: ;
 }
 
-void hdbgAPURead (word15 segno, word18 offset, word36 data, const char * ctx) {
+void hdbgAPURead (word15 segno, word18 offset, word24 final, word36 data, const char * ctx) {
   hev (hevtAPU, false);
   hevents[p].apu.segno = segno;
   hevents[p].apu.offset = offset;
+  hevents[p].apu.final = final;
   hevents[p].apu.data = data;
 done: ;
 }
 
-void hdbgAPUWrite (word15 segno, word18 offset, word36 data, const char * ctx) {
+void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const char * ctx) {
   hev (hevtAPU, true);
   hevents[p].apu.segno = segno;
   hevents[p].apu.offset = offset;
+  hevents[p].apu.final = final;
   hevents[p].apu.data = data;
 done: ;
 }
@@ -284,13 +287,14 @@ static void printM (struct hevt * p) {
 }
 
 static void printAPU (struct hevt * p) {
-  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d APU: %s %s %05o:%06o %012"PRIo64"\n",
+  fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d APU: %s %s %05o:%06o %08o %012"PRIo64"\n",
            p->time, 
            p->cpu_idx,
            p->ctx,
            p->rw ? "write" : "read ",
            p->apu.segno,
            p->apu.offset,
+           p->apu.final,
            p->apu.data);
 }
 
@@ -363,7 +367,7 @@ static char * regNames[] = {
 
 static void printReg (struct hevt * p) {
   if (p->reg.type == hreg_IR)
-    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %012"PRIo64" Z%o N%o C %o O%o T%o \n",
+    fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %012"PRIo64" Z%o N%o C %o O%o T%o \n",
              p->time,
              p->cpu_idx,
              p->ctx,
