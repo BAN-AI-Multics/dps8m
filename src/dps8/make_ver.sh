@@ -685,7 +685,7 @@ BUILD_SYS="$(get_bld_osys)" ||
 debug_print "End of gather and print phase"
 
 ###############################################################################
-# Release type heuristic /* NOTE(johnsonjh): Ugly debugger-friendly approach */
+# Release type heuristic
 
 debug_print "Start release type heuristics"
 
@@ -696,7 +696,7 @@ debug_print "Start release type heuristics"
 #  * C: Candidate
 #  * D: Development
 #  * R: Release
-#  * Z: Unknown
+#  * X: Unknown
 #  */
 
 debug_print "Setting BUILD_TMP_RLT"

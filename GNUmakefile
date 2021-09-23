@@ -34,11 +34,11 @@
 #            TRACKER=1                Adds instruction snapshot support
 #               HDBG=1                Enables extended history debugger
 #        ROUND_ROBIN=1                Support un-threaded multiple CPUs
-#             ISOLTS=1                Support for running ISOLOTS tests
+#             ISOLTS=1                Support execution of ISOLTS tests
 #                WAM=1                Enable PTW/SDW associative memory
 #           NEED_128=1                Enable 128-bit types work-arounds
 #        USE_BUILDER="String"         Enable a custom "Built by" string
-#        USE_BUILDOS="String"         Enable a custom "Built OS" string
+#        USE_BUILDOS="String"         Enable a custom "Build OS" string
 #
 ###############################################################################
 
@@ -124,6 +124,12 @@ endif
 
 ifneq (,$(wildcard src/Makefile.scc))
   include src/Makefile.scc
+endif
+
+###############################################################################
+
+ifneq (,$(wildcard src/Makefile.gci))
+  include src/Makefile.gci
 endif
 
 ###############################################################################
