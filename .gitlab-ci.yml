@@ -16,7 +16,16 @@
 
 .scriptSanity: &scriptSanity |
     # scriptSanity
-    echo "Branch: ${CI_COMMIT_BRANCH:?}"
+    echo "${CI_COMMIT_BRANCH:?}" > /dev/null 2>&1
+
+############################################################################
+
+.scriptInstallNfpm: &scriptInstallNfpm
+    # scriptInstallNfpm
+    test -d /etc/apt && { mkdir -p /etc/apt/sources.list.d && echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y update; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y update; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y nfpm; };
+    test -d /etc/yum.repos.d && { echo '[goreleaser]' > /etc/yum.repos.d/goreleaser.repo && echo 'name=GoReleaser' >> /etc/yum.repos.d/goreleaser.repo && echo 'baseurl=https://repo.goreleaser.com/yum/' >> /etc/yum.repos.d/goreleaser.repo && echo 'enabled=1' >> /etc/yum.repos.d/goreleaser.repo && echo 'gpgcheck=0' >> /etc/yum.repos.d/goreleaser.repo && dnf -y --refresh install nfpm ; yum install -y nfpm; };
+    sh -x -c 'which nfpm > /dev/null 2>&1 || { (cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh); };'
+    nfpm --version
 
 ############################################################################
 
@@ -230,8 +239,7 @@
 
 .scriptOSUSESetup: &scriptOSUSESetup |
     # scriptOSUSESetup
-    zypper -qn update || zypper -qn update
-    export ARGS="gcc clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; zypper -qn install ${ARGS:?} || zypper -qn install ${ARGS:?}
+    printf '%s\n' "install -n -y which gzip gcc clang git unzip zip ruby ruby-devel curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja" "dup -y" "update -y" "exit" | zypper -qn sh
 
 ############################################################################
 
@@ -255,7 +263,7 @@
 
 .scriptOUL8Setup: &scriptOUL8Setup |
     # scriptOUL8Setup
-    dnf -y --refresh --allowerasing --nobest install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || dnf -y --refresh --allowerasing install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    dnf -y --refresh --allowerasing --best install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || dnf -y --refresh --allowerasing --nobest install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     echo '[OL8_codeready_builder]' > /etc/yum.repos.d/codeready_builder.repo
     echo 'name=OL8_codeready_builder' >> /etc/yum.repos.d/codeready_builder.repo
     echo 'baseurl=https://yum.oracle.com/repo/OracleLinux/OL8/codeready/builder/x86_64/' >> /etc/yum.repos.d/codeready_builder.repo
@@ -303,6 +311,7 @@ Linux/x86_64, Clear Linux, gcc:
   script:
     - *scriptSanity
     - *scriptClearSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -332,6 +341,7 @@ Linux/x86_64, Clear Linux, clang:
   script:
     - *scriptSanity
     - *scriptClearSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -353,7 +363,7 @@ Linux/x86_64, Clear Linux, clang:
 
 ############################################################################
 
-FreeBSD/PPC64, 13-STABLE, clang, static:
+FreeBSD/powerpc64, 13-STABLE, clang, static:
   image: fedora:latest
   stage: build
   tags:
@@ -569,7 +579,7 @@ FreeBSD/PPC64, 13-STABLE, clang, static:
 
 ############################################################################
 
-FreeBSD/RV64, 13-STABLE, clang, static:
+FreeBSD/riscv64, 13-STABLE, clang, static:
   image: fedora:latest
   stage: build
   tags:
@@ -666,7 +676,7 @@ FreeBSD/RV64, 13-STABLE, clang, static:
 
 ############################################################################
 
-FreeBSD/ARM64, 13-STABLE, clang, static:
+FreeBSD/aarch64, 13-STABLE, clang, static:
   image: fedora:latest
   stage: build
   tags:
@@ -762,7 +772,7 @@ FreeBSD/ARM64, 13-STABLE, clang, static:
 
 ############################################################################
 
-FreeBSD/AMD64, 13-STABLE, clang, static:
+FreeBSD/amd64, 13-STABLE, clang, static:
   image: fedora:latest
   stage: build
   tags:
@@ -869,6 +879,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git:
     - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -900,6 +911,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING:
     - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -931,6 +943,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
     - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -962,6 +975,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68:
     - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -993,6 +1007,7 @@ Linux/x86_64, Debian sid, gcc, libuv/git:
     - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestGCC
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1024,6 +1039,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS:
     - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1055,6 +1071,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
     - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1086,6 +1103,7 @@ Linux/x86_64, Debian sid, clang/git, libuv/git, L68 NO_LOCKLESS:
     - *scriptSanity
     - *scriptAptSetup
     - *scriptAptSetupLatestClang
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1117,6 +1135,7 @@ Windows/x86_64, Debian, MinGW64-gcc, libuv/git:
     - *scriptSanity
     - *scriptAptSetup
     - *scriptAptInstallMinGW64
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1164,6 +1183,7 @@ Linux/x86_64, Ubuntu LTS, clang:
   script:
     - *scriptSanity
     - *scriptAptSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptAptInstallLibuv1
     - *scriptDPS8Mods
@@ -1194,6 +1214,7 @@ Linux/x86_64, Ubuntu LTS, gcc:
   script:
     - *scriptSanity
     - *scriptAptSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptAptInstallLibuv1
     - *scriptDPS8Mods
@@ -1224,6 +1245,7 @@ Linux/x86_64, Fedora, clang:
   script:
     - *scriptSanity
     - *scriptDnfSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1253,6 +1275,7 @@ Linux/x86_64, Fedora, gcc:
   script:
     - *scriptSanity
     - *scriptDnfSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1283,6 +1306,7 @@ Linux/x86_64, Oracle Linux 8, clang:
     - *scriptSanity
     - *scriptOUL8Setup
     - *scriptDnfSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1313,6 +1337,7 @@ Linux/x86_64, Oracle Linux 8, gcc:
     - *scriptSanity
     - *scriptOUL8Setup
     - *scriptDnfSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1342,6 +1367,7 @@ Linux/x86_64, Ubuntu, clang:
   script:
     - *scriptSanity
     - *scriptAptSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptAptInstallLibuv1
     - *scriptDPS8Mods
@@ -1372,6 +1398,7 @@ Linux/x86_64, Ubuntu, gcc:
   script:
     - *scriptSanity
     - *scriptAptSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptAptInstallLibuv1
     - *scriptDPS8Mods
@@ -1453,6 +1480,7 @@ Linux/x86_64, AlmaLinux 8, clang:
     - *scriptSanity
     - *scriptAlma8Setup
     - *scriptDnfSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1483,6 +1511,7 @@ Linux/x86_64, AlmaLinux 8, gcc:
     - *scriptSanity
     - *scriptAlma8Setup
     - *scriptDnfSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1514,6 +1543,7 @@ Linux/x86_64, Alpine Edge, gcc, mimalloc, static:
   script:
     - *scriptSanity
     - *scriptAlpineSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1546,6 +1576,7 @@ Linux/x86_64, Alpine Edge, clang, mimalloc, static:
   script:
     - *scriptSanity
     - *scriptAlpineSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1578,6 +1609,7 @@ Linux/x86_64, Void musl, gcc, mimalloc, static:
   script:
     - *scriptSanity
     - *scriptVoidSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1610,6 +1642,7 @@ Linux/x86_64, Void musl, clang, mimalloc, static:
   script:
     - *scriptSanity
     - *scriptVoidSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1642,6 +1675,7 @@ Linux/x86_64, Void glibc, gcc:
   script:
     - *scriptSanity
     - *scriptVoidSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1673,6 +1707,7 @@ Linux/x86_64, Void glibc, clang:
   script:
     - *scriptSanity
     - *scriptVoidSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1702,6 +1737,7 @@ Linux/x86_64, Amazon Linux, clang:
   script:
     - *scriptSanity
     - *scriptAmazonSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1731,6 +1767,7 @@ Linux/x86_64, Amazon Linux, gcc:
   script:
     - *scriptSanity
     - *scriptAmazonSetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1802,35 +1839,6 @@ Windows/ARMv7, Ubuntu, LLVM-MinGW, libuv/git:
 
 ############################################################################
 
-Linux/x86_64, OpenSUSE Tumbleweed, clang:
-  image: opensuse/tumbleweed:latest
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptOSUSESetup
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
 Linux/x86_64, OpenSUSE Leap, clang:
   image: opensuse/leap:latest
   stage: build
@@ -1839,39 +1847,11 @@ Linux/x86_64, OpenSUSE Leap, clang:
   script:
     - *scriptSanity
     - *scriptOSUSESetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, OpenSUSE Tumbleweed, gcc:
-  image: opensuse/tumbleweed:latest
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptOSUSESetup
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *buildInfo
     - *compressArtifacts
@@ -1897,6 +1877,7 @@ Linux/x86_64, OpenSUSE Leap, gcc:
   script:
     - *scriptSanity
     - *scriptOSUSESetup
+    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1974,4 +1955,25 @@ Linux/x86_64, Slackware64 Current, clang:
   timeout: 120 minutes
   interruptible: true
 
+############################################################################
+#
+#Documentation:
+#  image: fedora:latest
+#  stage: build
+#  tags:
+#    - Docker-amd64
+#  script:
+#    - *scriptSanity
+#    - *scriptDnfSetup
+#    - *scriptInstallNfpm
+#    - *scriptCommon
+#    - *scriptDPS8Mods
+#    - *scriptExtraInfo
+#    - sh -x -c '(dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update) && sleep 1 && export ARGS="mhonarc weasyprint lynx elinks curl xz telnet expect tmux git lzip netcat lftp lftp-scripts finger texlive ack perl-core alien ansifilter asymptote asciidoc atool autoconf autoconf-archive automake libtool bash zsh mksh bc pax biber bibtex2html bib2html BibTool brotli bison flex bsdtar bsdcpio ca-certificates catdoc ckermit convmv cpulimit cscope global ctags cvs rcs dateutils diffstat diffutils dnf-utils dos2unix doxygen ed ripgrep expect fakeroot findutils fmt gawk gd-progs pandoc texlive gnuplot gnupg2 ImageMagick GraphicsMagick graphviz groff lua info indent tcl-devel jsmath-fonts jq latexmk pbzip2 less symlinks lockdev-devel lout lua-devel m4 make man-db mathjax mawk mkdocs mmv moreutils mupdf mupdf-devel ncompress neovim vim-enhanced pandoc-citeproc pandoc-pdf pandoc-common patch pdfbox pdfbox-tools pdfbox-debugger pigz pngcrush poppler poppler-devel poppler-utils pv qpdf qpdf-devel ruby source-highlight tidy screen unifdef units uuid w3m wkhtmltopdf words"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest'
+#    - sh -x -c 'export ARGS="https://sandbox.mc.edu/~bennet/pdftk-2.02-2.fc30.x86_64.rpm https://sandbox.mc.edu/~bennet/gcc6-libgcj-6.5.0-2.fc30.x86_64.rpm"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}' || true
+#  dependencies: []
+#  retry: 2
+#  timeout: 120 minutes
+#  interruptible: true
+#
 ############################################################################
