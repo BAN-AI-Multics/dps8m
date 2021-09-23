@@ -551,7 +551,6 @@ FreeBSD/powerpc64, 13-STABLE, clang, static:
     - CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); export CPUS; if [ $CPUS -gt 1024 ]; then CPUS=1024; fi; export CPUS; tmux -2 -u new -d -s instppc64 qemu-system-ppc64 -smp 1 -m 1280M -M pseries,max-cpu-compat=power8,cap-ccf-assist=off,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken -cpu POWER8 -accel tcg -serial telnet::4444,server -vga none -nographic -cdrom freebsd-ppc64.iso -drive if=none,file=freebsd-ppc64.qcow2,id=drive-virtio-disk0,format=qcow2 -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=drive-virtio-disk0 -net user -net nic,model=virtio 
     - sleep 10
     - ./install.expect
-    - echo "Waiting 2m"
     - sleep 120
     - kill $(ps auxwww | grep qemu-system-ppc64 | grep -v grep | grep :4444 | awk "{print \$2}" | head -n 1) || true
     - sleep 15
