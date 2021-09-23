@@ -217,7 +217,7 @@ void chnRdyWait (uint iomNum, uint chnNum);
 
 void initThreadz (void);
 void setSignals (void);
-void fence (void);
+//void fence (void);
 
 #ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
 extern pthread_cond_t iomCond;

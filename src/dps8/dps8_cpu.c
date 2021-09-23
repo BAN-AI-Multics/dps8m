@@ -693,9 +693,6 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
 
     tidy_cu ();
     set_cpu_idx (save);
-#ifdef THREADZ
-    fence ();
-#endif
   }
 
 static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
