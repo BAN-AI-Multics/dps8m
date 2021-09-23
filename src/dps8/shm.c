@@ -21,6 +21,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
+#ifdef USE_FLOCK
+#include <sys/file.h>
+#endif
 
 #include "shm.h"
 
@@ -39,6 +42,14 @@ void * create_shm (char * key, size_t size)
         printf ("create_shm open fail %d\r\n", errno);
         return NULL;
       }
+
+#ifdef USE_FLOCK
+    int rc = flock (fd, LOCK_EX | LOCK_NB);
+    if (rc < 0) {
+      printf ("%s flock fail %d\r\n", __func__, errno);
+      return NULL;
+    }
+#endif
 
     if (ftruncate (fd, (off_t) size) == -1)
       {
@@ -67,6 +78,14 @@ void * open_shm (char * key, size_t size)
         printf ("open_shm open fail %d\r\n", errno);
         return NULL;
       }
+
+#ifdef USE_FLOCK
+    int rc = flock (fd, LOCK_EX | LOCK_NB);
+    if (rc < 0) {
+      printf ("%s flock fail %d\r\n", __func__, errno);
+      return NULL;
+    }
+#endif
 
     p = mmap (NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (p == MAP_FAILED)
