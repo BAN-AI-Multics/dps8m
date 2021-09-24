@@ -555,42 +555,6 @@
 //  35    REL
 //
 
-// Due to lack of documentation, chan_cmd is largely ignored
-//
-// iom_chan_control_words.incl.pl1
-//
-//   SINGLE_RECORD       init ("00"b3),
-//   NONDATA             init ("02"b3),
-//   MULTIRECORD         init ("06"b3),
-//   SINGLE_CHARACTER    init ("10"b3)
-//
-// bound_tolts_/mtdsim_.pl1
-//
-//    idcw.chan_cmd = "40"b3;           /* otherwise set special cont. cmd */
-//
-// bound_io_tools/exercise_disk.pl1
-//
-//   idcw.chan_cmd = INHIB_AUTO_RETRY; /* inhibit mpc auto retries */
-//   dcl     INHIB_AUTO_RETRY       bit (6) int static init ("010001"b);  // 021
-//
-// poll_mpc.pl1:
-//  /* Build dcw list to get statistics from EURC MPC */
-//  idcw.chan_cmd = "41"b3;            /* Indicate special controller command */
-//  /* Build dcw list to get configuration and statistics from DAU MSP */
-//  idcw.chan_cmd = "30"b3;                           /* Want list in dev# order */
-//
-// tape_ioi_io.pl1:
-//   idcw.chan_cmd = "03"b3;          /* data security erase */
-//   dcw.chan_cmd = "30"b3;           /* use normal values, auto-retry */
-
-
-// iom_word_macros.incl.alm
-//
-// Channel control
-#define CHAN_CTRL_TERMINATE 0
-#define CHAN_CTRL_PROCEED 2
-#define CHAN_CTRL_MARKER 3
-
 #include "dps8.h"
 #include "dps8_sys.h"
 #include "dps8_faults.h"
@@ -805,7 +769,7 @@ static char * cmdNames [] =
     "Wr 9 Rcrd",             // 13
     "",                      // 14
     "Wr Bin Rcrd",           // 15
-    "Initiare Wr Data Xfer", // 16
+    "Initiate Wr Data Xfer", // 16
     "",                      // 17
     "Release Ctlr",          // 20
     "",                      // 21
@@ -2416,7 +2380,7 @@ static void write_LPW (uint iom_unit_idx, uint chan)
   }
 
 #ifdef TESTING
-static void dumpDCW (word36 DCW, word1 LPW_23_REL) {
+void dumpDCW (word36 DCW, word1 LPW_23_REL) {
   static char * charCtrls[4] = {"terminate", "undefined", "proceed", "marker"};
   static char * chanCmds[16] = {"record", "undefined", "nondata", "undefined", "undefined", "undefined", "multirecord", "undefined", "character", "undefined", "undefined", "undefined", "undefined", "undefined", "undefined", "undefined"};
   word3 DCW_18_20_CP =      getbits36_3 (DCW, 18);
@@ -3403,7 +3367,8 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
 
     p->isPCW = true;
 
-    p->masked = !!p->PCW_21_MSK;
+    // Masked is set in doConnectChannel
+    //p->masked = !!p->PCW_21_MSK;
     struct iom_to_ctlr_s * d = & cables->iom_to_ctlr[iomUnitIdx][chan];
 
 // A device command of 051 in the PCW is only meaningful to the operator console;
@@ -3474,7 +3439,7 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
 #if 0
     if (rc != IOM_CMD_NEED_DDCW) {
       if (p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE) {
-if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) PCW\n", chan, chan);
+if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) PCW\n", chan, chan);
         goto terminate;
       }
     }
@@ -3487,7 +3452,7 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) PCW\n
     //if (p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE)
     if (p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && d -> type != DEVT_TAPE && d -> type != DEVT_DISK)
       {
-        //sim_printf ("ctrl == 0 in chan %d (%o) PCW\n", chan, chan);
+        //sim_printf ("// ctrl == 0 in chan %d (%o) PCW\n", chan, chan);
         goto terminate;
       }
 #endif
@@ -3601,16 +3566,16 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) PCW\n
 #endif
 
         // If IDCW and terminate and nondata
-        if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == 2) {
-            if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+        if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
+            if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
             goto terminate;
         }
-        if (p->DCW_18_20_CP != 07 && idcw_terminate) {
-            if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
+        // If IOTP and last IDCW was terminate
+        if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0 && idcw_terminate) {
+            if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
             goto terminate;
         }
 
-        // If IOTP and last IDCW was terminate
 
 // The IOM boot code and BCE sets IDCW_CHAN_CTRL to 0; this stops the IOTs from being processed.
         //if (rc2 || p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE)

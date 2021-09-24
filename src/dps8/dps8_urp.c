@@ -53,7 +53,7 @@ static struct urpState
   {
     enum urpMode
       {
-        urpNoMode, urpInitRdData
+        urpNoMode, urpSetDiag, urpInitRdData
       } ioMode;
     char deviceName [MAX_DEV_NAME_LEN];
   } urpState [N_URP_UNITS_MAX];
@@ -77,6 +77,7 @@ static DEBTAB urp_dt [] =
     { "ERR", DBG_ERR, NULL },
     { "WARN", DBG_WARN, NULL },
     { "DEBUG", DBG_DEBUG, NULL },
+    { "TRACE", DBG_TRACE, NULL },
     { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
     { NULL, 0, NULL }
   };
@@ -204,6 +205,7 @@ void urp_init (void)
 static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+if_sim_debug (DBG_TRACE, & urp_dev) dumpDCW (p->DCW, 0);
     uint ctlrUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
     uint devUnitIdx = cables->urp_to_urd[ctlrUnitIdx][p->IDCW_DEV_CODE].unit_idx;
     //UNIT * unitp = & urp_unit [devUnitIdx];
@@ -219,11 +221,17 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan)
         switch (p->IDCW_DEV_CMD)
           {
             case 000: // CMD 00 Request status
+              if_sim_debug (DBG_TRACE, & urp_dev) {
+                sim_printf ("// URP Request Status\r\n");
+              }
               sim_debug (DBG_DEBUG, & urp_dev, "%s: Request Status\n", __func__);
               p->stati = 04000;
               break;
 
             case 006: // CMD 005 Initiate read data xfer (load_mpc.pl1)
+              if_sim_debug (DBG_TRACE, & urp_dev) {
+                sim_printf ("// URP Initiate Read Data Xfer\r\n");
+              }
               sim_debug (DBG_DEBUG, & urp_dev, "%s: Initiate Read Data Xfer\n", __func__);
               statep->ioMode = urpInitRdData;
               p->stati = 04000;
@@ -233,16 +241,27 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan)
 // 031 set diagnostic mode
 
             case 031: // CMD 031 Set Diagnostic Mode (load_mpc.pl1)
+              if_sim_debug (DBG_TRACE, & urp_dev) {
+                sim_printf ("// URP Set Diagnostic Mode\r\n");
+              }
               sim_debug (DBG_DEBUG, & urp_dev, "%s: Set Diagnostic Mode\n", __func__);
+              statep->ioMode = urpSetDiag;
               p->stati = 04000;
+              break;
 
             case 040: // CMD 40 Reset status
+              if_sim_debug (DBG_TRACE, & urp_dev) {
+                sim_printf ("// URP Reset Status\r\n");
+              }
               sim_debug (DBG_DEBUG, & urp_dev, "%s: Reset Status\n", __func__);
               p->stati = 04000;
               p->isRead = false;
               break;
 
             default:
+              if_sim_debug (DBG_TRACE, & urp_dev) {
+                sim_printf ("// URP unknown command %o\r\n", p->IDCW_DEV_CMD);
+              }
               p->stati = 04501; // cmd reject, invalid opcode
               p->chanStatus = chanStatIncorrectDCW;
               if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
@@ -258,16 +277,33 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan)
     switch (statep->ioMode)
       {
         case urpNoMode:
+          if_sim_debug (DBG_TRACE, & urp_dev) {
+            sim_printf ("// URP IOT no mode\r\n");
+          }
 sim_printf ("%s: Unexpected IOTx\n", __func__);
           sim_warn ("%s: Unexpected IOTx\n", __func__);
           return IOM_CMD_ERROR;
 
+        case urpSetDiag:
+          if_sim_debug (DBG_TRACE, & urp_dev) {
+            sim_printf ("// URP IOT Set Diag\r\n");
+          }
+          // We don't use the DDCW, so just pretend we do. BUG
+          p -> stati = 04000;
+          break;
+
         case urpInitRdData:
-          // We don't use the DDCW, so just pretend we do.
+          if_sim_debug (DBG_TRACE, & urp_dev) {
+            sim_printf ("// URP IOT Init Rd Data\r\n");
+          }
+          // We don't use the DDCW, so just pretend we do. BUG
           p -> stati = 04000;
           break;
 
          default:
+          if_sim_debug (DBG_TRACE, & urp_dev) {
+            sim_printf ("// URP IOT unkown %d\r\n", statep->ioMode);
+          }
           sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
           return IOM_CMD_ERROR;
       }
@@ -275,7 +311,7 @@ sim_printf ("%s: Unexpected IOTx\n", __func__);
     // IOTD?
     if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
       {
-        sim_debug (DBG_DEBUG | DBG_TRACE, & urp_dev, "%s: Terminate on IOTD\n", __func__);
+        sim_debug (DBG_DEBUG, & urp_dev, "%s: Terminate on IOTD\n", __func__);
         return IOM_CMD_DISCONNECT;
       }
 
