@@ -3196,10 +3196,8 @@ D:;
 
 // 0 ok
 // -1 uff
-static int doPayloadChannel (uint iomUnitIdx, uint chan)
-  {
-    sim_debug (DBG_DEBUG, & iom_dev, "%s: Payload channel %c%02o\n",
-               __func__, iomChar (iomUnitIdx), chan);
+static int doPayloadChannel (uint iomUnitIdx, uint chan) {
+  sim_debug (DBG_DEBUG, & iom_dev, "%s: Payload channel %c%02o\n", __func__, iomChar (iomUnitIdx), chan);
 // A dubious assumption being made is that the device code will always
 // be in bits 6-12 of the DCw. Normally, the controller would
 // decipher the device code and route to the device, but we
@@ -3217,127 +3215,118 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
 //  listService sets ptro, indicating that no more DCWs are availible. or
 //     control is 0, indicating last IDCW
 
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
 
 #ifdef TESTING
-    word36 PCW_DCW = p->DCW;
-    word1  PCW_LPW_23_REL = p->LPW_23_REL;
+  word36 PCW_DCW = p->DCW;
+  word1  PCW_LPW_23_REL = p->LPW_23_REL;
 #endif
-    p -> chanMode = cm1;
-    p -> LPW_18_RES = 0;
-    p -> LPW_20_AE = 0;
-    p -> LPW_23_REL = 0;
+  p -> chanMode = cm1;
+  p -> LPW_18_RES = 0;
+  p -> LPW_20_AE = 0;
+  p -> LPW_23_REL = 0;
 
-    unpack_DCW (iomUnitIdx, chan);
+  unpack_DCW (iomUnitIdx, chan);
 
-    p->isPCW = true;
+  p->isPCW = true;
 
-    // Masked is set in doConnectChannel
-    //p->masked = !!p->PCW_21_MSK;
-    struct iom_to_ctlr_s * d = & cables->iom_to_ctlr[iomUnitIdx][chan];
+  // Masked is set in doConnectChannel
+  //p->masked = !!p->PCW_21_MSK;
+  struct iom_to_ctlr_s * d = & cables->iom_to_ctlr[iomUnitIdx][chan];
 
 // A device command of 051 in the PCW is only meaningful to the operator console;
 // all other channels should ignore it. We use (somewhat bogusly) a chanType of
 // chanTypeCPI to indicate the operator console.
-    if (d->chan_type != chan_type_CPI && p -> IDCW_DEV_CMD == 051)
-      {
-        p->stati = 04501;
-        p->chanStatus = chanStatIncorrectDCW;
-        send_terminate_interrupt (iomUnitIdx, chan);
-        return 0;
-      }
+  if (d->chan_type != chan_type_CPI && p -> IDCW_DEV_CMD == 051) {
+    p->stati = 04501;
+    p->chanStatus = chanStatIncorrectDCW;
+    send_terminate_interrupt (iomUnitIdx, chan);
+    return 0;
+  }
 
-    if ((!d->in_use) || (!d->iom_cmd))
-      {
-        p -> stati = 06000; // t, power off/missing
-        goto terminate;
-      }
+  if ((!d->in_use) || (!d->iom_cmd)) {
+    p -> stati = 06000; // t, power off/missing
+    goto terminate;
+  }
 
 // 3.2.2. "Bits 12-17 [of the PCW] contain the address extension which is maintained by
 //         the channel for subsequent use by the IOM in generating a 24-bit
 //         address for list of data services for the extended address modes."
 // see also 3.2.3.1
-    p -> ADDR_EXT = p -> PCW_AE;
+  p -> ADDR_EXT = p -> PCW_AE;
 
-    p -> lsFirst = true;
+  p -> lsFirst = true;
 
-    p -> recordResidue = 0;
-    p -> tallyResidue = 0;
-    p -> isRead = true;
-    p -> charPos = 0;
+  p -> recordResidue = 0;
+  p -> tallyResidue = 0;
+  p -> isRead = true;
+  p -> charPos = 0;
 // As far as I can tell, initiate false means that an IOTx succeeded in
 // transferring data; assume it didn't since that is the most common
 // code path.
-    p -> initiate = true;
-    p -> chanStatus = chanStatNormal;
+  p -> initiate = true;
+  p -> chanStatus = chanStatNormal;
 
 //
 // Send the PCW's DCW
 //
-    int rc = d->iom_cmd (iomUnitIdx, chan);
+  int rc = d->iom_cmd (iomUnitIdx, chan);
 
-    if (rc < 0)
-      {
-        p -> dev_code = getbits36_6 (p -> DCW, 6);
-        p -> chanStatus = chanStatInvalidInstrPCW;
-        goto terminate;
-      }
+  if (rc < 0) {
+    p -> dev_code = getbits36_6 (p -> DCW, 6);
+    p -> chanStatus = chanStatInvalidInstrPCW;
+    goto terminate;
+  }
 
-    if (p->DCW_18_20_CP == 7 && p->IDCW_CHAN_CTRL == CHAN_CTRL_MARKER) // IDCW marker bit set
-      {
-        send_marker_interrupt (iomUnitIdx, (int) chan);
-      }
+  if (p->DCW_18_20_CP == 7 && p->IDCW_CHAN_CTRL == CHAN_CTRL_MARKER) // IDCW marker bit set {
+    send_marker_interrupt (iomUnitIdx, (int) chan);
+  }
 
-    if (rc == IOM_CMD_DISCONNECT)
-      {
-        goto terminate;
-      }
+  if (rc == IOM_CMD_DISCONNECT) {
+    goto terminate;
+  }
 
-    if (p->masked)
-      {
-        goto terminate;
-      }
-    bool ptro, send, uff;
-    bool terminate = false;
-    p->isPCW = false;
+  if (p->masked) {
+    goto terminate;
+  }
+
+  bool ptro, send, uff;
+  bool terminate = false;
+  p->isPCW = false;
 
 #ifdef TESTING
-    bool first = true;
+  bool first = true;
 #endif
 
-    bool idcw_terminate = p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE;
-    do
-      {
-        int rc2 = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-        if (rc2 < 0)
-          {
+  bool idcw_terminate = p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE;
+  do {
+    int rc2 = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
+    if (rc2 < 0) {
 // XXX set status flags
-            sim_warn ("%s list service failed\n", __func__);
-            return -1;
-          }
-        if (uff)
-          {
-            // We get a uff if the LPW tally hit 0
-            goto terminate;
-          }
-        // List service failed to get a DCW
-        if (! send)
-          {
-            sim_warn ("%s nothing to send\n", __func__);
-            return 1;
-          }
+      sim_warn ("%s list service failed\n", __func__);
+      return -1;
+    }
+    if (uff) {
+      // We get a uff if the LPW tally hit 0
+      goto terminate;
+    }
+    // List service failed to get a DCW
+    if (! send) {
+      sim_warn ("%s nothing to send\n", __func__);
+      return 1;
+    }
 
 #ifdef TESTING
-        if_sim_debug (DBG_TRACE, & iom_dev) {
-          if (first) {
-            first = false;
-            dumpLPW (iomUnitIdx, chan);
-            sim_printf ("// DCW list dump: \r\n");
-            dumpDCW (PCW_DCW, PCW_LPW_23_REL);
-            for (int i = 0; i < 8; i ++)
-              dumpDCW (M[p->LPW_DCW_PTR - 1 + i], p->LPW_23_REL);
-            sim_printf ("// \r\n");
-          }
+    if_sim_debug (DBG_TRACE, & iom_dev) {
+      if (first) {
+        first = false;
+        dumpLPW (iomUnitIdx, chan);
+        sim_printf ("// DCW list dump: \r\n");
+        dumpDCW (PCW_DCW, PCW_LPW_23_REL);
+        for (int i = 0; i < 8; i ++)
+          dumpDCW (M[p->LPW_DCW_PTR - 1 + i], p->LPW_23_REL);
+        sim_printf ("// \r\n");
+      }
     }
 #endif
 
@@ -3346,48 +3335,47 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
 //          Multics and NSA systems, EC is inhibited from the payload channel
 //          if LPW bit 23 = 1.
 
-        if (p -> DCW_18_20_CP == 07) // IDCW
-          {
-            idcw_terminate = p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE;
-            if (p -> LPW_23_REL == 0 && p -> IDCW_EC == 1)
-              p -> ADDR_EXT = getbits36_6 (p -> DCW, 12);
+    if (p -> DCW_18_20_CP == 07) // IDCW {
+      idcw_terminate = p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE;
+      if (p -> LPW_23_REL == 0 && p -> IDCW_EC == 1)
+        p -> ADDR_EXT = getbits36_6 (p -> DCW, 12);
 
-            p -> recordResidue = 0;
-            p -> tallyResidue = 0;
-            p -> isRead = true;
-            p -> charPos = 0;
-            p -> chanStatus = chanStatNormal;
-          }
+      p -> recordResidue = 0;
+      p -> tallyResidue = 0;
+      p -> isRead = true;
+      p -> charPos = 0;
+      p -> chanStatus = chanStatNormal;
+    }
 
 // Send the DCW list's DCW
 
-        rc2 = d->iom_cmd (iomUnitIdx, chan);
+    rc2 = d->iom_cmd (iomUnitIdx, chan);
 
-        if (rc2 == IOM_CMD_DISCONNECT) 
-          terminate = true;
+    if (rc2 == IOM_CMD_DISCONNECT) 
+      terminate = true;
 
-        if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
-          goto pending;                // terminate intrrupt.
+    if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
+      goto pending;                // terminate intrrupt.
 
-        // If IDCW and terminate and nondata
-        if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
-            if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
-            goto terminate;
-        }
-        // If IOTP and last IDCW was terminate
-        if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0 && idcw_terminate) {
-            if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
-            goto terminate;
-        }
-      } while (! terminate);
+    // If IDCW and terminate and nondata
+    if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
+      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+      goto terminate;
+    }
+    // If IOTP and last IDCW was terminate
+    if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0 && idcw_terminate) {
+      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
+      goto terminate;
+    }
+  } while (! terminate);
 
 terminate:;
-    send_terminate_interrupt (iomUnitIdx, chan);
-    return 0;
+  send_terminate_interrupt (iomUnitIdx, chan);
+  return 0;
 
 pending:;
-    return 0;
-  }
+  return 0;
+}
 
 // doConnectChan ()
 //
@@ -3400,112 +3388,101 @@ pending:;
 // resulting PCW control words.
 //
 
-static int doConnectChan (uint iom_unit_idx)
-  {
-    // ... the connect channel obtains a list service from the IOM Central.
-    // During this service the IOM Central will do a double precision read
-    // from the core, under the control of the LPW for the connect channel.
-    //
-    // If the IOM Central does not indicate a PTRO during the list service,
-    // the connect channel obtains anther list service.
-    //
-    // The connect channel does not interrupt or store status.
-    //
-    // The DCW and SCW mailboxes for the connect channel are not used by
-    // the IOM.
-    sim_debug (DBG_DEBUG, & iom_dev, "%s: Connect channel\n", __func__);
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][IOM_CONNECT_CHAN];
-    p -> lsFirst = true;
+static int doConnectChan (uint iom_unit_idx) {
+  // ... the connect channel obtains a list service from the IOM Central.
+  // During this service the IOM Central will do a double precision read
+  // from the core, under the control of the LPW for the connect channel.
+  //
+  // If the IOM Central does not indicate a PTRO during the list service,
+  // the connect channel obtains anther list service.
+  //
+  // The connect channel does not interrupt or store status.
+  //
+  // The DCW and SCW mailboxes for the connect channel are not used by
+  // the IOM.
+  sim_debug (DBG_DEBUG, & iom_dev, "%s: Connect channel\n", __func__);
+  iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][IOM_CONNECT_CHAN];
+  p -> lsFirst = true;
 #ifdef TESTING
-    bool first = true;
+  bool first = true;
 #endif
-    bool ptro, send, uff;
-    do
-      {
-        // Fetch the next PCW
-        int rc = iom_list_service (iom_unit_idx, IOM_CONNECT_CHAN, & ptro, & send, & uff);
-        if (rc < 0)
-          {
-            sim_warn ("connect channel connect failed\n");
-            return -1;
-          }
-        if (uff)
-          {
-            sim_warn ("connect channel ignoring uff\n"); // XXX
-          }
-        if (! send)
-          {
-            sim_warn ("connect channel nothing to send\n");
-          }
-        else
-          {
+  bool ptro, send, uff;
+  do {
+    // Fetch the next PCW
+    int rc = iom_list_service (iom_unit_idx, IOM_CONNECT_CHAN, & ptro, & send, & uff);
+    if (rc < 0) {
+      sim_warn ("connect channel connect failed\n");
+      return -1;
+    }
+    if (uff) {
+      sim_warn ("connect channel ignoring uff\n"); // XXX
+    }
+    if (! send) {
+      sim_warn ("connect channel nothing to send\n");
+    } else {
 #ifdef TESTING
-            if_sim_debug (DBG_TRACE, & iom_dev) {
-              if (first) {
-                first = false;
-                sim_printf ("// CIOC %lld\r\n", cpu.cycleCnt);
-                dumpLPW (iom_unit_idx, IOM_CONNECT_CHAN);
-                sim_printf ("// PCW %012llo %012llo\r\n", p->PCW0, p->PCW1);
-                sim_printf ("//   Chan info     %04o\r\n", p->PCW_CHAN);
-                sim_printf ("//   Addr ext        %02o\r\n", p->PCW_AE);
-                sim_printf ("//   111              %o\r\n", getbits36_3 (p->PCW0, 18));
-                sim_printf ("//   M                %o\r\n", p->PCW_21_MSK);
-                sim_printf ("//   Chan info %08o\r\n", getbits36_14, p->PCW0);
-                sim_printf ("//   Pg Tbl Ptr  %06o\r\n", p->PCW_PAGE_TABLE_PTR);
-                sim_printf ("//   PTP              %o\r\n", p->PCW_63_PTP);
-                sim_printf ("//   PGE              %o\r\n", p->PCW_64_PGE);
-                sim_printf ("//   AUX              %o\r\n", p->PCW_65_AUX);
-                sim_printf ("//\r\n");
-              }
-            }
+      if_sim_debug (DBG_TRACE, & iom_dev) {
+        if (first) {
+          first = false;
+          sim_printf ("// CIOC %lld\r\n", cpu.cycleCnt);
+          dumpLPW (iom_unit_idx, IOM_CONNECT_CHAN);
+          sim_printf ("// PCW %012llo %012llo\r\n", p->PCW0, p->PCW1);
+          sim_printf ("//   Chan info     %04o\r\n", p->PCW_CHAN);
+          sim_printf ("//   Addr ext        %02o\r\n", p->PCW_AE);
+          sim_printf ("//   111              %o\r\n", getbits36_3 (p->PCW0, 18));
+          sim_printf ("//   M                %o\r\n", p->PCW_21_MSK);
+          sim_printf ("//   Chan info %08o\r\n", getbits36_14, p->PCW0);
+          sim_printf ("//   Pg Tbl Ptr  %06o\r\n", p->PCW_PAGE_TABLE_PTR);
+          sim_printf ("//   PTP              %o\r\n", p->PCW_63_PTP);
+          sim_printf ("//   PGE              %o\r\n", p->PCW_64_PGE);
+          sim_printf ("//   AUX              %o\r\n", p->PCW_65_AUX);
+          sim_printf ("//\r\n");
+        }
+      }
 #endif
-            // Copy the PCW's DCW to the payload channel
-            iom_chan_data_t * q = & iom_chan_data[iom_unit_idx][p -> PCW_CHAN];
+      // Copy the PCW's DCW to the payload channel
+      iom_chan_data_t * q = & iom_chan_data[iom_unit_idx][p -> PCW_CHAN];
 
-            q -> PCW0 =               p -> PCW0;
-            q -> PCW1 =               p -> PCW1;
-            q -> PCW_CHAN =           p -> PCW_CHAN;
-            q -> PCW_AE =             p -> PCW_AE;
-            q -> PCW_PAGE_TABLE_PTR = p -> PCW_PAGE_TABLE_PTR;
-            q -> PCW_63_PTP =         p -> PCW_63_PTP;
-            q -> PCW_64_PGE =         p -> PCW_64_PGE;
-            q -> PCW_65_AUX =         p -> PCW_65_AUX;
-            q -> PCW_21_MSK =         p -> PCW_21_MSK;
+      q -> PCW0 =               p -> PCW0;
+      q -> PCW1 =               p -> PCW1;
+      q -> PCW_CHAN =           p -> PCW_CHAN;
+      q -> PCW_AE =             p -> PCW_AE;
+      q -> PCW_PAGE_TABLE_PTR = p -> PCW_PAGE_TABLE_PTR;
+      q -> PCW_63_PTP =         p -> PCW_63_PTP;
+      q -> PCW_64_PGE =         p -> PCW_64_PGE;
+      q -> PCW_65_AUX =         p -> PCW_65_AUX;
+      q -> PCW_21_MSK =         p -> PCW_21_MSK;
 
-            q -> DCW =                p -> DCW;
+      q -> DCW =                p -> DCW;
 
-            sim_debug (DBG_DEBUG, & iom_dev,
-                       "%s: PCW %012llo %012llo chan %02o\n",
-                       __func__, q->PCW0, q->PCW1, q->PCW_CHAN);
-            q -> masked = p -> PCW_21_MSK;
-            if (q -> masked)
-              {
-                if (q -> in_use)
-                  sim_warn ("%s: chan %d masked while in use\n", __func__, p -> PCW_CHAN);
-                q -> in_use = false;
-                q -> start  = false;
-              }
-            else
-              {
-                if (q -> in_use)
-                  sim_warn ("%s: chan %d connect while in use\n", __func__, p -> PCW_CHAN);
-                q -> in_use = true;
-                q -> start  = true;
+      sim_debug (DBG_DEBUG, & iom_dev, "%s: PCW %012llo %012llo chan %02o\n", __func__, q->PCW0, q->PCW1, q->PCW_CHAN);
+
+      q -> masked = p -> PCW_21_MSK;
+      if (q -> masked) {
+        if (q -> in_use)
+          sim_warn ("%s: chan %d masked while in use\n", __func__, p -> PCW_CHAN);
+        q -> in_use = false;
+        q -> start  = false;
+      } else {
+        if (q -> in_use)
+          sim_warn ("%s: chan %d connect while in use\n", __func__, p -> PCW_CHAN);
+        q -> in_use = true;
+        q -> start  = true;
 #ifdef IO_THREADZ
-                setChnConnect (iom_unit_idx, p -> PCW_CHAN);
+        setChnConnect (iom_unit_idx, p -> PCW_CHAN);
 #else
 #if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
-                doPayloadChannel (iom_unit_idx, p -> PCW_CHAN);
+        doPayloadChannel (iom_unit_idx, p -> PCW_CHAN);
 #endif
 #ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
-                pthread_cond_signal (& iomCond);
+        pthread_cond_signal (& iomCond);
 #endif
 #endif
-              }
-          }
-      } while (! ptro);
-    return 0; // XXX
-  }
+      }
+    }
+  } while (! ptro);
+  return 0; // XXX
+}
 
 /*
  * send_marker_interrupt ()
