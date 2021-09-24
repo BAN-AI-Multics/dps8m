@@ -1900,20 +1900,10 @@ static int status_service (uint iom_unit_idx, uint chan, bool marker)
     word24 scwAddr = chanloc + IOM_MBX_SCW;
     word36 scw;
     iom_core_read_lock (iom_unit_idx, scwAddr, & scw, __func__);
-    //sim_debug (DBG_DEBUG, & iom_dev,
-               //"%s: SCW chan %d %012"PRIo64"\n", __func__, chan, scw);
     word18 addr = getbits36_18 (scw, 0);   // absolute
     uint lq = getbits36_2 (scw, 18);
     uint tally = getbits36_12 (scw, 24);
 
-    //sim_debug (DBG_DEBUG, & iom_dev, "%s: Status tally %d (%o) lq %o\n",
-               //__func__, tally, tally, lq);
-    //sim_debug (DBG_DEBUG, & iom_dev,
-               //"%s: Writing status for chan %d dev_code %d to 0%o=>0%o\n",
-               //__func__, chan, p -> dev_code, scwAddr, addr);
-    //sim_debug (DBG_DEBUG, & iom_dev,
-               //"%s: Writing status for chan %d dev_code %d to 0%o=>0%o\n",
-               //__func__, chan, p -> dev_code, scwAddr, addr);
     sim_debug (DBG_DEBUG, & iom_dev, "%s: Status: 0%012"PRIo64" 0%012"PRIo64"\n",
                __func__, word1, word2);
     if (lq == 3)
@@ -1923,7 +1913,6 @@ static int status_service (uint iom_unit_idx, uint chan, bool marker)
                    __func__, chan);
         lq = 0;
       }
-//sim_printf ("status %d %08o %012"PRIo64" %012"PRIo64"\n", chan, addr, word1, word2);
     iom_core_write2 (iom_unit_idx, addr, word1, word2, __func__);
 
     if (tally > 0 || (tally == 0 && lq != 0))
@@ -1967,17 +1956,8 @@ static int status_service (uint iom_unit_idx, uint chan, bool marker)
             tally &= 07777;
           }
 
-        //sim_debug (DBG_DEBUG, & iom_dev,
-                   //"%s: Updating SCW from: %012"PRIo64"\n",
-                   //__func__, scw);
         putbits36_12 (& scw, 24, (word12) tally);
         putbits36_18 (& scw, 0, addr);
-        //sim_debug (DBG_DEBUG, & iom_dev,
-                   //"%s:                to: %012"PRIo64"\n",
-                   //__func__, scw);
-        //sim_debug (DBG_DEBUG, & iom_dev,
-                   //"%s:                at: %06o\n",
-                   //__func__, scwAddr);
       }
 
     iom_core_write_unlock (iom_unit_idx, scwAddr, scw, __func__);
@@ -2189,7 +2169,6 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
                 fetch_IDSPTW (iom_unit_idx, (int) chan, daddr);
                 word24 addr = ((word24) (getbits36_14 (p -> PTW_DCW, 4) << 10)) | (daddr & MASK10);
                 iom_core_write (iom_unit_idx, addr, * data, __func__);
-//sim_printf (" %o %08o %08o %012"PRIo64" %012"PRIo64"\n", p -> SEG, daddr, addr, * data, p -> PTW_DCW);
               }
             else
               {
@@ -2373,9 +2352,6 @@ static void write_LPW (uint iom_unit_idx, uint chan)
     if (chan != IOM_CONNECT_CHAN)
       {
         iom_core_write (iom_unit_idx, chanLoc + IOM_MBX_LPWX, p -> LPWX, __func__);
-        //sim_debug (DBG_DEBUG, & iom_dev,
-                   //"%s: chan %d lpwx %012"PRIo64"\n",
-                   //__func__, chan, p -> LPWX);
       }
   }
 
@@ -2543,11 +2519,6 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
     p -> LPW_23_REL =  getbits36_1 (p -> LPW, 23);
     p -> LPW_TALLY =   getbits36_12 (p -> LPW, 24);
 
-    //sim_debug (DBG_DEBUG, & iom_dev,
-               //"%s: chan %d res %d 18_rel %d ae %d nc %d tal %d 23rel %d dcw %#o tally %#o\n",
-               //__func__, chan, p -> LPW_18_RES, p -> LPW_19_REL, p -> LPW_20_AE,
-               //p -> LPW_21_NC, p -> LPW_22_TAL, p -> LPW_23_REL, p -> LPW_DCW_PTR, p -> LPW_TALLY);
-
     if (chan == IOM_CONNECT_CHAN)
       {
         p -> LPWX = 0;
@@ -2559,36 +2530,8 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
         iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPWX, (word36 *) & p -> LPWX, __func__);
         p -> LPWX_BOUND = getbits36_18 (p -> LPWX, 0);
         p -> LPWX_SIZE = getbits36_18 (p -> LPWX, 18);
-        //sim_debug (DBG_DEBUG, & iom_dev,
-                   //"%s: chan %d bound %#o size %#o\n",
-                   //__func__, chan, p -> LPWX_BOUND, p -> LPWX_SIZE);
       }
     update_chan_mode (iom_unit_idx, chan, false);
-
-#if 0
-// Analyzer
-
-#ifndef SPEED
-    if_sim_debug (DBG_DEBUG, & iom_dev)
-      {
-        if (p -> LPW_21_NC)
-          {
-            sim_printf ("case c: bootload/connect channel servicing CPI\n");
-          }
-        else
-          {
-            if (p -> LPW_22_TAL)
-              {
-                sim_printf ("case b: standard\n");
-              }
-            else
-                  {
-                sim_printf ("case a: GCOS CPI\n");
-              }
-          }
-      }
-#endif
-#endif
   }
 
 static void unpack_DCW (uint iom_unit_idx, uint chan)
@@ -2614,18 +2557,7 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
         sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev,
                    "%s: IDCW %012llo cmd %02o (%s) dev %02o ctrl %o chancmd %o\n", 
                    __func__, p->DCW, p->IDCW_DEV_CMD, cmdNames[p->IDCW_DEV_CMD], 
-                   p->IDCW_DEV_CODE, p->IDCW_CONTROL, p->IDCW_CHAN_CMD);
-#ifdef POLTS_TESTING
-#if 0
-        if_sim_debug (DBG_TRACE, & iom_dev) {
-          sim_printf ("// IDCW %012llo\r\n", p->DCW);
-          sim_printf ("//   cmd             %02o %s\r\n", p->IDCW_DEV_CMD, cmdNames[p->IDCW_DEV_CMD]);
-          sim_printf ("//   dev code        %02o\r\n", p->IDCW_DEV_CODE);
-          sim_printf ("//   ctrl             %o\r\n", p->IDCW_CHAN_CTRL);
-          sim_printf ("//   chancmd          %o\r\n", p->IDCW_CHAN_CMD);
-        }
-#endif
-#endif
+                   p->IDCW_DEV_CODE, p->IDCW_CHAN_CTRL, p->IDCW_CHAN_CMD);
 #endif
       }
     else // TDCW or DDCW
@@ -2702,52 +2634,16 @@ static void fetch_and_parse_PCW (uint iom_unit_idx, uint chan)
     p -> PCW_65_AUX = getbits36_1 (p -> PCW1, 29);
     if (p -> PCW_65_AUX)
       sim_warn ("PCW_65_AUX\n");
-//    sim_debug (DBG_DEBUG, & iom_dev,
-//               "%s: chan %d pcw0 %012"PRIo64"\n",
-//               __func__, p -> PCW_CHAN, (p -> PCW0) & 0777700037777);
     p -> DCW = p -> PCW0;
     unpack_DCW (iom_unit_idx, chan);
-
-//    sim_debug (DBG_DEBUG, & iom_dev,
-//               "%s: chan %d pcw0: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
-//               __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
-//               p -> IDCW_EC, p -> IDCW_CHAN_CTRL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
-//    sim_debug (DBG_DEBUG, & iom_dev,
-//               "%s: chan %d pcw1: ae %d ptp %d pge %d ptp %#o\n",
-//               __func__, p -> PCW_CHAN, p -> PCW_AE, p -> PCW_63_PTP,
-//               p -> PCW_64_PGE, p -> PCW_PAGE_TABLE_PTR);
   }
 
 static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_only)
   {
     iom_chan_data_t * p =  & iom_chan_data[iom_unit_idx][chan];
-
     word24 addr = p -> LPW_DCW_PTR & MASK18;
 
     sim_debug (DBG_DEBUG, & iom_dev, "%s: addr %08o\n", __func__, addr);
-#if 0
-    switch (p -> chanMode)
-      {
-        case cm_LPW_init_state:
-          {
-            // DCW_PTR is in real mode.
-            if (p -> LPW_20_AE)
-              {
-                addr |= ((word24) p -> LPWX_BOUND << 18);
-                // XXX check bound?
-              }
-          }
-          break;
-        default:
-          {
-sim_warn ("unhandled fetch_and_parse_DCW\n");
-          }
-          //break;
-      }
-
-    iom_core_read (iom_unit_idx, addr, (word36 *) & p -> DCW, __func__);
-#endif
-
     switch (p -> chanMode)
       {
         // LPW ABS
@@ -2761,7 +2657,7 @@ sim_warn ("unhandled fetch_and_parse_DCW\n");
         // LPW EXT
         case cm2e:
           {
-// LPXW_BOUND is mod 2; ie. val is * 2
+            // LPXW_BOUND is mod 2; ie. val is * 2
             //addr |= ((word24) p -> LPWX_BOUND << 18);
             addr += ((word24) p -> LPWX_BOUND << 1);
             iom_core_read (iom_unit_idx, addr, (word36 *) & p -> DCW, __func__);
@@ -2787,9 +2683,6 @@ sim_warn ("unhandled fetch_and_parse_DCW\n");
           }
           break;
       }
-//    sim_debug (DBG_DEBUG, & iom_dev,
-//               "%s: chan %d dcw %012"PRIo64"\n",
-//               __func__, chan, p -> DCW);
     unpack_DCW (iom_unit_idx, chan);
 
     if (p -> DCW_18_20_CP == 07)
@@ -2852,8 +2745,6 @@ int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic)
                //"%s: IMW at %#o was %012"PRIo64"; setting bit %d\n",
                //__func__, imw_addr, imw, chan_in_group);
     putbits36_1 (& imw, chan_in_group, 1);
-    //sim_debug (DBG_INFO, & iom_dev,
-               //"%s: IMW at %#o now %012"PRIo64"\n", __func__, imw_addr, imw);
     iom_core_write_unlock (iom_unit_idx, imw_addr, imw, __func__);
     return scu_set_interrupt (iom_unit_data[iom_unit_idx].invokingScuUnitIdx, interrupt_num);
   }
@@ -3050,7 +2941,7 @@ int iom_list_service (uint iom_unit_idx, uint chan,
 
     if (p -> LPW_21_NC == 0 && p -> LPW_22_TAL == 0)
       {
-// XXX see pat. 46-51 re: SEG
+        // XXX see pat. 46-51 re: SEG
         // 256K OVERFLOW?
         if (p -> LPW_20_AE == 0 &&
             (((word36) p -> LPW_DCW_PTR) + ((word36) p -> LPW_TALLY)) >
@@ -3074,7 +2965,7 @@ A:;
         else if (p -> LPW_TALLY > 1)
           { // 00
 
-// XXX see pat. 46-51 re: SEG
+            // XXX see pat. 46-51 re: SEG
             // 256K OVERFLOW?
             if (p -> LPW_20_AE == 0 &&
                 (((word36) p -> LPW_DCW_PTR) + ((word36) p -> LPW_TALLY)) >
@@ -3130,37 +3021,13 @@ A:;
 
     // LPW 23 REL?
 
-#if 0
-// XXX see pat. 46-51 re: SEG
-    if (p -> LPW_23_REL)
-      {
-        // BOUNDARY ERROR
-
-#if 0 // XXX
-        if (boundary error)
-          {
-            uff = true;
-            goto uffSet;
-          }
-
-        // ABSOLUTIZE ADDRESS
-
-        absolutize address;
-#else
-//sim_printf ("LPW_23_REL fail\n");
-#endif
-      }
-#endif
-
     // TDCW ?
 
     if (p -> DCW_18_20_CP != 7 && p -> DDCW_22_23_TYPE == 2)
       {
-//sim_printf (">>>>>>>>>> TDCW\n");
         // SECOND TDCW?
         if (p -> wasTDCW)
           {
-//sim_printf ("2nd TDCW\n");
             uff = true;
             goto uffSet;
           }
@@ -3170,9 +3037,9 @@ A:;
 
         p -> LPW_DCW_PTR = p -> TDCW_DATA_ADDRESS;
         // OR TDCW 33, 34, 35 INTO LPW 20, 18, 23
-// XXX is 33 bogus? it's semantics change based on PCW 64...
-// should be okay; pg B21 says that this is correct; implies that the
-// semantics are handled in the LPW code. Check...
+        // XXX is 33 bogus? it's semantics change based on PCW 64...
+        // should be okay; pg B21 says that this is correct; implies that the
+        // semantics are handled in the LPW code. Check...
         p -> LPW_20_AE |= p -> TDCW_33_EC; // TDCW_33_PDCW
         p -> LPW_18_RES |= p -> TDCW_34_RES;
         p -> LPW_23_REL |= p -> TDCW_35_REL;
@@ -3227,12 +3094,10 @@ A:;
 
         if (p -> LPW_18_RES && p -> TDCW_33_EC) // same as TDCW_33_PDCW
           {
-//sim_printf ("AC CHANGE ERROR\n");
             uff = true;
             goto uffSet;
           }
 
-//sim_printf ("going to A\n");
         goto A;
       }
 
@@ -3384,15 +3249,7 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
 
     if ((!d->in_use) || (!d->iom_cmd))
       {
-#if 0
-        // XXX: no device connected; what's the appropriate fault code (s) ?
-        sim_debug (DBG_WARN, & iom_dev,
-                   "%s: No device connected to channel %#o (%d)\n",
-                   __func__, chan, chan);
-        iom_fault (iomUnitIdx, chan, __func__, 0, 0);
-#else
         p -> stati = 06000; // t, power off/missing
-#endif
         goto terminate;
       }
 
@@ -3436,37 +3293,11 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan)
         goto terminate;
       }
 
-#if 0
-    if (rc != IOM_CMD_NEED_DDCW) {
-      if (p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE) {
-if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) PCW\n", chan, chan);
-        goto terminate;
-      }
-    }
-#endif
-
-#if 0
-// The boot tape loader sends PCWs with control == 0 when it shouldn't
-// BCE sends disk PCWs with control == 0 when it shouldn't
-
-    //if (p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE)
-    if (p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && d -> type != DEVT_TAPE && d -> type != DEVT_DISK)
-      {
-        //sim_printf ("// ctrl == 0 in chan %d (%o) PCW\n", chan, chan);
-        goto terminate;
-      }
-#endif
-
     if (p->masked)
       {
-//sim_printf ("chan %u masked, skipping\n", chan);
         goto terminate;
       }
     bool ptro, send, uff;
-#if 0
-// XXX Temporary hack until I can figure chan cmd 0
-    bool saw_chan_terminate = false;
-#endif
     bool terminate = false;
     p->isPCW = false;
 
@@ -3486,7 +3317,6 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) PC
           }
         if (uff)
           {
-            //sim_warn ("%s ignoring uff\n", __func__); // XXX
             // We get a uff if the LPW tally hit 0
             goto terminate;
           }
@@ -3511,18 +3341,6 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) PC
     }
 #endif
 
-#if 0
-        if (p -> DCW_18_20_CP != 07) // Not IDCW
-          {
-// 04501 : COMMAND REJECTED, invalid command
-            p -> stati = 04501;
-            p -> dev_code = getbits36_6 (p -> DCW, 6);
-            p -> chanStatus = chanStatInvalidInstrPCW;
-            sim_warn ("%s expected IDCW %d (%o), cmd was %d. %oo\n", __func__, chan, chan, p->IDCW_DEV_CMD, p->IDCW_DEV_CMD);
-            goto terminate;
-          }
-#endif
-
 // 3.2.3.1 "If EC - Bit 21 = 1, The channel will replace the present address
 //          extension with the new address extension in bits 12-17. ... In
 //          Multics and NSA systems, EC is inhibited from the payload channel
@@ -3541,15 +3359,6 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) PC
             p -> chanStatus = chanStatNormal;
           }
 
-#if 0 // already checked above for PTW
-        d = & cables->iom_to_ctlr[iomUnitIdx][chan];
-        if ((!d->in_use) || (!d->iom_cmd))
-          {
-            p -> stati = 06000; // t, power off/missing
-            goto terminate;
-          }
-#endif
-
 // Send the DCW list's DCW
 
         rc2 = d->iom_cmd (iomUnitIdx, chan);
@@ -3559,11 +3368,6 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) PC
 
         if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
           goto pending;                // terminate intrrupt.
-
-#if 0 // ptro is never set for payload channels
-        if (ptro)
-          terminate = true;
-#endif
 
         // If IDCW and terminate and nondata
         if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
@@ -3575,46 +3379,6 @@ if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) PC
             if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
             goto terminate;
         }
-
-
-// The IOM boot code and BCE sets IDCW_CHAN_CTRL to 0; this stops the IOTs from being processed.
-        //if (rc2 || p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE)
-          //ptro = true;
-
-#if 0
-        if (p->DCW_18_20_CP == 07 && saw_chan_terminate)
-          terminate = true;
-        if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE)
-          saw_chan_terminate = true;
-#endif
-
-#if 0
-        // IOTD?
-        if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
-          {
-            sim_debug (DBG_DEBUG, & iom_dev, "%s: Terminate on IOTD\n", __func__);
-if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("IOTD in chan %d (%o) DCW\n", chan, chan);
-            goto terminate;
-          }
-#endif
-
-#if 0 // done in the channel adaptor
-        // IOTD?
-        if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
-          {
-            terminate = true;
-            sim_debug (DBG_DEBUG, & iom_dev, "%s: Terminate on IOTD\n", __func__);
-          }
-#endif
-
-#if 0
-// This should work but IOM boot and BCE set it to 0 and expect life to go on
-        if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 0 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE)
-          {
-            ptro = true;
-sim_debug (DBG_DEBUG, & iom_dev, "XXXXXX NC %o TAL %o tally %o\n", p->LPW_21_NC, p->LPW_22_TAL, p->LPW_TALLY);
-          }
-#endif 
       } while (! terminate);
 
 terminate:;
@@ -3650,7 +3414,6 @@ static int doConnectChan (uint iom_unit_idx)
     // The DCW and SCW mailboxes for the connect channel are not used by
     // the IOM.
     sim_debug (DBG_DEBUG, & iom_dev, "%s: Connect channel\n", __func__);
-//int loops = 0;
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][IOM_CONNECT_CHAN];
     p -> lsFirst = true;
 #ifdef TESTING
@@ -3697,7 +3460,6 @@ static int doConnectChan (uint iom_unit_idx)
             }
 #endif
             // Copy the PCW's DCW to the payload channel
-//loops ++;
             iom_chan_data_t * q = & iom_chan_data[iom_unit_idx][p -> PCW_CHAN];
 
             q -> PCW0 =               p -> PCW0;
@@ -3742,7 +3504,6 @@ static int doConnectChan (uint iom_unit_idx)
               }
           }
       } while (! ptro);
-//if (loops > 1) sim_printf ("%d loops\r\n", loops);
     return 0; // XXX
   }
 
@@ -3796,13 +3557,6 @@ int send_special_interrupt (uint iom_unit_idx, uint chan, uint devCode,
 
     word36 dcw;
     iom_core_read_lock (iom_unit_idx, chanloc + IOM_MBX_DCW, & dcw, __func__);
-
-    //sim_debug (DBG_DEBUG, & iom_dev,
-               //"%s: channel %d (%#o), devCode %#o, status0 %#o, status1 %#o\n",
-               //__func__, chan, chan, devCode, status0, status1);
-    //sim_debug (DBG_DEBUG, & iom_dev,
-               //"%s: lpw %012"PRIo64" scw %012"PRIo64" dcw %012"PRIo64"\n",
-               //__func__, lpw, scw, dcw);
 
     word36 status = 0400000000000;
     status |= (((word36) chan) & MASK6) << 27;
