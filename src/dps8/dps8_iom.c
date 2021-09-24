@@ -2554,7 +2554,7 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
         p -> IDCW_CHAN_CMD =     getbits36_6 (p -> DCW, 24);
         p -> IDCW_COUNT =        getbits36_6 (p -> DCW, 30);
 #ifdef TESTING
-        sim_debug (DBG_DEBUG | DBG_TRACE, & iom_dev,
+        sim_debug (DBG_DEBUG, & iom_dev,
                    "%s: IDCW %012llo cmd %02o (%s) dev %02o ctrl %o chancmd %o\n", 
                    __func__, p->DCW, p->IDCW_DEV_CMD, cmdNames[p->IDCW_DEV_CMD], 
                    p->IDCW_DEV_CODE, p->IDCW_CHAN_CTRL, p->IDCW_CHAN_CMD);

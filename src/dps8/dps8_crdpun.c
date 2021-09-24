@@ -1104,7 +1104,6 @@ static int punWriteRecord (uint iomUnitIdx, uint chan)
         return -1;
       }
 
-
 //dcl 1 raw aligned,    /* raw column binary card image */
 //    2 col (1:80) bit (12) unal,                             /* 80 columns */
 //    2 pad bit (12) unal;

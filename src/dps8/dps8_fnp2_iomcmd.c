@@ -2422,47 +2422,41 @@ for (uint i = 0370*2; i <=0400*2; i ++)
       }
   }
 
-static int fnpCmd (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+static int fnpCmd (uint iomUnitIdx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 
-    switch (p -> IDCW_DEV_CMD)
-      {
-        case 000: // CMD 00 Request status
-          {
-            p -> stati = 04000;
-            processMBX (iomUnitIdx, chan);
-            // no status_service and no additional terminate interrupt
-            // ???
-          }
-          return IOM_CMD_DISCONNECT;
-
-        default:
-          {
-            p->stati = 04501; // cmd reject, invalid opcode
-            p->chanStatus = chanStatIncorrectDCW;
-            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("%s: FNP unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
-          }
-          return IOM_CMD_ERROR;
+  switch (p->IDCW_DEV_CMD) {
+    case 000: { // CMD 00 Request status
+        p->stati = 04000;
+        processMBX (iomUnitIdx, chan);
+        // no status_service and no additional terminate interrupt
+        // ???
       }
+      return IOM_CMD_DISCONNECT;
+
+    default: {
+      p->stati = 04501; // cmd reject, invalid opcode
+      p->chanStatus = chanStatIncorrectDCW;
+      if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+        sim_warn ("%s: FNP unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+      }
+      return IOM_CMD_ERROR;
   }
+}
 
 /*
  * fnp_iom_cmd()
  *
  */
 
-iom_cmd_rc_t fnp_iom_cmd (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+iom_cmd_rc_t fnp_iom_cmd (uint iomUnitIdx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 // Is it an IDCW?
 
-    if (p -> DCW_18_20_CP == 7)
-      {
-        return fnpCmd (iomUnitIdx, chan);
-      }
-    // else // DDCW/TDCW
-    sim_warn ("%s expected IDCW\n", __func__);
-    return IOM_CMD_ERROR;
+  if (p->DCW_18_20_CP == 7) {
+    return fnpCmd (iomUnitIdx, chan);
   }
+  // else // DDCW/TDCW
+  sim_warn ("%s expected IDCW\n", __func__);
+  return IOM_CMD_ERROR;
+}

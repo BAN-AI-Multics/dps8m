@@ -202,136 +202,107 @@ void urp_init (void)
   }
 
 
-static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-if_sim_debug (DBG_TRACE, & urp_dev) dumpDCW (p->DCW, 0);
-    uint ctlrUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
-    uint devUnitIdx = cables->urp_to_urd[ctlrUnitIdx][p->IDCW_DEV_CODE].unit_idx;
-    //UNIT * unitp = & urp_unit [devUnitIdx];
-    //int urp_unit_num = (int) URPUNIT_NUM (unitp);
-    struct urpState * statep = & urpState[devUnitIdx];
+static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+#ifdef TESTING
+  if_sim_debug (DBG_TRACE, & urp_dev) dumpDCW (p->DCW, 0);
+#endif
+ uint ctlrUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
+ uint devUnitIdx = cables->urp_to_urd[ctlrUnitIdx][p->IDCW_DEV_CODE].unit_idx;
+ //UNIT * unitp = & urp_unit [devUnitIdx];
+ //int urp_unit_num = (int) URPUNIT_NUM (unitp);
+ struct urpState * statep = & urpState[devUnitIdx];
 
-    // IDCW?
-    if (p -> DCW_18_20_CP == 7)
-      {
-        // IDCW
-        statep->ioMode = urpNoMode;
+ // IDCW?
+ if (p->DCW_18_20_CP == 7) {
+    // IDCW
+    statep->ioMode = urpNoMode;
 
-        switch (p->IDCW_DEV_CMD)
-          {
-            case 000: // CMD 00 Request status
-              if_sim_debug (DBG_TRACE, & urp_dev) {
-                sim_printf ("// URP Request Status\r\n");
-              }
-              sim_debug (DBG_DEBUG, & urp_dev, "%s: Request Status\n", __func__);
-              p->stati = 04000;
-              break;
+    switch (p->IDCW_DEV_CMD) {
+      case 000: // CMD 00 Request status
+        if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP Request Status\r\n"); }
+        sim_debug (DBG_DEBUG, & urp_dev, "%s: Request Status\n", __func__);
+        p->stati = 04000;
+        break;
 
-            case 006: // CMD 005 Initiate read data xfer (load_mpc.pl1)
-              if_sim_debug (DBG_TRACE, & urp_dev) {
-                sim_printf ("// URP Initiate Read Data Xfer\r\n");
-              }
-              sim_debug (DBG_DEBUG, & urp_dev, "%s: Initiate Read Data Xfer\n", __func__);
-              statep->ioMode = urpInitRdData;
-              p->stati = 04000;
-              break;
+      case 006: // CMD 005 Initiate read data xfer (load_mpc.pl1)
+        if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP Initiate Read Data Xfer\r\n"); }
+        sim_debug (DBG_DEBUG, & urp_dev, "%s: Initiate Read Data Xfer\n", __func__);
+        statep->ioMode = urpInitRdData;
+        p->stati = 04000;
+        break;
 
 // 011 punch binary
 // 031 set diagnostic mode
 
-            case 031: // CMD 031 Set Diagnostic Mode (load_mpc.pl1)
-              if_sim_debug (DBG_TRACE, & urp_dev) {
-                sim_printf ("// URP Set Diagnostic Mode\r\n");
-              }
-              sim_debug (DBG_DEBUG, & urp_dev, "%s: Set Diagnostic Mode\n", __func__);
-              statep->ioMode = urpSetDiag;
-              p->stati = 04000;
-              break;
+      case 031: // CMD 031 Set Diagnostic Mode (load_mpc.pl1)
+        if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP Set Diagnostic Mode\r\n"); }
+        sim_debug (DBG_DEBUG, & urp_dev, "%s: Set Diagnostic Mode\n", __func__);
+        statep->ioMode = urpSetDiag;
+        p->stati = 04000;
+        break;
 
-            case 040: // CMD 40 Reset status
-              if_sim_debug (DBG_TRACE, & urp_dev) {
-                sim_printf ("// URP Reset Status\r\n");
-              }
-              sim_debug (DBG_DEBUG, & urp_dev, "%s: Reset Status\n", __func__);
-              p->stati = 04000;
-              p->isRead = false;
-              break;
+      case 040: // CMD 40 Reset status
+        if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP Reset Status\r\n"); }
+        sim_debug (DBG_DEBUG, & urp_dev, "%s: Reset Status\n", __func__);
+        p->stati = 04000;
+        p->isRead = false;
+        break;
 
-            default:
-              if_sim_debug (DBG_TRACE, & urp_dev) {
-                sim_printf ("// URP unknown command %o\r\n", p->IDCW_DEV_CMD);
-              }
-              p->stati = 04501; // cmd reject, invalid opcode
-              p->chanStatus = chanStatIncorrectDCW;
-              if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-                sim_warn ("%s: URP unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
-              return IOM_CMD_ERROR;
-          } // switch IDCW_DEV_CMD
+      default:
+        if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP unknown command %o\r\n", p->IDCW_DEV_CMD); }
+        p->stati = 04501; // cmd reject, invalid opcode
+        p->chanStatus = chanStatIncorrectDCW;
+        if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+          sim_warn ("%s: URP unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+        return IOM_CMD_ERROR;
+    } // switch IDCW_DEV_CMD
 
-        sim_debug (DBG_DEBUG, & urp_dev, "%s: stati %04o\n", __func__, p -> stati);
-        return IOM_CMD_PROCEED;
-      } // if IDCW
-
-    // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
-    switch (statep->ioMode)
-      {
-        case urpNoMode:
-          if_sim_debug (DBG_TRACE, & urp_dev) {
-            sim_printf ("// URP IOT no mode\r\n");
-          }
-sim_printf ("%s: Unexpected IOTx\n", __func__);
-          sim_warn ("%s: Unexpected IOTx\n", __func__);
-          return IOM_CMD_ERROR;
-
-        case urpSetDiag:
-          if_sim_debug (DBG_TRACE, & urp_dev) {
-            sim_printf ("// URP IOT Set Diag\r\n");
-          }
-          // We don't use the DDCW, so just pretend we do. BUG
-          p -> stati = 04000;
-          break;
-
-        case urpInitRdData:
-          if_sim_debug (DBG_TRACE, & urp_dev) {
-            sim_printf ("// URP IOT Init Rd Data\r\n");
-          }
-          // We don't use the DDCW, so just pretend we do. BUG
-          p -> stati = 04000;
-          break;
-
-         default:
-          if_sim_debug (DBG_TRACE, & urp_dev) {
-            sim_printf ("// URP IOT unkown %d\r\n", statep->ioMode);
-          }
-          sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
-          return IOM_CMD_ERROR;
-      }
-
-    // IOTD?
-    if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
-      {
-        sim_debug (DBG_DEBUG, & urp_dev, "%s: Terminate on IOTD\n", __func__);
-        return IOM_CMD_DISCONNECT;
-      }
-
+    sim_debug (DBG_DEBUG, & urp_dev, "%s: stati %04o\n", __func__, p->stati);
     return IOM_CMD_PROCEED;
-  }
+  } // if IDCW
 
-iom_cmd_rc_t urp_iom_cmd (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-    uint devCode = p->IDCW_DEV_CODE;
-    if (devCode == 0)
-      return urpCmd (iomUnitIdx, chan);
-    uint urpUnitIdx = cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_unit_idx;
-    iom_cmd_t * cmd = cables->urp_to_urd[urpUnitIdx][devCode].iom_cmd;
-    if (! cmd)
-      {
-        //sim_warn ("URP can't find device handler\n");
-        //return IOM_CMD_ERROR;
-        p->stati = 04502; // invalid device code
-        return IOM_CMD_DISCONNECT;
-      }
-    return cmd (iomUnitIdx, chan);
+  // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
+  switch (statep->ioMode) {
+    case urpNoMode:
+      if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP IOT no mode\r\n"); }
+      //sim_printf ("%s: Unexpected IOTx\n", __func__);
+      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //return IOM_CMD_ERROR;
+      break;
+
+    case urpSetDiag:
+      if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP IOT Set Diag\r\n"); }
+      // We don't use the DDCW, so just pretend we do. BUG
+      p->stati = 04000;
+      break;
+
+    case urpInitRdData:
+      if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP IOT Init Rd Data\r\n"); }
+      // We don't use the DDCW, so just pretend we do. BUG
+      p->stati = 04000;
+      break;
+
+     default:
+      if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP IOT unkown %d\r\n", statep->ioMode); }
+      sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
+      return IOM_CMD_ERROR;
   }
+  return IOM_CMD_PROCEED;
+}
+
+iom_cmd_rc_t urp_iom_cmd (uint iomUnitIdx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+  uint devCode = p->IDCW_DEV_CODE;
+  if (devCode == 0)
+    return urpCmd (iomUnitIdx, chan);
+  uint urpUnitIdx = cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_unit_idx;
+  iom_cmd_t * cmd = cables->urp_to_urd[urpUnitIdx][devCode].iom_cmd;
+  if (! cmd) {
+    //sim_warn ("URP can't find device handler\n");
+    //return IOM_CMD_ERROR;
+    p->stati = 04502; // invalid device code
+    return IOM_CMD_DISCONNECT;
+  }
+  return cmd (iomUnitIdx, chan);
+}
