@@ -1059,6 +1059,14 @@ static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
     p -> stati = 04000;
   }
 
+static void mtWRCtrlRegs (uint devUnitIdx, uint iomUnitIdx, uint chan)
+  {
+    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+    // Fake the indirect data service
+    p->initiate = false;
+    return;
+  }
+
 static void mtInitWrMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
@@ -1298,44 +1306,6 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
     sim_debug (DBG_DEBUG, & tape_dev,
                "%s: Survey devices\n", __func__);
     p -> stati = 04000; // have_status = 1
-    // Get the DDCW
-    bool ptro, send, uff;
-    int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-    if (rc < 0)
-      {
-        sim_warn ("%s list service failed\n", __func__);
-        p -> stati = 05001; // BUG: arbitrary error code; config switch
-        p -> chanStatus = chanStatIncomplete;
-        return IOM_CMD_ERROR;
-      }
-    if (uff)
-      {
-        sim_warn ("%s ignoring uff\n", __func__); // XXX
-      }
-    if (! send)
-      {
-        sim_warn ("%s nothing to send\n", __func__);
-        p -> stati = 05001; // BUG: arbitrary error code; config switch
-        p -> chanStatus = chanStatIncomplete;
-        return IOM_CMD_ERROR;
-      }
-    if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
-      {
-        sim_warn ("%s expected DDCW\n", __func__);
-        p -> stati = 05001; // BUG: arbitrary error code; config switch
-        p -> chanStatus = chanStatIncorrectDCW;
-        return IOM_CMD_ERROR;
-      }
-
-    if (p -> DDCW_TALLY != 8)
-      {
-        sim_debug (DBG_DEBUG, & tape_dev,
-                   "%s: Expected tally of 8; got %d\n",
-                   __func__, p -> DDCW_TALLY);
-        p -> stati = 05001; // BUG: arbitrary error code; config switch
-        p -> chanStatus = chanStatIncorrectDCW;
-        return IOM_CMD_ERROR;
-      }
 
     uint bufsz = 8;
     word36 buffer [bufsz];
@@ -1400,6 +1370,7 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
 iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+if_sim_debug (DBG_TRACE, & tape_dev) dumpDCW (p->DCW, 0);
 // The bootload read command does a read on drive 0; the controler
 // recgnizes (somehow) a special case for bootload and subs. in
 // the boot drive unit set by the controller config. switches
@@ -1414,6 +1385,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
 
     uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
     uint dev_code = p -> IDCW_DEV_CODE;
+if_sim_debug (DBG_TRACE, & tape_dev) dumpDCW (p->DCW, 0);
     if (p -> IDCW_DEV_CODE == 0)
       dev_code = mtp_state[ctlr_unit_idx].boot_drive;
 
@@ -1644,7 +1616,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan)
                   sim_printf ("// Tape Write Control Registers\r\n");
                 }
               sim_debug (DBG_DEBUG, & tape_dev, "%s: Write Control Registers\n", __func__);
-              tape_statep->io_mode = tape_wr_bin;
+              tape_statep->io_mode = tape_wr_ctrl_regs;
               p -> stati = 04000;
               break;
 
@@ -2311,9 +2283,15 @@ sim_printf ("sim_tape_sprecsr returned %d\n", ret);
     switch (tape_statep->io_mode)
       {
         case tape_no_mode:
-sim_printf ("%s: Unexpected IOTx\n", __func__);
-          sim_warn ("%s: Unexpected IOTx\n", __func__);
-          return IOM_CMD_ERROR;
+// It appears that in some cases Mulitcs builds a dcw list from a generic "single IDCW plus optional DDCW" template.
+// That template sets the IDCW channel command to "record", regardless of whether or not the instruciton
+// needs an DDCW. In particular, disk_ctl pings the disk by sending a "Reset status" with "record" and a apparently
+// unitialized IOTD. The payload channel will send the IOTD because of the "record"; the Reset Status command left
+// IO mode at "no mode" so we don't know what to do with it. Since this appears benign, we will assume that the
+// original H/W ignored, and so shall we.
+          //sim_warn ("%s: Unexpected IOTx\n", __func__);
+          //return IOM_CMD_ERROR;
+         break;
 
         case tape_rd_9:
         case tape_rd_bin:
@@ -2365,6 +2343,13 @@ sim_printf ("%s: Unexpected IOTx\n", __func__);
             sim_printf ("// Tape IOT MTP Write\r\n");
           }
           mtMTPWr (devUnitIdx, iomUnitIdx, chan);
+          break;
+
+        case tape_wr_ctrl_regs:
+          if_sim_debug (DBG_TRACE, & tape_dev) {
+            sim_printf ("// Tape IOT Wr Ctrl Regs\r\n");
+          }
+          mtWRCtrlRegs (devUnitIdx, iomUnitIdx, chan);
           break;
 
         case tape_survey:

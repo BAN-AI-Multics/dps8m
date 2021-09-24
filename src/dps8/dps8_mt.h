@@ -19,7 +19,7 @@ struct tape_state
     enum tape_mode
       {
         tape_no_mode, tape_rd_ctlr, tape_rd_9, tape_rd_bin, tape_initiate_rd_mem,
-        tape_wr_9, tape_wr_bin, tape_initiate_wr_mem, tape_MTP_wr, tape_survey,
+        tape_wr_9, tape_wr_bin, tape_initiate_wr_mem, tape_MTP_wr, tape_wr_ctrl_regs, tape_survey,
       } io_mode;
     bool is9;
     uint8 buf [BUFSZ];

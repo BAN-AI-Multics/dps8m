@@ -1275,7 +1275,14 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
           if_sim_debug (DBG_TRACE, & dsk_dev) {
             sim_printf ("// Disk IOT No Mode\r\n");
           }
-          sim_warn ("%s: Unexpected IOTx\n", __func__);
+// It appears that in some cases Mulitcs builds a dcw list from a generic "single IDCW plus optional DDCW" template.
+// That template sets the IDCW channel command to "record", regardless of whether or not the instruciton
+// needs an DDCW. In particular, disk_ctl pings the disk by sending a "Reset status" with "record" and a apparently
+// unitialized IOTD. The payload channel will send the IOTD because of the "record"; the Reset Status command left
+// IO mode at "no mode" so we don't know what to do with it. Since this appears benign, we will assume that the
+// original H/W ignored, and so shall we.
+
+          //sim_warn ("%s: Unexpected IOTx\n", __func__);
           //rc = IOM_CMD_ERROR;
           goto done;
 

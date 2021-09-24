@@ -45,6 +45,59 @@ typedef enum chanStat
     chanStatParityErrBus = 7
   } chanStat;
 
+// Due to lack of documentation, chan_cmd is largely ignored
+//
+// iom_chan_control_words.incl.pl1
+//
+//   SINGLE_RECORD       init ("00"b3),
+//   NONDATA             init ("02"b3),
+//   MULTIRECORD         init ("06"b3),
+//   SINGLE_CHARACTER    init ("10"b3)
+//
+// bound_tolts_/mtdsim_.pl1
+//
+//    idcw.chan_cmd = "40"b3;           /* otherwise set special cont. cmd */
+//
+// bound_io_tools/exercise_disk.pl1
+//
+//   idcw.chan_cmd = INHIB_AUTO_RETRY; /* inhibit mpc auto retries */
+//   dcl     INHIB_AUTO_RETRY       bit (6) int static init ("010001"b);  // 021
+//
+// poll_mpc.pl1:
+//  /* Build dcw list to get statistics from EURC MPC */
+//  idcw.chan_cmd = "41"b3;            /* Indicate special controller command */
+//  /* Build dcw list to get configuration and statistics from DAU MSP */
+//  idcw.chan_cmd = "30"b3;                           /* Want list in dev# order */
+//
+// tape_ioi_io.pl1:
+//   idcw.chan_cmd = "03"b3;          /* data security erase */
+//   dcw.chan_cmd = "30"b3;           /* use normal values, auto-retry */
+
+
+// iom_word_macros.incl.alm
+//
+// Channel control
+#define CHAN_CTRL_TERMINATE 0
+#define CHAN_CTRL_PROCEED 2
+#define CHAN_CTRL_MARKER 3
+
+// Channel command
+#define CHAN_CMD_RECORD 0
+#define CHAN_CMD_NONDATA 2
+#define CHAN_CMD_MULTIRECORD 6
+#define CHAN_CMD_CHARACTER 8
+// exercise_disk.pl1
+#define CHAN_CMD_INHIB_AUTO_RETRY 021
+// load_mpc.pl1
+#define CHAN_CMD_SPECIAL_CTLR 040
+// poll_mpc.pl1
+#define CHAN_CMD_DEV_ORDER 030
+#define CHAN_CMD_SPECIAL_CTLR2 041
+// tape_ioi_io.pl1
+#define CHAN_CMD_DATA_SECURITY_ERASE 03
+#define CHAN_CMD_NORM_AUTO_TRY 030
+
+
 typedef volatile struct
   {
 
@@ -363,3 +416,6 @@ void iomProcess (void);
 #endif
 
 char iomChar (uint iomUnitIdx);
+#ifdef TESTING
+void dumpDCW (word36 DCW, word1 LPW_23_REL);
+#endif
