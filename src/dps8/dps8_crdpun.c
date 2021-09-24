@@ -498,162 +498,6 @@ static void write_punch_file (int fd, word36* in_buffer, int word_count)
       }
   }
 
-#if 0
-static int pun_cmd (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-    uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    uint devUnitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
-    UNIT * unitp = & pun_unit [devUnitIdx];
-    long pun_unit_num = PUN_UNIT_NUM (unitp);
-
-    switch (p -> IDCW_DEV_CMD)
-      {
-
-        case 011: // CMD 011 Punch binary
-          {
-            p -> isRead = false;
-            // Get the DDCW
-
-            bool ptro, send, uff;
-
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-            if (rc < 0)
-              {
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                sim_printf ("%s list service failed\n", __func__);
-                break;
-              }
-            if (uff)
-              {
-                sim_printf ("%s ignoring uff\n", __func__); // XXX
-              }
-            if (! send)
-              {
-                sim_printf ("%s nothing to send\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-            if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
-              {
-                sim_printf ("%s expected DDCW\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-
-            if (p -> DDCW_TALLY != 27)
-              {
-                sim_warn ("%s expected tally of 27\n", __func__);
-                p -> chanStatus = chanStatIncorrectDCW;
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-
-
-//dcl 1 raw aligned,    /* raw column binary card image */
-//    2 col (1:80) bit (12) unal,                             /* 80 columns */
-//    2 pad bit (12) unal;
-
-            // Copy from core to buffer
-            word36 buffer [p -> DDCW_TALLY];
-            uint wordsProcessed = 0;
-            iom_indirect_data_service (iomUnitIdx, chan, buffer,
-                                    & wordsProcessed, false);
-            p -> initiate = false;
-
-//TODO: The following is currently disabled and will be made an option in a new issue
-#if 0
-            sim_printf ("tally %d\n", p-> DDCW_TALLY);
-
-            for (uint i = 0; i < p -> DDCW_TALLY; i ++)
-              sim_printf ("  %012"PRIo64"\n", buffer [i]);
-            sim_printf ("\n");
-
-            for (uint row = 0; row < 12; row ++)
-              {
-                for (uint col = 0; col < 80; col ++)
-                  {
-                    // 3 cols/word
-                    uint wordno = col / 3;
-                    uint fieldno = col % 3;
-                    word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
-                    if (bit)
-                      sim_printf ("*");
-                    else
-                      sim_printf (" ");
-                  }
-                sim_printf ("\r\n");
-              }
-            sim_printf ("\r\n");
-
-            for (uint row = 0; row < 12; row ++)
-              {
-                //for (uint col = 0; col < 80; col ++)
-                for (int col = 79; col >= 0; col --)
-                  {
-                    // 3 cols/word
-                    uint wordno = (uint) col / 3;
-                    uint fieldno = (uint) col % 3;
-                    word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
-                    if (bit)
-                      sim_printf ("*");
-                    else
-                      sim_printf (" ");
-                  }
-                sim_printf ("\r\n");
-              }
-            sim_printf ("\r\n");
-#endif
-
-            if (pun_state [pun_unit_num] . punfile == -1)
-               openPunFile ((int) pun_unit_num, buffer, p -> DDCW_TALLY);
-
-            write_punch_file (pun_state [pun_unit_num] . punfile, buffer, p -> DDCW_TALLY);
-
-            if (eoj ((uint) pun_unit_num, buffer, p -> DDCW_TALLY))
-              {
-                //sim_printf ("pun end of job\n");
-                close (pun_state [pun_unit_num] . punfile);
-                pun_state [pun_unit_num] . punfile = -1;
-              }
-            p -> stati = 04000;
-          }
-          break;
-
-
-        case 031: // CMD 031 Set Diagnostic Mode (load_mpc.pl1)
-          {
-            p -> stati = 04000;
-            sim_debug (DBG_NOTIFY, & pun_dev, "Set Diagnostic Mode %ld\n", pun_unit_num);
-          }
-          break;
-
-        case 040: // CMD 40 Reset status
-          {
-            p -> stati = 04000;
-            p -> isRead = false;
-            sim_debug (DBG_NOTIFY, & pun_dev, "Reset status %ld\n", pun_unit_num);
-          }
-          break;
-
-        default:
-          {
-            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("pun daze %o\n", p -> IDCW_DEV_CMD);
-            p -> stati = 04501; // cmd reject, invalid opcode
-            p -> chanStatus = chanStatIncorrectDCW;
-          }
-          return IOM_CMD_ERROR;
-        }
-
-    if (p -> IDCW_CHAN_CTRL == 3) // marker bit set
-      {
-        send_marker_interrupt (iomUnitIdx, (int) chan);
-      }
-    return IOM_CMD_PROCEED;
-  }
-#endif
-
 static int punWriteRecord (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
@@ -744,214 +588,80 @@ static int punWriteRecord (uint iomUnitIdx, uint chan)
     return 0;
   }
 
-iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan)
-  {
-    iom_cmd_rc_t rc = IOM_CMD_PROCEED;
-#if 0
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-// Is it an IDCW?
+iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
+  iom_cmd_rc_t rc = IOM_CMD_PROCEED;
+  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+  uint dev_code = p->IDCW_DEV_CODE;
 
-    if (p -> DCW_18_20_CP == 7)
-      {
-        pun_cmd (iomUnitIdx, chan);
-      }
-    else // DDCW/TDCW
-      {
-        sim_printf ("%s expected IDCW\n", __func__);
+  sim_debug (DBG_TRACE, & pun_dev, "%s: PUN %c%02o_%02o\n", __func__, iomChar (iomUnitIdx), chan, dev_code);
+
+  uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+  uint devUnitIdx = cables->urp_to_urd[ctlr_unit_idx][dev_code].unit_idx;
+  struct pun_state * statep = & pun_state[devUnitIdx];
+
+  // IDCW?
+  if (p->DCW_18_20_CP == 7) {
+    // IDCW
+    statep->ioMode = punNoMode;
+    switch (p->IDCW_DEV_CMD) {
+
+      case 011: // CMD 011 Punch binary
+        sim_debug (DBG_DEBUG, & pun_dev, "%s: Punch Binary\n", __func__);
+        statep->ioMode = punWrBin;
+        p->stati = 04000;
+        break;
+
+      case 031: // CMD 031 Set Diagnostic Mode (load_mpc.pl1)
+        sim_debug (DBG_DEBUG, & pun_dev, "%s: Set Diagnostic Mode\n", __func__);
+        p->stati = 04000;
+        break;
+
+      case 040: // CMD 40 Reset status
+        sim_debug (DBG_DEBUG, & pun_dev, "%s: Reset Status\n", __func__);
+        p->stati = 04000;
+        p->isRead = false;
+        break;
+
+      default:
+        if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+          sim_warn ("%s: PUN unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+        p->stati = 04501; // cmd reject, invalid opcode
+        p->chanStatus = chanStatIncorrectDCW;
         return IOM_CMD_ERROR;
-      }
+    } // switch IDCW_DEV_CMD
+    sim_debug (DBG_DEBUG, & pun_dev, "%s: stati %04o\n", __func__, p->stati);
     return IOM_CMD_PROCEED;
-#endif
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-    uint dev_code = p->IDCW_DEV_CODE;
+  } // IDCW
 
-    sim_debug (DBG_TRACE, & pun_dev, "%s: PUN %c%02o_%02o\n", __func__, iomChar (iomUnitIdx), chan, dev_code);
+  // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
+  switch (statep->ioMode) {
 
-    uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    uint devUnitIdx = cables->urp_to_urd[ctlr_unit_idx][dev_code].unit_idx;
-    UNIT * unitp = & pun_unit[devUnitIdx];
-    //long pun_unit_num = PUN_UNIT_NUM (unitp);
-    struct pun_state * statep = & pun_state[devUnitIdx];
+    case punNoMode:
+      //sim_printf ("%s: Unexpected IOTx\n", __func__);
+      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //return IOM_CMD_ERROR;
+      break;
 
-    // IDCW?
-    if (p -> DCW_18_20_CP == 7)
-      {
-        // IDCW
-        statep->ioMode = punNoMode;
-        switch (p -> IDCW_DEV_CMD)
-          {
-
-            case 011: // CMD 011 Punch binary
-              sim_debug (DBG_DEBUG, & pun_dev, "%s: Punch Binary\n", __func__);
-              statep->ioMode = punWrBin;
-              p->stati = 04000;
-              break;
-
-#if 0 // REWRITE7
-              {
-            p -> isRead = false;
-            // Get the DDCW
-
-            bool ptro, send, uff;
-
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-            if (rc < 0)
-              {
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                sim_printf ("%s list service failed\n", __func__);
-                break;
-              }
-            if (uff)
-              {
-                sim_printf ("%s ignoring uff\n", __func__); // XXX
-              }
-            if (! send)
-              {
-                sim_printf ("%s nothing to send\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-            if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
-              {
-                sim_printf ("%s expected DDCW\n", __func__);
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-
-            if (p -> DDCW_TALLY != 27)
-              {
-                sim_warn ("%s expected tally of 27\n", __func__);
-                p -> chanStatus = chanStatIncorrectDCW;
-                p -> stati = 05001; // BUG: arbitrary error code; config switch
-                break;
-              }
-
-
-//dcl 1 raw aligned,    /* raw column binary card image */
-//    2 col (1:80) bit (12) unal,                             /* 80 columns */
-//    2 pad bit (12) unal;
-
-            // Copy from core to buffer
-            word36 buffer [p -> DDCW_TALLY];
-            uint wordsProcessed = 0;
-            iom_indirect_data_service (iomUnitIdx, chan, buffer,
-                                    & wordsProcessed, false);
-            p -> initiate = false;
-
-//TODO: The following is currently disabled and will be made an option in a new issue
-#if 0
-            sim_printf ("tally %d\n", p-> DDCW_TALLY);
-
-            for (uint i = 0; i < p -> DDCW_TALLY; i ++)
-              sim_printf ("  %012"PRIo64"\n", buffer [i]);
-            sim_printf ("\n");
-
-            for (uint row = 0; row < 12; row ++)
-              {
-                for (uint col = 0; col < 80; col ++)
-                  {
-                    // 3 cols/word
-                    uint wordno = col / 3;
-                    uint fieldno = col % 3;
-                    word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
-                    if (bit)
-                      sim_printf ("*");
-                    else
-                      sim_printf (" ");
-                  }
-                sim_printf ("\r\n");
-              }
-            sim_printf ("\r\n");
-
-            for (uint row = 0; row < 12; row ++)
-              {
-                //for (uint col = 0; col < 80; col ++)
-                for (int col = 79; col >= 0; col --)
-                  {
-                    // 3 cols/word
-                    uint wordno = (uint) col / 3;
-                    uint fieldno = (uint) col % 3;
-                    word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
-                    if (bit)
-                      sim_printf ("*");
-                    else
-                      sim_printf (" ");
-                  }
-                sim_printf ("\r\n");
-              }
-            sim_printf ("\r\n");
-#endif
-
-            if (pun_state [pun_unit_num] . punfile == -1)
-               openPunFile ((int) pun_unit_num, buffer, p -> DDCW_TALLY);
-
-            write_punch_file (pun_state [pun_unit_num] . punfile, buffer, p -> DDCW_TALLY);
-
-            if (eoj ((uint) pun_unit_num, buffer, p -> DDCW_TALLY))
-              {
-                //sim_printf ("pun end of job\n");
-                close (pun_state [pun_unit_num] . punfile);
-                pun_state [pun_unit_num] . punfile = -1;
-              }
-            p -> stati = 04000;
-          }
-          break;
-#endif
-
-
-            case 031: // CMD 031 Set Diagnostic Mode (load_mpc.pl1)
-              sim_debug (DBG_DEBUG, & pun_dev, "%s: Set Diagnostic Mode\n", __func__);
-              p -> stati = 04000;
-              break;
-
-            case 040: // CMD 40 Reset status
-              sim_debug (DBG_DEBUG, & pun_dev, "%s: Reset Status\n", __func__);
-              p -> stati = 04000;
-              p -> isRead = false;
-              break;
-
-            default:
-              if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-                sim_warn ("%s: PUN unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
-              p->stati = 04501; // cmd reject, invalid opcode
-              p->chanStatus = chanStatIncorrectDCW;
-              return IOM_CMD_ERROR;
-          } // switch IDCW_DEV_CMD
-        sim_debug (DBG_DEBUG, & pun_dev, "%s: stati %04o\n", __func__, p -> stati);
-        return IOM_CMD_PROCEED;
-      } // IDCW
-
-    // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
-    switch (statep->ioMode)
-      {
-        case punNoMode:
-sim_printf ("%s: Unexpected IOTx\n", __func__);
-          sim_warn ("%s: Unexpected IOTx\n", __func__);
-          return IOM_CMD_ERROR;
-
-        case punWrBin:
-          {
-            int rc = punWriteRecord (iomUnitIdx, chan);
-            if (rc)
-              return IOM_CMD_ERROR;
-          }
-          break;
-
-         default:
-          sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
+    case punWrBin: {
+        int rc = punWriteRecord (iomUnitIdx, chan);
+        if (rc)
           return IOM_CMD_ERROR;
       }
+      break;
 
-    // IOTD?
-    if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
-      {
-        sim_debug (DBG_DEBUG | DBG_TRACE, & pun_dev, "%s: Terminate on IOTD\n", __func__);
-        return IOM_CMD_DISCONNECT;
-      }
-
-    return rc;
-
+    default:
+      sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
+      return IOM_CMD_ERROR;
   }
+
+  // IOTD?
+  if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) {
+    sim_debug (DBG_DEBUG | DBG_TRACE, & pun_dev, "%s: Terminate on IOTD\n", __func__);
+    return IOM_CMD_DISCONNECT;
+  }
+
+  return rc;
+}
 
 static t_stat pun_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
   {

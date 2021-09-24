@@ -1079,202 +1079,185 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
 //  dcl read_command           bit (6) internal static init ("25"b3);
 //  dcl reset_status_command   bit (6) internal static init ("40"b3);
 
-iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-    uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    uint devUnitIdx;
-    if (cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPC)
-       devUnitIdx = cables->ipc_to_dsk[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
-    else if (cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_MSP)
-       devUnitIdx = cables->msp_to_dsk[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
-    else
-      {
-        sim_warn ("%s: Can't find controller (%d)\n", __func__, cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type);
-        return IOM_CMD_ERROR;
-      }
+iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+  uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+  uint devUnitIdx;
+  if (cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPC)
+    devUnitIdx = cables->ipc_to_dsk[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
+  else if (cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_MSP)
+    devUnitIdx = cables->msp_to_dsk[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
+  else {
+    sim_warn ("%s: Can't find controller (%d)\n", __func__, cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type);
+    return IOM_CMD_ERROR;
+  }
 
-    UNIT * unitp = & dsk_unit[devUnitIdx];
-    struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
+  UNIT * unitp = & dsk_unit[devUnitIdx];
+  struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
 
-    iom_cmd_rc_t rc = IOM_CMD_PROCEED;
+  iom_cmd_rc_t rc = IOM_CMD_PROCEED;
 
 #ifdef LOCKLESS
-    lock_ptr (& dsk_states->dsk_lock);
+  lock_ptr (& dsk_states->dsk_lock);
 #endif
 
-    // IDCW?
-    if (p->DCW_18_20_CP == 7)
-      {
-        // IDCW
-        disk_statep->io_mode = disk_no_mode;
-        switch (p->IDCW_DEV_CMD)
-          {
-            case 000: // CMD 00 Request status
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Request Status\r\n");
-              }
-              //disk_statep->io_mode = disk_no_mode;
-              p->stati = 04000;
-              if (! unitp->fileref)
-                p->stati = 04240; // device offline
-              break;
+  // IDCW?
+  if (p->DCW_18_20_CP == 7) {
+    // IDCW
+    disk_statep->io_mode = disk_no_mode;
+    switch (p->IDCW_DEV_CMD) {
+      case 000: // CMD 00 Request status
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Request Status\r\n");
+        }
+        //disk_statep->io_mode = disk_no_mode;
+        p->stati = 04000;
+        if (! unitp->fileref)
+          p->stati = 04240; // device offline
+        break;
 
-            case 016: // CMD 16 Read and Clear Statistics -- Model 800
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Read And Clear Statistics\r\n");
-              }
-              disk_statep->io_mode = disk_rd_clr_stats;
-              p->stati = 04000;
-              break;
+      case 016: // CMD 16 Read and Clear Statistics -- Model 800
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Read And Clear Statistics\r\n");
+        }
+        disk_statep->io_mode = disk_rd_clr_stats;
+        p->stati = 04000;
+        break;
             
-            case 022: // CMD 22 Read Status Register
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Read Status Register\r\n");
-              }
-              disk_statep->io_mode = disk_rd_status_reg;
-              p->stati = 04000;
-              break;
+      case 022: // CMD 22 Read Status Register
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Read Status Register\r\n");
+        }
+        disk_statep->io_mode = disk_rd_status_reg;
+        p->stati = 04000;
+        break;
 
-            case 024: // CMD 24 Read configuration -- Model 800
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Read Configuration\r\n");
-              }
-              disk_statep->io_mode = disk_rd_config;
-              p->stati = 04000;
-              break;
+      case 024: // CMD 24 Read configuration -- Model 800
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Read Configuration\r\n");
+        }
+        disk_statep->io_mode = disk_rd_config;
+        p->stati = 04000;
+        break;
 
-            case 025: // CMD 25 READ
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Read\r\n");
-              }
-              disk_statep->io_mode = disk_rd;
-              p->stati = 04000;
-              if (! unitp->fileref)
-                {
-                  p->stati = 04240; // device offline
-                  break;
-                }
-              //if (p->IDCW_CHAN_CTRL == 0)
-                //rc = IOM_CMD_DISCONNECT;
-              break;
+      case 025: // CMD 25 READ
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Read\r\n");
+        }
+        disk_statep->io_mode = disk_rd;
+        p->stati = 04000;
+        if (! unitp->fileref) {
+          p->stati = 04240; // device offline
+          break;
+        }
+        break;
 
-            case 030: // CMD 30 SEEK_512
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Seek 512\r\n");
-              }
-              disk_statep->io_mode = disk_seek_512;
-              p->stati = 04000;
-              if (! unitp->fileref)
-                {
-                  p->stati = 04240; // device offline
-                  break;
-                }
-              break;
+      case 030: // CMD 30 SEEK_512
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Seek 512\r\n");
+        }
+        disk_statep->io_mode = disk_seek_512;
+        p->stati = 04000;
+        if (! unitp->fileref) {
+          p->stati = 04240; // device offline
+          break;
+        }
+        break;
 
-            case 031: // CMD 31 WRITE
-            case 033: // CMD 31 WRITE AND COMPARE
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Write\r\n");
-              }
-              disk_statep->io_mode = disk_wr;
-              p->stati = 04000;
-              if (! unitp->fileref)
-                {
-                  p->stati = 04240; // device offline
-                  break;
-                }
-              break;
+      case 031: // CMD 31 WRITE
+      case 033: // CMD 31 WRITE AND COMPARE
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Write\r\n");
+        }
+        disk_statep->io_mode = disk_wr;
+        p->stati = 04000;
+        if (! unitp->fileref) {
+          p->stati = 04240; // device offline
+          break;
+        }
+        break;
 
-            case 034: // CMD 34 SEEK_64
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Seek 64\r\n");
-              }
-              disk_statep->io_mode = disk_seek_64;
-              p->stati = 04000;
-              if (! unitp->fileref)
-                {
-                  p->stati = 04240; // device offline
-                  break;
-                }
-              break;
+      case 034: // CMD 34 SEEK_64
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Seek 64\r\n");
+        }
+        disk_statep->io_mode = disk_seek_64;
+        p->stati = 04000;
+        if (! unitp->fileref) {
+          p->stati = 04240; // device offline
+          break;
+        }
+        break;
 
-            case 036: // CMD 36 SPECIAL SEEK (T&D) // Make it work like SEEK_64 and
-                                                   // hope for the best
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Special Seek\r\n");
-              }
-              disk_statep->io_mode = disk_special_seek;
-              p->stati = 04000;
-              if (! unitp->fileref)
-                {
-                  p->stati = 04240; // device offline
-                  break;
-                }
-              break;
+      case 036: // CMD 36 SPECIAL SEEK (T&D) // Make it work like SEEK_64 and
+                                             // hope for the best
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Special Seek\r\n");
+        }
+        disk_statep->io_mode = disk_special_seek;
+        p->stati = 04000;
+        if (! unitp->fileref) {
+          p->stati = 04240; // device offline
+          break;
+        }
+        break;
 
-            case 040: // CMD 40 Reset status
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Reset Status\r\n");
-              }
-              p->stati = 04000;
-              p->initiate = false; // According to POLTS
-              p->isRead = false;
-              // T&D probing
-              if (p->IDCW_DEV_CODE == 077)
-                {
-                  p->stati = 04502; // invalid device code
-                  return IOM_CMD_DISCONNECT;
-                }
-              //if (! unitp->fileref)
-                //p->stati = 04240; // device offline
-              //if (p->IDCW_CHAN_CTRL == 0)
-                //rc = IOM_CMD_DISCONNECT;
-              break;
+      case 040: // CMD 40 Reset status
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Reset Status\r\n");
+        }
+        p->stati = 04000;
+        p->initiate = false; // According to POLTS
+        p->isRead = false;
+        // T&D probing
+        if (p->IDCW_DEV_CODE == 077) {
+          p->stati = 04502; // invalid device code
+          return IOM_CMD_DISCONNECT;
+        }
+        //if (! unitp->fileref)
+          //p->stati = 04240; // device offline
+        break;
 
-            case 042: // CMD 42 RESTORE
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Restore\r\n");
-              }
-              p->stati = 04000;
-              p->initiate = false; // According to POLTS
-              if (! unitp->fileref)
-                p->stati = 04240; // device offline
-              break;
+      case 042: // CMD 42 RESTORE
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Restore\r\n");
+        }
+        p->stati = 04000;
+        p->initiate = false; // According to POLTS
+        if (! unitp->fileref)
+          p->stati = 04240; // device offline
+        break;
 
-            case 072: // CMD 72 SET STANDBY
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk Set Standbu\r\n");
-              }
-              p->stati = 04000;
-              if (! unitp->fileref)
-                p->stati = 04240; // device offline
-              break;
+      case 072: // CMD 72 SET STANDBY
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk Set Standbu\r\n");
+        }
+        p->stati = 04000;
+        if (! unitp->fileref)
+          p->stati = 04240; // device offline
+        break;
 
-            default:
-              if_sim_debug (DBG_TRACE, & dsk_dev) {
-                sim_printf ("// Disk unknown command %o\r\n", p->IDCW_DEV_CMD);
-              }
-              p->stati = 04501;
-              p->chanStatus = chanStatIncorrectDCW;
-              if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-                sim_warn ("%s: Unrecognized device command %02o\n", __func__, p->IDCW_DEV_CMD);
-              rc =  IOM_CMD_ERROR;
-              goto done;
-          }
-        //if (disk_statep->io_mode == disk_no_mode && p->IDCW_CHAN_CTRL == 0)
-          //rc = IOM_CMD_DISCONNECT;
-
+      default:
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk unknown command %o\r\n", p->IDCW_DEV_CMD);
+        }
+        p->stati = 04501;
+        p->chanStatus = chanStatIncorrectDCW;
+        if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+          sim_warn ("%s: Unrecognized device command %02o\n", __func__, p->IDCW_DEV_CMD);
+        rc =  IOM_CMD_ERROR;
         goto done;
-      } // IDCW
+    }
+    goto done;
+  } // IDCW
 
-    // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
-    switch (disk_statep->io_mode)
-      {
-        case disk_no_mode:
-          if_sim_debug (DBG_TRACE, & dsk_dev) {
-            sim_printf ("// Disk IOT No Mode\r\n");
-          }
+  // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
+  switch (disk_statep->io_mode) {
+
+    case disk_no_mode:
+      if_sim_debug (DBG_TRACE, & dsk_dev) {
+        sim_printf ("// Disk IOT No Mode\r\n");
+      }
 // It appears that in some cases Mulitcs builds a dcw list from a generic "single IDCW plus optional DDCW" template.
 // That template sets the IDCW channel command to "record", regardless of whether or not the instruciton
 // needs an DDCW. In particular, disk_ctl pings the disk by sending a "Reset status" with "record" and a apparently
@@ -1282,129 +1265,103 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan)
 // IO mode at "no mode" so we don't know what to do with it. Since this appears benign, we will assume that the
 // original H/W ignored, and so shall we.
 
-          //sim_warn ("%s: Unexpected IOTx\n", __func__);
-          //rc = IOM_CMD_ERROR;
+      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //rc = IOM_CMD_ERROR;
+      goto done;
+
+    case disk_rd_clr_stats: {
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk IOT Rd And Clr Stats\r\n");
+        }
+        int rc1 = read_and_clear_statistics (devUnitIdx, iomUnitIdx, chan);
+        if (rc1) {
+          rc = IOM_CMD_ERROR;
           goto done;
-
-        case disk_rd_clr_stats:
-          if_sim_debug (DBG_TRACE, & dsk_dev) {
-            sim_printf ("// Disk IOT Rd And Clr Stats\r\n");
-          }
-          {
-            int rc1 = read_and_clear_statistics (devUnitIdx, iomUnitIdx, chan);
-            if (rc1)
-              {
-                rc = IOM_CMD_ERROR;
-                goto done;
-              }
-          }
-          break;
-
-        case disk_rd_status_reg:
-          if_sim_debug (DBG_TRACE, & dsk_dev) {
-            sim_printf ("// Disk IOT Rd Status Reg\r\n");
-          }
-          {
-            int rc1 = readStatusRegister (devUnitIdx, iomUnitIdx, chan);
-            if (rc1)
-              {
-                rc = IOM_CMD_ERROR;
-                goto done;
-              }
-          }
-          break;
-
-        case disk_rd_config:
-          if_sim_debug (DBG_TRACE, & dsk_dev) {
-            sim_printf ("// Disk IOT Rd Config\r\n");
-          }
-          {
-            // XXX missing. see poll_mpc.pl1, poll_mpc_data.incl.pl1
-            int rc1 = read_configuration (devUnitIdx, iomUnitIdx, chan);
-            if (rc1)
-              {
-                rc = IOM_CMD_ERROR;
-                goto done;
-              }
-          }
-          break;
-
-        case disk_rd:
-          if_sim_debug (DBG_TRACE, & dsk_dev) {
-            sim_printf ("// Disk IOT Read\r\n");
-          }
-          {
-            int rc1 = diskRead (devUnitIdx, iomUnitIdx, chan);
-            if (rc1)
-              {
-                rc = IOM_CMD_ERROR;
-                goto done;
-              }
-          }
-          break;
-
-        case disk_seek_512:
-          if_sim_debug (DBG_TRACE, & dsk_dev) {
-            sim_printf ("// Disk IOT Seek 512\r\n");
-          }
-          {
-            int rc1 = diskSeek512 (devUnitIdx, iomUnitIdx, chan);
-            if (rc1)
-              {
-                rc = IOM_CMD_ERROR;
-                goto done;
-              }
-          }
-          break;
-
-        case disk_wr:
-          if_sim_debug (DBG_TRACE, & dsk_dev) {
-            sim_printf ("// Disk IOT Write\r\n");
-          }
-          {
-            int rc1 = diskWrite (devUnitIdx, iomUnitIdx, chan);
-            if (rc1)
-              {
-                rc = IOM_CMD_ERROR;
-                goto done;
-              }
-          }
-          break;
-
-        case disk_seek_64:
-        case disk_special_seek: // Make it work like SEEK_64 and hope for the best
-          if_sim_debug (DBG_TRACE, & dsk_dev) {
-            sim_printf ("// Disk IOT Seek 64\r\n");
-          }
-          {
-            int rc1 = diskSeek64 (devUnitIdx, iomUnitIdx, chan);
-            if (rc1)
-              {
-                rc = IOM_CMD_ERROR;
-                goto done;
-              }
-          }
-          break;
+        }
       }
+      break;
 
-    //if (p->IDCW_CHAN_CTRL == 0)
-      //rc = IOM_CMD_DISCONNECT;
-#if 0
-    // IOTD?
-    if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
-      {
-        sim_debug (DBG_DEBUG | DBG_TRACE, & dsk_dev, "%s: Terminate on IOTD\n", __func__);
-        rc = IOM_CMD_DISCONNECT;
+    case disk_rd_status_reg: {
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk IOT Rd Status Reg\r\n");
+        }
+        int rc1 = readStatusRegister (devUnitIdx, iomUnitIdx, chan);
+        if (rc1) {
+          rc = IOM_CMD_ERROR;
+          goto done;
+        }
       }
-#endif
+      break;
+
+    case disk_rd_config: {
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk IOT Rd Config\r\n");
+        }
+        // XXX missing. see poll_mpc.pl1, poll_mpc_data.incl.pl1
+        int rc1 = read_configuration (devUnitIdx, iomUnitIdx, chan);
+        if (rc1) {
+          rc = IOM_CMD_ERROR;
+          goto done;
+        }
+      }
+      break;
+
+    case disk_rd: {
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk IOT Read\r\n");
+        }
+        int rc1 = diskRead (devUnitIdx, iomUnitIdx, chan);
+        if (rc1) {
+          rc = IOM_CMD_ERROR;
+          goto done;
+        }
+      }
+      break;
+
+    case disk_seek_512: {
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk IOT Seek 512\r\n");
+        }
+        int rc1 = diskSeek512 (devUnitIdx, iomUnitIdx, chan);
+        if (rc1) {
+          rc = IOM_CMD_ERROR;
+          goto done;
+        }
+      }
+      break;
+
+    case disk_wr: {
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk IOT Write\r\n");
+        }
+        int rc1 = diskWrite (devUnitIdx, iomUnitIdx, chan);
+        if (rc1) {
+          rc = IOM_CMD_ERROR;
+          goto done;
+        }
+      }
+      break;
+
+    case disk_seek_64:
+    case disk_special_seek: { // Make it work like SEEK_64 and hope for the best
+        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk IOT Seek 64\r\n");
+        }
+        int rc1 = diskSeek64 (devUnitIdx, iomUnitIdx, chan);
+        if (rc1) {
+          rc = IOM_CMD_ERROR;
+          goto done;
+        }
+      }
+      break;
+  }
 
 done:
 #ifdef LOCKLESS
-    unlock_ptr (& dsk_states->dsk_lock);
+  unlock_ptr (& dsk_states->dsk_lock);
 #endif
-
-    return rc;
-  }
+  return rc;
+}
 
 
 //////////

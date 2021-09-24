@@ -1085,74 +1085,70 @@ void consoleProcess (void)
  * or IDCW.
  */
 
-iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
-
-  {
-    iom_cmd_rc_t rc = IOM_CMD_PROCEED;
+iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
+  iom_cmd_rc_t rc = IOM_CMD_PROCEED;
 
 #ifdef LOCKLESS
-    lock_libuv ();
+  lock_libuv ();
 #endif
 
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-    uint con_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    UNIT * unitp = & opc_unit[con_unit_idx];
-    opc_state_t * csp = console_state + con_unit_idx;
+  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+  uint con_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+  UNIT * unitp = & opc_unit[con_unit_idx];
+  opc_state_t * csp = console_state + con_unit_idx;
 
-    p->dev_code = p->IDCW_DEV_CODE;
-    p->stati = 0;
-    //int conUnitIdx = (int) d->devUnitIdx;
+  p->dev_code = p->IDCW_DEV_CODE;
+  p->stati = 0;
+  //int conUnitIdx = (int) d->devUnitIdx;
 
-    // The 6001 only executes the PCW DCW command; the 6601 executes
-    // the the PCW DCW and (at least) the first DCW list item.
-    // When Multics uses the 6601, the PCW DCW is always 040 RESET.
-    // The 040 RESET will trigger the DCW list read.
-    // will change this.
+  // The 6001 only executes the PCW DCW command; the 6601 executes
+  // the the PCW DCW and (at least) the first DCW list item.
+  // When Multics uses the 6601, the PCW DCW is always 040 RESET.
+  // The 040 RESET will trigger the DCW list read.
+  // will change this.
 
-    // IDCW?
-    if (p -> DCW_18_20_CP == 7)
-      {
-        // IDCW
+  // IDCW?
+  if (p->DCW_18_20_CP == 7) {
+    // IDCW
 
-        switch (p->IDCW_DEV_CMD)
-          {
-            case 000: // CMD 00 Request status
-              sim_debug (DBG_DEBUG, & opc_dev, "%s: Status request\n", __func__);
-              csp->io_mode = opc_no_mode;
-              p->stati = 04000;
-              break;
+    switch (p->IDCW_DEV_CMD) {
+      case 000: // CMD 00 Request status
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Status request\n", __func__);
+        csp->io_mode = opc_no_mode;
+        p->stati = 04000;
+        break;
 
-            case 003:               // Read BCD
-              sim_debug (DBG_DEBUG, & tape_dev, "%s: Read BCD echoed\n", __func__);
-              csp->io_mode = opc_read_mode;
-              csp->echo = true;
-              csp->bcd = true;
-              p->stati = 04000;
-              break;
+      case 003:               // Read BCD
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read BCD echoed\n", __func__);
+        csp->io_mode = opc_read_mode;
+        csp->echo = true;
+        csp->bcd = true;
+        p->stati = 04000;
+        break;
 
-            case 013:               // Write BCD
-              sim_debug (DBG_DEBUG, & opc_dev, "%s: Write BCD\n", __func__);
-              p->isRead = false;
-              csp->bcd = true;
-              csp->io_mode = opc_write_mode;
-              p->stati = 04000;
-              break;
+      case 013:               // Write BCD
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Write BCD\n", __func__);
+        p->isRead = false;
+        csp->bcd = true;
+        csp->io_mode = opc_write_mode;
+        p->stati = 04000;
+        break;
 
-            case 023:               // Read ASCII
-              sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII echoed\n", __func__);
-              csp->io_mode = opc_read_mode;
-              csp->echo = true;
-              csp->bcd = false;
-              p->stati = 04000;
-              break;
+      case 023:               // Read ASCII
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII echoed\n", __func__);
+        csp->io_mode = opc_read_mode;
+        csp->echo = true;
+        csp->bcd = false;
+        p->stati = 04000;
+        break;
 
-            case 033:               // Write ASCII
-              sim_debug (DBG_DEBUG, & opc_dev, "%s: Write ASCII\n", __func__);
-              p->isRead = false;
-              csp->bcd = false;
-              csp->io_mode = opc_write_mode;
-              p->stati = 04000;
-              break;
+      case 033:               // Write ASCII
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Write ASCII\n", __func__);
+        p->isRead = false;
+        csp->bcd = false;
+        csp->io_mode = opc_write_mode;
+        p->stati = 04000;
+        break;
 
 
 // Model 6001 vs. 6601.
@@ -1164,368 +1160,254 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan)
 // parsing of the channel command program. This one will return IOM_CMD_PROCEED,
 // causing the parser to move to the DCW list.
 
-            case 040:               // Reset
-              sim_debug (DBG_DEBUG, & opc_dev, "%s: Reset\n", __func__);
-              p->stati = 04000;
-              // T&D probing
-              if (p->IDCW_DEV_CODE == 077)
-                {
-                  // T&D uses dev code 77 to test for the console device;
-                  // it ignores dev code, and so returns OK here.
-                  //p->stati = 04502; // invalid device code
-if (p->IDCW_CHAN_CTRL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return IOM_CMD_DISCONNECT; }
-                }
-              break;
+      case 040:               // Reset
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Reset\n", __func__);
+        p->stati = 04000;
+        // T&D probing
+        //if (p->IDCW_DEV_CODE == 077) {
+          // T&D uses dev code 77 to test for the console device;
+          // it ignores dev code, and so returns OK here.
+          //p->stati = 04502; // invalid device code
+          // if (p->IDCW_CHAN_CTRL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return IOM_CMD_DISCONNECT; }
+        //}
+        break;
 
-            case 043:               // Read ASCII unechoed
-              sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII unechoed\n", __func__);
-              csp->io_mode = opc_read_mode;
-              csp->echo = false;
-              csp->bcd = false;
-              p->stati = 04000;
-              break;
+      case 043:               // Read ASCII unechoed
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII unechoed\n", __func__);
+        csp->io_mode = opc_read_mode;
+        csp->echo = false;
+        csp->bcd = false;
+        p->stati = 04000;
+        break;
 
-            case 051:               // Write Alert -- Ring Bell
-              sim_debug (DBG_DEBUG, & opc_dev, "%s: Alert\n", __func__);
-              p->isRead = false;
-              console_putstr ((int) con_unit_idx,  "CONSOLE: ALERT\r\n");
-              console_putchar ((int) con_unit_idx, '\a');
-              p->stati = 04000;
-              if (csp->model == m6001 && p->isPCW)
-                {
-                  rc = IOM_CMD_DISCONNECT;
-                  goto done;
-                }
-              break;
-
-            case 057:               // Read ID (according to AN70-1)
-              // FIXME: No support for Read ID; appropriate values are not known
-              //[CAC] Looking at the bootload console code, it seems more
-              // concerned about the device responding, rather then the actual
-              // returned value. Make some thing up.
-              sim_debug (DBG_DEBUG, & opc_dev, "%s: Read ID\n", __func__);
-              p->stati = 04500;
-              if (csp->model == m6001 && p->isPCW)
-                {
-                  rc = IOM_CMD_DISCONNECT;
-                  goto done;
-                }
-              break;
-
-            case 060:               // LOCK MCA
-              sim_debug (DBG_DEBUG, & opc_dev, "%s: Lock\n", __func__);
-              console_putstr ((int) con_unit_idx,  "CONSOLE: LOCK\r\n");
-              p->stati = 04000;
-              break;
-
-            case 063:               // UNLOCK MCA
-              sim_debug (DBG_DEBUG, & opc_dev, "%s: Unlock\n", __func__);
-              console_putstr ((int) con_unit_idx,  "CONSOLE: UNLOCK\r\n");
-              p->stati = 04000;
-              break;
-
-            default:
-              sim_debug (DBG_DEBUG, & opc_dev, "%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
-              p->stati = 04501; // command reject, invalid instruction code
-              p->chanStatus = chanStatIncorrectDCW;
-              rc = IOM_CMD_ERROR;
-              goto done;
-          } // switch IDCW_DEV_CMD
-        // If we get here, Multics is either in bootload, or is configured for
-        // 6001; so don't read the DCW list.
-        //return IOM_CMD_DISCONNECT;
-        //rc = IOM_CMD_PROCEED;
-        goto done;
-      } // IDCW
-
-    // Not IDCW; TDCW are captured in IOM, so must be IOTD or IOTP
-    switch (csp->io_mode)
-      {
-        case opc_no_mode:
-          sim_warn ("%s: Unexpected IOTx\n", __func__);
-          rc = IOM_CMD_ERROR;
+      case 051:               // Write Alert -- Ring Bell
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Alert\n", __func__);
+        p->isRead = false;
+        console_putstr ((int) con_unit_idx,  "CONSOLE: ALERT\r\n");
+        console_putchar ((int) con_unit_idx, '\a');
+        p->stati = 04000;
+        if (csp->model == m6001 && p->isPCW) {
+          rc = IOM_CMD_DISCONNECT;
           goto done;
+        }
+        break;
 
-        case opc_read_mode:
-          {
-            if (csp->tailp != csp->buf)
-              {
-                sim_warn ("%s: Discarding previously buffered input.\n",
-                           __func__);
-              }
+      case 057:               // Read ID (according to AN70-1)
+        // FIXME: No support for Read ID; appropriate values are not known
+        //[CAC] Looking at the bootload console code, it seems more
+        // concerned about the device responding, rather then the actual
+        // returned value. Make some thing up.
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Read ID\n", __func__);
+        p->stati = 04500;
+        if (csp->model == m6001 && p->isPCW) {
+          rc = IOM_CMD_DISCONNECT;
+          goto done;
+        }
+        break;
 
-            uint tally = p->DDCW_TALLY;
-            uint daddr = p->DDCW_ADDR;
+      case 060:               // LOCK MCA
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Lock\n", __func__);
+        console_putstr ((int) con_unit_idx,  "CONSOLE: LOCK\r\n");
+        p->stati = 04000;
+        break;
 
-            if (tally == 0)
-              {
-                tally = 4096;
-              }
+      case 063:               // UNLOCK MCA
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Unlock\n", __func__);
+        console_putstr ((int) con_unit_idx,  "CONSOLE: UNLOCK\r\n");
+        p->stati = 04000;
+        break;
 
-            csp->tailp = csp->buf;
-            csp->readp = csp->buf;
-            csp->startTime = time (NULL);
-            csp->tally = tally;
-            csp->daddr = daddr;
-            csp->unitp = unitp;
-            csp->chan = (int) chan;
+      default:
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
+        p->stati = 04501; // command reject, invalid instruction code
+        p->chanStatus = chanStatIncorrectDCW;
+        rc = IOM_CMD_ERROR;
+        goto done;
+    } // switch IDCW_DEV_CMD
+    goto done;
+  } // IDCW
 
-            // If Multics has gone seriously awry (eg crash
-            // to BCE during boot), the autoinput will become
-            // wedged waiting for the expect string 'Ready'.
-            // We just went to read mode; if we are waiting
-            // on an expect string, it is never coming because
-            // console access is blocked by the expect code.
-            // Throw out the script if this happens....
+  // Not IDCW; TDCW are captured in IOM, so must be IOTD or IOTP
+  switch (csp->io_mode) {
+    case opc_no_mode:
+      sim_warn ("%s: Unexpected IOTx\n", __func__);
+      rc = IOM_CMD_ERROR;
+      goto done;
 
-            // If there is autoinput and it is at ^X or ^Y
-            if (csp->autop && (*csp->autop == 030 || *csp->autop == 031)) // ^X ^Y
-              {
-                // We are wedged.
-                // Clear the autoinput buffer; this will cancel the
-                // expect wait and any remaining script, returning
-                // control of the console to the user.
-                // Assuming opc0.
-                clear_opc_autoinput (ASSUME0, NULL);
-                ta_flush ();
-                sim_printf ("\r\nScript wedged and abandoned; autoinput and typeahead buffers flushed\r\n");
-              }
-            rc = IOM_CMD_PENDING; // command in progress; do not send terminate interrupt
-            goto done;
-          } // case opc_read_mode
+    case opc_read_mode: {
+        if (csp->tailp != csp->buf) {
+          sim_warn ("%s: Discarding previously buffered input.\n", __func__);
+        }
+        uint tally = p->DDCW_TALLY;
+        uint daddr = p->DDCW_ADDR;
 
-        case opc_write_mode:
-          {
-            uint tally = p->DDCW_TALLY;
+        if (tally == 0) {
+          tally = 4096;
+        }
+
+        csp->tailp = csp->buf;
+        csp->readp = csp->buf;
+        csp->startTime = time (NULL);
+        csp->tally = tally;
+        csp->daddr = daddr;
+        csp->unitp = unitp;
+        csp->chan = (int) chan;
+
+        // If Multics has gone seriously awry (eg crash
+        // to BCE during boot), the autoinput will become
+        // wedged waiting for the expect string 'Ready'.
+        // We just went to read mode; if we are waiting
+        // on an expect string, it is never coming because
+        // console access is blocked by the expect code.
+        // Throw out the script if this happens....
+
+        // If there is autoinput and it is at ^X or ^Y
+        if (csp->autop && (*csp->autop == 030 || *csp->autop == 031)) { // ^X ^Y
+          // We are wedged.
+          // Clear the autoinput buffer; this will cancel the
+          // expect wait and any remaining script, returning
+          // control of the console to the user.
+          // Assuming opc0.
+          clear_opc_autoinput (ASSUME0, NULL);
+          ta_flush ();
+          sim_printf ("\r\nScript wedged and abandoned; autoinput and typeahead buffers flushed\r\n");
+        }
+        rc = IOM_CMD_PENDING; // command in progress; do not send terminate interrupt
+        goto done;
+      } // case opc_read_mode
+
+    case opc_write_mode: {
+        uint tally = p->DDCW_TALLY;
 
 // We would hope that number of valid characters in the last word
 // would be in DCW_18_20_CP, but it seems to reliably be zero.
 
-            if (tally == 0)
-              {
-                tally = 4096;
-              }
+        if (tally == 0) {
+          tally = 4096;
+        }
 
-            word36 buf[tally];
-            iom_indirect_data_service (iomUnitIdx, chan, buf, & tally, false);
-            p->initiate = false;
+        word36 buf[tally];
+        iom_indirect_data_service (iomUnitIdx, chan, buf, & tally, false);
+        p->initiate = false;
 
-            // Tally is in words, not chars.
-            char text[tally * 4 + 1];
-            char * textp = text;
-            word36 * bufp = buf;
-            * textp = 0;
+        // Tally is in words, not chars.
+        char text[tally * 4 + 1];
+        char * textp = text;
+        word36 * bufp = buf;
+        * textp = 0;
 #ifndef __MINGW64__
-            newlineOff ();
+        newlineOff ();
 #endif
-#if 0
-            bool bcd_esc = false;
-            bool bcd_esc_next = false;
+        int escape_cnt = 0;
 
-            while (tally)
-              {
-                word36 datum = * bufp ++;
-                tally --;
-                if (csp->bcd)
-                  {
-                    for (int i = 0; i < 6; i ++)
-                      {
-                        word36 narrow_char = datum >> 30; // slide leftmost char
-                                                          //  into low byte
-                        datum = datum << 6; // lose the leftmost char
-                        narrow_char &= 077;
-                        char ch = bcd_code_page [narrow_char];
-                        if (ch == '!' && !bcd_esc && !bcd_esc_next)
-                          {
-                            bcd_esc = true;
-                          }
-                        else if (bcd_esc)
-                          {
-                            if (ch == '!')
-                              {
-                                // Next character is escaped
-                                bcd_esc_next = true;
-                              }
-                            else
-                              {
-                                uint lp = narrow_char;
-                                if (lp == 0)
-                                  lp = 1;
-                                for (uint i = 0; i < lp; i ++)
-                                  console_putstr ((int) con_unit_idx, "\r\n");
-                              }
-                            bcd_esc = false;
-                          }
-                        else
-                          {
-                            if (bcd_esc_next || ch != '?')
-                              console_putchar ((int) con_unit_idx, ch);
-                          }
-                        bcd_esc_next = false;
-                        * textp ++ = ch;
-                      }
+        while (tally) {
+          word36 datum = * bufp ++;
+          tally --;
+          if (csp->bcd) {
+            // Lifted from tolts_util_.pl1:bci_to_ascii
+            for (int i = 0; i < 6; i ++) {
+              word36 narrow_char = datum >> 30; // slide leftmost char
+                                                //  into low byte
+              datum = datum << 6; // lose the leftmost char
+              narrow_char &= 077;
+              char ch = bcd_code_page [narrow_char];
+              if (escape_cnt == 2) {
+                console_putchar ((int) con_unit_idx, ch);
+                * textp ++ = ch;
+                escape_cnt = 0;
+              } else if (ch == '!') {
+                escape_cnt ++;
+              } else if (escape_cnt == 1) {
+                uint lp = narrow_char;
+                if (lp == 0)
+                  lp = 1;
+                if (lp >= 16) {
+                  console_putstr ((int) con_unit_idx, "\f");
+                  //* textp ++ = '\f';
+                } else {
+                  for (uint i = 0; i < lp; i ++) {
+                    console_putstr ((int) con_unit_idx, "\r\n");
+                    //* textp ++ = '\r';
+                    //* textp ++ = '\n';
                   }
-                else
-                  {
-                    for (int i = 0; i < 4; i ++)
-                      {
-                        word36 wide_char = datum >> 27; // slide leftmost char
-                                                        //  into low byte
-                        datum = datum << 9; // lose the leftmost char
-                        char ch = wide_char & 0x7f;
-                        if (ch != 0177 && ch != 0)
-                          {
-                            console_putchar ((int) con_unit_idx, ch);
-                            * textp ++ = ch;
-                          }
-                      }
-                  }
+                }
+                escape_cnt = 0;
+              } else if (ch == '?') {
+                escape_cnt = 0;
+              } else {
+                console_putchar ((int) con_unit_idx, ch);
+                * textp ++ = ch;
+                escape_cnt = 0;
               }
-#else
-            int escape_cnt = 0;
-
-            while (tally)
-              {
-                word36 datum = * bufp ++;
-                tally --;
-                if (csp->bcd)
-                  {
-                    // Lifted from tolts_util_.pl1:bci_to_ascii
-                    for (int i = 0; i < 6; i ++)
-                      {
-                        word36 narrow_char = datum >> 30; // slide leftmost char
-                                                          //  into low byte
-                        datum = datum << 6; // lose the leftmost char
-                        narrow_char &= 077;
-                        char ch = bcd_code_page [narrow_char];
-                        if (escape_cnt == 2)
-                          {
-                            console_putchar ((int) con_unit_idx, ch);
-                            * textp ++ = ch;
-                            escape_cnt = 0;
-                          }
-                        else if (ch == '!')
-                          {
-                            escape_cnt ++;
-                          }
-                        else if (escape_cnt == 1)
-                          {
-                            uint lp = narrow_char;
-                            if (lp == 0)
-                              lp = 1;
-                            if (lp >= 16)
-                              {
-                                console_putstr ((int) con_unit_idx, "\f");
-                                //* textp ++ = '\f';
-                              }
-                            else
-                              {
-                                for (uint i = 0; i < lp; i ++)
-                                  {
-                                    console_putstr ((int) con_unit_idx, "\r\n");
-                                    //* textp ++ = '\r';
-                                    //* textp ++ = '\n';
-                                  }
-                              }
-                            escape_cnt = 0;
-                          }
-                        else if (ch == '?')
-                          {
-                            escape_cnt = 0;
-                          }
-                        else
-                          {
-                            console_putchar ((int) con_unit_idx, ch);
-                            * textp ++ = ch;
-                            escape_cnt = 0;
-                          }
-                      }
-                  }
-                else
-                  {
-                    for (int i = 0; i < 4; i ++)
-                      {
-                        word36 wide_char = datum >> 27; // slide leftmost char
-                                                        //  into low byte
-                        datum = datum << 9; // lose the leftmost char
-                        char ch = wide_char & 0x7f;
-                        if (ch != 0177 && ch != 0)
-                          {
-                            console_putchar ((int) con_unit_idx, ch);
-                            * textp ++ = ch;
-                          }
-                      }
-                  }
+            }
+          } else {
+            for (int i = 0; i < 4; i ++) {
+              word36 wide_char = datum >> 27; // slide leftmost char
+                                              //  into low byte
+              datum = datum << 9; // lose the leftmost char
+              char ch = wide_char & 0x7f;
+              if (ch != 0177 && ch != 0) {
+                console_putchar ((int) con_unit_idx, ch);
+                * textp ++ = ch;
               }
+            }
+          }
+        }
+        * textp ++ = 0;
 
-#endif
-            * textp ++ = 0;
+        // autoinput expect
+        if (csp->autop && * csp->autop == 030) {
+          //   ^xstring\0
+          //size_t expl = strlen ((char *) (csp->autop + 1));
+          //   ^xstring^x
+          size_t expl = strcspn ((char *) (csp->autop + 1), "\030");
 
-            // autoinput expect
-            if (csp->autop && * csp->autop == 030)
-              {
-                //   ^xstring\0
-                //size_t expl = strlen ((char *) (csp->autop + 1));
-                //   ^xstring^x
-                size_t expl = strcspn ((char *) (csp->autop + 1), "\030");
-
-                if (strncmp (text, (char *) (csp->autop + 1), expl) == 0)
-                  {
-                    csp->autop += expl + 2;
+          if (strncmp (text, (char *) (csp->autop + 1), expl) == 0) {
+            csp->autop += expl + 2;
 #ifdef LOCKLESS
-                    // 1K ~= 1 sec
-                    sim_activate (& attn_unit[con_unit_idx], 1000);
+            // 1K ~= 1 sec
+            sim_activate (& attn_unit[con_unit_idx], 1000);
 #else
-                    // 4M ~= 1 sec
-                    sim_activate (& attn_unit[con_unit_idx], 4000000);
+            // 4M ~= 1 sec
+            sim_activate (& attn_unit[con_unit_idx], 4000000);
 #endif
-                  }
-              }
-            // autoinput expect
-            if (csp->autop && * csp->autop == 031)
-              {
-                //   ^ystring\0
-                //size_t expl = strlen ((char *) (csp->autop + 1));
-                //   ^ystring^y
-                size_t expl = strcspn ((char *) (csp->autop + 1), "\031");
+          }
+        }
+        // autoinput expect
+        if (csp->autop && * csp->autop == 031) {
+          //   ^ystring\0
+          //size_t expl = strlen ((char *) (csp->autop + 1));
+          //   ^ystring^y
+          size_t expl = strcspn ((char *) (csp->autop + 1), "\031");
 
-                char needle [expl + 1];
-                strncpy (needle, (char *) csp->autop + 1, expl);
-                needle [expl] = 0;
-                if (strstr (text, needle))
-                  {
-                    csp->autop += expl + 2;
+          char needle [expl + 1];
+          strncpy (needle, (char *) csp->autop + 1, expl);
+          needle [expl] = 0;
+          if (strstr (text, needle)) {
+            csp->autop += expl + 2;
 #ifdef LOCKLESS
-                    // 1K ~= 1 sec
-                    sim_activate (& attn_unit[con_unit_idx], 1000);
+            // 1K ~= 1 sec
+            sim_activate (& attn_unit[con_unit_idx], 1000);
 #else
-                    // 4M ~= 1 sec
-                    sim_activate (& attn_unit[con_unit_idx], 4000000);
+            // 4M ~= 1 sec
+            sim_activate (& attn_unit[con_unit_idx], 4000000);
 #endif
-                  }
-              }
-            handleRCP (text);
+          }
+        }
+        handleRCP (text);
 #ifndef __MINGW64__
-            newlineOn ();
+        newlineOn ();
 #endif
-            p->stati = 04000;
-          } // case opc_write_mode
-      } // switch io_mode
+        p->stati = 04000;
+    } // case opc_write_mode
+  } // switch io_mode
 
-#if 0
-    // IOTD?
-    if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
-      {
-        sim_debug (DBG_DEBUG | DBG_TRACE, & opc_dev, "%s: Terminate on IOTD\n", __func__);
-        rc = IOM_CMD_DISCONNECT;
-      }
-#endif
 done:
 #ifdef LOCKLESS
-    unlock_libuv ();
+  unlock_libuv ();
 #endif
-    return rc;
-  } // opc_iom_cmd
+  return rc;
+} // opc_iom_cmd
 
 static t_stat opc_svc (UNIT * unitp)
   {

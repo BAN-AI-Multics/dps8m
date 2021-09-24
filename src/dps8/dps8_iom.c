@@ -2553,10 +2553,12 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
         p -> IDCW_CHAN_CTRL =    getbits36_2 (p -> DCW, 22);
         p -> IDCW_CHAN_CMD =     getbits36_6 (p -> DCW, 24);
         p -> IDCW_COUNT =        getbits36_6 (p -> DCW, 30);
+#ifdef TESTING
         sim_debug (DBG_DEBUG, & iom_dev,
                    "%s: IDCW %012llo cmd %02o (%s) dev %02o ctrl %o chancmd %o\n", 
                    __func__, p->DCW, p->IDCW_DEV_CMD, cmdNames[p->IDCW_DEV_CMD], 
                    p->IDCW_DEV_CODE, p->IDCW_CHAN_CTRL, p->IDCW_CHAN_CMD);
+#endif
       }
     else // TDCW or DDCW
       {
@@ -3437,6 +3439,7 @@ static int doConnectChan (uint iom_unit_idx)
           }
         else
           {
+#ifdef TESTING
             if_sim_debug (DBG_TRACE, & iom_dev) {
               if (first) {
                 first = false;
@@ -3455,6 +3458,7 @@ static int doConnectChan (uint iom_unit_idx)
                 sim_printf ("//\r\n");
               }
             }
+#endif
             // Copy the PCW's DCW to the payload channel
             iom_chan_data_t * q = & iom_chan_data[iom_unit_idx][p -> PCW_CHAN];
 

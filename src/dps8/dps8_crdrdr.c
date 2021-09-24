@@ -699,34 +699,6 @@ sim_printf ("\n");
     // Card images are 80 columns.
     uint tally = 27;
 
-// Process DDCW
-
-    bool ptro, send, uff;
-
-    int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-    if (rc < 0)
-      {
-        p -> stati = 05001; // BUG: arbitrary error code; config switch
-        sim_printf ("%s list service failed\n", __func__);
-        return IOM_CMD_ERROR;
-      }
-    if (uff)
-      {
-        sim_printf ("%s ignoring uff\n", __func__); // XXX
-      }
-    if (! send)
-      {
-        sim_printf ("%s nothing to send\n", __func__);
-        p -> stati = 05001; // BUG: arbitrary error code; config switch
-        return IOM_CMD_ERROR;
-      }
-    if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
-      {
-        sim_printf ("%s expected DDCW\n", __func__);
-        p -> stati = 05001; // BUG: arbitrary error code; config switch
-        return IOM_CMD_ERROR;
-      }
-
     iom_indirect_data_service (iomUnitIdx, chan, buffer,
                             & tally, true);
     p -> initiate = false;
@@ -734,64 +706,9 @@ sim_printf ("\n");
     p -> tallyResidue = (word12) tally & MASK12;
     p -> charPos = 0;
 
-    if (p -> DDCW_22_23_TYPE != 0)
-      sim_warn ("curious... a card read with more than one DDCW?\n");
-
     return IOM_CMD_PROCEED;
   }
 
-#if 0
-static int rdr_cmd (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-    uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    uint unitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
-    // XXX in_use not being checked?
-    //if (unitIdx < 0)
-    //  {
-    //    sim_warn ("rdr_cmd can't find unit\n");
-    //    return IOM_CMD_ERROR;
-    //  }
-    rdr_state [unitIdx] . running = true;
-
-    sim_debug (DBG_TRACE, & rdr_dev, "IDCW_DEV_CMD %o\n", p -> IDCW_DEV_CMD);
-    switch (p -> IDCW_DEV_CMD)
-      {
-        case 000: // CMD 00 Request status
-          {
-            p -> stati = 04000;
-            sim_debug (DBG_NOTIFY, & rdr_dev, "Request status\n");
-          }
-          break;
-
-        case 001: // CMD 01 Read binary
-          {
-            int rc = rdrReadRecord (iomUnitIdx, chan);
-            if (rc)
-              return rc;
-          }
-          break;
-
-        case 040: // CMD 40 Reset status
-          {
-            p -> stati = 04000;
-            p -> isRead = false;
-            sim_debug (DBG_NOTIFY, & rdr_dev, "Reset status\n");
-          }
-          break;
-
-        default:
-          {
-            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("card reader daze %o\n", p -> IDCW_DEV_CMD);
-            p -> stati = 04501; // cmd reject, invalid opcode
-            p -> chanStatus = chanStatIncorrectDCW;
-          }
-          return IOM_CMD_ERROR;
-      }
-    return IOM_CMD_PROCEED;
-  }
-#endif
 static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
   {
     if (readerIndex >= N_RDR_UNITS_MAX) {
@@ -935,109 +852,74 @@ void rdrCardReady (int unitNum)
     send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0377, 0377 /* card reader to ready */);
   }
 
-iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan)
-  {
-    iom_cmd_rc_t rc = IOM_CMD_PROCEED;
-#if 0
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
+  iom_cmd_rc_t rc = IOM_CMD_PROCEED;
+  iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+  uint dev_code = p->IDCW_DEV_CODE;
 
-    // Is it an IDCW?
-    if (p -> DCW_18_20_CP == 7)
-      {
-        return rdr_cmd (iomUnitIdx, chan);
-      }
-    sim_printf ("%s expected IDCW\n", __func__);
-    return IOM_CMD_ERROR;
-#endif
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-    uint dev_code = p -> IDCW_DEV_CODE;
+  sim_debug (DBG_TRACE, & rdr_dev, "%s: RDR %c%02o_%02o\n", __func__, iomChar (iomUnitIdx), chan, dev_code);
 
-    sim_debug (DBG_TRACE, & rdr_dev, "%s: RDR %c%02o_%02o\n",
-               __func__, iomChar (iomUnitIdx), chan, dev_code);
+  uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+  uint unitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
+  struct rdr_state * statep = & rdr_state[unitIdx];
+  statep->running = true;
 
-    uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    uint unitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
-    struct rdr_state * statep = & rdr_state[unitIdx];
-    statep->running = true;
+  // IDCW?
+  if (p->DCW_18_20_CP == 7) {
+    // IDCW
+    statep->io_mode = rdr_no_mode;
 
-    // IDCW?
-    if (p -> DCW_18_20_CP == 7)
-      {
-        // IDCW
-        statep->io_mode = rdr_no_mode;
+    switch (p->IDCW_DEV_CMD) {
 
-        switch (p -> IDCW_DEV_CMD)
-          {
-            case 000: // CMD 00 Request status
-              sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
-              p->stati = 04000;
-              break;
+      case 000: // CMD 00 Request status
+        sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
+        p->stati = 04000;
+        break;
 
-            case 001: // CMD 01 Read binary
-              sim_debug (DBG_DEBUG, & rdr_dev, "%s: Read Binary\n", __func__);
-              statep->io_mode = rdr_rd_bin;
-              p->stati = 04000;
-              break;
+     case 001: // CMD 01 Read binary
+       sim_debug (DBG_DEBUG, & rdr_dev, "%s: Read Binary\n", __func__);
+       statep->io_mode = rdr_rd_bin;
+       p->stati = 04000;
+       break;
 
-#if 0 // REWRITE7
-              {
-            int rc = rdrReadRecord (iomUnitIdx, chan);
-            if (rc)
-              return rc;
-          }
-          break;
-#endif
+     case 040: // CMD 40 Reset status
+       sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
+       p->stati = 04000;
+       p->isRead = false;
+       break;
 
-
-            case 040: // CMD 40 Reset status
-              sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
-              p->stati = 04000;
-              p->isRead = false;
-              break;
-
-            default:
-              if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-                sim_warn ("%s: RDR unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
-              p->stati = 04501; // cmd reject, invalid opcode
-              p->chanStatus = chanStatIncorrectDCW;
-              return IOM_CMD_ERROR;
-          } // switch IDCW_DEV_CMD
+     default:
+       if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+         sim_warn ("%s: RDR unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+       p->stati = 04501; // cmd reject, invalid opcode
+       p->chanStatus = chanStatIncorrectDCW;
+       return IOM_CMD_ERROR;
+     } // switch IDCW_DEV_CMD
     
-        sim_debug (DBG_DEBUG, & rdr_dev, "%s: stati %04o\n", __func__, p -> stati);
-        return IOM_CMD_PROCEED;
-      } // if IDCW
+     sim_debug (DBG_DEBUG, & rdr_dev, "%s: stati %04o\n", __func__, p->stati);
+     return IOM_CMD_PROCEED;
+   } // if IDCW
 
     // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
-    switch (statep->io_mode)
-      {
-        case rdr_no_mode:
-sim_printf ("%s: Unexpected IOTx\n", __func__);
-          sim_warn ("%s: Unexpected IOTx\n", __func__);
-          return IOM_CMD_ERROR;
+    switch (statep->io_mode) {
+      case rdr_no_mode:
+        //sim_printf ("%s: Unexpected IOTx\n", __func__);
+        //sim_warn ("%s: Unexpected IOTx\n", __func__);
+        //return IOM_CMD_ERROR;
+        break;
 
-        case rdr_rd_bin:
-          {
-            int rc = rdrReadRecord (iomUnitIdx, chan);
-            if (rc)
-              return IOM_CMD_ERROR;
-          }
-          break;
+      case rdr_rd_bin: {
+          int rc = rdrReadRecord (iomUnitIdx, chan);
+          if (rc)
+            return IOM_CMD_ERROR;
+        }
+        break;
 
-         default:
-          sim_warn ("%s: Unrecognized io_mode %d\n", __func__, statep->io_mode);
-          return IOM_CMD_ERROR;
-      }
-
-#if 0
-    // IOTD?
-    if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) 
-      {
-        sim_debug (DBG_DEBUG | DBG_TRACE, & rdr_dev, "%s: Terminate on IOTD\n", __func__);
-        return IOM_CMD_DISCONNECT;
-      }
-#endif
+      default:
+        sim_warn ("%s: Unrecognized io_mode %d\n", __func__, statep->io_mode);
+        return IOM_CMD_ERROR;
+    }
     return rc;
-
   }
 
 static t_stat rdr_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
