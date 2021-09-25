@@ -789,7 +789,7 @@ static char * cmdNames [] =
     "",                      // 37
     "Reset Status",          // 40
     "Set 6250 CPI",          // 41
-    "",                      // 42
+    "Restore",               // 42
     "",                      // 43
     "Forward Skip Rcrd",     // 44
     "Forward Skip File",     // 45
@@ -2373,13 +2373,11 @@ void dumpDCW (word36 DCW, word1 LPW_23_REL) {
     word2 IDCW_CHAN_CTRL =    getbits36_2 (DCW, 22);
     word6 IDCW_CHAN_CMD =     getbits36_6 (DCW, 24);
     word6 IDCW_COUNT =        getbits36_6 (DCW, 30);
-    if_sim_debug (DBG_TRACE, & iom_dev) {
-      sim_printf ("//   IDCW %012llo\r\n", DCW);
-      sim_printf ("//     cmd             %02o %s\r\n", IDCW_DEV_CMD, cmdNames[IDCW_DEV_CMD]);
-      sim_printf ("//     dev code        %02o\r\n", IDCW_DEV_CODE);
-      sim_printf ("//     ctrl             %o (%s)\r\n", IDCW_CHAN_CTRL, charCtrls[IDCW_CHAN_CTRL]);
-      sim_printf ("//     chancmd          %o (%s)\r\n", IDCW_CHAN_CMD, IDCW_CHAN_CMD < 16 ? chanCmds[IDCW_CHAN_CMD] : "unknown");
-    }
+    sim_printf ("//   IDCW %012llo\r\n", DCW);
+    sim_printf ("//     cmd             %02o %s\r\n", IDCW_DEV_CMD, cmdNames[IDCW_DEV_CMD]);
+    sim_printf ("//     dev code        %02o\r\n", IDCW_DEV_CODE);
+    sim_printf ("//     ctrl             %o (%s)\r\n", IDCW_CHAN_CTRL, charCtrls[IDCW_CHAN_CTRL]);
+    sim_printf ("//     chancmd          %o (%s)\r\n", IDCW_CHAN_CMD, IDCW_CHAN_CMD < 16 ? chanCmds[IDCW_CHAN_CMD] : "unknown");
   } else { // TDCW or DDCW
     word18 TDCW_DATA_ADDRESS = getbits36_18 (DCW,  0);
     word1  TDCW_31_SEG =       getbits36_1 (DCW, 31);
@@ -2392,23 +2390,21 @@ void dumpDCW (word36 DCW, word1 LPW_23_REL) {
     word12 DDCW_TALLY =        getbits36_12 (DCW, 24);
     word18 DDCW_ADDR =         getbits36_18 (DCW,  0);
     word2  DDCW_22_23_TYPE =   getbits36_2 (DCW, 22);
-    if_sim_debug (DBG_TRACE, & iom_dev) {
-      static char * types[4] = { "IOTD", "IOTP", "TDCW", "IONTP" };
-      if (DDCW_22_23_TYPE == 2) {
-        sim_printf ("//   TDCW (2) %012llo\r\n", DCW);
-        sim_printf ("//     dcw ptr   %06o\r\n", TDCW_DATA_ADDRESS);
-        sim_printf ("//     seg            %o\r\n", TDCW_31_SEG);
-        sim_printf ("//     pdta           %o\r\n", TDCW_32_PDTA);
-        sim_printf ("//     pdcw           %o\r\n", TDCW_33_PDCW);
-        sim_printf ("//     ec             %o\r\n", TDCW_33_EC);
-        sim_printf ("//     res            %o\r\n", TDCW_34_RES);
-        sim_printf ("//     rel            %o\r\n", TDCW_35_REL);
-      } else {
-        sim_printf ("//   %s (%o) %012llo\r\n", types[DDCW_22_23_TYPE], DDCW_22_23_TYPE, DCW);
-        sim_printf ("//     tally       %04o\r\n", DDCW_TALLY);
-        sim_printf ("//     addr            %02o\r\n", DDCW_ADDR);
-        sim_printf ("//     cp               %o\r\n", getbits36_3 (DCW, 18));
-      }
+    static char * types[4] = { "IOTD", "IOTP", "TDCW", "IONTP" };
+    if (DDCW_22_23_TYPE == 2) {
+      sim_printf ("//   TDCW (2) %012llo\r\n", DCW);
+      sim_printf ("//     dcw ptr   %06o\r\n", TDCW_DATA_ADDRESS);
+      sim_printf ("//     seg            %o\r\n", TDCW_31_SEG);
+      sim_printf ("//     pdta           %o\r\n", TDCW_32_PDTA);
+      sim_printf ("//     pdcw           %o\r\n", TDCW_33_PDCW);
+      sim_printf ("//     ec             %o\r\n", TDCW_33_EC);
+      sim_printf ("//     res            %o\r\n", TDCW_34_RES);
+      sim_printf ("//     rel            %o\r\n", TDCW_35_REL);
+    } else {
+      sim_printf ("//   %s (%o) %012llo\r\n", types[DDCW_22_23_TYPE], DDCW_22_23_TYPE, DCW);
+      sim_printf ("//     tally       %04o\r\n", DDCW_TALLY);
+      sim_printf ("//     addr            %02o\r\n", DDCW_ADDR);
+      sim_printf ("//     cp               %o\r\n", getbits36_3 (DCW, 18));
     }
   }
 }
@@ -2576,7 +2572,7 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
         sim_debug (DBG_DEBUG, & iom_dev,
                    "%s: TDCW/DDCW %012llo tally %04o addr %06o type %o\n",
                    __func__, p->DCW, p->DDCW_TALLY, p->DDCW_ADDR, p->DDCW_22_23_TYPE);
-        if_sim_debug (DBG_TRACE, & iom_dev) {
+if (chan == 014)        if_sim_debug (DBG_TRACE, & iom_dev) {
           static char * types[4] = { "IOTD", "IOTP", "TDCW", "IONTP" };
           if (p->DDCW_22_23_TYPE == 2) {
             sim_printf ("// TDCW (2) %012llo\r\n", p->DCW);
@@ -3317,7 +3313,7 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
     }
 
 #ifdef TESTING
-    if_sim_debug (DBG_TRACE, & iom_dev) {
+if (chan == 014)    if_sim_debug (DBG_TRACE, & iom_dev) {
       if (first) {
         first = false;
         dumpLPW (iomUnitIdx, chan);
@@ -3359,12 +3355,12 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
 
     // If IDCW and terminate and nondata
     if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
-      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
       goto terminate;
     }
     // If IOTP and last IDCW was terminate
     if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0 && idcw_terminate) {
-      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
       goto terminate;
     }
   } while (! terminate);
@@ -3420,7 +3416,7 @@ static int doConnectChan (uint iom_unit_idx) {
     if (! send) {
       sim_warn ("connect channel nothing to send\n");
     } else {
-#ifdef TESTING
+#ifdef xTESTING
       if_sim_debug (DBG_TRACE, & iom_dev) {
         if (first) {
           first = false;
@@ -3431,7 +3427,7 @@ static int doConnectChan (uint iom_unit_idx) {
           sim_printf ("//   Addr ext        %02o\r\n", p->PCW_AE);
           sim_printf ("//   111              %o\r\n", getbits36_3 (p->PCW0, 18));
           sim_printf ("//   M                %o\r\n", p->PCW_21_MSK);
-          sim_printf ("//   Chan info %08o\r\n", getbits36_14, p->PCW0);
+          sim_printf ("//   Chan info %08o\r\n", getbits36_14 (p->PCW0, 22));
           sim_printf ("//   Pg Tbl Ptr  %06o\r\n", p->PCW_PAGE_TABLE_PTR);
           sim_printf ("//   PTP              %o\r\n", p->PCW_63_PTP);
           sim_printf ("//   PGE              %o\r\n", p->PCW_64_PGE);
