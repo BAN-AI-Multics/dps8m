@@ -138,37 +138,49 @@ struct diskType_t
 //   1  223     "509"
 
 
+// fs_dev.sect_per_dev:
+//           vfd       36/4000000          Bulk
+//           vfd       36/814*40*19        MSU0500
+//           vfd       36/814*40*19        MSU0450
+//           vfd       36/410*40*19        MSU0400
+//           vfd       36/410*31*19        DSU190
+//           vfd       36/202*18*20        DSU181
+//           vfd       36/840*64*20        MSU0501
+//           vfd       36/885*255          FIPS 3380
+//           vfd       36/1770*255         FIPS 3381
+
 
 static struct diskType_t diskTypes[] =
   {
     { // disk_init assumes 3381 is at index 0
-      "3381", 22479, 0, false, seek_512, 512, 0
+      "3381", 1770*255, 0, false, seek_512, 512, 0
     },
     {
-      "d500", 38258, 1, false, seek_64, 64, 200
+      "d500", 814*40*19, 1, false, seek_64, 64, 200
     },
     {
-      "d451", 38258, 1, true, seek_64, 64, 154
+      "d451", 814*40*19, 1, true, seek_64, 64, 154
     },
     {
-      "d400", 19270, 1, true, seek_64, 64, 84 // d400 is a d190 with "high-efficiency format (40 sectors/track)"
+      "d400", 410*40*19, 1, true, seek_64, 64, 84 // d400 is a d190 with "high-efficiency format (40 sectors/track)"
     },
     {
-      "d190", 14760, 1, true, seek_64, 64, 84 // 190A 84, 190B 137
+      "d190", 410*31*19, 1, true, seek_64, 64, 84 // 190A 84, 190B 137
     },
     {
-      "d181", 4444, 1, true, seek_64, 64, 0 // no idea what the dau idx is
+      "d181", 202*18*20, 1, true, seek_64, 64, 0 // no idea what the dau idx is
     },
     {
-      "d501", 67200, 1, false, seek_64, 64, 201
+      "d501", 840*64*20, 1, false, seek_64, 64, 201
     },
     {
-      "3380", 112395, 0, false, seek_512, 512, 0 // 338x is never attached to a dau
+      "3380", 885*255, 0, false, seek_512, 512, 0 // 338x is never attached to a dau
     },
   };
 #define N_DISK_TYPES (sizeof (diskTypes) / sizeof (struct diskType_t))
 
-#define M3381_SECTORS 6895616
+#define M3381_SECTORS (1770*255)
+//#define M3381_SECTORS 6895616
 // records per subdev: 74930 (127 * 590)
 // number of sub-volumes: 3
 // records per dev: 3 * 74930 = 224790
@@ -650,6 +662,8 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
+    if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData); }
+
 //sim_printf ("seekData %012"PRIo64"\n", seekData);
 // Observations about the seek/write stream
 // the stream is seek512 followed by a write 1024.
@@ -662,7 +676,14 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 //   quentry.sector = bit (sector, 21);  /* Save the disk device address. */
 // suggests seeks are 21 bits.
 //
-    disk_statep->seekPosition = seekData & MASK21;
+    seekData &= MASK21;
+    if (seekData >= diskTypes[typeIdx].capac)
+      {
+sim_printf ("seek error\r\n");
+        p->stati = 04304; // Invalid seek address
+        return -1;
+      }
+    disk_statep->seekPosition = seekData;
     p->stati = 04000; // Channel ready
     return 0;
   }
@@ -707,7 +728,13 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 //   quentry.sector = bit (sector, 21);  /* Save the disk device address. */
 // suggests seeks are 21 bits.
 //
-    disk_statep->seekPosition = seekData & MASK21;
+    seekData &= MASK21;
+    if (seekData >= diskTypes[typeIdx].capac)
+      {
+        p->stati = 04304; // Invalid seek address
+        return -1;
+      }
+    disk_statep->seekPosition = seekData;
     p->stati = 04000; // Channel ready
     return 0;
   }

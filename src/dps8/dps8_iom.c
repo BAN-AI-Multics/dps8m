@@ -3355,6 +3355,7 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl =
   } while (! terminate);
 
 terminate:;
+if (chan == 014) sim_printf ("stati %04o\r\n", p->stati);
   send_terminate_interrupt (iomUnitIdx, chan);
   return 0;
 
