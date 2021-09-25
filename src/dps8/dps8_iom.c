@@ -3278,7 +3278,7 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
     goto terminate;
   }
 
-  if (p->DCW_18_20_CP == 7 && p->IDCW_CHAN_CTRL == CHAN_CTRL_MARKER) // IDCW marker bit set {
+  if (p->DCW_18_20_CP == 7 && p->IDCW_CHAN_CTRL == CHAN_CTRL_MARKER) { // IDCW marker bit set 
     send_marker_interrupt (iomUnitIdx, (int) chan);
   }
 
@@ -3335,7 +3335,7 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
 //          Multics and NSA systems, EC is inhibited from the payload channel
 //          if LPW bit 23 = 1.
 
-    if (p -> DCW_18_20_CP == 07) // IDCW {
+    if (p -> DCW_18_20_CP == 07) { // IDCW
       idcw_terminate = p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE;
       if (p -> LPW_23_REL == 0 && p -> IDCW_EC == 1)
         p -> ADDR_EXT = getbits36_6 (p -> DCW, 12);
