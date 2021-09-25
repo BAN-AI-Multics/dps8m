@@ -879,7 +879,7 @@ sim_printf ("dia_iom_cmd %u %u\r\n", iom_unit_idx, chan);
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 // Is it an IDCW?
 
-    if (p -> DCW_18_20_CP == 7)
+    if (IS_IDCW (p))
       {
         return dia_cmd (iom_unit_idx, chan);
       }

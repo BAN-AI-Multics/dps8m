@@ -86,6 +86,14 @@ typedef enum chanStat
 #define CHAN_CMD_NONDATA 2
 #define CHAN_CMD_MULTIRECORD 6
 #define CHAN_CMD_CHARACTER 8
+
+
+#define IS_IDCW(p) ((p)->DCW_18_20_CP == 07)
+#define IS_NOT_IDCW(p) ((p)->DCW_18_20_CP != 07)
+#define IS_TDCW(p) ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 2)
+#define IS_IOTD(p) ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 0)
+#define IS_IONTP(p) ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 3)
+
 // exercise_disk.pl1
 #define CHAN_CMD_INHIB_AUTO_RETRY 021
 // load_mpc.pl1

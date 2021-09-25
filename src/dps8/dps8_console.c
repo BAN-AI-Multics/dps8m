@@ -1108,7 +1108,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
   // will change this.
 
   // IDCW?
-  if (p->DCW_18_20_CP == 7) {
+  if (IS_IDCW (p)) {
     // IDCW
 
     switch (p->IDCW_DEV_CMD) {
@@ -1399,7 +1399,8 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         newlineOn ();
 #endif
         p->stati = 04000;
-    } // case opc_write_mode
+        goto done;
+      } // case opc_write_mode
   } // switch io_mode
 
 done:
@@ -1415,6 +1416,7 @@ static t_stat opc_svc (UNIT * unitp)
     uint ctlr_port_num = 0; // Consoles are single ported
     uint iom_unit_idx = cables->opc_to_iom[con_unit_idx][ctlr_port_num].iom_unit_idx;
     uint chan_num = cables->opc_to_iom[con_unit_idx][ctlr_port_num].chan_num;
+
     opc_iom_cmd (iom_unit_idx, chan_num);
     return SCPE_OK;
   }

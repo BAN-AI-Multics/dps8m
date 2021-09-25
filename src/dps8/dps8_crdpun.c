@@ -525,8 +525,7 @@ static int punWriteRecord (uint iomUnitIdx, uint chan)
     // Copy from core to buffer
     word36 buffer[p->DDCW_TALLY];
     uint wordsProcessed = 0;
-    iom_indirect_data_service (iomUnitIdx, chan, buffer,
-                               & wordsProcessed, false);
+    iom_indirect_data_service (iomUnitIdx, chan, buffer, & wordsProcessed, false);
     p->initiate = false;
 
 //TODO: The following is currently disabled and will be made an option in a new issue
@@ -600,7 +599,7 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
   struct pun_state * statep = & pun_state[devUnitIdx];
 
   // IDCW?
-  if (p->DCW_18_20_CP == 7) {
+  if (IS_IDCW (p)) {
     // IDCW
     statep->ioMode = punNoMode;
     switch (p->IDCW_DEV_CMD) {
@@ -653,13 +652,6 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
       sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }
-
-  // IOTD?
-  if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) {
-    sim_debug (DBG_DEBUG | DBG_TRACE, & pun_dev, "%s: Terminate on IOTD\n", __func__);
-    return IOM_CMD_DISCONNECT;
-  }
-
   return rc;
 }
 

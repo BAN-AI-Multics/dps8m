@@ -699,8 +699,7 @@ sim_printf ("\n");
     // Card images are 80 columns.
     uint tally = 27;
 
-    iom_indirect_data_service (iomUnitIdx, chan, buffer,
-                            & tally, true);
+    iom_indirect_data_service (iomUnitIdx, chan, buffer, & tally, true);
     p -> initiate = false;
     p -> stati = 04000; // ok
     p -> tallyResidue = (word12) tally & MASK12;
@@ -865,7 +864,7 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
   statep->running = true;
 
   // IDCW?
-  if (p->DCW_18_20_CP == 7) {
+  if (IS_IDCW (p)) {
     // IDCW
     statep->io_mode = rdr_no_mode;
 
