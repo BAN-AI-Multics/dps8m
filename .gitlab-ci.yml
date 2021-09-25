@@ -22,10 +22,7 @@
 
 .scriptInstallNfpm: &scriptInstallNfpm
     # scriptInstallNfpm
-    test -d /etc/apt && { mkdir -p /etc/apt/sources.list.d && echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y update; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y update; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y nfpm; };
-    test -d /etc/yum.repos.d && { echo '[goreleaser]' > /etc/yum.repos.d/goreleaser.repo && echo 'name=GoReleaser' >> /etc/yum.repos.d/goreleaser.repo && echo 'baseurl=https://repo.goreleaser.com/yum/' >> /etc/yum.repos.d/goreleaser.repo && echo 'enabled=1' >> /etc/yum.repos.d/goreleaser.repo && echo 'gpgcheck=0' >> /etc/yum.repos.d/goreleaser.repo && dnf -y --refresh install nfpm || yum install -y nfpm; };
-    sh -x -c 'which nfpm > /dev/null 2>&1 || { (cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh); };'
-    nfpm --version
+    sh -x -c 'which nfpm > /dev/null 2>&1 || { (cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh); || (cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh); };' && /usr/bin/nfpm --version
 
 ############################################################################
 
