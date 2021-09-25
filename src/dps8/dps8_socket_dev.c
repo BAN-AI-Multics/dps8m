@@ -751,7 +751,7 @@ static int get_ddcw (iom_chan_data_t * p, uint iom_unit_idx, uint chan, bool * p
         p->stati = 05001; // BUG: arbitrary error code; config switch
         return IOM_CMD_ERROR;
       }
-    if (p->DCW_18_20_CP == 07 || p->DDCW_22_23_TYPE == 2)
+    if (IS_IDCW (p) || IS_TDCW (p))
       {
         sim_warn ("%s expected DDCW\n", __func__);
         p->stati = 05001; // BUG: arbitrary error code; config switch
@@ -1056,7 +1056,7 @@ iom_cmd_rc_t skc_iom_cmd (uint iom_unit_idx, uint chan)
 // Is it an IDCW?
 
     int rc = 0;
-    if (p->DCW_18_20_CP == 7)
+    if (IS_IDCW (p))
       {
         rc = sk_cmd (iom_unit_idx, chan);
       }

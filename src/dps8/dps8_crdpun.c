@@ -1112,7 +1112,7 @@ static int punWriteRecord (uint iomUnitIdx, uint chan)
     word36 buffer [p -> DDCW_TALLY];
     uint wordsProcessed = 0;
     iom_indirect_data_service (iomUnitIdx, chan, buffer, & wordsProcessed, false);
-    p -> initiate = false;
+    p->initiate = false;
 
     if (pun_state [pun_unit_num] . log_cards)
       {
@@ -1137,7 +1137,7 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
   pun_state_t * statep = & pun_state[devUnitIdx];
 
   // IDCW?
-  if (p->DCW_18_20_CP == 07) {
+  if (IS_IDCW (p)) {
     // IDCW
     statep->ioMode = punNoMode;
     switch (p->IDCW_DEV_CMD) {

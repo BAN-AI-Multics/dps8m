@@ -257,7 +257,7 @@ static iom_cmd_rc_t absi_cmd (uint iomUnitIdx, uint chan)
 
 
     // Not IDCW?
-    if (p -> DCW_18_20_CP != 7)
+    if (IS_NOT_IDCW (p))
       {
         sim_warn ("%s: Unexpected IOTx\n", __func__);
         return IOM_CMD_ERROR;
@@ -330,7 +330,7 @@ iom_cmd_rc_t absi_iom_cmd (uint iomUnitIdx, uint chan)
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
 // Is it an IDCW?
 
-    if (p->DCW_18_20_CP == 7)
+    if (IS_IDCW (p))
       {
         return absi_cmd (iomUnitIdx, chan);
       }

@@ -1007,7 +1007,7 @@ static int print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, bool isBCD
             p -> stati = 05001; // BUG: arbitrary error code; config switch
             return IOM_CMD_ERROR;
           }
-        if (p -> DCW_18_20_CP == 07 || p -> DDCW_22_23_TYPE == 2)
+        if (IS_IDCW (p) || IS_TDCW (p))
           {
             sim_printf ("%s expected DDCW\n", __func__);
             p -> stati = 05001; // BUG: arbitrary error code; config switch
@@ -1084,7 +1084,7 @@ iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
   prt_state_t * statep = & prt_state[devUnitIdx];
 
   // IDCW?
-  if (p->DCW_18_20_CP == 7) {
+  if (IS_IDCW (p)) {
     // IDCW
     statep->ioMode = prtNoMode;
 
@@ -1164,7 +1164,7 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
   prt_state_t * statep = & prt_state[devUnitIdx];
 
   // IDCW?
-  if (p->DCW_18_20_CP == 7) {
+  if (IS_IDCW (p)) {
     // IDCW
     statep->ioMode = prtNoMode;
 
@@ -1245,13 +1245,6 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
       sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }
-
-  // IOTD?
-  if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) {
-    sim_debug (DBG_DEBUG | DBG_TRACE, & prt_dev, "%s: Terminate on IOTD\n", __func__);
-    return IOM_CMD_DISCONNECT;
-  }
-
   return IOM_CMD_PROCEED;
 }
 
@@ -1264,7 +1257,7 @@ iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
   prt_state_t * statep = & prt_state[devUnitIdx];
 
   // IDCW?
-  if (p->DCW_18_20_CP == 7) {
+  if (IS_IDCW (p)) {
     // IDCW
     statep->ioMode = prtNoMode;
 
@@ -1344,13 +1337,6 @@ iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
       sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }
-
-  // IOTD?
-  if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) {
-    sim_debug (DBG_DEBUG | DBG_TRACE, & prt_dev, "%s: Terminate on IOTD\n", __func__);
-    return IOM_CMD_DISCONNECT;
-  }
-
   return IOM_CMD_PROCEED;
 }
 
@@ -1363,7 +1349,7 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
   prt_state_t * statep = & prt_state[devUnitIdx];
 
   // IDCW?
-  if (p->DCW_18_20_CP == 7) {
+  if (IS_IDCW (p)) {
     // IDCW
     statep->ioMode = prtNoMode;
 
@@ -1695,13 +1681,6 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
       sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }
-
-  // IOTD?
-  if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0) {
-    sim_debug (DBG_DEBUG | DBG_TRACE, & prt_dev, "%s: Terminate on IOTD\n", __func__);
-    return IOM_CMD_DISCONNECT;
-  }
-
   return IOM_CMD_PROCEED;
 }
 

@@ -2453,7 +2453,7 @@ iom_cmd_rc_t fnp_iom_cmd (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 // Is it an IDCW?
 
-  if (p->DCW_18_20_CP == 7) {
+  if (IS_IDCW (p)) {
     return fnpCmd (iomUnitIdx, chan);
   }
   // else // DDCW/TDCW

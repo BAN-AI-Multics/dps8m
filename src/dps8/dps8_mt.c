@@ -1360,7 +1360,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
   iom_cmd_rc_t rc = IOM_CMD_PROCEED;
 
   // IDCW?
-  if (p->DCW_18_20_CP == 7) {
+  if (IS_IDCW (p)) {
     // IDCW
 
     // According to poll_mpc.pl1

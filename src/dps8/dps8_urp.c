@@ -214,7 +214,7 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
  struct urpState * statep = & urpState[devUnitIdx];
 
  // IDCW?
- if (p->DCW_18_20_CP == 7) {
+ if (IS_IDCW (p)) {
     // IDCW
     statep->ioMode = urpNoMode;
 

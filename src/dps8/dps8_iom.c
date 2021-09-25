@@ -2133,93 +2133,82 @@ void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36
 // For read, '*cnt' will be set to the number of words transfered.
 // Caller responsibility to allocate 'data' large enough to accommodate
 // 'tally' words.
-void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
-                             uint * cnt, bool write)
-  {
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uint * cnt, bool write) {
+  iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
-    if (p -> masked)
-      return;
+  if (p->masked)
+    return;
 
-// tape_ioi_io.pl1  "If the initiate bit is set in the status, no data was
-//                   transferred (no tape movement occurred)."
-    p->initiate = false;
+  // tape_ioi_io.pl1  "If the initiate bit is set in the status, no data was
+  //                   transferred (no tape movement occurred)."
+  p->initiate = false;
 
-    uint tally = p -> DDCW_TALLY;
-    uint daddr = p -> DDCW_ADDR;
-    if (tally == 0)
-      {
-        //sim_debug (DBG_DEBUG, & iom_dev,
-                   //"%s: Tally of zero interpreted as 010000(4096)\n",
-                   //__func__);
-        tally = 4096;
-      }
-    p -> tallyResidue = (word12) tally;
-
-    if (write)
-      {
-        uint c = * cnt;
-        while (p -> tallyResidue)
-          {
-            if (c == 0)
-              break; // read buffer exhausted; returns w/tallyResidue != 0
-
-            if (p -> PCW_63_PTP && p -> PCW_64_PGE)
-              {
-                fetch_IDSPTW (iom_unit_idx, (int) chan, daddr);
-                word24 addr = ((word24) (getbits36_14 (p -> PTW_DCW, 4) << 10)) | (daddr & MASK10);
-                iom_core_write (iom_unit_idx, addr, * data, __func__);
-              }
-            else
-              {
-                if (daddr > MASK18) // 256K overflow
-                  {
-                    sim_warn ("%s 256K ovf\n", __func__); // XXX
-                    daddr &= MASK18;
-                  }
-// If PTP is not set, we are in cm1e or cm2e. Both are 'EXT DCW', so
-// we can elide the mode check here.
-                uint daddr2 = daddr | (uint) p -> ADDR_EXT << 18;
-                iom_core_write (iom_unit_idx, daddr2, * data, __func__);
-              }
-            daddr ++;
-            data ++;
-            p -> tallyResidue --;
-            c --;
-          }
-      }
-    else // read
-      {
-        uint c = 0;
-        while (p -> tallyResidue)
-          {
-            if (p -> PCW_63_PTP  && p -> PCW_64_PGE)
-              {
-                fetch_IDSPTW (iom_unit_idx, (int) chan, daddr);
-                word24 addr = ((word24) (getbits36_14 (p -> PTW_DCW, 4) << 10)) | (daddr & MASK10);
-                iom_core_read (iom_unit_idx, addr, data, __func__);
-              }
-            else
-              {
-// XXX assuming DCW_ABS
-                if (daddr > MASK18) // 256K overflow
-                  {
-                    sim_warn ("%s 256K ovf\n", __func__); // XXX
-                    daddr &= MASK18;
-                  }
-// If PTP is not set, we are in cm1e or cm2e. Both are 'EXT DCW', so
-// we can elide the mode check here.
-                uint daddr2 = daddr | (uint) p -> ADDR_EXT << 18;
-                iom_core_read (iom_unit_idx, daddr2, data, __func__);
-              }
-            daddr ++;
-            p -> tallyResidue --;
-            data ++;
-            c ++;
-          }
-        * cnt = c;
-      }
+  uint tally = p->DDCW_TALLY;
+  uint daddr = p->DDCW_ADDR;
+  if (tally == 0) {
+    tally = 4096;
   }
+  p->tallyResidue = (word12) tally;
+
+  if (write) {
+    uint c = * cnt;
+    while (p->tallyResidue) {
+      if (c == 0)
+        break; // read buffer exhausted; returns w/tallyResidue != 0
+
+      if (! IS_IONTP (p)) {
+        if (p->PCW_63_PTP && p->PCW_64_PGE) {
+          fetch_IDSPTW (iom_unit_idx, (int) chan, daddr);
+          word24 addr = ((word24) (getbits36_14 (p -> PTW_DCW, 4) << 10)) | (daddr & MASK10);
+          iom_core_write (iom_unit_idx, addr, * data, __func__);
+        } else {
+          if (daddr > MASK18) { // 256K overflow
+            sim_warn ("%s 256K ovf\n", __func__); // XXX
+            daddr &= MASK18;
+          }
+
+          // If PTP is not set, we are in cm1e or cm2e. Both are 'EXT DCW', so
+          // we can elide the mode check here.
+          uint daddr2 = daddr | (uint) p->ADDR_EXT << 18;
+          iom_core_write (iom_unit_idx, daddr2, * data, __func__);
+        }
+      }
+      daddr ++;
+      data ++;
+      p->tallyResidue --;
+      c --;
+    }
+  } else { // read
+    uint c = 0;
+    while (p -> tallyResidue) {
+      if (IS_IONTP (p)) {
+        * data = 0;
+      } else {
+        if (p -> PCW_63_PTP  && p -> PCW_64_PGE) {
+          fetch_IDSPTW (iom_unit_idx, (int) chan, daddr);
+          word24 addr = ((word24) (getbits36_14 (p -> PTW_DCW, 4) << 10)) | (daddr & MASK10);
+          iom_core_read (iom_unit_idx, addr, data, __func__);
+        } else {
+          // XXX assuming DCW_ABS
+          if (daddr > MASK18) { // 256K overflow
+            sim_warn ("%s 256K ovf\n", __func__); // XXX
+            daddr &= MASK18;
+          }
+
+          // If PTP is not set, we are in cm1e or cm2e. Both are 'EXT DCW', so
+          // we can elide the mode check here.
+          uint daddr2 = daddr | (uint) p -> ADDR_EXT << 18;
+          iom_core_read (iom_unit_idx, daddr2, data, __func__);
+        }
+      }
+      daddr ++;
+      p->tallyResidue --;
+      data ++;
+      c ++;
+    }
+    * cnt = c;
+  }
+}
 
 static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
   {
@@ -2535,7 +2524,7 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     p -> DCW_18_20_CP =      getbits36_3 (p -> DCW, 18);
 
-    if (p -> DCW_18_20_CP == 07) // IDCW
+    if (IS_IDCW (p)) // IDCW
       {
         p -> IDCW_DEV_CMD =      getbits36_6 (p -> DCW,  0);
         p -> IDCW_DEV_CODE =     getbits36_6 (p -> DCW,  6);
@@ -2681,7 +2670,7 @@ static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_
       }
     unpack_DCW (iom_unit_idx, chan);
 
-    if (p -> DCW_18_20_CP == 07)
+    if (IS_IDCW (p))
       sim_debug (DBG_DEBUG, & iom_dev,
                  "%s: chan %d idcw: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
                  __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
@@ -2904,7 +2893,7 @@ int iom_list_service (uint iom_unit_idx, uint chan,
         fetch_and_parse_PCW (iom_unit_idx, chan); // fills in DCW*
 
         // PCW 18-20 == 111?
-        if (p -> DCW_18_20_CP != 07u)
+        if (IS_NOT_IDCW (p))
           {
             iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__,
                       p -> lsFirst ? iomFsrFirstList : iomFsrList,
@@ -2984,7 +2973,7 @@ A:;
 
     // IDCW ?
 
-    if (p -> DCW_18_20_CP == 7)
+    if (IS_IDCW (p))
       {
 
         // LPW_18_RES?
@@ -3019,7 +3008,7 @@ A:;
 
     // TDCW ?
 
-    if (p -> DCW_18_20_CP != 7 && p -> DDCW_22_23_TYPE == 2)
+    if (IS_TDCW (p))
       {
         // SECOND TDCW?
         if (p -> wasTDCW)
@@ -3174,7 +3163,7 @@ D:;
     else
       {
         if (p -> LPW_21_NC == 0 ||
-            (p -> DCW_18_20_CP != 7 && p -> DDCW_22_23_TYPE == 2))
+            (IS_TDCW (p)))
           {
             // WRITE LPW INTO BOTH SCRATCHPAD AND CORE MAILBOXES
             // scratch pad
@@ -3274,7 +3263,7 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
     goto terminate;
   }
 
-  if (p->DCW_18_20_CP == 7 && p->IDCW_CHAN_CTRL == CHAN_CTRL_MARKER) { // IDCW marker bit set 
+  if (IS_IDCW (p) && p->IDCW_CHAN_CTRL == CHAN_CTRL_MARKER) { // IDCW marker bit set 
     send_marker_interrupt (iomUnitIdx, (int) chan);
   }
 
@@ -3331,7 +3320,7 @@ if (chan == 014)    if_sim_debug (DBG_TRACE, & iom_dev) {
 //          Multics and NSA systems, EC is inhibited from the payload channel
 //          if LPW bit 23 = 1.
 
-    if (p -> DCW_18_20_CP == 07) { // IDCW
+    if (IS_IDCW (p)) { // IDCW
       idcw_terminate = p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE;
       if (p -> LPW_23_REL == 0 && p -> IDCW_EC == 1)
         p -> ADDR_EXT = getbits36_6 (p -> DCW, 12);
@@ -3354,12 +3343,12 @@ if (chan == 014)    if_sim_debug (DBG_TRACE, & iom_dev) {
       goto pending;                // terminate intrrupt.
 
     // If IDCW and terminate and nondata
-    if (p->DCW_18_20_CP == 07 && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
+    if (IS_IDCW (p) && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
 if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
       goto terminate;
     }
-    // If IOTP and last IDCW was terminate
-    if (p->DCW_18_20_CP != 07 && p->DDCW_22_23_TYPE == 0 && idcw_terminate) {
+    // If IOTD and last IDCW was terminate
+    if (IS_IOTD (p) && idcw_terminate) {
 if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
       goto terminate;
     }
