@@ -739,6 +739,63 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     return 0;
   }
 
+static int diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan)
+  {
+    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+    struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
+
+    uint typeIdx = disk_statep->typeIdx;
+    //if (diskTypes[typeIdx].seekSize != seek_64)
+      //sim_warn ("%s: disk%u sent a SEEK_64 but is 512 sized\n", __func__, typeIdx);
+
+    uint tally = p->DDCW_TALLY;
+
+    // Seek specific processing
+
+    if (tally != 1)
+      {
+        sim_printf ("disk seek dazed by tally %d != 1\n", tally);
+        p->stati = 04510; // Cmd reject, invalid inst. seq.
+        p->chanStatus = chanStatIncorrectDCW;
+        return -1;
+      }
+
+    word36 seekData;
+    uint count;
+    iom_indirect_data_service (iomUnitIdx, chan, & seekData, &count, false);
+    // POLTS claims that seek data doesn't count as an I/O xfer
+    p->initiate = true;
+    if (count != 1)
+      sim_warn ("%s: count %d not 1\n", __func__, count);
+
+    if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData); }
+
+//sim_printf ("seekData %012"PRIo64"\n", seekData);
+// Observations about the seek/write stream
+// the stream is seek512 followed by a write 1024.
+// the seek data is:  000300nnnnnn
+// lets assume the 3 is a copy of the seek cmd # as a data integrity check.
+// highest observed n during vol. inoit. 272657(8) 95663(10)
+//
+
+// disk_control.pl1:
+//   quentry.sector = bit (sector, 21);  /* Save the disk device address. */
+// suggests seeks are 21 bits.
+//
+    seekData &= MASK21;
+#if 0
+    if (seekData >= diskTypes[typeIdx].capac)
+      {
+sim_printf ("seek error\r\n");
+        p->stati = 04304; // Invalid seek address
+        return -1;
+      }
+#endif
+    disk_statep->seekPosition = seekData;
+    p->stati = 04000; // Channel ready
+    return 0;
+  }
+
 static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
@@ -1400,12 +1457,23 @@ if (chan == 014)        if_sim_debug (DBG_TRACE, & dsk_dev) {
       }
       break;
 
-    case disk_seek_64:
-    case disk_special_seek: { // Make it work like SEEK_64 and hope for the best
+    case disk_seek_64: {
 if (chan == 014)        if_sim_debug (DBG_TRACE, & dsk_dev) {
           sim_printf ("// Disk IOT Seek 64\r\n");
         }
         int rc1 = diskSeek64 (devUnitIdx, iomUnitIdx, chan);
+        if (rc1) {
+          rc = IOM_CMD_ERROR;
+          goto done;
+        }
+      }
+      break;
+
+    case disk_special_seek: { // Make it work like SEEK_64 and hope for the best
+if (chan == 014)        if_sim_debug (DBG_TRACE, & dsk_dev) {
+          sim_printf ("// Disk IOT special seek\r\n");
+        }
+        int rc1 = diskSeekSpecial (devUnitIdx, iomUnitIdx, chan);
         if (rc1) {
           rc = IOM_CMD_ERROR;
           goto done;
