@@ -99,6 +99,7 @@ struct decoded_t
 // Debugging...
 //
 
+#ifdef FNPDBG
 static void dmpmbx (uint mailboxAddress)
   {
     struct mailbox mbx;
@@ -141,6 +142,7 @@ static void dmpmbx (uint mailboxAddress)
       }
 
   }
+#endif
 
 //
 // wcd; Multics has sent a Write Control Data command to the FNP
