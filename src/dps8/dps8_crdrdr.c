@@ -456,186 +456,176 @@ static int getRawCardData (int fd, uint8_t * buffer)
     return (int) rc;
   }
 
-static int rdrReadRecord (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-    sim_debug (DBG_NOTIFY, & rdr_dev, "Read binary\n");
-    uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    uint unitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
-    // XXX in_use not being checked?
-    //if (unitIdx < 0)
-    //  {
-    //    sim_warn ("rdrReadRecord can't find unit\n");
-    //    return IOM_CMD_ERROR;
-    //  }
+#ifdef TESTING
+static bool empty = false;
+#endif
 
-    if (rdr_state [unitIdx] . deckfd < 0)
-       {
+static int rdrReadRecord (uint iomUnitIdx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+  sim_debug (DBG_NOTIFY, & rdr_dev, "Read binary\n");
+  uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+  uint unitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
+  // XXX in_use not being checked?
+  //if (unitIdx < 0)
+  //  {
+  //    sim_warn ("rdrReadRecord can't find unit\n");
+  //    return IOM_CMD_ERROR;
+  //  }
+
+  if (rdr_state [unitIdx].deckfd < 0) {
 empty:;
-          p -> stati = 04201; // hopper empty
-          //p -> stati = 04205; // hopper empty, "last batch" button pressed
-          //p -> stati = 04200; // offline
-          //p -> stati = 04240; // data alert
-          p -> tallyResidue = 0;
-sim_printf ("hopper empty\n");
-          return IOM_CMD_ERROR;
-       }
+    p->stati = 04201; // hopper empty
+    //p->stati = 04205; // hopper empty, "last batch" button pressed
+    //p->stati = 04200; // offline
+    //p->stati = 04240; // data alert
+    p->tallyResidue = 0;
+#ifdef TESTING
+    if (! empty)
+      sim_printf ("hopper empty\n");
+    empty = true;
+#endif
+    return IOM_CMD_ERROR;
+  }
+#ifdef TESTING
+  sim_printf ("hopper not empty\n");
+  empty = false;
+#endif
+  unsigned char cardImage [80] = "";
+  uint8_t rawCardImage [rawCardImageBytes + 2 ];
+  size_t l = 0;
+  // initialize to quiet compiler
+  enum deckFormat thisCard = cardDeck;
 
-    unsigned char cardImage [80] = "";
-    uint8_t rawCardImage [rawCardImageBytes + 2 ];
-    size_t l = 0;
-    // initialize to quiet compiler
-    enum deckFormat thisCard = cardDeck;
+  static int jobNo = 0;
 
-    static int jobNo = 0;
+  switch (rdr_state [unitIdx].deckState) {
 
-    switch (rdr_state [unitIdx] . deckState)
-      {
-        case deckStart:
-          {
+    case deckStart: {
+      strcpy ((char *) cardImage, "++EOF");
+      l = strlen ((char *) cardImage);
+      thisCard = cardDeck;
+      rdr_state [unitIdx].deckState = eof1Sent;
+      jobNo ++;
+    }
+    break;
+
+    case eof1Sent: {
+      sprintf ((char *) cardImage, "++UID %d", jobNo);
+      l = strlen ((char *) cardImage);
+      thisCard = cardDeck;
+      rdr_state [unitIdx].deckState = uid1Sent;
+    }
+    break;
+
+    case uid1Sent: {
+      int rc = getCardLine (rdr_state [unitIdx].deckfd, cardImage);
+      if (rc) {
+        close (rdr_state [unitIdx].deckfd);
+        // Windows can't unlink open files; do it now...
+        rc = unlink (rdr_state [unitIdx].fname);
+        if (rc)
+          perror ("card reader deck unlink\n");
+        rdr_state [unitIdx].deckfd = -1;
+        rdr_state [unitIdx].deckState = deckStart;
+        goto empty;
+      }
+      l = strlen ((char *) cardImage);
+      thisCard = cardDeck;
+      if (strncasecmp ((char *) cardImage, "++input", 7) == 0)
+        rdr_state [unitIdx].deckState = inputSent;
+    }
+    break;
+
+    // Reading the actual data cards
+
+    case inputSent: {
+      switch (rdr_state [unitIdx].deckFormat) {
+        case cardDeck: {
+          int rc = getCardLine (rdr_state [unitIdx].deckfd, cardImage);
+          if (rc) {
+            strcpy ((char *) cardImage, "++EOF");
+            rdr_state [unitIdx].deckState = eof2Sent;
+          }
+          l = strlen ((char *) cardImage);
+        }
+        thisCard = cardDeck;
+        break;
+
+        case streamDeck: {
+          l = (size_t) getCardData (rdr_state [unitIdx].deckfd, (char *) cardImage);
+          if (l) {
+            thisCard = streamDeck;
+          } else {
             strcpy ((char *) cardImage, "++EOF");
             l = strlen ((char *) cardImage);
+            rdr_state [unitIdx].deckState = eof2Sent;
             thisCard = cardDeck;
-            rdr_state [unitIdx] . deckState = eof1Sent;
-            jobNo ++;
           }
-          break;
+        }
+        break;
 
-        case eof1Sent:
-          {
-            sprintf ((char *) cardImage, "++UID %d", jobNo);
+        case sevenDeck: {
+          l = (size_t) getRawCardData (rdr_state [unitIdx].deckfd, rawCardImage);
+          if (l) {
+            thisCard = sevenDeck;
+          } else {
+            strcpy ((char *) cardImage, "++EOF");
             l = strlen ((char *) cardImage);
+            rdr_state [unitIdx].deckState = eof2Sent;
             thisCard = cardDeck;
-            rdr_state [unitIdx] . deckState = uid1Sent;
           }
-          break;
+        }
+        break;
 
-        case uid1Sent:
-          {
-            int rc = getCardLine (rdr_state [unitIdx] . deckfd, cardImage);
-            if (rc)
-              {
-                close (rdr_state [unitIdx] . deckfd);
-// Windows can't unlink open files; do it now...
-                rc = unlink (rdr_state [unitIdx] . fname);
-                if (rc)
-                  perror ("card reader deck unlink\n");
-                rdr_state [unitIdx] . deckfd = -1;
-                rdr_state [unitIdx] . deckState = deckStart;
-                goto empty;
-              }
-            l = strlen ((char *) cardImage);
-            thisCard = cardDeck;
-            if (strncasecmp ((char *) cardImage, "++input", 7) == 0)
-              rdr_state [unitIdx] . deckState = inputSent;
-          }
-          break;
+      } // switch (deckFormat)
+    } // case inputSent
+    break;
 
-        // Reading the actual data cards
-
-        case inputSent:
-          {
-            switch (rdr_state [unitIdx] . deckFormat)
-              {
-                case cardDeck:
-                  {
-                    int rc = getCardLine (rdr_state [unitIdx] . deckfd, cardImage);
-                    if (rc)
-                      {
-                        strcpy ((char *) cardImage, "++EOF");
-                        rdr_state [unitIdx] . deckState = eof2Sent;
-                      }
-                    l = strlen ((char *) cardImage);
-                  }
-                  thisCard = cardDeck;
-                  break;
-
-              case streamDeck:
-                {
-                  l = (size_t) getCardData (rdr_state [unitIdx] . deckfd, (char *) cardImage);
-                  if (l)
-                    {
-                      thisCard = streamDeck;
-                    }
-                  else
-                    {
-                      strcpy ((char *) cardImage, "++EOF");
-                      l = strlen ((char *) cardImage);
-                      rdr_state [unitIdx] . deckState = eof2Sent;
-                      thisCard = cardDeck;
-                    }
-                }
-                break;
-
-              case sevenDeck:
-                {
-                  l = (size_t) getRawCardData (rdr_state [unitIdx] . deckfd, rawCardImage);
-                  if (l)
-                    {
-                      thisCard = sevenDeck;
-                    }
-                  else
-                    {
-                      strcpy ((char *) cardImage, "++EOF");
-                      l = strlen ((char *) cardImage);
-                      rdr_state [unitIdx] . deckState = eof2Sent;
-                      thisCard = cardDeck;
-                    }
-                }
-                break;
-
-              } // switch (deckFormat)
-          } // case inputSent
-          break;
-
-        case eof2Sent:
-          {
-            sprintf ((char *) cardImage, "++UID %d", jobNo);
-            l = strlen ((char *) cardImage);
-            thisCard = cardDeck;
-            rdr_state [unitIdx] . deckState = deckStart;
-            close (rdr_state [unitIdx] . deckfd);
-// Windows can't unlink open files; do it now...
-            int rc = unlink (rdr_state [unitIdx] . fname);
-            if (rc)
-              perror ("card reader deck unlink\n");
-            rdr_state [unitIdx] . deckfd = -1;
-          }
-          break;
-      }
-
+    case eof2Sent: {
+      sprintf ((char *) cardImage, "++UID %d", jobNo);
+      l = strlen ((char *) cardImage);
+      thisCard = cardDeck;
+      rdr_state [unitIdx].deckState = deckStart;
+      close (rdr_state [unitIdx].deckfd);
+      // Windows can't unlink open files; do it now...
+      int rc = unlink (rdr_state [unitIdx].fname);
+      if (rc)
+        perror ("card reader deck unlink\n");
+      rdr_state [unitIdx].deckfd = -1;
+    }
+    break;
+  }
 
 #if 0
     while (l > 0 && cardImage [l - 1] == '\n')
       cardImage [-- l] = 0;
 #endif
     //sim_printf ("card <%s>\n", cardImage);
-#if 0
-sim_printf ("\n");
-sim_printf ("\n");
-for (uint i = 0; i < 80; i ++)
-  {
+#ifdef TESTING
+  sim_printf ("\n");
+  sim_printf ("\n");
+  for (uint i = 0; i < 80; i ++) {
     if (isprint (cardImage [i]))
       sim_printf ("%c", cardImage [i]);
     else
       sim_printf ("\\%03o", cardImage [i]);
   }
-sim_printf ("\n");
-sim_printf ("\n");
+  sim_printf ("\n");
+  sim_printf ("\n");
 #endif
-    word36 buffer [27];
-    switch (thisCard)
-      {
-        case sevenDeck:
-          {
-            // This will overead rawCardImage by 12 bits, but that's okay
-            // because Multics will ignore the last 12 bits.
-            for (uint i = 0; i < 27; i ++)
-              buffer [i] = extr36 ((uint8 *) rawCardImage, i);
-//sim_printf ("7deck %012"PRIo64" %012"PRIo64" %012"PRIo64" %012"PRIo64"\n", buffer [0], buffer [1], buffer [2], buffer [3]);
-          }
-          break;
-        case streamDeck:
+  word36 buffer [27];
+  switch (thisCard) {
+
+    case sevenDeck: {
+      // This will overead rawCardImage by 12 bits, but that's okay
+      // because Multics will ignore the last 12 bits.
+      for (uint i = 0; i < 27; i ++)
+        buffer [i] = extr36 ((uint8 *) rawCardImage, i);
+      //sim_printf ("7deck %012"PRIo64" %012"PRIo64" %012"PRIo64" %012"PRIo64"\n", buffer [0], buffer [1], buffer [2], buffer [3]);
+    }
+    break;
+
+    case streamDeck:
 #if 0
           {
             // This will overread cardImage by 12 bits, but that's okay
@@ -646,67 +636,62 @@ sim_printf ("\n");
           break;
 
 #endif
-        case cardDeck:
-          {
-            if (l > 80)
-              {
-                sim_warn ("Whups. rdr l %lu > 80; truncating.\n", (unsigned long)l);
-                l = 80;
-                //cardImage [l] = 0;
-              }
-
-
-            uint hbuf [l];
-            asciiToH ((char *) cardImage, hbuf, l);
-
-            // 12 bits / char
-            uint nbits = (uint) l * 12;
-            // 36 bits / word
-            uint tally = (nbits + 35) / 36;
-
-            if (tally > 27)
-              {
-                sim_warn ("Whups. rdr tally %d > 27; truncating.\n", tally);
-                tally = 27;
-              }
-
-            // Remember that Hollerith for blank is 0, this is really
-            // filling the buffer with blanks.
-            memset (buffer, 0, sizeof (buffer));
-            for (uint col = 0; col < l; col ++)
-              {
-                uint wordno = col / 3;
-                uint fieldno = col % 3;
-                putbits36_12 (& buffer [wordno], fieldno * 12, (word12) hbuf [col]);
-              }
-          }
-          break;
+    case cardDeck: {
+      if (l > 80) {
+        sim_warn ("Whups. rdr l %lu > 80; truncating.\n", (unsigned long)l);
+        l = 80;
+        //cardImage [l] = 0;
       }
+
+
+      uint hbuf [l];
+      asciiToH ((char *) cardImage, hbuf, l);
+
+      // 12 bits / char
+      uint nbits = (uint) l * 12;
+      // 36 bits / word
+      uint tally = (nbits + 35) / 36;
+
+      if (tally > 27) {
+        sim_warn ("Whups. rdr tally %d > 27; truncating.\n", tally);
+        tally = 27;
+      }
+
+      // Remember that Hollerith for blank is 0, this is really
+      // filling the buffer with blanks.
+      memset (buffer, 0, sizeof (buffer));
+      for (uint col = 0; col < l; col ++) {
+        uint wordno = col / 3;
+        uint fieldno = col % 3;
+        putbits36_12 (& buffer [wordno], fieldno * 12, (word12) hbuf [col]);
+      }
+    }
+    break;
+  }
 #if 0
-sim_printf ("\n");
-for (uint i = 0; i < 27; i ++)
-  {
+  sim_printf ("\n");
+  for (uint i = 0; i < 27; i ++) {
     sim_printf ("  %012"PRIo64"     \n", buffer [i]);
 #define B(n) bit_rep [(buffer [i] >> n) & 0x0f]
     for (int j = 32; j >= 0; j -= 4)
       sim_printf ("%s", B(j));
     sim_printf ("\n");
   }
-sim_printf ("\n");
+  sim_printf ("\n");
 #endif
-    p -> stati = 04000;
+  p->stati = 04000;
 
-    // Card images are 80 columns.
-    uint tally = 27;
+  // Card images are 80 columns.
+  uint tally = 27;
 
-    iom_indirect_data_service (iomUnitIdx, chan, buffer, & tally, true);
-    p -> initiate = false;
-    p -> stati = 04000; // ok
-    p -> tallyResidue = (word12) tally & MASK12;
-    p -> charPos = 0;
+  iom_indirect_data_service (iomUnitIdx, chan, buffer, & tally, true);
+  p->initiate = false;
+  p->stati = 04000; // ok
+  p->tallyResidue = (word12) tally & MASK12;
+  p->charPos = 0;
 
-    return IOM_CMD_PROCEED;
-  }
+  return IOM_CMD_PROCEED;
+}
 
 static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
   {
@@ -721,10 +706,10 @@ static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
 // Windows can't unlink open files; save the file name and unlink on close.
     // int rc = unlink (fname); // this only works on UNIX
     sim_printf ("submit %s\n", fname);
-    strcpy (rdr_state [readerIndex] . fname, fname);
-    rdr_state [readerIndex] . deckfd = deckfd;
-    rdr_state [readerIndex] . deckState = deckStart;
-    rdr_state [readerIndex] . deckFormat = fmt;
+    strcpy (rdr_state [readerIndex].fname, fname);
+    rdr_state [readerIndex].deckfd = deckfd;
+    rdr_state [readerIndex].deckState = deckStart;
+    rdr_state [readerIndex].deckFormat = fmt;
     if (deckfd >= 0)
       rdrCardReady (readerIndex);
   }
@@ -852,7 +837,6 @@ void rdrCardReady (int unitNum)
   }
 
 iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
-  iom_cmd_rc_t rc = IOM_CMD_PROCEED;
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
   uint dev_code = p->IDCW_DEV_CODE;
 
@@ -863,6 +847,7 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
   struct rdr_state * statep = & rdr_state[unitIdx];
   statep->running = true;
 
+  iom_cmd_rc_t rc = IOM_CMD_PROCEED;
   // IDCW?
   if (IS_IDCW (p)) {
     // IDCW
@@ -873,53 +858,56 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
       case 000: // CMD 00 Request status
         sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
         p->stati = 04000;
+        if (rdr_state[unitIdx].deckfd < 0)
+          p->stati = 04201; // hopper empty
         break;
 
-     case 001: // CMD 01 Read binary
-       sim_debug (DBG_DEBUG, & rdr_dev, "%s: Read Binary\n", __func__);
-       statep->io_mode = rdr_rd_bin;
-       p->stati = 04000;
-       break;
-
-     case 040: // CMD 40 Reset status
-       sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
-       p->stati = 04000;
-       p->isRead = false;
-       break;
-
-     default:
-       if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-         sim_warn ("%s: RDR unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
-       p->stati = 04501; // cmd reject, invalid opcode
-       p->chanStatus = chanStatIncorrectDCW;
-       return IOM_CMD_ERROR;
-     } // switch IDCW_DEV_CMD
-    
-     sim_debug (DBG_DEBUG, & rdr_dev, "%s: stati %04o\n", __func__, p->stati);
-     return IOM_CMD_PROCEED;
-   } // if IDCW
-
-    // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
-    switch (statep->io_mode) {
-      case rdr_no_mode:
-        //sim_printf ("%s: Unexpected IOTx\n", __func__);
-        //sim_warn ("%s: Unexpected IOTx\n", __func__);
-        //return IOM_CMD_ERROR;
+      case 001: // CMD 01 Read binary
+        sim_debug (DBG_DEBUG, & rdr_dev, "%s: Read Binary\n", __func__);
+        statep->io_mode = rdr_rd_bin;
+        p->stati = 04000;
         break;
 
-      case rdr_rd_bin: {
-          int rc = rdrReadRecord (iomUnitIdx, chan);
-          if (rc)
-            return IOM_CMD_ERROR;
-        }
+      case 040: // CMD 40 Reset status
+        sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
+        p->stati = 04000;
+        p->isRead = false;
         break;
 
       default:
-        sim_warn ("%s: Unrecognized io_mode %d\n", __func__, statep->io_mode);
+        if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+          sim_warn ("%s: RDR unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+        p->stati = 04501; // cmd reject, invalid opcode
+        p->chanStatus = chanStatIncorrectDCW;
+        return IOM_CMD_ERROR;
+    } // switch IDCW_DEV_CMD
+
+    sim_debug (DBG_DEBUG, & rdr_dev, "%s: stati %04o\n", __func__, p->stati);
+    return IOM_CMD_PROCEED;
+  } // if IDCW
+
+  // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
+  switch (statep->io_mode) {
+
+    case rdr_no_mode:
+      //sim_printf ("%s: Unexpected IOTx\n", __func__);
+      //sim_warn ("%s: Unexpected IOTx\n", __func__);
+      //return IOM_CMD_ERROR;
+      break;
+
+    case rdr_rd_bin: {
+      int rc = rdrReadRecord (iomUnitIdx, chan);
+      if (rc)
         return IOM_CMD_ERROR;
     }
-    return rc;
+    break;
+
+    default:
+      sim_warn ("%s: Unrecognized io_mode %d\n", __func__, statep->io_mode);
+      return IOM_CMD_ERROR;
   }
+  return rc;
+}
 
 static t_stat rdr_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
   {
