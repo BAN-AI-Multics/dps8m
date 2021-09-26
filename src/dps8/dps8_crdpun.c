@@ -802,7 +802,6 @@ static void clear_card_cache(pun_state_t * state)
 
     state -> first_cached_card = NULL;
     state -> last_cached_card = NULL;
-
   }
 
 static void save_card_in_cache(pun_state_t * state, word12 tally, word36 * card_buffer)
