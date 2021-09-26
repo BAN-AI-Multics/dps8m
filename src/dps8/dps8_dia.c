@@ -797,7 +797,7 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
 
     if (ok)
       {
-        if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailbox_address);
+        //if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailbox_address);
         fnp_core_write (dudp -> mailbox_address, 0, "dia_iom_cmd clear dia_pcw");
         putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
         putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;

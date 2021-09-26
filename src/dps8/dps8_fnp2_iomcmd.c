@@ -99,7 +99,7 @@ struct decoded_t
 // Debugging...
 //
 
-#ifdef FNPDBG
+#ifdef TESTING
 static void dmpmbx (uint mailboxAddress)
   {
     struct mailbox mbx;
