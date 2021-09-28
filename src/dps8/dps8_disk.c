@@ -685,7 +685,6 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     seekData &= MASK21;
     if (seekData >= diskTypes[typeIdx].capac)
       {
-sim_printf ("seek error\r\n");
         p->stati = 04304; // Invalid seek address
         return -1;
       }
@@ -811,6 +810,10 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
     uint sectorSizeWords = diskTypes[typeIdx].sectorSizeWords;
     uint sectorSizeBytes = ((36 * sectorSizeWords) / 8);
 
+    if (! unitp->fileref) {
+      p->stati = 04240; // device offline
+      return -1;
+    }
     uint tally = p->DDCW_TALLY;
     if (tally == 0)
       {
@@ -932,6 +935,11 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
     uint typeIdx = disk_statep->typeIdx;
     uint sectorSizeWords = diskTypes[typeIdx].sectorSizeWords;
     uint sectorSizeBytes = ((36 * sectorSizeWords) / 8);
+
+    if (! unitp->fileref) {
+      p->stati = 04240; // device offline
+      return -1;
+    }
 
     uint tally = p->DDCW_TALLY;
 
@@ -1232,6 +1240,8 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_rd_clr_stats;
         p->stati = 04000;
+        if (! unitp->fileref)
+          p->stati = 04240; // device offline
         break;
             
       case 022: // CMD 22 Read Status Register
@@ -1243,6 +1253,8 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_rd_status_reg;
         p->stati = 04000;
+        if (! unitp->fileref)
+          p->stati = 04240; // device offline
         break;
 
       case 024: // CMD 24 Read configuration -- Model 800
@@ -1254,6 +1266,8 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_rd_config;
         p->stati = 04000;
+        if (! unitp->fileref)
+          p->stati = 04240; // device offline
         break;
 
       case 025: // CMD 25 READ
@@ -1265,10 +1279,8 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_rd;
         p->stati = 04000;
-        if (! unitp->fileref) {
+        if (! unitp->fileref)
           p->stati = 04240; // device offline
-          break;
-        }
         break;
 
       case 026: // CMD 26 READ CONTROL REGISTER
@@ -1280,10 +1292,8 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_rd_ctrl_reg;
         p->stati = 04000;
-        if (! unitp->fileref) {
+        if (! unitp->fileref)
           p->stati = 04240; // device offline
-          break;
-        }
         break;
 
 
@@ -1296,10 +1306,8 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_seek_512;
         p->stati = 04000;
-        if (! unitp->fileref) {
+        if (! unitp->fileref)
           p->stati = 04240; // device offline
-          break;
-        }
         break;
 
       case 031: // CMD 31 WRITE
@@ -1312,10 +1320,8 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_wr;
         p->stati = 04000;
-        if (! unitp->fileref) {
+        if (! unitp->fileref)
           p->stati = 04240; // device offline
-          break;
-        }
         break;
 
       case 034: // CMD 34 SEEK_64
@@ -1327,10 +1333,8 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_seek_64;
         p->stati = 04000;
-        if (! unitp->fileref) {
+        if (! unitp->fileref)
           p->stati = 04240; // device offline
-          break;
-        }
         break;
 
       case 036: // CMD 36 SPECIAL SEEK (T&D) // Make it work like SEEK_64 and
@@ -1343,10 +1347,8 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_special_seek;
         p->stati = 04000;
-        if (! unitp->fileref) {
+        if (! unitp->fileref)
           p->stati = 04240; // device offline
-          break;
-        }
         break;
 
       case 040: // CMD 40 Reset status
@@ -1364,8 +1366,8 @@ if (chan == 014)
           p->stati = 04502; // invalid device code
           return IOM_CMD_DISCONNECT;
         }
-        //if (! unitp->fileref)
-          //p->stati = 04240; // device offline
+        if (! unitp->fileref)
+          p->stati = 04240; // device offline
         break;
 
       case 042: // CMD 42 RESTORE
