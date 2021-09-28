@@ -367,7 +367,7 @@ Linux/x86_64, Clear Linux, Clang:
 #  image: fedora:latest
 #  stage: build
 #  tags:
-#    - Docker-amd64
+#    - Docker-amd64-fast
 #  script:
 #    - *scriptSanity
 #    - *scriptDnfSetup
@@ -586,7 +586,7 @@ FreeBSD/riscv64, 13-STABLE:
   image: fedora:latest
   stage: build
   tags:
-    - Docker-amd64
+    - Docker-amd64-fast
   script:
     - *scriptSanity
     - *scriptDnfSetup
@@ -683,7 +683,7 @@ FreeBSD/aarch64, 13-STABLE:
   image: fedora:latest
   stage: build
   tags:
-    - Docker-amd64
+    - Docker-amd64-fast
   script:
     - *scriptSanity
     - *scriptDnfSetup
@@ -779,7 +779,7 @@ FreeBSD/amd64, 13-STABLE:
   image: fedora:latest
   stage: build
   tags:
-    - Docker-amd64
+    - Docker-amd64-fast
   script:
     - *scriptSanity
     - *scriptDnfSetup
