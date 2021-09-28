@@ -1985,6 +1985,41 @@ int32 i, sw;
 t_bool lookswitch;
 t_stat stat;
 
+#ifdef __MINGW32__
+#define NEED_CONSOLE_SETUP
+#endif /* ifdef __MINGW32__ */
+
+#ifdef CROSS_MINGW32
+#define NEED_CONSOLE_SETUP
+#endif /* ifdef CROSS_MINGW32 */
+
+#ifdef __MINGW64__
+#define NEED_CONSOLE_SETUP
+#endif /* ifdef __MINGW64__ */
+
+#ifdef CROSS_MINGW64
+#define NEED_CONSOLE_SETUP
+#endif /* ifdef CROSS_MINGW64 */
+
+#if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
+#include <windows.h>
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif /* if defined(NEED_CONSOLE_SETUP) && defined(_WIN32) */
+
+#ifdef NEED_CONSOLE_SETUP
+HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+if (handle != INVALID_HANDLE_VALUE)
+  {
+    DWORD mode = 0;
+    if (GetConsoleMode(handle, &mode))
+      {
+        mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(handle, mode);
+      }
+  }
+puts ("\e[0m");
+#endif /* NEED_CONSOLE_SETUP */
+
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
 for (i=0; i<argc; i++)

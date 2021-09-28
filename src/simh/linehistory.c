@@ -181,11 +181,6 @@ static int enableRawMode(int fd) {
     /* input modes: no break, no CR to NL, no parity check, no strip char,
      * no start/stop output control. */
     raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
-    /* output modes - disable post processing */
-    /* FIXME: do not disable post processing, or there will be some problem 
-       when using one thread to run linenoise, and another thread to write 
-       something to stdout.Is there any problem? */
-    // raw.c_oflag &= ~(OPOST);
     /* control modes - set 8 bit chars */
     raw.c_cflag |= (CS8);
     /* local modes - choing off, canonical off, no extended functions,
@@ -338,8 +333,9 @@ static int completeLine(struct linenoiseState *ls) {
 
             switch(c) {
                 case 9: /* tab */
-                    i = (i+1) % (lc.len+1);
-                    if (i == lc.len) linenoiseBeep();
+                     i = (i+1) % (lc.len+1);
+                     if (i == lc.len) linenoiseBeep();
+					stop =1;
                     break;
                 case 27: /* escape */
                     /* Re-show original buffer */
@@ -942,6 +938,8 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         }
 
         switch(c) {
+		case 9:
+			break;     /* johnsonjh - disable processing of tabs */
         case ENTER:    /* enter */
             history_len--;
             free(history[history_len]);
@@ -977,13 +975,13 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             }
             break;
         case CTRL_T:    /* ctrl-t, swaps current character with previous. */
-            if (l.pos > 0 && l.pos < l.len) {
+            /* if (l.pos > 0 && l.pos < l.len) {
                 int aux = buf[l.pos-1];
                 buf[l.pos-1] = buf[l.pos];
                 buf[l.pos] = aux;
                 if (l.pos != l.len-1) l.pos++;
                 refreshLine(&l);
-            }
+            } */ /* disable Ctrl-T processing */
             break;
         case CTRL_B:     /* ctrl-b */
             linenoiseEditMoveLeft(&l);
