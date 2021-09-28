@@ -26,6 +26,8 @@
 
 ## DPS8M
 
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgitlab.com%2Fdps8m%2Fdps8m.svg?type=large)](https://app.fossa.com/projects/git%2Bgitlab.com%2Fdps8m%2Fdps8m?ref=badge_large)
+
 ### DPS8M Simulator
 
 * The **DPS8M Simulator** (“**DPS8M**”) is distributed under the ICU License.
