@@ -631,18 +631,26 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
             if (get_scu_in_use (current_running_cpu_idx, cpu_port_num))
               {
                 uint sci_unit_idx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-                // Clear lock bits and data field
+                // Clear lock bits and data field; set unitialized
                 for (uint i = 0; i < SCU_MEM_SIZE; i ++)
                   {
-                    scu [sci_unit_idx].M[i] &= (~MASK36) | MEM_UNINITIALIZED;
+#ifdef LOCKLESS
+                    scu [sci_unit_idx].M[i] = (scu [sci_unit_idx].M[i] & ~(MASK36 | DEADLOCK_DETECT | MEM_LOCKED_BIT)) | MEM_UNINITIALIZED;
+#else
+                    scu [sci_unit_idx].M[i] = (scu [sci_unit_idx].M[i] & ~(MASK36)) | MEM_UNINITIALIZED;
+#endif
                   }
               }
           }
 #else
         for (uint i = 0; i < MEMSIZE; i ++)
           {
-            // Clear lock bits and data field
-            M[i] &= (~MASK36) | MEM_UNINITIALIZED;
+            // Clear lock bits and data field; set unitialized
+#ifdef LOCKLESS
+            M[i] = (M[i] & ~(MASK36 | DEADLOCK_DETECT | MEM_LOCKED_BIT)) | MEM_UNINITIALIZED;
+#else
+            M[i] = (M[i] & ~(MASK36)) | MEM_UNINITIALIZED;
+#endif
           }
 #endif
       }
