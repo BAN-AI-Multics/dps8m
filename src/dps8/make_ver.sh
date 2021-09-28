@@ -21,7 +21,7 @@
 test _$(printf '%s' "asdf" 2> /dev/null) != "_asdf" > /dev/null &&
 	printf '%s\n' \
 		"Error: This shell seems to be csh, which is not supported." &&
-	exit 1
+	exit 0
 
 ###############################################################################
 # Attempt to disable pedantic verification during environment normalization.
@@ -79,7 +79,7 @@ for as_var in BASH_ENV ENV MAIL MAILPATH; do
 				{ # /* unset */
 					printf >&2 '%s\n' \
 						"Error: clear environment failed."
-					exit 1
+					exit 0
 				}
 		) &&
 		unset "${as_var:-}" 2> /dev/null || \
@@ -93,7 +93,7 @@ done # /* as_var */
 	{
 		printf >&2 '%s\n' \
 			"Error: Exporting TZ to environment failed."
-		exit 1
+		exit 0
 	}
 
 ###############################################################################
@@ -103,14 +103,14 @@ done # /* as_var */
 	{
 		printf >&2 '%s\n' \
 			"Error: Exporting DATEFORMAT to environment failed."
-		exit 1
+		exit 0
 	}
 
 { DATEFALLBACK="2020-01-01 00:00 UTC" && export DATEFALLBACK; } ||
 	{
 		printf >&2 '%s\n' \
 			"Error: Exporting DATEFALLBACK to environment failed."
-		exit 1
+		exit 0
 	}
 
 ###############################################################################
@@ -180,14 +180,14 @@ get_git_ptch()
 						{ # /* GITVER */
 							printf '%s\n' \
 								"Error: git describe --abbrev=0 failed."
-							exit 1
+							exit 0
 						} # /* GITVER */
 				GITPAT=$(git describe --abbrev=40 --dirty='*' \
 					--tags --always 2> /dev/null) ||
 						{ # /* GITPAT */
 							printf '%s\n' \
 								"Error: git describe --abbrev=40 failed."
-							exit 1
+							exit 0
 						} # /* GITPAT */
 				# shellcheck disable=SC2250
 				OIFS="$IFS"
@@ -197,26 +197,26 @@ get_git_ptch()
 								IFS="${OIFS:?}" || true > /dev/null 2>&1
 								printf >&2 '%s\n' \
 									"Error: sed/cut transform failed."
-								exit 1
+								exit 0
 							}
 				IFS="${OIFS:?}"
 			fi # /* GITTEST */ 
 		else # /* GIT */
 			printf >&2 '%s\n' \
 				"Error: git version failed."
-			exit 1
+			exit 0
 		fi
 	else # /* TRUE */
 		printf >&2 '%s\n' \
 			"Error: command true failed."
-		exit 1
+		exit 0
 	fi
 	if [ -n "${PATDIF:-}" ] &&
 		[ ! -z "${PATDIF:-}" ]; then
 		printf '%s\n' \
 			"${PATDIF:?}"
 	else
-		exit 1
+		exit 0
 	fi
 	debug_print "End of get_git_ptch()"
 } # /* get_git_ptch() */
@@ -237,18 +237,18 @@ get_git_date()
 					{ # /* GIT_SHA */
 						printf >&2 '%s\n' \
 							"Error: git rev-parse --sq failed."
-						exit 1
+						exit 0
 					}
 			fi # /* GITTEST */ 
 		else # /* GIT */
 			printf >&2 '%s\n' \
 				"Error: git version failed."
-			exit 1
+			exit 0
 		fi
 	else # /* TRUE */
 		printf >&2 '%s\n' \
 			"Error: command true failed."
-		exit 1
+		exit 0
 	fi
 	if [ -n "${GIT_SHA:-}" ] &&
 		[ ! -z "${GIT_SHA:-}" ]; then
@@ -256,7 +256,7 @@ get_git_date()
 		eval printf '%s\n' \
 			"${GIT_SHA:?}"
 	else
-		exit 1
+		exit 0
 	fi
 	debug_print "End of get_git_date()"
 } # /* get_git_date() */
@@ -302,12 +302,12 @@ get_git_vers()
 		else # /* GIT */
 			printf >&2 '%s\n' \
 				"Error: git version failed."
-			exit 1
+			exit 0
 		fi # /* endif GIT */
 	else # /* TRUE */
 		printf >&2 '%s\n' \
 			"Error: command true failed."
-		exit 1
+		exit 0
 	fi # /* endif TRUE */
 
 	GIT_SOURCE_INFO="${GIT_OUT:-0.0.0}"
@@ -317,7 +317,7 @@ get_git_vers()
 				{ # /* sed */
 					printf >&2 '%s\n' \
 						"Error: sed transform failed."
-					exit 1
+					exit 0
 				}
 	if [ -n "${GIT_SOURCE_XFRM:-}" ] &&
 		[ ! -z "${GIT_SOURCE_XFRM:-}" ]; then
@@ -346,18 +346,18 @@ get_git_hash()
 					{ # /* GIT_SHA */
 						printf >&2 '%s\n' \
 							"Error: git rev-parse --sq failed."
-						exit 1
+						exit 0
 					}
 			fi # /* GITTEST */ 
 		else # /* GIT */
 			printf >&2 '%s\n' \
 				"Error: git version failed."
-			exit 1
+			exit 0
 		fi
 	else # /* TRUE */
 		printf >&2 '%s\n' \
 			"Error: command true failed."
-		exit 1
+		exit 0
 	fi
 	if [ -n "${GIT_SHA:-}" ] &&
 		[ ! -z "${GIT_SHA:-}" ]; then
@@ -365,7 +365,7 @@ get_git_hash()
 		eval printf '%s' \
 			"${GIT_SHA:?}"
 	else
-		exit 1
+		exit 0
 	fi
 	debug_print "End of get_git_hash()"
 } # /* get_git_hash() */
@@ -386,7 +386,7 @@ get_git_date()
 						{ # /* CDDATE */
 							printf '%s\n' \
 								"Error: git show failed."
-							exit 1
+							exit 0
 						} # /* CDDATE */
 				GIT_DATE_OUT="$(printf '%s' \
 					"${CDDATE:?}")"
@@ -394,12 +394,12 @@ get_git_date()
 		else # /* GIT */
 			printf >&2 '%s\n' \
 				"Error: git version failed."
-			exit 1
+			exit 0
 		fi # /* endif GIT */
 	else # /* TRUE */
 		printf >&2 '%s\n' \
 			"Error: command true failed."
-		exit 1
+		exit 0
 	fi # /* endif TRUE */
 
 	printf '%s\n' \
@@ -466,7 +466,7 @@ get_bld_user()
 						{ # /* PREPAREDBY */
 							printf >&2 '%s\n' \
 								"Error: sed failed."
-							exit 1
+							exit 0
 						}
 	debug_print "End of get_bld_user()"
 } # /* get_bld_user() */
@@ -599,7 +599,7 @@ BUILD_VER="$(get_git_vers)" ||
 	{ # /* BUILD_VER */
 		printf >&2 '%s\n' \
 			"Error: get_git_vers() failed."
-		exit 1
+		exit 0
 	} # /* BUILD_VER */
 
 debug_print "BUILD_DTE"
@@ -607,7 +607,7 @@ BUILD_DTE="$(get_git_date)" ||
 	{ # /* BUILD_DTE */
 		printf >&2 '%s\n' \
 			"Error: get_git_date() failed."
-		exit 1
+		exit 0
 	} # /* BUILD_DTE */
 
 debug_print "BUILD_UTC"
@@ -615,7 +615,7 @@ BUILD_UTC="$(get_utc_date)" ||
 	{ # /* BUILD_UTC */
 		printf >&2 '%s\n' \
 			"Error: get_utc_date() failed."
-		exit 1
+		exit 0
 	} # /* BUILD_UTC */
 
 debug_print "BUILD_SHA"
@@ -623,7 +623,7 @@ BUILD_SHA="$(get_git_hash)" ||
 	{ # /* BUILD_SHA */
 		printf >&2 '%s\n' \
 			"Error: get_git_hash() failed."
-		exit 1
+		exit 0
 	} # /* BUILD_SHA */
 
 debug_print "BUILD_PAT"
@@ -631,7 +631,7 @@ BUILD_PAT="$(get_git_ptch)" ||
 	{ # /* BUILD_PAT */
 		printf >&2 '%s\n' \
 			"Error: get_git_ptch() failed."
-		exit 1
+		exit 0
 	} # /* BUILD_PAT */
 
 debug_print "BUILD_USR"
@@ -639,7 +639,7 @@ BUILD_USR="$(get_bld_user)" ||
 	{ # /* BUILD_USR */
 		printf >&2 '%s\n' \
 			"Error: get_bld_user() failed."
-		exit 1
+		exit 0
 	} # /* BUILD_USR */
 
 debug_print "BUILD_SNM"
@@ -647,7 +647,7 @@ BUILD_SNM="$(get_bld_osnm)" ||
 	{ #/ * BUILD_SNM */
 		printf >&2 '%s\n' \
 			"Error: get_bld_osnm() failed."
-		exit 1
+		exit 0
 	} #/* BUILD_SNM */
 
 debug_print "BUILD_SVR"
@@ -655,7 +655,7 @@ BUILD_SVR="$(get_bld_osvr)" ||
 	{ #/ * BUILD_SVR */
 		printf >&2 '%s\n' \
 			"Error: get_bld_osvr() failed."
-		exit 1
+		exit 0
 	} #/* BUILD_SVR */
 
 debug_print "BUILD_SAR"
@@ -663,7 +663,7 @@ BUILD_SAR="$(get_bld_osar)" ||
 	{ #/ * BUILD_SAR */
 		printf >&2 '%s\n' \
 			"Error: get_bld_osar() failed."
-		exit 1
+		exit 0
 	} #/* BUILD_SAR */
 
 debug_print "BUILD_SYS"
@@ -671,7 +671,7 @@ BUILD_SYS="$(get_bld_osys)" ||
 	{ # /* BUILD_SYS */
 		printf >&2 '%s\n' \
 			"Error: get_bld_osys() failed."
-		exit 1
+		exit 0
 	} # /* BUILD_SYS */
 
 debug_print "BUILD_SYS"
@@ -679,7 +679,7 @@ BUILD_SYS="$(get_bld_osys)" ||
 	{ # /* BUILD_SYS */
 		printf >&2 '%s\n' \
 			"Error: get_bld_osys() failed."
-		exit 1
+		exit 0
 	} # /* BUILD_SYS */
 
 debug_print "End of gather and print phase"
@@ -704,7 +704,7 @@ BUILD_TMP_RLT="$(get_git_vers)" ||
 	{ # /* BUILD_TMP_RLT */
 		printf >&2 '%s\n' \
 			"Error: get_git_vers() failed setting BUILD_TMP_RLT."
-		exit 1
+		exit 0
 	} # /* BUILD_TMP_RLT */
 debug_print "BUILD_TMP_RLT is ${BUILD_TMP_RLT:-}"
 
@@ -823,7 +823,7 @@ BUILD_TMP_VER_SPLIT_INIT="$(get_git_vers)" ||
     { # /* BUILD_TMP_VER_SPLIT_INIT */
         printf >&2 '%s\n' \
             "Error: get_git_vers() failed setting BUILD_TMP_VER_SPLIT_INIT."
-        exit 1
+        exit 0
     } # /* BUILD_TMP_VER_SPLIT_INIT */
 debug_print "BUILD_TMP_VER_SPLIT_INIT is ${BUILD_TMP_VER_SPLIT_INIT:-}"
 
@@ -1082,7 +1082,7 @@ printf '%s\n'                                                                  \
 				"Error: writing ver.h failed."
 			rm -f "./ver.h" > /dev/null 2>&1 || \
 				true > /dev/null 2>&1
-			exit 1
+			exit 0
 		} # /* printf > ./ver.h */
 debug_print "End write out ver.h file."
 
