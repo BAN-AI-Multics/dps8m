@@ -239,9 +239,7 @@
 #include <setjmp.h>
 #include <limits.h>
 
-#if defined(HAVE_DLOPEN)                                /* Dynamic Readline support */
-#include <dlfcn.h>
-#endif
+#include "linehistory.h"
 
 #if defined(__APPLE__)
 #include <sys/types.h>
@@ -7638,57 +7636,26 @@ return read_line_p (NULL, cptr, size, stream);
 char *read_line_p (const char *prompt, char *cptr, int32 size, FILE *stream)
 {
 char *tptr;
-#if defined(HAVE_DLOPEN)
-static int initialized = 0;
-typedef char *(*readline_func)(const char *);
-static readline_func p_readline = NULL;
-typedef void (*add_history_func)(const char *);
-static add_history_func p_add_history = NULL;
 
-if (prompt && (!initialized)) {
-    initialized = 1;
-    void *handle;
-
-#define S__STR_QUOTE(tok) #tok
-#define S__STR(tok) S__STR_QUOTE(tok)
-    handle = dlopen("libncurses." S__STR(HAVE_DLOPEN), RTLD_NOW|RTLD_GLOBAL);
-    handle = dlopen("libcurses." S__STR(HAVE_DLOPEN), RTLD_NOW|RTLD_GLOBAL);
-    handle = dlopen("libreadline." S__STR(HAVE_DLOPEN), RTLD_NOW|RTLD_GLOBAL);
-    if (!handle)
-        handle = dlopen("libreadline." S__STR(HAVE_DLOPEN) ".6", RTLD_NOW|RTLD_GLOBAL);
-    if (!handle)
-        handle = dlopen("libreadline." S__STR(HAVE_DLOPEN) ".5", RTLD_NOW|RTLD_GLOBAL);
-    if (handle) {
-        p_readline = (readline_func)((size_t)dlsym(handle, "readline"));
-        p_add_history = (add_history_func)((size_t)dlsym(handle, "add_history"));
-        }
-    }
 if (prompt) {                                           /* interactive? */
-    if (p_readline) {
-        char *tmpc = p_readline (prompt);               /* get cmd line */
+#ifdef HAVE_LINEHISTORY
+        char *tmpc = linenoise (prompt);                /* get cmd line */
         if (tmpc == NULL)                               /* bad result? */
             cptr = NULL;
         else {
             strncpy (cptr, tmpc, size);                 /* copy result */
-            free (tmpc) ;                               /* free temp */
+            linenoiseHistoryAdd (tmpc);                 /* add to history */
+            free (tmpc);                                /* free temp */
             }
         }
-    else {
+#else
         fflush (stdout);                                /* flush output */
         printf ("%s", prompt);                          /* display prompt */
         fflush (stdout);                                /* flush output */
         cptr = fgets (cptr, size, stream);              /* get cmd line */
         }
-    }
+#endif /* ifdef HAVE_LINEHISTORY */
 else cptr = fgets (cptr, size, stream);                 /* get cmd line */
-#else
-if (prompt) {                                           /* interactive? */
-    fflush (stdout);                                    /* flush output */
-    printf ("%s", prompt);                              /* display prompt */
-    fflush (stdout);                                    /* flush output */
-}
-cptr = fgets (cptr, size, stream);                      /* get cmd line */
-#endif
 
 if (cptr == NULL) {
     clearerr (stream);                                  /* clear error */
