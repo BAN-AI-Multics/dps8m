@@ -17,6 +17,7 @@
 .scriptSanity: &scriptSanity |
     # scriptSanity
     echo "${CI_COMMIT_BRANCH:?}" > /dev/null 2>&1
+    IPWD="$(pwd -P)" && export IPWD && if [ "X${CI_PROJECT_DIR:?}X" != "X${IPWD:?}X" ]; then exit 1; fi
 
 ############################################################################
 
@@ -27,7 +28,7 @@
     sh -x -c 'which nfpm > /dev/null 2>&1 || { (cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh); };'
     nfpm --version
 
-############################################################################
+###########################################################################
 
 .scriptCommon: &scriptCommon |
     # scriptCommon
@@ -46,28 +47,32 @@
 
 .buildInfo: &buildInfo |
     # buildInfo
-    test -f /builds/dps8m/dps8m/src/dps8/dps8 && file /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/dps8/dps8 && ldd /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/dps8/dps8.exe && file /builds/dps8m/dps8m/src/dps8/dps8.exe 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/prt2pdf/prt2pdf && file /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/prt2pdf/prt2pdf && ldd /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe && file /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/punutil/punutil && file /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/punutil/punutil && ldd /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/punutil/punutil.exe && file /builds/dps8m/dps8m/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && file ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && ldd ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe && file ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && file ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && ldd ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe && file ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && file ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && ldd ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && file ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
 
 ############################################################################
 
 .compressArtifacts: &compressArtifacts |
     # compressArtifacts
-    test -f /builds/dps8m/dps8m/src/dps8/dps8 && lzip -9v /builds/dps8m/dps8m/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/prt2pdf/prt2pdf && lzip -9v /builds/dps8m/dps8m/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/punutil/punutil && lzip -9v /builds/dps8m/dps8m/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/dps8/useddef.txt && lzip -9v /builds/dps8m/dps8m/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/dps8/dps8.exe && zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/dps8/dps8.exe  2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe && zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/punutil/punutil.exe && zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
-    test -f /builds/dps8m/dps8m/src/dps8/useddef.txt && zip /builds/dps8m/dps8m/dps8m.zip /builds/dps8m/dps8m/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
+    echo -e "section_start:`date +%s`:compress_section[collapsed=true]\r\e[0K\033[0;36mCompress Artifacts\033[0m"
+    test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && lzip -9v ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && lzip -9v ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && lzip -9v ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && lzip -9v ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe  2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/cygwin1.dll && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/cygwin1.dll 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/libwinpthread-1.dll && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/libwinpthread-1.dll 2> /dev/null || true > /dev/null 2>&1
+    echo -e "section_end:`date +%s`:compress_section\r\e[0K"
 
 ############################################################################
 
@@ -98,6 +103,15 @@
     unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
     CC=gcc-latest ./configure --disable-shared --enable-static --disable-dependency-tracking
     make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
+
+############################################################################
+
+.scriptBuildlibuvFCygwin64: &scriptBuildlibuvFCygwin64 |
+    # scriptBuildlibuvFCygwin64
+    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    cygwin64-configure --disable-shared --enable-static --disable-dependency-tracking
+    cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && cygwin64-make install && cd ..
 
 ############################################################################
 
@@ -298,6 +312,14 @@
 
 ############################################################################
 
+.scriptInstallDnfCoprCygwin: &scriptInstallDnfCoprCygwin |
+    # scriptInstallDnfCoprCygwin
+    dnf -y --best install 'dnf-command(copr)' || dnf -y --nobest install 'dnf-command(copr)'
+    dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin
+    dnf -y --best install cygport cygwin64\* -x \*debuginfo || dnf --nobest install -y cygport cygwin64\* -x \*debuginfo
+
+############################################################################
+
 stages:
   - build
 
@@ -323,10 +345,10 @@ Linux/x86_64, Clear Linux, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -353,10 +375,10 @@ Linux/x86_64, Clear Linux, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -572,10 +594,10 @@ Linux/x86_64, Clear Linux, Clang:
 #  artifacts:
 #    expire_in: 1 day
 #    paths:
-#      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-#      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-#      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-#      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+#      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+#      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+#      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+#      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
 #  retry: 2
 #  timeout: 240 minutes
 #  interruptible: true
@@ -669,10 +691,10 @@ FreeBSD/riscv64, 13-STABLE:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 240 minutes
   interruptible: true
@@ -765,10 +787,10 @@ FreeBSD/aarch64, 13-STABLE:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 240 minutes
   interruptible: true
@@ -863,10 +885,10 @@ FreeBSD/amd64, 13-STABLE:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 240 minutes
   interruptible: true
@@ -895,10 +917,10 @@ Linux/x86_64, Debian sid, Clang/git, libuv/git:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -927,10 +949,10 @@ Linux/x86_64, Debian sid, Clang/git, libuv/git, TESTING:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -959,10 +981,10 @@ Linux/x86_64, Debian sid, Clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -991,10 +1013,10 @@ Linux/x86_64, Debian sid, Clang/git, libuv/git, L68:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1023,10 +1045,10 @@ Linux/x86_64, Debian sid, GCC, libuv/git:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1055,10 +1077,10 @@ Linux/x86_64, Debian sid, Clang/git, libuv/git, NO_LOCKLESS:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1087,10 +1109,10 @@ Linux/x86_64, Debian sid, Clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1119,10 +1141,10 @@ Linux/x86_64, Debian sid, Clang/git, libuv/git, L68 NO_LOCKLESS:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1138,19 +1160,47 @@ Windows/x86_64, MinGW64-GCC:
     - *scriptSanity
     - *scriptAptSetup
     - *scriptAptInstallMinGW64
-    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - *scriptBuildlibuvMGW64
     - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
     - *buildInfo
+    - cp -vf "/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll" "${CI_PROJECT_DIR:?}"
     - *compressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/dps8m.zip
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Windows/x86_64, Cygwin64-GCC:
+  image: fedora:latest
+  stage: build
+  tags:
+    - Docker-amd64
+  script:
+    - *scriptSanity
+    - *scriptDnfSetup
+    - *scriptInstallDnfCoprCygwin
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - *scriptBuildlibuvFCygwin64
+    - sh -x -c 'cygwin64-make LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - *buildInfo
+    - cp -vf /usr/x86_64-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1171,7 +1221,7 @@ Source Kits:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/sources.tar.gz
+      - ${CI_PROJECT_DIR:?}/sources.tar.gz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1199,10 +1249,10 @@ Linux/x86_64, Ubuntu LTS, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1230,10 +1280,10 @@ Linux/x86_64, Ubuntu LTS, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1260,10 +1310,10 @@ Linux/x86_64, Fedora, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1290,10 +1340,10 @@ Linux/x86_64, Fedora, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1321,10 +1371,10 @@ Linux/x86_64, Oracle Linux 8, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1352,10 +1402,10 @@ Linux/x86_64, Oracle Linux 8, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1383,10 +1433,10 @@ Linux/x86_64, Ubuntu, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1414,10 +1464,10 @@ Linux/x86_64, Ubuntu, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1442,7 +1492,7 @@ Windows/x86_64, LLVM-MinGW:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/dps8m.zip
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1467,7 +1517,7 @@ Windows/ARM64, LLVM-MinGW:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/dps8m.zip
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1495,10 +1545,10 @@ Linux/x86_64, AlmaLinux 8, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1526,10 +1576,10 @@ Linux/x86_64, AlmaLinux 8, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1559,10 +1609,10 @@ Linux/x86_64, Alpine Edge, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1592,10 +1642,10 @@ Linux/x86_64, Alpine Edge, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1625,10 +1675,10 @@ Linux/x86_64, Void musl, GCC, mimalloc, static:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1658,10 +1708,10 @@ Linux/x86_64, Void musl, Clang, mimalloc, static:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1690,10 +1740,10 @@ Linux/x86_64, Void glibc, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1722,10 +1772,10 @@ Linux/x86_64, Void glibc, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1752,10 +1802,10 @@ Linux/x86_64, Amazon Linux, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1782,10 +1832,10 @@ Linux/x86_64, Amazon Linux, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1810,7 +1860,7 @@ Windows/i686, LLVM-MinGW:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/dps8m.zip
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1835,7 +1885,7 @@ Windows/ARMv7, LLVM-MinGW:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/dps8m.zip
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1862,10 +1912,10 @@ Linux/x86_64, OpenSUSE Leap, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1892,10 +1942,10 @@ Linux/x86_64, OpenSUSE Leap, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1921,10 +1971,10 @@ Linux/x86_64, Slackware Current, GCC:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1950,10 +2000,10 @@ Linux/x86_64, Slackware Current, Clang:
   artifacts:
     expire_in: 1 day
     paths:
-      - /builds/dps8m/dps8m/src/dps8/dps8.lz
-      - /builds/dps8m/dps8m/src/prt2pdf/prt2pdf.lz
-      - /builds/dps8m/dps8m/src/punutil/punutil.lz
-      - /builds/dps8m/dps8m/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
