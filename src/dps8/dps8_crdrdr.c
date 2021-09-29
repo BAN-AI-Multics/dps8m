@@ -187,7 +187,9 @@ static struct rdr_state
     char device_name [MAX_DEV_NAME_LEN];
     int deckfd;
     bool running;
-    enum { deckStart = 0, eof1Sent, uid1Sent, inputSent, eof2Sent } deckState;
+    // Sending a ++END means that the read_cards command has to be reissued
+    //enum { deckStart = 0, eof1Sent, uid1Sent, inputSent, eof2Sent, uid2Sent } deckState;
+    enum { deckStart = 0, eof1Sent, uid1Sent, inputSent, eof2Sent} deckState;
     enum deckFormat deckFormat;
     char fname [PATH_MAX+1];
   } rdr_state [N_RDR_UNITS_MAX];
@@ -205,7 +207,7 @@ static char rdr_path_prefix[PATH_MAX+1];
 #if 0
 static void usr2signal (UNUSED int signum)
   {
-sim_printf ("crd rdr signal caught\n");
+sim_printf ("crd rdr signal caught\r\n");
     rdrCardReady (0);
   }
 #endif
@@ -348,7 +350,7 @@ static void asciiToH (char * str, uint * hstr)
       {
         uint h = 0b000000000110; // ?
         char * q = index (haystack, toupper (* p));
-if (q) sim_printf ("found %c at offset %ld\n", * p, q - haystack);
+if (q) sim_printf ("found %c at offset %ld\r\n", * p, q - haystack);
         if (q)
           h = table [q - haystack];
         * hstr ++ = h;
@@ -465,13 +467,8 @@ static int rdrReadRecord (uint iomUnitIdx, uint chan) {
   sim_debug (DBG_NOTIFY, & rdr_dev, "Read binary\n");
   uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
   uint unitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
-  // XXX in_use not being checked?
-  //if (unitIdx < 0)
-  //  {
-  //    sim_warn ("rdrReadRecord can't find unit\n");
-  //    return IOM_CMD_ERROR;
-  //  }
 
+#if 0
   if (rdr_state [unitIdx].deckfd < 0) {
 empty:;
     p->stati = 04201; // hopper empty
@@ -481,13 +478,14 @@ empty:;
     p->tallyResidue = 0;
 #ifdef TESTING
     if (! empty)
-      sim_printf ("hopper empty\n");
+      sim_printf ("hopper empty\r\n");
     empty = true;
 #endif
     return IOM_CMD_ERROR;
   }
+#endif
 #ifdef TESTING
-  sim_printf ("hopper not empty\n");
+  sim_printf ("hopper not empty\r\n");
   empty = false;
 #endif
   unsigned char cardImage [80] = "";
@@ -501,6 +499,9 @@ empty:;
   switch (rdr_state [unitIdx].deckState) {
 
     case deckStart: {
+#ifdef TESTING
+  sim_printf ("deckStart: sending ++EOF\r\n");
+#endif
       strcpy ((char *) cardImage, "++EOF");
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
@@ -510,6 +511,9 @@ empty:;
     break;
 
     case eof1Sent: {
+#ifdef TESTING
+  sim_printf ("eof1Sent: sending ++UID\r\n");
+#endif
       sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
@@ -518,8 +522,14 @@ empty:;
     break;
 
     case uid1Sent: {
+#ifdef TESTING
+  sim_printf ("uid1Sent: sending data\r\n");
+#endif
       int rc = getCardLine (rdr_state [unitIdx].deckfd, cardImage);
       if (rc) {
+#ifdef TESTING
+  sim_printf ("uid1Sent: getCardLine returned %d\r\n", rc);
+#endif
         close (rdr_state [unitIdx].deckfd);
         // Windows can't unlink open files; do it now...
         rc = unlink (rdr_state [unitIdx].fname);
@@ -527,20 +537,34 @@ empty:;
           perror ("card reader deck unlink\n");
         rdr_state [unitIdx].deckfd = -1;
         rdr_state [unitIdx].deckState = deckStart;
-        goto empty;
+        p->stati = 04201; // hopper empty
+        return IOM_CMD_DISCONNECT;
       }
+#ifdef TESTING
+  sim_printf ("uid1Sent: getCardLine returned <%s>\r\n", cardImage);
+#endif
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
-      if (strncasecmp ((char *) cardImage, "++input", 7) == 0)
+      if (strncasecmp ((char *) cardImage, "++input", 7) == 0) {
+#ifdef TESTING
+  sim_printf ("uid1Sent: switching to inputSent <%s>\r\n", cardImage);
+#endif
         rdr_state [unitIdx].deckState = inputSent;
+      }
     }
     break;
 
     // Reading the actual data cards
 
     case inputSent: {
+#ifdef TESTING
+  sim_printf ("inputSent: format %d\r\n", rdr_state [unitIdx].deckFormat);
+#endif
       switch (rdr_state [unitIdx].deckFormat) {
         case cardDeck: {
+#ifdef TESTING
+  sim_printf ("inputSent: cardDeck\r\n");
+#endif
           int rc = getCardLine (rdr_state [unitIdx].deckfd, cardImage);
           if (rc) {
             strcpy ((char *) cardImage, "++EOF");
@@ -552,6 +576,9 @@ empty:;
         break;
 
         case streamDeck: {
+#ifdef TESTING
+  sim_printf ("inputSent: streamDeck\r\n");
+#endif
           l = (size_t) getCardData (rdr_state [unitIdx].deckfd, (char *) cardImage);
           if (l) {
             thisCard = streamDeck;
@@ -561,10 +588,16 @@ empty:;
             rdr_state [unitIdx].deckState = eof2Sent;
             thisCard = cardDeck;
           }
+#ifdef TESTING
+  sim_printf ("inputSent: getCardLine returned <%s>\r\n", cardImage);
+#endif
         }
         break;
 
         case sevenDeck: {
+#ifdef TESTING
+  sim_printf ("inputSent: 7Deck\r\n");
+#endif
           l = (size_t) getRawCardData (rdr_state [unitIdx].deckfd, rawCardImage);
           if (l) {
             thisCard = sevenDeck;
@@ -581,7 +614,12 @@ empty:;
     } // case inputSent
     break;
 
+// Sending a ++END means that the read_cards command has to be reissued
+#if 1
     case eof2Sent: {
+#ifdef TESTING
+  sim_printf ("eof2Sent\r\n");
+#endif
       sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
@@ -594,24 +632,53 @@ empty:;
       rdr_state [unitIdx].deckfd = -1;
     }
     break;
+#else
+    case eof2Sent: {
+#ifdef TESTING
+  sim_printf ("eof2Sent\r\n");
+#endif
+      sprintf ((char *) cardImage, "++UID %d", jobNo);
+      l = strlen ((char *) cardImage);
+      thisCard = cardDeck;
+      rdr_state [unitIdx].deckState = uid2Sent;
+    }
+    break;
+
+    case uid2Sent: {
+#ifdef TESTING
+  sim_printf ("uid2Sent\r\n");
+#endif
+      sprintf ((char *) cardImage, "++END");
+      l = strlen ((char *) cardImage);
+      thisCard = cardDeck;
+      rdr_state [unitIdx].deckState = deckStart;
+      close (rdr_state [unitIdx].deckfd);
+      // Windows can't unlink open files; do it now...
+      int rc = unlink (rdr_state [unitIdx].fname);
+      if (rc)
+        perror ("card reader deck unlink\n");
+      rdr_state [unitIdx].deckfd = -1;
+    }
+    break;
+#endif
   }
 
 #if 0
     while (l > 0 && cardImage [l - 1] == '\n')
       cardImage [-- l] = 0;
 #endif
-    //sim_printf ("card <%s>\n", cardImage);
+    //sim_printf ("card <%s>\r\n", cardImage);
 #ifdef TESTING
-  sim_printf ("\n");
-  sim_printf ("\n");
+  sim_printf ("\r\n");
+  sim_printf ("\r\n");
   for (uint i = 0; i < 80; i ++) {
     if (isprint (cardImage [i]))
       sim_printf ("%c", cardImage [i]);
     else
       sim_printf ("\\%03o", cardImage [i]);
   }
-  sim_printf ("\n");
-  sim_printf ("\n");
+  sim_printf ("\r\n");
+  sim_printf ("\r\n");
 #endif
   word36 buffer [27];
   switch (thisCard) {
@@ -621,7 +688,7 @@ empty:;
       // because Multics will ignore the last 12 bits.
       for (uint i = 0; i < 27; i ++)
         buffer [i] = extr36 ((uint8 *) rawCardImage, i);
-      //sim_printf ("7deck %012"PRIo64" %012"PRIo64" %012"PRIo64" %012"PRIo64"\n", buffer [0], buffer [1], buffer [2], buffer [3]);
+      //sim_printf ("7deck %012"PRIo64" %012"PRIo64" %012"PRIo64" %012"PRIo64"\r\n", buffer [0], buffer [1], buffer [2], buffer [3]);
     }
     break;
 
@@ -669,15 +736,15 @@ empty:;
     break;
   }
 #if 0
-  sim_printf ("\n");
+  sim_printf ("\r\n");
   for (uint i = 0; i < 27; i ++) {
-    sim_printf ("  %012"PRIo64"     \n", buffer [i]);
+    sim_printf ("  %012"PRIo64"     \r\n", buffer [i]);
 #define B(n) bit_rep [(buffer [i] >> n) & 0x0f]
     for (int j = 32; j >= 0; j -= 4)
       sim_printf ("%s", B(j));
-    sim_printf ("\n");
+    sim_printf ("\r\n");
   }
-  sim_printf ("\n");
+  sim_printf ("\r\n");
 #endif
   p->stati = 04000;
 
@@ -705,7 +772,9 @@ static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
       perror ("card reader deck open\n");
 // Windows can't unlink open files; save the file name and unlink on close.
     // int rc = unlink (fname); // this only works on UNIX
-    sim_printf ("submit %s\n", fname);
+#ifdef TESTING
+    sim_printf ("submit %s\r\n", fname);
+#endif
     strcpy (rdr_state [readerIndex].fname, fname);
     rdr_state [readerIndex].deckfd = deckfd;
     rdr_state [readerIndex].deckState = deckStart;
@@ -858,23 +927,52 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
       case 000: // CMD 00 Request status
         sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
         p->stati = 04000;
-        if (rdr_state[unitIdx].deckfd < 0)
-          p->stati = 04201; // hopper empty
+        // This is controller status, not device status
+        //if (rdr_state[unitIdx].deckfd < 0)
+          //p->stati = 04201; // hopper empty
+#ifdef TESTING
+sim_printf ("Request status %04o\r\n", p->stati);
+#endif
         break;
 
       case 001: // CMD 01 Read binary
         sim_debug (DBG_DEBUG, & rdr_dev, "%s: Read Binary\n", __func__);
+        if (rdr_state [unitIdx].deckfd < 0) {
+          p->stati = 04201; // hopper empty
+          p->tallyResidue = 0;
+#ifdef TESTING
+          if (! empty)
+            sim_printf ("hopper empty\r\n");
+          empty = true;
+#endif
+          return IOM_CMD_DISCONNECT;
+        }
         statep->io_mode = rdr_rd_bin;
         p->stati = 04000;
+        // This is controller status, not device status
+        //if (rdr_state[unitIdx].deckfd < 0)
+          //p->stati = 04201; // hopper empty
+#ifdef TESTING
+sim_printf ("read binary %04o\r\n", p->stati);
+#endif
         break;
 
       case 040: // CMD 40 Reset status
         sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
         p->stati = 04000;
         p->isRead = false;
+        // This is controller status, not device status
+        //if (rdr_state[unitIdx].deckfd < 0)
+          //p->stati = 04201; // hopper empty
+#ifdef TESTING
+sim_printf ("reset status %04o\r\n", p->stati);
+#endif
         break;
 
       default:
+#ifdef TESTING
+sim_printf ("unknown  %o\r\n", p->IDCW_DEV_CMD);
+#endif
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
           sim_warn ("%s: RDR unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
         p->stati = 04501; // cmd reject, invalid opcode
@@ -890,15 +988,20 @@ iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
   switch (statep->io_mode) {
 
     case rdr_no_mode:
-      //sim_printf ("%s: Unexpected IOTx\n", __func__);
+#ifdef TESTING
+      sim_printf ("%s: Unexpected IOTx\r\n", __func__);
+#endif
       //sim_warn ("%s: Unexpected IOTx\n", __func__);
       //return IOM_CMD_ERROR;
       break;
 
     case rdr_rd_bin: {
       int rc = rdrReadRecord (iomUnitIdx, chan);
+#ifdef TESTING
+sim_printf ("rdrReadRecord returned %d\r\n", rc);
+#endif
       if (rc)
-        return IOM_CMD_ERROR;
+        return IOM_CMD_DISCONNECT;
     }
     break;
 

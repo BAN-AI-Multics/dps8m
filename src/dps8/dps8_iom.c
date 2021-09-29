@@ -3342,6 +3342,12 @@ if (chan == 014)
 
     rc2 = d->iom_cmd (iomUnitIdx, chan);
 
+    if (rc2 < 0) {
+      p -> dev_code = getbits36_6 (p -> DCW, 6);
+      p -> chanStatus = chanStatInvalidInstrPCW;
+      goto terminate;
+    }
+
     if (rc2 == IOM_CMD_DISCONNECT) 
       terminate = true;
 
