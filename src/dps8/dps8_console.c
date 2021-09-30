@@ -254,9 +254,10 @@ typedef struct opc_state_t
     char device_name [MAX_DEV_NAME_LEN];
     enum console_model model;
     enum console_mode { opc_no_mode, opc_read_mode, opc_write_mode } io_mode;
-    // SIMH console library has only putc and getc; the SIMH terminal
-    // library has more features including line buffering.
-#define bufsize 81
+// Multics does console reads with a tally of 64 words; so 256 characters + NUL.
+// If the tally is smalleri then the contents of the buffer, sendConsole will
+// issue a warning and discard the excess.
+#define bufsize 257
     unsigned char buf[bufsize];
     unsigned char *tailp;
     unsigned char *readp;
