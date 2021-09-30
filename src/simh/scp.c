@@ -2020,26 +2020,96 @@ if (handle != INVALID_HANDLE_VALUE)
 puts ("\e[0m");
 #endif /* NEED_CONSOLE_SETUP */
 
+/* invocation sanity check */
+if (argc == 0) {
+    fprintf (stderr, "Error: main() called directly!\n");
+    return 0;
+}
+
+/* simulation sanity check */
+if (sim_name == NULL) {
+    fprintf (stderr, "Error: Not a simulator!\n");
+    return 0;
+}
+
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
 for (i=0; i<argc; i++)
     targv[i] = argv[i];
 argv = targv;
+
+/* setup defaults */
 set_prompt (0, "sim>");                                 /* start with set standard prompt */
 *cbuf = 0;                                              /* init arg buffer */
 sim_switches = 0;                                       /* init switches */
 lookswitch = TRUE;
 stdnul = fopen(NULL_DEVICE,"wb");
+
+/* process arguments */
 for (i = 1; i < argc; i++) {                            /* loop thru args */
     if (argv[i] == NULL)                                /* paranoia */
         continue;
+
+/* requested only version? */
+	int onlyvers  = strcmp(argv[i], "--version");
+    if (onlyvers == 0) {
+#ifdef VER_H_GIT_VERSION
+#if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
+#if VER_H_GIT_PATCH_INT < 1
+        fprintf (stdout, "%s Simulator %s\n", sim_name, VER_H_GIT_VERSION);
+#else
+        fprintf (stdout, "%s Simulator %s+%s\n", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
+#endif /* if VER_H_GIT_PATCH_INT < 1 */
+#else
+        fprintf (stdout, "%s Simulator %s\n", sim_name, VER_H_GIT_VERSION);
+#endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
+#else   
+        fprintf (stdout, "%s Simulator\n", sim_name);
+#endif /* ifdef VER_H_GIT_VERSION */
+        return 0;
+    }
+    
+/* requested short or long help? */
+    int longhelp  = strcmp(argv[i], "--help");
+	int shorthelp = strcmp(argv[i], "-h");
+	if (shorthelp != 0) shorthelp = strcmp(argv[i], "-H");
+    if (longhelp == 0 || shorthelp == 0) {
+#ifdef VER_H_GIT_VERSION
+#if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
+#if VER_H_GIT_PATCH_INT < 1
+        fprintf (stdout, "%s Simulator %s", sim_name, VER_H_GIT_VERSION);
+#else
+        fprintf (stdout, "%s Simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
+#endif /* if VER_H_GIT_PATCH_INT < 1 */
+#else
+        fprintf (stdout, "%s Simulator %s", sim_name, VER_H_GIT_VERSION);
+#endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
+#else
+        fprintf (stdout, "%s Simulator", sim_name);
+#endif /* ifdef VER_H_GIT_VERSION */
+        fprintf (stdout, "\nUsage: %s { [SWITCHES] ... } { <SCRIPT> { [arg], [arg], ... } }\n", argv[0]);
+        fprintf (stdout, "\nInvokes the %s simulator, with optional switches and/or script file.\n", sim_name);
+        fprintf (stdout, "\n Switches:");
+        fprintf (stdout, "\n  -e, -E                  Stop processing script file on any error");
+        fprintf (stdout, "\n  -h, -H, --help          Display this help text and exit");
+        fprintf (stdout, "\n  -o, -O                  Make script actions/conditions inheritable");
+        fprintf (stdout, "\n  -q, -Q                  Suppress display of informational messages");
+        fprintf (stdout, "\n  -v, -V                  Display script commands before execution");
+        fprintf (stdout, "\n  --version               Display the simulator version and exit");
+        fprintf (stdout, "\n\nThis software is made available under the terms of the ICU License,");
+        fprintf (stdout, "\nversion 1.8.1 or later.  For complete details, see the \"LICENSE.md\"");
+        fprintf (stdout, "\nincluded or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\n");
+        return 0;
+    }
+    /* invalid arguments? */
     if ((*argv[i] == '-') && lookswitch) {              /* switch? */
         if ((sw = get_switches (argv[i])) < 0) {
-            fprintf (stderr, "Invalid switch %s\n", argv[i]);
+            fprintf (stderr, "Invalid switch \"%s\".\nTry \"%s -h\" for help.\n", argv[i], argv[0]);
             return 0;
             }
         sim_switches = sim_switches | sw;
         }
+    /* parse arguments */
     else {
         if ((strlen (argv[i]) + strlen (cbuf) + 3) >= sizeof(cbuf)) {
             fprintf (stderr, "Argument string too long\n");
