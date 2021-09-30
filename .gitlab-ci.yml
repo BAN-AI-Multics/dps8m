@@ -224,6 +224,8 @@
     echo "${CXXFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1
     echo "${LDFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1
     uname -a 2> /dev/null || true > /dev/null 2>&1
+    oslevel -s 2> /dev/null || true > /dev/null 2>&1
+    prtconf 2> /dev/null | grep -E '(^Processor|CPU|Kernel|Number)' 2> /dev/null | grep -v Clock 2> /dev/null || true > /dev/null 2>&1
     lsb_release -d 2> /dev/null || true > /dev/null 2>&1
     cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
     uptime 2> /dev/null || true > /dev/null 2>&1
@@ -1515,6 +1517,37 @@ Windows/ARM64, LLVM-MinGW:
     expire_in: 1 day
     paths:
       - ${CI_PROJECT_DIR:?}/dps8m.zip
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+AIX/powerpc64, IBM AIX 7.2:
+  stage: build
+  tags:
+    - jhj-ibmpower0
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - bash -x -c 'rpm -qi gcc10; gcc-10 -v; gmake CC=gcc-10 W=1 V=1 -j 12 --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - gmake distclean
+    - bash -x -c 'rpm -qi gcc; gcc -v; gmake CC=gcc W=1 V=1 -j 12 --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *buildInfo
+    - *compressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
