@@ -426,7 +426,7 @@ static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word2
                           (uint16_t) sizeof (pkt), PFLG_FINAL);
     if (rc < 0)
       {
-        printf ("udp_send failed\n");
+        fprintf (stderr, "udp_send failed\n");
       }
   }
 
