@@ -2045,15 +2045,12 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 072:              // CMD 072 -- Rewind/Unload.
         if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Rewind/Unload\r\n"); }
-        if (! (unitp->flags & UNIT_ATT)) {
-          p->stati = 04104;
-          return IOM_CMD_ERROR;
+        if ((unitp->flags & UNIT_ATT)) {
+          if (unitp->flags & UNIT_WATCH)
+            sim_printf ("Tape %ld unloads\n", (long) MT_UNIT_NUM (unitp));
+          sim_debug (DBG_DEBUG, & tape_dev, "%s: Rewind/unload\n", __func__);
+          sim_tape_detach (unitp);
         }
-        if (unitp->flags & UNIT_WATCH)
-          sim_printf ("Tape %ld unloads\n", (long) MT_UNIT_NUM (unitp));
-        sim_debug (DBG_DEBUG, & tape_dev, "%s: Rewind/unload\n", __func__);
-        sim_tape_detach (unitp);
-        //tape_statep->rec_num = 0;
         p->stati = 04000;
         // Sending this confuses RCP. When requesting a tape mount, it
         // first sends an unload command, and then waits for the operator
