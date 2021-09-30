@@ -600,6 +600,67 @@ static t_stat mt_set_capac (UNUSED UNIT * uptr, UNUSED int32 value,
   }
 
 
+t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1)
+  {
+// controller ready
+//    send_special_interrupt ((uint) cables -> cablesFromIomToTap [tap_unit_idx] . iomUnitIdx,
+//                            (uint) cables -> cablesFromIomToTap [tap_unit_idx] . chan_num,
+//                            0,
+//                            0x40, 00 /* controller ready */);
+
+    // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
+    // if substr (special_status_word, 34, 3) ^= "001"b
+    // Note the 34,3 spans 34,35,36; therefore the bits are 1..36, not 0..35
+    // 20,1 is bit 19
+    // 13,6, is bits 12..17
+    // status0 is 19..26
+    // status1 is 28..35
+    // so substr (w, 20, 1) is bit 0 of status0
+    //    substr (w, 13, 6) is the low 6 bits of dev_no
+    //    substr (w, 34, 3) is the low 3 bits of status 1
+        //sim_printf ("%s %d %o\n", disk_filename, ro,  mt_unit [tap_unit_idx] . flags);
+        //sim_printf ("special int %d %o\n", tap_unit_idx, mt_unit [tap_unit_idx] . flags);
+
+    if (! sim_is_running)
+      return SCPE_OK;
+
+    uint ctlr_unit_idx = cables->tape_to_mtp [tap_unit_idx].ctlr_unit_idx;
+    // Which port should the controller send the interrupt to? All of them...
+    bool sent_one = false;
+    for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
+      if (cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
+        {
+          uint iom_unit_idx = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+          uint chan_num = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+          uint dev_code = cables->tape_to_mtp[tap_unit_idx].dev_code;
+
+          send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0, 020 /* tape drive to ready */);
+          sent_one = true;
+        }
+    if (! sent_one)
+      {
+        sim_printf ("loadTape can't find controller; dropping interrupt\n");
+        return SCPE_ARG;
+      }
+    return SCPE_OK;
+  }
+
+
+static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
+                              UNUSED const char * cptr,
+                              UNUSED void * desc)
+  {
+    long tape_unit_idx = MT_UNIT_NUM (uptr);
+    if (tape_unit_idx >= N_MT_UNITS_MAX)
+      {
+        sim_debug (DBG_ERR, & tape_dev, 
+                   "Tape set ready: Invalid unit number %ld\n", tape_unit_idx);
+        sim_printf ("error: invalid unit number %ld\n", tape_unit_idx);
+        return SCPE_ARG;
+      }
+    return signal_tape ((unsigned int) tape_unit_idx, 0, 020 /* tape drive to ready */);
+  }
+
 static MTAB mt_mod [] =
   {
     { UNIT_WATCH, UNIT_WATCH, "WATCH", "WATCH", NULL, NULL, NULL, NULL },
@@ -673,6 +734,16 @@ static MTAB mt_mod [] =
       NULL, /* display routine */
       "Set the tape capacity of all drives", /* value descriptor */
       NULL          // help
+    },
+    {
+      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
+      0,            /* match */
+      "READY",     /* print string */
+      "READY",         /* match string */
+      tape_set_ready,         /* validation routine */
+      NULL, /* display routine */
+      NULL,          /* value descriptor */
+      NULL   // help string
     },
     { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
   };
@@ -761,7 +832,7 @@ static void deterimeFullTapeFileName(char * tapeFileName, char * buffer, int buf
 
   }
 
-void loadTape (uint driveNumber, char * tapeFilename, bool ro)
+t_stat loadTape (uint driveNumber, char * tapeFilename, bool ro)
   {
     char full_tape_file_name[PATH_MAX + 1];
 
@@ -777,33 +848,12 @@ void loadTape (uint driveNumber, char * tapeFilename, bool ro)
     if (stat != SCPE_OK)
       {
         sim_printf ("%s sim_tape_attach returned %d\n", __func__, stat);
-        return;
+        return stat;
       }
-
-    if (! sim_is_running)
-      return;
-
-    uint ctlr_unit_idx = cables->tape_to_mtp [driveNumber].ctlr_unit_idx;
-    // Which port should the controller send the interrupt to? All of them...
-    bool sent_one = false;
-    for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
-      if (cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].in_use)
-        {
-          uint iom_unit_idx = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
-          uint chan_num = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
-          uint dev_code = cables->tape_to_mtp[driveNumber].dev_code;
-
-          send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0, 020 /* tape drive to ready */);
-          sent_one = true;
-        }
-    if (! sent_one)
-      {
-        sim_printf ("loadTape can't find controller; dropping interrupt\n");
-        return;
-      }
+    return signal_tape (driveNumber, 0, 020 /* tape drive to ready */);
   }
 
-static void unloadTape (uint driveNumber)
+t_stat unloadTape (uint driveNumber)
   {
     if (mt_unit [driveNumber] . flags & UNIT_ATT)
       {
@@ -811,26 +861,10 @@ static void unloadTape (uint driveNumber)
         if (stat != SCPE_OK)
           {
             sim_warn ("%s sim_tape_detach returned %d\n", __func__, stat);
-            return;
+            return stat;
           }
       }
-    uint ctlr_unit_idx = cables->tape_to_mtp [driveNumber].ctlr_unit_idx;
-    // Which port should the controller send the interrupt to?
-    // Find one that is connected...
-    uint ctlr_port_num;
-    for (ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
-      if (cables->mtp_to_iom[driveNumber][ctlr_port_num].in_use)
-        break;
-    if (ctlr_port_num >= MAX_CTLR_PORTS)
-      {
-        sim_printf ("unloadTape can't file controller; dropping interrupt\n");
-        return;
-      }
-    uint iom_unit_idx = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
-    uint chan_num = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
-    uint dev_code = cables->tape_to_mtp[driveNumber].dev_code;
-
-    send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0, 040 /* unload complere */);
+    return signal_tape (driveNumber, 0, 040 /* unload complete */);
   }
 
 void mt_init(void)
