@@ -79,6 +79,7 @@ clean:
 	-@$(SETV); $(RMF) "simh.a"             ||  $(TRUE) > /dev/null 2>&1
 	-@$(SETV); $(RMF) "tags"               ||  $(TRUE) > /dev/null 2>&1
 	-@$(SETV); $(RMF) "dps8m.state"        ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "l68.state"          ||  $(TRUE) > /dev/null 2>&1
 	-@$(SETV); $(RMF) "../dps8/sysdefs.n"  ||  $(TRUE) > /dev/null 2>&1
 
 ###############################################################################

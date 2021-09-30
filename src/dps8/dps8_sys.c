@@ -2918,7 +2918,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
           {
             if (book_components[j].book_segment_number == i)
               {
-                printf ("    %-32s %6o %6o %6o %6o %6o %6o\n",
+                fprintf (stderr, "    %-32s %6o %6o %6o %6o %6o %6o\n",
                   book_components[j].compname,
                   book_components[j].txt_start,
                   book_components[j].txt_length,
@@ -3489,14 +3489,14 @@ static pid_t childrenList[MAX_CHILDREN];
 
 static void cleanupChildren (void)
   {
-    printf ("cleanupChildren\n");
+    fprintf (stderr, "cleanupChildren\n");
     for (int i = 0; i < nChildren; i ++)
       {
 #if !defined(__MINGW64__)   || \
     !defined(__MINGW32__)   || \
     !defined(CROSS_MINGW64) || \
     !defined(CROSS_MINGW32)
-        printf ("  kill %d\n", childrenList[i]);
+        fprintf (stderr, "  kill %d\n", childrenList[i]);
         kill (childrenList[i], SIGHUP);
 #else
         TerminateProcess((HANDLE)childrenList[i], 1);

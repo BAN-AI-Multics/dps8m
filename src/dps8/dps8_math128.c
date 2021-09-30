@@ -279,10 +279,10 @@ int128 rshift_s128 (int128 a, unsigned int n)
 static void mulmn (uint32_t w[], uint32_t u[],
                    uint32_t v[], int m, int n)
   {
-//for (int i = m - 1; i >= 0; i --) printf ("%08x", u [i]);
-//printf ("  ");
-//for (int i = n - 1; i >= 0; i --) printf ("%08x", v [i]);
-//printf ("\n");
+//for (int i = m - 1; i >= 0; i --) fprintf (stderr, "%08x", u [i]);
+//fprintf (stderr, "  ");
+//for (int i = n - 1; i >= 0; i --) fprintf (stderr, "%08x", v [i]);
+//fprintf (stderr, "\n");
     uint64_t k, t;
     int i, j;
 
@@ -609,7 +609,7 @@ static void tisz (uint64_t h, uint64_t l, bool expect)
   {
     bool r = iszero_128 (construct_128 (h, l));
     if (r != expect)
-      printf ("iszero_128 (%llu, %llu) returned %u\n", h, l, r);
+      fprintf (stderr, "iszero_128 (%llu, %llu) returned %u\n", h, l, r);
     return;
   }
 
@@ -620,8 +620,8 @@ static void tand (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 b = construct_128 (bh, bl);
     uint128 r = and_128 (a, b);
     if (r.h != rh || r.l != rl)
-      printf ("and_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-              ah, al, bh, bl, r.h, r.l);
+      fprintf (stderr, "and_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               ah, al, bh, bl, r.h, r.l);
   }
 
 static void tor (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
@@ -631,8 +631,8 @@ static void tor (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 b = construct_128 (bh, bl);
     uint128 r = or_128 (a, b);
     if (r.h != rh || r.l != rl)
-      printf ("or_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-              ah, al, bh, bl, r.h, r.l);
+      fprintf (stderr, "or_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               ah, al, bh, bl, r.h, r.l);
   }
 
 static void tcomp (uint64_t ah, uint64_t al,
@@ -641,8 +641,8 @@ static void tcomp (uint64_t ah, uint64_t al,
     uint128 a = construct_128 (ah, al);
     uint128 r = complement_128 (a);
     if (r.h != rh || r.l != rl)
-      printf ("complement_128 (%016llx%016llx) returned %016llx%016llx\n",
-              ah, al, r.h, r.l);
+      fprintf (stderr, "complement_128 (%016llx%016llx) returned %016llx%016llx\n",
+               ah, al, r.h, r.l);
   }
 
 static void tadd (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
@@ -652,8 +652,8 @@ static void tadd (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 b = construct_128 (bh, bl);
     uint128 r = add_128 (a, b);
     if (r.h != rh || r.l != rl)
-      printf ("add_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-              ah, al, bh, bl, r.h, r.l);
+      fprintf (stderr, "add_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               ah, al, bh, bl, r.h, r.l);
   }
 
 static void tsub (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
@@ -663,8 +663,8 @@ static void tsub (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 b = construct_128 (bh, bl);
     uint128 r = subtract_128 (a, b);
     if (r.h != rh || r.l != rl)
-      printf ("subtract_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-              ah, al, bh, bl, r.h, r.l);
+      fprintf (stderr, "subtract_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               ah, al, bh, bl, r.h, r.l);
   }
 
 static void tneg (uint64_t ah, uint64_t al,
@@ -673,8 +673,8 @@ static void tneg (uint64_t ah, uint64_t al,
     uint128 a = construct_128 (ah, al);
     uint128 r = negate_128 (a);
     if (r.h != rh || r.l != rl)
-      printf ("negate_128 (%016llx%016llx) returned %016llx%016llx\n",
-              ah, al, r.h, r.l);
+      fprintf (stderr, "negate_128 (%016llx%016llx) returned %016llx%016llx\n",
+               ah, al, r.h, r.l);
   }
 
 static void tgt (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
@@ -684,8 +684,8 @@ static void tgt (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 b = construct_128 (bh, bl);
     bool r = isgt_128 (a, b);
     if (r != expect)
-      printf ("gt_128 (%016llx%016llx, %016llx%016llx) returned %u\n",
-              ah, al, bh, bl, r);
+      fprintf (stderr, "gt_128 (%016llx%016llx, %016llx%016llx) returned %u\n",
+               ah, al, bh, bl, r);
   }
 
 static void tls (uint64_t ah, uint64_t al, unsigned int n,
@@ -694,8 +694,8 @@ static void tls (uint64_t ah, uint64_t al, unsigned int n,
     uint128 a = construct_128 (ah, al);
     uint128 r = lshift_128 (a, n);
     if (r.h != rh || r.l != rl)
-      printf ("lshift_128 (%016llx%016llx, %u) returned %016llx%016llx\n",
-              ah, al, n, r.h, r.l);
+      fprintf (stderr, "lshift_128 (%016llx%016llx, %u) returned %016llx%016llx\n",
+               ah, al, n, r.h, r.l);
   }
 
 static void trs (uint64_t ah, uint64_t al, unsigned int n,
@@ -704,8 +704,8 @@ static void trs (uint64_t ah, uint64_t al, unsigned int n,
     uint128 a = construct_128 (ah, al);
     uint128 r = rshift_128 (a, n);
     if (r.h != rh || r.l != rl)
-      printf ("rshift_128 (%016llx%016llx, %u) returned %016llx%016llx\n",
-              ah, al, n, r.h, r.l);
+      fprintf (stderr, "rshift_128 (%016llx%016llx, %u) returned %016llx%016llx\n",
+               ah, al, n, r.h, r.l);
   }
 
 static void tmul (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
@@ -715,8 +715,8 @@ static void tmul (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
     uint128 b = construct_128 (bh, bl);
     uint128 r = multiply_128 (a, b);
     if (r.h != rh || r.l != rl)
-      printf ("multiply_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-              ah, al, bh, bl, r.h, r.l);
+      fprintf (stderr, "multiply_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               ah, al, bh, bl, r.h, r.l);
   }
 
 static void tsmul (int64_t ah, uint64_t al, int64_t bh, uint64_t bl,
@@ -726,8 +726,8 @@ static void tsmul (int64_t ah, uint64_t al, int64_t bh, uint64_t bl,
     int128 b = construct_s128 (bh, bl);
     int128 r = multiply_s128 (a, b);
     if (r.h != rh || r.l != rl)
-      printf ("multiply_s128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-              ah, al, bh, bl, r.h, r.l);
+      fprintf (stderr, "multiply_s128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               ah, al, bh, bl, r.h, r.l);
   }
 
 static void tdiv16 (uint64_t ah, uint64_t al, uint16_t b,
@@ -738,8 +738,8 @@ static void tdiv16 (uint64_t ah, uint64_t al, uint16_t b,
     uint16_t rem;
     uint128 res = divide_128_16 (a, b, & rem);
     if (res.h != resh || res.l != resl || rem != remainder)
-      printf ("divide_128_16 (%016llx%016llx, %04x) returned %016llx%016llx, %04x\n",
-              ah, al, b, res.h, res.l, rem);
+      fprintf (stderr, "divide_128_16 (%016llx%016llx, %04x) returned %016llx%016llx, %04x\n",
+               ah, al, b, res.h, res.l, rem);
   }
 
 static void tdiv32 (uint64_t ah, uint64_t al, uint32_t b,
@@ -750,8 +750,8 @@ static void tdiv32 (uint64_t ah, uint64_t al, uint32_t b,
     uint32_t rem;
     uint128 res = divide_128_32 (a, b, & rem);
     if (res.h != resh || res.l != resl || rem != remainder)
-      printf ("divide_128_32 (%016llx%016llx, %08x) returned %016llx%016llx, %08x\n",
-              ah, al, b, res.h, res.l, rem);
+      fprintf (stderr, "divide_128_32 (%016llx%016llx, %08x) returned %016llx%016llx, %08x\n",
+               ah, al, b, res.h, res.l, rem);
   }
 
 int main (int argc, char * argv [])

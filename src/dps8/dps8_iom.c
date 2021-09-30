@@ -2149,17 +2149,17 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
       {
         if (p -> LPW_21_NC)
           {
-            printf ("case c: bootload/connect channel servicing CPI\n");
+            fprintf (stderr, "case c: bootload/connect channel servicing CPI\n");
           }
         else
           {
             if (p -> LPW_22_TAL)
               {
-                printf ("case b: standard\n");
+                fprintf (stderr, "case b: standard\n");
               }
             else
                   {
-                printf ("case a: GCOS CPI\n");
+                fprintf (stderr, "case a: GCOS CPI\n");
               }
           }
       }

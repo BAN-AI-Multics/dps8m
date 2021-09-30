@@ -650,7 +650,7 @@ int main (int argc, char * argv [])
     rc = udp_create ("4500::4426", & linkno);
     if (rc < 0)
       {
-        printf ("udp_create failed\n");
+        fprintf (stderr, "udp_create failed\n");
         exit (1);
       }
 
@@ -661,22 +661,22 @@ int main (int argc, char * argv [])
         rc = udp_receive (linkno, pkt, psz);
         if (rc < 0)
           {
-            printf ("udp_receive failed\n");
+            fprintf (stderr, "udp_receive failed\n");
             exit (1);
           }
         else if (rc == 0)
           {
-            printf ("udp_receive 0\n");
+            fprintf (stderr, "udp_receive 0\n");
             sleep (1);
           }
         else
           {
             for (int i = 0; i < rc; i ++)
               {
-                printf ("  %06o  %04x  ", pkt [i], pkt [i]);
+                fprintf (stderr, "  %06o  %04x  ", pkt [i], pkt [i]);
                 for (int b = 0; b < 16; b ++)
-                  printf ("%c", pkt [i] & (1 << b) ? '1' : '0');
-                printf ("\n");
+                  fprintf (stderr, "%c", pkt [i] & (1 << b) ? '1' : '0');
+                fprintf (stderr, "\n");
               }
           }
       }
