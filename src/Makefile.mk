@@ -215,15 +215,14 @@ else
 ###############################################################################
 # IBM AIX
 
-# OS: IBM AIX 7.1-GA, 7.2-GA, 7.2 TL3, and 7.2 TL4 SP3+ on IBM POWER7+ pSeries
-# Compiler: IBM AIX Toolbox GCC 8.3.0 (gcc-8-1.ppc -- powerpc-ibm-aix7.2.0.0),
+# Operating System: IBM AIX 6.1, 7.1, and 7.2 for IBM POWER7+ on IBM pSeries.
 # libuv: IBM AIX Toolbox libuv 1.38.1 (libuv-{devel}-1.38.1-1), or later, and,
 # libpopt: IBM AIX Toolbox libpopt 1.18 (libpopt-1.18-1) or later is required.
 
     ifeq ($(UNAME_S),AIX)
       KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
-      CFLAGS += -DHAVE_POPT=1 -maix$(KRNBITS) -Wl,-b$(KRNBITS)
-      LDFLAGS += -lm -lpthread -lpopt -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+      CFLAGS += -DUSE_FLOCK=1 -DHAVE_POPT=1 -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+      LDFLAGS += -lm -lpthread -lpopt -lbsd -maix$(KRNBITS) -Wl,-b$(KRNBITS)
       CC=gcc
       LD=gcc
     endif
