@@ -2151,6 +2151,11 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
 #endif // defined(SPEED) && defined(INLINE_CORE)
 
 #ifdef LOCKLESS
+
+#if (! defined (CPP11_ATOMICS)) && (! defined (FREEBSD_ATOMICS)) && (! defined (POSIX_ATOMICS))
+#define CPP11_ATOMICS
+#endif
+
 int core_read_lock (word24 addr, word36 *data, const char * ctx);
 int core_write_unlock (word24 addr, word36 data, const char * ctx);
 int core_unlock_all();
@@ -2159,7 +2164,7 @@ int core_unlock_all();
 #define MEM_LOCKED_BIT    61
 #define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
 
-#if defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
+#if defined (FREEBSD_ATOMICS)
 #include <machine/atomic.h>
 
 #define LOCK_CORE_WORD(addr)                                            \
@@ -2203,7 +2208,7 @@ int core_unlock_all();
     }                                                                   \
   while (0)
 
-#else  // defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
+#endif // FREEBSD_ATOMICS
 
 #if defined(CPP11_ATOMICS)
 
@@ -2217,7 +2222,7 @@ int core_unlock_all();
 	{								\
 	  i--;								\
 	  if ((i & 0xff) == 0) {					\
-	    pthread_yield();						\
+	    sched_yield();						\
 	    cpu.lockYield++;						\
 	  }								\
 	}								\
@@ -2247,8 +2252,9 @@ int core_unlock_all();
     }									\
   while (0)
 
-#else // !CPP11_ATOMICS
+#endif // CPP11_ATOMICS
 
+#if defined(POSIX_ATOMICS)
 #ifdef MEMORY_ACCESS_NOT_STRONGLY_ORDERED
 #define MEM_BARRIER()   do { __sync_synchronize(); } while (0)
 #else
@@ -2298,8 +2304,7 @@ int core_unlock_all();
     }                                                                   \
   while (0)
 
-#endif  // ! CPP11_ATOMICS
-#endif  // defined(__FreeBSD__) && !defined(USE_COMPILER_ATOMICS)
+#endif  // POSIX_ATOMICS
 #endif  // LOCKLESS
 
 static inline void core_readN (word24 addr, word36 * data, uint n,
