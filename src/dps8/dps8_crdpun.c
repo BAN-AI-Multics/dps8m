@@ -574,7 +574,7 @@ static void scan_card_for_glyphs(pun_state_t * state, word36* buffer)
     for (uint c_pos = 0; c_pos < 22; c_pos++)
       {
         char c = get_lace_char(buffer, c_pos);
-        uint current_length = strlen(state -> glyph_buffer);
+        uint current_length = (uint)strlen(state -> glyph_buffer);
         if (current_length < (sizeof(state -> glyph_buffer) - 1))
           {
             state -> glyph_buffer[current_length++] = c;
