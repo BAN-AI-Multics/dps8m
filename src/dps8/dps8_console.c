@@ -258,7 +258,8 @@ typedef struct opc_state_t
 // If the tally is smalleri then the contents of the buffer, sendConsole will
 // issue a warning and discard the excess.
 #define bufsize 257
-    unsigned char buf[bufsize];
+    unsigned char keyboardLineBuffer[bufsize];
+    bool tabStops [bufsize];
     unsigned char *tailp;
     unsigned char *readp;
     unsigned char *auto_input;
@@ -290,6 +291,13 @@ typedef struct opc_state_t
 
     // ^T
     //unsigned long keyboard_poll_cnt;
+
+    // Track the carrier position to allow tab expansion
+    // (If the left margin is 1, then the tab stops are 11, 21, 31, 41, ...)
+    int carrierPosition;
+
+    // Handle escape sequence
+    bool escapeSequence;
 
  } opc_state_t;
 
@@ -361,8 +369,11 @@ static t_stat opc_reset (UNUSED DEVICE * dptr)
     for (uint i = 0; i < N_OPC_UNITS_MAX; i ++)
       {
         console_state[i].io_mode = opc_no_mode;
-        console_state[i].tailp = console_state[i].buf;
-        console_state[i].readp = console_state[i].buf;
+        console_state[i].tailp = console_state[i].keyboardLineBuffer;
+        console_state[i].readp = console_state[i].keyboardLineBuffer;
+        console_state[i].carrierPosition = 1;
+        memset (console_state[i].tabStops, 0, sizeof (console_state[i].tabStops));
+        console_state[i].escapeSequence = false;
       }
     return SCPE_OK;
   }
@@ -400,6 +411,9 @@ void console_init (void)
         csp->autoaccept = 0;
         csp->noempty = 0;
         csp->attn_flush = 1;
+        csp->carrierPosition = 1;
+        csp->escapeSequence = 1;
+        memset (csp->tabStops, 0, sizeof (csp->tabStops));
       }
   }
 
@@ -596,6 +610,7 @@ static void handleRCP (uint con_unit_idx, char * text)
       }
   }
 
+// Send entered text to the IOM.
 static void sendConsole (int conUnitIdx, word12 stati)
   {
     opc_state_t * csp = console_state + conUnitIdx;
@@ -702,8 +717,8 @@ static void sendConsole (int conUnitIdx, word12 stati)
     p->charPos = n_chars % 4;
     p->stati = (word12) stati;
 
-    csp->readp = csp->buf;
-    csp->tailp = csp->buf;
+    csp->readp = csp->keyboardLineBuffer;
+    csp->tailp = csp->keyboardLineBuffer;
     csp->io_mode = opc_no_mode;
 
     send_terminate_interrupt (iomUnitIdx, chan_num);
@@ -713,6 +728,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
 static void console_putchar (int conUnitIdx, char ch);
 static void console_putstr (int conUnitIdx, char * str);
 
+// Process characters entered on keyboard or autoinput
 static void consoleProcessIdx (int conUnitIdx)
   {
     opc_state_t * csp = console_state + conUnitIdx;
@@ -954,7 +970,7 @@ static void consoleProcessIdx (int conUnitIdx)
         int announce = 1;
         for (;;)
           {
-            if (csp->tailp >= csp->buf + sizeof (csp->buf))
+            if (csp->tailp >= csp->keyboardLineBuffer + sizeof (csp->keyboardLineBuffer))
              {
                 sim_warn ("getConsoleInput: Buffer full; flushing autoinput.\n");
                 sendConsole (conUnitIdx, 04000); // Normal status
@@ -967,8 +983,8 @@ static void consoleProcessIdx (int conUnitIdx)
                 csp->auto_input = NULL;
                 csp->autop = NULL;
                 // Empty input buffer
-                csp->readp = csp->buf;
-                csp->tailp = csp->buf;
+                csp->readp = csp->keyboardLineBuffer;
+                csp->tailp = csp->keyboardLineBuffer;
                 sendConsole (conUnitIdx, 04310); // Null line, status operator
                                                  // distracted
                 console_putstr (conUnitIdx,  "CONSOLE: RELEASED\r\n");
@@ -1016,13 +1032,13 @@ eol:
 ////   Check for timeout
 
     if (csp->io_mode == opc_read_mode &&
-        csp->tailp == csp->buf)
+        csp->tailp == csp->keyboardLineBuffer)
       {
         if (csp->startTime + 30 < time (NULL))
           {
             console_putstr (conUnitIdx,  "CONSOLE: TIMEOUT\r\n");
-            csp->readp = csp->buf;
-            csp->tailp = csp->buf;
+            csp->readp = csp->keyboardLineBuffer;
+            csp->tailp = csp->keyboardLineBuffer;
             sendConsole (conUnitIdx, 04310); // Null line, status operator
                                              // distracted
           }
@@ -1062,7 +1078,7 @@ eol:
     if (ch == '\177' || ch == '\010')  // backspace/del
       {
         ta_get ();
-        if (csp->tailp > csp->buf)
+        if (csp->tailp > csp->keyboardLineBuffer)
           {
             * csp->tailp = 0;
             -- csp->tailp;
@@ -1078,7 +1094,7 @@ eol:
         if (csp->echo)
           {
             console_putstr (conUnitIdx,  "^R\r\n");
-            for (unsigned char * p = csp->buf; p < csp->tailp; p ++)
+            for (unsigned char * p = csp->keyboardLineBuffer; p < csp->tailp; p ++)
               console_putchar (conUnitIdx, (char) (*p));
             return;
           }
@@ -1088,7 +1104,7 @@ eol:
       {
         ta_get ();
         console_putstr (conUnitIdx,  "^U\r\n");
-        csp->tailp = csp->buf;
+        csp->tailp = csp->keyboardLineBuffer;
         return;
       }
 
@@ -1096,7 +1112,7 @@ eol:
       {
         ta_get ();
         console_putstr (conUnitIdx,  "^X\r\n");
-        csp->tailp = csp->buf;
+        csp->tailp = csp->keyboardLineBuffer;
         return;
       }
 
@@ -1114,8 +1130,8 @@ eol:
         ta_get ();
         console_putstr (conUnitIdx,  "\r\n");
         // Empty input buffer
-        csp->readp = csp->buf;
-        csp->tailp = csp->buf;
+        csp->readp = csp->keyboardLineBuffer;
+        csp->tailp = csp->keyboardLineBuffer;
         sendConsole (conUnitIdx, 04310); // Null line, status operator
                                          // distracted
         console_putstr (conUnitIdx,  "CONSOLE: RELEASED\n");
@@ -1126,7 +1142,7 @@ eol:
       {
         // silently drop buffer overrun
         ta_get ();
-        if (csp->tailp >= csp->buf + sizeof (csp->buf))
+        if (csp->tailp >= csp->keyboardLineBuffer + sizeof (csp->keyboardLineBuffer))
           return;
 
         * csp->tailp ++ = (unsigned char) ch;
@@ -1302,7 +1318,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
       goto done;
 
     case opc_read_mode: {
-        if (csp->tailp != csp->buf) {
+        if (csp->tailp != csp->keyboardLineBuffer) {
           sim_warn ("%s: Discarding previously buffered input.\n", __func__);
         }
         uint tally = p->DDCW_TALLY;
@@ -1312,8 +1328,8 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
           tally = 4096;
         }
 
-        csp->tailp = csp->buf;
-        csp->readp = csp->buf;
+        csp->tailp = csp->keyboardLineBuffer;
+        csp->readp = csp->keyboardLineBuffer;
         csp->startTime = time (NULL);
         csp->tally = tally;
         csp->daddr = daddr;
@@ -1356,6 +1372,22 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         word36 buf[tally];
         iom_indirect_data_service (iomUnitIdx, chan, buf, & tally, false);
         p->initiate = false;
+
+#if 0
+  sim_printf ("\r\n");
+  for (uint i = 0; i < tally; i ++) {
+    sim_printf ("%012llo  \"", buf[i]);
+    for (uint j = 0; j < 36; j += 9) {
+      word9 ch = getbits36_9 (buf[i], j);
+      if (ch < 256 && isprint ((char) ch))
+        sim_printf ("%c", ch);
+      else 
+        sim_printf ("\\%03o", ch);
+    }
+   sim_printf ("\"\r\n");
+  }
+  sim_printf ("\r\n");
+#endif
 
         // Tally is in words, not chars.
         char text[tally * 4 + 1];
@@ -1793,14 +1825,49 @@ static void console_putstr (int conUnitIdx, char * str)
                            (ssize_t) l);
   }
 
-static void console_putchar (int conUnitIdx, char ch)
-  {
-    sim_putchar (ch);
-    opc_state_t * csp = console_state + conUnitIdx;
-    if (csp->console_access.loggedOn)
-      accessStartWrite (csp->console_access.client, & ch, 1);
-  }
+static void consolePutchar0 (int conUnitIdx, char ch) {
+  opc_state_t * csp = console_state + conUnitIdx;
+  sim_putchar (ch);
+  if (csp->console_access.loggedOn)
+    accessStartWrite (csp->console_access.client, & ch, 1);
+}
 
+static void console_putchar (int conUnitIdx, char ch) {
+  opc_state_t * csp = console_state + conUnitIdx;
+  if (csp->escapeSequence) { // Prior character was an esacpe
+    csp->escapeSequence = false;
+    if (ch == '1') { // Set tab
+      if (csp->carrierPosition >= 1 && csp->carrierPosition <= 256) {
+        csp->tabStops[csp->carrierPosition] = true;
+      }
+    } else if (ch == '2') { // Clear all tabs
+      memset (csp->tabStops, 0, sizeof (csp->tabStops));
+    } else { // Unrecognized
+      sim_warn ("Unrecognized escape sequence \\033\\%03o\r\n", ch);
+    }
+  } else if (isprint (ch)) {
+    consolePutchar0 (conUnitIdx, ch);
+    csp->carrierPosition ++;
+  } else if (ch == '\t') {  // Tab
+    while (csp->carrierPosition < bufsize - 1) {
+      consolePutchar0 (conUnitIdx, ' ');
+      csp->carrierPosition ++;
+      if (csp->tabStops[csp->carrierPosition])
+        break;
+    }
+  } else if (ch == '\b') { // Backspace
+      consolePutchar0 (conUnitIdx, ch);
+      csp->carrierPosition --;
+  } else if (ch == '\f' || ch == '\r') { // Formfeed, Carriage return
+      consolePutchar0 (conUnitIdx, ch);
+      csp->carrierPosition = 1;
+  } else if (ch == '\033') { // Escape
+      csp->escapeSequence = true;
+  } else { // Non-printing and we don't recognize a carriage motion characatr, so just print it...
+      consolePutchar0 (conUnitIdx, ch);
+  }
+}
+  
 static void consoleConnectPrompt (uv_tcp_t * client)
   {
     accessStartWriteStr (client, "password: \r\n");
