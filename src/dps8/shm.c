@@ -9,7 +9,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//#define USE_SID
 // shared memory library
 
 #include <stdio.h>
@@ -27,33 +26,33 @@
 
 #include "shm.h"
 
-//#include "dps8.h"
-//#include "dps8_utils.h"
-#include "shm.h"
-
 void * create_shm (char * key, size_t size)
   {
     void * p;
     char buf [256];
+#ifdef L68
+    sprintf (buf, "l68.%s", key);
+#else
     sprintf (buf, "dps8m.%s", key);
+#endif /* ifdef L68 */
     int fd = open (buf, O_RDWR | O_CREAT, 0600);
     if (fd == -1)
       {
-        printf ("create_shm open fail %d\r\n", errno);
+        fprintf (stderr, "create_shm open fail %d\r\n", errno);
         return NULL;
       }
 
 #ifdef USE_FLOCK
     int rc = flock (fd, LOCK_EX | LOCK_NB);
     if (rc < 0) {
-      printf ("%s flock fail %d\r\n", __func__, errno);
+      fprintf (stderr, "%s flock fail %d\r\n", __func__, errno);
       return NULL;
     }
 #endif
 
     if (ftruncate (fd, (off_t) size) == -1)
       {
-        printf ("create_shm  ftruncate  fail %d\r\n", errno);
+        fprintf (stderr, "create_shm  ftruncate  fail %d\r\n", errno);
         return NULL;
       }
 
@@ -61,7 +60,7 @@ void * create_shm (char * key, size_t size)
 
     if (p == MAP_FAILED)
       {
-        printf ("create_shm mmap  fail %d\r\n", errno);
+        fprintf (stderr, "create_shm mmap  fail %d\r\n", errno);
         return NULL;
       }
     return p;
@@ -71,18 +70,22 @@ void * open_shm (char * key, size_t size)
   {
     void * p;
     char buf [256];
+#ifdef L68
+    sprintf (buf, "l68.%s", key);
+#else
     sprintf (buf, "dps8m.%s", key);
+#endif /* ifdef L68 */
     int fd = open (buf, O_RDWR, 0600);
     if (fd == -1)
       {
-        printf ("open_shm open fail %d\r\n", errno);
+        fprintf (stderr, "open_shm open fail %d\r\n", errno);
         return NULL;
       }
 
 #ifdef USE_FLOCK
     int rc = flock (fd, LOCK_EX | LOCK_NB);
     if (rc < 0) {
-      printf ("%s flock fail %d\r\n", __func__, errno);
+      fprintf (stderr, "%s flock fail %d\r\n", __func__, errno);
       return NULL;
     }
 #endif
@@ -91,7 +94,7 @@ void * open_shm (char * key, size_t size)
     if (p == MAP_FAILED)
       {
         close (fd);
-        printf ("open_shm mmap  fail %d\r\n", errno);
+        fprintf (stderr, "open_shm mmap  fail %d\r\n", errno);
         return NULL;
       }
     return p;

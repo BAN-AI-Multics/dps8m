@@ -56,6 +56,7 @@ src/dps8/ver.h
 src/dps8/errnos.h
 tags
 dps8m.state
+l68.state
 *.tar.gz
 *.tar.xz
 *.tar.bz2

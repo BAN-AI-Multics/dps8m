@@ -39,12 +39,12 @@ endif
 ###############################################################################
 
 C_SRCS = scp.c       sim_console.c  sim_disk.c   sim_fio.c   sim_serial.c     \
-         sim_sock.c  sim_tape.c     sim_timer.c  sim_tmxr.c
+         sim_sock.c  sim_tape.c     sim_timer.c  sim_tmxr.c  linehistory.c
 
 ###############################################################################
 
 OBJS = scp.o       sim_console.o  sim_disk.o   sim_fio.o   sim_serial.o       \
-       sim_sock.o  sim_tape.o     sim_timer.o  sim_tmxr.o
+       sim_sock.o  sim_tape.o     sim_timer.o  sim_tmxr.o  linehistory.o
 
 ###############################################################################
 
@@ -79,6 +79,7 @@ clean:
 	-@$(SETV); $(RMF) "simh.a"             ||  $(TRUE) > /dev/null 2>&1
 	-@$(SETV); $(RMF) "tags"               ||  $(TRUE) > /dev/null 2>&1
 	-@$(SETV); $(RMF) "dps8m.state"        ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "l68.state"          ||  $(TRUE) > /dev/null 2>&1
 	-@$(SETV); $(RMF) "../dps8/sysdefs.n"  ||  $(TRUE) > /dev/null 2>&1
 
 ###############################################################################
@@ -97,6 +98,8 @@ scp.o:         sim_tmxr.h sim_frontpanel.h
 scp.o:         ../dps8/ver.h
 scp.o:         ../dps8/dps8_prom.h
 scp.o:         ../dps8/sysdefs.h
+scp.o:         linehistory.h
+linehistory.o: linehistory.h
 sim_console.o: sim_defs.h
 sim_console.o: scp.h sim_console.h sim_timer.h
 sim_console.o: sim_fio.h

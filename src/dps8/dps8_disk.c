@@ -79,29 +79,6 @@
 // sector size.
 //
 
-// Disk types
-//
-//  D500
-//  D451
-//  D400
-//  D190
-//  D181
-//  D501
-//  3380
-//  3381
-
-enum seekSize_t { seek_64, seek_512};
-struct diskType_t
-  {
-    char * typename;
-    uint capac;
-    uint firstDevNumber;
-    bool removable;
-    enum seekSize_t seekSize; // false: seek 64  true: seek 512
-    uint sectorSizeWords;
-    uint dau_type;
-  };
-
 // dau_type stat_mpc_.pl1
 //
 //  dcl  ddev_model (0:223) char (6) static options (constant)
@@ -150,7 +127,7 @@ struct diskType_t
 //           vfd       36/1770*255         FIPS 3381
 
 
-static struct diskType_t diskTypes[] =
+struct diskType_t diskTypes[] =
   {
     { // disk_init assumes 3381 is at index 0
       "3381", 1770*255, 0, false, seek_512, 512, 0
@@ -195,22 +172,7 @@ static struct diskType_t diskTypes[] =
 
 #define N_DISK_UNITS 2 // default
 
-static struct dsk_state
-  {
-    uint typeIdx;
-    enum
-      {
-        disk_no_mode, disk_rd_clr_stats, disk_rd_status_reg, disk_rd_config,
-        disk_rd, disk_seek_512, disk_wr, disk_seek_64, disk_special_seek,
-        disk_rd_ctrl_reg
-      } io_mode;
-    uint seekPosition;
-    char device_name[MAX_DEV_NAME_LEN];
-#ifdef LOCKLESS
-    pthread_mutex_t dsk_lock;
-#endif
-  } dsk_states[N_DSK_UNITS_MAX];
-
+struct dsk_state dsk_states [N_DSK_UNITS_MAX];
 
 //-- // extern t_stat disk_svc(UNIT *up);
 
@@ -410,7 +372,13 @@ static t_stat dsk_set_device_name (UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat signal_disk_ready (uint dsk_unit_idx)
+//
+// Looking at rcp_disk.pl1, it appears that the special interupt for disks
+// only causes rcp to poll the device for status; there don't appear to 
+// be any status specific bits to send here; signal ready is a misnomer;
+// it is just signal.
+
+t_stat signal_disk_ready (uint dsk_unit_idx)
   {
 
     // Don't signal in the sim is actually running....
@@ -499,17 +467,29 @@ static t_stat disk_set_ready (UNIT * uptr, UNUSED int32 value,
     return signal_disk_ready ((uint) disk_unit_idx);
   }
 
-static t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, UNUSED bool ro)
-  {
-    //sim_printf ("in loadDisk %d %s\n", dsk_unit_idx, disk_filename);
-    t_stat stat = attach_unit (& dsk_unit[dsk_unit_idx], disk_filename);
-    if (stat != SCPE_OK)
-      {
-        sim_printf ("loadDisk sim_disk_attach returned %d\n", stat);
-        return stat;
-      }
-    return signal_disk_ready ((uint) dsk_unit_idx);
+t_stat unloadDisk (uint dsk_unit_idx) {
+  if (dsk_unit [dsk_unit_idx] . flags & UNIT_ATT) {
+    t_stat stat = sim_disk_detach (& dsk_unit [dsk_unit_idx]);
+    if (stat != SCPE_OK) {
+      sim_warn ("%s: sim_disk_detach returned %d\n", __func__, stat);
+      return SCPE_ARG;
+    }
   }
+  return signal_disk_ready ((uint) dsk_unit_idx);
+}
+
+t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, bool ro) {
+  if (ro)
+    dsk_unit[dsk_unit_idx].flags |= MTUF_WRP;
+  else
+    dsk_unit[dsk_unit_idx].flags &= ~ MTUF_WRP;
+  t_stat stat = attach_unit (& dsk_unit [dsk_unit_idx], disk_filename);
+  if (stat != SCPE_OK) {
+    sim_printf ("%s: sim_disk_attach returned %d\n", __func__, stat);
+    return stat;
+  }
+  return signal_disk_ready ((uint) dsk_unit_idx);
+}
 
 #define UNIT_WATCH UNIT_V_UF
 
@@ -1713,10 +1693,7 @@ DEVICE ipc_dev =
 #define MSP_UNIT_IDX(uptr) ((uptr) - msp_unit)
 #define N_MSP_UNITS 1 // default
 
-static struct msp_state
-  {
-    char device_name[MAX_DEV_NAME_LEN];
-  } msp_states[N_MSP_UNITS_MAX];
+struct msp_state_s msp_states [N_MSP_UNITS_MAX];
 
 UNIT msp_unit[N_MSP_UNITS_MAX] =
   {

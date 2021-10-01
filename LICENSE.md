@@ -16,6 +16,7 @@
   * [DecNumber](#decnumber)
   * [libTELNET](#libtelnet)
   * [Shell Routines](#shell-routines)
+  * [LineHistory](#linehistory)
   * [BSD Random](#bsd-random)
   * [Multics Software Materials and Documentation](#multics-software-materials-and-documentation)
 - [Scope of Intended Application](#scope-of-intended-application)
@@ -24,6 +25,8 @@
 <!-- tocstop -->
 
 ## DPS8M
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgitlab.com%2Fdps8m%2Fdps8m.svg?type=large)](https://app.fossa.com/projects/git%2Bgitlab.com%2Fdps8m%2Fdps8m?ref=badge_large)
 
 ### DPS8M Simulator
 
@@ -468,6 +471,47 @@ CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
 LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
 NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+```
+
+----
+
+### LineHistory
+
+* **LineHistory** is a small and self-contained line editor, implementing
+  *Emacs*-style line editing functionality similar to GNU *readline* or BSD
+  *libedit*. It is derived from the *linenoise* library written by Salvatore
+  “antirez” Sanfilippo and Pieter Noordhuis and distributed under a two-clause
+  BSD license.
+
+```text
+Copyright (c) 2010-2016, Salvatore Sanfilippo <antirez at gmail dot com>
+Copyright (c) 2010-2013, Pieter Noordhuis <pcnoordhuis at gmail dot com>
+Copyright (c) 2021 The DPS8M Development Team
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+ *  Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+
+ *  Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+“AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
 ----

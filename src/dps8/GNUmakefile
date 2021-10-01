@@ -300,9 +300,10 @@ H_SRCS += uvutil.h
 
 ###############################################################################
 
-SIMH_OBJS = ../simh/scp.o        ../simh/sim_console.o  ../simh/sim_disk.o    \
-            ../simh/sim_fio.o    ../simh/sim_serial.o   ../simh/sim_sock.o    \
-            ../simh/sim_tape.o   ../simh/sim_timer.o    ../simh/sim_tmxr.o
+SIMH_OBJS = ../simh/scp.o          ../simh/sim_console.o   ../simh/sim_disk.o  \
+            ../simh/sim_fio.o      ../simh/sim_serial.o    ../simh/sim_sock.o  \
+            ../simh/sim_tape.o     ../simh/sim_timer.o     ../simh/sim_tmxr.o  \
+            ../simh/linehistory.o
 
 ###############################################################################
 
@@ -499,6 +500,9 @@ distclean: clean
 	@$(SETV); $(RMF) "../../dps8m.state"      ||  $(TRUE)
 	@$(SETV); $(RMF) "../dps8m.state"         ||  $(TRUE)
 	@$(SETV); $(RMF) "dps8m.state"            ||  $(TRUE)
+	@$(SETV); $(RMF) "../../l68.state"        ||  $(TRUE)
+	@$(SETV); $(RMF) "../l68.state"           ||  $(TRUE)
+	@$(SETV); $(RMF) "l68.state"              ||  $(TRUE)
 	@$(SETV); $(RMF) "restoreMultics.log"     ||  $(TRUE)
 	@$(SETV); $(RMF)  "TAGS"                  ||  $(TRUE)
 	@$(SETV); $(RMF)  "tags"                  ||  $(TRUE)

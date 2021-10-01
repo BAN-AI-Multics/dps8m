@@ -2922,7 +2922,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
           {
             if (book_components[j].book_segment_number == i)
               {
-                printf ("    %-32s %6o %6o %6o %6o %6o %6o\n",
+                fprintf (stderr, "    %-32s %6o %6o %6o %6o %6o %6o\n",
                   book_components[j].compname,
                   book_components[j].txt_start,
                   book_components[j].txt_length,
@@ -3493,14 +3493,14 @@ static pid_t childrenList[MAX_CHILDREN];
 
 static void cleanupChildren (void)
   {
-    printf ("cleanupChildren\n");
+    fprintf (stderr, "cleanupChildren\n");
     for (int i = 0; i < nChildren; i ++)
       {
 #if !defined(__MINGW64__)   || \
     !defined(__MINGW32__)   || \
     !defined(CROSS_MINGW64) || \
     !defined(CROSS_MINGW32)
-        printf ("  kill %d\n", childrenList[i]);
+        fprintf (stderr, "  kill %d\n", childrenList[i]);
         kill (childrenList[i], SIGHUP);
 #else
         TerminateProcess((HANDLE)childrenList[i], 1);
@@ -3723,6 +3723,89 @@ sim_printf ("%o:%o %u(%d) %s\r\n", dbgevents[n_dbgevents].segno, dbgevents[n_dbg
   }
 #endif
 
+// [UN]LOAD  name  image_name ro|rw
+//
+//  load tapea_05  data.tap ro
+//
+//  load diskb_01  data.dsk rw
+//
+
+t_stat load_media (int32 arg, const char * buf)
+  {
+    // arg 1: load
+    //     0: unload
+
+    char name[strlen (buf)];
+    char fname[strlen (buf)];
+    char perm[strlen (buf)];
+    bool ro;
+    if (arg)
+      {
+        int rc = sscanf (buf, "%s %s %s", name, fname, perm);
+        if (rc != 3)
+          return SCPE_ARG;
+        if (strcasecmp (perm, "rw") == 0)
+          ro = false;
+        else if (strcasecmp (perm, "ro") == 0)
+          ro = true;
+        else
+          {
+             sim_print ("'%s' not 'ro' or 'rw'\r\n", perm);
+             goto usage;
+          }
+      }
+    else
+      {
+        int rc = sscanf (buf, "%s", name);
+        if (rc != 1)
+          return SCPE_ARG;
+      }
+
+    for (uint i = 0; i < N_DSK_UNITS_MAX; i ++)
+      if (strcmp (dsk_states[i].device_name, name) == 0)
+        {
+          if (arg)
+            return loadDisk (i, fname, ro);
+          return unloadDisk (i);
+        }
+
+    for (uint i = 0; i < N_MT_UNITS_MAX; i ++)
+      if (strcmp (tape_states[i].device_name, name) == 0)
+        {
+          if (arg)
+            return loadTape (i, fname, ro);
+          return unloadTape (i);
+        }
+
+    sim_printf ("Can't find name '%s'\r\n", name);
+usage:
+    sim_printf ("[UN]LOAD device_name image_name ro|rw\r\n");
+    return SCPE_ARG;
+  }
+
+t_stat ready_media (int32 arg, const char * buf) {
+  char name[strlen (buf)];
+  int rc = sscanf (buf, "%s", name);
+  if (rc != 1)
+    return SCPE_ARG;
+
+  for (uint i = 0; i < N_DSK_UNITS_MAX; i ++) {
+    if (strcmp (dsk_states[i].device_name, name) == 0) {
+      return signal_disk_ready (i);
+    }
+  }
+
+  for (uint i = 0; i < N_MT_UNITS_MAX; i ++) {
+    if (strcmp (tape_states[i].device_name, name) == 0) {
+      return signal_tape (i, 0, 020 /* tape drive to ready */);
+    }
+  }
+
+  sim_printf ("Can't find name '%s'\r\n", name);
+  sim_printf ("[UN]LOAD device_name image_name ro|rw\r\n");
+  return SCPE_ARG;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // simh Command table
@@ -3780,6 +3863,9 @@ static CTAB dps8_cmds[] =
     {"SKIPBOOT",            boot_skip,                0, "skipboot: Skip forward on boot tape\n", NULL, NULL},
     {"FNPSTART",            fnp_start,                0, "fnpstart: Force immediate FNP initialization\n", NULL, NULL},
     {"MOUNT",               mount_tape,               0, "mount: Mount tape image and signal Mulitcs\n", NULL, NULL },
+    {"LOAD",                load_media,               1, "mount: Mount disk or tape image and signal Mulitcs\n", NULL, NULL },
+    {"UNLOAD",              load_media,               0, "mount: Unmount disk or tape image and signal Mulitcs\n", NULL, NULL },
+    {"READY",               ready_media,              0, "ready: Signal Mulitcs that media is ready\n", NULL, NULL },
     {"XF",                  do_execute_fault,         0, "xf: Execute fault: Press the execute fault button\n", NULL, NULL},
     {"RESTART",             do_restart,         0, "xf: Execute fault: Press the execute fault button\n", NULL, NULL},
     {"POLL",                set_sys_polling_interval, 0, "Set polling interval in milliseconds", NULL, NULL },
