@@ -246,7 +246,7 @@ DEVICE opc_dev = {
 };
 
 
-enum console_model { m6001 = 0, m6601 = 1 };
+enum console_model { m6001 = 0, m6004 = 1, m6601 = 2 };
 
 // Hangs off the device structure
 typedef struct opc_state_t
@@ -1580,6 +1580,7 @@ static config_value_list_t cfg_on_off[] =
 static config_value_list_t cfg_model[] =
   {
     { "m6001", m6001 },
+    { "m6004", m6004 },
     { "m6601", m6601 },
     { NULL, 0 }
   };
