@@ -73,5 +73,5 @@ diff_files :
 	dos2unix -f < ci.log.ref | ./tidy > old.log
 
 kit:
-	tar cfz kit.tgz ci.makefile ci ci_full.log.ref *.expect tidy README.txt tapes/* ec/* ini/*
+	tar cfz kit.tgz ci.makefile ci ci_full.log.ref *.expect init tidy README.txt tapes/* ec/* ini/*
 
