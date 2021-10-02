@@ -2367,6 +2367,7 @@ void dumpDCW (word36 DCW, word1 LPW_23_REL) {
     sim_printf ("//     dev code        %02o\r\n", IDCW_DEV_CODE);
     sim_printf ("//     ctrl             %o (%s)\r\n", IDCW_CHAN_CTRL, charCtrls[IDCW_CHAN_CTRL]);
     sim_printf ("//     chancmd          %o (%s)\r\n", IDCW_CHAN_CMD, IDCW_CHAN_CMD < 16 ? chanCmds[IDCW_CHAN_CMD] : "unknown");
+    sim_printf ("//     count            %o\r\n", IDCW_COUNT);
   } else { // TDCW or DDCW
     word18 TDCW_DATA_ADDRESS = getbits36_18 (DCW,  0);
     word1  TDCW_31_SEG =       getbits36_1 (DCW, 31);
@@ -2538,6 +2539,7 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
         p -> IDCW_CHAN_CTRL =    getbits36_2 (p -> DCW, 22);
         p -> IDCW_CHAN_CMD =     getbits36_6 (p -> DCW, 24);
         p -> IDCW_COUNT =        getbits36_6 (p -> DCW, 30);
+        p->recordResidue = p->IDCW_COUNT;
 #ifdef TESTING
         sim_debug (DBG_DEBUG, & iom_dev,
                    "%s: IDCW %012llo cmd %02o (%s) dev %02o ctrl %o chancmd %o\n", 
@@ -2563,7 +2565,7 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
                    __func__, p->DCW, p->DDCW_TALLY, p->DDCW_ADDR, p->DDCW_22_23_TYPE);
 // POLTS_TESTING
 #if 0
-if (chan == 014)        if_sim_debug (DBG_TRACE, & iom_dev) {
+if (iomUnitIdx == 1 && chan == 020)        if_sim_debug (DBG_TRACE, & iom_dev) {
           static char * types[4] = { "IOTD", "IOTP", "TDCW", "IONTP" };
           if (p->DDCW_22_23_TYPE == 2) {
             sim_printf ("// TDCW (2) %012llo\r\n", p->DCW);
@@ -3227,7 +3229,6 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
 // chanTypeCPI to indicate the operator console.
   if (d->chan_type != chan_type_CPI && p -> IDCW_DEV_CMD == 051) {
     p->stati = 04501;
-    p->chanStatus = chanStatIncorrectDCW;
     send_terminate_interrupt (iomUnitIdx, chan);
     return 0;
   }
@@ -3245,7 +3246,6 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
 
   p -> lsFirst = true;
 
-  p -> recordResidue = 0;
   p -> tallyResidue = 0;
   p -> isRead = true;
   p -> charPos = 0;
@@ -3262,7 +3262,6 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
 
   if (rc < 0) {
     p -> dev_code = getbits36_6 (p -> DCW, 6);
-    p -> chanStatus = chanStatInvalidInstrPCW;
     goto terminate;
   }
 
@@ -3305,8 +3304,8 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
     }
 
 #ifdef TESTING
-#ifndef  POLTS_TESTING
-if (chan == 014)
+#ifdef  POLTS_TESTING
+if (iomUnitIdx == 1 && chan == 020)
 #endif
     if_sim_debug (DBG_TRACE, & iom_dev) {
       if (first) {
@@ -3331,7 +3330,6 @@ if (chan == 014)
       if (p -> LPW_23_REL == 0 && p -> IDCW_EC == 1)
         p -> ADDR_EXT = getbits36_6 (p -> DCW, 12);
 
-      p -> recordResidue = 0;
       p -> tallyResidue = 0;
       p -> isRead = true;
       p -> charPos = 0;
@@ -3344,7 +3342,6 @@ if (chan == 014)
 
     if (rc2 < 0) {
       p -> dev_code = getbits36_6 (p -> DCW, 6);
-      p -> chanStatus = chanStatInvalidInstrPCW;
       goto terminate;
     }
 
@@ -3357,14 +3354,14 @@ if (chan == 014)
     // If IDCW and terminate and nondata
     if (IS_IDCW (p) && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
 #ifdef POLTS_TESTING
-//if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+//if (iomUnitIdx == 1 && chan == 020)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
       goto terminate;
     }
     // If IOTD and last IDCW was terminate
     if (IS_IOTD (p) && idcw_terminate) {
 #ifdef POLTS_TESTING
-//if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
+//if (iomUnitIdx == 1 && chan == 020)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
 #endif
       goto terminate;
     }
@@ -3372,7 +3369,7 @@ if (chan == 014)
 
 terminate:;
 #ifdef POLTS_TESTING
-if (chan == 014) sim_printf ("stati %04o\r\n", p->stati);
+if (iomUnitIdx == 1 && chan == 020) sim_printf ("stati %04o\r\n", p->stati);
 #endif
   send_terminate_interrupt (iomUnitIdx, chan);
   return 0;

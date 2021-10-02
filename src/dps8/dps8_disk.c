@@ -247,7 +247,7 @@ struct dsk_state dsk_states [N_DSK_UNITS_MAX];
 //  itr boot    001001
 //
 
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 static int nCmds = 0;
 #endif
 
@@ -646,7 +646,7 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
     if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData); }
 #endif
 
@@ -753,7 +753,7 @@ static int diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
     if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData); }
 #endif
 
@@ -1006,7 +1006,7 @@ static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
 #endif
     word36 buffer[tally];
     memset (buffer, 0, sizeof (buffer));
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 buffer[0] = nCmds;
 #endif
     uint wordsProcessed = tally;
@@ -1163,14 +1163,14 @@ static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint
 //  dcl reset_status_command   bit (6) internal static init ("40"b3);
 
 iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan) {
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 nCmds ++;
 #endif
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
   uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
   uint devUnitIdx;
 
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)   {if_sim_debug (DBG_TRACE, & dsk_dev) { dumpDCW (p->DCW, 0); }}
 #endif
   if (cables->iom_to_ctlr[iomUnitIdx][chan].ctlr_type == CTLR_T_IPC)
@@ -1197,10 +1197,10 @@ if (chan == 014)   {if_sim_debug (DBG_TRACE, & dsk_dev) { dumpDCW (p->DCW, 0); }
     disk_statep->io_mode = disk_no_mode;
     switch (p->IDCW_DEV_CMD) {
       case 000: // CMD 00 Request status
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 //if (chan == 014)
 #endif
-#ifndef POLTS_TESTING
+#ifndef POLTS_DISK_TESTING
         if_sim_debug (DBG_TRACE, & dsk_dev) {
           sim_printf ("// Disk Request Status\r\n");
         }
@@ -1212,7 +1212,7 @@ if (chan == 014)   {if_sim_debug (DBG_TRACE, & dsk_dev) { dumpDCW (p->DCW, 0); }
         break;
 
       case 016: // CMD 16 Read and Clear Statistics -- Model 800
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1225,7 +1225,7 @@ if (chan == 014)
         break;
             
       case 022: // CMD 22 Read Status Register
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1238,7 +1238,7 @@ if (chan == 014)
         break;
 
       case 024: // CMD 24 Read configuration -- Model 800
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1251,7 +1251,7 @@ if (chan == 014)
         break;
 
       case 025: // CMD 25 READ
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1264,7 +1264,7 @@ if (chan == 014)
         break;
 
       case 026: // CMD 26 READ CONTROL REGISTER
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1278,7 +1278,7 @@ if (chan == 014)
 
 
       case 030: // CMD 30 SEEK_512
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1292,7 +1292,7 @@ if (chan == 014)
 
       case 031: // CMD 31 WRITE
       case 033: // CMD 31 WRITE AND COMPARE
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1305,7 +1305,7 @@ if (chan == 014)
         break;
 
       case 034: // CMD 34 SEEK_64
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1319,7 +1319,7 @@ if (chan == 014)
 
       case 036: // CMD 36 SPECIAL SEEK (T&D) // Make it work like SEEK_64 and
                                              // hope for the best
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1332,7 +1332,7 @@ if (chan == 014)
         break;
 
       case 040: // CMD 40 Reset status
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1351,7 +1351,7 @@ if (chan == 014)
         break;
 
       case 042: // CMD 42 RESTORE
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1364,7 +1364,7 @@ if (chan == 014)
         break;
 
       case 072: // CMD 72 SET STANDBY
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1376,7 +1376,7 @@ if (chan == 014)
         break;
 
       default:
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1396,7 +1396,7 @@ if (chan == 014)
   switch (disk_statep->io_mode) {
 
     case disk_no_mode:
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
       if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1414,7 +1414,7 @@ if (chan == 014)
       goto done;
 
     case disk_rd_clr_stats: {
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1429,7 +1429,7 @@ if (chan == 014)
       break;
 
     case disk_rd_status_reg: {
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1444,7 +1444,7 @@ if (chan == 014)
       break;
 
     case disk_rd_config: {
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1460,7 +1460,7 @@ if (chan == 014)
       break;
 
     case disk_rd: {
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1475,7 +1475,7 @@ if (chan == 014)
       break;
 
     case disk_rd_ctrl_reg: {
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1490,7 +1490,7 @@ if (chan == 014)
       break;
 
     case disk_seek_512: {
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1505,7 +1505,7 @@ if (chan == 014)
       break;
 
     case disk_wr: {
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1520,7 +1520,7 @@ if (chan == 014)
       break;
 
     case disk_seek_64: {
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
@@ -1535,7 +1535,7 @@ if (chan == 014)
       break;
 
     case disk_special_seek: { // Make it work like SEEK_64 and hope for the best
-#ifdef POLTS_TESTING
+#ifdef POLTS_DISK_TESTING
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {

@@ -167,6 +167,7 @@ typedef volatile struct
     word1  IDCW_EC;
     word2  IDCW_CHAN_CTRL; // 0 terminate, 2 process, 3 marker
     word6  IDCW_CHAN_CMD;
+    // POLTS sets this to one if there are IOTxes.
     word6  IDCW_COUNT;
     // DDCW only
     /*word18*/ uint DDCW_ADDR; // Allow overflow detection
@@ -244,6 +245,9 @@ typedef volatile struct
     // Information accumulated for status service.
     word12 stati;
     uint dev_code;
+    // Initialized to IDCW_COUNT; decremented when a IDCW that expects an IOTx is processed by the channel.
+    // XXX POLTS console code drives this; if it turns out to be common across channels, the decrement should
+    // be moved into the IOM.
     word6 recordResidue;
     word12 tallyResidue;
     word3 charPos;

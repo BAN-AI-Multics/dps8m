@@ -1204,6 +1204,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
       case 003:               // Read BCD
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Read BCD echoed\n", __func__);
         csp->io_mode = opc_read_mode;
+        p->recordResidue --;
         csp->echo = true;
         csp->bcd = true;
         p->stati = 04000;
@@ -1214,12 +1215,14 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         p->isRead = false;
         csp->bcd = true;
         csp->io_mode = opc_write_mode;
+        p->recordResidue --;
         p->stati = 04000;
         break;
 
       case 023:               // Read ASCII
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII echoed\n", __func__);
         csp->io_mode = opc_read_mode;
+        p->recordResidue --;
         csp->echo = true;
         csp->bcd = false;
         p->stati = 04000;
@@ -1230,6 +1233,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         p->isRead = false;
         csp->bcd = false;
         csp->io_mode = opc_write_mode;
+        p->recordResidue --;
         p->stati = 04000;
         break;
 
@@ -1258,6 +1262,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
       case 043:               // Read ASCII unechoed
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII unechoed\n", __func__);
         csp->io_mode = opc_read_mode;
+        p->recordResidue --;
         csp->echo = false;
         csp->bcd = false;
         p->stati = 04000;
@@ -1303,7 +1308,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
       default:
         sim_debug (DBG_DEBUG, & opc_dev, "%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
         p->stati = 04501; // command reject, invalid instruction code
-        p->chanStatus = chanStatIncorrectDCW;
         rc = IOM_CMD_ERROR;
         goto done;
     } // switch IDCW_DEV_CMD
@@ -1388,6 +1392,20 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
   }
   sim_printf ("\r\n");
 #endif
+#if 0
+if (csp->bcd) {
+  sim_printf ("\r\n");
+  for (uint i = 0; i < tally; i ++) {
+    sim_printf ("%012llo  \"", buf[i]);
+    for (uint j = 0; j < 36; j += 6) {
+      word6 ch = getbits36_6 (buf[i], j);
+      sim_printf ("%c", bcd_code_page[ch]);
+    }
+   sim_printf ("\"\r\n");
+  }
+  sim_printf ("\r\n");
+}
+#endif
 
         // Tally is in words, not chars.
         char text[tally * 4 + 1];
@@ -1397,6 +1415,9 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
 #ifndef __MINGW64__
         newlineOff ();
 #endif
+        // 0 no escape character seen
+        // 1 ! seen
+        // 2 !! seen
         int escape_cnt = 0;
 
         while (tally) {
@@ -1418,6 +1439,12 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
                 escape_cnt ++;
               } else if (escape_cnt == 1) {
                 uint lp = narrow_char;
+                // !0 is mapped to !1
+                // !1 to !9, ![, !#, !@, !;, !>, !?    1 to 15 newlines
+                if (lp == 060 /* + */ || lp == 075 /* = */) { // POLTS
+                  p->stati = 04320;
+                  goto done;
+                }
                 if (lp == 0)
                   lp = 1;
                 if (lp >= 16) {
