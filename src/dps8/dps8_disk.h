@@ -29,6 +29,7 @@ struct dsk_state
         disk_rd, disk_seek_512, disk_wr, disk_seek_64, disk_special_seek,
         disk_rd_ctrl_reg
       } io_mode;
+    bool seekValid; // True if seekPosition contains a valid seek address.
     uint seekPosition;
     char device_name [MAX_DEV_NAME_LEN];
 #ifdef LOCKLESS

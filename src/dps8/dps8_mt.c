@@ -600,31 +600,29 @@ static t_stat mt_set_capac (UNUSED UNIT * uptr, UNUSED int32 value,
   }
 
 
-t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1)
-  {
-// controller ready
-//    send_special_interrupt ((uint) cables -> cablesFromIomToTap [tap_unit_idx] . iomUnitIdx,
-//                            (uint) cables -> cablesFromIomToTap [tap_unit_idx] . chan_num,
-//                            0,
-//                            0x40, 00 /* controller ready */);
+t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1) {
 
-    // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
-    // if substr (special_status_word, 34, 3) ^= "001"b
-    // Note the 34,3 spans 34,35,36; therefore the bits are 1..36, not 0..35
-    // 20,1 is bit 19
-    // 13,6, is bits 12..17
-    // status0 is 19..26
-    // status1 is 28..35
-    // so substr (w, 20, 1) is bit 0 of status0
-    //    substr (w, 13, 6) is the low 6 bits of dev_no
-    //    substr (w, 34, 3) is the low 3 bits of status 1
-        //sim_printf ("%s %d %o\n", disk_filename, ro,  mt_unit [tap_unit_idx] . flags);
-        //sim_printf ("special int %d %o\n", tap_unit_idx, mt_unit [tap_unit_idx] . flags);
+  // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
+  // if substr (special_status_word, 34, 3) ^= "001"b
+  // Note the 34,3 spans 34,35,36; therefore the bits are 1..36, not 0..35
+  // 20,1 is bit 19
+  // 13,6, is bits 12..17
+  // status0 is 19..26
+  // status1 is 28..35
+  // so substr (w, 20, 1) is bit 0 of status0
+  //    substr (w, 13, 6) is the low 6 bits of dev_no
+  //    substr (w, 34, 3) is the low 3 bits of status 1
+      //sim_printf ("%s %d %o\n", disk_filename, ro,  mt_unit [tap_unit_idx] . flags);
+      //sim_printf ("special int %d %o\n", tap_unit_idx, mt_unit [tap_unit_idx] . flags);
 
-    if (! sim_is_running)
-      return SCPE_OK;
+  if (! sim_is_running)
+    return SCPE_OK;
 
-    uint ctlr_unit_idx = cables->tape_to_mtp [tap_unit_idx].ctlr_unit_idx;
+  uint ctlr_unit_idx = cables->tape_to_mtp[tap_unit_idx].ctlr_unit_idx;
+
+// Sending interrupts to all ports causes error messages in syslog; the additional
+// interrupts are "unexpected"
+#if 0
     // Which port should the controller send the interrupt to? All of them...
     bool sent_one = false;
     for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
@@ -642,9 +640,22 @@ t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1)
         sim_printf ("loadTape can't find controller; dropping interrupt\n");
         return SCPE_ARG;
       }
-    return SCPE_OK;
-  }
 
+    return SCPE_OK;
+#else
+  for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++) {
+    if (cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].in_use) {
+      uint iom_unit_idx = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+      uint chan_num = cables->mtp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+      uint dev_code = cables->tape_to_mtp[tap_unit_idx].dev_code;
+      send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0, 020 /* tape drive to ready */);
+      return SCPE_OK;
+    }
+  }
+  sim_warn ("loadTape can't find controller; dropping interrupt\n");
+  return SCPE_ARG;
+#endif
+}
 
 static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
                               UNUSED const char * cptr,

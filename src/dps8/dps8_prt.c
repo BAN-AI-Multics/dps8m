@@ -1837,12 +1837,12 @@ t_stat burst_printer (UNUSED int32 arg, const char * buf)
     return SCPE_ARG;
   }
 
-static t_stat signal_prt_ready (uint prt_unit_idx)
-  {
-    // Don't signal if the sim is not running....
-    if (! sim_is_running)
-      return SCPE_OK;
-    uint ctlr_unit_idx = cables->prt_to_urp[prt_unit_idx].ctlr_unit_idx;
+static t_stat signal_prt_ready (uint prt_unit_idx) {
+  // Don't signal if the sim is not running....
+  if (! sim_is_running)
+    return SCPE_OK;
+  uint ctlr_unit_idx = cables->prt_to_urp[prt_unit_idx].ctlr_unit_idx;
+#if 0
     // Which port should the controller send the interrupt to? All of them...
     bool sent_one = false;
     for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
@@ -1864,7 +1864,23 @@ static t_stat signal_prt_ready (uint prt_unit_idx)
         return SCPE_ARG;
       }
     return SCPE_OK;
+#else
+  // Which port should the controller send the interrupt to? All of them...
+  bool sent_one = false;
+  for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++) {
+    struct ctlr_to_iom_s * urp_to_iom = & cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num];
+    if (urp_to_iom->in_use) {
+      uint iom_unit_idx = urp_to_iom->iom_unit_idx;
+      uint chan_num = urp_to_iom->chan_num;
+      uint dev_code = cables->prt_to_urp[prt_unit_idx].dev_code;
+
+      send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0x40, 01 /* disk pack ready */);
+      return SCPE_OK;
+    }
   }
+  return SCPE_ARG;
+#endif
+}
 
 static t_stat prt_set_ready (UNIT * uptr, UNUSED int32 value,
                              UNUSED const char * cptr,

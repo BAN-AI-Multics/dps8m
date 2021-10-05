@@ -378,38 +378,36 @@ static t_stat dsk_set_device_name (UNIT * uptr, UNUSED int32 value,
 // be any status specific bits to send here; signal ready is a misnomer;
 // it is just signal.
 
-t_stat signal_disk_ready (uint dsk_unit_idx)
-  {
+t_stat signal_disk_ready (uint dsk_unit_idx) {
 
-    // Don't signal in the sim is actually running....
-    if (! sim_is_running)
-      return SCPE_OK;
-    // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
-    // if substr (special_status_word, 34, 3) ^= "001"b
-    // Note the 34,3 spans 34,35,36; therefore the bits are 1..36, not 0..35
-    // 20,1 is bit 19
-    // 13,6, is bits 12..17
-    // status0 is 19..26
-    // status1 is 28..35
-    // so substr (w, 20, 1) is bit 0 of status0
-    //    substr (w, 13, 6) is the low 6 bits of dev_no
-    //    substr (w, 34, 3) is the low 3 bits of status 1
-        //sim_printf ("%s %d %o\n", disk_filename, ro,  mt_unit[dsk_unit_idx] . flags);
-        //sim_printf ("special int %d %o\n", dsk_unit_idx, mt_unit[dsk_unit_idx] . flags);
+  // Don't signal in the sim is actually running....
+  if (! sim_is_running)
+    return SCPE_OK;
+  // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
+  // if substr (special_status_word, 34, 3) ^= "001"b
+  // Note the 34,3 spans 34,35,36; therefore the bits are 1..36, not 0..35
+  // 20,1 is bit 19
+  // 13,6, is bits 12..17
+  // status0 is 19..26
+  // status1 is 28..35
+  // so substr (w, 20, 1) is bit 0 of status0
+  //    substr (w, 13, 6) is the low 6 bits of dev_no
+  //    substr (w, 34, 3) is the low 3 bits of status 1
+      //sim_printf ("%s %d %o\n", disk_filename, ro,  mt_unit[dsk_unit_idx] . flags);
+      //sim_printf ("special int %d %o\n", dsk_unit_idx, mt_unit[dsk_unit_idx] . flags);
 
-    uint ctlr_unit_idx = cables->dsk_to_ctlr[dsk_unit_idx].ctlr_unit_idx;
-    enum ctlr_type_e ctlr_type = cables->dsk_to_ctlr[dsk_unit_idx].ctlr_type;
-    if (ctlr_type != CTLR_T_MSP && ctlr_type != CTLR_T_IPC)
-      {
-        // If None, assume that the cabling hasn't happend yey.
-        if (ctlr_type != CTLR_T_NONE)
-          {
-            sim_warn ("loadDisk lost\n");
-            return SCPE_ARG;
-          }
-        return SCPE_OK;
-      }
+  uint ctlr_unit_idx = cables->dsk_to_ctlr[dsk_unit_idx].ctlr_unit_idx;
+  enum ctlr_type_e ctlr_type = cables->dsk_to_ctlr[dsk_unit_idx].ctlr_type;
+  if (ctlr_type != CTLR_T_MSP && ctlr_type != CTLR_T_IPC) {
+    // If None, assume that the cabling hasn't happend yey.
+    if (ctlr_type != CTLR_T_NONE) {
+      sim_warn ("loadDisk lost\n");
+      return SCPE_ARG;
+    }
+    return SCPE_OK;
+  }
 
+#if 0
     // Which port should the controller send the interrupt to? All of them...
     bool sent_one = false;
     for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++)
@@ -445,14 +443,32 @@ t_stat signal_disk_ready (uint dsk_unit_idx)
         return SCPE_ARG;
       }
 
-// controller ready
-//    send_special_interrupt ((uint) cables->cablesFromIomToDsk[dsk_unit_idx] . iomUnitIdx,
-//                            (uint) cables->cablesFromIomToDsk[dsk_unit_idx] . chan_num,
-//                            0,
-//                            0x40, 00 /* controller ready */);
-
     return SCPE_OK;
-  }
+#else
+  for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++) {
+    if (ctlr_type == CTLR_T_MSP) {
+      if (cables->msp_to_iom[ctlr_unit_idx][ctlr_port_num].in_use) {
+         uint iom_unit_idx = cables->msp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+         uint chan_num = cables->msp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+         uint dev_code = cables->dsk_to_ctlr[dsk_unit_idx].dev_code;
+
+         send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0x40, 01 /* disk pack ready */);
+         return SCPE_OK;
+       }
+     } else {
+       if (cables->ipc_to_iom[ctlr_unit_idx][ctlr_port_num].in_use) {
+         uint iom_unit_idx = cables->ipc_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+         uint chan_num = cables->ipc_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+         uint dev_code = cables->dsk_to_ctlr[dsk_unit_idx].dev_code;
+
+         send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0x40, 01 /* disk pack ready */);
+         return SCPE_OK;
+       }
+     }
+   }
+   return SCPE_ARG;
+#endif
+}
 
 static t_stat disk_set_ready (UNIT * uptr, UNUSED int32 value,
                               UNUSED const char * cptr,
@@ -617,7 +633,7 @@ void disk_init (void)
 #endif
   }
 
-static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
+static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
     struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
@@ -634,8 +650,7 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
       {
         sim_printf ("disk seek dazed by tally %d != 1\n", tally);
         p->stati = 04510; // Cmd reject, invalid inst. seq.
-        p->chanStatus = chanStatIncorrectDCW;
-        return -1;
+        return IOM_CMD_ERROR;
       }
 
     word36 seekData;
@@ -665,12 +680,14 @@ static int diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     seekData &= MASK21;
     if (seekData >= diskTypes[typeIdx].capac)
       {
+        disk_statep->seekValid = false;
         p->stati = 04304; // Invalid seek address
-        return -1;
+        return IOM_CMD_ERROR;
       }
+    disk_statep->seekValid = true;
     disk_statep->seekPosition = seekData;
     p->stati = 04000; // Channel ready
-    return 0;
+    return IOM_CMD_PROCEED;
   }
 
 static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
@@ -688,9 +705,10 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (tally != 1)
       {
         sim_printf ("disk seek dazed by tally %d != 1\n", tally);
-        p->stati = 04510; // Cmd reject, invalid inst. seq.
-        p->chanStatus = chanStatIncorrectDCW;
-        return -1;
+        //p->stati = 04510; // Cmd reject, invalid inst. seq.
+        //p->chanStatus = chanStatIncorrectDCW;
+        //return -1;
+        tally = 1;
       }
 
     word36 seekData;
@@ -716,15 +734,17 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     seekData &= MASK21;
     if (seekData >= diskTypes[typeIdx].capac)
       {
+        disk_statep->seekValid = false;
         p->stati = 04304; // Invalid seek address
         return -1;
       }
+    disk_statep->seekValid = true;
     disk_statep->seekPosition = seekData;
     p->stati = 04000; // Channel ready
     return 0;
   }
 
-static int diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan)
+static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
     struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
@@ -740,9 +760,10 @@ static int diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (tally != 1)
       {
         sim_printf ("disk seek dazed by tally %d != 1\n", tally);
-        p->stati = 04510; // Cmd reject, invalid inst. seq.
-        p->chanStatus = chanStatIncorrectDCW;
-        return -1;
+        //p->stati = 04510; // Cmd reject, invalid inst. seq.
+        //p->chanStatus = chanStatIncorrectDCW;
+        //return IOM_CMD_ERROR;
+        tally = 1;
       }
 
     word36 seekData;
@@ -774,11 +795,14 @@ static int diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan)
       {
 sim_printf ("special seek error\r\n");
         p->stati = 04304; // Invalid seek address
-        return -1;
+        disk_statep->seekValid = false;
+        //p->chanStatus = chanStatIncomplete;
+        return IOM_CMD_ERROR;
       }
+    disk_statep->seekValid = true;
     disk_statep->seekPosition = seekData;
     p->stati = 04000; // Channel ready
-    return 0;
+    return IOM_CMD_PROCEED;
   }
 
 static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
@@ -793,6 +817,11 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (! unitp->fileref) {
       p->stati = 04240; // device offline
       return -1;
+    }
+    if (! disk_statep->seekValid) {
+      p->stati = 04510; // Invalid instruction sequence
+      disk_statep->seekValid = false;
+      return IOM_CMD_ERROR;
     }
     uint tally = p->DDCW_TALLY;
     if (tally == 0)
@@ -836,7 +865,7 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
         if (ferror (unitp->fileref))
           {
             p->stati = 04202; // attn, seek incomplete
-            p->chanStatus = chanStatIncorrectDCW;
+            //p->chanStatus = chanStatIncorrectDCW;
             return -1;
           }
         // We ignore short reads-- we assume that they are reads
@@ -919,6 +948,12 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (! unitp->fileref) {
       p->stati = 04240; // device offline
       return -1;
+    }
+
+    if (! disk_statep->seekValid) {
+      p->stati = 04510; // Invalid instruction sequence
+      disk_statep->seekValid = false;
+      return IOM_CMD_ERROR;
     }
 
     uint tally = p->DDCW_TALLY;
@@ -1219,6 +1254,7 @@ if (chan == 014)
           sim_printf ("// Disk Read And Clear Statistics\r\n");
         }
         disk_statep->io_mode = disk_rd_clr_stats;
+        p->recordResidue --;
         p->stati = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
@@ -1232,6 +1268,7 @@ if (chan == 014)
           sim_printf ("// Disk Read Status Register\r\n");
         }
         disk_statep->io_mode = disk_rd_status_reg;
+        p->recordResidue --;
         p->stati = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
@@ -1245,6 +1282,7 @@ if (chan == 014)
           sim_printf ("// Disk Read Configuration\r\n");
         }
         disk_statep->io_mode = disk_rd_config;
+        p->recordResidue --;
         p->stati = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
@@ -1258,6 +1296,7 @@ if (chan == 014)
           sim_printf ("// Disk Read\r\n");
         }
         disk_statep->io_mode = disk_rd;
+        p->recordResidue --;
         p->stati = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
@@ -1271,6 +1310,7 @@ if (chan == 014)
           sim_printf ("// Disk Read Control Register\r\n");
         }
         disk_statep->io_mode = disk_rd_ctrl_reg;
+        p->recordResidue --;
         p->stati = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
@@ -1285,6 +1325,7 @@ if (chan == 014)
           sim_printf ("// Disk Seek 512\r\n");
         }
         disk_statep->io_mode = disk_seek_512;
+        p->recordResidue --;
         p->stati = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
@@ -1299,6 +1340,7 @@ if (chan == 014)
           sim_printf ("// Disk Write\r\n");
         }
         disk_statep->io_mode = disk_wr;
+        p->recordResidue --;
         p->stati = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
@@ -1312,6 +1354,7 @@ if (chan == 014)
           sim_printf ("// Disk Seek 64\r\n");
         }
         disk_statep->io_mode = disk_seek_64;
+        p->recordResidue --;
         p->stati = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
@@ -1326,6 +1369,7 @@ if (chan == 014)
           sim_printf ("// Disk Special Seek\r\n");
         }
         disk_statep->io_mode = disk_special_seek;
+        p->recordResidue --;
         p->stati = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
@@ -1339,6 +1383,8 @@ if (chan == 014)
           sim_printf ("// Disk Reset Status\r\n");
         }
         p->stati = 04000;
+        // XXX POLTS wants this; I don't understand why.
+        p->recordResidue --;
         p->initiate = false; // According to POLTS
         p->isRead = false;
         // T&D probing
@@ -1358,9 +1404,14 @@ if (chan == 014)
           sim_printf ("// Disk Restore\r\n");
         }
         p->stati = 04000;
+        // XXX POLTS wants this; I don't understand why.
+        p->recordResidue --;
         p->initiate = false; // According to POLTS
         if (! unitp->fileref)
           p->stati = 04240; // device offline
+
+        disk_statep->seekValid = false;
+        
         break;
 
       case 072: // CMD 72 SET STANDBY
@@ -1541,7 +1592,7 @@ if (chan == 014)
         if_sim_debug (DBG_TRACE, & dsk_dev) {
           sim_printf ("// Disk IOT special seek\r\n");
         }
-        int rc1 = diskSeekSpecial (devUnitIdx, iomUnitIdx, chan);
+        iom_cmd_rc_t rc1 = diskSeekSpecial (devUnitIdx, iomUnitIdx, chan);
         if (rc1) {
           rc = IOM_CMD_ERROR;
           goto done;
