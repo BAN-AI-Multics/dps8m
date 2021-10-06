@@ -125,27 +125,35 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.procMode == procModeMultics ? "Multics" : cpus[cpu_unit_idx].switches.procMode == procModeGCOS ? "GCOS" : "???",
                 cpus[cpu_unit_idx].switches.procMode);
     sim_msg ("Processor speed:          %02o(8)\n",
-                cpus[cpu_unit_idx].switches.proc_speed);
+                cpus[cpu_unit_idx].options.proc_speed);
     sim_msg ("DIS enable:               %01o(8)\n",
-                cpus[cpu_unit_idx].switches.dis_enable);
+                cpus[cpu_unit_idx].tweaks.dis_enable);
     sim_msg ("Steady clock:             %01o(8)\n",
                 scu [0].steady_clock);
     sim_msg ("Halt on unimplemented:    %01o(8)\n",
-                cpus[cpu_unit_idx].switches.halt_on_unimp);
+                cpus[cpu_unit_idx].tweaks.halt_on_unimp);
     sim_msg ("Disable SDWAM/PTWAM:      %01o(8)\n",
                 cpus[cpu_unit_idx].switches.disable_wam);
     sim_msg ("Report faults:            %01o(8)\n",
-                cpus[cpu_unit_idx].switches.report_faults);
+                cpus[cpu_unit_idx].tweaks.report_faults);
     sim_msg ("TRO faults enabled:       %01o(8)\n",
-                cpus[cpu_unit_idx].switches.tro_enable);
+                cpus[cpu_unit_idx].tweaks.tro_enable);
     sim_msg ("Y2K enabled:              %01o(8)\n",
                 scu [0].y2k);
     sim_msg ("drl fatal enabled:        %01o(8)\n",
-                cpus[cpu_unit_idx].switches.drl_fatal);
+                cpus[cpu_unit_idx].tweaks.drl_fatal);
     sim_msg ("useMap:                   %d\n",
-                cpus[cpu_unit_idx].switches.useMap);
+                cpus[cpu_unit_idx].tweaks.useMap);
     sim_msg ("Disable cache:            %01o(8)\n",
-                cpus[cpu_unit_idx].switches.disable_cache);
+                cpus[cpu_unit_idx].tweaks.disable_cache);
+    sim_msg ("PROM installed:           %01o(8)\n",
+                cpus[cpu_unit_idx].options.prom_installed);
+    sim_msg ("Hex mode installed:       %01o(8)\n",
+                cpus[cpu_unit_idx].options.hex_mode_installed);
+    sim_msg ("8K cache installed:       %01o(8)\n",
+                cpus[cpu_unit_idx].options.cache_installed);
+    sim_msg ("Clock slave installed:    %01o(8)\n",
+                cpus[cpu_unit_idx].options.clock_slave_installed);
 
 #ifdef AFFINITY
     if (cpus[cpu_unit_idx].set_affinity)
@@ -324,7 +332,7 @@ static config_list_t cpu_config_list [] =
     { "steady_clock", 0, 1, cfg_on_off },
     { "halt_on_unimplemented", 0, 1, cfg_on_off },
     { "disable_wam", 0, 1, cfg_on_off },
-    { "report_faults", 0, 2, NULL },
+    { "report_faults", 0, 1, cfg_on_off },
     { "tro_enable", 0, 1, cfg_on_off },
     // y2k was moved to SCU; keep here for script compatibility
     { "y2k", 0, 1, cfg_on_off },
@@ -332,6 +340,10 @@ static config_list_t cpu_config_list [] =
     { "useMap", 0, 1, cfg_on_off },
     { "address", 0, 0777777, NULL },
     { "disable_cache", 0, 1, cfg_on_off },
+    { "prom_installed", 0, 1, cfg_on_off },
+    { "hex_mode_installed", 0, 1, cfg_on_off },
+    { "cache_installed", 0, 1, cfg_on_off },
+    { "clock_slave_installed", 0, 1, cfg_on_off },
 
     // Tuning
 
@@ -399,7 +411,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
         else if (strcmp (p, "mode") == 0)
           cpus[cpu_unit_idx].switches.procMode = v ? procModeMultics : procModeGCOS;
         else if (strcmp (p, "speed") == 0)
-          cpus[cpu_unit_idx].switches.proc_speed = (uint) v;
+          cpus[cpu_unit_idx].options.proc_speed = (uint) v;
         else if (strcmp (p, "port") == 0)
           port_num = (int) v;
         else if (strcmp (p, "assignment") == 0)
@@ -413,25 +425,33 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
         else if (strcmp (p, "store_size") == 0)
           cpus[cpu_unit_idx].switches.store_size [port_num] = (uint) v;
         else if (strcmp (p, "dis_enable") == 0)
-          cpus[cpu_unit_idx].switches.dis_enable = (uint) v;
+          cpus[cpu_unit_idx].tweaks.dis_enable = (uint) v;
         else if (strcmp (p, "steady_clock") == 0)
           scu [0].steady_clock = (uint) v;
         else if (strcmp (p, "halt_on_unimplemented") == 0)
-          cpus[cpu_unit_idx].switches.halt_on_unimp = (uint) v;
+          cpus[cpu_unit_idx].tweaks.halt_on_unimp = (uint) v;
         else if (strcmp (p, "disable_wam") == 0)
           cpus[cpu_unit_idx].switches.disable_wam = (uint) v;
         else if (strcmp (p, "report_faults") == 0)
-          cpus[cpu_unit_idx].switches.report_faults = (uint) v;
+          cpus[cpu_unit_idx].tweaks.report_faults = (uint) v;
         else if (strcmp (p, "tro_enable") == 0)
-          cpus[cpu_unit_idx].switches.tro_enable = (uint) v;
+          cpus[cpu_unit_idx].tweaks.tro_enable = (uint) v;
         else if (strcmp (p, "y2k") == 0)
           scu [0].y2k = (uint) v;
         else if (strcmp (p, "drl_fatal") == 0)
-          cpus[cpu_unit_idx].switches.drl_fatal = (uint) v;
+          cpus[cpu_unit_idx].tweaks.drl_fatal = (uint) v;
         else if (strcmp (p, "useMap") == 0)
-          cpus[cpu_unit_idx].switches.useMap = v;
+          cpus[cpu_unit_idx].tweaks.useMap = v;
         else if (strcmp (p, "disable_cache") == 0)
-          cpus[cpu_unit_idx].switches.disable_cache = v;
+          cpus[cpu_unit_idx].tweaks.disable_cache = v;
+        else if (strcmp (p, "prom_installed") == 0)
+          cpus[cpu_unit_idx].options.prom_installed = v;
+        else if (strcmp (p, "hex_mode_installed") == 0)
+          cpus[cpu_unit_idx].options.hex_mode_installed = v;
+        else if (strcmp (p, "cache_installed") == 0)
+          cpus[cpu_unit_idx].options.cache_installed = v;
+        else if (strcmp (p, "clock_slave_installed") == 0)
+          cpus[cpu_unit_idx].options.clock_slave_installed = v;
 #ifdef AFFINITY
         else if (strcmp (p, "affinity") == 0)
           if (v < 0)
@@ -699,6 +719,8 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
 
     setup_scbank_map ();
 
+    setupPROM ((int) cpun, cpu.PROM);
+
     tidy_cu ();
     set_cpu_idx (save);
   }
@@ -711,7 +733,7 @@ static t_stat simh_cpu_reset_and_clear_unit (UNUSED UNIT * uptr,
     long cpu_unit_idx = UNIT_IDX (uptr);
 #ifdef ISOLTS
     cpu_state_t * cpun = cpus + cpu_unit_idx;
-    if (cpun->switches.useMap)
+    if (cpun->tweaks.useMap)
       {
         for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++)
           {
@@ -2003,7 +2025,7 @@ setCPU:;
                 cpu.shadowTR = (cpu.shadowTR - 1) & MASK27;
                 if (cpu.shadowTR == 0) // passing thorugh 0...
                   {
-                    if (cpu.switches.tro_enable)
+                    if (cpu.tweaks.tro_enable)
                       setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
                   }
               }
@@ -2035,7 +2057,7 @@ setCPU:;
         if (cpu.rTR & ~MASK27)
           {
             cpu.rTR &= MASK27;
-            if (cpu.switches.tro_enable)
+            if (cpu.tweaks.tro_enable)
               setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
           }
 
@@ -2565,7 +2587,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   word27 ticks = ms * 512;
                   if (cpu.rTR <= ticks)
                     {
-                      if (cpu.switches.tro_enable)
+                      if (cpu.tweaks.tro_enable)
                         setG7fault (current_running_cpu_idx, FAULT_TRO,
                                     fst_zero);
                     }
@@ -2584,7 +2606,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                     }
                   else
                     {
-                      if (cpu.switches.tro_enable)
+                      if (cpu.tweaks.tro_enable)
                         {
                           lock_scu ();
                           setG7fault (current_running_cpu_idx, FAULT_TRO,
@@ -2635,7 +2657,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   // 512Khz / 512 is millisecods
                   if (cpu.rTR <= sys_opts.sys_poll_interval * 512)
                     {
-                      if (cpu.switches.tro_enable)
+                      if (cpu.tweaks.tro_enable)
                         setG7fault (current_running_cpu_idx, FAULT_TRO,
                                     fst_zero);
                     }
@@ -3139,7 +3161,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -3227,7 +3249,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
 int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -3262,7 +3284,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -3333,7 +3355,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
 int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
 {
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -3412,7 +3434,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
     core_write_unlock(addr, v, ctx);
 #else
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -3466,7 +3488,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         addr &= (word24)~1; /* make it an even address */
       }
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -3619,7 +3641,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
         addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
       }
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -4413,3 +4435,184 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
     //pthread_mutex_unlock (& debug_lock);
   }
 #endif
+
+//#ifdef DPS8M
+void setupPROM (int cpuNo, unsigned char * PROM) {
+
+// 58009997-040 MULTICS Differences Manual DPS 8-70M Aug83
+//
+// THESE OFFSETS ARE IN OCTAL
+//
+//  0-13 CPU Model Number
+// 13-25 CPU Serial Number
+// 26-33 Date-Ship code (YYMMDD)
+// 34-40 CPU ID Field (reference RSW 2)
+//  Byte 40: Bits 03 (Bits 32-35 of RSW 2 Field
+//           Bit 4=1 Hex Option included
+//           Bit 5=1 RSCR (Clock) is Slave Mode included
+//           Bits 6-7 Reserved for later use.
+//       50: Operating System Use
+// 51-1777(8) To be defined.
+// NOTE: There is the possibility of disagreement between the
+//       ID bits of RSW 2 and the ID bits of PROM locations
+//       35-40. This condition could result when alterable
+//       configuration condition is contained in the PROM.
+//       The user is adviced to ignore the PROM fields which
+//       contain the processor fault vector base (GCOS III)
+//       and the processor number and rely on the RSW 2 bits
+//       for this purpose. Bits 14-16 of the RSW 2 should be
+//       ignored and the bits represnting this information in
+//       the PROM should be treated as valid.
+
+// "0-13" disagress with Multics source (start_pl1); it interprets
+// it as "0-12"; most likely a typo in 58009997-040.
+
+// CAC notes: I interpret the fields as
+//  0-12 CPU Model Number                                          //  0-10  11 chars
+// 13-25 CPU Serial Number // 13 chars                             // 11-21  11 chars
+// 26-33 Date-Ship code (YYMMDD) // 8 chars (enough for YYYYMMDD). // 22-27   6 chars
+// 34-40 CPU ID Field (reference RSW 2)                            // 28-32   5 chars
+//  Byte 40: Bits 03 (Bits 32-35 of RSW 2 Field                    //    32
+//           Bit 4=1 Hex Option included
+//           Bit 5=1 RSCR (Clock) is Slave Mode included
+//           Bits 6-7 Reserved for later use.
+//       50: Operating System Use                                  //    40
+
+  word36 rsw2 = 0;
+
+  // The PROM copy of RSW 2 contains a canonical RSW 2 rather than the actual RSW 2.
+  //   The port interlace is set to 0
+  //   The fault base is set to 2 (Multics)
+  //   Processor mode is set to 0 (Multics)
+
+  //  0 -   3   4   Port interlace = 0000
+  putbits36_4 (& rsw2,  0,  0);
+  //  4 -   5   2   CPU type  01 = DPS8
+  putbits36_2 (& rsw2,  4,  001);
+  //  6 - 12    7   Fault Base  = 2
+  putbits36_7 (& rsw2,  6,  2);
+  // 13 - 13    1   PROM Present = 1
+  putbits36_1 (& rsw2,  13,  1);
+  // 14 - 18    5   Pad 00000
+  putbits36_5 (& rsw2,  14,  0);
+  // 19 - 19    1   CPU  1 = DPS8
+  putbits36_1 (& rsw2,  19,  1);
+  // 20 - 20    1   8K Cache  1 = Present
+  putbits36_1 (& rsw2,  20,  cpu.options.cache_installed ? 0 : 1);
+  // 21 - 22    2   Pad
+  putbits36_2 (& rsw2,  21,  0);
+  // 23 - 23    1   Always 1 for Multics CPU
+  putbits36_1 (& rsw2,  23,  1);
+  // 24 - 24    1   Proc Mode Bit
+  putbits36_1 (& rsw2,  24,  0);
+  // 25 - 28    4   Pad
+  putbits36_4 (& rsw2,  25,  0);
+  // 29 - 32    4   CPU speed options
+  putbits36_4 (& rsw2,  29,  cpu.options.proc_speed & 017LL);
+  // 33 - 35    3   CPU number
+  putbits36_3 (& rsw2,  33,  cpu.switches.cpu_num & 07LL);
+
+  word4 rsw2Ext = 0;
+  if (cpu.options.hex_mode_installed)
+    rsw2Ext |= 010;  // bit 4
+  if (cpu.options.clock_slave_installed)
+    rsw2Ext |= 004;  // bit 5
+  // bits 6,7 reserved for future use
+                
+  char serial[12];
+  if (cpuNo < 0)
+    sprintf (serial, "%-11u", 0);
+  else
+    sprintf (serial, "%-11u", cpu.switches.serno);
+
+#ifdef VER_H_PROM_SHIP
+  char * ship = VER_H_PROM_SHIP;
+#else
+  char * ship = "200101";
+#endif /* VER_H_PROM_SHIP */
+
+
+#define         BURN(offset, length, string) memcpy ((char *) PROM + (offset), string, length)
+#define         BURN1(offset, byte) PROM[offset] = (char) (byte)
+
+  memset (PROM, 255, 1024);
+
+  //              12345678901
+  BURN  ( 00, 11, "DPS 8/EM   ");           //    0-10  CPU model          ("XXXXXXXXXXX"/%11s)
+  BURN  (013, 11, serial);                  //   11-21  CPU serial         ("DDDDDDDDDDD"/%11d)
+  BURN  (026,  6, ship);                    //   22-27  CPU ship date            ("YYMMDD"/%6s)
+  BURN1 (034,     getbits36_8 (rsw2,  0));  //   34     RSW 2 bits  0- 7
+  BURN1 (035,     getbits36_8 (rsw2,  8));  //   35     RSW 2 bits  8-15
+  BURN1 (036,     getbits36_8 (rsw2, 16));  //   36     RSW 2 bits 16-23
+  BURN1 (037,     getbits36_8 (rsw2, 24));  //   37     RSW 2 bits 24-31
+  BURN1 (040,     ((getbits36_4 (rsw2, 32) << 4) | rsw2Ext));  // 40  RSW 2 bits 32-35, options bits
+
+#ifdef VER_H_PROM_MAJOR_VER
+  char * majorVersion = VER_H_PROM_MAJOR_VER;
+#else
+  char * majorVersion = "999";
+#endif /* VER_H_PROM_MAJOR_VER */
+
+#ifdef VER_H_PROM_MINOR_VER
+  char * minorVersion = VER_H_PROM_MINOR_VER;
+#else
+  char * minorVersion = "999";
+#endif /* VER_H_PROM_MINOR_VER */
+
+
+#ifdef VER_H_PROM_PATCH_VER
+  char * patchVersion = VER_H_PROM_PATCH_VER;
+#else
+  char * patchVersion = "999";
+#endif /* VER_H_PROM_PATCH_VER */
+
+
+#ifdef VER_H_PROM_OTHER_VER
+  char * otherVersion = VER_H_PROM_OTHER_VER;
+#else
+  char * otherVersion = "999";
+#endif /* VER_H_PROM_OTHER_VER */
+
+#ifdef VER_H_GIT_RELT
+  char * gitReleaseType = VER_H_GIT_RELT;
+#else
+  char * gitReleaseType = "X";
+#endif /* VER_H_GIT_RELT */
+
+#ifdef VER_H_PROM_VER_TEXT
+  char * promVersionText = VER_H_PROM_VER_TEXT;
+#else
+  char * promVersionText = "Unknown                   ";
+#endif /* VER_H_PROM_VER_TEXT */
+
+#ifdef BUILD_PROM_OSA_TEXT
+  char * promOSA = BUILD_PROM_OSA_TEXT;
+#else
+#ifdef VER_H_PROM_OSA_TEXT
+  char * promOSA = VER_H_PROM_OSA_TEXT;
+#else
+  char * promOSA = "Unknown             ";
+#endif /* VER_H_PROM_OSA_TEXT */
+#endif /* BUILD_PROM_OSA_TEXT */
+
+#ifdef BUILD_PROM_OSV_TEXT
+  char * promOSV = BUILD_PROM_OSV_TEXT;
+#else
+#ifdef VER_H_PROM_OSV_TEXT
+  char * promOSV = VER_H_PROM_OSV_TEXT;
+#else
+  char * promOSV = "Unknown             ";
+#endif /* VER_H_PROM_OSV_TEXT */
+#endif /* BUILD_PROM_OSV_TEXT */
+
+  BURN1 ( 60,     '1');             //  60  layout_version number           ("N"/%1s)
+  BURN  ( 80,  3, majorVersion);    //  80-82  major release number          ("NNN"/%3s)
+  BURN  ( 83,  3, minorVersion);    //  83-85  minor release number          ("NNN"/%3s)
+  BURN  ( 86,  3, patchVersion);    //  86-88  patch version number          ("NNN"/%3s)
+  BURN  ( 89,  3, otherVersion);    //  89-91  iteration number              ("NNN"/%3s)
+  BURN  (100,  1, gitReleaseType);  // 100  rel type                        ("X"/%1s)
+  BURN  (101, 26, promVersionText); // 101-127  rel   ("XXXXXXXXXXXXXXXXXXXXXXXXXX"/%26s)
+  BURN  (130, 20, promOSA);         // 130-149  target arch ("XXXXXXXXXXXXXXXXXXXX"/%20s)
+  BURN  (150, 20, promOSV);         // 150-169  target os   ("XXXXXXXXXXXXXXXXXXXX"/%20s)
+}
+//#endif

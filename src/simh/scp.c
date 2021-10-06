@@ -4573,9 +4573,9 @@ fprintf (st, "%s", sprint_capac (dptr, uptr));
 
 t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-#define DPS8_SCP
-#define PROM SCPPROM
-#include "../dps8/dps8_prom.h"
+        void setupPROM (int cpuNo, unsigned char * PROM);
+        unsigned char PROM[1024];
+        setupPROM (-1, PROM);
         int n = 6;
         int l = 174; /* end of populated area */
         sim_printf(" PROM initialization data: \n\n");
@@ -4583,9 +4583,8 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
                 if (prombyte % n == 0 && prombyte != 0) {
                         sim_printf("\n"); }
                 sim_printf("%03d: %02x [", prombyte, PROM[prombyte]);
-                if (PROM[prombyte] > 31) {
-                        if (PROM[prombyte] < 128) {
-                                sim_printf("%c]  ", (unsigned char)PROM[prombyte]); }
+                if (PROM[prombyte] > 31 && PROM[prombyte] < 128) {
+                        sim_printf("%c]  ", (unsigned char)PROM[prombyte]);
                 } else {
                         sim_printf(".]  "); }
         }

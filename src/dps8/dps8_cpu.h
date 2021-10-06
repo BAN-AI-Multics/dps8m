@@ -707,20 +707,29 @@ typedef struct
     uint init_enable [N_CPU_PORTS];
     uint store_size [N_CPU_PORTS]; // 0-7 encoding 32K-4M
     enum procModeSettings procMode;  // 1 bit  Read by rsw instruction; format unknown
-    uint proc_speed; // 4 bits Read by rsw instruction; format unknown
-
-    // Emulator run-time options (virtual switches)
-    uint dis_enable;      // If non-zero, DIS works
-    uint halt_on_unimp;   // If non-zero, halt CPU on unimplemented instruction
-                          // instead of faulting
+    uint serno;
     uint disable_wam;     // If non-zero, disable PTWAM, STWAM
+  } switches_t;
+
+typedef struct {
+  uint proc_speed; // 4 bits Read by rsw instruction; format unknown
+  bool hex_mode_installed;
+  bool prom_installed;
+  bool cache_installed;
+  bool clock_slave_installed;
+} optionsType;
+
+// Emulator run-time options (virtual switches)
+typedef struct {
     uint report_faults;   // If set, faults are reported and ignored
     uint tro_enable;      // If set, Timer runout faults are generated.
     uint drl_fatal;
-    uint serno;
     bool useMap;
     bool disable_cache;
-  } switches_t;
+    uint dis_enable;      // If non-zero, DIS works
+    uint halt_on_unimp;   // If non-zero, halt CPU on unimplemented instruction
+                          // instead of faulting
+} tweaksType;
 
 #ifdef L68
 enum ou_cycle_e
@@ -1539,6 +1548,8 @@ typedef struct
 
     events_t events;
     switches_t switches;
+    optionsType options;
+    tweaksType tweaks;
     ctl_unit_data_t cu;
     du_unit_data_t du;
     ou_unit_data_t ou;
@@ -1808,6 +1819,10 @@ typedef struct
     // mapping from the CPU to the SCU is easier to query
     uint scu_port[N_SCU_UNITS_MAX];
 
+//#ifdef DPS8M
+    unsigned char PROM[1024];
+//#endif
+
   } cpu_state_t;
 
 #ifdef M_SHARED
@@ -1897,7 +1912,7 @@ static inline int core_read (word24 addr, word36 *data, \
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -1947,7 +1962,7 @@ static inline int core_write (word24 addr, word36 data, \
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -1995,7 +2010,7 @@ static inline int core_write_zone (word24 addr, word36 data, \
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -2046,7 +2061,7 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -2098,7 +2113,7 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
   {
     PNL (cpu.portBusy = true;)
 #ifdef ISOLTS
-    if (cpu.switches.useMap)
+    if (cpu.tweaks.useMap)
       {
         uint pgnum = addr / SCBANK;
         int os = cpu.scbank_pg_os [pgnum];
@@ -2366,3 +2381,7 @@ t_stat threadz_sim_instr (void);
 void * cpu_thread_main (void * arg);
 #endif
 void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem);
+//#ifdef DPS8M
+void setupPROM (int cpuNo, unsigned char * PROM);
+//#endif
+
