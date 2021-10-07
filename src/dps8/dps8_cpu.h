@@ -1819,10 +1819,6 @@ typedef struct
     // mapping from the CPU to the SCU is easier to query
     uint scu_port[N_SCU_UNITS_MAX];
 
-//#ifdef DPS8M
-    unsigned char PROM[1024];
-//#endif
-
   } cpu_state_t;
 
 #ifdef M_SHARED
@@ -2381,7 +2377,5 @@ t_stat threadz_sim_instr (void);
 void * cpu_thread_main (void * arg);
 #endif
 void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem);
-//#ifdef DPS8M
 void setupPROM (int cpuNo, unsigned char * PROM);
-//#endif
 

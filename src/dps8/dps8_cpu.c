@@ -50,6 +50,7 @@
 
 __thread uint current_running_cpu_idx;
 #endif
+#include "ver.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -718,8 +719,6 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     memset (& cpu.PPR, 0, sizeof (struct ppr_s));
 
     setup_scbank_map ();
-
-    setupPROM ((int) cpun, cpu.PROM);
 
     tidy_cu ();
     set_cpu_idx (save);
@@ -4538,7 +4537,7 @@ void setupPROM (int cpuNo, unsigned char * PROM) {
   memset (PROM, 255, 1024);
 
   //              12345678901
-  BURN  ( 00, 11, "DPS 8/EM   ");           //    0-10  CPU model          ("XXXXXXXXXXX"/%11s)
+  BURN  ( 00, 11, "DPS 8/SIM M");           //    0-10  CPU model          ("XXXXXXXXXXX"/%11s)
   BURN  (013, 11, serial);                  //   11-21  CPU serial         ("DDDDDDDDDDD"/%11d)
   BURN  (026,  6, ship);                    //   22-27  CPU ship date            ("YYMMDD"/%6s)
   BURN1 (034,     getbits36_8 (rsw2,  0));  //   34     RSW 2 bits  0- 7
@@ -4546,6 +4545,12 @@ void setupPROM (int cpuNo, unsigned char * PROM) {
   BURN1 (036,     getbits36_8 (rsw2, 16));  //   36     RSW 2 bits 16-23
   BURN1 (037,     getbits36_8 (rsw2, 24));  //   37     RSW 2 bits 24-31
   BURN1 (040,     ((getbits36_4 (rsw2, 32) << 4) | rsw2Ext));  // 40  RSW 2 bits 32-35, options bits
+
+#ifdef VER_H_GIT_DATE
+  char * commitDate = VER_H_GIT_DATE;
+#else
+  char * commitDate = "200101";
+#endif /* VER_H_GIT_DATE */
 
 #ifdef VER_H_PROM_MAJOR_VER
   char * majorVersion = VER_H_PROM_MAJOR_VER;
@@ -4606,6 +4611,7 @@ void setupPROM (int cpuNo, unsigned char * PROM) {
 #endif /* BUILD_PROM_OSV_TEXT */
 
   BURN1 ( 60,     '1');             //  60  layout_version number           ("N"/%1s)
+  BURN  ( 70, 10, commitDate);      //  70-79  last commit date              ("NNN"/%3s)
   BURN  ( 80,  3, majorVersion);    //  80-82  major release number          ("NNN"/%3s)
   BURN  ( 83,  3, minorVersion);    //  83-85  minor release number          ("NNN"/%3s)
   BURN  ( 86,  3, patchVersion);    //  86-88  patch version number          ("NNN"/%3s)

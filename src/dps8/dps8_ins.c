@@ -8115,7 +8115,9 @@ elapsedtime ();
             word6 Tm = GET_TM (rTAG);
             if (Tm == TM_R && Td == TD_DL)
               {
-                cpu.rA = cpu.PROM[cpu.TPR.CA & 1023];
+                unsigned char PROM[1024];
+                setupPROM (current_running_cpu_idx, PROM);
+                cpu.rA = PROM[cpu.TPR.CA & 1023];
                 break;
               }
 #endif // DPS8M
@@ -8235,6 +8237,30 @@ elapsedtime ();
 // 1 -> C(A) 25
 // 000 -> C(A) 26,28
 // C(Processor speed) -> C (A) 29,32
+
+// source/library_dir_dir/system_library_unbundled/source/bound_gcos_.1.s.archive/gcos_fault_processor_.pl1 [RO]         27,1            3%
+// This code fakes a GCOS RSW 2 instruction for GTSS.
+//   /* (0-3) Port address expansion option:		*/ (4)"0"b
+//   /* (4-5) Reserved for future use:		*/ || (2)"0"b
+//   /* (6-12) Processor fault base address switches:	*/ || (7)"0"b
+//   /* (13-16) L66 peripheral connectability:	*/ || (4)"0"b
+//   /* (17) Future use (must be zero):		*/ || (1)"1"b
+//   /* (18) BCD option installed:			*/ || (1)"1"b
+//   /* (19) DPS type processor:			*/ || (1)"0"b
+//   /* (20) 8K cache option installed:		*/ || (1)"0"b
+//   /* (21) Gear shift model processor:		*/ || (1)"0"b
+//   /* (22) Power pach option installed:		*/ || (1)"0"b
+//   /* (23) VMS-CU option installed - 66B' proc:	*/ || (1)"0"b
+//   /* (24) VMS-VU option installed - 66B proc:	*/ || (1)"0"b
+//   /* (25) Type processor (0) CPL, (1) DPSE-NPL:	*/ || (1)"0"b
+//   /* (26) 6025, 6605 or 6610 type processor:	*/ || (1)"0"b
+//   /* (27) 2K cache option installed:		*/ || (1)"0"b
+//   /* (28) Extended memory option installed:	*/ || (1)"0"b
+//   /* (29-30) cabinet (00) 8/70, (01) 8/52, (10) 862, (11) 846:	*/ || (2)"0"b
+//   /* (31) EIS option installed:			*/ || (1)"1"b
+//   /* (32) (1) slow memory access, (0) fast memory:	*/ || (1)"0"b
+//   /* (33) (1) no instruction overlap, (0) overlap:	*/ || (1)"0"b
+//   /* (34-35) Processor number:			*/ ||unspec (mc.cpu_type);
 
 
 

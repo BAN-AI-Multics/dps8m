@@ -4571,25 +4571,49 @@ fprintf (st, "%s", sprint_capac (dptr, uptr));
 
 /* Show <global name> processors  */
 
+static void printp (unsigned char * PROM, char * label, int offset, int length) {
+  sim_printf ("  %s '", label);
+  for (int l = 0; l < length; l ++) {
+    uint byte = PROM[offset + l];
+    sim_printf (isprint (byte) ? "%c" : "\\%03o", byte);
+  }
+  sim_printf ("'\r\n");
+}
+
 t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-        void setupPROM (int cpuNo, unsigned char * PROM);
-        unsigned char PROM[1024];
-        setupPROM (-1, PROM);
-        int n = 6;
-        int l = 174; /* end of populated area */
-        sim_printf(" PROM initialization data: \n\n");
-        for (int prombyte = 0; prombyte < l; ++prombyte) {
-                if (prombyte % n == 0 && prombyte != 0) {
-                        sim_printf("\n"); }
-                sim_printf("%03d: %02x [", prombyte, PROM[prombyte]);
-                if (PROM[prombyte] > 31 && PROM[prombyte] < 128) {
-                        sim_printf("%c]  ", (unsigned char)PROM[prombyte]);
-                } else {
-                        sim_printf(".]  "); }
-        }
-        sim_printf("\n");
-        return 0;
+  void setupPROM (int cpuNo, unsigned char * PROM);
+  unsigned char PROM[1024];
+  setupPROM (-1, PROM);
+  int n = 6;
+  int l = 174; /* end of populated area */
+  sim_printf(" PROM initialization data: \r\n");
+  for (int prombyte = 0; prombyte < l; ++prombyte) {
+    if (prombyte % n == 0 && prombyte != 0) {
+      sim_printf("\r\n");
+    }
+    sim_printf("%03d: %02x [", prombyte, PROM[prombyte]);
+    if (PROM[prombyte] > 31 && PROM[prombyte] < 128) {
+      sim_printf("%c]  ", (unsigned char)PROM[prombyte]);
+    } else {
+      sim_printf(".]  ");
+    }
+  }
+  sim_printf("\r\n");
+  printp (PROM, "CPU Model:           ",   0, 11);
+  printp (PROM, "CPU Serial:          ",  11, 11);
+  printp (PROM, "Ship Date:           ",  22,  6);
+  printp (PROM, "Layout Version:      ",  60,  1);
+  printp (PROM, "Last Commit Date:    ",  70, 10);
+  printp (PROM, "Major Version:       ",  80,  3);
+  printp (PROM, "Minor Version:       ",  83,  3);
+  printp (PROM, "Patch Version:       ",  86,  3);
+  printp (PROM, "Iteration:           ",  89,  3);
+  printp (PROM, "Release Type:        ", 100,  1);
+  printp (PROM, "Version Text:        ", 101, 26);
+  printp (PROM, "Target Architecture: ", 130, 20);
+  printp (PROM, "Target OS:           ", 150, 20);
+  return 0;
 }
 
 t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
