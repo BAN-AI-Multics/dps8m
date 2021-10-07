@@ -1078,14 +1078,9 @@ Linux/x86_64, OpenSUSE Leap:
   tags:
     - Docker-x64
   script:
-    - export GLCICD_JOB="OpenSUSELeapX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
-    - zypper -qn install -y bzip2 wget || zypper -qn install -y bzip2 wget
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptOSUSESetup
     - *scriptInstallNfpm
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
