@@ -61,6 +61,8 @@
 */
 
 #include "sim_defs.h"
+#include "../decNumber/decContext.h"
+#include "../decNumber/decNumberLocal.h"
 
 t_bool sim_end;                     /* TRUE = little endian, FALSE = big endian */
 t_bool sim_taddr_64;                /* t_addr is > 32b and Large File Support available */
@@ -85,10 +87,7 @@ t_bool sim_toffset_64;              /* Large File (>2GB) file I/O Support availa
 
 int32 sim_finit (void)
 {
-union {int32 i; char c[sizeof (int32)]; } end_test;
-
-end_test.i = 1;                                         /* test endian-ness */
-sim_end = (end_test.c[0] != 0);
+sim_end = DECLITEND;
 sim_toffset_64 = (sizeof(t_offset) > sizeof(int32));    /* Large File (>2GB) support */
 sim_taddr_64 = sim_toffset_64 && (sizeof(t_addr) > sizeof(int32));
 return sim_end;

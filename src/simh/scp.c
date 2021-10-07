@@ -249,6 +249,9 @@
 #include "../dps8/ver.h"
 #include "../dps8/sysdefs.h"
 
+#include "../decNumber/decContext.h"
+#include "../decNumber/decNumberLocal.h"
+
 #ifndef MAX
 #define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
 #endif
@@ -1986,24 +1989,34 @@ t_bool lookswitch;
 t_stat stat;
 
 #ifdef __MINGW32__
+#ifndef NEED_CONSOLE_SETUP
 #define NEED_CONSOLE_SETUP
+#endif
 #endif /* ifdef __MINGW32__ */
 
 #ifdef CROSS_MINGW32
+#ifndef NEED_CONSOLE_SETUP
 #define NEED_CONSOLE_SETUP
+#endif
 #endif /* ifdef CROSS_MINGW32 */
 
 #ifdef __MINGW64__
+#ifndef NEED_CONSOLE_SETUP
 #define NEED_CONSOLE_SETUP
+#endif
 #endif /* ifdef __MINGW64__ */
 
 #ifdef CROSS_MINGW64
+#ifndef NEED_CONSOLE_SETUP
 #define NEED_CONSOLE_SETUP
+#endif
 #endif /* ifdef CROSS_MINGW64 */
 
 #if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
 #include <windows.h>
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
 #endif /* if defined(NEED_CONSOLE_SETUP) && defined(_WIN32) */
 
 #ifdef NEED_CONSOLE_SETUP
@@ -2020,15 +2033,27 @@ if (handle != INVALID_HANDLE_VALUE)
 puts ("\e[0m");
 #endif /* NEED_CONSOLE_SETUP */
 
+/* endian-ness sanity test */
+int testEndian = decContextTestEndian(1);
+if (testEndian != 0) {
+  if (testEndian == 1) {
+    fprintf (stderr,
+      "Error: Compiled for big-endian, but little-endian ordering detected; aborting.\n");
+    return 0;
+  }
+  if (testEndian == -1) {
+    fprintf (stderr,
+      "Error: Compiled for little-endian, but big-endian ordering detected; aborting.\n");
+    return 0;
+  }
+  fprintf (stderr,
+    "Error: Unable to determine system byte order; aborting.\n");
+  return 0;
+}
+
 /* invocation sanity check */
 if (argc == 0) {
     fprintf (stderr, "Error: main() called directly!\n");
-    return 0;
-}
-
-/* simulation sanity check */
-if (sim_name == NULL) {
-    fprintf (stderr, "Error: Not a simulator!\n");
     return 0;
 }
 
@@ -4764,7 +4789,7 @@ if (flag) {
 #endif
     fprintf (st, "ROUND_ROBIN");
 #endif
-#ifdef LOCKLESS
+#ifndef LOCKLESS
 #ifdef HAVE_DPSOPT
     fprintf (st, ", ");
 #else
@@ -4773,7 +4798,7 @@ if (flag) {
 #ifndef HAVE_DPSOPT
 #define HAVE_DPSOPT 1
 #endif
-    fprintf (st, "LOCKLESS");
+    fprintf (st, "NO_LOCKLESS");
 #endif
 #ifdef TRACKER
 #ifdef HAVE_DPSOPT

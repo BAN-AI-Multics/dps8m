@@ -12,7 +12,7 @@
   * [SimH](#simh)
   * [PunUtil](#punutil)
   * [Prt2PDF](#prt2pdf)
-  * [Txt2PDF](#txt2pdf)
+    * [Txt2PDF](#txt2pdf)
   * [DecNumber](#decnumber)
   * [libTELNET](#libtelnet)
   * [Shell Routines](#shell-routines)
@@ -38,6 +38,7 @@ ICU License —— ICU 1.8.1 to ICU 57.1
 COPYRIGHT AND PERMISSION NOTICE
 
 Copyright (c) 2006‑2021 Michael Mondy, Harry Reed, Charles Anthony, and others
+Copyright (c) 2012 Dave Jordan
 Copyright (c) 2015‑2016 Craig Ruff
 Copyright (c) 2015‑2021 Eric Swenson
 Copyright (c) 2016 Jean‑Michel Merliot
@@ -224,7 +225,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   Robert M. Supnik and others, and distributed under a modified MIT license.
 
 ```text
-
 Copyright (c) 1993‑2012 Robert M Supnik
 Copyright (c) 2002‑2007 David T. Hittner
 Copyright (c) 2005‑2016 Richard Cornwell
@@ -351,7 +351,7 @@ property of their respective owners.
 
 ----
 
-### Txt2PDF
+#### Txt2PDF
 
 * **Prt2PDF** is derived from **Txt2PDF**, a utility to transform ASCII
   text files to Adobe Acrobat PDF documents, written by P. G. Womack, and

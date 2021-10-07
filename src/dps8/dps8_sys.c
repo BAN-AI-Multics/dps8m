@@ -4093,7 +4093,7 @@ static void dps8_init (void)
 #endif
     sim_msg ("ROUND_ROBIN");
 #endif
-#ifdef LOCKLESS
+#ifndef LOCKLESS
 #ifdef HAVE_DPSOPT
     sim_msg (", ");
 #else
@@ -4102,7 +4102,7 @@ static void dps8_init (void)
 #ifndef HAVE_DPSOPT
 #define HAVE_DPSOPT 1
 #endif
-    sim_msg ("LOCKLESS");
+    sim_msg ("NO_LOCKLESS");
 #endif
 #ifdef TRACKER
 #ifdef HAVE_DPSOPT

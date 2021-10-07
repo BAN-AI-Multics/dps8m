@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2016 Harry Reed
+ * Copyright (c) 2012 Dave Jordan
  * Copyright (c) 2013-2018 Charles Anthony
  * Copyright (c) 2016 Jean-Michel Merliot
  * Copyright (c) 2021 The DPS8M Development Team
@@ -179,18 +180,28 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 #define vol
 #endif
 
-// Fix glibc incompatibility with new simh code.
-
-#if __WORDSIZE == 64
+#ifndef NEED_128
+#ifdef PRIu64
 #undef PRIu64
+#endif
+#ifndef PRIu64
 #define PRIu64 "llu"
+#endif
+#ifdef PRId64
 #undef PRId64
+#endif
+#ifndef PRId64
 #define PRId64 "lld"
+#endif
+#ifdef PRIo64
 #undef PRIo64
+#endif
+#ifndef PRIo64
 #define PRIo64 "llo"
 #endif
-#include "sim_defs.h"                                   /* simulator defns */
+#endif
 
+#include "sim_defs.h"                                   /* simulator defns */
 #include "sim_tape.h"
 
 // patch supplied by Dave Jordan (jordandave@gmail.com) 29 Nov 2012
