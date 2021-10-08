@@ -23,7 +23,6 @@
   #define DEC64FULLNAME "Decimal 64-bit Number"       /* Verbose name */
   #define DEC64AUTHOR   "Mike Cowlishaw"              /* Who to blame */
 
-
   /* parameters for decimal64s                                        */
   #define DECIMAL64_Bytes  8            /* length                     */
   #define DECIMAL64_Pmax   16           /* maximum precision (digits) */

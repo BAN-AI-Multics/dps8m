@@ -879,31 +879,31 @@ int main(int argc, char **argv) {
            case 'P': GLOBAL_PAGES=1;                                                          break; /* number pages             */
            case 'h': showhelp(1);exit(1);                                                     break; /* help                     */
            case 'X': showhelp(2);
-		break;
-		   case 'V': ;
+                                                                                              break;
+           case 'V': ;
 #ifdef BUILDINFO_prt2pdf
 #ifdef __VERSION__
 #ifdef __GNUC__
 #ifndef __clang_version__
-				     char xcmp[2];
-					 sprintf(xcmp, "%.1s", __VERSION__ );
-				     if (!isdigit((int)xcmp[0]))
-				     {
-				        fprintf (stderr, "Compiler: %s\n", __VERSION__ );
-					 } else {
-				        fprintf (stderr, "Compiler: GCC %s\n", __VERSION__ );
-				     }
+                     char xcmp[2];
+                     sprintf(xcmp, "%.1s", __VERSION__ );
+                     if (!isdigit((int)xcmp[0]))
+                     {
+                         fprintf (stderr, "Compiler: %s\n", __VERSION__ );
+                     } else {
+                         fprintf (stderr, "Compiler: GCC %s\n", __VERSION__ );
+                     }
 #else
-				     fprintf (stderr, "Compiler: %s\n", __VERSION__ );
+                     fprintf (stderr, "Compiler: %s\n", __VERSION__ );
 #endif /* ifndef __clang_version__ */
 #else
-				     fprintf (stderr, "Compiler: %s\n", __VERSION__ );
+                     fprintf (stderr, "Compiler: %s\n", __VERSION__ );
 #endif /* ifdef __GNUC__ */
 #endif /* ifdef __VERSION__ */
-					 fprintf (stderr, "   Build: %s\n", BUILDINFO_prt2pdf );
+                     fprintf (stderr, "   Build: %s\n", BUILDINFO_prt2pdf );
 #endif /* ifdef BUILDINFO_prt2pdf */
-					 exit(1);
-		break; /* build info               */
+                     exit(1);
+        break; /* build info               */
            case 'v': fprintf (stderr, "prt2pdf version %d\n",GLOBAL_VERSION); exit(2);        break; /* version                  */
            case '?':
              fprintf(stderr," SWITCH IS %c\n",c);

@@ -1171,9 +1171,9 @@ static void parse_options(int argc, char *argv[])
     while (!done)
     {
 #ifdef USE_POPT
-        poptContext opt_con;
-	opt_con = poptGetContext(NULL, argc, (const char **)argv, long_options, 0);
-	while ((c = poptGetNextOpt(opt_con)) >= 0) {
+       poptContext opt_con;
+      opt_con = poptGetContext(NULL, argc, (const char **)argv, long_options, 0);
+      while ((c = poptGetNextOpt(opt_con)) >= 0) {
 #else
         int option_index = 0;
         c = getopt_long(argc, argv, "7acdfghmnrvV", long_options, &option_index);
