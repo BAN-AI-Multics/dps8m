@@ -1888,7 +1888,7 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
         continue;
 
 /* requested only version? */
-	int onlyvers  = strcmp(argv[i], "--version");
+    int onlyvers  = strcmp(argv[i], "--version");
     if (onlyvers == 0) {
 #ifdef VER_H_GIT_VERSION
 #if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
@@ -1908,8 +1908,8 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
     
 /* requested short or long help? */
     int longhelp  = strcmp(argv[i], "--help");
-	int shorthelp = strcmp(argv[i], "-h");
-	if (shorthelp != 0) shorthelp = strcmp(argv[i], "-H");
+    int shorthelp = strcmp(argv[i], "-h");
+    if (shorthelp != 0) shorthelp = strcmp(argv[i], "-H");
     if (longhelp == 0 || shorthelp == 0) {
 #ifdef VER_H_GIT_VERSION
 #if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
@@ -4435,50 +4435,23 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     fprintf (st, " Build information:");
 #if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
     fprintf (st, "\n      Compilation info: %s\n", BUILDINFO_scp );
-	fprintf (st, "  Relevant definitions: %s\n", SYSDEFS_USED );
+    fprintf (st, "  Relevant definitions: %s\n", SYSDEFS_USED );
 #elif defined(BUILDINFO_scp)
-	fprintf (st, "\n      Compilation info: %s\n", BUILDINFO_scp );
+    fprintf (st, "\n      Compilation info: %s\n", BUILDINFO_scp );
 #else
- 	fprintf (st, "\n      Compilation info: Not available\n" );
+    fprintf (st, "\n      Compilation info: Not available\n" );
 #endif
-	return 0;
+    return 0;
 }
 
 t_stat show_version (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-//int32 vmaj = SIM_MAJOR, vmin = SIM_MINOR, vpat = SIM_PATCH, vdelt = SIM_DELTA;
-//const char *cpp = "";
-//const char *build = "";
 const char *arch = "";
 int dirty = 0;
 
 if (cptr && (*cptr != 0))
     return SCPE_2MARG;
 if (flag) {
-//  t_bool idle_capable;
-//  uint32 os_ms_sleep_1, os_tick_size;
-
-//  fprintf (st, "\n\t%s Simulator Capabilities:", sim_name);
-//  fprintf (st, "\n\t\t%s", sim_si64);
-//  fprintf (st, "\n\t\t%s", sim_sa64);
-//  idle_capable = sim_timer_idle_capable (&os_ms_sleep_1, &os_tick_size);
-//  fprintf (st, "\n\t\tIdle/Throttling support is %savailable", idle_capable ? "" : "NOT ");
-//  if (sim_disk_vhd_support())
-//      fprintf (st, "\n\t\tVirtual Hard Disk (VHD) support");
-//  if (sim_disk_raw_support())
-//      fprintf (st, "\n\t\tRAW disk and CD/DVD ROM support");
-//#if defined (SIM_ASYNCH_IO)
-//    fprintf (st, "\n\t\tAsynchronous I/O support");
-//#endif
-//#if defined (SIM_ASYNCH_MUX)
-//    fprintf (st, "\n\t\tAsynchronous Multiplexer support");
-//#endif
-//#if defined (SIM_ASYNCH_CLOCKS)
-//    fprintf (st, "\n\t\tAsynchronous Clock support");
-//#endif
-//#if defined (SIM_FRONTPANEL_VERSION)
-//    fprintf (st, "\n\t\tSIMH FrontPanel API Version %d", SIM_FRONTPANEL_VERSION);
-//#endif
         fprintf (st, " %s Simulator:", sim_name);
 #if defined(NO_SUPPORT_VERSION) || \
     defined(TESTING)            || \
@@ -4861,7 +4834,7 @@ if (flag) {
     }
 #endif
 #if defined(__APPLE__)
-	int isRosetta = processIsTranslated();
+    int isRosetta = processIsTranslated();
     if (isRosetta == 1) {
         sim_printf ("\n\n  ****** RUNNING UNDER APPLE ROSETTA 2, EXPECT REDUCED PERFORMANCE ******");
     }

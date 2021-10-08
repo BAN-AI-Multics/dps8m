@@ -12,12 +12,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//#ifdef __MINGW64__
-//#ifndef SRWLOCK
-//typedef PVOID RTL_SRWLOCK;
-//typedef RTL_SRWLOCK SRWLOCK, *PSRWLOCK;
-//#endif
-//#endif
 #include <uv.h>
 #include "libtelnet.h"
 
