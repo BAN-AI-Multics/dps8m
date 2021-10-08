@@ -215,20 +215,6 @@ typedef uint32          t_addr;
 #define SIM_INLINE
 #endif
 
-/* Storage class modifier for weak link definition for sim_vm_init() */
-
-#if defined(__cplusplus)
-#if defined(__GNUC__)
-#define WEAK __attribute__((weak))
-#elif defined(_MSC_VER)
-#define WEAK __declspec(selectany)
-#else
-#define WEAK extern
-#endif
-#else
-#define WEAK
-#endif
-
 /* System independent definitions */
 
 #define FLIP_SIZE       (1 << 16)                       /* flip buf size */
