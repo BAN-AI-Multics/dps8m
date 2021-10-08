@@ -23,44 +23,11 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
+*/
 
+/*
    Based on the original DZ11 simulator by Thord Nilson, as updated by
    Arthur Krewat.
-
-   12-Oct-12    MP      Revised serial port support to not require changes to
-                        any code in TMXR library using code.  Added support
-                        for per line listener ports and outgoing tcp connections.
-   02-Jun-11    MP      Fixed telnet option negotiation loop with some clients
-                        Added Option Negotiation and Debugging Support
-   17-Jan-11    MP      Added Buffered line capabilities
-   16-Jan-11    MP      Made option negotiation more reliable
-   20-Nov-08    RMS     Added three new standardized SHOW routines
-   05-Nov-08    JDB     Moved logging call after connection check in tmxr_putc_ln
-   03-Nov-08    JDB     Added TMXR null check to tmxr_find_ldsc
-   07-Oct-08    JDB     Added initial serial port support
-   30-Sep-08    JDB     Reverted tmxr_find_ldsc to original implementation
-   27-May-08    JDB     Added line connection order to tmxr_poll_conn,
-                        added tmxr_set_lnorder and tmxr_show_lnorder
-   14-May-08    JDB     Print device and line to which connection was made
-   11-Apr-07    JDB     Worked around Telnet negotiation problem with QCTerm
-   16-Aug-05    RMS     Fixed C++ declaration and cast problems
-   29-Jun-05    RMS     Extended tmxr_dscln to support unit array devices
-                        Fixed bug in SET LOG/NOLOG
-   04-Jan-04    RMS     Changed TMXR ldsc to be pointer to linedesc array
-                        Added tmxr_linemsg, circular output pointers, logging
-                        (from Mark Pizzolato)
-   29-Dec-03    RMS     Added output stall support
-   01-Nov-03    RMS     Cleaned up attach routine
-   09-Mar-03    RMS     Fixed bug in SHOW CONN
-   22-Dec-02    RMS     Fixed bugs in IAC+IAC receive and transmit sequences
-                        Added support for received break (all from by Mark Pizzolato)
-                        Fixed bug in attach
-   31-Oct-02    RMS     Fixed bug in 8b (binary) support
-   22-Aug-02    RMS     Added tmxr_open_master, tmxr_close_master
-   30-Dec-01    RMS     Added tmxr_fstats, tmxr_dscln, renamed tmxr_fstatus
-   03-Dec-01    RMS     Changed tmxr_fconns for extended SET/SHOW
-   20-Oct-01    RMS     Fixed bugs in read logic (found by Thord Nilson).
-                        Added tmxr_rqln, tmxr_tqln
 
    This library includes:
 

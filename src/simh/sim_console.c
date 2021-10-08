@@ -23,69 +23,9 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
+*/
 
-   02-Jan-14    RMS     Added tab stop routines
-   18-Mar-12    RMS     Removed unused reference to sim_switches (Dave Bryan)
-   07-Dec-11    MP      Added sim_ttisatty to support reasonable behaviour (i.e.
-                        avoid in infinite loop) in the main command input
-                        loop when EOF is detected and input is coming from
-                        a file (or a null device: /dev/null or NUL:) This may
-                        happen when a simulator is running in a background
-                        process.
-   17-Apr-11    MP      Cleaned up to support running in a background/detached
-                        process
-   20-Jan-11    MP      Fixed support for BREAK key on Windows to account
-                        for/ignore other keyboard Meta characters.
-   18-Jan-11    MP      Added log file reference count support
-   17-Jan-11    MP      Added support for a "Buffered" behaviors which include:
-                        - If Buffering is enabled and Telnet is enabled, a
-                          telnet connection is not required for simulator
-                          operation (instruction execution).
-                        - If Buffering is enabled, all console output is
-                          written to the buffer at all times (deleting the
-                          oldest buffer contents on overflow).
-                        - when a connection is established on the console
-                          telnet port, the whole contents of the Buffer is
-                          presented on the telnet session and connection
-                          will then proceed as if the connection had always
-                          been there.
-                        This concept allows a simulator to run in the background
-                        and when needed a console session to be established.
-                        The "when needed" case usually will be interested in
-                        what already happened before looking to address what
-                        to do, hence the buffer contents being presented.
-   28-Dec-10    MP      Added support for BREAK key on Windows
-   30-Sep-06    RMS     Fixed non-printable characters in KSR mode
-   22-Jun-06    RMS     Implemented SET/SHOW PCHAR
-   31-May-06    JDB     Fixed bug if SET CONSOLE DEBUG with no argument
-   22-Nov-05    RMS     Added central input/output conversion support
-   05-Nov-04    RMS     Moved SET/SHOW DEBUG under CONSOLE hierarchy
-   28-Oct-04    JDB     Fixed SET CONSOLE to allow comma-separated parameters
-   20-Aug-04    RMS     Added OS/2 EMX fixes (Holger Veit)
-   14-Jul-04    RMS     Revised Windows console code (Dave Bryan)
-   28-May-04    RMS     Added SET/SHOW CONSOLE
-                RMS     Added break, delete character maps
-   02-Jan-04    RMS     Removed timer routines, added Telnet console routines
-                RMS     Moved console logging to OS-independent code
-   25-Apr-03    RMS     Added long seek support (Mark Pizzolato)
-                        Added Unix priority control (Mark Pizzolato)
-   24-Sep-02    RMS     Removed VT support, added Telnet console support
-                        Added CGI support (Brian Knittel)
-                        Added MacOS sleep (Peter Schorn)
-   14-Jul-02    RMS     Added Windows priority control (Mark Pizzolato)
-   20-May-02    RMS     Added Windows VT support (Fischer Franz)
-   01-Feb-02    RMS     Added VAX fix (Robert Alan Byer)
-   19-Sep-01    RMS     More MacOS changes
-   31-Aug-01    RMS     Changed int64 to t_int64 for Windoze
-   20-Jul-01    RMS     Added MacOS support (Louis Chretien, Peter Schorn, Ben Supnik)
-   15-May-01    RMS     Added logging support
-   05-Mar-01    RMS     Added clock calibration support
-   08-Dec-00    BKR     Added OS/2 support (Bruce Ray)
-   18-Aug-98    RMS     Added BeOS support
-   13-Oct-97    RMS     Added NetBSD terminal support
-   25-Jan-97    RMS     Added POSIX terminal I/O support
-   02-Jan-97    RMS     Fixed bug in sim_poll_kbd
-
+/*
    This module implements the following routines to support terminal and
    Remote Console I/O:
 

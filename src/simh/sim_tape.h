@@ -23,13 +23,6 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
-
-   23-Jan-12    MP      Added support for Logical EOT detection while positioning
-   05-Feb-11    MP      Add Asynch I/O support
-   30-Aug-06    JDB     Added erase gap support
-   14-Feb-06    RMS     Added variable tape capacity
-   17-Dec-05    RMS     Added write support for Paul Pierce 7b format
-   02-May-05    RMS     Added support for Paul Pierce 7b format
 */
 
 #ifndef SIM_TAPE_H_

@@ -23,67 +23,9 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
+*/
 
-   05-Jan-11    MP      Added Asynch I/O support
-   18-Jan-11    MP      Added log file reference count support
-   21-Jul-08    RMS     Removed inlining support
-   28-May-08    RMS     Added inlining support
-   28-Jun-07    RMS     Added IA64 VMS support (from Norm Lastovica)
-   18-Jun-07    RMS     Added UNIT_IDLE flag
-   18-Mar-07    RMS     Added UNIT_TEXT flag
-   07-Mar-07    JDB     Added DEBUG_PRJ macro
-   18-Oct-06    RMS     Added limit check for clock synchronized keyboard waits
-   13-Jul-06    RMS     Guarantee CBUFSIZE is at least 256
-   07-Jan-06    RMS     Added support for breakpoint spaces
-                        Added REG_FIT flag
-   16-Aug-05    RMS     Fixed C++ declaration and cast problems
-   11-Mar-05    RMS     Moved 64b data type definitions outside USE_INT64
-   07-Feb-05    RMS     Added assertion fail stop
-   05-Nov-04    RMS     Added support for SHOW opt=val
-   20-Oct-04    RMS     Converted all base types to typedefs
-   21-Sep-04    RMS     Added switch to flag stop message printout
-   06-Feb-04    RMS     Moved device and unit user flags fields (V3.2)
-                RMS     Added REG_VMAD
-   29-Dec-03    RMS     Added output stall status
-   15-Jun-03    RMS     Added register flag REG_VMIO
-   23-Apr-03    RMS     Revised for 32b/64b t_addr
-   14-Mar-03    RMS     Lengthened default serial output wait
-   31-Mar-03    RMS     Added u5, u6 fields
-   18-Mar-03    RMS     Added logical name support
-                        Moved magtape definitions to sim_tape.h
-                        Moved breakpoint definitions from scp.c
-   03-Mar-03    RMS     Added sim_fsize
-   08-Feb-03    RMS     Changed sim_os_sleep to void, added match_ext
-   05-Jan-03    RMS     Added hidden switch definitions, device dyn memory support,
-                        parameters for function pointers, case sensitive SET support
-   22-Dec-02    RMS     Added break flag
-   08-Oct-02    RMS     Increased simulator error code space
-                        Added Telnet errors
-                        Added end of medium support
-                        Added help messages to CTAB
-                        Added flag and context fields to DEVICE
-                        Added restore flag masks
-                        Revised 64b definitions
-   02-May-02    RMS     Removed log status codes
-   22-Apr-02    RMS     Added magtape record length error
-   30-Dec-01    RMS     Generalized timer package, added circular arrays
-   07-Dec-01    RMS     Added breakpoint package
-   01-Dec-01    RMS     Added read-only unit support, extended SET/SHOW features,
-                        improved error messages
-   24-Nov-01    RMS     Added unit-based registers
-   27-Sep-01    RMS     Added queue count prototype
-   17-Sep-01    RMS     Removed multiple console support
-   07-Sep-01    RMS     Removed conditional externs on function prototypes
-   31-Aug-01    RMS     Changed int64 to t_int64 for Windoze
-   17-Jul-01    RMS     Added additional function prototypes
-   27-May-01    RMS     Added multiple console support
-   15-May-01    RMS     Increased string buffer size
-   25-Feb-01    RMS     Revisions for V2.6
-   15-Oct-00    RMS     Editorial revisions for V2.5
-   11-Jul-99    RMS     Added unsigned int data types
-   14-Apr-99    RMS     Converted t_addr to unsigned
-   04-Oct-98    RMS     Additional definitions for V2.4
-
+/*
    The interface between the simulator control package (SCP) and the
    simulator consists of the following routines and data structures
 

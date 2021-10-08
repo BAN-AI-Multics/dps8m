@@ -23,42 +23,9 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
+*/
 
-   21-Oct-11    MP      Fixed throttling in several ways:
-                         - Sleep for the observed clock tick size while throttling
-                         - Recompute the throttling wait once every 10 seconds
-                           to account for varying instruction mixes during
-                           different phases of a simulator execution or to
-                           accommodate the presence of other load on the host
-                           system.
-                         - Each of the pre-existing throttling modes (Kcps,
-                           Mcps, and %) all compute the appropriate throttling
-                           interval dynamically.  These dynamic computations
-                           assume that 100% of the host CPU is dedicated to
-                           the current simulator during this computation.
-                           This assumption may not always be true and under
-                           certain conditions may never provide a way to
-                           correctly determine the appropriate throttling
-                           wait.  An additional throttling mode has been added
-                           which allows the simulator operator to explicitly
-                           state the desired throttling wait parameters.
-                           These are specified by:
-                                  SET THROT insts/delay
-                           where 'insts' is the number of instructions to
-                           execute before sleeping for 'delay' milliseconds.
-   22-Apr-11    MP      Fixed Asynch I/O support to reasonably account cycles
-                        when an idle wait is terminated by an external event
-   05-Jan-11    MP      Added Asynch I/O support
-   29-Dec-10    MP      Fixed clock resolution determination for Unix platforms
-   22-Sep-08    RMS     Added "stability threshold" for idle routine
-   27-May-08    RMS     Fixed bug in Linux idle routines (from Walter Mueller)
-   18-Jun-07    RMS     Modified idle to exclude counted delays
-   22-Mar-07    RMS     Added sim_rtcn_init_all
-   17-Oct-06    RMS     Added idle support (based on work by Mark Pizzolato)
-                        Added throttle support
-   16-Aug-05    RMS     Fixed C++ declaration and cast problems
-   02-Jan-04    RMS     Split out from SCP
-
+/*
    This library includes the following routines:
 
    sim_timer_init -         initialize timing system

@@ -91,7 +91,6 @@ clean:
 
 scp.o:         sim_defs.h
 scp.o:         sim_timer.h
-scp.o:         sim_rev.h
 scp.o:         sim_disk.h sim_tape.h sim_sock.h
 scp.o:         sim_serial.h
 scp.o:         sim_tmxr.h sim_frontpanel.h

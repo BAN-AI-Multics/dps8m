@@ -23,24 +23,6 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
-
-   15-Oct-12    MP      Added definitions needed to detect possible tcp
-                        connect failures
-   25-Sep-12    MP      Reworked for RFC3493 interfaces supporting IPv6 and IPv4
-   22-Jun-10    RMS     Fixed types in sim_accept_conn (from Mark Pizzolato)
-   19-Nov-05    RMS     Added conditional for OpenBSD (from Federico G. Schwindt)
-   16-Aug-05    RMS     Fixed spurious SIGPIPE signal error in Unix
-   14-Apr-05    RMS     Added WSAEINPROGRESS test (from Tim Riker)
-   09-Jan-04    RMS     Fixed typing problem in Alpha Unix (found by Tim Chapman)
-   17-Apr-03    RMS     Fixed non-implemented version of sim_close_sock
-                        (found by Mark Pizzolato)
-   17-Dec-02    RMS     Added sim_connect_socket, sim_create_socket
-   08-Oct-02    RMS     Revised for .NET compatibility
-   22-Aug-02    RMS     Changed calling sequence for sim_accept_conn
-   22-May-02    RMS     Added OS2 EMX support from Holger Veit
-   06-Feb-02    RMS     Added VMS support from Robert Alan Byer
-   16-Sep-01    RMS     Added Macintosh support from Peter Schorn
-   02-Sep-01    RMS     Fixed UNIX bugs found by Mirian Lennox and Tom Markson
 */
 
 #ifdef  __cplusplus

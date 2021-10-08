@@ -26,9 +26,9 @@
 
    This is the place which hides processing of various disk formats,
    as well as OS-specific direct hardware access.
+*/
 
-   25-Jan-11    MP      Initial Implemementation
-
+/*
 Public routines:
 
    sim_disk_attach           attach disk unit
@@ -67,8 +67,6 @@ Internal routines:
    sim_vhd_disk_size         platform independent virtual disk size
    sim_vhd_disk_rdsect       platform independent read virtual disk sectors
    sim_vhd_disk_wrsect       platform independent write virtual disk sectors
-
-
 */
 
 #define _FILE_OFFSET_BITS 64    /* 64 bit file offset for raw I/O operations  */

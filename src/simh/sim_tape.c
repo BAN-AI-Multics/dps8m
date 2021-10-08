@@ -23,38 +23,9 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
+*/
 
-   Ultimately, this will be a place to hide processing of various tape formats,
-   as well as OS-specific direct hardware access.
-
-   23-Jan-12    MP      Added support for Logical EOT detection while positioning
-   05-Feb-11    MP      Refactored to prepare for SIM_ASYNC_IO support
-                        Added higher level routines:
-                            sim_tape_wreomrw    - erase remainder of tape & rewind
-                            sim_tape_sprecsf    - skip records
-                            sim_tape_spfilef    - skip files
-                            sim_tape_sprecsr    - skip records rev
-                            sim_tape_spfiler    - skip files rev
-                            sim_tape_position   - general purpose position
-                        These routines correspond to natural tape operations
-                        and will align better when physical tape support is
-                        included here.
-   08-Jun-08    JDB     Fixed signed/unsigned warning in sim_tape_set_fmt
-   23-Jan-07    JDB     Fixed backspace over gap at BOT
-   22-Jan-07    RMS     Fixed bug in P7B format read reclnt rev (found by Rich Cornwell)
-   15-Dec-06    RMS     Added support for small capacity tapes
-   30-Aug-06    JDB     Added erase gap support
-   14-Feb-06    RMS     Added variable tape capacity
-   23-Jan-06    JDB     Fixed odd-byte-write problem in sim_tape_wrrecf
-   17-Dec-05    RMS     Added write support for Paul Pierce 7b format
-   16-Aug-05    RMS     Fixed C++ declaration and cast problems
-   02-May-05    RMS     Added support for Pierce 7b format
-   28-Jul-04    RMS     Fixed bug in writing error records (found by Dave Bryan)
-                RMS     Fixed incorrect error codes (found by Dave Bryan)
-   05-Jan-04    RMS     Revised for file I/O library
-   25-Apr-03    RMS     Added extended file support
-   28-Mar-03    RMS     Added E11 and TPC format support
-
+/*
    Public routines:
 
    sim_tape_attach      attach tape unit

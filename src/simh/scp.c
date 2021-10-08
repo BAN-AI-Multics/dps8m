@@ -24,193 +24,6 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
-
-   08-Mar-16    RMS     Added shutdown flag for detach_all
-   20-Mar-12    MP      Fixes to "SHOW <x> SHOW" commands
-   06-Jan-12    JDB     Fixed "SHOW DEVICE" with only one enabled unit (Dave Bryan)
-   25-Sep-11    MP      Added the ability for a simulator built with
-                        SIM_ASYNCH_IO to change whether I/O is actually done
-                        asynchronously by the new scp command SET ASYNCH and
-                        SET NOASYNCH
-   22-Sep-11    MP      Added signal catching of SIGHUP and SIGTERM to cause
-                        simulator STOP.  This allows an externally signalled
-                        event (i.e. system shutdown, or logoff) to signal a
-                        running simulator of these events and to allow
-                        reasonable actions to be taken.  This will facilitate
-                        running a simulator as a 'service' on *nix platforms,
-                        given a sufficiently flexible simulator .ini file.
-   20-Apr-11    MP      Added expansion of %STATUS% and %TSTATUS% in do command
-                        arguments.  STATUS is the numeric value of the last
-                        command error status and TSTATUS is the text message
-                        relating to the last command error status
-   17-Apr-11    MP      Changed sim_rest to defer attaching devices until after
-                        device register contents have been restored since some
-                        attach activities may reference register contained info.
-   29-Jan-11    MP      Adjusted sim_debug to:
-                          - include the simulator timestamp (sim_gtime)
-                            as part of the prefix for each line of output
-                          - write complete lines at a time (avoid asynch I/O issues).
-   05-Jan-11    MP      Added Asynch I/O support
-   22-Jan-11    MP      Added SET ON, SET NOON, ON, GOTO and RETURN command support
-   13-Jan-11    MP      Added "SHOW SHOW" and "SHOW <dev> SHOW" commands
-   05-Jan-11    RMS     Fixed bug in deposit stride for numeric input (John Dundas)
-   23-Dec-10    RMS     Clarified some help messages (Mark Pizzolato)
-   08-Nov-10    RMS     Fixed handling of DO with no arguments (Dave Bryan)
-   22-May-10    RMS     Added *nix READLINE support (Mark Pizzolato)
-   08-Feb-09    RMS     Fixed warnings in help printouts
-   29-Dec-08    RMS     Fixed implementation of MTAB_NC
-   24-Nov-08    RMS     Revised RESTORE unit logic for consistency
-   05-Sep-08    JDB     "detach_all" ignores error status returns if shutting down
-   17-Aug-08    RMS     Revert RUN/BOOT to standard, rather than powerup, reset
-   25-Jul-08    JDB     DO cmd missing params now default to null string
-   29-Jun-08    JDB     DO cmd sub_args now allows "\\" to specify literal backslash
-   04-Jun-08    JDB     label the patch delta more clearly
-   31-Mar-08    RMS     Fixed bug in local/global register search (Mark Pizzolato)
-                        Fixed bug in restore of RO units (Mark Pizzolato)
-   06-Feb-08    RMS     Added SET/SHO/NO BR with default argument
-   18-Jul-07    RMS     Modified match_ext for VMS ext;version support
-   28-Apr-07    RMS     Modified sim_instr invocation to call sim_rtcn_init_all
-                        Fixed bug in get_sim_opt
-                        Fixed bug in restoration with changed memory size
-   08-Mar-07    JDB     Fixed breakpoint actions in DO command file processing
-   30-Jan-07    RMS     Fixed bugs in get_ipaddr
-   17-Oct-06    RMS     Added idle support
-   04-Oct-06    JDB     DO cmd failure now echoes cmd unless -q
-   30-Aug-06    JDB     detach_unit returns SCPE_UNATT if not attached
-   14-Jul-06    RMS     Added sim_activate_abs
-   02-Jun-06    JDB     Fixed do_cmd to exit nested files on assertion failure
-                        Added -E switch to do_cmd to exit on any error
-   14-Feb-06    RMS     Upgraded save file format to V3.5
-   18-Jan-06    RMS     Added fprint_stopped_gen
-                        Added breakpoint spaces
-                        Fixed unaligned register access (Doug Carman)
-   22-Sep-05    RMS     Fixed declarations (Sterling Garwood)
-   30-Aug-05    RMS     Revised to trim trailing spaces on file names
-   25-Aug-05    RMS     Added variable default device support
-   23-Aug-05    RMS     Added Linux line history support
-   16-Aug-05    RMS     Fixed C++ declaration and cast problems
-   01-May-05    RMS     Revised syntax for SET DEBUG (Dave Bryan)
-   22-Mar-05    JDB     Modified DO command to allow ten-level nesting
-   18-Mar-05    RMS     Moved DETACH tests into detach_unit (Dave Bryan)
-                        Revised interface to fprint_sym, fparse_sym
-   13-Mar-05    JDB     ASSERT now requires a conditional operator
-   07-Feb-05    RMS     Added ASSERT command (Dave Bryan)
-   02-Feb-05    RMS     Fixed bug in global register search
-   26-Dec-04    RMS     Qualified SAVE examine, RESTORE deposit with SIM_SW_REST
-   10-Nov-04    JDB     Fixed logging of errors from cmds in "do" file
-   05-Nov-04    RMS     Moved SET/SHOW DEBUG under CONSOLE hierarchy
-                        Renamed unit OFFLINE/ONLINE to DISABLED/ENABLED (Dave Bryan)
-                        Revised to flush output files after simulation stop (Dave Bryan)
-   15-Oct-04    RMS     Fixed HELP to suppress duplicate descriptions
-   27-Sep-04    RMS     Fixed comma-separation options in set (David Bryan)
-   09-Sep-04    RMS     Added -p option for RESET
-   13-Aug-04    RMS     Qualified RESTORE detach with SIM_SW_REST
-   17-Jul-04    JDB     DO cmd file open failure retries with ".sim" appended
-   17-Jul-04    RMS     Added ECHO command (Dave Bryan)
-   12-Jul-04    RMS     Fixed problem ATTACHing to read only files
-                        (John Dundas)
-   28-May-04    RMS     Added SET/SHOW CONSOLE
-   14-Feb-04    RMS     Updated SAVE/RESTORE (V3.2)
-                RMS     Added debug print routines (Dave Hittner)
-                RMS     Added sim_vm_parse_addr and sim_vm_fprint_addr
-                RMS     Added REG_VMAD support
-                RMS     Split out libraries
-                RMS     Moved logging function to SCP
-                RMS     Exposed step counter interface(s)
-                RMS     Fixed double logging of SHOW BREAK (Mark Pizzolato)
-                RMS     Fixed implementation of REG_VMIO
-                RMS     Added SET/SHOW DEBUG, SET/SHOW <device> DEBUG,
-                        SHOW <device> MODIFIERS, SHOW <device> RADIX
-                RMS     Changed sim_fsize to take uptr argument
-   29-Dec-03    RMS     Added Telnet console output stall support
-   01-Nov-03    RMS     Cleaned up implicit detach on attach/restore
-                        Fixed bug in command line read while logging (Mark Pizzolato)
-   01-Sep-03    RMS     Fixed end-of-file problem in dep, idep
-                        Fixed error on trailing spaces in dep, idep
-   15-Jul-03    RMS     Removed unnecessary test in reset_all
-   15-Jun-03    RMS     Added register flag REG_VMIO
-   25-Apr-03    RMS     Added extended address support (V3.0)
-                        Fixed bug in SAVE (Peter Schorn)
-                        Added u5, u6 fields
-                        Added logical name support
-   03-Mar-03    RMS     Added sim_fsize
-   27-Feb-03    RMS     Fixed bug in multiword deposits to files
-   08-Feb-03    RMS     Changed sim_os_sleep to void, match_ext to char*
-                        Added multiple actions, .ini file support
-                        Added multiple switch evaluations per line
-   07-Feb-03    RMS     Added VMS support for ! (Mark Pizzolato)
-   01-Feb-03    RMS     Added breakpoint table extension, actions
-   14-Jan-03    RMS     Added missing function prototypes
-   10-Jan-03    RMS     Added attach/restore flag, dynamic memory size support,
-                        case sensitive SET options
-   22-Dec-02    RMS     Added ! (OS command) feature (Mark Pizzolato)
-   17-Dec-02    RMS     Added get_ipaddr
-   02-Dec-02    RMS     Added EValuate command
-   16-Nov-02    RMS     Fixed bug in register name match algorithm
-   13-Oct-02    RMS     Fixed Borland compiler warnings (Hans Pufal)
-   05-Oct-02    RMS     Fixed bugs in set_logon, ssh_break (David Hittner)
-                        Added support for fixed buffer devices
-                        Added support for Telnet console, removed VT support
-                        Added help <command>
-                        Added VMS file optimizations (Robert Alan Byer)
-                        Added quiet mode, DO with parameters, GUI interface,
-                           extensible commands (Brian Knittel)
-                        Added device enable/disable commands
-   14-Jul-02    RMS     Fixed exit bug in do, added -v switch (Brian Knittel)
-   17-May-02    RMS     Fixed bug in fxread/fxwrite error usage (found by
-                        Norm Lastovic)
-   02-May-02    RMS     Added VT emulation interface, changed {NO}LOG to SET {NO}LOG
-   22-Apr-02    RMS     Fixed laptop sleep problem in clock calibration, added
-                        magtape record length error (Jonathan Engdahl)
-   26-Feb-02    RMS     Fixed initialization bugs in do_cmd, get_aval
-                        (Brian Knittel)
-   10-Feb-02    RMS     Fixed problem in clock calibration
-   06-Jan-02    RMS     Moved device enable/disable to simulators
-   30-Dec-01    RMS     Generalized timer packaged, added circular arrays
-   19-Dec-01    RMS     Fixed DO command bug (John Dundas)
-   07-Dec-01    RMS     Implemented breakpoint package
-   05-Dec-01    RMS     Fixed bug in universal register logic
-   03-Dec-01    RMS     Added read-only units, extended SET/SHOW, universal registers
-   24-Nov-01    RMS     Added unit-based registers
-   16-Nov-01    RMS     Added DO command
-   28-Oct-01    RMS     Added relative range addressing
-   08-Oct-01    RMS     Added SHOW VERSION
-   30-Sep-01    RMS     Relaxed attach test in BOOT
-   27-Sep-01    RMS     Added queue count routine, fixed typo in ex/mod
-   17-Sep-01    RMS     Removed multiple console support
-   07-Sep-01    RMS     Removed conditional externs on function prototypes
-                        Added special modifier print
-   31-Aug-01    RMS     Changed int64 to t_int64 for Windoze (V2.7)
-   18-Jul-01    RMS     Minor changes for Macintosh port
-   12-Jun-01    RMS     Fixed bug in big-endian I/O (Dave Conroy)
-   27-May-01    RMS     Added multiple console support
-   16-May-01    RMS     Added logging
-   15-May-01    RMS     Added features from Tim Litt
-   12-May-01    RMS     Fixed missing return in disable_cmd
-   25-Mar-01    RMS     Added ENABLE/DISABLE
-   05-Mar-01    RMS     Added clock calibration support
-   05-Feb-01    RMS     Fixed bug, DETACH buffered unit with hwmark = 0
-   04-Feb-01    RMS     Fixed bug, RESTORE not using device's attach routine
-   21-Jan-01    RMS     Added relative time
-   22-Dec-00    RMS     Fixed find_device for devices ending in numbers
-   08-Dec-00    RMS     V2.5a changes
-   30-Oct-00    RMS     Added output file option to examine
-   11-Jul-99    RMS     V2.5 changes
-   13-Apr-99    RMS     Fixed handling of 32b addresses
-   04-Oct-98    RMS     V2.4 changes
-   20-Aug-98    RMS     Added radix commands
-   05-Jun-98    RMS     Fixed bug in ^D handling for UNIX
-   10-Apr-98    RMS     Added switches to all commands
-   26-Oct-97    RMS     Added search capability
-   25-Jan-97    RMS     Revised data types
-   23-Jan-97    RMS     Added bi-endian I/O
-   06-Sep-96    RMS     Fixed bug in variable length IEXAMINE
-   16-Jun-96    RMS     Changed interface to parse/print_sym
-   06-Apr-96    RMS     Added error checking in reset all
-   07-Jan-96    RMS     Added register buffers in save/restore
-   11-Dec-95    RMS     Fixed ordering bug in save/restore
-   22-May-95    RMS     Added symbolic input
-   13-Apr-95    RMS     Added symbolic printouts
 */
 
 /* Macros and data structures */
@@ -218,7 +31,6 @@
 #define NOT_MUX_USING_CODE /* sim_tmxr library provider or agnostic */
 
 #include "sim_defs.h"
-#include "sim_rev.h"
 #include "sim_disk.h"
 #include "sim_tape.h"
 #include "sim_serial.h"
@@ -4824,24 +4636,6 @@ if (flag) {
 #ifdef VER_CURRENT_TIME
         fprintf (st, "\n  Compiled: %s", VER_CURRENT_TIME);
 #endif
-//#if defined(SIM_GIT_COMMIT_ID)
-//        fprintf (st, "\r\n\r\n Built using the SIMH Simulation Framework:");
-//        fprintf (st, "\n   Version: V%d.%d-%d", vmaj, vmin, vpat);
-//        if (vdelt)
-//                {
-//                fprintf (st, " delta %d", vdelt);
-//                }
-//#if defined (SIM_VERSION_MODE)
-//        fprintf (st, " %s", SIM_VERSION_MODE);
-//#endif
-//#endif
-//#if defined(SIM_GIT_COMMIT_ID)
-//#define S_xstr(a) S_str(a)
-//#define S_str(a) #a
-//        fprintf (st, " (%s)", S_xstr(SIM_GIT_COMMIT_ID));
-//#undef S_str
-//#undef S_xstr
-//#endif
         if (dirty)
                 {
                         fprintf (st, "\r\n\r\n ****** THIS BUILD IS NOT SUPPORTED BY THE DPS8M DEVELOPMENT TEAM ******");
@@ -6202,15 +5996,7 @@ fprintf (sfile, "%s\n%s\n%s\n%s\n%.0f\n",
     sim_si64, sim_sa64,                                 /* [V3.5] options */
     sim_time);                                          /* [V3.2] sim time */
 WRITE_I (sim_rtime);                                    /* [V2.6] sim rel time */
-#if defined(SIM_GIT_COMMIT_ID)
-#define S_xstr(a) S_str(a)
-#define S_str(a) #a
-fprintf (sfile, "git commit id: %8.8s\n", S_xstr(SIM_GIT_COMMIT_ID));
-#undef S_str
-#undef S_xstr
-#else
-fprintf (sfile, "git commit id: unknown\n");
-#endif
+fprintf (sfile, "simh git commit id: unknown\n");
 
 for (device_count = 0; sim_devices[device_count]; device_count++);/* count devices */
 for (i = 0; i < (device_count + sim_internal_device_count); i++) {/* loop thru devices */
@@ -6405,17 +6191,6 @@ else READ_I (sim_time);                                 /* sim time */
 READ_I (sim_rtime);                                     /* [V2.6+] sim rel time */
 if (v40) {
     READ_S (buf);                                       /* read git commit id */
-#if defined(SIM_GIT_COMMIT_ID)
-#define S_xstr(a) S_str(a)
-#define S_str(a) #a
-    if ((memcmp (buf, "git commit id: " S_xstr(SIM_GIT_COMMIT_ID), 23)) &&
-        (!sim_quiet) && (!suppress_warning)) {
-        sim_printf ("warning - different simulator git versions.\nSaved commit id: %8.8s, Running commit id: %8.8s\n", buf + 15, S_xstr(SIM_GIT_COMMIT_ID));
-        warned = TRUE;
-        }
-#undef S_str
-#undef S_xstr
-#endif
     }
 if (!dont_detach_attach)
     detach_all (0, 0);                                  /* Detach everything to start from a consistent state */
