@@ -18,7 +18,6 @@ MAKFILE=$(mktemp 2> /dev/null) || \
 trap "rm -f \"${BLDFILE:?}\" \"${MAKFILE:?}\" 2> /dev/null || true" EXIT INT
 printf '%s\n' "exec 2> /dev/null"                           > "${BLDFILE:?}"
 printf '%s\n' 'X="None"'                                   >> "${BLDFILE:?}"
-X="None "
 for option in                                                              \
        L68                                                                 \
        NO_LOCKLESS                                                         \
