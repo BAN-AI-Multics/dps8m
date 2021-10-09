@@ -13,7 +13,7 @@
   * [PunUtil](#punutil)
   * [Prt2PDF](#prt2pdf)
     * [Txt2PDF](#txt2pdf)
-  * [DecNumber](#decnumber)
+  * [decNumber](#decnumber)
   * [libTELNET](#libtelnet)
   * [Shell Routines](#shell-routines)
   * [LineHistory](#linehistory)
@@ -365,13 +365,15 @@ property of their respective owners.
 
 ----
 
-### DecNumber
+### decNumber
 
-* **DecNumber** is an ANSI C reference implementation of the *IBM General
+* **decNumber** is an ANSI C reference implementation of the *IBM General
   Decimal Arithmetic* standard, implementing decimal floating‑point
   arithmetic and the ‘*Strawman 4d*’ decimal encoding formats described
-  by the revised IEEE 754 specification, and is distributed under the
-  ICU License.
+  by the revised IEEE 754 specification.  It was written by IBM and IEEE
+  Fellow Mike Cowlishaw, with contributions by Matthew Hagerty, John Matzka,
+  Klaus Kretzschmar, Stefan Krah, and The DPS8M Development Team.  It is
+  distributed under the ICU License.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
