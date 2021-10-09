@@ -32,10 +32,6 @@
 # define __func__ __FUNCTION__
 # define ZLIB_WINAPI 1
 # if defined(_MSC_VER)
-/* va_copy() is directly supported starting in Visual Studio 2013
- * https://msdn.microsoft.com/en-us/library/kb57fad8(v=vs.110).aspx
- * https://msdn.microsoft.com/en-us/library/kb57fad8(v=vs.120).aspx
- */
 #  if _MSC_VER <= 1700
 #   define va_copy(dest, src) (dest = src)
 #  endif
@@ -43,13 +39,6 @@
 #endif
 
 #include "libtelnet.h"
-
-/* inlinable functions */
-#if defined(__GNUC__) || __STDC_VERSION__ >= 199901L
-# define INLINE __inline__
-#else
-# define INLINE
-#endif
 
 /* helper for Q-method option tracking */
 #define Q_US(q) ((q).state & 0x0F)
@@ -170,7 +159,7 @@ static void _send(telnet_t *telnet, const char *buffer,
  * check if we (local) supports it, otherwise we check if he (remote)
  * supports it.  return non-zero if supported, zero if not supported.
  */
-static INLINE int _check_telopt(telnet_t *telnet, unsigned char telopt,
+static __inline__ int _check_telopt(telnet_t *telnet, unsigned char telopt,
                 int us) {
         int i;
 
@@ -195,7 +184,7 @@ static INLINE int _check_telopt(telnet_t *telnet, unsigned char telopt,
 }
 
 /* retrieve RFC1143 option state */
-static INLINE telnet_rfc1143_t _get_rfc1143(telnet_t *telnet,
+static __inline__ telnet_rfc1143_t _get_rfc1143(telnet_t *telnet,
                 unsigned char telopt) {
         telnet_rfc1143_t empty;
         unsigned int i;
@@ -214,7 +203,7 @@ static INLINE telnet_rfc1143_t _get_rfc1143(telnet_t *telnet,
 }
 
 /* save RFC1143 option state */
-static INLINE void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
+static __inline__ void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
                 unsigned char us, unsigned char him) {
         telnet_rfc1143_t *qtmp;
         unsigned int i;
@@ -262,7 +251,7 @@ static INLINE void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
 }
 
 /* send negotiation bytes */
-static INLINE void _send_negotiate(telnet_t *telnet, unsigned char cmd,
+static __inline__ void _send_negotiate(telnet_t *telnet, unsigned char cmd,
                 unsigned char telopt) {
         unsigned char bytes[3];
         bytes[0] = TELNET_IAC;
