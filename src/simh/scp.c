@@ -108,7 +108,6 @@
 #define SZ_D(dp) (size_map[((dp)->dwidth + CHAR_BIT - 1) / CHAR_BIT])
 #define SZ_R(rp) \
     (size_map[((rp)->width + (rp)->offset + CHAR_BIT - 1) / CHAR_BIT])
-#if defined (USE_INT64)
 #define SZ_LOAD(sz,v,mb,j) \
     if (sz == sizeof (uint8)) v = *(((uint8 *) mb) + ((uint32) j)); \
     else if (sz == sizeof (uint16)) v = *(((uint16 *) mb) + ((uint32) j)); \
@@ -119,16 +118,6 @@
     else if (sz == sizeof (uint16)) *(((uint16 *) mb) + ((uint32) j)) = (uint16) v; \
     else if (sz == sizeof (uint32)) *(((uint32 *) mb) + ((uint32) j)) = (uint32) v; \
     else *(((t_uint64 *) mb) + ((uint32) j)) = v;
-#else
-#define SZ_LOAD(sz,v,mb,j) \
-    if (sz == sizeof (uint8)) v = *(((uint8 *) mb) + ((uint32) j)); \
-    else if (sz == sizeof (uint16)) v = *(((uint16 *) mb) + ((uint32) j)); \
-    else v = *(((uint32 *) mb) + ((uint32) j));
-#define SZ_STORE(sz,v,mb,j) \
-    if (sz == sizeof (uint8)) *(((uint8 *) mb) + ((uint32) j)) = (uint8) v; \
-    else if (sz == sizeof (uint16)) *(((uint16 *) mb) + ((uint32) j)) = (uint16) v; \
-    else *(((uint32 *) mb) + ((uint32) j)) = v;
-#endif
 #define GET_SWITCHES(cp) \
     if ((cp = get_sim_sw (cp)) == NULL) return SCPE_INVSW
 #define GET_RADIX(val,dft) \
@@ -138,79 +127,7 @@
     else val = dft;
 
 /* Asynch I/O support */
-#if defined (SIM_ASYNCH_IO)
-pthread_mutex_t sim_asynch_lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t sim_asynch_wake = PTHREAD_COND_INITIALIZER;
-
-pthread_mutex_t sim_timer_lock     = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t sim_timer_wake      = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t sim_tmxr_poll_lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t sim_tmxr_poll_cond  = PTHREAD_COND_INITIALIZER;
-int32 sim_tmxr_poll_count;
-pthread_t sim_asynch_main_threadid;
-UNIT * volatile sim_asynch_queue;
-t_bool sim_asynch_enabled = TRUE;
-int32 sim_asynch_check;
-int32 sim_asynch_latency = 4000;      /* 4 usec interrupt latency */
-int32 sim_asynch_inst_latency = 20;   /* assume 5 mip simulator */
-
-int sim_aio_update_queue (void)
-{
-int migrated = 0;
-
-if (AIO_QUEUE_VAL != QUEUE_LIST_END) {  /* List !Empty */
-    UNIT *q, *uptr;
-    int32 a_event_time;
-    do
-        q = AIO_QUEUE_VAL;
-        while (q != AIO_QUEUE_SET(QUEUE_LIST_END, q));  /* Grab current queue */
-    while (q != QUEUE_LIST_END) {       /* List !Empty */
-        sim_debug (SIM_DBG_AIO_QUEUE, sim_dflt_dev, "Migrating Asynch event for %s after %d instructions\n", sim_uname(q), q->a_event_time);
-        ++migrated;
-        uptr = q;
-        q = q->a_next;
-        uptr->a_next = NULL;        /* hygiene */
-        if (uptr->a_activate_call != &sim_activate_notbefore) {
-            a_event_time = uptr->a_event_time-((sim_asynch_inst_latency+1)/2);
-            if (a_event_time < 0)
-                a_event_time = 0;
-            }
-        else
-            a_event_time = uptr->a_event_time;
-        uptr->a_activate_call (uptr, a_event_time);
-        if (uptr->a_check_completion) {
-            sim_debug (SIM_DBG_AIO_QUEUE, sim_dflt_dev, "Calling Completion Check for asynch event on %s\n", sim_uname(uptr));
-            uptr->a_check_completion (uptr);
-            }
-        }
-    }
-return migrated;
-}
-
-void sim_aio_activate (ACTIVATE_API caller, UNIT *uptr, int32 event_time)
-{
-sim_debug (SIM_DBG_AIO_QUEUE, sim_dflt_dev, "Queueing Asynch event for %s after %d instructions\n", sim_uname(uptr), event_time);
-if (uptr->a_next) {
-    uptr->a_activate_call = sim_activate_abs;
-    }
-else {
-    UNIT *q;
-    uptr->a_event_time = event_time;
-    uptr->a_activate_call = caller;
-    do {
-        q = AIO_QUEUE_VAL;
-        uptr->a_next = q;                               /* Mark as on list */
-        } while (q != AIO_QUEUE_SET(uptr, q));
-    }
-sim_asynch_check = 0;                             /* try to force check */
-if (sim_idle_wait) {
-    sim_debug (TIMER_DBG_IDLE, &sim_timer_dev, "waking due to event on %s after %d instructions\n", sim_uname(uptr), event_time);
-    pthread_cond_signal (&sim_asynch_wake);
-    }
-}
-#else
 t_bool sim_asynch_enabled = FALSE;
-#endif
 
 /* The per-simulator init routine is a weak global that defaults to NULL
    The other per-simulator pointers can be overrriden by the init routine */
@@ -398,17 +315,13 @@ static SCHTAB sim_staba;                                /* Memory search specifi
 
 static UNIT sim_step_unit = { UDATA (&step_svc, 0, 0)  };
 static UNIT sim_expect_unit = { UDATA (&expect_svc, 0, 0)  };
-#if defined USE_INT64
 static const char *sim_si64 = "64b data";
-#else
-static const char *sim_si64 = "32b data";
-#endif
 #if defined USE_ADDR64
 static const char *sim_sa64 = "64b addresses";
 #else
 static const char *sim_sa64 = "32b addresses";
 #endif
-const char *sim_savename = sim_name;      /* Simulator Name used in SAVE/RESTORE images */
+const char *sim_savename = sim_name;      /* simulator Name used in SAVE/RESTORE images */
 
 /* Tables and strings */
 
@@ -472,9 +385,7 @@ const struct scp_error {
 
 const size_t size_map[] = { sizeof (int8),
     sizeof (int8), sizeof (int16), sizeof (int32), sizeof (int32)
-#if defined (USE_INT64)
     , sizeof (t_int64), sizeof (t_int64), sizeof (t_int64), sizeof (t_int64)
-#endif
 };
 
 const t_value width_mask[] = { 0,
@@ -486,7 +397,6 @@ const t_value width_mask[] = { 0,
     0x1FFFFF, 0x3FFFFF, 0x7FFFFF, 0xFFFFFF,
     0x1FFFFFF, 0x3FFFFFF, 0x7FFFFFF, 0xFFFFFFF,
     0x1FFFFFFF, 0x3FFFFFFF, 0x7FFFFFFF, 0xFFFFFFFF
-#if defined (USE_INT64)
     , 0x1FFFFFFFF, 0x3FFFFFFFF, 0x7FFFFFFFF, 0xFFFFFFFFF,
     0x1FFFFFFFFF, 0x3FFFFFFFFF, 0x7FFFFFFFFF, 0xFFFFFFFFFF,
     0x1FFFFFFFFFF, 0x3FFFFFFFFFF, 0x7FFFFFFFFFF, 0xFFFFFFFFFFF,
@@ -497,7 +407,6 @@ const t_value width_mask[] = { 0,
     0x7FFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFF,
     0x1FFFFFFFFFFFFFFF, 0x3FFFFFFFFFFFFFFF,
     0x7FFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
-#endif
     };
 
 static const char simh_help[] =
@@ -916,13 +825,6 @@ static const char simh_help[] =
       "+set break <list>            set breakpoints\n"
       "+set nobreak <list>          clear breakpoints\n"
        /***************** 80 character line width template *************************/
-#ifdef SIMH_THROTTLE
-#define HLP_SET_THROTTLE "*Commands SET Throttle"
-      "3Throttle\n"
-      "+set throttle {x{M|K|%%}}|{x/t}\n"
-      "++++++++                     set simulation rate\n"
-      "+set nothrottle              set simulation rate to maximum\n"
-#endif /* SIMH_THROTTLE */
 #define HLP_SET_ASYNCH "*Commands SET Asynch"
       "3Asynch\n"
       "+set asynch                  enable asynchronous I/O\n"
@@ -992,9 +894,6 @@ static const char simh_help[] =
       "+sh{ow} n{ames}              show logical names\n"
       "+sh{ow} q{ueue}              show event queue\n"
       "+sh{ow} ti{me}               show simulated time\n"
-#ifdef SIMH_THROTTLE
-      "+sh{ow} th{rottle}           show simulation rate\n"
-#endif /* SIMH_THROTTLE */
       "+sh{ow} a{synch}             show asynchronouse I/O state\n"
       "+sh{ow} b{uildinfo}          show build compilation information\n"
       "+sh{ow} ve{rsion}            show simulator version\n"
@@ -1012,9 +911,6 @@ static const char simh_help[] =
       "+sh{ow} serial               show serial devices\n"
       "+sh{ow} multiplexer          show open multiplexer devices\n"
       "+sh{ow} clocks               show calibrated timers\n"
-#ifdef SIMH_THROTTLE
-      "+sh{ow} throttle             show throttle info\n"
-#endif /* SIMH_THROTTLE */
       "+sh{ow} on                   show on condition actions\n"
       "+h{elp} <dev> show           displays the device specific show commands\n"
       "++++++++                     available\n"
@@ -1035,9 +931,6 @@ static const char simh_help[] =
 #define HLP_SHOW_BREAK          "*Commands SHOW"
 #define HLP_SHOW_LOG            "*Commands SHOW"
 #define HLP_SHOW_DEBUG          "*Commands SHOW"
-#ifdef SIMH_THROTTLE
-#define HLP_SHOW_THROTTLE       "*Commands SHOW"
-#endif /* SIMH_THROTTLE */
 #define HLP_SHOW_ASYNCH         "*Commands SHOW"
 #define HLP_SHOW_SERIAL         "*Commands SHOW"
 #define HLP_SHOW_MULTIPLEXER    "*Commands SHOW"
@@ -1388,21 +1281,10 @@ ASSERT      failure have several different actions:
       " as a regular expression applied to the output data stream.  This regular\n"
       " expression may contain parentheses delimited sub-groups.\n\n"
        /***************** 80 character line width template *************************/
-#if defined (HAVE_PCREPOSIX_H)
-      " The syntax of the regular expressions available are those supported by\n"
-      " the Perl Compatible Regular Expression package (aka PCRE).  As the name\n"
-      " implies, the syntax is generally the same as Perl regular expressions.\n"
-      " See http://perldoc.perl.org/perlre.html for more details\n"
-#elif defined (HAVE_REGEX_H)
-      " The syntax of the regular expressions available are those supported by\n"
-      " your local system's Regular Expression library using the Extended POSIX\n"
-      " Regular Expressiona\n"
-#else
       " Regular expression support is not currently available on your environment.\n"
       " This simulator could use regular expression support provided by the\n"
       " Perl Compatible Regular Expression (PCRE) package if it was available\n"
       " when you simulator was compiled.\n"
-#endif
       "5-i\n"
       " If a regular expression expect rule is defined with the -i switch,\n"
       " character matching for that expression will be case independent.\n"
@@ -1563,11 +1445,7 @@ ASSERT      failure have several different actions:
       " on the local system.  The contents of that display can be saved in a\n"
       " file with the SCREENSHOT command:\n\n"
       " +SCREENSHOT screenshotfile\n\n"
-#if defined(HAVE_LIBPNG)
-      " which will create a screen shot file called screenshotfile.png\n"
-#else
       " which will create a screen shot file called screenshotfile.bmp\n"
-#endif
 #define HLP_SPAWN       "*Commands Executing_System_Commands"
       "2Executing System Commands\n"
       " The simulator can execute operating system commands with the ! (spawn)\n"
@@ -1645,10 +1523,6 @@ static CTAB set_glob_tab[] = {
     { "NOLOG",      &sim_set_logoff,            0, HLP_SET_LOG  },
     { "DEBUG",      &sim_set_debon,             0, HLP_SET_DEBUG  },
     { "NODEBUG",    &sim_set_deboff,            0, HLP_SET_DEBUG  },
-#ifdef SIMH_THROTTLE
-    { "THROTTLE",   &sim_set_throt,             1, HLP_SET_THROTTLE },
-    { "NOTHROTTLE", &sim_set_throt,             0, HLP_SET_THROTTLE },
-#endif /* SIMH_THROTTLE */
     { "ASYNCH",     &sim_set_asynch,            1, HLP_SET_ASYNCH },
     { "NOASYNCH",   &sim_set_asynch,            0, HLP_SET_ASYNCH },
     { "ENVIRONMENT", &sim_set_environment,      1, HLP_SET_ENVIRON },
@@ -1702,9 +1576,6 @@ static SHTAB show_glob_tab[] = {
     { "LOG",            &sim_show_log,              0, HLP_SHOW_LOG },
     { "TELNET",         &sim_show_telnet,           0 },    /* deprecated */
     { "DEBUG",          &sim_show_debug,            0, HLP_SHOW_DEBUG },
-#ifdef SIMH_THROTTLE
-    { "THROTTLE",       &sim_show_throt,            0, HLP_SHOW_THROTTLE },
-#endif /* SIMH_THROTTLE */
     { "ASYNCH",         &sim_show_asynch,           0, HLP_SHOW_ASYNCH },
     { "SERIAL",         &sim_show_serial,           0, HLP_SHOW_SERIAL },
     { "MULTIPLEXER",    &tmxr_show_open_devices,    0, HLP_SHOW_MULTIPLEXER },
@@ -1893,15 +1764,15 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 #ifdef VER_H_GIT_VERSION
 #if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #if VER_H_GIT_PATCH_INT < 1
-        fprintf (stdout, "%s Simulator %s\n", sim_name, VER_H_GIT_VERSION);
+        fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
 #else
-        fprintf (stdout, "%s Simulator %s+%s\n", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
+        fprintf (stdout, "%s simulator %s+%s\n", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
 #endif /* if VER_H_GIT_PATCH_INT < 1 */
 #else
-        fprintf (stdout, "%s Simulator %s\n", sim_name, VER_H_GIT_VERSION);
+        fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
 #endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
 #else   
-        fprintf (stdout, "%s Simulator\n", sim_name);
+        fprintf (stdout, "%s simulator\n", sim_name);
 #endif /* ifdef VER_H_GIT_VERSION */
         return 0;
     }
@@ -1914,15 +1785,15 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 #ifdef VER_H_GIT_VERSION
 #if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #if VER_H_GIT_PATCH_INT < 1
-        fprintf (stdout, "%s Simulator %s", sim_name, VER_H_GIT_VERSION);
+        fprintf (stdout, "%s simulator %s", sim_name, VER_H_GIT_VERSION);
 #else
-        fprintf (stdout, "%s Simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
+        fprintf (stdout, "%s simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
 #endif /* if VER_H_GIT_PATCH_INT < 1 */
 #else
-        fprintf (stdout, "%s Simulator %s", sim_name, VER_H_GIT_VERSION);
+        fprintf (stdout, "%s simulator %s", sim_name, VER_H_GIT_VERSION);
 #endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
 #else
-        fprintf (stdout, "%s Simulator", sim_name);
+        fprintf (stdout, "%s simulator", sim_name);
 #endif /* ifdef VER_H_GIT_VERSION */
         fprintf (stdout, "\nUsage: %s { [SWITCHES] ... } { <SCRIPT> { [arg], [arg], ... } }\n", argv[0]);
         fprintf (stdout, "\nInvokes the %s simulator, with optional switches and/or script file.\n", sim_name);
@@ -3822,39 +3693,11 @@ t_stat sim_set_asynch (int32 flag, CONST char *cptr)
 {
 if (cptr && (*cptr != 0))                               /* now eol? */
     return SCPE_2MARG;
-#ifdef SIM_ASYNCH_IO
-if (flag == sim_asynch_enabled)                         /* already set correctly? */
-    return SCPE_OK;
-sim_asynch_enabled = flag;
-tmxr_change_async ();
-sim_timer_change_asynch ();
-if (1) {
-    uint32 i, j;
-    DEVICE *dptr;
-    UNIT *uptr;
-
-    /* Call unit flush routines to report asynch status change to device layer */
-    for (i = 1; (dptr = sim_devices[i]) != NULL; i++) { /* flush attached files */
-        for (j = 0; j < dptr->numunits; j++) {          /* if not buffered in mem */
-            uptr = dptr->units + j;
-            if ((uptr->flags & UNIT_ATT) &&             /* attached, */
-                (uptr->io_flush))                       /* unit specific flush routine */
-                uptr->io_flush (uptr);
-            }
-        }
-    }
-if (!sim_quiet)
-    printf ("Asynchronous I/O %sabled\n", sim_asynch_enabled ? "en" : "dis");
-if (sim_log)
-    fprintf (sim_log, "Asynchronous I/O %sabled\n", sim_asynch_enabled ? "en" : "dis");
-return SCPE_OK;
-#else
 if (!sim_quiet)
     printf ("Asynchronous I/O is not available in this simulator\n");
 if (sim_log)
     fprintf (sim_log, "Asynchronous I/O is not available in this simulator\n");
 return SCPE_NOFNC;
-#endif
 }
 
 /* Show asynch routine */
@@ -3863,17 +3706,7 @@ t_stat sim_show_asynch (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST ch
 {
 if (cptr && (*cptr != 0))
     return SCPE_2MARG;
-#ifdef SIM_ASYNCH_IO
-fprintf (st, "Asynchronous I/O is %sabled, %s\n", (sim_asynch_enabled) ? "en" : "dis", AIO_QUEUE_MODE);
-#if defined(SIM_ASYNCH_MUX)
-fprintf (st, "Asynchronous Multiplexer support is available\n");
-#endif
-#if defined(SIM_ASYNCH_CLOCKS)
-fprintf (st, "Asynchronous Clock is %sabled\n", (sim_asynch_timer) ? "en" : "dis");
-#endif
-#else
 fprintf (st, "Asynchronous I/O is not available in this simulator\n");
-#endif
 return SCPE_OK;
 }
 
@@ -4719,7 +4552,7 @@ if (flag) {
 #elif defined(__sparc) || defined(__SPARC) || defined(__SPARC__) || defined(__sparc__)
     arch = " sparc";
 #elif defined(__riscv) || defined(__riscv__)
-    arch = " risc-v";
+    arch = " riscv";
 #else
     arch = " ";
 #endif
@@ -4923,26 +4756,6 @@ else {
         }
     }
 sim_show_clock_queues (st, dnotused, unotused, flag, cptr);
-#if defined (SIM_ASYNCH_IO)
-pthread_mutex_lock (&sim_asynch_lock);
-fprintf (st, "asynchronous pending event queue\n");
-if (sim_asynch_queue == QUEUE_LIST_END)
-    fprintf (st, "  Empty\n");
-else {
-    for (uptr = sim_asynch_queue; uptr != QUEUE_LIST_END; uptr = uptr->a_next) {
-        if ((dptr = find_dev_from_unit (uptr)) != NULL) {
-            fprintf (st, "  %s", sim_dname (dptr));
-            if (dptr->numunits > 1) fprintf (st, " unit %d",
-                (int32) (uptr - dptr->units));
-            }
-        else fprintf (st, "  Unknown");
-        fprintf (st, " event delay %d\n", uptr->a_event_time);
-        }
-    }
-fprintf (st, "asynch latency: %d nanoseconds\n", sim_asynch_latency);
-fprintf (st, "asynch instruction latency: %d instructions\n", sim_asynch_inst_latency);
-pthread_mutex_unlock (&sim_asynch_lock);
-#endif /* SIM_ASYNCH_IO */
 return SCPE_OK;
 }
 
@@ -6577,9 +6390,6 @@ if (sim_step)                                           /* set step timer */
 fflush(stdout);                                         /* flush stdout */
 if (sim_log)                                            /* flush log if enabled */
     fflush (sim_log);
-#ifdef SIMH_THROTTLE
-sim_throt_sched ();                                     /* set throttle */
-#endif /* SIMH_THROTLE */
 sim_rtcn_init_all ();                                   /* re-init clocks */
 sim_start_timer_services ();                            /* enable wall clock timing */
 
@@ -6656,9 +6466,6 @@ for (i = 1; (dptr = sim_devices[i]) != NULL; i++) {     /* flush attached files 
         }
     }
 sim_cancel (&sim_step_unit);                            /* cancel step timer */
-#ifdef SIMH_THROTTLE
-sim_throt_cancel ();                                    /* cancel throttle */
-#endif /* SIMH_THROTTLE */
 AIO_UPDATE_QUEUE;
 UPDATE_SIM_TIME;                                        /* update sim time */
 return r | ((sim_switches & SWMASK ('Q')) ? SCPE_NOMESSAGE : 0);
@@ -7093,23 +6900,15 @@ if ((rptr->depth > 1) && (rptr->flags & REG_CIRC)) {
     }
 if ((rptr->depth > 1) && (rptr->flags & REG_UNIT)) {
     ptr = (uint32 *)(((UNIT *) rptr->loc) + idx);
-#if defined (USE_INT64)
     if (sz <= sizeof (uint32))
         val = *ptr;
     else val = *((t_uint64 *) ptr);
-#else
-    val = *ptr;
-#endif
     }
 else if ((rptr->depth > 1) && (rptr->flags & REG_STRUCT)) {
     ptr = (uint32 *)(((size_t) rptr->loc) + (idx * rptr->str_size));
-#if defined (USE_INT64)
     if (sz <= sizeof (uint32))
         val = *ptr;
     else val = *((t_uint64 *) ptr);
-#else
-    val = *ptr;
-#endif
     }
 else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
     (sz == sizeof (uint8)))
@@ -7117,13 +6916,9 @@ else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
 else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
     (sz == sizeof (uint16)))
     val = *(((uint16 *) rptr->loc) + idx);
-#if defined (USE_INT64)
 else if (sz <= sizeof (uint32))
      val = *(((uint32 *) rptr->loc) + idx);
 else val = *(((t_uint64 *) rptr->loc) + idx);
-#else
-else val = *(((uint32 *) rptr->loc) + idx);
-#endif
 val = (val >> rptr->offset) & width_mask[rptr->width];
 return val;
 }
@@ -7214,33 +7009,21 @@ if ((rptr->depth > 1) && (rptr->flags & REG_CIRC)) {
     }
 if ((rptr->depth > 1) && (rptr->flags & REG_UNIT)) {
     ptr = (uint32 *)(((UNIT *) rptr->loc) + idx);
-#if defined (USE_INT64)
     if (sz <= sizeof (uint32))
         *ptr = (*ptr &
         ~(((uint32) mask) << rptr->offset)) |
         (((uint32) val) << rptr->offset);
     else *((t_uint64 *) ptr) = (*((t_uint64 *) ptr)
         & ~(mask << rptr->offset)) | (val << rptr->offset);
-#else
-    *ptr = (*ptr &
-        ~(((uint32) mask) << rptr->offset)) |
-        (((uint32) val) << rptr->offset);
-#endif
     }
 else if ((rptr->depth > 1) && (rptr->flags & REG_STRUCT)) {
     ptr = (uint32 *)(((size_t) rptr->loc) + (idx * rptr->str_size));
-#if defined (USE_INT64)
     if (sz <= sizeof (uint32))
         *((uint32 *) ptr) = (*((uint32 *) ptr) &
         ~(((uint32) mask) << rptr->offset)) |
         (((uint32) val) << rptr->offset);
     else *((t_uint64 *) ptr) = (*((t_uint64 *) ptr)
         & ~(mask << rptr->offset)) | (val << rptr->offset);
-#else
-    *ptr = (*ptr &
-        ~(((uint32) mask) << rptr->offset)) |
-        (((uint32) val) << rptr->offset);
-#endif
     }
 else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
     (sz == sizeof (uint8)))
@@ -7248,13 +7031,9 @@ else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
 else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
     (sz == sizeof (uint16)))
     PUT_RVAL (uint16, rptr, idx, (uint32) val, (uint32) mask);
-#if defined (USE_INT64)
 else if (sz <= sizeof (uint32))
     PUT_RVAL (uint32, rptr, idx, (int32) val, (uint32) mask);
 else PUT_RVAL (t_uint64, rptr, idx, val, mask);
-#else
-else PUT_RVAL (uint32, rptr, idx, val, mask);
-#endif
 return;
 }
 
@@ -7555,11 +7334,6 @@ if ((*cptr == ';') || (*cptr == '#')) {                 /* ignore comment */
         sim_printf("%s> %s\n", do_position(), cptr);
     *cptr = 0;
     }
-
-#if defined (HAVE_DLOPEN)
-if (prompt && p_add_history && *cptr)                   /* Save non blank lines in history */
-    p_add_history (cptr);
-#endif
 
 return cptr;
 }
@@ -9898,10 +9672,6 @@ if (!ep)                                                /* not there? ok */
 free (ep->match);                                       /* deallocate match string */
 free (ep->match_pattern);                               /* deallocate the display format match string */
 free (ep->act);                                         /* deallocate action */
-#if defined(USE_REGEX)
-if (ep->switches & EXP_TYP_REGEX)
-    regfree (&ep->regex);                               /* release compiled regex */
-#endif
 exp->size -= 1;                                         /* decrement count */
 for (i=ep-exp->rules; i<exp->size; i++)                 /* shuffle up remaining rules */
     exp->rules[i] = exp->rules[i+1];
@@ -9958,32 +9728,9 @@ match_buf = (uint8 *)calloc (strlen (match) + 1, 1);
 if (!match_buf)
     return SCPE_MEM;
 if (switches & EXP_TYP_REGEX) {
-#if !defined (USE_REGEX)
     free (match_buf);
     return sim_messagef (SCPE_ARG, "RegEx support not available\n");
     }
-#else   /* USE_REGEX */
-    int res;
-    regex_t re;
-
-    memset (&re, 0, sizeof(re));
-    memcpy (match_buf, match+1, strlen(match)-2);       /* extract string without surrounding quotes */
-    match_buf[strlen(match)-2] = '\0';
-    res = regcomp (&re, (char *)match_buf, REG_EXTENDED | ((switches & EXP_TYP_REGEX_I) ? REG_ICASE : 0));
-    if (res) {
-        size_t err_size = regerror (res, &re, NULL, 0);
-        char *err_buf = (char *)calloc (err_size+1, 1);
-
-        regerror (res, &re, err_buf, err_size);
-        sim_messagef (SCPE_ARG, "Regular Expression Error: %s\n", err_buf);
-        free (err_buf);
-        free (match_buf);
-        return SCPE_ARG|SCPE_NOMESSAGE;
-        }
-    sim_debug (exp->dbit, exp->dptr, "Expect Regular Expression: \"%s\" has %d sub expressions\n", match_buf, (int)re.re_nsub);
-    regfree (&re);
-    }
-#endif
 else {
     if (switches & EXP_TYP_REGEX_I) {
         free (match_buf);
@@ -10019,11 +9766,6 @@ if ((match_buf == NULL) || (ep->match_pattern == NULL)) {
     return SCPE_MEM;
     }
 if (switches & EXP_TYP_REGEX) {
-#if defined(USE_REGEX)
-    memcpy (match_buf, match+1, strlen(match)-2);      /* extract string without surrounding quotes */
-    match_buf[strlen(match)-2] = '\0';
-    regcomp (&ep->regex, (char *)match_buf, REG_EXTENDED);
-#endif
     free (match_buf);
     match_buf = NULL;
     }
@@ -10141,58 +9883,6 @@ exp->buf[exp->buf_ins] = '\0';                          /* Nul terminate for Reg
 for (i=0; i < exp->size; i++) {
     ep = &exp->rules[i];
     if (ep->switches & EXP_TYP_REGEX) {
-#if defined (USE_REGEX)
-        regmatch_t *matches;
-        char *cbuf = (char *)exp->buf;
-        static size_t sim_exp_match_sub_count = 0;
-
-        if (tstr)
-            cbuf = tstr;
-        else {
-            if (strlen ((char *)exp->buf) != exp->buf_ins) { /* Nul characters in buffer? */
-                size_t off;
-                tstr = (char *)malloc (exp->buf_ins + 1);
-
-                tstr[0] = '\0';
-                for (off=0; off < exp->buf_ins; off += 1 + strlen ((char *)&exp->buf[off]))
-                    strcpy (&tstr[strlen (tstr)], (char *)&exp->buf[off]);
-                cbuf = tstr;
-                }
-            }
-        ++regex_checks;
-        matches = (regmatch_t *)calloc ((ep->regex.re_nsub + 1), sizeof(*matches));
-        if (sim_deb && exp->dptr && (exp->dptr->dctrl & exp->dbit)) {
-            char *estr = sim_encode_quoted_string (exp->buf, exp->buf_ins);
-            sim_debug (exp->dbit, exp->dptr, "Checking String: %s\n", estr);
-            sim_debug (exp->dbit, exp->dptr, "Against RegEx Match Rule: %s\n", ep->match_pattern);
-            free (estr);
-            }
-        if (!regexec (&ep->regex, cbuf, ep->regex.re_nsub + 1, matches, REG_NOTBOL)) {
-            size_t j;
-            char *buf = (char *)malloc (1 + exp->buf_ins);
-
-            for (j=0; j<ep->regex.re_nsub + 1; j++) {
-                char env_name[32];
-
-                sprintf (env_name, "_EXPECT_MATCH_GROUP_%d", (int)j);
-                memcpy (buf, &cbuf[matches[j].rm_so], matches[j].rm_eo-matches[j].rm_so);
-                buf[matches[j].rm_eo-matches[j].rm_so] = '\0';
-                setenv (env_name, buf, 1);      /* Make the match and substrings available as environment variables */
-                sim_debug (exp->dbit, exp->dptr, "%s=%s\n", env_name, buf);
-                }
-            for (; j<sim_exp_match_sub_count; j++) {
-                char env_name[32];
-
-                sprintf (env_name, "_EXPECT_MATCH_GROUP_%d", (int)j);
-                setenv (env_name, "", 1);      /* Remove previous extra environment variables */
-                }
-            sim_exp_match_sub_count = ep->regex.re_nsub;
-            free (matches);
-            free (buf);
-            break;
-            }
-        free (matches);
-#endif
         }
     else {
         if (exp->buf_ins < ep->size) {                          /* Match stradle end of buffer */

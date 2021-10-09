@@ -286,15 +286,7 @@ void _tmxr_debug (uint32 dbits, TMLN *lp, const char *msg, char *buf, int bufsiz
 #define tmxr_debug_connect(mp, msg) do {if (sim_deb && (mp)->dptr && (TMXR_DBG_CON & (mp)->dptr->dctrl)) sim_debug (TMXR_DBG_CON, mp->dptr, "%s\n", (msg)); } while (0)
 #define tmxr_debug_connect_line(lp, msg) do {if (sim_deb && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_CON & (lp)->mp->dptr->dctrl)) sim_debug (TMXR_DBG_CON, (lp)->mp->dptr, "Ln%d:%s\n", (int)((lp)-(lp)->mp->ldsc), (msg)); } while (0)
 
-#if defined(SIM_ASYNCH_MUX) && !defined(SIM_ASYNCH_IO)
-#undef SIM_ASYNCH_MUX
-#endif /* defined(SIM_ASYNCH_MUX) && !defined(SIM_ASYNCH_IO) */
-
-#if defined(SIM_ASYNCH_MUX)
-#define tmxr_attach(mp, uptr, cptr) tmxr_attach_ex(mp, uptr, cptr, TRUE)
-#else
 #define tmxr_attach(mp, uptr, cptr) tmxr_attach_ex(mp, uptr, cptr, FALSE)
-#endif
 #if (!defined(NOT_MUX_USING_CODE))
 #define sim_activate tmxr_activate
 #define sim_activate_after tmxr_activate_after

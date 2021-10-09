@@ -30,26 +30,16 @@
 
 #include <sys/time.h>
 
-#include <setjmp.h>     // for setjmp/longjmp used by interrupts & faults
+#include <setjmp.h>  // for setjmp/longjmp used by interrupts & faults
 
 #if (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
-#include <libgen.h> // needed for OS/X and Android
+#include <libgen.h>  // needed for OS/X and Android
 #endif
-
-//#define EMULATOR_ONLY 1
-
-// Define to emulate Level 68 instead of DPS8M
-
-//#define L68
 
 #ifndef L68
 #ifndef DPS8M
 #define DPS8M
 #endif
-#endif
-
-#ifndef USE_INT64
-#define USE_INT64
 #endif
 
 #ifdef NEED_128
