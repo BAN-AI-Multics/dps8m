@@ -402,10 +402,10 @@
     echo -e "section_start:`date +%s`:dnfuinstall_section[collapsed=true]\r\e[0K\033[0;36mSetting up system ...\033[0m" || true
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Updating syste ..."
+    test -z "${SKIP_UPDATE}" && echo "Updating system ..."
     test -z "${SKIP_UPDATE}" && dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
     test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
     echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -617,12 +617,14 @@
     # *scriptVerifyVersion - Smoke-test for version information ...
     ./src/dps8/dps8 --version | grep 'imulator'
     echo "SHOW VERSION" | ./src/dps8/dps8 | grep 'imulator '
+    printf '%s\n' "SHOW BUILDINFO" "ECHO" "SHOW VERSION" | ./src/dps8/dps8
 
 ############################################################################
 # CI/CD Stages
 
 stages:
   - build
+  - test
 
 ############################################################################
 # Jobs
@@ -1462,5 +1464,32 @@ Darwin/x86_64, macOS Big Sur:
   retry: 2
   timeout: 120 minutes
   interruptible: true
+
+#############################################################################
+
+Option Verification Test:
+  stage: test
+  image: fedora:latest
+  tags:
+    - Docker-x64-fast
+  script:
+    - export GLCICD_JOB="OptTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptDnfSetup
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sed -i -s 's/\.NOTPARALLEL.*$//g' $(find './' -name '*akefile*' -print)
+    - sh -x -c 'export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && export JFLAGS="-j ${CPUS:-1}" && ./src/ci-kit/cartesian_job_generator.bash; exit "${?}"'
+    - lzip -9v build.log || true
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/build.log.lz
 
 #############################################################################
