@@ -635,6 +635,8 @@ Linux/x86_64, AlmaLinux 8:
   allow_failure: true
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="AlmaLinuxEL8x64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
@@ -678,6 +680,8 @@ Linux/x86_64, Alpine Edge:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - *scriptAlpineSetup
     - *scriptInstallNfpm
@@ -717,6 +721,8 @@ Linux/x86_64, Amazon Linux:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="AmazonLinuxX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/fstab)"
     - yum -q -y install util-linux bzip2 wget || yum -q -y install util-linux bzip2 wget
@@ -757,6 +763,8 @@ Linux/x86_64, Clear Linux:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - swupd bundle-add -y --quiet curl
     - export GLCICD_JOB="ClearX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
@@ -798,6 +806,8 @@ Windows/x86_64, Cygwin64-GCC:
   allow_failure: true
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="CYGWIN64GCC" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
@@ -832,6 +842,8 @@ Linux/x86_64, Fedora:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="FedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
@@ -870,7 +882,9 @@ Linux/x86_64, Fedora:
 AIX/powerpc64, IBM AIX 7.2:
   stage: build
   tags:
-    - jhj-ibmpower0
+    - AIX
+    - IBM
+    - ppc64
   script:
     - *scriptSanity
     - *scriptCommon
@@ -900,6 +914,8 @@ Windows/ARM64, LLVM-MinGW:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="LLVMMINGWARM64" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
     - *scriptInstallResticLinuxAMD64
@@ -929,6 +945,8 @@ Windows/ARMv7, LLVM-MinGW:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="LLVMMINGWARM" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
     - *scriptInstallResticLinuxAMD64
@@ -958,6 +976,8 @@ Windows/i686, LLVM-MinGW:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="LLVMMINGWI686" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
     - *scriptInstallResticLinuxAMD64
@@ -987,6 +1007,8 @@ Windows/x86_64, LLVM-MinGW:
   stage: build
   tags:   
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="LLVMMINGWX8664" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
     - *scriptInstallResticLinuxAMD64
@@ -1016,6 +1038,8 @@ Windows/x86_64, MinGW64-GCC V8:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="GCCMINGW64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
     - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
@@ -1052,6 +1076,8 @@ Windows/x86_64, MinGW64-GCC V9:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - *scriptAlpineSetup
     - apk add mingw-w64-binutils mingw-w64-headers mingw-w64-gcc mingw-w64-winpthreads mingw-w64-crt || apk add mingw-w64-binutils mingw-w64-headers mingw-w64-gcc mingw-w64-winpthreads mingw-w64-crt
@@ -1079,6 +1105,8 @@ Linux/x86_64, OpenSUSE Leap:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - *scriptOSUSESetup
     - *scriptInstallNfpm
@@ -1115,6 +1143,8 @@ Linux/x86_64, Oracle Linux 8:
   allow_failure: true
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="OracleLinux8x64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
@@ -1156,6 +1186,8 @@ Linux/x86_64, Slackware Current:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="SlackwareCurrentX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/slackware-version)"
     - *scriptInstallResticLinuxAMD64
@@ -1194,6 +1226,8 @@ Source Kit:
   stage: build
   tags:
     - Docker-x64-slow
+    - amd64
+    - Linux
   script:
     - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install pigz tar make git > /dev/null || apt-get -qq -y install pigz tar make git > /dev/null
     - *scriptSanity
@@ -1215,6 +1249,8 @@ Linux/x86_64, Ubuntu:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="UbuntuCurrentx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
     - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
@@ -1256,6 +1292,8 @@ Linux/x86_64, Ubuntu LTS:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="UbuntuLTSx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
     - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
@@ -1299,6 +1337,8 @@ Linux/x86_64, Void glibc, static:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="VoidGlibcX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
     - xbps-install -y wget bzip2 || xbps-install -y wget bzip2
@@ -1340,6 +1380,8 @@ Linux/x86_64, Void musl, mimalloc, static:
   stage: build
   tags:
     - Docker-x64
+    - amd64
+    - Linux
   script:
     - export GLCICD_JOB="VoidMuslX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
     - xbps-install -y wget bzip2 || xbps-install -y wget bzip2
@@ -1378,7 +1420,9 @@ Linux/x86_64, Void musl, mimalloc, static:
 Solaris/x86_64, Oracle Solaris 11.4:
   stage: build
   tags:
-    - jhj-kvsolaris0
+    - Solaris
+    - SunOS
+    - amd64
   script:
     - *scriptSanity
     - *scriptCommon
@@ -1406,7 +1450,10 @@ Solaris/x86_64, Oracle Solaris 11.4:
 illumos/x86_64, OpenIndiana Hipster:
   stage: build
   tags:
-    - jhj-kvoindiana0
+    - OpenIndiana
+    - SunOS
+    - amd64
+    - illumos
   script:
     - *scriptSanity
     - *scriptCommon
@@ -1442,7 +1489,10 @@ illumos/x86_64, OpenIndiana Hipster:
 Darwin/x86_64, macOS Big Sur:
   stage: build
   tags:
-    - jhj-kvdarwin0
+    - Darwin
+    - macOS
+    - amd64
+    - macOS-Big-Sur
   script:
     - *scriptSanity
     - *scriptCommon
@@ -1476,6 +1526,43 @@ Option Verification Test:
     - job: Linux/x86_64, Fedora
   tags:
     - Docker-x64-fast
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="OptTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptDnfSetup
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sed -i -s 's/\.NOTPARALLEL.*$//g' $(find './' -name '*akefile*' -print)
+    - bash -x -c 'date -u && set -o pipefail; export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && export JFLAGS="-j ${CPUS:-1}" && time stdbuf -o L ./src/ci-kit/cartesian_job_generator.bash 2>&1 | stdbuf -o L tee -i build.log | grep --line-buffered -E "(^\+ make.*CC|[Ee]rror|^Generating)" | stdbuf -o L nl -p -v 0"'
+    - lzip -9v build.log || true
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/build.log
+      - ${CI_PROJECT_DIR:?}/build.log.lz
+
+#############################################################################
+
+Multics CI-Kit Test:
+  stage: test
+  image: fedora:latest
+  needs:
+    - job: Linux/x86_64, Ubuntu
+    - job: Linux/x86_64, Ubuntu LTS
+    - job: Linux/x86_64, Fedora
+  tags:
+    - Docker-x64-fast
+    - Linux
+    - CIKit-x64
+    - amd64
   script:
     - export GLCICD_JOB="OptTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
