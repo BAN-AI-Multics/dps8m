@@ -26,6 +26,7 @@ You also need the following packages installed:
 	GNU sed
 	GNU coreutils
 	GNU diffutils
+	BSD-derived telnet (GNU inetutils, netkit, BAN telnet, etc.)
     
     
 USAGE
