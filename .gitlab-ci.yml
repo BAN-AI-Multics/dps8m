@@ -1488,7 +1488,7 @@ Option Verification Test:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sed -i -s 's/\.NOTPARALLEL.*$//g' $(find './' -name '*akefile*' -print)
-    - sh -x -c 'export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && export JFLAGS="-j ${CPUS:-1}" && ./src/ci-kit/cartesian_job_generator.bash; exit "${?}"'
+    - sh -x -c 'export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && export JFLAGS="-j ${CPUS:-1}" && ./src/ci-kit/cartesian_job_generator.bash | tee -i build.log; exit "${?}"'
     - lzip -9v build.log || true
   dependencies: []
   artifacts:
