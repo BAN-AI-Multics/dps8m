@@ -13,7 +13,7 @@
  * the actual socket connection.
  *
  * Features supported include the full TELNET protocol, Q-method option
- * negotiation, ZMP, MCCP2, MSSP, and NEW-ENVIRON.
+ * negotiation, MCCP2, MSSP, and NEW-ENVIRON.
  *
  * CONFORMS TO:
  *
@@ -139,11 +139,7 @@ typedef struct telnet_telopt_t telnet_telopt_t;
 #define TELNET_TELOPT_ENCRYPT 38
 #define TELNET_TELOPT_NEW_ENVIRON 39
 #define TELNET_TELOPT_MSSP 70
-#define TELNET_TELOPT_COMPRESS 85
-#define TELNET_TELOPT_COMPRESS2 86
-#define TELNET_TELOPT_ZMP 93
 #define TELNET_TELOPT_EXOPL 255
-
 #define TELNET_TELOPT_MCCP2 86
 /*@}*/
 
@@ -194,7 +190,6 @@ enum telnet_error_t {
         TELNET_ENOMEM,    /*!< memory allocation failure */
         TELNET_EOVERFLOW, /*!< data exceeds buffer size */
         TELNET_EPROTOCOL, /*!< invalid sequence of special bytes */
-        TELNET_ECOMPRESS  /*!< error handling compressed streams */
 };
 typedef enum telnet_error_t telnet_error_t; /*!< Error code type. */
 
@@ -210,8 +205,6 @@ enum telnet_event_type_t {
         TELNET_EV_DO,              /*!< DO option negotiation received */
         TELNET_EV_DONT,            /*!< DONT option negotiation received */
         TELNET_EV_SUBNEGOTIATION,  /*!< sub-negotiation data received */
-        TELNET_EV_COMPRESS,        /*!< compression has been enabled */
-        TELNET_EV_ZMP,             /*!< ZMP command has been received */
         TELNET_EV_TTYPE,           /*!< TTYPE command has been received */
         TELNET_EV_ENVIRON,         /*!< ENVIRON command has been received */
         TELNET_EV_MSSP,            /*!< MSSP command has been received */
@@ -295,15 +288,6 @@ union telnet_event_t {
                 unsigned char cmd;              /*!< TELNET_TTYPE_IS or TELNET_TTYPE_SEND */
                 const char* name;               /*!< terminal type name (IS only) */
         } ttype;
-
-        /*!
-         * COMPRESS event
-         */
-        struct compress_t {
-                enum telnet_event_type_t _type; /*!< alias for type */
-                unsigned char state;            /*!< 1 if compression is enabled,
-                                                 0 if disabled */
-        } compress;
 
         /*!
          * ENVIRON/NEW-ENVIRON event
@@ -479,20 +463,6 @@ extern void telnet_subnegotiation(telnet_t *telnet, unsigned char telopt,
                 const char *buffer, size_t size);
 
 /*!
- * \brief Begin sending compressed data.
- *
- * This function will begein sending data using the COMPRESS2 option,
- * which enables the use of zlib to compress data sent to the client.
- * The client must offer support for COMPRESS2 with option negotiation,
- * and zlib support must be compiled into libtelnet.
- *
- * Only the server may call this command.
- *
- * \param telnet Telnet state tracker object.
- */
-extern void telnet_begin_compress2(telnet_t *telnet);
-
-/*!
  * \brief Send formatted data.
  *
  * This function is a wrapper around telnet_send().  It allows using
@@ -616,58 +586,6 @@ extern void telnet_ttype_send(telnet_t *telnet);
  * \param ttype  Name of the terminal-type being sent.
  */
 extern void telnet_ttype_is(telnet_t *telnet, const char* ttype);
-
-/*!
- * \brief Send a ZMP command.
- *
- * \param telnet Telnet state tracker object.
- * \param argc   Number of ZMP commands being sent.
- * \param argv   Array of argument strings.
- */
-extern void telnet_send_zmp(telnet_t *telnet, size_t argc, const char **argv);
-
-/*!
- * \brief Send a ZMP command.
- *
- * Arguments are listed out in var-args style.  After the last argument, a
- * NULL pointer must be passed in as a sentinel value.
- *
- * \param telnet Telnet state tracker object.
- */
-extern void telnet_send_zmpv(telnet_t *telnet, ...) TELNET_GNU_SENTINEL;
-
-/*!
- * \brief Send a ZMP command.
- *
- * See telnet_send_zmpv().
- */
-extern void telnet_send_vzmpv(telnet_t *telnet, va_list va);
-
-/*!
- * \brief Begin sending a ZMP command
- *
- * \param telnet Telnet state tracker object.
- * \param cmd    The first argument (command name) for the ZMP command.
- */
-extern void telnet_begin_zmp(telnet_t *telnet, const char *cmd);
-
-/*!
- * \brief Send a ZMP command argument.
- *
- * \param telnet Telnet state tracker object.
- * \param arg    Telnet argument string.
- */
-extern void telnet_zmp_arg(telnet_t *telnet, const char *arg);
-
-/*!
- * \brief Finish a ZMP command.
- *
- * This must be called after a call to telnet_begin_zmp() to finish a
- * ZMP argument list.
- *
- * \param telnet Telnet state tracker object.
- */
-#define telnet_finish_zmp(telnet) telnet_finish_sb((telnet))
 
 /* C++ support */
 #if defined(__cplusplus)

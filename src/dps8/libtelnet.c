@@ -30,7 +30,6 @@
 #if defined(_WIN32)
 # define vsnprintf _vsnprintf
 # define __func__ __FUNCTION__
-# define ZLIB_WINAPI 1
 # if defined(_MSC_VER)
 #  if _MSC_VER <= 1700
 #   define va_copy(dest, src) (dest = src)
@@ -141,7 +140,7 @@ static telnet_error_t _error(telnet_t *telnet, unsigned line,
         return err;
 }
 
-/* push bytes out, compressing them first if need be */
+/* push bytes out */
 static void _send(telnet_t *telnet, const char *buffer,
                 size_t size) {
         telnet_event_t ev;
@@ -690,7 +689,7 @@ static int _ttype_telnet(telnet_t *telnet, const char* buffer, size_t size) {
 }
 
 /* process a subnegotiation buffer; return non-zero if the current buffer
- * must be aborted and reprocessed due to COMPRESS2 being activated
+ * must be aborted and reprocessed.
  */
 static int _subnegotiate(telnet_t *telnet) {
         telnet_event_t ev;
@@ -914,16 +913,6 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
                         /* IAC command in subnegotiation -- either IAC SE or IAC IAC */
                         if (byte == TELNET_IAC) {
                                 telnet->state = TELNET_STATE_SB_DATA_IAC;
-                        } else if (telnet->sb_telopt == TELNET_TELOPT_COMPRESS && byte == TELNET_WILL) {
-                                /* In 1998 MCCP used TELOPT 85 and the protocol defined an invalid
-                                 * subnegotiation sequence (IAC SB 85 WILL SE) to start compression.
-                                 * Subsequently MCCP version 2 was created in 2000 using TELOPT 86
-                                 * and a valid subnegotiation (IAC SB 86 IAC SE). libtelnet for now
-                                 * just captures and discards MCCPv1 sequences.
-                                 */
-                                start = i + 2;
-                                telnet->state = TELNET_STATE_DATA;
-                        /* buffer the byte, or bail if we can't */
                         } else if (_buffer_byte(telnet, byte) != TELNET_EOK) {
                                 start = i + 1;
                                 telnet->state = TELNET_STATE_DATA;
@@ -941,12 +930,6 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
 
                                 /* process subnegotiation */
                                 if (_subnegotiate(telnet) != 0) {
-                                        /* any remaining bytes in the buffer are compressed.
-                                         * we have to re-invoke telnet_recv to get those
-                                         * bytes inflated and abort trying to process the
-                                         * remaining compressed bytes in the current _process
-                                         * buffer argument
-                                         */
                                         telnet_recv(telnet, &buffer[start], size - start);
                                         return;
                                 }
@@ -1194,9 +1177,6 @@ void telnet_subnegotiation(telnet_t *telnet, unsigned char telopt,
         telnet_send(telnet, buffer, size);
         _sendu(telnet, bytes + 3, 2);
 
-}
-
-void telnet_begin_compress2(UNUSED telnet_t *telnet) {
 }
 
 /* send formatted data with \r and \n translation in addition to IAC IAC */
