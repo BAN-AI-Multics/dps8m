@@ -12,11 +12,12 @@ s1:
 	@printf '%s\n' "Start Stage 1: Pull and build"
 	-@true ############ Modify below as needed ############
 	rm -vRf "./dps8m" || true
-	-@true # git clone https://gitlab.com/dps8m/dps8m.git #
-	-@true # cd ./dps8m && git checkout master            #
-	-@true # cd ./dps8m && git status                     #
+	-@true # git clone https://gitlab.com/dps8m/dps8m.git
+	-@true # cd ./dps8m && git checkout master
+	-@true # cd ./dps8m && git status
 	(cd "../.." && $(MAKE) "superclean" && $(MAKE) V=1 W=1)
-	cp -vax "../.." "dps8m" 2> /dev/null; true ## remove ##
+	mkdir -vp ./dps8m/src
+	cp -vax "../../src/dps8" "dps8m/src" 2> /dev/null
 	-@true ############ Modify above as needed ############
 	@printf '%s\n' "End Stage 1"
 
