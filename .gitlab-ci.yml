@@ -1565,7 +1565,7 @@ Multics CI-Kit Test:
     - amd64
   script:
     - export GLCICD_JOB="CIKitTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - dnf -q install -y mksh bzip2 expect tcsh meld wget lzip dos2unix diffutils || dnf -q install -y mksh bzip2 expect tcsh meld wget lzip dos2unix diffutils
+    - dnf -q install -y telnet mksh bzip2 expect tcsh meld wget lzip dos2unix diffutils || dnf -q install -y mksh bzip2 expect tcsh meld wget lzip dos2unix diffutils telnet
     - *scriptInstallResticLinuxAMD64
     - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
