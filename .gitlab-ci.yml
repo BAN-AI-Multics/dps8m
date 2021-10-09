@@ -1330,7 +1330,7 @@ Linux/x86_64, Ubuntu LTS:
 
 ############################################################################
 
-Linux/x86_64, Void glibc, static:
+Linux/x86_64, Void glibc:
   image:
     name: voidlinux/voidlinux:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1351,11 +1351,11 @@ Linux/x86_64, Void glibc, static:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-static -Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - dash -x -c 'make distclean; exit "${?}"'
-    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-static -Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
