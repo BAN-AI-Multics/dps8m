@@ -1408,6 +1408,12 @@ decNumber * decNumberLog10(decNumber *res, const decNumber *rhs,
   if (decCheckOperands(res, DECUNUSED, rhs, set)) return res;
   #endif
 
+  // Handle payloads that exceed the context precision.
+  if (rhs->bits&(DECNAN|DECSNAN)) {
+    decNumberPlus(res, rhs, set);
+    return res;
+    }
+
   // Check restrictions; this is a math function; if not violated
   // then carry out the operation.
   if (!decCheckMath(rhs, set, &status)) do { // protect malloc
@@ -1668,10 +1674,18 @@ decNumber * decNumberNextMinus(decNumber *res, const decNumber *rhs,
     // there is no status to set
     return res;
     }
-  decNumberZero(&dtiny);                     // start with 0
-  dtiny.lsu[0]=1;                            // make number that is ..
-  dtiny.exponent=DEC_MIN_EMIN-1;             // .. smaller than tiniest
+  // Apply the context. If the result is inexact, we are done.
   workset.round=DEC_ROUND_FLOOR;
+  workset.status=0;
+  decNumberPlus(res, rhs, &workset);
+  if (workset.status&(DEC_Inexact|DEC_NaNs)) {
+    set->status |= (workset.status&DEC_NaNs);
+    return res;
+    }
+  // Applying the context was exact. Subtract tiny quantity and round.
+  decNumberZero(&dtiny); // start with 0
+  dtiny.lsu[0]=1;
+  dtiny.exponent=set->emin-set->digits;
   decAddOp(res, rhs, &dtiny, &workset, DECNEG, &status);
   status&=DEC_Invalid_operation|DEC_sNaN;    // only sNaN Invalid please
   if (status!=0) decStatus(res, status, set);
@@ -1705,10 +1719,18 @@ decNumber * decNumberNextPlus(decNumber *res, const decNumber *rhs,
     // there is no status to set
     return res;
     }
-  decNumberZero(&dtiny);                     // start with 0
-  dtiny.lsu[0]=1;                            // make number that is ..
-  dtiny.exponent=DEC_MIN_EMIN-1;             // .. smaller than tiniest
+  // Apply the context. If the result is inexact, we are done.
   workset.round=DEC_ROUND_CEILING;
+  workset.status=0;
+  decNumberPlus(res, rhs, &workset);
+  if (workset.status&(DEC_Inexact|DEC_NaNs)) {
+    set->status |= (workset.status&DEC_NaNs);
+    return res;
+    }
+  // Applying the context was exact. Add tiny quantity and round.
+  decNumberZero(&dtiny); // start with 0
+  dtiny.lsu[0]=1;
+  dtiny.exponent=set->emin-set->digits;
   decAddOp(res, rhs, &dtiny, &workset, 0, &status);
   status&=DEC_Invalid_operation|DEC_sNaN;    // only sNaN Invalid please
   if (status!=0) decStatus(res, status, set);
@@ -2116,6 +2138,9 @@ decNumber * decNumberPower(decNumber *res, const decNumber *lhs,
       aset.round=DEC_ROUND_HALF_EVEN;   // internally use balanced
       // calculate the working DIGITS
       aset.digits=reqdigits+(rhs->digits+rhs->exponent)+2;
+      aset.emax=DEC_MAX_EMAX;           // usual bounds
+      aset.emin=DEC_MIN_EMIN;           // ..
+      aset.clamp=0;                     // and no concrete format
       #if DECSUBSET
       if (!set->extended) aset.digits--;     // use classic precision
       #endif
@@ -2470,6 +2495,7 @@ decNumber * decNumberRotate(decNumber *res, const decNumber *lhs,
       status=DEC_Invalid_operation;
      else {                                  // rhs is OK
       decNumberCopy(res, lhs);
+      if (res->digits>set->digits) decDecap(res, res->digits-set->digits);
       // convert -ve rotate to equivalent positive rotation
       if (rotate<0) rotate=set->digits+rotate;
       if (rotate!=0 && rotate!=set->digits   // zero or full rotation
@@ -2640,6 +2666,7 @@ decNumber * decNumberScaleB(decNumber *res, const decNumber *lhs,
            else      res->exponent=DEC_MAX_EMAX+1;
           }
         residue=0;
+        decCopyFit(res, res, set, &residue, &status);
         decFinalize(res, set, &residue, &status); // final check
         } // finite LHS
       } // rhs OK
@@ -3805,6 +3832,7 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
   decNumber *alloclhs=NULL;        // non-NULL if rounded lhs allocated
   decNumber *allocrhs=NULL;        // .., rhs
   #endif
+  decNumber dtiny;                 // lhs, adjusted to avoid a huge shift
   Int   rhsshift;                  // working shift (in Units)
   Int   maxdigits;                 // longest logical length
   Int   mult;                      // multiplier
@@ -3971,12 +3999,7 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
       }
 
     // Now align (pad) the lhs or rhs so they can be added or
-    // subtracted, as necessary.  If one number is much larger than
-    // the other (that is, if in plain form there is a least one
-    // digit between the lowest digit of one and the highest of the
-    // other) padding with up to DIGITS-1 trailing zeros may be
-    // needed; then apply rounding (as exotic rounding modes may be
-    // affected by the residue).
+    // subtracted, as necessary.
     rhsshift=0;               // rhs shift to left (padding) in Units
     bits=lhs->bits;           // assume sign is that of LHS
     mult=1;                   // likely multiplier
@@ -3986,35 +4009,26 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
       // some padding needed; always pad the RHS, as any required
       // padding can then be effected by a simple combination of
       // shifts and a multiply
-      Flag swapped=0;
+      Int exponent;                     // new exponent of LHS (if adjusted)
       if (padding<0) {                  // LHS needs the padding
         const decNumber *t;
         padding=-padding;               // will be +ve
         bits=(uByte)(rhs->bits^negate); // assumed sign is now that of RHS
         t=lhs; lhs=rhs; rhs=t;
-        swapped=1;
         }
 
-      // If, after pad, rhs would be longer than lhs by digits+1 or
-      // more then lhs cannot affect the answer, except as a residue,
-      // so only need to pad up to a length of DIGITS+1.
-      if (rhs->digits+padding > lhs->digits+reqdigits+1) {
-        // The RHS is sufficient
-        // for residue use the relative sign indication...
-        Int shift=reqdigits-rhs->digits;     // left shift needed
-        residue=1;                           // residue for rounding
-        if (diffsign) residue=-residue;      // signs differ
-        // copy, shortening if necessary
-        decCopyFit(res, rhs, set, &residue, status);
-        // if it was already shorter, then need to pad with zeros
-        if (shift>0) {
-          res->digits=decShiftToMost(res->lsu, res->digits, shift);
-          res->exponent-=shift;              // adjust the exponent.
-          }
-        // flip the result sign if unswapped and rhs was negated
-        if (!swapped) res->bits^=negate;
-        decFinish(res, set, &residue, status);    // done
-        break;}
+      exponent = rhs->exponent-1;
+      exponent += (rhs->digits>reqdigits) ? 0 : rhs->digits-reqdigits-1;
+      if (lhs->digits+lhs->exponent-1 < exponent) {
+        // Adjust lhs and padding to avoid huge shifts.
+        dtiny.bits=lhs->bits;
+        dtiny.exponent=exponent;
+        dtiny.digits=1;
+        dtiny.lsu[0]=1;
+        lhs=&dtiny;
+        padding=rhs->exponent-exponent;
+        // Fall through to add/subtract the modified lhs.
+        }
 
       // LHS digits may affect result
       rhsshift=D2U(padding+1)-1;        // this much by Unit shift ..
@@ -4344,12 +4358,10 @@ static decNumber * decDivideOp(decNumber *res,
        else {
       #endif
         if (op&DIVIDE) {
-          residue=0;
           exponent=lhs->exponent-rhs->exponent; // ideal exponent
           decNumberCopy(res, lhs);      // [zeros always fit]
           res->bits=bits;               // sign as computed
           res->exponent=exponent;       // exponent, too
-          decFinalize(res, set, &residue, status);   // check exponent
           }
          else if (op&DIVIDEINT) {
           decNumberZero(res);           // integer 0
@@ -4360,6 +4372,8 @@ static decNumber * decDivideOp(decNumber *res,
           decNumberCopy(res, lhs);      // [zeros always fit]
           if (exponent<res->exponent) res->exponent=exponent; // use lower
           }
+        residue=0;
+        decFinalize(res, set, &residue, status);   // check exponent
       #if DECSUBSET
         }
       #endif
@@ -5727,6 +5741,10 @@ decNumber * decLnOp(decNumber *res, const decNumber *rhs,
     aset.emax=set->emax;
     aset.emin=set->emin;
     aset.clamp=0;                       // no concrete format
+    if (rhs->digits > set->digits) {
+      aset.emax=DEC_MAX_MATH*2;
+      aset.emin=-DEC_MAX_MATH*2;
+    }
     // set up a context to be used for the multiply and subtract
     bset=aset;
     bset.emax=DEC_MAX_MATH*2;           // use double bounds for the
