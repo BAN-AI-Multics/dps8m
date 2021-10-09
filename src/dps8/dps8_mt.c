@@ -1727,14 +1727,20 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 044: { // 044 -- Forward Skip One Record
-          if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Forware Skip One Record\r\n"); }
-          if (! (unitp->flags & UNIT_ATT)) {
-            p->stati = 04104;
-            return IOM_CMD_ERROR;
-          }
-          uint tally = p->IDCW_COUNT;
-          if (tally == 0) {
-            sim_debug (DBG_DEBUG, & tape_dev, "%s: Tally of zero interpreted as 64\n", __func__);
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("// Tape Forward Skip One Record\r\n");
+          sim_printf ("//    pos before %d\r\n", unitp->pos);
+        }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape Forward Skip One Record pos before %d", unitp->pos);
+#endif
+        if (! (unitp->flags & UNIT_ATT)) {
+          p->stati = 04104;
+          return IOM_CMD_ERROR;
+        }
+        uint tally = p->IDCW_COUNT;
+        if (tally == 0) {
+          sim_debug (DBG_DEBUG, & tape_dev, "%s: Tally of zero interpreted as 64\n", __func__);
           tally = 64;
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Forward skip record %d\n", __func__, tally);
@@ -1773,11 +1779,23 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           p->stati |= 2;
         //if (sim_tape_eom (unitp))
           //p->stati |= 0340;
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("//    pos after %d\r\n", unitp->pos);
+        }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape Forward Skip One Record pos after %d", unitp->pos);
+#endif
       }
       break;
 
     case 045: { // CMD 045 -- Forward Skip One File
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Forware Skip One File\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { 
+          sim_printf ("// Tape Forward Skip One File\r\n");
+          sim_printf ("//    pos before %d\r\n", unitp->pos);
+        }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape Forward Skip One File pos before %d", unitp->pos);
+#endif
         sim_debug (DBG_DEBUG, & tape_dev, "%s:: Forward Skip File\n", __func__);
         if (! (unitp->flags & UNIT_ATT)) {
           p->stati = 04104;
@@ -1787,6 +1805,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
         uint32 skipped, recsskipped;
         t_stat ret = sim_tape_spfilebyrecf (unitp, tally, & skipped, & recsskipped, false);
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// sim_tape_spfilebyrecf ret %d skipped %d recsskipped %d\r\n", ret, skipped, recsskipped); }
         if (ret != MTSE_OK && ret != MTSE_TMK && ret != MTSE_LEOT) {
           sim_warn ("sim_tape_spfilebyrecf returned %d\n", ret);
           break;
@@ -1810,118 +1829,146 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         //if (sim_tape_eom (unitp))
           //p->stati |= 0340;
         }
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("//    pos after %d\r\n", unitp->pos);
+        }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape Forward Skip One File pos after %d", unitp->pos);
+#endif
         break;
 
       case 046: { // CMD 046 -- Backspace One Record
-          if_sim_debug (DBG_TRACE, & tape_dev) {
-            sim_printf ("// Tape Backspace One Record\r\n");
-          }
-          sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace Record\n", __func__);
-          if (! (unitp->flags & UNIT_ATT)) {
-            p->stati = 04104;
-            return IOM_CMD_ERROR;
-          }
-
-          uint tally = p->IDCW_COUNT;
-          if (tally == 0) {
-            sim_debug (DBG_DEBUG, & tape_dev, "%s: Tally of zero interpreted as 64\n", __func__);
-            tally = 64;
-          }
-
-          sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace record tally %d\n", __func__, tally);
-
-          // sim_tape_sprecsr stumbles on tape marks; do our own version...
-#if 0
-          uint32 skipped;
-          t_stat ret = sim_tape_sprecsr (unitp, tally, & skipped);
-          if (ret != MTSE_OK && ret != MTSE_TMK) {
-            sim_printf ("sim_tape_sprecsr returned %d\n", ret);
-            break;
-          }
-#else
-          uint32 skipped = 0;
-          while (skipped < tally) {
-            t_stat ret = sim_tape_sprecr (unitp, & tape_statep->tbc);
-            if (ret != MTSE_OK && ret != MTSE_TMK)
-              break;
-            skipped ++;
-          }
-#endif
-          if (skipped != tally) {
-            sim_warn ("skipped %d != tally %d\n", skipped, tally);
-          }
-          tape_statep->rec_num -= (int) skipped;
-          if (unitp->flags & UNIT_WATCH)
-            sim_printf ("Tape %ld skip back to record %d\n", (long) MT_UNIT_NUM (unitp), tape_statep->rec_num);
-
-          p->tallyResidue = (word12) (tally - skipped);
-
-          sim_debug (DBG_NOTIFY, & tape_dev, "%s: Backspace %d records\n", __func__, skipped);
-
-          p->stati = 04000;
-          if (sim_tape_wrp (unitp))
-            p->stati |= 1;
-          if (sim_tape_bot (unitp))
-            p->stati |= 2;
-          //if (sim_tape_eom (unitp))
-            //p->stati |= 0340;
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("// Tape Backspace One Record\r\n");
+          sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape Backspace One Record pos before %d", unitp->pos);
+#endif
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace Record\n", __func__);
+        if (! (unitp->flags & UNIT_ATT)) {
+          p->stati = 04104;
+          return IOM_CMD_ERROR;
+        }
+
+        uint tally = p->IDCW_COUNT;
+        if (tally == 0) {
+          sim_debug (DBG_DEBUG, & tape_dev, "%s: Tally of zero interpreted as 64\n", __func__);
+          tally = 64;
+        }
+
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace record tally %d\n", __func__, tally);
+
+        // sim_tape_sprecsr stumbles on tape marks; do our own version...
+#if 0
+        uint32 skipped;
+        t_stat ret = sim_tape_sprecsr (unitp, tally, & skipped);
+        if (ret != MTSE_OK && ret != MTSE_TMK) {
+          sim_printf ("sim_tape_sprecsr returned %d\n", ret);
+          break;
+        }
+#else
+        uint32 skipped = 0;
+        while (skipped < tally) {
+          t_stat ret = sim_tape_sprecr (unitp, & tape_statep->tbc);
+          if (ret != MTSE_OK && ret != MTSE_TMK)
+            break;
+          skipped ++;
+        }
+#endif
+        if (skipped != tally) {
+          sim_warn ("skipped %d != tally %d\n", skipped, tally);
+        }
+        tape_statep->rec_num -= (int) skipped;
+        if (unitp->flags & UNIT_WATCH)
+          sim_printf ("Tape %ld skip back to record %d\n", (long) MT_UNIT_NUM (unitp), tape_statep->rec_num);
+
+        p->tallyResidue = (word12) (tally - skipped);
+
+        sim_debug (DBG_NOTIFY, & tape_dev, "%s: Backspace %d records\n", __func__, skipped);
+
+        p->stati = 04000;
+        if (sim_tape_wrp (unitp))
+          p->stati |= 1;
+        if (sim_tape_bot (unitp))
+          p->stati |= 2;
+        //if (sim_tape_eom (unitp))
+          //p->stati |= 0340;
+        }
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("//    pos after %d\r\n", unitp->pos);
+        }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape Backspace One Record pos after %d", unitp->pos);
+#endif
         break;
 
       case 047: { // CMD 047 -- Backspace One File
-          if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Backspace One File\r\n"); }
-          sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace File\n", __func__);
-          if (! (unitp->flags & UNIT_ATT)) {
-            p->stati = 04104;
-            return IOM_CMD_ERROR;
-          }
-          uint tally = 1;
-          if (tally != 1) {
-            sim_debug (DBG_DEBUG, & tape_dev, "%s: Back space file: setting tally %d to 1\n", __func__, tally);
-            tally = 1;
-          }
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("// Tape Backspace One File\r\n");
+          sim_printf ("//    pos before %d\r\n", unitp->pos);
+        }
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace File\n", __func__);
+#ifdef HDBG
+        hdbgNote ("tape", "Tape Backspace One File pos before %d", unitp->pos);
+#endif
+        if (! (unitp->flags & UNIT_ATT)) {
+          p->stati = 04104;
+          return IOM_CMD_ERROR;
+        }
+        uint tally = 1;
+        if (tally != 1) {
+          sim_debug (DBG_DEBUG, & tape_dev, "%s: Back space file: setting tally %d to 1\n", __func__, tally);
+          tally = 1;
+        }
 
-          sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace file tally %d\n", __func__, tally);
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace file tally %d\n", __func__, tally);
 
 #if 0
-          int nbs = 0;
+        int nbs = 0;
 
-          while (tally) {
-            t_stat ret = sim_tape_sprecr (unitp, & tape_statep->tbc);
-            //sim_printf ("ret %d\n", ret);
-            if (ret != MTSE_OK && ret != MTSE_TMK)
-              break;
-            if (tape_statep->rec_num > 0)
-              tape_statep->rec_num --;
-            nbs ++;
-          }
-#else
-          uint32 skipped, recsskipped;
-          t_stat ret = sim_tape_spfilebyrecr (unitp, tally, & skipped, & recsskipped);
-          if (ret != MTSE_OK && ret != MTSE_TMK && ret != MTSE_BOT) {
-            sim_warn ("sim_tape_spfilebyrecr returned %d\n", ret);
+        while (tally) {
+          t_stat ret = sim_tape_sprecr (unitp, & tape_statep->tbc);
+          //sim_printf ("ret %d\n", ret);
+          if (ret != MTSE_OK && ret != MTSE_TMK)
             break;
-          }
-          if (skipped != tally) {
-            sim_warn ("skipped %d != tally %d\n", skipped, tally);
-          }
+          if (tape_statep->rec_num > 0)
+            tape_statep->rec_num --;
+          nbs ++;
+        }
+#else
+        uint32 skipped, recsskipped;
+        t_stat ret = sim_tape_spfilebyrecr (unitp, tally, & skipped, & recsskipped);
+        if (ret != MTSE_OK && ret != MTSE_TMK && ret != MTSE_BOT) {
+          sim_warn ("sim_tape_spfilebyrecr returned %d\n", ret);
+          break;
+        }
+        if (skipped != tally) {
+          sim_warn ("skipped %d != tally %d\n", skipped, tally);
+        }
   
-          tape_statep->rec_num -= (int) recsskipped;
-          if (unitp->flags & UNIT_WATCH)
-            sim_printf ("Tape %ld backward skips to record %d\n", (long) MT_UNIT_NUM (unitp), tape_statep->rec_num);
+        tape_statep->rec_num -= (int) recsskipped;
+        if (unitp->flags & UNIT_WATCH)
+          sim_printf ("Tape %ld backward skips to record %d\n", (long) MT_UNIT_NUM (unitp), tape_statep->rec_num);
  
-          p->tallyResidue = (word12) (tally - skipped);
-          sim_debug (DBG_NOTIFY, & tape_dev, "%s: Backspace %d records\n", __func__, tally);
+        p->tallyResidue = (word12) (tally - skipped);
+        sim_debug (DBG_NOTIFY, & tape_dev, "%s: Backspace %d records\n", __func__, tally);
 #endif
 
-          p->stati = 04000;
-          if (sim_tape_wrp (unitp))
-            p->stati |= 1;
-          if (sim_tape_bot (unitp))
-            p->stati |= 2;
-          //if (sim_tape_eom (unitp))
-            //p->stati |= 0340;
+        p->stati = 04000;
+        if (sim_tape_wrp (unitp))
+          p->stati |= 1;
+        if (sim_tape_bot (unitp))
+          p->stati |= 2;
+        //if (sim_tape_eom (unitp))
+          //p->stati |= 0340;
         }
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("//    pos after %d\r\n", unitp->pos);
+        }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape Backspace One File pos after %d", unitp->pos);
+#endif
         break;
 
       case 050: {              // CMD 050 -- Request device status
@@ -1969,8 +2016,14 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //      case 054: Erase
 
       case 055: // CMD 055 -- Write EOF (tape mark);
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Write EOF\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("// Tape Write EOF\r\n"); 
+          sim_printf ("//    pos before %d\r\n", unitp->pos);
+        }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Write tape mark\n", __func__);
+#ifdef HDBG
+        hdbgNote ("tape", "Tape Write EOF pos before %d", unitp->pos);
+#endif
 
         if (! (unitp->flags & UNIT_ATT)) {
           p->stati = 04104;
@@ -2008,6 +2061,12 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           p->stati = 04340;
 
         sim_debug (DBG_INFO, & tape_dev, "%s: Wrote tape mark; status %04o\n", __func__, p->stati);
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("//    pos after %d\r\n", unitp->pos);
+        }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape Write EOF pos after %d", unitp->pos);
+#endif
         break;
 
 //      case 056: Unassigned
@@ -2143,19 +2202,41 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
     case tape_rd_9:
     case tape_rd_bin: {
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT Read\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { 
+          sim_printf ("// Tape IOT Read\r\n");
+          sim_printf ("//    pos before %d\r\n", unitp->pos);
+        }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape IOT Read pos before %d", unitp->pos);
+#endif
         int rc = mtReadRecord (devUnitIdx, iomUnitIdx, chan);
         if (rc)
           return IOM_CMD_ERROR;
         }
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("//    pos after %d\r\n", unitp->pos);
+        }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape IOT Read pos after %d", unitp->pos);
+#endif
         break;
 
     case tape_wr_9:
     case tape_wr_bin: {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("// Tape IOT Write\r\n");
+          sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape IOT write pos before %d", unitp->pos);
+#endif
         int rc = mtWriteRecord (devUnitIdx, iomUnitIdx, chan);
+        if_sim_debug (DBG_TRACE, & tape_dev) {
+          sim_printf ("//    pos after %d\r\n", unitp->pos);
+        }
+#ifdef HDBG
+        hdbgNote ("tape", "Tape IOT write pos after %d", unitp->pos);
+#endif
         if (rc)
           return IOM_CMD_ERROR;
       }

@@ -3513,6 +3513,7 @@ int send_marker_interrupt (uint iom_unit_idx, int chan)
 int send_special_interrupt (uint iom_unit_idx, uint chan, uint devCode,
                             word8 status0, word8 status1)
   {
+//if (iom_unit_idx == 0 && chan == 013) sim_printf ("spec int %03o %013o\n", status0, status1);
     uint chanloc = mbxLoc (iom_unit_idx, IOM_SPECIAL_STATUS_CHAN);
 
     if (iom_chan_data [iom_unit_idx] [chan] . masked)

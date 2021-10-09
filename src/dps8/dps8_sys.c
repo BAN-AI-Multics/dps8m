@@ -3893,7 +3893,9 @@ static CTAB dps8_cmds[] =
     {"DBGBAR",              dps_debug_bar,            1, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
     {"NODBGBAR",            dps_debug_bar,            0, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
 #ifdef HDBG
-    {"HDBG",                hdbg_size,                0, "hdbg: set history buffer size\n", NULL, NULL},
+    {"HDBG",                hdbg_size,                0, "hdbg: set history debugger buffer size\n", NULL, NULL},
+    {"HDSEG",               hdbgSegmentNumber,        0, "hdseg: set history debugger segment number\n", NULL, NULL},
+    {"HDBL",                hdbgBlacklist,            0, "hdbl: set history debugger blacklist\n", NULL, NULL},
     {"PHDBG",               hdbg_print,               0, "phdbg: display history size\n", NULL, NULL},
 #endif
     {"ABSOLUTE",            abs_addr,                 0, "abs: Compute the absolute address of segno:offset\n", NULL, NULL},
