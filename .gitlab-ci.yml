@@ -1540,7 +1540,7 @@ Option Verification Test:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sed -i -s 's/\.NOTPARALLEL.*$//g' $(find './' -name '*akefile*' -print)
-    - bash -x -c 'date -u && set -o pipefail; export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && export JFLAGS="-j ${CPUS:-1}" && time stdbuf -o L ./src/ci-kit/cartesian_job_generator.bash 2>&1 | stdbuf -o L tee -i build.log | grep --line-buffered -E "(^\+ make.*CC|[Ee]rror|^Generating)" | stdbuf -o L nl -p -v 0"'
+    - bash -x -c 'date -u && set -o pipefail; export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && export JFLAGS="-j ${CPUS:-1}" && time stdbuf -o L ./src/ci-kit/cartesian_job_generator.bash 2>&1 | stdbuf -o L tee -i build.log | grep --line-buffered -E "(^\+ make.*CC|[Ee]rror|^Generating)" | stdbuf -o L nl -p -v 0'
     - lzip -9v build.log || true
   dependencies: []
   artifacts:
