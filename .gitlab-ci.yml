@@ -1488,12 +1488,13 @@ Option Verification Test:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sed -i -s 's/\.NOTPARALLEL.*$//g' $(find './' -name '*akefile*' -print)
-    - sh -x -c 'export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && export JFLAGS="-j ${CPUS:-1}" && ./src/ci-kit/cartesian_job_generator.bash | tee -i build.log; exit "${?}"'
+    - bash -x -c 'set -o pipefail; export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && export JFLAGS="-j ${CPUS:-1}" && ./src/ci-kit/cartesian_job_generator.bash 2>&1 | tee -i build.log | grep --line-buffered -E "(^\+ make.*CC|[Ee]rror|^Generating)" | nl -p -v 0; exit "${?}"'
     - lzip -9v build.log || true
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
+      - ${CI_PROJECT_DIR:?}/build.log
       - ${CI_PROJECT_DIR:?}/build.log.lz
 
 #############################################################################
