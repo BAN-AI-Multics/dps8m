@@ -4574,7 +4574,7 @@ fprintf (st, "%s", sprint_capac (dptr, uptr));
 static void printp (unsigned char * PROM, char * label, int offset, int length) {
   sim_printf ("  %s '", label);
   for (int l = 0; l < length; l ++) {
-    uint byte = PROM[offset + l];
+    unsigned int byte = PROM[offset + l];
     sim_printf (isprint (byte) ? "%c" : "\\%03o", byte);
   }
   sim_printf ("'\r\n");
