@@ -922,7 +922,7 @@ static iom_cmd_rc_t mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
           }
         tape_statep -> tbc = 0;
         //tapeStatus = tapeMark;
-        return IOM_CMD_PROCEED;
+        return IOM_CMD_ERROR;
       }
     if (rc == MTSE_EOM)
       {
