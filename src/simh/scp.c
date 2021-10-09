@@ -58,6 +58,8 @@
 #include <sys/sysctl.h>
 #endif
 
+#include <uv.h>
+
 #include "../dps8/ver.h"
 #include "../dps8/sysdefs.h"
 
@@ -4265,15 +4267,82 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
 
 t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-    fprintf (st, " Build information:");
+    fprintf (st, " Build Information:\n");
 #if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
-    fprintf (st, "\n      Compilation info: %s\n", BUILDINFO_scp );
+    fprintf (st, "      Compilation info: %s\n", BUILDINFO_scp );
     fprintf (st, "  Relevant definitions: %s\n", SYSDEFS_USED );
 #elif defined(BUILDINFO_scp)
-    fprintf (st, "\n      Compilation info: %s\n", BUILDINFO_scp );
+    fprintf (st, "      Compilation info: %s\n", BUILDINFO_scp );
 #else
-    fprintf (st, "\n      Compilation info: Not available\n" );
+    fprintf (st, "      Compilation info: Not available\n" );
 #endif
+#if defined (UV_VERSION_MAJOR) && \
+    defined (UV_VERSION_MINOR) && \
+    defined (UV_VERSION_PATCH)
+#ifdef UV_VERSION_MAJOR
+#ifndef UV_VERSION_MINOR
+#ifndef UV_VERSION_PATCH
+#ifndef UV_VERSION_SUFFIX
+    fprintf (st, "    Event loop library: Built with libuv v%d", UV_VERSION_MAJOR);
+#endif /* ifndef UV_VERSION_SUFFIX */
+#endif /* ifndef UV_VERSION_PATCH */
+#endif /* ifndef UV_VERSION_MINOR */
+#ifdef UV_VERSION_MINOR
+#ifndef UV_VERSION_PATCH
+#ifndef UV_VERSION_SUFFIX
+    fprintf (st, "    Event loop library: Built with libuv %d.%d", UV_VERSION_MAJOR,
+            UV_VERSION_MINOR);
+#endif /* ifndef UV_VERSION_SUFFIX */
+#endif /* ifndef UV_VERSION_PATCH */
+#ifdef UV_VERSION_PATCH
+#ifndef UV_VERSION_SUFFIX
+    fprintf (st, "    Event loop library: Built with libuv %d.%d.%d", UV_VERSION_MAJOR,
+            UV_VERSION_MINOR, UV_VERSION_PATCH);
+#endif /* ifndef UV_VERSION_SUFFIX */
+#ifdef UV_VERSION_SUFFIX
+    fprintf (st, "    Event loop library: Built with libuv %d.%d.%d%s", UV_VERSION_MAJOR,
+            UV_VERSION_MINOR, UV_VERSION_PATCH, UV_VERSION_SUFFIX);
+#ifdef UV_VERSION_IS_RELEASE
+#if UV_VERSION_IS_RELEASE == 1
+#define UV_RELEASE_TYPE " (release)"
+#endif /* if UV_VERSION_IS_RELEASE == 1 */
+#if UV_VERSION_IS_RELEASE == 0
+#define UV_RELEASE_TYPE " (snapshot)"
+#endif /* if UV_VERSION_IS_RELEASE == 0 */
+#ifndef UV_RELEASE_TYPE
+#define UV_RELEASE_TYPE ""
+#endif /* ifndef UV_RELEASE_TYPE */
+#ifdef UV_RELEASE_TYPE
+    fprintf (st, "%s", UV_RELEASE_TYPE);
+#endif /* ifdef UV_RELEASE_TYPE */
+#endif /* ifdef UV_VERSION_IS_RELEASE */
+#endif /* ifdef UV_VERSION_SUFFIX */
+#endif /* ifdef UV_VERSION_PATCH */
+#endif /* ifdef UV_VERSION_MINOR */
+    unsigned int CurrentUvVersion = uv_version();
+    if (((void *)&CurrentUvVersion != NULL) && (CurrentUvVersion > 0))
+        if (uv_version_string() != NULL)
+            fprintf (st, "; %s in use", uv_version_string());
+#endif /* ifdef UV_VERSION_MAJOR */
+#else
+    fprintf (st, "    Event loop library: Using libuv (or compatible) library, unknown version");
+#endif /* if defined(UV_VERSION_MAJOR) &&  \
+        *    defined(UV_VERSION_MINOR) &&  \
+        *    defined(UV_VERSION_PATCH)     \
+        */
+#ifdef DECNUMBERLOC
+    fprintf (st, "\n");
+#ifdef DECVERSION
+#ifdef DECNLAUTHOR
+    fprintf (st, "          Math library: %s (%s and contributors)", DECVERSION, DECNLAUTHOR);
+#else
+    fprintf (st, "          Math library: %s", DECVERSION);
+#endif /* ifdef DECNLAUTHOR */
+#else
+    fprintf (st, "          Math library: decNumber, unknown version");
+#endif /* ifdef DECVERSION */
+#endif /* ifdef DECNUMBERLOC */
+    fprintf (st, "\n");
     return 0;
 }
 
