@@ -1470,6 +1470,10 @@ Darwin/x86_64, macOS Big Sur:
 Option Verification Test:
   stage: test
   image: fedora:latest
+  needs:
+    - job: Linux/x86_64, Ubuntu
+    - job: Linux/x86_64, Ubuntu LTS
+    - job: Linux/x86_64, Fedora
   tags:
     - Docker-x64-fast
   script:
