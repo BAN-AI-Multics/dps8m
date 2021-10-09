@@ -1,13 +1,14 @@
-#!/bin/tcsh
-echo "Downloading tape files..."
-mkdir -p tapes
-cd tapes
-rm *.tap
+#!/usr/bin/env mksh
+set -eu
+printf '%s\n' "Downloading tape files..."
+mkdir -vp tapes 2> /dev/null && cd tapes || exit 1
+pwd 2> /dev/null
+rm -vf *.tap 2> /dev/null || true
 wget https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7MULTICS.tap
 wget https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7EXEC.tap
 wget https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7LDD_STANDARD.tap
 wget https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7UNBUNDLED.tap
 wget https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7MISC.tap
 wget https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7LISTINGS.tap
-gunzip <foo.tap.gz >foo.tap
+lzip -vt foo.tap.lz && lzip -dcv foo.tap.lz > foo.tap
 cd ..

@@ -1,4 +1,4 @@
-DPS8/M & Multics Continuous Integration Scripts
+DPS8/M + Multics Continuous Integration Scripts
 
 INTRODUCTION
 
@@ -18,8 +18,14 @@ You need to have all the packages installed to build the DPS8/M emulator
 
 You also need the following packages installed:
     expect
+	mksh
     tcsh
     meld
+	lzip
+	dos2unix
+	GNU sed
+	GNU coreutils
+	GNU diffutils
     
     
 USAGE

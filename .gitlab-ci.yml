@@ -1564,8 +1564,8 @@ Multics CI-Kit Test:
     - CIKit-x64
     - amd64
   script:
-    - export GLCICD_JOB="OptTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - export GLCICD_JOB="CIKitTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y mksh bzip2 expect tcsh meld wget lzip dos2unix diffutils || dnf -q install -y mksh bzip2 expect tcsh meld wget lzip dos2unix diffutils
     - *scriptInstallResticLinuxAMD64
     - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
@@ -1574,14 +1574,13 @@ Multics CI-Kit Test:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sed -i -s 's/\.NOTPARALLEL.*$//g' $(find './' -name '*akefile*' -print)
-    - bash -x -c 'date -u && set -o pipefail; export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && export JFLAGS="-j ${CPUS:-1}" && time stdbuf -o L ./src/ci-kit/cartesian_job_generator.bash 2>&1 | stdbuf -o L tee -i build.log | grep --line-buffered -E "(^\+ make.*CC|[Ee]rror|^Generating)" | stdbuf -o L nl -p -v 0"'
-    - lzip -9v build.log || true
+    - mksh -x -c '( cd src/ci-kit && ./init && ./ci && make -f ci.makefile diff_files && diff -C old.log new.log | tee -i diff.txt)'
   dependencies: []
   artifacts:
-    expire_in: 1 day
+    expire_in: 7 days
     paths:
-      - ${CI_PROJECT_DIR:?}/build.log
-      - ${CI_PROJECT_DIR:?}/build.log.lz
+      - ${CI_PROJECT_DIR:?}/src/ci-kit/old.log
+      - ${CI_PROJECT_DIR:?}/src/ci-kit/new.log
+      - ${CI_PROJECT_DIR:?}/src/ci-kit/diff.txt
 
 #############################################################################
