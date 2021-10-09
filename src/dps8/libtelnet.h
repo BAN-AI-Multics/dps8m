@@ -236,10 +236,7 @@ union telnet_event_t {
         /*!
          * \brief Event type
          *
-         * The type field will determine which of the other event structure fields
-         * have been filled in.  For instance, if the event type is TELNET_EV_ZMP,
-         * then the zmp event field (and ONLY the zmp event field) will be filled
-         * in.
+         * The type field determines which event structure fields have been filled in.
          */
         enum telnet_event_type_t type;
 
@@ -289,15 +286,6 @@ union telnet_event_t {
                 size_t size;                    /*!< number of bytes in buffer */
                 unsigned char telopt;           /*!< option code for negotiation */
         } sub;
-
-        /*!
-         * ZMP event
-         */
-        struct zmp_t {
-                enum telnet_event_type_t _type; /*!< alias for type */
-                const char **argv;              /*!< array of argument string */
-                size_t argc;                    /*!< number of elements in argv */
-        } zmp;
 
         /*!
          * TTYPE event

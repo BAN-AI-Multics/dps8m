@@ -640,48 +640,6 @@ static int _mssp_telnet(telnet_t *telnet, char* buffer, size_t size) {
         return 0;
 }
 
-/* parse ZMP command subnegotiation buffers */
-static int _zmp_telnet(telnet_t *telnet, const char* buffer, size_t size) {
-        telnet_event_t ev;
-        char **argv;
-        const char *c;
-        size_t i, argc;
-
-        /* make sure this is a valid ZMP buffer */
-        if (size == 0 || buffer[size - 1] != 0) {
-                _error(telnet, __LINE__, __func__, TELNET_EPROTOCOL, 0,
-                                "incomplete ZMP frame");
-                return 0;
-        }
-
-        /* count arguments */
-        for (argc = 0, c = buffer; c != buffer + size; ++argc)
-                c += strlen(c) + 1;
-
-        /* allocate argument array, bail on error */
-        if ((argv = (char **)calloc(argc, sizeof(char *))) == 0) {
-                _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                                "calloc() failed: %s", strerror(errno));
-                return 0;
-        }
-
-        /* populate argument array */
-        for (i = 0, c = buffer; i != argc; ++i) {
-                argv[i] = (char *)c;
-                c += strlen(c) + 1;
-        }
-
-        /* invoke event with our arguments */
-        ev.type = TELNET_EV_ZMP;
-        ev.zmp.argv = (const char**)argv;
-        ev.zmp.argc = argc;
-        telnet->eh(telnet, &ev, telnet->ud);
-
-        /* clean up */
-        free(argv);
-        return 0;
-}
-
 /* parse TERMINAL-TYPE command subnegotiation buffers */
 static int _ttype_telnet(telnet_t *telnet, const char* buffer, size_t size) {
         telnet_event_t ev;
@@ -747,8 +705,6 @@ static int _subnegotiate(telnet_t *telnet) {
         switch (telnet->sb_telopt) {
 
         /* specially handled subnegotiation telopt types */
-        case TELNET_TELOPT_ZMP:
-                return _zmp_telnet(telnet, telnet->buffer, telnet->buffer_pos);
         case TELNET_TELOPT_TTYPE:
                 return _ttype_telnet(telnet, telnet->buffer, telnet->buffer_pos);
         case TELNET_TELOPT_ENVIRON:
@@ -1389,54 +1345,4 @@ void telnet_ttype_is(telnet_t *telnet, const char* ttype) {
         _sendu(telnet, IS, sizeof(IS));
         _send(telnet, ttype, strlen(ttype));
         telnet_finish_sb(telnet);
-}
-
-/* send ZMP data */
-void telnet_send_zmp(telnet_t *telnet, size_t argc, const char **argv) {
-        size_t i;
-
-        /* ZMP header */
-        telnet_begin_zmp(telnet, argv[0]);
-
-        /* send out each argument, including trailing NUL byte */
-        for (i = 1; i != argc; ++i)
-                telnet_zmp_arg(telnet, argv[i]);
-
-        /* ZMP footer */
-        telnet_finish_zmp(telnet);
-}
-
-/* send ZMP data using varargs  */
-void telnet_send_vzmpv(telnet_t *telnet, va_list va) {
-        const char* arg;
-
-        /* ZMP header */
-        telnet_begin_sb(telnet, TELNET_TELOPT_ZMP);
-
-        /* send out each argument, including trailing NUL byte */
-        while ((arg = va_arg(va, const char *)) != 0)
-                telnet_zmp_arg(telnet, arg);
-
-        /* ZMP footer */
-        telnet_finish_zmp(telnet);
-}
-
-/* see telnet_send_vzmpv */
-void telnet_send_zmpv(telnet_t *telnet, ...) {
-        va_list va;
-
-        va_start(va, telnet);
-        telnet_send_vzmpv(telnet, va);
-        va_end(va);
-}
-
-/* begin a ZMP command */
-void telnet_begin_zmp(telnet_t *telnet, const char *cmd) {
-        telnet_begin_sb(telnet, TELNET_TELOPT_ZMP);
-        telnet_zmp_arg(telnet, cmd);
-}
-
-/* send a ZMP argument */
-void telnet_zmp_arg(telnet_t *telnet, const char* arg) {
-        telnet_send(telnet, arg, strlen(arg) + 1);
 }
