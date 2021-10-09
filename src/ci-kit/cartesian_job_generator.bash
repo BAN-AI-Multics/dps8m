@@ -10,7 +10,7 @@
 ############################################################################
 # Requires: Modern GNU tools including make, coreutils, bash, awk, sed, etc.
 ############################################################################
-  { test -z "${COMPILER:-}" && export COMPILER="ccache gcc"  ||  exit 1;  };
+{ test -z "${COMPILER:-}" && { export COMPILER="ccache gcc" || exit 1; }; };
 BLDFILE=$(mktemp 2> /dev/null) || \
   { printf '%s\n' "Error: Couldn't create build tempfile." >&2 ; exit 1 ; };
 MAKFILE=$(mktemp 2> /dev/null) || \
