@@ -68,14 +68,39 @@ grep --line-buffered \
 -ve 'auto-input.* x auto on' \
 -ve ' Enter command:.*coordinator, driver, or logout:' \
 -ve '-->  prt.' \
+-ve '--> ut' \
+-ve 'Sun pst$' \
+-ve 'Mon pst$' \
+-ve 'Tue pst$' \
+-ve 'Wed pst$' \
+-ve 'Thu pst$' \
+-ve 'Fri pst$' \
+-ve 'Sat pst$' \
 -ve '--> cord' \
 -ve '--> pun.' \
 -ve 'Some deletions may not be performed.' \
 -ve ' cord ... Coordinator initialized' \
 -ve ' Coordinator Version: .' \
 -ve ' rd.. Card input started.' \
--ve ' RCP: Detached .... from .*\..*' \
--ve ' RCP: Errors .rd.....' \
+-ve 'RCP: Detached .... from .*\..*' \
+-ve 'RCP: Errors .rd.....' \
+-ve 'RCP: Attached tapa_ for Utility' \
+-ve 'RCP: Detached tapa_ from Clayton.SysAdmin' \
+-ve 'as LOGOUT Clayton.SysAdmin.a' \
+-ve 'sending escape' \
+-ve 'MIPS AVE.*NANOSECONDS' \
+-ve 'Summary from.*pst.*to' \
+-ve 'Disk usage for.*pst.*to' \
+-ve 'Syserr log from.*pst.*to' \
+-ve '^\. pst Sun' \
+-ve '^\. pst Mon' \
+-ve '^\. pst Tue' \
+-ve '^\. pst Wed' \
+-ve '^\. pst Thu' \
+-ve '^\. pst Fri' \
+-ve '^\. pst Sat' \
+-ve '\ UTC$' \
+-ve '^d\.h$' \
 -ve ' connect to address.*:.*Connection refused' \
 -ve '^HSLA Port .*' \
 -ve '^Map attached to file .*backup.map' \
