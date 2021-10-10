@@ -40,7 +40,7 @@
 #include "dps8_mt.h"  // attachTape
 #include "dps8_disk.h"  // attachDisk
 #include "dps8_utils.h"
-#if defined(THREADZ) || defined(LOCKLESS)
+#ifdef LOCKLESS
 #include "threadz.h"
 #endif
 
@@ -192,7 +192,7 @@ static DEBTAB opc_dt[] =
 
 // sim_activate counts in instructions, is dependent on the execution
 // model
-#if defined(THREADZ) || defined(LOCKLESS)
+#ifdef LOCKLESS
 // The sim_activate calls are done by the controller thread, which
 // has a 1000Hz cycle rate.
 // 1K ~= 1 sec
@@ -246,7 +246,7 @@ DEVICE opc_dev = {
 };
 
 
-enum console_model { m6001 = 0, m6601 = 1 };
+enum console_model { m6001 = 0, m6004 = 1, m6601 = 2 };
 
 // Hangs off the device structure
 typedef struct opc_state_t
@@ -254,19 +254,17 @@ typedef struct opc_state_t
     char device_name [MAX_DEV_NAME_LEN];
     enum console_model model;
     enum console_mode { opc_no_mode, opc_read_mode, opc_write_mode } io_mode;
-    // SIMH console library has only putc and getc; the SIMH terminal
-    // library has more features including line buffering.
-#define bufsize 81
-    unsigned char buf[bufsize];
+// Multics does console reads with a tally of 64 words; so 256 characters + NUL.
+// If the tally is smalleri then the contents of the buffer, sendConsole will
+// issue a warning and discard the excess.
+#define bufsize 257
+    unsigned char keyboardLineBuffer[bufsize];
+    bool tabStops [bufsize];
     unsigned char *tailp;
     unsigned char *readp;
     unsigned char *auto_input;
     unsigned char *autop;
     bool echo;
-#ifdef ATTN_HACK
-    bool once_per_boot;
-    int attn_hack;
-#endif
 
     // stuff saved from the Read ASCII command
     time_t startTime;
@@ -288,14 +286,32 @@ typedef struct opc_state_t
     char simh_buffer[simh_buffer_sz];
     int simh_buffer_cnt;
 
+    bool bcd;
     uv_access console_access;
 
     // ^T
     //unsigned long keyboard_poll_cnt;
 
+    // Track the carrier position to allow tab expansion
+    // (If the left margin is 1, then the tab stops are 11, 21, 31, 41, ...)
+    int carrierPosition;
+
+    // Handle escape sequence
+    bool escapeSequence;
+
  } opc_state_t;
 
 static opc_state_t console_state[N_OPC_UNITS_MAX];
+
+static char * bcd_code_page =
+  "01234567"
+  "89[#@;>?"
+  " ABCDEFG"
+  "HI&.](<\\"
+  "^JKLMNOP"
+  "QR-$*);'"
+  "+/STUVWX"
+  "YZ_,%=\"!";
 
 //
 // Typeahead buffer
@@ -353,15 +369,14 @@ static t_stat opc_reset (UNUSED DEVICE * dptr)
     for (uint i = 0; i < N_OPC_UNITS_MAX; i ++)
       {
         console_state[i].io_mode = opc_no_mode;
-        console_state[i].tailp = console_state[i].buf;
-        console_state[i].readp = console_state[i].buf;
-#ifdef ATTN_HACK
-        console_state[i].once_per_boot = false;
-#endif
+        console_state[i].tailp = console_state[i].keyboardLineBuffer;
+        console_state[i].readp = console_state[i].keyboardLineBuffer;
+        console_state[i].carrierPosition = 1;
+        memset (console_state[i].tabStops, 0, sizeof (console_state[i].tabStops));
+        console_state[i].escapeSequence = false;
       }
     return SCPE_OK;
   }
-
 
 int check_attn_key (void)
   {
@@ -388,9 +403,6 @@ void console_init (void)
         csp->model = m6001;
         csp->auto_input = NULL;
         csp->autop = NULL;
-#ifdef ATTN_HACK
-        csp->attn_hack = 0;
-#endif
         csp->attn_pressed = false;
         csp->simh_attn_pressed = false;
         csp->simh_buffer_cnt = 0;
@@ -399,8 +411,10 @@ void console_init (void)
         csp->autoaccept = 0;
         csp->noempty = 0;
         csp->attn_flush = 1;
+        csp->carrierPosition = 1;
+        csp->escapeSequence = 1;
+        memset (csp->tabStops, 0, sizeof (csp->tabStops));
       }
-
   }
 
 static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
@@ -424,16 +438,12 @@ static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
           }
         else
           csp->auto_input = new;
-        sim_debug (DBG_NOTIFY, & opc_dev,
-                   "%s: Auto-input now: %s\n", __func__, cptr);
       }
     else
       {
         if (csp->auto_input)
           free (csp->auto_input);
         csp->auto_input = NULL;
-        sim_debug (DBG_NOTIFY, & opc_dev,
-                   "%s: Auto-input disabled.\n", __func__);
       }
     csp->autop = csp->auto_input;
     return SCPE_OK;
@@ -445,7 +455,6 @@ int clear_opc_autoinput (int32 flag, UNUSED const char * cptr)
     if (csp->auto_input)
       free (csp->auto_input);
     csp->auto_input = NULL;
-    sim_debug (DBG_NOTIFY, & opc_dev, "%s: Auto-input disabled.\n", __func__);
     csp->autop = csp->auto_input;
     return SCPE_OK;
   }
@@ -466,8 +475,6 @@ int add_opc_autoinput (int32 flag, const char * cptr)
       }
     else
       csp->auto_input = new;
-    sim_debug (DBG_NOTIFY, & opc_dev,
-               "%s: Auto-input now: %s\n", __func__, cptr);
     csp->autop = csp->auto_input;
     return SCPE_OK;
   }
@@ -477,9 +484,6 @@ static int opc_autoinput_show (UNUSED FILE * st, UNIT * uptr,
   {
     int conUnitIdx = (int) OPC_UNIT_IDX (uptr);
     opc_state_t * csp = console_state + conUnitIdx;
-    sim_debug (DBG_NOTIFY, & opc_dev,
-               "%s: FILE=%p, uptr=%p, val=%d,desc=%p\n",
-               __func__, (void *) st, (void *) uptr, val, desc);
     if (csp->auto_input)
       sim_print ("Autoinput: '%s'\n", csp->auto_input);
     else
@@ -604,70 +608,9 @@ static void handleRCP (uint con_unit_idx, char * text)
             return;
           }
       }
-
-// Just because RCP has detached the drive, it doesn't mean that
-// it doesn't remeber what tape is on there, and expects to be there
-
-#if 0
-// 1236.8  RCP: Force Detached tapa_01 from Anthony.SysEng.a
-
-    rc = sscanf (text, "%*d.%*d RCP: Force Detached %s",
-                drive);
-    if (rc == 1)
-      {
-        detachTape (drive);
-        return;
-      }
-
-
-    rc = sscanf (text, "%*d.%*d RCP: Detached %s",
-                drive);
-    if (rc == 1)
-      {
-        detachTape (drive);
-        return;
-      }
-#endif
-
-#if 0
-    rc = sscanf (text, "%*d.%*d RCP: Mount logical volume %s for %s",
-                label, whom);
-    if (rc == 2)
-      {
-        char labelDotDsk[strlen (label) + 4];
-        strcpy (labelDotDsk, label);
-        strcat (labelDotDsk, ".dsk");
-        attachDisk (labelDotDsk);
-      }
-#endif
   }
 
-#ifdef OSCAR
-static void oscar (char * text)
-  {
-    char prefix[] = "log oscar ";
-    if (strncmp (text, prefix, strlen (prefix)))
-      return;
-    //do_cmd (0, text + strlen (prefix));
-    char * cptr = text + strlen (prefix);
-    char gbuf[257];
-    cptr = (char *) get_glyph (cptr, gbuf, 0);         /* get command glyph */
-    if (strlen (gbuf) == 0)
-      return;
-    CTAB *cmdp;
-    if ((cmdp = find_cmd (gbuf)))                       /* lookup command */
-      {
-        t_stat stat = cmdp->action (cmdp->arg, cptr);  /* if found, exec */
-        if (stat == SCPE_OK)
-          sim_msg ("oscar thinks that's ok.\n");
-        else
-          sim_warn ("oscar thinks %d\n", stat);
-      }
-    else
-      sim_msg ("oscar says huh?\n");
-  }
-#endif
-
+// Send entered text to the IOM.
 static void sendConsole (int conUnitIdx, word12 stati)
   {
     opc_state_t * csp = console_state + conUnitIdx;
@@ -680,34 +623,25 @@ static void sendConsole (int conUnitIdx, word12 stati)
     //ASSURE (csp->io_mode == opc_read_mode);
     if (csp->io_mode != opc_read_mode)
       {
-        sim_warn ("sendConsole() called with io_mode != opc_read_mode (%d)\n",
-                  csp->io_mode);
+        sim_warn ("%s called with io_mode != opc_read_mode (%d)\n",
+                  __func__, csp->io_mode);
         return;
       }
 
-    // XXX this should be iom_indirect_data_service
-
-#ifdef OSCAR
-    char text[257];
-    int ntext;
-    for (ntext = 0; ntext < 256; ntext ++)
-      {
-        if (csp->readp + ntext >= csp->tailp)
-          break;
-        text[ntext] = (char) (* (csp->readp + ntext));
-      }
-    text[ntext] = 0;
-    oscar (text);
-#endif
     uint n_chars = (uint) (csp->tailp - csp->readp);
-    uint n_words = (n_chars + 3) / 4;
+    uint n_words;
+    if (csp->bcd)
+        // + 2 for the !1 newline
+        n_words = ((n_chars+2) + 5) / 6;
+      else
+        n_words = (n_chars + 3) / 4;
     // The "+1" is for them empty line case below
     word36 buf[n_words + 1];
     word36 * bufp = buf;
 
     // Multics doesn't seem to like empty lines; it the line buffer
     // is empty and there is room in the I/O buffer, send a line kill.
-    if (csp->noempty && n_chars == 0 && tally)
+    if ((!csp->bcd) && csp->noempty && n_chars == 0 && tally)
       {
         n_chars = 1;
         n_words = 1;
@@ -716,35 +650,75 @@ static void sendConsole (int conUnitIdx, word12 stati)
       }
     else
       {
+        int bcd_nl_state = 0;
         while (tally && csp->readp < csp->tailp)
           {
-            * bufp = 0ul;
-            for (uint charno = 0; charno < 4; ++ charno)
+            if (csp->bcd)
               {
-                if (csp->readp >= csp->tailp)
-                  break;
-                unsigned char c = (unsigned char) (* csp->readp ++);
-                putbits36_9 (bufp, charno * 9, c);
+                //* bufp = 0171717171717ul;
+                //* bufp = 0202020202020ul;
+                * bufp = 0;
+                for (uint charno = 0; charno < 4; ++ charno)
+                  {
+                    unsigned char c;
+                    if (csp->readp >= csp->tailp)
+                      {
+                        if (bcd_nl_state == 0)
+                          {
+                            c = '!';
+                            bcd_nl_state = 1;
+                          }
+                        else if (bcd_nl_state == 1)
+                          {
+                            c = '1';
+                            bcd_nl_state = 2;
+                          }
+                        else
+                          break;
+                      }
+                    else
+                      c = (unsigned char) (* csp->readp ++);
+                    c = toupper (c);
+                    int i;
+                    for (i = 0; i < 64; i ++)
+                      if (bcd_code_page[i] == c)
+                        break;
+                    if (i >= 64)
+                      {
+                        sim_warn ("Character %o does not map to BCD; replacing with '?'\n", c);
+                        i = 017;
+                      }
+                    putbits36_6 (bufp, charno * 6, i);
+                  }
+              }
+            else
+              {
+                * bufp = 0ul;
+                for (uint charno = 0; charno < 4; ++ charno)
+                  {
+                    if (csp->readp >= csp->tailp)
+                      break;
+                    unsigned char c = (unsigned char) (* csp->readp ++);
+                    putbits36_9 (bufp, charno * 9, c);
+                  }
               }
             bufp ++;
             tally --;
           }
         if (csp->readp < csp->tailp)
           {
-            sim_debug (DBG_WARN, & opc_dev,
-                       "opc_iom_io: discarding %d characters from end of line\n",
-                        (int) (csp->tailp - csp->readp));
+            sim_warn ("opc_iom_io: discarding %d characters from end of line\n",
+                      (int) (csp->tailp - csp->readp));
           }
       }
 
     iom_indirect_data_service (iomUnitIdx, chan_num, buf, & n_words, true);
-    p->initiate = false;
 
     p->charPos = n_chars % 4;
     p->stati = (word12) stati;
 
-    csp->readp = csp->buf;
-    csp->tailp = csp->buf;
+    csp->readp = csp->keyboardLineBuffer;
+    csp->tailp = csp->keyboardLineBuffer;
     csp->io_mode = opc_no_mode;
 
     send_terminate_interrupt (iomUnitIdx, chan_num);
@@ -754,464 +728,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
 static void console_putchar (int conUnitIdx, char ch);
 static void console_putstr (int conUnitIdx, char * str);
 
-static int opc_cmd (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-    uint con_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    UNIT * unitp = & opc_unit[con_unit_idx];
-    opc_state_t * csp = console_state + con_unit_idx;
-
-    // The 6001 only executes the PCW DCW command; the 6601 executes
-    // the the PCW DCW and (at least) the first DCW list item.
-    // When Multics uses the 6601, the PCW DCW is always 040 RESET.
-    // The 040 RESET will trigger the DCW list read.
-    // will change this.
-
-    // ASSURE(p -> DCW_18_20_CP == 07); // IDCW
-    if (p->DCW_18_20_CP != 07) // IDCW
-      {
-        sim_warn ("opc_cmd not IDCW (%o)\n", p->DCW_18_20_CP);
-        return IOM_CMD_ERROR;
-      }
-
-// POLTS issues PTP commands.
-#if 0
-    if (p->PCW_63_PTP)
-      {
-        sim_warn ("PTP in console\n");
-        return IOM_CMD_ERROR;
-      }
-#endif
-
-    p->dev_code = p->IDCW_DEV_CODE;
-    p->stati = 0;
-
-    //int conUnitIdx = (int) d->devUnitIdx;
-
-    switch (p->IDCW_DEV_CMD)
-      {
-        case 0: // CMD 00 Request status
-          {
-            sim_debug (DBG_NOTIFY, & opc_dev,
-                       "%s: Status request cmd received",
-                       __func__);
-            p->stati = 04000;
-          }
-          break;
-
-        case 023:               // Read ASCII
-        case 043:               // Read ASCII unechoed
-          {
-            sim_debug (DBG_NOTIFY, & opc_dev,
-                       "%s: Read ASCII command received\n", __func__);
-            if (csp->tailp != csp->buf)
-              {
-                sim_debug (DBG_WARN, & opc_dev,
-                           "%s: Discarding previously buffered input.\n",
-                           __func__);
-              }
-
-            // Get the DDCW
-
-            bool ptro, send, uff;
-
-            // We only expect one DCW, so no loop
-            int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
-            if (rc < 0)
-              {
-                sim_warn ("console read list service failed\n");
-                p->stati = 05001; // BUG: arbitrary error code; config switch
-                p->chanStatus = chanStatIncomplete;
-                return IOM_CMD_ERROR;
-              }
-            if (uff)
-              {
-                sim_warn ("console read ignoring uff\n"); // XXX
-              }
-            if (! send)
-              {
-                sim_warn ("console read nothing to send\n");
-                p->stati = 05001; // BUG: arbitrary error code; config switch
-                p->chanStatus = chanStatIncomplete;
-                return  IOM_CMD_ERROR;
-              }
-            if (p->DCW_18_20_CP == 07 || p->DDCW_22_23_TYPE == 2)
-              {
-                sim_warn ("console read expected DDCW\n");
-                p->stati = 05001; // BUG: arbitrary error code; config switch
-                p->chanStatus = chanStatIncorrectDCW;
-                return IOM_CMD_ERROR;
-              }
-
-            if (rc)
-              {
-                sim_warn ("list service failed\n");
-                p->stati = 05001; // BUG: arbitrary error code; config switch
-                p->chanStatus = chanStatIncomplete;
-                return IOM_CMD_ERROR;
-              }
-
-            if (p->DDCW_22_23_TYPE != 0 &&
-                p->DDCW_22_23_TYPE != 1) //IOTD, IOTP
-              {
-sim_warn ("uncomfortable with this\n");
-                p->stati = 05001; // BUG: arbitrary error code; config switch
-                p->chanStatus = chanStatIncorrectDCW;
-                return IOM_CMD_ERROR;
-              }
-
-            uint tally = p->DDCW_TALLY;
-            uint daddr = p->DDCW_ADDR;
-
-            if (tally == 0)
-              {
-                sim_debug (DBG_DEBUG, & iom_dev,
-                           "%s: Tally of zero interpreted as 010000(4096)\n",
-                           __func__);
-                tally = 4096;
-              }
-
-            csp->echo = p->IDCW_DEV_CMD == 023;
-            csp->tailp = csp->buf;
-            csp->readp = csp->buf;
-            csp->io_mode = opc_read_mode;
-            csp->startTime = time (NULL);
-            csp->tally = tally;
-            csp->daddr = daddr;
-            csp->unitp = unitp;
-            csp->chan = (int) chan;
-
-            // If Multics has gone seriously awry (eg crash
-            // to BCE during boot), the autoinput will become
-            // wedged waiting for the expect string 'Ready'.
-            // We just went to read mode; if we are waiting
-            // on an expect string, it is never coming because
-            // console access is blocked by the expect code.
-            // Throw out the script if this happens....
-
-            // If there is autoinput and it is at ^X or ^Y
-            if (csp->autop && (*csp->autop == 030 || *csp->autop == 031)) // ^X ^Y
-              {
-                // We are wedged.
-                // Clear the autoinput buffer; this will cancel the
-                // expect wait and any remaining script, returning
-                // control of the console to the user.
-                // Assuming opc0.
-                clear_opc_autoinput (con_unit_idx, NULL);
-                ta_flush ();
-                sim_printf ("\r\nScript wedged and abandoned; autoinput and typeahead buffers flushed\r\n");
-              }
-          }
-          return IOM_CMD_PENDING; // command in progress; do not send terminate interrupt
-
-
-        case 033:               // Write ASCII
-          {
-            p->isRead = false;
-            csp->io_mode = opc_write_mode;
-
-            sim_debug (DBG_NOTIFY, & opc_dev,
-                       "%s: Write ASCII cmd received\n", __func__);
-            if (csp->tailp != csp->buf)
-              {
-                sim_debug (DBG_WARN, & opc_dev,
-                           "opc_iom_cmd: Might be discarding previously "
-                           "buffered input.\n");
-              }
-
-            // Get the DDCWs
-
-            bool ptro;
-            bool send;
-            bool uff;
-            do
-              {
-                int rc = iom_list_service (iomUnitIdx, chan, & ptro, & send,
-                                         & uff);
-                if (rc < 0)
-                  {
-                    sim_warn ("console write list service failed\n");
-                    p->stati = 05001; // BUG: arbitrary error code;
-                                        //config switch
-                    p->chanStatus = chanStatIncomplete;
-                    return IOM_CMD_ERROR;
-                  }
-                if (uff)
-                  {
-                    sim_warn ("console write ignoring uff\n"); // XXX
-                  }
-                if (! send)
-                  {
-                    sim_warn ("console write nothing to send\n");
-                    p->stati = 05001; // BUG: arbitrary error code;
-                                        //config switch
-                    p->chanStatus = chanStatIncomplete;
-                    return  IOM_CMD_ERROR;
-                  }
-                if (p->DCW_18_20_CP == 07 || p->DDCW_22_23_TYPE == 2)
-                  {
-                    sim_warn ("console write expected DDCW\n");
-                    p->stati = 05001; // BUG: arbitrary error code;
-                                        //config switch
-                    p->chanStatus = chanStatIncorrectDCW;
-                    return IOM_CMD_ERROR;
-                  }
-
-                if (rc)
-                  {
-                    sim_warn ("list service failed\n");
-                    p->stati = 05001; // BUG: arbitrary error code;
-                                        // config switch
-                    p->chanStatus = chanStatIncomplete;
-                    return IOM_CMD_ERROR;
-                  }
-
-                uint tally = p->DDCW_TALLY;
-#ifdef ATTN_HACK
-                uint daddr = p->DDCW_ADDR;
-#endif
-
-// We would hope that number of valid characters in the last word
-// would be in DCW_18_20_CP, but it seems to reliably be zero.
-
-                if (p->DDCW_22_23_TYPE != 0 &&
-                    p->DDCW_22_23_TYPE != 1) //IOTD, IOTP
-                  {
-sim_warn ("uncomfortable with this\n");
-                    // BUG: arbitrary error code; config switch
-                    p->stati = 05001;
-                    p->chanStatus = chanStatIncorrectDCW;
-                    return IOM_CMD_ERROR;
-                  }
-
-                if (tally == 0)
-                  {
-                    sim_debug (DBG_DEBUG, & iom_dev,
-                               "%s: Tally of zero interpreted as "
-                               "010000(4096)\n",
-                               __func__);
-                    tally = 4096;
-                  }
-
-#ifdef ATTN_HACK
-                word36 w0, w1, w2;
-                iom_core_read (iomUnitIdx, daddr + 0, & w0, __func__);
-                iom_core_read (iomUnitIdx, daddr + 1, & w1, __func__);
-                iom_core_read (iomUnitIdx, daddr + 2, & w2, __func__);
-
-                // When the console prints out "Command:", press the Attention
-                // key one second later
-                if (csp->attn_hack &&
-                    tally == 3 &&
-                    w0 == 0103157155155llu &&
-                    w1 == 0141156144072llu &&
-                    w2 == 0040177177177llu)
-                  {
-                    if (! csp->once_per_boot)
-                      {
-#if defined(THREADZ) || defined(LOCKLESS)
-                        // 1K ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 1000);
-#else
-                        // 4M ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 4000000);
-#endif
-                        csp->once_per_boot = true;
-                      }
-                  }
-
-                // When the console prints out "Ready", press the Attention
-                // key one second later
-                if (csp->attn_hack &&
-                    tally == 2 &&
-                    w0 == 0122145141144llu &&
-                    w1 == 0171015012177llu)
-                  {
-                    if (! csp->once_per_boot)
-                      {
-#if defined(THREADZ) || defined(LOCKLESS)
-                        // 1K ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 1000);
-#else
-                        // 4M ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 4000000);
-#endif
-                        csp->once_per_boot = true;
-                      }
-                  }
-#endif // ATTN_HACK
-
-                word36 buf[tally];
-                iom_indirect_data_service (iomUnitIdx, chan, buf, & tally, false);
-                p->initiate = false;
-
-                // Tally is in words, not chars.
-                char text[tally * 4 + 1];
-                char * textp = text;
-                word36 * bufp = buf;
-                * textp = 0;
-#ifndef __MINGW64__
-#ifndef __MINGW32__
-                newlineOff ();
-#endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
-#ifdef COLOR
-                sim_print (""); // force text color reset
-#endif
-                while (tally)
-                  {
-                    word36 datum = * bufp ++;
-                    tally --;
-
-                    for (int i = 0; i < 4; i ++)
-                      {
-                        word36 wide_char = datum >> 27; // slide leftmost char
-                                                        //  into low byte
-                        datum = datum << 9; // lose the leftmost char
-                        char ch = wide_char & 0x7f;
-                        if (ch != 0177 && ch != 0)
-                          {
-                            console_putchar ((int) con_unit_idx, ch);
-                            * textp ++ = ch;
-                          }
-                      }
-                  }
-                * textp ++ = 0;
-
-                // autoinput expect
-                if (csp->autop && * csp->autop == 030)
-                  {
-                    //   ^xstring\0
-                    //size_t expl = strlen ((char *) (csp->autop + 1));
-                    //   ^xstring^x
-                    size_t expl = strcspn ((char *) (csp->autop + 1), "\030");
-
-                    if (strncmp (text, (char *) (csp->autop + 1), expl) == 0)
-                      {
-                        csp->autop += expl + 2;
-#if defined(THREADZ) || defined(LOCKLESS)
-                        // 1K ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 1000);
-#else
-                        // 4M ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 4000000);
-#endif
-                      }
-                  }
-                // autoinput expect
-                if (csp->autop && * csp->autop == 031)
-                  {
-                    //   ^ystring\0
-                    //size_t expl = strlen ((char *) (csp->autop + 1));
-                    //   ^ystring^y
-                    size_t expl = strcspn ((char *) (csp->autop + 1), "\031");
-
-                    char needle [expl + 1];
-                    strncpy (needle, (char *) csp->autop + 1, expl);
-                    needle [expl] = 0;
-                    if (strstr (text, needle))
-                      {
-                        csp->autop += expl + 2;
-#if defined(THREADZ) || defined(LOCKLESS)
-                        // 1K ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 1000);
-#else
-                        // 4M ~= 1 sec
-                        sim_activate (& attn_unit[con_unit_idx], 4000000);
-#endif
-                      }
-                  }
-                handleRCP (con_unit_idx, text);
-#ifndef __MINGW64__
-#ifndef __MINGW32__
-                newlineOn ();
-#endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
-                p->stati = 04000;
-
-               if (p->DDCW_22_23_TYPE != 0)
-                 sim_warn ("curious... a console write with more than one "
-                             "DDCW?\n");
-
-             }
-            while (p->DDCW_22_23_TYPE != 0); // while not IOTD
-          }
-          break;
-
-// Model 6001 vs. 6601.
-//
-// When Multics switches to 6601 mode, the PCW DCW is always 040 RESET; the
-// bootload and 6001 code never does that. Therefore, we use the 040
-// as an indication that the DCW list should be processed.
-// All of the other device commands will return IOM_CMD_NO_DCW, stopping
-// parsing of the channel command program. This one will return IOM_CMD_OK,
-// causing the parser to move to the DCW list.
-
-        case 040:               // Reset
-          {
-            sim_debug (DBG_NOTIFY, & opc_dev,
-                       "%s: Reset cmd received\n", __func__);
-            csp->io_mode = opc_no_mode;
-            p->stati = 04000;
-          }
-          // Read the DCW list.
-          return IOM_CMD_OK;
-
-        case 051:               // Write Alert -- Ring Bell
-          {
-            p->isRead = false;
-            console_putstr ((int) con_unit_idx,  "CONSOLE: ALERT\r\n");
-            sim_debug (DBG_NOTIFY, & opc_dev,
-                       "%s: Write Alert cmd received\n", __func__);
-            console_putchar ((int) con_unit_idx, '\a');
-            p->stati = 04000;
-          }
-          break;
-
-        case 057:               // Read ID (according to AN70-1)
-          {
-            // FIXME: No support for Read ID; appropriate values are not known
-            //[CAC] Looking at the bootload console code, it seems more
-            // concerned about the device responding, rather then the actual
-            // returned value. Make some thing up.
-            sim_debug (DBG_NOTIFY, & opc_dev,
-                       "%s: Read ID received\n", __func__);
-            p->stati = 04500;
-          }
-          break;
-
-        case 060:               // LOCK MCA
-          {
-            console_putstr ((int) con_unit_idx,  "CONSOLE: LOCK\r\n");
-            sim_debug (DBG_NOTIFY, & opc_dev,
-                       "%s: Lock  cmd received\n", __func__);
-            p->stati = 04000;
-          }
-          break;
-
-        case 063:               // UNLOCK MCA
-          {
-            console_putstr ((int) con_unit_idx,  "CONSOLE: UNLOCK\r\n");
-            sim_debug (DBG_NOTIFY, & opc_dev,
-                       "%s: Unlock  cmd received\n", __func__);
-            p->stati = 04000;
-          }
-          break;
-
-        default:
-          {
-            p->stati = 04501; // command reject, invalid instruction code
-            p->chanStatus = chanStatIncorrectDCW;
-            sim_debug (DBG_ERR, & opc_dev, "%s: Unknown command 0%o\n",
-                       __func__, p->IDCW_DEV_CMD);
-          }
-          return IOM_CMD_ERROR;
-      }
-    // If we get here, Multics is either in bootload, or is configured for
-    // 6001; so don't read the DCW list.
-    return IOM_CMD_NO_DCW;
-  }
-
+// Process characters entered on keyboard or autoinput
 static void consoleProcessIdx (int conUnitIdx)
   {
     opc_state_t * csp = console_state + conUnitIdx;
@@ -1325,6 +842,7 @@ static void consoleProcessIdx (int conUnitIdx)
           {
             char buf[256];
             char cms[3] = "?RW";
+            // XXX Assumes console 0
             sprintf (buf, "^T attn %c %c cnt %d next %d\r\n",
                      console_state[0].attn_pressed+'0',
                      cms[console_state[0].io_mode],
@@ -1450,16 +968,11 @@ static void consoleProcessIdx (int conUnitIdx)
         csp->autop != NULL)
       {
         int announce = 1;
-#ifdef COLOR
-        sim_print (""); // force text color reset
-#endif
         for (;;)
           {
-            if (csp->tailp >= csp->buf + sizeof (csp->buf))
+            if (csp->tailp >= csp->keyboardLineBuffer + sizeof (csp->keyboardLineBuffer))
              {
-                sim_debug (DBG_WARN, & opc_dev,
-                           "getConsoleInput: Buffer full; flushing "
-                           "autoinput.\n");
+                sim_warn ("getConsoleInput: Buffer full; flushing autoinput.\n");
                 sendConsole (conUnitIdx, 04000); // Normal status
                 return;
               }
@@ -1470,8 +983,8 @@ static void consoleProcessIdx (int conUnitIdx)
                 csp->auto_input = NULL;
                 csp->autop = NULL;
                 // Empty input buffer
-                csp->readp = csp->buf;
-                csp->tailp = csp->buf;
+                csp->readp = csp->keyboardLineBuffer;
+                csp->tailp = csp->keyboardLineBuffer;
                 sendConsole (conUnitIdx, 04310); // Null line, status operator
                                                  // distracted
                 console_putstr (conUnitIdx,  "CONSOLE: RELEASED\r\n");
@@ -1488,8 +1001,6 @@ static void consoleProcessIdx (int conUnitIdx)
                 free (csp->auto_input);
                 csp->auto_input = NULL;
                 csp->autop = NULL;
-                sim_debug (DBG_NOTIFY, & opc_dev,
-                           "getConsoleInput: Got auto-input EOS\n");
                 goto eol;
               }
             if (announce)
@@ -1499,20 +1010,11 @@ static void consoleProcessIdx (int conUnitIdx)
               }
             csp->autop ++;
 
-            if (isprint ((char) c))
-              sim_debug (DBG_NOTIFY, & opc_dev,
-                         "getConsoleInput: Used auto-input char '%c'\n", c);
-            else
-              sim_debug (DBG_NOTIFY, & opc_dev,
-                         "getConsoleInput: Used auto-input char '\\%03o'\n", c);
-
             if (c == '\012' || c == '\015')
               {
 eol:
                 if (csp->echo)
                   console_putstr (conUnitIdx,  "\r\n");
-                sim_debug (DBG_NOTIFY, & opc_dev,
-                           "getConsoleInput: Got EOL\n");
                 sendConsole (conUnitIdx, 04000); // Normal status
                 return;
               }
@@ -1530,13 +1032,13 @@ eol:
 ////   Check for timeout
 
     if (csp->io_mode == opc_read_mode &&
-        csp->tailp == csp->buf)
+        csp->tailp == csp->keyboardLineBuffer)
       {
         if (csp->startTime + 30 < time (NULL))
           {
             console_putstr (conUnitIdx,  "CONSOLE: TIMEOUT\r\n");
-            csp->readp = csp->buf;
-            csp->tailp = csp->buf;
+            csp->readp = csp->keyboardLineBuffer;
+            csp->tailp = csp->keyboardLineBuffer;
             sendConsole (conUnitIdx, 04310); // Null line, status operator
                                              // distracted
           }
@@ -1576,7 +1078,7 @@ eol:
     if (ch == '\177' || ch == '\010')  // backspace/del
       {
         ta_get ();
-        if (csp->tailp > csp->buf)
+        if (csp->tailp > csp->keyboardLineBuffer)
           {
             * csp->tailp = 0;
             -- csp->tailp;
@@ -1592,7 +1094,7 @@ eol:
         if (csp->echo)
           {
             console_putstr (conUnitIdx,  "^R\r\n");
-            for (unsigned char * p = csp->buf; p < csp->tailp; p ++)
+            for (unsigned char * p = csp->keyboardLineBuffer; p < csp->tailp; p ++)
               console_putchar (conUnitIdx, (char) (*p));
             return;
           }
@@ -1602,7 +1104,7 @@ eol:
       {
         ta_get ();
         console_putstr (conUnitIdx,  "^U\r\n");
-        csp->tailp = csp->buf;
+        csp->tailp = csp->keyboardLineBuffer;
         return;
       }
 
@@ -1610,7 +1112,7 @@ eol:
       {
         ta_get ();
         console_putstr (conUnitIdx,  "^X\r\n");
-        csp->tailp = csp->buf;
+        csp->tailp = csp->keyboardLineBuffer;
         return;
       }
 
@@ -1628,8 +1130,8 @@ eol:
         ta_get ();
         console_putstr (conUnitIdx,  "\r\n");
         // Empty input buffer
-        csp->readp = csp->buf;
-        csp->tailp = csp->buf;
+        csp->readp = csp->keyboardLineBuffer;
+        csp->tailp = csp->keyboardLineBuffer;
         sendConsole (conUnitIdx, 04310); // Null line, status operator
                                          // distracted
         console_putstr (conUnitIdx,  "CONSOLE: RELEASED\n");
@@ -1640,12 +1142,9 @@ eol:
       {
         // silently drop buffer overrun
         ta_get ();
-        if (csp->tailp >= csp->buf + sizeof (csp->buf))
+        if (csp->tailp >= csp->keyboardLineBuffer + sizeof (csp->keyboardLineBuffer))
           return;
 
-#ifdef COLOR
-        sim_print (""); // force text color reset
-#endif
         * csp->tailp ++ = (unsigned char) ch;
         if (csp->echo)
           console_putchar (conUnitIdx, (char) ch);
@@ -1669,29 +1168,373 @@ void consoleProcess (void)
  * or IDCW.
  */
 
-// The console is a CPI device; only the PCW command is executed.
+iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
+  iom_cmd_rc_t rc = IOM_CMD_PROCEED;
 
-int opc_iom_cmd (uint iomUnitIdx, uint chan)
-
-  {
-    // Execute the command in the PCW.
-
-    // uint chanloc = mbx_loc (iomUnitIdx, pcwp->chan);
-
-#if defined(THREADZ) || defined(LOCKLESS)
-    lock_libuv ();
+#ifdef LOCKLESS
+  lock_libuv ();
 #endif
 
-    int rc = opc_cmd (iomUnitIdx, chan);
+  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+  uint con_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+  UNIT * unitp = & opc_unit[con_unit_idx];
+  opc_state_t * csp = console_state + con_unit_idx;
 
-#if defined(THREADZ) || defined(LOCKLESS)
-    unlock_libuv ();
-#endif
-    //if (rc == IOM_CMD_PENDING)
-      //return rc;
-    //return IOM_CMD_NO_DCW;
-    return rc;
+  p->dev_code = p->IDCW_DEV_CODE;
+  p->stati = 0;
+  //int conUnitIdx = (int) d->devUnitIdx;
+
+  // The 6001 only executes the PCW DCW command; the 6601 executes
+  // the the PCW DCW and (at least) the first DCW list item.
+  // When Multics uses the 6601, the PCW DCW is always 040 RESET.
+  // The 040 RESET will trigger the DCW list read.
+  // will change this.
+
+  // IDCW?
+  if (IS_IDCW (p)) {
+    // IDCW
+
+    switch (p->IDCW_DEV_CMD) {
+      case 000: // CMD 00 Request status
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Status request\n", __func__);
+        csp->io_mode = opc_no_mode;
+        p->stati = 04000;
+        break;
+
+      case 003:               // Read BCD
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read BCD echoed\n", __func__);
+        csp->io_mode = opc_read_mode;
+        p->recordResidue --;
+        csp->echo = true;
+        csp->bcd = true;
+        p->stati = 04000;
+        break;
+
+      case 013:               // Write BCD
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Write BCD\n", __func__);
+        p->isRead = false;
+        csp->bcd = true;
+        csp->io_mode = opc_write_mode;
+        p->recordResidue --;
+        p->stati = 04000;
+        break;
+
+      case 023:               // Read ASCII
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII echoed\n", __func__);
+        csp->io_mode = opc_read_mode;
+        p->recordResidue --;
+        csp->echo = true;
+        csp->bcd = false;
+        p->stati = 04000;
+        break;
+
+      case 033:               // Write ASCII
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Write ASCII\n", __func__);
+        p->isRead = false;
+        csp->bcd = false;
+        csp->io_mode = opc_write_mode;
+        p->recordResidue --;
+        p->stati = 04000;
+        break;
+
+
+// Model 6001 vs. 6601.
+//
+// When Multics switches to 6601 mode, the PCW DCW is always 040 RESET; the
+// bootload and 6001 code never does that. Therefore, we use the 040
+// as an indication that the DCW list should be processed.
+// All of the other device commands will return IOM_CMD_DISCONNECT, stopping
+// parsing of the channel command program. This one will return IOM_CMD_PROCEED,
+// causing the parser to move to the DCW list.
+
+      case 040:               // Reset
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Reset\n", __func__);
+        p->stati = 04000;
+        // T&D probing
+        //if (p->IDCW_DEV_CODE == 077) {
+          // T&D uses dev code 77 to test for the console device;
+          // it ignores dev code, and so returns OK here.
+          //p->stati = 04502; // invalid device code
+          // if (p->IDCW_CHAN_CTRL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return IOM_CMD_DISCONNECT; }
+        //}
+        break;
+
+      case 043:               // Read ASCII unechoed
+        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII unechoed\n", __func__);
+        csp->io_mode = opc_read_mode;
+        p->recordResidue --;
+        csp->echo = false;
+        csp->bcd = false;
+        p->stati = 04000;
+        break;
+
+      case 051:               // Write Alert -- Ring Bell
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Alert\n", __func__);
+        p->isRead = false;
+        console_putstr ((int) con_unit_idx,  "CONSOLE: ALERT\r\n");
+        console_putchar ((int) con_unit_idx, '\a');
+        p->stati = 04000;
+        if (csp->model == m6001 && p->isPCW) {
+          rc = IOM_CMD_DISCONNECT;
+          goto done;
+        }
+        break;
+
+      case 057:               // Read ID (according to AN70-1)
+        // FIXME: No support for Read ID; appropriate values are not known
+        //[CAC] Looking at the bootload console code, it seems more
+        // concerned about the device responding, rather then the actual
+        // returned value. Make some thing up.
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Read ID\n", __func__);
+        p->stati = 04500;
+        if (csp->model == m6001 && p->isPCW) {
+          rc = IOM_CMD_DISCONNECT;
+          goto done;
+        }
+        break;
+
+      case 060:               // LOCK MCA
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Lock\n", __func__);
+        console_putstr ((int) con_unit_idx,  "CONSOLE: LOCK\r\n");
+        p->stati = 04000;
+        break;
+
+      case 063:               // UNLOCK MCA
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Unlock\n", __func__);
+        console_putstr ((int) con_unit_idx,  "CONSOLE: UNLOCK\r\n");
+        p->stati = 04000;
+        break;
+
+      default:
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
+        p->stati = 04501; // command reject, invalid instruction code
+        rc = IOM_CMD_ERROR;
+        goto done;
+    } // switch IDCW_DEV_CMD
+    goto done;
+  } // IDCW
+
+  // Not IDCW; TDCW are captured in IOM, so must be IOTD or IOTP
+  switch (csp->io_mode) {
+    case opc_no_mode:
+      sim_warn ("%s: Unexpected IOTx\n", __func__);
+      rc = IOM_CMD_ERROR;
+      goto done;
+
+    case opc_read_mode: {
+        if (csp->tailp != csp->keyboardLineBuffer) {
+          sim_warn ("%s: Discarding previously buffered input.\n", __func__);
+        }
+        uint tally = p->DDCW_TALLY;
+        uint daddr = p->DDCW_ADDR;
+
+        if (tally == 0) {
+          tally = 4096;
+        }
+
+        csp->tailp = csp->keyboardLineBuffer;
+        csp->readp = csp->keyboardLineBuffer;
+        csp->startTime = time (NULL);
+        csp->tally = tally;
+        csp->daddr = daddr;
+        csp->unitp = unitp;
+        csp->chan = (int) chan;
+
+        // If Multics has gone seriously awry (eg crash
+        // to BCE during boot), the autoinput will become
+        // wedged waiting for the expect string 'Ready'.
+        // We just went to read mode; if we are waiting
+        // on an expect string, it is never coming because
+        // console access is blocked by the expect code.
+        // Throw out the script if this happens....
+
+        // If there is autoinput and it is at ^X or ^Y
+        if (csp->autop && (*csp->autop == 030 || *csp->autop == 031)) { // ^X ^Y
+          // We are wedged.
+          // Clear the autoinput buffer; this will cancel the
+          // expect wait and any remaining script, returning
+          // control of the console to the user.
+          // Assuming opc0.
+          clear_opc_autoinput (ASSUME0, NULL);
+          ta_flush ();
+          sim_printf ("\r\nScript wedged and abandoned; autoinput and typeahead buffers flushed\r\n");
+        }
+        rc = IOM_CMD_PENDING; // command in progress; do not send terminate interrupt
+        goto done;
+      } // case opc_read_mode
+
+    case opc_write_mode: {
+        uint tally = p->DDCW_TALLY;
+
+// We would hope that number of valid characters in the last word
+// would be in DCW_18_20_CP, but it seems to reliably be zero.
+
+        if (tally == 0) {
+          tally = 4096;
+        }
+
+        word36 buf[tally];
+        iom_indirect_data_service (iomUnitIdx, chan, buf, & tally, false);
+        p->initiate = false;
+
+#if 0
+  sim_printf ("\r\n");
+  for (uint i = 0; i < tally; i ++) {
+    sim_printf ("%012llo  \"", buf[i]);
+    for (uint j = 0; j < 36; j += 9) {
+      word9 ch = getbits36_9 (buf[i], j);
+      if (ch < 256 && isprint ((char) ch))
+        sim_printf ("%c", ch);
+      else 
+        sim_printf ("\\%03o", ch);
+    }
+   sim_printf ("\"\r\n");
   }
+  sim_printf ("\r\n");
+#endif
+#if 0
+if (csp->bcd) {
+  sim_printf ("\r\n");
+  for (uint i = 0; i < tally; i ++) {
+    sim_printf ("%012llo  \"", buf[i]);
+    for (uint j = 0; j < 36; j += 6) {
+      word6 ch = getbits36_6 (buf[i], j);
+      sim_printf ("%c", bcd_code_page[ch]);
+    }
+   sim_printf ("\"\r\n");
+  }
+  sim_printf ("\r\n");
+}
+#endif
+
+        // Tally is in words, not chars.
+        char text[tally * 4 + 1];
+        char * textp = text;
+        word36 * bufp = buf;
+        * textp = 0;
+#ifndef __MINGW64__
+        newlineOff ();
+#endif
+        // 0 no escape character seen
+        // 1 ! seen
+        // 2 !! seen
+        int escape_cnt = 0;
+
+        while (tally) {
+          word36 datum = * bufp ++;
+          tally --;
+          if (csp->bcd) {
+            // Lifted from tolts_util_.pl1:bci_to_ascii
+            for (int i = 0; i < 6; i ++) {
+              word36 narrow_char = datum >> 30; // slide leftmost char
+                                                //  into low byte
+              datum = datum << 6; // lose the leftmost char
+              narrow_char &= 077;
+              char ch = bcd_code_page [narrow_char];
+              if (escape_cnt == 2) {
+                console_putchar ((int) con_unit_idx, ch);
+                * textp ++ = ch;
+                escape_cnt = 0;
+              } else if (ch == '!') {
+                escape_cnt ++;
+              } else if (escape_cnt == 1) {
+                uint lp = narrow_char;
+                // !0 is mapped to !1
+                // !1 to !9, ![, !#, !@, !;, !>, !?    1 to 15 newlines
+                if (lp == 060 /* + */ || lp == 075 /* = */) { // POLTS
+                  p->stati = 04320;
+                  goto done;
+                }
+                if (lp == 0)
+                  lp = 1;
+                if (lp >= 16) {
+                  console_putstr ((int) con_unit_idx, "\f");
+                  //* textp ++ = '\f';
+                } else {
+                  for (uint i = 0; i < lp; i ++) {
+                    console_putstr ((int) con_unit_idx, "\r\n");
+                    //* textp ++ = '\r';
+                    //* textp ++ = '\n';
+                  }
+                }
+                escape_cnt = 0;
+              } else if (ch == '?') {
+                escape_cnt = 0;
+              } else {
+                console_putchar ((int) con_unit_idx, ch);
+                * textp ++ = ch;
+                escape_cnt = 0;
+              }
+            }
+          } else {
+            for (int i = 0; i < 4; i ++) {
+              word36 wide_char = datum >> 27; // slide leftmost char
+                                              //  into low byte
+              datum = datum << 9; // lose the leftmost char
+              char ch = wide_char & 0x7f;
+              if (ch != 0177 && ch != 0) {
+                console_putchar ((int) con_unit_idx, ch);
+                * textp ++ = ch;
+              }
+            }
+          }
+        }
+        * textp ++ = 0;
+
+        // autoinput expect
+        if (csp->autop && * csp->autop == 030) {
+          //   ^xstring\0
+          //size_t expl = strlen ((char *) (csp->autop + 1));
+          //   ^xstring^x
+          size_t expl = strcspn ((char *) (csp->autop + 1), "\030");
+
+          if (strncmp (text, (char *) (csp->autop + 1), expl) == 0) {
+            csp->autop += expl + 2;
+#ifdef LOCKLESS
+            // 1K ~= 1 sec
+            sim_activate (& attn_unit[con_unit_idx], 1000);
+#else
+            // 4M ~= 1 sec
+            sim_activate (& attn_unit[con_unit_idx], 4000000);
+#endif
+          }
+        }
+        // autoinput expect
+        if (csp->autop && * csp->autop == 031) {
+          //   ^ystring\0
+          //size_t expl = strlen ((char *) (csp->autop + 1));
+          //   ^ystring^y
+          size_t expl = strcspn ((char *) (csp->autop + 1), "\031");
+
+          char needle [expl + 1];
+          strncpy (needle, (char *) csp->autop + 1, expl);
+          needle [expl] = 0;
+          if (strstr (text, needle)) {
+            csp->autop += expl + 2;
+#ifdef LOCKLESS
+            // 1K ~= 1 sec
+            sim_activate (& attn_unit[con_unit_idx], 1000);
+#else
+            // 4M ~= 1 sec
+            sim_activate (& attn_unit[con_unit_idx], 4000000);
+#endif
+          }
+        }
+        handleRCP (con_unit_idx, text);
+#ifndef __MINGW64__
+        newlineOn ();
+#endif
+        p->stati = 04000;
+        goto done;
+      } // case opc_write_mode
+  } // switch io_mode
+
+done:
+#ifdef LOCKLESS
+  unlock_libuv ();
+#endif
+  return rc;
+} // opc_iom_cmd
 
 static t_stat opc_svc (UNIT * unitp)
   {
@@ -1699,6 +1542,7 @@ static t_stat opc_svc (UNIT * unitp)
     uint ctlr_port_num = 0; // Consoles are single ported
     uint iom_unit_idx = cables->opc_to_iom[con_unit_idx][ctlr_port_num].iom_unit_idx;
     uint chan_num = cables->opc_to_iom[con_unit_idx][ctlr_port_num].chan_num;
+
     opc_iom_cmd (iom_unit_idx, chan_num);
     return SCPE_OK;
   }
@@ -1736,15 +1580,13 @@ static config_value_list_t cfg_on_off[] =
 static config_value_list_t cfg_model[] =
   {
     { "m6001", m6001 },
+    { "m6004", m6004 },
     { "m6601", m6601 },
     { NULL, 0 }
   };
 
 static config_list_t opc_config_list[] =
   {
-#ifdef ATTN_HACK
-    /* 0 */ { "attn_hack", 0, 1, cfg_on_off },
-#endif
    { "autoaccept", 0, 1, cfg_on_off },
    { "noempty", 0, 1, cfg_on_off },
    { "attn_flush", 0, 1, cfg_on_off },
@@ -1775,13 +1617,6 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
           }
         const char * p = opc_config_list[rc].name;
 
-#ifdef ATTN_HACK
-        if (strcmp (p, "attn_hack") == 0)
-          {
-            csp->attn_hack = (int) v;
-            continue;
-          }
-#endif
         if (strcmp (p, "autoaccept") == 0)
           {
             csp->autoaccept = (int) v;
@@ -1820,9 +1655,6 @@ static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
   {
     int devUnitIdx = (int) OPC_UNIT_IDX (uptr);
     opc_state_t * csp = console_state + devUnitIdx;
-#ifdef ATTN_HACK
-    sim_msg ("attn_hack:  %d\n", csp->attn_hack);
-#endif
     sim_msg ("autoaccept:  %d\n", csp->autoaccept);
     sim_msg ("noempty:  %d\n", csp->noempty);
     sim_msg ("attn_flush:  %d\n", csp->attn_flush);
@@ -2012,9 +1844,6 @@ t_stat set_console_pw (int32 arg, UNUSED const char * buf)
 
 static void console_putstr (int conUnitIdx, char * str)
   {
-#ifdef COLOR
-    sim_print (""); // Force text color reset
-#endif
     size_t l = strlen (str);
     for (size_t i = 0; i < l; i ++)
       sim_putchar (str[i]);
@@ -2024,14 +1853,49 @@ static void console_putstr (int conUnitIdx, char * str)
                            (ssize_t) l);
   }
 
-static void console_putchar (int conUnitIdx, char ch)
-  {
-    sim_putchar (ch);
-    opc_state_t * csp = console_state + conUnitIdx;
-    if (csp->console_access.loggedOn)
-      accessStartWrite (csp->console_access.client, & ch, 1);
-  }
+static void consolePutchar0 (int conUnitIdx, char ch) {
+  opc_state_t * csp = console_state + conUnitIdx;
+  sim_putchar (ch);
+  if (csp->console_access.loggedOn)
+    accessStartWrite (csp->console_access.client, & ch, 1);
+}
 
+static void console_putchar (int conUnitIdx, char ch) {
+  opc_state_t * csp = console_state + conUnitIdx;
+  if (csp->escapeSequence) { // Prior character was an esacpe
+    csp->escapeSequence = false;
+    if (ch == '1') { // Set tab
+      if (csp->carrierPosition >= 1 && csp->carrierPosition <= 256) {
+        csp->tabStops[csp->carrierPosition] = true;
+      }
+    } else if (ch == '2') { // Clear all tabs
+      memset (csp->tabStops, 0, sizeof (csp->tabStops));
+    } else { // Unrecognized
+      sim_warn ("Unrecognized escape sequence \\033\\%03o\r\n", ch);
+    }
+  } else if (isprint (ch)) {
+    consolePutchar0 (conUnitIdx, ch);
+    csp->carrierPosition ++;
+  } else if (ch == '\t') {  // Tab
+    while (csp->carrierPosition < bufsize - 1) {
+      consolePutchar0 (conUnitIdx, ' ');
+      csp->carrierPosition ++;
+      if (csp->tabStops[csp->carrierPosition])
+        break;
+    }
+  } else if (ch == '\b') { // Backspace
+      consolePutchar0 (conUnitIdx, ch);
+      csp->carrierPosition --;
+  } else if (ch == '\f' || ch == '\r') { // Formfeed, Carriage return
+      consolePutchar0 (conUnitIdx, ch);
+      csp->carrierPosition = 1;
+  } else if (ch == '\033') { // Escape
+      csp->escapeSequence = true;
+  } else { // Non-printing and we don't recognize a carriage motion characatr, so just print it...
+      consolePutchar0 (conUnitIdx, ch);
+  }
+}
+  
 static void consoleConnectPrompt (uv_tcp_t * client)
   {
     accessStartWriteStr (client, "password: \r\n");
@@ -2047,13 +1911,13 @@ void startRemoteConsole (void)
         console_state[conUnitIdx].console_access.connected = NULL;
         console_state[conUnitIdx].console_access.useTelnet = true;
 #ifdef CONSOLE_FIX
-#if defined(THREADZ) || defined(LOCKLESS)
+#ifdef LOCKLESS
         lock_libuv ();
 #endif
 #endif
         uv_open_access (& console_state[conUnitIdx].console_access);
 #ifdef CONSOLE_FIX
-#if defined(THREADZ) || defined(LOCKLESS)
+#ifdef LOCKLESS
         unlock_libuv ();
 #endif
 #endif

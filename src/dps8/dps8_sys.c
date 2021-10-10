@@ -41,11 +41,11 @@
 #endif
 
 #include "dps8.h"
-#include "dps8_console.h"
 #include "dps8_sys.h"
 #include "dps8_faults.h"
 #include "dps8_scu.h"
 #include "dps8_iom.h"
+#include "dps8_console.h"
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_state.h"
@@ -1702,11 +1702,15 @@ static t_stat set_machine_room_pw (UNUSED int32 arg, UNUSED const char * buf)
 // The T&D tape first record is for testing DPS8s, the
 // second record (1st record / tape mark / 2nd record)
 // is for testing DPS8/Ms.
+// XXX assumes the boot tape is on SIMH tape unit 0 XXX
 
 static t_stat boot_skip (int32 UNUSED arg, UNUSED const char * buf)
   {
     uint32 skipped;
-    return sim_tape_sprecsf (& mt_unit[0], 1, & skipped);
+    t_stat rc = sim_tape_sprecsf (& mt_unit[0], 1, & skipped);
+    if (rc == SCPE_OK)
+      tape_states[0].rec_num ++;
+    return rc;
   }
 
 // Simulate pressing the 'EXECUTE FAULT' button. Used as an
@@ -3889,7 +3893,9 @@ static CTAB dps8_cmds[] =
     {"DBGBAR",              dps_debug_bar,            1, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
     {"NODBGBAR",            dps_debug_bar,            0, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
 #ifdef HDBG
-    {"HDBG",                hdbg_size,                0, "hdbg: set history buffer size\n", NULL, NULL},
+    {"HDBG",                hdbg_size,                0, "hdbg: set history debugger buffer size\n", NULL, NULL},
+    {"HDSEG",               hdbgSegmentNumber,        0, "hdseg: set history debugger segment number\n", NULL, NULL},
+    {"HDBL",                hdbgBlacklist,            0, "hdbl: set history debugger blacklist\n", NULL, NULL},
     {"PHDBG",               hdbg_print,               0, "phdbg: display history size\n", NULL, NULL},
 #endif
     {"ABSOLUTE",            abs_addr,                 0, "abs: Compute the absolute address of segno:offset\n", NULL, NULL},
@@ -3905,7 +3911,6 @@ static CTAB dps8_cmds[] =
     {"VIRTUAL",             virt_address,             0, "virtual: Compute the virtural address(es) of segno:offset\n", NULL, NULL},
 #endif
     {"SPATH",               set_search_path,          0, "spath: Set source code search path\n", NULL, NULL},
-    {"BT2",                 boot2,                    0, "boot2: Boot CPU-B\n", NULL, NULL},
     {"TEST",                brkbrk,                   0, "test: GDB hook\n", NULL, NULL},
 #ifdef DBGEVENT
     {"DBG0EVENT",           set_dbgevent,             0, "dbg0event: set t0 event\n", NULL, NULL},

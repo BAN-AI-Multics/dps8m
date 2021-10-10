@@ -23,7 +23,13 @@ extern UNIT msp_unit [N_IPC_UNITS_MAX];
 struct dsk_state
   {
     uint typeIdx;
-    enum { disk_no_mode, disk_seek512_mode, disk_seek64_mode, disk_seek_mode, disk_read_mode, disk_write_mode, disk_request_status_mode } io_mode;
+    enum
+      {
+        disk_no_mode, disk_rd_clr_stats, disk_rd_status_reg, disk_rd_config,
+        disk_rd, disk_seek_512, disk_wr, disk_seek_64, disk_special_seek,
+        disk_rd_ctrl_reg
+      } io_mode;
+    bool seekValid; // True if seekPosition contains a valid seek address.
     uint seekPosition;
     char device_name [MAX_DEV_NAME_LEN];
 #ifdef LOCKLESS
@@ -66,7 +72,7 @@ extern struct dsk_state dsk_states [N_DSK_UNITS_MAX];
 
 void disk_init(void);
 t_stat attachDisk (char * label);
-int dsk_iom_cmd (uint iomUnitIdx, uint chan);
+iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan);
 t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, bool ro);
 t_stat unloadDisk (uint dsk_unit_idx);
 t_stat signal_disk_ready (uint dsk_unit_idx);

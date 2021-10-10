@@ -11,6 +11,12 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
+// IDCW Instruction                   18-20 111
+// TDCW Transfer                      18-20 !111,  22-23 10
+// IOTD IO Transfer and disconnect    18-20 !111,  22-23 00
+// IOTP IO Transfer and proceed       18-20 !111,  22-23 01
+// IONTP IO Non-Transfer and proceed  18-20 !111,  22-23 11
+
 #ifdef IO_THREADZ
 extern __thread uint this_iom_idx;
 extern __thread uint this_chan_num;
@@ -38,6 +44,67 @@ typedef enum chanStat
     chanStatParityErrPeriph = 6,
     chanStatParityErrBus = 7
   } chanStat;
+
+// Due to lack of documentation, chan_cmd is largely ignored
+//
+// iom_chan_control_words.incl.pl1
+//
+//   SINGLE_RECORD       init ("00"b3),
+//   NONDATA             init ("02"b3),
+//   MULTIRECORD         init ("06"b3),
+//   SINGLE_CHARACTER    init ("10"b3)
+//
+// bound_tolts_/mtdsim_.pl1
+//
+//    idcw.chan_cmd = "40"b3;           /* otherwise set special cont. cmd */
+//
+// bound_io_tools/exercise_disk.pl1
+//
+//   idcw.chan_cmd = INHIB_AUTO_RETRY; /* inhibit mpc auto retries */
+//   dcl     INHIB_AUTO_RETRY       bit (6) int static init ("010001"b);  // 021
+//
+// poll_mpc.pl1:
+//  /* Build dcw list to get statistics from EURC MPC */
+//  idcw.chan_cmd = "41"b3;            /* Indicate special controller command */
+//  /* Build dcw list to get configuration and statistics from DAU MSP */
+//  idcw.chan_cmd = "30"b3;                           /* Want list in dev# order */
+//
+// tape_ioi_io.pl1:
+//   idcw.chan_cmd = "03"b3;          /* data security erase */
+//   dcw.chan_cmd = "30"b3;           /* use normal values, auto-retry */
+
+
+// iom_word_macros.incl.alm
+//
+// Channel control
+#define CHAN_CTRL_TERMINATE 0
+#define CHAN_CTRL_PROCEED 2
+#define CHAN_CTRL_MARKER 3
+
+// Channel command
+#define CHAN_CMD_RECORD 0
+#define CHAN_CMD_NONDATA 2
+#define CHAN_CMD_MULTIRECORD 6
+#define CHAN_CMD_CHARACTER 8
+
+
+#define IS_IDCW(p) ((p)->DCW_18_20_CP == 07)
+#define IS_NOT_IDCW(p) ((p)->DCW_18_20_CP != 07)
+#define IS_TDCW(p) ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 2)
+#define IS_IOTD(p) ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 0)
+#define IS_IONTP(p) ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 3)
+
+// exercise_disk.pl1
+#define CHAN_CMD_INHIB_AUTO_RETRY 021
+// load_mpc.pl1
+#define CHAN_CMD_SPECIAL_CTLR 040
+// poll_mpc.pl1
+#define CHAN_CMD_DEV_ORDER 030
+#define CHAN_CMD_SPECIAL_CTLR2 041
+// tape_ioi_io.pl1
+#define CHAN_CMD_DATA_SECURITY_ERASE 03
+#define CHAN_CMD_NORM_AUTO_TRY 030
+
 
 typedef volatile struct
   {
@@ -98,8 +165,9 @@ typedef volatile struct
     word6  IDCW_DEV_CODE;
     word6  IDCW_AE;
     word1  IDCW_EC;
-    word2  IDCW_CONTROL; // 0 terminate, 2 process, 3 marker
+    word2  IDCW_CHAN_CTRL; // 0 terminate, 2 process, 3 marker
     word6  IDCW_CHAN_CMD;
+    // POLTS sets this to one if there are IOTxes.
     word6  IDCW_COUNT;
     // DDCW only
     /*word18*/ uint DDCW_ADDR; // Allow overflow detection
@@ -177,6 +245,9 @@ typedef volatile struct
     // Information accumulated for status service.
     word12 stati;
     uint dev_code;
+    // Initialized to IDCW_COUNT; decremented when a IDCW that expects an IOTx is processed by the channel.
+    // XXX POLTS console code drives this; if it turns out to be common across channels, the decrement should
+    // be moved into the IOM.
     word6 recordResidue;
     word12 tallyResidue;
     word3 charPos;
@@ -308,13 +379,21 @@ int send_special_interrupt (uint iom_unit_idx, uint chanNum, uint devCode,
 //  3; command pending, don't sent terminate interrupt
 // -1: error
 
-#define IOM_CMD_OK      0
-#define IOM_CMD_IGNORED 1
-#define IOM_CMD_NO_DCW  2
-#define IOM_CMD_PENDING 3
-#define IOM_CMD_ERROR   -1
+//#define IOM_CMD_OK      0
+//#define IOM_CMD_IGNORED 1
+//#define IOM_CMD_NO_DCW  2
+//#define IOM_CMD_PENDING 3
+//#define IOM_CMD_ERROR   -1
 
-typedef int iom_cmd_t (uint iom_unit_idx, uint chan);
+typedef enum 
+  {
+     IOM_CMD_ERROR = -1,
+     IOM_CMD_PROCEED = 0,
+     IOM_CMD_DISCONNECT,
+     IOM_CMD_PENDING
+  } iom_cmd_rc_t;
+
+typedef iom_cmd_rc_t iom_cmd_t (uint iom_unit_idx, uint chan);
 int iom_list_service (uint iom_unit_idx, uint chan,
                            bool * ptro, bool * sendp, bool * uffp);
 int send_terminate_interrupt (uint iom_unit_idx, uint chanNum);
@@ -342,9 +421,13 @@ void iom_core_write (uint iom_unit_idx, word24 addr, word36 data, UNUSED const c
 void iom_core_write2 (uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx);
 void iom_core_read_lock (uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx);
 void iom_core_write_unlock (uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx);
-t_stat boot2 (UNUSED int32 arg, UNUSED const char * buf);
 t_stat iom_unit_reset_idx (uint iom_unit_idx);
 
 #if defined(IO_ASYNC_PAYLOAD_CHAN) || defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
 void iomProcess (void);
+#endif
+
+char iomChar (uint iomUnitIdx);
+#ifdef TESTING
+void dumpDCW (word36 DCW, word1 LPW_23_REL);
 #endif
