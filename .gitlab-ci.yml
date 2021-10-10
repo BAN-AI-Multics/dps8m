@@ -1525,7 +1525,7 @@ Option Verification Test:
     - job: Linux/x86_64, Ubuntu LTS
     - job: Linux/x86_64, Fedora
   tags:
-    - Docker-x64-fast
+    - Docker-x64
     - amd64
     - Linux
   script:
