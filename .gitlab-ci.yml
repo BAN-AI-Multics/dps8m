@@ -1548,6 +1548,9 @@ Option Verification Test:
     paths:
       - ${CI_PROJECT_DIR:?}/build.log
       - ${CI_PROJECT_DIR:?}/build.log.lz
+  retry: 1
+  timeout: 360 minutes
+  interruptible: true
 
 #############################################################################
 
@@ -1569,13 +1572,14 @@ Multics CI-Kit Test:
     - *scriptInstallResticLinuxAMD64
     - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
-    - dnf -q install -y telnet mksh expect tcsh wget lzip dos2unix diffutils || dnf -q install -y telnet mksh expect tcsh wget lzip dos2unix diffutils
+    - dnf -q install -y telnet mksh expect tcsh wget lzip dos2unix diffutils moreutils || dnf -q install -y telnet mksh expect tcsh wget lzip dos2unix diffutils moreutils
     - *scriptSanity
+    - bash -x -c '( cd src/ci-kit && ./init )' || true
     - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c '( set -o pipefail ; set -ex ; date -u && cd src/ci-kit && ./init && date -u && ./ci && date -u && make -f ci.makefile diff && date -u && diff --suppress-common-lines --expand-tabs --suppress-blank-empty --ignore-tab-expansion --ignore-trailing-space --ignore-space-change --ignore-all-space --ignore-blank-lines --strip-trailing-cr --minimal old.log new.log | tee -i diff.txt && comm -13 <(sort -u new.log) <(sort -u old.log) | tee -i only_in_old.txt && comm -23 <(sort -u new.log) <(sort -u old.log) | tee -i only_in_new.txt && mv -f old.log old.txt && mv -f new.log new.txt && date -u )'
+    - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && ./init ; ./ci ; make -f ci.makefile diff ; diff --suppress-common-lines --expand-tabs --suppress-blank-empty --ignore-tab-expansion --ignore-trailing-space --ignore-space-change --ignore-all-space --ignore-blank-lines --strip-trailing-cr --minimal old.log new.log | tee -i diff.txt ; comm -13 <(sort -u new.log) <(sort -u old.log) | tee -i only_in_old.txt ; comm -23 <(sort -u new.log) <(sort -u old.log) | tee -i only_in_new.txt ; mv -f old.log old.txt ; mv -f new.log new.txt )'
   dependencies: []
   artifacts:
     expire_in: 7 days
@@ -1585,5 +1589,8 @@ Multics CI-Kit Test:
       - ${CI_PROJECT_DIR:?}/src/ci-kit/diff.txt
       - ${CI_PROJECT_DIR:?}/src/ci-kit/only_in_old.txt
       - ${CI_PROJECT_DIR:?}/src/ci-kit/only_in_new.txt
+  retry: 1
+  timeout: 200 minutes
+  interruptible: true
 
 #############################################################################

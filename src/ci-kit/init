@@ -2,13 +2,17 @@
 printf '%s\n' "Downloading tape files..."
 mkdir -vp tapes 2> /dev/null
 cd tapes || exit 1
-pwd 2> /dev/null
 #rm -vf *.tap 2> /dev/null || true
-touch 12.7MULTICS.tap; md5sum 12.7MULTICS.tap      | cut -d \  -f 1 | grep -wq 746ff9fddc3ce837df5eec83020f58ba || { rm -f 12.7MULTICS.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7MULTICS.tap; };
-touch 12.7EXEC.tap; md5sum 12.7EXEC.tap         | cut -d \  -f 1 | grep -wq 9faacd6f79cb6755a3e6c45415bdd168 || { rm -f 12.7EXEC.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7EXEC.tap; };
+#attempt to copy 12*.tap from /var/cache/tapes to tapes
+cp -f /var/cache/tapes/12*.tap . > /dev/null 2>&1 || true
+touch 12.7MULTICS.tap; md5sum 12.7MULTICS.tap | cut -d \  -f 1 | grep -wq 746ff9fddc3ce837df5eec83020f58ba || { rm -f 12.7MULTICS.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7MULTICS.tap; };
+touch 12.7EXEC.tap; md5sum 12.7EXEC.tap | cut -d \  -f 1 | grep -wq 9faacd6f79cb6755a3e6c45415bdd168 || { rm -f 12.7EXEC.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7EXEC.tap; };
 touch 12.7LDD_STANDARD.tap; md5sum 12.7LDD_STANDARD.tap | cut -d \  -f 1 | grep -wq f1f5a0b9c61107ad368253ee7dd21b66 || { rm -f 12.7LDD_STANDARD.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7LDD_STANDARD.tap; };
-touch 12.7UNBUNDLED.tap; md5sum 12.7UNBUNDLED.tap    | cut -d \  -f 1 | grep -wq 64384cd30f0b7acf60e17b318b9c459d || { rm -f 12.7UNBUNDLED.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7UNBUNDLED.tap; };
-touch 12.7MISC.tap; md5sum 12.7MISC.tap         | cut -d \  -f 1 | grep -wq fc117d9dc58d1077271a9ceb0c93e020 || { rm -f 12.7MISC.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7MISC.tap; };
-touch 12.7LISTINGS.tap; md5sum 12.7LISTINGS.tap     | cut -d \  -f 1 | grep -wq b64f6ca3670d4859c0fb42d9eae860e4 || { rm -f 12.7LISTINGS.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7LISTINGS.tap; };
+touch 12.7UNBUNDLED.tap; md5sum 12.7UNBUNDLED.tap | cut -d \  -f 1 | grep -wq 64384cd30f0b7acf60e17b318b9c459d || { rm -f 12.7UNBUNDLED.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7UNBUNDLED.tap; };
+touch 12.7MISC.tap; md5sum 12.7MISC.tap | cut -d \  -f 1 | grep -wq fc117d9dc58d1077271a9ceb0c93e020 || { rm -f 12.7MISC.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7MISC.tap; };
+touch 12.7LISTINGS.tap; md5sum 12.7LISTINGS.tap | cut -d \  -f 1 | grep -wq b64f6ca3670d4859c0fb42d9eae860e4 || { rm -f 12.7LISTINGS.tap; wget -c -t 0 https://s3.amazonaws.com/eswenson-multics/public/releases/MR12.7/12.7LISTINGS.tap; };
+# attempt to stash tapes 12*.tap in /var/cache/tapes
+mkdir -p /var/cache/tapes > /dev/null 2>&1 || true
+test -d /var/cache/tapes > /dev/null 2>&1 && cp -f 12*.tap /var/cache/tapes > /dev/null 2>&1 || true
 lzip -vt foo.tap.lz && lzip -dcv foo.tap.lz > foo.tap
 cd ..
