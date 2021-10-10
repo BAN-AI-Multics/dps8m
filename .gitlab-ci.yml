@@ -1579,7 +1579,7 @@ Multics CI-Kit Test:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && ./init ; ./ci ; make -f ci.makefile diff ; diff --suppress-common-lines --expand-tabs --suppress-blank-empty --ignore-tab-expansion --ignore-trailing-space --ignore-space-change --ignore-all-space --ignore-blank-lines --strip-trailing-cr --minimal <(cat old.log | ./filter-indet.sh | sed "s/[0-9]//g" | tr -s " ") <(cat new.log | ./filter-indet.sh | sed "s/[0-9]//g" | tr -s " ") > diff.txt && cat diff.txt | ./filter-post.sh > prefilter.txt ; ./sort-final.sh; echo "Only in old:"; cat only_in_old.txt; echo "Only in new:"; cat only_in_new.txt; mv -f old.log old.txt; mv -f new.log new.txt'
+    - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && ./init ; ./ci ; make -f ci.makefile diff ; diff --suppress-common-lines --expand-tabs --suppress-blank-empty --ignore-tab-expansion --ignore-trailing-space --ignore-space-change --ignore-all-space --ignore-blank-lines --strip-trailing-cr --minimal <(cat old.log | ./filter-indet.sh | sed "s/[0-9]//g" | tr -s " ") <(cat new.log | ./filter-indet.sh | sed "s/[0-9]//g" | tr -s " ") > diff.txt && cat diff.txt | ./filter-post.sh > prefilter.txt ; ./sort-final.sh; echo "Only in old:"; cat only_in_old.txt; echo "Only in new:"; cat only_in_new.txt; mv -f old.log old.txt; mv -f new.log new.txt)'
   dependencies: []
   artifacts:
     expire_in: 7 days
