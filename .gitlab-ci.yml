@@ -1565,22 +1565,25 @@ Multics CI-Kit Test:
     - amd64
   script:
     - export GLCICD_JOB="CIKitTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - dnf -q install -y telnet mksh bzip2 expect tcsh meld wget lzip dos2unix diffutils || dnf -q install -y mksh bzip2 expect tcsh meld wget lzip dos2unix diffutils telnet
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
     - *scriptInstallResticLinuxAMD64
     - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
+    - dnf -q install -y telnet mksh expect tcsh wget lzip dos2unix diffutils || dnf -q install -y telnet mksh expect tcsh wget lzip dos2unix diffutils
     - *scriptSanity
     - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - mksh -x -c '( cd src/ci-kit && ./init && ./ci && make -f ci.makefile diff_files && diff -C old.log new.log | tee -i diff.txt)'
+    - mksh -x -c '( set -o pipefail; set -ex; date -u; cd src/ci-kit && ./init && ./ci && make -f ci.makefile diff && diff --suppress-common-lines --expand-tabs --suppress-blank-empty --ignore-tab-expansion --ignore-trailing-space --ignore-space-change --ignore-all-space --ignore-blank-lines --strip-trailing-cr --minimal old.log new.log | tee -i diff.txt && comm -13 <(sort -u new.log) <(sort -u old.log) | tee -i only_in_old.txt && comm -23 <(sort -u new.log) <(sort -u old.log) | tee -i only_in_new.txt && mv -f old.log old.txt && mv -f new.log new.txt; date -u)'
   dependencies: []
   artifacts:
     expire_in: 7 days
     paths:
-      - ${CI_PROJECT_DIR:?}/src/ci-kit/old.log
-      - ${CI_PROJECT_DIR:?}/src/ci-kit/new.log
+      - ${CI_PROJECT_DIR:?}/src/ci-kit/old.txt
+      - ${CI_PROJECT_DIR:?}/src/ci-kit/new.txt
       - ${CI_PROJECT_DIR:?}/src/ci-kit/diff.txt
+      - ${CI_PROJECT_DIR:?}/src/ci-kit/only_in_old.txt
+      - ${CI_PROJECT_DIR:?}/src/ci-kit/only_in_new.txt
 
 #############################################################################

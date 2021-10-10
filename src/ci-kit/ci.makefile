@@ -11,29 +11,29 @@ all :
 s1:
 	@printf '%s\n' "Start Stage 1: Pull and build"
 	-@true ############ Modify below as needed ############
-	rm -vRf "./dps8m" || true
+	rm -Rf "./dps8m" || true
 	-@true # git clone https://gitlab.com/dps8m/dps8m.git
 	-@true # cd ./dps8m && git checkout master
 	-@true # cd ./dps8m && git status
-	(cd "../.." && $(MAKE) "superclean" && $(MAKE) V=1 W=1)
-	@mkdir -vp ./dps8m/src
+	(cd ../.. && $(MAKE) clean > /dev/null 2>&1 && $(MAKE))
+	@mkdir -p ./dps8m/src
 	@cp -ax "../../src/dps8" "dps8m/src" 2> /dev/null
 	-@true ############ Modify above as needed ############
 	@printf '%s\n' "End Stage 1"
 
 s2:
 	@printf '%s\n' "Start Stage 2: Build working directory"
-	@rm -vRf ./run
-	@mkdir -vp ./run
-	@mkdir -vp ./run/tapes
-	@mkdir -vp ./run/tapes/12.7
-	@mkdir -vp ./run/tapes/general
-	@mkdir -vp ./run/disks
-	@cp -vp ./dps8m/src/dps8/dps8 ./run
-	@cp -vp ./tapes/12.7* ./run/tapes/12.7
-	@cp -vp ./tapes/foo.tap ./run/tapes/general
-	@cp -vp ./ini/* ./run
-	@cp -vp ./ec/* ./run
+	@rm -Rf ./run
+	@mkdir -p ./run
+	@mkdir -p ./run/tapes
+	@mkdir -p ./run/tapes/12.7
+	@mkdir -p ./run/tapes/general
+	@mkdir -p ./run/disks
+	@cp -p ./dps8m/src/dps8/dps8 ./run
+	@cp -p ./tapes/12.7* ./run/tapes/12.7
+	@cp -p ./tapes/foo.tap ./run/tapes/general
+	@cp -p ./ini/* ./run
+	@cp -p ./ec/* ./run
 	@printf '%s\n' "End Stage 2"
 
 s3:
@@ -78,5 +78,5 @@ diff_files :
 	@printf '%s\n' "Done; compare new.log and old.log"
 
 kit:
-	tar zcvf kit.tgz ci.makefile ci ci_full.log.ref *.expect init tidy README.txt tapes/* ec/* ini/*
+	tar cvf - ci.makefile ci ci_full.log.ref *.expect init tidy README.txt tapes/* ec/* ini/* | lzip -9 > kit.tar.lz
 
