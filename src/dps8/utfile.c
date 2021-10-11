@@ -80,9 +80,9 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
     }
 
     /*
-	 * If the error is not "file already exists",
-	 * or is a directory, then we just bail out.
-	 */
+     * If the error is not "file already exists",
+     * or is a directory, then we just bail out.
+     */
 
     if (( errno != EEXIST ) && ( errno != EISDIR ))
     {

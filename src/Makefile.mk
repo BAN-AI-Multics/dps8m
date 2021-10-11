@@ -270,12 +270,10 @@ endif
 
 ###############################################################################
 
-CFLAGS += -I../decNumber -I$(SIMHx) -I../include
+CFLAGS += -I../decNumber -I$(SIMHx)
 CFLAGS += -std=c99
 CFLAGS += -U__STRICT_ANSI__
 CFLAGS += -D_GNU_SOURCE
-CFLAGS += -DUSE_READER_THREAD
-CFLAGS += -DUSE_INT64
 
 ###############################################################################
 

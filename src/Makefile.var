@@ -16,6 +16,27 @@
 
 ###############################################################################
 
+ifeq ($(ISOLTS),1)
+  unexport NO_LOCKLESS
+  undefine NO_LOCKLESS
+  LOCKLESS=1
+  ISOLTS=1
+  WAM=1
+  CFLAGS += -DISOLTS
+endif
+
+###############################################################################
+
+ifeq ($(ROUND_ROBIN),1)
+  ROUND_ROBIN=1
+  NO_LOCKLESS=1
+  undefine LOCKLESS
+  unexport LOCKLESS
+  CFLAGS += -DROUND_ROBIN
+endif
+
+###############################################################################
+
 ifneq ($(NO_LOCKLESS),1)
   LOCKLESS=1
 endif
@@ -67,15 +88,6 @@ endif
 
 ###############################################################################
 
-ifeq ($(ISOLTS),1)
-  LOCKLESS=1
-  ISOLTS=1
-  WAM=1
-  CFLAGS += -DISOLTS
-endif
-
-###############################################################################
-
 ifeq ($(WAM),1)
   WAM=1
   CFLAGS += -DWAM
@@ -94,6 +106,7 @@ endif
 
 ifeq ($(SPEED),1)
   SPEED=1
+  CFLAGS += -DSPEED
 endif
 
 ###############################################################################
@@ -101,13 +114,6 @@ endif
 ifeq ($(NEED_128),1)
   NEED_128=1
   CFLAGS += -DNEED_128
-endif
-
-###############################################################################
-
-ifeq ($(ROUND_ROBIN),1)
-  ROUND_ROBIN=1
-  CFLAGS += -DROUND_ROBIN
 endif
 
 ###############################################################################

@@ -24,16 +24,6 @@
    Except as contained in this notice, the name of Robert M Supnik shall not
    be used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
-
-   05-Dec-10    MP      Added macro invocation of sim_debug
-   09-Aug-06    JDB     Added assign_device and deassign_device
-   14-Jul-06    RMS     Added sim_activate_abs
-   06-Jan-06    RMS     Added fprint_stopped_gen
-                        Changed arg type in sim_brk_test
-   07-Feb-05    RMS     Added ASSERT command
-   09-Sep-04    RMS     Added reset_all_p
-   14-Feb-04    RMS     Added debug prototypes (from Dave Hittner)
-   02-Jan-04    RMS     Split out from SCP
 */
 
 #ifndef SIM_SCP_H_
@@ -283,10 +273,6 @@ extern t_addr sim_brk_match_addr;
 extern BRKTYPTAB *sim_brk_type_desc;                      /* type descriptions */
 extern FILE *stdnul;
 extern t_bool sim_asynch_enabled;
-#if defined(SIM_ASYNCH_IO)
-int sim_aio_update_queue (void);
-void sim_aio_activate (ACTIVATE_API caller, UNIT *uptr, int32 event_time);
-#endif
 
 /* VM interface */
 
@@ -304,7 +290,7 @@ extern t_stat parse_sym (CONST char *cptr, t_addr addr, UNIT *uptr, t_value *val
 /* The per-simulator init routine is a weak global that defaults to NULL
    The other per-simulator pointers can be overrriden by the init routine */
 
-WEAK extern void (*sim_vm_init) (void);
+extern void (*sim_vm_init) (void);
 extern char *(*sim_vm_read) (char *ptr, int32 size, FILE *stream);
 extern void (*sim_vm_post) (t_bool from_scp);
 extern CTAB *sim_vm_cmd;

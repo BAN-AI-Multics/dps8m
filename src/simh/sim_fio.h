@@ -23,12 +23,6 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    be used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
-
-   02-Feb-11    MP      Added sim_fsize_ex and sim_fsize_name_ex returning t_addr
-                        Added export of sim_buf_copy_swapped and sim_buf_swap_data
-   15-May-06    RMS     Added sim_fsize_name
-   16-Aug-05    RMS     Fixed C++ declaration and cast problems
-   02-Jan-04    RMS     Split out from SCP
 */
 
 #ifndef SIM_FIO_H_

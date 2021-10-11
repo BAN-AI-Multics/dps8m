@@ -23,20 +23,9 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
+*/
 
-   03-Jun-11    MP      Simplified VMS 64b support and made more portable
-   02-Feb-11    MP      Added sim_fsize_ex and sim_fsize_name_ex returning t_addr
-                        Added export of sim_buf_copy_swapped and sim_buf_swap_data
-   28-Jun-07    RMS     Added VMS IA64 support (from Norm Lastovica)
-   10-Jul-06    RMS     Fixed linux conditionalization (from Chaskiel Grundman)
-   15-May-06    RMS     Added sim_fsize_name
-   21-Apr-06    RMS     Added FreeBSD large file support (from Mark Martinec)
-   19-Nov-05    RMS     Added OS/X large file support (from Peter Schorn)
-   16-Aug-05    RMS     Fixed C++ declaration and cast problems
-   17-Jul-04    RMS     Fixed bug in optimized sim_fread (reported by Scott Bailey)
-   26-May-04    RMS     Optimized sim_fread (suggested by John Dundas)
-   02-Jan-04    RMS     Split out from SCP
-
+/*
    This library includes:
 
    sim_finit         -       initialize package
@@ -54,13 +43,14 @@
    sim_shmem_open            create or attach to a shared memory region
    sim_shmem_close           close a shared memory region
 
-
    sim_fopen and sim_fseek are OS-dependent.  The other routines are not.
    sim_fsize is always a 32b routine (it is used only with small capacity random
    access devices like fixed head disks and DECtapes).
 */
 
 #include "sim_defs.h"
+#include "../decNumber/decContext.h"
+#include "../decNumber/decNumberLocal.h"
 
 t_bool sim_end;                     /* TRUE = little endian, FALSE = big endian */
 t_bool sim_taddr_64;                /* t_addr is > 32b and Large File Support available */
@@ -85,10 +75,7 @@ t_bool sim_toffset_64;              /* Large File (>2GB) file I/O Support availa
 
 int32 sim_finit (void)
 {
-union {int32 i; char c[sizeof (int32)]; } end_test;
-
-end_test.i = 1;                                         /* test endian-ness */
-sim_end = (end_test.c[0] != 0);
+sim_end = DECLITEND;
 sim_toffset_64 = (sizeof(t_offset) > sizeof(int32));    /* Large File (>2GB) support */
 sim_taddr_64 = sim_toffset_64 && (sizeof(t_addr) > sizeof(int32));
 return sim_end;

@@ -23,25 +23,6 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
-
-   15-Oct-12    MP      Added definitions needed to detect possible tcp
-                        connect failures
-   25-Sep-12    MP      Reworked for RFC3493 interfaces supporting IPv6 and IPv4
-   04-Jun-08    RMS     Addes sim_create_sock, for IBM 1130
-   14-Apr-05    RMS     Added WSAEINPROGRESS (from Tim Riker)
-   20-Aug-04    HV      Added missing definition for OS/2 (from Holger Veit)
-   22-Oct-03    MP      Changed WIN32 winsock include to use winsock2.h to
-                        avoid a conflict if sim_sock.h and sim_ether.h get
-                        included by the same module.
-   20-Mar-03    RMS     Added missing timerclear definition for VMS (from
-                        Robert Alan Byer)
-   15-Feb-03    RMS     Added time.h for EMX (from Holger Veit)
-   17-Dec-02    RMS     Added sim_connect_sock
-   08-Oct-02    RMS     Revised for .NET compatibility
-   20-Aug-02    RMS     Changed calling sequence for sim_accept_conn
-   30-Apr-02    RMS     Changed VMS stropts include to ioctl
-   06-Feb-02    RMS     Added VMS support from Robert Alan Byer
-   16-Sep-01    RMS     Added Macintosh support from Peter Schorn
 */
 
 #ifndef SIM_SOCK_H_

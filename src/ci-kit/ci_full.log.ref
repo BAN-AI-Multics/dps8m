@@ -125,8 +125,8 @@ MR12.7_install.ini-7> attach -r tape0 ./tapes/12.7/12.7MULTICS.tap
 TAPE: unit is read only
 MR12.7_install.ini-9> set tape0 rewind
 MR12.7_install.ini-11> set cpu kips=8000
-MR12.7_install.ini-12> fnpserverport 6180
-FNP telnet server port set to 6180
+MR12.7_install.ini-12> fnpserverport 9180
+FNP telnet server port set to 9180
 MR12.7_install.ini-13> set opc0 pw=foo
 MR12.7_install.ini-14> set opc0 port=6001
 Console 0 port set to 6001
@@ -1372,7 +1372,7 @@ bce (boot) 0354.7: M-> [auto-input] die
 Do you really wish bce to die? M-> [auto-input] y
 
 CPU a thread created
-[FNP emulation: listening to 0.0.0.0 6180]
+[FNP emulation: listening to 0.0.0.0 9180]
 core_read2: even locked 00000176 locked_addr 00000000 A 00000:000000
 CPU b thread created
 CPU c thread created
@@ -1420,7 +1420,7 @@ System state restored
 Please register your system at https://ringzero.wikidot.com/wiki:register
 or create the file 'serial.txt' containing the line 'sn: 0'.
 
-FNP telnet server port set to 6180
+FNP telnet server port set to 9180
 
 yoyodyne.ini-1> set tape DEFAULT_PATH=./tapes/general
 yoyodyne.ini-2> set tape ADD_PATH=12.7=./tapes/12.7
@@ -1443,8 +1443,8 @@ yoyodyne.ini-21> attach disk11 ./disks/dskb_08.dsk
 yoyodyne.ini-22> attach disk12 ./disks/dskb_09.dsk
 yoyodyne.ini-23> attach disk13 ./disks/dskb_10.dsk
 yoyodyne.ini-25> set cpu kips=8000
-yoyodyne.ini-26> fnpserverport 6180
-FNP telnet server port set to 6180
+yoyodyne.ini-26> fnpserverport 9180
+FNP telnet server port set to 9180
 yoyodyne.ini-27> set opc0 pw=foo
 yoyodyne.ini-28> set opc0 port=6001
 Console 0 port set to 6001
@@ -6873,7 +6873,7 @@ bce (boot) 0402.5: M-> [auto-input] die
 Do you really wish bce to die? M-> [auto-input] y 
 
 CPU a thread created
-[FNP emulation: listening to 0.0.0.0 6180]
+[FNP emulation: listening to 0.0.0.0 9180]
 CPU b thread created
 CPU c thread created
 CPU d thread created
@@ -6929,8 +6929,8 @@ yoyodyne_start.ini-23> attach disk11 ./disks/dskb_08.dsk
 yoyodyne_start.ini-24> attach disk12 ./disks/dskb_09.dsk
 yoyodyne_start.ini-25> attach disk13 ./disks/dskb_10.dsk
 yoyodyne_start.ini-27> set cpu kips=8000
-yoyodyne_start.ini-28> fnpserverport 6180
-FNP telnet server port set to 6180
+yoyodyne_start.ini-28> fnpserverport 9180
+FNP telnet server port set to 9180
 yoyodyne_start.ini-29> set opc0 pw=foo
 yoyodyne_start.ini-30> set opc0 port=6001
 Console 0 port set to 6001
@@ -6980,7 +6980,7 @@ yoyodyne_start.ini-81> autoinput x read_cards\n
 yoyodyne_start.ini-82> autoinput \z
 yoyodyne_start.ini-85> boot iom0
 CPU a thread created
-[FNP emulation: listening to 0.0.0.0 6180]
+[FNP emulation: listening to 0.0.0.0 9180]
 CONSOLE: ALERT
 bootload_0: Booting system MR12.7 generated 06/12/21 1148.7 pdt Sat.
 1202.6  announce_chwm: 428. pages used of 512. in wired environment.
@@ -7511,7 +7511,7 @@ Sat 02 Oct 2021 07:09:50 AM CDT
 =============================
 =        ci_t2.log          =
 =============================
-spawn telnet localhost 6180
+spawn telnet localhost 9180
 Trying ::1...
 Trying 127.0.0.1...
 Connected to localhost.
@@ -17650,7 +17650,7 @@ r 04:08 0.024 1
                                                                                                                                =============================
 =        ci_t3.log          =
 =============================
-spawn telnet localhost 6180
+spawn telnet localhost 9180
 Trying ::1...
 Trying 127.0.0.1...
 Connected to localhost.

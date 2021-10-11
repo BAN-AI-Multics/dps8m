@@ -30,14 +30,66 @@
   #include <stdlib.h>         /* for abs                              */
   #include <string.h>         /* for memset, strcpy                   */
 
-  /* Conditional code flag -- set this to match hardware platform     */
-  #if !defined(DECLITEND)
-    #if defined(_BIG_ENDIAN)    || defined(_BIG_ENDIAN_) || \
-        defined(__BIG_ENDIAN__) || defined(__BIG_ENDIAN)
-      #define DECLITEND 0     /* 1=little-endian, 0=big-endian        */
-    #else
-      #define DECLITEND 1
+  #ifndef _MSC_VER
+    #include <sys/param.h>
+  #endif
+
+  #include <sys/types.h>
+
+  #if defined(__linux__)  || defined(__CYGWIN__) || \
+      defined(__GNU__)    || defined(__GLIBC__)  || \
+      defined(__HAIKU__)
+    #include <endian.h>
+    #if !defined(LITTLE_ENDIAN) && defined(__LITTLE_ENDIAN)
+      #define LITTLE_ENDIAN __LITTLE_ENDIAN
     #endif
+    #if !defined(BIG_ENDIAN) && defined(__BIG_ENDIAN)
+      #define BIG_ENDIAN __BIG_ENDIAN
+    #endif
+    #if !defined(BYTE_ORDER) && defined(__BYTE_ORDER)
+      #define BYTE_ORDER __BYTE_ORDER
+    #endif
+  #endif
+
+  #ifdef __sun
+    #include <sys/byteorder.h>
+    #define LITTLE_ENDIAN 1234
+    #define BIG_ENDIAN 4321
+    #if defined(_BIG_ENDIAN)
+      #define BYTE_ORDER BIG_ENDIAN
+    #elif defined(_LITTLE_ENDIAN)
+      #define BYTE_ORDER LITTLE_ENDIAN
+    #else
+      #error "Cannot determine endian-ness of this Sun system."
+    #endif
+  #endif
+
+  #if defined(_AIX) && !defined(BYTE_ORDER)
+    #define LITTLE_ENDIAN 1234
+    #define BIG_ENDIAN 4321
+    #if defined(__BIG_ENDIAN__)
+      #define BYTE_ORDER BIG_ENDIAN
+    #elif defined(__LITTLE_ENDIAN__)
+      #define BYTE_ORDER LITTLE_ENDIAN
+    #else
+      #error "Cannot determine endian-ness of this IBM AIX system."
+    #endif
+  #endif
+
+  #if defined(_WIN32)
+    #define LITTLE_ENDIAN 1234
+    #define BIG_ENDIAN 4321
+    #define BYTE_ORDER LITTLE_ENDIAN
+  #endif
+
+  #if !defined(BYTE_ORDER) || !defined(LITTLE_ENDIAN) || !defined(BIG_ENDIAN)
+    #error "Cannot determine the endian-ness of this platform."
+  #endif
+
+  #if BYTE_ORDER == LITTLE_ENDIAN
+    #define DECLITEND 1
+  #elif BYTE_ORDER == BIG_ENDIAN
+    #define DECLITEND 0
   #endif
 
   /* Conditional code flag -- set this to 1 for best performance      */
@@ -47,7 +99,7 @@
 
   /* Conditional code flag -- set this to 0 to exclude printf calls   */
   #if !defined(DECPRINT)
-  #define DECPRINT  1         /* 1=allow printf calls; 0=no printf    */
+  #define DECPRINT  0         /* 1=allow printf calls; 0=no printf    */
   #endif
 
   /* Conditional check flags -- set these to 0 for best performance   */

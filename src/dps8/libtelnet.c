@@ -11,9 +11,6 @@
  * all present and future rights to this code under copyright law.
  */
 
-//#ifdef HAVE_CONFIG_H
-//#include <config.h>
-//#endif
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -33,30 +30,14 @@
 #if defined(_WIN32)
 # define vsnprintf _vsnprintf
 # define __func__ __FUNCTION__
-# define ZLIB_WINAPI 1
 # if defined(_MSC_VER)
-/* va_copy() is directly supported starting in Visual Studio 2013
- * https://msdn.microsoft.com/en-us/library/kb57fad8(v=vs.110).aspx
- * https://msdn.microsoft.com/en-us/library/kb57fad8(v=vs.120).aspx
- */
 #  if _MSC_VER <= 1700
 #   define va_copy(dest, src) (dest = src)
 #  endif
 # endif
 #endif
 
-#if defined(HAVE_ZLIB)
-# include <zlib.h>
-#endif
-
 #include "libtelnet.h"
-
-/* inlinable functions */
-#if defined(__GNUC__) || __STDC_VERSION__ >= 199901L
-# define INLINE __inline__
-#else
-# define INLINE
-#endif
 
 /* helper for Q-method option tracking */
 #define Q_US(q) ((q).state & 0x0F)
@@ -92,10 +73,6 @@ struct telnet_t {
         const telnet_telopt_t *telopts;
         /* event handler */
         telnet_event_handler_t eh;
-#if defined(HAVE_ZLIB)
-        /* zlib (mccp2) compression */
-        z_stream *z;
-#endif
         /* RFC1143 option negotiation states */
         struct telnet_rfc1143_t *q;
         /* sub-request buffer */
@@ -163,93 +140,10 @@ static telnet_error_t _error(telnet_t *telnet, unsigned line,
         return err;
 }
 
-#if defined(HAVE_ZLIB)
-/* initialize the zlib box for a telnet box; if deflate is non-zero, it
- * initializes zlib for delating (compression), otherwise for inflating
- * (decompression).  returns TELNET_EOK on success, something else on
- * failure.
- */
-telnet_error_t _init_zlib(telnet_t *telnet, int deflate, int err_fatal) {
-        z_stream *z;
-        int rs;
-
-        /* if compression is already enabled, fail loudly */
-        if (telnet->z != 0)
-                return _error(telnet, __LINE__, __func__, TELNET_EBADVAL,
-                                err_fatal, "cannot initialize compression twice");
-
-        /* allocate zstream box */
-        if ((z= (z_stream *)calloc(1, sizeof(z_stream))) == 0)
-                return _error(telnet, __LINE__, __func__, TELNET_ENOMEM, err_fatal,
-                                "malloc() failed: %s", strerror(errno));
-
-        /* initialize */
-        if (deflate) {
-                if ((rs = deflateInit(z, Z_DEFAULT_COMPRESSION)) != Z_OK) {
-                        free(z);
-                        return _error(telnet, __LINE__, __func__, TELNET_ECOMPRESS,
-                                        err_fatal, "deflateInit() failed: %s", zError(rs));
-                }
-                telnet->flags |= TELNET_PFLAG_DEFLATE;
-        } else {
-                if ((rs = inflateInit(z)) != Z_OK) {
-                        free(z);
-                        return _error(telnet, __LINE__, __func__, TELNET_ECOMPRESS,
-                                        err_fatal, "inflateInit() failed: %s", zError(rs));
-                }
-                telnet->flags &= ~TELNET_PFLAG_DEFLATE;
-        }
-
-        telnet->z = z;
-
-        return TELNET_EOK;
-}
-#endif /* defined(HAVE_ZLIB) */
-
-/* push bytes out, compressing them first if need be */
+/* push bytes out */
 static void _send(telnet_t *telnet, const char *buffer,
                 size_t size) {
         telnet_event_t ev;
-
-#if defined(HAVE_ZLIB)
-        /* if we have a deflate (compression) zlib box, use it */
-        if (telnet->z != 0 && telnet->flags & TELNET_PFLAG_DEFLATE) {
-                char deflate_buffer[1024];
-                int rs;
-
-                /* initialize z state */
-                telnet->z->next_in = (unsigned char *)buffer;
-                telnet->z->avail_in = (unsigned int)size;
-                telnet->z->next_out = (unsigned char *)deflate_buffer;
-                telnet->z->avail_out = sizeof(deflate_buffer);
-
-                /* deflate until buffer exhausted and all output is produced */
-                while (telnet->z->avail_in > 0 || telnet->z->avail_out == 0) {
-                        /* compress */
-                        if ((rs = deflate(telnet->z, Z_SYNC_FLUSH)) != Z_OK) {
-                                _error(telnet, __LINE__, __func__, TELNET_ECOMPRESS, 1,
-                                                "deflate() failed: %s", zError(rs));
-                                deflateEnd(telnet->z);
-                                free(telnet->z);
-                                telnet->z = 0;
-                                break;
-                        }
-
-                        /* send event */
-                        ev.type = TELNET_EV_SEND;
-                        ev.data.buffer = deflate_buffer;
-                        ev.data.size = sizeof(deflate_buffer) - telnet->z->avail_out;
-                        telnet->eh(telnet, &ev, telnet->ud);
-
-                        /* prepare output buffer for next run */
-                        telnet->z->next_out = (unsigned char *)deflate_buffer;
-                        telnet->z->avail_out = sizeof(deflate_buffer);
-                }
-
-                /* do not continue with remaining code */
-                return;
-        }
-#endif /* defined(HAVE_ZLIB) */
 
         ev.type = TELNET_EV_SEND;
         ev.data.buffer = buffer;
@@ -264,7 +158,7 @@ static void _send(telnet_t *telnet, const char *buffer,
  * check if we (local) supports it, otherwise we check if he (remote)
  * supports it.  return non-zero if supported, zero if not supported.
  */
-static INLINE int _check_telopt(telnet_t *telnet, unsigned char telopt,
+static __inline__ int _check_telopt(telnet_t *telnet, unsigned char telopt,
                 int us) {
         int i;
 
@@ -289,7 +183,7 @@ static INLINE int _check_telopt(telnet_t *telnet, unsigned char telopt,
 }
 
 /* retrieve RFC1143 option state */
-static INLINE telnet_rfc1143_t _get_rfc1143(telnet_t *telnet,
+static __inline__ telnet_rfc1143_t _get_rfc1143(telnet_t *telnet,
                 unsigned char telopt) {
         telnet_rfc1143_t empty;
         unsigned int i;
@@ -308,7 +202,7 @@ static INLINE telnet_rfc1143_t _get_rfc1143(telnet_t *telnet,
 }
 
 /* save RFC1143 option state */
-static INLINE void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
+static __inline__ void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
                 unsigned char us, unsigned char him) {
         telnet_rfc1143_t *qtmp;
         unsigned int i;
@@ -356,7 +250,7 @@ static INLINE void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
 }
 
 /* send negotiation bytes */
-static INLINE void _send_negotiate(telnet_t *telnet, unsigned char cmd,
+static __inline__ void _send_negotiate(telnet_t *telnet, unsigned char cmd,
                 unsigned char telopt) {
         unsigned char bytes[3];
         bytes[0] = TELNET_IAC;
@@ -745,48 +639,6 @@ static int _mssp_telnet(telnet_t *telnet, char* buffer, size_t size) {
         return 0;
 }
 
-/* parse ZMP command subnegotiation buffers */
-static int _zmp_telnet(telnet_t *telnet, const char* buffer, size_t size) {
-        telnet_event_t ev;
-        char **argv;
-        const char *c;
-        size_t i, argc;
-
-        /* make sure this is a valid ZMP buffer */
-        if (size == 0 || buffer[size - 1] != 0) {
-                _error(telnet, __LINE__, __func__, TELNET_EPROTOCOL, 0,
-                                "incomplete ZMP frame");
-                return 0;
-        }
-
-        /* count arguments */
-        for (argc = 0, c = buffer; c != buffer + size; ++argc)
-                c += strlen(c) + 1;
-
-        /* allocate argument array, bail on error */
-        if ((argv = (char **)calloc(argc, sizeof(char *))) == 0) {
-                _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                                "calloc() failed: %s", strerror(errno));
-                return 0;
-        }
-
-        /* populate argument array */
-        for (i = 0, c = buffer; i != argc; ++i) {
-                argv[i] = (char *)c;
-                c += strlen(c) + 1;
-        }
-
-        /* invoke event with our arguments */
-        ev.type = TELNET_EV_ZMP;
-        ev.zmp.argv = (const char**)argv;
-        ev.zmp.argc = argc;
-        telnet->eh(telnet, &ev, telnet->ud);
-
-        /* clean up */
-        free(argv);
-        return 0;
-}
-
 /* parse TERMINAL-TYPE command subnegotiation buffers */
 static int _ttype_telnet(telnet_t *telnet, const char* buffer, size_t size) {
         telnet_event_t ev;
@@ -837,7 +689,7 @@ static int _ttype_telnet(telnet_t *telnet, const char* buffer, size_t size) {
 }
 
 /* process a subnegotiation buffer; return non-zero if the current buffer
- * must be aborted and reprocessed due to COMPRESS2 being activated
+ * must be aborted and reprocessed.
  */
 static int _subnegotiate(telnet_t *telnet) {
         telnet_event_t ev;
@@ -850,27 +702,8 @@ static int _subnegotiate(telnet_t *telnet) {
         telnet->eh(telnet, &ev, telnet->ud);
 
         switch (telnet->sb_telopt) {
-#if defined(HAVE_ZLIB)
-        /* received COMPRESS2 begin marker, setup our zlib box and
-         * start handling the compressed stream if it's not already.
-         */
-        case TELNET_TELOPT_COMPRESS2:
-                if (telnet->sb_telopt == TELNET_TELOPT_COMPRESS2) {
-                        if (_init_zlib(telnet, 0, 1) != TELNET_EOK)
-                                return 0;
-
-                        /* notify app that compression was enabled */
-                        ev.type = TELNET_EV_COMPRESS;
-                        ev.compress.state = 1;
-                        telnet->eh(telnet, &ev, telnet->ud);
-                        return 1;
-                }
-                return 0;
-#endif /* defined(HAVE_ZLIB) */
 
         /* specially handled subnegotiation telopt types */
-        case TELNET_TELOPT_ZMP:
-                return _zmp_telnet(telnet, telnet->buffer, telnet->buffer_pos);
         case TELNET_TELOPT_TTYPE:
                 return _ttype_telnet(telnet, telnet->buffer, telnet->buffer_pos);
         case TELNET_TELOPT_ENVIRON:
@@ -910,18 +743,6 @@ void telnet_free(telnet_t *telnet) {
                 telnet->buffer_size = 0;
                 telnet->buffer_pos = 0;
         }
-
-#if defined(HAVE_ZLIB)
-        /* free zlib box */
-        if (telnet->z != 0) {
-                if (telnet->flags & TELNET_PFLAG_DEFLATE)
-                        deflateEnd(telnet->z);
-                else
-                        inflateEnd(telnet->z);
-                free(telnet->z);
-                telnet->z = 0;
-        }
-#endif /* defined(HAVE_ZLIB) */
 
         /* free RFC1143 queue */
         if (telnet->q) {
@@ -1092,16 +913,6 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
                         /* IAC command in subnegotiation -- either IAC SE or IAC IAC */
                         if (byte == TELNET_IAC) {
                                 telnet->state = TELNET_STATE_SB_DATA_IAC;
-                        } else if (telnet->sb_telopt == TELNET_TELOPT_COMPRESS && byte == TELNET_WILL) {
-                                /* In 1998 MCCP used TELOPT 85 and the protocol defined an invalid
-                                 * subnegotiation sequence (IAC SB 85 WILL SE) to start compression.
-                                 * Subsequently MCCP version 2 was created in 2000 using TELOPT 86
-                                 * and a valid subnegotiation (IAC SB 86 IAC SE). libtelnet for now
-                                 * just captures and discards MCCPv1 sequences.
-                                 */
-                                start = i + 2;
-                                telnet->state = TELNET_STATE_DATA;
-                        /* buffer the byte, or bail if we can't */
                         } else if (_buffer_byte(telnet, byte) != TELNET_EOK) {
                                 start = i + 1;
                                 telnet->state = TELNET_STATE_DATA;
@@ -1119,12 +930,6 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
 
                                 /* process subnegotiation */
                                 if (_subnegotiate(telnet) != 0) {
-                                        /* any remaining bytes in the buffer are compressed.
-                                         * we have to re-invoke telnet_recv to get those
-                                         * bytes inflated and abort trying to process the
-                                         * remaining compressed bytes in the current _process
-                                         * buffer argument
-                                         */
                                         telnet_recv(telnet, &buffer[start], size - start);
                                         return;
                                 }
@@ -1184,58 +989,6 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
 /* push a bytes into the state tracker */
 void telnet_recv(telnet_t *telnet, const char *buffer,
                 size_t size) {
-#if defined(HAVE_ZLIB)
-        /* if we have an inflate (decompression) zlib stream, use it */
-        if (telnet->z != 0 && !(telnet->flags & TELNET_PFLAG_DEFLATE)) {
-                char inflate_buffer[1024];
-                int rs;
-
-                /* initialize zlib state */
-                telnet->z->next_in = (unsigned char*)buffer;
-                telnet->z->avail_in = (unsigned int)size;
-                telnet->z->next_out = (unsigned char *)inflate_buffer;
-                telnet->z->avail_out = sizeof(inflate_buffer);
-
-                /* inflate until buffer exhausted and all output is produced */
-                while (telnet->z->avail_in > 0 || telnet->z->avail_out == 0) {
-                        /* reset output buffer */
-
-                        /* decompress */
-                        rs = inflate(telnet->z, Z_SYNC_FLUSH);
-
-                        /* process the decompressed bytes on success */
-                        if (rs == Z_OK || rs == Z_STREAM_END)
-                                _process(telnet, inflate_buffer, sizeof(inflate_buffer) -
-                                                telnet->z->avail_out);
-                        else
-                                _error(telnet, __LINE__, __func__, TELNET_ECOMPRESS, 1,
-                                                "inflate() failed: %s", zError(rs));
-
-                        /* prepare output buffer for next run */
-                        telnet->z->next_out = (unsigned char *)inflate_buffer;
-                        telnet->z->avail_out = sizeof(inflate_buffer);
-
-                        /* on error (or on end of stream) disable further inflation */
-                        if (rs != Z_OK) {
-                                telnet_event_t ev;
-
-                                /* disable compression */
-                                inflateEnd(telnet->z);
-                                free(telnet->z);
-                                telnet->z = 0;
-
-                                /* send event */
-                                ev.type = TELNET_EV_COMPRESS;
-                                ev.compress.state = 0;
-                                telnet->eh(telnet, &ev, telnet->ud);
-
-                                break;
-                        }
-                }
-
-        /* COMPRESS2 is not negotiated, just process */
-        } else
-#endif /* defined(HAVE_ZLIB) */
                 _process(telnet, buffer, size);
 }
 
@@ -1424,50 +1177,6 @@ void telnet_subnegotiation(telnet_t *telnet, unsigned char telopt,
         telnet_send(telnet, buffer, size);
         _sendu(telnet, bytes + 3, 2);
 
-#if defined(HAVE_ZLIB)
-        /* if we're a proxy and we just sent the COMPRESS2 marker, we must
-         * make sure all further data is compressed if not already.
-         */
-        if (telnet->flags & TELNET_FLAG_PROXY &&
-                        telopt == TELNET_TELOPT_COMPRESS2) {
-                telnet_event_t ev;
-
-                if (_init_zlib(telnet, 1, 1) != TELNET_EOK)
-                        return;
-
-                /* notify app that compression was enabled */
-                ev.type = TELNET_EV_COMPRESS;
-                ev.compress.state = 1;
-                telnet->eh(telnet, &ev, telnet->ud);
-        }
-#endif /* defined(HAVE_ZLIB) */
-}
-
-void telnet_begin_compress2(UNUSED telnet_t *telnet) {
-#if defined(HAVE_ZLIB)
-        static const unsigned char compress2[] = { TELNET_IAC, TELNET_SB,
-                        TELNET_TELOPT_COMPRESS2, TELNET_IAC, TELNET_SE };
-
-        telnet_event_t ev;
-
-        /* attempt to create output stream first, bail if we can't */
-        if (_init_zlib(telnet, 1, 0) != TELNET_EOK)
-                return;
-
-        /* send compression marker.  we send directly to the event handler
-         * instead of passing through _send because _send would result in
-         * the compress marker itself being compressed.
-         */
-        ev.type = TELNET_EV_SEND;
-        ev.data.buffer = (const char*)compress2;
-        ev.data.size = sizeof(compress2);
-        telnet->eh(telnet, &ev, telnet->ud);
-
-        /* notify app that compression was successfully enabled */
-        ev.type = TELNET_EV_COMPRESS;
-        ev.compress.state = 1;
-        telnet->eh(telnet, &ev, telnet->ud);
-#endif /* defined(HAVE_ZLIB) */
 }
 
 /* send formatted data with \r and \n translation in addition to IAC IAC */
@@ -1616,54 +1325,4 @@ void telnet_ttype_is(telnet_t *telnet, const char* ttype) {
         _sendu(telnet, IS, sizeof(IS));
         _send(telnet, ttype, strlen(ttype));
         telnet_finish_sb(telnet);
-}
-
-/* send ZMP data */
-void telnet_send_zmp(telnet_t *telnet, size_t argc, const char **argv) {
-        size_t i;
-
-        /* ZMP header */
-        telnet_begin_zmp(telnet, argv[0]);
-
-        /* send out each argument, including trailing NUL byte */
-        for (i = 1; i != argc; ++i)
-                telnet_zmp_arg(telnet, argv[i]);
-
-        /* ZMP footer */
-        telnet_finish_zmp(telnet);
-}
-
-/* send ZMP data using varargs  */
-void telnet_send_vzmpv(telnet_t *telnet, va_list va) {
-        const char* arg;
-
-        /* ZMP header */
-        telnet_begin_sb(telnet, TELNET_TELOPT_ZMP);
-
-        /* send out each argument, including trailing NUL byte */
-        while ((arg = va_arg(va, const char *)) != 0)
-                telnet_zmp_arg(telnet, arg);
-
-        /* ZMP footer */
-        telnet_finish_zmp(telnet);
-}
-
-/* see telnet_send_vzmpv */
-void telnet_send_zmpv(telnet_t *telnet, ...) {
-        va_list va;
-
-        va_start(va, telnet);
-        telnet_send_vzmpv(telnet, va);
-        va_end(va);
-}
-
-/* begin a ZMP command */
-void telnet_begin_zmp(telnet_t *telnet, const char *cmd) {
-        telnet_begin_sb(telnet, TELNET_TELOPT_ZMP);
-        telnet_zmp_arg(telnet, cmd);
-}
-
-/* send a ZMP argument */
-void telnet_zmp_arg(telnet_t *telnet, const char* arg) {
-        telnet_send(telnet, arg, strlen(arg) + 1);
 }

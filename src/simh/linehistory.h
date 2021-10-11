@@ -37,14 +37,15 @@
 #define __LINENOISE_H
 
 #if !defined(__MINGW32__)   && \
-	!defined(CROSS_MINGW32) && \
+    !defined(CROSS_MINGW32) && \
     !defined(CROSS_MINGW64) && \
     !defined(__MINGW64__)   && \
     !defined(_MSC_VER)      && \
     !defined(_MSC_BUILD)    && \
     !defined(VMS)           && \
     !defined(__VMS)         && \
-    !defined(__OS2__)
+    !defined(__OS2__)       && \
+    !defined(__sun__)
 
 #ifndef HAVE_LINEHISTORY
 #define HAVE_LINEHISTORY

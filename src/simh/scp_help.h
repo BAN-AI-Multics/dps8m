@@ -34,10 +34,6 @@
  * This arrangement allows the long help messages being used in many devices to be
  * organized to be easier to approach and navigate.
  *
- * The helpx utility (a Perl script) will read a device source file
- * that conforms to the previous conventions, and produce a template and
- * initial translation into the format described here.
- *
  * The structure of the help text is:
  *
  * Lines beginning with whitespace are displayed as part of the current topic, except:

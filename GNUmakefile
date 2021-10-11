@@ -128,12 +128,6 @@ endif
 
 ###############################################################################
 
-ifneq (,$(wildcard src/Makefile.gci))
-  include src/Makefile.gci
-endif
-
-###############################################################################
-
 ifneq (,$(wildcard src/Makefile.dev))
   include src/Makefile.dev
 endif

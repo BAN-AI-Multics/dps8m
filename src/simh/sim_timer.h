@@ -23,10 +23,6 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
-
-   28-Apr-07    RMS     Added sim_rtc_init_all
-   17-Oct-06    RMS     Added idle support
-   02-Jan-04    RMS     Split out from SCP
 */
 
 #ifndef SIM_TIMER_H_
@@ -41,9 +37,7 @@ extern "C" {
 #if defined(__struct_timespec_defined)
 #define _TIMESPEC_DEFINED
 #endif
-#if defined(SIM_ASYNCH_IO) || defined(USE_READER_THREAD)
 #include <pthread.h>
-#endif
 
 #if defined (__APPLE__)
 #define HAVE_STRUCT_TIMESPEC 1   /* OSX defined the structure but doesn't tell us */

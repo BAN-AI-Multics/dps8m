@@ -23,26 +23,11 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
+*/
 
+/*
    Based on the original DZ11 simulator by Thord Nilson, as updated by
    Arthur Krewat.
-
-   10-Oct-12    MP      Added extended attach support for serial, per line
-                        listener and outgoing connections
-   17-Jan-11    MP      Added buffered line capabilities
-   20-Nov-08    RMS     Added three new standardized SHOW routines
-   07-Oct-08    JDB     Added serial port support to TMXR, TMLN
-   27-May-08    JDB     Added lnorder to TMXR structure,
-                        added tmxr_set_lnorder and tmxr_set_lnorder
-   14-May-08    JDB     Added dptr to TMXR structure
-   04-Jan-04    RMS     Changed TMXR ldsc to be pointer to linedesc array
-                        Added tmxr_linemsg, logging (from Mark Pizzolato)
-   29-Dec-03    RMS     Added output stall support, increased buffer size
-   22-Dec-02    RMS     Added break support (from Mark Pizzolato)
-   20-Aug-02    RMS     Added tmxr_open_master, tmxr_close_master, tmxr.port
-   30-Dec-01    RMS     Renamed tmxr_fstatus, added tmxr_fstats
-   20-Oct-01    RMS     Removed tmxr_getchar, formalized buffer guard,
-                        added tmxr_rqln, tmxr_tqln
 */
 
 #ifndef SIM_TMXR_H_
@@ -301,15 +286,7 @@ void _tmxr_debug (uint32 dbits, TMLN *lp, const char *msg, char *buf, int bufsiz
 #define tmxr_debug_connect(mp, msg) do {if (sim_deb && (mp)->dptr && (TMXR_DBG_CON & (mp)->dptr->dctrl)) sim_debug (TMXR_DBG_CON, mp->dptr, "%s\n", (msg)); } while (0)
 #define tmxr_debug_connect_line(lp, msg) do {if (sim_deb && (lp)->mp && (lp)->mp->dptr && (TMXR_DBG_CON & (lp)->mp->dptr->dctrl)) sim_debug (TMXR_DBG_CON, (lp)->mp->dptr, "Ln%d:%s\n", (int)((lp)-(lp)->mp->ldsc), (msg)); } while (0)
 
-#if defined(SIM_ASYNCH_MUX) && !defined(SIM_ASYNCH_IO)
-#undef SIM_ASYNCH_MUX
-#endif /* defined(SIM_ASYNCH_MUX) && !defined(SIM_ASYNCH_IO) */
-
-#if defined(SIM_ASYNCH_MUX)
-#define tmxr_attach(mp, uptr, cptr) tmxr_attach_ex(mp, uptr, cptr, TRUE)
-#else
 #define tmxr_attach(mp, uptr, cptr) tmxr_attach_ex(mp, uptr, cptr, FALSE)
-#endif
 #if (!defined(NOT_MUX_USING_CODE))
 #define sim_activate tmxr_activate
 #define sim_activate_after tmxr_activate_after

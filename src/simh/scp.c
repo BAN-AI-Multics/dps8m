@@ -24,193 +24,6 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
-
-   08-Mar-16    RMS     Added shutdown flag for detach_all
-   20-Mar-12    MP      Fixes to "SHOW <x> SHOW" commands
-   06-Jan-12    JDB     Fixed "SHOW DEVICE" with only one enabled unit (Dave Bryan)
-   25-Sep-11    MP      Added the ability for a simulator built with
-                        SIM_ASYNCH_IO to change whether I/O is actually done
-                        asynchronously by the new scp command SET ASYNCH and
-                        SET NOASYNCH
-   22-Sep-11    MP      Added signal catching of SIGHUP and SIGTERM to cause
-                        simulator STOP.  This allows an externally signalled
-                        event (i.e. system shutdown, or logoff) to signal a
-                        running simulator of these events and to allow
-                        reasonable actions to be taken.  This will facilitate
-                        running a simulator as a 'service' on *nix platforms,
-                        given a sufficiently flexible simulator .ini file.
-   20-Apr-11    MP      Added expansion of %STATUS% and %TSTATUS% in do command
-                        arguments.  STATUS is the numeric value of the last
-                        command error status and TSTATUS is the text message
-                        relating to the last command error status
-   17-Apr-11    MP      Changed sim_rest to defer attaching devices until after
-                        device register contents have been restored since some
-                        attach activities may reference register contained info.
-   29-Jan-11    MP      Adjusted sim_debug to:
-                          - include the simulator timestamp (sim_gtime)
-                            as part of the prefix for each line of output
-                          - write complete lines at a time (avoid asynch I/O issues).
-   05-Jan-11    MP      Added Asynch I/O support
-   22-Jan-11    MP      Added SET ON, SET NOON, ON, GOTO and RETURN command support
-   13-Jan-11    MP      Added "SHOW SHOW" and "SHOW <dev> SHOW" commands
-   05-Jan-11    RMS     Fixed bug in deposit stride for numeric input (John Dundas)
-   23-Dec-10    RMS     Clarified some help messages (Mark Pizzolato)
-   08-Nov-10    RMS     Fixed handling of DO with no arguments (Dave Bryan)
-   22-May-10    RMS     Added *nix READLINE support (Mark Pizzolato)
-   08-Feb-09    RMS     Fixed warnings in help printouts
-   29-Dec-08    RMS     Fixed implementation of MTAB_NC
-   24-Nov-08    RMS     Revised RESTORE unit logic for consistency
-   05-Sep-08    JDB     "detach_all" ignores error status returns if shutting down
-   17-Aug-08    RMS     Revert RUN/BOOT to standard, rather than powerup, reset
-   25-Jul-08    JDB     DO cmd missing params now default to null string
-   29-Jun-08    JDB     DO cmd sub_args now allows "\\" to specify literal backslash
-   04-Jun-08    JDB     label the patch delta more clearly
-   31-Mar-08    RMS     Fixed bug in local/global register search (Mark Pizzolato)
-                        Fixed bug in restore of RO units (Mark Pizzolato)
-   06-Feb-08    RMS     Added SET/SHO/NO BR with default argument
-   18-Jul-07    RMS     Modified match_ext for VMS ext;version support
-   28-Apr-07    RMS     Modified sim_instr invocation to call sim_rtcn_init_all
-                        Fixed bug in get_sim_opt
-                        Fixed bug in restoration with changed memory size
-   08-Mar-07    JDB     Fixed breakpoint actions in DO command file processing
-   30-Jan-07    RMS     Fixed bugs in get_ipaddr
-   17-Oct-06    RMS     Added idle support
-   04-Oct-06    JDB     DO cmd failure now echoes cmd unless -q
-   30-Aug-06    JDB     detach_unit returns SCPE_UNATT if not attached
-   14-Jul-06    RMS     Added sim_activate_abs
-   02-Jun-06    JDB     Fixed do_cmd to exit nested files on assertion failure
-                        Added -E switch to do_cmd to exit on any error
-   14-Feb-06    RMS     Upgraded save file format to V3.5
-   18-Jan-06    RMS     Added fprint_stopped_gen
-                        Added breakpoint spaces
-                        Fixed unaligned register access (Doug Carman)
-   22-Sep-05    RMS     Fixed declarations (Sterling Garwood)
-   30-Aug-05    RMS     Revised to trim trailing spaces on file names
-   25-Aug-05    RMS     Added variable default device support
-   23-Aug-05    RMS     Added Linux line history support
-   16-Aug-05    RMS     Fixed C++ declaration and cast problems
-   01-May-05    RMS     Revised syntax for SET DEBUG (Dave Bryan)
-   22-Mar-05    JDB     Modified DO command to allow ten-level nesting
-   18-Mar-05    RMS     Moved DETACH tests into detach_unit (Dave Bryan)
-                        Revised interface to fprint_sym, fparse_sym
-   13-Mar-05    JDB     ASSERT now requires a conditional operator
-   07-Feb-05    RMS     Added ASSERT command (Dave Bryan)
-   02-Feb-05    RMS     Fixed bug in global register search
-   26-Dec-04    RMS     Qualified SAVE examine, RESTORE deposit with SIM_SW_REST
-   10-Nov-04    JDB     Fixed logging of errors from cmds in "do" file
-   05-Nov-04    RMS     Moved SET/SHOW DEBUG under CONSOLE hierarchy
-                        Renamed unit OFFLINE/ONLINE to DISABLED/ENABLED (Dave Bryan)
-                        Revised to flush output files after simulation stop (Dave Bryan)
-   15-Oct-04    RMS     Fixed HELP to suppress duplicate descriptions
-   27-Sep-04    RMS     Fixed comma-separation options in set (David Bryan)
-   09-Sep-04    RMS     Added -p option for RESET
-   13-Aug-04    RMS     Qualified RESTORE detach with SIM_SW_REST
-   17-Jul-04    JDB     DO cmd file open failure retries with ".sim" appended
-   17-Jul-04    RMS     Added ECHO command (Dave Bryan)
-   12-Jul-04    RMS     Fixed problem ATTACHing to read only files
-                        (John Dundas)
-   28-May-04    RMS     Added SET/SHOW CONSOLE
-   14-Feb-04    RMS     Updated SAVE/RESTORE (V3.2)
-                RMS     Added debug print routines (Dave Hittner)
-                RMS     Added sim_vm_parse_addr and sim_vm_fprint_addr
-                RMS     Added REG_VMAD support
-                RMS     Split out libraries
-                RMS     Moved logging function to SCP
-                RMS     Exposed step counter interface(s)
-                RMS     Fixed double logging of SHOW BREAK (Mark Pizzolato)
-                RMS     Fixed implementation of REG_VMIO
-                RMS     Added SET/SHOW DEBUG, SET/SHOW <device> DEBUG,
-                        SHOW <device> MODIFIERS, SHOW <device> RADIX
-                RMS     Changed sim_fsize to take uptr argument
-   29-Dec-03    RMS     Added Telnet console output stall support
-   01-Nov-03    RMS     Cleaned up implicit detach on attach/restore
-                        Fixed bug in command line read while logging (Mark Pizzolato)
-   01-Sep-03    RMS     Fixed end-of-file problem in dep, idep
-                        Fixed error on trailing spaces in dep, idep
-   15-Jul-03    RMS     Removed unnecessary test in reset_all
-   15-Jun-03    RMS     Added register flag REG_VMIO
-   25-Apr-03    RMS     Added extended address support (V3.0)
-                        Fixed bug in SAVE (Peter Schorn)
-                        Added u5, u6 fields
-                        Added logical name support
-   03-Mar-03    RMS     Added sim_fsize
-   27-Feb-03    RMS     Fixed bug in multiword deposits to files
-   08-Feb-03    RMS     Changed sim_os_sleep to void, match_ext to char*
-                        Added multiple actions, .ini file support
-                        Added multiple switch evaluations per line
-   07-Feb-03    RMS     Added VMS support for ! (Mark Pizzolato)
-   01-Feb-03    RMS     Added breakpoint table extension, actions
-   14-Jan-03    RMS     Added missing function prototypes
-   10-Jan-03    RMS     Added attach/restore flag, dynamic memory size support,
-                        case sensitive SET options
-   22-Dec-02    RMS     Added ! (OS command) feature (Mark Pizzolato)
-   17-Dec-02    RMS     Added get_ipaddr
-   02-Dec-02    RMS     Added EValuate command
-   16-Nov-02    RMS     Fixed bug in register name match algorithm
-   13-Oct-02    RMS     Fixed Borland compiler warnings (Hans Pufal)
-   05-Oct-02    RMS     Fixed bugs in set_logon, ssh_break (David Hittner)
-                        Added support for fixed buffer devices
-                        Added support for Telnet console, removed VT support
-                        Added help <command>
-                        Added VMS file optimizations (Robert Alan Byer)
-                        Added quiet mode, DO with parameters, GUI interface,
-                           extensible commands (Brian Knittel)
-                        Added device enable/disable commands
-   14-Jul-02    RMS     Fixed exit bug in do, added -v switch (Brian Knittel)
-   17-May-02    RMS     Fixed bug in fxread/fxwrite error usage (found by
-                        Norm Lastovic)
-   02-May-02    RMS     Added VT emulation interface, changed {NO}LOG to SET {NO}LOG
-   22-Apr-02    RMS     Fixed laptop sleep problem in clock calibration, added
-                        magtape record length error (Jonathan Engdahl)
-   26-Feb-02    RMS     Fixed initialization bugs in do_cmd, get_aval
-                        (Brian Knittel)
-   10-Feb-02    RMS     Fixed problem in clock calibration
-   06-Jan-02    RMS     Moved device enable/disable to simulators
-   30-Dec-01    RMS     Generalized timer packaged, added circular arrays
-   19-Dec-01    RMS     Fixed DO command bug (John Dundas)
-   07-Dec-01    RMS     Implemented breakpoint package
-   05-Dec-01    RMS     Fixed bug in universal register logic
-   03-Dec-01    RMS     Added read-only units, extended SET/SHOW, universal registers
-   24-Nov-01    RMS     Added unit-based registers
-   16-Nov-01    RMS     Added DO command
-   28-Oct-01    RMS     Added relative range addressing
-   08-Oct-01    RMS     Added SHOW VERSION
-   30-Sep-01    RMS     Relaxed attach test in BOOT
-   27-Sep-01    RMS     Added queue count routine, fixed typo in ex/mod
-   17-Sep-01    RMS     Removed multiple console support
-   07-Sep-01    RMS     Removed conditional externs on function prototypes
-                        Added special modifier print
-   31-Aug-01    RMS     Changed int64 to t_int64 for Windoze (V2.7)
-   18-Jul-01    RMS     Minor changes for Macintosh port
-   12-Jun-01    RMS     Fixed bug in big-endian I/O (Dave Conroy)
-   27-May-01    RMS     Added multiple console support
-   16-May-01    RMS     Added logging
-   15-May-01    RMS     Added features from Tim Litt
-   12-May-01    RMS     Fixed missing return in disable_cmd
-   25-Mar-01    RMS     Added ENABLE/DISABLE
-   05-Mar-01    RMS     Added clock calibration support
-   05-Feb-01    RMS     Fixed bug, DETACH buffered unit with hwmark = 0
-   04-Feb-01    RMS     Fixed bug, RESTORE not using device's attach routine
-   21-Jan-01    RMS     Added relative time
-   22-Dec-00    RMS     Fixed find_device for devices ending in numbers
-   08-Dec-00    RMS     V2.5a changes
-   30-Oct-00    RMS     Added output file option to examine
-   11-Jul-99    RMS     V2.5 changes
-   13-Apr-99    RMS     Fixed handling of 32b addresses
-   04-Oct-98    RMS     V2.4 changes
-   20-Aug-98    RMS     Added radix commands
-   05-Jun-98    RMS     Fixed bug in ^D handling for UNIX
-   10-Apr-98    RMS     Added switches to all commands
-   26-Oct-97    RMS     Added search capability
-   25-Jan-97    RMS     Revised data types
-   23-Jan-97    RMS     Added bi-endian I/O
-   06-Sep-96    RMS     Fixed bug in variable length IEXAMINE
-   16-Jun-96    RMS     Changed interface to parse/print_sym
-   06-Apr-96    RMS     Added error checking in reset all
-   07-Jan-96    RMS     Added register buffers in save/restore
-   11-Dec-95    RMS     Fixed ordering bug in save/restore
-   22-May-95    RMS     Added symbolic input
-   13-Apr-95    RMS     Added symbolic printouts
 */
 
 /* Macros and data structures */
@@ -218,7 +31,6 @@
 #define NOT_MUX_USING_CODE /* sim_tmxr library provider or agnostic */
 
 #include "sim_defs.h"
-#include "sim_rev.h"
 #include "sim_disk.h"
 #include "sim_tape.h"
 #include "sim_serial.h"
@@ -246,8 +58,13 @@
 #include <sys/sysctl.h>
 #endif
 
+#include <uv.h>
+
 #include "../dps8/ver.h"
 #include "../dps8/sysdefs.h"
+
+#include "../decNumber/decContext.h"
+#include "../decNumber/decNumberLocal.h"
 
 #ifndef MAX
 #define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
@@ -293,7 +110,6 @@
 #define SZ_D(dp) (size_map[((dp)->dwidth + CHAR_BIT - 1) / CHAR_BIT])
 #define SZ_R(rp) \
     (size_map[((rp)->width + (rp)->offset + CHAR_BIT - 1) / CHAR_BIT])
-#if defined (USE_INT64)
 #define SZ_LOAD(sz,v,mb,j) \
     if (sz == sizeof (uint8)) v = *(((uint8 *) mb) + ((uint32) j)); \
     else if (sz == sizeof (uint16)) v = *(((uint16 *) mb) + ((uint32) j)); \
@@ -304,16 +120,6 @@
     else if (sz == sizeof (uint16)) *(((uint16 *) mb) + ((uint32) j)) = (uint16) v; \
     else if (sz == sizeof (uint32)) *(((uint32 *) mb) + ((uint32) j)) = (uint32) v; \
     else *(((t_uint64 *) mb) + ((uint32) j)) = v;
-#else
-#define SZ_LOAD(sz,v,mb,j) \
-    if (sz == sizeof (uint8)) v = *(((uint8 *) mb) + ((uint32) j)); \
-    else if (sz == sizeof (uint16)) v = *(((uint16 *) mb) + ((uint32) j)); \
-    else v = *(((uint32 *) mb) + ((uint32) j));
-#define SZ_STORE(sz,v,mb,j) \
-    if (sz == sizeof (uint8)) *(((uint8 *) mb) + ((uint32) j)) = (uint8) v; \
-    else if (sz == sizeof (uint16)) *(((uint16 *) mb) + ((uint32) j)) = (uint16) v; \
-    else *(((uint32 *) mb) + ((uint32) j)) = v;
-#endif
 #define GET_SWITCHES(cp) \
     if ((cp = get_sim_sw (cp)) == NULL) return SCPE_INVSW
 #define GET_RADIX(val,dft) \
@@ -323,84 +129,12 @@
     else val = dft;
 
 /* Asynch I/O support */
-#if defined (SIM_ASYNCH_IO)
-pthread_mutex_t sim_asynch_lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t sim_asynch_wake = PTHREAD_COND_INITIALIZER;
-
-pthread_mutex_t sim_timer_lock     = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t sim_timer_wake      = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t sim_tmxr_poll_lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t sim_tmxr_poll_cond  = PTHREAD_COND_INITIALIZER;
-int32 sim_tmxr_poll_count;
-pthread_t sim_asynch_main_threadid;
-UNIT * volatile sim_asynch_queue;
-t_bool sim_asynch_enabled = TRUE;
-int32 sim_asynch_check;
-int32 sim_asynch_latency = 4000;      /* 4 usec interrupt latency */
-int32 sim_asynch_inst_latency = 20;   /* assume 5 mip simulator */
-
-int sim_aio_update_queue (void)
-{
-int migrated = 0;
-
-if (AIO_QUEUE_VAL != QUEUE_LIST_END) {  /* List !Empty */
-    UNIT *q, *uptr;
-    int32 a_event_time;
-    do
-        q = AIO_QUEUE_VAL;
-        while (q != AIO_QUEUE_SET(QUEUE_LIST_END, q));  /* Grab current queue */
-    while (q != QUEUE_LIST_END) {       /* List !Empty */
-        sim_debug (SIM_DBG_AIO_QUEUE, sim_dflt_dev, "Migrating Asynch event for %s after %d instructions\n", sim_uname(q), q->a_event_time);
-        ++migrated;
-        uptr = q;
-        q = q->a_next;
-        uptr->a_next = NULL;        /* hygiene */
-        if (uptr->a_activate_call != &sim_activate_notbefore) {
-            a_event_time = uptr->a_event_time-((sim_asynch_inst_latency+1)/2);
-            if (a_event_time < 0)
-                a_event_time = 0;
-            }
-        else
-            a_event_time = uptr->a_event_time;
-        uptr->a_activate_call (uptr, a_event_time);
-        if (uptr->a_check_completion) {
-            sim_debug (SIM_DBG_AIO_QUEUE, sim_dflt_dev, "Calling Completion Check for asynch event on %s\n", sim_uname(uptr));
-            uptr->a_check_completion (uptr);
-            }
-        }
-    }
-return migrated;
-}
-
-void sim_aio_activate (ACTIVATE_API caller, UNIT *uptr, int32 event_time)
-{
-sim_debug (SIM_DBG_AIO_QUEUE, sim_dflt_dev, "Queueing Asynch event for %s after %d instructions\n", sim_uname(uptr), event_time);
-if (uptr->a_next) {
-    uptr->a_activate_call = sim_activate_abs;
-    }
-else {
-    UNIT *q;
-    uptr->a_event_time = event_time;
-    uptr->a_activate_call = caller;
-    do {
-        q = AIO_QUEUE_VAL;
-        uptr->a_next = q;                               /* Mark as on list */
-        } while (q != AIO_QUEUE_SET(uptr, q));
-    }
-sim_asynch_check = 0;                             /* try to force check */
-if (sim_idle_wait) {
-    sim_debug (TIMER_DBG_IDLE, &sim_timer_dev, "waking due to event on %s after %d instructions\n", sim_uname(uptr), event_time);
-    pthread_cond_signal (&sim_asynch_wake);
-    }
-}
-#else
 t_bool sim_asynch_enabled = FALSE;
-#endif
 
 /* The per-simulator init routine is a weak global that defaults to NULL
    The other per-simulator pointers can be overrriden by the init routine */
 
-WEAK extern void (*sim_vm_init) (void);
+extern void (*sim_vm_init) (void);
 char* (*sim_vm_read) (char *ptr, int32 size, FILE *stream) = NULL;
 void (*sim_vm_post) (t_bool from_scp) = NULL;
 CTAB *sim_vm_cmd = NULL;
@@ -583,17 +317,13 @@ static SCHTAB sim_staba;                                /* Memory search specifi
 
 static UNIT sim_step_unit = { UDATA (&step_svc, 0, 0)  };
 static UNIT sim_expect_unit = { UDATA (&expect_svc, 0, 0)  };
-#if defined USE_INT64
 static const char *sim_si64 = "64b data";
-#else
-static const char *sim_si64 = "32b data";
-#endif
 #if defined USE_ADDR64
 static const char *sim_sa64 = "64b addresses";
 #else
 static const char *sim_sa64 = "32b addresses";
 #endif
-const char *sim_savename = sim_name;      /* Simulator Name used in SAVE/RESTORE images */
+const char *sim_savename = sim_name;      /* simulator Name used in SAVE/RESTORE images */
 
 /* Tables and strings */
 
@@ -657,9 +387,7 @@ const struct scp_error {
 
 const size_t size_map[] = { sizeof (int8),
     sizeof (int8), sizeof (int16), sizeof (int32), sizeof (int32)
-#if defined (USE_INT64)
     , sizeof (t_int64), sizeof (t_int64), sizeof (t_int64), sizeof (t_int64)
-#endif
 };
 
 const t_value width_mask[] = { 0,
@@ -671,7 +399,6 @@ const t_value width_mask[] = { 0,
     0x1FFFFF, 0x3FFFFF, 0x7FFFFF, 0xFFFFFF,
     0x1FFFFFF, 0x3FFFFFF, 0x7FFFFFF, 0xFFFFFFF,
     0x1FFFFFFF, 0x3FFFFFFF, 0x7FFFFFFF, 0xFFFFFFFF
-#if defined (USE_INT64)
     , 0x1FFFFFFFF, 0x3FFFFFFFF, 0x7FFFFFFFF, 0xFFFFFFFFF,
     0x1FFFFFFFFF, 0x3FFFFFFFFF, 0x7FFFFFFFFF, 0xFFFFFFFFFF,
     0x1FFFFFFFFFF, 0x3FFFFFFFFFF, 0x7FFFFFFFFFF, 0xFFFFFFFFFFF,
@@ -682,7 +409,6 @@ const t_value width_mask[] = { 0,
     0x7FFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFF,
     0x1FFFFFFFFFFFFFFF, 0x3FFFFFFFFFFFFFFF,
     0x7FFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
-#endif
     };
 
 static const char simh_help[] =
@@ -1101,13 +827,6 @@ static const char simh_help[] =
       "+set break <list>            set breakpoints\n"
       "+set nobreak <list>          clear breakpoints\n"
        /***************** 80 character line width template *************************/
-#ifdef SIMH_THROTTLE
-#define HLP_SET_THROTTLE "*Commands SET Throttle"
-      "3Throttle\n"
-      "+set throttle {x{M|K|%%}}|{x/t}\n"
-      "++++++++                     set simulation rate\n"
-      "+set nothrottle              set simulation rate to maximum\n"
-#endif /* SIMH_THROTTLE */
 #define HLP_SET_ASYNCH "*Commands SET Asynch"
       "3Asynch\n"
       "+set asynch                  enable asynchronous I/O\n"
@@ -1177,9 +896,6 @@ static const char simh_help[] =
       "+sh{ow} n{ames}              show logical names\n"
       "+sh{ow} q{ueue}              show event queue\n"
       "+sh{ow} ti{me}               show simulated time\n"
-#ifdef SIMH_THROTTLE
-      "+sh{ow} th{rottle}           show simulation rate\n"
-#endif /* SIMH_THROTTLE */
       "+sh{ow} a{synch}             show asynchronouse I/O state\n"
       "+sh{ow} b{uildinfo}          show build compilation information\n"
       "+sh{ow} ve{rsion}            show simulator version\n"
@@ -1197,9 +913,6 @@ static const char simh_help[] =
       "+sh{ow} serial               show serial devices\n"
       "+sh{ow} multiplexer          show open multiplexer devices\n"
       "+sh{ow} clocks               show calibrated timers\n"
-#ifdef SIMH_THROTTLE
-      "+sh{ow} throttle             show throttle info\n"
-#endif /* SIMH_THROTTLE */
       "+sh{ow} on                   show on condition actions\n"
       "+h{elp} <dev> show           displays the device specific show commands\n"
       "++++++++                     available\n"
@@ -1220,9 +933,6 @@ static const char simh_help[] =
 #define HLP_SHOW_BREAK          "*Commands SHOW"
 #define HLP_SHOW_LOG            "*Commands SHOW"
 #define HLP_SHOW_DEBUG          "*Commands SHOW"
-#ifdef SIMH_THROTTLE
-#define HLP_SHOW_THROTTLE       "*Commands SHOW"
-#endif /* SIMH_THROTTLE */
 #define HLP_SHOW_ASYNCH         "*Commands SHOW"
 #define HLP_SHOW_SERIAL         "*Commands SHOW"
 #define HLP_SHOW_MULTIPLEXER    "*Commands SHOW"
@@ -1573,21 +1283,10 @@ ASSERT      failure have several different actions:
       " as a regular expression applied to the output data stream.  This regular\n"
       " expression may contain parentheses delimited sub-groups.\n\n"
        /***************** 80 character line width template *************************/
-#if defined (HAVE_PCREPOSIX_H)
-      " The syntax of the regular expressions available are those supported by\n"
-      " the Perl Compatible Regular Expression package (aka PCRE).  As the name\n"
-      " implies, the syntax is generally the same as Perl regular expressions.\n"
-      " See http://perldoc.perl.org/perlre.html for more details\n"
-#elif defined (HAVE_REGEX_H)
-      " The syntax of the regular expressions available are those supported by\n"
-      " your local system's Regular Expression library using the Extended POSIX\n"
-      " Regular Expressiona\n"
-#else
       " Regular expression support is not currently available on your environment.\n"
       " This simulator could use regular expression support provided by the\n"
       " Perl Compatible Regular Expression (PCRE) package if it was available\n"
       " when you simulator was compiled.\n"
-#endif
       "5-i\n"
       " If a regular expression expect rule is defined with the -i switch,\n"
       " character matching for that expression will be case independent.\n"
@@ -1748,11 +1447,7 @@ ASSERT      failure have several different actions:
       " on the local system.  The contents of that display can be saved in a\n"
       " file with the SCREENSHOT command:\n\n"
       " +SCREENSHOT screenshotfile\n\n"
-#if defined(HAVE_LIBPNG)
-      " which will create a screen shot file called screenshotfile.png\n"
-#else
       " which will create a screen shot file called screenshotfile.bmp\n"
-#endif
 #define HLP_SPAWN       "*Commands Executing_System_Commands"
       "2Executing System Commands\n"
       " The simulator can execute operating system commands with the ! (spawn)\n"
@@ -1830,10 +1525,6 @@ static CTAB set_glob_tab[] = {
     { "NOLOG",      &sim_set_logoff,            0, HLP_SET_LOG  },
     { "DEBUG",      &sim_set_debon,             0, HLP_SET_DEBUG  },
     { "NODEBUG",    &sim_set_deboff,            0, HLP_SET_DEBUG  },
-#ifdef SIMH_THROTTLE
-    { "THROTTLE",   &sim_set_throt,             1, HLP_SET_THROTTLE },
-    { "NOTHROTTLE", &sim_set_throt,             0, HLP_SET_THROTTLE },
-#endif /* SIMH_THROTTLE */
     { "ASYNCH",     &sim_set_asynch,            1, HLP_SET_ASYNCH },
     { "NOASYNCH",   &sim_set_asynch,            0, HLP_SET_ASYNCH },
     { "ENVIRONMENT", &sim_set_environment,      1, HLP_SET_ENVIRON },
@@ -1887,9 +1578,6 @@ static SHTAB show_glob_tab[] = {
     { "LOG",            &sim_show_log,              0, HLP_SHOW_LOG },
     { "TELNET",         &sim_show_telnet,           0 },    /* deprecated */
     { "DEBUG",          &sim_show_debug,            0, HLP_SHOW_DEBUG },
-#ifdef SIMH_THROTTLE
-    { "THROTTLE",       &sim_show_throt,            0, HLP_SHOW_THROTTLE },
-#endif /* SIMH_THROTTLE */
     { "ASYNCH",         &sim_show_asynch,           0, HLP_SHOW_ASYNCH },
     { "SERIAL",         &sim_show_serial,           0, HLP_SHOW_SERIAL },
     { "MULTIPLEXER",    &tmxr_show_open_devices,    0, HLP_SHOW_MULTIPLEXER },
@@ -1986,24 +1674,34 @@ t_bool lookswitch;
 t_stat stat;
 
 #ifdef __MINGW32__
+#ifndef NEED_CONSOLE_SETUP
 #define NEED_CONSOLE_SETUP
+#endif
 #endif /* ifdef __MINGW32__ */
 
 #ifdef CROSS_MINGW32
+#ifndef NEED_CONSOLE_SETUP
 #define NEED_CONSOLE_SETUP
+#endif
 #endif /* ifdef CROSS_MINGW32 */
 
 #ifdef __MINGW64__
+#ifndef NEED_CONSOLE_SETUP
 #define NEED_CONSOLE_SETUP
+#endif
 #endif /* ifdef __MINGW64__ */
 
 #ifdef CROSS_MINGW64
+#ifndef NEED_CONSOLE_SETUP
 #define NEED_CONSOLE_SETUP
+#endif
 #endif /* ifdef CROSS_MINGW64 */
 
 #if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
 #include <windows.h>
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
 #endif /* if defined(NEED_CONSOLE_SETUP) && defined(_WIN32) */
 
 #ifdef NEED_CONSOLE_SETUP
@@ -2020,15 +1718,27 @@ if (handle != INVALID_HANDLE_VALUE)
 puts ("\e[0m");
 #endif /* NEED_CONSOLE_SETUP */
 
+/* endian-ness sanity test */
+int testEndian = decContextTestEndian(1);
+if (testEndian != 0) {
+  if (testEndian == 1) {
+    fprintf (stderr,
+      "Error: Compiled for big-endian, but little-endian ordering detected; aborting.\n");
+    return 0;
+  }
+  if (testEndian == -1) {
+    fprintf (stderr,
+      "Error: Compiled for little-endian, but big-endian ordering detected; aborting.\n");
+    return 0;
+  }
+  fprintf (stderr,
+    "Error: Unable to determine system byte order; aborting.\n");
+  return 0;
+}
+
 /* invocation sanity check */
 if (argc == 0) {
     fprintf (stderr, "Error: main() called directly!\n");
-    return 0;
-}
-
-/* simulation sanity check */
-if (sim_name == NULL) {
-    fprintf (stderr, "Error: Not a simulator!\n");
     return 0;
 }
 
@@ -2051,41 +1761,41 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
         continue;
 
 /* requested only version? */
-	int onlyvers  = strcmp(argv[i], "--version");
+    int onlyvers  = strcmp(argv[i], "--version");
     if (onlyvers == 0) {
 #ifdef VER_H_GIT_VERSION
 #if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #if VER_H_GIT_PATCH_INT < 1
-        fprintf (stdout, "%s Simulator %s\n", sim_name, VER_H_GIT_VERSION);
+        fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
 #else
-        fprintf (stdout, "%s Simulator %s+%s\n", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
+        fprintf (stdout, "%s simulator %s+%s\n", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
 #endif /* if VER_H_GIT_PATCH_INT < 1 */
 #else
-        fprintf (stdout, "%s Simulator %s\n", sim_name, VER_H_GIT_VERSION);
+        fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
 #endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
 #else   
-        fprintf (stdout, "%s Simulator\n", sim_name);
+        fprintf (stdout, "%s simulator\n", sim_name);
 #endif /* ifdef VER_H_GIT_VERSION */
         return 0;
     }
     
 /* requested short or long help? */
     int longhelp  = strcmp(argv[i], "--help");
-	int shorthelp = strcmp(argv[i], "-h");
-	if (shorthelp != 0) shorthelp = strcmp(argv[i], "-H");
+    int shorthelp = strcmp(argv[i], "-h");
+    if (shorthelp != 0) shorthelp = strcmp(argv[i], "-H");
     if (longhelp == 0 || shorthelp == 0) {
 #ifdef VER_H_GIT_VERSION
 #if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #if VER_H_GIT_PATCH_INT < 1
-        fprintf (stdout, "%s Simulator %s", sim_name, VER_H_GIT_VERSION);
+        fprintf (stdout, "%s simulator %s", sim_name, VER_H_GIT_VERSION);
 #else
-        fprintf (stdout, "%s Simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
+        fprintf (stdout, "%s simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
 #endif /* if VER_H_GIT_PATCH_INT < 1 */
 #else
-        fprintf (stdout, "%s Simulator %s", sim_name, VER_H_GIT_VERSION);
+        fprintf (stdout, "%s simulator %s", sim_name, VER_H_GIT_VERSION);
 #endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
 #else
-        fprintf (stdout, "%s Simulator", sim_name);
+        fprintf (stdout, "%s simulator", sim_name);
 #endif /* ifdef VER_H_GIT_VERSION */
         fprintf (stdout, "\nUsage: %s { [SWITCHES] ... } { <SCRIPT> { [arg], [arg], ... } }\n", argv[0]);
         fprintf (stdout, "\nInvokes the %s simulator, with optional switches and/or script file.\n", sim_name);
@@ -3985,39 +3695,11 @@ t_stat sim_set_asynch (int32 flag, CONST char *cptr)
 {
 if (cptr && (*cptr != 0))                               /* now eol? */
     return SCPE_2MARG;
-#ifdef SIM_ASYNCH_IO
-if (flag == sim_asynch_enabled)                         /* already set correctly? */
-    return SCPE_OK;
-sim_asynch_enabled = flag;
-tmxr_change_async ();
-sim_timer_change_asynch ();
-if (1) {
-    uint32 i, j;
-    DEVICE *dptr;
-    UNIT *uptr;
-
-    /* Call unit flush routines to report asynch status change to device layer */
-    for (i = 1; (dptr = sim_devices[i]) != NULL; i++) { /* flush attached files */
-        for (j = 0; j < dptr->numunits; j++) {          /* if not buffered in mem */
-            uptr = dptr->units + j;
-            if ((uptr->flags & UNIT_ATT) &&             /* attached, */
-                (uptr->io_flush))                       /* unit specific flush routine */
-                uptr->io_flush (uptr);
-            }
-        }
-    }
-if (!sim_quiet)
-    printf ("Asynchronous I/O %sabled\n", sim_asynch_enabled ? "en" : "dis");
-if (sim_log)
-    fprintf (sim_log, "Asynchronous I/O %sabled\n", sim_asynch_enabled ? "en" : "dis");
-return SCPE_OK;
-#else
 if (!sim_quiet)
     printf ("Asynchronous I/O is not available in this simulator\n");
 if (sim_log)
     fprintf (sim_log, "Asynchronous I/O is not available in this simulator\n");
 return SCPE_NOFNC;
-#endif
 }
 
 /* Show asynch routine */
@@ -4026,17 +3708,7 @@ t_stat sim_show_asynch (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST ch
 {
 if (cptr && (*cptr != 0))
     return SCPE_2MARG;
-#ifdef SIM_ASYNCH_IO
-fprintf (st, "Asynchronous I/O is %sabled, %s\n", (sim_asynch_enabled) ? "en" : "dis", AIO_QUEUE_MODE);
-#if defined(SIM_ASYNCH_MUX)
-fprintf (st, "Asynchronous Multiplexer support is available\n");
-#endif
-#if defined(SIM_ASYNCH_CLOCKS)
-fprintf (st, "Asynchronous Clock is %sabled\n", (sim_asynch_timer) ? "en" : "dis");
-#endif
-#else
 fprintf (st, "Asynchronous I/O is not available in this simulator\n");
-#endif
 return SCPE_OK;
 }
 
@@ -4595,53 +4267,93 @@ t_stat show_prom (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cp
 
 t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-    fprintf (st, " Build information:");
+    fprintf (st, " Build Information:\n");
 #if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
-    fprintf (st, "\n      Compilation info: %s\n", BUILDINFO_scp );
-	fprintf (st, "  Relevant definitions: %s\n", SYSDEFS_USED );
+    fprintf (st, "      Compilation info: %s\n", BUILDINFO_scp );
+    fprintf (st, "  Relevant definitions: %s\n", SYSDEFS_USED );
 #elif defined(BUILDINFO_scp)
-	fprintf (st, "\n      Compilation info: %s\n", BUILDINFO_scp );
+    fprintf (st, "      Compilation info: %s\n", BUILDINFO_scp );
 #else
- 	fprintf (st, "\n      Compilation info: Not available\n" );
+    fprintf (st, "      Compilation info: Not available\n" );
 #endif
-	return 0;
+#if defined (UV_VERSION_MAJOR) && \
+    defined (UV_VERSION_MINOR) && \
+    defined (UV_VERSION_PATCH)
+#ifdef UV_VERSION_MAJOR
+#ifndef UV_VERSION_MINOR
+#ifndef UV_VERSION_PATCH
+#ifndef UV_VERSION_SUFFIX
+    fprintf (st, "    Event loop library: Built with libuv v%d", UV_VERSION_MAJOR);
+#endif /* ifndef UV_VERSION_SUFFIX */
+#endif /* ifndef UV_VERSION_PATCH */
+#endif /* ifndef UV_VERSION_MINOR */
+#ifdef UV_VERSION_MINOR
+#ifndef UV_VERSION_PATCH
+#ifndef UV_VERSION_SUFFIX
+    fprintf (st, "    Event loop library: Built with libuv %d.%d", UV_VERSION_MAJOR,
+            UV_VERSION_MINOR);
+#endif /* ifndef UV_VERSION_SUFFIX */
+#endif /* ifndef UV_VERSION_PATCH */
+#ifdef UV_VERSION_PATCH
+#ifndef UV_VERSION_SUFFIX
+    fprintf (st, "    Event loop library: Built with libuv %d.%d.%d", UV_VERSION_MAJOR,
+            UV_VERSION_MINOR, UV_VERSION_PATCH);
+#endif /* ifndef UV_VERSION_SUFFIX */
+#ifdef UV_VERSION_SUFFIX
+    fprintf (st, "    Event loop library: Built with libuv %d.%d.%d%s", UV_VERSION_MAJOR,
+            UV_VERSION_MINOR, UV_VERSION_PATCH, UV_VERSION_SUFFIX);
+#ifdef UV_VERSION_IS_RELEASE
+#if UV_VERSION_IS_RELEASE == 1
+#define UV_RELEASE_TYPE " (release)"
+#endif /* if UV_VERSION_IS_RELEASE == 1 */
+#if UV_VERSION_IS_RELEASE == 0
+#define UV_RELEASE_TYPE " (snapshot)"
+#endif /* if UV_VERSION_IS_RELEASE == 0 */
+#ifndef UV_RELEASE_TYPE
+#define UV_RELEASE_TYPE ""
+#endif /* ifndef UV_RELEASE_TYPE */
+#ifdef UV_RELEASE_TYPE
+    fprintf (st, "%s", UV_RELEASE_TYPE);
+#endif /* ifdef UV_RELEASE_TYPE */
+#endif /* ifdef UV_VERSION_IS_RELEASE */
+#endif /* ifdef UV_VERSION_SUFFIX */
+#endif /* ifdef UV_VERSION_PATCH */
+#endif /* ifdef UV_VERSION_MINOR */
+    unsigned int CurrentUvVersion = uv_version();
+    if (((void *)&CurrentUvVersion != NULL) && (CurrentUvVersion > 0))
+        if (uv_version_string() != NULL)
+            fprintf (st, "; %s in use", uv_version_string());
+#endif /* ifdef UV_VERSION_MAJOR */
+#else
+    fprintf (st, "    Event loop library: Using libuv (or compatible) library, unknown version");
+#endif /* if defined(UV_VERSION_MAJOR) &&  \
+        *    defined(UV_VERSION_MINOR) &&  \
+        *    defined(UV_VERSION_PATCH)     \
+        */
+#ifdef DECNUMBERLOC
+    fprintf (st, "\n");
+#ifdef DECVERSION
+#ifdef DECNLAUTHOR
+    fprintf (st, "          Math library: %s (%s and contributors)", DECVERSION, DECNLAUTHOR);
+#else
+    fprintf (st, "          Math library: %s", DECVERSION);
+#endif /* ifdef DECNLAUTHOR */
+#else
+    fprintf (st, "          Math library: decNumber, unknown version");
+#endif /* ifdef DECVERSION */
+#endif /* ifdef DECNUMBERLOC */
+    fprintf (st, "\n");
+    return 0;
 }
 
 t_stat show_version (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
-//int32 vmaj = SIM_MAJOR, vmin = SIM_MINOR, vpat = SIM_PATCH, vdelt = SIM_DELTA;
-//const char *cpp = "";
-//const char *build = "";
 const char *arch = "";
 int dirty = 0;
 
 if (cptr && (*cptr != 0))
     return SCPE_2MARG;
 if (flag) {
-//  t_bool idle_capable;
-//  uint32 os_ms_sleep_1, os_tick_size;
-
-//  fprintf (st, "\n\t%s Simulator Capabilities:", sim_name);
-//  fprintf (st, "\n\t\t%s", sim_si64);
-//  fprintf (st, "\n\t\t%s", sim_sa64);
-//  idle_capable = sim_timer_idle_capable (&os_ms_sleep_1, &os_tick_size);
-//  fprintf (st, "\n\t\tIdle/Throttling support is %savailable", idle_capable ? "" : "NOT ");
-//  if (sim_disk_vhd_support())
-//      fprintf (st, "\n\t\tVirtual Hard Disk (VHD) support");
-//  if (sim_disk_raw_support())
-//      fprintf (st, "\n\t\tRAW disk and CD/DVD ROM support");
-//#if defined (SIM_ASYNCH_IO)
-//    fprintf (st, "\n\t\tAsynchronous I/O support");
-//#endif
-//#if defined (SIM_ASYNCH_MUX)
-//    fprintf (st, "\n\t\tAsynchronous Multiplexer support");
-//#endif
-//#if defined (SIM_ASYNCH_CLOCKS)
-//    fprintf (st, "\n\t\tAsynchronous Clock support");
-//#endif
-//#if defined (SIM_FRONTPANEL_VERSION)
-//    fprintf (st, "\n\t\tSIMH FrontPanel API Version %d", SIM_FRONTPANEL_VERSION);
-//#endif
         fprintf (st, " %s Simulator:", sim_name);
 #if defined(NO_SUPPORT_VERSION) || \
     defined(TESTING)            || \
@@ -4764,7 +4476,7 @@ if (flag) {
 #endif
     fprintf (st, "ROUND_ROBIN");
 #endif
-#ifdef LOCKLESS
+#ifndef LOCKLESS
 #ifdef HAVE_DPSOPT
     fprintf (st, ", ");
 #else
@@ -4773,7 +4485,7 @@ if (flag) {
 #ifndef HAVE_DPSOPT
 #define HAVE_DPSOPT 1
 #endif
-    fprintf (st, "LOCKLESS");
+    fprintf (st, "NO_LOCKLESS");
 #endif
 #ifdef TRACKER
 #ifdef HAVE_DPSOPT
@@ -4799,24 +4511,6 @@ if (flag) {
 #ifdef VER_CURRENT_TIME
         fprintf (st, "\n  Compiled: %s", VER_CURRENT_TIME);
 #endif
-//#if defined(SIM_GIT_COMMIT_ID)
-//        fprintf (st, "\r\n\r\n Built using the SIMH Simulation Framework:");
-//        fprintf (st, "\n   Version: V%d.%d-%d", vmaj, vmin, vpat);
-//        if (vdelt)
-//                {
-//                fprintf (st, " delta %d", vdelt);
-//                }
-//#if defined (SIM_VERSION_MODE)
-//        fprintf (st, " %s", SIM_VERSION_MODE);
-//#endif
-//#endif
-//#if defined(SIM_GIT_COMMIT_ID)
-//#define S_xstr(a) S_str(a)
-//#define S_str(a) #a
-//        fprintf (st, " (%s)", S_xstr(SIM_GIT_COMMIT_ID));
-//#undef S_str
-//#undef S_xstr
-//#endif
         if (dirty)
                 {
                         fprintf (st, "\r\n\r\n ****** THIS BUILD IS NOT SUPPORTED BY THE DPS8M DEVELOPMENT TEAM ******");
@@ -4927,7 +4621,7 @@ if (flag) {
 #elif defined(__sparc) || defined(__SPARC) || defined(__SPARC__) || defined(__sparc__)
     arch = " sparc";
 #elif defined(__riscv) || defined(__riscv__)
-    arch = " risc-v";
+    arch = " riscv";
 #else
     arch = " ";
 #endif
@@ -5042,7 +4736,7 @@ if (flag) {
     }
 #endif
 #if defined(__APPLE__)
-	int isRosetta = processIsTranslated();
+    int isRosetta = processIsTranslated();
     if (isRosetta == 1) {
         sim_printf ("\n\n  ****** RUNNING UNDER APPLE ROSETTA 2, EXPECT REDUCED PERFORMANCE ******");
     }
@@ -5131,26 +4825,6 @@ else {
         }
     }
 sim_show_clock_queues (st, dnotused, unotused, flag, cptr);
-#if defined (SIM_ASYNCH_IO)
-pthread_mutex_lock (&sim_asynch_lock);
-fprintf (st, "asynchronous pending event queue\n");
-if (sim_asynch_queue == QUEUE_LIST_END)
-    fprintf (st, "  Empty\n");
-else {
-    for (uptr = sim_asynch_queue; uptr != QUEUE_LIST_END; uptr = uptr->a_next) {
-        if ((dptr = find_dev_from_unit (uptr)) != NULL) {
-            fprintf (st, "  %s", sim_dname (dptr));
-            if (dptr->numunits > 1) fprintf (st, " unit %d",
-                (int32) (uptr - dptr->units));
-            }
-        else fprintf (st, "  Unknown");
-        fprintf (st, " event delay %d\n", uptr->a_event_time);
-        }
-    }
-fprintf (st, "asynch latency: %d nanoseconds\n", sim_asynch_latency);
-fprintf (st, "asynch instruction latency: %d instructions\n", sim_asynch_inst_latency);
-pthread_mutex_unlock (&sim_asynch_lock);
-#endif /* SIM_ASYNCH_IO */
 return SCPE_OK;
 }
 
@@ -6177,15 +5851,7 @@ fprintf (sfile, "%s\n%s\n%s\n%s\n%.0f\n",
     sim_si64, sim_sa64,                                 /* [V3.5] options */
     sim_time);                                          /* [V3.2] sim time */
 WRITE_I (sim_rtime);                                    /* [V2.6] sim rel time */
-#if defined(SIM_GIT_COMMIT_ID)
-#define S_xstr(a) S_str(a)
-#define S_str(a) #a
-fprintf (sfile, "git commit id: %8.8s\n", S_xstr(SIM_GIT_COMMIT_ID));
-#undef S_str
-#undef S_xstr
-#else
-fprintf (sfile, "git commit id: unknown\n");
-#endif
+fprintf (sfile, "simh git commit id: unknown\n");
 
 for (device_count = 0; sim_devices[device_count]; device_count++);/* count devices */
 for (i = 0; i < (device_count + sim_internal_device_count); i++) {/* loop thru devices */
@@ -6380,17 +6046,6 @@ else READ_I (sim_time);                                 /* sim time */
 READ_I (sim_rtime);                                     /* [V2.6+] sim rel time */
 if (v40) {
     READ_S (buf);                                       /* read git commit id */
-#if defined(SIM_GIT_COMMIT_ID)
-#define S_xstr(a) S_str(a)
-#define S_str(a) #a
-    if ((memcmp (buf, "git commit id: " S_xstr(SIM_GIT_COMMIT_ID), 23)) &&
-        (!sim_quiet) && (!suppress_warning)) {
-        sim_printf ("warning - different simulator git versions.\nSaved commit id: %8.8s, Running commit id: %8.8s\n", buf + 15, S_xstr(SIM_GIT_COMMIT_ID));
-        warned = TRUE;
-        }
-#undef S_str
-#undef S_xstr
-#endif
     }
 if (!dont_detach_attach)
     detach_all (0, 0);                                  /* Detach everything to start from a consistent state */
@@ -6804,9 +6459,6 @@ if (sim_step)                                           /* set step timer */
 fflush(stdout);                                         /* flush stdout */
 if (sim_log)                                            /* flush log if enabled */
     fflush (sim_log);
-#ifdef SIMH_THROTTLE
-sim_throt_sched ();                                     /* set throttle */
-#endif /* SIMH_THROTLE */
 sim_rtcn_init_all ();                                   /* re-init clocks */
 sim_start_timer_services ();                            /* enable wall clock timing */
 
@@ -6883,9 +6535,6 @@ for (i = 1; (dptr = sim_devices[i]) != NULL; i++) {     /* flush attached files 
         }
     }
 sim_cancel (&sim_step_unit);                            /* cancel step timer */
-#ifdef SIMH_THROTTLE
-sim_throt_cancel ();                                    /* cancel throttle */
-#endif /* SIMH_THROTTLE */
 AIO_UPDATE_QUEUE;
 UPDATE_SIM_TIME;                                        /* update sim time */
 return r | ((sim_switches & SWMASK ('Q')) ? SCPE_NOMESSAGE : 0);
@@ -7320,23 +6969,15 @@ if ((rptr->depth > 1) && (rptr->flags & REG_CIRC)) {
     }
 if ((rptr->depth > 1) && (rptr->flags & REG_UNIT)) {
     ptr = (uint32 *)(((UNIT *) rptr->loc) + idx);
-#if defined (USE_INT64)
     if (sz <= sizeof (uint32))
         val = *ptr;
     else val = *((t_uint64 *) ptr);
-#else
-    val = *ptr;
-#endif
     }
 else if ((rptr->depth > 1) && (rptr->flags & REG_STRUCT)) {
     ptr = (uint32 *)(((size_t) rptr->loc) + (idx * rptr->str_size));
-#if defined (USE_INT64)
     if (sz <= sizeof (uint32))
         val = *ptr;
     else val = *((t_uint64 *) ptr);
-#else
-    val = *ptr;
-#endif
     }
 else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
     (sz == sizeof (uint8)))
@@ -7344,13 +6985,9 @@ else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
 else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
     (sz == sizeof (uint16)))
     val = *(((uint16 *) rptr->loc) + idx);
-#if defined (USE_INT64)
 else if (sz <= sizeof (uint32))
      val = *(((uint32 *) rptr->loc) + idx);
 else val = *(((t_uint64 *) rptr->loc) + idx);
-#else
-else val = *(((uint32 *) rptr->loc) + idx);
-#endif
 val = (val >> rptr->offset) & width_mask[rptr->width];
 return val;
 }
@@ -7441,33 +7078,21 @@ if ((rptr->depth > 1) && (rptr->flags & REG_CIRC)) {
     }
 if ((rptr->depth > 1) && (rptr->flags & REG_UNIT)) {
     ptr = (uint32 *)(((UNIT *) rptr->loc) + idx);
-#if defined (USE_INT64)
     if (sz <= sizeof (uint32))
         *ptr = (*ptr &
         ~(((uint32) mask) << rptr->offset)) |
         (((uint32) val) << rptr->offset);
     else *((t_uint64 *) ptr) = (*((t_uint64 *) ptr)
         & ~(mask << rptr->offset)) | (val << rptr->offset);
-#else
-    *ptr = (*ptr &
-        ~(((uint32) mask) << rptr->offset)) |
-        (((uint32) val) << rptr->offset);
-#endif
     }
 else if ((rptr->depth > 1) && (rptr->flags & REG_STRUCT)) {
     ptr = (uint32 *)(((size_t) rptr->loc) + (idx * rptr->str_size));
-#if defined (USE_INT64)
     if (sz <= sizeof (uint32))
         *((uint32 *) ptr) = (*((uint32 *) ptr) &
         ~(((uint32) mask) << rptr->offset)) |
         (((uint32) val) << rptr->offset);
     else *((t_uint64 *) ptr) = (*((t_uint64 *) ptr)
         & ~(mask << rptr->offset)) | (val << rptr->offset);
-#else
-    *ptr = (*ptr &
-        ~(((uint32) mask) << rptr->offset)) |
-        (((uint32) val) << rptr->offset);
-#endif
     }
 else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
     (sz == sizeof (uint8)))
@@ -7475,13 +7100,9 @@ else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
 else if (((rptr->depth > 1) || (rptr->flags & REG_FIT)) &&
     (sz == sizeof (uint16)))
     PUT_RVAL (uint16, rptr, idx, (uint32) val, (uint32) mask);
-#if defined (USE_INT64)
 else if (sz <= sizeof (uint32))
     PUT_RVAL (uint32, rptr, idx, (int32) val, (uint32) mask);
 else PUT_RVAL (t_uint64, rptr, idx, val, mask);
-#else
-else PUT_RVAL (uint32, rptr, idx, val, mask);
-#endif
 return;
 }
 
@@ -7782,11 +7403,6 @@ if ((*cptr == ';') || (*cptr == '#')) {                 /* ignore comment */
         sim_printf("%s> %s\n", do_position(), cptr);
     *cptr = 0;
     }
-
-#if defined (HAVE_DLOPEN)
-if (prompt && p_add_history && *cptr)                   /* Save non blank lines in history */
-    p_add_history (cptr);
-#endif
 
 return cptr;
 }
@@ -10125,10 +9741,6 @@ if (!ep)                                                /* not there? ok */
 free (ep->match);                                       /* deallocate match string */
 free (ep->match_pattern);                               /* deallocate the display format match string */
 free (ep->act);                                         /* deallocate action */
-#if defined(USE_REGEX)
-if (ep->switches & EXP_TYP_REGEX)
-    regfree (&ep->regex);                               /* release compiled regex */
-#endif
 exp->size -= 1;                                         /* decrement count */
 for (i=ep-exp->rules; i<exp->size; i++)                 /* shuffle up remaining rules */
     exp->rules[i] = exp->rules[i+1];
@@ -10185,32 +9797,9 @@ match_buf = (uint8 *)calloc (strlen (match) + 1, 1);
 if (!match_buf)
     return SCPE_MEM;
 if (switches & EXP_TYP_REGEX) {
-#if !defined (USE_REGEX)
     free (match_buf);
     return sim_messagef (SCPE_ARG, "RegEx support not available\n");
     }
-#else   /* USE_REGEX */
-    int res;
-    regex_t re;
-
-    memset (&re, 0, sizeof(re));
-    memcpy (match_buf, match+1, strlen(match)-2);       /* extract string without surrounding quotes */
-    match_buf[strlen(match)-2] = '\0';
-    res = regcomp (&re, (char *)match_buf, REG_EXTENDED | ((switches & EXP_TYP_REGEX_I) ? REG_ICASE : 0));
-    if (res) {
-        size_t err_size = regerror (res, &re, NULL, 0);
-        char *err_buf = (char *)calloc (err_size+1, 1);
-
-        regerror (res, &re, err_buf, err_size);
-        sim_messagef (SCPE_ARG, "Regular Expression Error: %s\n", err_buf);
-        free (err_buf);
-        free (match_buf);
-        return SCPE_ARG|SCPE_NOMESSAGE;
-        }
-    sim_debug (exp->dbit, exp->dptr, "Expect Regular Expression: \"%s\" has %d sub expressions\n", match_buf, (int)re.re_nsub);
-    regfree (&re);
-    }
-#endif
 else {
     if (switches & EXP_TYP_REGEX_I) {
         free (match_buf);
@@ -10246,11 +9835,6 @@ if ((match_buf == NULL) || (ep->match_pattern == NULL)) {
     return SCPE_MEM;
     }
 if (switches & EXP_TYP_REGEX) {
-#if defined(USE_REGEX)
-    memcpy (match_buf, match+1, strlen(match)-2);      /* extract string without surrounding quotes */
-    match_buf[strlen(match)-2] = '\0';
-    regcomp (&ep->regex, (char *)match_buf, REG_EXTENDED);
-#endif
     free (match_buf);
     match_buf = NULL;
     }
@@ -10368,58 +9952,6 @@ exp->buf[exp->buf_ins] = '\0';                          /* Nul terminate for Reg
 for (i=0; i < exp->size; i++) {
     ep = &exp->rules[i];
     if (ep->switches & EXP_TYP_REGEX) {
-#if defined (USE_REGEX)
-        regmatch_t *matches;
-        char *cbuf = (char *)exp->buf;
-        static size_t sim_exp_match_sub_count = 0;
-
-        if (tstr)
-            cbuf = tstr;
-        else {
-            if (strlen ((char *)exp->buf) != exp->buf_ins) { /* Nul characters in buffer? */
-                size_t off;
-                tstr = (char *)malloc (exp->buf_ins + 1);
-
-                tstr[0] = '\0';
-                for (off=0; off < exp->buf_ins; off += 1 + strlen ((char *)&exp->buf[off]))
-                    strcpy (&tstr[strlen (tstr)], (char *)&exp->buf[off]);
-                cbuf = tstr;
-                }
-            }
-        ++regex_checks;
-        matches = (regmatch_t *)calloc ((ep->regex.re_nsub + 1), sizeof(*matches));
-        if (sim_deb && exp->dptr && (exp->dptr->dctrl & exp->dbit)) {
-            char *estr = sim_encode_quoted_string (exp->buf, exp->buf_ins);
-            sim_debug (exp->dbit, exp->dptr, "Checking String: %s\n", estr);
-            sim_debug (exp->dbit, exp->dptr, "Against RegEx Match Rule: %s\n", ep->match_pattern);
-            free (estr);
-            }
-        if (!regexec (&ep->regex, cbuf, ep->regex.re_nsub + 1, matches, REG_NOTBOL)) {
-            size_t j;
-            char *buf = (char *)malloc (1 + exp->buf_ins);
-
-            for (j=0; j<ep->regex.re_nsub + 1; j++) {
-                char env_name[32];
-
-                sprintf (env_name, "_EXPECT_MATCH_GROUP_%d", (int)j);
-                memcpy (buf, &cbuf[matches[j].rm_so], matches[j].rm_eo-matches[j].rm_so);
-                buf[matches[j].rm_eo-matches[j].rm_so] = '\0';
-                setenv (env_name, buf, 1);      /* Make the match and substrings available as environment variables */
-                sim_debug (exp->dbit, exp->dptr, "%s=%s\n", env_name, buf);
-                }
-            for (; j<sim_exp_match_sub_count; j++) {
-                char env_name[32];
-
-                sprintf (env_name, "_EXPECT_MATCH_GROUP_%d", (int)j);
-                setenv (env_name, "", 1);      /* Remove previous extra environment variables */
-                }
-            sim_exp_match_sub_count = ep->regex.re_nsub;
-            free (matches);
-            free (buf);
-            break;
-            }
-        free (matches);
-#endif
         }
     else {
         if (exp->buf_ins < ep->size) {                          /* Match stradle end of buffer */

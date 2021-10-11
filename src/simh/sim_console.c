@@ -23,69 +23,9 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
+*/
 
-   02-Jan-14    RMS     Added tab stop routines
-   18-Mar-12    RMS     Removed unused reference to sim_switches (Dave Bryan)
-   07-Dec-11    MP      Added sim_ttisatty to support reasonable behaviour (i.e.
-                        avoid in infinite loop) in the main command input
-                        loop when EOF is detected and input is coming from
-                        a file (or a null device: /dev/null or NUL:) This may
-                        happen when a simulator is running in a background
-                        process.
-   17-Apr-11    MP      Cleaned up to support running in a background/detached
-                        process
-   20-Jan-11    MP      Fixed support for BREAK key on Windows to account
-                        for/ignore other keyboard Meta characters.
-   18-Jan-11    MP      Added log file reference count support
-   17-Jan-11    MP      Added support for a "Buffered" behaviors which include:
-                        - If Buffering is enabled and Telnet is enabled, a
-                          telnet connection is not required for simulator
-                          operation (instruction execution).
-                        - If Buffering is enabled, all console output is
-                          written to the buffer at all times (deleting the
-                          oldest buffer contents on overflow).
-                        - when a connection is established on the console
-                          telnet port, the whole contents of the Buffer is
-                          presented on the telnet session and connection
-                          will then proceed as if the connection had always
-                          been there.
-                        This concept allows a simulator to run in the background
-                        and when needed a console session to be established.
-                        The "when needed" case usually will be interested in
-                        what already happened before looking to address what
-                        to do, hence the buffer contents being presented.
-   28-Dec-10    MP      Added support for BREAK key on Windows
-   30-Sep-06    RMS     Fixed non-printable characters in KSR mode
-   22-Jun-06    RMS     Implemented SET/SHOW PCHAR
-   31-May-06    JDB     Fixed bug if SET CONSOLE DEBUG with no argument
-   22-Nov-05    RMS     Added central input/output conversion support
-   05-Nov-04    RMS     Moved SET/SHOW DEBUG under CONSOLE hierarchy
-   28-Oct-04    JDB     Fixed SET CONSOLE to allow comma-separated parameters
-   20-Aug-04    RMS     Added OS/2 EMX fixes (Holger Veit)
-   14-Jul-04    RMS     Revised Windows console code (Dave Bryan)
-   28-May-04    RMS     Added SET/SHOW CONSOLE
-                RMS     Added break, delete character maps
-   02-Jan-04    RMS     Removed timer routines, added Telnet console routines
-                RMS     Moved console logging to OS-independent code
-   25-Apr-03    RMS     Added long seek support (Mark Pizzolato)
-                        Added Unix priority control (Mark Pizzolato)
-   24-Sep-02    RMS     Removed VT support, added Telnet console support
-                        Added CGI support (Brian Knittel)
-                        Added MacOS sleep (Peter Schorn)
-   14-Jul-02    RMS     Added Windows priority control (Mark Pizzolato)
-   20-May-02    RMS     Added Windows VT support (Fischer Franz)
-   01-Feb-02    RMS     Added VAX fix (Robert Alan Byer)
-   19-Sep-01    RMS     More MacOS changes
-   31-Aug-01    RMS     Changed int64 to t_int64 for Windoze
-   20-Jul-01    RMS     Added MacOS support (Louis Chretien, Peter Schorn, Ben Supnik)
-   15-May-01    RMS     Added logging support
-   05-Mar-01    RMS     Added clock calibration support
-   08-Dec-00    BKR     Added OS/2 support (Bruce Ray)
-   18-Aug-98    RMS     Added BeOS support
-   13-Oct-97    RMS     Added NetBSD terminal support
-   25-Jan-97    RMS     Added POSIX terminal I/O support
-   02-Jan-97    RMS     Fixed bug in sim_poll_kbd
-
+/*
    This module implements the following routines to support terminal and
    Remote Console I/O:
 
@@ -139,9 +79,6 @@
 /* Forward Declaraations of Platform specific routines */
 
 static t_stat sim_os_poll_kbd (void);
-#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
-static t_bool sim_os_poll_kbd_ready (int ms_timeout);
-#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
 static t_stat sim_os_putchar (int32 out);
 static t_stat sim_os_ttinit (void);
 static t_stat sim_os_ttrun (void);
@@ -2144,87 +2081,6 @@ return SCPE_OK;
 }
 
 
-#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
-extern pthread_mutex_t     sim_tmxr_poll_lock;
-extern pthread_cond_t      sim_tmxr_poll_cond;
-extern int32               sim_tmxr_poll_count;
-extern t_bool              sim_tmxr_poll_running;
-extern int32 sim_is_running;
-
-pthread_t           sim_console_poll_thread;       /* Keyboard Polling Thread Id */
-t_bool              sim_console_poll_running = FALSE;
-pthread_cond_t      sim_console_startup_cond;
-
-static void *
-_console_poll(void *arg)
-{
-int wait_count = 0;
-DEVICE *d;
-
-/* Boost Priority for this I/O thread vs the CPU instruction execution
-   thread which, in general, won't be readily yielding the processor when
-   this thread needs to run */
-sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
-
-sim_debug (DBG_ASY, &sim_con_telnet, "_console_poll() - starting\n");
-
-pthread_mutex_lock (&sim_tmxr_poll_lock);
-pthread_cond_signal (&sim_console_startup_cond);   /* Signal we're ready to go */
-while (sim_asynch_enabled) {
-
-    if (!sim_is_running) {
-        if (wait_count) {
-            sim_debug (DBG_ASY, d, "_console_poll() - Removing interest in %s. Other interest: %d\n", d->name, sim_con_ldsc.uptr->a_poll_waiter_count);
-            --sim_con_ldsc.uptr->a_poll_waiter_count;
-            --sim_tmxr_poll_count;
-            }
-        break;
-        }
-
-    /* If we started something, let it finish before polling again */
-    if (wait_count) {
-        sim_debug (DBG_ASY, &sim_con_telnet, "_console_poll() - waiting for %d units\n", wait_count);
-        pthread_cond_wait (&sim_tmxr_poll_cond, &sim_tmxr_poll_lock);
-        sim_debug (DBG_ASY, &sim_con_telnet, "_console_poll() - continuing with after wait\n");
-        }
-
-    pthread_mutex_unlock (&sim_tmxr_poll_lock);
-    wait_count = 0;
-    if (sim_os_poll_kbd_ready (1000)) {
-        sim_debug (DBG_ASY, &sim_con_telnet, "_console_poll() - Keyboard Data available\n");
-        pthread_mutex_lock (&sim_tmxr_poll_lock);
-        ++wait_count;
-        if (!sim_con_ldsc.uptr->a_polling_now) {
-            sim_con_ldsc.uptr->a_polling_now = TRUE;
-            sim_con_ldsc.uptr->a_poll_waiter_count = 1;
-            d = find_dev_from_unit(sim_con_ldsc.uptr);
-            sim_debug (DBG_ASY, &sim_con_telnet, "_console_poll() - Activating %s\n", d->name);
-            pthread_mutex_unlock (&sim_tmxr_poll_lock);
-            _sim_activate (sim_con_ldsc.uptr, 0);
-            pthread_mutex_lock (&sim_tmxr_poll_lock);
-            }
-        else {
-            d = find_dev_from_unit(sim_con_ldsc.uptr);
-            sim_debug (DBG_ASY, &sim_con_telnet, "_console_poll() - Already Activated %s %d times\n", d->name, sim_con_ldsc.uptr->a_poll_waiter_count);
-            ++sim_con_ldsc.uptr->a_poll_waiter_count;
-            }
-        }
-    else
-        pthread_mutex_lock (&sim_tmxr_poll_lock);
-
-    sim_tmxr_poll_count += wait_count;
-    }
-pthread_mutex_unlock (&sim_tmxr_poll_lock);
-
-sim_debug (DBG_ASY, &sim_con_telnet, "_console_poll() - exiting\n");
-
-return NULL;
-}
-
-
-#endif /* defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
-
-
 t_stat sim_ttinit (void)
 {
 sim_con_tmxr.ldsc->mp = &sim_con_tmxr;
@@ -2240,46 +2096,13 @@ if (!sim_con_tmxr.ldsc->uptr) {                         /* If simulator didn't d
     sim_con_unit.dynflags |= TMUF_NOASYNCH;             /* disable asynchronous behavior */
     }
 else {
-#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
-    if (sim_asynch_enabled) {
-        sim_con_tmxr.ldsc->uptr->dynflags |= UNIT_TM_POLL;/* flag console input device as a polling unit */
-        sim_con_unit.dynflags |= UNIT_TM_POLL;         /* flag as polling unit */
-        }
-#endif
     }
-#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
-pthread_mutex_lock (&sim_tmxr_poll_lock);
-if (sim_asynch_enabled) {
-    pthread_attr_t attr;
-
-    pthread_cond_init (&sim_console_startup_cond, NULL);
-    pthread_attr_init (&attr);
-    pthread_attr_setscope (&attr, PTHREAD_SCOPE_SYSTEM);
-    pthread_create (&sim_console_poll_thread, &attr, _console_poll, NULL);
-    pthread_attr_destroy( &attr);
-    pthread_cond_wait (&sim_console_startup_cond, &sim_tmxr_poll_lock); /* Wait for thread to stabilize */
-    pthread_cond_destroy (&sim_console_startup_cond);
-    sim_console_poll_running = TRUE;
-    }
-pthread_mutex_unlock (&sim_tmxr_poll_lock);
-#endif
 tmxr_start_poll ();
 return sim_os_ttrun ();
 }
 
 t_stat sim_ttcmd (void)
 {
-#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
-pthread_mutex_lock (&sim_tmxr_poll_lock);
-if (sim_console_poll_running) {
-    pthread_cond_signal (&sim_tmxr_poll_cond);
-    pthread_mutex_unlock (&sim_tmxr_poll_lock);
-    pthread_join (sim_console_poll_thread, NULL);
-    sim_console_poll_running = FALSE;
-    }
-else
-    pthread_mutex_unlock (&sim_tmxr_poll_lock);
-#endif
 tmxr_stop_poll ();
 return sim_os_ttcmd ();
 }
@@ -2425,30 +2248,6 @@ if (response = buffered_character) {
     }
 return sim_os_poll_kbd_data ();
 }
-
-#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
-static t_bool sim_os_poll_kbd_ready (int ms_timeout)
-{
-unsigned int status, term[2];
-unsigned char buf[4];
-IOSB iosb;
-
-term[0] = 0; term[1] = 0;
-status = sys$qiow (EFN, tty_chan,
-    IO$_READLBLK | IO$M_NOECHO | IO$M_NOFILTR | IO$M_TIMED | IO$M_TRMNOECHO,
-    &iosb, 0, 0, buf, 1, (ms_timeout+999)/1000, term, 0, 0);
-if ((status != SS$_NORMAL) || (iosb.status != SS$_NORMAL))
-    return FALSE;
-if (buf[0] == sim_int_char)
-    buffered_character = SCPE_STOP;
-else
-    if (sim_brk_char && (buf[0] == sim_brk_char))
-        buffered_character = SCPE_BREAK;
-    else
-        buffered_character = (buf[0] | SCPE_KFLAG);
-return TRUE;
-}
-#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
 
 static t_stat sim_os_putchar (int32 out)
 {
@@ -2601,19 +2400,6 @@ if ((sim_brk_char && ((c & 0177) == sim_brk_char)) || (c & SCPE_BREAK))
 return c | SCPE_KFLAG;
 }
 
-#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
-static t_bool sim_os_poll_kbd_ready (int ms_timeout)
-{
-sim_debug (DBG_TRC, &sim_con_telnet, "sim_os_poll_kbd_ready()\n");
-if ((std_input == NULL) ||                              /* No keyboard for */
-    (std_input == INVALID_HANDLE_VALUE)) {              /* background processes */
-    Sleep (ms_timeout);
-    return FALSE;
-    }
-return (WAIT_OBJECT_0 == WaitForSingleObject (std_input, ms_timeout));
-}
-#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
-
 #define BELL_CHAR         7         /* Bell Character */
 #define BELL_INTERVAL_MS  500       /* No more than 2 Bell Characters Per Second */
 static t_stat sim_os_putchar (int32 c)
@@ -2697,14 +2483,6 @@ if (sim_brk_char && ((c & 0177) == sim_brk_char))
     return SCPE_BREAK;
 return c | SCPE_KFLAG;
 }
-
-#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
-static t_bool sim_os_poll_kbd_ready (int ms_timeout)   /* Don't know how to do this on this platform */
-{
-sim_os_ms_sleep (MIN(20,ms_timeout));           /* Wait a little */
-return TRUE;                                    /* force a poll */
-}
-#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
 
 static t_stat sim_os_putchar (int32 c)
 {
@@ -2810,24 +2588,6 @@ if (sim_int_char && (buf[0] == sim_int_char))
 return (buf[0] | SCPE_KFLAG);
 }
 
-#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
-static t_bool sim_os_poll_kbd_ready (int ms_timeout)
-{
-fd_set readfds;
-struct timeval timeout;
-
-if (!isatty (0)) {                           /* skip if !tty */
-    sim_os_ms_sleep (ms_timeout);
-    return FALSE;
-    }
-FD_ZERO (&readfds);
-FD_SET (0, &readfds);
-timeout.tv_sec = (ms_timeout*1000)/1000000;
-timeout.tv_usec = (ms_timeout*1000)%1000000;
-return (1 == select (1, &readfds, NULL, NULL, &timeout));
-}
-#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
-
 static t_stat sim_os_putchar (int32 out)
 {
 char c;
@@ -2932,24 +2692,6 @@ if (sim_int_char && (buf[0] == sim_int_char))
     return SCPE_STOP;
 return (buf[0] | SCPE_KFLAG);
 }
-
-#if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX)
-static t_bool sim_os_poll_kbd_ready (int ms_timeout)
-{
-fd_set readfds;
-struct timeval timeout;
-
-if (!sim_os_ttisatty()) {                   /* skip if !tty */
-    sim_os_ms_sleep (ms_timeout);
-    return FALSE;
-    }
-FD_ZERO (&readfds);
-FD_SET (0, &readfds);
-timeout.tv_sec = (ms_timeout*1000)/1000000;
-timeout.tv_usec = (ms_timeout*1000)%1000000;
-return (1 == select (1, &readfds, NULL, NULL, &timeout));
-}
-#endif /* if defined(SIM_ASYNCH_IO) && defined(SIM_ASYNCH_MUX) */
 
 static t_stat sim_os_putchar (int32 out)
 {

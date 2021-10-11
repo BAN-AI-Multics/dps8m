@@ -47,7 +47,8 @@
     !defined(_MSC_BUILD)    && \
     !defined(VMS)           && \
     !defined(__VMS)         && \
-    !defined(__OS2__)
+    !defined(__OS2__)       && \
+    !defined(__sun__)
 
 #include <termios.h>
 #include <unistd.h>
@@ -103,25 +104,25 @@ struct linenoiseState {
 };
 
 enum KEY_ACTION{
-	KEY_NULL = 0,	    /* NULL */
-	CTRL_A = 1,         /* Ctrl+a */
-	CTRL_B = 2,         /* Ctrl-b */
-	CTRL_C = 3,         /* Ctrl-c */
-	CTRL_D = 4,         /* Ctrl-d */
-	CTRL_E = 5,         /* Ctrl-e */
-	CTRL_F = 6,         /* Ctrl-f */
-	CTRL_H = 8,         /* Ctrl-h */
-	TAB = 9,            /* Tab */
-	CTRL_K = 11,        /* Ctrl+k */
-	CTRL_L = 12,        /* Ctrl+l */
-	ENTER = 13,         /* Enter */
-	CTRL_N = 14,        /* Ctrl-n */
-	CTRL_P = 16,        /* Ctrl-p */
-	CTRL_T = 20,        /* Ctrl-t */
-	CTRL_U = 21,        /* Ctrl+u */
-	CTRL_W = 23,        /* Ctrl+w */
-	ESC = 27,           /* Escape */
-	BACKSPACE =  127    /* Backspace */
+    KEY_NULL  =    0,         /* NULL      */
+    CTRL_A    =    1,         /* Ctrl+a    */
+    CTRL_B    =    2,         /* Ctrl-b    */
+    CTRL_C    =    3,         /* Ctrl-c    */
+    CTRL_D    =    4,         /* Ctrl-d    */
+    CTRL_E    =    5,         /* Ctrl-e    */
+    CTRL_F    =    6,         /* Ctrl-f    */
+    CTRL_H    =    8,         /* Ctrl-h    */
+    TAB       =    9,         /* Tab       */
+    CTRL_K    =   11,         /* Ctrl+k    */
+    CTRL_L    =   12,         /* Ctrl+l    */
+    ENTER     =   13,         /* Enter     */
+    CTRL_N    =   14,         /* Ctrl-n    */
+    CTRL_P    =   16,         /* Ctrl-p    */
+    CTRL_T    =   20,         /* Ctrl-t    */
+    CTRL_U    =   21,         /* Ctrl+u    */
+    CTRL_W    =   23,         /* Ctrl+w    */
+    ESC       =   27,         /* Escape    */
+    BACKSPACE =  127          /* Backspace */
 };
 
 static void linenoiseAtExit(void);
@@ -333,9 +334,9 @@ static int completeLine(struct linenoiseState *ls) {
 
             switch(c) {
                 case 9: /* tab */
-                     i = (i+1) % (lc.len+1);
-                     if (i == lc.len) linenoiseBeep();
-					stop =1;
+                    i = (i+1) % (lc.len+1);
+                    if (i == lc.len) linenoiseBeep();
+                    stop =1;
                     break;
                 case 27: /* escape */
                     /* Re-show original buffer */
@@ -536,9 +537,9 @@ static void refreshMultiLine(struct linenoiseState *l) {
     if (rows > (int)l->maxrows) l->maxrows = rows;
 
     /*
-	 * First step: clear all the lines used before. To do so start by
+     * First step: clear all the lines used before. To do so start by
      * going to the last row.
-	 */
+     */
 
     abInit(&ab);
     if (old_rows-rpos > 0) {
@@ -569,9 +570,9 @@ static void refreshMultiLine(struct linenoiseState *l) {
     refreshShowHints(&ab,l,plen);
 
     /*
-	 * If we are at the very end of the screen with our prompt, we need to
+     * If we are at the very end of the screen with our prompt, we need to
      * emit a newline and move the prompt to the first column.
-	 */
+     */
 
     if (l->pos &&
         l->pos == l->len &&
@@ -634,7 +635,7 @@ int linenoiseEditInsert(struct linenoiseState *l, char c) {
             l->buf[l->len] = '\0';
             if ((!mlmode && l->plen+l->len < l->cols && !hintsCallback)) {
                 /* Avoid a full update of the line in the trivial case. */
-                char d = (maskmode==1) ? '*' : c;
+                char d = (maskmode==1) ? '*' : (char)c;
                 if (write(l->ofd,&d,1) == -1) return -1;
             } else {
                 refreshLine(l);
@@ -713,9 +714,9 @@ void linenoiseEditHistoryNext(struct linenoiseState *l, int dir) {
     if (history_len > 1) {
 
         /*
-		 * Update the current history entry before to
+         * Update the current history entry before to
          * overwrite it with the next one.
-		 */
+         */
 
         free(history[history_len - 1 - l->history_index]);
         history[history_len - 1 - l->history_index] = strdup(l->buf);
@@ -747,52 +748,52 @@ void linenoiseSearchInHistory( struct linenoiseState *l, int direction )
    if (history_len > 1) {
 
         /*
-		 * Update the current history entry before to
+         * Update the current history entry before to
          * overwrite it with the next one.
-		 */
+         */
 
         free(history[history_len - 1 - l->history_index]);
         history[history_len - 1 - l->history_index] = strdup(l->buf);
 
         /* Search new entry */
-	int cnt;
-	if( direction == LINENOISE_SEARCH_HISTORY_FORWARD )
-	{
+        int cnt;
+        if( direction == LINENOISE_SEARCH_HISTORY_FORWARD )
+        {
             cnt = history_len - 2 - l->history_index;
-	    for( ; cnt >= 0; cnt-- )
-	    {
+            for( ; cnt >= 0; cnt-- )
+            {
                  /* 
-				  * Search a history entry that start with same
+                  * Search a history entry that start with same
                   * as the current line until the curser position
-				  */
+                  */
 
-	        if( strncmp( l->buf, history[cnt], l->pos ) == 0 )
-	        {
-	            strncpy(l->buf,history[cnt],l->buflen);
-	            l->buf[l->buflen-1] = '\0';
+            if( strncmp( l->buf, history[cnt], l->pos ) == 0 )
+            {
+                strncpy(l->buf,history[cnt],l->buflen);
+                l->buf[l->buflen-1] = '\0';
                     /* Don't change old curser postion */
-	            l->len = strlen(l->buf);
+                l->len = strlen(l->buf);
 
                     /*
-					 * Set history index so that we can contiune
+                     * Set history index so that we can contiune
                      * the search on this postiion
-					 */
+                     */
 
                     l->history_index = history_len - 1 - cnt;
-	            refreshLine(l);
-	            return;	
-	        }
-	    }
-	}
+                refreshLine(l);
+                return;
+            }
+        }
+    }
         else if( direction == LINENOISE_SEARCH_HISTROY_REVERSE )
         {
             cnt = history_len - l->history_index;
             for( ; cnt < history_len; cnt++ )
             {
                 /*
-				 * Search a history entry that start with same
-		         * as the current line until the curser position
-				 */
+                 * Search a history entry that start with same
+                 * as the current line until the curser position
+                 */
 
                 if( strncmp( l->buf, history[cnt], l->pos ) == 0 )
                 {
@@ -802,9 +803,9 @@ void linenoiseSearchInHistory( struct linenoiseState *l, int direction )
                     l->len = strlen(l->buf);
 
                     /*
-					 * Set history index so that we can contiune
-		     		 * the search on this postiion
-					 */
+                     * Set history index so that we can contiune
+                     * the search on this postiion
+                     */
 
                     l->history_index = history_len - 1 - cnt;
                     refreshLine(l);
@@ -886,9 +887,9 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
     struct linenoiseState l;
 
     /*
-	 * Populate the linenoise state that we pass to functions implementing
+     * Populate the linenoise state that we pass to functions implementing
      * specific editing functionalities. 
-	 */
+     */
 
     l.ifd = stdin_fd;
     l.ofd = stdout_fd;
@@ -908,9 +909,9 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
     l.buflen--; /* Make sure there is always space for the nulterm */
 
     /*
-	 * The latest history entry is always our current buffer, that
+     * The latest history entry is always our current buffer, that
      * initially is just an empty string.
-	 */
+     */
 
     (void)linenoiseHistoryAdd("");
 
@@ -924,22 +925,23 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         if (nread <= 0) return l.len;
 
         /*
-		 * Only autocomplete when the callback is set. It returns < 0 when
+         * Only autocomplete when the callback is set. It returns < 0 when
          * there was an error reading from fd. Otherwise it will return the
          * character that should be handled next.
-		 */
+         */
 
         if (c == 9 && completionCallback != NULL) {
-            c = completeLine(&l);
+            int cint = completeLine(&l);
             /* Return on errors */
-            if (c < 0) return l.len;
+            if (cint < 0) return l.len;
             /* Read next character when 0 */
-            if (c == 0) continue;
+            if (cint == 0) continue;
+            c = (char)cint;
         }
 
         switch(c) {
-		case 9:
-			break;     /* johnsonjh - disable processing of tabs */
+        case 9:
+            break;     /* johnsonjh - disable processing of tabs */
         case ENTER:    /* enter */
             history_len--;
             free(history[history_len]);
@@ -947,9 +949,9 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             if (hintsCallback) {
 
                 /*
-				 * Force a refresh without hints to leave the previous
+                 * Force a refresh without hints to leave the previous
                  * line as the user typed it after a newline.
-				 */
+                 */
 
                 linenoiseHintsCallback *hc = hintsCallback;
                 hintsCallback = NULL;
@@ -1148,9 +1150,9 @@ char *linenoise(const char *prompt) {
     if (!isatty(STDIN_FILENO)) {
 
         /*
-		 * Not a tty: read from file / pipe. In this mode we don't want any
+         * Not a tty: read from file / pipe. In this mode we don't want any
          * limit to the line size, so we call a function to handle that.
-		 */
+         */
 
         return linenoiseNoTTY();
     } else if (isUnsupportedTerm()) {
@@ -1232,9 +1234,9 @@ int linenoiseHistoryAdd(const char *line) {
     if (history_len && !strcmp(history[history_len-1], line)) return 0;
 
     /*
-	 * Add an heap allocated copy of the line in the history.
+     * Add an heap allocated copy of the line in the history.
      * If we reached the max length, remove the older line.
-	 */
+     */
 
     linecopy = strdup(line);
     if (!linecopy) return 0;

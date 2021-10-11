@@ -23,20 +23,15 @@
    Except as contained in this notice, the name of the author shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from the author.
+*/
 
+/*
    The author gratefully acknowledges the assistance of Holger Veit with the
    UNIX-specific code and testing.
-
-   07-Oct-08    JDB     [serial] Created file
-
 
    This module provides OS-dependent routines to access serial ports on the host
    machine.  The terminal multiplexer library uses these routines to provide
    serial connections to simulated terminal interfaces.
-
-   Currently, the module supports Windows and UNIX.  Use on other systems
-   returns error codes indicating that the functions failed, inhibiting serial
-   port support in SIMH.
 
    The following routines are provided:
 
