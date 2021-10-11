@@ -14,5 +14,5 @@
 extern UNIT sk_unit [N_SKC_UNITS_MAX];
 extern DEVICE skc_dev;
 void sk_init(void);
-int skc_iom_cmd (uint iomUnitIdx, uint chan);
+iom_cmd_rc_t skc_iom_cmd (uint iomUnitIdx, uint chan);
 void sk_process_event (void);
