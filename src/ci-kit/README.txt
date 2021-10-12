@@ -18,15 +18,15 @@ You need to have all the packages installed to build the DPS8/M emulator
 
 You also need the following packages installed:
     expect
-	mksh
+    bash
     tcsh
     meld
-	lzip
-	dos2unix
-	GNU sed
-	GNU coreutils
-	GNU diffutils
-	BSD-derived telnet (GNU inetutils, netkit, BAN telnet, etc.)
+    lzip
+    dos2unix
+    GNU sed
+    GNU coreutils
+    GNU diffutils
+    BSD-derived telnet (GNU inetutils, netkit, BAN telnet, etc.)
     
     
 USAGE
@@ -65,7 +65,7 @@ ci.makefile
 ci_t1.expect
   This is the main "expect" script. It starts the emulator with the init script
   yoyodyne_start.ini that will cold boot a clean Multics 12.6f system. After 
-  that it loads a card deck and the launches the ci_t2.expect and ci_t3.expect
+  that it loads a card deck and the launches the ci_t2.sh and ci_t3.sh expect
   scripts in that order. It then monitors the emulator console to act as the
   "operator" for those scripts. When it detects that they have finished, it
   shuts down the emulator.
@@ -85,7 +85,7 @@ ci_t2.expect
    10) prints most (if not all) of the meters
    11) does some disk management and reporting commands
    
-ci_t3.expect
+ci_t3.expect (called by ci_t3.sh)
   This script does the following:
     1) logs in to the "Clayton" account
     2) invokes isolts

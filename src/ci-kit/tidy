@@ -1,4 +1,4 @@
-#!/usr/bin/env mksh
+#!/usr/bin/env bash
 sed 's///g' | \
 sed 's///g' | \
 tr -d '\000'  | \

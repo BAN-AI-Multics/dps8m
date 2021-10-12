@@ -1,7 +1,9 @@
-#!/usr/bin/env mksh
+#!/usr/bin/env bash
 printf '%s\n' "Downloading tape files..."
 mkdir -vp tapes 2> /dev/null
-cd tapes || exit 1
+cd tapes || { printf '%s\n' "Error: unable to enter tapes directory."; exit 1; };
+command -v telnet > /dev/null 2>&1 || { printf '%s\n' "Error: No telnet in PATH."; exit 1; };
+command -v lzip > /dev/null 2>&1 || { printf '%s\n' "Error: No lzip in PATH."; exit 1; };
 #rm -vf *.tap 2> /dev/null || true
 #attempt to copy 12*.tap from /var/cache/tapes to tapes
 cp -f /var/cache/tapes/12*.tap . > /dev/null 2>&1 || true

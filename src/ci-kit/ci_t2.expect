@@ -1,5 +1,3 @@
-#!/usr/bin/env -S expect -f
-
 set word l
 set userName Clayton
 set projName SysAdmin
