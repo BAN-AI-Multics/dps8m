@@ -18,6 +18,7 @@ You need to have all the packages installed to build the DPS8/M emulator
 
 You also need the following packages installed:
     expect
+    bash
     tcsh
     meld
     lzip
