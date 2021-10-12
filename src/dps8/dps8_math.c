@@ -2568,10 +2568,17 @@ void dufa (bool subtract)
           }
         e3 += 1;
 #else
+#ifdef NEED_128
+        word72 signbit = and_128 (m3, SIGN72);
+        m3 = rshift_128 (m3, 1); // renormalize the mantissa
+        m3 = or_128 (and_128 (m3, MASK71), signbit);
+        m3 = xor_128 (m3, SIGN72); // C(AQ)0 is inverted to restore the sign
+#else
         word72 signbit = m3 & SIGN72;
         m3 >>= 1;
         m3 = (m3 & MASK71) | signbit;
         m3 ^= SIGN72; // C(AQ)0 is inverted to restore the sign
+#endif
         e3 += 1;
 #endif
       }

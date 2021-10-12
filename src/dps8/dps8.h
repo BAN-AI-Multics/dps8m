@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2016 Harry Reed
+ * Copyright (c) 2012 Dave Jordan
  * Copyright (c) 2013-2018 Charles Anthony
  * Copyright (c) 2016 Jean-Michel Merliot
  * Copyright (c) 2021 The DPS8M Development Team
@@ -29,26 +30,16 @@
 
 #include <sys/time.h>
 
-#include <setjmp.h>     // for setjmp/longjmp used by interrupts & faults
+#include <setjmp.h>  // for setjmp/longjmp used by interrupts & faults
 
 #if (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
-#include <libgen.h> // needed for OS/X and Android
+#include <libgen.h>  // needed for OS/X and Android
 #endif
-
-//#define EMULATOR_ONLY 1
-
-// Define to emulate Level 68 instead of DPS8M
-
-//#define L68
 
 #ifndef L68
 #ifndef DPS8M
 #define DPS8M
 #endif
-#endif
-
-#ifndef USE_INT64
-#define USE_INT64
 #endif
 
 #ifdef NEED_128
@@ -176,18 +167,28 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 #define vol
 #endif
 
-// Fix glibc incompatibility with new simh code.
-
-#if __WORDSIZE == 64
+#ifndef NEED_128
+#ifdef PRIu64
 #undef PRIu64
+#endif
+#ifndef PRIu64
 #define PRIu64 "llu"
+#endif
+#ifdef PRId64
 #undef PRId64
+#endif
+#ifndef PRId64
 #define PRId64 "lld"
+#endif
+#ifdef PRIo64
 #undef PRIo64
+#endif
+#ifndef PRIo64
 #define PRIo64 "llo"
 #endif
-#include "sim_defs.h"                                   /* simulator defns */
+#endif
 
+#include "sim_defs.h"                                   /* simulator defns */
 #include "sim_tape.h"
 
 // patch supplied by Dave Jordan (jordandave@gmail.com) 29 Nov 2012

@@ -24,8 +24,6 @@
    Mark Pizzolato shall not be used in advertising or otherwise to promote
    the sale, use or other dealings in this Software without prior written
    authorization from Robert M Supnik and Mark Pizzolato.
-
-   25-Jan-11    MP      Initial Implemementation
 */
 
 #ifndef SIM_DISK_H_

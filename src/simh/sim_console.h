@@ -23,14 +23,6 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
-
-   02-Jan-14    RMS     Added tab stop routines
-   17-Jan-11    MP      Added buffered line capabilities
-   22-Jun-06    RMS     Implemented SET/SHOW PCHAR
-   22-Nov-05    RMS     Added central input/output conversion support
-   05-Nov-04    RMS     Moved SET/SHOW DEBUG under CONSOLE hierarchy
-   28-May-04    RMS     Added SET/SHOW CONSOLE
-   02-Jan-04    RMS     Removed timer routines, added Telnet console routines
 */
 
 #ifndef SIM_CONSOLE_H_

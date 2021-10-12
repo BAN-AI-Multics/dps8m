@@ -91,13 +91,14 @@ clean:
 
 scp.o:         sim_defs.h
 scp.o:         sim_timer.h
-scp.o:         sim_rev.h
 scp.o:         sim_disk.h sim_tape.h sim_sock.h
 scp.o:         sim_serial.h
 scp.o:         sim_tmxr.h sim_frontpanel.h
 scp.o:         ../dps8/ver.h
 scp.o:         ../dps8/dps8_prom.h
 scp.o:         ../dps8/sysdefs.h
+scp.o:         ../decNumber/decContext.h
+scp.o:         ../decNumber/decNumberLocal.h
 scp.o:         linehistory.h
 linehistory.o: linehistory.h
 sim_console.o: sim_defs.h
@@ -113,6 +114,8 @@ sim_fio.o:     sim_defs.h
 sim_fio.o:     scp.h
 sim_fio.o:     sim_console.h sim_timer.h
 sim_fio.o:     sim_fio.h
+sim_fio.o:     ../decNumber/decContext.h
+sim_fio.o:     ../decNumber/decNumberLocal.h
 sim_serial.o:  sim_defs.h
 sim_serial.o:  scp.h sim_console.h sim_timer.h
 sim_serial.o:  sim_fio.h

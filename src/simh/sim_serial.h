@@ -23,8 +23,6 @@
    Except as contained in this notice, the name of the author shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from the author.
-
-   07-Oct-08    JDB     [serial] Created file
 */
 
 #ifndef SIM_SERIAL_H_

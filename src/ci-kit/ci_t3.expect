@@ -1,4 +1,4 @@
-#!/usr/bin/expect -f
+#!/usr/bin/env -S expect -f
 
 set word l
 set userName Clayton
@@ -17,7 +17,7 @@ proc wf {} { expect  -re {\nr  [0-9]+\r}; sleep .1}
 proc swf { txt } { send $txt; send "\r"; wf }
 
 
-spawn telnet localhost 6180
+spawn telnet localhost 9180
 set telnetID $spawn_id
 
 expect -re {HSLA Port \((d\.h\d+)}

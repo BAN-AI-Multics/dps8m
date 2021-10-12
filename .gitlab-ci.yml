@@ -11,39 +11,141 @@
 # without any warranty.
 #
 ############################################################################
-# GitLab CI/CD Configuraton
-############################################################################
 
-.scriptSanity: &scriptSanity |
-    # scriptSanity
-    echo "${CI_COMMIT_BRANCH:?}" > /dev/null 2>&1
-    IPWD="$(pwd -P)" && export IPWD && if [ "X${CI_PROJECT_DIR:?}X" != "X${IPWD:?}X" ]; then exit 1; fi
-
-############################################################################
-
-.scriptInstallNfpm: &scriptInstallNfpm
-    # scriptInstallNfpm
-    sh -x -c 'which nfpm > /dev/null 2>&1 || { (cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh); || (cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh); };' && /usr/bin/nfpm --version
-
-###########################################################################
-
-.scriptCommon: &scriptCommon |
-    # scriptCommon
-    echo "Project Name              : ${CI_PROJECT_TITLE:-Unknown}"
-    echo "Project Git Commit        : ${CI_COMMIT_SHA:-Unknown}"
-    echo "Project Git Branch        : ${CI_COMMIT_BRANCH:-Unknown}"
-    echo "GitLab CI User Details    : ${GITLAB_USER_LOGIN:-Unknown} - ${GITLAB_USER_NAME:-Unknown} (${GITLAB_USER_ID:-Unknown}) ${GITLAB_USER_EMAIL:-}"
-    echo "GitLab CI Job Name        : ${CI_JOB_NAME:-Unknown}"
-    echo "GitLab CI Job ID          : ${CI_JOB_ID:-Unknown}"
-    echo "GitLab CI Job Stage       : ${CI_JOB_STAGE:-Unknown}"
-    echo "GitLab CI Runner Details  : ${CI_RUNNER_VERSION:-Unknown} (${CI_RUNNER_REVISION:-Unknown})"
-    git checkout -b "${CI_COMMIT_BRANCH:?}"
-    git status || true > /dev/null 2>&1
+.scriptAlma8Setup: &scriptAlma8Setup |
+    # *scriptAlma8Setup - Update AlmaLinux 8 (RHEL8 binary compatible) and install required tools ...
+    echo -e "section_start:`date +%s`:alma8install_section[collapsed=true]\r\e[0K\033[0;36mSetting up AlmaLinux 8 ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Updating system ..."
+    test -z "${SKIP_UPDATE}" && dnf -y --refresh --allowerasing --best --disablerepo=appstream update || dnf -y --refresh --allowerasing --nobest --disablerepo=appstream update
+    test -z "${SKIP_UPDATE}" && echo "Installing latest EPEL-8 release ..."
+    test -z "${SKIP_UPDATE}" && dnf -y --allowerasing --best install epel-release || dnf -y --allowerasing --nobest epel-release
+    test -z "${SKIP_UPDATE}" && echo "Enabling AlmaLinux Development repo ..."
+    test -z "${SKIP_UPDATE}" && curl -fsSL https://repo.almalinux.org/almalinux/8/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || curl -fsSL https://repo.almalinux.org/almalinux/8/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo
+    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-devel.repo
+    test -z "${SKIP_UPDATE}" && echo "Enabling AlmaLinux PowerTools repo ..."
+    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-powertools.repo
+    test -z "${SKIP_UPDATE}" && echo "Enabling AlmaLinux HA repo ..."
+    test -z "${SKIP_UPDATE}" && sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-ha.repo
+    echo -e "section_end:`date +%s`:alma8install_section\r\e[0K" || true
 
 ############################################################################
 
-.buildInfo: &buildInfo |
-    # buildInfo
+.scriptAlpineSetup: &scriptAlpineSetup |
+    # *scriptAlpineSetup - Update Alpine Linux and install required tools ...
+    echo -e "section_start:`date +%s`:alpinesetup_section[collapsed=true]\r\e[0K\033[0;36mSetting up Alpine Linux ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Running apk update ..."
+    test -z "${SKIP_UPDATE}" && apk update || apk update
+    test -z "${SKIP_UPDATE}" && echo "Running apk upgrade ..."
+    test -z "${SKIP_UPDATE}" && apk upgrade || apk upgrade
+    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
+    test -z "${SKIP_UPDATE}" && export ARGS="libc-dev musl-dev gcc g++ clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja automake"; apk add ${ARGS:?} || apk add ${ARGS:?}
+    echo -e "section_end:`date +%s`:alpinesetup_section\r\e[0K" || true
+
+############################################################################
+
+.scriptAmazonSetup: &scriptAmazonSetup |
+    # *scriptAmazonSetup - Update Amazon AWS Linux and install required tools ...
+    echo -e "section_start:`date +%s`:amazoninstall_section[collapsed=true]\r\e[0K\033[0;36mSetting up Amazon Linux ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Updating system ..."
+    test -z "${SKIP_UPDATE}" && yum -q -y update || yum -q -y update
+    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
+    test -z "${SKIP_UPDATE}" && export ARGS="system-lsb lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; yum -q -y install ${ARGS:?} || yum -q -y install ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && echo "Installing additional software ..."
+    test -z "${SKIP_UPDATE}" && export ARGS="https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/l/lzip-1.21-1.el8.x86_64.rpm"; yum -q -y localinstall ${ARGS:?} || yum -q -y localinstall ${ARGS:?}
+    echo -e "section_end:`date +%s`:amazoninstall_section\r\e[0K" || true
+
+############################################################################
+
+.scriptAptInstallLibuv1: &scriptAptInstallLibuv1 |
+    # *scriptAptInstallLibuv1 - Install the libuv1-dev package using apt-get
+    echo -e "section_start:`date +%s`:aptinstalllibuv1_section[collapsed=true]\r\e[0K\033[0;36mInstalling libuv1-dev ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Installing libuv1-dev ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
+    echo -e "section_end:`date +%s`:aptinstalllibuv1_section\r\e[0K" || true
+
+############################################################################
+
+.scriptAptInstallMinGW64: &scriptAptInstallMinGW64 |
+    # *scriptAptInstallMinGW64 - Install the mingw64 package using apt-get
+    echo -e "section_start:`date +%s`:aptinstallmingw64_section[collapsed=true]\r\e[0K\033[0;36mInstalling mingw64 ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Installing mingw64 ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq mingw-w64 || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq mingw-w64
+    echo -e "section_end:`date +%s`:aptinstallmingw64_section\r\e[0K" || true
+
+############################################################################
+
+.scriptAptSetupLatestClang: &scriptAptSetupLatestClang |
+    # *scriptAptSetupLatestClang - Install latest LLVM and Clang snapshot using apt ...
+    echo -e "section_start:`date +%s`:llvmsnapshot_section[collapsed=true]\r\e[0K\033[0;36mInstalling latest LLVM snapshot ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting LLVM installer ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://apt.llvm.org/llvm.sh || wget -nv https://apt.llvm.org/llvm.sh
+    test -z "${SKIP_UPDATE}" && echo "Preparing LLVM installer ..."
+    test -z "${SKIP_UPDATE}" && grep -v '^set -eux' ./llvm.sh > ./llvmq.sh
+    test -z "${SKIP_UPDATE}" && bash ./llvmq.sh $(grep '^LLVM_VERSION_PATTERNS' ./llvm.sh | cut -d '[' -f 2 | cut -d ']' -f 1 | sort -rn | head -n 1)
+    test -z "${SKIP_UPDATE}" && rm -f llvmq.sh && rm -f llvm.sh
+    test -z "${SKIP_UPDATE}" && echo "Running apt-get upgrade ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
+    test -z "${SKIP_UPDATE}" && echo "Running apt-get dist-upgrade ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
+    test -z "${SKIP_UPDATE}" && echo "Running apt-cache search clang ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search clang 2> /dev/null | grep "^clang-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo clang)
+    test -z "${SKIP_UPDATE}" && echo "Linking clang-latest ..."
+    test -z "${SKIP_UPDATE}" && ln -fs "$( ( ls -1 /usr/bin/clang-* 2> /dev/null | grep 'clang-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/clang)" /usr/bin/clang-latest
+    echo -e "section_end:`date +%s`:llvmsnapshot_section\r\e[0K" || true
+
+############################################################################
+
+.scriptAptSetupLatestGCC: &scriptAptSetupLatestGCC |
+    # *scriptAptSetupLatestGCC - Install latest GCC available in configured apt repos ...
+    echo -e "section_start:`date +%s`:latestgccver_section[collapsed=true]\r\e[0K\033[0;36mInstalling latest available gcc ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Running apt-get upgrade ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
+    test -z "${SKIP_UPDATE}" && echo "Running apt-get dist-upgrade ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
+    test -z "${SKIP_UPDATE}" && echo "Running apt-cache search gcc ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search gcc 2> /dev/null | grep "^gcc-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo gcc)
+    test -z "${SKIP_UPDATE}" && echo "Linking gcc-latest ..."
+    test -z "${SKIP_UPDATE}" && ln -fs "$( ( ls -1 /usr/bin/gcc-* 2> /dev/null | grep 'gcc-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/gcc)" /usr/bin/gcc-latest
+    echo -e "section_end:`date +%s`:latestgccver_section\r\e[0K" || true
+
+############################################################################
+
+.scriptAptSetup: &scriptAptSetup |
+    # *scriptAptSetup - Update and install required tools using apt-get ...
+    echo -e "section_start:`date +%s`:aptgetinstall_section[collapsed=true]\r\e[0K\033[0;36mSetting up system ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Running apt-get update ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
+    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
+    test -z "${SKIP_UPDATE}" && export ARGS="gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && echo "Running apt-get upgrade ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
+    test -z "${SKIP_UPDATE}" && echo "Running apt-get dist-upgrade ..."
+    test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
+    test -z "${SKIP_UPDATE}" && echo "Installing additional software ..."
+    test -z "${SKIP_UPDATE}" && export ARGS="lzip dash bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    echo -e "section_end:`date +%s`:aptgetinstall_section\r\e[0K" || true
+
+############################################################################
+
+.scriptBuildInfo: &scriptBuildInfo |
+    # *scriptBuildInfo - Show information on completed build
+    echo -e "section_start:`date +%s`:buildinfo_section[collapsed=true]\r\e[0K\033[0;36mBuild Information ...\033[0m" || true
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && file ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && ldd ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe && file ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe 2> /dev/null || true > /dev/null 2>&1
@@ -53,12 +155,217 @@
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && file ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && ldd ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && file ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
+    echo -e "section_end:`date +%s`:buildinfo_section\r\e[0K" || true
 
 ############################################################################
 
-.compressArtifacts: &compressArtifacts |
-    # compressArtifacts
-    echo -e "section_start:`date +%s`:compress_section[collapsed=true]\r\e[0K\033[0;36mCompress Artifacts\033[0m"
+.scriptBuildlibuvCLANGlatest: &scriptBuildlibuvCLANGlatest |
+    # *scriptBuildlibuvCLANGlatest - Build static libuv from git with latest-installed clang ...
+    echo -e "section_start:`date +%s`:buildlibuvclanglatest_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with latest clang ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
+    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
+    test -z "${SKIP_UPDATE}" && CC=clang-latest ./configure --disable-shared --enable-static --disable-dependency-tracking
+    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
+    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvclanglatest_section\r\e[0K" || true
+
+############################################################################
+
+.scriptBuildlibuvCLANG: &scriptBuildlibuvCLANG |
+    # *scriptBuildlibuvCLANG - Build static libuv from git with default clang ...
+    echo -e "section_start:`date +%s`:buildlibuvclangd_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with clang ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
+    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    test -z "S{SKIP_UPDATE}" && echo "Configuring libuv ..."
+    test -z "${SKIP_UPDATE}" && CC=clang ./configure --disable-shared --enable-static --disable-dependency-tracking
+    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
+    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvclangd_section\r\e[0K" || true
+
+############################################################################
+
+.scriptBuildlibuvFCygwin64: &scriptBuildlibuvFCygwin64 |
+    # *scriptBuildlibuvFCygwin64 - Build static libuv from git with Fedora Cygwin64 cross-compiler ...
+    echo -e "section_start:`date +%s`:buildlibuvfedoracygwin64_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with Fedora Cygwin64 cross-compiler ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
+    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
+    test -z "${SKIP_UPDATE}" && cygwin64-configure --disable-shared --enable-static --disable-dependency-tracking
+    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
+    test -z "${SKIP_UPDATE}" && cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && cygwin64-make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvfedoracygwin64_section\r\e[0K" || true
+
+############################################################################
+
+.scriptBuildlibuvGCClatest: &scriptBuildlibuvGCClatest |
+    # *scriptBuildlibuvGCClatest - Build static libuv from git with latest-installed gcc ...
+    echo -e "section_start:`date +%s`:buildlibuvgcclatest_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with latest gcc ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    tezt -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
+    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
+    test -z "${SKIP_UPDATE}" && CC=gcc-latest ./configure --disable-shared --enable-static --disable-dependency-tracking
+    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
+    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvgcclatest_section\r\e[0K" || true
+
+############################################################################
+
+.scriptBuildlibuvGCC: &scriptBuildlibuvGCC |
+    # *scriptBuildlibuvGCC - Build static libuv from git with default gcc ...
+    echo -e "section_start:`date +%s`:buildlibuvgccd_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with gcc ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
+    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
+    test -z "${SKIP_UPDATE}" && CC=gcc ./configure --disable-shared --enable-static --disable-dependency-tracking
+    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
+    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvgccd_section\r\e[0K" || true
+
+############################################################################
+
+.scriptBuildlibuvLLVMMGW64-aarch64: &scriptBuildlibuvLLVMMGW64-aarch64 |
+    # *scriptBuildlibuvLLVMMGW64-aarch64 - Build static libuv from git with LLVM-MinGW-Aarch64 cross-compiler ...
+    echo -e "section_start:`date +%s`:buildlibuvllvmmgwaarch64_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-Aarch64 cross-compiler ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
+    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
+    test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=aarch64-w64-mingw32 --disable-dependency-tracking
+    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
+    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvllvmmgwaarch64_section\r\e[0K" || true
+
+############################################################################
+
+.scriptBuildlibuvLLVMMGW64-armv7: &scriptBuildlibuvLLVMMGW64-armv7 |
+    # *scriptBuildlibuvLLVMMGW64-armv7 - Build static libuv from git with LLVM-MinGW-ARMv7 cross-compiler ...
+    echo -e "section_start:`date +%s`:buildlibuvllvmmgwarmv7_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-ARMv7 cross-compiler ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
+    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
+    test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=armv7-w64-mingw32 --disable-dependency-tracking
+    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
+    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvllvmmgwarmv7_section\r\e[0K" || true
+
+############################################################################
+
+.scriptBuildlibuvLLVMMGW64-i686: &scriptBuildlibuvLLVMMGW64-i686 |
+    # *scriptBuildlibuvLLVMMGW64-i686 - Build static libuv from git with LLVM-MinGW-i686 cross-compiler ...
+    echo -e "section_start:`date +%s`:buildlibuvllvmmgwi686_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-i686 cross-compiler ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
+    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    test -z "${SKIP_UPDATE}" && echo "Patching libuv for MinGW32 ..."
+    test -z "${SKIP_UPDATE}" && (curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw/eb746880657437f951d1f887ac474029c0b99f7d/gistfile0.txt 2> /dev/null || curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw/eb746880657437f951d1f887ac474029c0b99f7d/gistfile0.txt 2> /dev/null) | patch -p1
+    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
+    test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=i686-w64-mingw32 --disable-dependency-tracking
+    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
+    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvllvmmgwi686_section\r\e[0K" || true
+
+############################################################################
+
+.scriptBuildlibuvLLVMMGW64-x86_64: &scriptBuildlibuvLLVMMGW64-x86_64 |
+    # *scriptBuildlibuvLLVMMGW64-x86_64 - Build static libuv from git with LLVM-MinGW-x86_64 cross-compiler ...
+    echo -e "section_start:`date +%s`:buildlibuvllvmmgwx8664_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with LLVM-MinGW-x86_64 cross-compiler ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
+    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
+    test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
+    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
+    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvllvmmgwx8664_section\r\e[0K" || true
+
+############################################################################
+
+.scriptBuildlibuvMGW64: &scriptBuildlibuvMGW64 |
+    # *scriptBuildlibuvMGW64 - Build static libuv from git with mingw64 cross-compiler ...
+    echo -e "section_start:`date +%s`:buildlibuvmingw64c_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with mingw64 cross-compiler ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
+    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
+    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
+    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
+    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
+    test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
+    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
+    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
+    echo -e "section_end:`date +%s`:buildlibuvmingw64c_section\r\e[0K" || true
+
+############################################################################
+
+.scriptClearSetup: &scriptClearSetup |
+    # *scriptClearSetup - Update Intel Clear Linux OS and install required tools ...
+    echo -e "section_start:`date +%s`:setupclearos_section[collapsed=true]\r\e[0K\033[0;36mSetting up Intel Clear Linux OS ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    echo "Checking for certificates ..."
+    test -f "/usr/share/ca-certs/Swupd_Root.pem" && export CERTPATH="-C /usr/share/ca-certs/Swupd_Root.pem"
+    test -z "${SKIP_UPDATE}" && echo "Updating system ..."
+    test -z "${SKIP_UPDATE}" && swupd update -y --quiet $CERTPATH
+    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
+    test -z "${SKIP_UPDATE}" && swupd bundle-add -y --quiet $CERTPATH llvm c-basic dev-utils global shells devpkg-libuv zip unzip plzip which
+    test -f "/usr/share/clear/update-ca/Swupd_Root.pem" || cp -f "/usr/share/ca-certs/Swupd_Root.pem" "/usr/share/clear/update-ca/Swupd_Root.pem" || true
+    echo -e "section_end:`date +%s`:setupclearos_section\r\e[0K" || true
+
+############################################################################
+
+.scriptCommon: &scriptCommon |
+    # *scriptCommon - Show common CI/CD configuration information
+    echo -e "section_start:`date +%s`:common_section[collapsed=false]\r\e[0K\033[0;36mCommon Information ...\033[0m" || true
+    echo "Project Name              : ${CI_PROJECT_TITLE:-Unknown}"
+    echo "Project Git Commit        : ${CI_COMMIT_SHA:-Unknown}"
+    echo "Project Git Branch        : ${CI_COMMIT_BRANCH:-Unknown}"
+    echo "GitLab CI User Details    : ${GITLAB_USER_LOGIN:-Unknown} - ${GITLAB_USER_NAME:-Unknown} (${GITLAB_USER_ID:-Unknown}) ${GITLAB_USER_EMAIL:-}"
+    echo "GitLab CI Job Name        : ${CI_JOB_NAME:-Unknown}"
+    echo "GitLab CI Job ID          : ${CI_JOB_ID:-Unknown}"
+    echo "GitLab CI Job Stage       : ${CI_JOB_STAGE:-Unknown}"
+    echo "GitLab CI Runner Details  : ${CI_RUNNER_VERSION:-Unknown} (${CI_RUNNER_REVISION:-Unknown})"
+    git status || true > /dev/null 2>&1
+    echo -e "section_end:`date +%s`:common_section\r\e[0K" || true
+
+############################################################################
+
+.scriptCompressArtifacts: &scriptCompressArtifacts |
+    # *scriptCompressArtifacts - Compress build artifacts
+    echo -e "section_start:`date +%s`:compress_section[collapsed=true]\r\e[0K\033[0;36mCompress Artifacts ...\033[0m" || true
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && lzip -9v ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && lzip -9v ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && lzip -9v ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
@@ -69,307 +376,416 @@
     test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/cygwin1.dll && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/cygwin1.dll 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/libwinpthread-1.dll && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/libwinpthread-1.dll 2> /dev/null || true > /dev/null 2>&1
-    echo -e "section_end:`date +%s`:compress_section\r\e[0K"
+    echo -e "section_end:`date +%s`:compress_section\r\e[0K" || true
 
 ############################################################################
 
-.scriptAptInstallLibuv1: &scriptAptInstallLibuv1 |
-    # scriptAptInstallLibuv1
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq libuv1-dev
-
-############################################################################
-
-.scriptAptInstallMinGW64: &scriptAptInstallMinGW64 |
-    # scriptAptInstallMinGW64
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq mingw-w64 || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq mingw-w64
-
-############################################################################
-
-.scriptBuildlibuvCLANGlatest: &scriptBuildlibuvCLANGlatest |
-    # scriptBuildlibuvCLANGlatest
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    CC=clang-latest ./configure --disable-shared --enable-static --disable-dependency-tracking
-    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
-
-############################################################################
-
-.scriptBuildlibuvGCClatest: &scriptBuildlibuvGCClatest |
-    # scriptBuildlibuvGCClatest
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    CC=gcc-latest ./configure --disable-shared --enable-static --disable-dependency-tracking
-    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
-
-############################################################################
-
-.scriptBuildlibuvFCygwin64: &scriptBuildlibuvFCygwin64 |
-    # scriptBuildlibuvFCygwin64
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    cygwin64-configure --disable-shared --enable-static --disable-dependency-tracking
-    cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && cygwin64-make install && cd ..
-
-############################################################################
-
-.scriptBuildlibuvCLANG: &scriptBuildlibuvCLANG |
-    # scriptBuildlibuvCLANG
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    CC=clang ./configure --disable-shared --enable-static --disable-dependency-tracking
-    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
-
-############################################################################
-
-.scriptBuildlibuvGCC: &scriptBuildlibuvGCC |
-    # scriptBuildlibuvGCC
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    CC=gcc ./configure --disable-shared --enable-static --disable-dependency-tracking
-    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
-
-############################################################################
-
-.scriptBuildlibuvMGW64: &scriptBuildlibuvMGW64 |
-    # scriptBuildlibuvMGW64
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
-    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
-
-############################################################################
-
-.scriptBuildlibuvLLVMMGW64-x86_64: &scriptBuildlibuvLLVMMGW64-x86_64 |
-    # scriptBuildlibuvLLVMMGW64-x86_64
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    ./configure --disable-shared --enable-static --host=x86_64-w64-mingw32 --disable-dependency-tracking
-    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
-
-############################################################################
-
-.scriptBuildlibuvLLVMMGW64-aarch64: &scriptBuildlibuvLLVMMGW64-aarch64 |
-    # scriptBuildlibuvLLVMMGW64-aarch64
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    ./configure --disable-shared --enable-static --host=aarch64-w64-mingw32 --disable-dependency-tracking
-    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
-
-############################################################################
-
-.scriptBuildlibuvLLVMMGW64-armv7: &scriptBuildlibuvLLVMMGW64-armv7 |
-    # scriptBuildlibuvLLVMMGW64-armv7
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    ./configure --disable-shared --enable-static --host=armv7-w64-mingw32 --disable-dependency-tracking
-    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
-
-############################################################################
-
-.scriptBuildlibuvLLVMMGW64-i686: &scriptBuildlibuvLLVMMGW64-i686 |
-    # scriptBuildlibuvLLVMMGW64-i686
-    wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    (curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw/eb746880657437f951d1f887ac474029c0b99f7d/gistfile0.txt 2> /dev/null || curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw/eb746880657437f951d1f887ac474029c0b99f7d/gistfile0.txt 2> /dev/null) | patch -p1
-    ./configure --disable-shared --enable-static --host=i686-w64-mingw32 --disable-dependency-tracking
-    make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") && make install && cd ..
-
-############################################################################
-
-.scriptAptSetupLatestClang: &scriptAptSetupLatestClang |
-    # scriptAptSetupLatestClang
-    wget -nv https://apt.llvm.org/llvm.sh || wget -nv https://apt.llvm.org/llvm.sh
-    grep -v '^set -eux' ./llvm.sh > ./llvmq.sh
-    bash ./llvmq.sh $(grep '^LLVM_VERSION_PATTERNS' ./llvm.sh | cut -d '[' -f 2 | cut -d ']' -f 1 | sort -rn | head -n 1)
-    rm -f llvmq.sh && rm -f llvm.sh
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search clang 2> /dev/null | grep "^clang-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo clang)
-    ln -fs "$( ( ls -1 /usr/bin/clang-* 2> /dev/null | grep 'clang-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/clang)" /usr/bin/clang-latest
-
-############################################################################
-
-.scriptAptSetupLatestGCC: &scriptAptSetupLatestGCC |
-    # scriptAptSetupLatestGCC
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq $( apt-cache search gcc 2> /dev/null | grep "^gcc-[1-9]\+ " 2> /dev/null | sort 2> /dev/null | head -n 1 2> /dev/null | awk '{ print $1 }' 2>/dev/null || echo gcc)
-    ln -fs "$( ( ls -1 /usr/bin/gcc-* 2> /dev/null | grep 'gcc-[0-9]' 2> /dev/null | sort -r 2> /dev/null | head -n 1 2> /dev/null ) || echo /usr/bin/gcc)" /usr/bin/gcc-latest
-
-############################################################################
-
-.scriptClearSetup: &scriptClearSetup |
-    # scriptClearSetup
-    swupd update -y --quiet 
-    swupd bundle-add -y --quiet llvm c-basic dev-utils global shells devpkg-libuv zip unzip plzip which
-
-############################################################################
-
-.scriptSlackSetup: &scriptSlackSetup |
-    # scriptSlackSetup
-    (yes | slackpkg update) 2> /dev/null || true > /dev/null 2>&1
-    (yes | slackpkg upgrade slackpkg) 2> /dev/null || true > /dev/null 2>&1
-    (yes | slackpkg update) 2> /dev/null || true > /dev/null 2>&1
-    (yes | slackpkg upgrade aaa_glibc-solibs) 2> /dev/null || true > /dev/null 2>&1
-    (yes | slackpkg upgrade glibc-solibs) 2> /dev/null || true > /dev/null 2>&1
-    (yes | slackpkg upgrade-all) 2> /dev/null || true > /dev/null 2>&1
-    export ARGS="m4 libffi cscope flex bison ed patch cpio guile gc glibc binutils kernel-headers nghttp2 brotli sasl libuv ca-certificates perl git gcc llvm lzip wget curl make psmisc moreutils gnupg util-linux pigz autoconf autoconf-archive bzip2 ccache popt cmake libarchive openssl lz4 libxml2 automake libtool infozip"; (yes | slackpkg install ${ARGS:?}) || true; (yes | slackpkg install ${ARGS:?}) 2> /dev/null || true > /dev/null 2>&1
-    /usr/sbin/update-ca-certificates --fresh 2> /dev/null || true > /dev/null 2>&1
-
-############################################################################
-
-.scriptExtraInfo: &scriptExtraInfo |
-    # scriptExtraInfo
-    echo "${CFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1
-    echo "${CXXFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1
-    echo "${LDFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1
-    uname -a 2> /dev/null || true > /dev/null 2>&1
-    oslevel -s 2> /dev/null || true > /dev/null 2>&1
-    prtconf 2> /dev/null | grep -E '(^Processor|CPU|Kernel|Number)' 2> /dev/null | grep -v Clock 2> /dev/null || true > /dev/null 2>&1
-    lsb_release -d 2> /dev/null || true > /dev/null 2>&1
-    cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
-    uptime 2> /dev/null || true > /dev/null 2>&1
-    lscpu 2> /dev/null | grep -v Vulnerability 2> /dev/null || true > /dev/null 2>&1
-    df . 2> /dev/null || true > /dev/null 2>&1
-    free 2> /dev/null || true > /dev/null 2>&1
-    git status 2> /dev/null || true > /dev/null 2>&1
-
-############################################################################
-
-.scriptDPS8Mods: &scriptDPS8Mods |
-    # scriptDPS8Mods
-    echo "The DPS8M Development Team - CI/CD Test Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
-
-############################################################################
-
-.scriptAlpineSetup: &scriptAlpineSetup |
-    # scriptAlpineSetup 
-    apk update || apk update
-    apk upgrade || apk upgrade
-    export ARGS="libc-dev musl-dev gcc g++ clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja"; apk add ${ARGS:?} || apk add ${ARGS:?}
-
-############################################################################
-
-.scriptOSUSESetup: &scriptOSUSESetup |
-    # scriptOSUSESetup
-    printf '%s\n' "install -n -y which gzip gcc clang git unzip zip ruby ruby-devel curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja" "dup -y" "update -y" "exit" | zypper -qn sh
-
-############################################################################
-
-.scriptVoidSetup: &scriptVoidSetup |
-    # scriptVoidSetup
-    xbps-install -Suy xbps || xbps-install -Suy xbps
-    xbps-install -Suy || xbps-install -Suy
-    export ARGS="mksh gcc clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-devel psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
-
-############################################################################
-
-.scriptAptSetup: &scriptAptSetup |
-    # scriptAptSetup
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
-    export ARGS="gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
-    env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -y -qq
-    export ARGS="lzip dash bash wget gcc libtool unzip autoconf-archive util-linux psmisc clang zip pigz make"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
-
-############################################################################
-
-.scriptOUL8Setup: &scriptOUL8Setup |
-    # scriptOUL8Setup
-    dnf -y --refresh --allowerasing --best install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || dnf -y --refresh --allowerasing --nobest install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-    echo '[OL8_codeready_builder]' > /etc/yum.repos.d/codeready_builder.repo
-    echo 'name=OL8_codeready_builder' >> /etc/yum.repos.d/codeready_builder.repo
-    echo 'baseurl=https://yum.oracle.com/repo/OracleLinux/OL8/codeready/builder/x86_64/' >> /etc/yum.repos.d/codeready_builder.repo
-    echo 'enabled=1' >> /etc/yum.repos.d/codeready_builder.repo
-    echo 'gpgcheck=0' >> /etc/yum.repos.d/codeready_builder.repo
-
-############################################################################
-
-.scriptAlma8Setup: &scriptAlma8Setup |
-    # scriptAlma8Setup
-    dnf -y --refresh --allowerasing --best --disablerepo=appstream update || dnf -y --refresh --allowerasing --nobest --disablerepo=appstream update
-    dnf -y --allowerasing --best install epel-release || dnf -y --allowerasing --nobest epel-release
-    curl -fsSL https://repo.almalinux.org/almalinux/8/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo || curl -fsSL https://repo.almalinux.org/almalinux/8/devel/almalinux-devel.repo -o /etc/yum.repos.d/almalinux-devel.repo
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-devel.repo
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-powertools.repo
-    sed -i '0,/enabled=0/s//enabled=1/' /etc/yum.repos.d/almalinux-ha.repo
-
-############################################################################
-
-.scriptAmazonSetup: &scriptAmazonSetup |
-    # scriptAmazonSetup
-    yum -q -y update || yum -q -y update
-    export ARGS="system-lsb lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; yum -q -y install ${ARGS:?} || yum -q -y install ${ARGS:?}
-    export ARGS="https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/l/lzip-1.21-1.el8.x86_64.rpm"; yum -q -y localinstall ${ARGS:?} || yum -q -y localinstall ${ARGS:?}
+.scriptCreateResticSnapshot: &scriptCreateResticSnapshot |
+    # *scriptCreateResticSnapshot - Attempt to create new snapshot ...
+    echo -e "section_start:`date +%s`:createsnap_section[collapsed=true]\r\e[0K\033[0;36mTrying to create a new Restic snapshot ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${CACHESERVER}" && export CACHESERVER="0.0.0.0"
+    echo "CACHESERVER is ${CACHESERVER}"
+    echo "Unlocking Restic  ..."
+    env RESTIC_PASSWORD="${GLCICD_JOB}" RESTIC_REPOSITORY="rest:http://${CACHESERVER}:17812/${GLCICD_JOB}" /usr/bin/restic unlock > /dev/null 2>&1 || true
+    echo "Initialize Restic ..."
+    env RESTIC_PASSWORD="${GLCICD_JOB}" RESTIC_REPOSITORY="rest:http://${CACHESERVER}:17812/${GLCICD_JOB}" /usr/bin/restic init > /dev/null 2>&1 || true
+    echo "Running Restic (3/3) ..."
+    env RESTIC_PASSWORD="${GLCICD_JOB}" RESTIC_REPOSITORY="rest:http://${CACHESERVER}:17812/${GLCICD_JOB}" /usr/bin/restic backup --exclude-caches -e /cache -e /builds -x / 2> /dev/null || true
+    echo -e "section_end:`date +%s`:createsnap_section\r\e[0K" || true
 
 ############################################################################
 
 .scriptDnfSetup: &scriptDnfSetup |
-    # scriptDnfSetup
-    dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
-    export ARGS="lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
+    # *scriptDnfSetup - Update system and install required tools using dnf on RH-based systems ...
+    echo -e "section_start:`date +%s`:dnfuinstall_section[collapsed=true]\r\e[0K\033[0;36mSetting up system ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Updating system ..."
+    test -z "${SKIP_UPDATE}" && dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
+    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
+    test -z "${SKIP_UPDATE}" && export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
+    echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
+
+############################################################################
+
+.scriptDPS8Mods: &scriptDPS8Mods |
+    # *scriptDPS8Mods - Configure build for CI/CD environment ...
+    echo -e "section_start:`date +%s`:dps8mods_section[collapsed=true]\r\e[0K\033[0;36mConfigure build system ...\033[0m" || true
+    echo -n "Setting Build string ... "
+    echo "The DPS8M Development Team - Build ${CI_JOB_ID:-}" 2> /dev/null | tee .builder.txt 2> /dev/null || true > /dev/null 2>&1
+    echo ""
+    echo -e "section_end:`date +%s`:dps8mods_section\r\e[0K" || true
+
+############################################################################
+
+.scriptExtraInfo: &scriptExtraInfo |
+    # *scriptExtraInfo - Show extra system information ...
+    echo -e "section_start:`date +%s`:extrainfo_section[collapsed=false]\r\e[0K\033[0;36mExtra system information ...\033[0m" || true
+    echo -n "Default CFLAGS   : "; echo -n "${CFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1; echo ""
+    echo -n "Default CXXFLAGS : "; echo -n "${CXXFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1; echo ""
+    echo -n "Default LDFLAGS  : "; echo -n "${LDFLAGS:-}" 2> /dev/null || true > /dev/null 2>&1; echo ""
+    echo -n "uname -a         : "; uname -a 2> /dev/null || true > /dev/null 2>&1; echo ""
+    echo -n "oslevel -s       : "; oslevel -s 2> /dev/null || true > /dev/null 2>&1; echo ""
+    echo    "prtconf          : "; prtconf 2> /dev/null | grep -E '(^Processor|CPU|Kernel|Number)' 2> /dev/null | grep -v Clock 2> /dev/null || true > /dev/null 2>&1
+    echo    "lsb_release      : "; lsb_release -d 2> /dev/null || true > /dev/null 2>&1
+    echo    "cat /etc/*elease : "; cat /etc/*elease 2> /dev/null || true > /dev/null 2>&1
+    echo -n "uptime           : "; uptime 2> /dev/null || true > /dev/null 2>&1; echo ""
+    echo    "df               : "; df . 2> /dev/null || true > /dev/null 2>&1
+    echo    "free             : "; free 2> /dev/null || true > /dev/null 2>&1
+    echo    "git status       : "; git status 2> /dev/null || true > /dev/null 2>&1
+    echo -e "section_end:`date +%s`:extrainfo_section\r\e[0K" || true
 
 ############################################################################
 
 .scriptInstallDnfCoprCygwin: &scriptInstallDnfCoprCygwin |
-    # scriptInstallDnfCoprCygwin
-    dnf -y --best install 'dnf-command(copr)' || dnf -y --nobest install 'dnf-command(copr)'
-    dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin
-    dnf -y --best install cygport cygwin64\* -x \*debuginfo || dnf --nobest install -y cygport cygwin64\* -x \*debuginfo
+    # *scriptInstallDnfCoprCygwin - Enable and install Fedora Cygwin64 from Fedora Copr ...
+    echo -e "section_start:`date +%s`:coprcygwinstall_section[collapsed=true]\r\e[0K\033[0;36mInstalling Fedora Cygwin64 ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Installing DNF Copr plugins ..."
+    test -z "${SKIP_UPDATE}" && dnf -y --best install 'dnf-command(copr)' || dnf -y --nobest install 'dnf-command(copr)'
+    test -z "${SKIP_UPDATE}" && echo "Enabling Cygwin repo ..."
+    test -z "${SKIP_UPDATE}" && dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin
+    test -z "${SKIP_UPDATE}" && echo "Installing Cygwin softawre ..."
+    test -z "${SKIP_UPDATE}" && dnf -y --best install cygport cygwin64\* -x \*debuginfo || dnf --nobest install -y cygport cygwin64\* -x \*debuginfo
+    echo -e "section_end:`date +%s`:coprcygwinstall_section\r\e[0K" || true
 
 ############################################################################
+
+.scriptInstallNfpm: &scriptInstallNfpm |
+    # *scriptInstallNfpm - Install NFPM package builder
+    echo -e "section_start:`date +%s`:nfpm_section[collapsed=true]\r\e[0K\033[0;36mInstall NFPM ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    echo "Installing NFPM ..."
+    test -z "${SKIP_UPDATE}" && test -x /usr/bin/nfpm || sh -x -c '(cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh)'
+    test -z "${SKIP_UPDATE}" && test -x /usr/bin/nfpm || sh -x -c '(cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh) )'
+    echo "Testing NFPM ..."
+    /usr/bin/nfpm --version
+    echo -e "section_end:`date +%s`:nfpm_section\r\e[0K" || true
+
+############################################################################
+
+.scriptInstallResticLinuxAMD64: &scriptInstallResticLinuxAMD64 |
+    # *scriptInstallResticLinuxAMD64 - Install Restic (Linux/amd64) static binary ...
+    echo -e "section_start:`date +%s`:installrestic_section[collapsed=true]\r\e[0K\033[0;36mInstalling Restic (Linux/amd64) static binary ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    echo "Setting up CACHESERVER ... "
+    test -z "${CACHESERVER}" && export CACHESERVER="0.0.0.0"
+    echo "CACHESERVER is ${CACHESERVER}"
+    echo "Installing Restic ..."
+    export RESTICURL_LOCAL="http://${CACHESERVER}:8088/restic.bz2" && export RESTICURL_NETWK="https://github.com/restic/restic/releases/download/v0.12.1/restic_0.12.1_linux_amd64.bz2" && curl -fsSL "${RESTICURL_LOCAL}" -o restic.bz2 || curl -fsSL "${RESTICURL_LOCAL}" -o restic.bz2 || wget "${RESTICURL_LOCAL}" -O restic.bz2 || wget "${RESTICURL_LOCAL}" -O restic.bz2 || curl -fsSL "${RESTICURL_NETWK}" -o restic.bz2 || curl -fsSL "${RESTICURL_NETWK}" -o restic.bz2 || wget "${RESTICURL_NETWK}" -O restic.bz2 || wget "${RESTICURL_NETWK}" -O restic.bz2 || true
+    echo "Decompressing Restic ..."
+    ls -la restic.bz2 || true
+    bzip2 -dvc < restic.bz2 > /usr/bin/restic || true
+    echo "Enabling Restic ..."
+    chmod 744 /usr/bin/restic || true
+    echo "Verifying Restic ..."
+    ls -la /usr/bin/restic || true
+    /usr/bin/restic version || true
+    echo "Cleaning up ..."
+    rm -f restic.bz2 || true
+    echo -e "section_end:`date +%s`:installrestic_section\r\e[0K" || true
+
+############################################################################
+
+.scriptOSUSESetup: &scriptOSUSESetup |
+    # *scriptOSUSESetup - Update OpenSUSE Linux and install required tools ...
+    echo -e "section_start:`date +%s`:osusesetup_section[collapsed=true]\r\e[0K\033[0;36mSetting up OpenSUSE Linux ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Updating system and installing software ..."
+    test -z "${SKIP_UPDATE}" && printf '%s\n' "install -n -y which gzip gcc clang git unzip zip ruby ruby-devel curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja" "dup -y" "update -y" "exit" | zypper -qn sh
+    echo -e "section_end:`date +%s`:osusesetup_section\r\e[0K" || true
+
+############################################################################
+
+.scriptOUL8Setup: &scriptOUL8Setup |
+    # *scriptOUL8Setup - Update Oracle Unbreakable Linux 8 and install required tools ...
+    echo -e "section_start:`date +%s`:oracleinstall_section[collapsed=true]\r\e[0K\033[0;36mSetting up Oracle Linux 8 ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Installing latest EPEL-8 release ..."
+    test -z "${SKIP_UPDATE}" && dnf -y --refresh --allowerasing --best install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm || dnf -y --refresh --allowerasing --nobest install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+    test -z "${SKIP_UPDATE}" && echo "Enabling Oracle Linux 8 CodeReady Builder repo ..."
+    test -z "${SKIP_UPDATE}" && echo '[OL8_codeready_builder]' > /etc/yum.repos.d/codeready_builder.repo
+    test -z "${SKIP_UPDATE}" && echo 'name=OL8_codeready_builder' >> /etc/yum.repos.d/codeready_builder.repo
+    test -z "${SKIP_UPDATE}" && echo 'baseurl=https://yum.oracle.com/repo/OracleLinux/OL8/codeready/builder/x86_64/' >> /etc/yum.repos.d/codeready_builder.repo
+    test -z "${SKIP_UPDATE}" && echo 'enabled=1' >> /etc/yum.repos.d/codeready_builder.repo
+    test -z "${SKIP_UPDATE}" && echo 'gpgcheck=0' >> /etc/yum.repos.d/codeready_builder.repo
+    echo -e "section_end:`date +%s`:oracleinstall_section\r\e[0K" || true
+
+############################################################################
+
+.scriptRestoreResticSnapshot: &scriptRestoreResticSnapshot |
+    # *scriptRestoreResticSnapshot - Attempt to restore latest snapshot ...
+    echo -e "section_start:`date +%s`:restoresnap_section[collapsed=true]\r\e[0K\033[0;36mTrying to restore last Restic snapshot ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    echo "Checking environment date ..."
+    export NTIMESTAMP="$(date "+%s")" || true
+    test -z "${DTIMESTAMP}" || echo -n "Environment Date: "; date -d "@${DTIMESTAMP}" || true
+    rm -f restic.txt || true
+    echo "Checking Restic snapshots for \"${GLCICD_JOB}\" ..."
+    test -z "${CACHESERVER}" && export CACHESERVER="0.0.0.0"
+    echo "1980-01-01 11:11:11" > restic.txt || true
+    (env RESTIC_PASSWORD="${GLCICD_JOB}" RESTIC_REPOSITORY="rest:http://${CACHESERVER}:17812/${GLCICD_JOB}" /usr/bin/restic snapshots -c --last 2> /dev/null | grep ".*:.*:.*" | awk '{ print $2" "$3 }' > restic.txt) || true
+    grep -q " 00:00:00" restic.txt 2> /dev/null && rm -f restic.txt 2> /dev/null || true
+    test -f restic.txt || export NO_SNAPSHOT=1
+    test -f restic.txt || echo "1980-01-01 11:11:11" > restic.txt || true
+    export BTIMESTAMP=$(date --date "$(cat restic.txt)" "+%s") || true
+    if [ "${DTIMESTAMP}" -gt "${BTIMESTAMP}" ] 2> /dev/null; then export SKIP_RESTIC=1; fi || true
+    test -z "${NO_SNAPSHOT}" || echo -n "Last snapshot date: "; date -d "@${BTIMESTAMP}" 2> /dev/null || true
+    export LTIMESTAMP="${NTIMESTAMP}" || true
+    test -z "${CACHESERVER}" && export CACHESERVER="0.0.0.0"
+    test -z "${SKIP_RESTIC}" && export EXEMPT="$(mount | grep ro | awk '{ print "-e "$3 }')"
+    test -z "${SKIP_RESTIC}" && env RESTIC_PASSWORD="${GLCICD_JOB}" RESTIC_REPOSITORY="rest:http://${CACHESERVER}:17812/${GLCICD_JOB}" /usr/bin/restic unlock > /dev/null 2>&1 || true
+    test -z "${SKIP_RESTIC}" && env RESTIC_PASSWORD="${GLCICD_JOB}" RESTIC_REPOSITORY="rest:http://${CACHESERVER}:17812/${GLCICD_JOB}" /usr/bin/restic restore -e /usr/bin/sh -e /bin/sh -e /usr/bin/restic -e /usr/bin/bash -e /bin/bash -e /cache -e /builds -e /cacheserver $EXEMPT --cleanup-cache --target / latest 2>&1 | grep -v " file exists" | grep -v " text file busy" | grep -v "Fatal: There were .* errors" || true
+    test -z "${SKIP_RESTIC}" && echo "Running ldconfig ..."
+    test -z "${SKIP_RESTIC}" && ldconfig || true
+    test -z "${CACHESERVER}" && export CACHESERVER="0.0.0.0"
+    test -z "${SKIP_RESTIC}" && echo "Pruning snapshots ..."
+    test -z "${SKIP_RESTIC}" && env RESTIC_PASSWORD="${GLCICD_JOB}" RESTIC_REPOSITORY="rest:http://${CACHESERVER}:17812/${GLCICD_JOB}" /usr/bin/restic prune > /dev/null 2>&1 || true                                                                                           
+    test -z "${SKIP_RESTIC}" && echo "Cleaning up ..."
+    rm -f restic.txt || true
+    true "Need once per week update logic" || true
+    echo -e "section_end:`date +%s`:restoresnap_section\r\e[0K" || true
+
+############################################################################
+
+.scriptSanity: &scriptSanity |
+    # *scriptSanity - Ensure commit is on a branch and valid working directory
+    echo -e "section_start:`date +%s`:sanity_section[collapsed=true]\r\e[0K\033[0;36mSanity Check ...\033[0m" || true
+    echo "Checking that a branch exists ..."
+    echo "${CI_COMMIT_BRANCH:?}" > /dev/null 2>&1
+    echo "Checking for a valid working directory ..."
+    IPWD="$(pwd -P)" && export IPWD && if [ "X${CI_PROJECT_DIR:?}X" != "X${IPWD:?}X" ]; then exit 1; fi
+    echo "Checking out branch \"${CI_COMMIT_BRANCH:?}\" with git ..."
+    git checkout -b "${CI_COMMIT_BRANCH:?}"
+    echo -e "section_end:`date +%s`:sanity_section\r\e[0K" || true
+
+############################################################################
+
+.scriptSlackSetup: &scriptSlackSetup |
+    # *scriptSlackSetup - Update Slackware and install required tools ...
+    echo -e "section_start:`date +%s`:slackware_section[collapsed=true]\r\e[0K\033[0;36mSetting up Slackware Linux ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Updating package lists ..."
+    test -z "${SKIP_UPDATE}" && (yes | slackpkg update) 2> /dev/null || true > /dev/null 2>&1
+    test -z "${SKIP_UPDATE}" && echo "Cleaning up ..."
+    test -z "${SKIP_UPDATE}" && (yes | slackpkg clean-system) 2> /dev/null || true > /dev/null 2>&1
+    test -z "${SKIP_UPDATE}" && echo "Upgrading slackpkg ..."
+    test -z "${SKIP_UPDATE}" && (yes | slackpkg upgrade slackpkg) 2> /dev/null || true > /dev/null 2>&1
+    test -z "${SKIP_UPDATE}" && echo "Updating package lists (again)..."
+    test -z "${SKIP_UPDATE}" && (yes | slackpkg update) 2> /dev/null || true > /dev/null 2>&1
+    test -z "${SKIP_UPDATE}" && echo "Cleaning up ..."
+    test -z "${SKIP_UPDATE}" && (yes | slackpkg clean-system) 2> /dev/null || true > /dev/null 2>&1
+    test -z "${SKIP_UPDATE}" && echo "Upgrading glibc (1/2)..."
+    test -z "${SKIP_UPDATE}" && (yes | slackpkg upgrade aaa_glibc-solibs) 2> /dev/null || true > /dev/null 2>&1
+    test -z "${SKIP_UPDATE}" && echo "Upgrading glibc (2/2)..."
+    test -z "${SKIP_UPDATE}" && (yes | slackpkg upgrade glibc-solibs) 2> /dev/null || true > /dev/null 2>&1
+    test -z "${SKIP_UPDATE}" && echo "Upgrading system ..."
+    test -z "${SKIP_UPDATE}" && (yes | slackpkg upgrade-all) 2> /dev/null || true > /dev/null 2>&1
+    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
+    test -z "${SKIP_UPDATE}" && export ARGS="m4 libffi cscope flex bison ed patch cpio guile gc glibc binutils kernel-headers nghttp2 brotli sasl libuv ca-certificates perl git gcc llvm lzip wget curl make psmisc moreutils gnupg util-linux pigz autoconf autoconf-archive bzip2 ccache popt cmake libarchive openssl lz4 libxml2 automake libtool infozip"; (yes | slackpkg install ${ARGS:?}) || true; (yes | slackpkg install ${ARGS:?}) 2> /dev/null || true > /dev/null 2>&1
+    test -z "${SKIP_UPDATE}" && echo "Updating CA certificates ..."
+    test -z "${SKIP_UPDATE}" && /usr/sbin/update-ca-certificates --fresh 2> /dev/null || true > /dev/null 2>&1
+    echo -e "section_end:`date +%s`:slackware_section\r\e[0K" || true
+
+############################################################################
+
+.scriptVoidSetup: &scriptVoidSetup |
+    # *scriptVoidSetup - Update Void Linux and install required tools ...
+    echo -e "section_start:`date +%s`:voidlsetup_section[collapsed=true]\r\e[0K\033[0;36mSetting up Void Linux ...\033[0m" || true
+    echo "Checking for Docker ..."
+    test -f /.dockerenv || exit 1
+    test -z "${SKIP_UPDATE}" && echo "Updating xbps ..."
+    test -z "${SKIP_UPDATE}" && xbps-install -Suy xbps || xbps-install -Suy xbps
+    test -z "${SKIP_UPDATE}" && echo "Updating system ..."
+    test -z "${SKIP_UPDATE}" && xbps-install -Suy || xbps-install -Suy
+    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
+    test -z "${SKIP_UPDATE}" && export ARGS="mksh gcc clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-devel psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
+    echo -e "section_end:`date +%s`:voidlsetup_section\r\e[0K" || true
+
+############################################################################
+
+.scriptVerifyVersion: &scriptVerifyVersion |
+    # *scriptVerifyVersion - Smoke-test for version information ...
+    ./src/dps8/dps8 --version | grep 'imulator'
+    echo "SHOW VERSION" | ./src/dps8/dps8 | grep 'imulator '
+    printf '%s\n' "SHOW BUILDINFO" "ECHO" "SHOW VERSION" | ./src/dps8/dps8
+
+############################################################################
+# CI/CD Stages
 
 stages:
   - build
+  - test
+
+############################################################################
+# Jobs
+
+Linux/x86_64, AlmaLinux 8:
+  image: almalinux:8
+  stage: build
+  allow_failure: true
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="AlmaLinuxEL8x64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptAlma8Setup
+    - *scriptDnfSetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'                                                 
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
 
 ############################################################################
 
-Linux/x86_64, Clear Linux, GCC:
+Linux/x86_64, Alpine Edge:
+  image:
+    name: alpine:edge
+    entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk add bash; apk add bash && ln -snf /bin/bash /bin/sh && exec /bin/bash -c $0' ]
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - *scriptAlpineSetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - rm -rf mimalloc || true
+    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone -v --depth=1 https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build; cd build; CC=clang cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - dash -x -c 'make distclean; exit "${?}"'
+    - rm -rf mimalloc || true
+    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone -v --depth=1 https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build; cd build; CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)' 
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Amazon Linux:
+  image: amazonlinux:latest
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="AmazonLinuxX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/fstab)"
+    - yum -q -y install util-linux bzip2 wget || yum -q -y install util-linux bzip2 wget
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptAmazonSetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="${CFLAGS:-}-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-}-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Clear Linux:
   image: clearlinux:latest
   stage: build
   tags:
-    - Docker-amd64
+    - Docker-x64
+    - amd64
+    - Linux
   script:
-    - *scriptSanity
+    - swupd bundle-add -y --quiet curl
+    - export GLCICD_JOB="ClearX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
     - *scriptClearSetup
     - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory --output-sync -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Clear Linux, Clang:
-  image: clearlinux:latest
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptClearSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory --output-sync -k; exit "${?}"'
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -378,800 +794,6 @@ Linux/x86_64, Clear Linux, Clang:
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-#
-#FreeBSD/powerpc64, 13-STABLE:
-#  image: fedora:latest
-#  stage: build
-#  tags:
-#    - Docker-amd64-fast
-#  script:
-#    - *scriptSanity
-#    - *scriptDnfSetup
-#    - *scriptCommon
-#    - *scriptDPS8Mods
-#    - *scriptExtraInfo
-#    - echo 'Setting up FreeBSD PPC64 QEMU environment'
-#    - echo '#!/usr/bin/expect -f' > run.expect
-#    - echo 'set timeout 450000' >> run.expect
-#    - echo 'spawn telnet 127.0.0.1 5555' >> run.expect
-#    - echo 'set telnetID $spawn_id' >> run.expect
-#    - echo 'sleep 5' >> run.expect
-#    - echo 'expect "command"' >> run.expect
-#    - echo 'send -- "\n"' >> run.expect
-#    - echo 'sleep 5' >> run.expect
-#    - echo 'expect "login:"' >> run.expect
-#    - echo 'send -- "root\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "assword:"' >> run.expect
-#    - echo 'send -- "freebsd123\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "\n"' >> run.expect
-#    - echo 'sleep 5' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg install libuv gmake git mksh\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "exec mksh\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "set -o pipefail\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - export CI_COMMIT_BRANCH && echo "send -- \"git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1 ; git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "cd dps8m\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "gmake CC=\"cc -DUSE_COMPILER_ATOMICS=1 -DCPP11_ATOMICS=1\" V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "\n"' >> run.expect
-#    - echo 'sleep 1' >> run.expect
-#    - echo 'expect "#"' >> run.expect
-#    - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
-#    - echo 'sleep 3' >> run.expect
-#    - echo 'exit' >> run.expect
-#    - echo '#!/usr/bin/expect -f' > install.expect
-#    - echo 'set timeout 450000' >> install.expect
-#    - echo 'spawn telnet 127.0.0.1 4444' >> install.expect
-#    - echo 'set telnetID $spawn_id' >> install.expect
-#    - echo 'sleep 5' >> install.expect
-#    - echo 'expect "command prompt"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 5' >> install.expect
-#    - echo 'expect "Console type"' >> install.expect
-#    - echo 'send -- "vt100\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "CD"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "ENTER"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "name"' >> install.expect
-#    - echo 'send -- "freebsdppc64\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "OK"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "Internet"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "OK"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "interface"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "interface"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "interface"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "SLAAC"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "Configuration"' >> install.expect
-#    - echo 'send -- "\t\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "OK"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "Disk"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "OK"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "Finish"' >> install.expect
-#    - echo 'send -- "\t\t\t\t\t\t\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "Commit"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "Select a site"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 20' >> install.expect
-#    - echo 'expect "assword:"' >> install.expect
-#    - echo 'send -- "freebsd123\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "assword:"' >> install.expect
-#    - echo 'send -- "freebsd123\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "clock"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "region"' >> install.expect
-#    - echo 'send -- "0\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "Yes"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "Date"' >> install.expect
-#    - echo 'send -- "\t\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "Date"' >> install.expect
-#    - echo 'send -- "\t\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "OK"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "OK"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "Accounts"' >> install.expect
-#    - echo 'send -- "\t\n"' >> install.expect
-#    - echo 'sleep 2' >> install.expect
-#    - echo 'expect "installer"' >> install.expect
-#    - echo 'send -- "\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "modifications"' >> install.expect
-#    - echo 'send -- "\t\n"' >> install.expect
-#    - echo 'sleep 1' >> install.expect
-#    - echo 'expect "shell"' >> install.expect
-#    - echo 'send -- "\nsync\nsync\n\nsleep 30\nsync\npoweroff\n"' >> install.expect
-#    - echo 'sleep 15' >> install.expect
-#    - echo 'send -- "sleep 2; poweroff\n"' >> install.expect
-#    - echo 'exit' >> install.expect
-#    - chmod a+x install.expect
-#    - chmod a+x run.expect
-#    - (dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update)
-#    - sleep 2
-#    - export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest
-#    - sleep 2
-#    - tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"
-#    - sleep 5
-#    - curl -fsSL "https://download.freebsd.org/ftp/snapshots/powerpc/powerpc64/ISO-IMAGES/13.0/$(elinks -dump "https://download.freebsd.org/ftp/snapshots/powerpc/powerpc64/ISO-IMAGES/13.0/?C=M&O=D" | grep "^\ *[1-9]" | cut -d "." -f 2- | cut -d " " -f 2- | grep "bootonly.iso.xz$" | head -n 1)" | xz -dv > freebsd-ppc64.iso
-#    - sleep 1
-#    - qemu-img create freebsd-ppc64.qcow2 8G -f qcow2
-#    - sleep 1
-#    - echo 'Performing installation of FreeBSD/PPC64 .....................'
-#    - echo ''
-#    - echo 'Be patient - expect 10 to 90 minutes without feedback.'
-#    - sleep 2
-#    - CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); export CPUS; if [ $CPUS -gt 1024 ]; then CPUS=1024; fi; export CPUS; tmux -2 -u new -d -s instppc64 qemu-system-ppc64 -smp 1 -m 1280M -M pseries,max-cpu-compat=power8,cap-ccf-assist=off,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken -cpu POWER8 -accel tcg -serial telnet::4444,server -vga none -nographic -cdrom freebsd-ppc64.iso -drive if=none,file=freebsd-ppc64.qcow2,id=drive-virtio-disk0,format=qcow2 -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=drive-virtio-disk0 -net user -net nic,model=virtio 
-#    - sleep 10
-#    - ./install.expect
-#    - sleep 120
-#    - kill $(ps auxwww | grep qemu-system-ppc64 | grep -v grep | grep :4444 | awk "{print \$2}" | head -n 1) || true
-#    - sleep 15
-#    - kill -9 $(ps auxwww | grep qemu-system-ppc64 | grep -v grep | grep :4444 | awk "{print \$2}" | head -n 1) || true
-#    - while (ps auxwww | grep qemu | grep -v grep | grep -q \.iso); do sleep 1; echo -n . ; done && CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); export CPUS; if [ $CPUS -gt 1024 ]; then CPUS=1024; fi; export CPUS; tmux -2 -u new -d -s fbsdppc64 qemu-system-ppc64 -smp 1 -m 1280M -M pseries,max-cpu-compat=power8,cap-ccf-assist=off,cap-cfpc=broken,cap-sbbc=broken,cap-ibs=broken -cpu POWER8 -accel tcg -serial telnet::5555,server -vga none -nographic -drive if=none,file=freebsd-ppc64.qcow2,id=drive-virtio-disk0,format=qcow2 -device virtio-scsi-pci,id=scsi -device scsi-hd,drive=drive-virtio-disk0 -net user -net nic,model=virtio 
-#    - sleep 5
-#    - ./run.expect
-#    - while (ps auxwww | grep qemu | grep -v grep | grep -q freebsd-ppc64.qcow2); do sleep 1; echo -n . ; done && tar axvf out.tar && rm -f out.tar
-#    - test -f src/dps8/dps8 || exit 1
-#    - rm -f install.expect
-#    - rm -f run.expect
-#    - rm -f tar.log
-#    - rm -f out.tar
-#    - rm -f freebsd-ppc64.iso
-#    - rm -f freebsd-ppc64.qcow2
-#    - *buildInfo
-#    - *compressArtifacts
-#  dependencies: []
-#  artifacts:
-#    expire_in: 1 day
-#    paths:
-#      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-#      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-#      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-#      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-#  retry: 2
-#  timeout: 240 minutes
-#  interruptible: true
-#
-############################################################################
-
-FreeBSD/riscv64, 13-STABLE:
-  image: fedora:latest
-  stage: build
-  tags:
-    - Docker-amd64-fast
-  script:
-    - *scriptSanity
-    - *scriptDnfSetup
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - echo 'Setting up FreeBSD RISCV64 QEMU environment'
-    - echo '#!/usr/bin/expect -f' > run.expect
-    - echo 'set timeout 450000' >> run.expect
-    - echo 'spawn telnet 127.0.0.1 5555' >> run.expect
-    - echo 'set telnetID $spawn_id' >> run.expect
-    - echo 'sleep 8' >> run.expect
-    - echo 'expect "login:"' >> run.expect
-    - echo 'send -- "root\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 5' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg install libuv gmake git mksh\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "exec mksh\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "set -o pipefail\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - export CI_COMMIT_BRANCH && echo "send -- \"git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1 ; git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "cd dps8m\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "gmake CC=\"cc -DUSE_COMPILER_ATOMICS=1 -DCPP11_ATOMICS=1\" V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
-    - echo 'sleep 3' >> run.expect
-    - echo 'exit' >> run.expect
-    - echo '#!/usr/bin/env sh' > fbsdrsv64.sh
-    - echo '(dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update)' >> fbsdrsv64.sh
-    - echo '(export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat pv"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest)' >> fbsdrsv64.sh
-    - echo 'echo "Downloading FreeBSD RISCV64 13-STABLE VM image..."' >> fbsdrsv64.sh
-    - echo '(curl -fsSL "https://download.freebsd.org/ftp/snapshots/VM-IMAGES/13.0-STABLE/riscv64/Latest/FreeBSD-13.0-STABLE-riscv-riscv64.qcow2.xz" | pv | xz -d > freebsd-riscv64.qcow2)' >> fbsdrsv64.sh
-    - echo '(qemu-img resize freebsd-riscv64.qcow2 "+4G")' >> fbsdrsv64.sh
-    - (cd / && curl -fsSL https://pkg.freebsd.org/FreeBSD:13:aarch64/latest/All/u-boot-qemu-riscv64-2020.10.txz | xz -d | tar axvf -)
-    - echo 'export CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); if [ $CPUS -gt 8 ]; then CPUS=8; fi; export CPUS; tmux -u -2 new -d -s runrsv64qemu qemu-system-riscv64 -smp ${CPUS:-1} -m 1280M -M virt -bios /usr/share/qemu/opensbi-riscv64-generic-fw_dynamic.elf -kernel /usr/local/share/u-boot/u-boot-qemu-riscv64/u-boot.bin -serial telnet::5555,server -nographic -drive if=none,file=freebsd-riscv64.qcow2,id=hd0 -device virtio-blk-device,drive=hd0 -device virtio-net-device,netdev=net0 -netdev user,id=net0' >> fbsdrsv64.sh
-    - echo 'tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"' >> fbsdrsv64.sh
-    - echo 'sleep 5' >> fbsdrsv64.sh
-    - echo './run.expect' >> fbsdrsv64.sh
-    - echo 'sleep 5' >> fbsdrsv64.sh
-    - echo 'while (ps auxwww | grep qemu | grep -v grep | grep -q freebsd-riscv64.qcow2); do sleep 1; echo -n . ; done && tar axvf out.tar && rm -f out.tar' >> fbsdrsv64.sh
-    - echo 'test -f src/dps8/dps8 || exit 1' >> fbsdrsv64.sh
-    - chmod a+x fbsdrsv64.sh
-    - chmod a+x run.expect
-    - test -z $LOCALCI || cat run.expect || true
-    - test -z $LOCALCI || cat fbsdrsv64.sh || true
-    - ./fbsdrsv64.sh
-    - rm -f fbsdrsv64.sh || true > /dev/null 2>&1
-    - rm -f run.expect || true > /dev/null 2>&1
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 240 minutes
-  interruptible: true
-
-############################################################################
-
-FreeBSD/aarch64, 13-STABLE:
-  image: fedora:latest
-  stage: build
-  tags:
-    - Docker-amd64-fast
-  script:
-    - *scriptSanity
-    - *scriptDnfSetup
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - echo 'Setting up FreeBSD ARM64 QEMU environment'
-    - echo '#!/usr/bin/expect -f' > run.expect
-    - echo 'set timeout 450000' >> run.expect
-    - echo 'spawn telnet 127.0.0.1 5555' >> run.expect
-    - echo 'set telnetID $spawn_id' >> run.expect
-    - echo 'sleep 8' >> run.expect
-    - echo 'expect "login:"' >> run.expect
-    - echo 'send -- "root\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 5' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg install libuv gmake git mksh\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "exec mksh\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "set -o pipefail\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - export CI_COMMIT_BRANCH && echo "send -- \"git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1 ; git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "cd dps8m\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "gmake CC=cc V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
-    - echo 'sleep 3' >> run.expect
-    - echo 'exit' >> run.expect
-    - echo '#!/usr/bin/env sh' > fbsdarm64.sh
-    - echo '(dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update)' >> fbsdarm64.sh
-    - echo '(export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat pv"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest)' >> fbsdarm64.sh
-    - echo 'echo "Downloading FreeBSD ARM64 13-STABLE VM image..."' >> fbsdarm64.sh
-    - echo '(curl -fsSL "https://download.freebsd.org/ftp/snapshots/VM-IMAGES/13.0-STABLE/aarch64/Latest/FreeBSD-13.0-STABLE-arm64-aarch64.qcow2.xz" | pv | xz -d > freebsd-aarch64.qcow2)' >> fbsdarm64.sh
-    - echo '(qemu-img resize freebsd-aarch64.qcow2 "+4G")' >> fbsdarm64.sh
-    - echo 'export CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); if [ $CPUS -gt 8 ]; then CPUS=8; fi; export CPUS; tmux -u -2 new -d -s runarm64qemu qemu-system-aarch64 -smp ${CPUS:-1} -m 1280M -cpu cortex-a57 -M virt -bios /usr/share/edk2/aarch64/QEMU_EFI.fd -serial telnet::5555,server -nographic -drive if=none,file=freebsd-aarch64.qcow2,id=hd0 -device virtio-blk-device,drive=hd0 -device virtio-net-device,netdev=net0 -netdev user,id=net0' >> fbsdarm64.sh
-    - echo 'tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"' >> fbsdarm64.sh
-    - echo 'sleep 5' >> fbsdarm64.sh
-    - echo './run.expect' >> fbsdarm64.sh
-    - echo 'sleep 5' >> fbsdarm64.sh
-    - echo 'while (ps auxwww | grep qemu | grep -v grep | grep -q freebsd-aarch64.qcow2); do sleep 1; echo -n . ; done && tar axvf out.tar && rm -f out.tar' >> fbsdarm64.sh
-    - echo 'test -f src/dps8/dps8 || exit 1' >> fbsdarm64.sh
-    - chmod a+x fbsdarm64.sh
-    - chmod a+x run.expect
-    - test -z $LOCALCI || cat run.expect || true
-    - test -z $LOCALCI || cat fbsdarm64.sh || true
-    - ./fbsdarm64.sh
-    - rm -f fbsdarm64.sh || true > /dev/null 2>&1
-    - rm -f run.expect || true > /dev/null 2>&1
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 240 minutes
-  interruptible: true
-
-############################################################################
-
-FreeBSD/amd64, 13-STABLE:
-  image: fedora:latest
-  stage: build
-  tags:
-    - Docker-amd64-fast
-  script:
-    - *scriptSanity
-    - *scriptDnfSetup
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - echo 'Setting up FreeBSD AMD64 QEMU environment'
-    - echo '#!/usr/bin/expect -f' > run.expect
-    - echo 'set timeout 450000' >> run.expect
-    - echo 'spawn telnet 127.0.0.1 5555' >> run.expect
-    - echo 'set telnetID $spawn_id' >> run.expect
-    - echo 'expect "Hard Disk"' >> run.expect
-    - echo 'send -- "-h\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "login:"' >> run.expect
-    - echo 'send -- "root\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 5' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg update\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "env ASSUME_ALWAYS_YES=yes pkg install libuv gmake git mksh\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "exec mksh\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "set -o pipefail\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - export CI_COMMIT_BRANCH && echo "send -- \"git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1 ; git clone -v https://gitlab.com/dps8m/dps8m.git -b ${CI_COMMIT_BRANCH:?}\\n\"" >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "cd dps8m\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "gmake CC=cc V=1 W=1 LDFLAGS=\"-L/usr/local/lib -static\"\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "rm -f dps8m.state\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "\n"' >> run.expect
-    - echo 'sleep 1' >> run.expect
-    - echo 'expect "#"' >> run.expect
-    - echo 'send -- "tar cvf - . | nc -N 10.0.2.2 62023 && sleep 1 && poweroff\n"' >> run.expect
-    - echo 'sleep 3' >> run.expect
-    - echo 'exit' >> run.expect
-    - echo '#!/usr/bin/env sh' > fbsdamd64.sh
-    - echo '(dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update)' >> fbsdamd64.sh
-    - echo '(export ARGS="elinks curl xz telnet expect tmux git qemu edk2-aarch64 lzip netcat pv"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest)' >> fbsdamd64.sh
-    - echo 'echo "Downloading FreeBSD AMD64 13-STABLE VM image..."' >> fbsdamd64.sh
-    - echo '(curl -fsSL "https://download.freebsd.org/ftp/snapshots/VM-IMAGES/13.0-STABLE/amd64/Latest/FreeBSD-13.0-STABLE-amd64.qcow2.xz" | pv | xz -d > freebsd-amd64.qcow2)' >> fbsdamd64.sh
-    - echo '(qemu-img resize freebsd-amd64.qcow2 "+4G")' >> fbsdamd64.sh
-    - echo 'export CPUS=$(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1); if [ $CPUS -gt 255 ]; then CPUS=255; fi; export CPUS; tmux -u -2 new -d -s fbsdamd64 qemu-system-x86_64 -smp $(grep -c model\ name /proc/cpuinfo 2> /dev/null || echo 1) -m 1280M -cpu qemu64 -M q35 -serial telnet::5555,server -nographic -drive if=none,file=freebsd-amd64.qcow2,id=hd0 -device virtio-blk-pci,drive=hd0 -device virtio-net-pci,netdev=net0 -netdev user,id=net0' >> fbsdamd64.sh
-    - echo 'tmux -u -2 new -d -s nctar "netcat -l 62023 -v > out.tar && tar axvf out.tar > tar.log"' >> fbsdamd64.sh
-    - echo 'sleep 5' >> fbsdamd64.sh
-    - echo './run.expect' >> fbsdamd64.sh
-    - echo 'sleep 5' >> fbsdamd64.sh
-    - echo 'while (ps auxwww | grep qemu | grep -v grep | grep -q freebsd-amd64.qcow2); do sleep 1; echo -n . ; done && tar axvf out.tar && rm -f out.tar' >> fbsdamd64.sh
-    - echo 'test -f src/dps8/dps8 || exit 1' >> fbsdamd64.sh
-    - chmod a+x fbsdamd64.sh
-    - chmod a+x run.expect
-    - test -z $LOCALCI || cat run.expect || true
-    - test -z $LOCALCI || cat fbsdamd64.sh || true
-    - ./fbsdamd64.sh
-    - rm -f fbsdamd64.sh || true > /dev/null 2>&1
-    - rm -f run.expect || true > /dev/null 2>&1
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 240 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Debian sid, Clang/git, libuv/git:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptAptSetupLatestClang
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvCLANGlatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Debian sid, Clang/git, libuv/git, TESTING:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptAptSetupLatestClang
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvCLANGlatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Debian sid, Clang/git, libuv/git, TESTING TRACKER HDBG WAM ISOLTS:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptAptSetupLatestClang
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvCLANGlatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" TESTING=1 TRACKER=1 HDBG=1 WAM=1 W=1 V=1 ISOLTS=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Debian sid, Clang/git, libuv/git, L68:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptAptSetupLatestClang
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvCLANGlatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Debian sid, GCC, libuv/git:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptAptSetupLatestGCC
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvGCClatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc-latest LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Debian sid, Clang/git, libuv/git, NO_LOCKLESS:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptAptSetupLatestClang
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvCLANGlatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Debian sid, Clang/git, libuv/git, NO_LOCKLESS ROUND_ROBIN:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptAptSetupLatestClang
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvCLANGlatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" ROUND_ROBIN=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Debian sid, Clang/git, libuv/git, L68 NO_LOCKLESS:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptAptSetupLatestClang
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvCLANGlatest
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang-latest LIBUV="/usr/local/lib/libuv.a -lpthread" NO_LOCKLESS=1 LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" L68=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Windows/x86_64, MinGW64-GCC:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptAptInstallMinGW64
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvMGW64
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - *buildInfo
-    - cp -vf "/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll" "${CI_PROJECT_DIR:?}"
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1181,20 +803,29 @@ Windows/x86_64, MinGW64-GCC:
 Windows/x86_64, Cygwin64-GCC:
   image: fedora:latest
   stage: build
+  allow_failure: true
   tags:
-    - Docker-amd64
+    - Docker-x64
+    - amd64
+    - Linux
   script:
-    - *scriptSanity
+    - export GLCICD_JOB="CYGWIN64GCC" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
     - *scriptInstallDnfCoprCygwin
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
     - *scriptBuildlibuvFCygwin64
-    - sh -x -c 'cygwin64-make LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - *buildInfo
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'cygwin64-make LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - *scriptBuildInfo
     - cp -vf /usr/x86_64-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
-    - *compressArtifacts
+    - *scriptCompressArtifacts
+    - rm -f "${CI_PROJECT_DIR:?}/cygwin1.dll"
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -1206,105 +837,34 @@ Windows/x86_64, Cygwin64-GCC:
 
 ############################################################################
 
-Source Kits:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptCommon
-    - sh -x -c 'make distclean && make dist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/sources.tar.gz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Ubuntu LTS, Clang:
-  image: ubuntu:latest
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptAptInstallLibuv1
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Ubuntu LTS, GCC:
-  image: ubuntu:latest
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptAptInstallLibuv1
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Fedora, Clang:
+Linux/x86_64, Fedora:
   image: fedora:latest
   stage: build
   tags:
-    - Docker-amd64
+    - Docker-x64
+    - amd64
+    - Linux
   script:
-    - *scriptSanity
+    - export GLCICD_JOB="FedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
     - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-section" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-section" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -1319,22 +879,22 @@ Linux/x86_64, Fedora, Clang:
 
 ############################################################################
 
-Linux/x86_64, Fedora, GCC:
-  image: fedora:latest
+AIX/powerpc64, IBM AIX 7.2:
   stage: build
   tags:
-    - Docker-amd64
+    - AIX
+    - IBM
+    - ppc64
   script:
     - *scriptSanity
-    - *scriptDnfSetup
-    - *scriptInstallNfpm
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
+    - bash -x -c 'rpm -qi gcc; gcc -v; gmake CC=gcc V=1 -j 12 --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -1343,155 +903,6 @@ Linux/x86_64, Fedora, GCC:
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Oracle Linux 8, Clang:
-  image: oraclelinux:8
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptOUL8Setup
-    - *scriptDnfSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Oracle Linux 8, GCC:
-  image: oraclelinux:8
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptOUL8Setup
-    - *scriptDnfSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Ubuntu, Clang:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptAptInstallLibuv1
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Ubuntu, GCC:
-  image: ubuntu:rolling
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAptSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptAptInstallLibuv1
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Windows/x86_64, LLVM-MinGW:
-  image: mstorsjo/llvm-mingw:dev
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvLLVMMGW64-x86_64
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1502,390 +913,22 @@ Windows/ARM64, LLVM-MinGW:
   image: mstorsjo/llvm-mingw:dev
   stage: build
   tags:
-    - Docker-amd64
+    - Docker-x64
+    - amd64
+    - Linux
   script:
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
+    - export GLCICD_JOB="LLVMMINGWARM64" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
     - *scriptBuildlibuvLLVMMGW64-aarch64
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-AIX/powerpc64, IBM AIX 7.2:
-  stage: build
-  tags:
-    - jhj-ibmpower0
-  script:
     - *scriptSanity
+    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'rpm -qi gcc10; gcc-10 -v; gmake CC=gcc-10 W=1 V=1 -j 12 --output-sync --print-directory -k; exit "${?}"'
-    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - gmake distclean
-    - bash -x -c 'rpm -qi gcc; gcc -v; gmake CC=gcc W=1 V=1 -j 12 --output-sync --print-directory -k; exit "${?}"'
-    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, AlmaLinux 8, Clang:
-  image: almalinux:8
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAlma8Setup
-    - *scriptDnfSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, AlmaLinux 8, GCC:
-  image: almalinux:8
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAlma8Setup
-    - *scriptDnfSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Alpine Edge, GCC:
-  image:
-    name: alpine:edge
-    entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk update; apk add bash; apk add bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAlpineSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Alpine Edge, Clang:
-  image:
-    name: alpine:edge
-    entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk update; apk add bash; apk add bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAlpineSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=clang cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Void musl, GCC, mimalloc, static:
-  image:
-    name: voidlinux/voidlinux-musl:latest
-    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptVoidSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Void musl, Clang, mimalloc, static:
-  image:
-    name: voidlinux/voidlinux-musl:latest
-    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptVoidSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=clang cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Void glibc, GCC:
-  image:
-    name: voidlinux/voidlinux:latest
-    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptVoidSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Void glibc, Clang:
-  image:
-    name: voidlinux/voidlinux:latest
-    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptVoidSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - dash -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Amazon Linux, Clang:
-  image: amazonlinux:latest
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAmazonSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, Amazon Linux, GCC:
-  image: amazonlinux:latest
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptAmazonSetup
-    - *scriptInstallNfpm
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Windows/i686, LLVM-MinGW:
-  image: mstorsjo/llvm-mingw:dev
-  stage: build
-  tags:
-    - Docker-amd64
-  script:
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - *scriptBuildlibuvLLVMMGW64-i686
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" NEED_128=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -1901,16 +944,22 @@ Windows/ARMv7, LLVM-MinGW:
   image: mstorsjo/llvm-mingw:dev
   stage: build
   tags:
-    - Docker-amd64
+    - Docker-x64
+    - amd64
+    - Linux
   script:
+    - export GLCICD_JOB="LLVMMINGWARM" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptBuildlibuvLLVMMGW64-armv7
     - *scriptSanity
+    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - *scriptBuildlibuvLLVMMGW64-armv7
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" NEED_128=1 W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --output-sync --print-directory -k; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" NEED_128=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -1922,22 +971,158 @@ Windows/ARMv7, LLVM-MinGW:
 
 ############################################################################
 
-Linux/x86_64, OpenSUSE Leap, Clang:
+Windows/i686, LLVM-MinGW:
+  image: mstorsjo/llvm-mingw:dev
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="LLVMMINGWI686" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptBuildlibuvLLVMMGW64-i686
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" NEED_128=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Windows/x86_64, LLVM-MinGW:
+  image: mstorsjo/llvm-mingw:dev
+  stage: build
+  tags:   
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="LLVMMINGWX8664" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptBuildlibuvLLVMMGW64-x86_64
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - *scriptBuildInfo  
+    - *scriptCompressArtifacts
+  dependencies: [] 
+  artifacts:
+    expire_in: 1 day    
+    paths:
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Windows/x86_64, MinGW64-GCC V8:
+  image: debian:sid
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="GCCMINGW64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
+    - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptAptSetup
+    - *scriptAptInstallMinGW64
+    - *scriptBuildlibuvMGW64
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - *scriptBuildInfo
+    - cp -vf "/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll" "${CI_PROJECT_DIR:?}"
+    - *scriptCompressArtifacts
+    - rm -f "${CI_PROJECT_DIR:?}/libwinpthread-1.dll"
+  dependencies: []  
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true 
+
+############################################################################
+
+Windows/x86_64, MinGW64-GCC V9:
+  image:
+    name: alpine:latest
+    entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk add bash; apk add bash && ln -snf /bin/bash /bin/sh && exec /bin/bash -c $0' ]
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - *scriptAlpineSetup
+    - apk add mingw-w64-binutils mingw-w64-headers mingw-w64-gcc mingw-w64-winpthreads mingw-w64-crt || apk add mingw-w64-binutils mingw-w64-headers mingw-w64-gcc mingw-w64-winpthreads mingw-w64-crt
+    - *scriptBuildlibuvMGW64
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptCompressArtifacts
+  dependencies: []  
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/dps8m.zip
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true 
+
+############################################################################
+
+Linux/x86_64, OpenSUSE Leap:
   image: opensuse/leap:latest
   stage: build
   tags:
-    - Docker-amd64
+    - Docker-x64
+    - amd64
+    - Linux
   script:
-    - *scriptSanity
     - *scriptOSUSESetup
     - *scriptInstallNfpm
+    - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -1952,22 +1137,36 @@ Linux/x86_64, OpenSUSE Leap, Clang:
 
 ############################################################################
 
-Linux/x86_64, OpenSUSE Leap, GCC:
-  image: opensuse/leap:latest
+Linux/x86_64, Oracle Linux 8:
+  image: oraclelinux:8
   stage: build
+  allow_failure: true
   tags:
-    - Docker-amd64
+    - Docker-x64
+    - amd64
+    - Linux
   script:
-    - *scriptSanity
-    - *scriptOSUSESetup
+    - export GLCICD_JOB="OracleLinux8x64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptOUL8Setup
+    - *scriptDnfSetup
     - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -1982,21 +1181,32 @@ Linux/x86_64, OpenSUSE Leap, GCC:
 
 ############################################################################
 
-Linux/x86_64, Slackware Current, GCC:
+Linux/x86_64, Slackware Current:
   image: vbatts/slackware:current
   stage: build
   tags:
-    - Docker-amd64
+    - Docker-x64
+    - amd64
+    - Linux
   script:
-    - *scriptSanity
+    - export GLCICD_JOB="SlackwareCurrentX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/slackware-version)"
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
     - *scriptSlackSetup
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=gcc LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory --output-sync -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -2009,23 +1219,103 @@ Linux/x86_64, Slackware Current, GCC:
   timeout: 120 minutes
   interruptible: true
 
-############################################################################
+###########################################################################
 
-Linux/x86_64, Slackware Current, Clang:
-  image: vbatts/slackware:current
+Source Kit:
+  image: debian:sid
   stage: build
   tags:
-    - Docker-amd64
+    - Docker-x64-slow
+    - amd64
+    - Linux
   script:
+    - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install pigz tar make git > /dev/null || apt-get -qq -y install pigz tar make git > /dev/null
     - *scriptSanity
-    - *scriptSlackSetup
+    - *scriptCommon
+    - sh -x -c 'make distclean && make dist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/sources.tar.gz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Ubuntu:
+  image: ubuntu:rolling
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="UbuntuCurrentx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
+    - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptAptSetup
+    - *scriptInstallNfpm
+    - *scriptAptInstallLibuv1
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -Wall -Wextra -fdata-sections -ffunction-sections -Wno-unused-parameter -Wshadow -Wno-missing-field-initializers -Wno-sign-conversion -Wdouble-promotion -Wformat=2"; make CC=clang LDFLAGS="-Wl,--gc-sections -Wl,--print-gc-sections" W=1 V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || echo "4") --print-directory --output-sync -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *buildInfo
-    - *compressArtifacts
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes                                                                                                                                                                                                                                                          
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Ubuntu LTS:
+  image: ubuntu:latest
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="UbuntuLTSx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
+    - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptAptSetup
+    - *scriptInstallNfpm
+    - *scriptAptInstallLibuv1
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -2039,24 +1329,264 @@ Linux/x86_64, Slackware Current, Clang:
   interruptible: true
 
 ############################################################################
-#
-#Documentation:
-#  image: fedora:latest
-#  stage: build
-#  tags:
-#    - Docker-amd64
-#  script:
-#    - *scriptSanity
-#    - *scriptDnfSetup
-#    - *scriptInstallNfpm
-#    - *scriptCommon
-#    - *scriptDPS8Mods
-#    - *scriptExtraInfo
-#    - sh -x -c '(dnf -y --allowerasing --refresh --enablerepo=updates-testing --best update || dnf -y --allowerasing --refresh --enablerepo=updates-testing --nobest update) && sleep 1 && export ARGS="mhonarc weasyprint lynx elinks curl xz telnet expect tmux git lzip netcat lftp lftp-scripts finger texlive ack perl-core alien ansifilter asymptote asciidoc atool autoconf autoconf-archive automake libtool bash zsh mksh bc pax biber bibtex2html bib2html BibTool brotli bison flex bsdtar bsdcpio ca-certificates catdoc ckermit convmv cpulimit cscope global ctags cvs rcs dateutils diffstat diffutils dnf-utils dos2unix doxygen ed ripgrep expect fakeroot findutils fmt gawk gd-progs pandoc texlive gnuplot gnupg2 ImageMagick GraphicsMagick graphviz groff lua info indent tcl-devel jsmath-fonts jq latexmk pbzip2 less symlinks lockdev-devel lout lua-devel m4 make man-db mathjax mawk mkdocs mmv moreutils mupdf mupdf-devel ncompress neovim vim-enhanced pandoc-citeproc pandoc-pdf pandoc-common patch pdfbox pdfbox-tools pdfbox-debugger pigz pngcrush poppler poppler-devel poppler-utils pv qpdf qpdf-devel ruby source-highlight tidy screen unifdef units uuid w3m wkhtmltopdf words"; dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --best || dnf -y --allowerasing --enablerepo=updates-testing install ${ARGS:?} --nobest'
-#    - sh -x -c 'export ARGS="https://sandbox.mc.edu/~bennet/pdftk-2.02-2.fc30.x86_64.rpm https://sandbox.mc.edu/~bennet/gcc6-libgcj-6.5.0-2.fc30.x86_64.rpm"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}' || true
-#  dependencies: []
-#  retry: 2
-#  timeout: 120 minutes
-#  interruptible: true
-#
+
+Linux/x86_64, Void glibc:
+  image:
+    name: voidlinux/voidlinux:latest
+    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="VoidGlibcX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
+    - xbps-install -y wget bzip2 || xbps-install -y wget bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptVoidSetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - dash -x -c 'make distclean; exit "${?}"'
+    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
 ############################################################################
+
+Linux/x86_64, Void musl, mimalloc, static:
+  image:
+    name: voidlinux/voidlinux-musl:latest
+    entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="VoidMuslX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
+    - xbps-install -y wget bzip2 || xbps-install -y wget bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptVoidSetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-static -Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'make distclean; exit "${?}"'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-static -Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Solaris/x86_64, Oracle Solaris 11.4:
+  stage: build
+  tags:
+    - Solaris
+    - SunOS
+    - amd64
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - gcc -v; gmake V=1 CC=gcc -j 4 --output-sync --print-directory -k
+    - echo "SHOW VERSION" | ./src/dps8/dps8
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+illumos/x86_64, OpenIndiana Hipster:
+  stage: build
+  tags:
+    - OpenIndiana
+    - SunOS
+    - amd64
+    - illumos
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - gmake CC=clang V=1 -j 4 --output-sync --print-directory -k
+    - printf %s\\n "show version" | ./src/dps8/dps8
+    - *scriptBuildInfo
+    - gmake distclean
+    - gmake CC=gcc-10 V=1 -j 4 --output-sync --print-directory -k
+    - printf %s\\n "show version" | ./src/dps8/dps8
+    - *scriptBuildInfo
+    - gmake distclean
+    - gmake CC=gcc V=1 -j 4 --output-sync --print-directory -k
+    - printf %s\\n "show version" | ./src/dps8/dps8
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+#############################################################################
+
+Darwin/x86_64, macOS Big Sur:
+  stage: build
+  tags:
+    - Darwin
+    - macOS
+    - amd64
+    - macOS-Big-Sur
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'make V=1 -j 4 --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+#############################################################################
+
+Option Verification Test:
+  stage: test
+  image: fedora:latest
+  needs:
+    - job: Linux/x86_64, Ubuntu
+    - job: Linux/x86_64, Ubuntu LTS
+    - job: Linux/x86_64, Fedora
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="OptTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptDnfSetup
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sed -i -s 's/\.NOTPARALLEL.*$//g' $(find './' -name '*akefile*' -print)
+    - bash -x -c 'date -u && set -o pipefail; export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && export JFLAGS="-j ${CPUS:-1}" && time stdbuf -o L ./src/ci-kit/cartesian_job_generator.bash 2>&1 | stdbuf -o L tee -i build.log | grep --line-buffered -E "(^\+ make.*CC|[Ee]rror|^Generating)" | stdbuf -o L nl -p -v 0'
+    - lzip -9v build.log || true
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/build.log
+      - ${CI_PROJECT_DIR:?}/build.log.lz
+  retry: 1
+  timeout: 360 minutes
+  interruptible: true
+
+#############################################################################
+
+Multics CI-Kit Test:
+  stage: test
+  image: fedora:latest
+  needs:
+    - job: Linux/x86_64, Ubuntu
+    - job: Linux/x86_64, Ubuntu LTS
+    - job: Linux/x86_64, Fedora
+  tags:
+    - Docker-x64-fast
+    - Linux
+    - CIKit-x64
+    - amd64
+  script:
+    - export GLCICD_JOB="CIKitTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptDnfSetup
+    - dnf -q install -y telnet mksh expect tcsh wget lzip dos2unix diffutils moreutils || dnf -q install -y telnet mksh expect tcsh wget lzip dos2unix diffutils moreutils
+    - *scriptSanity
+    - bash -x -c '( cd src/ci-kit && ./init )' || true
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && ./init ; ./ci ; make -f ci.makefile diff ; mv -f new.log new.txt)'
+  dependencies: []
+  artifacts:
+    expire_in: 7 days
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/ci-kit/new.txt
+  retry: 1
+  timeout: 120 minutes
+  interruptible: true
+
+#############################################################################

@@ -544,7 +544,7 @@ clean_dps8:
 	@$(PRINTF) '%s\n' "CLEAN: dps8"
 	@$(SETV); $(RMF) $(OBJS) $(C_DEPS) $(EXECUTABLES) "dps8$(EXE)"            \
         "tags" "TAGS" $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*))      \
-            "dps8.exe" "errnos.h" "udplib"  ||  $(TRUE)
+            "dps8.exe" "errnos.h" "udplib.exe" "udplib" "tracker.o" || $(TRUE)
 
 ###############################################################################
 
@@ -575,6 +575,7 @@ kit dist:
 unifdef.out: unifdef
 	@$(PRINTF) '%s\n' "UNIFDEF: *.[ch]"
 	@($(SETV); $(CD) ".." 2> /dev/null && $(FIND) $$($(GIT) ls-files          \
+     2> /dev/null | $(GREP) -v 'ci-kit/' 2> /dev/null |                       \
       2> /dev/null 2> /dev/null | $(GREP) ".*\.[ch]" 2> /dev/null )           \
         -exec "./unifdef/unifdef" "-s" "{}" 2> /dev/null \; |                 \
           $(SORT) -u 2> /dev/null) > "./unifdef.out" ||                       \

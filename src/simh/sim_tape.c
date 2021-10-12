@@ -23,38 +23,9 @@
    Except as contained in this notice, the name of Robert M Supnik shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert M Supnik.
+*/
 
-   Ultimately, this will be a place to hide processing of various tape formats,
-   as well as OS-specific direct hardware access.
-
-   23-Jan-12    MP      Added support for Logical EOT detection while positioning
-   05-Feb-11    MP      Refactored to prepare for SIM_ASYNC_IO support
-                        Added higher level routines:
-                            sim_tape_wreomrw    - erase remainder of tape & rewind
-                            sim_tape_sprecsf    - skip records
-                            sim_tape_spfilef    - skip files
-                            sim_tape_sprecsr    - skip records rev
-                            sim_tape_spfiler    - skip files rev
-                            sim_tape_position   - general purpose position
-                        These routines correspond to natural tape operations
-                        and will align better when physical tape support is
-                        included here.
-   08-Jun-08    JDB     Fixed signed/unsigned warning in sim_tape_set_fmt
-   23-Jan-07    JDB     Fixed backspace over gap at BOT
-   22-Jan-07    RMS     Fixed bug in P7B format read reclnt rev (found by Rich Cornwell)
-   15-Dec-06    RMS     Added support for small capacity tapes
-   30-Aug-06    JDB     Added erase gap support
-   14-Feb-06    RMS     Added variable tape capacity
-   23-Jan-06    JDB     Fixed odd-byte-write problem in sim_tape_wrrecf
-   17-Dec-05    RMS     Added write support for Paul Pierce 7b format
-   16-Aug-05    RMS     Fixed C++ declaration and cast problems
-   02-May-05    RMS     Added support for Pierce 7b format
-   28-Jul-04    RMS     Fixed bug in writing error records (found by Dave Bryan)
-                RMS     Fixed incorrect error codes (found by Dave Bryan)
-   05-Jan-04    RMS     Revised for file I/O library
-   25-Apr-03    RMS     Added extended file support
-   28-Mar-03    RMS     Added E11 and TPC format support
-
+/*
    Public routines:
 
    sim_tape_attach      attach tape unit
@@ -92,10 +63,6 @@
 #include "sim_defs.h"
 #include "sim_tape.h"
 #include <ctype.h>
-
-#if defined SIM_ASYNCH_IO
-#include <pthread.h>
-#endif
 
 struct sim_tape_fmt {
     const char          *name;                          /* name */
@@ -136,288 +103,30 @@ struct tape_context {
     DEVICE              *dptr;              /* Device for unit (access to debug flags) */
     uint32              dbit;               /* debugging bit for trace */
     uint32              auto_format;        /* Format determined dynamically */
-#if defined SIM_ASYNCH_IO
-    int                 asynch_io;          /* Asynchronous Interrupt scheduling enabled */
-    int                 asynch_io_latency;  /* instructions to delay pending interrupt */
-    pthread_mutex_t     lock;
-    pthread_t           io_thread;          /* I/O Thread Id */
-    pthread_mutex_t     io_lock;
-    pthread_cond_t      io_cond;
-    pthread_cond_t      io_done;
-    pthread_cond_t      startup_cond;
-    int                 io_top;
-    uint8               *buf;
-    uint32              *bc;
-    uint32              *fc;
-    uint32              vbc;
-    uint32              max;
-    uint32              gaplen;
-    uint32              bpi;
-    uint32              *objupdate;
-    TAPE_PCALLBACK      callback;
-    t_stat              io_status;
-#endif
     };
 #define tape_ctx up8                        /* Field in Unit structure which points to the tape_context */
 
-#if defined SIM_ASYNCH_IO
-#define AIO_CALLSETUP                                                   \
-struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;       \
-                                                                        \
-if (ctx == NULL)                                                        \
-    return sim_messagef (SCPE_IERR, "Bad Attach\n");                    \
-if ((!callback) || !ctx->asynch_io)
-
-#define AIO_CALL(op, _buf, _bc, _fc, _max, _vbc, _gaplen, _bpi, _obj, _callback)\
-    if (ctx->asynch_io) {                                               \
-        struct tape_context *ctx =                                      \
-                      (struct tape_context *)uptr->tape_ctx;            \
-                                                                        \
-        pthread_mutex_lock (&ctx->io_lock);                             \
-                                                                        \
-        sim_debug (ctx->dbit, ctx->dptr,                                \
-      "sim_tape AIO_CALL(op=%d, unit=%d)\n", op, (int)(uptr-ctx->dptr->units));\
-                                                                        \
-        if (ctx->callback)                                              \
-            abort(); /* horrible mistake, stop */                       \
-        ctx->io_top = op;                                               \
-        ctx->buf = _buf;                                                \
-        ctx->bc = _bc;                                                  \
-        ctx->fc = _fc;                                                  \
-        ctx->max = _max;                                                \
-        ctx->vbc = _vbc;                                                \
-        ctx->gaplen = _gaplen;                                          \
-        ctx->bpi = _bpi;                                                \
-        ctx->objupdate = _obj;                                          \
-        ctx->callback = _callback;                                      \
-        pthread_cond_signal (&ctx->io_cond);                            \
-        pthread_mutex_unlock (&ctx->io_lock);                           \
-        }                                                               \
-    else                                                                \
-        if (_callback)                                                  \
-            (_callback) (uptr, r);
-#define TOP_DONE  0             /* close */
-#define TOP_RDRF  1             /* sim_tape_rdrecf_a */
-#define TOP_RDRR  2             /* sim_tape_rdrecr_a */
-#define TOP_WREC  3             /* sim_tape_wrrecf_a */
-#define TOP_WTMK  4             /* sim_tape_wrtmk_a */
-#define TOP_WEOM  5             /* sim_tape_wreom_a */
-#define TOP_WEMR  6             /* sim_tape_wreomrw_a */
-#define TOP_WGAP  7             /* sim_tape_wrgap_a */
-#define TOP_SPRF  8             /* sim_tape_sprecf_a */
-#define TOP_SRSF  9             /* sim_tape_sprecsf_a */
-#define TOP_SPRR 10             /* sim_tape_sprecr_a */
-#define TOP_SRSR 11             /* sim_tape_sprecsr_a */
-#define TOP_SPFF 12             /* sim_tape_spfilef */
-#define TOP_SFRF 13             /* sim_tape_spfilebyrecf */
-#define TOP_SPFR 14             /* sim_tape_spfiler */
-#define TOP_SFRR 15             /* sim_tape_spfilebyrecr */
-#define TOP_RWND 16             /* sim_tape_rewind_a */
-#define TOP_POSN 17             /* sim_tape_position_a */
-
-static void *
-_tape_io(void *arg)
-{
-UNIT* volatile uptr = (UNIT*)arg;
-struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
-
-    /* Boost Priority for this I/O thread vs the CPU instruction execution
-       thread which in general won't be readily yielding the processor when
-       this thread needs to run */
-    sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
-
-    sim_debug (ctx->dbit, ctx->dptr, "_tape_io(unit=%d) starting\n", (int)(uptr-ctx->dptr->units));
-
-    pthread_mutex_lock (&ctx->io_lock);
-    pthread_cond_signal (&ctx->startup_cond);   /* Signal we're ready to go */
-    while (1) {
-        pthread_cond_wait (&ctx->io_cond, &ctx->io_lock);
-        if (ctx->io_top == TOP_DONE)
-            break;
-        pthread_mutex_unlock (&ctx->io_lock);
-        switch (ctx->io_top) {
-            case TOP_RDRF:
-                ctx->io_status = sim_tape_rdrecf (uptr, ctx->buf, ctx->bc, ctx->max);
-                break;
-            case TOP_RDRR:
-                ctx->io_status = sim_tape_rdrecr (uptr, ctx->buf, ctx->bc, ctx->max);
-                break;
-            case TOP_WREC:
-                ctx->io_status = sim_tape_wrrecf (uptr, ctx->buf, ctx->vbc);
-                break;
-            case TOP_WTMK:
-                ctx->io_status = sim_tape_wrtmk (uptr);
-                break;
-            case TOP_WEOM:
-                ctx->io_status = sim_tape_wreom (uptr);
-                break;
-            case TOP_WEMR:
-                ctx->io_status = sim_tape_wreomrw (uptr);
-                break;
-            case TOP_WGAP:
-                ctx->io_status = sim_tape_wrgap (uptr, ctx->gaplen);
-                break;
-            case TOP_SPRF:
-                ctx->io_status = sim_tape_sprecf (uptr, ctx->bc);
-                break;
-            case TOP_SRSF:
-                ctx->io_status = sim_tape_sprecsf (uptr, ctx->vbc, ctx->bc);
-                break;
-            case TOP_SPRR:
-                ctx->io_status = sim_tape_sprecr (uptr, ctx->bc);
-                break;
-            case TOP_SRSR:
-                ctx->io_status = sim_tape_sprecsr (uptr, ctx->vbc, ctx->bc);
-                break;
-            case TOP_SPFF:
-                ctx->io_status = sim_tape_spfilef (uptr, ctx->vbc, ctx->bc);
-                break;
-            case TOP_SFRF:
-                ctx->io_status = sim_tape_spfilebyrecf (uptr, ctx->vbc, ctx->bc, ctx->fc, ctx->max);
-                break;
-            case TOP_SPFR:
-                ctx->io_status = sim_tape_spfiler (uptr, ctx->vbc, ctx->bc);
-                break;
-            case TOP_SFRR:
-                ctx->io_status = sim_tape_spfilebyrecr (uptr, ctx->vbc, ctx->bc, ctx->fc);
-                break;
-            case TOP_RWND:
-                ctx->io_status = sim_tape_rewind (uptr);
-                break;
-            case TOP_POSN:
-                ctx->io_status = sim_tape_position (uptr, ctx->vbc, ctx->gaplen, ctx->bc, ctx->bpi, ctx->fc, ctx->objupdate);
-                break;
-            }
-        pthread_mutex_lock (&ctx->io_lock);
-        ctx->io_top = TOP_DONE;
-        pthread_cond_signal (&ctx->io_done);
-        sim_activate (uptr, ctx->asynch_io_latency);
-    }
-    pthread_mutex_unlock (&ctx->io_lock);
-
-    sim_debug (ctx->dbit, ctx->dptr, "_tape_io(unit=%d) exiting\n", (int)(uptr-ctx->dptr->units));
-
-    return NULL;
-}
-
-/* This routine is called in the context of the main simulator thread before
-   processing events for any unit. It is only called when an asynchronous
-   thread has called sim_activate() to activate a unit.  The job of this
-   routine is to put the unit in proper condition to digest what may have
-   occurred in the asynchronous thread.
-
-   Since tape processing only handles a single I/O at a time to a
-   particular tape device, we have the opportunity to possibly detect
-   improper attempts to issue multiple concurrent I/O requests. */
-static void _tape_completion_dispatch (UNIT *uptr)
-{
-struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
-TAPE_PCALLBACK callback = ctx->callback;
-
-sim_debug (ctx->dbit, ctx->dptr, "_tape_completion_dispatch(unit=%d, top=%d, callback=%p)\n", (int)(uptr-ctx->dptr->units), ctx->io_top, ctx->callback);
-
-if (ctx->io_top != TOP_DONE)
-    abort();                                            /* horribly wrong, stop */
-
-if (ctx->callback && ctx->io_top == TOP_DONE) {
-    ctx->callback = NULL;
-    callback (uptr, ctx->io_status);
-    }
-}
-
-static t_bool _tape_is_active (UNIT *uptr)
-{
-struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
-
-if (ctx) {
-    sim_debug (ctx->dbit, ctx->dptr, "_tape_is_active(unit=%d, top=%d)\n", (int)(uptr-ctx->dptr->units), ctx->io_top);
-    return (ctx->io_top != TOP_DONE);
-    }
-return FALSE;
-}
-
-static void _tape_cancel (UNIT *uptr)
-{
-struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
-
-if (ctx) {
-    sim_debug (ctx->dbit, ctx->dptr, "_tape_cancel(unit=%d, top=%d)\n", (int)(uptr-ctx->dptr->units), ctx->io_top);
-    if (ctx->asynch_io) {
-        pthread_mutex_lock (&ctx->io_lock);
-        while (ctx->io_top != TOP_DONE)
-            pthread_cond_wait (&ctx->io_done, &ctx->io_lock);
-        pthread_mutex_unlock (&ctx->io_lock);
-        }
-    }
-}
-#else
 #define AIO_CALLSETUP                                                       \
     if (uptr->tape_ctx == NULL)                                             \
         return sim_messagef (SCPE_IERR, "Bad Attach\n");
 #define AIO_CALL(op, _buf, _fc, _bc, _max, _vbc, _gaplen, _bpi, _obj, _callback) \
     if (_callback)                                                    \
         (_callback) (uptr, r);
-#endif
 
 
 /* Enable asynchronous operation */
 
 t_stat sim_tape_set_async (UNIT *uptr, int latency)
 {
-#if !defined(SIM_ASYNCH_IO)
 sim_printf ("Tape: can't operate asynchronously\r\n");
 return SCPE_NOFNC;
-#else
-struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
-pthread_attr_t attr;
-
-ctx->asynch_io = sim_asynch_enabled;
-ctx->asynch_io_latency = latency;
-if (ctx->asynch_io) {
-    pthread_mutex_init (&ctx->io_lock, NULL);
-    pthread_cond_init (&ctx->io_cond, NULL);
-    pthread_cond_init (&ctx->io_done, NULL);
-    pthread_cond_init (&ctx->startup_cond, NULL);
-    pthread_attr_init(&attr);
-    pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
-    pthread_mutex_lock (&ctx->io_lock);
-    pthread_create (&ctx->io_thread, &attr, _tape_io, (void *)uptr);
-    pthread_attr_destroy(&attr);
-    pthread_cond_wait (&ctx->startup_cond, &ctx->io_lock); /* Wait for thread to stabilize */
-    pthread_mutex_unlock (&ctx->io_lock);
-    pthread_cond_destroy (&ctx->startup_cond);
-    }
-uptr->a_check_completion = _tape_completion_dispatch;
-uptr->a_is_active = _tape_is_active;
-uptr->cancel = _tape_cancel;
-return SCPE_OK;
-#endif
 }
 
 /* Disable asynchronous operation */
 
 t_stat sim_tape_clr_async (UNIT *uptr)
 {
-#if !defined(SIM_ASYNCH_IO)
 return SCPE_NOFNC;
-#else
-struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
-
-/* make sure device exists */
-if (!ctx) return SCPE_UNATT;
-
-if (ctx->asynch_io) {
-    pthread_mutex_lock (&ctx->io_lock);
-    ctx->asynch_io = 0;
-    pthread_cond_signal (&ctx->io_cond);
-    pthread_mutex_unlock (&ctx->io_lock);
-    pthread_join (ctx->io_thread, NULL);
-    pthread_mutex_destroy (&ctx->io_lock);
-    pthread_cond_destroy (&ctx->io_cond);
-    pthread_cond_destroy (&ctx->io_done);
-    }
-return SCPE_OK;
-#endif
 }
 
 /*
@@ -426,13 +135,6 @@ return SCPE_OK;
 */
 static void _sim_tape_io_flush (UNIT *uptr)
 {
-#if defined (SIM_ASYNCH_IO)
-struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
-
-sim_tape_clr_async (uptr);
-if (sim_asynch_enabled)
-    sim_tape_set_async (uptr, ctx->asynch_io_latency);
-#endif
 fflush (uptr->fileref);
 }
 
@@ -514,9 +216,6 @@ ctx->auto_format = auto_format;                         /* save that we auto sel
 
 sim_tape_rewind (uptr);
 
-#if defined (SIM_ASYNCH_IO)
-sim_tape_set_async (uptr, completion_delay);
-#endif
 uptr->io_flush = _sim_tape_io_flush;
 
 return SCPE_OK;

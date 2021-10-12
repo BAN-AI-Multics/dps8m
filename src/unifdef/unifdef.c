@@ -332,11 +332,11 @@ main(int argc, char *argv[])
 
     case 'v':
       showversion = true;
-	break;
+      break;
 
     case 'V':
       showbuild = true;
-    break;
+      break;
 
     case 'x':
       exitmode = atoi(optarg);
@@ -571,11 +571,11 @@ version(void)
 #ifdef __GNUC__
 #ifndef __clang_version__
     char xcmp[2];
-	sprintf(xcmp, "%.1s", __VERSION__ );
+    sprintf(xcmp, "%.1s", __VERSION__ );
     if (!isdigit((int)xcmp[0]))
     {
       fprintf(stderr, "Compiler: %s\n", __VERSION__ );
-	} else {
+    } else {
       fprintf(stderr, "Compiler: GCC %s\n", __VERSION__ );
     }
 #else
@@ -585,7 +585,7 @@ version(void)
     fprintf(stderr, "Compiler: %s\n", __VERSION__ );
 #endif /* ifdef __GNUC__ */
 #endif /* ifdef __VERSION__ */
-	fprintf(stderr, "   Build: %s\n", BUILDINFO_unifdef );
+    fprintf(stderr, "   Build: %s\n", BUILDINFO_unifdef );
   }
 #endif /* ifdef BUILDINFO_unifdef */
   exit(0);

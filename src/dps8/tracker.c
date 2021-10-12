@@ -20,7 +20,9 @@
 #include "tracker.h"
 
 int brkbrk (int32_t arg, const char *  buf);
+#if defined(HDBG)
 void hdbgPrint (void);
+#endif /* if defined(HDBG) */
 
 static int fd;
 static bool writing;
@@ -50,9 +52,9 @@ void trk (unsigned long long cycleCnt, uint16_t segno, uint32_t ic, uint64_t opc
         fprintf (stderr, "\r\n[%lld]\r\n", cycleCnt);
         fprintf (stderr, "expected: %05o:%06o %012lo\r\n", psegno, pic, popcode);
         fprintf (stderr, "got:      %05o:%06o %012lo\r\n", segno, ic, opcode);
-#ifdef HDBG
+#if defined(HDBG)
         hdbgPrint ();
-#endif
+#endif /* if defined(HDBG) */
         brkbrk (0, "");
         exit (1);
       }

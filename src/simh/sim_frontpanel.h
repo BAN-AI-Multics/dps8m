@@ -23,28 +23,6 @@
    Except as contained in this notice, the name of Mark Pizzolato shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Mark Pizzolato.
-
-   15-Jan-15    MP      Initial implementation
-   01-Apr-15    MP      Added register indirect, mem_examine and mem_deposit
-   03-Apr-15    MP      Added logic to pass simulator startup messages in
-                        panel error text if the connection to the simulator
-                        shuts down while it is starting.
-   04-Apr-15    MP      Added mount and dismount routines to connect and
-                        disconnect removable media
-
-   This module defines interface between a front panel application and a simh
-   simulator.  Facilities provide ways to gather information from and to
-   observe and control the state of a simulator.
-
-   Any application which wants to use this API needs to:
-      1) include this file in the application code
-      2) compile sim_frontpanel.c and sim_sock.c from the top level directory
-         of the simh source.
-      3) link the sim_frontpanel and sim_sock object modules and libpthreads
-         into the application.
-      4) Use a simh simulator built from the same version of simh that the
-         sim_frontpanel and sim_sock modules came from.
-
 */
 
 #ifndef SIM_FRONTPANEL_H_
