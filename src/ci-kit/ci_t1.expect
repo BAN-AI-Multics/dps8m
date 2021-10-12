@@ -1,5 +1,3 @@
-#!/usr/bin/env -S expect -f
-
 set word l
 set userName Clayton
 set projName SysAdmin
@@ -34,9 +32,9 @@ proc swf { txt } { send $txt; send "\r"; wf }
 if {![fork]} {
     puts "----------- Starting T2"
     cd ..
-    exec ./ci_t2.expect >ci_t2.log
+    exec ./ci_t2.sh >ci_t2.log
     puts "----------- Starting T3"
-    exec ./ci_t3.expect >ci_t3.log
+    exec ./ci_t3.sh >ci_t3.log
     puts "----------- Finished T3"
     exit
 }
