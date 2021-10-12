@@ -245,7 +245,7 @@ void absi_init (void)
       absi_state[i].link = NOLINK;
   }
 
-static int absi_cmd (uint iomUnitIdx, uint chan)
+static iom_cmd_rc_t absi_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = &iom_chan_data[iomUnitIdx][chan];
 // sim_printf ("absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n",
@@ -255,6 +255,13 @@ static int absi_cmd (uint iomUnitIdx, uint chan)
                p->IDCW_CHAN_CMD, p->IDCW_DEV_CODE, p->IDCW_DEV_CMD,
                p->IDCW_COUNT);
 
+
+    // Not IDCW?
+    if (IS_NOT_IDCW (p))
+      {
+        sim_warn ("%s: Unexpected IOTx\n", __func__);
+        return IOM_CMD_ERROR;
+      }
 
     switch (p->IDCW_DEV_CMD)
       {
@@ -303,33 +310,27 @@ sim_printf ("absi host switch up\n");
         default:
           {
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("absi daze %o\n", p->IDCW_DEV_CMD);
+              sim_warn ("%s: ABSI unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
             p->stati = 04501; // cmd reject, invalid opcode
             p->chanStatus = chanStatIncorrectDCW;
           }
           return IOM_CMD_ERROR;
       }
 
-    if (p->IDCW_CONTROL == 3) // marker bit set
-      {
-sim_printf ("absi marker\n");
-        send_marker_interrupt (iomUnitIdx, (int) chan);
-      }
-
     if (p->IDCW_CHAN_CMD == 0)
-      return IOM_CMD_NO_DCW; // don't do DCW list
-    return IOM_CMD_OK;
+      return IOM_CMD_DISCONNECT; // don't do DCW list
+    return IOM_CMD_PROCEED;
   }
 
 // 1 ignored command
 // 0 ok
 // -1 problem
-int absi_iom_cmd (uint iomUnitIdx, uint chan)
+iom_cmd_rc_t absi_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
 // Is it an IDCW?
 
-    if (p->DCW_18_20_CP == 7)
+    if (IS_IDCW (p))
       {
         return absi_cmd (iomUnitIdx, chan);
       }

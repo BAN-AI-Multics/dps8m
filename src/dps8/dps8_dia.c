@@ -797,7 +797,7 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
 
     if (ok)
       {
-        if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailbox_address);
+        //if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailbox_address);
         fnp_core_write (dudp -> mailbox_address, 0, "dia_iom_cmd clear dia_pcw");
         putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
         putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;
@@ -859,7 +859,7 @@ sim_printf ("dia_iom_cmd %u %u\r\n", iom_unit_idx, chan);
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 // Is it an IDCW?
 
-    if (p -> DCW_18_20_CP == 7)
+    if (IS_IDCW (p))
       {
         return dia_cmd (iom_unit_idx, chan);
       }

@@ -99,6 +99,7 @@ struct decoded_t
 // Debugging...
 //
 
+#ifdef TESTING
 static void dmpmbx (uint mailboxAddress)
   {
     struct mailbox mbx;
@@ -141,6 +142,7 @@ static void dmpmbx (uint mailboxAddress)
       }
 
   }
+#endif
 
 //
 // wcd; Multics has sent a Write Control Data command to the FNP
@@ -2398,8 +2400,10 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 
     if (ok)
       {
+#ifdef TESTING
         if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (fudp->mailboxAddress);
-        iom_chan_data [iomUnitIdx] [chan] . in_use = false;
+#endif
+        //iom_chan_data [iomUnitIdx] [chan] . in_use = false;
         dia_pcw = 0;
         iom_direct_data_service (iomUnitIdx, chan, fudp -> mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
         putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
@@ -2410,61 +2414,51 @@ for (uint i = 0370*2; i <=0400*2; i ++)
       }
     else
       {
+#ifdef TESTING
         if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (fudp->mailboxAddress);
+#endif
         // 3 error bit (1) unaligned, /* set to "1"b if error on connect */
-        iom_chan_data [iomUnitIdx] [chan] . in_use = false;
+        //iom_chan_data [iomUnitIdx] [chan] . in_use = false;
         putbits36_1 (& dia_pcw, 18, 1); // set bit 18
         iom_direct_data_service (iomUnitIdx, chan, fudp -> mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
       }
   }
 
-static int fnpCmd (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+static int fnpCmd (uint iomUnitIdx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 
-    switch (p -> IDCW_DEV_CMD)
-      {
-        case 000: // CMD 00 Request status
-          {
-            p -> stati = 04000;
-            processMBX (iomUnitIdx, chan);
-            // no status_service and no additional terminate interrupt
-            // ???
-          }
-          return IOM_CMD_PENDING;
-
-        default:
-          {
-            p->stati = 04501;
-            p->chanStatus = chanStatIncorrectDCW;
-            if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
-              sim_warn ("fnp daze %o\n", p->IDCW_DEV_CMD);
-            sim_debug (DBG_ERR, & fnp_dev,
-                       "%s: Unknown command 0%o\n", __func__, p->IDCW_DEV_CMD);
-          }
-          return IOM_CMD_NO_DCW;
+  switch (p->IDCW_DEV_CMD) {
+    case 000: { // CMD 00 Request status
+        p->stati = 04000;
+        processMBX (iomUnitIdx, chan);
+        // no status_service and no additional terminate interrupt
+        // ???
       }
+      return IOM_CMD_DISCONNECT;
+
+    default: {
+      p->stati = 04501; // cmd reject, invalid opcode
+      p->chanStatus = chanStatIncorrectDCW;
+      if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
+        sim_warn ("%s: FNP unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
+      }
+      return IOM_CMD_ERROR;
   }
+}
 
 /*
  * fnp_iom_cmd()
  *
  */
 
-// 1 ignored command
-// 0 ok
-// -1 problem
-
-int fnp_iom_cmd (uint iomUnitIdx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
+iom_cmd_rc_t fnp_iom_cmd (uint iomUnitIdx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
 // Is it an IDCW?
 
-    if (p -> DCW_18_20_CP == 7)
-      {
-        return fnpCmd (iomUnitIdx, chan);
-      }
-    // else // DDCW/TDCW
-    sim_printf ("%s expected IDCW\n", __func__);
-    return IOM_CMD_ERROR;
+  if (IS_IDCW (p)) {
+    return fnpCmd (iomUnitIdx, chan);
   }
+  // else // DDCW/TDCW
+  sim_warn ("%s expected IDCW\n", __func__);
+  return IOM_CMD_ERROR;
+}

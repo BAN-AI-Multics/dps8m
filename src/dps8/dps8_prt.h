@@ -15,5 +15,5 @@ extern DEVICE prt_dev;
 extern UNIT prt_unit [N_PRT_UNITS_MAX];
 
 void prt_init(void);
-int prt_iom_cmd (uint iomUnitIdx, uint chan);
+iom_cmd_rc_t prt_iom_cmd (uint iomUnitIdx, uint chan);
 t_stat burst_printer (UNUSED int32 arg, const char * buf);

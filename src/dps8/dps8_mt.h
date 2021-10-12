@@ -15,7 +15,12 @@
 
 struct tape_state
   {
-    enum tape_mode { tape_no_mode, tape_read_mode, tape_write_mode, tape_survey_mode } io_mode;
+    //enum tape_mode { tape_no_mode, tape_read_mode, tape_write_mode, tape_survey_mode } io_mode;
+    enum tape_mode
+      {
+        tape_no_mode, tape_rd_ctlr, tape_rd_9, tape_rd_bin, tape_initiate_rd_mem,
+        tape_wr_9, tape_wr_bin, tape_initiate_wr_mem, tape_MTP_wr, tape_wr_ctrl_regs, tape_survey,
+      } io_mode;
     bool is9;
     uint8 buf [BUFSZ];
     t_mtrlnt tbc; // Number of bytes read into buffer
@@ -42,7 +47,7 @@ int get_mt_numunits (void);
 t_stat loadTape (uint driveNumber, char * tapeFilename, bool ro);
 t_stat attachTape (char * label, bool withring, char * drive);
 t_stat detachTape (char * drive);
+iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan);
 t_stat unloadTape (uint driveNumber);
-int mt_iom_cmd (uint iomUnitIdx, uint chan);
 t_stat mount_tape (int32 arg, const char * buf);
 t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1);

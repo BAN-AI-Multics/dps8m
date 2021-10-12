@@ -16,7 +16,7 @@ void console_init(void);
 void console_attn_idx (int opc_unit_idx);
 int add_opc_autoinput (int32 flag, const char * cptr);
 int clear_opc_autoinput (int32 flag, const char * cptr);
-int opc_iom_cmd (uint iomUnitIdx, uint chan);
+iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan);
 int check_attn_key (void);
 void consoleProcess (void);
 t_stat set_console_port (UNUSED int32 arg, const char * buf);

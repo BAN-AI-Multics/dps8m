@@ -38,6 +38,7 @@ enum hevtType {
   hevtPAReg,
   hevtDSBRReg,
   hevtIEFP,
+  hevtNote,
 };
 
 struct hevt {
@@ -104,6 +105,10 @@ struct hevt {
       word24 final;
       word36 data;
     } apu;
+    struct {
+#define NOTE_SZ 64
+      char noteBody [NOTE_SZ];
+    } note;
   };
 };
 
@@ -111,6 +116,8 @@ static struct hevt * hevents = NULL;
 static long hdbgSize = 0;
 static long hevtPtr = 0;
 static long hevtMark = 0;
+static long hdbgSegNum = -1;
+static bool blacklist[MAX18];
 
 static void createBuffer (void) {
   if (hevents) {
@@ -141,8 +148,12 @@ static long hdbg_inc (void) {
   return ret;
 }
 
-#define hev(t, tf) \
+#define hev(t, tf, filter) \
   if (! hevents) \
+    goto done; \
+  if (filter && hdbgSegNum >= 0 && hdbgSegNum != cpu.PPR.PSR) \
+    goto done; \
+  if (filter && hdbgSegNum > 0 && blacklist[cpu.PPR.IC]) \
     goto done; \
   unsigned long p = hdbg_inc (); \
   hevents[p].type = t; \
@@ -153,8 +164,14 @@ static long hdbg_inc (void) {
   hevents[p].rw = tf;
 
 
+#define FILTER true
+#define NO_FILTER false
+
+#define WR true
+#define RD false
+
 void hdbgTrace (const char * ctx) {
-  hev (hevtTrace, false);
+  hev (hevtTrace, RD, FILTER);
   hevents[p].trace.addrMode = get_addr_mode ();
   hevents[p].trace.segno = cpu.PPR.PSR;
   hevents[p].trace.ic = cpu.PPR.IC;
@@ -164,21 +181,21 @@ done: ;
 }
 
 void hdbgMRead (word24 addr, word36 data, const char * ctx) {
-  hev (hevtM, false);
+  hev (hevtM, RD, FILTER);
   hevents[p].memref.addr = addr;
   hevents[p].memref.data = data;
 done: ;
 }
 
 void hdbgMWrite (word24 addr, word36 data, const char * ctx) {
-  hev (hevtM, true);
+  hev (hevtM, WR, FILTER);
   hevents[p].memref.addr = addr;
   hevents[p].memref.data = data;
 done: ;
 }
 
 void hdbgAPURead (word15 segno, word18 offset, word24 final, word36 data, const char * ctx) {
-  hev (hevtAPU, false);
+  hev (hevtAPU, RD, FILTER);
   hevents[p].apu.segno = segno;
   hevents[p].apu.offset = offset;
   hevents[p].apu.final = final;
@@ -187,7 +204,7 @@ done: ;
 }
 
 void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const char * ctx) {
-  hev (hevtAPU, true);
+  hev (hevtAPU, WR, FILTER);
   hevents[p].apu.segno = segno;
   hevents[p].apu.offset = offset;
   hevents[p].apu.final = final;
@@ -196,7 +213,7 @@ done: ;
 }
 
 void hdbgFault (_fault faultNumber, _fault_subtype subFault, const char * faultMsg, const char * ctx) {
-  hev (hevtFault, false);
+  hev (hevtFault, RD, FILTER);
   hevents[p].fault.faultNumber = faultNumber;
   hevents[p].fault.subFault = subFault;
   strncpy (hevents[p].fault.faultMsg, faultMsg, 63);
@@ -205,7 +222,7 @@ done: ;
 }
 
 void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx, const char * ctx) {
-  hev (hevtIntrSet, false);
+  hev (hevtIntrSet, RD, FILTER);
   hevents[p].intrSet.inum = inum;
   hevents[p].intrSet.cpuUnitIdx = cpuUnitIdx;
   hevents[p].intrSet.scuUnitIdx = scuUnitIdx;
@@ -213,7 +230,7 @@ done: ;
 }
 
 void hdbgIntr (uint intr_pair_addr, const char * ctx) {
-  hev (hevtIntr, false);
+  hev (hevtIntr, RD, FILTER);
   hevents[p].cpu_idx = current_running_cpu_idx;
   hevents[p].time = cpu.cycleCnt;
   strncpy (hevents[p].ctx, ctx, 15);
@@ -223,7 +240,7 @@ done: ;
 }
 
 void hdbgRegR (enum hregs_t type, word36 data, const char * ctx) {
-  hev (hevtReg, false);
+  hev (hevtReg, RD, FILTER);
   hevents[p].reg.type = type;
   hevents[p].reg.data = data;
 done: ;
@@ -231,7 +248,7 @@ done: ;
 
 
 void hdbgRegW (enum hregs_t type, word36 data, const char * ctx) {
-  hev (hevtReg, true);
+  hev (hevtReg, WR, FILTER);
   hevents[p].reg.type = type;
   hevents[p].reg.data = data;
 done: ;
@@ -239,38 +256,47 @@ done: ;
 
 
 void hdbgPARegR (enum hregs_t type, struct par_s * data, const char * ctx) {
-  hev (hevtPAReg, false);
+  hev (hevtPAReg, RD, FILTER);
   hevents[p].par.type = type;
   hevents[p].par.data = * data;
 done: ;
 }
 
 void hdbgPARegW (enum hregs_t type, struct par_s * data, const char * ctx) {
-  hev (hevtPAReg, true);
+  hev (hevtPAReg, WR, FILTER);
     hevents[p].par.type = type;
     hevents[p].par.data = * data;
 done: ;
 }
 
 void hdbgDSBRRegR (enum hregs_t type, struct dsbr_s * data, const char * ctx) {
-  hev (hevtDSBRReg, false);
+  hev (hevtDSBRReg, RD, FILTER);
     hevents[p].dsbr.type = type;
     hevents[p].dsbr.data = * data;
 done: ;
 }
 
 void hdbgDSBRRegW (enum hregs_t type, struct dsbr_s * data, const char * ctx) {
-  hev (hevtDSBRReg, true);
+  hev (hevtDSBRReg, WR, FILTER);
     hevents[p].dsbr.type = type;
     hevents[p].dsbr.data = * data;
 done: ;
 }
 
 void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset, const char * ctx) {
-  hev (hevtIEFP, false);
+  hev (hevtIEFP, RD, FILTER);
   hevents [p].iefp.type = type;
   hevents [p].iefp.segno = segno;
   hevents [p].iefp.offset = offset;
+done: ;
+}
+
+void hdbgNote (const char * ctx, const char * fmt, ...) {
+  hev (hevtNote, RD, NO_FILTER);
+  va_list arglist;
+  va_start (arglist, fmt);
+  vsnprintf (hevents [p].note.noteBody, NOTE_SZ - 1, fmt, arglist);
+  va_end (arglist);
 done: ;
 }
 
@@ -508,6 +534,12 @@ static void printIEFP (struct hevt * p) {
   }
 }
 
+static void printNote (struct hevt * p) {
+  fprintf (hdbgOut, "DBG(%"PRId64")> Note: %s\n",
+               p->time,
+               p->note.noteBody);
+}
+
 void hdbgPrint (void) {
   sim_printf ("hdbg print\n");
   if (! hevents)
@@ -581,7 +613,11 @@ void hdbgPrint (void) {
       case hevtIEFP:
         printIEFP (evtp);
         break;
-                
+ 
+      case hevtNote:
+        printNote (evtp);
+        break;
+
       default:
         fprintf (hdbgOut, "hdbgPrint ? %d\n", evtp -> type);
         break;
@@ -610,6 +646,32 @@ t_stat hdbg_size (UNUSED int32 arg, const char * buf) {
   hdbgSize = strtoul (buf, NULL, 0);
   sim_printf ("hdbg size set to %ld\n", hdbgSize);
   createBuffer ();
+  return SCPE_OK;
+}
+
+// set target segment number
+t_stat hdbgSegmentNumber (UNUSED int32 arg, const char * buf) {
+  hdbgSegNum = strtoul (buf, NULL, 8);
+  sim_printf ("hdbg target segment number set to %lu\n", hdbgSize);
+  createBuffer ();
+  return SCPE_OK;
+}
+
+t_stat hdbgBlacklist (UNUSED int32 arg, const char * buf) {
+  char work[strlen (buf) + 1];
+  if (sscanf (buf, "%s", work) != 1)
+    return SCPE_ARG;
+  if (strcasecmp (work, "init") == 0) {
+    memset (blacklist, 0, sizeof (blacklist));
+    return SCPE_OK;
+  }
+  uint low, high;
+  if (sscanf (work, "%o-%o", & low, & high) != 2)
+    return SCPE_ARG;
+  if (low > MAX18 || high > MAX18)
+    return SCPE_ARG;
+  for (uint addr = low; addr <= high; addr ++)
+    blacklist[addr] = true;
   return SCPE_OK;
 }
 
