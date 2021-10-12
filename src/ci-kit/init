@@ -1,4 +1,4 @@
-#!/usr/bin/env mksh
+#!/usr/bin/env bash
 printf '%s\n' "Downloading tape files..."
 mkdir -vp tapes 2> /dev/null
 cd tapes || exit 1

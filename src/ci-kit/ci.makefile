@@ -48,7 +48,7 @@ s4:
 
 s5:
 	@printf '%s\n' "Start Stage 5: Run ci_t1.expect"
-	CPUPROFILE=run.prof.out ./ci_t1.expect 0
+	env CPUPROFILE=run.prof.out ./ci_t1.sh 0
 	@printf '%s\n' "End Stage 5"
 
 .PHONY : diff
