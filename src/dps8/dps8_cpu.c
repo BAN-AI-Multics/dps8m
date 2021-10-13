@@ -1464,7 +1464,7 @@ int scheduleEvent (unsigned long long wait, eventHandlerT handler, int64_t p1, i
     return -1;
   }
   int i;
-  for (i = cpu.nEventsSchedule = 1; i >= 0 && cpu.eventSchedule[i].startCycle > when; i --)
+  for (i = cpu.nEventsSchedule - 1; i >= 0 && cpu.eventSchedule[i].startCycle > when; i --)
     cpu.eventSchedule[i + 1] = cpu.eventSchedule[i];
   cpu.eventSchedule[i + 1].startCycle = when;
   cpu.eventSchedule[i + 1].eventHandler = handler;
@@ -1947,6 +1947,8 @@ setCPU:;
       {
         reason = 0;
 
+        eventHook ();
+
 #if !defined(THREADZ) && !defined(LOCKLESS)
         // Process deferred events and breakpoints
         reason = simh_hooks ();
@@ -1954,8 +1956,6 @@ setCPU:;
           {
             break;
           }
-
-        eventHook ();
 
 #ifndef NO_EV_POLL
 // The event poll is consuming 40% of the CPU according to pprof.
