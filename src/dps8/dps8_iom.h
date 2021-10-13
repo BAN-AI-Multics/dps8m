@@ -431,3 +431,4 @@ char iomChar (uint iomUnitIdx);
 #ifdef TESTING
 void dumpDCW (word36 DCW, word1 LPW_23_REL);
 #endif
+int scheduled_iom_interrupt (int64_t p1, int64_t p2, int64_t p3, void * p4, void * p5);

@@ -1455,6 +1455,28 @@ bool sample_interrupts (void)
     return false;
   }
 
+
+int scheduleEvent (unsigned long long wait, eventHandlerT handler, int64_t p1, int64_t p2, int64_t p3, void * p4, void * p5) {
+  unsigned long long when = cpu.cycleCnt + wait;
+  // Insert into events
+  if (cpu.nEventsSchedule >= N_SCHEDULE) {
+    sim_warn ("Event schedule full; dropping event\r\n");
+    return -1;
+  }
+  int i;
+  for (i = cpu.nEventsSchedule = 1; i >= 0 && cpu.eventSchedule[i].startCycle > when; i --)
+    cpu.eventSchedule[i + 1] = cpu.eventSchedule[i];
+  cpu.eventSchedule[i + 1].startCycle = when;
+  cpu.eventSchedule[i + 1].eventHandler = handler;
+  cpu.eventSchedule[i + 1].p1 = p1;
+  cpu.eventSchedule[i + 1].p2 = p2;
+  cpu.eventSchedule[i + 1].p3 = p3;
+  cpu.eventSchedule[i + 1].p4 = p4;
+  cpu.eventSchedule[i + 1].p5 = p5;
+  cpu.nEventsSchedule ++;
+  return 0;
+}
+
 t_stat simh_hooks (void)
   {
     int reason = 0;
@@ -1826,6 +1848,18 @@ static bool clear_temporary_absolute_mode (void)
     //return cpu.went_appending;
   }
 
+static void eventHook (void) {
+  if (cpu.nEventsSchedule <= 0)
+    return;
+  struct eventScheduleS * p = & cpu.eventSchedule[0];
+  if (cpu.cycleCnt < p->startCycle)
+    return;
+  (* p->eventHandler) (p->p1, p->p2, p->p3, p->p4, p->p5);
+  for (int i = 0; i < cpu.nEventsSchedule - 1; i ++)
+    cpu.eventSchedule[i] = cpu.eventSchedule[i+1];
+  cpu.nEventsSchedule --;
+}
+
 t_stat threadz_sim_instr (void)
   {
 //cpu.have_tst_lock = false;
@@ -1920,6 +1954,8 @@ setCPU:;
           {
             break;
           }
+
+        eventHook ();
 
 #ifndef NO_EV_POLL
 // The event poll is consuming 40% of the CPU according to pprof.

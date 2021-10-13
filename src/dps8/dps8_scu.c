@@ -2178,7 +2178,22 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
         lock_iom ();
         lock_libuv ();
 #endif
-        iom_interrupt (scu_unit_idx, (uint) iom_unit_idx);
+        //iom_interrupt (scu_unit_idx, (uint) iom_unit_idx);
+        if (sys_opts.iom_times.connect <= 0) {
+          iom_interrupt (scu_unit_idx, (uint) iom_unit_idx);
+        } else {
+          //sim_printf ("scu_cioc: Queuing an IOM in %d cycles (for the connect channel) %u %d\n", sys_opts.iom_times.connect, scu_unit_idx, iom_unit_idx);
+          sim_debug (DBG_INFO, & scu_dev,
+                     "scu_cioc: Queuing an IOM in %d cycles "
+                     "(for the connect channel)\n",
+                     sys_opts.iom_times.connect);
+          // Stash the iom_interrupt call parameters
+          iom_dev.units[iom_unit_idx].u3 = (int32) scu_unit_idx;
+          iom_dev.units[iom_unit_idx].u4 = (int32) iom_unit_idx;
+          int rc;
+          if (scheduleEvent (sys_opts.iom_times.connect, scheduled_iom_interrupt, (int64_t) scu_unit_idx, (int64_t) iom_unit_idx,  0, NULL, NULL) < 0)
+            sim_warn ("scheduleEvent failed (%d)\n", rc);
+        }
 #if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
         unlock_libuv ();
         unlock_iom ();

@@ -3603,6 +3603,9 @@ void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx)
 #endif
     // XXX doConnectChan return value ignored
   }
+int scheduled_iom_interrupt (int64_t p1, int64_t p2, int64_t p3, void * p4, void * p5) {
+  iom_interrupt ((uint) p1, (uint) p2);
+}
 
 #ifdef IO_THREADZ
 void * chan_thread_main (void * arg)

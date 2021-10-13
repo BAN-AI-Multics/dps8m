@@ -612,4 +612,17 @@ typedef enum
 
 #define MAX_DEV_NAME_LEN 64
 
+#define N_SCHEDULE  1024
+typedef int (* eventHandlerT) (int64_t p1, int64_t p2, int64_t p3, void * p4, void * p5);
+typedef struct eventScheduleS {
+  unsigned long long startCycle;
+  eventHandlerT eventHandler;
+  int64_t p1;
+  int64_t p2;
+  int64_t p3;
+  void * p4;
+  void * p5;
+  } eventScheduleT;
+
+
 #endif // ifdef DPS8_H
