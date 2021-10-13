@@ -2700,6 +2700,49 @@ static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_
  *
  */
 
+//
+// SMIC Cell map/IMW WORD AREA
+//
+// Channels 0-31 are "low"; 32-63 are high
+// Level is defined in iomImwPics
+//
+//              IOM
+//  DEC.  OCT.  NO.  LEVEL
+//  
+//   0     00    0     0     Interrupts for overhead high channels in IOM Number 0
+//   1     01    1     0     Interrupts for overhead high channels in IOM Number 1
+//   2     02    2     0     Interrupts for overhead high channels in IOM Number 2
+//   3     03    3     0     Interrupts for overhead high channels in IOM Number 3
+//   4     04    0     1     Interrupts for overhead low channels in IOM Number 0
+//   5     05    1     1     Interrupts for overhead low channels in IOM Number 1
+//   6     06    2     1     Interrupts for overhead low channels in IOM Number 2
+//   7     07    3     1     Interrupts for overhead low channels in IOM Number 3
+//   8     10    0     2     Terminate Interrupts for Data high channels in IOM No. 0
+//   9     11    1     2     Terminate Interrupts for Data high channels in IOM No. 1
+//  10     12    2     2     Terminate Interrupts for Data high channels in IOM No. 2
+//  11     13    3     2     Terminate Interrupts for Data high channels in IOM No. 3
+//  12     14    0     3     Terminate Interrupts for Data low channels in IOM No. 0
+//  13     15    1     3     Terminate Interrupts for Data low channels in IOM No. 1
+//  14     16    2     3     Terminate Interrupts for Data low channels in IOM No. 2
+//  15     17    3     3     Terminate Interrupts for Data low channels in IOM No. 3
+//  16     20    0     4     Marker Interrupts for Data high channels in IOM Number 0
+//  17     21    1     4     Marker Interrupts for Data high channels in IOM Number 1
+//  18     22    2     4     Marker Interrupts for Data high channels in IOM Number 2
+//  19     23    3     4     Marker Interrupts for Data high channels in IOM Number 3
+//  20     24    0     5     Marker Interrupts for Data low channels in IOM Number 0
+//  21     25    1     5     Marker Interrupts for Data low channels in IOM Number 1
+//  22     26    2     5     Marker Interrupts for Data low channels in IOM Number 2
+//  23     27    3     5     Marker Interrupts for Data low channels in IOM Number 3
+//  24     30    0     6     Special Interrupts for Data high channels in IOM Number 0
+//  25     31    1     6     Special Interrupts for Data high channels in IOM Number 1
+//  26     32    2     6     Special Interrupts for Data high channels in IOM Number 2
+//  27     33    3     6     Special Interrupts for Data high channels in IOM Number 3
+//  28     34    0     7     Special Interrupts for Data low channels in IOM Number 0
+//  29     35    1     7     Special Interrupts for Data low channels in IOM Number 1
+//  30     36    2     7     Special Interrupts-for Data low channels in IOM Number 2
+//  31     37    3     7     Special Interrupts for Data low channels in IOM Number 3
+//  
+
 int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic)
   {
     uint imw_addr;
@@ -3562,6 +3605,7 @@ int send_special_interrupt (uint iom_unit_idx, uint chan, uint devCode,
     return 0;
   }
 
+#ifndef PRIMARY
 /*
  * send_terminate_interrupt ()
  *
@@ -3582,6 +3626,52 @@ int send_terminate_interrupt (uint iom_unit_idx, uint chan)
     send_general_interrupt (iom_unit_idx, chan, imwTerminatePic);
     return 0;
   }
+#else
+/*
+ * send_terminate_interrupt ()
+ *
+ * Send a "terminate" interrupt to the CPU.
+ *
+ * Channels send a terminate interrupt after doing a status service.
+ *
+ */
+
+int send_terminate_interrupt (uint iomUnitIdx, uint chan) {
+  if (iom_chan_data[iomUnitIdx][chan].masked)
+    return 0;
+
+  uint ctlrIomUnitIdx = iomUnitIdx;
+  uint ctlrChanNum = chan;
+
+// This code was to test a theroy that interrupts should be returned on the primary
+// controller port instead of the port that delivered the connect. It crashes
+// Multics with interrupt timeouts.
+#if 0
+// If this as a multiport controller, route the interrupt to the primary channel.
+
+  struct iom_to_ctlr_s * ctrlp = & cables->iom_to_ctlr[iomUnitIdx][chan];
+  // Is this an IPC?
+  if (ctrlp->ctlr_type == CTLR_T_IPC) { // yes
+    uint ctlrUnitIdx = ctrlp->ctlr_unit_idx;
+    for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++) { // For every port on the controller
+      if (cables->ipc_to_iom[ctlrUnitIdx][ctlr_port_num].in_use) {
+        ctlrIomUnitIdx = cables->ipc_to_iom[ctlrUnitIdx][ctlr_port_num].iom_unit_idx;
+        ctlrChanNum = cables->ipc_to_iom[ctlrUnitIdx][ctlr_port_num].chan_num;
+        break;
+      }
+    }
+  }
+#endif
+
+
+  status_service (ctlrIomUnitIdx, ctlrChanNum, false);
+  if (iom_chan_data [ctlrIomUnitIdx] [ctlrChanNum] . in_use == false)
+    sim_warn ("%s: chan %d not in use\n", __func__, ctlrChanNum);
+  iom_chan_data [ctlrIomUnitIdx] [ctlrChanNum] . in_use = false;
+  send_general_interrupt (ctlrIomUnitIdx, ctlrChanNum, imwTerminatePic);
+  return 0;
+}
+#endif
 
 void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx)
   {

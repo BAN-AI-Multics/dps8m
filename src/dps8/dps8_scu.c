@@ -2326,6 +2326,49 @@ int scu_set_interrupt (uint scu_unit_idx, uint inum)
 // is present, return 1.
 //
 
+//
+// SMIC Cell map/IMW WORD AREA
+//
+// Channels 0-31 are "low"; 32-63 are high
+// Level is defined in iomImwPics
+//
+//              IOM
+//  DEC.  OCT.  NO.  LEVEL
+//  
+//   0     00    0     0     Interrupts for overhead high channels in IOM Number 0
+//   1     01    1     0     Interrupts for overhead high channels in IOM Number 1
+//   2     02    2     0     Interrupts for overhead high channels in IOM Number 2
+//   3     03    3     0     Interrupts for overhead high channels in IOM Number 3
+//   4     04    0     1     Interrupts for overhead low channels in IOM Number 0
+//   5     05    1     1     Interrupts for overhead low channels in IOM Number 1
+//   6     06    2     1     Interrupts for overhead low channels in IOM Number 2
+//   7     07    3     1     Interrupts for overhead low channels in IOM Number 3
+//   8     10    0     2     Terminate Interrupts for Data high channels in IOM No. 0
+//   9     11    1     2     Terminate Interrupts for Data high channels in IOM No. 1
+//  10     12    2     2     Terminate Interrupts for Data high channels in IOM No. 2
+//  11     13    3     2     Terminate Interrupts for Data high channels in IOM No. 3
+//  12     14    0     3     Terminate Interrupts for Data low channels in IOM No. 0
+//  13     15    1     3     Terminate Interrupts for Data low channels in IOM No. 1
+//  14     16    2     3     Terminate Interrupts for Data low channels in IOM No. 2
+//  15     17    3     3     Terminate Interrupts for Data low channels in IOM No. 3
+//  16     20    0     4     Marker Interrupts for Data high channels in IOM Number 0
+//  17     21    1     4     Marker Interrupts for Data high channels in IOM Number 1
+//  18     22    2     4     Marker Interrupts for Data high channels in IOM Number 2
+//  19     23    3     4     Marker Interrupts for Data high channels in IOM Number 3
+//  20     24    0     5     Marker Interrupts for Data low channels in IOM Number 0
+//  21     25    1     5     Marker Interrupts for Data low channels in IOM Number 1
+//  22     26    2     5     Marker Interrupts for Data low channels in IOM Number 2
+//  23     27    3     5     Marker Interrupts for Data low channels in IOM Number 3
+//  24     30    0     6     Special Interrupts for Data high channels in IOM Number 0
+//  25     31    1     6     Special Interrupts for Data high channels in IOM Number 1
+//  26     32    2     6     Special Interrupts for Data high channels in IOM Number 2
+//  27     33    3     6     Special Interrupts for Data high channels in IOM Number 3
+//  28     34    0     7     Special Interrupts for Data low channels in IOM Number 0
+//  29     35    1     7     Special Interrupts for Data low channels in IOM Number 1
+//  30     36    2     7     Special Interrupts-for Data low channels in IOM Number 2
+//  31     37    3     7     Special Interrupts for Data low channels in IOM Number 3
+//  
+
 uint scu_get_highest_intr (uint scu_unit_idx)
   {
 #if defined(THREADZ) || defined(LOCKLESS)
@@ -2403,6 +2446,55 @@ void scu_init (void)
       }
 
   }
+
+
+//
+// SMIC Cell map/IMW WORD AREA
+//
+// Channels 0-31 are "low"; 32-63 are high
+// Level is defined in iomImwPics
+//
+//              IOM
+//  DEC.  OCT.  NO.  LEVEL
+//  
+//   0     00    0     0     Interrupts for overhead high channels in IOM Number 0
+//   1     01    1     0     Interrupts for overhead high channels in IOM Number 1
+//   2     02    2     0     Interrupts for overhead high channels in IOM Number 2
+//   3     03    3     0     Interrupts for overhead high channels in IOM Number 3
+//   4     04    0     1     Interrupts for overhead low channels in IOM Number 0
+//   5     05    1     1     Interrupts for overhead low channels in IOM Number 1
+//   6     06    2     1     Interrupts for overhead low channels in IOM Number 2
+//   7     07    3     1     Interrupts for overhead low channels in IOM Number 3
+//   8     10    0     2     Terminate Interrupts for Data high channels in IOM No. 0
+//   9     11    1     2     Terminate Interrupts for Data high channels in IOM No. 1
+//  10     12    2     2     Terminate Interrupts for Data high channels in IOM No. 2
+//  11     13    3     2     Terminate Interrupts for Data high channels in IOM No. 3
+//  12     14    0     3     Terminate Interrupts for Data low channels in IOM No. 0
+//  13     15    1     3     Terminate Interrupts for Data low channels in IOM No. 1
+//  14     16    2     3     Terminate Interrupts for Data low channels in IOM No. 2
+//  15     17    3     3     Terminate Interrupts for Data low channels in IOM No. 3
+//  16     20    0     4     Marker Interrupts for Data high channels in IOM Number 0
+//  17     21    1     4     Marker Interrupts for Data high channels in IOM Number 1
+//  18     22    2     4     Marker Interrupts for Data high channels in IOM Number 2
+//  19     23    3     4     Marker Interrupts for Data high channels in IOM Number 3
+//  20     24    0     5     Marker Interrupts for Data low channels in IOM Number 0
+//  21     25    1     5     Marker Interrupts for Data low channels in IOM Number 1
+//  22     26    2     5     Marker Interrupts for Data low channels in IOM Number 2
+//  23     27    3     5     Marker Interrupts for Data low channels in IOM Number 3
+//  24     30    0     6     Special Interrupts for Data high channels in IOM Number 0
+//  25     31    1     6     Special Interrupts for Data high channels in IOM Number 1
+//  26     32    2     6     Special Interrupts for Data high channels in IOM Number 2
+//  27     33    3     6     Special Interrupts for Data high channels in IOM Number 3
+//  28     34    0     7     Special Interrupts for Data low channels in IOM Number 0
+//  29     35    1     7     Special Interrupts for Data low channels in IOM Number 1
+//  30     36    2     7     Special Interrupts-for Data low channels in IOM Number 2
+//  31     37    3     7     Special Interrupts for Data low channels in IOM Number 3
+//  
+//
+// Understanding interrupt assignment masks.
+// When an interrupt is generated, a bit is set in the SCU interrupt cell, corresponding to the above table.
+// Eg. A11 sets bit 12.
+// The interrupt assignment mask is a bit array, mapping onto the interrupt cell bit array.
 
 t_stat scu_rmcm (uint scu_unit_idx, uint cpu_unit_udx, word36 * rega,
                  word36 * regq)
