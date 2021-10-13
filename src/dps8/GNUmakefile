@@ -577,7 +577,7 @@ unifdef.out: unifdef
 	@($(SETV); $(CD) ".." 2> /dev/null && $(FIND) $$($(GIT) ls-files          \
      2> /dev/null | $(GREP) -v 'ci-kit/' 2> /dev/null |                       \
       2> /dev/null 2> /dev/null | $(GREP) ".*\.[ch]" 2> /dev/null )           \
-        -exec "./unifdef/unifdef" "-s" "{}" 2> /dev/null \; |                 \
+        -exec "./unifdef/unifdef.wrapper" "-s" "{}" 2> /dev/null \; |         \
           $(SORT) -u 2> /dev/null) > "./unifdef.out" ||                       \
             $(TOUCH) "./unifdef.out" > /dev/null 2>&1
 
