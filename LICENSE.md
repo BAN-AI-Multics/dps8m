@@ -34,7 +34,8 @@
 
 ### DPS8M Simulator
 
-* The **DPS8M Simulator** (“**DPS8M**”) is distributed under the ICU License.
+* The **DPS8M Simulator** (“**DPS8M**”) is distributed under the
+  **ICU License**.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -109,8 +110,8 @@ property of their respective owners.
 
 ## Third-party Software
 
-* **DPS8M** incorporates, adapts, or utilizes software from
-  third-parties. This software is copyrighted by their respective
+* **DPS8M** may incorporate, adapt, or utilize software from
+  third-parties.  This software is copyrighted by their respective
   owners and licensed as indicated in the following disclosures.
 
 ----
@@ -118,9 +119,9 @@ property of their respective owners.
 ### libuv
 
 * **libuv** is a portable high-performance platform support library, with a
-  focus on asynchronous I/O, based on event loops, originally developed by
-  Ben Noordhuis to support the Node.js® runtime.  It is distributed under
-  the terms of the MIT License.
+  focus on asynchronous-I/O based on event loops, originally developed by
+  Ben Noordhuis to support the *Node.js*® runtime.  It is distributed under
+  the terms of the **MIT License**.
 
 ```text
 Copyright (c) 2015-present libuv project contributors.
@@ -189,7 +190,7 @@ SUCH DAMAGE.
 
 * **UDPLib** is a library that implements the BBN ARPAnet IMP/TIP
   Modem/Host Interface over UDP. It was written by Robert Armstrong,
-  and is distributed under a modified BSD license.
+  and is distributed under a **modified BSD license**.
 
 ```text
 Copyright (c) 2013 Robert Armstrong, bob@jfcl.com
@@ -222,13 +223,13 @@ in this Software without prior written authorization from Robert Armstrong.
 
 * **UtHash** (*UtList*, *UtArray*, and *UtHash*), a hash table for C
   structures, was written by
-  [Troy D. Hanson](https://troydhanson.github.io/uthash/) and modified
-  by **The DPS8M Development Team**. It is distributed under a modified
-  one-clause BSD license.
+  [Troy D. Hanson](https://troydhanson.github.io/uthash/) and customized
+  by **The DPS8M Development Team**. It is distributed under the terms of a
+  **modified one-clause BSD license**.
 
 ```text
 Copyright (c) 2005‑2021 Troy D. Hanson
-    http://troydhanson.github.io/uthash/
+    https://troydhanson.github.io/uthash/
 Copyright (c) 2021 The DPS8M Development Team
 
 All rights reserved.
@@ -258,7 +259,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ### SimH
 
 * **SimH** is a portable systems simulation framework, written by
-  Robert M. Supnik and others, and distributed under a modified MIT license.
+  Robert M. Supnik and others, and distributed under a
+  **modified MIT license**.
 
 ```text
 Copyright (c) 1993‑2012 Robert M Supnik
@@ -298,7 +300,7 @@ in this Software without prior written authorization from the authors.
 
 * **PunUtil** is a utility to process the output of the **DPS8M** punch
   device. It was written by Dean S. Anderson of **The DPS8M Development
-  Team** and is distributed under the ICU License.
+  Team** and is distributed under the **ICU License**.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -344,7 +346,7 @@ property of their respective owners.
 
 * **Prt2PDF** is a utility to convert the output of the simulated
   **DPS8M** line printer device to ISO 32000 Portable Document Format
-  (*PDF*), and is distributed under the ICU License.
+  (*PDF*), and is distributed under the **ICU License**.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -409,7 +411,7 @@ property of their respective owners.
   by the revised IEEE 754 specification.  It was written by IBM and IEEE
   Fellow Mike Cowlishaw, with contributions by Matthew Hagerty, John Matzka,
   Klaus Kretzschmar, Stefan Krah, and The DPS8M Development Team.  It is
-  distributed under the ICU License.
+  distributed under the **ICU License**.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -518,12 +520,12 @@ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 * **LineHistory** is a small and self-contained line editor, implementing
   *Emacs*-style line editing functionality similar to GNU *readline* or BSD
   *libedit*. It is derived from the *linenoise* library written by Salvatore
-  “antirez” Sanfilippo and Pieter Noordhuis and distributed under a two-clause
-  BSD license.
+  “antirez” Sanfilippo and Pieter Noordhuis and distributed under a
+  **two-clause BSD license**.
 
 ```text
-Copyright (c) 2010-2016, Salvatore Sanfilippo <antirez at gmail dot com>
-Copyright (c) 2010-2013, Pieter Noordhuis <pcnoordhuis at gmail dot com>
+Copyright (c) 2010-2016 Salvatore Sanfilippo <antirez@gmail.com>
+Copyright (c) 2010-2013 Pieter Noordhuis <pcnoordhuis@gmail.com>
 Copyright (c) 2021 The DPS8M Development Team
 
 All rights reserved.
@@ -560,7 +562,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   derived from software originally developed for the *Berkeley Software
   Distribution* by the *Computer Systems Research Group* at the *University
   of California, Berkeley*, and copyrighted by *The Regents of the University
-  of California*.  It is distributed under a three-clause BSD license.
+  of California*.  It is distributed under a **three-clause BSD license**.
 
 ```text
 Copyright (c) 1983‑1991 The Regents of the University of California
@@ -600,17 +602,15 @@ SUCH DAMAGE.
 
 ### AMD LibM
 
-* **AMD LibM**, a component of *AOCL*, the *AMD Optimizing CPU Libraries*,
-  is a software library containing a collection of basic math functions
-  optimized for AMD x86-64 processor-based machines, and provides
-  high-performance scalar and vector variants of many core C99 math functions.
-  It was developed by *Advanced Micro Devices, Inc.* and is distributed under
-  the terms of a three-clause BSD license.
+* **AMD LibM**, a component of the *AMD Optimizing CPU Libraries*, is a
+  library containing a collection of basic math functions optimized for AMD
+  x86-64 processor-based machines, and provides high-performance scalar and
+  vector implementations of many core C99 math functions.  It was developed by
+  *Advanced Micro Devices, Inc.*, and is distributed under the terms of a
+  **three-clause BSD license**.
 
 ```text
-BSD 3 Clause
-
-Copyright (c) 2017-2021, Advanced Micro Devices, Inc.
+Copyright (c) 2017-2021 Advanced Micro Devices, Inc.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -646,11 +646,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   free-list multi-sharding implementation of `malloc`, initially developed by
   Daan Leijen of the *Research In Software Engineering* group at *Microsoft
   Research* to support the run-time systems of the *Lean* and *Koka* languages.
-  It is distributed under the terms of the MIT License.
+  It is distributed under the terms of the **MIT License**.
 
 ```text
-MIT License
-
 Copyright (c) 2018-2021 Microsoft Corporation, Daan Leijen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -680,7 +678,7 @@ SOFTWARE.
   standard library, which includes the interfaces defined in the base language
   standard, POSIX™, and widely agreed-upon extensions. It was written by
   *Rich "dalias" Felker* and other contributors, and is distributed under the
-  terms of the MIT License.
+  terms of the **MIT License**.
 
 ```text
 Copyright (c) 2005-2020 Rich Felker, et al.
@@ -713,10 +711,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   **Multics License**.
 
 ```text
-Copyright (c) 1972 by the Massachusetts Institute of Technology and
+Copyright (c) 1972 the Massachusetts Institute of Technology and
   Honeywell Information Systems, Inc.
-Copyright (c) 2006 by Bull HN Information Systems, Inc.
-Copyright (c) 2006 by Bull SAS.
+Copyright (c) 2006 Bull HN Information Systems, Inc.
+Copyright (c) 2006 Bull SAS.
 
 All rights reserved.
 
