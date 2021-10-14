@@ -535,6 +535,8 @@ clean:
 	@$(SETV); $(RMF)  "unifdef.out"                    ||  $(TRUE)
 	@$(SETV); $(RMF)  "sysdefs.h"                      ||  $(TRUE)
 	@$(SETV); $(RMF)  "useddef.txt"                    ||  $(TRUE)
+	@$(SETV); $(RMF)  "amd_memcpy.o"                   ||  $(TRUE)
+	@$(SETV); $(RMF)  "../../amd_memcopy.o"            ||  $(TRUE)
 
 ###############################################################################
 
