@@ -2847,10 +2847,11 @@ if ((sDynamic) &&
                     if (0 == memcmp (sDynamic->ParentLocatorEntries[j].PlatformCode, "W2ru", 4)) {
                         const char *c;
 
-                        if ((c = strrchr (szVHDPath, '\\')))
+                        if ((c = strrchr (szVHDPath, '\\'))) {
                              memcpy (CheckPath, szVHDPath, c-szVHDPath+1);
                              strncpy (CheckPath+strlen(CheckPath), ParentName, sizeof (CheckPath)-(strlen (CheckPath)+1));
                         }
+                    }
                 VhdPathToHostPath (CheckPath, CheckPath, sizeof (CheckPath));
                 if (0 == GetVHDFooter(CheckPath,
                                       &sParentFooter,
