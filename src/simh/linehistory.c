@@ -1227,7 +1227,9 @@ int linenoiseHistoryAdd(const char *line) {
     }
 
     /* Don't add duplicated lines. */
-    if (history_len && !strcmp(history[history_len-1], line)) return 0;
+    if ((history_len > 0) && (!strcmp(history[history_len-1], line))) {
+      return 0;
+    }
 
     /*
      * Add an heap allocated copy of the line in the history.
