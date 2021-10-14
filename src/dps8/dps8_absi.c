@@ -162,7 +162,7 @@ static t_stat absiAttach (UNIT * uptr, const char * cptr)
     // Make a copy of the "file name" argument.  udp_create() actually modifies
     // the string buffer we give it, so we make a copy now so we'll have
     // something to display in the "SHOW HIn ..." command.
-    pfn = (char *) calloc (CBUFSIZE, sizeof (char));
+    pfn = (char *) calloc ((CBUFSIZE + 1), sizeof (char));
     if (pfn == NULL)
       return SCPE_MEM;
     strncpy (pfn, cptr, CBUFSIZE);
