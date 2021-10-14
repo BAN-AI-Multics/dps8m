@@ -6,6 +6,7 @@
   * [DPS8M Simulator](#dps8m-simulator)
     * [The DPS8M Development Team](#dps8m-development-team)
 - [Third-party Software](#third-party-software)
+  * [libuv](#libuv)
   * [Unifdef](#unifdef)
   * [UDPLib](#udplib)
   * [UtHash](#uthash)
@@ -114,6 +115,37 @@ property of their respective owners.
 
 ----
 
+### libuv
+
+* **libuv** is a high-performance support library of portable routines, with a
+  focus on asynchronous I/O based on event loops, originally developed to
+  support the Node.js® runtime.  It is distributed under the terms of the
+  MIT License.
+
+```text
+Copyright (c) 2015-present libuv project contributors.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+  * The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+```
+
+----
+
 ### Unifdef
 
 * **Unifdef** is a utility that selectively processes conditional C
@@ -131,12 +163,12 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS “AS IS” AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -201,19 +233,20 @@ Copyright (c) 2021 The DPS8M Development Team
 
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following
+conditions are met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+  * Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS
-IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
-OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+“AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO,\ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
 PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
@@ -499,10 +532,10 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
- *  Redistributions of source code must retain the above copyright
+  * Redistributions of source code must retain the above copyright
     notice, this list of conditions and the following disclaimer.
 
- *  Redistributions in binary form must reproduce the above copyright
+  * Redistributions in binary form must reproduce the above copyright
     notice, this list of conditions and the following disclaimer in the
     documentation and/or other materials provided with the distribution.
 
@@ -539,16 +572,16 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
 
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
 
- 3. Neither the name of the University nor the names of its contributors
-    may be used to endorse or promote products derived from this software
-    without specific prior written permission.
+  3. Neither the name of the University nor the names of its contributors
+     may be used to endorse or promote products derived from this software
+     without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS “AS IS” AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -582,16 +615,16 @@ Copyright (c) 2017-2021, Advanced Micro Devices, Inc.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
-   * Redistributions of source code must retain the above copyright notice,
-     this list of conditions and the following disclaimer.
+  * Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
 
-   * Redistributions in binary form must reproduce the above copyright notice,
-     this list of conditions and the following disclaimer in the documentation
-     and/or other materials provided with the distribution.
+  * Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
 
-   * Neither the name of the copyright holder nor the names of its contributors
-     may be used to endorse or promote products derived from this software
-     without specific prior written permission.
+  * Neither the name of the copyright holder nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -689,29 +722,29 @@ All rights reserved.
 
 Historical Background
 
-* This edition of the Multics software materials and documentation is
-  provided and donated to the Massachusetts Institute of Technology by
-  Group BULL including BULL HN Information Systems, Inc. as a
-  contribution to computer science knowledge.
+ * This edition of the Multics software materials and documentation is
+   provided and donated to the Massachusetts Institute of Technology by
+   Group BULL including BULL HN Information Systems, Inc. as a
+   contribution to computer science knowledge.
 
-* This donation is made also to give evidence of the common contributions
-  of the Massachusetts Institute of Technology, Bell Laboratories,
-  General Electric, Honeywell Information Systems, Inc., Honeywell BULL,
-  Inc., Groupe BULL and BULL HN Information Systems, Inc. to the
-  development of this operating system.
+ * This donation is made also to give evidence of the common contributions
+   of the Massachusetts Institute of Technology, Bell Laboratories,
+   General Electric, Honeywell Information Systems, Inc., Honeywell BULL,
+   Inc., Groupe BULL and BULL HN Information Systems, Inc. to the
+   development of this operating system.
 
-* Multics development was initiated by the Massachusetts Institute of
-  Technology Project MAC (1963-1970), renamed the MIT Laboratory for
-  Computer Science and Artificial Intelligence in the mid 1970s, under
-  the leadership of Professor Fernando José Corbató.  Users consider
-  that Multics provided the best software architecture for managing
-  computer hardware properly and for executing  programs.  Many
-  subsequent operating systems incorporated Multics principles.
+ * Multics development was initiated by the Massachusetts Institute of
+   Technology Project MAC (1963-1970), renamed the MIT Laboratory for
+   Computer Science and Artificial Intelligence in the mid 1970s, under
+   the leadership of Professor Fernando José Corbató.  Users consider
+   that Multics provided the best software architecture for managing
+   computer hardware properly and for executing  programs.  Many
+   subsequent operating systems incorporated Multics principles.
 
-* Multics was distributed in 1975 to 2000 by Group Bull in Europe, and
-  in the U.S. by Bull HN Information Systems, Inc., as successor in
-  interest by change in name only to Honeywell Bull, Inc. and Honeywell
-  Information Systems, Inc.
+ * Multics was distributed in 1975 to 2000 by Group Bull in Europe, and
+   in the U.S. by Bull HN Information Systems, Inc., as successor in
+   interest by change in name only to Honeywell Bull, Inc. and Honeywell
+   Information Systems, Inc.
 
 Permission to use, copy, modify, and distribute these programs and their
 documentation for any purpose and without fee is hereby granted, provided
