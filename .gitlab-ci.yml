@@ -879,7 +879,7 @@ Linux/x86_64, Intel DPC++/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icx LDFLAGS="-Wl,--gc-section" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icx LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -912,7 +912,39 @@ Linux/x86_64, Intel C:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icc LDFLAGS="-Wl,--gc-section" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 60 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, AOCC:
+  stage: build
+  tags:
+    - Linux
+    - AOCC
+    - amd64
+    - Linux-Shell
+  script:
+    - export GLCICD_JOB="AMDAOCCAMD64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c '. /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-fdata-sections -ffunction-sections"; make CC="clang -mllvm -vector-library=AMDLIBM" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -950,11 +982,11 @@ Linux/x86_64, Fedora:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-section" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-section" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
