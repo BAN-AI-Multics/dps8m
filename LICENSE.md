@@ -19,6 +19,7 @@
   * [LineHistory](#linehistory)
   * [BSD Random](#bsd-random)
   * [AMD LibM](#amd-libm)
+  * [mimalloc](#mimalloc)
   * [Multics Software Materials and Documentation](#multics-software-materials-and-documentation)
 - [Scope of Intended Application](#scope-of-intended-application)
 - [Disclaimer of Liability and Endorsement](#disclaimer-of-liability-and-endorsement)
@@ -601,6 +602,40 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
+
+----
+
+### mimalloc
+
+* **mimalloc** is a compact, portable, high-performance, general-purpose
+  free-list multi-sharding implementation of `malloc`, initially developed by
+  Daan Leijen of the *Research In Software Engineering* group at *Microsoft
+  Research* to support the run-time systems of the *Lean* and *Koka* languages.
+  It is distributed under the terms of the MIT License.
+
+```text
+MIT License
+
+Copyright (c) 2018-2021 Microsoft Corporation, Daan Leijen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```
 
 ----
