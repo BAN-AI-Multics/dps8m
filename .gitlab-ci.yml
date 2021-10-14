@@ -946,8 +946,8 @@ Linux/x86_64, AOCC, AOCL:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c 'rm -f amd_memcpy.o; rm -f src/dps8/amd_memcpy.o; . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && clang -Wno-unused-command-line-argument -Ofast -ffast-math -fomit-frame-pointer -ffast-math -mllvm -vector-library=AMDLIBM -c -o amd_memcpy.o /opt/AMD/aocl/latest/amd-memcpy/src/amd_memcpy.c /opt/AMD/aocl/latest/lib/libalm.a && ls -la amd_memcpy.o && nm -s amd_memcpy.o | tee -i /dev/stderr | grep -w memcpy && size -A amd_memcpy.o && cp -f amd_memcpy.o src/dps8/amd_memcpy.o'
-    - eatmydata sh -x -c '. /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -fdata-sections -ffunction-sections -Ofast -ffast-math"; make CC="clang -mllvm -vector-library=AMDLIBM" LDFLAGS="-Wno-unused-command-line-argument -Wl,--gc-sections" V=1 LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib /opt/AMD/aocl/latest/lib/libalm.a amd_memcpy.o -luv -lpthread -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'rm -f amd_memcpy.o; rm -f src/dps8/amd_memcpy.o; . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && clang -Wno-unused-command-line-argument -Ofast -ffast-math -fomit-frame-pointer -ffast-math -mllvm -vector-library=AMDLIBM -c -o amd_memcpy.o /opt/AMD/aocl/latest/amd-memcpy/src/amd_memcpy.c /opt/AMD/aocl/latest/lib/libalm.a -lm && ls -la amd_memcpy.o && nm -s amd_memcpy.o | tee -i /dev/stderr | grep -w memcpy && size -A amd_memcpy.o && cp -f amd_memcpy.o src/dps8/amd_memcpy.o'
+    - eatmydata sh -x -c '. /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -fdata-sections -ffunction-sections -Ofast -ffast-math"; make CC="clang -mllvm -vector-library=AMDLIBM" LDFLAGS="-Wno-unused-command-line-argument -Wl,--gc-sections" V=1 LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib /opt/AMD/aocl/latest/lib/libalm.a amd_memcpy.o -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -960,8 +960,6 @@ Linux/x86_64, AOCC, AOCL:
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-      - /opt/AMD/aocc-latest/lib/libalm.so
-      - /opt/AMD/aocl/latest/lib/libamd_memcpy.so
   retry: 2
   timeout: 60 minutes
   interruptible: true
