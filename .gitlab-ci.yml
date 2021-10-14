@@ -843,6 +843,7 @@ Code Quality Analysis:
     - codequality
     - amd64
     - Linux-Shell
+    - TopDocker
   needs:
     - job: Linux/x86_64, Ubuntu
     - job: Linux/x86_64, Ubuntu LTS
@@ -850,7 +851,7 @@ Code Quality Analysis:
   script:
     - *scriptSanity
     - |
-      time /usr/local/bin/gl-codequality
+      eatmydata sh -c 'command time -f "\n### Elapsed Time: %E\n" /usr/local/bin/gl-codequality'
   dependencies: []
   artifacts:
     expire_in: 2 months
@@ -879,8 +880,8 @@ Linux/x86_64, Intel DPC++/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icx LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icx LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -912,8 +913,8 @@ Linux/x86_64, Intel C:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -939,7 +940,6 @@ Linux/x86_64, AOCC, AOCL:
     - AOCL
     - amd64
     - Linux-Shell
-    - TopDocker
   script:
     - export GLCICD_JOB="AMDAOCCAMD64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptSanity
