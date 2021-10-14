@@ -944,7 +944,7 @@ Linux/x86_64, AOCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c '. /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-fdata-sections -ffunction-sections"; make CC="clang -mllvm -vector-library=AMDLIBM" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c '. /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-fdata-sections -ffunction-sections"; make CC="clang -mllvm -vector-library=AMDLIBM" LDFLAGS="-Wl,--gc-sections" V=1 LIBS="-lalm -luv -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
