@@ -1732,8 +1732,6 @@ Linux/x86_64, Ubuntu 18.04:
     - *scriptAptSetup
     - *scriptInstallNfpm
     - *scriptAptInstallLibuv1
-    - true #apt-get -qq -y install passwd tcsh util-linux psmisc || apt-get -qq -y install passwd tcsh util-linux psmisc
-    - true #test -x /bin/tcsh && chsh -s /bin/tcsh root && export SHELL=/bin/tcsh
     - *scriptSanity
     - *scriptCreateResticSnapshot
     - *scriptCommon
