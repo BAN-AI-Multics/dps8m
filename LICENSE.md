@@ -20,6 +20,7 @@
   * [BSD Random](#bsd-random)
   * [AMD LibM](#amd-libm)
   * [mimalloc](#mimalloc)
+  * [musl](#musl)
   * [Multics Software Materials and Documentation](#multics-software-materials-and-documentation)
 - [Scope of Intended Application](#scope-of-intended-application)
 - [Disclaimer of Liability and Endorsement](#disclaimer-of-liability-and-endorsement)
@@ -168,8 +169,8 @@ the rights to use, copy, modify, merge, publish, distribute, sublicense,
 and/or sell copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+  * The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -243,8 +244,8 @@ the rights to use, copy, modify, merge, publish, distribute, sublicense,
 and/or sell copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+  * The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -445,7 +446,7 @@ of all present and future rights to this code under copyright law.
 
 ### Shell Routines
 
-* Shell scripts may adapt or incorporate POSIX shell functions, routines, and
+* Shell scripts may adapt or incorporate POSIX™ shell functions, routines, and
   techniques (“the Routines”), written or distributed by
   [Thorsten “mirabilos” Glaser](https://www.mirbsd.org/).
 
@@ -586,11 +587,11 @@ modification, are permitted provided that the following conditions are met:
 
    * Redistributions in binary form must reproduce the above copyright notice,
      this list of conditions and the following disclaimer in the documentation
-	 and/or other materials provided with the distribution.
+     and/or other materials provided with the distribution.
 
    * Neither the name of the copyright holder nor the names of its contributors
      may be used to endorse or promote products derived from this software
-	 without specific prior written permission.
+     without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -626,8 +627,8 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+  * The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -640,6 +641,38 @@ SOFTWARE.
 
 ----
 
+### musl
+
+* **musl** is a lightweight standards-conformant implementation of the C
+  standard library, which includes the interfaces defined in the base language
+  standard, POSIX™, and widely agreed-upon extensions. It was written by
+  *Rich "dalias" Felker* and other contributors, and is distributed under the
+  terms of the MIT License.
+
+```text
+Copyright (c) 2005-2020 Rich Felker, et al.
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+  * The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
+----
 ### Multics Software Materials and Documentation
 
 * **DPS8** includes some **Multics** software materials and documentation.
@@ -652,7 +685,7 @@ Copyright (c) 1972 by the Massachusetts Institute of Technology and
 Copyright (c) 2006 by Bull HN Information Systems, Inc.
 Copyright (c) 2006 by Bull SAS.
 
-All Rights Reserved.
+All rights reserved.
 
 Historical Background
 
