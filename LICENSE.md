@@ -117,10 +117,10 @@ property of their respective owners.
 
 ### libuv
 
-* **libuv** is a high-performance support library of portable routines, with a
-  focus on asynchronous I/O based on event loops, originally developed to
-  support the Node.js® runtime.  It is distributed under the terms of the
-  MIT License.
+* **libuv** is a portable high-performance platform support library, with a
+  focus on asynchronous I/O, based on event loops, originally developed by
+  Ben Noordhuis to support the Node.js® runtime.  It is distributed under
+  the terms of the MIT License.
 
 ```text
 Copyright (c) 2015-present libuv project contributors.
