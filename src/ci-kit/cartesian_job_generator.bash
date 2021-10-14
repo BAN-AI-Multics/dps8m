@@ -48,7 +48,8 @@ printf '%s\n' "  done | sed -e 's/^ \\+//g' -e 's/ \$//g'                  \
                    | sort -u)"                             >> "${BLDFILE:?}"
 printf '%s\n' "printf '%s\\n' \"\${CTLS:?}\" | \\"         >> "${BLDFILE:?}"
 printf '%s\n' "awk '{ print \"make ${JFLAGS:-} CC=\\\"${COMPILER:?}\\\"    \
-                   \"\$0\" && make distclean && \\\\\"} END                \
+                 \"\$0\" && printf '%s\\n' \"\" |                          \
+                   ./src/dps8/dps8 && make distclean && \\\\\"} END        \
                        { print \"true\" }'"                >> "${BLDFILE:?}"
 printf '%s' "Generating build script ..."                                >&2
 set -e && env bash < "${BLDFILE:?}" > "${MAKFILE:?}" && rm -f "${BLDFILE:?}"
