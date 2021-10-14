@@ -338,11 +338,6 @@ static int completeLine(struct linenoiseState *ls) {
                     if (i == lc.len) linenoiseBeep();
                     stop =1;
                     break;
-                case 27: /* escape */
-                    /* Re-show original buffer */
-                    if (i < lc.len) refreshLine(ls);
-                    stop = 1;
-                    break;
                 default:
                     /* Update buffer and return */
                     if (i < lc.len) {
