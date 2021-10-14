@@ -837,6 +837,34 @@ Windows/x86_64, Cygwin64-GCC:
 
 ############################################################################
 
+Code Quality Analysis:
+  stage: test
+  tags:
+    - codequality
+    - amd64
+    - Linux-Shell
+  needs:
+    - job: Linux/x86_64, Ubuntu
+    - job: Linux/x86_64, Ubuntu LTS
+    - job: Linux/x86_64, Fedora
+  script:
+    - *scriptSanity
+    - |
+      time /usr/local/bin/gl-codequality
+  dependencies: []
+  artifacts:
+    expire_in: 2 months
+    paths:
+      - ${CI_PROJECT_DIR:?}/gl-code-quality-report.json
+    reports:
+      codequality:
+        - ${CI_PROJECT_DIR:?}/gl-code-quality-report.json
+  timeout: 1 hour
+  retry: 1
+  interruptible: false
+
+############################################################################
+
 Linux/x86_64, Fedora:
   image: fedora:latest
   stage: build

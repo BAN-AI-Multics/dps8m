@@ -520,7 +520,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ### BSD Random
 
-* **BSD random** is a collection of random number generation functions
+* **BSD Random** is a collection of random number generation functions
   derived from software originally developed for the *Berkeley Software
   Distribution* by the *Computer Systems Research Group* at the *University
   of California, Berkeley*, and copyrighted by *The Regents of the University
