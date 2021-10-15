@@ -899,7 +899,7 @@ Linux/x86_64, Intel DPC++/C++:
 
 ############################################################################
 
-Linux/x86_64, Intel C:
+Linux/x86_64, Intel C++:
   stage: build
   tags:
     - Linux
@@ -1022,6 +1022,101 @@ AIX/powerpc64, IBM AIX 7.2:
     - bash -x -c 'rpm -qi gcc; gcc -v; gmake CC=gcc V=1 -j 12 --output-sync --print-directory -k; exit "${?}"'
     - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/powerpc64le, Ubuntu LTS, IBM XL C/C++:
+  stage: build
+  tags:
+    - Shell-Linux
+    - Linux
+    - XLC-POWER
+    - IBM
+    - ppc64le
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - bash -x -c 'export IBMXLCVER="16.1.1" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/powerpc64le, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS, TCMalloc:
+  stage: build
+  tags:
+    - Shell-Linux
+    - Linux
+    - IBM-AT
+    - IBM
+    - ppc64le
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - bash -x -c 'export IBMXLMASSVER="latest-9" export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections -mveclibabi=mass -Ofast" LIBS="-L/opt/at${IBMATVER:?}/lib64 -L/opt/ibm/xlmass/${IBMXLMASSVER:?}/lib -ltcmalloc -luv -lmassvp9 -lmass_simdp9 -lmass -ldl -lrt -lm" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/powerpc64le, Ubuntu LTS, IBM Advance Toolchain 14:
+  stage: build
+  tags:
+    - Shell-Linux
+    - Linux
+    - IBM-AT
+    - IBM
+    - ppc64le
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - bash -x -c 'export IBMATVER="14.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
   dependencies: []
