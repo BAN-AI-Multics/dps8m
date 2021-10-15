@@ -3,7 +3,7 @@ IFS=
 UNIFDEF="$(printf '%s' ${0} | sed 's/unifdef\.wrapper/unifdef/')"
 command -v timeout > /dev/null 2>&1 && HT=1
 test -z "${HT:-}" || \
-  { timeout --preserve-status 5 "${UNIFDEF:?}" "${@}"; exit "${?}"; };
+  { timeout --preserve-status 7 "${UNIFDEF:?}" "${@}"; exit "${?}"; };
 test -z "${HT:-}" && \
   { "${UNIFDEF:?}" "${@}"; exit "${?}"; };
 exit 1
