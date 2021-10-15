@@ -2,6 +2,7 @@
 
 [![ICULicensed](https://img.shields.io/badge/license-ICU-blue.svg)](https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md) 
 [![LicenseScan](https://app.fossa.com/api/projects/git%2Bgitlab.com%2Fdps8m%2Fdps8m.svg?type=shield)](https://app.fossa.com/projects/git%2Bgitlab.com%2Fdps8m%2Fdps8m?ref=badge_shield) 
+[![CodeBeat](https://codebeat.co/badges/8aca1218-e280-4e0d-86c4-692cd70e384a)](https://codebeat.co/projects/gitlab-com-dps8m-dps8m-master) 
 [![BuildStatus](https://gitlab.com/dps8m/dps8m/badges/master/pipeline.svg?ignore_skipped=true)](https://gitlab.com/dps8m/dps8m/pipelines/latest/) 
 
 - **DPS8M** is a simulator for the _GE Large Systems_ 6000‑series of
