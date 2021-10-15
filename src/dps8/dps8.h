@@ -250,7 +250,7 @@ typedef __int128_t  int128;
 typedef word36      float36;    // single precision float
 typedef word72      float72;    // double precision float
 
-typedef unsigned int uint;  // efficient unsigned int, at least 32 bits
+typedef unsigned int uint;      // efficient unsigned int, at least 32 bits
 
 #include "dps8_simh.h"
 #include "dps8_math128.h"

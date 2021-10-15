@@ -58,14 +58,22 @@ __thread uint current_running_cpu_idx;
 
 // CPU data structures
 
-static UNIT cpu_unit [N_CPU_UNITS_MAX] =
-  {
-    [0 ... N_CPU_UNITS_MAX-1] =
-      {
-        UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE),
-        0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
-     }
-  };
+static UNIT cpu_unit [N_CPU_UNITS_MAX] = {
+#ifdef NO_C_ELLIPSIS
+  { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL }
+#else
+  [0 ... N_CPU_UNITS_MAX - 1] = {
+    UDATA (NULL, UNIT_FIX|UNIT_BINK, MEMSIZE), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
+  }
+#endif
+};
 
 #define UNIT_IDX(uptr) ((uptr) - cpu_unit)
 
