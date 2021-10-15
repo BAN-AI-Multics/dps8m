@@ -940,13 +940,18 @@ static t_stat iom_action (UNIT *up)
     return SCPE_OK;
   }
 
-static UNIT iom_unit[N_IOM_UNITS_MAX] =
-  {
-    [0 ... N_IOM_UNITS_MAX - 1] =
-      {
-        UDATA (iom_action, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
-      }
-  };
+static UNIT iom_unit[N_IOM_UNITS_MAX] = {
+#ifdef NO_C_ELLIPSIS
+  { UDATA (iom_action, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (iom_action, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (iom_action, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (iom_action, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL }
+#else
+  [0 ... N_IOM_UNITS_MAX - 1] = {
+    UDATA (iom_action, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
+  }
+#endif
+};
 
 static t_stat iom_show_mbx (UNUSED FILE * st,
                             UNUSED UNIT * uptr, UNUSED int val,
@@ -1387,13 +1392,18 @@ static t_stat iom_reset (UNUSED DEVICE * dptr)
   }
 
 static t_stat boot_svc (UNIT * unitp);
-static UNIT boot_channel_unit[N_IOM_UNITS_MAX] =
-  {
-    [0 ... N_IOM_UNITS_MAX - 1] =
-      {
-        UDATA (& boot_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
-      }
-  };
+static UNIT boot_channel_unit[N_IOM_UNITS_MAX] = {
+#ifdef NO_C_ELLIPSIS
+  { UDATA (& boot_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& boot_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& boot_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& boot_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL }
+#else
+  [0 ... N_IOM_UNITS_MAX - 1] = {
+    UDATA (& boot_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
+  }
+#endif
+};
 
 /*
  * init_memory_iom ()

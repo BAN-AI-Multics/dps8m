@@ -1824,7 +1824,11 @@ uint64 sim_deb_stop = 0;
 uint64 sim_deb_break = 0;
 // Enable CPU sim_debug iff PPR.PSR == N
 bool sim_deb_segno_on = false;
+#ifdef NO_C_ELLIPSIS
+bool sim_deb_segno[DEBUG_SEGNO_LIMIT];
+#else
 bool sim_deb_segno[DEBUG_SEGNO_LIMIT] = { [0 ... DEBUG_SEGNO_LIMIT - 1] = false };
+#endif
 // Enable CPU sim_debug iff PPR.PRR == N
 uint64 sim_deb_ringno = NO_SUCH_RINGNO;
 // Supress CPU sim_debug calls that pass all
