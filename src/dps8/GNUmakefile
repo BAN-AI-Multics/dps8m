@@ -646,7 +646,7 @@ sysdefs.h: useddef.txt
           -e 's/^-D$$//g' | $(SED) -e 's/^/#define\ SYSDEFS_USED\ \"/'        \
             -e 's/$$/\"/' 2> /dev/null > "./sysdefs.n"                 ||     \
               $(TOUCH) "./sysdefs.n" > /dev/null 2>&1
-	@$(PRINTF) '%s\n' "" >> "./sysdefs.h" 2> /dev/null
+	@$(PRINTF) '%s\n' "" >> "./sysdefs.n" 2> /dev/null
 	@$(SETV); $(CMP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null          ||     \
         $(CP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null                 ||     \
             $(TOUCH) "sysdefs.h"
