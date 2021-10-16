@@ -903,13 +903,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ### IBM Advance Toolchain
 
-* The **IBM® Advance Toolchain for Linux® on IBM POWER®** is a collection
-  of development tools and libraries for systems implementing the **POWER**
-  instruction set architecture currently developed by the *OpenPOWER*
-  *Foundation*, led by *IBM*. It includes scheduling, acceleration, hardware
-  enablement, and runtime libraries that are individually optimized for POWER8,
-  POWER9, and POWER10 processors, licensed and distributed under the terms of
-  the **Apache License, Version 2.0**.
+* The **IBM**® **Advance Toolchain for Linux**® **on IBM POWER**® is a
+  collection of development tools and libraries for systems implementing
+  the **POWER** instruction set architecture, currently developed by the
+  *OpenPOWER* *Foundation*, led by *IBM*. It includes scheduling, acceleration,
+  hardware enablement, and runtime libraries that are individually optimized
+  for POWER8, POWER9, and POWER10 processors. It is licensed and distributed
+  under the terms of the **Apache License, Version 2.0**.
 
   * The **IBM Advance Toolchain** is Copyright © 2012-2021 *IBM Corporation*,
     and others.
@@ -921,8 +921,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
   * The **IBM Advance Toolchain** may incorporate, adapt, or utilize software
     from third-parties.  This software is copyrighted by their respective
-    owners and distributed under different license terms.  More information is
-    available on the [IBM® Advance Toolchain for Linux® on IBM POWER® website](https://www.ibm.com/support/pages/advance-toolchain-linux-power).
+    owners and distributed under different license terms.
+
+  * Additional information is available from the
+    [IBM® Advance Toolchain for Linux® on IBM POWER® website](https://www.ibm.com/support/pages/advance-toolchain-linux-power).
 
 ```text
                                  Apache License
