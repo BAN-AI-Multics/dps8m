@@ -4570,7 +4570,7 @@ if (flag) {
     fprintf (st, "\n  Compiler: IBM XL C/C++ V%s", __xlc__);
 #endif
 #elif defined (__SUNPRO_C) || defined (__SUNPRO_CC) || defined (__SUNPRO_CC_COMPAT)
-    fprintf (st, "\n  Compiler: Sun Studio C/C++");
+    fprintf (st, "\n  Compiler: Oracle Developer Studio C/C++");
 #elif defined defined (__DMC__)
     fprintf (st, "\n  Compiler: Digital Mars C/C++");
 #elif defined (__PCC__)
