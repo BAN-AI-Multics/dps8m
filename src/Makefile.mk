@@ -263,9 +263,14 @@ else
 endif
 
 ###############################################################################
+# C Standard: Defaults to c99, but c1x or c11 may be needed for modern atomics.
+
+CSTD?=c99
+
+###############################################################################
 
 CFLAGS += -I../decNumber -I$(SIMHx)
-CFLAGS += -std=c99
+CFLAGS += -std=$(CSTD)
 CFLAGS += -U__STRICT_ANSI__
 CFLAGS += -D_GNU_SOURCE
 
