@@ -629,25 +629,26 @@ useddef.txt: compdef.out
 ###############################################################################
 
 errnos.h:
-	@$(PRINTF) '%s\n'                                                         \
-        '#include <errno.h>' > "./dump.c"
-	@$(SETV); $(CC) -E -dD ./dump.c |                                         \
-        $(AWK) '/^#define E/ { printf "{\"%s\",%s},\n", $$2, $$2 }'           \
-            > "./errnos.h"
+	@$(PRINTF) '%s\n' '#include <errno.h>' > "./dump.c" 2> /dev/null
+	@$(SETV); ($(CC) -E -dD ./dump.c 2> /dev/null;                            \
+               $(CC) -qshowmacros -E ./dump.c 2> /dev/null) | $(SORT) -u |    \
+        $(AWK) '/^#define E/ { printf "{\"%s\",%s},\n", $$2, $$2 } END        \
+		                       { print "" }' > "./errnos.h"
 	@$(SETV); $(RMF) "./dump.c"
 
 ###############################################################################
 
 sysdefs.h: useddef.txt
 	@$(PRINTF) '%s\n' "SYSDEFS: useddef.txt"
-	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null |                   \
-      $(TR) ' ' '=' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null |        \
+	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null              |      \
+      $(TR) ' ' '=' 2> /dev/null | $(SED) -e 's/^/-D/g' 2> /dev/null   |      \
         $(TR) '\n' ' ' 2> /dev/null | $(SED) -e 's/ $$//'                     \
           -e 's/^-D$$//g' | $(SED) -e 's/^/#define\ SYSDEFS_USED\ \"/'        \
-            -e 's/$$/\"/' 2> /dev/null > "./sysdefs.n" ||                     \
+            -e 's/$$/\"/' 2> /dev/null > "./sysdefs.n"                 ||     \
               $(TOUCH) "./sysdefs.n" > /dev/null 2>&1
-	@$(SETV); $(CMP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null ||              \
-        $(CP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null ||                     \
+	@$(PRINTF) '%s\n' "" >> "./sysdefs.h" 2> /dev/null
+	@$(SETV); $(CMP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null          ||     \
+        $(CP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null                 ||     \
             $(TOUCH) "sysdefs.h"
 	@$(SETV); $(RMF) "sysdefs.n"
 
