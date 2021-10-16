@@ -21,8 +21,8 @@ typedef struct config_value_list_s
 
 typedef struct config_list_s
   {
-    const char * name; // opt name
-    int64_t min, max; // value limits
+    const char * name;  // opt name
+    int64_t min, max;   // value limits
     config_value_list_t * value_list;
   } config_list_t;
 

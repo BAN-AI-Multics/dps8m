@@ -1079,7 +1079,37 @@ AIX/powerpc64, IBM AIX 7.2, IBM XL C/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'export XLCVER="latest" && gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlc_r -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'export XLCXLC="xlc_r" && export XLCVER="latest" && gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+AIX/powerpc64, IBM AIX 7.2, IBM XLClang:
+  stage: build
+  tags:
+    - AIX
+    - IBM
+    - ppc64
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - bash -x -c 'export XLCVER="latest" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j 12 V=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1 --output-sync --print-directory -k; exit "${?}"'
     - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
