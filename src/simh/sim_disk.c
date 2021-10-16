@@ -622,7 +622,7 @@ return stat;
 }
 
 #ifdef __xlc__
-#pragma pack (1)
+#pragma pack(1)
 #else
 #pragma pack(push,1)
 #endif
@@ -752,7 +752,7 @@ typedef struct _ODS2_StorageControlBlock
     uint16 scb_w_checksum;
     } ODS2_SCB;
 #ifdef __xlc__
-#pragma reset
+#pragma pack(reset)
 #else
 #pragma pack(pop)
 #endif
