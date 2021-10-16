@@ -2152,12 +2152,12 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
 
 #ifdef LOCKLESS
 
-// AIX_ATOMICS are currently equivilant to SYNC_ATOMICS (for now)
-#if defined (AIX_ATOMICS)
-#if (! defined (SYNC_ATOMICS))
+// AIX_ATOMICS are SYNC_ATOMICS (for now)
+#if   ( defined (AIX_ATOMICS) \
+ && (! (defined (SYNC_ATOMICS))))
 #define SYNC_ATOMICS
 #endif
-#endif
+
 // Default to CPP11_ATOMICS by default
 #if (! defined (CPP11_ATOMICS)) && (! defined (FREEBSD_ATOMICS)) \
  && (! defined (SYNC_ATOMICS))  && (! defined (AIX_ATOMICS))
