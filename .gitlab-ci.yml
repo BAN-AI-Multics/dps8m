@@ -1079,7 +1079,7 @@ AIX/powerpc64, IBM AIX 7.2, IBM XL C/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'export XLCVER="latest" && export COMPILER="$(/opt/IBM/xlC/${XLCVER:?}/bin/xlc_r -qversion 2>&1 | cut -f 1 -d \( 2> /dev/null | head -n 1 2> /dev/null)" && export CURRTIME="$(env TZ=UTC date -u "+%Y-%m-%d %H:%M UTC" 2> /dev/null | head -n 1 2> /dev/null)" && gmake -j 12 CC="/opt/IBM/xlC/16.1.0/bin/xlc_r -O5 -qhot -qarch=pwr8 -qaltivec -qchars=signed -qdfp -q64 -qalign=natural -qtls -qsaveopt -qthreaded -qsmp -qignerrno -qunroll" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DPOSIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-b64 -ldl -lrt -luv -lbsd -lm" --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'export XLCVER="latest" && gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlc_r -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory -k; exit "${?}"'
     - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
