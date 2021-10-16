@@ -156,7 +156,7 @@ IN THE SOFTWARE.
   *Computer Systems Research Group* at the *University of California,
   Berkeley* by Dave Yost. It was rewritten to support ANSI C by Tony
   Finch, and modified for portability by **The DPS8M Development Team**.
-  It is distributed under a two-clause BSD licence.
+  It is distributed under a **two-clause BSD licence**.
 
 ```text
 Copyright (c) 2002‑2020 Tony Finch <dot@dotat.at>
@@ -684,8 +684,8 @@ SOFTWARE.
 
   * Unless required by applicable law or agreed to in writing, software
     distributed under the **Apache License, Version 2.0** is distributed on an
-	"**AS IS**" **BASIS**, **WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**,
-	either express or implied.
+    "**AS IS**" **BASIS**, **WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**,
+    either express or implied.
 
 ```text
                                  Apache License
@@ -870,10 +870,10 @@ SOFTWARE.
 
 ### musl
 
-* **musl** is a lightweight standards-conformant implementation of the C
+* **musl** is a lightweight and standards conforming implementation of the C
   standard library, which includes the interfaces defined in the base language
   standard, POSIX™, and widely agreed-upon extensions. It was written by
-  *Rich "dalias" Felker* and other contributors, and is distributed under the
+  Rich "*dalias*" Felker and other contributors, and is distributed under the
   terms of the **MIT License**.
 
 ```text
@@ -908,8 +908,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   instruction set architecture currently developed by the *OpenPOWER*
   *Foundation*, led by *IBM*. It includes scheduling, acceleration, hardware
   enablement, and runtime libraries that are individually optimized for POWER8,
-  POWER9, and POWER10 processors, and is distributed under the terms of the
-  **Apache License, Version 2.0**.
+  POWER9, and POWER10 processors, licensed and distributed under the terms of
+  the **Apache License, Version 2.0**.
 
   * The **IBM Advance Toolchain** is Copyright © 2012-2021 *IBM Corporation*,
     and others.
@@ -922,7 +922,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   * The **IBM Advance Toolchain** may incorporate, adapt, or utilize software
     from third-parties.  This software is copyrighted by their respective
     owners and distributed under different license terms.  More information is
-	available on the [IBM® Advance Toolchain for Linux® on IBM POWER® website](https://www.ibm.com/support/pages/advance-toolchain-linux-power).
+    available on the [IBM® Advance Toolchain for Linux® on IBM POWER® website](https://www.ibm.com/support/pages/advance-toolchain-linux-power).
 
 ```text
                                  Apache License
