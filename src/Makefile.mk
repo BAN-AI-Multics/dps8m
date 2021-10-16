@@ -44,6 +44,8 @@ COMM       ?= comm
 ECHO       ?= echo
 BREW       ?= brew
 CPPCPP     ?= $(CC) -E
+CPPCPP2    ?= $(CC) -qshowmacros=pre -E /dev/null < /dev/null 2> /dev/null
+CPPCPP3    ?= $(CC) -qshowmacros -E /dev/null < /dev/null 2> /dev/null
 PREFIX     ?= /usr/local
 CSCOPE     ?= cscope
 MKDIR      ?= mkdir -p

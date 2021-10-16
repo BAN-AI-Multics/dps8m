@@ -151,6 +151,9 @@ endif
 # What needs -ldl?
 
 OSTYPE = $(shell $(UNAME) -s 2> /dev/null)
+ifeq ($(OSTYPE),AIX)
+  LIBS += -lm
+endif
 ifeq ($(OSTYPE),FreeBSD)
   LIBS += -lm -pthread
 endif
@@ -592,11 +595,10 @@ unifdef.out: unifdef
 procdef.out:
 	@$(PRINTF) '%s\n' "PROCDEF: $(CPPCPP)"
 	@($(SETV); ($(CPPCPP) -dM - < /dev/null 2> /dev/null ;                    \
-      $(CPPCPP) -dD - < /dev/null 2> /dev/null) | $(GREP) "^#define"          \
-        2> /dev/null | $(GREP) -v "^$$" 2> /dev/null | $(SORT) -u             \
-          2> /dev/null) | $(SED) 's/^#define //g' |                           \
-            $(SORT) > "./procdef.out" ||                                      \
-              $(TOUCH) "./procdef.out" > /dev/null 2>&1
+      $(CPPCPP) -dD - < /dev/null 2> /dev/null ; $(CPPCPP2) ; $(CPPCPP3)) |   \
+       $(GREP) "^#define" 2> /dev/null | $(GREP) -v "^$$" 2> /dev/null    |   \
+        $(SORT) -u 2> /dev/null) | $(SED) 's/^#define //g'                |   \
+         $(SORT) > "./procdef.out" || $(TOUCH) "./procdef.out" > /dev/null 2>&1
 
 ###############################################################################
 
