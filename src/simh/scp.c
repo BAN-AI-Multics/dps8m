@@ -4557,6 +4557,12 @@ if (flag) {
     fprintf (st, "\n  Compiler: Microsoft C %d.%02d.%05d.%02d", _MSC_FULL_VER/10000000, (_MSC_FULL_VER/100000)%100, _MSC_FULL_VER%100000, _MSC_BUILD);
 #elif defined (__DECC_VER)
     fprintf (st, "\n  Compiler: DEC C %c%d.%d-%03d", ("T SV")[((__DECC_VER/10000)%10)-6], __DECC_VER/10000000, (__DECC_VER/100000)%100, __DECC_VER%10000);
+#elif ( defined (__xlc__) && !defined(__clang_version__)
+#ifdef _AIX
+    fprintf (st, "\n  Compiler: IBM XL C/C++ for AIX V%s", __xlc__);
+#else
+    fprintf (st, "\n  Compiler: IBM XL C/C++ V%s", __xlc__);
+#endif
 #elif defined (SIM_COMPILER)
 #define S_xstr(a) S_str(a)
 #define S_str(a) #a
