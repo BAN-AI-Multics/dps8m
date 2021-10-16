@@ -331,7 +331,7 @@ int lookupFnpLink (int fnpUnitNum);
 void fnpProcessEvent (void);
 t_stat diaCommand (int fnpUnitNum, char *arg3);
 void fnpToCpuQueueMsg (int fnpUnitNum, char * msg);
-int fnp_iom_cmd (uint iomUnitIdx, uint chan);
+iom_cmd_rc_t fnp_iom_cmd (uint iomUnitIdx, uint chan);
 t_stat set_fnp_server_port (int32 arg, const char * buf);
 t_stat set_fnp_server_address (int32 arg, const char * buf);
 t_stat set_fnp_3270_server_port (int32 arg, const char * buf);

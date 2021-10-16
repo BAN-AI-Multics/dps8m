@@ -15,7 +15,9 @@
 #include <unistd.h>
 #include <stdbool.h>
 #ifdef _AIX
+#ifndef USE_POPT
 #define USE_POPT
+#endif /* ifndef USE_POPT */
 #endif /* ifdef _AIX */
 #ifdef USE_POPT
 #include <popt.h>

@@ -219,13 +219,12 @@ else
 # libuv: IBM AIX Toolbox libuv 1.38.1 (libuv-{devel}-1.38.1-1), or later, and,
 # libpopt: IBM AIX Toolbox libpopt 1.18 (libpopt-1.18-1) or later is required.
 
-    ifeq ($(UNAME_S),AIX)
-      KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
-      CFLAGS += -DUSE_FLOCK=1 -DHAVE_POPT=1 -maix$(KRNBITS) -Wl,-b$(KRNBITS)
-      LDFLAGS += -lm -lpthread -lpopt -lbsd -maix$(KRNBITS) -Wl,-b$(KRNBITS)
-      CC=gcc
-      LD=gcc
-    endif
+  ifeq ($(UNAME_S),AIX)
+    KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
+    CFLAGS += -DUSE_FLOCK=1 -DHAVE_POPT=1 -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+    LDFLAGS += -lm -lpthread -lpopt -lbsd -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+    CC?=gcc
+  endif
 
 ###############################################################################
 # GNU/Hurd
@@ -256,15 +255,8 @@ else
         CFLAGS  +=-I/usr/local/include -m$(ISABITS)
         LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat  \
                   -ldl -m$(ISABITS)
-        CC=gcc
+        CC?=gcc
       endif
-    endif
-    ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
-      ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-      CFLAGS  +=-I/usr/local/include -m$(ISABITS)
-      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat    \
-                -ldl -m$(ISABITS)
-      CC=gcc
     endif
 endif
 

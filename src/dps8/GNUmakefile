@@ -128,6 +128,7 @@ endif
 endif
 
 ###############################################################################
+# Need to create a 128-bit type?
 
 ifneq ($(M32),)
   CFLAGS += -DNEED_128
@@ -165,6 +166,7 @@ ifeq ($(OSTYPE),Linux)
 endif
 
 ###############################################################################
+# What needs -lm explicitly?
 
 OSTYPE = $(shell $(UNAME) -s)
 ifeq ($(OSTYPE),FreeBSD)
@@ -312,12 +314,17 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all: sysdefs.h unifdef prt2pdf punutil $(TAGS) locallibs_then_dps8
+all: sysdefs.h unifdef locallibs_then_dps8 prt2pdf punutil $(TAGS)
 
 ###############################################################################
 
 .PHONY: install
-.NOTPARALLEL: install
+ifneq (,$(findstring install,$(MAKECMDGOALS)))
+.NOTPARALLEL: install clean
+endif
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
+.NOTPARALLEL: clean install
+endif
 install: all
 	@$(SETV); $(MKDIR) "$(DESTDIR)$(INSTALL_BIN)"
 	@$(SETV); $(CP) "dps8$(EXE)" "$(DESTDIR)$(INSTALL_BIN)/dps8$(EXE)"
@@ -325,7 +332,6 @@ install: all
 ###############################################################################
 
 .PHONY: printuk
-.NOTPARALLEL: printuk
 printuk:
 	@$(PRINTF) '%s\n' "*** Begin printuk (git untracked files):"
 	@$(SETV); ($(CD) "../.." && $(GIT) status -s --untracked-files="all"      \
@@ -335,7 +341,6 @@ printuk:
 ###############################################################################
 
 .PHONY: printmod
-.NOTPARALLEL: printmod
 printmod:
 	@$(PRINTF) '%s\n' "*** Begin printmod (git tracked modified files)"
 	@$(SETV); ($(CD) "../.." && $(GIT) status -s 2> /dev/null |               \
@@ -344,7 +349,6 @@ printmod:
 
 ###############################################################################
 
-.NOTPARALLEL: blinkenLights
 blinkenLights: blinkenLights.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLights"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights.c                      \
@@ -352,7 +356,6 @@ blinkenLights: blinkenLights.c shm.o
 
 ###############################################################################
 
-.NOTPARALLEL: blinkenLights2
 blinkenLights2: blinkenLights2.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLights2s"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights2.c                     \
@@ -360,7 +363,6 @@ blinkenLights2: blinkenLights2.c shm.o
 
 ###############################################################################
 
-.NOTPARALLEL: blinkenLightsCurses
 blinkenLightsCurses: blinkenLightsCurses.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLightsCurses"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsCurses.c                \
@@ -377,7 +379,6 @@ dps8$(EXE): $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(DECN_OBJS) $(SIMH_OBJS) ctags
 ###############################################################################
 
 .PHONY: FORCE
-.NOTPARALLEL: ver.h
 ifeq (,$(wildcard ../../.git))
 # not git
 ifeq (,$(wildcard ver.h~))
@@ -417,7 +418,6 @@ endif
 
 ###############################################################################
 
-.NOTPARALLEL: slte.inc
 slte.inc: system_book_12_3.ascii
 	@$(SETV); ./buildSLTE.sh
 
@@ -454,7 +454,6 @@ udplib$(EXE): udplib.c udplib.h
 ###############################################################################
 
 .PHONY: ctags
-.NOTPARALLEL: ctags tags TAGS ver.h
 tags TAGS ctags: $(C_SRCS) $(H_SRCS) ver.h
 	@$(PRINTF) '%s\n' "CTAGS: dps8"
 	-@$(SETV); $(CTAGS) $(C_SRCS) $(H_SRCS)                                   \
@@ -475,7 +474,6 @@ tags TAGS ctags: $(C_SRCS) $(H_SRCS) ver.h
 ###############################################################################
 
 .PHONY: tapes
-.NOTPARALLEL: tapes
 tapes: 88534.tap 88631.tap 88632.tap 88633.tap 88634.tap 88635.tap 88636.tap  \
        99020.tap 93085.tap 98570.tap 99019.tap 98577.tap 20184.tap 20185.tap  \
        20186.tap 20187.tap 20188.tap t4d_b.2.tap 98580_1er.tap 98576_1er.tap
@@ -488,14 +486,18 @@ tapes: 88534.tap 88631.tap 88632.tap 88633.tap 88634.tap 88635.tap 88636.tap  \
 ###############################################################################
 
 .PHONY: superclean realclean reallyclean distclean clean
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: superclean realclean reallyclean distclean clean
+endif
 superclean realclean reallyclean: distclean
 	@$(SETV); $(CCACHE) -cC > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 
 .PHONY: distclean clean
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean clean
+endif
 distclean: clean
 	@$(SETV); $(RMF) "../../dps8m.state"      ||  $(TRUE)
 	@$(SETV); $(RMF) "../dps8m.state"         ||  $(TRUE)
@@ -516,7 +518,9 @@ distclean: clean
 ###############################################################################
 
 .PHONY: distclean clean
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean clean
+endif
 clean:
 	@$(SETV); $(MAKE) -C "$(SIMHx)"      -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../decNumber"  -f "GNUmakefile"  "clean"
@@ -541,7 +545,9 @@ clean:
 ###############################################################################
 
 .PHONY: clean_dps8
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: clean_dps8
+endif
 clean_dps8:
 	@$(PRINTF) '%s\n' "CLEAN: dps8"
 	@$(SETV); $(RMF) $(OBJS) $(C_DEPS) $(EXECUTABLES) "dps8$(EXE)"            \
@@ -551,7 +557,6 @@ clean_dps8:
 ###############################################################################
 
 .PHONY: kit dist
-.NOTPARALLEL: kit dist
 kit dist:
 	@$(PRINTF) '%s\n' "KIT: dps8"
 	@$(PRINTF) '%s\n' "ARCHIVE: $(KITNAME).$(TARXT)"
@@ -573,7 +578,6 @@ kit dist:
 
 ###############################################################################
 
-.NOTPARALLEL: unifdef.out
 unifdef.out: unifdef
 	@$(PRINTF) '%s\n' "UNIFDEF: *.[ch]"
 	@($(SETV); $(CD) ".." 2> /dev/null && $(FIND) $$($(GIT) ls-files          \
@@ -585,7 +589,6 @@ unifdef.out: unifdef
 
 ###############################################################################
 
-.NOTPARALLEL: procdef.out
 procdef.out:
 	@$(PRINTF) '%s\n' "PROCDEF: $(CPPCPP)"
 	@($(SETV); ($(CPPCPP) -dM - < /dev/null 2> /dev/null ;                    \
@@ -597,7 +600,6 @@ procdef.out:
 
 ###############################################################################
 
-.NOTPARALLEL: procsrt.out
 procsrt.out: procdef.out
 	@$(PRINTF) '%s\n' "PROCSRT: procdef.out"
 	@$(SETV); $(CUT) -d ' ' -f 1 < "./procdef.out" 2> /dev/null |             \
@@ -606,7 +608,6 @@ procsrt.out: procdef.out
 
 ###############################################################################
 
-.NOTPARALLEL: compdef.out
 compdef.out: procsrt.out unifdef.out
 	@$(PRINTF) '%s\n' "COMM: procsrt.out unifdef.out"
 	@$(SETV); $(COMM) -12 "procsrt.out" "unifdef.out" > "./compdef.out"       \
@@ -614,7 +615,6 @@ compdef.out: procsrt.out unifdef.out
 
 ###############################################################################
 
-.NOTPARALLEL: useddef.txt
 useddef.txt: compdef.out
 	@$(PRINTF) '%s\n' "USEDDEF: compdef.out"
 	@$(SETV); $(SH) -c 'while read -r line; do $(GREP) -i "$${line:-}"        \
@@ -626,7 +626,6 @@ useddef.txt: compdef.out
 
 ###############################################################################
 
-.NOTPARALLEL: errnos.h
 errnos.h:
 	@$(PRINTF) '%s\n'                                                         \
         '#include <errno.h>' > "./dump.c"
@@ -637,7 +636,6 @@ errnos.h:
 
 ###############################################################################
 
-.NOTPARALLEL: sysdefs.h
 sysdefs.h: useddef.txt
 	@$(PRINTF) '%s\n' "SYSDEFS: useddef.txt"
 	@$(SETV); $(TR) -d '=' < "./useddef.txt" 2> /dev/null |                   \

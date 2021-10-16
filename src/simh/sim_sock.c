@@ -1021,15 +1021,15 @@ SOCKET sim_accept_conn_ex (SOCKET master, char **connectaddr, int opt_flags)
 {
 int sta = 0, err;
 int keepalive = 1;
-#if defined (macintosh) || defined (__linux) || defined (__linux__) || \
-    defined (__APPLE__) || defined (__OpenBSD__) || \
-    defined(__NetBSD__) || defined(__FreeBSD__) || \
-    (defined(__hpux) && defined(_XOPEN_SOURCE_EXTENDED)) || \
-    defined (__HAIKU__)
+#if  defined (macintosh)  || defined (__linux)     || defined (__linux__) || \
+     defined (__APPLE__)  || defined (__OpenBSD__) ||                        \
+     defined (__NetBSD__) || defined (__FreeBSD__) ||                        \
+   ( defined (__hpux)     && defined (_XOPEN_SOURCE_EXTENDED) ) ||           \
+     defined (__HAIKU__)  || defined (_AIX)
 socklen_t size;
-#elif defined (_WIN32) || defined (__EMX__) || \
-     (defined (__ALPHA) && defined (__unix__)) || \
-     defined (__hpux)
+#elif  defined (_WIN32)  || defined (__EMX__)    || \
+     ( defined (__ALPHA) && defined (__unix__) ) || \
+       defined (__hpux)
 int size;
 #else
 size_t size;

@@ -23,26 +23,26 @@ endif
 
 ###############################################################################
 
-PUFLAGS=-Wall -Wextra
+#PUFLAGS=-Wall -Wextra
 CFLAGS+=$(PUFLAGS)
 
 ###############################################################################
 
 .PHONY: all
-.NOTPARALLEL: all
 all: punutil$(EXE)
 
 ###############################################################################
 
-.NOTPARALLEL: punutil$(EXE)
 punutil$(EXE): punutil.c
 	@$(PRINTF) '%s\n' "CC: punutil"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o punutil$(EXE) punutil.c
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o punutil$(EXE) punutil.c $(PULIBS)
 
 ###############################################################################
 
 .PHONY: clean
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: clean
+endif
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: punutil"
 	@$(SETV); $(RMF) "punutil$(EXE)" > /dev/null 2>&1  ||  $(TRUE)

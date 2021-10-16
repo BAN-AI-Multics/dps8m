@@ -45,7 +45,9 @@ all decNumber.a: $(OBJS)
 ###############################################################################
 
 .PHONY: clean
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: clean
+endif
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: decNumber"
 	-@$(SETV); $(RMF) $(OBJS) "decNumber.a"  ||  $(TRUE) > /dev/null 2>&1

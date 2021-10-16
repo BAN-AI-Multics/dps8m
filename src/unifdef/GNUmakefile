@@ -31,26 +31,26 @@ endif
 
 ###############################################################################
 
-UIFLAGS=-Wall -Wextra
+#UIFLAGS=-Wall -Wextra
 CFLAGS+=$(UIFLAGS)
 
 ###############################################################################
 
 .PHONY: all
-.NOTPARALLEL: all
 all: unifdef$(EXE)
 
 ###############################################################################
 
-.NOTPARALLEL: unifdef$(EXE)
 unifdef$(EXE): unifdef.o unifdef.h version.h unifdef.c
 	@$(PRINTF) '%s\n' "CC: unifdef"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o unifdef$(EXE) unifdef.o
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o unifdef$(EXE) unifdef.o $(UILIBS)
 
 ###############################################################################
 
 .PHONY: clean
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: clean
+endif
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: unifdef"
 	@$(SETV); $(RMF) "unifdef$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)

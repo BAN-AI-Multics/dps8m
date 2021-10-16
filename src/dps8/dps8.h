@@ -44,12 +44,10 @@
 
 #ifdef NEED_128
 typedef struct { uint64_t h; uint64_t l; } __uint128_t;
-typedef struct { int64_t h; uint64_t l; } __int128_t;
-
+typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 #define construct_128(h, l) ((uint128) { (h), (l) })
 #define construct_s128(h, l) ((int128) { (h), (l) })
-
-#endif
+#endif /* ifdef NEED_128 */
 
 // Quiet compiler unused warnings
 #define QUIET_UNUSED
@@ -58,11 +56,10 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 //#define M_SHARED
 //LDFLAGS += -lrt
 
-#ifdef TESTING
-#else
-// Enable speed over debuggibility
+#ifndef TESTING
+// Enable speed over debuggibility when not TESTING
 #define SPEED
-#endif
+#endif /* ifndef TESTING */
 
 // Enable WAM
 //#define WAM
