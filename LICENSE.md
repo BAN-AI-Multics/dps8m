@@ -676,7 +676,7 @@ SOFTWARE.
 
 ### TCMalloc
 
-* **TCMalloc** is a scalable thread caching memory allocator designed by
+* **TCMalloc** is a scalable thread-caching memory allocator designed by
   *Google, LLC*, and distributed under the terms of the
   **Apache License, Version 2.0**.
 
@@ -921,7 +921,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
   * The **IBM Advance Toolchain** may incorporate, adapt, or utilize software
     from third-parties.  This software is copyrighted by their respective
-    owners and distributed under different license terms.
+    owners and may be distributed under different license terms.
 
   * Additional information is available from the
     [IBM® Advance Toolchain for Linux® on IBM POWER® website](https://www.ibm.com/support/pages/advance-toolchain-linux-power).
