@@ -952,9 +952,9 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
     - eatmydata sh -x -c 'printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - plzip -9vk /opt/oracle/developerstudio12.6/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
-    - plzip -9vk /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk.so.1 > libmtsk.so.1.lz
-    - plzip -9vk /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk_crt.so.1 > libmtsk_crt.so.1.lz
+    - plzip -9vk < /opt/oracle/developerstudio12.6/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
+    - plzip -9vk < /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk.so.1 > libmtsk.so.1.lz
+    - plzip -9vk < /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk_crt.so.1 > libmtsk_crt.so.1.lz
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
