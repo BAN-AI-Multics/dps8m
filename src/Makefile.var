@@ -97,7 +97,12 @@ endif
 
 ifeq ($(LOCKLESS),1)
   LOCKLESS=1
-  CFLAGS += -pthread
+ifndef SUNPRO
+    CFLAGS += -pthread
+endif
+ifdef SUNPRO
+    CFLAGS += -mt
+endif
   CFLAGS += -DLOCKLESS
   LIBS += -lpthread
 endif

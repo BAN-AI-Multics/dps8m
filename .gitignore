@@ -5,6 +5,9 @@
 *.so
 a.out
 
+# Data
+*.tap
+
 # Cruft
 .DS_Store
 .cproject

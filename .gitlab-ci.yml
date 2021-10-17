@@ -866,7 +866,7 @@ Code Quality Analysis:
 
 ############################################################################
 
-Linux/x86_64, Intel DPC++/C++:
+Linux/x86_64, Fedora, Intel DPC++/C++:
   stage: build
   tags:
     - Linux
@@ -899,7 +899,7 @@ Linux/x86_64, Intel DPC++/C++:
 
 ############################################################################
 
-Linux/x86_64, Intel C++:
+Linux/x86_64, Fedora, Intel C++:
   stage: build
   tags:
     - Linux
@@ -932,7 +932,49 @@ Linux/x86_64, Intel C++:
 
 ############################################################################
 
-Linux/x86_64, AOCC, AOCL:
+Linux/x86_64, Fedora, Oracle Developer Studio:
+  stage: build
+  tags:
+    - Linux
+    - Sun-CC
+    - amd64
+    - Linux-Shell
+  script:
+    - export GLCICD_JOB="SunCCLinuxX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - | # Initialize environment
+      pkill suncc > /dev/null 2>&1 || true
+    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 45 ; export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -DUSE_FLOCK" && make CC="ccache /opt/oracle/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -fd -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -native -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")" SUNPRO=1 V=1 NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") 2>&1 | grep --line-buffered -v -e ": not parallelized" -e "warning: enumerator value overflows INT_MAX" ; exit "${?}"'
+    - | # Clean-up environment
+      pkill suncc > /dev/null 2>&1 || true
+    - eatmydata sh -x -c 'printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - plzip -9vk /opt/oracle/developerstudio12.6/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
+    - plzip -9vk /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk.so.1 > libmtsk.so.1.lz
+    - plzip -9vk /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk_crt.so.1 > libmtsk_crt.so.1.lz
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/libstatomic.so.1.lz
+      - ${CI_PROJECT_DIR:?}/libmtsk_crt.so.1.lz
+      - ${CI_PROJECT_DIR:?}/libmtsk.so.1.lz
+  retry: 1
+  timeout: 45 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Fedora, AOCC, AOCL:
   stage: build
   tags:
     - Linux

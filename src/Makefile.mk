@@ -43,9 +43,12 @@ UNAME      ?= uname
 COMM       ?= comm
 ECHO       ?= echo
 BREW       ?= brew
+GREP       ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" grep
+SORT       ?= sort
 CPPCPP     ?= $(CC) -E
 CPPCPP2    ?= $(CC) -qshowmacros=pre -E /dev/null < /dev/null 2> /dev/null
 CPPCPP3    ?= $(CC) -qshowmacros -E /dev/null < /dev/null 2> /dev/null
+CPPCPP4    ?= $(CC) -xdumpmacros=defs -E /dev/null < /dev/null 2>&1
 PREFIX     ?= /usr/local
 CSCOPE     ?= cscope
 MKDIR      ?= mkdir -p
@@ -53,8 +56,6 @@ NDKBUILD   ?= ndk-build
 DIRNAME    ?= dirname
 PKGCONFIG  ?= pkg-config
 GIT        ?= git
-GREP       ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" grep
-SORT       ?= sort
 CUT        ?= cut
 SED        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" sed
 AWK        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" awk
@@ -161,7 +162,9 @@ endif
 ###############################################################################
 # Default FLAGS
 
-CFLAGS  += -g3 -O3 -fno-strict-aliasing
+ifndef SUNPRO
+  CFLAGS  += -g3 -O3 -fno-strict-aliasing
+endif
 CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 
