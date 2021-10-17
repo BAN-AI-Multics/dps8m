@@ -4667,6 +4667,8 @@ if (flag) {
     arch = " sparc";
 #elif defined(__riscv) || defined(__riscv__)
     arch = " riscv";
+#elif defined(__myriad2__)
+    arch = " myriad2";
 #else
     arch = " ";
 #endif
