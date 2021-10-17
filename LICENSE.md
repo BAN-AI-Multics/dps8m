@@ -680,7 +680,7 @@ SOFTWARE.
   *Google, LLC*, and distributed under the terms of the
   **Apache License, Version 2.0**.
 
-  * **TCMalloc** is Copyright © 2019-2021 *The TCMalloc Authors*.
+  * **TCMalloc** is Copyright © 2005-2021 *The TCMalloc Authors*.
 
   * Unless required by applicable law or agreed to in writing, software
     distributed under the **Apache License, Version 2.0** is distributed on an
