@@ -1216,7 +1216,6 @@ Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS, TCMalloc:
     - *scriptExtraInfo
     - eatmydata bash -x -c 'export IBMXLMASSVER="latest-9" export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections -mveclibabi=mass -Ofast" LIBS="-L/opt/at${IBMATVER:?}/lib64 -L/opt/ibm/xlmass/${IBMXLMASSVER:?}/lib -ltcmalloc -luv -lmassvp9 -lmass_simdp9 -lmass -ldl -lrt -lm" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - eatmydata bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
   dependencies: []
