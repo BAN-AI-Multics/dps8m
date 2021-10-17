@@ -4566,7 +4566,8 @@ if (flag) {
 #endif
 #if defined (__linux__) && ( !defined(_AIX) || !defined(PASE) )
     fprintf (st, "\n  Compiler: IBM XL C/C++ for Linux V%s", __xlc__);
-#else
+#endif
+#if ( !defined(_AIX) && !defined(__clang_version__) && !defined(PASE) && !defined(__linux__) && defined(__xlc__) )
     fprintf (st, "\n  Compiler: IBM XL C/C++ V%s", __xlc__);
 #endif
 #elif defined (__SUNPRO_C) || defined (__SUNPRO_CC) || defined (__SUNPRO_CC_COMPAT)
