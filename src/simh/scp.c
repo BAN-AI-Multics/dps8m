@@ -4572,7 +4572,7 @@ if (flag) {
 #endif
 #elif defined (__SUNPRO_C) || defined (__SUNPRO_CC) || defined (__SUNPRO_CC_COMPAT)
     fprintf (st, "\n  Compiler: Oracle Developer Studio C/C++");
-#elif defined defined (__DMC__)
+#elif defined (__DMC__)
     fprintf (st, "\n  Compiler: Digital Mars C/C++");
 #elif defined (__PCC__)
     fprintf (st, "\n  Compiler: Portable C Compiler");
