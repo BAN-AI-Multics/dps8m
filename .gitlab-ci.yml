@@ -939,17 +939,16 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
     - Sun-CC
     - amd64
     - Linux-Shell
+    - jhj-brshpc0
   script:
     - export GLCICD_JOB="SunCCLinuxX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - | # Initialize environment
-      pkill suncc > /dev/null 2>&1 || true
+    - pkill suncc > /dev/null 2>&1 || true
     - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 45 ; export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -DUSE_FLOCK" && make CC="ccache /opt/oracle/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -fd -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -native -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")" SUNPRO=1 V=1 NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") 2>&1 | grep --line-buffered -v -e ": not parallelized" -e "warning: enumerator value overflows INT_MAX" ; exit "${?}"'
-    - | # Clean-up environment
-      pkill suncc > /dev/null 2>&1 || true
+    - pkill suncc > /dev/null 2>&1 || true
     - eatmydata sh -x -c 'printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
