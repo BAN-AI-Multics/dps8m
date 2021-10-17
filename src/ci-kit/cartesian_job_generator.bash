@@ -13,7 +13,7 @@
 ############################################################################
 { test -z "${COMPILER:-}" && { export COMPILER="ccache gcc" || exit 1; }; };
 BLDFILE=$(mktemp 2> /dev/null) ||                                          \
-  { printf '%s\n' "Error: Couldn't create build tempfile." >&2 ; exit 1 ; };
+  { printf '%s\n' "Error: Couldn't create build tempfile."  >&2; exit 1 ; };
 MAKFILE=$(mktemp 2> /dev/null) ||                                          \
   { printf '%s\n' "Error: Couldn't create script tempfile." >&2; exit 1 ; };
 # shellcheck disable=SC2064                                                #
@@ -48,7 +48,7 @@ printf '%s\n' "  done | sed -e 's/^ \\+//g' -e 's/ \$//g'                  \
                    | sort -u)"                             >> "${BLDFILE:?}"
 printf '%s\n' "printf '%s\\n' \"\${CTLS:?}\" | \\"         >> "${BLDFILE:?}"
 printf '%s\n' "awk '{ print \"make ${JFLAGS:-} CC=\\\"${COMPILER:?}\\\"    \
-                 \"\$0\" && printf '%s\\n' \"\" |                          \
+                 \"\$0\" && printf '%s\\n' \"SHOW VERSION\" |              \
                    ./src/dps8/dps8 && make distclean && \\\\\"} END        \
                        { print \"true\" }'"                >> "${BLDFILE:?}"
 printf '%s' "Generating build script ..."                                >&2
