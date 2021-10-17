@@ -939,7 +939,7 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
     - Sun-CC
     - amd64
     - Linux-Shell
-    - jhj-brshpc0
+    - POSIX
   script:
     - export GLCICD_JOB="SunCCLinuxX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptSanity
