@@ -309,13 +309,13 @@ int GLOBAL_GREEN_BAR;
  }
 /* ============================================================================================================================== */
  void printme_top(){
-        char IMPACT_TOP[256];
         char *varname;
-        float charwidth;
-        float xvalue;
-        float yvalue;
-        float text_size=20.0;
-        if( (varname=getenv("IMPACT_TOP")) != (char *)NULL ){
+        if( (varname=getenv("IMPACT_TOP")) != (char *)NULL ) {
+           char IMPACT_TOP[256];
+           float text_size=20.0;
+           float charwidth;
+           float xvalue;
+           float yvalue;
            strncpy(IMPACT_TOP,varname,255);
            charwidth=text_size*0.60; /* assuming fixed-space font Courier-Bold */
            fprintf(stdout,"1.0 0.0 0.0 rg\n"); /* gray-scale value */
@@ -333,7 +333,6 @@ int GLOBAL_GREEN_BAR;
  }
 /* ============================================================================================================================== */
  void print_margin_label(){
-     char  line[80];
      float charwidth;
      float start;
      int hold;
@@ -354,9 +353,9 @@ int GLOBAL_GREEN_BAR;
         printme(start,GLOBAL_PAGE_MARGIN_BOTTOM-GLOBAL_TITLE_SIZE,GLOBAL_CENTER_TITLE);
      }
 
-     if(GLOBAL_PAGES != 0 ){
-        /* assuming fixed-space font Courier-Bold */
-        charwidth=GLOBAL_TITLE_SIZE*0.60;
+     if(GLOBAL_PAGES != 0 ) {
+        char line[80];
+        charwidth=GLOBAL_TITLE_SIZE*0.60; /* assuming fixed-space font Courier-Bold */
         sprintf(line,"Page %4d",GLOBAL_PAGECOUNT);
         start=((GLOBAL_PAGE_WIDTH-GLOBAL_PAGE_MARGIN_RIGHT)-(strlen(line)*charwidth)); /* Right Justified */
         printme(start,GLOBAL_PAGE_DEPTH-GLOBAL_PAGE_MARGIN_TOP+0.12*GLOBAL_TITLE_SIZE,line);
@@ -449,9 +448,8 @@ void do_text ()
 
 printline:
         GLOBAL_LINECOUNT ++;
-
-        black=0;
         GLOBAL_ADD=0;
+        black=0;
 
 #if 0
         /* +1 for roundoff , using floating point point units */
@@ -476,10 +474,6 @@ printline:
               }
           }
         GLOBAL_YPOS -= GLOBAL_LEAD_SIZE;
-        if(black != 0)
-          {
-            fprintf(stdout,"0.0 0.0 0.0 rg\n"); /* black text */
-          }
         i = GLOBAL_SHIFT;
       }
 #if 0
@@ -818,7 +812,7 @@ int main(int argc, char **argv) {
 
    char *varname;
 
-       int index;
+       int prindex;
        int c;
    GLOBAL_PAGE_DEPTH =        612.0;
    GLOBAL_PAGE_WIDTH =        792.0;      /* Default is 72 points per inch */
@@ -941,8 +935,8 @@ int main(int argc, char **argv) {
               GLOBAL_SHADE_STEP=1;
    }
 
-   for (index = optind; index < argc; index++){
-      fprintf (stderr,"Non-option argument %s\n", argv[index]);
+   for (prindex = optind; prindex < argc; prindex++){
+      fprintf (stderr,"Non-option argument %s\n", argv[prindex]);
    }
    dopages();
    exit(0);
