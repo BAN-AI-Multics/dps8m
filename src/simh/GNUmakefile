@@ -25,9 +25,13 @@ endif
 
 ###############################################################################
 
+ifndef SUNPRO
+ifndef SUNLINT
 ifneq ($(W),)
   CFLAGS += -Wno-array-bounds -Wno-pointer-bool-conversion                    \
             -Wno-unknown-warning-option
+endif
+endif
 endif
 
 ###############################################################################
@@ -48,8 +52,12 @@ OBJS = scp.o       sim_console.o  sim_disk.o   sim_fio.o   sim_serial.o       \
 
 ###############################################################################
 
+ifndef SUNPRO
+ifndef SUNLINT
 ifneq ($(W),)
   CFLAGS += -Wno-array-bounds -Wno-unevaluated-expression
+endif
+endif
 endif
 
 ###############################################################################

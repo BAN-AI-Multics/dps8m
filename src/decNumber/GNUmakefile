@@ -34,8 +34,12 @@ OBJS = decContext.o decNumber.o
 
 ###############################################################################
 
+ifndef SUNPRO
+ifndef SUNLINT
 CFLAGS += -Wall -Wextra -Wno-uninitialized  -Wno-stringop-overflow            \
           -Wpedantic -Wno-stringop-overread -Wno-unknown-warning-option
+endif
+endif
 
 ###############################################################################
 

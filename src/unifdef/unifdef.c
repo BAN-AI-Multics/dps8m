@@ -429,7 +429,15 @@ main(int argc, char *argv[])
 
   default:
     abort();  /* bug */
+    /*NOTREACHED*/
+#ifndef __SUNPRO_C
+#ifndef __SUNPRO_CC
+#ifndef __SUNPRO_CC_COMPAT
     exit(3);  /* unreachable */
+#endif
+#endif
+#endif
+    /*NOTREACHED*/
   }
 }
 

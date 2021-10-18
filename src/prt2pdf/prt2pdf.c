@@ -914,10 +914,26 @@ int main(int argc, char **argv) {
              }
              showhelp(2);
              exit(1);
+             /*NOTREACHED*/
+#ifndef __SUNPRO_C
+#ifndef __SUNPRO_CC
+#ifndef __SUNPRO_CC_COMPAT
              return 1;
-
+#endif
+#endif
+#endif
+             /*NOTREACHED*/
            default:
              abort ();
+             /*NOTREACHED*/
+#ifndef __SUNPRO_C
+#ifndef __SUNPRO_CC
+#ifndef __SUNPRO_CC_COMPAT
+             return 1;
+#endif
+#endif
+#endif
+             /*NOTREACHED*/
            }
 
            if(GLOBAL_SHADE_STEP < 1 ){

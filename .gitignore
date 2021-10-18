@@ -73,6 +73,10 @@ l68.state
 *.Z
 *.d.*
 
+# Lint
+lint.txt
+*.i
+
 # Vim
 *.*.swp
 

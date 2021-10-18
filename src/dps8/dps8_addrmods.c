@@ -698,7 +698,15 @@ startCA:;
                       }
                   }
                 // fall through to TM_R
+#ifndef __SUNPRO_C
+#ifndef __SUNPRO_CC
+#ifndef __SUNPRO_CC_COMPAT
+                /*FALLTHRU*/
                 __attribute__ ((fallthrough));
+                /*FALLTHRU*/
+#endif
+#endif
+#endif
               } // TM_IT
 
             case TM_R:

@@ -1771,7 +1771,7 @@ Linux/x86_64, Void musl, mimalloc, static:
 
 ############################################################################
 
-Solaris/x86_64, Oracle Solaris 11.4:
+Solaris/x86_64, Oracle Solaris 11.4, GCC:
   stage: build
   tags:
     - Solaris
@@ -1795,6 +1795,37 @@ Solaris/x86_64, Oracle Solaris 11.4:
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
+  stage: build
+  tags:
+    - Solaris
+    - SunOS
+    - amd64
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS" && gmake CC="/opt/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(psrinfo -p 2> /dev/null || printf %s\\n "4")" --output-sync --print-directory -k SUNPRO=1 NEED_128=1 -j $(psrinfo -p 2> /dev/null || printf %s\\n "4") 2>&1 | grep -v " not parallelized" | grep -v " enumerator value overflows INT_MAX"; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - lzip -9vk < /opt/developerstudio-latest/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/libstatomic.so.1.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true

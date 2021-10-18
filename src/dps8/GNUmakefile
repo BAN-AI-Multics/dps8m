@@ -543,6 +543,7 @@ clean:
 	@$(SETV); $(RMF)  "sysdefs.h"                      ||  $(TRUE)
 	@$(SETV); $(RMF)  "useddef.txt"                    ||  $(TRUE)
 	@$(SETV); $(RMF)  "amd_memcpy.o"                   ||  $(TRUE)
+	@$(SETV); $(RMF)  "../amd_memcpy.o"                ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../amd_memcopy.o"            ||  $(TRUE)
 
 ###############################################################################
@@ -554,8 +555,9 @@ endif
 clean_dps8:
 	@$(PRINTF) '%s\n' "CLEAN: dps8"
 	@$(SETV); $(RMF) $(OBJS) $(C_DEPS) $(EXECUTABLES) "dps8$(EXE)"            \
-        "tags" "TAGS" $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*))      \
-            "dps8.exe" "errnos.h" "udplib.exe" "udplib" "tracker.o" || $(TRUE)
+      "tags" "TAGS" $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*))        \
+        "dps8.exe" "errnos.h" "udplib.exe" "udplib" "tracker.o" "dump.[icd]"  \
+          || $(TRUE)
 
 ###############################################################################
 
