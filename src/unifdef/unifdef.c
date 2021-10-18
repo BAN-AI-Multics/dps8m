@@ -1723,8 +1723,6 @@ skiphash(void)
 static const char *
 skipline(const char *cp)
 {
-  const char *pcp;
-
   if (*cp != '\0')
   {
     linestate = LS_DIRTY;
@@ -1732,6 +1730,7 @@ skipline(const char *cp)
 
   while (*cp != '\0')
   {
+    const char *pcp;
     cp = skipcomment(pcp = cp);
     if (pcp == cp)
     {
