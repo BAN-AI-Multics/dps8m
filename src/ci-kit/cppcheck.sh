@@ -3,22 +3,22 @@
 set -eu
 
 test -d "./.git" || {
-  printf "Error: Not in top-level git repository."
+  printf '%s\n' "Error: Not in top-level git repository."
   exit 1
 }
 
 MAKE="command -p env make"
-CPPCHECK="env cppcheck"
+CPPCHECK="cppcheck"
 CPPCHECKS="warning,style,performance,portability,information"
-CPPDEFINE="-DDECNUMDIGITS=126 -U__VERSION__ -D_GNU_SOURCE -DDECBUFFER=32        \
-           -U_WIN32 -U__STRICT_POSIX__ -Dint32_t=int32 -DUSE_POPT -DNEED_128=1  \
-           -DCPPCHECK=1 -U__MINGW64__ -U__MINGW32__ -UVMS -U__VAX               \
-           -U__USE_POSIX199309 -UCROSS_MINGW32 -UCROSS_MINGW64 -DPRIo64=\"llo\" \
-           -DPRId64=\"lld\" -DPRIu64=\"llu\" -U__OPEN64__ -U_MSC_FULL_VER       \
-           -U_MSC_BUILD -UVER_H_GIT_HASH -UVER_H_GIT_PATCH -UVER_H_GIT_VERSION  \
-           -DBUILDINFO_scp=\"CPPCHECK\" -USYSDEFS_USED -UVER_H_GIT_DATE         \
-           -UVER_H_PREP_DATE -UVER_H_PREP_USER -U__WATCOMC__  -USIM_COMPILER    \
-           -UVER_CURRENT_TIME -U__DECC -U__DECC_VER"
+CPPDEFINE='-DDECNUMDIGITS=126 -U__VERSION__ -D_GNU_SOURCE -DDECBUFFER=32
+           -U_WIN32 -U__STRICT_POSIX__ -Dint32_t=int32 -DUSE_POPT -DNEED_128=1
+           -DCPPCHECK=1 -U__MINGW64__ -U__MINGW32__ -UVMS -U__VAX
+           -U__USE_POSIX199309 -UCROSS_MINGW32 -UCROSS_MINGW64 -DPRIo64="llo"
+           -DPRId64="lld" -DPRIu64="llu" -U__OPEN64__ -U_MSC_FULL_VER
+           -U_MSC_BUILD -UVER_H_GIT_HASH -UVER_H_GIT_PATCH -UVER_H_GIT_VERSION
+           -DBUILDINFO_scp="CPPCHECK" -USYSDEFS_USED -UVER_H_GIT_DATE
+           -UVER_H_PREP_DATE -UVER_H_PREP_USER -U__WATCOMC__  -USIM_COMPILER
+           -UVER_CURRENT_TIME -U__DECC -U__DECC_VER'
 COMPILERS="gcc clang"
 QUIET="--suppress=shadowArgument --suppress=shadowVariable \
        --suppress=shadowFunction --suppress=ConfigurationNotChecked"
@@ -144,7 +144,7 @@ do_cppcheck()
   set -e
   title_line "${unit:?}"
   # shellcheck disable=SC2086,SC2248
-  ${CPPCHECK:?} ${EXTRA:-} -j "$(count_cpus)"                  \
+  eval ${CPPCHECK:?} ${EXTRA:-} -j "$(count_cpus)"             \
     --enable="${CPPCHECKS:?}" --force -UBUILDINFO_"${unit:?}"  \
     ${CPPDEFINE:?} ${includes:?} ${infiles:?} ${EXTRA:-}       \
     --file-filter="./src/*" --inline-suppr --max-ctu-depth=8   \
