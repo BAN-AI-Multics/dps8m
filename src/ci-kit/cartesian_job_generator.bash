@@ -11,6 +11,7 @@
 ############################################################################
 # Requires: Modern GNU tools such as make, coreutils, bash, awk, sed, etc. #
 ############################################################################
+{ test -d "./src/dps8" || { printf '%s\n' "Error: No sources"; exit 1; }; };
 { test -z "${COMPILER:-}" && { export COMPILER="ccache gcc" || exit 1; }; };
 BLDFILE=$(mktemp 2> /dev/null) ||                                          \
   { printf '%s\n' "Error: Couldn't create build tempfile."  >&2; exit 1 ; };
