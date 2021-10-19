@@ -162,7 +162,7 @@ do_cppcheck()
   set +e
   cd src/dps8 &&
   ${MAKE:?} clean -j "$(count_cpus)" > /dev/null 2>&1 &&
-  ${MAKE:?} "ver.h" -j "$(count_cpus)" > /dev/null 2>&1
+  ${MAKE:?} "ver.h" "errnos.h" -j "$(count_cpus)" > /dev/null 2>&1
 ) || {
     printf '%s\n' "Error: Unable to prep source tree."
     set -e
