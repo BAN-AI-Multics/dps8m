@@ -24,6 +24,7 @@
   * [TCMalloc](#tcmalloc)
   * [musl](#musl)
   * [IBM Advance Toolchain](#ibm-advance-toolchain)
+  * [Fair CPU Dispatch](#fair-cpu-dispatch)
   * [Multics Software Materials and Documentation](#multics-software-materials-and-documentation)
 - [Scope of Intended Application](#scope-of-intended-application)
 - [Disclaimer of Liability and Endorsement](#disclaimer-of-liability-and-endorsement)
@@ -129,7 +130,7 @@ property of their respective owners.
 Copyright (c) 2015-present libuv project contributors.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to
+of this software and associated documentation files (the “Software”), to
 deal in the Software without restriction, including without limitation the
 rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 sell copies of the Software, and to permit persons to whom the Software is
@@ -138,7 +139,7 @@ furnished to do so, subject to the following conditions:
   * The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -628,7 +629,7 @@ modification, are permitted provided that the following conditions are met:
     may be used to endorse or promote products derived from this software
     without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
@@ -654,7 +655,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Copyright (c) 2018-2021 Microsoft Corporation, Daan Leijen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
+of this software and associated documentation files (the “Software”), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
@@ -663,7 +664,7 @@ furnished to do so, subject to the following conditions:
   * The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -684,7 +685,7 @@ SOFTWARE.
 
   * Unless required by applicable law or agreed to in writing, software
     distributed under the **Apache License, Version 2.0** is distributed on an
-    "**AS IS**" **BASIS**, **WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**,
+    “**AS IS**” **BASIS**, **WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**,
     either express or implied.
 
 ```text
@@ -696,38 +697,38 @@ SOFTWARE.
 
    1. Definitions.
 
-      "License" shall mean the terms and conditions for use, reproduction,
+      “License” shall mean the terms and conditions for use, reproduction,
       and distribution as defined by Sections 1 through 9 of this document.
 
-      "Licensor" shall mean the copyright owner or entity authorized by
+      “Licensor” shall mean the copyright owner or entity authorized by
       the copyright owner that is granting the License.
 
-      "Legal Entity" shall mean the union of the acting entity and all
+      “Legal Entity” shall mean the union of the acting entity and all
       other entities that control, are controlled by, or are under common
       control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
+      “control” means (i) the power, direct or indirect, to cause the
       direction or management of such entity, whether by contract or
       otherwise, or (ii) ownership of fifty percent (50%) or more of the
       outstanding shares, or (iii) beneficial ownership of such entity.
 
-      "You" (or "Your") shall mean an individual or Legal Entity
+      “You” (or “Your”) shall mean an individual or Legal Entity
       exercising permissions granted by this License.
 
-      "Source" form shall mean the preferred form for making modifications,
+      “Source” form shall mean the preferred form for making modifications,
       including but not limited to software source code, documentation
       source, and configuration files.
 
-      "Object" form shall mean any form resulting from mechanical
+      “Object” form shall mean any form resulting from mechanical
       transformation or translation of a Source form, including but
       not limited to compiled object code, generated documentation,
       and conversions to other media types.
 
-      "Work" shall mean the work of authorship, whether in Source or
+      “Work” shall mean the work of authorship, whether in Source or
       Object form, made available under the License, as indicated by a
       copyright notice that is included in or attached to the work
       (an example is provided in the Appendix below).
 
-      "Derivative Works" shall mean any work, whether in Source or Object
+      “Derivative Works” shall mean any work, whether in Source or Object
       form, that is based on (or derived from) the Work and for which the
       editorial revisions, annotations, elaborations, or other modifications
       represent, as a whole, an original work of authorship. For the purposes
@@ -735,21 +736,21 @@ SOFTWARE.
       separable from, or merely link (or bind by name) to the interfaces of,
       the Work and Derivative Works thereof.
 
-      "Contribution" shall mean any work of authorship, including
+      “Contribution” shall mean any work of authorship, including
       the original version of the Work and any modifications or additions
       to that Work or Derivative Works thereof, that is intentionally
       submitted to Licensor for inclusion in the Work by the copyright owner
       or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
+      the copyright owner. For the purposes of this definition, “submitted”
       means any form of electronic, verbal, or written communication sent
       to the Licensor or its representatives, including but not limited to
       communication on electronic mailing lists, source code control systems,
       and issue tracking systems that are managed by, or on behalf of, the
       Licensor for the purpose of discussing and improving the Work, but
       excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
+      designated in writing by the copyright owner as “Not a Contribution.”
 
-      "Contributor" shall mean Licensor and any individual or Legal Entity
+      “Contributor” shall mean Licensor and any individual or Legal Entity
       on behalf of whom a Contribution has been received by Licensor and
       subsequently incorporated within the Work.
 
@@ -793,7 +794,7 @@ SOFTWARE.
           excluding those notices that do not pertain to any part of
           the Derivative Works; and
 
-      (d) If the Work includes a "NOTICE" text file as part of its
+      (d) If the Work includes a “NOTICE” text file as part of its
           distribution, then any Derivative Works that You distribute must
           include a readable copy of the attribution notices contained
           within such NOTICE file, excluding those notices that do not
@@ -832,7 +833,7 @@ SOFTWARE.
 
    7. Disclaimer of Warranty. Unless required by applicable law or
       agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
+      Contributor provides its Contributions) on an “AS IS” BASIS,
       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
       implied, including, without limitation, any warranties or conditions
       of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
@@ -873,7 +874,7 @@ SOFTWARE.
 * **musl** is a lightweight and standards conforming implementation of the C
   standard library, which includes the interfaces defined in the base language
   standard, POSIX™, and widely agreed-upon extensions. It was written by
-  Rich "*dalias*" Felker and other contributors, and is distributed under the
+  Rich “*dalias*” Felker and other contributors, and is distributed under the
   terms of the **MIT License**.
 
 ```text
@@ -881,7 +882,7 @@ Copyright (c) 2005-2020 Rich Felker, et al.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
+“Software”), to deal in the Software without restriction, including
 without limitation the rights to use, copy, modify, merge, publish,
 distribute, sublicense, and/or sell copies of the Software, and to
 permit persons to whom the Software is furnished to do so, subject to
@@ -890,7 +891,7 @@ the following conditions:
   * The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
@@ -916,7 +917,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
   * Unless required by applicable law or agreed to in writing, software
     distributed under the **Apache License, Version 2.0** is distributed on an
-    "**AS IS**" **BASIS**, **WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**,
+    “**AS IS**” **BASIS**, **WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**,
     either express or implied.
 
   * The **IBM Advance Toolchain** may incorporate, adapt, or utilize software
@@ -935,38 +936,38 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
    1. Definitions.
 
-      "License" shall mean the terms and conditions for use, reproduction,
+      “License” shall mean the terms and conditions for use, reproduction,
       and distribution as defined by Sections 1 through 9 of this document.
 
-      "Licensor" shall mean the copyright owner or entity authorized by
+      “Licensor” shall mean the copyright owner or entity authorized by
       the copyright owner that is granting the License.
 
-      "Legal Entity" shall mean the union of the acting entity and all
+      “Legal Entity” shall mean the union of the acting entity and all
       other entities that control, are controlled by, or are under common
       control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
+      “control” means (i) the power, direct or indirect, to cause the
       direction or management of such entity, whether by contract or
       otherwise, or (ii) ownership of fifty percent (50%) or more of the
       outstanding shares, or (iii) beneficial ownership of such entity.
 
-      "You" (or "Your") shall mean an individual or Legal Entity
+      “You” (or “Your”) shall mean an individual or Legal Entity
       exercising permissions granted by this License.
 
-      "Source" form shall mean the preferred form for making modifications,
+      “Source” form shall mean the preferred form for making modifications,
       including but not limited to software source code, documentation
       source, and configuration files.
 
-      "Object" form shall mean any form resulting from mechanical
+      “Object” form shall mean any form resulting from mechanical
       transformation or translation of a Source form, including but
       not limited to compiled object code, generated documentation,
       and conversions to other media types.
 
-      "Work" shall mean the work of authorship, whether in Source or
+      “Work” shall mean the work of authorship, whether in Source or
       Object form, made available under the License, as indicated by a
       copyright notice that is included in or attached to the work
       (an example is provided in the Appendix below).
 
-      "Derivative Works" shall mean any work, whether in Source or Object
+      “Derivative Works” shall mean any work, whether in Source or Object
       form, that is based on (or derived from) the Work and for which the
       editorial revisions, annotations, elaborations, or other modifications
       represent, as a whole, an original work of authorship. For the purposes
@@ -974,21 +975,21 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       separable from, or merely link (or bind by name) to the interfaces of,
       the Work and Derivative Works thereof.
 
-      "Contribution" shall mean any work of authorship, including
+      “Contribution” shall mean any work of authorship, including
       the original version of the Work and any modifications or additions
       to that Work or Derivative Works thereof, that is intentionally
       submitted to Licensor for inclusion in the Work by the copyright owner
       or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
+      the copyright owner. For the purposes of this definition, “submitted”
       means any form of electronic, verbal, or written communication sent
       to the Licensor or its representatives, including but not limited to
       communication on electronic mailing lists, source code control systems,
       and issue tracking systems that are managed by, or on behalf of, the
       Licensor for the purpose of discussing and improving the Work, but
       excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
+      designated in writing by the copyright owner as “Not a Contribution.”
 
-      "Contributor" shall mean Licensor and any individual or Legal Entity
+      “Contributor” shall mean Licensor and any individual or Legal Entity
       on behalf of whom a Contribution has been received by Licensor and
       subsequently incorporated within the Work.
 
@@ -1032,7 +1033,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           excluding those notices that do not pertain to any part of
           the Derivative Works; and
 
-      (d) If the Work includes a "NOTICE" text file as part of its
+      (d) If the Work includes a “NOTICE” text file as part of its
           distribution, then any Derivative Works that You distribute must
           include a readable copy of the attribution notices contained
           within such NOTICE file, excluding those notices that do not
@@ -1071,7 +1072,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
    7. Disclaimer of Warranty. Unless required by applicable law or
       agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
+      Contributor provides its Contributions) on an “AS IS” BASIS,
       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
       implied, including, without limitation, any warranties or conditions
       of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
@@ -1103,6 +1104,46 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       of your accepting any such warranty or additional liability.
 
    END OF TERMS AND CONDITIONS
+```
+
+----
+
+### Fair CPU Dispatch
+
+* **Fair CPU Dispatch** is a collection of routines which modify the behavior
+  of the Intel CPU feature dispatcher to the improve peformance and
+  compatibility of the Intel Math Kernel Library (MKL) and code generated by
+  the Intel C/C++ and DPC/DPC++ compilers on non-Intel processors. These
+  routines are derived from code provided by Agner Fog of the Technical
+  University of Denmark, and distributed under the terms of a
+  **2-clause BSD license**.
+
+```text
+Copyright (c) 2009-2019 Agner Fog
+Copyright (c) 2021 The DPS8M Development Team
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS “AS IS” AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
 ```
 
 ----

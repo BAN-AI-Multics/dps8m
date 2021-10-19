@@ -43,12 +43,14 @@ endif
 ###############################################################################
 
 C_SRCS = scp.c       sim_console.c  sim_disk.c   sim_fio.c   sim_serial.c     \
-         sim_sock.c  sim_tape.c     sim_timer.c  sim_tmxr.c  linehistory.c
+         sim_sock.c  sim_tape.c     sim_timer.c  sim_tmxr.c  linehistory.c    \
+         dispatch.c
 
 ###############################################################################
 
 OBJS = scp.o       sim_console.o  sim_disk.o   sim_fio.o   sim_serial.o       \
-       sim_sock.o  sim_tape.o     sim_timer.o  sim_tmxr.o  linehistory.o
+       sim_sock.o  sim_tape.o     sim_timer.o  sim_tmxr.o  linehistory.o      \
+       dispatch.o
 
 ###############################################################################
 
@@ -108,7 +110,9 @@ scp.o:         ../dps8/sysdefs.h
 scp.o:         ../decNumber/decContext.h
 scp.o:         ../decNumber/decNumberLocal.h
 scp.o:         linehistory.h
+scp.o:         dispatch.h
 linehistory.o: linehistory.h
+dispatch.o:    dispatch.h
 sim_console.o: sim_defs.h
 sim_console.o: scp.h sim_console.h sim_timer.h
 sim_console.o: sim_fio.h

@@ -66,6 +66,8 @@
 #include "../decNumber/decContext.h"
 #include "../decNumber/decNumberLocal.h"
 
+#include "dispatch.h"
+
 #ifndef MAX
 #define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
 #endif
@@ -1741,6 +1743,17 @@ if (argc == 0) {
     fprintf (stderr, "Error: main() called directly!\n");
     return 0;
 }
+
+/* patch intel dispatcher */
+#ifdef __DISPATCH_H_
+#if defined(__INTEL_COMPILER)       || \
+    defined(__INTEL_CLANG_COMPILER) || \
+    defined(__INTEL_LLVM_COMPILER)  || \
+    defined(INTEL_MKL_VERSION)      || \
+    defined(__INTEL_MKL__)
+(void)agner_compiler_patch();
+#endif
+#endif
 
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
