@@ -49,9 +49,14 @@
     !defined(__VMS)
 
 #if defined(__sun) && defined(__SVR4)
-#define __EXTENSIONS__
+#ifndef __EXTENSIONS__
+#define __EXTENSIONS__ 1
+#endif
 #endif
 #include <termios.h>
+#if defined(__sun) && defined(__SVR4)
+#include <sys/termiox.h>
+#endif
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
