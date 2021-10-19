@@ -46,9 +46,11 @@
     !defined(_MSC_VER)      && \
     !defined(_MSC_BUILD)    && \
     !defined(VMS)           && \
-    !defined(__VMS)         && \
-    !defined(__sun__)
+    !defined(__VMS)
 
+#if defined(__sun) && defined(__SVR4)
+#define __EXTENSIONS__
+#endif
 #include <termios.h>
 #include <unistd.h>
 #include <stdlib.h>
