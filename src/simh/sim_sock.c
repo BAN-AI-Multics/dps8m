@@ -62,51 +62,7 @@ extern "C" {
    sim_setnonblock      set socket non-blocking
 */
 
-/* First, all the non-implemented versions */
-
-#if defined (__OS2__) && !defined (__EMX__)
-
-void sim_init_sock (void)
-{
-}
-
-void sim_cleanup_sock (void)
-{
-}
-
-SOCKET sim_master_sock_ex (const char *hostport, int *parse_status, int opt_flags)
-{
-return INVALID_SOCKET;
-}
-
-SOCKET sim_connect_sock_ex (const char *sourcehostport, const char *hostport, const char *default_host, const char *default_port, int opt_flags)
-{
-return INVALID_SOCKET;
-}
-
-SOCKET sim_accept_conn (SOCKET master, char **connectaddr);
-{
-return INVALID_SOCKET;
-}
-
-int sim_read_sock (SOCKET sock, char *buf, int nbytes)
-{
-return -1;
-}
-
-int sim_write_sock (SOCKET sock, char *msg, int nbytes)
-{
-return 0;
-}
-
-void sim_close_sock (SOCKET sock)
-{
-return;
-}
-
-#else                                                   /* endif unimpl */
-
-/* UNIX, Win32, Macintosh, VMS, OS2 (Berkeley socket) routines */
+/* UNIX, Win32, VMS (Berkeley socket) routines */
 
 static struct sock_errors {
     int value;
@@ -761,16 +717,13 @@ if (fl == -1)
 sta = fcntl (sock, F_SETFL, fl | O_NONBLOCK);           /* set nonblock */
 if (sta == -1)
     return SOCKET_ERROR;
-#if !defined (macintosh) && !defined (__EMX__) && \
-    !defined (__HAIKU__)                                /* Unix only */
+#if !defined (__HAIKU__)                                /* Unix only */
 sta = fcntl (sock, F_SETOWN, getpid());                 /* set ownership */
 if (sta == -1)
     return SOCKET_ERROR;
 #endif
 return 0;
 }
-
-#endif                                                  /* endif !Win32 && !VMS */
 
 static int sim_setnodelay (SOCKET sock)
 {
@@ -1021,7 +974,7 @@ SOCKET sim_accept_conn_ex (SOCKET master, char **connectaddr, int opt_flags)
 {
 int sta = 0, err;
 int keepalive = 1;
-#if  defined (macintosh)  || defined (__linux)     || defined (__linux__) || \
+#if  defined (__linux)    || defined (__linux__) || \
      defined (__APPLE__)  || defined (__OpenBSD__) ||                        \
      defined (__NetBSD__) || defined (__FreeBSD__) ||                        \
    ( defined (__hpux)     && defined (_XOPEN_SOURCE_EXTENDED) ) ||           \
@@ -1087,7 +1040,7 @@ fd_set *rw_p = &rw_set;
 fd_set *er_p = &er_set;
 struct timeval zero;
 struct sockaddr_storage peername;
-#if defined (macintosh) || defined (__linux) || defined (__linux__) || \
+#if defined (__linux)   || defined (__linux__) || \
     defined (__APPLE__) || defined (__OpenBSD__) || \
     defined(__NetBSD__) || defined(__FreeBSD__) || \
     (defined(__hpux) && defined(_XOPEN_SOURCE_EXTENDED)) || \
@@ -1123,7 +1076,7 @@ return 0;
 
 static int _sim_getaddrname (struct sockaddr *addr, size_t addrsize, char *hostnamebuf, char *portnamebuf)
 {
-#if defined (macintosh) || defined (__linux) || defined (__linux__) || \
+#if defined (__linux)   || defined (__linux__) || \
     defined (__APPLE__) || defined (__OpenBSD__) || \
     defined(__NetBSD__) || defined(__FreeBSD__) || \
     (defined(__hpux) && defined(_XOPEN_SOURCE_EXTENDED)) || \
@@ -1149,7 +1102,7 @@ if (!ret)
     ret = p_getnameinfo(addr, size, NULL, 0, portnamebuf, NI_MAXSERV, NI_NUMERICSERV);
 #else
 strcpy(hostnamebuf, inet_ntoa(((struct sockaddr_in *)addr)->s_addr));
-sprintf(portnamebuf, "%d", (int)ntohs(((struct sockaddr_in *)addr)->s_port)));
+sprintf(portnamebuf, "%d", (int)ntohs(((struct sockaddr_in *)addr)->s_port));
 #endif
 return ret;
 }
@@ -1157,7 +1110,7 @@ return ret;
 int sim_getnames_sock (SOCKET sock, char **socknamebuf, char **peernamebuf)
 {
 struct sockaddr_storage sockname, peername;
-#if defined (macintosh) || defined (__linux) || defined (__linux__) || \
+#if defined (__linux) || defined (__linux__) || \
     defined (__APPLE__) || defined (__OpenBSD__) || \
     defined(__NetBSD__) || defined(__FreeBSD__) || \
     (defined(__hpux) && defined(_XOPEN_SOURCE_EXTENDED)) || \

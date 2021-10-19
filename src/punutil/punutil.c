@@ -654,7 +654,7 @@ static char search_glyph_patterns(uint8 *matrix)
     return ' ';
 }
 
-static char get_lace_char(static const word12 *buffer, uint char_pos)
+static char get_lace_char(const word12 *buffer, uint char_pos)
 {
     if (char_pos >= GLYPHS_PER_CARD)
     {

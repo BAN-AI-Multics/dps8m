@@ -419,6 +419,7 @@ int sim_set_fsize (FILE *fptr, t_addr size)
 return ftruncate(fileno(fptr), (off_t)size);
 }
 
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 

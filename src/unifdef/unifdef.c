@@ -433,6 +433,7 @@ main(int argc, char *argv[])
 #ifndef __SUNPRO_C
 #ifndef __SUNPRO_CC
 #ifndef __SUNPRO_CC_COMPAT
+    /* cppcheck-suppress unreachableCode */
     exit(3);  /* unreachable */
 #endif
 #endif

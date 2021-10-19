@@ -75,6 +75,8 @@ l68.state
 
 # Lint
 lint.txt
+cpplint.txt
+cppcheck.txt
 *.i
 
 # Vim

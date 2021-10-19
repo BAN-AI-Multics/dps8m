@@ -106,7 +106,7 @@ static t_stat sim_set_delay (int32 flag, CONST char *cptr);
 int32 sim_int_char = 005;                               /* interrupt character */
 int32 sim_brk_char = 000;                               /* break character */
 int32 sim_tt_pchar = 0x00002780;
-#if defined (_WIN32) || defined (__OS2__)
+#if defined (_WIN32)
 int32 sim_del_char = '\b';                              /* delete character */
 #else
 int32 sim_del_char = 0177;
@@ -2422,59 +2422,6 @@ if (c != 0177) {
 return SCPE_OK;
 }
 
-/* OS/2 routines, from Bruce Ray and Holger Veit */
-
-#elif defined (__OS2__)
-
-#include <conio.h>
-
-static t_stat sim_os_ttinit (void)
-{
-return SCPE_OK;
-}
-
-static t_stat sim_os_ttrun (void)
-{
-return SCPE_OK;
-}
-
-static t_stat sim_os_ttcmd (void)
-{
-return SCPE_OK;
-}
-
-static t_stat sim_os_ttclose (void)
-{
-return SCPE_OK;
-}
-
-static t_bool sim_os_ttisatty (void)
-{
-return 1;
-}
-
-static t_stat sim_os_poll_kbd (void)
-{
-int c;
-
-#if defined (__EMX__)
-switch (c = _read_kbd(0,0,0)) {                         /* EMX has _read_kbd */
-
-    case -1:                                            /* no char*/
-        return SCPE_OK;
-
-    case 0:                                             /* char pending */
-        c = _read_kbd(0,1,0);
-        break;
-
-    default:                                            /* got char */
-        break;
-        }
-#else
-if (!kbhit ())
-    return SCPE_OK;
-c = getch();
-#endif
 if ((c & 0177) == sim_del_char)
     c = 0177;
 if ((c & 0177) == sim_int_char)
@@ -2487,11 +2434,7 @@ return c | SCPE_KFLAG;
 static t_stat sim_os_putchar (int32 c)
 {
 if (c != 0177) {
-#if defined (__EMX__)
-    putchar (c);
-#else
     putch (c);
-#endif
     fflush (stdout);
     }
 return SCPE_OK;

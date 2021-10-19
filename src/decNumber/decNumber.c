@@ -6055,10 +6055,14 @@ decNumber * decCompareOp(decNumber *res, const decNumber *lhs,
 
     // If total ordering then handle differing signs 'up front'
     if (op==COMPTOTAL) {                // total ordering
+      /* cppcheck-suppress bitwiseOnBoolean */
+      /* cppcheck-suppress clarifyCondition */
       if (decNumberIsNegative(lhs) & !decNumberIsNegative(rhs)) {
         result=-1;
         break;
         }
+      /* cppcheck-suppress bitwiseOnBoolean */
+      /* cppcheck-suppress clarifyCondition */
       if (!decNumberIsNegative(lhs) & decNumberIsNegative(rhs)) {
         result=+1;
         break;
@@ -6148,6 +6152,7 @@ decNumber * decCompareOp(decNumber *res, const decNumber *lhs,
           if (slhs) result=-1;     // rhs is max
                else result=+1;     // lhs is max
           }
+         /* cppcheck-suppress knownConditionTrueFalse */
          else if (slhs && srhs) {  // both negative
           if (lhs->exponent<rhs->exponent) result=+1;
                                       else result=-1;

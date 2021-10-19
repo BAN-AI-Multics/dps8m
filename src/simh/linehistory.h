@@ -44,7 +44,6 @@
     !defined(_MSC_BUILD)    && \
     !defined(VMS)           && \
     !defined(__VMS)         && \
-    !defined(__OS2__)       && \
     !defined(__sun__)
 
 #ifndef HAVE_LINEHISTORY

@@ -424,7 +424,7 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
         telnet_event_t ev;
         struct telnet_environ_t *values = 0;
         char *c, *last, *out;
-        size_t index, count;
+        size_t eindex, count;
 
         /* if we have no data, just pass it through */
         if (size == 0) {
@@ -493,9 +493,9 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
         /* parse argument array strings */
         out = buffer;
         c = buffer + 1;
-        for (index = 0; index != count; ++index) {
+        for (eindex = 0; eindex != count; ++eindex) {
                 /* remember the variable type (will be VAR or USERVAR) */
-                values[index].type = (unsigned char) (*c++);
+                values[eindex].type = (unsigned char) (*c++);
 
                 /* scan until we find an end-marker, and buffer up unescaped
                  * bytes into our buffer */
@@ -518,8 +518,8 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
                 *out++ = '\0';
 
                 /* store the variable name we have just received */
-                values[index].var = last;
-                values[index].value = "";
+                values[eindex].var = last;
+                values[eindex].value = "";
 
                 /* if we got a value, find the next end marker and
                  * store the value; otherwise, store empty string */
@@ -543,7 +543,7 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
                         *out++ = '\0';
 
                         /* store the variable value */
-                        values[index].value = last;
+                        values[eindex].value = last;
                 }
         }
 
@@ -760,10 +760,10 @@ void telnet_free(telnet_t *telnet) {
 static telnet_error_t _buffer_byte(telnet_t *telnet,
                 unsigned char byte) {
         char *new_buffer;
-        size_t i;
 
         /* check if we're out of room */
         if (telnet->buffer_pos == telnet->buffer_size) {
+                size_t i;
                 /* find the next buffer size */
                 for (i = 0; i != _buffer_sizes_count; ++i) {
                         if (_buffer_sizes[i] == telnet->buffer_size) {
