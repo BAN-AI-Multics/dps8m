@@ -2422,6 +2422,12 @@ if (c != 0177) {
 return SCPE_OK;
 }
 
+static t_stat sim_os_poll_kbd (void)
+{
+int c;
+if (!kbhit ())
+    return SCPE_OK;
+c = getch();
 if ((c & 0177) == sim_del_char)
     c = 0177;
 if ((c & 0177) == sim_int_char)

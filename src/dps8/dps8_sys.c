@@ -3568,13 +3568,12 @@ static t_stat launch (int32 UNUSED arg, const char * buf)
      }
      addChild ((pid_t)pi.hProcess);
 #endif /* ifndef __OpenBSD__ */
-    return SCPE_OK;
-  }
 #endif /* ifndef CROSS_MINGW64 */
 #endif /* ifndef CROSS_MINGW32 */
 #endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
-
+    return SCPE_OK;
+  }
 #endif /* LAUNCH */
 
 #ifdef PANEL
