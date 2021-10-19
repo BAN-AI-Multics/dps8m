@@ -68,15 +68,8 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 //#define PANEL
 
 // Enable history debugger
-// NB. This has an large impact on ARM architectures, probably due to cache
-// misses.
+// NB. This has a large performance impact on 32-bit ARM architectures.
 //#define HDBG
-
-// XXX FixMe
-// history debugger wont build under XCode just yet.
-#ifdef __APPLE__
-#undef HDBG
-#endif
 
 // Enable round-robin multi-CPU
 //#define ROUND_ROBIN
