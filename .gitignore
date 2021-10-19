@@ -78,6 +78,7 @@ lint.txt
 cpplint.txt
 cppcheck.txt
 *.i
+.cppbdir
 
 # Vim
 *.*.swp

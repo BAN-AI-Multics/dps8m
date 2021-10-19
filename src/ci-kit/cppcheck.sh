@@ -1,19 +1,27 @@
 #!/usr/bin/env sh
 # Requires: GNU tools
-set -eu
 
 test -d "./.git" || {
   printf '%s\n' "Error: Not in top-level git repository."
   exit 1
 }
 
+test -d "./.cppbdir" || {
+  mkdir -p "./.cppbdir" || {
+    printf '%s\n' "Error: Unable to create .cppbdir dorectory."
+    exit 1
+  }
+}
+
+set -eu
+
 MAKE="command -p env make"
 CPPCHECK="cppcheck"
 CPPCHECKS="warning,style,performance,portability,information"
 CPPDEFINE='-DDECNUMDIGITS=126 -U__VERSION__ -D_GNU_SOURCE -DDECBUFFER=32
-           -U_WIN32 -U__STRICT_POSIX__ -Dint32_t=int32 -DUSE_POPT -DNEED_128=1
-           -DCPPCHECK=1 -U__MINGW64__ -U__MINGW32__ -UVMS -U__VAX
-           -U__USE_POSIX199309 -UCROSS_MINGW32 -UCROSS_MINGW64 -DPRIo64="llo"
+           -U__STRICT_POSIX__ -Dint32_t=int32 -DUSE_POPT -DNEED_128=1
+           -DCPPCHECK=1 -UVMS -U__VAX
+           -U__USE_POSIX199309 -DPRIo64="llo"
            -DPRId64="lld" -DPRIu64="llu" -U__OPEN64__ -U_MSC_FULL_VER
            -U_MSC_BUILD -UVER_H_GIT_HASH -UVER_H_GIT_PATCH -UVER_H_GIT_VERSION
            -DBUILDINFO_scp="CPPCHECK" -USYSDEFS_USED -UVER_H_GIT_DATE
@@ -22,7 +30,7 @@ CPPDEFINE='-DDECNUMDIGITS=126 -U__VERSION__ -D_GNU_SOURCE -DDECBUFFER=32
 COMPILERS="gcc clang"
 QUIET="--suppress=shadowArgument --suppress=shadowVariable \
        --suppress=shadowFunction --suppress=ConfigurationNotChecked"
-EXTRA="--inconclusive ${QUIET:-}"
+EXTRA="--cppcheck-build-dir=./.cppbdir --inconclusive ${QUIET:-}"
 
 count_cpus()
 {
