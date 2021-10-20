@@ -252,7 +252,7 @@ int udp_create (const char * premote, int * pln)
       return -3;
 
     rc = fcntl (sock, F_SETFL, fcntl (sock, F_GETFL, 0) | O_NONBLOCK);
-    if (sock == -1)
+    if (rc == -1)
       return -4;
 
     struct sockaddr_in si_me;
@@ -364,7 +364,7 @@ int udp_send (int link, uint16_t * pdata, uint16_t count, uint16_t flags)
         return -2;
       }
     //sim_debug(IMP_DBG_UDP, dptr, "link %d - packet sent (sequence=%d, length=%d)\n", link, ntohl(pkt.sequence), ntohs(pkt.count));
-printf ("link %d - packet sent (sequence=%d, length=%d)\n", link, ntohl (pkt . sequence), ntohs (pkt . count));
+printf ("link %d - packet sent (sequence=%u, length=%u)\n", link, ntohl (pkt . sequence), ntohs (pkt . count));
     return 0;
   }
 
