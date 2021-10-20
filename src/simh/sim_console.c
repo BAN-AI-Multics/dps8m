@@ -2422,33 +2422,9 @@ if (c != 0177) {
 return SCPE_OK;
 }
 
-static t_stat sim_os_poll_kbd (void)
-{
-int c;
-if (!kbhit ())
-    return SCPE_OK;
-c = getch();
-if ((c & 0177) == sim_del_char)
-    c = 0177;
-if ((c & 0177) == sim_int_char)
-    return SCPE_STOP;
-if (sim_brk_char && ((c & 0177) == sim_brk_char))
-    return SCPE_BREAK;
-return c | SCPE_KFLAG;
-}
-
-static t_stat sim_os_putchar (int32 c)
-{
-if (c != 0177) {
-    putch (c);
-    fflush (stdout);
-    }
-return SCPE_OK;
-}
-
-/* BSD UNIX routines */
-
 #elif defined (BSDTTY)
+
+/* BSD Routines */
 
 #include <sgtty.h>
 #include <fcntl.h>
