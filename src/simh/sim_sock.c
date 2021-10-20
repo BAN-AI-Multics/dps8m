@@ -62,7 +62,7 @@ extern "C" {
    sim_setnonblock      set socket non-blocking
 */
 
-/* UNIX, Win32, VMS (Berkeley socket) routines */
+/* UNIX/Windows/VMS (Berkeley socket) routines */
 
 static struct sock_errors {
     int value;
@@ -435,7 +435,6 @@ int load_ws2(void) {
   }
   return (lib_loaded == 1) ? 1 : 0;
 }
-#endif
 
 /* OS independent routines
 
@@ -725,6 +724,8 @@ if (sta == -1)
 return 0;
 }
 
+#endif                                                  /* endif !Win32 && !VMS */
+
 static int sim_setnodelay (SOCKET sock)
 {
 int nodelay = 1;
@@ -974,15 +975,15 @@ SOCKET sim_accept_conn_ex (SOCKET master, char **connectaddr, int opt_flags)
 {
 int sta = 0, err;
 int keepalive = 1;
-#if  defined (__linux)    || defined (__linux__) || \
-     defined (__APPLE__)  || defined (__OpenBSD__) ||                        \
-     defined (__NetBSD__) || defined (__FreeBSD__) ||                        \
-   ( defined (__hpux)     && defined (_XOPEN_SOURCE_EXTENDED) ) ||           \
-     defined (__HAIKU__)  || defined (_AIX)
+#if defined (__linux) || defined (__linux__) || \
+    defined (__APPLE__) || defined (__OpenBSD__) || \
+    defined(__NetBSD__) || defined(__FreeBSD__) || \
+    (defined(__hpux) && defined(_XOPEN_SOURCE_EXTENDED)) || \
+    defined (__HAIKU__)
 socklen_t size;
-#elif  defined (_WIN32)  || defined (__EMX__)    || \
-     ( defined (__ALPHA) && defined (__unix__) ) || \
-       defined (__hpux)
+#elif defined (_WIN32) || \
+     (defined (__ALPHA) && defined (__unix__)) || \
+     defined (__hpux)
 int size;
 #else
 size_t size;
@@ -1040,13 +1041,13 @@ fd_set *rw_p = &rw_set;
 fd_set *er_p = &er_set;
 struct timeval zero;
 struct sockaddr_storage peername;
-#if defined (__linux)   || defined (__linux__) || \
+#if defined (__linux) || defined (__linux__) || \
     defined (__APPLE__) || defined (__OpenBSD__) || \
     defined(__NetBSD__) || defined(__FreeBSD__) || \
     (defined(__hpux) && defined(_XOPEN_SOURCE_EXTENDED)) || \
     defined (__HAIKU__)
 socklen_t peernamesize = (socklen_t)sizeof(peername);
-#elif defined (_WIN32) || defined (__EMX__) || \
+#elif defined (_WIN32) || \
      (defined (__ALPHA) && defined (__unix__)) || \
      defined (__hpux)
 int peernamesize = (int)sizeof(peername);
@@ -1076,13 +1077,13 @@ return 0;
 
 static int _sim_getaddrname (struct sockaddr *addr, size_t addrsize, char *hostnamebuf, char *portnamebuf)
 {
-#if defined (__linux)   || defined (__linux__) || \
+#if defined (__linux) || defined (__linux__) || \
     defined (__APPLE__) || defined (__OpenBSD__) || \
     defined(__NetBSD__) || defined(__FreeBSD__) || \
     (defined(__hpux) && defined(_XOPEN_SOURCE_EXTENDED)) || \
     defined (__HAIKU__)
 socklen_t size = (socklen_t)addrsize;
-#elif defined (_WIN32) || defined (__EMX__) || \
+#elif defined (_WIN32) || \
      (defined (__ALPHA) && defined (__unix__)) || \
      defined (__hpux)
 int size = (int)addrsize;
@@ -1102,7 +1103,7 @@ if (!ret)
     ret = p_getnameinfo(addr, size, NULL, 0, portnamebuf, NI_MAXSERV, NI_NUMERICSERV);
 #else
 strcpy(hostnamebuf, inet_ntoa(((struct sockaddr_in *)addr)->s_addr));
-sprintf(portnamebuf, "%d", (int)ntohs(((struct sockaddr_in *)addr)->s_port));
+sprintf(portnamebuf, "%d", (int)ntohs(((struct sockaddr_in *)addr)->s_port)));
 #endif
 return ret;
 }
@@ -1117,7 +1118,7 @@ struct sockaddr_storage sockname, peername;
     defined (__HAIKU__)
 socklen_t socknamesize = (socklen_t)sizeof(sockname);
 socklen_t peernamesize = (socklen_t)sizeof(peername);
-#elif defined (_WIN32) || defined (__EMX__) || \
+#elif defined (_WIN32) || \
      (defined (__ALPHA) && defined (__unix__)) || \
      defined (__hpux)
 int socknamesize = (int)sizeof(sockname);
