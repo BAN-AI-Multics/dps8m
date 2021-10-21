@@ -148,10 +148,8 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 
 // debugging tool
 #ifdef TESTING
-#define IF1 if (current_running_cpu_idx && sim_deb)
 #define IFI if (cpu.switches.isolts_mode)
 #else
-#define IF1 if (0)
 #define IFI if (0)
 #endif
 
