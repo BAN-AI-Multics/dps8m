@@ -89,6 +89,8 @@ src/dps8/MR12.3/
 
 # Local
 GNUmakefile.local
+.autoenv
+.envrc
 
 # Common Targets
 all
