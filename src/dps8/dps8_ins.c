@@ -2168,6 +2168,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
               if (cpu.iefpFinalAddress != cpu.rmw_address)
                 sim_warn("executeInstruction: write addr changed %o %d\n", cpu.iefpFinalAddress, cpu.rmw_address);
               core_write_unlock (cpu.iefpFinalAddress, cpu.CY, __func__);
+              HDBGMWrite (cpu.iefpFinalAddress, cpu.CY, "Write RMW");
          }
         else
           writeOperands ();
