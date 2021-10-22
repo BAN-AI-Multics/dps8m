@@ -207,13 +207,22 @@ static DEBTAB opc_dt[] =
 
 static t_stat opc_svc (UNIT * unitp);
 
-UNIT opc_unit[N_OPC_UNITS_MAX] =
-  {
-    [0 ... N_OPC_UNITS_MAX - 1] =
-      {
-        UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
-      }
-  };
+UNIT opc_unit[N_OPC_UNITS_MAX] = {
+#ifdef NO_C_ELLIPSIS
+  { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL }
+#else
+  [0 ... N_OPC_UNITS_MAX - 1] = {
+    UDATA (& opc_svc, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
+  }
+#endif
+};
 
 DEVICE opc_dev = {
     "OPC",         /* name */
@@ -493,13 +502,22 @@ static int opc_autoinput_show (UNUSED FILE * st, UNIT * uptr,
 
 static t_stat console_attn (UNUSED UNIT * uptr);
 
-static UNIT attn_unit[N_OPC_UNITS_MAX] =
-  {
-    [0 ... N_OPC_UNITS_MAX - 1] =
-      {
-        UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
-      }
-  };
+static UNIT attn_unit[N_OPC_UNITS_MAX] = {
+#ifdef NO_C_ELLIPSIS
+  { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL }
+#else
+  [0 ... N_OPC_UNITS_MAX - 1] = {
+    UDATA (& console_attn, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
+  }
+#endif
+};
 
 static t_stat console_attn (UNUSED UNIT * uptr)
   {

@@ -559,11 +559,22 @@ scu_t scu [N_SCU_UNITS_MAX];
 
 #define N_SCU_UNITS 1 // Default
 
-static UNIT scu_unit [N_SCU_UNITS_MAX] =
-  {
-    [0 ... N_SCU_UNITS_MAX-1] =
-      { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL }
-  };
+static UNIT scu_unit [N_SCU_UNITS_MAX] = {
+#ifdef NO_C_ELLIPSIS
+  { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
+  { UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL }
+#else
+  [0 ... N_SCU_UNITS_MAX-1] = {
+    UDATA (NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL
+  }
+#endif
+};
 
 #define UNIT_NUM(uptr) ((uptr) - scu_unit)
 
