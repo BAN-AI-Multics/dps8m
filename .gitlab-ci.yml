@@ -901,6 +901,7 @@ Linux/x86_64, Fedora, Intel DPC++/C++:
 
 Linux/x86_64, Fedora, Intel C++:
   stage: build
+  when: manual
   tags:
     - Linux
     - Intel
