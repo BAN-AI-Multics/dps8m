@@ -1790,7 +1790,7 @@ static t_stat opc_set_console_pw (UNIT * uptr, UNUSED int32 value,
 
     if (cptr && (strlen(cptr) > 0))
       {
-        char token[strlen (cptr)];
+        char token[strlen (cptr)+1];
         int rc = sscanf (cptr, "%s", token);
         if (rc != 1)
           return SCPE_ARG;
