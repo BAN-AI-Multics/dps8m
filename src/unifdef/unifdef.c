@@ -37,6 +37,9 @@
  * carries a more liberal licence.
  */
 
+#include <stdlib.h>
+#include <getopt.h>
+
 #include "unifdef.h"
 
 static const char copyright[] =

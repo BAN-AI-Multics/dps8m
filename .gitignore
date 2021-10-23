@@ -10,6 +10,7 @@ a.out
 .cproject
 .project
 .settings/
+.vscode/
 
 # Tags
 tags
@@ -91,6 +92,10 @@ src/dps8/MR12.3/
 GNUmakefile.local
 .autoenv
 .envrc
+
+# CI/CD
+src/ci-kit/run
+src/ci-kit/dps8m
 
 # Common Targets
 all

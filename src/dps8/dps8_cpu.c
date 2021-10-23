@@ -2393,7 +2393,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                           fprintf (stderr, "%10lu %s stall %d\n", seqno (), cpunstr[current_running_cpu_idx], i);
 #endif
                           //sim_printf ("stall %2d %05o:%06o\n", i, stall_points[i].segno, stall_points[i].offset);
-                          //pthread_yield ();
+                          //sched_yield ();
                           usleep(stall_points[i].time);
                           break;
                         }

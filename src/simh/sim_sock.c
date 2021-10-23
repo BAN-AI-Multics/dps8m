@@ -1149,7 +1149,7 @@ if (!ret)
     ret = p_getnameinfo(addr, size, NULL, 0, portnamebuf, NI_MAXSERV, NI_NUMERICSERV);
 #else
 strcpy(hostnamebuf, inet_ntoa(((struct sockaddr_in *)addr)->s_addr));
-sprintf(portnamebuf, "%d", (int)ntohs(((struct sockaddr_in *)addr)->s_port)));
+sprintf(portnamebuf, "%d", (int)ntohs(((struct sockaddr_in *)addr)->s_port));
 #endif
 return ret;
 }
