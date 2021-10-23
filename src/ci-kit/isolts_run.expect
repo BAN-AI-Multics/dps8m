@@ -1,0 +1,307 @@
+#!/usr/bin/expect -f
+
+# Test ISOLTS regressions on DPS8M+WAM
+
+set word enterp
+set userName \*
+set projName HFED
+set password fed
+
+set timeout 200000
+
+
+
+
+
+proc w {} { expect  -re {\nr [0-9]+:[0-9]+ .*\r}; sleep .1}
+proc wi {} { expect  -re {Input.\r}; sleep .1}
+proc wn {} { expect  -re {\n}; sleep .1}
+proc sw { txt } { send $txt; send "\r"; w }
+proc swi { txt } { send $txt; send "\r"; wi }
+proc swn { txt } { send $txt; send "\r"; wn }
+proc wf {} { expect  -re {\nr  [0-9]+\r}; sleep .1}
+proc swf { txt } { send $txt; send "\r"; wf }
+
+
+spawn telnet localhost 9180
+#set telnetID $spawn_id
+
+expect -re {HSLA Port \(([abcd]\.h\d+)}
+puts " "
+set channel $expect_out(1,string)
+send "$channel\r"
+
+expect "Load = "
+send "l Repair -cpw\r"
+expect "Password:"
+send "repair\r"
+expect "New Password:"
+send "Repair\r"
+expect "New Password Again:"
+send "Repair\r"
+
+w
+sw "cwd >user_dir_dir>SysAdmin>a"
+
+
+send "ec master pmf HFED\r"
+expect "Edit."
+send "/Initproc/\r"
+expect "Initproc:"
+send "s/process_overseer_/tolts_overseer_/\r"
+swn "w"
+sw "q"
+
+sw "cwd"
+sw "ac x >ldd>tools>s>bound_tolts_.s isolts_.pl1"
+swn "qedx"
+swn "r isolts_.pl1"
+swn "/opr_com/"
+swn "d"
+swn "d"
+swn "w"
+sw "q"
+sw "pl1 -ot isolts_"
+sw "cp >ldd>tools>o>bound_tolts_.archive"
+sw "ac ud bound_tolts_ isolts_"
+sw "bind bound_tolts_"
+send ">user_dir_dir>SysAdmin>Repair>isolts_\r"
+
+expect "\\?\\?\\?"
+
+send "test cpu b\r"; sleep .1
+
+expect "options\\?"; sleep .1
+send "type\r"; sleep .1
+expect "options\\?"; sleep .1
+
+# There's a bug in pas.061 mme 161, which must be patched on L68:
+# 
+# *options?alter 071247
+# 
+# 071247 - 071262710000
+# -
+# 071256710000
+# 
+# This gets correct L68 WAM printouts and it also affects was-s/b comparisons. The tests don't hang with this and only a few errors remain. I think they were caused by unimplemented instruction prefetch so I left them outstanding.
+# 
+#send "alter 071247\r"; sleep .1
+#send "071256710000\r"; sleep 1
+#send "opt\r"; sleep .1
+#expect "options\\?"; sleep .1
+
+proc wo {} { expect "options\\?"; sleep 1 }
+proc t { tst } { send $tst; wo; send "\r"; wo;  }
+
+# 700 fails on l68
+t "tst700\r"
+#l68 t "tst701\r"
+t "tst702\r"
+#  703 ?
+#  704 ?
+t "tst705\r"
+#  706 ?
+#  707 ?
+#  708 ?
+#  709 ?
+t "tst710\r"
+#  711 ?
+#  712 ?
+#  713 ?
+#  714 ?
+t "tst715\r"
+t "tst716\r"
+t "tst717\r"
+#  718 ?
+#  719 ?
+t "tst720\r"
+t "tst721\r"
+t "tst722\r"
+#  723 ?
+#  724 ?
+t "tst725\r"
+#  726 ?
+#  727 ?
+#  728 ?
+#  729 ?
+t "tst730\r"
+#  730 ?
+#  731 ?
+#  732 ?
+#  733 ?
+t "tst734\r"
+t "tst735\r"
+t "tst736\r"
+t "tst737\r"
+#  738 ?
+t "tst739\r"
+t "tst740\r"
+#  741 ?
+#  742 ?
+#  743 ?
+#  744 ?
+t "tst745\r"
+#  746 ?
+#  747 ?
+#  748 ?
+#  749 ?
+t "tst750\r"
+#  751 ?
+#  752 ?
+#  753 ?
+#  754 ?
+t "tst755\r"
+#  756 ?
+#  757 ?
+#  758 ?
+#  759 ?
+t "tst760\r"
+#  761 ?
+t "tst762\r"
+t "tst763\r"
+t "tst764\r"
+#  765 ?
+t "tst766\r"
+#  767 ?
+t "tst768\r"
+t "tst769\r"
+t "tst770\r"
+# doesn't prompt
+#t "tst771\r"  # dps8 only
+#t "tst772\r"  # dps8 only
+#t "tst773\r"  # dps8 only
+#t "tst774\r"  # dps8 only
+#  775 ?
+#  776  fail
+#t "tst777\r"  # dps8 only
+#t "tst778\r"  # dps8 only
+#  779 ?
+#  781 ?
+#  782 ?
+#  783 ?
+#  784 ?
+#  785 fail
+#  786 ?
+#  787 ?
+#  788 ?
+t "tst789\r"
+#  790 ?
+t "tst791\r"
+t "tst792\r"
+#  793 ?
+#  794 ?
+#  795 ?
+#  796 ?
+#  797 ?
+#  798 ?
+#  799 ?
+t "tst800\r"
+#  801 ?
+#  802 ?
+#  803 ?
+#  804 ?
+t "tst805\r"
+#  806 ?
+#  807 ?
+t "tst808\r"
+#  809 ?
+# t "tst810\r" fail
+#  811 ?
+#  812 ?
+#  813 ?
+#  814 ?
+t "tst815\r"
+#  816 ?
+t "tst817\r"
+#  818 ?
+#  819 ?
+#  820 ?
+#  821 ?
+#  822 ?
+#  823 ?
+#  824 ?
+t "tst825\r"
+#  826 ?
+#  827 ?
+#  828 ?
+#  829 ?
+t "tst830\r"
+#  831 ?
+#  832 ?
+#  833 ?
+#  834 ?
+t "tst835\r"
+t "tst836\r"
+#  837 ?
+t "tst838\r"
+#  839 ?
+t "tst840\r"
+t "tst841\r"
+# t "tst842\r" # fail
+t "tst843\r"
+t "tst844\r"
+t "tst845\r"
+t "tst846\r"
+t "tst847\r"
+t "tst848\r"
+#t "tst849\r" # fail
+#  850 ?
+t "tst851\r"
+t "tst852\r"
+t "tst853\r"
+#  854 ?
+# t "tst855\r" # l68 only
+#  856 ?
+#  857 ?
+#  858 ?
+#  859 ?
+#  859 ?
+# t "tst860\r" # l68 only
+# t "tst861\r" # l68 only
+# t "tst862\r" # l68 only # fail
+# t "tst863\r" # l68 only # fail
+# t "tst864\r" # l68 only # fail
+# t "tst865\r" # fail
+# t "tst866\r" # dps8 only # fail
+# t "tst867\r" # dps8 only # fail
+# t "tst868\r" # dps8 only # fail
+#  869 ?
+#  870 ?
+# t "tst870\r" # fail
+#  871 ?
+#  872 ?
+#  873 ?
+#  874 ?
+t "tst875\r"
+#  876 ?
+#  877 ?
+t "tst878\r"
+#  878 ?
+t "tst880\r"
+#  881 ?
+#  882 ?
+#  883 ?
+#  884 ?
+#t "tst885\r" # fail
+#t "tst886\r" # fail
+#t "tst887\r" # fail
+#  888 ?
+#  889 ?
+#t "tst890\r" # fail
+#  891 ?
+#  892 ?
+#t "tst893\r" # fail
+#  894 - 904 ?
+#t "tst905\r" # fail
+t "tst940\r"
+#  941 ?
+#  942 ?
+#  943 ?
+#  944 ?
+#t "tst945\r" # fail
+#  946 - 954 ?
+#t "tst955\r" # fail
+
+sw "quit"
+send "logout\r"; sleep 1
+
