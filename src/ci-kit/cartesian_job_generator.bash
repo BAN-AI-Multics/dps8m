@@ -21,10 +21,8 @@ printf '%s\n' 'X="None"'                                   >> "${BLDFILE:?}"
 for option in                                                              \
        L68                                                                 \
        NO_LOCKLESS                                                         \
-       ISOLTS                                                              \
        TESTING                                                             \
        NEED_128                                                            \
-       WAM                                                                 \
        HDBG                                                                \
        ROUND_ROBIN                                                         \
        TRACKER                                                             \
