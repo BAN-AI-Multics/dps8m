@@ -118,6 +118,7 @@ static long hevtPtr = 0;
 static long hevtMark = 0;
 static long hdbgSegNum = -1;
 static bool blacklist[MAX18];
+static long hdbgCPUMask = 0;
 
 static void createBuffer (void) {
   if (hevents) {
@@ -154,6 +155,8 @@ static long hdbg_inc (void) {
   if (filter && hdbgSegNum >= 0 && hdbgSegNum != cpu.PPR.PSR) \
     goto done; \
   if (filter && hdbgSegNum > 0 && blacklist[cpu.PPR.IC]) \
+    goto done; \
+  if (hdbgCPUMask && (hdbgCPUMask & (1 << current_running_cpu_idx))) \
     goto done; \
   unsigned long p = hdbg_inc (); \
   hevents[p].type = t; \
@@ -640,6 +643,13 @@ void hdbg_mark (void) {
   hevtMark = hdbgSize;
   sim_printf ("hdbg mark set to %ld\n", hevtMark);
 }
+
+t_stat hdbg_cpu_mask (UNUSED int32 arg, const char * buf)
+  {
+    hdbgCPUMask = strtoul (buf, NULL, 0);
+    sim_printf ("hdbg CPU mask set to %ld\n", hdbgCPUMask);
+    return SCPE_OK;
+  }
 
 // set buffer size 
 t_stat hdbg_size (UNUSED int32 arg, const char * buf) {

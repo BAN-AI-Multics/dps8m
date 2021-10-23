@@ -401,7 +401,7 @@ static void scu2words (word36 *words)
     // Breaks ISOLTS 768
     //putbits36_1 (& words[4], 25, cpu.currentInstruction.stiTally);
 
-#ifdef ISOLTS
+//#ifdef ISOLTS
 //testing for ipr fault by attempting execution of
 //the illegal opcode  000   and bit 27 not set
 //in privileged-append-bar mode.
@@ -423,7 +423,7 @@ static void scu2words (word36 *words)
 //if (current_running_cpu_idx)
 //sim_printf ("cleared ABS\n");
 //}
-#endif
+//#endif
 
     // words[5]
 
@@ -454,8 +454,7 @@ static void scu2words (word36 *words)
     if_sim_debug (DBG_FAULT, & cpu_dev)
         dump_words (words);
 
-#ifdef ISOLTS
-    if (current_running_cpu_idx != 0)
+    if (cpu.switches.isolts_mode)
       {
         struct
         {
@@ -521,8 +520,6 @@ static void scu2words (word36 *words)
               }
           }
       }
-#endif
-
   }
 
 
@@ -686,14 +683,18 @@ static void du2words (word36 * words)
   {
     CPT (cpt2U, 7); // du2words
 
-#ifdef ISOLTS
-    for (int i = 0; i < 8; i ++)
+    if (cpu.switches.isolts_mode)
       {
-        words[i] = cpu.du.image[i];
+        for (int i = 0; i < 8; i ++)
+          {
+            words[i] = cpu.du.image[i];
+          }
       }
-#else
-    memset (words, 0, 8 * sizeof (* words));
-#endif
+    else
+      {
+        memset (words, 0, 8 * sizeof (* words));
+      }
+
     // Word 0
 
     putbits36_1  (& words[0],  9, cpu.du.Z);
@@ -702,9 +703,9 @@ static void du2words (word36 * words)
 
     // Word 1
 
-#ifdef ISOLTS
-    words[1] = words[0];
-#endif
+    if (cpu.switches.isolts_mode)
+      words[1] = words[0];
+
     // Word 2
 
     putbits36_18 (& words[2],  0, cpu.du.D1_PTR_W);
@@ -796,12 +797,13 @@ static void words2du (word36 * words)
 
     cpu.du.D3_RES   = getbits36_24 (words[7], 12);
 
-#ifdef ISOLTS
-    for (int i = 0; i < 8; i ++)
+    if (cpu.switches.isolts_mode)
       {
-        cpu.du.image[i] = words[i];
-      }
-#endif
+        for (int i = 0; i < 8; i ++)
+          {
+            cpu.du.image[i] = words[i];
+          }
+     }
   }
 
 static char *PRalias[] = {"ap", "ab", "bp", "bb", "lp", "lb", "sp", "sb" };
@@ -3878,15 +3880,10 @@ static t_stat doInstruction (void)
           cpu.Yblock8[4] = cpu.rA;
           cpu.Yblock8[5] = cpu.rQ;
           cpu.Yblock8[6] = ((word36)(cpu.rE & MASK8)) << 28;
-#ifdef ISOLTS
-          if (current_running_cpu_idx)
+          if (cpu.switches.isolts_mode)
             cpu.Yblock8[7] = (((-- cpu.shadowTR) & MASK27) << 9) | (cpu.rRALR & 07);
           else
             cpu.Yblock8[7] = ((cpu.rTR & MASK27) << 9) | (cpu.rRALR & 07);
-
-#else
-          cpu.Yblock8[7] = ((cpu.rTR & MASK27) << 9) | (cpu.rRALR & 07);
-#endif
           HDBGRegXR (0, "sreg");
           HDBGRegXR (1, "sreg");
           HDBGRegXR (2, "sreg");
@@ -4066,14 +4063,10 @@ static t_stat doInstruction (void)
 
         case x0 (0454):  // stt
           CPTUR (cptUseTR);
-#ifdef ISOLTS
-          if (current_running_cpu_idx)
+          if (cpu.switches.isolts_mode)
             cpu.CY = ((-- cpu.shadowTR) & MASK27) << 9;
           else
             cpu.CY = (cpu.rTR & MASK27) << 9;
-#else
-          cpu.CY = (cpu.rTR & MASK27) << 9;
-#endif
           break;
 
 
@@ -5204,6 +5197,7 @@ static t_stat doInstruction (void)
           {
             HDBGRegAR ("cmk");
             HDBGRegQR ("cmk");
+            HDBGRegYR ("cmk");
             word36 Z = ~cpu.rQ & (cpu.rA ^ cpu.CY);
             Z &= DMASK;
             HDBGRegZW (Z, "cmk");
@@ -7219,10 +7213,11 @@ static t_stat doInstruction (void)
           CPTUR (cptUseTR);
           cpu.rTR = (cpu.CY >> 9) & MASK27;
           cpu.rTRticks = 0;
-#if ISOLTS
-          cpu.shadowTR = cpu.TR0 = cpu.rTR;
-          cpu.rTRlsb = 0;
-#endif
+          if (cpu.switches.isolts_mode)
+            {
+              cpu.shadowTR = cpu.TR0 = cpu.rTR;
+              cpu.rTRlsb = 0;
+            }
           sim_debug (DBG_TRACEEXT, & cpu_dev, "ldt TR %d (%o)\n",
                      cpu.rTR, cpu.rTR);
 #ifdef LOOPTRC
@@ -8862,13 +8857,11 @@ elapsedtime ();
             {
               sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\n");
 #ifdef ROUND_ROBIN
-#ifdef ISOLTS
-              if (current_running_cpu_idx)
-              {
-//sim_printf ("stopping CPU %c\n", current_running_cpu_idx + 'A');
-                cpu.isRunning = false;
-              }
-#endif
+              if (cpu.switches.isolts_mode)
+                {
+                  //sim_printf ("stopping CPU %c\n", current_running_cpu_idx + 'A');
+                  cpu.isRunning = false;
+                }
 #endif
               return CONT_DIS;
             }

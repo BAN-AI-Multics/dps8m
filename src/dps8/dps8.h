@@ -135,8 +135,8 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 #endif
 
 // debugging tool
-#ifdef ISOLTS
-#define IF1 if (current_running_cpu_idx && sim_deb)
+#ifdef TESTING
+#define IF1 if (cpu.switches.isolts_mode)
 #else
 #define IF1 if (0)
 #endif

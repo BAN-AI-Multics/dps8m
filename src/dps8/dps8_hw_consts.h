@@ -37,11 +37,11 @@ enum { N_CELL_INTERRUPTS = 32 };
 
 // The minimum allocation size of a SCU is 64K (2^16)
 // (2 banks of 32K). Call it an SCBANK
-#define SCBANK          (1U << 16)
+#define SCBANK_SZ          (1U << 16)
 
 // Maximum memory size is MEM_SIZE_MAX, number of
 // scbanks is:
-#define N_SCBANKS ((MEM_SIZE_MAX) / (SCBANK))
+#define N_SCBANKS ((MEM_SIZE_MAX) / (SCBANK_SZ))
 
 //
 // Memory addressing
