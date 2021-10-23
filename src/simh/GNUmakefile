@@ -148,7 +148,7 @@ endif
 
 ###############################################################################
 
-# Loccal Variables:
+# Local Variables:
 # mode: make
 # tab-width: 4
 # End:

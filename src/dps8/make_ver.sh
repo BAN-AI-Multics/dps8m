@@ -747,7 +747,7 @@ if [ "${BUILD_TMP_RLT_LAST2:-}" = "rc" ]; then
 fi
 
 # /*
-#  * As git tags suffixes we use should be in the following forms,
+#  *  Git tags suffixes we use should be in the following forms,
 #  *     with the preferred form listed last:
 #  *
 #  *     rcN[NN] .......... for candidates
@@ -768,6 +768,7 @@ fi
 #  *
 #  *  Thus, from here, we can use this "last2" comparsion table:
 #  *
+#  *    rc ................................. rc    (C)
 #  *    at / ha ............................ alpha (A)
 #  *    bt / ta ............................ beta  (B)
 #  *    er / op / ev / dp / de / dt / dr ... dev   (D)
