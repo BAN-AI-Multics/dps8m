@@ -154,7 +154,7 @@ struct diskType_t diskTypes[] =
       "3380", 885*255, 0, false, seek_512, 512, 0 // 338x is never attached to a dau
     },
   };
-#define N_DISK_TYPES (sizeof (diskTypes) / sizeof (struct diskType_t))
+#define N_DISK_TYPES (sizeof (diskTypes) / sizeof (struct diskType_t) - 1)
 
 #define M3381_SECTORS (1770*255)
 //#define M3381_SECTORS 6895616
@@ -383,12 +383,12 @@ static t_stat disk_set_type (UNUSED UNIT * uptr, UNUSED int32 value, const char 
       }
 
     uint i;
-    for (i = 0; i < N_DISK_TYPES; i ++)
+    for (i = 0; i < N_DISK_TYPES; i++)
       {
         if (strcasecmp (cptr, diskTypes[i].typename) == 0)
           break;
       }
-    if (i >= N_DISK_TYPES)
+    if (i > N_DISK_TYPES)
      {
        sim_printf ("Disk type %s unrecognized, expected one of "
                    "%s %s %s %s %s %s %s %s\r\n",
@@ -404,9 +404,9 @@ static t_stat disk_set_type (UNUSED UNIT * uptr, UNUSED int32 value, const char 
         return SCPE_ARG;
       }
     dsk_states[diskUnitIdx].typeIdx = i;
-    dsk_unit[diskUnitIdx].capac = (t_addr) diskTypes[diskUnitIdx].capac;
-    //sim_printf ("disk unit %d set to type %s\r\n",
-                //diskUnitIdx, diskTypes[i].typename);
+    dsk_unit[diskUnitIdx].capac = (t_addr) diskTypes[i].capac;
+    // sim_printf ("disk unit %d set to type %s (%d/%d)\r\n",
+                // diskUnitIdx, diskTypes[i].typename, i, N_DISK_TYPES);
     return SCPE_OK;
   }
 
