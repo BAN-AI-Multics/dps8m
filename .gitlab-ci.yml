@@ -901,7 +901,6 @@ Linux/x86_64, Fedora, Intel DPC++/C++:
 
 Linux/x86_64, Fedora, Intel C++:
   stage: build
-  when: manual
   tags:
     - Linux
     - Intel
@@ -914,7 +913,7 @@ Linux/x86_64, Fedora, Intel C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make -C src/dps8 CC=icx udplib.o && make -C src/simh CC=icx sim_sock.o && make -C src/dps8 CC=icx dps8_socket_dev.o && make CC="icc -no-restrict -D__attribute__\(x\)=/"/"" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
