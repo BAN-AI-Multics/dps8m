@@ -49,9 +49,9 @@ void trk (unsigned long long cycleCnt, uint16_t segno, uint32_t ic, uint64_t opc
         ic != pic ||
         opcode != popcode)
       {
-        fprintf (stderr, "\r\n[%lld]\r\n", cycleCnt);
-        fprintf (stderr, "expected: %05o:%06o %012lo\r\n", psegno, pic, popcode);
-        fprintf (stderr, "got:      %05o:%06o %012lo\r\n", segno, ic, opcode);
+        fprintf (stderr, "\r\n[%llu]\r\n", cycleCnt);
+        fprintf (stderr, "expected: %05o:%06o %012"PRIo64"\r\n", psegno, pic, popcode);
+        fprintf (stderr, "got:      %05o:%06o %012"PRIo64"\r\n", segno, ic, opcode);
 #if defined(HDBG)
         hdbgPrint ();
 #endif /* if defined(HDBG) */
