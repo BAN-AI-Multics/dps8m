@@ -64,9 +64,6 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 #define SPEED
 #endif
 
-// Enable WAM
-//#define WAM
-
 // Enable panel support
 //#define PANEL
 

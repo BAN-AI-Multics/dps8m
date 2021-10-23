@@ -129,6 +129,12 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
     sim_msg ("Processor mode:           %s [%o]\n",
                 cpus[cpu_unit_idx].switches.procMode == procModeMultics ? "Multics" : cpus[cpu_unit_idx].switches.procMode == procModeGCOS ? "GCOS" : "???",
                 cpus[cpu_unit_idx].switches.procMode);
+    sim_msg ("SDWAM:                    %s\n",
+                cpus[cpu_unit_idx].switches.sdwam_enable ? "Enabled" : "Disabled");
+    sim_msg ("PTWAM:                    %s\n",
+                cpus[cpu_unit_idx].switches.ptwam_enable ? "Enabled" : "Disabled");
+
+
     sim_msg ("Processor speed:          %02o(8)\n",
                 cpus[cpu_unit_idx].switches.proc_speed);
     sim_msg ("DIS enable:               %01o(8)\n",
@@ -149,8 +155,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.drl_fatal);
     sim_msg ("useMap:                   %d\n",
                 cpus[cpu_unit_idx].switches.useMap);
-    sim_msg ("Disable cache:            %01o(8)\n",
-                cpus[cpu_unit_idx].switches.disable_cache);
+    sim_msg ("Cache:                    %s\n",
+                cpus[cpu_unit_idx].switches.enable_cache ? "Enable" : "Disable");
 
 #ifdef AFFINITY
     if (cpus[cpu_unit_idx].set_affinity)
@@ -323,6 +329,8 @@ static config_list_t cpu_config_list [] =
     { "enable", 0, 1, cfg_on_off },
     { "init_enable", 0, 1, cfg_on_off },
     { "store_size", 0, 7, cfg_size_list },
+    { "sdwam", 0, 1, cfg_on_off },
+    { "ptwam", 0, 1, cfg_on_off },
 
     // Hacks
 
@@ -338,7 +346,7 @@ static config_list_t cpu_config_list [] =
     { "drl_fatal", 0, 1, cfg_on_off },
     { "useMap", 0, 1, cfg_on_off },
     { "address", 0, 0777777, NULL },
-    { "disable_cache", 0, 1, cfg_on_off },
+    { "cache", 0, 1, cfg_on_off },
 
     // Tuning
 
@@ -420,6 +428,10 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.init_enable [port_num] = (uint) v;
         else if (strcmp (p, "store_size") == 0)
           cpus[cpu_unit_idx].switches.store_size [port_num] = (uint) v;
+        else if (strcmp (p, "sdwam") == 0)
+          cpus[cpu_unit_idx].switches.sdwam_enable = (uint) v ? true : false;
+        else if (strcmp (p, "ptwam") == 0)
+          cpus[cpu_unit_idx].switches.ptwam_enable = (uint) v ? true : false;
         else if (strcmp (p, "dis_enable") == 0)
           cpus[cpu_unit_idx].switches.dis_enable = (uint) v;
         else if (strcmp (p, "steady_clock") == 0)
@@ -438,8 +450,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           cpus[cpu_unit_idx].switches.drl_fatal = (uint) v;
         else if (strcmp (p, "useMap") == 0)
           cpus[cpu_unit_idx].switches.useMap = v;
-        else if (strcmp (p, "disable_cache") == 0)
-          cpus[cpu_unit_idx].switches.disable_cache = v;
+        else if (strcmp (p, "cache") == 0)
+          cpus[cpu_unit_idx].switches.enable_cache = v;
 #ifdef AFFINITY
         else if (strcmp (p, "affinity") == 0)
           if (v < 0)
@@ -457,9 +469,13 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
             cpus[cpu_unit_idx].switches.isolts_mode = v;
             if (v)
               {
+                cpus[cpu_unit_idx].isolts_switches_save = cpus[cpu_unit_idx].switches;
+                cpus[cpu_unit_idx].isolts_switches_saved = true;
+
                 cpus[cpu_unit_idx].switches.data_switches = 00000030714000;
                 cpus[cpu_unit_idx].switches.addr_switches = 0100150;
                 cpus[cpu_unit_idx].switches.useMap = true;
+                cpus[cpu_unit_idx].switches.disable_wam = false;
                 cpus[cpu_unit_idx].switches.assignment [0] = false;
                 cpus[cpu_unit_idx].switches.interlace [0] = false;
                 cpus[cpu_unit_idx].switches.enable [0] = false;
@@ -534,77 +550,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
               }
             else
               {
-                cpus[cpu_unit_idx].switches.data_switches = 024000717200;
-                cpus[cpu_unit_idx].switches.useMap = false;
-                cpus[cpu_unit_idx].switches.assignment [0] = 0;
-                cpus[cpu_unit_idx].switches.interlace [0] = false;
-                cpus[cpu_unit_idx].switches.enable [0] = true;
-                cpus[cpu_unit_idx].switches.init_enable [0] = true;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [0] = 7;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [0] = 7;
-#endif
-
-                cpus[cpu_unit_idx].switches.assignment [1] = 1;
-                cpus[cpu_unit_idx].switches.interlace [1] = false;
-                cpus[cpu_unit_idx].switches.enable [1] = true;
-                cpus[cpu_unit_idx].switches.init_enable [1] = true;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [1] = 7;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [1] = 7;
-#endif
-
-                cpus[cpu_unit_idx].switches.assignment [2] = 2;
-                cpus[cpu_unit_idx].switches.interlace [2] = false;
-                cpus[cpu_unit_idx].switches.enable [2] = true;
-                cpus[cpu_unit_idx].switches.init_enable [2] = true;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [2] = 7;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [2] = 7;
-#endif
-
-                cpus[cpu_unit_idx].switches.assignment [3] = 3;
-                cpus[cpu_unit_idx].switches.interlace [3] = false;
-                cpus[cpu_unit_idx].switches.enable [3] = true;
-                cpus[cpu_unit_idx].switches.init_enable [3] = true;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [3] = 7;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [3] = 7;
-#endif
-
-#ifdef L68
-                cpus[cpu_unit_idx].switches.assignment [4] = 4;
-                cpus[cpu_unit_idx].switches.interlace [4] = false;
-                cpus[cpu_unit_idx].switches.enable [4] = true;
-                cpus[cpu_unit_idx].switches.init_enable [4] = true;
-                cpus[cpu_unit_idx].switches.store_size [4] = 7;
-
-                cpus[cpu_unit_idx].switches.assignment [5] = 5;
-                cpus[cpu_unit_idx].switches.interlace [5] = false;
-                cpus[cpu_unit_idx].switches.enable [5] = true;
-                cpus[cpu_unit_idx].switches.init_enable [5] = true;
-                cpus[cpu_unit_idx].switches.store_size [5] = 7;
-
-                cpus[cpu_unit_idx].switches.assignment [6] = 6;
-                cpus[cpu_unit_idx].switches.interlace [6] = false;
-                cpus[cpu_unit_idx].switches.enable [6] = true;
-                cpus[cpu_unit_idx].switches.init_enable [6] = true;
-                cpus[cpu_unit_idx].switches.store_size [6] = 7;
-
-                cpus[cpu_unit_idx].switches.assignment [7] = 7;
-                cpus[cpu_unit_idx].switches.interlace [7] = false;
-                cpus[cpu_unit_idx].switches.enable [7] = true;
-                cpus[cpu_unit_idx].switches.init_enable [7] = true;
-                cpus[cpu_unit_idx].switches.store_size [7] = 7;
-#endif
+                cpus[cpu_unit_idx].switches = cpus[cpu_unit_idx].isolts_switches_save;
+                cpus[cpu_unit_idx].isolts_switches_saved = false;
 
                 cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
                 simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
@@ -844,8 +791,8 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     SET_I_NBAR;
 
     cpu.CMR.luf = 3;    // default of 16 mS
-    cpu.cu.SD_ON = cpu.switches.disable_wam ? 0 : 1;
-    cpu.cu.PT_ON = cpu.switches.disable_wam ? 0 : 1;
+    cpu.cu.SD_ON = cpu.switches.sdwam_enable ? 0 : 1;
+    cpu.cu.PT_ON = cpu.switches.ptwam_enable ? 0 : 1;
 
     set_cpu_cycle (FETCH_cycle);
 
@@ -4384,15 +4331,11 @@ void add_APU_history (enum APUH_e op)
     // 25 SDWAMM
     putbits36_1 (& w0, 25, cpu.cu.SDWAMM);
     // 26-29 SDWAMR
-#ifdef WAM
     putbits36_4 (& w0, 26, cpu.SDWAMR);
-#endif
     // 30 PTWAMM
     putbits36_1 (& w0, 30, cpu.cu.PTWAMM);
     // 31-34 PTWAMR
-#ifdef WAM
     putbits36_4 (& w0, 31, cpu.PTWAMR);
-#endif
     // 35 FLT
     PNL (putbits36_1 (& w0, 35, (cpu.apu.state & apu_FLT) ? 1 : 0);)
 

@@ -708,6 +708,9 @@ typedef struct
     uint store_size [N_CPU_PORTS]; // 0-7 encoding 32K-4M
     enum procModeSettings procMode;  // 1 bit  Read by rsw instruction; format unknown
     uint proc_speed; // 4 bits Read by rsw instruction; format unknown
+    bool enable_cache;   // 8K cache
+    bool sdwam_enable;
+    bool ptwam_enable;
 
     // Emulator run-time options (virtual switches)
     uint dis_enable;      // If non-zero, DIS works
@@ -719,7 +722,6 @@ typedef struct
     uint drl_fatal;
     uint serno;
     bool useMap;
-    bool disable_cache;
     bool isolts_mode;     // If true, CPU is configured to run ISOLTS.
   } switches_t;
 
@@ -1538,6 +1540,8 @@ typedef struct
 
     events_t events;
     switches_t switches;
+    switches_t isolts_switches_save;
+    bool  isolts_switches_saved;
     ctl_unit_data_t cu;
     du_unit_data_t du;
     ou_unit_data_t ou;
@@ -1569,9 +1573,7 @@ typedef struct
     struct par_s PAR [8]; // pointer/address resisters
     struct bar_s BAR;     // Base Address Register
     struct dsbr_s DSBR;   // Descriptor Segment Base Register
-#ifdef WAM
     sdw_s SDWAM [N_WAM_ENTRIES]; // Segment Descriptor Word Associative Memory
-#endif
 #ifdef L68
     word4 SDWAMR;
 #endif
@@ -1697,9 +1699,7 @@ typedef struct
     word36 zone;
     bool useZone;
 
-#ifdef WAM
     ptw_s PTWAM [N_WAM_ENTRIES];
-#endif
 #ifdef L68
     word4 PTWAMR;
 #endif
