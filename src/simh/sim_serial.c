@@ -965,6 +965,7 @@ if (1) {
                 char buffer[1024];
 
                 memset (buffer, 0, sizeof(buffer));
+                /* Flawfinder: ignore */
                 if (readlink(driverpath, buffer, sizeof(buffer)) > 0) {
                     sprintf (list[ports].name, "/dev/%s", basename (path));
                     port = open (list[ports].name, O_RDWR | O_NOCTTY | O_NONBLOCK);     /* open the port */

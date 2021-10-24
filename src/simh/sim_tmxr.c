@@ -2499,6 +2499,7 @@ while (*tptr) {
         sim_os_ms_sleep (2);                                    /* let the close finish (required on some platforms) */
         strcpy (listen, port);
         cptr = get_glyph (cptr, option, ';');
+        (void)cptr;
         if (option[0]) {
             if (0 == MATCH_CMD (option, "NOTELNET"))
                 listennotelnet = TRUE;
@@ -2947,7 +2948,7 @@ if (!found) {
     }
 }
 
-static void _tmxr_remove_from_open_list (TMXR* mux)
+static void _tmxr_remove_from_open_list (const TMXR* mux)
 {
 int i, j;
 
@@ -3614,7 +3615,7 @@ return;
 void tmxr_fconns (FILE *st, const TMLN *lp, int32 ln)
 {
 int32 hr, mn, sc;
-uint32 ctime;
+uint32 tctime;
 
 if (ln >= 0)
     fprintf (st, "line %d: ", ln);
@@ -3647,11 +3648,11 @@ if (lp->serport)                                        /* serial connection? */
     fprintf (st, "Connected to serial port %s\n", lp->destination);  /* print port name */
 
 if (lp->cnms) {
-    ctime = (sim_os_msec () - lp->cnms) / 1000;
-    hr = ctime / 3600;
-    mn = (ctime / 60) % 60;
-    sc = ctime % 60;
-    if (ctime)
+    tctime = (sim_os_msec () - lp->cnms) / 1000;
+    hr = tctime / 3600;
+    mn = (tctime / 60) % 60;
+    sc = tctime % 60;
+    if (tctime)
         fprintf (st, " %s %02d:%02d:%02d\n", lp->connecting ? "Connecting for" : "Connected", hr, mn, sc);
     }
 else
@@ -4222,7 +4223,7 @@ if ((dptr) && (dbits & dptr->dctrl)) {
     if (lp->notelnet) {
         int same, group, sidx, oidx;
         char outbuf[80], strbuf[18];
-        static char hex[] = "0123456789ABCDEF";
+        static const char hex[] = "0123456789ABCDEF";
 
         for (i=same=0; i<bufsize; i += 16) {
             if ((i > 0) && (0 == memcmp(&buf[i], &buf[i-16], 16))) {

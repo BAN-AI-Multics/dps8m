@@ -310,13 +310,13 @@ int GLOBAL_GREEN_BAR;
  }
 /* ============================================================================================================================== */
  void printme_top(){
-        char IMPACT_TOP[256];
         char *varname;
-        float charwidth;
-        float xvalue;
-        float yvalue;
-        float text_size=20.0;
-        if( (varname=getenv("IMPACT_TOP")) != (char *)NULL ){
+        if( (varname=getenv("IMPACT_TOP")) != (char *)NULL ) {
+           char IMPACT_TOP[256];
+           float text_size=20.0;
+           float charwidth;
+           float xvalue;
+           float yvalue;
            strncpy(IMPACT_TOP,varname,255);
            charwidth=text_size*0.60; /* assuming fixed-space font Courier-Bold */
            fprintf(stdout,"1.0 0.0 0.0 rg\n"); /* gray-scale value */
@@ -334,7 +334,6 @@ int GLOBAL_GREEN_BAR;
  }
 /* ============================================================================================================================== */
  void print_margin_label(){
-     char  line[80];
      float charwidth;
      float start;
      int hold;
@@ -355,9 +354,9 @@ int GLOBAL_GREEN_BAR;
         printme(start,GLOBAL_PAGE_MARGIN_BOTTOM-GLOBAL_TITLE_SIZE,GLOBAL_CENTER_TITLE);
      }
 
-     if(GLOBAL_PAGES != 0 ){
-        /* assuming fixed-space font Courier-Bold */
-        charwidth=GLOBAL_TITLE_SIZE*0.60;
+     if(GLOBAL_PAGES != 0 ) {
+        char line[80];
+        charwidth=GLOBAL_TITLE_SIZE*0.60; /* assuming fixed-space font Courier-Bold */
         sprintf(line,"Page %4d",GLOBAL_PAGECOUNT);
         start=((GLOBAL_PAGE_WIDTH-GLOBAL_PAGE_MARGIN_RIGHT)-(strlen(line)*charwidth)); /* Right Justified */
         printme(start,GLOBAL_PAGE_DEPTH-GLOBAL_PAGE_MARGIN_TOP+0.12*GLOBAL_TITLE_SIZE,line);
@@ -450,9 +449,8 @@ void do_text ()
 
 printline:
         GLOBAL_LINECOUNT ++;
-
-        black=0;
         GLOBAL_ADD=0;
+        black=0;
 
 #if 0
         /* +1 for roundoff , using floating point point units */
@@ -477,115 +475,8 @@ printline:
               }
           }
         GLOBAL_YPOS -= GLOBAL_LEAD_SIZE;
-        if(black != 0)
-          {
-            fprintf(stdout,"0.0 0.0 0.0 rg\n"); /* black text */
-          }
         i = GLOBAL_SHIFT;
       }
-#if 0
-      while(gets(&buffer[GLOBAL_SHIFT]) != NULL) {
-         GLOBAL_LINECOUNT++;
-
-         black=0;
-         GLOBAL_ADD=0;
-
-         /* +1 for roundoff , using floating point point units */
-         if(GLOBAL_YPOS <= (GLOBAL_PAGE_MARGIN_BOTTOM+1) && strlen(buffer) != 0 && buffer[0] != '+' ) {
-            end_page();
-            start_page();
-         }
-
-         if(strlen(buffer) == 0){ /* blank line */
-            printf("T*\n");
-         }else{
-#if 0
-            ASA=buffer[0];
-
-            switch(ASA) {
-
-            case '1':     /* start a new page before processing data on line */
-               if (GLOBAL_YPOS < GLOBAL_PAGE_DEPTH - GLOBAL_PAGE_MARGIN_TOP ){
-                  end_page();
-                  start_page();
-               }
-            break;
-
-            case '0':        /* put out a blank line before processing data on line */
-                  printf("T*\n");
-                  GLOBAL_YPOS -= GLOBAL_LEAD_SIZE;
-            break;
-
-            case '-':        /* put out two blank lines before processing data on line */
-               printf("T*\n");
-               GLOBAL_YPOS -= GLOBAL_LEAD_SIZE;
-               GLOBAL_YPOS -= GLOBAL_LEAD_SIZE;
-            break;
-
-            case '+':        /* print at same y-position as previous line */
-               fprintf(stdout,"0 %f Td\n",GLOBAL_LEAD_SIZE);
-               increment_ypos(1.0);
-            break;
-
-            case 'R':        /* RED print at same y-position as previous line */
-            case 'G':        /* GREEN print at same y-position as previous line */
-            case 'B':        /* BLUE print at same y-position as previous line */
-               if(ASA == 'R') fprintf(stdout,"1.0 0.0 0.0 rg\n"); /* red text */
-               if(ASA == 'G') fprintf(stdout,"0.0 1.0 0.0 rg\n"); /* green text */
-               if(ASA == 'B') fprintf(stdout,"0.0 0.0 1.0 rg\n"); /* blue text */
-               black=1;
-               fprintf(stdout,"0 %f Td\n",GLOBAL_LEAD_SIZE);
-               increment_ypos(1.0);
-            break;
-
-            case 'H':        /* 1/2 line advance */
-               fprintf(stdout,"0 %f Td\n",GLOBAL_LEAD_SIZE/2.0);
-               increment_ypos(0.5);
-            break;
-
-            case 'r':        /* RED print */
-            case 'g':        /* GREEN print */
-            case 'b':        /* BLUE print */
-               if(ASA == 'r') fprintf(stdout,"1.0 0.0 0.0 rg\n"); /* red text */
-               if(ASA == 'g') fprintf(stdout,"0.0 1.0 0.0 rg\n"); /* green text */
-               if(ASA == 'b') fprintf(stdout,"0.0 0.0 1.0 rg\n"); /* blue text */
-               black=1;
-            break;
-
-            case '^':        /* print at same y-position as previous line like + but add 127 to character */
-               printf("0 %f Td\n",GLOBAL_LEAD_SIZE);
-               increment_ypos(1.0);
-               GLOBAL_ADD=127;
-            break;
-
-            case '>':        /* Unknown */
-            break;
-
-            case '\f':       /* ctrl-L is a common form-feed character on Unix, but NOT ASA */
-               end_page();
-               start_page();
-            break;
-
-            case ' ':
-            break;
-
-            default:
-               fprintf(stderr,"unknown ASA carriage control character %c\n",buffer[0]);
-            break;
-
-         }
-#endif
-         printstring(&buffer[1]);
-         printf("'\n");
-
-      }
-      GLOBAL_YPOS -= GLOBAL_LEAD_SIZE;
-      if(black != 0){
-         fprintf(stdout,"0.0 0.0 0.0 rg\n"); /* black text */
-      }
-
-   }
-#endif
    end_page();
 }
 /* ============================================================================================================================== */
@@ -819,7 +710,7 @@ int main(int argc, char **argv) {
 
    char *varname;
 
-       int index;
+       int prindex;
        int c;
    GLOBAL_PAGE_DEPTH =        612.0;
    GLOBAL_PAGE_WIDTH =        792.0;      /* Default is 72 points per inch */
@@ -915,10 +806,26 @@ int main(int argc, char **argv) {
              }
              showhelp(2);
              exit(1);
+             /*NOTREACHED*/
+#ifndef __SUNPRO_C
+#ifndef __SUNPRO_CC
+#ifndef __SUNPRO_CC_COMPAT
              return 1;
-
+#endif
+#endif
+#endif
+             /*NOTREACHED*/
            default:
              abort ();
+             /*NOTREACHED*/
+#ifndef __SUNPRO_C
+#ifndef __SUNPRO_CC
+#ifndef __SUNPRO_CC_COMPAT
+             return 1;
+#endif
+#endif
+#endif
+             /*NOTREACHED*/
            }
 
            if(GLOBAL_SHADE_STEP < 1 ){
@@ -926,8 +833,8 @@ int main(int argc, char **argv) {
               GLOBAL_SHADE_STEP=1;
    }
 
-   for (index = optind; index < argc; index++){
-      fprintf (stderr,"Non-option argument %s\n", argv[index]);
+   for (prindex = optind; prindex < argc; prindex++){
+      fprintf (stderr,"Non-option argument %s\n", argv[prindex]);
    }
    dopages();
    exit(0);

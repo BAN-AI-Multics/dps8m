@@ -90,7 +90,6 @@ static long *end_ptr  = &randtbl[DEG_3 + 1];
 void
 bsd_srandom(unsigned int x)
 {
-  register int i;
 
   if (rand_type == TYPE_0)
   {
@@ -98,6 +97,7 @@ bsd_srandom(unsigned int x)
   }
   else
   {
+    register int i;
     state[0] = x;
     for (i = 1; i < rand_deg; i++)
     {

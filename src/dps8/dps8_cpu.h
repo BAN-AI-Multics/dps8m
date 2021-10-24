@@ -2152,7 +2152,15 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
 
 #ifdef LOCKLESS
 
-#if (! defined (CPP11_ATOMICS)) && (! defined (FREEBSD_ATOMICS)) && (! defined (POSIX_ATOMICS))
+// AIX_ATOMICS are SYNC_ATOMICS (for now)
+#if   ( defined (AIX_ATOMICS) \
+ && (! (defined (SYNC_ATOMICS))))
+#define SYNC_ATOMICS
+#endif
+
+// Default to CPP11_ATOMICS by default
+#if (! defined (CPP11_ATOMICS)) && (! defined (FREEBSD_ATOMICS)) \
+ && (! defined (SYNC_ATOMICS))  && (! defined (AIX_ATOMICS))
 #define CPP11_ATOMICS
 #endif
 
@@ -2260,7 +2268,7 @@ int core_unlock_all();
 
 #endif // CPP11_ATOMICS
 
-#if defined(POSIX_ATOMICS)
+#if defined(SYNC_ATOMICS)
 #ifdef MEMORY_ACCESS_NOT_STRONGLY_ORDERED
 #define MEM_BARRIER()   do { __sync_synchronize(); } while (0)
 #else
@@ -2310,7 +2318,7 @@ int core_unlock_all();
     }                                                                   \
   while (0)
 
-#endif  // POSIX_ATOMICS
+#endif  // SYNC_ATOMICS
 #endif  // LOCKLESS
 
 static inline void core_readN (word24 addr, word36 * data, uint n,

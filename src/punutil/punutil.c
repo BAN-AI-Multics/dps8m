@@ -15,7 +15,9 @@
 #include <unistd.h>
 #include <stdbool.h>
 #ifdef _AIX
+#ifndef USE_POPT
 #define USE_POPT
+#endif /* ifndef USE_POPT */
 #endif /* ifdef _AIX */
 #ifdef USE_POPT
 #include <popt.h>
@@ -652,7 +654,7 @@ static char search_glyph_patterns(uint8 *matrix)
     return ' ';
 }
 
-static char get_lace_char(word12 *buffer, uint char_pos)
+static char get_lace_char(const word12 *buffer, uint char_pos)
 {
     if (char_pos >= GLYPHS_PER_CARD)
     {

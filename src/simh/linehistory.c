@@ -37,7 +37,9 @@
  *
  */
 
+#ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200809L
+#endif
 
 #if !defined(__MINGW32__)   && \
     !defined(CROSS_MINGW32) && \
@@ -46,11 +48,17 @@
     !defined(_MSC_VER)      && \
     !defined(_MSC_BUILD)    && \
     !defined(VMS)           && \
-    !defined(__VMS)         && \
-    !defined(__OS2__)       && \
-    !defined(__sun__)
+    !defined(__VMS)
 
+#if defined(__sun) && defined(__SVR4)
+#ifndef __EXTENSIONS__
+#define __EXTENSIONS__ 1
+#endif
+#endif
 #include <termios.h>
+#if defined(__sun) && defined(__SVR4)
+#include <sys/termiox.h>
+#endif
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -338,11 +346,6 @@ static int completeLine(struct linenoiseState *ls) {
                     if (i == lc.len) linenoiseBeep();
                     stop =1;
                     break;
-                case 27: /* escape */
-                    /* Re-show original buffer */
-                    if (i < lc.len) refreshLine(ls);
-                    stop = 1;
-                    break;
                 default:
                     /* Update buffer and return */
                     if (i < lc.len) {
@@ -614,6 +617,7 @@ static void refreshMultiLine(struct linenoiseState *l) {
  */
 
 static void refreshLine(struct linenoiseState *l) {
+    l->cols = getColumns(STDIN_FILENO, STDOUT_FILENO);
     if (mlmode)
         refreshMultiLine(l);
     else
@@ -1231,7 +1235,9 @@ int linenoiseHistoryAdd(const char *line) {
     }
 
     /* Don't add duplicated lines. */
-    if (history_len && !strcmp(history[history_len-1], line)) return 0;
+    if ((history_len > 0) && (!strcmp(history[history_len-1], line))) {
+      return 0;
+    }
 
     /*
      * Add an heap allocated copy of the line in the history.

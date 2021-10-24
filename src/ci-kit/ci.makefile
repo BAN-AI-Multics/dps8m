@@ -15,7 +15,9 @@ s1:
 	-@true # git clone https://gitlab.com/dps8m/dps8m.git
 	-@true # cd ./dps8m && git checkout master
 	-@true # cd ./dps8m && git status
+ifndef NOREBUILD
 	(cd ../.. && $(MAKE) clean > /dev/null 2>&1 && $(MAKE))
+endif
 	@mkdir -p ./dps8m/src
 	@cp -ax "../../src/dps8" "dps8m/src" 2> /dev/null
 	-@true ############ Modify above as needed ############

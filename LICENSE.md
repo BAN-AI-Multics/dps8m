@@ -6,6 +6,7 @@
   * [DPS8M Simulator](#dps8m-simulator)
     * [The DPS8M Development Team](#dps8m-development-team)
 - [Third-party Software](#third-party-software)
+  * [libuv](#libuv)
   * [Unifdef](#unifdef)
   * [UDPLib](#udplib)
   * [UtHash](#uthash)
@@ -18,6 +19,12 @@
   * [Shell Routines](#shell-routines)
   * [LineHistory](#linehistory)
   * [BSD Random](#bsd-random)
+  * [AMD LibM](#amd-libm)
+  * [mimalloc](#mimalloc)
+  * [TCMalloc](#tcmalloc)
+  * [musl](#musl)
+  * [IBM Advance Toolchain](#ibm-advance-toolchain)
+  * [Fair CPU Dispatch](#fair-cpu-dispatch)
   * [Multics Software Materials and Documentation](#multics-software-materials-and-documentation)
 - [Scope of Intended Application](#scope-of-intended-application)
 - [Disclaimer of Liability and Endorsement](#disclaimer-of-liability-and-endorsement)
@@ -30,7 +37,8 @@
 
 ### DPS8M Simulator
 
-* The **DPS8M Simulator** (“**DPS8M**”) is distributed under the ICU License.
+* The **DPS8M Simulator** (“**DPS8M**”) is distributed under the
+  **ICU License**.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -105,9 +113,40 @@ property of their respective owners.
 
 ## Third-party Software
 
-* **DPS8M** incorporates, adapts, or utilizes software from
-  third-parties. This software is copyrighted by their respective
+* **DPS8M** may incorporate, adapt, or utilize software from
+  third-parties.  This software is copyrighted by their respective
   owners and licensed as indicated in the following disclosures.
+
+----
+
+### libuv
+
+* **libuv** is a portable high-performance platform support library, with a
+  focus on asynchronous-I/O based on event loops, originally developed by
+  Ben Noordhuis to support the *Node.js*® runtime.  It is distributed under
+  the terms of the **MIT License**.
+
+```text
+Copyright (c) 2015-present libuv project contributors.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+  * The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE.
+```
 
 ----
 
@@ -118,7 +157,7 @@ property of their respective owners.
   *Computer Systems Research Group* at the *University of California,
   Berkeley* by Dave Yost. It was rewritten to support ANSI C by Tony
   Finch, and modified for portability by **The DPS8M Development Team**.
-  It is distributed under a two-clause BSD licence.
+  It is distributed under a **two-clause BSD licence**.
 
 ```text
 Copyright (c) 2002‑2020 Tony Finch <dot@dotat.at>
@@ -128,12 +167,12 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS “AS IS” AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -154,7 +193,7 @@ SUCH DAMAGE.
 
 * **UDPLib** is a library that implements the BBN ARPAnet IMP/TIP
   Modem/Host Interface over UDP. It was written by Robert Armstrong,
-  and is distributed under a modified BSD license.
+  and is distributed under a **modified BSD license**.
 
 ```text
 Copyright (c) 2013 Robert Armstrong, bob@jfcl.com
@@ -166,8 +205,8 @@ the rights to use, copy, modify, merge, publish, distribute, sublicense,
 and/or sell copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+  * The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -187,30 +226,31 @@ in this Software without prior written authorization from Robert Armstrong.
 
 * **UtHash** (*UtList*, *UtArray*, and *UtHash*), a hash table for C
   structures, was written by
-  [Troy D. Hanson](https://troydhanson.github.io/uthash/) and modified
-  by **The DPS8M Development Team**. It is distributed under a modified
-  one-clause BSD license.
+  [Troy D. Hanson](https://troydhanson.github.io/uthash/) and customized
+  by **The DPS8M Development Team**. It is distributed under the terms of a
+  **modified one-clause BSD license**.
 
 ```text
 Copyright (c) 2005‑2021 Troy D. Hanson
-    http://troydhanson.github.io/uthash/
+    https://troydhanson.github.io/uthash/
 Copyright (c) 2021 The DPS8M Development Team
 
 All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following
+conditions are met:
 
-    * Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
+  * Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS
-IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
-OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+“AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO,\ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
 PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
@@ -222,7 +262,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ### SimH
 
 * **SimH** is a portable systems simulation framework, written by
-  Robert M. Supnik and others, and distributed under a modified MIT license.
+  Robert M. Supnik and others, and distributed under a
+  **modified MIT license**.
 
 ```text
 Copyright (c) 1993‑2012 Robert M Supnik
@@ -241,8 +282,8 @@ the rights to use, copy, modify, merge, publish, distribute, sublicense,
 and/or sell copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+  * The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -262,7 +303,7 @@ in this Software without prior written authorization from the authors.
 
 * **PunUtil** is a utility to process the output of the **DPS8M** punch
   device. It was written by Dean S. Anderson of **The DPS8M Development
-  Team** and is distributed under the ICU License.
+  Team** and is distributed under the **ICU License**.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -308,7 +349,7 @@ property of their respective owners.
 
 * **Prt2PDF** is a utility to convert the output of the simulated
   **DPS8M** line printer device to ISO 32000 Portable Document Format
-  (*PDF*), and is distributed under the ICU License.
+  (*PDF*), and is distributed under the **ICU License**.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -373,7 +414,7 @@ property of their respective owners.
   by the revised IEEE 754 specification.  It was written by IBM and IEEE
   Fellow Mike Cowlishaw, with contributions by Matthew Hagerty, John Matzka,
   Klaus Kretzschmar, Stefan Krah, and The DPS8M Development Team.  It is
-  distributed under the ICU License.
+  distributed under the **ICU License**.
 
 ```text
 ICU License —— ICU 1.8.1 to ICU 57.1
@@ -443,7 +484,7 @@ of all present and future rights to this code under copyright law.
 
 ### Shell Routines
 
-* Shell scripts may adapt or incorporate POSIX shell functions, routines, and
+* Shell scripts may adapt or incorporate POSIX™ shell functions, routines, and
   techniques (“the Routines”), written or distributed by
   [Thorsten “mirabilos” Glaser](https://www.mirbsd.org/).
 
@@ -482,12 +523,12 @@ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 * **LineHistory** is a small and self-contained line editor, implementing
   *Emacs*-style line editing functionality similar to GNU *readline* or BSD
   *libedit*. It is derived from the *linenoise* library written by Salvatore
-  “antirez” Sanfilippo and Pieter Noordhuis and distributed under a two-clause
-  BSD license.
+  “antirez” Sanfilippo and Pieter Noordhuis and distributed under a
+  **two-clause BSD license**.
 
 ```text
-Copyright (c) 2010-2016, Salvatore Sanfilippo <antirez at gmail dot com>
-Copyright (c) 2010-2013, Pieter Noordhuis <pcnoordhuis at gmail dot com>
+Copyright (c) 2010-2016 Salvatore Sanfilippo <antirez@gmail.com>
+Copyright (c) 2010-2013 Pieter Noordhuis <pcnoordhuis@gmail.com>
 Copyright (c) 2021 The DPS8M Development Team
 
 All rights reserved.
@@ -496,10 +537,10 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
- *  Redistributions of source code must retain the above copyright
+  * Redistributions of source code must retain the above copyright
     notice, this list of conditions and the following disclaimer.
 
- *  Redistributions in binary form must reproduce the above copyright
+  * Redistributions in binary form must reproduce the above copyright
     notice, this list of conditions and the following disclaimer in the
     documentation and/or other materials provided with the distribution.
 
@@ -520,11 +561,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ### BSD Random
 
-* **BSD random** is a collection of random number generation functions
+* **BSD Random** is a collection of random number generation functions
   derived from software originally developed for the *Berkeley Software
   Distribution* by the *Computer Systems Research Group* at the *University
   of California, Berkeley*, and copyrighted by *The Regents of the University
-  of California*.  It is distributed under a three-clause BSD license.
+  of California*.  It is distributed under a **three-clause BSD license**.
 
 ```text
 Copyright (c) 1983‑1991 The Regents of the University of California
@@ -536,21 +577,566 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
 are met:
 
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
 
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
 
- 3. Neither the name of the University nor the names of its contributors
-    may be used to endorse or promote products derived from this software
-    without specific prior written permission.
+  3. Neither the name of the University nor the names of its contributors
+     may be used to endorse or promote products derived from this software
+     without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS “AS IS” AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+```
+
+----
+
+### AMD LibM
+
+* **AMD LibM**, a component of the *AMD Optimizing CPU Libraries*, is a
+  library containing a collection of basic math functions optimized for AMD
+  x86-64 processor-based machines, and provides high-performance scalar and
+  vector implementations of many core C99 math functions.  It was developed by
+  *Advanced Micro Devices, Inc.*, and is distributed under the terms of a
+  **three-clause BSD license**.
+
+```text
+Copyright (c) 2017-2021 Advanced Micro Devices, Inc.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+
+  * Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+  * Neither the name of the copyright holder nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
+
+----
+
+### mimalloc
+
+* **mimalloc** is a compact, portable, high-performance, general-purpose
+  free-list multi-sharding implementation of `malloc`, initially developed by
+  Daan Leijen of the *Research In Software Engineering* group at *Microsoft
+  Research* to support the run-time systems of the *Lean* and *Koka* languages.
+  It is distributed under the terms of the **MIT License**.
+
+```text
+Copyright (c) 2018-2021 Microsoft Corporation, Daan Leijen
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+  * The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+----
+
+### TCMalloc
+
+* **TCMalloc** is a scalable thread-caching memory allocator designed by
+  *Google, LLC*, and distributed under the terms of the
+  **Apache License, Version 2.0**.
+
+  * **TCMalloc** is Copyright © 2005-2021 *The TCMalloc Authors*.
+
+  * Unless required by applicable law or agreed to in writing, software
+    distributed under the **Apache License, Version 2.0** is distributed on an
+    “**AS IS**” **BASIS**, **WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**,
+    either express or implied.
+
+```text
+                                 Apache License
+                           Version 2.0, January 2004
+                        https://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      “License” shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      “Licensor” shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      “Legal Entity” shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      “control” means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      “You” (or “Your”) shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      “Source” form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      “Object” form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      “Work” shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      “Derivative Works” shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      “Contribution” shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, “submitted”
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as “Not a Contribution.”
+
+      “Contributor” shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a “NOTICE” text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an “AS IS” BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+```
+
+----
+
+### musl
+
+* **musl** is a lightweight and standards conforming implementation of the C
+  standard library, which includes the interfaces defined in the base language
+  standard, POSIX™, and widely agreed-upon extensions. It was written by
+  Rich “*dalias*” Felker and other contributors, and is distributed under the
+  terms of the **MIT License**.
+
+```text
+Copyright (c) 2005-2020 Rich Felker, et al.
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+“Software”), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+  * The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
+----
+
+### IBM Advance Toolchain
+
+* The **IBM**® **Advance Toolchain for Linux**® **on IBM POWER**® is a
+  collection of development tools and libraries for systems implementing
+  the **POWER** instruction set architecture, currently developed by the
+  *OpenPOWER* *Foundation*, led by IBM. It includes scheduling, acceleration,
+  hardware enablement, and runtime libraries that are individually optimized
+  for **POWER8**, **POWER9**, and **POWER10** processors. It is licensed and
+  distributed under the terms of the **Apache License, Version 2.0**.
+
+  * The **IBM Advance Toolchain** is Copyright © 2012-2021 *IBM Corporation*,
+    and others.
+
+  * Unless required by applicable law or agreed to in writing, software
+    distributed under the **Apache License, Version 2.0** is distributed on an
+    “**AS IS**” **BASIS**, **WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND**,
+    either express or implied.
+
+  * The **IBM Advance Toolchain** may incorporate, adapt, or utilize software
+    from third-parties.  This software is copyrighted by their respective
+    owners and may be distributed under different license terms.
+
+  * Additional information is available from the
+    [IBM® Advance Toolchain for Linux® on IBM POWER® website](https://www.ibm.com/support/pages/advance-toolchain-linux-power).
+
+```text
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      “License” shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      “Licensor” shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      “Legal Entity” shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      “control” means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      “You” (or “Your”) shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      “Source” form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      “Object” form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      “Work” shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      “Derivative Works” shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      “Contribution” shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, “submitted”
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as “Not a Contribution.”
+
+      “Contributor” shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusve, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a “NOTICE” text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an “AS IS” BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+```
+
+----
+
+### Fair CPU Dispatch
+
+* **Fair CPU Dispatch** is a collection of routines which modify the behavior
+  of the Intel CPU feature dispatcher to the improve peformance and
+  compatibility of the Intel Math Kernel Library (MKL) and code generated by
+  the Intel C/C++ and DPC/DPC++ compilers on non-Intel processors. These
+  routines are derived from code provided by Agner Fog of the Technical
+  University of Denmark, and distributed under the terms of a
+  **2-clause BSD license**.
+
+```text
+Copyright (c) 2009-2019 Agner Fog
+Copyright (c) 2021 The DPS8M Development Team
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS “AS IS” AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
 FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
 OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -569,38 +1155,38 @@ SUCH DAMAGE.
   **Multics License**.
 
 ```text
-Copyright (c) 1972 by the Massachusetts Institute of Technology and
+Copyright (c) 1972 The Massachusetts Institute of Technology and
   Honeywell Information Systems, Inc.
-Copyright (c) 2006 by Bull HN Information Systems, Inc.
-Copyright (c) 2006 by Bull SAS.
+Copyright (c) 2006 Bull HN Information Systems, Inc.
+Copyright (c) 2006 Bull SAS.
 
-All Rights Reserved.
+All rights reserved.
 
 Historical Background
 
-* This edition of the Multics software materials and documentation is
-  provided and donated to the Massachusetts Institute of Technology by
-  Group BULL including BULL HN Information Systems, Inc. as a
-  contribution to computer science knowledge.
+ * This edition of the Multics software materials and documentation is
+   provided and donated to the Massachusetts Institute of Technology by
+   Group BULL including BULL HN Information Systems, Inc. as a
+   contribution to computer science knowledge.
 
-* This donation is made also to give evidence of the common contributions
-  of the Massachusetts Institute of Technology, Bell Laboratories,
-  General Electric, Honeywell Information Systems, Inc., Honeywell BULL,
-  Inc., Groupe BULL and BULL HN Information Systems, Inc. to the
-  development of this operating system.
+ * This donation is made also to give evidence of the common contributions
+   of the Massachusetts Institute of Technology, Bell Laboratories,
+   General Electric, Honeywell Information Systems, Inc., Honeywell BULL,
+   Inc., Groupe BULL and BULL HN Information Systems, Inc. to the
+   development of this operating system.
 
-* Multics development was initiated by the Massachusetts Institute of
-  Technology Project MAC (1963-1970), renamed the MIT Laboratory for
-  Computer Science and Artificial Intelligence in the mid 1970s, under
-  the leadership of Professor Fernando José Corbató.  Users consider
-  that Multics provided the best software architecture for managing
-  computer hardware properly and for executing  programs.  Many
-  subsequent operating systems incorporated Multics principles.
+ * Multics development was initiated by the Massachusetts Institute of
+   Technology Project MAC (1963-1970), renamed the MIT Laboratory for
+   Computer Science and Artificial Intelligence in the mid 1970s, under
+   the leadership of Professor Fernando José Corbató.  Users consider
+   that Multics provided the best software architecture for managing
+   computer hardware properly and for executing  programs.  Many
+   subsequent operating systems incorporated Multics principles.
 
-* Multics was distributed in 1975 to 2000 by Group Bull in Europe, and
-  in the U.S. by Bull HN Information Systems, Inc., as successor in
-  interest by change in name only to Honeywell Bull, Inc. and Honeywell
-  Information Systems, Inc.
+ * Multics was distributed in 1975 to 2000 by Group Bull in Europe, and
+   in the U.S. by Bull HN Information Systems, Inc., as successor in
+   interest by change in name only to Honeywell Bull, Inc. and Honeywell
+   Information Systems, Inc.
 
 Permission to use, copy, modify, and distribute these programs and their
 documentation for any purpose and without fee is hereby granted, provided

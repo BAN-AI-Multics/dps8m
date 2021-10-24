@@ -18,10 +18,9 @@
 # Check for csh as sh.
 
 # shellcheck disable=SC2006,SC2046,SC2065
-test _$(printf '%s' "asdf" 2> /dev/null) != "_asdf" > /dev/null &&
-	printf '%s\n' \
-		"Error: This shell seems to be csh, which is not supported." &&
-	exit 0
+test _`echo asdf 2>/dev/null` != _asdf >/dev/null &&\
+	printf '%s\n' "Warning: make_ver.sh does not support csh as sh." &&\
+	exit 1
 
 ###############################################################################
 # Attempt to disable pedantic verification during environment normalization.
@@ -192,7 +191,7 @@ get_git_ptch()
 				# shellcheck disable=SC2250
 				OIFS="$IFS"
 				# shellcheck disable=SC2086
-				PATDIF=$(printf '%s\n' ${GITPAT:-XXXXXX} | sed -e "s/$(printf '%s' ${GITVER:-XXXXXX} | sed -e 's/*//')//" 2> /dev/null | sed -e 's/\(^.*-[0-9]+-g.*\)/\1/' 2> /dev/null | sed -e "s/${GITVER:-XXXXXX}//" 2> /dev/null | cut -d '-' -f 2 2> /dev/null ) ||
+				PATDIF=$(printf '%s\n' ${GITPAT:-XXXXXX} | sed -e "s/$(printf '%s\n' ${GITVER:-XXXXXX} | sed -e 's/*//')//" 2> /dev/null | sed -e 's/\(^.*-[0-9]+-g.*\)/\1/' 2> /dev/null | sed -e "s/${GITVER:-XXXXXX}//" 2> /dev/null | cut -d '-' -f 2 2> /dev/null ) ||
 							{ # /* PATDIF */
 								IFS="${OIFS:?}" || true > /dev/null 2>&1
 								printf >&2 '%s\n' \

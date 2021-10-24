@@ -33,6 +33,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
+
 #ifndef __LINENOISE_H
 #define __LINENOISE_H
 
@@ -43,9 +47,7 @@
     !defined(_MSC_VER)      && \
     !defined(_MSC_BUILD)    && \
     !defined(VMS)           && \
-    !defined(__VMS)         && \
-    !defined(__OS2__)       && \
-    !defined(__sun__)
+    !defined(__VMS)
 
 #ifndef HAVE_LINEHISTORY
 #define HAVE_LINEHISTORY

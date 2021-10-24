@@ -79,7 +79,6 @@ build default all:                                                            \
 # Install.
 
 .PHONY: install
-.NOTPARALLEL: install
 install:                                                                      \
     # install:    # Builds and installs the sim and tools
 	@$(MAKE) -C "src/dps8" "install"
@@ -88,7 +87,10 @@ install:                                                                      \
 # Clean up compiled objects and executables.
 
 .PHONY: clean
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
+$(warn blah)
 .NOTPARALLEL: clean
+endif
 clean:                                                                        \
     # clean:    # Cleans up executable and object files
 	@$(MAKE) -C "src/dps8" "clean"
@@ -97,7 +99,9 @@ clean:                                                                        \
 # Cleans everything `clean` does, plus version info, logs, and state files.
 
 .PHONY: distclean
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean
+endif
 distclean: clean                                                              \
     # distclean:    # Cleans up tree to pristine conditions
 	@$(MAKE) -C "src/dps8" "distclean"
@@ -106,7 +110,9 @@ distclean: clean                                                              \
 # Cleans everything `distclean` does, plus attempts to flush compiler caches.
 
 .PHONY: superclean realclean reallyclean
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: superclean realclean reallyclean
+endif
 superclean realclean reallyclean: distclean                                   \
     # superclean:    # Cleans up tree fully and flush ccache
 	@$(MAKE) -C "src/dps8" "superclean"
@@ -141,7 +147,6 @@ endif
 ###############################################################################
 
 .PHONY: help info
-.NOTPARALLEL: help info
 help info:                                                                    \
     # help:    # Display this list of Makefile targets
 	@$(GREP) -E '^.* # .*:    # .*$$' $(MAKEFILE_LIST) 2> /dev/null         | \

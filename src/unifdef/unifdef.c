@@ -432,7 +432,16 @@ main(int argc, char *argv[])
 
   default:
     abort();  /* bug */
+    /*NOTREACHED*/
+#ifndef __SUNPRO_C
+#ifndef __SUNPRO_CC
+#ifndef __SUNPRO_CC_COMPAT
+    /* cppcheck-suppress unreachableCode */
     exit(3);  /* unreachable */
+#endif
+#endif
+#endif
+    /*NOTREACHED*/
   }
 }
 
@@ -1718,8 +1727,6 @@ skiphash(void)
 static const char *
 skipline(const char *cp)
 {
-  const char *pcp;
-
   if (*cp != '\0')
   {
     linestate = LS_DIRTY;
@@ -1727,6 +1734,7 @@ skipline(const char *cp)
 
   while (*cp != '\0')
   {
+    const char *pcp;
     cp = skipcomment(pcp = cp);
     if (pcp == cp)
     {

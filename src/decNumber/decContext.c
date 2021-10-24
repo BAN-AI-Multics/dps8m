@@ -377,6 +377,7 @@ const char *decContextStatusToString(const decContext *context) {
 Int decContextTestEndian(Flag quiet) {
   Int res=0;                  // optimist
   uInt dle=(uInt)DECLITEND;   // unsign
+  /* cppcheck-suppress knownConditionTrueFalse */
   if (dle>1) dle=1;           // ensure 0 or 1
 
   if (LITEND!=DECLITEND) {

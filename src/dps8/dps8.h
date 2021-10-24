@@ -44,12 +44,10 @@
 
 #ifdef NEED_128
 typedef struct { uint64_t h; uint64_t l; } __uint128_t;
-typedef struct { int64_t h; uint64_t l; } __int128_t;
-
+typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 #define construct_128(h, l) ((uint128) { (h), (l) })
 #define construct_s128(h, l) ((int128) { (h), (l) })
-
-#endif
+#endif /* ifdef NEED_128 */
 
 // Quiet compiler unused warnings
 #define QUIET_UNUSED
@@ -58,11 +56,10 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 //#define M_SHARED
 //LDFLAGS += -lrt
 
-#ifdef TESTING
-#else
-// Enable speed over debuggibility
+#ifndef TESTING
+// Enable speed over debuggibility when not TESTING
 #define SPEED
-#endif
+#endif /* ifndef TESTING */
 
 // Enable WAM
 //#define WAM
@@ -71,15 +68,8 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 //#define PANEL
 
 // Enable history debugger
-// NB. This has an large impact on ARM architectures, probably due to cache
-// misses.
+// NB. This has a large performance impact on 32-bit ARM architectures.
 //#define HDBG
-
-// XXX FixMe
-// history debugger wont build under XCode just yet.
-#ifdef __APPLE__
-#undef HDBG
-#endif
 
 // Enable round-robin multi-CPU
 //#define ROUND_ROBIN
@@ -90,10 +80,6 @@ typedef struct { int64_t h; uint64_t l; } __int128_t;
 // Experimential dial_out line disconnect delay
 // FNP polled ~100Hz; 2 secs. is 200 polls
 #define DISC_DELAY 200
-
-// Enable simh 'launch' command
-// #define LAUNCH
-
 
 //
 // Dependencies
@@ -250,7 +236,7 @@ typedef __int128_t  int128;
 typedef word36      float36;    // single precision float
 typedef word72      float72;    // double precision float
 
-typedef unsigned int uint;  // efficient unsigned int, at least 32 bits
+typedef unsigned int uint;      // efficient unsigned int, at least 32 bits
 
 #include "dps8_simh.h"
 #include "dps8_math128.h"
@@ -258,14 +244,13 @@ typedef unsigned int uint;  // efficient unsigned int, at least 32 bits
 #include "dps8_em_consts.h"
 
 
-
 #define SETF(flags, x)         flags = ((flags) |  (x))
 #define CLRF(flags, x)         flags = ((flags) & ~(x))
 #define TSTF(flags, x)         (((flags) & (x)) ? 1 : 0)
 #define SCF(cond, flags, x)    { if (cond) SETF((flags), x); else CLRF((flags), x); }
 
-#define SETBIT(dst, bitno)      ((dst) | (1LLU << (bitno)))
-#define CLRBIT(dst, bitno)      ((dst) & ~(1LLU << (bitno)))
+#define SETBIT(dst, bitno)      ((dst)  |  (1LLU << (bitno)))
+#define CLRBIT(dst, bitno)      ((dst)  & ~(1LLU << (bitno)))
 #define TSTBIT(dst, bitno)      (((dst) &  (1LLU << (bitno))) ? 1: 0)
 
 typedef enum
@@ -307,16 +292,17 @@ typedef enum
 #define GETBYTE(src, pos) (word9)(((word36)src >> (word36)((3 - pos) * 9)) & 0777)
 
 #ifdef NEED_128
-#define YPAIRTO72(ypair) construct_128 ((ypair[0] >> 28) & MASK8, \
-                                          ((ypair[0] & MASK28) << 36) | \
-                                          (ypair[1] & MASK36));
+#define YPAIRTO72(ypair) construct_128 ((ypair[0] >> 28) & MASK8,       \
+                                       ((ypair[0] & MASK28) << 36)    | \
+                                        (ypair[1] & MASK36));
 #else
-#define YPAIRTO72(ypair)    (((((word72)(ypair[0] & DMASK)) << 36) | (ypair[1] & DMASK)) & MASK72)
+#define YPAIRTO72(ypair)    (((((word72)(ypair[0] & DMASK)) << 36)    | \
+                                        (ypair[1] & DMASK)) & MASK72)
 #endif
 
 
 #define GET_TALLY(src) (((src) >> 6) & MASK12)   // 12-bits
-#define GET_DELTA(src)  ((src) & MASK6)           // 6-bits
+#define GET_DELTA(src)  ((src) & MASK6)          // 6-bits
 
 #ifndef max
 #define max(a,b)    max2((a),(b))
@@ -345,17 +331,17 @@ typedef enum
 //#define NO_RPX          (NO_RPT | NO_RPD | NO_RPL)
     READ_YBLOCK16   = (1U <<  8),  // fetches/reads Y-block16 operands from memory
     STORE_YBLOCK16  = (1U <<  9),  // fetches/reads Y-block16 operands from memory
-    TRANSFER_INS    = (1U << 10), // a transfer instruction
-    TSPN_INS        = (1U << 11), // a TSPn instruction
-    CALL6_INS       = (1U << 12), // a call6 instruction
-    PREPARE_CA      = (1U << 13), // prepare TPR.CA for instruction
-    STORE_YBLOCK8   = (1U << 14), // stores/writes Y-block8 operand to memory
-    IGN_B29         = (1U << 15), // Bit-29 has an instruction specific meaning. Ignore.
-    NO_TAG          = (1U << 16), // tag is interpreted differently and for addressing purposes is effectively 0
-    PRIV_INS        = (1U << 17), // priveleged instruction
-    NO_BAR          = (1U << 18), // not allowed in BAR mode
-//    NO_XEC          = (1U << 19), // can't be executed via xec/xed
-    NO_XED          = (1U << 20), // No execution via XEC/XED instruction
+    TRANSFER_INS    = (1U << 10),  // a transfer instruction
+    TSPN_INS        = (1U << 11),  // a TSPn instruction
+    CALL6_INS       = (1U << 12),  // a call6 instruction
+    PREPARE_CA      = (1U << 13),  // prepare TPR.CA for instruction
+    STORE_YBLOCK8   = (1U << 14),  // stores/writes Y-block8 operand to memory
+    IGN_B29         = (1U << 15),  // Bit-29 has an instruction specific meaning. Ignore.
+    NO_TAG          = (1U << 16),  // tag is interpreted differently and for addressing purposes is effectively 0
+    PRIV_INS        = (1U << 17),  // priveleged instruction
+    NO_BAR          = (1U << 18),  // not allowed in BAR mode
+//  NO_XEC          = (1U << 19),  // can't be executed via xec/xed
+    NO_XED          = (1U << 20),  // No execution via XEC/XED instruction
 
 // EIS operand types
 
@@ -446,11 +432,11 @@ enum reg_use { is_WRD =  0174000,
 
 // Basic + EIS opcodes .....
 struct opcode_s {
-    const char *mne;    // mnemonic
-    opc_flag flags;     // various and sundry flags
-    opc_mod mods;       // disallowed addr mods
-    uint ndes;          // number of operand descriptor words for instruction (mw EIS)
-    enum reg_use reg_use;            // register usage
+    const char *mne;       // mnemonic
+    opc_flag flags;        // various and sundry flags
+    opc_mod mods;          // disallowed addr mods
+    uint ndes;             // number of operand descriptor words for instruction (mw EIS)
+    enum reg_use reg_use;  // register usage
 };
 
 // operations stuff
@@ -502,19 +488,19 @@ enum eCAFoper {
 };
 typedef enum eCAFoper eCAFoper;
 
-#define READOP(i) ((bool) (i->info->flags & \
-                           (READ_OPERAND | \
-                            READ_YPAIR | \
-                            READ_YBLOCK8 | \
-                            READ_YBLOCK16 | \
+#define READOP(i) ((bool) (i->info->flags      &  \
+                           (READ_OPERAND       |  \
+                            READ_YPAIR         |  \
+                            READ_YBLOCK8       |  \
+                            READ_YBLOCK16      |  \
                             READ_YBLOCK32)))
 
-#define WRITEOP(i) ((bool) (i->info->flags & \
-                            (STORE_OPERAND | \
-                             STORE_YPAIR | \
-                             STORE_YBLOCK8 | \
-                             STORE_YBLOCK16 | \
-                             STORE_YBLOCK32)) )
+#define WRITEOP(i) ((bool) (i->info->flags     &  \
+                            (STORE_OPERAND     |  \
+                             STORE_YPAIR       |  \
+                             STORE_YBLOCK8     |  \
+                             STORE_YBLOCK16    |  \
+                             STORE_YBLOCK32)))
 
 // if it's both read and write it's a RMW
 #define RMWOP(i) ((bool) READOP(i) && WRITEOP(i))
@@ -599,12 +585,11 @@ typedef enum
 
 #define ARRAY_SIZE(a) ( sizeof(a) / sizeof((a)[0]) )
 
-#ifdef __GNUC__
-#define NO_RETURN   __attribute__ ((noreturn))
-#define UNUSED      __attribute__ ((unused))
-#elif defined (__MINGW64__)
-#define NO_RETURN   __attribute__ ((noreturn))
-#define UNUSED      __attribute__ ((unused))
+#if defined(__GNUC__)    || defined(__MINGW64__) || \
+    defined(__MINGW32__) || defined(__GNUC__)    || \
+    defined(__clang_version__)
+#define NO_RETURN __attribute__ ((noreturn))
+#define UNUSED    __attribute__ ((unused))
 #else
 #define NO_RETURN
 #define UNUSED

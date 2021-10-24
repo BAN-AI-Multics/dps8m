@@ -132,7 +132,7 @@
     test -z "${SKIP_UPDATE}" && echo "Running apt-get update ..."
     test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
     test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && export ARGS="eatmydata gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     test -z "${SKIP_UPDATE}" && echo "Running apt-get upgrade ..."
     test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     test -z "${SKIP_UPDATE}" && echo "Running apt-get dist-upgrade ..."
@@ -837,6 +837,176 @@ Windows/x86_64, Cygwin64-GCC:
 
 ############################################################################
 
+Code Quality Analysis:
+  stage: test
+  tags:
+    - codequality
+    - amd64
+    - Linux-Shell
+    - TopDocker
+  needs:
+    - job: Linux/x86_64, Ubuntu
+    - job: Linux/x86_64, Ubuntu LTS
+    - job: Linux/x86_64, Fedora
+  script:
+    - *scriptSanity
+    - |
+      eatmydata sh -c 'command time -f "\n### Elapsed Time: %E\n" /usr/local/bin/gl-codequality'
+  dependencies: []
+  artifacts:
+    expire_in: 2 months
+    paths:
+      - ${CI_PROJECT_DIR:?}/gl-code-quality-report.json
+    reports:
+      codequality:
+        - ${CI_PROJECT_DIR:?}/gl-code-quality-report.json
+  timeout: 1 hour
+  retry: 1
+  interruptible: false
+
+############################################################################
+
+Linux/x86_64, Fedora, Intel DPC++/C++:
+  stage: build
+  tags:
+    - Linux
+    - Intel
+    - oneAPI
+    - amd64
+    - Linux-Shell
+  script:
+    - export GLCICD_JOB="oneAPIDPCx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icx LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 60 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Fedora, Intel C++:
+  stage: build
+  tags:
+    - Linux
+    - Intel
+    - oneAPI
+    - amd64
+    - Linux-Shell
+  script:
+    - export GLCICD_JOB="oneAPIICCx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make -C src/dps8 CC=icx udplib.o && make -C src/simh CC=icx sim_sock.o && make -C src/dps8 CC=icx dps8_socket_dev.o && make CC="icc -no-restrict -D__attribute__\(x\)=/"/"" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 60 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Fedora, Oracle Developer Studio:
+  stage: build
+  tags:
+    - Linux
+    - Sun-CC
+    - amd64
+    - Linux-Shell
+    - POSIX
+  script:
+    - export GLCICD_JOB="SunCCLinuxX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - pkill suncc > /dev/null 2>&1 || true
+    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 60 ; export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -DUSE_FLOCK" && make CC="ccache /opt/oracle/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -fd -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -native -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")" SUNPRO=1 V=1 NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k 2>&1 | grep --line-buffered -v -e " not parallelized" -e " enumerator value overflows INT_MAX" ; exit "${?}"'
+    - pkill suncc > /dev/null 2>&1 || true
+    - eatmydata sh -x -c 'printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - plzip -9vk < /opt/oracle/developerstudio12.6/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
+    - plzip -9vk < /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk.so.1 > libmtsk.so.1.lz
+    - plzip -9vk < /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk_crt.so.1 > libmtsk_crt.so.1.lz
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/libstatomic.so.1.lz
+      - ${CI_PROJECT_DIR:?}/libmtsk_crt.so.1.lz
+      - ${CI_PROJECT_DIR:?}/libmtsk.so.1.lz
+  retry: 1
+  timeout: 45 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Fedora, AOCC, AOCL:
+  stage: build
+  tags:
+    - Linux
+    - AOCC
+    - AOCL
+    - amd64
+    - Linux-Shell
+  script:
+    - export GLCICD_JOB="AMDAOCCAMD64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - eatmydata sh -x -c 'rm -f amd_memcpy.o; rm -f src/dps8/amd_memcpy.o; . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && clang -Wno-unused-command-line-argument -Ofast -ffast-math -fomit-frame-pointer -ffast-math -mllvm -vector-library=AMDLIBM -c -o amd_memcpy.o /opt/AMD/aocl/latest/amd-memcpy/src/amd_memcpy.c /opt/AMD/aocl/latest/lib/libalm.a -lm && ls -la amd_memcpy.o && nm -s amd_memcpy.o | tee -i /dev/stderr | grep -w memcpy && size -A amd_memcpy.o && cp -f amd_memcpy.o src/dps8/amd_memcpy.o'
+    - eatmydata sh -x -c '. /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -fdata-sections -ffunction-sections -Ofast -ffast-math"; make CC="clang -mllvm -vector-library=AMDLIBM" LDFLAGS="-Wno-unused-command-line-argument -Wl,--gc-sections" V=1 LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib /opt/AMD/aocl/latest/lib/libalm.a amd_memcpy.o -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 60 minutes
+  interruptible: true
+
+############################################################################
+
 Linux/x86_64, Fedora:
   image: fedora:latest
   stage: build
@@ -856,11 +1026,11 @@ Linux/x86_64, Fedora:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-section" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-section" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -879,7 +1049,7 @@ Linux/x86_64, Fedora:
 
 ############################################################################
 
-AIX/powerpc64, IBM AIX 7.2:
+AIX/powerpc64, IBM AIX 7.2, IBM Toolbox GCC:
   stage: build
   tags:
     - AIX
@@ -893,6 +1063,190 @@ AIX/powerpc64, IBM AIX 7.2:
     - bash -x -c 'rpm -qi gcc; gcc -v; gmake CC=gcc V=1 -j 12 --output-sync --print-directory -k; exit "${?}"'
     - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+AIX/powerpc64, IBM AIX 7.2, Bull/Atos GCC:
+  stage: build
+  tags:
+    - AIX
+    - IBM
+    - ppc64
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - bash -x -c 'rpm -qi gcc10; gcc-10 -v; gmake CC=gcc-10 V=1 -j 12 --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+AIX/powerpc64, IBM AIX 7.2, IBM XL C/C++:
+  stage: build
+  tags:
+    - AIX
+    - IBM
+    - ppc64
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - bash -x -c 'export XLCXLC="xlc_r" && export XLCVER="latest" && gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+AIX/powerpc64, IBM AIX 7.2, IBM XLClang:
+  stage: build
+  tags:
+    - AIX
+    - IBM
+    - ppc64
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - bash -x -c 'export XLCVER="latest" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j 12 V=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1 --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
+  stage: build
+  tags:
+    - Shell-Linux
+    - Linux
+    - XLC-POWER
+    - IBM
+    - ppc64le
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - eatmydata bash -x -c 'export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS, TCMalloc:
+  stage: build
+  tags:
+    - Shell-Linux
+    - Linux
+    - IBM-AT
+    - IBM
+    - ppc64le
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - eatmydata bash -x -c 'export IBMXLMASSVER="latest-9" export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections -mveclibabi=mass -Ofast" LIBS="-L/opt/at${IBMATVER:?}/lib64 -L/opt/ibm/xlmass/${IBMXLMASSVER:?}/lib -ltcmalloc -luv -lmassvp9 -lmass_simdp9 -lmass -ldl -lrt -lm" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 14:
+  stage: build
+  tags:
+    - Shell-Linux
+    - Linux
+    - IBM-AT
+    - IBM
+    - ppc64le
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - eatmydata bash -x -c 'export IBMATVER="14.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
   dependencies: []
@@ -1053,7 +1407,7 @@ Windows/x86_64, MinGW64-GCC V8:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - *scriptBuildInfo
     - cp -vf "/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll" "${CI_PROJECT_DIR:?}"
     - *scriptCompressArtifacts
@@ -1264,12 +1618,12 @@ Linux/x86_64, Ubuntu:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
-    - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - eatmydata sh -x -c 'make distclean; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1307,12 +1661,12 @@ Linux/x86_64, Ubuntu LTS:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
-    - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - eatmydata sh -x -c 'make distclean; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1417,7 +1771,7 @@ Linux/x86_64, Void musl, mimalloc, static:
 
 ############################################################################
 
-Solaris/x86_64, Oracle Solaris 11.4:
+Solaris/x86_64, Oracle Solaris 11.4, GCC:
   stage: build
   tags:
     - Solaris
@@ -1441,6 +1795,37 @@ Solaris/x86_64, Oracle Solaris 11.4:
       - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
+  stage: build
+  tags:
+    - Solaris
+    - SunOS
+    - amd64
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS" && gmake CC="/opt/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(psrinfo -p 2> /dev/null || printf %s\\n "4")" --output-sync --print-directory -k SUNPRO=1 NEED_128=1 -j $(psrinfo -p 2> /dev/null || printf %s\\n "4") 2>&1 | grep -v " not parallelized" | grep -v " enumerator value overflows INT_MAX"; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - lzip -9vk < /opt/developerstudio-latest/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+      - ${CI_PROJECT_DIR:?}/libstatomic.so.1.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1589,4 +1974,50 @@ Multics CI-Kit Test:
   timeout: 120 minutes
   interruptible: true
 
-#############################################################################
+############################################################################
+
+Linux/x86_64, Ubuntu 18.04:
+  image: ubuntu:bionic
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="UbuntuLTSBionicx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
+    - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptAptSetup
+    - *scriptInstallNfpm
+    - *scriptAptInstallLibuv1
+    - *scriptSanity
+    - (apt-get -qq -y install tcsh passwd || apt-get -qq -y install tcsh passwd)
+    - chsh -s /bin/tcsh root
+    - export SHELL=/bin/tcsh
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - eatmydata sh -x -c 'make distclean; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################

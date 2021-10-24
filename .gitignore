@@ -5,6 +5,9 @@
 *.so
 a.out
 
+# Data
+*.tap
+
 # Cruft
 .DS_Store
 .cproject
@@ -45,6 +48,8 @@ cflags.L
 useddef.txt
 sysdefs.txt
 sysdefs.h
+src/blinkenLights2/blinkenLights2
+src/blinkenLights2/blinkenLights2.exe
 src/prt2pdf/prt2pdf
 src/prt2pdf/prt2pdf.exe
 src/unifdef/unifdef
@@ -68,6 +73,13 @@ l68.state
 *.arj
 *.Z
 *.d.*
+
+# Lint
+lint.txt
+cpplint.txt
+cppcheck.txt
+*.i
+.cppbdir
 
 # Vim
 *.*.swp

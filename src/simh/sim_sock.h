@@ -35,7 +35,7 @@ extern "C" {
 #if defined (_WIN32)                                    /* Windows */
 #include <winsock2.h>
 
-#elif !defined (__OS2__) || defined (__EMX__)           /* VMS, Mac, Unix, OS/2 EMX */
+#elif !defined (_WIN32)                                 /* Not Windows */
 #include <sys/types.h>                                  /* for fcntl, getpid */
 #include <sys/socket.h>                                 /* for sockets */
 #include <string.h>
@@ -46,7 +46,7 @@ extern "C" {
 #include <netinet/tcp.h>                                /* for TCP_NODELAY */
 #include <arpa/inet.h>                                  /* for inet_addr and inet_ntoa */
 #include <netdb.h>
-#include <sys/time.h>                                   /* for EMX */
+#include <sys/time.h>
 
 #define WSAGetLastError()       errno                   /* Windows macros */
 #define WSASetLastError(err) errno = err

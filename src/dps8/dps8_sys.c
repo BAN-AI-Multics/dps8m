@@ -3490,93 +3490,6 @@ static t_stat set_dbg_cpu_mask (int32 UNUSED arg, const char * UNUSED buf)
 // Misc. commands
 //
 
-#ifdef LAUNCH
-#define MAX_CHILDREN 256
-static int nChildren = 0;
-static pid_t childrenList[MAX_CHILDREN];
-
-static void cleanupChildren (void)
-  {
-    fprintf (stderr, "cleanupChildren\n");
-    for (int i = 0; i < nChildren; i ++)
-      {
-#if !defined(__MINGW64__)   || \
-    !defined(__MINGW32__)   || \
-    !defined(CROSS_MINGW64) || \
-    !defined(CROSS_MINGW32)
-        fprintf (stderr, "  kill %d\n", childrenList[i]);
-        kill (childrenList[i], SIGHUP);
-#else
-        TerminateProcess((HANDLE)childrenList[i], 1);
-        CloseHandle((HANDLE)childrenList[i]);
-#endif
-      }
-  }
-
-static void addChild (pid_t pid)
-  {
-    if (nChildren >= MAX_CHILDREN)
-      return;
-    childrenList[nChildren ++] = pid;
-    if (nChildren == 1)
-     atexit (cleanupChildren);
-  }
-
-static t_stat launch (int32 UNUSED arg, const char * buf)
-  {
-#ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW32
-#ifndef CROSS_MINGW64
-#ifndef __OpenBSD__
-    wordexp_t p;
-    int rc = wordexp (buf, & p, WRDE_SHOWERR | WRDE_UNDEF);
-    if (rc)
-      {
-        sim_msg ("wordexp failed %d\n", rc);
-        return SCPE_ARG;
-      }
-    //for (uint i = 0; i < p.we_wordc; i ++)
-      //sim_msg ("    %s\n", p.we_wordv[i]);
-    pid_t pid = fork ();
-    if (pid == -1) // parent, fork failed
-      {
-        sim_msg ("fork failed\n");
-        return SCPE_ARG;
-      }
-    if (pid == 0)  // child
-      {
-        execv (p.we_wordv[0], & p.we_wordv[1]);
-        sim_msg ("exec failed\n");
-        exit (1);
-      }
-    addChild (pid);
-    wordfree (& p);
-#else
-     STARTUPINFO si;
-     PROCESS_INFORMATION pi;
-
-     memset( &si, 0, sizeof(si) );
-     si.cb = sizeof(si);
-     memset( &pi, 0, sizeof(pi) );
-
-     if( !CreateProcess( NULL, (LPSTR)buf, NULL, NULL, FALSE, 0, NULL, NULL,
-                         &si, &pi ) )
-     {
-         sim_msg ("fork failed\n");
-         return SCPE_ARG;
-     }
-     addChild ((pid_t)pi.hProcess);
-#endif /* ifndef __OpenBSD__ */
-    return SCPE_OK;
-  }
-#endif /* ifndef CROSS_MINGW64 */
-#endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
-
-#endif /* LAUNCH */
-
 #ifdef PANEL
 static t_stat scraper (UNUSED int32 arg, const char * buf)
   {
@@ -3993,10 +3906,6 @@ static CTAB dps8_cmds[] =
 //
 // Misc.
 //
-
-#ifdef LAUNCH
-    {"LAUNCH",              launch,                   0, "launch: Launch subprocess\n", NULL, NULL},
-#endif
 
 #ifdef PANEL
     {"SCRAPER",             scraper,                  0, "scraper: Control scraper\n", NULL, NULL},

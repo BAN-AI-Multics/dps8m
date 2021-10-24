@@ -36,8 +36,8 @@ USAGE
 2) Run the initialization script to download the tape images:
       ./init
 
-3) In the ci.makefile for the target "s1" change the "git checkout" command to
-   check out the version of the emulator you wish to test.
+3) Set the NOREBUILD environment variable if you have already built the
+   simulator, and wish to the the scripts against that compiled binary.
 
 4) Run the main script file with:
       ./ci

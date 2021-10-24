@@ -328,7 +328,7 @@ DEVICE mtp_dev =
 struct tape_state tape_states [N_MT_UNITS_MAX];
 static const char * simh_tape_msg (int code); // hack
 // XXX this assumes only one controller, needs to be indexed
-static char tape_path_prefix [PATH_MAX+1];
+static char tape_path_prefix [PATH_MAX+2];
 
 // Multics RCP limits the volume name in the label to 32 characters
 #define LABEL_MAX 32
@@ -500,7 +500,7 @@ static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value,
     closedir(dp);
 
     // Save the new default path
-    strncpy (tape_path_prefix, cptr, sizeof(tape_path_prefix));
+    strncpy (tape_path_prefix, cptr, (sizeof(tape_path_prefix)-1));
     if (len > 0)
       {
         if (tape_path_prefix[len - 1] != '/')
@@ -530,9 +530,9 @@ static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
 
     size_t len = strlen(cptr);
 
-    char buffer[len + 1];
-    char prefix[len+1];
-    char dir[len+1];
+    char buffer[len + 2];
+    char prefix[len + 2];
+    char dir[len + 2];
 
     strcpy(buffer, cptr);
 
@@ -902,7 +902,7 @@ t_stat loadTape (uint driveNumber, char * tapeFilename, bool ro)
     else
       mt_unit [driveNumber] . flags &= ~ MTUF_WRP;
 
-    deterimeFullTapeFileName(tapeFilename, full_tape_file_name, sizeof(full_tape_file_name));
+    deterimeFullTapeFileName(tapeFilename, full_tape_file_name, (sizeof(full_tape_file_name)-1));
 
     sim_printf("loadTape Attaching drive %u to file %s\n", driveNumber, full_tape_file_name);
     t_stat stat = sim_tape_attach (& mt_unit [driveNumber], full_tape_file_name);

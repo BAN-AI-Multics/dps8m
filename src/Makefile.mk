@@ -43,7 +43,12 @@ UNAME      ?= uname
 COMM       ?= comm
 ECHO       ?= echo
 BREW       ?= brew
+GREP       ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" grep
+SORT       ?= sort
 CPPCPP     ?= $(CC) -E
+CPPCPP2    ?= $(CC) -qshowmacros=pre -E /dev/null < /dev/null 2> /dev/null
+CPPCPP3    ?= $(CC) -qshowmacros -E /dev/null < /dev/null 2> /dev/null
+CPPCPP4    ?= $(CC) -xdumpmacros=defs -E /dev/null < /dev/null 2>&1
 PREFIX     ?= /usr/local
 CSCOPE     ?= cscope
 MKDIR      ?= mkdir -p
@@ -51,8 +56,6 @@ NDKBUILD   ?= ndk-build
 DIRNAME    ?= dirname
 PKGCONFIG  ?= pkg-config
 GIT        ?= git
-GREP       ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" grep
-SORT       ?= sort
 CUT        ?= cut
 SED        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" sed
 AWK        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" awk
@@ -159,7 +162,9 @@ endif
 ###############################################################################
 # Default FLAGS
 
-CFLAGS  += -g3 -O3 -fno-strict-aliasing
+ifndef SUNPRO
+  CFLAGS  += -g3 -O3 -fno-strict-aliasing
+endif
 CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 
@@ -219,13 +224,12 @@ else
 # libuv: IBM AIX Toolbox libuv 1.38.1 (libuv-{devel}-1.38.1-1), or later, and,
 # libpopt: IBM AIX Toolbox libpopt 1.18 (libpopt-1.18-1) or later is required.
 
-    ifeq ($(UNAME_S),AIX)
-      KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
-      CFLAGS += -DUSE_FLOCK=1 -DHAVE_POPT=1 -maix$(KRNBITS) -Wl,-b$(KRNBITS)
-      LDFLAGS += -lm -lpthread -lpopt -lbsd -maix$(KRNBITS) -Wl,-b$(KRNBITS)
-      CC=gcc
-      LD=gcc
-    endif
+  ifeq ($(UNAME_S),AIX)
+    KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
+    CFLAGS += -DUSE_FLOCK=1 -DHAVE_POPT=1 -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+    LDFLAGS += -lm -lpthread -lpopt -lbsd -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+    CC?=gcc
+  endif
 
 ###############################################################################
 # GNU/Hurd
@@ -256,22 +260,20 @@ else
         CFLAGS  +=-I/usr/local/include -m$(ISABITS)
         LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat  \
                   -ldl -m$(ISABITS)
-        CC=gcc
+        CC?=gcc
       endif
-    endif
-    ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
-      ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-      CFLAGS  +=-I/usr/local/include -m$(ISABITS)
-      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat    \
-                -ldl -m$(ISABITS)
-      CC=gcc
     endif
 endif
 
 ###############################################################################
+# C Standard: Defaults to c99, but c1x or c11 may be needed for modern atomics.
+
+CSTD?=c99
+
+###############################################################################
 
 CFLAGS += -I../decNumber -I$(SIMHx)
-CFLAGS += -std=c99
+CFLAGS += -std=$(CSTD)
 CFLAGS += -U__STRICT_ANSI__
 CFLAGS += -D_GNU_SOURCE
 

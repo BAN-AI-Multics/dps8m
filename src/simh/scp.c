@@ -66,6 +66,8 @@
 #include "../decNumber/decContext.h"
 #include "../decNumber/decNumberLocal.h"
 
+#include "dispatch.h"
+
 #ifndef MAX
 #define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
 #endif
@@ -1741,6 +1743,17 @@ if (argc == 0) {
     fprintf (stderr, "Error: main() called directly!\n");
     return 0;
 }
+
+/* patch intel dispatcher */
+#ifdef __DISPATCH_H_
+#if defined(__INTEL_COMPILER)       || \
+    defined(__INTEL_CLANG_COMPILER) || \
+    defined(__INTEL_LLVM_COMPILER)  || \
+    defined(INTEL_MKL_VERSION)      || \
+    defined(__INTEL_MKL__)
+(void)agner_compiler_patch();
+#endif
+#endif
 
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
@@ -4557,12 +4570,57 @@ if (flag) {
     fprintf (st, "\n  Compiler: Microsoft C %d.%02d.%05d.%02d", _MSC_FULL_VER/10000000, (_MSC_FULL_VER/100000)%100, _MSC_FULL_VER%100000, _MSC_BUILD);
 #elif defined (__DECC_VER)
     fprintf (st, "\n  Compiler: DEC C %c%d.%d-%03d", ("T SV")[((__DECC_VER/10000)%10)-6], __DECC_VER/10000000, (__DECC_VER/100000)%100, __DECC_VER%10000);
+#elif ( defined (__xlc__) && !defined(__clang_version__) )
+#if defined (_AIX) && defined (PASE)
+    fprintf (st, "\n  Compiler: IBM XL C/C++ V%s (PASE for IBM i)", __xlc__);
+#endif
+#if defined (_AIX) && !defined (PASE)
+    fprintf (st, "\n  Compiler: IBM XL C/C++ for AIX V%s", __xlc__);
+#endif
+#if defined (__linux__) && ( !defined(_AIX) || !defined(PASE) )
+    fprintf (st, "\n  Compiler: IBM XL C/C++ for Linux V%s", __xlc__);
+#endif
+#if ( !defined(_AIX) && !defined(__clang_version__) && !defined(PASE) && !defined(__linux__) && defined(__xlc__) )
+    fprintf (st, "\n  Compiler: IBM XL C/C++ V%s", __xlc__);
+#endif
+#elif defined (__SUNPRO_C) || defined (__SUNPRO_CC) || defined (__SUNPRO_CC_COMPAT)
+    fprintf (st, "\n  Compiler: Oracle Developer Studio C/C++");
+#elif defined (__DMC__)
+    fprintf (st, "\n  Compiler: Digital Mars C/C++");
+#elif defined (__PCC__)
+    fprintf (st, "\n  Compiler: Portable C Compiler");
+#elif defined (KENC) || defined (KENCC) || defined (__KENC__) || defined (__KENCC__)
+    fprintf (st, "\n  Compiler: Plan 9 Compiler Suite");
+#elif defined (__ACK__)
+    fprintf (st, "\n  Compiler: Amsterdam Compiler Kit");
+#elif defined (__COMO__)
+    fprintf (st, "\n  Compiler: Comeau C++");
+#elif defined (__COMPCERT__)
+    fprintf (st, "\n  Compiler: CompCert C");
+#elif defined (__COVERITY__)
+    fprintf (st, "\n  Compiler: Coverity C/C++ Static Analyzer");
+#elif defined (__LCC__)
+    fprintf (st, "\n  Compiler: Local C Compiler (lcc)");
+#elif defined (sgi) || defined (__sgi) || defined (_sgi) || defined (_SGI_COMPILER_VERSION)
+    fprintf (st, "\n  Compiler: SGI MIPSpro");
+#elif defined (__OPEN64__)
+    fprintf (st, "\n  Compiler: Open64 %s", __OPEN64__);
+#elif defined (__PGI) || defined (__PGIC__)
+    fprintf (st, "\n  Compiler: Portland Group/PGI C/C++");
+#elif defined (__VBCC__)
+    fprintf (st, "\n  Compiler: Volker Barthelmann C Compiler (vbcc)");
+#elif defined (__WATCOMC__)
+    fprintf (st, "\n  Compiler: Watcom C/C++ %d.%d", __WATCOMC__ / 100, __WATCOMC__ % 100);
+#elif defined (__xlC__)
+    fprintf (st, "\n  Compiler: IBM XL C/C++");
 #elif defined (SIM_COMPILER)
 #define S_xstr(a) S_str(a)
 #define S_str(a) #a
     fprintf (st, "\n  Compiler: %s", S_xstr(SIM_COMPILER));
 #undef S_str
 #undef S_xstr
+#else
+    fprintf (st, "\n  Compiler: Unknown");
 #endif
 #if defined(_M_X64) || defined(_M_AMD64) || defined(__amd64__) || defined(__x86_64__) || defined(__AMD64)
     arch = " x86_64";
@@ -4622,6 +4680,8 @@ if (flag) {
     arch = " sparc";
 #elif defined(__riscv) || defined(__riscv__)
     arch = " riscv";
+#elif defined(__myriad2__)
+    arch = " myriad2";
 #else
     arch = " ";
 #endif

@@ -621,7 +621,11 @@ uptr->disk_ctx = NULL;
 return stat;
 }
 
+#ifdef __xlc__
+#pragma pack(1)
+#else
 #pragma pack(push,1)
+#endif
 typedef struct _ODS2_HomeBlock
     {
     uint32 hm2_l_homelbn;
@@ -747,7 +751,11 @@ typedef struct _ODS2_StorageControlBlock
     uint8  scb_b_reserved[446];
     uint16 scb_w_checksum;
     } ODS2_SCB;
+#ifdef __xlc__
+#pragma pack(reset)
+#else
 #pragma pack(pop)
+#endif
 
 static uint16
 ODS2Checksum (void *Buffer, uint16 WordCount)
@@ -2847,10 +2855,11 @@ if ((sDynamic) &&
                     if (0 == memcmp (sDynamic->ParentLocatorEntries[j].PlatformCode, "W2ru", 4)) {
                         const char *c;
 
-                        if ((c = strrchr (szVHDPath, '\\')))
+                        if ((c = strrchr (szVHDPath, '\\'))) {
                              memcpy (CheckPath, szVHDPath, c-szVHDPath+1);
                              strncpy (CheckPath+strlen(CheckPath), ParentName, sizeof (CheckPath)-(strlen (CheckPath)+1));
                         }
+                    }
                 VhdPathToHostPath (CheckPath, CheckPath, sizeof (CheckPath));
                 if (0 == GetVHDFooter(CheckPath,
                                       &sParentFooter,

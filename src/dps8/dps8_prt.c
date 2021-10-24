@@ -1905,7 +1905,6 @@ static t_stat signal_prt_ready (uint prt_unit_idx) {
     return SCPE_OK;
 #else
   // Which port should the controller send the interrupt to? All of them...
-  bool sent_one = false;
   for (uint ctlr_port_num = 0; ctlr_port_num < MAX_CTLR_PORTS; ctlr_port_num ++) {
     struct ctlr_to_iom_s * urp_to_iom = & cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num];
     if (urp_to_iom->in_use) {

@@ -25,26 +25,26 @@ endif
 
 ###############################################################################
 
-PRFLAGS=-Wall -Wextra
+#PRFLAGS=-Wall -Wextra
 CFLAGS+=$(PRFLAGS)
 
 ###############################################################################
 
 .PHONY: all
-.NOTPARALLEL: all
 all: prt2pdf$(EXE)
 
 ###############################################################################
 
-.NOTPARALLEL: prt2pdf$(EXE)
 prt2pdf$(EXE): prt2pdf.c
 	@$(PRINTF) '%s\n' "CC: prt2pdf"     ||  $(TRUE)
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o prt2pdf$(EXE) prt2pdf.c
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o prt2pdf$(EXE) prt2pdf.c $(PRLIBS)
 
 ###############################################################################
 
 .PHONY: clean
+ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: clean
+endif
 clean:
 	@$(PRINTF) '%s\n' "CLEAN: prt2pdf"
 	-@$(SETV); $(RMF) "prt2pdf$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)
