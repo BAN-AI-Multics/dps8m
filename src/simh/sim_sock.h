@@ -52,11 +52,7 @@ extern "C" {
 #define WSASetLastError(err) errno = err
 #define closesocket     close
 #define SOCKET          int
-#if defined(__hpux)
-#define WSAEWOULDBLOCK  EAGAIN
-#else
 #define WSAEWOULDBLOCK  EWOULDBLOCK
-#endif
 #define WSAENAMETOOLONG ENAMETOOLONG
 #define WSAEINPROGRESS  EINPROGRESS
 #define WSAETIMEDOUT    ETIMEDOUT
@@ -75,16 +71,6 @@ extern "C" {
 #define SOCKET_ERROR    -1
 #endif
 
-#if defined (VMS)                                       /* VMS unique */
-#include <ioctl.h>                                      /* for ioctl */
-#if !defined (AI_NUMERICHOST)
-#define AI_NUMERICHOST 0
-#endif
-#if defined (__VAX)
-#define sockaddr_storage sockaddr
-#endif
-#endif
-
 #if !defined(CBUFSIZE)
 #define CBUFSIZE 1024
 #define sim_printf printf
@@ -99,7 +85,7 @@ int sim_parse_addr_ex (const char *cptr, char *host, size_t hostlen, const char 
 SOCKET sim_master_sock_ex (const char *hostport, int *parse_status, int opt_flags);
 #define sim_master_sock(hostport, parse_status) sim_master_sock_ex(hostport, parse_status, ((sim_switches & SWMASK ('U')) ? SIM_SOCK_OPT_REUSEADDR : 0))
 SOCKET sim_connect_sock_ex (const char *sourcehostport, const char *hostport, const char *default_host, const char *default_port, int opt_flags);
-#define sim_connect_sock(hostport, default_host, default_port) sim_connect_sock_ex(NULL, hostport, default_host, default_port, 0)
+#define sim_connect_sock(hostport, default_host, default_port) sim_connect_sock_ex(NULL, hostport, default_host, default_port, SIM_SOCK_OPT_NONBLOCK)
 SOCKET sim_accept_conn_ex (SOCKET master, char **connectaddr, int opt_flags);
 #define sim_accept_conn(master, connectaddr) sim_accept_conn_ex(master, connectaddr, 0)
 int sim_check_conn (SOCKET sock, int rd);

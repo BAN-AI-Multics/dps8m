@@ -26,7 +26,7 @@
 #include "dps8_utils.h"
 
 #include "threadz.h"
-#ifdef __FreeBSD__
+#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
 #include <pthread_np.h>
 #endif
 
@@ -379,7 +379,7 @@ void createCPUThread (uint cpuNum)
 
     char nm [17];
     sprintf (nm, "CPU %c", 'a' + cpuNum);
-#ifdef __FreeBSD__
+#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
     pthread_set_name_np (p->cpuThread, nm);
 #else
 #ifdef __APPLE__
@@ -559,7 +559,7 @@ void createIOMThread (uint iomNum)
 
     char nm [17];
     sprintf (nm, "IOM %c", 'a' + iomNum);
-#ifndef __FreeBSD__
+#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
     pthread_setname_np (p->iomThread, nm);
 #else
     pthread_set_name_np (p->iomThread, nm);
@@ -715,7 +715,7 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
 
     char nm [17];
     sprintf (nm, "chn %c/%u %s", 'a' + iomNum, chnNum, devTypeStr);
-#ifndef __FreeBSD__
+#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
     pthread_setname_np (p->chnThread, nm);
 #else
     pthread_set_name_np (p->chnThread, nm);
@@ -811,7 +811,7 @@ void initThreadz (void)
     have_mem_lock = false;
     have_rmw_lock = false;
 #endif
-#ifdef __FreeBSD__
+#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
     pthread_mutexattr_t scu_attr;
     pthread_mutexattr_init(&scu_attr);
     pthread_mutexattr_settype(&scu_attr, PTHREAD_MUTEX_ADAPTIVE_NP);

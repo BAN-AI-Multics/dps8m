@@ -54,12 +54,12 @@ MAKE="command -p env make"
 CPPCHECK="cppcheck"
 CPPCHECKS="warning,style,performance,portability,information"
 CPPDEFINE='-DDECNUMDIGITS=126 -U__VERSION__ -D_GNU_SOURCE -DDECBUFFER=32
-           -U__STRICT_POSIX__ -Dint32_t=int32 -DCPPCHECK=1 -UVMS -U__VAX
+           -U__STRICT_POSIX__ -Dint32_t=int32 -DCPPCHECK=1 -U__WATCOMC__
            -U__USE_POSIX199309 -DPRIo64="llo" -DPRId64="lld" -DPRIu64="llu"
-           -U__OPEN64__ -U_MSC_FULL_VER -U_MSC_BUILD -UVER_H_GIT_HASH -U__DECC
+           -U__OPEN64__ -U_MSC_FULL_VER -U_MSC_BUILD -UVER_H_GIT_HASH
            -UVER_H_GIT_PATCH -UVER_H_GIT_VERSION -DBUILDINFO_scp="CPPCHECK"
            -USYSDEFS_USED -UVER_H_GIT_DATE -UVER_H_PREP_DATE -UVER_H_PREP_USER
-           -U__WATCOMC__ -USIM_COMPILER -UVER_CURRENT_TIME -U__DECC_VER'
+           -USIM_COMPILER -UVER_CURRENT_TIME'
 COMPILERS="gcc clang"
 test -z "${NOQUIET:-}" ||
 {

@@ -478,10 +478,10 @@ return;
 static void tmxr_report_connection (TMXR *mp, TMLN *lp)
 {
 int32 unwritten, psave;
-char cmsg[80];
+char cmsg[160];
 char dmsg[80] = "";
 char lmsg[80] = "";
-char msgbuf[256] = "";
+char msgbuf[512] = "";
 
 if ((!lp->notelnet) || (sim_switches & SWMASK ('V'))) {
     sprintf (cmsg, "\n\r\nConnected to the %s simulator ", sim_name);
@@ -814,7 +814,7 @@ if (tptr == NULL)                                       /* no more mem? */
     return tptr;
 
 if (mp->port)                                           /* copy port */
-    sprintf (growstring(&tptr, 13 + strlen (mp->port)), "%s%s", mp->port, mp->notelnet ? ";notelnet" : "");
+    sprintf (growstring(&tptr, 33 + strlen (mp->port)), "%s%s", mp->port, mp->notelnet ? ";notelnet" : "");
 if (mp->logfiletmpl[0])                                 /* logfile info */
     sprintf (growstring(&tptr, 7 + strlen (mp->logfiletmpl)), ",Log=%s", mp->logfiletmpl);
 while ((*tptr == ',') || (*tptr == ' '))
@@ -880,7 +880,7 @@ if (lp->destination || lp->port || lp->txlogname) {
     if (lp->mp->packet != lp->packet)
         sprintf (growstring(&tptr, 8), ",Packet");
     if (lp->port)
-        sprintf (growstring(&tptr, 12 + strlen (lp->port)), ",%s%s", lp->port, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
+        sprintf (growstring(&tptr, 32 + strlen (lp->port)), ",%s%s", lp->port, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
     if (lp->destination) {
         if (lp->serport) {
             char portname[CBUFSIZE];
@@ -941,6 +941,7 @@ char *address;
 char msg[512];
 uint32 poll_time = sim_os_msec ();
 
+memset (msg, 0, sizeof (msg));
 if (mp->last_poll_time == 0) {                          /* first poll initializations */
     UNIT *uptr = mp->uptr;
 
@@ -1203,7 +1204,9 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
         (!lp->modem_control || (lp->modembits & TMXR_MDM_DTR))) {
         snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - establishing outgoing connection to: %s", lp->destination);
         tmxr_debug_connect_line (lp, msg);
-        lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL, lp->destination, "localhost", NULL, (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0) | (lp->mp->packet ? SIM_SOCK_OPT_NODELAY : 0));
+        lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL, lp->destination, "localhost", NULL, (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0)  |
+                                                                                                                  (lp->mp->packet ? SIM_SOCK_OPT_NODELAY : 0) |
+                                                                                                                  SIM_SOCK_OPT_BLOCKING);
         }
 
     }
@@ -1273,7 +1276,9 @@ if ((lp->destination) && (!lp->serport)) {
     if ((!lp->modem_control) || (lp->modembits & TMXR_MDM_DTR)) {
         snprintf (msg, sizeof(msg)-1, "tmxr_reset_ln_ex() - connecting to %s", lp->destination);
         tmxr_debug_connect_line (lp, msg);
-        lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL, lp->destination, "localhost", NULL, (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0) | (lp->mp->packet ? SIM_SOCK_OPT_NODELAY : 0));
+        lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL, lp->destination, "localhost", NULL, (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
+                                                                                                                  (lp->packet ? SIM_SOCK_OPT_NODELAY : 0)    |
+                                                                                                                  SIM_SOCK_OPT_BLOCKING);
         }
     }
 tmxr_init_line (lp);                                /* initialize line state */
@@ -1489,7 +1494,9 @@ if (lp->mp && lp->modem_control) {                  /* This API ONLY works on mo
 
                 snprintf (msg, sizeof(msg)-1, "tmxr_set_get_modem_bits() - establishing outgoing connection to: %s", lp->destination);
                 tmxr_debug_connect_line (lp, msg);
-                lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL, lp->destination, "localhost", NULL, (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0) | (lp->mp->packet ? SIM_SOCK_OPT_NODELAY : 0));
+                lp->connecting = sim_connect_sock_ex (lp->datagram ? lp->port : NULL, lp->destination, "localhost", NULL, (lp->datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
+                                                                                                                          (lp->packet ? SIM_SOCK_OPT_NODELAY : 0)    |
+                                                                                                                          SIM_SOCK_OPT_BLOCKING);
                 }
             }
         }
@@ -1863,6 +1870,7 @@ for (i = 0; i < mp->lines; i++) {                       /* loop thru lines */
                             lp->telnet_sent_opts[tmp] |= TNOS_DONT;/* Record DONT sent */
                             }
                         }
+                    /* fall through */ /* fallthrough */
                 case TNS_WONT:           /* IAC+WILL/WONT prev */
                     if (tmp == TN_BIN) {                /* BIN? */
                         if (lp->tsta == TNS_WILL) {
@@ -1941,6 +1949,7 @@ for (i = 0; i < mp->lines; i++) {                       /* loop thru lines */
                             lp->telnet_sent_opts[tmp] |= TNOS_WONT;/* Record WONT sent */
                             }
                         }
+                    /* fall through */ /* fallthrough */
                 case TNS_SKIP: default:                 /* skip char */
                     tmxr_rmvrc (lp, j);                 /* remove char */
                     lp->tsta = TNS_NORM;                /* next normal */
@@ -2506,8 +2515,10 @@ while (*tptr) {
             else
                 if (0 == MATCH_CMD (option, "TELNET"))
                     listennotelnet = FALSE;
-                else
-                    return sim_messagef (SCPE_ARG, "Invalid Specifier: %s\n", option);
+            else {
+                if (*tptr)
+                    return sim_messagef (SCPE_ARG, "Invalid Specifier: %s\n", tptr);
+                }
             }
         }
     if (destination[0]) {
@@ -2522,7 +2533,7 @@ while (*tptr) {
             char *eptr;
 
             memset (hostport, '\0', sizeof(hostport));
-            strncpy (hostport, destination, sizeof(hostport)-1);
+            strncpy (hostport, destination, sizeof(hostport));
             if ((eptr = strchr (hostport, ';')))
                 *(eptr++) = '\0';
             if (eptr) {
@@ -2538,7 +2549,9 @@ while (*tptr) {
                     else
                         return sim_messagef (SCPE_ARG, "Unexpected specifier: %s\n", eptr);
                 }
-            sock = sim_connect_sock_ex (NULL, hostport, "localhost", NULL, (datagram ? SIM_SOCK_OPT_DATAGRAM : 0) | (packet ? SIM_SOCK_OPT_NODELAY : 0));
+            sock = sim_connect_sock_ex (NULL, hostport, "localhost", NULL, (datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
+                                                                           (packet ? SIM_SOCK_OPT_NODELAY : 0)    |
+                                                                           SIM_SOCK_OPT_BLOCKING);
             if (sock != INVALID_SOCKET)
                 sim_close_sock (sock);
             else
@@ -2549,7 +2562,18 @@ while (*tptr) {
         if (modem_control != mp->modem_control)
             return SCPE_ARG;
         if (logfiletmpl[0]) {
+#ifdef __GNUC__
+#ifndef __clang_version__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif /* ifndef __clang_version__ */
+#endif /* ifdef __GNUC__ */
             strncpy(mp->logfiletmpl, logfiletmpl, sizeof(mp->logfiletmpl)-1);
+#ifdef __GNUC__
+#ifndef __clang_version__
+#pragma GCC diagnostic pop
+#endif /* ifndef __clang_version__ */
+#endif /* ifdef __GNUC__ */
             for (i = 0; i < mp->lines; i++) {
                 lp = mp->ldsc + i;
                 sim_close_logfile (&lp->txlogref);
@@ -2691,7 +2715,9 @@ while (*tptr) {
                         return sim_messagef (SCPE_ARG, "Missing listen port for Datagram socket\n");
                     }
                 lp->packet = packet;
-                sock = sim_connect_sock_ex (datagram ? listen : NULL, hostport, "localhost", NULL, (datagram ? SIM_SOCK_OPT_DATAGRAM : 0) | (packet ? SIM_SOCK_OPT_NODELAY : 0));
+                sock = sim_connect_sock_ex (datagram ? listen : NULL, hostport, "localhost", NULL, (datagram ? SIM_SOCK_OPT_DATAGRAM : 0) |
+                                                                                                   (packet ? SIM_SOCK_OPT_NODELAY : 0)    |
+                                                                                                   SIM_SOCK_OPT_BLOCKING);
                 if (sock != INVALID_SOCKET) {
                     _mux_detach_line (lp, FALSE, TRUE);
                     lp->destination = (char *)malloc(1+strlen(hostport));
@@ -3786,7 +3812,7 @@ if (lp->txlog)                                          /* close existing log */
 lp->txlogname = (char *) calloc (CBUFSIZE, sizeof (char)); /* alloc namebuf */
 if (lp->txlogname == NULL)                              /* can't? */
     return SCPE_MEM;
-strncpy (lp->txlogname, cptr, CBUFSIZE);                /* save file name */
+strncpy (lp->txlogname, cptr, CBUFSIZE-1);              /* save file name */
 sim_open_logfile (cptr, TRUE, &lp->txlog, &lp->txlogref);/* open log */
 if (lp->txlog == NULL) {                                /* error? */
     free (lp->txlogname);                               /* free buffer */
@@ -3898,6 +3924,12 @@ if (set == NULL) {                                      /* allocation failed? */
     }
 
 tbuf = (char *) calloc (strlen(carg)+2, sizeof(*carg));
+if (tbuf == NULL) {
+  free(tbuf);
+  free(set);
+  free(list);
+  return SCPE_MEM;
+}
 strcpy (tbuf, carg);
 tptr = tbuf + strlen (tbuf);                            /* append a semicolon */
 *tptr++ = ';';                                          /*   to the command string */
@@ -4278,6 +4310,7 @@ if ((dptr) && (dbits & dptr->dctrl)) {
                         i += (tmxr_buf_debug_telnet_options ((u_char *)(&buf[i]), bufsize-i) - 1);
                         break;
                         }
+                    /* fall through */ /* fallthrough */
                 default:
                     if (isprint((u_char)buf[i]))
                         tmxr_buf_debug_char (buf[i]);

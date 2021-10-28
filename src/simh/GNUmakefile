@@ -103,7 +103,7 @@ scp.o:         sim_defs.h
 scp.o:         sim_timer.h
 scp.o:         sim_disk.h sim_tape.h sim_sock.h
 scp.o:         sim_serial.h
-scp.o:         sim_tmxr.h sim_frontpanel.h
+scp.o:         sim_tmxr.h
 scp.o:         ../dps8/ver.h
 scp.o:         ../dps8/dps8_prom.h
 scp.o:         ../dps8/sysdefs.h

@@ -56,21 +56,13 @@ typedef struct SERPORT *SERHANDLE;
 #define INVALID_HANDLE  (SERHANDLE)INVALID_HANDLE_VALUE
 #endif /* !defined(INVALID_HANDLE) */
 
-#elif defined (__unix__) || defined (__APPLE__) || defined (__hpux) /* UNIX definitions */
+#elif defined (__unix__) || defined (__APPLE__) /* UNIX definitions */
 
 #include <fcntl.h>
-#ifdef __hpux
-#include <sys/modem.h>
-#endif
 #include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 
-#if !defined(INVALID_HANDLE)
-#define INVALID_HANDLE  ((SERHANDLE)(void *)-1)
-#endif /* !defined(INVALID_HANDLE) */
-
-#elif defined (VMS)                             /* VMS definitions */
 #if !defined(INVALID_HANDLE)
 #define INVALID_HANDLE  ((SERHANDLE)(void *)-1)
 #endif /* !defined(INVALID_HANDLE) */
