@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
+#include "dps8.h"
 #include "tracker.h"
 
 int brkbrk (int32_t arg, const char *  buf);
