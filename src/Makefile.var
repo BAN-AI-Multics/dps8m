@@ -45,6 +45,7 @@ endif
 
 ifdef HDBG
   HDBG=1
+  TESTING=1
   CFLAGS += -DHDBG
 endif
 
