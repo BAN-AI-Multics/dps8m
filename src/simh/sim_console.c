@@ -67,7 +67,9 @@
 
 #include "sim_defs.h"
 #include "sim_tmxr.h"
+#ifdef USE_SERIAL
 #include "sim_serial.h"
+#endif
 #include "sim_timer.h"
 #include <ctype.h>
 #include <math.h>
@@ -203,8 +205,10 @@ static CTAB set_con_tab[] = {
     { "SPEED", &sim_set_cons_speed, 0 },
     { "TELNET", &sim_set_telnet, 0 },
     { "NOTELNET", &sim_set_notelnet, 0 },
+#ifdef USE_SERIAL
     { "SERIAL", &sim_set_serial, 0 },
     { "NOSERIAL", &sim_set_noserial, 0 },
+#endif
     { "LOG", &sim_set_logon, 0 },
     { "NOLOG", &sim_set_logoff, 0 },
     { "DEBUG", &sim_set_debon, 0 },
@@ -255,11 +259,13 @@ static CTAB set_con_telnet_tab[] = {
     { NULL, NULL, 0 }
     };
 
+#ifdef USE_SERIAL
 static CTAB set_con_serial_tab[] = {
     { "LOG", &sim_set_cons_log, 0 },
     { "NOLOG", &sim_set_cons_nolog, 0 },
     { NULL, NULL, 0 }
     };
+#endif
 
 static int32 *cons_kmap[] = {
     &sim_int_char,
@@ -403,12 +409,12 @@ if (sim_rem_active_number >= 0) {
     if (sim_rem_master_mode && (sim_rem_active_number == 0))
         fprintf (st, "Running from Master Mode Remote Console Connection\n");
     else
-        fprintf (st, "Running from Remote Console Connection %d\n", sim_rem_active_number);
+        fprintf (st, "Running from Remote Console Connection %lu\n", (unsigned long)sim_rem_active_number);
     }
 if (sim_rem_con_tmxr.lines > 1)
-    fprintf (st, "Remote Console Input Connections from %d sources are supported concurrently\n", sim_rem_con_tmxr.lines);
+    fprintf (st, "Remote Console Input Connections from %lu sources are supported concurrently\n", (unsigned long)sim_rem_con_tmxr.lines);
 if (sim_rem_read_timeout)
-    fprintf (st, "Remote Console Input automatically continues after %d seconds\n", sim_rem_read_timeout);
+    fprintf (st, "Remote Console Input automatically continues after %lu seconds\n", (unsigned long)sim_rem_read_timeout);
 if (!sim_rem_con_tmxr.master)
     fprintf (st, "Remote Console Command input is disabled\n");
 else
@@ -423,9 +429,9 @@ for (i=connections=0; i<sim_rem_con_tmxr.lines; i++) {
     tmxr_fconns (st, lp, i);
     if (sim_rem_read_timeouts[i] != sim_rem_read_timeout) {
         if (sim_rem_read_timeouts[i])
-            fprintf (st, "Remote Console Input on connection %d automatically continues after %d seconds\n", i, sim_rem_read_timeouts[i]);
+            fprintf (st, "Remote Console Input on connection %lu automatically continues after %lu seconds\n", (unsigned long)i, (unsigned long)sim_rem_read_timeouts[i]);
         else
-            fprintf (st, "Remote Console Input on connection %d does not continue automatically\n", i);
+            fprintf (st, "Remote Console Input on connection %lu does not continue automatically\n", (unsigned long)i);
         }
     }
 return SCPE_OK;
@@ -639,7 +645,6 @@ t_stat sim_rem_con_data_svc (UNIT *uptr)
 {
 int32 i, j, c = 0;
 t_stat stat = SCPE_OK;
-t_bool active_command = FALSE;
 int32 steps = 0;
 t_bool was_active_command = (sim_rem_cmd_active_line != -1);
 t_bool got_command;
@@ -653,7 +658,7 @@ uint32 read_start_time = 0;
 
 tmxr_poll_rx (&sim_rem_con_tmxr);                      /* poll input */
 for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
-     (i < sim_rem_con_tmxr.lines) && (!active_command);
+     (i < sim_rem_con_tmxr.lines);
      i++) {
     t_bool master_session = (sim_rem_master_mode && (i == 0));
 
@@ -710,14 +715,14 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                     TMLN *lpj = &sim_rem_con_tmxr.ldsc[j];
                     if ((i == j) || (!lpj->conn))
                         continue;
-                    tmxr_linemsgf (lpj, "\nRemote Console %d(%s) Entering Commands\n", i, lp->ipad);
+                    tmxr_linemsgf (lpj, "\nRemote Console %lu(%s) Entering Commands\n", (unsigned long)i, lp->ipad);
                     tmxr_send_buffered_data (lpj);      /* flush any buffered data */
                     }
                 lp = &sim_rem_con_tmxr.ldsc[i];
                 if (!master_session)
                     tmxr_linemsg (lp, "\r\nSimulator paused.\r\n");
                 if (!master_session && sim_rem_read_timeouts[i]) {
-                    tmxr_linemsgf (lp, "Simulation will resume automatically if input is not received in %d seconds\n", sim_rem_read_timeouts[i]);
+                    tmxr_linemsgf (lp, "Simulation will resume automatically if input is not received in %lu seconds\n", (unsigned long)sim_rem_read_timeouts[i]);
                     tmxr_linemsgf (lp, "\r\n");
                     tmxr_send_buffered_data (lp);       /* flush any buffered data */
                     }
@@ -817,7 +822,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                         sim_rem_buf[i] = (char *)realloc (sim_rem_buf[i], sim_rem_buf_size[i]);
                         }
                     sim_rem_buf[i][sim_rem_buf_ptr[i]++] = '\0';
-                    sim_debug (DBG_RCV, &sim_remote_console, "Got Command (%d bytes still in buffer): %s\n", tmxr_input_pending_ln (lp), sim_rem_buf[i]);
+                    sim_debug (DBG_RCV, &sim_remote_console, "Got Command (%lu bytes still in buffer): %s\n", (unsigned long)tmxr_input_pending_ln (lp), sim_rem_buf[i]);
                     got_command = TRUE;
                     break;
                 case '\004': /* EOF (^D) */
@@ -1627,7 +1632,7 @@ return show_dev_debug (st, &sim_con_telnet, &sim_con_unit, flag, cptr);
 }
 
 /* Set console to Serial port (and parameters) */
-
+#ifdef USE_SERIAL
 t_stat sim_set_serial (int32 flag, CONST char *cptr)
 {
 char *cvptr, gbuf[CBUFSIZE], ubuf[CBUFSIZE];
@@ -1679,6 +1684,7 @@ if (sim_con_ldsc.serport == 0)                          /* ignore if already clo
     return SCPE_OK;
 return tmxr_close_master (&sim_con_tmxr);               /* close master socket */
 }
+#endif
 
 /* Show the console expect rules and state */
 
@@ -1767,7 +1773,7 @@ return SCPE_OK;
 
 /* Show logfile support routine */
 
-const char *sim_logfile_name (FILE *st, FILEREF *ref)
+const char *sim_logfile_name (const FILE *st, FILEREF *ref)
 {
 if (!st)
     return "";

@@ -174,7 +174,7 @@ typedef uint32          t_addr;
 
 #if defined(_MSC_VER)
 #define SIM_INLINE _inline
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__clang_version__) || defined(__xlc__)
 #define SIM_INLINE inline
 #else
 #define SIM_INLINE

@@ -381,6 +381,7 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
             cpu.SDW->USE = N_WAM_ENTRIES - 1;
 
             char buf[256];
+            (void)buf;
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                      __func__, _n, str_sdw (buf, cpu.SDW));
 
@@ -414,6 +415,7 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
               }
 
             char buf[256];
+            (void)buf;
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                     __func__, toffset + setno, str_sdw (buf, cpu.SDW));
             return cpu.SDW;
@@ -534,6 +536,7 @@ static void fetch_nsdw (word15 segno)
 #endif
 #ifndef SPEED
     char buf[256];
+    (void)buf;
     DBGAPP ("%s (2):SDW0=%s\n", __func__, str_SDW0 (buf, & cpu.SDW0));
 #endif
   }
@@ -575,6 +578,7 @@ static char *str_sdw (char * buf, sdw_s *SDW)
 t_stat dump_sdwam (void)
   {
     char buf[256];
+    (void)buf;
     for (int _n = 0; _n < N_WAM_ENTRIES; _n++)
       {
         sdw_s *p = & cpu.SDWAM[_n];
@@ -657,6 +661,7 @@ static void load_sdwam (word15 segno, bool nomatch)
             cpu.SDW = p;
 
             char buf[256];
+            (void)buf;
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                     __func__, _n, str_sdw (buf, p));
 
@@ -702,6 +707,7 @@ static void load_sdwam (word15 segno, bool nomatch)
       }
 
     char buf[256];
+    (void)buf;
     DBGAPP ("%s(2):SDWAM[%d]=%s\n",
             __func__, toffset + setno, str_sdw (buf, cpu.SDW));
 #endif

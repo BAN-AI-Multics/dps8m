@@ -226,11 +226,14 @@ return SCPE_OK;
 t_stat sim_tape_detach (UNIT *uptr)
 {
 struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
-uint32 f = MT_GET_FMT (uptr);
+uint32 f = 0;
 t_stat r;
 t_bool auto_format = FALSE;
 
-if ((ctx == NULL) || (uptr == NULL) || !(uptr->flags & UNIT_ATT))
+if (uptr != NULL)
+    f = MT_GET_FMT (uptr);
+
+if ((ctx == NULL) || !(uptr->flags & UNIT_ATT))
     return SCPE_IERR;
 
 if (uptr->io_flush)
@@ -265,7 +268,7 @@ if (auto_format)    /* format was determined or specified at attach time? */
 return SCPE_OK;
 }
 
-t_stat sim_tape_attach_help(FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, const char *cptr)
+t_stat sim_tape_attach_help(FILE *st, DEVICE *dptr, const UNIT *uptr, int32 flag, const char *cptr)
 {
 fprintf (st, "%s Tape Attach Help\n\n", dptr->name);
 if (0 == (uptr-dptr->units)) {
@@ -274,7 +277,7 @@ if (0 == (uptr-dptr->units)) {
 
         for (i=0; i < dptr->numunits; ++i)
             if (dptr->units[i].flags & UNIT_ATTABLE)
-                fprintf (st, "  sim> ATTACH {switches} %s%d tapefile\n\n", dptr->name, i);
+                fprintf (st, "  sim> ATTACH {switches} %s%lu tapefile\n\n", dptr->name, (unsigned long)i);
         }
     else
         fprintf (st, "  sim> ATTACH {switches} %s tapefile\n\n", dptr->name);
@@ -2035,12 +2038,12 @@ t_stat sim_tape_show_capac (FILE *st, UNIT *uptr, int32 val, CONST void *desc)
 {
 if (uptr->capac) {
     if (uptr->capac >= (t_addr) 1000000)
-        fprintf (st, "capacity=%dMB", (uint32) (uptr->capac / ((t_addr) 1000000)));
+        fprintf (st, "capacity=%luMB", (unsigned long)(uptr->capac / ((t_addr) 1000000)));
     else {
         if (uptr->capac >= (t_addr) 1000)
-            fprintf (st, "capacity=%dKB", (uint32) (uptr->capac / ((t_addr) 1000)));
+            fprintf (st, "capacity=%luKB", (unsigned long)(uptr->capac / ((t_addr) 1000)));
         else
-            fprintf (st, "capacity=%dB", (uint32) uptr->capac);
+            fprintf (st, "capacity=%luB", (unsigned long)uptr->capac);
         }
     }
 else
@@ -2089,7 +2092,7 @@ else {                                                          /* otherwise a v
     new_bpi = (uint32) get_uint (cptr, 10, UINT_MAX, &result);  /* convert the string value */
 
     if (result != SCPE_OK)                                      /* if the conversion failed */
-        result = SCPE_ARG;                                      /*   then report a bad argument */
+        return SCPE_ARG;                                        /*   then report a bad argument */
 
     else for (density = 0; density < BPI_COUNT; density++)      /* otherwise validate the density */
         if (new_bpi == bpi [density]                            /* if it matches a value in the list */
@@ -2118,7 +2121,8 @@ else {                                                  /* otherwise get the den
     tape_density = bpi [MT_DENS (uptr->dynflags)];      /*   of the tape from the unit flags */
 
     if (tape_density)                                   /* if it's set */
-        fprintf (st, "density=%d bpi", tape_density);   /*   then report it */
+        fprintf (st, "density=%lu bpi",
+            (unsigned long)tape_density);               /*   then report it */
     else                                                /* otherwise */
         fprintf (st, "density not set");                /*   it was never set by the caller */
     }

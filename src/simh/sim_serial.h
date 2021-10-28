@@ -28,6 +28,8 @@
 #ifndef SIM_SERIAL_H_
 #define SIM_SERIAL_H_    0
 
+#ifdef USE_SERIAL
+
 #ifdef  __cplusplus
 extern "C" {
 #endif
@@ -91,6 +93,8 @@ extern t_stat    sim_show_serial    (FILE* st, DEVICE *dptr, UNIT* uptr, int32 v
 
 #ifdef  __cplusplus
 }
+#endif
+
 #endif
 
 #endif

@@ -4026,6 +4026,17 @@ static void dps8_init (void)
 #endif
     sim_msg ("ROUND_ROBIN");
 #endif
+#ifdef USE_SERIAL
+#ifdef HAVE_DPSOPT
+    sim_msg (", ");
+#else
+    sim_msg ("\n Options: ");
+#endif
+#ifndef HAVE_DPSOPT
+#define HAVE_DPSOPT 1
+#endif
+    sim_msg ("SERIAL");
+#endif
 #ifndef LOCKLESS
 #ifdef HAVE_DPSOPT
     sim_msg (", ");

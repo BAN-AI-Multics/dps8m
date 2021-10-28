@@ -501,7 +501,7 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
 
         // Copy the data to the H316 memory and we're done!
         //sim_debug (IMP_DBG_UDP, dptr, "link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pktlen);
-printf ("link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pktlen);
+printf ("link %lu - packet received (sequence=%lu, length=%lu)\n", (unsigned long)link, (unsigned long)pktseq, (unsigned long)pktlen);
         for (i = 0;  i < (implen < maxbuf ? implen : maxbuf);  ++ i)
           * pdata ++ = ntohs (pkt . data [i]);
         return implen;

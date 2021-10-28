@@ -582,9 +582,10 @@ typedef enum
 
 #define ARRAY_SIZE(a) ( sizeof(a) / sizeof((a)[0]) )
 
-#if defined(__GNUC__)    || defined(__MINGW64__) || \
-    defined(__MINGW32__) || defined(__GNUC__)    || \
-    defined(__clang_version__)
+#if defined (__MINGW64__) || \
+    defined (__MINGW32__) || \
+    defined (__GNUC__) || \
+    defined (__clang_version__)
 #define NO_RETURN __attribute__ ((noreturn))
 #define UNUSED    __attribute__ ((unused))
 #else

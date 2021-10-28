@@ -118,6 +118,7 @@
 
 */
 
+#ifdef USE_SERIAL
 
 #include "sim_defs.h"
 #include "sim_serial.h"
@@ -156,7 +157,7 @@ static struct open_serial_device {
     } *serial_open_devices = NULL;
 static int serial_open_device_count = 0;
 
-static struct open_serial_device *_get_open_device (SERHANDLE port)
+static struct open_serial_device *_get_open_device (const SERHANDLE port)
 {
 int i;
 
@@ -184,14 +185,22 @@ serial_open_devices[serial_open_device_count-1].port = port;
 serial_open_devices[serial_open_device_count-1].line = line;
 #ifdef __GNUC__
 #ifndef __clang_version__
+#if __GNUC__ > 7
+#ifndef __INTEL_COMPILER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif /* ifndef __INTEL_COMPILER */
+#endif /* if __GNUC__ > 7 */
 #endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
 strncpy(serial_open_devices[serial_open_device_count-1].name, name, sizeof(serial_open_devices[serial_open_device_count-1].name)-1);
 #ifdef __GNUC__
 #ifndef __clang_version__
+#if __GNUC__ > 7
+#ifndef __INTEL_COMPILER
 #pragma GCC diagnostic pop
+#endif /* ifndef __INTEL_COMPILER */
+#endif /* if __GNUC__ > 7 */
 #endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
 if (config)
@@ -199,7 +208,7 @@ if (config)
 return &serial_open_devices[serial_open_device_count-1];
 }
 
-static void _serial_remove_from_open_list (SERHANDLE port)
+static void _serial_remove_from_open_list (const SERHANDLE port)
 {
 int i, j;
 
@@ -443,14 +452,22 @@ if ((port != INVALID_HANDLE) && (*config) && (lp)) {
 if (port != INVALID_HANDLE)
 #ifdef __GNUC__
 #ifndef __clang_version__
+#if __GNUC__ > 7
+#ifndef __INTEL_COMPILER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif /* ifndef __INTEL_COMPILER */
+#endif /* if __GNUC__ > 7 */
 #endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
     _serial_add_to_open_list (port, lp, savname, config);
 #ifdef __GNUC__
 #ifndef __clang_version__
+#if __GNUC__ > 7
+#ifndef __INTEL_COMPILER
 #pragma GCC diagnostic pop
+#endif /* ifndef __INTEL_COMPILER */
+#endif /* if __GNUC__ > 7 */
 #endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
 
@@ -1484,6 +1501,6 @@ static void sim_close_os_serial (SERHANDLE port)
 {
 }
 
-
-
 #endif                                                  /* end else !implemented */
+
+#endif

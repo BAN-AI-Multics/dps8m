@@ -101,7 +101,7 @@ t_stat sim_show_cons_expect (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CON
 t_stat sim_check_console (int32 sec);
 t_stat sim_open_logfile (const char *filename, t_bool binary, FILE **pf, FILEREF **pref);
 t_stat sim_close_logfile (FILEREF **pref);
-const char *sim_logfile_name (FILE *st, FILEREF *ref);
+const char *sim_logfile_name (const FILE *st, FILEREF *ref);
 SEND *sim_cons_get_send (void);
 EXPECT *sim_cons_get_expect (void);
 t_stat sim_show_cons_send_input (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);

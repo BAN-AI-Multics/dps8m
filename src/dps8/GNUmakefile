@@ -317,7 +317,7 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all: sysdefs.h unifdef locallibs_then_dps8 prt2pdf punutil $(TAGS)
+all: sysdefs.h ver.h unifdef locallibs_then_dps8 prt2pdf punutil $(TAGS)
 
 ###############################################################################
 
@@ -427,20 +427,19 @@ slte.inc: system_book_12_3.ascii
 ###############################################################################
 
 .PHONY: locallibs_then_dps8
-locallibs_then_dps8:
+locallibs_then_dps8: ver.h sysdefs.h
 	@($(SETV); $(CD) "../decNumber" && $(MAKE) -C "." -f "GNUmakefile" "all")
-	@$(SETV); MAKE="$(MAKE)" $(MAKE) -C "." -f "GNUmakefile" "ver.h"
 	@($(SETV); $(CD) "$(SIMHx)" && $(MAKE) -C "." -f "GNUmakefile" "all")
 	@$(SETV); $(MAKE) -C "." -f "GNUmakefile" "dps8$(EXE)"
 
 ###############################################################################
 
-prt2pdf:
+prt2pdf: sysdefs.h
 	@$(SETV); $(MAKE) -C "../prt2pdf" "all"
 
 ###############################################################################
 
-unifdef:
+unifdef: ver.h
 	-@$(SETV); $(MAKE) -C "../unifdef"
 
 ###############################################################################

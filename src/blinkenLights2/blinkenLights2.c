@@ -28,6 +28,11 @@
 #include "dps8_cable.h"
 #include "dps8_state.h"
 #include "dps8_faults.h"
+
+#ifndef USE_OPENSHM
+#define USE_OPENSHN
+#endif
+
 #include "shm.h"
 
 //#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))

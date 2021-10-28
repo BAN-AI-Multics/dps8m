@@ -702,8 +702,14 @@ startCA:;
 #ifndef __SUNPRO_CC
 #ifndef __SUNPRO_CC_COMPAT
                 /*FALLTHRU*/
+                /* fall through */
+#if defined(__GNUC__) && __GNUC__ > 6
                 __attribute__ ((fallthrough));
+#endif
                 /*FALLTHRU*/
+#ifdef __clang__
+                (void)0;
+#endif
 #endif
 #endif
 #endif

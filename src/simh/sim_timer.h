@@ -75,7 +75,7 @@ int clock_gettime(int clock_id, struct timespec *tp);
 #define TIMER_DBG_MUX   0x004                       /* Debug Flag for Asynch Queue Debugging */
 
 t_bool sim_timer_init (void);
-void sim_timespec_diff (struct timespec *diff, struct timespec *min, struct timespec *sub);
+void sim_timespec_diff (struct timespec *diff, const struct timespec *min, struct timespec *sub);
 double sim_timenow_double (void);
 int32 sim_rtcn_init (int32 time, int32 tmr);
 int32 sim_rtcn_init_unit (UNIT *uptr, int32 time, int32 tmr);

@@ -742,8 +742,8 @@ int err;
 
 newsock = socket (af, ((opt_flags & SIM_SOCK_OPT_DATAGRAM) ? SOCK_DGRAM : SOCK_STREAM), 0);/* create socket */
 if (newsock == INVALID_SOCKET) {                        /* socket error? */
-    err = WSAGetLastError ();
 #if defined(WSAEAFNOSUPPORT)
+    err = WSAGetLastError ();
     if (err == WSAEAFNOSUPPORT)                         /* expected error, just return */
         return newsock;
 #endif
@@ -1058,6 +1058,9 @@ return 0;
 
 static int _sim_getaddrname (struct sockaddr *addr, size_t addrsize, char *hostnamebuf, char *portnamebuf)
 {
+int ret = 0;
+
+#ifdef AF_INET6
 #if defined (__linux) || defined (__linux__) || \
     defined (__APPLE__) || defined (__OpenBSD__) || \
     defined (__NetBSD__) || defined(__FreeBSD__) || \
@@ -1068,9 +1071,6 @@ int size = (int)addrsize;
 #else
 size_t size = addrsize;
 #endif
-int ret = 0;
-
-#ifdef AF_INET6
 *hostnamebuf = '\0';
 *portnamebuf = '\0';
 ret = p_getnameinfo(addr, size, hostnamebuf, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);

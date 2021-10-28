@@ -301,7 +301,9 @@
 #define NOT_MUX_USING_CODE /* sim_tmxr library define */
 
 #include "sim_defs.h"
+#ifdef USE_SERIAL
 #include "sim_serial.h"
+#endif
 #include "sim_sock.h"
 #include "sim_timer.h"
 #include "sim_tmxr.h"
@@ -407,7 +409,11 @@ static u_char mantra[] = {                  /* Telnet Option Negotiation Mantra 
     TN_IAC, TN_DO, TN_BIN
     };
 
+#ifdef USE_SERIAL
 #define TMXR_GUARD  ((int32)(lp->serport ? 1 : sizeof(mantra)))/* buffer guard */
+#else
+#define TMXR_GUARD  ((sizeof(mantra))) /* buffer guard */
+#endif
 
 /* Local routines */
 
@@ -642,8 +648,10 @@ int32 i = lp->rxbpi;
 
 if (lp->loopback)
     return loop_read (lp, &(lp->rxb[i]), length);
+#ifdef USE_SERIAL
 if (lp->serport)                                        /* serial port connection? */
     return sim_read_serial (lp->serport, &(lp->rxb[i]), length, &(lp->rbr[i]));
+#endif
 else                                                    /* Telnet connection */
     return sim_read_sock (lp->sock, &(lp->rxb[i]), length);
 }
@@ -664,6 +672,7 @@ int32 i = lp->txbpr;
 if (lp->loopback)
     return loop_write (lp, &(lp->txb[i]), length);
 
+#ifdef USE_SERIAL
 if (lp->serport) {                                      /* serial port connection? */
     if (sim_gtime () < lp->txnexttime)
         return 0;
@@ -673,6 +682,7 @@ if (lp->serport) {                                      /* serial port connectio
     return written;
     }
 else {                                                  /* Telnet connection */
+#endif
     written = sim_write_sock (lp->sock, &(lp->txb[i]), length);
 
     if (written == SOCKET_ERROR)                        /* did an error occur? */
@@ -682,7 +692,9 @@ else {                                                  /* Telnet connection */
             return -1;                                  /* return error indication */
     else
         return written;
+#ifdef USE_SERIAL
     }
+#endif
 }
 
 
@@ -882,6 +894,7 @@ if (lp->destination || lp->port || lp->txlogname) {
     if (lp->port)
         sprintf (growstring(&tptr, 32 + strlen (lp->port)), ",%s%s", lp->port, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
     if (lp->destination) {
+#ifdef USE_SERIAL
         if (lp->serport) {
             char portname[CBUFSIZE];
 
@@ -889,6 +902,7 @@ if (lp->destination || lp->port || lp->txlogname) {
             sprintf (growstring(&tptr, 25 + strlen (lp->destination)), ",Connect=%s%s%s", portname, strcmp("9600-8N1", lp->serconfig) ? ";" : "", strcmp("9600-8N1", lp->serconfig) ? lp->serconfig : "");
             }
         else
+#endif
             sprintf (growstring(&tptr, 25 + strlen (lp->destination)), ",Connect=%s%s", lp->destination, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
         }
     if (lp->txlogname)
@@ -1200,7 +1214,10 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
 
     /* Check for needed outgoing connection initiation */
 
-    if (lp->destination && (!lp->sock) && (!lp->connecting) && (!lp->serport) &&
+    if (lp->destination && (!lp->sock) && (!lp->connecting) && 
+#ifdef USE_SERIAL
+(!lp->serport) &&
+#endif
         (!lp->modem_control || (lp->modembits & TMXR_MDM_DTR))) {
         snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - establishing outgoing connection to: %s", lp->destination);
         tmxr_debug_connect_line (lp, msg);
@@ -1237,6 +1254,7 @@ tmxr_send_buffered_data (lp);                           /* send any buffered dat
 snprintf (msg, sizeof(msg)-1, "tmxr_reset_ln_ex(%s)", closeserial ? "TRUE" : "FALSE");
 tmxr_debug_connect_line (lp, msg);
 
+#ifdef USE_SERIAL
 if (lp->serport) {
     if (closeserial) {
         sim_close_serial (lp->serport);
@@ -1257,6 +1275,7 @@ if (lp->serport) {
             }
     }
 else                                                    /* Telnet connection */
+#endif
     if (lp->sock) {
         sim_close_sock (lp->sock);                      /* close socket */
         free (lp->telnet_sent_opts);
@@ -1268,7 +1287,11 @@ else                                                    /* Telnet connection */
         }
 free(lp->ipad);
 lp->ipad = NULL;
-if ((lp->destination) && (!lp->serport)) {
+if ((lp->destination)
+#ifdef USE_SERIAL
+&& (!lp->serport)
+#endif
+) {
     if (lp->connecting) {
         sim_close_sock (lp->connecting);
         lp->connecting = 0;
@@ -1329,8 +1352,11 @@ for (i=0; i<mp->lines; ++i) {
     lp = mp->ldsc + i;
     if ((lp->master)     ||
         (lp->sock)       ||
-        (lp->connecting) ||
-        (lp->serport))
+        (lp->connecting)
+#ifdef USE_SERIAL
+		|| (lp->serport)
+#endif
+)
         return SCPE_ALATT;
     }
 mp->modem_control = state;
@@ -1403,7 +1429,11 @@ if ((bits_to_set & ~(TMXR_MDM_OUTGOING)) ||         /* Assure only settable bits
 before_modem_bits = lp->modembits;
 lp->modembits |= bits_to_set;
 lp->modembits &= ~(bits_to_clear | TMXR_MDM_INCOMING);
-if ((lp->sock) || (lp->serport) || (lp->loopback)) {
+if ((lp->sock)
+#ifdef USE_SERIAL
+|| (lp->serport)
+#endif
+|| (lp->loopback)) {
     if (lp->modembits & TMXR_MDM_DTR) {
         incoming_state = TMXR_MDM_DSR;
         if (lp->modembits & TMXR_MDM_RTS)
@@ -1477,8 +1507,10 @@ if (lp->mp && lp->modem_control) {                  /* This API ONLY works on mo
                 }
             return SCPE_OK;
             }
+#ifdef USE_SERIAL
         if (lp->serport)
             return sim_control_serial (lp->serport, bits_to_set, bits_to_clear, incoming_bits);
+#endif
         if ((lp->sock) || (lp->connecting)) {
             if ((before_modem_bits & bits_to_clear & TMXR_MDM_DTR) != 0) { /* drop DTR? */
                 if (lp->sock)
@@ -1509,8 +1541,10 @@ if ((lp->sock) || (lp->connecting)) {
         tmxr_reset_ln (lp);
         }
     }
+#ifdef USE_SERIAL
 if ((lp->serport) && (!lp->loopback))
     sim_control_serial (lp->serport, 0, 0, incoming_bits);
+#endif
 return SCPE_INCOMP;
 }
 
@@ -1588,9 +1622,11 @@ t_stat tmxr_set_config_line (TMLN *lp, CONST char *config)
 t_stat r;
 
 tmxr_debug_trace_line (lp, "tmxr_set_config_line()");
+#ifdef USE_SERIAL
 if (lp->serport)
     r = sim_config_serial (lp->serport, config);
 else {
+#endif
     lp->serconfig = (char *)realloc (lp->serconfig, 1 + strlen (config));
     strcpy (lp->serconfig, config);
     r = tmxr_set_line_speed (lp, lp->serconfig);;
@@ -1598,7 +1634,9 @@ else {
         free (lp->serconfig);
         lp->serconfig = NULL;
         }
+#ifdef USE_SERIAL
     }
+#endif
 if ((r == SCPE_OK) && (lp->mp) && (lp->mp->uptr))   /* Record port state for proper restore */
     lp->mp->uptr->filename = tmxr_mux_attach_string (lp->mp->uptr->filename, lp->mp);
 return r;
@@ -1739,7 +1777,11 @@ TMLN *lp;
 tmxr_debug_trace (mp, "tmxr_poll_rx()");
 for (i = 0; i < mp->lines; i++) {                       /* loop thru lines */
     lp = mp->ldsc + i;                                  /* get line desc */
-    if (!(lp->sock || lp->serport || lp->loopback) ||
+    if (!(lp->sock
+#ifdef USE_SERIAL
+|| lp->serport
+#endif
+|| lp->loopback) ||
         !(lp->rcve))                                    /* skip if not connected */
         continue;
 
@@ -2011,7 +2053,11 @@ if ((lp->conn == FALSE) &&                              /* no conn & not buffere
     return SCPE_LOST;
     }
 tmxr_debug_trace_line (lp, "tmxr_putc_ln()");
+#ifdef USE_SERIAL
 #define TXBUF_AVAIL(lp) ((lp->serport ? 2: lp->txbsz) - tmxr_tqln (lp))
+#else
+#define TXBUF_AVAIL(lp) (lp->txbsz - tmxr_tqln (lp))
+#endif
 #define TXBUF_CHAR(lp, c) {                               \
     lp->txb[lp->txbpi++] = (char)(c);                     \
     lp->txbpi %= lp->txbsz;                               \
@@ -2215,6 +2261,7 @@ if (close_connecting) {
         tmxr_reset_ln (lp);
         }
     }
+#ifdef USE_SERIAL
 if (lp->serport) {                          /* close current serial connection */
     tmxr_reset_ln (lp);
     sim_control_serial (lp->serport, 0, TMXR_MDM_DTR|TMXR_MDM_RTS, NULL);/* drop DTR and RTS */
@@ -2225,6 +2272,7 @@ if (lp->serport) {                          /* close current serial connection *
     free (lp->destination);
     lp->destination = NULL;
     }
+#endif
 tmxr_set_line_loopback (lp, FALSE);
 }
 
@@ -2345,13 +2393,15 @@ t_stat tmxr_open_master (TMXR *mp, CONST char *cptr)
 {
 int32 i, line, nextline = -1;
 char tbuf[CBUFSIZE], listen[CBUFSIZE], destination[CBUFSIZE],
-     logfiletmpl[CBUFSIZE], buffered[CBUFSIZE], hostport[CBUFSIZE],
+     logfiletmpl[CBUFSIZE], buffered[CBUFSIZE], hostport[CBUFSIZE*2],
      port[CBUFSIZE], option[CBUFSIZE], speed[CBUFSIZE];
 SOCKET sock;
+#ifdef USE_SERIAL
 SERHANDLE serport;
+#endif
 CONST char *tptr = cptr;
 t_bool nolog, notelnet, listennotelnet, modem_control, loopback, datagram, packet;
-TMLN *lp;
+TMLN *lp = NULL;
 t_stat r = SCPE_OK;
 
 if (*tptr == '\0')
@@ -2523,6 +2573,7 @@ while (*tptr) {
         }
     if (destination[0]) {
         /* Validate destination */
+#ifdef USE_SERIAL
         serport = sim_open_serial (destination, NULL, &r);
         if (serport != INVALID_HANDLE) {
             sim_close_serial (serport);
@@ -2530,6 +2581,7 @@ while (*tptr) {
                 return sim_messagef (SCPE_ARG, "Serial line parameters must be set within simulated OS: %s\n", 1 + strchr (destination, ';'));
             }
         else {
+#endif
             char *eptr;
 
             memset (hostport, '\0', sizeof(hostport));
@@ -2556,7 +2608,9 @@ while (*tptr) {
                 sim_close_sock (sock);
             else
                 return sim_messagef (SCPE_ARG, "Invalid destination: %s\n", hostport);
+#ifdef USE_SERIAL
             }
+#endif
         }
     if (line == -1) {
         if (modem_control != mp->modem_control)
@@ -2564,14 +2618,22 @@ while (*tptr) {
         if (logfiletmpl[0]) {
 #ifdef __GNUC__
 #ifndef __clang_version__
+#ifndef __INTEL_COMPILER
+#if __GNUC__ > 7
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif /* if __GNUC__ > 7 */
+#endif /* ifndef __INTEL_COMPILER */
 #endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
             strncpy(mp->logfiletmpl, logfiletmpl, sizeof(mp->logfiletmpl)-1);
 #ifdef __GNUC__
 #ifndef __clang_version__
+#ifndef __INTEL_COMPILER
+#if __GNUC__ > 7
 #pragma GCC diagnostic pop
+#endif /* if __GNUC__ > 7 */
+#endif /* ifndef __INTEL_COMPILER */
 #endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
             for (i = 0; i < mp->lines; i++) {
@@ -2648,7 +2710,7 @@ while (*tptr) {
                 lp = mp->ldsc + i;
                 lp->mp = mp;                                /* set the back pointer */
                 lp->packet = mp->packet;
-
+#ifdef USE_SERIAL
                 if (lp->serport) {                          /* serial port attached? */
                     tmxr_reset_ln (lp);                     /* close current serial connection */
                     sim_control_serial (lp->serport, 0, TMXR_MDM_DTR|TMXR_MDM_RTS, NULL);/* drop DTR and RTS */
@@ -2658,9 +2720,12 @@ while (*tptr) {
                     lp->serconfig = NULL;
                     }
                 else {
+#endif
                     if (speed[0])
                         tmxr_set_line_speed (lp, speed);
+#ifdef USE_SERIAL
                     }
+#endif
                 tmxr_init_line (lp);                        /* initialize line state */
                 lp->sock = 0;                               /* clear the socket */
                 }
@@ -2680,6 +2745,7 @@ while (*tptr) {
             if (mp->lines > 1)
                 return sim_messagef (SCPE_ARG, "Ambiguous Destination specification\n");
             lp = &mp->ldsc[0];
+#ifdef USE_SERIAL
             serport = sim_open_serial (destination, lp, &r);
             if (serport != INVALID_HANDLE) {
                 _mux_detach_line (lp, TRUE, TRUE);
@@ -2705,6 +2771,7 @@ while (*tptr) {
                     }
                 }
             else {
+#endif
                 lp->datagram = datagram;
                 if (datagram) {
                     if (listen[0]) {
@@ -2739,7 +2806,9 @@ while (*tptr) {
                 else
                     return sim_messagef (SCPE_ARG, "Can't open %s socket on %s%s%s\n", datagram ? "Datagram" : "Stream", datagram ? listen : "", datagram ? "<->" : "", hostport);
                 }
+#ifdef USE_SERIAL
             }
+#endif
         }
     else {                                                  /* line specific attach */
         lp = &mp->ldsc[line];
@@ -2798,6 +2867,7 @@ while (*tptr) {
                 lp->notelnet = mp->notelnet;
             }
         if (destination[0]) {
+#ifdef USE_SERIAL
             serport = sim_open_serial (destination, lp, &r);
             if (serport != INVALID_HANDLE) {
                 _mux_detach_line (lp, TRUE, TRUE);
@@ -2816,6 +2886,7 @@ while (*tptr) {
                     }
                 }
             else {
+#endif
                 lp->datagram = datagram;
                 if (datagram) {
                     if (listen[0]) {
@@ -2849,11 +2920,17 @@ while (*tptr) {
             sim_printf ("Line %d operating in loopback mode\n", line);
             }
         lp->modem_control = modem_control;
-        if (speed[0] && (!datagram) && (!lp->serport))
+        if (speed[0] && (!datagram)
+#ifdef USE_SERIAL
+&& (!lp->serport)
+#endif
+)
             tmxr_set_line_speed (lp, speed);
         r = SCPE_OK;
         }
+#ifdef USE_SERIAL
     }
+#endif
 if (r == SCPE_OK)
     tmxr_add_to_open_list (mp);
 return r;
@@ -3049,8 +3126,11 @@ uptr->flags = uptr->flags | UNIT_ATT;                   /* no more errors */
 uptr->tmxr = (void *)mp;
 if ((mp->lines > 1) ||
     ((mp->master == 0) &&
-     (mp->ldsc[0].connecting == 0) &&
-     (mp->ldsc[0].serport == 0)))
+     (mp->ldsc[0].connecting == 0)
+#ifdef USE_SERIAL
+     && (mp->ldsc[0].serport == 0)
+#endif
+))
     uptr->dynflags = uptr->dynflags | UNIT_ATTMULT;     /* allow multiple attach commands */
 
 uptr->dynflags |= TMUF_NOASYNCH;                        /* tag as no asynch */
@@ -3118,7 +3198,7 @@ else {
         fprintf(st, ", sessions=%d", mp->sessions);
         if (mp->lines == 1) {
             if (mp->ldsc->rxbps) {
-                fprintf(st, ", Speed=%d", mp->ldsc->rxbps);
+                fprintf(st, ", Speed=%lu", (unsigned long)mp->ldsc->rxbps);
                 if (mp->ldsc->rxbpsfactor != TMXR_RX_BPS_UNIT_SCALE)
                     fprintf(st, "*%.0f", mp->ldsc->rxbpsfactor/TMXR_RX_BPS_UNIT_SCALE);
                 fprintf(st, " bps");
@@ -3126,7 +3206,7 @@ else {
             }
         fprintf(st, "\n");
         if (mp->ring_start_time) {
-            fprintf (st, "    incoming Connection from: %s ringing for %d milliseconds\n", mp->ring_ipad, sim_os_msec () - mp->ring_start_time);
+            fprintf (st, "    incoming Connection from: %s ringing for %lu milliseconds\n", mp->ring_ipad, (unsigned long)sim_os_msec () - (unsigned long)mp->ring_start_time);
             }
         for (j = 0; j < mp->lines; j++) {
             lp = mp->ldsc + j;
@@ -3143,14 +3223,18 @@ else {
                 if (lp->loopback)
                     fprintf(st, ", Loopback");
                 if (lp->rxbps) {
-                    fprintf(st, ", Speed=%d", lp->rxbps);
+                    fprintf(st, ", Speed=%lu", (unsigned long)lp->rxbps);
                     if (lp->rxbpsfactor != TMXR_RX_BPS_UNIT_SCALE)
                         fprintf(st, "*%.0f", lp->rxbpsfactor/TMXR_RX_BPS_UNIT_SCALE);
                     fprintf(st, " bps");
                     }
                 fprintf (st, "\n");
                 }
-            if ((!lp->sock) && (!lp->connecting) && (!lp->serport) && (!lp->master)) {
+            if ((!lp->sock) && (!lp->connecting)
+#ifdef USE_SERIAL
+&& (!lp->serport)
+#endif
+&& (!lp->master)) {
                 if (lp->modem_control)
                     tmxr_fconns (st, lp, -1);
                 continue;
@@ -3188,10 +3272,12 @@ for (i = 0; i < mp->lines; i++) {  /* loop thru conn */
             tmxr_report_disconnection (lp);             /* report disconnection */
             tmxr_reset_ln (lp);
             }
+#ifdef USE_SERIAL
         if (lp->serport) {
             sim_control_serial (lp->serport, 0, TMXR_MDM_DTR|TMXR_MDM_RTS, NULL);/* drop DTR and RTS */
             tmxr_close_ln (lp);
             }
+#endif
         free (lp->destination);
         lp->destination = NULL;
         if (lp->connecting) {
@@ -3669,10 +3755,10 @@ if (lp->sock) {
 
 if ((lp->port) && (!lp->datagram))
     fprintf (st, "Listening on port %s\n", lp->port);   /* print port name */
-
+#ifdef USE_SERIAL
 if (lp->serport)                                        /* serial connection? */
     fprintf (st, "Connected to serial port %s\n", lp->destination);  /* print port name */
-
+#endif
 if (lp->cnms) {
     tctime = (sim_os_msec () - lp->cnms) / 1000;
     hr = tctime / 3600;
@@ -3693,7 +3779,11 @@ if (lp->modem_control) {
                                                 (lp->modembits & TMXR_MDM_DSR) ? "DSR " : "");
     }
 
-if ((lp->serport == 0) && (lp->sock) && (!lp->datagram))
+if (
+#ifdef USE_SERIAL
+(lp->serport == 0) &&
+#endif
+(lp->sock) && (!lp->datagram))
     fprintf (st, " %s\n", (lp->notelnet) ? "Telnet disabled (RAW data)" : "Telnet protocol");
 if (lp->send.buffer)
     sim_show_send_input (st, &lp->send);
@@ -3714,7 +3804,11 @@ static const char *dsab = "off";
 
 if (ln >= 0)
     fprintf (st, "Line %d:", ln);
-if ((!lp->sock) && (!lp->connecting) && (!lp->serport))
+if ((!lp->sock) && (!lp->connecting)
+#ifdef USE_SERIAL
+&& (!lp->serport)
+#endif
+)
     fprintf (st, " not connected\n");
 else {
     if (ln >= 0)
@@ -3785,7 +3879,11 @@ lp = tmxr_get_ldsc (uptr, cptr, mp, &status);                   /* get reference
 if (lp == NULL)                                                 /* bad line number? */
     return status;                                              /* report it */
 
-if ((lp->sock) || (lp->serport)) {                              /* connection active? */
+if ((lp->sock)
+#ifdef USE_SERIAL
+|| (lp->serport)
+#endif
+) {                              /* connection active? */
     if (!lp->notelnet)
         tmxr_linemsg (lp, "\r\nOperator disconnected line\r\n\n");/* report closure */
     tmxr_reset_ln_ex (lp, (sim_switches & SWMASK ('C')));       /* drop the line */
@@ -4058,7 +4156,11 @@ int32 i, t;
 if (mp == NULL)
     return SCPE_IERR;
 for (i = t = 0; i < mp->lines; i++)
-    if ((mp->ldsc[i].sock != 0) || (mp->ldsc[i].serport != 0))
+    if ((mp->ldsc[i].sock != 0)
+#ifdef USE_SERIAL
+|| (mp->ldsc[i].serport != 0)
+#endif
+)
         t = t + 1;
 if (mp->lines > 1)
     fprintf (st, "%d current connection%s", t, (t != 1) ? "s" : "");
@@ -4077,14 +4179,25 @@ int32 i, any;
 if (mp == NULL)
     return SCPE_IERR;
 for (i = any = 0; i < mp->lines; i++) {
-    if ((mp->ldsc[i].sock != 0) ||
-        (mp->ldsc[i].serport != 0) || mp->ldsc[i].modem_control) {
-        if ((mp->ldsc[i].sock != 0) || (mp->ldsc[i].serport != 0))
+    if ((mp->ldsc[i].sock != 0)
+#ifdef USE_SERIAL
+        || (mp->ldsc[i].serport != 0) 
+#endif
+|| mp->ldsc[i].modem_control) {
+        if ((mp->ldsc[i].sock != 0)
+#ifdef USE_SERIAL
+|| (mp->ldsc[i].serport != 0)
+#endif
+)
             any++;
         if (val)
             tmxr_fconns (st, &mp->ldsc[i], i);
         else
-            if ((mp->ldsc[i].sock != 0) || (mp->ldsc[i].serport != 0))
+            if ((mp->ldsc[i].sock != 0)
+#ifdef USE_SERIAL
+|| (mp->ldsc[i].serport != 0)
+#endif
+)
                 tmxr_fstats (st, &mp->ldsc[i], i);
         }
     }

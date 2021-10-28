@@ -33,7 +33,9 @@
 #include "sim_defs.h"
 #include "sim_disk.h"
 #include "sim_tape.h"
+#ifdef USE_SERIAL
 #include "sim_serial.h"
+#endif
 #include "sim_sock.h"
 #include <signal.h>
 #include <ctype.h>
@@ -265,7 +267,9 @@ UNIT *sim_clock_queue = QUEUE_LIST_END;
 int32 sim_interval = 0;
 int32 sim_switches = 0;
 FILE *sim_ofile = NULL;
+#ifdef USE_SERIAL
 TMLN *sim_oline = NULL;
+#endif
 SCHTAB *sim_schrptr = FALSE;
 SCHTAB *sim_schaptr = FALSE;
 DEVICE *sim_dfdev = NULL;
@@ -1564,9 +1568,13 @@ static SHTAB show_glob_tab[] = {
     { "TELNET",         &sim_show_telnet,           0 },    /* deprecated */
     { "DEBUG",          &sim_show_debug,            0, HLP_SHOW_DEBUG },
     { "ASYNCH",         &sim_show_asynch,           0, HLP_SHOW_ASYNCH },
+#ifdef USE_SERIAL
     { "SERIAL",         &sim_show_serial,           0, HLP_SHOW_SERIAL },
+#ifdef NOT_USING_MUX_CODE
     { "MULTIPLEXER",    &tmxr_show_open_devices,    0, HLP_SHOW_MULTIPLEXER },
     { "MUX",            &tmxr_show_open_devices,    0, HLP_SHOW_MULTIPLEXER },
+#endif
+#endif
     { "CLOCKS",         &sim_show_timers,           0, HLP_SHOW_CLOCKS },
     { "SEND",           &sim_show_send,             0, HLP_SHOW_SEND },
     { "EXPECT",         &sim_show_expect,           0, HLP_SHOW_EXPECT },
@@ -2154,11 +2162,13 @@ if (dptr->attach_help) {
     dptr->attach_help (st, dptr, NULL, 0, NULL);
     return;
     }
+#ifdef USE_SERIAL
 if (DEV_TYPE(dptr) == DEV_MUX) {
     fprintf (st, "\n%s device attach commands:\n\n", dptr->name);
     tmxr_attach_help (st, dptr, NULL, 0, NULL);
     return;
     }
+#endif
 if (DEV_TYPE(dptr) == DEV_DISK) {
     fprintf (st, "\n%s device attach commands:\n\n", dptr->name);
     sim_disk_attach_help (st, dptr, NULL, 0, NULL);
@@ -3353,14 +3363,16 @@ uint32 dsize = 0;
 uint32 delay = 0;
 uint32 after = 0;
 t_stat r;
-SEND *snd;
+SEND *snd = NULL;
 
 GET_SWITCHES (cptr);                                    /* get switches */
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
+#ifdef USE_SERIAL
     r = tmxr_locate_line_send (gbuf, &snd);
     if (r != SCPE_OK)
         return r;
+#endif
     cptr = tptr;
     tptr = get_glyph (tptr, gbuf, ',');
     }
@@ -3407,14 +3419,18 @@ t_stat sim_show_send (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char
 {
 char gbuf[CBUFSIZE];
 CONST char *tptr;
+#ifdef USE_SERIAL
 t_stat r;
-SEND *snd;
+#endif
+SEND *snd = NULL;
 
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
+#ifdef USE_SERIAL
     r = tmxr_locate_line_send (gbuf, &snd);
     if (r != SCPE_OK)
         return r;
+#endif
     cptr = tptr;
     }
 else
@@ -3428,15 +3444,19 @@ t_stat expect_cmd (int32 flag, CONST char *cptr)
 {
 char gbuf[CBUFSIZE];
 CONST char *tptr;
+#ifdef USE_SERIAL
 t_stat r;
-EXPECT *exp;
+#endif
+EXPECT *exp = NULL;
 
 GET_SWITCHES (cptr);                                    /* get switches */
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
+#ifdef USE_SERIAL
     r = tmxr_locate_line_expect (gbuf, &exp);
     if (r != SCPE_OK)
         return r;
+#endif
     cptr = tptr;
     }
 else
@@ -3451,14 +3471,18 @@ t_stat sim_show_expect (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST ch
 {
 char gbuf[CBUFSIZE];
 CONST char *tptr;
+#ifdef USE_SERIAL
 t_stat r;
-EXPECT *exp;
+#endif
+EXPECT *exp = NULL;
 
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
+#ifdef USE_SERIAL
     r = tmxr_locate_line_expect (gbuf, &exp);
     if (r != SCPE_OK)
         return r;
+#endif
     cptr = tptr;
     }
 else
@@ -4449,6 +4473,17 @@ if (flag) {
 #define HAVE_DPSOPT 1
 #endif
     fprintf (st, "ROUND_ROBIN");
+#endif
+#ifdef USE_SERIAL
+#ifdef HAVE_DPSOPT
+    fprintf (st, ", ");
+#else
+    fprintf (st, "\n   Options: ");
+#endif
+#ifndef HAVE_DPSOPT
+#define HAVE_DPSOPT 1
+#endif
+    fprintf (st, "SERIAL");
 #endif
 #ifndef LOCKLESS
 #ifdef HAVE_DPSOPT
@@ -10495,9 +10530,11 @@ int ret = 0;
 va_list args;
 
 va_start (args, fmt);
+#ifdef USE_SERIAL
 if (sim_oline)
     tmxr_linemsgvf (sim_oline, fmt, args);
 else
+#endif
     ret = vfprintf (f, fmt, args);
 va_end (args);
 return ret;
