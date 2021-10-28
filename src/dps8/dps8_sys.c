@@ -290,13 +290,18 @@ static char * default_base_system_script [] =
 
     // ; 0 = GCOS 1 = VMS
     "set cpu0 config=mode=Multics",
+
+    "set cpu0 config=cache=enable",
+    "set cpu0 config=sdwam=enable",
+    "set cpu0 config=ptwam=enable",
+
     // ; 0 = 8/70
     "set cpu0 config=speed=0",
 
     "set cpu0 config=dis_enable=enable",
     "set cpu0 config=steady_clock=disable",
     "set cpu0 config=halt_on_unimplemented=disable",
-    "set cpu0 config=disable_wam=disable",
+    "set cpu0 config=disable_wam=enable",
     "set cpu0 config=tro_enable=enable",
     "set cpu0 config=y2k=disable",
 
@@ -355,13 +360,18 @@ static char * default_base_system_script [] =
 
     // ; 0 = GCOS 1 = VMS
     "set cpu1 config=mode=Multics",
+
+    "set cpu1 config=cache=enable",
+    "set cpu1 config=sdwam=enable",
+    "set cpu1 config=ptwam=enable",
+
     // ; 0 = 8/70
     "set cpu1 config=speed=0",
 
     "set cpu1 config=dis_enable=enable",
     "set cpu1 config=steady_clock=disable",
     "set cpu1 config=halt_on_unimplemented=disable",
-    "set cpu1 config=disable_wam=disable",
+    "set cpu1 config=disable_wam=enable",
     "set cpu1 config=tro_enable=enable",
     "set cpu1 config=y2k=disable",
 
@@ -421,13 +431,18 @@ static char * default_base_system_script [] =
 
     // ; 0 = GCOS 1 = VMS
     "set cpu2 config=mode=Multics",
+
+    "set cpu2 config=cache=enable",
+    "set cpu2 config=sdwam=enable",
+    "set cpu2 config=ptwam=enable",
+
     // ; 0 = 8/70
     "set cpu2 config=speed=0",
 
     "set cpu2 config=dis_enable=enable",
     "set cpu2 config=steady_clock=disable",
     "set cpu2 config=halt_on_unimplemented=disable",
-    "set cpu2 config=disable_wam=disable",
+    "set cpu2 config=disable_wam=enable",
     "set cpu2 config=tro_enable=enable",
     "set cpu2 config=y2k=disable",
 
@@ -487,13 +502,18 @@ static char * default_base_system_script [] =
 
     // ; 0 = GCOS 1 = VMS
     "set cpu3 config=mode=Multics",
+
+    "set cpu3 config=cache=enable",
+    "set cpu3 config=sdwam=enable",
+    "set cpu3 config=ptwam=enable",
+
     // ; 0 = 8/70
     "set cpu3 config=speed=0",
 
     "set cpu3 config=dis_enable=enable",
     "set cpu3 config=steady_clock=disable",
     "set cpu3 config=halt_on_unimplemented=disable",
-    "set cpu3 config=disable_wam=disable",
+    "set cpu3 config=disable_wam=enable",
     "set cpu3 config=tro_enable=enable",
     "set cpu3 config=y2k=disable",
 
@@ -553,13 +573,18 @@ static char * default_base_system_script [] =
 
     // ; 0 = GCOS 1 = VMS
     "set cpu4 config=mode=Multics",
+
+    "set cpu4 config=cache=enable",
+    "set cpu4 config=sdwam=enable",
+    "set cpu4 config=ptwam=enable",
+
     // ; 0 = 8/70
     "set cpu4 config=speed=0",
 
     "set cpu4 config=dis_enable=enable",
     "set cpu4 config=steady_clock=disable",
     "set cpu4 config=halt_on_unimplemented=disable",
-    "set cpu4 config=disable_wam=disable",
+    "set cpu4 config=disable_wam=enable",
     "set cpu4 config=tro_enable=enable",
     "set cpu4 config=y2k=disable",
 
@@ -619,13 +644,18 @@ static char * default_base_system_script [] =
 
     // ; 0 = GCOS 1 = VMS
     "set cpu5 config=mode=Multics",
+
+    "set cpu5 config=cache=enable",
+    "set cpu5 config=sdwam=enable",
+    "set cpu5 config=ptwam=enable",
+
     // ; 0 = 8/70
     "set cpu5 config=speed=0",
 
     "set cpu5 config=dis_enable=enable",
     "set cpu5 config=steady_clock=disable",
     "set cpu5 config=halt_on_unimplemented=disable",
-    "set cpu5 config=disable_wam=disable",
+    "set cpu5 config=disable_wam=enable",
     "set cpu5 config=tro_enable=enable",
     "set cpu5 config=y2k=disable",
 
@@ -686,13 +716,18 @@ static char * default_base_system_script [] =
 
     // ; 0 = GCOS 1 = VMS
     "set cpu6 config=mode=Multics",
+
+    "set cpu6 config=cache=enable",
+    "set cpu6 config=sdwam=enable",
+    "set cpu6 config=ptwam=enable",
+
     // ; 0 = 8/70
     "set cpu6 config=speed=0",
 
     "set cpu6 config=dis_enable=enable",
     "set cpu6 config=steady_clock=disable",
     "set cpu6 config=halt_on_unimplemented=disable",
-    "set cpu6 config=disable_wam=disable",
+    "set cpu6 config=disable_wam=enable",
     "set cpu6 config=tro_enable=enable",
     "set cpu6 config=y2k=disable",
 #endif
@@ -754,13 +789,18 @@ static char * default_base_system_script [] =
 
     // ; 0 = GCOS 1 = VMS
     "set cpu7 config=mode=Multics",
+
+    "set cpu7 config=cache=enable",
+    "set cpu7 config=sdwam=enable",
+    "set cpu7 config=ptwam=enable",
+
     // ; 0 = 8/70
     "set cpu7 config=speed=0",
 
     "set cpu7 config=dis_enable=enable",
     "set cpu7 config=steady_clock=disable",
     "set cpu7 config=halt_on_unimplemented=disable",
-    "set cpu7 config=disable_wam=disable",
+    "set cpu7 config=disable_wam=enable",
     "set cpu7 config=tro_enable=enable",
     "set cpu7 config=y2k=disable",
 #endif
@@ -1610,11 +1650,7 @@ static char * default_base_system_script [] =
 #if defined(THREADZ) || defined(LOCKLESS)
     "set cpu nunits=6",
 #else
-#ifdef ISOLTS
-    "set cpu nunits=2",
-#else
     "set cpu nunits=1",
-#endif // ISOLTS
 #endif // THREADZ
     // "set sys config=activate_time=8",
     // "set sys config=terminate_time=8",
@@ -3814,6 +3850,7 @@ static CTAB dps8_cmds[] =
     {"HDSEG",               hdbgSegmentNumber,        0, "hdseg: set history debugger segment number\n", NULL, NULL},
     {"HDBL",                hdbgBlacklist,            0, "hdbl: set history debugger blacklist\n", NULL, NULL},
     {"PHDBG",               hdbg_print,               0, "phdbg: display history size\n", NULL, NULL},
+    {"HDBG_CPU_MASK",       hdbg_cpu_mask,            0, "hdbg_cpu_mask: Which CPUS to track\n", NULL, NULL},
 #endif
     {"ABSOLUTE",            abs_addr,                 0, "abs: Compute the absolute address of segno:offset\n", NULL, NULL},
 #ifndef SCUMEM
@@ -3956,17 +3993,6 @@ static void dps8_init (void)
 #endif
     sim_msg ("TESTING");
 #endif
-#ifdef ISOLTS
-#ifdef HAVE_DPSOPT
-    sim_msg (", ");
-#else
-    sim_msg ("\n Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
-    sim_msg ("ISOLTS");
-#endif
 #ifdef NEED_128
 #ifdef HAVE_DPSOPT
     sim_msg (", ");
@@ -3977,17 +4003,6 @@ static void dps8_init (void)
 #define HAVE_DPSOPT 1
 #endif
     sim_msg ("NEED_128");
-#endif
-#ifdef WAM
-#ifdef HAVE_DPSOPT
-    sim_msg (", ");
-#else
-    sim_msg ("\n Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
-    sim_msg ("WAM");
 #endif
 #ifdef HDBG
 #ifdef HAVE_DPSOPT
