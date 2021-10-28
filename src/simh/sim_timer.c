@@ -231,93 +231,7 @@ return SCPE_OK;
 
 /* OS-dependent timer and clock routines */
 
-/* VMS */
-
-#if defined (VMS)
-
-#if defined (__VAX)
-#define sys$gettim SYS$GETTIM
-#define sys$setimr SYS$SETIMR
-#define lib$emul LIB$EMUL
-#define sys$waitfr SYS$WAITFR
-#define lib$subx LIB$SUBX
-#define lib$ediv LIB$EDIV
-#endif
-
-#include <starlet.h>
-#include <lib$routines.h>
-#include <unistd.h>
-
-const t_bool rtc_avail = TRUE;
-
-uint32 sim_os_msec (void)
-{
-uint32 quo, htod, tod[2];
-int32 i;
-
-sys$gettim (tod);                                       /* time 0.1usec */
-
-/* To convert to msec, must divide a 64b quantity by 10000.  This is actually done
-   by dividing the 96b quantity 0'time by 10000, producing 64b of quotient, the
-   high 32b of which are discarded.  This can probably be done by a clever multiply...
-*/
-
-quo = htod = 0;
-for (i = 0; i < 64; i++) {                              /* 64b quo */
-    htod = (htod << 1) | ((tod[1] >> 31) & 1);          /* shift divd */
-    tod[1] = (tod[1] << 1) | ((tod[0] >> 31) & 1);
-    tod[0] = tod[0] << 1;
-    quo = quo << 1;                                     /* shift quo */
-    if (htod >= 10000) {                                /* divd work? */
-        htod = htod - 10000;                            /* subtract */
-        quo = quo | 1;                                  /* set quo bit */
-        }
-    }
-return quo;
-}
-
-void sim_os_sleep (unsigned int sec)
-{
-sleep (sec);
-return;
-}
-
-uint32 sim_os_ms_sleep_init (void)
-{
-return _compute_minimum_sleep ();
-}
-
-uint32 sim_os_ms_sleep (unsigned int msec)
-{
-uint32 stime = sim_os_msec ();
-uint32 qtime[2];
-int32 nsfactor = -10000;
-static int32 zero = 0;
-
-lib$emul (&msec, &nsfactor, &zero, qtime);
-sys$setimr (2, qtime, 0, 0);
-sys$waitfr (2);
-return sim_os_msec () - stime;
-}
-
-#ifdef NEED_CLOCK_GETTIME
-int clock_gettime(int clk_id, struct timespec *tp)
-{
-uint32 secs, ns, tod[2], unixbase[2] = {0xd53e8000, 0x019db1de};
-
-if (clk_id != CLOCK_REALTIME)
-  return -1;
-
-sys$gettim (tod);                                       /* time 0.1usec */
-lib$subx(tod, unixbase, tod);                           /* convert to unix base */
-lib$ediv(&10000000, tod, &secs, &ns);                   /* isolate seconds & 100ns parts */
-tp->tv_sec = secs;
-tp->tv_nsec = ns*100;
-return 0;
-}
-#endif /* CLOCK_REALTIME */
-
-#elif defined (_WIN32)
+#if defined (_WIN32)
 
 /* Win32 routines */
 
@@ -379,32 +293,6 @@ tp->tv_nsec = (now%10000000)*100;
 return 0;
 }
 #endif
-
-#elif defined (__OS2__)
-
-/* OS/2 routines, from Bruce Ray */
-
-const t_bool rtc_avail = FALSE;
-
-uint32 sim_os_msec (void)
-{
-return 0;
-}
-
-void sim_os_sleep (unsigned int sec)
-{
-return;
-}
-
-uint32 sim_os_ms_sleep_init (void)
-{
-return 0;
-}
-
-uint32 sim_os_ms_sleep (unsigned int msec)
-{
-return 0;
-}
 
 #else
 

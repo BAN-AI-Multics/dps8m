@@ -495,7 +495,7 @@ switch (f) {                                            /* the read method depen
 
             else if (*bc == MTR_FHGAP) {                        /* otherwise if the value if a half gap */
                 uptr->pos = uptr->pos - sizeof (t_mtrlnt) / 2;  /*   then back up */
-                sim_fseek (uptr->fileref, uptr->pos, SEEK_SET); /*     to resync */
+                (void)sim_fseek (uptr->fileref, uptr->pos, SEEK_SET); /*     to resync */
                 bufcntr = bufcap;                               /* mark the buffer as invalid to force a read */
 
                 *bc = MTR_GAP;                                  /* reset the marker */
@@ -504,7 +504,7 @@ switch (f) {                                            /* the read method depen
 
             else {                                                  /* otherwise it's a record marker */
                 if (bufcntr < bufcap)                               /* if the position is within the buffer */
-                    sim_fseek (uptr->fileref, uptr->pos, SEEK_SET); /*   then seek to the data area */
+                    (void)sim_fseek (uptr->fileref, uptr->pos, SEEK_SET); /*   then seek to the data area */
 
                 sbc = MTR_L (*bc);                                  /* extract the record length */
                 uptr->pos = uptr->pos + sizeof (t_mtrlnt)           /* position to the start */
@@ -519,7 +519,7 @@ switch (f) {                                            /* the read method depen
         break;                                          /* otherwise the operation succeeded */
 
     case MTUF_F_TPC:
-        sim_fread (&tpcbc, sizeof (t_tpclnt), 1, uptr->fileref);
+        (void)sim_fread (&tpcbc, sizeof (t_tpclnt), 1, uptr->fileref);
         *bc = tpcbc;                                    /* save rec lnt */
         if (ferror (uptr->fileref)) {                   /* error? */
             MT_SET_PNU (uptr);                          /* pos not upd */
@@ -538,7 +538,7 @@ switch (f) {                                            /* the read method depen
 
     case MTUF_F_P7B:
         for (sbc = 0, all_eof = 1; ; sbc++) {           /* loop thru record */
-            sim_fread (&c, sizeof (uint8), 1, uptr->fileref);
+            (void)sim_fread (&c, sizeof (uint8), 1, uptr->fileref);
             if (ferror (uptr->fileref)) {               /* error? */
                 MT_SET_PNU (uptr);                      /* pos not upd */
                 return sim_tape_ioerr (uptr);
@@ -554,7 +554,7 @@ switch (f) {                                            /* the read method depen
                 all_eof = 0;
             }
         *bc = sbc;                                      /* save rec lnt */
-        sim_fseek (uptr->fileref, uptr->pos, SEEK_SET); /* for read */
+        (void)sim_fseek (uptr->fileref, uptr->pos, SEEK_SET); /* for read */
         uptr->pos = uptr->pos + sbc;                    /* spc over record */
         if (all_eof)                                    /* tape mark? */
             r = MTSE_TMK;
@@ -648,7 +648,7 @@ switch (f) {                                            /* the read method depen
                     bufcap = (uint32) uptr->pos         /*   then reduce the capacity accordingly */
                                / sizeof (t_mtrlnt);
 
-                sim_fseek (uptr->fileref,                           /* seek back to the location */
+                (void)sim_fseek (uptr->fileref,                           /* seek back to the location */
                            uptr->pos - bufcap * sizeof (t_mtrlnt),  /*   corresponding to the start */
                            SEEK_SET);                               /*     of the buffer */
 
@@ -691,7 +691,7 @@ switch (f) {                                            /* the read method depen
                 sbc = MTR_L (*bc);                              /* extract the record length */
                 uptr->pos = uptr->pos - sizeof (t_mtrlnt)       /* position to the start */
                   - (f == MTUF_F_STD ? (sbc + 1) & ~1 : sbc);   /*   of the record */
-                sim_fseek (uptr->fileref,                       /* seek to the data area */
+                (void)sim_fseek (uptr->fileref,                       /* seek to the data area */
                            uptr->pos + sizeof (t_mtrlnt), SEEK_SET);
                 }
             }
@@ -704,8 +704,8 @@ switch (f) {                                            /* the read method depen
 
     case MTUF_F_TPC:
         ppos = sim_tape_tpc_fnd (uptr, (t_addr *) uptr->filebuf); /* find prev rec */
-        sim_fseek (uptr->fileref, ppos, SEEK_SET);      /* position */
-        sim_fread (&tpcbc, sizeof (t_tpclnt), 1, uptr->fileref);
+        (void)sim_fseek (uptr->fileref, ppos, SEEK_SET);      /* position */
+        (void)sim_fread (&tpcbc, sizeof (t_tpclnt), 1, uptr->fileref);
         *bc = tpcbc;                                    /* save rec lnt */
         if (ferror (uptr->fileref))                     /* error? */
             return sim_tape_ioerr (uptr);
@@ -718,13 +718,13 @@ switch (f) {                                            /* the read method depen
             r = MTSE_TMK;
             break;
             }
-        sim_fseek (uptr->fileref, uptr->pos + sizeof (t_tpclnt), SEEK_SET);
+        (void)sim_fseek (uptr->fileref, uptr->pos + sizeof (t_tpclnt), SEEK_SET);
         break;
 
     case MTUF_F_P7B:
         for (sbc = 1, all_eof = 1; (t_addr) sbc <= uptr->pos ; sbc++) {
-            sim_fseek (uptr->fileref, uptr->pos - sbc, SEEK_SET);
-            sim_fread (&c, sizeof (uint8), 1, uptr->fileref);
+            (void)sim_fseek (uptr->fileref, uptr->pos - sbc, SEEK_SET);
+            (void)sim_fread (&c, sizeof (uint8), 1, uptr->fileref);
             if (ferror (uptr->fileref))                 /* error? */
                 return sim_tape_ioerr (uptr);
             if (feof (uptr->fileref)) {                 /* eof? */
@@ -738,7 +738,7 @@ switch (f) {                                            /* the read method depen
             }
         uptr->pos = uptr->pos - sbc;                    /* update position */
         *bc = sbc;                                      /* save rec lnt */
-        sim_fseek (uptr->fileref, uptr->pos, SEEK_SET); /* for read */
+        (void)sim_fseek (uptr->fileref, uptr->pos, SEEK_SET); /* for read */
         if (all_eof)                                    /* tape mark? */
             r = MTSE_TMK;
         break;
@@ -910,15 +910,15 @@ if (sim_tape_wrp (uptr))                                /* write prot? */
     return MTSE_WRP;
 if (sbc == 0)                                           /* nothing to do? */
     return MTSE_OK;
-sim_fseek (uptr->fileref, uptr->pos, SEEK_SET);         /* set pos */
+(void)sim_fseek (uptr->fileref, uptr->pos, SEEK_SET);         /* set pos */
 switch (f) {                                            /* case on format */
 
     case MTUF_F_STD:                                    /* standard */
         sbc = MTR_L ((bc + 1) & ~1);                    /* pad odd length */
     case MTUF_F_E11:                                    /* E11 */
-        sim_fwrite (&bc, sizeof (t_mtrlnt), 1, uptr->fileref);
-        sim_fwrite (buf, sizeof (uint8), sbc, uptr->fileref);
-        sim_fwrite (&bc, sizeof (t_mtrlnt), 1, uptr->fileref);
+        (void)sim_fwrite (&bc, sizeof (t_mtrlnt), 1, uptr->fileref);
+        (void)sim_fwrite (buf, sizeof (uint8), sbc, uptr->fileref);
+        (void)sim_fwrite (&bc, sizeof (t_mtrlnt), 1, uptr->fileref);
         if (ferror (uptr->fileref)) {                   /* error? */
             MT_SET_PNU (uptr);
             return sim_tape_ioerr (uptr);
@@ -928,8 +928,8 @@ switch (f) {                                            /* case on format */
 
     case MTUF_F_P7B:                                    /* Pierce 7B */
         buf[0] = buf[0] | P7B_SOR;                      /* mark start of rec */
-        sim_fwrite (buf, sizeof (uint8), sbc, uptr->fileref);
-        sim_fwrite (buf, sizeof (uint8), 1, uptr->fileref); /* delimit rec */
+        (void)sim_fwrite (buf, sizeof (uint8), sbc, uptr->fileref);
+        (void)sim_fwrite (buf, sizeof (uint8), 1, uptr->fileref); /* delimit rec */
         if (ferror (uptr->fileref)) {                   /* error? */
             MT_SET_PNU (uptr);
             return sim_tape_ioerr (uptr);
@@ -963,8 +963,8 @@ if (ctx == NULL)                                        /* if not properly attac
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
 if (sim_tape_wrp (uptr))                                /* write prot? */
     return MTSE_WRP;
-sim_fseek (uptr->fileref, uptr->pos, SEEK_SET);         /* set pos */
-sim_fwrite (&dat, sizeof (t_mtrlnt), 1, uptr->fileref);
+(void)sim_fseek (uptr->fileref, uptr->pos, SEEK_SET);         /* set pos */
+(void)sim_fwrite (&dat, sizeof (t_mtrlnt), 1, uptr->fileref);
 if (ferror (uptr->fileref)) {                           /* error? */
     MT_SET_PNU (uptr);
     return sim_tape_ioerr (uptr);
@@ -1206,7 +1206,7 @@ sim_fseek (uptr->fileref, uptr->pos, SEEK_SET);         /* position tape */
 */
 
 do {
-    sim_fread (&meta, meta_size, 1, uptr->fileref);     /* read metadatum */
+    (void)sim_fread (&meta, meta_size, 1, uptr->fileref);     /* read metadatum */
 
     if (ferror (uptr->fileref)) {                       /* read error? */
         uptr->pos = gap_pos;                            /* restore original position */
@@ -1529,6 +1529,7 @@ t_stat st;
 t_bool last_tapemark = FALSE;
 uint32 filerecsskipped;
 
+*skipped = *recsskipped = 0;
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
 sim_debug (ctx->dbit, ctx->dptr, "sim_tape_spfilebyrecf(unit=%d, count=%d, check_leot=%d)\n", (int)(uptr-ctx->dptr->units), count, check_leot);
@@ -1640,14 +1641,14 @@ t_stat sim_tape_spfilebyrecr (UNIT *uptr, uint32 count, uint32 *skipped, uint32 
 {
 struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
 t_stat st;
-uint32 filerecsskipped;
+uint32 filerecsskipped = 0;
 
+*skipped = 0;
+*recsskipped = 0;
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
 sim_debug (ctx->dbit, ctx->dptr, "sim_tape_spfilebyrecr(unit=%d, count=%d)\n", (int)(uptr-ctx->dptr->units), count);
 
-*skipped = 0;
-*recsskipped = 0;
 while (*skipped < count) {                              /* loopo */
     while (1) {
         st = sim_tape_sprecsr (uptr, 0x1ffffff, &filerecsskipped);/* spc recs rev */
@@ -1891,7 +1892,7 @@ return SCPE_OK;
 
 static uint32 sim_tape_tpc_map (UNIT *uptr, t_addr *map, uint32 mapsize)
 {
-t_addr tpos, leot;
+t_addr tpos, leot = 0;
 t_addr tape_size;
 t_tpclnt bc, last_bc = 0xFFFF;
 uint32 had_double_tape_mark = 0;
@@ -1920,7 +1921,7 @@ for (objc = 0, sizec = 0, tpos = 0;; ) {
     if (bc) {
         sim_debug (MTSE_DBG_STR, dptr, "tpc_map: %d byte count at pos: %" T_ADDR_FMT "u\n", bc, tpos);
         if (sim_deb && (dptr->dctrl & MTSE_DBG_STR)) {
-            sim_fread (recbuf, 1, bc, uptr->fileref);
+            (void)sim_fread (recbuf, 1, bc, uptr->fileref);
             sim_data_trace(dptr, uptr, ((dptr->dctrl & MTSE_DBG_DAT) ? recbuf : NULL), "", bc, "Data Record", MTSE_DBG_STR);
             }
         }

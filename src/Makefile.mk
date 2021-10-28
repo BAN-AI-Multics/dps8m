@@ -163,7 +163,7 @@ endif
 # Default FLAGS
 
 ifndef SUNPRO
-  CFLAGS  += -g3 -O3 -fno-strict-aliasing
+  CFLAGS  += -Wall -g3 -O3 -fno-strict-aliasing
 endif
 CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)

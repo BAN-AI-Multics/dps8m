@@ -5,6 +5,10 @@
 *.so
 a.out
 
+# Patch
+.orig
+.rej
+
 # Data
 *.tap
 

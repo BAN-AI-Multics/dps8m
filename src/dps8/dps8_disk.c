@@ -154,7 +154,7 @@ struct diskType_t diskTypes[] =
       "3380", 885*255, 0, false, seek_512, 512, 0 // 338x is never attached to a dau
     },
   };
-#define N_DISK_TYPES (sizeof (diskTypes) / sizeof (struct diskType_t) - 1)
+#define N_DISK_TYPES (sizeof (diskTypes) / sizeof (struct diskType_t))
 
 #define M3381_SECTORS (1770*255)
 //#define M3381_SECTORS 6895616
@@ -388,7 +388,7 @@ static t_stat disk_set_type (UNUSED UNIT * uptr, UNUSED int32 value, const char 
         if (strcasecmp (cptr, diskTypes[i].typename) == 0)
           break;
       }
-    if (i > N_DISK_TYPES)
+    if (i >= N_DISK_TYPES)
      {
        sim_printf ("Disk type %s unrecognized, expected one of "
                    "%s %s %s %s %s %s %s %s\r\n",
@@ -681,14 +681,14 @@ void disk_init (void)
     // Sets diskTypeIdx to 0: 3381
     memset (dsk_states, 0, sizeof (dsk_states));
 #ifdef LOCKLESS
-#ifdef __FreeBSD__
+#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
         pthread_mutexattr_t scu_attr;
         pthread_mutexattr_init (& scu_attr);
         pthread_mutexattr_settype (& scu_attr, PTHREAD_MUTEX_ADAPTIVE_NP);
 #endif
     for (uint i = 0; i < N_DSK_UNITS_MAX; i ++)
       {
-#ifdef __FreeBSD__
+#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
         pthread_mutex_init (& dsk_states[i].dsk_lock, & scu_attr);
 #else
         pthread_mutex_init (& dsk_states[i].dsk_lock, NULL);

@@ -29,7 +29,7 @@
 #define SCP_HELP_H_  0
 
 /* The SCP structured help uses help text that defines a hierarchy of information
- * organized into topics and subtopics.  This is modelled on the VMS help command.
+ * organized into topics and subtopics.
  *
  * This arrangement allows the long help messages being used in many devices to be
  * organized to be easier to approach and navigate.

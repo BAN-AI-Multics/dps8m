@@ -180,9 +180,11 @@ t_offset pos, sz;
 if (fp == NULL)
     return 0;
 pos = sim_ftell (fp);
-sim_fseek (fp, 0, SEEK_END);
+if (sim_fseek (fp, 0, SEEK_END))
+  return 0;
 sz = sim_ftell (fp);
-sim_fseeko (fp, pos, SEEK_SET);
+if (sim_fseeko (fp, pos, SEEK_SET))
+  return 0;
 return sz;
 }
 
@@ -214,10 +216,7 @@ return (uint32)(sim_fsize_ex (fp));
 
 FILE *sim_fopen (const char *file, const char *mode)
 {
-#if defined (VMS)
-return fopen (file, mode, "ALQ=32", "DEQ=4096",
-        "MBF=6", "MBC=127", "FOP=cbt,tef", "ROP=rah,wbh", "CTX=stm");
-#elif (defined (__linux) || defined (__linux__) || defined (__hpux) || defined (_AIX)) && !defined (DONT_DO_LARGEFILE)
+#if   (defined (__linux) || defined (__linux__) || defined (_AIX)) && !defined (DONT_DO_LARGEFILE)
 return fopen64 (file, mode);
 #else
 return fopen (file, mode);
@@ -225,10 +224,8 @@ return fopen (file, mode);
 }
 
 #if !defined (DONT_DO_LARGEFILE)
-/* 64b VMS */
 
-#if ((defined (__ALPHA) || defined (__ia64)) && defined (VMS) && (__DECC_VER >= 60590001)) || \
-    ((defined(__sun) || defined(__sun__)) && defined(_LARGEFILE_SOURCE))
+#if ((defined(__sun) || defined(__sun__)) && defined(_LARGEFILE_SOURCE))
 #define S_SIM_IO_FSEEK_EXT_ 1
 int sim_fseeko (FILE *st, t_offset offset, int whence)
 {
@@ -238,22 +235,6 @@ return fseeko (st, (off_t)offset, whence);
 t_offset sim_ftell (FILE *st)
 {
 return (t_offset)(ftello (st));
-}
-
-#endif
-
-/* Alpha UNIX - natively 64b */
-
-#if defined (__ALPHA) && defined (__unix__)             /* Alpha UNIX */
-#define S_SIM_IO_FSEEK_EXT_ 1
-int sim_fseeko (FILE *st, t_offset offset, int whence)
-{
-return fseek (st, offset, whence);
-}
-
-t_offset sim_ftell (FILE *st)
-{
-return (t_offset)(ftell (st));
 }
 
 #endif
@@ -306,7 +287,7 @@ return (t_offset)fileaddr;
 
 /* Linux */
 
-#if defined (__linux) || defined (__linux__) || defined (__hpux) || defined (_AIX)
+#if defined (__linux) || defined (__linux__) || defined (_AIX)
 #define S_SIM_IO_FSEEK_EXT_ 1
 int sim_fseeko (FILE *st, t_offset xpos, int origin)
 {
@@ -320,9 +301,14 @@ return (t_offset)(ftello64 (st));
 
 #endif                                                  /* end Linux with LFS */
 
-/* Apple OS/X */
+/* Apple */
 
-#if defined (__APPLE__) || defined (__FreeBSD__) || defined(__NetBSD__) || defined (__OpenBSD__) || defined (__CYGWIN__)
+#if defined (__APPLE__)          || \
+    defined (__FreeBSD__)        || \
+    defined (__FreeBSD_kernel__) || \
+    defined (__NetBSD__)         || \
+    defined (__OpenBSD__)        || \
+    defined (__CYGWIN__)
 #define S_SIM_IO_FSEEK_EXT_ 1
 int sim_fseeko (FILE *st, t_offset xpos, int origin)
 {
@@ -334,7 +320,7 @@ t_offset sim_ftell (FILE *st)
 return (t_offset)(ftello (st));
 }
 
-#endif  /* end Apple OS/X */
+#endif  /* end Apple */
 #endif /* !DONT_DO_LARGEFILE */
 
 /* Default: no OS-specific routine has been defined */
@@ -368,50 +354,6 @@ int sim_set_fifo_nonblock (FILE *fptr)
 return -1;
 }
 
-struct SHMEM {
-    HANDLE hMapping;
-    size_t shm_size;
-    void *shm_base;
-    };
-
-t_stat sim_shmem_open (const char *name, size_t size, SHMEM **shmem, void **addr)
-{
-*shmem = (SHMEM *)calloc (1, sizeof(**shmem));
-
-if (*shmem == NULL)
-    return SCPE_MEM;
-
-(*shmem)->hMapping = INVALID_HANDLE_VALUE;
-(*shmem)->shm_size = size;
-(*shmem)->shm_base = NULL;
-(*shmem)->hMapping = CreateFileMappingA (INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, (DWORD)size, name);
-if ((*shmem)->hMapping == INVALID_HANDLE_VALUE) {
-    sim_shmem_close (*shmem);
-    *shmem = NULL;
-    return SCPE_OPENERR;
-    }
-(*shmem)->shm_base = MapViewOfFile ((*shmem)->hMapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
-if ((*shmem)->shm_base == NULL) {
-    sim_shmem_close (*shmem);
-    *shmem = NULL;
-    return SCPE_OPENERR;
-    }
-
-*addr = (*shmem)->shm_base;
-return SCPE_OK;
-}
-
-void sim_shmem_close (SHMEM *shmem)
-{
-if (shmem == NULL)
-    return;
-if (shmem->shm_base != NULL)
-    UnmapViewOfFile (shmem->shm_base);
-if (shmem->hMapping != INVALID_HANDLE_VALUE)
-    CloseHandle (shmem->hMapping);
-free (shmem);
-}
-
 #else /* !defined(_WIN32) */
 #include <unistd.h>
 int sim_set_fsize (FILE *fptr, t_addr size)
@@ -436,73 +378,6 @@ if ((stbuf.st_mode & S_IFIFO)) {
     }
 #endif
 return -1;
-}
-
-#include <sys/mman.h>
-
-struct SHMEM {
-    int shm_fd;
-    size_t shm_size;
-    void *shm_base;
-    };
-
-t_stat sim_shmem_open (const char *name, size_t size, SHMEM **shmem, void **addr)
-{
-#ifdef HAVE_SHM_OPEN
-*shmem = (SHMEM *)calloc (1, sizeof(**shmem));
-
-*addr = NULL;
-if (*shmem == NULL)
-    return SCPE_MEM;
-
-(*shmem)->shm_base = MAP_FAILED;
-(*shmem)->shm_size = size;
-(*shmem)->shm_fd = shm_open (name, O_RDWR, 0);
-if ((*shmem)->shm_fd == -1) {
-    (*shmem)->shm_fd = shm_open (name, O_CREAT | O_RDWR, 0660);
-    if ((*shmem)->shm_fd == -1) {
-        sim_shmem_close (*shmem);
-        *shmem = NULL;
-        return SCPE_OPENERR;
-        }
-    if (ftruncate((*shmem)->shm_fd, size)) {
-        sim_shmem_close (*shmem);
-        *shmem = NULL;
-        return SCPE_OPENERR;
-        }
-    }
-else {
-    struct stat statb;
-
-    if ((fstat ((*shmem)->shm_fd, &statb)) ||
-        (statb.st_size != (*shmem)->shm_size)) {
-        sim_shmem_close (*shmem);
-        *shmem = NULL;
-        return SCPE_OPENERR;
-        }
-    }
-(*shmem)->shm_base = mmap(NULL, (*shmem)->shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, (*shmem)->shm_fd, 0);
-if ((*shmem)->shm_base == MAP_FAILED) {
-    sim_shmem_close (*shmem);
-    *shmem = NULL;
-    return SCPE_OPENERR;
-    }
-*addr = (*shmem)->shm_base;
-return SCPE_OK;
-#else
-return SCPE_NOFNC;
-#endif
-}
-
-void sim_shmem_close (SHMEM *shmem)
-{
-if (shmem == NULL)
-    return;
-if (shmem->shm_base != MAP_FAILED)
-    munmap (shmem->shm_base, shmem->shm_size);
-if (shmem->shm_fd != -1)
-    close (shmem->shm_fd);
-free (shmem);
 }
 
 #endif

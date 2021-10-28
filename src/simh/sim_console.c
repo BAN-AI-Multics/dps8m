@@ -316,7 +316,7 @@ if (*cptr == 0) {                                       /* show all */
 while (*cptr != 0) {
     cptr = get_glyph (cptr, gbuf, ',');                 /* get modifier */
     if ((shptr = find_shtab (show_con_tab, gbuf)))
-        shptr->action (st, dptr, uptr, shptr->arg, cptr);
+         shptr->action (st, dptr, uptr, shptr->arg, NULL);
     else return SCPE_NOPARAM;
     }
 return SCPE_OK;
@@ -498,8 +498,6 @@ static CTAB allowed_remote_cmds[] = {
     { "STEP",     &x_step_cmd,        0 },
     { "PWD",      &pwd_cmd,           0 },
     { "SAVE",     &save_cmd,          0 },
-    { "DIR",      &dir_cmd,           0 },
-    { "LS",       &dir_cmd,           0 },
     { "ECHO",     &echo_cmd,          0 },
     { "SET",      &set_cmd,           0 },
     { "SHOW",     &show_cmd,          0 },
@@ -520,8 +518,6 @@ static CTAB allowed_master_remote_cmds[] = {
     { "PWD",      &pwd_cmd,           0 },
     { "SAVE",     &save_cmd,          0 },
     { "CD",       &set_default_cmd,   0 },
-    { "DIR",      &dir_cmd,           0 },
-    { "LS",       &dir_cmd,           0 },
     { "ECHO",     &echo_cmd,          0 },
     { "SET",      &set_cmd,           0 },
     { "SHOW",     &show_cmd,          0 },
@@ -542,8 +538,6 @@ static CTAB allowed_single_remote_cmds[] = {
     { "EXAMINE",  &exdep_cmd,      EX_E },
     { "EVALUATE", &eval_cmd,          0 },
     { "PWD",      &pwd_cmd,           0 },
-    { "DIR",      &dir_cmd,           0 },
-    { "LS",       &dir_cmd,           0 },
     { "ECHO",     &echo_cmd,          0 },
     { "SHOW",     &show_cmd,          0 },
     { "HELP",     &x_help_cmd,        0 },
@@ -599,7 +593,7 @@ if (sim_log) {
     int32 unwritten;
 
     fflush (sim_log);
-    sim_fseeko (sim_log, sim_rem_cmd_log_start, SEEK_SET);
+    (void)sim_fseeko (sim_log, sim_rem_cmd_log_start, SEEK_SET);
     cbuf[sizeof(cbuf)-1] = '\0';
     while (fgets (cbuf, sizeof(cbuf)-1, sim_log))
         tmxr_linemsgf (lp, "%s", cbuf);
@@ -1170,7 +1164,7 @@ else {
     }
 
 if (sim_rem_master_mode) {
-    t_stat stat_nomessage;
+    t_stat stat_nomessage = 0;
 
     sim_printf ("Command input starting on Master Remote Console Session\n");
     stat = sim_run_boot_prep (0);
@@ -1316,7 +1310,8 @@ cptr = get_glyph_nc (cptr, gbuf, 0);                    /* get file name */
 if (*cptr != 0)                                         /* now eol? */
     return SCPE_2MARG;
 sim_set_logoff (0, NULL);                               /* close cur log */
-r = sim_open_logfile (gbuf, FALSE, &sim_log, &sim_log_ref); /* open log */
+r = sim_open_logfile (gbuf, (sim_switches & SWMASK ('B')) == SWMASK ('B'),
+                            &sim_log, &sim_log_ref);    /* open log */
 if (r != SCPE_OK)                                       /* error? */
     return r;
 if (!sim_quiet)
@@ -1656,7 +1651,7 @@ while (*cptr != 0) {                                    /* do all mods */
         if (serport != INVALID_HANDLE) {
             sim_close_serial (serport);
             if (r == SCPE_OK) {
-                char cbuf[CBUFSIZE+2];
+                char cbuf[CBUFSIZE+10];
                 if ((sim_con_tmxr.master) ||            /* already open? */
                     (sim_con_ldsc.serport))
                     sim_set_noserial (0, NULL);         /* close first */
@@ -1737,7 +1732,7 @@ else {
     if (!*pref)
         return SCPE_MEM;
     get_glyph_nc (filename, gbuf, 0);                   /* reparse */
-    strncpy ((*pref)->name, gbuf, sizeof((*pref)->name)-1);
+    strncpy ((*pref)->name, gbuf, sizeof((*pref)->name));
     if (sim_switches & SWMASK ('N'))                    /* if a new log file is requested */
         *pf = sim_fopen (gbuf, (binary ? "w+b" : "w+"));/*   then open an empty file */
     else                                                /* otherwise */
@@ -2121,151 +2116,7 @@ return sim_os_ttisatty ();
 
 /* Platform specific routine definitions */
 
-/* VMS routines, from Ben Thomas, with fixes from Robert Alan Byer */
-
-#if defined (VMS)
-
-#if defined(__VAX)
-#define sys$assign SYS$ASSIGN
-#define sys$qiow SYS$QIOW
-#define sys$dassgn SYS$DASSGN
-#endif
-
-#include <descrip.h>
-#include <ttdef.h>
-#include <tt2def.h>
-#include <iodef.h>
-#include <ssdef.h>
-#include <starlet.h>
-#include <unistd.h>
-
-#define EFN 0
-uint32 tty_chan = 0;
-int buffered_character = 0;
-
-typedef struct {
-    unsigned short sense_count;
-    unsigned char sense_first_char;
-    unsigned char sense_reserved;
-    unsigned int stat;
-    unsigned int stat2; } SENSE_BUF;
-
-typedef struct {
-    unsigned short status;
-    unsigned short count;
-    unsigned int dev_status; } IOSB;
-
-SENSE_BUF cmd_mode = { 0 };
-SENSE_BUF run_mode = { 0 };
-
-static t_stat sim_os_ttinit (void)
-{
-unsigned int status;
-IOSB iosb;
-$DESCRIPTOR (terminal_device, "tt");
-
-status = sys$assign (&terminal_device, &tty_chan, 0, 0);
-if (status != SS$_NORMAL)
-    return SCPE_TTIERR;
-status = sys$qiow (EFN, tty_chan, IO$_SENSEMODE, &iosb, 0, 0,
-    &cmd_mode, sizeof (cmd_mode), 0, 0, 0, 0);
-if ((status != SS$_NORMAL) || (iosb.status != SS$_NORMAL))
-    return SCPE_TTIERR;
-run_mode = cmd_mode;
-run_mode.stat = cmd_mode.stat | TT$M_NOECHO & ~(TT$M_HOSTSYNC | TT$M_TTSYNC);
-run_mode.stat2 = cmd_mode.stat2 | TT2$M_PASTHRU;
-return SCPE_OK;
-}
-
-static t_stat sim_os_ttrun (void)
-{
-unsigned int status;
-IOSB iosb;
-
-status = sys$qiow (EFN, tty_chan, IO$_SETMODE, &iosb, 0, 0,
-    &run_mode, sizeof (run_mode), 0, 0, 0, 0);
-if ((status != SS$_NORMAL) || (iosb.status != SS$_NORMAL))
-    return SCPE_TTIERR;
-return SCPE_OK;
-}
-
-static t_stat sim_os_ttcmd (void)
-{
-unsigned int status;
-IOSB iosb;
-
-status = sys$qiow (EFN, tty_chan, IO$_SETMODE, &iosb, 0, 0,
-    &cmd_mode, sizeof (cmd_mode), 0, 0, 0, 0);
-if ((status != SS$_NORMAL) || (iosb.status != SS$_NORMAL))
-    return SCPE_TTIERR;
-return SCPE_OK;
-}
-
-static t_stat sim_os_ttclose (void)
-{
-sim_ttcmd ();
-sys$dassgn (tty_chan);
-return SCPE_OK;
-}
-
-static t_bool sim_os_ttisatty (void)
-{
-return isatty (fileno (stdin));
-}
-
-static t_stat sim_os_poll_kbd_data (void)
-{
-unsigned int status, term[2];
-unsigned char buf[4];
-IOSB iosb;
-SENSE_BUF sense;
-
-term[0] = 0; term[1] = 0;
-status = sys$qiow (EFN, tty_chan, IO$_SENSEMODE | IO$M_TYPEAHDCNT, &iosb,
-    0, 0, &sense, 8, 0, term, 0, 0);
-if ((status != SS$_NORMAL) || (iosb.status != SS$_NORMAL))
-    return SCPE_TTIERR;
-if (sense.sense_count == 0) return SCPE_OK;
-term[0] = 0; term[1] = 0;
-status = sys$qiow (EFN, tty_chan,
-    IO$_READLBLK | IO$M_NOECHO | IO$M_NOFILTR | IO$M_TIMED | IO$M_TRMNOECHO,
-    &iosb, 0, 0, buf, 1, 0, term, 0, 0);
-if ((status != SS$_NORMAL) || (iosb.status != SS$_NORMAL))
-    return SCPE_OK;
-if (buf[0] == sim_int_char) return SCPE_STOP;
-if (sim_brk_char && (buf[0] == sim_brk_char))
-    return SCPE_BREAK;
-return (buf[0] | SCPE_KFLAG);
-}
-
-static t_stat sim_os_poll_kbd (void)
-{
-t_stat response;
-
-if (response = buffered_character) {
-    buffered_character = 0;
-    return response;
-    }
-return sim_os_poll_kbd_data ();
-}
-
-static t_stat sim_os_putchar (int32 out)
-{
-unsigned int status;
-char c;
-IOSB iosb;
-
-c = out;
-status = sys$qiow (EFN, tty_chan, IO$_WRITELBLK | IO$M_NOFORMAT,
-    &iosb, 0, 0, &c, 1, 0, 0, 0, 0);
-if ((status != SS$_NORMAL) || (iosb.status != SS$_NORMAL))
-    return SCPE_TTOERR;
-return SCPE_OK;
-}
-
-/* Win32 routines */
-
-#elif defined (_WIN32)
+#if defined (_WIN32)
 
 #include <fcntl.h>
 #include <io.h>
@@ -2298,6 +2149,7 @@ ControlHandler(DWORD dwCtrlType)
         case CTRL_LOGOFF_EVENT:     // User is logging off
             if (!GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &Mode))
                 return TRUE;        // Not our User, so ignore
+            /* fall through */ /* fallthrough */
         case CTRL_SHUTDOWN_EVENT:   // System is shutting down
             int_handler(0);
             return TRUE;
@@ -2465,7 +2317,7 @@ return SCPE_OK;                                         /* return success */
 static t_stat sim_os_ttrun (void)
 {
 runtchars.t_intrc = sim_int_char;                       /* in case changed */
-fcntl (0, F_SETFL, runfl);                              /* non-block mode */
+(void)fcntl (0, F_SETFL, runfl);                              /* non-block mode */
 if (ioctl (0, TIOCSETP, &runtty) < 0)
     return SCPE_TTIERR;
 if (ioctl (0, TIOCSETC, &runtchars) < 0)
@@ -2479,7 +2331,7 @@ return SCPE_OK;
 static t_stat sim_os_ttcmd (void)
 {
 sim_os_set_thread_priority (PRIORITY_NORMAL);           /* restore priority */
-fcntl (0, F_SETFL, cmdfl);                              /* block mode */
+(void)fcntl (0, F_SETFL, cmdfl);                              /* block mode */
 if (ioctl (0, TIOCSETP, &cmdtty) < 0)
     return SCPE_TTIERR;
 if (ioctl (0, TIOCSETC, &cmdtchars) < 0)
@@ -2518,7 +2370,7 @@ static t_stat sim_os_putchar (int32 out)
 char c;
 
 c = out;
-write (1, &c, 1);
+if (write (1, &c, 1)) {};
 return SCPE_OK;
 }
 

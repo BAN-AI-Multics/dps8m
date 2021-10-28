@@ -761,7 +761,6 @@ static uint16
 ODS2Checksum (void *Buffer, uint16 WordCount)
     {
     int i;
-//    uint16 Sum = 0;
     uint16 CheckSum = 0;
     uint16 *Buf = (uint16 *)Buffer;
 
@@ -781,7 +780,7 @@ ODS2_FileHeader Header;
 ODS2_Retreval *Retr;
 ODS2_SCB Scb;
 uint16 CheckSum1, CheckSum2;
-uint32 ScbLbn;
+uint32 ScbLbn = 0;
 t_offset ret_val = (t_offset)-1;
 
 if ((dptr = find_dev_from_unit (uptr)) == NULL)
@@ -1083,7 +1082,18 @@ uptr->filename = (char *) calloc (CBUFSIZE, sizeof (char));/* alloc name buf */
 uptr->disk_ctx = ctx = (struct disk_context *)calloc(1, sizeof(struct disk_context));
 if ((uptr->filename == NULL) || (uptr->disk_ctx == NULL))
     return _err_return (uptr, SCPE_MEM);
+#ifdef __GNUC__
+#ifndef __clang_version__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
+#endif /* ifndef __clang_version__ */
+#endif /* ifdef __GNUC__ */
 strncpy (uptr->filename, cptr, CBUFSIZE);               /* save name */
+#ifdef __GNUC__
+#ifndef __clang_version__
+#pragma GCC diagnostic pop
+#endif /* ifndef __clang_version__ */
+#endif /* ifdef __GNUC__ */
 ctx->sector_size = (uint32)sector_size;                 /* save sector_size */
 ctx->capac_factor = ((dptr->dwidth / dptr->aincr) == 16) ? 2 : 1; /* save capacity units (word: 2, byte: 1) */
 ctx->xfer_element_size = (uint32)xfer_element_size;     /* save xfer_element_size */
@@ -2016,7 +2026,14 @@ if (ReadFile ((HANDLE)(uptr->fileref), buf, sects * ctx->sector_size, (LPDWORD)s
         *sectsread /= ctx->sector_size;
     return SCPE_OK;
     }
-_set_errno_from_status (GetLastError ());
+if (ERROR_HANDLE_EOF == GetLastError())
+{ /* Return 0's for reads past EOF */
+  memset (buf, 0, sects * ctx->sector_size);
+  if (sectsread)
+    *sectsread = sects;
+  return SCPE_OK;
+}
+_set_errno_from_status (GetLastError());
 return SCPE_IOERR;
 }
 
@@ -2041,7 +2058,7 @@ _set_errno_from_status (GetLastError ());
 return SCPE_IOERR;
 }
 
-#elif defined (__linux) || defined (__linux__) || defined (__sun) || defined (__sun__) || defined (__hpux) || defined (_AIX)
+#elif defined (__linux) || defined (__linux__) || defined (__APPLE__) || defined (__sun) || defined (__sun__) || defined (_AIX)
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -2208,10 +2225,6 @@ return SCPE_NOFNC;
 
 /* OS Independent Disk Virtual Disk (VHD) I/O support */
 
-#if (defined (VMS) && !(defined (__ALPHA) || defined (__ia64)))
-#define DONT_DO_VHD_SUPPORT  /* VAX/VMS compilers don't have 64 bit integers */
-#endif
-
 #if defined (DONT_DO_VHD_SUPPORT)
 
 /*============================================================================*/
@@ -2372,9 +2385,6 @@ typedef struct _VHD_Footer {
     /*
     This field stores the type of host operating system this disk image is
     created on.
-       Host OS type    Value
-       Windows         0x5769326B (Wi2k)
-       Macintosh       0x4D616320 (Mac )
     */
     uint8 CreatorHostOS[4];
     /*
@@ -2642,7 +2652,7 @@ while (size--)
 return ~sum;
 }
 
-#if defined(_WIN32) || defined (__ALPHA) || defined (__ia64) || defined (VMS)
+#if defined(_WIN32)
 #ifndef __BYTE_ORDER__
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
 #endif
@@ -2850,14 +2860,14 @@ if ((sDynamic) &&
                         ParentName[i/2] = Pdata[i] ? Pdata[i] : Pdata[i+1];
                 free (Pdata);
                 if (0 == memcmp (sDynamic->ParentLocatorEntries[j].PlatformCode, "W2ku", 4))
-                    strncpy (CheckPath, ParentName, sizeof (CheckPath)-1);
+                    strncpy (CheckPath, ParentName, (sizeof (CheckPath)));
                 else
                     if (0 == memcmp (sDynamic->ParentLocatorEntries[j].PlatformCode, "W2ru", 4)) {
                         const char *c;
 
                         if ((c = strrchr (szVHDPath, '\\'))) {
                              memcpy (CheckPath, szVHDPath, c-szVHDPath+1);
-                             strncpy (CheckPath+strlen(CheckPath), ParentName, sizeof (CheckPath)-(strlen (CheckPath)+1));
+                             strncpy (CheckPath+strlen(CheckPath), ParentName, ((sizeof (CheckPath))-(strlen (CheckPath))));
                         }
                     }
                 VhdPathToHostPath (CheckPath, CheckPath, sizeof (CheckPath));
@@ -3393,7 +3403,7 @@ errno = Status;
 return hVHD;
 }
 
-#if defined(__CYGWIN__) || defined(VMS) || defined(__APPLE__) || defined(__linux) || defined(__linux__) || defined(__unix__)
+#if defined(__CYGWIN__) || defined(_AIX) || defined(__APPLE__) || defined(__linux) || defined(__linux__) || defined(__unix__)
 #include <unistd.h>
 #endif
 static void
@@ -3468,25 +3478,10 @@ VhdPathToHostPath (const char *szVhdPath,
 char *c;
 char *d = szHostPath;
 
-strncpy (szHostPath, szVhdPath, HostPathSize-1);
+memmove (szHostPath, szVhdPath, HostPathSize);
 szHostPath[HostPathSize-1] = '\0';
-#if defined(VMS)
-c = strchr (szVhdPath, ':');
-if (*(c+1) != '\\')
-    return NULL;
-*(c+1) = '[';
-d = strrchr (c+2, '\\');
-if (d) {
-    *d = ']';
-    while ((d = strrchr (c+2, '\\')))
-        *d = '.';
-    }
-else
-    return NULL;
-#else
 while ((c = strchr (d, '\\')))
     *c = '/';
-#endif
 memset (szHostPath + strlen (szHostPath), 0, HostPathSize - strlen (szHostPath));
 return szHostPath;
 }

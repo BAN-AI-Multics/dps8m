@@ -415,7 +415,6 @@ void do_text ()
     char buffer [8192];
     //char ASA;
     int c;
-    int black;
     int i, ic;
 
     start_page ();
@@ -450,7 +449,6 @@ void do_text ()
 printline:
         GLOBAL_LINECOUNT ++;
         GLOBAL_ADD=0;
-        black=0;
 
 #if 0
         /* +1 for roundoff , using floating point point units */

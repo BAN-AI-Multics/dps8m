@@ -46,9 +46,7 @@
     !defined(CROSS_MINGW64) && \
     !defined(__MINGW64__)   && \
     !defined(_MSC_VER)      && \
-    !defined(_MSC_BUILD)    && \
-    !defined(VMS)           && \
-    !defined(__VMS)
+    !defined(_MSC_BUILD)
 
 #if defined(__sun) && defined(__SVR4)
 #ifndef __EXTENSIONS__

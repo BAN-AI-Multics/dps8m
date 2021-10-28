@@ -107,16 +107,12 @@ extern "C" {
 
 /* Length specific integer declarations */
 
-#if defined (VMS)
-#include <ints.h>
-#else
 typedef signed char     int8;
 typedef signed short    int16;
 typedef signed int      int32;
 typedef unsigned char   uint8;
 typedef unsigned short  uint16;
 typedef unsigned int    uint32;
-#endif
 typedef int             t_stat;                         /* status */
 typedef int             t_bool;                         /* boolean */
 
@@ -128,12 +124,6 @@ typedef unsigned long long      t_uint64;
 #elif defined (_WIN32)                                  /* Windows */
 typedef signed __int64          t_int64;
 typedef unsigned __int64        t_uint64;
-#elif (defined (__ALPHA) || defined (__ia64)) && defined (VMS) /* 64b VMS */
-typedef signed __int64          t_int64;
-typedef unsigned __int64        t_uint64;
-#elif defined (__ALPHA) && defined (__unix__)           /* Alpha UNIX */
-typedef signed long             t_int64;
-typedef unsigned long           t_uint64;
 #else                                                   /* default */
 #define t_int64                 signed long long
 #define t_uint64                unsigned long long
@@ -158,9 +148,6 @@ typedef uint32          t_addr;
 #if defined (_WIN32)
 #define vsnprintf _vsnprintf
 #endif
-#if defined (__DECC) && defined (__VMS) && (defined (__VAX) || (__CRTL_VER <= 70311000))
-#define NO_vsnprintf
-#endif
 #if defined( NO_vsnprintf)
 #define STACKBUFSIZE 16384
 #else
@@ -173,18 +160,12 @@ typedef uint32          t_addr;
 #define LL_FMT "ll"
 #endif
 
-#if defined (VMS) && (defined (__ia64) || defined (__ALPHA))
-#define HAVE_GLOB
-#endif
-
-#if defined (__linux) || defined (VMS) || defined (__APPLE__)
+#if defined (__linux) || defined (_AIX) || defined (__APPLE__)
 #define HAVE_C99_STRFTIME 1
 #endif
 
 #if defined (_WIN32)
 #define NULL_DEVICE "NUL:"
-#elif defined (_VMS)
-#define NULL_DEVICE "NL:"
 #else
 #define NULL_DEVICE "/dev/null"
 #endif

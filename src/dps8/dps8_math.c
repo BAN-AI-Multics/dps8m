@@ -540,6 +540,7 @@ void ufa (bool sub)
     word1 allones = 1;
     word1 notallzeros = 0;
     //word1 last = 0;
+    (void)allones;
     if (e1 == e2)
     {
         shift_count = 0;
