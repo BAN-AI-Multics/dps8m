@@ -476,85 +476,36 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
                 cpus[cpu_unit_idx].switches.addr_switches = 0100150;
                 cpus[cpu_unit_idx].switches.useMap = true;
                 cpus[cpu_unit_idx].switches.disable_wam = false;
-                cpus[cpu_unit_idx].switches.assignment [0] = false;
-                cpus[cpu_unit_idx].switches.interlace [0] = false;
-                cpus[cpu_unit_idx].switches.enable [0] = false;
-                cpus[cpu_unit_idx].switches.init_enable [0] = false;
+
 #ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [0] = 2;
+                int n = 4;
+                int ss = 2;
 #endif
 #ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [0] = 3;
+                int n = 8;
+                int ss = 3;
 #endif
-
-                cpus[cpu_unit_idx].switches.assignment [1] = 0;
-                cpus[cpu_unit_idx].switches.interlace [1] = false;
+                for (int p = 0; p < n; p++) { 
+                  cpus[cpu_unit_idx].switches.assignment [p] = 0;
+                  cpus[cpu_unit_idx].switches.interlace [p] = false;
+                  cpus[cpu_unit_idx].switches.enable [p] = false;
+                  cpus[cpu_unit_idx].switches.init_enable [p] = false;
+                  cpus[cpu_unit_idx].switches.store_size [p] = ss;
+                }
+                cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
                 cpus[cpu_unit_idx].switches.enable [1] = true;
-                cpus[cpu_unit_idx].switches.init_enable [1] = false;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [1] = 2;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [1] = 3;
-#endif
-
-                cpus[cpu_unit_idx].switches.assignment [2] = 0;
-                cpus[cpu_unit_idx].switches.interlace [2] = false;
-                cpus[cpu_unit_idx].switches.enable [2] = false;
-                cpus[cpu_unit_idx].switches.init_enable [2] = false;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [2] = 2;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [2] = 3;
-#endif
-
-                cpus[cpu_unit_idx].switches.assignment [3] = 0;
-                cpus[cpu_unit_idx].switches.interlace [3] = false;
-                cpus[cpu_unit_idx].switches.enable [3] = false;
-                cpus[cpu_unit_idx].switches.init_enable [3] = false;
-#ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [3] = 2;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [3] = 3;
-#endif
-#ifdef L68
-                cpus[cpu_unit_idx].switches.assignment [4] = 0;
-                cpus[cpu_unit_idx].switches.interlace [4] = false;
-                cpus[cpu_unit_idx].switches.enable [4] = false;
-                cpus[cpu_unit_idx].switches.init_enable [4] = false;
-                cpus[cpu_unit_idx].switches.store_size [4] = 3;
-
-                cpus[cpu_unit_idx].switches.assignment [5] = 0;
-                cpus[cpu_unit_idx].switches.interlace [5] = false;
-                cpus[cpu_unit_idx].switches.enable [5] = false;
-                cpus[cpu_unit_idx].switches.init_enable [5] = false;
-                cpus[cpu_unit_idx].switches.store_size [5] = 3;
-
-                cpus[cpu_unit_idx].switches.assignment [6] = 0;
-                cpus[cpu_unit_idx].switches.interlace [6] = false;
-                cpus[cpu_unit_idx].switches.enable [6] = false;
-                cpus[cpu_unit_idx].switches.init_enable [6] = false;
-                cpus[cpu_unit_idx].switches.store_size [6] = 3;
-
-                cpus[cpu_unit_idx].switches.assignment [7] = 0;
-                cpus[cpu_unit_idx].switches.interlace [7] = false;
-                cpus[cpu_unit_idx].switches.enable [7] = false;
-                cpus[cpu_unit_idx].switches.init_enable [7] = false;
-                cpus[cpu_unit_idx].switches.store_size [7] = 3;
-#endif
                 cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
-                simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
-                cpus[cpu_unit_idx].switches.enable [1] = true;
               }
             else
               {
-                cpus[cpu_unit_idx].switches = cpus[cpu_unit_idx].isolts_switches_save;
-                cpus[cpu_unit_idx].isolts_switches_saved = false;
+                if (cpus[cpu_unit_idx].isolts_switches_saved) {
+                  cpus[cpu_unit_idx].switches = cpus[cpu_unit_idx].isolts_switches_save;
+                  cpus[cpu_unit_idx].isolts_switches_saved = false;
+                }
+                cpus[cpu_unit_idx].switches.isolts_mode = v;
 
                 cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
-                simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
+                //simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
               }
           }
         else
@@ -736,6 +687,7 @@ uint set_cpu_idx (UNUSED uint cpu_idx)
 void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
   {
     uint save = set_cpu_idx (cpun);
+    setup_scbank_map ();
     if (clear_mem)
       {
 #ifdef SCUMEM
@@ -756,17 +708,62 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
               }
           }
 #else
-        for (uint i = 0; i < MEMSIZE; i ++)
+        if (cpus[cpun].switches.useMap)
           {
-            // Clear lock bits and data field; set unitialized
+            for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++)
+              {
+                int base = cpus[cpun].sc_addr_map [pgnum];
+                if (base < 0)
+                  continue;
+                for (uint addr = 0; addr < SCBANK_SZ; addr ++)
+                  M [addr + (uint) base] = MEM_UNINITIALIZED;
+              }
+          }
+        else
+         {
+            for (uint i = 0; i < MEMSIZE; i ++)
+              {
+                // Clear lock bits and data field; set unitialized
 #ifdef LOCKLESS
-            M[i] = (M[i] & ~(MASK36 | DEADLOCK_DETECT | MEM_LOCKED_BIT)) | MEM_UNINITIALIZED;
+                M[i] = (M[i] & ~(MASK36 | DEADLOCK_DETECT | MEM_LOCKED_BIT)) | MEM_UNINITIALIZED;
 #else
-            M[i] = (M[i] & ~(MASK36)) | MEM_UNINITIALIZED;
+                M[i] = (M[i] & ~(MASK36)) | MEM_UNINITIALIZED;
+#endif
+              }
 #endif
           }
-#endif
       }
+
+#ifdef LOCKLESS
+
+#define WAIT_TIME_LIMIT 10
+
+/// XXX we need a thread create lock
+    if (cpuThreadz[cpun].run) {
+      // thread is running; signal it to reset
+      lock_ptr (& cpus[cpun].signalLock);
+      cpus[cpun].resetFlag = true;
+      __atomic_store_n((volatile bool *)&cpus[cpun].resetFlag, true, __ATOMIC_RELEASE);
+      unlock_ptr (& cpus[cpun].signalLock);
+      wakeCPU (cpun);
+#if 0
+      bool f;
+      for (int t = 0; t < WAIT_TIME_LIMIT; t ++) {
+        sleep (1);
+        lock_ptr (& cpus[cpun].signalLock);
+        //f = cpus[cpun].resetFlag;
+        f = __atomic_load_n((volatile bool *)&cpus[cpun].resetFlag, __ATOMIC_ACQUIRE);
+        unlock_ptr (& cpus[cpun].signalLock);
+        if (f)
+          break;
+      }
+      if (! f)
+        sim_warn ("Couldn't reset CPU %u\r\n", cpun);
+#endif
+    }
+#endif
+
+#if 0 // moved to the top of sim_instr
     cpu.rA = 0;
     cpu.rQ = 0;
 
@@ -814,8 +811,17 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     setup_scbank_map ();
 
     tidy_cu ();
+#endif
     set_cpu_idx (save);
   }
+
+static t_stat simh_cpu_start (UNUSED UNIT * uptr, UNUSED int32 value, UNUSED const char * cptr, UNUSED void * desc) {
+  long cpu_unit_idx = UNIT_IDX (uptr);
+  if (cpuThreadz[cpu_unit_idx].run == false)
+    createCPUThread (cpu_unit_idx);
+  return SCPE_OK;
+}
+
 
 static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
                                              UNUSED int32 value,
@@ -823,24 +829,7 @@ static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
                                              UNUSED void * desc)
   {
     long cpu_unit_idx = UNIT_IDX (uptr);
-    cpu_state_t * cpun = cpus + cpu_unit_idx;
-    if (cpun->switches.isolts_mode)
-      {
-        // Currently isolts_mode requires useMap, so this is redundant
-        if (cpun->switches.useMap)
-          {
-            for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++)
-              {
-                int base = cpun->sc_addr_map [pgnum];
-                if (base < 0)
-                  continue;
-                for (uint addr = 0; addr < SCBANK_SZ; addr ++)
-                  M [addr + (uint) base] = MEM_UNINITIALIZED;
-              }
-          }
-      }
-    // Crashes console?
-    cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
+    cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
     return SCPE_OK;
   }
 
@@ -893,6 +882,17 @@ static MTAB cpu_mod[] =
       "INITIALIZE",              // print string
       "INITIALIZE",              // match string
       simh_cpu_reset_unit,       // validation routine
+      NULL,                      // display routine
+      NULL,                      // value descriptor
+      NULL                       // help
+    },
+
+    {
+      MTAB_unit_value,           // mask
+      0,                         // match
+      "START",              // print string
+      "START",              // match string
+      simh_cpu_start,       // validation routine
       NULL,                      // display routine
       NULL,                      // value descriptor
       NULL                       // help
@@ -1405,6 +1405,12 @@ void cpu_init (void)
     memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
     cpus [0].switches.FLT_BASE = 2; // Some of the UnitTests assume this
 
+#ifdef LOCKLESS
+    for (int i = 0; i < N_CPU_UNITS_MAX; i ++) {
+      pthread_mutex_init (& cpus[i].signalLock, NULL);
+    }
+#endif
+ 
     get_serial_number ();
 
 #ifndef NO_EV_POLL
@@ -1737,7 +1743,8 @@ t_stat sim_instr (void)
       }
 #endif
     if (cpuThreadz[0].run == false)
-          createCPUThread (0);
+      createCPUThread (0);
+
     do
       {
         reason = 0;
@@ -1959,7 +1966,6 @@ static void set_temporary_absolute_mode (void)
     CPT (cpt1L, 20); // set temp. abs. mode
     cpu.secret_addressing_mode = true;
     cpu.cu.XSF = false;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "set_temporary_absolute_mode bit 29 sets XSF to 0\n");
     //cpu.went_appending = false;
   }
 
@@ -1973,6 +1979,76 @@ static bool clear_temporary_absolute_mode (void)
 
 t_stat threadz_sim_instr (void)
   {
+reset:
+
+    cpu.restart = false;
+
+    cpu.cu.IR = 0;
+    SET_I_ZERO;
+    SET_I_NBAR;
+    SET_I_ABS;
+
+    cpu.DSBR.ADDR = 0;
+    cpu.DSBR.BND = 0;
+    cpu.DSBR.U = 0;
+    cpu.DSBR.STACK = 0;
+
+    cpu.rA = 0;
+    cpu.rQ = 0;
+
+    cpu.PPR.IC = 0;
+    cpu.PPR.PRR = 0;
+    cpu.PPR.PSR = 0;
+    cpu.PPR.P = 1;
+    cpu.RSDWH_R1 = 0;
+    cpu.rTR = MASK27;
+#if ISOLTS
+    cpu.shadowTR = 0;
+    cpu.rTRlsb = 0;
+#endif
+    cpu.rTR = MASK27;
+    cpu.rTRticks = 0;
+
+    set_addr_mode (ABSOLUTE_mode);
+    SET_I_NBAR;
+
+    cpu.CMR.luf = 3;    // default of 16 mS
+    //cpu.cu.SD_ON = cpu.switches.disable_wam ? 1 : 0;
+    //cpu.cu.PT_ON = cpu.switches.disable_wam ? 1 : 0;
+    cpu.cu.SD_ON = cpu.switches.sdwam_enable ? 1 : 0;
+    cpu.cu.PT_ON = cpu.switches.ptwam_enable ? 1 : 0;
+
+    set_cpu_cycle (FAULT_cycle);
+    cpu.faultNumber = FAULT_SUF;
+
+    cpu.wasXfer = false;
+    cpu.wasInhibited = false;
+
+    cpu.interrupt_flag = false;
+    cpu.g7_flag = false;
+
+    cpu.faultRegister [0] = 0;
+    cpu.faultRegister [1] = 0;
+
+#ifdef RAPRx
+    cpu.apu.lastCycle = UNKNOWN_CYCLE;
+#endif
+
+    memset (& cpu.PPR, 0, sizeof (struct ppr_s));
+
+    setup_scbank_map ();
+
+    tidy_cu ();
+
+    lock_scu ();
+    if (!sample_interrupts ())
+      sleepCPU (0);  
+    unlock_scu ();
+
+    // The only way out of sleepCPU is an interrupt
+    set_cpu_cycle (INTERRUPT_cycle);
+    cpu.interrupt_flag = true;
+
 //cpu.have_tst_lock = false;
 
     t_stat reason = 0;
@@ -2049,6 +2125,7 @@ setCPU:;
 
     DCDstruct * ci = & cpu.currentInstruction;
 
+    // Are we in the middle of an RCU with the instruction restart bit set?
     if (cpu.restart)
       {
         set_cpu_cycle (FAULT_cycle);
@@ -2057,6 +2134,19 @@ setCPU:;
     do
       {
         reason = 0;
+
+        if (__atomic_load_n((volatile bool *) & cpu.resetFlag, __ATOMIC_ACQUIRE)) {
+#ifdef LOCKLESS
+          lock_ptr (& cpu.signalLock);
+#endif
+          //cpu.resetFlag = false;
+          __atomic_store_n((volatile bool *)&cpu.resetFlag, false, __ATOMIC_RELEASE);
+#ifdef LOCKLESS
+          unlock_ptr (& cpu.signalLock);
+#endif
+
+          goto reset;
+        }
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
         // Process deferred events and breakpoints
@@ -2509,7 +2599,6 @@ setCPU:;
                 //clr_went_appending (); // XXX not sure this is the right
                                          //  place
                 cpu.cu.XSF = 0;
-sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 cpu.cu.TSN_VALID [0] = 0;
                 cpu.TPR.TSR = cpu.PPR.PSR;
                 cpu.TPR.TRR = cpu.PPR.PRR;
@@ -2719,12 +2808,15 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   cpu.rTR = (cpu.rTR - ticks) & MASK27;
 #else // !NO_TIMEWAIT
                   unsigned long left = cpu.rTR * 125u / 64u;
-                  lock_scu ();
-                  if (!sample_interrupts ())
+                  if (left)
                     {
-                      left = sleepCPU (left);
+                      lock_scu ();
+                      if (!sample_interrupts ())
+                        {
+                          left = sleepCPU (left);
+                        }
+                      unlock_scu ();
                     }
-                  unlock_scu ();
                   if (left)
                     {
                       cpu.rTR = (word27) (left * 64 / 125);
@@ -2733,10 +2825,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                     {
                       if (cpu.switches.tro_enable)
                         {
-                          lock_scu ();
+                          //lock_scu ();
                           setG7fault (current_running_cpu_idx, FAULT_TRO,
                                       fst_zero);
-                          unlock_scu ();
+                          //unlock_scu ();
                         }
                       cpu.rTR = 0;
                     }

@@ -870,17 +870,22 @@ bool bG7PendingNoTRO (void)
 #endif
   }
 
-void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault)
-  {
-    sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o) sub %"PRId64" %"PRIo64"\n",
-               cpuNo, faultNo, faultNo, subFault.bits, subFault.bits);
-    cpus[cpuNo].g7FaultsPreset |= (1u << faultNo);
-    //cpu.g7SubFaultsPreset [faultNo] = subFault;
-    cpus[cpuNo].g7SubFaults [faultNo] = subFault;
+void setG7fault (uint cpuNo, _fault faultNo, _fault_subtype subFault) {
+  sim_debug (DBG_FAULT, & cpu_dev, "setG7fault CPU %d fault %d (%o) sub %"PRId64" %"PRIo64"\n",
+             cpuNo, faultNo, faultNo, subFault.bits, subFault.bits);
+#ifdef LOCKLESS
+  lock_ptr (& cpus[cpuNo].signalLock);
+#endif
+  cpus[cpuNo].g7FaultsPreset |= (1u << faultNo);
+  cpus[cpuNo].g7SubFaults [faultNo] = subFault;
+#ifdef LOCKLESS
+  unlock_ptr (& cpus[cpuNo].signalLock);
+#endif
 #if defined(THREADZ) || defined(LOCKLESS)
+  if (cpuNo != current_running_cpu_idx)
     wakeCPU(cpuNo);
 #endif
-  }
+}
 
 #ifdef L68
 void set_FFV_fault (uint f_fault_no)
@@ -907,16 +912,18 @@ void doG7Fault (bool allowTR)
     // According AL39,  Table 7-1. List of Faults, priority of connect is 25
     // and priority of Timer runout is 26, lower number means higher priority
 #if defined(THREADZ) || defined(LOCKLESS)
-    lock_scu ();
+    //lock_scu ();
+    lock_ptr (& cpu.signalLock);
 #endif
      if (cpu.g7Faults & (1u << FAULT_CON))
        {
          cpu.g7Faults &= ~(1u << FAULT_CON);
-
+         _fault_subtype subFault = cpu.g7SubFaults [FAULT_CON];
 #if defined(THREADZ) || defined(LOCKLESS)
-         unlock_scu ();
+         unlock_ptr (& cpu.signalLock);
+         //unlock_scu ();
 #endif
-         doFault (FAULT_CON, cpu.g7SubFaults [FAULT_CON], "Connect");
+         doFault (FAULT_CON, subFault, "Connect");
        }
 
      if (allowTR && (cpu.g7Faults & (1u << FAULT_TRO)))
@@ -925,7 +932,8 @@ void doG7Fault (bool allowTR)
 
          //sim_printf("timer runout %12o\n",cpu.PPR.IC);
 #if defined(THREADZ) || defined(LOCKLESS)
-         unlock_scu ();
+         unlock_ptr (& cpu.signalLock);
+         //unlock_scu ();
 #endif
          doFault (FAULT_TRO, fst_zero, "Timer runout");
        }
@@ -938,7 +946,8 @@ void doG7Fault (bool allowTR)
          cpu . g7Faults &= ~(1u << FAULT_EXF);
 
 #if defined(THREADZ) || defined(LOCKLESS)
-         unlock_scu ();
+         unlock_ptr (& cpu.signalLock);
+         //unlock_scu ();
 #endif
          doFault (FAULT_EXF, fst_zero, "Execute fault");
        }
@@ -948,7 +957,8 @@ void doG7Fault (bool allowTR)
        {
          cpu.FFV_faults &= ~1u;
 #if defined(THREADZ) || defined(LOCKLESS)
-         unlock_scu ();
+         unlock_ptr (& cpu.signalLock);
+         //unlock_scu ();
 #endif
          do_FFV_fault (1, "OC TRAP");
        }
@@ -956,7 +966,8 @@ void doG7Fault (bool allowTR)
        {
          cpu.FFV_faults &= ~2u;
 #if defined(THREADZ) || defined(LOCKLESS)
-         unlock_scu ();
+         unlock_ptr (& cpu.signalLock);
+         //unlock_scu ();
 #endif
          do_FFV_fault (2, "CU HIST OVF TRAP");
        }
@@ -964,31 +975,38 @@ void doG7Fault (bool allowTR)
        {
          cpu.FFV_faults &= ~4u;
 #if defined(THREADZ) || defined(LOCKLESS)
-         unlock_scu ();
+         unlock_ptr (& cpu.signalLock);
+         //unlock_scu ();
 #endif
          do_FFV_fault (3, "ADR TRAP");
        }
 #endif
 #if defined(THREADZ) || defined(LOCKLESS)
-     unlock_scu ();
+     unlock_ptr (& cpu.signalLock);
+     //unlock_scu ();
 #endif
      doFault (FAULT_TRB, (_fault_subtype) {.bits=cpu.g7Faults}, "Dazed and confused in doG7Fault");
   }
 
 void advanceG7Faults (void)
   {
-#if defined(THREADZ) || defined(LOCKLESS)
-    lock_scu ();
+//#if defined(THREADZ) || defined(LOCKLESS)
+//    lock_scu ();
+//#endif
+#ifdef LOCKLESS
+    lock_ptr (& cpu.signalLock);
 #endif
     cpu.g7Faults |= cpu.g7FaultsPreset;
     cpu.g7FaultsPreset = 0;
-    //memcpy (cpu.g7SubFaults, cpu.g7SubFaultsPreset, sizeof (cpu.g7SubFaults));
 #ifdef L68
     cpu.FFV_faults |= cpu.FFV_faults_preset;
     cpu.FFV_faults_preset = 0;
 #endif
-#if defined(THREADZ) || defined(LOCKLESS)
-    unlock_scu ();
+#ifdef LOCKLESS
+    unlock_ptr (& cpu.signalLock);
 #endif
+//#if defined(THREADZ) || defined(LOCKLESS)
+//    unlock_scu ();
+//#endif
   }
 

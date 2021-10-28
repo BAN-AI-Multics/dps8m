@@ -1743,6 +1743,7 @@ restart_1:
 /// executeInstruction: simh hooks
 ///
 
+//if (cpu.PPR.PSR == 034 && cpu.PPR.IC == 03036) { sim_printf ("fault in idle caught\r\n"); hdbg_print (0, NULL); exit (1);};
 #ifndef SPEED
     // Don't trace Multics idle loop
     //if (cpu.PPR.PSR != 061 || cpu.PPR.IC != 0307)

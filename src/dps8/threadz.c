@@ -465,19 +465,17 @@ void cpuRunningWait (void)
 
 // Called by CPU thread to sleep until time up or signaled
 // Return time left
-unsigned long  sleepCPU (unsigned long usec)
-  {
-    int rc;
-    struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
-    struct timespec abstime;
+unsigned long  sleepCPU (unsigned long usec) {
+  int rc;
+  struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
+  struct timespec abstime;
+  if (usec) {
     clock_gettime (CLOCK_REALTIME, & abstime);
     abstime.tv_nsec += (long int) usec * 1000;
     abstime.tv_sec += abstime.tv_nsec / 1000000000;
     abstime.tv_nsec %= 1000000000;
 
-    rc = pthread_cond_timedwait (& p->sleepCond,
-                                 & scu_lock,
-                                 & abstime);
+    rc = pthread_cond_timedwait (& p->sleepCond, & scu_lock, & abstime);
 //sim_printf ("wake %u %u %lu\n", cpu.rTR, current_running_cpu_idx, usec);
     if (rc && rc != ETIMEDOUT)
       sim_printf ("sleepCPU pthread_cond_timedwait %d\n", rc);
@@ -491,6 +489,13 @@ unsigned long  sleepCPU (unsigned long usec)
       return 0; // safety
     return (unsigned long) delta.tv_nsec / 1000;
   }
+  rc = pthread_cond_wait (& p->sleepCond, & scu_lock);
+  if (rc == ETIMEDOUT)
+    return 0;
+  if (rc)
+    sim_printf ("sleepCPU pthread_cond rc %d  usec %ld TR %u CPU %u\n", rc, usec, cpu.rTR, current_running_cpu_idx);
+  return 0;
+}
 
 // Called to wake sleeping CPU; such as interrupt during DIS
 

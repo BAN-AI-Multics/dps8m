@@ -978,7 +978,51 @@ static void consoleProcessIdx (int conUnitIdx)
         return;
       }
 
+// Autoinput has a SIMH command?
 
+    if (csp->autop && * csp->autop == 023) { // ^S
+      csp->simh_buffer_cnt = 0;
+      while (1) {  // copy autoinput to simh_buffer
+        unsigned char c = * (csp->autop);
+        if (c)
+          csp->autop ++;
+        if (c == 0 || c == '\012' || c == '\015') { // end-of-string, CR, LF
+          console_putstr (conUnitIdx,  "\r\n");
+          csp->simh_buffer[csp->simh_buffer_cnt] = 0;
+sim_printf ("sending '%s'\r\n", csp->simh_buffer);
+for (uint i = 0; i <= strlen (csp->simh_buffer); i ++) sim_printf (" %03o", csp->simh_buffer[i]);
+sim_printf ("\r\n");
+          char * cptr = csp->simh_buffer;
+          char gbuf[simh_buffer_sz];
+          cptr = (char *) get_glyph (cptr, gbuf, 0); /* get command glyph */
+          if (strlen (gbuf)) {
+            CTAB *cmdp;
+            if ((cmdp = find_cmd (gbuf))) { /* lookup command */
+              t_stat stat = cmdp->action (cmdp->arg, cptr);
+              /* if found, exec */
+              if (stat != SCPE_OK) {
+                char buf[4096];
+                sprintf (buf, "SIMH returned %d '%s'\r\n", stat, sim_error_text (stat));
+                console_putstr (conUnitIdx,  buf);
+              }
+            } else {
+              console_putstr (conUnitIdx, "SIMH didn't recognize the command\r\n");
+            }
+          }
+          csp->simh_buffer_cnt = 0;
+          csp->simh_buffer[0] = 0;
+          break;
+        } /* eos, CR, LF */ else if (isprint (c)) {
+          // silently drop buffer overrun
+          if (csp->simh_buffer_cnt + 1 < simh_buffer_sz) {
+            csp->simh_buffer[csp->simh_buffer_cnt ++] = (char) c;
+            console_putchar (conUnitIdx, (char) c);
+          }
+        } else {
+          // silently drop junk
+        }
+      } // while (1)
+    } // if ^S
 //// Console is reading and autoinput is ready
 ////   Move line of text from autoinput buffer to console buffer
 

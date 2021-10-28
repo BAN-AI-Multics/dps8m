@@ -1518,12 +1518,16 @@ typedef struct
     unsigned long long lockYield;
     unsigned long      faultCnt [N_FAULTS];
 
-    // The following are all from the control unit history register:
-
+#ifdef LOCKLESS
+    pthread_mutex_t signalLock;
+#endif
+    bool resetFlag;
     bool interrupt_flag;     // an interrupt is pending in this cycle
     bool g7_flag;            // a g7 fault is pending in this cycle;
     _fault faultNumber;      // fault number saved by doFault
     _fault_subtype subFault; // saved by doFault
+
+
 
     bool wasXfer;      // The previous instruction was a transfer
 
