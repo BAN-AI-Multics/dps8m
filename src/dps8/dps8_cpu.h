@@ -2191,7 +2191,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
 
 int core_read_lock (word24 addr, word36 *data, const char * ctx);
 int core_write_unlock (word24 addr, word36 data, const char * ctx);
-int core_unlock_all();
+int core_unlock_all(void);
 
 #define DEADLOCK_DETECT   0x40000000U
 #define MEM_LOCKED_BIT    61

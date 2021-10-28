@@ -15,22 +15,22 @@
 
 OUTPUTFILE="${1:-}"
 
-test -z "${OUTPUTFILE:-}" ||
+test -z "${OUTPUTFILE:-}" &&
 {
-  test -f "${OUTPUTFILE:-}" &&
-    {
-      printf '%s\n' "Error: Output file already exists."
-      exit 1
-    } || {
-      touch "${OUTPUTFILE:-}" 2> /dev/null ||
-        {
-          printf '%s\n' "Error: Could not create output file."
-          exit 1
-        }
-    }
-} || {
   printf '%s\n' "Error: No output file specified."
   exit 1
+}
+
+test -f "${OUTPUTFILE:-}" &&
+{
+  printf '%s\n' "Error: Output file already exists."
+  exit 1
+} || {
+  touch "${OUTPUTFILE:-}" 2> /dev/null ||
+    {
+      printf '%s\n' "Error: Could not create output file."
+      exit 1
+    }
 }
 
 test -d "./.git" ||
@@ -226,6 +226,9 @@ do_cppcheck "punutil" "./src/punutil"
 
 title_line "$(date -u 2> /dev/null)"
 do_cppcheck "prt2pdf" "./src/prt2pdf"
+
+title_line "$(date -u 2> /dev/null)"
+do_cppcheck "blinkenLights2" "./src/blinkenLights2"
 
 title_line "$(date -u 2> /dev/null)"
 do_cppcheck "dps8" "./src/decNumber" "./src/simh" "./src/dps8"

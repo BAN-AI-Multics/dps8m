@@ -66,7 +66,6 @@ void * create_shm (char * key, size_t size)
     return p;
   }
 
-#ifdef USE_OPENSHM
 void * open_shm (char * key, size_t size)
   {
     void * p;
@@ -100,4 +99,3 @@ void * open_shm (char * key, size_t size)
       }
     return p;
   }
-#endif

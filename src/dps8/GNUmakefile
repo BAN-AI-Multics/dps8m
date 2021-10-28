@@ -317,7 +317,12 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all: sysdefs.h ver.h unifdef locallibs_then_dps8 prt2pdf punutil $(TAGS)
+all: sysdefs.h ver.h                                                          \
+     unifdef                                                                  \
+     locallibs_then_dps8                                                      \
+     prt2pdf                                                                  \
+     punutil                                                                  \
+     $(TAGS)
 
 ###############################################################################
 
@@ -356,13 +361,6 @@ blinkenLights: blinkenLights.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLights"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights.c                      \
         -o blinkenLights shm.o `$(PKGCONFIG) --cflags --libs gtk+-3.0`
-
-###############################################################################
-
-blinkenLights2: blinkenLights2.c shm.o
-	@$(PRINTF) '%s\n' "LD: blinkenLights2s"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights2.c                     \
-        -o blinkenLights2 shm.o `$(PKGCONFIG) --cflags --libs gtk+-3.0` -lrt
 
 ###############################################################################
 
@@ -440,12 +438,17 @@ prt2pdf: sysdefs.h
 ###############################################################################
 
 unifdef: ver.h
-	-@$(SETV); $(MAKE) -C "../unifdef"
+	-@$(SETV); $(MAKE) -C "../unifdef" "all"
 
 ###############################################################################
 
 punutil:
-	-@$(SETV); $(MAKE) -C "../punutil"
+	-@$(SETV); $(MAKE) -C "../punutil" "all"
+
+###############################################################################
+
+blinkenLights2:
+	-@$(SETV); $(MAKE) -C "../blinkenLights2" "all"
 
 ###############################################################################
 
@@ -524,11 +527,12 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean clean
 endif
 clean:
-	@$(SETV); $(MAKE) -C "$(SIMHx)"      -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../decNumber"  -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../prt2pdf"    -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../punutil"    -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../unifdef"    -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "$(SIMHx)"          -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../decNumber"      -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../blinkenLights2" -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) "clean_dps8"
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)".*  ||  $(TRUE)
@@ -656,12 +660,6 @@ sysdefs.h: useddef.txt
 
 ###############################################################################
 
-blinkenLights2.o:   dps8.h
-blinkenLights2.o:   dps8_simh.h
-blinkenLights2.o:   dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
-blinkenLights2.o:   dps8_sys.h
-blinkenLights2.o:   hdbg.h
-blinkenLights2.o:   shm.h
 dps8_absi.o:        dps8.h
 dps8_absi.o:        dps8_simh.h
 dps8_absi.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h

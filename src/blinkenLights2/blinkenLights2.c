@@ -29,13 +29,8 @@
 #include "dps8_state.h"
 #include "dps8_faults.h"
 
-#ifndef USE_OPENSHM
-#define USE_OPENSHN
-#endif
-
 #include "shm.h"
 
-//#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
 
 struct system_state_s * system_state;
 //vol word36 * M;
@@ -45,6 +40,9 @@ static cpu_state_t * cpun;
 static GdkRGBA lightOn, lightOff;
 
 gboolean window_delete (GtkWidget * widget, cairo_t * cr, gpointer data) {
+  (void)widget;
+  (void)cr;
+  (void)data;
   //return true;
   exit (0);
 }
@@ -236,6 +234,18 @@ static cpu_state_t previous;
 static gboolean time_handler (GtkWidget * widget) {
   bool update = false;
 
+#ifdef __GNUC__
+#ifdef __GNUC_MINOR__
+#if __GNUC__ > 3
+#if __GNUC_MINOR__ > 7
+#ifndef __INTEL_COMPILER
+#pragma GCC optimize ("O0")
+#endif /* ifndef __INTEL_COMPILER */
+#endif /* if __GNUC_MINOR__ > 7 */
+#endif /* if __GNUC__ > 3 */
+#endif /* ifdef __GNUC_MINOR__ */
+#endif /* ifdef __GNUC__ */
+
   if (memcmp (& cpun->PPR, & previous.PPR, sizeof (previous.PPR))) {
     update = true;
     for (int i = 0; i < 3; i ++)
@@ -357,7 +367,7 @@ static gboolean time_handler (GtkWidget * widget) {
 
   if (memcmp (& cpun->TPR.TBR, & previous.TPR.TBR, sizeof (previous.TPR.TBR))) {
     update = true;
-    for (int i = 0; i < 6; i ++) {
+    for ( unsigned int i = 0; i < 6; i++) {
       TBR_state [3 - i] = ((1llu << i) & cpun->TPR.TBR) ? 1 : 0;
     }
     //gtk_widget_queue_draw (TPR_display);
@@ -436,7 +446,7 @@ int main (int argc, char * argv []) {
     char * end;
     long p = strtol (argv [1], & end, 0);
     if (* end == 0) {
-      cpunum = p;
+      cpunum = (char) p;
       argv [1] [0] = 0;
     }
   }
