@@ -857,7 +857,6 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
     seekData &= MASK21;
     if (seekData >= diskTypes[typeIdx].capac)
       {
-sim_printf ("special seek error\r\n");
         p->stati = 04304; // Invalid seek address
         disk_statep->seekValid = false;
         //p->chanStatus = chanStatIncomplete;
