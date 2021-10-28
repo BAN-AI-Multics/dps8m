@@ -765,15 +765,13 @@ Linux/x86_64, Clear Linux:
     - Docker-x64
     - amd64
     - Linux
+    - ClearISE
   script:
     - swupd bundle-add -y --quiet curl
     - export GLCICD_JOB="ClearX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptClearSetup
     - *scriptInstallNfpm
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
