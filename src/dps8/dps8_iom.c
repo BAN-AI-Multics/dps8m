@@ -1694,9 +1694,9 @@ static map_t  iomScbankMap[N_IOM_UNITS_MAX][N_SCBANKS];
 
 static void setupIOMScbankMap (uint iom_unit_idx)
   {
-    //sim_debug (DBG_DEBUG, & cpu_dev,
-      //"%s: setupIOMScbankMap: SCBANK %d N_SCBANKS %d MEM_SIZE_MAX %d\n",
-      //__func__, SCBANK, N_SCBANKS, MEM_SIZE_MAX);
+    sim_debug (DBG_DEBUG, & cpu_dev,
+      "%s: setupIOMScbankMap: SCBANK_SZ %d N_SCBANKS %d MEM_SIZE_MAX %d\n",
+      __func__, SCBANK_SZ, N_SCBANKS, MEM_SIZE_MAX);
 
     // Initalize to unmapped
     for (int pg = 0; pg < (int) N_SCBANKS; pg ++)
@@ -1727,8 +1727,8 @@ static void setupIOMScbankMap (uint iom_unit_idx)
         uint base = assignment * sz;
 
         // Now convert to SCBANKs
-        sz = sz / SCBANK;
-        uint scbase = base / SCBANK;
+        sz = sz / SCBANK_SZ;
+        uint scbase = base / SCBANK_SZ;
 
         //sim_debug (DBG_DEBUG, & cpu_dev,
           //"%s: unit:%u port:%d ss:%u as:%u sz:%u ba:%u\n",
@@ -1754,7 +1754,7 @@ static void setupIOMScbankMap (uint iom_unit_idx)
 
 int query_IOM_SCU_bank_map (uint iom_unit_idx, word24 addr, word24 * offset)
   {
-    uint scpg = addr / SCBANK;
+    uint scpg = addr / SCBANK_SZ;
     if (scpg < N_SCBANKS)
       {
         * offset = addr-iomScbankMap[iom_unit_idx][scpg].base;
@@ -2020,8 +2020,8 @@ static void fetch_DDSPTW (uint iom_unit_idx, int chan, word18 addr)
                                       (addr >> 10) & MASK8);
     iom_core_read (iom_unit_idx, pgte, (word36 *) & p -> PTW_DCW, __func__);
     if ((p -> PTW_DCW & 0740000777747) != 04llu)
-      sim_warn ("%s: chan %d addr %#o ptw %012"PRIo64"\n",
-                __func__, chan, addr, p -> PTW_DCW);
+      sim_warn ("%s: chan %d addr %#o pgte %08o ptw %012"PRIo64"\n",
+                __func__, chan, addr, pgte, p -> PTW_DCW);
   }
 
 static word24 build_IDSPTW_address (word18 PCW_PAGE_TABLE_PTR, word1 seg, word8 pageNumber)

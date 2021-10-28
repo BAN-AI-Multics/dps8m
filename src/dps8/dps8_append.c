@@ -102,9 +102,7 @@ void set_apu_status (apuStatusBits status)
   }
 #endif
 
-#ifdef WAM
 static char *str_sdw (char * buf, sdw_s *SDW);
-#endif
 
 //
 //
@@ -160,7 +158,6 @@ static void selftest_ptwaw (void)
 void do_ldbr (word36 * Ypair)
   {
     CPTUR (cptUseDSBR);
-#ifdef WAM
     if (! cpu.switches.disable_wam)
       {
         if (cpu.cu.SD_ON)
@@ -200,12 +197,13 @@ void do_ldbr (word36 * Ypair)
 #endif
           }
       }
-#else
-    cpu.SDW0.FE = 0;
-    cpu.SDW0.USE = 0;
-    cpu.PTW0.FE = 0;
-    cpu.PTW0.USE = 0;
-#endif // WAM
+    else
+      {
+        cpu.SDW0.FE = 0;
+        cpu.SDW0.USE = 0;
+        cpu.PTW0.FE = 0;
+        cpu.PTW0.USE = 0;
+      }
 
     // If cache is enabled, reset all cache column and level full flags
     // XXX no cache
@@ -324,7 +322,6 @@ static void modify_dsptw (word15 segno)
   }
 
 
-#ifdef WAM
 #ifdef DPS8M
 static word6 calc_hit_am (word6 LRU, uint hit_level)
   {
@@ -428,7 +425,6 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
     cpu.cu.SDWAMM = 0;
     return NULL;    // segment not referenced in SDWAM
   }
-#endif // WAM
 
 /**
  * Fetches an SDW from a paged descriptor segment.
@@ -542,7 +538,6 @@ static void fetch_nsdw (word15 segno)
 #endif
   }
 
-#ifdef WAM
 static char *str_sdw (char * buf, sdw_s *SDW)
   {
     if (! SDW->FE)
@@ -570,9 +565,7 @@ static char *str_sdw (char * buf, sdw_s *SDW)
                SDW->USE);
     return buf;
   }
-#endif
 
-#ifdef WAM
 #ifdef L68
 
 /**
@@ -614,15 +607,13 @@ static uint to_be_discarded_am (word6 LRU)
     return 3;
   }
 #endif
-#endif
 
 /**
  * load the current in-core SDW0 into the SDWAM ...
  */
 
-static void load_sdwam (word15 segno, UNUSED bool nomatch)
+static void load_sdwam (word15 segno, bool nomatch)
   {
-#ifndef WAM
     cpu.SDW0.POINTER = segno;
     cpu.SDW0.USE = 0;
 
@@ -630,15 +621,9 @@ static void load_sdwam (word15 segno, UNUSED bool nomatch)
 
     cpu.SDW = & cpu.SDW0;
 
-#else
     if (nomatch || cpu.switches.disable_wam || ! cpu.cu.SD_ON)
       {
         DBGAPP ("%s: SDWAM disabled\n", __func__);
-        sdw_s * p = & cpu.SDW0;
-        p->POINTER = segno;
-        p->USE = 0;
-        p->FE = true;     // in use by SDWAM
-        cpu.SDW = p;
         return;
       }
 
@@ -720,10 +705,8 @@ static void load_sdwam (word15 segno, UNUSED bool nomatch)
     DBGAPP ("%s(2):SDWAM[%d]=%s\n",
             __func__, toffset + setno, str_sdw (buf, cpu.SDW));
 #endif
-#endif // WAM
   }
 
-#ifdef WAM
 static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
   {
     if (cpu.switches.disable_wam || ! cpu.cu.PT_ON)
@@ -804,7 +787,6 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
     cpu.cu.PTWAMM = 0;
     return NULL;    // page not referenced in PTWAM
   }
-#endif // WAM
 
 static void fetch_ptw (sdw_s *sdw, word18 offset)
   {
@@ -875,24 +857,15 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
 
 static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
   {
-#ifndef WAM
     cpu.PTW0.PAGENO = (offset >> 6) & 07760;
     cpu.PTW0.POINTER = segno;
     cpu.PTW0.USE = 0;
     cpu.PTW0.FE = true;
 
     cpu.PTW = & cpu.PTW0;
-#else
     if (nomatch || cpu.switches.disable_wam || ! cpu.cu.PT_ON)
       {
         DBGAPP ("loadPTWAM: PTWAM disabled\n");
-        ptw_s * p = & cpu.PTW0;
-        p->PAGENO = (offset >> 6) & 07760;  // ISOLTS-861 02, AL39 p.3-22
-        p->POINTER = segno;
-        p->USE = 0;
-        p->FE = true;
-
-        cpu.PTW = p;
         return;
       }
 
@@ -977,7 +950,6 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
             cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
             cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO, cpu.PTW->USE);
 #endif
-#endif // WAM
   }
 
 /**
@@ -1238,20 +1210,20 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
     bool StrOp = (thisCycle == OPERAND_STORE ||
                   thisCycle == APU_DATA_STORE);
 
-#ifdef WAM
-    // AL39: The associative memory is ignored (forced to "no match") during
-    // address preparation.
-    // lptp,lptr,lsdp,lsdr,sptp,sptr,ssdp,ssdr
-    // Unfortunately, ISOLTS doesn't try to execute any of these in append mode.
-    // XXX should this be only for OPERAND_READ and OPERAND_STORE?
-    bool nomatch = ((i->opcode == 0232 || i->opcode == 0254 ||
-                     i->opcode == 0154 || i->opcode == 0173) &&
-                     i->opcodeX ) ||
-                    ((i->opcode == 0557 || i->opcode == 0257) &&
-                     ! i->opcodeX);
-#else
-    const bool nomatch = true;
-#endif
+    bool nomatch = true;
+    if (! cpu.switches.disable_wam)
+      {
+        // AL39: The associative memory is ignored (forced to "no match") during
+        // address preparation.
+        // lptp,lptr,lsdp,lsdr,sptp,sptr,ssdp,ssdr
+        // Unfortunately, ISOLTS doesn't try to execute any of these in append mode.
+        // XXX should this be only for OPERAND_READ and OPERAND_STORE?
+        nomatch = ((i->opcode == 0232 || i->opcode == 0254 ||
+                    i->opcode == 0154 || i->opcode == 0173) &&
+                    i->opcodeX ) ||
+                   ((i->opcode == 0557 || i->opcode == 0257) &&
+                    ! i->opcodeX);
+      }
 
     processor_cycle_type lastCycle = cpu.apu.lastCycle;
     cpu.apu.lastCycle = thisCycle;
@@ -1320,10 +1292,8 @@ A:;
 
     DBGAPP ("do_append_cycle(A)\n");
 
-#ifdef WAM
     // is SDW for C(TPR.TSR) in SDWAM?
     if (nomatch || ! fetch_sdw_from_sdwam (cpu.TPR.TSR))
-#endif
       {
         // No
         DBGAPP ("do_append_cycle(A):SDW for segment %05o not in SDWAM\n",
@@ -1798,10 +1768,8 @@ G:;
     // is PTW for C(TPR.CA) in PTWAM?
 
     DBGAPP ("do_append_cycle(G) CA %06o\n", cpu.TPR.CA);
-#ifdef WAM
     if (nomatch ||
         ! fetch_ptw_from_ptwam (cpu.SDW->POINTER, cpu.TPR.CA))  //TPR.CA))
-#endif
       {
         fetch_ptw (cpu.SDW, cpu.TPR.CA);
         if (! cpu.PTW0.DF)

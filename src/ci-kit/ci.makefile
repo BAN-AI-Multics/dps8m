@@ -4,6 +4,7 @@ all :
 	@printf '%s\n' "s3  Test MR12.7_install.ini"
 	@printf '%s\n' "s4  Setup Yoyodyne"
 	@printf '%s\n' "s5  Run ci_t1.expect"
+	@printf '%s\n' "s6  Run isolts.expect"
 
 
 .PHONY : s1 s2 s3 s4 s5 s6
@@ -53,6 +54,11 @@ s5:
 	env CPUPROFILE=run.prof.out ./ci_t1.sh 0
 	@printf '%s\n' "End Stage 5"
 
+s6:
+	@printf '%s\n' "Start Stage 6: Run isolts.expect"
+	env CPUPROFILE=isolts.prof.out ./isolts.sh 0
+	@printf '%s\n' "End Stage 5"
+
 .PHONY : diff
 
 diff :
@@ -68,6 +74,10 @@ diff :
 	@printf '%s\n' "=        ci_t3.log          =" >>ci_full.log
 	@printf '%s\n' "=============================" >>ci_full.log
 	cat ci_t3.log >>ci_full.log
+	@printf '%s\n' "=============================" >>ci_full.log
+	@printf '%s\n' "=        isolts.log         =" >>ci_full.log
+	@printf '%s\n' "=============================" >>ci_full.log
+	cat isolts.log >>ci_full.log
 	dos2unix -f < ci_full.log | ./tidy > new.log
 	dos2unix -f < ci_full.log.ref | ./tidy > old.log
 	@printf '%s\n' "Done; compare new.log and old.log"

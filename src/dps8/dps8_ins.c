@@ -401,7 +401,7 @@ static void scu2words (word36 *words)
     // Breaks ISOLTS 768
     //putbits36_1 (& words[4], 25, cpu.currentInstruction.stiTally);
 
-#ifdef ISOLTS
+//#ifdef ISOLTS
 //testing for ipr fault by attempting execution of
 //the illegal opcode  000   and bit 27 not set
 //in privileged-append-bar mode.
@@ -423,7 +423,7 @@ static void scu2words (word36 *words)
 //if (current_running_cpu_idx)
 //sim_printf ("cleared ABS\n");
 //}
-#endif
+//#endif
 
     // words[5]
 
@@ -454,8 +454,7 @@ static void scu2words (word36 *words)
     if_sim_debug (DBG_FAULT, & cpu_dev)
         dump_words (words);
 
-#ifdef ISOLTS
-    if (current_running_cpu_idx != 0)
+    if (cpu.switches.isolts_mode)
       {
         struct
         {
@@ -521,8 +520,6 @@ static void scu2words (word36 *words)
               }
           }
       }
-#endif
-
   }
 
 
@@ -686,14 +683,18 @@ static void du2words (word36 * words)
   {
     CPT (cpt2U, 7); // du2words
 
-#ifdef ISOLTS
-    for (int i = 0; i < 8; i ++)
+    if (cpu.switches.isolts_mode)
       {
-        words[i] = cpu.du.image[i];
+        for (int i = 0; i < 8; i ++)
+          {
+            words[i] = cpu.du.image[i];
+          }
       }
-#else
-    memset (words, 0, 8 * sizeof (* words));
-#endif
+    else
+      {
+        memset (words, 0, 8 * sizeof (* words));
+      }
+
     // Word 0
 
     putbits36_1  (& words[0],  9, cpu.du.Z);
@@ -702,9 +703,9 @@ static void du2words (word36 * words)
 
     // Word 1
 
-#ifdef ISOLTS
-    words[1] = words[0];
-#endif
+    if (cpu.switches.isolts_mode)
+      words[1] = words[0];
+
     // Word 2
 
     putbits36_18 (& words[2],  0, cpu.du.D1_PTR_W);
@@ -796,12 +797,13 @@ static void words2du (word36 * words)
 
     cpu.du.D3_RES   = getbits36_24 (words[7], 12);
 
-#ifdef ISOLTS
-    for (int i = 0; i < 8; i ++)
+    if (cpu.switches.isolts_mode)
       {
-        cpu.du.image[i] = words[i];
-      }
-#endif
+        for (int i = 0; i < 8; i ++)
+          {
+            cpu.du.image[i] = words[i];
+          }
+     }
   }
 
 static char *PRalias[] = {"ap", "ab", "bp", "bb", "lp", "lb", "sp", "sb" };
@@ -3879,15 +3881,10 @@ static t_stat doInstruction (void)
           cpu.Yblock8[4] = cpu.rA;
           cpu.Yblock8[5] = cpu.rQ;
           cpu.Yblock8[6] = ((word36)(cpu.rE & MASK8)) << 28;
-#ifdef ISOLTS
-          if (current_running_cpu_idx)
+          if (cpu.switches.isolts_mode)
             cpu.Yblock8[7] = (((-- cpu.shadowTR) & MASK27) << 9) | (cpu.rRALR & 07);
           else
             cpu.Yblock8[7] = ((cpu.rTR & MASK27) << 9) | (cpu.rRALR & 07);
-
-#else
-          cpu.Yblock8[7] = ((cpu.rTR & MASK27) << 9) | (cpu.rRALR & 07);
-#endif
           HDBGRegXR (0, "sreg");
           HDBGRegXR (1, "sreg");
           HDBGRegXR (2, "sreg");
@@ -4067,14 +4064,10 @@ static t_stat doInstruction (void)
 
         case x0 (0454):  // stt
           CPTUR (cptUseTR);
-#ifdef ISOLTS
-          if (current_running_cpu_idx)
+          if (cpu.switches.isolts_mode)
             cpu.CY = ((-- cpu.shadowTR) & MASK27) << 9;
           else
             cpu.CY = (cpu.rTR & MASK27) << 9;
-#else
-          cpu.CY = (cpu.rTR & MASK27) << 9;
-#endif
           break;
 
 
@@ -5205,6 +5198,7 @@ static t_stat doInstruction (void)
           {
             HDBGRegAR ("cmk");
             HDBGRegQR ("cmk");
+            HDBGRegYR ("cmk");
             word36 Z = ~cpu.rQ & (cpu.rA ^ cpu.CY);
             Z &= DMASK;
             HDBGRegZW (Z, "cmk");
@@ -7220,10 +7214,11 @@ static t_stat doInstruction (void)
           CPTUR (cptUseTR);
           cpu.rTR = (cpu.CY >> 9) & MASK27;
           cpu.rTRticks = 0;
-#if ISOLTS
-          cpu.shadowTR = cpu.TR0 = cpu.rTR;
-          cpu.rTRlsb = 0;
-#endif
+          if (cpu.switches.isolts_mode)
+            {
+              cpu.shadowTR = cpu.TR0 = cpu.rTR;
+              cpu.rTRlsb = 0;
+            }
           sim_debug (DBG_TRACEEXT, & cpu_dev, "ldt TR %d (%o)\n",
                      cpu.rTR, cpu.rTR);
 #ifdef LOOPTRC
@@ -7249,7 +7244,6 @@ elapsedtime ();
             //   C(Y-block16+m)15,26 -> C(PTWAM(m).PAGE)
             //   C(Y-block16+m)27 -> C(PTWAM(m).F)
 
-#ifdef WAM
             for (uint i = 0; i < 16; i ++)
               {
                 word4 m = cpu.PTWAM[i].USE;
@@ -7257,7 +7251,6 @@ elapsedtime ();
                 cpu.PTWAM[m].PAGENO =  getbits36_12 (cpu.Yblock16[i], 15);
                 cpu.PTWAM[m].FE =      getbits36_1  (cpu.Yblock16[i], 27);
               }
-#endif
           }
           break;
 #endif
@@ -7272,14 +7265,12 @@ elapsedtime ();
             //   m = C(PTWAM(i).USE)
             //   C(Y-block16+m)0,17 -> C(PTWAM(m).ADDR)
             //   C(Y-block16+m)29 -> C(PTWAM(m).M)
-#ifdef WAM
             for (uint i = 0; i < 16; i ++)
               {
                 word4 m = cpu.PTWAM[i].USE;
                 cpu.PTWAM[m].ADDR = getbits36_18 (cpu.Yblock16[i],  0);
                 cpu.PTWAM[m].M =    getbits36_1  (cpu.Yblock16[i], 29);
               }
-#endif
           }
           break;
 #endif
@@ -7307,14 +7298,12 @@ elapsedtime ();
             //   m = C(SDWAM(i).USE)
             //   C(Y-block16+m)0,14 -> C(SDWAM(m).POINTER)
             //   C(Y-block16+m)27 -> C(SDWAM(m).F) Note: typo in AL39, P(17) should be F(27)
-#ifdef WAM
             for (uint i = 0; i < 16; i ++)
               {
                 word4 m = cpu.SDWAM[i].USE;
                 cpu.SDWAM[m].POINTER = getbits36_15 (cpu.Yblock16[i],  0);
                 cpu.SDWAM[m].FE =      getbits36_1  (cpu.Yblock16[i], 27);
               }
-#endif
           }
           break;
 #endif
@@ -7332,7 +7321,6 @@ elapsedtime ();
             //   C(Y-block32+2m)37,50 -> C(SDWAM(m).BOUND)
             //   C(Y-block32+2m)51,57 -> C(SDWAM(m).R, E, W, P, U, G, C) Note: typo in AL39, 52 should be 51
             //   C(Y-block32+2m)58,71 -> C(SDWAM(m).CL)
-#ifdef WAM
             for (uint i = 0; i < 16; i ++)
               {
                 word4 m = cpu.SDWAM[i].USE;
@@ -7352,7 +7340,6 @@ elapsedtime ();
                 cpu.SDWAM[m].C =       getbits36_1  (cpu.Yblock32[j + 1], 57 - 36);
                 cpu.SDWAM[m].EB =      getbits36_14 (cpu.Yblock32[j + 1], 58 - 36);
               }
-#endif
           }
           break;
 #endif
@@ -7612,13 +7599,10 @@ elapsedtime ();
 #ifdef L68
             uint level = 0;
 #endif
-#ifdef WAM
             uint toffset = level * 16;
-#endif
             for (uint j = 0; j < 16; j ++)
               {
                 cpu.Yblock16[j] = 0;
-#ifdef WAM
                 putbits36_15 (& cpu.Yblock16[j],  0,
                            cpu.PTWAM[toffset + j].POINTER);
 #ifdef DPS8M
@@ -7653,33 +7637,7 @@ elapsedtime ();
                            cpu.PTWAM[toffset + j].USE);
 #endif
 
-#endif
               }
-#ifndef WAM
-            if (level == 0)
-              {
-                putbits36 (& cpu.Yblock16[0],  0, 15,
-                           cpu.PTW0.POINTER);
-#ifdef DPS8M
-                putbits36 (& cpu.Yblock16[0], 15, 12,
-                           cpu.PTW0.PAGENO & 07760);
-#endif
-#ifdef L68
-                putbits36 (& cpu.Yblock16[0], 15, 12,
-                           cpu.PTW0.PAGENO);
-#endif
-                putbits36 (& cpu.Yblock16[0], 27,  1,
-                           cpu.PTW0.FE);
-#ifdef DPS8M
-                putbits36 (& cpu.Yblock16[0], 30,  6,
-                           cpu.PTW0.USE);
-#endif
-#ifdef L68
-                putbits36 (& cpu.Yblock16[0], 32,  4,
-                           cpu.PTW0.USE);
-#endif
-              }
-#endif
           }
           break;
 
@@ -7695,13 +7653,10 @@ elapsedtime ();
 #ifdef L68
             uint level = 0;
 #endif
-#ifdef WAM
             uint toffset = level * 16;
-#endif
             for (uint j = 0; j < 16; j ++)
               {
                 cpu.Yblock16[j] = 0;
-#ifdef WAM
 #ifdef DPS8M
                 putbits36_18 (& cpu.Yblock16[j], 0,
                               cpu.PTWAM[toffset + j].ADDR & 0777760);
@@ -7712,20 +7667,7 @@ elapsedtime ();
 #endif
                 putbits36_1 (& cpu.Yblock16[j], 29,
                              cpu.PTWAM[toffset + j].M);
-#endif
               }
-#ifndef WAM
-            if (level == 0)
-              {
-#ifdef DPS8M
-                putbits36 (& cpu.Yblock16[0], 0, 13, cpu.PTW0.ADDR & 0777760);
-#endif
-#ifdef L68
-                putbits36 (& cpu.Yblock16[0], 0, 13, cpu.PTW0.ADDR);
-#endif
-                putbits36_1 (& cpu.Yblock16[0], 29, cpu.PTW0.M);
-              }
-#endif
           }
           break;
 
@@ -7740,13 +7682,10 @@ elapsedtime ();
 #ifdef L68
             uint level = 0;
 #endif
-#ifdef WAM
             uint toffset = level * 16;
-#endif
             for (uint j = 0; j < 16; j ++)
               {
                 cpu.Yblock16[j] = 0;
-#ifdef WAM
                 putbits36_15 (& cpu.Yblock16[j], 0,
                            cpu.SDWAM[toffset + j].POINTER);
                 putbits36_1 (& cpu.Yblock16[j], 27,
@@ -7772,25 +7711,7 @@ elapsedtime ();
                 putbits36_4 (& cpu.Yblock16[j], 32,
                            cpu.SDWAM[toffset + j].USE);
 #endif
-#endif
               }
-#ifndef WAM
-            if (level == 0)
-              {
-                putbits36 (& cpu.Yblock16[0], 0, 15,
-                           cpu.SDW0.POINTER);
-                putbits36 (& cpu.Yblock16[0], 27, 1,
-                           cpu.SDW0.FE);
-#ifdef DPS8M
-                putbits36 (& cpu.Yblock16[0], 30, 6,
-                           cpu.SDW0.USE);
-#endif
-#ifdef L68
-                putbits36 (& cpu.Yblock16[0], 32, 4,
-                           cpu.SDW0.USE);
-#endif
-              }
-#endif
           }
           break;
 
@@ -7807,13 +7728,10 @@ elapsedtime ();
 #ifdef L68
             uint level = 0;
 #endif
-#ifdef WAM
             uint toffset = level * 16;
-#endif
             for (uint j = 0; j < 16; j ++)
               {
                 cpu.Yblock32[j * 2] = 0;
-#ifdef WAM
                 putbits36_24 (& cpu.Yblock32[j * 2],  0,
                            cpu.SDWAM[toffset + j].ADDR);
                 putbits36_3 (& cpu.Yblock32[j * 2], 24,
@@ -7822,9 +7740,8 @@ elapsedtime ();
                            cpu.SDWAM[toffset + j].R2);
                 putbits36_3 (& cpu.Yblock32[j * 2], 30,
                            cpu.SDWAM[toffset + j].R3);
-#endif
                 cpu.Yblock32[j * 2 + 1] = 0;
-#ifdef WAM
+
                 putbits36_14 (& cpu.Yblock32[j * 2 + 1], 37 - 36,
                            cpu.SDWAM[toffset + j].BOUND);
                 putbits36_1 (& cpu.Yblock32[j * 2 + 1], 51 - 36,
@@ -7843,40 +7760,7 @@ elapsedtime ();
                            cpu.SDWAM[toffset + j].C);
                 putbits36_14 (& cpu.Yblock32[j * 2 + 1], 58 - 36,
                            cpu.SDWAM[toffset + j].EB);
-#endif
               }
-#ifndef WAM
-            if (level == 0)
-              {
-                putbits36 (& cpu.Yblock32[0],  0, 24,
-                           cpu.SDW0.ADDR);
-                putbits36 (& cpu.Yblock32[0], 24,  3,
-                           cpu.SDW0.R1);
-                putbits36 (& cpu.Yblock32[0], 27,  3,
-                           cpu.SDW0.R2);
-                putbits36 (& cpu.Yblock32[0], 30,  3,
-                           cpu.SDW0.R3);
-                putbits36 (& cpu.Yblock32[0], 37 - 36, 14,
-                           cpu.SDW0.BOUND);
-                putbits36 (& cpu.Yblock32[1], 51 - 36,  1,
-                           cpu.SDW0.R);
-                putbits36 (& cpu.Yblock32[1], 52 - 36,  1,
-                           cpu.SDW0.E);
-                putbits36 (& cpu.Yblock32[1], 53 - 36,  1,
-                           cpu.SDW0.W);
-                putbits36 (& cpu.Yblock32[1], 54 - 36,  1,
-                           cpu.SDW0.P);
-                putbits36 (& cpu.Yblock32[1], 55 - 36,  1,
-                           cpu.SDW0.U);
-                putbits36 (& cpu.Yblock32[1], 56 - 36,  1,
-                           cpu.SDW0.G);
-                putbits36 (& cpu.Yblock32[1], 57 - 36,  1,
-                           cpu.SDW0.C);
-                putbits36 (& cpu.Yblock32[1], 58 - 36, 14,
-                           cpu.SDW0.EB);
-
-              }
-#endif
           }
           break;
 
@@ -7889,7 +7773,6 @@ elapsedtime ();
             // This may be done to either or both halves.
             // The full/empty bit of cache PTWAM register is set to zero and
             // the LRU counters are initialized.
-#ifdef WAM
             if (! cpu.switches.disable_wam)
               { // disabled by simh, do nothing
 #ifdef DPS8M
@@ -7931,10 +7814,6 @@ elapsedtime ();
                 cpu.PTW0.FE = 0;
                 cpu.PTW0.USE = 0;
               }
-#else
-            cpu.PTW0.FE = 0;
-            cpu.PTW0.USE = 0;
-#endif
           }
           break;
 
@@ -7947,7 +7826,6 @@ elapsedtime ();
             // C(TPR.CA) 16,17 control disabling or enabling the associative
             // memory.
             // This may be done to either or both halves.
-#ifdef WAM
             if (!cpu.switches.disable_wam)
               { // disabled by simh, do nothing
 #ifdef DPS8M
@@ -7988,10 +7866,6 @@ elapsedtime ();
                 cpu.SDW0.FE = 0;
                 cpu.SDW0.USE = 0;
               }
-#else
-            cpu.SDW0.FE = 0;
-            cpu.SDW0.USE = 0;
-#endif
   }
           break;
 
@@ -8181,7 +8055,7 @@ elapsedtime ();
                        << (35-18));
                 tmp |= (word36) ((01L) // 0b1 DPS option
                        << (35-19));
-                tmp |= (word36) ((cpu.switches.disable_cache ? 0 : 1)  //8K cache
+                tmp |= (word36) ((cpu.switches.enable_cache ? 1 : 0)  //8K cache
                        << (35-20));
                 tmp |= (word36) ((00L) // 0b00
                        << (35-22));
@@ -8414,7 +8288,7 @@ elapsedtime ();
                                              // 8K cache
                                              // 0b0: not installed
                                              // 0b1: installed
-                  cpu.rA |= (word36) ((cpu.switches.disable_cache ? 0 : 1)
+                  cpu.rA |= (word36) ((cpu.switches.enable_cache ? 1 : 0)
                             << (35-20));
                   cpu.rA |= (word36) ((00L) // 0b00
                             << (35-22));
@@ -8863,13 +8737,11 @@ elapsedtime ();
             {
               sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\n");
 #ifdef ROUND_ROBIN
-#ifdef ISOLTS
-              if (current_running_cpu_idx)
-              {
-//sim_printf ("stopping CPU %c\n", current_running_cpu_idx + 'A');
-                cpu.isRunning = false;
-              }
-#endif
+              if (cpu.switches.isolts_mode)
+                {
+                  //sim_printf ("stopping CPU %c\n", current_running_cpu_idx + 'A');
+                  cpu.isRunning = false;
+                }
 #endif
               return CONT_DIS;
             }

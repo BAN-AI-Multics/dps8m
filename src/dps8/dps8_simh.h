@@ -13,16 +13,6 @@
 
 extern DEVICE scu_dev;
 
-#ifdef ISOLTS
-#define isISOLTS (current_running_cpu_idx != 0)
-#else
-#if 0 // CPU1 only
-#define isISOLTS (current_running_cpu_idx != 0)
-#else // Any CPU
-#define isISOLTS true
-#endif
-#endif
-
 #ifdef SPEED
 #define if_sim_debug(dbits, dptr) if ((0))
 
@@ -32,7 +22,6 @@ extern DEVICE scu_dev;
 #define if_sim_debug(dbits, dptr) \
   if ( \
       sim_deb && \
-      isISOLTS && \
       (((dptr)->dctrl & (dbits)) || (dbits) == 0) && \
       ((dptr != & cpu_dev) || ((1 << current_running_cpu_idx) & dbgCPUMask)) && \
       ((dptr != & cpu_dev) || (((dptr)->dctrl & (DBG_INTR | DBG_FAULT))) || (! sim_deb_segno_on) || sim_deb_segno[cpu.PPR.PSR & (DEBUG_SEGNO_LIMIT - 1)]) && \
