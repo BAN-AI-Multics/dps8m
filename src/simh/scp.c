@@ -3128,19 +3128,7 @@ for (; *ip && (op < oend); ) {
                 }
             }
         else
-            if (ip == istart) {                         /* at beginning of input? */
-                get_glyph (istart, gbuf, 0);            /* substitute initial token */
-                ap = getenv(gbuf);                      /* if it is an environment variable name */
-                if (!ap) {                              /* nope? */
-                    *op++ = *ip++;                      /* press on with literal character */
-                    continue;
-                    }
-                while (*ap && (op < oend))              /* copy the translation */
-                    *op++ = *ap++;
-                ip += strlen(gbuf);
-                }
-            else
-                *op++ = *ip++;                          /* literal character */
+            *op++ = *ip++;
     }
 *op = 0;                                                /* term buffer */
 strcpy (instr, tmpbuf);

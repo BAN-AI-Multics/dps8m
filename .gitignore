@@ -48,6 +48,8 @@ cflags.L
 useddef.txt
 sysdefs.txt
 sysdefs.h
+M.dump
+hdbg.list
 src/blinkenLights2/blinkenLights2
 src/blinkenLights2/blinkenLights2.exe
 src/prt2pdf/prt2pdf
