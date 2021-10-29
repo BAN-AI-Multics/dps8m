@@ -348,7 +348,7 @@ install: all
 printuk:
 	@$(PRINTF) '%s\n' "*** Begin printuk (git untracked files):"
 	@$(SETV); ($(CD) "../.." && $(GIT) status -s --untracked-files="all"      \
-	    2> /dev/null | $(GREP) '^? ' || $(TRUE))
+        2> /dev/null | $(GREP) '^? ' || $(TRUE))
 	@$(PRINTF) '%s\n' "*** End printuk"
 
 ###############################################################################
@@ -357,7 +357,7 @@ printuk:
 printmod:
 	@$(PRINTF) '%s\n' "*** Begin printmod (git tracked modified files)"
 	@$(SETV); ($(CD) "../.." && $(GIT) status -s 2> /dev/null |               \
-	    $(GREP) '^\ \?M ' || $(TRUE))
+        $(GREP) '^\ \?M ' || $(TRUE))
 	@$(PRINTF) '%s\n' "*** End printmod"
 
 ###############################################################################
@@ -392,7 +392,7 @@ ifeq (,$(wildcard ver.h~))
 ver.h:
 	@$(SETV); $(RMF) "./ver.h"
 	@$(PRINTF) '%s\n' "WARNING: This source tree does not appear to be a"    \
-	                  "         full git clone or a complete source kit."
+                      "         full git clone or a complete source kit."
 	@$(SETV); $(TOUCH) "./ver.h"
 else
 # kit
@@ -476,10 +476,10 @@ tags TAGS ctags: $(C_SRCS) $(H_SRCS) ver.h
         $(GREP) '\.[ch]'                          2> /dev/null    |           \
          $(GREP) -E '(dps8|decNumber|simh)'       2> /dev/null    |           \
           $(GREP) -vE '(blinkenLights|\.Attic/)'  2> /dev/null    |           \
-		  $(GTAGS) -f -                           2> /dev/null)  || $(TRUE)
+          $(GTAGS) -f -                           2> /dev/null)  || $(TRUE)
 	@$(PRINTF) '%s\n' "CSCOPE: dps8"
 	-@$(SETV); $(CSCOPE) -bcq $(C_SRCS) $(H_SRCS)                             \
-		$(SIMHx)/*.[ch] ../decNumber/dec*.[ch]    2> /dev/null   || $(TRUE)
+        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]    2> /dev/null   || $(TRUE)
 
 ###############################################################################
 
@@ -538,9 +538,13 @@ clean:
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../blinkenLights2" -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) "clean_dps8"
+	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)".*  ||  $(TRUE)
+	@$(SETV); $(RMF)  ../../"$(KITNAME)"."TMP"         ||  $(TRUE)
+	@$(SETV); $(RMF)  ../../"$(KITNAME)"."zip"         ||  $(TRUE)
+	@$(SETV); $(TEST) -d "../../dps8"                  &&                     \
+              $(RMF) -r "../../dps8"                   ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../.builder.txt"             ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../.buildos.txt"             ||  $(TRUE)
 	@$(SETV); $(RMF)  "ver.h"                          ||  $(TRUE)
@@ -578,7 +582,7 @@ kit dist:
 	@$(SETV); MAKE="$(MAKE)" $(MAKE) "ver.h"
 	@$(SETV); $(CP) "./ver.h" "./ver.h~"
 	@$(SETV); ($(CD) "../.." &&                                               \
-		$(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files               |  \
+        $(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files               |  \
          $(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                   |  \
           $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
            $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v 'docs/manual'   |  \
@@ -586,8 +590,42 @@ kit dist:
              $(GREP) -v '^src/dps8/listings/' )                               \
                               'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n'                                                         \
-		"COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
+       "COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
 	@$(SETV); $(COMPRESS) "../../$(KITNAME).$(TARXT)"
+
+###############################################################################
+# Makes a ZIP format kit
+
+.PHONY: zipkit zipdist
+zipkit zipdist:
+	@$(PRINTF) '%s\n' "ZIPKIT: dps8"
+	@$(PRINTF) '%s\n' "ARCHIVE: $(KITNAME).zip"
+	@$(SETV); $(RMF) ../../"$(KITNAME)"."zip"                       ||  $(TRUE)
+	@$(SETV); $(RMF) ../../"$(KITNAME)"."TMP"                       ||  $(TRUE)
+	@$(SETV); MAKE="$(MAKE)" $(MAKE) "ver.h"
+	@$(SETV); $(CP) "./ver.h" "./ver.h~"
+	@$(SETV); ($(CD) "../.." &&                                               \
+        $(MAKETAR) "$(KITNAME).TMP" $$( $(GIT) ls-files                    |  \
+         $(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                   |  \
+          $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
+           $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v 'docs/manual'   |  \
+            $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
+             $(GREP) -v '^src/dps8/listings/' )                               \
+                              'src/dps8/ver.h~' )
+	@$(SETV); ($(CD) "../.." && $(TAR) xf "$(KITNAME)"."TMP"              &&  \
+      $(RMF) "$(KITNAME)"."zip"                                           &&  \
+        $(TR) -s ' ' < "./src/dps8/ver.h~" 2> /dev/null                    |  \
+          $(GREP) -E '(VER_H_GIT_VERSION|VER_H_GIT_HASH)' 2> /dev/null     |  \
+            $(CUT) -d ' ' -f 3- 2> /dev/null | $(TR) -d '"' 2> /dev/null   |  \
+              $(PASTE) - - 2> /dev/null                                    |  \
+                $(SED) -e 's/^/\r\nDPS\/8M Simulator /' -e 's/\t/\r\n(/'      \
+                           -e 's/$$/)\r\n\r\n.\n/'                         |  \
+                  $(INFOZIP) -q -r -o -z -nw -9 "$(KITNAME)"."zip" "./dps8"   \
+                    2> /dev/null && $(INFOZIP) -q -T "$(KITNAME)"."zip"       \
+                      2> /dev/null &&  $(RMF) "$(KITNAME)"."TMP"              \
+                        2> /dev/null && $(RMF) -r "./dps8" 2> /dev/null   &&  \
+                          $(PRINTF) 'ZIPKIT: %s\n'                            \
+                            "$(KITNAME).zip created successfully")
 
 ###############################################################################
 
@@ -644,7 +682,7 @@ errnos.h:
 	@$(SETV); ($(CC) -E -dD ./dump.c 2> /dev/null;                            \
                $(CC) -qshowmacros -E ./dump.c 2> /dev/null) | $(SORT) -u |    \
         $(AWK) '/^#define E/ { printf "{\"%s\",%s},\n", $$2, $$2 } END        \
-		                       { print "" }' > "./errnos.h"
+                               { print "" }' > "./errnos.h"
 	@$(SETV); $(RMF) "./dump.c"
 
 ###############################################################################

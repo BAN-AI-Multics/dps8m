@@ -57,6 +57,8 @@ DIRNAME    ?= dirname
 PKGCONFIG  ?= pkg-config
 GIT        ?= git
 CUT        ?= cut
+EXPAND     ?= expand
+WC         ?= wc
 SED        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" sed
 AWK        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" awk
 CMP        ?= cmp
@@ -74,9 +76,12 @@ ETAGS      ?= etags
 GTAGS      ?= gtags
 FIND       ?= find
 CP         ?= cp -f
+INFOZIP    ?= zip
+ZIP        ?= $(INFOZIP)
 TOUCH      ?= touch
 NL         ?= nl
 TEST       ?= test
+PASTE      ?= paste
 PRINTF     ?= printf
 TAR        ?= tar
 XARGS      ?= xargs

@@ -57,12 +57,20 @@ gitclean:                                                                     \
 	@$(PRINTF) '%s\n' "*** End gitclean" || $(TRUE)
 
 ###############################################################################
-# Generate a redistributable source kit
+# Generate a redistributable source kit (tar)
 
 .PHONY: dist kit
 dist kit:                                                                     \
-    # dist:    # Generate a redistributable source kit
+    # dist:    # Generate a redistributable source tar
 	@$(MAKE) -C "src/dps8" "dist"
+
+###############################################################################
+# Generate a redistributable source kit (zip)
+
+.PHONY: zipdist zipkit
+zipdist zipkit:                                                               \
+    # zipdist:    # Generate a redistributable source zip
+	@$(MAKE) -C "src/dps8" "zipdist"
 
 ###############################################################################
 
