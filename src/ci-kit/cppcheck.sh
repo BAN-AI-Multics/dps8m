@@ -66,7 +66,7 @@ test -z "${NOQUIET:-}" ||
   QUIET="--suppress=shadowArgument --suppress=shadowVariable \
          --suppress=shadowFunction --suppress=ConfigurationNotChecked"
 }
-EXTRA="--cppcheck-build-dir=./.cppbdir --inconclusive ${QUIET:-}"
+EXTRA="--cppcheck-build-dir=./.cppbdir ${QUIET:-}"
 
 count_cpus()
 {
@@ -174,6 +174,12 @@ do_cppcheck()
   shift
   infiles="${*:-}"
   for compiler in ${COMPILERS:?}; do
+    (
+      printf '%s\n' \
+        " * Using $(${compiler:?} --version 2>&1 |
+          head -n 1 || printf '%s\n' '???' 2>&1 || true) ..." |
+            grep -v '???' >&2 || true
+    ) && printf '%s\n' "" >&2 &&
     command -v "${compiler:?}" > /dev/null 2>&1 &&
       {
         # shellcheck disable=SC2086

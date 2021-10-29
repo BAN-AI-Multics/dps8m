@@ -696,7 +696,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
                       }
                     else
                       c = (unsigned char) (* csp->readp ++);
-                    c = toupper (c);
+                    c = (unsigned char) toupper (c);
                     int i;
                     for (i = 0; i < 64; i ++)
                       if (bcd_code_page[i] == c)
@@ -706,7 +706,7 @@ static void sendConsole (int conUnitIdx, word12 stati)
                         sim_warn ("Character %o does not map to BCD; replacing with '?'\n", c);
                         i = 017;
                       }
-                    putbits36_6 (bufp, charno * 6, i);
+                    putbits36_6 (bufp, charno * 6, (word6) i);
                   }
               }
             else
@@ -1456,7 +1456,7 @@ if (csp->bcd) {
               } else if (ch == '!') {
                 escape_cnt ++;
               } else if (escape_cnt == 1) {
-                uint lp = narrow_char;
+                uint lp = (uint)narrow_char;
                 // !0 is mapped to !1
                 // !1 to !9, ![, !#, !@, !;, !>, !?    1 to 15 newlines
                 if (lp == 060 /* + */ || lp == 075 /* = */) { // POLTS

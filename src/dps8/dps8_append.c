@@ -102,7 +102,9 @@ void set_apu_status (apuStatusBits status)
   }
 #endif
 
+#ifdef L68
 static char *str_sdw (char * buf, sdw_s *SDW);
+#endif /* ifdef L68 */
 
 //
 //
@@ -541,6 +543,7 @@ static void fetch_nsdw (word15 segno)
 #endif
   }
 
+#ifdef L68
 static char *str_sdw (char * buf, sdw_s *SDW)
   {
     if (! SDW->FE)
@@ -568,8 +571,6 @@ static char *str_sdw (char * buf, sdw_s *SDW)
                SDW->USE);
     return buf;
   }
-
-#ifdef L68
 
 /**
  * dump SDWAM...

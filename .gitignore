@@ -86,6 +86,7 @@ cpplint.txt
 cppcheck.txt
 *.i
 .cppbdir
+infer-out/
 
 # Vim
 *.*.swp

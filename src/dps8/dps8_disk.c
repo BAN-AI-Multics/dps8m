@@ -749,7 +749,7 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
         return IOM_CMD_ERROR;
       }
     disk_statep->seekValid = true;
-    disk_statep->seekPosition = seekData;
+    disk_statep->seekPosition = (uint) seekData;
     p->stati = 04000; // Channel ready
     return IOM_CMD_PROCEED;
   }
@@ -803,7 +803,7 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
         return -1;
       }
     disk_statep->seekValid = true;
-    disk_statep->seekPosition = seekData;
+    disk_statep->seekPosition = (uint)seekData;
     p->stati = 04000; // Channel ready
     return 0;
   }
@@ -863,7 +863,7 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
         return IOM_CMD_ERROR;
       }
     disk_statep->seekValid = true;
-    disk_statep->seekPosition = seekData;
+    disk_statep->seekPosition = (uint) seekData;
     p->stati = 04000; // Channel ready
     return IOM_CMD_PROCEED;
   }

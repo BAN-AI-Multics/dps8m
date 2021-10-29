@@ -113,17 +113,22 @@ ifeq ($(MINGW_CROSS),1)
 endif
 
 ###############################################################################
+# Include directories
 
 CFLAGS += -I../decNumber -I$(SIMHx)
 
 ###############################################################################
-# Fix for gcc reporting bogus warnings
+# Warning level tweaks
 
 ifneq ($(W),)
 ifeq ($(CC),clang)
-CFLAGS += -Wall -Wconversion -Wsign-conversion
+CFLAGS += -Wall -Wconversion -Wsign-conversion -Wno-unknown-warning-option
 else
+ifeq ($(CC),gcc)
 CFLAGS += -Wall -Wno-conversion -Wsign-conversion -Wno-psabi -Wno-abi
+else
+CFLAGS += -Wall
+endif
 endif
 endif
 

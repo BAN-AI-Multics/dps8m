@@ -30,28 +30,28 @@ static char valid_file_name_chars[]
   = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
  /*
-  * This is a replacement for the mkstemps function
-  * which is not available on all platforms.
+  * This is a minimal portable replacement for the mkstemps
+  * function, which is not available on all platforms.
   */
 
 int
 utfile_mkstemps(char *request_pattern, int suffix_length)
 {
-  int pattern_length;
+  long pattern_length;
   char *mask_pointer;
   char *pattern = strdup(request_pattern);
 
-  pattern_length = strlen(pattern);
+  pattern_length = (long) strlen(pattern);
 
-  srandom(time(NULL));
+  srandom((unsigned int)time(NULL));
 
-  if (( pattern_length - 6 ) < suffix_length)
+  if (( (long) pattern_length - 6 ) < (long) suffix_length)
   {
     free(pattern);
     return ( -1 );
   }
 
-  int mask_offset = pattern_length - ( 6 + suffix_length );
+  long mask_offset = (long) pattern_length - ( 6 + (long) suffix_length );
 
   if (strncmp(&pattern[mask_offset], "XXXXXX", 6))
   {
@@ -61,7 +61,7 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
 
   mask_pointer = &pattern[mask_offset];
 
-  int valid_char_count = strlen(valid_file_name_chars);
+  long valid_char_count = (long) strlen(valid_file_name_chars);
 
   for (int count = 0; count < MAX_MKSTEMPS_TRIES; count++)
   {

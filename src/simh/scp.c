@@ -2892,7 +2892,7 @@ return stat | SCPE_NOMESSAGE;                           /* suppress message sinc
 void sim_sub_args (char *instr, size_t instr_size, char *do_arg[])
 {
 char gbuf[CBUFSIZE];
-char *ip = instr, *op, *oend, *istart, *tmpbuf;
+char *ip = instr, *op, *oend, *tmpbuf;
 const char *ap;
 char rbuf[CBUFSIZE];
 int i;
@@ -2906,7 +2906,6 @@ op = tmpbuf;
 oend = tmpbuf + instr_size - 2;
 while (sim_isspace (*ip))                                   /* skip leading spaces */
     *op++ = *ip++;
-istart = ip;
 for (; *ip && (op < oend); ) {
     if ((ip [0] == '\\') &&                             /* literal escape? */
         ((ip [1] == '%') || (ip [1] == '\\'))) {        /*   and followed by '%' or '\'? */
@@ -4268,7 +4267,9 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     fprintf (st, " Build Information:\n");
 #if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
     fprintf (st, "      Compilation info: %s\n", BUILDINFO_scp );
+#ifndef __OPEN64__
     fprintf (st, "  Relevant definitions: %s\n", SYSDEFS_USED );
+#endif
 #elif defined(BUILDINFO_scp)
     fprintf (st, "      Compilation info: %s\n", BUILDINFO_scp );
 #else

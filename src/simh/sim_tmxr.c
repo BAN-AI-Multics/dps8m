@@ -948,13 +948,14 @@ return SCPE_OK;
 int32 tmxr_poll_conn (TMXR *mp)
 {
 SOCKET newsock;
-TMLN *lp;
+TMLN *lp = NULL;
 int32 *op;
 int32 i, j;
 char *address;
 char msg[512];
 uint32 poll_time = sim_os_msec ();
 
+(void)lp;
 memset (msg, 0, sizeof (msg));
 if (mp->last_poll_time == 0) {                          /* first poll initializations */
     UNIT *uptr = mp->uptr;

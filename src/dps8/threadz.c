@@ -471,9 +471,9 @@ unsigned long  sleepCPU (unsigned long usec)
     struct cpuThreadz_t * p = & cpuThreadz[current_running_cpu_idx];
     struct timespec abstime;
     clock_gettime (CLOCK_REALTIME, & abstime);
-    uint64_t nsec = ((uint64_t) usec) * 1000 + abstime.tv_nsec;
-    abstime.tv_nsec = nsec % 1000000000;
-    abstime.tv_sec += nsec / 1000000000;
+    int64_t nsec = ((int64_t) usec) * 1000 + (int64_t)abstime.tv_nsec;
+    abstime.tv_nsec = (int64_t)nsec % 1000000000;
+    abstime.tv_sec += (int64_t)nsec / 1000000000;
 
     rc = pthread_cond_timedwait (& p->sleepCond,
                                  & scu_lock,

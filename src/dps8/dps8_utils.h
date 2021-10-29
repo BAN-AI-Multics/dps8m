@@ -598,6 +598,7 @@ static inline void putbits36_9 (word36 * x, uint p, word9 val)
     word36 smask = mask << (unsigned) shift;  // shift 1s to proper position; result 0*1{n}0*
     // caller may provide val that is too big, e.g., a word with all bits
     // set to one, so we mask val
+#ifndef __OPEN64__
 #ifdef __GNUC__
 #ifndef __clang_version__
 #if __GNUC__ > 3
@@ -606,7 +607,9 @@ static inline void putbits36_9 (word36 * x, uint p, word9 val)
 #endif /* if __GNUC__ > 3 */
 #endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
+#endif /* ifndef __OPEN64__ */
     * x = (* x & ~ smask) | (((word36) val & mask) << shift);
+#ifndef __OPEN64__
 #ifdef __GNUC__
 #ifndef __clang_version__
 #if __GNUC__ > 3
@@ -614,6 +617,7 @@ static inline void putbits36_9 (word36 * x, uint p, word9 val)
 #endif /* if __GNUC__ > 3 */
 #endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
+#endif /* ifndef __OPEN64__ */
 }
 
 static inline void putbits36_10 (word36 * x, uint p, word10 val)
