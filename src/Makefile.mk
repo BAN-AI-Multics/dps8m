@@ -59,6 +59,7 @@ GIT        ?= git
 CUT        ?= cut
 EXPAND     ?= expand
 WC         ?= wc
+COMMAND    ?= command
 SED        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" sed
 AWK        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" awk
 CMP        ?= cmp
@@ -66,6 +67,7 @@ WEBDL      ?= wget
 CD         ?= cd
 GLRUNNER   ?= gitlab-runner
 TR         ?= tr
+ADVZIP     ?= advzip
 CAT        ?= cat
 GIT        ?= git
 CMAKE      ?= cmake
