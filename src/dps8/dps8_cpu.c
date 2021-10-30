@@ -1340,6 +1340,7 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
 #endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
     consoleProcess ();
+    machine_room_process ();
 #ifdef IO_ASYNC_PAYLOAD_CHAN
     iomProcess ();
 #endif
