@@ -29,10 +29,19 @@ CFLAGS+=$(BLFLAGS)
 ###############################################################################
 
 GTKVER="gtk+-3.0"
-PKGCFG=$(shell $(ENV) $(PKGCONFIG) $(GTKVER) --cflags --libs ||               \
+PKGCFG=$(shell $(ENV) $(PKGCONFIG) $(GTKVER) --cflags        ||               \
          $(PRINTF) '%s\n'                                                     \
-           "Error running \"$(ENV) $(PKGCONFIG) $(GTKVER) --cflags --libs\""  \
+           "Error running \"$(ENV) $(PKGCONFIG) $(GTKVER) --cflags\""         \
              >&2)
+CFLAGS+=$(PKGCFG) -DM_SHARED -I../dps8
+
+###############################################################################
+
+PKGLFG=$(shell $(ENV) $(PKGCONFIG) $(GTKVER) --libs          ||               \
+         $(PRINTF) '%s\n'                                                     \
+           "Error running \"$(ENV) $(PKGCONFIG) $(GTKVER) --libs\""           \
+             >&2)
+LDFLAGS+=$(PKGLFG)
 
 ###############################################################################
 
@@ -41,11 +50,7 @@ all: blinkenLights2$(EXE)
 
 ###############################################################################
 
-blinkenLights2$(EXE): blinkenLights2.c ../dps8/shm.o
-	@$(PRINTF) '%s\n' "CC: blinkenLights2"
-	@$(SETV); $(CC) $(CFLAGS) -DM_SHARED -I"../simh" -I"../dps8"              \
-      $(PKGCFG) $(LDFLAGS) "../dps8/shm.o" -o blinkenLights2$(EXE)            \
-        blinkenLights2.c $(BLLIBS)
+blinkenLights2$(EXE): blinkenLights2.o ../dps8/shm.o
 
 ###############################################################################
 
@@ -61,12 +66,14 @@ clean:
 
 ###############################################################################
 
-blinkenLights2.o:   dps8.h
-blinkenLights2.o:   dps8_simh.h
-blinkenLights2.o:   dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
-blinkenLights2.o:   dps8_sys.h
-blinkenLights2.o:   hdbg.h
-blinkenLights2.o:   shm.h
+blinkenLights2.o:   ../dps8/dps8.h
+blinkenLights2.o:   ../dps8/dps8_simh.h
+blinkenLights2.o:   ../dps8/dps8_math128.h
+blinkenLights2.o:   ../dps8/dps8_hw_consts.h
+blinkenLights2.o:   ../dps8/dps8_em_consts.h
+blinkenLights2.o:   ../dps8/dps8_sys.h
+blinkenLights2.o:   ../dps8/hdbg.h
+blinkenLights2.o:   ../dps8/shm.h
 
 ###############################################################################
 

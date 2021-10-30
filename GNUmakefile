@@ -77,6 +77,14 @@ build default all:                                                            \
 	@$(MAKE) -C "src/dps8" "all"
 
 ###############################################################################
+# blinkenLights2 (optional)
+
+.PHONY: blinkenLights2
+blinkenLights2:                                                               \
+    # blinkenLights2:    # Builds the blinkenLights2 front panel
+	@$(MAKE) -C "src/dps8" "blinkenLights2"
+
+###############################################################################
 # Install.
 
 .PHONY: install
