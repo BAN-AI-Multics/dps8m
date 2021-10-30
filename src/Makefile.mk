@@ -19,6 +19,7 @@
 ###############################################################################
 # Default configuration
 
+COMMAND    ?= command
 TRUE       ?= true
 SET        ?= set
 ifdef V
@@ -35,6 +36,7 @@ else
        SETV = $(TRUE)
        MAKEFLAGS += --no-print-directory
 endif
+GETCONF    ?= getconf
 ENV        ?= env
 CCACHE     ?= ccache
 SHELL      ?= sh
@@ -43,7 +45,7 @@ UNAME      ?= uname
 COMM       ?= comm
 ECHO       ?= echo
 BREW       ?= brew
-GREP       ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" grep
+GREP       ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" grep
 SORT       ?= sort
 CPPCPP     ?= $(CC) -E
 CPPCPP2    ?= $(CC) -qshowmacros=pre -E /dev/null < /dev/null 2> /dev/null
@@ -59,9 +61,8 @@ GIT        ?= git
 CUT        ?= cut
 EXPAND     ?= expand
 WC         ?= wc
-COMMAND    ?= command
-SED        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" sed
-AWK        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" awk
+SED        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" sed
+AWK        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" awk
 CMP        ?= cmp
 WEBDL      ?= wget
 CD         ?= cd
@@ -87,7 +88,9 @@ PASTE      ?= paste
 PRINTF     ?= printf
 TAR        ?= tar
 XARGS      ?= xargs
-MAKETAR    ?= $(TAR) --owner=dps8m --group=dps8m --posix -c                   \
+GTARUSER   ?= dps8m
+GTARGROUP  ?= $(GRARUSER)
+MAKETAR    ?= $(TAR) --owner=$(GTARUSER) --group=$(GTARGROUP) --posix -c      \
                      --transform 's/^/.\/dps8\//g' -$(ZCTV)
 TARXT      ?= tar
 COMPRESS   ?= gzip -f -9
@@ -145,25 +148,25 @@ ifeq ($(CROSS),MINGW32)
     CC = x86_64-w32-mingw32-gcc
   endif
   EXE = .exe
-ifneq ($(msys_version),0)
-  CC = gcc
-  EXE = .exe
-endif
+  ifneq ($(msys_version),0)
+    CC = gcc
+    EXE = .exe
+  endif
 endif
 
 ifeq ($(CROSS),MINGW64)
   ifeq ($(CYGWIN_MINGW_CROSS),1)
     CC = x86_64-w64-mingw32-gcc
   endif
-ifneq ($(msys_version),0)
-  CC = gcc
+  ifneq ($(msys_version),0)
+    CC = gcc
+    EXE = .exe
+  else
+    AR = ar
+  endif
   EXE = .exe
 else
-  AR = ar
-endif
-  EXE = .exe
-else
-CC ?= clang
+  CC ?= clang
 endif
 
 ###############################################################################
@@ -172,6 +175,7 @@ endif
 ifndef SUNPRO
   CFLAGS  += -Wall -g3 -O3 -fno-strict-aliasing
 endif
+
 CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 
@@ -256,20 +260,20 @@ else
 # OpenIndiana illumos: GCC 7, GCC 10, Clang 9, all supported.
 # Oracle Solaris 11: GCC only. Clang and SunCC need some work.
 
-    ifeq ($(UNAME_S),SunOS)
-      ifeq ($(shell $(UNAME) -o 2> /dev/null),illumos)
-        ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-        CFLAGS  +=-I/usr/local/include -m$(ISABITS)
-        LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -m$(ISABITS)
-      endif
-      ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
-        ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-        CFLAGS  +=-I/usr/local/include -m$(ISABITS)
-        LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat  \
-                  -ldl -m$(ISABITS)
-        CC?=gcc
-      endif
+  ifeq ($(UNAME_S),SunOS)
+    ifeq ($(shell $(UNAME) -o 2> /dev/null),illumos)
+      ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
+      CFLAGS  +=-I/usr/local/include -m$(ISABITS)
+      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -m$(ISABITS)
     endif
+    ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
+      ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
+      CFLAGS  +=-I/usr/local/include -m$(ISABITS)
+      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat    \
+                -ldl -m$(ISABITS)
+      CC?=gcc
+    endif
+  endif
 endif
 
 ###############################################################################
@@ -313,7 +317,7 @@ endif
     $(PRINTF) '%s\n' "fallback"                             2> /dev/null      \
     )"="\"$(shell $(PRINTF) '%s\n'                                            \
     '$(CC) $(CFLAGS) $(CPPFLAGS) $(X_CFLAGS) $(LDFLAGS) $(LOCALLIBS) $(LIBS)' \
-	| $(TR) -d '\\"'                                        2> /dev/null  |   \
+    | $(TR) -d '\\"'                                        2> /dev/null  |   \
     $(SED)  -e 's/ -DVER_CURRENT_TIME=....................... /\ /g'          \
             -e 's/^[ \t]*//;s/[ \t]*$$//'                   2> /dev/null  |   \
      $(AWK) -v RS='[,[:space:]]+' '!a[$$0]++{ printf "%s %s ", $$0, RT }'     \

@@ -24,7 +24,7 @@ endif
 ###############################################################################
 
 BLFLAGS=-Og -Wno-aggressive-loop-optimizations -Wno-unknown-warning-option
-CFLAGS+=$(BLFLAGS) 
+CFLAGS+=$(BLFLAGS)
 
 ###############################################################################
 

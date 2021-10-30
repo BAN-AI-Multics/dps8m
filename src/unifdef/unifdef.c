@@ -69,7 +69,7 @@ typedef enum
 } Linetype;
 
 #define linetype_if2elif(lt) ((Linetype)( lt - LT_IF + LT_ELIF ))
-#define linetype_2dodgy(lt) ((Linetype)( lt + LT_DODGY ))
+#define linetype_2dodgy(lt)  ((Linetype)( lt + LT_DODGY ))
 
 /* state of #if processing */
 typedef enum
@@ -627,9 +627,9 @@ help(void)
     "   -Dsym=val  define preprocessor symbol with given value\n"
     "   -Dsym      define preprocessor symbol with value 1\n"
     "   -Usym      preprocessor symbol is undefined\n"
-    "   -iDsym=val \\  ignore C strings and comments\n"
-    "   -iDsym      ) in sections controlled by these\n"
-    "   -iUsym     /  preprocessor symbols\n"
+    "   -iDsym=val  \\   ignore C strings and comments\n"
+    "   -iDsym       )  in sections controlled by these\n"
+    "   -iUsym      /   preprocessor symbols\n"
     "   -fpath  file containing #define and #undef directives\n"
     "   -b      blank lines instead of deleting them\n"
     "   -B      compress blank lines around deleted section\n"

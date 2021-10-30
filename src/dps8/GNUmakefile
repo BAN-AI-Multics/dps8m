@@ -103,10 +103,10 @@ ifeq ($(MINGW_CROSS),1)
             -L../../../libuv/.libs $(LIBUV)
   endif
   ifeq ($(shell $(UNAME) -o 2> /dev/null || true >/dev/null 2>&1),Cygwin)
-  # Standard Cygwin build
+    # Standard Cygwin build
     LIBS += -lwinmm -lws2_32 -lwsock32 -luserenv -liphlpapi $(LIBUV)
   else
-  # Cross-compilation to MinGW
+    # Cross-compilation to MinGW
     LIBS += -lwinmm -lws2_32 -lssp $(MINGWEX) -lwsock32 -luserenv -liphlpapi  \
             -L../../../libuv/.libs $(LIBUV)
   endif
@@ -121,15 +121,15 @@ CFLAGS += -I../decNumber -I$(SIMHx)
 # Warning level tweaks
 
 ifneq ($(W),)
-ifeq ($(CC),clang)
-CFLAGS += -Wall -Wconversion -Wsign-conversion -Wno-unknown-warning-option
-else
-ifeq ($(CC),gcc)
-CFLAGS += -Wall -Wno-conversion -Wsign-conversion -Wno-psabi -Wno-abi
-else
-CFLAGS += -Wall
-endif
-endif
+  ifeq ($(CC),clang)
+    CFLAGS += -Wall -Wconversion -Wsign-conversion -Wno-unknown-warning-option
+  else
+    ifeq ($(CC),gcc)
+      CFLAGS += -Wall -Wno-conversion -Wsign-conversion -Wno-psabi -Wno-abi
+    else
+      CFLAGS += -Wall
+    endif
+  endif
 endif
 
 ###############################################################################

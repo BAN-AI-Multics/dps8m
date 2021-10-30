@@ -23,7 +23,7 @@ TAPES=/home/cac/Projects/Multics/tapelib/
 ../tapeUtils/restore_tape $S3 $TAPES/88534.tap $TAPES/88631.tap
 ../tapeUtils/restore_tape $S3 $TAPES/98570.tap $TAPES/99019.tap
 ../tapeUtils/restore_tape $S3 $TAPES/88632.tap $TAPES/88633.tap \
-	$TAPES/88634.tap $TAPES/88635.tap $TAPES/88636.tap $TAPES/99020.tap
+  $TAPES/88634.tap $TAPES/88635.tap $TAPES/88636.tap $TAPES/99020.tap
 ../tapeUtils/restore_tape $S3 $TAPES/93085.tap
 
 ../tapeUtils/restore_tape $S5 $TAPES/20185.tap

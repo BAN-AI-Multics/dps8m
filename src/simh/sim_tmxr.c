@@ -1355,7 +1355,7 @@ for (i=0; i<mp->lines; ++i) {
         (lp->sock)       ||
         (lp->connecting)
 #ifdef USE_SERIAL
-		|| (lp->serport)
+        || (lp->serport)
 #endif
 )
         return SCPE_ALATT;

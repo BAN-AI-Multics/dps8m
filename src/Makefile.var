@@ -90,13 +90,13 @@ endif
 
 ifeq ($(THREADZ),1)
   THREADZ=1
-ifndef SUNPRO
-ifndef SUNLINT
-  CFLAGS += -pthread
-endif
-endif
-  CFLAGS += -DTHREADZ
-  LIBS += -lpthread
+  ifndef SUNPRO
+    ifndef SUNLINT
+      CFLAGS += -pthread
+    endif
+  endif
+    CFLAGS += -DTHREADZ
+    LIBS += -lpthread
 endif
 
 ###############################################################################
@@ -110,22 +110,22 @@ endif
 
 ifeq ($(LOCKLESS),1)
   LOCKLESS=1
-ifndef SUNPRO
-ifndef SUNLINT
-    CFLAGS += -pthread
-endif
-endif
-ifndef SUNLINT
-ifdef SUNPRO
-    CFLAGS += -mt
-endif
-endif
+  ifndef SUNPRO
+    ifndef SUNLINT
+      CFLAGS += -pthread
+    endif
+  endif
+  ifndef SUNLINT
+    ifdef SUNPRO
+      CFLAGS += -mt
+    endif
+  endif
   CFLAGS += -DLOCKLESS
-ifndef SUNPRO
-ifndef SUNLINT
-  LIBS += -lpthread
-endif
-endif
+  ifndef SUNPRO
+    ifndef SUNLINT
+      LIBS += -lpthread
+    endif
+  endif
 endif
 
 ###############################################################################
@@ -199,13 +199,13 @@ endif
 ###############################################################################
 
 ifndef SUNPRO
-ifndef SUNLINT
-ifneq "$(findstring gcc,$(CC))" ""
-  CFLAGS += -fno-delete-null-pointer-checks
-  CFLAGS += -Wno-maybe-uninitialized
-  CFLAGS += -Wno-unknown-warning-option
-endif
-endif
+  ifndef SUNLINT
+    ifneq "$(findstring gcc,$(CC))" ""
+      CFLAGS += -fno-delete-null-pointer-checks
+      CFLAGS += -Wno-maybe-uninitialized
+      CFLAGS += -Wno-unknown-warning-option
+    endif
+  endif
 endif
 
 ###############################################################################

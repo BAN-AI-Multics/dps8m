@@ -16,11 +16,11 @@
 
 all:
 	@printf '%s\n'                                                            \
-		"*** GNU Make is required; try \"gmake\"."
+        "*** GNU Make is required; try \"gmake\"."
 
 .DEFAULT:
 	@printf '%s\n'                                                            \
-		"*** GNU Make is required; try \"gmake\"."
+        "*** GNU Make is required; try \"gmake\"."
 
 .PHONY: all
 
