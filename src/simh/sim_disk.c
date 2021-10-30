@@ -96,11 +96,6 @@ struct disk_context {
 
 #define disk_ctx up8                        /* Field in Unit structure which points to the disk_context */
 
-#define AIO_CALLSETUP
-#define AIO_CALL(op, _lba, _buf, _rsects, _sects,  _callback)   \
-    if (_callback)                                              \
-        (_callback) (uptr, r);
-
 /* Forward declarations */
 
 static t_stat sim_vhd_disk_implemented (void);
@@ -244,9 +239,7 @@ switch (DK_GET_FMT (uptr)) {                            /* case on format */
 t_bool sim_disk_isavailable_a (UNIT *uptr, DISK_PCALLBACK callback)
 {
 t_bool r = FALSE;
-AIO_CALLSETUP
     r = sim_disk_isavailable (uptr);
-AIO_CALL(DOP_IAVL, 0, NULL, NULL, 0, callback);
 return r;
 }
 
@@ -401,9 +394,7 @@ else { /* Unaligned and/or partial sector transfers */
 t_stat sim_disk_rdsect_a (UNIT *uptr, t_lba lba, uint8 *buf, t_seccnt *sectsread, t_seccnt sects, DISK_PCALLBACK callback)
 {
 t_stat r = SCPE_OK;
-AIO_CALLSETUP
     r = sim_disk_rdsect (uptr, lba, buf, sectsread, sects);
-AIO_CALL(DOP_RSEC, lba, buf, sectsread, sects, callback);
 return r;
 }
 
@@ -571,9 +562,7 @@ return r;
 t_stat sim_disk_wrsect_a (UNIT *uptr, t_lba lba, uint8 *buf, t_seccnt *sectswritten, t_seccnt sects, DISK_PCALLBACK callback)
 {
 t_stat r = SCPE_OK;
-AIO_CALLSETUP
     r =  sim_disk_wrsect (uptr, lba, buf, sectswritten, sects);
-AIO_CALL(DOP_WSEC, lba, buf, sectswritten, sects, callback);
 return r;
 }
 
@@ -1518,8 +1507,6 @@ if (!(uptr->flags & UNIT_ATT))                          /* attached? */
 sim_debug (ctx->dbit, ctx->dptr, "sim_disk_reset(unit=%lu)\n", (unsigned long)(uptr-ctx->dptr->units));
 
 _sim_disk_io_flush(uptr);
-AIO_VALIDATE;
-AIO_UPDATE_QUEUE;
 return SCPE_OK;
 }
 

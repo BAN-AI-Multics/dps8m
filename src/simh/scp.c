@@ -100,7 +100,6 @@
 #define UPDATE_SIM_TIME                                         \
     if (1) {                                                    \
         int32 _x;                                               \
-        AIO_LOCK;                                               \
         if (sim_clock_queue == QUEUE_LIST_END)                  \
             _x = noqueue_time;                                  \
         else                                                    \
@@ -111,7 +110,6 @@
             noqueue_time = sim_interval;                        \
         else                                                    \
             sim_clock_queue->time = sim_interval;               \
-        AIO_UNLOCK;                                             \
         }                                                       \
     else                                                        \
         (void)0
@@ -1831,7 +1829,6 @@ sim_quiet = sim_switches & SWMASK ('Q');                /* -q means quiet */
 sim_on_inherit = sim_switches & SWMASK ('O');           /* -o means inherit on state */
 
 sim_init_sock ();                                       /* init socket capabilities */
-AIO_INIT;                                               /* init Asynch I/O */
 if (sim_dflt_dev == NULL)                               /* if no default */
     sim_dflt_dev = sim_devices[0];
 if (sim_vm_init != NULL)                                /* call once only */
@@ -1918,7 +1915,6 @@ sim_set_deboff (0, NULL);                               /* close debug */
 sim_set_logoff (0, NULL);                               /* close log */
 sim_set_notelnet (0, NULL);                             /* close Telnet */
 sim_ttclose ();                                         /* close console */
-AIO_CLEANUP;                                            /* Asynch I/O */
 sim_cleanup_sock ();                                    /* cleanup sockets */
 fclose (stdnul);                                        /* close bit bucket file handle */
 free (targv);                                           /* release any argv copy that was made */
@@ -5557,7 +5553,7 @@ return (dptr ? (dptr->lname? dptr->lname: dptr->name) : "");
 const char *sim_uname (UNIT *uptr)
 {
 DEVICE *d = find_dev_from_unit(uptr);
-static AIO_TLS char uname[CBUFSIZE];
+static char uname[CBUFSIZE];
 
 if (!d)
     return "";
@@ -6299,7 +6295,6 @@ for (i = 1; (dptr = sim_devices[i]) != NULL; i++) {     /* flush attached files 
         }
     }
 sim_cancel (&sim_step_unit);                            /* cancel step timer */
-AIO_UPDATE_QUEUE;
 UPDATE_SIM_TIME;                                        /* update sim time */
 return r | ((sim_switches & SWMASK ('Q')) ? SCPE_NOMESSAGE : 0);
 }
@@ -8585,7 +8580,6 @@ t_stat reason;
 
 if (stop_cpu)                                           /* stop CPU? */
     return SCPE_STOP;
-AIO_UPDATE_QUEUE;
 UPDATE_SIM_TIME;                                        /* update sim time */
 
 if (sim_clock_queue == QUEUE_LIST_END) {                /* queue empty? */
@@ -8605,12 +8599,10 @@ do {
     else
         sim_interval = noqueue_time = NOQUEUE_WAIT;
     sim_debug (SIM_DBG_EVENT, sim_dflt_dev, "Processing Event for %s\n", sim_uname (uptr));
-    AIO_EVENT_BEGIN(uptr);
     if (uptr->action != NULL)
         reason = uptr->action (uptr);
     else
         reason = SCPE_OK;
-    AIO_EVENT_COMPLETE(uptr, reason);
     } while ((reason == SCPE_OK) &&
              (sim_interval <= 0) &&
              (sim_clock_queue != QUEUE_LIST_END) &&
@@ -8650,7 +8642,6 @@ t_stat _sim_activate (UNIT *uptr, int32 event_time)
 UNIT *cptr, *prvptr;
 int32 accum;
 
-AIO_ACTIVATE (_sim_activate, uptr, event_time);
 if (sim_is_active (uptr))                               /* already active? */
     return SCPE_OK;
 UPDATE_SIM_TIME;                                        /* update sim time */
@@ -8691,7 +8682,6 @@ return SCPE_OK;
 
 t_stat sim_activate_abs (UNIT *uptr, int32 event_time)
 {
-AIO_ACTIVATE (sim_activate_abs, uptr, event_time);
 sim_cancel (uptr);
 return _sim_activate (uptr, event_time);
 }
@@ -8710,7 +8700,6 @@ t_stat sim_activate_notbefore (UNIT *uptr, int32 rtime)
 {
 uint32 rtimenow, urtime = (uint32)rtime;
 
-AIO_ACTIVATE (sim_activate_notbefore, uptr, rtime);
 sim_cancel (uptr);
 rtimenow = sim_grtime();
 sim_cancel (uptr);
@@ -8736,7 +8725,6 @@ return _sim_activate_after_abs (uptr, event_time);
 
 t_stat _sim_activate_after_abs (UNIT *uptr, uint32 event_time)
 {
-AIO_ACTIVATE (_sim_activate_after_abs, uptr, event_time);
 sim_cancel (uptr);
 return _sim_activate_after (uptr, event_time);
 }
@@ -8750,7 +8738,6 @@ t_stat _sim_activate_after (UNIT *uptr, uint32 usec_delay)
 {
 if (sim_is_active (uptr))                               /* already active? */
     return SCPE_OK;
-AIO_ACTIVATE (_sim_activate_after, uptr, usec_delay);
 return sim_timer_activate_after (uptr, usec_delay);
 }
 
@@ -8767,9 +8754,6 @@ t_stat sim_cancel (UNIT *uptr)
 {
 UNIT *cptr, *nptr;
 
-AIO_VALIDATE;
-AIO_CANCEL(uptr);
-AIO_UPDATE_QUEUE;
 if (sim_clock_queue == QUEUE_LIST_END)
     return SCPE_OK;
 if (!sim_is_active (uptr))
@@ -8817,9 +8801,10 @@ return SCPE_OK;
 
 t_bool sim_is_active (UNIT *uptr)
 {
-AIO_VALIDATE;
-AIO_UPDATE_QUEUE;
-return (((uptr->next) || AIO_IS_ACTIVE(uptr)) ? TRUE : FALSE);
+if (uptr->next == NULL)
+  return TRUE;
+else
+return FALSE;
 }
 
 /* sim_activate_time - return activation time
@@ -8835,8 +8820,6 @@ int32 sim_activate_time (UNIT *uptr)
 UNIT *cptr;
 int32 accum = 0;
 
-AIO_VALIDATE;
-AIO_RETURN_TIME(uptr);
 for (cptr = sim_clock_queue; cptr != QUEUE_LIST_END; cptr = cptr->next) {
     if (cptr == sim_clock_queue) {
         if (sim_interval > 0)
@@ -8860,9 +8843,6 @@ return 0;
 
 double sim_gtime (void)
 {
-if (AIO_MAIN_THREAD) {
-    UPDATE_SIM_TIME;
-    }
 return sim_time;
 }
 
@@ -9952,7 +9932,7 @@ return SCPE_OK;
 /* Debug printout routines, from Dave Hittner */
 
 const char* debug_bstates = "01_^";
-AIO_TLS char debug_line_prefix[256];
+char debug_line_prefix[256];
 int32 debug_unterm  = 0;
 
 /* Finds debug phrase matching bitmask from from device DEBTAB table */
@@ -10021,7 +10001,7 @@ if (sim_deb_switches & SWMASK ('P')) {
     sprintf(pc_s, "-%s:", sim_PC->name);
     sprint_val (&pc_s[strlen(pc_s)], val, sim_PC->radix, sim_PC->width, sim_PC->flags & REG_FMT);
     }
-sprintf(debug_line_prefix, "DBG(%s%s%.0f%s)%s> %s %s: ", tim_t, tim_a, sim_gtime(), pc_s, AIO_MAIN_THREAD ? "" : "+", dptr->name, debug_type);
+sprintf(debug_line_prefix, "DBG(%s%s%.0f%s)%s> %s %s: ", tim_t, tim_a, sim_gtime(), pc_s,  "", dptr->name, debug_type);
 return debug_line_prefix;
 }
 

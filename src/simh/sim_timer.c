@@ -687,7 +687,6 @@ if (rtc_based[tmr] <= 0)                                /* never negative or zer
 if (rtc_currd[tmr] <= 0)                                /* never negative or zero! */
     rtc_currd[tmr] = 1;
 sim_debug (DBG_CAL, &sim_timer_dev, "calibrated tmr=%d, tickper=%d (base=%d, nxintv=%u, result: %d)\n", tmr, ticksper, rtc_based[tmr], rtc_nxintv[tmr], rtc_currd[tmr]);
-AIO_SET_INTERRUPT_LATENCY(rtc_currd[tmr]*ticksper);     /* set interrrupt latency */
 return rtc_currd[tmr];
 }
 
@@ -1424,7 +1423,6 @@ return inst_per_sec;
 
 t_stat sim_timer_activate (UNIT *uptr, int32 interval)
 {
-AIO_VALIDATE;
 return sim_timer_activate_after (uptr, (uint32)((interval * 1000000.0) / sim_timer_inst_per_sec ()));
 }
 
@@ -1433,7 +1431,6 @@ t_stat sim_timer_activate_after (UNIT *uptr, uint32 usec_delay)
 int inst_delay, tmr;
 double inst_delay_d, inst_per_sec;
 
-AIO_VALIDATE;
 /* If this is a clock unit, we need to schedule the related timer unit instead */
 for (tmr=0; tmr<=SIM_NTIMERS; tmr++)
     if (sim_clock_unit[tmr] == uptr) {
@@ -1577,7 +1574,6 @@ return sim_clock_coschedule_tmr (uptr, tmr, ticks);
 /* Cancel a unit on the coschedule queue */
 static void _sim_coschedule_cancel (UNIT *uptr)
 {
-AIO_UPDATE_QUEUE;
 if (uptr->next) {                           /* On a queue? */
     int tmr;
 

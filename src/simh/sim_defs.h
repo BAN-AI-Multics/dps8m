@@ -800,28 +800,6 @@ struct FILEREF {
                                                     sim_printf("%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);       \
                                                     abort();}
 
-/* Asynch/Threaded I/O support */
-
-#define AIO_QUEUE_MODE "Asynchronous I/O is not available"
-#define AIO_UPDATE_QUEUE
-#define AIO_ACTIVATE(caller, uptr, event_time)
-#define AIO_VALIDATE
-#define AIO_CHECK_EVENT
-#define AIO_INIT
-#define AIO_MAIN_THREAD TRUE
-#define AIO_LOCK
-#define AIO_UNLOCK
-#define AIO_CLEANUP
-#define AIO_RETURN_TIME(uptr)
-#define AIO_EVENT_BEGIN(uptr)
-#define AIO_EVENT_COMPLETE(uptr, reason)
-#define AIO_IS_ACTIVE(uptr) FALSE
-#define AIO_CANCEL(uptr)                                        \
-    if ((uptr)->cancel)                                         \
-        (uptr)->cancel (uptr)
-#define AIO_SET_INTERRUPT_LATENCY(instpersec)
-#define AIO_TLS
-
 #ifdef  __cplusplus
 }
 #endif

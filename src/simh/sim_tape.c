@@ -106,13 +106,6 @@ struct tape_context {
     };
 #define tape_ctx up8                        /* Field in Unit structure which points to the tape_context */
 
-#define AIO_CALLSETUP                                                       \
-    if (uptr->tape_ctx == NULL)                                             \
-        return sim_messagef (SCPE_IERR, "Bad Attach\n");
-#define AIO_CALL(op, _buf, _fc, _bc, _max, _vbc, _gaplen, _bpi, _obj, _callback) \
-    if (_callback)                                                    \
-        (_callback) (uptr, r);
-
 
 /* Enable asynchronous operation */
 
@@ -812,9 +805,7 @@ return (MTR_F (tbc)? MTSE_RECE: MTSE_OK);
 t_stat sim_tape_rdrecf_a (UNIT *uptr, uint8 *buf, t_mtrlnt *bc, t_mtrlnt max, TAPE_PCALLBACK callback)
 {
 t_stat r = SCPE_OK;
-AIO_CALLSETUP
     r = sim_tape_rdrecf (uptr, buf, bc, max);
-AIO_CALL(TOP_RDRF, buf, bc, NULL, max, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -871,9 +862,7 @@ return (MTR_F (tbc)? MTSE_RECE: MTSE_OK);
 t_stat sim_tape_rdrecr_a (UNIT *uptr, uint8 *buf, t_mtrlnt *bc, t_mtrlnt max, TAPE_PCALLBACK callback)
 {
 t_stat r = SCPE_OK;
-AIO_CALLSETUP
     r = sim_tape_rdrecr (uptr, buf, bc, max);
-AIO_CALL(TOP_RDRR, buf, bc, NULL, max, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -947,9 +936,7 @@ return MTSE_OK;
 t_stat sim_tape_wrrecf_a (UNIT *uptr, uint8 *buf, t_mtrlnt bc, TAPE_PCALLBACK callback)
 {
 t_stat r = SCPE_OK;
-AIO_CALLSETUP
     r = sim_tape_wrrecf (uptr, buf, bc);
-AIO_CALL(TOP_WREC, buf, 0, NULL, 0, bc, 0, 0, NULL, callback);
 return r;
 }
 
@@ -996,9 +983,7 @@ return sim_tape_wrdata (uptr, MTR_TMK);
 t_stat sim_tape_wrtmk_a (UNIT *uptr, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_wrtmk (uptr);
-AIO_CALL(TOP_WTMK, NULL, NULL, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1026,9 +1011,7 @@ return result;
 t_stat sim_tape_wreom_a (UNIT *uptr, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_wreom (uptr);
-AIO_CALL(TOP_WEOM, NULL, NULL, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1053,9 +1036,7 @@ return r;
 t_stat sim_tape_wreomrw_a (UNIT *uptr, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_wreomrw (uptr);
-AIO_CALL(TOP_WEMR, NULL, NULL, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1313,9 +1294,6 @@ return MTSE_OK;
 t_stat sim_tape_wrgap_a (UNIT *uptr, uint32 gaplen, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
-    r = sim_tape_wrgap (uptr, gaplen);
-AIO_CALL(TOP_RDRR, NULL, NULL, NULL, 0, 0, gaplen, 0, NULL, callback);
 return r;
 }
 
@@ -1354,9 +1332,7 @@ return st;
 t_stat sim_tape_sprecf_a (UNIT *uptr, t_mtrlnt *bc, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_sprecf (uptr, bc);
-AIO_CALL(TOP_SPRF, NULL, bc, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1402,9 +1378,7 @@ return MTSE_OK;
 t_stat sim_tape_sprecsf_a (UNIT *uptr, uint32 count, uint32 *skipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_sprecsf (uptr, count, skipped);
-AIO_CALL(TOP_SRSF, NULL, skipped, NULL, 0, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1449,9 +1423,7 @@ return st;
 t_stat sim_tape_sprecr_a (UNIT *uptr, t_mtrlnt *bc, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_sprecr (uptr, bc);
-AIO_CALL(TOP_SPRR, NULL, bc, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1498,9 +1470,7 @@ return MTSE_OK;
 t_stat sim_tape_sprecsr_a (UNIT *uptr, uint32 count, uint32 *skipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_sprecsr (uptr, count, skipped);
-AIO_CALL(TOP_SRSR, NULL, skipped, NULL, 0, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1573,9 +1543,7 @@ return MTSE_OK;
 t_stat sim_tape_spfilebyrecf_a (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, t_bool check_leot, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_spfilebyrecf (uptr, count, skipped, recsskipped, check_leot);
-AIO_CALL(TOP_SFRF, NULL, skipped, recsskipped, check_leot, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1613,9 +1581,7 @@ return sim_tape_spfilebyrecf (uptr, count, skipped, &totalrecsskipped, FALSE);
 t_stat sim_tape_spfilef_a (UNIT *uptr, uint32 count, uint32 *skipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_spfilef (uptr, count, skipped);
-AIO_CALL(TOP_SPFF, NULL, skipped, NULL, 0, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1670,9 +1636,7 @@ return MTSE_OK;
 t_stat sim_tape_spfilebyrecr_a (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_spfilebyrecr (uptr, count, skipped, recsskipped);
-AIO_CALL(TOP_SPFR, NULL, skipped, recsskipped, 0, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1711,9 +1675,7 @@ return sim_tape_spfilebyrecr (uptr, count, skipped, &totalrecsskipped);
 t_stat sim_tape_spfiler_a (UNIT *uptr, uint32 count, uint32 *skipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_spfiler (uptr, count, skipped);
-AIO_CALL(TOP_SPFR, NULL, skipped, NULL, 0, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1736,9 +1698,7 @@ return MTSE_OK;
 t_stat sim_tape_rewind_a (UNIT *uptr, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_rewind (uptr);
-AIO_CALL(TOP_RWND, NULL, NULL, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1799,9 +1759,7 @@ return r;
 t_stat sim_tape_position_a (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files, uint32 *filesskipped, uint32 *objectsskipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_position (uptr, flags, recs, recsskipped, files, filesskipped, objectsskipped);
-AIO_CALL(TOP_POSN, NULL, recsskipped, filesskipped, 0, flags, recs, files, objectsskipped, callback);
 return r;
 }
 
@@ -1820,8 +1778,6 @@ if (ctx == NULL)                                        /* if not properly attac
 sim_debug (ctx->dbit, ctx->dptr, "sim_tape_reset(unit=%d)\n", (int)(uptr-ctx->dptr->units));
 
 _sim_tape_io_flush(uptr);
-AIO_VALIDATE;
-AIO_UPDATE_QUEUE;
 return SCPE_OK;
 }
 
