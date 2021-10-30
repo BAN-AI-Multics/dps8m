@@ -821,10 +821,6 @@ static const char simh_help[] =
       "+set break <list>            set breakpoints\n"
       "+set nobreak <list>          clear breakpoints\n"
        /***************** 80 character line width template *************************/
-#define HLP_SET_ASYNCH "*Commands SET Asynch"
-      "3Asynch\n"
-      "+set asynch                  enable asynchronous I/O\n"
-      "+set noasynch                disable asynchronous I/O\n"
 #define HLP_SET_ENVIRON "*Commands SET Asynch"
       "3Environment\n"
       "+set environment name=val    set environment variable\n"
@@ -927,9 +923,10 @@ static const char simh_help[] =
 #define HLP_SHOW_BREAK          "*Commands SHOW"
 #define HLP_SHOW_LOG            "*Commands SHOW"
 #define HLP_SHOW_DEBUG          "*Commands SHOW"
-#define HLP_SHOW_ASYNCH         "*Commands SHOW"
+#ifdef USE_SERIAL
 #define HLP_SHOW_SERIAL         "*Commands SHOW"
 #define HLP_SHOW_MULTIPLEXER    "*Commands SHOW"
+#endif /* ifdef USE_SERIAL */
 #define HLP_SHOW_CLOCKS         "*Commands SHOW"
 #define HLP_SHOW_ON             "*Commands SHOW"
 #define HLP_SHOW_SEND           "*Commands SHOW"
@@ -1514,8 +1511,6 @@ static CTAB set_glob_tab[] = {
     { "NOLOG",      &sim_set_logoff,            0, HLP_SET_LOG  },
     { "DEBUG",      &sim_set_debon,             0, HLP_SET_DEBUG  },
     { "NODEBUG",    &sim_set_deboff,            0, HLP_SET_DEBUG  },
-    { "ASYNCH",     &sim_set_asynch,            1, HLP_SET_ASYNCH },
-    { "NOASYNCH",   &sim_set_asynch,            0, HLP_SET_ASYNCH },
     { "ENVIRONMENT", &sim_set_environment,      1, HLP_SET_ENVIRON },
     { "ON",         &set_on,                    1, HLP_SET_ON },
     { "NOON",       &set_on,                    0, HLP_SET_ON },
@@ -1567,7 +1562,6 @@ static SHTAB show_glob_tab[] = {
     { "LOG",            &sim_show_log,              0, HLP_SHOW_LOG },
     { "TELNET",         &sim_show_telnet,           0 },    /* deprecated */
     { "DEBUG",          &sim_show_debug,            0, HLP_SHOW_DEBUG },
-    { "ASYNCH",         &sim_show_asynch,           0, HLP_SHOW_ASYNCH },
 #ifdef USE_SERIAL
     { "SERIAL",         &sim_show_serial,           0, HLP_SHOW_SERIAL },
 #ifdef NOT_USING_MUX_CODE
@@ -3683,29 +3677,6 @@ if (cptr && (*cptr != 0))                               /* now eol? */
 if (flag == sim_quiet)                                  /* already set correctly? */
     return SCPE_OK;
 sim_quiet = flag;
-return SCPE_OK;
-}
-
-/* Set asynch/noasynch routine */
-
-t_stat sim_set_asynch (int32 flag, CONST char *cptr)
-{
-if (cptr && (*cptr != 0))                               /* now eol? */
-    return SCPE_2MARG;
-if (!sim_quiet)
-    printf ("Asynchronous I/O is not available in this simulator\n");
-if (sim_log)
-    fprintf (sim_log, "Asynchronous I/O is not available in this simulator\n");
-return SCPE_NOFNC;
-}
-
-/* Show asynch routine */
-
-t_stat sim_show_asynch (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
-{
-if (cptr && (*cptr != 0))
-    return SCPE_2MARG;
-fprintf (st, "Asynchronous I/O is not available in this simulator\n");
 return SCPE_OK;
 }
 
@@ -11279,8 +11250,7 @@ cleanHelp (&top);
 return SCPE_OK;
 }
 
-/* variable argument list shell - most commonly used
- */
+/* variable argument list shell - most commonly used */
 
 t_stat scp_help (FILE *st, DEVICE *dptr,
                  UNIT *uptr, int32 flag,
@@ -11296,119 +11266,6 @@ va_end (ap);
 return r;
 }
 
-#if 01
-/* Read help from a file
- *
- * Not recommended due to OS-dependent issues finding the file, + maintenance.
- * Don't hardcode any path - just name.hlp - so there's a chance the file can
- * be found.
- */
-
-t_stat scp_vhelpFromFile (FILE *st, DEVICE *dptr,
-                          UNIT *uptr, int32 flag,
-                          const char *helpfile,
-                          const char *cptr, va_list ap)
-{
-FILE *fp;
-char *help, *p;
-t_offset size, n;
-int c;
-t_stat r;
-
-fp = sim_fopen (helpfile, "r");
-if (fp == NULL) {
-    if (sim_argv && *sim_argv[0]) {
-        char fbuf[(8*PATH_MAX)+1]; /* PATH_MAX is ridiculously small on some platforms */
-        const char *d = NULL;
-
-        /* Try to find a path from argv[0].  This won't always
-         * work (one reason files are probably not a good idea),
-         * but we might as well try.  Some OSs won't include a
-         * path.  Having failed in the CWD, try to find the location
-         * of the executable.  Failing that, try the 'help' subdirectory
-         * of the executable.  Failing that, we're out of luck.
-         */
-        strncpy (fbuf, sim_argv[0], sizeof (fbuf)-1);
-        if ((p = (char *)match_ext (fbuf, "EXE")))
-            *p = '\0';
-        if ((p = strrchr (fbuf, '\\'))) {
-            p[1] = '\0';
-            d = "%s\\";
-            }
-        else {
-            if ((p = strrchr (fbuf, '/'))) {
-                p[1] = '\0';
-                d = "%s/";
-                }
-            }
-        if (p && (strlen (fbuf) + strlen (helpfile) +1) <= sizeof (fbuf)) {
-            strcat (fbuf, helpfile);
-            fp = sim_fopen (fbuf, "r");
-            }
-        if (!fp && p && (strlen (fbuf) + strlen (d) + sizeof ("help") +
-                          strlen (helpfile) +1) <= sizeof (fbuf)) {
-            sprintf (p+1, d, "help");
-            strcat (p+1, helpfile);
-            fp = sim_fopen (fbuf, "r");
-            }
-        }
-    }
-if (fp == NULL) {
-    fprintf (stderr, "Unable to open %s\n", helpfile);
-    return SCPE_UNATT;
-    }
-
-size = sim_fsize_ex (fp);                   /* Estimate; line endings will vary */
-
-help = (char *) malloc ((size_t) size +1);
-if (!help) {
-    fclose (fp);
-    return SCPE_MEM;
-    }
-p = help;
-n = 0;
-
-while ((c = fgetc (fp)) != EOF) {
-    if (++n > size) {
-#define XPANDQ 512
-        p = (char *) realloc (help, ((size_t)size) + XPANDQ +1);
-        if (!p) {
-            free (help);
-            fclose (fp);
-            return SCPE_MEM;
-            }
-        help = p;
-        size += XPANDQ;
-        p += n;
-        }
-    *p++ = (char)c;
-    }
-*p++ = '\0';
-
-fclose (fp);
-
-r = scp_vhelp (st, dptr, uptr, flag, help, cptr, ap);
-free (help);
-
-return r;
-}
-
-t_stat scp_helpFromFile (FILE *st, DEVICE *dptr,
-                         UNIT *uptr, int32 flag,
-                         const char *helpfile, const char *cptr, ...)
-{
-t_stat r;
-va_list ap;
-
-va_start (ap, cptr);
-r = scp_vhelpFromFile (st, dptr, uptr, flag, helpfile, cptr, ap);
-va_end (ap);
-
-return r;
-}
-
 #if defined(_MSC_VER)
 #pragma warning(pop)
-#endif
-
 #endif

@@ -1217,7 +1217,7 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
 
     if (lp->destination && (!lp->sock) && (!lp->connecting) && 
 #ifdef USE_SERIAL
-(!lp->serport) &&
+        (!lp->serport) &&
 #endif
         (!lp->modem_control || (lp->modembits & TMXR_MDM_DTR))) {
         snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - establishing outgoing connection to: %s", lp->destination);
@@ -1290,7 +1290,7 @@ free(lp->ipad);
 lp->ipad = NULL;
 if ((lp->destination)
 #ifdef USE_SERIAL
-&& (!lp->serport)
+     && (!lp->serport)
 #endif
 ) {
     if (lp->connecting) {
@@ -1432,9 +1432,9 @@ lp->modembits |= bits_to_set;
 lp->modembits &= ~(bits_to_clear | TMXR_MDM_INCOMING);
 if ((lp->sock)
 #ifdef USE_SERIAL
-|| (lp->serport)
+   || (lp->serport)
 #endif
-|| (lp->loopback)) {
+   || (lp->loopback)) {
     if (lp->modembits & TMXR_MDM_DTR) {
         incoming_state = TMXR_MDM_DSR;
         if (lp->modembits & TMXR_MDM_RTS)
@@ -1780,9 +1780,9 @@ for (i = 0; i < mp->lines; i++) {                       /* loop thru lines */
     lp = mp->ldsc + i;                                  /* get line desc */
     if (!(lp->sock
 #ifdef USE_SERIAL
-|| lp->serport
+        || lp->serport
 #endif
-|| lp->loopback) ||
+        || lp->loopback) ||
         !(lp->rcve))                                    /* skip if not connected */
         continue;
 
@@ -2923,9 +2923,9 @@ while (*tptr) {
         lp->modem_control = modem_control;
         if (speed[0] && (!datagram)
 #ifdef USE_SERIAL
-&& (!lp->serport)
+        && (!lp->serport)
 #endif
-)
+        )
             tmxr_set_line_speed (lp, speed);
         r = SCPE_OK;
         }
@@ -3233,9 +3233,9 @@ else {
                 }
             if ((!lp->sock) && (!lp->connecting)
 #ifdef USE_SERIAL
-&& (!lp->serport)
+            && (!lp->serport)
 #endif
-&& (!lp->master)) {
+            && (!lp->master)) {
                 if (lp->modem_control)
                     tmxr_fconns (st, lp, -1);
                 continue;
@@ -3782,9 +3782,9 @@ if (lp->modem_control) {
 
 if (
 #ifdef USE_SERIAL
-(lp->serport == 0) &&
+  (lp->serport == 0) &&
 #endif
-(lp->sock) && (!lp->datagram))
+  (lp->sock) && (!lp->datagram))
     fprintf (st, " %s\n", (lp->notelnet) ? "Telnet disabled (RAW data)" : "Telnet protocol");
 if (lp->send.buffer)
     sim_show_send_input (st, &lp->send);
@@ -3807,9 +3807,9 @@ if (ln >= 0)
     fprintf (st, "Line %d:", ln);
 if ((!lp->sock) && (!lp->connecting)
 #ifdef USE_SERIAL
-&& (!lp->serport)
+   && (!lp->serport)
 #endif
-)
+   )
     fprintf (st, " not connected\n");
 else {
     if (ln >= 0)
@@ -3882,9 +3882,9 @@ if (lp == NULL)                                                 /* bad line numb
 
 if ((lp->sock)
 #ifdef USE_SERIAL
-|| (lp->serport)
+   || (lp->serport)
 #endif
-) {                              /* connection active? */
+   ) {                                                          /* connection active? */
     if (!lp->notelnet)
         tmxr_linemsg (lp, "\r\nOperator disconnected line\r\n\n");/* report closure */
     tmxr_reset_ln_ex (lp, (sim_switches & SWMASK ('C')));       /* drop the line */
@@ -4159,9 +4159,9 @@ if (mp == NULL)
 for (i = t = 0; i < mp->lines; i++)
     if ((mp->ldsc[i].sock != 0)
 #ifdef USE_SERIAL
-|| (mp->ldsc[i].serport != 0)
+    || (mp->ldsc[i].serport != 0)
 #endif
-)
+    )
         t = t + 1;
 if (mp->lines > 1)
     fprintf (st, "%d current connection%s", t, (t != 1) ? "s" : "");
@@ -4182,23 +4182,23 @@ if (mp == NULL)
 for (i = any = 0; i < mp->lines; i++) {
     if ((mp->ldsc[i].sock != 0)
 #ifdef USE_SERIAL
-        || (mp->ldsc[i].serport != 0) 
+      || (mp->ldsc[i].serport != 0) 
 #endif
-|| mp->ldsc[i].modem_control) {
+      || mp->ldsc[i].modem_control) {
         if ((mp->ldsc[i].sock != 0)
 #ifdef USE_SERIAL
-|| (mp->ldsc[i].serport != 0)
+      || (mp->ldsc[i].serport != 0)
 #endif
-)
+      )
             any++;
         if (val)
             tmxr_fconns (st, &mp->ldsc[i], i);
         else
             if ((mp->ldsc[i].sock != 0)
 #ifdef USE_SERIAL
-|| (mp->ldsc[i].serport != 0)
+          || (mp->ldsc[i].serport != 0)
 #endif
-)
+          )
                 tmxr_fstats (st, &mp->ldsc[i], i);
         }
     }
