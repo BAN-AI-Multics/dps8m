@@ -33,7 +33,7 @@ PKGCFG=$(shell $(ENV) $(PKGCONFIG) $(GTKVER) --cflags        ||               \
          $(PRINTF) '%s\n'                                                     \
            "Error running \"$(ENV) $(PKGCONFIG) $(GTKVER) --cflags\""         \
              >&2)
-CFLAGS+=$(PKGCFG) -DM_SHARED -I../dps8
+CFLAGS+=$(PKGCFG) -I../dps8 -DM_SHARED
 
 ###############################################################################
 
@@ -51,6 +51,10 @@ all: blinkenLights2$(EXE)
 ###############################################################################
 
 blinkenLights2$(EXE): blinkenLights2.o ../dps8/shm.o
+	@$(PRINTF) '%s\n' "LD: blinkenLights2"
+	@$(SETV); $(CC) $(CFLAGS) -I"../simh" -I"../dps8" -DM_SHARED              \
+      $(PKGCFG) $(LDFLAGS) "../dps8/shm.o" -o blinkenLights2$(EXE)            \
+        blinkenLights2.o $(BLLIBS)
 
 ###############################################################################
 
