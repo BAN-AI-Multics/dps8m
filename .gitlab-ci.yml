@@ -1908,7 +1908,7 @@ Option Verification Test:
     - Linux
   script:
     - export GLCICD_JOB="OptTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - dnf -q install -y moreutils bzip2 || dnf -q install -y moreutils bzip2
     - *scriptInstallResticLinuxAMD64
     - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
@@ -1917,13 +1917,14 @@ Option Verification Test:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && export JFLAGS="-j ${CPUS:-1}" && ./src/ci-kit/cartesian_job_generator.bash 2>&1 > options.txt
+    - ( export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && export JFLAGS="-j ${CPUS:-1}" && ./src/ci-kit/cartesian_job_generator.bash ) 1> options-out.txt 2> options-err.txt
   dependencies: []
   artifacts:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/options.txt
+      - ${CI_PROJECT_DIR:?}/options-out.txt
+      - ${CI_PROJECT_DIR:?}/options-err.txt
   retry: 1
   timeout: 360 minutes
   interruptible: true
