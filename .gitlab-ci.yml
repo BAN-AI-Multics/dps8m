@@ -1871,12 +1871,46 @@ Darwin/x86_64, macOS Big Sur, Xcode:
     - macOS
     - amd64
     - macOS-Big-Sur
+    - Xcode
   script:
     - *scriptSanity
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'make V=1 -j 4 --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+#############################################################################
+
+Darwin/x86_64, macOS Big Sur, GCC 11:
+  stage: build
+  tags:
+    - Darwin
+    - macOS
+    - amd64
+    - macOS-Big-Sur
+    - Homebrew
+    - GCC
+  script:
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'gmake V=1 CC=gcc-11 -j 4 --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
