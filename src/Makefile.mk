@@ -64,6 +64,7 @@ WC         ?= wc
 SED        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" sed
 AWK        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" awk
 CMP        ?= cmp
+CKSUM      ?= cksum
 WEBDL      ?= wget
 CD         ?= cd
 GLRUNNER   ?= gitlab-runner
@@ -89,7 +90,7 @@ PRINTF     ?= printf
 TAR        ?= tar
 XARGS      ?= xargs
 GTARUSER   ?= dps8m
-GTARGROUP  ?= $(GRARUSER)
+GTARGROUP  ?= $(GTARUSER)
 MAKETAR    ?= $(TAR) --owner=$(GTARUSER) --group=$(GTARGROUP) --posix -c      \
                      --transform 's/^/.\/dps8\//g' -$(ZCTV)
 TARXT      ?= tar
@@ -280,6 +281,21 @@ endif
 # C Standard: Defaults to c99, but c1x or c11 may be needed for modern atomics.
 
 CSTD?=c99
+
+###############################################################################
+
+.PHONY: rebuild.env rebuild.vne .rebuild.env .rebuild.vne FORCE
+ifndef REBUILDVNE
+FORCE:
+rebuild.env rebuild.vne .rebuild.env .rebuild.vne: FORCE
+	@$(SETV); ( $(SET) 2> /dev/null ; $(ENV) 2> /dev/null ) | $(GREP) -ivE '(stat|line|time|date|random|seconds|pid|user|\?|hist|old|tty|prev|^_|man|pwd|cwd|columns|gid|uid|grp|tmout|user|^ps.|anyerror|argv|^command|^killring|^shlvl|^mailcheck|^jobmax|^hist|^term|^opterr|^groups|^bash_arg|^dirstack|^psvar|idle)' 2> /dev/null | $(CKSUM) > ".rebuild.vne" 2> /dev/null || $(TRUE)
+	@$(SETV); $(TEST) -f ".rebuild.env" || ( $(SET) 2> /dev/null ; $(ENV) 2> /dev/null ) | $(GREP) -ivE '(stat|line|time|date|random|seconds|pid|user|\?|hist|old|tty|prev|^_|man|pwd|cwd|columns|gid|uid|grp|tmout|user|^ps.|anyerror|argv|^command|^killring|^shlvl|^mailcheck|^jobmax|^hist|^term|^opterr|^groups|^bash_arg|^dirstack|^psvar|idle)' 2> /dev/null | $(CKSUM) > ".rebuild.env" 2> /dev/null || $(TRUE)
+	@$(SETV); $(PRINTF) '%s\n' "$$($(CAT) .rebuild.env)" "$$($(CAT) .rebuild.vne)" > /dev/null 2>&1
+	@$(SETV); $(RMF) ".needrebuild"; $(CMP) ".rebuild.env" ".rebuild.vne" > /dev/null 2>&1 || { $(TOUCH) ".rebuild.vne"; $(CP) ".rebuild.vne" ".rebuild.env"; $(TOUCH) ".needrebuild"; }
+	@$(SETV); $(RMF) ".rebuild.vne"
+REBUILDVNE=1
+export REBUILDVNE
+endif
 
 ###############################################################################
 

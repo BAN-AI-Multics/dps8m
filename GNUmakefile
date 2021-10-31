@@ -71,18 +71,22 @@ export MAKE_TOPLEVEL
 ###############################################################################
 # Build.
 
-.PHONY: build default all
-build default all:                                                            \
+.PHONY: build default all .rebuild.env
+build default all: .rebuild.env                                               \
     # build:    # Builds the DPS8/M simulator and tools
-	@$(MAKE) -C "src/dps8" "all"
+	@$(MAKE) -C "." ".rebuild.env";                                           \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);         \
+        $(MAKE) -C "src/dps8" "all"
 
 ###############################################################################
 # blinkenLights2 (optional)
 
-.PHONY: blinkenLights2
-blinkenLights2:                                                               \
+.PHONY: blinkenLights2 .rebuild.env
+blinkenLights2: .rebuild.env                                                  \
     # blinkenLights2:    # Builds the blinkenLights2 front panel
-	@$(MAKE) -C "src/dps8" "blinkenLights2"
+	@$(MAKE) -C "." ".rebuild.env";                                           \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);         \
+        $(MAKE) -C "src/dps8" "blinkenLights2"
 
 ###############################################################################
 # Install.
@@ -97,11 +101,12 @@ install:                                                                      \
 
 .PHONY: clean
 ifneq (,$(findstring clean,$(MAKECMDGOALS)))
-$(warn blah)
 .NOTPARALLEL: clean
 endif
 clean:                                                                        \
     # clean:    # Cleans up executable and object files
+	@$(RMF) ".needrebuild" || $(TRUE)
+	@$(RMF) ".rebuild.vne" || $(TRUE)
 	@$(MAKE) -C "src/dps8" "clean"
 
 ###############################################################################
@@ -113,6 +118,9 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 endif
 distclean: clean                                                              \
     # distclean:    # Cleans up tree to pristine conditions
+	@$(RMF) ".needrebuild" || $(TRUE)
+	@$(RMF) ".rebuild.env" || $(TRUE)
+	@$(RMF) ".rebuild.vne" || $(TRUE)
 	@$(MAKE) -C "src/dps8" "distclean"
 
 ###############################################################################

@@ -69,6 +69,12 @@ src/dps8/errnos.h
 tags
 dps8m.state
 l68.state
+needrebuild
+.needrebuild
+rebuild.env
+rebuild.vne
+.rebuild.env
+.rebuild.vne
 *.tar.gz
 *.tar.xz
 *.tar.bz2
@@ -82,6 +88,7 @@ l68.state
 
 # Lint
 lint.txt
+olint.txt
 cpplint.txt
 cppcheck.txt
 *.i

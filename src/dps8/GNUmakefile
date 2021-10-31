@@ -518,6 +518,7 @@ distclean: clean
 	@$(SETV); $(RMF) "restoreMultics.log"     ||  $(TRUE)
 	@$(SETV); $(RMF)  "TAGS"                  ||  $(TRUE)
 	@$(SETV); $(RMF)  "tags"                  ||  $(TRUE)
+	@$(SETV); $(RMF)  "ver.h~"                ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../GPATH"           ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../GRTAGS"          ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../GTAGS"           ||  $(TRUE)
@@ -548,6 +549,7 @@ clean:
 	@$(SETV); $(RMF)  "../../.builder.txt"             ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../.buildos.txt"             ||  $(TRUE)
 	@$(SETV); $(RMF)  "ver.h"                          ||  $(TRUE)
+	@$(SETV); $(RMF)  "dump.i"                         ||  $(TRUE)
 	@$(SETV); $(RMF)  "compdef.out"                    ||  $(TRUE)
 	@$(SETV); $(RMF)  "procdef.out"                    ||  $(TRUE)
 	@$(SETV); $(RMF)  "procsrt.out"                    ||  $(TRUE)
@@ -699,7 +701,7 @@ sysdefs.h: useddef.txt
             -e 's/$$/\"/' 2> /dev/null > "./sysdefs.n"                 ||     \
               $(TOUCH) "./sysdefs.n" > /dev/null 2>&1
 	@$(PRINTF) '%s\n' "" >> "./sysdefs.n" 2> /dev/null
-	@$(SETV); $(CMP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null          ||     \
+	@$(SETV); $(CMP) "./sysdefs.n" "./sysdefs.h" > /dev/null 2>&1      ||     \
         $(CP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null                 ||     \
             $(TOUCH) "sysdefs.h"
 	@$(SETV); $(RMF) "sysdefs.n"
