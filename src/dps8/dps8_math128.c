@@ -12,12 +12,15 @@
 #ifndef DPS8_MATH128
 #define DPS8_MATH128
 
+#ifndef CPPCHECK
+
 #ifdef TEST_128
 // gcc -m32 -DTEST_128 -DNEED_128 dps8_math128.c
 #include <stdbool.h>
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdio.h>
+
 typedef struct { uint64_t h; uint64_t l; } uint128;
 typedef struct { int64_t h; uint64_t l; } int128;
 
@@ -36,6 +39,8 @@ typedef uint128 word74;
 
 #include "dps8.h"
 #endif
+
+#endif /* ifndef CPPCHECK */
 
 #include "dps8_math128.h"
 

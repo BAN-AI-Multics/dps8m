@@ -94,6 +94,12 @@ cppcheck.txt
 *.i
 .cppbdir
 infer-out/
+*.ln
+*.Ln
+*.LN
+orstlint.txt
+olint126.txt
+oralint126.txt
 
 # Vim
 *.*.swp

@@ -13,26 +13,6 @@
 
 # Requires: GNU tools
 
-OUTPUTFILE="${1:-}"
-
-test -z "${OUTPUTFILE:-}" &&
-{
-  printf '%s\n' "Error: No output file specified."
-  exit 1
-}
-
-test -f "${OUTPUTFILE:-}" &&
-{
-  printf '%s\n' "Error: Output file already exists."
-  exit 1
-} || {
-  touch "${OUTPUTFILE:-}" 2> /dev/null ||
-    {
-      printf '%s\n' "Error: Could not create output file."
-      exit 1
-    }
-}
-
 test -d "./.git" ||
 {
   printf '%s\n' "Error: Not in top-level git repository."
@@ -52,14 +32,22 @@ set -eu
 
 MAKE="command -p env make"
 CPPCHECK="cppcheck"
-CPPCHECKS="warning,style,performance,portability,information"
+CPPCHECKS="warning,style,performance,portability"
 CPPDEFINE='-DDECNUMDIGITS=126 -U__VERSION__ -D_GNU_SOURCE -DDECBUFFER=32
            -U__STRICT_POSIX__ -Dint32_t=int32 -DCPPCHECK=1 -U__WATCOMC__
            -U__USE_POSIX199309 -DPRIo64="llo" -DPRId64="lld" -DPRIu64="llu"
            -U__OPEN64__ -U_MSC_FULL_VER -U_MSC_BUILD -UVER_H_GIT_HASH
            -UVER_H_GIT_PATCH -UVER_H_GIT_VERSION -DBUILDINFO_scp="CPPCHECK"
            -USYSDEFS_USED -UVER_H_GIT_DATE -UVER_H_PREP_DATE -UVER_H_PREP_USER
-           -USIM_COMPILER -UVER_CURRENT_TIME'
+           -USIM_COMPILER -UVER_CURRENT_TIME -UINVALID_HANDLE -UVSTATUS
+           -UVDSUSP -UIOCTL_STORAGE_READ_CAPACITY
+           -UIOCTL_STORAGE_GET_HOTPLUG_INFO -UAF_INET6
+           -UIOCTL_STORAGE_EJECT_MEDIA -UIOCTL_DISK_GET_DRIVE_GEOMETRY_EX
+           -UIOCTL_DISK_GET_DRIVE_GEOMETRY
+           -UTCP_NODELAYACK -USO_EXCLUSIVEADDRUSE -USIGPIPE -USD_BOTH
+           -UIPV6_V6ONLY -USIGHUP -UFILE_DEVICE_BLUETOOTH
+           -UFILE_DEVICE_CRYPT_PROVIDER -UFILE_DEVICE_FIPS
+           -UFILE_DEVICE_INFINIBAND -UFILE_DEVICE_VMBUS -UFILE_DEVICE_WPD'
 COMPILERS="gcc clang"
 test -z "${NOQUIET:-}" ||
 {
@@ -178,7 +166,7 @@ do_cppcheck()
       printf '%s\n' \
         " * Using $(${compiler:?} --version 2>&1 |
           head -n 1 || printf '%s\n' '???' 2>&1 || true) ..." |
-            grep -v '???' >&2 || true
+            grep -v '???' || true
     ) && printf '%s\n' "" >&2 &&
     command -v "${compiler:?}" > /dev/null 2>&1 &&
       {
@@ -194,7 +182,7 @@ do_cppcheck()
   set -e
   title_line "${unit:?}"
   # shellcheck disable=SC2086,SC2248
-  eval ${CPPCHECK:?} ${EXTRA:-} -v -j "$(count_cpus)"                     \
+  eval ${CPPCHECK:?} ${EXTRA:-}  -j "$(count_cpus)"                       \
     --enable="${CPPCHECKS:?}" --force -UBUILDINFO_"${unit:?}"             \
     ${CPPDEFINE:?} ${includes:?} ${infiles:?} ${EXTRA:-}                  \
     --file-filter="./src/*" --inline-suppr --max-ctu-depth=8              \
@@ -202,7 +190,6 @@ do_cppcheck()
     --suppress="checkLibraryNoReturn" --suppress="funcArgNamesDifferent"  \
     --suppress="unmatchedSuppression" --suppress="variableScope"          \
     --include="$(pwd -L)/src/dps8/ver.h"                                  \
-     2> "${OUTPUTFILE:?}"
   full_line
   printf '%s\n' ""
 }

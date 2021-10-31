@@ -8802,9 +8802,9 @@ return SCPE_OK;
 t_bool sim_is_active (UNIT *uptr)
 {
 if (uptr->next == NULL)
-  return TRUE;
+  return FALSE;
 else
-return FALSE;
+return TRUE;
 }
 
 /* sim_activate_time - return activation time

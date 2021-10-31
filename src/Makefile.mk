@@ -59,6 +59,7 @@ DIRNAME    ?= dirname
 PKGCONFIG  ?= pkg-config
 GIT        ?= git
 CUT        ?= cut
+UNIQ       ?= uniq
 EXPAND     ?= expand
 WC         ?= wc
 SED        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" sed
@@ -66,7 +67,9 @@ AWK        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" awk
 CMP        ?= cmp
 CKSUM      ?= cksum
 WEBDL      ?= wget
+TEE        ?= tee
 CD         ?= cd
+ORSTLINT   ?= /opt/oracle/developerstudio12.6/bin/lint
 GLRUNNER   ?= gitlab-runner
 TR         ?= tr
 ADVZIP     ?= advzip
@@ -85,6 +88,7 @@ ZIP        ?= $(INFOZIP)
 TOUCH      ?= touch
 NL         ?= nl
 TEST       ?= test
+SLEEP      ?= sleep
 PASTE      ?= paste
 PRINTF     ?= printf
 TAR        ?= tar
