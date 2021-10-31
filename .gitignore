@@ -100,6 +100,7 @@ infer-out/
 orstlint.txt
 olint126.txt
 oralint126.txt
+flawfinder.txt
 
 # Vim
 *.*.swp
