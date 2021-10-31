@@ -548,7 +548,7 @@
     test -z "${SKIP_RESTIC}" && ldconfig || true
     test -z "${CACHESERVER}" && export CACHESERVER="0.0.0.0"
     test -z "${SKIP_RESTIC}" && echo "Pruning snapshots ..."
-    test -z "${SKIP_RESTIC}" && env RESTIC_PASSWORD="${GLCICD_JOB}" RESTIC_REPOSITORY="rest:http://${CACHESERVER}:17812/${GLCICD_JOB}" /usr/bin/restic prune > /dev/null 2>&1 || true                                                                                           
+    test -z "${SKIP_RESTIC}" && env RESTIC_PASSWORD="${GLCICD_JOB}" RESTIC_REPOSITORY="rest:http://${CACHESERVER}:17812/${GLCICD_JOB}" /usr/bin/restic prune > /dev/null 2>&1 || true
     test -z "${SKIP_RESTIC}" && echo "Cleaning up ..."
     rm -f restic.txt || true
     true "Need once per week update logic" || true
@@ -629,7 +629,7 @@ stages:
 ############################################################################
 # Jobs
 
-Linux/x86_64, AlmaLinux 8:
+Linux/x86_64, AlmaLinux 8, Clang, GCC:
   image: almalinux:8
   stage: build
   allow_failure: true
@@ -654,7 +654,7 @@ Linux/x86_64, AlmaLinux 8:
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'                                                 
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -673,7 +673,7 @@ Linux/x86_64, AlmaLinux 8:
 
 ############################################################################
 
-Linux/x86_64, Alpine Edge:
+Linux/x86_64, Alpine Edge, Clang, GCC:
   image:
     name: alpine:edge
     entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk add bash; apk add bash && ln -snf /bin/bash /bin/sh && exec /bin/bash -c $0' ]
@@ -696,7 +696,7 @@ Linux/x86_64, Alpine Edge:
     - *scriptBuildInfo
     - dash -x -c 'make distclean; exit "${?}"'
     - rm -rf mimalloc || true
-    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone -v --depth=1 https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build; cd build; CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)' 
+    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone -v --depth=1 https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build; cd build; CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
     - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
@@ -716,7 +716,7 @@ Linux/x86_64, Alpine Edge:
 
 ############################################################################
 
-Linux/x86_64, Amazon Linux:
+Linux/x86_64, Amazon Linux, Clang, GCC:
   image: amazonlinux:latest
   stage: build
   tags:
@@ -758,7 +758,7 @@ Linux/x86_64, Amazon Linux:
 
 ############################################################################
 
-Linux/x86_64, Clear Linux:
+Linux/x86_64, Clear Linux. Clang, GCC:
   image: clearlinux:latest
   stage: build
   tags:
@@ -843,9 +843,9 @@ Code Quality Analysis:
     - Linux-Shell
     - TopDocker
   needs:
-    - job: Linux/x86_64, Ubuntu
-    - job: Linux/x86_64, Ubuntu LTS
-    - job: Linux/x86_64, Fedora
+    - job: Linux/x86_64, Ubuntu, Clang, GCC
+    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
+    - job: Linux/x86_64, Fedora, Clang, GCC
   script:
     - *scriptSanity
     - |
@@ -1005,7 +1005,7 @@ Linux/x86_64, Fedora, AOCC, AOCL:
 
 ############################################################################
 
-Linux/x86_64, Fedora:
+Linux/x86_64, Fedora, Clang, GCC:
   image: fedora:latest
   stage: build
   tags:
@@ -1047,7 +1047,7 @@ Linux/x86_64, Fedora:
 
 ############################################################################
 
-AIX/powerpc64, IBM AIX 7.2, IBM Toolbox GCC 8:
+AIX/powerpc64, IBM AIX 7.2, IBM Toolbox GCC 8.3:
   stage: build
   tags:
     - AIX
@@ -1077,7 +1077,7 @@ AIX/powerpc64, IBM AIX 7.2, IBM Toolbox GCC 8:
 
 ############################################################################
 
-AIX/powerpc64, IBM AIX 7.2, Bull/Atos GCC 10:
+AIX/powerpc64, IBM AIX 7.2, Bull/Atos GCC 10.3:
   stage: build
   tags:
     - AIX
@@ -1107,7 +1107,7 @@ AIX/powerpc64, IBM AIX 7.2, Bull/Atos GCC 10:
 
 ############################################################################
 
-AIX/powerpc64, IBM AIX 7.2, Bull/Atos GCC 11:
+AIX/powerpc64, IBM AIX 7.2, Bull/Atos GCC 11.2:
   stage: build
   tags:
     - AIX
@@ -1137,7 +1137,7 @@ AIX/powerpc64, IBM AIX 7.2, Bull/Atos GCC 11:
 
 ############################################################################
 
-AIX/powerpc64, IBM AIX 7.2, Bull/Atos GCC 9:
+AIX/powerpc64, IBM AIX 7.2, Bull/Atos GCC 9.4:
   stage: build
   tags:
     - AIX
@@ -1166,8 +1166,8 @@ AIX/powerpc64, IBM AIX 7.2, Bull/Atos GCC 9:
   interruptible: true
 
 ############################################################################
- 
-AIX/powerpc64, IBM AIX 7.2, IBM XL C/C++:
+
+AIX/powerpc64, IBM AIX 7.2, IBM XL C/C++ V16.1:
   stage: build
   tags:
     - AIX
@@ -1178,7 +1178,7 @@ AIX/powerpc64, IBM AIX 7.2, IBM XL C/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'export XLCXLC="xlc_r" && export XLCVER="latest" && gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory -k; exit "${?}"'
     - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1197,7 +1197,7 @@ AIX/powerpc64, IBM AIX 7.2, IBM XL C/C++:
 
 ############################################################################
 
-AIX/powerpc64, IBM AIX 7.2, IBM XLClang:
+AIX/powerpc64, IBM AIX 7.2, IBM XL Clang V16.1:
   stage: build
   tags:
     - AIX
@@ -1208,7 +1208,7 @@ AIX/powerpc64, IBM AIX 7.2, IBM XLClang:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'export XLCVER="latest" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j 12 V=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1 --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'export XLCVER="16.1.0" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j 12 V=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1 --output-sync --print-directory -k; exit "${?}"'
     - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1417,7 +1417,7 @@ Windows/i686, LLVM-MinGW:
 Windows/x86_64, LLVM-MinGW:
   image: mstorsjo/llvm-mingw:dev
   stage: build
-  tags:   
+  tags:
     - Docker-x64
     - amd64
     - Linux
@@ -1432,11 +1432,11 @@ Windows/x86_64, LLVM-MinGW:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
-    - *scriptBuildInfo  
+    - *scriptBuildInfo
     - *scriptCompressArtifacts
-  dependencies: [] 
+  dependencies: []
   artifacts:
-    expire_in: 1 day    
+    expire_in: 1 day
     paths:
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
@@ -1470,14 +1470,14 @@ Windows/x86_64, MinGW64-GCC V8:
     - cp -vf "/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll" "${CI_PROJECT_DIR:?}"
     - *scriptCompressArtifacts
     - rm -f "${CI_PROJECT_DIR:?}/libwinpthread-1.dll"
-  dependencies: []  
+  dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
-  interruptible: true 
+  interruptible: true
 
 ############################################################################
 
@@ -1501,18 +1501,18 @@ Windows/x86_64, MinGW64-GCC V9:
     - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
     - *scriptBuildInfo
     - *scriptCompressArtifacts
-  dependencies: []  
+  dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
       - ${CI_PROJECT_DIR:?}/dps8m.zip
   retry: 2
   timeout: 120 minutes
-  interruptible: true 
+  interruptible: true
 
 ############################################################################
 
-Linux/x86_64, OpenSUSE Leap:
+Linux/x86_64, OpenSUSE Leap, Clang, GCC:
   image: opensuse/leap:latest
   stage: build
   tags:
@@ -1549,7 +1549,7 @@ Linux/x86_64, OpenSUSE Leap:
 
 ############################################################################
 
-Linux/x86_64, Oracle Linux 8:
+Linux/x86_64, Oracle Linux 8, Clang, GCC:
   image: oraclelinux:8
   stage: build
   allow_failure: true
@@ -1593,7 +1593,7 @@ Linux/x86_64, Oracle Linux 8:
 
 ############################################################################
 
-Linux/x86_64, Slackware Current:
+Linux/x86_64, Slackware Current, Clang, GCC:
   image: vbatts/slackware:current
   stage: build
   tags:
@@ -1633,7 +1633,7 @@ Linux/x86_64, Slackware Current:
 
 ###########################################################################
 
-Source Kit:
+Source Kits:
   image: debian:sid
   stage: build
   tags:
@@ -1644,19 +1644,20 @@ Source Kit:
     - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install pigz tar make git > /dev/null || apt-get -qq -y install pigz tar make git > /dev/null
     - *scriptSanity
     - *scriptCommon
-    - sh -x -c 'make distclean && make dist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'make distclean && make zipdist dist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
       - ${CI_PROJECT_DIR:?}/sources.tar.gz
+      - ${CI_PROJECT_DIR:?}/sources.zip
   retry: 2
   timeout: 120 minutes
   interruptible: true
 
 ############################################################################
 
-Linux/x86_64, Ubuntu:
+Linux/x86_64, Ubuntu, Clang, GCC:
   image: ubuntu:rolling
   stage: build
   tags:
@@ -1694,12 +1695,12 @@ Linux/x86_64, Ubuntu:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 120 minutes                                                                                                                                                                                                                                                          
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
 
-Linux/x86_64, Ubuntu LTS:
+Linux/x86_64, Ubuntu LTS, Clang, GCC:
   image: ubuntu:latest
   stage: build
   tags:
@@ -1742,7 +1743,7 @@ Linux/x86_64, Ubuntu LTS:
 
 ############################################################################
 
-Linux/x86_64, Void glibc:
+Linux/x86_64, Void glibc, Clang, GCC:
   image:
     name: voidlinux/voidlinux:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1785,7 +1786,7 @@ Linux/x86_64, Void glibc:
 
 ############################################################################
 
-Linux/x86_64, Void musl, mimalloc, static:
+Linux/x86_64, Void musl, mimalloc, static, Clang, GCC:
   image:
     name: voidlinux/voidlinux-musl:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1829,7 +1830,7 @@ Linux/x86_64, Void musl, mimalloc, static:
 
 ############################################################################
 
-Solaris/x86_64, Oracle Solaris 11.4, GCC:
+Solaris/x86_64, Oracle Solaris 11.4, GCC 7.3:
   stage: build
   tags:
     - Solaris
@@ -1890,7 +1891,7 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
 
 ############################################################################
 
-illumos/x86_64, OpenIndiana Hipster:
+illumos/x86_64, OpenIndiana Hipster, Clang 9, GCC 7.5, GCC 10.3:
   stage: build
   tags:
     - OpenIndiana
@@ -1929,7 +1930,7 @@ illumos/x86_64, OpenIndiana Hipster:
 
 #############################################################################
 
-Darwin/x86_64, macOS Big Sur:
+Darwin/x86_64, macOS Big Sur, Xcode:
   stage: build
   tags:
     - Darwin
@@ -1964,9 +1965,9 @@ Option Verification Test:
   stage: test
   image: fedora:latest
   needs:
-    - job: Linux/x86_64, Ubuntu
-    - job: Linux/x86_64, Ubuntu LTS
-    - job: Linux/x86_64, Fedora
+    - job: Linux/x86_64, Ubuntu, Clang, GCC
+    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
+    - job: Linux/x86_64, Fedora, Clang, GCC
   tags:
     - Docker-x64
     - amd64
@@ -1994,9 +1995,9 @@ Multics CI-Kit Test:
   stage: test
   image: fedora:latest
   needs:
-    - job: Linux/x86_64, Ubuntu
-    - job: Linux/x86_64, Ubuntu LTS
-    - job: Linux/x86_64, Fedora
+    - job: Linux/x86_64, Ubuntu, Clang, GCC
+    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
+    - job: Linux/x86_64, Fedora, Clang, GCC
   tags:
     - Docker-x64-fast
     - Linux
@@ -2027,7 +2028,7 @@ Multics CI-Kit Test:
 
 ############################################################################
 
-Linux/x86_64, Ubuntu 18.04:
+Linux/x86_64, Ubuntu 18.04, Clang, GCC:
   image: ubuntu:bionic
   stage: build
   tags:
@@ -2071,4 +2072,93 @@ Linux/x86_64, Ubuntu 18.04:
   timeout: 120 minutes
   interruptible: true
 
-############################################################################
+#############################################################################
+
+Flawfinder:
+  stage: test
+  needs:
+    - job: Linux/x86_64, Ubuntu, Clang, GCC
+    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
+    - job: Linux/x86_64, Fedora, Clang, GCC
+  tags:
+    - Linux
+    - Flawfinder
+    - amd64
+    - Linux-Shell
+    - POSIX
+  script:
+    - export GLCICD_JOB="Flawfinder" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptExtraInfo
+    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 1; flawfinder -m 5 . 2>&1 > flawfinder.txt'
+  dependencies: []
+  artifacts:
+    expire_in: 30 days
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/flawfinder.txt
+  retry: 2
+  timeout: 60 minutes
+  interruptible: true
+
+#############################################################################
+
+Cppcheck:
+  stage: test
+  needs:
+    - job: Linux/x86_64, Ubuntu, Clang, GCC
+    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
+    - job: Linux/x86_64, Fedora, Clang, GCC
+  tags:
+    - Linux
+    - Cppcheck
+    - amd64
+    - Linux-Shell
+    - POSIX
+  script:
+    - export GLCICD_JOB="Cppcheck" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptExtraInfo
+    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 30; make cppcheck'
+  dependencies: []
+  artifacts:
+    expire_in: 30 days
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/cppcheck.txt
+  retry: 2
+  timeout: 60 minutes
+  interruptible: true
+
+#############################################################################
+
+Oracle Developer Studio Lint:
+  stage: test
+  needs:
+    - job: Linux/x86_64, Ubuntu, Clang, GCC
+    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
+    - job: Linux/x86_64, Fedora, Clang, GCC
+  tags:
+    - Linux
+    - Sun-CC
+    - amd64
+    - Linux-Shell
+    - POSIX
+  script:
+    - export GLCICD_JOB="OracleLint" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptExtraInfo
+    - pkill lint > /dev/null 2>&1 || true
+    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 30; make orstlint'
+    - pkill lint > /dev/null 2>&1 || true
+  dependencies: []
+  artifacts:
+    expire_in: 30 days
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/orstlint.txt
+  retry: 2
+  timeout: 60 minutes
+  interruptible: true
+
+#############################################################################
