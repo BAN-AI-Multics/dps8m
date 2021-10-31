@@ -2025,12 +2025,12 @@ Flawfinder:
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 1; flawfinder -m 5 . 2>&1 > flawfinder.txt'
+    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 15; flawfinder -m 5 . 2>&1 > flawfinder.txt'
   dependencies: []
   artifacts:
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/src/flawfinder.txt
+      - ${CI_PROJECT_DIR:?}/flawfinder.txt
   retry: 2
   timeout: 60 minutes
   interruptible: true
