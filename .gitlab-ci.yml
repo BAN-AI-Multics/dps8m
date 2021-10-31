@@ -1641,12 +1641,12 @@ Source Kits:
     - amd64
     - Linux
   script:
-    - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install advancecomp pigz tar make git > /dev/null || apt-get -qq -y install advancecomp pigz tar make git > /dev/null
+    - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install zip advancecomp pigz tar make git > /dev/null || apt-get -qq -y install zip advancecomp pigz tar make git > /dev/null
     - *scriptSanity
     - *scriptCommon
-    - sh -x -c 'make distclean && make dist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'make distclean && make dist COMPRESS="pigz -9 -f" COMPRESSXT="gz"; exit "${?}"'
     - sh -x -c 'cp sources.tar.gz /tmp'
-    - sh -x -c 'make distclean && make zipdist V=1 COMPRESS="pigz -9 -f" COMPRESSXT="gz" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'make distclean && make zipdist; exit "${?}"'
     - sh -x -c 'cp /tmp/sources.tar.gz .'
   dependencies: []
   artifacts:

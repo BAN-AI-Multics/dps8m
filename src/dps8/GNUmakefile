@@ -628,9 +628,9 @@ zipkit zipdist:
                         2> /dev/null && $(RMF) -r "./dps8" 2> /dev/null   &&  \
                           $(PRINTF) 'ZIPKIT: %s\n'                            \
                             "$(KITNAME).zip created successfully")
-	@$(SETV); $(COMMAND) -v $(ADVZIP) > /dev/null 2>&1                    &&  \
+	@$(SETV); { $(COMMAND) -v $(ADVZIP) > /dev/null 2>&1                  &&  \
       $(PRINTF) '%s\n' "ADVZIP: $(KITNAME).zip"                           &&  \
-        $(ADVZIP) -qz4k "../../sources.zip"
+        $(ADVZIP) -qz4k "../../sources.zip" || $(TRUE); } || $(TRUE)
 
 ###############################################################################
 
