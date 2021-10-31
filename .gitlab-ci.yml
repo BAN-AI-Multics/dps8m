@@ -1917,8 +1917,13 @@ Option Verification Test:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'date -u && export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && export JFLAGS="-j ${CPUS:-1}" && ./src/ci-kit/cartesian_job_generator.bash 2>&1; exit ${?}'
+    - export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && export JFLAGS="-j ${CPUS:-1}" && ./src/ci-kit/cartesian_job_generator.bash 2>&1 > options.txt
   dependencies: []
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - ${CI_PROJECT_DIR:?}/options.txt
   retry: 1
   timeout: 360 minutes
   interruptible: true
@@ -1953,7 +1958,8 @@ Multics CI-Kit Test:
     - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && ./init ; ./ci ; make -f ci.makefile diff ; mv -f new.log new.txt)'
   dependencies: []
   artifacts:
-    expire_in: 7 days
+    when: always
+    expire_in: 30 days
     paths:
       - ${CI_PROJECT_DIR:?}/src/ci-kit/new.txt
   retry: 1
@@ -2028,6 +2034,7 @@ Flawfinder:
     - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 15; flawfinder -m 5 . 2>&1 > flawfinder.txt'
   dependencies: []
   artifacts:
+    when: always
     expire_in: 30 days
     paths:
       - ${CI_PROJECT_DIR:?}/flawfinder.txt
@@ -2057,6 +2064,7 @@ Cppcheck:
     - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 30; make cppcheck'
   dependencies: []
   artifacts:
+    when: always
     expire_in: 30 days
     paths:
       - ${CI_PROJECT_DIR:?}/cppcheck.txt
@@ -2088,6 +2096,7 @@ Oracle Developer Studio Lint:
     - pkill lint > /dev/null 2>&1 || true
   dependencies: []
   artifacts:
+    when: always
     expire_in: 30 days
     paths:
       - ${CI_PROJECT_DIR:?}/orstlint.txt
