@@ -2059,7 +2059,7 @@ Cppcheck:
   artifacts:
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/src/cppcheck.txt
+      - ${CI_PROJECT_DIR:?}/cppcheck.txt
   retry: 2
   timeout: 60 minutes
   interruptible: true
@@ -2090,7 +2090,7 @@ Oracle Developer Studio Lint:
   artifacts:
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/src/orstlint.txt
+      - ${CI_PROJECT_DIR:?}/orstlint.txt
   retry: 2
   timeout: 60 minutes
   interruptible: true
