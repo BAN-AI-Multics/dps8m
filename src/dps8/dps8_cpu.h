@@ -2237,6 +2237,20 @@ int core_unlock_all();
     }                                                                   \
   while (0)
 
+#define LOAD_ACQ_WORD(res, addr)                                        \
+  do                                                                    \
+    {                                                                   \
+      res = atomic_load_acq(addr);                                      \
+    }                                                                   \
+  while (0)
+
+#define STORE_REL_WORD(addr, data)                                      \
+  do                                                                    \
+    {                                                                   \
+      atomic_store_rel(addr, data);                                     \
+    }                                                                   \
+  while (0)
+
 #endif // FREEBSD_ATOMICS
 
 #if defined(CPP11_ATOMICS)
@@ -2284,6 +2298,20 @@ int core_unlock_all();
     {                                                        \
       __atomic_store_n((volatile u_long *)&M[addr], data &   \
           DMASK, __ATOMIC_RELEASE);                          \
+    }                                                        \
+  while (0)
+
+#define LOAD_ACQ_WORD(res, addr)                             \
+  do                                                         \
+    {                                                        \
+      res = __atomic_load_n(addr, __ATOMIC_ACQUIRE);         \
+    }                                                        \
+  while (0)
+
+#define STORE_REL_WORD(addr, data)                           \
+  do                                                         \
+    {                                                        \
+      __atomic_store_n(addr, data, __ATOMIC_RELEASE);        \
     }                                                        \
   while (0)
 
@@ -2336,6 +2364,22 @@ int core_unlock_all();
     {                                                                   \
       MEM_BARRIER();                                                    \
       M[addr] = data & DMASK;                                           \
+    }                                                                   \
+  while (0)
+
+#define LOAD_ACQ_WORD(res, addr)                                        \
+     do                                                                 \
+       {                                                                \
+         res = *addr;                                                   \
+         MEM_BARRIER();                                                 \
+       }                                                                \
+     while (0)
+
+#define STORE_REL_CORE_WORD(addr, data)                                 \
+  do                                                                    \
+    {                                                                   \
+      MEM_BARRIER();                                                    \
+      *addr = data;                                                     \
     }                                                                   \
   while (0)
 

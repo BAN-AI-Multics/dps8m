@@ -742,8 +742,9 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     if (cpuThreadz[cpun].run) {
       // thread is running; signal it to reset
       lock_ptr (& cpus[cpun].signalLock);
-      cpus[cpun].resetFlag = true;
-      __atomic_store_n((volatile bool *)&cpus[cpun].resetFlag, true, __ATOMIC_RELEASE);
+      //cpus[cpun].resetFlag = true;
+      //__atomic_store_n((volatile bool *)&cpus[cpun].resetFlag, true, __ATOMIC_RELEASE);
+      STORE_REL_WORD(&cpus[cpun].resetFlag, true);
       unlock_ptr (& cpus[cpun].signalLock);
       wakeCPU (cpun);
 #if 0
@@ -752,7 +753,8 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
         sleep (1);
         lock_ptr (& cpus[cpun].signalLock);
         //f = cpus[cpun].resetFlag;
-        f = __atomic_load_n((volatile bool *)&cpus[cpun].resetFlag, __ATOMIC_ACQUIRE);
+        //f = __atomic_load_n((volatile bool *)&cpus[cpun].resetFlag, __ATOMIC_ACQUIRE);
+        LOAD_ACQ_WORD (f, &cpus[cpun].resetFlag);
         unlock_ptr (& cpus[cpun].signalLock);
         if (f)
           break;
@@ -2135,12 +2137,16 @@ setCPU:;
       {
         reason = 0;
 
-        if (__atomic_load_n((volatile bool *) & cpu.resetFlag, __ATOMIC_ACQUIRE)) {
+        //if (__atomic_load_n((volatile bool *) & cpu.resetFlag, __ATOMIC_ACQUIRE)) {
+        volatile bool f;
+        LOAD_ACQ_WORD (f, & cpu.resetFlag);
+        if (f) {
 #ifdef LOCKLESS
           lock_ptr (& cpu.signalLock);
 #endif
           //cpu.resetFlag = false;
-          __atomic_store_n((volatile bool *)&cpu.resetFlag, false, __ATOMIC_RELEASE);
+          //__atomic_store_n((volatile bool *)&cpu.resetFlag, false, __ATOMIC_RELEASE);
+          STORE_REL_WORD (& cpu.resetFlag, false);
 #ifdef LOCKLESS
           unlock_ptr (& cpu.signalLock);
 #endif
