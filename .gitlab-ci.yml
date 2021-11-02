@@ -288,7 +288,7 @@
     test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
     test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
     test -z "${SKIP_UPDATE}" && echo "Patching libuv for MinGW32 ..."
-    test -z "${SKIP_UPDATE}" && (curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw/eb746880657437f951d1f887ac474029c0b99f7d/gistfile0.txt 2> /dev/null || curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw/eb746880657437f951d1f887ac474029c0b99f7d/gistfile0.txt 2> /dev/null) | patch -p1
+    test -z "${SKIP_UPDATE}" && (curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw 2> /dev/null || curl -fsSL https://gist.githubusercontent.com/johnsonjh/0ee49cbafdc918cb8023b9ba8a041939/raw 2> /dev/null) | patch -p1
     test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
     test -z "${SKIP_UPDATE}" && ./configure --disable-shared --enable-static --host=i686-w64-mingw32 --disable-dependency-tracking
     test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
