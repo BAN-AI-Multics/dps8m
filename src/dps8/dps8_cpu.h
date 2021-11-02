@@ -2375,7 +2375,7 @@ int core_unlock_all();
        }                                                                \
      while (0)
 
-#define STORE_REL_CORE_WORD(addr, data)                                 \
+#define STORE_REL_WORD(addr, data)                                      \
   do                                                                    \
     {                                                                   \
       MEM_BARRIER();                                                    \
