@@ -66,6 +66,8 @@ GLRUNNER   ?= gitlab-runner
 TR         ?= tr
 CAT        ?= cat
 GIT        ?= git
+WC         ?= wc
+EXPAND     ?= expand
 CMAKE      ?= cmake
 RMNF       ?= rm
 RMF        ?= $(RMNF) -f
@@ -263,6 +265,66 @@ else
         CC?=gcc
       endif
     endif
+endif
+
+###############################################################################
+# Linux (architecture-specific)
+
+# Various 32-bit Linux platforms
+ifeq ($(UNAME_S),Linux)
+  ifndef UNAME_M
+    UNAME_M=$(shell $(UNAME) -m 2> /dev/null)
+  endif
+  ifeq ($(UNAME_M),m68k)
+   export NEED_128=1
+  endif
+  ifeq ($(UNAME_M),arm)
+   export NEED_128=1
+   ATOMICS?=SYNC
+  endif
+  ifeq ($(UNAME_M),armv5)
+   export NEED_128=1
+   ATOMICS?=SYNC
+  endif
+  ifeq ($(UNAME_M),armv6)
+   export NEED_128=1
+   ATOMICS?=SYNC
+  endif
+  ifeq ($(UNAME_M),armv7l)
+   export NEED_128=1
+   ATOMICS?=SYNC
+  endif
+  ifeq ($(UNAME_M),ppc)
+   export NEED_128=1
+  endif
+  ifeq ($(UNAME_M),ppcle)
+   export NEED_128=1
+  endif
+  ifeq ($(UNAME_M),powerpc)
+   export NEED_128=1
+  endif
+  ifeq ($(UNAME_M),sh4)
+   export NEED_128=1
+  endif
+  ifeq ($(UNAME_M),unicore32)
+   export NEED_128=1
+  endif
+  ifeq ($(UNAME_M),nios2)
+   export NEED_128=1
+  endif
+  ifeq ($(UNAME_M),m32r)
+   export NEED_128=1
+  endif
+  ifeq ($(UNAME_M),arm32)
+   export NEED_128=1
+  endif
+  ifeq ($(UNAME_M),arm11)
+   export NEED_128=1
+  endif
+  ifeq ($(UNAME_M),rv32)
+   export NEED_128=1
+  endif
+  export ATOMICS
 endif
 
 ###############################################################################
