@@ -21,22 +21,47 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
-#include "dps8.h"
-#include "dps8_sys.h"
-#include "dps8_iom.h"
-#include "dps8_cpu.h"
-#include "dps8_cable.h"
+#define API
 #include "dps8_state.h"
-#include "dps8_faults.h"
-#include "shm.h"
 
 //#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
 
-struct system_state_s * system_state;
-//vol word36 * M;
-cpu_state_t * cpus;
+static struct system_state_s * system_state;
 
-static cpu_state_t * cpun;
+typedef uint8_t byte;
+typedef uint8_t * bytep;
+static byte * ss_p, * cpu0_p, * cpun, * PPR_p, * cu_p, * PAR_p, * rX0_p, * TPR_p, * DSBR_p;
+static uint8_t * PRR_p, * P_p, * rE_p, * rRALR_p, * RNR_p[8], * PR_BITNO_p[8], * TRR_p, * TBR_p, * U_p;
+static uint16_t * PSR_p, * SNR_p[8], * TSR_p, * BND_p, * STACK_p;
+static uint32_t * IC_p, * IR_p, * rTR_p, * rX_p[8], * WORDNO_p[8], * CA_p, * ADDR_p, * faultNumber_p;
+static uint64_t * IWB_p, * rA_p, * rQ_p;
+static size_t sizeof_cpu, sizeof_rX, sizeof_PAR;
+
+static uint32_t FAULT_SDF, FAULT_STR, FAULT_MME, FAULT_F1, FAULT_TRO, FAULT_CMD, FAULT_DRL, FAULT_LUF, FAULT_CON, FAULT_PAR, FAULT_IPR,
+  FAULT_ONC, FAULT_SUF, FAULT_OFL, FAULT_DIV, FAULT_EXF, FAULT_DF0, FAULT_DF1, FAULT_DF2, FAULT_DF3, FAULT_ACV, FAULT_MME2,
+  FAULT_MME3, FAULT_MME4, FAULT_F2, FAULT_F3, FAULT_TRB;
+
+static struct {
+  uint8_t PRR, P, rE, rRALR, RNR[8], PR_BITNO[8], TRR, TBR, U;
+  uint16_t PSR, SNR[8], BASE, BOUND, TSR, BND, STACK;
+  uint32_t IC, rX[8], IR, rTR, WORDNO[8], CA, ADDR, faultNumber;
+  uint64_t IWB, rA, rQ;
+  } previous;
+
+static uint32_t lookup (struct system_state_s * p, uint32_t stype, char * name, uint32_t * symbolType, uint32_t * valueType, uint32_t * value) {
+  struct symbol_s * s;
+  for (int i = 0; s = p->symbolTable.symbols + i, s->symbolType != SYM_EMPTY; i ++) {
+    if (strcmp (name, s->name) == 0 &&  (stype ==SYM_UNDEF || stype == s->symbolType)) {
+      * symbolType = s->symbolType;
+      * valueType = s->valueType;
+      * value = s->value;
+      return * value;
+    }
+  }
+  fprintf (stderr, "Lookup of '%s' failed.\n", name);
+  exit (1);
+}
+
 static GdkRGBA lightOn, lightOff;
 
 gboolean window_delete (GtkWidget * widget, cairo_t * cr, gpointer data) {
@@ -226,103 +251,57 @@ static GtkWidget * fault_display[2];
 //static GtkWidget * ACVfault_display;
 //static GtkWidget * intrpair_display;
 
-static cpu_state_t previous;
-
 static gboolean time_handler (GtkWidget * widget) {
   bool update = false;
 
-  if (memcmp (& cpun->PPR, & previous.PPR, sizeof (previous.PPR))) {
-    update = true;
-    for (int i = 0; i < 3; i ++)
-      PRR_state [2 - i] = ((1llu << i) & cpun->PPR.PRR) ? 1 : 0;
-    for (int i = 0; i < 15; i ++)
-      PSR_state [14 - i] = ((1llu << i) & cpun->PPR.PSR) ? 1 : 0;
-    for (int i = 0; i < 1; i ++)
-      P_state [0 - i] = ((1llu << i) & cpun->PPR.P) ? 1 : 0;
-    for (int i = 0; i < 18; i ++)
-      IC_state  [17 - i] = ((1llu << i) & cpun->PPR.IC) ? 1 : 0;
+#define PROBE(v, s) \
+  if (memcmp (v ## _p, & previous.v, sizeof (previous.v))) { \
+    update = true; \
+    previous.v = * v ## _p; \
+    s \
   }
 
-  if (memcmp (& cpun->cu.IWB, & previous.cu.IWB, sizeof (previous.cu.IWB))) {
-    update = true;
-    for (int i = 0; i < 36; i ++) {
-      inst_state [35 - i] = ((1llu << i) & cpun->cu.IWB) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (inst_display);
+//#define PROBEn(v, n, s) \
+//  if (memcmp (v ## _p + (n) * sizeof_ ## v, & previous.v[n], sizeof (previous.v[n]))) { \
+//    update = true; \
+//    previous.v[n] = * ((typeof (previous.v[n]) *)(v ## _p + (n) + sizeof_ ## v)); \
+//    s \
+//  }
+
+#define PROBEns(v, n, s) \
+  if (memcmp (v ## _p[n], & previous.v[n], sizeof (previous.v[n]))) { \
+    update = true; \
+    previous.v[n] = * ((typeof (previous.v[n]) *)(v ## _p[n])); \
+    s \
   }
 
-  if (memcmp (& cpun->rA, & previous.rA, sizeof (previous.rA))) {
-    update = true;
-    for (int i = 0; i < 36; i ++) {
-      A_state [35 - i] = ((1llu << i) & cpun->rA) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (A_display);
-  }
+#define BIT(v) ((1llu << i) & previous.v) ? 1 : 0
 
-  if (memcmp (& cpun->rQ, & previous.rQ, sizeof (previous.rQ))) {
-    update = true;
-    for (int i = 0; i < 36; i ++) {
-      Q_state [35 - i] = ((1llu << i) & cpun->rQ) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (Q_display);
-  }
-
-  if (memcmp (& cpun->rE, & previous.rE, sizeof (previous.rE))) {
-    update = true;
-    for (int i = 0; i < 8; i ++) {
-      E_state [7 - i] = ((1llu << i) & cpun->rE) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (E_display);
-  }
-
+  PROBE (PRR, { for (int i = 0; i <  3; i ++) PRR_state  [ 2 - i] = BIT (PRR); });
+  PROBE (PSR, { for (int i = 0; i < 15; i ++) PSR_state  [14 - i] = BIT (PSR); });
+  PROBE (P,   { for (int i = 0; i <  1; i ++) P_state    [ 0 - i] = BIT (P);   });
+  PROBE (IC,  { for (int i = 0; i < 18; i ++) IC_state   [17 - i] = BIT (IC);  });
+  PROBE (IWB, { for (int i = 0; i < 36; i ++) inst_state [35 - i] = BIT (IWB); }); 
+  PROBE (rA,  { for (int i = 0; i < 36; i ++) A_state    [35 - i] = BIT (rA);  });
+  PROBE (rQ,  { for (int i = 0; i < 36; i ++) Q_state    [35 - i] = BIT (rQ);  });
+  PROBE (rE,  { for (int i = 0; i <  8; i ++) E_state    [ 7 - i] = BIT (rE);  }); 
   for(int nreg = 0; nreg < 8; nreg ++) {
-    if (memcmp (& cpun->rX[nreg], & previous.rX[nreg], sizeof (previous.rX[nreg]))) {
-      update = true;
-      for (int i = 0; i < 18; i ++) {
-        X_state [nreg][17 - i] = ((1llu << i) & cpun->rX[nreg]) ? 1 : 0;
-      }
-    //gtk_widget_queue_draw (X_display[nreg]);
-    }
+    PROBEns (rX, nreg, { for (int i = 0; i < 18; i ++) X_state [nreg][17 - i] = BIT (rX[nreg]);  });
   }
-
-  if (memcmp (& cpun->cu.IR, & previous.cu.IR, sizeof (previous.cu.IR))) {
-    update = true;
-    for (int i = 0; i < 18; i ++) {
-      IR_state [17 - i] = ((1llu << i) & cpun->cu.IR) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (IR_display);
-  }
-
-  if (memcmp (& cpun->rTR, & previous.rTR, sizeof (previous.rTR))) {
-    update = true;
-    for (int i = 0; i < 26; i ++) {
-      TR_state [26 - i] = ((1llu << i) & cpun->rTR) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (TR_display);
-  }
-
-  if (memcmp (& cpun->rRALR, & previous.rRALR, sizeof (previous.rRALR))) {
-    update = true;
-    for (int i = 0; i < 3; i ++) {
-      RALR_state [2 - i] = ((1llu << i) & cpun->rRALR) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (RALR_display);
-  }
-
+  PROBE (IR, { for (int i = 0; i < 18; i ++) IR_state [17 - i] = BIT (IR); });
+  PROBE (rTR, { for (int i = 0; i < 26; i ++) TR_state [26 - i] = BIT (rTR); });
+  PROBE (rRALR, { for (int i = 0; i < 3; i ++) RALR_state [2 - i] = BIT (rRALR); });
   for(int nreg = 0; nreg < 8; nreg ++) {
-    if (memcmp (& cpun->PAR[nreg], & previous.PAR[nreg], sizeof (previous.PAR[nreg]))) {
-      update = true;
-      for (int i = 0; i < 15; i ++)
-        SNR_state [nreg][14 - i] = ((1llu << i) & cpun->PAR[nreg].SNR) ? 1 : 0;
-      for (int i = 0; i < 3; i ++)
-        RNR_state [nreg][2 - i] = ((1llu << i) & cpun->PAR[nreg].RNR) ? 1 : 0;
-      for (int i = 0; i < 6; i ++)
-        BITNO_state [nreg][5 - i] = ((1llu << i) & cpun->PAR[nreg].PR_BITNO) ? 1 : 0;
-      for (int i = 0; i < 18; i ++)
-        WORDNO_state [nreg][17 - i] = ((1llu << i) & cpun->PAR[nreg].WORDNO) ? 1 : 0;
-      //gtk_widget_queue_draw (PAR_display[nreg]);
-    }
+    PROBEns (SNR, nreg, { for (int i = 0; i < 15; i ++) SNR_state [nreg][14 - i] = BIT (SNR[nreg]); });
+    PROBEns (RNR, nreg, { for (int i = 0; i < 3; i ++) RNR_state [nreg][2 - i] = BIT (RNR[nreg]); });
+    PROBEns (PR_BITNO, nreg, { for (int i = 0; i < 6; i ++) BITNO_state [nreg][5 - i] = BIT (PR_BITNO[nreg]); });
+    PROBEns (WORDNO, nreg, { for (int i = 0; i < 18; i ++) WORDNO_state [nreg][17 - i] = BIT (WORDNO[nreg]); });
   }
+  PROBE (TRR, { for (int i = 0; i < 3; i ++) TRR_state [2 - i] = BIT (TRR); });
+  PROBE (TSR, {for (int i = 0; i < 15; i ++) TSR_state [14 - i] = BIT (TSR); });
+  PROBE (TBR, {for (int i = 0; i < 6; i ++) TBR_state [3 - i] = BIT (TBR); });
+  PROBE (CA, {for (int i = 0; i < 18; i ++) CA_state [17 - i] = BIT (CA); });
+
 
 //  if (memcmp (& cpun->BAR, & previous.BAR, sizeof (previous.BAR))) {
 //    update = true;
@@ -333,91 +312,79 @@ static gboolean time_handler (GtkWidget * widget) {
 //    //gtk_widget_queue_draw (BAR_STRfault_display);
 //  }
 
-
-  if (memcmp (& cpun->TPR.TRR, & previous.TPR.TRR, sizeof (previous.TPR.TRR))) {
-    update = true;
-    for (int i = 0; i < 3; i ++) {
-      TRR_state [2 - i] = ((1llu << i) & cpun->TPR.TRR) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (TPR_display);
-  }
-
-  if (memcmp (& cpun->TPR.TSR, & previous.TPR.TSR, sizeof (previous.TPR.TSR))) {
-    update = true;
-    for (int i = 0; i < 15; i ++) {
-      TSR_state [14 - i] = ((1llu << i) & cpun->TPR.TSR) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (TPR_display);
-  }
-
-  if (memcmp (& cpun->TPR.TBR, & previous.TPR.TBR, sizeof (previous.TPR.TBR))) {
-    update = true;
-    for (int i = 0; i < 6; i ++) {
-      TBR_state [3 - i] = ((1llu << i) & cpun->TPR.TBR) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (TPR_display);
-  }
-
-  if (memcmp (& cpun->TPR.CA, & previous.TPR.CA, sizeof (previous.TPR.CA))) {
-    update = true;
-    for (int i = 0; i < 18; i ++) {
-      CA_state [17 - i] = ((1llu << i) & cpun->TPR.CA) ? 1 : 0;
-    }
-    //gtk_widget_queue_draw (TPR_display);
-  }
-
-  if (memcmp (& cpun->DSBR, & previous.DSBR, sizeof (previous.DSBR))) {
-    update = true;
-    for (int i = 0; i < 24; i ++)
-      ADDR_state [23 - i] = ((1llu << i) & cpun->DSBR.ADDR) ? 1 : 0;
-    for (int i = 0; i < 14; i ++)
-      BND_state [13 - i] = ((1llu << i) & cpun->DSBR.BND) ? 1 : 0;
-    for (int i = 0; i < 1; i ++)
-      U_state [0 - i] = ((1llu << i) & cpun->DSBR.U) ? 1 : 0;
-    for (int i = 0; i < 12; i ++)
-      STACK_state [11 - i] = ((1llu << i) & cpun->DSBR.STACK) ? 1 : 0;
-    //gtk_widget_queue_draw (DSBR_display);
-  }
+  PROBE (ADDR, { for (int i = 0; i < 24; i ++) ADDR_state [23 - i] = BIT (ADDR); });
+  PROBE (BND, { for (int i = 0; i < 14; i ++) BND_state [13 - i] = BIT (BND); });
+  PROBE (U, { for (int i = 0; i < 1; i ++) U_state [0 - i] = BIT (U); });
+  PROBE (STACK, { for (int i = 0; i < 12; i ++) STACK_state [11 - i] = BIT (STACK); });
+  PROBE (faultNumber, {
+    FAULT_SDF_state = (FAULT_SDF == previous.faultNumber) ? 1 : 0;
+    FAULT_STR_state = (FAULT_STR == previous.faultNumber) ? 1 : 0;
+    FAULT_MME_state = (FAULT_MME == previous.faultNumber) ? 1 : 0;
+    FAULT_F1_state = (FAULT_F1 == previous.faultNumber) ? 1 : 0;
+    FAULT_TRO_state = (FAULT_TRO == previous.faultNumber) ? 1 : 0;
+    FAULT_CMD_state = (FAULT_CMD == previous.faultNumber) ? 1 : 0;
+    FAULT_DRL_state = (FAULT_DRL == previous.faultNumber) ? 1 : 0;
+    FAULT_LUF_state = (FAULT_LUF == previous.faultNumber) ? 1 : 0;
+    FAULT_CON_state = (FAULT_CON == previous.faultNumber) ? 1 : 0;
+    FAULT_PAR_state = (FAULT_PAR == previous.faultNumber) ? 1 : 0;
+    FAULT_IPR_state = (FAULT_IPR == previous.faultNumber) ? 1 : 0;
+    FAULT_ONC_state = (FAULT_ONC == previous.faultNumber) ? 1 : 0;
+    FAULT_SUF_state = (FAULT_SUF == previous.faultNumber) ? 1 : 0;
+    FAULT_OFL_state = (FAULT_OFL == previous.faultNumber) ? 1 : 0;
+    FAULT_DIV_state = (FAULT_DIV == previous.faultNumber) ? 1 : 0;
+    FAULT_EXF_state = (FAULT_EXF == previous.faultNumber) ? 1 : 0;
+    FAULT_DF0_state = (FAULT_DF0 == previous.faultNumber) ? 1 : 0;
+    FAULT_DF1_state = (FAULT_DF1 == previous.faultNumber) ? 1 : 0;
+    FAULT_DF2_state = (FAULT_DF2 == previous.faultNumber) ? 1 : 0;
+    FAULT_DF3_state = (FAULT_DF3 == previous.faultNumber) ? 1 : 0;
+    FAULT_ACV_state = (FAULT_ACV == previous.faultNumber) ? 1 : 0;
+    FAULT_MME2_state = (FAULT_MME2 == previous.faultNumber) ? 1 : 0;
+    FAULT_MME3_state = (FAULT_MME3 == previous.faultNumber) ? 1 : 0;
+    FAULT_MME4_state = (FAULT_MME4 == previous.faultNumber) ? 1 : 0;
+    FAULT_F2_state = (FAULT_F2 == previous.faultNumber) ? 1 : 0;
+    FAULT_F3_state = (FAULT_F3 == previous.faultNumber) ? 1 : 0;
+    FAULT_TRB_state = (FAULT_TRB == previous.faultNumber) ? 1 : 0;
+  });
+#if 0
 
   if (memcmp (& cpun->faultNumber, & previous.faultNumber, sizeof (previous.faultNumber))) {
     update = true;
-    FAULT_SDF_state = (FAULT_SDF == cpun->faultNumber) ? 1 : 0;
-    FAULT_STR_state = (FAULT_STR == cpun->faultNumber) ? 1 : 0;
-    FAULT_MME_state = (FAULT_MME == cpun->faultNumber) ? 1 : 0;
-    FAULT_F1_state = (FAULT_F1 == cpun->faultNumber) ? 1 : 0;
-    FAULT_TRO_state = (FAULT_TRO == cpun->faultNumber) ? 1 : 0;
-    FAULT_CMD_state = (FAULT_CMD == cpun->faultNumber) ? 1 : 0;
-    FAULT_DRL_state = (FAULT_DRL == cpun->faultNumber) ? 1 : 0;
-    FAULT_LUF_state = (FAULT_LUF == cpun->faultNumber) ? 1 : 0;
-    FAULT_CON_state = (FAULT_CON == cpun->faultNumber) ? 1 : 0;
-    FAULT_PAR_state = (FAULT_PAR == cpun->faultNumber) ? 1 : 0;
-    FAULT_IPR_state = (FAULT_IPR == cpun->faultNumber) ? 1 : 0;
-    FAULT_ONC_state = (FAULT_ONC == cpun->faultNumber) ? 1 : 0;
-    FAULT_SUF_state = (FAULT_SUF == cpun->faultNumber) ? 1 : 0;
-    FAULT_OFL_state = (FAULT_OFL == cpun->faultNumber) ? 1 : 0;
-    FAULT_DIV_state = (FAULT_DIV == cpun->faultNumber) ? 1 : 0;
-    FAULT_EXF_state = (FAULT_EXF == cpun->faultNumber) ? 1 : 0;
-    FAULT_DF0_state = (FAULT_DF0 == cpun->faultNumber) ? 1 : 0;
-    FAULT_DF1_state = (FAULT_DF1 == cpun->faultNumber) ? 1 : 0;
-    FAULT_DF2_state = (FAULT_DF2 == cpun->faultNumber) ? 1 : 0;
-    FAULT_DF3_state = (FAULT_DF3 == cpun->faultNumber) ? 1 : 0;
-    FAULT_ACV_state = (FAULT_ACV == cpun->faultNumber) ? 1 : 0;
-    FAULT_MME2_state = (FAULT_MME2 == cpun->faultNumber) ? 1 : 0;
-    FAULT_MME3_state = (FAULT_MME3 == cpun->faultNumber) ? 1 : 0;
-    FAULT_MME4_state = (FAULT_MME4 == cpun->faultNumber) ? 1 : 0;
-    FAULT_F2_state = (FAULT_F2 == cpun->faultNumber) ? 1 : 0;
-    FAULT_F3_state = (FAULT_F3 == cpun->faultNumber) ? 1 : 0;
-    FAULT_TRB_state = (FAULT_TRB == cpun->faultNumber) ? 1 : 0;
     //FAULT_oob_state = (oob_fault == cpun->faultNumber) ? 1 : 0;
 
     //gtk_widget_queue_draw (fault_display[0]);
     //gtk_widget_queue_draw (fault_display[1]);
   }
+#endif
 
   if (update)
     gtk_widget_queue_draw (widget);
-  previous = * cpun;
   return TRUE;
+}
+
+#define handleError(msg) do { perror(msg); exit(EXIT_FAILURE); } while (0)
+
+static void * openShm (char * key) {
+  void * p;
+  char buf [256];
+#ifdef L68
+  sprintf (buf, "l68.%s", key);
+#else
+  sprintf (buf, "dps8m.%s", key);
+#endif /* ifdef L68 */
+  int fd = open (buf, O_RDWR | O_CREAT, 0600);
+  if (fd == -1)
+    handleError ("open");
+
+  struct stat sb;
+  if (fstat(fd, &sb) == -1) /* To obtain file size */
+    handleError ("fstat");
+
+  p = mmap (NULL, sb.st_size, PROT_READ, MAP_SHARED, fd, 0);
+
+  if (p == MAP_FAILED)
+    handleError ("mmap");
+
+  return p;
 }
 
 int main (int argc, char * argv []) {
@@ -435,18 +402,94 @@ int main (int argc, char * argv []) {
       argv [1] [0] = 0;
     }
   }
-  if (cpunum < 0 || cpunum > N_CPU_UNITS_MAX - 1) {
+  if (cpunum < 0 || cpunum > 8 /*N_CPU_UNITS_MAX*/ - 1) {
     printf ("invalid cpu number %d\n", cpunum);
     return 1;
   }
 
-  system_state = (struct system_state_s *) open_shm ("state", sizeof (struct system_state_s));
+  system_state = (struct system_state_s *) openShm ("state");
   if (! system_state) {
-    perror ("cpus open_shm");
+    perror ("system state open_shm");
     return 1;
   }
-  cpus = system_state->cpus;
-  cpun = cpus + cpunum;
+
+  ss_p = (byte *) system_state;
+
+  uint32_t symbolType, valueType, value;
+
+  cpu0_p = ss_p + lookup (system_state, SYM_STATE_OFFSET, "cpus[]", & symbolType, & valueType, & value);
+  sizeof_cpu = (size_t) lookup (system_state, SYM_STRUCT_SZ, "sizeof(*cpus)", & symbolType, & valueType, & value);
+
+#define ENUM32(n) n = (uint32_t) lookup (system_state, SYM_ENUM, #n, & symbolType, & valueType, & value);
+  ENUM32 (FAULT_SDF);
+  ENUM32 (FAULT_STR);
+  ENUM32 (FAULT_MME);
+  ENUM32 (FAULT_F1);
+  ENUM32 (FAULT_TRO);
+  ENUM32 (FAULT_CMD);
+  ENUM32 (FAULT_DRL);
+  ENUM32 (FAULT_LUF);
+  ENUM32 (FAULT_CON);
+  ENUM32 (FAULT_PAR);
+  ENUM32 (FAULT_IPR);
+  ENUM32 (FAULT_ONC);
+  ENUM32 (FAULT_SUF);
+  ENUM32 (FAULT_OFL);
+  ENUM32 (FAULT_DIV);
+  ENUM32 (FAULT_EXF);
+  ENUM32 (FAULT_DF0);
+  ENUM32 (FAULT_DF1);
+  ENUM32 (FAULT_DF2);
+  ENUM32 (FAULT_DF3);
+  ENUM32 (FAULT_ACV);
+  ENUM32 (FAULT_MME2);
+  ENUM32 (FAULT_MME3);
+  ENUM32 (FAULT_MME4);
+  ENUM32 (FAULT_F2);
+  ENUM32 (FAULT_F3);
+  ENUM32 (FAULT_TRB);
+
+  cpun = cpu0_p + cpunum * sizeof_cpu;
+  PPR_p = cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PPR", & symbolType, & valueType, & value);
+  PRR_p = (uint8_t *) (PPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PPR.PRR", & symbolType, & valueType, & value));
+  PSR_p = (uint16_t *) (PPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PPR.PSR", & symbolType, & valueType, & value));
+  P_p   = (uint8_t *) (PPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PPR.P",   & symbolType, & valueType, & value));
+  IC_p  = (uint32_t *) (PPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PPR.IC",  & symbolType, & valueType, & value));
+  cu_p  = cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].cu", & symbolType, & valueType, & value);
+  IWB_p = (uint64_t *) (cu_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].cu.IWB", & symbolType, & valueType, & value));
+  IR_p = (uint32_t *) (cu_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].cu.IR", & symbolType, & valueType, & value));
+  rA_p = (uint64_t *) (cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rA", & symbolType, & valueType, & value));
+  rQ_p = (uint64_t *) (cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rQ", & symbolType, & valueType, & value));
+  rE_p = (uint8_t *) (cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rE", & symbolType, & valueType, & value));
+  rX0_p = cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rX[]", & symbolType, & valueType, & value);
+  sizeof_rX = (size_t) lookup (system_state, SYM_STRUCT_SZ, "sizeof(*rX)", & symbolType, & valueType, & value);
+  for (int nreg = 0; nreg < 8; nreg ++) {
+    rX_p[nreg] = (uint32_t *) (rX0_p + nreg * sizeof_rX + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rX", & symbolType, & valueType, & value));
+  }
+  rTR_p = (uint32_t *) (cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rTR", & symbolType, & valueType, & value));
+  rRALR_p = (uint8_t *) (cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].rRALR", & symbolType, & valueType, & value));
+  PAR_p = (uint8_t *) (cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PAR[]", & symbolType, & valueType, & value));
+  sizeof_PAR = (size_t) lookup (system_state, SYM_STRUCT_SZ, "sizeof(*PAR)", & symbolType, & valueType, & value);
+  for (int nreg = 0; nreg < 8; nreg ++) {
+    SNR_p[nreg] = (uint16_t *) (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PAR[].SNR", & symbolType, & valueType, & value));
+    RNR_p[nreg] = (uint8_t *) (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PAR[].RNR", & symbolType, & valueType, & value));
+    PR_BITNO_p[nreg] = (uint8_t *) (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PAR[].PR_BITNO", & symbolType, & valueType, & value));
+    WORDNO_p[nreg] = (uint32_t *) (PAR_p + nreg * sizeof_PAR + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].PAR[].WORDNO", & symbolType, & valueType, & value));
+  }
+  //BAR_p = cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR", & symbolType, & valueType, & value);
+  //BASE_p = (uint8_t *) (BAR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR.BASE", & symbolType, & valueType, & value));
+  //BOUND_p = (uint8_t *) (BAR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].BAR.BOUND", & symbolType, & valueType, & value));
+  TPR_p = cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR", & symbolType, & valueType, & value);
+  TRR_p = (uint8_t *) (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.TRR", & symbolType, & valueType, & value));
+  TSR_p = (uint16_t *) (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.TSR", & symbolType, & valueType, & value));
+  TBR_p = (uint8_t *) (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.TBR", & symbolType, & valueType, & value));
+  CA_p = (uint32_t *) (TPR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].TPR.CA", & symbolType, & valueType, & value));
+  DSBR_p = cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR", & symbolType, & valueType, & value);
+  ADDR_p = (uint32_t *) (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.ADDR", & symbolType, & valueType, & value));
+  BND_p = (uint16_t *) (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.BND", & symbolType, & valueType, & value));
+  U_p = (uint8_t *) (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.U", & symbolType, & valueType, & value));
+  STACK_p = (uint16_t *) (DSBR_p + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].DSBR.STACK", & symbolType, & valueType, & value));
+  faultNumber_p = (uint32_t *) cpun + lookup (system_state, SYM_STRUCT_OFFSET, "cpus[].faultNumber", & symbolType, & valueType, & value);
 
   gdk_rgba_parse (& lightOn, "white");
   gdk_rgba_parse (& lightOff, "black");
