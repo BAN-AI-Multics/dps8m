@@ -20,7 +20,6 @@
 //
 
 // source/library_dir_dir/system_library_1/source/bound_volume_rldr_ut_.s.archive/rdisk_.pl1
-
 // source/library_dir_dir/system_library_1/source/bound_rcp_.s.archive/rcp_disk_.pl1
 
 #include <stdio.h>
@@ -127,34 +126,34 @@
 //           vfd       36/1770*255         FIPS 3381
 
 
-struct diskType_t diskTypes[] =
-  {
-    { // disk_init assumes 3381 is at index 0
-      "3381", 1770*255, 0, false, seek_512, 512, 0
-    },
-    {
-      "d500", 814*40*19, 1, false, seek_64, 64, 200
-    },
-    {
-      "d451", 814*40*19, 1, true, seek_64, 64, 154
-    },
-    {
-      "d400", 410*40*19, 1, true, seek_64, 64, 84 // d400 is a d190 with "high-efficiency format (40 sectors/track)"
-    },
-    {
-      "d190", 410*31*19, 1, true, seek_64, 64, 84 // 190A 84, 190B 137
-    },
-    {
-      "d181", 202*18*20, 1, true, seek_64, 64, 0 // no idea what the dau idx is
-    },
-    {
-      "d501", 840*64*20, 1, false, seek_64, 64, 201
-    },
-    {
-      "3380", 885*255, 0, false, seek_512, 512, 0 // 338x is never attached to a dau
-    },
-  };
+//dcl  last_sect_num (9) fixed bin (24) static options (constant) init /* table of # last sector number for each device */
+//     (0, 618639, 616359, 309319, 239722, 71999, 1075199, 225674, 451349);
+//dcl  last_physical_sect_num (9) fixed bin (24) static options (constant) init /* table of # of last sector on device (includes T&D cylinders) */
+//     (0, 639919, 619399, 312359, 242249, 72359, 1077759, 225674, 451859);
+
+//          last     t&d last
+// D500     618639    639919
+// D451     616359    619399
+// D400     309319    312359
+// D190     239722    242249
+// D181      71999     72359
+// D501    1075199   1077759
+// 3380     225674    225674
+// 3381     451349    451859
+
+struct diskType_t diskTypes[] = {
+  { "3381",  451350,  0, false, seek_512, 512,   0 }, // disk_init assumes 3381 is at index 0
+  { "d500",  618640,  1, false, seek_64,   64, 200 },
+  { "d451",  616360,  1, true,  seek_64,   64, 154 },
+  { "d400",  309320,  1, true,  seek_64,   64,  84 }, // d400 is a d190 with "high-efficiency format (40 sectors/track)"
+  { "d190",  239723,  1, true,  seek_64,   64,  84 }, // 190A 84, 190B 137
+  { "d181",   72000,  1, true,  seek_64,   64,   0 }, // no idea what the dau idx is
+  { "d501", 1075200,  1, false, seek_64,   64, 201 },
+  { "3380",  225675,  0, false, seek_512, 512,   0 }, // 338x is never attached to a dau
+};
 #define N_DISK_TYPES (sizeof (diskTypes) / sizeof (struct diskType_t))
+
+static uint tAndDCapac[N_DISK_TYPES] = { 451860, 639920, 619400, 312360, 242250, 72360, 1077760, 225675 };
 
 #define M3381_SECTORS (1770*255)
 //#define M3381_SECTORS 6895616
@@ -405,8 +404,7 @@ static t_stat disk_set_type (UNUSED UNIT * uptr, UNUSED int32 value, const char 
       }
     dsk_states[diskUnitIdx].typeIdx = i;
     dsk_unit[diskUnitIdx].capac = (t_addr) diskTypes[i].capac;
-    // sim_printf ("disk unit %d set to type %s (%d/%d)\r\n",
-                // diskUnitIdx, diskTypes[i].typename, i, N_DISK_TYPES);
+    dsk_states[diskUnitIdx].tAndDCapac = tAndDCapac[i]; 
     return SCPE_OK;
   }
 
@@ -729,18 +727,11 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData); }
 #endif
 
-//sim_printf ("seekData %012"PRIo64"\n", seekData);
-// Observations about the seek/write stream
-// the stream is seek512 followed by a write 1024.
-// the seek data is:  000300nnnnnn
-// lets assume the 3 is a copy of the seek cmd # as a data integrity check.
-// highest observed n during vol. inoit. 272657(8) 95663(10)
-//
-
 // disk_control.pl1:
 //   quentry.sector = bit (sector, 21);  /* Save the disk device address. */
-// suggests seeks are 21 bits.
-//
+// suggests seeks are 21 bits. The largest sector number is D501 1077759; 4040777 in base 8;
+// 21 bits.
+
     seekData &= MASK21;
     if (seekData >= diskTypes[typeIdx].capac)
       {
@@ -783,18 +774,6 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
-//sim_printf ("seekData %012"PRIo64"\n", seekData);
-// Observations about the seek/write stream
-// the stream is seek512 followed by a write 1024.
-// the seek data is:  000300nnnnnn
-// lets assume the 3 is a copy of the seek cmd # as a data integrity check.
-// highest observed n during vol. init. 272657(8) 95663(10)
-//
-
-// disk_control.pl1:
-//   quentry.sector = bit (sector, 21);  /* Save the disk device address. */
-// suggests seeks are 21 bits.
-//
     seekData &= MASK21;
     if (seekData >= diskTypes[typeIdx].capac)
       {
@@ -842,20 +821,8 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
     if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData); }
 #endif
 
-//sim_printf ("seekData %012"PRIo64"\n", seekData);
-// Observations about the seek/write stream
-// the stream is seek512 followed by a write 1024.
-// the seek data is:  000300nnnnnn
-// lets assume the 3 is a copy of the seek cmd # as a data integrity check.
-// highest observed n during vol. inoit. 272657(8) 95663(10)
-//
-
-// disk_control.pl1:
-//   quentry.sector = bit (sector, 21);  /* Save the disk device address. */
-// suggests seeks are 21 bits.
-//
     seekData &= MASK21;
-    if (seekData >= diskTypes[typeIdx].capac)
+    if (seekData >= dsk_states[typeIdx].tAndDCapac)
       {
         p->stati = 04304; // Invalid seek address
         disk_statep->seekValid = false;
@@ -879,11 +846,17 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     if (! unitp->fileref) {
       p->stati = 04240; // device offline
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead device offline\r\n");
+#endif
       return -1;
     }
     if (! disk_statep->seekValid) {
       p->stati = 04510; // Invalid instruction sequence
       disk_statep->seekValid = false;
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek invalid\r\n");
+#endif
       return IOM_CMD_ERROR;
     }
     uint tally = p->DDCW_TALLY;
@@ -899,6 +872,9 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
       {
         sim_warn ("%s: fseek (read) returned %d, errno %d\n", __func__, rc, errno);
         p->stati = 04202; // attn, seek incomplete
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek incomplete\r\n");
+#endif
         return -1;
       }
 
@@ -921,67 +897,21 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
                 tallySectors,
                 unitp->fileref);
 
-// The rc code is wrong; it is using read() semantics, for fread().
-#if 1
     if (rc == 0) // EOF or error
       {
         if (ferror (unitp->fileref))
           {
             p->stati = 04202; // attn, seek incomplete
             //p->chanStatus = chanStatIncorrectDCW;
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek incomplete2\r\n");
+#endif
             return -1;
           }
         // We ignore short reads-- we assume that they are reads
         // past the write highwater mark, and return zero data,
         // just as if the disk had been formatted with zeros.
       }
-#else
-    if (rc == 0) // eof; reading a sector beyond the high water mark.
-      {
-        // okay; buffer was zero, so just pretend that a zero filled
-        // sector was read (ala demand page zero)
-      }
-    else if (rc != (int) tallySectors)
-      {
-        sim_printf ("read returned %d, errno %d\n", rc, errno);
-        sim_printf ("tally %u\n", tally);
-        sim_printf ("tallySectors %u\n", tallySectors);
-        sim_printf ("tallyWords %u\n", tallyWords);
-        sim_printf ("p72ByteCnt %u\n", p72ByteCnt);
-        sim_printf ("fseek to %ld\n",  (long) (disk_statep->seekPosition * sectorSizeBytes));
-        sim_printf ("devUnitIdx %u\n", devUnitIdx);
-        sim_printf ("iomUnitIdx %u\n", iomUnitIdx);
-        sim_printf ("chan %u\n", chan);
-        sim_printf ("typeIdx %u\n", typeIdx);
-        sim_printf ("sectorSizeWords %u\n", sectorSizeWords);
-        sim_printf ("sectorSizeBytes %u\n", sectorSizeBytes);
-        sim_printf ("fileref %p\n", unitp->fileref);
-        sim_printf ("knowns:\n");
-        for (uint i = 0; i < N_DSK_UNITS_MAX; i ++)
-          {
-            sim_printf ("  %u typeIdx %u seekPosition %u filename <%s> fileref %p\n",
-              i,
-              dsk_states[i].typeIdx,
-              dsk_states[i].seekPosition,
-              dsk_unit[i].filename,
-              dsk_unit[i].fileref);
-          }
-        p->stati = 04202; // attn, seek incomplete
-        p->chanStatus = chanStatIncorrectDCW;
-        return -1;
-      }
-#endif
-//sim_printf ("tallySectors %u\n", tallySectors);
-//sim_printf ("p72ByteCnt %u\n", p72ByteCnt);
-//for (uint i = 0; i < p72ByteCnt; i += 9)
-//{ word36 w1 = extr (& diskBuffer[i / 9], 0, 36);
-  //word36 w2 = extr (& diskBuffer[i / 9], 36, 36);
-  //sim_printf ("%5d %012"PRIo64" %012"PRIo64"\n", i * 2 / 9, w1, w2);
-//}
-//sim_printf ("read seekPosition %d\n", disk_statep->seekPosition);
-//sim_printf ("diskBuffer 0...\n");
-//for (uint i = 0; i < 9; i ++) sim_printf (" %03o", diskBuffer[i]);
-//sim_printf ("\n");
     disk_statep->seekPosition += tallySectors;
 
     uint wordsProcessed = 0;
@@ -996,6 +926,9 @@ static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
     iom_indirect_data_service (iomUnitIdx, chan, buffer,
                             & wordsProcessed, true);
     p->stati = 04000;
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead ok\r\n");
+#endif
     return 0;
   }
 

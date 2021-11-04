@@ -2148,7 +2148,7 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uin
 
   // tape_ioi_io.pl1  "If the initiate bit is set in the status, no data was
   //                   transferred (no tape movement occurred)."
-  p->initiate = false;
+    p->initiate = false;
 
   uint tally = p->DDCW_TALLY;
   uint daddr = p->DDCW_ADDR;
@@ -3242,6 +3242,9 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
 
   if ((!d->in_use) || (!d->iom_cmd)) {
     p -> stati = 06000; // t, power off/missing
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 10. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+#endif
     goto terminate;
   }
 
@@ -3269,6 +3272,9 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
 
   if (rc < 0) {
     p -> dev_code = getbits36_6 (p -> DCW, 6);
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 9. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+#endif
     goto terminate;
   }
 
@@ -3277,10 +3283,16 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
   }
 
   if (rc == IOM_CMD_DISCONNECT) {
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 8. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+#endif
     goto terminate;
   }
 
   if (p->masked) {
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 7. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+#endif
     goto terminate;
   }
 
@@ -3302,6 +3314,9 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
     }
     if (uff) {
       // We get a uff if the LPW tally hit 0
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 6. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+#endif
       goto terminate;
     }
     // List service failed to get a DCW
@@ -3349,11 +3364,18 @@ if (iomUnitIdx == 1 && chan == 020)
 
     if (rc2 < 0) {
       p -> dev_code = getbits36_6 (p -> DCW, 6);
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 5. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+#endif
       goto terminate;
     }
 
-    if (rc2 == IOM_CMD_DISCONNECT) 
+    if (rc2 == IOM_CMD_DISCONNECT) {
       terminate = true;
+#ifdef POLTS_TESTING
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 4. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+#endif
+    }
 
     if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
       goto pending;                // terminate intrrupt.
@@ -3361,7 +3383,7 @@ if (iomUnitIdx == 1 && chan == 020)
     // If IDCW and terminate and nondata
     if (IS_IDCW (p) && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
 #ifdef POLTS_TESTING
-//if (iomUnitIdx == 1 && chan == 020)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 1. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
       goto terminate;
     }
@@ -3369,6 +3391,7 @@ if (iomUnitIdx == 1 && chan == 020)
     if (IS_IOTD (p) && idcw_terminate) {
 #ifdef POLTS_TESTING
 //if (iomUnitIdx == 1 && chan == 020)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
+if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 2. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
       goto terminate;
     }
