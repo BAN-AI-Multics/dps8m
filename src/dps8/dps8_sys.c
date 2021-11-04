@@ -3966,25 +3966,125 @@ static void usr1_signal_handler (UNUSED int sig)
 #endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
 
+static struct symbol_s symbols [] = {
+    { "commit_id",              SYM_STATE_OFFSET,  SYM_STRING,    offsetof (struct system_state_s, commit_id) },
+    { "M[]",                    SYM_STATE_OFFSET,  SYM_ARRAY,     offsetof (struct system_state_s, M) },
+    { "sizeof(*M)",             SYM_STRUCT_SZ,     SYM_SZ,        sizeof (word36) },
+
+    { "cpus[]",                 SYM_STATE_OFFSET,  SYM_ARRAY,     offsetof (struct system_state_s, cpus) },
+    { "sizeof(*cpus)",          SYM_STRUCT_SZ,     SYM_SZ,        sizeof (cpu_state_t) },
+
+    { "cpus[].PPR",             SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t, PPR) },
+    { "cpus[].PPR.PRR",         SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (struct ppr_s, PRR) },
+    { "cpus[].PPR.PSR",         SYM_STRUCT_OFFSET, SYM_UINT16_15, offsetof (struct ppr_s, PSR) },
+    { "cpus[].PPR.P",           SYM_STRUCT_OFFSET, SYM_UINT8_1,   offsetof (struct ppr_s, P) },
+    { "cpus[].PPR.IC",          SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (struct ppr_s, IC) },
+
+    { "cpus[].cu",              SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t, cu) },
+    { "cpus[].cu.IWB",          SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (ctl_unit_data_t, IWB) },
+    { "cpus[].cu.IR",           SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (ctl_unit_data_t, IR) },
+
+    { "cpus[].rA",              SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (cpu_state_t, rA) },
+
+    { "cpus[].rQ",              SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (cpu_state_t, rQ) },
+
+    { "cpus[].rE",              SYM_STRUCT_OFFSET, SYM_UINT64_36, offsetof (cpu_state_t, rE) },
+
+    { "cpus[].rX[]",            SYM_STRUCT_OFFSET, SYM_ARRAY,     offsetof (cpu_state_t, rX) },
+    { "sizeof(*rX)",            SYM_STRUCT_SZ,     SYM_SZ,        sizeof (word18) },
+    { "cpus[].rX",              SYM_STRUCT_OFFSET, SYM_UINT32_18, 0 },
+
+
+    { "cpus[].rTR",             SYM_STRUCT_OFFSET, SYM_UINT32_27, offsetof (cpu_state_t, rTR) },
+
+    { "cpus[].rRALR",           SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (cpu_state_t, rRALR) },
+
+    { "cpus[].PAR[]",           SYM_STRUCT_OFFSET, SYM_ARRAY,     offsetof (cpu_state_t, PAR) },
+    { "sizeof(*PAR)",           SYM_STRUCT_SZ,     SYM_SZ,        sizeof (struct par_s) },
+
+    { "cpus[].PAR[].SNR",       SYM_STRUCT_OFFSET, SYM_UINT16_15, offsetof (struct par_s, SNR) },
+    { "cpus[].PAR[].RNR",       SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (struct par_s, RNR) },
+    { "cpus[].PAR[].PR_BITNO",  SYM_STRUCT_OFFSET, SYM_UINT8_6,   offsetof (struct par_s, PR_BITNO) },
+    { "cpus[].PAR[].WORDNO",    SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (struct par_s, WORDNO) },
+
+    { "cpus[].BAR",             SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t, BAR) },
+    { "cpus[].BAR.BASE",        SYM_STRUCT_OFFSET, SYM_UINT16_9,  offsetof (struct bar_s, BASE) },
+    { "cpus[].BAR.BOUND",       SYM_STRUCT_OFFSET, SYM_UINT16_9,  offsetof (struct bar_s, BOUND) },
+
+    { "cpus[].TPR",             SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t, TPR) },
+    { "cpus[].TPR.TRR",         SYM_STRUCT_OFFSET, SYM_UINT8_3,   offsetof (struct tpr_s, TRR) },
+    { "cpus[].TPR.TSR",         SYM_STRUCT_OFFSET, SYM_UINT16_15, offsetof (struct tpr_s, TSR) },
+    { "cpus[].TPR.TBR",         SYM_STRUCT_OFFSET, SYM_UINT8_6,   offsetof (struct tpr_s, TBR) },
+    { "cpus[].TPR.CA",          SYM_STRUCT_OFFSET, SYM_UINT32_18, offsetof (struct tpr_s, CA) },
+
+    { "cpus[].DSBR",            SYM_STRUCT_OFFSET, SYM_PTR,       offsetof (cpu_state_t, DSBR) },
+    { "cpus[].DSBR.ADDR",       SYM_STRUCT_OFFSET, SYM_UINT32_24, offsetof (struct dsbr_s, ADDR) },
+    { "cpus[].DSBR.BND",        SYM_STRUCT_OFFSET, SYM_UINT16_14, offsetof (struct dsbr_s, BND) },
+    { "cpus[].DSBR.U",          SYM_STRUCT_OFFSET, SYM_UINT8_1,   offsetof (struct dsbr_s, U) },
+    { "cpus[].DSBR.STACK",      SYM_STRUCT_OFFSET, SYM_UINT16_12, offsetof (struct dsbr_s, STACK) },
+
+    { "cpus[].faultNumber",     SYM_STRUCT_OFFSET, SYM_UINT32,    offsetof (cpu_state_t, faultNumber) },
+#define SYMTAB_ENUM32(e) { #e, SYM_ENUM,          SYM_UINT32,    e }
+    SYMTAB_ENUM32 (FAULT_SDF),
+    SYMTAB_ENUM32 (FAULT_STR),
+    SYMTAB_ENUM32 (FAULT_MME),
+    SYMTAB_ENUM32 (FAULT_F1),
+    SYMTAB_ENUM32 (FAULT_TRO),
+    SYMTAB_ENUM32 (FAULT_CMD),
+    SYMTAB_ENUM32 (FAULT_DRL),
+    SYMTAB_ENUM32 (FAULT_LUF),
+    SYMTAB_ENUM32 (FAULT_CON),
+    SYMTAB_ENUM32 (FAULT_PAR),
+    SYMTAB_ENUM32 (FAULT_IPR),
+    SYMTAB_ENUM32 (FAULT_ONC),
+    SYMTAB_ENUM32 (FAULT_SUF),
+    SYMTAB_ENUM32 (FAULT_OFL),
+    SYMTAB_ENUM32 (FAULT_DIV),
+    SYMTAB_ENUM32 (FAULT_EXF),
+    SYMTAB_ENUM32 (FAULT_DF0),
+    SYMTAB_ENUM32 (FAULT_DF1),
+    SYMTAB_ENUM32 (FAULT_DF2),
+    SYMTAB_ENUM32 (FAULT_DF3),
+    SYMTAB_ENUM32 (FAULT_ACV),
+    SYMTAB_ENUM32 (FAULT_MME2),
+    SYMTAB_ENUM32 (FAULT_MME3),
+    SYMTAB_ENUM32 (FAULT_MME4),
+    SYMTAB_ENUM32 (FAULT_F2),
+    SYMTAB_ENUM32 (FAULT_F3),
+    SYMTAB_ENUM32 (FAULT_UN1),
+    SYMTAB_ENUM32 (FAULT_UN2),
+    SYMTAB_ENUM32 (FAULT_UN3),
+    SYMTAB_ENUM32 (FAULT_UN4),
+    SYMTAB_ENUM32 (FAULT_UN5),
+    SYMTAB_ENUM32 (FAULT_TRB),
+
+    { "",                       SYM_EMPTY,         SYM_UNDEF,     0 },
+  };
+
+static void systabInit (void) {
+  strncpy (system_state->symbolTable.symtabHdr, SYMTAB_HDR, sizeof (system_state->symbolTable.symtabHdr));
+  system_state->symbolTable.symtabVer = SYMTAB_VER;
+  memcpy (system_state->symbolTable.symbols, symbols, sizeof (symbols));
+}
+
+
 // Once-only initialization; invoked by simh
 
-static void dps8_init (void)
-  {
-        if (!sim_quiet)
-          {
+static void dps8_init (void) {
+  if (!sim_quiet) {
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_VERSION)
 #if defined(VER_H_GIT_PATCH_INT) && defined(VER_H_GIT_PATCH)
 #if VER_H_GIT_PATCH_INT < 1
-                sim_msg ("%s simulator %s", sim_name, VER_H_GIT_VERSION);
+    sim_msg ("%s simulator %s", sim_name, VER_H_GIT_VERSION);
 #else
-            sim_msg ("%s simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
+    sim_msg ("%s simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
 #endif
 #else
-                sim_msg ("%s simulator %s", sim_name, VER_H_GIT_VERSION);
+    sim_msg ("%s simulator %s", sim_name, VER_H_GIT_VERSION);
 #endif
 #endif
 #if !defined(VER_H_GIT_VERSION) || !defined(GENERATED_MAKE_VER_H)
-                sim_msg ("%s simulator", sim_name);
+    sim_msg ("%s simulator", sim_name);
 #endif
 #ifdef TESTING
     sim_msg ("\n Options: ");
@@ -4049,22 +4149,22 @@ static void dps8_init (void)
     sim_msg ("TRACKER");
 #endif
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
-                sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);
+    sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);
 #endif
-          }
+  }
 
-    // special dps8 initialization stuff that cant be done in reset, etc .....
+  // special dps8 initialization stuff that cant be done in reset, etc .....
 
 #ifdef TESTING
-    // These are part of the simh interface
-    sim_vm_parse_addr = parse_addr;
-    sim_vm_fprint_addr = fprint_addr;
+  // These are part of the simh interface
+  sim_vm_parse_addr = parse_addr;
+  sim_vm_fprint_addr = fprint_addr;
 #endif // TESTING
 
-    sim_vm_cmd = dps8_cmds;
+  sim_vm_cmd = dps8_cmds;
 
-    // This is needed to make sbreak work
-    sim_brk_types = sim_brk_dflt = SWMASK ('E');
+  // This is needed to make sbreak work
+  sim_brk_types = sim_brk_dflt = SWMASK ('E');
 
 //#ifndef __MINGW64__
 //    // Create a session for this dps8m system instance.
@@ -4083,8 +4183,8 @@ static void dps8_init (void)
 #ifndef __MINGW32__
 #ifndef CROSS_MINGW32
 #ifndef CROSS_MINGW64
-    // Wire the XF button to signal USR1
-    signal (SIGUSR1, usr1_signal_handler);
+  // Wire the XF button to signal USR1
+  signal (SIGUSR1, usr1_signal_handler);
 #endif /* ifndef CROSS_MINGW64 */
 #endif /* ifndef CROSS_MINGW32 */
 #endif /* ifndef __MINGW32__ */
@@ -4095,7 +4195,7 @@ static void dps8_init (void)
 #ifndef CROSS_MINGW32
 #ifndef CROSS_MINGW64
 // On line 4,739 of the libuv man page, it recommends this.
-    signal(SIGPIPE, SIG_IGN);
+  signal(SIGPIPE, SIG_IGN);
 #endif /* ifndef CROSS_MINGW64 */
 #endif /* ifndef CROSS_MINGW32 */
 #endif /* ifndef __MINGW32__ */
@@ -4109,96 +4209,95 @@ static void dps8_init (void)
     defined(__MINGW32__)   || \
     defined(CROSS_MINGW32) || \
     defined(CROSS_MINGW64)
-    system_state = malloc (sizeof (struct system_state_s));
+  system_state = malloc (sizeof (struct system_state_s));
 #else
-    system_state = (struct system_state_s *)
-      create_shm ("state", sizeof (struct system_state_s));
+  system_state = (struct system_state_s *)
+    create_shm ("state", sizeof (struct system_state_s));
 #endif
 
-    if (! system_state) {
-      int svErrno = errno;
-      sim_warn ("Unable to create or access system state\r\n"
-                "Error (%d) is %s\r\n"
-                "Aborting run...\r\n",
-                svErrno, strerror (svErrno));
-      exit (svErrno);
-   }
+  if (! system_state) {
+    int svErrno = errno;
+    sim_warn ("Unable to create or access system state\r\n"
+              "Error (%d) is %s\r\n"
+              "Aborting run...\r\n",
+              svErrno, strerror (svErrno));
+    exit (svErrno);
+  }
 
 #ifndef VER_H_GIT_HASH
 #define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
 #endif
 
-    if (strlen (system_state->commit_id) == 0)
-      {
-                if (!sim_quiet)
-                  {
-                sim_printf ("\r\nSetting up new system state\r\n");
-                  }
+  if (strlen (system_state->commit_id) == 0) {
+    if (!sim_quiet) {
+      sim_printf ("\r\nSetting up new system state\r\n");
+    }
+  } else {
+    if (strcmp (system_state->commit_id, VER_H_GIT_HASH) != 0) {
+      sim_warn ("\r\n\r\nWARNING: system_state hash changed; system state may be corrupt!\r\n");
+    } else {
+      if (!sim_quiet) {
+        sim_printf ("\r\nSystem state restored\r\n");
       }
-    else
-      {
-        if (strcmp (system_state->commit_id, VER_H_GIT_HASH) != 0)
-          {
-            sim_warn ("\r\n\r\nWARNING: system_state hash changed; system state may be corrupt!\r\n");
-          }
-        else
-          {
-                        if (!sim_quiet)
-                          {
-                    sim_printf ("\r\nSystem state restored\r\n");
-                          }
-          }
-      }
-    strncpy (system_state->commit_id, VER_H_GIT_HASH, sizeof (system_state->commit_id));
+    }
+  }
 
-    // sets connect to 0
-    memset (& sys_opts, 0, sizeof (sys_opts));
-    // sys_poll_interval 10 ms (100 Hz)
-    sys_opts.sys_poll_interval = 10;
-    // sys_slow_poll_interval 100 polls (1 Hz)
-    sys_opts.sys_slow_poll_interval = 100;
-    // sys_poll_check_rate in CPU cycles
-    sys_opts.sys_poll_check_rate = 1024;
 
-    sysCableInit ();
-    iom_init ();
-    disk_init ();
-    mt_init ();
+  strncpy (system_state->stateHdr, STATE_HDR, sizeof (system_state->stateHdr));
+  system_state->stateVer = STATE_VER;
+
+  strncpy (system_state->commit_id, VER_H_GIT_HASH, sizeof (system_state->commit_id));
+
+  systabInit ();
+
+  // sets connect to 0
+  memset (& sys_opts, 0, sizeof (sys_opts));
+  // sys_poll_interval 10 ms (100 Hz)
+  sys_opts.sys_poll_interval = 10;
+  // sys_slow_poll_interval 100 polls (1 Hz)
+  sys_opts.sys_slow_poll_interval = 100;
+  // sys_poll_check_rate in CPU cycles
+  sys_opts.sys_poll_check_rate = 1024;
+
+  sysCableInit ();
+  iom_init ();
+  disk_init ();
+  mt_init ();
 #ifndef __MINGW64__
 #ifndef __MINGW32__
 #ifndef CROSS_MINGW64
 #ifndef CROSS_MINGW32
-    sk_init ();
+  sk_init ();
 #endif /* ifndef CROSS_MINGW32 */
 #endif /* ifndef CROSS_MINGW64 */
 #endif /* ifndef __MINGW64__ */
 #endif /* ifndef __MINGW32__ */
-    fnpInit ();
-    console_init (); // must come after fnpInit due to libuv initiailization
+  fnpInit ();
+  console_init (); // must come after fnpInit due to libuv initiailization
  /* mpc_init (); */
-    scu_init ();
-    cpu_init ();
-    rdr_init ();
-    pun_init ();
-    prt_init ();
-    urp_init ();
+  scu_init ();
+  cpu_init ();
+  rdr_init ();
+  pun_init ();
+  prt_init ();
+  urp_init ();
 #ifndef __MINGW64__
 #ifndef __MINGW32__
 #ifndef CROSS_MINGW64
 #ifndef CROSS_MINGW32
-    absi_init ();
+  absi_init ();
 #endif /* CROSS_MINGW32 */
 #endif /* CROSS_MINGW64 */
 #endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
-    set_default_base_system (0, NULL);
+  set_default_base_system (0, NULL);
 #ifdef PANEL
-    panelScraperInit ();
+  panelScraperInit ();
 #endif /* ifdef PANEL */
 #if defined(THREADZ) || defined(LOCKLESS)
-    initThreadz ();
+  initThreadz ();
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
-  }
+}
 
 
 
