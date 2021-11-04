@@ -569,35 +569,6 @@
 
 ############################################################################
 
-.scriptSlackSetup: &scriptSlackSetup |
-    # *scriptSlackSetup - Update Slackware and install required tools ...
-    echo -e "section_start:`date +%s`:slackware_section[collapsed=true]\r\e[0K\033[0;36mSetting up Slackware Linux ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Updating package lists ..."
-    test -z "${SKIP_UPDATE}" && (yes | slackpkg update) 2> /dev/null || true > /dev/null 2>&1
-    test -z "${SKIP_UPDATE}" && echo "Cleaning up ..."
-    test -z "${SKIP_UPDATE}" && (yes | slackpkg clean-system) 2> /dev/null || true > /dev/null 2>&1
-    test -z "${SKIP_UPDATE}" && echo "Upgrading slackpkg ..."
-    test -z "${SKIP_UPDATE}" && (yes | slackpkg upgrade slackpkg) 2> /dev/null || true > /dev/null 2>&1
-    test -z "${SKIP_UPDATE}" && echo "Updating package lists (again)..."
-    test -z "${SKIP_UPDATE}" && (yes | slackpkg update) 2> /dev/null || true > /dev/null 2>&1
-    test -z "${SKIP_UPDATE}" && echo "Cleaning up ..."
-    test -z "${SKIP_UPDATE}" && (yes | slackpkg clean-system) 2> /dev/null || true > /dev/null 2>&1
-    test -z "${SKIP_UPDATE}" && echo "Upgrading glibc (1/2)..."
-    test -z "${SKIP_UPDATE}" && (yes | slackpkg upgrade aaa_glibc-solibs) 2> /dev/null || true > /dev/null 2>&1
-    test -z "${SKIP_UPDATE}" && echo "Upgrading glibc (2/2)..."
-    test -z "${SKIP_UPDATE}" && (yes | slackpkg upgrade glibc-solibs) 2> /dev/null || true > /dev/null 2>&1
-    test -z "${SKIP_UPDATE}" && echo "Upgrading system ..."
-    test -z "${SKIP_UPDATE}" && (yes | slackpkg upgrade-all) 2> /dev/null || true > /dev/null 2>&1
-    test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="m4 libffi cscope flex bison ed patch cpio guile gc glibc binutils kernel-headers nghttp2 brotli sasl libuv ca-certificates perl git gcc llvm lzip wget curl make psmisc moreutils gnupg util-linux pigz autoconf autoconf-archive bzip2 ccache popt cmake libarchive openssl lz4 libxml2 automake libtool infozip"; (yes | slackpkg install ${ARGS:?}) || true; (yes | slackpkg install ${ARGS:?}) 2> /dev/null || true > /dev/null 2>&1
-    test -z "${SKIP_UPDATE}" && echo "Updating CA certificates ..."
-    test -z "${SKIP_UPDATE}" && /usr/sbin/update-ca-certificates --fresh 2> /dev/null || true > /dev/null 2>&1
-    echo -e "section_end:`date +%s`:slackware_section\r\e[0K" || true
-
-############################################################################
-
 .scriptVoidSetup: &scriptVoidSetup |
     # *scriptVoidSetup - Update Void Linux and install required tools ...
     echo -e "section_start:`date +%s`:voidlsetup_section[collapsed=true]\r\e[0K\033[0;36mSetting up Void Linux ...\033[0m" || true
@@ -1532,46 +1503,6 @@ Linux/x86_64, Oracle Linux 8:
   interruptible: true
 
 ############################################################################
-
-Linux/x86_64, Slackware Current:
-  image: vbatts/slackware:current
-  stage: build
-  tags:
-    - Docker-x64
-    - amd64
-    - Linux
-  script:
-    - export GLCICD_JOB="SlackwareCurrentX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/slackware-version)"
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
-    - *scriptSlackSetup
-    - *scriptSanity
-    - *scriptCreateResticSnapshot
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *scriptBuildInfo
-    - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync -k; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *scriptBuildInfo
-    - *scriptVerifyVersion
-    - *scriptCompressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-###########################################################################
 
 Source Kit:
   image: debian:sid

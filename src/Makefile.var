@@ -16,6 +16,23 @@
 
 ###############################################################################
 
+ifdef ATOMICS
+  ifeq ($(ATOMICS),AIX)
+    CFLAGS += -DAIX_ATOMICS
+  endif
+  ifeq ($(ATOMICS),BSD)
+    CFLAGS += -DBSD_ATOMICS
+  endif
+  ifeq ($(ATOMICS),GNU)
+    CFLAGS += -DGNU_ATOMICS
+  endif
+  ifeq ($(ATOMICS),SYNC)
+    CFLAGS += -DSYNC_ATOMICS
+  endif
+endif
+
+###############################################################################
+
 ifeq ($(ISOLTS),1)
   unexport NO_LOCKLESS
   undefine NO_LOCKLESS
