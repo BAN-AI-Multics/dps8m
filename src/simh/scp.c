@@ -67,6 +67,10 @@
 
 #include <uv.h>
 
+#define DBG_CTR 0
+
+#include "../dps8/dps8.h"
+#include "../dps8/dps8_cpu.h"
 #include "../dps8/ver.h"
 #include "../dps8/sysdefs.h"
 
@@ -4308,6 +4312,22 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     fprintf (st, "          Math library: decNumber, unknown version");
 #endif /* ifdef DECVERSION */
 #endif /* ifdef DECNUMBERLOC */
+#ifdef LOCKLESS
+    fprintf (st, "\n     Atomic operations: ");
+#if defined(AIX_ATOMICS)
+    fprintf (st, "IBM AIX-style");
+#elif defined(BSD_ATOMICS)
+    fprintf (st, "FreeBSD-style");
+#elif defined(GNU_ATOMICS)
+    fprintf (st, "GNU-style");
+#elif defined(SYNC_ATOMICS)
+    fprintf (st, "GNU sync-style");
+#elif defined(ISO_ATOMICS)
+    fprintf (st, "ISO/IEC 9899:2011 (C11) standard");
+#elif defined(NT_ATOMICS)
+    fprintf (st, "Windows NT interlocked operations");
+#endif
+#endif /* ifdef LOCKLESS */
     fprintf (st, "\n");
     return 0;
 }

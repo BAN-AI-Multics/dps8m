@@ -1369,6 +1369,83 @@ static void deliver_interrupts (uint scu_unit_idx)
         cpus[cpun].events.XIP[scu_unit_idx] = false;
       }
 
+// If the CIOC generates marker and terminate interrupts, they will be posted simultainiously.
+// Since the interrupts are recognized by priority and terminate has a highter priority then
+// marker, if will be delivered first. The following code will deliver marker before terminate.
+ 
+#ifdef REORDER
+    for (uint jnum = 0; jnum < N_CELL_INTERRUPTS; jnum ++)
+      {
+        static const uint reorder[N_CELL_INTERRUPTS] = {
+            0,  1,  2,  3,  4,  5,  6,  7,
+          16, 17, 18, 29, 20, 21, 22, 23,
+            8,  9, 10, 11, 12, 13, 14, 15,
+          25, 25, 26, 27, 28,29, 30, 31 };
+        uint inum = reorder[jnum];
+        if (! scu [scu_unit_idx].cells [inum])
+          continue; //
+        sim_debug (DBG_DEBUG, & scu_dev, "trying to deliver %d\n", inum);
+        sim_debug (DBG_INTR, & scu_dev,
+                   "scu %u trying to deliver %d\n", scu_unit_idx, inum);
+
+
+        for (uint pima = 0; pima < N_ASSIGNMENTS; pima ++) // A, B
+          {
+            //sim_debug (DBG_DEBUG, & scu_dev,
+            //           "trying inum %u pima %u enable %u\n"
+            //           , inum, pima, scu [scu_unit_idx].mask_enable [pima]);
+            if (scu [scu_unit_idx].mask_enable [pima] == 0)
+              continue;
+            uint mask = scu [scu_unit_idx].exec_intr_mask [pima];
+            uint port = scu [scu_unit_idx].mask_assignment [pima];
+            //sim_debug (DBG_DEBUG, & scu_dev,
+            //           "mask %u port %u type %u cells %o\n",
+            //           mask, port, scu [scu_unit_idx].ports [port].type,
+            //           scu [scu_unit_idx].cells [inum]);
+            if (scu [scu_unit_idx].ports [port].type != ADEV_CPU)
+              continue;
+            if ((mask & (1u << (31 - inum))) != 0)
+              {
+                uint sn = 0;
+                if (scu[scu_unit_idx].ports[port].is_exp)
+                  {
+                    sn = (uint) scu[scu_unit_idx].ports[port].xipmaskval;
+                    if (sn >= N_SCU_SUBPORTS)
+                      {
+                        sim_warn ("XIP mask not set; defaulting to subport 0\n");
+                        sn = 0;
+                      }
+                  }
+                if (! cables->scu_to_cpu[scu_unit_idx][port][sn].in_use)
+                  {
+                    sim_warn ("bad scu_unit_idx %u\n", scu_unit_idx);
+                    continue;
+                  }
+                uint cpu_unit_udx = cables->scu_to_cpu[scu_unit_idx][port][sn].cpu_unit_idx;
+#if defined(THREADZ) || defined(LOCKLESS)
+                cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
+                HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx, __func__);
+                createCPUThread((uint) cpu_unit_udx);
+#ifndef NO_TIMEWAIT
+                wakeCPU ((uint) cpu_unit_udx);
+#endif
+                sim_debug (DBG_DEBUG, & scu_dev,
+                           "interrupt set for CPU %d SCU %d\n",
+                           cpu_unit_udx, scu_unit_idx);
+#else // ! THREADZ
+//if (cpu_unit_udx && ! cpu.isRunning) sim_printf ("starting CPU %c\n", cpu_unit_udx + 'A');
+#ifdef ROUND_ROBIN
+                cpus[cpu_unit_udx].isRunning = true;
+#endif
+                cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
+sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_udx, scu_unit_idx);
+                sim_debug (DBG_INTR, & scu_dev,
+                           "XIP set for SCU %d\n", scu_unit_idx);
+#endif // ! THREADZ
+              }
+          }
+      }
+#else // !REORDER
     for (uint inum = 0; inum < N_CELL_INTERRUPTS; inum ++)
       {
         if (! scu [scu_unit_idx].cells [inum])
@@ -1434,6 +1511,7 @@ sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_u
               }
           }
       }
+#endif // REORDER
   }
 
 t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_udx,

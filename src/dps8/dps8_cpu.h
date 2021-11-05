@@ -2177,16 +2177,52 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
 
 #ifdef LOCKLESS
 
+/*
+ * Atomic operations to use defined as follows:
+ *
+ *  AIX_ATOMICS  -  IBM AIX atomics
+ *  BSD_ATOMICS  -  FreeBSD atomics
+ *  GNU_ATOMICS  -  GNU atomics
+ * SYNC_ATOMICS  -  GNU sync-style atomics
+ *
+ * The following are reserved and not yet implemented:
+ *
+ *  ISO_ATOMICS  -  ISO/IEC 9899:2011 (C11) atomics
+ *   NT_ATOMICS  -  Microsoft Windows NT atomics
+ *
+ * For further details, see:
+ *
+ * AIX_ATOMICS:
+ *  https://www.ibm.com/docs/en/aix/7.2?topic=services-atomic-operations
+ *
+ * BSD_ATOMICS:
+ *  https://www.freebsd.org/cgi/man.cgi?query=atomic&sektion=9&format=html
+ *  https://man.dragonflybsd.org/?command=atomic&section=9
+ *
+ * GNU_ATOMICS:
+ *  https://gcc.gnu.org/onlinedocs/gcc/_005f_005fatomic-Builtins.html
+ *
+ * SYNC_ATOMICS:
+ *  https://gcc.gnu.org/onlinedocs/gcc/_005f_005fsync-Builtins.html
+ *
+ * ISO_ATOMICS:
+ *  https://en.cppreference.com/w/c/atomic
+ *
+ * NT_ATOMICS:
+ *  https://docs.microsoft.com/en-us/windows/win32/sync/synchronization-functions
+ *  https://docs.microsoft.com/en-us/windows/win32/sync/interlocked-variable-access
+ */
+
 // AIX_ATOMICS are SYNC_ATOMICS (for now)
 #if   ( defined (AIX_ATOMICS) \
  && (! (defined (SYNC_ATOMICS))))
 #define SYNC_ATOMICS
 #endif
 
-// Default to CPP11_ATOMICS by default
-#if (! defined (CPP11_ATOMICS)) && (! defined (FREEBSD_ATOMICS)) \
+// Otherwise, default to GNU_ATOMICS
+#if (! defined (GNU_ATOMICS)) && (! defined (BSD_ATOMICS)) \
  && (! defined (SYNC_ATOMICS))  && (! defined (AIX_ATOMICS))
-#define CPP11_ATOMICS
+#define GNU_ATOMICS
 #endif
 
 int core_read_lock (word24 addr, word36 *data, const char * ctx);
@@ -2197,7 +2233,7 @@ int core_unlock_all(void);
 #define MEM_LOCKED_BIT    61
 #define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
 
-#if defined (FREEBSD_ATOMICS)
+#if defined (BSD_ATOMICS)
 #include <machine/atomic.h>
 
 #define LOCK_CORE_WORD(addr)                                            \
@@ -2241,9 +2277,9 @@ int core_unlock_all(void);
     }                                                                   \
   while (0)
 
-#endif // FREEBSD_ATOMICS
+#endif // BSD_ATOMICS
 
-#if defined(CPP11_ATOMICS)
+#if defined(GNU_ATOMICS)
 
 // IIUC, the __sync use CST memorder
 #define LOCK_CORE_WORD(addr)                                 \
@@ -2291,7 +2327,7 @@ int core_unlock_all(void);
     }                                                        \
   while (0)
 
-#endif // CPP11_ATOMICS
+#endif // GNU_ATOMICS
 
 #if defined(SYNC_ATOMICS)
 #ifdef MEMORY_ACCESS_NOT_STRONGLY_ORDERED

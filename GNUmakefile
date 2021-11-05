@@ -18,8 +18,8 @@
 ###############################################################################
 # Configuration:
 #
-#     Build flag (ex: make V=1)           Description of build flag
-#    ###########################    #####################################
+#     Build flag (ex: make V=1)             Description of build flag
+#    ###########################    #########################################
 #
 #                  V=1                Enable verbose compilation output
 #                  W=1                Enable extra compilation warnings
@@ -29,17 +29,18 @@
 #             SERIAL=1                Enable legacy serial port support
 #              CROSS=MINGW64          Enable MinGW-64 cross-compilation
 #
-#    ******* The following flags are intended for development and *******
-#    ******* may have non-intuitive side-effects or requirements! *******
+#    ********* The following flags are intended for development and *********
+#    ********* may have non-intuitive side-effects or requirements! *********
 #
-#            TRACKER=1                Adds instruction snapshot support
-#               HDBG=1                Enables extended history debugger
-#        ROUND_ROBIN=1                Support un-threaded multiple CPUs
-#             ISOLTS=1                Support execution of ISOLTS tests
-#                WAM=1                Enable PTW/SDW associative memory
-#           NEED_128=1                Enable 128-bit types work-arounds
-#        USE_BUILDER="String"         Enable a custom "Built by" string
-#        USE_BUILDOS="String"         Enable a custom "Build OS" string
+#            TRACKER=1                  Adds instruction snapshot support
+#               HDBG=1                  Enables extended history debugger
+#        ROUND_ROBIN=1                  Support un-threaded multiple CPUs
+#             ISOLTS=1                  Support execution of ISOLTS tests
+#                WAM=1                  Enable PTW/SDW associative memory
+#           NEED_128=1                  Enable 128-bit types work-arounds
+#        USE_BUILDER="String"           Enable a custom "Built by" string
+#        USE_BUILDOS="String"           Enable a custom "Build OS" string
+#            ATOMICS=AIX|BSD|GNU|SYNC   Define specific atomic operations
 #
 ###############################################################################
 
