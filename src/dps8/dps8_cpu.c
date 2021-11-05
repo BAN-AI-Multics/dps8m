@@ -1183,9 +1183,8 @@ void setup_scbank_map (void)
                 else
                   {
                     // Assign it
-                    cpu.sc_addr_map[addr_bks] = \
-                        (int)port_num * (int)ZONE_SZ + (int)pg * (int)SCBANK_SZ;
-                    cpu.sc_scu_map[addr_bks] = (int)port_num;
+                    cpu.sc_addr_map[addr_bks] = port_num * ZONE_SZ + pg * SCBANK_SZ;
+                    cpu.sc_scu_map[addr_bks] = port_num;
                   }
               }
             else

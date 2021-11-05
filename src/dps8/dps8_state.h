@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2021 Charles Anthony
+ * Copyright (c) 2019-2021 Charles Anthony
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * All rights reserved.
