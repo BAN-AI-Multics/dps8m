@@ -3,7 +3,6 @@
  * $Id: sim_imd.h 1987 2008-07-08 03:25:57Z hharte $                     *
  *                                                                       *
  * Copyright (c) 2007-2008 Howard M. Harte.                              *
- * http://www.hartetec.com                                               *
  *                                                                       *
  * Permission is hereby granted, free of charge, to any person obtaining *
  * a copy of this software and associated documentation files (the       *

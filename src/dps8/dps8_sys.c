@@ -4338,7 +4338,7 @@ static struct pr_table
     {"pr[6]", 6},
     {"pr[7]", 7},
 
-    // from: ftp://ftp.stratus.com/vos/multics/pg/mvm.html
+    // See: https://multicians.org/pg/mvm.html
     {"ap",  0},
     {"ab",  1},
     {"bp",  2},

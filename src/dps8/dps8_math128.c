@@ -279,7 +279,7 @@ int128 rshift_s128 (int128 a, unsigned int n)
   }
 
 
-// http://www.icodeguru.com/Embedded/Hacker's-Delight/
+// See: http://www.icodeguru.com/Embedded/Hacker's-Delight/
 
 static void mulmn (uint32_t w[], uint32_t u[],
                    uint32_t v[], int m, int n)
