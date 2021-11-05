@@ -12,6 +12,7 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
+#include <sys/types.h>
 #include "hdbg.h"
 
 // simh only explicitly supports a single cpu
