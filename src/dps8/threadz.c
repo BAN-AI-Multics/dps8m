@@ -419,7 +419,7 @@ void cpuRdyWait (uint cpuNum)
   {
     struct cpuThreadz_t * p = & cpuThreadz[cpuNum];
     while (! p -> ready)
-      usleep (10000);
+      sim_usleep (10000);
    }
 #endif
 
@@ -659,7 +659,7 @@ void iomRdyWait (uint iomNum)
   {
     struct iomThreadz_t * p = & iomThreadz[iomNum];
     while (! p -> ready)
-      usleep (10000);
+      sim_usleep (10000);
    }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -795,7 +795,7 @@ void chnRdyWait (uint iomNum, uint chnNum)
   {
     struct chnThreadz_t * p = & chnThreadz[iomNum][chnNum];
     while (! p -> ready)
-      usleep (10000);
+      sim_usleep (10000);
    }
 #endif
 

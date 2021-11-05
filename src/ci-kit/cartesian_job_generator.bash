@@ -31,6 +31,7 @@ for option in                                                              \
        HDBG                                                                \
        ROUND_ROBIN                                                         \
        TRACKER                                                             \
+       SERIAL                                                              \
        ;                                                                   \
 do                                                                         #
   SX=$(printf '%s\n'                                                       \

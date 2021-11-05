@@ -1165,6 +1165,20 @@ sim_timer_activate_after (uptr, 1000000/rtc_hz[tmr]);
 return stat;
 }
 
+int
+sim_usleep(useconds_t tusleep)
+{
+#ifndef __APPLE__
+  struct timespec rqt;
+
+  rqt.tv_sec = tusleep / 1000000;
+  rqt.tv_nsec = (tusleep % 1000000) * 1000;
+  return clock_nanosleep(CLOCK_MONOTONIC, 0, &rqt, NULL);
+#else
+  return usleep(tusleep);
+#endif /* ifndef __APPLE__ */
+}
+
 void sim_rtcn_get_time (struct timespec *now, int tmr)
 {
 sim_debug (DBG_CAL, &sim_timer_dev, "sim_rtcn_get_time(tmr=%d)\n", tmr);

@@ -79,6 +79,7 @@ void sim_timespec_diff (struct timespec *diff, const struct timespec *min, struc
 double sim_timenow_double (void);
 int32 sim_rtcn_init (int32 time, int32 tmr);
 int32 sim_rtcn_init_unit (UNIT *uptr, int32 time, int32 tmr);
+int sim_usleep(useconds_t tusleep);
 void sim_rtcn_get_time (struct timespec *now, int tmr);
 t_stat sim_rtcn_tick_ack (int32 time, int32 tmr);
 void sim_rtcn_init_all (void);

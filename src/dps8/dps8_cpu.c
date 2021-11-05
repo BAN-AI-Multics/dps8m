@@ -1831,7 +1831,7 @@ t_stat sim_instr (void)
           }
         while ((next_time.tv_sec == new_time.tv_sec) ? (next_time.tv_nsec > new_time.tv_nsec) : (next_time.tv_sec > new_time.tv_sec));
 #else
-        usleep (1000); // 1000 us == 1 ms == 1/1000 sec.
+        sim_usleep (1000); // 1000 us == 1 ms == 1/1000 sec.
 #endif
       }
     while (reason == 0);
@@ -2549,7 +2549,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 #endif
                           //sim_printf ("stall %2d %05o:%06o\n", i, stall_points[i].segno, stall_points[i].offset);
                           //sched_yield ();
-                          usleep(stall_points[i].time);
+                          sim_usleep(stall_points[i].time);
                           break;
                         }
                   }
@@ -2704,7 +2704,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   //   rTR * 125 / 64
 
 #ifdef NO_TIMEWAIT
-                  //usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
+                  //sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
                   struct timespec req, rem;
                   uint ms = sys_opts.sys_poll_interval;
                   long int nsec = (long int) ms * 1000 * 1000;
@@ -2752,8 +2752,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   cpu.rTRticks = 0;
                   break;
 #else // !THREADZ
-                  //usleep (10000);
-                  usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
+                  //sim_sleep (10000);
+                  sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
 #ifndef NO_EV_POLL
                   // Trigger I/O polling
 #ifdef CONSOLE_FIX

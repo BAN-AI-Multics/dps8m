@@ -288,6 +288,8 @@ endif
 
 # Various 32-bit Linux platforms
 ifeq ($(UNAME_S),Linux)
+  # Linux has sufficient coarse clock fast path
+  CFLAGS += -DCLOCK_REALTIME=CLOCK_REALTIME_COARSE
   ifndef UNAME_M
     UNAME_M=$(shell $(UNAME) -m 2> /dev/null)
   endif
