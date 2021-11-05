@@ -23,10 +23,6 @@
 
 #define API
 #include "dps8_state.h"
-#include "dps8_faults.h"
-
-#include "shm.h"
-
 
 static struct system_state_s * system_state;
 
@@ -403,7 +399,7 @@ int main (int argc, char * argv []) {
     char * end;
     long p = strtol (argv [1], & end, 0);
     if (* end == 0) {
-      cpunum = (char) p;
+      cpunum = p;
       argv [1] [0] = 0;
     }
   }

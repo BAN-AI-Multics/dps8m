@@ -39,6 +39,7 @@ ifdef ATOMICS
   ifeq ($(ATOMICS),SYNC)
     CFLAGS += -DSYNC_ATOMICS
   endif
+endif
 
 ###############################################################################
 # ISOLTS-enabled build

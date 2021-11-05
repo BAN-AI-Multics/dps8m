@@ -452,11 +452,6 @@ punutil:
 
 ###############################################################################
 
-blinkenLights2: ver.h
-	-@$(SETV); $(MAKE) -C "../blinkenLights2" "all"
-
-###############################################################################
-
 udplib: udplib.c udplib.h
 udplib$(EXE): udplib.c udplib.h
 	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
@@ -538,7 +533,7 @@ clean:
 	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../blinkenLights2" -f "GNUmakefile"  "clean"
+	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)".*  ||  $(TRUE)

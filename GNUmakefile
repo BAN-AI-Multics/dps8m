@@ -86,8 +86,8 @@ build default all: .rebuild.env                                               \
 blinkenLights2: .rebuild.env                                                  \
     # blinkenLights2:    # Builds the blinkenLights2 front panel
 	@$(MAKE) -C "." ".rebuild.env";                                           \
-      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);         \
-        $(MAKE) -C "src/dps8" "blinkenLights2"
+      $(TEST) -f ".needrebuild" && $(RMF) blinkenLights2 || $(TRUE);          \
+        ( cd src/blinkenLights2 && ./blinkenLights2.build.sh )
 
 ###############################################################################
 # Install.
