@@ -277,23 +277,6 @@ Sleep (msec);
 return sim_os_msec () - stime;
 }
 
-#if defined(NEED_CLOCK_GETTIME)
-int clock_gettime(int clk_id, struct timespec *tp)
-{
-t_uint64 now, unixbase;
-
-if (clk_id != CLOCK_REALTIME)
-    return -1;
-unixbase = 116444736;
-unixbase *= 1000000000;
-GetSystemTimeAsFileTime((FILETIME*)&now);
-now -= unixbase;
-tp->tv_sec = (long)(now/10000000);
-tp->tv_nsec = (now%10000000)*100;
-return 0;
-}
-#endif
-
 #else
 
 /* UNIX routines */
@@ -327,24 +310,6 @@ uint32 sim_os_ms_sleep_init (void)
 {
 return _compute_minimum_sleep ();
 }
-
-#if !defined(_POSIX_SOURCE)
-#ifdef NEED_CLOCK_GETTIME
-typedef int clockid_t;
-int clock_gettime(clockid_t clk_id, struct timespec *tp)
-{
-struct timeval cur;
-struct timezone foo;
-
-if (clk_id != CLOCK_REALTIME)
-  return -1;
-gettimeofday (&cur, &foo);
-tp->tv_sec = cur.tv_sec;
-tp->tv_nsec = cur.tv_usec*1000;
-return 0;
-}
-#endif /* CLOCK_REALTIME */
-#endif /* !defined(_POSIX_SOURCE) && defined(SIM_ASYNCH_IO) */
 
 uint32 sim_os_ms_sleep (unsigned int milliseconds)
 {
