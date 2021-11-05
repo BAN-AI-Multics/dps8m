@@ -322,7 +322,7 @@ static void mulmns (uint32_t w[], uint32_t u[],
         int b = 0;                  // Initialize borrow.
         for (int j = 0; j < n; j++)
           {
-            int64_t t = (int64_t) w[j + m] - (int64_t) v[j] - b;
+            int t = (int) w[j + m] - (int) v[j] - b;
             w[j + m] = (uint32_t) t;
             b = t >> 31;
           }
@@ -332,7 +332,7 @@ static void mulmns (uint32_t w[], uint32_t u[],
         int b = 0;
         for (int i = 0; i < m; i++)
           {
-            int64_t t = (int64_t) w[i + n] - (int64_t) u[i] - b;
+            int t = (int) w[i + n] - (int) u[i] - b;
             w[i + n] = (uint32_t) t;
             b = t >> 31;
           }
