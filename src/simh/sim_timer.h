@@ -37,6 +37,7 @@ extern "C" {
 #if defined(__struct_timespec_defined)
 #define _TIMESPEC_DEFINED
 #endif
+#include <sys/types.h>
 #include <pthread.h>
 
 #if defined (__APPLE__)
