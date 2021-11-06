@@ -706,24 +706,26 @@ typedef struct
     uint enable [N_CPU_PORTS];
     uint init_enable [N_CPU_PORTS];
     uint store_size [N_CPU_PORTS]; // 0-7 encoding 32K-4M
-    enum procModeSettings procMode;  // 1 bit  Read by rsw instruction; format unknown
-    uint proc_speed; // 4 bits Read by rsw instruction; format unknown
-    bool enable_cache;   // 8K cache
     bool sdwam_enable;
     bool ptwam_enable;
+    enum procModeSettings procMode;  // 1 bit  Read by rsw instruction; format unknown
 
     // Emulator run-time options (virtual switches)
+    bool cache_installed;;   // 8K cache
+    uint proc_speed; // 4 bits Read by rsw instruction; format unknown
+    uint disable_wam;     // If non-zero, disable PTWAM, STWAM
+    uint serno;
+  } switches_t;
+
+typedef struct {
     uint dis_enable;      // If non-zero, DIS works
     uint halt_on_unimp;   // If non-zero, halt CPU on unimplemented instruction
                           // instead of faulting
-    uint disable_wam;     // If non-zero, disable PTWAM, STWAM
-    uint report_faults;   // If set, faults are reported and ignored
     uint tro_enable;      // If set, Timer runout faults are generated.
     uint drl_fatal;
-    uint serno;
     bool useMap;
     bool isolts_mode;     // If true, CPU is configured to run ISOLTS.
-  } switches_t;
+  } settings_t;
 
 #ifdef L68
 enum ou_cycle_e
@@ -1546,6 +1548,7 @@ typedef struct
     switches_t switches;
     switches_t isolts_switches_save;
     bool  isolts_switches_saved;
+    settings_t settings;
     ctl_unit_data_t cu;
     du_unit_data_t du;
     ou_unit_data_t ou;
@@ -1770,7 +1773,7 @@ typedef struct
 
 #ifdef SPEED
 #define SC_MAP_ADDR(addr,real_addr)                            \
-   if (cpu.switches.useMap)                                    \
+   if (cpu.settings.useMap)                                    \
       {                                                        \
         uint pgnum = addr / SCBANK_SZ;                         \
         uint os = addr % SCBANK_SZ;                            \
@@ -1783,7 +1786,7 @@ typedef struct
       }
 #else // !SPEED
 #define SC_MAP_ADDR(addr,real_addr)                            \
-   if (cpu.switches.useMap)                                    \
+   if (cpu.settings.useMap)                                    \
       {                                                        \
         uint pgnum = addr / SCBANK_SZ;                         \
         uint os = addr % SCBANK_SZ;                            \
@@ -1932,7 +1935,7 @@ static inline int core_read (word24 addr, word36 *data, \
   UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
+    if (cpu.settings.useMap)
       {
         uint pgnum = addr / SCBANK_SZ;
         int os = cpu.scbank_pg_os [pgnum];
@@ -1980,7 +1983,7 @@ static inline int core_write (word24 addr, word36 data, \
   UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
+    if (cpu.settings.useMap)
       {
         uint pgnum = addr / SCBANK_SZ;
         int os = cpu.scbank_pg_os [pgnum];
@@ -2027,7 +2030,7 @@ static inline int core_write_zone (word24 addr, word36 data, \
   UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
+    if (cpu.settings.useMap)
       {
         uint pgnum = addr / SCBANK_SZ;
         int os = cpu.scbank_pg_os [pgnum];
@@ -2077,7 +2080,7 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
                               UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
+    if (cpu.settings.useMap)
       {
         uint pgnum = addr / SCBANK_SZ;
         int os = cpu.scbank_pg_os [pgnum];
@@ -2127,7 +2130,7 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
                                UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
+    if (cpu.settings.useMap)
       {
         uint pgnum = addr / SCBANK_SZ;
         int os = cpu.scbank_pg_os [pgnum];

@@ -454,7 +454,7 @@ static void scu2words (word36 *words)
     if_sim_debug (DBG_FAULT, & cpu_dev)
         dump_words (words);
 
-    if (cpu.switches.isolts_mode)
+    if (cpu.settings.isolts_mode)
       {
         struct
         {
@@ -683,7 +683,7 @@ static void du2words (word36 * words)
   {
     CPT (cpt2U, 7); // du2words
 
-    if (cpu.switches.isolts_mode)
+    if (cpu.settings.isolts_mode)
       {
         for (int i = 0; i < 8; i ++)
           {
@@ -703,7 +703,7 @@ static void du2words (word36 * words)
 
     // Word 1
 
-    if (cpu.switches.isolts_mode)
+    if (cpu.settings.isolts_mode)
       words[1] = words[0];
 
     // Word 2
@@ -797,7 +797,7 @@ static void words2du (word36 * words)
 
     cpu.du.D3_RES   = getbits36_24 (words[7], 12);
 
-    if (cpu.switches.isolts_mode)
+    if (cpu.settings.isolts_mode)
       {
         for (int i = 0; i < 8; i ++)
           {
@@ -3881,7 +3881,7 @@ static t_stat doInstruction (void)
           cpu.Yblock8[4] = cpu.rA;
           cpu.Yblock8[5] = cpu.rQ;
           cpu.Yblock8[6] = ((word36)(cpu.rE & MASK8)) << 28;
-          if (cpu.switches.isolts_mode)
+          if (cpu.settings.isolts_mode)
             cpu.Yblock8[7] = (((-- cpu.shadowTR) & MASK27) << 9) | (cpu.rRALR & 07);
           else
             cpu.Yblock8[7] = ((cpu.rTR & MASK27) << 9) | (cpu.rRALR & 07);
@@ -4064,7 +4064,7 @@ static t_stat doInstruction (void)
 
         case x0 (0454):  // stt
           CPTUR (cptUseTR);
-          if (cpu.switches.isolts_mode)
+          if (cpu.settings.isolts_mode)
             cpu.CY = ((-- cpu.shadowTR) & MASK27) << 9;
           else
             cpu.CY = (cpu.rTR & MASK27) << 9;
@@ -6766,7 +6766,7 @@ static t_stat doInstruction (void)
           // is obtained from the FAULT VECTOR switches on the processor
           // configuration panel.
 
-          if (cpu.switches.drl_fatal)
+          if (cpu.settings.drl_fatal)
             {
               return STOP_STOP;
             }
@@ -7214,7 +7214,7 @@ static t_stat doInstruction (void)
           CPTUR (cptUseTR);
           cpu.rTR = (cpu.CY >> 9) & MASK27;
           cpu.rTRticks = 0;
-          if (cpu.switches.isolts_mode)
+          if (cpu.settings.isolts_mode)
             {
               cpu.shadowTR = cpu.TR0 = cpu.rTR;
               cpu.rTRlsb = 0;
@@ -8055,7 +8055,7 @@ elapsedtime ();
                        << (35-18));
                 tmp |= (word36) ((01L) // 0b1 DPS option
                        << (35-19));
-                tmp |= (word36) ((cpu.switches.enable_cache ? 1 : 0)  //8K cache
+                tmp |= (word36) ((cpu.switches.cache_installed ? 1 : 0)  //8K cache
                        << (35-20));
                 tmp |= (word36) ((00L) // 0b00
                        << (35-22));
@@ -8288,7 +8288,7 @@ elapsedtime ();
                                              // 8K cache
                                              // 0b0: not installed
                                              // 0b1: installed
-                  cpu.rA |= (word36) ((cpu.switches.enable_cache ? 1 : 0)
+                  cpu.rA |= (word36) ((cpu.switches.cache_installed ? 1 : 0)
                             << (35-20));
                   cpu.rA |= (word36) ((00L) // 0b00
                             << (35-22));
@@ -8608,7 +8608,7 @@ elapsedtime ();
 
         case x0 (0616):  // dis
 
-          if (! cpu.switches.dis_enable)
+          if (! cpu.settings.dis_enable)
             {
               return STOP_STOP;
             }
@@ -8620,7 +8620,7 @@ elapsedtime ();
           // ('if !interrupt goto .'))
           advanceG7Faults ();
 
-          if ((! cpu.switches.tro_enable) &&
+          if ((! cpu.settings.tro_enable) &&
               (! sample_interrupts ()) &&
               (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                      // break this logic
@@ -8737,7 +8737,7 @@ elapsedtime ();
             {
               sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\n");
 #ifdef ROUND_ROBIN
-              if (cpu.switches.isolts_mode)
+              if (cpu.settings.isolts_mode)
                 {
                   //sim_printf ("stopping CPU %c\n", current_running_cpu_idx + 'A');
                   cpu.isRunning = false;
@@ -9373,7 +9373,7 @@ elapsedtime ();
 #endif
 
         default:
-          if (cpu.switches.halt_on_unimp)
+          if (cpu.settings.halt_on_unimp)
             return STOP_STOP;
           doFault (FAULT_IPR,
                    fst_ill_op,

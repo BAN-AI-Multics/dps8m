@@ -88,13 +88,9 @@ bool stall_point_active = false;
 static void panel_process_event (void);
 #endif
 
-static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
-                                             UNUSED int32 value,
-                                             UNUSED const char * cptr,
-                                             UNUSED void * desc);
+static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr, UNUSED int32 value, UNUSED const char * cptr, UNUSED void * desc);
 
-static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
-                               UNUSED int val, UNUSED const void * desc)
+static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val, UNUSED const void * desc)
   {
     long cpu_unit_idx = UNIT_IDX (uptr);
     if (cpu_unit_idx < 0 || cpu_unit_idx >= N_CPU_UNITS_MAX)
@@ -138,25 +134,23 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
     sim_msg ("Processor speed:          %02o(8)\n",
                 cpus[cpu_unit_idx].switches.proc_speed);
     sim_msg ("DIS enable:               %01o(8)\n",
-                cpus[cpu_unit_idx].switches.dis_enable);
+                cpus[cpu_unit_idx].settings.dis_enable);
     sim_msg ("Steady clock:             %01o(8)\n",
                 scu [0].steady_clock);
     sim_msg ("Halt on unimplemented:    %01o(8)\n",
-                cpus[cpu_unit_idx].switches.halt_on_unimp);
+                cpus[cpu_unit_idx].settings.halt_on_unimp);
     sim_msg ("Disable SDWAM/PTWAM:      %01o(8)\n",
                 cpus[cpu_unit_idx].switches.disable_wam);
-    sim_msg ("Report faults:            %01o(8)\n",
-                cpus[cpu_unit_idx].switches.report_faults);
     sim_msg ("TRO faults enabled:       %01o(8)\n",
-                cpus[cpu_unit_idx].switches.tro_enable);
+                cpus[cpu_unit_idx].settings.tro_enable);
     sim_msg ("Y2K enabled:              %01o(8)\n",
                 scu [0].y2k);
     sim_msg ("drl fatal enabled:        %01o(8)\n",
-                cpus[cpu_unit_idx].switches.drl_fatal);
+                cpus[cpu_unit_idx].settings.drl_fatal);
     sim_msg ("useMap:                   %d\n",
-                cpus[cpu_unit_idx].switches.useMap);
+                cpus[cpu_unit_idx].settings.useMap);
     sim_msg ("Cache:                    %s\n",
-                cpus[cpu_unit_idx].switches.enable_cache ? "Enable" : "Disable");
+                cpus[cpu_unit_idx].switches.cache_installed ? "Enable" : "Disable");
 
 #ifdef AFFINITY
     if (cpus[cpu_unit_idx].set_affinity)
@@ -166,7 +160,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 #endif
 
     sim_msg ("ISOLTS mode:              %01o(8)\n",
-                cpus[cpu_unit_idx].switches.isolts_mode);
+                cpus[cpu_unit_idx].settings.isolts_mode);
     return SCPE_OK;
   }
 
@@ -187,10 +181,6 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 //           steadyclock = on|off
 //           halt_on_unimplmented = n
 //           disable_wam = n
-//           report_faults = n
-//               n = 0 don't
-//               n = 1 report
-//               n = 2 report overflow
 //           tro_enable = n
 //           y2k
 //           drl_fatal
@@ -339,7 +329,6 @@ static config_list_t cpu_config_list [] =
     { "steady_clock", 0, 1, cfg_on_off },
     { "halt_on_unimplemented", 0, 1, cfg_on_off },
     { "disable_wam", 0, 1, cfg_on_off },
-    { "report_faults", 0, 2, NULL },
     { "tro_enable", 0, 1, cfg_on_off },
     // y2k was moved to SCU; keep here for script compatibility
     { "y2k", 0, 1, cfg_on_off },
@@ -433,25 +422,23 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
         else if (strcmp (p, "ptwam") == 0)
           cpus[cpu_unit_idx].switches.ptwam_enable = (uint) v ? true : false;
         else if (strcmp (p, "dis_enable") == 0)
-          cpus[cpu_unit_idx].switches.dis_enable = (uint) v;
+          cpus[cpu_unit_idx].settings.dis_enable = (uint) v;
         else if (strcmp (p, "steady_clock") == 0)
           scu [0].steady_clock = (uint) v;
         else if (strcmp (p, "halt_on_unimplemented") == 0)
-          cpus[cpu_unit_idx].switches.halt_on_unimp = (uint) v;
+          cpus[cpu_unit_idx].settings.halt_on_unimp = (uint) v;
         else if (strcmp (p, "disable_wam") == 0)
           cpus[cpu_unit_idx].switches.disable_wam = (uint) v;
-        else if (strcmp (p, "report_faults") == 0)
-          cpus[cpu_unit_idx].switches.report_faults = (uint) v;
         else if (strcmp (p, "tro_enable") == 0)
-          cpus[cpu_unit_idx].switches.tro_enable = (uint) v;
+          cpus[cpu_unit_idx].settings.tro_enable = (uint) v;
         else if (strcmp (p, "y2k") == 0)
           scu [0].y2k = (uint) v;
         else if (strcmp (p, "drl_fatal") == 0)
-          cpus[cpu_unit_idx].switches.drl_fatal = (uint) v;
+          cpus[cpu_unit_idx].settings.drl_fatal = (uint) v;
         else if (strcmp (p, "useMap") == 0)
-          cpus[cpu_unit_idx].switches.useMap = v;
+          cpus[cpu_unit_idx].settings.useMap = v;
         else if (strcmp (p, "cache") == 0)
-          cpus[cpu_unit_idx].switches.enable_cache = v;
+          cpus[cpu_unit_idx].switches.cache_installed = v;
 #ifdef AFFINITY
         else if (strcmp (p, "affinity") == 0)
           if (v < 0)
@@ -466,7 +453,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
 #endif
         else if (strcmp (p, "isolts_mode") == 0)
           {
-            cpus[cpu_unit_idx].switches.isolts_mode = v;
+            cpus[cpu_unit_idx].settings.isolts_mode = v;
             if (v)
               {
                 cpus[cpu_unit_idx].isolts_switches_save = cpus[cpu_unit_idx].switches;
@@ -474,7 +461,7 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
 
                 cpus[cpu_unit_idx].switches.data_switches = 00000030714000;
                 cpus[cpu_unit_idx].switches.addr_switches = 0100150;
-                cpus[cpu_unit_idx].switches.useMap = true;
+                cpus[cpu_unit_idx].settings.useMap = true;
                 cpus[cpu_unit_idx].switches.disable_wam = false;
 
 #ifdef DPS8M
@@ -502,10 +489,9 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
                   cpus[cpu_unit_idx].switches = cpus[cpu_unit_idx].isolts_switches_save;
                   cpus[cpu_unit_idx].isolts_switches_saved = false;
                 }
-                cpus[cpu_unit_idx].switches.isolts_mode = v;
+                cpus[cpu_unit_idx].settings.isolts_mode = v;
 
                 cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
-                //simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
               }
           }
         else
@@ -684,55 +670,38 @@ uint set_cpu_idx (UNUSED uint cpu_idx)
     return prev;
   }
 
-void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
-  {
-    uint save = set_cpu_idx (cpun);
-    setup_scbank_map ();
-    if (clear_mem)
-      {
+void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem) {
+  uint save = set_cpu_idx (cpun);
+  setup_scbank_map ();
+  if (clear_mem) {
 #ifdef SCUMEM
-        for (int cpu_port_num = 0; cpu_port_num < N_CPU_PORTS; cpu_port_num ++)
-          {
-            if (get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-              {
-                uint sci_unit_idx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-                // Clear lock bits and data field; set unitialized
-                for (uint i = 0; i < SCU_MEM_SIZE; i ++)
-                  {
+    for (int cpu_port_num = 0; cpu_port_num < N_CPU_PORTS; cpu_port_num ++) {
+      if (get_scu_in_use (cpun, cpu_port_num)) {
+        uint sci_unit_idx = get_scu_idx (cpun, cpu_port_num);
+        // Clear lock bits and data field; set unitialized
+        for (uint i = 0; i < SCU_MEM_SIZE; i ++) {
 #ifdef LOCKLESS
-                    scu [sci_unit_idx].M[i] = (scu [sci_unit_idx].M[i] & ~(MASK36 | DEADLOCK_DETECT | MEM_LOCKED_BIT)) | MEM_UNINITIALIZED;
+          scu [sci_unit_idx].M[i] = (scu [sci_unit_idx].M[i] & ~(MASK36 | DEADLOCK_DETECT | MEM_LOCKED)) | MEM_UNINITIALIZED;
 #else
-                    scu [sci_unit_idx].M[i] = (scu [sci_unit_idx].M[i] & ~(MASK36)) | MEM_UNINITIALIZED;
+          scu [sci_unit_idx].M[i] = (scu [sci_unit_idx].M[i] & ~(MASK36)) | MEM_UNINITIALIZED;
 #endif
-                  }
-              }
-          }
-#else
-        if (cpus[cpun].switches.useMap)
-          {
-            for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++)
-              {
-                int base = cpus[cpun].sc_addr_map [pgnum];
-                if (base < 0)
-                  continue;
-                for (uint addr = 0; addr < SCBANK_SZ; addr ++)
-                  M [addr + (uint) base] = MEM_UNINITIALIZED;
-              }
-          }
-        else
-         {
-            for (uint i = 0; i < MEMSIZE; i ++)
-              {
-                // Clear lock bits and data field; set unitialized
-#ifdef LOCKLESS
-                M[i] = (M[i] & ~(MASK36 | DEADLOCK_DETECT | MEM_LOCKED_BIT)) | MEM_UNINITIALIZED;
-#else
-                M[i] = (M[i] & ~(MASK36)) | MEM_UNINITIALIZED;
-#endif
-              }
-#endif
-          }
+        }
       }
+    }
+#else
+    for (uint pgnum = 0; pgnum < N_SCBANKS; pgnum ++) {
+      int base = cpu.sc_addr_map [pgnum];
+      if (base < 0)
+        continue;
+      for (uint addr = 0; addr < SCBANK_SZ; addr ++)
+#ifdef LOCKLESS
+        M [addr + (uint) base] = (M[addr + (uint) base] & ~(MASK36 | DEADLOCK_DETECT | MEM_LOCKED)) | MEM_UNINITIALIZED;
+#else
+        M [addr + (uint) base] = (M[addr + (uint) base] & ~(MASK36)) | MEM_UNINITIALIZED;
+#endif
+    }
+#endif
+  }
 
 #ifdef LOCKLESS
 
@@ -825,10 +794,7 @@ static t_stat simh_cpu_start (UNUSED UNIT * uptr, UNUSED int32 value, UNUSED con
 }
 
 
-static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
-                                             UNUSED int32 value,
-                                             UNUSED const char * cptr,
-                                             UNUSED void * desc)
+static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr, UNUSED int32 value, UNUSED const char * cptr, UNUSED void * desc)
   {
     long cpu_unit_idx = UNIT_IDX (uptr);
     cpu_reset_unit_idx ((uint) cpu_unit_idx, true);
@@ -1146,7 +1112,7 @@ void setup_scbank_map (void)
           { 32768, 65536, 4194304, 131072, 524288, 1048576, 2097152, 262144 };
         uint isolts_store_table [8] =
           { 32768, 65536, 4194304, 65536, 524288, 1048576, 2097152, 262144 };
-        uint sz_wds = cpu.switches.isolts_mode ?
+        uint sz_wds = cpu.settings.isolts_mode ?
             isolts_store_table [store_size] :
             store_table [store_size];
 #endif
@@ -1617,7 +1583,7 @@ t_stat simh_hooks (void)
     if (breakEnable && stop_cpu)
       return STOP_STOP;
 
-    if (cpu.switches.isolts_mode == 0)
+    if (cpu.settings.isolts_mode == 0)
       {
         // check clock queue
         if (sim_interval <= 0)
@@ -1932,7 +1898,7 @@ static void do_LUF_fault (void)
 //    / 0.0009765625
 //
 //  TR = 1024 << LUF
-    if (cpu.switches.isolts_mode)
+    if (cpu.settings.isolts_mode)
       cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode () ? 4 : cpu.CMR.luf));
 
 // That logic fails for test 785.
@@ -2233,7 +2199,7 @@ setCPU:;
 
 #ifndef NO_EV_POLL
 #if !defined(THREADZ) && !defined(LOCKLESS)
-        if (cpu.switches.isolts_mode)
+        if (cpu.settings.isolts_mode)
           {
             if (cpu.cycle != FETCH_cycle)
               {
@@ -2245,7 +2211,7 @@ setCPU:;
                     cpu.shadowTR = (cpu.shadowTR - 1) & MASK27;
                     if (cpu.shadowTR == 0) // passing thorugh 0...
                       {
-                        if (cpu.switches.tro_enable)
+                        if (cpu.settings.tro_enable)
                           setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
                       }
                   }
@@ -2277,7 +2243,7 @@ setCPU:;
         if (cpu.rTR & ~MASK27)
           {
             cpu.rTR &= MASK27;
-            if (cpu.switches.tro_enable)
+            if (cpu.settings.tro_enable)
               setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
           }
 
@@ -2581,7 +2547,7 @@ setCPU:;
 //    / 0.0009765625
 //
 //  TR = 1024 << LUF
-               if (cpu.switches.isolts_mode)
+               if (cpu.settings.isolts_mode)
                  cpu.shadowTR = (word27) cpu.TR0 - (1024u << (is_priv_mode () ? 4 : cpu.CMR.luf));
 
                 doFault (FAULT_LUF, fst_zero, "instruction cycle lockup");
@@ -2807,7 +2773,7 @@ setCPU:;
                   word27 ticks = ms * 512;
                   if (cpu.rTR <= ticks)
                     {
-                      if (cpu.switches.tro_enable)
+                      if (cpu.settings.tro_enable)
                         setG7fault (current_running_cpu_idx, FAULT_TRO,
                                     fst_zero);
                     }
@@ -2829,7 +2795,7 @@ setCPU:;
                     }
                   else
                     {
-                      if (cpu.switches.tro_enable)
+                      if (cpu.settings.tro_enable)
                         {
                           //lock_scu ();
                           setG7fault (current_running_cpu_idx, FAULT_TRO,
@@ -2880,7 +2846,7 @@ setCPU:;
                   // 512Khz / 512 is millisecods
                   if (cpu.rTR <= sys_opts.sys_poll_interval * 512)
                     {
-                      if (cpu.switches.tro_enable)
+                      if (cpu.settings.tro_enable)
                         setG7fault (current_running_cpu_idx, FAULT_TRO,
                                     fst_zero);
                     }
@@ -3474,7 +3440,7 @@ int core_write (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
-    if (cpu.switches.isolts_mode)
+    if (cpu.settings.isolts_mode)
       {
         if (cpu.MR.sdpap)
           {
@@ -3561,7 +3527,7 @@ int core_unlock_all ()
 int core_write_zone (word24 addr, word36 data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.isolts_mode)
+    if (cpu.settings.isolts_mode)
       {
         if (cpu.MR.sdpap)
           {
@@ -3772,7 +3738,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
         addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
       }
     SC_MAP_ADDR (addr, addr);
-    if (cpu.switches.isolts_mode)
+    if (cpu.settings.isolts_mode)
       {
         if (cpu.MR.sdpap)
           {
