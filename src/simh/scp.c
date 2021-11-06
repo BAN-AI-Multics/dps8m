@@ -754,10 +754,12 @@ static const char simh_help[] =
       "+set console TELNET=UNBUFFERED\n"
       "++++++++                     disables console telnet buffering\n"
       "+set console NOTELNET        disable console telnet\n"
+#ifdef USE_SERIAL
       "+set console SERIAL=serialport[;config]\n"
       "++++++++                     specify console serial port and optionally\n"
       "++++++++                     the port config (i.e. ;9600-8n1)\n"
       "+set console NOSERIAL        disable console serial session\n"
+#endif
        /***************** 80 character line width template *************************/
 #define HLP_SET_REMOTE "*Commands SET REMOTE"
       "3Remote\n"
@@ -888,7 +890,6 @@ static const char simh_help[] =
       "+sh{ow} n{ames}              show logical names\n"
       "+sh{ow} q{ueue}              show event queue\n"
       "+sh{ow} ti{me}               show simulated time\n"
-      "+sh{ow} a{synch}             show asynchronouse I/O state\n"
       "+sh{ow} b{uildinfo}          show build compilation information\n"
       "+sh{ow} ve{rsion}            show simulator version\n"
       "+sh{ow} p{rom}               show PROM initialization data\n"
@@ -901,9 +902,10 @@ static const char simh_help[] =
       "+sh{ow} <dev> SHOW           show device SHOW commands\n"
       "+sh{ow} <dev> {arg,...}      show device parameters\n"
       "+sh{ow} <unit> {arg,...}     show unit parameters\n"
-      "+sh{ow} ethernet             show ethernet devices\n"
+#ifdef USE_SERIAL
       "+sh{ow} serial               show serial devices\n"
       "+sh{ow} multiplexer          show open multiplexer devices\n"
+#endif
       "+sh{ow} clocks               show calibrated timers\n"
       "+sh{ow} on                   show on condition actions\n"
       "+h{elp} <dev> show           displays the device specific show commands\n"
