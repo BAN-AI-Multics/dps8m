@@ -101,6 +101,7 @@ orstlint.txt
 olint126.txt
 oralint126.txt
 flawfinder.txt
+unused.txt
 
 # Vim
 *.*.swp
