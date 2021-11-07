@@ -28,8 +28,6 @@
 
 /* Macros and data structures */
 
-#define NOT_MUX_USING_CODE /* sim_tmxr library provider or agnostic */
-
 #include "sim_defs.h"
 #include "sim_disk.h"
 #include "sim_tape.h"
@@ -245,7 +243,6 @@ t_stat dep_addr (int32 flag, const char *cptr, t_addr addr, DEVICE *dptr,
 void fprint_fields (FILE *stream, t_value before, t_value after, BITFIELD* bitdefs);
 t_stat step_svc (UNIT *ptr);
 t_stat expect_svc (UNIT *ptr);
-t_stat shift_args (char *do_arg[], size_t arg_count);
 t_stat set_on (int32 flag, CONST char *cptr);
 t_stat set_verify (int32 flag, CONST char *cptr);
 t_stat set_message (int32 flag, CONST char *cptr);
@@ -1410,7 +1407,6 @@ static CTAB cmd_table[] = {
     { "EXIT",       &exit_cmd,      0,          HLP_EXIT },
     { "QUIT",       &exit_cmd,      0,          NULL },
     { "BYE",        &exit_cmd,      0,          NULL },
-    { "CD",         &set_default_cmd, 0,        HLP_CD },
     { "SET",        &set_cmd,       0,          HLP_SET },
     { "SHOW",       &show_cmd,      0,          HLP_SHOW },
     { "DO",         &do_cmd,        1,          HLP_DO },
@@ -1437,7 +1433,6 @@ static CTAB set_glob_tab[] = {
     { "REMOTE",     &sim_set_remote_console,    0, HLP_SET_REMOTE },
     { "BREAK",      &brk_cmd,              SSH_ST, HLP_SET_BREAK },
     { "NOBREAK",    &brk_cmd,              SSH_CL, HLP_SET_BREAK },
-    { "DEFAULT",    &set_default_cmd,           1, HLP_SET_DEFAULT },
     { "TELNET",     &sim_set_telnet,            0 },            /* deprecated */
     { "NOTELNET",   &sim_set_notelnet,          0 },            /* deprecated */
     { "LOG",        &sim_set_logon,             0, HLP_SET_LOG  },
@@ -1716,8 +1711,8 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 #else
         fprintf (stdout, "%s simulator", sim_name);
 #endif /* ifdef VER_H_GIT_VERSION */
-        fprintf (stdout, "\nUsage: %s { [SWITCHES] ... } { <SCRIPT> { [arg], [arg], ... } }\n", argv[0]);
-        fprintf (stdout, "\nInvokes the %s simulator, with optional switches and/or script file.\n", sim_name);
+        fprintf (stdout, "\nUsage: %s { [SWITCHES] ... } { <SCRIPT> }\n", argv[0]);
+        fprintf (stdout, "\nInvoke the %s simulator, with optional switches and/or script.\n", sim_name);
         fprintf (stdout, "\n Switches:");
         fprintf (stdout, "\n  -e, -E                  Stop processing script file on any error");
         fprintf (stdout, "\n  -h, -H, --help          Display this help text and exit");
@@ -2659,10 +2654,7 @@ do {
                 stat = do_cmd (sim_do_depth+1, cptr);   /* exec DO cmd */
             }
         else
-            if (cmdp->action == &shift_cmd)             /* SHIFT command */
-                stat = shift_args(do_arg, sizeof(do_arg)/sizeof(do_arg[0]));
-            else
-                stat = cmdp->action (cmdp->arg, cptr);  /* exec other cmd */
+            stat = cmdp->action (cmdp->arg, cptr);      /* exec other cmd */
         }
     else stat = SCPE_UNK;                               /* bad cmd given */
     echo = sim_do_echo;                                 /* Allow for SET VERIFY */
@@ -3015,15 +3007,6 @@ for (; *ip && (op < oend); ) {
 strcpy (instr, tmpbuf);
 free (tmpbuf);
 return;
-}
-
-t_stat shift_args (char *do_arg[], size_t arg_count)
-{
-size_t i;
-
-for (i=1; i<arg_count-1; ++i)
-    do_arg[i] = do_arg[i+1];
-return SCPE_OK;
 }
 
 static
@@ -4871,37 +4854,6 @@ fprint_show_help (st, dptr);
 return SCPE_OK;
 }
 
-/* Show/change the current working directiory commands */
-
-t_stat show_default (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
-{
-char buffer[PATH_MAX];
-char *wd = getcwd(buffer, PATH_MAX);
-fprintf (st, "%s\n", wd);
-return SCPE_OK;
-}
-
-t_stat set_default_cmd (int32 flg, CONST char *cptr)
-{
-char gbuf[4*CBUFSIZE];
-
-if (sim_is_running)
-    return SCPE_INVREM;
-if ((!cptr) || (*cptr == 0))
-    return SCPE_2FARG;
-gbuf[sizeof(gbuf)-1] = '\0';
-strncpy (gbuf, cptr, sizeof(gbuf)-1);
-sim_trim_endspc(gbuf);
-if (chdir(gbuf) != 0)
-    return sim_messagef(SCPE_IOERR, "Unable to directory change to: %s\n", gbuf);
-return SCPE_OK;
-}
-
-t_stat pwd_cmd (int32 flg, CONST char *cptr)
-{
-return show_cmd (0, "DEFAULT");
-}
-
 /* Breakpoint commands */
 
 t_stat brk_cmd (int32 flg, CONST char *cptr)
@@ -6280,13 +6232,6 @@ t_stat expect_svc (UNIT *uptr)
 return SCPE_EXPECT | (sim_do_echo ? 0 : SCPE_NOMESSAGE);
 }
 
-/* Cancel scheduled step service */
-
-t_stat sim_cancel_step (void)
-{
-return sim_cancel (&sim_step_unit);
-}
-
 /* Signal handler for ^C signal - set stop simulation flag */
 
 void int_handler (int sig)
@@ -7169,57 +7114,6 @@ int sim_isalnum (char c)
 return (c & 0x80) ? 0 : isalnum (c);
 }
 
-/* strncasecmp() is not available on all platforms */
-int sim_strncasecmp (const char* string1, const char* string2, size_t len)
-{
-size_t i;
-unsigned char s1, s2;
-
-for (i=0; i<len; i++) {
-    s1 = (unsigned char)string1[i];
-    s2 = (unsigned char)string2[i];
-    if (sim_islower (s1))
-        s1 = (unsigned char)toupper (s1);
-    if (sim_islower (s2))
-        s2 = (unsigned char)toupper (s2);
-    if (s1 < s2)
-        return -1;
-    if (s1 > s2)
-        return 1;
-    if (s1 == 0)
-        return 0;
-    }
-return 0;
-}
-
-/* get_yn               yes/no question
-
-   Inputs:
-        ques    =       pointer to question
-        deflt   =       default answer
-   Outputs:
-        result  =       true if yes, false if no
-*/
-
-t_stat get_yn (const char *ques, t_stat deflt)
-{
-char cbuf[CBUFSIZE];
-const char *cptr;
-
-if (sim_switches & SWMASK ('Y'))
-    return TRUE;
-if (sim_switches & SWMASK ('N'))
-    return FALSE;
-if (sim_rem_cmd_active_line != -1)
-    return deflt;
-cptr = read_line_p (ques, cbuf, sizeof(cbuf), stdin);
-if ((cptr == NULL) || (*cptr == 0))
-    return deflt;
-if ((*cptr == 'Y') || (*cptr == 'y'))
-    return TRUE;
-return FALSE;
-}
-
 /* get_uint             unsigned number
 
    Inputs:
@@ -7923,37 +7817,6 @@ for (bit=0; bit <= ('Z'-'A'); bit++)
 return buf;
 }
 
-
-/* Match file extension
-
-   Inputs:
-        fnam    =       file name
-        ext     =       extension, without period
-   Outputs:
-        cp      =       pointer to final '.' if match, NULL if not
-*/
-
-CONST char *match_ext (CONST char *fnam, const char *ext)
-{
-CONST char *pptr, *fptr;
-const char *eptr;
-
-if ((fnam == NULL) || (ext == NULL))                    /* bad arguments? */
-     return NULL;
-pptr = strrchr (fnam, '.');                             /* find last . */
-if (pptr) {                                             /* any? */
-    for (fptr = pptr + 1, eptr = ext;                   /* match characters */
-    *fptr != 0;                                         /* others: stop at null */
-    fptr++, eptr++) {
-        if (toupper (*fptr) != toupper (*eptr))
-            return NULL;
-        }
-    if (*eptr != 0)                                     /* ext exhausted? */
-        return NULL;
-    }
-return pptr;
-}
-
 /* Get register search specification
 
    Inputs:
@@ -8322,25 +8185,6 @@ if (Fprintf (stream, "%s", dbuf) < 0)
 return SCPE_OK;
 }
 
-t_stat sim_print_val (t_value val, uint32 radix,
-    uint32 width, uint32 format)
-{
-char dbuf[MAX_WIDTH + 1];
-
-if (width > MAX_WIDTH)
-    width = MAX_WIDTH;
-sprint_val (dbuf, val, radix, width, format);
-if (fputs (dbuf, stdout) == EOF)
-    return SCPE_IOERR;
-if (sim_log && (sim_log != stdout))
-    if (fputs (dbuf, sim_log) == EOF)
-        return SCPE_IOERR;
-if (sim_deb && (sim_deb != stdout))
-    if (fputs (dbuf, sim_deb) == EOF)
-        return SCPE_IOERR;
-return SCPE_OK;
-}
-
 const char *sim_fmt_secs (double seconds)
 {
 static char buf[60];
@@ -8408,8 +8252,6 @@ return buf;
 
         sim_activate            add entry to event queue
         sim_activate_abs        add entry to event queue even if event already scheduled
-        sim_activate_notbefore  add entry to event queue even if event already scheduled
-                                but not before the specified time
         sim_activate_after      add entry to event queue after a specified amount of wall time
         sim_cancel              remove entry from event queue
         sim_process_event       process entries on event queue
@@ -8552,29 +8394,6 @@ sim_cancel (uptr);
 return _sim_activate (uptr, event_time);
 }
 
-/* sim_activate_notbefore - activate (queue) event even if event already scheduled
-                            but not before the specified time
-
-   Inputs:
-        uptr    =       pointer to unit
-        rtime   =       relative timeout
-   Outputs:
-        reason  =       result (SCPE_OK if ok)
-*/
-
-t_stat sim_activate_notbefore (UNIT *uptr, int32 rtime)
-{
-uint32 rtimenow, urtime = (uint32)rtime;
-
-sim_cancel (uptr);
-rtimenow = sim_grtime();
-sim_cancel (uptr);
-if (0x80000000 <= urtime-rtimenow)
-    return _sim_activate (uptr, 0);
-else
-    return sim_activate (uptr, urtime-rtimenow);
-}
-
 /* sim_activate_after - activate (queue) event
 
    Inputs:
@@ -8689,7 +8508,6 @@ return 0;
 }
 
 /* sim_gtime - return global time
-   sim_grtime - return global time with rollover
 
    Inputs: none
    Outputs:
@@ -8699,12 +8517,6 @@ return 0;
 double sim_gtime (void)
 {
 return sim_time;
-}
-
-uint32 sim_grtime (void)
-{
-UPDATE_SIM_TIME;
-return sim_rtime;
 }
 
 /* sim_qcount - return queue entry count
@@ -9253,7 +9065,6 @@ return msg;
 
         sim_set_expect          expect command parser and intializer
         sim_set_noexpect        noexpect command parser
-        sim_exp_init            initialize an expect context
         sim_exp_set             set or add an expect rule
         sim_exp_clr             clear or delete an expect rule
         sim_exp_clrall          clear all expect rules
@@ -9261,14 +9072,6 @@ return msg;
         sim_exp_showall         show all expect rules
         sim_exp_check           test for rule match
 */
-
-/*   Initialize an expect context. */
-
-t_stat sim_exp_init (EXPECT *exp)
-{
-memset (exp, 0, sizeof(*exp));
-return SCPE_OK;
-}
 
 /* Set expect */
 
@@ -9976,14 +9779,6 @@ if (sim_deb && (sim_deb != stdout) && (sim_deb != sim_log))
 
 if (buf != stackbuf)
     free (buf);
-}
-
-void sim_perror (const char *msg)
-{
-int saved_errno = errno;
-
-perror (msg);
-sim_printf ("%s: %s\n", msg, strerror (saved_errno));
 }
 
 /* Print command result message to stdout, sim_log (if enabled) and sim_deb (if enabled) */

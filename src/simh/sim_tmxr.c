@@ -79,8 +79,6 @@
    All routines are OS-independent.
 */
 
-#define NOT_MUX_USING_CODE /* sim_tmxr library define */
-
 #include "sim_defs.h"
 #include "sim_sock.h"
 #include "sim_timer.h"

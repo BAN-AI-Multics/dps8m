@@ -1355,25 +1355,10 @@ t_stat sim_disk_attach_help(FILE *st, DEVICE *dptr, const UNIT *uptr, int32 flag
 {
 fprintf (st, "%s Disk Attach Help\n\n", dptr->name);
 
-fprintf (st, "Disk container files can be one of 3 different types:\n\n");
+fprintf (st, "Disk container files can be one of 2 different types:\n\n");
 fprintf (st, "    SIMH   A disk is an unstructured binary file of the size appropriate\n");
 fprintf (st, "           for the disk drive being simulated\n");
-fprintf (st, "    VHD    Virtual Disk format which is described in the \"Microsoft\n");
-fprintf (st, "           Virtual Hard Disk (VHD) Image Format Specification\".  The\n");
-fprintf (st, "           VHD implementation includes support for 1) Fixed (Preallocated)\n");
-fprintf (st, "           disks, 2) Dynamically Expanding disks, and 3) Differencing disks.\n");
 fprintf (st, "    RAW    platform specific access to physical disk or CDROM drives\n\n");
-fprintf (st, "Virtual (VHD) Disks  supported conform to \"Virtual Hard Disk Image Format\n");
-fprintf (st, "Specification\", Version 1.0 October 11, 2006.\n");
-fprintf (st, "Dynamically expanding disks never change their \"Virtual Size\", but they don't\n");
-fprintf (st, "consume disk space on the containing storage until the virtual sectors in the\n");
-fprintf (st, "disk are actually written to (i.e. a 2GB Dynamic disk container file with only\n");
-fprintf (st, "30MB of data will initially be about 30MB in size and this size will grow up to\n");
-fprintf (st, "2GB as different sectors are written to.  The VHD format contains metadata\n");
-fprintf (st, "which describes the drive size and the simh device type in use when the VHD\n");
-fprintf (st, "was created.  This metadata is therefore available whenever that VHD is\n");
-fprintf (st, "attached to an emulated disk device in the future so the device type and\n");
-fprintf (st, "size can be automatically be configured.\n\n");
 
 if (0 == (uptr-dptr->units)) {
     if (dptr->numunits > 1) {
@@ -1392,84 +1377,18 @@ fprintf (st, "\n%s attach command switches\n", dptr->name);
 fprintf (st, "    -R          Attach Read Only.\n");
 fprintf (st, "    -E          Must Exist (if not specified an attempt to create the indicated\n");
 fprintf (st, "                disk container will be attempted).\n");
-fprintf (st, "    -F          Open the indicated disk container in a specific format (default\n");
-fprintf (st, "                is to autodetect VHD defaulting to simh if the indicated\n");
-fprintf (st, "                container is not a VHD).\n");
+fprintf (st, "    -F          Open the indicated disk container in a specific format\n");
 fprintf (st, "    -I          Initialize newly created disk so that each sector contains its\n");
 fprintf (st, "                sector address\n");
 fprintf (st, "    -K          Verify that the disk contents contain the sector address in each\n");
 fprintf (st, "                sector.  Whole disk checked at attach time and each sector is\n");
 fprintf (st, "                checked when written.\n");
-fprintf (st, "    -C          Create a VHD and copy its contents from another disk (simh, VHD,\n");
-fprintf (st, "                or RAW format). Add a -V switch to verify a copy operation.\n");
 fprintf (st, "    -V          Perform a verification pass to confirm successful data copy\n");
 fprintf (st, "                operation.\n");
-fprintf (st, "    -X          When creating a VHD, create a fixed sized VHD (vs a Dynamically\n");
-fprintf (st, "                expanding one).\n");
-fprintf (st, "    -D          Create a Differencing VHD (relative to an already existing VHD\n");
-fprintf (st, "                disk)\n");
-fprintf (st, "    -M          Merge a Differencing VHD into its parent VHD disk\n");
-fprintf (st, "    -O          Override consistency checks when attaching differencing disks\n");
-fprintf (st, "                which have unexpected parent disk GUID or timestamps\n\n");
 fprintf (st, "    -U          Fix inconsistencies which are overridden by the -O switch\n");
 fprintf (st, "    -Y          Answer Yes to prompt to overwrite last track (on disk create)\n");
 fprintf (st, "    -N          Answer No to prompt to overwrite last track (on disk create)\n");
-fprintf (st, "Examples:\n");
-fprintf (st, "  sim> show rq\n");
-fprintf (st, "    RQ, address=20001468-2000146B*, no vector, 4 units\n");
-fprintf (st, "    RQ0, 159MB, not attached, write enabled, RD54, autosize, SIMH format\n");
-fprintf (st, "    RQ1, 159MB, not attached, write enabled, RD54, autosize, SIMH format\n");
-fprintf (st, "    RQ2, 159MB, not attached, write enabled, RD54, autosize, SIMH format\n");
-fprintf (st, "    RQ3, 409KB, not attached, write enabled, RX50, autosize, SIMH format\n");
-fprintf (st, "  sim> atta rq0 RA81.vhd\n");
-fprintf (st, "  sim> show rq0\n");
-fprintf (st, "  RQ0, 456MB, attached to RA81.vhd, write enabled, RA81, autosize, VHD format\n");
-fprintf (st, "  sim> set rq2 ra92\n");
-fprintf (st, "  sim> att rq2 -f vhd RA92.vhd\n");
-fprintf (st, "  RQ2: creating new file\n");
-fprintf (st, "  sim> sho rq2\n");
-fprintf (st, "  RQ2, 1505MB, attached to RA92.vhd, write enabled, RA92, autosize, VHD format\n");
-fprintf (st, "  sim> ! dir RA92.vhd\n");
-fprintf (st, "   Volume in drive H is New Volume\n");
-fprintf (st, "   Volume Serial Number is F8DE-510C\n\n");
-fprintf (st, "   Directory of H:\\Data\n\n");
-fprintf (st, "  04/14/2011  12:57 PM             5,120 RA92.vhd\n");
-fprintf (st, "                 1 File(s)          5,120 bytes\n");
-fprintf (st, "  sim> atta rq3 -d RA92-1-Diff.vhd RA92.vhd\n");
-fprintf (st, "  sim> atta rq3 -c RA92-1.vhd RA92.vhd\n");
-fprintf (st, "  RQ3: creating new virtual disk 'RA92-1.vhd'\n");
-fprintf (st, "  RQ3: Copied 1505MB.  99%% complete.\n");
-fprintf (st, "  RQ3: Copied 1505MB. Done.\n");
-fprintf (st, "  sim> sh rq3\n");
-fprintf (st, "  RQ3, 1505MB, attached to RA92-1.vhd, write enabled, RA92, autosize, VHD format\n");
-fprintf (st, "  sim>  ! dir RA92*\n");
-fprintf (st, "   Volume in drive H is New Volume\n");
-fprintf (st, "   Volume Serial Number is F8DE-510C\n\n");
-fprintf (st, "   Directory of H:\\Data\n\n");
-fprintf (st, "  04/14/2011  01:12 PM             5,120 RA92-1.vhd\n");
-fprintf (st, "  04/14/2011  12:58 PM             5,120 RA92.vhd\n");
-fprintf (st, "                 2 File(s)         10,240 bytes\n");
-fprintf (st, "  sim> sho rq2\n");
-fprintf (st, "  RQ2, 1505MB, not attached, write enabled, RA92, autosize, VHD format\n");
-fprintf (st, "  sim> set rq2 ra81\n");
-fprintf (st, "  sim> set rq2 noauto\n");
-fprintf (st, "  sim> sho rq2\n");
-fprintf (st, "  RQ2, 456MB, not attached, write enabled, RA81, noautosize, VHD format\n");
-fprintf (st, "  sim> set rq2 format=simh\n");
-fprintf (st, "  sim> sho rq2\n");
-fprintf (st, "  RQ2, 456MB, not attached, write enabled, RA81, noautosize, SIMH format\n");
-fprintf (st, "  sim> atta rq2 -c RA81-Copy.vhd VMS055.dsk\n");
-fprintf (st, "  RQ2: creating new virtual disk 'RA81-Copy.vhd'\n");
-fprintf (st, "  RQ2: Copied 456MB.  99%% complete.\n");
-fprintf (st, "  RQ2: Copied 456MB. Done.\n");
-fprintf (st, "  sim> sho rq2\n");
-fprintf (st, "  RQ2, 456MB, attached to RA81-Copy.vhd, write enabled, RA81, noautosize, VHD format\n");
 return SCPE_OK;
-}
-
-t_bool sim_disk_vhd_support (void)
-{
-return SCPE_OK == sim_vhd_disk_implemented ();
 }
 
 t_bool sim_disk_raw_support (void)
