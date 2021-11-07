@@ -683,7 +683,6 @@ static const char simh_help[] =
       "++ATTACH -f <disk_unit> <format> <filename>\n\n"
       " The currently supported disk image file formats are:\n\n"
       "++SIMH                   SIMH simulator format\n"
-      "++VHD                    Virtual Disk format\n"
       "++RAW                    platform specific access to physical disk or\n"
       "++                       CDROM drives\n"
       " The disk format can also be set with the SET command prior to ATTACH:\n\n"
@@ -698,9 +697,6 @@ static const char simh_help[] =
       "++ATTACH <unit> <port>\n\n"
       " The port is a decimal number between 1 and 65535 that is not already used\n"
       " other TCP/IP applications.\n"
-      " For Ethernet emulators, the ATTACH command associates the simulated Ethernet\n"
-      " with a physical Ethernet device:\n\n"
-      "++ATTACH <unit> <physical device name>\n"
        /***************** 80 character line width template *************************/
 #define HLP_DETACH      "*Commands Connecting_and_Disconnecting_Devices DETACH"
       "3DETACH\n"
@@ -709,15 +705,6 @@ static const char simh_help[] =
       "++DETACH ALL             detach all units\n"
       "++DETACH <unit>          detach specified unit\n"
       " The EXIT command performs an automatic DETACH ALL.\n"
-      "2Controlling Simulator Operating Environment\n"
-      "3Working Directory\n"
-#define HLP_CD          "*Commands Controlling_Simulator_Operating_Environment Working_Directory CD"
-      "4CD\n"
-      " Set the current working directory:\n"
-      "++CD path\n"
-      "4SET_DEFAULT\n"
-      " Set the current working directory:\n"
-      "++SET DEFAULT path\n"
 #define HLP_SET         "*Commands SET"
       "2SET\n"
        /***************** 80 character line width template *************************/
@@ -752,10 +739,6 @@ static const char simh_help[] =
       "++++++++                     console sessions\n"
       "+set remote TIMEOUT=n        specify number of seconds without input\n"
       "++++++++                     before automatic continue\n"
-#define HLP_SET_DEFAULT "*Commands SET Working_Directory"
-      "3Working Directory\n"
-      "+set default <dir>           set the current directory\n"
-      "+cd <dir>                    set the current directory\n"
 #define HLP_SET_LOG    "*Commands SET Log"
       "3Log\n"
       " Interactions with the simulator session (at the \"sim>\" prompt\n"
@@ -1363,13 +1346,6 @@ static const char simh_help[] =
       "2Exiting The Simulator\n"
       " EXIT (synonyms QUIT and BYE) returns control to the operating system.\n"
        /***************** 80 character line width template *************************/
-#define HLP_SCREENSHOT  "*Commands Screenshot_Video_Window"
-      "2Screenshot Video Window\n"
-      " Simulators with Video devices display the simulated video in a window\n"
-      " on the local system.  The contents of that display can be saved in a\n"
-      " file with the SCREENSHOT command:\n\n"
-      " +SCREENSHOT screenshotfile\n\n"
-      " which will create a screen shot file called screenshotfile.bmp\n"
 #define HLP_SPAWN       "*Commands Executing_System_Commands"
       "2Executing System Commands\n"
       " The simulator can execute operating system commands with the ! (spawn)\n"
@@ -5617,7 +5593,7 @@ if (v35) {                                              /* [V3.5+] options */
         sim_printf ("Incompatible address size, save file = %s\n", buf);
         return SCPE_INCOMP;
         }
-    READ_S (buf);                                       /* Ethernet */
+    READ_S (buf);
     }
 if (v32) {                                              /* [V3.2+] time as string */
     READ_S (buf);
