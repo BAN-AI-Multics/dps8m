@@ -76,20 +76,20 @@
 
 static char *unsupported_term[] = {"dumb","cons25","emacs",NULL};
 
-#ifdef LH_COMPLETION
+# ifdef LH_COMPLETION
 static linenoiseCompletionCallback *completionCallback = NULL;
-#endif
+# endif
 
-#ifdef LH_HINTS
+# ifdef LH_HINTS
 static linenoiseHintsCallback *hintsCallback = NULL;
 static linenoiseFreeHintsCallback *freeHintsCallback = NULL;
-#endif
+# endif
 
 static struct termios orig_termios; /* In order to restore at exit.*/
 
-#ifdef LH_MASKMODE
+# ifdef LH_MASKMODE
 static int maskmode = 0; /* Show "***" instead of input. For passwords. */
-#endif
+# endif
 
 static int rawmode = 0; /* For atexit() function to check if restore is needed*/
 static int mlmode = 0;  /* Multi line mode. Default is single line. */
@@ -163,7 +163,7 @@ void linenoiseMaskModeEnable(void) {
 void linenoiseMaskModeDisable(void) {
     maskmode = 0;
 }
-#endif
+# endif
 
 /* Set if to use or not the multi line mode. */
 void linenoiseSetMultiLine(int ml) {
@@ -291,7 +291,7 @@ void linenoiseClearScreen(void) {
     }
 }
 
-#ifdef LH_COMPLETION
+# ifdef LH_COMPLETION
 
 /* Beep, used for completion when there is nothing to complete or when all
  * the choices were already shown. */
@@ -379,9 +379,9 @@ void linenoiseSetCompletionCallback(linenoiseCompletionCallback *fn) {
     completionCallback = fn;
 }
 
-#endif
+# endif
 
-#ifdef LH_HINTS
+# ifdef LH_HINTS
 
 /*
  * Register a hits function to be called to show hits to the user at the
@@ -401,9 +401,9 @@ void linenoiseSetFreeHintsCallback(linenoiseFreeHintsCallback *fn) {
     freeHintsCallback = fn;
 }
 
-#endif
+# endif
 
-#ifdef LH_COMPLETION
+# ifdef LH_COMPLETION
 
 /*
  * This function is used by the callback function registered by the user
@@ -427,7 +427,7 @@ void linenoiseAddCompletion(linenoiseCompletions *lc, const char *str) {
     lc->cvec[lc->len++] = copy;
 }
 
-#endif
+# endif
 
 /* =========================== Line editing ================================= */
 
@@ -462,7 +462,7 @@ static void abFree(const struct abuf *ab) {
     free(ab->b);
 }
 
-#ifdef LH_HINTS
+# ifdef LH_HINTS
 
 /*
  * Helper of refreshSingleLine() and refreshMultiLine() to show hints
@@ -494,7 +494,7 @@ static void refreshShowHints(struct abuf *ab, const struct linenoiseState *l, in
     }
 }
 
-#endif
+# endif
 
 /*
  * Single line low level line refresh.
@@ -527,19 +527,19 @@ static void refreshSingleLine(const struct linenoiseState *l) {
     abAppend(&ab,seq,strlen(seq));
     /* Write the prompt and the current buffer content */
     abAppend(&ab,l->prompt,strlen(l->prompt));
-#ifdef LH_MASKMODE
+# ifdef LH_MASKMODE
     if (maskmode == 1) {
         while (len--) abAppend(&ab,"*",1);
     } else {
-#endif
+# endif
         abAppend(&ab,buf,len);
-#ifdef LH_MASKMODE
+# ifdef LH_MASKMODE
     }
-#endif
-#ifdef LH_HINTS
+# endif
+# ifdef LH_HINTS
     /* Show hits if any. */
     refreshShowHints(&ab,l,plen);
-#endif
+# endif
     /* Erase to right */
     snprintf(seq,sizeof(seq),"\x1b[0K");
     abAppend(&ab,seq,strlen(seq));
@@ -594,21 +594,21 @@ static void refreshMultiLine(struct linenoiseState *l) {
 
     /* Write the prompt and the current buffer content */
     abAppend(&ab,l->prompt,strlen(l->prompt));
-#ifdef LH_MASKMODE
+# ifdef LH_MASKMODE
     if (maskmode == 1) {
         unsigned int i;
         for (i = 0; i < l->len; i++) abAppend(&ab,"*",1);
     } else {
-#endif
+# endif
         abAppend(&ab,l->buf,l->len);
-#ifdef LH_MASKMODE
+# ifdef LH_MASKMODE
     }
-#endif
+# endif
 
-#ifdef LH_HINTS
+# ifdef LH_HINTS
     /* Show hits if any. */
     refreshShowHints(&ab,l,plen);
-#endif
+# endif
 
     /*
      * If we are at the very end of the screen with our prompt, we need to
@@ -675,17 +675,17 @@ int linenoiseEditInsert(struct linenoiseState *l, char c) {
             l->pos++;
             l->len++;
             l->buf[l->len] = '\0';
-#if defined(LH_MASKMODE) && defined(LH_HINTS)
+# if defined(LH_MASKMODE) && defined(LH_HINTS)
             if ((!mlmode && l->plen+l->len < l->cols && !hintsCallback)) {
                 /* Avoid a full update of the line in the trivial case. */
                 char d = (maskmode==1) ? '*' : (char)c;
                 if (write(l->ofd,&d,1) == -1) return -1;
             } else {
-#endif
+# endif
                 refreshLine(l);
-#if defined(LH_MASKMODE) && defined(LH_HINTS)
+# if defined(LH_MASKMODE) && defined(LH_HINTS)
             }
-#endif
+# endif
         } else {
             memmove(l->buf+l->pos+1,l->buf+l->pos,l->len-l->pos);
             l->buf[l->pos] = c;
@@ -970,7 +970,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         nread = read(l.ifd,&c,1);
         if (nread <= 0) return l.len;
 
-#ifdef LH_COMPLETION
+# ifdef LH_COMPLETION
 
         /*
          * Only autocomplete when the callback is set. It returns < 0 when
@@ -987,7 +987,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             c = (char)cint;
         }
 
-#endif
+# endif
 
         switch(c) {
         case 9:
@@ -996,7 +996,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             history_len--;
             free(history[history_len]);
             if (mlmode) linenoiseEditMoveEnd(&l);
-#ifdef LH_HINTS
+# ifdef LH_HINTS
             if (hintsCallback) {
 
                 /*
@@ -1009,7 +1009,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
                 refreshLine(&l);
                 hintsCallback = hc;
             }
-#endif
+# endif
             return (int)l.len;
         case CTRL_C:     /* ctrl-c */
             errno = EAGAIN;
