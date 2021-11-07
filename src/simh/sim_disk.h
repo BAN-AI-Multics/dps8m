@@ -27,11 +27,11 @@
 */
 
 #ifndef SIM_DISK_H_
-#define SIM_DISK_H_    0
+# define SIM_DISK_H_    0
 
-#ifdef  __cplusplus
+# ifdef  __cplusplus
 extern "C" {
-#endif
+# endif
 
 /* SIMH/Disk format */
 
@@ -40,28 +40,26 @@ typedef uint32          t_lba;                          /* disk logical block ad
 
 /* Unit flags */
 
-#define DKUF_V_WLK      (UNIT_V_UF + 0)                 /* write locked */
-#define DKUF_V_FMT      (UNIT_V_UF + 1)                 /* disk file format */
-#define DKUF_W_FMT      2                               /* 2b of formats */
-#define DKUF_N_FMT      (1u << DKUF_W_FMT)              /* number of formats */
-#define DKUF_M_FMT      ((1u << DKUF_W_FMT) - 1)
-#define DKUF_F_STD       0                              /* SIMH format */
-#define DKUF_F_RAW       1                              /* Raw Physical Disk Access */
-#define DKUF_F_VHD       2                              /* VHD format */
-#define DKUF_V_UF       (DKUF_V_FMT + DKUF_W_FMT)
-#define DKUF_WLK        (1u << DKUF_V_WLK)
-#define DKUF_FMT        (DKUF_M_FMT << DKUF_V_FMT)
-#define DKUF_WRP        (DKUF_WLK | UNIT_RO)
-
-#define DK_F_STD        (DKUF_F_STD << DKUF_V_FMT)
-#define DK_F_RAW        (DKUF_F_RAW << DKUF_V_FMT)
-#define DK_F_VHD        (DKUF_F_VHD << DKUF_V_FMT)
-
-#define DK_GET_FMT(u)   (((u)->flags >> DKUF_V_FMT) & DKUF_M_FMT)
+# define DKUF_V_WLK      (UNIT_V_UF + 0)                 /* write locked */
+# define DKUF_V_FMT      (UNIT_V_UF + 1)                 /* disk file format */
+# define DKUF_W_FMT      2                               /* 2b of formats */
+# define DKUF_N_FMT      (1u << DKUF_W_FMT)              /* number of formats */
+# define DKUF_M_FMT      ((1u << DKUF_W_FMT) - 1)
+# define DKUF_F_STD      0                              /* SIMH format */
+# define DKUF_F_RAW      1                              /* Raw Physical Disk Access */
+# define DKUF_F_VHD      2                              /* VHD format */
+# define DKUF_V_UF       (DKUF_V_FMT + DKUF_W_FMT)
+# define DKUF_WLK        (1u << DKUF_V_WLK)
+# define DKUF_FMT        (DKUF_M_FMT << DKUF_V_FMT)
+# define DKUF_WRP        (DKUF_WLK | UNIT_RO)
+# define DK_F_STD        (DKUF_F_STD << DKUF_V_FMT)
+# define DK_F_RAW        (DKUF_F_RAW << DKUF_V_FMT)
+# define DK_F_VHD        (DKUF_F_VHD << DKUF_V_FMT)
+# define DK_GET_FMT(u)   (((u)->flags >> DKUF_V_FMT) & DKUF_M_FMT)
 
 /* Return status codes */
 
-#define DKSE_OK         0                               /* no error */
+# define DKSE_OK         0                               /* no error */
 
 typedef void (*DISK_PCALLBACK)(UNIT *unit, t_stat status);
 
@@ -80,8 +78,6 @@ t_stat sim_disk_set_fmt (UNIT *uptr, int32 val, CONST char *cptr, void *desc);
 t_stat sim_disk_show_fmt (FILE *st, UNIT *uptr, int32 val, CONST void *desc);
 t_stat sim_disk_set_capac (UNIT *uptr, int32 val, CONST char *cptr, void *desc);
 t_stat sim_disk_show_capac (FILE *st, UNIT *uptr, int32 val, CONST void *desc);
-t_stat sim_disk_set_asynch (UNIT *uptr, int latency);
-t_stat sim_disk_clr_asynch (UNIT *uptr);
 t_stat sim_disk_reset (UNIT *uptr);
 t_stat sim_disk_perror (UNIT *uptr, const char *msg);
 t_stat sim_disk_clearerr (UNIT *uptr);
@@ -93,8 +89,8 @@ t_bool sim_disk_vhd_support (void);
 t_bool sim_disk_raw_support (void);
 void sim_disk_data_trace (UNIT *uptr, const uint8 *data, size_t lba, size_t len, const char* txt, int detail, uint32 reason);
 
-#ifdef  __cplusplus
+# ifdef  __cplusplus
 }
-#endif
+# endif
 
 #endif

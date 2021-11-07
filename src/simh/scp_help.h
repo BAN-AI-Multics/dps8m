@@ -26,13 +26,10 @@
 */
 
 #ifndef SCP_HELP_H_
-#define SCP_HELP_H_  0
+# define SCP_HELP_H_  0
 
 /* The SCP structured help uses help text that defines a hierarchy of information
  * organized into topics and subtopics.
- *
- * This arrangement allows the long help messages being used in many devices to be
- * organized to be easier to approach and navigate.
  *
  * The structure of the help text is:
  *
@@ -82,9 +79,6 @@
  * If the parameter is FALSE (NULL, or a string with any other value),
  * the topic will not be visible.
  *
- * If it can be determined at compile time whether the topic in question
- * is needed, #ifdef around those lines of the help is a better choice.
- *
  * If both $ and ? are used, ? comes first.
  *
  * Guidelines:
@@ -123,21 +117,6 @@
  *                             E.G. The DEC KMC/DUP are two hardware devices that are closely related;
  *                             The KMC controlls the DUP on behalf of the OS.
  *
- * This text can be created by any convenient means.  It can be mechanically extracted from the device
- * source, read from a file, or simply entered as a string in the help routine.  To facilitate the latter,
- * this file defines two convenience macros:
- *
- *   L(text)     - provides a string with a leading space and a trailing \n.  Enter a line of topic text.
- *   T(n, NAME)  - provides a string with the topic level n and the topic name NAME, and a trailing \n.
- *
- * These are concatenated normally, e.g.
-   const char *const help =
-    L (The %D device is interesting)
-    L (It has lots of help options)
-    T (1, TOPIC 1)
-    L (And this is topic 1)
-    ;
- *
  * API:
  *  To make use of this type of help in your device, create (or replace) a help routine with one that
  *   calls scp_help.  Most of the arguments are the same as those of the device help routine.
@@ -149,105 +128,9 @@
  *
  *  t_stat scp_vhelp (FILE *st, DEVICE *dptr,
  *                    UNIT *uptr, int flag, const char *help, char *cptr, va_list ap)
- *
- *  To obtain the help from an external file (Note this reads the entire file into memory):
- *  t_stat scp_helpFromFile (FILE *st, DEVICE *dptr,
- *                            UNIT *uptr, int flag, const char *helpfile, char *cptr, ...)
- *  and for va_list:
- *  t_stat scp_vhelpFromFile (FILE *st, DEVICE *dptr,
- *                            UNIT *uptr, int flag, const char *helpfile, char *cptr, va_list ap) {
- *
- * dptr and uptr are only used if the %D and/or %U escapes are encountered.
- * help is the help text; helpfile is the help file name.
- *
- * flag is usually the flag from the help command dispatch.  SCP_HELP_FLAT is set in non-interactive
- * environments.  When this flag, or DEV_FLATHELP in DEVICE.flags is set, the entire help text
- * will be flattened and displayed in outline form.
- *
- * Help files are easier to edit, but can become separated from the SimH executable.  Finding them
- * at runtime can also be a challenge.  SimH tries...but the project standard is to embed help
- * as strings in the device.  (It may be easier to develop help as a file before converting it
- * to a string.)
- *
- * Lines beginning with ';' will be ignored.
- *
- * Here is a worked-out example:
- *
-;****************************************************************************
- The Whizbang 100 is a DMA line printer controller used on the Whizbang 1000
- and Gurgle 1200 processor familes of the Obsolete Hardware Corporation.
-1 Hardware Description
- The Whizbang 100 is specified to operate "any printer you and a friend can
- lift", and speeds up to 0.5 C.
-
- The controller requires a refrigerator-sized box, consumes 5.5KW, and is
- liquid cooled.  It uses GBL (Granite Baked Logic).
-
- Painted a cool blue, it consistently won industrial design awards, even
- as mechanically, it was less than perfect.  Plumbers had full employment.
-2 Models
- The Whizbang 100 model G was commissioned by a government agency, which
- insisted on dull gray paint, and speeds limited to 11 MPH.
-
- The Whizbang 100 Model X is powered by the improbability drive, and is
- rarely seen once installed.
-2 $Registers
- The two main registers are the Print Control register and the Print Data
- register.  The Print Maintenance register is usually broken.
-3 Print Control register
-  Bit 0 turns the attached printer on when set, off when clear.
-  Bit 1 ejects the current page
-  Bit 2 ejects the operator
-  Bit 3 enables interrupts
-3 Print data register
-  The print data register is thiry-seven bits wide, and accepts data in
-  elephantcode, the precursor to Unicode.  Paper advance is accomplished
-  with the Rocket Return and Page Trampoline characters.
-1 Configuration
-  The Whizbang 100 requires 4 address slots on the LooneyBus.
-+  SET WHIZBANG LUNA 11
-  will assign the controller to its default bus address.
-2 $Set commands
-  The output codeset can be ASCII or elephantcode
-+ SET WHIZBANG CODESET ASCII
-+   SET WHIZBANG CODESET ELEPHANTCODE
-
-  The VFU (carriage control tape) is specifed with
-+ SET WHIZBANG TAPE vfufile
-2 WOS
-  Under WOS, the device will only work at LooneyBus slot 9
-2 RTG
-  The RTG driver has been lost.  It is not known if the
-  Whizbang will operate correctly.
-2 Files
-  The VFU is programmed with an ASCII text file.  Each line of the
-  file corresponds to a line of the form.  Enter the channel numbers
-  as base 33 roman numerals.
-2 Examples
-  TBS
-1 Operation
-  Specify the host file to receive output using the
-+ATTACH WHIZBANG filespec
- command.
-1 Monitoring
-  The Whizbang has no lights or switches.  The model X may be located
-  with the
-+SHOW WHIZBANG LOCATION
- simulator command.
-2 $Show commands
-1 Restrictions
- The emulator is limited to a single Whizbang controller.
-1 Debugging
- The only implemented debugging command is
-+ SET WHIZBANG DEBUG=PRAY
- To stop:
-+ SET WHIZBANG NODEBUG=PRAY
-1 Related Devices
-  See also the Whizbang paper shredder (SHRED).
- *
  */
 
-#define T(level, text) #level " " #text "\n"
-#define L(text) " " #text "\n"
+# define T(level, text) #level " " #text "\n"
+# define L(text) " " #text "\n"
 
 #endif

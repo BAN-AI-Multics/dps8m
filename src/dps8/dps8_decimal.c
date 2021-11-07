@@ -232,9 +232,9 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
     uInt cut=DECDPUN;           // downcounter per Unit
     uInt u=*up;                 // work
     uInt nib;                   // ..
-#if DECDPUN<=4
+# if DECDPUN<=4
     uInt temp;                  // ..
-#endif
+# endif
 
     if (dn->digits>length                  // too long ..
         ||(dn->bits & DECSPECIAL)) return NULL;   // .. or special -- hopeless
@@ -252,14 +252,14 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
                 u=*up;
                 cut=DECDPUN;
             }
-#if DECDPUN<=4
+# if DECDPUN<=4
             temp=(u*6554)>>16;         // fast /10
             nib=u-X10(temp);
             u=temp;
-#else
+# else
             nib=u%10;                  // cannot use *6554 trick :-(
             u=u/10;
-#endif
+# endif
             //obyte|=(nib<<4);
             obyte=nib & 255U;
             indigs--;
@@ -316,7 +316,7 @@ static const char *CTN[] = {"CTN9", "CTN4"};
 char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf, bool R, bool *OVR, bool *TRUNC)
 {
     uint8_t bcd [256];
-#if 1
+# if 1
    /*
      * this is for mp3d ISOLTS error (and perhaps others)
      */
@@ -358,7 +358,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                 return (char *) out2;
         }
     }
-#else
+# else
     /*
      * this is for mp3d ISOLTS error (and perhaps others)
      */
@@ -401,7 +401,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
         }
         return (char *) out2;
     }
-#endif
+# endif
 
 
     if (s == CSFL)
@@ -456,7 +456,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
     {
         //decNumberTrim(r);   // clean up any trailing 0's
 
-#ifndef SPEED
+# ifndef SPEED
         int scale;
         char out[256], out2[256];
 
@@ -470,7 +470,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                 out[i] += '0';
             sim_printf("formatDecimal(DEBUG): out[]: '%s'\n", out);
         }
-#endif
+# endif
 
         if (s != CSFL)// && sf != 0)
         {
@@ -485,7 +485,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
             //*r2 = *r;
             decNumberCopy(r2, r);
 
-#ifndef SPEED
+# ifndef SPEED
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
         {
             decBCDFromNumber((uint8_t *)out2, r2->digits, &scale, r2);
@@ -495,7 +495,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
             sim_debug (DBG_TRACEEXT, & cpu_dev,
                        "formatDecimal: adjLen=%d E=%d SF=%d S=%s TN=%s digits(r2)=%s E2=%d\n", adjLen, r->exponent, sf, CS[s], CTN[tn],out2, r2->exponent);
         }
-#endif
+# endif
     }
 
     int scale;
@@ -621,7 +621,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
 
             // display int of number
 
-#ifndef SPEED
+# ifndef SPEED
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
             {
                 decNumber _i;
@@ -633,7 +633,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                     outi[j] += '0';
                 sim_debug (DBG_TRACEEXT, & cpu_dev, "i=%s\n", outi);
             }
-#endif
+# endif
         }
         else
         {

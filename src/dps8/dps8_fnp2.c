@@ -86,15 +86,15 @@
 #include "sim_tmxr.h"
 
 #ifndef CROSS_MINGW64
-#ifndef CROSS_MINGW32
-#include <regex.h>
-#endif /* ifndef CROSS_MINGW32 */
+# ifndef CROSS_MINGW32
+#  include <regex.h>
+# endif /* ifndef CROSS_MINGW32 */
 #endif /* ifndef CROSS_MINGW64 */
 
 #define DBG_CTR 1
 
 #if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif /* defined(THREADZ) || defined(LOCKLESS) */
 
 static t_stat fnpShowConfig (FILE *st, UNIT *uptr, int val, const void *desc);
@@ -2873,7 +2873,6 @@ associate:;
       fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].lineType = 1; /* LINE_ASCII */
     fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].accept_new_terminal = true;
     reset_line (& fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno]);
-    ltnRaw (p->telnetp);
   }
 
 void startFNPListener (void)

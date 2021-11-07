@@ -566,7 +566,7 @@
 #include "dps8_fnp2.h"
 #include "dps8_utils.h"
 #if defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #define DBG_CTR 1
@@ -860,52 +860,52 @@ void iom_core_write2 (uint iom_unit_idx, word24 addr, word36 even, word36 odd, U
 
 void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
-#ifdef LOCKLESS
+# ifdef LOCKLESS
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
-#else
+# else
     * data = M[addr] & DMASK;
-#endif
+# endif
   }
 
 void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36 *odd, UNUSED const char * ctx)
   {
-#ifdef LOCKLESS
+# ifdef LOCKLESS
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * even = v & DMASK;
     addr++;
     LOAD_ACQ_CORE_WORD(v, addr);
     * odd = v & DMASK;
-#else
+# else
     * even = M[addr ++] & DMASK;
     * odd =  M[addr]    & DMASK;
-#endif
+# endif
   }
 
 void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
   {
-#ifdef LOCKLESS
+# ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, data);
-#else
+# else
     M[addr] = data & DMASK;
-#endif
+# endif
   }
 
 void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36 odd, UNUSED const char * ctx)
   {
-#ifdef LOCKLESS
+# ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, even);
     addr++;
     LOCK_CORE_WORD(addr);
     STORE_REL_CORE_WORD(addr, odd);
-#else
+# else
     M[addr ++] = even;
     M[addr] =    odd;
-#endif
+# endif
   }
 #endif
 
@@ -1707,14 +1707,14 @@ static void setupIOMScbankMap (uint iom_unit_idx)
           continue;
         // Calculate the amount of memory in the SCU in words
         uint store_size = p -> configSwPortStoresize[port_num];
-#ifdef DPS8M
+# ifdef DPS8M
         uint store_table[8] =
           { 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304 };
-#endif
-#ifdef L68
+# endif
+# ifdef L68
         uint store_table[8] =
           { 32768, 65536, 4194304, 131072, 524288, 1048576, 2097152, 262144 };
-#endif
+# endif
         //uint sz = 1 << (store_size + 16);
         uint sz = store_table[store_size];
 
@@ -1742,11 +1742,11 @@ static void setupIOMScbankMap (uint iom_unit_idx)
               }
           }
       }
-#if 0
+# if 0
     for (int pg = 0; pg < (int) N_SCBANKS; pg ++)
       sim_debug (DBG_DEBUG, & cpu_dev, "%s: %d:%d\n",
         __func__, pg, iomScbankMap[iom_unit_idx][pg].portNum);
-#endif
+# endif
   }
 
 int query_IOM_SCU_bank_map (uint iom_unit_idx, word24 addr, word24 * offset)
@@ -3326,9 +3326,9 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
     }
 
 #ifdef TESTING
-#ifdef  POLTS_TESTING
+# ifdef  POLTS_TESTING
 if (iomUnitIdx == 1 && chan == 020)
-#endif
+# endif
     if_sim_debug (DBG_TRACE, & iom_dev) {
       if (first) {
         first = false;
@@ -3434,7 +3434,7 @@ static int doConnectChan (uint iom_unit_idx) {
   sim_debug (DBG_DEBUG, & iom_dev, "%s: Connect channel\n", __func__);
   iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][IOM_CONNECT_CHAN];
   p -> lsFirst = true;
-#ifdef TESTING
+#if defined(TESTING) && defined(POLTS_TESTING)
   bool first = true;
 #endif
   bool ptro, send, uff;
@@ -3502,12 +3502,12 @@ static int doConnectChan (uint iom_unit_idx) {
 #ifdef IO_THREADZ
         setChnConnect (iom_unit_idx, p -> PCW_CHAN);
 #else
-#if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
+# if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
         doPayloadChannel (iom_unit_idx, p -> PCW_CHAN);
-#endif
-#ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
+# endif
+# ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
         pthread_cond_signal (& iomCond);
-#endif
+# endif
 #endif
       }
     }

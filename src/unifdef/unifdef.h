@@ -55,11 +55,11 @@ mktempmode(char *tmp, int mode)
   }
 
 #ifdef _WIN32
-#ifndef __MINGW64__
-#ifndef __MINGW32__
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
   fchmod(fd, mode & ( S_IRWXU | S_IRWXG | S_IRWXO ));
-#endif /* ifndef __MINGW64__ */
-#endif /* ifndef __MINGW32__ */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifdef _WIN32 */
   return ( fdopen(fd, "wb"));
 }

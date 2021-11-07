@@ -26,38 +26,38 @@
 */
 
 #ifndef SIM_FIO_H_
-#define SIM_FIO_H_     0
+# define SIM_FIO_H_     0
 
-#ifdef  __cplusplus
+# ifdef  __cplusplus
 extern "C" {
-#endif
+# endif
 
-#define FLIP_SIZE       (1 << 16)                       /* flip buf size */
-#define fxread(a,b,c,d)         sim_fread (a, b, c, d)
-#define fxwrite(a,b,c,d)        sim_fwrite (a, b, c, d)
+# define FLIP_SIZE        (1 << 16)               /* flip buf size */
+# define fxread(a,b,c,d)  sim_fread (a, b, c, d)
+# define fxwrite(a,b,c,d) sim_fwrite (a, b, c, d)
 
 int32 sim_finit (void);
-#if (   defined (__linux)              || \
-        defined (__linux__)            || \
-        defined (_AIX)                 || \
-    ( ( defined (__sun)                || \
-        defined (__sun__) )            && \
-        defined (_LARGEFILE_SOURCE) )  || \
-        defined (_WIN32)               || \
-        defined (__APPLE__)            || \
-        defined (__CYGWIN__)           || \
-        defined (__FreeBSD__)          || \
-        defined (__FreeBSD_kernel__)   || \
-        defined (__NetBSD__)           || \
-        defined (__OpenBSD__) )        && \
-       !defined (DONT_DO_LARGEFILE)
+# if (   defined (__linux)              || \
+         defined (__linux__)            || \
+         defined (_AIX)                 || \
+     ( ( defined (__sun)                || \
+         defined (__sun__) )            && \
+         defined (_LARGEFILE_SOURCE) )  || \
+         defined (_WIN32)               || \
+         defined (__APPLE__)            || \
+         defined (__CYGWIN__)           || \
+         defined (__FreeBSD__)          || \
+         defined (__FreeBSD_kernel__)   || \
+         defined (__NetBSD__)           || \
+         defined (__OpenBSD__) )        && \
+        !defined (DONT_DO_LARGEFILE)
 typedef t_int64        t_offset;
-#else
+# else
 typedef int32        t_offset;
-#if !defined (DONT_DO_LARGEFILE)
-#define DONT_DO_LARGEFILE 1
-#endif
-#endif
+#  if !defined (DONT_DO_LARGEFILE)
+#   define DONT_DO_LARGEFILE 1
+#  endif
+# endif
 FILE *sim_fopen (const char *file, const char *mode);
 int sim_fseek (FILE *st, t_addr offset, int whence);
 int sim_fseeko (FILE *st, t_offset offset, int whence);
@@ -80,8 +80,8 @@ extern t_bool sim_taddr_64;         /* t_addr is > 32b and Large File Support av
 extern t_bool sim_toffset_64;       /* Large File (>2GB) file I/O support */
 extern t_bool sim_end;              /* TRUE = little endian, FALSE = big endian */
 
-#ifdef  __cplusplus
+# ifdef  __cplusplus
 }
-#endif
+# endif
 
 #endif

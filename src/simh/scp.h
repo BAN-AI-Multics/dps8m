@@ -27,39 +27,39 @@
 */
 
 #ifndef SIM_SCP_H_
-#define SIM_SCP_H_     0
+# define SIM_SCP_H_     0
 
-#ifdef  __cplusplus
+# ifdef  __cplusplus
 extern "C" {
-#endif
+# endif
 
 /* run_cmd parameters */
 
-#define RU_RUN          0                               /* run */
-#define RU_GO           1                               /* go */
-#define RU_STEP         2                               /* step */
-#define RU_NEXT         3                               /* step or step/over */
-#define RU_CONT         4                               /* continue */
-#define RU_BOOT         5                               /* boot */
+# define RU_RUN          0                               /* run */
+# define RU_GO           1                               /* go */
+# define RU_STEP         2                               /* step */
+# define RU_NEXT         3                               /* step or step/over */
+# define RU_CONT         4                               /* continue */
+# define RU_BOOT         5                               /* boot */
 
 /* exdep_cmd parameters */
 
-#define EX_D            0                               /* deposit */
-#define EX_E            1                               /* examine */
-#define EX_I            2                               /* interactive */
+# define EX_D            0                               /* deposit */
+# define EX_E            1                               /* examine */
+# define EX_I            2                               /* interactive */
 
 /* brk_cmd parameters */
 
-#define SSH_ST          0                               /* set */
-#define SSH_SH          1                               /* show */
-#define SSH_CL          2                               /* clear */
+# define SSH_ST          0                               /* set */
+# define SSH_SH          1                               /* show */
+# define SSH_CL          2                               /* clear */
 
 /* get_sim_opt parameters */
 
-#define CMD_OPT_SW      001                             /* switches */
-#define CMD_OPT_OF      002                             /* output file */
-#define CMD_OPT_SCH     004                             /* search */
-#define CMD_OPT_DFT     010                             /* defaults */
+# define CMD_OPT_SW      001                             /* switches */
+# define CMD_OPT_OF      002                             /* output file */
+# define CMD_OPT_SCH     004                             /* search */
+# define CMD_OPT_DFT     010                             /* defaults */
 
 /* Command processors */
 
@@ -99,12 +99,12 @@ t_stat spawn_cmd (int32 flag, CONST char *ptr);
 t_stat echo_cmd (int32 flag, CONST char *ptr);
 
 /* Allow compiler to help validate printf style format arguments */
-#if !defined __GNUC__
-#define GCC_FMT_ATTR(n, m)
-#endif
-#if !defined(GCC_FMT_ATTR)
-#define GCC_FMT_ATTR(n, m) __attribute__ ((format (__printf__, n, m)))
-#endif
+# if !defined __GNUC__
+#  define GCC_FMT_ATTR(n, m)
+# endif
+# if !defined(GCC_FMT_ATTR)
+#  define GCC_FMT_ATTR(n, m) __attribute__ ((format (__printf__, n, m)))
+# endif
 
 /* Utility routines */
 
@@ -115,8 +115,6 @@ t_stat sim_activate_abs (UNIT *uptr, int32 interval);
 t_stat sim_activate_notbefore (UNIT *uptr, int32 rtime);
 t_stat sim_activate_after (UNIT *uptr, uint32 usecs_walltime);
 t_stat _sim_activate_after (UNIT *uptr, uint32 usecs_walltime);
-t_stat sim_activate_after_abs (UNIT *uptr, uint32 usecs_walltime);
-t_stat _sim_activate_after_abs (UNIT *uptr, uint32 usecs_walltime);
 t_stat sim_cancel (UNIT *uptr);
 t_bool sim_is_active (UNIT *uptr);
 int32 sim_activate_time (UNIT *uptr);
@@ -209,27 +207,27 @@ void sim_debug_bits_hdr (uint32 dbits, DEVICE* dptr, const char *header,
     BITFIELD* bitdefs, uint32 before, uint32 after, int terminate);
 void sim_debug_bits (uint32 dbits, DEVICE* dptr, BITFIELD* bitdefs,
     uint32 before, uint32 after, int terminate);
-#if defined(__cplusplus)
-#ifdef CANT_USE_MACRO_VA_ARGS
-#define _sim_debug sim_debug
+# if defined(__cplusplus)
+#  ifdef CANT_USE_MACRO_VA_ARGS
+#   define _sim_debug sim_debug
 void sim_debug (uint32 dbits, void* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#else
+#  else
 void _sim_debug (uint32 dbits, void* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
-#endif
-#else
-#ifdef CANT_USE_MACRO_VA_ARGS
-#define _sim_debug sim_debug
+#   define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
+#  endif
+# else
+#  ifdef CANT_USE_MACRO_VA_ARGS
+#   define _sim_debug sim_debug
 void sim_debug (uint32 dbits, DEVICE* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#else
+#  else
 void _sim_debug (uint32 dbits, DEVICE* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
-#endif
-#endif
+#   define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
+#  endif
+# endif
 void fprint_stopped_gen (FILE *st, t_stat v, REG *pc, DEVICE *dptr);
-#define SCP_HELP_FLAT   (1u << 31)       /* Force flat help when prompting is not possible */
-#define SCP_HELP_ONECMD (1u << 30)       /* Display one topic, do not prompt */
-#define SCP_HELP_ATTACH (1u << 29)       /* Top level topic is ATTACH help */
+# define SCP_HELP_FLAT   (1u << 31)       /* Force flat help when prompting is not possible */
+# define SCP_HELP_ONECMD (1u << 30)       /* Display one topic, do not prompt */
+# define SCP_HELP_ATTACH (1u << 29)       /* Top level topic is ATTACH help */
 t_stat scp_help (FILE *st, DEVICE *dptr,
                  UNIT *uptr, int32 flag, const char *help, const char *cptr, ...);
 t_stat scp_vhelp (FILE *st, DEVICE *dptr,
@@ -298,7 +296,7 @@ extern t_bool (*sim_vm_fprint_stopped) (FILE *st, t_stat reason);
 extern t_value (*sim_vm_pc_value) (void);
 extern t_bool (*sim_vm_is_subroutine_call) (t_addr **ret_addrs);
 
-#define SIM_FRONTPANEL_VERSION   2
+# define SIM_FRONTPANEL_VERSION   2
 
 /**
 
@@ -695,8 +693,8 @@ sim_panel_set_debug_mode (PANEL *panel, int debug_bits);
 void
 sim_panel_flush_debug (PANEL *panel);
 
-#ifdef  __cplusplus
+# ifdef  __cplusplus
 }
-#endif
+# endif
 
 #endif

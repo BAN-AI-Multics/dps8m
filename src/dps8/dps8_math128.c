@@ -10,16 +10,16 @@
  */
 
 #ifndef DPS8_MATH128
-#define DPS8_MATH128
+# define DPS8_MATH128
 
-#ifndef CPPCHECK
+# ifndef CPPCHECK
 
-#ifdef TEST_128
+#  ifdef TEST_128
 // gcc -m32 -DTEST_128 -DNEED_128 dps8_math128.c
-#include <stdbool.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <stdio.h>
+#   include <stdbool.h>
+#   include <stdint.h>
+#   include <inttypes.h>
+#   include <stdio.h>
 
 typedef struct { uint64_t h; uint64_t l; } uint128;
 typedef struct { int64_t h; uint64_t l; } int128;
@@ -29,22 +29,22 @@ typedef int128  word72s;
 typedef uint128 word73;
 typedef uint128 word74;
 
-#define construct_128(h, l) ((uint128_t) { (h), (l) })
-#define construct_s128(h, l) ((int128) { (h), (l) })
+#   define construct_128(h, l) ((uint128_t) { (h), (l) })
+#   define construct_s128(h, l) ((int128) { (h), (l) })
 
-#define MASK63          0x7FFFFFFFFFFFFFFF
-#define MASK64          0xFFFFFFFFFFFFFFFF
-#define SIGN64          ((uint64_t)1U << 63)
-#else
+#   define MASK63          0x7FFFFFFFFFFFFFFF
+#   define MASK64          0xFFFFFFFFFFFFFFFF
+#   define SIGN64          ((uint64_t)1U << 63)
+#  else
 
-#include "dps8.h"
-#endif
+#   include "dps8.h"
+#  endif
 
-#endif /* ifndef CPPCHECK */
+# endif /* ifndef CPPCHECK */
 
-#include "dps8_math128.h"
+# include "dps8_math128.h"
 
-#ifdef NEED_128
+# ifdef NEED_128
 
 bool iszero_128 (uint128 w)
   {
@@ -208,7 +208,7 @@ int128 lshift_s128 (int128 a, unsigned int n)
 
 uint128 rshift_128 (uint128 a, unsigned int n)
   {
-#if 0
+#  if 0
     uint64_t sign = a.h & SIGN64;
     if (n < 64)
       {
@@ -254,7 +254,7 @@ printf ("h %016llx\n", h);
         l &= (uint64_t) (~(-1 << (64 - n)));
       }
 printf ("l2 %016llx\n", l);
-#endif
+#  endif
 
     uint64_t h = a.h;
     uint64_t l = a.l;
@@ -608,7 +608,7 @@ uint128 divide_128_32 (uint128 a, uint32_t b, uint32_t * remp)
        (((uint64_t) q [0]) <<  0));
   }
 
-#ifdef TEST_128
+#  ifdef TEST_128
 
 static void tisz (uint64_t h, uint64_t l, bool expect)
   {
@@ -857,13 +857,13 @@ int main (int argc, char * argv [])
     tdiv32 (MASK64, MASK64, 1 << 16,          MASK64 >> 16, MASK64, 0xffff);
     return 0;
   }
-#endif
+#  endif
 
-#else
+# else
 
-#if (__SIZEOF_LONG__ < 8) && ( !defined(__MINGW64__) || !defined(__MINGW32__) )
+#  if (__SIZEOF_LONG__ < 8) && ( !defined(__MINGW64__) || !defined(__MINGW32__) )
 
-#include "dps8_math128.h"
+#   include "dps8_math128.h"
 
 void __udivmodti3(UTItype div, UTItype dvd,UTItype *result,UTItype *remain);
 UTItype __udivti3(UTItype div, UTItype dvd);
@@ -988,7 +988,7 @@ TItype __multi3 (TItype u, TItype v)
                 return result;
 
 }
-#endif
-#endif
+#  endif
+# endif
 
 #endif

@@ -36,7 +36,7 @@
 #include "dps8_utils.h"
 
 #ifdef LOCKLESS
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #define DBG_CTR 1
@@ -679,18 +679,18 @@ void disk_init (void)
     // Sets diskTypeIdx to 0: 3381
     memset (dsk_states, 0, sizeof (dsk_states));
 #ifdef LOCKLESS
-#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
         pthread_mutexattr_t scu_attr;
         pthread_mutexattr_init (& scu_attr);
         pthread_mutexattr_settype (& scu_attr, PTHREAD_MUTEX_ADAPTIVE_NP);
-#endif
+# endif
     for (uint i = 0; i < N_DSK_UNITS_MAX; i ++)
       {
-#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
         pthread_mutex_init (& dsk_states[i].dsk_lock, & scu_attr);
-#else
+# else
         pthread_mutex_init (& dsk_states[i].dsk_lock, NULL);
-#endif
+# endif
       }
 #endif
   }

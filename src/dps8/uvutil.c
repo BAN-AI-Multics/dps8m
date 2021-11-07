@@ -61,10 +61,10 @@ static void accessWriteCallback (uv_write_t * req, int status)
     unsigned int nbufs = req->nbufs;
     uv_buf_t * bufs = req->bufs;
     //if (! bufs)
-#if 0
+# if 0
     if (nbufs > ARRAY_SIZE (req->bufsml))
       bufs = req->bufsml;
-#endif
+# endif
     for (unsigned int i = 0; i < nbufs; i ++)
       {
         if (bufs && bufs[i].base)
@@ -606,12 +606,14 @@ void uv_open_access (uv_access * access)
     access->open = true;
   }
 
+#ifndef QUIET_UNUSED
 void accessPutChar (uv_access * access, char ch)
   {
     //sim_putchar (ch);
     if (access->loggedOn)
       accessStartWrite (access->client, & ch, 1);
   }
+#endif
 
 int accessGetChar (uv_access * access)
   {
@@ -645,6 +647,7 @@ int accessGetChar (uv_access * access)
 
   }
 
+#ifndef QUIET_UNUSED
 void accessPutStr (uv_access * access, char * str)
   {
     size_t l = strlen (str);
@@ -653,4 +656,4 @@ void accessPutStr (uv_access * access, char * str)
     if (access->loggedOn)
       accessStartWrite (access->client, str, (ssize_t) l);
   }
-
+#endif

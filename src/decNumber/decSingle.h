@@ -18,29 +18,29 @@
 /* ------------------------------------------------------------------ */
 
 #if !defined(DECSINGLE)
-  #define DECSINGLE
+# define DECSINGLE
 
-  #define DECSINGLENAME       "decSingle"             /* Short name   */
-  #define DECSINGLETITLE      "Decimal 32-bit datum"  /* Verbose name */
-  #define DECSINGLEAUTHOR     "Mike Cowlishaw"        /* Who to blame */
+# define DECSINGLENAME       "decSingle"             /* Short name   */
+# define DECSINGLETITLE      "Decimal 32-bit datum"  /* Verbose name */
+# define DECSINGLEAUTHOR     "Mike Cowlishaw"        /* Who to blame */
 
   /* parameters for decSingles */
-  #define DECSINGLE_Bytes    4     /* length                          */
-  #define DECSINGLE_Pmax     7     /* maximum precision (digits)      */
-  #define DECSINGLE_Emin   -95     /* minimum adjusted exponent       */
-  #define DECSINGLE_Emax    96     /* maximum adjusted exponent       */
-  #define DECSINGLE_EmaxD    3     /* maximum exponent digits         */
-  #define DECSINGLE_Bias   101     /* bias for the exponent           */
-  #define DECSINGLE_String  16     /* maximum string length, +1       */
-  #define DECSINGLE_EconL    6     /* exponent continuation length    */
-  #define DECSINGLE_Declets  2     /* count of declets                */
+# define DECSINGLE_Bytes    4     /* length                          */
+# define DECSINGLE_Pmax     7     /* maximum precision (digits)      */
+# define DECSINGLE_Emin   -95     /* minimum adjusted exponent       */
+# define DECSINGLE_Emax    96     /* maximum adjusted exponent       */
+# define DECSINGLE_EmaxD    3     /* maximum exponent digits         */
+# define DECSINGLE_Bias   101     /* bias for the exponent           */
+# define DECSINGLE_String  16     /* maximum string length, +1       */
+# define DECSINGLE_EconL    6     /* exponent continuation length    */
+# define DECSINGLE_Declets  2     /* count of declets                */
   /* highest biased exponent (Elimit-1) */
-  #define DECSINGLE_Ehigh (DECSINGLE_Emax + DECSINGLE_Bias - (DECSINGLE_Pmax-1))
+# define DECSINGLE_Ehigh (DECSINGLE_Emax + DECSINGLE_Bias - (DECSINGLE_Pmax-1))
 
   /* Required includes                                                */
-  #include "decContext.h"
-  #include "decQuad.h"
-  #include "decDouble.h"
+# include "decContext.h"
+# include "decQuad.h"
+# include "decDouble.h"
 
   /* The decSingle decimal 32-bit type, accessible by all sizes */
   typedef union {
@@ -80,7 +80,7 @@
   /* decNumber conversions; these are implemented as macros so as not  */
   /* to force a dependency on decimal32 and decNumber in decSingle.    */
   /* decSingleFromNumber returns a decimal32 * to avoid warnings.      */
-  #define decSingleToNumber(dq, dn) decimal32ToNumber((decimal32 *)(dq), dn)
-  #define decSingleFromNumber(dq, dn, set) decimal32FromNumber((decimal32 *)(dq), dn, set)
+# define decSingleToNumber(dq, dn) decimal32ToNumber((decimal32 *)(dq), dn)
+# define decSingleFromNumber(dq, dn, set) decimal32FromNumber((decimal32 *)(dq), dn, set)
 
 #endif

@@ -34,7 +34,7 @@
 #include "dps8_opcodetable.h"
 #include "dps8_utils.h"
 #if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #define DBG_CTR cpu.cycleCnt
@@ -699,19 +699,19 @@ startCA:;
                   }
                 // fall through to TM_R
 #ifndef __SUNPRO_C
-#ifndef __SUNPRO_CC
-#ifndef __SUNPRO_CC_COMPAT
+# ifndef __SUNPRO_CC
+#  ifndef __SUNPRO_CC_COMPAT
                 /*FALLTHRU*/
                 /* fall through */
-#if defined(__GNUC__) && __GNUC__ > 6
+#   if defined(__GNUC__) && __GNUC__ > 6
                 __attribute__ ((fallthrough));
-#endif
+#   endif
                 /*FALLTHRU*/
-#ifdef __clang__
+#   ifdef __clang__
                 (void)0;
-#endif
-#endif
-#endif
+#   endif
+#  endif
+# endif
 #endif
               } // TM_IT
 

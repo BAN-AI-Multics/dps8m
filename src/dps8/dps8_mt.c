@@ -2415,6 +2415,7 @@ usage:
      return SCPE_ARG;
   }
 
+#ifndef QUIET_UNUSED
 t_stat detachTape (char * drive)
   {
     //sim_printf ("%s %s %s\n", label, withring ? "rw" : "ro", drive);
@@ -2432,3 +2433,4 @@ t_stat detachTape (char * drive)
     unloadTape ((uint) i);
     return SCPE_OK;
   }
+#endif

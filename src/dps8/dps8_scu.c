@@ -550,7 +550,7 @@
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
 #if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #define DBG_CTR 1
@@ -1422,26 +1422,26 @@ static void deliver_interrupts (uint scu_unit_idx)
                     continue;
                   }
                 uint cpu_unit_udx = cables->scu_to_cpu[scu_unit_idx][port][sn].cpu_unit_idx;
-#if defined(THREADZ) || defined(LOCKLESS)
+# if defined(THREADZ) || defined(LOCKLESS)
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
                 HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx, __func__);
                 createCPUThread((uint) cpu_unit_udx);
-#ifndef NO_TIMEWAIT
+#  ifndef NO_TIMEWAIT
                 wakeCPU ((uint) cpu_unit_udx);
-#endif
+#  endif
                 sim_debug (DBG_DEBUG, & scu_dev,
                            "interrupt set for CPU %d SCU %d\n",
                            cpu_unit_udx, scu_unit_idx);
-#else // ! THREADZ
+# else // ! THREADZ
 //if (cpu_unit_udx && ! cpu.isRunning) sim_printf ("starting CPU %c\n", cpu_unit_udx + 'A');
-#ifdef ROUND_ROBIN
+#  ifdef ROUND_ROBIN
                 cpus[cpu_unit_udx].isRunning = true;
-#endif
+#  endif
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
 sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_udx, scu_unit_idx);
                 sim_debug (DBG_INTR, & scu_dev,
                            "XIP set for SCU %d\n", scu_unit_idx);
-#endif // ! THREADZ
+# endif // ! THREADZ
               }
           }
       }
@@ -1488,26 +1488,26 @@ sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_u
                     continue;
                   }
                 uint cpu_unit_udx = cables->scu_to_cpu[scu_unit_idx][port][sn].cpu_unit_idx;
-#if defined(THREADZ) || defined(LOCKLESS)
+# if defined(THREADZ) || defined(LOCKLESS)
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
                 HDBGIntrSet (inum, cpu_unit_udx, scu_unit_idx, __func__);
                 createCPUThread((uint) cpu_unit_udx);
-#ifndef NO_TIMEWAIT
+#  ifndef NO_TIMEWAIT
                 wakeCPU ((uint) cpu_unit_udx);
-#endif
+#  endif
                 sim_debug (DBG_DEBUG, & scu_dev,
                            "interrupt set for CPU %d SCU %d\n",
                            cpu_unit_udx, scu_unit_idx);
-#else // ! THREADZ
+# else // ! THREADZ
 //if (cpu_unit_udx && ! cpu.isRunning) sim_printf ("starting CPU %c\n", cpu_unit_udx + 'A');
-#ifdef ROUND_ROBIN
+#  ifdef ROUND_ROBIN
                 cpus[cpu_unit_udx].isRunning = true;
-#endif
+#  endif
                 cpus[cpu_unit_udx].events.XIP[scu_unit_idx] = true;
 sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_udx, scu_unit_idx);
                 sim_debug (DBG_INTR, & scu_dev,
                            "XIP set for SCU %d\n", scu_unit_idx);
-#endif // ! THREADZ
+# endif // ! THREADZ
               }
           }
       }
@@ -2263,15 +2263,15 @@ clock_gettime (CLOCK_REALTIME, & cioc_t0);
         int iom_unit_idx = portp->dev_idx;
 #if defined(THREADZ) || defined(LOCKLESS)
         unlock_scu ();
-#if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
+# if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
         lock_iom ();
         lock_libuv ();
-#endif
+# endif
         iom_interrupt (scu_unit_idx, (uint) iom_unit_idx);
-#if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
+# if !defined(IO_ASYNC_PAYLOAD_CHAN) && !defined(IO_ASYNC_PAYLOAD_CHAN_THREAD)
         unlock_libuv ();
         unlock_iom ();
-#endif
+# endif
         return 0;
 #else // ! THREADZ
         if (sys_opts.iom_times.connect <= 0)

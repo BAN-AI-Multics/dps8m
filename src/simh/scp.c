@@ -33,26 +33,23 @@
 #include "sim_defs.h"
 #include "sim_disk.h"
 #include "sim_tape.h"
-#ifdef USE_SERIAL
-#include "sim_serial.h"
-#endif
 #include "sim_sock.h"
 #include <signal.h>
 #include <ctype.h>
 #include <time.h>
 #include <math.h>
 #if defined(_WIN32)
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#if defined(_MSC_VER)
-#pragma warning(push, 3)
-#endif
-#include <direct.h>
-#include <io.h>
-#include <fcntl.h>
+# ifndef WIN32_LEAN_AND_MEAN
+#  define WIN32_LEAN_AND_MEAN
+# endif
+# if defined(_MSC_VER)
+#  pragma warning(push, 3)
+# endif
+# include <direct.h>
+# include <io.h>
+# include <fcntl.h>
 #else
-#include <unistd.h>
+# include <unistd.h>
 #endif
 #include <sys/stat.h>
 #include <setjmp.h>
@@ -61,8 +58,8 @@
 #include "linehistory.h"
 
 #if defined(__APPLE__)
-#include <sys/types.h>
-#include <sys/sysctl.h>
+# include <sys/types.h>
+# include <sys/sysctl.h>
 #endif
 
 #include <uv.h>
@@ -80,7 +77,7 @@
 #include "dispatch.h"
 
 #ifndef MAX
-#define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
+# define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
 #endif
 
 /* search logical and boolean ops */
@@ -269,9 +266,6 @@ UNIT *sim_clock_queue = QUEUE_LIST_END;
 int32 sim_interval = 0;
 int32 sim_switches = 0;
 FILE *sim_ofile = NULL;
-#ifdef USE_SERIAL
-TMLN *sim_oline = NULL;
-#endif
 SCHTAB *sim_schrptr = FALSE;
 SCHTAB *sim_schaptr = FALSE;
 DEVICE *sim_dfdev = NULL;
@@ -411,17 +405,15 @@ const t_value width_mask[] = { 0,
     0x1FFFF, 0x3FFFF, 0x7FFFF, 0xFFFFF,
     0x1FFFFF, 0x3FFFFF, 0x7FFFFF, 0xFFFFFF,
     0x1FFFFFF, 0x3FFFFFF, 0x7FFFFFF, 0xFFFFFFF,
-    0x1FFFFFFF, 0x3FFFFFFF, 0x7FFFFFFF, 0xFFFFFFFF
-    , 0x1FFFFFFFF, 0x3FFFFFFFF, 0x7FFFFFFFF, 0xFFFFFFFFF,
+    0x1FFFFFFF, 0x3FFFFFFF, 0x7FFFFFFF, 0xFFFFFFFF,
+    0x1FFFFFFFF, 0x3FFFFFFFF, 0x7FFFFFFFF, 0xFFFFFFFFF,
     0x1FFFFFFFFF, 0x3FFFFFFFFF, 0x7FFFFFFFFF, 0xFFFFFFFFFF,
     0x1FFFFFFFFFF, 0x3FFFFFFFFFF, 0x7FFFFFFFFFF, 0xFFFFFFFFFFF,
     0x1FFFFFFFFFFF, 0x3FFFFFFFFFFF, 0x7FFFFFFFFFFF, 0xFFFFFFFFFFFF,
     0x1FFFFFFFFFFFF, 0x3FFFFFFFFFFFF, 0x7FFFFFFFFFFFF, 0xFFFFFFFFFFFFF,
     0x1FFFFFFFFFFFFF, 0x3FFFFFFFFFFFFF, 0x7FFFFFFFFFFFFF, 0xFFFFFFFFFFFFFF,
-    0x1FFFFFFFFFFFFFF, 0x3FFFFFFFFFFFFFF,
-    0x7FFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFF,
-    0x1FFFFFFFFFFFFFFF, 0x3FFFFFFFFFFFFFFF,
-    0x7FFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
+    0x1FFFFFFFFFFFFFF, 0x3FFFFFFFFFFFFFF, 0x7FFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFF,
+    0x1FFFFFFFFFFFFFFF, 0x3FFFFFFFFFFFFFFF, 0x7FFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
     };
 
 static const char simh_help[] =
@@ -754,12 +746,6 @@ static const char simh_help[] =
       "+set console TELNET=UNBUFFERED\n"
       "++++++++                     disables console telnet buffering\n"
       "+set console NOTELNET        disable console telnet\n"
-#ifdef USE_SERIAL
-      "+set console SERIAL=serialport[;config]\n"
-      "++++++++                     specify console serial port and optionally\n"
-      "++++++++                     the port config (i.e. ;9600-8n1)\n"
-      "+set console NOSERIAL        disable console serial session\n"
-#endif
        /***************** 80 character line width template *************************/
 #define HLP_SET_REMOTE "*Commands SET REMOTE"
       "3Remote\n"
@@ -769,8 +755,6 @@ static const char simh_help[] =
       "++++++++                     console sessions\n"
       "+set remote TIMEOUT=n        specify number of seconds without input\n"
       "++++++++                     before automatic continue\n"
-      "+set remote MASTER           enable master mode remote console\n"
-      "+set remote NOMASTER         disable remote master mode console\n"
 #define HLP_SET_DEFAULT "*Commands SET Working_Directory"
       "3Working Directory\n"
       "+set default <dir>           set the current directory\n"
@@ -893,8 +877,6 @@ static const char simh_help[] =
       "+sh{ow} b{uildinfo}          show build compilation information\n"
       "+sh{ow} ve{rsion}            show simulator version\n"
       "+sh{ow} p{rom}               show PROM initialization data\n"
-      "+sh{ow} def{ault}            show current directory\n"
-      "+sh{ow} re{mote}             show remote console configuration\n"
       "+sh{ow} <dev> RADIX          show device display radix\n"
       "+sh{ow} <dev> DEBUG          show device debug flags\n"
       "+sh{ow} <dev> MODIFIERS      show device modifiers\n"
@@ -902,10 +884,6 @@ static const char simh_help[] =
       "+sh{ow} <dev> SHOW           show device SHOW commands\n"
       "+sh{ow} <dev> {arg,...}      show device parameters\n"
       "+sh{ow} <unit> {arg,...}     show unit parameters\n"
-#ifdef USE_SERIAL
-      "+sh{ow} serial               show serial devices\n"
-      "+sh{ow} multiplexer          show open multiplexer devices\n"
-#endif
       "+sh{ow} clocks               show calibrated timers\n"
       "+sh{ow} on                   show on condition actions\n"
       "+h{elp} <dev> show           displays the device specific show commands\n"
@@ -927,10 +905,6 @@ static const char simh_help[] =
 #define HLP_SHOW_BREAK          "*Commands SHOW"
 #define HLP_SHOW_LOG            "*Commands SHOW"
 #define HLP_SHOW_DEBUG          "*Commands SHOW"
-#ifdef USE_SERIAL
-#define HLP_SHOW_SERIAL         "*Commands SHOW"
-#define HLP_SHOW_MULTIPLEXER    "*Commands SHOW"
-#endif /* ifdef USE_SERIAL */
 #define HLP_SHOW_CLOCKS         "*Commands SHOW"
 #define HLP_SHOW_ON             "*Commands SHOW"
 #define HLP_SHOW_SEND           "*Commands SHOW"
@@ -1122,7 +1096,6 @@ static const char simh_help[] =
 #define HLP_CALL        "*Commands Executing_Command_Files CALL"
       "3CALL\n"
       "++call                     transfer control to a labeled subroutine\n"
-      "                         a command file.\n"
 #define HLP_ON          "*Commands Executing_Command_Files ON"
       "3ON\n"
       "++on <condition> <action>  perform action(s) after condition\n"
@@ -1135,49 +1108,6 @@ static const char simh_help[] =
       " placeholders for an ON action condition which should be explicitly ignored\n"
       "++proceed                  continue command file execution without doing anything\n"
       "++ignore                   continue command file execution without doing anything\n"
-
-#if 0
-
-    SET ON                       Enables error trapping for currently defined
-                                 traps (by ON commands)
-    SET NOON                     Disables error trapping for currently
-                                 defined traps (by ON commands)
-    ON <statusvalue> commandtoprocess{; additionalcommandtoprocess}
-                                 Sets the action(s) to take when the specific
-                                 error status is returned by a command in the
-                                 currently running do command file.  Multiple
-                                 actions can be specified with each delimited
-                                 by a semicolon character (just like
-                                 breakpoint action commands).
-    ON ERROR commandtoprocess{; additionalcommandtoprocess}
-                                 Sets the default action(s) to take when any
-                                 otherwise unspecified error status is returned
-                                 by a command in the currently running do
-                                 command file.  Multiple actions can be
-                                 specified with each delimited by a semicolon
-                                 character (just like breakpoint action
-                                 commands).
-    ON <statusvalue>
-    ON ERROR                     Clears the default actions to take when any
-                                 otherwise unspecified error status is
-                                 returned by a command in the currently
-                                 running do command file.
-
-
-Error traps can be taken for any command which returns a status other than SCPE_STEP, SCPE_OK, and SCPE_EXIT.
-
-ON Traps can specify any status value from the following list: NXM, UNATT, IOERR, CSUM, FMT, NOATT, OPENERR, MEM, ARG, STEP, UNK, RO, INCOMP, STOP, TTIERR, TTOERR, EOF, REL, NOPARAM, ALATT, TIMER, SIGERR, TTYERR, SUB, NOFNC, UDIS, NORO, INVSW, MISVAL, 2FARG, 2MARG, NXDEV, NXUN, NXREG, NXPAR, NEST, IERR, MTRLNT, LOST, TTMO, STALL, AFAIL.  These values can be indicated by name or by their internal numeric value (not recommended).
-
-Interactions with ASSERT command and "DO -e":
-DO -e       is equivalent to SET ON, which by itself it equivalent to "SET ON; ON ERROR RETURN".
-ASSERT      failure have several different actions:
-       If error trapping is not enabled then AFAIL causes exit from the current do command file.
-       If error trapping is enabled and an explicit "ON AFAIL" action is defined, then the specified action is performed.
-       If error trapping is enabled and no "ON AFAIL" action is defined, then an AFAIL causes exit from the current do command file.
-
-#endif
-
-
 #define HLP_ECHO        "*Commands Executing_Command_Files Displaying_Arbitrary_Text"
        /***************** 80 character line width template *************************/
       "3Displaying Arbitrary Text\n"
@@ -1455,7 +1385,6 @@ ASSERT      failure have several different actions:
       " completion status for the ! command.  This may influence any enabled ON\n"
       " condition traps\n";
 
-
 static CTAB cmd_table[] = {
     { "RESET",      &reset_cmd,     0,          HLP_RESET },
     { "EXAMINE",    &exdep_cmd,     EX_E,       HLP_EXAMINE },
@@ -1559,20 +1488,12 @@ static SHTAB show_glob_tab[] = {
     { "VERSION",        &show_version,              1, HLP_SHOW_VERSION },
     { "BUILDINFO",      &show_buildinfo,            1, HLP_SHOW_BUILDINFO },
     { "PROM",           &show_prom,                 0, HLP_SHOW_PROM },
-    { "DEFAULT",        &show_default,              0, HLP_SHOW_DEFAULT },
     { "CONSOLE",        &sim_show_console,          0, HLP_SHOW_CONSOLE },
     { "REMOTE",         &sim_show_remote_console,   0, HLP_SHOW_REMOTE },
     { "BREAK",          &show_break,                0, HLP_SHOW_BREAK },
     { "LOG",            &sim_show_log,              0, HLP_SHOW_LOG },
     { "TELNET",         &sim_show_telnet,           0 },    /* deprecated */
     { "DEBUG",          &sim_show_debug,            0, HLP_SHOW_DEBUG },
-#ifdef USE_SERIAL
-    { "SERIAL",         &sim_show_serial,           0, HLP_SHOW_SERIAL },
-#ifdef NOT_USING_MUX_CODE
-    { "MULTIPLEXER",    &tmxr_show_open_devices,    0, HLP_SHOW_MULTIPLEXER },
-    { "MUX",            &tmxr_show_open_devices,    0, HLP_SHOW_MULTIPLEXER },
-#endif
-#endif
     { "CLOCKS",         &sim_show_timers,           0, HLP_SHOW_CLOCKS },
     { "SEND",           &sim_show_send,             0, HLP_SHOW_SEND },
     { "EXPECT",         &sim_show_expect,           0, HLP_SHOW_EXPECT },
@@ -1592,7 +1513,6 @@ static SHTAB show_dev_tab[] = {
 static SHTAB show_unit_tab[] = {
     { NULL, NULL, 0 }
     };
-
 
 #if defined(_WIN32)
 static
@@ -1662,34 +1582,34 @@ t_bool lookswitch;
 t_stat stat;
 
 #ifdef __MINGW32__
-#ifndef NEED_CONSOLE_SETUP
-#define NEED_CONSOLE_SETUP
-#endif
+# ifndef NEED_CONSOLE_SETUP
+#  define NEED_CONSOLE_SETUP
+# endif
 #endif /* ifdef __MINGW32__ */
 
 #ifdef CROSS_MINGW32
-#ifndef NEED_CONSOLE_SETUP
-#define NEED_CONSOLE_SETUP
-#endif
+# ifndef NEED_CONSOLE_SETUP
+#  define NEED_CONSOLE_SETUP
+# endif
 #endif /* ifdef CROSS_MINGW32 */
 
 #ifdef __MINGW64__
-#ifndef NEED_CONSOLE_SETUP
-#define NEED_CONSOLE_SETUP
-#endif
+# ifndef NEED_CONSOLE_SETUP
+#  define NEED_CONSOLE_SETUP
+# endif
 #endif /* ifdef __MINGW64__ */
 
 #ifdef CROSS_MINGW64
-#ifndef NEED_CONSOLE_SETUP
-#define NEED_CONSOLE_SETUP
-#endif
+# ifndef NEED_CONSOLE_SETUP
+#  define NEED_CONSOLE_SETUP
+# endif
 #endif /* ifdef CROSS_MINGW64 */
 
 #if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
-#include <windows.h>
-#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
-#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
-#endif
+# include <windows.h>
+# ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#  define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+# endif
 #endif /* if defined(NEED_CONSOLE_SETUP) && defined(_WIN32) */
 
 #ifdef NEED_CONSOLE_SETUP
@@ -1732,13 +1652,13 @@ if (argc == 0) {
 
 /* patch intel dispatcher */
 #ifdef __DISPATCH_H_
-#if defined(__INTEL_COMPILER)       || \
-    defined(__INTEL_CLANG_COMPILER) || \
-    defined(__INTEL_LLVM_COMPILER)  || \
-    defined(INTEL_MKL_VERSION)      || \
-    defined(__INTEL_MKL__)
+# if defined(__INTEL_COMPILER)       || \
+     defined(__INTEL_CLANG_COMPILER) || \
+     defined(__INTEL_LLVM_COMPILER)  || \
+     defined(INTEL_MKL_VERSION)      || \
+     defined(__INTEL_MKL__)
 (void)agner_compiler_patch();
-#endif
+# endif
 #endif
 
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
@@ -1763,15 +1683,15 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
     int onlyvers  = strcmp(argv[i], "--version");
     if (onlyvers == 0) {
 #ifdef VER_H_GIT_VERSION
-#if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
-#if VER_H_GIT_PATCH_INT < 1
+# if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
+#  if VER_H_GIT_PATCH_INT < 1
         fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
-#else
+#  else
         fprintf (stdout, "%s simulator %s+%s\n", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
-#endif /* if VER_H_GIT_PATCH_INT < 1 */
-#else
+#  endif /* if VER_H_GIT_PATCH_INT < 1 */
+# else
         fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
-#endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
+# endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
 #else   
         fprintf (stdout, "%s simulator\n", sim_name);
 #endif /* ifdef VER_H_GIT_VERSION */
@@ -1784,15 +1704,15 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
     if (shorthelp != 0) shorthelp = strcmp(argv[i], "-H");
     if (longhelp == 0 || shorthelp == 0) {
 #ifdef VER_H_GIT_VERSION
-#if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
-#if VER_H_GIT_PATCH_INT < 1
+# if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
+#  if VER_H_GIT_PATCH_INT < 1
         fprintf (stdout, "%s simulator %s", sim_name, VER_H_GIT_VERSION);
-#else
+#  else
         fprintf (stdout, "%s simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
-#endif /* if VER_H_GIT_PATCH_INT < 1 */
-#else
+#  endif /* if VER_H_GIT_PATCH_INT < 1 */
+# else
         fprintf (stdout, "%s simulator %s", sim_name, VER_H_GIT_VERSION);
-#endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
+# endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
 #else
         fprintf (stdout, "%s simulator", sim_name);
 #endif /* ifdef VER_H_GIT_VERSION */
@@ -2021,7 +1941,6 @@ return SCPE_EXIT;
 
 /* Help command */
 
-
 /* Used when sorting a list of command names */
 static int _cmd_name_compare (const void *pa, const void *pb)
 {
@@ -2158,13 +2077,6 @@ if (dptr->attach_help) {
     dptr->attach_help (st, dptr, NULL, 0, NULL);
     return;
     }
-#ifdef USE_SERIAL
-if (DEV_TYPE(dptr) == DEV_MUX) {
-    fprintf (st, "\n%s device attach commands:\n\n", dptr->name);
-    tmxr_attach_help (st, dptr, NULL, 0, NULL);
-    return;
-    }
-#endif
 if (DEV_TYPE(dptr) == DEV_DISK) {
     fprintf (st, "\n%s device attach commands:\n\n", dptr->name);
     sim_disk_attach_help (st, dptr, NULL, 0, NULL);
@@ -2226,7 +2138,6 @@ if (dptr->flags & DEV_DEBUG) {
     fprintf (st,  "%-30s\tDisables debugging for device %s\n", buf, sim_dname (dptr));
     if (dptr->debflags) {
         t_bool desc_available = FALSE;
-
         strcpy (buf, "");
         fprintf (st, "set %s DEBUG=", sim_dname (dptr));
         for (dep = dptr->debflags; dep->name != NULL; dep++) {
@@ -2272,9 +2183,9 @@ if (!found && !silent)
 }
 
 void fprint_set_help (FILE *st, DEVICE *dptr)
-    {
-    fprint_set_help_ex (st, dptr, TRUE);
-    }
+{
+  fprint_set_help_ex (st, dptr, TRUE);
+}
 
 void fprint_show_help_ex (FILE *st, DEVICE *dptr, t_bool silent)
 {
@@ -2455,7 +2366,6 @@ if (*cptr) {
                 DEVICE *dptr;
                 UNIT *uptr;
                 t_stat r;
-
                 cptr = get_glyph (cptr, gbuf, 0);
                 dptr = find_unit (gbuf, &uptr);
                 if (dptr == NULL)
@@ -2473,7 +2383,6 @@ if (*cptr) {
                     }
                 else { /* HELP SHOW xxx (not device or unit) */
                     SHTAB *shptr = find_shtab (show_glob_tab, gbuf);
-
                     if ((shptr == NULL) || (shptr->help == NULL) || (*shptr->help == '\0'))
                         return SCPE_ARG;
                     return help_cmd_output (flag, shptr->help, NULL);
@@ -2487,7 +2396,6 @@ if (*cptr) {
             if (strcmp (cmdp->name, "HELP") == 0) {
                 DEVICE *dptr;
                 int i;
-
                 for (i = 0; (dptr = sim_devices[i]) != NULL; i++) {
                     if (dptr->help)
                         sim_printf ("h{elp} %-17s display help for device %s\n", dptr->name, dptr->name);
@@ -2503,7 +2411,6 @@ if (*cptr) {
                         }
                     if (dptr->modifiers) {
                         MTAB *mptr;
-
                         for (mptr = dptr->modifiers; mptr->pstring != NULL; mptr++) {
                             if (mptr->help) {
                                 sim_printf ("h{elp} %s SET\t\t display help for device %s SET commands (modifiers)\n", dptr->name, dptr->name);
@@ -2525,7 +2432,6 @@ if (*cptr) {
             }
         else { /* no help so it is likely a command alias */
             CTAB *cmdpa;
-
             for (cmdpa=cmd_table; cmdpa->name != NULL; cmdpa++)
                 if ((cmdpa->action == cmdp->action) && (cmdpa->help)) {
                     sim_printf ("%s is an alias for the %s command:\n%s",
@@ -2540,7 +2446,6 @@ if (*cptr) {
         DEVICE *dptr;
         UNIT *uptr;
         t_stat r;
-
         dptr = find_unit (gbuf, &uptr);
         if (dptr == NULL) {
             dptr = find_dev (gbuf);
@@ -2581,7 +2486,6 @@ status = system (cptr);
 
 return status;
 }
-
 
 /* Echo command */
 
@@ -2651,7 +2555,6 @@ if (flag > 0)                                           /* need switches? */
 echo = (sim_switches & SWMASK ('V')) || sim_do_echo;    /* -v means echo */
 sim_quiet = (sim_switches & SWMASK ('Q')) || sim_quiet; /* -q means quiet */
 sim_on_inherit =(sim_switches & SWMASK ('O')) || sim_on_inherit; /* -o means inherit ON condition actions */
-
 errabort = sim_switches & SWMASK ('E');                 /* -e means abort on error */
 
 abuf[sizeof(abuf)-1] = '\0';
@@ -2659,7 +2562,7 @@ strncpy (abuf, fcptr, sizeof(abuf)-1);
 c = abuf;
 do_arg[10] = NULL;                                      /* make sure the argument list always ends with a NULL */
 for (nargs = 0; nargs < 10; ) {                         /* extract arguments */
-    while (sim_isspace (*c))                                /* skip blanks */
+    while (sim_isspace (*c))                            /* skip blanks */
         c++;
     if (*c == 0)                                        /* all done? */
         do_arg [nargs++] = NULL;                        /* null argument */
@@ -2900,7 +2803,7 @@ tmnow = localtime(&now);
 tmpbuf = (char *)malloc(instr_size);
 op = tmpbuf;
 oend = tmpbuf + instr_size - 2;
-while (sim_isspace (*ip))                                   /* skip leading spaces */
+while (sim_isspace (*ip))                               /* skip leading spaces */
     *op++ = *ip++;
 for (; *ip && (op < oend); ) {
     if ((ip [0] == '\\') &&                             /* literal escape? */
@@ -3215,7 +3118,7 @@ if (*cptr == '"') {                                     /* quoted string compari
             {"<=",   0, -1, FALSE},
             {"LEQ",  0, -1, FALSE},
             {">",    1,  1, FALSE},
-            {"GTR",  1,      1, FALSE},
+            {"GTR",  1,  1, FALSE},
             {">=",   0,  1, FALSE},
             {"GEQ",  0,  1, FALSE},
             {NULL}};
@@ -3225,7 +3128,7 @@ if (*cptr == '"') {                                     /* quoted string compari
     if (!*tptr)
         return SCPE_2FARG;
     cptr += strlen (gbuf);
-    while (sim_isspace (*cptr))                         /* skip spaces */
+    while (sim_isspace (*cptr))                     /* skip spaces */
         ++cptr;
     get_glyph (cptr, op, '"');
     for (optr = compare_ops; optr->op; optr++)
@@ -3363,11 +3266,6 @@ SEND *snd = NULL;
 GET_SWITCHES (cptr);                                    /* get switches */
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
-#ifdef USE_SERIAL
-    r = tmxr_locate_line_send (gbuf, &snd);
-    if (r != SCPE_OK)
-        return r;
-#endif
     cptr = tptr;
     tptr = get_glyph (tptr, gbuf, ',');
     }
@@ -3414,18 +3312,10 @@ t_stat sim_show_send (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char
 {
 char gbuf[CBUFSIZE];
 CONST char *tptr;
-#ifdef USE_SERIAL
-t_stat r;
-#endif
 SEND *snd = NULL;
 
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
-#ifdef USE_SERIAL
-    r = tmxr_locate_line_send (gbuf, &snd);
-    if (r != SCPE_OK)
-        return r;
-#endif
     cptr = tptr;
     }
 else
@@ -3439,19 +3329,11 @@ t_stat expect_cmd (int32 flag, CONST char *cptr)
 {
 char gbuf[CBUFSIZE];
 CONST char *tptr;
-#ifdef USE_SERIAL
-t_stat r;
-#endif
 EXPECT *exp = NULL;
 
 GET_SWITCHES (cptr);                                    /* get switches */
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
-#ifdef USE_SERIAL
-    r = tmxr_locate_line_expect (gbuf, &exp);
-    if (r != SCPE_OK)
-        return r;
-#endif
     cptr = tptr;
     }
 else
@@ -3466,18 +3348,10 @@ t_stat sim_show_expect (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST ch
 {
 char gbuf[CBUFSIZE];
 CONST char *tptr;
-#ifdef USE_SERIAL
-t_stat r;
-#endif
 EXPECT *exp = NULL;
 
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
-#ifdef USE_SERIAL
-    r = tmxr_locate_line_expect (gbuf, &exp);
-    if (r != SCPE_OK)
-        return r;
-#endif
     cptr = tptr;
     }
 else
@@ -3491,7 +3365,6 @@ if (*cptr && (cptr[strlen(cptr)-1] != '"') && (cptr[strlen(cptr)-1] != '\''))
     return SCPE_ARG;            /* String must be quote delimited */
 return sim_exp_show (st, exp, gbuf);
 }
-
 
 /* Goto command */
 
@@ -4240,9 +4113,9 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     fprintf (st, " Build Information:\n");
 #if defined(BUILDINFO_scp) && defined(SYSDEFS_USED)
     fprintf (st, "      Compilation info: %s\n", BUILDINFO_scp );
-#ifndef __OPEN64__
+# ifndef __OPEN64__
     fprintf (st, "  Relevant definitions: %s\n", SYSDEFS_USED );
-#endif
+# endif
 #elif defined(BUILDINFO_scp)
     fprintf (st, "      Compilation info: %s\n", BUILDINFO_scp );
 #else
@@ -4251,51 +4124,51 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #if defined (UV_VERSION_MAJOR) && \
     defined (UV_VERSION_MINOR) && \
     defined (UV_VERSION_PATCH)
-#ifdef UV_VERSION_MAJOR
-#ifndef UV_VERSION_MINOR
-#ifndef UV_VERSION_PATCH
-#ifndef UV_VERSION_SUFFIX
+# ifdef UV_VERSION_MAJOR
+#  ifndef UV_VERSION_MINOR
+#   ifndef UV_VERSION_PATCH
+#    ifndef UV_VERSION_SUFFIX
     fprintf (st, "    Event loop library: Built with libuv v%d", UV_VERSION_MAJOR);
-#endif /* ifndef UV_VERSION_SUFFIX */
-#endif /* ifndef UV_VERSION_PATCH */
-#endif /* ifndef UV_VERSION_MINOR */
-#ifdef UV_VERSION_MINOR
-#ifndef UV_VERSION_PATCH
-#ifndef UV_VERSION_SUFFIX
+#    endif /* ifndef UV_VERSION_SUFFIX */
+#   endif /* ifndef UV_VERSION_PATCH */
+#  endif /* ifndef UV_VERSION_MINOR */
+#  ifdef UV_VERSION_MINOR
+#   ifndef UV_VERSION_PATCH
+#    ifndef UV_VERSION_SUFFIX
     fprintf (st, "    Event loop library: Built with libuv %d.%d", UV_VERSION_MAJOR,
             UV_VERSION_MINOR);
-#endif /* ifndef UV_VERSION_SUFFIX */
-#endif /* ifndef UV_VERSION_PATCH */
-#ifdef UV_VERSION_PATCH
-#ifndef UV_VERSION_SUFFIX
+#    endif /* ifndef UV_VERSION_SUFFIX */
+#   endif /* ifndef UV_VERSION_PATCH */
+#   ifdef UV_VERSION_PATCH
+#    ifndef UV_VERSION_SUFFIX
     fprintf (st, "    Event loop library: Built with libuv %d.%d.%d", UV_VERSION_MAJOR,
             UV_VERSION_MINOR, UV_VERSION_PATCH);
-#endif /* ifndef UV_VERSION_SUFFIX */
-#ifdef UV_VERSION_SUFFIX
+#    endif /* ifndef UV_VERSION_SUFFIX */
+#    ifdef UV_VERSION_SUFFIX
     fprintf (st, "    Event loop library: Built with libuv %d.%d.%d", UV_VERSION_MAJOR,
             UV_VERSION_MINOR, UV_VERSION_PATCH);
-#ifdef UV_VERSION_IS_RELEASE
-#if UV_VERSION_IS_RELEASE == 1
-#define UV_RELEASE_TYPE " (release)"
-#endif /* if UV_VERSION_IS_RELEASE == 1 */
-#if UV_VERSION_IS_RELEASE == 0
-#define UV_RELEASE_TYPE " (snapshot)"
-#endif /* if UV_VERSION_IS_RELEASE == 0 */
-#ifndef UV_RELEASE_TYPE
-#define UV_RELEASE_TYPE ""
-#endif /* ifndef UV_RELEASE_TYPE */
-#ifdef UV_RELEASE_TYPE
+#     ifdef UV_VERSION_IS_RELEASE
+#      if UV_VERSION_IS_RELEASE == 1
+#       define UV_RELEASE_TYPE " (release)"
+#      endif /* if UV_VERSION_IS_RELEASE == 1 */
+#      if UV_VERSION_IS_RELEASE == 0
+#       define UV_RELEASE_TYPE " (snapshot)"
+#      endif /* if UV_VERSION_IS_RELEASE == 0 */
+#      ifndef UV_RELEASE_TYPE
+#       define UV_RELEASE_TYPE ""
+#      endif /* ifndef UV_RELEASE_TYPE */
+#      ifdef UV_RELEASE_TYPE
     fprintf (st, "%s", UV_RELEASE_TYPE);
-#endif /* ifdef UV_RELEASE_TYPE */
-#endif /* ifdef UV_VERSION_IS_RELEASE */
-#endif /* ifdef UV_VERSION_SUFFIX */
-#endif /* ifdef UV_VERSION_PATCH */
-#endif /* ifdef UV_VERSION_MINOR */
+#      endif /* ifdef UV_RELEASE_TYPE */
+#     endif /* ifdef UV_VERSION_IS_RELEASE */
+#    endif /* ifdef UV_VERSION_SUFFIX */
+#   endif /* ifdef UV_VERSION_PATCH */
+#  endif /* ifdef UV_VERSION_MINOR */
     unsigned int CurrentUvVersion = uv_version();
     if (((void *)&CurrentUvVersion != NULL) && (CurrentUvVersion > 0))
         if (uv_version_string() != NULL)
             fprintf (st, "; %s in use", uv_version_string());
-#endif /* ifdef UV_VERSION_MAJOR */
+# endif /* ifdef UV_VERSION_MAJOR */
 #else
     fprintf (st, "    Event loop library: Using libuv (or compatible) library, unknown version");
 #endif /* if defined(UV_VERSION_MAJOR) &&  \
@@ -4304,31 +4177,31 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
         */
 #ifdef DECNUMBERLOC
     fprintf (st, "\n");
-#ifdef DECVERSION
-#ifdef DECNLAUTHOR
+# ifdef DECVERSION
+#  ifdef DECNLAUTHOR
     fprintf (st, "          Math library: %s (%s and contributors)", DECVERSION, DECNLAUTHOR);
-#else
+#  else
     fprintf (st, "          Math library: %s", DECVERSION);
-#endif /* ifdef DECNLAUTHOR */
-#else
+#  endif /* ifdef DECNLAUTHOR */
+# else
     fprintf (st, "          Math library: decNumber, unknown version");
-#endif /* ifdef DECVERSION */
+# endif /* ifdef DECVERSION */
 #endif /* ifdef DECNUMBERLOC */
 #ifdef LOCKLESS
     fprintf (st, "\n     Atomic operations: ");
-#if defined(AIX_ATOMICS)
+# if defined(AIX_ATOMICS)
     fprintf (st, "IBM AIX-style");
-#elif defined(BSD_ATOMICS)
+# elif defined(BSD_ATOMICS)
     fprintf (st, "FreeBSD-style");
-#elif defined(GNU_ATOMICS)
+# elif defined(GNU_ATOMICS)
     fprintf (st, "GNU-style");
-#elif defined(SYNC_ATOMICS)
+# elif defined(SYNC_ATOMICS)
     fprintf (st, "GNU sync-style");
-#elif defined(ISO_ATOMICS)
+# elif defined(ISO_ATOMICS)
     fprintf (st, "ISO/IEC 9899:2011 (C11) standard");
-#elif defined(NT_ATOMICS)
+# elif defined(NT_ATOMICS)
     fprintf (st, "Windows NT interlocked operations");
-#endif
+# endif
 #endif /* ifdef LOCKLESS */
     fprintf (st, "\n");
     return 0;
@@ -4348,15 +4221,15 @@ if (flag) {
     defined(ISOLTS)             || \
     defined(HDBG)               || \
     defined(TRACKER)
-#ifndef NO_SUPPORT_VERSION
-#define NO_SUPPORT_VERSION 1
-#endif
+# ifndef NO_SUPPORT_VERSION
+#  define NO_SUPPORT_VERSION 1
+# endif
 #endif
 #if defined(NO_SUPPORT_VERSION)
         dirty++;
 #endif
 #if defined(GENERATED_MAKE_VER_H)
-#if defined(VER_H_GIT_VERSION)
+# if defined(VER_H_GIT_VERSION)
 
         /* Dirty if git source is dirty */
         if (strstr(VER_H_GIT_VERSION, "*"))
@@ -4377,132 +4250,121 @@ if (flag) {
             (strstr(VER_H_GIT_VERSION, "B"))) {
                 dirty++;
         }
-#if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
-#if defined(VER_H_GIT_HASH)
-#if VER_H_GIT_PATCH_INT < 1
+#  if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
+#   if defined(VER_H_GIT_HASH)
+#    if VER_H_GIT_PATCH_INT < 1
     fprintf (st, "\n   Version: %s\n    Commit: %s", VER_H_GIT_VERSION, VER_H_GIT_HASH);
-#else
-#define NO_SUPPORT_VERSION 1
+#    else
+#     define NO_SUPPORT_VERSION 1
     fprintf (st, "\n   Version: %s+%s\n    Commit: %s", VER_H_GIT_VERSION, VER_H_GIT_PATCH, VER_H_GIT_HASH);
-#endif
-#else
-#if VER_H_GIT_PATCH_INT < 1
+#    endif
+#   else
+#    if VER_H_GIT_PATCH_INT < 1
         fprintf (st, "\n   Version: %s", VER_H_GIT_VERSION);
-#else
-#define NO_SUPPORT_VERSION 1
+#    else
+#     define NO_SUPPORT_VERSION 1
         fprintf (st, "\n   Version: %s+%s", VER_H_GIT_VERSION, VER_H_GIT_PATCH);
-#endif
-#endif
-#else
-#if defined(VER_H_GIT_HASH)
+#    endif
+#   endif
+#  else
+#   if defined(VER_H_GIT_HASH)
         fprintf (st, "\n   Version: %s\n    Commit: %s", VER_H_GIT_VERSION, VER_H_GIT_HASH);
-#else
+#   else
         fprintf (st, "\n   Version: %s", VER_H_GIT_VERSION);
-#endif
-#endif
-#endif
+#   endif
+#  endif
+# endif
 #endif
 #ifdef TESTING
     fprintf (st, "\n   Options: ");
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     fprintf (st, "TESTING");
 #endif
 #ifdef ISOLTS
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     fprintf (st, ", ");
-#else
+# else
     fprintf (st, "\n   Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     fprintf (st, "ISOLTS");
 #endif
 #ifdef NEED_128
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     fprintf (st, ", ");
-#else
+# else
     fprintf (st, "\n   Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     fprintf (st, "NEED_128");
 #endif
 #ifdef WAM
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     fprintf (st, ", ");
-#else
+# else
     fprintf (st, "\n   Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     fprintf (st, "WAM");
 #endif
 #ifdef HDBG
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     fprintf (st, ", ");
-#else
+# else
     fprintf (st, "\n   Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     fprintf (st, "HDBG");
 #endif
 #ifdef ROUND_ROBIN
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     fprintf (st, ", ");
-#else
+# else
     fprintf (st, "\n   Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     fprintf (st, "ROUND_ROBIN");
 #endif
-#ifdef USE_SERIAL
-#ifdef HAVE_DPSOPT
-    fprintf (st, ", ");
-#else
-    fprintf (st, "\n   Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
-    fprintf (st, "SERIAL");
-#endif
 #ifndef LOCKLESS
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     fprintf (st, ", ");
-#else
+# else
     fprintf (st, "\n   Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     fprintf (st, "NO_LOCKLESS");
 #endif
 #ifdef TRACKER
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     fprintf (st, ", ");
-#else
+# else
     fprintf (st, "\n   Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     fprintf (st, "TRACKER");
 #endif
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE)
-#if defined(NO_SUPPORT_VERSION)
+# if defined(NO_SUPPORT_VERSION)
         fprintf (st, "\n  Modified: %s", VER_H_GIT_DATE);
-#else
+# else
         fprintf (st, "\n  Released: %s", VER_H_GIT_DATE);
-#endif
+# endif
 #endif
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE) && defined(VER_H_PREP_DATE)
     fprintf (st, " - Kit Prepared: %s", VER_H_PREP_DATE);
@@ -4533,14 +4395,14 @@ if (flag) {
     strremove(postver, "https://github.com/yrnkrn/zapcc ");
 #endif
 #if defined (__GNUC__) && defined (__VERSION__)
-#ifndef __clang_version__
+# ifndef __clang_version__
     if (isdigit(gnumver[0])) {
         fprintf (st, "\n  Compiler: GCC %s", postver);
     } else {
         fprintf (st, "\n  Compiler: %s", postver);
     }
-#endif
-#if defined (__clang_version__) && defined (__VERSION__)
+# endif
+# if defined (__clang_version__) && defined (__VERSION__)
     char clangllvmver[1024];
     sprintf(clangllvmver, "%.1023s", __clang_version__);
     strremove(clangllvmver, "git://github.com/OpenIndiana/oi-userland.git ");
@@ -4549,24 +4411,24 @@ if (flag) {
     } else {
         fprintf (st, "\n  Compiler: %s", postver);
     }
-#elif defined (__clang_version__)
+# elif defined (__clang_version__)
     fprintf (st, "\n  Compiler: %s", postver);
-#endif
+# endif
 #elif defined (_MSC_FULL_VER) && defined (_MSC_BUILD)
     fprintf (st, "\n  Compiler: Microsoft C %d.%02d.%05d.%02d", _MSC_FULL_VER/10000000, (_MSC_FULL_VER/100000)%100, _MSC_FULL_VER%100000, _MSC_BUILD);
 #elif ( defined (__xlc__) && !defined(__clang_version__) )
-#if defined (_AIX) && defined (PASE)
+# if defined (_AIX) && defined (PASE)
     fprintf (st, "\n  Compiler: IBM XL C/C++ V%s (PASE for IBM i)", __xlc__);
-#endif
-#if defined (_AIX) && !defined (PASE)
+# endif
+# if defined (_AIX) && !defined (PASE)
     fprintf (st, "\n  Compiler: IBM XL C/C++ for AIX V%s", __xlc__);
-#endif
-#if defined (__linux__) && ( !defined(_AIX) || !defined(PASE) )
+# endif
+# if defined (__linux__) && ( !defined(_AIX) || !defined(PASE) )
     fprintf (st, "\n  Compiler: IBM XL C/C++ for Linux V%s", __xlc__);
-#endif
-#if ( !defined(_AIX) && !defined(__clang_version__) && !defined(PASE) && !defined(__linux__) && defined(__xlc__) )
+# endif
+# if ( !defined(_AIX) && !defined(__clang_version__) && !defined(PASE) && !defined(__linux__) && defined(__xlc__) )
     fprintf (st, "\n  Compiler: IBM XL C/C++ V%s", __xlc__);
-#endif
+# endif
 #elif defined (__SUNPRO_C) || defined (__SUNPRO_CC) || defined (__SUNPRO_CC_COMPAT)
     fprintf (st, "\n  Compiler: Oracle Developer Studio C/C++");
 #elif defined (__DMC__)
@@ -4598,11 +4460,11 @@ if (flag) {
 #elif defined (__xlC__)
     fprintf (st, "\n  Compiler: IBM XL C/C++");
 #elif defined (SIM_COMPILER)
-#define S_xstr(a) S_str(a)
-#define S_str(a) #a
+# define S_xstr(a) S_str(a)
+# define S_str(a) #a
     fprintf (st, "\n  Compiler: %s", S_xstr(SIM_COMPILER));
-#undef S_str
-#undef S_xstr
+# undef S_str
+# undef S_xstr
 #else
     fprintf (st, "\n  Compiler: Unknown");
 #endif
@@ -4617,17 +4479,17 @@ if (flag) {
 #elif defined(__ia64__) || defined(_M_IA64) || defined(__itanium__)
     arch = " ia64";
 #elif defined(__ppc64__) || defined(__PPC64__) || defined(__ppc64le__) || defined(__PPC64LE__) || defined(__powerpc64__) || defined(__POWERPC64__) || defined(_M_PPC64) || defined(__PPC64) || defined(_ARCH_PPC64)
-#if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+# if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
     arch = " ppc64be";
-#else
+# else
     arch = " ppc64el";
-#endif
+# endif
 #elif defined(__ppc__) || defined(__PPC__) || defined(__powerpc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__PPC) || defined(__ppc32__) || defined(__PPC32__) || defined(__powerpc32__) || defined(__POWERPC32__) || defined(_M_PPC32) || defined(__PPC32)
-#if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+# if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
     arch = " ppc";
-#else
+# else
     arch = " ppcel";
-#endif
+# endif
 #elif defined(__s390x__)
     arch = " s390x";
 #elif defined(__s390__)
@@ -4645,17 +4507,17 @@ if (flag) {
 #elif defined(__ICE9__) || defined(__ice9__) || defined(__ICE9) || defined(__ice9)
     arch = " ice9";
 #elif defined(mips64) || defined(__mips64__) || defined(MIPS64) || defined(_MIPS64_) || defined(__mips64)
-#if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+# if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
     arch = " mips64be";
-#else
+# else
     arch = " mips64el";
-#endif
+# endif
 #elif defined(mips) || defined(__mips__) || defined(MIPS) || defined(_MIPS_) || defined(__mips)
-#if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
+# if defined(_BIG_ENDIAN) || defined(__BIG_ENDIAN__)
     arch = " mipsbe";
-#else
+# else
     arch = " mipsel";
-#endif
+# endif
 #elif defined(__OpenRISC__) || defined(__OPENRISC__) || defined(__openrisc__) || defined(__OR1K__) || defined(__JOR1K__) || defined(__OPENRISC1K__) || defined(__OPENRISC1200__)
     arch = " openrisc";
 #elif defined(__sparc64) || defined(__SPARC64) || defined(__SPARC64__) || defined(__sparc64__)
@@ -4670,24 +4532,11 @@ if (flag) {
     arch = " ";
 #endif
     fprintf (st, "%s", arch);
-//    fprintf (st, "\n\t\tMemory Access: %s Endian", sim_end ? "Little" : "Big");
-//    fprintf (st, "\n\t\tMemory Pointer Size: %d bits", (int)sizeof(dptr)*8);
-//    fprintf (st, "\n\t\t%s", sim_toffset_64 ? "Large File (>2GB) support" : "No Large File support");
-//    fprintf (st, "\n\t\tSDL Video support: %s", vid_version());
-//#if defined (HAVE_PCREPOSIX_H)
-//    fprintf (st, "\n\t\tPCRE RegEx support for EXPECT commands");
-//#elif defined (HAVE_REGEX_H)
-//    fprintf (st, "\n\t\tRegEx support for EXPECT commands");
-//#else
-//    fprintf (st, "\n\t\tNo RegEx support for EXPECT commands");
-//#endif
-//  fprintf (st, "\n\t\tOS clock resolution: %dms", os_tick_size);
-//  fprintf (st, "\n\t\tTime taken by msleep(1): %dms", os_ms_sleep_1);
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_PREP_USER)
         fprintf (st, "\n  Built by: %s", VER_H_PREP_USER);
 #endif
                 fprintf (st, "\n\n Host System Information:");
-#if   defined(_WIN32)
+#if defined(_WIN32)
     if (1) {
         char *proc_id = getenv ("PROCESSOR_IDENTIFIER");
         char *arch = getenv ("PROCESSOR_ARCHITECTURE");
@@ -4709,15 +4558,14 @@ if (flag) {
             }
         fprintf (st, "\n   Host OS: %s", osversion);
         fprintf (st, " %s%s%s", arch, proc_arch3264 ? " on " : "", proc_arch3264 ? proc_arch3264  : "");
-//      fprintf (st, "\n  Processor Id: %s, Level: %s, Revision: %s", proc_id ? proc_id : "", proc_level ? proc_level : "", proc_rev ? proc_rev : "");
         }
 #else
     if (1) {
         char osversion[2*PATH_MAX+1] = "";
         FILE *f;
-#ifndef _AIX
+# ifndef _AIX
         if ((f = popen ("uname -mrs 2> /dev/null", "r"))) {
-#else
+# else
         if ((f = popen                                              \
           ("sh -c 'command -p env uname -svM   2> /dev/null'        \
                                                2> /dev/null    ||   \
@@ -4734,7 +4582,7 @@ if (flag) {
                             uname -svp         2> /dev/null         \
                               ", "r")))                             \
          {
-#endif /* ifndef _AIX */
+# endif /* ifndef _AIX */
             memset (osversion, 0, sizeof(osversion));
             do {
                 if (NULL == fgets (osversion, sizeof(osversion)-1, f)) {
@@ -4751,18 +4599,18 @@ if (flag) {
             strremove(osversion, " (emulated by qemu)");
             strremove(osversion, " (emulated by QEMU)");
         }
-#ifndef _AIX
+# ifndef _AIX
             fprintf (st, "\n   Host OS: %s", osversion);
-#else
+# else
             strremove(osversion, "AIX ");
             fprintf (st, "\n   Host OS: IBM AIX %s", osversion);
-#endif /* ifndef _AIX */
+# endif /* ifndef _AIX */
     } else {
-#ifndef _AIX
+# ifndef _AIX
         fprintf (st, "\n   Host OS: Unknown");
-#else
+# else
         fprintf (st, "\n   Host OS: IBM AIX");
-#endif /* ifndef _AIX */
+# endif /* ifndef _AIX */
     }
 #endif
 #if defined(__APPLE__)
@@ -5442,7 +5290,6 @@ for (i = start; (dptr = sim_devices[i]) != NULL; i++) { /* loop thru dev */
     }
 return SCPE_OK;
 }
-
 
 /* Call device-specific or file-oriented detach unit routine */
 
@@ -6283,7 +6130,7 @@ do {
         }
     else
         sim_step = 1;
-    if (sim_step)                                           /* set step timer */
+    if (sim_step)                                       /* set step timer */
         sim_activate (&sim_step_unit, sim_step);
     } while (1);
 
@@ -6843,7 +6690,7 @@ uint32 *ptr;
 
 #define PUT_RVAL(sz,rp,id,v,m) \
     *(((sz *) rp->loc) + id) = \
-            (sz)((*(((sz *) rp->loc) + id) & \
+        (sz)((*(((sz *) rp->loc) + id) & \
             ~((m) << (rp)->offset)) | ((v) << (rp)->offset))
 
 if (rptr == sim_PC)
@@ -7507,7 +7354,6 @@ return tptr;
         \n{n{n}} where each n is an octal digit (0-7)
      and hext character values of the form:
         \xh{h} where each h is a hex digit (0-9A-Fa-f)
-
 */
 
 t_stat sim_decode_quoted_string (const char *iptr, uint8 *optr, uint32 *osize)
@@ -7630,7 +7476,6 @@ return SCPE_OK;
         \n{n{n}} where each n is an octal digit (0-7)
      and hext character values of the form:
         \xh{h} where each h is a hex digit (0-9A-Fa-f)
-
 */
 
 char *sim_encode_quoted_string (const uint8 *iptr, uint32 size)
@@ -7701,7 +7546,6 @@ string = sim_encode_quoted_string (buf, size);
 fprintf (st, "%s", string);
 free (string);
 }
-
 
 /* Find_device          find device matching input string
 
@@ -8739,17 +8583,6 @@ else
    Outputs:
         reason  =       result (SCPE_OK if ok)
 */
-
-t_stat sim_activate_after_abs (UNIT *uptr, uint32 event_time)
-{
-return _sim_activate_after_abs (uptr, event_time);
-}
-
-t_stat _sim_activate_after_abs (UNIT *uptr, uint32 event_time)
-{
-sim_cancel (uptr);
-return _sim_activate_after (uptr, event_time);
-}
 
 t_stat sim_activate_after (UNIT *uptr, uint32 usec_delay)
 {
@@ -9873,7 +9706,7 @@ else
 if ((snd->next_time - sim_gtime()) > 0) {
     if ((snd->next_time - sim_gtime()) > (sim_timer_inst_per_sec()/1000000.0))
         fprintf (st, "Minimum of %d instructions (%d microseconds) before sending first character\n", (int)(snd->next_time - sim_gtime()),
-                                                        (int)((snd->next_time - sim_gtime())/(sim_timer_inst_per_sec()/1000000.0)));
+        (int)((snd->next_time - sim_gtime())/(sim_timer_inst_per_sec()/1000000.0)));
     else
         fprintf (st, "Minimum of %d instructions before sending first character\n", (int)(snd->next_time - sim_gtime()));
     }
@@ -9897,7 +9730,6 @@ if (snd && (snd->extoff < snd->insoff)) {               /* pending input charact
         }
     else {
         char dstr[8] = "";
-
         *stat = snd->buffer[snd->extoff++] | SCPE_KFLAG;/* get one */
         snd->next_time = sim_gtime() + snd->delay;
         if (sim_isgraph(*stat & 0xFF) || ((*stat & 0xFF) == ' '))
@@ -9908,7 +9740,6 @@ if (snd && (snd->extoff < snd->insoff)) {               /* pending input charact
     }
 return FALSE;
 }
-
 
 /* Message Text */
 
@@ -10000,7 +9831,6 @@ if (sim_deb_switches & (SWMASK ('T') | SWMASK ('R') | SWMASK ('A'))) {
     if (sim_deb_switches & SWMASK ('T')) {
         time_t tnow = (time_t)time_now.tv_sec;
         struct tm *now = gmtime(&tnow);
-
         sprintf(tim_t, "%02d:%02d:%02d.%03d ", now->tm_hour, now->tm_min, now->tm_sec, (int)(time_now.tv_nsec/1000000));
         }
     if (sim_deb_switches & SWMASK ('A')) {
@@ -10046,7 +9876,6 @@ for (i = fields-1; i >= 0; i--) {                   /* print xlation, transition
         }
     else {
         const char *delta = "";
-
         mask = 0xFFFFFFFF >> (32-bitdefs[i].width);
         value = (uint32)((after >> bitdefs[i].offset) & mask);
         beforevalue = (uint32)((before >> bitdefs[i].offset) & mask);
@@ -10129,7 +9958,6 @@ while (1) {                                         /* format passed string, arg
 
 if (sim_is_running) {
     char *c, *remnant = buf;
-
     while ((c = strchr(remnant, '\n'))) {
         if ((c != buf) && (*(c - 1) != '\r'))
             printf("%.*s\r\n", (int)(c-remnant), remnant);
@@ -10204,7 +10032,6 @@ if (sim_do_ocptr[sim_do_depth]) {
     }
 if (sim_is_running && !inhibit_message) {
     char *c, *remnant = buf;
-
     while ((c = strchr(remnant, '\n'))) {
         if ((c != buf) && (*(c - 1) != '\r'))
             printf("%.*s\r\n", (int)(c-remnant), remnant);
@@ -10244,7 +10071,6 @@ void _sim_debug (uint32 dbits, DEVICE* vdptr, const char* fmt, ...)
 {
 DEVICE *dptr = (DEVICE *)vdptr;
 if (sim_deb && dptr && (dbits == 0 || (dptr->dctrl & dbits))) {
-
     char stackbuf[STACKBUFSIZE];
     int32 bufsize = sizeof(stackbuf);
     char *buf = stackbuf;
@@ -10253,7 +10079,6 @@ if (sim_deb && dptr && (dbits == 0 || (dptr->dctrl & dbits))) {
     const char* debug_prefix = sim_debug_prefix(dbits, dptr);   /* prefix to print if required */
 
     buf[bufsize-1] = '\0';
-
     while (1) {                                         /* format passed string, args */
         va_start (arglist, fmt);
 #if defined(NO_vsnprintf)
@@ -10323,11 +10148,10 @@ void _sim_err (const char* fmt, ...)
     sprintf(debug_line_prefix, "DBG(%.0f)> ERR ERR: ", sim_gtime());
 
     buf[bufsize-1] = '\0';
-
     while (1) {                                         /* format passed string, args */
         va_start (arglist, fmt);
 #if defined(NO_vsnprintf)
-#if defined(HAS_vsprintf_void)
+# if defined(HAS_vsprintf_void)
 
 /* Note, this could blow beyond the buffer, and we couldn't tell */
 /* That is a limitation of the C runtime library available on this platform */
@@ -10335,17 +10159,17 @@ void _sim_err (const char* fmt, ...)
         vsprintf (buf, fmt, arglist);
         for (len = 0; len < bufsize-1; len++)
             if (buf[len] == 0) break;
-#else
+# else
         len = vsprintf (buf, fmt, arglist);
-#endif                                                  /* HAS_vsprintf_void */
+# endif                                                  /* HAS_vsprintf_void */
 #else                                                   /* NO_vsnprintf */
-#if defined(HAS_vsnprintf_void)
+# if defined(HAS_vsnprintf_void)
         vsnprintf (buf, bufsize-1, fmt, arglist);
         for (len = 0; len < bufsize-1; len++)
             if (buf[len] == 0) break;
-#else
+# else
         len = vsnprintf (buf, bufsize-1, fmt, arglist);
-#endif                                                  /* HAS_vsnprintf_void */
+# endif                                                  /* HAS_vsnprintf_void */
 #endif                                                  /* NO_vsnprintf */
         va_end (arglist);
 
@@ -10363,7 +10187,6 @@ void _sim_err (const char* fmt, ...)
             }
         break;
         }
-
 
     for (i = j = 0; i < len; ++i) {
         if ('\n' == buf[i]) {
@@ -10393,7 +10216,6 @@ void _sim_err (const char* fmt, ...)
         free (buf);
 return;
 }
-
 
 void sim_data_trace(DEVICE *dptr, UNIT *uptr, const uint8 *data, const char *position, size_t len, const char *txt, uint32 reason)
 {
@@ -10504,11 +10326,6 @@ int ret = 0;
 va_list args;
 
 va_start (args, fmt);
-#ifdef USE_SERIAL
-if (sim_oline)
-    tmxr_linemsgvf (sim_oline, fmt, args);
-else
-#endif
     ret = vfprintf (f, fmt, args);
 va_end (args);
 return ret;
@@ -10947,8 +10764,7 @@ free (tmpnam);
 #endif
 return;
 }
-/* Flatten and display help for those who say they prefer it.
- */
+/* Flatten and display help for those who say they prefer it. */
 
 static t_stat displayFlatHelp (FILE *st, DEVICE *dptr,
                                UNIT *uptr, int32 flag,
@@ -11012,9 +10828,7 @@ for (i = 0; i < topic->kids; i++) {
 return match;
 }
 
-/* Main help routine
- * Takes a va_list
- */
+/* Main help routine */
 
 t_stat scp_vhelp (FILE *st, DEVICE *dptr,
                   UNIT *uptr, int32 flag,
@@ -11269,5 +11083,5 @@ return r;
 }
 
 #if defined(_MSC_VER)
-#pragma warning(pop)
+# pragma warning(pop)
 #endif

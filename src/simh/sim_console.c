@@ -31,7 +31,6 @@
 
    sim_poll_kbd                 poll for keyboard input
    sim_putchar                  output character to console
-   sim_putchar_s                output character to console, stall if congested
    sim_set_console              set console parameters
    sim_show_console             show console parameters
    sim_set_remote_console       set remote console parameters
@@ -42,8 +41,6 @@
    sim_set_cons_nolog           set console nolog
    sim_show_cons_buff           show console buffered
    sim_show_cons_log            show console log
-   sim_tt_inpcvt                convert input character per mode
-   sim_tt_outcvt                convert output character per mode
    sim_cons_get_send            get console send structure address
    sim_cons_get_expect          get console expect structure address
    sim_show_cons_send_input     show pending input data
@@ -67,15 +64,12 @@
 
 #include "sim_defs.h"
 #include "sim_tmxr.h"
-#ifdef USE_SERIAL
-#include "sim_serial.h"
-#endif
 #include "sim_timer.h"
 #include <ctype.h>
 #include <math.h>
 
 #ifdef __HAIKU__
-#define nice(n) ({})
+# define nice(n) ({})
 #endif
 
 /* Forward Declaraations of Platform specific routines */
@@ -163,19 +157,11 @@ EXPECT sim_con_expect = {&sim_con_telnet, DBG_EXP};
 
 static t_bool sim_con_console_port = TRUE;
 
-/* Enable automatic WRU console polling */
-
-t_stat sim_set_noconsole_port (void)
-{
-sim_con_console_port = FALSE;
-return SCPE_OK;
-}
-
 /* Unit service for console connection polling */
 
 static t_stat sim_con_poll_svc (UNIT *uptr)
 {
-if ((sim_con_tmxr.master == 0) &&                       /* not Telnet and not serial and not WRU polling? */
+if ((sim_con_tmxr.master == 0) &&                       /* not Telnet and not WRU polling? */
     (sim_con_ldsc.serport == 0) &&
     (sim_con_console_port))
     return SCPE_OK;                                     /* done */
@@ -205,10 +191,6 @@ static CTAB set_con_tab[] = {
     { "SPEED", &sim_set_cons_speed, 0 },
     { "TELNET", &sim_set_telnet, 0 },
     { "NOTELNET", &sim_set_notelnet, 0 },
-#ifdef USE_SERIAL
-    { "SERIAL", &sim_set_serial, 0 },
-    { "NOSERIAL", &sim_set_noserial, 0 },
-#endif
     { "LOG", &sim_set_logon, 0 },
     { "NOLOG", &sim_set_logoff, 0 },
     { "DEBUG", &sim_set_debon, 0 },
@@ -240,7 +222,6 @@ static SHTAB show_con_tab[] = {
     { "SPEED", &sim_show_cons_speed, 0 },
     { "LOG", &sim_show_cons_log, 0 },
     { "TELNET", &sim_show_telnet, 0 },
-    { "DEBUG", &sim_show_cons_debug, 0 },
     { "BUFFERED", &sim_show_cons_buff, 0 },
     { "EXPECT", &sim_show_cons_expect, 0 },
     { "HALT", &sim_show_cons_expect, 0 },
@@ -258,14 +239,6 @@ static CTAB set_con_telnet_tab[] = {
     { "UNBUFFERED", &sim_set_cons_unbuff, 0 },
     { NULL, NULL, 0 }
     };
-
-#ifdef USE_SERIAL
-static CTAB set_con_serial_tab[] = {
-    { "LOG", &sim_set_cons_log, 0 },
-    { "NOLOG", &sim_set_cons_nolog, 0 },
-    { NULL, NULL, 0 }
-    };
-#endif
 
 static int32 *cons_kmap[] = {
     &sim_int_char,
@@ -1617,74 +1590,7 @@ else
 return SCPE_OK;
 }
 
-/* Set console Debug Mode */
-
-t_stat sim_set_cons_debug (int32 flg, CONST char *cptr)
-{
-return set_dev_debug (&sim_con_telnet, &sim_con_unit, flg, cptr);
-}
-
-t_stat sim_show_cons_debug (FILE *st, DEVICE *dunused, UNIT *uunused, int32 flag, CONST char *cptr)
-{
-if (cptr && (*cptr != 0))
-    return SCPE_2MARG;
-return show_dev_debug (st, &sim_con_telnet, &sim_con_unit, flag, cptr);
-}
-
 /* Set console to Serial port (and parameters) */
-#ifdef USE_SERIAL
-t_stat sim_set_serial (int32 flag, CONST char *cptr)
-{
-char *cvptr, gbuf[CBUFSIZE], ubuf[CBUFSIZE];
-CTAB *ctptr;
-t_stat r;
-
-if ((cptr == NULL) || (*cptr == 0))
-    return SCPE_2FARG;
-while (*cptr != 0) {                                    /* do all mods */
-    cptr = get_glyph_nc (cptr, gbuf, ',');              /* get modifier */
-    if ((cvptr = strchr (gbuf, '=')))                   /* = value? */
-        *cvptr++ = 0;
-    get_glyph (gbuf, ubuf, 0);                          /* modifier to UC */
-    if ((ctptr = find_ctab (set_con_serial_tab, ubuf))) { /* match? */
-        r = ctptr->action (ctptr->arg, cvptr);          /* do the rest */
-        if (r != SCPE_OK)
-            return r;
-        }
-    else {
-        SERHANDLE serport = sim_open_serial (gbuf, NULL, &r);
-        if (serport != INVALID_HANDLE) {
-            sim_close_serial (serport);
-            if (r == SCPE_OK) {
-                char cbuf[CBUFSIZE+10];
-                if ((sim_con_tmxr.master) ||            /* already open? */
-                    (sim_con_ldsc.serport))
-                    sim_set_noserial (0, NULL);         /* close first */
-                sprintf(cbuf, "C=%s", gbuf);
-                r = tmxr_attach (&sim_con_tmxr, &sim_con_unit, cbuf);/* open master socket */
-                sim_con_ldsc.rcve = 1;                  /* rcv enabled */
-                if (r == SCPE_OK)
-                    sim_activate_after(&sim_con_unit, 1000000); /* check for connection in 1 second */
-                return r;
-                }
-            }
-        return SCPE_ARG;
-        }
-    }
-return SCPE_OK;
-}
-
-/* Close console Serial port */
-
-t_stat sim_set_noserial (int32 flag, CONST char *cptr)
-{
-if (cptr && (*cptr != 0))                               /* too many arguments? */
-    return SCPE_2MARG;
-if (sim_con_ldsc.serport == 0)                          /* ignore if already closed */
-    return SCPE_OK;
-return tmxr_close_master (&sim_con_tmxr);               /* close master socket */
-}
-#endif
 
 /* Show the console expect rules and state */
 
@@ -1826,7 +1732,7 @@ if (trys == sec) {
 if (sim_con_ldsc.serport)
     if (tmxr_poll_conn (&sim_con_tmxr) >= 0)
         sim_con_ldsc.rcve = 1;                          /* rcv enabled */
-if ((sim_con_tmxr.master == 0) ||                       /* serial console or not Telnet? done */
+if ((sim_con_tmxr.master == 0) ||                       /* console or not Telnet? done */
     (sim_con_ldsc.serport))
     return SCPE_OK;
 if (sim_con_ldsc.conn || sim_con_ldsc.txbfd) {          /* connected or buffered ? */
@@ -1948,139 +1854,11 @@ tmxr_poll_tx (&sim_con_tmxr);                           /* poll xmt */
 return SCPE_OK;
 }
 
-t_stat sim_putchar_s (int32 c)
-{
-t_stat r;
-
-sim_exp_check (&sim_con_expect, c);
-if ((sim_con_tmxr.master == 0) &&                       /* not Telnet? */
-    (sim_con_ldsc.serport == 0)) {                      /* and not serial port */
-    if (sim_log)                                        /* log file? */
-        fputc (c, sim_log);
-    return sim_os_putchar (c);                          /* in-window version */
-    }
-if (!sim_con_ldsc.conn) {                               /* no Telnet or serial connection? */
-    if (!sim_con_ldsc.txbfd)                            /* non-buffered Telnet connection? */
-        return SCPE_LOST;                               /* lost */
-    if (tmxr_poll_conn (&sim_con_tmxr) >= 0)            /* poll connect */
-        sim_con_ldsc.rcve = 1;                          /* rcv enabled */
-    }
-if (sim_con_ldsc.xmte == 0)                             /* xmt disabled? */
-    r = SCPE_STALL;
-else r = tmxr_putc_ln (&sim_con_ldsc, c);               /* no, Telnet output */
-tmxr_poll_tx (&sim_con_tmxr);                           /* poll xmt */
-return r;                                               /* return status */
-}
-
-/* Input character processing */
-
-int32 sim_tt_inpcvt (int32 c, uint32 mode)
-{
-uint32 md = mode & TTUF_M_MODE;
-
-if (md != TTUF_MODE_8B) {
-    uint32 par_mode = (mode >> TTUF_W_MODE) & TTUF_M_PAR;
-    static int32 nibble_even_parity = 0x699600;   /* bit array indicating the even parity for each index (offset by 8) */
-
-    c = c & 0177;
-    if (md == TTUF_MODE_UC) {
-        if (islower (c))
-            c = toupper (c);
-        if (mode & TTUF_KSR)
-            c = c | 0200;
-        }
-    switch (par_mode) {
-        case TTUF_PAR_EVEN:
-            c |= (((nibble_even_parity >> ((c & 0xF) + 1)) ^ (nibble_even_parity >> (((c >> 4) & 0xF) + 1))) & 0x80);
-            break;
-        case TTUF_PAR_ODD:
-            c |= ((~((nibble_even_parity >> ((c & 0xF) + 1)) ^ (nibble_even_parity >> (((c >> 4) & 0xF) + 1)))) & 0x80);
-            break;
-        case TTUF_PAR_MARK:
-            c = c | 0x80;
-            break;
-        }
-    }
-else c = c & 0377;
-return c;
-}
-
-/* Output character processing */
-
-int32 sim_tt_outcvt (int32 c, uint32 mode)
-{
-uint32 md = mode & TTUF_M_MODE;
-
-if (md != TTUF_MODE_8B) {
-    c = c & 0177;
-    if (md == TTUF_MODE_UC) {
-        if (islower (c))
-            c = toupper (c);
-        if ((mode & TTUF_KSR) && (c >= 0140))
-            return -1;
-        }
-    if (((md == TTUF_MODE_UC) || (md == TTUF_MODE_7P)) &&
-        ((c == 0177) ||
-         ((c < 040) && !((sim_tt_pchar >> c) & 1))))
-        return -1;
-    }
-else c = c & 0377;
-return c;
-}
-
 /* Tab stop array handling
 
    *desc points to a uint8 array of length val
 
    Columns with tabs set are non-zero; columns without tabs are 0 */
-
-t_stat sim_tt_settabs (UNIT *uptr, int32 val, CONST char *cptr, void *desc)
-{
-uint8 *temptabs, *tabs = (uint8 *) desc;
-int32 i, d;
-t_stat r;
-char gbuf[CBUFSIZE];
-
-if ((cptr == NULL) || (tabs == NULL) || (val <= 1))
-    return SCPE_IERR;
-if (*cptr == 0)
-    return SCPE_2FARG;
-if ((temptabs = (uint8 *)malloc (val)) == NULL)
-    return SCPE_MEM;
-for (i = 0; i < val; i++)
-    temptabs[i] = 0;
-do {
-    cptr = get_glyph (cptr, gbuf, ';');
-    d = (int32)get_uint (gbuf, 10, val, &r);
-    if ((r != SCPE_OK) || (d == 0)) {
-        free (temptabs);
-        return SCPE_ARG;
-        }
-    temptabs[d - 1] = 1;
-    } while (*cptr != 0);
-for (i = 0; i < val; i++)
-    tabs[i] = temptabs[i];
-free (temptabs);
-return SCPE_OK;
-}
-
-t_stat sim_tt_showtabs (FILE *st, UNIT *uptr, int32 val, CONST void *desc)
-{
-const uint8 *tabs = (const uint8 *) desc;
-int32 i, any;
-
-if ((st == NULL) || (val == 0) || (desc == NULL))
-    return SCPE_IERR;
-for (i = any = 0; i < val; i++) {
-    if (tabs[i] != 0) {
-        fprintf (st, (any? ";%d": "%d"), i + 1);
-        any = 1;
-        }
-    }
-fprintf (st, (any? "\n": "no tabs set\n"));
-return SCPE_OK;
-}
-
 
 t_stat sim_ttinit (void)
 {
@@ -2124,10 +1902,10 @@ return sim_os_ttisatty ();
 
 #if defined (_WIN32)
 
-#include <fcntl.h>
-#include <io.h>
-#include <windows.h>
-#define RAW_MODE 0
+# include <fcntl.h>
+# include <io.h>
+# include <windows.h>
+# define RAW_MODE 0
 static HANDLE std_input;
 static HANDLE std_output;
 static DWORD saved_mode;
@@ -2258,8 +2036,8 @@ if ((sim_brk_char && ((c & 0177) == sim_brk_char)) || (c & SCPE_BREAK))
 return c | SCPE_KFLAG;
 }
 
-#define BELL_CHAR         7         /* Bell Character */
-#define BELL_INTERVAL_MS  500       /* No more than 2 Bell Characters Per Second */
+# define BELL_CHAR         7         /* Bell Character */
+# define BELL_INTERVAL_MS  500       /* No more than 2 Bell Characters Per Second */
 static t_stat sim_os_putchar (int32 c)
 {
 DWORD unused;
@@ -2284,9 +2062,9 @@ return SCPE_OK;
 
 /* BSD Routines */
 
-#include <sgtty.h>
-#include <fcntl.h>
-#include <unistd.h>
+# include <sgtty.h>
+# include <fcntl.h>
+# include <unistd.h>
 
 struct sgttyb cmdtty,runtty;                            /* V6/V7 stty data */
 struct tchars cmdtchars,runtchars;                      /* V7 editing */
@@ -2384,8 +2162,8 @@ return SCPE_OK;
 
 #else
 
-#include <termios.h>
-#include <unistd.h>
+# include <termios.h>
+# include <unistd.h>
 
 struct termios cmdtty, runtty;
 
@@ -2408,26 +2186,26 @@ runtty.c_cc[VEOL] = 0;
 runtty.c_cc[VSTART] = 0;                                /* no host sync */
 runtty.c_cc[VSUSP] = 0;
 runtty.c_cc[VSTOP] = 0;
-#if defined (VREPRINT)
+# if defined (VREPRINT)
 runtty.c_cc[VREPRINT] = 0;                              /* no specials */
-#endif
-#if defined (VDISCARD)
+# endif
+# if defined (VDISCARD)
 runtty.c_cc[VDISCARD] = 0;
-#endif
-#if defined (VWERASE)
+# endif
+# if defined (VWERASE)
 runtty.c_cc[VWERASE] = 0;
-#endif
-#if defined (VLNEXT)
+# endif
+# if defined (VLNEXT)
 runtty.c_cc[VLNEXT] = 0;
-#endif
+# endif
 runtty.c_cc[VMIN] = 0;                                  /* no waiting */
 runtty.c_cc[VTIME] = 0;
-#if defined (VDSUSP)
+# if defined (VDSUSP)
 runtty.c_cc[VDSUSP] = 0;
-#endif
-#if defined (VSTATUS)
+# endif
+# if defined (VSTATUS)
 runtty.c_cc[VSTATUS] = 0;
-#endif
+# endif
 return SCPE_OK;
 }
 

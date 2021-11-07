@@ -15,15 +15,6 @@
 # src/Makefile.var: Variable processing logic and build configuration
 
 ###############################################################################
-# Legacy serial port hardware support
-
-ifeq ($(SERIAL),1)
-  SERIAL=1
-  USE_SERIAL=1
-  CFLAGS += -DUSE_SERIAL
-endif
-
-###############################################################################
 # Atomic operations selection
 
 ifdef ATOMICS

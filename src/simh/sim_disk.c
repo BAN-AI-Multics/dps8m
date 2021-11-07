@@ -47,8 +47,6 @@ Public routines:
    sim_disk_show_fmt         show disk format
    sim_disk_set_capac        set disk capacity
    sim_disk_show_capac       show disk capacity
-   sim_disk_set_async        enable asynchronous operation
-   sim_disk_clr_async        disable asynchronous operation
    sim_disk_data_trace       debug support
 
 Internal routines:
@@ -77,7 +75,7 @@ Internal routines:
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#include <windows.h>
+# include <windows.h>
 #endif
 
 struct disk_context {
@@ -266,22 +264,6 @@ switch (DK_GET_FMT (uptr)) {                            /* case on format */
     default:
         return (t_offset)-1;
     }
-}
-
-/* Enable asynchronous operation */
-
-t_stat sim_disk_set_async (UNIT *uptr, int latency)
-{
-char *msg = "Disk: can't operate asynchronously\r\n";
-sim_printf ("%s", msg);
-return SCPE_NOFNC;
-}
-
-/* Disable asynchronous operation */
-
-t_stat sim_disk_clr_async (UNIT *uptr)
-{
-return SCPE_NOFNC;
 }
 
 /* Read Sectors */
@@ -611,9 +593,9 @@ return stat;
 }
 
 #ifdef __xlc__
-#pragma pack(1)
+# pragma pack(1)
 #else
-#pragma pack(push,1)
+# pragma pack(push,1)
 #endif
 typedef struct _ODS2_HomeBlock
     {
@@ -741,9 +723,9 @@ typedef struct _ODS2_StorageControlBlock
     uint16 scb_w_checksum;
     } ODS2_SCB;
 #ifdef __xlc__
-#pragma pack(reset)
+# pragma pack(reset)
 #else
-#pragma pack(pop)
+# pragma pack(pop)
 #endif
 
 static uint16
@@ -1072,24 +1054,24 @@ uptr->disk_ctx = ctx = (struct disk_context *)calloc(1, sizeof(struct disk_conte
 if ((uptr->filename == NULL) || (uptr->disk_ctx == NULL))
     return _err_return (uptr, SCPE_MEM);
 #ifdef __GNUC__
-#ifndef __clang_version__
-#if __GNUC__ > 7
-#ifndef __INTEL_COMPILER
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
-#endif /* ifndef __INTEL_COMPILER */
-#endif /* if __GNUC__ > 7 */
-#endif /* ifndef __clang_version__ */
+# ifndef __clang_version__
+#  if __GNUC__ > 7
+#   ifndef __INTEL_COMPILER
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wstringop-truncation"
+#   endif /* ifndef __INTEL_COMPILER */
+#  endif /* if __GNUC__ > 7 */
+# endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
 strncpy (uptr->filename, cptr, CBUFSIZE);               /* save name */
 #ifdef __GNUC__
-#ifndef __clang_version__
-#if __GNUC__ > 7
-#ifndef __INTEL_COMPILER
-#pragma GCC diagnostic pop
-#endif /* ifndef __INTEL_COMPILER */
-#endif /* if __GNUC__ > 7 */
-#endif /* ifndef __clang_version__ */
+# ifndef __clang_version__
+#  if __GNUC__ > 7
+#   ifndef __INTEL_COMPILER
+#    pragma GCC diagnostic pop
+#   endif /* ifndef __INTEL_COMPILER */
+#  endif /* if __GNUC__ > 7 */
+# endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
 ctx->sector_size = (uint32)sector_size;                 /* save sector_size */
 ctx->capac_factor = ((dptr->dwidth / dptr->aincr) == 16) ? 2 : 1; /* save capacity units (word: 2, byte: 1) */
@@ -1351,8 +1333,6 @@ if (NULL == find_dev_from_unit (uptr))
 
 if (uptr->io_flush)
     uptr->io_flush (uptr);                              /* flush buffered data */
-
-sim_disk_clr_async (uptr);
 
 uptr->flags &= ~(UNIT_ATT | UNIT_RO);
 uptr->dynflags &= ~(UNIT_NO_FIO | UNIT_DISK_CHK);
@@ -1635,29 +1615,29 @@ if ((dwStatus >= ERROR_INVALID_STARTING_CODESEG) && (dwStatus <= ERROR_INFLOOP_I
 errno = EINVAL;
 }
 
-#if defined(__GNUC__)
+# if defined(__GNUC__)
 
-#if defined(__MINGW64__) || defined(__MINGW32__)
-#include <ntddstor.h>
-#include <ntdddisk.h>
-#else
-#include <ddk/ntddstor.h>
-#include <ddk/ntdddisk.h>
-#endif
+#  if defined(__MINGW64__) || defined(__MINGW32__)
+#   include <ntddstor.h>
+#   include <ntdddisk.h>
+#  else
+#   include <ddk/ntddstor.h>
+#   include <ddk/ntdddisk.h>
+#  endif
 
-#else
+# else
 
-#include <winioctl.h>
+#  include <winioctl.h>
 
-#endif
+# endif
 
-#if defined(__cplusplus)
+# if defined(__cplusplus)
 extern "C" {
-#endif
+# endif
 WINBASEAPI BOOL WINAPI GetFileSizeEx(HANDLE hFile, PLARGE_INTEGER lpFileSize);
-#if defined(__cplusplus)
+# if defined(__cplusplus)
     }
-#endif
+# endif
 
 struct _device_type {
     int32 Type;
@@ -1667,17 +1647,17 @@ struct _device_type {
         {FILE_DEVICE_ACPI,                  "ACPI"},
         {FILE_DEVICE_BATTERY,               "BATTERY"},
         {FILE_DEVICE_BEEP,                  "BEEP"},
-#ifdef FILE_DEVICE_BLUETOOTH
+# ifdef FILE_DEVICE_BLUETOOTH
         {FILE_DEVICE_BLUETOOTH,             "BLUETOOTH"},
-#endif
+# endif
         {FILE_DEVICE_BUS_EXTENDER,          "BUS_EXTENDER"},
         {FILE_DEVICE_CD_ROM,                "CD_ROM"},
         {FILE_DEVICE_CD_ROM_FILE_SYSTEM,    "CD_ROM_FILE_SYSTEM"},
         {FILE_DEVICE_CHANGER,               "CHANGER"},
         {FILE_DEVICE_CONTROLLER,            "CONTROLLER"},
-#ifdef FILE_DEVICE_CRYPT_PROVIDER
+# ifdef FILE_DEVICE_CRYPT_PROVIDER
         {FILE_DEVICE_CRYPT_PROVIDER,        "CRYPT_PROVIDER"},
-#endif
+# endif
         {FILE_DEVICE_DATALINK,              "DATALINK"},
         {FILE_DEVICE_DFS,                   "DFS"},
         {FILE_DEVICE_DFS_FILE_SYSTEM,       "DFS_FILE_SYSTEM"},
@@ -1686,13 +1666,13 @@ struct _device_type {
         {FILE_DEVICE_DISK_FILE_SYSTEM,      "DISK_FILE_SYSTEM"},
         {FILE_DEVICE_DVD,                   "DVD"},
         {FILE_DEVICE_FILE_SYSTEM,           "FILE_SYSTEM"},
-#ifdef FILE_DEVICE_FIPS
+# ifdef FILE_DEVICE_FIPS
         {FILE_DEVICE_FIPS,                  "FIPS"},
-#endif
+# endif
         {FILE_DEVICE_FULLSCREEN_VIDEO,      "FULLSCREEN_VIDEO"},
-#ifdef FILE_DEVICE_INFINIBAND
+# ifdef FILE_DEVICE_INFINIBAND
         {FILE_DEVICE_INFINIBAND,            "INFINIBAND"},
-#endif
+# endif
         {FILE_DEVICE_INPORT_PORT,           "INPORT_PORT"},
         {FILE_DEVICE_KEYBOARD,              "KEYBOARD"},
         {FILE_DEVICE_KS,                    "KS"},
@@ -1730,14 +1710,14 @@ struct _device_type {
         {FILE_DEVICE_VDM,                   "VDM"},
         {FILE_DEVICE_VIDEO,                 "VIDEO"},
         {FILE_DEVICE_VIRTUAL_DISK,          "VIRTUAL_DISK"},
-#ifdef FILE_DEVICE_VMBUS
+# ifdef FILE_DEVICE_VMBUS
         {FILE_DEVICE_VMBUS,                 "VMBUS"},
-#endif
+# endif
         {FILE_DEVICE_WAVE_IN,               "WAVE_IN"},
         {FILE_DEVICE_WAVE_OUT,              "WAVE_OUT"},
-#ifdef FILE_DEVICE_WPD
+# ifdef FILE_DEVICE_WPD
         {FILE_DEVICE_WPD,                   "WPD"},
-#endif
+# endif
         {0,                                 NULL}};
 
 static const char *_device_type_name (int DeviceType)
@@ -1811,7 +1791,7 @@ LARGE_INTEGER Size;
 
 if (GetFileSizeEx((HANDLE)Disk, &Size))
     return (t_offset)(Size.QuadPart);
-#ifdef IOCTL_STORAGE_READ_CAPACITY
+# ifdef IOCTL_STORAGE_READ_CAPACITY
 if (1) {
     STORAGE_READ_CAPACITY S;
 
@@ -1827,8 +1807,8 @@ if (1) {
                          (LPOVERLAPPED) NULL))             /* OVERLAPPED structure */
         return (t_offset)(S.DiskLength.QuadPart);
     }
-#endif
-#ifdef IOCTL_DISK_GET_DRIVE_GEOMETRY_EX
+# endif
+# ifdef IOCTL_DISK_GET_DRIVE_GEOMETRY_EX
 if (1) {
     DISK_GEOMETRY_EX G;
 
@@ -1843,8 +1823,8 @@ if (1) {
                          (LPOVERLAPPED) NULL))             /* OVERLAPPED structure */
         return (t_offset)(G.DiskSize.QuadPart);
     }
-#endif
-#ifdef IOCTL_DISK_GET_DRIVE_GEOMETRY
+# endif
+# ifdef IOCTL_DISK_GET_DRIVE_GEOMETRY
 if (1) {
     DISK_GEOMETRY G;
 
@@ -1858,14 +1838,14 @@ if (1) {
                          (LPOVERLAPPED) NULL))             /* OVERLAPPED structure */
         return (t_offset)(G.Cylinders.QuadPart*G.TracksPerCylinder*G.SectorsPerTrack*G.BytesPerSector);
     }
-#endif
+# endif
 _set_errno_from_status (GetLastError ());
 return (t_offset)-1;
 }
 
 static t_stat sim_os_disk_unload_raw (FILE *Disk)
 {
-#ifdef IOCTL_STORAGE_EJECT_MEDIA
+# ifdef IOCTL_STORAGE_EJECT_MEDIA
 DWORD BytesReturned;
 uint32 Removable = FALSE;
 
@@ -1884,14 +1864,14 @@ if (Removable) {
         }
     }
 return SCPE_OK;
-#else
+# else
 return SCPE_NOFNC;
-#endif
+# endif
 }
 
 static t_bool sim_os_disk_isavailable_raw (FILE *Disk)
 {
-#ifdef IOCTL_STORAGE_EJECT_MEDIA
+# ifdef IOCTL_STORAGE_EJECT_MEDIA
 DWORD BytesReturned;
 uint32 Removable = FALSE;
 
@@ -1909,7 +1889,7 @@ if (Removable) {
         return FALSE;
         }
     }
-#endif
+# endif
 return TRUE;
 }
 
@@ -1933,7 +1913,7 @@ if (sector_size)
     *sector_size = 512;
 if (removable)
     *removable = 0;
-#ifdef IOCTL_STORAGE_READ_CAPACITY
+# ifdef IOCTL_STORAGE_READ_CAPACITY
 if (1) {
     STORAGE_READ_CAPACITY S;
 
@@ -1950,8 +1930,8 @@ if (1) {
         if (sector_size)
             *sector_size = S.BlockLength;
     }
-#endif
-#ifdef IOCTL_DISK_GET_DRIVE_GEOMETRY_EX
+# endif
+# ifdef IOCTL_DISK_GET_DRIVE_GEOMETRY_EX
 if (1) {
     DISK_GEOMETRY_EX G;
 
@@ -1967,8 +1947,8 @@ if (1) {
         if (sector_size)
             *sector_size = G.Geometry.BytesPerSector;
     }
-#endif
-#ifdef IOCTL_DISK_GET_DRIVE_GEOMETRY
+# endif
+# ifdef IOCTL_DISK_GET_DRIVE_GEOMETRY
 if (1) {
     DISK_GEOMETRY G;
 
@@ -1983,8 +1963,8 @@ if (1) {
         if (sector_size)
             *sector_size = G.BytesPerSector;
     }
-#endif
-#ifdef IOCTL_STORAGE_GET_HOTPLUG_INFO
+# endif
+# ifdef IOCTL_STORAGE_GET_HOTPLUG_INFO
 if (1) {
     STORAGE_HOTPLUG_INFO H;
 
@@ -2000,7 +1980,7 @@ if (1) {
         if (removable)
             *removable = H.MediaRemovable;
     }
-#endif
+# endif
 if (removable && *removable)
     sim_printf ("Removable Device\n");
 return SCPE_OK;
@@ -2057,10 +2037,10 @@ return SCPE_IOERR;
 
 #elif defined (__linux) || defined (__linux__) || defined (__APPLE__) || defined (__sun) || defined (__sun__) || defined (_AIX)
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+# include <unistd.h>
 
 static t_stat sim_os_disk_implemented_raw (void)
 {
@@ -2076,12 +2056,12 @@ if (strchr (openmode, 'r') && (strchr (openmode, '+') || strchr (openmode, 'w'))
 else
     if (strchr (openmode, 'r'))
         mode = O_RDONLY;
-#ifdef O_LARGEFILE
+# ifdef O_LARGEFILE
 mode |= O_LARGEFILE;
-#endif
-#ifdef O_DSYNC
+# endif
+# ifdef O_DSYNC
 mode |= O_DSYNC;
-#endif
+# endif
 return (FILE *)((long)open (rawdevicename, mode, 0));
 }
 
@@ -2304,11 +2284,11 @@ return NULL;
 --*/
 
 typedef t_uint64    uint64;
-#ifdef _AIX
+# ifdef _AIX
 typedef long        int64;
-#else
+# else
 typedef t_int64     int64;
-#endif
+# endif
 
 typedef struct _VHD_Footer {
     /*
@@ -2592,12 +2572,12 @@ typedef struct _VHD_DynamicDiskHeader {
     char Reserved[256];
     } VHD_DynamicDiskHeader;
 
-#define VHD_BAT_FREE_ENTRY (0xFFFFFFFF)
-#define VHD_DATA_BLOCK_ALIGNMENT ((uint64)4096)    /* Optimum when underlying storage has 4k sectors */
+# define VHD_BAT_FREE_ENTRY (0xFFFFFFFF)
+# define VHD_DATA_BLOCK_ALIGNMENT ((uint64)4096)    /* Optimum when underlying storage has 4k sectors */
 
-#define VHD_DT_Fixed                 2  /* Fixed hard disk */
-#define VHD_DT_Dynamic               3  /* Dynamic hard disk */
-#define VHD_DT_Differencing          4  /* Differencing hard disk */
+# define VHD_DT_Fixed                 2  /* Fixed hard disk */
+# define VHD_DT_Dynamic               3  /* Dynamic hard disk */
+# define VHD_DT_Differencing          4  /* Differencing hard disk */
 
 static uint32 NtoHl(uint32 value);
 
@@ -2649,15 +2629,15 @@ while (size--)
 return ~sum;
 }
 
-#if defined(_WIN32)
-#ifndef __BYTE_ORDER__
-#define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
-#endif
-#endif
-#ifndef __BYTE_ORDER__
-#define __BYTE_ORDER__ UNKNOWN
-#endif
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+# if defined(_WIN32)
+#  ifndef __BYTE_ORDER__
+#   define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
+#  endif
+# endif
+# ifndef __BYTE_ORDER__
+#  define __BYTE_ORDER__ UNKNOWN
+# endif
+# if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 static uint32
 NtoHl(uint32 value)
 {
@@ -2673,7 +2653,7 @@ uint64 highresult = l[3] | (l[2]<<8) | (l[1]<<16) | (l[0]<<24);
 uint32 lowresult = l[7] | (l[6]<<8) | (l[5]<<16) | (l[4]<<24);
 return (highresult << 32) | lowresult;
 }
-#elif  __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+# elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 static uint32
 NtoHl(uint32 value)
 {
@@ -2685,7 +2665,7 @@ NtoHll(uint64 value)
 {
 return value;
 }
-#else
+# else
 static uint32
 NtoHl(uint32 value)
 {
@@ -2708,7 +2688,7 @@ if (sim_end) {
     }
 return value;
 }
-#endif
+# endif
 
 static
 int
@@ -3229,8 +3209,8 @@ VHDHANDLE hVHD = (VHDHANDLE)f;
 return (t_offset)(NtoHll (hVHD->Footer.CurrentSize));
 }
 
-#include <stdlib.h>
-#include <time.h>
+# include <stdlib.h>
+# include <time.h>
 static VHDHANDLE
 CreateVirtDisk(const char *szVHDPath,
                   uint32 SizeInSectors,
@@ -3400,22 +3380,22 @@ errno = Status;
 return hVHD;
 }
 
-#if defined(__CYGWIN__) || defined(_AIX) || defined(__APPLE__) || defined(__linux) || defined(__linux__) || defined(__unix__)
-#include <unistd.h>
-#endif
+# if defined(__CYGWIN__) || defined(_AIX) || defined(__APPLE__) || defined(__linux) || defined(__linux__) || defined(__unix__)
+#  include <unistd.h>
+# endif
 static void
 ExpandToFullPath (const char *szFileSpec,
                   char *szFullFileSpecBuffer,
                   size_t BufferSize)
 {
 char *c;
-#ifdef _WIN32
+# ifdef _WIN32
 for (c = strchr (szFullFileSpecBuffer, '/'); c; c = strchr (szFullFileSpecBuffer, '/'))
     *c = '\\';
 GetFullPathNameA (szFileSpec, (DWORD)BufferSize, szFullFileSpecBuffer, NULL);
 for (c = strchr (szFullFileSpecBuffer, '\\'); c; c = strchr (szFullFileSpecBuffer, '\\'))
     *c = '/';
-#else
+# else
 char buffer[PATH_MAX];
 char *wd = getcwd(buffer, PATH_MAX);
 
@@ -3426,7 +3406,7 @@ else
 if ((c = strstr (szFullFileSpecBuffer, "]/")))
     memcpy (c+1, c+2, strlen(c+2)+1);
 memset (szFullFileSpecBuffer + strlen (szFullFileSpecBuffer), 0, BufferSize - strlen (szFullFileSpecBuffer));
-#endif
+# endif
 }
 
 static char *

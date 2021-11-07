@@ -21,9 +21,12 @@
 #define MAX_MKSTEMPS_TRIES 10000
 
 #if defined(__MINGW64__) || defined(__MINGW32__)
-#include "bsd_random.h"
-#define random  bsd_random
-#define srandom bsd_srandom
+# ifndef USE_BSD_RANDOM
+#  define USE_BSD_RANDOM
+# endif
+# include "bsd_random.h"
+# define random  bsd_random
+# define srandom bsd_srandom
 #endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
 
 static char valid_file_name_chars[]

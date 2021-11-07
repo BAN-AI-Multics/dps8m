@@ -434,12 +434,12 @@ main(int argc, char *argv[])
     abort();  /* bug */
     /*NOTREACHED*/
 #ifndef __SUNPRO_C
-#ifndef __SUNPRO_CC
-#ifndef __SUNPRO_CC_COMPAT
+# ifndef __SUNPRO_CC
+#  ifndef __SUNPRO_CC_COMPAT
     /* cppcheck-suppress unreachableCode */
     exit(3);  /* unreachable */
-#endif
-#endif
+#  endif
+# endif
 #endif
     /*NOTREACHED*/
   }
@@ -579,9 +579,9 @@ version(void)
 #ifdef BUILDINFO_unifdef
   if (showbuild)
   {
-#ifdef __VERSION__
-#ifdef __GNUC__
-#ifndef __clang_version__
+# ifdef __VERSION__
+#  ifdef __GNUC__
+#   ifndef __clang_version__
     char xcmp[2];
     sprintf(xcmp, "%.1s", __VERSION__ );
     if (!isdigit((int)xcmp[0]))
@@ -590,13 +590,13 @@ version(void)
     } else {
       fprintf(stderr, "Compiler: GCC %s\n", __VERSION__ );
     }
-#else
+#   else
     fprintf(stderr, "Compiler: %s\n", __VERSION__ );
-#endif /* ifndef __clang_version__ */
-#else
+#   endif /* ifndef __clang_version__ */
+#  else
     fprintf(stderr, "Compiler: %s\n", __VERSION__ );
-#endif /* ifdef __GNUC__ */
-#endif /* ifdef __VERSION__ */
+#  endif /* ifdef __GNUC__ */
+# endif /* ifdef __VERSION__ */
     fprintf(stderr, "   Build: %s\n", BUILDINFO_unifdef );
   }
 #endif /* ifdef BUILDINFO_unifdef */

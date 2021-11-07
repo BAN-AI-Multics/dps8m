@@ -476,11 +476,11 @@ empty:;
     //p->stati = 04200; // offline
     //p->stati = 04240; // data alert
     p->tallyResidue = 0;
-#ifdef TESTING
+# ifdef TESTING
     if (! empty)
       sim_printf ("hopper empty\r\n");
     empty = true;
-#endif
+# endif
     return IOM_CMD_ERROR;
   }
 #endif
@@ -617,9 +617,9 @@ empty:;
 // Sending a ++END means that the read_cards command has to be reissued
 #if 1
     case eof2Sent: {
-#ifdef TESTING
+# ifdef TESTING
   sim_printf ("eof2Sent\r\n");
-#endif
+# endif
       sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
@@ -634,9 +634,9 @@ empty:;
     break;
 #else
     case eof2Sent: {
-#ifdef TESTING
+# ifdef TESTING
   sim_printf ("eof2Sent\r\n");
-#endif
+# endif
       sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
@@ -645,9 +645,9 @@ empty:;
     break;
 
     case uid2Sent: {
-#ifdef TESTING
+# ifdef TESTING
   sim_printf ("uid2Sent\r\n");
-#endif
+# endif
       sprintf ((char *) cardImage, "++END");
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
@@ -739,7 +739,7 @@ empty:;
   sim_printf ("\r\n");
   for (uint i = 0; i < 27; i ++) {
     sim_printf ("  %012"PRIo64"     \r\n", buffer [i]);
-#define B(n) bit_rep [(buffer [i] >> n) & 0x0f]
+# define B(n) bit_rep [(buffer [i] >> n) & 0x0f]
     for (int j = 32; j >= 0; j -= 4)
       sim_printf ("%s", B(j));
     sim_printf ("\r\n");

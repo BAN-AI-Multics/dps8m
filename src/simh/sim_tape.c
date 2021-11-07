@@ -56,8 +56,6 @@
    sim_tape_show_capac  show tape capacity
    sim_tape_set_dens    set tape density
    sim_tape_show_dens   show tape density
-   sim_tape_set_async   enable asynchronous operation
-   sim_tape_clr_async   disable asynchronous operation
 */
 
 #include "sim_defs.h"
@@ -105,22 +103,6 @@ struct tape_context {
     uint32              auto_format;        /* Format determined dynamically */
     };
 #define tape_ctx up8                        /* Field in Unit structure which points to the tape_context */
-
-
-/* Enable asynchronous operation */
-
-t_stat sim_tape_set_async (UNIT *uptr, int latency)
-{
-sim_printf ("Tape: can't operate asynchronously\r\n");
-return SCPE_NOFNC;
-}
-
-/* Disable asynchronous operation */
-
-t_stat sim_tape_clr_async (UNIT *uptr)
-{
-return SCPE_NOFNC;
-}
 
 /*
    This routine is called when the simulator stops and any time
@@ -233,8 +215,6 @@ if (uptr->io_flush)
     uptr->io_flush (uptr);                              /* flush buffered data */
 if (ctx)
     auto_format = ctx->auto_format;
-
-sim_tape_clr_async (uptr);
 
 r = detach_unit (uptr);                                 /* detach unit */
 if (r != SCPE_OK)

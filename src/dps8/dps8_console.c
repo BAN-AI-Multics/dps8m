@@ -23,9 +23,9 @@
 #include <unistd.h>
 #include <signal.h>
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#include <termios.h>
-#endif /* ifndef __MINGW32__ */
+# ifndef __MINGW32__
+#  include <termios.h>
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
 #include <ctype.h>
 
@@ -41,12 +41,12 @@
 #include "dps8_disk.h"  // attachDisk
 #include "dps8_utils.h"
 #ifdef LOCKLESS
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #include "libtelnet.h"
 #ifdef CONSOLE_FIX
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #define DBG_CTR 1
@@ -196,12 +196,12 @@ static DEBTAB opc_dt[] =
 // The sim_activate calls are done by the controller thread, which
 // has a 1000Hz cycle rate.
 // 1K ~= 1 sec
-#define ACTIVATE_1SEC 1000
+# define ACTIVATE_1SEC 1000
 #else
 // The sim_activate calls are done by the only thread, with a 4 MHz
 // cycle rate.
 // 4M ~= 1 sec
-#define ACTIVATE_1SEC 4000000
+# define ACTIVATE_1SEC 4000000
 #endif
 
 
@@ -327,7 +327,7 @@ static char * bcd_code_page =
 //
 
 #ifndef TA_BUFFER_SIZE
-#define TA_BUFFER_SIZE 65536
+# define TA_BUFFER_SIZE 65536
 #endif
 
 static int ta_buffer[TA_BUFFER_SIZE];
@@ -537,7 +537,7 @@ void console_attn_idx (int conUnitIdx)
   }
 
 #ifndef __MINGW64__
-#ifndef __MINGW32__
+# ifndef __MINGW32__
 static struct termios ttyTermios;
 static bool ttyTermiosOk = false;
 
@@ -566,7 +566,7 @@ static void newlineOn (void)
       return;
     tcsetattr (0, TCSAFLUSH, & ttyTermios);
   }
-#endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
 
 static void handleRCP (uint con_unit_idx, char * text)
@@ -1929,15 +1929,15 @@ void startRemoteConsole (void)
         console_state[conUnitIdx].console_access.connected = NULL;
         console_state[conUnitIdx].console_access.useTelnet = true;
 #ifdef CONSOLE_FIX
-#ifdef LOCKLESS
+# ifdef LOCKLESS
         lock_libuv ();
-#endif
+# endif
 #endif
         uv_open_access (& console_state[conUnitIdx].console_access);
 #ifdef CONSOLE_FIX
-#ifdef LOCKLESS
+# ifdef LOCKLESS
         unlock_libuv ();
-#endif
+# endif
 #endif
       }
   }

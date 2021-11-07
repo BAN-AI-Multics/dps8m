@@ -12,7 +12,7 @@
  */
 
 #ifndef DPS8_EM_CONSTS_H
-#define DPS8_EM_CONSTS_H
+# define DPS8_EM_CONSTS_H
 
 ////////////////
 //
@@ -100,11 +100,11 @@ enum { MAX_CTLR_PORTS = 8 };
 // CPU ports
 //
 
-#ifdef DPS8M
+# ifdef DPS8M
 enum { N_CPU_PORTS = 4 };
-#endif
-#ifdef L68
+# endif
+# ifdef L68
 enum { N_CPU_PORTS = 8 };
-#endif
+# endif
 
 #endif // DPS8_EM_CONSTS_H

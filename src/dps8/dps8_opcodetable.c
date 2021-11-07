@@ -850,7 +850,7 @@ struct opcode_s opcodes10[02000] = {
     {"emcall", IGN_B29, 0, 0, 0},  // 420 we add a emulator call instruction for SIMH use ONLY! (opcode 0420(1))
     {"fxe",  0, 0, 0, 0}, // 421 fxe fault handler
 
-#ifdef DEPRECIATED
+# ifdef DEPRECIATED
     // with the lack of a stack it makes it very cumbersome to write decent code for reentrant subroutines.
     // Yes, I *might* be able to use the DI, ID tally modifications, but you need to setup a indirect stack word to reference -
     // and you couldn't easily do stack offsets, w/o another indirect word, etc.
@@ -868,14 +868,14 @@ struct opcode_s opcodes10[02000] = {
     {"popa",  0, 0, 0, 0}, // 425 pop word from stack via Xn into A
     {"pushq", 0, 0, 0, 0}, // 426 push Q onto stack via Xn
     {"popq",  0, 0, 0, 0}, // 427 pop word from stack via Xn into Q
-#else // !DEPRECIATED
+# else // !DEPRECIATED
     {NULL, 0, 0, 0, 0}, // 422
     {NULL, 0, 0, 0, 0}, // 423
     {NULL, 0, 0, 0, 0}, // 424
     {NULL, 0, 0, 0, 0}, // 425
     {NULL, 0, 0, 0, 0}, // 426
     {NULL, 0, 0, 0, 0}, // 427
-#endif
+# endif
 
     {NULL, 0, 0, 0, 0}, // 430
     {NULL, 0, 0, 0, 0},

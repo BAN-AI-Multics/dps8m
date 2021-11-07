@@ -18,35 +18,35 @@
 /* ------------------------------------------------------------------ */
 
 #if !defined(DECIMAL128)
-  #define DECIMAL128
-  #define DEC128NAME     "decimal128"                 /* Short name   */
-  #define DEC128FULLNAME "Decimal 128-bit Number"     /* Verbose name */
-  #define DEC128AUTHOR   "Mike Cowlishaw"             /* Who to blame */
+# define DECIMAL128
+# define DEC128NAME     "decimal128"                 /* Short name   */
+# define DEC128FULLNAME "Decimal 128-bit Number"     /* Verbose name */
+# define DEC128AUTHOR   "Mike Cowlishaw"             /* Who to blame */
 
   /* parameters for decimal128s */
-  #define DECIMAL128_Bytes  16          /* length                     */
-  #define DECIMAL128_Pmax   34          /* maximum precision (digits) */
-  #define DECIMAL128_Emax   6144        /* maximum adjusted exponent  */
-  #define DECIMAL128_Emin  -6143        /* minimum adjusted exponent  */
-  #define DECIMAL128_Bias   6176        /* bias for the exponent      */
-  #define DECIMAL128_String 43          /* maximum string length, +1  */
-  #define DECIMAL128_EconL  12          /* exp. continuation length   */
+# define DECIMAL128_Bytes  16          /* length                     */
+# define DECIMAL128_Pmax   34          /* maximum precision (digits) */
+# define DECIMAL128_Emax   6144        /* maximum adjusted exponent  */
+# define DECIMAL128_Emin  -6143        /* minimum adjusted exponent  */
+# define DECIMAL128_Bias   6176        /* bias for the exponent      */
+# define DECIMAL128_String 43          /* maximum string length, +1  */
+# define DECIMAL128_EconL  12          /* exp. continuation length   */
   /* highest biased exponent (Elimit-1)                               */
-  #define DECIMAL128_Ehigh  (DECIMAL128_Emax+DECIMAL128_Bias-DECIMAL128_Pmax+1)
+# define DECIMAL128_Ehigh  (DECIMAL128_Emax+DECIMAL128_Bias-DECIMAL128_Pmax+1)
 
   /* check enough digits, if pre-defined                              */
-  #if defined(DECNUMDIGITS)
-    #if (DECNUMDIGITS<DECIMAL128_Pmax)
-      #error decimal128.h needs pre-defined DECNUMDIGITS>=34 for safe use
-    #endif
-  #endif
+# if defined(DECNUMDIGITS)
+#  if (DECNUMDIGITS<DECIMAL128_Pmax)
+#   error decimal128.h needs pre-defined DECNUMDIGITS>=34 for safe use
+#  endif
+# endif
 
-  #ifndef DECNUMDIGITS
-    #define DECNUMDIGITS DECIMAL128_Pmax /* size if not already defined*/
-  #endif
-  #ifndef DECNUMBER
-    #include "decNumber.h"              /* context and number library */
-  #endif
+# ifndef DECNUMDIGITS
+#  define DECNUMDIGITS DECIMAL128_Pmax /* size if not already defined*/
+# endif
+# ifndef DECNUMBER
+#  include "decNumber.h"              /* context and number library */
+# endif
 
   /* Decimal 128-bit type, accessible by bytes                        */
   typedef struct {
@@ -55,11 +55,11 @@
 
   /* special values [top byte excluding sign bit; last two bits are   */
   /* don't-care for Infinity on input, last bit don't-care for NaN]   */
-  #if !defined(DECIMAL_NaN)
-    #define DECIMAL_NaN     0x7c        /* 0 11111 00 NaN             */
-    #define DECIMAL_sNaN    0x7e        /* 0 11111 10 sNaN            */
-    #define DECIMAL_Inf     0x78        /* 0 11110 00 Infinity        */
-  #endif
+# if !defined(DECIMAL_NaN)
+#  define DECIMAL_NaN     0x7c        /* 0 11111 00 NaN             */
+#  define DECIMAL_sNaN    0x7e        /* 0 11111 10 sNaN            */
+#  define DECIMAL_Inf     0x78        /* 0 11110 00 Infinity        */
+# endif
 
   /* ---------------------------------------------------------------- */
   /* Routines                                                         */

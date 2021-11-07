@@ -38,28 +38,28 @@
  */
 
 #if !defined(LIBTELNET_INCLUDE)
-#define LIBTELNET_INCLUDE 1
+# define LIBTELNET_INCLUDE 1
 
 /* standard C headers necessary for the libtelnet API */
-#include <stdarg.h>
-#include <stddef.h>
+# include <stdarg.h>
+# include <stddef.h>
 
 /* C++ support */
-#if defined(__cplusplus)
+# if defined(__cplusplus)
 extern "C" {
-#endif
+# endif
 
 /* printf type checking feature in GCC and some other compilers */
-#if __GNUC__
-# define TELNET_GNU_PRINTF(f,a) __attribute__((format(printf, f, a))) /*!< internal helper */
-# define TELNET_GNU_SENTINEL __attribute__((sentinel)) /*!< internal helper */
-#else
-# define TELNET_GNU_PRINTF(f,a) /*!< internal helper */
-# define TELNET_GNU_SENTINEL /*!< internal helper */
-#endif
+# if __GNUC__
+#  define TELNET_GNU_PRINTF(f,a) __attribute__((format(printf, f, a))) /*!< internal helper */
+#  define TELNET_GNU_SENTINEL __attribute__((sentinel)) /*!< internal helper */
+# else
+#  define TELNET_GNU_PRINTF(f,a) /*!< internal helper */
+#  define TELNET_GNU_SENTINEL /*!< internal helper */
+# endif
 
 /* Disable environ macro for Visual C++ 2015. */
-#undef environ
+# undef environ
 
 /*! Telnet state tracker object type. */
 typedef struct telnet_t telnet_t;
@@ -73,112 +73,112 @@ typedef struct telnet_telopt_t telnet_telopt_t;
 /*! \name Telnet commands */
 /*@{*/
 /*! Telnet commands and special values. */
-#define TELNET_IAC 255
-#define TELNET_DONT 254
-#define TELNET_DO 253
-#define TELNET_WONT 252
-#define TELNET_WILL 251
-#define TELNET_SB 250
-#define TELNET_GA 249
-#define TELNET_EL 248
-#define TELNET_EC 247
-#define TELNET_AYT 246
-#define TELNET_AO 245
-#define TELNET_IP 244
-#define TELNET_BREAK 243
-#define TELNET_DM 242
-#define TELNET_NOP 241
-#define TELNET_SE 240
-#define TELNET_EOR 239
-#define TELNET_ABORT 238
-#define TELNET_SUSP 237
-#define TELNET_EOF 236
+# define TELNET_IAC 255
+# define TELNET_DONT 254
+# define TELNET_DO 253
+# define TELNET_WONT 252
+# define TELNET_WILL 251
+# define TELNET_SB 250
+# define TELNET_GA 249
+# define TELNET_EL 248
+# define TELNET_EC 247
+# define TELNET_AYT 246
+# define TELNET_AO 245
+# define TELNET_IP 244
+# define TELNET_BREAK 243
+# define TELNET_DM 242
+# define TELNET_NOP 241
+# define TELNET_SE 240
+# define TELNET_EOR 239
+# define TELNET_ABORT 238
+# define TELNET_SUSP 237
+# define TELNET_EOF 236
 /*@}*/
 
 /*! \name Telnet option values. */
 /*@{*/
 /*! Telnet options. */
-#define TELNET_TELOPT_BINARY 0
-#define TELNET_TELOPT_ECHO 1
-#define TELNET_TELOPT_RCP 2
-#define TELNET_TELOPT_SGA 3
-#define TELNET_TELOPT_NAMS 4
-#define TELNET_TELOPT_STATUS 5
-#define TELNET_TELOPT_TM 6
-#define TELNET_TELOPT_RCTE 7
-#define TELNET_TELOPT_NAOL 8
-#define TELNET_TELOPT_NAOP 9
-#define TELNET_TELOPT_NAOCRD 10
-#define TELNET_TELOPT_NAOHTS 11
-#define TELNET_TELOPT_NAOHTD 12
-#define TELNET_TELOPT_NAOFFD 13
-#define TELNET_TELOPT_NAOVTS 14
-#define TELNET_TELOPT_NAOVTD 15
-#define TELNET_TELOPT_NAOLFD 16
-#define TELNET_TELOPT_XASCII 17
-#define TELNET_TELOPT_LOGOUT 18
-#define TELNET_TELOPT_BM 19
-#define TELNET_TELOPT_DET 20
-#define TELNET_TELOPT_SUPDUP 21
-#define TELNET_TELOPT_SUPDUPOUTPUT 22
-#define TELNET_TELOPT_SNDLOC 23
-#define TELNET_TELOPT_TTYPE 24
-#define TELNET_TELOPT_EOR 25
-#define TELNET_TELOPT_TUID 26
-#define TELNET_TELOPT_OUTMRK 27
-#define TELNET_TELOPT_TTYLOC 28
-#define TELNET_TELOPT_3270REGIME 29
-#define TELNET_TELOPT_X3PAD 30
-#define TELNET_TELOPT_NAWS 31
-#define TELNET_TELOPT_TSPEED 32
-#define TELNET_TELOPT_LFLOW 33
-#define TELNET_TELOPT_LINEMODE 34
-#define TELNET_TELOPT_XDISPLOC 35
-#define TELNET_TELOPT_ENVIRON 36
-#define TELNET_TELOPT_AUTHENTICATION 37
-#define TELNET_TELOPT_ENCRYPT 38
-#define TELNET_TELOPT_NEW_ENVIRON 39
-#define TELNET_TELOPT_MSSP 70
-#define TELNET_TELOPT_EXOPL 255
-#define TELNET_TELOPT_MCCP2 86
+# define TELNET_TELOPT_BINARY 0
+# define TELNET_TELOPT_ECHO 1
+# define TELNET_TELOPT_RCP 2
+# define TELNET_TELOPT_SGA 3
+# define TELNET_TELOPT_NAMS 4
+# define TELNET_TELOPT_STATUS 5
+# define TELNET_TELOPT_TM 6
+# define TELNET_TELOPT_RCTE 7
+# define TELNET_TELOPT_NAOL 8
+# define TELNET_TELOPT_NAOP 9
+# define TELNET_TELOPT_NAOCRD 10
+# define TELNET_TELOPT_NAOHTS 11
+# define TELNET_TELOPT_NAOHTD 12
+# define TELNET_TELOPT_NAOFFD 13
+# define TELNET_TELOPT_NAOVTS 14
+# define TELNET_TELOPT_NAOVTD 15
+# define TELNET_TELOPT_NAOLFD 16
+# define TELNET_TELOPT_XASCII 17
+# define TELNET_TELOPT_LOGOUT 18
+# define TELNET_TELOPT_BM 19
+# define TELNET_TELOPT_DET 20
+# define TELNET_TELOPT_SUPDUP 21
+# define TELNET_TELOPT_SUPDUPOUTPUT 22
+# define TELNET_TELOPT_SNDLOC 23
+# define TELNET_TELOPT_TTYPE 24
+# define TELNET_TELOPT_EOR 25
+# define TELNET_TELOPT_TUID 26
+# define TELNET_TELOPT_OUTMRK 27
+# define TELNET_TELOPT_TTYLOC 28
+# define TELNET_TELOPT_3270REGIME 29
+# define TELNET_TELOPT_X3PAD 30
+# define TELNET_TELOPT_NAWS 31
+# define TELNET_TELOPT_TSPEED 32
+# define TELNET_TELOPT_LFLOW 33
+# define TELNET_TELOPT_LINEMODE 34
+# define TELNET_TELOPT_XDISPLOC 35
+# define TELNET_TELOPT_ENVIRON 36
+# define TELNET_TELOPT_AUTHENTICATION 37
+# define TELNET_TELOPT_ENCRYPT 38
+# define TELNET_TELOPT_NEW_ENVIRON 39
+# define TELNET_TELOPT_MSSP 70
+# define TELNET_TELOPT_EXOPL 255
+# define TELNET_TELOPT_MCCP2 86
 /*@}*/
 
 /*! \name Protocol codes for TERMINAL-TYPE commands. */
 /*@{*/
 /*! TERMINAL-TYPE codes. */
-#define TELNET_TTYPE_IS 0
-#define TELNET_TTYPE_SEND 1
+# define TELNET_TTYPE_IS 0
+# define TELNET_TTYPE_SEND 1
 /*@}*/
 
 /*! \name Protocol codes for NEW-ENVIRON/ENVIRON commands. */
 /*@{*/
 /*! NEW-ENVIRON/ENVIRON codes. */
-#define TELNET_ENVIRON_IS 0
-#define TELNET_ENVIRON_SEND 1
-#define TELNET_ENVIRON_INFO 2
-#define TELNET_ENVIRON_VAR 0
-#define TELNET_ENVIRON_VALUE 1
-#define TELNET_ENVIRON_ESC 2
-#define TELNET_ENVIRON_USERVAR 3
+# define TELNET_ENVIRON_IS 0
+# define TELNET_ENVIRON_SEND 1
+# define TELNET_ENVIRON_INFO 2
+# define TELNET_ENVIRON_VAR 0
+# define TELNET_ENVIRON_VALUE 1
+# define TELNET_ENVIRON_ESC 2
+# define TELNET_ENVIRON_USERVAR 3
 /*@}*/
 
 /*! \name Protocol codes for MSSP commands. */
 /*@{*/
 /*! MSSP codes. */
-#define TELNET_MSSP_VAR 1
-#define TELNET_MSSP_VAL 2
+# define TELNET_MSSP_VAR 1
+# define TELNET_MSSP_VAL 2
 /*@}*/
 
 /*! \name Telnet state tracker flags. */
 /*@{*/
 /*! Control behavior of telnet state tracker. */
-#define TELNET_FLAG_PROXY (1<<0)
-#define TELNET_FLAG_NVT_EOL (1<<1)
+# define TELNET_FLAG_PROXY (1<<0)
+# define TELNET_FLAG_NVT_EOL (1<<1)
 
 /* Internal-only bits in option flags */
-#define TELNET_FLAG_TRANSMIT_BINARY (1<<5)
-#define TELNET_FLAG_RECEIVE_BINARY (1<<6)
-#define TELNET_PFLAG_DEFLATE (1<<7)
+# define TELNET_FLAG_TRANSMIT_BINARY (1<<5)
+# define TELNET_FLAG_RECEIVE_BINARY (1<<6)
+# define TELNET_PFLAG_DEFLATE (1<<7)
 /*@}*/
 
 /*!
@@ -444,23 +444,7 @@ extern void telnet_begin_sb(telnet_t *telnet,
  *
  * \param telnet Telnet state tracker object.
  */
-#define telnet_finish_sb(telnet) telnet_iac((telnet), TELNET_SE)
-
-/*!
- * \brief Shortcut for sending a complete subnegotiation buffer.
- *
- * Equivalent to:
- *   telnet_begin_sb(telnet, telopt);
- *   telnet_send(telnet, buffer, size);
- *   telnet_finish_sb(telnet);
- *
- * \param telnet Telnet state tracker format.
- * \param telopt One of the TELNET_TELOPT_* values.
- * \param buffer Byte buffer for sub-negotiation data.
- * \param size   Number of bytes to use for sub-negotiation data.
- */
-extern void telnet_subnegotiation(telnet_t *telnet, unsigned char telopt,
-                const char *buffer, size_t size);
+# define telnet_finish_sb(telnet) telnet_iac((telnet), TELNET_SE)
 
 /*!
  * \brief Send formatted data.
@@ -507,89 +491,9 @@ extern int telnet_raw_printf(telnet_t *telnet, const char *fmt, ...)
  */
 extern int telnet_raw_vprintf(telnet_t *telnet, const char *fmt, va_list va);
 
-/*!
- * \brief Begin a new set of NEW-ENVIRON values to request or send.
- *
- * This function will begin the sub-negotiation block for sending or
- * requesting NEW-ENVIRON values.
- *
- * The telnet_finish_newenviron() macro must be called after this
- * function to terminate the NEW-ENVIRON command.
- *
- * \param telnet Telnet state tracker object.
- * \param type   One of TELNET_ENVIRON_SEND, TELNET_ENVIRON_IS, or
- *               TELNET_ENVIRON_INFO.
- */
-extern void telnet_begin_newenviron(telnet_t *telnet, unsigned char type);
-
-/*!
- * \brief Send a NEW-ENVIRON variable name or value.
- *
- * This can only be called between calls to telnet_begin_newenviron() and
- * telnet_finish_newenviron().
- *
- * \param telnet Telnet state tracker object.
- * \param type   One of TELNET_ENVIRON_VAR, TELNET_ENVIRON_USERVAR, or
- *               TELNET_ENVIRON_VALUE.
- * \param string Variable name or value.
- */
-extern void telnet_newenviron_value(telnet_t* telnet, unsigned char type,
-                const char *string);
-
-/*!
- * \brief Finish a NEW-ENVIRON command.
- *
- * This must be called after a call to telnet_begin_newenviron() to finish a
- * NEW-ENVIRON variable list.
- *
- * \param telnet Telnet state tracker object.
- */
-#define telnet_finish_newenviron(telnet) telnet_finish_sb((telnet))
-
-/*!
- * \brief Send the TERMINAL-TYPE SEND command.
- *
- * Sends the sequence IAC TERMINAL-TYPE SEND.
- *
- * \param telnet Telnet state tracker object.
- */
-extern void telnet_ttype_send(telnet_t *telnet);
-
-/*!
- * \brief Send the TERMINAL-TYPE IS command.
- *
- * Sends the sequence IAC TERMINAL-TYPE IS "string".
- *
- * According to the RFC, the recipient of a TERMINAL-TYPE SEND shall
- * send the next possible terminal-type the client supports.  Upon sending
- * the type, the client should switch modes to begin acting as the terminal
- * type is just sent.
- *
- * The server may continue sending TERMINAL-TYPE IS until it receives a
- * terminal type is understands.  To indicate to the server that it has
- * reached the end of the available optoins, the client must send the last
- * terminal type a second time.  When the server receives the same terminal
- * type twice in a row, it knows it has seen all available terminal types.
- *
- * After the last terminal type is sent, if the client receives another
- * TERMINAL-TYPE SEND command, it must begin enumerating the available
- * terminal types from the very beginning.  This allows the server to
- * scan the available types for a preferred terminal type and, if none
- * is found, to then ask the client to switch to an acceptable
- * alternative.
- *
- * Note that if the client only supports a single terminal type, then
- * simply sending that one type in response to every SEND will satisfy
- * the behavior requirements.
- *
- * \param telnet Telnet state tracker object.
- * \param ttype  Name of the terminal-type being sent.
- */
-extern void telnet_ttype_is(telnet_t *telnet, const char* ttype);
-
 /* C++ support */
-#if defined(__cplusplus)
+# if defined(__cplusplus)
 } /* extern "C" */
-#endif
+# endif
 
 #endif /* !defined(LIBTELNET_INCLUDE) */

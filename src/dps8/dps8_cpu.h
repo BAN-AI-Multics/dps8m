@@ -573,14 +573,14 @@ typedef struct EISstruct_s
 #define TN3 TN [2]
 
 #ifdef EIS_PTR3
-#define TA1 cpu.du.TAk[0]
-#define TA2 cpu.du.TAk[1]
-#define TA3 cpu.du.TAk[2]
+# define TA1 cpu.du.TAk[0]
+# define TA2 cpu.du.TAk[1]
+# define TA3 cpu.du.TAk[2]
 #else
     uint   TA [3];          // type alphanumeric
-#define TA1 TA [0]
-#define TA2 TA [1]
-#define TA3 TA [2]
+# define TA1 TA [0]
+# define TA2 TA [1]
+# define TA3 TA [2]
 #endif
 
     uint   S [3];           // Sign and decimal type of number
@@ -615,7 +615,7 @@ typedef struct EISstruct_s
     int     sign;           // For signed decimal (1, -1)
 
 #ifdef EIS_PTR2
-#define KMOP 1
+# define KMOP 1
 #else
     EISaddr *mopAddress;    // mopAddress, pointer to addr [0], [1], or [2]
 #endif
@@ -652,14 +652,14 @@ typedef struct EISstruct_s
 
     EISaddr addr [3];
 
-#define     ADDR1       addr [0]
+#define ADDR1       addr [0]
     int     srcTally;       // number of chars in src (max 63)
     int     srcTA;          // type of Alphanumeric chars in src
     int     srcSZ;          // size of chars in src (4-, 6-, or 9-bits)
 
-#define     ADDR2       addr [1]
+#define ADDR2       addr [1]
 
-#define     ADDR3       addr [2]
+#define ADDR3       addr [2]
     int     dstTally;       // number of chars in dst (max 63)
     int     dstSZ;          // size of chars in dst (4-, 6-, or 9-bits)
 
@@ -1169,32 +1169,32 @@ enum du_cycle2_e
     //               = 0000000000001ll,
   };
 
-#define DU_CYCLE_GDLDA { clrmask (& cpu.du.cycle2, du2_nGDLDA);               \
+# define DU_CYCLE_GDLDA { clrmask (& cpu.du.cycle2, du2_nGDLDA);               \
                         setmask (& cpu.du.cycle2, du2_nGDLDB | du2_nGDLDC); }
-#define DU_CYCLE_GDLDB { clrmask (& cpu.du.cycle2, du2_nGDLDB);               \
+# define DU_CYCLE_GDLDB { clrmask (& cpu.du.cycle2, du2_nGDLDB);               \
                         setmask (& cpu.du.cycle2, du2_nGDLDA | du2_nGDLDC); }
-#define DU_CYCLE_GDLDC { clrmask (& cpu.du.cycle2, du2_nGDLDC);               \
+# define DU_CYCLE_GDLDC { clrmask (& cpu.du.cycle2, du2_nGDLDC);               \
                         setmask (& cpu.du.cycle2, du2_nGDLDA | du2_nGDLDB); }
-#define DU_CYCLE_FA_I1     setmask (& cpu.du.cycle1, du1_FA_I1)
-#define DU_CYCLE_FA_I2     setmask (& cpu.du.cycle1, du1_FA_I2)
-#define DU_CYCLE_FA_I3     setmask (& cpu.du.cycle1, du1_FA_I3)
-#define DU_CYCLE_ANLD1     setmask (& cpu.du.cycle2, du2_ANLD1)
-#define DU_CYCLE_ANLD2     setmask (& cpu.du.cycle2, du2_ANLD2)
-#define DU_CYCLE_NLD1      setmask (& cpu.du.cycle2, du2_NLD1)
-#define DU_CYCLE_NLD2      setmask (& cpu.du.cycle2, du2_NLD2)
-#define DU_CYCLE_FRND      setmask (& cpu.du.cycle2, du2_FRND)
-#define DU_CYCLE_DGBD      setmask (& cpu.du.cycle2, du2_DGBD)
-#define DU_CYCLE_DGDB      setmask (& cpu.du.cycle2, du2_DGDB)
-#define DU_CYCLE_DDU_LDEA  clrmask (& cpu.du.cycle1, du1_nDDU_LDEA)
-#define DU_CYCLE_DDU_STEA  clrmask (& cpu.du.cycle1, du1_nDDU_STEA)
-#define DU_CYCLE_END       clrmask (& cpu.du.cycle1, du1_nEND)
-#define DU_CYCLE_LDWRT1    setmask (& cpu.du.cycle2, du2_LDWRT1)
-#define DU_CYCLE_LDWRT2    setmask (& cpu.du.cycle2, du2_LDWRT2)
-#define DU_CYCLE_FEXOP     setmask (& cpu.du.cycle2, du2_FEXOP)
-#define DU_CYCLE_ANSTR     setmask (& cpu.du.cycle2, du2_ANSTR)
-#define DU_CYCLE_GSTR      setmask (& cpu.du.cycle2, du2_GSTR)
-#define DU_CYCLE_FLEN_128  clrmask (& cpu.du.cycle2, du2_nFLEN_128)
-#define DU_CYCLE_FDUD  { cpu.du.cycle1 = \
+# define DU_CYCLE_FA_I1     setmask (& cpu.du.cycle1, du1_FA_I1)
+# define DU_CYCLE_FA_I2     setmask (& cpu.du.cycle1, du1_FA_I2)
+# define DU_CYCLE_FA_I3     setmask (& cpu.du.cycle1, du1_FA_I3)
+# define DU_CYCLE_ANLD1     setmask (& cpu.du.cycle2, du2_ANLD1)
+# define DU_CYCLE_ANLD2     setmask (& cpu.du.cycle2, du2_ANLD2)
+# define DU_CYCLE_NLD1      setmask (& cpu.du.cycle2, du2_NLD1)
+# define DU_CYCLE_NLD2      setmask (& cpu.du.cycle2, du2_NLD2)
+# define DU_CYCLE_FRND      setmask (& cpu.du.cycle2, du2_FRND)
+# define DU_CYCLE_DGBD      setmask (& cpu.du.cycle2, du2_DGBD)
+# define DU_CYCLE_DGDB      setmask (& cpu.du.cycle2, du2_DGDB)
+# define DU_CYCLE_DDU_LDEA  clrmask (& cpu.du.cycle1, du1_nDDU_LDEA)
+# define DU_CYCLE_DDU_STEA  clrmask (& cpu.du.cycle1, du1_nDDU_STEA)
+# define DU_CYCLE_END       clrmask (& cpu.du.cycle1, du1_nEND)
+# define DU_CYCLE_LDWRT1    setmask (& cpu.du.cycle2, du2_LDWRT1)
+# define DU_CYCLE_LDWRT2    setmask (& cpu.du.cycle2, du2_LDWRT2)
+# define DU_CYCLE_FEXOP     setmask (& cpu.du.cycle2, du2_FEXOP)
+# define DU_CYCLE_ANSTR     setmask (& cpu.du.cycle2, du2_ANSTR)
+# define DU_CYCLE_GSTR      setmask (& cpu.du.cycle2, du2_GSTR)
+# define DU_CYCLE_FLEN_128  clrmask (& cpu.du.cycle2, du2_nFLEN_128)
+# define DU_CYCLE_FDUD  { cpu.du.cycle1 = \
                       du1_nFPOL        | \
                       du1_nFPOP        | \
                       du1_nNEED_DESC   | \
@@ -1226,21 +1226,21 @@ enum du_cycle2_e
                       du2_nFEND_SEQ    | \
                       du2_nFLEN_128;     \
                   }
-#define DU_CYCLE_nDUD clrmask (& cpu.du.cycle2, du2_DUD)
+# define DU_CYCLE_nDUD clrmask (& cpu.du.cycle2, du2_DUD)
 #endif
 
 #ifdef PANEL
 // Control points
 
-#define CPT(R,C) cpu.cpt[R][C]=1
-#define CPTUR(C) cpu.cpt[cpt5L][C]=1
+# define CPT(R,C) cpu.cpt[R][C]=1
+# define CPTUR(C) cpu.cpt[cpt5L][C]=1
 #else
-#define CPT(R,C)
-#define CPTUR(C)
+# define CPT(R,C)
+# define CPTUR(C)
 #endif
 
 #if 0
-#ifdef PANEL
+# ifdef PANEL
 // 6180 panel DU control flags with guessed meanings based on DU history
 // register bits.
 //
@@ -1327,7 +1327,7 @@ enum du_cycle2_e
     du2_U35   = 00000000000002ll,   // ?
     du2_U36   = 00000000000001ll    // ?
   };
-#endif
+# endif
 #endif
 
 typedef struct du_unit_data_t
@@ -1496,12 +1496,12 @@ enum { CUH_XINT = 0100, CUH_IFT = 040, CUH_CRD = 020, CUH_MRD = 010,
        CUH_MSTO = 04, CUH_PIB = 02 };
 
 #ifdef DPS8M
-#define N_WAM_ENTRIES 64
-#define N_WAM_MASK 077
+# define N_WAM_ENTRIES 64
+# define N_WAM_MASK 077
 #endif
 #ifdef L68
-#define N_WAM_ENTRIES 16
-#define N_WAM_MASK 017
+# define N_WAM_ENTRIES 16
+# define N_WAM_MASK 017
 #endif
 
 typedef struct
@@ -1766,7 +1766,7 @@ typedef struct
     uint sc_num_banks [N_SCU_UNITS_MAX];
 
 #ifdef SPEED
-#define SC_MAP_ADDR(addr,real_addr)                            \
+# define SC_MAP_ADDR(addr,real_addr)                            \
    if (cpu.switches.useMap)                                    \
       {                                                        \
         uint pgnum = addr / SCBANK_SZ;                         \
@@ -1779,7 +1779,7 @@ typedef struct
         real_addr = (uint) base + os;                          \
       }
 #else // !SPEED
-#define SC_MAP_ADDR(addr,real_addr)                            \
+# define SC_MAP_ADDR(addr,real_addr)                            \
    if (cpu.switches.useMap)                                    \
       {                                                        \
         uint pgnum = addr / SCBANK_SZ;                         \
@@ -1872,11 +1872,11 @@ uint set_cpu_idx (uint cpuNum);
 extern __thread uint current_running_cpu_idx;
 extern bool bce_dis_called;
 #else
-#ifdef ROUND_ROBIN
+# ifdef ROUND_ROBIN
 extern uint current_running_cpu_idx;
-#else
-#define current_running_cpu_idx 0
-#endif
+# else
+#  define current_running_cpu_idx 0
+# endif
 #endif
 
 // Support code to access ARn.BITNO, ARn.CHAR, PRn.BITNO
@@ -1920,10 +1920,10 @@ static inline void trackport (word24 a, word36 d)
 void doFault (_fault faultNumber, _fault_subtype faultSubtype,
               const char * faultMsg) NO_RETURN;
 extern const _fault_subtype fst_str_nea;
-#ifdef SCUMEM
+# ifdef SCUMEM
 // Stupid dependency order
 int lookup_cpu_mem_map (word24 addr, word24 * offset);
-#endif
+# endif
 
 static inline int core_read (word24 addr, word36 *data, \
   UNUSED const char * ctx)
@@ -1939,8 +1939,8 @@ static inline int core_read (word24 addr, word36 *data, \
           }
         addr = (uint) os + addr % SCBANK_SZ;
       }
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
+# if 0 // XXX Controlled by TEST/NORMAL switch
+#  ifdef ISOLTS
     if (cpu.MR.sdpap)
       {
         sim_warn ("failing to implement sdpap\n");
@@ -1951,9 +1951,9 @@ static inline int core_read (word24 addr, word36 *data, \
         sim_warn ("failing to implement separ\n");
         cpu.MR.separ = 0;
       }
-#endif
-#endif
-#ifdef SCUMEM
+#  endif
+# endif
+# ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
     if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
@@ -1963,12 +1963,12 @@ static inline int core_read (word24 addr, word36 *data, \
       }
     uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
     *data = scu [scuUnitIdx].M[offset] & DMASK;
-#else
+# else
     *data = M[addr] & DMASK;
-#endif
-#ifdef TR_WORK_MEM
+# endif
+# ifdef TR_WORK_MEM
     cpu.rTRticks ++;
-#endif
+# endif
     PNL (trackport (addr, * data);)
     return 0;
   }
@@ -2000,7 +2000,7 @@ static inline int core_write (word24 addr, word36 data, \
             cpu.MR.separ = 0;
           }
      }
-#ifdef SCUMEM
+# ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
     if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
@@ -2010,12 +2010,12 @@ static inline int core_write (word24 addr, word36 data, \
       }
     uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
     scu[scuUnitIdx].M[offset] = data & DMASK;
-#else
+# else
     M[addr] = data & DMASK;
-#endif
-#ifdef TR_WORK_MEM
+# endif
+# ifdef TR_WORK_MEM
     cpu.rTRticks ++;
-#endif
+# endif
     PNL (trackport (addr, data);)
     return 0;
   }
@@ -2047,7 +2047,7 @@ static inline int core_write_zone (word24 addr, word36 data, \
             cpu.MR.separ = 0;
           }
       }
-#ifdef SCUMEM
+# ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
     if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
@@ -2059,13 +2059,13 @@ static inline int core_write_zone (word24 addr, word36 data, \
     scu[scuUnitIdx].M[offset] = (scu[scuUnitIdx].M[offset] & ~cpu.zone) |
                               (data & cpu.zone);
     cpu.useZone = false; // Safety
-#else
+# else
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     cpu.useZone = false; // Safety
-#endif
-#ifdef TR_WORK_MEM
+# endif
+# ifdef TR_WORK_MEM
     cpu.rTRticks ++;
-#endif
+# endif
     PNL (trackport (addr, data);)
     return 0;
   }
@@ -2084,8 +2084,8 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
           }
         addr = (uint) os + addr % SCBANK_SZ;
       }
-#if 0 // XXX Controlled by TEST/NORMAL switch
-#ifdef ISOLTS
+# if 0 // XXX Controlled by TEST/NORMAL switch
+#  ifdef ISOLTS
     if (cpu.MR.sdpap)
       {
         sim_warn ("failing to implement sdpap\n");
@@ -2096,9 +2096,9 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
         sim_warn ("failing to implement separ\n");
         cpu.MR.separ = 0;
       }
-#endif
-#endif
-#ifdef SCUMEM
+#  endif
+# endif
+# ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
     if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
@@ -2109,13 +2109,13 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
     uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
     *even = scu [scuUnitIdx].M[offset++] & DMASK;
     *odd = scu [scuUnitIdx].M[offset] & DMASK;
-#else
+# else
     *even = M[addr++] & DMASK;
     *odd = M[addr] & DMASK;
-#endif
-#ifdef TR_WORK_MEM
+# endif
+# ifdef TR_WORK_MEM
     cpu.rTRticks ++;
-#endif
+# endif
     PNL (trackport (addr - 1, * even);)
     return 0;
   }
@@ -2147,7 +2147,7 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
             cpu.MR.separ = 0;
           }
       }
-#ifdef SCUMEM
+# ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
     if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
@@ -2158,14 +2158,14 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
     uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
     scu [scuUnitIdx].M[offset++] = even & DMASK;
     scu [scuUnitIdx].M[offset] = odd & DMASK;
-#else
+# else
     M[addr++] = even;
     M[addr] = odd;
-#endif
+# endif
     PNL (trackport (addr - 1, even);)
-#ifdef TR_WORK_MEM
+# ifdef TR_WORK_MEM
     cpu.rTRticks ++;
-#endif
+# endif
     return 0;
   }
 #else  // defined(SPEED) && defined(INLINE_CORE)
@@ -2215,29 +2215,29 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
  */
 
 // AIX_ATOMICS are SYNC_ATOMICS (for now)
-#if   ( defined (AIX_ATOMICS) \
+# if ( defined (AIX_ATOMICS) \
  && (! (defined (SYNC_ATOMICS))))
-#define SYNC_ATOMICS
-#endif
+#  define SYNC_ATOMICS
+# endif
 
 // Otherwise, default to GNU_ATOMICS
-#if (! defined (GNU_ATOMICS)) && (! defined (BSD_ATOMICS)) \
+# if (! defined (GNU_ATOMICS)) && (! defined (BSD_ATOMICS)) \
  && (! defined (SYNC_ATOMICS))  && (! defined (AIX_ATOMICS))
-#define GNU_ATOMICS
-#endif
+#  define GNU_ATOMICS
+# endif
 
 int core_read_lock (word24 addr, word36 *data, const char * ctx);
 int core_write_unlock (word24 addr, word36 data, const char * ctx);
 int core_unlock_all(void);
 
-#define DEADLOCK_DETECT   0x40000000U
-#define MEM_LOCKED_BIT    61
-#define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
+# define DEADLOCK_DETECT   0x40000000U
+# define MEM_LOCKED_BIT    61
+# define MEM_LOCKED        (1LLU<<MEM_LOCKED_BIT)
 
-#if defined (BSD_ATOMICS)
-#include <machine/atomic.h>
+# if defined (BSD_ATOMICS)
+#  include <machine/atomic.h>
 
-#define LOCK_CORE_WORD(addr)                                            \
+#  define LOCK_CORE_WORD(addr)                                            \
   do                                                                    \
     {                                                                   \
       unsigned int i = DEADLOCK_DETECT;                                 \
@@ -2264,26 +2264,26 @@ int core_unlock_all(void);
     }                                                                   \
   while (0)
 
-#define LOAD_ACQ_CORE_WORD(res, addr)                                   \
+#  define LOAD_ACQ_CORE_WORD(res, addr)                                   \
   do                                                                    \
     {                                                                   \
       res = atomic_load_acq_64((volatile uint64_t *)&M[addr]);          \
     }                                                                   \
   while (0)
 
-#define STORE_REL_CORE_WORD(addr, data)                                 \
+#  define STORE_REL_CORE_WORD(addr, data)                                 \
   do                                                                    \
     {                                                                   \
       atomic_store_rel_64((volatile uint64_t *)&M[addr], data & DMASK); \
     }                                                                   \
   while (0)
 
-#endif // BSD_ATOMICS
+# endif // BSD_ATOMICS
 
-#if defined(GNU_ATOMICS)
+# if defined(GNU_ATOMICS)
 
 // IIUC, the __sync use CST memorder
-#define LOCK_CORE_WORD(addr)                                 \
+#  define LOCK_CORE_WORD(addr)                                 \
   do                                                         \
     {                                                        \
       unsigned int i = DEADLOCK_DETECT;                      \
@@ -2312,7 +2312,7 @@ int core_unlock_all(void);
     }                                                        \
   while (0)
 
-#define LOAD_ACQ_CORE_WORD(res, addr)                        \
+#  define LOAD_ACQ_CORE_WORD(res, addr)                        \
   do                                                         \
     {                                                        \
       res = __atomic_load_n((volatile u_long *)&M[addr],     \
@@ -2320,7 +2320,7 @@ int core_unlock_all(void);
     }                                                        \
   while (0)
 
-#define STORE_REL_CORE_WORD(addr, data)                      \
+#  define STORE_REL_CORE_WORD(addr, data)                      \
   do                                                         \
     {                                                        \
       __atomic_store_n((volatile u_long *)&M[addr], data &   \
@@ -2328,16 +2328,16 @@ int core_unlock_all(void);
     }                                                        \
   while (0)
 
-#endif // GNU_ATOMICS
+# endif // GNU_ATOMICS
 
-#if defined(SYNC_ATOMICS)
-#ifdef MEMORY_ACCESS_NOT_STRONGLY_ORDERED
-#define MEM_BARRIER()   do { __sync_synchronize(); } while (0)
-#else
-#define MEM_BARRIER()   do {} while (0)
-#endif
+# if defined(SYNC_ATOMICS)
+#  ifdef MEMORY_ACCESS_NOT_STRONGLY_ORDERED
+#   define MEM_BARRIER()   do { __sync_synchronize(); } while (0)
+#  else
+#   define MEM_BARRIER()   do {} while (0)
+#  endif
 
-#define LOCK_CORE_WORD(addr)                                            \
+#  define LOCK_CORE_WORD(addr)                                            \
      do                                                                 \
        {                                                                \
          unsigned int i = DEADLOCK_DETECT;                              \
@@ -2364,7 +2364,7 @@ int core_unlock_all(void);
        }                                                                \
      while (0)
 
-#define LOAD_ACQ_CORE_WORD(res, addr)                                   \
+#  define LOAD_ACQ_CORE_WORD(res, addr)                                   \
      do                                                                 \
        {                                                                \
          res = M[addr];                                                 \
@@ -2372,7 +2372,7 @@ int core_unlock_all(void);
        }                                                                \
      while (0)
 
-#define STORE_REL_CORE_WORD(addr, data)                                 \
+#  define STORE_REL_CORE_WORD(addr, data)                                 \
   do                                                                    \
     {                                                                   \
       MEM_BARRIER();                                                    \
@@ -2380,7 +2380,7 @@ int core_unlock_all(void);
     }                                                                   \
   while (0)
 
-#endif  // SYNC_ATOMICS
+# endif  // SYNC_ATOMICS
 #endif  // LOCKLESS
 
 static inline void core_readN (word24 addr, word36 * data, uint n,

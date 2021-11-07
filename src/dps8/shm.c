@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #ifdef USE_FLOCK
-#include <sys/file.h>
+# include <sys/file.h>
 #endif
 
 #include "shm.h"
@@ -66,15 +66,16 @@ void * create_shm (char * key, size_t size)
     return p;
   }
 
+#ifdef API
 void * open_shm (char * key, size_t size)
   {
     void * p;
     char buf [256];
-#ifdef L68
+# ifdef L68
     sprintf (buf, "l68.%s", key);
-#else
+# else
     sprintf (buf, "dps8m.%s", key);
-#endif /* ifdef L68 */
+# endif /* ifdef L68 */
     int fd = open (buf, O_RDWR, 0600);
     if (fd == -1)
       {
@@ -82,13 +83,13 @@ void * open_shm (char * key, size_t size)
         return NULL;
       }
 
-#ifdef USE_FLOCK
+# ifdef USE_FLOCK
     int rc = flock (fd, LOCK_EX | LOCK_NB);
     if (rc < 0) {
       fprintf (stderr, "%s flock fail %d\r\n", __func__, errno);
       return NULL;
     }
-#endif
+# endif /* ifdef USE_FLOCK */
 
     p = mmap (NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (p == MAP_FAILED)
@@ -99,3 +100,4 @@ void * open_shm (char * key, size_t size)
       }
     return p;
   }
+#endif /* ifdef API */

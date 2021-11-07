@@ -15,14 +15,14 @@
 #include <unistd.h>
 #include <stdbool.h>
 #ifdef _AIX
-#ifndef USE_POPT
-#define USE_POPT
-#endif /* ifndef USE_POPT */
+# ifndef USE_POPT
+#  define USE_POPT
+# endif /* ifndef USE_POPT */
 #endif /* ifdef _AIX */
 #ifdef USE_POPT
-#include <popt.h>
+# include <popt.h>
 #else
-#include <getopt.h>
+# include <getopt.h>
 #endif /* ifdef USE_POPT */
 
 #define CARD_COL_COUNT 80

@@ -114,15 +114,19 @@ static inline void set_apu_status (apuStatusBits status)
     cpu.cu.APUCycleBits = (status & 07770) | FCT;
   }
 
+#ifdef TESTING
 t_stat dump_sdwam (void);
+#endif
 word24 do_append_cycle (processor_cycle_type thisCycle,
                       word36 * data, uint nWords);
 void do_ldbr (word36 * Ypair);
 void do_sdbr (word36 * Ypair);
 void do_camp (word36 Y);
 void do_cams (word36 Y);
+#ifdef TESTING
 int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
                       char * * msg);
+#endif
 sdw0_s * getSDW (word15 segno);
 
 static inline void fauxDoAppendCycle (processor_cycle_type thisCycle)

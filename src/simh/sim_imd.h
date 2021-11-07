@@ -41,13 +41,13 @@
  *************************************************************************/
 
 #ifndef SIM_IMD_H_
-#define SIM_IMD_H_     0
+# define SIM_IMD_H_     0
 
-#if !defined(USE_SIM_IMD)
-#error This simulator must be compiled with USE_SIM_IMD defined
-#else
+# if !defined(USE_SIM_IMD)
+#  error This simulator must be compiled with USE_SIM_IMD defined
+# else
 
-#include "sim_defs.h"
+#  include "sim_defs.h"
 
 typedef struct {
     uint8 mode;
@@ -58,44 +58,44 @@ typedef struct {
 } IMD_HEADER;
 
 
-#define IMD_FLAG_SECT_HEAD_MAP  (1 << 6)
-#define IMD_FLAG_SECT_CYL_MAP   (1 << 7)
+#  define IMD_FLAG_SECT_HEAD_MAP  (1 << 6)
+#  define IMD_FLAG_SECT_CYL_MAP   (1 << 7)
 
-#define SECT_RECORD_UNAVAILABLE         0   /* Data could not be read from the original media */
-#define SECT_RECORD_NORM                1   /* Normal Data */
-#define SECT_RECORD_NORM_COMP           2   /* Compressed Normal Data */
-#define SECT_RECORD_NORM_DAM            3   /* Normal Data with deleted address mark */
-#define SECT_RECORD_NORM_DAM_COMP       4   /* Compressed Normal Data with deleted address mark */
-#define SECT_RECORD_NORM_ERR            5   /* Normal Data */
-#define SECT_RECORD_NORM_COMP_ERR       6   /* Compressed Normal Data */
-#define SECT_RECORD_NORM_DAM_ERR        7   /* Normal Data with deleted address mark */
-#define SECT_RECORD_NORM_DAM_COMP_ERR   8   /* Compressed Normal Data with deleted address mark */
+#  define SECT_RECORD_UNAVAILABLE         0   /* Data could not be read from the original media */
+#  define SECT_RECORD_NORM                1   /* Normal Data */
+#  define SECT_RECORD_NORM_COMP           2   /* Compressed Normal Data */
+#  define SECT_RECORD_NORM_DAM            3   /* Normal Data with deleted address mark */
+#  define SECT_RECORD_NORM_DAM_COMP       4   /* Compressed Normal Data with deleted address mark */
+#  define SECT_RECORD_NORM_ERR            5   /* Normal Data */
+#  define SECT_RECORD_NORM_COMP_ERR       6   /* Compressed Normal Data */
+#  define SECT_RECORD_NORM_DAM_ERR        7   /* Normal Data with deleted address mark */
+#  define SECT_RECORD_NORM_DAM_COMP_ERR   8   /* Compressed Normal Data with deleted address mark */
 
-#define MAX_CYL     80
-#define MAX_HEAD    2
-#define MAX_SPT     26
+#  define MAX_CYL     80
+#  define MAX_HEAD    2
+#  define MAX_SPT     26
 
-#define FD_FLAG_WRITELOCK   1
+#  define FD_FLAG_WRITELOCK   1
 
-#define IMD_DISK_IO_ERROR_GENERAL       (1 << 0)    /* General data error. */
-#define IMD_DISK_IO_ERROR_CRC           (1 << 1)    /* Data read/written, but got a CRC error. */
-#define IMD_DISK_IO_DELETED_ADDR_MARK   (1 << 2)    /* Sector had a deleted address mark */
-#define IMD_DISK_IO_COMPRESSED          (1 << 3)    /* Sector is compressed in the IMD file (Read Only) */
-#define IMD_DISK_IO_ERROR_WPROT         (1 << 4)    /* Disk is write protected */
+#  define IMD_DISK_IO_ERROR_GENERAL       (1 << 0)    /* General data error. */
+#  define IMD_DISK_IO_ERROR_CRC           (1 << 1)    /* Data read/written, but got a CRC error. */
+#  define IMD_DISK_IO_DELETED_ADDR_MARK   (1 << 2)    /* Sector had a deleted address mark */
+#  define IMD_DISK_IO_COMPRESSED          (1 << 3)    /* Sector is compressed in the IMD file (Read Only) */
+#  define IMD_DISK_IO_ERROR_WPROT         (1 << 4)    /* Disk is write protected */
 
-#define IMD_MODE_500K_FM        0
-#define IMD_MODE_300K_FM        1
-#define IMD_MODE_250K_FM        2
-#define IMD_MODE_500K_MFM       3
-#define IMD_MODE_300K_MFM       4
-#define IMD_MODE_250K_MFM       5
+#  define IMD_MODE_500K_FM        0
+#  define IMD_MODE_300K_FM        1
+#  define IMD_MODE_250K_FM        2
+#  define IMD_MODE_500K_MFM       3
+#  define IMD_MODE_300K_MFM       4
+#  define IMD_MODE_250K_MFM       5
 
-#define IMD_MODE_FM(x)      (x <= IMD_MODE_250K_FM)
-#define IMD_MODE_MFM(x)     (x >= IMD_MODE_500K_MFM)
+#  define IMD_MODE_FM(x)      (x <= IMD_MODE_250K_FM)
+#  define IMD_MODE_MFM(x)     (x >= IMD_MODE_500K_MFM)
 
-#define IMAGE_TYPE_DSK          1               /* Flat binary "DSK" image file.            */
-#define IMAGE_TYPE_IMD          2               /* ImageDisk "IMD" image file.              */
-#define IMAGE_TYPE_CPT          3               /* CP/M Transfer "CPT" image file.          */
+#  define IMAGE_TYPE_DSK          1               /* Flat binary "DSK" image file.            */
+#  define IMAGE_TYPE_IMD          2               /* ImageDisk "IMD" image file.              */
+#  define IMAGE_TYPE_CPT          3               /* CP/M Transfer "CPT" image file.          */
 
 typedef struct {
     uint8 mode;
@@ -139,6 +139,6 @@ extern t_stat trackWrite(DISK_INFO *myDisk,
                uint32 *flags);
 extern t_stat assignDiskType(UNIT *uptr);
 
-#endif /* USE_SIM_IMD */
+# endif /* USE_SIM_IMD */
 
 #endif

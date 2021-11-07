@@ -77,31 +77,27 @@ static inline int cthread_cond_timedwait (pthread_cond_t * restrict cond,
   }
 #endif
 
-
-
 #ifndef LOCKLESS
 extern pthread_rwlock_t mem_lock;
 #endif
 
 // local lock
-
 void lock_ptr (pthread_mutex_t * lock);
 void unlock_ptr (pthread_mutex_t * lock);
 
-
 // libuv resource lock
-
 void lock_libuv (void);
 void unlock_libuv (void);
 bool test_libuv_lock (void);
 
 // simh resource lock
-
+#ifndef QUIET_UNUSED
 void lock_simh (void);
 void unlock_simh (void);
+#endif
 
-#ifndef LOCKLESS
 // atomic memory lock
+#ifndef LOCKLESS
 bool get_rmw_lock (void);
 void lock_rmw (void);
 void lock_mem_rd (void);
@@ -119,20 +115,18 @@ void unlock_scu (void);
 void lock_iom (void);
 void unlock_iom (void);
 
-
 // testing lock
+#ifdef TESTING
 void lock_tst (void);
 void unlock_tst (void);
 bool test_tst_lock (void);
+#endif
 
 // CPU threads
-
 struct cpuThreadz_t
   {
     pthread_t cpuThread;
     int cpuThreadArg;
-
-    //volatile bool ready;
 
     // run/stop switch
     bool run;
@@ -147,9 +141,9 @@ extern struct cpuThreadz_t cpuThreadz [N_CPU_UNITS_MAX];
 
 void createCPUThread (uint cpuNum);
 void stopCPUThread(void);
-void cpuRdyWait (uint cpuNum);
-void setCPURun (uint cpuNum, bool run);
+#ifdef THREADZ
 void cpuRunningWait (void);
+#endif
 unsigned long sleepCPU (unsigned long usec);
 void wakeCPU (uint cpuNum);
 
@@ -168,11 +162,11 @@ struct iomThreadz_t
     pthread_cond_t intrCond;
     pthread_mutex_t intrLock;
 
-#ifdef tdbg
+# ifdef tdbg
     // debugging
     int inCnt;
     int outCnt;
-#endif
+# endif
   };
 extern struct iomThreadz_t iomThreadz [N_IOM_UNITS_MAX];
 
@@ -200,11 +194,11 @@ struct chnThreadz_t
     pthread_cond_t connectCond;
     pthread_mutex_t connectLock;
 
-#ifdef tdbg
+# ifdef tdbg
     // debugging
     int inCnt;
     int outCnt;
-#endif
+# endif
   };
 extern struct chnThreadz_t chnThreadz [N_IOM_UNITS_MAX] [MAX_CHANNELS];
 
@@ -213,11 +207,11 @@ void chnConnectWait (void);
 void chnConnectDone (void);
 void setChnConnect (uint iomNum, uint chnNum);
 void chnRdyWait (uint iomNum, uint chnNum);
+
 #endif
 
 void initThreadz (void);
 void setSignals (void);
-//void fence (void);
 
 #ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
 extern pthread_cond_t iomCond;

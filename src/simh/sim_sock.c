@@ -35,19 +35,19 @@ extern "C" {
 #include <stdlib.h>
 
 #if defined(AF_INET6) && defined(_WIN32)
-#include <ws2tcpip.h>
+# include <ws2tcpip.h>
 #endif
 
 #ifndef WSAAPI
-#define WSAAPI
+# define WSAAPI
 #endif
 
 #if defined(SHUT_RDWR) && !defined(SD_BOTH)
-#define SD_BOTH SHUT_RDWR
+# define SD_BOTH SHUT_RDWR
 #endif
 
-#ifndef   NI_MAXHOST
-#define   NI_MAXHOST 1025
+#ifndef NI_MAXHOST
+# define NI_MAXHOST 1025
 #endif
 
 /* OS dependent routines
@@ -86,7 +86,6 @@ static struct sock_errors {
         {WSAEACCES,       "Permission denied"},
         {0, NULL}
     };
-
 
 const char *sim_get_err_sock (const char *emsg)
 {
@@ -298,10 +297,9 @@ if (cname) {
 return 0;
 }
 
-#ifndef EAI_OVERFLOW
-#define EAI_OVERFLOW WSAENAMETOOLONG
-#endif
-
+# ifndef EAI_OVERFLOW
+#  define EAI_OVERFLOW WSAENAMETOOLONG
+# endif
 
 static int     WSAAPI s_getnameinfo (const struct sockaddr *sa, socklen_t salen,
                                      char *host, size_t hostlen,
@@ -359,16 +357,15 @@ if ((host) && (hostlen > 0)) {
 return 0;
 }
 
-
-#if !defined(IPV6_V6ONLY)           /* Older XP environments may not define IPV6_V6ONLY */
-#define IPV6_V6ONLY           27    /* Treat wildcard bind as AF_INET6-only. */
-#endif
+# if !defined(IPV6_V6ONLY)           /* Older environments may not define IPV6_V6ONLY */
+#  define IPV6_V6ONLY          27    /* Treat wildcard bind as AF_INET6-only. */
+# endif
 /* Dynamic DLL load variables */
-#ifdef _WIN32
+# ifdef _WIN32
 static HINSTANCE hLib = 0;                      /* handle to DLL */
-#else
+# else
 static void *hLib = NULL;                       /* handle to Library */
-#endif
+# endif
 static int lib_loaded = 0;                      /* 0=not loaded, 1=loaded, 2=library load failed, 3=Func load failed */
 static const char* lib_name = "Ws2_32.dll";
 
@@ -376,11 +373,11 @@ static const char* lib_name = "Ws2_32.dll";
 typedef int (*_func)();
 
 static void load_function(const char* function, _func* func_ptr) {
-#ifdef _WIN32
+# ifdef _WIN32
     *func_ptr = (_func)GetProcAddress(hLib, function);
-#else
+# else
     *func_ptr = (_func)dlsym(hLib, function);
-#endif
+# endif
     if (*func_ptr == 0) {
     sim_printf ("Sockets: Failed to find function '%s' in %s\r\n", function, lib_name);
     lib_loaded = 3;
@@ -391,12 +388,11 @@ static void load_function(const char* function, _func* func_ptr) {
 int load_ws2(void) {
   switch(lib_loaded) {
     case 0:                  /* not loaded */
-            /* attempt to load DLL */
-#if defined(_WIN32) || defined(__CYGWIN__)
+# if defined(_WIN32) || defined(__CYGWIN__)
       hLib = LoadLibraryA(lib_name);
-#else
+# else
       hLib = dlopen(lib_name, RTLD_NOW);
-#endif
+# endif
       if (hLib == 0) {
         /* failed to load DLL */
         sim_printf ("Sockets: Failed to load %s\r\n", lib_name);
@@ -587,6 +583,7 @@ if (validate_addr) {
 return 0;
 }
 
+#ifdef UNUSED
 /* sim_parse_addr_ex    localport:host:port
 
    Presumption is that the input, if it doesn't contain a ':' character is a port specifier.
@@ -639,7 +636,7 @@ if ((hostp != NULL) && ((hostp[1] == '[') || (NULL != strchr (hostp+1, ':')))) {
     }
 return sim_parse_addr (cptr, host, hostlen, default_host, port, port_len, default_port, NULL);
 }
-
+#endif
 
 void sim_init_sock (void)
 {
@@ -652,20 +649,20 @@ wVersionRequested = MAKEWORD (2, 2);
 err = WSAStartup (wVersionRequested, &wsaData);         /* start Winsock */
 if (err != 0)
     sim_printf ("Winsock: startup error %d\n", err);
-#if defined(AF_INET6)
+# if defined(AF_INET6)
 load_ws2 ();
-#endif                                                  /* endif AF_INET6 */
+# endif                                                 /* endif AF_INET6 */
 #else                                                   /* Use native addrinfo APIs */
-#if defined(AF_INET6)
+# if defined(AF_INET6)
     p_getaddrinfo = (getaddrinfo_func)getaddrinfo;
     p_getnameinfo = (getnameinfo_func)getnameinfo;
     p_freeaddrinfo = (freeaddrinfo_func)freeaddrinfo;
-#else
+# else
     /* Native APIs not available, connect stubs */
     p_getaddrinfo = (getaddrinfo_func)s_getaddrinfo;
     p_getnameinfo = (getnameinfo_func)s_getnameinfo;
     p_freeaddrinfo = (freeaddrinfo_func)s_freeaddrinfo;
-#endif                                                  /* endif AF_INET6 */
+# endif                                                 /* endif AF_INET6 */
 #endif                                                  /* endif _WIN32 */
 #if defined (SIGPIPE)
 signal (SIGPIPE, SIG_IGN);                              /* no pipe signals */
@@ -698,14 +695,13 @@ if (fl == -1)
 sta = fcntl (sock, F_SETFL, fl | O_NONBLOCK);           /* set nonblock */
 if (sta == -1)
     return SOCKET_ERROR;
-#if !defined (__HAIKU__)                                /* Unix only */
+# if !defined (__HAIKU__)                               /* Unix only */
 sta = fcntl (sock, F_SETOWN, getpid());                 /* set ownership */
 if (sta == -1)
     return SOCKET_ERROR;
-#endif
+# endif
 return 0;
 }
-
 #endif                                                  /* endif !Win32 */
 
 static int sim_setnodelay (SOCKET sock)
@@ -939,7 +935,7 @@ sta = connect (newsock, result->ai_addr, result->ai_addrlen);
 p_freeaddrinfo (result);
 if (sta == SOCKET_ERROR) {
     if (opt_flags & SIM_SOCK_OPT_BLOCKING) {
-        if ((WSAGetLastError () == WSAETIMEDOUT)    ||                        /* expected errors after a connect failure */
+        if ((WSAGetLastError () == WSAETIMEDOUT)    ||  /* expected errors after a connect failure */
             (WSAGetLastError () == WSAEHOSTUNREACH) ||
             (WSAGetLastError () == WSAECONNREFUSED) ||
             (WSAGetLastError () == WSAECONNABORTED) ||
@@ -962,9 +958,9 @@ SOCKET sim_accept_conn_ex (SOCKET master, char **connectaddr, int opt_flags)
 {
 int sta = 0, err;
 int keepalive = 1;
-#if defined (__linux) || defined (__linux__) || \
-    defined (__APPLE__) || defined (__OpenBSD__) || \
-    defined (__NetBSD__) || defined(__FreeBSD__) || \
+#if defined (__linux)    || defined (__linux__)   || \
+    defined (__APPLE__)  || defined (__OpenBSD__) || \
+    defined (__NetBSD__) || defined(__FreeBSD__)  || \
     defined (__FreeBSD_kernel__) || defined (__HAIKU__)
 socklen_t size;
 #elif defined (_WIN32)
@@ -1025,9 +1021,9 @@ fd_set *rw_p = &rw_set;
 fd_set *er_p = &er_set;
 struct timeval zero;
 struct sockaddr_storage peername;
-#if defined (__linux) || defined (__linux__) || \
-    defined (__APPLE__) || defined (__OpenBSD__) || \
-    defined (__NetBSD__) || defined(__FreeBSD__) || \
+#if defined (__linux)    || defined (__linux__)   || \
+    defined (__APPLE__)  || defined (__OpenBSD__) || \
+    defined (__NetBSD__) || defined(__FreeBSD__)  || \
     defined (__FreeBSD_kernel__) || defined (__HAIKU__)
 socklen_t peernamesize = (socklen_t)sizeof(peername);
 #elif defined (_WIN32)
@@ -1061,16 +1057,16 @@ static int _sim_getaddrname (struct sockaddr *addr, size_t addrsize, char *hostn
 int ret = 0;
 
 #ifdef AF_INET6
-#if defined (__linux) || defined (__linux__) || \
-    defined (__APPLE__) || defined (__OpenBSD__) || \
-    defined (__NetBSD__) || defined(__FreeBSD__) || \
-    defined (__FreeBSD_kernel__) || defined (__HAIKU__)
+# if defined (__linux)    || defined (__linux__)   || \
+     defined (__APPLE__)  || defined (__OpenBSD__) || \
+     defined (__NetBSD__) || defined(__FreeBSD__)  || \
+     defined (__FreeBSD_kernel__) || defined (__HAIKU__)
 socklen_t size = (socklen_t)addrsize;
-#elif defined (_WIN32)
+# elif defined (_WIN32)
 int size = (int)addrsize;
-#else
+# else
 size_t size = addrsize;
-#endif
+# endif
 *hostnamebuf = '\0';
 *portnamebuf = '\0';
 ret = p_getnameinfo(addr, size, hostnamebuf, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
@@ -1089,9 +1085,9 @@ return ret;
 int sim_getnames_sock (SOCKET sock, char **socknamebuf, char **peernamebuf)
 {
 struct sockaddr_storage sockname, peername;
-#if defined (__linux) || defined (__linux__) || \
-    defined (__APPLE__) || defined (__OpenBSD__) || \
-    defined (__NetBSD__) || defined(__FreeBSD__) || \
+#if defined (__linux)    || defined (__linux__)   || \
+    defined (__APPLE__)  || defined (__OpenBSD__) || \
+    defined (__NetBSD__) || defined(__FreeBSD__)  || \
     defined (__FreeBSD_kernel__) || defined (__HAIKU__)
 socklen_t socknamesize = (socklen_t)sizeof(sockname);
 socklen_t peernamesize = (socklen_t)sizeof(peername);
@@ -1121,7 +1117,6 @@ if (peernamebuf != NULL) {
     }
 return 0;
 }
-
 
 int sim_read_sock (SOCKET sock, char *buf, int nbytes)
 {

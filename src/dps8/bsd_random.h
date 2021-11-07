@@ -32,11 +32,15 @@
  */
 
 #ifndef BSD_RANDOM_H
-#define BSD_RANDOM_H
+# define BSD_RANDOM_H
+
+# ifdef USE_BSD_RANDOM
 
 long bsd_random(void);
 char *bsd_setstate(char *arg_state);
 void bsd_srandom(unsigned int x);
 char *bsd_initstate(unsigned int seed, char *arg_state, int n);
+
+# endif
 
 #endif /* ifndef BSD_RANDOM_H */

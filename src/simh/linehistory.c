@@ -38,7 +38,7 @@
  */
 
 #ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 200809L
+# define _POSIX_C_SOURCE 200809L
 #endif
 
 #if !defined(__MINGW32__)   && \
@@ -48,31 +48,31 @@
     !defined(_MSC_VER)      && \
     !defined(_MSC_BUILD)
 
-#if defined(__sun) && defined(__SVR4)
-#ifndef __EXTENSIONS__
-#define __EXTENSIONS__ 1
-#endif
-#endif
-#include <termios.h>
-#if defined(__sun) && defined(__SVR4)
-#include <sys/termiox.h>
-#endif
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <strings.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include "linehistory.h"
+# if defined(__sun) && defined(__SVR4)
+#  ifndef __EXTENSIONS__
+#   define __EXTENSIONS__ 1
+#  endif
+# endif
+# include <termios.h>
+# if defined(__sun) && defined(__SVR4)
+#  include <sys/termiox.h>
+# endif
+# include <unistd.h>
+# include <stdlib.h>
+# include <stdio.h>
+# include <errno.h>
+# include <string.h>
+# include <strings.h>
+# include <stdlib.h>
+# include <ctype.h>
+# include <sys/stat.h>
+# include <sys/types.h>
+# include <sys/ioctl.h>
+# include <unistd.h>
+# include "linehistory.h"
 
-#define LINENOISE_DEFAULT_HISTORY_MAX_LEN 100
-#define LINENOISE_MAX_LINE 4096
+# define LINENOISE_DEFAULT_HISTORY_MAX_LEN 100
+# define LINENOISE_MAX_LINE 4096
 
 static char *unsupported_term[] = {"dumb","cons25","emacs",NULL};
 static linenoiseCompletionCallback *completionCallback = NULL;
@@ -710,8 +710,8 @@ void linenoiseEditMoveEnd(struct linenoiseState *l) {
  * entry as specified by 'dir'.
  */
 
-#define LINENOISE_HISTORY_NEXT 0
-#define LINENOISE_HISTORY_PREV 1
+# define LINENOISE_HISTORY_NEXT 0
+# define LINENOISE_HISTORY_PREV 1
 void linenoiseEditHistoryNext(struct linenoiseState *l, int dir) {
     if (history_len > 1) {
 
@@ -743,8 +743,8 @@ void linenoiseEditHistoryNext(struct linenoiseState *l, int dir) {
  * currently edited line. Substitue the current line with this history
  */
 
-#define LINENOISE_SEARCH_HISTORY_FORWARD 0
-#define LINENOISE_SEARCH_HISTROY_REVERSE 1
+# define LINENOISE_SEARCH_HISTORY_FORWARD 0
+# define LINENOISE_SEARCH_HISTROY_REVERSE 1
 void linenoiseSearchInHistory( struct linenoiseState *l, int direction )
 {
    if (history_len > 1) {

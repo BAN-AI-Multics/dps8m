@@ -17,8 +17,8 @@
 
 //#define cast_128(x) (* (uint128 *) & (x))
 //#define cast_s128(x) (* (int128 *) & (x))
-#define cast_128(x) construct_128 ((uint64_t) (x).h, (x).l)
-#define cast_s128(x) construct_s128 ((int64_t) (x).h, (x).l)
+# define cast_128(x) construct_128 ((uint64_t) (x).h, (x).l)
+# define cast_s128(x) construct_s128 ((int64_t) (x).h, (x).l)
 
 bool iszero_128 (uint128 w);
 bool isnonzero_128 (uint128 w);
@@ -50,7 +50,7 @@ int128 rshift_s128 (int128 a, unsigned int n);
 
 /* if (sizeof(long) < 8), I expect we're on a 32 bit system */
 
-#if __SIZEOF_LONG__ < 8 && ! defined (__MINGW64__)
+# if __SIZEOF_LONG__ < 8 && ! defined (__MINGW64__)
 
 typedef          int TItype     __attribute__ ((mode (TI)));
 typedef unsigned int UTItype    __attribute__ ((mode (TI)));
@@ -58,5 +58,5 @@ typedef unsigned int UTItype    __attribute__ ((mode (TI)));
 typedef TItype __int128_t ;
 typedef UTItype __uint128_t ;
 
-#endif
+# endif
 #endif

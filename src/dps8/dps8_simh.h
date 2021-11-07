@@ -14,43 +14,36 @@
 extern DEVICE scu_dev;
 
 #ifdef SPEED
-#define if_sim_debug(dbits, dptr) if ((0))
-
+# define if_sim_debug(dbits, dptr) if ((0))
 #else
-      // ((dptr != & cpu_dev) || current_running_cpu_idx == 1) &&
-
-#define if_sim_debug(dbits, dptr) \
+# define if_sim_debug(dbits, dptr) \
   if ( \
       sim_deb && \
       (((dptr)->dctrl & (dbits)) || (dbits) == 0) && \
       ((dptr != & cpu_dev) || ((1 << current_running_cpu_idx) & dbgCPUMask)) && \
-      ((dptr != & cpu_dev) || (((dptr)->dctrl & (DBG_INTR | DBG_FAULT))) || \
-      (! sim_deb_segno_on) || sim_deb_segno[cpu.PPR.PSR & (DEBUG_SEGNO_LIMIT - 1)]) && \
-      ((dptr != & cpu_dev) || sim_deb_ringno == NO_SUCH_RINGNO || \
-          sim_deb_ringno == cpu . PPR. PRR) && \
+      ((dptr != & cpu_dev) || (((dptr)->dctrl & (DBG_INTR | DBG_FAULT))) || (! sim_deb_segno_on) || sim_deb_segno[cpu.PPR.PSR & (DEBUG_SEGNO_LIMIT - 1)]) && \
+      ((dptr != & cpu_dev) || sim_deb_ringno == NO_SUCH_RINGNO || sim_deb_ringno == cpu . PPR. PRR) && \
       ((dptr != & cpu_dev) || (! sim_deb_bar) || (! TST_I_NBAR)) && \
       cpu.cycleCnt >= sim_deb_start && \
       (sim_deb_stop == 0 || cpu.cycleCnt < sim_deb_stop) && \
       (sim_deb_mme_cntdwn == 0) && \
-      ((dptr != & cpu_dev) | \
-      (((dbits) & DBG_TRACE) ? \
-      (sim_deb_skip_cnt ++ >= sim_deb_skip_limit) : (sim_deb_skip_cnt >= sim_deb_skip_limit))) \
+      ((dptr != & cpu_dev) | (((dbits) & DBG_TRACE) ? (sim_deb_skip_cnt ++ >= sim_deb_skip_limit) : (sim_deb_skip_cnt >= sim_deb_skip_limit))) \
     )
 #endif
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
-#define dps8_sim_debug _sim_debug
+# define dps8_sim_debug _sim_debug
 #endif
 
 #undef sim_debug
 #if defined(THREADZ) || defined(LOCKLESS)
-#define sim_debug(dbits, dptr, ...) \
+# define sim_debug(dbits, dptr, ...) \
   if_sim_debug((dbits), dptr) \
     dps8_sim_debug ((dbits), dptr, DBG_CTR, __VA_ARGS__); \
   else \
     (void) 0
 #else
-#define sim_debug(dbits, dptr, ...) \
+# define sim_debug(dbits, dptr, ...) \
   if_sim_debug((dbits), dptr) \
     dps8_sim_debug ((dbits), dptr, __VA_ARGS__); \
   else \
@@ -159,43 +152,15 @@ void sim_printf( const char * format, ... )    // not really simh, by my impl
   __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
-void sim_puts (char * str);
-#if 0
-void sim_fatal (const char * format, ...) NO_RETURN
-#ifdef __GNUC__
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
-#endif
-void sim_printl (const char * format, ...)
-#ifdef __GNUC__
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
-#if 0
-void sim_warn (const char * format, ...)
-#ifdef __GNUC__
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
-#endif
 
 #if defined(THREADZ) || defined(LOCKLESS)
 void dps8_sim_debug (uint32 dbits, DEVICE* dptr, unsigned long long cnt, const char* fmt, ...)
-#ifdef __GNUC__
+# ifdef __GNUC__
   __attribute__ ((format (printf, 4, 5)))
-#endif
+# endif
 ;
 #endif
-//#define sim_warn(format, ...) _sim_err (format, ##__VA_ARGS__)
-//#define sim_err(format, ...) { _sim_err (format, ##__VA_ARGS__); longjmp (cpu.jmpMain, JMP_STOP); }
 #define sim_fatal(format, ...) { _sim_err (format, ##__VA_ARGS__); exit (1); }
-#ifdef COLOR
-void sim_msg (const char * fmt, ...);
-void sim_warn (const char * fmt, ...);
-void sim_print (const char * fmt, ...);
-#else
 #define sim_msg sim_printf
 #define sim_warn sim_printf
 #define sim_print sim_printf
-#endif

@@ -27,7 +27,7 @@
 
 #include "threadz.h"
 #if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
-#include <pthread_np.h>
+# include <pthread_np.h>
 #endif
 
 //
@@ -35,15 +35,12 @@
 //
 
 // simh library serializer
-
 #ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
 pthread_cond_t iomCond;
-
 pthread_mutex_t iom_start_lock;
 #endif
 
-static pthread_mutex_t simh_lock = PTHREAD_MUTEX_INITIALIZER;
-
+#ifndef QUIET_UNUSED
 void lock_simh (void)
   {
     pthread_mutex_lock (& simh_lock);
@@ -53,6 +50,7 @@ void unlock_simh (void)
   {
     pthread_mutex_unlock (& simh_lock);
   }
+#endif
 
 // libuv library serializer
 
@@ -68,6 +66,7 @@ void unlock_libuv (void)
     pthread_mutex_unlock (& libuv_lock);
   }
 
+#ifdef TESTING
 bool test_libuv_lock (void)
   {
     //sim_debug (DBG_TRACE, & cpu_dev, "test_libuv_lock\n");
@@ -84,6 +83,7 @@ bool test_libuv_lock (void)
       sim_printf ("test_libuv_lock pthread_mutex_lock libuv_lock %d\n", rc);
     return false;
   }
+#endif
 
 // Memory serializer
 
@@ -279,6 +279,7 @@ void unlock_iom (void)
 
 // Debugging tool
 
+#ifdef TESTING
 static pthread_mutex_t tst_lock = PTHREAD_MUTEX_INITIALIZER;
 
 void lock_tst (void)
@@ -317,6 +318,7 @@ bool test_tst_lock (void)
       sim_printf ("test_tst_lock pthread_mutex_lock tst_lock %d\n", rc);
     return false;
   }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -328,11 +330,10 @@ bool test_tst_lock (void)
 // main thread
 //   createCPUThread
 //
-// CPU and SCU thread
-//   setCPURun (bool)
 // CPU thread
 //   cpuRunningWait
 //   sleepCPU
+//
 // SCU thread
 //   wakeCPU
 //
@@ -382,15 +383,15 @@ void createCPUThread (uint cpuNum)
 #if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
     pthread_set_name_np (p->cpuThread, nm);
 #else
-#ifdef __APPLE__
+# ifdef __APPLE__
     pthread_setname_np (nm);
-#else
-#ifndef _AIX
-#ifndef __gnu_hurd__
+# else
+#  ifndef _AIX
+#   ifndef __gnu_hurd__
     pthread_setname_np (p->cpuThread, nm);
-#endif /* ifndef __gnu_hurd__ */
-#endif /* ifndef _AIX */
-#endif /* ifdef __APPLE__ */
+#   endif /* ifndef __gnu_hurd__ */
+#  endif /* ifndef _AIX */
+# endif /* ifdef __APPLE__ */
 #endif /* ifdef __FreeBSD__ */
 
 #ifdef AFFINITY
@@ -414,35 +415,9 @@ void stopCPUThread()
     pthread_exit(NULL);
   }
 
-#if 0
-void cpuRdyWait (uint cpuNum)
-  {
-    struct cpuThreadz_t * p = & cpuThreadz[cpuNum];
-    while (! p -> ready)
-      sim_usleep (10000);
-   }
-#endif
-
-// Set CPU thread run/sleep
-
-void setCPURun (uint cpuNum, bool run)
-  {
-    int rc;
-    struct cpuThreadz_t * p = & cpuThreadz[cpuNum];
-    rc = pthread_mutex_lock (& p->runLock);
-    if (rc)
-      sim_printf ("setCPUrun pthread_mutex_lock %d\n", rc);
-    p->run = run;
-    rc = pthread_cond_signal (& p->runCond);
-    if (rc)
-      sim_printf ("setCPUrun pthread_cond_signal %d\n", rc);
-    rc = pthread_mutex_unlock (& p->runLock);
-    if (rc)
-      sim_printf ("setCPUrun pthread_mutex_unlock %d\n", rc);
-  }
-
 // Called by CPU thread to block on run/sleep
 
+#ifdef THREADZ
 void cpuRunningWait (void)
   {
     int rc;
@@ -462,6 +437,7 @@ void cpuRunningWait (void)
     if (rc)
       sim_printf ("cpuRunningWait pthread_mutex_unlock %d\n", rc);
   }
+#endif
 
 // Called by CPU thread to sleep until time up or signaled
 // Return time left
@@ -536,10 +512,10 @@ void createIOMThread (uint iomNum)
   {
     int rc;
     struct iomThreadz_t * p = & iomThreadz[iomNum];
-#ifdef tdbg
+# ifdef tdbg
     p->inCnt = 0;
     p->outCnt = 0;
-#endif
+# endif
     p->iomThreadArg = (int) iomNum;
 
     p->ready = false;
@@ -559,11 +535,11 @@ void createIOMThread (uint iomNum)
 
     char nm [17];
     sprintf (nm, "IOM %c", 'a' + iomNum);
-#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
     pthread_setname_np (p->iomThread, nm);
-#else
+# else
     pthread_set_name_np (p->iomThread, nm);
-#endif
+# endif
   }
 
 // Called by IOM thread to block until CIOC call
@@ -582,12 +558,12 @@ void iomInterruptWait (void)
         if (rc)
           sim_printf ("iomInterruptWait pthread_cond_wait %d\n", rc);
       }
-#ifdef tdbg
+# ifdef tdbg
     p->outCnt++;
     if (p->inCnt != p->outCnt)
       sim_printf ("iom thread %d in %d out %d\n", this_iom_idx,
                   p->inCnt, p->outCnt);
-#endif
+# endif
   }
 
 // Called by IOM thread to signal CIOC complete
@@ -641,9 +617,9 @@ void setIOMInterrupt (uint iomNum)
         if (rc)
           sim_printf ("setIOMInterrupt pthread_cond_wait intrLock %d\n", rc);
       }
-#ifdef tdbg
+# ifdef tdbg
     p->inCnt++;
-#endif
+# endif
     p->intr = true;
     rc = pthread_cond_signal (& p->intrCond);
     if (rc)
@@ -694,10 +670,10 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
     struct chnThreadz_t * p = & chnThreadz[iomNum][chnNum];
     p->chnThreadArg = (int) (chnNum + iomNum * MAX_CHANNELS);
 
-#ifdef tdbg
+# ifdef tdbg
     p->inCnt = 0;
     p->outCnt = 0;
-#endif
+# endif
     p->ready = false;
     // initialize interrupt wait
     p->connect = false;
@@ -715,11 +691,11 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
 
     char nm [17];
     sprintf (nm, "chn %c/%u %s", 'a' + iomNum, chnNum, devTypeStr);
-#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
     pthread_setname_np (p->chnThread, nm);
-#else
+# else
     pthread_set_name_np (p->chnThread, nm);
-#endif
+# endif
   }
 
 // Called by channel thread to block until I/O command presented
@@ -739,12 +715,12 @@ void chnConnectWait (void)
         if (rc)
           sim_printf ("chnConnectWait pthread_cond_wait %d\n", rc);
       }
-#ifdef tdbg
+# ifdef tdbg
     p->outCnt++;
     if (p->inCnt != p->outCnt)
       sim_printf ("chn thread %d in %d out %d\n", this_chan_num,
                   p->inCnt, p->outCnt);
-#endif
+# endif
   }
 
 // Called by channel thread to signal I/O complete
@@ -777,9 +753,9 @@ void setChnConnect (uint iomNum, uint chnNum)
         if (rc)
           sim_printf ("setChnInterrupt pthread_cond_wait connectLock %d\n", rc);
       }
-#ifdef tdbg
+# ifdef tdbg
     p->inCnt++;
-#endif
+# endif
     p->connect = true;
     rc = pthread_cond_signal (& p->connectCond);
     if (rc)
@@ -845,14 +821,14 @@ void int_handler (int signal);
 void setSignals (void)
   {
 #ifndef __MINGW64__
-#ifndef __MINGW32__
+# ifndef __MINGW32__
     struct sigaction act;
     memset (& act, 0, sizeof (act));
     act.sa_handler = int_handler;
     act.sa_flags = 0;
     sigaction (SIGINT, & act, NULL);
     sigaction (SIGTERM, & act, NULL);
-#endif /* __MINGW32__ */
+# endif /* __MINGW32__ */
 #endif /* __MINGW64__ */
   }
 

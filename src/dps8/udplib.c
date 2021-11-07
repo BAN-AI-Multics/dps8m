@@ -514,9 +514,9 @@ printf ("link %lu - packet received (sequence=%lu, length=%lu)\n", (unsigned lon
 //#define TEST
 #ifdef TEST
 
-#define CBUFSIZE        256
-#define SCPE_ARG -1
-#define SCPE_OK -1
+# define CBUFSIZE        256
+# define SCPE_ARG -1
+# define SCPE_OK -1
 
 /* sim_parse_addr       host:port
 
@@ -656,7 +656,7 @@ int main (int argc, char * argv [])
 
     while (1)
       {
-#define psz 17000
+# define psz 17000
         uint16_t pkt [psz];
         rc = udp_receive (linkno, pkt, psz);
         if (rc < 0)

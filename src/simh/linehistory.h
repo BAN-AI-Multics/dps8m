@@ -34,28 +34,28 @@
  */
 
 #ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 200809L
+# define _POSIX_C_SOURCE 200809L
 #endif
 
 #ifndef __LINENOISE_H
-#define __LINENOISE_H
+# define __LINENOISE_H
 
-#if !defined(__MINGW32__)   && \
-    !defined(CROSS_MINGW32) && \
-    !defined(CROSS_MINGW64) && \
-    !defined(__MINGW64__)   && \
-    !defined(_MSC_VER)      && \
-    !defined(_MSC_BUILD)
+# if !defined(__MINGW32__)   && \
+     !defined(CROSS_MINGW32) && \
+     !defined(CROSS_MINGW64) && \
+     !defined(__MINGW64__)   && \
+     !defined(_MSC_VER)      && \
+     !defined(_MSC_BUILD)
 
-#ifndef HAVE_LINEHISTORY
-#define HAVE_LINEHISTORY
-#endif /* ifndef HAVE_LINEHISTORY */
+#  ifndef HAVE_LINEHISTORY
+#   define HAVE_LINEHISTORY
+#  endif /* ifndef HAVE_LINEHISTORY */
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 extern "C" {
-#endif
+#  endif
 
-#include <stddef.h>
+#  include <stddef.h>
     
 typedef struct linenoiseCompletions {
   size_t len;
@@ -82,15 +82,15 @@ void linenoisePrintKeyCodes(void);
 void linenoiseMaskModeEnable(void);
 void linenoiseMaskModeDisable(void);
 
-#ifdef __cplusplus
+#  ifdef __cplusplus
 }
-#endif
+#  endif
 
-#endif /* if !defined(__MINGW32__)   && \
-             !defined(__MINGW64__)   && \
-             !defined(CROSS_MINGW32) && \
-             !defined(CROSS_MINGW64) && \
-             !defined(_MSC_VER)      && \
-             !defined(_MSC_BUILD) */
+# endif /* if !defined(__MINGW32__)   &&
+              !defined(__MINGW64__)   &&
+              !defined(CROSS_MINGW32) &&
+              !defined(CROSS_MINGW64) &&
+              !defined(_MSC_VER)      &&
+              !defined(_MSC_BUILD) */
 
 #endif /* if __LINENOISE_H */

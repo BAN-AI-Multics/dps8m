@@ -20,36 +20,36 @@
 /* and therefore also holds useful constants used by all three.       */
 
 #if !defined(DECQUAD)
-  #define DECQUAD
+# define DECQUAD
 
-  #define DECQUADNAME         "decimalQuad"           /* Short name   */
-  #define DECQUADTITLE        "Decimal 128-bit datum" /* Verbose name */
-  #define DECQUADAUTHOR       "Mike Cowlishaw"        /* Who to blame */
+# define DECQUADNAME         "decimalQuad"           /* Short name   */
+# define DECQUADTITLE        "Decimal 128-bit datum" /* Verbose name */
+# define DECQUADAUTHOR       "Mike Cowlishaw"        /* Who to blame */
 
   /* parameters for decQuads */
-  #define DECQUAD_Bytes    16      /* length                          */
-  #define DECQUAD_Pmax     34      /* maximum precision (digits)      */
-  #define DECQUAD_Emin  -6143      /* minimum adjusted exponent       */
-  #define DECQUAD_Emax   6144      /* maximum adjusted exponent       */
-  #define DECQUAD_EmaxD     4      /* maximum exponent digits         */
-  #define DECQUAD_Bias   6176      /* bias for the exponent           */
-  #define DECQUAD_String   43      /* maximum string length, +1       */
-  #define DECQUAD_EconL    12      /* exponent continuation length    */
-  #define DECQUAD_Declets  11      /* count of declets                */
+# define DECQUAD_Bytes    16      /* length                          */
+# define DECQUAD_Pmax     34      /* maximum precision (digits)      */
+# define DECQUAD_Emin  -6143      /* minimum adjusted exponent       */
+# define DECQUAD_Emax   6144      /* maximum adjusted exponent       */
+# define DECQUAD_EmaxD     4      /* maximum exponent digits         */
+# define DECQUAD_Bias   6176      /* bias for the exponent           */
+# define DECQUAD_String   43      /* maximum string length, +1       */
+# define DECQUAD_EconL    12      /* exponent continuation length    */
+# define DECQUAD_Declets  11      /* count of declets                */
   /* highest biased exponent (Elimit-1) */
-  #define DECQUAD_Ehigh (DECQUAD_Emax + DECQUAD_Bias - (DECQUAD_Pmax-1))
+# define DECQUAD_Ehigh (DECQUAD_Emax + DECQUAD_Bias - (DECQUAD_Pmax-1))
 
   /* Required include                                                 */
-  #include "decContext.h"
+# include "decContext.h"
 
   /* The decQuad decimal 128-bit type, accessible by all sizes */
   typedef union {
     uint8_t   bytes[DECQUAD_Bytes];     /* fields: 1, 5, 12, 110 bits */
     uint16_t shorts[DECQUAD_Bytes/2];
     uint32_t  words[DECQUAD_Bytes/4];
-    #if DECUSE64
+# if DECUSE64
     uint64_t  longs[DECQUAD_Bytes/8];
-    #endif
+# endif
     } decQuad;
 
   /* ---------------------------------------------------------------- */
@@ -58,22 +58,22 @@
 
   /* sign and special values [top 32-bits; last two bits are don't-care
      for Infinity on input, last bit don't-care for NaNs] */
-  #define DECFLOAT_Sign  0x80000000     /* 1 00000 00 Sign */
-  #define DECFLOAT_NaN   0x7c000000     /* 0 11111 00 NaN generic */
-  #define DECFLOAT_qNaN  0x7c000000     /* 0 11111 00 qNaN */
-  #define DECFLOAT_sNaN  0x7e000000     /* 0 11111 10 sNaN */
-  #define DECFLOAT_Inf   0x78000000     /* 0 11110 00 Infinity */
-  #define DECFLOAT_MinSp 0x78000000     /* minimum special value */
+# define DECFLOAT_Sign  0x80000000     /* 1 00000 00 Sign */
+# define DECFLOAT_NaN   0x7c000000     /* 0 11111 00 NaN generic */
+# define DECFLOAT_qNaN  0x7c000000     /* 0 11111 00 qNaN */
+# define DECFLOAT_sNaN  0x7e000000     /* 0 11111 10 sNaN */
+# define DECFLOAT_Inf   0x78000000     /* 0 11110 00 Infinity */
+# define DECFLOAT_MinSp 0x78000000     /* minimum special value */
                                         /* [specials are all >=MinSp] */
   /* Sign nibble constants                                            */
-  #if !defined(DECPPLUSALT)
-    #define DECPPLUSALT  0x0A /* alternate plus  nibble               */
-    #define DECPMINUSALT 0x0B /* alternate minus nibble               */
-    #define DECPPLUS     0x0C /* preferred plus  nibble               */
-    #define DECPMINUS    0x0D /* preferred minus nibble               */
-    #define DECPPLUSALT2 0x0E /* alternate plus  nibble               */
-    #define DECPUNSIGNED 0x0F /* alternate plus  nibble (unsigned)    */
-  #endif
+# if !defined(DECPPLUSALT)
+#  define DECPPLUSALT  0x0A /* alternate plus  nibble               */
+#  define DECPMINUSALT 0x0B /* alternate minus nibble               */
+#  define DECPPLUS     0x0C /* preferred plus  nibble               */
+#  define DECPMINUS    0x0D /* preferred minus nibble               */
+#  define DECPPLUSALT2 0x0E /* alternate plus  nibble               */
+#  define DECPUNSIGNED 0x0F /* alternate plus  nibble (unsigned)    */
+# endif
 
   /* ---------------------------------------------------------------- */
   /* Routines -- implemented as decFloat routines in common files     */
@@ -171,7 +171,7 @@
   /* decNumber conversions; these are implemented as macros so as not  */
   /* to force a dependency on decimal128 and decNumber in decQuad.     */
   /* decQuadFromNumber returns a decimal128 * to avoid warnings.       */
-  #define decQuadToNumber(dq, dn) decimal128ToNumber((decimal128 *)(dq), dn)
-  #define decQuadFromNumber(dq, dn, set) decimal128FromNumber((decimal128 *)(dq), dn, set)
+# define decQuadToNumber(dq, dn) decimal128ToNumber((decimal128 *)(dq), dn)
+# define decQuadFromNumber(dq, dn, set) decimal128FromNumber((decimal128 *)(dq), dn, set)
 
 #endif

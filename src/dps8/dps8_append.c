@@ -30,7 +30,7 @@
 #include "dps8_addrmods.h"
 #include "dps8_utils.h"
 #if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #define DBG_CTR cpu.cycleCnt
@@ -40,19 +40,19 @@
  */
 
 #ifdef TESTING
-#define DBG_CTR cpu.cycleCnt
-#define DBGAPP(...) sim_debug (DBG_APPENDING, & cpu_dev, __VA_ARGS__)
+# define DBG_CTR cpu.cycleCnt
+# define DBGAPP(...) sim_debug (DBG_APPENDING, & cpu_dev, __VA_ARGS__)
 #else
-#define DBGAPP(...)
+# define DBGAPP(...)
 #endif
 
 #if 0
 void set_apu_status (apuStatusBits status)
   {
-#if 1
+# if 1
     word12 FCT = cpu.cu.APUCycleBits & MASK3;
     cpu.cu.APUCycleBits = (status & 07770) | FCT;
-#else
+# else
     cpu.cu.PI_AP = 0;
     cpu.cu.DSPTW = 0;
     cpu.cu.SDWNP = 0;
@@ -98,11 +98,13 @@ void set_apu_status (apuStatusBits status)
           cpu.cu.FABS  = 1;
           break;
       }
-#endif
+# endif
   }
 #endif
 
+#ifdef TESTING
 static char *str_sdw (char * buf, sdw_s *SDW);
+#endif
 
 //
 //
@@ -382,9 +384,10 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
 
             char buf[256];
             (void)buf;
+# ifdef TESTING
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                      __func__, _n, str_sdw (buf, cpu.SDW));
-
+# endif
             return cpu.SDW;
           }
       }
@@ -416,14 +419,18 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
 
             char buf[256];
             (void)buf;
+# ifdef TESTING
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                     __func__, toffset + setno, str_sdw (buf, cpu.SDW));
+# endif
             return cpu.SDW;
           }
       }
 #endif
+#ifdef TESTING
     DBGAPP ("%s(3):SDW for segment %05o not found in SDWAM\n",
             __func__, segno);
+#endif
     cpu.cu.SDWAMM = 0;
     return NULL;    // segment not referenced in SDWAM
   }
@@ -541,6 +548,7 @@ static void fetch_nsdw (word15 segno)
 #endif
   }
 
+#ifdef TESTING
 static char *str_sdw (char * buf, sdw_s *SDW)
   {
     if (! SDW->FE)
@@ -573,6 +581,7 @@ static char *str_sdw (char * buf, sdw_s *SDW)
  * dump SDWAM...
  */
 
+# ifdef TESTING
 t_stat dump_sdwam (void)
   {
     char buf[256];
@@ -586,11 +595,13 @@ t_stat dump_sdwam (void)
       }
     return SCPE_OK;
   }
+# endif
+#endif
 
 #ifdef DPS8M
 static uint to_be_discarded_am (word6 LRU)
   {
-#if 0
+# if 0
     uint cA=0,cB=0,cC=0,cD=0;
     if (LRU & 040) cB++; else cA++;
     if (LRU & 020) cC++; else cA++;
@@ -600,7 +611,7 @@ static uint to_be_discarded_am (word6 LRU)
     if (LRU & 02)  cD++; else cB++;
     if (cB==3) return 1;
     if (LRU & 01)  return 3; else return 2;
-#endif
+# endif
 
     if ((LRU & 070) == 070) return 0;
     if ((LRU & 046) == 006) return 1;
@@ -659,17 +670,19 @@ static void load_sdwam (word15 segno, bool nomatch)
 
             char buf[256];
             (void)buf;
+# ifdef TESTING
             DBGAPP ("%s(2):SDWAM[%d]=%s\n",
                     __func__, _n, str_sdw (buf, p));
-
+# endif
             return;
           }
       }
     // if we reach this, USE is scrambled
+# ifdef TESTING
     DBGAPP ("%s(3) no USE=0 found for segment=%d\n", __func__, segno);
-
     sim_printf ("%s(%05o): no USE=0 found!\n", __func__, segno);
     dump_sdwam ();
+# endif
 #endif
 
 #ifdef DPS8M
@@ -705,8 +718,10 @@ static void load_sdwam (word15 segno, bool nomatch)
 
     char buf[256];
     (void)buf;
+# ifdef TESTING
     DBGAPP ("%s(2):SDWAM[%d]=%s\n",
             __func__, toffset + setno, str_sdw (buf, cpu.SDW));
+# endif
 #endif
   }
 
@@ -744,9 +759,9 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
                   cpu.PTWAM[_h].USE -= 1; //PTW->USE -= 1;
               }
             cpu.PTW->USE = N_WAM_ENTRIES - 1;
-#ifdef do_selftestPTWAM
+# ifdef do_selftestPTWAM
             selftest_ptwaw ();
-#endif
+# endif
             DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
                     __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M,
                     cpu.PTW->DF, cpu.PTW->FC);
@@ -904,9 +919,9 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
                     cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
                     cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO,
                     cpu.PTW->USE);
-#ifdef do_selftestPTWAM
+# ifdef do_selftestPTWAM
             selftest_ptwaw ();
-#endif
+# endif
             return;
           }
       }
@@ -2215,6 +2230,7 @@ Exit:;
 // Translate a segno:offset to a absolute address.
 // Return 0 if successful.
 
+#ifdef TESTING
 int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
                       char * * msg)
   {
@@ -2361,3 +2377,4 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
       * msg = "";
     return 0;
   }
+#endif

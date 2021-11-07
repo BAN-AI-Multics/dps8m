@@ -28,7 +28,7 @@
 #define DBG_CTR 1
 
 #ifdef THREADZ
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)

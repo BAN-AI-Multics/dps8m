@@ -10,9 +10,9 @@
  */
 
 #ifndef API
-#define N_SYMBOLS 1024
+# define N_SYMBOLS 1024
 #else
-#define N_SYMBOLS 0
+# define N_SYMBOLS 0
 #endif
 
 #define SYMBOL_SZ 32
