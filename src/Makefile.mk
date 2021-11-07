@@ -287,7 +287,11 @@ endif
 # Linux (architecture-specific)
 
 ifeq ($(UNAME_S),Linux)
-  CFLAGS += -DCLOCK_REALTIME=CLOCK_REALTIME_COARSE
+  ifeq ($(CROSS),)
+    ifneq ($(CYGWIN_MINGW_CROSS),1)
+      CFLAGS += -DCLOCK_REALTIME=CLOCK_REALTIME_COARSE
+    endif
+  endif
   ifndef UNAME_M
     UNAME_M=$(shell $(UNAME) -m 2> /dev/null)
   endif
