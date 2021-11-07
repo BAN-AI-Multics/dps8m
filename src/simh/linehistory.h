@@ -56,19 +56,28 @@ extern "C" {
 #  endif
 
 #  include <stddef.h>
-    
+ 
+#ifdef LH_COMPLETION
+
 typedef struct linenoiseCompletions {
   size_t len;
   char **cvec;
 } linenoiseCompletions;
 
 typedef void(linenoiseCompletionCallback)(const char *, linenoiseCompletions *);
-typedef char*(linenoiseHintsCallback)(const char *, int *color, int *bold);
-typedef void(linenoiseFreeHintsCallback)(void *);
 void linenoiseSetCompletionCallback(linenoiseCompletionCallback *);
+void linenoiseAddCompletion(linenoiseCompletions *, const char *);
+
+#endif
+
+#ifdef LH_HINTS
+
+typedef void(linenoiseFreeHintsCallback)(void *);
+typedef char*(linenoiseHintsCallback)(const char *, int *color, int *bold);
 void linenoiseSetHintsCallback(linenoiseHintsCallback *);
 void linenoiseSetFreeHintsCallback(linenoiseFreeHintsCallback *);
-void linenoiseAddCompletion(linenoiseCompletions *, const char *);
+
+#endif
 
 char *linenoise(const char *prompt);
 void linenoiseFree(void *ptr);
@@ -79,8 +88,10 @@ int linenoiseHistoryLoad(const char *filename);
 void linenoiseClearScreen(void);
 void linenoiseSetMultiLine(int ml);
 void linenoisePrintKeyCodes(void);
+#ifdef LH_MASKMODE
 void linenoiseMaskModeEnable(void);
 void linenoiseMaskModeDisable(void);
+#endif
 
 #  ifdef __cplusplus
 }
