@@ -1035,13 +1035,9 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
     - Linux
   script:
     - export GLCICD_JOB="FedoraRawhideX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - dnf -q install -y bzip2 || dnf -q install -y bzip2
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
     - *scriptInstallNfpm
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
