@@ -500,13 +500,13 @@
     test -z "${SKIP_UPDATE}" && echo "Updating system and installing software ..."
     test -z "${SKIP_UPDATE}" && sed -i 's/download.opensuse.org/provo-mirror.opensuse.org/' /etc/zypp/repos.d/*.repo
     set -o pipefail || true
-    test -z "${SKIP_UPDATE}" && zypper ve -y | nl -l 1 -w 1
-    test -z "${SKIP_UPDATE}" && printf '%s\n' "cl" "clean" "update -y" "install --replacefiles --recommends --allow-downgrade -y -t pattern base" "exit" | zypper sh | nl -l 1 -w 1
-    test -z "${SKIP_UPDATE}" && zypper ve -y | nl -l 1 -w 1
-    test -z "${SKIP_UPDATE}" && ( cd /etc/zypp/repos.d && find . -type f -name '*.rpmsave' | while read FILE ; do newfile="$(printf '%s\n' ${FILE:?} | sed -e 's/\.rpmsave$//')" ; mv -vf "${FILE}" "${newfile}" ; done ) | nl -l 1 -w 1
-    test -z "${SKIP_UPDATE}" && printf '%s\n' "clean" "update -y" "dup -y" "install --replacefiles --recommends --allow-downgrade -y libsha1detectcoll-devel lsof which gzip gcc clang git git-core unzip zip ruby ruby-devel curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja rpmconf tcsh expect cppi cppcheck" "clean" "exit" | zypper sh | nl -l 1 -w 1
-    test -z "${SKIP_UPDATE}" && zypper ve -y | nl -l 1 -w 1
-    test -z "${SKIP_UPDATE}" && ( yes | rpmconf -a; yes | rpmconf -ac; zypper clean ) | nl -l 1 -w 1
+    test -z "${SKIP_UPDATE}" && zypper ve -y || true
+    test -z "${SKIP_UPDATE}" && printf '%s\n' "cl" "clean" "update -y" "install --replacefiles --recommends --allow-downgrade -y -t pattern base" "exit" | zypper sh || true
+    test -z "${SKIP_UPDATE}" && zypper ve -y || true
+    test -z "${SKIP_UPDATE}" && ( cd /etc/zypp/repos.d && find . -type f -name '*.rpmsave' | while read FILE ; do newfile="$(printf '%s\n' ${FILE:?} | sed -e 's/\.rpmsave$//')" ; mv -vf "${FILE}" "${newfile}" ; done ) || true
+    test -z "${SKIP_UPDATE}" && printf '%s\n' "clean" "update -y" "dup -y" "install --replacefiles --recommends --allow-downgrade -y libsha1detectcoll-devel lsof which gzip gcc clang git git-core unzip zip ruby ruby-devel curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja rpmconf tcsh expect cppi cppcheck" "clean" "exit" | zypper sh || true
+    test -z "${SKIP_UPDATE}" && zypper ve -y || true
+    test -z "${SKIP_UPDATE}" && ( yes | rpmconf -a || true; yes | rpmconf -ac || true; zypper clean || true) || true
     echo -e "section_end:`date +%s`:osusesetup_section\r\e[0K" || true
 
 ############################################################################
