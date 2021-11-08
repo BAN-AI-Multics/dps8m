@@ -876,7 +876,7 @@ Linux/x86_64, Fedora, Intel DPC++/C++:
 
 ############################################################################
 
-Linux/x86_64, Fedora, Intel C++:
+Linux/x86_64, Fedora, Intel C/C++:
   stage: build
   tags:
     - Linux
@@ -993,6 +993,48 @@ Linux/x86_64, Fedora, Clang, GCC:
     - Linux
   script:
     - export GLCICD_JOB="FedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptInstallResticLinuxAMD64
+    - *scriptRestoreResticSnapshot
+    - *scriptDnfSetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCreateResticSnapshot
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
+Linux/x86_64, Fedora Rawhide, Clang, GCC:
+  image: fedora:rawhide
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - export GLCICD_JOB="FedoraRawhideX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
     - *scriptInstallResticLinuxAMD64
     - *scriptRestoreResticSnapshot
