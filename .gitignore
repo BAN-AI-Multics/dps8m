@@ -92,6 +92,7 @@ lint.txt
 olint.txt
 cpplint.txt
 cppcheck.txt
+cppi.txt
 *.i
 .cppbdir
 infer-out/
