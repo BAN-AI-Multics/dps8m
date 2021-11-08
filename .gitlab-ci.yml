@@ -1528,6 +1528,43 @@ Linux/x86_64, OpenSUSE Leap, Clang, GCC:
 
 ############################################################################
 
+Linux/x86_64, OpenSUSE Tumbleweed, Clang, GCC:
+  image: opensuse/tumbleweed:latest
+  stage: build
+  tags:
+    - Docker-x64
+    - amd64
+    - Linux
+  script:
+    - *scriptOSUSESetup
+    - *scriptInstallNfpm
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptDPS8Mods
+    - *scriptExtraInfo
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - sh -x -c 'make distclean; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" V=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - *scriptBuildInfo
+    - *scriptVerifyVersion
+    - *scriptCompressArtifacts
+  dependencies: []
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
+      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
+      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
+      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
 Linux/x86_64, Oracle Linux 8, Clang, GCC:
   image: oraclelinux:8
   stage: build
