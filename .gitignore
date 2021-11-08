@@ -85,6 +85,7 @@ rebuild.vne
 *.arj
 *.Z
 *.d.*
+*.ifx
 
 # Lint
 lint.txt

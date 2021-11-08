@@ -42,6 +42,7 @@ CCACHE     ?= ccache
 SHELL      ?= sh
 SH         ?= $(SHELL)
 UNAME      ?= uname
+CPPI       ?= cppi
 COMM       ?= comm
 ECHO       ?= echo
 BREW       ?= brew

@@ -44,28 +44,51 @@ printdefs:                                                                    \
 # Convenience target: Runs Cppcheck
 
 .PHONY: cppcheck
-cppcheck:                                                                    \
-    # cppcheck:    # Start Cppcheck linter and save output
+cppcheck:                                                                     \
+    # cppcheck:    # Check Cppcheck linter and save output
 	-@$(RMF) ./cppcheck.txt > /dev/null 2>&1 || $(TRUE)
-	@( $(PRINTF) '%s\n' "Starting in 5s, saving output to cppcheck.txt";     \
+	@( $(PRINTF) '%s\n' "Starting in 5s, saving output to cppcheck.txt";      \
       $(SLEEP) 5 && ./src/ci-kit/cppcheck.sh 2> "cppcheck.txt" || $(TRUE) )
+
+###############################################################################
+# Convenience target: Cppi scan/check
+
+.PHONY: cppiscan
+cppiscan:                                                                     \
+    # cppiscan:    # Verify C preprocessor nesting indents
+	@$(SETV); ( $(PRINTF) '%s\n' "*** Listing files with cppi:";              \
+      $(CPPI) -l $$($(GIT) ls-files | $(GREP) -v 'ci-kit/' 2> /dev/null |     \
+        $(GREP) "\.[ch]$$" 2> /dev/null | $(SORT) -u | $(GREP) -v " ");       \
+          $(PRINTF) '%s\n' "*** End of listing" )
+
+###############################################################################
+# Convenience target: Cppi fix/repair
+
+.PHONY: cppifix
+cppifix:                                                                      \
+    # cppifix:    # Repair C preprocessor nesting indents
+	@$(SETV); for i in $$($(CPPI) -l $$($(GIT) ls-files |                     \
+      $(GREP) -v 'ci-kit/' 2> /dev/null| $(GREP) "\.[ch]$$" 2> /dev/null |    \
+       $(SORT) -u | $(GREP) -v " ")); do $(PRINTF) '%s\n' "*** cppi $${i:?}"; \
+        $(CPPI) "$${i:?}" > "$${i:?}.i" && $(CP) "$${i:?}.i" "$${i:?}" &&     \
+         $(RMF) "$${i:?}.i"; done
 
 ###############################################################################
 # Convenience target: Runs Oracle Developer Studio 12.6 Lint
 
 .PHONY: orstlint
-orstlint:                                                                    \
-    # orstlint:    # Start Oracle Studio Lint & save output
+orstlint:                                                                     \
+    # orstlint:    # Runs Oracle Studio Lint & save output
 	-@$(RMF) ./orstlint.txt > /dev/null 2>&1 || $(TRUE)
-	@( $(PRINTF) '%s\n' "Starting now, saving output to orstlint.txt";       \
-      export CSTD="gnu11" && export CFLAGS="-DNO_C_ELLIPSIS" && cd src/dps8  \
-       && $(MAKE) -i -k -s dps8 CC="$(ORSTLINT) -u -xO5 -m64 -xCC -a         \
-        -errshort=full -err=warn -errfmt=src -errtags=yes -m -v -x           \
-         -features=gcc_enums                                                 \
-          -erroff=E_STATIC_UNUSED,E_CONSTANT_CONDITION,E_SEC_STRNCPY_WARN"   \
-          SUNPRO=1 SUNLINT=1 NEED_128=1 --output-sync ) 2>&1 |               \
+	@( $(PRINTF) '%s\n' "Starting now, saving output to orstlint.txt";        \
+      export CSTD="gnu11" && export CFLAGS="-DNO_C_ELLIPSIS" && cd src/dps8   \
+       && $(MAKE) -i -k -s dps8 CC="$(ORSTLINT) -u -xO5 -m64 -xCC -a          \
+        -errshort=full -err=warn -errfmt=src -errtags=yes -m -v -x            \
+         -features=gcc_enums                                                  \
+          -erroff=E_STATIC_UNUSED,E_CONSTANT_CONDITION,E_SEC_STRNCPY_WARN"    \
+          SUNPRO=1 SUNLINT=1 NEED_128=1 --output-sync ) 2>&1 |                \
           $(GREP) -v -E '(^make: .* Error 2$$|no output created$$|make: .* not remade because of errors.$$|^lint.*annot find source file.*\.o$$|^lint:.*o input source files specified.*no output generated$$)' | $(TEE) orstlint.txt;       \
-           $(CAT) orstlint.txt | $(GREP) '^E_' | $(CUT) -d ',' -f 1 |        \
+           $(CAT) orstlint.txt | $(GREP) '^E_' | $(CUT) -d ',' -f 1 |         \
             $(SORT) | $(UNIQ) -c | $(SORT) -rn | $(TEE) -a orstlint.txt
 
 ###############################################################################
