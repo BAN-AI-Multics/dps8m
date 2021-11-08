@@ -55,9 +55,9 @@ libuvrel:                                                                     \
 	@$(PRINTF) '%s\n' "Configure and build libuv ..."
 	@$(SETV); ($(CD) "libuv-local/libuv-$(RELVER)" && $(SHELL) autogen.sh &&  \
       $(SHELL) configure $(LOCAL_CONFOPTS) --disable-shared --enable-static   \
-        --prefix="$$($(GCWD) -P)/../local" && $(MAKE) $(MAKEFLAGS) &&         \
-          $(MAKE) install && $(MAKE) clean) &&                                \
-              $(PRINTF) '%s\n' "*** Local libuv built successfully!"
+        --disable-dependency-tracking --prefix="$$($(GCWD) -P)/../local" &&   \
+            $(MAKE) $(MAKEFLAGS) && $(MAKE) install && $(MAKE) clean) &&      \
+                $(PRINTF) '%s\n' "*** Local libuv built successfully!"
 
 ###############################################################################
 # Convenience target: Builds libuv from GitHub (development)
@@ -79,9 +79,9 @@ libuvdev:                                                                     \
 	@$(PRINTF) '%s\n' "Configure and build libuv ..."
 	@$(SETV); ($(CD) "libuv-local/libuv" && $(SHELL) autogen.sh &&            \
       $(SHELL) configure $(LOCAL_CONFOPTS) --disable-shared --enable-static   \
-        --prefix="$$($(GCWD) -P)/../local" && $(MAKE) $(MAKEFLAGS) &&         \
-          $(MAKE) install && $(MAKE) clean) &&                                \
-              $(PRINTF) '%s\n' "*** Local libuv built successfully!"
+        --disable-dependency-tracking --prefix="$$($(GCWD) -P)/../local" &&   \
+            $(MAKE) $(MAKEFLAGS) && $(MAKE) install && $(MAKE) clean) &&      \
+                $(PRINTF) '%s\n' "*** Local libuv built successfully!"
 
 ###############################################################################
 
