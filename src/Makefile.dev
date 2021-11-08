@@ -70,8 +70,8 @@ cppifix:                                                                      \
 	@$(SETV); for i in $$($(CPPI) -l $$($(GIT) ls-files |                     \
       $(GREP) -v 'ci-kit/' 2> /dev/null| $(GREP) "\.[ch]$$" 2> /dev/null |    \
        $(SORT) -u | $(GREP) -v " ")); do $(PRINTF) '%s\n' "*** cppi $${i:?}"; \
-        $(CPPI) "$${i:?}" > "$${i:?}.i" && $(CP) "$${i:?}.i" "$${i:?}" &&     \
-         $(RMF) "$${i:?}.i"; done
+        $(CPPI) "$${i:?}" > "$${i:?}.ifx" && $(CP) "$${i:?}.ifx" "$${i:?}" && \
+         $(RMF) "$${i:?}.ifx"; done
 
 ###############################################################################
 # Convenience target: Runs Oracle Developer Studio 12.6 Lint
