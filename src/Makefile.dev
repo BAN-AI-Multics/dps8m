@@ -1,4 +1,4 @@
-# DPS/8M simulator: src/Makefile.scc
+# DPS/8M simulator: src/Makefile.dev
 # vim: filetype=make:tabstop=4:tw=76
 #
 ###############################################################################
