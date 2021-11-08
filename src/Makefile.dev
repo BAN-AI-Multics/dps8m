@@ -87,7 +87,7 @@ orstlint:                                                                     \
          -features=gcc_enums                                                  \
           -erroff=E_STATIC_UNUSED,E_CONSTANT_CONDITION,E_SEC_STRNCPY_WARN"    \
           SUNPRO=1 SUNLINT=1 NEED_128=1 --output-sync ) 2>&1 |                \
-          $(GREP) -v -E '(^make: .* Error 2$$|no output created$$|make: .* not remade because of errors.$$|^lint.*annot find source file.*\.o$$|^lint:.*o input source files specified.*no output generated$$)' | $(TEE) orstlint.txt;       \
+          $(GREP) -v -E '(^make: .* Error 2$$|no output created$$|make: .* not remade because of errors.$$|^lint.*annot find source file.*\.o$$|^lint:.*o input source files specified.*no output generated$$)' | $(TEE) orstlint.txt; \
            $(CAT) orstlint.txt | $(GREP) '^E_' | $(CUT) -d ',' -f 1 |         \
             $(SORT) | $(UNIQ) -c | $(SORT) -rn | $(TEE) -a orstlint.txt
 
