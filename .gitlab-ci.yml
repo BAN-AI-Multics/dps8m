@@ -2246,14 +2246,15 @@ Cppi Indent Check:
     - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptExtraInfo
-    - make cppiscan 2>&1 | tee -i cppi.txt | grep -v '\*\*\*' | grep '.' && exit 1
+    - make cppiscan 2>&1 | tee -i cppi.txt
+    - grep -v '\*\*\*' cppi.txt | grep -v '\*\*\*' | wc -l | grep -q '^0$'
   dependencies: []
   allow_failure: true
   artifacts:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/src/cppi.txt
+      - ${CI_PROJECT_DIR:?}/cppi.txt
   retry: 1
   timeout: 40 minutes
   interruptible: true
