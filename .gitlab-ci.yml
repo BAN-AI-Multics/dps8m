@@ -498,7 +498,8 @@
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
     test -z "${SKIP_UPDATE}" && echo "Updating system and installing software ..."
-    test -z "${SKIP_UPDATE}" && printf '%s\n' "install -n -y which gzip gcc clang git unzip zip ruby ruby-devel curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja" "dup -y" "update -y" "exit" | zypper -qn sh
+    test -z "${SKIP_UPDATE}" && sed -i 's/download.opensuse.org/provo-mirror.opensuse.org/' /etc/zypp/repos.d/*.repo && sed -i 's/enabled=0/enabled=1/' /etc/zypp/repos.d/*.repo
+    test -z "${SKIP_UPDATE}" && printf '%s\n' "clean" "update -y" "dup -y" "install -n -y which gzip gcc clang git unzip zip ruby ruby-devel curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja" "dup -y" "update -y" "exit" | zypper -qn sh
     echo -e "section_end:`date +%s`:osusesetup_section\r\e[0K" || true
 
 ############################################################################
