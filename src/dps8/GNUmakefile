@@ -511,15 +511,15 @@ distclean: clean
 	@$(SETV); $(RMF) "../l68.state"           ||  $(TRUE)
 	@$(SETV); $(RMF) "l68.state"              ||  $(TRUE)
 	@$(SETV); $(RMF) "restoreMultics.log"     ||  $(TRUE)
-	@$(SETV); $(RMF)  "TAGS"                  ||  $(TRUE)
-	@$(SETV); $(RMF)  "tags"                  ||  $(TRUE)
-	@$(SETV); $(RMF)  "ver.h~"                ||  $(TRUE)
-	@$(SETV); $(RMF)  "../../GPATH"           ||  $(TRUE)
-	@$(SETV); $(RMF)  "../../GRTAGS"          ||  $(TRUE)
-	@$(SETV); $(RMF)  "../../GTAGS"           ||  $(TRUE)
-	@$(SETV); $(RMF)  "cscope.in.out"         ||  $(TRUE)
-	@$(SETV); $(RMF)  "cscope.out"            ||  $(TRUE)
-	@$(SETV); $(RMF)  "cscope.po.out"         ||  $(TRUE)
+	@$(SETV); $(RMF) "TAGS"                   ||  $(TRUE)
+	@$(SETV); $(RMF) "tags"                   ||  $(TRUE)
+	@$(SETV); $(RMF) "ver.h~"                 ||  $(TRUE)
+	@$(SETV); $(RMF) "../../GPATH"            ||  $(TRUE)
+	@$(SETV); $(RMF) "../../GRTAGS"           ||  $(TRUE)
+	@$(SETV); $(RMF) "../../GTAGS"            ||  $(TRUE)
+	@$(SETV); $(RMF) "cscope.in.out"          ||  $(TRUE)
+	@$(SETV); $(RMF) "cscope.out"             ||  $(TRUE)
+	@$(SETV); $(RMF) "cscope.po.out"          ||  $(TRUE)
 
 ###############################################################################
 
@@ -554,6 +554,8 @@ clean:
 	@$(SETV); $(RMF)  "amd_memcpy.o"                   ||  $(TRUE)
 	@$(SETV); $(RMF)  "../amd_memcpy.o"                ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../amd_memcopy.o"            ||  $(TRUE)
+	@$(SETV); $(TEST) -d "../../libuv-local"           &&                     \
+              $(RMF) -r  "../../libuv-local"           ||  $(TRUE)
 
 ###############################################################################
 

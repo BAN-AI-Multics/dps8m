@@ -60,8 +60,13 @@ DIRNAME    ?= dirname
 PKGCONFIG  ?= pkg-config
 GIT        ?= git
 CUT        ?= cut
+HEAD       ?= head
+TAIL       ?= tail
+WGET       ?= wget
 UNIQ       ?= uniq
+CKSUM      ?= cksum
 EXPAND     ?= expand
+GPG        ?= gpg --batch --status-fd --with-colons
 WC         ?= wc
 SED        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" sed
 AWK        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" awk
@@ -76,6 +81,7 @@ TR         ?= tr
 ADVZIP     ?= advzip
 CAT        ?= cat
 GIT        ?= git
+GCWD       ?= pwd
 WC         ?= wc
 EXPAND     ?= expand
 CMAKE      ?= cmake
@@ -103,6 +109,8 @@ MAKETAR    ?= $(TAR) --owner=$(GTARUSER) --group=$(GTARGROUP) --posix -c      \
 TARXT      ?= tar
 COMPRESS   ?= gzip -f -9
 GUNZIP     ?= gzip -d
+GZIP       ?= gzip
+GZCAT      ?= $(GZIP) -dc
 COMPRESSXT ?= gz
 KITNAME    ?= sources
 SIMHx       = ../simh

@@ -149,6 +149,12 @@ endif
 
 ###############################################################################
 
+ifneq (,$(wildcard src/Makefile.loc))
+  include src/Makefile.loc
+endif
+
+###############################################################################
+
 ifneq (,$(wildcard src/Makefile.dev))
   include src/Makefile.dev
 endif

@@ -143,3 +143,5 @@ reallyclean
 
 # Local libuv
 libuv/
+libuv*.tar*
+libuv-local/
