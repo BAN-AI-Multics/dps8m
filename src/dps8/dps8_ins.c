@@ -8978,15 +8978,15 @@ elapsedtime ();
 
         // aran Address Register n to Alphanumeric Descriptor
 
-                        // aarn
-        case x1 (0540): // aar0
-        case x1 (0541): // aar1
-        case x1 (0542): // aar2
-        case x1 (0543): // aar3
-        case x1 (0544): // aar4
-        case x1 (0545): // aar5
-        case x1 (0546): // aar6
-        case x1 (0547): // aar7
+                        // aran
+        case x1 (0540): // ara0
+        case x1 (0541): // ara1
+        case x1 (0542): // ara2
+        case x1 (0543): // ara3
+        case x1 (0544): // ara4
+        case x1 (0545): // ara5
+        case x1 (0546): // ara6
+        case x1 (0547): // ara7
             {
                 // The alphanumeric descriptor is fetched from Y and C(Y)21,22
                 // (TA field) is examined to determine the data type described.
@@ -8997,13 +8997,9 @@ elapsedtime ();
                 // If C(Y)21,22 = 11 (TA code = 3) or C(Y)23 = 1 (unused bit),
                 // an illegal procedure fault occurs.
                 if (TA == 03)
-                  doFault (FAULT_IPR,
-                           fst_ill_proc,
-                           "ARAn tag == 3");
+                  dlyDoFault (FAULT_IPR, fst_ill_proc, "ARAn tag == 3");
                 if (getbits36_1 (cpu.CY, 23) != 0)
-                  doFault (FAULT_IPR,
-                           fst_ill_proc,
-                           "ARAn b23 == 1");
+                  dlyDoFault (FAULT_IPR, fst_ill_proc, "ARAn b23 == 1");
 
                 uint32 n = opcode10 & 07;  // get
                 CPTUR (cptUsePRn + n);
