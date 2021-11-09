@@ -85,7 +85,6 @@ static t_bool sim_os_ttisatty (void);
 static t_stat sim_set_rem_telnet (int32 flag, CONST char *cptr);
 static t_stat sim_set_rem_connections (int32 flag, CONST char *cptr);
 static t_stat sim_set_rem_timeout (int32 flag, CONST char *cptr);
-static t_stat sim_set_rem_master (int32 flag, CONST char *cptr);
 
 /* Deprecated CONSOLE HALT, CONSOLE RESPONSE and CONSOLE DELAY support */
 static t_stat sim_set_halt (int32 flag, CONST char *cptr);
@@ -209,8 +208,6 @@ static CTAB set_rem_con_tab[] = {
     { "TELNET", &sim_set_rem_telnet, 1 },
     { "NOTELNET", &sim_set_rem_telnet, 0 },
     { "TIMEOUT", &sim_set_rem_timeout, 0 },
-    { "MASTER", &sim_set_rem_master, 1 },
-    { "NOMASTER", &sim_set_rem_master, 0 },
     { NULL, NULL, 0 }
     };
 
@@ -1108,71 +1105,6 @@ if (sim_rem_active_number >= 0)
 else
     sim_rem_read_timeout = timeout;
 return SCPE_OK;
-}
-
-/* Enable or disable Remote Console master mode */
-
-/* In master mode, commands are subsequently processed from the
-   primary/initial (master mode) remote console session.  Commands
-   are processed from that source until that source disables master
-   mode or the simulator exits
- */
-
-static t_stat sim_set_rem_master (int32 flag, CONST char *cptr)
-{
-t_stat stat = SCPE_OK;
-
-if (cptr && *cptr)
-    return SCPE_2MARG;
-
-if (sim_rem_active_number > 0) {
-    sim_printf ("Can't change Remote Console mode from Remote Console\n");
-    return SCPE_INVREM;
-    }
-
-if (sim_rem_con_tmxr.master || (!flag))         /* Remote Console Enabled? */
-    sim_rem_master_mode = flag;
-else {
-    sim_printf ("Can't enable Remote Console Master mode with Remote Console disabled\n");
-    return SCPE_INVREM;
-    }
-
-if (sim_rem_master_mode) {
-    t_stat stat_nomessage = 0;
-
-    sim_printf ("Command input starting on Master Remote Console Session\n");
-    stat = sim_run_boot_prep (0);
-    sim_rem_master_was_enabled = TRUE;
-    while (sim_rem_master_mode) {
-        sim_rem_single_mode[0] = FALSE;
-        sim_cancel (&sim_rem_con_unit[1]);
-        sim_activate (&sim_rem_con_unit[1], -1);
-        stat = run_cmd (RU_GO, "");
-        if (stat != SCPE_TTMO) {
-            stat_nomessage = stat & SCPE_NOMESSAGE;     /* extract possible message supression flag */
-            stat = _sim_rem_message ("RUN", stat);
-            }
-        if (stat == SCPE_EXIT)
-            sim_rem_master_mode = FALSE;
-        }
-    sim_rem_master_was_enabled = FALSE;
-    sim_rem_master_was_connected = FALSE;
-    if (sim_log_temp) {                                     /* If we setup a temporary log, clean it now  */
-        int32 save_quiet = sim_quiet;
-
-        sim_quiet = 1;
-        sim_set_logoff (0, NULL);
-        sim_quiet = save_quiet;
-        remove (sim_rem_con_temp_name);
-        sim_log_temp = FALSE;
-        }
-    stat |= stat_nomessage;
-    }
-else {
-    sim_rem_single_mode[0] = TRUE;                          /* Force remote session into single command mode */
-    }
-
-return stat;
 }
 
 /* Set keyboard map */
