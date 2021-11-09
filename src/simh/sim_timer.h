@@ -28,7 +28,6 @@
 #ifndef SIM_TIMER_H_
 # define SIM_TIMER_H_   0
 
-/* Pick up a struct timespec definition if it is available */
 # include <time.h>
 # include <sys/types.h>
 # include <pthread.h>
@@ -37,9 +36,15 @@
 # define SIM_TMAX        500                         /* max timer makeup */
 # define SIM_INITIAL_IPS 500000                      /* uncalibrated assumption */
 
-# define TIMER_DBG_IDLE  0x001                       /* Debug Flag for Idle Debugging */
-# define TIMER_DBG_QUEUE 0x002                       /* Debug Flag for Asynch Queue Debugging */
-# define TIMER_DBG_MUX   0x004                       /* Debug Flag for Asynch Queue Debugging */
+# ifndef PRIORITY_BELOW_NORMAL
+#  define PRIORITY_BELOW_NORMAL  -1
+# endif
+# ifndef PRIORITY_NORMAL
+#  define PRIORITY_NORMAL         0
+# endif
+# ifndef PRIORITY_ABOVE_NORMAL
+#  define PRIORITY_ABOVE_NORMAL   1
+# endif
 
 t_bool sim_timer_init (void);
 void sim_timespec_diff (struct timespec *diff, const struct timespec *min, struct timespec *sub);
@@ -62,16 +67,9 @@ t_stat sim_timer_activate_after (UNIT *uptr, uint32 usec_delay);
 int32 sim_timer_activate_time (UNIT *uptr);
 t_stat sim_register_clock_unit_tmr (UNIT *uptr, int32 tmr);
 double sim_timer_inst_per_sec (void);
-# define PRIORITY_BELOW_NORMAL  -1
-# define PRIORITY_NORMAL         0
-# define PRIORITY_ABOVE_NORMAL   1
 t_stat sim_os_set_thread_priority (int below_normal_above);
-
-extern t_bool sim_idle_enab;                        /* idle enabled flag */
-extern volatile t_bool sim_idle_wait;               /* idle waiting flag */
 extern t_bool sim_asynch_timer;
 extern DEVICE sim_timer_dev;
 extern UNIT * volatile sim_clock_cosched_queue[SIM_NTIMERS+1];
 extern const t_bool rtc_avail;
-
 #endif

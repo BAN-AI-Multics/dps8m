@@ -54,8 +54,6 @@
 
 uint32 sim_idle_ms_sleep (unsigned int msec);
 
-volatile t_bool sim_idle_wait = FALSE;              /* global flag */
-
 static int32 sim_calb_tmr = -1;                     /* the system calibrated timer */
 static int32 sim_calb_tmr_last = -1;                /* shadow value when at sim> prompt */
 static double sim_inst_per_sec_last = 0;            /* shadow value when at sim> prompt */
@@ -96,13 +94,6 @@ uint32 sim_idle_ms_sleep (unsigned int msec)
 {
 return sim_os_ms_sleep (msec);
 }
-
-/* Mark the need for the sim_os_set_thread_priority routine, */
-/* allowing the feature and/or platform dependent code to provide it */
-#define NEED_THREAD_PRIORITY
-
-/* If we've got pthreads support then use pthreads mechanisms */
-#undef NEED_THREAD_PRIORITY
 
 #if defined(_WIN32)
 /* On Windows there are several potentially disjoint threading APIs */
@@ -242,45 +233,6 @@ treq.tv_nsec = (milliseconds % MILLIS_PER_SEC) * NANOS_PER_MILLI;
 return sim_os_msec () - stime;
 }
 
-# if defined(NEED_THREAD_PRIORITY)
-#  undef NEED_THREAD_PRIORITY
-#  include <sys/time.h>
-#  include <sys/resource.h>
-
-t_stat sim_os_set_thread_priority (int below_normal_above)
-{
-if ((below_normal_above < -1) || (below_normal_above > 1))
-    return SCPE_ARG;
-
-errno = 0;
-switch (below_normal_above) {
-    case PRIORITY_BELOW_NORMAL:
-        if ((getpriority (PRIO_PROCESS, 0) <= 0) &&     /* at or above normal pri? */
-            (errno == 0))
-            setpriority (PRIO_PROCESS, 0, 10);
-        break;
-    case PRIORITY_NORMAL:
-        if (getpriority (PRIO_PROCESS, 0) != 0)         /* at or above normal pri? */
-            setpriority (PRIO_PROCESS, 0, 0);
-        break;
-    case PRIORITY_ABOVE_NORMAL:
-        if ((getpriority (PRIO_PROCESS, 0) <= 0) &&     /* at or above normal pri? */
-            (errno == 0))
-            setpriority (PRIO_PROCESS, 0, -10);
-        break;
-    }
-return SCPE_OK;
-}
-# endif  /* defined(NEED_THREAD_PRIORITY) */
-
-#endif
-
-/* If one hasn't been provided yet, then just stub it */
-#if defined(NEED_THREAD_PRIORITY)
-t_stat sim_os_set_thread_priority (int below_normal_above)
-{
-return SCPE_OK;
-}
 #endif
 
 /* diff = min - sub */
@@ -351,21 +303,15 @@ UNIT sim_throttle_unit;                                 /* one for throttle */
 t_stat sim_throt_svc (UNIT *uptr);
 t_stat sim_timer_tick_svc (UNIT *uptr);
 
-#define DBG_IDL       TIMER_DBG_IDLE        /* idling */
-#define DBG_QUE       TIMER_DBG_QUEUE       /* queue activities */
-#define DBG_MUX       TIMER_DBG_MUX         /* tmxr queue activities */
 #define DBG_TRC       0x008                 /* tracing */
 #define DBG_CAL       0x010                 /* calibration activities */
 #define DBG_TIM       0x020                 /* timer thread activities */
 #define DBG_ACK       0x080                 /* interrupt acknowledgement activities */
 DEBTAB sim_timer_debug[] = {
   {"TRACE",   DBG_TRC, "Trace routine calls"},
-  {"IDLE",    DBG_IDL, "Idling activities"},
-  {"QUEUE",   DBG_QUE, "Event queuing activities"},
   {"IACK",    DBG_ACK, "interrupt acknowledgement activities"},
   {"CALIB",   DBG_CAL, "Calibration activities"},
   {"TIME",    DBG_TIM, "Activation and scheduling activities"},
-  {"MUX",     DBG_MUX, "Tmxr scheduling activities"},
   {0}
 };
 
@@ -660,7 +606,6 @@ rtc_calib_tick_time[tmr] += rtc_clock_tick_size[tmr];
  * non-success status, while co-schedule activities might, so they are
  * queued to run from sim_process_event
  */
-sim_debug (DBG_QUE, &sim_timer_dev, "sim_timer_tick_svc - scheduling %s\n", sim_uname (sim_clock_unit[tmr]));
 if (sim_clock_unit[tmr]->action == NULL)
     return SCPE_IERR;
 stat = sim_clock_unit[tmr]->action (sim_clock_unit[tmr]);
@@ -682,7 +627,6 @@ if (stat == SCPE_OK) {
         sim_clock_cosched_queue[tmr] = cptr->next;
         cptr->next = NULL;
         cptr->cancel = NULL;
-        sim_debug (DBG_QUE, &sim_timer_dev, "sim_timer_tick_svc(tmr=%d) - coactivating %s\n", tmr, sim_uname (cptr));
         _sim_activate (cptr, 0);
         }
     if (sim_clock_cosched_queue[tmr] != QUEUE_LIST_END)
