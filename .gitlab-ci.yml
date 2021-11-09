@@ -2179,7 +2179,7 @@ Cppi Indent Check:
     - *scriptCommon
     - *scriptExtraInfo
     - ( make cppiscan 2>&1 | tee -i cppi.txt ) || true
-    - grep -v '\*\*\*' cppi.txt | wc -l | grep -q '^0$'
+    - bash -x -c '( grep -v "^LIBUV" cppi.txt 2> /dev/null | grep -v "Listing files" 2> /dev/null | grep -v "End of listing" 2> /dev/null | wc -l || printf "%s\n" 1 2> /dev/null ) | grep "^0$"'
   dependencies: []
   allow_failure: true
   artifacts:
