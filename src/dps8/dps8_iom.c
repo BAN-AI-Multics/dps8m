@@ -2126,7 +2126,7 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uin
 
   // tape_ioi_io.pl1  "If the initiate bit is set in the status, no data was
   //                   transferred (no tape movement occurred)."
-    p->initiate = false;
+  p->initiate = false;
 
   uint tally = p->DDCW_TALLY;
   uint daddr = p->DDCW_ADDR;
