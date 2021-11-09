@@ -20,7 +20,7 @@
 ###############################################################################
 
 ###############################################################################
-# Convenience target: Builds libuv from GitHub (release)
+# Convenience target: Builds libuv from source code (release)
 
 RELVER=v1.42.0
 VKEY=AEAD0A4B686767751A0E4AEF34A25FB128246514
@@ -28,10 +28,14 @@ RELNAM=libuv-$(RELVER).tar.gz
 RELSIG=$(RELNAM).sign
 LIBREL=https://dist.libuv.org/dist/$(RELVER)/$(RELNAM)
 SIGREL=https://dist.libuv.org/dist/$(RELVER)/$(RELSIG)
+LUVSUM=332408242
 
 .PHONY: libuvrel
 libuvrel:                                                                     \
     # libuvrel:    # Build a local libuv library (release)
+	@$(SETV); $(PRINTF) '%s\n' "$$($(GCWD) -P)" | $(GREP) -q " " &&           \
+        { $(PRINTF) '%s\n' "Error: Working directory contains spaces.";       \
+            exit 1; } || $(TRUE)
 	@$(SETV); ($(TEST) -d "libuv-local" && $(CD) "libuv-local" &&             \
         $(RMF) $(RELSIG) $(RELNAM) || $(TRUE))
 	@$(SETV); ($(TEST) -d "libuv-local" && $(RMF) -r "libuv-local" || $(TRUE))
@@ -49,12 +53,12 @@ libuvrel:                                                                     \
 	@$(PRINTF) '%s\n' "Verifying checksum ..."
 	@$(SETV); ($(CD) "libuv-local" && export CKSUM="$$($(CKSUM) $(RELNAM)     \
         2> /dev/null | $(CUT) -d \  -f 1 | $(HEAD) -n 1 | $(TR) -cd 0-9)" &&  \
-            $(TEST) $${CKSUM:?} -eq 332408242)
+            $(TEST) $${CKSUM:?} -eq $(LUVSUM))
 	@$(PRINTF) '%s\n' "Decompress archive ..."
 	@$(SETV); ($(CD) "libuv-local" && $(GZCAT) $(RELNAM) | $(TAR) xvf - )
 	@$(PRINTF) '%s\n' "Configure and build libuv ..."
 	@$(SETV); ($(CD) "libuv-local/libuv-$(RELVER)" && $(SHELL) autogen.sh &&  \
-      $(SHELL) configure $(LOCAL_CONFOPTS) --disable-shared --enable-static   \
+      $(SHELL) "configure" $(LOCAL_CONFOPTS) --disable-shared --enable-static \
         --disable-dependency-tracking --prefix="$$($(GCWD) -P)/../local" &&   \
             $(MAKE) $(MAKEFLAGS) && $(MAKE) install && $(MAKE) clean) &&      \
                 $(PRINTF) '%s\n' "*** Local libuv built successfully!"
@@ -69,6 +73,9 @@ LOCAL_CLONEOPTS?=--depth=1
 .PHONY: libuvdev
 libuvdev:                                                                     \
     # libuvdev:    # Build a local libuv library (develop)
+	@$(SETV); $(PRINTF) '%s\n' "$$($(GCWD) -P)" | $(GREP) -q " " &&           \
+        { $(PRINTF) '%s\n' "Error: Working directory contains spaces.";       \
+            exit 1; } || $(TRUE)
 	@$(SETV); ($(TEST) -d "libuv-local" && $(CD) "libuv-local" &&             \
         $(RMF) $(RELSIG) $(RELNAM) || $(TRUE))
 	@$(SETV); ($(TEST) -d "libuv-local" && $(RMF) -r "libuv-local" || $(TRUE))
@@ -78,10 +85,48 @@ libuvdev:                                                                     \
         $(GIT) clone $(LOCAL_CLONEOPTS) -b $(LIBUVBRN) $(LIBUVGIT))
 	@$(PRINTF) '%s\n' "Configure and build libuv ..."
 	@$(SETV); ($(CD) "libuv-local/libuv" && $(SHELL) autogen.sh &&            \
-      $(SHELL) configure $(LOCAL_CONFOPTS) --disable-shared --enable-static   \
+      $(SHELL) "configure" $(LOCAL_CONFOPTS) --disable-shared --enable-static \
         --disable-dependency-tracking --prefix="$$($(GCWD) -P)/../local" &&   \
             $(MAKE) $(MAKEFLAGS) && $(MAKE) install && $(MAKE) clean) &&      \
                 $(PRINTF) '%s\n' "*** Local libuv built successfully!"
+
+###############################################################################
+# Use the local libuv (possibly with pkgconfig libs and cflags) if available
+
+ifneq (,$(wildcard libuv-local/local/include/uv.h))
+  ifneq (,$(wildcard libuv-local/local/lib/libuv.a))
+    ifndef LOCAL_LIBUV
+      ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+        ifeq (,$(findstring libuv,$(MAKECMDGOALS)))
+          $(info LIBUV: Using libuv-local/local/lib/libuv.a)
+        endif
+      endif
+      ifneq (,$(wildcard libuv-local/local/lib/pkgconfig/libuv.pc))
+        Pklibs=$(shell exec 2> /dev/null; eval $$( $(TR) -d '"' <             \
+          libuv-local/local/lib/pkgconfig/libuv.pc | $(SED) 's/=/="/' |       \
+            $(SED) 's/: /="/' | $(GREP) '"' | $(SED) 's/$$/"/' |              \
+              $(SED) 's/\ \+"/"/g' | $(GREP) '=".*"$$' );                     \
+                $(PRINTF) '%s\n' $$Libs)
+        Pkcflags=$(shell exec 2> /dev/null; eval $$( $(TR) -d '"' <           \
+          libuv-local/local/lib/pkgconfig/libuv.pc | $(SED) 's/=/="/' |       \
+            $(SED) 's/: /="/' | $(GREP) '"' | $(SED) 's/$$/"/' |              \
+              $(SED) 's/\ \+"/"/g' | $(GREP) '=".*"$$' );                     \
+                $(PRINTF) '%s\n' $$Cflags)
+      endif
+      ifeq (,$(findstring uv,$(Pklibs)))
+        Pklibs=../../libuv-local/local/lib/libuv.a
+      endif
+      ifeq (,$(findstring -,$(Pkcflags)))
+        Pkcflags=-I../../libuv-local/local/include
+      endif
+      CFLAGS+=$(Pkcflags)
+      export CFLAGS
+      LIBUV=$(Pklibs)
+      export LIBUV
+      export LOCAL_LIBUV=1
+    endif
+  endif
+endif
 
 ###############################################################################
 
