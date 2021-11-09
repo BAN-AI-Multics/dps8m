@@ -28,10 +28,6 @@
 #ifndef SIM_FIO_H_
 # define SIM_FIO_H_     0
 
-# ifdef  __cplusplus
-extern "C" {
-# endif
-
 # define FLIP_SIZE        (1 << 16)               /* flip buf size */
 # define fxread(a,b,c,d)  sim_fread (a, b, c, d)
 # define fxwrite(a,b,c,d) sim_fwrite (a, b, c, d)
@@ -79,9 +75,5 @@ void sim_shmem_close (SHMEM *shmem);
 extern t_bool sim_taddr_64;         /* t_addr is > 32b and Large File Support available */
 extern t_bool sim_toffset_64;       /* Large File (>2GB) file I/O support */
 extern t_bool sim_end;              /* TRUE = little endian, FALSE = big endian */
-
-# ifdef  __cplusplus
-}
-# endif
 
 #endif

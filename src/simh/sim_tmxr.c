@@ -3035,11 +3035,7 @@ int32 i, len;
 
 buf[bufsize-1] = '\0';
 while (1) {                                         /* format passed string, args */
-#if defined(NO_vsnprintf)
-    len = vsprintf (buf, fmt, arglist);
-#else                                               /* !defined(NO_vsnprintf) */
     len = vsnprintf (buf, bufsize-1, fmt, arglist);
-#endif                                              /* NO_vsnprintf */
 
 /* If the formatted result didn't fit into the buffer, then grow the buffer and try again */
 

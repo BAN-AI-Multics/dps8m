@@ -51,11 +51,6 @@
 #   define HAVE_LINEHISTORY
 #  endif /* ifndef HAVE_LINEHISTORY */
 
-#  ifdef __cplusplus
-extern "C"
-{
-#  endif /* ifdef __cplusplus */
-
 #  include <stddef.h>
 
 #  ifdef LH_COMPLETION
@@ -91,10 +86,6 @@ void linenoisePrintKeyCodes(void);
 void linenoiseMaskModeEnable(void);
 void linenoiseMaskModeDisable(void);
 #  endif /* ifdef LH_MASKMODE */
-
-#  ifdef __cplusplus
-}
-#  endif /* ifdef __cplusplus */
 
 # endif /* if !defined(__MINGW32__)   \
            && !defined(__MINGW64__)   \

@@ -66,10 +66,6 @@
 #  include <process.h>
 # endif
 
-# ifdef  __cplusplus
-extern "C" {
-# endif
-
 /* avoid macro names collisions */
 # ifdef MAX
 #  undef MAX
@@ -134,34 +130,19 @@ typedef unsigned __int64        t_uint64;
 
 typedef t_int64         t_svalue;                       /* signed value */
 typedef t_uint64        t_value;                        /* value */
-
-# if defined (USE_INT64) && defined (USE_ADDR64)         /* 64b address */
-typedef t_uint64        t_addr;
-#  define T_ADDR_W        64
-#  define T_ADDR_FMT      LL_FMT
-# else                                                   /* 32b address */
 typedef uint32          t_addr;
-#  define T_ADDR_W        32
-#  define T_ADDR_FMT      ""
-# endif                                                  /* end 64b address */
+# define T_ADDR_W        32
+# define T_ADDR_FMT      ""
 
 # if defined (_WIN32)
 #  define vsnprintf _vsnprintf
 # endif
-# if defined( NO_vsnprintf)
-#  define STACKBUFSIZE 16384
-# else
-#  define STACKBUFSIZE 2048
-# endif
+# define STACKBUFSIZE 2048
 
 # if defined (_WIN32) /* Actually, a GCC issue */
 #  define LL_FMT "I64"
 # else
 #  define LL_FMT "ll"
-# endif
-
-# if defined (__linux) || defined (_AIX) || defined (__APPLE__)
-#  define HAVE_C99_STRFTIME 1
 # endif
 
 # if defined (_WIN32)
@@ -799,9 +780,5 @@ struct FILEREF {
 # define ASSURE(_Expression) while (!(_Expression)) {fprintf(stderr, "%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);  \
                                                     sim_printf("%s failed at %s line %d\n", #_Expression, __FILE__, __LINE__);       \
                                                     abort();}
-
-# ifdef  __cplusplus
-}
-# endif
 
 #endif

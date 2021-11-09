@@ -28,10 +28,6 @@
 #ifndef SIM_TIMER_H_
 # define SIM_TIMER_H_   0
 
-# ifdef  __cplusplus
-extern "C" {
-# endif
-
 /* Pick up a struct timespec definition if it is available */
 # include <time.h>
 # if defined(__struct_timespec_defined)
@@ -109,9 +105,5 @@ extern t_bool sim_asynch_timer;
 extern DEVICE sim_timer_dev;
 extern UNIT * volatile sim_clock_cosched_queue[SIM_NTIMERS+1];
 extern const t_bool rtc_avail;
-
-# ifdef  __cplusplus
-}
-# endif
 
 #endif

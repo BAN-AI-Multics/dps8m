@@ -29,10 +29,6 @@
 #ifndef SIM_DISK_H_
 # define SIM_DISK_H_    0
 
-# ifdef  __cplusplus
-extern "C" {
-# endif
-
 /* SIMH/Disk format */
 
 typedef uint32          t_seccnt;                       /* disk sector count */
@@ -88,9 +84,5 @@ t_offset sim_disk_size (UNIT *uptr);
 t_bool sim_disk_vhd_support (void);
 t_bool sim_disk_raw_support (void);
 void sim_disk_data_trace (UNIT *uptr, const uint8 *data, size_t lba, size_t len, const char* txt, int detail, uint32 reason);
-
-# ifdef  __cplusplus
-}
-# endif
 
 #endif

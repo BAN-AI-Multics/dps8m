@@ -28,10 +28,6 @@
 #ifndef SIM_SOCK_H_
 # define SIM_SOCK_H_    0
 
-# ifdef  __cplusplus
-extern "C" {
-# endif
-
 # if defined (_WIN32)                                    /* Windows */
 #  include <winsock2.h>
 
@@ -99,9 +95,5 @@ SOCKET sim_err_sock (SOCKET sock, const char *emsg);
 int sim_getnames_sock (SOCKET sock, char **socknamebuf, char **peernamebuf);
 void sim_init_sock (void);
 void sim_cleanup_sock (void);
-
-# ifdef  __cplusplus
-}
-# endif
 
 #endif

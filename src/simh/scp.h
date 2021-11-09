@@ -27,11 +27,7 @@
 */
 
 #ifndef SIM_SCP_H_
-# define SIM_SCP_H_     0
-
-# ifdef  __cplusplus
-extern "C" {
-# endif
+# define SIM_SCP_H_      0
 
 /* run_cmd parameters */
 
@@ -196,23 +192,8 @@ void sim_debug_bits_hdr (uint32 dbits, DEVICE* dptr, const char *header,
     BITFIELD* bitdefs, uint32 before, uint32 after, int terminate);
 void sim_debug_bits (uint32 dbits, DEVICE* dptr, BITFIELD* bitdefs,
     uint32 before, uint32 after, int terminate);
-# if defined(__cplusplus)
-#  ifdef CANT_USE_MACRO_VA_ARGS
-#   define _sim_debug sim_debug
-void sim_debug (uint32 dbits, void* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#  else
-void _sim_debug (uint32 dbits, void* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#   define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
-#  endif
-# else
-#  ifdef CANT_USE_MACRO_VA_ARGS
-#   define _sim_debug sim_debug
-void sim_debug (uint32 dbits, DEVICE* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#  else
 void _sim_debug (uint32 dbits, DEVICE* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
 #   define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
-#  endif
-# endif
 void fprint_stopped_gen (FILE *st, t_stat v, REG *pc, DEVICE *dptr);
 # define SCP_HELP_FLAT   (1u << 31)       /* Force flat help when prompting is not possible */
 # define SCP_HELP_ONECMD (1u << 30)       /* Display one topic, do not prompt */
@@ -681,9 +662,5 @@ sim_panel_set_debug_mode (PANEL *panel, int debug_bits);
 
 void
 sim_panel_flush_debug (PANEL *panel);
-
-# ifdef  __cplusplus
-}
-# endif
 
 #endif

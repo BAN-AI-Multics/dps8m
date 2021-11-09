@@ -33,10 +33,6 @@
 #ifndef SIM_TMXR_H_
 # define SIM_TMXR_H_    0
 
-# ifdef  __cplusplus
-extern "C" {
-# endif
-
 # ifndef SIMH_SERHANDLE_DEFINED
 #  define SIMH_SERHANDLE_DEFINED 0
 typedef struct SERPORT *SERHANDLE;
@@ -282,10 +278,6 @@ void _tmxr_debug (uint32 dbits, TMLN *lp, const char *msg, char *buf, int bufsiz
 #  define sim_clock_coschedule_abs tmxr_clock_coschedule_abs
 #  define sim_clock_coschedule_tmr tmxr_clock_coschedule_tmr
 #  define sim_clock_coschedule_tmr_abs tmxr_clock_coschedule_tmr_abs
-# endif
-
-# ifdef  __cplusplus
-}
 # endif
 
 #endif /* _SIM_TMXR_H_ */

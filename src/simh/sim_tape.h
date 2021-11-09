@@ -28,10 +28,6 @@
 #ifndef SIM_TAPE_H_
 # define SIM_TAPE_H_    0
 
-# ifdef  __cplusplus
-extern "C" {
-# endif
-
 /* SIMH/E11 tape format */
 
 typedef uint32          t_mtrlnt;                       /* magtape rec lnt */
@@ -194,9 +190,5 @@ t_stat sim_tape_set_capac (UNIT *uptr, int32 val, CONST char *cptr, void *desc);
 t_stat sim_tape_show_capac (FILE *st, UNIT *uptr, int32 val, CONST void *desc);
 t_stat sim_tape_set_dens (UNIT *uptr, int32 val, CONST char *cptr, void *desc);
 t_stat sim_tape_show_dens (FILE *st, UNIT *uptr, int32 val, CONST void *desc);
-
-# ifdef  __cplusplus
-}
-# endif
 
 #endif

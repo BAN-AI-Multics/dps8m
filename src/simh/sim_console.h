@@ -28,10 +28,6 @@
 #ifndef SIM_CONSOLE_H_
 # define SIM_CONSOLE_H_ 0
 
-# ifdef  __cplusplus
-extern "C" {
-# endif
-
 # define TTUF_V_MODE    (UNIT_V_UF + 0)
 # define TTUF_W_MODE    2
 # define TTUF_MODE_7B   0
@@ -119,9 +115,5 @@ extern int32 sim_int_char;                                  /* interrupt charact
 extern int32 sim_brk_char;                                  /* break character */
 extern int32 sim_tt_pchar;                                  /* printable character mask */
 extern int32 sim_del_char;                                  /* delete character */
-
-# ifdef  __cplusplus
-}
-# endif
 
 #endif

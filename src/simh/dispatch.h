@@ -31,11 +31,6 @@
 
 # include <stdint.h>
 
-# ifdef __cplusplus
-extern "C"
-{
-# endif /* ifdef __cplusplus */
-
 # if defined( __INTEL_COMPILER )       || \
      defined( __INTEL_CLANG_COMPILER ) || \
      defined( __INTEL_LLVM_COMPILER )  || \
@@ -74,9 +69,5 @@ void agner_mkl_patch();
               defined( __INTEL_LLVM_COMPILER )  ||
               defined( INTEL_MKL_VERSION )      ||
               defined( __INTEL_MKL__ ) */
-
-# ifdef __cplusplus
-}
-# endif /* ifdef __cplusplus */
 
 #endif /* ifndef __DISPATCH_H_ */

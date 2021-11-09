@@ -40,7 +40,7 @@
 # define _POSIX_C_SOURCE 200809L
 #endif /* ifndef _POSIX_C_SOURCE */
 
-#if  !defined( __MINGW32__ )   \
+#if !defined( __MINGW32__ )    \
   && !defined( CROSS_MINGW32 ) \
   && !defined( CROSS_MINGW64 ) \
   && !defined( __MINGW64__ )   \
@@ -1823,7 +1823,7 @@ pstrlen(const char *s)
   return ( len );
 }
 
-#endif /* if  !defined( __MINGW32__ )
+#endif /* if !defined( __MINGW32__ )
            && !defined( CROSS_MINGW32 )
            && !defined( CROSS_MINGW64 )
            && !defined( __MINGW64__ )

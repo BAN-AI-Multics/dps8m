@@ -25,10 +25,6 @@
    in this Software without prior written authorization from Robert M Supnik.
 */
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
-
 #include "sim_sock.h"
 #include <signal.h>
 #include <stdio.h>
@@ -1167,6 +1163,3 @@ shutdown(sock, SD_BOTH);
 closesocket (sock);
 }
 
-#ifdef  __cplusplus
-}
-#endif

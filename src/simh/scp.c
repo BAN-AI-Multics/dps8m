@@ -322,11 +322,7 @@ static SCHTAB sim_staba;                                /* Memory search specifi
 static UNIT sim_step_unit = { UDATA (&step_svc, 0, 0)  };
 static UNIT sim_expect_unit = { UDATA (&expect_svc, 0, 0)  };
 static const char *sim_si64 = "64b data";
-#if defined USE_ADDR64
-static const char *sim_sa64 = "64b addresses";
-#else
 static const char *sim_sa64 = "32b addresses";
-#endif
 const char *sim_savename = sim_name;      /* simulator Name used in SAVE/RESTORE images */
 
 /* Tables and strings */
@@ -2842,24 +2838,11 @@ for (; *ip && (op < oend); ) {
                         ap = rbuf;
                         }
                     else if (!strcmp ("LTIME", gbuf)) {
-#if defined(HAVE_C99_STRFTIME)
                         strftime (rbuf, sizeof(rbuf), "%r", tmnow);
-#else
-                        strftime (rbuf, sizeof(rbuf), "%p", tmnow);
-                        if (rbuf[0])
-                            strftime (rbuf, sizeof(rbuf), "%I:%M:%S %p", tmnow);
-                        else
-                            strftime (rbuf, sizeof(rbuf), "%H:%M:%S", tmnow);
-#endif
                         ap = rbuf;
                         }
                     else if (!strcmp ("CTIME", gbuf)) {
-#if defined(HAVE_C99_STRFTIME)
                         strftime (rbuf, sizeof(rbuf), "%c", tmnow);
-#else
-                        strcpy (rbuf, ctime(&now));
-                        rbuf[strlen (rbuf)-1] = '\0';    /* remove trailing \n */
-#endif
                         ap = rbuf;
                         }
                     /* Separate Date/Time info */
@@ -9711,11 +9694,7 @@ va_list arglist;
 
 while (1) {                                         /* format passed string, args */
     va_start (arglist, fmt);
-#if defined(NO_vsnprintf)
-    len = vsprintf (buf, fmt, arglist);
-#else                                               /* !defined(NO_vsnprintf) */
     len = vsnprintf (buf, bufsize-1, fmt, arglist);
-#endif                                              /* NO_vsnprintf */
     va_end (arglist);
 
 /* If the formatted result didn't fit into the buffer, then grow the buffer and try again */
@@ -9769,11 +9748,7 @@ t_bool inhibit_message = (!sim_show_message || (stat & SCPE_NOMESSAGE));
 
 while (1) {                                         /* format passed string, args */
     va_start (arglist, fmt);
-#if defined(NO_vsnprintf)
-    len = vsprintf (buf, fmt, arglist);
-#else                                               /* !defined(NO_vsnprintf) */
     len = vsnprintf (buf, bufsize-1, fmt, arglist);
-#endif                                              /* NO_vsnprintf */
     va_end (arglist);
 
 /* If the formatted result didn't fit into the buffer, then grow the buffer and try again */
@@ -9834,11 +9809,7 @@ return stat | SCPE_NOMESSAGE;
    Callers should be calling sim_debug() which is a macro
    defined in scp.h which evaluates the action condition before
    incurring call overhead. */
-#if defined(__cplusplus)
-void _sim_debug (uint32 dbits, void* vdptr, const char* fmt, ...)
-#else
 void _sim_debug (uint32 dbits, DEVICE* vdptr, const char* fmt, ...)
-#endif
 {
 DEVICE *dptr = (DEVICE *)vdptr;
 if (sim_deb && dptr && (dbits == 0 || (dptr->dctrl & dbits))) {
@@ -9852,11 +9823,7 @@ if (sim_deb && dptr && (dbits == 0 || (dptr->dctrl & dbits))) {
     buf[bufsize-1] = '\0';
     while (1) {                                         /* format passed string, args */
         va_start (arglist, fmt);
-#if defined(NO_vsnprintf)
-        len = vsprintf (buf, fmt, arglist);
-#else                                                   /* !defined(NO_vsnprintf) */
         len = vsnprintf (buf, bufsize-1, fmt, arglist);
-#endif                                                  /* NO_vsnprintf */
         va_end (arglist);
 
 /* If the formatted result didn't fit into the buffer, then grow the buffer and try again */
@@ -9921,27 +9888,7 @@ void _sim_err (const char* fmt, ...)
     buf[bufsize-1] = '\0';
     while (1) {                                         /* format passed string, args */
         va_start (arglist, fmt);
-#if defined(NO_vsnprintf)
-# if defined(HAS_vsprintf_void)
-
-/* Note, this could blow beyond the buffer, and we couldn't tell */
-/* That is a limitation of the C runtime library available on this platform */
-
-        vsprintf (buf, fmt, arglist);
-        for (len = 0; len < bufsize-1; len++)
-            if (buf[len] == 0) break;
-# else
-        len = vsprintf (buf, fmt, arglist);
-# endif                                                  /* HAS_vsprintf_void */
-#else                                                   /* NO_vsnprintf */
-# if defined(HAS_vsnprintf_void)
-        vsnprintf (buf, bufsize-1, fmt, arglist);
-        for (len = 0; len < bufsize-1; len++)
-            if (buf[len] == 0) break;
-# else
         len = vsnprintf (buf, bufsize-1, fmt, arglist);
-# endif                                                  /* HAS_vsnprintf_void */
-#endif                                                  /* NO_vsnprintf */
         va_end (arglist);
 
 /* If the formatted result didn't fit into the buffer, then grow the buffer and try again */
