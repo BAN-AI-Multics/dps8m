@@ -54,51 +54,6 @@
 
 uint32 sim_idle_ms_sleep (unsigned int msec);
 
-//#define MS_MIN_GRANULARITY 20   /* Uncomment to simulate 20ms host tick size.*/
-                                  /* some Solaris and BSD hosts come this way  */
-
-#if defined(MS_MIN_GRANULARITY) && (MS_MIN_GRANULARITY != 1)
-uint32 real_sim_idle_ms_sleep (unsigned int msec);
-uint32 real_sim_os_msec (void);
-uint32 real_sim_os_ms_sleep (unsigned int msec);
-static uint32 real_sim_os_sleep_min_ms = 0;
-static uint32 real_sim_os_sleep_inc_ms = 0;
-
-uint32 sim_idle_ms_sleep (unsigned int msec)
-{
-uint32 real_start = real_sim_os_msec ();
-uint32 start = (real_start / MS_MIN_GRANULARITY) * MS_MIN_GRANULARITY;
-uint32 tick_left;
-
-if (msec == 0)
-    return 0;
-if (real_start == start)
-    tick_left = 0;
-else
-    tick_left = MS_MIN_GRANULARITY - (real_start - start);
-if (msec <= tick_left)
-    real_sim_idle_ms_sleep (tick_left);
-else
-    real_sim_idle_ms_sleep (((msec + MS_MIN_GRANULARITY - 1) / MS_MIN_GRANULARITY) * MS_MIN_GRANULARITY);
-
-return (sim_os_msec () - start);
-}
-
-uint32 sim_os_msec (void)
-{
-return (real_sim_os_msec ()/MS_MIN_GRANULARITY)*MS_MIN_GRANULARITY;
-}
-
-uint32 sim_os_ms_sleep (unsigned int msec)
-{
-msec = MS_MIN_GRANULARITY*((msec+MS_MIN_GRANULARITY-1)/MS_MIN_GRANULARITY);
-
-return real_sim_os_ms_sleep (msec);
-}
-
-#endif /* defined(MS_MIN_GRANULARITY) && (MS_MIN_GRANULARITY != 1) */
-
-t_bool sim_idle_enab = FALSE;                       /* global flag */
 volatile t_bool sim_idle_wait = FALSE;              /* global flag */
 
 static int32 sim_calb_tmr = -1;                     /* the system calibrated timer */
@@ -110,32 +65,19 @@ static uint32 sim_os_sleep_min_ms = 0;
 static uint32 sim_os_sleep_inc_ms = 0;
 static uint32 sim_os_clock_resoluton_ms = 0;
 static uint32 sim_os_tick_hz = 0;
-static uint32 sim_idle_stable = SIM_IDLE_STDFLT;
 static uint32 sim_idle_calib_pct = 0;
 static UNIT *sim_clock_unit[SIM_NTIMERS+1] = {NULL};
 UNIT * volatile sim_clock_cosched_queue[SIM_NTIMERS+1] = {NULL};
 static int32 sim_cosched_interval[SIM_NTIMERS+1];
 static t_bool sim_catchup_ticks = FALSE;
 
-#define sleep1Samples       100
+#define sleep1Samples       10
 
 static uint32 _compute_minimum_sleep (void)
 {
 uint32 i, tot, tim;
 
 sim_os_set_thread_priority (PRIORITY_ABOVE_NORMAL);
-#if defined(MS_MIN_GRANULARITY) && (MS_MIN_GRANULARITY != 1)
-real_sim_idle_ms_sleep (1);         /* Start sampling on a tick boundary */
-for (i = 0, tot = 0; i < sleep1Samples; i++)
-    tot += real_sim_idle_ms_sleep (1);
-tim = tot / sleep1Samples;          /* Truncated average */
-real_sim_os_sleep_min_ms = tim;
-real_sim_idle_ms_sleep (1);         /* Start sampling on a tick boundary */
-for (i = 0, tot = 0; i < sleep1Samples; i++)
-    tot += real_sim_idle_ms_sleep (real_sim_os_sleep_min_ms + 1);
-tim = tot / sleep1Samples;          /* Truncated average */
-real_sim_os_sleep_inc_ms = tim - real_sim_os_sleep_min_ms;
-#endif /* defined(MS_MIN_GRANULARITY) && (MS_MIN_GRANULARITY != 1) */
 sim_idle_ms_sleep (1);              /* Start sampling on a tick boundary */
 for (i = 0, tot = 0; i < sleep1Samples; i++)
     tot += sim_idle_ms_sleep (1);
@@ -149,14 +91,6 @@ sim_os_sleep_inc_ms = tim - sim_os_sleep_min_ms;
 sim_os_set_thread_priority (PRIORITY_NORMAL);
 return sim_os_sleep_min_ms;
 }
-
-#if defined(MS_MIN_GRANULARITY) && (MS_MIN_GRANULARITY != 1)
-
-# define sim_idle_ms_sleep   real_sim_idle_ms_sleep
-# define sim_os_msec         real_sim_os_msec
-# define sim_os_ms_sleep     real_sim_os_ms_sleep
-
-#endif /* defined(MS_MIN_GRANULARITY) && (MS_MIN_GRANULARITY != 1) */
 
 uint32 sim_idle_ms_sleep (unsigned int msec)
 {
@@ -348,13 +282,6 @@ t_stat sim_os_set_thread_priority (int below_normal_above)
 return SCPE_OK;
 }
 #endif
-
-#if defined(MS_MIN_GRANULARITY) && (MS_MIN_GRANULARITY != 1)
-/* Make sure to use the substitute routines */
-# undef sim_idle_ms_sleep
-# undef sim_os_msec
-# undef sim_os_ms_sleep
-#endif /* defined(MS_MIN_GRANULARITY) && (MS_MIN_GRANULARITY != 1) */
 
 /* diff = min - sub */
 void
@@ -552,7 +479,6 @@ for (tmr=0; tmr<=SIM_NTIMERS; tmr++) {
 SIM_INTERNAL_UNIT.flags = UNIT_DIS | UNIT_IDLE;
 sim_register_internal_device (&sim_timer_dev);
 sim_register_clock_unit_tmr (&SIM_INTERNAL_UNIT, SIM_INTERNAL_CLK);
-sim_idle_enab = FALSE;                                  /* init idle off */
 sim_idle_rate_ms = sim_os_ms_sleep_init ();             /* get OS timer rate */
 
 clock_last = clock_start = sim_os_msec ();
@@ -577,18 +503,7 @@ int tmr, clocks;
 struct timespec now;
 time_t time_t_now;
 int32 calb_tmr = (sim_calb_tmr == -1) ? sim_calb_tmr_last : sim_calb_tmr;
-double inst_per_sec = (sim_calb_tmr == -1) ? sim_inst_per_sec_last : sim_timer_inst_per_sec ();
 
-fprintf (st, "Minimum Host Sleep Time:       %lu ms (%luHz)\n", (unsigned long)sim_os_sleep_min_ms, (unsigned long)sim_os_tick_hz);
-if (sim_os_sleep_min_ms != sim_os_sleep_inc_ms)
-    fprintf (st, "Minimum Host Sleep Incr Time:  %lu ms\n", (unsigned long)sim_os_sleep_inc_ms);
-fprintf (st, "Host Clock Resolution:         %lu ms\n", (unsigned long)sim_os_clock_resoluton_ms);
-if (sim_idle_enab)
-    fprintf (st, "Time before Idling starts:     %lu seconds\n", (unsigned long)sim_idle_stable);
-fprintf (st, "Execution Rate:                %.0f instructions/sec\n", inst_per_sec);
-fprintf (st, "Calibrated Timer:              %s\n", (calb_tmr == -1) ? "Undetermined" :
-                                                    ((calb_tmr == SIM_NTIMERS) ? "Internal Timer" :
-                                                    (sim_clock_unit[calb_tmr] ? sim_uname(sim_clock_unit[calb_tmr]) : "")));
 fprintf (st, "\n");
 for (tmr=clocks=0; tmr<=SIM_NTIMERS; ++tmr) {
     if (0 == rtc_initd[tmr])
