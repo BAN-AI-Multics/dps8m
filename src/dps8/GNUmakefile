@@ -586,8 +586,8 @@ kit dist:
           $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
            $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v 'docs/manual'   |  \
             $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
-             $(GREP) -v '^src/dps8/listings/' )                               \
-                              'src/dps8/ver.h~' )
+             $(GREP) -v '^src/dps8/listings/'                              |  \
+               $(GREP) -v '^src/Makefile.dev') 'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n'                                                         \
        "COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
 	@$(SETV); $(COMPRESS) "../../$(KITNAME).$(TARXT)"
