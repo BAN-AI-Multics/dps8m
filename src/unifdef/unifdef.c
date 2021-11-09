@@ -608,8 +608,8 @@ synopsis(FILE *fp)
 {
   fprintf(
     fp,
-    "Usage:	unifdef [-bBcdehKkmnsStV] [-x{012}] [-Mext] [-opath] \\\n"
-    "     	[-[i]Dsym[=val]] [-[i]Usym] [-fpath] ... [file] ...\n");
+    "Usage:\tunifdef [-bBcdehKkmnsStV] [-x{012}] [-Mext] [-opath] \\\n"
+    "     \t[-[i]Dsym[=val]] [-[i]Usym] [-fpath] ... [file] ...\n");
 }
 
 static void

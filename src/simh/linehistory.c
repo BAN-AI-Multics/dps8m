@@ -1379,10 +1379,10 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
     case ESC: /* Escape Sequence */
 
       /*
-	   * Read the next two bytes representing the escape sequence.
+       * Read the next two bytes representing the escape sequence.
        * Use two calls to handle slow terminals returning the two
        * chars at different times.
-	   */
+       */
 
       if (read(l.ifd, seq, 1) == -1)
       {
