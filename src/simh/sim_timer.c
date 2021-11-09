@@ -450,7 +450,6 @@ struct timespec now;
 time_t time_t_now;
 int32 calb_tmr = (sim_calb_tmr == -1) ? sim_calb_tmr_last : sim_calb_tmr;
 
-fprintf (st, "\n");
 for (tmr=clocks=0; tmr<=SIM_NTIMERS; ++tmr) {
     if (0 == rtc_initd[tmr])
         continue;
