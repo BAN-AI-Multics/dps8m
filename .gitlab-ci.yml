@@ -2246,8 +2246,8 @@ Cppi Indent Check:
     - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptExtraInfo
-    - make cppiscan 2>&1 | tee -i cppi.txt
-    - grep -v '\*\*\*' cppi.txt | grep -v '\*\*\*' | wc -l | grep -q '^0$'
+    - ( make cppiscan 2>&1 | tee -i cppi.txt ) || true
+    - grep -v '\*\*\*' cppi.txt | wc -l | grep -q '^0$'
   dependencies: []
   allow_failure: true
   artifacts:
