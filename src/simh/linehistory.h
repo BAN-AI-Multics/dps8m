@@ -35,49 +35,48 @@
 
 #ifndef _POSIX_C_SOURCE
 # define _POSIX_C_SOURCE 200809L
-#endif
+#endif /* ifndef _POSIX_C_SOURCE */
 
 #ifndef __LINENOISE_H
 # define __LINENOISE_H
 
-# if !defined(__MINGW32__)   && \
-     !defined(CROSS_MINGW32) && \
-     !defined(CROSS_MINGW64) && \
-     !defined(__MINGW64__)   && \
-     !defined(_MSC_VER)      && \
-     !defined(_MSC_BUILD)
+# if !defined( __MINGW32__ )   \
+  && !defined( CROSS_MINGW32 ) \
+  && !defined( CROSS_MINGW64 ) \
+  && !defined( __MINGW64__ )   \
+  && !defined( _MSC_VER )      \
+  && !defined( _MSC_BUILD )
 
 #  ifndef HAVE_LINEHISTORY
 #   define HAVE_LINEHISTORY
 #  endif /* ifndef HAVE_LINEHISTORY */
 
 #  ifdef __cplusplus
-extern "C" {
-#  endif
+extern "C"
+{
+#  endif /* ifdef __cplusplus */
 
 #  include <stddef.h>
- 
-#  ifdef LH_COMPLETION
 
-typedef struct linenoiseCompletions {
+#  ifdef LH_COMPLETION
+typedef struct linenoiseCompletions
+{
   size_t len;
   char **cvec;
 } linenoiseCompletions;
 
-typedef void(linenoiseCompletionCallback)(const char *, linenoiseCompletions *);
+typedef void (linenoiseCompletionCallback) (const char *,
+                                            linenoiseCompletions *);
 void linenoiseSetCompletionCallback(linenoiseCompletionCallback *);
 void linenoiseAddCompletion(linenoiseCompletions *, const char *);
-
-#  endif
+#  endif /* ifdef LH_COMPLETION */
 
 #  ifdef LH_HINTS
-
-typedef void(linenoiseFreeHintsCallback)(void *);
-typedef char*(linenoiseHintsCallback)(const char *, int *color, int *bold);
+typedef void (linenoiseFreeHintsCallback) (void *);
+typedef char *(linenoiseHintsCallback)(const char *, int *color, int *bold);
 void linenoiseSetHintsCallback(linenoiseHintsCallback *);
 void linenoiseSetFreeHintsCallback(linenoiseFreeHintsCallback *);
-
-#  endif
+#  endif /* ifdef LH_HINTS */
 
 char *linenoise(const char *prompt);
 void linenoiseFree(void *ptr);
@@ -91,17 +90,17 @@ void linenoisePrintKeyCodes(void);
 #  ifdef LH_MASKMODE
 void linenoiseMaskModeEnable(void);
 void linenoiseMaskModeDisable(void);
-#  endif
+#  endif /* ifdef LH_MASKMODE */
 
 #  ifdef __cplusplus
 }
-#  endif
+#  endif /* ifdef __cplusplus */
 
-# endif /* if !defined(__MINGW32__)   &&
-              !defined(__MINGW64__)   &&
-              !defined(CROSS_MINGW32) &&
-              !defined(CROSS_MINGW64) &&
-              !defined(_MSC_VER)      &&
+# endif /* if !defined(__MINGW32__)   \
+           && !defined(__MINGW64__)   \
+           && !defined(CROSS_MINGW32) \
+           && !defined(CROSS_MINGW64) \
+           && !defined(_MSC_VER)      \
               !defined(_MSC_BUILD) */
 
 #endif /* if __LINENOISE_H */
