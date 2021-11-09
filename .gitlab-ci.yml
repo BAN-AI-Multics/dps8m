@@ -159,40 +159,6 @@
 
 ############################################################################
 
-.scriptBuildlibuvCLANGlatest: &scriptBuildlibuvCLANGlatest |
-    # *scriptBuildlibuvCLANGlatest - Build static libuv from git with latest-installed clang ...
-    echo -e "section_start:`date +%s`:buildlibuvclanglatest_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with latest clang ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
-    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
-    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
-    test -z "${SKIP_UPDATE}" && CC=clang-latest ./configure --disable-shared --enable-static --disable-dependency-tracking
-    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
-    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
-    echo -e "section_end:`date +%s`:buildlibuvclanglatest_section\r\e[0K" || true
-
-############################################################################
-
-.scriptBuildlibuvCLANG: &scriptBuildlibuvCLANG |
-    # *scriptBuildlibuvCLANG - Build static libuv from git with default clang ...
-    echo -e "section_start:`date +%s`:buildlibuvclangd_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with clang ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
-    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
-    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    test -z "S{SKIP_UPDATE}" && echo "Configuring libuv ..."
-    test -z "${SKIP_UPDATE}" && CC=clang ./configure --disable-shared --enable-static --disable-dependency-tracking
-    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
-    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
-    echo -e "section_end:`date +%s`:buildlibuvclangd_section\r\e[0K" || true
-
-############################################################################
-
 .scriptBuildlibuvFCygwin64: &scriptBuildlibuvFCygwin64 |
     # *scriptBuildlibuvFCygwin64 - Build static libuv from git with Fedora Cygwin64 cross-compiler ...
     echo -e "section_start:`date +%s`:buildlibuvfedoracygwin64_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with Fedora Cygwin64 cross-compiler ...\033[0m" || true
@@ -207,40 +173,6 @@
     test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
     test -z "${SKIP_UPDATE}" && cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && cygwin64-make install && cd ..
     echo -e "section_end:`date +%s`:buildlibuvfedoracygwin64_section\r\e[0K" || true
-
-############################################################################
-
-.scriptBuildlibuvGCClatest: &scriptBuildlibuvGCClatest |
-    # *scriptBuildlibuvGCClatest - Build static libuv from git with latest-installed gcc ...
-    echo -e "section_start:`date +%s`:buildlibuvgcclatest_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with latest gcc ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
-    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    tezt -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
-    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
-    test -z "${SKIP_UPDATE}" && CC=gcc-latest ./configure --disable-shared --enable-static --disable-dependency-tracking
-    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
-    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
-    echo -e "section_end:`date +%s`:buildlibuvgcclatest_section\r\e[0K" || true
-
-############################################################################
-
-.scriptBuildlibuvGCC: &scriptBuildlibuvGCC |
-    # *scriptBuildlibuvGCC - Build static libuv from git with default gcc ...
-    echo -e "section_start:`date +%s`:buildlibuvgccd_section[collapsed=true]\r\e[0K\033[0;36mBuilding static libuv with gcc ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Getting libuv from GitHub ..."
-    test -z "${SKIP_UPDATE}" && wget -nv https://github.com/libuv/libuv/archive/v1.x.zip
-    test -z "${SKIP_UPDATE}" && echo "Preparing libuv ..."
-    test -z "${SKIP_UPDATE}" && unzip -xa v1.x.zip && cd libuv-1.x && sh ./autogen.sh
-    test -z "${SKIP_UPDATE}" && echo "Configuring libuv ..."
-    test -z "${SKIP_UPDATE}" && CC=gcc ./configure --disable-shared --enable-static --disable-dependency-tracking
-    test -z "${SKIP_UPDATE}" && echo "Compiling libuv ..."
-    test -z "${SKIP_UPDATE}" && make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && make install && cd ..
-    echo -e "section_end:`date +%s`:buildlibuvgccd_section\r\e[0K" || true
 
 ############################################################################
 
