@@ -1562,8 +1562,6 @@ t_stat scu_smic (uint scu_unit_idx, uint UNUSED cpu_unit_udx,
     return SCPE_OK;
   }
 
-
-
 // system controller and the function to be performed as follows:
 //
 //  Effective  Function

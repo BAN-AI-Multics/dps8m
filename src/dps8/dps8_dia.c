@@ -273,35 +273,33 @@ static t_stat detach (UNIT * uptr)
     return SCPE_OK;
   }
 
-
-
 DEVICE dia_dev = {
     "DIA",           /* name */
-    dia_unit,          /* units */
-    NULL,             /* registers */
-    dia_mod,           /* modifiers */
-    N_DIA_UNITS,       /* #units */
-    10,               /* address radix */
-    31,               /* address width */
-    1,                /* address increment */
-    8,                /* data radix */
-    9,                /* data width */
-    NULL,             /* examine routine */
-    NULL,             /* deposit routine */
-    reset,         /* reset routine */
-    NULL,             /* boot routine */
-    attach,           /* attach routine */
-    detach,           /* detach routine */
-    NULL,             /* context */
-    DEV_DEBUG,        /* flags */
-    0,                /* debug control flags */
-    dia_DT,            /* debug flag names */
-    NULL,             /* memory size change */
-    NULL,             /* logical name */
-    NULL,             // attach help
-    NULL,             // help
-    NULL,             // help context
-    NULL,             // device description
+    dia_unit,        /* units */
+    NULL,            /* registers */
+    dia_mod,         /* modifiers */
+    N_DIA_UNITS,     /* #units */
+    10,              /* address radix */
+    31,              /* address width */
+    1,               /* address increment */
+    8,               /* data radix */
+    9,               /* data width */
+    NULL,            /* examine routine */
+    NULL,            /* deposit routine */
+    reset,           /* reset routine */
+    NULL,            /* boot routine */
+    attach,          /* attach routine */
+    detach,          /* detach routine */
+    NULL,            /* context */
+    DEV_DEBUG,       /* flags */
+    0,               /* debug control flags */
+    dia_DT,          /* debug flag names */
+    NULL,            /* memory size change */
+    NULL,            /* logical name */
+    NULL,            // attach help
+    NULL,            // help
+    NULL,            // help context
+    NULL,            // device description
     NULL
 };
 

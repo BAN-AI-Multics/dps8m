@@ -1706,12 +1706,10 @@ static void parseNumericOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
 #endif
 
 // Causes:
-//DBG(662088814)> CPU0 FAULT: Fault 10(012), sub 4294967296(040000000000), dfc N, 'parseNumericOperandDescriptor N=1 S=0|1|2'^M
-//DBG(662088814)> CPU0 FAULT: 00257:004574 bound_process_env_:command_query_+04574^M
-//DBG(662088814)> CPU0 FAULT:       664 end print_question;^M
-//DBG(662088814)> CPU0 FAULT: 00257:004574 4 000100301500 (BTD PR0|100) 000100 301(1) 0 0 0 00^M
-
-
+//DBG(662088814)> CPU0 FAULT: Fault 10(012), sub 4294967296(040000000000), dfc N, 'parseNumericOperandDescriptor N=1 S=0|1|2'
+//DBG(662088814)> CPU0 FAULT: 00257:004574 bound_process_env_:command_query_+04574
+//DBG(662088814)> CPU0 FAULT:       664 end print_question;
+//DBG(662088814)> CPU0 FAULT: 00257:004574 4 000100301500 (BTD PR0|100) 000100 301(1) 0 0 0 00
 
     uint effBITNO = 0;
     uint effCHAR = 0;
@@ -2288,8 +2286,6 @@ sim_printf ("abd addend 0%o %d.\n", addend, addend);
 
 if (current_running_cpu_idx)
 sim_printf ("abd sum 0%o %d.\n", sum, sum);
-
-
 
     // Handle over/under flow
     while (sum < 0)
@@ -6876,9 +6872,6 @@ void mvne (void)
 //000143  aa  6 00134 00 0012   desc9a    pr6|92,10           vcpu
 //
 // The desc8ls is sign-extending the -3.
-
-
-
 
     // initialize mop flags. Probably best done elsewhere.
     e->mopES = false; // End Suppression flag
@@ -12447,8 +12440,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 # endif
     }
 
-
-
     int scale;
 
     uint8_t out[256];
@@ -12458,7 +12449,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
     //bool ovr = (r->digits-sf) > adjLen;     // is integer portion too large to fit?
     bool ovr = r2->digits > adjLen;          // is integer portion too large to fit?
     bool trunc = r->digits > r2->digits;     // did we loose something along the way?
-
 
     // now let's check for overflows
     if (!ovr && !trunc)

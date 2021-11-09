@@ -207,8 +207,6 @@ typedef volatile struct
 //  to have the device handler pack and unpack.]
 //
 
-
-
 // LPW addressing mode
 
     //enum { LPW_REAL, LPW_EXT, LPW_PAGED, LPW_SEG } lpwAddrMode;

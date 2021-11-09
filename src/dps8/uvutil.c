@@ -187,8 +187,6 @@ void accessStartWriteStr (uv_tcp_t * client, char * data)
     accessStartWrite (client, data, (ssize_t) strlen (data));
   }
 
-
-
 static void accessLogon (uv_access * access, unsigned char * buf, ssize_t nread)
   {
     for (ssize_t nchar = 0; nchar < nread; nchar ++)
@@ -316,8 +314,6 @@ static void accessCloseCallback (uv_handle_t * stream)
     //access->client = NULL;
   }
 
-
-
 void accessCloseConnection (uv_stream_t* stream)
   {
     uv_access * access = (uv_access *) stream->data;
@@ -332,8 +328,6 @@ void accessCloseConnection (uv_stream_t* stream)
       uv_close ((uv_handle_t *) stream, accessCloseCallback);
     access->client = NULL;
   }
-
-
 
 static void accessProcessInput (uv_access * access, unsigned char * buf,
                                  ssize_t nread)

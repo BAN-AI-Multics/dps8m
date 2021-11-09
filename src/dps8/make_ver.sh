@@ -933,25 +933,6 @@ VER_H_PROM_PATCH_VER_FMT=$(printf '%3.3d\n' "${VER_H_PROM_PATCH_VER:-0}")
 VER_H_PROM_OTHER_VER_FMT=$(printf '%3.3d\n' "${VER_H_PROM_OTHER_VER:-0}")
 debug_print "End of version splitting"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ###############################################################################
 # Construct PROM string VER_H_PROM_VER_TEXT
 

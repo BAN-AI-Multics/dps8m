@@ -1002,8 +1002,6 @@ typedef struct
     word1 FIF;     // 29    FIF Fault occured during instruction fetch
     word6 CT_HOLD; // 30-35 CT HOLD contents of the "remember modifier" register
 
-
-
     /* word 6 */
     word36 IWB;
 

@@ -270,9 +270,6 @@ DEVICE skc_dev = {
     NULL
 };
 
-
-
-
 void sk_init(void)
   {
     // sets unit_state to unit_idle

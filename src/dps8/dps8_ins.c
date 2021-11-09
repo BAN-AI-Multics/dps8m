@@ -873,8 +873,6 @@ static bool _nodudl[] = {
 // No DU
 // No DL
 
-
-
 // (NO_CI | NO_SC | NO_SCR)
 static bool _nocss[] = {
     // Tm = 0 (register) R
@@ -1713,8 +1711,6 @@ restart_1:
     cpu.rY = ci->address;
 # endif
 #endif
-
-
 
     CPT (cpt2U, 15); // instruction processing
 ///
@@ -8198,8 +8194,6 @@ elapsedtime ();
 // 1 -> C(A) 25
 // 000 -> C(A) 26,28
 // C(Processor speed) -> C (A) 29,32
-
-
 
 // C(Processor number switches) -> C(A) 33,35
 

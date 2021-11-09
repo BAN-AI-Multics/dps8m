@@ -208,8 +208,6 @@ struct card_cache_node
       CARD_CACHE_ENTRY *next_entry;
   };
 
-
-
 typedef struct 
   {
     char device_name[MAX_DEV_NAME_LEN];
@@ -228,7 +226,6 @@ static char pun_path_prefix[PATH_MAX-63];   // The -63 is to leave room for file
 
 /*
  * pun_init()
- *
  */
 
 // Once-only initialization

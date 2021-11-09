@@ -111,10 +111,10 @@
  ******************************************************************************
  */
 
-# define LL_SORT(list, cmp)                                                                     \
+# define LL_SORT(list, cmp)                                                                    \
     LL_SORT2(list, cmp, next)
 
-# define LL_SORT2(list, cmp, next)                                                              \
+# define LL_SORT2(list, cmp, next)                                                             \
 do {                                                                                           \
   LDECLTYPE(list) _ls_p;                                                                       \
   LDECLTYPE(list) _ls_q;                                                                       \
@@ -174,10 +174,10 @@ do {                                                                            
 } while (0)
 
 
-# define DL_SORT(list, cmp)                                                                     \
+# define DL_SORT(list, cmp)                                                                    \
     DL_SORT2(list, cmp, prev, next)
 
-# define DL_SORT2(list, cmp, prev, next)                                                        \
+# define DL_SORT2(list, cmp, prev, next)                                                       \
 do {                                                                                           \
   LDECLTYPE(list) _ls_p;                                                                       \
   LDECLTYPE(list) _ls_q;                                                                       \
@@ -236,10 +236,10 @@ do {                                                                            
   }                                                                                            \
 } while (0)
 
-# define CDL_SORT(list, cmp)                                                                    \
+# define CDL_SORT(list, cmp)                                                                   \
     CDL_SORT2(list, cmp, prev, next)
 
-# define CDL_SORT2(list, cmp, prev, next)                                                       \
+# define CDL_SORT2(list, cmp, prev, next)                                                      \
 do {                                                                                           \
   LDECLTYPE(list) _ls_p;                                                                       \
   LDECLTYPE(list) _ls_q;                                                                       \
@@ -318,19 +318,19 @@ do {                                                                            
  ******************************************************************************
  */
 
-# define LL_PREPEND(head,add)                                                                   \
+# define LL_PREPEND(head,add)                                                                  \
     LL_PREPEND2(head,add,next)
 
-# define LL_PREPEND2(head,add,next)                                                             \
+# define LL_PREPEND2(head,add,next)                                                            \
 do {                                                                                           \
   (add)->next = head;                                                                          \
   head = add;                                                                                  \
 } while (0)
 
-# define LL_CONCAT(head1,head2)                                                                 \
+# define LL_CONCAT(head1,head2)                                                                \
     LL_CONCAT2(head1,head2,next)
 
-# define LL_CONCAT2(head1,head2,next)                                                           \
+# define LL_CONCAT2(head1,head2,next)                                                          \
 do {                                                                                           \
   LDECLTYPE(head1) _tmp;                                                                       \
   if (head1) {                                                                                 \
@@ -342,10 +342,10 @@ do {                                                                            
   }                                                                                            \
 } while (0)
 
-# define LL_APPEND(head,add)                                                                    \
+# define LL_APPEND(head,add)                                                                   \
     LL_APPEND2(head,add,next)
 
-# define LL_APPEND2(head,add,next)                                                              \
+# define LL_APPEND2(head,add,next)                                                             \
 do {                                                                                           \
   LDECLTYPE(head) _tmp;                                                                        \
   (add)->next=NULL;                                                                            \
@@ -358,10 +358,10 @@ do {                                                                            
   }                                                                                            \
 } while (0)
 
-# define LL_DELETE(head,del)                                                                    \
+# define LL_DELETE(head,del)                                                                   \
     LL_DELETE2(head,del,next)
 
-# define LL_DELETE2(head,del,next)                                                              \
+# define LL_DELETE2(head,del,next)                                                             \
 do {                                                                                           \
   LDECLTYPE(head) _tmp;                                                                        \
   if ((head) == (del)) {                                                                       \
@@ -382,10 +382,10 @@ do {                                                                            
  * for LL_APPEND and LL_DELETE
  */
 
-# define LL_APPEND_VS2008(head,add)                                                             \
+# define LL_APPEND_VS2008(head,add)                                                            \
     LL_APPEND2_VS2008(head,add,next)
 
-# define LL_APPEND2_VS2008(head,add,next)                                                       \
+# define LL_APPEND2_VS2008(head,add,next)                                                      \
 do {                                                                                           \
   if (head) {                                                                                  \
     (add)->next = head;     /* use add->next as a temp variable */                             \
@@ -397,10 +397,10 @@ do {                                                                            
   (add)->next=NULL;                                                                            \
 } while (0)
 
-# define LL_DELETE_VS2008(head,del)                                                             \
+# define LL_DELETE_VS2008(head,del)                                                            \
     LL_DELETE2_VS2008(head,del,next)
 
-# define LL_DELETE2_VS2008(head,del,next)                                                       \
+# define LL_DELETE2_VS2008(head,del,next)                                                      \
 do {                                                                                           \
   if ((head) == (del)) {                                                                       \
     (head)=(head)->next;                                                                       \
@@ -436,39 +436,39 @@ do {                                                                            
  * replacements
  */
 
-# define LL_FOREACH(head,el)                                                                    \
+# define LL_FOREACH(head,el)                                                                   \
     LL_FOREACH2(head,el,next)
 
-# define LL_FOREACH2(head,el,next)                                                              \
+# define LL_FOREACH2(head,el,next)                                                             \
     for(el=head;el;el=(el)->next)
 
-# define LL_FOREACH_SAFE(head,el,tmp)                                                           \
+# define LL_FOREACH_SAFE(head,el,tmp)                                                          \
     LL_FOREACH_SAFE2(head,el,tmp,next)
 
-# define LL_FOREACH_SAFE2(head,el,tmp,next)                                                     \
+# define LL_FOREACH_SAFE2(head,el,tmp,next)                                                    \
   for((el)=(head);(el) && (tmp = (el)->next, 1); (el) = tmp)
 
-# define LL_SEARCH_SCALAR(head,out,field,val)                                                   \
+# define LL_SEARCH_SCALAR(head,out,field,val)                                                  \
     LL_SEARCH_SCALAR2(head,out,field,val,next)
 
-# define LL_SEARCH_SCALAR2(head,out,field,val,next)                                             \
+# define LL_SEARCH_SCALAR2(head,out,field,val,next)                                            \
 do {                                                                                           \
     LL_FOREACH2(head,out,next) {                                                               \
       if ((out)->field == (val)) break;                                                        \
     }                                                                                          \
 } while(0)
 
-# define LL_SEARCH(head,out,elt,cmp)                                                            \
+# define LL_SEARCH(head,out,elt,cmp)                                                           \
     LL_SEARCH2(head,out,elt,cmp,next)
 
-# define LL_SEARCH2(head,out,elt,cmp,next)                                                      \
+# define LL_SEARCH2(head,out,elt,cmp,next)                                                     \
 do {                                                                                           \
     LL_FOREACH2(head,out,next) {                                                               \
       if ((cmp(out,elt))==0) break;                                                            \
     }                                                                                          \
 } while(0)
 
-# define LL_REPLACE_ELEM(head, el, add)                                                         \
+# define LL_REPLACE_ELEM(head, el, add)                                                        \
 do {                                                                                           \
  LDECLTYPE(head) _tmp;                                                                         \
  assert(head != NULL);                                                                         \
@@ -488,7 +488,7 @@ do {                                                                            
  }                                                                                             \
 } while (0)
 
-# define LL_PREPEND_ELEM(head, el, add)                                                         \
+# define LL_PREPEND_ELEM(head, el, add)                                                        \
 do {                                                                                           \
  LDECLTYPE(head) _tmp;                                                                         \
  assert(head != NULL);                                                                         \
@@ -515,10 +515,10 @@ do {                                                                            
  ******************************************************************************
  */
 
-# define DL_PREPEND(head,add)                                                                   \
+# define DL_PREPEND(head,add)                                                                  \
     DL_PREPEND2(head,add,prev,next)
 
-# define DL_PREPEND2(head,add,prev,next)                                                        \
+# define DL_PREPEND2(head,add,prev,next)                                                       \
 do {                                                                                           \
  (add)->next = head;                                                                           \
  if (head) {                                                                                   \
@@ -530,10 +530,10 @@ do {                                                                            
  (head) = (add);                                                                               \
 } while (0)
 
-# define DL_APPEND(head,add)                                                                    \
+# define DL_APPEND(head,add)                                                                   \
     DL_APPEND2(head,add,prev,next)
 
-# define DL_APPEND2(head,add,prev,next)                                                         \
+# define DL_APPEND2(head,add,prev,next)                                                        \
 do {                                                                                           \
   if (head) {                                                                                  \
       (add)->prev = (head)->prev;                                                              \
@@ -547,10 +547,10 @@ do {                                                                            
   }                                                                                            \
 } while (0)
 
-# define DL_CONCAT(head1,head2)                                                                 \
+# define DL_CONCAT(head1,head2)                                                                \
     DL_CONCAT2(head1,head2,prev,next)
 
-# define DL_CONCAT2(head1,head2,prev,next)                                                      \
+# define DL_CONCAT2(head1,head2,prev,next)                                                     \
 do {                                                                                           \
   LDECLTYPE(head1) _tmp;                                                                       \
   if (head2) {                                                                                 \
@@ -565,10 +565,10 @@ do {                                                                            
   }                                                                                            \
 } while (0)
 
-# define DL_DELETE(head,del)                                                                    \
+# define DL_DELETE(head,del)                                                                   \
     DL_DELETE2(head,del,prev,next)
 
-# define DL_DELETE2(head,del,prev,next)                                                         \
+# define DL_DELETE2(head,del,prev,next)                                                        \
 do {                                                                                           \
   assert((del)->prev != NULL);                                                                 \
   if ((del)->prev == (del)) {                                                                  \
@@ -587,10 +587,10 @@ do {                                                                            
 } while (0)
 
 
-# define DL_FOREACH(head,el)                                                                    \
+# define DL_FOREACH(head,el)                                                                   \
     DL_FOREACH2(head,el,next)
 
-# define DL_FOREACH2(head,el,next)                                                              \
+# define DL_FOREACH2(head,el,next)                                                             \
     for(el=head;el;el=(el)->next)
 
 /*
@@ -598,10 +598,10 @@ do {                                                                            
  * the elements during iteration
  */
 
-# define DL_FOREACH_SAFE(head,el,tmp)                                                           \
+# define DL_FOREACH_SAFE(head,el,tmp)                                                          \
     DL_FOREACH_SAFE2(head,el,tmp,next)
 
-# define DL_FOREACH_SAFE2(head,el,tmp,next)                                                     \
+# define DL_FOREACH_SAFE2(head,el,tmp,next)                                                    \
   for((el)=(head);(el) && (tmp = (el)->next, 1); (el) = tmp)
 
 /*
@@ -614,7 +614,7 @@ do {                                                                            
 # define DL_SEARCH_SCALAR2 LL_SEARCH_SCALAR2
 # define DL_SEARCH2 LL_SEARCH2
 
-# define DL_REPLACE_ELEM(head, el, add)                                                         \
+# define DL_REPLACE_ELEM(head, el, add)                                                        \
 do {                                                                                           \
  assert(head != NULL);                                                                         \
  assert(el != NULL);                                                                           \
@@ -640,7 +640,7 @@ do {                                                                            
  }                                                                                             \
 } while (0)
 
-# define DL_PREPEND_ELEM(head, el, add)                                                         \
+# define DL_PREPEND_ELEM(head, el, add)                                                        \
 do {                                                                                           \
  assert(head != NULL);                                                                         \
  assert(el != NULL);                                                                           \
@@ -662,10 +662,10 @@ do {                                                                            
  ******************************************************************************
  */
 
-# define CDL_PREPEND(head,add)                                                                  \
+# define CDL_PREPEND(head,add)                                                                 \
     CDL_PREPEND2(head,add,prev,next)
 
-# define CDL_PREPEND2(head,add,prev,next)                                                       \
+# define CDL_PREPEND2(head,add,prev,next)                                                      \
 do {                                                                                           \
  if (head) {                                                                                   \
    (add)->prev = (head)->prev;                                                                 \
@@ -679,10 +679,10 @@ do {                                                                            
 (head)=(add);                                                                                  \
 } while (0)
 
-# define CDL_DELETE(head,del)                                                                   \
+# define CDL_DELETE(head,del)                                                                  \
     CDL_DELETE2(head,del,prev,next)
 
-# define CDL_DELETE2(head,del,prev,next)                                                        \
+# define CDL_DELETE2(head,del,prev,next)                                                       \
 do {                                                                                           \
   if ( ((head)==(del)) && ((head)->next == (head))) {                                          \
       (head) = 0L;                                                                             \
@@ -693,41 +693,41 @@ do {                                                                            
   }                                                                                            \
 } while (0)
 
-# define CDL_FOREACH(head,el)                                                                   \
+# define CDL_FOREACH(head,el)                                                                  \
     CDL_FOREACH2(head,el,next)
 
-# define CDL_FOREACH2(head,el,next)                                                             \
+# define CDL_FOREACH2(head,el,next)                                                            \
     for(el=head;el;el=((el)->next==head ? 0L : (el)->next))
 
-# define CDL_FOREACH_SAFE(head,el,tmp1,tmp2)                                                    \
+# define CDL_FOREACH_SAFE(head,el,tmp1,tmp2)                                                   \
     CDL_FOREACH_SAFE2(head,el,tmp1,tmp2,prev,next)
 
-# define CDL_FOREACH_SAFE2(head,el,tmp1,tmp2,prev,next)                                         \
+# define CDL_FOREACH_SAFE2(head,el,tmp1,tmp2,prev,next)                                        \
   for((el)=(head), ((tmp1)=(head)?((head)->prev):NULL);                                        \
       (el) && ((tmp2)=(el)->next, 1);                                                          \
       ((el) = (((el)==(tmp1)) ? 0L : (tmp2))))
 
-# define CDL_SEARCH_SCALAR(head,out,field,val)                                                  \
+# define CDL_SEARCH_SCALAR(head,out,field,val)                                                 \
     CDL_SEARCH_SCALAR2(head,out,field,val,next)
 
-# define CDL_SEARCH_SCALAR2(head,out,field,val,next)                                            \
+# define CDL_SEARCH_SCALAR2(head,out,field,val,next)                                           \
 do {                                                                                           \
     CDL_FOREACH2(head,out,next) {                                                              \
       if ((out)->field == (val)) break;                                                        \
     }                                                                                          \
 } while(0)
 
-# define CDL_SEARCH(head,out,elt,cmp)                                                           \
+# define CDL_SEARCH(head,out,elt,cmp)                                                          \
     CDL_SEARCH2(head,out,elt,cmp,next)
 
-# define CDL_SEARCH2(head,out,elt,cmp,next)                                                     \
+# define CDL_SEARCH2(head,out,elt,cmp,next)                                                    \
 do {                                                                                           \
     CDL_FOREACH2(head,out,next) {                                                              \
       if ((cmp(out,elt))==0) break;                                                            \
     }                                                                                          \
 } while(0)
 
-# define CDL_REPLACE_ELEM(head, el, add)                                                        \
+# define CDL_REPLACE_ELEM(head, el, add)                                                       \
 do {                                                                                           \
  assert(head != NULL);                                                                         \
  assert(el != NULL);                                                                           \
@@ -747,7 +747,7 @@ do {                                                                            
  }                                                                                             \
 } while (0)
 
-# define CDL_PREPEND_ELEM(head, el, add)                                                        \
+# define CDL_PREPEND_ELEM(head, el, add)                                                       \
 do {                                                                                           \
  assert(head != NULL);                                                                         \
  assert(el != NULL);                                                                           \

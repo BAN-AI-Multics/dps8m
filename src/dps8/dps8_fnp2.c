@@ -62,8 +62,6 @@
 //      if (fnpData.ibm3270ctlr[ASSUME0].sending_stn_in_buffer)
 //        send_stn_in_buffer ();
 
-
-
 #define ASSUME0 0
 
 #include <stdio.h>
@@ -857,8 +855,6 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                     // of characters all of which were echoed ...,
                     // except for perhaps the last ... ."
                     linep->input_break = false;
-
-
 
                     // MTB418 pg 15:
                     // "This determination is made by the ''input processor''

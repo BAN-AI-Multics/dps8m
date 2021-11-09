@@ -634,8 +634,6 @@ enum {
 # define SC_I_PMASK(v) SCF (v, cpu.cu.IR, I_PMASK);
 # define SC_I_TRUNC(v) SCF (v, cpu.cu.IR, I_TRUNC);
 
-
-
 /////////////////////////////////////
 //
 //  floating-point constants
@@ -645,7 +643,6 @@ enum {
 # define FLOAT72MASK     01777777777777777777777LLU   ///< use to extract mastissa from double precision C(EAQ)
 # define FLOAT72SIGN     (1LLU << 63)                 ///< mantissa sign mask for full precision C(EAQ)
 // XXX beware the 72's are not what they seem!
-
 
 /////////////////////////////////////
 //
@@ -707,13 +704,10 @@ typedef enum _fault _fault;
     //flt_ipr_ill_dig,    // An illegal decimal digit or sign has been detected by the decimal unit.
     //flt_ipr_ill_proc,   // An illegal procedure other than the four above has been encountered.
 
-
     // FAULT_PAR
 
     //proc_paru,  // A parity error has been detected in the upper 36 bits of data. (Yeah, right)
     //proc_parl,  // A parity error has been detected in the lower 36 bits of data. (Yeah, right)
-
-
 
     // FAULT_ONC
 

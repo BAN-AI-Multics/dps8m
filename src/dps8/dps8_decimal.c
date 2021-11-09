@@ -277,8 +277,6 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
     return bcd;
 } // decBCDFromNumber
 
-
-
 static unsigned char *getBCD(uint8_t bcd [256], decNumber *a)
 {
     memset(bcd, 0, sizeof(bcd));

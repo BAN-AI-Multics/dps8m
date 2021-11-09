@@ -1492,8 +1492,6 @@ static t_stat cpu_dep (t_value val, t_addr addr, UNUSED UNIT * uptr,
     return SCPE_OK;
   }
 
-
-
 /*
  * register stuff ...
  */
@@ -3749,8 +3747,6 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx)
     return 0;
   }
 #endif
-
-
 
 /*
  * instruction fetcher ...

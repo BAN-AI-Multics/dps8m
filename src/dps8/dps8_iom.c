@@ -204,8 +204,6 @@
 //   Tape Reset Device Status
 //   ctrl == 0 in chan 10 (12) DCW
 
-
-
 // Bootload tape read
 //
 // CIOC 7999826
@@ -402,15 +400,6 @@
 //     ctrl             0 (terminate)
 //     chancmd          0 (record)
 
-
-
-
-
-
-
-
-
-
 //
 //  T&D Read block 3
 //    Connect Channel LPW 006312040001 (case c)
@@ -444,10 +433,6 @@
 //        tally       0000
 //        addr      010000
 //
-//
-
-
-
 
 // Table 3.2.1 Updating of LPW address and tally and indication of PTRO and TRO
 //
@@ -474,8 +459,6 @@
 // If case a. is used with the connect channels, a "System Fault: Tally
 // Control Error, Connect Channel" will be generated. Case c. will be
 // used in the bootload program.
-
-
 
 
 // LPW bits
@@ -618,9 +601,6 @@ enum config_sw_model_t
 
 // Boot device: CARD/TAPE;
 enum config_sw_bootlood_device_e { CONFIG_SW_BLCT_CARD, CONFIG_SW_BLCT_TAPE };
-
-
-
 
 typedef struct
   {
@@ -1786,8 +1766,6 @@ static uint mbxLoc (uint iom_unit_idx, uint chan)
     return mbx;
   }
 
-
-
 /*
  * status_service ()
  *
@@ -2930,8 +2908,6 @@ int iom_list_service (uint iom_unit_idx, uint chan,
       }
 
 
-
-
     // Not connect channel
 
     // LPW 21 (NC), 22 (TAL) is {00, 01, 1x}?
@@ -3055,7 +3031,6 @@ A:;
 //       TDCW calls for both.
 //  and
 //   (d) an auxiliary PTW in not being used.
-
 
 
 //   (a) the DCW list is already paged   --  LPW PAGED: 3b, 4

@@ -1004,8 +1004,6 @@ startCA:;
                                indword, cpu.TPR.CA);
                   }
 
-
-
                 // readOperand and writeOperand will not use cpu.TPR.CA; they
                 // will use the saved address, size, offset and data.
                 cpu.TPR.CA = cpu.ou.character_address;

@@ -69,9 +69,6 @@
 // and
 //   PRT202/300
 
-
-
-
 #define N_PRT_UNITS 1 // default
 
 static t_stat prt_reset (DEVICE * dptr);

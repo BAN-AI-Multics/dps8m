@@ -4235,10 +4235,8 @@ static void dps8_init (void) {
     }
   }
 
-
   strncpy (system_state->stateHdr, STATE_HDR, sizeof (system_state->stateHdr));
   system_state->stateVer = STATE_VER;
-
   strncpy (system_state->commit_id, VER_H_GIT_HASH, sizeof (system_state->commit_id));
 
   systabInit ();
@@ -4292,9 +4290,6 @@ static void dps8_init (void) {
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
 }
 
-
-
-
 #ifdef TESTING
 static struct pr_table
   {
@@ -4333,12 +4328,10 @@ static struct pr_table
     {0,     0}
   };
 
-
 # ifndef SCUMEM
 static int getAddress(int segno, int offset)
 {
     // XXX Do we need to 1st check SDWAM for segment entry?
-
 
     // get address of in-core segment descriptor word from DSBR
     sdw0_s *s = fetchSDW ((word15) segno);
@@ -4605,7 +4598,6 @@ static t_stat sys_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
   }
 
 
-
 static MTAB sys_mod[] =
   {
     {
@@ -4640,7 +4632,6 @@ static MTAB sys_mod[] =
     },
     MTAB_eol
   };
-
 
 
 static t_stat sys_reset (UNUSED DEVICE  * dptr)

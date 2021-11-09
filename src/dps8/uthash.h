@@ -50,13 +50,13 @@
 # endif
 
 # ifdef NO_DECLTYPE
-#  define DECLTYPE_ASSIGN(dst,src)                                                 \
+#  define DECLTYPE_ASSIGN(dst,src)                                               \
 do {                                                                             \
   char **_da_dst = (char**)(&(dst));                                             \
   *_da_dst = (char*)(src);                                                       \
 } while(0)
 # else
-#  define DECLTYPE_ASSIGN(dst,src)                                                 \
+#  define DECLTYPE_ASSIGN(dst,src)                                               \
 do {                                                                             \
   (dst) = DECLTYPE(dst)(src);                                                    \
 } while(0)
@@ -94,14 +94,14 @@ typedef unsigned char uint8_t;
 # endif
 
 /* initial number of buckets */
-# define HASH_INITIAL_NUM_BUCKETS 32      /* initial number of buckets        */
-# define HASH_INITIAL_NUM_BUCKETS_LOG2 5  /* lg2 of initial number of buckets */
-# define HASH_BKT_CAPACITY_THRESH 10      /* expand when bucket count reaches */
+# define HASH_INITIAL_NUM_BUCKETS 32       /* initial number of buckets        */
+# define HASH_INITIAL_NUM_BUCKETS_LOG2 5   /* lg2 of initial number of buckets */
+# define HASH_BKT_CAPACITY_THRESH 10       /* expand when bucket count reaches */
 
 /* calculate the element whose hash handle address is hhe */
 # define ELMT_FROM_HH(tbl,hhp) ((void*)(((char*)(hhp)) - ((tbl)->hho)))
 
-# define HASH_FIND(hh,head,keyptr,keylen,out)                                     \
+# define HASH_FIND(hh,head,keyptr,keylen,out)                                    \
 do {                                                                             \
   unsigned _hf_bkt,_hf_hashv;                                                    \
   out=NULL;                                                                      \
@@ -117,7 +117,7 @@ do {                                                                            
 # ifdef HASH_BLOOM
 #  define HASH_BLOOM_BITLEN (1ULL << HASH_BLOOM)
 #  define HASH_BLOOM_BYTELEN (HASH_BLOOM_BITLEN/8) + ((HASH_BLOOM_BITLEN%8) ? 1:0)
-#  define HASH_BLOOM_MAKE(tbl)                                                     \
+#  define HASH_BLOOM_MAKE(tbl)                                                   \
 do {                                                                             \
   (tbl)->bloom_nbits = HASH_BLOOM;                                               \
   (tbl)->bloom_bv = (uint8_t*)uthash_malloc(HASH_BLOOM_BYTELEN);                 \
@@ -126,7 +126,7 @@ do {                                                                            
   (tbl)->bloom_sig = HASH_BLOOM_SIGNATURE;                                       \
 } while (0)
 
-#  define HASH_BLOOM_FREE(tbl)                                                     \
+#  define HASH_BLOOM_FREE(tbl)                                                   \
 do {                                                                             \
   uthash_free((tbl)->bloom_bv, HASH_BLOOM_BYTELEN);                              \
 } while (0)
@@ -134,10 +134,10 @@ do {                                                                            
 #  define HASH_BLOOM_BITSET(bv,idx) (bv[(idx)/8] |= (1U << ((idx)%8)))
 #  define HASH_BLOOM_BITTEST(bv,idx) (bv[(idx)/8] & (1U << ((idx)%8)))
 
-#  define HASH_BLOOM_ADD(tbl,hashv)                                                \
+#  define HASH_BLOOM_ADD(tbl,hashv)                                              \
   HASH_BLOOM_BITSET((tbl)->bloom_bv, (hashv & (uint32_t)((1ULL << (tbl)->bloom_nbits) - 1)))
 
-#  define HASH_BLOOM_TEST(tbl,hashv)                                               \
+#  define HASH_BLOOM_TEST(tbl,hashv)                                             \
   HASH_BLOOM_BITTEST((tbl)->bloom_bv, (hashv & (uint32_t)((1ULL << (tbl)->bloom_nbits) - 1)))
 
 # else
@@ -148,7 +148,7 @@ do {                                                                            
 #  define HASH_BLOOM_BYTELEN 0
 # endif
 
-# define HASH_MAKE_TABLE(hh,head)                                                 \
+# define HASH_MAKE_TABLE(hh,head)                                                \
 do {                                                                             \
   (head)->hh.tbl = (UT_hash_table*)uthash_malloc(                                \
                   sizeof(UT_hash_table));                                        \
@@ -167,10 +167,10 @@ do {                                                                            
   (head)->hh.tbl->signature = HASH_SIGNATURE;                                    \
 } while(0)
 
-# define HASH_ADD(hh,head,fieldname,keylen_in,add)                                \
+# define HASH_ADD(hh,head,fieldname,keylen_in,add)                               \
         HASH_ADD_KEYPTR(hh,head,&((add)->fieldname),keylen_in,add)
 
-# define HASH_REPLACE(hh,head,fieldname,keylen_in,add,replaced)                   \
+# define HASH_REPLACE(hh,head,fieldname,keylen_in,add,replaced)                  \
 do {                                                                             \
   replaced=NULL;                                                                 \
   HASH_FIND(hh,head,&((add)->fieldname),keylen_in,replaced);                     \
@@ -180,7 +180,7 @@ do {                                                                            
   HASH_ADD(hh,head,fieldname,keylen_in,add);                                     \
 } while(0)
 
-# define HASH_ADD_KEYPTR(hh,head,keyptr,keylen_in,add)                            \
+# define HASH_ADD_KEYPTR(hh,head,keyptr,keylen_in,add)                           \
 do {                                                                             \
  unsigned _ha_bkt;                                                               \
  (add)->hh.next = NULL;                                                          \
@@ -205,7 +205,7 @@ do {                                                                            
  HASH_FSCK(hh,head);                                                             \
 } while(0)
 
-# define HASH_TO_BKT( hashv, num_bkts, bkt )                                      \
+# define HASH_TO_BKT( hashv, num_bkts, bkt )                                     \
 do {                                                                             \
   bkt = ((hashv) & ((num_bkts) - 1));                                            \
 } while(0)
@@ -224,7 +224,7 @@ do {                                                                            
   * scratch pointer rather than through the repointed (users) symbol.
   */
 
-# define HASH_DELETE(hh,head,delptr)                                              \
+# define HASH_DELETE(hh,head,delptr)                                             \
 do {                                                                             \
     unsigned _hd_bkt;                                                            \
     struct UT_hash_handle *_hd_hh_del;                                           \
@@ -296,7 +296,7 @@ do {                                                                            
 
 # ifdef HASH_DEBUG
 #  define HASH_OOPS(...) do { fprintf(stderr,__VA_ARGS__); exit(-1); } while (0)
-#  define HASH_FSCK(hh,head)                                                       \
+#  define HASH_FSCK(hh,head)                                                     \
 do {                                                                             \
     unsigned _bkt_i;                                                             \
     unsigned _count, _bkt_count;                                                 \
@@ -361,7 +361,7 @@ do {                                                                            
   */
 
 # ifdef HASH_EMIT_KEYS
-#  define HASH_EMIT_KEY(hh,head,keyptr,fieldlen)                                   \
+#  define HASH_EMIT_KEY(hh,head,keyptr,fieldlen)                                 \
 do {                                                                             \
     unsigned _klen = fieldlen;                                                   \
     write(HASH_EMIT_KEYS, &_klen, sizeof(_klen));                                \
@@ -387,7 +387,7 @@ do {                                                                            
   * used in Perl prior to v5.6
   */
 
-# define HASH_BER(key,keylen,num_bkts,hashv,bkt)                                  \
+# define HASH_BER(key,keylen,num_bkts,hashv,bkt)                                 \
 do {                                                                             \
   unsigned _hb_keylen=keylen;                                                    \
   char *_hb_key=(char*)(key);                                                    \
@@ -402,7 +402,7 @@ do {                                                                            
   * http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
   */
 
-# define HASH_SAX(key,keylen,num_bkts,hashv,bkt)                                  \
+# define HASH_SAX(key,keylen,num_bkts,hashv,bkt)                                 \
 do {                                                                             \
   unsigned _sx_i;                                                                \
   char *_hs_key=(char*)(key);                                                    \
@@ -412,7 +412,7 @@ do {                                                                            
   bkt = hashv & (num_bkts-1);                                                    \
 } while (0)
 
-# define HASH_FNV(key,keylen,num_bkts,hashv,bkt)                                  \
+# define HASH_FNV(key,keylen,num_bkts,hashv,bkt)                                 \
 do {                                                                             \
   unsigned _fn_i;                                                                \
   char *_hf_key=(char*)(key);                                                    \
@@ -422,7 +422,7 @@ do {                                                                            
   bkt = hashv & (num_bkts-1);                                                    \
 } while(0)
 
-# define HASH_OAT(key,keylen,num_bkts,hashv,bkt)                                  \
+# define HASH_OAT(key,keylen,num_bkts,hashv,bkt)                                 \
 do {                                                                             \
   unsigned _ho_i;                                                                \
   char *_ho_key=(char*)(key);                                                    \
@@ -438,7 +438,7 @@ do {                                                                            
   bkt = hashv & (num_bkts-1);                                                    \
 } while(0)
 
-# define HASH_JEN_MIX(a,b,c)                                                      \
+# define HASH_JEN_MIX(a,b,c)                                                     \
 do {                                                                             \
   a -= b; a -= c; a ^= ( c >> 13 );                                              \
   b -= c; b -= a; b ^= ( a << 8 );                                               \
@@ -451,7 +451,7 @@ do {                                                                            
   c -= a; c -= b; c ^= ( b >> 15 );                                              \
 } while (0)
 
-# define HASH_JEN(key,keylen,num_bkts,hashv,bkt)                                  \
+# define HASH_JEN(key,keylen,num_bkts,hashv,bkt)                                 \
 do {                                                                             \
   unsigned _hj_i,_hj_j,_hj_k;                                                    \
   unsigned char *_hj_key=(unsigned char*)(key);                                  \
@@ -503,10 +503,10 @@ do {                                                                            
 # endif
 
 # if !defined (get16bits)
-#  define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8)             \
+#  define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8)           \
                        +(uint32_t)(((const uint8_t *)(d))[0]) )
 # endif
-# define HASH_SFH(key,keylen,num_bkts,hashv,bkt)                                  \
+# define HASH_SFH(key,keylen,num_bkts,hashv,bkt)                                 \
 do {                                                                             \
   unsigned char *_sfh_key=(unsigned char*)(key);                                 \
   uint32_t _sfh_tmp, _sfh_len = keylen;                                          \
@@ -586,22 +586,22 @@ do {                                                                            
 #    define MUR_TWO_TWO(p)   ((((*WP(p))&0xffff0000) >>16) | (((*(WP(p)+1))&0x0000ffff) << 16))
 #    define MUR_ONE_THREE(p) ((((*WP(p))&0xff000000) >>24) | (((*(WP(p)+1))&0x00ffffff) <<  8))
 #   endif
-#   define MUR_GETBLOCK(p,i) (MUR_PLUS0_ALIGNED(p) ? ((p)[i]) :           \
+#   define MUR_GETBLOCK(p,i) (MUR_PLUS0_ALIGNED(p) ? ((p)[i]) :        \
                             (MUR_PLUS1_ALIGNED(p) ? MUR_THREE_ONE(p) : \
                              (MUR_PLUS2_ALIGNED(p) ? MUR_TWO_TWO(p) :  \
                                                       MUR_ONE_THREE(p))))
 #  endif
 #  define MUR_ROTL32(x,r) (((x) << (r)) | ((x) >> (32 - (r))))
 #  define MUR_FMIX(_h) \
-do {                 \
-  _h ^= _h >> 16;    \
-  _h *= 0x85ebca6b;  \
-  _h ^= _h >> 13;    \
-  _h *= 0xc2b2ae35l; \
-  _h ^= _h >> 16;    \
+do {                   \
+  _h ^= _h >> 16;      \
+  _h *= 0x85ebca6b;    \
+  _h ^= _h >> 13;      \
+  _h *= 0xc2b2ae35l;   \
+  _h ^= _h >> 16;      \
 } while(0)
 
-#  define HASH_MUR(key,keylen,num_bkts,hashv,bkt)                        \
+#  define HASH_MUR(key,keylen,num_bkts,hashv,bkt)                      \
 do {                                                                   \
   const uint8_t *_mur_data = (const uint8_t*)(key);                    \
   const int _mur_nblocks = (keylen) / 4;                               \
@@ -652,7 +652,7 @@ do {                                                                   \
   * bucket to find desired item
   */
 
-# define HASH_FIND_IN_BKT(tbl,hh,head,keyptr,keylen_in,out)                       \
+# define HASH_FIND_IN_BKT(tbl,hh,head,keyptr,keylen_in,out)                      \
 do {                                                                             \
  if (head.hh_head) DECLTYPE_ASSIGN(out,ELMT_FROM_HH(tbl,head.hh_head));          \
  else out=NULL;                                                                  \
@@ -671,7 +671,7 @@ do {                                                                            
   * to a bucket
   */
 
-# define HASH_ADD_TO_BKT(head,addhh)                                              \
+# define HASH_ADD_TO_BKT(head,addhh)                                             \
 do {                                                                             \
  head.count++;                                                                   \
  (addhh)->hh_next = head.hh_head;                                                \
@@ -689,7 +689,7 @@ do {                                                                            
   * a given bucket
   */
 
-# define HASH_DEL_IN_BKT(hh,head,hh_del)                                          \
+# define HASH_DEL_IN_BKT(hh,head,hh_del)                                         \
     (head).count--;                                                              \
     if ((head).hh_head == hh_del) {                                              \
       (head).hh_head = hh_del->hh_next;                                          \
@@ -731,7 +731,7 @@ do {                                                                            
   *      ceil(n/b) = (n>>lb) + ( (n & (b-1)) ? 1:0)
   */
 
-# define HASH_EXPAND_BUCKETS(tbl)                                                 \
+# define HASH_EXPAND_BUCKETS(tbl)                                                \
 do {                                                                             \
     unsigned _he_bkt;                                                            \
     unsigned _he_bkt_i;                                                          \
@@ -794,7 +794,7 @@ do {                                                                            
   */
 
 # define HASH_SORT(head,cmpfcn) HASH_SRT(hh,head,cmpfcn)
-# define HASH_SRT(hh,head,cmpfcn)                                                 \
+# define HASH_SRT(hh,head,cmpfcn)                                                \
 do {                                                                             \
   unsigned _hs_i;                                                                \
   unsigned _hs_looping,_hs_nmerges,_hs_insize,_hs_psize,_hs_qsize;               \
@@ -881,7 +881,7 @@ do {                                                                            
   * hash handle that must be present in the structure.
   */
 
-# define HASH_SELECT(hh_dst, dst, hh_src, src, cond)                              \
+# define HASH_SELECT(hh_dst, dst, hh_src, src, cond)                             \
 do {                                                                             \
   unsigned _src_bkt, _dst_bkt;                                                   \
   void *_last_elt=NULL, *_elt;                                                   \
@@ -919,7 +919,7 @@ do {                                                                            
   HASH_FSCK(hh_dst,dst);                                                         \
 } while (0)
 
-# define HASH_CLEAR(hh,head)                                                      \
+# define HASH_CLEAR(hh,head)                                                     \
 do {                                                                             \
   if (head) {                                                                    \
     uthash_free((head)->hh.tbl->buckets,                                         \
@@ -930,18 +930,18 @@ do {                                                                            
   }                                                                              \
 } while(0)
 
-# define HASH_OVERHEAD(hh,head)                                                   \
+# define HASH_OVERHEAD(hh,head)                                                  \
  (size_t)((((head)->hh.tbl->num_items   * sizeof(UT_hash_handle))   +            \
            ((head)->hh.tbl->num_buckets * sizeof(UT_hash_bucket))   +            \
             (sizeof(UT_hash_table))                                 +            \
             (HASH_BLOOM_BYTELEN)))
 
 # ifdef NO_DECLTYPE
-#  define HASH_ITER(hh,head,el,tmp)                                                \
+#  define HASH_ITER(hh,head,el,tmp)                                              \
 for((el)=(head), (*(char**)(&(tmp)))=(char*)((head)?(head)->hh.next:NULL);       \
   el; (el)=(tmp),(*(char**)(&(tmp)))=(char*)((tmp)?(tmp)->hh.next:NULL))
 # else
-#  define HASH_ITER(hh,head,el,tmp)                                                \
+#  define HASH_ITER(hh,head,el,tmp)                                              \
 for((el)=(head),(tmp)=DECLTYPE(el)((head)?(head)->hh.next:NULL);                 \
   el; (el)=(tmp),(tmp)=DECLTYPE(el)((tmp)?(tmp)->hh.next:NULL))
 # endif
@@ -955,7 +955,7 @@ typedef struct UT_hash_bucket {
    unsigned count;
 
    /*
-        * expand_mult is normally set to 0. In this situation, the max chain length
+    * expand_mult is normally set to 0. In this situation, the max chain length
     * threshold is enforced at its default value, HASH_BKT_CAPACITY_THRESH. (If
     * the bucket's chain exceeds this length, bucket expansion is triggered).
     * However, setting expand_mult to a non-zero value delays bucket expansion
@@ -984,28 +984,28 @@ typedef struct UT_hash_table {
    ptrdiff_t hho; /* hash handle offset (byte pos of hash handle in element */
 
    /*
-        * in an ideal situation (all buckets used equally), no bucket would have
+    * in an ideal situation (all buckets used equally), no bucket would have
     * more than ceil(#items/#buckets) items. that's the ideal chain length.
-        */
+    */
 
    unsigned ideal_chain_maxlen;
 
    /*
-        * nonideal_items is the number of items in the hash whose chain position
+    * nonideal_items is the number of items in the hash whose chain position
     * exceeds the ideal chain maxlen. these items pay the penalty for an uneven
     * hash distribution; reaching them in a chain traversal takes >ideal steps
-        */
+    */
 
    unsigned nonideal_items;
 
    /*
-        * ineffective expands occur when a bucket doubling was performed, but
+    * ineffective expands occur when a bucket doubling was performed, but
     * afterward, more than half the items in the hash had nonideal chain
     * positions. If this happens on two consecutive expansions we inhibit any
     * further expansion, as it's not helping; this happens when the hash
     * function isn't a good fit for the key domain. When expansion is inhibited
     * the hash will still work, albeit no longer in constant time.
-        */
+    */
 
    unsigned ineff_expands, noexpand;
 

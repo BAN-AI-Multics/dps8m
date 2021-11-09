@@ -10,8 +10,7 @@
  */
 
  /*
-  * Thread
-  * Wrappers
+  * Thread Wrappers
   */
 
 #include <unistd.h>

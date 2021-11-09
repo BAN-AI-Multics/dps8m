@@ -19,9 +19,7 @@
 # include <stdbool.h>
 # include <errno.h>
 # include <inttypes.h>
-
 # include <sys/time.h>
-
 # include <setjmp.h>  // for setjmp/longjmp used by interrupts & faults
 
 # if (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
@@ -44,10 +42,6 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 // Quiet compiler unused warnings
 # define QUIET_UNUSED
 
-// Enable M[] as shared memory segment
-//#define M_SHARED
-//LDFLAGS += -lrt
-
 # ifndef TESTING
 // Enable speed over debuggibility when not TESTING
 #  define SPEED
@@ -62,9 +56,6 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 
 // Enable round-robin multi-CPU
 //#define ROUND_ROBIN
-
-// Enable ISOLTS support
-//#define ISOLTS
 
 // Experimential dial_out line disconnect delay
 // FNP polled ~100Hz; 2 secs. is 200 polls
@@ -289,7 +280,6 @@ typedef enum
 #  define YPAIRTO72(ypair)    (((((word72)(ypair[0] & DMASK)) << 36)    | \
                                         (ypair[1] & DMASK)) & MASK72)
 # endif
-
 
 # define GET_TALLY(src) (((src) >> 6) & MASK12)   // 12-bits
 # define GET_DELTA(src)  ((src) & MASK6)          // 6-bits

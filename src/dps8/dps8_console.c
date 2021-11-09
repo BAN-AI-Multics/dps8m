@@ -1574,8 +1574,6 @@ static t_stat opc_set_nunits (UNUSED UNIT * uptr, int32 UNUSED value,
     return SCPE_OK;
   }
 
-
-
 static config_value_list_t cfg_on_off[] =
   {
     { "off", 0 },
