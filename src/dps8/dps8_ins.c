@@ -12,15 +12,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//#define ISOLTS_BITNO
-
-/**
- * \file dps8_ins.c
- * \project dps8
- * \date 9/22/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #include <stdio.h>
 
 #include "dps8.h"
@@ -5178,7 +5169,7 @@ static t_stat doInstruction (void)
           // For i = 0, 1, ..., 35
           // C(Z)i = ~C(Q)i & ( C(A)i XOR C(Y)i )
 
-          /**
+          /*
            * The cmk instruction compares the contents of bit positions of A
            * and Y for identity that are not masked by a 1 in the
            * corresponding bit position of Q.
@@ -5260,12 +5251,11 @@ static t_stat doInstruction (void)
 
         case x0 (0111):  // cwl
           // C(Y) :: closed interval [C(A);C(Q)]
-          /**
+          /*
            * The cwl instruction tests the value of C(Y) to determine if it
            * is within the range of values set by C(A) and C(Q). The
            * comparison of C(Y) with C(Q) locates C(Y) with respect to the
-           * interval if C(Y) is not contained within the
-           interval.
+           * interval if C(Y) is not contained within the interval.
            */
           HDBGRegAR ("cwl");
           HDBGRegQR ("cwl");
@@ -9378,7 +9368,7 @@ elapsedtime ();
 # include <ctype.h>
 
 # if EMULATOR_ONLY
-/**
+/*
  * emulator call instruction. Do whatever address field sez' ....
  */
 static int emCall (void)

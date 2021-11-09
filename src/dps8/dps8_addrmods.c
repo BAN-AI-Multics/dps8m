@@ -11,14 +11,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_addrmods.c
- * \project dps8
- * \author Harry Reed
- * \date 9/25/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
- */
-
 #include <stdio.h>
 #include "dps8.h"
 #include "dps8_addrmods.h"

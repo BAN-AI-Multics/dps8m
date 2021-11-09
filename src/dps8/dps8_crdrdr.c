@@ -13,14 +13,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//
-//  dps8_crdrdr.c
-//  dps8
-//
-//  Created by Harry Reed on 6/16/13.
-//  Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-
 #include <stdio.h>
 #include <ctype.h>
 #include <signal.h>
@@ -44,15 +36,6 @@
 #include "dps8_utils.h"
 
 #define DBG_CTR 1
-
- /*
-  * Copyright (c) 2007-2013 Michael Mondy
-  *
-  * This software is made available under the terms of the ICU
-  * License, version 1.8.1 or later.  For more details, see the
-  * LICENSE.md file at the top-level directory of this distribution.
-  */
-
 #define N_RDR_UNITS 1 // default
 
 static t_stat rdr_reset (DEVICE * dptr);
@@ -140,11 +123,11 @@ static MTAB rdr_mod [] =
 
 
 DEVICE rdr_dev = {
-    "RDR",       /*  name */
-    rdr_unit,    /* units */
+    "RDR",        /* name */
+    rdr_unit,     /* units */
     NULL,         /* registers */
-    rdr_mod,     /* modifiers */
-    N_RDR_UNITS, /* #units */
+    rdr_mod,      /* modifiers */
+    N_RDR_UNITS,  /* #units */
     10,           /* address radix */
     24,           /* address width */
     1,            /* address increment */
@@ -152,14 +135,14 @@ DEVICE rdr_dev = {
     36,           /* data width */
     NULL,         /* examine */
     NULL,         /* deposit */
-    rdr_reset,   /* reset */
+    rdr_reset,    /* reset */
     NULL,         /* boot */
     NULL,         /* attach */
     NULL,         /* detach */
     NULL,         /* context */
     DEV_DEBUG,    /* flags */
     0,            /* debug control flags */
-    rdr_dt,      /* debug flag names */
+    rdr_dt,       /* debug flag names */
     NULL,         /* memory size change */
     NULL,         /* logical name */
     NULL,         // help
@@ -168,9 +151,6 @@ DEVICE rdr_dev = {
     NULL,         // description
     NULL
 };
-
-
-
 
 enum deckFormat { sevenDeck, cardDeck, streamDeck };
 
@@ -201,7 +181,6 @@ static char rdr_path_prefix[PATH_MAX+1];
 
 /*
  * rdr_init()
- *
  */
 
 #if 0

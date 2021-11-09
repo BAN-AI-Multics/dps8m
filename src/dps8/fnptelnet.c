@@ -9,7 +9,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-// XXX remember to call telnet_free on disconnect
 #include <stdio.h>
 
 #include "dps8.h"

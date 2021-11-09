@@ -11,13 +11,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_append.c
- * \project dps8
- * \date 10/28/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #include <stdio.h>
 #include "dps8.h"
 #include "dps8_sys.h"
@@ -35,7 +28,7 @@
 
 #define DBG_CTR cpu.cycleCnt
 
-/**
+/*
  * The appending unit ...
  */
 
@@ -153,7 +146,7 @@ static void selftest_ptwaw (void)
   }
 #endif
 
-/**
+/*
  * implement ldbr instruction
  */
 
@@ -227,8 +220,7 @@ void do_ldbr (word36 * Ypair)
   }
 
 
-
-/**
+/*
  * fetch descriptor segment PTW ...
  */
 
@@ -279,7 +271,7 @@ static void fetch_dsptw (word15 segno)
   }
 
 
-/**
+/*
  * modify descriptor segment PTW (Set U=1) ...
  */
 
@@ -435,7 +427,7 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
     return NULL;    // segment not referenced in SDWAM
   }
 
-/**
+/*
  * Fetches an SDW from a paged descriptor segment.
  */
 // CANFAULT
@@ -577,7 +569,7 @@ static char *str_sdw (char * buf, sdw_s *SDW)
     return buf;
   }
 
-/**
+/*
  * dump SDWAM...
  */
 
@@ -620,7 +612,7 @@ static uint to_be_discarded_am (word6 LRU)
   }
 #endif
 
-/**
+/*
  * load the current in-core SDW0 into the SDWAM ...
  */
 
@@ -970,7 +962,7 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
 #endif
   }
 
-/**
+/*
  * modify target segment PTW (Set M=1) ...
  */
 
@@ -1053,7 +1045,7 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
   }
 
 
-/**
+/*
  * Is the instruction a SToRage OPeration ?
  */
 

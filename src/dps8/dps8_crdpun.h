@@ -11,6 +11,5 @@
 
 extern DEVICE pun_dev;
 extern UNIT pun_unit [N_PUN_UNITS_MAX];
-
 void pun_init(void);
 iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan);

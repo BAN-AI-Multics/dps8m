@@ -11,23 +11,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//
-//  dps8_scu.c  4MW SCU Emulator
-//  dps8
-//
-//  Created by Harry Reed on 6/15/13.
-//  Original portions Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-//  Derived (& originally stolen) from .....
-
- /*
-  * Copyright (c) 2007-2013 Michael Mondy
-  *
-  * This software is made available under the terms of the ICU
-  * License, version 1.8.1 or later.  For more details, see the
-  * LICENSE.md file at the top-level directory of this distribution.
-  */
-
 /*
  * scu.c -- System Controller
  *

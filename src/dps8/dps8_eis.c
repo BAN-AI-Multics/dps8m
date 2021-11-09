@@ -13,14 +13,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * file dps8_eis.c
- * project dps8
- * date 12/31/12
- * copyright Copyright (c) 2012 Harry Reed. All rights reserved.
- * brief EIS support code...
-*/
-
 #ifdef EIS_PTR
 // Cached operand data...
 //  Alphanumeric Operand
@@ -308,7 +300,7 @@ static word36 put9 (word36 w, int pos, word9 c)
     return 0;
   }
 
-/**
+/*
  * get register value indicated by reg for Address Register operations
  * (not for use with address modifications)
  */

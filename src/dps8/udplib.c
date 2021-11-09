@@ -35,11 +35,9 @@
    Except as contained in this notice, the name of Robert Armstrong shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert Armstrong.
-
 */
 
 /*
-
   INTERFACE
 
    This module provides a simplified UDP socket interface.  These functions are
@@ -56,7 +54,6 @@
    MAXLINKS parameter.  Also, notice that all links are intrinsically full
    duplex and bidirectional - data can be sent and received in both directions
    independently.  Real modems and host cards were exactly the same.
-
 */
 
 #include <stdint.h>
@@ -72,7 +69,6 @@
 #include <netdb.h>
 #include <errno.h>
 #include <netinet/in.h>
-
 
 #include "udplib.h"
 #include "h316_imp.h"

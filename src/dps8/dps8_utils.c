@@ -11,13 +11,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_utils.c
- * \project dps8
- * \date 9/25/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -1320,7 +1313,7 @@ int strmask (char * str, char * mask)
       } // while (1)
   }
 
-/**
+/*
  * strtok() with string quoting...
  * (implemented as a small fsm, kinda...
  * (add support for embedded " later, much later...)
@@ -1408,7 +1401,7 @@ bool startsWith(const char *str, const char *pre)
 }
 #endif
 
-/**
+/*
  * Removes the trailing spaces from a string.
  */
 char *rtrim(char *s)
@@ -1426,7 +1419,7 @@ char *rtrim(char *s)
 }
 
 char *ltrim(char *s)
-/**
+/*
  * Removes the leading spaces from a string.
  */
 {

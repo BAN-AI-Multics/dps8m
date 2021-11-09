@@ -12,14 +12,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//
-//  dps8_faults.c
-//  dps8
-//
-//  Created by Harry Reed on 6/11/13.
-//  Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-
 #include <stdio.h>
 
 #include "dps8.h"

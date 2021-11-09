@@ -11,13 +11,13 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-// XXX There is a lurking bug in fnpProcessEvent(). A second 'input' messages
-// XXX from a particular line could be placed in mailbox beforme the first is
-// XXX processed. This could lead to the messages being picked up by MCS in
-// XXX the wrong order. The quick fix is to use just a single mbx; a better
-// XXX is to track the line # associated with an busy mailbox, and requeue
-// XXX any message that from a line that is in a busy mailbox. I wonder how
-// XXX the real DN355 dealt with this?
+// There is a lurking bug in fnpProcessEvent(). A second 'input' messages
+// from a particular line could be placed in mailbox beforme the first is
+// processed. This could lead to the messages being picked up by MCS in
+// the wrong order. The quick fix is to use just a single mbx; a better
+// is to track the line # associated with an busy mailbox, and requeue
+// any message that from a line that is in a busy mailbox. I wonder how
+// the real DN355 dealt with this?
 
 ////
 //

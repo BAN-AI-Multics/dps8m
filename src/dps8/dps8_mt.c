@@ -12,13 +12,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_mt.c
- * \project dps8
- * \date 9/17/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #include <stdio.h>
 #include <ctype.h>
 #include <dirent.h>
@@ -39,15 +32,6 @@
  * mt.c -- mag tape
  * See manual AN87
  */
-
- /*
-  * Copyright (c) 2007-2013 Michael Mondy
-  *
-  * This software is made available under the terms of the ICU
-  * License, version 1.8.1 or later.  For more details, see the
-  * LICENSE.md file at the top-level directory of this distribution.
-  *
-  */
 
 /*
  *

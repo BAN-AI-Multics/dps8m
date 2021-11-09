@@ -11,14 +11,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//
-//  dps8_disk.c
-//  dps8
-//
-//  Created by Harry Reed on 6/16/13.
-//  Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-
 // source/library_dir_dir/system_library_1/source/bound_volume_rldr_ut_.s.archive/rdisk_.pl1
 // source/library_dir_dir/system_library_1/source/bound_rcp_.s.archive/rcp_disk_.pl1
 
@@ -40,16 +32,6 @@
 #endif
 
 #define DBG_CTR 1
-
-/*
- * disk.c -- disk drives
- *
- * Copyright (c) 2007-2013 Michael Mondy
- *
- * This software is made available under the terms of the ICU
- * License, version 1.8.1 or later.  For more details, see the
- * LICENSE.md file at the top-level directory of this distributio.
- */
 
 //
 // A possible disk data packing algoritim

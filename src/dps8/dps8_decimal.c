@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2000-2009 IBM Corporation
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2017 Michal Tomek
@@ -10,19 +11,6 @@
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
  */
-
-//
-//  dps8_decimal.c
-//  dps8
-//
-//  Created by Harry Reed on 2/9/13.
-//  Original portions Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-//  decimal arithmetic support code for dps8 simulator.
-//
-//  portions based off of the 'decNumber' decimal arithmetic library
-//  Copyright (c) IBM Corporation, 2000, 2009.  All rights reserved.
-//
 
 #include <stdio.h>
 
@@ -59,13 +47,13 @@ decContext * decContextDefaultDPS8(decContext *context)
 #if 1
 /* ------------------------------------------------------------------ */
 /* HWR 3/21/16 19:54 derived from ......                              */
-/* decContextDefault(...)                                         */
-/* */
+/* decContextDefault(...)                                             */
+/*                                                                    */
 /* decContextDefaultDPS8 -- initialize a context structure            */
-/* */
+/*                                                                    */
 /* Similar to decContextDefault EXCEPT digits are set to 126 for our  */
 /* dps8 simulators mpXd instructions                                  */
-/* */
+/*                                                                    */
 /* ------------------------------------------------------------------ */
 decContext * decContextDefaultDPS8Mul(decContext *context)
 {
@@ -303,14 +291,8 @@ static unsigned char *getBCD(uint8_t bcd [256], decNumber *a)
     return (unsigned char *) bcd;
 }
 
-
-
 static const char *CS[] = {"CSFL", "CSLS", "CSTS", "CSNS"};
 static const char *CTN[] = {"CTN9", "CTN4"};
-
-
-
-
 
 
 char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf, bool R, bool *OVR, bool *TRUNC)

@@ -79,6 +79,3 @@ void trk_init (bool write)
     writing = write;
     tracking = true;
   }
-
-
-

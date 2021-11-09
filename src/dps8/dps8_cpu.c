@@ -12,12 +12,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
- /** * \file dps8_cpu.c
- * \project dps8
- * \date 9/17/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #include <stdio.h>
 #include <unistd.h>
 
@@ -47,13 +41,11 @@
 #include "sim_defs.h"
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
-
 __thread uint current_running_cpu_idx;
 #endif
 
 #define DBG_CTR cpu.cycleCnt
 
-// XXX Use this when we assume there is only a single cpu unit
 #define ASSUME0 0
 
 // CPU data structures

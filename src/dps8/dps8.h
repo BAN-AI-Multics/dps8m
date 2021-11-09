@@ -12,14 +12,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8.h
- * \project dps8
- * \author Harry Reed
- * \date 9/17/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #ifndef DPS8_H
 # define DPS8_H
 

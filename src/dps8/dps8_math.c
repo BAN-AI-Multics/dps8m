@@ -12,16 +12,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_math.c
- * \project dps8
- * \date 12/6/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
- * \brief stuff related to math routines for the dps8 simulator
- *        * floating-point routines
- *        * fixed-point routines (eventually)
-*/
-
 #include <stdio.h>
 #include <math.h>
 

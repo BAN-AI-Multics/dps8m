@@ -11,14 +11,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//
-//  dps8_console.c
-//  dps8
-//
-//  Created by Harry Reed on 6/16/13.
-//  Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -50,9 +42,7 @@
 #endif
 
 #define DBG_CTR 1
-
 #define ASSUME0 0
-
 
 // config switch -- The bootload console has a 30-second timer mechanism. When
 // reading from the console, if no character is typed within 30 seconds, the

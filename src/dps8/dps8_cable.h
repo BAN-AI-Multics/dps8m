@@ -14,7 +14,6 @@ extern char * chan_type_strs [/* *enum chan_type_e */];
 
 typedef enum chanType { chanTypeCPI, chanTypePSI, chanTypeDirect } chanType;
 
-
 // Multics devices (from prph card, AM81-04, pp 7-21 on)
 //
 //  CCUn   Combination record units  CCU0401

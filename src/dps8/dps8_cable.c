@@ -96,9 +96,6 @@
 //      Connect URP i device code j to printer unit k.
 //
 
-
-
-
 #include <ctype.h>
 
 #include "dps8.h"

@@ -15,8 +15,6 @@
 #include <sys/types.h>
 #include "hdbg.h"
 
-// simh only explicitly supports a single cpu
-
 #define N_CPU_UNITS 1 // Default
 
 // JMP_ENTRY must be 0, which is the return value of the setjmp initial

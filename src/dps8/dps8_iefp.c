@@ -13,13 +13,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_iefp.c
- * \project dps8
- * \date 01/11/14
- * \copyright Copyright (c) 2014 Harry Reed. All rights reserved.
- */
-
 #include "dps8.h"
 #include "dps8_sys.h"
 #include "dps8_faults.h"

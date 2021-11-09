@@ -11,13 +11,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_opcodetable.c
- * \project dps8
-*/
-
-//#include <string.h>
-
 #include "dps8.h"
 #include "dps8_opcodetable.h"
 

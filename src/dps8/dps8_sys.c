@@ -13,13 +13,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_sys.c
- * \project dps8
- * \date 9/17/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #include <stdio.h>
 #ifndef __MINGW64__
 # ifndef __MINGW32__
