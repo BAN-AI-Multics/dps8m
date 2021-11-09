@@ -520,6 +520,8 @@ distclean: clean
 	@$(SETV); $(RMF) "cscope.in.out"          ||  $(TRUE)
 	@$(SETV); $(RMF) "cscope.out"             ||  $(TRUE)
 	@$(SETV); $(RMF) "cscope.po.out"          ||  $(TRUE)
+	@$(SETV); $(TEST) -d "../../libuv-local"  &&                              \
+              $(RMF) -r  "../../libuv-local"  ||  $(TRUE)
 
 ###############################################################################
 
@@ -554,8 +556,6 @@ clean:
 	@$(SETV); $(RMF)  "amd_memcpy.o"                   ||  $(TRUE)
 	@$(SETV); $(RMF)  "../amd_memcpy.o"                ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../amd_memcopy.o"            ||  $(TRUE)
-	@$(SETV); $(TEST) -d "../../libuv-local"           &&                     \
-              $(RMF) -r  "../../libuv-local"           ||  $(TRUE)
 
 ###############################################################################
 
