@@ -188,7 +188,7 @@
 
   /* flags which are normally for information only (finite results)   */
 # if DECSUBSET
-#  define DEC_Information (DEC_Clamped | DEC_Rounded | DEC_Inexact    \
+#  define DEC_Information (DEC_Clamped | DEC_Rounded | DEC_Inexact     \
                           | DEC_Lost_digits)
 # else
 #  define DEC_Information (DEC_Clamped | DEC_Rounded | DEC_Inexact)

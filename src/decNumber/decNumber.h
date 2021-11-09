@@ -19,29 +19,29 @@
 
 #if !defined(DECNUMBER)
 # define DECNUMBER
-# define DECNAME     "decNumber"                       /* Short name */
-# define DECFULLNAME "Decimal Number Module"         /* Verbose name */
-# define DECAUTHOR   "Mike Cowlishaw"                /* Who to blame */
+# define DECNAME     "decNumber"                        /* Short name */
+# define DECFULLNAME "Decimal Number Module"          /* Verbose name */
+# define DECAUTHOR   "Mike Cowlishaw"                 /* Who to blame */
 
 # if !defined(DECCONTEXT)
 #  include "decContext.h"
 # endif
 
   /* Bit settings for decNumber.bits                                  */
-# define DECNEG    0x80      /* Sign; 1=negative, 0=positive or zero */
-# define DECINF    0x40      /* 1=Infinity                           */
-# define DECNAN    0x20      /* 1=NaN                                */
-# define DECSNAN   0x10      /* 1=sNaN                               */
+# define DECNEG    0x80      /* Sign; 1=negative, 0=positive or zero  */
+# define DECINF    0x40      /* 1=Infinity                            */
+# define DECNAN    0x20      /* 1=NaN                                 */
+# define DECSNAN   0x10      /* 1=sNaN                                */
   /* The remaining bits are reserved; they must be 0                  */
-# define DECSPECIAL (DECINF|DECNAN|DECSNAN) /* any special value     */
+# define DECSPECIAL (DECINF|DECNAN|DECSNAN)  /* any special value     */
 
   /* Define the decNumber data structure.  The size and shape of the  */
   /* units array in the structure is determined by the following      */
   /* constant.  This must not be changed without recompiling the      */
   /* decNumber library modules. */
 
-  //#define DECDPUN 3           /* DECimal Digits Per UNit [must be >0  */
-# define DECDPUN 8           /* DECimal Digits Per UNit [must be >0  */
+  //#define DECDPUN 3         /* DECimal Digits Per UNit [must be >0  */
+# define DECDPUN 8            /* DECimal Digits Per UNit [must be >0  */
                               /* and <10; 3 or powers of 2 are best]. */
 
   /* DECNUMDIGITS is the default number of digits that can be held in */
@@ -167,7 +167,7 @@
   int32_t decNumberIsSubnormal(const decNumber *, decContext *);
 
   /* Macros for testing decNumber *dn                                 */
-# define decNumberIsCanonical(dn) (1)  /* All decNumbers are saintly */
+# define decNumberIsCanonical(dn) (1)   /* All decNumbers are saintly */
 # define decNumberIsFinite(dn)    (((dn)->bits&DECSPECIAL)==0)
 # define decNumberIsInfinite(dn)  (((dn)->bits&DECINF)!=0)
 # define decNumberIsNaN(dn)       (((dn)->bits&(DECNAN|DECSNAN))!=0)

@@ -2237,7 +2237,7 @@ int core_unlock_all(void);
 # if defined (BSD_ATOMICS)
 #  include <machine/atomic.h>
 
-#  define LOCK_CORE_WORD(addr)                                            \
+#  define LOCK_CORE_WORD(addr)                                          \
   do                                                                    \
     {                                                                   \
       unsigned int i = DEADLOCK_DETECT;                                 \
@@ -2264,14 +2264,14 @@ int core_unlock_all(void);
     }                                                                   \
   while (0)
 
-#  define LOAD_ACQ_CORE_WORD(res, addr)                                   \
+#  define LOAD_ACQ_CORE_WORD(res, addr)                                 \
   do                                                                    \
     {                                                                   \
       res = atomic_load_acq_64((volatile uint64_t *)&M[addr]);          \
     }                                                                   \
   while (0)
 
-#  define STORE_REL_CORE_WORD(addr, data)                                 \
+#  define STORE_REL_CORE_WORD(addr, data)                               \
   do                                                                    \
     {                                                                   \
       atomic_store_rel_64((volatile uint64_t *)&M[addr], data & DMASK); \
@@ -2283,7 +2283,7 @@ int core_unlock_all(void);
 # if defined(GNU_ATOMICS)
 
 // IIUC, the __sync use CST memorder
-#  define LOCK_CORE_WORD(addr)                                 \
+#  define LOCK_CORE_WORD(addr)                               \
   do                                                         \
     {                                                        \
       unsigned int i = DEADLOCK_DETECT;                      \
@@ -2312,7 +2312,7 @@ int core_unlock_all(void);
     }                                                        \
   while (0)
 
-#  define LOAD_ACQ_CORE_WORD(res, addr)                        \
+#  define LOAD_ACQ_CORE_WORD(res, addr)                      \
   do                                                         \
     {                                                        \
       res = __atomic_load_n((volatile u_long *)&M[addr],     \
@@ -2320,7 +2320,7 @@ int core_unlock_all(void);
     }                                                        \
   while (0)
 
-#  define STORE_REL_CORE_WORD(addr, data)                      \
+#  define STORE_REL_CORE_WORD(addr, data)                    \
   do                                                         \
     {                                                        \
       __atomic_store_n((volatile u_long *)&M[addr], data &   \
@@ -2337,7 +2337,7 @@ int core_unlock_all(void);
 #   define MEM_BARRIER()   do {} while (0)
 #  endif
 
-#  define LOCK_CORE_WORD(addr)                                            \
+#  define LOCK_CORE_WORD(addr)                                          \
      do                                                                 \
        {                                                                \
          unsigned int i = DEADLOCK_DETECT;                              \
@@ -2364,7 +2364,7 @@ int core_unlock_all(void);
        }                                                                \
      while (0)
 
-#  define LOAD_ACQ_CORE_WORD(res, addr)                                   \
+#  define LOAD_ACQ_CORE_WORD(res, addr)                                 \
      do                                                                 \
        {                                                                \
          res = M[addr];                                                 \
@@ -2372,7 +2372,7 @@ int core_unlock_all(void);
        }                                                                \
      while (0)
 
-#  define STORE_REL_CORE_WORD(addr, data)                                 \
+#  define STORE_REL_CORE_WORD(addr, data)                               \
   do                                                                    \
     {                                                                   \
       MEM_BARRIER();                                                    \

@@ -20,20 +20,20 @@
 #if !defined(DECDOUBLE)
 # define DECDOUBLE
 
-# define DECDOUBLENAME       "decimalDouble"         /* Short name   */
-# define DECDOUBLETITLE      "Decimal 64-bit datum"  /* Verbose name */
-# define DECDOUBLEAUTHOR     "Mike Cowlishaw"        /* Who to blame */
+# define DECDOUBLENAME       "decimalDouble"          /* Short name   */
+# define DECDOUBLETITLE      "Decimal 64-bit datum"   /* Verbose name */
+# define DECDOUBLEAUTHOR     "Mike Cowlishaw"         /* Who to blame */
 
   /* parameters for decDoubles */
-# define DECDOUBLE_Bytes   8      /* length                          */
-# define DECDOUBLE_Pmax    16     /* maximum precision (digits)      */
-# define DECDOUBLE_Emin   -383    /* minimum adjusted exponent       */
-# define DECDOUBLE_Emax    384    /* maximum adjusted exponent       */
-# define DECDOUBLE_EmaxD   3      /* maximum exponent digits         */
-# define DECDOUBLE_Bias    398    /* bias for the exponent           */
-# define DECDOUBLE_String  25     /* maximum string length, +1       */
-# define DECDOUBLE_EconL   8      /* exponent continuation length    */
-# define DECDOUBLE_Declets 5      /* count of declets                */
+# define DECDOUBLE_Bytes   8       /* length                          */
+# define DECDOUBLE_Pmax    16      /* maximum precision (digits)      */
+# define DECDOUBLE_Emin   -383     /* minimum adjusted exponent       */
+# define DECDOUBLE_Emax    384     /* maximum adjusted exponent       */
+# define DECDOUBLE_EmaxD   3       /* maximum exponent digits         */
+# define DECDOUBLE_Bias    398     /* bias for the exponent           */
+# define DECDOUBLE_String  25      /* maximum string length, +1       */
+# define DECDOUBLE_EconL   8       /* exponent continuation length    */
+# define DECDOUBLE_Declets 5       /* count of declets                */
   /* highest biased exponent (Elimit-1) */
 # define DECDOUBLE_Ehigh (DECDOUBLE_Emax + DECDOUBLE_Bias - (DECDOUBLE_Pmax-1))
 
