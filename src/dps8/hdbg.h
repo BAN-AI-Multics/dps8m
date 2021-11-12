@@ -10,7 +10,7 @@
  */
 
 #ifndef HDBG_H
-#define HDBG_H
+# define HDBG_H
 
 void hdbg_mark (void);
 t_stat hdbg_size (int32 arg, UNUSED const char * buf);
@@ -19,7 +19,7 @@ t_stat hdbg_cpu_mask (UNUSED int32 arg, const char * buf);
 t_stat hdbgSegmentNumber (UNUSED int32 arg, const char * buf);
 t_stat hdbgBlacklist (UNUSED int32 arg, const char * buf);
 
-#ifdef HDBG
+# ifdef HDBG
 void hdbgTrace (const char * ctx);
 void hdbgPrint (void);
 enum hdbgIEFP_e
@@ -41,9 +41,9 @@ void hdbgFault (_fault faultNumber, _fault_subtype subFault,
 void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx, const char * ctx);
 void hdbgIntr (uint intr_pair_addr, const char * ctx);
 void hdbgNote (const char * ctx, const char * fmt, ...)
-#ifdef __GNUC__
+#  ifdef __GNUC__
   __attribute__ ((format (printf, 2, 3)))
-#endif
+#  endif
 ;
 
 // Keep sync'd with regNames
@@ -68,63 +68,63 @@ void hdbgDSBRRegR (enum hregs_t type, struct dsbr_s * data, const char * ctx);
 void hdbgDSBRRegW (enum hregs_t type, struct dsbr_s * data, const char * ctx);
 void hdbgAPURead (word15 segno, word18 offset, word24 final, word36 data, const char * ctx);
 void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const char * ctx);
-#endif
+# endif
 
-#ifdef HDBG
-#define HDBGMRead(a, d, c) hdbgMRead (a, d, c)
-#define HDBGMWrite(a, d, c) hdbgMWrite (a, d, c)
-#define HDBGIEFP(t, s, o, c) hdbgIEFP (t, s, o, c);
-#define HDBGAPURead(s, o, f, d, c) hdbgAPURead (s, o, f, d, c)
-#define HDBGAPUWrite(s, o, f, d, c) hdbgAPUWrite (s, o, f, d, c)
-#define HDBGRegAR(c) hdbgRegR (hreg_A, cpu.rA, c)
-#define HDBGRegAW(c) hdbgRegW (hreg_A, cpu.rA, c)
-#define HDBGRegQR(c) hdbgRegR (hreg_Q, cpu.rQ, c)
-#define HDBGRegQW(c) hdbgRegW (hreg_Q, cpu.rQ, c)
-#define HDBGRegXR(i, c) hdbgRegR (hreg_X0+(i), (word36) cpu.rX[i], c)
-#define HDBGRegXW(i, c) hdbgRegW (hreg_X0+(i), (word36) cpu.rX[i], c)
-#define HDBGRegYR(c) hdbgRegR (hreg_Y, (word36) cpu.rY, c)
-#define HDBGRegYW(c) hdbgRegW (hreg_Y, (word36) cpu.rY, c)
-#define HDBGRegZR(r, c) hdbgRegR (hreg_Z, (word36) r, c)
-#define HDBGRegZW(r, c) hdbgRegW (hreg_Z, (word36) r, c)
-#define HDBGRegPRR(i, c) hdbgPARegR (hreg_PR0+(i), & cpu.PAR[i], c)
-#define HDBGRegPRW(i, c) hdbgPARegW (hreg_PR0+(i), & cpu.PAR[i], c)
-#define HDBGRegARR(i, c) hdbgPARegR (hreg_AR0+(i), & cpu.PAR[i], c)
-#define HDBGRegARW(i, c) hdbgPARegW (hreg_AR0+(i), & cpu.PAR[i], c)
-#define HDBGRegDSBRR(i, c) hdbgDSBRRegR (hreg_AR0+(i), & cpu.PAR[i], c)
-#define HDBGRegDSBRW(i, c) hdbgDSBRRegW (hreg_AR0+(i), & cpu.PAR[i], c)
-#define HDBGRegIR(c) hdbgRegW (hreg_IR, (word36) cpu.cu.IR, c)
-#define HDBGTrace(c) hdbgTrace(c)
-#define HDBGIntr(i, c) hdbgIntr(i, c)
-#define HDBGIntrSet(i, c, s, ctx) hdbgIntrSet(i, c, s, ctx)
-#define HDBGFault(n, s, m, c) hdbgFault(n, s, m, c)
-#define HDBGPrint() hdbgPrint()
-#else
-#define HDBGMRead(a, d, c) 
-#define HDBGMWrite(a, d, c)
-#define HDBGIEFP(t,s,o, c)
-#define HDBGAPURead(s, o, f, d, c)
-#define HDBGAPUWrite(s, o, f, d, c)
-#define HDBGRegAR(c)
-#define HDBGRegAW(c)
-#define HDBGRegQR(c)
-#define HDBGRegQW(c)
-#define HDBGRegXR(i, c)
-#define HDBGRegXW(i, c)
-#define HDBGRegYR(c)
-#define HDBGRegYW(c)
-#define HDBGRegZR(r, c)
-#define HDBGRegZW(r, c)
-#define HDBGRegPRR(i, c)
-#define HDBGRegPRW(i, c)
-#define HDBGRegARR(i, c)
-#define HDBGRegARW(i, c)
-#define HDBGRegDSBRR(i, c)
-#define HDBGRegDSBRW(i, c)
-#define HDBGRegIR(c)
-#define HDBGTrace(c)
-#define HDBGIntr(i, c)
-#define HDBGIntrSet(i, c, s, ctx)
-#define HDBGFault(n, s, m, c)
-#define HDBGPrint()
-#endif
+# ifdef HDBG
+#  define HDBGMRead(a, d, c) hdbgMRead (a, d, c)
+#  define HDBGMWrite(a, d, c) hdbgMWrite (a, d, c)
+#  define HDBGIEFP(t, s, o, c) hdbgIEFP (t, s, o, c);
+#  define HDBGAPURead(s, o, f, d, c) hdbgAPURead (s, o, f, d, c)
+#  define HDBGAPUWrite(s, o, f, d, c) hdbgAPUWrite (s, o, f, d, c)
+#  define HDBGRegAR(c) hdbgRegR (hreg_A, cpu.rA, c)
+#  define HDBGRegAW(c) hdbgRegW (hreg_A, cpu.rA, c)
+#  define HDBGRegQR(c) hdbgRegR (hreg_Q, cpu.rQ, c)
+#  define HDBGRegQW(c) hdbgRegW (hreg_Q, cpu.rQ, c)
+#  define HDBGRegXR(i, c) hdbgRegR (hreg_X0+(i), (word36) cpu.rX[i], c)
+#  define HDBGRegXW(i, c) hdbgRegW (hreg_X0+(i), (word36) cpu.rX[i], c)
+#  define HDBGRegYR(c) hdbgRegR (hreg_Y, (word36) cpu.rY, c)
+#  define HDBGRegYW(c) hdbgRegW (hreg_Y, (word36) cpu.rY, c)
+#  define HDBGRegZR(r, c) hdbgRegR (hreg_Z, (word36) r, c)
+#  define HDBGRegZW(r, c) hdbgRegW (hreg_Z, (word36) r, c)
+#  define HDBGRegPRR(i, c) hdbgPARegR (hreg_PR0+(i), & cpu.PAR[i], c)
+#  define HDBGRegPRW(i, c) hdbgPARegW (hreg_PR0+(i), & cpu.PAR[i], c)
+#  define HDBGRegARR(i, c) hdbgPARegR (hreg_AR0+(i), & cpu.PAR[i], c)
+#  define HDBGRegARW(i, c) hdbgPARegW (hreg_AR0+(i), & cpu.PAR[i], c)
+#  define HDBGRegDSBRR(i, c) hdbgDSBRRegR (hreg_AR0+(i), & cpu.PAR[i], c)
+#  define HDBGRegDSBRW(i, c) hdbgDSBRRegW (hreg_AR0+(i), & cpu.PAR[i], c)
+#  define HDBGRegIR(c) hdbgRegW (hreg_IR, (word36) cpu.cu.IR, c)
+#  define HDBGTrace(c) hdbgTrace(c)
+#  define HDBGIntr(i, c) hdbgIntr(i, c)
+#  define HDBGIntrSet(i, c, s, ctx) hdbgIntrSet(i, c, s, ctx)
+#  define HDBGFault(n, s, m, c) hdbgFault(n, s, m, c)
+#  define HDBGPrint() hdbgPrint()
+# else
+#  define HDBGMRead(a, d, c) 
+#  define HDBGMWrite(a, d, c)
+#  define HDBGIEFP(t,s,o, c)
+#  define HDBGAPURead(s, o, f, d, c)
+#  define HDBGAPUWrite(s, o, f, d, c)
+#  define HDBGRegAR(c)
+#  define HDBGRegAW(c)
+#  define HDBGRegQR(c)
+#  define HDBGRegQW(c)
+#  define HDBGRegXR(i, c)
+#  define HDBGRegXW(i, c)
+#  define HDBGRegYR(c)
+#  define HDBGRegYW(c)
+#  define HDBGRegZR(r, c)
+#  define HDBGRegZW(r, c)
+#  define HDBGRegPRR(i, c)
+#  define HDBGRegPRW(i, c)
+#  define HDBGRegARR(i, c)
+#  define HDBGRegARW(i, c)
+#  define HDBGRegDSBRR(i, c)
+#  define HDBGRegDSBRW(i, c)
+#  define HDBGRegIR(c)
+#  define HDBGTrace(c)
+#  define HDBGIntr(i, c)
+#  define HDBGIntrSet(i, c, s, ctx)
+#  define HDBGFault(n, s, m, c)
+#  define HDBGPrint()
+# endif
 #endif

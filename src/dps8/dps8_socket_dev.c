@@ -18,7 +18,7 @@
 #include <unistd.h>
 
 #if defined(__sun__) || defined(_AIX)
-#include <strings.h>
+# include <strings.h>
 #endif
 
 #include "dps8.h"
@@ -33,7 +33,7 @@
 #define DBG_CTR 1
 
 #ifndef bzero
-#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+# define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
 #endif /* ifndef bzero */
 
 #define SKC_UNIT_IDX(uptr) ((uptr) - sk_unit)
@@ -50,7 +50,7 @@ static struct {
     int code;
 } errnos[] = {
     {"        ", 0},
-    #include "errnos.h"
+#include "errnos.h"
 };
 #define N_ERRNOS (sizeof (errnos) / sizeof (errnos[0]))
 
@@ -269,9 +269,6 @@ DEVICE skc_dev = {
     NULL,             // device description
     NULL
 };
-
-
-
 
 void sk_init(void)
   {

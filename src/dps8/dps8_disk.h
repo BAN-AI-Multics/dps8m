@@ -70,7 +70,6 @@ extern struct msp_state_s msp_states [N_MSP_UNITS_MAX];
 
 extern struct dsk_state dsk_states [N_DSK_UNITS_MAX];
 
-
 void disk_init(void);
 t_stat attachDisk (char * label);
 iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan);

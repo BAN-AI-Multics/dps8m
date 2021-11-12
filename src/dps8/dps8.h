@@ -12,54 +12,40 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8.h
- * \project dps8
- * \author Harry Reed
- * \date 9/17/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #ifndef DPS8_H
-#define DPS8_H
+# define DPS8_H
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <errno.h>
-#include <inttypes.h>
+# include <stdio.h>
+# include <stdbool.h>
+# include <errno.h>
+# include <inttypes.h>
+# include <sys/time.h>
+# include <setjmp.h>  // for setjmp/longjmp used by interrupts & faults
 
-#include <sys/time.h>
+# if (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
+#  include <libgen.h>  // needed for OS/X and Android
+# endif
 
-#include <setjmp.h>  // for setjmp/longjmp used by interrupts & faults
+# ifndef L68
+#  ifndef DPS8M
+#   define DPS8M
+#  endif
+# endif
 
-#if (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
-#include <libgen.h>  // needed for OS/X and Android
-#endif
-
-#ifndef L68
-#ifndef DPS8M
-#define DPS8M
-#endif
-#endif
-
-#ifdef NEED_128
+# ifdef NEED_128
 typedef struct { uint64_t h; uint64_t l; } __uint128_t;
 typedef struct { int64_t h;  uint64_t l; }  __int128_t;
-#define construct_128(h, l) ((uint128) { (h), (l) })
-#define construct_s128(h, l) ((int128) { (h), (l) })
-#endif /* ifdef NEED_128 */
+#  define construct_128(h, l) ((uint128) { (h), (l) })
+#  define construct_s128(h, l) ((int128) { (h), (l) })
+# endif /* ifdef NEED_128 */
 
 // Quiet compiler unused warnings
-#define QUIET_UNUSED
+# define QUIET_UNUSED
 
-// Enable M[] as shared memory segment
-//#define M_SHARED
-//LDFLAGS += -lrt
-
-#ifndef TESTING
+# ifndef TESTING
 // Enable speed over debuggibility when not TESTING
-#define SPEED
-#endif /* ifndef TESTING */
+#  define SPEED
+# endif /* ifndef TESTING */
 
 // Enable panel support
 //#define PANEL
@@ -71,65 +57,62 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 // Enable round-robin multi-CPU
 //#define ROUND_ROBIN
 
-// Enable ISOLTS support
-//#define ISOLTS
-
 // Experimential dial_out line disconnect delay
 // FNP polled ~100Hz; 2 secs. is 200 polls
-#define DISC_DELAY 200
+# define DISC_DELAY 200
 
 //
 // Dependencies
 //
 
 // ISOLTS requires multiple CPU support
-#ifdef ISOLTS
-#if !defined(ROUND_ROBIN) && !defined(LOCKLESS)
-#define ROUND_ROBIN
-#endif
-#endif
+# ifdef ISOLTS
+#  if !defined(ROUND_ROBIN) && !defined(LOCKLESS)
+#   define ROUND_ROBIN
+#  endif
+# endif
 
 // PANEL only works on L68
-#ifdef PANEL
-#ifdef DPS8M
-#error "PANEL works with L68, not DPS8M"
-#endif
-#ifndef L68
-#define L68
-#endif
-#endif
+# ifdef PANEL
+#  ifdef DPS8M
+#   error "PANEL works with L68, not DPS8M"
+#  endif
+#  ifndef L68
+#   define L68
+#  endif
+# endif
 
-#ifdef PANEL
-#define PNL(x) x
-#else
-#define PNL(x)
-#endif
+# ifdef PANEL
+#  define PNL(x) x
+# else
+#  define PNL(x)
+# endif
 
-#ifdef L68
-#define L68_(x) x
-#else
-#define L68_(x)
-#endif
+# ifdef L68
+#  define L68_(x) x
+# else
+#  define L68_(x)
+# endif
 
-#ifdef DPS8M
-#define DPS8M_(x) x
-#else
-#define DPS8M_(x)
-#endif
+# ifdef DPS8M
+#  define DPS8M_(x) x
+# else
+#  define DPS8M_(x)
+# endif
 
 // debugging tool
-#ifdef TESTING
-#define IF1 if (cpu.switches.isolts_mode)
-#else
-#define IF1 if (0)
-#endif
+# ifdef TESTING
+#  define IF1 if (cpu.switches.isolts_mode)
+# else
+#  define IF1 if (0)
+# endif
 
 //#define OSCAR
 
 // DPS8-M support Hex Mode Floating Point
-#ifdef DPS8M
-#define HEX_MODE
-#endif
+# ifdef DPS8M
+#  define HEX_MODE
+# endif
 
 // Instruction profiler
 // #define MATRIX
@@ -139,52 +122,52 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 // execution (EXEC)
 
 //#define TR_WORK_MEM
-#define TR_WORK_EXEC
+# define TR_WORK_EXEC
 
 // Multi-threading may require 'volatile' in some place; make it easy
 // to support both configurations
 
-#if defined(THREADZ) || defined(LOCKLESS)
-#define vol volatile
-#else
-#define vol
-#endif
+# if defined(THREADZ) || defined(LOCKLESS)
+#  define vol volatile
+# else
+#  define vol
+# endif
 
-#ifndef NEED_128
-#ifdef PRIu64
-#undef PRIu64
-#endif
-#ifndef PRIu64
-#define PRIu64 "llu"
-#endif
-#ifdef PRId64
-#undef PRId64
-#endif
-#ifndef PRId64
-#define PRId64 "lld"
-#endif
-#ifdef PRIo64
-#undef PRIo64
-#endif
-#ifndef PRIo64
-#define PRIo64 "llo"
-#endif
-#endif
+# ifndef NEED_128
+#  ifdef PRIu64
+#   undef PRIu64
+#  endif
+#  ifndef PRIu64
+#   define PRIu64 "llu"
+#  endif
+#  ifdef PRId64
+#   undef PRId64
+#  endif
+#  ifndef PRId64
+#   define PRId64 "lld"
+#  endif
+#  ifdef PRIo64
+#   undef PRIo64
+#  endif
+#  ifndef PRIo64
+#   define PRIo64 "llo"
+#  endif
+# endif
 
-#include "sim_defs.h"                                   /* simulator defns */
-#include "sim_tape.h"
+# include "sim_defs.h"                                   /* simulator defns */
+# include "sim_tape.h"
 
 // patch supplied by Dave Jordan (jordandave@gmail.com) 29 Nov 2012
-#ifdef __MINGW32__
-#include <stdint.h>
+# ifdef __MINGW32__
+#  include <stdint.h>
 typedef t_uint64    u_int64_t;
-#endif
+# endif
 typedef t_uint64    uint64;
-#ifndef _AIX
+# ifndef _AIX
 typedef t_int64     int64;
-#else
+# else
 typedef long        int64;
-#endif
+# endif
 
 /* Data types */
 
@@ -235,20 +218,21 @@ typedef word72      float72;    // double precision float
 
 typedef unsigned int uint;      // efficient unsigned int, at least 32 bits
 
-#include "dps8_simh.h"
-#include "dps8_math128.h"
-#include "dps8_hw_consts.h"
-#include "dps8_em_consts.h"
+# include "dps8_simh.h"
+# include "dps8_sys.h"
+# include "dps8_math128.h"
+# include "dps8_hw_consts.h"
+# include "dps8_em_consts.h"
 
 
-#define SETF(flags, x)         flags = ((flags) |  (x))
-#define CLRF(flags, x)         flags = ((flags) & ~(x))
-#define TSTF(flags, x)         (((flags) & (x)) ? 1 : 0)
-#define SCF(cond, flags, x)    { if (cond) SETF((flags), x); else CLRF((flags), x); }
+# define SETF(flags, x)         flags = ((flags) |  (x))
+# define CLRF(flags, x)         flags = ((flags) & ~(x))
+# define TSTF(flags, x)         (((flags) & (x)) ? 1 : 0)
+# define SCF(cond, flags, x)    { if (cond) SETF((flags), x); else CLRF((flags), x); }
 
-#define SETBIT(dst, bitno)      ((dst)  |  (1LLU << (bitno)))
-#define CLRBIT(dst, bitno)      ((dst)  & ~(1LLU << (bitno)))
-#define TSTBIT(dst, bitno)      (((dst) &  (1LLU << (bitno))) ? 1: 0)
+# define SETBIT(dst, bitno)      ((dst)  |  (1LLU << (bitno)))
+# define CLRBIT(dst, bitno)      ((dst)  & ~(1LLU << (bitno)))
+# define TSTBIT(dst, bitno)      (((dst) &  (1LLU << (bitno))) ? 1: 0)
 
 typedef enum
   {
@@ -261,18 +245,18 @@ typedef enum
     APU_DATA_READ,
     APU_DATA_STORE,
     ABSA_CYCLE,
-#ifdef LOCKLESS
+# ifdef LOCKLESS
     OPERAND_RMW,
     APU_DATA_RMW,
-#endif
+# endif
   } processor_cycle_type;
 
-#ifndef LOCKLESS
-#define OPERAND_RMW   OPERAND_READ
-#define APU_DATA_RMW  APU_DATA_READ
-#endif
+# ifndef LOCKLESS
+#  define OPERAND_RMW   OPERAND_READ
+#  define APU_DATA_RMW  APU_DATA_READ
+# endif
 
-#ifndef EIS_PTR4
+# ifndef EIS_PTR4
 // some breakpoint stuff ...
 typedef enum
   {
@@ -281,44 +265,43 @@ typedef enum
     OperandWrite,
     viaPR
   } MemoryAccessType;
-#endif
+# endif
 
 // get 6-bit char @ pos
-#define GETCHAR(src, pos) (word6)(((word36)src >> (word36)((5 - pos) * 6)) & 077)
+# define GETCHAR(src, pos) (word6)(((word36)src >> (word36)((5 - pos) * 6)) & 077)
 // get 9-bit byte @ pos
-#define GETBYTE(src, pos) (word9)(((word36)src >> (word36)((3 - pos) * 9)) & 0777)
+# define GETBYTE(src, pos) (word9)(((word36)src >> (word36)((3 - pos) * 9)) & 0777)
 
-#ifdef NEED_128
-#define YPAIRTO72(ypair) construct_128 ((ypair[0] >> 28) & MASK8,       \
+# ifdef NEED_128
+#  define YPAIRTO72(ypair) construct_128 ((ypair[0] >> 28) & MASK8,       \
                                        ((ypair[0] & MASK28) << 36)    | \
                                         (ypair[1] & MASK36));
-#else
-#define YPAIRTO72(ypair)    (((((word72)(ypair[0] & DMASK)) << 36)    | \
+# else
+#  define YPAIRTO72(ypair)    (((((word72)(ypair[0] & DMASK)) << 36)    | \
                                         (ypair[1] & DMASK)) & MASK72)
-#endif
+# endif
 
+# define GET_TALLY(src) (((src) >> 6) & MASK12)   // 12-bits
+# define GET_DELTA(src)  ((src) & MASK6)          // 6-bits
 
-#define GET_TALLY(src) (((src) >> 6) & MASK12)   // 12-bits
-#define GET_DELTA(src)  ((src) & MASK6)          // 6-bits
+# ifndef max
+#  define max(a,b)    max2((a),(b))
+# endif
+# define max2(a,b)   ((a) > (b) ? (a) : (b))
+# define max3(a,b,c) max((a), max((b),(c)))
 
-#ifndef max
-#define max(a,b)    max2((a),(b))
-#endif
-#define max2(a,b)   ((a) > (b) ? (a) : (b))
-#define max3(a,b,c) max((a), max((b),(c)))
-
-#ifndef min
-#define min(a,b)    min2((a),(b))
-#endif
-#define min2(a,b)   ((a) < (b) ? (a) : (b))
-#define min3(a,b,c) min((a), min((b),(c)))
+# ifndef min
+#  define min(a,b)    min2((a),(b))
+# endif
+# define min2(a,b)   ((a) < (b) ? (a) : (b))
+# define min3(a,b,c) min((a), min((b),(c)))
 
 // opcode metadata (flag) ...
 typedef enum
   {
     READ_OPERAND    = (1U <<  0),  // fetches/reads operand (CA) from memory
     STORE_OPERAND   = (1U <<  1),  // stores/writes operand to memory (its a STR-OP)
-#define RMW             (READ_OPERAND | STORE_OPERAND) // a Read-Modify-Write instruction
+# define RMW             (READ_OPERAND | STORE_OPERAND) // a Read-Modify-Write instruction
     READ_YPAIR      = (1U <<  2),  // fetches/reads Y-pair operand (CA) from memory
     STORE_YPAIR     = (1U <<  3),  // stores/writes Y-pair operand to memory
     READ_YBLOCK8    = (1U <<  4),  // fetches/reads Y-block8 operand (CA) from memory
@@ -342,22 +325,22 @@ typedef enum
 
 // EIS operand types
 
-#define EOP_ALPHA 1U
+# define EOP_ALPHA 1U
 
 // bits 21, 22
     EOP1_ALPHA      = (EOP_ALPHA << 21),
     EOP1_MASK       = (3U << 21),
-#define EOP1_SHIFT 21
+# define EOP1_SHIFT 21
 
 // bits 23, 24
     EOP2_ALPHA      = (EOP_ALPHA << 23),
     EOP2_MASK       = (3U << 23),
-#define EOP2_SHIFT 23
+# define EOP2_SHIFT 23
 
 // bits 25, 26
     EOP3_ALPHA      = (EOP_ALPHA << 25),
     EOP3_MASK       = (3U << 25),
-#define EOP3_SHIFT 25
+# define EOP3_SHIFT 25
 
     READ_YBLOCK32   = (1U << 27),  // fetches/reads Y-block16 operands from memory
     STORE_YBLOCK32  = (1U << 28),  // fetches/reads Y-block16 operands from memory
@@ -369,15 +352,15 @@ typedef enum opc_mod
   {
     NO_DU                 = (1U << 0),   // No DU modification allowed (Can these 2 be combined into 1?)
     NO_DL                 = (1U << 1),   // No DL modification allowed
-#define NO_DUDL         (NO_DU | NO_DL)
+# define NO_DUDL         (NO_DU | NO_DL)
 
     NO_CI                 = (1U << 2),   // No character indirect modification (can these next 3 be combined?_
     NO_SC                 = (1U << 3),   // No sequence character modification
     NO_SCR                = (1U << 4),   // No sequence character reverse modification
-#define NO_CSS          (NO_CI | NO_SC | NO_SCR)
+# define NO_CSS          (NO_CI | NO_SC | NO_SCR)
 
-#define NO_DLCSS        (NO_DU   | NO_CSS)
-#define NO_DDCSS        (NO_DUDL | NO_CSS)
+# define NO_DLCSS        (NO_DU   | NO_CSS)
+# define NO_DDCSS        (NO_DUDL | NO_CSS)
 
     ONLY_AU_QU_AL_QL_XN   = (1U << 5)    // None except au, qu, al, ql, xn
   } opc_mod;
@@ -387,17 +370,17 @@ typedef enum opc_mod
 // None except au, qu, al, ql, xn for MF1, MF2, and MF3
 
 
-#define IS_NONE(tag) (!(tag))
+# define IS_NONE(tag) (!(tag))
 /*! non-tally: du or dl */
-#define IS_DD(tag) ((_TM(tag) != 040U) && \
+# define IS_DD(tag) ((_TM(tag) != 040U) && \
     ((_TD(tag) == 003U) || (_TD(tag) == 007U)))
 /*! tally: ci, sc, or scr */
-#define IS_CSS(tag) ((_TM(tag) == 040U) && \
+# define IS_CSS(tag) ((_TM(tag) == 040U) && \
     ((_TD(tag) == 050U) || (_TD(tag) == 052U) || \
     (_TD(tag) == 045U)))
-#define IS_DDCSS(tag) (IS_DD(tag) || IS_CSS(tag))
+# define IS_DDCSS(tag) (IS_DD(tag) || IS_CSS(tag))
 /*! just dl or css */
-#define IS_DCSS(tag) (((_TM(tag) != 040U) && (_TD(tag) == 007U)) || IS_CSS(tag))
+# define IS_DCSS(tag) (((_TM(tag) != 040U) && (_TD(tag) == 007U)) || IS_CSS(tag))
 
 // !%WRD  ~0200000  017
 // !%9    ~0100000  027
@@ -424,8 +407,8 @@ enum reg_use { is_WRD =  0174000,
                ru_none = 02000 |     0 };
 //, ru_notou = 1024 };
 
-#define ru_AQ (ru_A | ru_Q)
-#define ru_Xn(n) (1 << (7 - (n)))
+# define ru_AQ (ru_A | ru_Q)
+# define ru_Xn(n) (1 << (7 - (n)))
 
 // Basic + EIS opcodes .....
 struct opcode_s {
@@ -439,11 +422,11 @@ struct opcode_s {
 // operations stuff
 
 /*! Y of instruc word */
-#define Y(i) (i & MASKHI18)
+# define Y(i) (i & MASKHI18)
 /*! X from opcodes in instruc word */
-#define OPSX(i) ((i & 0007000LLU) >> 9)
+# define OPSX(i) ((i & 0007000LLU) >> 9)
 /*! X from OP_* enum, and X from  */
-#define X(i) (i & 07U)
+# define X(i) (i & 07U)
 
 enum { OP_1     = 00001U,
     OP_E        = 00002U,
@@ -485,14 +468,14 @@ enum eCAFoper {
 };
 typedef enum eCAFoper eCAFoper;
 
-#define READOP(i) ((bool) (i->info->flags      &  \
+# define READOP(i) ((bool) (i->info->flags      &  \
                            (READ_OPERAND       |  \
                             READ_YPAIR         |  \
                             READ_YBLOCK8       |  \
                             READ_YBLOCK16      |  \
                             READ_YBLOCK32)))
 
-#define WRITEOP(i) ((bool) (i->info->flags     &  \
+# define WRITEOP(i) ((bool) (i->info->flags     &  \
                             (STORE_OPERAND     |  \
                              STORE_YPAIR       |  \
                              STORE_YBLOCK8     |  \
@@ -500,9 +483,9 @@ typedef enum eCAFoper eCAFoper;
                              STORE_YBLOCK32)))
 
 // if it's both read and write it's a RMW
-#define RMWOP(i) ((bool) READOP(i) && WRITEOP(i))
+# define RMWOP(i) ((bool) READOP(i) && WRITEOP(i))
 
-#define TRANSOP(i) ((bool) (i->info->flags & (TRANSFER_INS) ))
+# define TRANSOP(i) ((bool) (i->info->flags & (TRANSFER_INS) ))
 
 //
 // EIS stuff ...
@@ -580,18 +563,19 @@ typedef enum
 
 // Misc constants and macros
 
-#define ARRAY_SIZE(a) ( sizeof(a) / sizeof((a)[0]) )
+# define ARRAY_SIZE(a) ( sizeof(a) / sizeof((a)[0]) )
 
-#if defined(__GNUC__)    || defined(__MINGW64__) || \
-    defined(__MINGW32__) || defined(__GNUC__)    || \
-    defined(__clang_version__)
-#define NO_RETURN __attribute__ ((noreturn))
-#define UNUSED    __attribute__ ((unused))
-#else
-#define NO_RETURN
-#define UNUSED
-#endif
+# if defined (__MINGW64__) || \
+    defined (__MINGW32__) || \
+    defined (__GNUC__) || \
+    defined (__clang_version__)
+#  define NO_RETURN __attribute__ ((noreturn))
+#  define UNUSED    __attribute__ ((unused))
+# else
+#  define NO_RETURN
+#  define UNUSED
+# endif
 
-#define MAX_DEV_NAME_LEN 64
+# define MAX_DEV_NAME_LEN 64
 
 #endif // ifdef DPS8_H

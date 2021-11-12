@@ -26,68 +26,66 @@
 */
 
 #ifndef SIM_SOCK_H_
-#define SIM_SOCK_H_    0
+# define SIM_SOCK_H_    0
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
+# if defined (_WIN32)                                    /* Windows */
+#  include <winsock2.h>
 
-#if defined (_WIN32)                                    /* Windows */
-#include <winsock2.h>
+# elif !defined (_WIN32)                                 /* Not Windows */
+#  include <sys/types.h>                                  /* for fcntl, getpid */
+#  include <sys/socket.h>                                 /* for sockets */
+#  include <string.h>
+#  include <errno.h>
+#  include <fcntl.h>
+#  include <unistd.h>
+#  include <netinet/in.h>                                 /* for sockaddr_in */
+#  include <netinet/tcp.h>                                /* for TCP_NODELAY */
+#  include <arpa/inet.h>                                  /* for inet_addr and inet_ntoa */
+#  include <netdb.h>
+#  include <sys/time.h>
 
-#elif !defined (_WIN32)                                 /* Not Windows */
-#include <sys/types.h>                                  /* for fcntl, getpid */
-#include <sys/socket.h>                                 /* for sockets */
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <netinet/in.h>                                 /* for sockaddr_in */
-#include <netinet/tcp.h>                                /* for TCP_NODELAY */
-#include <arpa/inet.h>                                  /* for inet_addr and inet_ntoa */
-#include <netdb.h>
-#include <sys/time.h>
+#  define WSAGetLastError()       errno                   /* Windows macros */
+#  define WSASetLastError(err) errno = err
+#  define closesocket     close
+#  define SOCKET          int
+#  define WSAEWOULDBLOCK  EWOULDBLOCK
+#  define WSAENAMETOOLONG ENAMETOOLONG
+#  define WSAEINPROGRESS  EINPROGRESS
+#  define WSAETIMEDOUT    ETIMEDOUT
+#  define WSAEISCONN      EISCONN
+#  define WSAECONNRESET   ECONNRESET
+#  define WSAECONNREFUSED ECONNREFUSED
+#  define WSAECONNABORTED ECONNABORTED
+#  define WSAEHOSTUNREACH EHOSTUNREACH
+#  define WSAEADDRINUSE   EADDRINUSE
+#  if defined(EAFNOSUPPORT)
+#   define WSAEAFNOSUPPORT EAFNOSUPPORT
+#  endif
+#  define WSAEACCES       EACCES
+#  define WSAEINTR        EINTR
+#  define INVALID_SOCKET  ((SOCKET)-1)
+#  define SOCKET_ERROR    -1
+# endif
 
-#define WSAGetLastError()       errno                   /* Windows macros */
-#define WSASetLastError(err) errno = err
-#define closesocket     close
-#define SOCKET          int
-#define WSAEWOULDBLOCK  EWOULDBLOCK
-#define WSAENAMETOOLONG ENAMETOOLONG
-#define WSAEINPROGRESS  EINPROGRESS
-#define WSAETIMEDOUT    ETIMEDOUT
-#define WSAEISCONN      EISCONN
-#define WSAECONNRESET   ECONNRESET
-#define WSAECONNREFUSED ECONNREFUSED
-#define WSAECONNABORTED ECONNABORTED
-#define WSAEHOSTUNREACH EHOSTUNREACH
-#define WSAEADDRINUSE   EADDRINUSE
-#if defined(EAFNOSUPPORT)
-#define WSAEAFNOSUPPORT EAFNOSUPPORT
-#endif
-#define WSAEACCES       EACCES
-#define WSAEINTR        EINTR
-#define INVALID_SOCKET  ((SOCKET)-1)
-#define SOCKET_ERROR    -1
-#endif
-
-#if !defined(CBUFSIZE)
-#define CBUFSIZE 1024
-#define sim_printf printf
-#endif
+# if !defined(CBUFSIZE)
+#  define CBUFSIZE 1024
+#  define sim_printf printf
+# endif
 
 int sim_parse_addr (const char *cptr, char *host, size_t hostlen, const char *default_host, char *port, size_t port_len, const char *default_port, const char *validate_addr);
+# ifdef UNUSED
 int sim_parse_addr_ex (const char *cptr, char *host, size_t hostlen, const char *default_host, char *port, size_t port_len, char *localport, size_t local_port_len, const char *default_port);
-#define SIM_SOCK_OPT_REUSEADDR      0x0001
-#define SIM_SOCK_OPT_DATAGRAM       0x0002
-#define SIM_SOCK_OPT_NODELAY        0x0004
-#define SIM_SOCK_OPT_BLOCKING       0x0008
+# endif
+# define SIM_SOCK_OPT_REUSEADDR      0x0001
+# define SIM_SOCK_OPT_DATAGRAM       0x0002
+# define SIM_SOCK_OPT_NODELAY        0x0004
+# define SIM_SOCK_OPT_BLOCKING       0x0008
 SOCKET sim_master_sock_ex (const char *hostport, int *parse_status, int opt_flags);
-#define sim_master_sock(hostport, parse_status) sim_master_sock_ex(hostport, parse_status, ((sim_switches & SWMASK ('U')) ? SIM_SOCK_OPT_REUSEADDR : 0))
+# define sim_master_sock(hostport, parse_status) sim_master_sock_ex(hostport, parse_status, ((sim_switches & SWMASK ('U')) ? SIM_SOCK_OPT_REUSEADDR : 0))
 SOCKET sim_connect_sock_ex (const char *sourcehostport, const char *hostport, const char *default_host, const char *default_port, int opt_flags);
-#define sim_connect_sock(hostport, default_host, default_port) sim_connect_sock_ex(NULL, hostport, default_host, default_port, SIM_SOCK_OPT_NONBLOCK)
+# define sim_connect_sock(hostport, default_host, default_port) sim_connect_sock_ex(NULL, hostport, default_host, default_port, SIM_SOCK_OPT_NONBLOCK)
 SOCKET sim_accept_conn_ex (SOCKET master, char **connectaddr, int opt_flags);
-#define sim_accept_conn(master, connectaddr) sim_accept_conn_ex(master, connectaddr, 0)
+# define sim_accept_conn(master, connectaddr) sim_accept_conn_ex(master, connectaddr, 0)
 int sim_check_conn (SOCKET sock, int rd);
 int sim_read_sock (SOCKET sock, char *buf, int nbytes);
 int sim_write_sock (SOCKET sock, const char *msg, int nbytes);
@@ -97,9 +95,5 @@ SOCKET sim_err_sock (SOCKET sock, const char *emsg);
 int sim_getnames_sock (SOCKET sock, char **socknamebuf, char **peernamebuf);
 void sim_init_sock (void);
 void sim_cleanup_sock (void);
-
-#ifdef  __cplusplus
-}
-#endif
 
 #endif

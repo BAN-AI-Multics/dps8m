@@ -27,39 +27,35 @@
 */
 
 #ifndef SIM_SCP_H_
-#define SIM_SCP_H_     0
-
-#ifdef  __cplusplus
-extern "C" {
-#endif
+# define SIM_SCP_H_      0
 
 /* run_cmd parameters */
 
-#define RU_RUN          0                               /* run */
-#define RU_GO           1                               /* go */
-#define RU_STEP         2                               /* step */
-#define RU_NEXT         3                               /* step or step/over */
-#define RU_CONT         4                               /* continue */
-#define RU_BOOT         5                               /* boot */
+# define RU_RUN          0                               /* run */
+# define RU_GO           1                               /* go */
+# define RU_STEP         2                               /* step */
+# define RU_NEXT         3                               /* step or step/over */
+# define RU_CONT         4                               /* continue */
+# define RU_BOOT         5                               /* boot */
 
 /* exdep_cmd parameters */
 
-#define EX_D            0                               /* deposit */
-#define EX_E            1                               /* examine */
-#define EX_I            2                               /* interactive */
+# define EX_D            0                               /* deposit */
+# define EX_E            1                               /* examine */
+# define EX_I            2                               /* interactive */
 
 /* brk_cmd parameters */
 
-#define SSH_ST          0                               /* set */
-#define SSH_SH          1                               /* show */
-#define SSH_CL          2                               /* clear */
+# define SSH_ST          0                               /* set */
+# define SSH_SH          1                               /* show */
+# define SSH_CL          2                               /* clear */
 
 /* get_sim_opt parameters */
 
-#define CMD_OPT_SW      001                             /* switches */
-#define CMD_OPT_OF      002                             /* output file */
-#define CMD_OPT_SCH     004                             /* search */
-#define CMD_OPT_DFT     010                             /* defaults */
+# define CMD_OPT_SW      001                             /* switches */
+# define CMD_OPT_OF      002                             /* output file */
+# define CMD_OPT_SCH     004                             /* search */
+# define CMD_OPT_DFT     010                             /* defaults */
 
 /* Command processors */
 
@@ -78,10 +74,6 @@ t_stat restore_cmd (int32 flag, CONST char *ptr);
 t_stat exit_cmd (int32 flag, CONST char *ptr);
 t_stat set_cmd (int32 flag, CONST char *ptr);
 t_stat show_cmd (int32 flag, CONST char *ptr);
-t_stat set_default_cmd (int32 flg, CONST char *cptr);
-t_stat pwd_cmd (int32 flg, CONST char *cptr);
-t_stat dir_cmd (int32 flg, CONST char *cptr);
-t_stat type_cmd (int32 flg, CONST char *cptr);
 t_stat brk_cmd (int32 flag, CONST char *ptr);
 t_stat do_cmd (int32 flag, CONST char *ptr);
 t_stat goto_cmd (int32 flag, CONST char *ptr);
@@ -99,12 +91,12 @@ t_stat spawn_cmd (int32 flag, CONST char *ptr);
 t_stat echo_cmd (int32 flag, CONST char *ptr);
 
 /* Allow compiler to help validate printf style format arguments */
-#if !defined __GNUC__
-#define GCC_FMT_ATTR(n, m)
-#endif
-#if !defined(GCC_FMT_ATTR)
-#define GCC_FMT_ATTR(n, m) __attribute__ ((format (__printf__, n, m)))
-#endif
+# if !defined __GNUC__
+#  define GCC_FMT_ATTR(n, m)
+# endif
+# if !defined(GCC_FMT_ATTR)
+#  define GCC_FMT_ATTR(n, m) __attribute__ ((format (__printf__, n, m)))
+# endif
 
 /* Utility routines */
 
@@ -112,11 +104,8 @@ t_stat sim_process_event (void);
 t_stat sim_activate (UNIT *uptr, int32 interval);
 t_stat _sim_activate (UNIT *uptr, int32 interval);
 t_stat sim_activate_abs (UNIT *uptr, int32 interval);
-t_stat sim_activate_notbefore (UNIT *uptr, int32 rtime);
 t_stat sim_activate_after (UNIT *uptr, uint32 usecs_walltime);
 t_stat _sim_activate_after (UNIT *uptr, uint32 usecs_walltime);
-t_stat sim_activate_after_abs (UNIT *uptr, uint32 usecs_walltime);
-t_stat _sim_activate_after_abs (UNIT *uptr, uint32 usecs_walltime);
 t_stat sim_cancel (UNIT *uptr);
 t_bool sim_is_active (UNIT *uptr);
 int32 sim_activate_time (UNIT *uptr);
@@ -132,7 +121,6 @@ t_stat reset_all (uint32 start_device);
 t_stat reset_all_p (uint32 start_device);
 const char *sim_dname (DEVICE *dptr);
 const char *sim_uname (UNIT *dptr);
-t_stat get_yn (const char *ques, t_stat deflt);
 int sim_isspace (char c);
 int sim_islower (char c);
 int sim_isalpha (char c);
@@ -140,7 +128,6 @@ int sim_isprint (char c);
 int sim_isdigit (char c);
 int sim_isgraph (char c);
 int sim_isalnum (char c);
-int sim_strncasecmp (const char *string1, const char *string2, size_t len);
 CONST char *get_sim_opt (int32 opt, CONST char *cptr, t_stat *st);
 const char *put_switches (char *buf, size_t bufsize, uint32 sw);
 CONST char *get_glyph (const char *iptr, char *optr, char mchar);
@@ -157,7 +144,6 @@ t_value strtotv (CONST char *cptr, CONST char **endptr, uint32 radix);
 int Fprintf (FILE *f, const char *fmt, ...) GCC_FMT_ATTR(2, 3);
 t_stat fprint_val (FILE *stream, t_value val, uint32 rdx, uint32 wid, uint32 fmt);
 t_stat sprint_val (char *buf, t_value val, uint32 rdx, uint32 wid, uint32 fmt);
-t_stat sim_print_val (t_value val, uint32 radix, uint32 width, uint32 format);
 const char *sim_fmt_secs (double seconds);
 const char *sprint_capac (DEVICE *dptr, UNIT *uptr);
 char *read_line (char *cptr, int32 size, FILE *stream);
@@ -193,15 +179,12 @@ t_stat sim_exp_clrall (EXPECT *exp);
 t_stat sim_exp_show (FILE *st, CONST EXPECT *exp, const char *match);
 t_stat sim_exp_showall (FILE *st, const EXPECT *exp);
 t_stat sim_exp_check (EXPECT *exp, uint8 data);
-CONST char *match_ext (CONST char *fnam, const char *ext);
 t_stat show_version (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat set_dev_debug (DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat show_dev_debug (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 const char *sim_error_text (t_stat stat);
 t_stat sim_string_to_stat (const char *cptr, t_stat *cond);
-t_stat sim_cancel_step (void);
 void sim_printf (const char *fmt, ...) GCC_FMT_ATTR(1, 2);
-void sim_perror (const char *msg);
 void _sim_err (const char* fmt, ...);
 t_stat sim_messagef (t_stat stat, const char *fmt, ...) GCC_FMT_ATTR(2, 3);
 void sim_data_trace(DEVICE *dptr, UNIT *uptr, const uint8 *data, const char *position, size_t len, const char *txt, uint32 reason);
@@ -209,27 +192,12 @@ void sim_debug_bits_hdr (uint32 dbits, DEVICE* dptr, const char *header,
     BITFIELD* bitdefs, uint32 before, uint32 after, int terminate);
 void sim_debug_bits (uint32 dbits, DEVICE* dptr, BITFIELD* bitdefs,
     uint32 before, uint32 after, int terminate);
-#if defined(__cplusplus)
-#ifdef CANT_USE_MACRO_VA_ARGS
-#define _sim_debug sim_debug
-void sim_debug (uint32 dbits, void* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#else
-void _sim_debug (uint32 dbits, void* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
-#endif
-#else
-#ifdef CANT_USE_MACRO_VA_ARGS
-#define _sim_debug sim_debug
-void sim_debug (uint32 dbits, DEVICE* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#else
 void _sim_debug (uint32 dbits, DEVICE* dptr, const char *fmt, ...) GCC_FMT_ATTR(3, 4);
-#define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
-#endif
-#endif
+# define sim_debug(dbits, dptr, ...) do { if ((sim_deb != NULL) && ((dptr != NULL) && ((dptr)->dctrl & dbits))) _sim_debug (dbits, dptr, __VA_ARGS__);} while (0)
 void fprint_stopped_gen (FILE *st, t_stat v, REG *pc, DEVICE *dptr);
-#define SCP_HELP_FLAT   (1u << 31)       /* Force flat help when prompting is not possible */
-#define SCP_HELP_ONECMD (1u << 30)       /* Display one topic, do not prompt */
-#define SCP_HELP_ATTACH (1u << 29)       /* Top level topic is ATTACH help */
+# define SCP_HELP_FLAT   (1u << 31)       /* Force flat help when prompting is not possible */
+# define SCP_HELP_ONECMD (1u << 30)       /* Display one topic, do not prompt */
+# define SCP_HELP_ATTACH (1u << 29)       /* Top level topic is ATTACH help */
 t_stat scp_help (FILE *st, DEVICE *dptr,
                  UNIT *uptr, int32 flag, const char *help, const char *cptr, ...);
 t_stat scp_vhelp (FILE *st, DEVICE *dptr,
@@ -298,7 +266,7 @@ extern t_bool (*sim_vm_fprint_stopped) (FILE *st, t_stat reason);
 extern t_value (*sim_vm_pc_value) (void);
 extern t_bool (*sim_vm_is_subroutine_call) (t_addr **ret_addrs);
 
-#define SIM_FRONTPANEL_VERSION   2
+# define SIM_FRONTPANEL_VERSION   2
 
 /**
 
@@ -694,9 +662,5 @@ sim_panel_set_debug_mode (PANEL *panel, int debug_bits);
 
 void
 sim_panel_flush_debug (PANEL *panel);
-
-#ifdef  __cplusplus
-}
-#endif
 
 #endif

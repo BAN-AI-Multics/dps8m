@@ -69,7 +69,7 @@ typedef enum
 } Linetype;
 
 #define linetype_if2elif(lt) ((Linetype)( lt - LT_IF + LT_ELIF ))
-#define linetype_2dodgy(lt) ((Linetype)( lt + LT_DODGY ))
+#define linetype_2dodgy(lt)  ((Linetype)( lt + LT_DODGY ))
 
 /* state of #if processing */
 typedef enum
@@ -434,12 +434,12 @@ main(int argc, char *argv[])
     abort();  /* bug */
     /*NOTREACHED*/
 #ifndef __SUNPRO_C
-#ifndef __SUNPRO_CC
-#ifndef __SUNPRO_CC_COMPAT
+# ifndef __SUNPRO_CC
+#  ifndef __SUNPRO_CC_COMPAT
     /* cppcheck-suppress unreachableCode */
     exit(3);  /* unreachable */
-#endif
-#endif
+#  endif
+# endif
 #endif
     /*NOTREACHED*/
   }
@@ -579,9 +579,9 @@ version(void)
 #ifdef BUILDINFO_unifdef
   if (showbuild)
   {
-#ifdef __VERSION__
-#ifdef __GNUC__
-#ifndef __clang_version__
+# ifdef __VERSION__
+#  ifdef __GNUC__
+#   ifndef __clang_version__
     char xcmp[2];
     sprintf(xcmp, "%.1s", __VERSION__ );
     if (!isdigit((int)xcmp[0]))
@@ -590,13 +590,13 @@ version(void)
     } else {
       fprintf(stderr, "Compiler: GCC %s\n", __VERSION__ );
     }
-#else
+#   else
     fprintf(stderr, "Compiler: %s\n", __VERSION__ );
-#endif /* ifndef __clang_version__ */
-#else
+#   endif /* ifndef __clang_version__ */
+#  else
     fprintf(stderr, "Compiler: %s\n", __VERSION__ );
-#endif /* ifdef __GNUC__ */
-#endif /* ifdef __VERSION__ */
+#  endif /* ifdef __GNUC__ */
+# endif /* ifdef __VERSION__ */
     fprintf(stderr, "   Build: %s\n", BUILDINFO_unifdef );
   }
 #endif /* ifdef BUILDINFO_unifdef */
@@ -608,8 +608,8 @@ synopsis(FILE *fp)
 {
   fprintf(
     fp,
-    "Usage:	unifdef [-bBcdehKkmnsStV] [-x{012}] [-Mext] [-opath] \\\n"
-    "     	[-[i]Dsym[=val]] [-[i]Usym] [-fpath] ... [file] ...\n");
+    "Usage:\tunifdef [-bBcdehKkmnsStV] [-x{012}] [-Mext] [-opath] \\\n"
+    "     \t[-[i]Dsym[=val]] [-[i]Usym] [-fpath] ... [file] ...\n");
 }
 
 static void
@@ -627,9 +627,9 @@ help(void)
     "   -Dsym=val  define preprocessor symbol with given value\n"
     "   -Dsym      define preprocessor symbol with value 1\n"
     "   -Usym      preprocessor symbol is undefined\n"
-    "   -iDsym=val \\  ignore C strings and comments\n"
-    "   -iDsym      ) in sections controlled by these\n"
-    "   -iUsym     /  preprocessor symbols\n"
+    "   -iDsym=val  \\   ignore C strings and comments\n"
+    "   -iDsym       )  in sections controlled by these\n"
+    "   -iUsym      /   preprocessor symbols\n"
     "   -fpath  file containing #define and #undef directives\n"
     "   -b      blank lines instead of deleting them\n"
     "   -B      compress blank lines around deleted section\n"

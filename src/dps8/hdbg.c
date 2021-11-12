@@ -22,7 +22,7 @@
 #include "hdbg.h"
 
 #ifdef HDBG
-#include "dps8_faults.h"
+# include "dps8_faults.h"
 
 enum hevtType {
   hevtEmpty = 0,
@@ -106,7 +106,7 @@ struct hevt {
       word36 data;
     } apu;
     struct {
-#define NOTE_SZ 64
+# define NOTE_SZ 64
       char noteBody [NOTE_SZ];
     } note;
   };
@@ -149,7 +149,7 @@ static long hdbg_inc (void) {
   return ret;
 }
 
-#define hev(t, tf, filter) \
+# define hev(t, tf, filter) \
   if (! hevents) \
     goto done; \
   if (filter && hdbgSegNum >= 0 && hdbgSegNum != cpu.PPR.PSR) \
@@ -167,11 +167,11 @@ static long hdbg_inc (void) {
   hevents[p].rw = tf;
 
 
-#define FILTER true
-#define NO_FILTER false
+# define FILTER true
+# define NO_FILTER false
 
-#define WR true
-#define RD false
+# define WR true
+# define RD false
 
 void hdbgTrace (const char * ctx) {
   hev (hevtTrace, RD, FILTER);
@@ -577,17 +577,17 @@ void hdbgPrint (void) {
         printAPU (evtp);
         break;
                 
-#if 0
+# if 0
       case hevtIWBUpdate:
         printIWBUpdate (evtp);
         break;
-#endif
+# endif
                 
-#if 0
+# if 0
       case hevtRegs:
         printRegs (evtp);
         break;
-#endif
+# endif
                 
       case hevtFault:
         printFault (evtp);

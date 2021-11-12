@@ -71,20 +71,20 @@ sprintf ((char *) PROM, \
 #ifdef BUILD_PROM_OSA_TEXT
   BUILD_PROM_OSA_TEXT,    // 130-149  target arch ("XXXXXXXXXXXXXXXXXXXX"/%20s)
 #else
-#ifdef VER_H_PROM_OSA_TEXT
+# ifdef VER_H_PROM_OSA_TEXT
   VER_H_PROM_OSA_TEXT,    // 130-149  target arch ("XXXXXXXXXXXXXXXXXXXX"/%20s)
-#else
+# else
   "Unknown             ", // 130-149  target arch ("XXXXXXXXXXXXXXXXXXXX"/%20s)
-#endif /* VER_H_PROM_OSA_TEXT */
+# endif /* VER_H_PROM_OSA_TEXT */
 #endif /* BUILD_PROM_OSA_TEXT */
 #ifdef BUILD_PROM_OSV_TEXT
   BUILD_PROM_OSV_TEXT     // 150-169  target os   ("XXXXXXXXXXXXXXXXXXXX"/%20s)
 #else
-#ifdef VER_H_PROM_OSV_TEXT
+# ifdef VER_H_PROM_OSV_TEXT
   VER_H_PROM_OSV_TEXT     // 150-169  target os   ("XXXXXXXXXXXXXXXXXXXX"/%20s)
-#else
+# else
   "Unknown             "  // 150-169  target os   ("XXXXXXXXXXXXXXXXXXXX"/%20s)
-#endif /* VER_H_PROM_OSV_TEXT */
+# endif /* VER_H_PROM_OSV_TEXT */
 #endif /* BUILD_PROM_OSV_TEXT */
                           //     170  ------ sprintf adds trailing NULL ------
   );

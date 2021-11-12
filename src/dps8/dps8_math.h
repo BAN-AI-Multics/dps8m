@@ -12,7 +12,9 @@
  */
 
 long double EAQToIEEElongdouble(void);
+#if defined(__MINGW32__) || defined(__MINGW64__)
 double EAQToIEEEdouble(void);
+#endif
 #ifndef QUIET_UNUSED
 float72 IEEElongdoubleToFloat72(long double f);
 void IEEElongdoubleToEAQ(long double f0);

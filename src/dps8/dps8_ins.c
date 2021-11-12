@@ -12,15 +12,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//#define ISOLTS_BITNO
-
-/**
- * \file dps8_ins.c
- * \project dps8
- * \date 9/22/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #include <stdio.h>
 
 #include "dps8.h"
@@ -41,7 +32,7 @@
 #include "dps8_utils.h"
 
 #if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #include "ver.h"
@@ -53,9 +44,9 @@
 static int doABSA (word36 * result);
 static t_stat doInstruction (void);
 #ifdef TESTING
-#if EMULATOR_ONLY
+# if EMULATOR_ONLY
 static int emCall (void);
-#endif
+# endif
 #endif
 
 #ifdef LOOPTRC
@@ -882,8 +873,6 @@ static bool _nodudl[] = {
 // No DU
 // No DL
 
-
-
 // (NO_CI | NO_SC | NO_SCR)
 static bool _nocss[] = {
     // Tm = 0 (register) R
@@ -1294,7 +1283,7 @@ bool tstOVFfault (void)
   }
 
 #ifdef TRACKER
-#include "tracker.h"
+# include "tracker.h"
 #endif
 
 t_stat executeInstruction (void)
@@ -1713,17 +1702,15 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF)
 restart_1:
 
 #if 0 // #ifndef CA_REWORK
-#if 1
+# if 1
     cpu.TPR.CA = ci->address;
     cpu.iefpFinalAddress = cpu.TPR.CA;
     //cpu.rY = cpu.TPR.CA;
-#else
+# else
     cpu.iefpFinalAddress = ci->address;
     cpu.rY = ci->address;
+# endif
 #endif
-#endif
-
-
 
     CPT (cpt2U, 15); // instruction processing
 ///
@@ -1749,7 +1736,7 @@ restart_1:
 
       {
         traceInstruction (DBG_TRACE);
-#ifdef DBGEVENT
+# ifdef DBGEVENT
         int dbgevt;
         if (n_dbgevents && (dbgevt = (dbgevent_lookup (cpu.PPR.PSR, cpu.PPR.IC))) >= 0)
           {
@@ -1760,7 +1747,7 @@ restart_1:
             timespec_diff (& dbgevent_t0, & now, & delta);
             sim_printf ("[%d] %5ld.%03ld %s\r\n", dbgevt, delta.tv_sec, delta.tv_nsec/1000000, dbgevents[dbgevt].tag);
           }
-#endif
+# endif
 
         HDBGTrace ("");
       }
@@ -2092,9 +2079,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
           {
             CPT (cpt2L, 2); // Read operands
             readOperands ();
-#ifdef LOCKLESS
+# ifdef LOCKLESS
             cpu.rmw_address = cpu.iefpFinalAddress;
-#endif
+# endif
             if (cpu.cu.rl)
               {
                 switch (operand_size ())
@@ -2275,16 +2262,16 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
           {
             CPT (cpt2L, 11); // RL
             // C(Xn) -> y
-#if 1
+# if 1
             uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
             word18 lnk = GETHI36 (cpu.CY);
             cpu.CY &= MASK18;
             cpu.rX[Xn] = lnk;
             //putbits36 (& cpu.cu.IWB,  0, 18, lnk);
-#else
+# else
             uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
             putbits36 (& cpu.cu.IWB,  0, 18, cpu.rX[Xn]);
-#endif
+# endif
           }
 #endif
 
@@ -2455,7 +2442,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
         sim_debug (DBG_REGDUMPAQI, &cpu_dev,
                    "A=%012"PRIo64" Q=%012"PRIo64" IR:%s\n",
                    cpu.rA, cpu.rQ, dump_flags (buf, cpu.cu.IR));
-
 #if !defined(__MINGW64__) || !defined(__MINGW32__)
         sim_debug (DBG_REGDUMPFLT, &cpu_dev,
                    "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10Lg\n",
@@ -2465,7 +2451,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
                    "E=%03o A=%012"PRIo64" Q=%012"PRIo64" %.10g\n",
                    cpu.rE, cpu.rA, cpu.rQ, EAQToIEEEdouble ());
 #endif
-
         sim_debug (DBG_REGDUMPIDX, &cpu_dev,
                    "X[0]=%06o X[1]=%06o X[2]=%06o X[3]=%06o\n",
                    cpu.rX[0], cpu.rX[1], cpu.rX[2], cpu.rX[3]);
@@ -2586,7 +2571,7 @@ static t_stat doInstruction (void)
     if (opcodes10[opcode10].reg_use & is_OU)
       {
         is_ou = true;
-#ifdef PANEL
+# ifdef PANEL
     // XXX Punt on RP FULL, RS FULL
         cpu.ou.RB1_FULL = cpu.ou.RP_FULL = cpu.ou.RS_FULL = 1;
         cpu.ou.cycle |= ou_GIN;
@@ -2603,16 +2588,16 @@ static t_stat doInstruction (void)
         if (reguse & ru_X5) CPT (cpt5U, 11);
         if (reguse & ru_X6) CPT (cpt5U, 12);
         if (reguse & ru_X7) CPT (cpt5U, 13);
-#endif
+# endif
       }
-#ifdef L68
+# ifdef L68
     bool is_du = false;
     if (opcodes10[opcode10].reg_use & is_DU)
       {
         is_du = true;
         PNL (DU_CYCLE_nDUD;) // set not idle
       }
-#endif
+# endif
 #endif // PANEL
 
     switch (opcode10)
@@ -5025,12 +5010,12 @@ static t_stat doInstruction (void)
                   remainder += divisor;
                   quotient -= 1;
 
-#ifdef DIV_TRACE
+# ifdef DIV_TRACE
                   sim_debug (DBG_CAC, & cpu_dev,
                              ">>> quot 2 %"PRId64"\n", quotient);
                   sim_debug (DBG_CAC, & cpu_dev,
                              ">>> rem 2 %"PRId64"\n", remainder);
-#endif
+# endif
                 }
 #endif
 
@@ -5180,7 +5165,7 @@ static t_stat doInstruction (void)
           // For i = 0, 1, ..., 35
           // C(Z)i = ~C(Q)i & ( C(A)i XOR C(Y)i )
 
-          /**
+          /*
            * The cmk instruction compares the contents of bit positions of A
            * and Y for identity that are not masked by a 1 in the
            * corresponding bit position of Q.
@@ -5262,12 +5247,11 @@ static t_stat doInstruction (void)
 
         case x0 (0111):  // cwl
           // C(Y) :: closed interval [C(A);C(Q)]
-          /**
+          /*
            * The cwl instruction tests the value of C(Y) to determine if it
            * is within the range of values set by C(A) and C(Q). The
            * comparison of C(Y) with C(Q) locates C(Y) with respect to the
-           * interval if C(Y) is not contained within the
-           interval.
+           * interval if C(Y) is not contained within the interval.
            */
           HDBGRegAR ("cwl");
           HDBGRegQR ("cwl");
@@ -6736,7 +6720,7 @@ static t_stat doInstruction (void)
 
                 // Back into 72 bits
                word72 big = convert_to_word72 (cpu.rA, cpu.rQ);
-#ifdef NEED_128
+# ifdef NEED_128
                 // Convert to time since boot
                 big = subtract_128 (big, construct_128 (0, MulticsuSecs));
                 uint32_t remainder;
@@ -6746,7 +6730,7 @@ static t_stat doInstruction (void)
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "Clock time since boot %4llu.%06llu seconds\n",
                            secs, uSecs);
-#else
+# else
                 // Convert to time since boot
                 big -= MulticsuSecs;
                 unsigned long uSecs = big % 1000000u;
@@ -6754,7 +6738,7 @@ static t_stat doInstruction (void)
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "Clock time since boot %4lu.%06lu seconds\n",
                            secs, uSecs);
-#endif
+# endif
               }
 #endif
           }
@@ -7072,51 +7056,51 @@ static t_stat doInstruction (void)
                   putbits36_1 (& cpu.MR.r, 32, 0);
 // SBZ
                   putbits36_2 (& cpu.MR.r, 33, 0);
-#ifdef L68
+# ifdef L68
                   cpu.MR.FFV = getbits36_15 (cpu.CY, 0);
                   cpu.MR.OC_TRAP = getbits36_1 (cpu.CY, 16);
                   cpu.MR.ADR_TRAP = getbits36_1 (cpu.CY, 17);
                   cpu.MR.OPCODE = getbits36_9 (cpu.CY, 18);
                   cpu.MR.OPCODEX = getbits36_1 (cpu.CY, 27);
-#endif
+# endif
                   cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
                   cpu.MR.separ = getbits36_1 (cpu.CY, 21);
                   cpu.MR.hrhlt = getbits36_1 (cpu.CY, 28);
-#ifdef DPS8M
+# ifdef DPS8M
                   cpu.MR.hrxfr = getbits36_1 (cpu.CY, 29);
-#endif
+# endif
                   cpu.MR.ihr = getbits36_1 (cpu.CY, 30);
                   cpu.MR.ihrrs = getbits36_1 (cpu.CY, 31);
                   cpu.MR.emr = getbits36_1 (cpu.CY, 35);
-#ifdef DPS8M
+# ifdef DPS8M
                   cpu.MR.hexfp = getbits36_1 (cpu.CY, 33);
-#endif
+# endif
 #else
-#ifdef L68
+# ifdef L68
                   cpu.MR.FFV = getbits36_15 (cpu.CY, 0);
                   cpu.MR.isolts_tracks = getbits36_1 (cpu.CY, 15);
                   cpu.MR.OC_TRAP = getbits36_1 (cpu.CY, 16);
                   cpu.MR.ADR_TRAP = getbits36_1 (cpu.CY, 17);
                   cpu.MR.hropc = getbits36_1 (cpu.CY, 29);
-#if 1
+#  if 1
                   //if (cpu.MR.OC_TRAP)
                   if (cpu.MR.OC_TRAP || cpu.MR.hropc)
                     {
                       cpu.MR.OPCODE = getbits36_10 (cpu.CY, 18);
                     }
                   else
-#endif
+#  endif
                     {
                       cpu.MR.cuolin = getbits36_1 (cpu.CY, 18);
                       cpu.MR.solin = getbits36_1 (cpu.CY, 19);
                       cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
                       cpu.MR.separ = getbits36_1 (cpu.CY, 21);
 // tm/vm are only set if the processor maintainence panel PROG switch is on
-#if 1
+#  if 1
                       cpu.MR.tm = getbits36_2 (cpu.CY, 22);
                       cpu.MR.vm = getbits36_2 (cpu.CY, 24);
                       cpu.MR.isolts_tracks2 = getbits36_2 (cpu.CY, 26);
-#endif
+#  endif
                     }
                   cpu.MR.hrhlt = getbits36_1 (cpu.CY, 28);
                   // Captured above
@@ -7125,18 +7109,18 @@ static t_stat doInstruction (void)
                   cpu.MR.ihrrs = getbits36_1 (cpu.CY, 31);
                   //cpu.MR.mrgctl = getbits36_1 (cpu.CY, 32);
                   cpu.MR.emr = getbits36_1 (cpu.CY, 35);
-#endif
-#ifdef DPS8M
+# endif
+# ifdef DPS8M
                   cpu.MR.cuolin = getbits36_1 (cpu.CY, 18);
                   cpu.MR.solin = getbits36_1 (cpu.CY, 19);
                   cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
                   cpu.MR.separ = getbits36_1 (cpu.CY, 21);
 // tm/vm are only set if the processor maintainence panel PROG switch is on
-#if 1
+#  if 1
                   cpu.MR.tm = getbits36_2 (cpu.CY, 22);
                   cpu.MR.vm = getbits36_2 (cpu.CY, 24);
                   cpu.MR.isolts_tracks2 = getbits36_2 (cpu.CY, 26);
-#endif
+#  endif
                   cpu.MR.hrhlt = getbits36_1 (cpu.CY, 28);
                   cpu.MR.hrxfr = getbits36_1 (cpu.CY, 29);
                   cpu.MR.ihr = getbits36_1 (cpu.CY, 30);
@@ -7144,7 +7128,7 @@ static t_stat doInstruction (void)
                   //cpu.MR.mrgctl = getbits36_1 (cpu.CY, 32);
                   cpu.MR.hexfp = getbits36_1 (cpu.CY, 33);
                   cpu.MR.emr = getbits36_1 (cpu.CY, 35);
-#endif
+# endif
 #endif
 
                   // Stop HR Strobe on HR Counter Overflow. (Setting bit 28
@@ -7391,62 +7375,62 @@ elapsedtime ();
 #endif
 #if 0
                     cpu.Ypair[0] = 0;
-#ifdef L68
+# ifdef L68
                     putbits36_15 (& cpu.Ypair[0], 0, cpu.MR.FFV);
                     putbits36_1 (& cpu.Ypair[0], 15, cpu.MR.isolts_tracks);
                     putbits36_1 (& cpu.Ypair[0], 16, cpu.MR.OC_TRAP);
                     putbits36_1 (& cpu.Ypair[0], 17, cpu.MR.ADR_TRAP);
-#if 1
+#  if 1
                     if (cpu.MR.OC_TRAP || cpu.MR.hropc)
                       {
                         putbits36_10 (& cpu.Ypair[0], 18, cpu.MR.OPCODE);
                       }
                     else
-#endif
+#  endif
                       {
                         putbits36_1 (& cpu.Ypair[0], 18, cpu.MR.cuolin);
                         putbits36_1 (& cpu.Ypair[0], 19, cpu.MR.solin);
                         putbits36_1 (& cpu.Ypair[0], 20, cpu.MR.sdpap);
                         putbits36_1 (& cpu.Ypair[0], 21, cpu.MR.separ);
 // tm/vm are only set if the processor maintainence panel PROG switch is on
-#if 1
+#  if 1
                         putbits36_2 (& cpu.Ypair[0], 22, cpu.MR.tm);
                         putbits36_2 (& cpu.Ypair[0], 24, cpu.MR.vm);
-#else
+#  else
                         putbits36_2 (& cpu.Ypair[0], 22, 01llu);
                         putbits36_2 (& cpu.Ypair[0], 24, 01llu);
-#endif
+#  endif
                       }
-#endif
-#ifdef DPS8M
+# endif
+# ifdef DPS8M
                     putbits36_1 (& cpu.Ypair[0], 18, cpu.MR.cuolin);
                     putbits36_1 (& cpu.Ypair[0], 19, cpu.MR.solin);
                     putbits36_1 (& cpu.Ypair[0], 20, cpu.MR.sdpap);
                     putbits36_1 (& cpu.Ypair[0], 21, cpu.MR.separ);
-#endif
+# endif
 // tm/vm are only set if the processor maintainence panel PROG switch is on
-#if 1
+# if 1
                     putbits36_2 (& cpu.Ypair[0], 22, cpu.MR.tm);
                     putbits36_2 (& cpu.Ypair[0], 24, cpu.MR.vm);
                     putbits36_2 (& cpu.Ypair[0], 26, cpu.MR.isolts_tracks2);
-#else
+# else
                     putbits36_2 (& cpu.Ypair[0], 22, 01llu);
                     putbits36_2 (& cpu.Ypair[0], 24, 01llu);
                     putbits36_2 (& cpu.Ypair[0], 26, 03llu);
-#endif
+# endif
                     putbits36_1 (& cpu.Ypair[0], 28, cpu.MR.hrhlt);
-#ifdef DPS8M
+# ifdef DPS8M
                     putbits36_1 (& cpu.Ypair[0], 29, cpu.MR.hrxfr);
-#endif
-#ifdef L68
+# endif
+# ifdef L68
                     putbits36_1 (& cpu.Ypair[0], 29, cpu.MR.hropc);
-#endif
+# endif
                     putbits36_1 (& cpu.Ypair[0], 30, cpu.MR.ihr);
                     putbits36_1 (& cpu.Ypair[0], 31, cpu.MR.ihrrs);
                     //putbits36_1 (& cpu.Ypair[0], 32, cpu.MR.mrgctl);
-#ifdef DPS8M
+# ifdef DPS8M
                     putbits36_1 (& cpu.Ypair[0], 33, cpu.MR.hexfp);
-#endif
+# endif
                     putbits36_1 (& cpu.Ypair[0], 35, cpu.MR.emr);
 #endif
                     CPTUR (cptUseCMR);
@@ -8030,7 +8014,7 @@ elapsedtime ();
 //           Bits 6-7 Reserved for later use.
 //       50: Operating System Use                                  //    40
 
-#include "dps8_prom.h"
+# include "dps8_prom.h"
                 word36 tmp = 0;
                 tmp |= (word36) ((cpu.switches.interlace[0] == 2 ? 1LL : 0LL)
                        << (35- 0));
@@ -8210,8 +8194,6 @@ elapsedtime ();
 // 1 -> C(A) 25
 // 000 -> C(A) 26,28
 // C(Processor speed) -> C (A) 29,32
-
-
 
 // C(Processor number switches) -> C(A) 33,35
 
@@ -8644,7 +8626,7 @@ elapsedtime ();
               }
 
 #if 0
-#ifdef LOCKLESS
+# ifdef LOCKLESS
 // Changes to pxss.alm will move the address of the delete_me dis instuction
 // That dis has a distintive bit pattern; use the segment and IWB instead
 // of segment and IC.
@@ -8660,7 +8642,7 @@ elapsedtime ();
                 longjmp (cpu.jmpMain, JMP_STOP);
                 //stopCPUThread ();
               }
-#endif
+# endif
 #endif
 #ifdef ROUND_ROBIN
           if (cpu.PPR.PSR == 034 && cpu.PPR.IC == 03535)
@@ -8671,21 +8653,7 @@ elapsedtime ();
                 cpu.isRunning = false;
               }
 #endif
-#if 0
-          if (i->address == 0777)
-              {
-                sim_printf ("Multics DIS disables CPU: CA: 0x%x\n",cpu.TPR.CA);
-                sim_debug (DBG_MSG, & cpu_dev, "Multics DIS disables CPU\n");
-#if 1
-                setCPURun (current_running_cpu_idx, false);
-#else
-                longjmp (cpu.jmpMain, JMP_STOP);
-#endif
-              }
-#endif
-
           sim_debug (DBG_TRACEEXT, & cpu_dev, "entered DIS_cycle\n");
-          //sim_printf ("entered DIS_cycle\n");
 
           // No operation takes place, and the processor does not
           // continue with the next instruction; it waits for a
@@ -8996,10 +8964,14 @@ elapsedtime ();
 
                 // If C(Y)21,22 = 11 (TA code = 3) or C(Y)23 = 1 (unused bit),
                 // an illegal procedure fault occurs.
-                if (TA == 03)
+                if (TA == 03) {
                   dlyDoFault (FAULT_IPR, fst_ill_proc, "ARAn tag == 3");
-                if (getbits36_1 (cpu.CY, 23) != 0)
+                  break;
+                }
+                if (getbits36_1 (cpu.CY, 23) != 0) {
                   dlyDoFault (FAULT_IPR, fst_ill_proc, "ARAn b23 == 1");
+                  break;
+                }
 
                 uint32 n = opcode10 & 07;  // get
                 CPTUR (cptUsePRn + n);
@@ -9355,7 +9327,7 @@ elapsedtime ();
             break;
 
 #ifdef TESTING
-#if EMULATOR_ONLY
+# if EMULATOR_ONLY
 
         case x1 (0420):  // emcall instruction Custom, for an emulator call for
                     //  simh stuff ...
@@ -9365,7 +9337,7 @@ elapsedtime ();
               return ret;
             break;
         }
-#endif
+# endif
 #endif
 
         default:
@@ -9387,10 +9359,10 @@ elapsedtime ();
 }
 
 #ifdef TESTING
-#include <ctype.h>
+# include <ctype.h>
 
-#if EMULATOR_ONLY
-/**
+# if EMULATOR_ONLY
+/*
  * emulator call instruction. Do whatever address field sez' ....
  */
 static int emCall (void)
@@ -9448,13 +9420,13 @@ static int emCall (void)
         }
         case 6:     // putEAQ - put float contents of C(EAQ) to stdout
         {
-#if !defined(__MINGW64__) || !defined(__MINGW32__)
+#  if !defined(__MINGW64__) || !defined(__MINGW32__)
             long double eaq = EAQToIEEElongdouble ();
             sim_printf ("%12.8Lg", eaq);
-#else
+#  else
             double eaq = EAQToIEEEdouble();
             sim_printf("%12.8g", eaq);
-#endif
+#  endif
             break;
         }
         case 7:   // dump index registers
@@ -9585,7 +9557,7 @@ static int emCall (void)
     }
     return 0;
 }
-#endif
+# endif
 #endif // TESTING
 
 // CANFAULT

@@ -11,8 +11,11 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-#include <uv.h>
-#include "uvutil.h"
+#ifndef _DPS8_SYS_H
+# define _DPS8_SYS_H
+
+# include <uv.h>
+# include "uvutil.h"
 
 enum http_state_t
   {
@@ -43,7 +46,7 @@ typedef struct
     // } mt_times;
     // bool warn_uninit; // Warn when reading uninitialized memory
 
-#define MR_BUFFER_SZ 4096
+# define MR_BUFFER_SZ 4096
     char mr_buffer[MR_BUFFER_SZ];
     int mr_buffer_cnt;
 
@@ -62,9 +65,9 @@ typedef struct
     uint sys_poll_check_rate; // Check for pooling interval rate in CPU cycles
 } sysinfo_t;
 
-#ifdef DBGEVENT
-#define max_dbgevents 128u
-#define dbgevent_tagsize 128
+# ifdef DBGEVENT
+#  define max_dbgevents 128u
+#  define dbgevent_tagsize 128
 struct dbgevent_t
   {
     word15 segno;
@@ -77,19 +80,19 @@ extern uint n_dbgevents;
 extern struct dbgevent_t dbgevents[max_dbgevents];
 extern struct timespec dbgevent_t0;
 int dbgevent_lookup (word15 segno, word18 offset);
-#endif
+# endif
 
-#ifndef SCUMEM
+# ifndef SCUMEM
 extern vol word36 * M;
-#endif
+# endif
 extern sysinfo_t sys_opts;
 extern uint64 sim_deb_start;
 extern uint64 sim_deb_stop;
 extern uint64 sim_deb_break;
-#define DEBUG_SEGNO_LIMIT 1024
+# define DEBUG_SEGNO_LIMIT 1024
 extern bool sim_deb_segno_on;
 extern bool sim_deb_segno[DEBUG_SEGNO_LIMIT];
-#define NO_SUCH_RINGNO ((uint64) -1ll)
+# define NO_SUCH_RINGNO ((uint64) -1ll)
 extern uint64 sim_deb_ringno;
 extern uint64 sim_deb_skip_limit;
 extern uint64 sim_deb_mme_cntdwn;
@@ -105,3 +108,5 @@ void list_source (char * compname, word18 offset, uint dflag);
 
 t_stat brkbrk (int32 arg, const char * buf);
 extern int32 luf_flag;
+
+#endif

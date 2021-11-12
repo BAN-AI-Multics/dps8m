@@ -46,7 +46,9 @@ int get_mt_numunits (void);
 //void tape_send_special_interrupt (uint driveNumber);
 t_stat loadTape (uint driveNumber, char * tapeFilename, bool ro);
 t_stat attachTape (char * label, bool withring, char * drive);
+#ifndef QUIET_UNUSED
 t_stat detachTape (char * drive);
+#endif
 iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan);
 t_stat unloadTape (uint driveNumber);
 t_stat mount_tape (int32 arg, const char * buf);

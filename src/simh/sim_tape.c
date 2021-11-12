@@ -56,8 +56,6 @@
    sim_tape_show_capac  show tape capacity
    sim_tape_set_dens    set tape density
    sim_tape_show_dens   show tape density
-   sim_tape_set_async   enable asynchronous operation
-   sim_tape_clr_async   disable asynchronous operation
 */
 
 #include "sim_defs.h"
@@ -105,29 +103,6 @@ struct tape_context {
     uint32              auto_format;        /* Format determined dynamically */
     };
 #define tape_ctx up8                        /* Field in Unit structure which points to the tape_context */
-
-#define AIO_CALLSETUP                                                       \
-    if (uptr->tape_ctx == NULL)                                             \
-        return sim_messagef (SCPE_IERR, "Bad Attach\n");
-#define AIO_CALL(op, _buf, _fc, _bc, _max, _vbc, _gaplen, _bpi, _obj, _callback) \
-    if (_callback)                                                    \
-        (_callback) (uptr, r);
-
-
-/* Enable asynchronous operation */
-
-t_stat sim_tape_set_async (UNIT *uptr, int latency)
-{
-sim_printf ("Tape: can't operate asynchronously\r\n");
-return SCPE_NOFNC;
-}
-
-/* Disable asynchronous operation */
-
-t_stat sim_tape_clr_async (UNIT *uptr)
-{
-return SCPE_NOFNC;
-}
 
 /*
    This routine is called when the simulator stops and any time
@@ -226,19 +201,20 @@ return SCPE_OK;
 t_stat sim_tape_detach (UNIT *uptr)
 {
 struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
-uint32 f = MT_GET_FMT (uptr);
+uint32 f = 0;
 t_stat r;
 t_bool auto_format = FALSE;
 
-if ((ctx == NULL) || (uptr == NULL) || !(uptr->flags & UNIT_ATT))
+if (uptr != NULL)
+    f = MT_GET_FMT (uptr);
+
+if ((ctx == NULL) || !(uptr->flags & UNIT_ATT))
     return SCPE_IERR;
 
 if (uptr->io_flush)
     uptr->io_flush (uptr);                              /* flush buffered data */
 if (ctx)
     auto_format = ctx->auto_format;
-
-sim_tape_clr_async (uptr);
 
 r = detach_unit (uptr);                                 /* detach unit */
 if (r != SCPE_OK)
@@ -265,7 +241,7 @@ if (auto_format)    /* format was determined or specified at attach time? */
 return SCPE_OK;
 }
 
-t_stat sim_tape_attach_help(FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, const char *cptr)
+t_stat sim_tape_attach_help(FILE *st, DEVICE *dptr, const UNIT *uptr, int32 flag, const char *cptr)
 {
 fprintf (st, "%s Tape Attach Help\n\n", dptr->name);
 if (0 == (uptr-dptr->units)) {
@@ -274,7 +250,7 @@ if (0 == (uptr-dptr->units)) {
 
         for (i=0; i < dptr->numunits; ++i)
             if (dptr->units[i].flags & UNIT_ATTABLE)
-                fprintf (st, "  sim> ATTACH {switches} %s%d tapefile\n\n", dptr->name, i);
+                fprintf (st, "  sim> ATTACH {switches} %s%lu tapefile\n\n", dptr->name, (unsigned long)i);
         }
     else
         fprintf (st, "  sim> ATTACH {switches} %s tapefile\n\n", dptr->name);
@@ -809,9 +785,7 @@ return (MTR_F (tbc)? MTSE_RECE: MTSE_OK);
 t_stat sim_tape_rdrecf_a (UNIT *uptr, uint8 *buf, t_mtrlnt *bc, t_mtrlnt max, TAPE_PCALLBACK callback)
 {
 t_stat r = SCPE_OK;
-AIO_CALLSETUP
     r = sim_tape_rdrecf (uptr, buf, bc, max);
-AIO_CALL(TOP_RDRF, buf, bc, NULL, max, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -868,9 +842,7 @@ return (MTR_F (tbc)? MTSE_RECE: MTSE_OK);
 t_stat sim_tape_rdrecr_a (UNIT *uptr, uint8 *buf, t_mtrlnt *bc, t_mtrlnt max, TAPE_PCALLBACK callback)
 {
 t_stat r = SCPE_OK;
-AIO_CALLSETUP
     r = sim_tape_rdrecr (uptr, buf, bc, max);
-AIO_CALL(TOP_RDRR, buf, bc, NULL, max, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -944,9 +916,7 @@ return MTSE_OK;
 t_stat sim_tape_wrrecf_a (UNIT *uptr, uint8 *buf, t_mtrlnt bc, TAPE_PCALLBACK callback)
 {
 t_stat r = SCPE_OK;
-AIO_CALLSETUP
     r = sim_tape_wrrecf (uptr, buf, bc);
-AIO_CALL(TOP_WREC, buf, 0, NULL, 0, bc, 0, 0, NULL, callback);
 return r;
 }
 
@@ -993,9 +963,7 @@ return sim_tape_wrdata (uptr, MTR_TMK);
 t_stat sim_tape_wrtmk_a (UNIT *uptr, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_wrtmk (uptr);
-AIO_CALL(TOP_WTMK, NULL, NULL, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1023,9 +991,7 @@ return result;
 t_stat sim_tape_wreom_a (UNIT *uptr, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_wreom (uptr);
-AIO_CALL(TOP_WEOM, NULL, NULL, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1050,9 +1016,7 @@ return r;
 t_stat sim_tape_wreomrw_a (UNIT *uptr, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_wreomrw (uptr);
-AIO_CALL(TOP_WEMR, NULL, NULL, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1310,9 +1274,6 @@ return MTSE_OK;
 t_stat sim_tape_wrgap_a (UNIT *uptr, uint32 gaplen, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
-    r = sim_tape_wrgap (uptr, gaplen);
-AIO_CALL(TOP_RDRR, NULL, NULL, NULL, 0, 0, gaplen, 0, NULL, callback);
 return r;
 }
 
@@ -1351,9 +1312,7 @@ return st;
 t_stat sim_tape_sprecf_a (UNIT *uptr, t_mtrlnt *bc, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_sprecf (uptr, bc);
-AIO_CALL(TOP_SPRF, NULL, bc, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1399,9 +1358,7 @@ return MTSE_OK;
 t_stat sim_tape_sprecsf_a (UNIT *uptr, uint32 count, uint32 *skipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_sprecsf (uptr, count, skipped);
-AIO_CALL(TOP_SRSF, NULL, skipped, NULL, 0, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1446,9 +1403,7 @@ return st;
 t_stat sim_tape_sprecr_a (UNIT *uptr, t_mtrlnt *bc, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_sprecr (uptr, bc);
-AIO_CALL(TOP_SPRR, NULL, bc, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1495,9 +1450,7 @@ return MTSE_OK;
 t_stat sim_tape_sprecsr_a (UNIT *uptr, uint32 count, uint32 *skipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_sprecsr (uptr, count, skipped);
-AIO_CALL(TOP_SRSR, NULL, skipped, NULL, 0, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1570,9 +1523,7 @@ return MTSE_OK;
 t_stat sim_tape_spfilebyrecf_a (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, t_bool check_leot, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_spfilebyrecf (uptr, count, skipped, recsskipped, check_leot);
-AIO_CALL(TOP_SFRF, NULL, skipped, recsskipped, check_leot, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1610,9 +1561,7 @@ return sim_tape_spfilebyrecf (uptr, count, skipped, &totalrecsskipped, FALSE);
 t_stat sim_tape_spfilef_a (UNIT *uptr, uint32 count, uint32 *skipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_spfilef (uptr, count, skipped);
-AIO_CALL(TOP_SPFF, NULL, skipped, NULL, 0, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1667,9 +1616,7 @@ return MTSE_OK;
 t_stat sim_tape_spfilebyrecr_a (UNIT *uptr, uint32 count, uint32 *skipped, uint32 *recsskipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_spfilebyrecr (uptr, count, skipped, recsskipped);
-AIO_CALL(TOP_SPFR, NULL, skipped, recsskipped, 0, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1708,9 +1655,7 @@ return sim_tape_spfilebyrecr (uptr, count, skipped, &totalrecsskipped);
 t_stat sim_tape_spfiler_a (UNIT *uptr, uint32 count, uint32 *skipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_spfiler (uptr, count, skipped);
-AIO_CALL(TOP_SPFR, NULL, skipped, NULL, 0, count, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1733,9 +1678,7 @@ return MTSE_OK;
 t_stat sim_tape_rewind_a (UNIT *uptr, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_rewind (uptr);
-AIO_CALL(TOP_RWND, NULL, NULL, NULL, 0, 0, 0, 0, NULL, callback);
 return r;
 }
 
@@ -1796,9 +1739,7 @@ return r;
 t_stat sim_tape_position_a (UNIT *uptr, uint32 flags, uint32 recs, uint32 *recsskipped, uint32 files, uint32 *filesskipped, uint32 *objectsskipped, TAPE_PCALLBACK callback)
 {
 t_stat r = MTSE_OK;
-AIO_CALLSETUP
     r = sim_tape_position (uptr, flags, recs, recsskipped, files, filesskipped, objectsskipped);
-AIO_CALL(TOP_POSN, NULL, recsskipped, filesskipped, 0, flags, recs, files, objectsskipped, callback);
 return r;
 }
 
@@ -1817,8 +1758,6 @@ if (ctx == NULL)                                        /* if not properly attac
 sim_debug (ctx->dbit, ctx->dptr, "sim_tape_reset(unit=%d)\n", (int)(uptr-ctx->dptr->units));
 
 _sim_tape_io_flush(uptr);
-AIO_VALIDATE;
-AIO_UPDATE_QUEUE;
 return SCPE_OK;
 }
 
@@ -2035,12 +1974,12 @@ t_stat sim_tape_show_capac (FILE *st, UNIT *uptr, int32 val, CONST void *desc)
 {
 if (uptr->capac) {
     if (uptr->capac >= (t_addr) 1000000)
-        fprintf (st, "capacity=%dMB", (uint32) (uptr->capac / ((t_addr) 1000000)));
+        fprintf (st, "capacity=%luMB", (unsigned long)(uptr->capac / ((t_addr) 1000000)));
     else {
         if (uptr->capac >= (t_addr) 1000)
-            fprintf (st, "capacity=%dKB", (uint32) (uptr->capac / ((t_addr) 1000)));
+            fprintf (st, "capacity=%luKB", (unsigned long)(uptr->capac / ((t_addr) 1000)));
         else
-            fprintf (st, "capacity=%dB", (uint32) uptr->capac);
+            fprintf (st, "capacity=%luB", (unsigned long)uptr->capac);
         }
     }
 else
@@ -2089,7 +2028,7 @@ else {                                                          /* otherwise a v
     new_bpi = (uint32) get_uint (cptr, 10, UINT_MAX, &result);  /* convert the string value */
 
     if (result != SCPE_OK)                                      /* if the conversion failed */
-        result = SCPE_ARG;                                      /*   then report a bad argument */
+        return SCPE_ARG;                                        /*   then report a bad argument */
 
     else for (density = 0; density < BPI_COUNT; density++)      /* otherwise validate the density */
         if (new_bpi == bpi [density]                            /* if it matches a value in the list */
@@ -2118,7 +2057,8 @@ else {                                                  /* otherwise get the den
     tape_density = bpi [MT_DENS (uptr->dynflags)];      /*   of the tape from the unit flags */
 
     if (tape_density)                                   /* if it's set */
-        fprintf (st, "density=%d bpi", tape_density);   /*   then report it */
+        fprintf (st, "density=%lu bpi",
+            (unsigned long)tape_density);               /*   then report it */
     else                                                /* otherwise */
         fprintf (st, "density not set");                /*   it was never set by the caller */
     }

@@ -30,8 +30,6 @@ typedef struct s_dia_data
 
 extern t_dia_data dia_data;
 
-/* XXX(johnsonjh): ML */
-
 #if 0
 // dn355_mailbox.incl.pl1
 //   input_sub_mbx

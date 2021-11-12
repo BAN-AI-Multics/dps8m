@@ -48,7 +48,6 @@ clean:
 	@$(SETV); $(RMF) "punutil$(EXE)" > /dev/null 2>&1  ||  $(TRUE)
 	@$(SETV); $(RMF) "punutil.exe"   > /dev/null 2>&1  ||  $(TRUE)
 	@$(SETV); $(RMF) "punutil.o"     > /dev/null 2>&1  ||  $(TRUE)
-	@$(SETV); $(RMF) "cflags.L"      > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 

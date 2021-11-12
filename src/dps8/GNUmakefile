@@ -103,28 +103,33 @@ ifeq ($(MINGW_CROSS),1)
             -L../../../libuv/.libs $(LIBUV)
   endif
   ifeq ($(shell $(UNAME) -o 2> /dev/null || true >/dev/null 2>&1),Cygwin)
-  # Standard Cygwin build
+    # Standard Cygwin build
     LIBS += -lwinmm -lws2_32 -lwsock32 -luserenv -liphlpapi $(LIBUV)
   else
-  # Cross-compilation to MinGW
+    # Cross-compilation to MinGW
     LIBS += -lwinmm -lws2_32 -lssp $(MINGWEX) -lwsock32 -luserenv -liphlpapi  \
             -L../../../libuv/.libs $(LIBUV)
   endif
 endif
 
 ###############################################################################
+# Include directories
 
 CFLAGS += -I../decNumber -I$(SIMHx)
 
 ###############################################################################
-# Fix for gcc reporting bogus warnings
+# Warning level tweaks
 
 ifneq ($(W),)
-ifeq ($(CC),clang)
-CFLAGS += -Wall -Wconversion -Wsign-conversion
-else
-CFLAGS += -Wall -Wno-conversion -Wsign-conversion -Wno-psabi -Wno-abi
-endif
+  ifeq ($(CC),clang)
+    CFLAGS += -Wall -Wconversion -Wsign-conversion -Wno-unknown-warning-option
+  else
+    ifeq ($(CC),gcc)
+      CFLAGS += -Wall -Wno-conversion -Wsign-conversion -Wno-psabi -Wno-abi
+    else
+      CFLAGS += -Wall
+    endif
+  endif
 endif
 
 ###############################################################################
@@ -306,9 +311,9 @@ H_SRCS += uvutil.h
 ###############################################################################
 
 SIMH_OBJS = ../simh/dispatch.o     ../simh/sim_console.o   ../simh/sim_disk.o \
-            ../simh/sim_fio.o      ../simh/sim_serial.o    ../simh/sim_sock.o \
-            ../simh/sim_tape.o     ../simh/sim_timer.o     ../simh/sim_tmxr.o \
-            ../simh/linehistory.o  ../simh/scp.o
+            ../simh/sim_fio.o      ../simh/sim_sock.o      ../simh/sim_tape.o \
+            ../simh/sim_timer.o    ../simh/sim_tmxr.o      ../simh/scp.o      \
+            ../simh/linehistory.o
 
 ###############################################################################
 
@@ -317,7 +322,12 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all: sysdefs.h unifdef locallibs_then_dps8 prt2pdf punutil $(TAGS)
+all: sysdefs.h ver.h                                                          \
+     unifdef                                                                  \
+     locallibs_then_dps8                                                      \
+     prt2pdf                                                                  \
+     punutil                                                                  \
+     $(TAGS)
 
 ###############################################################################
 
@@ -338,7 +348,7 @@ install: all
 printuk:
 	@$(PRINTF) '%s\n' "*** Begin printuk (git untracked files):"
 	@$(SETV); ($(CD) "../.." && $(GIT) status -s --untracked-files="all"      \
-	    2> /dev/null | $(GREP) '^? ' || $(TRUE))
+        2> /dev/null | $(GREP) '^? ' || $(TRUE))
 	@$(PRINTF) '%s\n' "*** End printuk"
 
 ###############################################################################
@@ -347,7 +357,7 @@ printuk:
 printmod:
 	@$(PRINTF) '%s\n' "*** Begin printmod (git tracked modified files)"
 	@$(SETV); ($(CD) "../.." && $(GIT) status -s 2> /dev/null |               \
-	    $(GREP) '^\ \?M ' || $(TRUE))
+        $(GREP) '^\ \?M ' || $(TRUE))
 	@$(PRINTF) '%s\n' "*** End printmod"
 
 ###############################################################################
@@ -356,13 +366,6 @@ blinkenLights: blinkenLights.c shm.o
 	@$(PRINTF) '%s\n' "LD: blinkenLights"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights.c                      \
         -o blinkenLights shm.o `$(PKGCONFIG) --cflags --libs gtk+-3.0`
-
-###############################################################################
-
-blinkenLights2: blinkenLights2.c shm.o
-	@$(PRINTF) '%s\n' "LD: blinkenLights2s"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights2.c                     \
-        -o blinkenLights2 shm.o `$(PKGCONFIG) --cflags --libs gtk+-3.0` -lrt
 
 ###############################################################################
 
@@ -389,7 +392,7 @@ ifeq (,$(wildcard ver.h~))
 ver.h:
 	@$(SETV); $(RMF) "./ver.h"
 	@$(PRINTF) '%s\n' "WARNING: This source tree does not appear to be a"    \
-	                  "         full git clone or a complete source kit."
+                      "         full git clone or a complete source kit."
 	@$(SETV); $(TOUCH) "./ver.h"
 else
 # kit
@@ -427,26 +430,25 @@ slte.inc: system_book_12_3.ascii
 ###############################################################################
 
 .PHONY: locallibs_then_dps8
-locallibs_then_dps8:
+locallibs_then_dps8: ver.h sysdefs.h
 	@($(SETV); $(CD) "../decNumber" && $(MAKE) -C "." -f "GNUmakefile" "all")
-	@$(SETV); MAKE="$(MAKE)" $(MAKE) -C "." -f "GNUmakefile" "ver.h"
 	@($(SETV); $(CD) "$(SIMHx)" && $(MAKE) -C "." -f "GNUmakefile" "all")
 	@$(SETV); $(MAKE) -C "." -f "GNUmakefile" "dps8$(EXE)"
 
 ###############################################################################
 
-prt2pdf:
+prt2pdf: sysdefs.h
 	@$(SETV); $(MAKE) -C "../prt2pdf" "all"
 
 ###############################################################################
 
-unifdef:
-	-@$(SETV); $(MAKE) -C "../unifdef"
+unifdef: ver.h
+	-@$(SETV); $(MAKE) -C "../unifdef" "all"
 
 ###############################################################################
 
 punutil:
-	-@$(SETV); $(MAKE) -C "../punutil"
+	-@$(SETV); $(MAKE) -C "../punutil" "all"
 
 ###############################################################################
 
@@ -469,10 +471,10 @@ tags TAGS ctags: $(C_SRCS) $(H_SRCS) ver.h
         $(GREP) '\.[ch]'                          2> /dev/null    |           \
          $(GREP) -E '(dps8|decNumber|simh)'       2> /dev/null    |           \
           $(GREP) -vE '(blinkenLights|\.Attic/)'  2> /dev/null    |           \
-		  $(GTAGS) -f -                           2> /dev/null)  || $(TRUE)
+          $(GTAGS) -f -                           2> /dev/null)  || $(TRUE)
 	@$(PRINTF) '%s\n' "CSCOPE: dps8"
 	-@$(SETV); $(CSCOPE) -bcq $(C_SRCS) $(H_SRCS)                             \
-		$(SIMHx)/*.[ch] ../decNumber/dec*.[ch]    2> /dev/null   || $(TRUE)
+        $(SIMHx)/*.[ch] ../decNumber/dec*.[ch]    2> /dev/null   || $(TRUE)
 
 ###############################################################################
 
@@ -509,14 +511,17 @@ distclean: clean
 	@$(SETV); $(RMF) "../l68.state"           ||  $(TRUE)
 	@$(SETV); $(RMF) "l68.state"              ||  $(TRUE)
 	@$(SETV); $(RMF) "restoreMultics.log"     ||  $(TRUE)
-	@$(SETV); $(RMF)  "TAGS"                  ||  $(TRUE)
-	@$(SETV); $(RMF)  "tags"                  ||  $(TRUE)
-	@$(SETV); $(RMF)  "../../GPATH"           ||  $(TRUE)
-	@$(SETV); $(RMF)  "../../GRTAGS"          ||  $(TRUE)
-	@$(SETV); $(RMF)  "../../GTAGS"           ||  $(TRUE)
-	@$(SETV); $(RMF)  "cscope.in.out"         ||  $(TRUE)
-	@$(SETV); $(RMF)  "cscope.out"            ||  $(TRUE)
-	@$(SETV); $(RMF)  "cscope.po.out"         ||  $(TRUE)
+	@$(SETV); $(RMF) "TAGS"                   ||  $(TRUE)
+	@$(SETV); $(RMF) "tags"                   ||  $(TRUE)
+	@$(SETV); $(RMF) "ver.h~"                 ||  $(TRUE)
+	@$(SETV); $(RMF) "../../GPATH"            ||  $(TRUE)
+	@$(SETV); $(RMF) "../../GRTAGS"           ||  $(TRUE)
+	@$(SETV); $(RMF) "../../GTAGS"            ||  $(TRUE)
+	@$(SETV); $(RMF) "cscope.in.out"          ||  $(TRUE)
+	@$(SETV); $(RMF) "cscope.out"             ||  $(TRUE)
+	@$(SETV); $(RMF) "cscope.po.out"          ||  $(TRUE)
+	@$(SETV); $(TEST) -d "../../libuv-local"  &&                              \
+              $(RMF) -r  "../../libuv-local"  ||  $(TRUE)
 
 ###############################################################################
 
@@ -525,17 +530,23 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean clean
 endif
 clean:
-	@$(SETV); $(MAKE) -C "$(SIMHx)"      -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../decNumber"  -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../prt2pdf"    -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../punutil"    -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../unifdef"    -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) "clean_dps8"
+	@$(SETV); $(MAKE) -C "$(SIMHx)"          -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../decNumber"      -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
+	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
+	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)"    ||  $(TRUE)
 	@$(SETV); $(RMF)  ../../"$(KITNAME)"."$(TARXT)".*  ||  $(TRUE)
+	@$(SETV); $(RMF)  ../../"$(KITNAME)"."TMP"         ||  $(TRUE)
+	@$(SETV); $(RMF)  ../../"$(KITNAME)"."zip"         ||  $(TRUE)
+	@$(SETV); $(TEST) -d "../../dps8"                  &&                     \
+              $(RMF) -r "../../dps8"                   ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../.builder.txt"             ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../.buildos.txt"             ||  $(TRUE)
 	@$(SETV); $(RMF)  "ver.h"                          ||  $(TRUE)
+	@$(SETV); $(RMF)  "dump.i"                         ||  $(TRUE)
 	@$(SETV); $(RMF)  "compdef.out"                    ||  $(TRUE)
 	@$(SETV); $(RMF)  "procdef.out"                    ||  $(TRUE)
 	@$(SETV); $(RMF)  "procsrt.out"                    ||  $(TRUE)
@@ -570,16 +581,53 @@ kit dist:
 	@$(SETV); MAKE="$(MAKE)" $(MAKE) "ver.h"
 	@$(SETV); $(CP) "./ver.h" "./ver.h~"
 	@$(SETV); ($(CD) "../.." &&                                               \
-		$(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files               |  \
+        $(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files               |  \
+         $(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                   |  \
+          $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
+           $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v 'docs/manual'   |  \
+            $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
+             $(GREP) -v '^src/dps8/listings/'                              |  \
+               $(GREP) -v '^src/Makefile.dev') 'src/dps8/ver.h~' )
+	@$(PRINTF) '%s\n'                                                         \
+       "COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
+	@$(SETV); $(COMPRESS) "../../$(KITNAME).$(TARXT)"
+
+###############################################################################
+# Makes a ZIP format kit
+
+.PHONY: zipkit zipdist
+zipkit zipdist:
+	@$(PRINTF) '%s\n' "ZIPKIT: dps8"
+	@$(PRINTF) '%s\n' "ARCHIVE: $(KITNAME).zip"
+	@$(SETV); $(RMF) ../../"$(KITNAME)"."zip"                       ||  $(TRUE)
+	@$(SETV); $(RMF) ../../"$(KITNAME)"."TMP"                       ||  $(TRUE)
+	@$(SETV); MAKE="$(MAKE)" $(MAKE) "ver.h"
+	@$(SETV); $(CP) "./ver.h" "./ver.h~"
+	@$(SETV); ($(CD) "../.." &&                                               \
+        $(MAKETAR) "$(KITNAME).TMP" $$( $(GIT) ls-files                    |  \
          $(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                   |  \
           $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
            $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v 'docs/manual'   |  \
             $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
              $(GREP) -v '^src/dps8/listings/' )                               \
                               'src/dps8/ver.h~' )
-	@$(PRINTF) '%s\n'                                                         \
-		"COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
-	@$(SETV); $(COMPRESS) "../../$(KITNAME).$(TARXT)"
+	@$(SETV); ($(CD) "../.." && $(TAR) xf "$(KITNAME)"."TMP"              &&  \
+      $(RMF) "$(KITNAME)"."zip"                                           &&  \
+        $(TR) -s ' ' < "./src/dps8/ver.h~" 2> /dev/null                    |  \
+          $(GREP) -E '(VER_H_GIT_VERSION|VER_H_GIT_HASH)' 2> /dev/null     |  \
+            $(CUT) -d ' ' -f 3- 2> /dev/null | $(TR) -d '"' 2> /dev/null   |  \
+              $(PASTE) - - 2> /dev/null                                    |  \
+                $(SED) -e 's/^/\r\nDPS\/8M Simulator /' -e 's/\t/\r\n(/'      \
+                           -e 's/$$/)\r\n\r\n.\n/'                         |  \
+                  $(INFOZIP) -q -r -o -z -nw -9 "$(KITNAME)"."zip" "./dps8"   \
+                    2> /dev/null && $(INFOZIP) -q -T "$(KITNAME)"."zip"       \
+                      2> /dev/null &&  $(RMF) "$(KITNAME)"."TMP"              \
+                        2> /dev/null && $(RMF) -r "./dps8" 2> /dev/null   &&  \
+                          $(PRINTF) 'ZIPKIT: %s\n'                            \
+                            "$(KITNAME).zip created successfully")
+	@$(SETV); { $(COMMAND) -v $(ADVZIP) > /dev/null 2>&1                  &&  \
+      $(PRINTF) '%s\n' "ADVZIP: $(KITNAME).zip"                           &&  \
+        $(ADVZIP) -qz4k "../../sources.zip" || $(TRUE); } || $(TRUE)
 
 ###############################################################################
 
@@ -636,7 +684,7 @@ errnos.h:
 	@$(SETV); ($(CC) -E -dD ./dump.c 2> /dev/null;                            \
                $(CC) -qshowmacros -E ./dump.c 2> /dev/null) | $(SORT) -u |    \
         $(AWK) '/^#define E/ { printf "{\"%s\",%s},\n", $$2, $$2 } END        \
-		                       { print "" }' > "./errnos.h"
+                               { print "" }' > "./errnos.h"
 	@$(SETV); $(RMF) "./dump.c"
 
 ###############################################################################
@@ -650,19 +698,13 @@ sysdefs.h: useddef.txt
             -e 's/$$/\"/' 2> /dev/null > "./sysdefs.n"                 ||     \
               $(TOUCH) "./sysdefs.n" > /dev/null 2>&1
 	@$(PRINTF) '%s\n' "" >> "./sysdefs.n" 2> /dev/null
-	@$(SETV); $(CMP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null          ||     \
+	@$(SETV); $(CMP) "./sysdefs.n" "./sysdefs.h" > /dev/null 2>&1      ||     \
         $(CP) "./sysdefs.n" "./sysdefs.h" 2> /dev/null                 ||     \
             $(TOUCH) "sysdefs.h"
 	@$(SETV); $(RMF) "sysdefs.n"
 
 ###############################################################################
 
-blinkenLights2.o:   dps8.h
-blinkenLights2.o:   dps8_simh.h
-blinkenLights2.o:   dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
-blinkenLights2.o:   dps8_sys.h
-blinkenLights2.o:   hdbg.h
-blinkenLights2.o:   shm.h
 dps8_absi.o:        dps8.h
 dps8_absi.o:        dps8_simh.h
 dps8_absi.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h

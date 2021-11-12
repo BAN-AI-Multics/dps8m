@@ -26,43 +26,39 @@
 */
 
 #ifndef SIM_CONSOLE_H_
-#define SIM_CONSOLE_H_ 0
+# define SIM_CONSOLE_H_ 0
 
-#ifdef  __cplusplus
-extern "C" {
-#endif
-
-#define TTUF_V_MODE     (UNIT_V_UF + 0)
-#define TTUF_W_MODE     2
-#define  TTUF_MODE_7B   0
-#define  TTUF_MODE_8B   1
-#define  TTUF_MODE_UC   2
-#define  TTUF_MODE_7P   3
-#define TTUF_M_MODE     ((1u << TTUF_W_MODE) - 1)
-#define TTUF_V_PAR      (TTUF_V_MODE + TTUF_W_MODE)
-#define TTUF_W_PAR      2
-#define  TTUF_PAR_SPACE 0
-#define  TTUF_PAR_MARK  1
-#define  TTUF_PAR_EVEN  2
-#define  TTUF_PAR_ODD   3
-#define TTUF_M_PAR      ((1u << TTUF_W_PAR) - 1)
-#define  TTUF_KSR       (1u << (TTUF_W_MODE + TTUF_W_PAR))
-#define TTUF_V_UF       (TTUF_V_MODE + TTUF_W_MODE + TTUF_W_PAR)
-#define TT_MODE         (TTUF_M_MODE << TTUF_V_MODE)
-#define  TT_MODE_7B     (TTUF_MODE_7B << TTUF_V_MODE)
-#define  TT_MODE_8B     (TTUF_MODE_8B << TTUF_V_MODE)
-#define  TT_MODE_UC     (TTUF_MODE_UC << TTUF_V_MODE)
-#define  TT_MODE_7P     (TTUF_MODE_7P << TTUF_V_MODE)
-#define  TT_MODE_KSR    (TT_MODE_UC)
+# define TTUF_V_MODE    (UNIT_V_UF + 0)
+# define TTUF_W_MODE    2
+# define TTUF_MODE_7B   0
+# define TTUF_MODE_8B   1
+# define TTUF_MODE_UC   2
+# define TTUF_MODE_7P   3
+# define TTUF_M_MODE    ((1u << TTUF_W_MODE) - 1)
+# define TTUF_V_PAR     (TTUF_V_MODE + TTUF_W_MODE)
+# define TTUF_W_PAR     2
+# define TTUF_PAR_SPACE 0
+# define TTUF_PAR_MARK  1
+# define TTUF_PAR_EVEN  2
+# define TTUF_PAR_ODD   3
+# define TTUF_M_PAR     ((1u << TTUF_W_PAR) - 1)
+# define TTUF_KSR       (1u << (TTUF_W_MODE + TTUF_W_PAR))
+# define TTUF_V_UF      (TTUF_V_MODE + TTUF_W_MODE + TTUF_W_PAR)
+# define TT_MODE        (TTUF_M_MODE << TTUF_V_MODE)
+# define TT_MODE_7B     (TTUF_MODE_7B << TTUF_V_MODE)
+# define TT_MODE_8B     (TTUF_MODE_8B << TTUF_V_MODE)
+# define TT_MODE_UC     (TTUF_MODE_UC << TTUF_V_MODE)
+# define TT_MODE_7P     (TTUF_MODE_7P << TTUF_V_MODE)
+# define TT_MODE_KSR    (TT_MODE_UC)
 /* 7 bit modes allow for an 8th bit parity mode */
-#define TT_PAR          (TTUF_M_PAR << TTUF_V_PAR)
-#define  TT_PAR_SPACE   (TTUF_PAR_SPACE << TTUF_V_PAR)
-#define  TT_PAR_MARK    (TTUF_PAR_MARK  << TTUF_V_PAR)
-#define  TT_PAR_EVEN    (TTUF_PAR_EVEN  << TTUF_V_PAR)
-#define  TT_PAR_ODD     (TTUF_PAR_ODD   << TTUF_V_PAR)
+# define TT_PAR         (TTUF_M_PAR << TTUF_V_PAR)
+# define TT_PAR_SPACE   (TTUF_PAR_SPACE << TTUF_V_PAR)
+# define TT_PAR_MARK    (TTUF_PAR_MARK  << TTUF_V_PAR)
+# define TT_PAR_EVEN    (TTUF_PAR_EVEN  << TTUF_V_PAR)
+# define TT_PAR_ODD     (TTUF_PAR_ODD   << TTUF_V_PAR)
 /* TT_GET_MODE returns both the TT_MODE and TT_PAR fields
    since they together are passed into sim_tt_inpcvt() */
-#define TT_GET_MODE(x)  (((x) >> TTUF_V_MODE) & (TTUF_M_MODE | (TTUF_M_PAR << TTUF_W_MODE)))
+# define TT_GET_MODE(x) (((x) >> TTUF_V_MODE) & (TTUF_M_MODE | (TTUF_M_PAR << TTUF_W_MODE)))
 
 t_stat sim_set_console (int32 flag, CONST char *cptr);
 t_stat sim_set_remote_console (int32 flag, CONST char *cptr);
@@ -75,7 +71,6 @@ t_stat sim_set_noserial (int32 flag, CONST char *cptr);
 t_stat sim_set_logon (int32 flag, CONST char *cptr);
 t_stat sim_set_logoff (int32 flag, CONST char *cptr);
 t_stat sim_set_debon (int32 flag, CONST char *cptr);
-t_stat sim_set_cons_debug (int32 flg, CONST char *cptr);
 t_stat sim_set_cons_buff (int32 flg, CONST char *cptr);
 t_stat sim_set_cons_unbuff (int32 flg, CONST char *cptr);
 t_stat sim_set_cons_log (int32 flg, CONST char *cptr);
@@ -96,19 +91,16 @@ t_stat sim_show_pchar (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 t_stat sim_show_cons_speed (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat sim_show_cons_buff (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat sim_show_cons_log (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
-t_stat sim_show_cons_debug (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat sim_show_cons_expect (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 t_stat sim_check_console (int32 sec);
 t_stat sim_open_logfile (const char *filename, t_bool binary, FILE **pf, FILEREF **pref);
 t_stat sim_close_logfile (FILEREF **pref);
-const char *sim_logfile_name (FILE *st, FILEREF *ref);
+const char *sim_logfile_name (const FILE *st, FILEREF *ref);
 SEND *sim_cons_get_send (void);
 EXPECT *sim_cons_get_expect (void);
 t_stat sim_show_cons_send_input (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
-t_stat sim_set_noconsole_port (void);
 t_stat sim_poll_kbd (void);
 t_stat sim_putchar (int32 c);
-t_stat sim_putchar_s (int32 c);
 t_stat sim_ttinit (void);
 t_stat sim_ttrun (void);
 t_stat sim_ttcmd (void);
@@ -116,8 +108,6 @@ t_stat sim_ttclose (void);
 t_bool sim_ttisatty (void);
 int32 sim_tt_inpcvt (int32 c, uint32 mode);
 int32 sim_tt_outcvt (int32 c, uint32 mode);
-t_stat sim_tt_settabs (UNIT *uptr, int32 val, CONST char *cptr, void *desc);
-t_stat sim_tt_showtabs (FILE *st, UNIT *uptr, int32 val, CONST void *desc);
 
 extern int32 sim_rem_cmd_active_line;                       /* command in progress on line # */
 
@@ -125,9 +115,5 @@ extern int32 sim_int_char;                                  /* interrupt charact
 extern int32 sim_brk_char;                                  /* break character */
 extern int32 sim_tt_pchar;                                  /* printable character mask */
 extern int32 sim_del_char;                                  /* delete character */
-
-#ifdef  __cplusplus
-}
-#endif
 
 #endif

@@ -34,24 +34,24 @@
 #define DBG_CTR 1
 
 #if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #ifdef TESTING
 static inline void fnp_core_read_n (word24 addr, word36 *data, uint n, UNUSED const char * ctx)
   {
-#ifdef THREADZ
+# ifdef THREADZ
     lock_mem_rd ();
-#endif /* ifdef THREADZ */
+# endif /* ifdef THREADZ */
     for (uint i = 0; i < n; i ++)
-#ifdef SCUMEM
+# ifdef SCUMEM
       iom_core_read (addr, data, ctx);
-#else
+# else
       data [i] = M [addr + i] & DMASK;
-#endif /* ifdef SCUMEM */
-#ifdef THREADZ
+# endif /* ifdef SCUMEM */
+# ifdef THREADZ
     unlock_mem ();
-#endif /* ifdef THREADZ */
+# endif /* ifdef THREADZ */
   }
 #endif /* ifdef TESTING */
 
@@ -73,7 +73,7 @@ static inline void l_putbits36_1 (vol word36 * x, uint p, word1 val)
     unlock_mem ();
 }
 #else
-#define l_putbits36_1 putbits36_1
+# define l_putbits36_1 putbits36_1
 #endif /* ifdef THREADZ */
 
 //
@@ -1061,11 +1061,11 @@ word36 pad;
 #ifdef TUN
 static void tun_write (struct t_line * linep, uint16_t * data, uint tally)
   {
-#if 0
+# if 0
     for (uint i = 0; i < tally; i ++)
       sim_printf ("%4o", data[i]);
     sim_printf ("\r\n");
-#endif
+# endif
 // XXX this code is buggy; if a buffer is recieved with an embedded frame start, the embedded frame
 // XXX will be lost
 
@@ -2014,10 +2014,10 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 
 #if 1
         // Number of LSLAs
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
         word18 crnls = getl6core (iomUnitIdx, chan, l66addr + image_off, 0655);
         sim_printf ("Number of LSLAs (crnls) %d\n", crnls);
-#endif
+# endif
 
         // Address of IOM table
         word18 criom = getl6core (iomUnitIdx, chan, l66addr + image_off, 0653);
@@ -2053,7 +2053,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                     word3 slot_id = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot) & MASK3;
                     if (slot_id != 7)
                       {
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
                         char * slot_ids [8] =
                           {
                             "10 cps",
@@ -2066,32 +2066,32 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                             "unused"
                           };
                         char * id = slot_ids[slot_id];
-#endif
+# endif
                         if (! hdr)
                           {
                             hdr = true;
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
                             sim_printf ("LSLA table: card number, slot, slot_id, slot_id string\n");
-#endif
+# endif
                           }
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
                         sim_printf ("%d %2d %d %s\n", lsla, slot, slot_id, id);
-#endif
+# endif
                       }
                   } // for slot
               } // if dev type 4 (LSLA)
           } // iom table entry
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
         if (nfound != crnls)
           sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
-#endif
+# endif
 
 
         // Number of HSLAs
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
         word18 crnhs = getl6core (iomUnitIdx, chan, l66addr + image_off, 0654);
         sim_printf ("Number of HSLAs (crnhs) %d\n", crnhs);
-#endif
+# endif
 
         // Walk the HSLAs in the IOM table
         //  2 words/slot (flags, taddr)
@@ -2126,7 +2126,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                     //
                     //   ptr bit(18)
 
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
                     char * line_types[23] =
                       {
                         "none      ",
@@ -2153,9 +2153,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                         "HASP_OPR  ",
                         "invalid   "
                       };
-#endif
+# endif
 
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
                     char * modem_types[8] =
                       {
                         "invalid      ",
@@ -2167,9 +2167,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                         "Bell 208B    ",
                         "Bell 209A    "
                       };
-#endif
+# endif
 
-#if 0
+# if 0
                     char * async_speeds[11] =
                       {
                         "invalid",
@@ -2199,8 +2199,8 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                         "40800  ",
                         "50000  "
                       };
-#endif
-#ifdef VERBOSE_BOOT
+# endif
+# ifdef VERBOSE_BOOT
                     char * async_speeds[16] =
                       {
                         "invalid",
@@ -2240,60 +2240,60 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                         "invalid",
                         "invalid"
                       };
-#endif
+# endif
                     word18 subch_data = getl6core (iomUnitIdx, chan, l66addr + image_off, tblp + 2 * slot);
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
                     word1 async = (subch_data >> 15) & 1;
                     word1 option1 = (subch_data >> 14) & 1;
-#endif
+# endif
                     word5 line_type = (subch_data >> 4)  & MASK5;
                     if (line_type > 22)
                       line_type = 22;
                     word4 modem_type = (subch_data >> 9)  & MASK4;
                     if (modem_type > 7)
                       modem_type = 0;
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
                     word4 dev_speed = subch_data  & MASK4;
                     //if (dev_speed > 10)
                       //dev_speed = 0;
                     char * speed = async ? async_speeds[dev_speed] : sync_speeds[dev_speed];
                     if (async && dev_speed == 4 && option1)
                       speed = "auto   ";
-#endif
+# endif
                     if (! hdr)
                       {
                         hdr = true;
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
                         sim_printf ("HSLA table: card number, slot, "
                                     "sync/async, line type, modem_type, "
                                     "speed\n");
-#endif
+# endif
                       }
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
                     sim_printf ("%d %2d %s %s %s %s\n",
                                  hsla, slot, async ? "async" :"sync ",
                                  line_types[line_type],
                                  modem_types[modem_type],
                                  speed);
-#endif
+# endif
                      uint lineno = hsla * 32u + slot;
                      struct t_line * linep = & fudp->MState.line[lineno];
-#if 0
+# if 0
                      if (line_type == 0)
                        {
                          sim_printf ("Note: mapping %c.%03d line type from 'none' to 'ASCII'\n",  hsla + 'a', slot);
                          line_type = 1;
                        }
-#endif
+# endif
                      //linep->lineType = line_type ? line_type : 1; // Map none to ASCII
                      linep->lineType = line_type;
                   } // for slot
               } // if dev type 4 (LSLA)
           } // iom table entry
-#ifdef VERBOSE_BOOT
+# ifdef VERBOSE_BOOT
         if (nfound != crnls)
           sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
-#endif
+# endif
 #endif
 
 

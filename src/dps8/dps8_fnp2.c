@@ -11,13 +11,13 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-// XXX There is a lurking bug in fnpProcessEvent(). A second 'input' messages
-// XXX from a particular line could be placed in mailbox beforme the first is
-// XXX processed. This could lead to the messages being picked up by MCS in
-// XXX the wrong order. The quick fix is to use just a single mbx; a better
-// XXX is to track the line # associated with an busy mailbox, and requeue
-// XXX any message that from a line that is in a busy mailbox. I wonder how
-// XXX the real DN355 dealt with this?
+// There is a lurking bug in fnpProcessEvent(). A second 'input' messages
+// from a particular line could be placed in mailbox beforme the first is
+// processed. This could lead to the messages being picked up by MCS in
+// the wrong order. The quick fix is to use just a single mbx; a better
+// is to track the line # associated with an busy mailbox, and requeue
+// any message that from a line that is in a busy mailbox. I wonder how
+// the real DN355 dealt with this?
 
 ////
 //
@@ -62,8 +62,6 @@
 //      if (fnpData.ibm3270ctlr[ASSUME0].sending_stn_in_buffer)
 //        send_stn_in_buffer ();
 
-
-
 #define ASSUME0 0
 
 #include <stdio.h>
@@ -86,15 +84,15 @@
 #include "sim_tmxr.h"
 
 #ifndef CROSS_MINGW64
-#ifndef CROSS_MINGW32
-#include <regex.h>
-#endif /* ifndef CROSS_MINGW32 */
+# ifndef CROSS_MINGW32
+#  include <regex.h>
+# endif /* ifndef CROSS_MINGW32 */
 #endif /* ifndef CROSS_MINGW64 */
 
 #define DBG_CTR 1
 
 #if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif /* defined(THREADZ) || defined(LOCKLESS) */
 
 static t_stat fnpShowConfig (FILE *st, UNIT *uptr, int val, const void *desc);
@@ -857,8 +855,6 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
                     // of characters all of which were echoed ...,
                     // except for perhaps the last ... ."
                     linep->input_break = false;
-
-
 
                     // MTB418 pg 15:
                     // "This determination is made by the ''input processor''
@@ -2873,7 +2869,6 @@ associate:;
       fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].lineType = 1; /* LINE_ASCII */
     fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].accept_new_terminal = true;
     reset_line (& fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno]);
-    ltnRaw (p->telnetp);
   }
 
 void startFNPListener (void)

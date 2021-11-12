@@ -13,14 +13,14 @@
  */
 
 #ifndef UVUTIL_H
-#define UVUTIL_H
+# define UVUTIL_H
 
 struct uv_access_s
   {
     uv_loop_t * loop;
     int port;
     char * address;
-#define PW_SIZE 128
+# define PW_SIZE 128
     char pw[PW_SIZE + 1];
     char pwBuffer[PW_SIZE + 1];
     int pwPos;
@@ -41,9 +41,11 @@ struct uv_access_s
 typedef struct uv_access_s uv_access;
 void accessStartWriteStr (uv_tcp_t * client, char * data);
 void uv_open_access (uv_access * access);
-void accessPutChar (uv_access * access,  char ch);
-int accessGetChar (uv_access * access);
+# ifndef QUIET_UNUSED
 void accessPutStr (uv_access * access, char * str);
+void accessPutChar (uv_access * access,  char ch);
+# endif
+int accessGetChar (uv_access * access);
 void accessStartWrite (uv_tcp_t * client, char * data, ssize_t datalen);
 void accessCloseConnection (uv_stream_t* stream);
 #endif

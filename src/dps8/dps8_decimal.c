@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2000-2009 IBM Corporation
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2017 Michal Tomek
@@ -10,19 +11,6 @@
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
  */
-
-//
-//  dps8_decimal.c
-//  dps8
-//
-//  Created by Harry Reed on 2/9/13.
-//  Original portions Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-//  decimal arithmetic support code for dps8 simulator.
-//
-//  portions based off of the 'decNumber' decimal arithmetic library
-//  Copyright (c) IBM Corporation, 2000, 2009.  All rights reserved.
-//
 
 #include <stdio.h>
 
@@ -59,13 +47,13 @@ decContext * decContextDefaultDPS8(decContext *context)
 #if 1
 /* ------------------------------------------------------------------ */
 /* HWR 3/21/16 19:54 derived from ......                              */
-/* decContextDefault(...)                                         */
-/* */
+/* decContextDefault(...)                                             */
+/*                                                                    */
 /* decContextDefaultDPS8 -- initialize a context structure            */
-/* */
+/*                                                                    */
 /* Similar to decContextDefault EXCEPT digits are set to 126 for our  */
 /* dps8 simulators mpXd instructions                                  */
-/* */
+/*                                                                    */
 /* ------------------------------------------------------------------ */
 decContext * decContextDefaultDPS8Mul(decContext *context)
 {
@@ -232,9 +220,9 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
     uInt cut=DECDPUN;           // downcounter per Unit
     uInt u=*up;                 // work
     uInt nib;                   // ..
-#if DECDPUN<=4
+# if DECDPUN<=4
     uInt temp;                  // ..
-#endif
+# endif
 
     if (dn->digits>length                  // too long ..
         ||(dn->bits & DECSPECIAL)) return NULL;   // .. or special -- hopeless
@@ -252,14 +240,14 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
                 u=*up;
                 cut=DECDPUN;
             }
-#if DECDPUN<=4
+# if DECDPUN<=4
             temp=(u*6554)>>16;         // fast /10
             nib=u-X10(temp);
             u=temp;
-#else
+# else
             nib=u%10;                  // cannot use *6554 trick :-(
             u=u/10;
-#endif
+# endif
             //obyte|=(nib<<4);
             obyte=nib & 255U;
             indigs--;
@@ -289,8 +277,6 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
     return bcd;
 } // decBCDFromNumber
 
-
-
 static unsigned char *getBCD(uint8_t bcd [256], decNumber *a)
 {
     memset(bcd, 0, sizeof(bcd));
@@ -303,20 +289,14 @@ static unsigned char *getBCD(uint8_t bcd [256], decNumber *a)
     return (unsigned char *) bcd;
 }
 
-
-
 static const char *CS[] = {"CSFL", "CSLS", "CSTS", "CSNS"};
 static const char *CTN[] = {"CTN9", "CTN4"};
-
-
-
-
 
 
 char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf, bool R, bool *OVR, bool *TRUNC)
 {
     uint8_t bcd [256];
-#if 1
+# if 1
    /*
      * this is for mp3d ISOLTS error (and perhaps others)
      */
@@ -358,7 +338,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                 return (char *) out2;
         }
     }
-#else
+# else
     /*
      * this is for mp3d ISOLTS error (and perhaps others)
      */
@@ -401,7 +381,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
         }
         return (char *) out2;
     }
-#endif
+# endif
 
 
     if (s == CSFL)
@@ -456,7 +436,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
     {
         //decNumberTrim(r);   // clean up any trailing 0's
 
-#ifndef SPEED
+# ifndef SPEED
         int scale;
         char out[256], out2[256];
 
@@ -470,7 +450,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                 out[i] += '0';
             sim_printf("formatDecimal(DEBUG): out[]: '%s'\n", out);
         }
-#endif
+# endif
 
         if (s != CSFL)// && sf != 0)
         {
@@ -485,7 +465,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
             //*r2 = *r;
             decNumberCopy(r2, r);
 
-#ifndef SPEED
+# ifndef SPEED
         if_sim_debug (DBG_TRACEEXT, & cpu_dev)
         {
             decBCDFromNumber((uint8_t *)out2, r2->digits, &scale, r2);
@@ -495,7 +475,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
             sim_debug (DBG_TRACEEXT, & cpu_dev,
                        "formatDecimal: adjLen=%d E=%d SF=%d S=%s TN=%s digits(r2)=%s E2=%d\n", adjLen, r->exponent, sf, CS[s], CTN[tn],out2, r2->exponent);
         }
-#endif
+# endif
     }
 
     int scale;
@@ -621,7 +601,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
 
             // display int of number
 
-#ifndef SPEED
+# ifndef SPEED
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
             {
                 decNumber _i;
@@ -633,7 +613,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                     outi[j] += '0';
                 sim_debug (DBG_TRACEEXT, & cpu_dev, "i=%s\n", outi);
             }
-#endif
+# endif
         }
         else
         {

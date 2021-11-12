@@ -11,13 +11,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_utils.c
- * \project dps8
- * \date 9/25/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -41,8 +34,6 @@
 
 char * dump_flags(char * buffer, word18 flags)
 {
-    //static char buffer[256] = "";
-
     sprintf(buffer, "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 #ifdef DPS8M
             flags & I_HEX   ? "Hex "   : "",
@@ -886,8 +877,6 @@ void copyBytes(int posn, word36 src, word36 *dst)
     *dst |= byteVals;
 }
 
-
-
 void copyChars(int posn, word36 src, word36 *dst)
 {
     word36 mask = 0;
@@ -917,9 +906,7 @@ void copyChars(int posn, word36 src, word36 *dst)
 
     // and set the bits in dst
     *dst |= byteVals;
-
 }
-
 
 /*!
  * write 9-bit byte into 36-bit word....
@@ -1203,8 +1190,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "op2s %016"PRIx64"%016"PRIx64"\n", (uint64_t
  * String utilities ...
  */
 
-/* ------------------------------------------------------------------------- */
-
 char * strlower(char *q)
 {
         char *s = q;
@@ -1216,8 +1201,6 @@ char * strlower(char *q)
         }
         return q;
 }
-
-/* ------------------------------------------------------------------------- */
 
 /*  state definitions  */
 #define STAR    0
@@ -1330,7 +1313,7 @@ int strmask (char * str, char * mask)
       } // while (1)
   }
 
-/**
+/*
  * strtok() with string quoting...
  * (implemented as a small fsm, kinda...
  * (add support for embedded " later, much later...)
@@ -1418,7 +1401,7 @@ bool startsWith(const char *str, const char *pre)
 }
 #endif
 
-/**
+/*
  * Removes the trailing spaces from a string.
  */
 char *rtrim(char *s)
@@ -1434,9 +1417,9 @@ char *rtrim(char *s)
     }
     return(s);
 }
-/** ------------------------------------------------------------------------- */
+
 char *ltrim(char *s)
-/**
+/*
  * Removes the leading spaces from a string.
  */
 {
@@ -1453,13 +1436,10 @@ char *ltrim(char *s)
     return(s);
 }
 
-/** ------------------------------------------------------------------------- */
-
 char *trim(char *s)
 {
     return ltrim(rtrim(s));
 }
-
 
 char *
 stripquotes(char *s)
@@ -1485,183 +1465,6 @@ stripquotes(char *s)
 }
 
 #include <ctype.h>
-
-// No longer putting the tty in "no output proceesing mode"; all of this
-// is irrelevant...
-//
-// simh puts the tty in raw mode when the sim is running;
-// this means that test output to the console will lack CR's and
-// be all messed up.
-//
-// There are three ways around this:
-//   1: switch back to cooked mode for the message
-//   2: walk the message and output CRs before LFs with sim_putchar()
-//   3: walk the message and output CRs before LFs with sim_os_putchar()
-//
-// The overhead and obscure side effects of switching are unknown.
-//
-// sim_putchar adds the text to the log file, but not the debug file; and
-// sim_putchar puts the CRs into the log file.
-//
-// sim_os_putchar skips checks that sim_putchar does that verify that
-// we are actually talking to tty, instead of a telnet connection or other
-// non-tty thingy.
-//
-// USE_COOKED does the wrong thing when stdout is piped; ie not a terminal
-
-//#define USE_COOKED
-#define USE_PUTCHAR
-//#define USE_NONE
-
-#if 0
-void sim_printf( const char * format, ... )
-{
-    char buffer[4096];
-
-    va_list args;
-    va_start (args, format);
-    vsnprintf (buffer, sizeof(buffer), format, args);
-
-#ifdef USE_COOKED
-    if (sim_is_running)
-      sim_ttcmd ();
-#endif
-
-    for(uint i = 0 ; i < sizeof(buffer); i += 1)
-    {
-        if (buffer[i]) {
-#ifdef USE_PUTCHAR
-            if (sim_is_running && buffer [i] == '\n')
-              sim_putchar ('\r');
-#endif
-#ifdef USE_OS_PUTCHAR
-            if (sim_is_running && buffer [i] == '\n')
-              sim_os_putchar ('\r');
-#endif
-            sim_putchar(buffer[i]);
-            //if (sim_deb)
-              //fputc (buffer [i], sim_deb);
-        } else
-            break;
-    }
-
-#ifdef USE_COOKED
-    if (sim_is_running)
-      sim_ttrun ();
-#endif
-
-    va_end (args);
-}
-#endif
-
-#if 0
-// Rework sim_printf.
-//
-// Distinguish between the console device and the window in which dps8 is
-// running.
-//
-// There are (up to) three outputs:
-//
-//   - the window in which dps8 is running (stdout)
-//   - the log file (which may be stdout or stderr)
-//   - the console device
-//
-// sim_debug --
-//   prints time stamped strings to the logfile; controlled by scp commands.
-// sim_err --
-//   prints sim_debug style messages regardless of scp commands and returns
-//   to scp; not necessarily restartable.
-// sim_printf --
-//   prints strings to logfile and stdout
-// sim_printl --
-//   prints strings to console logfile
-// sim_putchar/sim_os_putchar/sim_puts
-//   prints char/string to the console
-
-void sim_printf (const char * format, ...)
-  {
-    char buffer [4096];
-    bool bOut = (sim_deb ? fileno (sim_deb) != fileno (stdout) : false);
-
-    va_list args;
-    va_start (args, format);
-    vsnprintf (buffer, sizeof (buffer), format, args);
-    va_end (args);
-
-#ifdef USE_COOKED
-    if (sim_is_running)
-      sim_ttcmd ();
-#endif
-
-    for (uint i = 0 ; i < sizeof (buffer); i ++)
-      {
-        if (! buffer [i])
-          break;
-
-        // stdout
-
-#ifdef USE_PUTCHAR
-        if (sim_is_running && buffer [i] == '\n')
-          {
-            putchar ('\r');
-          }
-#endif
-#ifdef USE_OS_PUTCHAR
-        if (sim_is_running && buffer [i] == '\n')
-          sim_os_putchar ('\r');
-#endif
-        putchar (buffer [i]);
-
-        // logfile
-
-        if (bOut)
-          {
-            //if (sim_is_running && buffer [i] == '\n')
-              //fputc  ('\r', sim_deb);
-            fputc (buffer [i], sim_deb);
-          }
-    }
-
-#ifdef USE_COOKED
-    if (sim_is_running)
-      sim_ttrun ();
-#endif
-
-    fflush (sim_deb);
-    if (bOut)
-      fflush (stdout);
-}
-#endif
-
-void sim_printl (const char * format, ...)
-  {
-    if (! sim_log)
-      return;
-    char buffer [4096];
-
-    va_list args;
-    va_start (args, format);
-    vsnprintf (buffer, sizeof (buffer), format, args);
-
-    for (uint i = 0 ; i < sizeof (buffer); i ++)
-      {
-        if (! buffer [i])
-          break;
-
-        // logfile
-
-        fputc (buffer [i], sim_log);
-      }
-    va_end (args);
-    fflush (sim_log);
-}
-
-void sim_puts (char * str)
-  {
-    char * p = str;
-    while (* p)
-      sim_putchar (* (p ++));
-  }
 
 // XXX what about config=addr7=123, where clist has a "addr%"?
 
@@ -1902,14 +1705,10 @@ char * strdupesc (const char * str)
             continue;
           }
         p ++;
-//sim_printf ("was <%s>\n", buf);
         memmove (p, p + 1, strlen (p + 1) + 1);
-//sim_printf ("is  <%s>\n", buf);
       }
     return buf;
   }
-
-
 
 // Layout of data as read from simh tape format
 //
@@ -1930,7 +1729,6 @@ char * strdupesc (const char * str)
 //
 
 // Multics humor: this is idiotic
-
 
 // Data conversion routines
 //
@@ -2036,7 +1834,6 @@ void put36 (word36 val, uint8 * bits, uint woffset)
     // mask shouldn't be neccessary but is robust
   }
 
-
 int extractASCII36FromBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed, word36 *wordp)
   {
     uint wp = * words_processed; // How many words have been processed
@@ -2049,7 +1846,7 @@ int extractASCII36FromBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed
     //sim_printf ("store 0%08lo@0%012"PRIo64"\n", wordp - M, extr36 (bufp, wp));
 
     * wordp = extrASCII36 (bufp, wp);
-//if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\n", * wordp);
+    //if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\n", * wordp);
     //sim_printf ("* %06lo = %012"PRIo64"\n", wordp - M, * wordp);
     (* words_processed) ++;
 
@@ -2068,7 +1865,7 @@ int extractWord36FromBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed,
     //sim_printf ("store 0%08lo@0%012"PRIo64"\n", wordp - M, extr36 (bufp, wp));
 
     * wordp = extr36 (bufp, wp);
-//if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\n", * wordp);
+    //if (* wordp & ~MASK36) sim_printf (">>>>>>> extr %012"PRIo64"\n", * wordp);
     //sim_printf ("* %06lo = %012"PRIo64"\n", wordp - M, * wordp);
     (* words_processed) ++;
 
@@ -2151,14 +1948,13 @@ void print_int128 (int128 n, char * p)
   }
 #endif
 
-// https://gist.github.com/diabloneo/9619917
-
+// See: https://gist.github.com/diabloneo/9619917
 void timespec_diff(struct timespec * start, struct timespec * stop,
                    struct timespec * result)
 {
     if ((stop->tv_nsec - start->tv_nsec) < 0) {
         result->tv_sec = stop->tv_sec - start->tv_sec - 1;
-        result->tv_nsec = stop->tv_nsec - start->tv_nsec + 1000000000;
+        result->tv_nsec = stop->tv_nsec - start->tv_nsec + 1000000000L;
     } else {
         result->tv_sec = stop->tv_sec - start->tv_sec;
         result->tv_nsec = stop->tv_nsec - start->tv_nsec;

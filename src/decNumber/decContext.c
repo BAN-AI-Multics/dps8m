@@ -78,9 +78,9 @@ decContext * decContextDefault(decContext *context, Int kind) {
   context->traps=DEC_Errors;                 // all but informational
   context->status=0;                         // cleared
   context->clamp=0;                          // no clamping
-  #if DECSUBSET
+#if DECSUBSET
   context->extended=0;                       // cleared
-  #endif
+#endif
   switch (kind) {
     case DEC_INIT_BASE:
       // [use defaults]
@@ -92,9 +92,9 @@ decContext * decContextDefault(decContext *context, Int kind) {
       context->round=DEC_ROUND_HALF_EVEN;    // 0.5 to nearest even
       context->traps=0;                      // no traps set
       context->clamp=1;                      // clamp exponents
-      #if DECSUBSET
+#if DECSUBSET
       context->extended=1;                   // set
-      #endif
+#endif
       break;
     case DEC_INIT_DECIMAL64:
       context->digits=16;                    // digits
@@ -103,9 +103,9 @@ decContext * decContextDefault(decContext *context, Int kind) {
       context->round=DEC_ROUND_HALF_EVEN;    // 0.5 to nearest even
       context->traps=0;                      // no traps set
       context->clamp=1;                      // clamp exponents
-      #if DECSUBSET
+#if DECSUBSET
       context->extended=1;                   // set
-      #endif
+#endif
       break;
     case DEC_INIT_DECIMAL128:
       context->digits=34;                    // digits
@@ -114,9 +114,9 @@ decContext * decContextDefault(decContext *context, Int kind) {
       context->round=DEC_ROUND_HALF_EVEN;    // 0.5 to nearest even
       context->traps=0;                      // no traps set
       context->clamp=1;                      // clamp exponents
-      #if DECSUBSET
+#if DECSUBSET
       context->extended=1;                   // set
-      #endif
+#endif
       break;
 
     default:                                 // invalid Kind
@@ -245,10 +245,10 @@ decContext * decContextSetStatusFromString(decContext *context,
     return decContextSetStatus(context, DEC_Invalid_context);
   if (strcmp(string, DEC_Condition_IO)==0)
     return decContextSetStatus(context, DEC_Invalid_operation);
-  #if DECSUBSET
+#if DECSUBSET
   if (strcmp(string, DEC_Condition_LD)==0)
     return decContextSetStatus(context, DEC_Lost_digits);
-  #endif
+#endif
   if (strcmp(string, DEC_Condition_OV)==0)
     return decContextSetStatus(context, DEC_Overflow);
   if (strcmp(string, DEC_Condition_PA)==0)
@@ -296,10 +296,10 @@ decContext * decContextSetStatusFromStringQuiet(decContext *context,
     return decContextSetStatusQuiet(context, DEC_Invalid_context);
   if (strcmp(string, DEC_Condition_IO)==0)
     return decContextSetStatusQuiet(context, DEC_Invalid_operation);
-  #if DECSUBSET
+#if DECSUBSET
   if (strcmp(string, DEC_Condition_LD)==0)
     return decContextSetStatusQuiet(context, DEC_Lost_digits);
-  #endif
+#endif
   if (strcmp(string, DEC_Condition_OV)==0)
     return decContextSetStatusQuiet(context, DEC_Overflow);
   if (strcmp(string, DEC_Condition_PA)==0)
@@ -355,9 +355,9 @@ const char *decContextStatusToString(const decContext *context) {
   if (status==DEC_Conversion_syntax    ) return DEC_Condition_CS;
   if (status==DEC_Insufficient_storage ) return DEC_Condition_IS;
   if (status==DEC_Invalid_context      ) return DEC_Condition_IC;
-  #if DECSUBSET
+#if DECSUBSET
   if (status==DEC_Lost_digits          ) return DEC_Condition_LD;
-  #endif
+#endif
   if (status==0                        ) return DEC_Condition_ZE;
   return DEC_Condition_MU;  // Multiple errors
   } // decContextStatusToString
@@ -382,13 +382,13 @@ Int decContextTestEndian(Flag quiet) {
 
   if (LITEND!=DECLITEND) {
     if (!quiet) {             // always refer to this
-      #if DECPRINT
+#if DECPRINT
       const char *adj;
       if (LITEND) adj="little";
              else adj="big";
       printf("Warning: DECLITEND is set to %d, but this computer appears to be %s-endian\n",
              DECLITEND, adj);
-      #endif
+#endif
       }
     res=(Int)LITEND-dle;
     }

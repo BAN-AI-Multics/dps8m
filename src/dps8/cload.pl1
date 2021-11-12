@@ -16,7 +16,6 @@ cload:
     dcl ios_$attach  entry (char (*) aligned, char (*), char (*), char (*), bit (72) aligned);
     dcl com_err_ entry options (variable);
 
-
     dcl card_device  char (32) init ("rdrb");
     dcl card_dim char (32) init ("crz");
     dcl status bit (72) aligned;
@@ -220,7 +219,6 @@ dloop:
        end;
 
     end;
-
 
 
     else if p -> h.type = 2 then do; /* end */

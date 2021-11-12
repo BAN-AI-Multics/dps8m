@@ -11,14 +11,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//
-//  dps8_disk.c
-//  dps8
-//
-//  Created by Harry Reed on 6/16/13.
-//  Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-
 // source/library_dir_dir/system_library_1/source/bound_volume_rldr_ut_.s.archive/rdisk_.pl1
 // source/library_dir_dir/system_library_1/source/bound_rcp_.s.archive/rcp_disk_.pl1
 
@@ -36,20 +28,10 @@
 #include "dps8_utils.h"
 
 #ifdef LOCKLESS
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #define DBG_CTR 1
-
-/*
- * disk.c -- disk drives
- *
- * Copyright (c) 2007-2013 Michael Mondy
- *
- * This software is made available under the terms of the ICU
- * License, version 1.8.1 or later.  For more details, see the
- * LICENSE.md file at the top-level directory of this distributio.
- */
 
 //
 // A possible disk data packing algoritim
@@ -679,18 +661,18 @@ void disk_init (void)
     // Sets diskTypeIdx to 0: 3381
     memset (dsk_states, 0, sizeof (dsk_states));
 #ifdef LOCKLESS
-#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
         pthread_mutexattr_t scu_attr;
         pthread_mutexattr_init (& scu_attr);
         pthread_mutexattr_settype (& scu_attr, PTHREAD_MUTEX_ADAPTIVE_NP);
-#endif
+# endif
     for (uint i = 0; i < N_DSK_UNITS_MAX; i ++)
       {
-#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
         pthread_mutex_init (& dsk_states[i].dsk_lock, & scu_attr);
-#else
+# else
         pthread_mutex_init (& dsk_states[i].dsk_lock, NULL);
-#endif
+# endif
       }
 #endif
   }
@@ -740,7 +722,7 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
         return IOM_CMD_ERROR;
       }
     disk_statep->seekValid = true;
-    disk_statep->seekPosition = seekData;
+    disk_statep->seekPosition = (uint) seekData;
     p->stati = 04000; // Channel ready
     return IOM_CMD_PROCEED;
   }
@@ -782,7 +764,7 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
         return -1;
       }
     disk_statep->seekValid = true;
-    disk_statep->seekPosition = seekData;
+    disk_statep->seekPosition = (uint)seekData;
     p->stati = 04000; // Channel ready
     return 0;
   }
@@ -830,7 +812,7 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
         return IOM_CMD_ERROR;
       }
     disk_statep->seekValid = true;
-    disk_statep->seekPosition = seekData;
+    disk_statep->seekPosition = (uint) seekData;
     p->stati = 04000; // Channel ready
     return IOM_CMD_PROCEED;
   }

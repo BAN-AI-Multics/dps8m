@@ -10,10 +10,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//
-//  dps8_absi.c
-//
-
 #include <stdio.h>
 #include <ctype.h>
 #include <unistd.h>
@@ -115,23 +111,23 @@ static MTAB absi_mod[] =
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
+      0,                /* match */
+      "NUNITS",         /* print string */
       "NUNITS",         /* match string */
-      absi_set_nunits, /* validation routine */
+      absi_set_nunits,  /* validation routine */
       absi_show_nunits, /* display routine */
       "Number of ABSIunits in the system", /* value descriptor */
-      NULL // Help
+      NULL /* Help */
     },
     {
       MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      absi_set_device_name, /* validation routine */
+      0,                     /* match */
+      "NAME",                /* print string */
+      "NAME",                /* match string */
+      absi_set_device_name,  /* validation routine */
       absi_show_device_name, /* display routine */
       "Set the device name", /* value descriptor */
-      NULL          // help
+      NULL /* Help */
     },
     MTAB_eol
   };
@@ -202,7 +198,7 @@ static t_stat absiDetach (UNIT * uptr)
 
 
 DEVICE absi_dev = {
-    "ABSI",       /*  name */
+    "ABSI",       /* name */
     absi_unit,    /* units */
     NULL,         /* registers */
     absi_mod,     /* modifiers */
@@ -216,8 +212,8 @@ DEVICE absi_dev = {
     NULL,         /* deposit */
     absi_reset,   /* reset */
     NULL,         /* boot */
-    absiAttach,         /* attach */
-    absiDetach,         /* detach */
+    absiAttach,   /* attach */
+    absiDetach,   /* detach */
     NULL,         /* context */
     DEV_DEBUG,    /* flags */
     0,            /* debug control flags */
@@ -233,7 +229,6 @@ DEVICE absi_dev = {
 
 /*
  * absi_init()
- *
  */
 
 // Once-only initialization

@@ -32,7 +32,7 @@
 /* ------------------------------------------------------------------------ */
 
 #if defined(DEC_BCD2DPD) && DEC_BCD2DPD==1 && !defined(DECBCD2DPD)
-#define DECBCD2DPD
+# define DECBCD2DPD
 
 const uint16_t BCD2DPD[2458]={    0,    1,    2,    3,    4,    5,    6,    7,
     8,    9,    0,    0,    0,    0,    0,    0,   16,   17,   18,   19,   20,
@@ -227,7 +227,7 @@ const uint16_t BCD2DPD[2458]={    0,    1,    2,    3,    4,    5,    6,    7,
 #endif
 
 #if defined(DEC_DPD2BCD) && DEC_DPD2BCD==1 && !defined(DECDPD2BCD)
-#define DECDPD2BCD
+# define DECDPD2BCD
 
 const uint16_t DPD2BCD[1024]={    0,    1,    2,    3,    4,    5,    6,    7,
     8,    9,  128,  129, 2048, 2049, 2176, 2177,   16,   17,   18,   19,   20,
@@ -312,7 +312,7 @@ const uint16_t DPD2BCD[1024]={    0,    1,    2,    3,    4,    5,    6,    7,
 #endif
 
 #if defined(DEC_BIN2DPD) && DEC_BIN2DPD==1 && !defined(DECBIN2DPD)
-#define DECBIN2DPD
+# define DECBIN2DPD
 
 const uint16_t BIN2DPD[1000]={    0,    1,    2,    3,    4,    5,    6,    7,
     8,    9,   16,   17,   18,   19,   20,   21,   22,   23,   24,   25,   32,
@@ -395,7 +395,7 @@ const uint16_t BIN2DPD[1000]={    0,    1,    2,    3,    4,    5,    6,    7,
 #endif
 
 #if defined(DEC_DPD2BIN) && DEC_DPD2BIN==1 && !defined(DECDPD2BIN)
-#define DECDPD2BIN
+# define DECDPD2BIN
 
 const uint16_t DPD2BIN[1024]={    0,    1,    2,    3,    4,    5,    6,    7,
     8,    9,   80,   81,  800,  801,  880,  881,   10,   11,   12,   13,   14,
@@ -480,7 +480,7 @@ const uint16_t DPD2BIN[1024]={    0,    1,    2,    3,    4,    5,    6,    7,
 #endif
 
 #if defined(DEC_DPD2BINK) && DEC_DPD2BINK==1 && !defined(DECDPD2BINK)
-#define DECDPD2BINK
+# define DECDPD2BINK
 
 const uint32_t DPD2BINK[1024]={       0,   1000,   2000,   3000,   4000,   5000,
    6000,   7000,   8000,   9000,  80000,  81000, 800000, 801000, 880000, 881000,
@@ -588,7 +588,7 @@ const uint32_t DPD2BINK[1024]={       0,   1000,   2000,   3000,   4000,   5000,
 #endif
 
 #if defined(DEC_DPD2BINM) && DEC_DPD2BINM==1 && !defined(DECDPD2BINM)
-#define DECDPD2BINM
+# define DECDPD2BINM
 
 const uint32_t DPD2BINM[1024]={0,   1000000,   2000000,   3000000,   4000000,
    5000000,   6000000,   7000000,   8000000,   9000000,  80000000,  81000000,
@@ -740,7 +740,7 @@ const uint32_t DPD2BINM[1024]={0,   1000000,   2000000,   3000000,   4000000,
 #endif
 
 #if defined(DEC_BIN2CHAR) && DEC_BIN2CHAR==1 && !defined(DECBIN2CHAR)
-#define DECBIN2CHAR
+# define DECBIN2CHAR
 
 const uint8_t BIN2CHAR[4001]={
  '\0','0','0','0', '\1','0','0','1', '\1','0','0','2', '\1','0','0','3', '\1','0','0','4',
@@ -946,7 +946,7 @@ const uint8_t BIN2CHAR[4001]={
 #endif
 
 #if defined(DEC_DPD2BCD8) && DEC_DPD2BCD8==1 && !defined(DECDPD2BCD8)
-#define DECDPD2BCD8
+# define DECDPD2BCD8
 
 const uint8_t DPD2BCD8[4096]={
  0,0,0,0, 0,0,1,1, 0,0,2,1, 0,0,3,1, 0,0,4,1, 0,0,5,1, 0,0,6,1, 0,0,7,1, 0,0,8,1,
@@ -1066,7 +1066,7 @@ const uint8_t DPD2BCD8[4096]={
 #endif
 
 #if defined(DEC_BIN2BCD8) && DEC_BIN2BCD8==1 && !defined(DECBIN2BCD8)
-#define DECBIN2BCD8
+# define DECBIN2BCD8
 
 const uint8_t BIN2BCD8[4000]={
  0,0,0,0, 0,0,1,1, 0,0,2,1, 0,0,3,1, 0,0,4,1, 0,0,5,1, 0,0,6,1, 0,0,7,1, 0,0,8,1,
