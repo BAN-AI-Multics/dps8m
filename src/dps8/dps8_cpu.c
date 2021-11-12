@@ -756,7 +756,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
                 for (uint i = 0; i < SCU_MEM_SIZE; i ++)
                   {
 #ifdef LOCKLESS
-                    scu [sci_unit_idx].M[i] = (scu [sci_unit_idx].M[i] & ~(MASK36 | DEADLOCK_DETECT | MEM_LOCKED)) | MEM_UNINITIALIZED;
+                    scu [sci_unit_idx].M[i] = (scu [sci_unit_idx].M[i] & ~(MASK36 | MEM_LOCKED)) | MEM_UNINITIALIZED;
 #else
                     scu [sci_unit_idx].M[i] = (scu [sci_unit_idx].M[i] & ~(MASK36)) | MEM_UNINITIALIZED;
 #endif
@@ -768,7 +768,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
           {
             // Clear lock bits and data field; set unitialized
 #ifdef LOCKLESS
-            M[i] = (M[i] & ~(MASK36 | DEADLOCK_DETECT | MEM_LOCKED)) | MEM_UNINITIALIZED;
+            M[i] = (M[i] & ~(MASK36 | MEM_LOCKED)) | MEM_UNINITIALIZED;
 #else
             M[i] = (M[i] & ~(MASK36)) | MEM_UNINITIALIZED;
 #endif

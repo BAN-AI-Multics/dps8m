@@ -461,7 +461,7 @@
     test -f /.dockerenv || exit 1
     echo "Installing NFPM ..."
     test -z "${SKIP_UPDATE}" && test -x /usr/bin/nfpm || sh -x -c '(cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh)' || true
-    test -z "${SKIP_UPDATE}" && test -x /usr/bin/nfpm || sh -x -c '(cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh) )' || true
+    test -z "${SKIP_UPDATE}" && test -x /usr/bin/nfpm || sh -x -c '(cd /usr && curl -fsSL https://install.goreleaser.com/github.com/goreleaser/nfpm.sh | sh)' || true
     echo "Testing NFPM ..."
     /usr/bin/nfpm --version 2> /dev/null || printf '%s\n' "Error: NFPM not installed" "NOTE: This is currently expected due to goreleaser/godownloader being deprecated."
     echo -e "section_end:`date +%s`:nfpm_section\r\e[0K" || true
@@ -498,7 +498,15 @@
     echo "Checking for Docker ..."
     test -f /.dockerenv || exit 1
     test -z "${SKIP_UPDATE}" && echo "Updating system and installing software ..."
-    test -z "${SKIP_UPDATE}" && printf '%s\n' "install -n -y which gzip gcc clang git unzip zip ruby ruby-devel curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja" "dup -y" "update -y" "exit" | zypper -qn sh
+    test -z "${SKIP_UPDATE}" && sed -i 's/download.opensuse.org/provo-mirror.opensuse.org/' /etc/zypp/repos.d/*.repo
+    set -o pipefail || true
+    test -z "${SKIP_UPDATE}" && zypper ve -y || true
+    test -z "${SKIP_UPDATE}" && printf '%s\n' "cl" "clean" "update -y" "install --replacefiles --recommends --allow-downgrade -y -t pattern base" "exit" | zypper sh || true
+    test -z "${SKIP_UPDATE}" && zypper ve -y || true
+    test -z "${SKIP_UPDATE}" && ( cd /etc/zypp/repos.d && find . -type f -name '*.rpmsave' | while read FILE ; do newfile="$(printf '%s\n' ${FILE:?} | sed -e 's/\.rpmsave$//')" ; mv -vf "${FILE}" "${newfile}" ; done ) || true
+    test -z "${SKIP_UPDATE}" && printf '%s\n' "clean" "update -y" "dup -y" "install --replacefiles --recommends --allow-downgrade -y libsha1detectcoll-devel lsof which gzip gcc clang git git-core unzip zip ruby ruby-devel curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja rpmconf tcsh expect cppi cppcheck" "clean" "exit" | zypper sh || true
+    test -z "${SKIP_UPDATE}" && zypper ve -y || true
+    test -z "${SKIP_UPDATE}" && ( yes | rpmconf -a || true; yes | rpmconf -ac || true; zypper clean || true) || true
     echo -e "section_end:`date +%s`:osusesetup_section\r\e[0K" || true
 
 ############################################################################
