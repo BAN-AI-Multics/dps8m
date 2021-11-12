@@ -8964,10 +8964,14 @@ elapsedtime ();
 
                 // If C(Y)21,22 = 11 (TA code = 3) or C(Y)23 = 1 (unused bit),
                 // an illegal procedure fault occurs.
-                if (TA == 03)
+                if (TA == 03) {
                   dlyDoFault (FAULT_IPR, fst_ill_proc, "ARAn tag == 3");
-                if (getbits36_1 (cpu.CY, 23) != 0)
+                  break;
+                }
+                if (getbits36_1 (cpu.CY, 23) != 0) {
                   dlyDoFault (FAULT_IPR, fst_ill_proc, "ARAn b23 == 1");
+                  break;
+                }
 
                 uint32 n = opcode10 & 07;  // get
                 CPTUR (cptUsePRn + n);
