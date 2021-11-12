@@ -10,18 +10,10 @@ all :
 .PHONY : s1 s2 s3 s4 s5 s6
 
 s1:
-	@printf '%s\n' "Start Stage 1: Pull and build"
-	-@true ############ Modify below as needed ############
-	rm -Rf "./dps8m" || true
-	-@true # git clone https://gitlab.com/dps8m/dps8m.git
-	-@true # cd ./dps8m && git checkout master
-	-@true # cd ./dps8m && git status
+	@printf '%s\n' "Start Stage 1: Build simulator"
 ifndef NOREBUILD
-	(cd ../.. && $(MAKE) clean > /dev/null 2>&1 && $(MAKE))
+	(cd ../.. && $(MAKE) distclean > /dev/null 2>&1 && $(MAKE))
 endif
-	@mkdir -p ./dps8m/src
-	@cp -ax "../../src/dps8" "dps8m/src" 2> /dev/null
-	-@true ############ Modify above as needed ############
 	@printf '%s\n' "End Stage 1"
 
 s2:
@@ -32,7 +24,7 @@ s2:
 	@mkdir -p ./run/tapes/12.7
 	@mkdir -p ./run/tapes/general
 	@mkdir -p ./run/disks
-	@cp -p ./dps8m/src/dps8/dps8 ./run
+	@cp -p ../dps8/dps8 ./run
 	@cp -p ./tapes/12.7* ./run/tapes/12.7
 	@cp -p ./tapes/foo.tap ./run/tapes/general
 	@cp -p ./ini/* ./run

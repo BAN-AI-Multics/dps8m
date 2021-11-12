@@ -873,8 +873,12 @@ static void deterimeFullTapeFileName(char * tapeFileName, char * buffer, int buf
       }
 
     // Everything will fit so construct the full tape file name and path
-    sprintf(buffer, "%s%s", selected_path, tapeFileName);
-
+    int buffWrote;
+    buffWrote = snprintf(buffer,
+                    ((strlen(selected_path)+strlen(tapeFileName))+1),
+                        "%s%s", selected_path, tapeFileName);
+    if (buffWrote < 0)
+      sim_warn("%s snprintf problem, returned %d\n", __func__, buffWrote);
   }
 
 t_stat loadTape (uint driveNumber, char * tapeFilename, bool ro)
