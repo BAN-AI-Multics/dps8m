@@ -3691,7 +3691,7 @@ t_stat load_media (int32 arg, const char * buf)
     char name[strlen (buf)];
     char fname[strlen (buf)];
     char perm[strlen (buf)];
-    bool ro;
+    bool ro = false;
     if (arg)
       {
         int rc = sscanf (buf, "%s %s %s", name, fname, perm);
