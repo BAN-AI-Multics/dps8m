@@ -12,14 +12,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//
-//  dps8_prt.c
-//  dps8
-//
-//  Created by Harry Reed on 6/16/13.
-//  Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-
 #include <stdio.h>
 #include <ctype.h>
 #include <unistd.h>
@@ -76,9 +68,6 @@
 //   PRT203/303, PRU1200/1600
 // and
 //   PRT202/300
-
-
-
 
 #define N_PRT_UNITS 1 // default
 
@@ -560,10 +549,10 @@ static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint 
 // XXX need status register data format
 // system_library_tools/source/bound_io_tools_.s.archive/analyze_detail_stat_.pl1  anal_fips_disk_().
 
-#ifdef TESTING
+# ifdef TESTING
     sim_warn ("Need status register data format; tally %d\n", tally);
-#endif
-#if 1
+# endif
+# if 1
     word36 buffer[tally];
     memset (buffer, 0, sizeof (buffer));
     // word 1 char 1   0: normal
@@ -591,14 +580,14 @@ static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint 
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                             & wordsProcessed, true);
     p -> initiate = false;
-#else
+# else
     for (uint i = 0; i < tally; i ++)
       //M[daddr + i] = 0;
       core_write (daddr + i, 0, "Disk status register");
 
     //M[daddr] = SIGN36;
     core_write (daddr, SIGN36, "Disk status register");
-#endif
+# endif
     p -> charPos = 0;
     p -> stati = 04000;
     return 0;
@@ -734,7 +723,7 @@ for (uint i = 0; i < tally; i ++)
             if (isBCD)
           {
             uint nchars = tally * 6;
-    #define get_BCD_char(i) ((uint8_t) ((buffer[i / 6] >> ((5 - i % 6) * 6)) & 077))
+#define get_BCD_char(i) ((uint8_t) ((buffer[i / 6] >> ((5 - i % 6) * 6)) & 077))
 
             if (! is_edited)
               { // Easy case

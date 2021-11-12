@@ -11,14 +11,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_addrmods.c
- * \project dps8
- * \author Harry Reed
- * \date 9/25/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
- */
-
 #include <stdio.h>
 #include "dps8.h"
 #include "dps8_addrmods.h"
@@ -34,7 +26,7 @@
 #include "dps8_opcodetable.h"
 #include "dps8_utils.h"
 #if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #define DBG_CTR cpu.cycleCnt
@@ -699,13 +691,19 @@ startCA:;
                   }
                 // fall through to TM_R
 #ifndef __SUNPRO_C
-#ifndef __SUNPRO_CC
-#ifndef __SUNPRO_CC_COMPAT
+# ifndef __SUNPRO_CC
+#  ifndef __SUNPRO_CC_COMPAT
                 /*FALLTHRU*/
+                /* fall through */
+#   if defined(__GNUC__) && __GNUC__ > 6
                 __attribute__ ((fallthrough));
+#   endif
                 /*FALLTHRU*/
-#endif
-#endif
+#   ifdef __clang__
+                (void)0;
+#   endif
+#  endif
+# endif
 #endif
               } // TM_IT
 
@@ -1005,8 +1003,6 @@ startCA:;
                                " to %06o\n",
                                indword, cpu.TPR.CA);
                   }
-
-
 
                 // readOperand and writeOperand will not use cpu.TPR.CA; they
                 // will use the saved address, size, offset and data.

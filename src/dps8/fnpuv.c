@@ -181,16 +181,16 @@
 #include <ctype.h>
 //#include <uv.h>
 #ifdef TUN
-#include <string.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <linux/if.h>
-#include <linux/if_tun.h>
+# include <string.h>
+# include <fcntl.h>
+# include <errno.h>
+# include <sys/ioctl.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <netinet/in.h>
+# include <sys/socket.h>
+# include <linux/if.h>
+# include <linux/if_tun.h>
 #endif
 
 #include "dps8.h"
@@ -462,10 +462,10 @@ static void fuv_write_cb (uv_write_t * req, int status)
     unsigned int nbufs = req->nbufs;
     uv_buf_t * bufs = req->bufs;
     //if (! bufs)
-#if 0
+# if 0
     if (nbufs > ARRAY_SIZE(req->bufsml))
       bufs = req->bufsml;
-#endif
+# endif
 //sim_printf ("fuv_write_cb req %p req->data %p bufs %p nbufs %u\n", req, req->data, bufs, nbufs);
     for (unsigned int i = 0; i < nbufs; i ++)
       {
@@ -681,19 +681,6 @@ sim_printf ("detected EOT\r\n");
       //fnpuv_send_eor (client);
   }
 
-// The data stream contains telnet commands; skip telnet processing, which
-// will escape them
-
-void fnpuv_start_write_special (uv_tcp_t * client, unsigned char * data, ssize_t datalen)
-  {
-    if (! client || uv_is_closing ((uv_handle_t *) client))
-      return;
-    uvClientData * p = (uvClientData *) client->data;
-    if (! p)
-      return;
-    //fnpuv_start_write_actual (client, data, datalen);
-    (* p->write_actual_cb) (client, data, datalen);
-  }
 
 // C-string wrapper for fnpuv_start_write
 
@@ -789,9 +776,9 @@ static void on_new_connection (uv_stream_t * server, int status)
         if (linep->line_client)
           {
             uv_close ((uv_handle_t *) client, fuv_close_cb);
-#ifdef FNP2_DEBUG
+# ifdef FNP2_DEBUG
 sim_printf ("[FNP emulation: dropping 2nd slave]\n");
-#endif
+# endif
             return;
           }
 #endif
@@ -1278,7 +1265,7 @@ static void fnoTUNProcessLine (int fnpno, int lineno, struct t_line * linep)
 
 // Debugging
 // 4 bytes of metadata
-#define ip 4
+# define ip 4
     /* Do whatever with the data */
     sim_printf("Read %ld bytes\n", nread);
     sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\n",

@@ -61,7 +61,7 @@ clean:
 .PHONY: dependents
 $(OBJS): decContext.h  decimal128.h  decNumber.h  decQuad.h                   \
          decDouble.h   decDPD.h      decimal32.h  decNumberLocal.h            \
-		 decSingle.h   decimal64.h   decPacked.h
+         decSingle.h   decimal64.h   decPacked.h
 
 ###############################################################################
 

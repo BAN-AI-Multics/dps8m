@@ -13,14 +13,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//
-//  dps8_crdrdr.c
-//  dps8
-//
-//  Created by Harry Reed on 6/16/13.
-//  Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-
 #include <stdio.h>
 #include <ctype.h>
 #include <signal.h>
@@ -44,15 +36,6 @@
 #include "dps8_utils.h"
 
 #define DBG_CTR 1
-
- /*
-  * Copyright (c) 2007-2013 Michael Mondy
-  *
-  * This software is made available under the terms of the ICU
-  * License, version 1.8.1 or later.  For more details, see the
-  * LICENSE.md file at the top-level directory of this distribution.
-  */
-
 #define N_RDR_UNITS 1 // default
 
 static t_stat rdr_reset (DEVICE * dptr);
@@ -140,11 +123,11 @@ static MTAB rdr_mod [] =
 
 
 DEVICE rdr_dev = {
-    "RDR",       /*  name */
-    rdr_unit,    /* units */
+    "RDR",        /* name */
+    rdr_unit,     /* units */
     NULL,         /* registers */
-    rdr_mod,     /* modifiers */
-    N_RDR_UNITS, /* #units */
+    rdr_mod,      /* modifiers */
+    N_RDR_UNITS,  /* #units */
     10,           /* address radix */
     24,           /* address width */
     1,            /* address increment */
@@ -152,14 +135,14 @@ DEVICE rdr_dev = {
     36,           /* data width */
     NULL,         /* examine */
     NULL,         /* deposit */
-    rdr_reset,   /* reset */
+    rdr_reset,    /* reset */
     NULL,         /* boot */
     NULL,         /* attach */
     NULL,         /* detach */
     NULL,         /* context */
     DEV_DEBUG,    /* flags */
     0,            /* debug control flags */
-    rdr_dt,      /* debug flag names */
+    rdr_dt,       /* debug flag names */
     NULL,         /* memory size change */
     NULL,         /* logical name */
     NULL,         // help
@@ -168,9 +151,6 @@ DEVICE rdr_dev = {
     NULL,         // description
     NULL
 };
-
-
-
 
 enum deckFormat { sevenDeck, cardDeck, streamDeck };
 
@@ -201,7 +181,6 @@ static char rdr_path_prefix[PATH_MAX+1];
 
 /*
  * rdr_init()
- *
  */
 
 #if 0
@@ -476,11 +455,11 @@ empty:;
     //p->stati = 04200; // offline
     //p->stati = 04240; // data alert
     p->tallyResidue = 0;
-#ifdef TESTING
+# ifdef TESTING
     if (! empty)
       sim_printf ("hopper empty\r\n");
     empty = true;
-#endif
+# endif
     return IOM_CMD_ERROR;
   }
 #endif
@@ -617,9 +596,9 @@ empty:;
 // Sending a ++END means that the read_cards command has to be reissued
 #if 1
     case eof2Sent: {
-#ifdef TESTING
+# ifdef TESTING
   sim_printf ("eof2Sent\r\n");
-#endif
+# endif
       sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
@@ -634,9 +613,9 @@ empty:;
     break;
 #else
     case eof2Sent: {
-#ifdef TESTING
+# ifdef TESTING
   sim_printf ("eof2Sent\r\n");
-#endif
+# endif
       sprintf ((char *) cardImage, "++UID %d", jobNo);
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
@@ -645,9 +624,9 @@ empty:;
     break;
 
     case uid2Sent: {
-#ifdef TESTING
+# ifdef TESTING
   sim_printf ("uid2Sent\r\n");
-#endif
+# endif
       sprintf ((char *) cardImage, "++END");
       l = strlen ((char *) cardImage);
       thisCard = cardDeck;
@@ -739,7 +718,7 @@ empty:;
   sim_printf ("\r\n");
   for (uint i = 0; i < 27; i ++) {
     sim_printf ("  %012"PRIo64"     \r\n", buffer [i]);
-#define B(n) bit_rep [(buffer [i] >> n) & 0x0f]
+# define B(n) bit_rep [(buffer [i] >> n) & 0x0f]
     for (int j = 32; j >= 0; j -= 4)
       sim_printf ("%s", B(j));
     sim_printf ("\r\n");

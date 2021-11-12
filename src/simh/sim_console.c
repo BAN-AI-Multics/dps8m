@@ -31,7 +31,6 @@
 
    sim_poll_kbd                 poll for keyboard input
    sim_putchar                  output character to console
-   sim_putchar_s                output character to console, stall if congested
    sim_set_console              set console parameters
    sim_show_console             show console parameters
    sim_set_remote_console       set remote console parameters
@@ -42,8 +41,6 @@
    sim_set_cons_nolog           set console nolog
    sim_show_cons_buff           show console buffered
    sim_show_cons_log            show console log
-   sim_tt_inpcvt                convert input character per mode
-   sim_tt_outcvt                convert output character per mode
    sim_cons_get_send            get console send structure address
    sim_cons_get_expect          get console expect structure address
    sim_show_cons_send_input     show pending input data
@@ -67,13 +64,12 @@
 
 #include "sim_defs.h"
 #include "sim_tmxr.h"
-#include "sim_serial.h"
 #include "sim_timer.h"
 #include <ctype.h>
 #include <math.h>
 
 #ifdef __HAIKU__
-#define nice(n) ({})
+# define nice(n) ({})
 #endif
 
 /* Forward Declaraations of Platform specific routines */
@@ -89,7 +85,6 @@ static t_bool sim_os_ttisatty (void);
 static t_stat sim_set_rem_telnet (int32 flag, CONST char *cptr);
 static t_stat sim_set_rem_connections (int32 flag, CONST char *cptr);
 static t_stat sim_set_rem_timeout (int32 flag, CONST char *cptr);
-static t_stat sim_set_rem_master (int32 flag, CONST char *cptr);
 
 /* Deprecated CONSOLE HALT, CONSOLE RESPONSE and CONSOLE DELAY support */
 static t_stat sim_set_halt (int32 flag, CONST char *cptr);
@@ -161,19 +156,11 @@ EXPECT sim_con_expect = {&sim_con_telnet, DBG_EXP};
 
 static t_bool sim_con_console_port = TRUE;
 
-/* Enable automatic WRU console polling */
-
-t_stat sim_set_noconsole_port (void)
-{
-sim_con_console_port = FALSE;
-return SCPE_OK;
-}
-
 /* Unit service for console connection polling */
 
 static t_stat sim_con_poll_svc (UNIT *uptr)
 {
-if ((sim_con_tmxr.master == 0) &&                       /* not Telnet and not serial and not WRU polling? */
+if ((sim_con_tmxr.master == 0) &&                       /* not Telnet and not WRU polling? */
     (sim_con_ldsc.serport == 0) &&
     (sim_con_console_port))
     return SCPE_OK;                                     /* done */
@@ -203,8 +190,6 @@ static CTAB set_con_tab[] = {
     { "SPEED", &sim_set_cons_speed, 0 },
     { "TELNET", &sim_set_telnet, 0 },
     { "NOTELNET", &sim_set_notelnet, 0 },
-    { "SERIAL", &sim_set_serial, 0 },
-    { "NOSERIAL", &sim_set_noserial, 0 },
     { "LOG", &sim_set_logon, 0 },
     { "NOLOG", &sim_set_logoff, 0 },
     { "DEBUG", &sim_set_debon, 0 },
@@ -223,8 +208,6 @@ static CTAB set_rem_con_tab[] = {
     { "TELNET", &sim_set_rem_telnet, 1 },
     { "NOTELNET", &sim_set_rem_telnet, 0 },
     { "TIMEOUT", &sim_set_rem_timeout, 0 },
-    { "MASTER", &sim_set_rem_master, 1 },
-    { "NOMASTER", &sim_set_rem_master, 0 },
     { NULL, NULL, 0 }
     };
 
@@ -236,7 +219,6 @@ static SHTAB show_con_tab[] = {
     { "SPEED", &sim_show_cons_speed, 0 },
     { "LOG", &sim_show_cons_log, 0 },
     { "TELNET", &sim_show_telnet, 0 },
-    { "DEBUG", &sim_show_cons_debug, 0 },
     { "BUFFERED", &sim_show_cons_buff, 0 },
     { "EXPECT", &sim_show_cons_expect, 0 },
     { "HALT", &sim_show_cons_expect, 0 },
@@ -252,12 +234,6 @@ static CTAB set_con_telnet_tab[] = {
     { "BUFFERED", &sim_set_cons_buff, 0 },
     { "NOBUFFERED", &sim_set_cons_unbuff, 0 },
     { "UNBUFFERED", &sim_set_cons_unbuff, 0 },
-    { NULL, NULL, 0 }
-    };
-
-static CTAB set_con_serial_tab[] = {
-    { "LOG", &sim_set_cons_log, 0 },
-    { "NOLOG", &sim_set_cons_nolog, 0 },
     { NULL, NULL, 0 }
     };
 
@@ -403,12 +379,12 @@ if (sim_rem_active_number >= 0) {
     if (sim_rem_master_mode && (sim_rem_active_number == 0))
         fprintf (st, "Running from Master Mode Remote Console Connection\n");
     else
-        fprintf (st, "Running from Remote Console Connection %d\n", sim_rem_active_number);
+        fprintf (st, "Running from Remote Console Connection %lu\n", (unsigned long)sim_rem_active_number);
     }
 if (sim_rem_con_tmxr.lines > 1)
-    fprintf (st, "Remote Console Input Connections from %d sources are supported concurrently\n", sim_rem_con_tmxr.lines);
+    fprintf (st, "Remote Console Input Connections from %lu sources are supported concurrently\n", (unsigned long)sim_rem_con_tmxr.lines);
 if (sim_rem_read_timeout)
-    fprintf (st, "Remote Console Input automatically continues after %d seconds\n", sim_rem_read_timeout);
+    fprintf (st, "Remote Console Input automatically continues after %lu seconds\n", (unsigned long)sim_rem_read_timeout);
 if (!sim_rem_con_tmxr.master)
     fprintf (st, "Remote Console Command input is disabled\n");
 else
@@ -423,9 +399,9 @@ for (i=connections=0; i<sim_rem_con_tmxr.lines; i++) {
     tmxr_fconns (st, lp, i);
     if (sim_rem_read_timeouts[i] != sim_rem_read_timeout) {
         if (sim_rem_read_timeouts[i])
-            fprintf (st, "Remote Console Input on connection %d automatically continues after %d seconds\n", i, sim_rem_read_timeouts[i]);
+            fprintf (st, "Remote Console Input on connection %lu automatically continues after %lu seconds\n", (unsigned long)i, (unsigned long)sim_rem_read_timeouts[i]);
         else
-            fprintf (st, "Remote Console Input on connection %d does not continue automatically\n", i);
+            fprintf (st, "Remote Console Input on connection %lu does not continue automatically\n", (unsigned long)i);
         }
     }
 return SCPE_OK;
@@ -496,7 +472,6 @@ static CTAB allowed_remote_cmds[] = {
     { "DEASSIGN", &deassign_cmd,      0 },
     { "CONTINUE", &x_continue_cmd,    0 },
     { "STEP",     &x_step_cmd,        0 },
-    { "PWD",      &pwd_cmd,           0 },
     { "SAVE",     &save_cmd,          0 },
     { "ECHO",     &echo_cmd,          0 },
     { "SET",      &set_cmd,           0 },
@@ -515,9 +490,7 @@ static CTAB allowed_master_remote_cmds[] = {
     { "DEASSIGN", &deassign_cmd,      0 },
     { "CONTINUE", &x_continue_cmd,    0 },
     { "STEP",     &x_step_cmd,        0 },
-    { "PWD",      &pwd_cmd,           0 },
     { "SAVE",     &save_cmd,          0 },
-    { "CD",       &set_default_cmd,   0 },
     { "ECHO",     &echo_cmd,          0 },
     { "SET",      &set_cmd,           0 },
     { "SHOW",     &show_cmd,          0 },
@@ -537,7 +510,6 @@ static CTAB allowed_single_remote_cmds[] = {
     { "DETACH",   &detach_cmd,        0 },
     { "EXAMINE",  &exdep_cmd,      EX_E },
     { "EVALUATE", &eval_cmd,          0 },
-    { "PWD",      &pwd_cmd,           0 },
     { "ECHO",     &echo_cmd,          0 },
     { "SHOW",     &show_cmd,          0 },
     { "HELP",     &x_help_cmd,        0 },
@@ -639,7 +611,6 @@ t_stat sim_rem_con_data_svc (UNIT *uptr)
 {
 int32 i, j, c = 0;
 t_stat stat = SCPE_OK;
-t_bool active_command = FALSE;
 int32 steps = 0;
 t_bool was_active_command = (sim_rem_cmd_active_line != -1);
 t_bool got_command;
@@ -653,7 +624,7 @@ uint32 read_start_time = 0;
 
 tmxr_poll_rx (&sim_rem_con_tmxr);                      /* poll input */
 for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
-     (i < sim_rem_con_tmxr.lines) && (!active_command);
+     (i < sim_rem_con_tmxr.lines);
      i++) {
     t_bool master_session = (sim_rem_master_mode && (i == 0));
 
@@ -710,14 +681,14 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                     TMLN *lpj = &sim_rem_con_tmxr.ldsc[j];
                     if ((i == j) || (!lpj->conn))
                         continue;
-                    tmxr_linemsgf (lpj, "\nRemote Console %d(%s) Entering Commands\n", i, lp->ipad);
+                    tmxr_linemsgf (lpj, "\nRemote Console %lu(%s) Entering Commands\n", (unsigned long)i, lp->ipad);
                     tmxr_send_buffered_data (lpj);      /* flush any buffered data */
                     }
                 lp = &sim_rem_con_tmxr.ldsc[i];
                 if (!master_session)
                     tmxr_linemsg (lp, "\r\nSimulator paused.\r\n");
                 if (!master_session && sim_rem_read_timeouts[i]) {
-                    tmxr_linemsgf (lp, "Simulation will resume automatically if input is not received in %d seconds\n", sim_rem_read_timeouts[i]);
+                    tmxr_linemsgf (lp, "Simulation will resume automatically if input is not received in %lu seconds\n", (unsigned long)sim_rem_read_timeouts[i]);
                     tmxr_linemsgf (lp, "\r\n");
                     tmxr_send_buffered_data (lp);       /* flush any buffered data */
                     }
@@ -817,7 +788,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                         sim_rem_buf[i] = (char *)realloc (sim_rem_buf[i], sim_rem_buf_size[i]);
                         }
                     sim_rem_buf[i][sim_rem_buf_ptr[i]++] = '\0';
-                    sim_debug (DBG_RCV, &sim_remote_console, "Got Command (%d bytes still in buffer): %s\n", tmxr_input_pending_ln (lp), sim_rem_buf[i]);
+                    sim_debug (DBG_RCV, &sim_remote_console, "Got Command (%lu bytes still in buffer): %s\n", (unsigned long)tmxr_input_pending_ln (lp), sim_rem_buf[i]);
                     got_command = TRUE;
                     break;
                 case '\004': /* EOF (^D) */
@@ -1134,71 +1105,6 @@ if (sim_rem_active_number >= 0)
 else
     sim_rem_read_timeout = timeout;
 return SCPE_OK;
-}
-
-/* Enable or disable Remote Console master mode */
-
-/* In master mode, commands are subsequently processed from the
-   primary/initial (master mode) remote console session.  Commands
-   are processed from that source until that source disables master
-   mode or the simulator exits
- */
-
-static t_stat sim_set_rem_master (int32 flag, CONST char *cptr)
-{
-t_stat stat = SCPE_OK;
-
-if (cptr && *cptr)
-    return SCPE_2MARG;
-
-if (sim_rem_active_number > 0) {
-    sim_printf ("Can't change Remote Console mode from Remote Console\n");
-    return SCPE_INVREM;
-    }
-
-if (sim_rem_con_tmxr.master || (!flag))         /* Remote Console Enabled? */
-    sim_rem_master_mode = flag;
-else {
-    sim_printf ("Can't enable Remote Console Master mode with Remote Console disabled\n");
-    return SCPE_INVREM;
-    }
-
-if (sim_rem_master_mode) {
-    t_stat stat_nomessage = 0;
-
-    sim_printf ("Command input starting on Master Remote Console Session\n");
-    stat = sim_run_boot_prep (0);
-    sim_rem_master_was_enabled = TRUE;
-    while (sim_rem_master_mode) {
-        sim_rem_single_mode[0] = FALSE;
-        sim_cancel (&sim_rem_con_unit[1]);
-        sim_activate (&sim_rem_con_unit[1], -1);
-        stat = run_cmd (RU_GO, "");
-        if (stat != SCPE_TTMO) {
-            stat_nomessage = stat & SCPE_NOMESSAGE;     /* extract possible message supression flag */
-            stat = _sim_rem_message ("RUN", stat);
-            }
-        if (stat == SCPE_EXIT)
-            sim_rem_master_mode = FALSE;
-        }
-    sim_rem_master_was_enabled = FALSE;
-    sim_rem_master_was_connected = FALSE;
-    if (sim_log_temp) {                                     /* If we setup a temporary log, clean it now  */
-        int32 save_quiet = sim_quiet;
-
-        sim_quiet = 1;
-        sim_set_logoff (0, NULL);
-        sim_quiet = save_quiet;
-        remove (sim_rem_con_temp_name);
-        sim_log_temp = FALSE;
-        }
-    stat |= stat_nomessage;
-    }
-else {
-    sim_rem_single_mode[0] = TRUE;                          /* Force remote session into single command mode */
-    }
-
-return stat;
 }
 
 /* Set keyboard map */
@@ -1612,73 +1518,7 @@ else
 return SCPE_OK;
 }
 
-/* Set console Debug Mode */
-
-t_stat sim_set_cons_debug (int32 flg, CONST char *cptr)
-{
-return set_dev_debug (&sim_con_telnet, &sim_con_unit, flg, cptr);
-}
-
-t_stat sim_show_cons_debug (FILE *st, DEVICE *dunused, UNIT *uunused, int32 flag, CONST char *cptr)
-{
-if (cptr && (*cptr != 0))
-    return SCPE_2MARG;
-return show_dev_debug (st, &sim_con_telnet, &sim_con_unit, flag, cptr);
-}
-
 /* Set console to Serial port (and parameters) */
-
-t_stat sim_set_serial (int32 flag, CONST char *cptr)
-{
-char *cvptr, gbuf[CBUFSIZE], ubuf[CBUFSIZE];
-CTAB *ctptr;
-t_stat r;
-
-if ((cptr == NULL) || (*cptr == 0))
-    return SCPE_2FARG;
-while (*cptr != 0) {                                    /* do all mods */
-    cptr = get_glyph_nc (cptr, gbuf, ',');              /* get modifier */
-    if ((cvptr = strchr (gbuf, '=')))                   /* = value? */
-        *cvptr++ = 0;
-    get_glyph (gbuf, ubuf, 0);                          /* modifier to UC */
-    if ((ctptr = find_ctab (set_con_serial_tab, ubuf))) { /* match? */
-        r = ctptr->action (ctptr->arg, cvptr);          /* do the rest */
-        if (r != SCPE_OK)
-            return r;
-        }
-    else {
-        SERHANDLE serport = sim_open_serial (gbuf, NULL, &r);
-        if (serport != INVALID_HANDLE) {
-            sim_close_serial (serport);
-            if (r == SCPE_OK) {
-                char cbuf[CBUFSIZE+10];
-                if ((sim_con_tmxr.master) ||            /* already open? */
-                    (sim_con_ldsc.serport))
-                    sim_set_noserial (0, NULL);         /* close first */
-                sprintf(cbuf, "C=%s", gbuf);
-                r = tmxr_attach (&sim_con_tmxr, &sim_con_unit, cbuf);/* open master socket */
-                sim_con_ldsc.rcve = 1;                  /* rcv enabled */
-                if (r == SCPE_OK)
-                    sim_activate_after(&sim_con_unit, 1000000); /* check for connection in 1 second */
-                return r;
-                }
-            }
-        return SCPE_ARG;
-        }
-    }
-return SCPE_OK;
-}
-
-/* Close console Serial port */
-
-t_stat sim_set_noserial (int32 flag, CONST char *cptr)
-{
-if (cptr && (*cptr != 0))                               /* too many arguments? */
-    return SCPE_2MARG;
-if (sim_con_ldsc.serport == 0)                          /* ignore if already closed */
-    return SCPE_OK;
-return tmxr_close_master (&sim_con_tmxr);               /* close master socket */
-}
 
 /* Show the console expect rules and state */
 
@@ -1767,7 +1607,7 @@ return SCPE_OK;
 
 /* Show logfile support routine */
 
-const char *sim_logfile_name (FILE *st, FILEREF *ref)
+const char *sim_logfile_name (const FILE *st, FILEREF *ref)
 {
 if (!st)
     return "";
@@ -1820,7 +1660,7 @@ if (trys == sec) {
 if (sim_con_ldsc.serport)
     if (tmxr_poll_conn (&sim_con_tmxr) >= 0)
         sim_con_ldsc.rcve = 1;                          /* rcv enabled */
-if ((sim_con_tmxr.master == 0) ||                       /* serial console or not Telnet? done */
+if ((sim_con_tmxr.master == 0) ||                       /* console or not Telnet? done */
     (sim_con_ldsc.serport))
     return SCPE_OK;
 if (sim_con_ldsc.conn || sim_con_ldsc.txbfd) {          /* connected or buffered ? */
@@ -1942,139 +1782,11 @@ tmxr_poll_tx (&sim_con_tmxr);                           /* poll xmt */
 return SCPE_OK;
 }
 
-t_stat sim_putchar_s (int32 c)
-{
-t_stat r;
-
-sim_exp_check (&sim_con_expect, c);
-if ((sim_con_tmxr.master == 0) &&                       /* not Telnet? */
-    (sim_con_ldsc.serport == 0)) {                      /* and not serial port */
-    if (sim_log)                                        /* log file? */
-        fputc (c, sim_log);
-    return sim_os_putchar (c);                          /* in-window version */
-    }
-if (!sim_con_ldsc.conn) {                               /* no Telnet or serial connection? */
-    if (!sim_con_ldsc.txbfd)                            /* non-buffered Telnet connection? */
-        return SCPE_LOST;                               /* lost */
-    if (tmxr_poll_conn (&sim_con_tmxr) >= 0)            /* poll connect */
-        sim_con_ldsc.rcve = 1;                          /* rcv enabled */
-    }
-if (sim_con_ldsc.xmte == 0)                             /* xmt disabled? */
-    r = SCPE_STALL;
-else r = tmxr_putc_ln (&sim_con_ldsc, c);               /* no, Telnet output */
-tmxr_poll_tx (&sim_con_tmxr);                           /* poll xmt */
-return r;                                               /* return status */
-}
-
-/* Input character processing */
-
-int32 sim_tt_inpcvt (int32 c, uint32 mode)
-{
-uint32 md = mode & TTUF_M_MODE;
-
-if (md != TTUF_MODE_8B) {
-    uint32 par_mode = (mode >> TTUF_W_MODE) & TTUF_M_PAR;
-    static int32 nibble_even_parity = 0x699600;   /* bit array indicating the even parity for each index (offset by 8) */
-
-    c = c & 0177;
-    if (md == TTUF_MODE_UC) {
-        if (islower (c))
-            c = toupper (c);
-        if (mode & TTUF_KSR)
-            c = c | 0200;
-        }
-    switch (par_mode) {
-        case TTUF_PAR_EVEN:
-            c |= (((nibble_even_parity >> ((c & 0xF) + 1)) ^ (nibble_even_parity >> (((c >> 4) & 0xF) + 1))) & 0x80);
-            break;
-        case TTUF_PAR_ODD:
-            c |= ((~((nibble_even_parity >> ((c & 0xF) + 1)) ^ (nibble_even_parity >> (((c >> 4) & 0xF) + 1)))) & 0x80);
-            break;
-        case TTUF_PAR_MARK:
-            c = c | 0x80;
-            break;
-        }
-    }
-else c = c & 0377;
-return c;
-}
-
-/* Output character processing */
-
-int32 sim_tt_outcvt (int32 c, uint32 mode)
-{
-uint32 md = mode & TTUF_M_MODE;
-
-if (md != TTUF_MODE_8B) {
-    c = c & 0177;
-    if (md == TTUF_MODE_UC) {
-        if (islower (c))
-            c = toupper (c);
-        if ((mode & TTUF_KSR) && (c >= 0140))
-            return -1;
-        }
-    if (((md == TTUF_MODE_UC) || (md == TTUF_MODE_7P)) &&
-        ((c == 0177) ||
-         ((c < 040) && !((sim_tt_pchar >> c) & 1))))
-        return -1;
-    }
-else c = c & 0377;
-return c;
-}
-
 /* Tab stop array handling
 
    *desc points to a uint8 array of length val
 
    Columns with tabs set are non-zero; columns without tabs are 0 */
-
-t_stat sim_tt_settabs (UNIT *uptr, int32 val, CONST char *cptr, void *desc)
-{
-uint8 *temptabs, *tabs = (uint8 *) desc;
-int32 i, d;
-t_stat r;
-char gbuf[CBUFSIZE];
-
-if ((cptr == NULL) || (tabs == NULL) || (val <= 1))
-    return SCPE_IERR;
-if (*cptr == 0)
-    return SCPE_2FARG;
-if ((temptabs = (uint8 *)malloc (val)) == NULL)
-    return SCPE_MEM;
-for (i = 0; i < val; i++)
-    temptabs[i] = 0;
-do {
-    cptr = get_glyph (cptr, gbuf, ';');
-    d = (int32)get_uint (gbuf, 10, val, &r);
-    if ((r != SCPE_OK) || (d == 0)) {
-        free (temptabs);
-        return SCPE_ARG;
-        }
-    temptabs[d - 1] = 1;
-    } while (*cptr != 0);
-for (i = 0; i < val; i++)
-    tabs[i] = temptabs[i];
-free (temptabs);
-return SCPE_OK;
-}
-
-t_stat sim_tt_showtabs (FILE *st, UNIT *uptr, int32 val, CONST void *desc)
-{
-const uint8 *tabs = (const uint8 *) desc;
-int32 i, any;
-
-if ((st == NULL) || (val == 0) || (desc == NULL))
-    return SCPE_IERR;
-for (i = any = 0; i < val; i++) {
-    if (tabs[i] != 0) {
-        fprintf (st, (any? ";%d": "%d"), i + 1);
-        any = 1;
-        }
-    }
-fprintf (st, (any? "\n": "no tabs set\n"));
-return SCPE_OK;
-}
-
 
 t_stat sim_ttinit (void)
 {
@@ -2118,10 +1830,10 @@ return sim_os_ttisatty ();
 
 #if defined (_WIN32)
 
-#include <fcntl.h>
-#include <io.h>
-#include <windows.h>
-#define RAW_MODE 0
+# include <fcntl.h>
+# include <io.h>
+# include <windows.h>
+# define RAW_MODE 0
 static HANDLE std_input;
 static HANDLE std_output;
 static DWORD saved_mode;
@@ -2252,8 +1964,8 @@ if ((sim_brk_char && ((c & 0177) == sim_brk_char)) || (c & SCPE_BREAK))
 return c | SCPE_KFLAG;
 }
 
-#define BELL_CHAR         7         /* Bell Character */
-#define BELL_INTERVAL_MS  500       /* No more than 2 Bell Characters Per Second */
+# define BELL_CHAR         7         /* Bell Character */
+# define BELL_INTERVAL_MS  500       /* No more than 2 Bell Characters Per Second */
 static t_stat sim_os_putchar (int32 c)
 {
 DWORD unused;
@@ -2278,9 +1990,9 @@ return SCPE_OK;
 
 /* BSD Routines */
 
-#include <sgtty.h>
-#include <fcntl.h>
-#include <unistd.h>
+# include <sgtty.h>
+# include <fcntl.h>
+# include <unistd.h>
 
 struct sgttyb cmdtty,runtty;                            /* V6/V7 stty data */
 struct tchars cmdtchars,runtchars;                      /* V7 editing */
@@ -2378,8 +2090,8 @@ return SCPE_OK;
 
 #else
 
-#include <termios.h>
-#include <unistd.h>
+# include <termios.h>
+# include <unistd.h>
 
 struct termios cmdtty, runtty;
 
@@ -2402,26 +2114,26 @@ runtty.c_cc[VEOL] = 0;
 runtty.c_cc[VSTART] = 0;                                /* no host sync */
 runtty.c_cc[VSUSP] = 0;
 runtty.c_cc[VSTOP] = 0;
-#if defined (VREPRINT)
+# if defined (VREPRINT)
 runtty.c_cc[VREPRINT] = 0;                              /* no specials */
-#endif
-#if defined (VDISCARD)
+# endif
+# if defined (VDISCARD)
 runtty.c_cc[VDISCARD] = 0;
-#endif
-#if defined (VWERASE)
+# endif
+# if defined (VWERASE)
 runtty.c_cc[VWERASE] = 0;
-#endif
-#if defined (VLNEXT)
+# endif
+# if defined (VLNEXT)
 runtty.c_cc[VLNEXT] = 0;
-#endif
+# endif
 runtty.c_cc[VMIN] = 0;                                  /* no waiting */
 runtty.c_cc[VTIME] = 0;
-#if defined (VDSUSP)
+# if defined (VDSUSP)
 runtty.c_cc[VDSUSP] = 0;
-#endif
-#if defined (VSTATUS)
+# endif
+# if defined (VSTATUS)
 runtty.c_cc[VSTATUS] = 0;
-#endif
+# endif
 return SCPE_OK;
 }
 

@@ -12,16 +12,16 @@
  */
 
 #ifndef DPS8_HW_CONSTS_H
-#define DPS8_HW_CONSTS_H
+# define DPS8_HW_CONSTS_H
 
-#include "dps8_math128.h"
+# include "dps8_math128.h"
 
 /////////////////////////////////////
 //
 // SCU/Memory
 //
 
-#define XXX_TEMP_SCU_SUBPORT 0
+# define XXX_TEMP_SCU_SUBPORT 0
 
 enum { N_SCU_PORTS = 8 };
 enum { N_SCU_SUBPORTS = 4 };
@@ -29,28 +29,28 @@ enum { N_ASSIGNMENTS = 2 };
 // Number of interrupts in an interrupt cell register
 enum { N_CELL_INTERRUPTS = 32 };
 
-#define PASIZE          24                       /* phys addr width */
-#define PAMASK          ((1U << PASIZE) - 1U)
+# define PASIZE          24                       /* phys addr width */
+# define PAMASK          ((1U << PASIZE) - 1U)
 // Mask out low bit
-#define PAEVEN          (((1U << (PASIZE - 1)) - 1U) << 1)
-#define MEM_SIZE_MAX    (1U << PASIZE)           /* maximum memory */
+# define PAEVEN          (((1U << (PASIZE - 1)) - 1U) << 1)
+# define MEM_SIZE_MAX    (1U << PASIZE)           /* maximum memory */
 
 // The minimum allocation size of a SCU is 64K (2^16)
 // (2 banks of 32K). Call it an SCBANK
-#define SCBANK_SZ          (1U << 16)
+# define SCBANK_SZ          (1U << 16)
 
 // Maximum memory size is MEM_SIZE_MAX, number of
 // scbanks is:
-#define N_SCBANKS ((MEM_SIZE_MAX) / (SCBANK_SZ))
+# define N_SCBANKS ((MEM_SIZE_MAX) / (SCBANK_SZ))
 
 //
 // Memory addressing
 //
 
 
-#define VASIZE          18                       // virtual addr width
-#define AMASK           ((1U << VASIZE) - 1U)    // virtual addr mask
-#define SEGSIZE         (1U << VASIZE)           // size of segment in words
+# define VASIZE          18                       // virtual addr width
+# define AMASK           ((1U << VASIZE) - 1U)    // virtual addr mask
+# define SEGSIZE         (1U << VASIZE)           // size of segment in words
 
 
 /////////////////////////////////////
@@ -58,8 +58,8 @@ enum { N_CELL_INTERRUPTS = 32 };
 // Append unit memory paging
 //
 
-#define PGSZ 1024u
-#define PGMK 1023u
+# define PGSZ 1024u
+# define PGMK 1023u
 
 //
 // IOM
@@ -78,130 +78,130 @@ enum { IOM_CONNECT_CHAN = 2 };
 //
 
 
-#define MAX18           0777777U
-#define MAX18POS        0377777U                 //  2**17-1
-#define MAX18NEG        0400000U                 // -2**17
-#define SIGN18          0400000U
+# define MAX18           0777777U
+# define MAX18POS        0377777U                 //  2**17-1
+# define MAX18NEG        0400000U                 // -2**17
+# define SIGN18          0400000U
 // NB. these 2 use the wrong bit number convention
-#define BIT19          01000000U                 // carry out bit from 18 bit arithmetic
-#define BIT20          02000000U                 // carry out bit from 19 bit arithmetic
-#define MASK36         0777777777777LLU          // data mask
-#define DMASK           MASK36
-#define MASK10          0001777U                 // 10-bit data mask
-#define MASK14          0037777U                 // 14-bit data mask
-#define MASK16          0177777U                 // 16-bit data mask
-#define MASK17          0377777U                 // 17-bit data mask
-#define MASK18          0777777U                 // 18-bit data mask
-#define WMASK           MASK18                   // WORDNO mask
-#define MASKLO18        0000000777777LLU
-#define MASKHI18        0777777000000LLU
-#define MASK20          03777777U                // 20-bit data mask
-#define MASK24          077777777U               // 24-bit data mask
-#define MASK28          01777777777U             // 28-bit data mask
-#define SIGN24          040000000U
-#define SIGN36          0400000000000LLU         // sign bit of a 36-bit word
+# define BIT19          01000000U                 // carry out bit from 18 bit arithmetic
+# define BIT20          02000000U                 // carry out bit from 19 bit arithmetic
+# define MASK36         0777777777777LLU          // data mask
+# define DMASK           MASK36
+# define MASK10          0001777U                 // 10-bit data mask
+# define MASK14          0037777U                 // 14-bit data mask
+# define MASK16          0177777U                 // 16-bit data mask
+# define MASK17          0377777U                 // 17-bit data mask
+# define MASK18          0777777U                 // 18-bit data mask
+# define WMASK           MASK18                   // WORDNO mask
+# define MASKLO18        0000000777777LLU
+# define MASKHI18        0777777000000LLU
+# define MASK20          03777777U                // 20-bit data mask
+# define MASK24          077777777U               // 24-bit data mask
+# define MASK28          01777777777U             // 28-bit data mask
+# define SIGN24          040000000U
+# define SIGN36          0400000000000LLU         // sign bit of a 36-bit word
 // NB. these 3 use the wrong bit number convention
-#define BIT37          01000000000000LLU         // carry out bit from 36 bit arithmetic
-#define BIT38          02000000000000LLU         // carry out bit from 37 bit arithmetic
-#define BIT35           0200000000000LLU         // next to the sign bit
-#define MASK32          037777777777U
-#define MASK15          077777U
-#define SMASK           MASK15                   // Segment number mask
-#define SIGN15          040000U                  // sign mask 15-bit number
-#define MAGMASK         0377777777777LLU         // magnitude mask
-#define ONES            0777777777777LLU
-#define NEG136          0777777777777LLU         // -1
-#define MAXPOS          0377777777777LLU         //  2**35-1
-#define MAXNEG          0400000000000LLU         // -2**35
-#define MAX36           0777777777777LLU         // 2**36-1
-#define MAX72           (((word72)1U << 72) - 1U)  // 72 1's
+# define BIT37          01000000000000LLU         // carry out bit from 36 bit arithmetic
+# define BIT38          02000000000000LLU         // carry out bit from 37 bit arithmetic
+# define BIT35           0200000000000LLU         // next to the sign bit
+# define MASK32          037777777777U
+# define MASK15          077777U
+# define SMASK           MASK15                   // Segment number mask
+# define SIGN15          040000U                  // sign mask 15-bit number
+# define MAGMASK         0377777777777LLU         // magnitude mask
+# define ONES            0777777777777LLU
+# define NEG136          0777777777777LLU         // -1
+# define MAXPOS          0377777777777LLU         //  2**35-1
+# define MAXNEG          0400000000000LLU         // -2**35
+# define MAX36           0777777777777LLU         // 2**36-1
+# define MAX72           (((word72)1U << 72) - 1U)  // 72 1's
 
-#define CARRY           01000000000000LLU        // carry from 2 36-bit additions/subs
-#define ZEROEXT         0777777777777LLU         // mask to zero extend a 36 => 64-bit int
-#define ZEROEXT18       0777777U                 // mask to zero extend a 18 => 32-bit int
+# define CARRY           01000000000000LLU        // carry from 2 36-bit additions/subs
+# define ZEROEXT         0777777777777LLU         // mask to zero extend a 36 => 64-bit int
+# define ZEROEXT18       0777777U                 // mask to zero extend a 18 => 32-bit int
 
-#ifdef NEED_128
+# ifdef NEED_128
 
-#define SIGN72          (construct_128 (0200U, 0U))
+#  define SIGN72          (construct_128 (0200U, 0U))
 // NB. these use the wrong bit number convention
-#define BIT68           (construct_128 (010U, 0U))
-#define BIT69           (construct_128 (020U, 0U))
-#define BIT70           (construct_128 (040U, 0U))
-#define BIT71           (construct_128 (0100U, 0U)) // next to the sign bit
-#define BIT73           (construct_128 (0400U, 0U)) // carry out bit from 72 bit arithmetic
-#define BIT74           (construct_128 (01000U, 0U)) // carry out bit from 73 bit arithmetic
-#define MASK63          0x7FFFFFFFFFFFFFFF
-#define MASK64          0xFFFFFFFFFFFFFFFF
-#define MASK68          (construct_128 (017U, MASK64)) // Hex mode mantissa normalization mask
-#define MASK70          (construct_128 (0077U, MASK64))
-#define MASK71          (construct_128 (0177U, MASK64))
-#define MASK72          (construct_128 (0377U, MASK64))
+#  define BIT68           (construct_128 (010U, 0U))
+#  define BIT69           (construct_128 (020U, 0U))
+#  define BIT70           (construct_128 (040U, 0U))
+#  define BIT71           (construct_128 (0100U, 0U)) // next to the sign bit
+#  define BIT73           (construct_128 (0400U, 0U)) // carry out bit from 72 bit arithmetic
+#  define BIT74           (construct_128 (01000U, 0U)) // carry out bit from 73 bit arithmetic
+#  define MASK63          0x7FFFFFFFFFFFFFFF
+#  define MASK64          0xFFFFFFFFFFFFFFFF
+#  define MASK68          (construct_128 (017U, MASK64)) // Hex mode mantissa normalization mask
+#  define MASK70          (construct_128 (0077U, MASK64))
+#  define MASK71          (construct_128 (0177U, MASK64))
+#  define MASK72          (construct_128 (0377U, MASK64))
 
-#else
+# else
 
-#define SIGN72          ((word72)1U << 71)
+#  define SIGN72          ((word72)1U << 71)
 // NB. these use the wrong bit number convention
-#define BIT68           ((word72)1U << 67)
-#define BIT69           ((word72)1U << 68)
-#define BIT70           ((word72)1U << 69)
-#define BIT71           ((word72)1U << 70)  // next to the sign bit
-#define BIT73           ((word72)1U << 72)       // carry out bit from 72 bit arithmetic
-#define BIT74           ((word72)1U << 73)       // carry out bit from 73 bit arithmetic
+#  define BIT68           ((word72)1U << 67)
+#  define BIT69           ((word72)1U << 68)
+#  define BIT70           ((word72)1U << 69)
+#  define BIT71           ((word72)1U << 70)  // next to the sign bit
+#  define BIT73           ((word72)1U << 72)       // carry out bit from 72 bit arithmetic
+#  define BIT74           ((word72)1U << 73)       // carry out bit from 73 bit arithmetic
 
-#define MASK68          (((word72)1U << 68) - 1U) // Hex mode mantissa normalization mask
-#define MASK70          (((word72)1U << 70) - 1U)
-#define MASK71          (((word72)1U << 71) - 1U)
-#define MASK72          (((word72)1U << 72) - 1U)
-#define ZEROEXT72       (((word72)1U << 72) - 1U)  // mask to zero extend a 72 => 128 int
+#  define MASK68          (((word72)1U << 68) - 1U) // Hex mode mantissa normalization mask
+#  define MASK70          (((word72)1U << 70) - 1U)
+#  define MASK71          (((word72)1U << 71) - 1U)
+#  define MASK72          (((word72)1U << 72) - 1U)
+#  define ZEROEXT72       (((word72)1U << 72) - 1U)  // mask to zero extend a 72 => 128 int
 
-#endif
+# endif
 
-#define SIGN64          ((uint64)1U << 63)
+# define SIGN64          ((uint64)1U << 63)
 
-#define MASK2           03U
-#define MASK3           07U
-#define MASK4           017U
-#define MASK5           037U
-#define MASK6           077U
-#define MASK7           0177U
+# define MASK2           03U
+# define MASK3           07U
+# define MASK4           017U
+# define MASK5           037U
+# define MASK6           077U
+# define MASK7           0177U
 
-#define SIGN8           0200U                    // sign mask 8-bit number
-#define MASK8           0377U                    // 8-bit mask
-#define MASK9           0777U                    // 9-bit mask
+# define SIGN8           0200U                    // sign mask 8-bit number
+# define MASK8           0377U                    // 8-bit mask
+# define MASK9           0777U                    // 9-bit mask
 
-#define MASK11          03777U
+# define MASK11          03777U
 
-#define SIGN12          0x800U                   // sign mask 12-bit number
-#define MASK12          07777U
+# define SIGN12          0x800U                   // sign mask 12-bit number
+# define MASK12          07777U
 
-#define SIGN6           0040U                    // sign bit of 6-bit signed numfer (e.g. Scaling Factor)
+# define SIGN6           0040U                    // sign bit of 6-bit signed numfer (e.g. Scaling Factor)
 
-#define MASK35          0377777777777llu
+# define MASK35          0377777777777llu
 
-#define MASKBITS(x)     ( ~(~((uint64)0)<<x) )   // lower (x) bits all ones
-#define MASKBITS18(x)   ( ~(~((word18)0)<<x) )   // lower (x) bits all ones
-#define MASKBITS72(x)   ( ~(~((word72)0)<<x) )   // lower (x) bits all ones
+# define MASKBITS(x)     ( ~(~((uint64)0)<<x) )   // lower (x) bits all ones
+# define MASKBITS18(x)   ( ~(~((word18)0)<<x) )   // lower (x) bits all ones
+# define MASKBITS72(x)   ( ~(~((word72)0)<<x) )   // lower (x) bits all ones
 
-#define GETHI36(a)      ((word18) (((a) >> 18) & MASK18))
-#define GETLO36(a)      ((word18) ((a) & MASK18))
-#define SETHI36(a,b)    (((a) &= MASKLO18), ((a) |= ((((word36)(b) & MASKLO18) << 18))))
-#define SETLO36(a,b)    (((a) &= MASKHI18), ((a) |= ((word36)(b) & MASKLO18)))
-#define GETHI(a)        GETHI36((a))
-#define GETLO(a)        GETLO36((a))
-#define SETHI(a,b)      SETHI36((a),(b))
-#define SETLO(a,b)      SETLO36((a),(b))
+# define GETHI36(a)      ((word18) (((a) >> 18) & MASK18))
+# define GETLO36(a)      ((word18) ((a) & MASK18))
+# define SETHI36(a,b)    (((a) &= MASKLO18), ((a) |= ((((word36)(b) & MASKLO18) << 18))))
+# define SETLO36(a,b)    (((a) &= MASKHI18), ((a) |= ((word36)(b) & MASKLO18)))
+# define GETHI(a)        GETHI36((a))
+# define GETLO(a)        GETLO36((a))
+# define SETHI(a,b)      SETHI36((a),(b))
+# define SETLO(a,b)      SETLO36((a),(b))
 
-#define GETHI72(a)      ((word36) (((a) >> 36) & MASK36))
-#define GETLO72(a)      ((word36) ((a) & MASK36))
-#define SETHI72(a,b)    ((a) &= MASK36, (a) |= ((((word72)(b) & MASK36)) << 36))
-#define SETLO72(a,b)    ((a) &= MASK36 << 36, (a) |= ((word72)(b) & MASK36))
+# define GETHI72(a)      ((word36) (((a) >> 36) & MASK36))
+# define GETLO72(a)      ((word36) ((a) & MASK36))
+# define SETHI72(a,b)    ((a) &= MASK36, (a) |= ((((word72)(b) & MASK36)) << 36))
+# define SETLO72(a,b)    ((a) &= MASK36 << 36, (a) |= ((word72)(b) & MASK36))
 
-#define GET24(a)        ((word24) ((a) & MASK24))
-#define MASK21          07777777llu
-#define SIGN21          04000000llu
-#define MASK22          017777777llu
-#define SIGN22          010000000llu
-#define MASK27          0777777777llu
+# define GET24(a)        ((word24) ((a) & MASK24))
+# define MASK21          07777777llu
+# define SIGN21          04000000llu
+# define MASK22          017777777llu
+# define SIGN22          010000000llu
+# define MASK27          0777777777llu
 
 
 // Sign extend DPS8M words into host words
@@ -316,30 +316,30 @@ static inline t_int64 SIGNEXT24_64 (word36 w)
 
 static inline int128 SIGNEXT72_128 (word72 w)
   {
-#ifdef NEED_128
+# ifdef NEED_128
     if (isnonzero_128 (and_128 (w, SIGN72)))
       {
         uint128 v = or_128 (w, construct_128 (0xFFFFFFFFFFFFFF80, 0));
         return cast_s128 (v);
       }
     uint128 v =  and_128 (w, MASK72);
-#if defined(__sun__) || defined(_AIX)
+#  if defined(__sun__) || defined(_AIX)
     return (int128) { (uint64_t) v.h, v.l};
-#elif defined(__MINGW32__)
+#  elif defined(__MINGW32__)
     return (int128) { (int64_t) v.h, v.l};
-#else
+#  else
     return (int128) { (__int64_t) v.h, v.l};
-#endif
-#else
+#  endif
+# else
     if (w & SIGN72)
       {
         return ((int128) w) | (int128) (((uint128) -1ll) << 72);
       }
     return w & MASK72;
-#endif
+# endif
   }
 
-#ifdef NEED_128
+# ifdef NEED_128
 static inline int128 SIGNEXT36_128 (word36 w)
   {
     if (w & SIGN36)
@@ -348,7 +348,7 @@ static inline int128 SIGNEXT36_128 (word36 w)
       }
     return construct_s128 (0, w);
   }
-#endif
+# endif
 
 // Sign extend DPS8M words into DPS8M words
 // NB: The high order bits in the host container will
@@ -375,7 +375,7 @@ static inline word24 SIGNEXT18_24 (word18 w)
 
 static inline word72 SIGNEXT36_72 (word36 w)
   {
-#ifdef NEED_128
+# ifdef NEED_128
     if (w & SIGN36)
       {
         //return (w | ((word72) DMASK) << 36) & MASK72;
@@ -383,69 +383,69 @@ static inline word72 SIGNEXT36_72 (word36 w)
       }
     //return w & MASK36;
     return construct_128 (0, w & MASK36);
-#else
+# else
     if (w & SIGN36)
       {
         return (w | ((word72) DMASK) << 36) & MASK72;
       }
     return w & MASK36;
-#endif
+# endif
   }
 
-#define SETS36(x)       ((x) | SIGN36)
-#define CLRS36(x)       ((x) & ~SIGN36)
-#define TSTS36(x)       ((x) & SIGN36)
+# define SETS36(x)       ((x) | SIGN36)
+# define CLRS36(x)       ((x) & ~SIGN36)
+# define TSTS36(x)       ((x) & SIGN36)
 
 /////////////////////////////////////
 //
 // Instruction format
 //
 
-#define INST_V_TAG      0                        // Tag
-#define INST_M_TAG      077U
-#define INST_V_A        6                        // Indirect via pointer
-#define INST_M_A        1U
-#define INST_V_I        7                        // Interrupt Inhibit
-#define INST_M_I        1U
-#define INST_V_OP       9                        // opcode
-#define INST_M_OP       0777U
-#define INST_V_OPX      8                        // opcode etension
-#define INST_M_OPX      1U
+# define INST_V_TAG      0                        // Tag
+# define INST_M_TAG      077U
+# define INST_V_A        6                        // Indirect via pointer
+# define INST_M_A        1U
+# define INST_V_I        7                        // Interrupt Inhibit
+# define INST_M_I        1U
+# define INST_V_OP       9                        // opcode
+# define INST_M_OP       0777U
+# define INST_V_OPX      8                        // opcode etension
+# define INST_M_OPX      1U
 
-#define INST_V_ADDR     18                       // Address
-#define INST_M_ADDR     0777777U
-#define INST_V_OFFSET   18                       // Offset (Bit29=1)
-#define INST_M_OFFSET   077777U
-#define INST_V_PRN      33                       // n of PR[n] (Bit29=1)
-#define INST_M_PRN      07U
-#define INST_V_ARN      33                       // n of AR[n] (Bit29=1)
-#define INST_M_ARN      07U
+# define INST_V_ADDR     18                       // Address
+# define INST_M_ADDR     0777777U
+# define INST_V_OFFSET   18                       // Offset (Bit29=1)
+# define INST_M_OFFSET   077777U
+# define INST_V_PRN      33                       // n of PR[n] (Bit29=1)
+# define INST_M_PRN      07U
+# define INST_V_ARN      33                       // n of AR[n] (Bit29=1)
+# define INST_M_ARN      07U
 
 
-#define GET_TAG(x)      ((word6)  ( (x)                   & INST_M_TAG ))
-#define GET_A(x)        ((word1)  (((x) >> INST_V_A)      & INST_M_A   ))
-#define GET_I(x)        ((int32)  (((x) >> INST_V_I)      & INST_M_I   ))
-#define GET_OP(x)       ((word9)  (((x) >> INST_V_OP)     & INST_M_OP ))
-#define GET_OPX(x)      ((bool)   (((x) >> INST_V_OPX)    & INST_M_OPX))
+# define GET_TAG(x)      ((word6)  ( (x)                   & INST_M_TAG ))
+# define GET_A(x)        ((word1)  (((x) >> INST_V_A)      & INST_M_A   ))
+# define GET_I(x)        ((int32)  (((x) >> INST_V_I)      & INST_M_I   ))
+# define GET_OP(x)       ((word9)  (((x) >> INST_V_OP)     & INST_M_OP ))
+# define GET_OPX(x)      ((bool)   (((x) >> INST_V_OPX)    & INST_M_OPX))
 
-#define GET_OFFSET(x)   ((word15) (((x) >> INST_V_OFFSET) & INST_M_OFFSET))
-#define GET_PRN(x)      ((word3)  (((x) >> INST_V_PRN)    & INST_M_PRN))
-#define GET_ARN(x)      ((word3)  (((x) >> INST_V_ARN)    & INST_M_ARN))
+# define GET_OFFSET(x)   ((word15) (((x) >> INST_V_OFFSET) & INST_M_OFFSET))
+# define GET_PRN(x)      ((word3)  (((x) >> INST_V_PRN)    & INST_M_PRN))
+# define GET_ARN(x)      ((word3)  (((x) >> INST_V_ARN)    & INST_M_ARN))
 
-#define GET_TM(x)       (       (GET_TAG(x) & 060U))
-#define GET_TD(x)       (       (GET_TAG(x) & 017U))
+# define GET_TM(x)       (       (GET_TAG(x) & 060U))
+# define GET_TD(x)       (       (GET_TAG(x) & 017U))
 
-#define GET_ADDR(x)     ((uint32) (((x) >> INST_V_ADDR) & INST_M_ADDR))
+# define GET_ADDR(x)     ((uint32) (((x) >> INST_V_ADDR) & INST_M_ADDR))
 
 // tag defines ...
-#define TAG_R           0U
-#define TAG_RI          1U
-#define TAG_IT          2U
-#define TAG_IR          3U
+# define TAG_R           0U
+# define TAG_RI          1U
+# define TAG_IT          2U
+# define TAG_IR          3U
 
 
-#define _TD(tag)        ((tag) & 017U)
-#define _TM(tag)        ((tag) & 060U)
+# define _TD(tag)        ((tag) & 017U)
+# define _TM(tag)        ((tag) & 060U)
 
 enum {
     TD_N        = 000U,
@@ -494,166 +494,163 @@ enum {
     SPEC_ITS  = 003U
 };
 
-#define GET_TB(tag)     ((tag) & 040U)
-#define GET_CF(tag)     ((tag) & 007U)
+# define GET_TB(tag)     ((tag) & 040U)
+# define GET_CF(tag)     ((tag) & 007U)
 
-#define _TB(tag)        GET_TB((tag))
-#define _CF(tag)        GET_CF((tag))
+# define _TB(tag)        GET_TB((tag))
+# define _CF(tag)        GET_CF((tag))
 
-#define TB6            000U // 6-bit characters
-#define TB9            040U // 9-bit characters
+# define TB6            000U // 6-bit characters
+# define TB9            040U // 9-bit characters
 
 /////////////////////////////////////
 //
 // ITS/ITP
 //
 
-#define ISITP(x)                (((x) & INST_M_TAG) == 041U)
-#define GET_ITP_PRNUM(Ypair)    ((word3)  (((Ypair)[0] >> 33) & 07U))
-#define GET_ITP_WORDNO(Ypair)   ((word18) (((Ypair)[1] >> 18) & WMASK))
-#define GET_ITP_BITNO(Ypair)    ((word6)  (((Ypair)[1] >>  9) & 077U))
-#define GET_ITP_MOD(Ypair)      (GET_TAG((Ypair)[1]))
+# define ISITP(x)                (((x) & INST_M_TAG) == 041U)
+# define GET_ITP_PRNUM(Ypair)    ((word3)  (((Ypair)[0] >> 33) & 07U))
+# define GET_ITP_WORDNO(Ypair)   ((word18) (((Ypair)[1] >> 18) & WMASK))
+# define GET_ITP_BITNO(Ypair)    ((word6)  (((Ypair)[1] >>  9) & 077U))
+# define GET_ITP_MOD(Ypair)      (GET_TAG((Ypair)[1]))
 
-#define ISITS(x)                (((x) & INST_M_TAG) == 043U)
-#define GET_ITS_SEGNO(Ypair)    ((word15) (((Ypair)[0] >> 18) & SMASK))
-#define GET_ITS_RN(Ypair)       ((word3)  (((Ypair)[0] >> 15) & 07))
-#define GET_ITS_WORDNO(Ypair)   ((word18) (((Ypair)[1] >> 18) & WMASK))
-#define GET_ITS_BITNO(Ypair)    ((word6)  (((Ypair)[1] >>  9) & 077))
-#define GET_ITS_MOD(Ypair)      (GET_TAG((Ypair)[1]))
+# define ISITS(x)                (((x) & INST_M_TAG) == 043U)
+# define GET_ITS_SEGNO(Ypair)    ((word15) (((Ypair)[0] >> 18) & SMASK))
+# define GET_ITS_RN(Ypair)       ((word3)  (((Ypair)[0] >> 15) & 07))
+# define GET_ITS_WORDNO(Ypair)   ((word18) (((Ypair)[1] >> 18) & WMASK))
+# define GET_ITS_BITNO(Ypair)    ((word6)  (((Ypair)[1] >>  9) & 077))
+# define GET_ITS_MOD(Ypair)      (GET_TAG((Ypair)[1]))
 
 /////////////////////////////////////
 //
 // Indicator register bits
 //
 
-#define F_V_A           17      // Zero
-#define F_V_B           16      // Negative
-#define F_V_C           15      // Carry
-#define F_V_D           14      // Overflow
-#define F_V_E           13      // Exponent Overflow
-#define F_V_F           12      // Exponent Underflow
-#define F_V_G           11      // Overflow Mask
-#define F_V_H           10      // Tally Runout
-#define F_V_I            9      // Parity Error
-#define F_V_J            8      // Parity Mask
-#define F_V_K            7      // Not BAR mode
-#define F_V_L            6      // Truncation
-#define F_V_M            5      // Mid Instruction Interrupt Fault
-#define F_V_N            4      // Absolute Mode
-#define F_V_O            3      // Hex Mode
+# define F_V_A           17      // Zero
+# define F_V_B           16      // Negative
+# define F_V_C           15      // Carry
+# define F_V_D           14      // Overflow
+# define F_V_E           13      // Exponent Overflow
+# define F_V_F           12      // Exponent Underflow
+# define F_V_G           11      // Overflow Mask
+# define F_V_H           10      // Tally Runout
+# define F_V_I            9      // Parity Error
+# define F_V_J            8      // Parity Mask
+# define F_V_K            7      // Not BAR mode
+# define F_V_L            6      // Truncation
+# define F_V_M            5      // Mid Instruction Interrupt Fault
+# define F_V_N            4      // Absolute Mode
+# define F_V_O            3      // Hex Mode
 
-#define F_A             (1LLU << F_V_A)
-#define F_B             (1LLU << F_V_B)
-#define F_C             (1LLU << F_V_C)
-#define F_D             (1LLU << F_V_D)
-#define F_E             (1LLU << F_V_E)
-#define F_F             (1LLU << F_V_F)
-#define F_G             (1LLU << F_V_G)
-#define F_H             (1LLU << F_V_H)
-#define F_I             (1LLU << F_V_I)
-#define F_J             (1LLU << F_V_J)
-#define F_K             (1LLU << F_V_K)
-#define F_L             (1LLU << F_V_L)
-#define F_M             (1LLU << F_V_M)
-#define F_N             (1LLU << F_V_N)
-#define F_O             (1LLU << F_V_O)
+# define F_A             (1LLU << F_V_A)
+# define F_B             (1LLU << F_V_B)
+# define F_C             (1LLU << F_V_C)
+# define F_D             (1LLU << F_V_D)
+# define F_E             (1LLU << F_V_E)
+# define F_F             (1LLU << F_V_F)
+# define F_G             (1LLU << F_V_G)
+# define F_H             (1LLU << F_V_H)
+# define F_I             (1LLU << F_V_I)
+# define F_J             (1LLU << F_V_J)
+# define F_K             (1LLU << F_V_K)
+# define F_L             (1LLU << F_V_L)
+# define F_M             (1LLU << F_V_M)
+# define F_N             (1LLU << F_V_N)
+# define F_O             (1LLU << F_V_O)
 
-#ifdef DPS8M
-#define I_HEX   F_O     // base-16 exponent                 0000010
-#endif
-#define I_ABS   F_N     // absolute mode                    0000020
-#define I_MIF   F_M     // mid-instruction interrupt fault  0000040
-#define I_TRUNC F_L     // truncation                       0000100
-#define I_NBAR  F_K     // not BAR mode                     0000200
-#define I_PMASK F_J     // parity mask                      0000400
-#define I_PERR  F_I     // parity error                     0001000
-#define I_TALLY F_H     // tally runout                     0002000
-#define I_OMASK F_G     // overflow mask                    0004000
-#define I_EUFL  F_F     // exponent underflow               0010000
-#define I_EOFL  F_E     // exponent overflow                0020000
-#define I_OFLOW F_D     // overflow                         0040000
-#define I_CARRY F_C     // carry                            0100000
-#define I_NEG   F_B     // negative                         0200000
-#define I_ZERO  F_A     // zero                             0400000
+# ifdef DPS8M
+#  define I_HEX   F_O     // base-16 exponent                 0000010
+# endif
+# define I_ABS   F_N     // absolute mode                    0000020
+# define I_MIF   F_M     // mid-instruction interrupt fault  0000040
+# define I_TRUNC F_L     // truncation                       0000100
+# define I_NBAR  F_K     // not BAR mode                     0000200
+# define I_PMASK F_J     // parity mask                      0000400
+# define I_PERR  F_I     // parity error                     0001000
+# define I_TALLY F_H     // tally runout                     0002000
+# define I_OMASK F_G     // overflow mask                    0004000
+# define I_EUFL  F_F     // exponent underflow               0010000
+# define I_EOFL  F_E     // exponent overflow                0020000
+# define I_OFLOW F_D     // overflow                         0040000
+# define I_CARRY F_C     // carry                            0100000
+# define I_NEG   F_B     // negative                         0200000
+# define I_ZERO  F_A     // zero                             0400000
 
-#define I_ZNOC (I_ZERO | I_NEG | I_OFLOW | I_CARRY)
-#define I_ZNC (I_ZERO | I_NEG | I_CARRY)
+# define I_ZNOC (I_ZERO | I_NEG | I_OFLOW | I_CARRY)
+# define I_ZNC (I_ZERO | I_NEG | I_CARRY)
 
-#define CLR_I_ABS   CLRF (cpu.cu.IR, I_ABS)
-#define CLR_I_MIF   CLRF (cpu.cu.IR, I_MIF)
-#define CLR_I_TRUNC CLRF (cpu.cu.IR, I_TRUNC)
-#define CLR_I_NBAR  CLRF (cpu.cu.IR, I_NBAR)
-#define CLR_I_TALLY CLRF (cpu.cu.IR, I_TALLY)
-#define CLR_I_PMASK CLRF (cpu.cu.IR, I_PMASK)
-#define CLR_I_EOFL  CLRF (cpu.cu.IR, I_EOFL)
-#define CLR_I_EUFL  CLRF (cpu.cu.IR, I_EUFL)
-#define CLR_I_OFLOW CLRF (cpu.cu.IR, I_OFLOW)
-#define CLR_I_CARRY CLRF (cpu.cu.IR, I_CARRY)
-#define CLR_I_NEG   CLRF (cpu.cu.IR, I_NEG)
-#define CLR_I_ZERO  CLRF (cpu.cu.IR, I_ZERO)
+# define CLR_I_ABS   CLRF (cpu.cu.IR, I_ABS)
+# define CLR_I_MIF   CLRF (cpu.cu.IR, I_MIF)
+# define CLR_I_TRUNC CLRF (cpu.cu.IR, I_TRUNC)
+# define CLR_I_NBAR  CLRF (cpu.cu.IR, I_NBAR)
+# define CLR_I_TALLY CLRF (cpu.cu.IR, I_TALLY)
+# define CLR_I_PMASK CLRF (cpu.cu.IR, I_PMASK)
+# define CLR_I_EOFL  CLRF (cpu.cu.IR, I_EOFL)
+# define CLR_I_EUFL  CLRF (cpu.cu.IR, I_EUFL)
+# define CLR_I_OFLOW CLRF (cpu.cu.IR, I_OFLOW)
+# define CLR_I_CARRY CLRF (cpu.cu.IR, I_CARRY)
+# define CLR_I_NEG   CLRF (cpu.cu.IR, I_NEG)
+# define CLR_I_ZERO  CLRF (cpu.cu.IR, I_ZERO)
 
-#define SET_I_ABS   SETF (cpu.cu.IR, I_ABS)
-#define SET_I_NBAR  SETF (cpu.cu.IR, I_NBAR)
-#define SET_I_TRUNC SETF (cpu.cu.IR, I_TRUNC)
-#define SET_I_TALLY SETF (cpu.cu.IR, I_TALLY)
-#define SET_I_EOFL  SETF (cpu.cu.IR, I_EOFL)
-#define SET_I_EUFL  SETF (cpu.cu.IR, I_EUFL)
-#define SET_I_OFLOW SETF (cpu.cu.IR, I_OFLOW)
-#define SET_I_CARRY SETF (cpu.cu.IR, I_CARRY)
-#define SET_I_NEG   SETF (cpu.cu.IR, I_NEG)
-#define SET_I_ZERO  SETF (cpu.cu.IR, I_ZERO)
+# define SET_I_ABS   SETF (cpu.cu.IR, I_ABS)
+# define SET_I_NBAR  SETF (cpu.cu.IR, I_NBAR)
+# define SET_I_TRUNC SETF (cpu.cu.IR, I_TRUNC)
+# define SET_I_TALLY SETF (cpu.cu.IR, I_TALLY)
+# define SET_I_EOFL  SETF (cpu.cu.IR, I_EOFL)
+# define SET_I_EUFL  SETF (cpu.cu.IR, I_EUFL)
+# define SET_I_OFLOW SETF (cpu.cu.IR, I_OFLOW)
+# define SET_I_CARRY SETF (cpu.cu.IR, I_CARRY)
+# define SET_I_NEG   SETF (cpu.cu.IR, I_NEG)
+# define SET_I_ZERO  SETF (cpu.cu.IR, I_ZERO)
 
-#define TST_I_ABS   TSTF (cpu.cu.IR, I_ABS)
-#define TST_I_MIF   TSTF (cpu.cu.IR, I_MIF)
-#define TST_I_NBAR  TSTF (cpu.cu.IR, I_NBAR)
-#define TST_I_PMASK TSTF (cpu.cu.IR, I_PMASK)
-#define TST_I_TRUNC TSTF (cpu.cu.IR, I_TRUNC)
-#define TST_I_TALLY TSTF (cpu.cu.IR, I_TALLY)
-#define TST_I_OMASK TSTF (cpu.cu.IR, I_OMASK)
-#define TST_I_EUFL  TSTF (cpu.cu.IR, I_EUFL )
-#define TST_I_EOFL  TSTF (cpu.cu.IR, I_EOFL )
-#define TST_I_OFLOW TSTF (cpu.cu.IR, I_OFLOW)
-#define TST_I_CARRY TSTF (cpu.cu.IR, I_CARRY)
-#define TST_I_NEG   TSTF (cpu.cu.IR, I_NEG)
-#define TST_I_ZERO  TSTF (cpu.cu.IR, I_ZERO)
-#define TST_I_HEX   TSTF (cpu.cu.IR, I_HEX)
+# define TST_I_ABS   TSTF (cpu.cu.IR, I_ABS)
+# define TST_I_MIF   TSTF (cpu.cu.IR, I_MIF)
+# define TST_I_NBAR  TSTF (cpu.cu.IR, I_NBAR)
+# define TST_I_PMASK TSTF (cpu.cu.IR, I_PMASK)
+# define TST_I_TRUNC TSTF (cpu.cu.IR, I_TRUNC)
+# define TST_I_TALLY TSTF (cpu.cu.IR, I_TALLY)
+# define TST_I_OMASK TSTF (cpu.cu.IR, I_OMASK)
+# define TST_I_EUFL  TSTF (cpu.cu.IR, I_EUFL )
+# define TST_I_EOFL  TSTF (cpu.cu.IR, I_EOFL )
+# define TST_I_OFLOW TSTF (cpu.cu.IR, I_OFLOW)
+# define TST_I_CARRY TSTF (cpu.cu.IR, I_CARRY)
+# define TST_I_NEG   TSTF (cpu.cu.IR, I_NEG)
+# define TST_I_ZERO  TSTF (cpu.cu.IR, I_ZERO)
+# define TST_I_HEX   TSTF (cpu.cu.IR, I_HEX)
 
-#ifdef DPS8M
-#define SC_I_HEX(v)   SCF (v, cpu.cu.IR, I_HEX)
-#endif
-#define SC_I_MIF(v)   SCF (v, cpu.cu.IR, I_MIF)
-#define SC_I_TALLY(v) SCF (v, cpu.cu.IR, I_TALLY)
-#define SC_I_NEG(v)   SCF (v, cpu.cu.IR, I_NEG)
-#define SC_I_ZERO(v)  SCF (v, cpu.cu.IR, I_ZERO)
-#define SC_I_CARRY(v) SCF (v, cpu.cu.IR, I_CARRY);
-#define SC_I_OFLOW(v) SCF (v, cpu.cu.IR, I_OFLOW);
-#define SC_I_EOFL(v)  SCF (v, cpu.cu.IR, I_EOFL);
-#define SC_I_EUFL(v)  SCF (v, cpu.cu.IR, I_EUFL);
-#define SC_I_OMASK(v) SCF (v, cpu.cu.IR, I_OMASK);
-#define SC_I_PERR(v)  SCF (v, cpu.cu.IR, I_PERR);
-#define SC_I_PMASK(v) SCF (v, cpu.cu.IR, I_PMASK);
-#define SC_I_TRUNC(v) SCF (v, cpu.cu.IR, I_TRUNC);
-
-
+# ifdef DPS8M
+#  define SC_I_HEX(v)   SCF (v, cpu.cu.IR, I_HEX)
+# endif
+# define SC_I_MIF(v)   SCF (v, cpu.cu.IR, I_MIF)
+# define SC_I_TALLY(v) SCF (v, cpu.cu.IR, I_TALLY)
+# define SC_I_NEG(v)   SCF (v, cpu.cu.IR, I_NEG)
+# define SC_I_ZERO(v)  SCF (v, cpu.cu.IR, I_ZERO)
+# define SC_I_CARRY(v) SCF (v, cpu.cu.IR, I_CARRY);
+# define SC_I_OFLOW(v) SCF (v, cpu.cu.IR, I_OFLOW);
+# define SC_I_EOFL(v)  SCF (v, cpu.cu.IR, I_EOFL);
+# define SC_I_EUFL(v)  SCF (v, cpu.cu.IR, I_EUFL);
+# define SC_I_OMASK(v) SCF (v, cpu.cu.IR, I_OMASK);
+# define SC_I_PERR(v)  SCF (v, cpu.cu.IR, I_PERR);
+# define SC_I_PMASK(v) SCF (v, cpu.cu.IR, I_PMASK);
+# define SC_I_TRUNC(v) SCF (v, cpu.cu.IR, I_TRUNC);
 
 /////////////////////////////////////
 //
 //  floating-point constants
 //
 
-#define FLOAT36MASK     01777777777LLU               ///< user to extract mantissa from single precision C(CEAQ)
-#define FLOAT72MASK     01777777777777777777777LLU   ///< use to extract mastissa from double precision C(EAQ)
-#define FLOAT72SIGN     (1LLU << 63)                 ///< mantissa sign mask for full precision C(EAQ)
+# define FLOAT36MASK     01777777777LLU               ///< user to extract mantissa from single precision C(CEAQ)
+# define FLOAT72MASK     01777777777777777777777LLU   ///< use to extract mastissa from double precision C(EAQ)
+# define FLOAT72SIGN     (1LLU << 63)                 ///< mantissa sign mask for full precision C(EAQ)
 // XXX beware the 72's are not what they seem!
-
 
 /////////////////////////////////////
 //
 // Faults
 //
 
-#define N_FAULT_GROUPS 7
-#define N_FAULTS 32
+# define N_FAULT_GROUPS 7
+# define N_FAULTS 32
 
 enum _fault
   {
@@ -691,12 +688,12 @@ enum _fault
     FAULT_TRB  = 31U  // Trouble
   };
 
-#define FAULTBASE_MASK  07740U       ///< mask off all but top 7 msb
+# define FAULTBASE_MASK  07740U       ///< mask off all but top 7 msb
 
 
 typedef enum _fault _fault;
 
-#if 0
+# if 0
     //no_fault_subtype = 0,
 
     // FAULT_IPR
@@ -707,13 +704,10 @@ typedef enum _fault _fault;
     //flt_ipr_ill_dig,    // An illegal decimal digit or sign has been detected by the decimal unit.
     //flt_ipr_ill_proc,   // An illegal procedure other than the four above has been encountered.
 
-
     // FAULT_PAR
 
     //proc_paru,  // A parity error has been detected in the upper 36 bits of data. (Yeah, right)
     //proc_parl,  // A parity error has been detected in the lower 36 bits of data. (Yeah, right)
-
-
 
     // FAULT_ONC
 
@@ -752,7 +746,7 @@ typedef enum _fault _fault;
 
 };
 typedef enum _fault_subtype _fault_subtype;
-#endif
+# endif
 
 typedef enum fault_onc_subtype_
   {
@@ -892,17 +886,17 @@ enum _systemControllerIllegalActionCodes
 // Interrupts
 //
 
-#define N_INTERRUPTS 32
+# define N_INTERRUPTS 32
 
 /////////////////////////////////////
 //
 // Memory map
 //
 
-#define IOM_MBX_LOW 01200
-#define IOM_MBX_LEN 02200
-#define DN355_MBX_LOW 03400
-#define DN355_MBX_LEN 03000
+# define IOM_MBX_LOW 01200
+# define IOM_MBX_LEN 02200
+# define DN355_MBX_LOW 03400
+# define DN355_MBX_LEN 03000
 
 /////////////////////////////////////
 //
@@ -1472,12 +1466,12 @@ typedef enum {
 //
 
 enum { N_HIST_SETS = 4 };
-#ifdef DPS8M
+# ifdef DPS8M
 enum { N_HIST_SIZE = 64 };
-#endif
-#ifdef L68
+# endif
+# ifdef L68
 enum { N_HIST_SIZE = 16 };
-#endif
+# endif
 
 // Bit in CU history register word 0
 
@@ -1591,11 +1585,11 @@ enum
     // bit 35 is marked 'w' but undocumented
   };
 
-#ifdef DPS8M
+# ifdef DPS8M
 enum { CU_HIST_REG = 0, DU_OU_HIST_REG = 1, APU_HIST_REG = 2, EAPU_HIST_REG = 3 };
-#endif
-#ifdef L68
+# endif
+# ifdef L68
 enum { CU_HIST_REG = 0, DU_HIST_REG = 1, OU_HIST_REG = 2, APU_HIST_REG = 3 };
-#endif
+# endif
 
 #endif // DPS8_HW_CONSTS_H

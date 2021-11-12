@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
- * Copyright (c) 2013-2016 Charles Anthony
+ * Copyright (c) 2013-2021 Charles Anthony
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * All rights reserved.
@@ -206,8 +206,6 @@ typedef volatile struct
 //  [CAC: Again, I think that this can be elided. It is simpler to
 //  to have the device handler pack and unpack.]
 //
-
-
 
 // LPW addressing mode
 

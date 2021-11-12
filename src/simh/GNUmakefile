@@ -42,15 +42,13 @@ endif
 
 ###############################################################################
 
-C_SRCS = scp.c       sim_console.c  sim_disk.c   sim_fio.c   sim_serial.c     \
-         sim_sock.c  sim_tape.c     sim_timer.c  sim_tmxr.c  linehistory.c    \
-         dispatch.c
+C_SRCS = scp.c       sim_console.c  sim_disk.c   sim_fio.c   dispatch.c       \
+         sim_sock.c  sim_tape.c     sim_timer.c  sim_tmxr.c  linehistory.c
 
 ###############################################################################
 
-OBJS = scp.o       sim_console.o  sim_disk.o   sim_fio.o   sim_serial.o       \
-       sim_sock.o  sim_tape.o     sim_timer.o  sim_tmxr.o  linehistory.o      \
-       dispatch.o
+OBJS = scp.o       sim_console.o  sim_disk.o   sim_fio.o   dispatch.o         \
+       sim_sock.o  sim_tape.o     sim_timer.o  sim_tmxr.o  linehistory.o
 
 ###############################################################################
 
@@ -102,7 +100,6 @@ clean:
 scp.o:         sim_defs.h
 scp.o:         sim_timer.h
 scp.o:         sim_disk.h sim_tape.h sim_sock.h
-scp.o:         sim_serial.h
 scp.o:         sim_tmxr.h
 scp.o:         ../dps8/ver.h
 scp.o:         ../dps8/dps8_prom.h
@@ -128,11 +125,6 @@ sim_fio.o:     sim_console.h sim_timer.h
 sim_fio.o:     sim_fio.h
 sim_fio.o:     ../decNumber/decContext.h
 sim_fio.o:     ../decNumber/decNumberLocal.h
-sim_serial.o:  sim_defs.h
-sim_serial.o:  scp.h sim_console.h sim_timer.h
-sim_serial.o:  sim_fio.h
-sim_serial.o:  sim_serial.h
-sim_serial.o:  sim_sock.h
 sim_sock.o:    sim_sock.h
 sim_tape.o:    sim_defs.h
 sim_tape.o:    scp.h
@@ -146,7 +138,6 @@ sim_tmxr.o:    sim_defs.h
 sim_tmxr.o:    scp.h
 sim_tmxr.o:    sim_console.h sim_timer.h
 sim_tmxr.o:    sim_fio.h
-sim_tmxr.o:    sim_serial.h
 sim_tmxr.o:    sim_sock.h
 
 ###############################################################################

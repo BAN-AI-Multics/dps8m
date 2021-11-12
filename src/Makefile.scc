@@ -37,12 +37,40 @@ printmod:                                                                     \
 	@$(MAKE) -C "src/dps8" "printmod"
 
 ###############################################################################
-# Generate a redistributable source kit
+# List files to be cleaned up via git clean.
+
+.PHONY: printgit
+printgit:                                                                     \
+    # printgit:    # Display files to be cleaned using git
+	@$(PRINTF) '%s\n' "*** Begin printgit (git clean -ndx)" || $(TRUE)
+	@$(GIT) clean -ndx || $(TRUE)
+	@$(PRINTF) '%s\n' "*** End printgit" || $(TRUE)
+
+###############################################################################
+# Clean up the source tree using git clean.
+
+.PHONY: gitclean
+gitclean:                                                                     \
+    # gitclean:    # Cleans up source tree using git clean
+	@$(PRINTF) '%s\n' "*** Begin gitclean (git clean -fdx)" || $(TRUE)
+	@$(GIT) clean -fdx || $(TRUE)
+	@$(PRINTF) '%s\n' "*** End gitclean" || $(TRUE)
+
+###############################################################################
+# Generate a redistributable source kit (tar)
 
 .PHONY: dist kit
 dist kit:                                                                     \
-    # dist:    # Generate a redistributable source kit
+    # dist:    # Generate a redistributable source tar
 	@$(MAKE) -C "src/dps8" "dist"
+
+###############################################################################
+# Generate a redistributable source kit (zip)
+
+.PHONY: zipdist zipkit
+zipdist zipkit:                                                               \
+    # zipdist:    # Generate a redistributable source zip
+	@$(MAKE) -C "src/dps8" "zipdist"
 
 ###############################################################################
 

@@ -23,117 +23,117 @@
 /* ------------------------------------------------------------------ */
 
 #if !defined(DECNUMBERLOC)
-  #define DECNUMBERLOC
-  #define DECVERSION    "decNumber 3.68" /* Package Version [16 max.] */
-  #define DECNLAUTHOR   "Mike Cowlishaw"              /* Who to blame */
+# define DECNUMBERLOC
+# define DECVERSION    "decNumber 3.68"  /* Package Version [16 max.] */
+# define DECNLAUTHOR   "Mike Cowlishaw"               /* Who to blame */
 
-  #include <stdlib.h>         /* for abs                              */
-  #include <string.h>         /* for memset, strcpy                   */
+# include <stdlib.h>          /* for abs                              */
+# include <string.h>          /* for memset, strcpy                   */
 
-  #ifndef _MSC_VER
-    #include <sys/param.h>
-  #endif
+# ifndef _MSC_VER
+#  include <sys/param.h>
+# endif
 
-  #include <sys/types.h>
+# include <sys/types.h>
 
-  #if defined(__linux__)  || defined(__CYGWIN__) || \
-      defined(__GNU__)    || defined(__GLIBC__)  || \
-      defined(__HAIKU__)
-    #include <endian.h>
-    #if !defined(LITTLE_ENDIAN) && defined(__LITTLE_ENDIAN)
-      #define LITTLE_ENDIAN __LITTLE_ENDIAN
-    #endif
-    #if !defined(BIG_ENDIAN) && defined(__BIG_ENDIAN)
-      #define BIG_ENDIAN __BIG_ENDIAN
-    #endif
-    #if !defined(BYTE_ORDER) && defined(__BYTE_ORDER)
-      #define BYTE_ORDER __BYTE_ORDER
-    #endif
-  #endif
+# if defined(__linux__) || defined(__CYGWIN__) || \
+     defined(__GNU__)   || defined(__GLIBC__)  || \
+     defined(__HAIKU__)
+#  include <endian.h>
+#  if !defined(LITTLE_ENDIAN) && defined(__LITTLE_ENDIAN)
+#   define LITTLE_ENDIAN __LITTLE_ENDIAN
+#  endif
+#  if !defined(BIG_ENDIAN) && defined(__BIG_ENDIAN)
+#   define BIG_ENDIAN __BIG_ENDIAN
+#  endif
+#  if !defined(BYTE_ORDER) && defined(__BYTE_ORDER)
+#   define BYTE_ORDER __BYTE_ORDER
+#  endif
+# endif
 
-  #ifdef __sun
-    #include <sys/byteorder.h>
-    #define LITTLE_ENDIAN 1234
-    #define BIG_ENDIAN 4321
-    #if defined(_BIG_ENDIAN)
-      #define BYTE_ORDER BIG_ENDIAN
-    #elif defined(_LITTLE_ENDIAN)
-      #define BYTE_ORDER LITTLE_ENDIAN
-    #else
-      #error "Cannot determine endian-ness of this Sun system."
-    #endif
-  #endif
+# ifdef __sun
+#  include <sys/byteorder.h>
+#  define LITTLE_ENDIAN 1234
+#  define BIG_ENDIAN 4321
+#  if defined(_BIG_ENDIAN)
+#   define BYTE_ORDER BIG_ENDIAN
+#  elif defined(_LITTLE_ENDIAN)
+#   define BYTE_ORDER LITTLE_ENDIAN
+#  else
+#   error "Cannot determine endian-ness of this Sun system."
+#  endif
+# endif
 
-  #if defined(_AIX) && !defined(BYTE_ORDER)
-    #define LITTLE_ENDIAN 1234
-    #define BIG_ENDIAN 4321
-    #if defined(__BIG_ENDIAN__)
-      #define BYTE_ORDER BIG_ENDIAN
-    #elif defined(__LITTLE_ENDIAN__)
-      #define BYTE_ORDER LITTLE_ENDIAN
-    #else
-      #error "Cannot determine endian-ness of this IBM AIX system."
-    #endif
-  #endif
+# if defined(_AIX) && !defined(BYTE_ORDER)
+#  define LITTLE_ENDIAN 1234
+#  define BIG_ENDIAN 4321
+#  if defined(__BIG_ENDIAN__)
+#   define BYTE_ORDER BIG_ENDIAN
+#  elif defined(__LITTLE_ENDIAN__)
+#   define BYTE_ORDER LITTLE_ENDIAN
+#  else
+#   error "Cannot determine endian-ness of this IBM AIX system."
+#  endif
+# endif
 
-  #if defined(_WIN32)
-    #define LITTLE_ENDIAN 1234
-    #define BIG_ENDIAN 4321
-    #define BYTE_ORDER LITTLE_ENDIAN
-  #endif
+# if defined(_WIN32)
+#  define LITTLE_ENDIAN 1234
+#  define BIG_ENDIAN 4321
+#  define BYTE_ORDER LITTLE_ENDIAN
+# endif
 
-  #if !defined(BYTE_ORDER) || !defined(LITTLE_ENDIAN) || !defined(BIG_ENDIAN)
-    #error "Cannot determine the endian-ness of this platform."
-  #endif
+# if !defined(BYTE_ORDER) || !defined(LITTLE_ENDIAN) || !defined(BIG_ENDIAN)
+#  error "Cannot determine the endian-ness of this platform."
+# endif
 
-  #if BYTE_ORDER == LITTLE_ENDIAN
-    #define DECLITEND 1
-  #elif BYTE_ORDER == BIG_ENDIAN
-    #define DECLITEND 0
-  #endif
+# if BYTE_ORDER == LITTLE_ENDIAN
+#  define DECLITEND 1
+# elif BYTE_ORDER == BIG_ENDIAN
+#  define DECLITEND 0
+# endif
 
   /* Conditional code flag -- set this to 1 for best performance      */
-  #if !defined(DECUSE64)
-  #define DECUSE64  1         /* 1=use int64s, 0=int32 & smaller only */
-  #endif
+# if !defined(DECUSE64)
+#  define DECUSE64  1         /* 1=use int64s, 0=int32 & smaller only */
+# endif
 
   /* Conditional code flag -- set this to 0 to exclude printf calls   */
-  #if !defined(DECPRINT)
-  #define DECPRINT  0         /* 1=allow printf calls; 0=no printf    */
-  #endif
+# if !defined(DECPRINT)
+#  define DECPRINT  0         /* 1=allow printf calls; 0=no printf    */
+# endif
 
   /* Conditional check flags -- set these to 0 for best performance   */
-  #if !defined(DECCHECK)
-  #define DECCHECK  0         /* 1 to enable robust checking          */
-  #endif
-  #if !defined(DECALLOC)
-  #define DECALLOC  0         /* 1 to enable memory accounting        */
-  #endif
-  #if !defined(DECTRACE)
-  #define DECTRACE  0         /* 1 to trace certain internals, etc.   */
-  #endif
+# if !defined(DECCHECK)
+#  define DECCHECK  0         /* 1 to enable robust checking          */
+# endif
+# if !defined(DECALLOC)
+#  define DECALLOC  0         /* 1 to enable memory accounting        */
+# endif
+# if !defined(DECTRACE)
+#  define DECTRACE  0         /* 1 to trace certain internals, etc.   */
+# endif
 
   /* Tuning parameter for decNumber (arbitrary precision) module      */
-  #if !defined(DECBUFFER)
-  #define DECBUFFER 36        /* Size basis for local buffers.  This  */
+# if !defined(DECBUFFER)
+#  define DECBUFFER 36        /* Size basis for local buffers.  This  */
                               /* should be a common maximum precision */
                               /* rounded up to a multiple of 4; must  */
                               /* be zero or positive.                 */
-  #endif
+# endif
 
 
   /* ---------------------------------------------------------------- */
   /* Check parameter dependencies                                     */
   /* ---------------------------------------------------------------- */
-  #if DECCHECK & !DECPRINT
-    #error DECCHECK needs DECPRINT to be useful
-  #endif
-  #if DECALLOC & !DECPRINT
-    #error DECALLOC needs DECPRINT to be useful
-  #endif
-  #if DECTRACE & !DECPRINT
-    #error DECTRACE needs DECPRINT to be useful
-  #endif
+# if DECCHECK & !DECPRINT
+#  error DECCHECK needs DECPRINT to be useful
+# endif
+# if DECALLOC & !DECPRINT
+#  error DECALLOC needs DECPRINT to be useful
+# endif
+# if DECTRACE & !DECPRINT
+#  error DECTRACE needs DECPRINT to be useful
+# endif
 
   /* ---------------------------------------------------------------- */
   /* Definitions for all modules (general-purpose)                    */
@@ -141,28 +141,28 @@
 
   /* Local names for common types -- for safety, decNumber modules do */
   /* not use int or long directly.                                    */
-  #define Flag   uint8_t
-  #define Byte   int8_t
-  #define uByte  uint8_t
-  #define Short  int16_t
-  #define uShort uint16_t
-  #define Int    int32_t
-  #define uInt   uint32_t
-  #define Unit   decNumberUnit
-  #if DECUSE64
-  #define Long   int64_t
-  #define uLong  uint64_t
-  #endif
+# define Flag   uint8_t
+# define Byte   int8_t
+# define uByte  uint8_t
+# define Short  int16_t
+# define uShort uint16_t
+# define Int    int32_t
+# define uInt   uint32_t
+# define Unit   decNumberUnit
+# if DECUSE64
+#  define Long   int64_t
+#  define uLong  uint64_t
+# endif
 
   /* Development-use definitions                                      */
   typedef long int LI;        /* for printf arguments only            */
-  #define DECNOINT  0         /* 1 to check no internal use of 'int'  */
+# define DECNOINT  0          /* 1 to check no internal use of 'int'  */
                               /*   or stdint types                    */
-  #if DECNOINT
+# if DECNOINT
     /* if these interfere with your C includes, do not set DECNOINT   */
-    #define int     ?         /* enable to ensure that plain C 'int'  */
-    #define long    ??        /* .. or 'long' types are not used      */
-  #endif
+#  define int     ?           /* enable to ensure that plain C 'int'  */
+#  define long    ??          /* .. or 'long' types are not used      */
+# endif
 
   /* Shared lookup tables                                             */
   extern const uByte  DECSTICKYTAB[10]; /* re-round digits if sticky  */
@@ -181,7 +181,7 @@
   /* the low-order word is simply u*v.)                               */
   /* This version is derived from Knuth via Hacker's Delight;         */
   /* it seems to optimize better than some others tried               */
-  #define LONGMUL32HI(w, u, v) {             \
+# define LONGMUL32HI(w, u, v) {              \
     uInt u0, u1, v0, v1, w0, w1, w2, t;      \
     u0=u & 0xffff; u1=u>>16;                 \
     v0=v & 0xffff; v1=v>>16;                 \
@@ -192,12 +192,12 @@
     (w)=u1*v1 + w2 + (w1>>16);}
 
   /* ROUNDUP -- round an integer up to a multiple of n                */
-  #define ROUNDUP(i, n) ((((i)+(n)-1)/n)*n)
-  #define ROUNDUP4(i)   (((i)+3)&~3)    /* special for n=4            */
+# define ROUNDUP(i, n) ((((i)+(n)-1)/n)*n)
+# define ROUNDUP4(i)   (((i)+3)&~3)     /* special for n=4            */
 
   /* ROUNDDOWN -- round an integer down to a multiple of n            */
-  #define ROUNDDOWN(i, n) (((i)/n)*n)
-  #define ROUNDDOWN4(i)   ((i)&~3)      /* special for n=4            */
+# define ROUNDDOWN(i, n) (((i)/n)*n)
+# define ROUNDDOWN4(i)   ((i)&~3)       /* special for n=4            */
 
   /* References to multi-byte sequences under different sizes; these  */
   /* require locally declared variables, but do not violate strict    */
@@ -206,26 +206,26 @@
   /* level in an expression, e.g., UBTOUI(x)==UBTOUI(y) may fail].    */
 
   /* Return a uInt, etc., from bytes starting at a char* or uByte*    */
-  #define UBTOUS(b)  (memcpy((void *)&uswork, b, 2), uswork)
-  #define UBTOUI(b)  (memcpy((void *)&uiwork, b, 4), uiwork)
+# define UBTOUS(b)  (memcpy((void *)&uswork, b, 2), uswork)
+# define UBTOUI(b)  (memcpy((void *)&uiwork, b, 4), uiwork)
 
   /* Store a uInt, etc., into bytes starting at a char* or uByte*.    */
-  #define UBFROMUS(b, i)  (uswork=(i), memcpy(b, (void *)&uswork, 2))
-  #define UBFROMUI(b, i)  (uiwork=(i), memcpy(b, (void *)&uiwork, 4))
+# define UBFROMUS(b, i)  (uswork=(i), memcpy(b, (void *)&uswork, 2))
+# define UBFROMUI(b, i)  (uiwork=(i), memcpy(b, (void *)&uiwork, 4))
 
   /* X10 and X100 -- multiply integer i by 10 or 100                  */
   /* [shifts are usually faster than multiply; could be conditional]  */
-  #define X10(i)  (((i)<<1)+((i)<<3))
-  #define X100(i) (((i)<<2)+((i)<<5)+((i)<<6))
+# define X10(i)  (((i)<<1)+((i)<<3))
+# define X100(i) (((i)<<2)+((i)<<5)+((i)<<6))
 
   /* MAXI and MINI -- general max & min (not in ANSI) for integers    */
-  #define MAXI(x,y) ((x)<(y)?(y):(x))
-  #define MINI(x,y) ((x)>(y)?(y):(x))
+# define MAXI(x,y) ((x)<(y)?(y):(x))
+# define MINI(x,y) ((x)>(y)?(y):(x))
 
   /* Useful constants                                                 */
-  #define BILLION      1000000000            /* 10**9                 */
+# define BILLION      1000000000             /* 10**9                 */
   /* CHARMASK: 0x30303030 for ASCII/UTF8; 0xF0F0F0F0 for EBCDIC       */
-  #define CHARMASK ((((((((uInt)'0')<<8)+'0')<<8)+'0')<<8)+'0')
+# define CHARMASK ((((((((uInt)'0')<<8)+'0')<<8)+'0')<<8)+'0')
 
 
   /* ---------------------------------------------------------------- */
@@ -234,103 +234,103 @@
   /* ---------------------------------------------------------------- */
 
   /* Limits and constants                                             */
-  #define DECNUMMAXP 999999999  /* maximum precision code can handle  */
-  #define DECNUMMAXE 999999999  /* maximum adjusted exponent ditto    */
-  #define DECNUMMINE -999999999 /* minimum adjusted exponent ditto    */
-  #if (DECNUMMAXP != DEC_MAX_DIGITS)
-    #error Maximum digits mismatch
-  #endif
-  #if (DECNUMMAXE != DEC_MAX_EMAX)
-    #error Maximum exponent mismatch
-  #endif
-  #if (DECNUMMINE != DEC_MIN_EMIN)
-    #error Minimum exponent mismatch
-  #endif
+# define DECNUMMAXP 999999999   /* maximum precision code can handle  */
+# define DECNUMMAXE 999999999   /* maximum adjusted exponent ditto    */
+# define DECNUMMINE -999999999  /* minimum adjusted exponent ditto    */
+# if (DECNUMMAXP != DEC_MAX_DIGITS)
+#  error Maximum digits mismatch
+# endif
+# if (DECNUMMAXE != DEC_MAX_EMAX)
+#  error Maximum exponent mismatch
+# endif
+# if (DECNUMMINE != DEC_MIN_EMIN)
+#  error Minimum exponent mismatch
+# endif
 
   /* Set DECDPUNMAX -- the maximum integer that fits in DECDPUN       */
   /* digits, and D2UTABLE -- the initializer for the D2U table        */
-  #if   DECDPUN==1
-    #define DECDPUNMAX 9
-    #define D2UTABLE {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,  \
+# if DECDPUN==1
+#  define DECDPUNMAX 9
+#  define D2UTABLE {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,    \
                       18,19,20,21,22,23,24,25,26,27,28,29,30,31,32, \
                       33,34,35,36,37,38,39,40,41,42,43,44,45,46,47, \
                       48,49}
-  #elif DECDPUN==2
-    #define DECDPUNMAX 99
-    #define D2UTABLE {0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,  \
+# elif DECDPUN==2
+#  define DECDPUNMAX 99
+#  define D2UTABLE {0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,    \
                       11,11,12,12,13,13,14,14,15,15,16,16,17,17,18, \
                       18,19,19,20,20,21,21,22,22,23,23,24,24,25}
-  #elif DECDPUN==3
-    #define DECDPUNMAX 999
-    #define D2UTABLE {0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,  \
+# elif DECDPUN==3
+#  define DECDPUNMAX 999
+#  define D2UTABLE {0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,    \
                       8,8,8,9,9,9,10,10,10,11,11,11,12,12,12,13,13, \
                       13,14,14,14,15,15,15,16,16,16,17}
-  #elif DECDPUN==4
-    #define DECDPUNMAX 9999
-    #define D2UTABLE {0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,  \
+# elif DECDPUN==4
+#  define DECDPUNMAX 9999
+#  define D2UTABLE {0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,    \
                       6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,10,10,10,10,11, \
                       11,11,11,12,12,12,12,13}
-  #elif DECDPUN==5
-    #define DECDPUNMAX 99999
-    #define D2UTABLE {0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,  \
+# elif DECDPUN==5
+#  define DECDPUNMAX 99999
+#  define D2UTABLE {0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,    \
                       5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,8,8,8,8,9,9,9,  \
                       9,9,10,10,10,10}
-  #elif DECDPUN==6
-    #define DECDPUNMAX 999999
-    #define D2UTABLE {0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,  \
+# elif DECDPUN==6
+#  define DECDPUNMAX 999999
+#  define D2UTABLE {0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,    \
                       4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,7,7,7,7,7,7,8,  \
                       8,8,8,8,8,9}
-  #elif DECDPUN==7
-    #define DECDPUNMAX 9999999
-    #define D2UTABLE {0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,  \
+# elif DECDPUN==7
+#  define DECDPUNMAX 9999999
+#  define D2UTABLE {0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,    \
                       4,4,4,4,4,4,4,5,5,5,5,5,5,5,6,6,6,6,6,6,6,7,  \
                       7,7,7,7,7,7}
-  #elif DECDPUN==8
-    #define DECDPUNMAX 99999999
-    #define D2UTABLE {0,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,3,3,3,  \
+# elif DECDPUN==8
+#  define DECDPUNMAX 99999999
+#  define D2UTABLE {0,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,3,3,3,    \
                       3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,  \
                       6,6,6,6,6,7}
-  #elif DECDPUN==9
-    #define DECDPUNMAX 999999999
-    #define D2UTABLE {0,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,3,3,3,  \
+# elif DECDPUN==9
+#  define DECDPUNMAX 999999999
+#  define D2UTABLE {0,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,3,3,3,    \
                       3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,  \
                       5,5,6,6,6,6}
-  #elif defined(DECDPUN)
-    #error DECDPUN must be in the range 1-9
-  #endif
+# elif defined(DECDPUN)
+#  error DECDPUN must be in the range 1-9
+# endif
 
   /* ----- Shared data (in decNumber.c) ----- */
   /* Public lookup table used by the D2U macro (see below)            */
-  #define DECMAXD2U 49
+# define DECMAXD2U 49
   extern const uByte d2utable[DECMAXD2U+1];
 
   /* ----- Macros ----- */
   /* ISZERO -- return true if decNumber dn is a zero                  */
   /* [performance-critical in some situations]                        */
-  #define ISZERO(dn) decNumberIsZero(dn)     /* now just a local name */
+# define ISZERO(dn) decNumberIsZero(dn)      /* now just a local name */
 
   /* D2U -- return the number of Units needed to hold d digits        */
   /* (runtime version, with table lookaside for small d)              */
-  #if DECDPUN==8
-    #define D2U(d) ((unsigned)((d)<=DECMAXD2U?d2utable[d]:((d)+7)>>3))
-  #elif DECDPUN==4
-    #define D2U(d) ((unsigned)((d)<=DECMAXD2U?d2utable[d]:((d)+3)>>2))
-  #else
-    #define D2U(d) ((d)<=DECMAXD2U?d2utable[d]:((d)+DECDPUN-1)/DECDPUN)
-  #endif
+# if DECDPUN==8
+#  define D2U(d) ((unsigned)((d)<=DECMAXD2U?d2utable[d]:((d)+7)>>3))
+# elif DECDPUN==4
+#  define D2U(d) ((unsigned)((d)<=DECMAXD2U?d2utable[d]:((d)+3)>>2))
+# else
+#  define D2U(d) ((d)<=DECMAXD2U?d2utable[d]:((d)+DECDPUN-1)/DECDPUN)
+# endif
   /* SD2U -- static D2U macro (for compile-time calculation)          */
-  #define SD2U(d) (((d)+DECDPUN-1)/DECDPUN)
+# define SD2U(d) (((d)+DECDPUN-1)/DECDPUN)
 
   /* MSUDIGITS -- returns digits in msu, from digits, calculated      */
   /* using D2U                                                        */
-  #define MSUDIGITS(d) ((d)-(D2U(d)-1)*DECDPUN)
+# define MSUDIGITS(d) ((d)-(D2U(d)-1)*DECDPUN)
 
   /* D2N -- return the number of decNumber structs that would be      */
   /* needed to contain that number of digits (and the initial         */
   /* decNumber struct) safely.  Note that one Unit is included in the */
   /* initial structure.  Used for allocating space that is aligned on */
   /* a decNumber struct boundary. */
-  #define D2N(d) \
+# define D2N(d) \
     ((((SD2U(d)-1)*sizeof(Unit))+sizeof(decNumber)*2-1)/sizeof(decNumber))
 
   /* TODIGIT -- macro to remove the leading digit from the unsigned   */
@@ -340,7 +340,7 @@
   /* 2,000,000,000 (as is needed for negative exponents of            */
   /* subnormals).  The unsigned integer pow is used as a temporary    */
   /* variable. */
-  #define TODIGIT(u, cut, c, pow) {       \
+# define TODIGIT(u, cut, c, pow) {        \
     *(c)='0';                             \
     pow=DECPOWERS[cut]*2;                 \
     if ((u)>pow) {                        \
@@ -371,53 +371,53 @@
     } bcdnum;
 
   /* Test if exponent or bcdnum exponent must be a special, etc.      */
-  #define EXPISSPECIAL(exp) ((exp)>=DECFLOAT_MinSp)
-  #define EXPISINF(exp) (exp==DECFLOAT_Inf)
-  #define EXPISNAN(exp) (exp==DECFLOAT_qNaN || exp==DECFLOAT_sNaN)
-  #define NUMISSPECIAL(num) (EXPISSPECIAL((num)->exponent))
+# define EXPISSPECIAL(exp) ((exp)>=DECFLOAT_MinSp)
+# define EXPISINF(exp) (exp==DECFLOAT_Inf)
+# define EXPISNAN(exp) (exp==DECFLOAT_qNaN || exp==DECFLOAT_sNaN)
+# define NUMISSPECIAL(num) (EXPISSPECIAL((num)->exponent))
 
   /* Refer to a 32-bit word or byte in a decFloat (df) by big-endian  */
   /* (array) notation (the 0 word or byte contains the sign bit),     */
   /* automatically adjusting for endianness; similarly address a word */
   /* in the next-wider format (decFloatWider, or dfw)                 */
-  #define DECWORDS  (DECBYTES/4)
-  #define DECWWORDS (DECWBYTES/4)
-  #if DECLITEND
-    #define DFBYTE(df, off)   ((df)->bytes[DECBYTES-1-(off)])
-    #define DFWORD(df, off)   ((df)->words[DECWORDS-1-(off)])
-    #define DFWWORD(dfw, off) ((dfw)->words[DECWWORDS-1-(off)])
-  #else
-    #define DFBYTE(df, off)   ((df)->bytes[off])
-    #define DFWORD(df, off)   ((df)->words[off])
-    #define DFWWORD(dfw, off) ((dfw)->words[off])
-  #endif
+# define DECWORDS  (DECBYTES/4)
+# define DECWWORDS (DECWBYTES/4)
+# if DECLITEND
+#  define DFBYTE(df, off)   ((df)->bytes[DECBYTES-1-(off)])
+#  define DFWORD(df, off)   ((df)->words[DECWORDS-1-(off)])
+#  define DFWWORD(dfw, off) ((dfw)->words[DECWWORDS-1-(off)])
+# else
+#  define DFBYTE(df, off)   ((df)->bytes[off])
+#  define DFWORD(df, off)   ((df)->words[off])
+#  define DFWWORD(dfw, off) ((dfw)->words[off])
+# endif
 
   /* Tests for sign or specials, directly on DECFLOATs                */
-  #define DFISSIGNED(df)  ((DFWORD(df, 0)&0x80000000)!=0)
-  #define DFISSPECIAL(df) ((DFWORD(df, 0)&0x78000000)==0x78000000)
-  #define DFISINF(df)     ((DFWORD(df, 0)&0x7c000000)==0x78000000)
-  #define DFISNAN(df)     ((DFWORD(df, 0)&0x7c000000)==0x7c000000)
-  #define DFISQNAN(df)    ((DFWORD(df, 0)&0x7e000000)==0x7c000000)
-  #define DFISSNAN(df)    ((DFWORD(df, 0)&0x7e000000)==0x7e000000)
+# define DFISSIGNED(df)  ((DFWORD(df, 0)&0x80000000)!=0)
+# define DFISSPECIAL(df) ((DFWORD(df, 0)&0x78000000)==0x78000000)
+# define DFISINF(df)     ((DFWORD(df, 0)&0x7c000000)==0x78000000)
+# define DFISNAN(df)     ((DFWORD(df, 0)&0x7c000000)==0x7c000000)
+# define DFISQNAN(df)    ((DFWORD(df, 0)&0x7e000000)==0x7c000000)
+# define DFISSNAN(df)    ((DFWORD(df, 0)&0x7e000000)==0x7e000000)
 
   /* Shared lookup tables                                             */
   extern const uInt   DECCOMBMSD[64];   /* Combination field -> MSD   */
   extern const uInt   DECCOMBFROM[48];  /* exp+msd -> Combination     */
 
   /* Private generic (utility) routine                                */
-  #if DECCHECK || DECTRACE
+# if DECCHECK || DECTRACE
     extern void decShowNum(const bcdnum *, const char *);
-  #endif
+# endif
 
   /* Format-dependent macros and constants                            */
-  #if defined(DECPMAX)
+# if defined(DECPMAX)
 
     /* Useful constants                                               */
-    #define DECPMAX9  (ROUNDUP(DECPMAX, 9)/9)  /* 'Pmax' in 10**9s    */
+#  define DECPMAX9  (ROUNDUP(DECPMAX, 9)/9)    /* 'Pmax' in 10**9s    */
     /* Top words for a zero                                           */
-    #define SINGLEZERO   0x22500000
-    #define DOUBLEZERO   0x22380000
-    #define QUADZERO     0x22080000
+#  define SINGLEZERO   0x22500000
+#  define DOUBLEZERO   0x22380000
+#  define QUADZERO     0x22080000
     /* [ZEROWORD is defined to be one of these in the DFISZERO macro] */
 
     /* Format-dependent common tests:                                 */
@@ -435,104 +435,104 @@
     /* MSD>7.  DFISINT similarly has to allow for the two forms of    */
     /* MSD codes.  DFISUINT01 only has to allow for one form of MSD   */
     /* code.                                                          */
-    #if DECPMAX==7
-      #define ZEROWORD SINGLEZERO
+#  if DECPMAX==7
+#   define ZEROWORD SINGLEZERO
       /* [test macros not needed except for Zero]                     */
-      #define DFISZERO(df)  ((DFWORD(df, 0)&0x1c0fffff)==0         \
+#   define DFISZERO(df)  ((DFWORD(df, 0)&0x1c0fffff)==0                \
                           && (DFWORD(df, 0)&0x60000000)!=0x60000000)
-    #elif DECPMAX==16
-      #define ZEROWORD DOUBLEZERO
-      #define DFISZERO(df)  ((DFWORD(df, 1)==0                     \
-                          && (DFWORD(df, 0)&0x1c03ffff)==0         \
+#  elif DECPMAX==16
+#   define ZEROWORD DOUBLEZERO
+#   define DFISZERO(df)  ((DFWORD(df, 1)==0                            \
+                          && (DFWORD(df, 0)&0x1c03ffff)==0             \
                           && (DFWORD(df, 0)&0x60000000)!=0x60000000))
-      #define DFISINT(df) ((DFWORD(df, 0)&0x63fc0000)==0x22380000  \
+#   define DFISINT(df) ((DFWORD(df, 0)&0x63fc0000)==0x22380000         \
                          ||(DFWORD(df, 0)&0x7bfc0000)==0x6a380000)
-      #define DFISUINT01(df) ((DFWORD(df, 0)&0xfbfc0000)==0x22380000)
-      #define DFISCCZERO(df) (DFWORD(df, 1)==0                     \
+#   define DFISUINT01(df) ((DFWORD(df, 0)&0xfbfc0000)==0x22380000)
+#   define DFISCCZERO(df) (DFWORD(df, 1)==0                            \
                           && (DFWORD(df, 0)&0x0003ffff)==0)
-      #define DFISCC01(df)  ((DFWORD(df, 0)&~0xfffc9124)==0        \
+#   define DFISCC01(df)  ((DFWORD(df, 0)&~0xfffc9124)==0               \
                           && (DFWORD(df, 1)&~0x49124491)==0)
-    #elif DECPMAX==34
-      #define ZEROWORD QUADZERO
-      #define DFISZERO(df)  ((DFWORD(df, 3)==0                     \
-                          &&  DFWORD(df, 2)==0                     \
-                          &&  DFWORD(df, 1)==0                     \
-                          && (DFWORD(df, 0)&0x1c003fff)==0         \
+#  elif DECPMAX==34
+#   define ZEROWORD QUADZERO
+#   define DFISZERO(df)  ((DFWORD(df, 3)==0                            \
+                          &&  DFWORD(df, 2)==0                         \
+                          &&  DFWORD(df, 1)==0                         \
+                          && (DFWORD(df, 0)&0x1c003fff)==0             \
                           && (DFWORD(df, 0)&0x60000000)!=0x60000000))
-      #define DFISINT(df) ((DFWORD(df, 0)&0x63ffc000)==0x22080000  \
+#   define DFISINT(df) ((DFWORD(df, 0)&0x63ffc000)==0x22080000         \
                          ||(DFWORD(df, 0)&0x7bffc000)==0x6a080000)
-      #define DFISUINT01(df) ((DFWORD(df, 0)&0xfbffc000)==0x22080000)
-      #define DFISCCZERO(df) (DFWORD(df, 3)==0                     \
-                          &&  DFWORD(df, 2)==0                     \
-                          &&  DFWORD(df, 1)==0                     \
+#   define DFISUINT01(df) ((DFWORD(df, 0)&0xfbffc000)==0x22080000)
+#   define DFISCCZERO(df) (DFWORD(df, 3)==0                            \
+                          &&  DFWORD(df, 2)==0                         \
+                          &&  DFWORD(df, 1)==0                         \
                           && (DFWORD(df, 0)&0x00003fff)==0)
 
-      #define DFISCC01(df)   ((DFWORD(df, 0)&~0xffffc912)==0       \
-                          &&  (DFWORD(df, 1)&~0x44912449)==0       \
-                          &&  (DFWORD(df, 2)&~0x12449124)==0       \
+#   define DFISCC01(df)   ((DFWORD(df, 0)&~0xffffc912)==0              \
+                          &&  (DFWORD(df, 1)&~0x44912449)==0           \
+                          &&  (DFWORD(df, 2)&~0x12449124)==0           \
                           &&  (DFWORD(df, 3)&~0x49124491)==0)
-    #endif
+#  endif
 
     /* Macros to test if a certain 10 bits of a uInt or pair of uInts */
     /* are a canonical declet [higher or lower bits are ignored].     */
     /* declet is at offset 0 (from the right) in a uInt:              */
-    #define CANONDPD(dpd) (((dpd)&0x300)==0 || ((dpd)&0x6e)!=0x6e)
+#  define CANONDPD(dpd) (((dpd)&0x300)==0 || ((dpd)&0x6e)!=0x6e)
     /* declet is at offset k (a multiple of 2) in a uInt:             */
-    #define CANONDPDOFF(dpd, k) (((dpd)&(0x300<<(k)))==0            \
+#  define CANONDPDOFF(dpd, k) (((dpd)&(0x300<<(k)))==0                 \
       || ((dpd)&(((uInt)0x6e)<<(k)))!=(((uInt)0x6e)<<(k)))
     /* declet is at offset k (a multiple of 2) in a pair of uInts:    */
     /* [the top 2 bits will always be in the more-significant uInt]   */
-    #define CANONDPDTWO(hi, lo, k) (((hi)&(0x300>>(32-(k))))==0     \
-      || ((hi)&(0x6e>>(32-(k))))!=(0x6e>>(32-(k)))                  \
+#  define CANONDPDTWO(hi, lo, k) (((hi)&(0x300>>(32-(k))))==0          \
+      || ((hi)&(0x6e>>(32-(k))))!=(0x6e>>(32-(k)))                     \
       || ((lo)&(((uInt)0x6e)<<(k)))!=(((uInt)0x6e)<<(k)))
 
     /* Macro to test whether a full-length (length DECPMAX) BCD8      */
     /* coefficient, starting at uByte u, is all zeros                 */
     /* Test just the LSWord first, then the remainder as a sequence   */
     /* of tests in order to avoid same-level use of UBTOUI            */
-    #if DECPMAX==7
-      #define ISCOEFFZERO(u) (                                      \
-           UBTOUI((u)+DECPMAX-4)==0                                 \
-        && UBTOUS((u)+DECPMAX-6)==0                                 \
+#  if DECPMAX==7
+#   define ISCOEFFZERO(u) (                                            \
+           UBTOUI((u)+DECPMAX-4)==0                                    \
+        && UBTOUS((u)+DECPMAX-6)==0                                    \
         && *(u)==0)
-    #elif DECPMAX==16
-      #define ISCOEFFZERO(u) (                                      \
-           UBTOUI((u)+DECPMAX-4)==0                                 \
-        && UBTOUI((u)+DECPMAX-8)==0                                 \
-        && UBTOUI((u)+DECPMAX-12)==0                                \
+#  elif DECPMAX==16
+#   define ISCOEFFZERO(u) (                                            \
+           UBTOUI((u)+DECPMAX-4)==0                                    \
+        && UBTOUI((u)+DECPMAX-8)==0                                    \
+        && UBTOUI((u)+DECPMAX-12)==0                                   \
         && UBTOUI(u)==0)
-    #elif DECPMAX==34
-      #define ISCOEFFZERO(u) (                                      \
-           UBTOUI((u)+DECPMAX-4)==0                                 \
-        && UBTOUI((u)+DECPMAX-8)==0                                 \
-        && UBTOUI((u)+DECPMAX-12)==0                                \
-        && UBTOUI((u)+DECPMAX-16)==0                                \
-        && UBTOUI((u)+DECPMAX-20)==0                                \
-        && UBTOUI((u)+DECPMAX-24)==0                                \
-        && UBTOUI((u)+DECPMAX-28)==0                                \
-        && UBTOUI((u)+DECPMAX-32)==0                                \
+#  elif DECPMAX==34
+#   define ISCOEFFZERO(u) (                                            \
+           UBTOUI((u)+DECPMAX-4)==0                                    \
+        && UBTOUI((u)+DECPMAX-8)==0                                    \
+        && UBTOUI((u)+DECPMAX-12)==0                                   \
+        && UBTOUI((u)+DECPMAX-16)==0                                   \
+        && UBTOUI((u)+DECPMAX-20)==0                                   \
+        && UBTOUI((u)+DECPMAX-24)==0                                   \
+        && UBTOUI((u)+DECPMAX-28)==0                                   \
+        && UBTOUI((u)+DECPMAX-32)==0                                   \
         && UBTOUS(u)==0)
-    #endif
+#  endif
 
     /* Macros and masks for the sign, exponent continuation, and MSD  */
     /* Get the sign as DECFLOAT_Sign or 0                             */
-    #define GETSIGN(df) (DFWORD(df, 0)&0x80000000)
+#  define GETSIGN(df) (DFWORD(df, 0)&0x80000000)
     /* Get the exponent continuation from a decFloat *df as an Int    */
-    #define GETECON(df) ((Int)((DFWORD((df), 0)&0x03ffffff)>>(32-6-DECECONL)))
+#  define GETECON(df) ((Int)((DFWORD((df), 0)&0x03ffffff)>>(32-6-DECECONL)))
     /* Ditto, from the next-wider format                              */
-    #define GETWECON(df) ((Int)((DFWWORD((df), 0)&0x03ffffff)>>(32-6-DECWECONL)))
+#  define GETWECON(df) ((Int)((DFWWORD((df), 0)&0x03ffffff)>>(32-6-DECWECONL)))
     /* Get the biased exponent similarly                              */
-    #define GETEXP(df)  ((Int)(DECCOMBEXP[DFWORD((df), 0)>>26]+GETECON(df)))
+#  define GETEXP(df)  ((Int)(DECCOMBEXP[DFWORD((df), 0)>>26]+GETECON(df)))
     /* Get the unbiased exponent similarly                            */
-    #define GETEXPUN(df) ((Int)GETEXP(df)-DECBIAS)
+#  define GETEXPUN(df) ((Int)GETEXP(df)-DECBIAS)
     /* Get the MSD similarly (as uInt)                                */
-    #define GETMSD(df)   (DECCOMBMSD[DFWORD((df), 0)>>26])
+#  define GETMSD(df)   (DECCOMBMSD[DFWORD((df), 0)>>26])
 
     /* Compile-time computes of the exponent continuation field masks */
     /* full exponent continuation field:                              */
-    #define ECONMASK ((0x03ffffff>>(32-6-DECECONL))<<(32-6-DECECONL))
+#  define ECONMASK ((0x03ffffff>>(32-6-DECECONL))<<(32-6-DECECONL))
     /* same, not including its first digit (the qNaN/sNaN selector):  */
-    #define ECONNANMASK ((0x01ffffff>>(32-6-DECECONL))<<(32-6-DECECONL))
+#  define ECONNANMASK ((0x01ffffff>>(32-6-DECECONL))<<(32-6-DECECONL))
 
     /* Macros to decode the coefficient in a finite decFloat *df into */
     /* a BCD string (uByte *bcdin) of length DECPMAX uBytes.          */
@@ -542,8 +542,8 @@
     /* extra byte is written to the right of the three digits because */
     /* four bytes are moved at a time for speed; the alternative      */
     /* macro moves exactly three bytes (usually slower).              */
-    #define dpd2bcd8(u, dpd)  memcpy(u, &DPD2BCD8[((dpd)&0x3ff)*4], 4)
-    #define dpd2bcd83(u, dpd) memcpy(u, &DPD2BCD8[((dpd)&0x3ff)*4], 3)
+#  define dpd2bcd8(u, dpd)  memcpy(u, &DPD2BCD8[((dpd)&0x3ff)*4], 4)
+#  define dpd2bcd83(u, dpd) memcpy(u, &DPD2BCD8[((dpd)&0x3ff)*4], 3)
 
     /* Decode the declets.  After extracting each one, it is decoded  */
     /* to BCD8 using a table lookup (also used for variable-length    */
@@ -559,71 +559,71 @@
     /*   GETWCOEFF extracts the coefficient of the next-wider format. */
     /* The latter is a copy of the next-wider GETCOEFF using DFWWORD. */
 
-    #if DECPMAX==7
-    #define GETCOEFF(df, bcd) {                          \
-      uInt sourhi=DFWORD(df, 0);                         \
-      *(bcd)=(uByte)DECCOMBMSD[sourhi>>26];              \
-      dpd2bcd8(bcd+1, sourhi>>10);                       \
+#  if DECPMAX==7
+#   define GETCOEFF(df, bcd) {                                         \
+      uInt sourhi=DFWORD(df, 0);                                       \
+      *(bcd)=(uByte)DECCOMBMSD[sourhi>>26];                            \
+      dpd2bcd8(bcd+1, sourhi>>10);                                     \
       dpd2bcd83(bcd+4, sourhi);}
-    #define GETWCOEFF(df, bcd) {                         \
-      uInt sourhi=DFWWORD(df, 0);                        \
-      uInt sourlo=DFWWORD(df, 1);                        \
-      *(bcd)=(uByte)DECCOMBMSD[sourhi>>26];              \
-      dpd2bcd8(bcd+1, sourhi>>8);                        \
-      dpd2bcd8(bcd+4, (sourhi<<2) | (sourlo>>30));       \
-      dpd2bcd8(bcd+7, sourlo>>20);                       \
-      dpd2bcd8(bcd+10, sourlo>>10);                      \
+#   define GETWCOEFF(df, bcd) {                                        \
+      uInt sourhi=DFWWORD(df, 0);                                      \
+      uInt sourlo=DFWWORD(df, 1);                                      \
+      *(bcd)=(uByte)DECCOMBMSD[sourhi>>26];                            \
+      dpd2bcd8(bcd+1, sourhi>>8);                                      \
+      dpd2bcd8(bcd+4, (sourhi<<2) | (sourlo>>30));                     \
+      dpd2bcd8(bcd+7, sourlo>>20);                                     \
+      dpd2bcd8(bcd+10, sourlo>>10);                                    \
       dpd2bcd83(bcd+13, sourlo);}
 
-    #elif DECPMAX==16
-    #define GETCOEFF(df, bcd) {                          \
-      uInt sourhi=DFWORD(df, 0);                         \
-      uInt sourlo=DFWORD(df, 1);                         \
-      *(bcd)=(uByte)DECCOMBMSD[sourhi>>26];              \
-      dpd2bcd8(bcd+1, sourhi>>8);                        \
-      dpd2bcd8(bcd+4, (sourhi<<2) | (sourlo>>30));       \
-      dpd2bcd8(bcd+7, sourlo>>20);                       \
-      dpd2bcd8(bcd+10, sourlo>>10);                      \
+#  elif DECPMAX==16
+#   define GETCOEFF(df, bcd) {                                         \
+      uInt sourhi=DFWORD(df, 0);                                       \
+      uInt sourlo=DFWORD(df, 1);                                       \
+      *(bcd)=(uByte)DECCOMBMSD[sourhi>>26];                            \
+      dpd2bcd8(bcd+1, sourhi>>8);                                      \
+      dpd2bcd8(bcd+4, (sourhi<<2) | (sourlo>>30));                     \
+      dpd2bcd8(bcd+7, sourlo>>20);                                     \
+      dpd2bcd8(bcd+10, sourlo>>10);                                    \
       dpd2bcd83(bcd+13, sourlo);}
-    #define GETWCOEFF(df, bcd) {                         \
-      uInt sourhi=DFWWORD(df, 0);                        \
-      uInt sourmh=DFWWORD(df, 1);                        \
-      uInt sourml=DFWWORD(df, 2);                        \
-      uInt sourlo=DFWWORD(df, 3);                        \
-      *(bcd)=(uByte)DECCOMBMSD[sourhi>>26];              \
-      dpd2bcd8(bcd+1, sourhi>>4);                        \
-      dpd2bcd8(bcd+4, ((sourhi)<<6) | (sourmh>>26));     \
-      dpd2bcd8(bcd+7, sourmh>>16);                       \
-      dpd2bcd8(bcd+10, sourmh>>6);                       \
-      dpd2bcd8(bcd+13, ((sourmh)<<4) | (sourml>>28));    \
-      dpd2bcd8(bcd+16, sourml>>18);                      \
-      dpd2bcd8(bcd+19, sourml>>8);                       \
-      dpd2bcd8(bcd+22, ((sourml)<<2) | (sourlo>>30));    \
-      dpd2bcd8(bcd+25, sourlo>>20);                      \
-      dpd2bcd8(bcd+28, sourlo>>10);                      \
+#   define GETWCOEFF(df, bcd) {                                        \
+      uInt sourhi=DFWWORD(df, 0);                                      \
+      uInt sourmh=DFWWORD(df, 1);                                      \
+      uInt sourml=DFWWORD(df, 2);                                      \
+      uInt sourlo=DFWWORD(df, 3);                                      \
+      *(bcd)=(uByte)DECCOMBMSD[sourhi>>26];                            \
+      dpd2bcd8(bcd+1, sourhi>>4);                                      \
+      dpd2bcd8(bcd+4, ((sourhi)<<6) | (sourmh>>26));                   \
+      dpd2bcd8(bcd+7, sourmh>>16);                                     \
+      dpd2bcd8(bcd+10, sourmh>>6);                                     \
+      dpd2bcd8(bcd+13, ((sourmh)<<4) | (sourml>>28));                  \
+      dpd2bcd8(bcd+16, sourml>>18);                                    \
+      dpd2bcd8(bcd+19, sourml>>8);                                     \
+      dpd2bcd8(bcd+22, ((sourml)<<2) | (sourlo>>30));                  \
+      dpd2bcd8(bcd+25, sourlo>>20);                                    \
+      dpd2bcd8(bcd+28, sourlo>>10);                                    \
       dpd2bcd83(bcd+31, sourlo);}
 
-    #elif DECPMAX==34
-    #define GETCOEFF(df, bcd) {                          \
-      uInt sourhi=DFWORD(df, 0);                         \
-      uInt sourmh=DFWORD(df, 1);                         \
-      uInt sourml=DFWORD(df, 2);                         \
-      uInt sourlo=DFWORD(df, 3);                         \
-      *(bcd)=(uByte)DECCOMBMSD[sourhi>>26];              \
-      dpd2bcd8(bcd+1, sourhi>>4);                        \
-      dpd2bcd8(bcd+4, ((sourhi)<<6) | (sourmh>>26));     \
-      dpd2bcd8(bcd+7, sourmh>>16);                       \
-      dpd2bcd8(bcd+10, sourmh>>6);                       \
-      dpd2bcd8(bcd+13, ((sourmh)<<4) | (sourml>>28));    \
-      dpd2bcd8(bcd+16, sourml>>18);                      \
-      dpd2bcd8(bcd+19, sourml>>8);                       \
-      dpd2bcd8(bcd+22, ((sourml)<<2) | (sourlo>>30));    \
-      dpd2bcd8(bcd+25, sourlo>>20);                      \
-      dpd2bcd8(bcd+28, sourlo>>10);                      \
+#  elif DECPMAX==34
+#   define GETCOEFF(df, bcd) {                                         \
+      uInt sourhi=DFWORD(df, 0);                                       \
+      uInt sourmh=DFWORD(df, 1);                                       \
+      uInt sourml=DFWORD(df, 2);                                       \
+      uInt sourlo=DFWORD(df, 3);                                       \
+      *(bcd)=(uByte)DECCOMBMSD[sourhi>>26];                            \
+      dpd2bcd8(bcd+1, sourhi>>4);                                      \
+      dpd2bcd8(bcd+4, ((sourhi)<<6) | (sourmh>>26));                   \
+      dpd2bcd8(bcd+7, sourmh>>16);                                     \
+      dpd2bcd8(bcd+10, sourmh>>6);                                     \
+      dpd2bcd8(bcd+13, ((sourmh)<<4) | (sourml>>28));                  \
+      dpd2bcd8(bcd+16, sourml>>18);                                    \
+      dpd2bcd8(bcd+19, sourml>>8);                                     \
+      dpd2bcd8(bcd+22, ((sourml)<<2) | (sourlo>>30));                  \
+      dpd2bcd8(bcd+25, sourlo>>20);                                    \
+      dpd2bcd8(bcd+28, sourlo>>10);                                    \
       dpd2bcd83(bcd+31, sourlo);}
 
-      #define GETWCOEFF(df, bcd) {??} /* [should never be used]       */
-    #endif
+#   define GETWCOEFF(df, bcd) {??}    /* [should never be used]       */
+#  endif
 
     /* Macros to decode the coefficient in a finite decFloat *df into */
     /* a base-billion uInt array, with the least-significant          */
@@ -635,48 +635,48 @@
     /* and 1000000 to avoid multiplication during decode.  These      */
     /* tables can also be used for multiplying up the MSD as the DPD  */
     /* code for 0 through 9 is the identity.                          */
-    #define DPD2BIN0 DPD2BIN         /* for prettier code             */
+#  define DPD2BIN0 DPD2BIN           /* for prettier code             */
 
-    #if DECPMAX==7
-    #define GETCOEFFBILL(df, buf) {                           \
-      uInt sourhi=DFWORD(df, 0);                              \
-      (buf)[0]=DPD2BIN0[sourhi&0x3ff]                         \
-              +DPD2BINK[(sourhi>>10)&0x3ff]                   \
+#  if DECPMAX==7
+#   define GETCOEFFBILL(df, buf) {                                     \
+      uInt sourhi=DFWORD(df, 0);                                       \
+      (buf)[0]=DPD2BIN0[sourhi&0x3ff]                                  \
+              +DPD2BINK[(sourhi>>10)&0x3ff]                            \
               +DPD2BINM[DECCOMBMSD[sourhi>>26]];}
 
-    #elif DECPMAX==16
-    #define GETCOEFFBILL(df, buf) {                           \
-      uInt sourhi, sourlo;                                    \
-      sourlo=DFWORD(df, 1);                                   \
-      (buf)[0]=DPD2BIN0[sourlo&0x3ff]                         \
-              +DPD2BINK[(sourlo>>10)&0x3ff]                   \
-              +DPD2BINM[(sourlo>>20)&0x3ff];                  \
-      sourhi=DFWORD(df, 0);                                   \
-      (buf)[1]=DPD2BIN0[((sourhi<<2) | (sourlo>>30))&0x3ff]   \
-              +DPD2BINK[(sourhi>>8)&0x3ff]                    \
+#  elif DECPMAX==16
+#   define GETCOEFFBILL(df, buf) {                                     \
+      uInt sourhi, sourlo;                                             \
+      sourlo=DFWORD(df, 1);                                            \
+      (buf)[0]=DPD2BIN0[sourlo&0x3ff]                                  \
+              +DPD2BINK[(sourlo>>10)&0x3ff]                            \
+              +DPD2BINM[(sourlo>>20)&0x3ff];                           \
+      sourhi=DFWORD(df, 0);                                            \
+      (buf)[1]=DPD2BIN0[((sourhi<<2) | (sourlo>>30))&0x3ff]            \
+              +DPD2BINK[(sourhi>>8)&0x3ff]                             \
               +DPD2BINM[DECCOMBMSD[sourhi>>26]];}
 
-    #elif DECPMAX==34
-    #define GETCOEFFBILL(df, buf) {                           \
-      uInt sourhi, sourmh, sourml, sourlo;                    \
-      sourlo=DFWORD(df, 3);                                   \
-      (buf)[0]=DPD2BIN0[sourlo&0x3ff]                         \
-              +DPD2BINK[(sourlo>>10)&0x3ff]                   \
-              +DPD2BINM[(sourlo>>20)&0x3ff];                  \
-      sourml=DFWORD(df, 2);                                   \
-      (buf)[1]=DPD2BIN0[((sourml<<2) | (sourlo>>30))&0x3ff]   \
-              +DPD2BINK[(sourml>>8)&0x3ff]                    \
-              +DPD2BINM[(sourml>>18)&0x3ff];                  \
-      sourmh=DFWORD(df, 1);                                   \
-      (buf)[2]=DPD2BIN0[((sourmh<<4) | (sourml>>28))&0x3ff]   \
-              +DPD2BINK[(sourmh>>6)&0x3ff]                    \
-              +DPD2BINM[(sourmh>>16)&0x3ff];                  \
-      sourhi=DFWORD(df, 0);                                   \
-      (buf)[3]=DPD2BIN0[((sourhi<<6) | (sourmh>>26))&0x3ff]   \
-              +DPD2BINK[(sourhi>>4)&0x3ff]                    \
+#  elif DECPMAX==34
+#   define GETCOEFFBILL(df, buf) {                                     \
+      uInt sourhi, sourmh, sourml, sourlo;                             \
+      sourlo=DFWORD(df, 3);                                            \
+      (buf)[0]=DPD2BIN0[sourlo&0x3ff]                                  \
+              +DPD2BINK[(sourlo>>10)&0x3ff]                            \
+              +DPD2BINM[(sourlo>>20)&0x3ff];                           \
+      sourml=DFWORD(df, 2);                                            \
+      (buf)[1]=DPD2BIN0[((sourml<<2) | (sourlo>>30))&0x3ff]            \
+              +DPD2BINK[(sourml>>8)&0x3ff]                             \
+              +DPD2BINM[(sourml>>18)&0x3ff];                           \
+      sourmh=DFWORD(df, 1);                                            \
+      (buf)[2]=DPD2BIN0[((sourmh<<4) | (sourml>>28))&0x3ff]            \
+              +DPD2BINK[(sourmh>>6)&0x3ff]                             \
+              +DPD2BINM[(sourmh>>16)&0x3ff];                           \
+      sourhi=DFWORD(df, 0);                                            \
+      (buf)[3]=DPD2BIN0[((sourhi<<6) | (sourmh>>26))&0x3ff]            \
+              +DPD2BINK[(sourhi>>4)&0x3ff]                             \
               +DPD2BINM[DECCOMBMSD[sourhi>>26]];}
 
-    #endif
+#  endif
 
     /* Macros to decode the coefficient in a finite decFloat *df into */
     /* a base-thousand uInt array (of size DECLETS+1, to allow for    */
@@ -684,129 +684,129 @@
 
     /* Decode the declets.  After extracting each one, it is decoded  */
     /* to binary using a table lookup.                                */
-    #if DECPMAX==7
-    #define GETCOEFFTHOU(df, buf) {                           \
-      uInt sourhi=DFWORD(df, 0);                              \
-      (buf)[0]=DPD2BIN[sourhi&0x3ff];                         \
-      (buf)[1]=DPD2BIN[(sourhi>>10)&0x3ff];                   \
+#  if DECPMAX==7
+#   define GETCOEFFTHOU(df, buf) {                                     \
+      uInt sourhi=DFWORD(df, 0);                                       \
+      (buf)[0]=DPD2BIN[sourhi&0x3ff];                                  \
+      (buf)[1]=DPD2BIN[(sourhi>>10)&0x3ff];                            \
       (buf)[2]=DECCOMBMSD[sourhi>>26];}
 
-    #elif DECPMAX==16
-    #define GETCOEFFTHOU(df, buf) {                           \
-      uInt sourhi, sourlo;                                    \
-      sourlo=DFWORD(df, 1);                                   \
-      (buf)[0]=DPD2BIN[sourlo&0x3ff];                         \
-      (buf)[1]=DPD2BIN[(sourlo>>10)&0x3ff];                   \
-      (buf)[2]=DPD2BIN[(sourlo>>20)&0x3ff];                   \
-      sourhi=DFWORD(df, 0);                                   \
-      (buf)[3]=DPD2BIN[((sourhi<<2) | (sourlo>>30))&0x3ff];   \
-      (buf)[4]=DPD2BIN[(sourhi>>8)&0x3ff];                    \
+#  elif DECPMAX==16
+#   define GETCOEFFTHOU(df, buf) {                                     \
+      uInt sourhi, sourlo;                                             \
+      sourlo=DFWORD(df, 1);                                            \
+      (buf)[0]=DPD2BIN[sourlo&0x3ff];                                  \
+      (buf)[1]=DPD2BIN[(sourlo>>10)&0x3ff];                            \
+      (buf)[2]=DPD2BIN[(sourlo>>20)&0x3ff];                            \
+      sourhi=DFWORD(df, 0);                                            \
+      (buf)[3]=DPD2BIN[((sourhi<<2) | (sourlo>>30))&0x3ff];            \
+      (buf)[4]=DPD2BIN[(sourhi>>8)&0x3ff];                             \
       (buf)[5]=DECCOMBMSD[sourhi>>26];}
 
-    #elif DECPMAX==34
-    #define GETCOEFFTHOU(df, buf) {                           \
-      uInt sourhi, sourmh, sourml, sourlo;                    \
-      sourlo=DFWORD(df, 3);                                   \
-      (buf)[0]=DPD2BIN[sourlo&0x3ff];                         \
-      (buf)[1]=DPD2BIN[(sourlo>>10)&0x3ff];                   \
-      (buf)[2]=DPD2BIN[(sourlo>>20)&0x3ff];                   \
-      sourml=DFWORD(df, 2);                                   \
-      (buf)[3]=DPD2BIN[((sourml<<2) | (sourlo>>30))&0x3ff];   \
-      (buf)[4]=DPD2BIN[(sourml>>8)&0x3ff];                    \
-      (buf)[5]=DPD2BIN[(sourml>>18)&0x3ff];                   \
-      sourmh=DFWORD(df, 1);                                   \
-      (buf)[6]=DPD2BIN[((sourmh<<4) | (sourml>>28))&0x3ff];   \
-      (buf)[7]=DPD2BIN[(sourmh>>6)&0x3ff];                    \
-      (buf)[8]=DPD2BIN[(sourmh>>16)&0x3ff];                   \
-      sourhi=DFWORD(df, 0);                                   \
-      (buf)[9]=DPD2BIN[((sourhi<<6) | (sourmh>>26))&0x3ff];   \
-      (buf)[10]=DPD2BIN[(sourhi>>4)&0x3ff];                   \
+#  elif DECPMAX==34
+#   define GETCOEFFTHOU(df, buf) {                                     \
+      uInt sourhi, sourmh, sourml, sourlo;                             \
+      sourlo=DFWORD(df, 3);                                            \
+      (buf)[0]=DPD2BIN[sourlo&0x3ff];                                  \
+      (buf)[1]=DPD2BIN[(sourlo>>10)&0x3ff];                            \
+      (buf)[2]=DPD2BIN[(sourlo>>20)&0x3ff];                            \
+      sourml=DFWORD(df, 2);                                            \
+      (buf)[3]=DPD2BIN[((sourml<<2) | (sourlo>>30))&0x3ff];            \
+      (buf)[4]=DPD2BIN[(sourml>>8)&0x3ff];                             \
+      (buf)[5]=DPD2BIN[(sourml>>18)&0x3ff];                            \
+      sourmh=DFWORD(df, 1);                                            \
+      (buf)[6]=DPD2BIN[((sourmh<<4) | (sourml>>28))&0x3ff];            \
+      (buf)[7]=DPD2BIN[(sourmh>>6)&0x3ff];                             \
+      (buf)[8]=DPD2BIN[(sourmh>>16)&0x3ff];                            \
+      sourhi=DFWORD(df, 0);                                            \
+      (buf)[9]=DPD2BIN[((sourhi<<6) | (sourmh>>26))&0x3ff];            \
+      (buf)[10]=DPD2BIN[(sourhi>>4)&0x3ff];                            \
       (buf)[11]=DECCOMBMSD[sourhi>>26];}
-    #endif
+#  endif
 
 
     /* Macros to decode the coefficient in a finite decFloat *df and  */
     /* add to a base-thousand uInt array (as for GETCOEFFTHOU).       */
     /* After the addition then most significant 'digit' in the array  */
     /* might have a value larger then 10 (with a maximum of 19).      */
-    #if DECPMAX==7
-    #define ADDCOEFFTHOU(df, buf) {                           \
-      uInt sourhi=DFWORD(df, 0);                              \
-      (buf)[0]+=DPD2BIN[sourhi&0x3ff];                        \
-      if (buf[0]>999) {buf[0]-=1000; buf[1]++;}               \
-      (buf)[1]+=DPD2BIN[(sourhi>>10)&0x3ff];                  \
-      if (buf[1]>999) {buf[1]-=1000; buf[2]++;}               \
+#  if DECPMAX==7
+#   define ADDCOEFFTHOU(df, buf) {                                     \
+      uInt sourhi=DFWORD(df, 0);                                       \
+      (buf)[0]+=DPD2BIN[sourhi&0x3ff];                                 \
+      if (buf[0]>999) {buf[0]-=1000; buf[1]++;}                        \
+      (buf)[1]+=DPD2BIN[(sourhi>>10)&0x3ff];                           \
+      if (buf[1]>999) {buf[1]-=1000; buf[2]++;}                        \
       (buf)[2]+=DECCOMBMSD[sourhi>>26];}
 
-    #elif DECPMAX==16
-    #define ADDCOEFFTHOU(df, buf) {                           \
-      uInt sourhi, sourlo;                                    \
-      sourlo=DFWORD(df, 1);                                   \
-      (buf)[0]+=DPD2BIN[sourlo&0x3ff];                        \
-      if (buf[0]>999) {buf[0]-=1000; buf[1]++;}               \
-      (buf)[1]+=DPD2BIN[(sourlo>>10)&0x3ff];                  \
-      if (buf[1]>999) {buf[1]-=1000; buf[2]++;}               \
-      (buf)[2]+=DPD2BIN[(sourlo>>20)&0x3ff];                  \
-      if (buf[2]>999) {buf[2]-=1000; buf[3]++;}               \
-      sourhi=DFWORD(df, 0);                                   \
-      (buf)[3]+=DPD2BIN[((sourhi<<2) | (sourlo>>30))&0x3ff];  \
-      if (buf[3]>999) {buf[3]-=1000; buf[4]++;}               \
-      (buf)[4]+=DPD2BIN[(sourhi>>8)&0x3ff];                   \
-      if (buf[4]>999) {buf[4]-=1000; buf[5]++;}               \
+#  elif DECPMAX==16
+#   define ADDCOEFFTHOU(df, buf) {                                     \
+      uInt sourhi, sourlo;                                             \
+      sourlo=DFWORD(df, 1);                                            \
+      (buf)[0]+=DPD2BIN[sourlo&0x3ff];                                 \
+      if (buf[0]>999) {buf[0]-=1000; buf[1]++;}                        \
+      (buf)[1]+=DPD2BIN[(sourlo>>10)&0x3ff];                           \
+      if (buf[1]>999) {buf[1]-=1000; buf[2]++;}                        \
+      (buf)[2]+=DPD2BIN[(sourlo>>20)&0x3ff];                           \
+      if (buf[2]>999) {buf[2]-=1000; buf[3]++;}                        \
+      sourhi=DFWORD(df, 0);                                            \
+      (buf)[3]+=DPD2BIN[((sourhi<<2) | (sourlo>>30))&0x3ff];           \
+      if (buf[3]>999) {buf[3]-=1000; buf[4]++;}                        \
+      (buf)[4]+=DPD2BIN[(sourhi>>8)&0x3ff];                            \
+      if (buf[4]>999) {buf[4]-=1000; buf[5]++;}                        \
       (buf)[5]+=DECCOMBMSD[sourhi>>26];}
 
-    #elif DECPMAX==34
-    #define ADDCOEFFTHOU(df, buf) {                           \
-      uInt sourhi, sourmh, sourml, sourlo;                    \
-      sourlo=DFWORD(df, 3);                                   \
-      (buf)[0]+=DPD2BIN[sourlo&0x3ff];                        \
-      if (buf[0]>999) {buf[0]-=1000; buf[1]++;}               \
-      (buf)[1]+=DPD2BIN[(sourlo>>10)&0x3ff];                  \
-      if (buf[1]>999) {buf[1]-=1000; buf[2]++;}               \
-      (buf)[2]+=DPD2BIN[(sourlo>>20)&0x3ff];                  \
-      if (buf[2]>999) {buf[2]-=1000; buf[3]++;}               \
-      sourml=DFWORD(df, 2);                                   \
-      (buf)[3]+=DPD2BIN[((sourml<<2) | (sourlo>>30))&0x3ff];  \
-      if (buf[3]>999) {buf[3]-=1000; buf[4]++;}               \
-      (buf)[4]+=DPD2BIN[(sourml>>8)&0x3ff];                   \
-      if (buf[4]>999) {buf[4]-=1000; buf[5]++;}               \
-      (buf)[5]+=DPD2BIN[(sourml>>18)&0x3ff];                  \
-      if (buf[5]>999) {buf[5]-=1000; buf[6]++;}               \
-      sourmh=DFWORD(df, 1);                                   \
-      (buf)[6]+=DPD2BIN[((sourmh<<4) | (sourml>>28))&0x3ff];  \
-      if (buf[6]>999) {buf[6]-=1000; buf[7]++;}               \
-      (buf)[7]+=DPD2BIN[(sourmh>>6)&0x3ff];                   \
-      if (buf[7]>999) {buf[7]-=1000; buf[8]++;}               \
-      (buf)[8]+=DPD2BIN[(sourmh>>16)&0x3ff];                  \
-      if (buf[8]>999) {buf[8]-=1000; buf[9]++;}               \
-      sourhi=DFWORD(df, 0);                                   \
-      (buf)[9]+=DPD2BIN[((sourhi<<6) | (sourmh>>26))&0x3ff];  \
-      if (buf[9]>999) {buf[9]-=1000; buf[10]++;}              \
-      (buf)[10]+=DPD2BIN[(sourhi>>4)&0x3ff];                  \
-      if (buf[10]>999) {buf[10]-=1000; buf[11]++;}            \
+#  elif DECPMAX==34
+#   define ADDCOEFFTHOU(df, buf) {                                     \
+      uInt sourhi, sourmh, sourml, sourlo;                             \
+      sourlo=DFWORD(df, 3);                                            \
+      (buf)[0]+=DPD2BIN[sourlo&0x3ff];                                 \
+      if (buf[0]>999) {buf[0]-=1000; buf[1]++;}                        \
+      (buf)[1]+=DPD2BIN[(sourlo>>10)&0x3ff];                           \
+      if (buf[1]>999) {buf[1]-=1000; buf[2]++;}                        \
+      (buf)[2]+=DPD2BIN[(sourlo>>20)&0x3ff];                           \
+      if (buf[2]>999) {buf[2]-=1000; buf[3]++;}                        \
+      sourml=DFWORD(df, 2);                                            \
+      (buf)[3]+=DPD2BIN[((sourml<<2) | (sourlo>>30))&0x3ff];           \
+      if (buf[3]>999) {buf[3]-=1000; buf[4]++;}                        \
+      (buf)[4]+=DPD2BIN[(sourml>>8)&0x3ff];                            \
+      if (buf[4]>999) {buf[4]-=1000; buf[5]++;}                        \
+      (buf)[5]+=DPD2BIN[(sourml>>18)&0x3ff];                           \
+      if (buf[5]>999) {buf[5]-=1000; buf[6]++;}                        \
+      sourmh=DFWORD(df, 1);                                            \
+      (buf)[6]+=DPD2BIN[((sourmh<<4) | (sourml>>28))&0x3ff];           \
+      if (buf[6]>999) {buf[6]-=1000; buf[7]++;}                        \
+      (buf)[7]+=DPD2BIN[(sourmh>>6)&0x3ff];                            \
+      if (buf[7]>999) {buf[7]-=1000; buf[8]++;}                        \
+      (buf)[8]+=DPD2BIN[(sourmh>>16)&0x3ff];                           \
+      if (buf[8]>999) {buf[8]-=1000; buf[9]++;}                        \
+      sourhi=DFWORD(df, 0);                                            \
+      (buf)[9]+=DPD2BIN[((sourhi<<6) | (sourmh>>26))&0x3ff];           \
+      if (buf[9]>999) {buf[9]-=1000; buf[10]++;}                       \
+      (buf)[10]+=DPD2BIN[(sourhi>>4)&0x3ff];                           \
+      if (buf[10]>999) {buf[10]-=1000; buf[11]++;}                     \
       (buf)[11]+=DECCOMBMSD[sourhi>>26];}
-    #endif
+#  endif
 
 
     /* Set a decFloat to the maximum positive finite number (Nmax)    */
-    #if DECPMAX==7
-    #define DFSETNMAX(df)            \
+#  if DECPMAX==7
+#   define DFSETNMAX(df)                                               \
       {DFWORD(df, 0)=0x77f3fcff;}
-    #elif DECPMAX==16
-    #define DFSETNMAX(df)            \
-      {DFWORD(df, 0)=0x77fcff3f;     \
+#  elif DECPMAX==16
+#   define DFSETNMAX(df)                                               \
+      {DFWORD(df, 0)=0x77fcff3f;                                       \
        DFWORD(df, 1)=0xcff3fcff;}
-    #elif DECPMAX==34
-    #define DFSETNMAX(df)            \
-      {DFWORD(df, 0)=0x77ffcff3;     \
-       DFWORD(df, 1)=0xfcff3fcf;     \
-       DFWORD(df, 2)=0xf3fcff3f;     \
+#  elif DECPMAX==34
+#   define DFSETNMAX(df)                                               \
+      {DFWORD(df, 0)=0x77ffcff3;                                       \
+       DFWORD(df, 1)=0xfcff3fcf;                                       \
+       DFWORD(df, 2)=0xf3fcff3f;                                       \
        DFWORD(df, 3)=0xcff3fcff;}
-    #endif
+#  endif
 
   /* [end of format-dependent macros and constants]                   */
-  #endif
+# endif
 
 #else
-  #error decNumberLocal included more than once
+# error decNumberLocal included more than once
 #endif

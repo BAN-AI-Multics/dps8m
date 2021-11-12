@@ -772,9 +772,9 @@ int main(int argc, char **argv) {
                                                                                               break;
            case 'V': ;
 #ifdef BUILDINFO_prt2pdf
-#ifdef __VERSION__
-#ifdef __GNUC__
-#ifndef __clang_version__
+# ifdef __VERSION__
+#  ifdef __GNUC__
+#   ifndef __clang_version__
                      char xcmp[2];
                      sprintf(xcmp, "%.1s", __VERSION__ );
                      if (!isdigit((int)xcmp[0]))
@@ -783,13 +783,13 @@ int main(int argc, char **argv) {
                      } else {
                          fprintf (stderr, "Compiler: GCC %s\n", __VERSION__ );
                      }
-#else
+#   else
                      fprintf (stderr, "Compiler: %s\n", __VERSION__ );
-#endif /* ifndef __clang_version__ */
-#else
+#   endif /* ifndef __clang_version__ */
+#  else
                      fprintf (stderr, "Compiler: %s\n", __VERSION__ );
-#endif /* ifdef __GNUC__ */
-#endif /* ifdef __VERSION__ */
+#  endif /* ifdef __GNUC__ */
+# endif /* ifdef __VERSION__ */
                      fprintf (stderr, "   Build: %s\n", BUILDINFO_prt2pdf );
 #endif /* ifdef BUILDINFO_prt2pdf */
                      exit(1);
@@ -806,22 +806,22 @@ int main(int argc, char **argv) {
              exit(1);
              /*NOTREACHED*/
 #ifndef __SUNPRO_C
-#ifndef __SUNPRO_CC
-#ifndef __SUNPRO_CC_COMPAT
+# ifndef __SUNPRO_CC
+#  ifndef __SUNPRO_CC_COMPAT
              return 1;
-#endif
-#endif
+#  endif
+# endif
 #endif
              /*NOTREACHED*/
            default:
              abort ();
              /*NOTREACHED*/
 #ifndef __SUNPRO_C
-#ifndef __SUNPRO_CC
-#ifndef __SUNPRO_CC_COMPAT
+# ifndef __SUNPRO_CC
+#  ifndef __SUNPRO_CC_COMPAT
              return 1;
-#endif
-#endif
+#  endif
+# endif
 #endif
              /*NOTREACHED*/
            }

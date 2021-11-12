@@ -15,6 +15,7 @@
 # src/Makefile.var: Variable processing logic and build configuration
 
 ###############################################################################
+# Atomic operations selection
 
 ifdef ATOMICS
   ifeq ($(ATOMICS),AIX)
@@ -32,6 +33,7 @@ ifdef ATOMICS
 endif
 
 ###############################################################################
+# ISOLTS-enabled build
 
 ifeq ($(ISOLTS),1)
   unexport NO_LOCKLESS
@@ -43,6 +45,7 @@ ifeq ($(ISOLTS),1)
 endif
 
 ###############################################################################
+# Round-robin non-threaded multiprocessing
 
 ifeq ($(ROUND_ROBIN),1)
   ROUND_ROBIN=1
@@ -53,12 +56,14 @@ ifeq ($(ROUND_ROBIN),1)
 endif
 
 ###############################################################################
+# Legacy (non-lockless) build
 
 ifneq ($(NO_LOCKLESS),1)
   LOCKLESS=1
 endif
 
 ###############################################################################
+# History debugger (enabled TESTING)
 
 ifdef HDBG
   HDBG=1
@@ -67,6 +72,7 @@ ifdef HDBG
 endif
 
 ###############################################################################
+# Build as Level-68 simulation
 
 ifdef L68
   L68=1
@@ -74,6 +80,7 @@ ifdef L68
 endif
 
 ###############################################################################
+# Tracker
 
 ifdef TRACKER
   TRACKER=1
@@ -83,6 +90,7 @@ ifdef TRACKER
 endif
 
 ###############################################################################
+# Testing mode
 
 ifdef TESTING
   TESTING=1
@@ -90,25 +98,28 @@ ifdef TESTING
 endif
 
 ###############################################################################
+# Windows build
 
 ifeq ($(OS),Windows_NT)
   CROSS=MINGW64
 endif
 
 ###############################################################################
+# POSIX threads
 
 ifeq ($(THREADZ),1)
   THREADZ=1
-ifndef SUNPRO
-ifndef SUNLINT
-  CFLAGS += -pthread
-endif
-endif
-  CFLAGS += -DTHREADZ
-  LIBS += -lpthread
+  ifndef SUNPRO
+    ifndef SUNLINT
+      CFLAGS += -pthread
+    endif
+  endif
+    CFLAGS += -DTHREADZ
+    LIBS += -lpthread
 endif
 
 ###############################################################################
+# WAM
 
 ifeq ($(WAM),1)
   WAM=1
@@ -116,28 +127,30 @@ ifeq ($(WAM),1)
 endif
 
 ###############################################################################
+# Lockless synchronization
 
 ifeq ($(LOCKLESS),1)
   LOCKLESS=1
-ifndef SUNPRO
-ifndef SUNLINT
-    CFLAGS += -pthread
-endif
-endif
-ifndef SUNLINT
-ifdef SUNPRO
-    CFLAGS += -mt
-endif
-endif
+  ifndef SUNPRO
+    ifndef SUNLINT
+      CFLAGS += -pthread
+    endif
+  endif
+  ifndef SUNLINT
+    ifdef SUNPRO
+      CFLAGS += -mt
+    endif
+  endif
   CFLAGS += -DLOCKLESS
-ifndef SUNPRO
-ifndef SUNLINT
-  LIBS += -lpthread
-endif
-endif
+  ifndef SUNPRO
+    ifndef SUNLINT
+      LIBS += -lpthread
+    endif
+  endif
 endif
 
 ###############################################################################
+# Speed before debugging (override)
 
 ifeq ($(SPEED),1)
   SPEED=1
@@ -145,6 +158,7 @@ ifeq ($(SPEED),1)
 endif
 
 ###############################################################################
+# No native __int128/__uint128 types?
 
 ifeq ($(NEED_128),1)
   NEED_128=1
@@ -161,6 +175,7 @@ endif
 export VER_CURRENT_TIME
 
 ###############################################################################
+# IBM AIX
 
 ifdef OS_IBMAIX
   BUILD_OSAP_OSS_TEXT=$(shell printf '%s\n' "$(OS_IBMAIX)"  2> /dev/null  |   \
@@ -206,15 +221,16 @@ ifndef BUILD_PROM_OSA_TEXT
 endif
 
 ###############################################################################
+# Oracle Developer Studio
 
 ifndef SUNPRO
-ifndef SUNLINT
-ifneq "$(findstring gcc,$(CC))" ""
-  CFLAGS += -fno-delete-null-pointer-checks
-  CFLAGS += -Wno-maybe-uninitialized
-  CFLAGS += -Wno-unknown-warning-option
-endif
-endif
+  ifndef SUNLINT
+    ifneq "$(findstring gcc,$(CC))" ""
+      CFLAGS += -fno-delete-null-pointer-checks
+      CFLAGS += -Wno-maybe-uninitialized
+      CFLAGS += -Wno-unknown-warning-option
+    endif
+  endif
 endif
 
 ###############################################################################

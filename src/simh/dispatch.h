@@ -27,20 +27,15 @@
  */
 
 #ifndef __DISPATCH_H_
-#define __DISPATCH_H_
+# define __DISPATCH_H_
 
-#include <stdint.h>
+# include <stdint.h>
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif /* ifdef __cplusplus */
-
-#if defined( __INTEL_COMPILER )       || \
-    defined( __INTEL_CLANG_COMPILER ) || \
-    defined( __INTEL_LLVM_COMPILER )  || \
-    defined( INTEL_MKL_VERSION )      || \
-    defined( __INTEL_MKL__ )
+# if defined( __INTEL_COMPILER )       || \
+     defined( __INTEL_CLANG_COMPILER ) || \
+     defined( __INTEL_LLVM_COMPILER )  || \
+     defined( INTEL_MKL_VERSION )      || \
+     defined( __INTEL_MKL__ )
 
 extern int64_t __intel_cpu_feature_indicator;
 extern int64_t __intel_cpu_feature_indicator_x;
@@ -49,34 +44,30 @@ extern int64_t __intel_mkl_feature_indicator_x;
 
 void __intel_cpu_features_init();
 void __intel_cpu_features_init_x();
-#if defined( INTEL_MKL_VERSION ) || \
-    defined( __INTEL_MKL__ )
+#  if defined( INTEL_MKL_VERSION ) || \
+      defined( __INTEL_MKL__ )
 void __intel_mkl_features_init();
 void __intel_mkl_features_init_x();
-#endif /* if defined( INTEL_MKL_VERSION ) ||
-             defined( __INTEL_MKL__ ) */
+#  endif /* if defined( INTEL_MKL_VERSION ) ||
+               defined( __INTEL_MKL__ ) */
 
 void agner_compiler_patch();
-#if defined( __INTEL_COMPILER )       || \
-    defined( __INTEL_CLANG_COMPILER ) || \
-    defined( __INTEL_LLVM_COMPILER )
+#  if defined( __INTEL_COMPILER )       || \
+      defined( __INTEL_CLANG_COMPILER ) || \
+      defined( __INTEL_LLVM_COMPILER )
 void agner_cpu_patch();
-#endif /* if defined( __INTEL_COMPILER )       ||
-             defined( __INTEL_CLANG_COMPILER ) ||
-             defined( __INTEL_LLVM_COMPILER ) */
-#if defined( INTEL_MKL_VERSION ) || defined( __INTEL_MKL__ )
+#  endif /* if defined( __INTEL_COMPILER )       ||
+               defined( __INTEL_CLANG_COMPILER ) ||
+               defined( __INTEL_LLVM_COMPILER ) */
+#  if defined( INTEL_MKL_VERSION ) || defined( __INTEL_MKL__ )
 void agner_mkl_patch();
-#endif /* if defined( INTEL_MKL_VERSION ) ||
-             defined( __INTEL_MKL__ ) */
+#  endif /* if defined( INTEL_MKL_VERSION ) ||
+               defined( __INTEL_MKL__ ) */
 
-#endif /* if defined( __INTEL_COMPILER )       ||
-             defined( __INTEL_CLANG_COMPILER ) ||
-             defined( __INTEL_LLVM_COMPILER )  ||
-             defined( INTEL_MKL_VERSION )      ||
-             defined( __INTEL_MKL__ ) */
-
-#ifdef __cplusplus
-}
-#endif /* ifdef __cplusplus */
+# endif /* if defined( __INTEL_COMPILER )       ||
+              defined( __INTEL_CLANG_COMPILER ) ||
+              defined( __INTEL_LLVM_COMPILER )  ||
+              defined( INTEL_MKL_VERSION )      ||
+              defined( __INTEL_MKL__ ) */
 
 #endif /* ifndef __DISPATCH_H_ */

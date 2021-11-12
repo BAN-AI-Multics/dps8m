@@ -19,11 +19,11 @@
 #include <stdarg.h>
 
 #ifdef __GNUC__
-#define NO_RETURN   __attribute__ ((noreturn))
-#define UNUSED      __attribute__ ((unused))
+# define NO_RETURN   __attribute__ ((noreturn))
+# define UNUSED      __attribute__ ((unused))
 #else
-#define NO_RETURN
-#define UNUSED
+# define NO_RETURN
+# define UNUSED
 #endif
 
 /* Win32 compatibility */
@@ -1162,23 +1162,6 @@ void telnet_begin_sb(telnet_t *telnet, unsigned char telopt) {
         _sendu(telnet, sb, 3);
 }
 
-
-/* send complete subnegotiation */
-void telnet_subnegotiation(telnet_t *telnet, unsigned char telopt,
-                const char *buffer, size_t size) {
-        unsigned char bytes[5];
-        bytes[0] = TELNET_IAC;
-        bytes[1] = TELNET_SB;
-        bytes[2] = telopt;
-        bytes[3] = TELNET_IAC;
-        bytes[4] = TELNET_SE;
-
-        _sendu(telnet, bytes, 3);
-        telnet_send(telnet, buffer, size);
-        _sendu(telnet, bytes + 3, 2);
-
-}
-
 /* send formatted data with \r and \n translation in addition to IAC IAC */
 int telnet_vprintf(telnet_t *telnet, const char *fmt, va_list va) {
         char buffer[1024];
@@ -1293,36 +1276,4 @@ int telnet_raw_printf(telnet_t *telnet, const char *fmt, ...) {
         va_end(va);
 
         return rs;
-}
-
-/* begin NEW-ENVIRON subnegotation */
-void telnet_begin_newenviron(telnet_t *telnet, unsigned char cmd) {
-        telnet_begin_sb(telnet, TELNET_TELOPT_NEW_ENVIRON);
-        telnet_send(telnet, (const char *)&cmd, 1);
-}
-
-/* send a NEW-ENVIRON value */
-void telnet_newenviron_value(telnet_t *telnet, unsigned char type,
-                const char *string) {
-        telnet_send(telnet, (const char*)&type, 1);
-
-        if (string != 0) {
-                telnet_send(telnet, string, strlen(string));
-        }
-}
-
-/* send TERMINAL-TYPE SEND command */
-void telnet_ttype_send(telnet_t *telnet) {
-    static const unsigned char SEND[] = { TELNET_IAC, TELNET_SB,
-                        TELNET_TELOPT_TTYPE, TELNET_TTYPE_SEND, TELNET_IAC, TELNET_SE };
-        _sendu(telnet, SEND, sizeof(SEND));
-}
-
-/* send TERMINAL-TYPE IS command */
-void telnet_ttype_is(telnet_t *telnet, const char* ttype) {
-        static const unsigned char IS[] = { TELNET_IAC, TELNET_SB,
-                        TELNET_TELOPT_TTYPE, TELNET_TTYPE_IS };
-        _sendu(telnet, IS, sizeof(IS));
-        _send(telnet, ttype, strlen(ttype));
-        telnet_finish_sb(telnet);
 }

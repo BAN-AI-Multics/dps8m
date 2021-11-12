@@ -13,31 +13,24 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * \file dps8_sys.c
- * \project dps8
- * \date 9/17/12
- * \copyright Copyright (c) 2012 Harry Reed. All rights reserved.
-*/
-
 #include <stdio.h>
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW64
-#ifndef CROSS_MINGW32
-#ifndef __OpenBSD__
-#include <wordexp.h>
-#endif /* ifndef __OpenBSD__ */
-#include <signal.h>
-#endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef CROSS_MINGW64 */
-#endif /* ifndef __MINGW32__ */
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW64
+#   ifndef CROSS_MINGW32
+#    ifndef __OpenBSD__
+#     include <wordexp.h>
+#    endif /* ifndef __OpenBSD__ */
+#    include <signal.h>
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef CROSS_MINGW64 */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
 #include <unistd.h>
 #include <ctype.h>
 
 #ifdef __APPLE__
-#include <pthread.h>
+# include <pthread.h>
 #endif
 
 #include "dps8.h"
@@ -66,11 +59,11 @@
 #include "utlist.h"
 #include "ver.h"
 #if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #ifdef PANEL
-#include "panelScraper.h"
+# include "panelScraper.h"
 #endif
 
 #define DBG_CTR cpu.cycleCnt
@@ -224,14 +217,14 @@ static char * default_base_system_script [] =
     "set pun nunits=3",
     "set prt nunits=4",
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW64
-#ifndef CROSS_MINGW32
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW64
+#   ifndef CROSS_MINGW32
     "set skc nunits=64",
     "set absi nunits=1",
-#endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef CROSS_MINGW64 */
-#endif /* ifndef __MINGW32__ */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef CROSS_MINGW64 */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
 
 
@@ -1443,9 +1436,9 @@ static char * default_base_system_script [] =
     "cable urp9 1 punc",
 
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW32
-#ifndef CROSS_MINGW64
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW32
+#   ifndef CROSS_MINGW64
     "cable IOMA 040 SKCA",
     "cable IOMA 041 SKCB",
     "cable IOMA 042 SKCC",
@@ -1454,9 +1447,9 @@ static char * default_base_system_script [] =
     "cable IOMA 045 SKCF",
     "cable IOMA 046 SKCG",
     "cable IOMA 047 SKCH",
-#endif /* ifndef CROSS_MINGW64 */
-#endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef __MINGW32__ */
+#   endif /* ifndef CROSS_MINGW64 */
+#  endif /* ifndef CROSS_MINGW32 */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
 
 #if 0
@@ -1524,14 +1517,14 @@ static char * default_base_system_script [] =
 #endif
 
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW64
-#ifndef CROSS_MINGW32
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW64
+#   ifndef CROSS_MINGW32
     // ; Attach ABSI unit 0 to IOM 0, chan 032, dev_code 0
     "cable IOM0 032 ABSI0",
-#endif /* CROSS_MINGW32 */
-#endif /* CROSS_MINGW64 */
-#endif /* __MINGW32__ */
+#   endif /* CROSS_MINGW32 */
+#  endif /* CROSS_MINGW64 */
+# endif /* __MINGW32__ */
 #endif /* __MINGW64__ */
 
     // ; Attach IOM unit 0 port A (0) to SCU unit 0, port 0
@@ -1860,11 +1853,11 @@ uint64 sim_deb_stop = 0;
 uint64 sim_deb_break = 0;
 // Enable CPU sim_debug iff PPR.PSR == N
 bool sim_deb_segno_on = false;
-#ifdef NO_C_ELLIPSIS
+# ifdef NO_C_ELLIPSIS
 bool sim_deb_segno[DEBUG_SEGNO_LIMIT];
-#else
+# else
 bool sim_deb_segno[DEBUG_SEGNO_LIMIT] = { [0 ... DEBUG_SEGNO_LIMIT - 1] = false };
-#endif
+# endif
 // Enable CPU sim_debug iff PPR.PRR == N
 uint64 sim_deb_ringno = NO_SUCH_RINGNO;
 // Supress CPU sim_debug calls that pass all
@@ -1962,7 +1955,7 @@ static t_stat dps_debug_bar (int32 arg, UNUSED const char * buf)
     return SCPE_OK;
   }
 
-#if 0
+# if 0
 t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
   {
     word24 res;
@@ -2171,7 +2164,7 @@ t_stat computeAbsAddrN (word24 * abs_addr, int segno, uint offset)
     * abs_addr = res;
     return SCPE_OK;
   }
-#endif
+# endif
 
 // Translate seg:offset to absolute address
 
@@ -2204,9 +2197,9 @@ static t_stat abs_addr (UNUSED int32 arg, const char * buf)
 // Read a system_book segment, extracting segment names and numbers
 // and component names, offsets, and lengths
 
-#define BOOT_SEGMENTS_MAX 1024
-#define BOOT_COMPONENTS_MAX 4096
-#define BOOK_SEGMENT_NAME_LEN 33
+# define BOOT_SEGMENTS_MAX 1024
+# define BOOT_COMPONENTS_MAX 4096
+# define BOOK_SEGMENT_NAME_LEN 33
 
 static struct book_segment
   {
@@ -2368,9 +2361,9 @@ char * lookup_address (word18 segno, word18 offset, char * * compname,
     if (segno == 0317)
       segno = 0161;
 
-#if 0
+# if 0
     // Hack to support formline debugging
-#define IOPOS 02006 // interpret_op_ptr_ offset
+#  define IOPOS 02006 // interpret_op_ptr_ offset
     if (segno == 0371)
       {
         if (offset < IOPOS)
@@ -2397,7 +2390,7 @@ char * lookup_address (word18 segno, word18 offset, char * * compname,
           }
 
       }
-#endif
+# endif
 
     char * ret = lookup_system_book_address (segno, offset, compname, compoffset);
     return ret;
@@ -2648,7 +2641,7 @@ fileDone:
 
 // STK
 
-#ifndef SCUMEM
+# ifndef SCUMEM
 static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
   {
     char * msg;
@@ -2775,13 +2768,13 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
               }
         sim_msg ("desc_count  %d\n", descCount);
 
-#if 0
+#  if 0
         if (descCount)
           {
             // XXX walk descriptor and arg list together
           }
         else
-#endif
+#  endif
           {
             for (uint argno = 0; argno < argCount; argno ++)
               {
@@ -2813,7 +2806,7 @@ skipArgs:;
       }
     return SCPE_OK;
   }
-#endif
+# endif
 
 static t_stat list_source_at (UNUSED int32 arg, UNUSED const char *  buf)
   {
@@ -2837,11 +2830,11 @@ static t_stat list_source_at (UNUSED int32 arg, UNUSED const char *  buf)
 static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
   {
 // Quietly ignore if not debug enabled
-#ifndef SPEED
+# ifndef SPEED
     // Multics 12.5 assigns segment number to collection 3 starting at 0244.
     uint c3 = 0244;
 
-#define bufSz 257
+#  define bufSz 257
     char filebuf[bufSz];
     int current = -1;
 
@@ -2953,7 +2946,7 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
 
       }
     fclose (fp);
-#if 0
+#  if 0
     for (int i = 0; i < n_book_segments; i ++)
       {
         sim_msg ("  %-32s %6o\n", book_segments[i].segname,
@@ -2973,8 +2966,8 @@ static t_stat load_system_book (UNUSED int32 arg, UNUSED const char * buf)
               }
           }
       }
-#endif
-#endif
+#  endif
+# endif
     return SCPE_OK;
   }
 
@@ -3086,7 +3079,7 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
     return SCPE_OK;
   }
 
-#ifndef SCUMEM
+# ifndef SCUMEM
 // Assumes unpaged DSBR
 
 static sdw0_s *fetchSDW (word15 segno)
@@ -3231,11 +3224,11 @@ static t_stat virtAddrN (uint address)
     return SCPE_OK;
 
   }
-#endif
+# endif
 
 // VIRTUAL address
 
-#ifndef SCUMEM
+# ifndef SCUMEM
 static t_stat virt_address (UNUSED int32 arg, const char * buf)
   {
     uint address;
@@ -3243,18 +3236,18 @@ static t_stat virt_address (UNUSED int32 arg, const char * buf)
       return SCPE_ARG;
     return virtAddrN (address);
   }
-#endif
+# endif
 
 // search path is path:path:path....
 
 static t_stat set_search_path (UNUSED int32 arg, UNUSED const char * buf)
   {
 // Quietly ignore if debugging not enabled
-#ifndef SPEED
+# ifndef SPEED
     if (source_search_path)
       free (source_search_path);
     source_search_path = strdup (buf);
-#endif
+# endif
     return SCPE_OK;
   }
 
@@ -3291,7 +3284,7 @@ static t_stat sbreak (int32 arg, const char * buf)
     return rc;
   }
 
-#ifdef DVFDBG
+# ifdef DVFDBG
 static t_stat dfx1entry (UNUSED int32 arg, UNUSED const char * buf)
   {
 // divide_fx1, divide_fx3
@@ -3364,7 +3357,7 @@ static t_stat dfx2entry (UNUSED int32 arg, UNUSED const char * buf)
       {
         sim_msg ("text segno %012"PRIo64" (%llu)\n", M[pa], M[pa]);
       }
-#if 0
+#  if 0
 sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
 //dbgStackTrace ();
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
@@ -3389,7 +3382,7 @@ sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
               }
           }
       }
-#endif
+#  endif
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
       {
         sim_msg ("divisor address lookup failed because %s\n", msg);
@@ -3425,7 +3418,7 @@ static t_stat mdfx3entry (UNUSED int32 arg, UNUSED const char * buf)
       }
 //sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
 //dbgStackTrace ();
-#if 0
+#  if 0
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.rX[0], & pa, & msg))
       {
         sim_msg ("return address lookup failed because %s\n", msg);
@@ -3434,7 +3427,7 @@ static t_stat mdfx3entry (UNUSED int32 arg, UNUSED const char * buf)
       {
         sim_msg ("scale %012"PRIo64" (%llu)\n", M[pa], M[pa]);
       }
-#endif
+#  endif
     if (dbgLookupAddress (cpu.PR[2].SNR, cpu.PR[2].WORDNO, & pa, & msg))
       {
         sim_msg ("divisor address lookup failed because %s\n", msg);
@@ -3487,11 +3480,11 @@ sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
       }
     return SCPE_OK;
   }
-#endif // DVFDBG
+# endif // DVFDBG
 
 // SEARCHMEMORY value
 
-#ifndef SCUMEM
+# ifndef SCUMEM
 static t_stat search_memory (UNUSED int32 arg, const char * buf)
   {
     word36 value;
@@ -3504,7 +3497,7 @@ static t_stat search_memory (UNUSED int32 arg, const char * buf)
         sim_msg ("%08o\n", i);
     return SCPE_OK;
   }
-#endif
+# endif
 
 static t_stat set_dbg_cpu_mask (int32 UNUSED arg, const char * UNUSED buf)
   {
@@ -3765,7 +3758,7 @@ t_stat ready_media (int32 arg, const char * buf) {
 //
 
 #ifdef TRACKER
-#include "tracker.h"
+# include "tracker.h"
 
 static t_stat trkw (UNUSED int32 arg, const char * buf)
   {
@@ -3845,42 +3838,42 @@ static CTAB dps8_cmds[] =
     {"DBGRINGNO",           dps_debug_ringno,         0, "dbgsegno: Limit debugging to PRR == ringno\n", NULL, NULL},
     {"DBGBAR",              dps_debug_bar,            1, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
     {"NODBGBAR",            dps_debug_bar,            0, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
-#ifdef HDBG
+# ifdef HDBG
     {"HDBG",                hdbg_size,                0, "hdbg: set history debugger buffer size\n", NULL, NULL},
     {"HDSEG",               hdbgSegmentNumber,        0, "hdseg: set history debugger segment number\n", NULL, NULL},
     {"HDBL",                hdbgBlacklist,            0, "hdbl: set history debugger blacklist\n", NULL, NULL},
     {"PHDBG",               hdbg_print,               0, "phdbg: display history size\n", NULL, NULL},
     {"HDBG_CPU_MASK",       hdbg_cpu_mask,            0, "hdbg_cpu_mask: Which CPUS to track\n", NULL, NULL},
-#endif
+# endif
     {"ABSOLUTE",            abs_addr,                 0, "abs: Compute the absolute address of segno:offset\n", NULL, NULL},
-#ifndef SCUMEM
+# ifndef SCUMEM
     {"STK",                 stack_trace,              0, "stk: Print a stack trace\n", NULL, NULL},
-#endif
+# endif
     {"LIST",                list_source_at,           0, "list segno:offet: List source for an address\n", NULL, NULL},
     {"LD_SYSTEM_BOOK",      load_system_book,         0, "load_system_book: Load a Multics system book for symbolic debugging\n", NULL, NULL},
     {"ASBE",                add_system_book_entry,    0, "asbe: Add an entry to the system book\n", NULL, NULL},
     {"LOOKUP_SYSTEM_BOOK",  lookup_system_book,       0, "lookup_system_book: Lookup an address or symbol in the Multics system book\n", NULL, NULL},
     {"LSB",                 lookup_system_book,       0, "lsb: Lookup an address or symbol in the Multics system book\n", NULL, NULL},
-#ifndef SCUMEM
+# ifndef SCUMEM
     {"VIRTUAL",             virt_address,             0, "virtual: Compute the virtural address(es) of segno:offset\n", NULL, NULL},
-#endif
+# endif
     {"SPATH",               set_search_path,          0, "spath: Set source code search path\n", NULL, NULL},
     {"TEST",                brkbrk,                   0, "test: GDB hook\n", NULL, NULL},
-#ifdef DBGEVENT
+# ifdef DBGEVENT
     {"DBG0EVENT",           set_dbgevent,             0, "dbg0event: set t0 event\n", NULL, NULL},
     {"DBGEVENT",            set_dbgevent,             1, "dbgevent: set event\n", NULL, NULL},
     {"DBGNOEVENT",          set_dbgevent,             2, "dbgnoevent: clear event\n", NULL, NULL},
     {"DBGLISTEVENTS",       set_dbgevent,             3, "dbglistevents: list events\n", NULL, NULL},
     {"DBGCLEAREVENTS",      set_dbgevent,             4, "dbgevent: clear events\n", NULL, NULL},
-#endif
+# endif
 
 // copied from scp.c
-#define SSH_ST          0                               /* set */
-#define SSH_SH          1                               /* show */
-#define SSH_CL          2                               /* clear */
+# define SSH_ST          0                               /* set */
+# define SSH_SH          1                               /* show */
+# define SSH_CL          2                               /* clear */
     {"SBREAK",              sbreak,               SSH_ST, "sbreak: Set a breakpoint with segno:offset syntax\n", NULL, NULL},
     {"NOSBREAK",            sbreak,               SSH_CL, "nosbreak: Unset an SBREAK\n", NULL, NULL},
-#ifdef DVFDBG
+# ifdef DVFDBG
     // dvf debugging
     {"DFX1ENTRY",           dfx1entry,                0, "\n", NULL, NULL},
     {"DFX2ENTRY",           dfx2entry,                0, "\n", NULL, NULL},
@@ -3888,16 +3881,16 @@ static CTAB dps8_cmds[] =
     {"DV2SCALE",            dv2scale,                 0, "\n", NULL, NULL},
     {"MDFX3ENTRY",          mdfx3entry,               0, "\n", NULL, NULL},
     {"SMFX1ENTRY",          smfx1entry,               0, "\n", NULL, NULL},
-#endif
+# endif
     // doesn't work
     //{"DUMPKST",             dumpKST,                  0, "dumpkst: dump the Known Segment Table\n", NULL},
-#ifndef SPEED
+# ifndef SPEED
     {"WATCH",               set_mem_watch,            1, "watch: Watch memory location\n", NULL, NULL},
     {"NOWATCH",             set_mem_watch,            0, "watch: Unwatch memory location\n", NULL, NULL},
-#endif
-#ifndef SCUMEM
+# endif
+# ifndef SCUMEM
     {"SEARCHMEMORY",        search_memory,            0, "searchmemory: Search memory for value\n", NULL, NULL},
-#endif
+# endif
     {"DBGCPUMASK",          set_dbg_cpu_mask,         0, "dbgcpumask: Set per CPU debug enable", NULL, NULL},
 #endif // TESTING
 
@@ -3951,9 +3944,9 @@ static CTAB dps8_cmds[] =
   }; // dps8_cmds
 
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW64
-#ifndef CROSS_MINGW32
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW64
+#   ifndef CROSS_MINGW32
 static void usr1_signal_handler (UNUSED int sig)
   {
     sim_msg ("USR1 signal caught; pressing the EXF button\n");
@@ -3961,9 +3954,9 @@ static void usr1_signal_handler (UNUSED int sig)
     setG7fault (ASSUME0, FAULT_EXF, fst_zero);
     return;
   }
-#endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef CROSS_MINGW64 */
-#endif /* ifndef __MINGW32__ */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef CROSS_MINGW64 */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
 
 static struct symbol_s symbols [] = {
@@ -4073,79 +4066,79 @@ static void systabInit (void) {
 static void dps8_init (void) {
   if (!sim_quiet) {
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_VERSION)
-#if defined(VER_H_GIT_PATCH_INT) && defined(VER_H_GIT_PATCH)
-#if VER_H_GIT_PATCH_INT < 1
+# if defined(VER_H_GIT_PATCH_INT) && defined(VER_H_GIT_PATCH)
+#  if VER_H_GIT_PATCH_INT < 1
     sim_msg ("%s simulator %s", sim_name, VER_H_GIT_VERSION);
-#else
+#  else
     sim_msg ("%s simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
-#endif
-#else
+#  endif
+# else
     sim_msg ("%s simulator %s", sim_name, VER_H_GIT_VERSION);
-#endif
+# endif
 #endif
 #if !defined(VER_H_GIT_VERSION) || !defined(GENERATED_MAKE_VER_H)
     sim_msg ("%s simulator", sim_name);
 #endif
 #ifdef TESTING
     sim_msg ("\n Options: ");
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     sim_msg ("TESTING");
 #endif
 #ifdef NEED_128
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     sim_msg (", ");
-#else
+# else
     sim_msg ("\n Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     sim_msg ("NEED_128");
 #endif
 #ifdef HDBG
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     sim_msg (", ");
-#else
+# else
     sim_msg ("\n Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     sim_msg ("HDBG");
 #endif
 #ifdef ROUND_ROBIN
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     sim_msg (", ");
-#else
+# else
     sim_msg ("\n Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     sim_msg ("ROUND_ROBIN");
 #endif
 #ifndef LOCKLESS
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     sim_msg (", ");
-#else
+# else
     sim_msg ("\n Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     sim_msg ("NO_LOCKLESS");
 #endif
 #ifdef TRACKER
-#ifdef HAVE_DPSOPT
+# ifdef HAVE_DPSOPT
     sim_msg (", ");
-#else
+# else
     sim_msg ("\n Options: ");
-#endif
-#ifndef HAVE_DPSOPT
-#define HAVE_DPSOPT 1
-#endif
+# endif
+# ifndef HAVE_DPSOPT
+#  define HAVE_DPSOPT 1
+# endif
     sim_msg ("TRACKER");
 #endif
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
@@ -4180,29 +4173,29 @@ static void dps8_init (void) {
 //#endif
 
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW32
-#ifndef CROSS_MINGW64
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW32
+#   ifndef CROSS_MINGW64
   // Wire the XF button to signal USR1
   signal (SIGUSR1, usr1_signal_handler);
-#endif /* ifndef CROSS_MINGW64 */
-#endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef __MINGW32__ */
+#   endif /* ifndef CROSS_MINGW64 */
+#  endif /* ifndef CROSS_MINGW32 */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
 
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW32
-#ifndef CROSS_MINGW64
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW32
+#   ifndef CROSS_MINGW64
 // On line 4,739 of the libuv man page, it recommends this.
   signal(SIGPIPE, SIG_IGN);
-#endif /* ifndef CROSS_MINGW64 */
-#endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef __MINGW32__ */
+#   endif /* ifndef CROSS_MINGW64 */
+#  endif /* ifndef CROSS_MINGW32 */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
 
 #ifdef SCUMEM
-#error SCUMEM not working with new shared memory model
+# error SCUMEM not working with new shared memory model
 #endif
 
 #if defined(__MINGW64__)   || \
@@ -4225,7 +4218,7 @@ static void dps8_init (void) {
   }
 
 #ifndef VER_H_GIT_HASH
-#define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
+# define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
 #endif
 
   if (strlen (system_state->commit_id) == 0) {
@@ -4242,10 +4235,8 @@ static void dps8_init (void) {
     }
   }
 
-
   strncpy (system_state->stateHdr, STATE_HDR, sizeof (system_state->stateHdr));
   system_state->stateVer = STATE_VER;
-
   strncpy (system_state->commit_id, VER_H_GIT_HASH, sizeof (system_state->commit_id));
 
   systabInit ();
@@ -4264,13 +4255,13 @@ static void dps8_init (void) {
   disk_init ();
   mt_init ();
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW64
-#ifndef CROSS_MINGW32
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW64
+#   ifndef CROSS_MINGW32
   sk_init ();
-#endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef CROSS_MINGW64 */
-#endif /* ifndef __MINGW64__ */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef CROSS_MINGW64 */
+# endif /* ifndef __MINGW64__ */
 #endif /* ifndef __MINGW32__ */
   fnpInit ();
   console_init (); // must come after fnpInit due to libuv initiailization
@@ -4282,13 +4273,13 @@ static void dps8_init (void) {
   prt_init ();
   urp_init ();
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW64
-#ifndef CROSS_MINGW32
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW64
+#   ifndef CROSS_MINGW32
   absi_init ();
-#endif /* CROSS_MINGW32 */
-#endif /* CROSS_MINGW64 */
-#endif /* ifndef __MINGW32__ */
+#   endif /* CROSS_MINGW32 */
+#  endif /* CROSS_MINGW64 */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
   set_default_base_system (0, NULL);
 #ifdef PANEL
@@ -4298,9 +4289,6 @@ static void dps8_init (void) {
   initThreadz ();
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
 }
-
-
-
 
 #ifdef TESTING
 static struct pr_table
@@ -4327,7 +4315,7 @@ static struct pr_table
     {"pr[6]", 6},
     {"pr[7]", 7},
 
-    // from: ftp://ftp.stratus.com/vos/multics/pg/mvm.html
+    // See: https://multicians.org/pg/mvm.html
     {"ap",  0},
     {"ab",  1},
     {"bp",  2},
@@ -4340,25 +4328,23 @@ static struct pr_table
     {0,     0}
   };
 
-
-#ifndef SCUMEM
+# ifndef SCUMEM
 static int getAddress(int segno, int offset)
 {
     // XXX Do we need to 1st check SDWAM for segment entry?
-
 
     // get address of in-core segment descriptor word from DSBR
     sdw0_s *s = fetchSDW ((word15) segno);
 
     return (s->ADDR + (word18) offset) & 0xffffff; // keep to 24-bits
 }
-#endif // !SCUMEM
+# endif // !SCUMEM
 static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
                           const char **optr)
   {
-#ifdef SCUMEM
+# ifdef SCUMEM
     return 0;
-#else
+# else
     // a segment reference?
     if (strchr(cptr, '|'))
     {
@@ -4450,7 +4436,7 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
 
     // No, determine absolute address given by cptr
     return (t_addr)strtol(cptr, (char **) optr, 8);
-#endif // !SCUMEM
+# endif // !SCUMEM
 }
 #endif // TESTING
 
@@ -4612,7 +4598,6 @@ static t_stat sys_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
   }
 
 
-
 static MTAB sys_mod[] =
   {
     {
@@ -4647,7 +4632,6 @@ static MTAB sys_mod[] =
     },
     MTAB_eol
   };
-
 
 
 static t_stat sys_reset (UNUSED DEVICE  * dptr)
@@ -4693,13 +4677,13 @@ DEVICE * sim_devices[] =
     & iom_dev,
     & tape_dev,
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW32
-#ifndef CROSS_MINGW64
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW32
+#   ifndef CROSS_MINGW64
     & skc_dev,
-#endif /* ifndef CROSS_MINGW64 */
-#endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef __MINGW32__ */
+#   endif /* ifndef CROSS_MINGW64 */
+#  endif /* ifndef CROSS_MINGW32 */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
     & mtp_dev,
     & fnp_dev,
@@ -4715,13 +4699,13 @@ DEVICE * sim_devices[] =
     & pun_dev,
     & prt_dev,
 #ifndef __MINGW64__
-#ifndef __MINGW32__
-#ifndef CROSS_MINGW32
-#ifndef CROSS_MINGW64
+# ifndef __MINGW32__
+#  ifndef CROSS_MINGW32
+#   ifndef CROSS_MINGW64
     & absi_dev,
-#endif /* ifndef CROSS_MINGW64 */
-#endif /* ifndef CROSS_MINGW32 */
-#endif /* ifndef __MINGW32__ */
+#   endif /* ifndef CROSS_MINGW64 */
+#  endif /* ifndef CROSS_MINGW32 */
+# endif /* ifndef __MINGW32__ */
 #endif /* ifndef __MINGW64__ */
     NULL
   };

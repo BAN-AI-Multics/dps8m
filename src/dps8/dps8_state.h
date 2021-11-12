@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2021 Charles Anthony
+ * Copyright (c) 2019-2021 Charles Anthony
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * All rights reserved.
@@ -10,9 +10,9 @@
  */
 
 #ifndef API
-#define N_SYMBOLS 1024
+# define N_SYMBOLS 1024
 #else
-#define N_SYMBOLS 0
+# define N_SYMBOLS 0
 #endif
 
 #define SYMBOL_SZ 32

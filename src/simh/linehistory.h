@@ -34,41 +34,44 @@
  */
 
 #ifndef _POSIX_C_SOURCE
-#define _POSIX_C_SOURCE 200809L
-#endif
+# define _POSIX_C_SOURCE 200809L
+#endif /* ifndef _POSIX_C_SOURCE */
 
 #ifndef __LINENOISE_H
-#define __LINENOISE_H
+# define __LINENOISE_H
 
-#if !defined(__MINGW32__)   && \
-    !defined(CROSS_MINGW32) && \
-    !defined(CROSS_MINGW64) && \
-    !defined(__MINGW64__)   && \
-    !defined(_MSC_VER)      && \
-    !defined(_MSC_BUILD)
+# if !defined( __MINGW32__ )   \
+  && !defined( CROSS_MINGW32 ) \
+  && !defined( CROSS_MINGW64 ) \
+  && !defined( __MINGW64__ )   \
+  && !defined( _MSC_VER )      \
+  && !defined( _MSC_BUILD )
 
-#ifndef HAVE_LINEHISTORY
-#define HAVE_LINEHISTORY
-#endif /* ifndef HAVE_LINEHISTORY */
+#  ifndef HAVE_LINEHISTORY
+#   define HAVE_LINEHISTORY
+#  endif /* ifndef HAVE_LINEHISTORY */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#  include <stddef.h>
 
-#include <stddef.h>
-    
-typedef struct linenoiseCompletions {
+#  ifdef LH_COMPLETION
+typedef struct linenoiseCompletions
+{
   size_t len;
   char **cvec;
 } linenoiseCompletions;
 
-typedef void(linenoiseCompletionCallback)(const char *, linenoiseCompletions *);
-typedef char*(linenoiseHintsCallback)(const char *, int *color, int *bold);
-typedef void(linenoiseFreeHintsCallback)(void *);
+typedef void (linenoiseCompletionCallback) (const char *,
+                                            linenoiseCompletions *);
 void linenoiseSetCompletionCallback(linenoiseCompletionCallback *);
+void linenoiseAddCompletion(linenoiseCompletions *, const char *);
+#  endif /* ifdef LH_COMPLETION */
+
+#  ifdef LH_HINTS
+typedef void (linenoiseFreeHintsCallback) (void *);
+typedef char *(linenoiseHintsCallback)(const char *, int *color, int *bold);
 void linenoiseSetHintsCallback(linenoiseHintsCallback *);
 void linenoiseSetFreeHintsCallback(linenoiseFreeHintsCallback *);
-void linenoiseAddCompletion(linenoiseCompletions *, const char *);
+#  endif /* ifdef LH_HINTS */
 
 char *linenoise(const char *prompt);
 void linenoiseFree(void *ptr);
@@ -79,18 +82,16 @@ int linenoiseHistoryLoad(const char *filename);
 void linenoiseClearScreen(void);
 void linenoiseSetMultiLine(int ml);
 void linenoisePrintKeyCodes(void);
+#  ifdef LH_MASKMODE
 void linenoiseMaskModeEnable(void);
 void linenoiseMaskModeDisable(void);
+#  endif /* ifdef LH_MASKMODE */
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* if !defined(__MINGW32__)   && \
-             !defined(__MINGW64__)   && \
-             !defined(CROSS_MINGW32) && \
-             !defined(CROSS_MINGW64) && \
-             !defined(_MSC_VER)      && \
-             !defined(_MSC_BUILD) */
+# endif /* if !defined(__MINGW32__)   \
+           && !defined(__MINGW64__)   \
+           && !defined(CROSS_MINGW32) \
+           && !defined(CROSS_MINGW64) \
+           && !defined(_MSC_VER)      \
+              !defined(_MSC_BUILD) */
 
 #endif /* if __LINENOISE_H */

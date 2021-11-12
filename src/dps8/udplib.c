@@ -35,11 +35,9 @@
    Except as contained in this notice, the name of Robert Armstrong shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from Robert Armstrong.
-
 */
 
 /*
-
   INTERFACE
 
    This module provides a simplified UDP socket interface.  These functions are
@@ -56,7 +54,6 @@
    MAXLINKS parameter.  Also, notice that all links are intrinsically full
    duplex and bidirectional - data can be sent and received in both directions
    independently.  Real modems and host cards were exactly the same.
-
 */
 
 #include <stdint.h>
@@ -72,7 +69,6 @@
 #include <netdb.h>
 #include <errno.h>
 #include <netinet/in.h>
-
 
 #include "udplib.h"
 #include "h316_imp.h"
@@ -501,7 +497,7 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
 
         // Copy the data to the H316 memory and we're done!
         //sim_debug (IMP_DBG_UDP, dptr, "link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pktlen);
-printf ("link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pktlen);
+printf ("link %lu - packet received (sequence=%lu, length=%lu)\n", (unsigned long)link, (unsigned long)pktseq, (unsigned long)pktlen);
         for (i = 0;  i < (implen < maxbuf ? implen : maxbuf);  ++ i)
           * pdata ++ = ntohs (pkt . data [i]);
         return implen;
@@ -514,9 +510,9 @@ printf ("link %d - packet received (sequence=%d, length=%d)\n", link, pktseq, pk
 //#define TEST
 #ifdef TEST
 
-#define CBUFSIZE        256
-#define SCPE_ARG -1
-#define SCPE_OK -1
+# define CBUFSIZE        256
+# define SCPE_ARG -1
+# define SCPE_OK -1
 
 /* sim_parse_addr       host:port
 
@@ -656,7 +652,7 @@ int main (int argc, char * argv [])
 
     while (1)
       {
-#define psz 17000
+# define psz 17000
         uint16_t pkt [psz];
         rc = udp_receive (linkno, pkt, psz);
         if (rc < 0)

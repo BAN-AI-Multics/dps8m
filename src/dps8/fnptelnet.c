@@ -9,7 +9,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-// XXX remember to call telnet_free on disconnect
 #include <stdio.h>
 
 #include "dps8.h"
@@ -236,12 +235,6 @@ void * ltnConnect3270 (uv_tcp_t * client)
 void ltnEOR (telnet_t * tclient)
   {
     telnet_iac (tclient, TELNET_EOR);
-  }
-
-void ltnRaw (UNUSED telnet_t * tclient)
-  {
-    //telnet_negotiate (tclient, TELNET_WILL, TELNET_TELOPT_SGA);
-    //telnet_negotiate (tclient, TELNET_WILL, TELNET_TELOPT_ECHO);
   }
 
 void ltnDialout (UNUSED telnet_t * tclient)

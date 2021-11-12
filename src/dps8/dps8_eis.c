@@ -13,14 +13,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-/**
- * file dps8_eis.c
- * project dps8
- * date 12/31/12
- * copyright Copyright (c) 2012 Harry Reed. All rights reserved.
- * brief EIS support code...
-*/
-
 #ifdef EIS_PTR
 // Cached operand data...
 //  Alphanumeric Operand
@@ -308,7 +300,7 @@ static word36 put9 (word36 w, int pos, word9 c)
     return 0;
   }
 
-/**
+/*
  * get register value indicated by reg for Address Register operations
  * (not for use with address modifications)
  */
@@ -736,13 +728,13 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 #if 0
 static void EISReadN (EISaddr * p, uint N, word36 *dst)
   {
-#ifdef EIS_PTR
+# ifdef EIS_PTR
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
     sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadN addr %06o N %u\n", cpu.du.Dk_PTR_W[eisaddr_idx], N);
-#else
+# else
     sim_debug (DBG_TRACEEXT, & cpu_dev, "EISReadN addr %06o N %u\n", p->address, N);
-#endif
+# endif
     for (uint n = 0; n < N; n ++)
       {
         * dst ++ = EISReadIdx (p, n);
@@ -1166,7 +1158,7 @@ static void setupOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
         // Bits 18-28,30, 31 MBZ
         if (opDesc & 0000000777660)
           {
-#if 0 // fix 2nd fail
+# if 0 // fix 2nd fail
 sim_printf ("setupOperandDescriptor %012"PRIo64"\n", opDesc);
 sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
             if (cpu.currentInstruction.opcode == 0305 && // dtb
@@ -1178,7 +1170,7 @@ sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
                                     ((_fault_subtype) {.fault_ipr_subtype=FR_ILL_PROC}).bits),
                   "setupOperandDescriptor 18-28,30, 31 MBZ");
               }
-#endif
+# endif
             doFault (FAULT_IPR, fst_ill_mod, "setupOperandDescriptor 18-28,30, 31 MBZ");
           }
 #endif
@@ -1714,12 +1706,10 @@ static void parseNumericOperandDescriptor (int k, fault_ipr_subtype_ *mod_fault)
 #endif
 
 // Causes:
-//DBG(662088814)> CPU0 FAULT: Fault 10(012), sub 4294967296(040000000000), dfc N, 'parseNumericOperandDescriptor N=1 S=0|1|2'^M
-//DBG(662088814)> CPU0 FAULT: 00257:004574 bound_process_env_:command_query_+04574^M
-//DBG(662088814)> CPU0 FAULT:       664 end print_question;^M
-//DBG(662088814)> CPU0 FAULT: 00257:004574 4 000100301500 (BTD PR0|100) 000100 301(1) 0 0 0 00^M
-
-
+//DBG(662088814)> CPU0 FAULT: Fault 10(012), sub 4294967296(040000000000), dfc N, 'parseNumericOperandDescriptor N=1 S=0|1|2'
+//DBG(662088814)> CPU0 FAULT: 00257:004574 bound_process_env_:command_query_+04574
+//DBG(662088814)> CPU0 FAULT:       664 end print_question;
+//DBG(662088814)> CPU0 FAULT: 00257:004574 4 000100301500 (BTD PR0|100) 000100 301(1) 0 0 0 00
 
     uint effBITNO = 0;
     uint effCHAR = 0;
@@ -2210,12 +2200,12 @@ sim_printf ("abd r 0%o %d.\n", r, r);
 if (current_running_cpu_idx)
 sim_printf ("abd r 0%o %d.\n", r, r);
 
-#define SEPARATE
+# define SEPARATE
 
     uint augend = 0; // in bits
-#ifdef SEPARATE
+# ifdef SEPARATE
     uint bitno = 0;
-#endif
+# endif
 
     if (GET_A (cpu.cu.IWB))
       {
@@ -2224,20 +2214,20 @@ if (current_running_cpu_idx)
 sim_printf ("abd ARn %d WORDNO %o CHAR %o BITNO %0o %d. PR_BITNO %0o %d.\n", ARn, cpu.PAR[ARn].WORDNO, cpu.PAR[ARn].CHAR, cpu.PAR[ARn].BITNO, cpu.PAR[ARn].BITNO, GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
        sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "abd ARn %d WORDNO %o BITNO %0o %d.\n", ARn, cpu.PAR[ARn].WORDNO, GET_AR_BITNO (ARn), GET_AR_BITNO (ARn));
 
-#ifdef SEPARATE
+# ifdef SEPARATE
         //augend = cpu.AR[ARn].WORDNO * 36 + cpu.AR[ARn].CHAR * 9;
         //bitno = cpu.AR[ARn].BITNO;
         augend = cpu.AR[ARn].WORDNO * 36 + GET_AR_CHAR (ARn) * 9;
         bitno = GET_AR_BITNO (ARn);
-#else
+# else
         augend = cpu.AR [ARn].WORDNO * 36 + GET_AR_CHARNO (ARn) * 9 + GET_AR_BITNO (ARn);
-#endif
+# endif
       }
 
 if (current_running_cpu_idx)
 sim_printf ("abd augend 0%o %d.\n", augend, augend);
 
-#ifdef SEPARATE
+# ifdef SEPARATE
     if (GET_A (cpu.cu.IWB))
       {
 
@@ -2285,7 +2275,7 @@ sim_printf ("abd r 0%o %d.\n", r, r);
       {
         cpu.AR[ARn].BITNO = (r % 9) & MASK4;
       }
-#endif
+# endif
 
     int32_t addend = address * 36 + r;
 
@@ -2296,8 +2286,6 @@ sim_printf ("abd addend 0%o %d.\n", addend, addend);
 
 if (current_running_cpu_idx)
 sim_printf ("abd sum 0%o %d.\n", sum, sum);
-
-
 
     // Handle over/under flow
     while (sum < 0)
@@ -2310,14 +2298,14 @@ sim_printf ("abd sum 0%o %d.\n", sum, sum);
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "abd augend 0%o addend 0%o sum 0%o\n", augend, addend, sum);
 
     cpu.AR[ARn].WORDNO = (sum / 36) & AMASK;
-#ifdef SEPARATE
+# ifdef SEPARATE
     //cpu.AR[ARn].CHAR = (sum / 9) & MASK2;
     SET_AR_CHAR_BITNO (ARn, (sum / 9) & MASK2, GET_AR_BITNO (ARn));
-#else
+# else
     // Fails ISOLTS
     //SET_PR_BITNO (ARn, sum % 36);
     SET_AR_CHAR_BITNO (ARn, (sum % 36) / 9, sum % 9);
-#endif
+# endif
     HDBGRegARW (ARn, "abd");
 
     // Fails boot
@@ -3930,11 +3918,11 @@ void tct (void)
     // 9-BIT CHARACTER    128 WORDS
 
     uint xlatSize = 0;   // size of xlation table in words .....
-#ifdef EIS_PTR3
+# ifdef EIS_PTR3
     switch (TA1)
-#else
+# else
     switch(e -> TA1)
-#endif
+# endif
     {
         case CTA4:
             xlatSize = 4;
@@ -4126,11 +4114,11 @@ void tctr (void)
     // 9-BIT CHARACTER    128 WORDS
 
     uint xlatSize = 0;   // size of xlation table in words .....
-#ifdef EIS_PTR3
+# ifdef EIS_PTR3
     switch (TA1)
-#else
+# else
     switch(e -> TA1)
-#endif
+# endif
     {
         case CTA4:
             xlatSize = 4;
@@ -5459,11 +5447,11 @@ static int mopINSA (void)
                 e->_faults |= FAULT_IPR;
                 return 0;
               }
-#ifdef EIS_PTR2
+# ifdef EIS_PTR2
             EISget49(&e->ADDR2, &e->mopPos, CTN9);
-#else
+# else
             EISget49(e->mopAddress, &e->mopPos, CTN9);
-#endif
+# endif
             e->mopTally -= 1;
           }
       }
@@ -5479,11 +5467,11 @@ static int mopINSA (void)
                 e->_faults |= FAULT_IPR;
                 return 0;
               }
-#ifdef EIS_PTR2
+# ifdef EIS_PTR2
             word9 c = EISget49(&e->ADDR2, &e->mopPos, CTN9);
-#else
+# else
             word9 c = EISget49(e->mopAddress, &e->mopPos, CTN9);
-#endif
+# endif
             writeToOutputBuffer(&e->out, 9, e->dstSZ, c);
             e->mopTally -= 1;
           }
@@ -5507,30 +5495,30 @@ static int mopINSA (void)
         {
             writeToOutputBuffer(&e->out, 9, e->dstSZ, e->editInsertionTable[1]);
 
-#ifdef EIS_PTR2
+# ifdef EIS_PTR2
             EISget49(&e->ADDR2, &e->mopPos, CTN9);
-#else
+# else
             EISget49(e->mopAddress, &e->mopPos, CTN9);
-#endif
+# endif
             e->mopTally -= 1;
         } else {
             // If ES is ON and IF = 0, then the 9-bit character immediately
             // following the INSB micro-instruction is moved to the receiving
             // field.
-#if 1
-#ifdef EIS_PTR2
+# if 1
+#  ifdef EIS_PTR2
             word9 c = EISget49(&e->ADDR2, &e->mopPos, CTN9);
-#else
+#  else
             word9 c = EISget49(e->mopAddress, &e->mopPos, CTN9);
-#endif
+#  endif
             writeToOutputBuffer(&e->out, 9, e->dstSZ, c);
-#else
-#ifdef EIS_PTR2
+# else
+#  ifdef EIS_PTR2
             writeToOutputBuffer(&e->out, 9, e->dstSZ, EISget49(&e->ADDR2, &e->mopPos, CTN9));
-#else
+#  else
             writeToOutputBuffer(&e->out, 9, e->dstSZ, EISget49(e->mopAddress, &e->mopPos, CTN9));
-#endif
-#endif
+#  endif
+# endif
             e->mopTally -= 1;
         }
 
@@ -6459,13 +6447,13 @@ static MOP_struct* EISgetMop (void)
 #else
         PNL (cpu.du.Dk_PTR_W[1] = (cpu.du.Dk_PTR_W[1] + 1) & AMASK);     // bump source to next address
         PNL (p->data = EISRead(e->mopAddress));   // read it from memory
-#ifdef EIS_PTR
+# ifdef EIS_PTR
         cpu.du.Dk_PTR_W[1] = (cpu.du.Dk_PTR_W[1] + 1) & AMASK;     // bump source to next address
         p->data = EISRead(e->mopAddress);   // read it from memory
-#else
+# else
         e->mopAddress->address = (e->mopAddress->address + 1) & AMASK;     // bump source to next address
         p->data = EISRead(e->mopAddress);   // read it from memory
-#endif
+# endif
 #endif
     }
 
@@ -6884,9 +6872,6 @@ void mvne (void)
 //000143  aa  6 00134 00 0012   desc9a    pr6|92,10           vcpu
 //
 // The desc8ls is sign-extending the -3.
-
-
-
 
     // initialize mop flags. Probably best done elsewhere.
     e->mopES = false; // End Suppression flag
@@ -8976,20 +8961,20 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpb(e->N1 > e->N2) i %d b1 %d b2fill %d\n"
 
 static void EISwrite4r(EISaddr *p, int *pos, word4 char4)
 {
-#ifdef EIS_PTR
+# ifdef EIS_PTR
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
-#endif
+# endif
     word36 w;
 
     if (*pos < 0)    // out-of-range?
     {
         *pos = 7;    // reset to 1st byte
-#ifdef EIS_PTR
+# ifdef EIS_PTR
         cpu.du.Dk_PTR_W[eisaddr_idx] = (cpu.du.Dk_PTR_W[eisaddr_idx] - 1) & AMASK;         // goto prev dstAddr in memory
-#else
+# else
         p->address = (p->address - 1) & AMASK;         // goto prev dstAddr in memory
-#endif
+# endif
     }
     w = EISRead(p);
 
@@ -9042,19 +9027,19 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 
 static void EISwrite9r(EISaddr *p, int *pos, word9 char9)
 {
-#ifdef EIS_PTR
+# ifdef EIS_PTR
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
-#endif
+# endif
     word36 w;
     if (*pos < 0)    // out-of-range?
     {
         *pos = 3;    // reset to 1st byte
-#ifdef EIS_PTR
+# ifdef EIS_PTR
         cpu.du.Dk_PTR_W[eisaddr_idx] = (cpu.du.Dk_PTR_W[eisaddr_idx] - 1) & AMASK;         // goto prev dstAddr in memory
-#else
+# else
         p->address = (p->address - 1) & AMASK;        // goto next dstAddr in memory
-#endif
+# endif
     }
 
     w = EISRead(p);      // read dst memory into w
@@ -9155,13 +9140,13 @@ static void EISwriteToOutputStringReverse (int k, word9 charToWrite, bool * ovf)
             //address += lastWordOffset;    // highest memory address
             PNL (cpu.du.Dk_PTR_W[k-1] += (word18) lastWordOffset);
             PNL (cpu.du.Dk_PTR_W[k-1] &= AMASK);
-#ifdef EIS_PTR
+# ifdef EIS_PTR
             cpu.du.Dk_PTR_W[k-1] += (word18) lastWordOffset;
             cpu.du.Dk_PTR_W[k-1] &= AMASK;
-#else
+# else
             e->addr[k-1].address += (word18) lastWordOffset;
             e->addr[k-1].address &= MASK18;
-#endif
+# endif
         }
 
         pos = lastChar;             // last character number
@@ -9703,10 +9688,10 @@ static int loadDec (EISaddr *p, int pos)
 {
     EISstruct * e = & cpu.currentEISinstruction;
     int128 x = 0;
-#ifdef EIS_PTR
+# ifdef EIS_PTR
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
-#endif
+# endif
 
     p->data = EISRead(p);    // read data word from memory
 
@@ -9721,11 +9706,11 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         if (pos > maxPos)   // overflows to next word?
         {   // yep....
             pos = 0;        // reset to 1st byte
-#if EIS_PTR
+# if EIS_PTR
             cpu.du.Dk_PTR_W[eisaddr_idx] = (cpu.du.Dk_PTR_W[eisaddr_idx] + 1) & AMASK;          // bump source to next address
-#else
+# else
             p->address = (p->address + 1) & AMASK;      // bump source to next address
-#endif
+# endif
             p->data = EISRead(p);    // read it from memory
         }
 
@@ -9850,10 +9835,10 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 static void EISwriteToBinaryStringReverse(EISaddr *p, int k)
 {
     EISstruct * e = & cpu.currentEISinstruction;
-#ifdef EIS_PTR
+# ifdef EIS_PTR
     long eisaddr_idx = EISADDR_IDX (p);
 if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
-#endif
+# endif
     /// first thing we need to do is to find out the last position is the buffer we want to start writing to.
 
     int N = (int) e->N[k-1];            // length of output buffer in native chars (4, 6 or 9-bit chunks)
@@ -9873,12 +9858,12 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 
     if (lastWordOffset > 0)           // more that the 1 word needed?
       {
-#ifdef EIS_PTR
+# ifdef EIS_PTR
         cpu.du.Dk_PTR_W[eisaddr_idx] += (word18) lastWordOffset;    // highest memory address
         cpu.du.Dk_PTR_W[eisaddr_idx] &= AMASK;
-#else
+# else
         p->address += (word18) lastWordOffset;    // highest memory address
-#endif
+# endif
       }
     int pos = lastChar;             // last character number
 
@@ -12038,9 +12023,9 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
     uInt cut=DECDPUN;           // downcounter per Unit
     uInt u=*up;                 // work
     uInt nib;                   // ..
-#if DECDPUN<=4
+# if DECDPUN<=4
     uInt temp;                  // ..
-#endif
+# endif
 
     if (dn->digits>length                  // too long ..
         ||(dn->bits & DECSPECIAL)) return NULL;   // .. or special -- hopeless
@@ -12058,14 +12043,14 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
                 u=*up;
                 cut=DECDPUN;
             }
-#if DECDPUN<=4
+# if DECDPUN<=4
             temp=(u*6554)>>16;         // fast /10
             nib=u-X10(temp);
             u=temp;
-#else
+# else
             nib=u%10;                  // cannot use *6554 trick :-(
             u=u/10;
-#endif
+# endif
             //obyte|=(nib<<4);
             obyte=nib & 255U;
             indigs--;
@@ -12412,7 +12397,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
     {
 
 
-#ifndef SPEED
+# ifndef SPEED
       int scale;
       char out[256], out2[256];
       if_sim_debug (DBG_TRACEEXT, & cpu_dev)
@@ -12425,7 +12410,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
               out[i] += '0';
           sim_printf("formatDecimal(DEBUG): out[]: '%s'\n", out);
         }
-#endif
+# endif
 
       if (s != CSFL)// && sf != 0)
         {
@@ -12442,7 +12427,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 
       PRINTDEC("fd(2:r2):", r2);
 
-#ifndef SPEED
+# ifndef SPEED
       if_sim_debug (DBG_TRACEEXT, & cpu_dev)
         {
           decBCDFromNumber((uint8_t *)out2, r2->digits, &scale, r2);
@@ -12452,10 +12437,8 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
           sim_debug (DBG_TRACEEXT, & cpu_dev,
                      "formatDecimal: adjLen=%d E=%d SF=%d S=%s TN=%s digits(r2)=%s E2=%d\n", adjLen, r->exponent, sf, CS[s], CTN[tn], out2, r2->exponent);
         }
-#endif
+# endif
     }
-
-
 
     int scale;
 
@@ -12466,7 +12449,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
     //bool ovr = (r->digits-sf) > adjLen;     // is integer portion too large to fit?
     bool ovr = r2->digits > adjLen;          // is integer portion too large to fit?
     bool trunc = r->digits > r2->digits;     // did we loose something along the way?
-
 
     // now let's check for overflows
     if (!ovr && !trunc)
@@ -12638,7 +12620,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 
             // display int of number
 
-#ifndef SPEED
+# ifndef SPEED
             if_sim_debug (DBG_TRACEEXT, & cpu_dev)
               {
                 decNumber _i;
@@ -12650,7 +12632,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                     outi[j] += '0';
                 sim_debug (DBG_TRACEEXT, & cpu_dev, "i=%s\n", outi);
               }
-#endif
+# endif
           } // R
         else
           {

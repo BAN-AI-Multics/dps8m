@@ -12,14 +12,6 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-//
-//  dps8_faults.c
-//  dps8
-//
-//  Created by Harry Reed on 6/11/13.
-//  Copyright (c) 2013 Harry Reed. All rights reserved.
-//
-
 #include <stdio.h>
 
 #include "dps8.h"
@@ -33,12 +25,10 @@
 #include "dps8_ins.h"
 #include "dps8_utils.h"
 #if defined(THREADZ) || defined(LOCKLESS)
-#include "threadz.h"
+# include "threadz.h"
 #endif
 
 #define DBG_CTR cpu.cycleCnt
-
-/* XXX(johnsonjh): ML */
 
 /*
  FAULT RECOGNITION
@@ -335,7 +325,7 @@ bit-28 tp inhibit interrupts
 */
 
 #ifdef LOOPTRC
-#include <time.h>
+# include <time.h>
 void elapsedtime (void);
 #endif
 
@@ -657,8 +647,8 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
         if (cpu . bTroubleFaultCycle)
           {
 #if !defined(THREADZ) && !defined(LOCKLESS)
-#ifndef PANEL
-#ifndef ROUND_ROBIN
+# ifndef PANEL
+#  ifndef ROUND_ROBIN
             if ((! sample_interrupts ()) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                      // break this logic
@@ -669,8 +659,8 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
                 //stop_reason = STOP_FLT_CASCADE;
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
-#endif
-#endif
+#  endif
+# endif
 #endif
           }
         else
@@ -700,10 +690,10 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
     sim_debug (DBG_FAULT, & cpu_dev,
                "Floating fault %d '%s'\n",
                fault_number, fault_msg);
-#ifndef SPEED
+# ifndef SPEED
     if_sim_debug (DBG_FAULT, & cpu_dev)
       traceInstruction (DBG_FAULT);
-#endif
+# endif
 
     if (fault_number < 1 || fault_number > 3)
       {
@@ -742,9 +732,9 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
     cpu.cu.OCB = 0;
     cpu.cu.OCALL = 0;
     cpu.cu.BOC = 0;
-#ifdef DPS8M
+# ifdef DPS8M
     cpu.cu.PTWAM_ER = 0;
-#endif
+# endif
     cpu.cu.CRT = 0;
     cpu.cu.RALR = 0;
     cpu.cu.SDWAM_ER = 0;
@@ -771,11 +761,11 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
 // EIS instructions are not used in fault/interrupt pairs, so the
 // only time an EIS instruction could be executing is during EXEC_cycle.
 // I am also assuming that only multi-word EIS instructions are of interest.
-#if 1
+# if 1
     SC_I_MIF (cpu.cycle == EXEC_cycle &&
         cpu.currentInstruction.info->ndes > 0);
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MIF %o\n", TST_I_MIF);
-#endif
+# endif
 
     // History registers
     // IHRRS; AL39 pg 47
@@ -796,9 +786,9 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
         // XXX Does the CU or FR need fixing? ticket #36
         if (cpu.bTroubleFaultCycle)
           {
-#if !defined(THREADZ) && !defined(LOCKLESS)
-#ifndef PANEL
-#ifndef ROUND_ROBIN
+# if !defined(THREADZ) && !defined(LOCKLESS)
+#  ifndef PANEL
+#   ifndef ROUND_ROBIN
             if ((! sample_interrupts ()) &&
                 (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                      // break this logic
@@ -809,9 +799,9 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
                 //stop_reason = STOP_FLT_CASCADE;
                 longjmp (cpu.jmpMain, JMP_STOP);
               }
-#endif
-#endif
-#endif
+#   endif
+#  endif
+# endif
           }
         else
           {
@@ -947,25 +937,25 @@ void doG7Fault (bool allowTR)
      if (cpu.FFV_faults & 1u)  // FFV + 2 OC TRAP
        {
          cpu.FFV_faults &= ~1u;
-#if defined(THREADZ) || defined(LOCKLESS)
+# if defined(THREADZ) || defined(LOCKLESS)
          unlock_scu ();
-#endif
+# endif
          do_FFV_fault (1, "OC TRAP");
        }
      if (cpu.FFV_faults & 2u)  // FFV + 4 CU HISTORY OVERFLOW TRAP
        {
          cpu.FFV_faults &= ~2u;
-#if defined(THREADZ) || defined(LOCKLESS)
+# if defined(THREADZ) || defined(LOCKLESS)
          unlock_scu ();
-#endif
+# endif
          do_FFV_fault (2, "CU HIST OVF TRAP");
        }
      if (cpu.FFV_faults & 4u)  // FFV + 6 ADR TRAP
        {
          cpu.FFV_faults &= ~4u;
-#if defined(THREADZ) || defined(LOCKLESS)
+# if defined(THREADZ) || defined(LOCKLESS)
          unlock_scu ();
-#endif
+# endif
          do_FFV_fault (3, "ADR TRAP");
        }
 #endif

@@ -21,12 +21,12 @@
 #     Build flag (ex: make V=1)             Description of build flag
 #    ###########################    #########################################
 #
-#                  V=1                  Enable verbose compilation output
-#                  W=1                  Enable extra compilation warnings
-#            TESTING=1                  Enable developmental testing code
-#        NO_LOCKLESS=1                  Enable (old) non-threaded MP mode
-#                L68=1                  Build as H6180/Level-68 simulator
-#              CROSS=MINGW64            Enable MinGW-64 cross-compilation
+#                  V=1                Enable verbose compilation output
+#                  W=1                Enable extra compilation warnings
+#            TESTING=1                Enable developmental testing code
+#        NO_LOCKLESS=1                Enable (old) non-threaded MP mode
+#                L68=1                Build as H6180/Level-68 simulator
+#              CROSS=MINGW64          Enable MinGW-64 cross-compilation
 #
 #    ********* The following flags are intended for development and *********
 #    ********* may have non-intuitive side-effects or requirements! *********
@@ -34,8 +34,6 @@
 #            TRACKER=1                  Adds instruction snapshot support
 #               HDBG=1                  Enables extended history debugger
 #        ROUND_ROBIN=1                  Support un-threaded multiple CPUs
-#             ISOLTS=1                  Support execution of ISOLTS tests
-#                WAM=1                  Enable PTW/SDW associative memory
 #           NEED_128=1                  Enable 128-bit types work-arounds
 #        USE_BUILDER="String"           Enable a custom "Built by" string
 #        USE_BUILDOS="String"           Enable a custom "Build OS" string
@@ -71,10 +69,22 @@ export MAKE_TOPLEVEL
 ###############################################################################
 # Build.
 
-.PHONY: build default all
-build default all:                                                            \
+.PHONY: build default all .rebuild.env
+build default all: .rebuild.env                                               \
     # build:    # Builds the DPS8/M simulator and tools
-	@$(MAKE) -C "src/dps8" "all"
+	@$(MAKE) -C "." ".rebuild.env";                                           \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);         \
+        $(MAKE) -C "src/dps8" "all"
+
+###############################################################################
+# blinkenLights2 (optional)
+
+.PHONY: blinkenLights2 .rebuild.env
+blinkenLights2: .rebuild.env                                                  \
+    # blinkenLights2:    # Builds the blinkenLights2 front panel
+	@$(MAKE) -C "." ".rebuild.env";                                           \
+      $(TEST) -f ".needrebuild" && $(RMF) blinkenLights2 || $(TRUE);          \
+        ( cd src/blinkenLights2 && ./blinkenLights2.build.sh )
 
 ###############################################################################
 # Install.
@@ -89,11 +99,12 @@ install:                                                                      \
 
 .PHONY: clean
 ifneq (,$(findstring clean,$(MAKECMDGOALS)))
-$(warn blah)
 .NOTPARALLEL: clean
 endif
 clean:                                                                        \
     # clean:    # Cleans up executable and object files
+	@$(RMF) ".needrebuild" || $(TRUE)
+	@$(RMF) ".rebuild.vne" || $(TRUE)
 	@$(MAKE) -C "src/dps8" "clean"
 
 ###############################################################################
@@ -105,6 +116,9 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 endif
 distclean: clean                                                              \
     # distclean:    # Cleans up tree to pristine conditions
+	@$(RMF) ".needrebuild" || $(TRUE)
+	@$(RMF) ".rebuild.env" || $(TRUE)
+	@$(RMF) ".rebuild.vne" || $(TRUE)
 	@$(MAKE) -C "src/dps8" "distclean"
 
 ###############################################################################
@@ -135,6 +149,12 @@ endif
 
 ###############################################################################
 
+ifneq (,$(wildcard src/Makefile.loc))
+  include src/Makefile.loc
+endif
+
+###############################################################################
+
 ifneq (,$(wildcard src/Makefile.dev))
   include src/Makefile.dev
 endif
@@ -151,17 +171,17 @@ endif
 help info:                                                                    \
     # help:    # Display this list of Makefile targets
 	@$(GREP) -E '^.* # .*:    # .*$$' $(MAKEFILE_LIST) 2> /dev/null         | \
-		$(AWK) 'BEGIN { FS = "    # " };                                      \
+        $(AWK) 'BEGIN { FS = "    # " };                                      \
           { printf "%s%-18s %-40s (%-19s)\n", $$1, $$2, $$3, $$1 }'           \
-		    2> /dev/null | $(CUT) -d ':' -f 2- 2> /dev/null                 | \
+            2> /dev/null | $(CUT) -d ':' -f 2- 2> /dev/null                 | \
               $(SED) -e 's/:\ \+)$$/)/' -e 's/XXXX:/\n/g' 2> /dev/null      | \
                 $(SED) -e 's/---- (.*)$$/------------\n/'                     \
-				 -e 's/:  )/)/g' -e 's/:       )/)/g'                         \
+                 -e 's/:  )/)/g' -e 's/:       )/)/g'                         \
                   -e 's/              ---/-------------/' 2> /dev/null      | \
                     $(GREP) -v 'GREP' 2> /dev/null                          | \
                       $(GREP) -v '_LIST' 2> /dev/null | $(SED) 's/^n//g'    | \
-					   $(SED) 's/n$$//g'                                   || \
-					    { $(PRINTF) '%s\n' "Error: Unable to display help.";  \
+                       $(SED) 's/n$$//g'                                   || \
+                        { $(PRINTF) '%s\n' "Error: Unable to display help.";  \
                           $(TRUE) > /dev/null 2>&1; }                      || \
                             $(TRUE) > /dev/null 2>&1
 	@$(PRINTF) '%s\n' "" 2> /dev/null || $(TRUE) > /dev/null 2>&1

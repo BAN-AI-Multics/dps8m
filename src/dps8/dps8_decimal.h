@@ -23,7 +23,7 @@
 
 #define PRINTDEC(msg, dn) \
     { \
-        if_sim_debug (DBG_TRACEEXT, & cpu_dev) /**/ \
+        if_sim_debug (DBG_TRACEEXT, & cpu_dev)  \
         { \
             char temp[256]; \
             decNumberToString(dn, temp); \
@@ -32,7 +32,7 @@
     }
 #define PRINTALL(msg, dn, set) \
     { \
-        if_sim_debug (DBG_TRACEEXT, & cpu_dev) /**/ \
+        if_sim_debug (DBG_TRACEEXT, & cpu_dev)  \
         sim_printf("%s:'%s E%d'\n", msg, getBCDn(dn, set->digits), dn->exponent);   \
     }
 

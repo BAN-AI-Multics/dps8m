@@ -9,7 +9,7 @@
  */
 
 #ifndef UTFILE_H
-#define UTFILE_H
+# define UTFILE_H
 
 int utfile_mkstemps(char *request_pattern, int suffix_length);
 

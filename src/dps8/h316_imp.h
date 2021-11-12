@@ -170,10 +170,10 @@ typedef struct _HIDB HIDB;
 
 // I can't believe Bob managed to live without these, but I can't!
 #ifndef LOBYTE  // these are in winsock.h too!
-#define LOBYTE(x)        ((uint8_t) ( (x)        & 0xFF))
-#define HIBYTE(x)        ((uint8_t) (((x) >> 8)  & 0xFF))
-#define MKWORD(h,l)     ((uint16_t) ( (((h)&0xFF) << 8)  |  ((l)&0xFF) ))
-#define LOWORD(x)       ((uint16_t) ( (x)        & 0xFFFF))
-#define HIWORD(x)       ((uint16_t) (((x) >> 16) & 0xFFFF))
-#define MKLONG(h,l)     ((uint32_t) ( (((h)&0xFFFF) << 16) | ((l)&0xFFFF) ))
+# define LOBYTE(x)        ((uint8_t) ( (x)        & 0xFF))
+# define HIBYTE(x)        ((uint8_t) (((x) >> 8)  & 0xFF))
+# define MKWORD(h,l)     ((uint16_t) ( (((h)&0xFF) << 8)  |  ((l)&0xFF) ))
+# define LOWORD(x)       ((uint16_t) ( (x)        & 0xFFFF))
+# define HIWORD(x)       ((uint16_t) (((x) >> 16) & 0xFFFF))
+# define MKLONG(h,l)     ((uint32_t) ( (((h)&0xFFFF) << 16) | ((l)&0xFFFF) ))
 #endif

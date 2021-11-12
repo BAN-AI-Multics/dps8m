@@ -32,7 +32,7 @@
  */
 
 #ifndef BSD_RANDOM_H
-#define BSD_RANDOM_H
+# define BSD_RANDOM_H
 
 long bsd_random(void);
 char *bsd_setstate(char *arg_state);

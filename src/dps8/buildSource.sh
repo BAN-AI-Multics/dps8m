@@ -23,7 +23,7 @@ TAPES=/home/cac/Projects/Multics/tapelib/
 ../tapeUtils/restore_tape $S3 $TAPES/88534.tap $TAPES/88631.tap
 ../tapeUtils/restore_tape $S3 $TAPES/98570.tap $TAPES/99019.tap
 ../tapeUtils/restore_tape $S3 $TAPES/88632.tap $TAPES/88633.tap \
-	$TAPES/88634.tap $TAPES/88635.tap $TAPES/88636.tap $TAPES/99020.tap
+  $TAPES/88634.tap $TAPES/88635.tap $TAPES/88636.tap $TAPES/99020.tap
 ../tapeUtils/restore_tape $S3 $TAPES/93085.tap
 
 ../tapeUtils/restore_tape $S5 $TAPES/20185.tap
@@ -279,8 +279,6 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/ask_.pl1 $S3/library_dir_dir/system_lib
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/nothing $S3/library_dir_dir/system_library_tools/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/nothing.alm $S3/library_dir_dir/system_library_tools/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/dfm_data.incl.pl1 $S3/library_dir_dir/include/
-
-
 
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_volume_retv_.s.archive $S3/library_dir_dir/system_library_tools/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_user_ctl_.s.archive $S3/library_dir_dir/system_library_tools/source/

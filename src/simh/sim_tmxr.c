@@ -32,7 +32,7 @@
    This library includes:
 
    tmxr_poll_conn -                     poll for connection
-   tmxr_reset_ln -                      reset line (drops Telnet/tcp and serial connections)
+   tmxr_reset_ln -                      reset line (drops connections)
    tmxr_detach_ln -                     reset line and close per line listener and outgoing destination
    tmxr_getc_ln -                       get character for line
    tmxr_get_packet_ln -                 get packet from line
@@ -43,14 +43,11 @@
    tmxr_put_packet_ln_ex -              put packet on line with separator byte
    tmxr_poll_tx -                       poll transmit
    tmxr_send_buffered_data -            transmit buffered data
-   tmxr_set_modem_control_passthru -    enable modem control on a multiplexer
-   tmxr_clear_modem_control_passthru -  disable modem control on a multiplexer
    tmxr_set_get_modem_bits -            set and/or get a line modem bits
    tmxr_set_line_loopback -             enable or disable loopback mode on a line
    tmxr_get_line_loopback -             returns the current loopback status of a line
    tmxr_set_line_halfduplex -           enable or disable halfduplex mode on a line
    tmxr_get_line_halfduplex -           returns the current halfduplex status of a line
-   tmxr_set_config_line -               set port speed, character size, parity and stop bits
    tmxr_open_master -                   open master connection
    tmxr_close_master -                  close master connection
    tmxr_attach  -                       attach terminal multiplexor to listening port
@@ -80,228 +77,9 @@
    tmxr_show_open_devices -             show info about all open tmxr devices
 
    All routines are OS-independent.
-
-
-    This library supports the simulation of multiple-line terminal multiplexers.
-    It may also be used to create single-line "multiplexers" to provide
-    additional terminals beyond the simulation console.  It may also be used to
-    create single-line or multi-line simulated synchronous (BiSync) devices.
-    Multiplexer lines may be connected to terminal emulators supporting the
-    Telnet protocol via sockets, or to hardware terminals via host serial
-    ports.  Concurrent Telnet and serial connections may be mixed on a given
-    multiplexer.
-
-    When connecting via sockets, the simulated multiplexer is attached to a
-    listening port on the host system:
-
-      sim> attach MUX 23
-      Listening on port 23
-
-    Once attached, the listening port must be polled for incoming connections.
-    When a connection attempt is received, it will be associated with the next
-    multiplexer line in the user-specified line order, or with the next line in
-    sequence if no order has been specified.  Individual lines may be connected
-    to serial ports or remote systems via TCP (telnet or not as desired), OR
-    they may have separate listening TCP ports.
-
-    Logging of Multiplexer Line output:
-
-    The traffic going out multiplexer lines can be logged to files.  A single
-    line multiplexer can log it's traffic with the following command:
-
-        sim> atta MUX 23,Log=LogFileName
-        sim> atta MUX Connect=ser0,Log=LogFileName
-
-    Specifying a Log value for a multi-line multiplexer is specifying a
-    template filename.  The actual file name used for each line will be
-    the indicated filename with _n appended (n being the line number).
-
-    Buffered Multiplexer Line:
-
-    A Multiplexer Line Buffering has been implemented.  A Buffered Line will
-    have a copy of the last 'buffer size' bytes of output retained in a line
-    specific buffer.  The contents of this buffer will be transmitted out any
-    new connection on that line when a new telnet session is established.
-
-    This capability is most useful for the Console Telnet session.  When a
-    Console Telnet session is Buffered, a simulator will start (via BOOT CPU
-    or whatever is appropriate for a particular simulator) without needing to
-    have an active telnet connection.  When a Telnet connection comes along
-    for the telnet port, the contents of the saved buffer (which wraps on
-    overflow) are presented on the telnet session as output before session
-    traffic.  This allows the connecting telnet client to see what happened
-    before he connected since the likely reason he might be connecting to the
-    console of a background simulator is to troubleshoot unusual behavior,
-    the details of which may have already been sent to the console.
-
-    Serial Port support:
-
-    Serial ports may be specified as an operating system specific device names
-    or using simh generic serial names.  simh generic names are of the form
-    serN, where N is from 0 thru one less than the maximum number of serial
-    ports on the local system.  The mapping of simh generic port names to OS
-    specific names can be displayed using the following command:
-
-        sim> show serial
-        Serial devices:
-         ser0   COM1 (\Device\Serial0)
-         ser1   COM3 (Winachcf0)
-
-        sim> attach MUX Line=2,Connect=ser0
-
-    or equivalently
-
-        sim> attach MUX Line=2,Connect=COM1
-
-    An optional configuration string may be present after the port name.  If
-    present, it must be separated from the port name with a semicolon and has
-    this form:
-
-       <rate>-<charsize><parity><stopbits>
-
-    where:
-
-      rate     = communication rate in bits per second
-      charsize = character size in bits (5-8, including optional parity)
-      parity   = parity designator (N/E/O/M/S for no/even/odd/mark/space parity)
-      stopbits = number of stop bits (1, 1.5, or 2)
-
-     As an example:
-
-        9600-8n1
-
-    The supported rates, sizes, and parity options are host-specific.  If
-    a configuration string is not supplied, then the default of 9600-8N1
-    is used.
-
-    An attachment to a serial port with the '-V' switch will cause a
-    connection message to be output to the connected serial port.
-    This will help to confirm the correct port has been connected and
-    that the port settings are reasonable for the connected device.
-    This would be done as:
-
-        sim> attach -V MUX Connect=SerN
-
-
-    Line specific tcp listening ports are supported.  These are configured
-    using commands of the form:
-
-        sim> attach MUX Line=2,port{;notelnet}
-
-    Direct computer to computer connections (Virutal Null Modem cables) may
-    be established using the telnet protocol or via raw tcp sockets.
-
-        sim> attach MUX Line=2,Connect=host:port{;notelnet}
-
-    Computer to computer virtual connections can be one way (as illustrated
-    above) or symmetric.  A symmetric connection is configured by combining
-    a one way connection with a tcp listening port on the same line:
-
-        sim> attach MUX Line=2,Connect=host:port,listenport
-
-    When symmetric virtual connections are configured, incoming connections
-    on the specified listening port are checked to assure that they actually
-    come from the specified connection destination host system.
-
-
-
-     The command syntax for a single line device (MX) is:
-
-        sim> attach MX port{;notelnet}
-        sim> attach MX Connect=serN{;config}
-        sim> attach MX Connect=COM9{;config}
-        sim> attach MX Connect=host:port{;notelnet}
-
-     The command syntax for ANY multi-line device is:
-
-        sim> attach MX port{;notelnet}              ; Defines the master listening port for the mux and optionally allows non-telnet (i.e. raw socket) operation for all lines.
-        sim> attach MX Line=n,port{;notelnet}       ; Defines a line specific listen port for a particular line. Each line can have a separate listen port and the mux can have its own as well.  Optionally disable telnet wire protocol (i.e. raw socket)
-        sim> attach MX Line=n,Connect=serN{;config} ; Connects line n to simh generic serial port N (port list visible with the sim> SHOW SERIAL command), the optional ";config" data specifies the speed, parity and stop bits for the connection
-                                                    ; DTR (and RTS) will be raised at attach time and will drop at detach/disconnect time
-        sim> attach MX Line=n,Connect=host:port{;notelnet} ; Causes a connection to be established to the designated host:port.  The actual connection will happen in a non-blocking fashion and will be completed and/or re-established by the normal tmxr_poll_conn activities
-
-     All connections configured for any multiplexer device are unconfigured by:
-
-        sim> detach MX                              ; detaches ALL connections/ports/sessions on the MUX.
-
-    Console serial connections are achieved by:
-
-        sim> set console serial=serN{;config}
-    or
-        sim> set console serial=COM2{;config}
-
-    A line specific listening port (12366) can be specified by the following:
-
-        sim> attach MUX Line=2,12366
-
-    A line specific remote telnet (or raw tcp) destination can be specified
-    by the following:
-
-        sim> attach MUX Line=2,Connect=remotehost:port
-
-    If a connection to a remotehost:port wants a raw binary data channel
-    (instead of a telnet session) the following would be used:
-
-        sim> attach MUX Line=2,Connect=remotehost:port;notelnet
-
-    A single line multiplexor can indicate any of the above line options
-    without specifying a line number:
-
-        sim> attach MUX Connect=ser0;9600-8N1
-        sim> attach MUX 12366
-        sim> attach MUX Connect=remotehost:port
-        sim> attach MUX Connect=remotehost:port;notelnet
-
-    A multiplexor can disconnect all (telnet, serial and outgoing) previous
-    attachments with:
-
-        sim> detach MUX
-
-   A device emulation may choose to implement a command interface to
-   disconnect specific individual lines.  This would usually be done via
-   a Unit Modifier table entry (MTAB) which dispatches the command
-   "SET dev DISCONNECT[=line]" to tmxr_dscln.  This will cause a telnet
-   connection to be closed, but a serial port will normally have DTR
-   dropped for 500ms and raised again (thus hanging up a modem on that
-   serial port).
-
-     sim> set MUX disconnect=2
-
-   A line which is connected to a serial port can be manually closed by
-   adding the -C switch to a disconnect command.
-
-     sim> set -C MUX disconnect=2
-
-    Full Modem Control serial port support.
-
-    This library supports devices which wish to emulate full modem
-    control/signalling for serial ports.  Any device emulation which wishes
-    to support this functionality for attached serial ports must call
-    "tmxr_set_modem_control_passthru" before any call to tmxr_attach.
-    This disables automatic DTR (&RTS) manipulation by this library.
-    Responsibility for manipulating DTR falls on the simulated operating
-    system.  Calling tmxr_set_modem_control_passthru would usually be in
-    a device reset routine.  It may also be called by a device attach
-    routine based on user specified options.
-    Once support for full modem control has been declared by a device
-    emulation for a particular TMXR device, this library will make no
-    direct effort to manipulate modem bits while connected to serial ports.
-    The "tmxr_set_get_modem_bits" API exists to allow the device emulation
-    layer to query and control modem signals.  The "tmxr_set_config_line"
-    API exists to allow the device emulation layer to change port settings
-    (baud rate, parity and stop bits).  A modem_control enabled line
-    merely passes the VM's port status bits, data and settings through to
-    and from the serial port.
-
-    The "tmxr_set_get_modem_bits" and "tmxr_set_config_line" APIs will
-    ONLY work on a modem control enabled TMXR device.
-
 */
 
-#define NOT_MUX_USING_CODE /* sim_tmxr library define */
-
 #include "sim_defs.h"
-#include "sim_serial.h"
 #include "sim_sock.h"
 #include "sim_timer.h"
 #include "sim_tmxr.h"
@@ -407,7 +185,7 @@ static u_char mantra[] = {                  /* Telnet Option Negotiation Mantra 
     TN_IAC, TN_DO, TN_BIN
     };
 
-#define TMXR_GUARD  ((int32)(lp->serport ? 1 : sizeof(mantra)))/* buffer guard */
+#define TMXR_GUARD  ((sizeof(mantra))) /* buffer guard */
 
 /* Local routines */
 
@@ -630,10 +408,6 @@ return loop_read_ex (lp, buf, bufsize);
    line "lp".  The actual number of characters read is returned.  If no
    characters are available, 0 is returned.  If an error occurred while reading,
    -1 is returned.
-
-   If a line break was detected on serial input, the associated receive break
-   status flag will be set.  Line break indication for Telnet connections is
-   embedded in the Telnet protocol and must be determined externally.
 */
 
 static int32 tmxr_read (TMLN *lp, int32 length)
@@ -642,8 +416,6 @@ int32 i = lp->rxbpi;
 
 if (lp->loopback)
     return loop_read (lp, &(lp->rxb[i]), length);
-if (lp->serport)                                        /* serial port connection? */
-    return sim_read_serial (lp->serport, &(lp->rxb[i]), length, &(lp->rbr[i]));
 else                                                    /* Telnet connection */
     return sim_read_sock (lp->sock, &(lp->rxb[i]), length);
 }
@@ -662,27 +434,17 @@ int32 written;
 int32 i = lp->txbpr;
 
 if (lp->loopback)
-    return loop_write (lp, &(lp->txb[i]), length);
+  return loop_write (lp, &(lp->txb[i]), length);
 
-if (lp->serport) {                                      /* serial port connection? */
-    if (sim_gtime () < lp->txnexttime)
-        return 0;
-    written = sim_write_serial (lp->serport, &(lp->txb[i]), length);
-    if (written > 0)
-        lp->txnexttime = floor (sim_gtime () + (lp->txdelta * sim_timer_inst_per_sec ()));
-    return written;
-    }
-else {                                                  /* Telnet connection */
-    written = sim_write_sock (lp->sock, &(lp->txb[i]), length);
+written = sim_write_sock (lp->sock, &(lp->txb[i]), length);
 
-    if (written == SOCKET_ERROR)                        /* did an error occur? */
-        if (lp->datagram)
-            return written;                             /* ignore errors on datagram sockets */
-        else
-            return -1;                                  /* return error indication */
-    else
-        return written;
-    }
+if (written == SOCKET_ERROR)                        /* did an error occur? */
+  if (lp->datagram)
+    return written;                             /* ignore errors on datagram sockets */
+  else
+    return -1;                                  /* return error indication */
+else
+  return written;
 }
 
 
@@ -882,13 +644,6 @@ if (lp->destination || lp->port || lp->txlogname) {
     if (lp->port)
         sprintf (growstring(&tptr, 32 + strlen (lp->port)), ",%s%s", lp->port, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
     if (lp->destination) {
-        if (lp->serport) {
-            char portname[CBUFSIZE];
-
-            get_glyph_nc (lp->destination, portname, ';');
-            sprintf (growstring(&tptr, 25 + strlen (lp->destination)), ",Connect=%s%s%s", portname, strcmp("9600-8N1", lp->serconfig) ? ";" : "", strcmp("9600-8N1", lp->serconfig) ? lp->serconfig : "");
-            }
-        else
             sprintf (growstring(&tptr, 25 + strlen (lp->destination)), ",Connect=%s%s", lp->destination, ((lp->mp->notelnet != lp->notelnet) && (!lp->datagram)) ? (lp->notelnet ? ";notelnet" : ";telnet") : "");
         }
     if (lp->txlogname)
@@ -903,18 +658,6 @@ if (*tptr == '\0') {
 return tptr;
 }
 
-/*
-
-Set the connection polling interval
-
-*/
-t_stat tmxr_connection_poll_interval (TMXR *mp, uint32 seconds)
-{
-if (0 == seconds)
-    return SCPE_ARG;
-mp->poll_interval = seconds;
-return SCPE_OK;
-}
 
 /* Poll for new connection
 
@@ -928,19 +671,19 @@ return SCPE_OK;
    If a connection order is defined for the descriptor, and the first value is
    not -1 (indicating default order), then the order array is used to find an
    open line.  Otherwise, a search is made of all lines in numerical sequence.
-
 */
 
 int32 tmxr_poll_conn (TMXR *mp)
 {
 SOCKET newsock;
-TMLN *lp;
+TMLN *lp = NULL;
 int32 *op;
 int32 i, j;
 char *address;
 char msg[512];
 uint32 poll_time = sim_os_msec ();
 
+(void)lp;
 memset (msg, 0, sizeof (msg));
 if (mp->last_poll_time == 0) {                          /* first poll initializations */
     UNIT *uptr = mp->uptr;
@@ -1083,8 +826,6 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
     int j, r = rand();
     lp = mp->ldsc + i;                                  /* get pointer to line descriptor */
 
-    /* Check for pending serial port connection notification */
-
     if (lp->ser_connect_pending) {
         lp->ser_connect_pending = FALSE;
         lp->conn = TRUE;
@@ -1200,7 +941,7 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
 
     /* Check for needed outgoing connection initiation */
 
-    if (lp->destination && (!lp->sock) && (!lp->connecting) && (!lp->serport) &&
+    if (lp->destination && (!lp->sock) && (!lp->connecting) && 
         (!lp->modem_control || (lp->modembits & TMXR_MDM_DTR))) {
         snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - establishing outgoing connection to: %s", lp->destination);
         tmxr_debug_connect_line (lp, msg);
@@ -1214,14 +955,7 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
 return -1;                                              /* no new connections made */
 }
 
-/* Reset a line.
-
-   The telnet/tcp or serial session associated with multiplexer descriptor "mp" and
-   line descriptor "lp" is disconnected.  An associated tcp socket is
-   closed; a serial port is closed if the closeserial parameter is true, otherwise
-   for non modem control serial lines DTR is dropped and raised again after 500ms
-   to signal the attached serial device.
-*/
+/* Reset a line. */
 
 static t_stat tmxr_reset_ln_ex (TMLN *lp, t_bool closeserial)
 {
@@ -1237,26 +971,6 @@ tmxr_send_buffered_data (lp);                           /* send any buffered dat
 snprintf (msg, sizeof(msg)-1, "tmxr_reset_ln_ex(%s)", closeserial ? "TRUE" : "FALSE");
 tmxr_debug_connect_line (lp, msg);
 
-if (lp->serport) {
-    if (closeserial) {
-        sim_close_serial (lp->serport);
-        lp->serport = 0;
-        lp->ser_connect_pending = FALSE;
-        free (lp->destination);
-        lp->destination = NULL;
-        free (lp->serconfig);
-        lp->serconfig = NULL;
-        lp->cnms = 0;
-        lp->xmte = 1;
-        }
-    else
-        if (!lp->modem_control) {                       /* serial connection? */
-            sim_control_serial (lp->serport, 0, TMXR_MDM_DTR|TMXR_MDM_RTS, NULL);/* drop DTR and RTS */
-            sim_os_ms_sleep (TMXR_DTR_DROP_TIME);
-            sim_control_serial (lp->serport, TMXR_MDM_DTR|TMXR_MDM_RTS, 0, NULL);/* raise DTR and RTS */
-            }
-    }
-else                                                    /* Telnet connection */
     if (lp->sock) {
         sim_close_sock (lp->sock);                      /* close socket */
         free (lp->telnet_sent_opts);
@@ -1268,7 +982,8 @@ else                                                    /* Telnet connection */
         }
 free(lp->ipad);
 lp->ipad = NULL;
-if ((lp->destination) && (!lp->serport)) {
+if ((lp->destination)
+) {
     if (lp->connecting) {
         sim_close_sock (lp->connecting);
         lp->connecting = 0;
@@ -1298,78 +1013,6 @@ tmxr_debug_trace_line (lp, "tmxr_reset_ln()");
 return tmxr_reset_ln_ex (lp, FALSE);
 }
 
-/* Enable modem control pass thru
-
-   Inputs:
-        none
-
-   Output:
-        none
-
-   Implementation note:
-
-    1  Calling this API disables any actions on the part of this
-       library to directly manipulate DTR (&RTS) on serial ports.
-
-    2  Calling this API enables the tmxr_set_get_modem_bits and
-       tmxr_set_config_line APIs.
-
-*/
-static t_stat tmxr_clear_modem_control_passthru_state (TMXR *mp, t_bool state)
-{
-int i;
-
-if (mp->modem_control == state)
-    return SCPE_OK;
-if (mp->master)
-    return SCPE_ALATT;
-for (i=0; i<mp->lines; ++i) {
-    TMLN *lp;
-
-    lp = mp->ldsc + i;
-    if ((lp->master)     ||
-        (lp->sock)       ||
-        (lp->connecting) ||
-        (lp->serport))
-        return SCPE_ALATT;
-    }
-mp->modem_control = state;
-for (i=0; i<mp->lines; ++i)
-    mp->ldsc[i].modem_control = state;
-return SCPE_OK;
-}
-
-t_stat tmxr_set_modem_control_passthru (TMXR *mp)
-{
-return tmxr_clear_modem_control_passthru_state (mp, TRUE);
-}
-
-/* Disable modem control pass thru
-
-   Inputs:
-        none
-
-   Output:
-        none
-
-   Implementation note:
-
-    1  Calling this API enables this library's direct manipulation
-       of DTR (&RTS) on serial ports.
-
-    2  Calling this API disables the tmxr_set_get_modem_bits and
-       tmxr_set_config_line APIs.
-
-    3  This API will only change the state of the modem control processing
-       of this library if there are no listening ports, serial ports or
-       outgoing connecctions associated with the specified multiplexer
-
-*/
-t_stat tmxr_clear_modem_control_passthru (TMXR *mp)
-{
-return tmxr_clear_modem_control_passthru_state (mp, FALSE);
-}
-
 /* Manipulate the modem control bits of a specific line
 
    Inputs:
@@ -1381,13 +1024,6 @@ return tmxr_clear_modem_control_passthru_state (mp, FALSE);
         incoming_bits   if non NULL, returns the current stat of DCD,
                         RNG, CTS and DSR along with the current state
                         of DTR and RTS
-
-   Implementation note:
-
-       If a line is connected to a serial port, then these values affect
-       and reflect the state of the serial port.  If the line is connected
-       to a network socket (or could be) then the network session state is
-       set, cleared and/or returned.
 */
 t_stat tmxr_set_get_modem_bits (TMLN *lp, int32 bits_to_set, int32 bits_to_clear, int32 *incoming_bits)
 {
@@ -1403,7 +1039,8 @@ if ((bits_to_set & ~(TMXR_MDM_OUTGOING)) ||         /* Assure only settable bits
 before_modem_bits = lp->modembits;
 lp->modembits |= bits_to_set;
 lp->modembits &= ~(bits_to_clear | TMXR_MDM_INCOMING);
-if ((lp->sock) || (lp->serport) || (lp->loopback)) {
+if ((lp->sock)
+   || (lp->loopback)) {
     if (lp->modembits & TMXR_MDM_DTR) {
         incoming_state = TMXR_MDM_DSR;
         if (lp->modembits & TMXR_MDM_RTS)
@@ -1477,8 +1114,6 @@ if (lp->mp && lp->modem_control) {                  /* This API ONLY works on mo
                 }
             return SCPE_OK;
             }
-        if (lp->serport)
-            return sim_control_serial (lp->serport, bits_to_set, bits_to_clear, incoming_bits);
         if ((lp->sock) || (lp->connecting)) {
             if ((before_modem_bits & bits_to_clear & TMXR_MDM_DTR) != 0) { /* drop DTR? */
                 if (lp->sock)
@@ -1509,8 +1144,6 @@ if ((lp->sock) || (lp->connecting)) {
         tmxr_reset_ln (lp);
         }
     }
-if ((lp->serport) && (!lp->loopback))
-    sim_control_serial (lp->serport, 0, 0, incoming_bits);
 return SCPE_INCOMP;
 }
 
@@ -1522,14 +1155,6 @@ return SCPE_INCOMP;
 
    Output:
         none
-
-   Implementation note:
-
-    1) When enabling loopback mode, this API will disconnect any currently
-       connected TCP or Serial session.
-    2) When disabling loopback mode, prior network connections and/or
-       serial port connections will be restored.
-
 */
 t_stat tmxr_set_line_loopback (TMLN *lp, t_bool enable_loopback)
 {
@@ -1582,28 +1207,6 @@ t_bool tmxr_get_line_halfduplex (TMLN *lp)
 {
 return (lp->halfduplex != FALSE);
 }
-
-t_stat tmxr_set_config_line (TMLN *lp, CONST char *config)
-{
-t_stat r;
-
-tmxr_debug_trace_line (lp, "tmxr_set_config_line()");
-if (lp->serport)
-    r = sim_config_serial (lp->serport, config);
-else {
-    lp->serconfig = (char *)realloc (lp->serconfig, 1 + strlen (config));
-    strcpy (lp->serconfig, config);
-    r = tmxr_set_line_speed (lp, lp->serconfig);;
-    if (r != SCPE_OK) {
-        free (lp->serconfig);
-        lp->serconfig = NULL;
-        }
-    }
-if ((r == SCPE_OK) && (lp->mp) && (lp->mp->uptr))   /* Record port state for proper restore */
-    lp->mp->uptr->filename = tmxr_mux_attach_string (lp->mp->uptr->filename, lp->mp);
-return r;
-}
-
 
 /* Get character from specific line
 
@@ -1739,7 +1342,8 @@ TMLN *lp;
 tmxr_debug_trace (mp, "tmxr_poll_rx()");
 for (i = 0; i < mp->lines; i++) {                       /* loop thru lines */
     lp = mp->ldsc + i;                                  /* get line desc */
-    if (!(lp->sock || lp->serport || lp->loopback) ||
+    if (!(lp->sock
+        || lp->loopback) ||
         !(lp->rcve))                                    /* skip if not connected */
         continue;
 
@@ -2011,7 +1615,7 @@ if ((lp->conn == FALSE) &&                              /* no conn & not buffere
     return SCPE_LOST;
     }
 tmxr_debug_trace_line (lp, "tmxr_putc_ln()");
-#define TXBUF_AVAIL(lp) ((lp->serport ? 2: lp->txbsz) - tmxr_tqln (lp))
+#define TXBUF_AVAIL(lp) (lp->txbsz - tmxr_tqln (lp))
 #define TXBUF_CHAR(lp, c) {                               \
     lp->txb[lp->txbpi++] = (char)(c);                     \
     lp->txbpi %= lp->txbsz;                               \
@@ -2215,16 +1819,6 @@ if (close_connecting) {
         tmxr_reset_ln (lp);
         }
     }
-if (lp->serport) {                          /* close current serial connection */
-    tmxr_reset_ln (lp);
-    sim_control_serial (lp->serport, 0, TMXR_MDM_DTR|TMXR_MDM_RTS, NULL);/* drop DTR and RTS */
-    sim_close_serial (lp->serport);
-    lp->serport = 0;
-    free (lp->serconfig);
-    lp->serconfig = NULL;
-    free (lp->destination);
-    lp->destination = NULL;
-    }
 tmxr_set_line_loopback (lp, FALSE);
 }
 
@@ -2333,25 +1927,19 @@ return SCPE_OK;
 
    A listening socket for the port number described by "cptr" is opened for the
    multiplexer associated with descriptor "mp".  If the open is successful, all
-   lines not currently otherwise connected (via serial, outgoing or direct
-   listener) are initialized for Telnet connections.
-
-   Initialization for all connection styles (MUX wide listener, per line serial,
-   listener, outgoing, logging, buffering) are handled by this routine.
-
+   lines not currently otherwise connected.
 */
 
 t_stat tmxr_open_master (TMXR *mp, CONST char *cptr)
 {
 int32 i, line, nextline = -1;
 char tbuf[CBUFSIZE], listen[CBUFSIZE], destination[CBUFSIZE],
-     logfiletmpl[CBUFSIZE], buffered[CBUFSIZE], hostport[CBUFSIZE],
+     logfiletmpl[CBUFSIZE], buffered[CBUFSIZE], hostport[CBUFSIZE*2],
      port[CBUFSIZE], option[CBUFSIZE], speed[CBUFSIZE];
 SOCKET sock;
-SERHANDLE serport;
 CONST char *tptr = cptr;
 t_bool nolog, notelnet, listennotelnet, modem_control, loopback, datagram, packet;
-TMLN *lp;
+TMLN *lp = NULL;
 t_stat r = SCPE_OK;
 
 if (*tptr == '\0')
@@ -2523,13 +2111,6 @@ while (*tptr) {
         }
     if (destination[0]) {
         /* Validate destination */
-        serport = sim_open_serial (destination, NULL, &r);
-        if (serport != INVALID_HANDLE) {
-            sim_close_serial (serport);
-            if (strchr (destination, ';') && mp->modem_control && !(sim_switches & SIM_SW_REST))
-                return sim_messagef (SCPE_ARG, "Serial line parameters must be set within simulated OS: %s\n", 1 + strchr (destination, ';'));
-            }
-        else {
             char *eptr;
 
             memset (hostport, '\0', sizeof(hostport));
@@ -2556,23 +2137,30 @@ while (*tptr) {
                 sim_close_sock (sock);
             else
                 return sim_messagef (SCPE_ARG, "Invalid destination: %s\n", hostport);
-            }
         }
     if (line == -1) {
         if (modem_control != mp->modem_control)
             return SCPE_ARG;
         if (logfiletmpl[0]) {
 #ifdef __GNUC__
-#ifndef __clang_version__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wstringop-truncation"
-#endif /* ifndef __clang_version__ */
+# ifndef __clang_version__
+#  ifndef __INTEL_COMPILER
+#   if __GNUC__ > 7
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wstringop-truncation"
+#   endif /* if __GNUC__ > 7 */
+#  endif /* ifndef __INTEL_COMPILER */
+# endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
             strncpy(mp->logfiletmpl, logfiletmpl, sizeof(mp->logfiletmpl)-1);
 #ifdef __GNUC__
-#ifndef __clang_version__
-#pragma GCC diagnostic pop
-#endif /* ifndef __clang_version__ */
+# ifndef __clang_version__
+#  ifndef __INTEL_COMPILER
+#   if __GNUC__ > 7
+#    pragma GCC diagnostic pop
+#   endif /* if __GNUC__ > 7 */
+#  endif /* ifndef __INTEL_COMPILER */
+# endif /* ifndef __clang_version__ */
 #endif /* ifdef __GNUC__ */
             for (i = 0; i < mp->lines; i++) {
                 lp = mp->ldsc + i;
@@ -2648,19 +2236,8 @@ while (*tptr) {
                 lp = mp->ldsc + i;
                 lp->mp = mp;                                /* set the back pointer */
                 lp->packet = mp->packet;
-
-                if (lp->serport) {                          /* serial port attached? */
-                    tmxr_reset_ln (lp);                     /* close current serial connection */
-                    sim_control_serial (lp->serport, 0, TMXR_MDM_DTR|TMXR_MDM_RTS, NULL);/* drop DTR and RTS */
-                    sim_close_serial (lp->serport);
-                    lp->serport = 0;
-                    free (lp->serconfig);
-                    lp->serconfig = NULL;
-                    }
-                else {
                     if (speed[0])
                         tmxr_set_line_speed (lp, speed);
-                    }
                 tmxr_init_line (lp);                        /* initialize line state */
                 lp->sock = 0;                               /* clear the socket */
                 }
@@ -2680,31 +2257,6 @@ while (*tptr) {
             if (mp->lines > 1)
                 return sim_messagef (SCPE_ARG, "Ambiguous Destination specification\n");
             lp = &mp->ldsc[0];
-            serport = sim_open_serial (destination, lp, &r);
-            if (serport != INVALID_HANDLE) {
-                _mux_detach_line (lp, TRUE, TRUE);
-                if (lp->mp && lp->mp->master) {             /* if existing listener, close it */
-                    sim_close_sock (lp->mp->master);
-                    lp->mp->master = 0;
-                    free (lp->mp->port);
-                    lp->mp->port = NULL;
-                    }
-                lp->destination = (char *)malloc(1+strlen(destination));
-                strcpy (lp->destination, destination);
-                lp->mp = mp;
-                lp->serport = serport;
-                lp->ser_connect_pending = TRUE;
-                lp->notelnet = TRUE;
-                tmxr_init_line (lp);                        /* init the line state */
-                if (!lp->mp->modem_control)                 /* raise DTR and RTS for non modem control lines */
-                    sim_control_serial (lp->serport, TMXR_MDM_DTR|TMXR_MDM_RTS, 0, NULL);
-                lp->cnms = sim_os_msec ();                  /* record time of connection */
-                if (sim_switches & SWMASK ('V')) {          /* -V flag reports connection on port */
-                    sim_os_ms_sleep (TMXR_DTR_DROP_TIME);
-                    tmxr_report_connection (mp, lp);        /* report the connection to the line */
-                    }
-                }
-            else {
                 lp->datagram = datagram;
                 if (datagram) {
                     if (listen[0]) {
@@ -2739,7 +2291,6 @@ while (*tptr) {
                 else
                     return sim_messagef (SCPE_ARG, "Can't open %s socket on %s%s%s\n", datagram ? "Datagram" : "Stream", datagram ? listen : "", datagram ? "<->" : "", hostport);
                 }
-            }
         }
     else {                                                  /* line specific attach */
         lp = &mp->ldsc[line];
@@ -2798,24 +2349,6 @@ while (*tptr) {
                 lp->notelnet = mp->notelnet;
             }
         if (destination[0]) {
-            serport = sim_open_serial (destination, lp, &r);
-            if (serport != INVALID_HANDLE) {
-                _mux_detach_line (lp, TRUE, TRUE);
-                lp->destination = (char *)malloc(1+strlen(destination));
-                strcpy (lp->destination, destination);
-                lp->serport = serport;
-                lp->ser_connect_pending = TRUE;
-                lp->notelnet = TRUE;
-                tmxr_init_line (lp);                        /* init the line state */
-                if (!lp->mp->modem_control)                 /* raise DTR and RTS for non modem control lines */
-                    sim_control_serial (lp->serport, TMXR_MDM_DTR|TMXR_MDM_RTS, 0, NULL);
-                lp->cnms = sim_os_msec ();                  /* record time of connection */
-                if (sim_switches & SWMASK ('V')) {          /* -V flag reports connection on port */
-                    sim_os_ms_sleep (TMXR_DTR_DROP_TIME);
-                    tmxr_report_connection (mp, lp);        /* report the connection to the line */
-                    }
-                }
-            else {
                 lp->datagram = datagram;
                 if (datagram) {
                     if (listen[0]) {
@@ -2849,11 +2382,11 @@ while (*tptr) {
             sim_printf ("Line %d operating in loopback mode\n", line);
             }
         lp->modem_control = modem_control;
-        if (speed[0] && (!datagram) && (!lp->serport))
+        if (speed[0] && (!datagram)
+        )
             tmxr_set_line_speed (lp, speed);
         r = SCPE_OK;
         }
-    }
 if (r == SCPE_OK)
     tmxr_add_to_open_list (mp);
 return r;
@@ -2913,34 +2446,6 @@ if ((line < 0) || (line >= mp->lines))
 mp->ldsc[line].o_uptr = uptr_poll;
 return SCPE_OK;
 }
-
-/* Declare which units are the console input and out devices
-
-   Inputs:
-        *rxuptr =    the console input unit
-        *txuptr =    the console output unit
-
-   Outputs:
-        none
-
-   Implementation note:
-
-        This routine is exported by the tmxr library so that it gets
-        defined to code which uses it by including sim_tmxr.h.  Including
-        sim_tmxr.h is necessary so that sim_activate is properly defined
-        in the caller's code to actually call tmxr_activate.
-
-*/
-
-t_stat tmxr_set_console_units (UNIT *rxuptr, UNIT *txuptr)
-{
-extern TMXR sim_con_tmxr;
-
-tmxr_set_line_unit (&sim_con_tmxr, 0, rxuptr);
-tmxr_set_line_output_unit (&sim_con_tmxr, 0, txuptr);
-return SCPE_OK;
-}
-
 
 static TMXR **tmxr_open_devices = NULL;
 static int tmxr_open_device_count = 0;
@@ -3049,8 +2554,8 @@ uptr->flags = uptr->flags | UNIT_ATT;                   /* no more errors */
 uptr->tmxr = (void *)mp;
 if ((mp->lines > 1) ||
     ((mp->master == 0) &&
-     (mp->ldsc[0].connecting == 0) &&
-     (mp->ldsc[0].serport == 0)))
+     (mp->ldsc[0].connecting == 0)
+))
     uptr->dynflags = uptr->dynflags | UNIT_ATTMULT;     /* allow multiple attach commands */
 
 uptr->dynflags |= TMUF_NOASYNCH;                        /* tag as no asynch */
@@ -3118,7 +2623,7 @@ else {
         fprintf(st, ", sessions=%d", mp->sessions);
         if (mp->lines == 1) {
             if (mp->ldsc->rxbps) {
-                fprintf(st, ", Speed=%d", mp->ldsc->rxbps);
+                fprintf(st, ", Speed=%lu", (unsigned long)mp->ldsc->rxbps);
                 if (mp->ldsc->rxbpsfactor != TMXR_RX_BPS_UNIT_SCALE)
                     fprintf(st, "*%.0f", mp->ldsc->rxbpsfactor/TMXR_RX_BPS_UNIT_SCALE);
                 fprintf(st, " bps");
@@ -3126,7 +2631,7 @@ else {
             }
         fprintf(st, "\n");
         if (mp->ring_start_time) {
-            fprintf (st, "    incoming Connection from: %s ringing for %d milliseconds\n", mp->ring_ipad, sim_os_msec () - mp->ring_start_time);
+            fprintf (st, "    incoming Connection from: %s ringing for %lu milliseconds\n", mp->ring_ipad, (unsigned long)sim_os_msec () - (unsigned long)mp->ring_start_time);
             }
         for (j = 0; j < mp->lines; j++) {
             lp = mp->ldsc + j;
@@ -3143,14 +2648,15 @@ else {
                 if (lp->loopback)
                     fprintf(st, ", Loopback");
                 if (lp->rxbps) {
-                    fprintf(st, ", Speed=%d", lp->rxbps);
+                    fprintf(st, ", Speed=%lu", (unsigned long)lp->rxbps);
                     if (lp->rxbpsfactor != TMXR_RX_BPS_UNIT_SCALE)
                         fprintf(st, "*%.0f", lp->rxbpsfactor/TMXR_RX_BPS_UNIT_SCALE);
                     fprintf(st, " bps");
                     }
                 fprintf (st, "\n");
                 }
-            if ((!lp->sock) && (!lp->connecting) && (!lp->serport) && (!lp->master)) {
+            if ((!lp->sock) && (!lp->connecting)
+            && (!lp->master)) {
                 if (lp->modem_control)
                     tmxr_fconns (st, lp, -1);
                 continue;
@@ -3187,10 +2693,6 @@ for (i = 0; i < mp->lines; i++) {  /* loop thru conn */
         if (lp->sock) {
             tmxr_report_disconnection (lp);             /* report disconnection */
             tmxr_reset_ln (lp);
-            }
-        if (lp->serport) {
-            sim_control_serial (lp->serport, 0, TMXR_MDM_DTR|TMXR_MDM_RTS, NULL);/* drop DTR and RTS */
-            tmxr_close_ln (lp);
             }
         free (lp->destination);
         lp->destination = NULL;
@@ -3234,9 +2736,7 @@ return SCPE_OK;
 }
 
 
-/* Detach unit from master socket and close all active network connections
-   and/or serial ports.
-
+/* Detach unit from master socket and close all active network connections.
    Note that we return SCPE_OK, regardless of whether a listening socket was
    attached.
 */
@@ -3277,65 +2777,6 @@ t_stat tmxr_activate_after (UNIT *uptr, uint32 usecs_walltime)
 return _sim_activate_after (uptr, usecs_walltime);
 }
 
-t_stat tmxr_activate_after_abs (UNIT *uptr, uint32 usecs_walltime)
-{
-return _sim_activate_after_abs (uptr, usecs_walltime);
-}
-
-
-t_stat tmxr_clock_coschedule (UNIT *uptr, int32 interval)
-{
-return tmxr_clock_coschedule_tmr (uptr, 0, interval);
-}
-
-t_stat tmxr_clock_coschedule_abs (UNIT *uptr, int32 interval)
-{
-sim_cancel (uptr);
-return tmxr_clock_coschedule_tmr (uptr, 0, interval);
-}
-
-#define MIN(a,b) (((a) < (b)) ? (a) : (b))
-
-t_stat tmxr_clock_coschedule_tmr (UNIT *uptr, int32 tmr, int32 interval)
-{
-TMXR *mp = (TMXR *)uptr->tmxr;
-int32 ticks = (interval + (sim_rtcn_tick_size (tmr)/2))/sim_rtcn_tick_size (tmr);/* Convert to ticks */
-
-if (mp) {
-    int32 i, soon = interval;
-    double sim_gtime_now = sim_gtime ();
-
-    for (i = 0; i < mp->lines; i++) {
-        TMLN *lp = &mp->ldsc[i];
-
-        if (tmxr_rqln_bare (lp, FALSE)) {
-            int32 due;
-
-            if (lp->rxbps)
-                if (lp->rxnexttime > sim_gtime_now)
-                    due = (int32)(lp->rxnexttime - sim_gtime_now);
-                else
-                    due = sim_processing_event ? 1 : 0;     /* avoid potential infinite loop if called from service routine */
-            else
-                due = (int32)((uptr->wait * sim_timer_inst_per_sec ())/TMXR_RX_BPS_UNIT_SCALE);
-            soon = MIN(soon, due);
-            }
-        }
-    if (soon != interval) {
-        sim_debug (TIMER_DBG_MUX, &sim_timer_dev, "scheduling %s after %d instructions\n", sim_uname (uptr), soon);
-        return _sim_activate (uptr, soon);
-        }
-    }
-sim_debug (TIMER_DBG_MUX, &sim_timer_dev, "scheduling %s after interval %d instructions\n", sim_uname (uptr), interval);
-return sim_clock_coschedule_tmr (uptr, tmr, ticks);
-}
-
-t_stat tmxr_clock_coschedule_tmr_abs (UNIT *uptr, int32 tmr, int32 interval)
-{
-sim_cancel (uptr);
-return tmxr_clock_coschedule_tmr (uptr, tmr, interval);
-}
-
 /* Generic Multiplexer attach help */
 
 t_stat tmxr_attach_help(FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, const char *cptr)
@@ -3350,8 +2791,7 @@ if (!flag)
     fprintf (st, "%s Multiplexer Attach Help\n\n", dptr->name);
 if (single_line) {          /* Single Line Multiplexer */
     fprintf (st, "The %s multiplexer may be connected to terminal emulators supporting the\n", dptr->name);
-    fprintf (st, "Telnet protocol via sockets, or to hardware terminals via host serial\n");
-    fprintf (st, "ports.\n\n");
+    fprintf (st, "Telnet protocol via sockets.\n\n");
     if (mux->modem_control) {
         fprintf (st, "The %s device is a full modem control device and therefore is capable of\n", dptr->name);
         fprintf (st, "passing port configuration information and modem signals.\n");
@@ -3595,11 +3035,7 @@ int32 i, len;
 
 buf[bufsize-1] = '\0';
 while (1) {                                         /* format passed string, args */
-#if defined(NO_vsnprintf)
-    len = vsprintf (buf, fmt, arglist);
-#else                                               /* !defined(NO_vsnprintf) */
     len = vsnprintf (buf, bufsize-1, fmt, arglist);
-#endif                                              /* NO_vsnprintf */
 
 /* If the formatted result didn't fit into the buffer, then grow the buffer and try again */
 
@@ -3669,10 +3105,6 @@ if (lp->sock) {
 
 if ((lp->port) && (!lp->datagram))
     fprintf (st, "Listening on port %s\n", lp->port);   /* print port name */
-
-if (lp->serport)                                        /* serial connection? */
-    fprintf (st, "Connected to serial port %s\n", lp->destination);  /* print port name */
-
 if (lp->cnms) {
     tctime = (sim_os_msec () - lp->cnms) / 1000;
     hr = tctime / 3600;
@@ -3693,7 +3125,8 @@ if (lp->modem_control) {
                                                 (lp->modembits & TMXR_MDM_DSR) ? "DSR " : "");
     }
 
-if ((lp->serport == 0) && (lp->sock) && (!lp->datagram))
+if (
+  (lp->sock) && (!lp->datagram))
     fprintf (st, " %s\n", (lp->notelnet) ? "Telnet disabled (RAW data)" : "Telnet protocol");
 if (lp->send.buffer)
     sim_show_send_input (st, &lp->send);
@@ -3714,7 +3147,8 @@ static const char *dsab = "off";
 
 if (ln >= 0)
     fprintf (st, "Line %d:", ln);
-if ((!lp->sock) && (!lp->connecting) && (!lp->serport))
+if ((!lp->sock) && (!lp->connecting)
+   )
     fprintf (st, " not connected\n");
 else {
     if (ln >= 0)
@@ -3785,7 +3219,8 @@ lp = tmxr_get_ldsc (uptr, cptr, mp, &status);                   /* get reference
 if (lp == NULL)                                                 /* bad line number? */
     return status;                                              /* report it */
 
-if ((lp->sock) || (lp->serport)) {                              /* connection active? */
+if ((lp->sock)
+   ) {                                                          /* connection active? */
     if (!lp->notelnet)
         tmxr_linemsg (lp, "\r\nOperator disconnected line\r\n\n");/* report closure */
     tmxr_reset_ln_ex (lp, (sim_switches & SWMASK ('C')));       /* drop the line */
@@ -4058,7 +3493,8 @@ int32 i, t;
 if (mp == NULL)
     return SCPE_IERR;
 for (i = t = 0; i < mp->lines; i++)
-    if ((mp->ldsc[i].sock != 0) || (mp->ldsc[i].serport != 0))
+    if ((mp->ldsc[i].sock != 0)
+    )
         t = t + 1;
 if (mp->lines > 1)
     fprintf (st, "%d current connection%s", t, (t != 1) ? "s" : "");
@@ -4077,14 +3513,16 @@ int32 i, any;
 if (mp == NULL)
     return SCPE_IERR;
 for (i = any = 0; i < mp->lines; i++) {
-    if ((mp->ldsc[i].sock != 0) ||
-        (mp->ldsc[i].serport != 0) || mp->ldsc[i].modem_control) {
-        if ((mp->ldsc[i].sock != 0) || (mp->ldsc[i].serport != 0))
+    if ((mp->ldsc[i].sock != 0)
+      || mp->ldsc[i].modem_control) {
+        if ((mp->ldsc[i].sock != 0)
+      )
             any++;
         if (val)
             tmxr_fconns (st, &mp->ldsc[i], i);
         else
-            if ((mp->ldsc[i].sock != 0) || (mp->ldsc[i].serport != 0))
+            if ((mp->ldsc[i].sock != 0)
+          )
                 tmxr_fstats (st, &mp->ldsc[i], i);
         }
     }

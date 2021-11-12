@@ -18,51 +18,51 @@
 /* ------------------------------------------------------------------ */
 
 #if !defined(DECNUMBER)
-  #define DECNUMBER
-  #define DECNAME     "decNumber"                       /* Short name */
-  #define DECFULLNAME "Decimal Number Module"         /* Verbose name */
-  #define DECAUTHOR   "Mike Cowlishaw"                /* Who to blame */
+# define DECNUMBER
+# define DECNAME     "decNumber"                        /* Short name */
+# define DECFULLNAME "Decimal Number Module"          /* Verbose name */
+# define DECAUTHOR   "Mike Cowlishaw"                 /* Who to blame */
 
-  #if !defined(DECCONTEXT)
-    #include "decContext.h"
-  #endif
+# if !defined(DECCONTEXT)
+#  include "decContext.h"
+# endif
 
   /* Bit settings for decNumber.bits                                  */
-  #define DECNEG    0x80      /* Sign; 1=negative, 0=positive or zero */
-  #define DECINF    0x40      /* 1=Infinity                           */
-  #define DECNAN    0x20      /* 1=NaN                                */
-  #define DECSNAN   0x10      /* 1=sNaN                               */
+# define DECNEG    0x80      /* Sign; 1=negative, 0=positive or zero  */
+# define DECINF    0x40      /* 1=Infinity                            */
+# define DECNAN    0x20      /* 1=NaN                                 */
+# define DECSNAN   0x10      /* 1=sNaN                                */
   /* The remaining bits are reserved; they must be 0                  */
-  #define DECSPECIAL (DECINF|DECNAN|DECSNAN) /* any special value     */
+# define DECSPECIAL (DECINF|DECNAN|DECSNAN)  /* any special value     */
 
   /* Define the decNumber data structure.  The size and shape of the  */
   /* units array in the structure is determined by the following      */
   /* constant.  This must not be changed without recompiling the      */
   /* decNumber library modules. */
 
-  //#define DECDPUN 3           /* DECimal Digits Per UNit [must be >0  */
-  #define DECDPUN 8           /* DECimal Digits Per UNit [must be >0  */
+  //#define DECDPUN 3         /* DECimal Digits Per UNit [must be >0  */
+# define DECDPUN 8            /* DECimal Digits Per UNit [must be >0  */
                               /* and <10; 3 or powers of 2 are best]. */
 
   /* DECNUMDIGITS is the default number of digits that can be held in */
   /* the structure.  If undefined, 1 is assumed and it is assumed     */
   /* that the structure will be immediately followed by extra space,  */
   /* as required.  DECNUMDIGITS is always >0.                         */
-  #if !defined(DECNUMDIGITS)
-    #define DECNUMDIGITS 1
-  #endif
+# if !defined(DECNUMDIGITS)
+#  define DECNUMDIGITS 1
+# endif
 
   /* The size (integer data type) of each unit is determined by the   */
   /* number of digits it will hold.                                   */
-  #if   DECDPUN<=2
-    #define decNumberUnit uint8_t
-  #elif DECDPUN<=4
-    #define decNumberUnit uint16_t
-  #else
-    #define decNumberUnit uint32_t
-  #endif
+# if DECDPUN<=2
+#  define decNumberUnit uint8_t
+# elif DECDPUN<=4
+#  define decNumberUnit uint16_t
+# else
+#  define decNumberUnit uint32_t
+# endif
   /* The number of units needed is ceil(DECNUMDIGITS/DECDPUN)         */
-  #define DECNUMUNITS ((DECNUMDIGITS+DECDPUN-1)/DECDPUN)
+# define DECNUMUNITS ((DECNUMDIGITS+DECDPUN-1)/DECDPUN)
 
   /* The data structure... */
   typedef struct {
@@ -167,17 +167,17 @@
   int32_t decNumberIsSubnormal(const decNumber *, decContext *);
 
   /* Macros for testing decNumber *dn                                 */
-  #define decNumberIsCanonical(dn) (1)  /* All decNumbers are saintly */
-  #define decNumberIsFinite(dn)    (((dn)->bits&DECSPECIAL)==0)
-  #define decNumberIsInfinite(dn)  (((dn)->bits&DECINF)!=0)
-  #define decNumberIsNaN(dn)       (((dn)->bits&(DECNAN|DECSNAN))!=0)
-  #define decNumberIsNegative(dn)  (((dn)->bits&DECNEG)!=0)
-  #define decNumberIsQNaN(dn)      (((dn)->bits&(DECNAN))!=0)
-  #define decNumberIsSNaN(dn)      (((dn)->bits&(DECSNAN))!=0)
-  #define decNumberIsSpecial(dn)   (((dn)->bits&DECSPECIAL)!=0)
-  #define decNumberIsZero(dn)      (*(dn)->lsu==0 \
+# define decNumberIsCanonical(dn) (1)   /* All decNumbers are saintly */
+# define decNumberIsFinite(dn)    (((dn)->bits&DECSPECIAL)==0)
+# define decNumberIsInfinite(dn)  (((dn)->bits&DECINF)!=0)
+# define decNumberIsNaN(dn)       (((dn)->bits&(DECNAN|DECSNAN))!=0)
+# define decNumberIsNegative(dn)  (((dn)->bits&DECNEG)!=0)
+# define decNumberIsQNaN(dn)      (((dn)->bits&(DECNAN))!=0)
+# define decNumberIsSNaN(dn)      (((dn)->bits&(DECSNAN))!=0)
+# define decNumberIsSpecial(dn)   (((dn)->bits&DECSPECIAL)!=0)
+# define decNumberIsZero(dn)      (*(dn)->lsu==0 \
                                     && (dn)->digits==1 \
                                     && (((dn)->bits&DECSPECIAL)==0))
-  #define decNumberRadix(dn)       (10)
+# define decNumberRadix(dn)       (10)
 
 #endif

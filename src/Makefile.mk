@@ -19,6 +19,7 @@
 ###############################################################################
 # Default configuration
 
+COMMAND    ?= command
 TRUE       ?= true
 SET        ?= set
 ifdef V
@@ -35,15 +36,17 @@ else
        SETV = $(TRUE)
        MAKEFLAGS += --no-print-directory
 endif
+GETCONF    ?= getconf
 ENV        ?= env
 CCACHE     ?= ccache
 SHELL      ?= sh
 SH         ?= $(SHELL)
 UNAME      ?= uname
+CPPI       ?= cppi
 COMM       ?= comm
 ECHO       ?= echo
 BREW       ?= brew
-GREP       ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" grep
+GREP       ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" grep
 SORT       ?= sort
 CPPCPP     ?= $(CC) -E
 CPPCPP2    ?= $(CC) -qshowmacros=pre -E /dev/null < /dev/null 2> /dev/null
@@ -57,15 +60,28 @@ DIRNAME    ?= dirname
 PKGCONFIG  ?= pkg-config
 GIT        ?= git
 CUT        ?= cut
-SED        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" sed
-AWK        ?= $(ENV) PATH="$$(command -p $(ENV) getconf PATH)" awk
+HEAD       ?= head
+TAIL       ?= tail
+WGET       ?= wget
+UNIQ       ?= uniq
+CKSUM      ?= cksum
+EXPAND     ?= expand
+GPG        ?= gpg --batch --status-fd --with-colons
+WC         ?= wc
+SED        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" sed
+AWK        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" awk
 CMP        ?= cmp
+CKSUM      ?= cksum
 WEBDL      ?= wget
+TEE        ?= tee
 CD         ?= cd
+ORSTLINT   ?= /opt/oracle/developerstudio12.6/bin/lint
 GLRUNNER   ?= gitlab-runner
 TR         ?= tr
+ADVZIP     ?= advzip
 CAT        ?= cat
 GIT        ?= git
+GCWD       ?= pwd
 WC         ?= wc
 EXPAND     ?= expand
 CMAKE      ?= cmake
@@ -76,17 +92,25 @@ ETAGS      ?= etags
 GTAGS      ?= gtags
 FIND       ?= find
 CP         ?= cp -f
+INFOZIP    ?= zip
+ZIP        ?= $(INFOZIP)
 TOUCH      ?= touch
 NL         ?= nl
 TEST       ?= test
+SLEEP      ?= sleep
+PASTE      ?= paste
 PRINTF     ?= printf
 TAR        ?= tar
 XARGS      ?= xargs
-MAKETAR    ?= $(TAR) --owner=dps8m --group=dps8m --posix -c                   \
+GTARUSER   ?= dps8m
+GTARGROUP  ?= $(GTARUSER)
+MAKETAR    ?= $(TAR) --owner=$(GTARUSER) --group=$(GTARGROUP) --posix -c      \
                      --transform 's/^/.\/dps8\//g' -$(ZCTV)
 TARXT      ?= tar
 COMPRESS   ?= gzip -f -9
 GUNZIP     ?= gzip -d
+GZIP       ?= gzip
+GZCAT      ?= $(GZIP) -dc
 COMPRESSXT ?= gz
 KITNAME    ?= sources
 SIMHx       = ../simh
@@ -140,25 +164,25 @@ ifeq ($(CROSS),MINGW32)
     CC = x86_64-w32-mingw32-gcc
   endif
   EXE = .exe
-ifneq ($(msys_version),0)
-  CC = gcc
-  EXE = .exe
-endif
+  ifneq ($(msys_version),0)
+    CC = gcc
+    EXE = .exe
+  endif
 endif
 
 ifeq ($(CROSS),MINGW64)
   ifeq ($(CYGWIN_MINGW_CROSS),1)
     CC = x86_64-w64-mingw32-gcc
   endif
-ifneq ($(msys_version),0)
-  CC = gcc
+  ifneq ($(msys_version),0)
+    CC = gcc
+    EXE = .exe
+  else
+    AR = ar
+  endif
   EXE = .exe
 else
-  AR = ar
-endif
-  EXE = .exe
-else
-CC ?= clang
+  CC ?= clang
 endif
 
 ###############################################################################
@@ -167,6 +191,7 @@ endif
 ifndef SUNPRO
   CFLAGS  += -Wall -g3 -O3 -fno-strict-aliasing
 endif
+
 CFLAGS  += $(X_FLAGS)
 LDFLAGS += $(X_FLAGS)
 
@@ -251,78 +276,82 @@ else
 # OpenIndiana illumos: GCC 7, GCC 10, Clang 9, all supported.
 # Oracle Solaris 11: GCC only. Clang and SunCC need some work.
 
-    ifeq ($(UNAME_S),SunOS)
-      ifeq ($(shell $(UNAME) -o 2> /dev/null),illumos)
-        ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-        CFLAGS  +=-I/usr/local/include -m$(ISABITS)
-        LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -m$(ISABITS)
-      endif
-      ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
-        ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-        CFLAGS  +=-I/usr/local/include -m$(ISABITS)
-        LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat  \
-                  -ldl -m$(ISABITS)
-        CC?=gcc
-      endif
+  ifeq ($(UNAME_S),SunOS)
+    ifeq ($(shell $(UNAME) -o 2> /dev/null),illumos)
+      ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
+      CFLAGS  +=-I/usr/local/include -m$(ISABITS)
+      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -m$(ISABITS)
     endif
+    ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
+      ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
+      CFLAGS  +=-I/usr/local/include -m$(ISABITS)
+      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat    \
+                -ldl -m$(ISABITS)
+      CC?=gcc
+    endif
+  endif
 endif
 
 ###############################################################################
 # Linux (architecture-specific)
 
-# Various 32-bit Linux platforms
 ifeq ($(UNAME_S),Linux)
+  ifeq ($(CROSS),)
+    ifneq ($(CYGWIN_MINGW_CROSS),1)
+      CFLAGS += -DCLOCK_REALTIME=CLOCK_REALTIME_COARSE
+    endif
+  endif
   ifndef UNAME_M
     UNAME_M=$(shell $(UNAME) -m 2> /dev/null)
   endif
   ifeq ($(UNAME_M),m68k)
-   export NEED_128=1
+    export NEED_128=1
   endif
   ifeq ($(UNAME_M),arm)
-   export NEED_128=1
-   ATOMICS?=SYNC
+    export NEED_128=1
+    ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv5)
-   export NEED_128=1
-   ATOMICS?=SYNC
+    export NEED_128=1
+    ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv6)
-   export NEED_128=1
-   ATOMICS?=SYNC
+    export NEED_128=1
+    ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),armv7l)
-   export NEED_128=1
-   ATOMICS?=SYNC
+    export NEED_128=1
+    ATOMICS?=SYNC
   endif
   ifeq ($(UNAME_M),ppc)
-   export NEED_128=1
+    export NEED_128=1
   endif
   ifeq ($(UNAME_M),ppcle)
-   export NEED_128=1
+    export NEED_128=1
   endif
   ifeq ($(UNAME_M),powerpc)
-   export NEED_128=1
+    export NEED_128=1
   endif
   ifeq ($(UNAME_M),sh4)
-   export NEED_128=1
+    export NEED_128=1
   endif
   ifeq ($(UNAME_M),unicore32)
-   export NEED_128=1
+    export NEED_128=1
   endif
   ifeq ($(UNAME_M),nios2)
-   export NEED_128=1
+    export NEED_128=1
   endif
   ifeq ($(UNAME_M),m32r)
-   export NEED_128=1
+    export NEED_128=1
   endif
   ifeq ($(UNAME_M),arm32)
-   export NEED_128=1
+    export NEED_128=1
   endif
   ifeq ($(UNAME_M),arm11)
-   export NEED_128=1
+    export NEED_128=1
   endif
   ifeq ($(UNAME_M),rv32)
-   export NEED_128=1
+    export NEED_128=1
   endif
   export ATOMICS
 endif
@@ -331,6 +360,21 @@ endif
 # C Standard: Defaults to c99, but c1x or c11 may be needed for modern atomics.
 
 CSTD?=c99
+
+###############################################################################
+
+.PHONY: rebuild.env rebuild.vne .rebuild.env .rebuild.vne FORCE
+ifndef REBUILDVNE
+FORCE:
+rebuild.env rebuild.vne .rebuild.env .rebuild.vne: FORCE
+	@$(SETV); ( $(SET) 2> /dev/null ; $(ENV) 2> /dev/null ) | $(GREP) -ivE '(stat|line|time|date|random|seconds|pid|user|\?|hist|old|tty|prev|^_|man|pwd|cwd|columns|gid|uid|grp|tmout|user|^ps.|anyerror|argv|^command|^killring|^shlvl|^mailcheck|^jobmax|^hist|^term|^opterr|^groups|^bash_arg|^dirstack|^psvar|idle)' 2> /dev/null | $(CKSUM) > ".rebuild.vne" 2> /dev/null || $(TRUE)
+	@$(SETV); $(TEST) -f ".rebuild.env" || ( $(SET) 2> /dev/null ; $(ENV) 2> /dev/null ) | $(GREP) -ivE '(stat|line|time|date|random|seconds|pid|user|\?|hist|old|tty|prev|^_|man|pwd|cwd|columns|gid|uid|grp|tmout|user|^ps.|anyerror|argv|^command|^killring|^shlvl|^mailcheck|^jobmax|^hist|^term|^opterr|^groups|^bash_arg|^dirstack|^psvar|idle)' 2> /dev/null | $(CKSUM) > ".rebuild.env" 2> /dev/null || $(TRUE)
+	@$(SETV); $(PRINTF) '%s\n' "$$($(CAT) .rebuild.env)" "$$($(CAT) .rebuild.vne)" > /dev/null 2>&1
+	@$(SETV); $(RMF) ".needrebuild"; $(CMP) ".rebuild.env" ".rebuild.vne" > /dev/null 2>&1 || { $(TOUCH) ".rebuild.vne"; $(CP) ".rebuild.vne" ".rebuild.env"; $(TOUCH) ".needrebuild"; }
+	@$(SETV); $(RMF) ".rebuild.vne"
+REBUILDVNE=1
+export REBUILDVNE
+endif
 
 ###############################################################################
 
@@ -368,7 +412,7 @@ endif
     $(PRINTF) '%s\n' "fallback"                             2> /dev/null      \
     )"="\"$(shell $(PRINTF) '%s\n'                                            \
     '$(CC) $(CFLAGS) $(CPPFLAGS) $(X_CFLAGS) $(LDFLAGS) $(LOCALLIBS) $(LIBS)' \
-	| $(TR) -d '\\"'                                        2> /dev/null  |   \
+    | $(TR) -d '\\"'                                        2> /dev/null  |   \
     $(SED)  -e 's/ -DVER_CURRENT_TIME=....................... /\ /g'          \
             -e 's/^[ \t]*//;s/[ \t]*$$//'                   2> /dev/null  |   \
      $(AWK) -v RS='[,[:space:]]+' '!a[$$0]++{ printf "%s %s ", $$0, RT }'     \

@@ -24,8 +24,6 @@
 #define API
 #include "dps8_state.h"
 
-//#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
-
 static struct system_state_s * system_state;
 
 typedef uint8_t byte;
@@ -65,6 +63,9 @@ static uint32_t lookup (struct system_state_s * p, uint32_t stype, char * name, 
 static GdkRGBA lightOn, lightOff;
 
 gboolean window_delete (GtkWidget * widget, cairo_t * cr, gpointer data) {
+  (void)widget;
+  (void)cr;
+  (void)data;
   //return true;
   exit (0);
 }

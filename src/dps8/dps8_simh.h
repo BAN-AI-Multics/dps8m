@@ -14,12 +14,9 @@
 extern DEVICE scu_dev;
 
 #ifdef SPEED
-#define if_sim_debug(dbits, dptr) if ((0))
-
+# define if_sim_debug(dbits, dptr) if ((0))
 #else
-      // ((dptr != & cpu_dev) || current_running_cpu_idx == 1) &&
-
-#define if_sim_debug(dbits, dptr) \
+# define if_sim_debug(dbits, dptr) \
   if ( \
       sim_deb && \
       (((dptr)->dctrl & (dbits)) || (dbits) == 0) && \
@@ -35,18 +32,18 @@ extern DEVICE scu_dev;
 #endif
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
-#define dps8_sim_debug _sim_debug
+# define dps8_sim_debug _sim_debug
 #endif
 
 #undef sim_debug
 #if defined(THREADZ) || defined(LOCKLESS)
-#define sim_debug(dbits, dptr, ...) \
+# define sim_debug(dbits, dptr, ...) \
   if_sim_debug((dbits), dptr) \
     dps8_sim_debug ((dbits), dptr, DBG_CTR, __VA_ARGS__); \
   else \
     (void) 0
 #else
-#define sim_debug(dbits, dptr, ...) \
+# define sim_debug(dbits, dptr, ...) \
   if_sim_debug((dbits), dptr) \
     dps8_sim_debug ((dbits), dptr, __VA_ARGS__); \
   else \
@@ -55,40 +52,42 @@ extern DEVICE scu_dev;
 
 /* scp Debug flags */
 
-#define DBG_TRACE       (1U << 0)    ///< instruction trace
-#define DBG_MSG         (1U << 1)    ///< misc output
+#define DBG_TRACE         (1U << 0)      ///< instruction trace
+#define DBG_MSG           (1U << 1)      ///< misc output
 
-#define DBG_REGDUMPAQI  (1U << 2)    ///< A/Q/IR register dump
-#define DBG_REGDUMPIDX  (1U << 3)    ///< index register dump
-#define DBG_REGDUMPPR   (1U << 4)    ///< pointer registers dump
-//#define DBG_REGDUMPADR  (1U << 5)    ///< address registers dump
-#define DBG_REGDUMPPPR  (1U << 6)    ///< PPR register dump
-#define DBG_REGDUMPDSBR (1U << 7)    ///< descritptor segment base register dump
-#define DBG_REGDUMPFLT  (1U << 8)    ///< C(EAQ) floating-point register dump
+#define DBG_REGDUMPAQI    (1U << 2)      ///< A/Q/IR register dump
+#define DBG_REGDUMPIDX    (1U << 3)      ///< index register dump
+#define DBG_REGDUMPPR     (1U << 4)      ///< pointer registers dump
+//#define DBG_REGDUMPADR  (1U << 5)      ///< address registers dump
+#define DBG_REGDUMPPPR    (1U << 6)      ///< PPR register dump
+#define DBG_REGDUMPDSBR   (1U << 7)      ///< descritptor segment base register dump
+#define DBG_REGDUMPFLT    (1U << 8)      ///< C(EAQ) floating-point register dump
 
-//#define DBG_REGDUMP     (DBG_REGDUMPAQI | DBG_REGDUMPIDX | DBG_REGDUMPPR | DBG_REGDUMPADR | DBG_REGDUMPPPR | DBG_REGDUMPDSBR | DBG_REGDUMPFLT)
-#define DBG_REGDUMP     (DBG_REGDUMPAQI | DBG_REGDUMPIDX | DBG_REGDUMPPR | DBG_REGDUMPPPR | DBG_REGDUMPDSBR | DBG_REGDUMPFLT)
+//#define DBG_REGDUMP     (DBG_REGDUMPAQI | DBG_REGDUMPIDX | DBG_REGDUMPPR |
+//                         DBG_REGDUMPADR | DBG_REGDUMPPPR | DBG_REGDUMPDSBR | DBG_REGDUMPFLT)
+#define DBG_REGDUMP       (DBG_REGDUMPAQI | DBG_REGDUMPIDX | DBG_REGDUMPPR | \
+                           DBG_REGDUMPPPR | DBG_REGDUMPDSBR | DBG_REGDUMPFLT)
 
-#define DBG_ADDRMOD     (1U << 9)    ///< follow address modifications
-#define DBG_APPENDING   (1U << 10)   ///< follow appending unit operations
-#define DBG_TRACEEXT    (1U << 11)   ///< extended instruction trace
-#define DBG_WARN        (1U << 12)
-#define DBG_DEBUG       (1U << 13)
-#define DBG_INFO        (1U << 14)
-#define DBG_NOTIFY      (1U << 15)
-#define DBG_SIM_USES_16 (1U << 16)
-#define DBG_SIM_USES_17 (1U << 17)
-#define DBG_SIM_USES_18 (1U << 18)
-#define DBG_ERR         (1U << 19)
+#define DBG_ADDRMOD       (1U << 9)      ///< follow address modifications
+#define DBG_APPENDING     (1U << 10)     ///< follow appending unit operations
+#define DBG_TRACEEXT      (1U << 11)     ///< extended instruction trace
+#define DBG_WARN          (1U << 12)
+#define DBG_DEBUG         (1U << 13)
+#define DBG_INFO          (1U << 14)
+#define DBG_NOTIFY        (1U << 15)
+#define DBG_SIM_USES_16   (1U << 16)
+#define DBG_SIM_USES_17   (1U << 17)
+#define DBG_SIM_USES_18   (1U << 18)
+#define DBG_ERR           (1U << 19)
 #define DBG_ALL (DBG_NOTIFY | DBG_INFO | DBG_ERR | DBG_DEBUG | DBG_WARN | \
                  DBG_ERR | DBG_TRACE )
-#define DBG_FAULT       (1U << 20)  ///< follow fault handling
-#define DBG_INTR        (1U << 21)  // follow interrupt handling
-#define DBG_CORE        (1U << 22)
-#define DBG_CYCLE       (1U << 23)
-#define DBG_CAC         (1U << 24)
-#define DBG_FINAL       (1U << 25)
-#define DBG_AVC         (1U << 26)
+#define DBG_FAULT         (1U << 20)     ///< follow fault handling
+#define DBG_INTR          (1U << 21)     // follow interrupt handling
+#define DBG_CORE          (1U << 22)
+#define DBG_CYCLE         (1U << 23)
+#define DBG_CAC           (1U << 24)
+#define DBG_FINAL         (1U << 25)
+#define DBG_AVC           (1U << 26)
 
 // Abort codes, used to sort out longjmp's back to the main loop.
 // Codes > 0 are simulator stop codes
@@ -153,43 +152,15 @@ void sim_printf( const char * format, ... )    // not really simh, by my impl
   __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
-void sim_puts (char * str);
-#if 0
-void sim_fatal (const char * format, ...) NO_RETURN
-#ifdef __GNUC__
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
-#endif
-void sim_printl (const char * format, ...)
-#ifdef __GNUC__
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
-#if 0
-void sim_warn (const char * format, ...)
-#ifdef __GNUC__
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
-#endif
 
 #if defined(THREADZ) || defined(LOCKLESS)
 void dps8_sim_debug (uint32 dbits, DEVICE* dptr, unsigned long long cnt, const char* fmt, ...)
-#ifdef __GNUC__
+# ifdef __GNUC__
   __attribute__ ((format (printf, 4, 5)))
-#endif
+# endif
 ;
 #endif
-//#define sim_warn(format, ...) _sim_err (format, ##__VA_ARGS__)
-//#define sim_err(format, ...) { _sim_err (format, ##__VA_ARGS__); longjmp (cpu.jmpMain, JMP_STOP); }
 #define sim_fatal(format, ...) { _sim_err (format, ##__VA_ARGS__); exit (1); }
-#ifdef COLOR
-void sim_msg (const char * fmt, ...);
-void sim_warn (const char * fmt, ...);
-void sim_print (const char * fmt, ...);
-#else
 #define sim_msg sim_printf
 #define sim_warn sim_printf
 #define sim_print sim_printf
-#endif
