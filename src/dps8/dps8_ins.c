@@ -9360,8 +9360,9 @@ elapsedtime ();
  * emulator call instruction. Do whatever address field sez' ....
  */
 
-static clockid_t clockID;
-static struct timespec startTime;
+//static clockid_t clockID;
+//static struct timespec startTime;
+static uv_rusage_t startTime;
 static unsigned long long startInstrCnt;
 
 static int emCall (void)
@@ -9391,8 +9392,7 @@ static int emCall (void)
        // OP 3: Start CPU clock
        case 3:
          startInstrCnt = cpu.instrCnt;
-         clock_getcpuclockid (0, & clockID);
-         clock_gettime (clockID, & startTime);
+         uv_getrusage (& startTime);
          break;
 
        // OP 4: Report CPU clock
@@ -9401,10 +9401,10 @@ static int emCall (void)
 #define ns_sec (1000000000)
 #define ns_msec (1000000000 / 1000)
 #define ns_usec (1000000000 / 1000 / 1000)
-           struct timespec now;
-           clock_gettime (clockID, & now);
-           uint64_t start = startTime.tv_nsec + startTime.tv_sec * ns_sec;
-           uint64_t stop = now.tv_nsec + now.tv_sec * ns_sec;
+           uv_rusage_t now;
+           uv_getrusage (& now);
+           uint64_t start = startTime.ru_utime.tv_usec * 1000 + startTime.ru_utime.tv_sec * ns_sec;
+           uint64_t stop = now.ru_utime.tv_usec * 1000 + now.ru_utime.tv_sec * ns_sec;
            uint64_t delta = stop - start;
 	 uint64_t seconds = delta / ns_sec;
            uint64_t milliseconds = (delta / ns_msec) % 1000;
