@@ -229,6 +229,7 @@ C_SRCS += fnpuv.c
 C_SRCS += fnptelnet.c
 C_SRCS += libtelnet.c
 C_SRCS += hdbg.c
+C_SRCS += segldr.c
 ifneq ($(MINGW_CROSS),1)
   C_SRCS += shm.c
   C_SRCS += udplib.c
@@ -289,6 +290,7 @@ H_SRCS += fnpuv.h
 H_SRCS += fnptelnet.h
 H_SRCS += h316_imp.h
 H_SRCS += hdbg.h
+H_SRCS += segldr.h
 H_SRCS += shm.h
 ifneq ($(MINGW_CROSS),1)
   H_SRCS += udplib.h
