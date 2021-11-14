@@ -1355,7 +1355,7 @@ static void deliver_interrupts (uint scu_unit_idx)
 // If the CIOC generates marker and terminate interrupts, they will be posted simultainiously.
 // Since the interrupts are recognized by priority and terminate has a highter priority then
 // marker, if will be delivered first. The following code will deliver marker before terminate.
- 
+
 #ifdef REORDER
     for (uint jnum = 0; jnum < N_CELL_INTERRUPTS; jnum ++)
       {

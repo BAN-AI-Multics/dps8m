@@ -383,7 +383,7 @@ int send_special_interrupt (uint iom_unit_idx, uint chanNum, uint devCode,
 //#define IOM_CMD_PENDING 3
 //#define IOM_CMD_ERROR   -1
 
-typedef enum 
+typedef enum
   {
      IOM_CMD_ERROR = -1,
      IOM_CMD_PROCEED = 0,

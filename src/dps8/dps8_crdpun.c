@@ -208,7 +208,7 @@ struct card_cache_node
       CARD_CACHE_ENTRY *next_entry;
   };
 
-typedef struct 
+typedef struct
   {
     char device_name[MAX_DEV_NAME_LEN];
     int punfile_raw;                        // fd of file to get all cards in punch code (including banner cards)
@@ -220,7 +220,7 @@ typedef struct
     CARD_CACHE_ENTRY *last_cached_card;
     enum pun_mode { punNoMode, punWrBin } ioMode;
   } pun_state_t ;
-  
+
 static pun_state_t pun_state[N_PUN_UNITS_MAX];
 static char pun_path_prefix[PATH_MAX-63];   // The -63 is to leave room for file name
 
@@ -290,17 +290,17 @@ static word36 eodCard [WORDS_PER_CARD] =
     0000000050000llu
   };
 
-//    *****         *****         *****         *****         *****         *****  
-//    *****         *****         *****         *****         *****         *****  
-//    *****         *****         *****         *****         *****         *****  
-//    *****   ***   *****   ***   *****   ***   *****   ***   *****   ***   *****  
-//    *****         *****         *****         *****         *****         *****  
-//    *****         *****         *****         *****         *****         *****  
-//           *****         *****         *****         *****         *****         
-//           *****         *****         *****         *****         *****         
-//           *****         *****         *****         *****         *****         
+//    *****         *****         *****         *****         *****         *****
+//    *****         *****         *****         *****         *****         *****
+//    *****         *****         *****         *****         *****         *****
+//    *****   ***   *****   ***   *****   ***   *****   ***   *****   ***   *****
+//    *****         *****         *****         *****         *****         *****
+//    *****         *****         *****         *****         *****         *****
+//           *****         *****         *****         *****         *****
+//           *****         *****         *****         *****         *****
+//           *****         *****         *****         *****         *****
 // *   ***   *****   ***   *****   ***   *****   ***   *****   ***   *****   ***  *
-//           *****         *****         *****         *****         *****         
+//           *****         *****         *****         *****         *****
 // *         *****         *****         *****         *****         *****        *
 
 static word36 bannerCard [WORDS_PER_CARD] =
@@ -338,13 +338,13 @@ static word36 bannerCard [WORDS_PER_CARD] =
 /*
  *                  Glyph Pattern Lookup
  * This is the parsing of the "lace" cards and extracting the ASCII characters
- * have been punched into the cards (as glphys) so the operator knows how to 
+ * have been punched into the cards (as glphys) so the operator knows how to
  * deliver the deck.
  */
 
 #define NUM_GLYPH_CHAR_PATTERNS 45
 
-static uint8 glyph_char_patterns [NUM_GLYPH_CHAR_PATTERNS][CHAR_MATRIX_BYTES] =  
+static uint8 glyph_char_patterns [NUM_GLYPH_CHAR_PATTERNS][CHAR_MATRIX_BYTES] =
   {
       // Asterisk
       { 037, 037, 037, 037, 037 },
@@ -440,9 +440,9 @@ static uint8 glyph_char_patterns [NUM_GLYPH_CHAR_PATTERNS][CHAR_MATRIX_BYTES] =
 
 static char glyph_chars [NUM_GLYPH_CHAR_PATTERNS] =
   {
-      '*', ' ', '.', '>', 'A', 'B', 'C', 'D', 'E', 'F', 
-      'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 
-      'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 
+      '*', ' ', '.', '>', 'A', 'B', 'C', 'D', 'E', 'F',
+      'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+      'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
       '_', '-', '(', ')', '/'
   };
@@ -514,8 +514,8 @@ static char search_glyph_patterns(uint8* matrix)
       log_char_matrix_pattern(matrix);
 
       return ' ';
-  }  
-  
+  }
+
 static char get_lace_char(word36* buffer, uint char_pos)
   {
     if (char_pos >= GLYPHS_PER_CARD)
@@ -600,7 +600,7 @@ static void create_punch_file(pun_state_t * state)
         perror("creating punch '.pun' file\n");
       }
 
-  }  
+  }
 
 
 static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_count, bool banner_card)
@@ -624,7 +624,7 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
           int nibble_offset = nibble_index % 9;
           uint8 nibble = (in_buffer[word36_offset] >> ((8 - nibble_offset) * 4)) & 0xF;
 
-          if (nibble_index & 0x1) 
+          if (nibble_index & 0x1)
             {
               // Low nibble of byte
               byte_buffer[byte_offset] |= nibble;
@@ -659,7 +659,7 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
           }
         }
 
-  }  
+  }
 
 static void log_card(word12 tally, word36 * buffer)
   {
@@ -684,7 +684,7 @@ static void log_card(word12 tally, word36 * buffer)
             // 3 cols/word
             uint wordno = col / 3;
             uint fieldno = col % 3;
-            word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
+            word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row);
             if (bit)
                 sim_printf ("*");
             else
@@ -702,7 +702,7 @@ static void log_card(word12 tally, word36 * buffer)
             // 3 cols/word
             uint wordno = (uint) col / 3;
             uint fieldno = (uint) col % 3;
-            word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row); 
+            word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row);
             if (bit)
                 sim_printf ("*");
             else
@@ -952,7 +952,7 @@ static void unexpected_event(enum parse_event event, pun_state_t * state)
     print_state(state -> current_state);
 
     sim_warn("***\n");
-  }  
+  }
 
 static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
   {
@@ -973,7 +973,7 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
         enum parse_event current_event = event;
         event = NoEvent;
 
-        switch (current_event) 
+        switch (current_event)
           {
             case BannerCard:
               switch (state -> current_state)
@@ -989,7 +989,7 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
                   case EndOfDeck:
                     event = do_state_end_of_job(current_event, state, tally, card_buffer);
                     break;
-                      
+
                   default:
                     unexpected_event(current_event, state);
                     break;

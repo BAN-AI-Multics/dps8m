@@ -148,7 +148,9 @@ endif
 ifneq ($(MINGW_CROSS),1)
   CFLAGS += -DM_SHARED
   ifneq ($(OS),OSX)
-    LIBS += -lrt
+    ifneq ($(UNAME_S),OpenBSD)
+      LIBS += -lrt
+    endif
   endif
 endif
 
@@ -177,6 +179,9 @@ endif
 # What needs -lm explicitly?
 
 OSTYPE = $(shell $(UNAME) -s)
+ifeq ($(OSTYPE),OpenBSD)
+  LIBS += -lm
+endif
 ifeq ($(OSTYPE),FreeBSD)
   LIBS += -lm -pthread
 endif

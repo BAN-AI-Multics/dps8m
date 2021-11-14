@@ -17,7 +17,7 @@
  with **Red Hat Enterprise Linux**, **Fedora**, **Ubuntu**, and
  **OpenSUSE**.
 
- The operating systems, specifically IBM **AIX**, Apple **macOS**, Oracle
+ Other operating systems, specifically IBM **AIX**, Apple **macOS**, Oracle
  **Solaris**, and illumos **OpenIndiana** have also been used successfuly.
 
  The following packages are required (beyond the build prerequisites):
@@ -30,7 +30,6 @@
    * [GNU sed](https://www.gnu.org/software/sed/)
    * [GNU Wget](https://www.gnu.org/software/wget/)
    * [lzip](https://www.nongnu.org/lzip/)
-   * [tcsh](https://www.tcsh.org/)
    * **BSD**-derived `telnet`, such as,
      * [Apple Telnet](https://opensource.apple.com/)
      * [BAN TELNET](https://github.com/BAN-AI-Multics/ban-telnet)
@@ -69,18 +68,26 @@
 
  2. Set the `NOREBUILD` environment variable if you have already built the
     simulator, and want the tests to run against that compiled binary.
+```sh
+      export NOREBUILD=1
+```
 
- 3. Run the main script file with:
+ 3. Set the `MAKE` variable if GNU Make is not `make` on your system.
+ ```sh
+      export MAKE=gmake
+ ```
+
+ 4. Run the main script file with:
 ```sh
       ./ci
 ```
- 4. Once the run completes, you can normalize the logs so they can be
+ 5. Once the run completes, you can normalize the logs so they can be
     (*visually*) compared against the known-good reference log file:
 ```sh
       make -f ci.makefile diff
 ```
 
- 5. If this run looks good, (optionally) replace the `ci_full.log` with the
+ 6. If this run looks good, (optionally) replace the `ci_full.log` with the
     `ci_full.log.ref` to update the known-good reference log file.
 
 

@@ -3568,7 +3568,6 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
     cpu . rQ = remainder & MASK36;
 # endif
     HDBGRegAW ("dvf");
- 
 #endif
 
 //sim_debug (DBG_CAC, & cpu_dev, "Quotient %"PRId64" (%"PRIo64")\n", cpu . rA, cpu . rA);

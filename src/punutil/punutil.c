@@ -265,7 +265,7 @@ static word12 end_of_deck_card[] =
 
 /*
  *   MCC Punch Codes -> ASCI Conversion Table
- * The table entry is the MCC Punch Code and the 
+ * The table entry is the MCC Punch Code and the
  * index of the entry is the ASCII character code.
  */
 
@@ -402,7 +402,7 @@ static word12 mcc_punch_codes[128] =
 };
 
 static word12 row_bit_masks[] =
-    { 
+    {
         0x800,
         0x400,
         0x200,
@@ -470,7 +470,7 @@ static void convert_mcc_to_ascii(word12 *buffer, char *ascii_string)
 /*
  *                  Glyph Pattern Lookup
  * This is the parsing of the "lace" cards and extracting the ASCII characters
- * have been punched into the cards (as glphys) so the operator knows how to 
+ * have been punched into the cards (as glphys) so the operator knows how to
  * deliver the deck.
  */
 
@@ -711,7 +711,7 @@ static card_image_t *allocate_card()
     }
 
     memset(card, 0, sizeof(card_image_t));
-    
+
     return card;
 }
 
