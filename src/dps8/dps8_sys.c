@@ -66,7 +66,7 @@
 # include "panelScraper.h"
 #endif
 
-# include "segldr.h"
+#include "segldr.h"
 
 #define DBG_CTR cpu.cycleCnt
 

@@ -9353,8 +9353,8 @@ elapsedtime ();
     return SCPE_OK;
 }
 
-# include <ctype.h>
-# include <time.h>
+#include <ctype.h>
+#include <time.h>
 
 /*
  * emulator call instruction. Do whatever address field sez' ....
@@ -9477,13 +9477,13 @@ static int emCall (void)
         }
         case 6:     // putEAQ - put float contents of C(EAQ) to stdout
         {
-#  if !defined(__MINGW64__) || !defined(__MINGW32__)
+# if !defined(__MINGW64__) || !defined(__MINGW32__)
             long double eaq = EAQToIEEElongdouble ();
             sim_printf ("%12.8Lg", eaq);
-#  else
+# else
             double eaq = EAQToIEEEdouble();
             sim_printf("%12.8g", eaq);
-#  endif
+# endif
             break;
         }
         case 7:   // dump index registers
