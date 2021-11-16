@@ -19,7 +19,7 @@ extern DEVICE dia_dev;
 struct dia_unit_data
   {
     uint mailbox_address;
-    word24 l66_addr;
+    word24 l66Addr;
     int link;
   };
 

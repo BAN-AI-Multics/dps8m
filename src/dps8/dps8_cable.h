@@ -74,6 +74,7 @@ enum ctlr_type_e
      CTLR_T_OPC,
      CTLR_T_URP,
      CTLR_T_FNP,
+     CTLR_T_DIA,
      CTLR_T_ABSI,
      CTLR_T_SKC,
      // DEVT_DN355

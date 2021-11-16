@@ -23,8 +23,6 @@
 #include "dps8_cable.h"
 #include "dps8_utils.h"
 
-#include "udplib.h"
-
 #define DBG_CTR 1
 
 #ifdef THREADZ
@@ -217,7 +215,7 @@ static t_stat reset (UNUSED DEVICE * dptr)
     return SCPE_OK;
   }
 
-static t_stat attach (UNIT * uptr, const char * cptr)
+static t_stat dia_attach (UNIT * uptr, const char * cptr)
   {
     if (! cptr)
       return SCPE_ARG;
@@ -232,7 +230,7 @@ static t_stat attach (UNIT * uptr, const char * cptr)
     if ((uptr->flags & UNIT_ATT) != 0)
       detach_unit (uptr);
 
-    // Make a copy of the "file name" argument.  udp_create() actually modifies
+    // Make a copy of the "file name" argument.  dn_udp_create() actually modifies
     // the string buffer we give it, so we make a copy now so we'll have
     // something to display in the "SHOW DNn ..." command.
     pfn = (char *) calloc (CBUFSIZE, sizeof (char));
@@ -240,33 +238,38 @@ static t_stat attach (UNIT * uptr, const char * cptr)
       return SCPE_MEM;
     strncpy (pfn, cptr, CBUFSIZE);
 
+#ifdef PUNT
     // Create the UDP connection.
-    ret = udp_create (cptr, & dia_data.dia_unit_data[unitno].link);
+    ret = dn_udp_create (cptr, & dia_data.dia_unit_data[unitno].link);
     if (ret != SCPE_OK)
       {
         free (pfn);
         return ret;
       }
-
     uptr->flags |= UNIT_ATT;
     uptr->filename = pfn;
     return SCPE_OK;
+#else
+    return -7;
+#endif
   }
 
 // Detach (connect) ...
-static t_stat detach (UNIT * uptr)
+static t_stat dia_detach (UNIT * uptr)
   {
     int unitno = (int) (uptr - dia_unit);
     t_stat ret;
     if ((uptr->flags & UNIT_ATT) == 0)
       return SCPE_OK;
+#ifdef PUNT
     if (dia_data.dia_unit_data[unitno].link == NOLINK)
       return SCPE_OK;
 
-    ret = udp_release (dia_data.dia_unit_data[unitno].link);
+    ret = dn_udp_release (dia_data.dia_unit_data[unitno].link);
     if (ret != SCPE_OK)
       return ret;
     dia_data.dia_unit_data[unitno].link = NOLINK;
+#endif
     uptr->flags &= ~ (unsigned int) UNIT_ATT;
     free (uptr->filename);
     uptr->filename = NULL;
@@ -288,8 +291,8 @@ DEVICE dia_dev = {
     NULL,            /* deposit routine */
     reset,           /* reset routine */
     NULL,            /* boot routine */
-    attach,          /* attach routine */
-    detach,          /* detach routine */
+    dia_attach,          /* attach routine */
+    dia_detach,          /* detach routine */
     NULL,            /* context */
     DEV_DEBUG,       /* flags */
     0,               /* debug control flags */
@@ -348,7 +351,7 @@ void dia_init (void)
     memset(& dia_data, 0, sizeof(dia_data));
     for (uint unit_num = 0; unit_num < N_DIA_UNITS_MAX; unit_num ++)
       {
-        cables -> cables_from_iom_to_dia [unit_num].iomUnitIdx = -1;
+        //cables->iom_to_dia [unit_num].iomUnitIdx = -1;
         dia_data.dia_unit_data[unit_num].link = -1;
       }
   }
@@ -397,48 +400,40 @@ static uint virtToPhys (uint ptPtr, uint l66Address)
 //     cmd 1 - bootload
 //
 
-static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word24 l66_addr)
-  {
+static void cmd_bootload (uint iomUnitIdx, uint diaUnitIdx, uint chan, word24 l66Addr) {
+  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+  //uint diaUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
+  //UNIT * unitp = & opc_unit[con_unit_idx];
+  struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
+  struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailbox_address];
 
-    uint fnpno = dev_unit_idx; // XXX
-    //iom_chan_data_t * p = & iom_chan_data [iom_unit_idx] [chan];
-    struct dia_unit_data * dudp = & dia_data.dia_unit_data[fnpno];
-#ifdef SCUMEM
-    word24 offset;
-    int scu_unit_num =  query_IOM_SCU_bank_map (iom_unit_idx, dudp->mailbox_address, & offset);
-    int scu_unit_idx = cables->cablesFromScus[iom_unit_idx][scu_unit_num].scu_unit_idx;
-    struct mailbox vol * mbxp = (struct mailbox *) & scu[scu_unit_idx].M[decoded.dudp->mailbox_address];
-#else
-    struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailbox_address];
-#endif
+  dia_data.dia_unit_data[diaUnitIdx].l66Addr = l66Addr;
 
-    dia_data.dia_unit_data[dev_unit_idx].l66_addr = l66_addr;
-
-    dn_bootload pkt;
-    pkt.cmd = dn_cmd_bootload;
-    //pkt.dia_pcw = mbxp->dia_pcw;
-
-    sim_printf ("XXXXXXXXXXXXXXXXXXXXXXXXXXX cmd_bootload\r\n");
-    int rc = dn_udp_send (dia_data.dia_unit_data[dev_unit_idx].link,
-                          (uint8_t *) & pkt,
-                          (uint16_t) sizeof (pkt), PFLG_FINAL);
-    if (rc < 0)
-      {
-        fprintf (stderr, "udp_send failed\n");
-      }
+#ifdef PUNT
+  dnPktT pkt;
+  pkt.cmd = dn_cmd_bootload;
+  //pkt.dia_pcw = mbxp->dia_pcw;
+  int rc = dn_udp_send (dia_data.dia_unit_data[diaUnitIdx].link, (uint8_t *) & pkt, (uint16_t) sizeof (pkt), PFLG_FINAL);
+  if (rc < 0) {
+    fprintf (stderr, "dn_udp_send failed\n");
   }
+#endif
+}
 
-static int interruptL66 (uint iom_unit_idx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
-    struct device * d = & cables->cablesFromIomToDev[iom_unit_idx].
-      devices[chan][p->IDCW_DEV_CODE];
-    uint dev_unit_idx = d->devUnitIdx;
-    struct dia_unit_data * dudp = &dia_data.dia_unit_data[dev_unit_idx];
+static int interruptL66 (uint iomUnitIdx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+  uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+sim_printf ("punt 4\r\n");
+#if 0 // cac
+    //struct device * d = & cables->cablesFromIomToDev[iomUnitIdx].devices[chan][p->IDCW_DEV_CODE];
+    //uint diaUnitIdx = d->devUnitIdx;
+    struct ctlr_to_dev_s * dev_p = k
+    uint diaUnitIdx = dev_p[dev_num].unit_idx;
+    struct dia_unit_data * dudp = &dia_data.dia_unit_data[diaUnitIdx];
 #ifdef SCUMEM
     word24 offset;
-    int scu_unit_num =  query_IOM_SCU_bank_map (iom_unit_idx, dudp->mailbox_address, & offset);
-    int scu_unit_idx = cables->cablesFromScus[iom_unit_idx][scu_unit_num].scu_unit_idx;
+    int scu_unit_num =  query_IOM_SCU_bank_map (iomUnitIdx, dudp->mailbox_address, & offset);
+    int scu_unit_idx = cables->cablesFromScus[iomUnitIdx][scu_unit_num].scu_unit_idx;
     struct mailbox vol * mbxp = (struct mailbox *) & scu[scu_unit_idx].M[dudp->mailbox_address];
 #else
     struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailbox_address];
@@ -500,16 +495,19 @@ static int interruptL66 (uint iom_unit_idx, uint chan)
         // doFNPfault (...) // XXX
         return -1;
       }
+#endif
     return 0;
   }
 
-static void processMBX (uint iom_unit_idx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
-    struct device * d = & cables->cablesFromIomToDev[iom_unit_idx].
-      devices[chan][p->IDCW_DEV_CODE];
-    uint dev_unit_idx = d->devUnitIdx;
-    struct dia_unit_data * dudp = &dia_data.dia_unit_data[dev_unit_idx];
+static void processMBX (uint iomUnitIdx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+  uint diaUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
+  //UNIT * unitp = & opc_unit[con_unit_idx];
+  struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
+    //struct device * d = & cables->cablesFromIomToDev[iomUnitIdx].
+      //devices[chan][p->IDCW_DEV_CODE];
+    //uint diaUnitIdx = d->devUnitIdx;
+    //struct dia_unit_data * dudp = &dia_data.dia_unit_data[diaUnitIdx];
 
 // 60132445 FEP Coupler EPS
 // 2.2.1 Control Intercommunication
@@ -518,11 +516,11 @@ static void processMBX (uint iom_unit_idx, uint chan)
 // to Level 6 software is a mailbox area consisting to an Overhead
 // mailbox and 7 Channel mailboxes."
 
-    bool ok = true;
-    struct mailbox vol * mbxp = (struct mailbox vol *) & M [dudp -> mailbox_address];
+  bool ok = true;
+  struct mailbox vol * mbxp = (struct mailbox vol *) & M [dudp -> mailbox_address];
 
-    word36 dia_pcw;
-    dia_pcw = mbxp -> dia_pcw;
+  word36 dia_pcw;
+  dia_pcw = mbxp -> dia_pcw;
 //sim_printf ("mbx %08o:%012"PRIo64"\n", dudp -> mailbox_address, dia_pcw);
 
 // Mailbox word 0:
@@ -628,75 +626,72 @@ static void processMBX (uint iom_unit_idx, uint chan)
 //
 
     //uint chanNum = getbits36_6 (dia_pcw, 24);
-    uint command = getbits36_6 (dia_pcw, 30);
-    word36 bootloadStatus = 0;
+  uint command = getbits36_6 (dia_pcw, 30);
+  word36 bootloadStatus = 0;
 
-    if (command == 000) // reset
-      {
-          sim_debug (DBG_TRACE, & dia_dev, "FNP reset??\n");
-      }
-    else if (command == 072) // bootload
-      {
-        // 60132445 pg 49
-        // Extract L66 address from dia_pcw
+  if (command == 000) { // reset
+    sim_debug (DBG_TRACE, & dia_dev, "FNP reset??\n");
+  } else if (command == 072) { // bootload
+    // 60132445 pg 49
+    // Extract L66 address from dia_pcw
 
 // According to 60132445:
-        //word24 A = (word24) getbits36_18 (dia_pcw,  0);
-        //word24 B = (word24) getbits36_3  (dia_pcw, 24);
-        //word24 D = (word24) getbits36_3  (dia_pcw, 29);
-        //word24 l66_addr = (B << (24 - 3)) | (D << (24 - 3 - 3)) | A;
+    //word24 A = (word24) getbits36_18 (dia_pcw,  0);
+    //word24 B = (word24) getbits36_3  (dia_pcw, 24);
+    //word24 D = (word24) getbits36_3  (dia_pcw, 29);
+    //word24 l66Addr = (B << (24 - 3)) | (D << (24 - 3 - 3)) | A;
 // According to fnp_util.pl1:
 //     dcl  1 a_dia_pcw aligned based (mbxp),    /* better declaration than the one used when MCS is running */
 //            2 address fixed bin (18) unsigned unaligned,
-        word24 l66_addr = (word24) getbits36_18 (dia_pcw,  0);
-sim_printf ("l66_addr %08o\r\n", l66_addr);
+    word24 l66Addr = (word24) getbits36_18 (dia_pcw,  0);
+sim_printf ("l66Addr %08o\r\n", l66Addr);
 
-        uint phys_addr = virtToPhys (p->PCW_PAGE_TABLE_PTR, l66_addr);
+    uint phys_addr = virtToPhys (p->PCW_PAGE_TABLE_PTR, l66Addr);
 sim_printf ("phys_addr %08o\r\n", phys_addr);
 
-        word36 tcw;
-        fnp_core_read (phys_addr, & tcw, "tcw fetch");
+    word36 tcw;
+    fnp_core_read (phys_addr, & tcw, "tcw fetch");
 
 // Got 100000000517 as expected
 //sim_printf ("tcw %012llo\r\n", tcw);
 
-        //word36 tcw1;
-        //fnp_core_read (phys_addr + 1, & tcw1, "tcw fetch");
+    //word36 tcw1;
+    //fnp_core_read (phys_addr + 1, & tcw1, "tcw fetch");
 
 // Got 100002060002, as expected (first word of gicb)
 //sim_printf ("tcw1 %012llo\r\n", tcw1);
 
-        // pg 50 4.1.1.2 Transfer control word
-        // "The transfer control word, which is pointed to by the
-        // mailbox word in L66 memory on Op Codes 72, 75, 76 contains
-        // a starting address which applies to L6 memory and a Tally
-        // of the number of 36 bit words to be transferred. The L66
-        // memory locations to/from which the transfers occur are
-        // those immediately following the location where this word
-        // was obtained.
-        //
-        // 0-2: 001
-        // 3-17: L6 Address
-        // 18: P
-        // 19-23: MBZ
-        // 24-36: Tally
-        //
-        // The L6 Address field is interpreted as an effective L6 byte
-        // address as follows:
-        //
-        // If P = 0
-        //
-        // 0-7: 00000000
-        // 8-22: L6 Address field (bits 3-17)
-        // 23: 0
-        //
-        // If P = 1
-        //
-        // 0-14: L6 Address field (bits 3-17)
-        // 15-22: 0000000
-        // 23: 0
+    // pg 50 4.1.1.2 Transfer control word
+    // "The transfer control word, which is pointed to by the
+    // mailbox word in L66 memory on Op Codes 72, 75, 76 contains
+    // a starting address which applies to L6 memory and a Tally
+    // of the number of 36 bit words to be transferred. The L66
+    // memory locations to/from which the transfers occur are
+    // those immediately following the location where this word
+    // was obtained.
+    //
+    // 0-2: 001
+    // 3-17: L6 Address
+    // 18: P
+    // 19-23: MBZ
+    // 24-36: Tally
+    //
+    // The L6 Address field is interpreted as an effective L6 byte
+    // address as follows:
+    //
+    // If P = 0
+    //
+    // 0-7: 00000000
+    // 8-22: L6 Address field (bits 3-17)
+    // 23: 0
+    //
+    // If P = 1
+    //
+    // 0-14: L6 Address field (bits 3-17)
+    // 15-22: 0000000
+    // 23: 0
 
-        cmd_bootload (iom_unit_idx, dev_unit_idx, chan, l66_addr);
+    cmd_bootload (iomUnitIdx, diaUnitIdx, chan, l66Addr);
 
 // My understanding is that the FNP shouldn't clear the MBX PCW until
 // the bootload is complete; but the timeout in fnp_util$connect_to_dia_paged
@@ -705,125 +700,117 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
 // I am going ahead and acking, but it is unclear to me what the mechanism,
 // if any, is for FNP signaling completed successful bootload.
 
-        // Don't acknowledge the boot yet.
-        //dudp -> fnpIsRunning = true;
-        //return;
-      }
-    else if (command == 071) // interrupt L6
-      {
-        ok = interruptL66 (iom_unit_idx, chan) == 0;
-      }
-    else if (command == 075) // data xfer from L6 to L66
-      {
-        // Build the L66 address from the PCW
-        //   0-17 A
-        //  24-26 B
-        //  27-29 D Channel #
-        // Operation          C         A        B        D
-        // Data Xfer to L66  075    L66 Addr  L66 Addr  L66 Addr
-        //                           A6-A23    A0-A2     A3-A5
-        // These don't seem to be right; M[L66Add] is always 0.
-        //word24 A = (word24) getbits36_18 (dia_pcw,  0);
-        //word24 B = (word24) getbits36_3  (dia_pcw, 24);
-        //word24 D = (word24) getbits36_3  (dia_pcw, 29);
-        //word24 L66Addr = (B << (24 - 3)) | (D << (24 - 3 - 3)) | A;
+    // Don't acknowledge the boot yet.
+    //dudp -> fnpIsRunning = true;
+    //return;
+  } else if (command == 071) { // interrupt L6
+    ok = interruptL66 (iomUnitIdx, chan) == 0;
+  } else if (command == 075) { // data xfer from L6 to L66
+    // Build the L66 address from the PCW
+    //   0-17 A
+    //  24-26 B
+    //  27-29 D Channel #
+    // Operation          C         A        B        D
+    // Data Xfer to L66  075    L66 Addr  L66 Addr  L66 Addr
+    //                           A6-A23    A0-A2     A3-A5
+    // These don't seem to be right; M[L66Add] is always 0.
+    //word24 A = (word24) getbits36_18 (dia_pcw,  0);
+    //word24 B = (word24) getbits36_3  (dia_pcw, 24);
+    //word24 D = (word24) getbits36_3  (dia_pcw, 29);
+    //word24 L66Addr = (B << (24 - 3)) | (D << (24 - 3 - 3)) | A;
 
 
-        // According to fnp_util:
-        //  dcl  1 a_dia_pcw aligned based (mbxp),                      /* better declaration than the one used when MCS is running */
-        //         2 address fixed bin (18) unsigned unaligned,
-        //         2 error bit (1) unaligned,
-        //         2 pad1 bit (3) unaligned,
-        //         2 parity bit (1) unaligned,
-        //         2 pad2 bit (1) unaligned,
-        //         2 pad3 bit (3) unaligned,                            /* if we used address extension this would be important */
-        //         2 interrupt_level fixed bin (3) unsigned unaligned,
-        //         2 command bit (6) unaligned;
-        //
-        //   a_dia_pcw.address = address;
-        //
+    // According to fnp_util:
+    //  dcl  1 a_dia_pcw aligned based (mbxp),                      /* better declaration than the one used when MCS is running */
+    //         2 address fixed bin (18) unsigned unaligned,
+    //         2 error bit (1) unaligned,
+    //         2 pad1 bit (3) unaligned,
+    //         2 parity bit (1) unaligned,
+    //         2 pad2 bit (1) unaligned,
+    //         2 pad3 bit (3) unaligned,                            /* if we used address extension this would be important */
+    //         2 interrupt_level fixed bin (3) unsigned unaligned,
+    //         2 command bit (6) unaligned;
+    //
+    //   a_dia_pcw.address = address;
+    //
 
 
-        //word24 L66Addr = (word24) getbits36_18 (dia_pcw, 0);
-        //sim_printf ("L66 xfer\n");
-        //sim_printf ("PCW  %012"PRIo64"\n", dia_pcw);
-        //sim_printf ("L66Addr %08o\n", L66Addr);
-        //sim_printf ("M[] %012"PRIo64"\n", M[L66Addr]);
+    //word24 L66Addr = (word24) getbits36_18 (dia_pcw, 0);
+    //sim_printf ("L66 xfer\n");
+    //sim_printf ("PCW  %012"PRIo64"\n", dia_pcw);
+    //sim_printf ("L66Addr %08o\n", L66Addr);
+    //sim_printf ("M[] %012"PRIo64"\n", M[L66Addr]);
 
-        // 'dump_mpx d'
-        //L66 xfer
-        //PCW  022002000075
-        //L66Addr 00022002
-        //M[] 000000401775
-        //L66 xfer
-        //PCW  022002000075
-        //L66Addr 00022002
-        //M[] 003772401775
-        //L66 xfer
-        //PCW  022002000075
-        //L66Addr 00022002
-        //M[] 007764401775
-        //
-        // The contents of M seem much more reasonable, bit still don't match
-        // fnp_util$setup_dump_ctl_word. The left octet should be '1', not '0';
-        // bit 18 should be 0 not 1. But the offsets and tallies match exactly.
-        // Huh... Looking at 'dump_6670_control' control instead, it matches
-        // correctly. Apparently fnp_util thinks the FNP is a 6670, not a 335.
-        // I can't decipher the call path, so I don't know why; but looking at
-        // multiplexer_types.incl.pl1, I would guess that by MR12.x, all FNPs
-        // were 6670s.
-        //
-        // So:
-        //
-        //   dcl  1 dump_6670_control aligned based (data_ptr),
-        //         /* word used to supply DIA address and tally for fdump */
-        //          2 fnp_address fixed bin (18) unsigned unaligned,
-        //          2 unpaged bit (1) unaligned,
-        //          2 mbz bit (5) unaligned,
-        //          2 tally fixed bin (12) unsigned unaligned;
+    // 'dump_mpx d'
+    //L66 xfer
+    //PCW  022002000075
+    //L66Addr 00022002
+    //M[] 000000401775
+    //L66 xfer
+    //PCW  022002000075
+    //L66Addr 00022002
+    //M[] 003772401775
+    //L66 xfer
+    //PCW  022002000075
+    //L66Addr 00022002
+    //M[] 007764401775
+    //
+    // The contents of M seem much more reasonable, bit still don't match
+    // fnp_util$setup_dump_ctl_word. The left octet should be '1', not '0';
+    // bit 18 should be 0 not 1. But the offsets and tallies match exactly.
+    // Huh... Looking at 'dump_6670_control' control instead, it matches
+    // correctly. Apparently fnp_util thinks the FNP is a 6670, not a 335.
+    // I can't decipher the call path, so I don't know why; but looking at
+    // multiplexer_types.incl.pl1, I would guess that by MR12.x, all FNPs
+    // were 6670s.
+    //
+    // So:
+    //
+    //   dcl  1 dump_6670_control aligned based (data_ptr),
+    //         /* word used to supply DIA address and tally for fdump */
+    //          2 fnp_address fixed bin (18) unsigned unaligned,
+    //          2 unpaged bit (1) unaligned,
+    //          2 mbz bit (5) unaligned,
+    //          2 tally fixed bin (12) unsigned unaligned;
 
-        // Since the data is marked 'paged', and I don't understand the
-        // the paging mechanism or parameters, I'm going to punt here and
-        // not actually transfer any data.
-        sim_debug (DBG_TRACE, & dia_dev, "FNP data xfer??\n");
-      }
-    else
-      {
-        sim_warn ("bogus fnp command %d (%o)\n", command, command);
-        ok = false;
-      }
-
-    if (ok)
-      {
-        //if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailbox_address);
-        fnp_core_write (dudp -> mailbox_address, 0, "dia_iom_cmd clear dia_pcw");
-        putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
-        putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;
-        putbits36_8 (& bootloadStatus, 9, 0); // substatus = BOOTLOAD_OK;
-        putbits36_17 (& bootloadStatus, 17, 0); // channel_no = 0;
-        fnp_core_write (dudp -> mailbox_address + 6, bootloadStatus, "dia_iom_cmd set bootload status");
-      }
-    else
-      {
-        //dmpmbx (dudp->mailbox_address);
-        sim_printf ("%s not ok\r\n", __func__);
-// 3 error bit (1) unaligned, /* set to "1"b if error on connect */
-        putbits36_1 (& dia_pcw, 18, 1); // set bit 18
-        fnp_core_write (dudp -> mailbox_address, dia_pcw, "dia_iom_cmd set error bit");
-      }
+    // Since the data is marked 'paged', and I don't understand the
+    // the paging mechanism or parameters, I'm going to punt here and
+    // not actually transfer any data.
+    sim_debug (DBG_TRACE, & dia_dev, "FNP data xfer??\n");
+  } else {
+    sim_warn ("bogus fnp command %d (%o)\n", command, command);
+    ok = false;
   }
 
-static int dia_cmd (uint iom_unit_idx, uint chan)
+  if (ok) {
+    //if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailbox_address);
+    fnp_core_write (dudp -> mailbox_address, 0, "dia_iom_cmd clear dia_pcw");
+    putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
+    putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;
+    putbits36_8 (& bootloadStatus, 9, 0); // substatus = BOOTLOAD_OK;
+    putbits36_17 (& bootloadStatus, 17, 0); // channel_no = 0;
+    fnp_core_write (dudp -> mailbox_address + 6, bootloadStatus, "dia_iom_cmd set bootload status");
+  } else {
+    //dmpmbx (dudp->mailbox_address);
+    sim_printf ("%s not ok\r\n", __func__);
+// 3 error bit (1) unaligned, /* set to "1"b if error on connect */
+    putbits36_1 (& dia_pcw, 18, 1); // set bit 18
+    fnp_core_write (dudp -> mailbox_address, dia_pcw, "dia_iom_cmd set error bit");
+  }
+}
+
+static int dia_cmd (uint iomUnitIdx, uint chan)
   {
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
     p -> stati = 0;
-//sim_printf ("fnp cmd %d\n", p -> IDCW_DEV_CMD);
+sim_printf ("fnp cmd %d\n", p -> IDCW_DEV_CMD);
     switch (p -> IDCW_DEV_CMD)
       {
         case 000: // CMD 00 Request status
           {
             p -> stati = 04000;
             sim_debug (DBG_NOTIFY, & dia_dev, "Request status\n");
+sim_printf ("Request status\r\n");
           }
           break;
 
@@ -837,9 +824,10 @@ static int dia_cmd (uint iom_unit_idx, uint chan)
           return IOM_CMD_ERROR;
       }
 
-    processMBX (iom_unit_idx, chan);
+    processMBX (iomUnitIdx, chan);
 
-    return IOM_CMD_NO_DCW; // did command, don't want more
+    //return IOM_CMD_NO_DCW; // did command, don't want more
+    return IOM_CMD_DISCONNECT; // did command, don't want more
   }
 
 /*
@@ -851,15 +839,15 @@ static int dia_cmd (uint iom_unit_idx, uint chan)
 // 0 ok
 // -1 problem
 
-int dia_iom_cmd (uint iom_unit_idx, uint chan)
+int dia_iom_cmd (uint iomUnitIdx, uint chan)
   {
-sim_printf ("dia_iom_cmd %u %u\r\n", iom_unit_idx, chan);
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+sim_printf ("dia_iom_cmd %u %u\r\n", iomUnitIdx, chan);
+    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
 // Is it an IDCW?
 
     if (IS_IDCW (p))
       {
-        return dia_cmd (iom_unit_idx, chan);
+        return dia_cmd (iomUnitIdx, chan);
       }
     // else // DDCW/TDCW
     sim_printf ("%s expected IDCW\n", __func__);
@@ -896,6 +884,7 @@ static uint8_t pkt[psz];
 // warning: returns ptr to static buffer
 static int poll_coupler (uint unitno, uint8_t * * pktp)
   {
+#ifdef PUNT
     int sz = dn_udp_receive (dia_data.dia_unit_data[unitno].link, pkt, psz);
     if (sz < 0)
       {
@@ -904,11 +893,16 @@ static int poll_coupler (uint unitno, uint8_t * * pktp)
       }
     * pktp = pkt;
     return sz;
+#else
+    return 0;
+#endif
   }
 
 
 void dia_unit_process_events (uint unit_num)
   {
+sim_printf ("punt 5\r\n");
+#if 0 // cac
 // XXX rememeber
 // XXX        //dudp -> fnpIsRunning = true;
 // XXX when bootload complete!
@@ -937,6 +931,7 @@ void dia_unit_process_events (uint unit_num)
            break;
          }
      }
+#endif
   }
 
 void dia_process_events (void)

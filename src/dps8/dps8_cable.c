@@ -63,6 +63,10 @@
 //
 //      Connect IOM i channel j to FNP k.
 //
+//   CABLE IOMi j DIAk
+//
+//      Connect IOM i channel j to DIA k.
+//
 //   CABLE IOMi j ABSIk
 //
 //      Connect IOM i channel j to ABSI k.
@@ -112,6 +116,7 @@
 #include "dps8_console.h"
 #include "dps8_disk.h"
 #include "dps8_fnp2.h"
+#include "dps8_dia.h"
 #include "dps8_urp.h"
 #include "dps8_crdrdr.h"
 #include "dps8_crdpun.h"
@@ -138,7 +143,7 @@ struct cables_s * cables = NULL;
 char * ctlr_type_strs [/* enum ctlr_type_e */] =
   {
     "none", "MTP", "MSP", "IPC", "OPC",
-    "URP", "FNP", "ABSI", "SKC"
+    "URP", "FNP", "ABSI", "SKC", "DIA"
   };
 
 char * chan_type_strs [/* enum ctlr_type_e */] =
@@ -634,6 +639,7 @@ static t_stat cable_ctlr (int uncable,
 //    cable IOMx chah# IPCx [port#] // FIPS disk controller
 //    cable IOMx chan# OPCx       // Operator console
 //    cable IOMx chan# FNPx       // FNP
+//    cable IOMx chan# DIAx       // DIA
 //    cable IOMx chan# ABSIx      // ABSI
 //    cable IOMx chan# SKCx       // Socket controller
 
@@ -824,6 +830,26 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            & cables->fnp_to_iom[unit_idx][fnp_port_num],
                            CTLR_T_FNP, chan_type_direct,
                            & fnp_unit [unit_idx], fnp_iom_cmd);
+      }
+
+// IOMx DIAx
+    if (name_match (param, "DIA", & unit_idx))
+      {
+        if (unit_idx >= N_DIA_UNITS_MAX)
+          {
+            sim_printf ("error: CABLE IOM: DIA unit number out of range <%d>\n", unit_idx);
+            return SCPE_ARG;
+          }
+
+        uint dia_port_num = 0;
+        return cable_ctlr (uncable,
+                           iom_unit_idx, (uint) chan_num,
+                           unit_idx, dia_port_num,
+                           "CABLE IOMx diax",
+                           & dia_dev,
+                           & cables->dia_to_iom[unit_idx][dia_port_num],
+                           CTLR_T_DIA, chan_type_direct,
+                           & dia_unit [unit_idx], dia_iom_cmd);
       }
 
 #ifndef __MINGW64__
@@ -1373,6 +1399,7 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         CTLR_IOM (IPC, ipc)
         CTLR_IOM (URP, urp)
         CTLR_IOM (FNP, fnp)
+        CTLR_IOM (DIA, dia)
         CTLR_IOM (DIA, dia)
 #ifndef __MINGW64__
 # ifndef __MINGW32__
