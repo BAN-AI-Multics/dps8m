@@ -1,3 +1,4 @@
+#define DDBG(x) x
 /*
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
@@ -28,6 +29,225 @@
 #ifdef THREADZ
 # include "threadz.h"
 #endif
+
+
+// libuv interface
+
+//
+// alloc_buffer: libuv callback handler to allocate buffers for incomingd data.
+//
+
+static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size,
+                          uv_buf_t * buf)
+  {
+    * buf = uv_buf_init ((char *) malloc (suggested_size), (uint) suggested_size);
+  }
+
+
+/* From sim_sock.c */
+
+/* sim_parse_addr       host:port
+
+   Presumption is that the input, if it doesn't contain a ':' character is a port specifier.
+   If the host field contains one or more colon characters (i.e. it is an IPv6 address),
+   the IPv6 address MUST be enclosed in square bracket characters (i.e. Domain Literal format)
+
+   Inputs:
+        cptr    =       pointer to input string
+        default_host
+                =       optional pointer to default host if none specified
+        host_len =      length of host buffer
+        default_port
+                =       optional pointer to default port if none specified
+        port_len =      length of port buffer
+        validate_addr = optional name/addr which is checked to be equivalent
+                        to the host result of parsing the other input.  This
+                        address would usually be returned by sim_accept_conn.
+   Outputs:
+        host    =       pointer to buffer for IP address (may be NULL), 0 = none
+        port    =       pointer to buffer for IP port (may be NULL), 0 = none
+        result  =       status (0 on complete success or -1 if
+                        parsing can't happen due to bad syntax, a value is
+                        out of range, a result can't fit into a result buffer,
+                        a service name doesn't exist, or a validation name
+                        doesn't match the parsed host)
+*/
+
+static int sim_parse_addr (const char *cptr, char *host, size_t host_len, const char *default_host, char *port, size_t port_len, const char *default_port, const char *validate_addr) {
+  char gbuf[CBUFSIZE], default_pbuf[CBUFSIZE];
+  const char *hostp;
+  char *portp;
+  char *endc;
+  unsigned long portval;
+
+  if ((host != NULL) && (host_len != 0))
+    memset (host, 0, host_len);
+  if ((port != NULL) && (port_len != 0))
+    memset (port, 0, port_len);
+  if ((cptr == NULL) || (*cptr == 0)) {
+    if (((default_host == NULL) || (*default_host == 0)) || ((default_port == NULL) || (*default_port == 0)))
+      return -1;
+    if ((host == NULL) || (port == NULL))
+      return -1;                                  /* no place */
+    if ((strlen(default_host) >= host_len) || (strlen(default_port) >= port_len))
+      return -1;                                  /* no room */
+    strcpy (host, default_host);
+    strcpy (port, default_port);
+    return 0;
+  }
+  memset (default_pbuf, 0, sizeof (default_pbuf));
+  if (default_port)
+    strncpy (default_pbuf, default_port, sizeof (default_pbuf)-1);
+  gbuf[sizeof (gbuf)-1] = '\0';
+  strncpy (gbuf, cptr, sizeof (gbuf)-1);
+  hostp = gbuf;                                           /* default addr */
+  portp = NULL;
+  if ((portp = strrchr (gbuf, ':')) &&                    /* x:y? split */
+      (NULL == strchr (portp, ']'))) {
+    *portp++ = 0;
+    if (*portp == '\0')
+      portp = default_pbuf;
+  } else {                                                  /* No colon in input */
+    portp = gbuf;                                       /* Input is the port specifier */
+    hostp = (const char *)default_host;                 /* host is defaulted if provided */
+  }
+  if (portp != NULL) {
+    portval = strtoul (portp, &endc, 10);
+    if ((*endc == '\0') && ((portval == 0) || (portval > 65535)))
+      return -1;                                      /* numeric value too big */
+    if (*endc != '\0') {
+      struct servent *se = getservbyname (portp, "tcp");
+
+      if (se == NULL)
+        return -1;                                  /* invalid service name */
+    }
+  }
+  if (port)                                               /* port wanted? */
+    if (portp != NULL) {
+      if (strlen (portp) >= port_len)
+        return -1;                                  /* no room */
+      else
+        strcpy (port, portp);
+    }
+  if (hostp != NULL) {
+    if (']' == hostp[strlen (hostp)-1]) {
+      if ('[' != hostp[0])
+        return -1;                                  /* invalid domain literal */
+      /* host may be the const default_host so move to temp buffer before modifying */
+      strncpy (gbuf, hostp+1, sizeof (gbuf)-1);         /* remove brackets from domain literal host */
+      gbuf[strlen (gbuf)-1] = '\0';
+      hostp = gbuf;
+    }
+  }
+  if (host) {                                             /* host wanted? */
+    if (hostp != NULL) {
+      if (strlen (hostp) >= host_len)
+        return -1;                                  /* no room */
+      else
+        if (('\0' != hostp[0]) || (default_host == NULL))
+          strcpy (host, hostp);
+        else if (strlen (default_host) >= host_len)
+          return -1;                          /* no room */
+        else
+          strcpy (host, default_host);
+    } else {
+      if (default_host) {
+        if (strlen (default_host) >= host_len)
+          return -1;                              /* no room */
+        else
+          strcpy (host, default_host);
+      }
+    }
+  }
+  if (validate_addr) {
+    struct addrinfo *ai_host, *ai_validate, *ai, *aiv;
+    int status;
+
+    if (hostp == NULL)
+      return -1;
+    if (getaddrinfo (hostp, NULL, NULL, & ai_host))
+      return -1;
+    if (getaddrinfo (validate_addr, NULL, NULL, & ai_validate))
+      return -1;
+    status = -1;
+    for (ai = ai_host; ai != NULL; ai = ai->ai_next) {
+      for (aiv = ai_validate; aiv != NULL; aiv = aiv->ai_next) {
+        if ((ai->ai_addrlen == aiv->ai_addrlen) &&
+            (ai->ai_family == aiv->ai_family) &&
+            (0 == memcmp (ai->ai_addr, aiv->ai_addr, ai->ai_addrlen))) {
+          status = 0;
+          break;
+        }
+      }
+    }
+    if (status != 0) {
+      /* be generous and allow successful validations against variations of localhost addresses */
+      if (((0 == strcmp ("127.0.0.1", hostp)) &&
+           (0 == strcmp ("::1", validate_addr))) ||
+          ((0 == strcmp ("127.0.0.1", validate_addr)) &&
+           (0 == strcmp ("::1", hostp))))
+        status = 0;
+    }
+    return status;
+  }
+  return 0;
+}
+
+// From sihm udplib
+
+static int udp_parse_remote (const char * premote, int32_t * lport, char * rhost, size_t rhostl, int32_t * rport) {
+  // This routine will parse a remote address string in any of these forms -
+  //
+  //            llll:w.x.y.z:rrrr
+  //            llll:name.domain.com:rrrr
+  //            llll::rrrr
+  //            w.x.y.z:rrrr
+  //            name.domain.com:rrrr
+  //
+  // In all examples, "llll" is the local port number that we use for listening,
+  // and "rrrr" is the remote port number that we use for transmitting.  The
+  // local port is optional and may be omitted, in which case it defaults to the
+  // same as the remote port.  This works fine if the other IMP is actually on
+  // a different host, but don't try that with localhost - you'll be talking to
+  // yourself!!  In both cases, "w.x.y.z" is a dotted IP for the remote machine
+  // and "name.domain.com" is its name (which will be looked up to get the IP).
+  // If the host name/IP is omitted then it defaults to "localhost".
+
+  char * end;
+  int32_t lportno, rportno;
+  char host [64], port [16];
+  if (* premote == '\0')
+    return -1;
+  * lport = 0;
+  * rhost = '\0';
+  * rport = 0;
+  // Handle the llll::rrrr case first
+  if (2 == sscanf (premote, "%d::%d", & lportno, & rportno)) {
+    if ((lportno < 1) || (lportno >65535) || (rportno < 1) || (rportno >65535))
+      return -1;
+    * lport = lportno;
+    strncpy (rhost, "localhost", rhostl);
+    * rport = rportno;
+    return 0;
+  }
+
+    // Look for the local port number and save it away.
+  lportno = (int) strtoul (premote, & end, 10);
+  if ((* end == ':') && (lportno > 0)) {
+    * lport = lportno;
+    premote = end + 1;
+  }
+
+  if (sim_parse_addr (premote, host, sizeof (host), "localhost", port, sizeof (port), NULL, NULL) != -1 /* SCPE_OK */)
+    return -1;
+  strncpy (rhost, host, rhostl);
+  * rport = atoi (port);
+  if (* lport == 0)
+  * lport = atoi (port);
+  if (* lport == * rport && (strcmp ("localhost", host) == 0))
+    sim_warn ("WARNING - use different transmit and receive ports!\r\n");
+  return 0;
+}
 
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
@@ -81,7 +301,7 @@ static t_stat set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUS
               break;
 
             case 0: // mailbox
-              dudp -> mailbox_address = (uint) v;
+              dudp -> mailboxAddress = (uint) v;
               break;
 
             default:
@@ -111,7 +331,7 @@ static t_stat show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     sim_printf ("DIA unit number %ld\n", unit_idx);
     struct dia_unit_data * dudp = dia_data.dia_unit_data + unit_idx;
 
-    sim_printf ("DIA Mailbox Address:         %04o(8)\n", dudp -> mailbox_address);
+    sim_printf ("DIA Mailbox Address:         %04o(8)\n", dudp -> mailboxAddress);
 
     return SCPE_OK;
   }
@@ -132,7 +352,7 @@ static t_stat show_status (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     sim_printf ("DIA unit number %ld\n", dia_unit_idx);
     struct dia_unit_data * dudp = dia_data.dia_unit_data + dia_unit_idx;
 
-    sim_printf ("mailbox_address:              %04o\n", dudp->mailbox_address);
+    sim_printf ("mailboxAddress:              %04o\n", dudp->mailboxAddress);
     return SCPE_OK;
   }
 
@@ -215,66 +435,77 @@ static t_stat reset (UNUSED DEVICE * dptr)
     return SCPE_OK;
   }
 
-static t_stat dia_attach (UNIT * uptr, const char * cptr)
-  {
-    if (! cptr)
-      return SCPE_ARG;
-    int unitno = (int) (uptr - dia_unit);
+static t_stat dia_attach (UNIT * uptr, const char * cptr) {
+  if (! cptr)
+    return SCPE_ARG;
+  int unitIdx = (int) (uptr - dia_unit);
 
-    // ATTACH DNn llll:w.x.y.z:rrrr - connect via UDP to a remote simh host
+  // ATTACH DNn llll:w.x.y.z:rrrr - connect via UDP to a remote simh host
 
-    t_stat ret;
-    char * pfn;
+  char * pfn;
 
-    // If we're already attached, then detach ...
-    if ((uptr->flags & UNIT_ATT) != 0)
-      detach_unit (uptr);
+  // If we're already attached, then detach ...
+  if ((uptr->flags & UNIT_ATT) != 0)
+    detach_unit (uptr);
 
-    // Make a copy of the "file name" argument.  dn_udp_create() actually modifies
-    // the string buffer we give it, so we make a copy now so we'll have
-    // something to display in the "SHOW DNn ..." command.
-    pfn = (char *) calloc (CBUFSIZE, sizeof (char));
-    if (pfn == NULL)
-      return SCPE_MEM;
-    strncpy (pfn, cptr, CBUFSIZE);
+  // Make a copy of the "file name" argument.  dn_udp_create() actually modifies
+  // the string buffer we give it, so we make a copy now so we'll have
+  // something to display in the "SHOW DNn ..." command.
+  pfn = (char *) calloc (CBUFSIZE, sizeof (char));
+  if (pfn == NULL)
+    return SCPE_MEM;
+  strncpy (pfn, cptr, CBUFSIZE);
 
-#ifdef PUNT
-    // Create the UDP connection.
-    ret = dn_udp_create (cptr, & dia_data.dia_unit_data[unitno].link);
-    if (ret != SCPE_OK)
-      {
-        free (pfn);
-        return ret;
-      }
-    uptr->flags |= UNIT_ATT;
-    uptr->filename = pfn;
-    return SCPE_OK;
-#else
-    return -7;
-#endif
+  int32_t lport, rport;
+  char rhost[64];
+  int rc = udp_parse_remote (cptr, & lport, rhost, sizeof (rhost), & rport);
+  if (rc) {
+    sim_warn ("unable to parse address\r\n");
+    return SCPE_ARG;
   }
+  // sim_printf ("%d %d:%s:%d\r\n", rc, lport, rhost, rport);
+
+  struct sockaddr_in addr;
+  uv_ip4_addr ("0.0.0.0", lport, & addr);
+
+  rc = uv_udp_init (uv_default_loop (), & dia_data.dia_unit_data[unitIdx].socket);
+  if (rc) {
+    sim_warn ("unable to init socket\r\n");
+    return SCPE_ARG;
+  }
+  rc = uv_udp_bind (& dia_data.dia_unit_data[unitIdx].socket, (struct sockaddr *) & addr, UV_UDP_REUSEADDR);
+  if (rc) {
+    sim_warn ("unable to bind socket\r\n");
+    return SCPE_ARG;
+  }
+
+  uptr->flags |= UNIT_ATT;
+  uptr->filename = pfn;
+  //free (pfn);
+  dia_data.dia_unit_data[unitIdx].connected = true;
+  return SCPE_OK;
+}
+
+static void close_cb (uv_handle_t * stream) {
+  free (stream);
+}
 
 // Detach (connect) ...
-static t_stat dia_detach (UNIT * uptr)
-  {
-    int unitno = (int) (uptr - dia_unit);
-    t_stat ret;
-    if ((uptr->flags & UNIT_ATT) == 0)
-      return SCPE_OK;
-#ifdef PUNT
-    if (dia_data.dia_unit_data[unitno].link == NOLINK)
-      return SCPE_OK;
-
-    ret = dn_udp_release (dia_data.dia_unit_data[unitno].link);
-    if (ret != SCPE_OK)
-      return ret;
-    dia_data.dia_unit_data[unitno].link = NOLINK;
-#endif
-    uptr->flags &= ~ (unsigned int) UNIT_ATT;
-    free (uptr->filename);
-    uptr->filename = NULL;
+static t_stat dia_detach (UNIT * uptr) {
+  int unitIdx = (int) (uptr - dia_unit);
+  if ((uptr->flags & UNIT_ATT) == 0)
     return SCPE_OK;
-  }
+  if (! dia_data.dia_unit_data[unitIdx].connected)
+    return SCPE_OK;
+
+  uv_close ((uv_handle_t *) & dia_data.dia_unit_data[unitIdx].socket, close_cb);
+
+  dia_data.dia_unit_data[unitIdx].connected = false;
+  uptr->flags &= ~ (unsigned int) UNIT_ATT;
+  free (uptr->filename);
+  uptr->filename = NULL;
+  return SCPE_OK;
+}
 
 DEVICE dia_dev = {
     "DIA",           /* name */
@@ -340,6 +571,8 @@ struct mailbox
 
 #define MAILBOX_WORDS (sizeof (struct mailbox) / sizeof (word36))
 #define TERM_INPT_MPX_WD (offsetof (struct mailbox, term_inpt_mpx_wd) / sizeof (word36))
+#define DIA_PCW                     (offsetof (struct mailbox, dia_pcw) / sizeof (word36))
+
 
 //
 // Once-only initialization
@@ -351,8 +584,6 @@ void dia_init (void)
     memset(& dia_data, 0, sizeof(dia_data));
     for (uint unit_num = 0; unit_num < N_DIA_UNITS_MAX; unit_num ++)
       {
-        //cables->iom_to_dia [unit_num].iomUnitIdx = -1;
-        dia_data.dia_unit_data[unit_num].link = -1;
       }
   }
 
@@ -405,7 +636,7 @@ static void cmd_bootload (uint iomUnitIdx, uint diaUnitIdx, uint chan, word24 l6
   //uint diaUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
   //UNIT * unitp = & opc_unit[con_unit_idx];
   struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
-  struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailbox_address];
+  struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailboxAddress];
 
   dia_data.dia_unit_data[diaUnitIdx].l66Addr = l66Addr;
 
@@ -422,24 +653,19 @@ static void cmd_bootload (uint iomUnitIdx, uint diaUnitIdx, uint chan, word24 l6
 
 static int interruptL66 (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-  uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-sim_printf ("punt 4\r\n");
-#if 0 // cac
-    //struct device * d = & cables->cablesFromIomToDev[iomUnitIdx].devices[chan][p->IDCW_DEV_CODE];
-    //uint diaUnitIdx = d->devUnitIdx;
-    struct ctlr_to_dev_s * dev_p = k
-    uint diaUnitIdx = dev_p[dev_num].unit_idx;
-    struct dia_unit_data * dudp = &dia_data.dia_unit_data[diaUnitIdx];
+  uint diaUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
+  struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
+  DDBG (sim_printf ("interruptL66 iomUnitIdx %o chan %o diaUnitIdx %o mbox %08o\r\n", iomUnitIdx, chan, diaUnitIdx, dudp->mailboxAddress));
 #ifdef SCUMEM
-    word24 offset;
-    int scu_unit_num =  query_IOM_SCU_bank_map (iomUnitIdx, dudp->mailbox_address, & offset);
-    int scu_unit_idx = cables->cablesFromScus[iomUnitIdx][scu_unit_num].scu_unit_idx;
-    struct mailbox vol * mbxp = (struct mailbox *) & scu[scu_unit_idx].M[dudp->mailbox_address];
+  word24 offset;
+  int scu_unit_num =  query_IOM_SCU_bank_map (iomUnitIdx, dudp->mailboxAddress, & offset);
+  int scu_unit_idx = cables->cablesFromScus[iomUnitIdx][scu_unit_num].scu_unit_idx;
+  struct mailbox vol * mbxp = (struct mailbox *) & scu[scu_unit_idx].M[dudp->mailboxAddress];
 #else
-    struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailbox_address];
+  struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailboxAddress];
 #endif
-    word36 dia_pcw = mbxp -> dia_pcw;
-
+  word36 dia_pcw = mbxp -> dia_pcw;
+  DDBG (sim_printf ("dia_pcw %012llo\r\n", dia_pcw));
 // AN85, pg 13-5
 // When the CS has control information or output data to send
 // to the FNP, it fills in a submailbox as described in Section 4
@@ -476,6 +702,7 @@ sim_printf ("punt 4\r\n");
 
     word6 cell = getbits36_6 (dia_pcw, 24);
     sim_debug (DBG_TRACE, & dia_dev, "CS interrupt %u\n", cell);
+    DDBG (sim_printf ("CS interrupt %u\n", cell));
     if (cell < 8)
       {
         //interruptL66_CS_to_FNP ();
@@ -495,7 +722,6 @@ sim_printf ("punt 4\r\n");
         // doFNPfault (...) // XXX
         return -1;
       }
-#endif
     return 0;
   }
 
@@ -517,11 +743,13 @@ static void processMBX (uint iomUnitIdx, uint chan) {
 // mailbox and 7 Channel mailboxes."
 
   bool ok = true;
-  struct mailbox vol * mbxp = (struct mailbox vol *) & M [dudp -> mailbox_address];
+  struct mailbox vol * mbxp = (struct mailbox vol *) & M [dudp -> mailboxAddress];
 
   word36 dia_pcw;
-  dia_pcw = mbxp -> dia_pcw;
-//sim_printf ("mbx %08o:%012"PRIo64"\n", dudp -> mailbox_address, dia_pcw);
+  //dia_pcw = mbxp -> dia_pcw;
+  iom_direct_data_service (iomUnitIdx, chan, dudp->mailboxAddress+DIA_PCW, & dia_pcw, direct_load);
+
+  DDBG (sim_printf ("mbx %08o:%012"PRIo64"\n", dudp -> mailboxAddress, dia_pcw));
 
 // Mailbox word 0:
 //
@@ -630,7 +858,8 @@ static void processMBX (uint iomUnitIdx, uint chan) {
   word36 bootloadStatus = 0;
 
   if (command == 000) { // reset
-    sim_debug (DBG_TRACE, & dia_dev, "FNP reset??\n");
+    sim_debug (DBG_TRACE, & dia_dev, "%s: chan %d reset command\n", __func__, chan);
+    send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
   } else if (command == 072) { // bootload
     // 60132445 pg 49
     // Extract L66 address from dia_pcw
@@ -644,13 +873,29 @@ static void processMBX (uint iomUnitIdx, uint chan) {
 //     dcl  1 a_dia_pcw aligned based (mbxp),    /* better declaration than the one used when MCS is running */
 //            2 address fixed bin (18) unsigned unaligned,
     word24 l66Addr = (word24) getbits36_18 (dia_pcw,  0);
-sim_printf ("l66Addr %08o\r\n", l66Addr);
+    DDBG (sim_printf ("l66Addr %08o\r\n", l66Addr));
 
-    uint phys_addr = virtToPhys (p->PCW_PAGE_TABLE_PTR, l66Addr);
-sim_printf ("phys_addr %08o\r\n", phys_addr);
+    word36 dcw;
+    iom_direct_data_service (iomUnitIdx, chan, l66Addr, & dcw, direct_load);
+    word12 tally = getbits36_12 (dcw, 24);
+    DDBG (sim_printf ("dcw %012llo\n", dcw));
+    DDBG (sim_printf ("tally %o %d.\n", tally, tally));
 
-    word36 tcw;
-    fnp_core_read (phys_addr, & tcw, "tcw fetch");
+    // Calculate start of core image
+    word24 image_off = (tally + 64) & 077777700;
+    DDBG (sim_printf ("image_off %o %d.\n", image_off, image_off));
+
+DDBG (
+for (uint i = 0; i < 4096; i ++) {
+  if (i % 4 == 0) sim_printf ("%06o", i);
+  word36 word0;
+  iom_direct_data_service (iomUnitIdx, chan, l66Addr + i, & word0, direct_load);
+  sim_printf (" %012llo", word0);
+  if (i % 4 == 3) sim_printf ("\r\n");
+  };
+)
+    //word36 tcw;
+    //fnp_core_read (phys_addr, & tcw, "tcw fetch");
 
 // Got 100000000517 as expected
 //sim_printf ("tcw %012llo\r\n", tcw);
@@ -783,19 +1028,19 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
   }
 
   if (ok) {
-    //if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailbox_address);
-    fnp_core_write (dudp -> mailbox_address, 0, "dia_iom_cmd clear dia_pcw");
+    //if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailboxAddress);
+    fnp_core_write (dudp -> mailboxAddress, 0, "dia_iom_cmd clear dia_pcw");
     putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
     putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;
     putbits36_8 (& bootloadStatus, 9, 0); // substatus = BOOTLOAD_OK;
     putbits36_17 (& bootloadStatus, 17, 0); // channel_no = 0;
-    fnp_core_write (dudp -> mailbox_address + 6, bootloadStatus, "dia_iom_cmd set bootload status");
+    fnp_core_write (dudp -> mailboxAddress + 6, bootloadStatus, "dia_iom_cmd set bootload status");
   } else {
-    //dmpmbx (dudp->mailbox_address);
+    //dmpmbx (dudp->mailboxAddress);
     sim_printf ("%s not ok\r\n", __func__);
 // 3 error bit (1) unaligned, /* set to "1"b if error on connect */
     putbits36_1 (& dia_pcw, 18, 1); // set bit 18
-    fnp_core_write (dudp -> mailbox_address, dia_pcw, "dia_iom_cmd set error bit");
+    fnp_core_write (dudp -> mailboxAddress, dia_pcw, "dia_iom_cmd set error bit");
   }
 }
 
@@ -803,14 +1048,14 @@ static int dia_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
     p -> stati = 0;
-sim_printf ("fnp cmd %d\n", p -> IDCW_DEV_CMD);
+    DDBG (sim_printf ("fnp cmd %d\n", p -> IDCW_DEV_CMD));
     switch (p -> IDCW_DEV_CMD)
       {
         case 000: // CMD 00 Request status
           {
             p -> stati = 04000;
             sim_debug (DBG_NOTIFY, & dia_dev, "Request status\n");
-sim_printf ("Request status\r\n");
+            DDBG (sim_printf ("Request status\r\n"));
           }
           break;
 
@@ -841,7 +1086,7 @@ sim_printf ("Request status\r\n");
 
 int dia_iom_cmd (uint iomUnitIdx, uint chan)
   {
-sim_printf ("dia_iom_cmd %u %u\r\n", iomUnitIdx, chan);
+    DDBG (sim_printf ("dia_iom_cmd %u %u\r\n", iomUnitIdx, chan));
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
 // Is it an IDCW?
 
@@ -882,10 +1127,10 @@ static void load_stored_boot (void)
 static uint8_t pkt[psz];
 
 // warning: returns ptr to static buffer
-static int poll_coupler (uint unitno, uint8_t * * pktp)
+static int poll_coupler (uint unitIdx, uint8_t * * pktp)
   {
 #ifdef PUNT
-    int sz = dn_udp_receive (dia_data.dia_unit_data[unitno].link, pkt, psz);
+    int sz = dn_udp_receive (dia_data.dia_unit_data[unitIdx].link, pkt, psz);
     if (sz < 0)
       {
         sim_printf ("dn_udp_receive failed: %d\n", sz);
@@ -901,7 +1146,7 @@ static int poll_coupler (uint unitno, uint8_t * * pktp)
 
 void dia_unit_process_events (uint unit_num)
   {
-sim_printf ("punt 5\r\n");
+    DDBG (sim_printf ("punt 5\r\n"));
 #if 0 // cac
 // XXX rememeber
 // XXX        //dudp -> fnpIsRunning = true;
@@ -934,11 +1179,9 @@ sim_printf ("punt 5\r\n");
 #endif
   }
 
-void dia_process_events (void)
-  {
-    for (uint unit_num = 0; unit_num < N_DIA_UNITS_MAX; unit_num ++)
-      {
-         if (dia_data.dia_unit_data[unit_num].link >= 0)
-           dia_unit_process_events (unit_num);
-      }
+void dia_process_events (void) {
+  for (uint unit_num = 0; unit_num < N_DIA_UNITS_MAX; unit_num ++) {
+   if (dia_data.dia_unit_data[unit_num].connected)
+     dia_unit_process_events (unit_num);
   }
+}

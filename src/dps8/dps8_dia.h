@@ -18,9 +18,10 @@ extern DEVICE dia_dev;
 // Indexed by sim unit number
 struct dia_unit_data
   {
-    uint mailbox_address;
+    uint mailboxAddress;
     word24 l66Addr;
-    int link;
+    bool connected;
+    uv_udp_t socket;
   };
 
 typedef struct s_dia_data
