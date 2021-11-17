@@ -574,7 +574,6 @@ static char *str_sdw (char * buf, sdw_s *SDW)
  */
 
 # ifdef TESTING
-#  ifndef QUIET_UNUSED
 t_stat dump_sdwam (void)
   {
     char buf[256];
@@ -588,7 +587,6 @@ t_stat dump_sdwam (void)
       }
     return SCPE_OK;
   }
-#  endif
 # endif
 #endif
 

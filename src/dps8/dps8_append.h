@@ -115,9 +115,7 @@ static inline void set_apu_status (apuStatusBits status)
   }
 
 #ifdef TESTING
-# ifdef QUIET_UNUSED
 t_stat dump_sdwam (void);
-# endif
 #endif
 word24 do_append_cycle (processor_cycle_type thisCycle,
                       word36 * data, uint nWords);
