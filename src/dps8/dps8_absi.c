@@ -76,7 +76,7 @@ static t_stat absi_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat absi_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat absi_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                     UNUSED int val, UNUSED const void * desc)
   {
     int n = (int) ABSI_UNIT_IDX (uptr);
@@ -86,7 +86,7 @@ static t_stat absi_show_device_name (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat absi_set_device_name (UNIT * uptr, UNUSED int32 value, 
+static t_stat absi_set_device_name (UNIT * uptr, UNUSED int32 value,
                                    const char * cptr, UNUSED void * desc)
   {
     int n = (int) ABSI_UNIT_IDX (uptr);

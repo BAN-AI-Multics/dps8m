@@ -698,7 +698,7 @@ static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
     long tape_unit_idx = MT_UNIT_NUM (uptr);
     if (tape_unit_idx >= N_MT_UNITS_MAX)
       {
-        sim_debug (DBG_ERR, & tape_dev, 
+        sim_debug (DBG_ERR, & tape_dev,
                    "Tape set ready: Invalid unit number %ld\n", tape_unit_idx);
         sim_printf ("error: invalid unit number %ld\n", tape_unit_idx);
         return SCPE_ARG;
@@ -1827,7 +1827,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
       break;
 
     case 045: { // CMD 045 -- Forward Skip One File
-        if_sim_debug (DBG_TRACE, & tape_dev) { 
+        if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("// Tape Forward Skip One File\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
@@ -1984,11 +1984,11 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if (skipped != tally) {
           sim_warn ("skipped %d != tally %d\n", skipped, tally);
         }
-  
+
         tape_statep->rec_num -= (int) recsskipped;
         if (unitp->flags & UNIT_WATCH)
           sim_printf ("Tape %ld backward skips to record %d\n", (long) MT_UNIT_NUM (unitp), tape_statep->rec_num);
- 
+
         p->tallyResidue = (word12) (tally - skipped);
         sim_debug (DBG_NOTIFY, & tape_dev, "%s: Backspace %d records\n", __func__, tally);
 #endif
@@ -2055,7 +2055,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 055: // CMD 055 -- Write EOF (tape mark);
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Write EOF\r\n"); 
+          sim_printf ("// Tape Write EOF\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Write tape mark\n", __func__);
@@ -2220,7 +2220,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         return IOM_CMD_ERROR;
 
     } // switch IDCW_DEV_CMD
-    
+
     sim_debug (DBG_DEBUG, & tape_dev, "%s: stati %04o\n", __func__, p->stati);
     return rc;
   } // if IDCW
@@ -2240,7 +2240,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
     case tape_rd_9:
     case tape_rd_bin: {
-        if_sim_debug (DBG_TRACE, & tape_dev) { 
+        if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("// Tape IOT Read\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
@@ -2319,7 +2319,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
   return rc;
 } // mt_iom_cmd
 
-    
+
 // 031 read statistics
 //  idcw.chan_cmd = "41"b3;  /* Indicate special controller command */
 // 006 initiate read data transfer

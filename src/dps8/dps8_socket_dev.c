@@ -43,7 +43,7 @@ struct skc_state_s
     char device_name [MAX_DEV_NAME_LEN];
   };
 static struct skc_state_s skc_state[N_SKC_UNITS_MAX];
-  
+
 
 static struct {
     const char *name;
@@ -98,7 +98,7 @@ static t_stat sk_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-static t_stat skc_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat skc_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                     UNUSED int val, UNUSED const void * desc)
   {
     int n = (int) SKC_UNIT_IDX (uptr);
@@ -108,7 +108,7 @@ static t_stat skc_show_device_name (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat skc_set_device_name (UNIT * uptr, UNUSED int32 value, 
+static t_stat skc_set_device_name (UNIT * uptr, UNUSED int32 value,
                                    const char * cptr, UNUSED void * desc)
   {
     int n = (int) SKC_UNIT_IDX (uptr);

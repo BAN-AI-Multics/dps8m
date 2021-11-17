@@ -640,7 +640,7 @@ return stat;
 int
 sim_usleep(useconds_t tusleep)
 {
-#ifndef __APPLE__
+#if ( !defined(__APPLE__) && !defined(__OpenBSD__) )
   struct timespec rqt;
 
   rqt.tv_sec = tusleep / 1000000;
@@ -648,7 +648,7 @@ sim_usleep(useconds_t tusleep)
   return clock_nanosleep(CLOCK_MONOTONIC, 0, &rqt, NULL);
 #else
   return usleep(tusleep);
-#endif /* ifndef __APPLE__ */
+#endif /* if ( !defined(__APPLE__) && !defined(__OpenBSD__) ) */
 }
 
 static double _timespec_to_double (struct timespec *time)

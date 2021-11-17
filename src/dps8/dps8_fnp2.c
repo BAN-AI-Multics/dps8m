@@ -106,9 +106,9 @@ static t_stat fnpShowService (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat fnpSetService (UNIT * uptr, int32 value, const char * cptr, void * desc);
 static t_stat fnpShowFW (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat fnpSetFW (UNIT * uptr, int32 value, const char * cptr, void * desc);
-static t_stat fnp_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat fnp_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                     UNUSED int val, UNUSED const void * desc);
-static t_stat fnp_set_device_name (UNIT * uptr, UNUSED int32 value, 
+static t_stat fnp_set_device_name (UNIT * uptr, UNUSED int32 value,
                                    const char * cptr, UNUSED void * desc);
 
 static int findMbx (uint fnpUnitIdx);
@@ -2117,7 +2117,7 @@ static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     return SCPE_OK;
   }
 
-static t_stat fnp_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat fnp_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                     UNUSED int val, UNUSED const void * desc)
   {
     int n = (int) FNP_UNIT_IDX (uptr);
@@ -2127,7 +2127,7 @@ static t_stat fnp_show_device_name (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat fnp_set_device_name (UNIT * uptr, UNUSED int32 value, 
+static t_stat fnp_set_device_name (UNIT * uptr, UNUSED int32 value,
                                    const char * cptr, UNUSED void * desc)
   {
     int n = (int) FNP_UNIT_IDX (uptr);

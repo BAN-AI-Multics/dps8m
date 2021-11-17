@@ -234,7 +234,7 @@ B29:;
                     if (cyctyp == OPERAND_READ)
                       {
                         for (uint i = 0; i < 2; i ++)
-                          sim_debug (DBG_FINAL, & cpu_dev, 
+                          sim_debug (DBG_FINAL, & cpu_dev,
                                      "Read2 (Actual) Read:  iefpFinalAddress=%08o"
                                      "  readData=%012"PRIo64"\n",
                                      cpu.iefpFinalAddress + i, result [i]);

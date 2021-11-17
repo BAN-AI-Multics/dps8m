@@ -146,12 +146,20 @@ endif
 
 ###############################################################################
 
+ifeq ($(UNAME_S),OpenBSD)
+  OS = OpenBSD
+  CFLAGS += -I/usr/local/include
+  LDFLAGS += -L/usr/local/lib
+endif
+
+###############################################################################
+
 ifeq ($(OS), OSX)
   msys_version = 0
 else
   msys_version :=                                                             \
     $(if $(findstring Msys, $(shell                                           \
-        $(UNAME) -o)),$(word 1,                                               \
+        $(UNAME) -o 2> /dev/null)),$(word 1,                                  \
             $(subst ., ,$(shell $(UNAME) -r))),0)
 endif
 export msys_version

@@ -74,9 +74,9 @@ static t_stat opc_set_console_pw (UNIT * uptr, UNUSED int32 value,
                                     const char * cptr, UNUSED void * desc);
 static t_stat opc_show_console_pw (UNUSED FILE * st, UNIT * uptr,
                                        UNUSED int val, UNUSED const void * desc);
-static t_stat opc_set_device_name (UNIT * uptr, UNUSED int32 value, 
+static t_stat opc_set_device_name (UNIT * uptr, UNUSED int32 value,
                                    const char * cptr, UNUSED void * desc);
-static t_stat opc_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat opc_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                     UNUSED int val, UNUSED const void * desc);
 
 static MTAB opc_mtab[] =
@@ -1393,7 +1393,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
       word9 ch = getbits36_9 (buf[i], j);
       if (ch < 256 && isprint ((char) ch))
         sim_printf ("%c", ch);
-      else 
+      else
         sim_printf ("\\%03o", ch);
     }
    sim_printf ("\"\r\n");
@@ -1667,7 +1667,7 @@ static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat opc_show_device_name (UNUSED FILE * st, UNIT * uptr, 
+static t_stat opc_show_device_name (UNUSED FILE * st, UNIT * uptr,
                                     UNUSED int val, UNUSED const void * desc)
   {
     int n = (int) OPC_UNIT_IDX (uptr);
@@ -1677,7 +1677,7 @@ static t_stat opc_show_device_name (UNUSED FILE * st, UNIT * uptr,
     return SCPE_OK;
   }
 
-static t_stat opc_set_device_name (UNIT * uptr, UNUSED int32 value, 
+static t_stat opc_set_device_name (UNIT * uptr, UNUSED int32 value,
                                    const char * cptr, UNUSED void * desc)
   {
     int n = (int) OPC_UNIT_IDX (uptr);
@@ -1901,7 +1901,7 @@ static void console_putchar (int conUnitIdx, char ch) {
       consolePutchar0 (conUnitIdx, ch);
   }
 }
-  
+
 static void consoleConnectPrompt (uv_tcp_t * client)
   {
     accessStartWriteStr (client, "password: \r\n");

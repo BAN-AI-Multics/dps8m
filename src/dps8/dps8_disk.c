@@ -386,7 +386,7 @@ static t_stat disk_set_type (UNUSED UNIT * uptr, UNUSED int32 value, const char 
       }
     dsk_states[diskUnitIdx].typeIdx = i;
     dsk_unit[diskUnitIdx].capac = (t_addr) diskTypes[i].capac;
-    dsk_states[diskUnitIdx].tAndDCapac = tAndDCapac[i]; 
+    dsk_states[diskUnitIdx].tAndDCapac = tAndDCapac[i];
     return SCPE_OK;
   }
 
@@ -418,7 +418,7 @@ static t_stat dsk_set_device_name (UNIT * uptr, UNUSED int32 value,
 
 //
 // Looking at rcp_disk.pl1, it appears that the special interupt for disks
-// only causes rcp to poll the device for status; there don't appear to 
+// only causes rcp to poll the device for status; there don't appear to
 // be any status specific bits to send here; signal ready is a misnomer;
 // it is just signal.
 
@@ -1237,7 +1237,7 @@ if (chan == 014)
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
-            
+
       case 022: // CMD 22 Read Status Register
 #ifdef POLTS_DISK_TESTING
 if (chan == 014)
@@ -1389,7 +1389,7 @@ if (chan == 014)
           p->stati = 04240; // device offline
 
         disk_statep->seekValid = false;
-        
+
         break;
 
       case 072: // CMD 72 SET STANDBY

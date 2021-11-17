@@ -309,7 +309,7 @@ static FILE * hdbgOut = NULL;
 
 static void printM (struct hevt * p) {
   fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d FINAL: %s %s %08o %012"PRIo64"\n",
-           p->time, 
+           p->time,
            p->cpu_idx,
            p->ctx,
            p->rw ? "write" : "read ",
@@ -319,7 +319,7 @@ static void printM (struct hevt * p) {
 
 static void printAPU (struct hevt * p) {
   fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d APU: %s %s %05o:%06o %08o %012"PRIo64"\n",
-           p->time, 
+           p->time,
            p->cpu_idx,
            p->ctx,
            p->rw ? "write" : "read ",
@@ -333,7 +333,7 @@ static void printTrace (struct hevt * p) {
   char buf[256];
   if (p -> trace.addrMode == ABSOLUTE_mode) {
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d TRACE: %s %06o %o %012"PRIo64" (%s)\n",
-             p->time, 
+             p->time,
              p->cpu_idx,
              p->ctx,
              p->trace.ic,
@@ -355,7 +355,7 @@ static void printTrace (struct hevt * p) {
 
 static void printFault (struct hevt * p) {
   fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d FAULT: %s Fault %d(0%o), sub %"PRId64"(0%"PRIo64"), '%s'\n",
-           p->time, 
+           p->time,
            p->cpu_idx,
            p->ctx,
            p->fault.faultNumber,
@@ -367,7 +367,7 @@ static void printFault (struct hevt * p) {
 
 static void printIntrSet (struct hevt * p) {
   fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d INTR_SET: %s number %d(0%o), CPU %u SCU %u\n",
-           p->time, 
+           p->time,
            p->cpu_idx,
            p->ctx,
            p->intrSet.inum,
@@ -378,7 +378,7 @@ static void printIntrSet (struct hevt * p) {
 
 static void printIntr (struct hevt * p) {
   fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d INTR: %s Interrupt pair address %o\n",
-           p->time, 
+           p->time,
            p->cpu_idx,
            p->ctx,
            p->intr.intr_pair_addr);
@@ -412,7 +412,7 @@ static void printReg (struct hevt * p) {
              TSTF (p->reg.data, I_TALLY));
   else if (p->reg.type >= hreg_X0 && p->reg.type <= hreg_X7)
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %06"PRIo64"\n",
-             p->time, 
+             p->time,
              p->cpu_idx,
              p->ctx,
              p->rw ? "write" : "read ",
@@ -420,7 +420,7 @@ static void printReg (struct hevt * p) {
              p->reg.data);
   else
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s  %s %012"PRIo64"\n",
-             p->time, 
+             p->time,
              p->cpu_idx,
              p->ctx,
              p->rw ? "write" : "read ",
@@ -432,7 +432,7 @@ static void printPAReg (struct hevt * p)
 {
   if (p->reg.type >= hreg_PR0 && p->reg.type <= hreg_PR7)
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
-             p->time, 
+             p->time,
              p->cpu_idx,
              p->ctx,
              p->rw ? "write" : "read ",
@@ -443,7 +443,7 @@ static void printPAReg (struct hevt * p)
              p->par.data.RNR);
   else
     fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s write %s %05o:%06o CHAR %o BIT %2o RNR %o\n",
-             p->time, 
+             p->time,
              p->cpu_idx,
              p->ctx,
              regNames[p->reg.type],
@@ -456,7 +456,7 @@ static void printPAReg (struct hevt * p)
 
 static void printDSBRReg (struct hevt * p) {
   fprintf (hdbgOut, "DBG(%"PRId64")> CPU %d REG: %s %s %s %05o:%06o BIT %2o RNR %o\n",
-           p->time, 
+           p->time,
            p->cpu_idx,
            p->ctx,
            p->rw ? "write" : "read ",
@@ -570,43 +570,55 @@ void hdbgPrint (void) {
       case hevtTrace:
         printTrace (evtp);
         break;
-                
+
       case hevtM:
         printM (evtp);
         break;
-                
+
       case hevtAPU:
         printAPU (evtp);
         break;
                 
+# if 0
+      case hevtIWBUpdate:
+        printIWBUpdate (evtp);
+        break;
+# endif
+
+# if 0
+      case hevtRegs:
+        printRegs (evtp);
+        break;
+# endif
+
       case hevtFault:
         printFault (evtp);
         break;
-                
+
       case hevtIntrSet:
         printIntrSet (evtp);
         break;
-                
+
       case hevtIntr:
         printIntr (evtp);
         break;
-                
+
       case hevtReg:
         printReg (evtp);
         break;
-                
+
       case hevtPAReg:
         printPAReg (evtp);
         break;
-                
+
       case hevtDSBRReg:
         printDSBRReg (evtp);
         break;
-                
+
       case hevtIEFP:
         printIEFP (evtp);
         break;
- 
+
       case hevtNote:
         printNote (evtp);
         break;
@@ -643,7 +655,7 @@ t_stat hdbg_cpu_mask (UNUSED int32 arg, const char * buf)
     return SCPE_OK;
   }
 
-// set buffer size 
+// set buffer size
 t_stat hdbg_size (UNUSED int32 arg, const char * buf) {
   hdbgSize = strtoul (buf, NULL, 0);
   sim_printf ("hdbg size set to %ld\n", hdbgSize);

@@ -71,7 +71,7 @@
 //
 //   terminate   0
 //   proceed     2
-//   marker      3  
+//   marker      3
 //
 // Observed channel command dialects
 //
@@ -411,7 +411,7 @@
 //      TAL 22           0
 //      REL              0
 //      TALLY         0001
-//    PCW 050000700001 012000000000 
+//    PCW 050000700001 012000000000
 //      Chan info     0500
 //      Addr ext        00
 //      111              7
@@ -1461,7 +1461,7 @@ static void init_memory_iom (uint iom_unit_idx)
 
     // Simulator specific hack; the simulator flags memory words as
     // being "unitialized"; because the fault pair is fetched as a
-    // pair, the odd word's uninitialixed state may generate a 
+    // pair, the odd word's uninitialixed state may generate a
     // run-time warning, even though it is not executed.
     //
     // By zeroing it here, we clear the flag and avoid the message
@@ -2527,8 +2527,8 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
         p->recordResidue = p->IDCW_COUNT;
 #ifdef TESTING
         sim_debug (DBG_DEBUG, & iom_dev,
-                   "%s: IDCW %012llo cmd %02o (%s) dev %02o ctrl %o chancmd %o\n", 
-                   __func__, p->DCW, p->IDCW_DEV_CMD, cmdNames[p->IDCW_DEV_CMD], 
+                   "%s: IDCW %012llo cmd %02o (%s) dev %02o ctrl %o chancmd %o\n",
+                   __func__, p->DCW, p->IDCW_DEV_CMD, cmdNames[p->IDCW_DEV_CMD],
                    p->IDCW_DEV_CODE, p->IDCW_CHAN_CTRL, p->IDCW_CHAN_CMD);
 #endif
       }
@@ -3253,7 +3253,7 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
     goto terminate;
   }
 
-  if (IS_IDCW (p) && p->IDCW_CHAN_CTRL == CHAN_CTRL_MARKER) { // IDCW marker bit set 
+  if (IS_IDCW (p) && p->IDCW_CHAN_CTRL == CHAN_CTRL_MARKER) { // IDCW marker bit set
     send_marker_interrupt (iomUnitIdx, (int) chan);
   }
 
