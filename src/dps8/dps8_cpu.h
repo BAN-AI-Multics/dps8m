@@ -722,6 +722,7 @@ typedef struct
     uint serno;
     bool useMap;
     bool isolts_mode;     // If true, CPU is configured to run ISOLTS.
+    bool enable_emcall;
   } switches_t;
 
 #ifdef L68

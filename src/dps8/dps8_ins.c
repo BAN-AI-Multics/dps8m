@@ -43,11 +43,7 @@
 
 static int doABSA (word36 * result);
 static t_stat doInstruction (void);
-#ifdef TESTING
-# if EMULATOR_ONLY
 static int emCall (void);
-# endif
-#endif
 
 #ifdef LOOPTRC
 void elapsedtime (void)
@@ -9801,21 +9797,20 @@ elapsedtime ();
             dv3d ();
             break;
 
-#ifdef TESTING
-# if EMULATOR_ONLY
-
         case x1 (0420):  // emcall instruction Custom, for an emulator call for
                     //  simh stuff ...
         {
-            int ret = emCall ();
-            if (ret)
+            if (cpu.switches.enable_emcall) {
+              int ret = emCall ();
+              if (ret)
               return ret;
-            break;
+              break;
+            }
+            goto unimp;
         }
-# endif
-#endif
 
         default:
+        unimp:
           if (cpu.switches.halt_on_unimp)
             return STOP_STOP;
           doFault (FAULT_IPR,
@@ -9833,16 +9828,78 @@ elapsedtime ();
     return SCPE_OK;
 }
 
-#ifdef TESTING
-# include <ctype.h>
+#include <ctype.h>
+#include <time.h>
 
-# if EMULATOR_ONLY
 /*
  * emulator call instruction. Do whatever address field sez' ....
  */
+
+//static clockid_t clockID;
+//static struct timespec startTime;
+static uv_rusage_t startTime;
+static unsigned long long startInstrCnt;
+
 static int emCall (void)
 {
     DCDstruct * i = & cpu.currentInstruction;
+
+// The address is absolute address of a structure consisting of a
+// operation code word and optional following words containing
+// data for the operation.
+
+   word36 op = M[i->address];
+   switch (op)
+     {
+       // OP 1: Print the unsigned decimal representation of the first data
+       //       word.
+       case 1: 
+         sim_printf ("%ld\n", (int64_t) M[i->address+1]);
+         break;
+
+       // OP 2: Halt the simulation
+       case 2:
+#ifdef LOCKLESS
+         bce_dis_called = true;
+#endif
+         return STOP_STOP;
+
+       // OP 3: Start CPU clock
+       case 3:
+         startInstrCnt = cpu.instrCnt;
+         uv_getrusage (& startTime);
+         break;
+
+       // OP 4: Report CPU clock
+       case 4:
+         {
+#define ns_sec (1000000000)
+#define ns_msec (1000000000 / 1000)
+#define ns_usec (1000000000 / 1000 / 1000)
+           uv_rusage_t now;
+           uv_getrusage (& now);
+           uint64_t start = startTime.ru_utime.tv_usec * 1000 + startTime.ru_utime.tv_sec * ns_sec;
+           uint64_t stop = now.ru_utime.tv_usec * 1000 + now.ru_utime.tv_sec * ns_sec;
+           uint64_t delta = stop - start;
+	 uint64_t seconds = delta / ns_sec;
+           uint64_t milliseconds = (delta / ns_msec) % 1000;
+           uint64_t microseconds = (delta / ns_usec) % 1000;
+           uint64_t nanoseconds = delta  % 1000;
+           unsigned long long nInsts = cpu.instrCnt - startInstrCnt;
+           double secs = ((double) delta) / (double) ns_sec;
+           double ips = ((double) nInsts) / secs;
+           double mips = ips / 1000000;
+
+           sim_printf ("CPU time %lu.%03lu,%03lu,%03lu\n", seconds, milliseconds, microseconds, nanoseconds);
+           sim_printf ("%lld instructions\n", nInsts);
+           sim_printf ("%lf MIPS\n", mips);
+           break;
+         }
+       default:
+         sim_printf ("emcall unknown op %llo\n", op);
+      }
+    return 0;
+#if 0
     switch (i->address) // address field
     {
         case 1:     // putc9 - put 9-bit char in AL to stdout
@@ -9884,7 +9941,7 @@ static int emCall (void)
         case 4:     // putoctZ - put octal contents of A to stdout
                     // (zero-suppressed)
         {
-            sim_printf ("%"PRIo64"", cpu.rA);
+            sim_printf ("%"PRIo64"\n", cpu.rA);
             break;
         }
         case 5:     // putdec - put decimal contents of A to stdout
@@ -9895,13 +9952,13 @@ static int emCall (void)
         }
         case 6:     // putEAQ - put float contents of C(EAQ) to stdout
         {
-#  if !defined(__MINGW64__) || !defined(__MINGW32__)
+# if !defined(__MINGW64__) || !defined(__MINGW32__)
             long double eaq = EAQToIEEElongdouble ();
             sim_printf ("%12.8Lg", eaq);
-#  else
+# else
             double eaq = EAQToIEEEdouble();
             sim_printf("%12.8g", eaq);
-#  endif
+# endif
             break;
         }
         case 7:   // dump index registers
@@ -10010,6 +10067,7 @@ static int emCall (void)
         // case 17 used above
 
         case 18:     // halt
+            sim_printf ("emCall Halt\n");
             return STOP_STOP;
 
         case 19:     // putdecaq - put decimal contents of AQ to stdout
@@ -10031,9 +10089,8 @@ static int emCall (void)
 
     }
     return 0;
-}
-# endif
-#endif // TESTING
+#endif
+  }
 
 // CANFAULT
 static int doABSA (word36 * result)
