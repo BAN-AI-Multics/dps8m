@@ -4160,9 +4160,7 @@ if (flag) {
         fprintf (st, " %s Simulator:", sim_name);
 #if defined(NO_SUPPORT_VERSION) || \
     defined(TESTING)            || \
-    defined(ISOLTS)             || \
-    defined(HDBG)               || \
-    defined(TRACKER)
+    defined(ISOLTS)
 # ifndef NO_SUPPORT_VERSION
 #  define NO_SUPPORT_VERSION 1
 # endif
@@ -4257,17 +4255,6 @@ if (flag) {
 # endif
     fprintf (st, "WAM");
 #endif
-#ifdef HDBG
-# ifdef HAVE_DPSOPT
-    fprintf (st, ", ");
-# else
-    fprintf (st, "\n   Options: ");
-# endif
-# ifndef HAVE_DPSOPT
-#  define HAVE_DPSOPT 1
-# endif
-    fprintf (st, "HDBG");
-#endif
 #ifdef ROUND_ROBIN
 # ifdef HAVE_DPSOPT
     fprintf (st, ", ");
@@ -4289,17 +4276,6 @@ if (flag) {
 #  define HAVE_DPSOPT 1
 # endif
     fprintf (st, "NO_LOCKLESS");
-#endif
-#ifdef TRACKER
-# ifdef HAVE_DPSOPT
-    fprintf (st, ", ");
-# else
-    fprintf (st, "\n   Options: ");
-# endif
-# ifndef HAVE_DPSOPT
-#  define HAVE_DPSOPT 1
-# endif
-    fprintf (st, "TRACKER");
 #endif
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_DATE)
 # if defined(NO_SUPPORT_VERSION)

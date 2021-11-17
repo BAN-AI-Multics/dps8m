@@ -10,18 +10,20 @@
  */
 
 // history debugging
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
-#include "dps8.h"
-#include "dps8_sys.h"
-#include "dps8_cpu.h"
-#include "dps8_utils.h"
-#include "hdbg.h"
+#ifdef TESTING
 
-#ifdef HDBG
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+
+# include "dps8.h"
+# include "dps8_sys.h"
+# include "dps8_cpu.h"
+# include "dps8_utils.h"
+# include "hdbg.h"
+
 # include "dps8_faults.h"
 
 enum hevtType {
@@ -29,8 +31,6 @@ enum hevtType {
   hevtTrace,
   hevtM,
   hevtAPU,
-  //hevtIWBUpdate,
-  //hevtRegs,
   hevtFault,
   hevtIntrSet,
   hevtIntr,
@@ -272,6 +272,7 @@ void hdbgPARegW (enum hregs_t type, struct par_s * data, const char * ctx) {
 done: ;
 }
 
+# if 0
 void hdbgDSBRRegR (enum hregs_t type, struct dsbr_s * data, const char * ctx) {
   hev (hevtDSBRReg, RD, FILTER);
     hevents[p].dsbr.type = type;
@@ -285,6 +286,7 @@ void hdbgDSBRRegW (enum hregs_t type, struct dsbr_s * data, const char * ctx) {
     hevents[p].dsbr.data = * data;
 done: ;
 }
+# endif
 
 void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset, const char * ctx) {
   hev (hevtIEFP, RD, FILTER);
@@ -577,18 +579,6 @@ void hdbgPrint (void) {
         printAPU (evtp);
         break;
                 
-# if 0
-      case hevtIWBUpdate:
-        printIWBUpdate (evtp);
-        break;
-# endif
-                
-# if 0
-      case hevtRegs:
-        printRegs (evtp);
-        break;
-# endif
-                
       case hevtFault:
         printFault (evtp);
         break;
@@ -639,10 +629,12 @@ void hdbgPrint (void) {
 done: ;
 }
 
+# if 0
 void hdbg_mark (void) {
   hevtMark = hdbgSize;
   sim_printf ("hdbg mark set to %ld\n", hevtMark);
 }
+# endif
 
 t_stat hdbg_cpu_mask (UNUSED int32 arg, const char * buf)
   {
@@ -690,4 +682,4 @@ t_stat hdbg_print (UNUSED int32 arg, const char * buf) {
   return SCPE_OK;
 }
 
-#endif // HDBG
+#endif // TESTING

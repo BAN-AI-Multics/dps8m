@@ -63,30 +63,11 @@ ifneq ($(NO_LOCKLESS),1)
 endif
 
 ###############################################################################
-# History debugger (enabled TESTING)
-
-ifdef HDBG
-  HDBG=1
-  TESTING=1
-  CFLAGS += -DHDBG
-endif
-
-###############################################################################
 # Build as Level-68 simulation
 
 ifdef L68
   L68=1
   CFLAGS += -DL68
-endif
-
-###############################################################################
-# Tracker
-
-ifdef TRACKER
-  TRACKER=1
-  TESTING=1
-  CFLAGS += -DTRACKER
-  CFLAGS += -DTESTING
 endif
 
 ###############################################################################
@@ -231,6 +212,13 @@ ifndef SUNPRO
       CFLAGS += -Wno-unknown-warning-option
     endif
   endif
+endif
+
+###############################################################################
+# Intel C Compiler Classic
+
+ifneq "$(findstring icc,$(CC))" ""
+  CFLAGS += -no-restrict -D__attribute__\(x\)=/"/"
 endif
 
 ###############################################################################

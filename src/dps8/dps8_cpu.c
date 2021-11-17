@@ -1824,7 +1824,9 @@ t_stat sim_instr (void)
 # endif
       }
     while (reason == 0);
+# ifdef TESTING
     HDBGPrint ();
+# endif
     return reason;
   }
 #endif
@@ -2200,7 +2202,9 @@ setCPU:;
                 // present register.
 
                 uint intr_pair_addr = get_highest_intr ();
+#ifdef TESTING
                 HDBGIntr (intr_pair_addr, "");
+#endif
                 cpu.cu.FI_ADDR = (word5) (intr_pair_addr / 2);
                 cu_safe_store ();
                 // XXX the whole interrupt cycle should be rewritten as an xed
@@ -2238,8 +2242,10 @@ setCPU:;
                         // get interrupt pair
                         core_read2 (intr_pair_addr,
                                     & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
+#ifdef TESTING
                         HDBGMRead (intr_pair_addr, cpu.cu.IWB, "intr even");
                         HDBGMRead (intr_pair_addr + 1, cpu.cu.IRODD, "intr odd");
+#endif
                         cpu.cu.xde = 1;
                         cpu.cu.xdo = 1;
                         cpu.isExec = true;
@@ -3010,8 +3016,10 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 }
 
               core_read2 (addr, & cpu.cu.IWB, & cpu.cu.IRODD, __func__);
+#ifdef TESTING
               HDBGMRead (addr, cpu.cu.IWB, "fault even");
               HDBGMRead (addr + 1, cpu.cu.IRODD, "fault odd");
+#endif
               cpu.cu.xde = 1;
               cpu.cu.xdo = 1;
               cpu.isExec = true;
@@ -3035,7 +3043,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 #endif
 
 leave:
+#ifdef TESTING
     HDBGPrint ();
+#endif
     sim_msg ("\ncycles = %llu\n", cpu.cycleCnt);
     sim_msg ("instructions  %15llu\n", cpu.instrCnt);
     sim_msg ("lockCnt       %15llu\n", cpu.lockCnt);
@@ -3276,20 +3286,6 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
-# if 0 // XXX Controlled by TEST/NORMAL switch
-#  ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#  endif
-# endif
 # ifdef SCUMEM
     word24 offset;
     uint scu_unit_idx = get_scu_unit_idx (addr, & offset);
@@ -3481,7 +3477,7 @@ int core_write_zone (word24 addr, word36 data, const char * ctx)
                     scu[sci_unit_idx].M[offset], ctx);
       }
 # else
-    word24 mapAddr;
+    word24 mapAddr = 0;
     SC_MAP_ADDR (addr, mapAddr);
 # endif
 # ifdef LOCKLESS
@@ -3528,21 +3524,6 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
         addr &= (word24)~1; /* make it an even address */
       }
     SC_MAP_ADDR (addr, addr);
-
-# if 0 // XXX Controlled by TEST/NORMAL switch
-#  ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#  endif
-# endif
 # ifdef SCUMEM
     word24 offset;
     uint sci_unit_idx = get_scu_unit_idx (addr, & offset);

@@ -31,8 +31,6 @@
 #    ********* The following flags are intended for development and *********
 #    ********* may have non-intuitive side-effects or requirements! *********
 #
-#            TRACKER=1                  Adds instruction snapshot support
-#               HDBG=1                  Enables extended history debugger
 #        ROUND_ROBIN=1                  Support un-threaded multiple CPUs
 #           NEED_128=1                  Enable 128-bit types work-arounds
 #        USE_BUILDER="String"           Enable a custom "Built by" string

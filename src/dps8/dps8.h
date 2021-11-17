@@ -43,16 +43,9 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 # define QUIET_UNUSED
 
 # ifndef TESTING
-// Enable speed over debuggibility when not TESTING
+// Enable speed over debugging if not TESTING
 #  define SPEED
 # endif /* ifndef TESTING */
-
-// Enable panel support
-//#define PANEL
-
-// Enable history debugger
-// NB. This has a large performance impact on 32-bit ARM architectures.
-//#define HDBG
 
 // Enable round-robin multi-CPU
 //#define ROUND_ROBIN
@@ -64,13 +57,6 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 //
 // Dependencies
 //
-
-// ISOLTS requires multiple CPU support
-# ifdef ISOLTS
-#  if !defined(ROUND_ROBIN) && !defined(LOCKLESS)
-#   define ROUND_ROBIN
-#  endif
-# endif
 
 // PANEL only works on L68
 # ifdef PANEL

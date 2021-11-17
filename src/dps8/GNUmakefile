@@ -219,7 +219,7 @@ C_SRCS += dps8_simh.c
 ifneq ($(MINGW_CROSS),1)
   C_SRCS += dps8_socket_dev.c
 endif
-ifeq ($(TRACKER),1)
+ifeq ($(TESTING),1)
   C_SRCS += tracker.c
 endif
 C_SRCS += dps8_sys.c
@@ -303,7 +303,7 @@ endif
 ifeq ($(LOCKLESS),1)
   H_SRCS += threadz.h
 endif
-ifeq ($(TRACKER),1)
+ifeq ($(TESTING),1)
   H_SRCS += tracker.h
 endif
 H_SRCS += uvutil.h

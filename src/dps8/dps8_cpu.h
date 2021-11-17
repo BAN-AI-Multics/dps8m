@@ -1935,20 +1935,6 @@ static inline int core_read (word24 addr, word36 *data, \
           }
         addr = (uint) os + addr % SCBANK_SZ;
       }
-# if 0 // XXX Controlled by TEST/NORMAL switch
-#  ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#  endif
-# endif
 # ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
@@ -2080,20 +2066,6 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
           }
         addr = (uint) os + addr % SCBANK_SZ;
       }
-# if 0 // XXX Controlled by TEST/NORMAL switch
-#  ifdef ISOLTS
-    if (cpu.MR.sdpap)
-      {
-        sim_warn ("failing to implement sdpap\n");
-        cpu.MR.sdpap = 0;
-      }
-    if (cpu.MR.separ)
-      {
-        sim_warn ("failing to implement separ\n");
-        cpu.MR.separ = 0;
-      }
-#  endif
-# endif
 # ifdef SCUMEM
     word24 offset;
     int cpu_port_num = lookup_cpu_mem_map (addr, & offset);

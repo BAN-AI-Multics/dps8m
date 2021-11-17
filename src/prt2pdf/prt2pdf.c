@@ -450,16 +450,6 @@ printline:
         GLOBAL_LINECOUNT ++;
         GLOBAL_ADD=0;
 
-#if 0
-        /* +1 for roundoff , using floating point point units */
-        if (GLOBAL_YPOS <= (GLOBAL_PAGE_MARGIN_BOTTOM + 1) &&
-            strlen(buffer) != 0 &&
-            buffer [0] != '+')
-          {
-            end_page ();
-            start_page ();
-          }
-#endif
         buffer [i ++] = 0;
         printstring (buffer);
         printf ("'\n");

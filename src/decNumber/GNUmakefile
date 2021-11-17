@@ -35,10 +35,14 @@ OBJS = decContext.o decNumber.o
 ###############################################################################
 
 ifndef SUNPRO
-ifndef SUNLINT
-CFLAGS += -Wall -Wextra -Wno-uninitialized  -Wno-stringop-overflow            \
-          -Wpedantic -Wno-stringop-overread -Wno-unknown-warning-option
-endif
+  ifndef SUNLINT
+    ifeq "$(findstring icc,$(CC))" ""
+      CFLAGS += -Wall -Wextra -Wno-uninitialized  -Wno-stringop-overflow      \
+                -Wpedantic -Wno-stringop-overread -Wno-unknown-warning-option
+    else
+      CFLAGS += -Wall -Wextra -Wpedantic -diag-disable=11074,11076,10148
+    endif
+  endif
 endif
 
 ###############################################################################

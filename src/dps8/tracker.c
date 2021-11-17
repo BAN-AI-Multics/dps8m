@@ -21,9 +21,9 @@
 #include "tracker.h"
 
 int brkbrk (int32_t arg, const char *  buf);
-#if defined(HDBG)
+#ifdef TESTING
 void hdbgPrint (void);
-#endif /* if defined(HDBG) */
+#endif /* ifdef TESTING */
 
 static int fd;
 static bool writing;
@@ -50,12 +50,12 @@ void trk (unsigned long long cycleCnt, uint16_t segno, uint32_t ic, uint64_t opc
         ic != pic ||
         opcode != popcode)
       {
-        fprintf (stderr, "\r\n[%llu]\r\n", cycleCnt);
-        fprintf (stderr, "expected: %05o:%06o %012"PRIo64"\r\n", psegno, pic, popcode);
-        fprintf (stderr, "got:      %05o:%06o %012"PRIo64"\r\n", segno, ic, opcode);
-#if defined(HDBG)
+        fprintf (stderr, "\r\n[%llu]\r\n", (unsigned long long)cycleCnt);
+        fprintf (stderr, "expected: %05o:%06o %012"PRIo64"\r\n", psegno, pic, (unsigned long long)popcode);
+        fprintf (stderr, "got:      %05o:%06o %012"PRIo64"\r\n", segno, ic, (unsigned long long)opcode);
+#ifdef TESTING
         hdbgPrint ();
-#endif /* if defined(HDBG) */
+#endif /* ifdef TESTING */
         brkbrk (0, "");
         exit (1);
       }

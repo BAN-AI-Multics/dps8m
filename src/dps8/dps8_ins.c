@@ -259,7 +259,9 @@ static void read_tra_op (void)
               cpu.PR[n].SNR = cpu.PPR.PSR;
             cpu.PR[n].WORDNO = (cpu.PPR.IC + 1) & MASK18;
             SET_PR_BITNO (n, 0);
+#ifdef TESTING
             HDBGRegPRW (n, "read_tra_op tsp");
+#endif
           }
         cpu.PPR.IC = cpu.TPR.CA;
         // ISOLTS 870-02f
@@ -1282,13 +1284,13 @@ bool tstOVFfault (void)
     return true;
   }
 
-#ifdef TRACKER
+#ifdef TESTING
 # include "tracker.h"
 #endif
 
 t_stat executeInstruction (void)
   {
-#ifdef TRACKER
+#ifdef TESTING
     trk (cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, IWB_IRODD);
 #endif
     CPT (cpt2U, 13); // execute instruction
@@ -1748,13 +1750,16 @@ restart_1:
             sim_printf ("[%d] %5ld.%03ld %s\r\n", dbgevt, delta.tv_sec, delta.tv_nsec/1000000, dbgevents[dbgevt].tag);
           }
 # endif
-
+# ifdef TESTING
         HDBGTrace ("");
+# endif
       }
 #else  // !SPEED
     // Don't trace Multics idle loop
     //if (cpu.PPR.PSR != 061 || cpu.PPR.IC != 0307)
+# ifdef TESTING
       HDBGTrace ("");
+# endif
 #endif // !SPEED
 
 ///
@@ -1888,7 +1893,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "b29, ci->address %o\n", ci->address);
                 // a:RJ78/rpd5
                 cpu.TPR.CA = (cpu.rX[Xn] + offset) & AMASK;
                 cpu.rX[Xn] = cpu.TPR.CA;
+#ifdef TESTING
                 HDBGRegXW (Xn, "rpt 1st");
+#endif
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "rpt/rd/rl repeat first; X%d now %06o\n",
                            Xn, cpu.rX[Xn]);
@@ -2157,7 +2164,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
               if (cpu.iefpFinalAddress != cpu.rmw_address)
                 sim_warn("executeInstruction: write addr changed %o %d\n", cpu.iefpFinalAddress, cpu.rmw_address);
               core_write_unlock (cpu.iefpFinalAddress, cpu.CY, __func__);
+# ifdef TESTING
               HDBGMWrite (cpu.iefpFinalAddress, cpu.CY, "Write RMW");
+# endif
          }
         else
           writeOperands ();
@@ -2223,7 +2232,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
                 uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
                 cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
                 cpu.rX[Xn] = cpu.TPR.CA;
+#ifdef TESTING
                 HDBGRegXW (Xn, "rpt delta");
+#endif
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
               }
@@ -2239,7 +2250,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
                 uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
                 cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
                 cpu.rX[Xn] = cpu.TPR.CA;
+#ifdef TESTING
                 HDBGRegXW (Xn, "rpd delta even");
+#endif
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
               }
@@ -2251,7 +2264,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
                 uint Xn = (uint) getbits36_3 (cpu.cu.IRODD, 36 - 3);
                 cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
                 cpu.rX[Xn] = cpu.TPR.CA;
+#ifdef TESTING
                 HDBGRegXW (Xn, "rpd delta odd");
+#endif
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "RPT/RPD delta; X%d now %06o\n", Xn, cpu.rX[Xn]);
               }
@@ -2314,7 +2329,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
             x -= 1;
             x &= MASK8;
             putbits18 (& cpu.rX[0], 0, 8, x);
+#ifdef TESTING
             HDBGRegXW (0, "rpt term");
+#endif
 
             //sim_debug (DBG_TRACEEXT, & cpu_dev, "x %03o rX[0] %06o\n", x, rX[0]);
 
@@ -2415,7 +2432,9 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
                 //word18 lnk = GETHI36 (cpu.CY);
                 //cpu.CY &= MASK18;
                 cpu.rX[Xn] = cpu.lnk;
+# ifdef TESTING
                 HDBGRegXW (Xn, "rl");
+# endif
                 //putbits36 (& cpu.cu.IWB,  0, 18, lnk);
 #else
                 uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
@@ -2877,7 +2896,9 @@ static t_stat doInstruction (void)
             cpu.PR[n].SNR = cpu.TPR.TSR;
             cpu.PR[n].WORDNO = cpu.TPR.CA;
             SET_PR_BITNO (n, cpu.TPR.TBR);
+#ifdef TESTING
             HDBGRegPRW (n, "epp");
+#endif
           }
           break;
 
@@ -2912,7 +2933,9 @@ static t_stat doInstruction (void)
             //uint n = ((opcode10 & 0400) ? 4 : 0) + (opcode10 & 03);
             uint n = ((opcode10 & 0400) >> 6) | (opcode10 & 03);
             CPTUR (cptUsePRn + n);
+#ifdef TESTING
             HDBGRegPRR (n, "spri");
+#endif
             cpu.Ypair[0]  = 043;
             cpu.Ypair[0] |= ((word36) cpu.PR[n].SNR) << 18;
             cpu.Ypair[0] |= ((word36) cpu.PR[n].RNR) << 15;
@@ -2924,7 +2947,9 @@ static t_stat doInstruction (void)
 
         case x0 (0235):  // lda
           cpu.rA = cpu.CY;
+#ifdef TESTING
           HDBGRegAW ("lda");
+#endif
           SC_I_ZERO (cpu.rA == 0);
           SC_I_NEG (cpu.rA & SIGN36);
           break;
@@ -2938,7 +2963,9 @@ static t_stat doInstruction (void)
 
         case x0 (0236):  // ldq
           cpu.rQ = cpu.CY;
+#ifdef TESTING
           HDBGRegQW ("ldq");
+#endif
           SC_I_ZERO (cpu.rQ == 0);
           SC_I_NEG (cpu.rQ & SIGN36);
           break;
@@ -2970,13 +2997,17 @@ static t_stat doInstruction (void)
 
         case x0 (0756): // stq
           cpu.CY = cpu.rQ;
+#ifdef TESTING
           HDBGRegQR ("stq");
+#endif
           break;
 
         case x0 (0116):  // cmpq
           // C(Q) :: C(Y)
           cmp36 (cpu.rQ, cpu.CY, &cpu.cu.IR);
+#ifdef TESTING
           HDBGRegQR ("cmpq");
+#endif
           break;
 
         case x0 (0377):  //< anaq
@@ -2984,8 +3015,10 @@ static t_stat doInstruction (void)
           {
               word72 tmp72 = YPAIRTO72 (cpu.Ypair);
               word72 trAQ = convert_to_word72 (cpu.rA, cpu.rQ);
+#ifdef TESTING
               HDBGRegAR ("anaq");
               HDBGRegQR ("anaq");
+#endif
 #ifdef NEED_128
               trAQ = and_128 (trAQ, tmp72);
               trAQ = and_128 (trAQ, MASK72);
@@ -3000,14 +3033,18 @@ static t_stat doInstruction (void)
               SC_I_NEG (trAQ & SIGN72);
 #endif
               convert_to_word36 (trAQ, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
               HDBGRegAW ("anaq");
               HDBGRegQW ("anaq");
+#endif
           }
           break;
 
         case x0 (0755):  // sta
           cpu.CY = cpu.rA;
+#ifdef TESTING
           HDBGRegAR ("sta");
+#endif
           break;
 
                          // lprpn
@@ -3084,7 +3121,9 @@ static t_stat doInstruction (void)
                          "PR[n].BITNO 0%o, PR[n].SNR 0%o, PR[n].WORDNO %o\n",
                          n, cpu.CY, cpu.PR[n].RNR, GET_PR_BITNO (n),
                          cpu.PR[n].SNR, cpu.PR[n].WORDNO);
+#ifdef TESTING
               HDBGRegPRW (n, "lprp");
+#endif
           }
           break;
 
@@ -3100,7 +3139,9 @@ static t_stat doInstruction (void)
           {
             uint32 n = opcode10 & 07;  // get n
             cpu.rX[n] = cpu.TPR.CA;
+#ifdef TESTING
             HDBGRegXW (n, "eaxn");
+#endif
 
             SC_I_ZERO (cpu.TPR.CA == 0);
             SC_I_NEG (cpu.TPR.CA & SIGN18);
@@ -3127,7 +3168,9 @@ static t_stat doInstruction (void)
             do_caf ();
             read_tra_op ();
             cpu.rX[opcode10 & 07] = ret;
+#ifdef TESTING
             HDBGRegXW (opcode10 & 07, "tsxn");
+#endif
           }
           return CONT_TRA;
 
@@ -3165,14 +3208,18 @@ static t_stat doInstruction (void)
             cpu.PR[n].SNR = cpu.TPR.TSR;
             cpu.PR[n].WORDNO = 0;
             SET_PR_BITNO (n, 0);
+#ifdef TESTING
             HDBGRegPRW (n, "epbp");
+#endif
           }
           break;
 
         case x0 (0115):  // cmpa
           // C(A) :: C(Y)
           cmp36 (cpu.rA, cpu.CY, &cpu.cu.IR);
+#ifdef TESTING
           HDBGRegAR ("cmpa");
+#endif
           break;
 
         case x0 (0054):   // aos
@@ -3193,7 +3240,9 @@ static t_stat doInstruction (void)
         case x0 (0315):  // cana
           // C(Z)i = C(A)i & C(Y)i for i = (0, 1, ..., 35)
           {
+#ifdef TESTING
             HDBGRegAR ("cana");
+#endif
             word36 trZ = cpu.rA & cpu.CY;
             trZ &= MASK36;
 
@@ -3204,9 +3253,13 @@ static t_stat doInstruction (void)
 
         case x0 (0237):  // ldaq
           cpu.rA = cpu.Ypair[0];
+#ifdef TESTING
           HDBGRegAW ("ldaq");
+#endif
           cpu.rQ = cpu.Ypair[1];
+#ifdef TESTING
           HDBGRegQW ("ldaq");
+#endif
           SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0)
           SC_I_NEG (cpu.rA & SIGN36);
           break;
@@ -3235,7 +3288,9 @@ static t_stat doInstruction (void)
           {
             uint32 n = opcode10 & 07;  // get n
             cpu.rX[n] = GETLO (cpu.CY);
+#ifdef TESTING
             HDBGRegXW (n, "lxln");
+#endif
             SC_I_ZERO (cpu.rX[n] == 0);
             SC_I_NEG (cpu.rX[n] & SIGN18);
           }
@@ -3280,7 +3335,9 @@ static t_stat doInstruction (void)
 
         case x0 (0735):  // als
           {
+#ifdef TESTING
             HDBGRegAR ("als");
+#endif
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
 
             word36 tmpSign = cpu.rA & SIGN36;
@@ -3293,7 +3350,9 @@ static t_stat doInstruction (void)
                   SET_I_CARRY;
               }
             cpu.rA &= DMASK;    // keep to 36-bits
+#ifdef TESTING
             HDBGRegAW ("als");
+#endif
 
             SC_I_ZERO (cpu.rA == 0);
             SC_I_NEG (cpu.rA & SIGN36);
@@ -3419,8 +3478,10 @@ static t_stat doInstruction (void)
         case x0 (0677):  // eraq
           // C(AQ)i XOR C(Y-pair)i -> C(AQ)i for i = (0, 1, ..., 71)
           {
+#ifdef TESTING
             HDBGRegAR ("eraq");
             HDBGRegQR ("eraq");
+#endif
             word72 tmp72 = YPAIRTO72 (cpu.Ypair);
             word72 trAQ = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
@@ -3438,17 +3499,23 @@ static t_stat doInstruction (void)
 #endif
 
             convert_to_word36 (trAQ, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("eraq");
             HDBGRegQW ("eraq");
+#endif
           }
           break;
 
         case x0 (0275):  // ora
           // C(A)i | C(Y)i -> C(A)i for i = (0, 1, ..., 35)
+#ifdef TESTING
           HDBGRegAR ("ora");
+#endif
           cpu.rA = cpu.rA | cpu.CY;
           cpu.rA &= DMASK;
+#ifdef TESTING
           HDBGRegAW ("ora");
+#endif
 
           SC_I_ZERO (cpu.rA == 0);
           SC_I_NEG (cpu.rA & SIGN36);
@@ -3460,10 +3527,14 @@ static t_stat doInstruction (void)
             cpu.ou.cycle |= ou_GOS;
 #endif
             bool ovf;
+#ifdef TESTING
             HDBGRegQR ("adq");
+#endif
             cpu.rQ = Add36b (cpu.rQ, cpu.CY, 0, I_ZNOC,
                                  & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegQW ("adq");
+#endif
             overflow (ovf, false, "adq overflow fault");
           }
           break;
@@ -3516,10 +3587,14 @@ static t_stat doInstruction (void)
 
         case x0 (0375):  // ana
           // C(A)i & C(Y)i -> C(A)i for i = (0, 1, ..., 35)
+#ifdef TESTING
           HDBGRegAR ("ana");
+#endif
           cpu.rA = cpu.rA & cpu.CY;
           cpu.rA &= DMASK;
+#ifdef TESTING
           HDBGRegAW ("ana");
+#endif
           SC_I_ZERO (cpu.rA == 0);
           SC_I_NEG (cpu.rA & SIGN36);
           break;
@@ -3535,9 +3610,13 @@ static t_stat doInstruction (void)
           cpu.CY &= DMASK;
           cpu.rE = (cpu.CY >> 28) & 0377;
           cpu.rA = (cpu.CY & FLOAT36MASK) << 8;
+#ifdef TESTING
           HDBGRegAW ("fld");
+#endif
           cpu.rQ = 0;
+#ifdef TESTING
           HDBGRegQW ("fld");
+#endif
 
           SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0);
           SC_I_NEG (cpu.rA & SIGN36);
@@ -3555,11 +3634,15 @@ static t_stat doInstruction (void)
 
           cpu.rA = cpu.TPR.TRR & MASK3;
           cpu.rA |= (word36) (cpu.TPR.TSR & MASK15) << 18;
+#ifdef TESTING
           HDBGRegAW ("epaq");
+#endif
 
           cpu.rQ = cpu.TPR.TBR & MASK6;
           cpu.rQ |= (word36) (cpu.TPR.CA & MASK18) << 18;
+#ifdef TESTING
           HDBGRegQW ("epaq");
+#endif
 
           SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0);
 
@@ -3569,7 +3652,9 @@ static t_stat doInstruction (void)
           // Shift C(Q) left the number of positions given in
           // C(TPR.CA)11,17; fill vacated positions with zeros.
           {
+#ifdef TESTING
             HDBGRegQR ("qls");
+#endif
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
             word36 tmpSign = cpu.rQ & SIGN36;
             CLR_I_CARRY;
@@ -3581,7 +3666,9 @@ static t_stat doInstruction (void)
                   SET_I_CARRY;
               }
             cpu.rQ &= DMASK;    // keep to 36-bits
+#ifdef TESTING
             HDBGRegQW ("qls");
+#endif
 
             SC_I_ZERO (cpu.rQ == 0);
             SC_I_NEG (cpu.rQ & SIGN36);
@@ -3625,7 +3712,9 @@ static t_stat doInstruction (void)
         case x0 (0635):  // eaa
           cpu.rA = 0;
           SETHI (cpu.rA, cpu.TPR.CA);
+#ifdef TESTING
           HDBGRegAW ("eea");
+#endif
           SC_I_ZERO (cpu.TPR.CA == 0);
           SC_I_NEG (cpu.TPR.CA & SIGN18);
 
@@ -3634,7 +3723,9 @@ static t_stat doInstruction (void)
         case x0 (0636):  // eaq
           cpu.rQ = 0;
           SETHI (cpu.rQ, cpu.TPR.CA);
+#ifdef TESTING
           HDBGRegQW ("eaq");
+#endif
 
           SC_I_ZERO (cpu.TPR.CA == 0);
           SC_I_NEG (cpu.TPR.CA & SIGN18);
@@ -3655,7 +3746,9 @@ static t_stat doInstruction (void)
           {
             bool ovf;
             cpu.rA = compl36 (cpu.CY, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegAW ("lca");
+#endif
             overflow (ovf, false, "lca overflow fault");
           }
           break;
@@ -3664,7 +3757,9 @@ static t_stat doInstruction (void)
           {
             bool ovf;
             cpu.rQ = compl36 (cpu.CY, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegQW ("lcq");
+#endif
             overflow (ovf, false, "lcq overflow fault");
           }
           break;
@@ -3682,7 +3777,9 @@ static t_stat doInstruction (void)
             bool ovf;
             uint32 n = opcode10 & 07;  // get n
             cpu.rX[n] = compl18 (GETHI (cpu.CY), & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegXW (n, "lcxn");
+#endif
             overflow (ovf, false, "lcxn overflow fault");
           }
           break;
@@ -3699,9 +3796,13 @@ static t_stat doInstruction (void)
             if (cpu.Ypair[0] == 0400000000000LL && cpu.Ypair[1] == 0)
               {
                 cpu.rA = cpu.Ypair[0];
+#ifdef TESTING
                 HDBGRegAW ("lcaq");
+#endif
                 cpu.rQ = cpu.Ypair[1];
+#ifdef TESTING
                 HDBGRegQW ("lcaq");
+#endif
                 SET_I_NEG;
                 CLR_I_ZERO;
                 overflow (true, false, "lcaq overflow fault");
@@ -3709,9 +3810,13 @@ static t_stat doInstruction (void)
             else if (cpu.Ypair[0] == 0 && cpu.Ypair[1] == 0)
               {
                 cpu.rA = 0;
+#ifdef TESTING
                 HDBGRegAW ("lcaq");
+#endif
                 cpu.rQ = 0;
+#ifdef TESTING
                 HDBGRegQW ("lcaq");
+#endif
 
                 SET_I_ZERO;
                 CLR_I_NEG;
@@ -3725,8 +3830,10 @@ static t_stat doInstruction (void)
                 tmp72 = ~tmp72 + 1;
 #endif
                 convert_to_word36 (tmp72, & cpu.rA, & cpu.rQ);
+#ifdef TESTING
                 HDBGRegAW ("lcaq");
                 HDBGRegQW ("lcaq");
+#endif
 
                 SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0);
                 SC_I_NEG (cpu.rA & SIGN36);
@@ -3739,7 +3846,9 @@ static t_stat doInstruction (void)
 
         case x0 (0034): // ldac
           cpu.rA = cpu.CY;
+#ifdef TESTING
           HDBGRegAW ("ldac");
+#endif
           SC_I_ZERO (cpu.rA == 0);
           SC_I_NEG (cpu.rA & SIGN36);
           cpu.CY = 0;
@@ -3756,7 +3865,9 @@ static t_stat doInstruction (void)
 
         case x0 (0032): // ldqc
           cpu.rQ = cpu.CY;
+#ifdef TESTING
           HDBGRegQW ("ldqc");
+#endif
           SC_I_ZERO (cpu.rQ == 0);
           SC_I_NEG (cpu.rQ & SIGN36);
           cpu.CY = 0;
@@ -3774,7 +3885,9 @@ static t_stat doInstruction (void)
           {
             uint32 n = opcode10 & 07;  // get n
             cpu.rX[n] = GETHI (cpu.CY);
+#ifdef TESTING
             HDBGRegXW (n, "ldxn");
+#endif
             SC_I_ZERO (cpu.rX[n] == 0);
             SC_I_NEG (cpu.rX[n] & SIGN18);
           }
@@ -3787,37 +3900,57 @@ static t_stat doInstruction (void)
           cpu.ou.eac = 0;
 #endif
           cpu.rX[0] = GETHI (cpu.Yblock8[0]);
+#ifdef TESTING
           HDBGRegXW (0, "lreg");
+#endif
           cpu.rX[1] = GETLO (cpu.Yblock8[0]);
+#ifdef TESTING
           HDBGRegXW (1, "lreg");
+#endif
 #ifdef L68
           cpu.ou.eac ++;
 #endif
           cpu.rX[2] = GETHI (cpu.Yblock8[1]);
+#ifdef TESTING
           HDBGRegXW (2, "lreg");
+#endif
           cpu.rX[3] = GETLO (cpu.Yblock8[1]);
+#ifdef TESTING
           HDBGRegXW (3, "lreg");
+#endif
 #ifdef L68
           cpu.ou.eac ++;
 #endif
           cpu.rX[4] = GETHI (cpu.Yblock8[2]);
+#ifdef TESTING
           HDBGRegXW (4, "lreg");
+#endif
           cpu.rX[5] = GETLO (cpu.Yblock8[2]);
+#ifdef TESTING
           HDBGRegXW (5, "lreg");
+#endif
 #ifdef L68
           cpu.ou.eac ++;
 #endif
           cpu.rX[6] = GETHI (cpu.Yblock8[3]);
+#ifdef TESTING
           HDBGRegXW (6, "lreg");
+#endif
           cpu.rX[7] = GETLO (cpu.Yblock8[3]);
+#ifdef TESTING
           HDBGRegXW (7, "lreg");
+#endif
 #ifdef L68
           cpu.ou.eac = 0;
 #endif
           cpu.rA = cpu.Yblock8[4];
+#ifdef TESTING
           HDBGRegAW ("lreg");
+#endif
           cpu.rQ = cpu.Yblock8[5];
+#ifdef TESTING
           HDBGRegQW ("lreg");
+#endif
           cpu.rE = (GETHI (cpu.Yblock8[6]) >> 10) & 0377;   // need checking
           break;
 
@@ -3870,6 +4003,7 @@ static t_stat doInstruction (void)
             cpu.Yblock8[7] = (((-- cpu.shadowTR) & MASK27) << 9) | (cpu.rRALR & 07);
           else
             cpu.Yblock8[7] = ((cpu.rTR & MASK27) << 9) | (cpu.rRALR & 07);
+#ifdef TESTING
           HDBGRegXR (0, "sreg");
           HDBGRegXR (1, "sreg");
           HDBGRegXR (2, "sreg");
@@ -3880,6 +4014,7 @@ static t_stat doInstruction (void)
           HDBGRegXR (7, "sreg");
           HDBGRegAR ("sreg");
           HDBGRegQR ("sreg");
+#endif
           break;
 
 // Optimized to the top of the loop
@@ -3888,7 +4023,9 @@ static t_stat doInstruction (void)
         case x0 (0354):  // stac
           if (cpu.CY == 0)
             {
+#ifdef TESTING
               HDBGRegAR ("stac");
+#endif
               SET_I_ZERO;
               cpu.CY = cpu.rA;
             }
@@ -3897,10 +4034,14 @@ static t_stat doInstruction (void)
           break;
 
         case x0 (0654):  // stacq
+#ifdef TESTING
           HDBGRegQR ("stacq");
+#endif
           if (cpu.CY == cpu.rQ)
             {
+#ifdef TESTING
               HDBGRegAR ("stacq");
+#endif
               cpu.CY = cpu.rA;
               SET_I_ZERO;
             }
@@ -3914,8 +4055,10 @@ static t_stat doInstruction (void)
         case x0 (0551):  // stba
           // 9-bit bytes of C(A) -> corresponding bytes of C(Y), the byte
           // positions affected being specified in the TAG field.
-          //copyBytes ((i->tag >> 2) & 0xf, cpu.rA, &cpu.CY);
+          // copyBytes ((i->tag >> 2) & 0xf, cpu.rA, &cpu.CY);
+#ifdef TESTING
           HDBGRegAR ("stba");
+#endif
           cpu.CY = cpu.rA;
           cpu.zone =
              ((i->tag & 040) ? 0777000000000u : 0) |
@@ -3929,8 +4072,10 @@ static t_stat doInstruction (void)
         case x0 (0552):  // stbq
           // 9-bit bytes of C(Q) -> corresponding bytes of C(Y), the byte
           // positions affected being specified in the TAG field.
-          //copyBytes ((i->tag >> 2) & 0xf, cpu.rQ, &cpu.CY);
+          // copyBytes ((i->tag >> 2) & 0xf, cpu.rQ, &cpu.CY);
+#ifdef TESTING
           HDBGRegQR ("stbq");
+#endif
           cpu.CY = cpu.rQ;
           cpu.zone =
              ((i->tag & 040) ? 0777000000000u : 0) |
@@ -3960,7 +4105,7 @@ static t_stat doInstruction (void)
           // AL-39 doesn't specify if the low half is set to zero,
           // set to IR, or left unchanged
           // RJ78 specifies unchanged
-          //SETHI (cpu.CY, (cpu.PPR.IC + 2) & MASK18);
+          // SETHI (cpu.CY, (cpu.PPR.IC + 2) & MASK18);
           cpu.CY = ((word36) ((cpu.PPR.IC + 2) & MASK18)) << 18;
           cpu.zone = 0777777000000;
           cpu.useZone = true;
@@ -3970,8 +4115,10 @@ static t_stat doInstruction (void)
           // Characters of C(A) -> corresponding characters of C(Y),
           // the character positions affected being specified in the TAG
           // field.
-          //copyChars (i->tag, cpu.rA, &cpu.CY);
+          // copyChars (i->tag, cpu.rA, &cpu.CY);
+#ifdef TESTING
           HDBGRegAR ("stca");
+#endif
           cpu.CY = cpu.rA;
           cpu.zone =
              ((i->tag & 040) ? 0770000000000u : 0) |
@@ -3987,8 +4134,10 @@ static t_stat doInstruction (void)
         case x0 (0752): // stcq
           // Characters of C(Q) -> corresponding characters of C(Y), the
           // character positions affected being specified in the TAG field.
-          //copyChars (i->tag, cpu.rQ, &cpu.CY);
+          // copyChars (i->tag, cpu.rQ, &cpu.CY);
+#ifdef TESTING
           HDBGRegQR ("stcq");
+#endif
           cpu.CY = cpu.rQ;
           cpu.zone =
              ((i->tag & 040) ? 0770000000000u : 0) |
@@ -4089,7 +4238,9 @@ static t_stat doInstruction (void)
 
         case x0 (0775):  // alr
           {
+#ifdef TESTING
               HDBGRegAR ("alr");
+#endif
               word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
               for (uint j = 0 ; j < tmp36 ; j++)
               {
@@ -4099,7 +4250,9 @@ static t_stat doInstruction (void)
                       cpu.rA |= 1;
               }
               cpu.rA &= DMASK;    // keep to 36-bits
+#ifdef TESTING
               HDBGRegAW ("alr");
+#endif
 
               SC_I_ZERO (cpu.rA == 0);
               SC_I_NEG (cpu.rA & SIGN36);
@@ -4113,13 +4266,17 @@ static t_stat doInstruction (void)
           // Shift C(A) right the number of positions given in
           // C(TPR.CA)11,17; filling vacated positions with zeros.
           {
+#ifdef TESTING
             HDBGRegAR ("arl");
+#endif
             cpu.rA &= DMASK; // Make sure the shifted in bits are 0
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
 
             cpu.rA >>= tmp36;
             cpu.rA &= DMASK;    // keep to 36-bits
+#ifdef TESTING
             HDBGRegAW ("arl");
+#endif
 
             SC_I_ZERO (cpu.rA == 0);
             SC_I_NEG (cpu.rA & SIGN36);
@@ -4131,7 +4288,9 @@ static t_stat doInstruction (void)
             // Shift C(A) right the number of positions given in
             // C(TPR.CA)11,17; filling vacated positions with initial C(A)0.
 
+#ifdef TESTING
             HDBGRegAR ("ars");
+#endif
             cpu.rA &= DMASK; // Make sure the shifted in bits are 0
             word18 tmp18 = cpu.TPR.CA & 0177;   // CY bits 11-17
 
@@ -4143,7 +4302,9 @@ static t_stat doInstruction (void)
                     cpu.rA |= SIGN36;
               }
             cpu.rA &= DMASK;    // keep to 36-bits
+#ifdef TESTING
             HDBGRegAW ("ars");
+#endif
 
             SC_I_ZERO (cpu.rA == 0);
             SC_I_NEG (cpu.rA & SIGN36);
@@ -4155,8 +4316,10 @@ static t_stat doInstruction (void)
           // C(TPR.CA)11,17; entering each bit leaving AQ0 into AQ71.
 
           {
+#ifdef TESTING
             HDBGRegAR ("llr");
             HDBGRegQR ("llr");
+#endif
             word36 tmp36 = cpu.TPR.CA & 0177;      // CY bits 11-17
             for (uint j = 0 ; j < tmp36 ; j++)
               {
@@ -4176,8 +4339,10 @@ static t_stat doInstruction (void)
 
             cpu.rA &= DMASK;    // keep to 36-bits
             cpu.rQ &= DMASK;
+#ifdef TESTING
             HDBGRegAW ("llr");
             HDBGRegQW ("llr");
+#endif
 
             SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0);
             SC_I_NEG (cpu.rA & SIGN36);
@@ -4191,8 +4356,10 @@ static t_stat doInstruction (void)
 
             CLR_I_CARRY;
 
+#ifdef TESTING
             HDBGRegAR ("lls");
             HDBGRegQR ("lls");
+#endif
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
             word36 tmpSign = cpu.rA & SIGN36;
             for (uint j = 0 ; j < tmp36 ; j ++)
@@ -4211,8 +4378,10 @@ static t_stat doInstruction (void)
 
             cpu.rA &= DMASK;    // keep to 36-bits
             cpu.rQ &= DMASK;
+#ifdef TESTING
             HDBGRegAW ("lls");
             HDBGRegQW ("lls");
+#endif
 
             SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0);
             SC_I_NEG (cpu.rA & SIGN36);
@@ -4223,8 +4392,10 @@ static t_stat doInstruction (void)
           // Shift C(AQ) right the number of positions given in
           // C(TPR.CA)11,17; filling vacated positions with zeros.
           {
+#ifdef TESTING
             HDBGRegAR ("lrl");
             HDBGRegQR ("lrl");
+#endif
             cpu.rA &= DMASK; // Make sure the shifted in bits are 0
             cpu.rQ &= DMASK; // Make sure the shifted in bits are 0
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
@@ -4240,8 +4411,10 @@ static t_stat doInstruction (void)
               }
             cpu.rA &= DMASK;    // keep to 36-bits
             cpu.rQ &= DMASK;
+#ifdef TESTING
             HDBGRegAW ("lrl");
             HDBGRegQW ("lrl");
+#endif
 
             SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0);
             SC_I_NEG (cpu.rA & SIGN36);
@@ -4253,8 +4426,10 @@ static t_stat doInstruction (void)
             // Shift C(AQ) right the number of positions given in
             // C(TPR.CA)11,17; filling vacated positions with initial C(AQ)0.
 
+#ifdef TESTING
             HDBGRegAR ("lrs");
             HDBGRegQR ("lrs");
+#endif
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
             cpu.rA &= DMASK; // Make sure the shifted in bits are 0
             cpu.rQ &= DMASK; // Make sure the shifted in bits are 0
@@ -4274,8 +4449,10 @@ static t_stat doInstruction (void)
               }
             cpu.rA &= DMASK;    // keep to 36-bits (probably ain't necessary)
             cpu.rQ &= DMASK;
+#ifdef TESTING
             HDBGRegAW ("lrs");
             HDBGRegQW ("lrs");
+#endif
 
             SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0);
             SC_I_NEG (cpu.rA & SIGN36);
@@ -4286,7 +4463,9 @@ static t_stat doInstruction (void)
           // Shift C(Q) left the number of positions given in
           // C(TPR.CA)11,17; entering each bit leaving Q0 into Q35.
           {
+#ifdef TESTING
             HDBGRegQR ("qlr");
+#endif
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
             for (uint j = 0 ; j < tmp36 ; j++)
               {
@@ -4296,7 +4475,9 @@ static t_stat doInstruction (void)
                   cpu.rQ |= 1;
               }
             cpu.rQ &= DMASK;    // keep to 36-bits
+#ifdef TESTING
             HDBGRegQW ("qlr");
+#endif
 
             SC_I_ZERO (cpu.rQ == 0);
             SC_I_NEG (cpu.rQ & SIGN36);
@@ -4310,13 +4491,17 @@ static t_stat doInstruction (void)
           // Shift C(Q) right the number of positions specified by
           // Y11,17; fill vacated positions with zeros.
           {
+#ifdef TESTING
             HDBGRegQR ("qrl");
+#endif
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
 
             cpu.rQ &= DMASK;    // Make sure the shifted in bits are 0
             cpu.rQ >>= tmp36;
             cpu.rQ &= DMASK;    // keep to 36-bits
+#ifdef TESTING
             HDBGRegQW ("qrl");
+#endif
 
             SC_I_ZERO (cpu.rQ == 0);
             SC_I_NEG (cpu.rQ & SIGN36);
@@ -4329,7 +4514,9 @@ static t_stat doInstruction (void)
             // Shift C(Q) right the number of positions given in
             // C(TPR.CA)11,17; filling vacated positions with initial C(Q)0.
 
+#ifdef TESTING
             HDBGRegQR ("qrs");
+#endif
             cpu.rQ &= DMASK; // Make sure the shifted in bits are 0
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
             bool q0 = cpu.rQ & SIGN36;    // Q0
@@ -4340,7 +4527,9 @@ static t_stat doInstruction (void)
                   cpu.rQ |= SIGN36;
               }
             cpu.rQ &= DMASK;    // keep to 36-bits
+#ifdef TESTING
             HDBGRegQW ("qrs");
+#endif
 
             SC_I_ZERO (cpu.rQ == 0);
             SC_I_NEG (cpu.rQ & SIGN36);
@@ -4363,10 +4552,14 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("ada");
+#endif
             bool ovf;
             cpu.rA = Add36b (cpu.rA, cpu.CY, 0, I_ZNOC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegAW ("ada");
+#endif
             overflow (ovf, false, "ada overflow fault");
           }
           break;
@@ -4377,15 +4570,19 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("adaq");
             HDBGRegQR ("adaq");
+#endif
             bool ovf;
             word72 tmp72 = YPAIRTO72 (cpu.Ypair);
             tmp72 = Add72b (convert_to_word72 (cpu.rA, cpu.rQ), tmp72, 0,
                             I_ZNOC, & cpu.cu.IR, & ovf);
             convert_to_word36 (tmp72, & cpu.rA, & cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("adaq");
             HDBGRegQW ("adaq");
+#endif
             overflow (ovf, false, "adaq overflow fault");
           }
           break;
@@ -4396,16 +4593,20 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("adl");
             HDBGRegQR ("adl");
+#endif
             bool ovf;
             word72 tmp72 = SIGNEXT36_72 (cpu.CY); // sign extend Cy
             tmp72 = Add72b (convert_to_word72 (cpu.rA, cpu.rQ), tmp72, 0,
                             I_ZNOC,
                             & cpu.cu.IR, & ovf);
             convert_to_word36 (tmp72, & cpu.rA, & cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("adl");
             HDBGRegQW ("adl");
+#endif
             overflow (ovf, false, "adl overflow fault");
           }
           break;
@@ -4420,16 +4621,20 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("adlaq");
             HDBGRegQR ("adlaq");
+#endif
             bool ovf;
             word72 tmp72 = YPAIRTO72 (cpu.Ypair);
 
             tmp72 = Add72b (convert_to_word72 (cpu.rA, cpu.rQ), tmp72, 0,
                             I_ZNC, & cpu.cu.IR, & ovf);
             convert_to_word36 (tmp72, & cpu.rA, & cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("adlaq");
             HDBGRegQW ("adlaq");
+#endif
           }
           break;
 
@@ -4443,10 +4648,14 @@ static t_stat doInstruction (void)
             // adla instruction, nor does an overflow fault occur. Operands and
             // results are treated as unsigned, positive binary integers. */
 
+#ifdef TESTING
             HDBGRegAR ("adla");
+#endif
             bool ovf;
             cpu.rA = Add36b (cpu.rA, cpu.CY, 0, I_ZNC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegAW ("adla");
+#endif
           }
           break;
 
@@ -4460,10 +4669,14 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegQR ("adlq");
+#endif
             bool ovf;
             cpu.rQ = Add36b (cpu.rQ, cpu.CY, 0, I_ZNC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegQW ("adlq");
+#endif
           }
           break;
 
@@ -4481,11 +4694,15 @@ static t_stat doInstruction (void)
             cpu.ou.cycle |= ou_GOS;
 #endif
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "adlxn");
+#endif
             bool ovf;
             cpu.rX[n] = Add18b (cpu.rX[n], GETHI (cpu.CY), 0, I_ZNC,
                              & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegXW (n, "adlxn");
+#endif
           }
           break;
 
@@ -4506,12 +4723,16 @@ static t_stat doInstruction (void)
             cpu.ou.cycle |= ou_GOS;
 #endif
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "adxn");
+#endif
             bool ovf;
             cpu.rX[n] = Add18b (cpu.rX[n], GETHI (cpu.CY), 0,
                                  I_ZNOC,
                                  & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegXW (n, "adxn");
+#endif
             overflow (ovf, false, "adxn overflow fault");
           }
           break;
@@ -4526,7 +4747,9 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("asa");
+#endif
             bool ovf;
             cpu.CY = Add36b (cpu.rA, cpu.CY, 0, I_ZNOC,
                              & cpu.cu.IR, & ovf);
@@ -4540,7 +4763,9 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegQR ("asa");
+#endif
             bool ovf;
             cpu.CY = Add36b (cpu.rQ, cpu.CY, 0, I_ZNOC, & cpu.cu.IR, & ovf);
             overflow (ovf, true, "asq overflow fault");
@@ -4563,7 +4788,9 @@ static t_stat doInstruction (void)
             cpu.ou.cycle |= ou_GOS;
 #endif
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "asxn");
+#endif
             bool ovf;
             word18 tmp18 = Add18b (cpu.rX[n], GETHI (cpu.CY), 0,
                                    I_ZNOC, & cpu.cu.IR, & ovf);
@@ -4580,11 +4807,15 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("awca");
+#endif
             bool ovf;
             cpu.rA = Add36b (cpu.rA, cpu.CY, TST_I_CARRY ? 1 : 0,
                                  I_ZNOC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegAW ("awca");
+#endif
             overflow (ovf, false, "awca overflow fault");
           }
           break;
@@ -4597,11 +4828,15 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegQR ("awcq");
+#endif
             bool ovf;
             cpu.rQ = Add36b (cpu.rQ, cpu.CY, TST_I_CARRY ? 1 : 0,
                              I_ZNOC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegQW ("awcq");
+#endif
             overflow (ovf, false, "awcq overflow fault");
           }
           break;
@@ -4615,10 +4850,14 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("sba");
+#endif
             bool ovf;
             cpu.rA = Sub36b (cpu.rA, cpu.CY, 1, I_ZNOC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegAW ("sba");
+#endif
             overflow (ovf, false, "sba overflow fault");
           }
           break;
@@ -4629,16 +4868,20 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("sbaq");
             HDBGRegQR ("sbaq");
+#endif
             bool ovf;
             word72 tmp72 = YPAIRTO72 (cpu.Ypair);
             tmp72 = Sub72b (convert_to_word72 (cpu.rA, cpu.rQ), tmp72, 1,
                             I_ZNOC, & cpu.cu.IR,
                             & ovf);
             convert_to_word36 (tmp72, & cpu.rA, & cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("sbaq");
             HDBGRegQW ("sbaq");
+#endif
             overflow (ovf, false, "sbaq overflow fault");
           }
           break;
@@ -4650,10 +4893,14 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("sbla");
+#endif
             bool ovf;
             cpu.rA = Sub36b (cpu.rA, cpu.CY, 1, I_ZNC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegAW ("sbla");
+#endif
           }
           break;
 
@@ -4668,16 +4915,20 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("sblaq");
             HDBGRegQR ("sblaq");
+#endif
             bool ovf;
             word72 tmp72 = YPAIRTO72 (cpu.Ypair);
 
             tmp72 = Sub72b (convert_to_word72 (cpu.rA, cpu.rQ), tmp72, 1,
                             I_ZNC, & cpu.cu.IR, & ovf);
             convert_to_word36 (tmp72, & cpu.rA, & cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("sblaq");
             HDBGRegQW ("sblaq");
+#endif
           }
           break;
 
@@ -4687,10 +4938,14 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegQR ("sblq");
+#endif
             bool ovf;
             cpu.rQ = Sub36b (cpu.rQ, cpu.CY, 1, I_ZNC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegQW ("sblq");
+#endif
           }
           break;
 
@@ -4711,11 +4966,15 @@ static t_stat doInstruction (void)
             cpu.ou.cycle |= ou_GOS;
 #endif
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "sblxn");
+#endif
             bool ovf;
             cpu.rX[n] = Sub18b (cpu.rX[n], GETHI (cpu.CY), 1,
                              I_ZNC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegXW (n, "sblxn");
+#endif
           }
           break;
 
@@ -4725,10 +4984,14 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegQR ("sbq");
+#endif
             bool ovf;
             cpu.rQ = Sub36b (cpu.rQ, cpu.CY, 1, I_ZNOC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegQW ("sbq");
+#endif
             overflow (ovf, false, "sbq overflow fault");
           }
           break;
@@ -4750,11 +5013,15 @@ static t_stat doInstruction (void)
             cpu.ou.cycle |= ou_GOS;
 #endif
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "sbxn");
+#endif
             bool ovf;
             cpu.rX[n] = Sub18b (cpu.rX[n], GETHI (cpu.CY), 1,
                                  I_ZNOC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegXW (n, "sbxn");
+#endif
             overflow (ovf, false, "sbxn overflow fault");
           }
           break;
@@ -4766,7 +5033,9 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("ssa");
+#endif
             bool ovf;
             cpu.CY = Sub36b (cpu.rA, cpu.CY, 1, I_ZNOC, & cpu.cu.IR, & ovf);
             overflow (ovf, true, "ssa overflow fault");
@@ -4780,7 +5049,9 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegQR ("ssq");
+#endif
             bool ovf;
             cpu.CY = Sub36b (cpu.rQ, cpu.CY, 1, I_ZNOC, & cpu.cu.IR, & ovf);
             overflow (ovf, true, "ssq overflow fault");
@@ -4804,7 +5075,9 @@ static t_stat doInstruction (void)
             cpu.ou.cycle |= ou_GOS;
 #endif
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "ssxn");
+#endif
             bool ovf;
             word18 tmp18 = Sub18b (cpu.rX[n], GETHI (cpu.CY), 1,
                                    I_ZNOC, & cpu.cu.IR, & ovf);
@@ -4822,11 +5095,15 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegAR ("swca");
+#endif
             bool ovf;
             cpu.rA = Sub36b (cpu.rA, cpu.CY, TST_I_CARRY ? 1 : 0,
                              I_ZNOC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegAW ("swca");
+#endif
             overflow (ovf, false, "swca overflow fault");
           }
           break;
@@ -4839,11 +5116,15 @@ static t_stat doInstruction (void)
 #ifdef L68
             cpu.ou.cycle |= ou_GOS;
 #endif
+#ifdef TESTING
             HDBGRegQR ("swcq");
+#endif
             bool ovf;
             cpu.rQ = Sub36b (cpu.rQ, cpu.CY, TST_I_CARRY ? 1 : 0,
                                  I_ZNOC, & cpu.cu.IR, & ovf);
+#ifdef TESTING
             HDBGRegQW ("swcq");
+#endif
             overflow (ovf, false, "swcq overflow fault");
           }
           break;
@@ -4865,8 +5146,10 @@ static t_stat doInstruction (void)
             cpu.ou.cycle |= ou_GD1;
 #endif
 #ifdef NEED_128
+# ifdef TESTING
             HDBGRegAR ("mpf");
             HDBGRegQR ("mpf");
+# endif
             word72 tmp72 = multiply_128 (SIGNEXT36_72 (cpu.rA), SIGNEXT36_72 (cpu.CY));
             tmp72 = and_128 (tmp72, MASK72);
             tmp72 = lshift_128 (tmp72, 1);
@@ -4888,8 +5171,10 @@ static t_stat doInstruction (void)
               }
 
             convert_to_word36 (tmp72, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("mpf");
             HDBGRegQW ("mpf");
+#endif
             SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0);
             SC_I_NEG (cpu.rA & SIGN36);
           }
@@ -4903,7 +5188,9 @@ static t_stat doInstruction (void)
             cpu.ou.cycle |= ou_GOS;
 #endif
 #ifdef NEED_128
+# ifdef TESTING
             HDBGRegQR ("mpy");
+# endif
             int128 prod = multiply_s128 (
               SIGNEXT36_128 (cpu.rQ & DMASK),
               SIGNEXT36_128 (cpu.CY & DMASK));
@@ -4916,8 +5203,10 @@ static t_stat doInstruction (void)
 
             convert_to_word36 ((word72)prod, &cpu.rA, &cpu.rQ);
 #endif
+#ifdef TESTING
             HDBGRegAW ("mpy");
             HDBGRegQW ("mpy");
+#endif
 
             SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0);
             SC_I_NEG (cpu.rA & SIGN36);
@@ -4948,7 +5237,9 @@ static t_stat doInstruction (void)
           // RJ78: If the dividend = -2**35 and the divisor = +/-1, or if
           // the divisor is 0
 
+#ifdef TESTING
           HDBGRegQR ("div");
+#endif
           if ((cpu.rQ == MAXNEG && (cpu.CY == 1 || cpu.CY == NEG136)) ||
               (cpu.CY == 0))
             {
@@ -4957,7 +5248,9 @@ static t_stat doInstruction (void)
 // case 2  000000000000 000000000000 --> 400000000000
               //cpu.rA = 0;  // works for case 1
               cpu.rA = (cpu.rQ & SIGN36) ? 0 : SIGN36; // works for case 1,2
+#ifdef TESTING
               HDBGRegAW ("div");
+#endif
 
               // no division takes place
               SC_I_ZERO (cpu.CY == 0);
@@ -4966,7 +5259,9 @@ static t_stat doInstruction (void)
               if (cpu.rQ & SIGN36)
                 {
                   cpu.rQ = (- cpu.rQ) & MASK36;
+#ifdef TESTING
                   HDBGRegQW ("div");
+#endif
                 }
 
               dlyDoFault (FAULT_DIV,
@@ -4977,8 +5272,8 @@ static t_stat doInstruction (void)
             {
               t_int64 dividend = (t_int64) (SIGNEXT36_64 (cpu.rQ));
               t_int64 divisor = (t_int64) (SIGNEXT36_64 (cpu.CY));
-
-#ifdef DIV_TRACE
+#ifdef TESTING
+# ifdef DIV_TRACE
               sim_debug (DBG_CAC, & cpu_dev, "\n");
               sim_debug (DBG_CAC, & cpu_dev,
                          ">>> dividend cpu.rQ %"PRId64" (%012"PRIo64")\n",
@@ -4986,6 +5281,7 @@ static t_stat doInstruction (void)
               sim_debug (DBG_CAC, & cpu_dev,
                          ">>> divisor  CY %"PRId64" (%012"PRIo64")\n",
                          divisor, cpu.CY);
+# endif
 #endif
 
               t_int64 quotient = dividend / divisor;
@@ -4993,10 +5289,11 @@ static t_stat doInstruction (void)
               cpu.ou.cycle |= ou_GD2;
 #endif
               t_int64 remainder = dividend % divisor;
-
-#ifdef DIV_TRACE
+#ifdef TESTING
+# ifdef DIV_TRACE
               sim_debug (DBG_CAC, & cpu_dev, ">>> quot 1 %"PRId64"\n", quotient);
               sim_debug (DBG_CAC, & cpu_dev, ">>> rem 1 %"PRId64"\n", remainder);
+# endif
 #endif
 
 // Evidence is that DPS8M rounds toward zero; if it turns out that it
@@ -5018,8 +5315,8 @@ static t_stat doInstruction (void)
 # endif
                 }
 #endif
-
-#ifdef DIV_TRACE
+#ifdef TESTING
+# ifdef DIV_TRACE
               //  (a/b)*b + a%b is equal to a.
               sim_debug (DBG_CAC, & cpu_dev,
                          "dividend was                   = %"PRId64"\n", dividend);
@@ -5031,8 +5328,8 @@ static t_stat doInstruction (void)
                   sim_debug (DBG_CAC, & cpu_dev,
                      "---------------------------------^^^^^^^^^^^^^^^\n");
                 }
+# endif
 #endif
-
 
               if (dividend != quotient * divisor + remainder)
                 {
@@ -5043,12 +5340,14 @@ static t_stat doInstruction (void)
 
               cpu.rA = (word36) remainder & DMASK;
               cpu.rQ = (word36) quotient & DMASK;
+#ifdef TESTING
               HDBGRegAW ("div");
               HDBGRegQW ("div");
 
-#ifdef DIV_TRACE
+# ifdef DIV_TRACE
               sim_debug (DBG_CAC, & cpu_dev, "rA (rem)  %012"PRIo64"\n", cpu.rA);
               sim_debug (DBG_CAC, & cpu_dev, "rQ (quot) %012"PRIo64"\n", cpu.rQ);
+# endif
 #endif
 
               SC_I_ZERO (cpu.rQ == 0);
@@ -5083,7 +5382,9 @@ static t_stat doInstruction (void)
         case x0 (0531):  // neg
           // -C(A) -> C(A) if C(A) != 0
 
+#ifdef TESTING
           HDBGRegAR ("neg");
+#endif
           cpu.rA &= DMASK;
           if (cpu.rA == 0400000000000ULL)
             {
@@ -5095,7 +5396,9 @@ static t_stat doInstruction (void)
           cpu.rA = -cpu.rA;
 
           cpu.rA &= DMASK;    // keep to 36-bits
+#ifdef TESTING
           HDBGRegAW ("neg");
+#endif
 
           SC_I_ZERO (cpu.rA == 0);
           SC_I_NEG (cpu.rA & SIGN36);
@@ -5105,8 +5408,10 @@ static t_stat doInstruction (void)
         case x0 (0533):  // negl
           // -C(AQ) -> C(AQ) if C(AQ) != 0
           {
+#ifdef TESTING
             HDBGRegAR ("negl");
             HDBGRegQR ("negl");
+#endif
             cpu.rA &= DMASK;
             cpu.rQ &= DMASK;
 
@@ -5131,8 +5436,10 @@ static t_stat doInstruction (void)
 #endif
 
             convert_to_word36 (tmp72, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("negl");
             HDBGRegQW ("negl");
+#endif
           }
           break;
 
@@ -5148,7 +5455,9 @@ static t_stat doInstruction (void)
             //word36 y = cpu.CY & SIGN36 ? -cpu.CY : cpu.CY;
 
               // If we do the 64 math, the MAXNEG case works
+#ifdef TESTING
               HDBGRegAR ("cmg");
+#endif
               t_int64 a = SIGNEXT36_64 (cpu.rA);
               if (a < 0)
                 a = -a;
@@ -5181,13 +5490,17 @@ static t_stat doInstruction (void)
            * otherwise, the negative indicator is set OFF.
            */
           {
+#ifdef TESTING
             HDBGRegAR ("cmk");
             HDBGRegQR ("cmk");
             HDBGRegYR ("cmk");
+#endif
             word36 Z = ~cpu.rQ & (cpu.rA ^ cpu.CY);
             Z &= DMASK;
+#ifdef TESTING
             HDBGRegZW (Z, "cmk");
             HDBGRegIR ("cmk");
+#endif
 
 // Q  A  Y   ~Q   A^Y   Z
 // 0  0  0    1     0   0
@@ -5211,8 +5524,10 @@ static t_stat doInstruction (void)
         case x0 (0117):  // cmpaq
           // C(AQ) :: C(Y-pair)
           {
+#ifdef TESTING
             HDBGRegAR ("cmpaq");
             HDBGRegQR ("cmpaq");
+#endif
             word72 tmp72 = YPAIRTO72 (cpu.Ypair);
             word72 trAQ = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
@@ -5240,7 +5555,9 @@ static t_stat doInstruction (void)
           // C(Xn) :: C(Y)0,17
           {
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "cmpxn");
+#endif
             cmp18 (cpu.rX[n], GETHI (cpu.CY), &cpu.cu.IR);
           }
           break;
@@ -5253,8 +5570,10 @@ static t_stat doInstruction (void)
            * comparison of C(Y) with C(Q) locates C(Y) with respect to the
            * interval if C(Y) is not contained within the interval.
            */
+#ifdef TESTING
           HDBGRegAR ("cwl");
           HDBGRegQR ("cwl");
+#endif
           cmp36wl (cpu.rA, cpu.CY, cpu.rQ, &cpu.cu.IR);
           break;
 
@@ -5288,10 +5607,14 @@ static t_stat doInstruction (void)
 
         case x0 (0376):  // anq
           // C(Q)i & C(Y)i -> C(Q)i for i = (0, 1, ..., 35)
+#ifdef TESTING
           HDBGRegQR ("anq");
+#endif
           cpu.rQ = cpu.rQ & cpu.CY;
           cpu.rQ &= DMASK;
+#ifdef TESTING
           HDBGRegQW ("anq");
+#endif
 
           SC_I_ZERO (cpu.rQ == 0);
           SC_I_NEG (cpu.rQ & SIGN36);
@@ -5300,7 +5623,9 @@ static t_stat doInstruction (void)
         case x0 (0355):  // ansa
           // C(A)i & C(Y)i -> C(Y)i for i = (0, 1, ..., 35)
           {
+#ifdef TESTING
             HDBGRegAR ("ansa");
+#endif
             cpu.CY = cpu.rA & cpu.CY;
             cpu.CY &= DMASK;
 
@@ -5312,7 +5637,9 @@ static t_stat doInstruction (void)
         case x0 (0356):  // ansq
           // C(Q)i & C(Y)i -> C(Y)i for i = (0, 1, ..., 35)
           {
+#ifdef TESTING
             HDBGRegQR ("ansq");
+#endif
             cpu.CY = cpu.rQ & cpu.CY;
             cpu.CY &= DMASK;
 
@@ -5334,7 +5661,9 @@ static t_stat doInstruction (void)
           // C(Xn)i & C(Y)i -> C(Y)i for i = (0, 1, ..., 17)
           {
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "ansxn");
+#endif
             word18 tmp18 = cpu.rX[n] & GETHI (cpu.CY);
             tmp18 &= MASK18;
 
@@ -5359,10 +5688,14 @@ static t_stat doInstruction (void)
           // C(Xn)i & C(Y)i -> C(Xn)i for i = (0, 1, ..., 17)
           {
               uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
               HDBGRegXR (n, "anxn");
+#endif
               cpu.rX[n] &= GETHI (cpu.CY);
               cpu.rX[n] &= MASK18;
+#ifdef TESTING
               HDBGRegXW (n, "anxn");
+#endif
 
               SC_I_ZERO (cpu.rX[n] == 0);
               SC_I_NEG (cpu.rX[n] & SIGN18);
@@ -5377,8 +5710,10 @@ static t_stat doInstruction (void)
         case x0 (0277):  // oraq
           // C(AQ)i | C(Y-pair)i -> C(AQ)i for i = (0, 1, ..., 71)
           {
+#ifdef TESTING
               HDBGRegAR ("oraq");
               HDBGRegQR ("oraq");
+#endif
               word72 tmp72 = YPAIRTO72 (cpu.Ypair);
               word72 trAQ = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
@@ -5395,17 +5730,23 @@ static t_stat doInstruction (void)
               SC_I_NEG (trAQ & SIGN72);
 #endif
               convert_to_word36 (trAQ, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
               HDBGRegAW ("oraq");
               HDBGRegQW ("oraq");
+#endif
           }
           break;
 
         case x0 (0276):  // orq
           // C(Q)i | C(Y)i -> C(Q)i for i = (0, 1, ..., 35)
+#ifdef TESTING
           HDBGRegQR ("orq");
+#endif
           cpu.rQ = cpu.rQ | cpu.CY;
           cpu.rQ &= DMASK;
+#ifdef TESTING
           HDBGRegQW ("orq");
+#endif
 
           SC_I_ZERO (cpu.rQ == 0);
           SC_I_NEG (cpu.rQ & SIGN36);
@@ -5414,7 +5755,9 @@ static t_stat doInstruction (void)
 
         case x0 (0255):  // orsa
           // C(A)i | C(Y)i -> C(Y)i for i = (0, 1, ..., 35)
+#ifdef TESTING
           HDBGRegAR ("orsa");
+#endif
           cpu.CY = cpu.rA | cpu.CY;
           cpu.CY &= DMASK;
 
@@ -5424,8 +5767,9 @@ static t_stat doInstruction (void)
 
         case x0 (0256):  // orsq
           // C(Q)i | C(Y)i -> C(Y)i for i = (0, 1, ..., 35)
-
+#ifdef TESTING
           HDBGRegQR ("orsq");
+#endif
           cpu.CY = cpu.rQ | cpu.CY;
           cpu.CY &= DMASK;
 
@@ -5470,10 +5814,14 @@ static t_stat doInstruction (void)
           // C(Xn)i | C(Y)i -> C(Xn)i for i = (0, 1, ..., 17)
           {
               uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
               HDBGRegXR (n, "orxn");
+#endif
               cpu.rX[n] |= GETHI (cpu.CY);
               cpu.rX[n] &= MASK18;
+#ifdef TESTING
               HDBGRegXW (n, "orxn");
+#endif
 
               SC_I_ZERO (cpu.rX[n] == 0);
               SC_I_NEG (cpu.rX[n] & SIGN18);
@@ -5484,10 +5832,14 @@ static t_stat doInstruction (void)
 
         case x0 (0675):  // era
           // C(A)i XOR C(Y)i -> C(A)i for i = (0, 1, ..., 35)
+#ifdef TESTING
           HDBGRegAR ("era");
+#endif
           cpu.rA = cpu.rA ^ cpu.CY;
           cpu.rA &= DMASK;
+#ifdef TESTING
           HDBGRegAW ("era");
+#endif
 
           SC_I_ZERO (cpu.rA == 0);
           SC_I_NEG (cpu.rA & SIGN36);
@@ -5499,18 +5851,23 @@ static t_stat doInstruction (void)
 
         case x0 (0676):  // erq
           // C(Q)i XOR C(Y)i -> C(Q)i for i = (0, 1, ..., 35)
+#ifdef TESTING
           HDBGRegQR ("eraq");
+#endif
           cpu.rQ = cpu.rQ ^ cpu.CY;
           cpu.rQ &= DMASK;
+#ifdef TESTING
           HDBGRegQW ("eraq");
+#endif
           SC_I_ZERO (cpu.rQ == 0);
           SC_I_NEG (cpu.rQ & SIGN36);
           break;
 
         case x0 (0655):  // ersa
           // C(A)i XOR C(Y)i -> C(Y)i for i = (0, 1, ..., 35)
-
+#ifdef TESTING
           HDBGRegAR ("ersa");
+#endif
           cpu.CY = cpu.rA ^ cpu.CY;
           cpu.CY &= DMASK;
 
@@ -5520,8 +5877,9 @@ static t_stat doInstruction (void)
 
         case x0 (0656):  // ersq
           // C(Q)i XOR C(Y)i -> C(Y)i for i = (0, 1, ..., 35)
-
+#ifdef TESTING
           HDBGRegQR ("ersq");
+#endif
           cpu.CY = cpu.rQ ^ cpu.CY;
           cpu.CY &= DMASK;
 
@@ -5543,7 +5901,9 @@ static t_stat doInstruction (void)
           // C(Xn)i XOR C(Y)i -> C(Y)i for i = (0, 1, ..., 17)
           {
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "ersxn");
+#endif
 
             word18 tmp18 = cpu.rX[n] ^ GETHI (cpu.CY);
             tmp18 &= MASK18;
@@ -5568,10 +5928,14 @@ static t_stat doInstruction (void)
           // C(Xn)i XOR C(Y)i -> C(Xn)i for i = (0, 1, ..., 17)
           {
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "erxn");
+#endif
             cpu.rX[n] ^= GETHI (cpu.CY);
             cpu.rX[n] &= MASK18;
+#ifdef TESTING
             HDBGRegXW (n, "erxn");
+#endif
 
             SC_I_ZERO (cpu.rX[n] == 0);
             SC_I_NEG (cpu.rX[n] & SIGN18);
@@ -5586,8 +5950,10 @@ static t_stat doInstruction (void)
         case x0 (0317):  // canaq
           // C(Z)i = C(AQ)i & C(Y-pair)i for i = (0, 1, ..., 71)
           {
+#ifdef TESTING
             HDBGRegAR ("canaq");
             HDBGRegQR ("canaq");
+#endif
             word72 tmp72 = YPAIRTO72 (cpu.Ypair);
             word72 trAQ = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
@@ -5609,7 +5975,9 @@ static t_stat doInstruction (void)
         case x0 (0316):  // canq
           // C(Z)i = C(Q)i & C(Y)i for i = (0, 1, ..., 35)
           {
+#ifdef TESTING
             HDBGRegQR ("canq");
+#endif
             word36 trZ = cpu.rQ & cpu.CY;
             trZ &= DMASK;
 
@@ -5631,7 +5999,9 @@ static t_stat doInstruction (void)
           // C(Z)i = C(Xn)i & C(Y)i for i = (0, 1, ..., 17)
           {
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "canxn");
+#endif
             word18 tmp18 = cpu.rX[n] & GETHI (cpu.CY);
             tmp18 &= MASK18;
             sim_debug (DBG_TRACEEXT, & cpu_dev,
@@ -5649,7 +6019,9 @@ static t_stat doInstruction (void)
         case x0 (0215):  // cnaa
           // C(Z)i = C(A)i & ~C(Y)i for i = (0, 1, ..., 35)
           {
+#ifdef TESTING
             HDBGRegAR ("cnaa");
+#endif
             word36 trZ = cpu.rA & ~cpu.CY;
             trZ &= DMASK;
 
@@ -5661,9 +6033,11 @@ static t_stat doInstruction (void)
         case x0 (0217):  // cnaaq
           // C(Z)i = C (AQ)i & ~C(Y-pair)i for i = (0, 1, ..., 71)
           {
+#ifdef TESTING
             HDBGRegAR ("cnaaq");
             HDBGRegQR ("cnaaq");
-            word72 tmp72 = YPAIRTO72 (cpu.Ypair);   //
+#endif
+            word72 tmp72 = YPAIRTO72 (cpu.Ypair);
 
             word72 trAQ = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
@@ -5685,7 +6059,9 @@ static t_stat doInstruction (void)
         case x0 (0216):  // cnaq
           // C(Z)i = C(Q)i & ~C(Y)i for i = (0, 1, ..., 35)
           {
+#ifdef TESTING
             HDBGRegQR ("cnaq");
+#endif
             word36 trZ = cpu.rQ & ~cpu.CY;
             trZ &= DMASK;
             SC_I_ZERO (trZ == 0);
@@ -5705,7 +6081,9 @@ static t_stat doInstruction (void)
           // C(Z)i = C(Xn)i & ~C(Y)i for i = (0, 1, ..., 17)
           {
             uint32 n = opcode10 & 07;  // get n
+#ifdef TESTING
             HDBGRegXR (n, "cnaxn");
+#endif
             word18 tmp18 = cpu.rX[n] & ~GETHI (cpu.CY);
             tmp18 &= MASK18;
 
@@ -5733,8 +6111,10 @@ static t_stat doInstruction (void)
 
           cpu.rQ = (cpu.Ypair[1] & FLOAT36MASK) << 8;
 
+#ifdef TESTING
           HDBGRegAW ("dfld");
           HDBGRegQW ("dfld");
+#endif
 
           SC_I_ZERO (cpu.rA == 0 && cpu.rQ == 0);
           SC_I_NEG (cpu.rA & SIGN36);
@@ -5750,8 +6130,10 @@ static t_stat doInstruction (void)
           // C(AQ)0,63 -> C(Y-pair)8,71
 
           CPTUR (cptUseE);
+#ifdef TESTING
           HDBGRegAR ("dfst");
           HDBGRegQR ("dfst");
+#endif
           cpu.Ypair[0] = ((word36)cpu.rE << 28) |
                          ((cpu.rA & 0777777777400LLU) >> 8);
           cpu.Ypair[1] = ((cpu.rA & 0377) << 28) |
@@ -5768,7 +6150,9 @@ static t_stat doInstruction (void)
           // C(E) -> C(Y)0,7
           // C(A)0,27 -> C(Y)8,35
           CPTUR (cptUseE);
+#ifdef TESTING
           HDBGRegAR ("fst");
+#endif
           cpu.rE &= MASK8;
           cpu.rA &= DMASK;
           cpu.CY = ((word36)cpu.rE << 28) | (((cpu.rA >> 8) & 01777777777LL));
@@ -5809,12 +6193,16 @@ static t_stat doInstruction (void)
           // followed by a fno instruction.
 
           CPTUR (cptUseE);
+#ifdef TESTING
           HDBGRegAR ("dfad");
           HDBGRegQR ("dfad");
+#endif
           dufa (false);
           fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
           HDBGRegAW ("dfad");
           HDBGRegQW ("dfad");
+#endif
           break;
 
         case x0 (0437):  // dufa
@@ -5827,12 +6215,16 @@ static t_stat doInstruction (void)
           // (Heh, heh. We'll see....)
 
           CPTUR (cptUseE);
+#ifdef TESTING
           HDBGRegAR ("fad");
           HDBGRegQR ("fad");
+#endif
           ufa (false);
           fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
           HDBGRegAW ("fad");
           HDBGRegQW ("fad");
+#endif
 
           break;
 
@@ -5850,12 +6242,16 @@ static t_stat doInstruction (void)
           // operand from main memory is used.
 
           CPTUR (cptUseE);
+#ifdef TESTING
           HDBGRegAR ("dfsb");
           HDBGRegQR ("dfsb");
+#endif
           dufa (true);
           fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
           HDBGRegAW ("dfsb");
           HDBGRegQW ("dfsb");
+#endif
           break;
 
         case x0 (0537):  // dufs
@@ -5865,14 +6261,17 @@ static t_stat doInstruction (void)
         case x0 (0575):  // fsb
           // The fsb instruction may be thought of as an ufs instruction
           // followed by a fno instruction.
+#ifdef TESTING
           HDBGRegAR ("fsb");
           HDBGRegQR ("fsb");
+#endif
           CPTUR (cptUseE);
           ufa (true);
           fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
           HDBGRegAW ("fsb");
           HDBGRegQW ("fsb");
-
+#endif
           break;
 
         case x0 (0535):  // ufs
@@ -5887,12 +6286,16 @@ static t_stat doInstruction (void)
           // followed by a fno instruction.
 
           CPTUR (cptUseE);
+#ifdef TESTING
           HDBGRegAR ("dfmp");
           HDBGRegQR ("dfmp");
+#endif
           dufm ();
           fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
           HDBGRegAW ("dfmp");
           HDBGRegQW ("dfmp");
+#endif
           break;
 
         case x0 (0423):  // dufm
@@ -5907,9 +6310,10 @@ static t_stat doInstruction (void)
           CPTUR (cptUseE);
           ufm ();
           fno (&cpu.rE, &cpu.rA, &cpu.rQ);
+#ifdef TESTING
           HDBGRegAW ("fmp");
           HDBGRegQW ("fmp");
-
+#endif
           break;
 
         case x0 (0421):  // ufm
@@ -5967,8 +6371,10 @@ static t_stat doInstruction (void)
 
           CPTUR (cptUseE);
           fno (& cpu.rE, & cpu.rA, & cpu.rQ);
+#ifdef TESTING
           HDBGRegAW ("fno");
           HDBGRegQW ("fno");
+#endif
           break;
 
         /// Floating-Point Round
@@ -6349,56 +6755,72 @@ static t_stat doInstruction (void)
           // C(TPR.CA) -> C(PRn.SNR)
           CPTUR (cptUsePRn + 0);
           cpu.PR[0].SNR = cpu.TPR.CA & MASK15;
+#ifdef TESTING
           HDBGRegPRW (0, "easp0");
+#endif
           break;
 
         case x1 (0310):  // easp1
           // C(TPR.CA) -> C(PRn.SNR)
           CPTUR (cptUsePRn + 1);
           cpu.PR[1].SNR = cpu.TPR.CA & MASK15;
+#ifdef TESTING
           HDBGRegPRW (1, "easp1");
+#endif
           break;
 
         case x0 (0313):  // easp2
           // C(TPR.CA) -> C(PRn.SNR)
           CPTUR (cptUsePRn + 2);
           cpu.PR[2].SNR = cpu.TPR.CA & MASK15;
+#ifdef TESTING
           HDBGRegPRW (2, "easp2");
+#endif
           break;
 
         case x1 (0312):  // easp3
           // C(TPR.CA) -> C(PRn.SNR)
           CPTUR (cptUsePRn + 3);
           cpu.PR[3].SNR = cpu.TPR.CA & MASK15;
+#ifdef TESTING
           HDBGRegPRW (3, "easp3");
+#endif
           break;
 
         case x0 (0331):  // easp4
           // C(TPR.CA) -> C(PRn.SNR)
           CPTUR (cptUsePRn + 4);
           cpu.PR[4].SNR = cpu.TPR.CA & MASK15;
+#ifdef TESTING
           HDBGRegPRW (4, "easp4");
+#endif
           break;
 
         case x1 (0330):  // easp5
           // C(TPR.CA) -> C(PRn.SNR)
           CPTUR (cptUsePRn + 5);
           cpu.PR[5].SNR = cpu.TPR.CA & MASK15;
+#ifdef TESTING
           HDBGRegPRW (5, "easp5");
+#endif
           break;
 
         case x0 (0333):  // easp6
           // C(TPR.CA) -> C(PRn.SNR)
           CPTUR (cptUsePRn + 6);
           cpu.PR[6].SNR = cpu.TPR.CA & MASK15;
+#ifdef TESTING
           HDBGRegPRW (6, "easp6");
+#endif
           break;
 
         case x1 (0332):  // easp7
           // C(TPR.CA) -> C(PRn.SNR)
           CPTUR (cptUsePRn + 7);
           cpu.PR[7].SNR = cpu.TPR.CA & MASK15;
+#ifdef TESTING
           HDBGRegPRW (7, "easp7");
+#endif
           break;
 
                          // eawpn
@@ -6410,7 +6832,9 @@ static t_stat doInstruction (void)
           CPTUR (cptUsePRn + 0);
           cpu.PR[0].WORDNO = cpu.TPR.CA;
           SET_PR_BITNO (0, cpu.TPR.TBR);
+#ifdef TESTING
           HDBGRegPRW (0, "eawp0");
+#endif
           break;
 
         case x1 (0311):  // eawp1
@@ -6420,7 +6844,9 @@ static t_stat doInstruction (void)
           CPTUR (cptUsePRn + 1);
           cpu.PR[1].WORDNO = cpu.TPR.CA;
           SET_PR_BITNO (1, cpu.TPR.TBR);
+#ifdef TESTING
           HDBGRegPRW (1, "eawp1");
+#endif
           break;
 
         case x0 (0312):  // eawp2
@@ -6430,7 +6856,9 @@ static t_stat doInstruction (void)
           CPTUR (cptUsePRn + 2);
           cpu.PR[2].WORDNO = cpu.TPR.CA;
           SET_PR_BITNO (2, cpu.TPR.TBR);
+#ifdef TESTING
           HDBGRegPRW (2, "eawp2");
+#endif
           break;
 
         case x1 (0313):  // eawp3
@@ -6440,7 +6868,9 @@ static t_stat doInstruction (void)
           CPTUR (cptUsePRn + 3);
           cpu.PR[3].WORDNO = cpu.TPR.CA;
           SET_PR_BITNO (3, cpu.TPR.TBR);
+#ifdef TESTING
           HDBGRegPRW (3, "eawp3");
+#endif
           break;
 
         case x0 (0330):  // eawp4
@@ -6450,7 +6880,9 @@ static t_stat doInstruction (void)
           CPTUR (cptUsePRn + 4);
           cpu.PR[4].WORDNO = cpu.TPR.CA;
           SET_PR_BITNO (4, cpu.TPR.TBR);
+#ifdef TESTING
           HDBGRegPRW (4, "eawp4");
+#endif
           break;
 
         case x1 (0331):  // eawp5
@@ -6460,7 +6892,9 @@ static t_stat doInstruction (void)
           CPTUR (cptUsePRn + 5);
           cpu.PR[5].WORDNO = cpu.TPR.CA;
           SET_PR_BITNO (5, cpu.TPR.TBR);
+#ifdef TESTING
           HDBGRegPRW (5, "eawp5");
+#endif
           break;
 
         case x0 (0332):  // eawp6
@@ -6470,7 +6904,9 @@ static t_stat doInstruction (void)
           CPTUR (cptUsePRn + 6);
           cpu.PR[6].WORDNO = cpu.TPR.CA;
           SET_PR_BITNO (6, cpu.TPR.TBR);
+#ifdef TESTING
           HDBGRegPRW (6, "eawp6");
+#endif
           break;
 
         case x1 (0333):  // eawp7
@@ -6480,7 +6916,9 @@ static t_stat doInstruction (void)
           CPTUR (cptUsePRn + 7);
           cpu.PR[7].WORDNO = cpu.TPR.CA;
           SET_PR_BITNO (7, cpu.TPR.TBR);
+#ifdef TESTING
           HDBGRegPRW (7, "eawp7");
+#endif
           break;
 
 // Optimized to the top of the loop
@@ -6536,7 +6974,9 @@ static t_stat doInstruction (void)
               if (bitno == 077)
                 bitno = 037;
               SET_PR_BITNO (n, bitno);
+#ifdef TESTING
               HDBGRegPRW (n, "lpri");
+#endif
             }
 
           break;
@@ -6650,7 +7090,9 @@ static t_stat doInstruction (void)
               cpu.PR[n].WORDNO += GETHI (cpu.CY);
               cpu.PR[n].WORDNO &= MASK18;
               SET_PR_BITNO (n, 0);
+#ifdef TESTING
               HDBGRegPRW (n, "adwpn");
+#endif
           }
           break;
 
@@ -6667,7 +7109,9 @@ static t_stat doInstruction (void)
               cpu.PR[n].WORDNO += GETHI (cpu.CY);
               cpu.PR[n].WORDNO &= MASK18;
               SET_PR_BITNO (n, 0);
+#ifdef TESTING
               HDBGRegPRW (n, "adwpn");
+#endif
           }
           break;
 
@@ -6703,8 +7147,10 @@ static t_stat doInstruction (void)
 
             t_stat rc = scu_rscr ((uint) scuUnitIdx, current_running_cpu_idx,
                                   040, & cpu.rA, & cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("rccl");
             HDBGRegQW ("rccl");
+#endif
             if (rc > 0)
               return rc;
 #ifndef SPEED
@@ -6863,7 +7309,9 @@ static t_stat doInstruction (void)
             if (c)
               {
                 cpu.rX[0] = i->address;    // Entire 18 bits
+#ifdef TESTING
                 HDBGRegXW (0, "rpd");
+#endif
               }
             cpu.cu.rd = 1;
             cpu.cu.repeat_first = 1;
@@ -6877,7 +7325,9 @@ static t_stat doInstruction (void)
             if (c)
               {
                 cpu.rX[0] = i->address;    // Entire 18 bits
+#ifdef TESTING
                 HDBGRegXW (0, "rpl");
+#endif
               }
             cpu.cu.rl = 1;
             cpu.cu.repeat_first = 1;
@@ -6891,7 +7341,9 @@ static t_stat doInstruction (void)
             if (c)
               {
                 cpu.rX[0] = i->address;    // Entire 18 bits
+#ifdef TESTING
                 HDBGRegXW (0, "rpt");
+#endif
               }
             cpu.cu.rpt = 1;
             cpu.cu.repeat_first = 1;
@@ -6954,10 +7406,14 @@ static t_stat doInstruction (void)
 
             //cpu.rQ &= (word36) ~017;     // 4-bit quotient -> C(Q)32,35  lo6 bits already zeroed out
             cpu.rQ |= (tmp36q & 017);
+#ifdef TESTING
             HDBGRegQW ("bcd");
+#endif
 
             cpu.rA = tmp36r & DMASK;    // remainder -> C(A)
+#ifdef TESTING
             HDBGRegAW ("bcd");
+#endif
 
             SC_I_ZERO (cpu.rA == 0);  // If C(A) = 0, then ON;
                                             // otherwise OFF
@@ -6979,7 +7435,9 @@ static t_stat doInstruction (void)
             }
 
             cpu.rA = tmp;
+#ifdef TESTING
             HDBGRegAW ("gtb");
+#endif
 
             SC_I_ZERO (cpu.rA == 0);  // If C(A) = 0, then ON;
                                       // otherwise OFF
@@ -7877,8 +8335,10 @@ elapsedtime ();
             t_stat rc = scu_rmcm ((uint) scuUnitIdx,
                                   current_running_cpu_idx,
                                   & cpu.rA, & cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("rmcm");
             HDBGRegQW ("rmcm");
+#endif
             if (rc)
               return rc;
             SC_I_ZERO (cpu.rA == 0);
@@ -7958,8 +8418,10 @@ elapsedtime ();
             t_stat rc = scu_rscr ((uint) scuUnitIdx, current_running_cpu_idx,
                                   cpu.iefpFinalAddress & MASK15,
                                   & cpu.rA, & cpu.rQ);
+#ifdef TESTING
             HDBGRegAW ("rscr");
             HDBGRegQW ("rscr");
+#endif
             if (rc)
               return rc;
           }
@@ -8415,13 +8877,14 @@ elapsedtime ();
                   break;
 
                 default:
-                  // XXX Guessing values; also don't know if this is actually
-                  //  a fault
+                  // XXX Guessing values; also don't know if this is actually a fault
                   doFault (FAULT_IPR,
                            fst_ill_mod,
                            "Illegal register select value");
               }
+#ifdef TESTING
             HDBGRegAW ("rsw");
+#endif
             SC_I_ZERO (cpu.rA == 0);
             SC_I_NEG (cpu.rA & SIGN36);
           }
@@ -8582,7 +9045,9 @@ elapsedtime ();
             if (rc)
               return rc;
             cpu.rA = result;
+#ifdef TESTING
             HDBGRegAW ("absa");
+#endif
             SC_I_ZERO (cpu.rA == 0);
             SC_I_NEG (cpu.rA & SIGN36);
           }
@@ -8814,10 +9279,14 @@ elapsedtime ();
                   // fault occurs.
                   cpu.AR[n].WORDNO = 0;
                   SET_AR_CHAR_BITNO (n, 0, 0);
+#ifdef TESTING
                   HDBGRegARW (n, "aarn");
+#endif
                   doFault (FAULT_IPR, fst_ill_proc, "aarn TA = 3");
               }
+#ifdef TESTING
             HDBGRegARW (n, "aarn");
+#endif
           }
           break;
 
@@ -8842,7 +9311,9 @@ elapsedtime ();
 // AL-38 implies CHAR/BITNO, but ISOLTS requires PR.BITNO.
             SET_AR_CHAR_BITNO (n,  getbits36_2 (cpu.CY, 18),
                                getbits36_4 (cpu.CY, 20));
+#ifdef TESTING
             HDBGRegARW (n, "larn");
+#endif
           }
           break;
 
@@ -8858,7 +9329,9 @@ elapsedtime ();
               cpu.AR[n].WORDNO = getbits36_18 (tmp36, 0);
               SET_AR_CHAR_BITNO (n,  getbits36_2 (tmp36, 18),
                                  getbits36_4 (tmp36, 20));
+#ifdef TESTING
               HDBGRegARW (n, "lareg");
+#endif
             }
           break;
 
@@ -8938,7 +9411,9 @@ elapsedtime ();
                   SET_AR_CHAR_BITNO (n, (word2) CN, 0);
                   break;
               }
+#ifdef TESTING
             HDBGRegARW (n, "narn");
+#endif
           }
           break;
 
