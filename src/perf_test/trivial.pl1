@@ -1,0 +1,3 @@
+trivial: proc;
+return;
+end trivial;

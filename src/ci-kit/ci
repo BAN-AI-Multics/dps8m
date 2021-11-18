@@ -1,5 +1,5 @@
-#!/usr/bin/env tcsh
-rm -vf *.log
-date -u |& tee -i ci.log
-make -f ci.makefile $* s1 s2 s3 s4 s5 s6 |& tee -i -a ci.log
-date -u |& tee -i -a ci.log
+#!/usr/bin/env sh
+rm -f *.log
+date -u | tee -i ci.log
+${MAKE:-make} -f ci.makefile $* s1 s2 s3 s4 s5 s6 s7 | tee -i -a ci.log
+date -u | tee -i -a ci.log
