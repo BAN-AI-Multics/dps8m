@@ -1773,7 +1773,9 @@ typedef struct
             doFault (FAULT_STR, fst_str_nea,  __func__);       \
           }                                                    \
         real_addr = (uint) base + os;                          \
-      }
+      }                                                        \
+    else                                                       \
+      real_addr = addr;
 #else // !SPEED
 # define SC_MAP_ADDR(addr,real_addr)                            \
    if (cpu.switches.useMap)                                    \
@@ -1788,7 +1790,10 @@ typedef struct
         real_addr = (uint) base + os;                          \
       }                                                        \
     else                                                       \
-      nem_check (addr, __func__);
+      {                                                        \
+        nem_check (addr, __func__);                            \
+        real_addr = addr;                                      \
+      }
 #endif
 
     uint history_cyclic [N_HIST_SETS]; // 0..63
