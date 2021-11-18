@@ -30,7 +30,6 @@
    * [GNU sed](https://www.gnu.org/software/sed/)
    * [GNU Wget](https://www.gnu.org/software/wget/)
    * [lzip](https://www.nongnu.org/lzip/)
-   * [tcsh](https://www.tcsh.org/)
    * **BSD**-derived `telnet`, such as,
      * [Apple Telnet](https://opensource.apple.com/)
      * [BAN TELNET](https://github.com/BAN-AI-Multics/ban-telnet)
