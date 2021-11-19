@@ -22,6 +22,7 @@
   * [AMD LibM](#amd-libm)
   * [mimalloc](#mimalloc)
   * [TCMalloc](#tcmalloc)
+  * [mcmb](#mcmb)
   * [musl](#musl)
   * [IBM Advance Toolchain](#ibm-advance-toolchain)
   * [Fair CPU Dispatch](#fair-cpu-dispatch)
@@ -228,7 +229,7 @@ in this Software without prior written authorization from Robert Armstrong.
   structures, was written by
   [Troy D. Hanson](https://troydhanson.github.io/uthash/) and customized
   by **The DPS8M Development Team**. It is distributed under the terms of a
-  **modified one-clause BSD license**.
+  **one-clause BSD license**.
 
 ```text
 Copyright (c) 2005‑2021 Troy D. Hanson
@@ -902,6 +903,46 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----
 
+### mcmb
+
+* **mcmb** (*`miniature cmb`*) is a general-purpose tool for complex
+  combinatorics, derived from the `libcmb` combinatorics library and
+  the `cmb` combinatorics utility developed Devin Teske.  It is
+  distributed under the terms of a **two-clause BSD license**.
+
+```text
+Copyright (c) 2002-2019 Devin Teske <dteske@FreeBSD.org>
+Copyright (c) 2020-2021 Jeffrey H. Johnson <trnsz@pobox.com>
+Copyright (c) 2021 The DPS8M Development Team
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS “AS IS”, AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+```
+
+----
+
 ### IBM Advance Toolchain
 
 * The **IBM**® **Advance Toolchain for Linux**® **on IBM POWER**® is a
@@ -1116,7 +1157,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
   the Intel C/C++ and DPC/DPC++ compilers on non-Intel processors. These
   routines are derived from code provided by Agner Fog of the Technical
   University of Denmark, and distributed under the terms of a
-  **2-clause BSD license**.
+  **two-clause BSD license**.
 
 ```text
 Copyright (c) 2009-2019 Agner Fog

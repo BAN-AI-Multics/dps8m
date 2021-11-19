@@ -329,11 +329,13 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all: sysdefs.h ver.h                                                          \
+all: sysdefs.h                                                                \
+     ver.h                                                                    \
      unifdef                                                                  \
      locallibs_then_dps8                                                      \
      prt2pdf                                                                  \
      punutil                                                                  \
+     mcmb                                                                     \
      $(TAGS)
 
 ###############################################################################
@@ -459,6 +461,11 @@ punutil:
 
 ###############################################################################
 
+mcmb:
+	-@$(SETV); $(MAKE) -C "../mcmb" "all"
+
+###############################################################################
+
 udplib: udplib.c udplib.h
 udplib$(EXE): udplib.c udplib.h
 	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
@@ -541,6 +548,7 @@ clean:
 	@$(SETV); $(MAKE) -C "../decNumber"      -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"

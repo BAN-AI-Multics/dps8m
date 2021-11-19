@@ -62,6 +62,8 @@ src/unifdef/unifdef
 src/unifdef/unifdef.exe
 src/punutil/punutil
 src/punutil/punutil.exe
+src/mcmb/mcmb
+src/mcmb/mcmb.exe
 src/dps8/dps8
 src/dps8/dps8.exe
 src/dps8/ver.h
@@ -132,6 +134,8 @@ GNUmakefile.local
 # CI/CD
 src/ci-kit/run
 src/ci-kit/dps8m
+options*.txt
+output.txt
 
 # Common Targets
 all
