@@ -1955,9 +1955,9 @@ Option Verification Test:
     - Docker-x64
     - amd64
     - Linux
+  parallel: 4
   script:
-    - export GLCICD_JOB="OptTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - dnf -q install -y moreutils bzip2 || dnf -q install -y moreutils bzip2
+    - export GLCICD_JOB="OptTestFedoraX64_${CI_NODE_INDEX:?}" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - *scriptInstallResticLinuxAMD64
     - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
@@ -1966,14 +1966,19 @@ Option Verification Test:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - ( export CPUS=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && export JFLAGS="-j ${CPUS:-1}" && ./src/ci-kit/cartesian_job_generator.bash ) 1> options-out.txt 2> options-err.txt
+    - export CMB_OPTIONS="L68=1 NO_LOCKLESS=1 TESTING=1 NEED_128=1 HDBG=1 ROUND_ROBIN=1 TRACKER=1"
+    - make -C "src/mcmb" && export CMB_TOOL="$(command -p env PATH="$(command -p env getconf PATH)" mktemp)" && mv -f "src/mcmb/mcmb" "${CMB_TOOL:?}" && chmod a+x "${CMB_TOOL:?}"
+    - touch part_x.sh && rm -f part_*.sh > /dev/null 2>&1 || true > /dev/null 2>&1
+    - ( export NSPLIT=${CI_NODE_TOTAL:?}; for i in $(seq 1 ${CI_NODE_TOTAL:?}); do ( env CPUS="$(( $((grep -c "^model name" /proc/cpuinfo 2> /dev/null) | head -n 1) + 1 ))" bash -c '${CMB_TOOL:?} -N -e ${CMB_OPTIONS:?} -p "make -j ${CPUS:?} " -s " && printf %s\\\\n \"SHOW VERSION\" | ./src/dps8/dps8 && make distclean && \\"' ) | awk '{ print "env ITERATION="$0 }' 2> /dev/null | split -e -n "r/${i:?}/${NSPLIT:?}" | awk "BEGIN { print \"#\!/usr/bin/env bash\"; print \"# Part ${i:?} of ${NSPLIT:?}\"; printf \"\"; print \"set -eux -o pipefail\" } { print \$0 } END { print \"true\"; print \"\" }" > "part_${i:?}_of_${NSPLIT:?}.sh" 2> /dev/null; done )
+    - export CMB_CI_JOB="part_${CI_NODE_INDEX:?}_of_${CI_NODE_TOTAL:?}.sh"
+    - cat ./"${CMB_CI_JOB:?}" && chmod a+x ./"${CMB_CI_JOB:?}"
+    - ./"${CMB_CI_JOB:?}" 2>&1 | tee -i options-test.txt | grep --line-buffered '^+ env ITERATION'
   dependencies: []
   artifacts:
     when: always
     expire_in: 30 days
     paths:
-      - ${CI_PROJECT_DIR:?}/options-out.txt
-      - ${CI_PROJECT_DIR:?}/options-err.txt
+      - ${CI_PROJECT_DIR:?}/options-test.txt
   retry: 1
   timeout: 360 minutes
   interruptible: true
