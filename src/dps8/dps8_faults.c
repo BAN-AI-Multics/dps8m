@@ -373,7 +373,9 @@ else if (faultNumber == FAULT_ACV)
 #ifdef PROFILER
     __atomic_add_fetch (& cpu.faults[faultNumber], 1u, __ATOMIC_ACQUIRE);
 #endif
+#ifdef TESTING
     HDBGFault (faultNumber, subFault, faultMsg, "");
+#endif
 #ifndef SPEED
     if_sim_debug (DBG_FAULT, & cpu_dev)
       traceInstruction (DBG_FAULT);

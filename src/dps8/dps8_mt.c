@@ -1769,7 +1769,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("// Tape Forward Skip One Record\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape Forward Skip One Record pos before %d", unitp->pos);
 #endif
         if (! (unitp->flags & UNIT_ATT)) {
@@ -1820,7 +1820,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape Forward Skip One Record pos after %d", unitp->pos);
 #endif
       }
@@ -1831,7 +1831,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("// Tape Forward Skip One File\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape Forward Skip One File pos before %d", unitp->pos);
 #endif
         sim_debug (DBG_DEBUG, & tape_dev, "%s:: Forward Skip File\n", __func__);
@@ -1870,7 +1870,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape Forward Skip One File pos after %d", unitp->pos);
 #endif
         break;
@@ -1880,7 +1880,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("// Tape Backspace One Record\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape Backspace One Record pos before %d", unitp->pos);
 #endif
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace Record\n", __func__);
@@ -1936,7 +1936,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape Backspace One Record pos after %d", unitp->pos);
 #endif
         break;
@@ -1947,7 +1947,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace File\n", __func__);
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape Backspace One File pos before %d", unitp->pos);
 #endif
         if (! (unitp->flags & UNIT_ATT)) {
@@ -2004,7 +2004,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape Backspace One File pos after %d", unitp->pos);
 #endif
         break;
@@ -2059,7 +2059,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Write tape mark\n", __func__);
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape Write EOF pos before %d", unitp->pos);
 #endif
 
@@ -2102,7 +2102,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape Write EOF pos after %d", unitp->pos);
 #endif
         break;
@@ -2244,7 +2244,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("// Tape IOT Read\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape IOT Read pos before %d", unitp->pos);
 #endif
         int rc = mtReadRecord (devUnitIdx, iomUnitIdx, chan);
@@ -2254,7 +2254,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape IOT Read pos after %d", unitp->pos);
 #endif
         break;
@@ -2265,14 +2265,14 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           sim_printf ("// Tape IOT Write\r\n");
           sim_printf ("//    pos before %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape IOT write pos before %d", unitp->pos);
 #endif
         int rc = mtWriteRecord (devUnitIdx, iomUnitIdx, chan);
         if_sim_debug (DBG_TRACE, & tape_dev) {
           sim_printf ("//    pos after %d\r\n", unitp->pos);
         }
-#ifdef HDBG
+#ifdef TESTING
         hdbgNote ("tape", "Tape IOT write pos after %d", unitp->pos);
 #endif
         if (rc)

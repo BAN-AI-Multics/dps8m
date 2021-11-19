@@ -9,17 +9,20 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-#ifndef HDBG_H
-# define HDBG_H
+#ifdef TESTING
 
+# ifndef Hdbg_def
+#  define Hdbg_def
+
+#  if 0
 void hdbg_mark (void);
+#  endif
 t_stat hdbg_size (int32 arg, UNUSED const char * buf);
 t_stat hdbg_print (int32 arg, UNUSED const char * buf);
 t_stat hdbg_cpu_mask (UNUSED int32 arg, const char * buf);
 t_stat hdbgSegmentNumber (UNUSED int32 arg, const char * buf);
 t_stat hdbgBlacklist (UNUSED int32 arg, const char * buf);
 
-# ifdef HDBG
 void hdbgTrace (const char * ctx);
 void hdbgPrint (void);
 enum hdbgIEFP_e
@@ -64,13 +67,13 @@ struct par_s;
 void hdbgPARegR (enum hregs_t type, struct par_s * data, const char * ctx);
 void hdbgPARegW (enum hregs_t type, struct par_s * data, const char * ctx);
 struct dsbr_s;
+#  if 0
 void hdbgDSBRRegR (enum hregs_t type, struct dsbr_s * data, const char * ctx);
 void hdbgDSBRRegW (enum hregs_t type, struct dsbr_s * data, const char * ctx);
+#  endif
 void hdbgAPURead (word15 segno, word18 offset, word24 final, word36 data, const char * ctx);
 void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const char * ctx);
-# endif
 
-# ifdef HDBG
 #  define HDBGMRead(a, d, c) hdbgMRead (a, d, c)
 #  define HDBGMWrite(a, d, c) hdbgMWrite (a, d, c)
 #  define HDBGIEFP(t, s, o, c) hdbgIEFP (t, s, o, c);
@@ -90,41 +93,15 @@ void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const
 #  define HDBGRegPRW(i, c) hdbgPARegW (hreg_PR0+(i), & cpu.PAR[i], c)
 #  define HDBGRegARR(i, c) hdbgPARegR (hreg_AR0+(i), & cpu.PAR[i], c)
 #  define HDBGRegARW(i, c) hdbgPARegW (hreg_AR0+(i), & cpu.PAR[i], c)
-#  define HDBGRegDSBRR(i, c) hdbgDSBRRegR (hreg_AR0+(i), & cpu.PAR[i], c)
-#  define HDBGRegDSBRW(i, c) hdbgDSBRRegW (hreg_AR0+(i), & cpu.PAR[i], c)
+#  if 0
+#   define HDBGRegDSBRR(i, c) hdbgDSBRRegR (hreg_AR0+(i), & cpu.PAR[i], c)
+#   define HDBGRegDSBRW(i, c) hdbgDSBRRegW (hreg_AR0+(i), & cpu.PAR[i], c)
+#  endif
 #  define HDBGRegIR(c) hdbgRegW (hreg_IR, (word36) cpu.cu.IR, c)
 #  define HDBGTrace(c) hdbgTrace(c)
 #  define HDBGIntr(i, c) hdbgIntr(i, c)
 #  define HDBGIntrSet(i, c, s, ctx) hdbgIntrSet(i, c, s, ctx)
 #  define HDBGFault(n, s, m, c) hdbgFault(n, s, m, c)
 #  define HDBGPrint() hdbgPrint()
-# else
-#  define HDBGMRead(a, d, c)
-#  define HDBGMWrite(a, d, c)
-#  define HDBGIEFP(t,s,o, c)
-#  define HDBGAPURead(s, o, f, d, c)
-#  define HDBGAPUWrite(s, o, f, d, c)
-#  define HDBGRegAR(c)
-#  define HDBGRegAW(c)
-#  define HDBGRegQR(c)
-#  define HDBGRegQW(c)
-#  define HDBGRegXR(i, c)
-#  define HDBGRegXW(i, c)
-#  define HDBGRegYR(c)
-#  define HDBGRegYW(c)
-#  define HDBGRegZR(r, c)
-#  define HDBGRegZW(r, c)
-#  define HDBGRegPRR(i, c)
-#  define HDBGRegPRW(i, c)
-#  define HDBGRegARR(i, c)
-#  define HDBGRegARW(i, c)
-#  define HDBGRegDSBRR(i, c)
-#  define HDBGRegDSBRW(i, c)
-#  define HDBGRegIR(c)
-#  define HDBGTrace(c)
-#  define HDBGIntr(i, c)
-#  define HDBGIntrSet(i, c, s, ctx)
-#  define HDBGFault(n, s, m, c)
-#  define HDBGPrint()
 # endif
 #endif

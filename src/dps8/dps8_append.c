@@ -2070,7 +2070,9 @@ L:; // Transfer or instruction fetch
           cpu.PR[n].SNR = cpu.PPR.PSR;
         cpu.PR[n].WORDNO = (cpu.PPR.IC + 1) & MASK18;
         SET_PR_BITNO (n, 0);
+#ifdef TESTING
         HDBGRegPRW (n, "app tspn");
+#endif
       }
 
     // lastCycle == RTCD_OPERAND_FETCH
@@ -2096,6 +2098,7 @@ L:; // Transfer or instruction fetch
         cpu.PR[5].RNR =
         cpu.PR[6].RNR =
         cpu.PR[7].RNR = cpu.TPR.TRR;
+#ifdef TESTING
         HDBGRegPRW (0, "app rtcd");
         HDBGRegPRW (1, "app rtcd");
         HDBGRegPRW (2, "app rtcd");
@@ -2104,6 +2107,7 @@ L:; // Transfer or instruction fetch
         HDBGRegPRW (5, "app rtcd");
         HDBGRegPRW (6, "app rtcd");
         HDBGRegPRW (7, "app rtcd");
+#endif
       }
     goto KL;
 
@@ -2159,7 +2163,9 @@ N: // CALL6
     cpu.PR[7].WORDNO = 0;
     // 000000 -> C(PR7.BITNO)
     SET_PR_BITNO (7, 0);
+#ifdef TESTING
     HDBGRegPRW (7, "app call6");
+#endif
     // C(TPR.TRR) -> C(PPR.PRR)
     cpu.PPR.PRR = cpu.TPR.TRR;
     // C(TPR.TSR) -> C(PPR.PSR)

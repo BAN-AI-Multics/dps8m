@@ -3756,10 +3756,10 @@ t_stat ready_media (int32 arg, const char * buf) {
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// simh Command table
+// s*mh Command table
 //
 
-#ifdef TRACKER
+#ifdef TESTING
 # include "tracker.h"
 
 static t_stat trkw (UNUSED int32 arg, const char * buf)
@@ -3825,11 +3825,9 @@ static CTAB dps8_cmds[] =
 // Debugging
 //
 
-#ifdef TRACKER
-    {"TRKW",             trkw,                        0, "tracker: Start tracking to track.dat\n", NULL, NULL},
-    {"TRKR",             trkr,                        0, "tracker: Start comparing with track.dat\n", NULL, NULL},
-#endif
 #ifdef TESTING
+    {"TRKW",                trkw,                     0, "tracker: Start tracking to track.dat\n", NULL, NULL},
+    {"TRKR",                trkr,                     0, "tracker: Start comparing with track.dat\n", NULL, NULL},
     {"DBGMMECNTDWN",        dps_debug_mme_cntdwn,     0, "dbgmmecntdwn: Enable debug after n MMEs\n", NULL, NULL},
     {"DBGSKIP",             dps_debug_skip,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
     {"DBGSTART",            dps_debug_start,          0, "dbgstart: Limit debugging to N > Cycle count\n", NULL, NULL},
@@ -3840,13 +3838,11 @@ static CTAB dps8_cmds[] =
     {"DBGRINGNO",           dps_debug_ringno,         0, "dbgsegno: Limit debugging to PRR == ringno\n", NULL, NULL},
     {"DBGBAR",              dps_debug_bar,            1, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
     {"NODBGBAR",            dps_debug_bar,            0, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
-# ifdef HDBG
     {"HDBG",                hdbg_size,                0, "hdbg: set history debugger buffer size\n", NULL, NULL},
     {"HDSEG",               hdbgSegmentNumber,        0, "hdseg: set history debugger segment number\n", NULL, NULL},
     {"HDBL",                hdbgBlacklist,            0, "hdbl: set history debugger blacklist\n", NULL, NULL},
     {"PHDBG",               hdbg_print,               0, "phdbg: display history size\n", NULL, NULL},
     {"HDBG_CPU_MASK",       hdbg_cpu_mask,            0, "hdbg_cpu_mask: Which CPUS to track\n", NULL, NULL},
-# endif
     {"ABSOLUTE",            abs_addr,                 0, "abs: Compute the absolute address of segno:offset\n", NULL, NULL},
 # ifndef SCUMEM
     {"STK",                 stack_trace,              0, "stk: Print a stack trace\n", NULL, NULL},
@@ -4101,17 +4097,6 @@ static void dps8_init (void) {
 # endif
     sim_msg ("NEED_128");
 #endif
-#ifdef HDBG
-# ifdef HAVE_DPSOPT
-    sim_msg (", ");
-# else
-    sim_msg ("\n Options: ");
-# endif
-# ifndef HAVE_DPSOPT
-#  define HAVE_DPSOPT 1
-# endif
-    sim_msg ("HDBG");
-#endif
 #ifdef ROUND_ROBIN
 # ifdef HAVE_DPSOPT
     sim_msg (", ");
@@ -4133,17 +4118,6 @@ static void dps8_init (void) {
 #  define HAVE_DPSOPT 1
 # endif
     sim_msg ("NO_LOCKLESS");
-#endif
-#ifdef TRACKER
-# ifdef HAVE_DPSOPT
-    sim_msg (", ");
-# else
-    sim_msg ("\n Options: ");
-# endif
-# ifndef HAVE_DPSOPT
-#  define HAVE_DPSOPT 1
-# endif
-    sim_msg ("TRACKER");
 #endif
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
     sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);

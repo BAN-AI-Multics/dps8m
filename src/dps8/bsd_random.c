@@ -32,35 +32,38 @@
  * SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include "bsd_random.h"
+#if defined(__MINGW64__) || defined(__MINGW32__)
 
-#define TYPE_0    0
-#define BREAK_0   8
-#define DEG_0     0
-#define SEP_0     0
+# include <stdio.h>
 
-#define TYPE_1    1
-#define BREAK_1  32
-#define DEG_1     7
-#define SEP_1     3
+# include "bsd_random.h"
 
-#define TYPE_2    2
-#define BREAK_2  64
-#define DEG_2    15
-#define SEP_2     1
+# define TYPE_0    0
+# define BREAK_0   8
+# define DEG_0     0
+# define SEP_0     0
 
-#define TYPE_3    3
-#define BREAK_3 128
-#define DEG_3    31
-#define SEP_3     3
+# define TYPE_1    1
+# define BREAK_1  32
+# define DEG_1     7
+# define SEP_1     3
 
-#define TYPE_4    4
-#define BREAK_4 256
-#define DEG_4    63
-#define SEP_4     1
+# define TYPE_2    2
+# define BREAK_2  64
+# define DEG_2    15
+# define SEP_2     1
 
-#define MAX_TYPES 5
+# define TYPE_3    3
+# define BREAK_3 128
+# define DEG_3    31
+# define SEP_3     3
+
+# define TYPE_4    4
+# define BREAK_4 256
+# define DEG_4    63
+# define SEP_4     1
+
+# define MAX_TYPES 5
 
 static int degrees[MAX_TYPES] = {
   DEG_0, DEG_1, DEG_2, DEG_3, DEG_4
@@ -245,3 +248,5 @@ bsd_random(void)
 
   return ( i );
 }
+
+#endif /* if defined(__MINGW64__) || defined(__MINGW32__) */

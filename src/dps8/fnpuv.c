@@ -505,7 +505,7 @@ static void fuv_write_3270_cb (uv_write_t * req, int status)
 
 static void fnpuv_start_write_3270_actual (UNUSED uv_tcp_t * client, unsigned char * data, ssize_t datalen)
   {
-#ifdef FNP2_DEBUG
+#ifdef TESTING
 sim_printf ("fnpuv_start_write_3270_actual\r\n");
 #endif
 #if 0
@@ -618,7 +618,7 @@ void fnpuv_start_3270_write (uv_tcp_t * client, unsigned char * data, ssize_t da
     uvClientData * p = (uvClientData *) client->data;
     if (! p)
       return;
-#ifdef FNP2_DEBUG
+#ifdef TESTING
 sim_printf ("fnpuv_start_3270_write\r\n");
 #endif
 #if 0
@@ -650,8 +650,8 @@ sim_printf ("\r\n");
 
     if (datalen == 1 && data [0] == 0x37) // EOT
       {
-#ifdef FNP2_DEBUG
-sim_printf ("detected EOT\r\n");
+#ifdef TESTING
+sim_printf ("fnpuv: detected EOT\r\n");
 #endif
         fnpuv_send_eor (client);
         return;
@@ -725,7 +725,7 @@ void fnpuv_recv_eor (uv_tcp_t * client)
 
 void fnpuv_read_start (uv_tcp_t * client)
   {
-#ifdef FNP2_DEBUG
+#ifdef TESTING
 sim_printf ("fnpuv_read_start\r\n");
 #endif
     if (! client || uv_is_closing ((uv_handle_t *) client))
@@ -776,7 +776,7 @@ static void on_new_connection (uv_stream_t * server, int status)
         if (linep->line_client)
           {
             uv_close ((uv_handle_t *) client, fuv_close_cb);
-# ifdef FNP2_DEBUG
+# ifdef TESTING
 sim_printf ("[FNP emulation: dropping 2nd slave]\n");
 # endif
             return;

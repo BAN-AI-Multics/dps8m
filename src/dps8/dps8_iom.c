@@ -2338,12 +2338,12 @@ void dumpDCW (word36 DCW, word1 LPW_23_REL) {
   if (DCW_18_20_CP == 07) { // IDCW
     word6 IDCW_DEV_CMD =      getbits36_6 (DCW,  0);
     word6 IDCW_DEV_CODE =     getbits36_6 (DCW,  6);
-    word6 IDCW_AE =           getbits36_6 (DCW,  12);
-    word1 IDCW_EC;
-    if (LPW_23_REL)
-      IDCW_EC = 0;
-    else
-      IDCW_EC =               getbits36_1 (DCW, 21);
+ /* word6 IDCW_AE =           getbits36_6 (DCW,  12);
+  * word1 IDCW_EC;
+  * if (LPW_23_REL)
+  *   IDCW_EC = 0;
+  * else
+  *   IDCW_EC =               getbits36_1 (DCW, 21); */
     word2 IDCW_CHAN_CTRL =    getbits36_2 (DCW, 22);
     word6 IDCW_CHAN_CMD =     getbits36_6 (DCW, 24);
     word6 IDCW_COUNT =        getbits36_6 (DCW, 30);

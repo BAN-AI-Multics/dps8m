@@ -371,7 +371,6 @@ static int wcd (struct decoded_t *decoded_p)
                   sim_printf ("unknown %u. %o\n", op, op);
                   break;
               }
-
 #if 0
         sim_printf ("received line_control %d %012"PRIo64" %012"PRIo64" %012"PRIo64"\n", lineno, d1, d2, d3);
         sim_printf ("  dce_or_dte  %"PRIo64"\n", getbits36 (d1, 0, 1));
@@ -385,7 +384,6 @@ static int wcd (struct decoded_t *decoded_p)
         sim_printf ("  T1 %"PRIo64" %"PRId64".\n", getbits36 (d2, 18, 9), getbits36 (d2, 18, 9));
         sim_printf ("  T3 %"PRIo64" %"PRId64".\n", getbits36 (d2, 27, 9), getbits36 (d2, 27, 9));
 #endif
-
           }
         break;
 
