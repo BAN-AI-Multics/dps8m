@@ -282,10 +282,10 @@ static gboolean time_handler (GtkWidget * widget) {
   PROBE (PSR, { for (int i = 0; i < 15; i ++) PSR_state  [14 - i] = BIT (PSR); });
   PROBE (P,   { for (int i = 0; i <  1; i ++) P_state    [ 0 - i] = BIT (P);   });
   PROBE (IC,  { for (int i = 0; i < 18; i ++) IC_state   [17 - i] = BIT (IC);  });
-  PROBE (IWB, { for (int i = 0; i < 36; i ++) inst_state [35 - i] = BIT (IWB); }); 
+  PROBE (IWB, { for (int i = 0; i < 36; i ++) inst_state [35 - i] = BIT (IWB); });
   PROBE (rA,  { for (int i = 0; i < 36; i ++) A_state    [35 - i] = BIT (rA);  });
   PROBE (rQ,  { for (int i = 0; i < 36; i ++) Q_state    [35 - i] = BIT (rQ);  });
-  PROBE (rE,  { for (int i = 0; i <  8; i ++) E_state    [ 7 - i] = BIT (rE);  }); 
+  PROBE (rE,  { for (int i = 0; i <  8; i ++) E_state    [ 7 - i] = BIT (rE);  });
   for(int nreg = 0; nreg < 8; nreg ++) {
     PROBEns (rX, nreg, { for (int i = 0; i < 18; i ++) X_state [nreg][17 - i] = BIT (rX[nreg]);  });
   }

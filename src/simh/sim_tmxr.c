@@ -941,7 +941,7 @@ for (i = 0; i < mp->lines; i++) {                       /* check each line in se
 
     /* Check for needed outgoing connection initiation */
 
-    if (lp->destination && (!lp->sock) && (!lp->connecting) && 
+    if (lp->destination && (!lp->sock) && (!lp->connecting) &&
         (!lp->modem_control || (lp->modembits & TMXR_MDM_DTR))) {
         snprintf (msg, sizeof(msg)-1, "tmxr_poll_conn() - establishing outgoing connection to: %s", lp->destination);
         tmxr_debug_connect_line (lp, msg);

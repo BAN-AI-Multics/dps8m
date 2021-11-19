@@ -1071,18 +1071,18 @@ static t_stat cpu_boot (UNUSED int32 cpu_unit_idx, UNUSED DEVICE * dptr)
 //         |                  |
 //      3M +------------------+
 //
-// So SCU 0 has the first MW of addresses, and SCU1 has the second and third 
+// So SCU 0 has the first MW of addresses, and SCU1 has the second and third
 // MWs.
 //
 // The simulator has a single 16MW array of memory. This code walks the SCUs
-// allocates memory regions out of that array to the SCUs based on their 
+// allocates memory regions out of that array to the SCUs based on their
 // individual configurations. The 16MW is divided into 4 zones, one for each
 // SCU. (SCU0 uses the first 4MW, SCU1 the second 4MW, etc.
 //
 #define ZONE_SZ (MEM_SIZE_MAX / 4)
 //
-// The minimum SCU memory size increment is 64KW, which I will refer to as 
-// a 'bank'. To map a CPU address to the simulated array, the CPU address is 
+// The minimum SCU memory size increment is 64KW, which I will refer to as
+// a 'bank'. To map a CPU address to the simulated array, the CPU address is
 // divided into a bank number and an offset into that bank
 //
 //    bank_num = addr / SCBANK_SZ
@@ -4428,7 +4428,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
                   {
                     if ((i != j) || (i == 0))
                       {
-                          fprintf (sim_deb, "%ld.%06ld: DBG(%lld) %o: %s %s %.*s\r\n", t.tv_sec, t.tv_nsec/1000, cnt, current_running_cpu_idx, dptr->name, debug_type, i-j, &buf[j]);
+                          fprintf (sim_deb, "%lld.%06ld: DBG(%lld) %o: %s %s %.*s\r\n", (long long)t.tv_sec, t.tv_nsec/1000, cnt, current_running_cpu_idx, dptr->name, debug_type, i-j, &buf[j]);
                       }
                   }
                 j = i + 1;

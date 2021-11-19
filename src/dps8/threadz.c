@@ -25,9 +25,9 @@
 #include "dps8_utils.h"
 
 #include "threadz.h"
-#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) || defined (  __OpenBSD__) )
 # include <pthread_np.h>
-#endif
+#endif /* FreeBSD || OpenBSD */
 
 //
 // Resource locks
@@ -379,7 +379,7 @@ void createCPUThread (uint cpuNum)
 
     char nm [17];
     sprintf (nm, "CPU %c", 'a' + cpuNum);
-#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) || defined ( __OpenBSD__ ) )
     pthread_set_name_np (p->cpuThread, nm);
 #else
 # ifdef __APPLE__
@@ -391,7 +391,7 @@ void createCPUThread (uint cpuNum)
 #   endif /* ifndef __gnu_hurd__ */
 #  endif /* ifndef _AIX */
 # endif /* ifdef __APPLE__ */
-#endif /* ifdef __FreeBSD__ */
+#endif /* ifdef FreeBSD || OpenBSD */
 
 #ifdef AFFINITY
     if (cpus[cpuNum].set_affinity)
@@ -534,11 +534,11 @@ void createIOMThread (uint iomNum)
 
     char nm [17];
     sprintf (nm, "IOM %c", 'a' + iomNum);
-# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) || defined ( __OpenBSD__ ) )
     pthread_setname_np (p->iomThread, nm);
 # else
     pthread_set_name_np (p->iomThread, nm);
-# endif
+# endif /* FreeBSD || OpenBSD */
   }
 
 // Called by IOM thread to block until CIOC call
@@ -690,11 +690,11 @@ void createChnThread (uint iomNum, uint chnNum, const char * devTypeStr)
 
     char nm [17];
     sprintf (nm, "chn %c/%u %s", 'a' + iomNum, chnNum, devTypeStr);
-# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) || defined ( __OpenBSD__ ) )
     pthread_setname_np (p->chnThread, nm);
 # else
     pthread_set_name_np (p->chnThread, nm);
-# endif
+# endif /* FreeBSD || OpenBSD */
   }
 
 // Called by channel thread to block until I/O command presented
@@ -786,15 +786,16 @@ void initThreadz (void)
     have_mem_lock = false;
     have_rmw_lock = false;
 #endif
-#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) )
+#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) || defined ( __OpenBSD__ ) )
     pthread_mutexattr_t scu_attr;
     pthread_mutexattr_init(&scu_attr);
+# ifndef __OpenBSD__
     pthread_mutexattr_settype(&scu_attr, PTHREAD_MUTEX_ADAPTIVE_NP);
-
+# endif
     pthread_mutex_init (& scu_lock, &scu_attr);
 #else
     pthread_mutex_init (& scu_lock, NULL);
-#endif
+#endif /* FreeBSD || OpenBSD */
     pthread_mutexattr_t iom_attr;
     pthread_mutexattr_init(& iom_attr);
     pthread_mutexattr_settype(& iom_attr, PTHREAD_MUTEX_RECURSIVE);

@@ -11,7 +11,7 @@
 #
 ############################################################################
 
-# Requires: GNU tools
+# Requires: Cppcheck, Clang, GCC, GNU tools, lscpu, tput (from [n]curses)
 
 test -d "./.git" ||
 {
@@ -30,7 +30,7 @@ test -d "./.cppbdir" ||
 
 set -eu
 
-MAKE="command -p env make"
+test -z "${MAKE:-}" && MAKE="command -p env make"
 CPPCHECK="cppcheck"
 CPPCHECKS="warning,style,performance,portability"
 CPPDEFINE='-DDECNUMDIGITS=126 -U__VERSION__ -D_GNU_SOURCE -DDECBUFFER=32

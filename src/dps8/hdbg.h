@@ -99,7 +99,7 @@ void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const
 #  define HDBGFault(n, s, m, c) hdbgFault(n, s, m, c)
 #  define HDBGPrint() hdbgPrint()
 # else
-#  define HDBGMRead(a, d, c) 
+#  define HDBGMRead(a, d, c)
 #  define HDBGMWrite(a, d, c)
 #  define HDBGIEFP(t,s,o, c)
 #  define HDBGAPURead(s, o, f, d, c)

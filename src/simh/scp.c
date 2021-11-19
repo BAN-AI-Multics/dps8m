@@ -1659,12 +1659,12 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 # else
         fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
 # endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
-#else   
+#else
         fprintf (stdout, "%s simulator\n", sim_name);
 #endif /* ifdef VER_H_GIT_VERSION */
         return 0;
     }
-    
+
 /* requested short or long help? */
     int longhelp  = strcmp(argv[i], "--help");
     int shorthelp = strcmp(argv[i], "-h");
