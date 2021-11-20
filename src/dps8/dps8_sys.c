@@ -1680,9 +1680,13 @@ static void do_ini_line (char * text)
 
 static t_stat set_default_base_system (UNUSED int32 arg, UNUSED const char * buf)
   {
+#ifdef PERF_STRIP
+    cpu_dev.numunits = 1;
+#else
     int n_lines = sizeof (default_base_system_script) / sizeof (char *);
     for (int line = 0; line < n_lines; line ++)
       do_ini_line (default_base_system_script [line]);
+#endif
     return SCPE_OK;
   }
 
@@ -4064,6 +4068,7 @@ static void systabInit (void) {
 // Once-only initialization; invoked by simh
 
 static void dps8_init (void) {
+#ifndef PERF_STRIP
   if (!sim_quiet) {
 #if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_VERSION)
 # if defined(VER_H_GIT_PATCH_INT) && defined(VER_H_GIT_PATCH)
@@ -4175,6 +4180,7 @@ static void dps8_init (void) {
 #ifdef SCUMEM
 # error SCUMEM not working with new shared memory model
 #endif
+#endif // ! PERF_STRIP
 
 #if defined(__MINGW64__)   || \
     defined(__MINGW32__)   || \
@@ -4194,6 +4200,8 @@ static void dps8_init (void) {
               svErrno, strerror (svErrno));
     exit (svErrno);
   }
+
+#ifndef PERF_STRIP
 
 #ifndef VER_H_GIT_HASH
 # define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
@@ -4227,7 +4235,11 @@ static void dps8_init (void) {
   sys_opts.sys_slow_poll_interval = 100;
   // sys_poll_check_rate in CPU cycles
   sys_opts.sys_poll_check_rate = 1024;
+#endif // ! PERF_STRIP
 
+#ifdef PERF_STRIP
+  cpu_init ();
+#else
   sysCableInit ();
   iom_init ();
   disk_init ();
@@ -4263,6 +4275,7 @@ static void dps8_init (void) {
 #ifdef PANEL
   panelScraperInit ();
 #endif /* ifdef PANEL */
+#endif
 #if defined(THREADZ) || defined(LOCKLESS)
   initThreadz ();
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
@@ -4687,4 +4700,13 @@ DEVICE * sim_devices[] =
 #endif /* ifndef __MINGW64__ */
     NULL
   };
+
+
+#ifdef PERF_STRIP
+void dps8_init_strip (void)
+  {
+    dps8_init ();
+  }
+#endif
+
 

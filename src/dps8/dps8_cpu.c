@@ -1407,6 +1407,7 @@ void cpu_init (void)
     memset (cpus, 0, sizeof (cpu_state_t) * N_CPU_UNITS_MAX);
     cpus [0].switches.FLT_BASE = 2; // Some of the UnitTests assume this
 
+#ifndef PERF_STRIP
     get_serial_number ();
 
 #ifndef NO_EV_POLL
@@ -1415,7 +1416,7 @@ void cpu_init (void)
     // 10 ms == 100Hz
     uv_timer_start (& ev_poll_handle, ev_poll_cb, sys_opts.sys_poll_interval, sys_opts.sys_poll_interval);
 #endif
-
+#endif
     // TODO: reset *all* other structures to zero
 
     cpu.instrCnt = 0;
@@ -1777,6 +1778,7 @@ t_stat sim_instr (void)
         if (bce_dis_called)
           return STOP_STOP;
 
+#ifndef PERF_STRIP
 // Loop runs at 1000 Hz
 
 # ifdef LOCKLESS
@@ -1793,6 +1795,7 @@ t_stat sim_instr (void)
         int con_unit_idx = check_attn_key ();
         if (con_unit_idx != -1)
           console_attn_idx (con_unit_idx);
+#endif
 
 # ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
         struct timespec next_time;
