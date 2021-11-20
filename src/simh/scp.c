@@ -1538,7 +1538,6 @@ char *strremove(char *str, const char *sub)
 
 /* Main command loop */
 
-#ifndef PERF_STRIP
 int main (int argc, char *argv[])
 {
 char *cptr, *cptr2;
@@ -1814,7 +1813,6 @@ fclose (stdnul);                                        /* close bit bucket file
 free (targv);                                           /* release any argv copy that was made */
 return 0;
 }
-#endif
 
 t_stat process_stdin_commands (t_stat stat, char *argv[])
 {

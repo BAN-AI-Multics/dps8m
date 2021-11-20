@@ -126,13 +126,6 @@ ifndef MAKEFILE_LOCAL_A
 endif
 
 ###############################################################################
-# Performance test strip
-
-ifdef PERF_STRIP
-    CFLAGS  += -DPERF_STRIP
-endif
-
-###############################################################################
 
 ifndef MAKEFILE_LOCAL_B
   ifneq (,$(wildcard GNUmakefile.local))
