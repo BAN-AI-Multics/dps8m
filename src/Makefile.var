@@ -147,6 +147,13 @@ ifeq ($(NEED_128),1)
 endif
 
 ###############################################################################
+# Strip simulator down to just a CPU for performance testing
+
+ifeq ($(PERF_STRIP),1)
+    CFLAGS  += -DPERF_STRIP
+endif
+
+###############################################################################
 # For embedding current time of building object
 
 ifndef VER_CURRENT_TIME

@@ -9881,7 +9881,7 @@ static int emCall (void)
            uint64_t start = startTime.ru_utime.tv_usec * 1000 + startTime.ru_utime.tv_sec * ns_sec;
            uint64_t stop = now.ru_utime.tv_usec * 1000 + now.ru_utime.tv_sec * ns_sec;
            uint64_t delta = stop - start;
-	 uint64_t seconds = delta / ns_sec;
+           uint64_t seconds = delta / ns_sec;
            uint64_t milliseconds = (delta / ns_msec) % 1000;
            uint64_t microseconds = (delta / ns_usec) % 1000;
            uint64_t nanoseconds = delta  % 1000;

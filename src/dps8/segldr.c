@@ -288,6 +288,44 @@ static t_stat bload (char * p2, char * p3)
     return SCPE_OK;
   }
 
+#define msize (MEMSIZE * sizeof (word36))
+
+static t_stat msave (char * p2)
+  {
+    int fd = open (p2, O_WRONLY | O_CREAT, 0664);
+    if (fd < 0)
+      {
+        sim_printf ("Unable to open '%s'\n", p2);
+        return SCPE_ARG;
+      }
+    ssize_t n = write (fd, (void *) M, msize);
+    if (n != msize)
+      {
+        sim_printf ("Unable to write '%s'\n", p2);
+        return SCPE_ARG;
+      }
+    (void) close (fd);
+    return SCPE_OK;
+  }
+
+static t_stat mrestore (char * p2)
+  {
+    int fd = open (p2, O_RDONLY);
+    if (fd < 0)
+      {
+        sim_printf ("Unable to open '%s'\n", p2);
+        return SCPE_ARG;
+      }
+    ssize_t n = read (fd, (void *) M, msize);
+    if (n != msize)
+      {
+        sim_printf ("Unable to read '%s'\n", p2);
+        return SCPE_ARG;
+      }
+    (void) close (fd);
+    return SCPE_OK;
+  }
+
 t_stat segment_loader (int32 arg, const char * buf)
   {
     size_t bufl = strlen (buf) + 1;
@@ -314,6 +352,18 @@ t_stat segment_loader (int32 arg, const char * buf)
           goto err;
         return stack (p2, p3);
       }
+    else if (strcasecmp ("msave", p1) == 0)
+      {
+        if (nParams != 2)
+          goto err;
+        return msave (p2);
+      }
+    else if (strcasecmp ("mrestore", p1) == 0)
+      {
+        if (nParams != 2)
+          goto err;
+        return mrestore (p2);
+      }
     else
       goto err;
     return SCPE_OK;
@@ -323,3 +373,18 @@ t_stat segment_loader (int32 arg, const char * buf)
              "   sl bload <segno> <filename>\n");
     return SCPE_ARG;
   }
+
+#ifdef PERF_STRIP
+extern DEVICE opc_dev;
+int main (int argc, char * argv[])
+  {
+    void dps8_init_strip (void);
+    dps8_init_strip ();
+    cpus[0].switches.enable_emcall = 1;
+    opc_dev.numunits = 1;
+    cpu_reset_unit_idx (0, false);
+    mrestore ("strip.mem");
+    threadz_sim_instr ();
+    return 0;
+  }
+#endif
