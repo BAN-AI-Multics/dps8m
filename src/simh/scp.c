@@ -1538,6 +1538,7 @@ char *strremove(char *str, const char *sub)
 
 /* Main command loop */
 
+#ifndef PERF_STRIP
 int main (int argc, char *argv[])
 {
 char *cptr, *cptr2;
@@ -1548,38 +1549,38 @@ int32 i, sw;
 t_bool lookswitch;
 t_stat stat;
 
-#ifdef __MINGW32__
-# ifndef NEED_CONSOLE_SETUP
-#  define NEED_CONSOLE_SETUP
-# endif
-#endif /* ifdef __MINGW32__ */
+# ifdef __MINGW32__
+#  ifndef NEED_CONSOLE_SETUP
+#   define NEED_CONSOLE_SETUP
+#  endif
+# endif /* ifdef __MINGW32__ */
 
-#ifdef CROSS_MINGW32
-# ifndef NEED_CONSOLE_SETUP
-#  define NEED_CONSOLE_SETUP
-# endif
-#endif /* ifdef CROSS_MINGW32 */
+# ifdef CROSS_MINGW32
+#  ifndef NEED_CONSOLE_SETUP
+#   define NEED_CONSOLE_SETUP
+#  endif
+# endif /* ifdef CROSS_MINGW32 */
 
-#ifdef __MINGW64__
-# ifndef NEED_CONSOLE_SETUP
-#  define NEED_CONSOLE_SETUP
-# endif
-#endif /* ifdef __MINGW64__ */
+# ifdef __MINGW64__
+#  ifndef NEED_CONSOLE_SETUP
+#   define NEED_CONSOLE_SETUP
+#  endif
+# endif /* ifdef __MINGW64__ */
 
-#ifdef CROSS_MINGW64
-# ifndef NEED_CONSOLE_SETUP
-#  define NEED_CONSOLE_SETUP
-# endif
-#endif /* ifdef CROSS_MINGW64 */
+# ifdef CROSS_MINGW64
+#  ifndef NEED_CONSOLE_SETUP
+#   define NEED_CONSOLE_SETUP
+#  endif
+# endif /* ifdef CROSS_MINGW64 */
 
-#if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
-# include <windows.h>
-# ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
-#  define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
-# endif
-#endif /* if defined(NEED_CONSOLE_SETUP) && defined(_WIN32) */
+# if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
+#  include <windows.h>
+#  ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#   define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#  endif
+# endif /* if defined(NEED_CONSOLE_SETUP) && defined(_WIN32) */
 
-#ifdef NEED_CONSOLE_SETUP
+# ifdef NEED_CONSOLE_SETUP
 HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 if (handle != INVALID_HANDLE_VALUE)
   {
@@ -1591,7 +1592,7 @@ if (handle != INVALID_HANDLE_VALUE)
       }
   }
 puts ("\e[0m");
-#endif /* NEED_CONSOLE_SETUP */
+# endif /* NEED_CONSOLE_SETUP */
 
 /* endian-ness sanity test */
 int testEndian = decContextTestEndian(1);
@@ -1618,15 +1619,15 @@ if (argc == 0) {
 }
 
 /* patch intel dispatcher */
-#ifdef __DISPATCH_H_
-# if defined(__INTEL_COMPILER)       || \
+# ifdef __DISPATCH_H_
+#  if defined(__INTEL_COMPILER)       || \
      defined(__INTEL_CLANG_COMPILER) || \
      defined(__INTEL_LLVM_COMPILER)  || \
      defined(INTEL_MKL_VERSION)      || \
      defined(__INTEL_MKL__)
 (void)agner_compiler_patch();
+#  endif
 # endif
-#endif
 
 /* Make sure that argv has at least 10 elements and that it ends in a NULL pointer */
 targv = (char **)calloc (1+MAX(10, argc), sizeof(*targv));
@@ -1649,19 +1650,19 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 /* requested only version? */
     int onlyvers  = strcmp(argv[i], "--version");
     if (onlyvers == 0) {
-#ifdef VER_H_GIT_VERSION
-# if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
-#  if VER_H_GIT_PATCH_INT < 1
+# ifdef VER_H_GIT_VERSION
+#  if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
+#   if VER_H_GIT_PATCH_INT < 1
         fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
-#  else
+#   else
         fprintf (stdout, "%s simulator %s+%s\n", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
-#  endif /* if VER_H_GIT_PATCH_INT < 1 */
-# else
+#   endif /* if VER_H_GIT_PATCH_INT < 1 */
+#  else
         fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
-# endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
-#else
+#  endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
+# else
         fprintf (stdout, "%s simulator\n", sim_name);
-#endif /* ifdef VER_H_GIT_VERSION */
+# endif /* ifdef VER_H_GIT_VERSION */
         return 0;
     }
 
@@ -1670,19 +1671,19 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
     int shorthelp = strcmp(argv[i], "-h");
     if (shorthelp != 0) shorthelp = strcmp(argv[i], "-H");
     if (longhelp == 0 || shorthelp == 0) {
-#ifdef VER_H_GIT_VERSION
-# if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
-#  if VER_H_GIT_PATCH_INT < 1
+# ifdef VER_H_GIT_VERSION
+#  if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
+#   if VER_H_GIT_PATCH_INT < 1
         fprintf (stdout, "%s simulator %s", sim_name, VER_H_GIT_VERSION);
-#  else
+#   else
         fprintf (stdout, "%s simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
-#  endif /* if VER_H_GIT_PATCH_INT < 1 */
-# else
+#   endif /* if VER_H_GIT_PATCH_INT < 1 */
+#  else
         fprintf (stdout, "%s simulator %s", sim_name, VER_H_GIT_VERSION);
-# endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
-#else
+#  endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
+# else
         fprintf (stdout, "%s simulator", sim_name);
-#endif /* ifdef VER_H_GIT_VERSION */
+# endif /* ifdef VER_H_GIT_VERSION */
         fprintf (stdout, "\nUsage: %s { [SWITCHES] ... } { <SCRIPT> }\n", argv[0]);
         fprintf (stdout, "\nInvoke the %s simulator, with optional switches and/or script.\n", sim_name);
         fprintf (stdout, "\n Switches:");
@@ -1813,6 +1814,7 @@ fclose (stdnul);                                        /* close bit bucket file
 free (targv);                                           /* release any argv copy that was made */
 return 0;
 }
+#endif
 
 t_stat process_stdin_commands (t_stat stat, char *argv[])
 {

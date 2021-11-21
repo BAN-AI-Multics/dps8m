@@ -1680,9 +1680,13 @@ static void do_ini_line (char * text)
 
 static t_stat set_default_base_system (UNUSED int32 arg, UNUSED const char * buf)
   {
+#ifdef PERF_STRIP
+    cpu_dev.numunits = 1;
+#else
     int n_lines = sizeof (default_base_system_script) / sizeof (char *);
     for (int line = 0; line < n_lines; line ++)
       do_ini_line (default_base_system_script [line]);
+#endif
     return SCPE_OK;
   }
 
@@ -4064,73 +4068,74 @@ static void systabInit (void) {
 // Once-only initialization; invoked by simh
 
 static void dps8_init (void) {
+#ifndef PERF_STRIP
   if (!sim_quiet) {
-#if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_VERSION)
-# if defined(VER_H_GIT_PATCH_INT) && defined(VER_H_GIT_PATCH)
-#  if VER_H_GIT_PATCH_INT < 1
+# if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_VERSION)
+#  if defined(VER_H_GIT_PATCH_INT) && defined(VER_H_GIT_PATCH)
+#   if VER_H_GIT_PATCH_INT < 1
     sim_msg ("%s simulator %s", sim_name, VER_H_GIT_VERSION);
-#  else
+#   else
     sim_msg ("%s simulator %s+%s", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
-#  endif
-# else
+#   endif
+#  else
     sim_msg ("%s simulator %s", sim_name, VER_H_GIT_VERSION);
+#  endif
 # endif
-#endif
-#if !defined(VER_H_GIT_VERSION) || !defined(GENERATED_MAKE_VER_H)
+# if !defined(VER_H_GIT_VERSION) || !defined(GENERATED_MAKE_VER_H)
     sim_msg ("%s simulator", sim_name);
-#endif
-#ifdef TESTING
-    sim_msg ("\n Options: ");
-# ifndef HAVE_DPSOPT
-#  define HAVE_DPSOPT 1
 # endif
+# ifdef TESTING
+    sim_msg ("\n Options: ");
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
     sim_msg ("TESTING");
-#endif
-#ifdef NEED_128
-# ifdef HAVE_DPSOPT
+# endif
+# ifdef NEED_128
+#  ifdef HAVE_DPSOPT
     sim_msg (", ");
-# else
+#  else
     sim_msg ("\n Options: ");
-# endif
-# ifndef HAVE_DPSOPT
-#  define HAVE_DPSOPT 1
-# endif
+#  endif
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
     sim_msg ("NEED_128");
-#endif
-#ifdef ROUND_ROBIN
-# ifdef HAVE_DPSOPT
+# endif
+# ifdef ROUND_ROBIN
+#  ifdef HAVE_DPSOPT
     sim_msg (", ");
-# else
+#  else
     sim_msg ("\n Options: ");
-# endif
-# ifndef HAVE_DPSOPT
-#  define HAVE_DPSOPT 1
-# endif
+#  endif
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
     sim_msg ("ROUND_ROBIN");
-#endif
-#ifndef LOCKLESS
-# ifdef HAVE_DPSOPT
+# endif
+# ifndef LOCKLESS
+#  ifdef HAVE_DPSOPT
     sim_msg (", ");
-# else
+#  else
     sim_msg ("\n Options: ");
-# endif
-# ifndef HAVE_DPSOPT
-#  define HAVE_DPSOPT 1
-# endif
+#  endif
+#  ifndef HAVE_DPSOPT
+#   define HAVE_DPSOPT 1
+#  endif
     sim_msg ("NO_LOCKLESS");
-#endif
-#if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
+# endif
+# if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
     sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);
-#endif
+# endif
   }
 
   // special dps8 initialization stuff that cant be done in reset, etc .....
 
-#ifdef TESTING
+# ifdef TESTING
   // These are part of the simh interface
   sim_vm_parse_addr = parse_addr;
   sim_vm_fprint_addr = fprint_addr;
-#endif // TESTING
+# endif // TESTING
 
   sim_vm_cmd = dps8_cmds;
 
@@ -4150,31 +4155,32 @@ static void dps8_init (void) {
 //#endif
 //#endif
 
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW32
-#   ifndef CROSS_MINGW64
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW32
+#    ifndef CROSS_MINGW64
   // Wire the XF button to signal USR1
   signal (SIGUSR1, usr1_signal_handler);
-#   endif /* ifndef CROSS_MINGW64 */
-#  endif /* ifndef CROSS_MINGW32 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW64__ */
 
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW32
-#   ifndef CROSS_MINGW64
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW32
+#    ifndef CROSS_MINGW64
 // On line 4,739 of the libuv man page, it recommends this.
   signal(SIGPIPE, SIG_IGN);
-#   endif /* ifndef CROSS_MINGW64 */
-#  endif /* ifndef CROSS_MINGW32 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW64__ */
 
-#ifdef SCUMEM
-# error SCUMEM not working with new shared memory model
-#endif
+# ifdef SCUMEM
+#  error SCUMEM not working with new shared memory model
+# endif
+#endif // ! PERF_STRIP
 
 #if defined(__MINGW64__)   || \
     defined(__MINGW32__)   || \
@@ -4195,9 +4201,11 @@ static void dps8_init (void) {
     exit (svErrno);
   }
 
-#ifndef VER_H_GIT_HASH
-# define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
-#endif
+#ifndef PERF_STRIP
+
+# ifndef VER_H_GIT_HASH
+#  define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
+# endif
 
   if (strlen (system_state->commit_id) == 0) {
     if (!sim_quiet) {
@@ -4227,20 +4235,24 @@ static void dps8_init (void) {
   sys_opts.sys_slow_poll_interval = 100;
   // sys_poll_check_rate in CPU cycles
   sys_opts.sys_poll_check_rate = 1024;
+#endif // ! PERF_STRIP
 
+#ifdef PERF_STRIP
+  cpu_init ();
+#else
   sysCableInit ();
   iom_init ();
   disk_init ();
   mt_init ();
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW64
-#   ifndef CROSS_MINGW32
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW64
+#    ifndef CROSS_MINGW32
   sk_init ();
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef CROSS_MINGW64 */
-# endif /* ifndef __MINGW64__ */
-#endif /* ifndef __MINGW32__ */
+#    endif /* ifndef CROSS_MINGW32 */
+#   endif /* ifndef CROSS_MINGW64 */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifndef __MINGW32__ */
   fnpInit ();
   console_init (); // must come after fnpInit due to libuv initiailization
  /* mpc_init (); */
@@ -4250,19 +4262,20 @@ static void dps8_init (void) {
   pun_init ();
   prt_init ();
   urp_init ();
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW64
-#   ifndef CROSS_MINGW32
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW64
+#    ifndef CROSS_MINGW32
   absi_init ();
-#   endif /* CROSS_MINGW32 */
-#  endif /* CROSS_MINGW64 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#    endif /* CROSS_MINGW32 */
+#   endif /* CROSS_MINGW64 */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW64__ */
   set_default_base_system (0, NULL);
-#ifdef PANEL
+# ifdef PANEL
   panelScraperInit ();
-#endif /* ifdef PANEL */
+# endif /* ifdef PANEL */
+#endif
 #if defined(THREADZ) || defined(LOCKLESS)
   initThreadz ();
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
@@ -4687,4 +4700,13 @@ DEVICE * sim_devices[] =
 #endif /* ifndef __MINGW64__ */
     NULL
   };
+
+
+#ifdef PERF_STRIP
+void dps8_init_strip (void)
+  {
+    dps8_init ();
+  }
+#endif
+
 
