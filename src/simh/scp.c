@@ -284,7 +284,11 @@ BRKTAB **sim_brk_tab = NULL;
 int32 sim_brk_ent = 0;
 int32 sim_brk_lnt = 0;
 int32 sim_brk_ins = 0;
+int32 sim_iglock = 0;
+int32 sim_nolock = 0;
 int32 sim_quiet = 0;
+int32 sim_randstate = 0;
+int32 sim_randompst = 0;
 int32 sim_step = 0;
 static double sim_time;
 static uint32 sim_rtime;
@@ -382,7 +386,7 @@ const struct scp_error {
          {"INVREM",  "Invalid remote console command"},
          {"NOTATT",  "Not attached"},
          {"EXPECT",  "Expect matched"},
-         {"REMOTE",  "remote console command"},
+         {"REMOTE",  "Remote console command"},
     };
 
 const size_t size_map[] = { sizeof (int8),
@@ -539,7 +543,7 @@ static const char simh_help[] =
       " Switches can influence the output and behavior of the RESTORE command\n\n"
       "++-Q      Suppresses version warning messages\n"
       "++-D      Suppress detaching and attaching devices during a restore\n"
-      "++-F      Overrides the related file timestamp validation check\n"
+      "++-F      Overrides timestamp validation during restore\n"
       "\n"
       "4Notes:\n"
       " 1) SAVE file format compresses zeroes to minimize file size.\n"
@@ -1401,29 +1405,29 @@ static CTAB cmd_table[] = {
     };
 
 static CTAB set_glob_tab[] = {
-    { "CONSOLE",    &sim_set_console,           0, HLP_SET_CONSOLE },
-    { "REMOTE",     &sim_set_remote_console,    0, HLP_SET_REMOTE },
-    { "BREAK",      &brk_cmd,              SSH_ST, HLP_SET_BREAK },
-    { "NOBREAK",    &brk_cmd,              SSH_CL, HLP_SET_BREAK },
-    { "TELNET",     &sim_set_telnet,            0 },            /* deprecated */
-    { "NOTELNET",   &sim_set_notelnet,          0 },            /* deprecated */
-    { "LOG",        &sim_set_logon,             0, HLP_SET_LOG  },
-    { "NOLOG",      &sim_set_logoff,            0, HLP_SET_LOG  },
-    { "DEBUG",      &sim_set_debon,             0, HLP_SET_DEBUG  },
-    { "NODEBUG",    &sim_set_deboff,            0, HLP_SET_DEBUG  },
+    { "CONSOLE",     &sim_set_console,          0, HLP_SET_CONSOLE },
+    { "REMOTE",      &sim_set_remote_console,   0, HLP_SET_REMOTE },
+    { "BREAK",       &brk_cmd,             SSH_ST, HLP_SET_BREAK },
+    { "NOBREAK",     &brk_cmd,             SSH_CL, HLP_SET_BREAK },
+    { "TELNET",      &sim_set_telnet,           0 }, /* deprecated */
+    { "NOTELNET",    &sim_set_notelnet,         0 }, /* deprecated */
+    { "LOG",         &sim_set_logon,            0, HLP_SET_LOG  },
+    { "NOLOG",       &sim_set_logoff,           0, HLP_SET_LOG  },
+    { "DEBUG",       &sim_set_debon,            0, HLP_SET_DEBUG  },
+    { "NODEBUG",     &sim_set_deboff,           0, HLP_SET_DEBUG  },
     { "ENVIRONMENT", &sim_set_environment,      1, HLP_SET_ENVIRON },
-    { "ON",         &set_on,                    1, HLP_SET_ON },
-    { "NOON",       &set_on,                    0, HLP_SET_ON },
-    { "VERIFY",     &set_verify,                1, HLP_SET_VERIFY },
-    { "VERBOSE",    &set_verify,                1, HLP_SET_VERIFY },
-    { "NOVERIFY",   &set_verify,                0, HLP_SET_VERIFY },
-    { "NOVERBOSE",  &set_verify,                0, HLP_SET_VERIFY },
-    { "MESSAGE",    &set_message,               1, HLP_SET_MESSAGE },
-    { "NOMESSAGE",  &set_message,               0, HLP_SET_MESSAGE },
-    { "QUIET",      &set_quiet,                 1, HLP_SET_QUIET },
-    { "NOQUIET",    &set_quiet,                 0, HLP_SET_QUIET },
-    { "PROMPT",     &set_prompt,                0, HLP_SET_PROMPT },
-    { NULL,         NULL,                       0 }
+    { "ON",          &set_on,                   1, HLP_SET_ON },
+    { "NOON",        &set_on,                   0, HLP_SET_ON },
+    { "VERIFY",      &set_verify,               1, HLP_SET_VERIFY },
+    { "VERBOSE",     &set_verify,               1, HLP_SET_VERIFY },
+    { "NOVERIFY",    &set_verify,               0, HLP_SET_VERIFY },
+    { "NOVERBOSE",   &set_verify,               0, HLP_SET_VERIFY },
+    { "MESSAGE",     &set_message,              1, HLP_SET_MESSAGE },
+    { "NOMESSAGE",   &set_message,              0, HLP_SET_MESSAGE },
+    { "QUIET",       &set_quiet,                1, HLP_SET_QUIET },
+    { "NOQUIET",     &set_quiet,                0, HLP_SET_QUIET },
+    { "PROMPT",      &set_prompt,               0, HLP_SET_PROMPT },
+    { NULL,          NULL,                      0 }
     };
 
 static C1TAB set_dev_tab[] = {
@@ -1684,15 +1688,19 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 # else
         fprintf (stdout, "%s simulator", sim_name);
 # endif /* ifdef VER_H_GIT_VERSION */
-        fprintf (stdout, "\nUsage: %s { [SWITCHES] ... } { <SCRIPT> }\n", argv[0]);
+        fprintf (stdout, "\n\nUsage: %s { [SWITCHES] ... } { <SCRIPT> }\n", argv[0]);
         fprintf (stdout, "\nInvoke the %s simulator, with optional switches and/or script.\n", sim_name);
         fprintf (stdout, "\n Switches:");
-        fprintf (stdout, "\n  -e, -E                  Stop processing script file on any error");
-        fprintf (stdout, "\n  -h, -H, --help          Display this help text and exit");
-        fprintf (stdout, "\n  -o, -O                  Make script actions/conditions inheritable");
-        fprintf (stdout, "\n  -q, -Q                  Suppress display of informational messages");
-        fprintf (stdout, "\n  -v, -V                  Display script commands before execution");
-        fprintf (stdout, "\n  --version               Display the simulator version and exit");
+        fprintf (stdout, "\n  -e, -E              Abort script processing immediately on errors");
+        fprintf (stdout, "\n  -h, -H, --help      Display this informational help text and exit");
+        fprintf (stdout, "\n  -k, -K              Do not utilize exclusive file locking support");
+        fprintf (stdout, "\n  -l, -L              Disregard fatal exclusive file locking errors");
+        fprintf (stdout, "\n  -o, -O              Configure script conditions to be inheritable");
+        fprintf (stdout, "\n  -q, -Q              Disables non-error and informational messages");
+        fprintf (stdout, "\n  -r, -R              Enables ephemeral (session-only) system state");
+        fprintf (stdout, "\n  -s, -S              Use a randomized name to persist system state");
+        fprintf (stdout, "\n  -v, -V              Display every script command before execution");
+        fprintf (stdout, "\n  --version           Display the simulator version string and exit");
         fprintf (stdout, "\n\nThis software is made available under the terms of the ICU License,");
         fprintf (stdout, "\nversion 1.8.1 or later.  For complete details, see the \"LICENSE.md\"");
         fprintf (stdout, "\nincluded or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\n");
@@ -1719,7 +1727,12 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
         lookswitch = FALSE;                             /* no more switches */
         }
     }                                                   /* end for */
+sim_nolock = sim_switches & SWMASK ('K');               /* -k means skip locking */
+sim_iglock = sim_switches & SWMASK ('L');               /* -l means ignore locking */
+sim_randompst = sim_switches & SWMASK ('S');            /* -s means persist random */
 sim_quiet = sim_switches & SWMASK ('Q');                /* -q means quiet */
+sim_randstate = sim_switches & SWMASK ('R');            /* -r means random sys_state */
+if (sim_randompst) sim_randstate = 1;                   /*    and is implied with -s */
 sim_on_inherit = sim_switches & SWMASK ('O');           /* -o means inherit on state */
 
 sim_init_sock ();                                       /* init socket capabilities */
@@ -4147,6 +4160,19 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
     fprintf (st, "Windows NT interlocked operations");
 # endif
 #endif /* ifdef LOCKLESS */
+    fprintf (st, "\n          File locking: ");
+#if defined(USE_FCNTL) && defined(USE_FLOCK)
+    fprintf (st, "POSIX-style fcntl() and BSD-style flock() locking");
+#endif
+#if defined(USE_FCNTL) && !defined(USE_FLOCK)
+    fprintf (st, "POSIX-style fcntl() locking");
+#endif
+#if defined(USE_FLOCK) && !defined(USE_FCNTL)
+    fprintf (st, "BSD-style flock() locking");
+#endif
+#if !defined(USE_FLOCK) && !defined(USE_FCNTL)
+    fprintf (st, "No file locking available");
+#endif
     fprintf (st, "\n");
     return 0;
 }
@@ -5033,7 +5059,7 @@ if ((dptr = find_dev_from_unit (uptr)) == NULL)
 uptr->filename = (char *) calloc (CBUFSIZE, sizeof (char)); /* alloc name buf */
 if (uptr->filename == NULL)
     return SCPE_MEM;
-strncpy (uptr->filename, cptr, CBUFSIZE-1);               /* save name */
+strncpy (uptr->filename, cptr, CBUFSIZE-1);             /* save name */
 if ((sim_switches & SWMASK ('R')) ||                    /* read only? */
     ((uptr->flags & UNIT_RO) != 0)) {
     if (((uptr->flags & UNIT_ROABLE) == 0) &&           /* allowed? */
@@ -5059,6 +5085,13 @@ else {
     else {                                              /* normal */
         uptr->fileref = sim_fopen (cptr, "rb+");        /* open r/w */
         if (uptr->fileref == NULL) {                    /* open fail? */
+#if defined (EWOULDBLOCK)
+            if ((errno == EWOULDBLOCK) || (errno == EAGAIN))
+#else
+            if ((errno == EAGAIN))
+#endif
+                return attach_err (uptr, SCPE_OPENERR); /* yes, error */
+
 #if defined(EPERM)
             if ((errno == EROFS) || (errno == EACCES) || (errno == EPERM)) {/* read only? */
 #else

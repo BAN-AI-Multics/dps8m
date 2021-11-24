@@ -148,7 +148,7 @@ endif
 
 ifeq ($(UNAME_S),OpenBSD)
   OS = OpenBSD
-  CFLAGS += -I/usr/local/include
+  CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1 -I/usr/local/include
   LDFLAGS += -L/usr/local/lib
 endif
 
@@ -240,7 +240,7 @@ else
         export NO_HOMEBREW_LIBS
       endif
     endif
-  CFLAGS += $(HOMEBREW_INC)
+  CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1 $(HOMEBREW_INC)
   LDFLAGS += $(HOMEBREW_LIB)
   endif
 
@@ -248,7 +248,7 @@ else
 # FreeBSD
 
   ifeq ($(UNAME_S),FreeBSD)
-    CFLAGS += -I/usr/local/include -pthread
+    CFLAGS += -I/usr/local/include -DUSE_FLOCK=1 -DUSE_FCNTL=1 -pthread
     LDFLAGS += -L/usr/local/lib
   endif
 
@@ -261,7 +261,8 @@ else
 
   ifeq ($(UNAME_S),AIX)
     KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
-    CFLAGS += -DUSE_FLOCK=1 -DHAVE_POPT=1 -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+    CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DHAVE_POPT=1 -maix$(KRNBITS)       \
+              -Wl,-b$(KRNBITS)
     LDFLAGS += -lm -lpthread -lpopt -lbsd -maix$(KRNBITS) -Wl,-b$(KRNBITS)
     CC?=gcc
   endif
@@ -287,12 +288,12 @@ else
   ifeq ($(UNAME_S),SunOS)
     ifeq ($(shell $(UNAME) -o 2> /dev/null),illumos)
       ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-      CFLAGS  +=-I/usr/local/include -m$(ISABITS)
+      CFLAGS  +=-I/usr/local/include -m$(ISABITS) -DUSE_FCNTL=1
       LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -m$(ISABITS)
     endif
     ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
       ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
-      CFLAGS  +=-I/usr/local/include -m$(ISABITS)
+      CFLAGS  +=-I/usr/local/include -m$(ISABITS) -DUSE_FCNTL=1
       LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat    \
                 -ldl -m$(ISABITS)
       CC?=gcc
@@ -306,7 +307,8 @@ endif
 ifeq ($(UNAME_S),Linux)
   ifeq ($(CROSS),)
     ifneq ($(CYGWIN_MINGW_CROSS),1)
-      CFLAGS += -DCLOCK_REALTIME=CLOCK_REALTIME_COARSE
+      CFLAGS += -DCLOCK_REALTIME=CLOCK_REALTIME_COARSE                        \
+                -DUSE_FLOCK=1 -DUSE_FCNTL=1
     endif
   endif
   ifndef UNAME_M
@@ -375,10 +377,11 @@ CSTD?=c99
 ifndef REBUILDVNE
 FORCE:
 rebuild.env rebuild.vne .rebuild.env .rebuild.vne: FORCE
+	-@$(PRINTF) '%s\n' "BUILD: Checksum build environment" || $(TRUE)
 	@$(SETV); ( $(SET) 2> /dev/null ; $(ENV) 2> /dev/null ) | $(GREP) -ivE '(stat|line|time|date|random|seconds|pid|user|\?|hist|old|tty|prev|^_|man|pwd|cwd|columns|gid|uid|grp|tmout|user|^ps.|anyerror|argv|^command|^killring|^shlvl|^mailcheck|^jobmax|^hist|^term|^opterr|^groups|^bash_arg|^dirstack|^psvar|idle)' 2> /dev/null | $(CKSUM) > ".rebuild.vne" 2> /dev/null || $(TRUE)
 	@$(SETV); $(TEST) -f ".rebuild.env" || ( $(SET) 2> /dev/null ; $(ENV) 2> /dev/null ) | $(GREP) -ivE '(stat|line|time|date|random|seconds|pid|user|\?|hist|old|tty|prev|^_|man|pwd|cwd|columns|gid|uid|grp|tmout|user|^ps.|anyerror|argv|^command|^killring|^shlvl|^mailcheck|^jobmax|^hist|^term|^opterr|^groups|^bash_arg|^dirstack|^psvar|idle)' 2> /dev/null | $(CKSUM) > ".rebuild.env" 2> /dev/null || $(TRUE)
 	@$(SETV); $(PRINTF) '%s\n' "$$($(CAT) .rebuild.env)" "$$($(CAT) .rebuild.vne)" > /dev/null 2>&1
-	@$(SETV); $(RMF) ".needrebuild"; $(CMP) ".rebuild.env" ".rebuild.vne" > /dev/null 2>&1 || { $(TOUCH) ".rebuild.vne"; $(CP) ".rebuild.vne" ".rebuild.env"; $(TOUCH) ".needrebuild"; }
+	@$(SETV); $(RMF) ".needrebuild"; $(CMP) ".rebuild.env" ".rebuild.vne" > /dev/null 2>&1 || { $(TOUCH) ".rebuild.vne";  $(PRINTF) '%s' "BUILD: Checksum updated: $$($(HEAD) -n 1 ".rebuild.env" | $(TR) -cd "0-9")"; $(CP) ".rebuild.vne" ".rebuild.env" > /dev/null; $(TOUCH) ".needrebuild" > /dev/null; $(PRINTF) '%s\n' " -> $$($(HEAD) -n 1 ".rebuild.env" | $(TR) -cd "0-9")"; }
 	@$(SETV); $(RMF) ".rebuild.vne"
 REBUILDVNE=1
 export REBUILDVNE

@@ -630,7 +630,7 @@ void hdbgPrint (void) {
   }
   fclose (hdbgOut);
 
-  int fd = open ("M.dump", O_WRONLY | O_CREAT, 0660);
+  int fd = open ("M.dump", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
   if (fd == -1) {
     sim_printf ("can't open M.dump\n");
     goto done;

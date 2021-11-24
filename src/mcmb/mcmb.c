@@ -33,14 +33,11 @@
  * mcmb - (miniature) combinatorics utility
  *
  * This code was derived from the libcmb combinatorics
- * library and cmb combinatorics utility written by
+ * library and the cmb combinatorics utility written by
  * Devin Teske <dteske@FreeBSD.org> and is distributed
  * under the terms of a two-clause BSD license.
  */
 
-#define __STDC_FORMAT_MACROS
-
-#include <sys/cdefs.h>
 #include <sys/param.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -92,11 +89,11 @@
  * Macros for defining call-back functions/pointers
  */
 
-#define CMB_ACTION(x)          \
-  int x(                       \
-    struct cmb_config *config, \
-    uint64_t seq,              \
-    uint32_t nitems,           \
+#define CMB_ACTION(x)           \
+  int x(                        \
+    struct cmb_config *config,  \
+    uint64_t seq,               \
+    uint32_t nitems,            \
     char *items[])
 
 /*
@@ -127,10 +124,6 @@ struct cmb_config
   CMB_ACTION(( *action ));
 };
 
-#ifdef __BEGIN_DECLS
-__BEGIN_DECLS
-#endif /* ifdef __BEGIN_DECLS */
-
 static int cmb(struct cmb_config *_config, uint32_t _nitems, char *_items[]);
 
 static uint64_t cmb_count(struct cmb_config *_config, uint32_t _nitems);
@@ -155,9 +148,6 @@ cmb_print_seq(uint64_t seq)
 {
   (void)fprintf(stdout, "%" PRIu64 " ", seq);
 }
-#ifdef __END_DECLS
-__END_DECLS
-#endif /* ifdef __END_DECLS */
 
 /*
  * Transformations
@@ -245,7 +235,9 @@ struct cmb_xitem
  */
 
 static char *cmb_transform_find_buf;
+
 static int cmb_transform_find_buf_size;
+
 static struct cmb_xitem *cmb_transform_find;
 
 #define CMB_TRANSFORM_EQ_FIND(eq, op, x, seqt, seqp)                          \
@@ -283,7 +275,7 @@ static struct cmb_xitem *cmb_transform_find;
               = realloc(cmb_transform_find_buf, (unsigned long)len);          \
             if (cmb_transform_find_buf == NULL)                               \
               {                                                               \
-                (void)fprintf(stderr, "Error: Out of memory?!\n");            \
+                (void)fprintf(stderr, "FATAL: Out of memory?!\n");            \
                 exit(EXIT_FAILURE);                                           \
                 /* NOTREACHED */                                              \
               }                                                               \
@@ -404,7 +396,7 @@ static struct cmb_xitem *cmb_transform_find;
 # define CMB_PARSE_FRAGSIZE 512
 #endif /* ifndef CMB_PARSE_FRAGSIZE */
 
-static const char mcmbver[]         = "2120.4.11-dps";
+static const char mcmbver[]         = "2120.4.12-dps";
 static const char libversion[]      = "libcmb 3.5.6";
 static const char libversion_long[] = "$Version: libcmb 3.5.6 $";
 
@@ -1025,14 +1017,14 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
   setmax = setdone > setinit ? setdone : setinit;
   if (( curitems = (char **)malloc(sizeof ( char * ) * setmax)) == NULL)
     {
-      (void)fprintf(stderr, "Error: Out of memory?!\n");
+      (void)fprintf(stderr, "FATAL: Out of memory?!\n");
       exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
 
   if (( setnums = (uint32_t *)malloc(sizeof ( uint32_t ) * setmax)) == NULL)
     {
-      (void)fprintf(stderr, "Error: Out of memory?!\n");
+      (void)fprintf(stderr, "FATAL: Out of memory?!\n");
       exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
@@ -1040,14 +1032,13 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
   if (( setnums_backend =
           (uint32_t *)malloc(sizeof ( uint32_t ) * setmax)) == NULL)
     {
-      (void)fprintf(stderr, "Error: Out of memory?!\n");
+      (void)fprintf(stderr, "FATAL: Out of memory?!\n");
       exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
 
   /*
    * Loop over each `set' in the configured direction until we are done.
-   * NB: Each `set' can represent a single item or multiple items.
    */
 
   p = nextset > 0 ? setinit - 1 : setinit;
@@ -1150,7 +1141,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
         {
           if (setnums == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -1162,7 +1153,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
         {
           if (setnums_backend == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -1211,8 +1202,8 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
             }
 
           /*
-           * The next few stanzas are dedicated to rebuilding the
-           * setnums array for mapping positional items
+           * The next few stanzas are dedicated to rebuilding
+           * the setnums array for mapping positional items
            * [immediately following] into curitems.
            */
 
@@ -1392,6 +1383,10 @@ static uint8_t opt_quiet    = FALSE;
 static uint8_t opt_silent   = FALSE;
 static const char digit[11] = "0123456789";
 
+#ifndef __attribute__
+# define __attribute__(xyz) /* Ignore */
+#endif /* ifndef __attribute__ */
+
 #ifndef _Noreturn
 # define _Noreturn __attribute__ (( noreturn ))
 #endif /* ifndef _Noreturn */
@@ -1447,7 +1442,7 @@ p2(uint64_t x)
 static inline uint64_t
 urand64(void)
 {
-  return ((uint64_t)lrand48() << 42 ) + ((uint64_t)lrand48() << 21 )
+  return ( (uint64_t)lrand48() << 42 ) + ( (uint64_t)lrand48() << 21 )
          + (uint64_t)lrand48();
 }
 
@@ -1477,12 +1472,6 @@ static struct cmb_xfdef cmb_xforms[] = {
 # endif /* ifndef HAVE_BUILD */
 #endif /* if  ( defined(__VERSION__) && defined(__GNUC__) )
            || ( defined(__VERSION__) && defined(__clang_version__) */
-
-#ifndef HAVE_BUILD
-# if defined(BUILDINFO_mcmb)
-#  define HAVE_BUILD
-# endif /* defined(BUILDINFO_mcmb) */
-#endif /* ifndef HAVE_BUILD */
 
 int
 main(int argc, char *argv[])
@@ -1537,7 +1526,7 @@ main(int argc, char *argv[])
 
   if (( config = malloc(config_size)) == NULL)
     {
-      (void)fprintf(stderr, "Error: Out of memory?!\n");
+      (void)fprintf(stderr, "FATAL: Out of memory?!\n");
       exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
@@ -1602,7 +1591,7 @@ main(int argc, char *argv[])
           if (( cmb_transform_find =
             malloc(sizeof ( struct cmb_xitem ))) == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -1804,9 +1793,6 @@ main(int argc, char *argv[])
       (void)fprintf(stdout, "Compiler: %s\n", __VERSION__ );
 #  endif /* ifdef __GNUC__ */
 # endif /* ifdef __VERSION__ */
-# ifdef BUILDINFO_mcmb
-      (void)fprintf(stdout, "   Build: %s\n", BUILDINFO_mcmb );
-# endif /* ifdef BUILDINFO_mcmb */
       exit(EXIT_SUCCESS);
       /* NOTREACHED */
     }
@@ -1943,7 +1929,7 @@ main(int argc, char *argv[])
 
           if (items_tmp == NULL)
             {
-              (void)fprintf(stderr, "Error: %s\n",
+              (void)fprintf(stderr, "FATAL: %s\n",
                 errno ? strerror(errno) : "Out of memory?!");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
@@ -1952,7 +1938,7 @@ main(int argc, char *argv[])
           if (fitems + i > UINT_MAX)
             {
               free(items_tmp);
-              (void)fprintf(stderr, "Error: -f: Too many items\n");
+              (void)fprintf(stderr, "FATAL: -f: Too many items\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -1962,14 +1948,14 @@ main(int argc, char *argv[])
 
           if (items == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
           if (items_tmp == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");  
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");  
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -1988,7 +1974,7 @@ main(int argc, char *argv[])
 
       if (( items = calloc(ritems, sizeof ( char * ))) == NULL)
         {
-          (void)fprintf(stderr, "Error: Out of memory?!\n");
+          (void)fprintf(stderr, "FATAL: Out of memory?!\n");
           exit(EXIT_FAILURE);
           /* NOTREACHED */
         }
@@ -2027,10 +2013,6 @@ main(int argc, char *argv[])
 
   /*
    * Time-based benchmarking (-S for silent) and transforms (-X op).
-   *
-   * NB: For benchmarking, the call-stack is still incremented into the
-   *     action, while using a nop function allows us to benchmark
-   *     various action overhead.
    */
 
   if (opt_silent && opt_transform == NULL)
@@ -2077,7 +2059,6 @@ main(int argc, char *argv[])
 
       /*
        * Convert items into array of struct pointers
-       * NB: Transformation function does not perform conversions
        */
 
       if (!opt_range)
@@ -2085,7 +2066,7 @@ main(int argc, char *argv[])
           ul = sizeof ( struct cmb_xitem * );
           if (( items_tmp = calloc(nitems, ul)) == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!");
+              (void)fprintf(stderr, "FATAL: Out of memory?!");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -2094,7 +2075,7 @@ main(int argc, char *argv[])
             {
               if (( xitem = malloc(sizeof ( struct cmb_xitem ))) == NULL)
                 {
-                  (void)fprintf(stderr, "Error: Out of memory?!");
+                  (void)fprintf(stderr, "FATAL: Out of memory?!");
                   exit(EXIT_FAILURE);
                   /* NOTREACHED */
                 }
@@ -2163,7 +2144,7 @@ main(int argc, char *argv[])
               cmb_transform_find->cp = malloc((unsigned long)len);
               if (cmb_transform_find->cp == NULL)
                 {
-                  (void)fprintf(stderr, "Error: Out of memory?!\n");
+                  (void)fprintf(stderr, "FATAL: Out of memory?!\n");
                   exit(EXIT_FAILURE);
                   /* NOTREACHED */
                 }
@@ -2187,7 +2168,7 @@ main(int argc, char *argv[])
           cmb_transform_find->cp = malloc((unsigned long)len);
           if (cmb_transform_find->cp == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -2216,7 +2197,7 @@ main(int argc, char *argv[])
 
       if (errno)
         {
-          (void)fprintf(stderr, "Error: %s\n", strerror(errno));
+          (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
           exit(EXIT_FAILURE);
           /* NOTREACHED */
         }
@@ -2230,7 +2211,7 @@ main(int argc, char *argv[])
           count = cmb_count(config, nitems);
           if (errno)
             {
-              (void)fprintf(stderr, "Error: %s\n", strerror(errno));
+              (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -2246,7 +2227,7 @@ main(int argc, char *argv[])
           count = cmb_count(config, nitems);
           if (errno)
             {
-              (void)fprintf(stderr, "Error: %s\n", strerror(errno));
+              (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -2264,7 +2245,7 @@ main(int argc, char *argv[])
       retval = cmb(config, nitems, items);
       if (errno)
         {
-          (void)fprintf(stderr, "Error: %s\n", strerror(errno));
+          (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
           exit(EXIT_FAILURE);
           /* NOTREACHED */
         }
@@ -2722,7 +2703,7 @@ range_char(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           len = snprintf(NULL, 0, "%u", num) + 1;
           if (( dst[idx] = malloc((unsigned long)len)) == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -2738,7 +2719,7 @@ range_char(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           len = snprintf(NULL, 0, "%u", num) + 1;
           if (( dst[idx] = (char *)malloc((unsigned long)len)) == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -2766,7 +2747,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
         {
           if (( xitem = malloc(size)) == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -2774,7 +2755,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           len = snprintf(NULL, 0, "%u", num) + 1;
           if (( xitem->cp = malloc((unsigned long)len)) == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -2791,7 +2772,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
         {
           if (( xitem = malloc(size)) == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
@@ -2799,7 +2780,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           len = snprintf(NULL, 0, "%u", num) + 1;
           if (( xitem->cp = malloc((unsigned long)len)) == NULL)
             {
-              (void)fprintf(stderr, "Error: Out of memory?!\n");
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
               exit(EXIT_FAILURE);
               /* NOTREACHED */
             }

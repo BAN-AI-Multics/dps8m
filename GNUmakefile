@@ -16,33 +16,31 @@
 ###############################################################################
 
 ###############################################################################
-# Configuration:
+# Build flags:
+#
+#   <------------------ Maintain spacing and formatting ------------------->
 #
 #     Build flag (ex: make V=1)             Description of build flag
-#    ###########################    #########################################
+#   #############################    #######################################
 #
-#                  V=1                Enable verbose compilation output
-#                  W=1                Enable extra compilation warnings
-#            TESTING=1                Enable developmental testing code
-#        NO_LOCKLESS=1                Enable (old) non-threaded MP mode
-#                L68=1                Build as H6180/Level-68 simulator
-#              CROSS=MINGW64          Enable MinGW-64 cross-compilation
+#       ATOMICS=AIX|BSD|GNU|SYNC        Define specific atomic operations
+#         CROSS=MINGW64                 Enable MinGW-64 cross-compilation
+#           L68=1                       Build as H6180/Level-68 simulator
+#      NEED_128=1                       Enable provided 128-bit int types
+#   NO_LOCKLESS=1                       Enable legacy (non-lockless) code
+#   ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
+#       TESTING=1                       Enable developmental testing code
+#             V=1                       Enable verbose compilation output
+#             W=1                       Enable extra compilation warnings
 #
-#    ********* The following flags are intended for development and *********
-#    ********* may have non-intuitive side-effects or requirements! *********
-#
-#        ROUND_ROBIN=1                  Support un-threaded multiple CPUs
-#           NEED_128=1                  Enable 128-bit types work-arounds
-#        USE_BUILDER="String"           Enable a custom "Built by" string
-#        USE_BUILDOS="String"           Enable a custom "Build OS" string
-#            ATOMICS=AIX|BSD|GNU|SYNC   Define specific atomic operations
+#   <------------------ Maintain spacing and formatting ------------------->
 #
 ###############################################################################
 
 .DEFAULT_GOAL := all
 
 ###############################################################################
-# Pre-build exceptions.
+# Pre-build setup
 
 MAKE_TOPLEVEL = 1
 
@@ -65,35 +63,131 @@ export MAKE_TOPLEVEL
 ###############################################################################
 
 ###############################################################################
-# Build.
+# Builds everything
 
 .PHONY: build default all .rebuild.env
 build default all: .rebuild.env                                               \
     # build:    # Builds the DPS8/M simulator and tools
-	@$(MAKE) -C "." ".rebuild.env";                                           \
+	-@$(PRINTF) '%s\n' "BUILD: Starting simulator and tools build"            \
+      2> /dev/null || $(TRUE)
+	@$(SETV); $(MAKE) -s -C "." ".rebuild.env";                               \
       $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);         \
-        $(MAKE) -C "src/dps8" "all"
+        $(MAKE) -C "src/dps8" "all" &&                                        \
+          $(PRINTF) '%s\n' "BUILD: Successful simulator and tools build"      \
+            2> /dev/null || $(TRUE)
 
 ###############################################################################
-# blinkenLights2 (optional)
+# Print build flags help
+
+.PHONY: flags options .rebuild.env
+options:                                                                      \
+    # options:    # Display help for optional build flags
+	-@$(PRINTF) '%s\n' "Optional build flags:" 2> /dev/null || $(TRUE)
+	-@$(PRINTF) '\n     %s\n' "Usage: $(MAKE) { FLAG=VALUE ... }"             \
+      2> /dev/null || $(TRUE)
+	-@$(PRINTF) '%s\n' "      e.g. \"$(MAKE) TESTING=1 V=1 W=1\""             \
+      2> /dev/null || $(TRUE)
+	-@$(PRINTF) '\n%s\n'                                                      \
+      "   Build flag (ex: make V=1)             Description of build flag"    \
+        2> /dev/null || $(TRUE)
+	-@$(PRINTF) ' %s '                                                        \
+      "-----------------------------"                                         \
+        " -----------------------------------------"                          \
+          2> /dev/null || $(TRUE)
+	-@$(PRINTF) '\n%s\n' "" 2> /dev/null || $(TRUE)
+	@$(GREP) '^#.*=' "GNUmakefile" 2> /dev/null |                             \
+      $(GREP) -v 'vim:' 2> /dev/null | $(GREP) -v 'Build flag' 2> /dev/null | \
+        $(SED) 's/^#  //' 2> /dev/null ||                                     \
+		$(PRINTF) '%s\n' "Error: Unable to display help." || $(TRUE)
+	-@$(PRINTF) '%s\n' "" 2> /dev/null || $(TRUE)
+
+###############################################################################
+# Builds punutil tool
+
+.PHONY: punutil .rebuild.env
+punutil: .rebuild.env                                                         \
+    # punutil:    # Builds the punch card conversion tool
+	-@$(PRINTF) '%s\n' "BUILD: Starting punutil build" 2> /dev/null || $(TRUE)
+	@$(MAKE) -C "." ".rebuild.env";                                           \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);         \
+        $(MAKE) -C "src/punutil" "all" &&                                     \
+          $(PRINTF) '%s\n' "BUILD: Successful punutil build" 2> /dev/null ||  \
+            $(TRUE)
+
+###############################################################################
+# Builds prt2pdf tool
+
+.PHONY: prt2pdf .rebuild.env
+prt2pdf: .rebuild.env                                                         \
+    # prt2pdf:    # Builds the prt2pdf PDF rendering tool
+	-@$(PRINTF) '%s\n' "BUILD: Starting prt2pdf build" 2> /dev/null || $(TRUE)
+	@$(MAKE) -C "." ".rebuild.env";                                           \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);         \
+        $(MAKE) -C "src/prt2pdf" "all" &&                                     \
+          $(PRINTF) '%s\n' "BUILD: Successful prt2pdf build" 2> /dev/null ||  \
+            $(TRUE)
+
+###############################################################################
+# Builds unifdef tool
+
+.PHONY: unifdef .rebuild.env
+unifdef: .rebuild.env                                                         \
+    # unifdef:    # Builds the unifdef pre-processor tool
+	-@$(PRINTF) '%s\n' "BUILD: Starting unifdef build" 2> /dev/null || $(TRUE)
+	@$(MAKE) -C "." ".rebuild.env";                                           \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);         \
+        $(MAKE) -C "src/unifdef" "all" &&                                     \
+          $(PRINTF) '%s\n' "BUILD: successful unifdef build" 2> /dev/null ||  \
+            $(TRUE)
+
+###############################################################################
+# Builds mcmb tool
+
+.PHONY: mcmb .rebuild.env
+mcmb: .rebuild.env                                                            \
+    # mcmb:    # Builds the minicmb combinatorics tool
+	-@$(PRINTF) '%s\n' "BUILD: Starting mcmb build" 2> /dev/null || $(TRUE)
+	-@$(MAKE) -C "." ".rebuild.env";                                          \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);         \
+        $(MAKE) -C "src/mcmb" "all" &&                                        \
+          $(PRINTF) '%s\n' "BUILD: Successful mcmb build" 2> /dev/null ||     \
+            $(TRUE)
+
+###############################################################################
+# Builds blinkenLights2
 
 .PHONY: blinkenLights2 .rebuild.env
 blinkenLights2: .rebuild.env                                                  \
     # blinkenLights2:    # Builds the blinkenLights2 front panel
+	-@$(PRINTF) '%s\n' "BUILD: Starting blinkenLights2 build" 2> /dev/null || \
+      $(TRUE)
+ifeq ($(V),1)
+	@$(SETV); $(MAKE) -C "." ".rebuild.env";                                  \
+      $(TEST) -f ".needrebuild" && $(RMF) blinkenLights2 || $(TRUE);          \
+        ( cd src/blinkenLights2 && $(ENV) VERBOSE=1                           \
+          $(SHELL) ./blinkenLights2.build.sh ) &&                             \
+            $(PRINTF) '%s\n' "BUILD: Successful blinkenLights2 build"         \
+              2> /dev/null || $(TRUE)
+else
 	@$(MAKE) -C "." ".rebuild.env";                                           \
       $(TEST) -f ".needrebuild" && $(RMF) blinkenLights2 || $(TRUE);          \
-        ( cd src/blinkenLights2 && ./blinkenLights2.build.sh )
+        ( cd src/blinkenLights2 && $(SHELL) ./blinkenLights2.build.sh ) &&    \
+          $(PRINTF) '%s\n' "BUILD: Successful blinkenLights2 build"           \
+            2> /dev/null || $(TRUE)
+endif
 
 ###############################################################################
-# Install.
+# Install
 
 .PHONY: install
 install:                                                                      \
     # install:    # Builds and installs the sim and tools
-	@$(MAKE) -C "src/dps8" "install"
+	-@$(PRINTF) '%s\n' "BUILD: Starting install" || $(TRUE)
+	@$(MAKE) -C "src/dps8" "install" &&                                       \
+      $(PRINTF) '%s\n' "BUILD: Successful install" || $(TRUE)
 
 ###############################################################################
-# Clean up compiled objects and executables.
+# Clean up compiled objects and executables
 
 .PHONY: clean
 ifneq (,$(findstring clean,$(MAKECMDGOALS)))
@@ -101,12 +195,14 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 endif
 clean:                                                                        \
     # clean:    # Cleans up executable and object files
+	-@$(PRINTF) '%s\n' "BUILD: Starting clean" 2> /dev/null || $(TRUE)
 	@$(RMF) ".needrebuild" || $(TRUE)
 	@$(RMF) ".rebuild.vne" || $(TRUE)
-	@$(MAKE) -C "src/dps8" "clean"
+	@$(MAKE) -C "src/dps8" "clean" &&                                         \
+      $(PRINTF) '%s\n' "BUILD: Successful clean" 2> /dev/null || $(TRUE)
 
 ###############################################################################
-# Cleans everything `clean` does, plus version info, logs, and state files.
+# Cleans everything `clean` does, plus version info, logs, and state files
 
 .PHONY: distclean
 ifneq (,$(findstring clean,$(MAKECMDGOALS)))
@@ -114,13 +210,15 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 endif
 distclean: clean                                                              \
     # distclean:    # Cleans up tree to pristine conditions
+	-@$(PRINTF) '%s\n' "BUILD: Starting distclean" 2> /dev/null || $(TRUE)
 	@$(RMF) ".needrebuild" || $(TRUE)
 	@$(RMF) ".rebuild.env" || $(TRUE)
 	@$(RMF) ".rebuild.vne" || $(TRUE)
-	@$(MAKE) -C "src/dps8" "distclean"
+	@$(MAKE) -C "src/dps8" "distclean" &&                                     \
+      $(PRINTF) '%s\n' "BUILD: Successful distclean" 2> /dev/null || $(TRUE)
 
 ###############################################################################
-# Cleans everything `distclean` does, plus attempts to flush compiler caches.
+# Cleans everything `distclean` does, plus attempts to flush compiler caches
 
 .PHONY: superclean realclean reallyclean
 ifneq (,$(findstring clean,$(MAKECMDGOALS)))
@@ -128,7 +226,9 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 endif
 superclean realclean reallyclean: distclean                                   \
     # superclean:    # Cleans up tree fully and flush ccache
-	@$(MAKE) -C "src/dps8" "superclean"
+	-@$(PRINTF) '%s\n' "BUILD: Starting superclean" 2> /dev/null || $(TRUE)
+	@$(MAKE) -C "src/dps8" "superclean" &&                                    \
+      $(PRINTF) '%s\n' "BUILD: Successful superclean" 2> /dev/null || $(TRUE)
 
 ###############################################################################
 
@@ -164,6 +264,7 @@ ifneq (,$(wildcard src/Makefile.dep))
 endif
 
 ###############################################################################
+# Print help output
 
 .PHONY: help info
 help info:                                                                    \

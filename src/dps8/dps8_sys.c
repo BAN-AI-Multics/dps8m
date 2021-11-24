@@ -80,7 +80,6 @@
 // emulation that will be ignored.
 // Building with SCUMEM defined puts the memory in the SCUs.
 
-
 struct system_state_s * system_state;
 
 #ifndef SCUMEM
@@ -4068,6 +4067,7 @@ static void systabInit (void) {
 // Once-only initialization; invoked by simh
 
 static void dps8_init (void) {
+  fflush(stderr); fflush(stdout);
 #ifndef PERF_STRIP
   if (!sim_quiet) {
 # if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_VERSION)
@@ -4127,6 +4127,8 @@ static void dps8_init (void) {
 # if defined(GENERATED_MAKE_VER_H) && defined(VER_H_GIT_HASH)
     sim_msg ("\n  Commit: %s", VER_H_GIT_HASH);
 # endif
+    sim_msg ("\r\n\r\n");
+    fflush(stderr); fflush(stdout);
   }
 
   // special dps8 initialization stuff that cant be done in reset, etc .....
@@ -4142,35 +4144,13 @@ static void dps8_init (void) {
   // This is needed to make sbreak work
   sim_brk_types = sim_brk_dflt = SWMASK ('E');
 
-//#ifndef __MINGW64__
-//    // Create a session for this dps8m system instance.
-//    dps8m_sid = setsid ();
-//    if (dps8m_sid == (pid_t) -1)
-//      dps8m_sid = getsid (0);
-//#ifdef DPS8M
-//    sim_msg ("DPS8M system session id is %d\n", dps8m_sid);
-//#endif
-//#ifdef L68
-//    sim_msg ("L68 system session id is %d\n", dps8m_sid);
-//#endif
-//#endif
-
 # ifndef __MINGW64__
 #  ifndef __MINGW32__
 #   ifndef CROSS_MINGW32
 #    ifndef CROSS_MINGW64
   // Wire the XF button to signal USR1
   signal (SIGUSR1, usr1_signal_handler);
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
-
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
-// On line 4,739 of the libuv man page, it recommends this.
+  // On line 4,739 of the libuv man page, it recommends this.
   signal(SIGPIPE, SIG_IGN);
 #    endif /* ifndef CROSS_MINGW64 */
 #   endif /* ifndef CROSS_MINGW32 */
@@ -4182,22 +4162,52 @@ static void dps8_init (void) {
 # endif
 #endif // ! PERF_STRIP
 
+#if defined(__MINGW64__) || defined(__MINGW32__)
+# include "bsd_random.h"
+# define random  bsd_random
+# define srandom bsd_srandom
+#endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
+
+  int    rcap = 0;
+  int    rnum = 0;
+  char   rssuffix[20];
+  char   statenme[30];
+  struct timespec ts;
+
+  memset(statenme, 0, sizeof(&statenme));
+  memset(rssuffix, 0, sizeof(&rssuffix));
+  (void)clock_gettime(CLOCK_REALTIME, &ts);
+  srandom((unsigned int)(getpid() ^ (ts.tv_sec * ts.tv_nsec)));
+
+  for (int i = 1; i < 21; ++i) {
+    rcap = (int)random() % 2;
+    rnum = (int)random() % 3;
+    if (!rnum) rnum = (((int)random() % 10) + 48);
+    if (!rcap) rcap = 33;
+    if (rnum >= 48) rssuffix[i-1]=rnum;
+    else rssuffix[i-1]=(char)(((long)random() % 26) + 64) + rcap;
+  }
+
+
 #if defined(__MINGW64__)   || \
     defined(__MINGW32__)   || \
     defined(CROSS_MINGW32) || \
     defined(CROSS_MINGW64)
   system_state = malloc (sizeof (struct system_state_s));
 #else
+  if (sim_randstate)
+    sprintf(statenme, "%s.state", rssuffix);
+  else
+    sprintf(statenme, "state");
   system_state = (struct system_state_s *)
-    create_shm ("state", sizeof (struct system_state_s));
+    create_shm (statenme, sizeof (struct system_state_s));
 #endif
 
-  if (! system_state) {
+  if (!system_state) {
     int svErrno = errno;
-    sim_warn ("Unable to create or access system state\r\n"
-              "Error (%d) is %s\r\n"
-              "Aborting run...\r\n",
-              svErrno, strerror (svErrno));
+    fflush(stderr); fflush(stdout);
+    sim_warn ("FATAL: %s, aborting %s()\r\n",
+              strerror (svErrno), __func__);
     exit (svErrno);
   }
 
@@ -4207,19 +4217,23 @@ static void dps8_init (void) {
 #  define VER_H_GIT_HASH "0000000000000000000000000000000000000000"
 # endif
 
+    fflush(stdout); fflush(stderr);
   if (strlen (system_state->commit_id) == 0) {
-    if (!sim_quiet) {
-      sim_printf ("\r\nSetting up new system state\r\n");
-    }
+    if (!sim_quiet && sim_randstate && sim_randompst)
+# ifdef L68
+      sim_printf ("Initialized new system state file \"l68.%s\"\r\n",
+                  statenme);
+# else
+      sim_printf ("Initialized new system state file \"dps8m.%s\"\r\n",
+                  statenme);
+# endif /* ifdef L68 */
   } else {
     if (strcmp (system_state->commit_id, VER_H_GIT_HASH) != 0) {
-      sim_warn ("\r\n\r\nWARNING: system_state hash changed; system state may be corrupt!\r\n");
-    } else {
-      if (!sim_quiet) {
-        sim_printf ("\r\nSystem state restored\r\n");
-      }
+      sim_warn ("WARNING: System state hash mismatch; \"%s\" may be corrupt!\r\n",
+                statenme);
     }
   }
+  fflush(stderr); fflush(stdout);
 
   strncpy (system_state->stateHdr, STATE_HDR, sizeof (system_state->stateHdr));
   system_state->stateVer = STATE_VER;
@@ -4315,7 +4329,6 @@ static struct pr_table
     {"lb",  5},
     {"sp",  6},
     {"sb",  7},
-
     {0,     0}
   };
 

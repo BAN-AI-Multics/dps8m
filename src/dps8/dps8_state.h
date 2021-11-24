@@ -87,4 +87,9 @@ struct system_state_s {
 
 #ifndef API
 extern struct system_state_s * system_state;
+#else
+int sim_iglock = 0;
+int sim_nolock = 0;
+int sim_randompst = 0;
+int sim_randstate = 0;
 #endif

@@ -40,17 +40,23 @@
    sim_fsize_name_ex -       get file size as a t_offset of named file
    sim_buf_copy_swapped -    copy data swapping elements along the way
    sim_buf_swap_data -       swap data elements inplace in buffer
-   sim_shmem_open            create or attach to a shared memory region
-   sim_shmem_close           close a shared memory region
 
    sim_fopen and sim_fseek are OS-dependent.  The other routines are not.
-   sim_fsize is always a 32b routine (it is used only with small capacity random
-   access devices like fixed head disks and DECtapes).
 */
 
+#include <fcntl.h>
+#include <sys/file.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "sim_defs.h"
+
 #include "../decNumber/decContext.h"
 #include "../decNumber/decNumberLocal.h"
+
+#ifndef DECLITEND
+# error Unknown platform endianness
+#endif /* ifndef DECLITEND */
 
 t_bool sim_end;                     /* TRUE = little endian, FALSE = big endian */
 t_bool sim_taddr_64;                /* t_addr is > 32b and Large File Support available */
@@ -216,11 +222,57 @@ return (uint32)(sim_fsize_ex (fp));
 
 FILE *sim_fopen (const char *file, const char *mode)
 {
+FILE *fsc = NULL;
+#if defined(USE_FCNTL) || defined(USE_FLOCK)
+# include <fcntl.h>
+# include <sys/stat.h>
+# include <sys/types.h>
+int writable = 0;
+int rc = 0;
+if (strstr(mode, "+") != NULL)
+  writable = 1;
+if (strstr(mode, "w") != NULL)
+  writable = 1;
+if (strstr(mode, "a") != NULL)
+  writable = 1;
+#endif /* if defined(USE_FCNTL) || defined(USE_FLOCK) */
 #if (defined (__linux) || defined (__linux__) || defined (_AIX)) && !defined (DONT_DO_LARGEFILE)
-return fopen64 (file, mode);
+fsc = fopen64 (file, mode);
 #else
-return fopen (file, mode);
+fsc = fopen (file, mode);
 #endif
+#if defined(USE_FCNTL)
+struct flock lock;
+memset (&lock, 0, sizeof(lock));
+lock.l_type = F_WRLCK;
+if (writable && !sim_nolock) {
+  if (fsc != NULL)
+    rc = fcntl (fileno(fsc), F_SETLK, &lock);
+  if (rc < 0) {
+    if (!sim_quiet) {
+      sim_printf ("%s(%s): %s",
+                  __func__, mode, strerror(errno));
+      if (fcntl(fileno(fsc), F_GETLK, &lock) == 0 && lock.l_pid > 0)
+        sim_printf (" (locked by PID %lu)",
+                   (unsigned long)lock.l_pid);
+      sim_printf ("\r\n");
+    }
+    if (!sim_iglock) return NULL;
+  }
+}
+#elif defined(USE_FLOCK) /* if defined(USE_FCNTL) */
+if (writable && !sim_nolock) {
+  if (fsc != NULL)
+    rc = flock (fileno(fsc), LOCK_EX | LOCK_NB);
+  if (rc < 0) {
+    if (!sim_quiet)
+      sim_printf ("%s(%s): %s (locked?)\r\n",
+                  __func__, mode, strerror(errno));
+    if (!sim_iglock) return NULL;
+  }
+}
+#endif /* elif defined(USE_FLOCK) */
+return fsc;
 }
 
 #if !defined (DONT_DO_LARGEFILE)

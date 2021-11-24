@@ -136,7 +136,7 @@ static bool       lnnum;                     /*  -n: add #line directives  */
 static bool       symlist;                   /*  -s: output symbol list    */
 static bool       symdepth;                  /*  -S: output symbol depth   */
 static bool       text;                      /*  -t: this is a text file   */
-static bool       showbuild;                 /*  -V: show full build info  */
+static bool       showbuild;                 /*  -V: show build info       */
 static bool       showversion;               /*  -v: show version          */
 static const char *symname[MAXSYMS];         /*  symbol name               */
 static const char *value[MAXSYMS];           /*  -Dsym=value               */
@@ -576,7 +576,8 @@ version(void)
       putc('\n', stderr);
     }
   }
-#ifdef BUILDINFO_unifdef
+#if ( defined(__VERSION__) && defined(__GNUC__) ) \
+  || ( defined(__VERSION__) && defined(__clang_version__) )
   if (showbuild)
   {
 # ifdef __VERSION__
@@ -597,9 +598,8 @@ version(void)
     fprintf(stderr, "Compiler: %s\n", __VERSION__ );
 #  endif /* ifdef __GNUC__ */
 # endif /* ifdef __VERSION__ */
-    fprintf(stderr, "   Build: %s\n", BUILDINFO_unifdef );
   }
-#endif /* ifdef BUILDINFO_unifdef */
+#endif
   exit(0);
 }
 
@@ -2317,7 +2317,7 @@ astrcat(const char *s1, const char *s2)
   len = snprintf(NULL, 0, "%s%s", s1, s2);
   if (len < 0)
   {
-    fprintf(stderr, "ERROR: snprintf failure in astrcat\n");
+    fprintf(stderr, "FATAL: snprintf failure in astrcat\n");
         exit(1);
   }
 
@@ -2325,7 +2325,7 @@ astrcat(const char *s1, const char *s2)
   s = (char *)malloc(size);
   if (s == NULL)
   {
-    fprintf(stderr, "ERROR: malloc failure in astrcat\n");
+    fprintf(stderr, "FATAL: malloc failure in astrcat\n");
         exit(1);
   }
 
@@ -2351,7 +2351,7 @@ xstrdup(const char *start, const char *end)
   s = (char *)malloc(n);
   if (s == NULL)
   {
-    fprintf(stderr, "ERROR: malloc failure in xstrdup\n");
+    fprintf(stderr, "FATAL: malloc failure in xstrdup\n");
         exit(1);
   }
 

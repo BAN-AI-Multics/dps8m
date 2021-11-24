@@ -14,6 +14,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#if defined(__sunos) && defined(SYSV)
+# include <sys/param.h>
+#endif /* if defined(__sunos) && defined(SYSV) */
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
@@ -71,7 +75,7 @@ utfile_mkstemps(char *request_pattern, int suffix_length)
         = valid_file_name_chars[random() % valid_char_count];
     }
 
-    int fd = open(pattern, O_CREAT | O_RDWR | O_EXCL, 0600);
+    int fd = open(pattern, O_CREAT | O_RDWR | O_EXCL, S_IRUSR | S_IWUSR);
 
     if (fd >= 0)
     {
