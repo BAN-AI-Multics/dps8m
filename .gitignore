@@ -18,6 +18,7 @@ a.out
 .project
 .settings/
 .vscode/
+.nvimlog
 
 # Tags
 tags
@@ -71,6 +72,12 @@ src/dps8/errnos.h
 tags
 dps8m.state
 l68.state
+.dps8m.state
+.l68.state
+dps8m*.state
+.dps8m*.state
+l68*.state
+.l68*.state
 needrebuild
 .needrebuild
 rebuild.env

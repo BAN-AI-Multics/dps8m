@@ -71,12 +71,20 @@ Internal routines:
 
 #include "sim_defs.h"
 #include "sim_disk.h"
+
 #include <ctype.h>
 #include <sys/stat.h>
 
+#include "../decNumber/decContext.h"
+#include "../decNumber/decNumberLocal.h"
+
 #ifdef _WIN32
 # include <windows.h>
-#endif
+#endif /* ifdef _WIN32 */
+
+#ifndef DECLITEND
+# error Unknown platform endianness
+#endif /* ifndef DECLITEND */
 
 struct disk_context {
     DEVICE              *dptr;              /* Device for unit (access to debug flags) */
@@ -449,6 +457,7 @@ if ((0 == (ctx->sector_size & (ctx->storage_sector_size - 1))) ||   /* Sector Al
     ((0 == ((lba*ctx->sector_size) & (ctx->storage_sector_size - 1))) &&
      (0 == ((sects*ctx->sector_size) & (ctx->storage_sector_size - 1))))) {
 
+    sim_end = DECLITEND;
     if (sim_end || (ctx->xfer_element_size == sizeof (char)))
         switch (DK_GET_FMT (uptr)) {                            /* case on format */
             case DKUF_F_VHD:                                    /* VHD format */

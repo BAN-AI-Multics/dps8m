@@ -50,12 +50,12 @@ s5:
 s6:
 	@printf '%s\n' "Start Stage 6: Run isolts.expect"
 	env CPUPROFILE=isolts.prof.out ./isolts.sh 0
-	@printf '%s\n' "End Stage 5"
+	@printf '%s\n' "End Stage 6"
 
 s7:
 	@printf '%s\n' "Start Stage 7: Run performance test"
 	env CPUPROFILE=perf.prof.out ./perf.sh 0
-	@printf '%s\n' "End Stage 5"
+	@printf '%s\n' "End Stage 7"
 
 .PHONY : diff
 

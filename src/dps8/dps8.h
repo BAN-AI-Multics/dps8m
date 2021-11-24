@@ -19,6 +19,7 @@
 # include <stdbool.h>
 # include <errno.h>
 # include <inttypes.h>
+# include <sys/stat.h>
 # include <sys/time.h>
 # include <setjmp.h>  // for setjmp/longjmp used by interrupts & faults
 

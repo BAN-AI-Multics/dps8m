@@ -141,7 +141,7 @@ int GLOBAL_GREEN_BAR;
    PageList *n = (PageList *)malloc(sizeof(*n));
 
    if(n == NULL) {
-      fprintf(stderr,"Unable to allocate array for page %d.", GLOBAL_NUM_PAGES + 1);
+      fprintf(stderr,"FATAL: Unable to allocate array for page %d.", GLOBAL_NUM_PAGES + 1);
       exit(1);
    }
    n->next = NULL;
@@ -167,7 +167,7 @@ int GLOBAL_GREEN_BAR;
            new_xrefs = (long *)malloc(new_num_xrefs * sizeof(*new_xrefs));
 
            if(new_xrefs == NULL) {
-              fprintf(stderr, "Unable to allocate array for object %d.", id);
+              fprintf(stderr, "FATAL: Unable to allocate array for object %d.", id);
               exit(1);
            }
 
@@ -761,10 +761,9 @@ int main(int argc, char **argv) {
            case 'X': showhelp(2);
                                                                                               break;
            case 'V': ;
-#ifdef BUILDINFO_prt2pdf
-# ifdef __VERSION__
-#  ifdef __GNUC__
-#   ifndef __clang_version__
+#ifdef __VERSION__
+# ifdef __GNUC__
+#  ifndef __clang_version__
                      char xcmp[2];
                      sprintf(xcmp, "%.1s", __VERSION__ );
                      if (!isdigit((int)xcmp[0]))
@@ -773,15 +772,13 @@ int main(int argc, char **argv) {
                      } else {
                          fprintf (stderr, "Compiler: GCC %s\n", __VERSION__ );
                      }
-#   else
-                     fprintf (stderr, "Compiler: %s\n", __VERSION__ );
-#   endif /* ifndef __clang_version__ */
 #  else
                      fprintf (stderr, "Compiler: %s\n", __VERSION__ );
-#  endif /* ifdef __GNUC__ */
-# endif /* ifdef __VERSION__ */
-                     fprintf (stderr, "   Build: %s\n", BUILDINFO_prt2pdf );
-#endif /* ifdef BUILDINFO_prt2pdf */
+#  endif /* ifndef __clang_version__ */
+# else
+                     fprintf (stderr, "Compiler: %s\n", __VERSION__ );
+# endif /* ifdef __GNUC__ */
+#endif /* ifdef __VERSION__ */
                      exit(1);
         break; /* build info               */
            case 'v': fprintf (stderr, "prt2pdf version %d\n",GLOBAL_VERSION); exit(2);        break; /* version                  */

@@ -212,7 +212,11 @@ t_stat scp_vhelpFromFile (FILE *st, DEVICE *dptr,
 extern DEVICE *sim_dflt_dev;
 extern int32 sim_interval;
 extern int32 sim_switches;
+extern int32 sim_iglock;
+extern int32 sim_nolock;
+extern int32 sim_randompst;
 extern int32 sim_quiet;
+extern int32 sim_randstate;
 extern int32 sim_step;
 extern t_stat sim_last_cmd_stat;                        /* Command Status */
 extern FILE *sim_log;                                   /* log file */

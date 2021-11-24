@@ -56,7 +56,7 @@ static uint32_t lookup (struct system_state_s * p, uint32_t stype, char * name, 
       return * value;
     }
   }
-  fprintf (stderr, "Lookup of '%s' failed.\n", name);
+  fprintf (stderr, "FATAL: Lookup of '%s' failed, aborting %s()\n", name, __func__);
   exit (1);
 }
 
@@ -372,7 +372,7 @@ static void * openShm (char * key) {
 #else
   sprintf (buf, "dps8m.%s", key);
 #endif /* ifdef L68 */
-  int fd = open (buf, O_RDWR | O_CREAT, 0600);
+  int fd = open (buf, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (fd == -1)
     handleError ("open");
 

@@ -65,11 +65,11 @@ void trk_init (bool write)
   {
     if (write)
       {
-        fd = open ("track.dat", O_WRONLY | O_CREAT | O_TRUNC, 0660);
+        fd = open ("track.dat", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
       }
     else
       {
-        fd = open ("track.dat", O_RDONLY, 0660);
+        fd = open ("track.dat", O_RDONLY, 0);
       }
     if (fd == -1)
       {

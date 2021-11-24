@@ -9,5 +9,5 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
-void * create_shm (char * key, size_t size);
-void * open_shm (char * key, size_t size);
+void *create_shm(char *key, size_t size);
+void *open_shm(char *key, size_t size);
