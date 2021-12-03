@@ -1004,11 +1004,12 @@ static int loadVFCImage (uint iom_unit_idx, uint chan)
     return 0;
   }
 
-static int print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, bool isBCD, bool is_edited, int slew)
+static iom_cmd_rc_t print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, bool isBCD, bool is_edited, int slew)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
     p->isRead = false;
 
+#if 0
 // The EURC MPC printer controller sets the number of DCWs in the IDCW and
 // ignores the IOTD bits in the DDCWs.
 
@@ -1041,7 +1042,7 @@ static int print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, bool isBCD
             p -> stati = 05001; // BUG: arbitrary error code; config switch
             return IOM_CMD_ERROR;
           }
-
+#endif
         uint tally = p -> DDCW_TALLY;
         sim_debug (DBG_DEBUG, & prt_dev,
                    "%s: Tally %d (%o)\n", __func__, tally, tally);
@@ -1060,7 +1061,7 @@ static int print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, bool isBCD
 #if 0
 for (uint i = 0; i < tally; i ++)
    sim_printf (" %012"PRIo64"", buffer[i]);
-sim_printf ("\n");
+sim_printf ("\r\n");
 #endif
 
 #if 0
@@ -1095,11 +1096,13 @@ sim_printf ("\n");
             prt_state[prt_unit_num].prtfile = -1;
           }
 #endif
+#if 0
     } // for (ddcwIdx)
-
+#endif
     p -> tallyResidue = 0;
     p -> stati = 04000;
-    return IOM_CMD_PROCEED;
+    //return IOM_CMD_PROCEED;
+    return IOM_CMD_RESIDUE;
   }
 
 
@@ -1169,9 +1172,9 @@ iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
       break;
 
     case prtPrt: {
-        int rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD, statep->isEdited, statep->slew);
+        iom_cmd_rc_t rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD, statep->isEdited, statep->slew);
         if (rc)
-          return IOM_CMD_ERROR;
+          return rc;
       }
       break;
 
@@ -1256,9 +1259,9 @@ iom_cmd_rc_t prt_cmd_300 (uint iomUnitIdx, uint chan) {
       break;
 
     case prtPrt: {
-        int rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD, statep->isEdited, statep->slew);
+        iom_cmd_rc_t rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD, statep->isEdited, statep->slew);
         if (rc)
-        return IOM_CMD_ERROR;
+          return rc;
       }
       break;
 
@@ -1348,9 +1351,9 @@ iom_cmd_rc_t prt_cmd_300a (uint iomUnitIdx, uint chan) {
       break;
 
     case prtPrt: {
-        int rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD, statep->isEdited, statep->slew);
+        iom_cmd_rc_t rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD, statep->isEdited, statep->slew);
         if (rc)
-          return IOM_CMD_ERROR;
+          return rc;
       }
       break;
 
@@ -1678,9 +1681,9 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
       break;
 
     case prtPrt: {
-        int rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD, statep->isEdited, statep->slew);
+        iom_cmd_rc_t rc = print_cmd (iomUnitIdx, chan, statep->prtUnitNum, statep->isBCD, statep->isEdited, statep->slew);
         if (rc)
-          return IOM_CMD_ERROR;
+          return rc;
       }
       break;
 
