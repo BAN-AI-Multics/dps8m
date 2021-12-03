@@ -23,26 +23,29 @@
 #include "dps8_iom.h"
 #include "dps8_cable.h"
 #include "dps8_utils.h"
-
+#include "dnpkt.h"
 #define DBG_CTR 1
 
 #ifdef THREADZ
 # include "threadz.h"
 #endif
 
+#define ASSUME0 0 // XXX
 
+void onRead (uv_udp_t * req, ssize_t nread, const uv_buf_t * buf, const struct sockaddr * addr, unsigned flags);
 // libuv interface
 
 //
-// alloc_buffer: libuv callback handler to allocate buffers for incomingd data.
+// allocBuffer: libuv callback handler to allocate buffers for incomingd data.
 //
 
-static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size,
-                          uv_buf_t * buf)
-  {
-    * buf = uv_buf_init ((char *) malloc (suggested_size), (uint) suggested_size);
+static void allocBuffer (UNUSED uv_handle_t * handle, size_t suggested_size, uv_buf_t * buf) {
+  char * p = (char *) malloc (suggested_size);
+  if (! p) {
+     sim_warn ("%s malloc fail\r\n", __func__);
   }
-
+  * buf = uv_buf_init (p, (uint) suggested_size);
+}
 
 /* From sim_sock.c */
 
@@ -116,7 +119,7 @@ static int sim_parse_addr (const char *cptr, char *host, size_t host_len, const 
     if ((*endc == '\0') && ((portval == 0) || (portval > 65535)))
       return -1;                                      /* numeric value too big */
     if (*endc != '\0') {
-      struct servent *se = getservbyname (portp, "tcp");
+      struct servent *se = getservbyname (portp, "udp");
 
       if (se == NULL)
         return -1;                                  /* invalid service name */
@@ -249,6 +252,7 @@ static int udp_parse_remote (const char * premote, int32_t * lport, char * rhost
   return 0;
 }
 
+#if 0
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
 #ifdef THREADZ
@@ -263,6 +267,8 @@ static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char *
     unlock_mem ();
 #endif
   }
+#endif
+
 #define N_DIA_UNITS 1 // default
 #define DIA_UNIT_IDX(uptr) ((uptr) - dia_unit)
 
@@ -438,11 +444,11 @@ static t_stat reset (UNUSED DEVICE * dptr)
 static t_stat dia_attach (UNIT * uptr, const char * cptr) {
   if (! cptr)
     return SCPE_ARG;
-  int unitIdx = (int) (uptr - dia_unit);
+  int diaUnitIdx = (int) (uptr - dia_unit);
+  struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
+
 
   // ATTACH DNn llll:w.x.y.z:rrrr - connect via UDP to a remote simh host
-
-  char * pfn;
 
   // If we're already attached, then detach ...
   if ((uptr->flags & UNIT_ATT) != 0)
@@ -451,38 +457,73 @@ static t_stat dia_attach (UNIT * uptr, const char * cptr) {
   // Make a copy of the "file name" argument.  dn_udp_create() actually modifies
   // the string buffer we give it, so we make a copy now so we'll have
   // something to display in the "SHOW DNn ..." command.
-  pfn = (char *) calloc (CBUFSIZE, sizeof (char));
-  if (pfn == NULL)
-    return SCPE_MEM;
-  strncpy (pfn, cptr, CBUFSIZE);
+  strncpy (dudp->attachAddress, cptr, ATTACH_ADDRESS_SZ);
+  uptr->filename = dudp->attachAddress;
 
   int32_t lport, rport;
   char rhost[64];
   int rc = udp_parse_remote (cptr, & lport, rhost, sizeof (rhost), & rport);
   if (rc) {
-    sim_warn ("unable to parse address\r\n");
+    sim_warn ("%s unable to parse address %d\r\n", __func__, rc);
     return SCPE_ARG;
   }
   // sim_printf ("%d %d:%s:%d\r\n", rc, lport, rhost, rport);
 
-  struct sockaddr_in addr;
-  uv_ip4_addr ("0.0.0.0", lport, & addr);
+// Set up send
 
-  rc = uv_udp_init (uv_default_loop (), & dia_data.dia_unit_data[unitIdx].socket);
+  rc = uv_udp_init (uv_default_loop (), & dudp->udpSendHandle);
   if (rc) {
-    sim_warn ("unable to init socket\r\n");
+    sim_warn ("%s unable to init udpSendHandle %d\r\n", __func__, rc);
     return SCPE_ARG;
   }
-  rc = uv_udp_bind (& dia_data.dia_unit_data[unitIdx].socket, (struct sockaddr *) & addr, UV_UDP_REUSEADDR);
+
+  struct sockaddr_in laddr;
+  uv_ip4_addr ("0.0.0.0", lport, & laddr);
+#if 0
+  rc = uv_udp_bind (& dudp->udpSendHandle, (struct sockaddr *) & laddr, UV_UDP_REUSEADDR);
   if (rc) {
-    sim_warn ("unable to bind socket\r\n");
+    sim_warn ("%s unable to bind udpSendHandle %d\r\n", __func__, rc);
     return SCPE_ARG;
   }
+#endif
+
+  struct sockaddr_in raddr;
+  uv_ip4_addr (rhost, rport, & raddr);
+  rc = uv_udp_connect (& dudp->udpSendHandle, (struct sockaddr *) & raddr);
+  if (rc) {
+    sim_warn ("%s unable to connect udpSendHandle %d\r\n", __func__, rc);
+    return SCPE_ARG;
+  }
+
+// Set up receive
+
+  rc = uv_udp_init (uv_default_loop (), & dudp->udpRecvHandle);
+  if (rc) {
+    sim_printf ("%s unable to init udpRecvHandle %d\r\n", __func__, rc);
+    return SCPE_ARG;
+  }
+
+  //struct sockaddr_in laddr;
+  //uv_ip4_addr ("0.0.0.0", lport, & laddr);
+  rc = uv_udp_bind (& dudp->udpRecvHandle, (struct sockaddr *) & laddr, UV_UDP_REUSEADDR);
+  if (rc) {
+    sim_printf ("%s unable to bind udpRecvHandle %d\r\n", __func__, rc);
+    return SCPE_ARG;
+  }
+
+  struct ctlr_to_iom_s * there = & cables->dia_to_iom[diaUnitIdx][ASSUME0];
+sim_printf ("DIAA at %u %u\r\n", there->iom_unit_idx, there->chan_num);
+  dudp->clientData.magic = DIA_CLIENT_MAGIC;
+  dudp->clientData.iomUnitIdx = there->iom_unit_idx;
+  dudp->clientData.chan = there->chan_num;
+  dudp->clientData.diaUnitIdx = diaUnitIdx;
+  dudp->udpRecvHandle.data = & dudp->clientData;
+  uv_udp_recv_start (& dudp->udpRecvHandle, allocBuffer, onRead);
+
+
 
   uptr->flags |= UNIT_ATT;
-  uptr->filename = pfn;
-  //free (pfn);
-  dia_data.dia_unit_data[unitIdx].connected = true;
+  //dudp->connected = true;
   return SCPE_OK;
 }
 
@@ -492,17 +533,18 @@ static void close_cb (uv_handle_t * stream) {
 
 // Detach (connect) ...
 static t_stat dia_detach (UNIT * uptr) {
-  int unitIdx = (int) (uptr - dia_unit);
+  int diaUnitIdx = (int) (uptr - dia_unit);
+  struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
   if ((uptr->flags & UNIT_ATT) == 0)
     return SCPE_OK;
-  if (! dia_data.dia_unit_data[unitIdx].connected)
-    return SCPE_OK;
+  //if (! dudp->connected)
+    //return SCPE_OK;
 
-  uv_close ((uv_handle_t *) & dia_data.dia_unit_data[unitIdx].socket, close_cb);
+  uv_close ((uv_handle_t *) & dudp->udpSendHandle, close_cb);
 
-  dia_data.dia_unit_data[unitIdx].connected = false;
+  //dudp->connected = false;
   uptr->flags &= ~ (unsigned int) UNIT_ATT;
-  free (uptr->filename);
+  //free (uptr->filename);
   uptr->filename = NULL;
   return SCPE_OK;
 }
@@ -569,24 +611,28 @@ struct mailbox
     struct fnp_submailbox fnp_sub_mbxes [4];
   };
 
-#define MAILBOX_WORDS (sizeof (struct mailbox) / sizeof (word36))
-#define TERM_INPT_MPX_WD (offsetof (struct mailbox, term_inpt_mpx_wd) / sizeof (word36))
-#define DIA_PCW                     (offsetof (struct mailbox, dia_pcw) / sizeof (word36))
+#define MAILBOX_WORDS             (sizeof (struct mailbox) / sizeof (word36))
+#define DIA_PCW                 (offsetof (struct mailbox, dia_pcw) / sizeof (word36))
+#define TERM_INPT_MPX_WD        (offsetof (struct mailbox, term_inpt_mpx_wd) / sizeof (word36))
+#define CRASH_DATA              (offsetof (struct mailbox, crash_data) / sizeof (word36))
+#define DN355_SUB_MBXES         (offsetof (struct mailbox, dn355_sub_mbxes) / sizeof (word36))
+#define FNP_SUB_MBXES           (offsetof (struct mailbox, fnp_sub_mbxes) / sizeof (word36))
 
 
 //
 // Once-only initialization
 //
 
-void dia_init (void)
-  {
-    // 0 sets set service to service_undefined
-    memset(& dia_data, 0, sizeof(dia_data));
-    for (uint unit_num = 0; unit_num < N_DIA_UNITS_MAX; unit_num ++)
-      {
-      }
+void dia_init (void) {
+  // 0 sets set service to service_undefined
+  memset(& dia_data, 0, sizeof (dia_data));
+  for (uint diaUnitIdx = 0; diaUnitIdx < N_DIA_UNITS_MAX; diaUnitIdx ++) {
+    struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
+    uv_udp_init (uv_default_loop (), & dudp->udpSendHandle);     
   }
+}
 
+#if 0
 static inline void fnp_core_write (word24 addr, word36 data, UNUSED const char * ctx)
   {
 #ifdef THREADZ
@@ -601,7 +647,9 @@ static inline void fnp_core_write (word24 addr, word36 data, UNUSED const char *
     unlock_mem ();
 #endif
   }
+#endif
 
+#if 0
 //
 // Convert virtual address to physical
 //
@@ -612,17 +660,18 @@ static uint virtToPhys (uint ptPtr, uint l66Address)
     uint l66AddressPage = l66Address / 1024u;
 
     word36 ptw;
-#ifdef SCUMEM
     uint iomUnitIdx = (uint) cables->cablesFromIomToFnp [decoded.devUnitIdx].iomUnitIdx;
+#ifdef SCUMEM
     iom_core_read (iomUnitIdx, pageTable + l66AddressPage, & ptw, "fnpIOMCmd get ptw");
 #else
-    fnp_core_read (pageTable + l66AddressPage, & ptw, "fnpIOMCmd get ptw");
+    //fnp_core_read (pageTable + l66AddressPage, & ptw, "fnpIOMCmd get ptw");
+    iom_direct_data_service (iomUnitIdx, chan, pateTable + l66AddressPage, & ptw, direct_load);
 #endif
     uint page = getbits36_14 (ptw, 4);
     uint addr = page * 1024u + l66Address % 1024u;
     return addr;
   }
-
+#endif
 
 //
 // udp packets
@@ -631,24 +680,108 @@ static uint virtToPhys (uint ptPtr, uint l66Address)
 //     cmd 1 - bootload
 //
 
+static void dnSendCB (uv_udp_send_t * req, int status) {
+sim_printf ("send cb %d\r\n", status);
+}
+
+static void dnSend (dnPkt * pkt, struct dia_unit_data * dudp) {
+  uv_udp_send_t * req = malloc (sizeof (uv_udp_send_t));
+  if (! req) {
+    sim_warn ("%s req malloc fail\r\n", __func__);
+    return;
+  }
+  uv_buf_t * bufs = malloc (sizeof (uv_buf_t));
+  if (! bufs) {
+    sim_warn ("%s bufs malloc fail\r\n", __func__);
+    return;
+  }
+  bufs[0].base = (char *) pkt;
+  bufs[0].len = sizeof (dnPkt);
+  int rc = uv_udp_send (req, & dudp->udpSendHandle, bufs, 1, NULL, dnSendCB);
+  if (rc < 0) {
+    fprintf (stderr, "%s uv_udp_send failed %d\n", __func__, rc);
+  }
+}
+
+void processCmdR (uv_udp_t * req, dnPkt * pkt) {
+  diaClientData * cdp = (diaClientData *) req->data;
+  struct dia_unit_data * dudp = & dia_data.dia_unit_data[cdp->diaUnitIdx];
+  word24 addr;
+  int n = sscanf (pkt->cmdR.addr, "%o", & addr);
+  if (n != 1) {
+    sim_printf ("%s unable to extract address\r\n", __func__);
+  } else {
+    sim_printf ("R %08o\r\n", addr);
+    if (!cdp || cdp->magic != DIA_CLIENT_MAGIC) {
+      sim_printf ("no magic\r\n");
+      return;
+    }
+//sim_printf ("dia @ %u %u\r\n", cdp->iomUnitIdx, cdp->chan);
+  word36 data;
+  // We can't use data service because the address is externally specified,
+  // not part of a DCW list.
+  // Actually, we can and must. The transfer is under control
+  // of a CIOC, however indirectly and the addressing data
+  // in the PCW is part of the transfer
+    iom_chan_data_t * p = & iom_chan_data[cdp->iomUnitIdx][cdp->chan];
+sim_printf ("%s %o %o %o\n", __func__, p->PCW_63_PTP, p->PCW_64_PGE, p->PCW_PAGE_TABLE_PTR);
+sim_printf ("%s tally %o addr %o\n", __func__, p->DDCW_TALLY, p->DDCW_ADDR);
+  iom_direct_data_service (cdp->iomUnitIdx, cdp->chan, addr, & data, direct_load);
+
+  //iom_indirect_data_service (cdp->iomUnitIdx, cdp->chan, & data, 1u, false);
+  //p->DDCW_TALLY --;
+  //p->DDCW_ADDR ++;
+
+  //iom_core_read (p->iomUnitIdx, addr, & data, __func__);
+
+sim_printf ("%08o:%012llo\r\n", addr, data);
+
+  dnPkt pkt;
+  pkt.cmd = DN_CMD_DATA;
+  sprintf (pkt.cmdD.data, "%08o:%012llo", addr, data);
+  dnSend (& pkt, dudp);
+
+  }
+}
+
+void processRecv (uv_udp_t * req, dnPkt * pkt, ssize_t nread) {
+  if (nread != sizeof (dnPkt)) {
+    sim_printf ("%s incoming packet size %ld, expected %ld\r\n", __func__, nread, sizeof (dnPkt));
+  }
+  if (pkt->cmd == DN_CMD_READ) {
+    processCmdR (req, pkt);
+  } else {
+    sim_printf ("Ignoring cmd %c %o\r\n", isprint (pkt->cmd) ? pkt->cmd : '.', pkt->cmd);
+  }
+}
+
+void onRead (uv_udp_t * req, ssize_t nread, const uv_buf_t * buf, const struct sockaddr * addr, unsigned flags) {
+  if (nread == -1) {
+    fprintf (stderr, "Read error!\n");
+    uv_close ((uv_handle_t *) req, NULL);
+    free (buf->base);
+    return;
+  }
+  if (nread > 0) {
+    sim_printf ("recv %ld %c\r\n", nread, buf->base[0]);
+    processRecv (req, (dnPkt *) buf->base, nread);
+  } else {
+    sim_printf ("recv empty\r\n");
+  }
+  free (buf->base);
+  return;
+}
+
 static void cmd_bootload (uint iomUnitIdx, uint diaUnitIdx, uint chan, word24 l66Addr) {
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-  //uint diaUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
-  //UNIT * unitp = & opc_unit[con_unit_idx];
   struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
   struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailboxAddress];
 
-  dia_data.dia_unit_data[diaUnitIdx].l66Addr = l66Addr;
+  dudp->l66Addr = l66Addr;
 
-#ifdef PUNT
-  dnPktT pkt;
-  pkt.cmd = dn_cmd_bootload;
-  //pkt.dia_pcw = mbxp->dia_pcw;
-  int rc = dn_udp_send (dia_data.dia_unit_data[diaUnitIdx].link, (uint8_t *) & pkt, (uint16_t) sizeof (pkt), PFLG_FINAL);
-  if (rc < 0) {
-    fprintf (stderr, "dn_udp_send failed\n");
-  }
-#endif
+  dnPkt pkt;
+  pkt.cmd = DN_CMD_BOOTLOAD;
+  dnSend (& pkt, dudp);
 }
 
 static int interruptL66 (uint iomUnitIdx, uint chan) {
@@ -725,15 +858,13 @@ static int interruptL66 (uint iomUnitIdx, uint chan) {
     return 0;
   }
 
-static void processMBX (uint iomUnitIdx, uint chan) {
-  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+static iom_cmd_rc_t processMBX (uint iomUnitIdx, uint chan) {
+
   uint diaUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
-  //UNIT * unitp = & opc_unit[con_unit_idx];
+
+  iom_cmd_rc_t ret_cmd = IOM_CMD_DISCONNECT;
+  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
   struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
-    //struct device * d = & cables->cablesFromIomToDev[iomUnitIdx].
-      //devices[chan][p->IDCW_DEV_CODE];
-    //uint diaUnitIdx = d->devUnitIdx;
-    //struct dia_unit_data * dudp = &dia_data.dia_unit_data[diaUnitIdx];
 
 // 60132445 FEP Coupler EPS
 // 2.2.1 Control Intercommunication
@@ -744,6 +875,13 @@ static void processMBX (uint iomUnitIdx, uint chan) {
 
   bool ok = true;
   struct mailbox vol * mbxp = (struct mailbox vol *) & M [dudp -> mailboxAddress];
+
+  //if (! dudp->connected) {
+    //if (! connectFNP (diaUnitIdx)) {
+      //ok = false;
+      //goto done;
+    //}
+  //}
 
   word36 dia_pcw;
   //dia_pcw = mbxp -> dia_pcw;
@@ -861,6 +999,8 @@ static void processMBX (uint iomUnitIdx, uint chan) {
     sim_debug (DBG_TRACE, & dia_dev, "%s: chan %d reset command\n", __func__, chan);
     send_general_interrupt (iomUnitIdx, chan, imwTerminatePic);
   } else if (command == 072) { // bootload
+
+
     // 60132445 pg 49
     // Extract L66 address from dia_pcw
 
@@ -875,17 +1015,18 @@ static void processMBX (uint iomUnitIdx, uint chan) {
     word24 l66Addr = (word24) getbits36_18 (dia_pcw,  0);
     DDBG (sim_printf ("l66Addr %08o\r\n", l66Addr));
 
-    word36 dcw;
-    iom_direct_data_service (iomUnitIdx, chan, l66Addr, & dcw, direct_load);
-    word12 tally = getbits36_12 (dcw, 24);
-    DDBG (sim_printf ("dcw %012llo\n", dcw));
+    word36 boot_icw;
+    iom_direct_data_service (iomUnitIdx, chan, l66Addr, & boot_icw, direct_load);
+    word12 tally = getbits36_12 (boot_icw, 24);
+    DDBG (sim_printf ("boot_icw %012llo\n", boot_icw));
     DDBG (sim_printf ("tally %o %d.\n", tally, tally));
 
     // Calculate start of core image
     word24 image_off = (tally + 64) & 077777700;
     DDBG (sim_printf ("image_off %o %d.\n", image_off, image_off));
 
-DDBG (
+#if 1
+//DDBG (
 for (uint i = 0; i < 4096; i ++) {
   if (i % 4 == 0) sim_printf ("%06o", i);
   word36 word0;
@@ -893,18 +1034,15 @@ for (uint i = 0; i < 4096; i ++) {
   sim_printf (" %012llo", word0);
   if (i % 4 == 3) sim_printf ("\r\n");
   };
-)
-    //word36 tcw;
-    //fnp_core_read (phys_addr, & tcw, "tcw fetch");
+//)
+#endif
 
-// Got 100000000517 as expected
-//sim_printf ("tcw %012llo\r\n", tcw);
+    // AN85: gicb routine:
+    // "The connect to the bootload PCW causes the DIA to read the 
+    // gicb rountine inth the FNP under control of the boot ICW which is 
+    // the first word of the boot segment."
 
-    //word36 tcw1;
-    //fnp_core_read (phys_addr + 1, & tcw1, "tcw fetch");
-
-// Got 100002060002, as expected (first word of gicb)
-//sim_printf ("tcw1 %012llo\r\n", tcw1);
+    // The ICW contains 100000 000517. 517 is the length of the gicb code.
 
     // pg 50 4.1.1.2 Transfer control word
     // "The transfer control word, which is pointed to by the
@@ -947,7 +1085,8 @@ for (uint i = 0; i < 4096; i ++) {
 
     // Don't acknowledge the boot yet.
     //dudp -> fnpIsRunning = true;
-    //return;
+    return IOM_CMD_DISCONNECT;
+    //ret_cmd = IOM_CMD_PENDING;
   } else if (command == 071) { // interrupt L6
     ok = interruptL66 (iomUnitIdx, chan) == 0;
   } else if (command == 075) { // data xfer from L6 to L66
@@ -1027,24 +1166,31 @@ for (uint i = 0; i < 4096; i ++) {
     ok = false;
   }
 
+done:
   if (ok) {
     //if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailboxAddress);
-    fnp_core_write (dudp -> mailboxAddress, 0, "dia_iom_cmd clear dia_pcw");
+    //fnp_core_write (dudp -> mailboxAddress, 0, "dia_iom_cmd clear dia_pcw");
+    dia_pcw = 0;
+    iom_direct_data_service (iomUnitIdx, chan, dudp->mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
     putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
     putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;
     putbits36_8 (& bootloadStatus, 9, 0); // substatus = BOOTLOAD_OK;
     putbits36_17 (& bootloadStatus, 17, 0); // channel_no = 0;
-    fnp_core_write (dudp -> mailboxAddress + 6, bootloadStatus, "dia_iom_cmd set bootload status");
+    //fnp_core_write (dudp -> mailboxAddress + 6, bootloadStatus, "dia_iom_cmd set bootload status");
+    iom_direct_data_service (iomUnitIdx, chan, dudp->mailboxAddress + CRASH_DATA, & bootloadStatus, direct_store);
   } else {
     //dmpmbx (dudp->mailboxAddress);
     sim_printf ("%s not ok\r\n", __func__);
-// 3 error bit (1) unaligned, /* set to "1"b if error on connect */
+    // 60132445 says the h/w inverts the bit; by software convention, it is initially 0.
+    // 3 error bit (1) unaligned, /* set to "1"b if error on connect */
     putbits36_1 (& dia_pcw, 18, 1); // set bit 18
-    fnp_core_write (dudp -> mailboxAddress, dia_pcw, "dia_iom_cmd set error bit");
+    //fnp_core_write (dudp -> mailboxAddress, dia_pcw, "dia_iom_cmd set error bit");
+    iom_direct_data_service (iomUnitIdx, chan, dudp->mailboxAddress+DIA_PCW, & dia_pcw, direct_store);
   }
+  return ret_cmd;
 }
 
-static int dia_cmd (uint iomUnitIdx, uint chan)
+static iom_cmd_rc_t dia_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
     p -> stati = 0;
@@ -1069,10 +1215,10 @@ static int dia_cmd (uint iomUnitIdx, uint chan)
           return IOM_CMD_ERROR;
       }
 
-    processMBX (iomUnitIdx, chan);
+    iom_cmd_rc_t cmd = processMBX (iomUnitIdx, chan);
 
-    //return IOM_CMD_NO_DCW; // did command, don't want more
-    return IOM_CMD_DISCONNECT; // did command, don't want more
+    //return IOM_CMD_DISCONNECT; // did command, don't want more
+    return cmd; // did command, don't want more
   }
 
 /*
@@ -1084,7 +1230,7 @@ static int dia_cmd (uint iomUnitIdx, uint chan)
 // 0 ok
 // -1 problem
 
-int dia_iom_cmd (uint iomUnitIdx, uint chan)
+iom_cmd_rc_t dia_iom_cmd (uint iomUnitIdx, uint chan)
   {
     DDBG (sim_printf ("dia_iom_cmd %u %u\r\n", iomUnitIdx, chan));
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
@@ -1095,7 +1241,7 @@ int dia_iom_cmd (uint iomUnitIdx, uint chan)
         return dia_cmd (iomUnitIdx, chan);
       }
     // else // DDCW/TDCW
-    sim_printf ("%s expected IDCW\n", __func__);
+    sim_printf ("%s expected IDCW %012llo\n", __func__, p->DCW);
     return -1;
   }
 
@@ -1127,10 +1273,11 @@ static void load_stored_boot (void)
 static uint8_t pkt[psz];
 
 // warning: returns ptr to static buffer
-static int poll_coupler (uint unitIdx, uint8_t * * pktp)
+static int poll_coupler (uint diaUnitIdx, uint8_t * * pktp)
   {
 #ifdef PUNT
-    int sz = dn_udp_receive (dia_data.dia_unit_data[unitIdx].link, pkt, psz);
+  struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
+    int sz = dn_udp_receive (dudp->udpSendHandle, pkt, psz);
     if (sz < 0)
       {
         sim_printf ("dn_udp_receive failed: %d\n", sz);
@@ -1146,7 +1293,7 @@ static int poll_coupler (uint unitIdx, uint8_t * * pktp)
 
 void dia_unit_process_events (uint unit_num)
   {
-    DDBG (sim_printf ("punt 5\r\n"));
+    //DDBG (sim_printf ("punt 5\r\n"));
 #if 0 // cac
 // XXX rememeber
 // XXX        //dudp -> fnpIsRunning = true;
@@ -1179,9 +1326,12 @@ void dia_unit_process_events (uint unit_num)
 #endif
   }
 
-void dia_process_events (void) {
+// Called @ 100Hz to process FNP background events
+
+void diaProcessEvents (void) {
+  //uv_run (dia_data.loop, UV_RUN_NOWAIT);
   for (uint unit_num = 0; unit_num < N_DIA_UNITS_MAX; unit_num ++) {
-   if (dia_data.dia_unit_data[unit_num].connected)
+   //if (dia_data.dia_unit_data[unit_num].connected)
      dia_unit_process_events (unit_num);
   }
 }

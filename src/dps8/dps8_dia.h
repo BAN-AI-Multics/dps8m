@@ -15,13 +15,27 @@
 extern UNIT dia_unit [N_DIA_UNITS_MAX];
 extern DEVICE dia_dev;
 
+#define DIA_CLIENT_MAGIC 34393
+struct diaClientDataStruct {
+  uint magic;
+  uint iomUnitIdx;
+  uint chan;
+  uint diaUnitIdx;
+};
+typedef struct diaClientDataStruct diaClientData;
+
 // Indexed by sim unit number
 struct dia_unit_data
   {
     uint mailboxAddress;
     word24 l66Addr;
-    bool connected;
-    uv_udp_t socket;
+    bool connected; // For UDP code, the dn355 has indicated it has booted
+    uv_udp_t udpSendHandle;
+    uv_udp_t udpRecvHandle;
+    //uv_udp_t socket;
+#define ATTACH_ADDRESS_SZ 4096
+    char attachAddress [ATTACH_ADDRESS_SZ];
+    diaClientData clientData;
   };
 
 typedef struct s_dia_data
@@ -52,4 +66,4 @@ struct input_sub_mbx
 
 void dia_init(void);
 int dia_iom_cmd (uint iomUnitIdx, uint chan);
-void dia_process_events (void);
+void diaProcessEvents (void);

@@ -1322,6 +1322,7 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
 
       }
     fnpProcessEvent ();
+    diaProcessEvents ();
 # ifndef __MINGW64__
 #  ifndef __MINGW32__
 #   ifndef CROSS_MINGW32

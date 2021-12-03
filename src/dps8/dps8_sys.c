@@ -1136,30 +1136,30 @@ static char * default_base_system_script [] =
     // ; to be the same as the Multics unit number; ie fnp0 == fnpa, etc.
     // ;
     // ; dia a 3400
-    // ; dia b 3700
-    // ; dia c 4200
-    // ; dia d 4500
-    // ; dia e 5000
-    // ; dia f 5300
-    // ; dia g 5600
-    // ; dia h 6100
+    // ; fnp b 3700
+    // ; fnp c 4200
+    // ; fnp d 4500
+    // ; fnp e 5000
+    // ; fnp f 5300
+    // ; fnp g 5600
+    // ; fnp h 6100
 
     "set dia0 config=mailbox=03400",
     //"set dia0 ipc_name=fnp-a",
-    "set dia1 config=mailbox=03700",
-    //"set dia1 ipc_name=fnp-b",
-    "set dia2 config=mailbox=04200",
-    //"set dia2 ipc_name=fnp-c",
-    "set dia3 config=mailbox=04500",
-    //"set dia3 ipc_name=fnp-d",
-    "set dia4 config=mailbox=05000",
-    //"set dia4 ipc_name=fnp-e",
-    "set dia5 config=mailbox=05300",
-    //"set dia5 ipc_name=fnp-f",
-    "set dia6 config=mailbox=05600",
-    //"set dia6 ipc_name=fnp-g",
-    "set dia7 config=mailbox=06100",
-    //"set dia7 ipc_name=fnp-h",
+    "set fnp1 config=mailbox=03700",
+    "set fnp1 ipc_name=fnp-b",
+    "set fnp2 config=mailbox=04200",
+    "set fnp2 ipc_name=fnp-c",
+    "set fnp3 config=mailbox=04500",
+    "set fnp3 ipc_name=fnp-d",
+    "set fnp4 config=mailbox=05000",
+    "set fnp4 ipc_name=fnp-e",
+    "set fnp5 config=mailbox=05300",
+    "set fnp5 ipc_name=fnp-f",
+    "set fnp6 config=mailbox=05600",
+    "set fnp6 ipc_name=fnp-g",
+    "set fnp7 config=mailbox=06100",
+    "set fnp7 ipc_name=fnp-h",
 
 
     //XXX"set mtp0 boot_drive=1",
@@ -1333,21 +1333,21 @@ static char * default_base_system_script [] =
     // ;;;
 
     // ; Attach FNP unit 3 (d) to IOM A, chan 020, dev_code 0
-    "cable IOMA 020 DIAD",
+    "cable IOMA 020 FNPD",
     // ; Attach FNP unit 0 (a) to IOM A, chan 021, dev_code 0
     "cable IOMA 021 DIAA",
     // ; Attach FNP unit 1 (b) to IOM A, chan 022, dev_code 0
-    "cable IOMA 022 DIAB",
+    "cable IOMA 022 FNPB",
     // ; Attach FNP unit 2 (c) to IOM A, chan 023, dev_code 0
-    "cable IOMA 023 DIAC",
+    "cable IOMA 023 FNPC",
     // ; Attach FNP unit 4 (e) to IOM A, chan 024, dev_code 0
-    "cable IOMA 024 DIAE",
+    "cable IOMA 024 FNPE",
     // ; Attach FNP unit 5 (f) to IOM A, chan 025, dev_code 0
-    "cable IOMA 025 DIAF",
+    "cable IOMA 025 FNPF",
     // ; Attach FNP unit 6 (g) to IOM A, chan 026, dev_code 0
-    "cable IOMA 026 DIAG",
+    "cable IOMA 026 FNPG",
     // ; Attach FNP unit 7 (h) to IOM A, chan 027, dev_code 0
-    "cable IOMA 027 DIAH",
+    "cable IOMA 027 FNPH",
 
     // ;;;
     // ;;; MPC
@@ -4274,6 +4274,7 @@ static void dps8_init (void) {
   pun_init ();
   prt_init ();
   urp_init ();
+  dia_init ();
 #ifndef __MINGW64__
 # ifndef __MINGW32__
 #  ifndef CROSS_MINGW64
