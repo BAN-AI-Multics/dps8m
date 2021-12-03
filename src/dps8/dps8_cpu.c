@@ -33,6 +33,7 @@
 #include "dps8_socket_dev.h"
 #include "dps8_crdrdr.h"
 #include "dps8_absi.h"
+#include "dps8_dia.h"
 #include "dps8_utils.h"
 #ifdef M_SHARED
 # include "shm.h"

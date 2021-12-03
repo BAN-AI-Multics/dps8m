@@ -65,5 +65,5 @@ struct input_sub_mbx
 #endif
 
 void dia_init(void);
-int dia_iom_cmd (uint iomUnitIdx, uint chan);
+iom_cmd_rc_t dia_iom_cmd (uint iomUnitIdx, uint chan);
 void diaProcessEvents (void);
