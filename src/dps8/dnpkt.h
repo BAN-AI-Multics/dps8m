@@ -11,10 +11,14 @@
 // From FNP to CS
 //   R addr:  Read word from core
 //   W addr data: Write word to core
+//   C Connect
+//   E Disconnet
 
 #define DN_CMD_BOOTLOAD 'B'
 #define DN_CMD_READ 'R'
 #define DN_CMD_DATA 'D'
+#define DN_CMD_CONNECT 'C'
+#define DN_CMD_DISCONNECT 'E'
 
 // Read:
 //   sprintf (pkt.cmdR.addr, "%08o", addr);
