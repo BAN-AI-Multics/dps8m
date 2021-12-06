@@ -1088,7 +1088,7 @@ static iom_cmd_rc_t processMBX (uint iomUnitIdx, uint chan) {
     perror ("open boot_segment.dat");
 exit (1);
   } else {
-    for (uint i = 0; i < 1044480; i ++) {
+    for (uint i = 0; i < 00030000; i ++) {
       word36 word0;
       xiom_direct_data_service (iomUnitIdx, chan, i/* + 000010000 */, & word0, direct_load);
       ssize_t n = write (fd, & word0, sizeof (word0));
