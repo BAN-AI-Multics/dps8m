@@ -16,6 +16,7 @@
 
 #define DN_CMD_BOOTLOAD 'B'
 #define DN_CMD_READ 'R'
+#define DN_CMD_WRITE 'R'
 #define DN_CMD_DATA 'D'
 #define DN_CMD_CONNECT 'C'
 #define DN_CMD_DISCONNECT 'E'
@@ -28,6 +29,9 @@
 struct udpPktStruct {
   char cmd;
   union {
+    struct {
+      char data[21 + 1];
+    } cmdW;
     struct {
       char addr[8 + 1];
     } cmdR;
