@@ -33,7 +33,6 @@
 
 #define ASSUME0 0 // XXX
 
-void onRead (uv_udp_t * req, ssize_t nread, const uv_buf_t * buf, const struct sockaddr * addr, unsigned flags);
 // libuv interface
 
 //
@@ -47,8 +46,6 @@ static void allocBuffer (UNUSED uv_handle_t * handle, size_t suggested_size, uv_
   }
   * buf = uv_buf_init (p, (uint) suggested_size);
 }
-
-/* From sim_sock.c */
 
 /* sim_parse_addr       host:port
 
@@ -120,7 +117,7 @@ static int sim_parse_addr (const char *cptr, char *host, size_t host_len, const 
     if ((*endc == '\0') && ((portval == 0) || (portval > 65535)))
       return -1;                                      /* numeric value too big */
     if (*endc != '\0') {
-      struct servent *se = getservbyname (portp, "udp");
+      struct servent *se = getservbyname (portp, "tcp");
 
       if (se == NULL)
         return -1;                                  /* invalid service name */
@@ -199,57 +196,29 @@ static int sim_parse_addr (const char *cptr, char *host, size_t host_len, const 
 
 // From sihm udplib
 
-static int udp_parse_remote (const char * premote, int32_t * lport, char * rhost, size_t rhostl, int32_t * rport) {
+static int tcp_parse_remote (const char * premote, char * rhost, size_t rhostl, int32_t * rport) {
   // This routine will parse a remote address string in any of these forms -
   //
-  //            llll:w.x.y.z:rrrr
-  //            llll:name.domain.com:rrrr
-  //            llll::rrrr
+  //            :w.x.y.z:rrrr
+  //            :name.domain.com:rrrr
+  //            :rrrr
   //            w.x.y.z:rrrr
   //            name.domain.com:rrrr
   //
-  // In all examples, "llll" is the local port number that we use for listening,
-  // and "rrrr" is the remote port number that we use for transmitting.  The
-  // local port is optional and may be omitted, in which case it defaults to the
-  // same as the remote port.  This works fine if the other IMP is actually on
-  // a different host, but don't try that with localhost - you'll be talking to
-  // yourself!!  In both cases, "w.x.y.z" is a dotted IP for the remote machine
+  // In all examples, "rrrr" is the remote port number that we use for transmitting.  
+  // "w.x.y.z" is a dotted IP for the remote machine
   // and "name.domain.com" is its name (which will be looked up to get the IP).
   // If the host name/IP is omitted then it defaults to "localhost".
 
-  char * end;
-  int32_t lportno, rportno;
   char host [64], port [16];
   if (* premote == '\0')
     return -1;
-  * lport = 0;
   * rhost = '\0';
-  * rport = 0;
-  // Handle the llll::rrrr case first
-  if (2 == sscanf (premote, "%d::%d", & lportno, & rportno)) {
-    if ((lportno < 1) || (lportno >65535) || (rportno < 1) || (rportno >65535))
-      return -1;
-    * lport = lportno;
-    strncpy (rhost, "localhost", rhostl);
-    * rport = rportno;
-    return 0;
-  }
 
-    // Look for the local port number and save it away.
-  lportno = (int) strtoul (premote, & end, 10);
-  if ((* end == ':') && (lportno > 0)) {
-    * lport = lportno;
-    premote = end + 1;
-  }
-
-  if (sim_parse_addr (premote, host, sizeof (host), "localhost", port, sizeof (port), NULL, NULL) != -1 /* SCPE_OK */)
+  if (sim_parse_addr (premote, host, sizeof (host), "localhost", port, sizeof (port), NULL, NULL))
     return -1;
   strncpy (rhost, host, rhostl);
   * rport = atoi (port);
-  if (* lport == 0)
-  * lport = atoi (port);
-  if (* lport == * rport && (strcmp ("localhost", host) == 0))
-    sim_warn ("WARNING - use different transmit and receive ports!\r\n");
   return 0;
 }
 
@@ -442,6 +411,114 @@ static t_stat reset (UNUSED DEVICE * dptr)
     return SCPE_OK;
   }
 
+
+static void dnSendCB (uv_write_t * req, int status) {
+  if (status)
+    printf ("send cb %d\r\n", status);
+}
+
+static void dnSend (uint diaUnitIdx, dnPkt * pkt) {
+  struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
+  uv_write_t * req = malloc (sizeof (uv_write_t));
+  if (! req) {
+    printf ("%s req malloc fail\r\n", __func__);
+    return;
+  }
+  // set base to null
+  memset (req, 0, sizeof (uv_write_t));
+
+  void * p = malloc (sizeof (dnPkt));
+  if (! p) {
+    printf ("%s buf malloc fail\r\n", __func__);
+    return;
+  }
+  uv_buf_t buf = uv_buf_init ((char *) p, (uint) sizeof (dnPkt));
+
+  memcpy (buf.base, pkt, sizeof (dnPkt));
+  int rc = uv_write (req, (uv_stream_t *) & dudp->tcpHandle, & buf, 1, dnSendCB);
+  if (rc < 0) {
+    fprintf (stderr, "%s uv_udp_send failed %d\n", __func__, rc);
+  }
+}
+
+static void processCmdR (uv_stream_t * req, dnPkt * pkt) {
+  diaClientData * cdp = (diaClientData *) req->data;
+  //struct dia_unit_data * dudp = & dia_data.dia_unit_data[cdp->diaUnitIdx];
+  word24 addr;
+  int n = sscanf (pkt->cmdR.addr, "%o", & addr);
+  if (n != 1) {
+    printf ("%s unable to extract address\r\n", __func__);
+  } else {
+    //printf ("R %08o\r\n", addr);
+//printf ("dia @ %u %u\r\n", cdp->iomUnitIdx, cdp->chan);
+    //word36 data = segment[addr /*- L66ADDR */];
+    word36 data;
+    iom_chan_data_t * p = & iom_chan_data[cdp->iomUnitIdx][cdp->chan];
+sim_printf ("%s %o %o %o\n", __func__, p->PCW_63_PTP, p->PCW_64_PGE, p->PCW_PAGE_TABLE_PTR);
+sim_printf ("%s tally %o addr %o\n", __func__, p->DDCW_TALLY, p->DDCW_ADDR);
+    iom_direct_data_service (cdp->iomUnitIdx, cdp->chan, addr, & data, direct_load);
+//printf ("%08o:%012lo\r\n", addr, data);
+
+    dnPkt pkt;
+    memset (& pkt, 0, sizeof (pkt));
+    pkt.cmd = DN_CMD_DATA;
+    sprintf (pkt.cmdD.data, "%08o:%012llo", addr, data);
+    dnSend (cdp->diaUnitIdx, & pkt);
+
+  }
+}
+
+void processCmdDis (uv_stream_t * req, dnPkt * pkt) {
+  printf ("disccnnect\r\n");
+}
+
+static void processRecv (uv_stream_t * req, dnPkt * pkt, ssize_t nread) {
+  if (nread != sizeof (dnPkt)) {
+    printf ("%s incoming packet size %ld, expected %ld\r\n", __func__, nread, sizeof (dnPkt));
+  }
+  if (pkt->cmd == DN_CMD_READ) {
+    processCmdR (req, pkt);
+  } else if (pkt->cmd == DN_CMD_DISCONNECT) {
+    processCmdDis (req, pkt);
+  } else {
+    printf ("Ignoring cmd %c %o\r\n", isprint (pkt->cmd) ? pkt->cmd : '.', pkt->cmd);
+  }
+}
+
+static void onRead (uv_stream_t* req, ssize_t nread, const uv_buf_t* buf) {
+  if (nread < 0) {
+    fprintf (stderr, "Read error!\n");
+    if (! uv_is_closing ((uv_handle_t *) req))
+      uv_close ((uv_handle_t *) req, NULL);
+    free (buf->base);
+    return;
+  }
+  if (nread > 0) {
+    if (! req) {
+      printf ("bad req\r\n");
+      return;
+    } else {
+      //printf ("recv %ld %c\r\n", nread, buf->base[0]);
+      processRecv (req, (dnPkt *) buf->base, nread);
+    }
+  } else {
+    //printf ("recv empty\r\n");
+  }
+  if (buf->base)
+    free (buf->base);
+  return;
+}
+
+static void onConnect (uv_connect_t * server, int status) {
+  if (status < 0) {
+    printf ("connected %d\n", status);
+    return;
+  }
+  diaClientData * cdp = (diaClientData *) server->data;
+  struct dia_unit_data * dudp = & dia_data.dia_unit_data[cdp->diaUnitIdx];
+  uv_read_start ((uv_stream_t *) & dudp->tcpHandle, allocBuffer, onRead);
+}
+
 static t_stat dia_attach (UNIT * uptr, const char * cptr) {
   if (! cptr)
     return SCPE_ARG;
@@ -449,7 +526,7 @@ static t_stat dia_attach (UNIT * uptr, const char * cptr) {
   struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
 
 
-  // ATTACH DNn llll:w.x.y.z:rrrr - connect via UDP to a remote simh host
+  // ATTACH DNn w.x.y.z:rrrr - connect via TCp to a remote simh host
 
   // If we're already attached, then detach ...
   if ((uptr->flags & UNIT_ATT) != 0)
@@ -461,9 +538,9 @@ static t_stat dia_attach (UNIT * uptr, const char * cptr) {
   strncpy (dudp->attachAddress, cptr, ATTACH_ADDRESS_SZ);
   uptr->filename = dudp->attachAddress;
 
-  int32_t lport, rport;
+  int32_t rport;
   char rhost[64];
-  int rc = udp_parse_remote (cptr, & lport, rhost, sizeof (rhost), & rport);
+  int rc = tcp_parse_remote (cptr, rhost, sizeof (rhost), & rport);
   if (rc) {
     sim_warn ("%s unable to parse address %d\r\n", __func__, rc);
     return SCPE_ARG;
@@ -472,44 +549,19 @@ static t_stat dia_attach (UNIT * uptr, const char * cptr) {
 
 // Set up send
 
-  rc = uv_udp_init (uv_default_loop (), & dudp->udpSendHandle);
+  rc = uv_tcp_init (uv_default_loop (), & dudp->tcpHandle);
   if (rc) {
-    sim_warn ("%s unable to init udpSendHandle %d\r\n", __func__, rc);
-    return SCPE_ARG;
+    printf ("%s unable to init tcpHandle %d\r\n", __func__, rc);
+    exit (1);
   }
-
-  struct sockaddr_in laddr;
-  uv_ip4_addr ("0.0.0.0", lport, & laddr);
-#if 0
-  rc = uv_udp_bind (& dudp->udpSendHandle, (struct sockaddr *) & laddr, UV_UDP_REUSEADDR);
-  if (rc) {
-    sim_warn ("%s unable to bind udpSendHandle %d\r\n", __func__, rc);
-    return SCPE_ARG;
-  }
-#endif
 
   struct sockaddr_in raddr;
   uv_ip4_addr (rhost, rport, & raddr);
-  rc = uv_udp_connect (& dudp->udpSendHandle, (struct sockaddr *) & raddr);
-  if (rc) {
-    sim_warn ("%s unable to connect udpSendHandle %d\r\n", __func__, rc);
-    return SCPE_ARG;
-  }
 
-// Set up receive
-
-  rc = uv_udp_init (uv_default_loop (), & dudp->udpRecvHandle);
+  rc = uv_tcp_init (uv_default_loop (), & dudp->tcpHandle);
   if (rc) {
-    sim_printf ("%s unable to init udpRecvHandle %d\r\n", __func__, rc);
-    return SCPE_ARG;
-  }
-
-  //struct sockaddr_in laddr;
-  //uv_ip4_addr ("0.0.0.0", lport, & laddr);
-  rc = uv_udp_bind (& dudp->udpRecvHandle, (struct sockaddr *) & laddr, UV_UDP_REUSEADDR);
-  if (rc) {
-    sim_printf ("%s unable to bind udpRecvHandle %d\r\n", __func__, rc);
-    return SCPE_ARG;
+    printf ("%s unable to connect tcpHandle %d\r\n", __func__, rc);
+    exit (1);
   }
 
   struct ctlr_to_iom_s * there = & cables->dia_to_iom[diaUnitIdx][ASSUME0];
@@ -518,9 +570,14 @@ sim_printf ("DIAA at %u %u\r\n", there->iom_unit_idx, there->chan_num);
   dudp->clientData.iomUnitIdx = there->iom_unit_idx;
   dudp->clientData.chan = there->chan_num;
   dudp->clientData.diaUnitIdx = diaUnitIdx;
-  dudp->udpRecvHandle.data = & dudp->clientData;
-  uv_udp_recv_start (& dudp->udpRecvHandle, allocBuffer, onRead);
+  dudp->reqConnect.data = & dudp->clientData;
+  dudp->tcpHandle.data = & dudp->clientData;
 
+  rc = uv_tcp_connect (& dudp->reqConnect, & dudp->tcpHandle, (struct sockaddr *) & raddr, onConnect);
+  if (rc) {
+    printf ("%s unable to connect udpSendHandle %d\r\n", __func__, rc);
+    exit (1);
+  }
 
 
   uptr->flags |= UNIT_ATT;
@@ -541,7 +598,7 @@ static t_stat dia_detach (UNIT * uptr) {
   //if (! dudp->connected)
     //return SCPE_OK;
 
-  uv_close ((uv_handle_t *) & dudp->udpSendHandle, close_cb);
+  uv_close ((uv_handle_t *) & dudp->tcpHandle, close_cb);
 
   //dudp->connected = false;
   uptr->flags &= ~ (unsigned int) UNIT_ATT;
@@ -625,12 +682,11 @@ struct mailbox
 //
 
 void dia_init (void) {
-  // 0 sets set service to service_undefined
   memset(& dia_data, 0, sizeof (dia_data));
-  for (uint diaUnitIdx = 0; diaUnitIdx < N_DIA_UNITS_MAX; diaUnitIdx ++) {
-    struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
-    uv_udp_init (uv_default_loop (), & dudp->udpSendHandle);     
-  }
+  //for (uint diaUnitIdx = 0; diaUnitIdx < N_DIA_UNITS_MAX; diaUnitIdx ++) {
+    //struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
+    //uv_udp_init (uv_default_loop (), & dudp->udpSendHandle);     
+  //}
 }
 
 #if 0
@@ -674,6 +730,7 @@ static uint virtToPhys (uint ptPtr, uint l66Address)
   }
 #endif
 
+#if 0
 //
 // udp packets
 //
@@ -705,8 +762,6 @@ static void dnSend (dnPkt * pkt, struct dia_unit_data * dudp) {
 }
 
 void processCmdR (uv_udp_t * req, dnPkt * pkt) {
-  diaClientData * cdp = (diaClientData *) req->data;
-  struct dia_unit_data * dudp = & dia_data.dia_unit_data[cdp->diaUnitIdx];
   word24 addr;
   int n = sscanf (pkt->cmdR.addr, "%o", & addr);
   if (n != 1) {
@@ -744,34 +799,7 @@ sim_printf ("%08o:%012llo\r\n", addr, data);
 
   }
 }
-
-void processRecv (uv_udp_t * req, dnPkt * pkt, ssize_t nread) {
-  if (nread != sizeof (dnPkt)) {
-    sim_printf ("%s incoming packet size %ld, expected %ld\r\n", __func__, nread, sizeof (dnPkt));
-  }
-  if (pkt->cmd == DN_CMD_READ) {
-    processCmdR (req, pkt);
-  } else {
-    sim_printf ("Ignoring cmd %c %o\r\n", isprint (pkt->cmd) ? pkt->cmd : '.', pkt->cmd);
-  }
-}
-
-void onRead (uv_udp_t * req, ssize_t nread, const uv_buf_t * buf, const struct sockaddr * addr, unsigned flags) {
-  if (nread == -1) {
-    fprintf (stderr, "Read error!\n");
-    uv_close ((uv_handle_t *) req, NULL);
-    free (buf->base);
-    return;
-  }
-  if (nread > 0) {
-    sim_printf ("recv %ld %c\r\n", nread, buf->base[0]);
-    processRecv (req, (dnPkt *) buf->base, nread);
-  } else {
-    sim_printf ("recv empty\r\n");
-  }
-  free (buf->base);
-  return;
-}
+#endif
 
 static void cmd_bootload (uint iomUnitIdx, uint diaUnitIdx, uint chan, word24 l66Addr) {
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
@@ -782,7 +810,7 @@ static void cmd_bootload (uint iomUnitIdx, uint diaUnitIdx, uint chan, word24 l6
 
   dnPkt pkt;
   pkt.cmd = DN_CMD_BOOTLOAD;
-  dnSend (& pkt, dudp);
+  dnSend (diaUnitIdx, & pkt);
 }
 
 static int interruptL66 (uint iomUnitIdx, uint chan) {

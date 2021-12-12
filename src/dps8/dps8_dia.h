@@ -29,9 +29,9 @@ struct dia_unit_data
   {
     uint mailboxAddress;
     word24 l66Addr;
-    bool connected; // For UDP code, the dn355 has indicated it has booted
-    uv_udp_t udpSendHandle;
-    uv_udp_t udpRecvHandle;
+    uv_tcp_t tcpHandle;
+    uv_connect_t reqConnect;
+
     //uv_udp_t socket;
 #define ATTACH_ADDRESS_SZ 4096
     char attachAddress [ATTACH_ADDRESS_SZ];
