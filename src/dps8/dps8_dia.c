@@ -1,3 +1,4 @@
+//#define dumpseg
 #define DDBG(x) x
 /*
  * Copyright (c) 2007-2013 Michael Mondy
@@ -858,7 +859,7 @@ static int interruptL66 (uint iomUnitIdx, uint chan) {
     return 0;
   }
 
-#if 1
+#ifdef dumpseg 
 static word24 xbuild_DDSPTW_address (word18 PCW_PAGE_TABLE_PTR, word8 pageNumber)
   {
 //    0      5 6        15  16  17  18                       23
@@ -1081,7 +1082,7 @@ static iom_cmd_rc_t processMBX (uint iomUnitIdx, uint chan) {
     word24 image_off = (tally + 64) & 077777700;
     DDBG (sim_printf ("image_off %o %d.\n", image_off, image_off));
 
-#if 1
+#ifdef dumpseg
 #include <unistd.h>
 { int fd = open ("boot_segment.dat", O_RDWR | O_CREAT | O_TRUNC, 0660);
   if (fd < 0) {
