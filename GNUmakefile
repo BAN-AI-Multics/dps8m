@@ -154,6 +154,18 @@ mcmb: .rebuild.env                                                            \
             $(TRUE)
 
 ###############################################################################
+# Builds vmpctool memory cache tool
+
+.PHONY: vmpctool .rebuild.env
+vmpctool: .rebuild.env                                                        \
+    # vmpctool:    # Builds the vmpctool memory cache tool
+	-@$(PRINTF) '%s\n' "BUILD: Starting vmpctool build" 2> /dev/null || $(TRUE)
+	-@$(MAKE) -C "." ".rebuild.env";                                          \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);         \
+        $(MAKE) -C "src/vmpctool" "all" &&                                    \
+          $(PRINTF) '%s\n' "BUILD: Successful vmpctool build" 2> /dev/null || \
+            $(TRUE)
+###############################################################################
 # Builds blinkenLights2
 
 .PHONY: blinkenLights2 .rebuild.env
