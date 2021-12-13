@@ -773,7 +773,7 @@ int main(int argc, char **argv) {
                          fprintf (stderr, "Compiler: GCC %s\n", __VERSION__ );
                      }
 #  else
-                     fprintf (stderr, "Compiler: %s\n", __VERSION__ );
+                     fprintf (stderr, "Compiler: Clang %s\n", __clang_version__ );
 #  endif /* ifndef __clang_version__ */
 # else
                      fprintf (stderr, "Compiler: %s\n", __VERSION__ );

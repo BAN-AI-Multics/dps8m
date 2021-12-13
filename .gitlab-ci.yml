@@ -2086,7 +2086,7 @@ Source Tree Checks:
     - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptExtraInfo
-    - ./.githooks/pre-commit 2>&1 | tee -i pre-commit-test.txt
+    - EXTRA_HOOK=1 DEBUG_HOOK=1 ./.githooks/pre-commit 2>&1 | tee -i pre-commit-test.txt
   dependencies: []
   artifacts:
     when: always
