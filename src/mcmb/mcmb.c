@@ -1787,7 +1787,7 @@ main(int argc, char *argv[])
           (void)fprintf(stdout, "Compiler: GCC %s\n", __VERSION__ );
         }
 #   else
-      (void)fprintf(stdout, "Compiler: %s\n", __VERSION__ );
+      (void)fprintf(stdout, "Compiler: Clang %s\n", __clang_version__ );
 #   endif /* ifndef __clang_version__ */
 #  else
       (void)fprintf(stdout, "Compiler: %s\n", __VERSION__ );
