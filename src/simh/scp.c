@@ -1688,22 +1688,27 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 # else
         fprintf (stdout, "%s simulator", sim_name);
 # endif /* ifdef VER_H_GIT_VERSION */
-        fprintf (stdout, "\n\nUsage: %s { [SWITCHES] ... } { <SCRIPT> }\n", argv[0]);
-        fprintf (stdout, "\nInvoke the %s simulator, with optional switches and/or script.\n", sim_name);
+        fprintf (stdout, "\n");
+        fprintf (stdout, "\n USAGE: %s { [ SWITCHES ] ... } { < SCRIPT > }", argv[0]);
+        fprintf (stdout, "\n");
+        fprintf (stdout, "\n Invokes the %s simulator, with optional switches and/or script file.", sim_name);
+        fprintf (stdout, "\n");
         fprintf (stdout, "\n Switches:");
-        fprintf (stdout, "\n  -e, -E              Abort script processing immediately on errors");
-        fprintf (stdout, "\n  -h, -H, --help      Display this informational help text and exit");
-        fprintf (stdout, "\n  -k, -K              Do not utilize exclusive file locking support");
-        fprintf (stdout, "\n  -l, -L              Disregard fatal exclusive file locking errors");
-        fprintf (stdout, "\n  -o, -O              Configure script conditions to be inheritable");
-        fprintf (stdout, "\n  -q, -Q              Disables non-error and informational messages");
-        fprintf (stdout, "\n  -r, -R              Enables ephemeral (session-only) system state");
-        fprintf (stdout, "\n  -s, -S              Use a randomized name to persist system state");
-        fprintf (stdout, "\n  -v, -V              Display every script command before execution");
-        fprintf (stdout, "\n  --version           Display the simulator version string and exit");
-        fprintf (stdout, "\n\nThis software is made available under the terms of the ICU License,");
-        fprintf (stdout, "\nversion 1.8.1 or later.  For complete details, see the \"LICENSE.md\"");
-        fprintf (stdout, "\nincluded or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\n");
+        fprintf (stdout, "\n  -e, -E            Aborts script processing immediately upon any error");
+        fprintf (stdout, "\n  -h, -H, --help    Prints only this informational help text and exit");
+        fprintf (stdout, "\n  -k, -K            Disables all support for exclusive file locking");
+        fprintf (stdout, "\n  -l, -L            Reports but ignores all exclusive file locking errors");
+        fprintf (stdout, "\n  -o, -O            Makes scripting conditions and actions inheritable");
+        fprintf (stdout, "\n  -q, -Q            Disables printing of non-fatal informational messages");
+        fprintf (stdout, "\n  -r, -R            Enables an unlinked ephemeral system state file");
+        fprintf (stdout, "\n  -s, -S            Enables a randomized persistent system state file");
+        fprintf (stdout, "\n  -v, -V            Prints commands read from script file before execution");
+        fprintf (stdout, "\n  --version         Prints only the simulator identification text and exit");
+        fprintf (stdout, "\n");
+        fprintf (stdout, "\n This software is made available under the terms of the ICU License, version");
+        fprintf (stdout, "\n 1.8.1 or later.  For complete details, see the \"LICENSE.md\" file included");
+        fprintf (stdout, "\n with the software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
+        fprintf (stdout, "\n\n");
         return 0;
     }
     /* invalid arguments? */
