@@ -12,6 +12,10 @@
  * LICENSE.md file at the top-level directory of this distribution.
  */
 
+#ifndef __STDC_WANT_IEC_60559_BFP_EXT__
+# define __STDC_WANT_IEC_60559_BFP_EXT__ 1
+#endif /* ifndef __STDC_WANT_IEC_60559_BFP_EXT__ */
+
 #include <sys/types.h>
 #include "hdbg.h"
 
@@ -2211,95 +2215,94 @@ int core_unlock_all(void);
 # if defined (BSD_ATOMICS)
 #  include <machine/atomic.h>
 
-#  define LOCK_CORE_WORD(addr)                                          \
-  do                                                                    \
-    {                                                                   \
-      unsigned int i = DEADLOCK_DETECT;                                 \
-      while ( atomic_testandset_64((volatile uint64_t *)&M[addr],       \
-            MEM_LOCKED_BIT) == 1 && i > 0)                              \
-        {                                                               \
-          i--;                                                          \
-          if ((i & 0xff) == 0) {                                        \
-            sched_yield();                                              \
-            cpu.lockYield++;                                            \
-          }                                                             \
-        }                                                               \
-      if (i == 0)                                                       \
-        {                                                               \
-          sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__,   \
-              cpu.locked_addr, addr);                                   \
-        }                                                               \
-      cpu.lockCnt++;                                                    \
-      if (i == DEADLOCK_DETECT)                                         \
-        cpu.lockImmediate++;                                            \
-      cpu.lockWait += (DEADLOCK_DETECT-i);                              \
-      cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ?       \
-          (DEADLOCK_DETECT-i) : cpu.lockWaitMax;                        \
-    }                                                                   \
+#  define LOCK_CORE_WORD(addr)                                           \
+  do                                                                     \
+    {                                                                    \
+      unsigned int i = DEADLOCK_DETECT;                                  \
+      while ( atomic_testandset_64((volatile uint64_t *)&M[addr],        \
+            MEM_LOCKED_BIT) == 1 && i > 0)                               \
+        {                                                                \
+          i--;                                                           \
+          if ((i & 0xff) == 0) {                                         \
+            sched_yield();                                               \
+            cpu.lockYield++;                                             \
+          }                                                              \
+        }                                                                \
+      if (i == 0)                                                        \
+        {                                                                \
+          sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__,    \
+              cpu.locked_addr, addr);                                    \
+        }                                                                \
+      cpu.lockCnt++;                                                     \
+      if (i == DEADLOCK_DETECT)                                          \
+        cpu.lockImmediate++;                                             \
+      cpu.lockWait += (DEADLOCK_DETECT-i);                               \
+      cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ?        \
+          (DEADLOCK_DETECT-i) : cpu.lockWaitMax;                         \
+    }                                                                    \
   while (0)
 
-#  define LOAD_ACQ_CORE_WORD(res, addr)                                 \
-  do                                                                    \
-    {                                                                   \
-      res = atomic_load_acq_64((volatile uint64_t *)&M[addr]);          \
-    }                                                                   \
+#  define LOAD_ACQ_CORE_WORD(res, addr)                                  \
+  do                                                                     \
+    {                                                                    \
+      res = atomic_load_acq_64((volatile uint64_t *)&M[addr]);           \
+    }                                                                    \
   while (0)
 
-#  define STORE_REL_CORE_WORD(addr, data)                               \
-  do                                                                    \
-    {                                                                   \
-      atomic_store_rel_64((volatile uint64_t *)&M[addr], data & DMASK); \
-    }                                                                   \
+#  define STORE_REL_CORE_WORD(addr, data)                                \
+  do                                                                     \
+    {                                                                    \
+      atomic_store_rel_64((volatile uint64_t *)&M[addr], data & DMASK);  \
+    }                                                                    \
   while (0)
 
 # endif // BSD_ATOMICS
 
 # if defined(GNU_ATOMICS)
 
-// IIUC, the __sync use CST memorder
-#  define LOCK_CORE_WORD(addr)                               \
-  do                                                         \
-    {                                                        \
-      unsigned int i = DEADLOCK_DETECT;                      \
-      while ((__atomic_fetch_or((volatile u_long *)&M[addr], \
-        MEM_LOCKED, __ATOMIC_ACQUIRE) & MEM_LOCKED)          \
-                &&  i > 0)                                   \
-    {                                                        \
-      i--;                                                   \
-      if ((i & 0xff) == 0) {                                 \
-        sched_yield();                                       \
-        cpu.lockYield++;                                     \
-      }                                                      \
-    }                                                        \
-      if (i == 0)                                            \
-        {                                                    \
-          sim_warn ("%s: locked %x addr %x deadlock\n",      \
-            __FUNCTION__, cpu.locked_addr, addr);            \
-        }                                                    \
-      cpu.lockCnt++;                                         \
-      if (i == DEADLOCK_DETECT)                              \
-          cpu.lockImmediate++;                               \
-      cpu.lockWait += (DEADLOCK_DETECT-i);                   \
-      cpu.lockWaitMax = ((DEADLOCK_DETECT-i) >               \
-          cpu.lockWaitMax) ? (DEADLOCK_DETECT-i) :           \
-              cpu.lockWaitMax;                               \
-    }                                                        \
+#  define LOCK_CORE_WORD(addr)                                           \
+  do                                                                     \
+    {                                                                    \
+      unsigned int i = DEADLOCK_DETECT;                                  \
+      while ((__atomic_fetch_or((volatile uint64_t *)&M[addr],           \
+        MEM_LOCKED, __ATOMIC_ACQ_REL) & MEM_LOCKED)                      \
+                && i > 0)                                                \
+    {                                                                    \
+      i--;                                                               \
+      if ((i & 0xff) == 0) {                                             \
+        sched_yield();                                                   \
+        cpu.lockYield++;                                                 \
+      }                                                                  \
+    }                                                                    \
+      if (i == 0)                                                        \
+        {                                                                \
+          sim_warn ("%s: locked %x addr %x deadlock\n",                  \
+            __FUNCTION__, cpu.locked_addr, addr);                        \
+        }                                                                \
+      cpu.lockCnt++;                                                     \
+      if (i == DEADLOCK_DETECT)                                          \
+          cpu.lockImmediate++;                                           \
+      cpu.lockWait += (DEADLOCK_DETECT-i);                               \
+      cpu.lockWaitMax = ((DEADLOCK_DETECT-i) >                           \
+          cpu.lockWaitMax) ? (DEADLOCK_DETECT-i) :                       \
+              cpu.lockWaitMax;                                           \
+    }                                                                    \
   while (0)
 
-#  define LOAD_ACQ_CORE_WORD(res, addr)                      \
-  do                                                         \
-    {                                                        \
-      res = __atomic_load_n((volatile u_long *)&M[addr],     \
-          __ATOMIC_ACQUIRE);                                 \
-    }                                                        \
+#  define LOAD_ACQ_CORE_WORD(res, addr)                                  \
+  do                                                                     \
+    {                                                                    \
+      res = __atomic_load_n((volatile uint64_t *)&M[addr],               \
+          __ATOMIC_ACQUIRE);                                             \
+    }                                                                    \
   while (0)
 
-#  define STORE_REL_CORE_WORD(addr, data)                    \
-  do                                                         \
-    {                                                        \
-      __atomic_store_n((volatile u_long *)&M[addr], data &   \
-          DMASK, __ATOMIC_RELEASE);                          \
-    }                                                        \
+#  define STORE_REL_CORE_WORD(addr, data)                                \
+  do                                                                     \
+    {                                                                    \
+      __atomic_store_n((volatile uint64_t *)&M[addr], data &             \
+          DMASK, __ATOMIC_RELEASE);                                      \
+    }                                                                    \
   while (0)
 
 # endif // GNU_ATOMICS
@@ -2311,47 +2314,47 @@ int core_unlock_all(void);
 #   define MEM_BARRIER()   do {} while (0)
 #  endif
 
-#  define LOCK_CORE_WORD(addr)                                          \
-     do                                                                 \
-       {                                                                \
-         unsigned int i = DEADLOCK_DETECT;                              \
-         while ((__sync_fetch_and_or((volatile uint64_t *)&M[addr],     \
-             MEM_LOCKED) & MEM_LOCKED) &&  i > 0)                       \
-           {                                                            \
-            i--;                                                        \
-            if ((i & 0xff) == 0) {                                      \
-              sched_yield();                                            \
-              cpu.lockYield++;                                          \
-            }                                                           \
-           }                                                            \
-         if (i == 0)                                                    \
-           {                                                            \
-            sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__, \
-                cpu.locked_addr, addr);                                 \
-            }                                                           \
-         cpu.lockCnt++;                                                 \
-         if (i == DEADLOCK_DETECT)                                      \
-           cpu.lockImmediate++;                                         \
-         cpu.lockWait += (DEADLOCK_DETECT-i);                           \
-         cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ?    \
-             (DEADLOCK_DETECT-i) : cpu.lockWaitMax;                     \
-       }                                                                \
+#  define LOCK_CORE_WORD(addr)                                           \
+     do                                                                  \
+       {                                                                 \
+         unsigned int i = DEADLOCK_DETECT;                               \
+         while ((__sync_fetch_and_or((volatile uint64_t *)&M[addr],      \
+             MEM_LOCKED) & MEM_LOCKED) && i > 0)                         \
+           {                                                             \
+            i--;                                                         \
+            if ((i & 0xff) == 0) {                                       \
+              sched_yield();                                             \
+              cpu.lockYield++;                                           \
+            }                                                            \
+           }                                                             \
+         if (i == 0)                                                     \
+           {                                                             \
+            sim_warn ("%s: locked %x addr %x deadlock\n", __FUNCTION__,  \
+                cpu.locked_addr, addr);                                  \
+            }                                                            \
+         cpu.lockCnt++;                                                  \
+         if (i == DEADLOCK_DETECT)                                       \
+           cpu.lockImmediate++;                                          \
+         cpu.lockWait += (DEADLOCK_DETECT-i);                            \
+         cpu.lockWaitMax = ((DEADLOCK_DETECT-i) > cpu.lockWaitMax) ?     \
+             (DEADLOCK_DETECT-i) : cpu.lockWaitMax;                      \
+       }                                                                 \
      while (0)
 
-#  define LOAD_ACQ_CORE_WORD(res, addr)                                 \
-     do                                                                 \
-       {                                                                \
-         res = M[addr];                                                 \
-         MEM_BARRIER();                                                 \
-       }                                                                \
+#  define LOAD_ACQ_CORE_WORD(res, addr)                                  \
+     do                                                                  \
+       {                                                                 \
+         res = M[addr];                                                  \
+         MEM_BARRIER();                                                  \
+       }                                                                 \
      while (0)
 
-#  define STORE_REL_CORE_WORD(addr, data)                               \
-  do                                                                    \
-    {                                                                   \
-      MEM_BARRIER();                                                    \
-      M[addr] = data & DMASK;                                           \
-    }                                                                   \
+#  define STORE_REL_CORE_WORD(addr, data)                                \
+  do                                                                     \
+    {                                                                    \
+      MEM_BARRIER();                                                     \
+      M[addr] = data & DMASK;                                            \
+    }                                                                    \
   while (0)
 
 # endif  // SYNC_ATOMICS
