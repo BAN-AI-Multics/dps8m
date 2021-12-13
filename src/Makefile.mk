@@ -196,8 +196,14 @@ endif
 ###############################################################################
 # Default FLAGS
 
+ifndef TESTING
+  OPTFLAGS = -O3 -g3
+else
+  OPTFLAGS = -O0 -g3 -fno-inline -ggdb -U_FORTIFY_SOURCE -fno-stack-protector
+endif
+
 ifndef SUNPRO
-  CFLAGS  += -Wall -g3 -O3 -fno-strict-aliasing
+  CFLAGS  += -Wall $(OPTFLAGS) -fno-strict-aliasing
 endif
 
 CFLAGS  += $(X_FLAGS)
