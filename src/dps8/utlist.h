@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2007-2013 Troy D. Hanson
- *     http://troydhanson.github.com/uthash/
+ * Copyright (c) 2007-2021 Troy D. Hanson
+ *     http://troydhanson.github.io/uthash/
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * All rights reserved.
@@ -27,7 +27,7 @@
 #ifndef UTLIST_H
 # define UTLIST_H
 
-# define UTLIST_VERSION 1.9.8
+# define UTLIST_VERSION 21.9.8
 
 # include <assert.h>
 
