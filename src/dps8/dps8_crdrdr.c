@@ -742,7 +742,7 @@ empty:;
 static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
   {
     if (readerIndex >= N_RDR_UNITS_MAX) {
-      sim_warn("crdrdr: submit called with invalid reader index %d\n", readerIndex);
+      sim_warn("crdrdr: submit called with invalid reader index %ld\n", (long) readerIndex);
       return;
     }
 

@@ -344,7 +344,7 @@ static t_stat disk_show_type (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int v
     int diskUnitIdx = (int) DSK_UNIT_IDX (uptr);
     if (diskUnitIdx < 0 || diskUnitIdx >= N_DSK_UNITS_MAX)
       {
-        sim_printf ("error: invalid unit number %d\n", diskUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) diskUnitIdx);
         return SCPE_ARG;
       }
 
@@ -359,7 +359,7 @@ static t_stat disk_set_type (UNUSED UNIT * uptr, UNUSED int32 value, const char 
     int diskUnitIdx = (int) DSK_UNIT_IDX (uptr);
     if (diskUnitIdx < 0 || diskUnitIdx >= N_DSK_UNITS_MAX)
       {
-        sim_printf ("error: invalid unit number %d\n", diskUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) diskUnitIdx);
         return SCPE_ARG;
       }
 
@@ -521,7 +521,7 @@ static t_stat disk_set_ready (UNIT * uptr, UNUSED int32 value,
     long disk_unit_idx = DSK_UNIT_IDX (uptr);
     if (disk_unit_idx >= (long) dsk_dev.numunits)
       {
-        sim_warn ("%s: error: invalid unit number %ld\n", __func__, disk_unit_idx);
+        sim_warn ("%s: error: Invalid unit number %ld\n", __func__, (long) disk_unit_idx);
         return SCPE_ARG;
       }
     return signal_disk_ready ((uint) disk_unit_idx);
@@ -531,7 +531,7 @@ t_stat unloadDisk (uint dsk_unit_idx) {
   if (dsk_unit [dsk_unit_idx] . flags & UNIT_ATT) {
     t_stat stat = sim_disk_detach (& dsk_unit [dsk_unit_idx]);
     if (stat != SCPE_OK) {
-      sim_warn ("%s: sim_disk_detach returned %d\n", __func__, stat);
+      sim_warn ("%s: sim_disk_detach returned %ld\n", __func__, (long) stat);
       return SCPE_ARG;
     }
   }
@@ -611,7 +611,7 @@ static t_stat disk_attach (UNIT *uptr, CONST char *cptr)
     int diskUnitIdx = (int) DSK_UNIT_IDX (uptr);
     if (diskUnitIdx < 0 || diskUnitIdx >= N_DSK_UNITS_MAX)
       {
-        sim_printf ("error: invalid unit number %d\n", diskUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) diskUnitIdx);
         return SCPE_ARG;
       }
 

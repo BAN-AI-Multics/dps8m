@@ -1647,7 +1647,7 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
             continue;
           }
 
-        sim_warn ("error: opc_set_config: invalid cfg_parse rc <%d>\n",
+        sim_warn ("error: opc_set_config: Invalid cfg_parse rc <%d>\n",
                   rc);
         cfg_parse_done (& cfg_state);
         return SCPE_ARG;

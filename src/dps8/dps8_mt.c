@@ -699,8 +699,8 @@ static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
     if (tape_unit_idx >= N_MT_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & tape_dev,
-                   "Tape set ready: Invalid unit number %ld\n", tape_unit_idx);
-        sim_printf ("error: invalid unit number %ld\n", tape_unit_idx);
+                   "Tape set ready: Invalid unit number %ld\n", (long) tape_unit_idx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) tape_unit_idx);
         return SCPE_ARG;
       }
     return signal_tape ((unsigned int) tape_unit_idx, 0, 020 /* tape drive to ready */);
@@ -2092,7 +2092,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
         tape_statep->rec_num ++;
         if (unitp->flags & UNIT_WATCH)
-          sim_printf ("Tape %ld writes tape mark %d\n", (long) MT_UNIT_NUM (unitp), tape_statep->rec_num);
+          sim_printf ("Tape %ld writes tape mark %ld\n", (long) MT_UNIT_NUM (unitp), (long) tape_statep->rec_num);
 
         p->stati = 04000;
         if (sim_tape_eot (unitp))

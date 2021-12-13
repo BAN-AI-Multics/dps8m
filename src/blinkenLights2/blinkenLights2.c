@@ -404,7 +404,7 @@ int main (int argc, char * argv []) {
     }
   }
   if (cpunum < 0 || cpunum > 8 /*N_CPU_UNITS_MAX*/ - 1) {
-    printf ("invalid cpu number %d\n", cpunum);
+    printf ("Invalid cpu number %ld\n", (long) cpunum);
     return 1;
   }
 

@@ -192,7 +192,9 @@ create_shm(char *key, size_t shm_size)
         }
     }
 
+# ifndef __APPLE__
   (void)fdatasync(lck_fd);
+# endif /* ifndef __APPLE__ */
 
   (void)snprintf(spid, SPIDLEN, "%ld ", (long)getpid());
 
@@ -301,7 +303,9 @@ create_shm(char *key, size_t shm_size)
       return NULL;
     }
 
+#ifndef __APPLE__
   (void)fdatasync(fd);
+#endif /* ifndef __APPLE__ */
 
   p = mmap(NULL, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if (p == MAP_FAILED)

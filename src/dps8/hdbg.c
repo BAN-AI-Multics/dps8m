@@ -644,21 +644,21 @@ done: ;
 # if 0
 void hdbg_mark (void) {
   hevtMark = hdbgSize;
-  sim_printf ("hdbg mark set to %ld\n", hevtMark);
+  sim_printf ("hdbg mark set to %ld\n", (long) hevtMark);
 }
 # endif
 
 t_stat hdbg_cpu_mask (UNUSED int32 arg, const char * buf)
   {
     hdbgCPUMask = strtoul (buf, NULL, 0);
-    sim_printf ("hdbg CPU mask set to %ld\n", hdbgCPUMask);
+    sim_printf ("hdbg CPU mask set to %ld\n", (long) hdbgCPUMask);
     return SCPE_OK;
   }
 
 // set buffer size
 t_stat hdbg_size (UNUSED int32 arg, const char * buf) {
   hdbgSize = strtoul (buf, NULL, 0);
-  sim_printf ("hdbg size set to %ld\n", hdbgSize);
+  sim_printf ("hdbg size set to %ld\n", (long) hdbgSize);
   createBuffer ();
   return SCPE_OK;
 }

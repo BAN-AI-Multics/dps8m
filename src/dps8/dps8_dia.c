@@ -60,8 +60,8 @@ static t_stat set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUS
     //if (dia_unit_idx >= dia_dev.numunits)
     if (dia_unit_idx >= N_DIA_UNITS_MAX)
       {
-        sim_debug (DBG_ERR, & dia_dev, "DIA SET CONFIG: Invalid unit number %d\n", dia_unit_idx);
-        sim_printf ("error: DIA SET CONFIG: invalid unit number %d\n", dia_unit_idx);
+        sim_debug (DBG_ERR, & dia_dev, "DIA SET CONFIG: Invalid unit number %ld\n", (long) dia_unit_idx);
+        sim_printf ("error: DIA SET CONFIG: Invalid unit number %ld\n", (long) dia_unit_idx);
         return SCPE_ARG;
       }
 
@@ -87,7 +87,7 @@ static t_stat set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUS
               break;
 
             default:
-              sim_printf ("error: DIA SET CONFIG: invalid cfg_parse rc <%d>\n", rc);
+              sim_printf ("error: DIA SET CONFIG: Invalid cfg_parse rc <%ld>\n", (long) rc);
               cfg_parse_done (& cfg_state);
               return SCPE_ARG;
           } // switch
@@ -105,12 +105,12 @@ static t_stat show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (unit_idx >= (long) N_DIA_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & dia_dev,
-                   "DIA SHOW CONFIG: Invalid unit number %ld\n", unit_idx);
-        sim_printf ("error: invalid unit number %ld\n", unit_idx);
+                   "DIA SHOW CONFIG: Invalid unit number %ld\n", (long) unit_idx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) unit_idx);
         return SCPE_ARG;
       }
 
-    sim_printf ("DIA unit number %ld\n", unit_idx);
+    sim_printf ("DIA unit number %ld\n", (long) unit_idx);
     struct dia_unit_data * dudp = dia_data.dia_unit_data + unit_idx;
 
     sim_printf ("DIA Mailbox Address:         %04o(8)\n", dudp -> mailbox_address);
@@ -126,12 +126,12 @@ static t_stat show_status (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (dia_unit_idx >= (long) dia_dev.numunits)
       {
         sim_debug (DBG_ERR, & dia_dev,
-                   "DIA SHOW STATUS: Invalid unit number %ld\n", dia_unit_idx);
-        sim_printf ("error: invalid unit number %ld\n", dia_unit_idx);
+                   "DIA SHOW STATUS: Invalid unit number %ld\n", (long) dia_unit_idx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) dia_unit_idx);
         return SCPE_ARG;
       }
 
-    sim_printf ("DIA unit number %ld\n", dia_unit_idx);
+    sim_printf ("DIA unit number %ld\n", (long) dia_unit_idx);
     struct dia_unit_data * dudp = dia_data.dia_unit_data + dia_unit_idx;
 
     sim_printf ("mailbox_address:              %04o\n", dudp->mailbox_address);

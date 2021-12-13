@@ -9854,7 +9854,7 @@ static int emCall (void)
        // OP 1: Print the unsigned decimal representation of the first data
        //       word.
        case 1: 
-         sim_printf ("%ld\n", (int64_t) M[i->address+1]);
+         sim_printf ("%lld\n", (long long int) M[i->address+1]);
          break;
 
        // OP 2: Halt the simulation
@@ -9886,13 +9886,17 @@ static int emCall (void)
            uint64_t microseconds = (delta / ns_usec) % 1000;
            uint64_t nanoseconds = delta  % 1000;
            unsigned long long nInsts = cpu.instrCnt - startInstrCnt;
-           double secs = ((double) delta) / (double) ns_sec;
-           double ips = ((double) nInsts) / secs;
-           double mips = ips / 1000000;
+           double secs = (double)(((long double) delta) / ((long double) ns_sec));
+           long double ips = (long double)(((long double) nInsts) / ((long double) secs));
+           long double mips = ips / 1000000.0L;
 
-           sim_printf ("CPU time %lu.%03lu,%03lu,%03lu\n", seconds, milliseconds, microseconds, nanoseconds);
-           sim_printf ("%lld instructions\n", nInsts);
-           sim_printf ("%lf MIPS\n", mips);
+           sim_printf ("CPU time %llu.%03llu,%03llu,%03llu\n",
+                       (unsigned long long) seconds,
+                       (unsigned long long) milliseconds,
+                       (unsigned long long) microseconds,
+                       (unsigned long long) nanoseconds);
+           sim_printf ("%'lld instructions\n", (long long) nInsts);
+           sim_printf ("%Lf MIPS\n", (long double) mips);
            break;
          }
        default:

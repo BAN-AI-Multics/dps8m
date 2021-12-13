@@ -967,11 +967,11 @@ static t_stat iom_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     uint iom_unit_idx = (uint) IOM_UNIT_IDX (uptr);
     if (iom_unit_idx >= iom_dev.numunits)
       {
-        sim_printf ("error: invalid unit number %u\n", iom_unit_idx);
+        sim_printf ("error: Invalid unit number %lu\n", (unsigned long) iom_unit_idx);
         return SCPE_ARG;
       }
 
-    sim_printf ("IOM unit number %u\n", iom_unit_idx);
+    sim_printf ("IOM unit number %lu\n", (unsigned long) iom_unit_idx);
     iom_unit_data_t * p = iom_unit_data + iom_unit_idx;
 
     char * os = "<out of range>";
@@ -1134,7 +1134,7 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
     uint iom_unit_idx = (uint) IOM_UNIT_IDX (uptr);
     if (iom_unit_idx >= iom_dev.numunits)
       {
-        sim_printf ("error: %s: invalid unit number %d\n", __func__, iom_unit_idx);
+        sim_printf ("error: %s: Invalid unit number %ld\n", __func__, (long) iom_unit_idx);
         return SCPE_ARG;
       }
 
@@ -1265,7 +1265,7 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
             continue;
           }
 
-        sim_printf ("error: %s: invalid cfg_parse rc <%d>\n", __func__, rc);
+        sim_printf ("error: %s: Invalid cfg_parse rc <%ld>\n", __func__, (long) rc);
         cfg_parse_done (& cfg_state);
         return SCPE_ARG;
       } // process statements

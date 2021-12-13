@@ -1285,8 +1285,8 @@ static t_stat pun_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
             continue;
           }
 
-        sim_warn ("error: pun_set_config: invalid cfg_parse rc <%d>\n",
-                  rc);
+        sim_warn ("error: pun_set_config: Invalid cfg_parse rc <%ld>\n",
+                  (long) rc);
         cfg_parse_done (& cfg_state);
         return SCPE_ARG;
       } // process statements

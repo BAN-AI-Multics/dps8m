@@ -1352,17 +1352,14 @@ Windows/x86_64, MinGW64-GCC V8:
   script:
     - export GLCICD_JOB="GCCMINGW64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
     - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptAptSetup
     - *scriptAptInstallMinGW64
     - *scriptBuildlibuvMGW64
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - *scriptBuildInfo
     - cp -vf "/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll" "${CI_PROJECT_DIR:?}"
     - *scriptCompressArtifacts

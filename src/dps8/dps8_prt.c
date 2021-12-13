@@ -1917,8 +1917,8 @@ static t_stat prt_set_ready (UNIT * uptr, UNUSED int32 value,
     if (n < 0 || n >= N_PRT_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & prt_dev,
-                   "Printer set ready: Invalid unit number %d\n", n);
-        sim_printf ("error: invalid unit number %d\n", n);
+                   "Printer set ready: Invalid unit number %ld\n", (long) n);
+        sim_printf ("error: Invalid unit number %ld\n", (long) n);
         return SCPE_ARG;
       }
     return signal_prt_ready ((uint) n);
@@ -1968,8 +1968,8 @@ static t_stat prt_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
             continue;
           }
 
-        sim_warn ("error: prt_set_config: invalid cfg_parse rc <%d>\n",
-                  rc);
+        sim_warn ("error: prt_set_config: Invalid cfg_parse rc <%ld>\n",
+                  (long) rc);
         cfg_parse_done (& cfg_state);
         return SCPE_ARG;
       } // process statements

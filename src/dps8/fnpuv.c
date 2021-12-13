@@ -1200,7 +1200,7 @@ static void processPacketInput (int fnpno, int lineno, unsigned char * buf, ssiz
         sim_printf ("[FNP emulation: processPacketInput bogus client data]\n");
         return;
       }
-//sim_printf ("assoc. %d.%d nread %ld <%*s>\n", fnpno, lineno, nread, (int) nread, buf);
+//sim_printf ("assoc. %d.%d nread %ld <%*s>\n", fnpno, lineno, (long) nread, buf);
 //{for (int i = 0; i < nread; i ++) sim_printf (" %03o", buf[i]);
  //sim_printf ("\n");
 //}
@@ -1246,7 +1246,7 @@ static void fnoTUNProcessLine (int fnpno, int lineno, struct t_line * linep)
         //exit (1);
         if (errno == EAGAIN)
           return;
-        sim_printf ("%ld %d\n", nread, errno);
+        sim_printf ("%ld %ld\n", (long) nread, (long) errno);
         return;
       }
 
@@ -1267,7 +1267,7 @@ static void fnoTUNProcessLine (int fnpno, int lineno, struct t_line * linep)
 // 4 bytes of metadata
 # define ip 4
     /* Do whatever with the data */
-    sim_printf("Read %ld bytes\n", nread);
+    sim_printf("Read %ld bytes\n", (long) nread);
     sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\n",
       buffer [0], buffer [1], buffer [2], buffer [3],
       buffer [4], buffer [5], buffer [6], buffer [7]);

@@ -99,11 +99,11 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
     long cpu_unit_idx = UNIT_IDX (uptr);
     if (cpu_unit_idx < 0 || cpu_unit_idx >= N_CPU_UNITS_MAX)
       {
-        sim_warn ("error: invalid unit number %ld\n", cpu_unit_idx);
+        sim_warn ("error: Invalid unit number %ld\n", (long) cpu_unit_idx);
         return SCPE_ARG;
       }
 
-    sim_msg ("CPU unit number %ld\n", cpu_unit_idx);
+    sim_msg ("CPU unit number %ld\n", (long) cpu_unit_idx);
 
     sim_msg ("Fault base:               %03o(8)\n",
                 cpus[cpu_unit_idx].switches.FLT_BASE);
@@ -365,8 +365,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
     long cpu_unit_idx = UNIT_IDX (uptr);
     if (cpu_unit_idx < 0 || cpu_unit_idx >= N_CPU_UNITS_MAX)
       {
-        sim_warn ("error: cpu_set_config: invalid unit number %ld\n",
-                    cpu_unit_idx);
+        sim_warn ("error: cpu_set_config: Invalid unit number %ld\n",
+                    (long) cpu_unit_idx);
         return SCPE_ARG;
       }
 
@@ -562,8 +562,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
           }
         else
           {
-            sim_warn ("error: cpu_set_config: invalid cfg_parse rc <%d>\n",
-                        rc);
+            sim_warn ("error: cpu_set_config: Invalid cfg_parse rc <%ld>\n",
+                        (long) rc);
             cfg_parse_done (& cfg_state);
             return SCPE_ARG;
           }
@@ -1296,11 +1296,9 @@ static void do_stats (void)
         sim_msg ("Instruction counts\r\n");
         for (uint i = 0; i < 8; i ++)
           {
-            sim_msg (" %9lld", cpus[i].instrCnt);
+            sim_msg (" %'9lld\r\n", (long long int) cpus[i].instrCnt);
             cpus[i].instrCnt = 0;
           }
-        sim_msg ("\r\n");
-
         sim_msg ("\r\n");
       }
   }
@@ -3242,7 +3240,7 @@ t_stat set_mem_watch (int32 arg, const char * buf)
     long int n = strtol (buf, & end, 0);
     if (* end || n < 0 || n >= MEMSIZE)
       {
-        sim_warn ("invalid argument to watch? %ld\n", n);
+        sim_warn ("Invalid argument to watch? %ld\n", (long) n);
         return SCPE_ARG;
       }
     watch_bits [n] = arg != 0;
