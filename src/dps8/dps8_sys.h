@@ -17,18 +17,6 @@
 # include <uv.h>
 # include "uvutil.h"
 
-enum http_state_t
-  {
-    hsInitial, // waiting for request
-    hsFields, // reading fields
-  };
-
-enum http_request_t
-  {
-    hrNone,
-    hrGet,
-  };
-
 // System-wide info and options not tied to a specific CPU, IOM, or SCU
 typedef struct
   {
@@ -46,20 +34,7 @@ typedef struct
     // } mt_times;
     // bool warn_uninit; // Warn when reading uninitialized memory
 
-# define MR_BUFFER_SZ 4096
-    char mr_buffer[MR_BUFFER_SZ];
-    int mr_buffer_cnt;
-
-    uv_access machine_room_access;
-
-// http parser
-
-    enum http_state_t httpState;
-    enum http_request_t httpRequest;
-    char http_get_URI[MR_BUFFER_SZ];
-
     bool no_color;
-
     uint sys_poll_interval; // Polling interval in milliseconds
     uint sys_slow_poll_interval; // Polling interval in polling intervals
     uint sys_poll_check_rate; // Check for pooling interval rate in CPU cycles

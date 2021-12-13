@@ -1689,49 +1689,6 @@ static t_stat set_default_base_system (UNUSED int32 arg, UNUSED const char * buf
     return SCPE_OK;
   }
 
-// Control access to the 'machine room' HTTP server
-
-static t_stat set_machine_room_port (UNUSED int32 arg, const char * buf)
-  {
-    if (! buf)
-      return SCPE_ARG;
-    int n = atoi (buf);
-    if (n < 0 || n > 65535) // 0 is 'disable'
-      return SCPE_ARG;
-    sys_opts.machine_room_access.port = n;
-    sim_msg ("Machine room port set to %d\n", n);
-    return SCPE_OK;
-  }
-
-static t_stat set_machine_room_address (UNUSED int32 arg, const char * buf)
-  {
-    if (sys_opts.machine_room_access.address)
-      free (sys_opts.machine_room_access.address);
-    sys_opts.machine_room_access.address = strdup (buf);
-    sim_msg ("Machine room address set to %s\n", sys_opts.machine_room_access.address);
-    return SCPE_OK;
-  }
-
-static t_stat set_machine_room_pw (UNUSED int32 arg, UNUSED const char * buf)
-  {
-    if (strlen (buf) == 0)
-      {
-        sim_warn ("no password\n");
-        sys_opts.machine_room_access.pw[0] = 0;
-        return SCPE_OK;
-      }
-    char token[strlen (buf)];
-    //sim_msg ("<%s>\n", buf);
-    int rc = sscanf (buf, "%s", token);
-    if (rc != 1)
-      return SCPE_ARG;
-    if (strlen (token) > PW_SIZE)
-      return SCPE_ARG;
-    strcpy (sys_opts.machine_room_access.pw, token);
-    //sim_msg ("<%s>\n", token);
-    return SCPE_OK;
-  }
-
 // Skip records on the boot tape.
 // The T&D tape first record is for testing DPS8s, the
 // second record (1st record / tape mark / 2nd record)
@@ -3802,10 +3759,6 @@ static CTAB dps8_cmds[] =
     {"CONSOLEPORT1",        set_console_port,         1, "consoleport1: Set the CPU-B Operator Console port number\n", NULL, NULL},
     {"CONSOLEADDRESS1",     set_console_address,      1, "consoleport: Set the Operator Console address\n", NULL, NULL},
     {"CONSOLEPW1",          set_console_pw,           1, "consolepw1: Set the CPU-B Operator Console port password\n", NULL, NULL},
-
-    {"MACHINEROOMPORT",     set_machine_room_port,    0, "machineroomport: set the machine room port number\n", NULL, NULL},
-    {"MACHINEROOMADDRESS",   set_machine_room_address, 0, "machineroomaddress: set the machine room address\n", NULL, NULL},
-    {"MACHINEROOMPW",       set_machine_room_pw,      0, "machineroompW: set the machine room port password\n", NULL, NULL},
 
 //
 // System contol

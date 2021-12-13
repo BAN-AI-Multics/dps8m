@@ -2112,7 +2112,6 @@ setCPU:;
             queueSubsample = 0;
             fnpProcessEvent ();
             consoleProcess ();
-            machine_room_process ();
             absi_process_event ();
             PNL (panel_process_event ());
           }
