@@ -76,12 +76,12 @@ for tape in               \
           test -f "${tape:?}" ||
             {
               ln -s "/var/cache/tapes/${tape:?}" . \
-                > /dev/null 2>&1
+                > /dev/null 2>&1 || true
             }
         }
 	  test -f "${tape:?}" ||
         cp -f "/var/cache/tapes/${tape:?}" . \
-          > /dev/null 2>&1
+          > /dev/null 2>&1 || true
 done
 
 touch "12.7MULTICS.tap" 2> /dev/null || true
