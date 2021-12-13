@@ -561,11 +561,11 @@ Linux/x86_64, AlmaLinux 8, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -602,13 +602,13 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - *scriptExtraInfo
     - rm -rf mimalloc || true
     - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone -v --depth=1 https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build; cd build; CC=clang cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - dash -x -c 'make distclean; exit "${?}"'
     - rm -rf mimalloc || true
     - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone -v --depth=1 https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build; cd build; CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -646,11 +646,11 @@ Linux/x86_64, Amazon Linux, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-}-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-}-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="${CFLAGS:-}-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-}-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -686,11 +686,11 @@ Linux/x86_64, Clear Linux. Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -730,7 +730,7 @@ Windows/x86_64, Cygwin64-GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'cygwin64-make LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'cygwin64-make LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - *scriptBuildInfo
     - cp -vf /usr/x86_64-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
     - *scriptCompressArtifacts
@@ -788,7 +788,7 @@ Linux/x86_64, Fedora, Intel DPC++/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icx LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icx LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -821,7 +821,7 @@ Linux/x86_64, Fedora, Intel C/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make -C src/dps8 CC=icx udplib.o && make -C src/simh CC=icx sim_sock.o && make -C src/dps8 CC=icx dps8_socket_dev.o && make CC="icc -no-restrict -D__attribute__\(x\)=/"/"" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make -C src/dps8 CC=icx udplib.o && make -C src/simh CC=icx sim_sock.o && make -C src/dps8 CC=icx dps8_socket_dev.o && make CC="icc -no-restrict -D__attribute__\(x\)=/"/"" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -855,7 +855,7 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - pkill suncc > /dev/null 2>&1 || true
-    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 60 ; export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -DUSE_FLOCK=1 -DUSE_FCNTL=1" && make CC="ccache /opt/oracle/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -fd -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -native -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")" SUNPRO=1 NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k 2>&1 | grep --line-buffered -v -e " not parallelized" -e " enumerator value overflows INT_MAX" ; exit "${?}"'
+    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 60 ; export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -DUSE_FLOCK=1 -DUSE_FCNTL=1" && make CC="ccache /opt/oracle/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -fd -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -native -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")" SUNPRO=1 NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory 2>&1 | grep --line-buffered -v -e " not parallelized" -e " enumerator value overflows INT_MAX" ; exit "${?}"'
     - pkill suncc > /dev/null 2>&1 || true
     - eatmydata sh -x -c 'printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
@@ -896,7 +896,7 @@ Linux/x86_64, Fedora, AOCC, AOCL:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - eatmydata sh -x -c 'rm -f amd_memcpy.o; rm -f src/dps8/amd_memcpy.o; . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && clang -Wno-unused-command-line-argument -Ofast -ffast-math -fomit-frame-pointer -ffast-math -mllvm -vector-library=AMDLIBM -c -o amd_memcpy.o /opt/AMD/aocl/latest/amd-memcpy/src/amd_memcpy.c /opt/AMD/aocl/latest/lib/libalm.a -lm && ls -la amd_memcpy.o && nm -s amd_memcpy.o | tee -i /dev/stderr | grep -w memcpy && size -A amd_memcpy.o && cp -f amd_memcpy.o src/dps8/amd_memcpy.o'
-    - eatmydata sh -x -c '. /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -fdata-sections -ffunction-sections -Ofast -ffast-math"; make CC="clang -mllvm -vector-library=AMDLIBM" LDFLAGS="-Wno-unused-command-line-argument -Wl,--gc-sections" LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib /opt/AMD/aocl/latest/lib/libalm.a amd_memcpy.o -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c '. /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -fdata-sections -ffunction-sections -Ofast -ffast-math"; make CC="clang -mllvm -vector-library=AMDLIBM" LDFLAGS="-Wno-unused-command-line-argument -Wl,--gc-sections" LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib /opt/AMD/aocl/latest/lib/libalm.a amd_memcpy.o -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -934,11 +934,11 @@ Linux/x86_64, Fedora, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -972,11 +972,11 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1036,7 +1036,7 @@ AIX/powerpc64, IBM AIX, GCC 11:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'gmake CC=gcc-11 -j 12 --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'gmake CC=gcc-11 -j 12 --output-sync --print-directory; exit "${?}"'
     - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1066,7 +1066,7 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory; exit "${?}"'
     - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1096,7 +1096,7 @@ AIX/powerpc64, IBM AIX, IBM XL Clang V16.1:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'export XLCVER="16.1.0" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1 --output-sync --print-directory -k; exit "${?}"'
+    - bash -x -c 'export XLCVER="16.1.0" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1 --output-sync --print-directory; exit "${?}"'
     - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1128,7 +1128,7 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata bash -x -c 'export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata bash -x -c 'export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1160,7 +1160,7 @@ Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS, TCMalloc:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata bash -x -c 'export IBMXLMASSVER="latest-9" export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections -mveclibabi=mass -Ofast" LIBS="-L/opt/at${IBMATVER:?}/lib64 -L/opt/ibm/xlmass/${IBMXLMASSVER:?}/lib -ltcmalloc -luv -lmassvp9 -lmass_simdp9 -lmass -ldl -lrt -lm" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata bash -x -c 'export IBMXLMASSVER="latest-9" export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections -mveclibabi=mass -Ofast" LIBS="-L/opt/at${IBMATVER:?}/lib64 -L/opt/ibm/xlmass/${IBMXLMASSVER:?}/lib -ltcmalloc -luv -lmassvp9 -lmass_simdp9 -lmass -ldl -lrt -lm" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1191,7 +1191,7 @@ Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 14:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata bash -x -c 'export IBMATVER="14.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata bash -x -c 'export IBMATVER="14.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1226,7 +1226,7 @@ Windows/ARM64, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - *scriptBuildInfo
     - *scriptCompressArtifacts
   dependencies: []
@@ -1257,7 +1257,7 @@ Windows/ARMv7, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - *scriptBuildInfo
     - *scriptCompressArtifacts
   dependencies: []
@@ -1288,7 +1288,7 @@ Windows/i686, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - *scriptBuildInfo
     - *scriptCompressArtifacts
   dependencies: []
@@ -1319,7 +1319,7 @@ Windows/x86_64, LLVM-MinGW:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - *scriptBuildInfo
     - *scriptCompressArtifacts
   dependencies: []
@@ -1383,7 +1383,7 @@ Windows/x86_64, MinGW64-GCC V9:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - *scriptBuildInfo
     - *scriptCompressArtifacts
   dependencies: []
@@ -1411,11 +1411,11 @@ Linux/x86_64, OpenSUSE Leap, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1455,11 +1455,11 @@ Linux/x86_64, Oracle Linux 8, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1525,11 +1525,11 @@ Linux/x86_64, Ubuntu, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - eatmydata sh -x -c 'make distclean; exit "${?}"'
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1568,11 +1568,11 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - eatmydata sh -x -c 'make distclean; exit "${?}"'
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1612,11 +1612,11 @@ Linux/x86_64, Void glibc, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - dash -x -c 'make distclean; exit "${?}"'
-    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1656,11 +1656,11 @@ Linux/x86_64, Void musl, mimalloc, static, Clang, GCC:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - LD_PRELOAD=libmimalloc.so dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - LD_PRELOAD=libmimalloc.so dash -x -c 'make distclean; exit "${?}"'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1689,7 +1689,7 @@ Solaris/x86_64, Oracle Solaris 11.4, GCC 7.3:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - gcc -v; gmake CC=gcc -j 4 --output-sync --print-directory -k
+    - gcc -v; gmake CC=gcc -j 4 --output-sync --print-directory
     - echo "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1719,7 +1719,7 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS" && gmake CC="/opt/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(psrinfo -p 2> /dev/null || printf %s\\n "4")" --output-sync --print-directory -k SUNPRO=1 NEED_128=1 -j $(psrinfo -p 2> /dev/null || printf %s\\n "4") 2>&1 | grep -v " not parallelized" | grep -v " enumerator value overflows INT_MAX"; exit "${?}"'
+    - sh -x -c 'export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS" && gmake CC="/opt/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(psrinfo -p 2> /dev/null || printf %s\\n "4")" --output-sync --print-directory SUNPRO=1 NEED_128=1 -j $(psrinfo -p 2> /dev/null || printf %s\\n "4") 2>&1 | grep -v " not parallelized" | grep -v " enumerator value overflows INT_MAX"; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - lzip -9vk < /opt/developerstudio-latest/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
@@ -1751,15 +1751,15 @@ illumos/x86_64, OpenIndiana Hipster, Clang 9, GCC 7.5, GCC 10.3:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - gmake CC=clang -j 4 --output-sync --print-directory -k
+    - gmake CC=clang -j 4 --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - gmake distclean
-    - gmake CC=gcc-10 -j 4 --output-sync --print-directory -k
+    - gmake CC=gcc-10 -j 4 --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - gmake distclean
-    - gmake CC=gcc -j 4 --output-sync --print-directory -k
+    - gmake CC=gcc -j 4 --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1790,7 +1790,7 @@ Darwin/x86_64, macOS, Xcode:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'make -j 4 --print-directory -k; exit "${?}"'
+    - sh -x -c 'make -j 4 --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1822,7 +1822,7 @@ Darwin/x86_64, macOS, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'gmake CC=gcc-11 -j 4 --print-directory -k; exit "${?}"'
+    - sh -x -c 'gmake CC=gcc-11 -j 4 --print-directory; exit "${?}"'
     - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1941,11 +1941,11 @@ Linux/x86_64, Ubuntu 18.04, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - eatmydata sh -x -c 'make distclean; exit "${?}"'
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory -k; exit "${?}"'
+    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
     - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
