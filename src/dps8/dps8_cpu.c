@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "dps8.h"
 #include "dps8_addrmods.h"
@@ -1896,8 +1897,9 @@ void * cpu_thread_main (void * arg)
   {
     int myid = * (int *) arg;
     set_cpu_idx ((uint) myid);
+    unsigned char umyid = (unsigned char)toupper('a' + (int)myid);
 
-    sim_msg ("CPU %c thread created\n", 'a' + myid);
+    sim_msg ("CPU %c thread created.\n", (unsigned int)umyid);
 
     setSignals ();
     threadz_sim_instr ();

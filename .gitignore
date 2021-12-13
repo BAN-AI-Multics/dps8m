@@ -65,6 +65,8 @@ src/punutil/punutil
 src/punutil/punutil.exe
 src/mcmb/mcmb
 src/mcmb/mcmb.exe
+src/vmpctool/vmpctool
+src/vmpctool/vmpctool.exe
 src/dps8/dps8
 src/dps8/dps8.exe
 src/dps8/ver.h
@@ -120,9 +122,10 @@ unused.txt
 # Emacs
 *~
 
-# Docs
+# Output
 *.toc
 *.log
+*.log.*
 *.aux
 *.out
 
@@ -143,6 +146,8 @@ src/ci-kit/run
 src/ci-kit/dps8m
 options*.txt
 output.txt
+pages/
+public/
 
 # Common Targets
 all

@@ -371,20 +371,6 @@ printmod:
 
 ###############################################################################
 
-blinkenLights: blinkenLights.c shm.o
-	@$(PRINTF) '%s\n' "LD: blinkenLights"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLights.c                      \
-        -o blinkenLights shm.o `$(PKGCONFIG) --cflags --libs gtk+-3.0`
-
-###############################################################################
-
-blinkenLightsCurses: blinkenLightsCurses.c shm.o
-	@$(PRINTF) '%s\n' "LD: blinkenLightsCurses"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) blinkenLightsCurses.c                \
-        -o blinkenLightsCurses shm.o -lncurses
-
-###############################################################################
-
 .PHONY: all ctags
 dps8$(EXE): $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(DECN_OBJS) $(SIMH_OBJS) ctags
 	@$(PRINTF) '%s\n' "LD: dps8$(EXE)"
@@ -669,7 +655,7 @@ unifdef.out: unifdef
 	@($(SETV); $(CD) ".." 2> /dev/null && $(FIND) $$($(GIT) ls-files          \
      2> /dev/null | $(GREP) -v 'ci-kit/' 2> /dev/null                         \
        | $(GREP) ".*\.[ch]" 2> /dev/null )                                    \
-         -exec "./unifdef/unifdef.wrapper" "-s" "{}" 2> /dev/null \; |        \
+         -exec "./unifdef/unifdef.wrapper.sh" "-s" "{}" 2> /dev/null \; |     \
            $(SORT) -u 2> /dev/null) > "./unifdef.out" ||                      \
              $(TOUCH) "./unifdef.out" > /dev/null 2>&1
 

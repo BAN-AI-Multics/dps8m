@@ -3,20 +3,22 @@ set userName Clayton
 set projName SysAdmin
 set password password
 
-set timeout 200000
+remove_nulls 1
+match_max 4096
+set timeout 350000
 
 cd ./run
 
-proc w {} { expect  -re {\nr [0-9]+:[0-9]+ .*\r}; sleep .1}
-proc wi {} { expect  -re {Input.\r}; sleep .1}
-proc wn {} { expect  -re {\n}; sleep .1}
-proc sw { txt } { send $txt; send "\r"; w }
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2}
+proc  wi {     } { expect -re {Input.\r}; sleep 0.2}
+proc  wn {     } { expect -re {\n}; sleep 0.2}
+proc  sw { txt } { send $txt; send "\r"; w }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc wf {} { expect  -re {\nr  [0-9]+\r}; sleep .1}
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.5}
 proc swf { txt } { send $txt; send "\r"; wf }
 
-spawn telnet localhost 9180
+spawn telnet -E 127.0.0.1 "$env(FNPPORT)"
 set telnetID $spawn_id
 
 expect -re {HSLA Port \((d\.h\d+)}
@@ -29,7 +31,8 @@ send "$word $userName $projName\r"
 expect "Password:"
 sw "$password"
 
-sw "stty -modes ll132"
+sw "set_tty -delay 0,0,0,0,0,0"
+sw "set_tty -modes ^ll"
 sw "date_time"
 sw "spg 1 -of spg.log"
 
@@ -41,8 +44,7 @@ send "backup_load\r"
 expect "tape label:"; sleep 1
 send "12.7LISTINGS\r"
 
-expect "reloaded?"
-sleep 1
+expect "reloaded?"; sleep 1
 sw "n"
 
 sw "eis_tester >tools>et_scripts"
@@ -97,9 +99,6 @@ sw "q"
 sw "pl1 stt"
 sw "stt"
 
-
-
-
 swi "edm test_f2_data_.cds"
 swn "/* HISTORY COMMENTS:"
 swn "  1) change(2021-05-04,GDixon):"
@@ -150,7 +149,6 @@ swn "."
 swn "w"
 sw "q"
 
-
 swi "edm test_f2_prep.ec"
 swn "&version 2"
 swn "&-"
@@ -187,7 +185,6 @@ swn "&quit"
 swn "."
 swn "w"
 sw "q"
-
 
 swi "edm test_f2.pl1"
 swn "/****^  HISTORY COMMENTS:"
@@ -277,9 +274,6 @@ sw "q"
 sw "ec test_f2_prep.ec"
 sw "test_f2 3"
 
-
-
-
 swi "edm hello.pl1"
 swn "world: procedure options(main);"
 swn "  dcl sysprint file output print stream;"
@@ -291,7 +285,6 @@ swn "w"
 sw "q"
 sw "pl1 hello"
 sw "hello\$world"
-
 
 swi "edm hello.pascal"
 swn "Program Hello (Output);"
@@ -311,7 +304,6 @@ expect "      "
 send "'MULTICS RULEZ, UNIX DROOLZ'\r"
 expect "      "
 sw ")OFF"
-
 
 swi "edm hello.cobol"
 swn "000100 IDENTIFICATION DIVISION."
@@ -345,7 +337,6 @@ expect "*\r"
 send "(print \"Multics rulez; UNIX droolz\")\r"
 expect "t \r"
 sw "(quit)"
- 
 
 swi "edm hello.basic"
 swn "10 print \"Multics rulez; UNIX droolz\""
@@ -364,7 +355,6 @@ swn "w"
 sw "q"
 sw "fortran hello"
 sw "hello"
-
 
 swi "edm hello.c"
 swn "main ()"
@@ -410,25 +400,21 @@ sw "mrc store 1 Entry \"other\" \"All the world is not a VAX\""
 sw "mrc retrieve 2 1 \"-range (e Entry) -select e.key e.value -where e.key = \"\"hello\"\"\""
 sw "mrc close 1"
 
-
 swf "fast"
 swf "new hello.basic"
 swn "10 print \"Multics rulez; UNIX droolz\""
 swn "20 end"
 swf "run"
 send "new hello.fortran\r"
-expect "quit ?"
-sleep 1
+expect "quit ?"; sleep 1
 swf "y"
 swn "10 print 100"
 swn "20 100 format ('Multics rulez; UNIX droolz')"
 swn "30 end"
 swf "run"
 send "q\r"
-expect "quit ?"
-sleep 1
+expect "quit ?"; sleep 1
 sw "y"
-
 
 sw "cd fnp"
 sw "cwd fnp"
@@ -500,8 +486,5 @@ sw "disk_stat_print -lv"
 sw "spg -ht"
 sw "pr spg.log"
 
-swn "logout\r"
-sleep 5
+swn "logout\r"; sleep 5
 close $telnetID
-
-

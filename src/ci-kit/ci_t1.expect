@@ -3,11 +3,13 @@ set userName Clayton
 set projName SysAdmin
 set password password
 
-set timeout 200000
+remove_nulls 1
+match_max 4096
+set timeout 350000
 
 cd ./run
 
-spawn ./dps8 -v yoyodyne_start.ini
+spawn ./dps8 -r yoyodyne_start.ini
 set dps8ID $spawn_id
 
 expect "M-> CONSOLE: RELEASED"
@@ -16,94 +18,83 @@ exec mkdir -p ./cards/rdra
 exec mkdir -p ./cards/rdrb
 exec mkdir -p ./cards/rdrc
 
-exec cp sdeck.create_hardcore_listings.ec ./cards/rdra
+exec cp -f sdeck.create_hardcore_listings.ec ./cards/rdra
 
 set spawn_id $dps8ID
 
-proc w {} { expect  -re {\nr [0-9]+:[0-9]+ .*\r}; sleep .1}
-proc wi {} { expect  -re {Input.\r}; sleep .1}
-proc wn {} { expect  -re {\n}; sleep .1}
-proc sw { txt } { send $txt; send "\r"; w }
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2}
+proc  wi {     } { expect -re {Input.\r}; sleep 0.2}
+proc  wn {     } { expect -re {\n}; sleep 0.2}
+proc  sw { txt } { send $txt; send "\r"; w }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc wf {} { expect  -re {\nr  [0-9]+\r}; sleep .1}
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.5}
 proc swf { txt } { send $txt; send "\r"; wf }
 
 if {![fork]} {
-    puts "----------- Starting T2"
     cd ..
     exec ./ci_t2.sh >ci_t2.log
-    puts "----------- Starting T3"
     exec ./ci_t3.sh >ci_t3.log
-    puts "----------- Finished T3"
     exit
 }
 
 sleep 2
-
 set spawn_id $dps8ID
 
-puts "----------- waiting for 'LOGOUT'"
+# Waiting for logout
 expect "LOGOUT"; sleep 1
 
-puts "----------- sending escape"
+# Sending escape
 send "\x1b"
-puts "----------- waiting for prompt"
+
+# Waiting for prompt
 expect "M->"
 send "\x1b"
 
-
-puts "----------- waiting for 2nd 'LOGOUT'"
+# Waiting for second logout
 expect "LOGOUT"; sleep 1
 
-puts "----------- sending escape"
+# Sending escape
 send "\x1b"
-puts "----------- waiting for prompt"
-expect "M->"
 
+# Waiting for prompt
+expect "M->"; sleep 1
 
-
-
-
-sleep 1
+# Send logout
 send "logout * * *\r"
-puts "----------- waiting for prompt"
-expect "M->"
-sleep 1
-puts "----------- sending escape"
-send "\x1b"
-sleep 60
 
-puts "----------- sending escape"
+# Waiting for prompt
+expect "M->"; sleep 1
+
+# Sending escape
+send "\x1b"; sleep 60
+
+# Sending escape
 send "\x1b"
-puts "----------- waiting for prompt"
-expect "M->"
-sleep 1
+
+# Waiting for prompt
+expect "M->"; sleep 1
+
+# Shutdown
 send "shut\r"
 
-puts "----------- waiting for prompt"
-expect "bce (boot)"
-sleep 1
+# Waiting for prompt
+expect "bce (boot)"; sleep 1
 
-puts "----------- sending escape"
+# Sending escape
 send "\x1b"
 
-puts "----------- waiting for prompt"
-expect "M->"
-sleep 1
+# Waiting for prompt
+expect "M->"; sleep 1
 
-puts "----------- sending die"
+# Sending die
 send "die\r"
 
-puts "----------- waiting for prompt"
-expect "M->"
-sleep 1
+# Waiting for prompt
+expect "M->"; sleep 1
 
+# Affirmative
 send "y\r"
 
+# End
 expect eof
-
-
-
-
-

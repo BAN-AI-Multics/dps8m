@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 IFS=
-UNIFDEF="$(printf '%s' ${0} | sed 's/unifdef\.wrapper/unifdef/')"
+# shellcheck disable=SC2086
+UNIFDEF="$(printf '%s' ${0} | sed 's/unifdef\.wrapper\.sh/unifdef/')"
 command -v timeout > /dev/null 2>&1 && HT=1
 test -z "${HT:-}" || \
   { timeout --preserve-status 20 "${UNIFDEF:?}" "${@}"; exit "${?}"; };
