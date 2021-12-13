@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003-2013 Troy D. Hanson
- *     http://troydhanson.github.com/uthash/
+ * Copyright (c) 2003-2021 Troy D. Hanson
+ *     http://troydhanson.github.io/uthash/
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * All rights reserved.
@@ -29,7 +29,7 @@
 
 # include <string.h>   /* memcmp,strlen */
 # include <stddef.h>   /* ptrdiff_t */
-# include <stdlib.h>   /* exit() */
+# include <stdlib.h>
 
  /*
   *  These macros use decltype or the earlier __typeof GNU extension.
@@ -38,14 +38,14 @@
   *  or, for VS2008 where neither is available, uses casting workarounds.
   */
 
-# ifdef _MSC_VER                     /* MS compiler */
-#  if _MSC_VER >= 1600 && defined(__cplusplus)  /* VS2010 or newer in C++ mode */
+# ifdef _MSC_VER
+#  if _MSC_VER >= 1600 && defined(__cplusplus)
 #   define DECLTYPE(x) (decltype(x))
-#  else                               /* VS2008 or older (or VS2010 in C mode) */
+#  else
 #   define NO_DECLTYPE
 #   define DECLTYPE(x)
 #  endif
-# else                               /* GNU, Sun and other compilers */
+# else
 #  define DECLTYPE(x) (__typeof(x))
 # endif
 
@@ -74,10 +74,10 @@ typedef unsigned char uint8_t;
 #  include <inttypes.h>   /* uint32_t */
 # endif
 
-# define UTHASH_VERSION 1.9.8
+# define UTHASH_VERSION 21.9.8
 
 # ifndef uthash_fatal
-#  define uthash_fatal(msg) exit(-1)        /* fatal error (out of memory,etc) */
+#  define uthash_fatal(msg) abort()         /* fatal error (out of memory,etc) */
 # endif
 # ifndef uthash_malloc
 #  define uthash_malloc(sz) malloc(sz)      /* malloc fcn                      */
@@ -295,7 +295,7 @@ do {                                                                            
   */
 
 # ifdef HASH_DEBUG
-#  define HASH_OOPS(...) do { fprintf(stderr,__VA_ARGS__); exit(-1); } while (0)
+#  define HASH_OOPS(...) do { fprintf(stderr,__VA_ARGS__); abort(); } while (0)
 #  define HASH_FSCK(hh,head)                                                     \
 do {                                                                             \
     unsigned _bkt_i;                                                             \
@@ -556,17 +556,11 @@ do {                                                                            
   * The MurmurHash exploits some CPU's
   * (x86,x86_64) tolerance for unaligned reads.
   *
-  * For other types of CPU's (e.g. Sparc) an
+  * For other types of CPU's (e.g. SPARC) an
   * unaligned read causes a bus error.
   *
   * MurmurHash uses the faster approach only
   * on CPU's where we know it's safe.
-  *
-  * Note the preprocessor built-in defines
-  * can be emitted using:
-  *
-  *   gcc -m64 -dM -E - < /dev/null                  (on gcc)
-  *   cc -## a.c (where a.c is a simple test file)   (Sun Studio)
   */
 
 #  if (defined(__i386__) || defined(__x86_64__)  || defined(_M_IX86))
@@ -586,10 +580,10 @@ do {                                                                            
 #    define MUR_TWO_TWO(p)   ((((*WP(p))&0xffff0000) >>16) | (((*(WP(p)+1))&0x0000ffff) << 16))
 #    define MUR_ONE_THREE(p) ((((*WP(p))&0xff000000) >>24) | (((*(WP(p)+1))&0x00ffffff) <<  8))
 #   endif
-#   define MUR_GETBLOCK(p,i) (MUR_PLUS0_ALIGNED(p) ? ((p)[i]) :        \
-                            (MUR_PLUS1_ALIGNED(p) ? MUR_THREE_ONE(p) : \
-                             (MUR_PLUS2_ALIGNED(p) ? MUR_TWO_TWO(p) :  \
-                                                      MUR_ONE_THREE(p))))
+#   define MUR_GETBLOCK(p,i) (MUR_PLUS0_ALIGNED(p) ? ((p)[i])         :  \
+                             (MUR_PLUS1_ALIGNED(p) ? MUR_THREE_ONE(p) :  \
+                             (MUR_PLUS2_ALIGNED(p) ? MUR_TWO_TWO(p)   :  \
+                                                     MUR_ONE_THREE(p))))
 #  endif
 #  define MUR_ROTL32(x,r) (((x) << (r)) | ((x) >> (32 - (r))))
 #  define MUR_FMIX(_h) \

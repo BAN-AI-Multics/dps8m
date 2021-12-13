@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2008-2013 Troy D. Hanson
- *     http://troydhanson.github.com/uthash/
+ * Copyright (c) 2008-2021 Troy D. Hanson
+ *     http://troydhanson.github.io/uthash/
  * Copyright (c) 2021 The DPS8M Development Team
  *
  * All rights reserved.
@@ -31,7 +31,7 @@
 #ifndef UTARRAY_H
 # define UTARRAY_H
 
-# define UTARRAY_VERSION 1.9.8
+# define UTARRAY_VERSION 21.9.8
 
 # ifdef __GNUC__
 #  define _UNUSED_ __attribute__ ((__unused__))
@@ -43,7 +43,7 @@
 # include <string.h>  /* memset, etc */
 # include <stdlib.h>  /* exit */
 
-# define oom() exit(-1)
+# define oom() abort()
 
 typedef void (ctor_f)(void *dst, const void *src);
 typedef void (dtor_f)(void *elt);
@@ -56,17 +56,17 @@ typedef struct {
 } UT_icd;
 
 typedef struct {
-    unsigned i,n;  /* i: index of next available slot, n: num slots */
-    UT_icd icd;    /* initializer, copy and destructor functions    */
-    char *d;       /* n slots of size icd->sz                       */
+    unsigned i, n;  /* i: index of next available slot, n: num slots */
+    UT_icd icd;     /* initializer, copy and destructor functions    */
+    char *d;        /* n slots of size icd->sz                       */
 } UT_array;
 
-# define utarray_init(a,_icd) do {                                             \
+# define utarray_init(a,_icd) do {                                            \
   memset(a,0,sizeof(UT_array));                                               \
   (a)->icd=*_icd;                                                             \
 } while(0)
 
-# define utarray_done(a) do {                                                  \
+# define utarray_done(a) do {                                                 \
   if ((a)->n) {                                                               \
     if ((a)->icd.dtor) {                                                      \
       size_t _ut_i;                                                           \
@@ -79,35 +79,35 @@ typedef struct {
   (a)->n=0;                                                                   \
 } while(0)
 
-# define utarray_new(a,_icd) do {                                              \
+# define utarray_new(a,_icd) do {                                             \
   a=(UT_array*)malloc(sizeof(UT_array));                                      \
   utarray_init(a,_icd);                                                       \
 } while(0)
 
-# define utarray_free(a) do {                                                  \
+# define utarray_free(a) do {                                                 \
   utarray_done(a);                                                            \
   free(a);                                                                    \
 } while(0)
 
-# define utarray_reserve(a,by) do {                                            \
+# define utarray_reserve(a,by) do {                                           \
   if (((a)->i+by) > ((a)->n)) {                                               \
     while(((a)->i+by) > ((a)->n)) { (a)->n = ((a)->n ? (2*(a)->n) : 8); }     \
     if ( ((a)->d=(char*)realloc((a)->d, (a)->n*(a)->icd.sz)) == NULL) oom();  \
   }                                                                           \
 } while(0)
 
-# define utarray_push_back(a,p) do {                                           \
+# define utarray_push_back(a,p) do {                                          \
   utarray_reserve(a,1);                                                       \
   if ((a)->icd.copy) { (a)->icd.copy( _utarray_eltptr(a,(a)->i++), p); }      \
   else { memcpy(_utarray_eltptr(a,(a)->i++), p, (a)->icd.sz); };              \
 } while(0)
 
-# define utarray_pop_back(a) do {                                              \
+# define utarray_pop_back(a) do {                                             \
   if ((a)->icd.dtor) { (a)->icd.dtor( _utarray_eltptr(a,--((a)->i))); }       \
   else { (a)->i--; }                                                          \
 } while(0)
 
-# define utarray_extend_back(a) do {                                           \
+# define utarray_extend_back(a) do {                                          \
   utarray_reserve(a,1);                                                       \
   if ((a)->icd.init) { (a)->icd.init(_utarray_eltptr(a,(a)->i)); }            \
   else { memset(_utarray_eltptr(a,(a)->i),0,(a)->icd.sz); }                   \
@@ -119,7 +119,7 @@ typedef struct {
 # define utarray_eltptr(a,j) (((j) < (a)->i) ? _utarray_eltptr(a,j) : NULL)
 # define _utarray_eltptr(a,j) ((char*)((a)->d + ((a)->icd.sz*(j) )))
 
-# define utarray_insert(a,p,j) do {                                            \
+# define utarray_insert(a,p,j) do {                                           \
   if (j > (a)->i) utarray_resize(a,j);                                        \
   utarray_reserve(a,1);                                                       \
   if ((j) < (a)->i) {                                                         \
@@ -131,7 +131,7 @@ typedef struct {
   (a)->i++;                                                                   \
 } while(0)
 
-# define utarray_inserta(a,w,j) do {                                           \
+# define utarray_inserta(a,w,j) do {                                          \
   if (utarray_len(w) == 0) break;                                             \
   if (j > (a)->i) utarray_resize(a,j);                                        \
   utarray_reserve(a,utarray_len(w));                                          \
@@ -152,7 +152,7 @@ typedef struct {
   (a)->i += utarray_len(w);                                                   \
 } while(0)
 
-# define utarray_resize(dst,num) do {                                          \
+# define utarray_resize(dst,num) do {                                         \
   size_t _ut_i;                                                               \
   if (dst->i > (size_t)(num)) {                                               \
     if ((dst)->icd.dtor) {                                                    \
@@ -173,11 +173,11 @@ typedef struct {
   dst->i = num;                                                               \
 } while(0)
 
-# define utarray_concat(dst,src) do {                                          \
+# define utarray_concat(dst,src) do {                                         \
   utarray_inserta((dst),(src),utarray_len(dst));                              \
 } while(0)
 
-# define utarray_erase(a,pos,len) do {                                         \
+# define utarray_erase(a,pos,len) do {                                        \
   if ((a)->icd.dtor) {                                                        \
     size_t _ut_i;                                                             \
     for(_ut_i=0; _ut_i < len; _ut_i++) {                                      \
@@ -191,12 +191,12 @@ typedef struct {
   (a)->i -= (len);                                                            \
 } while(0)
 
-# define utarray_renew(a,u) do {                                               \
-  if (a) utarray_clear(a); \
-  else utarray_new((a),(u));   \
+# define utarray_renew(a,u) do {                                              \
+  if (a) utarray_clear(a);                                                    \
+  else utarray_new((a),(u));                                                  \
 } while(0)
 
-# define utarray_clear(a) do {                                                 \
+# define utarray_clear(a) do {                                                \
   if ((a)->i > 0) {                                                           \
     if ((a)->icd.dtor) {                                                      \
       size_t _ut_i;                                                           \
@@ -208,7 +208,7 @@ typedef struct {
   }                                                                           \
 } while(0)
 
-# define utarray_sort(a,cmp) do {                                              \
+# define utarray_sort(a,cmp) do {                                             \
   qsort((a)->d, (a)->i, (a)->icd.sz, cmp);                                    \
 } while(0)
 
