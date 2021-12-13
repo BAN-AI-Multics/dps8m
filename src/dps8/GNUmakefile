@@ -336,6 +336,7 @@ all: sysdefs.h                                                                \
      prt2pdf                                                                  \
      punutil                                                                  \
      mcmb                                                                     \
+     vmpctool                                                                 \
      $(TAGS)
 
 ###############################################################################
@@ -466,6 +467,11 @@ mcmb:
 
 ###############################################################################
 
+vmpctool:
+	-@$(SETV); $(MAKE) -C "../vmpctool" "all"
+
+###############################################################################
+
 udplib: udplib.c udplib.h
 udplib$(EXE): udplib.c udplib.h
 	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
@@ -567,6 +573,7 @@ clean:
 	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../vmpctool"       -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
