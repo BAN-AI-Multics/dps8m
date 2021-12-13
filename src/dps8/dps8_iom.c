@@ -3363,12 +3363,21 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
       goto terminate;
     }
     // If IOTD and last IDCW was terminate
-    if (IS_IOTD (p) && idcw_terminate) {
+    if (IS_IOTD (p) && idcw_terminate && rc2 != IOM_CMD_RESIDUE) {
 #ifdef POLTS_TESTING
 //if (iomUnitIdx == 1 && chan == 020)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// ctrl == 0 in chan %d (%o) IOTP\n", chan, chan);
 if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// terminate 2. ctrl == 0 in chan %d (%o) DCW\n", chan, chan);
 #endif
       goto terminate;
+    }
+
+    // IOM_CMD_RESIDUE: Continue pushing DCWS until the record residue is 0
+
+    if (IS_NOT_IDCW (p) && rc2 == IOM_CMD_RESIDUE) {
+      if (p->recordResidue)
+        p->recordResidue --;
+      if (p->recordResidue == 0)
+        goto terminate;
     }
   } while (! terminate);
 
