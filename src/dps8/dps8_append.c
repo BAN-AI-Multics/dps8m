@@ -330,7 +330,7 @@ static word6 calc_hit_am (word6 LRU, uint hit_level)
         case 3:  // hit level D
           return (LRU & 064);
         default:
-          DBGAPP ("%s: invalid AM level\n", __func__);
+          DBGAPP ("%s: Invalid AM level\n", __func__);
           return 0;
      }
   }

@@ -610,12 +610,12 @@ static t_stat scu_show_state (UNUSED FILE * st, UNIT *uptr, UNUSED int val,
       {
         sim_debug (DBG_ERR, & scu_dev,
                    "scu_show_state: Invalid unit number %ld\n",
-                   scu_unit_idx);
-        sim_printf ("error: invalid unit number %ld\n", scu_unit_idx);
+                   (long) scu_unit_idx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) scu_unit_idx);
         return SCPE_ARG;
       }
 
-    sim_printf ("SCU unit number %ld\n", scu_unit_idx);
+    sim_printf ("SCU unit number %ld\n", (long) scu_unit_idx);
     scu_t * scup = scu + scu_unit_idx;
     sim_printf ("    Mode %s\n",
                 config_switches[scu_unit_idx].mode ? "PROGRAM" : "MANUAL");
@@ -675,12 +675,12 @@ static t_stat scu_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
       {
         sim_debug (DBG_ERR, & scu_dev,
                    "scu_show_config: Invalid unit number %ld\n",
-                   scu_unit_idx);
-        sim_printf ("error: invalid unit number %ld\n", scu_unit_idx);
+                   (long) scu_unit_idx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) scu_unit_idx);
         return SCPE_ARG;
       }
 
-    sim_printf ("SCU unit number %ld\n", scu_unit_idx);
+    sim_printf ("SCU unit number %ld\n", (long) scu_unit_idx);
 
     struct config_switches * sw = config_switches + scu_unit_idx;
 
@@ -827,9 +827,9 @@ static t_stat scu_set_config (UNIT * uptr, UNUSED int32 value,
     if (scu_unit_idx < 0 || scu_unit_idx >= (int) scu_dev.numunits)
       {
         sim_debug (DBG_ERR, & scu_dev,
-                   "scu_set_config: Invalid unit number %ld\n", scu_unit_idx);
-        sim_printf ("error: scu_set_config: invalid unit number %ld\n",
-                    scu_unit_idx);
+                   "scu_set_config: Invalid unit number %ld\n", (long) scu_unit_idx);
+        sim_printf ("error: scu_set_config: Invalid unit number %ld\n",
+                    (long) scu_unit_idx);
         return SCPE_ARG;
       }
 

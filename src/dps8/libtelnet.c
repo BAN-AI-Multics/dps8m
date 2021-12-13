@@ -436,7 +436,7 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
                         (unsigned)buffer[0] != TELNET_ENVIRON_IS &&
                         (unsigned)buffer[0] != TELNET_ENVIRON_INFO) {
                 _error(telnet, __LINE__, __func__, TELNET_EPROTOCOL, 0,
-                                "telopt %d subneg has invalid command", type);
+                                "telopt %ld subneg has invalid command", (long) type);
                 return 0;
         }
 

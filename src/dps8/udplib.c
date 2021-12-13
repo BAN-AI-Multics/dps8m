@@ -400,7 +400,7 @@ static int udp_receive_packet (int link, UDP_PACKET * ppkt, size_t pktsiz)
           return 0;
         return -1;
       }
-//printf ("udp_receive_packet returns %ld\n", n);
+//printf ("udp_receive_packet returns %ld\n", (long) n);
     return (int) n;
   }
 

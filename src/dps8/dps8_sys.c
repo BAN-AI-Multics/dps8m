@@ -1889,7 +1889,7 @@ static t_stat dps_debug_segno (int32 arg, const char * buf)
           }
         sim_deb_segno[segno] = true;
         sim_deb_segno_on = true;
-        sim_msg ("Debug set for segno %lo %ld.\n", segno, segno);
+        sim_msg ("Debug set for segno %lo %ld.\n", segno, (long) segno);
       }
     else
       {
@@ -4545,7 +4545,7 @@ static t_stat sys_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
           sys_opts.no_color = ! v;
         else
           {
-            sim_msg ("error: sys_set_config: invalid cfg_parse rc <%d>\n", rc);
+            sim_msg ("error: sys_set_config: Invalid cfg_parse rc <%ld>\n", (long) rc);
             cfg_parse_done (& cfg_state);
             return SCPE_ARG;
           }

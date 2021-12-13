@@ -398,7 +398,7 @@ int GLOBAL_GREEN_BAR;
     stream_len = ftell(stdout) - GLOBAL_STREAM_START;
     printf("endstream\nendobj\n");
     start_object(GLOBAL_STREAM_LEN_ID);
-    printf("%ld\nendobj\n", stream_len);
+    printf("%ld\nendobj\n", (long) stream_len);
     start_object(page_id);
     printf("<</Type/Page/Parent %d 0 R/Contents %d 0 R>>\nendobj\n", GLOBAL_PAGE_TREE_ID, GLOBAL_STREAM_ID);
  }
@@ -534,7 +534,7 @@ void dopages(){
         }
 
         printf("trailer\n<<\n/Size %d\n/Root %d 0 R\n>>\n", GLOBAL_OBJECT_ID, catalog_id);
-        printf("startxref\n%ld\n%%%%EOF\n", start_xref);
+        printf("startxref\n%ld\n%%%%EOF\n", (long) start_xref);
  }
 /* ============================================================================================================================== */
 void showhelp(int itype){

@@ -1811,12 +1811,12 @@ static t_stat fnpShowConfig (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (fnpUnitIdx >= (long) N_FNP_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & fnp_dev,
-                   "fnpShowConfig: Invalid unit number %ld\n", fnpUnitIdx);
-        sim_printf ("error: invalid unit number %ld\n", fnpUnitIdx);
+                   "fnpShowConfig: Invalid unit number %ld\n", (long) fnpUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) fnpUnitIdx);
         return SCPE_ARG;
       }
 
-    sim_printf ("FNP unit number %ld\n", fnpUnitIdx);
+    sim_printf ("FNP unit number %ld\n", (long) fnpUnitIdx);
     struct fnpUnitData_s * fudp = fnpData.fnpUnitData + fnpUnitIdx;
 
     sim_printf ("FNP Mailbox Address:         %04o(8)\n", fudp -> mailboxAddress);
@@ -2049,8 +2049,8 @@ static t_stat fnpShowFW (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (fnpUnitIdx >= (long) N_FNP_UNITS_MAX)
       {
         sim_debug (DBG_ERR, & fnp_dev,
-                   "fnpShowConfig: Invalid unit number %ld\n", fnpUnitIdx);
-        sim_printf ("error: invalid unit number %ld\n", fnpUnitIdx);
+                   "fnpShowConfig: Invalid unit number %ld\n", (long) fnpUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) fnpUnitIdx);
         return SCPE_ARG;
       }
 #if 0
@@ -2070,12 +2070,12 @@ static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     if (fnpUnitIdx >= (long) fnp_dev.numunits)
       {
         sim_debug (DBG_ERR, & fnp_dev,
-                   "fnpShowStatus: Invalid unit number %ld\n", fnpUnitIdx);
-        sim_printf ("error: invalid unit number %ld\n", fnpUnitIdx);
+                   "fnpShowStatus: Invalid unit number %ld\n", (long) fnpUnitIdx);
+        sim_printf ("error: Invalid unit number %ld\n", (long) fnpUnitIdx);
         return SCPE_ARG;
       }
 
-    sim_printf ("FNP unit number %ld\n", fnpUnitIdx);
+    sim_printf ("FNP unit number %ld\n", (long) fnpUnitIdx);
     struct fnpUnitData_s * fudp = fnpData.fnpUnitData + fnpUnitIdx;
 
     sim_printf ("mailboxAddress:              %04o\n", fudp->mailboxAddress);
@@ -2156,8 +2156,8 @@ static t_stat fnpSetConfig (UNIT * uptr, UNUSED int value, const char * cptr, UN
     //if (fnpUnitIdx >= fnp_dev . numunits)
     if (fnpUnitIdx >= N_FNP_UNITS_MAX)
       {
-        sim_debug (DBG_ERR, & fnp_dev, "fnpSetConfig: Invalid unit number %d\n", fnpUnitIdx);
-        sim_printf ("error: fnpSetConfig: invalid unit number %d\n", fnpUnitIdx);
+        sim_debug (DBG_ERR, & fnp_dev, "fnpSetConfig: Invalid unit number %ld\n", (long) fnpUnitIdx);
+        sim_printf ("error: fnpSetConfig: Invalid unit number %ld\n", (long) fnpUnitIdx);
         return SCPE_ARG;
       }
 
@@ -2183,7 +2183,7 @@ static t_stat fnpSetConfig (UNIT * uptr, UNUSED int value, const char * cptr, UN
               break;
 
             default:
-              sim_printf ("error: fnpSetConfig: invalid cfg_parse rc <%d>\n", rc);
+              sim_printf ("error: fnpSetConfig: Invalid cfg_parse rc <%d>\n", rc);
               cfg_parse_done (& cfg_state);
               return SCPE_ARG;
           } // switch
@@ -2305,7 +2305,7 @@ t_stat set_fnp_server_port (UNUSED int32 arg, const char * buf)
     fnpData.telnet_port = n;
         if (!sim_quiet)
           {
-            sim_printf ("FNP telnet server port set to %d\n", n);
+            sim_printf ("FNP TELNET server port set to %ld\n", (long) n);
           }
     return SCPE_OK;
   }
@@ -2317,7 +2317,7 @@ t_stat set_fnp_server_address (UNUSED int32 arg, const char * buf)
     fnpData.telnet_address = strdup (buf);
         if (!sim_quiet)
           {
-            sim_printf ("FNP telnet server address set to %s\n", fnpData.telnet_address);
+            sim_printf ("FNP TELNET server address set to %s\n", fnpData.telnet_address);
           }
     return SCPE_OK;
   }
@@ -2332,7 +2332,7 @@ t_stat set_fnp_3270_server_port (UNUSED int32 arg, const char * buf)
     fnpData.telnet3270_port = n;
         if (!sim_quiet)
           {
-            sim_printf ("FNP telnet3270 server port set to %d\n", n);
+            sim_printf ("FNP TN3270E server port set to %ld\n", (long) n);
           }
     return SCPE_OK;
   }
@@ -2480,7 +2480,7 @@ void fnp3270ConnectPrompt (uv_tcp_t * client)
     // Don't know ttype yet because Telnet negotiation won't
     // start until evPoll runs.
     unsigned char buf [256];
-    sprintf ((char *) buf, "DPS8/M 3270 connection to %c.%03d.%d ttype %s\n", fnpno+'a',lineno, p->stationNo, p->ttype);
+    sprintf ((char *) buf, "DPS8/M 3270 connection to %c.%03d.%ld ttype %s\n", fnpno+'a',lineno, (long)p->stationNo, p->ttype);
     fnpData.ibm3270ctlr[ASSUME0].selDevChar = addr_map[p->stationNo];
     fnp3270Msg (client, buf);
 #endif
@@ -2501,7 +2501,7 @@ void processLineInput (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
         sim_printf ("bogus client data\n");
         return;
       }
-//sim_printf ("assoc. %d.%d nread %ld\n", fnpno, lineno, nread);
+//sim_printf ("assoc. %ld.%ld nread %ld\n", (long) fnpno, (long) lineno, (long) nread);
 //{for (int i = 0; i < nread; i ++) sim_printf ("%c", isgraph (e2a[buf[i]]) ? e2a[buf[i]] : '.');
 //sim_printf ("\n");
 //for (int i = 0; i < nread; i ++) sim_printf (" %02x", buf[i]);

@@ -457,7 +457,7 @@ unsigned long  sleepCPU (unsigned long usec)
     if (rc == ETIMEDOUT)
       return 0;
     if (rc)
-      sim_printf ("sleepCPU pthread_cond_timedwait rc %d  usec %ld TR %u CPU %u\n", rc, usec, cpu.rTR, current_running_cpu_idx);
+      sim_printf ("sleepCPU pthread_cond_timedwait rc %ld  usec %ld TR %lu CPU %lu\n", (long) rc, (long) usec, (unsigned long) cpu.rTR, (unsigned long) current_running_cpu_idx);
     struct timespec newtime, delta;
     clock_gettime (CLOCK_REALTIME, & newtime);
     timespec_diff (& abstime, & newtime, & delta);

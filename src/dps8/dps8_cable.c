@@ -1248,8 +1248,8 @@ t_stat sys_cable (int32 arg, const char * buf)
     name = strtok_r (copy, ", \t", & name_save);
     if (! name)
       {
-        //sim_debug (DBG_ERR, & sys_dev, "sys_cable: can't parse name\n");
-        sim_printf ("error: sys_cable: can't parse name\n");
+        //sim_debug (DBG_ERR, & sys_dev, "sys_cable: could not parse name\n");
+        sim_printf ("error: CABLE: sys_cable could not parse name\n");
         goto exit;
       }
 
@@ -1274,12 +1274,12 @@ t_stat sys_cable (int32 arg, const char * buf)
       rc = cable_urp (arg, unit_num, & name_save);
     else
       {
-        sim_printf ("error: cable: invalid name <%s>\n", name);
+        sim_printf ("error: CABLE: Invalid name <%s>\n", name);
         goto exit;
       }
     if (name_save && strlen (name_save))
       {
-        sim_printf ("cable ignored '%s'\n", name_save);
+        sim_printf ("CABLE ignored '%s'\n", name_save);
       }
 exit:
     free (copy);
