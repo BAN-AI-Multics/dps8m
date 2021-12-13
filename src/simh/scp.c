@@ -50,14 +50,20 @@
 # include <unistd.h>
 #endif
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <setjmp.h>
 #include <limits.h>
 
 #include "linehistory.h"
 
 #if defined(__APPLE__)
-# include <sys/types.h>
 # include <sys/sysctl.h>
+#endif
+
+#if ( defined(__linux__) || defined(__linux) \
+  ||  defined(_linux)    || defined(linux) )
+# include <sys/sysinfo.h>
+# define LINUX_OS
 #endif
 
 #include <uv.h>
@@ -803,7 +809,6 @@ static const char simh_help[] =
       "++++++++                     actions into do command files\n"
       "+set on noinherit            disables inheritance of ON state and\n"
       "++++++++                     actions into do command files\n"
-#define HLP_SET_VERIFY "*Commands SET Command_Execution_Display"
 #define HLP_SET_VERIFY "*Commands SET Command_Execution_Display"
       "3Command Execution Display\n"
       "+set verify                  re-enables display of command file\n"
@@ -2965,6 +2970,101 @@ for (; *ip && (op < oend); ) {
                         }
                     else if (!strcmp ("SIM_MESSAGE", gbuf)) {
                         sprintf (rbuf, "%s", sim_show_message ? "" : "-Q");
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("PAGESIZE", gbuf)) {
+                        sprintf (rbuf, "%ld", sysconf(_SC_PAGESIZE));
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("HOSTID", gbuf)) {
+                        sprintf (rbuf, "%ld", (long)gethostid());
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("UID", gbuf)) {
+                        sprintf (rbuf, "%ld", (long)getuid());
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("GID", gbuf)) {
+                        sprintf (rbuf, "%ld", (long)getgid());
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("EUID", gbuf)) {
+                        sprintf (rbuf, "%ld", (long)geteuid());
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("EGID", gbuf)) {
+                        sprintf (rbuf, "%ld", (long)getegid());
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("PID", gbuf)) {
+                        sprintf (rbuf, "%ld", (long)getpid());
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("PPID", gbuf)) {
+                        sprintf (rbuf, "%ld", (long)getppid());
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("PGID", gbuf)) {
+                        sprintf (rbuf, "%ld", (long)getpgid(getpid()));
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("SID", gbuf)) {
+                        sprintf (rbuf, "%ld", (long)getsid(getpid()));
+                        ap = rbuf;
+                        }
+                    else if (!strcmp ("ENDIAN", gbuf)) {
+#if ( defined(DECLITEND) && DECLITEND == 1 )
+                        sprintf (rbuf, "LITTLE");
+#elif ( defined(DECLITEND) && DECLITEND == 0 )
+                        sprintf (rbuf, "BIG");
+#else
+                        sprintf (rbuf, "UNKNOWN");
+#endif /* if ( defined(DECLITEND) && DECLITEND == 1 ) */
+                        ap = rbuf;
+                        }
+                    else if (!strcmp("SIM_NAME", gbuf)) {
+                        sprintf (rbuf, "%s", sim_name);
+                        ap = rbuf;
+                        }
+                    else if (!strcmp("SIM_VERSION", gbuf)) {
+#if defined(VER_H_GIT_VERSION)
+                        sprintf (rbuf, "%s", VER_H_GIT_VERSION);
+#else
+                        sprintf (rbuf, "UNKNOWN");
+#endif /* if defined(VER_H_GIT_VERSION) */
+                        ap = rbuf;
+                        }
+                    else if (!strcmp("SIM_HASH", gbuf)) {
+#if defined(VER_H_GIT_HASH)
+                        sprintf (rbuf, "%s", VER_H_GIT_HASH);
+#else
+                        sprintf (rbuf, "0000000000000000000000000000000000000000");
+#endif /* if defined(VER_H_GIT_HASH) */
+                        ap = rbuf;
+                        }
+                    else if (!strcmp("SIM_RELT", gbuf)) {
+#if defined(VER_H_GIT_RELT)
+                        sprintf (rbuf, "%s", VER_H_GIT_RELT);
+#else
+                        sprintf (rbuf, "X");
+#endif /* if defined(VER_H_GIT_RELT) */
+                        ap = rbuf;
+                        }
+                    else if (!strcmp("SIM_DATE", gbuf)) {
+#if defined(VER_H_GIT_DATE)
+                        sprintf (rbuf, "%s", VER_H_GIT_DATE);
+#else
+                        sprintf (rbuf, "UNKNOWN");
+#endif /* if defined(VER_H_GIT_DATE) */
+                        ap = rbuf;
+                        }
+                    else if ( (!strcmp("CPUS", gbuf)) \
+                      || (!strcmp("PROCESSORS", gbuf) ) ) {
+#if defined(LINUX_OS)
+                        sprintf(rbuf, "%ld", (long)get_nprocs());
+#else
+                        sprintf(rbuf, "1");
+#endif /* if defined(LINUX_OS) */
                         ap = rbuf;
                         }
                     }
