@@ -3,98 +3,78 @@ set userName \*
 set projName HFED
 set password fed
 
-set timeout 200000
+remove_nulls 1
+match_max 4096
+set timeout 350000
 
 cd ./run
-
-spawn ./dps8 -v isolts.ini
+spawn ./dps8 -r isolts.ini
 set dps8ID $spawn_id
 
 expect "M-> CONSOLE: RELEASED"
 
 set spawn_id $dps8ID
 
-proc w {} { expect  -re {\nr [0-9]+:[0-9]+ .*\r}; sleep .1}
-proc wi {} { expect  -re {Input.\r}; sleep .1}
-proc wn {} { expect  -re {\n}; sleep .1}
-proc sw { txt } { send $txt; send "\r"; w }
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2}
+proc  wi {     } { expect -re {Input.\r}; sleep 0.2}
+proc  wn {     } { expect -re {\n}; sleep 0.2}
+proc  sw { txt } { send $txt; send "\r"; w }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc wf {} { expect  -re {\nr  [0-9]+\r}; sleep .1}
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.5}
 proc swf { txt } { send $txt; send "\r"; wf }
 
 if {![fork]} {
-    puts "----------- Starting isolts_run.expect"
     cd ..
-    exec ./isolts_run.expect >isolts.log
+    exec ./isolts_run.sh >isolts.log
     exit
 }
 
 sleep 2
-
 set spawn_id $dps8ID
 
-puts "----------- waiting for 'LOGOUT'"
+# Waiting for logout
 expect "LOGOUT"; sleep 1
 
-puts "----------- sending escape"
+# Sending escape
 send "\x1b"
-puts "----------- waiting for prompt"
-expect "M->"
-#send "\x1b"
 
+# Waiting for prompt
+expect "M->"; sleep 1
 
-#puts "----------- waiting for 2nd 'LOGOUT'"
-#expect "LOGOUT"; sleep 1
-#
-#puts "----------- sending escape"
-#send "\x1b"
-#puts "----------- waiting for prompt"
-#expect "M->"
-
-
-
-
-
-sleep 1
+# Logout
 send "logout * * *\r"
-puts "----------- waiting for prompt"
-expect "M->"
-sleep 1
-puts "----------- sending escape"
-send "\x1b"
-sleep 60
 
-puts "----------- sending escape"
+# Waiting for prompt
+expect "M->"; sleep 1
+
+# Sending escape, wait, escape
+send "\x1b"; sleep 60
 send "\x1b"
-puts "----------- waiting for prompt"
-expect "M->"
-sleep 1
+
+# Waiting for prompt
+expect "M->"; sleep 1
+
+# Shutdown
 send "shut\r"
 
-puts "----------- waiting for prompt"
-expect "bce (boot)"
-sleep 1
+# Waiting for prompt
+expect "bce (boot)"; sleep 1
 
-puts "----------- sending escape"
+# Sending escape
 send "\x1b"
 
-puts "----------- waiting for prompt"
-expect "M->"
-sleep 1
+# Waiting for prompt
+expect "M->"; sleep 1
 
-puts "----------- sending die"
+# Sending die
 send "die\r"
 
-puts "----------- waiting for prompt"
-expect "M->"
-sleep 1
+# Waiting for prompt
+expect "M->"; sleep 1
 
+# Affirmative
 send "y\r"
 
+# Finish
 expect eof
-
-
-
-
-

@@ -23,11 +23,8 @@
 # Convenience target: Builds libuv from source code (release)
 
 RELVER=v1.42.0
-VKEY=AEAD0A4B686767751A0E4AEF34A25FB128246514
 RELNAM=libuv-$(RELVER).tar.gz
-RELSIG=$(RELNAM).sign
 LIBREL=https://dist.libuv.org/dist/$(RELVER)/$(RELNAM)
-SIGREL=https://dist.libuv.org/dist/$(RELVER)/$(RELSIG)
 LUVSUM=332408242
 
 .PHONY: libuvrel
@@ -41,15 +38,7 @@ libuvrel:                                                                     \
 	@$(SETV); ($(TEST) -d "libuv-local" && $(RMF) -r "libuv-local" || $(TRUE))
 	@$(SETV); $(MKDIR) "libuv-local" && $(MKDIR) "libuv-local/local"
 	@$(PRINTF) '%s\n' "Downloading libuv $(RELVER) ..."
-	@$(SETV); ($(CD) "libuv-local" && $(WGET) -c -t 10 -nv $(LIBREL) $(SIGREL))
-	@$(PRINTF) '%s\n' "Retrieving PGP public key ..."
-	@$(SETV); $(GPG) --version > /dev/null 2>&1 &&                            \
-      ($(CD) "libuv-local" && $(GPG) -q --recv-keys $(VKEY) 2> /dev/null ||   \
-        $(TRUE))
-	@$(PRINTF) '%s\n' "Attempt to verify signature ..."
-	@$(SETV); $(GPG) --version > /dev/null 2>&1 &&                            \
-      ($(CD) "libuv-local" && $(GPG) -q --verify $(RELSIG) $(RELNAM)          \
-        2> /dev/null || $(TRUE))
+	@$(SETV); ($(CD) "libuv-local" && $(WGET) -c -t 10 -nv $(LIBREL))
 	@$(PRINTF) '%s\n' "Verifying checksum ..."
 	@$(SETV); ($(CD) "libuv-local" && export CKSUM="$$($(CKSUM) $(RELNAM)     \
         2> /dev/null | $(CUT) -d \  -f 1 | $(HEAD) -n 1 | $(TR) -cd 0-9)" &&  \

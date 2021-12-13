@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+# shellcheck disable=SC2310,SC2312,SC2320
 
 ############################################################################
 #
@@ -28,7 +29,7 @@ test -d "./.cppbdir" ||
     }
 }
 
-set -eu
+set -eu 2> /dev/null 2>&1
 
 test -z "${MAKE:-}" && MAKE="command -p env make"
 CPPCHECK="cppcheck"
@@ -96,7 +97,7 @@ include_paths()
           grep -v -E '(^#.*$|^ignoring .*|^End of search list.$|^[^ ].*$|^$)' |
             xargs -I{} printf '-I%s\n' {}
       )"
-      # shellcheck disable=SC2086
+      # shellcheck disable=SC2086,SC2048
       printf '\n%s\n' ${*:-}
     ) |
     sort -u |
@@ -170,7 +171,7 @@ do_cppcheck()
     ) && printf '%s\n' "" >&2 &&
     command -v "${compiler:?}" > /dev/null 2>&1 &&
       {
-        # shellcheck disable=SC2086
+        # shellcheck disable=SC2086,SC2310
         includes="$(include_paths "${compiler:?}" ${includes:-})" ||
           {
             printf '%s\n' "Error: include_paths(${compiler:?}): failed."
@@ -216,6 +217,9 @@ do_cppcheck "unifdef" "./src/unifdef"
 
 title_line "$(date -u 2> /dev/null)"
 do_cppcheck "punutil" "./src/punutil"
+
+title_line "$(date -u 2> /dev/null)"
+do_cppcheck "mcmb" "./src/mcmb"
 
 title_line "$(date -u 2> /dev/null)"
 do_cppcheck "prt2pdf" "./src/prt2pdf"

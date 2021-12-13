@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# shellcheck disable=SC2236,SC3040,SC2015
+# shellcheck disable=SC2236,SC3040,SC2015,SC2310,SC2312
 # vim: filetype=sh:tabstop=4:tw=76
 
 ###############################################################################
@@ -17,7 +17,7 @@
 ###############################################################################
 # Check for csh as sh.
 
-# shellcheck disable=SC2006,SC2046,SC2065
+# shellcheck disable=SC2006,SC2046,SC2065,SC2116
 test _`echo asdf 2>/dev/null` != _asdf >/dev/null &&\
 	printf '%s\n' "Warning: make_ver.sh does not support csh as sh." &&\
 	exit 1

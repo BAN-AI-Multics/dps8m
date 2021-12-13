@@ -1,30 +1,23 @@
-#!/usr/bin/expect -f
-
-# Test ISOLTS regressions on DPS8M+WAM
-
 set word enterp
 set userName \*
 set projName HFED
 set password fed
 
-set timeout 200000
+remove_nulls 1
+match_max 4096
+set timeout 350000
 
-
-
-
-
-proc w {} { expect  -re {\nr [0-9]+:[0-9]+ .*\r}; sleep .1}
-proc wi {} { expect  -re {Input.\r}; sleep .1}
-proc wn {} { expect  -re {\n}; sleep .1}
-proc sw { txt } { send $txt; send "\r"; w }
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2}
+proc  wi {     } { expect -re {Input.\r}; sleep 0.2}
+proc  wn {     } { expect -re {\n}; sleep 0.2}
+proc  sw { txt } { send $txt; send "\r"; w }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc wf {} { expect  -re {\nr  [0-9]+\r}; sleep .1}
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.5}
 proc swf { txt } { send $txt; send "\r"; wf }
 
-
-spawn telnet localhost 9180
-#set telnetID $spawn_id
+spawn telnet -E 127.0.0.1 "$env(FNPPORT)"
+set telnetID $spawn_id
 
 expect -re {HSLA Port \(([abcd]\.h\d+)}
 puts " "
@@ -42,7 +35,8 @@ send "Repair\r"
 
 w
 sw "cwd >user_dir_dir>SysAdmin>a"
-
+sw "set_tty -delay 0,0,0,0,0,0"
+sw "set_tty -modes ^ll"
 
 send "ec master pmf HFED\r"
 expect "Edit."
@@ -65,33 +59,35 @@ sw "pl1 -ot isolts_"
 sw "cp >ldd>tools>o>bound_tolts_.archive"
 sw "ac ud bound_tolts_ isolts_"
 sw "bind bound_tolts_"
-send ">user_dir_dir>SysAdmin>Repair>isolts_\r"
 
+send ">user_dir_dir>SysAdmin>Repair>isolts_\r"
 expect "\\?\\?\\?"
 
-send "test cpu b\r"; sleep .1
-
-expect "options\\?"; sleep .1
-send "type\r"; sleep .1
-expect "options\\?"; sleep .1
+send "test cpu b\r"; sleep 1
+expect "options\\?"; sleep 1
+send "type\r"; sleep 1
+expect "options\\?"; sleep 1
 
 # There's a bug in pas.061 mme 161, which must be patched on L68:
-# 
+#
 # *options?alter 071247
-# 
+#
 # 071247 - 071262710000
 # -
 # 071256710000
-# 
-# This gets correct L68 WAM printouts and it also affects was-s/b comparisons. The tests don't hang with this and only a few errors remain. I think they were caused by unimplemented instruction prefetch so I left them outstanding.
-# 
-#send "alter 071247\r"; sleep .1
+#
+# This gets correct L68 WAM printouts and it also affects was-s/b
+# comparisons. The tests don't hang with this and only a few errors
+# remain. I think they were caused by unimplemented instruction
+# prefetch so I left them outstanding.
+#
+#send "alter 071247\r"; sleep 1
 #send "071256710000\r"; sleep 1
-#send "opt\r"; sleep .1
-#expect "options\\?"; sleep .1
+#send "opt\r"; sleep 1
+#expect "options\\?"; sleep 1
 
 proc wo {} { expect "options\\?"; sleep 1 }
-proc t { tst } { send $tst; wo; send "\r"; wo;  }
+proc t { tst } { send $tst; wo; send "\r"; wo; }
 
 # 700 fails on l68
 t "tst700\r"
@@ -303,5 +299,5 @@ t "tst940\r"
 #t "tst955\r" # fail
 
 sw "quit"
-send "logout\r"; sleep 1
-
+send "logout\r"; sleep 6
+close $telnetID

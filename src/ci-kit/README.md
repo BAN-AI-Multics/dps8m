@@ -1,17 +1,12 @@
 # DPS8/M + Multics Continuous Integration Scripts
 
 
-## INTRODUCTION
+## Introduction
 
  The original purpose of these scripts was to provide a build and
  test environment for Continuous Integration of the DPS8/M simulator.
- *Charles Anthony* wrote the initial version of these scripts and
- *Dean Andersom* made significant changes to overcome some of the
- original issues in the scripts. *Jeffrey Johnson* adapted the process
- to run in the GitLab CI/CD environment.
 
-
-## REQUIREMENTS
+## Requirements
 
  These scripts were designed to run under **Linux** and have been tested
  with **Red Hat Enterprise Linux**, **Fedora**, **Ubuntu**, and
@@ -21,8 +16,6 @@
  **Solaris**, and illumos **OpenIndiana** have also been used successfuly.
 
  The following packages are required (beyond the build prerequisites):
-
-   * [Bash](https://www.gnu.org/software/bash/)
    * [dos2unix](https://waterlan.home.xs4all.nl/dos2unix.html)
    * [Expect](https://core.tcl-lang.org/expect/)
    * [GNU Coreutils](https://www.gnu.org/software/coreutils/)
@@ -30,40 +23,54 @@
    * [GNU sed](https://www.gnu.org/software/sed/)
    * [GNU Wget](https://www.gnu.org/software/wget/)
    * [lzip](https://www.nongnu.org/lzip/)
-   * **BSD**-derived `telnet`, such as,
-     * [Apple Telnet](https://opensource.apple.com/)
-     * [BAN TELNET](https://github.com/BAN-AI-Multics/ban-telnet)
+   * **BSD**-derived `telnet` client, such as:
+     * [BAN Telnet](https://github.com/BAN-AI-Multics/ban-telnet/)
      * [GNU Inetutils](https://www.gnu.org/software/inetutils/)
-     * [illumos telnet](https://github.com/illumos/illumos-gate/tree/master/usr/src/cmd/cmd-inet)
-     * [NetKit Telnet-SSL](https://github.com/marado/netkit-telnet-ssl)
+     * [illumos Telnet](https://github.com/illumos/illumos-gate/tree/master/usr/src/cmd/cmd-inet/)
+     * [NetKit Telnet-SSL](https://github.com/marado/netkit-telnet-ssl/)
+   * [tmux](https://tmux.github.io/)
+
+ The following packages are optional, but highly recommended:
+   * [libfaketime](https://github.com/wolfcw/libfaketime/)
+   * [ncat](https://nmap.org/ncat/)
 
  In addition, a visual difference comparison tool is highly useful to
  verify the output. Any of the following tools (*listed alphabetically*)
  are known to be sufficient for this task:
-
    * [Beyond Compare](https://www.scootersoftware.com/)
-   * [Code Compare](https://www.devart.com/codecompare)
+   * [Code Compare](https://www.devart.com/codecompare/)
    * [Comparison Tool](https://www.eclipse.org/)
-   * [diffoscope](https://diffoscope.org/)
+   * [Delta](https://github.com/dandavison/delta/)
+   * [Diffinity](https://truehumandesign.se/)
+   * [DiffMerge](https://sourcegear.com/diffmerge/)
+   * [DiffoScope](https://diffoscope.org/)
    * [ExamDiff](https://www.prestosoft.com/)
-   * [Guiffy](https://www.guiffy.com)
+   * [Guiffy](https://www.guiffy.com/)
+   * [jMeld](https://github.com/albfan/jmeld/)
+   * [KDiff3](https://github.com/KDE/kdiff3/)
    * [Meld](https://meldmerge.org/)
    * [Merge](https://www.araxis.com/merge/)
-   * [NeoVim diff](https://neovim.io/doc/user/diff.html)
-   * [P4Merge](https://www.perforce.com/downloads/visual-merge-tool)
-   * [Vim diff](https://vimhelp.org/diff.txt.html)
-   * [WinMerge](https://github.com/winmerge/winmerge)
-   * [Xdiff](https://www.plasticscm.com/features/xmerge)
+   * [P4Merge](https://www.perforce.com/downloads/visual-merge-tool/)
+   * [SemanticMerge](https://www.semanticmerge.com/)
+   * [UltraCompare](https://www.ultraedit.com/products/ultracompare/)
+   * Vim/NeoVim
+     * [NeoVim Diff](https://neovim.io/doc/user/diff.html)
+     * [Vim Diff](https://vimhelp.org/diff.txt.html)
+     * [DiffChar](https://github.com/rickhowe/diffchar.vim)
+   * [WinMerge](https://github.com/winmerge/winmerge/)
+   * [WinMerge2011](https://github.com/datadiode/winmerge2011/)
+   * [Xcode FileMerge](https://developer.apple.com/xcode/)
+   * [Xdiff](https://www.plasticscm.com/features/xmerge/)
    * [xxdiff](https://furius.ca/xxdiff/)
 
 
-## USAGE
+## Usage
 
- 1. Run the initialization script to check for prerequisite utilities and
-    copy the required tape images from /var/cache/tapes (or download them
-    if they are not available):
+ 1. Run the initialization script. This will check for various prerequisites,
+    copy the required tape images from `/var/cache/tapes` if present, or
+    download them (using `wget`) if they are not.
 ```sh
-      ./init
+      ./init.sh
 ```
 
  2. Set the `NOREBUILD` environment variable if you have already built the
@@ -72,30 +79,48 @@
       export NOREBUILD=1
 ```
 
- 3. Set the `MAKE` variable if GNU Make is not `make` on your system.
+ 3. Set the `MAKE` environment variable if GNU Make is not installed as `make`.
  ```sh
       export MAKE=gmake
  ```
 
- 4. Run the main script file with:
+ 4. Ensure you do not have any non-default settings in `~/.telnetrc`, and
+    then use the `ci.sh` shell script to begin the run.
 ```sh
-      ./ci
+      ./ci.sh
 ```
- 5. Once the run completes, you can normalize the logs so they can be
-    (*visually*) compared against the known-good reference log file:
+
+ 5. Once the run completes, normalize the new output so the results can be
+    (*visually*) compared against the included known good reference log file:
 ```sh
       make -f ci.makefile diff
 ```
 
- 6. If this run looks good, (optionally) replace the `ci_full.log` with the
-    `ci_full.log.ref` to update the known-good reference log file.
+ 6. If this run looks good, (optionally) replace `ci_full.log.ref` with
+    `ci_full.log` to update the known good reference log file.
+
+### Aborting
+
+The best way to abort the run and end all processes will vary depending on the
+operating system. On modern Linux systems, the most straightforward way is to
+interrupt the script (`Control-Z`), kill the process, then the `tmux` session.
+
+Example:
+```text
+^Z
+$ kill -9 %1
+[1]  + 5730821 killed     ./ci.sh
+$ tmux ls
+cikit-1010045678912345678-0: 1 windows (created Fri Dec 25 11:12:13 2222)
+$ tmux kill-session -t cikit-1010045678912345678-0
+```
 
 
-## FILES
+## Files
 
 **NOTE**: ***This section is is out of date.***
 
-* `ci`
+* `ci.sh`
   This is the launch script start automate starting the process. It mainly
   invokes `make` to run the `ci.makefile`.
 
@@ -131,19 +156,25 @@
     1. logs in to the "*Clayton*" account
     2. invokes `isolts`
 
-* `init`
+* `init.sh`
   This script will download the Multics MR12.7 tapes and place them in the
   tapes directory.
 
-* `tidy`
+* `tidy.sh`
   This is a shell script that attempts to remove some of the variation in the
   log files to allow meld to only show significant changes. It does a fairly
   good job but there are still some things it doesn't catch. Also, it can't
   do anything about lines being out of order (which can happen quite a bit).
 
 
-## HISTORY
+## History
 
+   *Charles Anthony* wrote the initial version of these scripts.
+   *Dean Anderson* made significant changes to overcome some of the
+   original limitations in the scripts. *Jeffrey Johnson* made additional
+   enhancements and adapted the scripts for compatibility with the GitLab
+   CI/CD environment.
+   
    The initial version of the scripts did everything in a single script.
    Since both the Multics console and a telnet session were used, it
    required the `expect` script to deal with switching between the emulator
@@ -157,7 +188,7 @@
    intermixing of the logs.
 
 
-## ISSUES
+## Issues
 
    It turns out that the original intent of automating a CI process with
    these scripts does not work well. The main issue is that there is enough

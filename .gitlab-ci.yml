@@ -1007,15 +1007,6 @@ AIX/powerpc64, IBM AIX, GCC 8:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - bash -x -c 'gmake CC=gcc -j 12 --output-sync --print-directory -k; exit "${?}"'
-    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"' && gmake distclean
-    - *scriptBuildInfo
-    - bash -x -c 'gmake CC=gcc-9 -j 12 --output-sync --print-directory -k; exit "${?}"'
-    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"' && gmake distclean
-    - *scriptBuildInfo
-    - bash -x -c 'gmake CC=gcc-10 -j 12 --output-sync --print-directory -k; exit "${?}"'
-    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"' && gmake distclean
-    - *scriptBuildInfo
-    - bash -x -c 'gmake CC=gcc-11 -j 12 --output-sync --print-directory -k; exit "${?}"'
     - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1910,14 +1901,14 @@ Multics CI-Kit Test:
     - *scriptInstallResticLinuxAMD64
     - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
-    - dnf -q install -y telnet mksh expect tcsh wget lzip dos2unix diffutils moreutils || dnf -q install -y telnet mksh expect tcsh wget lzip dos2unix diffutils moreutils
+    - dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils || dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils
     - *scriptSanity
-    - bash -x -c '( cd src/ci-kit && ./init )' || true
+    - bash -x -c '( cd src/ci-kit && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh )' || true
     - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && ./init ; ./ci ; make -f ci.makefile diff ; mv -f new.log new.txt)'
+    - bash -x -c '( set -o pipefail ; set -x ; cd src/ci-kit && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh ; ./ci.sh ; make -f ci.makefile diff ; mv -f new.log new.txt)'
   dependencies: []
   artifacts:
     when: always

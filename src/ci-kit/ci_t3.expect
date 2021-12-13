@@ -3,19 +3,20 @@ set userName Clayton
 set projName SysAdmin
 set password password
 
-set timeout 200000
+remove_nulls 1
+match_max 4096
+set timeout 350000
 
-proc w {} { expect  -re {\nr [0-9]+:[0-9]+ .*\r}; sleep .1}
-proc wi {} { expect  -re {Input.\r}; sleep .1}
-proc wn {} { expect  -re {\n}; sleep .1}
-proc sw { txt } { send $txt; send "\r"; w }
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2}
+proc  wi {     } { expect -re {Input.\r}; sleep 0.2}
+proc  wn {     } { expect -re {\n}; sleep 0.2}
+proc  sw { txt } { send $txt; send "\r"; w }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc wf {} { expect  -re {\nr  [0-9]+\r}; sleep .1}
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.5}
 proc swf { txt } { send $txt; send "\r"; wf }
 
-
-spawn telnet localhost 9180
+spawn telnet -E 127.0.0.1 "$env(FNPPORT)"
 set telnetID $spawn_id
 
 expect -re {HSLA Port \((d\.h\d+)}
@@ -23,24 +24,17 @@ puts " "
 set channel $expect_out(1,string)
 send "$channel\r"
 
-#
 # Test if HFED project works (broken in 12.6d)
-#
-
 expect "Load = "
 send "l Clayton HFED\r"
 expect "Password:"
 send "password\r"
 
 # If it works, we should get the TOLTS prompt
-
 expect -timeout 10  "isolts"
 
 send "quit\r"
-
-swn "logout\r"
-sleep 5
+swn "logout\r"; sleep 6
 close $telnetID
 
 exit
-
