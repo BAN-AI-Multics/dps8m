@@ -34,12 +34,25 @@
 #include "dps8_utils.h"
 #ifdef LOCKLESS
 # include "threadz.h"
-#endif
+#endif /* ifdef LOCKLESS */
 
 #include "libtelnet.h"
 #ifdef CONSOLE_FIX
 # include "threadz.h"
-#endif
+#endif /* ifdef CONSOLE_FIX */
+
+#ifdef SIM_NAME
+# undef SIM_NAME
+#endif /* SIM_NAME */
+#ifndef SIM_NAME
+# if defined(L68)
+#  define SIM_NAME "L68"
+# elif defined(DPS8M) /* L68 */
+#  define SIM_NAME "DPS8M"
+# else /* DPS8M */
+#  define SIM_NAME "SIM"
+# endif /* !L68 !DPS8M */
+#endif /* !SIM_NAME */
 
 #define DBG_CTR 1
 #define ASSUME0 0
@@ -750,11 +763,11 @@ static void consoleProcessIdx (int conUnitIdx)
         if (c == SCPE_OK)
           c = accessGetChar (& csp->console_access);
 
-        // Check for stop signaled by simh
+        // Check for stop signaled by scp
 
         if (breakEnable && stop_cpu)
           {
-            console_putstr (conUnitIdx,  "Got <sim stop>\r\n");
+            console_putstr (conUnitIdx,  " Got <sim stop> \r\n");
             return;
           }
 
@@ -764,16 +777,16 @@ static void consoleProcessIdx (int conUnitIdx)
 
         if (breakEnable && c == SCPE_STOP)
           {
-            console_putstr (conUnitIdx,  "Got <sim stop>\r\n");
+            console_putstr (conUnitIdx,  " Got <sim stop> \r\n");
             stop_cpu = 1;
             return; // User typed ^E to stop simulation
           }
 
-        // Check for simh break
+        // Check for scp break
 
         if (breakEnable && c == SCPE_BREAK)
           {
-            console_putstr (conUnitIdx,  "Got <sim stop>\r\n");
+            console_putstr (conUnitIdx,  " Got <sim stop> \r\n");
             stop_cpu = 1;
             return; // User typed ^E to stop simulation
           }
@@ -783,7 +796,7 @@ static void consoleProcessIdx (int conUnitIdx)
         if (c == SCPE_OK)
           break;
 
-        // simh sanity test
+        // sanity test
 
         if (c < SCPE_KFLAG)
           {
@@ -832,14 +845,14 @@ static void consoleProcessIdx (int conUnitIdx)
 #endif
         // ^S
 
-        if (ch == 023) // ^S simh command
+        if (ch == 023) // ^S scp command
           {
             if (! csp->simh_attn_pressed)
               {
                 ta_flush ();
                 csp->simh_attn_pressed = true;
                 csp->simh_buffer_cnt = 0;
-                console_putstr (conUnitIdx,  "SIMH> ");
+                console_putstr (conUnitIdx, "^S\r\n" SIM_NAME "> ");
               }
             continue;
           }
@@ -859,7 +872,7 @@ static void consoleProcessIdx (int conUnitIdx)
             continue;
           }
 
-//// In ^S mode (accumulating a simh command)?
+//// In ^S mode (accumulating a scp command)?
 
         if (csp->simh_attn_pressed)
           {
@@ -875,26 +888,26 @@ static void consoleProcessIdx (int conUnitIdx)
                 return;
               }
 
-            //// simh ^R
+            //// scp ^R
 
             if (ch == '\022')  // ^R
               {
-                console_putstr (conUnitIdx,  "^R\r\nSIMH> ");
+                console_putstr (conUnitIdx, "^R\r\n" SIM_NAME "> ");
                 for (int i = 0; i < csp->simh_buffer_cnt; i ++)
                   console_putchar (conUnitIdx, (char) (csp->simh_buffer[i]));
                 return;
               }
 
-            //// simh ^U
+            //// scp ^U
 
             if (ch == '\025')  // ^U
               {
-                console_putstr (conUnitIdx,  "^U\r\nSIMH> ");
+                console_putstr (conUnitIdx, "^U\r\n" SIM_NAME "> ");
                 csp->simh_buffer_cnt = 0;
                 return;
               }
 
-            //// simh CR/LF
+            //// scp CR/LF
 
             if (ch == '\012' || ch == '\015')  // CR/LF
               {
@@ -914,14 +927,14 @@ static void consoleProcessIdx (int conUnitIdx)
                         if (stat != SCPE_OK)
                           {
                             char buf[4096];
-                            sprintf (buf, "SIMH returned %d '%s'\r\n", stat,
-                                     sim_error_text (stat));
+                            sprintf (buf, "\r%s returned %d '%s'\r\n",
+                              SIM_NAME, stat, sim_error_text (stat));
                             console_putstr (conUnitIdx,  buf);
                           }
                       }
                     else
                        console_putstr (conUnitIdx,
-                                       "SIMH didn't recognize the command\r\n");
+                         "\rUnrecognized " SIM_NAME " command.\r\n");
                   }
                 csp->simh_buffer_cnt = 0;
                 csp->simh_buffer[0] = 0;
@@ -929,11 +942,11 @@ static void consoleProcessIdx (int conUnitIdx)
                 return;
               }
 
-            //// simh ESC/^D/^Z
+            //// scp ESC/^D/^Z
 
             if (ch == '\033' || ch == '\004' || ch == '\032')  // ESC/^D/^Z
               {
-                console_putstr (conUnitIdx,  "\r\nSIMH cancel\r\n");
+                console_putstr (conUnitIdx,  "\r\n" SIM_NAME " cancel\r\n");
                 // Empty input buffer
                 csp->simh_buffer_cnt = 0;
                 csp->simh_buffer[0] = 0;
@@ -941,7 +954,7 @@ static void consoleProcessIdx (int conUnitIdx)
                 return;
               }
 
-            //// simh isprint?
+            //// scp isprint?
 
             if (isprint (ch))
               {
@@ -960,11 +973,11 @@ static void consoleProcessIdx (int conUnitIdx)
         ta_push (c);
       }
 
-//// Check for stop signaled by simh
+//// Check for stop signaled by scp
 
     if (breakEnable && stop_cpu)
       {
-        console_putstr (conUnitIdx,  "Got <sim stop>\r\n");
+        console_putstr (conUnitIdx,  " Got <sim stop> \r\n");
         return;
       }
 
@@ -1061,7 +1074,7 @@ eol:
     if (c == SCPE_OK)
         return;
 
-    // Convert from simh encoding to ASCII
+    // Convert from scp encoding to ASCII
     if (c < SCPE_KFLAG)
       {
         sim_printf ("impossible %d %o\n", c, c);
