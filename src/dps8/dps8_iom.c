@@ -3253,6 +3253,9 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
     goto terminate;
   }
 
+    if (rc == IOM_CMD_PENDING) // handler still processing command, don't set
+      goto pending;                // terminate intrrupt.
+
   if (IS_IDCW (p) && p->IDCW_CHAN_CTRL == CHAN_CTRL_MARKER) { // IDCW marker bit set 
     send_marker_interrupt (iomUnitIdx, (int) chan);
   }

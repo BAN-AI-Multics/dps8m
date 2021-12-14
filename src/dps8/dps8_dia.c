@@ -456,7 +456,7 @@ static void processCmdR (uv_stream_t * req, dnPkt * pkt) {
 //sim_printf ("%s %o %o %o\n", __func__, p->PCW_63_PTP, p->PCW_64_PGE, p->PCW_PAGE_TABLE_PTR);
 //sim_printf ("%s tally %o addr %o\n", __func__, p->DDCW_TALLY, p->DDCW_ADDR);
     iom_direct_data_service (cdp->iomUnitIdx, cdp->chan, addr, & data, direct_load);
-sim_printf ("%08o:%012llo\r\n", addr, data);
+//sim_printf ("%08o:%012llo\r\n", addr, data);
 
     dnPkt pkt;
     memset (& pkt, 0, sizeof (pkt));
@@ -1380,7 +1380,8 @@ static iom_cmd_rc_t dia_cmd (uint iomUnitIdx, uint chan)
 
     // iom_cmd_rc_t cmd = processMBX (iomUnitIdx, chan);
 
-    return IOM_CMD_DISCONNECT; // did command, don't want more
+    //return IOM_CMD_DISCONNECT; // did command, don't want more
+    return IOM_CMD_PENDING; // did command, don't want more
     // return cmd; // did command, don't want more
   }
 
