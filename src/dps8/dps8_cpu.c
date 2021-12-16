@@ -858,10 +858,8 @@ static t_stat simh_cpu_reset_unit (UNIT * uptr,
     return SCPE_OK;
   }
 
-#ifndef NO_EV_POLL
 static uv_loop_t * ev_poll_loop;
 static uv_timer_t ev_poll_handle;
-#endif
 
 static MTAB cpu_mod[] =
   {
@@ -1305,7 +1303,6 @@ static void do_stats (void)
   }
 #endif
 
-#ifndef NO_EV_POLL
 // The 100Hz timer as expired; poll I/O
 
 static void ev_poll_cb (UNUSED uv_timer_t * handle)
@@ -1316,39 +1313,38 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
       {
         oneHz = 0;
         rdrProcessEvent ();
-# ifdef STATS
+#ifdef STATS
         do_stats ();
-# endif
+#endif
         cpu.instrCntT0 = cpu.instrCntT1;
         cpu.instrCntT1 = cpu.instrCnt;
 
       }
     fnpProcessEvent ();
-# ifndef __MINGW64__
-#  ifndef __MINGW32__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
-    sk_process_event ();
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW32__ */
-# endif /* ifndef __MINGW64__ */
-    consoleProcess ();
-# ifdef IO_ASYNC_PAYLOAD_CHAN
-    iomProcess ();
-# endif
+#ifndef __MINGW64__
 # ifndef __MINGW32__
-#  ifndef __MINGW64__
-#   ifndef CROSS_MINGW32
-#    ifndef CROSS_MINGW64
-    absi_process_event ();
-#    endif /* ifndef CROSS_MINGW64 */
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef __MINGW64__ */
+#  ifndef CROSS_MINGW32
+#   ifndef CROSS_MINGW64
+    sk_process_event ();
+#   endif /* ifndef CROSS_MINGW64 */
+#  endif /* ifndef CROSS_MINGW32 */
 # endif /* ifndef __MINGW32__ */
+#endif /* ifndef __MINGW64__ */
+    consoleProcess ();
+#ifdef IO_ASYNC_PAYLOAD_CHAN
+    iomProcess ();
+#endif
+#ifndef __MINGW32__
+# ifndef __MINGW64__
+#  ifndef CROSS_MINGW32
+#   ifndef CROSS_MINGW64
+    absi_process_event ();
+#   endif /* ifndef CROSS_MINGW64 */
+#  endif /* ifndef CROSS_MINGW32 */
+# endif /* ifndef __MINGW64__ */
+#endif /* ifndef __MINGW32__ */
     PNL (panel_process_event ());
   }
-#endif
 
 
 // called once initialization
@@ -1409,12 +1405,10 @@ void cpu_init (void)
 #ifndef PERF_STRIP
     get_serial_number ();
 
-# ifndef NO_EV_POLL
     ev_poll_loop = uv_default_loop ();
     uv_timer_init (ev_poll_loop, & ev_poll_handle);
     // 10 ms == 100Hz
     uv_timer_start (& ev_poll_handle, ev_poll_cb, sys_opts.sys_poll_interval, sys_opts.sys_poll_interval);
-# endif
 #endif
     // TODO: reset *all* other structures to zero
 
@@ -1837,9 +1831,7 @@ t_stat sim_instr (void)
 #endif
 
 #if !defined(THREADZ) && !defined(LOCKLESS)
-# ifndef NO_EV_POLL
 static uint fast_queue_subsample = 0;
-# endif
 #endif
 
 //
@@ -2071,7 +2063,6 @@ setCPU:;
             break;
           }
 
-# ifndef NO_EV_POLL
 // The event poll is consuming 40% of the CPU according to pprof.
 // We only want to process at 100Hz; yet we are testing at ~1MHz.
 // If we only test every 1000 cycles, we shouldn't miss by more then
@@ -2082,38 +2073,19 @@ setCPU:;
         if (fast_queue_subsample ++ > sys_opts.sys_poll_check_rate) // ~ 1KHz
           {
             fast_queue_subsample = 0;
-#  ifdef CONSOLE_FIX
-#   if defined(THREADZ) || defined(LOCKLESS)
+# ifdef CONSOLE_FIX
+#  if defined(THREADZ) || defined(LOCKLESS)
             lock_libuv ();
-#   endif
 #  endif
-            uv_run (ev_poll_loop, UV_RUN_NOWAIT);
-#  ifdef CONSOLE_FIX
-#   if defined(THREADZ) || defined(LOCKLESS)
-            unlock_libuv ();
-#   endif
-#  endif
-            PNL (panel_process_event ());
-          }
-# else
-        static uint slowQueueSubsample = 0;
-        if (slowQueueSubsample ++ > 1024000) // ~ 1Hz
-          {
-            slowQueueSubsample = 0;
-            rdrProcessEvent ();
-            cpu.instrCntT0 = cpu.instrCntT1;
-            cpu.instrCntT1 = cpu.instrCnt;
-          }
-        static uint queueSubsample = 0;
-        if (queueSubsample ++ > 10240) // ~ 100Hz
-          {
-            queueSubsample = 0;
-            fnpProcessEvent ();
-            consoleProcess ();
-            absi_process_event ();
-            PNL (panel_process_event ());
-          }
 # endif
+            uv_run (ev_poll_loop, UV_RUN_NOWAIT);
+# ifdef CONSOLE_FIX
+#  if defined(THREADZ) || defined(LOCKLESS)
+            unlock_libuv ();
+#  endif
+# endif
+            PNL (panel_process_event ());
+          }
 #endif // ! THREADZ
 
         cpu.cycleCnt ++;
@@ -2137,8 +2109,7 @@ setCPU:;
         if (con_unit_idx != -1)
           console_attn_idx (con_unit_idx);
 
-#ifndef NO_EV_POLL
-# if !defined(THREADZ) && !defined(LOCKLESS)
+#if !defined(THREADZ) && !defined(LOCKLESS)
         if (cpu.switches.isolts_mode)
           {
             if (cpu.cycle != FETCH_cycle)
@@ -2157,7 +2128,6 @@ setCPU:;
                   }
               }
           }
-# endif
 #endif
 
 // Check for TR underflow. The TR is stored in a uint32_t, but is 27 bits wide.
@@ -2752,26 +2722,19 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 # else // !THREADZ
                   //sim_sleep (10000);
                   sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
-#  ifndef NO_EV_POLL
                   // Trigger I/O polling
-#   ifdef CONSOLE_FIX
-#    if defined(THREADZ) || defined(LOCKLESS)
+#  ifdef CONSOLE_FIX
+#   if defined(THREADZ) || defined(LOCKLESS)
                   lock_libuv ();
-#    endif
 #   endif
+#  endif
                   uv_run (ev_poll_loop, UV_RUN_NOWAIT);
-#   ifdef CONSOLE_FIX
-#    if defined(THREADZ) || defined(LOCKLESS)
+#  ifdef CONSOLE_FIX
+#   if defined(THREADZ) || defined(LOCKLESS)
                   unlock_libuv ();
-#    endif
 #   endif
+#  endif
                   fast_queue_subsample = 0;
-#  else // NO_EV_POLL
-                  // this ignores the amount of time since the last poll;
-                  // worst case is the poll delay of 1/50th of a second.
-                  slowQueueSubsample += 10240; // ~ 1Hz
-                  queueSubsample += 10240; // ~100Hz
-#  endif // NO_EV_POLL
 
                   sim_interval = 0;
 # endif // !THREADZ
