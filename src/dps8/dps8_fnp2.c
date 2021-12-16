@@ -12,7 +12,7 @@
  */
 
 // There is a lurking bug in fnpProcessEvent(). A second 'input' messages
-// from a particular line could be placed in mailbox beforme the first is
+// from a particular line could be placed in mailbox before the first is
 // processed. This could lead to the messages being picked up by MCS in
 // the wrong order. The quick fix is to use just a single mbx; a better
 // is to track the line # associated with an busy mailbox, and requeue
@@ -2183,7 +2183,7 @@ static t_stat fnpSetConfig (UNIT * uptr, UNUSED int value, const char * cptr, UN
               break;
 
             default:
-              sim_printf ("error: fnpSetConfig: Invalid cfg_parse rc <%d>\n", rc);
+              sim_printf ("error: fnpSetConfig: Invalid cfg_parse rc <%ld>\n", (long) rc);
               cfg_parse_done (& cfg_state);
               return SCPE_ARG;
           } // switch
@@ -2297,6 +2297,11 @@ t_stat fnpLoad (UNUSED int32 arg, const char * buf)
 
 t_stat set_fnp_server_port (UNUSED int32 arg, const char * buf)
   {
+    if (fnpData.du_server_inited)
+      {
+        sim_printf ("[FNP emulation: TELNET server port error: FNP already initialized]\n");
+        return SCPE_INCOMP;
+      }
     if (! buf)
       return SCPE_ARG;
     int n = atoi (buf);
@@ -2305,25 +2310,38 @@ t_stat set_fnp_server_port (UNUSED int32 arg, const char * buf)
     fnpData.telnet_port = n;
         if (!sim_quiet)
           {
-            sim_printf ("FNP TELNET server port set to %ld\n", (long) n);
+            sim_printf ("[FNP emulation: TELNET server port set to %ld]\n", (long) n);
           }
     return SCPE_OK;
   }
 
 t_stat set_fnp_server_address (UNUSED int32 arg, const char * buf)
   {
+    if (fnpData.du_server_inited)
+      {
+        sim_printf ("[FNP emulation: FNP server address error: FNP already initialized]\n");
+        return SCPE_INCOMP;
+      }
+    if (! buf)
+      return SCPE_ARG;
     if (fnpData.telnet_address)
       free (fnpData.telnet_address);
     fnpData.telnet_address = strdup (buf);
         if (!sim_quiet)
           {
-            sim_printf ("FNP TELNET server address set to %s\n", fnpData.telnet_address);
+            sim_printf ("[FNP emulation: FNP server address set to %s]\n", fnpData.telnet_address);
           }
     return SCPE_OK;
   }
 
 t_stat set_fnp_3270_server_port (UNUSED int32 arg, const char * buf)
   {
+    /* Checking both here since there is no explicit FNP3270START */
+    if ( (fnpData.du3270_server_inited) || (fnpData.du_server_inited) )
+      {
+        sim_printf ("[FNP emulation: TN3270 server port error: FNP already initialized]\n");
+        return SCPE_INCOMP;
+      }
     if (! buf)
       return SCPE_ARG;
     int n = atoi (buf);
@@ -2332,19 +2350,20 @@ t_stat set_fnp_3270_server_port (UNUSED int32 arg, const char * buf)
     fnpData.telnet3270_port = n;
         if (!sim_quiet)
           {
-            sim_printf ("FNP TN3270E server port set to %ld\n", (long) n);
+            sim_printf ("[FNP emulation: TN3270 server port set to %ld]\n", (long) n);
           }
     return SCPE_OK;
   }
 
 t_stat fnp_start (UNUSED int32 arg, UNUSED const char * buf)
   {
-        if (!sim_quiet)
-         {
-            sim_printf ("FNP force start\n");
-         }
-    fnpuvInit (fnpData.telnet_port, fnpData.telnet_address);
-    //fnpuv3270Init (fnpData.telnet3270_port);
+    int rc = 0;
+    rc = fnpuvInit (fnpData.telnet_port, fnpData.telnet_address);
+    if (rc != 0)
+      return SCPE_INCOMP;
+    // rc = fnpuv3270Init (fnpData.telnet3270_port);
+    // if (rc != 0)
+    //   return SCPE_INCOMP;
     return SCPE_OK;
   }
 
@@ -2873,5 +2892,5 @@ associate:;
 
 void startFNPListener (void)
   {
-    fnpuvInit (fnpData.telnet_port, fnpData.telnet_address);
+    (void)fnpuvInit (fnpData.telnet_port, fnpData.telnet_address);
   }

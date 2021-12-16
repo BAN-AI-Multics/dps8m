@@ -97,6 +97,7 @@ rebuild.vne
 *.Z
 *.d.*
 *.ifx
+serial.txt
 
 # Lint
 lint.txt

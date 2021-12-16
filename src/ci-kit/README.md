@@ -118,7 +118,7 @@ $ tmux kill-session -t cikit-1010045678912345678-0
 
 ## Files
 
-**NOTE**: ***This section is is out of date.***
+**NOTE**: ***This section is out of date.***
 
 * `ci.sh`
   This is the launch script start automate starting the process. It mainly

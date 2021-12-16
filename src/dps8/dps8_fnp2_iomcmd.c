@@ -1707,9 +1707,9 @@ static void fnpcmdBootload (uint devUnitIdx)
               }
           }
       }
-    fnpuvInit (fnpData.telnet_port, fnpData.telnet_address);
+    (void)fnpuvInit (fnpData.telnet_port, fnpData.telnet_address);
     if (have3270)
-      fnpuv3270Init (fnpData.telnet3270_port);
+      (void)fnpuv3270Init (fnpData.telnet3270_port);
   }
 
 #if 1

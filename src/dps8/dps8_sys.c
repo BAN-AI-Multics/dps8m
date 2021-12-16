@@ -1649,11 +1649,6 @@ static char * default_base_system_script [] =
     // "set sys config=activate_time=8",
     // "set sys config=terminate_time=8",
     "set sys config=connect_time=-1",
-
-#if 0
-    "fnpload Devices.txt",
-#endif
-    "fnpserverport 6180"
   }; // default_base_system_script
 
 // Execute a line of script
@@ -3749,9 +3744,9 @@ static CTAB dps8_cmds[] =
     {"CABLE_RIPOUT",        sys_cable_ripout,         0, "cable: Unstring all cables\n" , NULL, NULL},
     {"CABLE_SHOW",          sys_cable_show,           0, "cable: Show cables\n" , NULL, NULL},
 
-    {"FNPSERVERPORT",       set_fnp_server_port,      0, "fnpserverport: Set the FNP dialin telnet port number\n", NULL, NULL},
-    {"FNPSERVERADDRESS",    set_fnp_server_address,   0, "fnpserveraddress: Set the FNP dialin telnet address\n", NULL, NULL},
-    {"FNPSERVER3270PORT",   set_fnp_3270_server_port, 0, "fnpserver3270port: Set the FNP 3270 port number\n", NULL, NULL},
+    {"FNPSERVERPORT",       set_fnp_server_port,      0, "fnpserverport: Set the FNP dialin TELNET port number\n", NULL, NULL},
+    {"FNPSERVERADDRESS",    set_fnp_server_address,   0, "fnpserveraddress: Set the FNP dialin server binding address\n", NULL, NULL},
+    {"FNPSERVER3270PORT",   set_fnp_3270_server_port, 0, "fnpserver3270port: Set the FNP TN3270 dialin port number\n", NULL, NULL},
 
     {"CONSOLEPORT",         set_console_port,         0, "consoleport: Set the Operator Console port number\n", NULL, NULL},
     {"CONSOLEADDRESS",      set_console_address,      0, "consoleport: Set the Operator Console address\n", NULL, NULL},

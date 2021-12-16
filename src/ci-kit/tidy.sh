@@ -48,6 +48,7 @@ s/^  Commit: ......................................../  Commit: ????/
 s/^DPS8\/M simulator .*$/DPS8\/M simulator ????/
 s/^L68 simulator .*$/L68 simulator ????/
 s/^FNP telnet server port set to .*/FNP telnet server port set to ????/
+s/^.FNP emulation: TELNET server port set to .*/FNP emulation: TELNET server port set to ????/
 s/^    Commit: ......................................../    Commit: ????/
 s/^   Version: .*$/   Version: ????/
 s/^  Modified: [1-9].*/Modified: ????/
@@ -74,7 +75,7 @@ s/^lockImmediate .* [1-9].*$/lockImmediate ????/
 s/^lockWait .* [1-9].*$/lockWait ????/
 s/^lockWaitMax .* [1-9].*$/lockWaitMax ????/
 s/^lockYield .* [1-9].*$/lockYield ????/
-s/^.FNP emulation: listening to .*/FNP emulation: listening to ????/
+s/FNP emulation: listening .. .*/FNP emulation: listening ?? ????/
 s/^ ????  ut   [1-9].*root/ ????  ut   ????/
 s/^Cutoff date: .*$/Cutoff date: ????/
 s/YourPasswordXWXWXWXWXWXW986986986986//
