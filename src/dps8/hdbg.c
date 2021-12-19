@@ -662,7 +662,7 @@ t_stat hdbg_size (UNUSED int32 arg, const char * buf) {
 // set target segment number
 t_stat hdbgSegmentNumber (UNUSED int32 arg, const char * buf) {
   hdbgSegNum = strtoul (buf, NULL, 8);
-  sim_printf ("hdbg target segment number set to %lu\n", hdbgSize);
+  sim_printf ("hdbg target segment number set to %lu\n", hdbgSegNum);
   createBuffer ();
   return SCPE_OK;
 }

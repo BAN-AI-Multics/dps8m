@@ -309,6 +309,7 @@ ifeq ($(TRACKER),1)
   H_SRCS += tracker.h
 endif
 H_SRCS += uvutil.h
+H_SRCS += dnpkt.h
 
 ###############################################################################
 

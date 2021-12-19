@@ -1,5 +1,6 @@
 //#define dumpseg
-#define DDBG(x) x
+//#define DDBG(x) x
+#define DDBG(x) 
 /*
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
@@ -40,6 +41,7 @@
 //
 
 static void allocBuffer (UNUSED uv_handle_t * handle, size_t suggested_size, uv_buf_t * buf) {
+  suggested_size = sizeof (dnPkt);
   char * p = (char *) malloc (suggested_size);
   if (! p) {
      sim_warn ("%s malloc fail\r\n", __func__);
@@ -418,6 +420,7 @@ static void dnSendCB (uv_write_t * req, int status) {
 }
 
 static void dnSend (uint diaUnitIdx, dnPkt * pkt) {
+sim_printf ("DEBUG: >%s\r\n", (char *) pkt);
   struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
   uv_write_t * req = malloc (sizeof (uv_write_t));
   if (! req) {
@@ -456,7 +459,6 @@ static void processCmdR (uv_stream_t * req, dnPkt * pkt) {
 //sim_printf ("%s %o %o %o\n", __func__, p->PCW_63_PTP, p->PCW_64_PGE, p->PCW_PAGE_TABLE_PTR);
 //sim_printf ("%s tally %o addr %o\n", __func__, p->DDCW_TALLY, p->DDCW_ADDR);
     iom_direct_data_service (cdp->iomUnitIdx, cdp->chan, addr, & data, direct_load);
-//sim_printf ("%08o:%012llo\r\n", addr, data);
 
     dnPkt pkt;
     memset (& pkt, 0, sizeof (pkt));
@@ -467,6 +469,15 @@ static void processCmdR (uv_stream_t * req, dnPkt * pkt) {
 }
 
 static void processCmdW (uv_stream_t * req, dnPkt * pkt) {
+
+// IDB: 000033000100 100501017600 000000000001
+//for (uint i = 0; i < 513000; i ++) {
+  //word36 w = M[i] & MASK36;
+  //if (w == 0000033000100 || w == 0100501017600 || w == 0000000000001) {
+    //sim_printf ("%08o:%012llo\r\n", i, w);
+  //}
+//}
+
   diaClientData * cdp = (diaClientData *) req->data;
   if (cdp->magic != DIA_CLIENT_MAGIC)
     sim_printf ("ERROR: %s no magic\r\n", __func__);
@@ -481,8 +492,16 @@ sim_printf ("DEBUG: %s store %08o:%012llo\r\n", __func__, addr, data);
   }
 }
 
+void processCmdSEC (uv_stream_t * req, dnPkt * pkt) {
+  //sim_printf ("DEBUG:disconnect\r\n");
+  diaClientData * cdp = (diaClientData *) req->data;
+  if (cdp->magic != DIA_CLIENT_MAGIC)
+    sim_printf ("ERROR: %s no magic\r\n", __func__);
+  send_special_interrupt (cdp->iomUnitIdx, cdp->chan, 0, 0, 0);
+}
+
 void processCmdDis (uv_stream_t * req, dnPkt * pkt) {
-  sim_printf ("DEBUG:disconnect\r\n");
+  //sim_printf ("DEBUG:disconnect\r\n");
   diaClientData * cdp = (diaClientData *) req->data;
   if (cdp->magic != DIA_CLIENT_MAGIC)
     sim_printf ("ERROR: %s no magic\r\n", __func__);
@@ -492,13 +511,24 @@ void processCmdDis (uv_stream_t * req, dnPkt * pkt) {
 static void processRecv (uv_stream_t * req, dnPkt * pkt, ssize_t nread) {
   if (nread != sizeof (dnPkt)) {
     sim_printf ("%s incoming packet size %ld, expected %ld\r\n", __func__, nread, sizeof (dnPkt));
+for (uint i = 0; i < nread; i ++) {
+  unsigned char ch = ((unsigned char *) pkt) [i];
+  sim_printf ("%4d %03o ", i, ch);
+  if (isprint (ch))
+    sim_printf ("'%c'\r\n", ch);
+  else
+    sim_printf ("'\%03o'\r\n", ch);
+}
   }
+sim_printf ("DEBUG: <%s\r\n", (char *) pkt);
   if (pkt->cmd == DN_CMD_READ) {
     processCmdR (req, pkt);
   } else if (pkt->cmd == DN_CMD_WRITE) {
     processCmdW (req, pkt);
   } else if (pkt->cmd == DN_CMD_DISCONNECT) {
     processCmdDis (req, pkt);
+  } else if (pkt->cmd == DN_CMD_SET_EXEC_CELL) {
+    processCmdSEC (req, pkt);
   } else {
     sim_printf ("Ignoring cmd %c %o\r\n", isprint (pkt->cmd) ? pkt->cmd : '.', pkt->cmd);
   }
@@ -537,6 +567,8 @@ static void onConnect (uv_connect_t * server, int status) {
   if (cdp->magic != DIA_CLIENT_MAGIC)
     sim_printf ("ERROR: %s no magic\r\n", __func__);
   struct dia_unit_data * dudp = & dia_data.dia_unit_data[cdp->diaUnitIdx];
+  //uv_tcp_nodelay ((uv_tcp_t *) & dudp->tcpHandle, 1);
+  //uv_stream_set_blocking ((uv_stream_t *) & dudp->tcpHandle, 1);
   uv_read_start ((uv_stream_t *) & dudp->tcpHandle, allocBuffer, onRead);
 }
 
@@ -704,6 +736,7 @@ struct mailbox
 //
 
 void dia_init (void) {
+//sim_printf ("DEBUG: sizeof (dnPkt) %lu\r\n", sizeof (dnPkt));
   memset(& dia_data, 0, sizeof (dia_data));
   //for (uint diaUnitIdx = 0; diaUnitIdx < N_DIA_UNITS_MAX; diaUnitIdx ++) {
     //struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
@@ -1361,10 +1394,10 @@ static iom_cmd_rc_t dia_cmd (uint iomUnitIdx, uint chan)
             sim_debug (DBG_NOTIFY, & dia_dev, "Request status\n");
             DDBG (sim_printf ("Request status\r\n"));
             // Send a connect message to the coupler
-           dnPkt pkt;
-           memset (& pkt, 0, sizeof (pkt));
-           pkt.cmd = DN_CMD_CONNECT;
-           dnSend (diaUnitIdx, & pkt);
+            dnPkt pkt;
+            memset (& pkt, 0, sizeof (pkt));
+            pkt.cmd = DN_CMD_CONNECT;
+            dnSend (diaUnitIdx, & pkt);
           }
           break;
 
@@ -1380,8 +1413,8 @@ static iom_cmd_rc_t dia_cmd (uint iomUnitIdx, uint chan)
 
     // iom_cmd_rc_t cmd = processMBX (iomUnitIdx, chan);
 
-    //return IOM_CMD_DISCONNECT; // did command, don't want more
-    return IOM_CMD_PENDING; // did command, don't want more
+    return IOM_CMD_DISCONNECT; // did command, don't want more
+    //return IOM_CMD_PENDING; // did command, don't want more
     // return cmd; // did command, don't want more
   }
 
