@@ -49,7 +49,7 @@ struct udpPktStruct {
       char data[21 + 1]; // %08o:%012llo addr data
     } cmdD;
     struct {
-      char word[12 + 1]; // %012llo data
+      char cell[2 + 1]; // %012llo data
     } cmdS;
   };
 };

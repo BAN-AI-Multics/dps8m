@@ -29,6 +29,9 @@ struct dia_unit_data
   {
     uint mailboxAddress;
     word24 l66Addr;
+
+    char rhost[64];
+    int32_t rport;
     uv_tcp_t tcpHandle;
     uv_connect_t reqConnect;
 

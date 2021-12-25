@@ -668,7 +668,7 @@ static t_stat cpu_set_stall (UNUSED UNIT * uptr, UNUSED int32 value,
     t = strtol (end + 1, & end, 0);
     if (* end != 0)
       return SCPE_ARG;
-    if (t < 0 || t >= 1000000)
+    if (t < 0 || t >= 10000000)
       return SCPE_ARG;
 
     stall_points[n].segno = (word15) s;
@@ -1822,7 +1822,7 @@ t_stat sim_instr (void)
           }
         while ((next_time.tv_sec == new_time.tv_sec) ? (next_time.tv_nsec > new_time.tv_nsec) : (next_time.tv_sec > new_time.tv_sec));
 # else
-        sim_usleep (1000); // 1000 us == 1 ms == 1/1000 sec.
+        sim_usleep (10); // 1000 us == 1 ms == 1/1000 sec.
 # endif
       }
     while (reason == 0);
@@ -2073,7 +2073,8 @@ setCPU:;
 
         //if ((! cpu.wasInhibited) && fast_queue_subsample ++ > 1024) // ~ 1KHz
         //static uint fastQueueSubsample = 0;
-        if (fast_queue_subsample ++ > sys_opts.sys_poll_check_rate) // ~ 1KHz
+        //if (fast_queue_subsample ++ > sys_opts.sys_poll_check_rate) // ~ 1KHz
+        if (fast_queue_subsample ++ > 10) // ~ 1KHz
           {
             fast_queue_subsample = 0;
 #  ifdef CONSOLE_FIX

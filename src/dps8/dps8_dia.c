@@ -497,7 +497,12 @@ void processCmdSEC (uv_stream_t * req, dnPkt * pkt) {
   diaClientData * cdp = (diaClientData *) req->data;
   if (cdp->magic != DIA_CLIENT_MAGIC)
     sim_printf ("ERROR: %s no magic\r\n", __func__);
-  send_special_interrupt (cdp->iomUnitIdx, cdp->chan, 0, 0, 0);
+  uint cell = 3;
+  int n = sscanf (pkt->cmdS.cell, "%o", & cell);
+  if (n != 1) {
+    sim_printf ("%s unable to extract cell\r\n", __func__);
+  }
+  send_special_interrupt (cdp->iomUnitIdx, cdp->chan, cell, 0, 0);
 }
 
 void processCmdDis (uv_stream_t * req, dnPkt * pkt) {
@@ -572,6 +577,45 @@ static void onConnect (uv_connect_t * server, int status) {
   uv_read_start ((uv_stream_t *) & dudp->tcpHandle, allocBuffer, onRead);
 }
 
+static int dia_connect (UNIT * uptr) {
+  int diaUnitIdx = (int) (uptr - dia_unit);
+  struct dia_unit_data * dudp = & dia_data.dia_unit_data[diaUnitIdx];
+
+// Set up send
+
+  int rc = uv_tcp_init (uv_default_loop (), & dudp->tcpHandle);
+  if (rc) {
+    sim_printf ("%s unable to init tcpHandle %d\r\n", __func__, rc);
+    return -1;
+  }
+
+  struct sockaddr_in raddr;
+  uv_ip4_addr (dudp->rhost, dudp->rport, & raddr);
+
+  rc = uv_tcp_init (uv_default_loop (), & dudp->tcpHandle);
+  if (rc) {
+    sim_printf ("%s unable to connect tcpHandle %d\r\n", __func__, rc);
+    return -1;
+  }
+
+  struct ctlr_to_iom_s * there = & cables->dia_to_iom[diaUnitIdx][ASSUME0];
+//sim_printf ("DIAA at %u %u\r\n", there->iom_unit_idx, there->chan_num);
+  dudp->clientData.magic = DIA_CLIENT_MAGIC;
+  dudp->clientData.iomUnitIdx = there->iom_unit_idx;
+  dudp->clientData.chan = there->chan_num;
+  dudp->clientData.diaUnitIdx = diaUnitIdx;
+  dudp->reqConnect.data = & dudp->clientData;
+  dudp->tcpHandle.data = & dudp->clientData;
+
+  rc = uv_tcp_connect (& dudp->reqConnect, & dudp->tcpHandle, (struct sockaddr *) & raddr, onConnect);
+  if (rc) {
+    sim_printf ("%s unable to connect udpSendHandle %d\r\n", __func__, rc);
+    return -1;
+  }
+  uptr->flags |= UNIT_ATT;
+  return 0;
+}
+
 static t_stat dia_attach (UNIT * uptr, const char * cptr) {
   if (! cptr)
     return SCPE_ARG;
@@ -591,54 +635,27 @@ static t_stat dia_attach (UNIT * uptr, const char * cptr) {
   strncpy (dudp->attachAddress, cptr, ATTACH_ADDRESS_SZ);
   uptr->filename = dudp->attachAddress;
 
-  int32_t rport;
-  char rhost[64];
-  int rc = tcp_parse_remote (cptr, rhost, sizeof (rhost), & rport);
+  int rc = tcp_parse_remote (cptr, dudp->rhost, sizeof (dudp->rhost), & dudp->rport);
   if (rc) {
     sim_warn ("%s unable to parse address %d\r\n", __func__, rc);
     return SCPE_ARG;
   }
-  // sim_printf ("%d %d:%s:%d\r\n", rc, lport, rhost, rport);
+  // sim_printf ("%d %d:%s:%d\r\n", rc, lport, dudp->rhost, dudp->rport);
 
-// Set up send
-
-  rc = uv_tcp_init (uv_default_loop (), & dudp->tcpHandle);
-  if (rc) {
-    sim_printf ("%s unable to init tcpHandle %d\r\n", __func__, rc);
-    exit (1);
-  }
-
-  struct sockaddr_in raddr;
-  uv_ip4_addr (rhost, rport, & raddr);
-
-  rc = uv_tcp_init (uv_default_loop (), & dudp->tcpHandle);
-  if (rc) {
-    sim_printf ("%s unable to connect tcpHandle %d\r\n", __func__, rc);
-    exit (1);
-  }
-
-  struct ctlr_to_iom_s * there = & cables->dia_to_iom[diaUnitIdx][ASSUME0];
-sim_printf ("DIAA at %u %u\r\n", there->iom_unit_idx, there->chan_num);
-  dudp->clientData.magic = DIA_CLIENT_MAGIC;
-  dudp->clientData.iomUnitIdx = there->iom_unit_idx;
-  dudp->clientData.chan = there->chan_num;
-  dudp->clientData.diaUnitIdx = diaUnitIdx;
-  dudp->reqConnect.data = & dudp->clientData;
-  dudp->tcpHandle.data = & dudp->clientData;
-
-  rc = uv_tcp_connect (& dudp->reqConnect, & dudp->tcpHandle, (struct sockaddr *) & raddr, onConnect);
-  if (rc) {
-    sim_printf ("%s unable to connect udpSendHandle %d\r\n", __func__, rc);
-    exit (1);
-  }
-
-
-  uptr->flags |= UNIT_ATT;
-  //dudp->connected = true;
+  rc = dia_connect (uptr);
+  //if (rc == 0) {
+    //uptr->flags |= UNIT_ATT;
+    //dudp->connected = true;
+  //}
   return SCPE_OK;
 }
 
 static void close_cb (uv_handle_t * stream) {
+sim_printf ("close cb\r\n");
+  diaClientData * cdp = (diaClientData *) stream->data;
+  if (cdp->magic != DIA_CLIENT_MAGIC)
+    sim_printf ("ERROR: %s no magic\r\n", __func__);
+  dia_unit[cdp->diaUnitIdx].flags &= ~ (unsigned int) UNIT_ATT;
   free (stream);
 }
 
@@ -657,7 +674,7 @@ static t_stat dia_detach (UNIT * uptr) {
   //dudp->connected = false;
   uptr->flags &= ~ (unsigned int) UNIT_ATT;
   //free (uptr->filename);
-  uptr->filename = NULL;
+  //uptr->filename = NULL;
   return SCPE_OK;
 }
 
@@ -1384,6 +1401,14 @@ static iom_cmd_rc_t dia_cmd (uint iomUnitIdx, uint chan)
   {
     uint diaUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+    UNIT * uptr = dia_unit + diaUnitIdx;
+    if ((uptr->flags & UNIT_ATT) == 0) {
+      int rc = dia_connect (uptr);
+      if (rc) {
+        sim_printf ("Can't connect to FNP\r\n");
+        return IOM_CMD_ERROR;
+      }
+    }
     p -> stati = 0;
     DDBG (sim_printf ("fnp cmd %d\n", p -> IDCW_DEV_CMD));
     switch (p -> IDCW_DEV_CMD)
