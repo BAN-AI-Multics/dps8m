@@ -38,19 +38,19 @@ struct udpPktStruct {
   union {
     struct {
       char data[21 + 1]; // %08o:%012llo addr data
-    } cmdW;
+    } cmdWrite;
     struct {
       char addr[8 + 1]; // %08o addr
-    } cmdR;
+    } cmdRead;
     struct {
       char addr[8 + 1]; // %08o addr
-    } cmdT;
+    } cmdX2L6;
     struct {
       char data[21 + 1]; // %08o:%012llo addr data
-    } cmdD;
+    } cmdData;
     struct {
       char cell[2 + 1]; // %012llo data
-    } cmdS;
+    } cmdSet;
   };
 };
 

@@ -450,7 +450,7 @@ static void processCmdR (uv_stream_t * req, dnPkt * pkt) {
     sim_printf ("ERROR: %s no magic\r\n", __func__);
   //struct dia_unit_data * dudp = & dia_data.dia_unit_data[cdp->diaUnitIdx];
   word24 addr;
-  int n = sscanf (pkt->cmdR.addr, "%o", & addr);
+  int n = sscanf (pkt->cmdRead.addr, "%o", & addr);
   if (n != 1) {
     sim_printf ("%s unable to extract address\r\n", __func__);
   } else {
@@ -463,7 +463,7 @@ static void processCmdR (uv_stream_t * req, dnPkt * pkt) {
     dnPkt pkt;
     memset (& pkt, 0, sizeof (pkt));
     pkt.cmd = DN_CMD_DATA;
-    sprintf (pkt.cmdD.data, "%08o:%012llo", addr, data);
+    sprintf (pkt.cmdData.data, "%08o:%012llo", addr, data);
     dnSend (cdp->diaUnitIdx, & pkt);
   }
 }
@@ -483,7 +483,7 @@ static void processCmdW (uv_stream_t * req, dnPkt * pkt) {
     sim_printf ("ERROR: %s no magic\r\n", __func__);
   word24 addr;
   word36 data;
-  int n = sscanf (pkt->cmdW.data, "%08o:%012llo", & addr, & data);
+  int n = sscanf (pkt->cmdWrite.data, "%08o:%012llo", & addr, & data);
   if (n != 2) {
     sim_printf ("%s unable to extract address\r\n", __func__);
   } else {
@@ -498,11 +498,17 @@ void processCmdSEC (uv_stream_t * req, dnPkt * pkt) {
   if (cdp->magic != DIA_CLIENT_MAGIC)
     sim_printf ("ERROR: %s no magic\r\n", __func__);
   uint cell = 3;
-  int n = sscanf (pkt->cmdS.cell, "%o", & cell);
+  int n = sscanf (pkt->cmdSet.cell, "%o", & cell);
   if (n != 1) {
     sim_printf ("%s unable to extract cell\r\n", __func__);
   }
-  send_special_interrupt (cdp->iomUnitIdx, cdp->chan, cell, 0, 0);
+  if (cell == 7) {
+    send_special_interrupt (cdp->iomUnitIdx, cdp->chan, 0, 0, 0);
+  } else if (cell == 3) {
+    send_general_interrupt (cdp->iomUnitIdx, cdp->chan, imwTerminatePic);
+  } else {
+    sim_printf ("Error: SEC %o\r\n", cell);
+  }
 }
 
 void processCmdDis (uv_stream_t * req, dnPkt * pkt) {
@@ -835,7 +841,7 @@ static void dnSend (dnPkt * pkt, struct dia_unit_data * dudp) {
 
 void processCmdR (uv_udp_t * req, dnPkt * pkt) {
   word24 addr;
-  int n = sscanf (pkt->cmdR.addr, "%o", & addr);
+  int n = sscanf (pkt->cmdRead.addr, "%o", & addr);
   if (n != 1) {
     sim_printf ("%s unable to extract address\r\n", __func__);
   } else {
@@ -867,7 +873,7 @@ sim_printf ("%08o:%012llo\r\n", addr, data);
   dnPkt pkt;
   memset (& pkt, 0, sizeof (pkt));
   pkt.cmd = DN_CMD_DATA;
-  sprintf (pkt.cmdD.data, "%08o:%012llo", addr, data);
+  sprintf (pkt.cmdData.data, "%08o:%012llo", addr, data);
   dnSend (& pkt, dudp);
 
   }
@@ -883,7 +889,7 @@ static void cmdXferToL6 (uint iomUnitIdx, uint diaUnitIdx, uint chan, word24 l66
   dnPkt pkt;
   memset (& pkt, 0, sizeof (pkt));
   pkt.cmd = DN_CMD_XFER_TO_L6;
-  sprintf (pkt.cmdT.addr, "%08o", l66Addr);
+  sprintf (pkt.cmdX2L6.addr, "%08o", l66Addr);
   dnSend (diaUnitIdx, & pkt);
 }
 
@@ -1438,8 +1444,8 @@ static iom_cmd_rc_t dia_cmd (uint iomUnitIdx, uint chan)
 
     // iom_cmd_rc_t cmd = processMBX (iomUnitIdx, chan);
 
-    return IOM_CMD_DISCONNECT; // did command, don't want more
-    //return IOM_CMD_PENDING; // did command, don't want more
+    //return IOM_CMD_DISCONNECT; // did command, don't want more
+    return IOM_CMD_PENDING; // did command, don't want more
     // return cmd; // did command, don't want more
   }
 
@@ -1447,10 +1453,6 @@ static iom_cmd_rc_t dia_cmd (uint iomUnitIdx, uint chan)
  * dia_iom_cmd()
  *
  */
-
-// 1 ignored command
-// 0 ok
-// -1 problem
 
 iom_cmd_rc_t dia_iom_cmd (uint iomUnitIdx, uint chan)
   {
@@ -1464,7 +1466,7 @@ iom_cmd_rc_t dia_iom_cmd (uint iomUnitIdx, uint chan)
       }
     // else // DDCW/TDCW
     sim_printf ("%s expected IDCW %012llo\n", __func__, p->DCW);
-    return -1;
+    return IOM_CMD_ERROR;
   }
 
 #if 0
