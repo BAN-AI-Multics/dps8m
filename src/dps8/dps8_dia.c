@@ -26,6 +26,7 @@
 #include "dps8_cable.h"
 #include "dps8_utils.h"
 #include "dnpkt.h"
+#include "dps8_fnp2.h"
 #define DBG_CTR 1
 
 #ifdef THREADZ
@@ -516,6 +517,16 @@ void processCmdDis (uv_stream_t * req, dnPkt * pkt) {
   diaClientData * cdp = (diaClientData *) req->data;
   if (cdp->magic != DIA_CLIENT_MAGIC)
     sim_printf ("ERROR: %s no magic\r\n", __func__);
+
+  word36 bootloadStatus = 0;
+  putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
+  putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;
+  putbits36_8 (& bootloadStatus, 9, 0); // substatus = BOOTLOAD_OK;
+  putbits36_17 (& bootloadStatus, 17, 0); // channel_no = 0;
+  struct dia_unit_data * dudp = dia_data.dia_unit_data + cdp->diaUnitIdx;
+  iom_direct_data_service (cdp->iomUnitIdx, cdp->chan, dudp->mailboxAddress+CRASH_DATA, & bootloadStatus, direct_store);
+sim_printf ("settimg statis iom %o chan %o unit %o address %lo \r\n", cdp->iomUnitIdx, cdp->chan, cdp->diaUnitIdx, dudp->mailboxAddress+CRASH_DATA);
+
   send_terminate_interrupt (cdp->iomUnitIdx, cdp->chan);
 }
 
@@ -716,6 +727,7 @@ DEVICE dia_dev = {
 
 t_dia_data dia_data;
 
+#if 0
 struct dn355_submailbox
   {
     word36 word1; // dn355_no; is_hsla; la_no; slot_no
@@ -752,7 +764,7 @@ struct mailbox
 #define CRASH_DATA              (offsetof (struct mailbox, crash_data) / sizeof (word36))
 #define DN355_SUB_MBXES         (offsetof (struct mailbox, dn355_sub_mbxes) / sizeof (word36))
 #define FNP_SUB_MBXES           (offsetof (struct mailbox, fnp_sub_mbxes) / sizeof (word36))
-
+#endif
 
 //
 // Once-only initialization
