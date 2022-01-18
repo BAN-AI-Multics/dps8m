@@ -1135,17 +1135,17 @@ static char * default_base_system_script [] =
     // ; There are bugs in the FNP code that require sim unit number
     // ; to be the same as the Multics unit number; ie fnp0 == fnpa, etc.
     // ;
-    // ; dia a 3400
+    // ; fnp a 3400
     // ; fnp b 3700
     // ; fnp c 4200
     // ; fnp d 4500
     // ; fnp e 5000
     // ; fnp f 5300
     // ; fnp g 5600
-    // ; fnp h 6100
+    // ; dia h 6100
 
-    "set dia0 config=mailbox=03400",
-    //"set dia0 ipc_name=fnp-a",
+    "set fnp0 config=mailbox=03400",
+    "set fnp0 ipc_name=fnp-a",
     "set fnp1 config=mailbox=03700",
     "set fnp1 ipc_name=fnp-b",
     "set fnp2 config=mailbox=04200",
@@ -1158,8 +1158,8 @@ static char * default_base_system_script [] =
     "set fnp5 ipc_name=fnp-f",
     "set fnp6 config=mailbox=05600",
     "set fnp6 ipc_name=fnp-g",
-    "set fnp7 config=mailbox=06100",
-    "set fnp7 ipc_name=fnp-h",
+    "set dia7 config=mailbox=06100",
+    //"set fnp7 ipc_name=fnp-h",
 
 
     //XXX"set mtp0 boot_drive=1",
@@ -1335,7 +1335,7 @@ static char * default_base_system_script [] =
     // ; Attach FNP unit 3 (d) to IOM A, chan 020, dev_code 0
     "cable IOMA 020 FNPD",
     // ; Attach FNP unit 0 (a) to IOM A, chan 021, dev_code 0
-    "cable IOMA 021 DIAA",
+    "cable IOMA 021 FNPA",
     // ; Attach FNP unit 1 (b) to IOM A, chan 022, dev_code 0
     "cable IOMA 022 FNPB",
     // ; Attach FNP unit 2 (c) to IOM A, chan 023, dev_code 0
@@ -1347,7 +1347,7 @@ static char * default_base_system_script [] =
     // ; Attach FNP unit 6 (g) to IOM A, chan 026, dev_code 0
     "cable IOMA 026 FNPG",
     // ; Attach FNP unit 7 (h) to IOM A, chan 027, dev_code 0
-    "cable IOMA 027 FNPH",
+    "cable IOMA 027 DIAH",
 
     // ;;;
     // ;;; MPC
