@@ -434,6 +434,42 @@
 //        addr      010000
 //
 
+
+// BOS FWLOAD
+//
+// MTP Tape channel LPW 031131007777 (case a)
+//   DCW pointer 031131
+//     RES              0
+//     REL              0
+//     AE               0
+//     NC 21            0
+//     TAL 22           0
+//     REL              0
+//     TALLY         7777
+//
+// DCW list dump:
+//   IDCW 400000720201
+//     cmd             40 Reset Status
+//     dev code        00
+//     ctrl             2 (proceed)
+//     chancmd          2 (nondata)
+//     count            1
+//   IDCW 050000700000
+//     cmd             05 Rd Bin Rcrd
+//     dev code        00
+//     ctrl             0 (terminate)
+//     chancmd          0 (record)
+//     count            0
+//   IOTP (1) 030750010010
+//     tally       0010
+//     addr            30750
+//     cp               0
+//   IOTD (0) 032760000000
+//     tally       0000
+//     addr            32760
+//     cp               0
+
+
 // Table 3.2.1 Updating of LPW address and tally and indication of PTRO and TRO
 //
 //  case   LPW 21   LPW 22  TALLY  UPDATE   INDICATE    INDICATE

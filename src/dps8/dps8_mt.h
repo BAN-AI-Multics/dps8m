@@ -23,6 +23,7 @@ struct tape_state
       } io_mode;
     bool is9;
     uint8 buf [BUFSZ];
+    bool bufferEmpty;  // True if buffer has not been filled by a tape read
     t_mtrlnt tbc; // Number of bytes read into buffer
     uint words_processed; // Number of Word36 processed from the buffer
 // XXX bug: 'sim> set tapeN rewind' doesn't reset rec_num

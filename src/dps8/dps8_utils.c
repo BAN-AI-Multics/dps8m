@@ -1834,6 +1834,10 @@ void put36 (word36 val, uint8 * bits, uint woffset)
     // mask shouldn't be neccessary but is robust
   }
 
+// bufp: In:  pointer to input buffer
+// tbc:  In:  buffer lengtn in bytes
+// words_processed: In/out: Number of 36 bit words processed
+// wordp: In: pointer to output buffer
 int extractASCII36FromBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed, word36 *wordp)
   {
     uint wp = * words_processed; // How many words have been processed
