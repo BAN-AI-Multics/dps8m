@@ -632,118 +632,117 @@ static void handleRCP (uint con_unit_idx, char * text)
   }
 
 // Send entered text to the IOM.
-static void sendConsole (int conUnitIdx, word12 stati)
-  {
-    opc_state_t * csp = console_state + conUnitIdx;
-    uint tally = csp->tally;
-    uint ctlr_port_num = 0; // Consoles are single ported
-    uint iomUnitIdx = cables->opc_to_iom[conUnitIdx][ctlr_port_num].iom_unit_idx;
-    uint chan_num = cables->opc_to_iom[conUnitIdx][ctlr_port_num].chan_num;
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan_num];
+static void sendConsole (int conUnitIdx, word12 stati) {
+  opc_state_t * csp = console_state + conUnitIdx;
+  uint tally = csp->tally;
+  uint ctlr_port_num = 0; // Consoles are single ported
+  uint iomUnitIdx = cables->opc_to_iom[conUnitIdx][ctlr_port_num].iom_unit_idx;
+  uint chan_num = cables->opc_to_iom[conUnitIdx][ctlr_port_num].chan_num;
+  iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan_num];
 
-    //ASSURE (csp->io_mode == opc_read_mode);
-    if (csp->io_mode != opc_read_mode)
-      {
-        sim_warn ("%s called with io_mode != opc_read_mode (%d)\n",
-                  __func__, csp->io_mode);
-        return;
-      }
+  if (csp->io_mode != opc_read_mode) {
+    sim_warn ("%s called with io_mode != opc_read_mode (%d)\n", __func__, csp->io_mode);
+    return;
+  }
 
-    uint n_chars = (uint) (csp->tailp - csp->readp);
-    uint n_words;
-    if (csp->bcd)
-        // + 2 for the !1 newline
-        n_words = ((n_chars+2) + 5) / 6;
-      else
-        n_words = (n_chars + 3) / 4;
-    // The "+1" is for them empty line case below
-    word36 buf[n_words + 1];
-    word36 * bufp = buf;
+  uint n_chars = (uint) (csp->tailp - csp->readp);
+  uint n_words;
+  if (csp->bcd)
+    // + 2 for the !1 newline
+    n_words = ((n_chars + 2) + 5) / 6;
+  else
+    n_words = (n_chars + 3) / 4;
+  // The "+1" is for the empty line case below
+  word36 buf[n_words + 1];
+  if (csp->bcd)
+    for (uint i = 0; i < n_words + 1; i ++)
+      buf[i] = 0202020202020;
+  else
+    for (uint i = 0; i < n_words + 1; i ++)
+      buf[i] = 0;
 
-    // Multics doesn't seem to like empty lines; it the line buffer
-    // is empty and there is room in the I/O buffer, send a line kill.
-    if ((!csp->bcd) && csp->noempty && n_chars == 0 && tally)
-      {
-        n_chars = 1;
-        n_words = 1;
-        putbits36_9 (bufp, 0, '@');
+  word36 * bufp = buf;
+  uint charno = 0;
+  // Multics doesn't seem to like empty lines; it the line buffer
+  // is empty and there is room in the I/O buffer, send a line kill.
+  if ((!csp->bcd) && csp->noempty && n_chars == 0 && tally) {
+    n_chars = 1;
+    n_words = 1;
+    putbits36_9 (bufp, 0, '@');
+    tally --;
+  } else { // ! empty
+    while (tally && csp->readp < csp->tailp) {
+      unsigned char c = (unsigned char) (* csp->readp ++);
+      if (csp->bcd) {
+        //* bufp = 0171717171717ul;
+        //* bufp = 0202020202020ul;
+        c = (unsigned char) toupper (c);
+        int i;
+        for (i = 0; i < 64; i ++)
+          if (bcd_code_page[i] == c)
+            break;
+        if (i >= 64) {
+          sim_warn ("Character %o does not map to BCD; replacing with '?'\n", c);
+          i = 017;
+        }
+        putbits36_6 (bufp, charno * 6, (word6) i);
+        charno ++;
+        if (charno >= 6) {
+          charno = 0;
+          bufp ++;
+          tally --;
+        }
+      } else { // ! bcd
+        putbits36_9 (bufp, charno * 9, c);
+        charno ++;
+        if (charno >= 4) {
+          charno = 0;
+          bufp ++;
+          tally --;
+        }
+      } // ! bcd
+    } // while (tally && csp->readp < csp->tailp)
+
+#if 0
+    if (csp->bcd) {
+      putbits36_6 (bufp, charno * 6, (word6) 63 /* BCD ! */);
+      charno ++;
+      if (charno >= 6) {
+        charno = 0;
+        bufp ++;
         tally --;
       }
-    else
-      {
-        int bcd_nl_state = 0;
-        while (tally && csp->readp < csp->tailp)
-          {
-            if (csp->bcd)
-              {
-                //* bufp = 0171717171717ul;
-                //* bufp = 0202020202020ul;
-                * bufp = 0;
-                for (uint charno = 0; charno < 4; ++ charno)
-                  {
-                    unsigned char c;
-                    if (csp->readp >= csp->tailp)
-                      {
-                        if (bcd_nl_state == 0)
-                          {
-                            c = '!';
-                            bcd_nl_state = 1;
-                          }
-                        else if (bcd_nl_state == 1)
-                          {
-                            c = '1';
-                            bcd_nl_state = 2;
-                          }
-                        else
-                          break;
-                      }
-                    else
-                      c = (unsigned char) (* csp->readp ++);
-                    c = (unsigned char) toupper (c);
-                    int i;
-                    for (i = 0; i < 64; i ++)
-                      if (bcd_code_page[i] == c)
-                        break;
-                    if (i >= 64)
-                      {
-                        sim_warn ("Character %o does not map to BCD; replacing with '?'\n", c);
-                        i = 017;
-                      }
-                    putbits36_6 (bufp, charno * 6, (word6) i);
-                  }
-              }
-            else
-              {
-                * bufp = 0ul;
-                for (uint charno = 0; charno < 4; ++ charno)
-                  {
-                    if (csp->readp >= csp->tailp)
-                      break;
-                    unsigned char c = (unsigned char) (* csp->readp ++);
-                    putbits36_9 (bufp, charno * 9, c);
-                  }
-              }
-            bufp ++;
-            tally --;
-          }
-        if (csp->readp < csp->tailp)
-          {
-            sim_warn ("opc_iom_io: discarding %d characters from end of line\n",
-                      (int) (csp->tailp - csp->readp));
-          }
+      putbits36_6 (bufp, charno * 6, (word6) 1 /* BCD 1 */);
+      charno ++;
+      if (charno >= 6) {
+        charno = 0;
+        bufp ++;
+        tally --;
       }
+    } // bcd
+#endif
+  } // ! empty
 
-    iom_indirect_data_service (iomUnitIdx, chan_num, buf, & n_words, true);
-
-    p->charPos = n_chars % 4;
-    p->stati = (word12) stati;
-
-    csp->readp = csp->keyboardLineBuffer;
-    csp->tailp = csp->keyboardLineBuffer;
-    csp->io_mode = opc_no_mode;
-
-    send_terminate_interrupt (iomUnitIdx, chan_num);
+  if (csp->readp < csp->tailp) {
+    sim_warn ("opc_iom_io: discarding %d characters from end of line\n", (int) (csp->tailp - csp->readp));
   }
+
+#if 0
+  for (uint i = 0; i < n_words; i ++)
+    sim_printf ("%012llo\r\n", buf[i]);
+#endif
+
+  iom_indirect_data_service (iomUnitIdx, chan_num, buf, & n_words, true);
+
+  p->charPos = n_chars % 4;
+  p->stati = (word12) stati;
+
+  csp->readp = csp->keyboardLineBuffer;
+  csp->tailp = csp->keyboardLineBuffer;
+  csp->io_mode = opc_no_mode;
+
+  send_terminate_interrupt (iomUnitIdx, chan_num);
+}
 
 
 static void console_putchar (int conUnitIdx, char ch);
