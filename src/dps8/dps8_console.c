@@ -317,7 +317,7 @@ static opc_state_t console_state[N_OPC_UNITS_MAX];
 
 static char * bcd_code_page =
   "01234567"
-  "89[#@;>?"
+  "89[#@:>?"
   " ABCDEFG"
   "HI&.](<\\"
   "^JKLMNOP"

@@ -614,7 +614,7 @@ static int print_buf (int prt_unit_num, bool isBCD, bool is_edited, int slew, wo
 
     static char * bcd_lc =
       "01234567"
-      "89{#?;>?"
+      "89{#?:>?"
       " abcdefg"
       "hi|.}(<\\"
       "^jklmnop"
