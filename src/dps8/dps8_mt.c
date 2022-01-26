@@ -2135,7 +2135,15 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
 //      case 061: Set 556 bpi; see case 043:
 
-//      case 062: Set File Protect
+      case 062:              // CMD 062 -- Set File Protect.
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Set File Protect\r\n"); }
+        sim_debug (DBG_WARN, & tape_dev, "%s: Set file protect\n", __func__);
+        p->stati = 04000;
+        if (sim_tape_wrp (unitp))
+          p->stati |= 1;
+        if (sim_tape_bot (unitp))
+          p->stati |= 2;
+        break;
 
       case 063:              // CMD 063 -- Set File Permit.
         if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Set File Permit\r\n"); }

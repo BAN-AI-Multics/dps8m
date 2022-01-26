@@ -515,7 +515,9 @@ static word36 getMFReg36 (uint n, bool allowDU, bool allowNIC, fault_ipr_subtype
 #ifdef TESTING
           HDBGRegAR ("ql/a");
 #endif
-            return cpu.rQ;
+          //return cpu.rQ & MASK18;
+          // Maximum length in bits is 2^18 * 36 -> 9437184; 44000000o 77777777
+          return cpu.rQ & 077777777;
 
         case 7: // dl
              *mod_fault |= FR_ILL_MOD;

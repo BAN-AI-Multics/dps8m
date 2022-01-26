@@ -123,6 +123,10 @@
 // 3380     225674    225674
 // 3381     451349    451859
 
+// THe BOS TEST program includes the alternate tracks. Originally, I used "last_sect_num" as
+// the was no reason to expect the alternate tracks to be used, and placing them off-limits
+// was defensive programming.
+#if 0
 struct diskType_t diskTypes[] = {
   { "3381",  451350,  0, false, seek_512, 512,   0 }, // disk_init assumes 3381 is at index 0
   { "d500",  618640,  1, false, seek_64,   64, 200 },
@@ -133,6 +137,19 @@ struct diskType_t diskTypes[] = {
   { "d501", 1075200,  1, false, seek_64,   64, 201 },
   { "3380",  225675,  0, false, seek_512, 512,   0 }, // 338x is never attached to a dau
 };
+#else
+// These are the "last_alt_sect_num" values.
+struct diskType_t diskTypes[] = {
+  { "3381",  451606,  0, false, seek_512, 512,   0 }, // disk_init assumes 3381 is at index 0
+  { "d500",  639920,  1, false, seek_64,   64, 200 },
+  { "d451",  618640,  1, true,  seek_64,   64, 154 },
+  { "d400",  311600,  1, true,  seek_64,   64,  84 }, // d400 is a d190 with "high-efficiency format (40 sectors/track)"
+  { "d190",  241490,  1, true,  seek_64,   64,  84 }, // 190A 84, 190B 137
+  { "d181",   72720,  1, true,  seek_64,   64,   0 }, // no idea what the dau idx is
+  { "d501", 1077760,  1, false, seek_64,   64, 201 },
+  { "3380",  225931,  0, false, seek_512, 512,   0 }, // 338x is never attached to a dau
+};
+#endif
 #define N_DISK_TYPES (sizeof (diskTypes) / sizeof (struct diskType_t))
 
 static uint tAndDCapac[N_DISK_TYPES] = { 451860, 639920, 619400, 312360, 242250, 72360, 1077760, 225675 };
