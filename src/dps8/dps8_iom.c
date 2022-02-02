@@ -631,6 +631,7 @@ enum config_sw_OS_t
 enum config_sw_model_t
   {
     CONFIG_SW_MODEL_IOM,
+    CONFIG_SW_MODEL_IOMB,
     CONFIG_SW_MODEL_IMU
   };
 
@@ -1092,9 +1093,12 @@ static t_stat iom_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
 static config_value_list_t cfg_model_list[] =
   {
     { "iom", CONFIG_SW_MODEL_IOM },
+    { "iomb", CONFIG_SW_MODEL_IOMB },
     { "imu", CONFIG_SW_MODEL_IMU }
   };
 
+// The 6000B  GCOS MODE is 6000 mode.
+//   EXT_GCOS and Multics is 2^24 memory address space
 static config_value_list_t cfg_os_list[] =
   {
     { "gcos", CONFIG_SW_STD_GCOS },
@@ -2149,6 +2153,22 @@ void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36
       }
   }
 
+#if 0
+static char * chanModeString (int chan_mode) {
+  switch (chan_mode) {
+    case cm1: return "cm1";
+    case cm2: return "cm2";
+    case cm3a: return "cm3a";
+    case cm3b: return "cm3b";
+    case cm4: return "cm4";
+    case cm5: return "cm5";
+    case cm1e: return "cm1e";
+    case cm2e: return "cm2e";
+    default: return "???";
+  }
+}
+#endif
+
 // 'tally' is the transfer size request by Multics.
 // For write, '*cnt' is the number of words in 'data'.
 // For read, '*cnt' will be set to the number of words transfered.
@@ -2166,6 +2186,8 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uin
 
   uint tally = p->DDCW_TALLY;
   uint daddr = p->DDCW_ADDR;
+  if (p->chanMode == cm2e)
+    daddr |= ((word24) p->LPWX_BOUND) << 9;
   if (tally == 0) {
     tally = 4096;
   }
@@ -2234,6 +2256,13 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uin
 static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+
+    if (iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IOM ||
+        iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_STD_GCOS) {
+      p->chanMode = cm1;
+      return;
+    }
+    
     if (chan == IOM_CONNECT_CHAN)
       {
         p -> chanMode = cm1;
@@ -2526,18 +2555,24 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
     p -> LPW_23_REL =  getbits36_1 (p -> LPW, 23);
     p -> LPW_TALLY =   getbits36_12 (p -> LPW, 24);
 
-    if (chan == IOM_CONNECT_CHAN)
-      {
-        p -> LPWX = 0;
-        p -> LPWX_BOUND = 0;
-        p -> LPWX_SIZE = 0;
-      }
-    else
-      {
-        iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPWX, (word36 *) & p -> LPWX, __func__);
+    if (chan == IOM_CONNECT_CHAN) {
+      p->LPWX = 0;
+      p->LPWX_BOUND = 0;
+      p->LPWX_SIZE = 0;
+    } else {
+      iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPWX, (word36 *) & p -> LPWX, __func__);
+      sim_debug (DBG_DEBUG, & iom_dev, "%s: lpwx %08o %012"PRIo64"\n", __func__, chanLoc + IOM_MBX_LPWX, p->LPWX);
+      if (iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IOM ||
+          iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_STD_GCOS ||
+          iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_EXT_GCOS) {
+        p -> LPWX_BOUND = getbits36_9 (p -> LPWX, 0);
+        p -> LPWX_SIZE = getbits36_9 (p -> LPWX, 9);
+      } else {
         p -> LPWX_BOUND = getbits36_18 (p -> LPWX, 0);
         p -> LPWX_SIZE = getbits36_18 (p -> LPWX, 18);
       }
+      sim_debug (DBG_DEBUG, & iom_dev, "%s: lpwx bound %06o size %06o\n", __func__, p->LPWX_BOUND, p->LPWX_SIZE);
+    }
     update_chan_mode (iom_unit_idx, chan, false);
   }
 
@@ -2670,7 +2705,7 @@ static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_
           {
             // LPXW_BOUND is mod 2; ie. val is * 2
             //addr |= ((word24) p -> LPWX_BOUND << 18);
-            addr += ((word24) p -> LPWX_BOUND << 1);
+            addr |= ((word24) p -> LPWX_BOUND) << 9;
             iom_core_read (iom_unit_idx, addr, (word36 *) & p -> DCW, __func__);
           }
           break;
@@ -3020,8 +3055,8 @@ A:;
 
 // Not IDCW
 
-    if (p -> lsFirst)
-      p -> LPWX_SIZE = p -> LPW_DCW_PTR;
+    if (p->lsFirst)
+      p->LPWX_SIZE = p->LPW_DCW_PTR;
 
 // pg B16: "If the IOM is paged [yes] and PCW bit 64 is off, LPW bit 23
 //          is ignored by the hardware. If bit 64 is set, LPW bit 23 causes
@@ -3045,13 +3080,47 @@ A:;
         // PUT ADDRESS N LPW
 
         p -> LPW_DCW_PTR = p -> TDCW_DATA_ADDRESS;
+#if 0
         // OR TDCW 33, 34, 35 INTO LPW 20, 18, 23
         // XXX is 33 bogus? it's semantics change based on PCW 64...
         // should be okay; pg B21 says that this is correct; implies that the
         // semantics are handled in the LPW code. Check...
-        p -> LPW_20_AE |= p -> TDCW_33_EC; // TDCW_33_PDCW
-        p -> LPW_18_RES |= p -> TDCW_34_RES;
-        p -> LPW_23_REL |= p -> TDCW_35_REL;
+        if (iom_unit_data[iom_unit_idx].config_sw_model != CONFIG_SW_MODEL_IOM &&
+            iom_unit_data[iom_unit_idx].config_sw_OS != CONFIG_SW_STD_GCOS) {
+          p->LPW_20_AE |= p->TDCW_33_EC; // TDCW_33_PDCW
+          p->LPW_18_RES |= p->TDCW_34_RES;
+          p->LPW_23_REL |= p->TDCW_35_REL;
+        }
+        if (iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IOM) {
+          if (p->TDCW_33_EC) {
+            p->LPW_20_AE = 1;
+            iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p -> lsFirst ? iomFsrFirstList : iomFsrList, iom256KFlt);
+            return -1;
+          }
+        }
+if (chan == 012) sim_printf ("TDCW AR %o RES %o REL %o SEG %o\r\n", p->LPW_20_AE, p->LPW_18_RES, p->LPW_23_REL, p->TDCW_31_SEG);
+#else
+// “[EC] ... may be used to conditionally change LPW 20 [AE] from a zero 
+// to a one. The will allow (system) control software to control when the 
+// address extension bits fro, the PCW or the IDCW will be used for 
+// accessing the users DCW list. [...] LPW 18 (RES) 1 is a fault.”
+        if (p->TDCW_33_EC) {
+          if (iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IOM ||
+              iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_STD_GCOS) {
+            p->LPW_20_AE = 1;
+            // XXX Don't know what the correct fault code for this is
+            iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p -> lsFirst ? iomFsrFirstList : iomFsrList, iom256KFlt);
+            return -1;
+          }
+          if (p->LPW_18_RES) {
+            uff = true;
+            goto uffSet;
+          }
+          p->LPW_20_AE |= p->TDCW_33_EC; // TDCW_33_PDCW
+          p->LPW_18_RES |= p->TDCW_34_RES;
+          p->LPW_23_REL |= p->TDCW_35_REL;
+        }
+#endif
 
 // Pg B21: (TDCW_31_SEG)
 // "SEG = This bit furnishes the 19th address bit (MSD) of a TDCW address

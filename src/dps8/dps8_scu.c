@@ -1276,8 +1276,11 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
         // $ date --date='24 years ago' +%s ; date +%s
         // 733691934
         // 1491074334
-        now.tv_sec -= (1491074334 - 733691934);
+        // now.tv_sec -= (1491074334 - 733691934);
 
+        // 759637103
+        // 1643249903
+        now.tv_sec -= (1643249903 - 759637103);
 #endif
 
       }

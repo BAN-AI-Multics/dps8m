@@ -802,6 +802,7 @@ static char * default_base_system_script [] =
 
 // IOM0
 
+    "set iom0 config=model=iomb",
     "set iom0 config=iom_base=Multics",
     "set iom0 config=multiplex_base=0120",
     "set iom0 config=os=Multics",
@@ -856,6 +857,7 @@ static char * default_base_system_script [] =
 
 // IOM1
 
+    "set iom1 config=model=iomb",
     "set iom1 config=iom_base=Multics2",
     "set iom1 config=multiplex_base=0121",
     "set iom1 config=os=Multics",
@@ -895,6 +897,7 @@ static char * default_base_system_script [] =
 
 // IOM2
 
+    "set iom2 config=model=iomb",
     "set iom2 config=iom_base=Multics2",
     "set iom2 config=multiplex_base=0121",
     "set iom2 config=os=Multics",
@@ -933,6 +936,7 @@ static char * default_base_system_script [] =
 
 // IOM3
 
+    "set iom3 config=model=iomb",
     "set iom3 config=iom_base=Multics2",
     "set iom3 config=multiplex_base=0121",
     "set iom3 config=os=Multics",
@@ -3730,6 +3734,120 @@ static t_stat trkr (UNUSED int32 arg, const char * buf)
   }
 #endif
 
+#if 0
+static word36 gsw (word15 segno, word18 offset) {
+  sdw0_s * s = fetchSDW (segno);
+  word36 word;
+  core_read ((s->ADDR + (word18) offset) & 0xffffff, & word, "gsw");
+  return word;
+}
+
+static char * stringify (word36 w) {
+  static char buf[5];
+  for (int i = 0; i < 4; i ++) {
+    word9 ch = getbits36_9 (w, i * 9);
+    if (ch < 256 && isprint (ch))
+      buf[i] = ch;
+    else
+      buf[i] = ' ';
+  }
+  buf[4] = '\0';
+  return buf;
+}
+
+static void dmpSeg (word15 segno) {
+  sdw0_s * s = fetchSDW (segno);
+sim_printf ("segment %o ADDR %o\r\n", segno, s->ADDR);
+  word18 bound = s->BOUND * 16u;
+  for (word18 i = 0; i < bound; i ++) {
+    word36 word = gsw (segno, i);
+    sim_printf ("%06o %012llo %s\r\n", i, word, stringify(word));
+  }
+}
+
+static t_stat cac (UNUSED int32 arg, const char * buf) {
+   
+#if 0
+  if (cpu.DSBR.U) {
+    for (word15 segno = 0; 2u * segno < 16u * (cpu.DSBR.BND + 1u); segno ++) {
+      sdw0_s * s = fetchSDW (segno);
+      sim_printf ("%05o %08o %o %o %o %o %o %05o %o %o %o %o %o %o %o %05o\r\n", segno, s->ADDR, s->R1, s->R2, s->R3, s->DF, s->FC, s->BOUND, s->R, s->E, s->W, s->P, s->U, s->G, s->C, s->EB);
+    }
+  } else { // !U
+    for (word15 segno = 0; 2u * segno < 16u * (cpu.DSBR.BND + 1u); segno += 512u) {
+      word24 y1 = (2u * segno) % 1024u;
+      word24 x1 = (2u * segno - y1) / 1024u;
+      word36 PTWx1;
+      core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
+
+      ptw_s PTW1;
+      PTW1.ADDR = GETHI(PTWx1);
+      PTW1.U = TSTBIT(PTWx1, 9);
+      PTW1.M = TSTBIT(PTWx1, 6);
+      PTW1.DF = TSTBIT(PTWx1, 2);
+      PTW1.FC = PTWx1 & 3;
+
+      if (PTW1.DF == 0)
+        continue;
+
+      for (word15 tspt = 0; tspt < 512u; tspt ++) {
+        word36 SDWeven, SDWodd;
+        core_read2(((PTW1.ADDR << 6) + tspt * 2u) & PAMASK, & SDWeven, & SDWodd, __func__);
+        sdw0_s SDW0;
+        // even word
+        SDW0.ADDR = (SDWeven >> 12) & PAMASK;
+        SDW0.R1 = (SDWeven >> 9) & 7u;
+        SDW0.R2 = (SDWeven >> 6) & 7u;
+        SDW0.R3 = (SDWeven >> 3) & 7u;
+        SDW0.DF = TSTBIT(SDWeven, 2);
+        SDW0.FC = SDWeven & 3u;
+
+        // odd word
+        SDW0.BOUND = (SDWodd >> 21) & 037777;
+        SDW0.R = TSTBIT(SDWodd, 20);
+        SDW0.E = TSTBIT(SDWodd, 19);
+        SDW0.W = TSTBIT(SDWodd, 18);
+        SDW0.P = TSTBIT(SDWodd, 17);
+        SDW0.U = TSTBIT(SDWodd, 16);
+        SDW0.G = TSTBIT(SDWodd, 15);
+        SDW0.C = TSTBIT(SDWodd, 14);
+        SDW0.EB = SDWodd & 037777;
+        if (SDW0.DF == 0)
+          continue;
+        if (SDW0.U == 0) {
+          for (word18 offset = 0; offset < 16u * (SDW0.BOUND + 1u); offset += 1024) {
+            word24 y2 = offset % 1024;
+            word24 x2 = (offset - y2) / 1024;
+
+            // 10. Fetch the target segment PTW(x2) from
+            //     SDW(segno).ADDR + x2.
+
+            word36 PTWx2;
+            core_read ((SDW0.ADDR + x2) & PAMASK, & PTWx2, __func__);
+
+            ptw_s PTW2;
+            PTW2.ADDR = GETHI(PTWx2);
+            PTW2.U = TSTBIT(PTWx2, 9);
+            PTW2.M = TSTBIT(PTWx2, 6);
+            PTW2.DF = TSTBIT(PTWx2, 2);
+            PTW2.FC = PTWx2 & 3;
+
+            sim_printf ("%06o  Addr %06o U %o M %o F %o FC %o\n", offset, PTW2.ADDR, PTW2.U, PTW2.M, PTW2.DF, PTW2.FC);
+          } // for offset
+        } else { // if !SDW.U
+          sim_printf ("  %06o:%06o\n", tspt, SDW0.ADDR);
+        } // if !SDW.U
+      } // for tspt
+    } // for segno
+  } // if U
+#endif
+
+  dmpSeg (6);
+      
+  return SCPE_OK;
+}
+#endif
+
 static CTAB dps8_cmds[] =
   {
 
@@ -3777,6 +3895,9 @@ static CTAB dps8_cmds[] =
 //
 
 #ifdef TESTING
+#if 0
+    {"CAC",                 cac,                      0, "cac\n", NULL, NULL},
+#endif
     {"TRKW",                trkw,                     0, "tracker: Start tracking to track.dat\n", NULL, NULL},
     {"TRKR",                trkr,                     0, "tracker: Start comparing with track.dat\n", NULL, NULL},
     {"DBGMMECNTDWN",        dps_debug_mme_cntdwn,     0, "dbgmmecntdwn: Enable debug after n MMEs\n", NULL, NULL},

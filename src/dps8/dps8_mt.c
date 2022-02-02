@@ -1389,7 +1389,8 @@ static int surveyDevices (uint iomUnitIdx, uint chan)
         handler |= ((word18) dev_code & 037) << 9; // number
         handler |= 0000040; // 200 ips
         handler |= 0000020; // 9 track
-        handler |= 0000007; // 800/1600/6250
+        //handler |= 0000007; // 800/1600/6250
+        handler |= 0000000; // 1600
         sim_debug (DBG_DEBUG, & tape_dev,
                    "%s: unit %d handler %06o\n", __func__, unit_idx, handler);
         if (cnt % 2 == 0)
