@@ -8893,12 +8893,7 @@ elapsedtime ();
             // cioc The system controller addressed by Y (i.e., contains
             // the word at Y) sends a connect signal to the port specified
             // by C(Y) 33,35.
-#ifdef SCUMEM
-            word24 offset;
-            int cpu_port_num = lookup_cpu_mem_map (cpu.iefpFinalAddress, & offset);
-#else
             int cpu_port_num = lookup_cpu_mem_map (cpu.iefpFinalAddress);
-#endif
             // If the there is no port to that memory location, fault
             if (cpu_port_num < 0)
               {

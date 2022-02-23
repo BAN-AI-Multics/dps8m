@@ -1926,10 +1926,6 @@ static inline void trackport (word24 a, word36 d)
 void doFault (_fault faultNumber, _fault_subtype faultSubtype,
               const char * faultMsg) NO_RETURN;
 extern const _fault_subtype fst_str_nea;
-# ifdef SCUMEM
-// Stupid dependency order
-int lookup_cpu_mem_map (word24 addr, word24 * offset);
-# endif
 
 static inline int core_read (word24 addr, word36 *data, \
   UNUSED const char * ctx)
@@ -1945,19 +1941,7 @@ static inline int core_read (word24 addr, word36 *data, \
           }
         addr = (uint) os + addr % SCBANK_SZ;
       }
-# ifdef SCUMEM
-    word24 offset;
-    int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
-    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-      {
-        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
-        doFault (FAULT_STR, fst_str_nea, __func__);
-      }
-    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    *data = scu [scuUnitIdx].M[offset] & DMASK;
-# else
     *data = M[addr] & DMASK;
-# endif
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
@@ -1992,19 +1976,7 @@ static inline int core_write (word24 addr, word36 data, \
             cpu.MR.separ = 0;
           }
      }
-# ifdef SCUMEM
-    word24 offset;
-    int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
-    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-      {
-        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
-        doFault (FAULT_STR, fst_str_nea, __func__);
-      }
-    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    scu[scuUnitIdx].M[offset] = data & DMASK;
-# else
     M[addr] = data & DMASK;
-# endif
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
@@ -2039,22 +2011,8 @@ static inline int core_write_zone (word24 addr, word36 data, \
             cpu.MR.separ = 0;
           }
       }
-# ifdef SCUMEM
-    word24 offset;
-    int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
-    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-      {
-        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
-        doFault (FAULT_STR, fst_str_nea, __func__);
-      }
-    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    scu[scuUnitIdx].M[offset] = (scu[scuUnitIdx].M[offset] & ~cpu.zone) |
-                              (data & cpu.zone);
-    cpu.useZone = false; // Safety
-# else
     M[addr] = (M[addr] & ~cpu.zone) | (data & cpu.zone);
     cpu.useZone = false; // Safety
-# endif
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
@@ -2076,21 +2034,8 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
           }
         addr = (uint) os + addr % SCBANK_SZ;
       }
-# ifdef SCUMEM
-    word24 offset;
-    int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
-    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-      {
-        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
-        doFault (FAULT_STR, fst_str_nea, __func__);
-      }
-    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    *even = scu [scuUnitIdx].M[offset++] & DMASK;
-    *odd = scu [scuUnitIdx].M[offset] & DMASK;
-# else
     *even = M[addr++] & DMASK;
     *odd = M[addr] & DMASK;
-# endif
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
@@ -2125,21 +2070,8 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
             cpu.MR.separ = 0;
           }
       }
-# ifdef SCUMEM
-    word24 offset;
-    int cpu_port_num = lookup_cpu_mem_map (addr, & offset);
-    if (! get_scu_in_use (current_running_cpu_idx, cpu_port_num))
-      {
-        sim_warn ("%s %012o has no SCU; faulting\n", __func__, addr);
-        doFault (FAULT_STR, fst_str_nea, __func__);
-      }
-    uint scuUnitIdx = get_scu_idx (current_running_cpu_idx, cpu_port_num);
-    scu [scuUnitIdx].M[offset++] = even & DMASK;
-    scu [scuUnitIdx].M[offset] = odd & DMASK;
-# else
     M[addr++] = even;
     M[addr] = odd;
-# endif
     PNL (trackport (addr - 1, even);)
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
@@ -2392,11 +2324,7 @@ void decode_instruction (word36 inst, DCDstruct * p);
 t_stat set_mem_watch (int32 arg, const char * buf);
 #endif
 char *str_SDW0 (char * buf, sdw_s *SDW);
-#ifdef SCUMEM
-int lookup_cpu_mem_map (word24 addr, word24 * offset);
-#else
 int lookup_cpu_mem_map (word24 addr);
-#endif
 void cpu_init (void);
 void setup_scbank_map (void);
 #ifdef DPS8M

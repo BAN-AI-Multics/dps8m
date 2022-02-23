@@ -1101,10 +1101,6 @@ void scu_unit_reset (int scu_unit_idx)
     up -> lwr = sw -> lwr;
 
 
-#ifdef SCUMEM
-    memset (up->M, 0, sizeof (up->M));
-#endif
-
 // This is to allow the CPU reset to update the memory map. IAC clears the
 // attached SCUs; they clear the attached IOMs.
 

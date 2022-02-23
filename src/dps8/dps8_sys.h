@@ -57,9 +57,7 @@ extern struct timespec dbgevent_t0;
 int dbgevent_lookup (word15 segno, word18 offset);
 # endif
 
-# ifndef SCUMEM
 extern vol word36 * M;
-# endif
 extern sysinfo_t sys_opts;
 extern uint64 sim_deb_start;
 extern uint64 sim_deb_stop;

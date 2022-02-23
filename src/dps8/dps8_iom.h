@@ -410,10 +410,6 @@ void do_boot (void);
 void * iom_thread_main (void * arg);
 void * chan_thread_main (void * arg);
 #endif
-#ifdef SCUMEM
-int query_IOM_SCU_bank_map (uint iom_unit_idx, word24 addr, word24 * offset);
-#endif
-
 void iom_core_read (uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx);
 void iom_core_read2 (uint iom_unit_idx, word24 addr, word36 *even, word36 *odd, UNUSED const char * ctx);
 void iom_core_write (uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx);
