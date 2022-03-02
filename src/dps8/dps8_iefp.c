@@ -522,7 +522,9 @@ void Write (word18 address, word36 data, processor_cycle_type cyctyp)
                            "writeData=%012"PRIo64"\n", address, data);
 #ifdef TESTING
                 HDBGIEFP (hdbgIEFP_abs_bar_write, 0, address, "Write ABBR");
-                HDBGMWrite (cpu.iefpFinalAddress, data, "Write ABBR");
+                //HDBGMWrite (cpu.iefpFinalAddress, data, "Write ABBR");
+                // Take into account zone write.
+                HDBGMWrite (cpu.iefpFinalAddress, M[cpu.iefpFinalAddress], "Write ABBR");
 #endif
                 return;
               }

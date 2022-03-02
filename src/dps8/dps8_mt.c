@@ -1445,8 +1445,9 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 #ifdef TESTING
   if_sim_debug (DBG_TRACE, & tape_dev) dumpDCW (p->DCW, 0);
 #endif
-  if (p->IDCW_DEV_CODE == 0)
+  if (p->IDCW_DEV_CODE == 0) {
     dev_code = mtp_state[ctlr_unit_idx].boot_drive;
+  }
 
   sim_debug (DBG_DEBUG, & tape_dev, "%s: Tape %c%02o_%02o\n", __func__, iomChar (iomUnitIdx), chan, dev_code);
 
@@ -1481,7 +1482,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 000: { // CMD 00 Request status -- controller status, not tape drive
           if_sim_debug (DBG_TRACE, & tape_dev) {
-            sim_printf ("// Tape Request Status\r\n");
+            sim_debug (DBG_TRACE, & tape_dev, "// Tape Request Status\r\n");
           }
           // If special controller command, then command 0 is 'suspend'
           if (p->IDCW_CHAN_CMD == 040) {
@@ -1553,7 +1554,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 002:               // CMD 02 -- Read controller main memory (ASCII)
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Read Controller Main Memory\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Read Controller Main Memory\r\n");
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Read controller main memory\n", __func__);
 
@@ -1563,7 +1564,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 003: // CMD 03 -- Read 9 Record
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Read 9 Record\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Read 9 Record\r\n");
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Read 9 record\n", __func__);
         tape_statep->io_mode = tape_rd_9;
@@ -1580,7 +1581,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 005: // CMD 05 -- Read Binary Record
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Read Binary Record\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Read Binary Record\r\n");
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Read binary record\n", __func__);
         tape_statep->io_mode = tape_rd_bin;
@@ -1615,7 +1616,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 006:               // CMD 06 -- initiate read data transfer
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Initiate Read Data Transfer\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Initiate Read Data Transfer\r\n");
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: initiate read data transfer\n", __func__);
         tape_statep->io_mode = tape_initiate_rd_mem;
@@ -1624,15 +1625,19 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
 //      case 007: Reread Binary Record
 
-//      case 010: Control Store Overlay
+      case 010: // CMD 010 -- Control Store Overlay
+        p->stati = 04000;
+        break;
 
-//      case 011: Main Memory Overlay
+      case 011: // CMD 011 -- Main Memory Overlay
+        p->stati = 04000;
+        break;
 
 //      case 012: Unassigned
 
       case 013: // CMD 013 -- Write tape 9
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Write 9 Record\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Write 9 Record\r\n");
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Write 9 record\n", __func__);
         tape_statep->io_mode = tape_wr_9;
@@ -1647,7 +1652,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 015: // CMD 015 -- Write Binary Record
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Write Binary Record\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Write Binary Record\r\n");
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Write binary record\n", __func__);
         tape_statep->io_mode = tape_wr_bin;
@@ -1660,7 +1665,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 016:               // CMD 016 -- Write Control Registers
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Write Control Registers\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Write Control Registers\r\n");
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Write Control Registers\n", __func__);
         tape_statep->io_mode = tape_wr_ctrl_regs;
@@ -1670,7 +1675,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //      case 012: Unassigned
 
       case 020:  { // CMD 020 -- release controller
-          if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Release Controller\r\n"); }
+          if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Release Controller\r\n"); }
           if (p->IDCW_CHAN_CMD == 040) { // If special controller command, then command 020 is 'release'
             sim_debug (DBG_DEBUG, & tape_dev, "%s: Release controller\n", __func__);
             p->stati = 04000; // have_status = 1
@@ -1707,7 +1712,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 032: // CMD 032 -- MTP write main memory (binary)
                 //    (poll_mpc.pl1); used to clear device stats.
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Write Main Memory\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Write Main Memory\r\n"); }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Write controller main memory\n", __func__);
         tape_statep->io_mode = tape_MTP_wr;
         p->stati = 04000;
@@ -1724,7 +1729,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //      case 037: Write ASCII Record
 
       case 040:               // CMD 040 -- Reset Status
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Reset Status\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Reset Status\r\n"); }
         sim_debug (DBG_DEBUG, & tape_dev, "%s Reset status\n", __func__);
         p->stati = 04000;
         p->isRead = false;
@@ -1742,7 +1747,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 041:              // CMD 041 -- Set 6250 cpi.
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Set 6259 CPI\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Set 6259 CPI\r\n"); }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Set 6250 cpi\n", __func__);
         p->stati = 04000;
         if (sim_tape_wrp (unitp))
@@ -1756,7 +1761,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 042:              // CMD 042 -- Set 800 bpi.
       case 060:              // CMD 060 -- Set 800 bpi.
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Set 800 BPI\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Set 800 BPI\r\n"); }
         p->stati = 04000;
         if (sim_tape_wrp (unitp))
           p->stati |= 1;
@@ -1769,7 +1774,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 043:              // CMD 043 -- Set 556 bpi.
       case 061:              // CMD 061 -- Set 556 bpi.
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Set 556 BPI\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Set 556 BPI\r\n"); }
         p->stati = 04000;
         if (sim_tape_wrp (unitp))
           p->stati |= 1;
@@ -1782,8 +1787,8 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 044: { // 044 -- Forward Skip One Record
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Forward Skip One Record\r\n");
-          sim_printf ("//    pos before %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Forward Skip One Record\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos before %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape Forward Skip One Record pos before %d", unitp->pos);
@@ -1834,7 +1839,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         //if (sim_tape_eom (unitp))
           //p->stati |= 0340;
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("//    pos after %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos after %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape Forward Skip One Record pos after %d", unitp->pos);
@@ -1844,8 +1849,8 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
     case 045: { // CMD 045 -- Forward Skip One File
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Forward Skip One File\r\n");
-          sim_printf ("//    pos before %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Forward Skip One File\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos before %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape Forward Skip One File pos before %d", unitp->pos);
@@ -1859,7 +1864,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
         uint32 skipped, recsskipped;
         t_stat ret = sim_tape_spfilebyrecf (unitp, tally, & skipped, & recsskipped, false);
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// sim_tape_spfilebyrecf ret %d skipped %d recsskipped %d\r\n", ret, skipped, recsskipped); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// sim_tape_spfilebyrecf ret %d skipped %d recsskipped %d\r\n", ret, skipped, recsskipped); }
         if (ret != MTSE_OK && ret != MTSE_TMK && ret != MTSE_LEOT) {
           sim_warn ("sim_tape_spfilebyrecf returned %d\n", ret);
           break;
@@ -1884,7 +1889,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           //p->stati |= 0340;
         }
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("//    pos after %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos after %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape Forward Skip One File pos after %d", unitp->pos);
@@ -1893,8 +1898,8 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 046: { // CMD 046 -- Backspace One Record
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Backspace One Record\r\n");
-          sim_printf ("//    pos before %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Backspace One Record\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos before %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape Backspace One Record pos before %d", unitp->pos);
@@ -1950,7 +1955,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           //p->stati |= 0340;
         }
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("//    pos after %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos after %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape Backspace One Record pos after %d", unitp->pos);
@@ -1959,8 +1964,8 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 047: { // CMD 047 -- Backspace One File
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Backspace One File\r\n");
-          sim_printf ("//    pos before %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Backspace One File\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos before %d\r\n", unitp->pos);
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Backspace File\n", __func__);
 #ifdef TESTING
@@ -2018,7 +2023,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           //p->stati |= 0340;
         }
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("//    pos after %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos after %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape Backspace One File pos after %d", unitp->pos);
@@ -2026,7 +2031,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 050: {              // CMD 050 -- Request device status
-          if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Request Device Status\r\n"); }
+          if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Request Device Status\r\n"); }
           p->stati = 04000;
           if (sim_tape_wrp (unitp))
             p->stati |= 1;
@@ -2046,7 +2051,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 // Since it's diffcult here to test for PCW/IDCW, assume that the PCW case
 // has been filtered out at a higher level
       case 051: {              // CMD 051 -- Reset device status
-          if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Reset Device Status\r\n"); }
+          if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Reset Device Status\r\n"); }
           if (p->isPCW) {
             p->stati = 04501; // cmd reject, invalid opcode
             p->chanStatus = chanStatIncorrectDCW;
@@ -2071,8 +2076,8 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 055: // CMD 055 -- Write EOF (tape mark);
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape Write EOF\r\n");
-          sim_printf ("//    pos before %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape Write EOF\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos before %d\r\n", unitp->pos);
         }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Write tape mark\n", __func__);
 #ifdef TESTING
@@ -2116,7 +2121,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
         sim_debug (DBG_INFO, & tape_dev, "%s: Wrote tape mark; status %04o\n", __func__, p->stati);
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("//    pos after %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos after %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape Write EOF pos after %d", unitp->pos);
@@ -2126,7 +2131,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //      case 056: Unassigned
 
       case 057:               // CMD 057 -- Survey devices
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Survey Devices\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Survey Devices\r\n"); }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: survey_devices\n", __func__);
         tape_statep->io_mode = tape_survey;
         p->stati = 04000;
@@ -2137,7 +2142,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //      case 061: Set 556 bpi; see case 043:
 
       case 062:              // CMD 062 -- Set File Protect.
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Set File Protect\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Set File Protect\r\n"); }
         sim_debug (DBG_WARN, & tape_dev, "%s: Set file protect\n", __func__);
         p->stati = 04000;
         if (sim_tape_wrp (unitp))
@@ -2147,7 +2152,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 063:              // CMD 063 -- Set File Permit.
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Set File Permit\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Set File Permit\r\n"); }
         sim_debug (DBG_WARN, & tape_dev, "%s: Set file permit\n", __func__);
         p->stati = 04000;
         if (sim_tape_wrp (unitp))
@@ -2157,7 +2162,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 064:              // CMD 064 -- Set 200 bpi.
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Set 200 BPI\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Set 200 BPI\r\n"); }
         p->stati = 04000;
         if (sim_tape_wrp (unitp))
           p->stati |= 1;
@@ -2169,7 +2174,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 065:              // CMD 064 -- Set 1600 CPI
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Set 1600 CPI\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Set 1600 CPI\r\n"); }
         p->stati = 04000;
         if (sim_tape_wrp (unitp))
           p->stati |= 1;
@@ -2185,7 +2190,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //      case 067: release device
 
       case 070:              // CMD 070 -- Rewind.
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Rewind\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Rewind\r\n"); }
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Rewind\n", __func__);
         if (! (unitp->flags & UNIT_ATT)) {
           p->stati = 04104;
@@ -2210,7 +2215,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //      case 071: Unassigned
 
       case 072:              // CMD 072 -- Rewind/Unload.
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Rewind/Unload\r\n"); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Rewind/Unload\r\n"); }
         if ((unitp->flags & UNIT_ATT)) {
           if (unitp->flags & UNIT_WATCH)
             sim_printf ("Tape %ld unloads\n", (long) MT_UNIT_NUM (unitp));
@@ -2237,7 +2242,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //      case 077: set density
 
       default:
-        if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Unknown %02o\r\n", p->IDCW_DEV_CMD); }
+        if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape Unknown %02o\r\n", p->IDCW_DEV_CMD); }
         p->stati = 04501;
         p->chanStatus = chanStatIncorrectDCW;
         sim_warn ("%s: tape unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
@@ -2265,9 +2270,15 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
     case tape_rd_9:
     case tape_rd_bin: {
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape IOT Read\r\n");
-          sim_printf ("//    pos before %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape IOT Read\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos before %d\r\n", unitp->pos);
         }
+
+// BOS_3.14a expects the firmware to put the drive number in the record residue; I am not sure of
+// the exact circumstances, but the specific case is reading a record from the BOS tape so this
+// should be the minimal impact fix
+        p->recordResidue = dev_code;
+
 #ifdef TESTING
         hdbgNote ("tape", "Tape IOT Read pos before %d", unitp->pos);
 #endif
@@ -2276,7 +2287,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           return IOM_CMD_ERROR;
         }
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("//    pos after %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos after %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape IOT Read pos after %d", unitp->pos);
@@ -2286,15 +2297,15 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
     case tape_wr_9:
     case tape_wr_bin: {
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("// Tape IOT Write\r\n");
-          sim_printf ("//    pos before %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "// Tape IOT Write\r\n");
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos before %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape IOT write pos before %d", unitp->pos);
 #endif
         int rc = mtWriteRecord (devUnitIdx, iomUnitIdx, chan);
         if_sim_debug (DBG_TRACE, & tape_dev) {
-          sim_printf ("//    pos after %d\r\n", unitp->pos);
+          sim_debug (DBG_TRACE, & tape_dev, "//    pos after %d\r\n", unitp->pos);
         }
 #ifdef TESTING
         hdbgNote ("tape", "Tape IOT write pos after %d", unitp->pos);
@@ -2305,37 +2316,37 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
       break;
 
     case tape_rd_ctlr:
-      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT Read Nenory\r\n"); }
+      if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape IOT Read Nenory\r\n"); }
       mtReadCtrlMainMem (devUnitIdx, iomUnitIdx, chan);
       break;
 
     case tape_initiate_rd_mem:
-      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT Write Nenory\r\n"); }
+      if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape IOT Write Nenory\r\n"); }
       mtInitRdMem (devUnitIdx, iomUnitIdx, chan);
       break;
 
     case tape_initiate_wr_mem:
-      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT Initiate Write\r\n"); }
+      if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape IOT Initiate Write\r\n"); }
       mtInitWrMem (devUnitIdx, iomUnitIdx, chan);
       break;
 
     case tape_MTP_wr:
-      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT MTP Write\r\n"); }
+      if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape IOT MTP Write\r\n"); }
       mtMTPWr (devUnitIdx, iomUnitIdx, chan);
       break;
 
     case tape_wr_ctrl_regs:
-      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT Wr Ctrl Regs\r\n"); }
+      if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape IOT Wr Ctrl Regs\r\n"); }
       mtWRCtrlRegs (devUnitIdx, iomUnitIdx, chan);
       break;
 
     case tape_survey:
-      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT Survey\r\n"); }
+      if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape IOT Survey\r\n"); }
       surveyDevices (iomUnitIdx, chan);
       break;
 
     default:
-      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT unknown %d\r\n", tape_statep->io_mode); }
+      if_sim_debug (DBG_TRACE, & tape_dev) { sim_debug (DBG_TRACE, & tape_dev, "// Tape IOT unknown %d\r\n", tape_statep->io_mode); }
       sim_warn ("%s: Unrecognized io_mode %d\n", __func__, tape_statep->io_mode);
       return IOM_CMD_ERROR;
   }

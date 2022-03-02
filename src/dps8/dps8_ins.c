@@ -9063,10 +9063,11 @@ elapsedtime ();
           // ('if !interrupt goto .'))
           advanceG7Faults ();
 
-          if ((! cpu.switches.tro_enable) &&
-              (! sample_interrupts ()) &&
-              (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
+          //if ((! cpu.switches.tro_enable) &&
+              //(! sample_interrupts ()) &&
+              //(sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                      // break this logic
+if (0) if (! sample_interrupts ())
             {
               sim_printf ("DIS@0%06o with no interrupts pending and"
                           " no events in queue\n", cpu.PPR.IC);

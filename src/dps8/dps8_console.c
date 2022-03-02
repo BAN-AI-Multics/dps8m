@@ -1222,7 +1222,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 003:               // Read BCD
-        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read BCD echoed\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Read BCD echoed\n", __func__);
         csp->io_mode = opc_read_mode;
         p->recordResidue --;
         csp->echo = true;
@@ -1240,7 +1240,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         break;
 
       case 023:               // Read ASCII
-        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII echoed\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Read ASCII echoed\n", __func__);
         csp->io_mode = opc_read_mode;
         p->recordResidue --;
         csp->echo = true;
@@ -1277,10 +1277,15 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
           //p->stati = 04502; // invalid device code
           // if (p->IDCW_CHAN_CTRL == 0) { sim_warn ("%s: TERMINATE_BUG\n", __func__); return IOM_CMD_DISCONNECT; }
         //}
+        // MIT OPS-38 seems to do an early console probe with a PCW Reset with the channel command set to terminate.
+        if (p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE) {
+          sim_debug (DBG_DEBUG, & opc_dev, "%s: Status request returns disconnect\n", __func__);
+          rc = IOM_CMD_DISCONNECT;
+        }
         break;
 
       case 043:               // Read ASCII unechoed
-        sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII unechoed\n", __func__);
+        sim_debug (DBG_DEBUG, & opc_dev, "%s: Read ASCII unechoed\n", __func__);
         csp->io_mode = opc_read_mode;
         p->recordResidue --;
         csp->echo = false;
@@ -1294,6 +1299,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         console_putstr ((int) con_unit_idx,  "CONSOLE: ALERT\r\n");
         console_putchar ((int) con_unit_idx, '\a');
         p->stati = 04000;
+        p->initiate = false;
         if (csp->model == m6001 && p->isPCW) {
           rc = IOM_CMD_DISCONNECT;
           goto done;

@@ -152,6 +152,8 @@ static long hdbg_inc (void) {
 # define hev(t, tf, filter) \
   if (! hevents) \
     goto done; \
+if (cpu.PPR.PSR == 03) goto done; \
+if (cpu.PPR.PSR == 036) goto done; \
   if (filter && hdbgSegNum >= 0 && hdbgSegNum != cpu.PPR.PSR) \
     goto done; \
   if (filter && hdbgSegNum > 0 && blacklist[cpu.PPR.IC]) \

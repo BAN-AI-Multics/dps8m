@@ -1801,7 +1801,7 @@ static uint mbxLoc (uint iom_unit_idx, uint chan)
     word12 base = iom_unit_data[iom_unit_idx].configSwIomBaseAddress;
     word24 base_addr = ((word24) base) << 6; // 01400
     word24 mbx = base_addr + 4 * chan;
-    //sim_debug (DBG_DEBUG, & iom_dev, "%s: IOM %c, chan %d is %012o\n",
+    //sim_debug (DBG_DEBUG, & iom_dev, "%s: IOM %c, chan %o is %012o\n",
       //__func__, iomChar (iom_unit_idx), chan, mbx);
     return mbx;
   }
@@ -1929,8 +1929,7 @@ static int status_service (uint iom_unit_idx, uint chan, bool marker)
     uint lq = getbits36_2 (scw, 18);
     uint tally = getbits36_12 (scw, 24);
 
-    sim_debug (DBG_DEBUG, & iom_dev, "%s: Status: 0%012"PRIo64" 0%012"PRIo64"\n",
-               __func__, word1, word2);
+    sim_debug (DBG_DEBUG, & iom_dev, "%s: Status: 0%012"PRIo64" 0%012"PRIo64"\n", __func__, word1, word2);
     if (lq == 3)
       {
         sim_debug (DBG_WARN, &iom_dev,
@@ -2035,7 +2034,7 @@ static void fetch_DDSPTW (uint iom_unit_idx, int chan, word18 addr)
                                       (addr >> 10) & MASK8);
     iom_core_read (iom_unit_idx, pgte, (word36 *) & p -> PTW_DCW, __func__);
     if ((p -> PTW_DCW & 0740000777747) != 04llu)
-      sim_warn ("%s: chan %d addr %#o pgte %08o ptw %012"PRIo64"\n",
+      sim_warn ("%s: chan %o addr %#o pgte %08o ptw %012"PRIo64"\n",
                 __func__, chan, addr, pgte, p -> PTW_DCW);
   }
 
@@ -2072,7 +2071,7 @@ static void fetch_IDSPTW (uint iom_unit_idx, int chan, word18 addr)
                                       (addr >> 10) & MASK8);
     iom_core_read (iom_unit_idx, pgte, (word36 *) & p -> PTW_DCW, __func__);
     if ((p -> PTW_DCW & 0740000777747) != 04llu)
-      sim_warn ("%s: chan %d addr %#o ptw %012"PRIo64"\n",
+      sim_warn ("%s: chan %o addr %#o ptw %012"PRIo64"\n",
                 __func__, chan, addr, p -> PTW_DCW);
   }
 
@@ -2109,7 +2108,7 @@ static void fetch_LPWPTW (uint iom_unit_idx, uint chan)
                                       (p -> LPW_DCW_PTR >> 10) & MASK8);
     iom_core_read (iom_unit_idx, addr, (word36 *) & p -> PTW_LPW, __func__);
     if ((p -> PTW_LPW & 0740000777747) != 04llu)
-      sim_warn ("%s: chan %d addr %#o ptw %012"PRIo64"\n",
+      sim_warn ("%s: chan %o addr %#o ptw %012"PRIo64"\n",
                 __func__, chan, addr, p -> PTW_LPW);
   }
 
@@ -2153,7 +2152,7 @@ void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36
       }
   }
 
-#if 0
+#if 1
 static char * chanModeString (int chan_mode) {
   switch (chan_mode) {
     case cm1: return "cm1";
@@ -2177,6 +2176,7 @@ static char * chanModeString (int chan_mode) {
 void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uint * cnt, bool write) {
   iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "iom_indirect_data_service mode %s\r\n", chanModeString (p->chanMode)); }
   if (p->masked)
     return;
 
@@ -2186,8 +2186,18 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uin
 
   uint tally = p->DDCW_TALLY;
   uint daddr = p->DDCW_ADDR;
-  if (p->chanMode == cm2e)
-    daddr |= ((word24) p->LPWX_BOUND) << 9;
+  sim_debug (DBG_DEBUG, & iom_dev, "iom_indirect_data_service tally %o daddr %o\r\n", tally, daddr);
+
+  if (p->chanMode == cm2e) {
+sim_debug (DBG_DEBUG, & iom_dev, "daddr was %o p->LPWX_BOUND %o ADDR_EXT %o PCW_AE %o\r\n", daddr, p->LPWX_BOUND, p->ADDR_EXT, p->PCW_AE);
+    //daddr |= ((word24) p->LPWX_BOUND) << 9;
+    //daddr |= ((word24) (p->ADDR_EXT & MASK6)) << 18;
+    //daddr += ((word24) p->LPWX_BOUND) << 1;
+    daddr += ((word24) p->LPWX_BOUND);
+    //daddr |= ((word24) p->LPWX_BOUND);
+    sim_debug (DBG_DEBUG, & iom_dev, "iom_indirect_data_service cme2, daddr now %o\r\n", daddr);
+sim_debug (DBG_DEBUG, & iom_dev, "daddr is %o\r\n", daddr);
+  }
   if (tally == 0) {
     tally = 4096;
   }
@@ -2206,13 +2216,14 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uin
           iom_core_write (iom_unit_idx, addr, * data, __func__);
         } else {
           if (daddr > MASK18) { // 256K overflow
-            sim_warn ("%s 256K ovf\n", __func__); // XXX
+            sim_warn ("%s 256K ovf(1) %o\n", __func__, daddr); // XXX
             daddr &= MASK18;
           }
 
           // If PTP is not set, we are in cm1e or cm2e. Both are 'EXT DCW', so
           // we can elide the mode check here.
           uint daddr2 = daddr | (uint) p->ADDR_EXT << 18;
+//sim_printf ("(1) daddr2 %o daddr %o ADDR_EXT %o\r\n", daddr, daddr2, p->ADDR_EXT);
           iom_core_write (iom_unit_idx, daddr2, * data, __func__);
         }
       }
@@ -2234,14 +2245,19 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uin
         } else {
           // XXX assuming DCW_ABS
           if (daddr > MASK18) { // 256K overflow
-            sim_warn ("%s 256K ovf\n", __func__); // XXX
+            sim_warn ("%s 256K ovf(2)\n", __func__); // XXX
             daddr &= MASK18;
           }
 
           // If PTP is not set, we are in cm1e or cm2e. Both are 'EXT DCW', so
           // we can elide the mode check here.
+#if 1
           uint daddr2 = daddr | (uint) p -> ADDR_EXT << 18;
+//sim_printf ("(2) daddr2 %o daddr %o ADDR_EXT %o\r\n", daddr, daddr2, p->ADDR_EXT);
           iom_core_read (iom_unit_idx, daddr2, data, __func__);
+#else
+          iom_core_read (iom_unit_idx, daddr, data, __func__);
+#endif
         }
       }
       daddr ++;
@@ -2256,16 +2272,19 @@ void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uin
 static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode is %s tdcw %o \r\n", chanModeString (p->chanMode), tdcw); }
 
     if (iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IOM ||
         iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_STD_GCOS) {
       p->chanMode = cm1;
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm1 (1)\r\n"); }
       return;
     }
     
     if (chan == IOM_CONNECT_CHAN)
       {
         p -> chanMode = cm1;
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm1 (2)\r\n"); }
         return;
       }
 
@@ -2277,10 +2296,13 @@ static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
             if (p -> LPW_20_AE == 0)
               {
                     p -> chanMode = cm1e;  // AE 0
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm1e (3)\r\n"); }
               }
             else
               {
                     p -> chanMode = cm2e;  // AE 1
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm2e (4)\r\n"); }
+//sim_printf ("set cm2e 1\r\n");
               }
 
           }
@@ -2292,10 +2314,12 @@ static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
                 if (p -> LPW_23_REL == 0)
                   {
                     p -> chanMode = cm1;  // AE 0, REL 0
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm1 (5)\r\n"); }
                   }
                 else
                   {
                     p -> chanMode = cm3a;  // AE 0, REL 1
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm3a (6)\r\n"); }
                   }
 
               }
@@ -2305,10 +2329,12 @@ static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
                 if (p -> LPW_23_REL == 0)
                   {
                     p -> chanMode = cm3b;  // AE 1, REL 0
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm3b (7)\r\n"); }
                   }
                 else
                   {
                     p -> chanMode = cm4;  // AE 1, REL 1
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm4 (8)\r\n"); }
                   }
 
               }
@@ -2322,54 +2348,76 @@ static void update_chan_mode (uint iom_unit_idx, uint chan, bool tdcw)
               if (p -> TDCW_32_PDTA)
                 {
                   p -> chanMode = cm2;
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm2 (9)\r\n"); }
                   break;
                 }
-              if (p -> TDCW_33_PDCW)
-                if (p -> TDCW_35_REL)
+              if (p -> TDCW_33_PDCW) {
+                if (p -> TDCW_35_REL) {
                   p -> chanMode = cm4; // 33, 35
-                else
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm4 (10)\r\n"); }
+                } else {
                   p -> chanMode = cm3b; // 33, !35
-              else
-                if (p -> TDCW_35_REL)
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm3b (11)\r\n"); }
+                }
+              } else {
+                if (p -> TDCW_35_REL) {
                   p -> chanMode = cm3a; // !33, 35
-                else
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm3a (12)\r\n"); }
+                } else {
                   p -> chanMode = cm2; // !33, !35
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm2 (13)\r\n"); }
+                }
+              }
               break;
 
             case cm2:
-              if (p -> TDCW_33_PDCW)
-                if (p -> TDCW_35_REL)
+              if (p -> TDCW_33_PDCW) {
+                if (p -> TDCW_35_REL) {
                   p -> chanMode = cm4; // 33, 35
-                else
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm4 (14)\r\n"); }
+                } else {
                   p -> chanMode = cm3b; // 33, !35
-              else
-                if (p -> TDCW_35_REL)
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm3b (15)\r\n"); }
+                }
+              } else {
+                if (p -> TDCW_35_REL) {
                   p -> chanMode = cm3a; // !33, 35
-                else
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm3a (15)\r\n"); }
+                } else {
                   p -> chanMode = cm2; // !33, !35
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm2 (16)\r\n"); }
+                }
+              }
               break;
 
             case cm3a:
-              if (p -> TDCW_33_PDCW)
+              if (p -> TDCW_33_PDCW) {
                 p -> chanMode = cm4;
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm4 (17)\r\n"); }
+              }
               break;
 
             case cm3b:
-              if (p -> TDCW_35_REL)
+              if (p -> TDCW_35_REL) {
                 p -> chanMode = cm4;
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm4 (18)\r\n"); }
+              }
               break;
 
             case cm4:
-              p -> chanMode = cm5;
+              p -> chanMode = cm5; {
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm5 (19)\r\n"); }
+              }
               break;
 
             case cm5:
               break;
 
             case cm1e:
-              {
-                if (p -> chanMode == cm1e && p -> TDCW_33_EC)
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode tdcw cme TDCW_33_EC %o\r\n", p->TDCW_33_EC); }
+                if (p -> chanMode == cm1e && p -> TDCW_33_EC) {
                   p -> chanMode = cm2e;
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "update_chan_mode now cm2e (20)\r\n"); }
               }
               break;
 
@@ -2386,7 +2434,7 @@ static void write_LPW (uint iom_unit_idx, uint chan)
     uint chanLoc = mbxLoc (iom_unit_idx, chan);
     iom_core_write (iom_unit_idx, chanLoc + IOM_MBX_LPW, p -> LPW, __func__);
     //sim_debug (DBG_DEBUG, & iom_dev,
-               //"%s: chan %d lpw %012"PRIo64"\n",
+               //"%s: chan %o lpw %012"PRIo64"\n",
                //__func__, chan, p -> LPW);
     if (chan != IOM_CONNECT_CHAN)
       {
@@ -2412,12 +2460,12 @@ void dumpDCW (word36 DCW, word1 LPW_23_REL) {
     word2 IDCW_CHAN_CTRL =    getbits36_2 (DCW, 22);
     word6 IDCW_CHAN_CMD =     getbits36_6 (DCW, 24);
     word6 IDCW_COUNT =        getbits36_6 (DCW, 30);
-    sim_printf ("//   IDCW %012llo\r\n", DCW);
-    sim_printf ("//     cmd             %02o %s\r\n", IDCW_DEV_CMD, cmdNames[IDCW_DEV_CMD]);
-    sim_printf ("//     dev code        %02o\r\n", IDCW_DEV_CODE);
-    sim_printf ("//     ctrl             %o (%s)\r\n", IDCW_CHAN_CTRL, charCtrls[IDCW_CHAN_CTRL]);
-    sim_printf ("//     chancmd          %o (%s)\r\n", IDCW_CHAN_CMD, IDCW_CHAN_CMD < 16 ? chanCmds[IDCW_CHAN_CMD] : "unknown");
-    sim_printf ("//     count            %o\r\n", IDCW_COUNT);
+    sim_debug (DBG_TRACE, & iom_dev, "//   IDCW %012llo\r\n", DCW);
+    sim_debug (DBG_TRACE, & iom_dev, "//     cmd             %02o %s\r\n", IDCW_DEV_CMD, cmdNames[IDCW_DEV_CMD]);
+    sim_debug (DBG_TRACE, & iom_dev, "//     dev code        %02o\r\n", IDCW_DEV_CODE);
+    sim_debug (DBG_TRACE, & iom_dev, "//     ctrl             %o (%s)\r\n", IDCW_CHAN_CTRL, charCtrls[IDCW_CHAN_CTRL]);
+    sim_debug (DBG_TRACE, & iom_dev, "//     chancmd          %o (%s)\r\n", IDCW_CHAN_CMD, IDCW_CHAN_CMD < 16 ? chanCmds[IDCW_CHAN_CMD] : "unknown");
+    sim_debug (DBG_TRACE, & iom_dev, "//     count            %o\r\n", IDCW_COUNT);
   } else { // TDCW or DDCW
     word18 TDCW_DATA_ADDRESS = getbits36_18 (DCW,  0);
     word1  TDCW_31_SEG =       getbits36_1 (DCW, 31);
@@ -2432,19 +2480,19 @@ void dumpDCW (word36 DCW, word1 LPW_23_REL) {
     word2  DDCW_22_23_TYPE =   getbits36_2 (DCW, 22);
     static char * types[4] = { "IOTD", "IOTP", "TDCW", "IONTP" };
     if (DDCW_22_23_TYPE == 2) {
-      sim_printf ("//   TDCW (2) %012llo\r\n", DCW);
-      sim_printf ("//     dcw ptr   %06o\r\n", TDCW_DATA_ADDRESS);
-      sim_printf ("//     seg            %o\r\n", TDCW_31_SEG);
-      sim_printf ("//     pdta           %o\r\n", TDCW_32_PDTA);
-      sim_printf ("//     pdcw           %o\r\n", TDCW_33_PDCW);
-      sim_printf ("//     ec             %o\r\n", TDCW_33_EC);
-      sim_printf ("//     res            %o\r\n", TDCW_34_RES);
-      sim_printf ("//     rel            %o\r\n", TDCW_35_REL);
+      sim_debug (DBG_TRACE, & iom_dev, "//   TDCW (2) %012llo\r\n", DCW);
+      sim_debug (DBG_TRACE, & iom_dev, "//     dcw ptr   %06o\r\n", TDCW_DATA_ADDRESS);
+      sim_debug (DBG_TRACE, & iom_dev, "//     seg            %o\r\n", TDCW_31_SEG);
+      sim_debug (DBG_TRACE, & iom_dev, "//     pdta           %o\r\n", TDCW_32_PDTA);
+      sim_debug (DBG_TRACE, & iom_dev, "//     pdcw           %o\r\n", TDCW_33_PDCW);
+      sim_debug (DBG_TRACE, & iom_dev, "//     ec             %o\r\n", TDCW_33_EC);
+      sim_debug (DBG_TRACE, & iom_dev, "//     res            %o\r\n", TDCW_34_RES);
+      sim_debug (DBG_TRACE, & iom_dev, "//     rel            %o\r\n", TDCW_35_REL);
     } else {
-      sim_printf ("//   %s (%o) %012llo\r\n", types[DDCW_22_23_TYPE], DDCW_22_23_TYPE, DCW);
-      sim_printf ("//     tally       %04o\r\n", DDCW_TALLY);
-      sim_printf ("//     addr            %02o\r\n", DDCW_ADDR);
-      sim_printf ("//     cp               %o\r\n", getbits36_3 (DCW, 18));
+      sim_debug (DBG_TRACE, & iom_dev, "//   %s (%o) %012llo\r\n", types[DDCW_22_23_TYPE], DDCW_22_23_TYPE, DCW);
+      sim_debug (DBG_TRACE, & iom_dev, "//     tally       %04o\r\n", DDCW_TALLY);
+      sim_debug (DBG_TRACE, & iom_dev, "//     addr            %02o\r\n", DDCW_ADDR);
+      sim_debug (DBG_TRACE, & iom_dev, "//     cp               %o\r\n", getbits36_3 (DCW, 18));
     }
   }
 }
@@ -2524,16 +2572,16 @@ static void dumpLPW (uint iom_unit_idx, uint chan) {
         "62.",
         "63."
   };
-  sim_printf ("// %s channel LPW %012llo (case %c)\r\n", chanName[chan], p->LPW, updateCase);
-  sim_printf ("//   DCW pointer %06o\r\n", p->LPW_DCW_PTR);
-  sim_printf ("//     RES              %o\r\n", p->LPW_18_RES);
-  sim_printf ("//     REL              %o\r\n", p->LPW_19_REL);
-  sim_printf ("//     AE               %o\r\n", p->LPW_20_AE);
-  sim_printf ("//     NC 21            %o\r\n", p->LPW_21_NC);
-  sim_printf ("//     TAL 22           %o\r\n", p->LPW_22_TAL);
-  sim_printf ("//     REL              %o\r\n", p->LPW_23_REL);
-  sim_printf ("//     TALLY         %04o\r\n", p->LPW_TALLY);
-  sim_printf ("// \r\n");
+  sim_debug (DBG_TRACE, & iom_dev, "// %s channel LPW %012llo (case %c)\r\n", chanName[chan], p->LPW, updateCase);
+  sim_debug (DBG_TRACE, & iom_dev, "//   DCW pointer %06o\r\n", p->LPW_DCW_PTR);
+  sim_debug (DBG_TRACE, & iom_dev, "//     RES              %o\r\n", p->LPW_18_RES);
+  sim_debug (DBG_TRACE, & iom_dev, "//     REL              %o\r\n", p->LPW_19_REL);
+  sim_debug (DBG_TRACE, & iom_dev, "//     AE               %o\r\n", p->LPW_20_AE);
+  sim_debug (DBG_TRACE, & iom_dev, "//     NC 21            %o\r\n", p->LPW_21_NC);
+  sim_debug (DBG_TRACE, & iom_dev, "//     TAL 22           %o\r\n", p->LPW_22_TAL);
+  sim_debug (DBG_TRACE, & iom_dev, "//     REL              %o\r\n", p->LPW_23_REL);
+  sim_debug (DBG_TRACE, & iom_dev, "//     TALLY         %04o\r\n", p->LPW_TALLY);
+  sim_debug (DBG_TRACE, & iom_dev, "// \r\n");
 }
 #endif
 
@@ -2545,6 +2593,7 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
     iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPW, (word36 *) & p -> LPW, __func__);
     sim_debug (DBG_DEBUG, & iom_dev,
                "%s: lpw %08o %012"PRIo64"\n", __func__, chanLoc + IOM_MBX_LPW, p->LPW);
+//sim_printf ("LPW 1 %012llo\r\n", p->LPW);
 
     p -> LPW_DCW_PTR = getbits36_18 (p -> LPW,  0);
     p -> LPW_18_RES =  getbits36_1 (p -> LPW, 18);
@@ -2559,65 +2608,68 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
       p->LPWX = 0;
       p->LPWX_BOUND = 0;
       p->LPWX_SIZE = 0;
+      sim_debug (DBG_DEBUG, & iom_dev, "%s: connect lpwx bound %06o size %06o\n", __func__, p->LPWX_BOUND, p->LPWX_SIZE);
     } else {
       iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPWX, (word36 *) & p -> LPWX, __func__);
+//sim_printf ("LPW 2 %012llo\r\n", p->LPWX);
       sim_debug (DBG_DEBUG, & iom_dev, "%s: lpwx %08o %012"PRIo64"\n", __func__, chanLoc + IOM_MBX_LPWX, p->LPWX);
       if (iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IOM ||
           iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_STD_GCOS ||
           iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_EXT_GCOS) {
         p -> LPWX_BOUND = getbits36_9 (p -> LPWX, 0);
         p -> LPWX_SIZE = getbits36_9 (p -> LPWX, 9);
+        sim_debug (DBG_DEBUG, & iom_dev, "%s: non-paged lpwx bound %06o size %06o\n", __func__, p->LPWX_BOUND, p->LPWX_SIZE);
       } else {
         p -> LPWX_BOUND = getbits36_18 (p -> LPWX, 0);
         p -> LPWX_SIZE = getbits36_18 (p -> LPWX, 18);
+        sim_debug (DBG_DEBUG, & iom_dev, "%s: paged lpwx bound %06o size %06o\n", __func__, p->LPWX_BOUND, p->LPWX_SIZE);
       }
-      sim_debug (DBG_DEBUG, & iom_dev, "%s: lpwx bound %06o size %06o\n", __func__, p->LPWX_BOUND, p->LPWX_SIZE);
     }
     update_chan_mode (iom_unit_idx, chan, false);
   }
 
-static void unpack_DCW (uint iom_unit_idx, uint chan)
-  {
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
-    p -> DCW_18_20_CP =      getbits36_3 (p -> DCW, 18);
+static void unpack_DCW (uint iom_unit_idx, uint chan) {
+  iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "unpack_DCW %012llo\r\n", p->DCW); }
+  p->DCW_18_20_CP = getbits36_3 (p->DCW, 18);
+  p->DDCW_22_23_TYPE = getbits36_2 (p->DCW, 22);
 
-    if (IS_IDCW (p)) // IDCW
-      {
-        p -> IDCW_DEV_CMD =      getbits36_6 (p -> DCW,  0);
-        p -> IDCW_DEV_CODE =     getbits36_6 (p -> DCW,  6);
-        p -> IDCW_AE =           getbits36_6 (p -> DCW,  12);
-        if (p -> LPW_23_REL)
-          p -> IDCW_EC = 0;
-        else
-          p -> IDCW_EC =         getbits36_1 (p -> DCW, 21);
-        if (p -> IDCW_EC)
-          p -> SEG = 1; // pat. step 45
-        p -> IDCW_CHAN_CTRL =    getbits36_2 (p -> DCW, 22);
-        p -> IDCW_CHAN_CMD =     getbits36_6 (p -> DCW, 24);
-        p -> IDCW_COUNT =        getbits36_6 (p -> DCW, 30);
-        p->recordResidue = p->IDCW_COUNT;
+  if (IS_IDCW (p)) { // IDCW
+    p->IDCW_DEV_CMD =      getbits36_6 (p->DCW,  0);
+    p->IDCW_DEV_CODE =     getbits36_6 (p->DCW,  6);
+    p->IDCW_AE =           getbits36_6 (p->DCW,  12);
+    if (p->LPW_23_REL)
+      p->IDCW_EC = 0;
+    else
+      p->IDCW_EC =         getbits36_1 (p->DCW, 21);
+    if (p->IDCW_EC)
+      p->SEG = 1; // pat. step 45
+    p->IDCW_CHAN_CTRL =    getbits36_2 (p->DCW, 22);
+    p->IDCW_CHAN_CMD =     getbits36_6 (p->DCW, 24);
+    p->IDCW_COUNT =        getbits36_6 (p->DCW, 30);
+    p->recordResidue = p->IDCW_COUNT;
 #ifdef TESTING
-        sim_debug (DBG_DEBUG, & iom_dev,
-                   "%s: IDCW %012llo cmd %02o (%s) dev %02o ctrl %o chancmd %o\n",
+    sim_debug (DBG_DEBUG, & iom_dev, "%s: IDCW %012llo cmd %02o (%s) dev %02o ctrl %o chancmd %o\n",
                    __func__, p->DCW, p->IDCW_DEV_CMD, cmdNames[p->IDCW_DEV_CMD],
                    p->IDCW_DEV_CODE, p->IDCW_CHAN_CTRL, p->IDCW_CHAN_CMD);
 #endif
+    } else { // TDCW or DDCW
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "TDCW or DDCW %o %o\r\n", (p)->DCW_18_20_CP, (p)->DDCW_22_23_TYPE); }
+      if (IS_TDCW (p)) {
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "TDCW\r\n"); }
+        p->TDCW_DATA_ADDRESS = getbits36_18 (p->DCW,  0);
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "TDCW_DATA_ADDRESS %o\r\n", p->TDCW_DATA_ADDRESS); }
+        p->TDCW_31_SEG =       getbits36_1 (p->DCW, 31);
+        p->TDCW_32_PDTA =      getbits36_1 (p->DCW, 32);
+        p->TDCW_33_PDCW =      getbits36_1 (p->DCW, 33);
+        p->TDCW_33_EC =        getbits36_1 (p->DCW, 33);
+        p->TDCW_34_RES =       getbits36_1 (p->DCW, 34);
+        p->TDCW_35_REL =       getbits36_1 (p->DCW, 35);
       }
-    else // TDCW or DDCW
-      {
-        p -> TDCW_DATA_ADDRESS = getbits36_18 (p -> DCW,  0);
-        p -> TDCW_31_SEG =       getbits36_1 (p -> DCW, 31);
-        p -> TDCW_32_PDTA =      getbits36_1 (p -> DCW, 32);
-        p -> TDCW_33_PDCW =      getbits36_1 (p -> DCW, 33);
-        p -> TDCW_33_EC =        getbits36_1 (p -> DCW, 33);
-        p -> TDCW_34_RES =       getbits36_1 (p -> DCW, 34);
-        p -> TDCW_35_REL =       getbits36_1 (p -> DCW, 35);
-
-        p -> DDCW_TALLY =        getbits36_12 (p -> DCW, 24);
-        p -> DDCW_ADDR =         getbits36_18 (p -> DCW,  0);
-        p -> DDCW_22_23_TYPE =   getbits36_2 (p -> DCW, 22);
-        sim_debug (DBG_DEBUG, & iom_dev,
-                   "%s: TDCW/DDCW %012llo tally %04o addr %06o type %o\n",
+      p -> DDCW_TALLY =        getbits36_12 (p->DCW, 24);
+      p -> DDCW_ADDR =         getbits36_18 (p->DCW,  0);
+      p -> DDCW_22_23_TYPE =   getbits36_2 (p->DCW, 22);
+      sim_debug (DBG_DEBUG, & iom_dev, "%s: TDCW/DDCW %012llo tally %04o addr %06o type %o\n",
                    __func__, p->DCW, p->DDCW_TALLY, p->DDCW_ADDR, p->DDCW_22_23_TYPE);
 // POLTS_TESTING
 #if 0
@@ -2640,8 +2692,8 @@ if (iomUnitIdx == 1 && chan == 020)        if_sim_debug (DBG_TRACE, & iom_dev) {
           }
         }
 #endif
-      }
-  }
+    }
+}
 
 static void pack_DCW (uint iom_unit_idx, uint chan)
   {
@@ -2673,6 +2725,8 @@ static void fetch_and_parse_PCW (uint iom_unit_idx, uint chan)
     iom_core_read2 (iom_unit_idx, p -> LPW_DCW_PTR, (word36 *) & p -> PCW0, (word36 *) & p -> PCW1, __func__);
     p -> PCW_CHAN = getbits36_6 (p -> PCW1, 3);
     p -> PCW_AE = getbits36_6 (p -> PCW0, 12);
+//sim_printf ("PCW_AE (0) %o\r\n", p->PCW_AE);
+
     p -> PCW_21_MSK = getbits36_1 (p -> PCW0, 21);
     p -> PCW_PAGE_TABLE_PTR = getbits36_18 (p -> PCW1, 9);
     p -> PCW_63_PTP = getbits36_1 (p -> PCW1, 27);
@@ -2697,16 +2751,24 @@ static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_
         case cm1e:
           {
             iom_core_read (iom_unit_idx, addr, (word36 *) & p -> DCW, __func__);
+    sim_debug (DBG_DEBUG, & iom_dev, "%s: cm1/cm1e addr %08o\n", __func__, addr);
           }
           break;
 
         // LPW EXT
         case cm2e:
           {
+#if 0
             // LPXW_BOUND is mod 2; ie. val is * 2
             //addr |= ((word24) p -> LPWX_BOUND << 18);
             addr |= ((word24) p -> LPWX_BOUND) << 9;
+            addr &= MASK24;
+#else
+            addr |= ((word24) p -> LPWX_BOUND) << 1;
+            addr &= MASK24;
+#endif
             iom_core_read (iom_unit_idx, addr, (word36 *) & p -> DCW, __func__);
+            sim_debug (DBG_DEBUG, & iom_dev, "%s: cm1/cm1e addr %08o\n", __func__, addr);
           }
           break;
 
@@ -2726,6 +2788,7 @@ static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_
             // PTW 4-17 || LPW 8-17
             word24 addr_ = ((word24) (getbits36_14 (p -> PTW_LPW, 4) << 10)) | ((p -> LPW_DCW_PTR) & MASK10);
             iom_core_read (iom_unit_idx, addr_, (word36 *) & p -> DCW, __func__);
+            sim_debug (DBG_DEBUG, & iom_dev, "%s: cm3/4/5 addr %08o\n", __func__, addr_);
           }
           break;
       }
@@ -2733,18 +2796,18 @@ static void fetch_and_parse_DCW (uint iom_unit_idx, uint chan, UNUSED bool read_
 
     if (IS_IDCW (p))
       sim_debug (DBG_DEBUG, & iom_dev,
-                 "%s: chan %d idcw: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
+                 "%s: chan %o idcw: dev_cmd %#o dev_code %#o ae %#o ec %d control %#o chan_cmd %#o data %#o\n",
                  __func__, p -> PCW_CHAN, p -> IDCW_DEV_CMD, p -> IDCW_DEV_CODE, p -> IDCW_AE,
                  p -> IDCW_EC, p -> IDCW_CHAN_CTRL, p -> IDCW_CHAN_CMD, p -> IDCW_COUNT);
     else
       if (p -> DDCW_22_23_TYPE == 02)
         sim_debug (DBG_DEBUG, & iom_dev,
-                   "%s: chan %d tdcw: address %#o seg %d pdta %d pdcw/ec %d res %d rel %d\n",
+                   "%s: chan %o tdcw: address %#o seg %d pdta %d pdcw/ec %d res %d rel %d\n",
                    __func__, p -> PCW_CHAN, p -> TDCW_DATA_ADDRESS, p -> TDCW_31_SEG,
                    p -> TDCW_32_PDTA, p -> TDCW_33_PDCW, p -> TDCW_34_RES, p -> TDCW_35_REL);
       else
         sim_debug (DBG_DEBUG, & iom_dev,
-                   "%s: chan %d ddcw: address %#o char_pos %#o type %#o tally %#o\n",
+                   "%s: chan %o ddcw: address %#o char_pos %#o type %#o tally %#o\n",
                    __func__, p -> PCW_CHAN, p -> DDCW_ADDR, p -> DCW_18_20_CP,
                    p -> DDCW_22_23_TYPE, p -> DDCW_TALLY);
   }
@@ -2827,7 +2890,7 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
     //
 
     sim_debug (DBG_DEBUG, & iom_dev,
-               "%s: chan %d %s req %#o signal %#o\n",
+               "%s: chan %o %s req %#o signal %#o\n",
                __func__, chan, who, req, signal);
 
     word36 faultWord = 0;
@@ -2871,256 +2934,155 @@ static void iom_fault (uint iom_unit_idx, uint chan, UNUSED const char * who,
 // There is a path through the code where no DCW is sent (IDCW && LPW_18_RES)
 // Does the -1 return cover that?
 
-int iom_list_service (uint iom_unit_idx, uint chan,
-                           bool * ptro, bool * sendp, bool * uffp)
-  {
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+int iom_list_service (uint iom_unit_idx, uint chan, bool * ptro, bool * sendp, bool * uffp) {
 
-// initialize
+  iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
-    bool isConnChan = chan == IOM_CONNECT_CHAN;
-    * ptro = false; // assume not PTRO
-    bool uff = false; // user fault flag
-    bool send = false;
+// Initialize
+
+  bool isConnChan = chan == IOM_CONNECT_CHAN;
+  *ptro = false; // assume not PTRO
+  bool uff = false; // user fault flag
+  bool send = false;
 
 // Figure 4.3.1
 
 // START
 
-    // FIRST SERVICE?
+  // FIRST SERVICE?
 
-    if (p -> lsFirst)
-      {
-        // PULL LPW AND LPW EXT. FROM CORE MAILBOX
+  if (p->lsFirst) {
+    // PULL LPW AND LPW EXT. FROM CORE MAILBOX
 
-        fetch_and_parse_LPW (iom_unit_idx, chan);
-        p -> wasTDCW = false;
-        p -> SEG = 0; // pat. FIG. 2, step 44
-      }
-    // else lpw and lpwx are in chanData;
+    fetch_and_parse_LPW (iom_unit_idx, chan);
+    p->wasTDCW = false;
+    p->SEG = 0; // pat. FIG. 2, step 44
+  }
+  // else lpw and lpwx are in chanData;
 
-    // CONNECT CHANNEL?
+  // CONNECT CHANNEL?
 
-    if (isConnChan)
-      { // connect channel
-
-        // LPW 21 (NC), 22 (TAL) is {00, 01, 1x}?
-
-        if (p -> LPW_21_NC == 0 && p -> LPW_22_TAL == 0)
-              {
-                iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__,
-                          p -> lsFirst ? iomFsrFirstList : iomFsrList,
-                          iomIllTalCChnFlt);
-                return -1;
-              }
-
-        if (p -> LPW_21_NC == 0 && p -> LPW_22_TAL == 1)
-          { // 01
-
-            // TALLY is {0, 1, >1}?
-
-            if (p -> LPW_TALLY == 0)
-              {
-                iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__,
-                          p -> lsFirst ? iomFsrFirstList : iomFsrList,
-                          iomIllTalCChnFlt);
-                return -1;
-              }
-
-            if (p -> LPW_TALLY > 1)
-              { // 00
-
-                // 256K OVERFLOW?
-                if (p -> LPW_20_AE == 0 &&
-                    (((word36) p -> LPW_DCW_PTR) + ((word36) p -> LPW_TALLY)) >
-                    01000000llu)
-                  {
-                    iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__,
-                              p -> lsFirst ? iomFsrFirstList : iomFsrList,
-                              iom256KFlt);
-                    return -1;
-                  }
-              }
-            else if (p -> LPW_TALLY == 1)
-              * ptro = true;
-          }
-        else // 1x
-          * ptro = true;
-
-        // PULL PCW FROM CORE
-
-// B
-
-        fetch_and_parse_PCW (iom_unit_idx, chan); // fills in DCW*
-
-        // PCW 18-20 == 111?
-        if (IS_NOT_IDCW (p))
-          {
-            iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__,
-                      p -> lsFirst ? iomFsrFirstList : iomFsrList,
-                      iomNotPCWFlt);
-            return -1;
-          }
-
-        // SELECT CHANNEL
-
-        // chan = p -> PCW_CHAN;
-
-// detect unused slot as fault
-// if (no handler in slot)
-//  goto FAULT;
-
-       // SEND PCW TO CHANNEL
-
-        // p -> DCW = p -> DCW;
-        send = true;
-
-        goto D;
-      }
-
-
-    // Not connect channel
+  if (isConnChan) { // connect channel
 
     // LPW 21 (NC), 22 (TAL) is {00, 01, 1x}?
 
-    if (p -> LPW_21_NC == 0 && p -> LPW_22_TAL == 0)
-      {
-        // XXX see pat. 46-51 re: SEG
+    if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 0) {
+      iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p->lsFirst ? iomFsrFirstList : iomFsrList, iomIllTalCChnFlt);
+      return -1;
+    }
+
+    if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 1) { // 01
+
+      // TALLY is {0, 1, >1}?
+
+      if (p->LPW_TALLY == 0) {
+        iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p->lsFirst ? iomFsrFirstList : iomFsrList, iomIllTalCChnFlt);
+        return -1;
+      }
+
+      if (p->LPW_TALLY > 1) { // 00
+
         // 256K OVERFLOW?
-        if (p -> LPW_20_AE == 0 &&
-            (((word36) p -> LPW_DCW_PTR) + ((word36) p -> LPW_TALLY)) >
-            01000000llu)
-          {
-            iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__,
-                      p -> lsFirst ? iomFsrFirstList : iomFsrList,
-                      iom256KFlt);
-            return -1;
-          }
-       }
-    else if (p -> LPW_21_NC == 0 && p -> LPW_22_TAL == 1)
-      { // 01
+        if (p->LPW_20_AE == 0 && (((word36) p->LPW_DCW_PTR) + ((word36) p->LPW_TALLY)) > 01000000llu) {
+          iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p->lsFirst ? iomFsrFirstList : iomFsrList, iom256KFlt);
+          return -1;
+        }
+      } else if (p->LPW_TALLY == 1) {
+        *ptro = true;
+      }
+    } else { // 1x
+      *ptro = true;
+    }
+
+    // PULL PCW FROM CORE
+
+// B
+
+    fetch_and_parse_PCW (iom_unit_idx, chan); // fills in DCW*
+
+    // PCW 18-20 == 111?
+    if (IS_NOT_IDCW (p)) {
+      iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p->lsFirst ? iomFsrFirstList : iomFsrList, iomNotPCWFlt);
+      return -1;
+    }
+
+    // SELECT CHANNEL
+
+    // SEND PCW TO CHANNEL
+    send = true;
+
+    goto D;
+  } // if connect channel
+
+// The "A" label is for the handling to TDCWs; this routine does not return after fetching 
+// a TDCW, but rather follows the TDCW address and fetches the next DCW.
+
 A:;
-        // TALLY is {0, 1, >1}?
+  // Not connect channel
 
-        if (p -> LPW_TALLY == 0)
-          {
-            uff = true;
-          }
-        else if (p -> LPW_TALLY > 1)
-          { // 00
 
-            // XXX see pat. 46-51 re: SEG
-            // 256K OVERFLOW?
-            if (p -> LPW_20_AE == 0 &&
-                (((word36) p -> LPW_DCW_PTR) + ((word36) p -> LPW_TALLY)) >
-                01000000llu)
-              {
-                iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__,
-                          p -> lsFirst ? iomFsrFirstList : iomFsrList,
-                          iom256KFlt);
-                return -1;
-              }
-          }
+//
+// Check for tally runout
+//
+
+  // LPW 21 (NC), 22 (TAL) is {00, 01, 1x}?
+
+  if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 0) {
+    // XXX see pat. 46-51 re: SEG
+    // 256K OVERFLOW?
+    if (p->LPW_20_AE == 0 && (((word36) p->LPW_DCW_PTR) + ((word36) p->LPW_TALLY)) > 01000000llu) {
+      iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p->lsFirst ? iomFsrFirstList : iomFsrList, iom256KFlt);
+      return -1;
+    }
+  } else if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 1) { // 01
+    // TALLY is {0, 1, >1}?
+
+    if (p->LPW_TALLY == 0) {
+      uff = true;
+    } else if (p->LPW_TALLY > 1) { // 00
+
+      // XXX see pat. 46-51 re: SEG
+      // 256K OVERFLOW?
+      if (p->LPW_20_AE == 0 && (((word36) p->LPW_DCW_PTR) + ((word36) p->LPW_TALLY)) > 01000000llu) {
+        iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p->lsFirst ? iomFsrFirstList : iomFsrList, iom256KFlt);
+        return -1;
       }
+    }
+  }
 
-    // LPW 20? -- LPW_20 checked by fetch_and_parse_DCW
+  // LPW 20? -- LPW_20 checked by fetch_and_parse_DCW
 
-    // PULL DCW FROM CORE
-    fetch_and_parse_DCW (iom_unit_idx, chan, false);
+//
+// Fetch the DCW
+//
 
-// C
+  // PULL DCW FROM CORE
+  fetch_and_parse_DCW (iom_unit_idx, chan, false);
 
-    // IDCW ?
+  if (p->wasTDCW) {
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "wasTDCW mode %s\r\n", chanModeString (p->chanMode)); }
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "TDCW_33_EC %o\r\n", p->TDCW_33_EC); }
 
-    if (IS_IDCW (p))
-      {
-
-        // LPW_18_RES?
-
-        if (p -> LPW_18_RES)
-          {
-            // SET USER FAULT FLAG
-            uff = true; // XXX Why? uff isn't not examinded later.
-            // send = false; implicit...
-          }
-        else
-          {
-            // SEND IDCW TO CHANNEL
-            // p -> DCW = p -> DCW;
-            send = true;
-          }
-        p -> LPWX_SIZE = p -> LPW_DCW_PTR;
-        goto D;
-      }
-
-// Not IDCW
-
-    if (p->lsFirst)
-      p->LPWX_SIZE = p->LPW_DCW_PTR;
-
-// pg B16: "If the IOM is paged [yes] and PCW bit 64 is off, LPW bit 23
-//          is ignored by the hardware. If bit 64 is set, LPW bit 23 causes
-//          the data to become segmented."
-// Handled in fetch_and_parse_LPW
-
-    // LPW 23 REL?
-
-    // TDCW ?
-
-    if (IS_TDCW (p))
-      {
-        // SECOND TDCW?
-        if (p -> wasTDCW)
-          {
-            uff = true;
-            goto uffSet;
-          }
-        p -> wasTDCW = true;
-
-        // PUT ADDRESS N LPW
-
-        p -> LPW_DCW_PTR = p -> TDCW_DATA_ADDRESS;
-#if 0
-        // OR TDCW 33, 34, 35 INTO LPW 20, 18, 23
-        // XXX is 33 bogus? it's semantics change based on PCW 64...
-        // should be okay; pg B21 says that this is correct; implies that the
-        // semantics are handled in the LPW code. Check...
-        if (iom_unit_data[iom_unit_idx].config_sw_model != CONFIG_SW_MODEL_IOM &&
-            iom_unit_data[iom_unit_idx].config_sw_OS != CONFIG_SW_STD_GCOS) {
-          p->LPW_20_AE |= p->TDCW_33_EC; // TDCW_33_PDCW
-          p->LPW_18_RES |= p->TDCW_34_RES;
-          p->LPW_23_REL |= p->TDCW_35_REL;
-        }
-        if (iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IOM) {
-          if (p->TDCW_33_EC) {
-            p->LPW_20_AE = 1;
-            iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p -> lsFirst ? iomFsrFirstList : iomFsrList, iom256KFlt);
-            return -1;
-          }
-        }
-if (chan == 012) sim_printf ("TDCW AR %o RES %o REL %o SEG %o\r\n", p->LPW_20_AE, p->LPW_18_RES, p->LPW_23_REL, p->TDCW_31_SEG);
-#else
 // “[EC] ... may be used to conditionally change LPW 20 [AE] from a zero 
 // to a one. The will allow (system) control software to control when the 
 // address extension bits fro, the PCW or the IDCW will be used for 
 // accessing the users DCW list. [...] LPW 18 (RES) 1 is a fault.”
-        if (p->TDCW_33_EC) {
-          if (iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IOM ||
-              iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_STD_GCOS) {
-            p->LPW_20_AE = 1;
-            // XXX Don't know what the correct fault code for this is
-            iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p -> lsFirst ? iomFsrFirstList : iomFsrList, iom256KFlt);
-            return -1;
-          }
-          if (p->LPW_18_RES) {
-            uff = true;
-            goto uffSet;
-          }
-          p->LPW_20_AE |= p->TDCW_33_EC; // TDCW_33_PDCW
-          p->LPW_18_RES |= p->TDCW_34_RES;
-          p->LPW_23_REL |= p->TDCW_35_REL;
-        }
-#endif
+    if (p->TDCW_33_EC) {
+      if (iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IOM ||
+          iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_STD_GCOS) {
+        p->LPW_20_AE = 1;
+        // XXX Don't know what the correct fault code for this is
+        iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p->lsFirst ? iomFsrFirstList : iomFsrList, iom256KFlt);
+        return -1;
+      }
+      if (p->LPW_18_RES) {
+        uff = true;
+        goto uffSet;
+      }
+      p->LPW_20_AE |= p->TDCW_33_EC; // TDCW_33_PDCW
+      p->LPW_18_RES |= p->TDCW_34_RES;
+      p->LPW_23_REL |= p->TDCW_35_REL;
+    }
 
 // Pg B21: (TDCW_31_SEG)
 // "SEG = This bit furnishes the 19th address bit (MSD) of a TDCW address
@@ -3156,120 +3118,235 @@ if (chan == 012) sim_printf ("TDCW AR %o RES %o REL %o SEG %o\r\n", p->LPW_20_AE
 
 //put that wierd SEG logic in here
 
-        if (p -> TDCW_31_SEG)
-          sim_warn ("TDCW_31_SEG\n");
+    if (p->TDCW_31_SEG)
+      sim_warn ("TDCW_31_SEG\n");
 
-        update_chan_mode (iom_unit_idx, chan, true);
+    update_chan_mode (iom_unit_idx, chan, true);
+
+    // AC CHANGE ERROR? (LPW 18 == 1 && DCW 33 == 1)
+
+    if (p->LPW_18_RES && p->TDCW_33_EC) { // same as TDCW_33_PDCW
+      uff = true;
+      goto uffSet;
+    }
+  } // if wasDCW
 
 
-        // Decrement tally
-        p -> LPW_TALLY = (p -> LPW_TALLY - 1u) & MASK12;
 
-        pack_LPW (iom_unit_idx, chan);
+// C
 
-        // AC CHANGE ERROR? (LPW 18 == 1 && DCW 33 == 1)
+// if (idcw)
+//   return it
+// if (tcdw)
+//   update dcw address
+//   loop
+// else dcw
+//   return it
 
-        if (p -> LPW_18_RES && p -> TDCW_33_EC) // same as TDCW_33_PDCW
-          {
-            uff = true;
-            goto uffSet;
-          }
 
-        goto A;
+  // IDCW ?
+
+  if (IS_IDCW (p)) {
+
+    // LPW_18_RES?
+
+    if (p->LPW_18_RES) {
+      // SET USER FAULT FLAG
+      uff = true; // XXX Why? uff isn't not examinded later.
+      // send = false; implicit...
+    } else {
+      send = true;
+    }
+    p->LPWX_SIZE = p->LPW_DCW_PTR;
+    goto D;
+  } // if idcw
+
+// Not IDCW
+
+  if (p->lsFirst)
+    p->LPWX_SIZE = p->LPW_DCW_PTR;
+
+// pg B16: "If the IOM is paged [yes] and PCW bit 64 is off, LPW bit 23
+//          is ignored by the hardware. If bit 64 is set, LPW bit 23 causes
+//          the data to become segmented."
+// Handled in fetch_and_parse_LPW
+
+  // LPW 23 REL?
+
+  // TDCW ?
+
+  if (IS_TDCW (p)) {
+    // SECOND TDCW?
+    if (p->wasTDCW) {
+      uff = true;
+      goto uffSet;
+    }
+    p->wasTDCW = true;
+
+    // PUT ADDRESS N LPW
+
+    p->LPW_DCW_PTR = p->TDCW_DATA_ADDRESS;
+if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "tdcw set LPW_DCW_PTR to %o\r\n", p->LPW_DCW_PTR); }
+
+#if 0
+// “[EC] ... may be used to conditionally change LPW 20 [AE] from a zero 
+// to a one. The will allow (system) control software to control when the 
+// address extension bits fro, the PCW or the IDCW will be used for 
+// accessing the users DCW list. [...] LPW 18 (RES) 1 is a fault.”
+    if (p->TDCW_33_EC) {
+      if (iom_unit_data[iom_unit_idx].config_sw_model == CONFIG_SW_MODEL_IOM ||
+          iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_STD_GCOS) {
+        p->LPW_20_AE = 1;
+        // XXX Don't know what the correct fault code for this is
+        iom_fault (iom_unit_idx, IOM_CONNECT_CHAN, __func__, p->lsFirst ? iomFsrFirstList : iomFsrList, iom256KFlt);
+        return -1;
       }
+      if (p->LPW_18_RES) {
+        uff = true;
+        goto uffSet;
+      }
+      p->LPW_20_AE |= p->TDCW_33_EC; // TDCW_33_PDCW
+      p->LPW_18_RES |= p->TDCW_34_RES;
+      p->LPW_23_REL |= p->TDCW_35_REL;
+    }
 
-    p -> wasTDCW = false;
-    // NOT TDCW
+// Pg B21: (TDCW_31_SEG)
+// "SEG = This bit furnishes the 19th address bit (MSD) of a TDCW address
+//  used for locating the DCW list in a 512 word page table. It will have
+//  meaning only in the TDCW whre:
+//   (a) the DCW list is already paged and the TDCW calls for the
+//       DCW [to be] segmented
+//  or
+//   (b) the data is already segmented and the TDCW calls for the
+//       DCW list to be paged
+//  or
+//   (c) neither data is segmented nor DCW list is paged and the
+//       TDCW calls for both.
+//  and
+//   (d) an auxiliary PTW in not being used.
 
-    // CP VIOLATION?
 
-    // 43A239854 3.2.3.3 "The byte size, defined by the channel, determines
-    // what CP vaues are valid..."
+//   (a) the DCW list is already paged   --  LPW PAGED: 3b, 4
+//       and the TDCW calls for the
+//       DCW [list to be] segmented      --  LPW SEG:       5
 
-    // If we get here, the DCW is not a IDCW and not a TDCW, therefore
-    // it must be a DDCW. If the list service knew the sub-word size
-    // size of the device, it could check the for valid values. Let
-    // the device handler do that later.
 
-    // if (cp decrepancy)
-    //   {
-    //      user_fault_flag = iomCsCpDiscrepancy;
-    //      goto user_fault;
-    //   }
-    // if (cp violation)
-    //   {
-    //     uff = true;
-    //     goto uffSet;
-    //   }
+//   (b) the data is already segmented   --  DCW SEG:   3a, 4
+//       and the TDCW calls for the
+//       DCW list to be paged            --  DCW PAGED:  2, 3b
 
-    // USER FAULT FLAG SET?
 
-    if (uff)
-      {
+//   (c) neither data is segmented       -- DCW !SEG     1, 2, 3b
+//       nor DCW list is paged           -- LPW !PAGED   1, 2, 3a
+//                                       --              1, 2
+//       and the TDCW calls for both.    -- DCW SEG & LPW PAGED
+//                                                       4
+
+//put that wierd SEG logic in here
+
+    if (p->TDCW_31_SEG)
+      sim_warn ("TDCW_31_SEG\n");
+
+    update_chan_mode (iom_unit_idx, chan, true);
+#endif
+
+    // Decrement tally
+    p->LPW_TALLY = (p->LPW_TALLY - 1u) & MASK12;
+
+    pack_LPW (iom_unit_idx, chan);
+
+#if 0
+    // AC CHANGE ERROR? (LPW 18 == 1 && DCW 33 == 1)
+
+    if (p->LPW_18_RES && p->TDCW_33_EC) { // same as TDCW_33_PDCW
+      uff = true;
+      goto uffSet;
+    }
+#endif
+
+    goto A;
+  } // If TDCCW
+
+  p->wasTDCW = false;
+  // NOT TDCW
+
+  // CP VIOLATION?
+
+  // 43A239854 3.2.3.3 "The byte size, defined by the channel, determines
+  // what CP vaues are valid..."
+
+  // If we get here, the DCW is not a IDCW and not a TDCW, therefore
+  // it must be a DDCW. If the list service knew the sub-word size
+  // size of the device, it could check the for valid values. Let
+  // the device handler do that later.
+
+  // if (cp decrepancy)
+  //   {
+  //      user_fault_flag = iomCsCpDiscrepancy;
+  //      goto user_fault;
+  //   }
+  // if (cp violation)
+  //   {
+  //     uff = true;
+  //     goto uffSet;
+  //   }
+
+  // USER FAULT FLAG SET?
+
+  if (uff) {
 uffSet:;
-        // PUT 7 into DCW 18-20
-        p -> DCW_18_20_CP = 07u;
-        pack_DCW (iom_unit_idx, chan);
-      }
+    // PUT 7 into DCW 18-20
+    p->DCW_18_20_CP = 07u;
+    pack_DCW (iom_unit_idx, chan);
+  }
 
-    // WRITE DCW IN [SCRATCH PAD] MAILBOX
+  // WRITE DCW IN [SCRATCH PAD] MAILBOX
 
-    // p -> DVW  = P -> DCW;
+  // SEND DCW TO CHANNEL
 
-    // SEND DCW TO CHANNEL
+  send = true;
 
-    // p -> DCW = p -> DCW;
-    send = true;
-
-    // goto D;
+  // goto D;
 
 D:;
 
-    // SEND FLAGS TO CHANNEL
+  // SEND FLAGS TO CHANNEL
 
-    * uffp = uff;
-    * sendp = send;
+  *uffp = uff;
+  *sendp = send;
 
-    // LPW 21 ?
+  // LPW 21 ?
 
-    if (p -> LPW_21_NC == 0) // UPDATE
-     {
-       // UPDATE LPW ADDRESS & TALLY
-       if (isConnChan)
-         p -> LPW_DCW_PTR = (p -> LPW_DCW_PTR + 2u) & MASK18;
-       else
-         p -> LPW_DCW_PTR = (p -> LPW_DCW_PTR + 1u) & MASK18;
-       p -> LPW_TALLY = (p -> LPW_TALLY - 1u) & MASK12;
-       pack_LPW (iom_unit_idx, chan);
-     }
-
-    // IDCW OR FIRST LIST
-    if (p -> DDCW_22_23_TYPE == 07u || p -> lsFirst)
-      {
-        // WRITE LPW & LPW EXT. INTO BOTH SCRATCHPAD AND CORE MAILBOXES
-        // scratch pad
-        // p -> lpw = p -> lpw
-        // core
-        write_LPW (iom_unit_idx, chan);
-      }
+  if (p->LPW_21_NC == 0) { // UPDATE
+    // UPDATE LPW ADDRESS & TALLY
+    if (isConnChan)
+      p->LPW_DCW_PTR = (p->LPW_DCW_PTR + 2u) & MASK18;
     else
-      {
-        if (p -> LPW_21_NC == 0 ||
-            (IS_TDCW (p)))
-          {
-            // WRITE LPW INTO BOTH SCRATCHPAD AND CORE MAILBOXES
-            // scratch pad
-            // p -> lpw = p -> lpw
-            // core
-            write_LPW (iom_unit_idx, chan);
-          }
-      }
-
-    p -> lsFirst = false;
-    // END
-
-    return 0;
+      p->LPW_DCW_PTR = (p->LPW_DCW_PTR + 1u) & MASK18;
+    p->LPW_TALLY = (p->LPW_TALLY - 1u) & MASK12;
+    pack_LPW (iom_unit_idx, chan);
   }
+
+  // IDCW OR FIRST LIST
+  if (p->DDCW_22_23_TYPE == 07u || p->lsFirst) {
+    // WRITE LPW & LPW EXT. INTO BOTH SCRATCHPAD AND CORE MAILBOXES
+    // core
+    write_LPW (iom_unit_idx, chan);
+  } else {
+    if (p->LPW_21_NC == 0 || (IS_TDCW (p))) {
+      // WRITE LPW INTO BOTH SCRATCHPAD AND CORE MAILBOXES
+      // scratch pad
+      // p->lpw = p->lpw
+      // core
+      write_LPW (iom_unit_idx, chan);
+    }
+  }
+
+  p->lsFirst = false;
+  // END
+
+  return 0;
+}
 
 // 0 ok
 // -1 uff
@@ -3333,6 +3410,7 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
 //         address for list of data services for the extended address modes."
 // see also 3.2.3.1
   p -> ADDR_EXT = p -> PCW_AE;
+//sim_printf ("ADDR_EXT (0) %o\r\n", p->ADDR_EXT);
 
   p -> lsFirst = true;
 
@@ -3413,11 +3491,11 @@ if (iomUnitIdx == 1 && chan == 020)
       if (first) {
         first = false;
         dumpLPW (iomUnitIdx, chan);
-        sim_printf ("// DCW list dump: \r\n");
+        sim_debug (DBG_TRACE, & iom_dev, "// DCW list dump: \r\n");
         dumpDCW (PCW_DCW, PCW_LPW_23_REL);
         for (int i = 0; i < 8; i ++)
           dumpDCW (M[p->LPW_DCW_PTR - 1 + i], p->LPW_23_REL);
-        sim_printf ("// \r\n");
+        sim_debug (DBG_TRACE, & iom_dev, "// \r\n");
       }
     }
 #endif
@@ -3429,9 +3507,10 @@ if (iomUnitIdx == 1 && chan == 020)
 
     if (IS_IDCW (p)) { // IDCW
       idcw_terminate = p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE;
-      if (p -> LPW_23_REL == 0 && p -> IDCW_EC == 1)
+      if (p -> LPW_23_REL == 0 && p -> IDCW_EC == 1) {
         p -> ADDR_EXT = getbits36_6 (p -> DCW, 12);
-
+//sim_printf ("ADDR_EXT (1) %o\r\n", p->ADDR_EXT);
+      }
       p -> tallyResidue = 0;
       p -> isRead = true;
       p -> charPos = 0;
@@ -3567,6 +3646,7 @@ static int doConnectChan (uint iom_unit_idx) {
       q -> PCW1 =               p -> PCW1;
       q -> PCW_CHAN =           p -> PCW_CHAN;
       q -> PCW_AE =             p -> PCW_AE;
+//sim_printf ("PCW_AE (1) %o\r\n", p->PCW_AE);
       q -> PCW_PAGE_TABLE_PTR = p -> PCW_PAGE_TABLE_PTR;
       q -> PCW_63_PTP =         p -> PCW_63_PTP;
       q -> PCW_64_PGE =         p -> PCW_64_PGE;
@@ -3580,12 +3660,12 @@ static int doConnectChan (uint iom_unit_idx) {
       q -> masked = p -> PCW_21_MSK;
       if (q -> masked) {
         if (q -> in_use)
-          sim_warn ("%s: chan %d masked while in use\n", __func__, p -> PCW_CHAN);
+          sim_warn ("%s: chan %o masked while in use\n", __func__, p -> PCW_CHAN);
         q -> in_use = false;
         q -> start  = false;
       } else {
         if (q -> in_use)
-          sim_warn ("%s: chan %d connect while in use\n", __func__, p -> PCW_CHAN);
+          sim_warn ("%s: chan %o connect while in use\n", __func__, p -> PCW_CHAN);
         q -> in_use = true;
         q -> start  = true;
 #ifdef IO_THREADZ
@@ -3696,7 +3776,7 @@ int send_terminate_interrupt (uint iom_unit_idx, uint chan)
       return 0;
     status_service (iom_unit_idx, chan, false);
     if (iom_chan_data [iom_unit_idx] [chan] . in_use == false)
-      sim_warn ("%s: chan %d not in use\n", __func__, chan);
+      sim_warn ("%s: chan %o not in use\n", __func__, chan);
     iom_chan_data [iom_unit_idx] [chan] . in_use = false;
     send_general_interrupt (iom_unit_idx, chan, imwTerminatePic);
     return 0;

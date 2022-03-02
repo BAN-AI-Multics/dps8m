@@ -1632,7 +1632,6 @@ t_stat simh_hooks (void)
       return STOP_BKPT; /* stop simulation */
 # endif
 #endif
-
     return reason;
   }
 
