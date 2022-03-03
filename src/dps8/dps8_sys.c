@@ -3767,7 +3767,7 @@ sim_printf ("segment %o ADDR %o\r\n", segno, s->ADDR);
 
 static t_stat cac (UNUSED int32 arg, const char * buf) {
    
-#if 0
+# if 0
   if (cpu.DSBR.U) {
     for (word15 segno = 0; 2u * segno < 16u * (cpu.DSBR.BND + 1u); segno ++) {
       sdw0_s * s = fetchSDW (segno);
@@ -3840,7 +3840,7 @@ static t_stat cac (UNUSED int32 arg, const char * buf) {
       } // for tspt
     } // for segno
   } // if U
-#endif
+# endif
 
   dmpSeg (6);
       
@@ -3895,9 +3895,9 @@ static CTAB dps8_cmds[] =
 //
 
 #ifdef TESTING
-#if 0
+# if 0
     {"CAC",                 cac,                      0, "cac\n", NULL, NULL},
-#endif
+# endif
     {"TRKW",                trkw,                     0, "tracker: Start tracking to track.dat\n", NULL, NULL},
     {"TRKR",                trkr,                     0, "tracker: Start comparing with track.dat\n", NULL, NULL},
     {"DBGMMECNTDWN",        dps_debug_mme_cntdwn,     0, "dbgmmecntdwn: Enable debug after n MMEs\n", NULL, NULL},
