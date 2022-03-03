@@ -563,7 +563,14 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
         if (subFault.fault_acv_subtype & ACV14)
           cpu . cu . SDWAM_ER = 1;
         if (subFault.fault_acv_subtype & ACV15)
+{
           cpu . cu . OOSB = 1;
+//if (cpu.PPR.PSR == 0263) {
+//  hdbgPrint ();
+//exit (1);
+}
+
+}
       }
     else if (faultNumber == FAULT_STR)
       {
