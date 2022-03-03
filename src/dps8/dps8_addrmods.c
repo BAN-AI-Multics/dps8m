@@ -86,7 +86,7 @@ static word18 get_Cr (word4 Tdes)
 
         case TD_QL: // rY + C(Q)18,35
 #ifdef TESTING
-          HDBGRegAR ("ql");
+          HDBGRegQR ("ql");
 #endif
           return GETLO (cpu.rQ);
 
