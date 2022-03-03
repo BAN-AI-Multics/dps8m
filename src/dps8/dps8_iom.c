@@ -2617,10 +2617,12 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
           iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_STD_GCOS ||
           iom_unit_data[iom_unit_idx].config_sw_OS == CONFIG_SW_EXT_GCOS) {
         p -> LPWX_BOUND = getbits36_9 (p -> LPWX, 0);
+//p->LPWX_BOUND &= 0777776;
         p -> LPWX_SIZE = getbits36_9 (p -> LPWX, 9);
         sim_debug (DBG_DEBUG, & iom_dev, "%s: non-paged lpwx bound %06o size %06o\n", __func__, p->LPWX_BOUND, p->LPWX_SIZE);
       } else {
         p -> LPWX_BOUND = getbits36_18 (p -> LPWX, 0);
+//p->LPWX_BOUND &= 0777776;
         p -> LPWX_SIZE = getbits36_18 (p -> LPWX, 18);
         sim_debug (DBG_DEBUG, & iom_dev, "%s: paged lpwx bound %06o size %06o\n", __func__, p->LPWX_BOUND, p->LPWX_SIZE);
       }
@@ -3014,10 +3016,6 @@ int iom_list_service (uint iom_unit_idx, uint chan, bool * ptro, bool * sendp, b
     goto D;
   } // if connect channel
 
-// The "A" label is for the handling to TDCWs; this routine does not return after fetching 
-// a TDCW, but rather follows the TDCW address and fetches the next DCW.
-
-A:;
   // Not connect channel
 
 
@@ -3035,6 +3033,10 @@ A:;
       return -1;
     }
   } else if (p->LPW_21_NC == 0 && p->LPW_22_TAL == 1) { // 01
+// The "A" label is for the handling to TDCWs; this routine does not return after fetching 
+// a TDCW, but rather follows the TDCW address and fetches the next DCW.
+
+A:;
     // TALLY is {0, 1, >1}?
 
     if (p->LPW_TALLY == 0) {
@@ -3059,6 +3061,7 @@ A:;
   // PULL DCW FROM CORE
   fetch_and_parse_DCW (iom_unit_idx, chan, false);
 
+#if 0
   if (p->wasTDCW) {
 if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "wasTDCW mode %s\r\n", chanModeString (p->chanMode)); }
 if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "TDCW_33_EC %o\r\n", p->TDCW_33_EC); }
@@ -3130,7 +3133,7 @@ if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "TDCW_33_EC %o\r\n", p->TDCW
       goto uffSet;
     }
   } // if wasDCW
-
+#endif
 
 
 // C
@@ -3188,7 +3191,7 @@ if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "TDCW_33_EC %o\r\n", p->TDCW
     p->LPW_DCW_PTR = p->TDCW_DATA_ADDRESS;
 if (chan == 012) { sim_debug (DBG_DEBUG, & iom_dev, "tdcw set LPW_DCW_PTR to %o\r\n", p->LPW_DCW_PTR); }
 
-#if 0
+#if 1
 // “[EC] ... may be used to conditionally change LPW 20 [AE] from a zero 
 // to a one. The will allow (system) control software to control when the 
 // address extension bits fro, the PCW or the IDCW will be used for 
