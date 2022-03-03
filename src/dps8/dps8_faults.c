@@ -568,7 +568,7 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
 //if (cpu.PPR.PSR == 0263) {
 //  hdbgPrint ();
 //exit (1);
-}
+//}
 
 }
       }
