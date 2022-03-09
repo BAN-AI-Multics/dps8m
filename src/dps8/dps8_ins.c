@@ -3134,6 +3134,16 @@ static t_stat doInstruction (void)
         case x0 (0627):  // eax7
           {
             uint32 n = opcode10 & 07;  // get n
+// BOS die
+            if (cpu.PPR.PSR == 03 && cpu.PPR.IC == 05 && cpu.cu.IWB == 000000627000) {
+                sim_printf ("BOS DIE causes CPU halt\n");
+                sim_debug (DBG_MSG, & cpu_dev, "BOS DIE causes CPU halt\n");
+#ifdef LOCKLESS
+                bce_dis_called = true;
+#endif // LOCKLESS
+                longjmp (cpu.jmpMain, JMP_STOP);
+              }
+
             cpu.rX[n] = cpu.TPR.CA;
 #ifdef TESTING
             HDBGRegXW (n, "eaxn");
