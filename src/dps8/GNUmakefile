@@ -334,6 +334,7 @@ all: sysdefs.h                                                                \
      unifdef                                                                  \
      locallibs_then_dps8                                                      \
      prt2pdf                                                                  \
+     telco                                                                    \
      punutil                                                                  \
      mcmb                                                                     \
      vmpctool                                                                 \
@@ -435,6 +436,11 @@ locallibs_then_dps8: ver.h sysdefs.h
 
 prt2pdf: sysdefs.h
 	@$(SETV); $(MAKE) -C "../prt2pdf" "all"
+
+###############################################################################
+
+telco: sysdefs.h
+	@$(SETV); $(MAKE) -C "../telco" "all"
 
 ###############################################################################
 
@@ -557,6 +563,7 @@ clean:
 	@$(SETV); $(MAKE) -C "$(SIMHx)"          -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../decNumber"      -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../prt2pdf"        -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../telco"          -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../vmpctool"       -f "GNUmakefile"  "clean"
