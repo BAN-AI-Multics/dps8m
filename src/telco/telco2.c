@@ -8,6 +8,17 @@
 
 #include <uv.h>
 
+# if defined (__MINGW64__) || \
+    defined (__MINGW32__) || \
+    defined (__GNUC__) || \
+    defined (__clang_version__)
+#  define NO_RETURN __attribute__ ((noreturn))
+#  define UNUSED    __attribute__ ((unused))
+# else
+#  define NO_RETURN
+#  define UNUSED
+# endif
+
 static char * addrs[2];
 static int ports[2];
 static int retryRate = 1;
@@ -33,7 +44,7 @@ static void usage (void) {
   fprintf (stderr, "retry_rate Attempt to connect to slave line every n seconds; default 1\n");
 }
 
-static void allocCB (uv_handle_t * handle, size_t size, uv_buf_t * buf) {
+static void allocCB (UNUSED uv_handle_t * handle, size_t size, uv_buf_t * buf) {
   * buf = uv_buf_init (malloc (size), size);
 }
 
@@ -97,7 +108,7 @@ static void startConn (int lineno) {
   uv_tcp_connect (pConn, pSock, (const struct sockaddr *) & dest, onConnect);
 }
 
-static void timerCB (uv_timer_t* timer) {
+static void timerCB (UNUSED uv_timer_t* timer) {
   fprintf (stderr, ".");
   if (! streams[0])
     startConn (0);
