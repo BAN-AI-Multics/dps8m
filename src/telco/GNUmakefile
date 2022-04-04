@@ -37,13 +37,19 @@ endif
 ###############################################################################
 
 .PHONY: all
-all: telco$(EXE)
+all: telco$(EXE) telco2$(EXE)
 
 ###############################################################################
 
 telco$(EXE): telco.c
 	@$(PRINTF) '%s\n' "CC: telco"     ||  $(TRUE)
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o telco$(EXE) telco.c $(PRLIBS)
+
+###############################################################################
+
+telco2$(EXE): telco2.c
+	@$(PRINTF) '%s\n' "CC: telco2"     ||  $(TRUE)
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o telco2$(EXE) telco2.c $(PRLIBS) -luv
 
 ###############################################################################
 
@@ -56,6 +62,9 @@ clean:
 	-@$(SETV); $(RMF) "telco$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "telco.exe"    > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "telco.o"      > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "telco2$(EXE)" > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "telco2.exe"   > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "telco2.o"     > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 

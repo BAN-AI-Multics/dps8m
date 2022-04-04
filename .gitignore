@@ -61,6 +61,8 @@ src/prt2pdf/prt2pdf
 src/prt2pdf/prt2pdf.exe
 src/telco/telco
 src/telco/telco.exe
+src/telco/telco2
+src/telco/telco2.exe
 src/unifdef/unifdef
 src/unifdef/unifdef.exe
 src/punutil/punutil
