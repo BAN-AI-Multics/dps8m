@@ -8,16 +8,16 @@
 
 #include <uv.h>
 
-# if defined (__MINGW64__) || \
+#if defined (__MINGW64__) || \
     defined (__MINGW32__) || \
     defined (__GNUC__) || \
     defined (__clang_version__)
-#  define NO_RETURN __attribute__ ((noreturn))
-#  define UNUSED    __attribute__ ((unused))
-# else
-#  define NO_RETURN
-#  define UNUSED
-# endif
+# define NO_RETURN __attribute__ ((noreturn))
+# define UNUSED    __attribute__ ((unused))
+#else
+# define NO_RETURN
+# define UNUSED
+#endif
 
 static char * addrs[2];
 static int ports[2];
