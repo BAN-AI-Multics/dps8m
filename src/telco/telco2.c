@@ -64,10 +64,15 @@ static void onRead (uv_stream_t * tcp, ssize_t nread, const uv_buf_t * buf) {
   if (nread >= 0) {
     //fprintf (stderr, "\nread %d nread %ld buflen %ld\n", lineno, nread, buf->len);
     if (nread) {
-      uv_buf_t buffer[] = {{.base = buf->base, .len = nread}};
-      uv_write_t * req = malloc (sizeof (uv_write_t));
-      req->data = & linenos[otherlineno];
-      uv_write (req, streams[otherlineno], buffer, 1, onWrite);
+      if (streams[otherlineno]) {
+        uv_buf_t buffer[] = {{.base = buf->base, .len = nread}};
+        uv_write_t * req = malloc (sizeof (uv_write_t));
+        req->data = & linenos[otherlineno];
+        uv_write (req, streams[otherlineno], buffer, 1, onWrite);
+      } else {
+        // fprintf (stderr, "dropped %ld\n", nread);
+        fprintf (stderr, "d");
+      }
     }
   } else {
     //we got an EOF
