@@ -3626,6 +3626,30 @@ sim_printf ("%o:%o %u(%d) %s\r\n", dbgevents[n_dbgevents].segno, dbgevents[n_dbg
   }
 #endif
 
+//  REWIND name
+//
+//  rewind tapa_05
+//
+
+t_stat rewind_media (int32 arg, const char * buf) {
+  char name[strlen (buf)];
+
+  int rc = sscanf (buf, "%s", name);
+  if (rc != 1)
+    return SCPE_ARG;
+
+  for (uint i = 0; i < N_MT_UNITS_MAX; i ++) {
+    if (strcmp (tape_states[i].device_name, name) == 0) {
+      UNIT * unitp = & mt_unit [i];
+      return sim_tape_rewind (unitp);
+    }
+  }
+
+  sim_printf ("Can't find name '%s'\r\n", name);
+  sim_printf ("REWIND device_name\r\n");
+  return SCPE_ARG;
+}
+
 // [UN]LOAD  name  image_name ro|rw
 //
 //  load tapea_05  data.tap ro
@@ -3765,6 +3789,7 @@ static CTAB dps8_cmds[] =
     {"LOAD",                load_media,               1, "mount: Mount disk or tape image and signal Mulitcs\n", NULL, NULL },
     {"UNLOAD",              load_media,               0, "mount: Unmount disk or tape image and signal Mulitcs\n", NULL, NULL },
     {"READY",               ready_media,              0, "ready: Signal Mulitcs that media is ready\n", NULL, NULL },
+    {"REWIND",              rewind_media,             0, "rewind: Rewind tape\n", NULL, NULL },
     {"XF",                  do_execute_fault,         0, "xf: Execute fault: Press the execute fault button\n", NULL, NULL},
     {"RESTART",             do_restart,         0, "xf: Execute fault: Press the execute fault button\n", NULL, NULL},
     {"POLL",                set_sys_polling_interval, 0, "Set polling interval in milliseconds", NULL, NULL },
