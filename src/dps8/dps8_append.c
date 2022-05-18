@@ -242,9 +242,7 @@ static void fetch_dsptw (word15 segno)
       }
     set_apu_status (apuStatus_DSPTW);
 
-#ifndef SPEED
-    word24 y1 = (2u * segno) % 1024u;
-#endif
+    //word24 y1 = (2u * segno) % 1024u;
     word24 x1 = (2u * segno) / 1024u; // floor
 
     PNL (cpu.lastPTWOffset = segno;)
@@ -264,9 +262,9 @@ static void fetch_dsptw (word15 segno)
       add_APU_history (APUH_FDSPTW);
 #endif
 
-    DBGAPP ("%s x1 0%o y1 0%o DSBR.ADDR 0%o PTWx1 0%012"PRIo64" "
+    DBGAPP ("%s x1 0%o DSBR.ADDR 0%o PTWx1 0%012"PRIo64" "
             "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
-            __func__, x1, y1, cpu.DSBR.ADDR, PTWx1, cpu.PTW0.ADDR, cpu.PTW0.U,
+            __func__, x1, cpu.DSBR.ADDR, PTWx1, cpu.PTW0.ADDR, cpu.PTW0.U,
             cpu.PTW0.M, cpu.PTW0.DF, cpu.PTW0.FC);
   }
 
@@ -806,9 +804,7 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
     PNL (L68_ (cpu.apu.state |= apu_FPTW;))
     set_apu_status (apuStatus_PTW);
 
-#ifndef SPEED
-    word24 y2 = offset % 1024;
-#endif
+    //word24 y2 = offset % 1024;
     word24 x2 = (offset) / 1024; // floor
 
     word36 PTWx2;
@@ -859,9 +855,9 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
       add_APU_history (APUH_FPTW);
 #endif
 
-    DBGAPP ("%s x2 0%o y2 0%o sdw->ADDR 0%o PTWx2 0%012"PRIo64" "
+    DBGAPP ("%s x2 0%o sdw->ADDR 0%o PTWx2 0%012"PRIo64" "
             "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
-            __func__, x2, y2, sdw->ADDR, PTWx2, cpu.PTW0.ADDR, cpu.PTW0.U,
+            __func__, x2, sdw->ADDR, PTWx2, cpu.PTW0.ADDR, cpu.PTW0.U,
             cpu.PTW0.M, cpu.PTW0.DF, cpu.PTW0.FC);
   }
 
@@ -1006,9 +1002,7 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
     PNL (L68_ (cpu.apu.state |= apu_FPTW2;))
     set_apu_status (apuStatus_PTW2);
 
-#ifndef SPEED
-    word24 y2 = offset % 1024;
-#endif
+    //word24 y2 = offset % 1024;
     word24 x2 = (offset) / 1024; // floor
 
     word36 PTWx2n;
@@ -1029,9 +1023,9 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
       add_APU_history (APUH_FPTW2);
 #endif
 
-    DBGAPP ("%s x2 0%o y2 0%o sdw->ADDR 0%o PTW2 0%012"PRIo64" "
+    DBGAPP ("%s x2 0%o sdw->ADDR 0%o PTW2 0%012"PRIo64" "
             "PTW2: ADDR 0%o U %o M %o F %o FC %o\n",
-            __func__, x2, y2, sdw->ADDR, PTWx2n, PTW2.ADDR, PTW2.U, PTW2.M,
+            __func__, x2, sdw->ADDR, PTWx2n, PTW2.ADDR, PTW2.U, PTW2.M,
             PTW2.DF, PTW2.FC);
 
     // check that PTW2 is the next page of the same segment

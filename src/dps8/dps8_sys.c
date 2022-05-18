@@ -2721,13 +2721,13 @@ static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
               }
         sim_msg ("desc_count  %d\n", descCount);
 
-#  if 0
+# if 0
         if (descCount)
           {
             // XXX walk descriptor and arg list together
           }
         else
-#  endif
+# endif
           {
             for (uint argno = 0; argno < argCount; argno ++)
               {
