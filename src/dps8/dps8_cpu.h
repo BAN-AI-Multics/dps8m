@@ -1931,17 +1931,7 @@ static inline int core_read (word24 addr, word36 *data, \
   UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK_SZ;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea, __func__);
-          }
-        addr = (uint) os + addr % SCBANK_SZ;
-      }
-    *data = M[addr] & DMASK;
+    SC_MAP_ADDR (addr, addr);
 # ifdef TR_WORK_MEM
     cpu.rTRticks ++;
 # endif
@@ -1953,16 +1943,7 @@ static inline int core_write (word24 addr, word36 data, \
   UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK_SZ;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea, __func__);
-          }
-        addr = (uint) os + addr % SCBANK_SZ;
-      }
+    SC_MAP_ADDR (addr, addr);
     if (cpu.switches.isolts_mode)
       {
         if (cpu.MR.sdpap)
@@ -1988,16 +1969,7 @@ static inline int core_write_zone (word24 addr, word36 data, \
   UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK_SZ;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea, __func__);
-          }
-        addr = (uint) os + addr % SCBANK_SZ;
-      }
+    SC_MAP_ADDR (addr, addr);
     if (cpu.switches.isolts_mode)
       {
         if (cpu.MR.sdpap)
@@ -2024,16 +1996,7 @@ static inline int core_read2 (word24 addr, word36 *even, word36 *odd,
                               UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK_SZ;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea, __func__);
-          }
-        addr = (uint) os + addr % SCBANK_SZ;
-      }
+    SC_MAP_ADDR (addr, addr);
     *even = M[addr++] & DMASK;
     *odd = M[addr] & DMASK;
 # ifdef TR_WORK_MEM
@@ -2047,16 +2010,7 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
                                UNUSED const char * ctx)
   {
     PNL (cpu.portBusy = true;)
-    if (cpu.switches.useMap)
-      {
-        uint pgnum = addr / SCBANK_SZ;
-        int os = cpu.scbank_pg_os [pgnum];
-        if (os < 0)
-          {
-            doFault (FAULT_STR, fst_str_nea, __func__);
-          }
-        addr = (uint) os + addr % SCBANK_SZ;
-      }
+    SC_MAP_ADDR (addr, addr);
     if (cpu.switches.isolts_mode)
       {
         if (cpu.MR.sdpap)
