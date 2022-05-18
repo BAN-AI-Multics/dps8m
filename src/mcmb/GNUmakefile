@@ -41,7 +41,7 @@ all: mcmb$(EXE)
 
 mcmb$(EXE): mcmb.c
 	@$(PRINTF) '%s\n' "CC: mcmb"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o mcmb$(EXE) mcmb.c $(CMBLIBS)
+	-@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o mcmb$(EXE) mcmb.c $(CMBLIBS)
 
 ###############################################################################
 

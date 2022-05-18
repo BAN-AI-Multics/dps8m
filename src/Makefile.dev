@@ -43,7 +43,7 @@ ifndef HOOK_WARNED
     2> /dev/null))
     $(warning $(shell "$(CMP) ./.git/hooks/pre-commit ./.githooks/pre-commit" \
       > /dev/null 2>&1 || $(PRINTF) '%s\n'                                    \
-        "Use '$(CP) ./.githook/pre-commit ./.git/hooks' to reinstall."        \
+        "Use '$(CP) ./.githooks/pre-commit ./.git/hooks' to reinstall."       \
           2> /dev/null || $(TRUE)))
   endif
  endif

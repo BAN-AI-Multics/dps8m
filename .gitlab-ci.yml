@@ -42,7 +42,7 @@
     test -z "${SKIP_UPDATE}" && echo "Running apk upgrade ..."
     test -z "${SKIP_UPDATE}" && apk upgrade || apk upgrade
     test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="libc-dev musl-dev gcc g++ clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja automake"; apk add ${ARGS:?} || apk add ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && export ARGS="libc-dev linux-headers musl-dev gcc g++ llvm llvm-dev llvm-static clang clang-libs clang-dev git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja automake"; apk add ${ARGS:?} || apk add ${ARGS:?}
     echo -e "section_end:`date +%s`:alpinesetup_section\r\e[0K" || true
 
 ############################################################################
@@ -55,7 +55,7 @@
     test -z "${SKIP_UPDATE}" && echo "Updating system ..."
     test -z "${SKIP_UPDATE}" && yum -q -y update || yum -q -y update
     test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="system-lsb lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; yum -q -y install ${ARGS:?} || yum -q -y install ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && export ARGS="system-lsb lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git time gcc clang"; yum -q -y install ${ARGS:?} || yum -q -y install ${ARGS:?}
     test -z "${SKIP_UPDATE}" && echo "Installing additional software ..."
     test -z "${SKIP_UPDATE}" && export ARGS="https://rpmfind.net/linux/epel/8/Everything/x86_64/Packages/l/lzip-1.21-1.el8.x86_64.rpm"; yum -q -y localinstall ${ARGS:?} || yum -q -y localinstall ${ARGS:?}
     echo -e "section_end:`date +%s`:amazoninstall_section\r\e[0K" || true
@@ -132,7 +132,7 @@
     test -z "${SKIP_UPDATE}" && echo "Running apt-get update ..."
     test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" update -y -qq
     test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="eatmydata gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && export ARGS="gawk moreutils apt-utils dash gnupg2 bash curl wget git lsb-release software-properties-common time"; env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?} || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install -y -qq ${ARGS:?}
     test -z "${SKIP_UPDATE}" && echo "Running apt-get upgrade ..."
     test -z "${SKIP_UPDATE}" && env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq || env DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -y -qq
     test -z "${SKIP_UPDATE}" && echo "Running apt-get dist-upgrade ..."
@@ -155,6 +155,12 @@
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && file ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && ldd ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && file ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool && file ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool && ldd ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool.exe && file ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef && file ${CI_PROJECT_DIR:?}/src/unifdef/unifdef 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef && ldd ${CI_PROJECT_DIR:?}/src/unifdef/unifdef 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe && file ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe 2> /dev/null || true > /dev/null 2>&1
     echo -e "section_end:`date +%s`:buildinfo_section\r\e[0K" || true
 
 ############################################################################
@@ -298,12 +304,16 @@
 .scriptCompressArtifacts: &scriptCompressArtifacts |
     # *scriptCompressArtifacts - Compress build artifacts
     echo -e "section_start:`date +%s`:compress_section[collapsed=true]\r\e[0K\033[0;36mCompress Artifacts ...\033[0m" || true
-    test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && lzip -9v ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && lzip -9v ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && lzip -9v ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
-    test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && lzip -9v ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8 && lzip -6v ${CI_PROJECT_DIR:?}/src/dps8/dps8 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf && lzip -6v ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil && lzip -6v ${CI_PROJECT_DIR:?}/src/punutil/punutil 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool && lzip -6v ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef && lzip -6v ${CI_PROJECT_DIR:?}/src/unifdef/unifdef 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && lzip -6v ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/dps8.exe  2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/vmpctool/vmpctool.exe 2> /dev/null || true > /dev/null 2>&1
+    test -f ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/unifdef/unifdef.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/punutil/punutil.exe 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt 2> /dev/null || true > /dev/null 2>&1
     test -f ${CI_PROJECT_DIR:?}/cygwin1.dll && zip -9 ${CI_PROJECT_DIR:?}/dps8m.zip ${CI_PROJECT_DIR:?}/cygwin1.dll 2> /dev/null || true > /dev/null 2>&1
@@ -337,7 +347,7 @@
     test -z "${SKIP_UPDATE}" && echo "Updating system ..."
     test -z "${SKIP_UPDATE}" && dnf -y --refresh --allowerasing --best update || dnf -y --refresh --allowerasing --nobest update
     test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git redhat-lsb time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && export ARGS="ccache lzip libuv-devel libtool unzip autoconf autoconf-archive util-linux psmisc zip pigz make dash gnupg2 bash curl wget git time gcc clang"; dnf -y --allowerasing --best install ${ARGS:?} || dnf -y --allowerasing --nobest install ${ARGS:?}
     echo -e "section_end:`date +%s`:dnfuinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -381,7 +391,7 @@
     test -z "${SKIP_UPDATE}" && echo "Enabling Cygwin repo ..."
     test -z "${SKIP_UPDATE}" && dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin
     test -z "${SKIP_UPDATE}" && echo "Installing Cygwin softawre ..."
-    test -z "${SKIP_UPDATE}" && dnf -y --best install cygport cygwin64\* -x \*debuginfo || dnf --nobest install -y cygport cygwin64\* -x \*debuginfo
+    test -z "${SKIP_UPDATE}" && dnf --best install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --skip-broken --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin64
     echo -e "section_end:`date +%s`:coprcygwinstall_section\r\e[0K" || true
 
 ############################################################################
@@ -421,25 +431,6 @@
     echo "Cleaning up ..."
     rm -f restic.bz2 || true
     echo -e "section_end:`date +%s`:installrestic_section\r\e[0K" || true
-
-############################################################################
-
-.scriptOSUSESetup: &scriptOSUSESetup |
-    # *scriptOSUSESetup - Update OpenSUSE Linux and install required tools ...
-    echo -e "section_start:`date +%s`:osusesetup_section[collapsed=true]\r\e[0K\033[0;36mSetting up OpenSUSE Linux ...\033[0m" || true
-    echo "Checking for Docker ..."
-    test -f /.dockerenv || exit 1
-    test -z "${SKIP_UPDATE}" && echo "Updating system and installing software ..."
-    test -z "${SKIP_UPDATE}" && sed -i 's/download.opensuse.org/provo-mirror.opensuse.org/' /etc/zypp/repos.d/*.repo
-    set -o pipefail || true
-    test -z "${SKIP_UPDATE}" && zypper ve -y || true
-    test -z "${SKIP_UPDATE}" && printf '%s\n' "cl" "clean" "update -y" "install --replacefiles --recommends --allow-downgrade -y -t pattern base" "exit" | zypper sh || true
-    test -z "${SKIP_UPDATE}" && zypper ve -y || true
-    test -z "${SKIP_UPDATE}" && ( cd /etc/zypp/repos.d && find . -type f -name '*.rpmsave' | while read FILE ; do newfile="$(printf '%s\n' ${FILE:?} | sed -e 's/\.rpmsave$//')" ; mv -vf "${FILE}" "${newfile}" ; done ) || true
-    test -z "${SKIP_UPDATE}" && printf '%s\n' "clean" "update -y" "dup -y" "install --replacefiles --recommends --allow-downgrade -y libsha1detectcoll-devel lsof which gzip gcc clang git git-core unzip zip ruby ruby-devel curl wget sed tar gawk file bash dash coreutils make ctags lzip libuv-devel psmisc grep moreutils libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja rpmconf tcsh expect cppi cppcheck" "clean" "exit" | zypper sh || true
-    test -z "${SKIP_UPDATE}" && zypper ve -y || true
-    test -z "${SKIP_UPDATE}" && ( yes | rpmconf -a || true; yes | rpmconf -ac || true; zypper clean || true) || true
-    echo -e "section_end:`date +%s`:osusesetup_section\r\e[0K" || true
 
 ############################################################################
 
@@ -519,7 +510,7 @@
     test -z "${SKIP_UPDATE}" && echo "Updating system ..."
     test -z "${SKIP_UPDATE}" && xbps-install -Suy || xbps-install -Suy
     test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="mksh gcc clang git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-devel psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && export ARGS="mksh gcc clang llvm clang-tools-extra git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-devel psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
     echo -e "section_end:`date +%s`:voidlsetup_section\r\e[0K" || true
 
 ############################################################################
@@ -551,22 +542,19 @@ Linux/x86_64, AlmaLinux 8, Clang, GCC:
   script:
     - export GLCICD_JOB="AlmaLinuxEL8x64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptAlma8Setup
     - *scriptDnfSetup
     - *scriptInstallNfpm
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -600,16 +588,12 @@ Linux/x86_64, Alpine Edge, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - rm -rf mimalloc || true
-    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone -v --depth=1 https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build; cd build; CC=clang cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - dash -x -c 'make distclean; exit "${?}"'
-    - rm -rf mimalloc || true
-    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone -v --depth=1 https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build; cd build; CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-L/usr/local/lib -lmimalloc -static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -637,21 +621,18 @@ Linux/x86_64, Amazon Linux, Clang, GCC:
   script:
     - export GLCICD_JOB="AmazonLinuxX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/fstab)"
     - yum -q -y install util-linux bzip2 wget || yum -q -y install util-linux bzip2 wget
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptAmazonSetup
     - *scriptInstallNfpm
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-}-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="${CFLAGS:-}-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -686,12 +667,12 @@ Linux/x86_64, Clear Linux. Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory --output-sync
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -720,17 +701,14 @@ Windows/x86_64, Cygwin64-GCC:
   script:
     - export GLCICD_JOB="CYGWIN64GCC" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
     - *scriptInstallDnfCoprCygwin
     - *scriptBuildlibuvFCygwin64
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'cygwin64-make LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
+    - cygwin64-make -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - *scriptBuildInfo
     - cp -vf /usr/x86_64-pc-cygwin/sys-root/usr/bin/cygwin1.dll ${CI_PROJECT_DIR:?}
     - *scriptCompressArtifacts
@@ -759,7 +737,7 @@ Code Quality Analysis:
   script:
     - *scriptSanity
     - |
-      eatmydata sh -c 'command time -f "\n### Elapsed Time: %E\n" /usr/local/bin/gl-codequality'
+      sh -c 'command time -f "\n### Elapsed Time: %E\n" /usr/local/bin/gl-codequality'
   dependencies: []
   artifacts:
     expire_in: 2 months
@@ -788,8 +766,8 @@ Linux/x86_64, Fedora, Intel DPC++/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make CC=icx LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - . /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && make CC=icx -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -821,8 +799,8 @@ Linux/x86_64, Fedora, Intel C/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c '. /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && export CFLAGS="-fdata-sections -ffunction-sections -march=native"; make -C src/dps8 CC=icx udplib.o && make -C src/simh CC=icx sim_sock.o && make -C src/dps8 CC=icx dps8_socket_dev.o && make CC="icc -no-restrict -D__attribute__\(x\)=/"/"" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - . /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && make -C src/dps8 NO_LTO=1 CC="icx" udplib.o && make -C src/simh NO_LTO=1 CC="icx" sim_sock.o && make -C src/dps8 NO_LTO=1 CC="icx" dps8_socket_dev.o && make CC="icc -no-restrict" NO_LTO=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -855,14 +833,14 @@ Linux/x86_64, Fedora, Oracle Developer Studio:
     - *scriptDPS8Mods
     - *scriptExtraInfo
     - pkill suncc > /dev/null 2>&1 || true
-    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 60 ; export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -DUSE_FLOCK=1 -DUSE_FCNTL=1" && make CC="ccache /opt/oracle/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -fd -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -native -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")" SUNPRO=1 NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory 2>&1 | grep --line-buffered -v -e " not parallelized" -e " enumerator value overflows INT_MAX" ; exit "${?}"'
+    - export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS -DUSE_FLOCK=1 -DUSE_FCNTL=1" && make CC="ccache /opt/oracle/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -fd -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -native -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4")" SUNPRO=1 NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory 2>&1 | grep --line-buffered -v -e " not parallelized" -e " enumerator value overflows INT_MAX"
     - pkill suncc > /dev/null 2>&1 || true
-    - eatmydata sh -x -c 'printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 ; exit "${?}"'
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - plzip -9vk < /opt/oracle/developerstudio12.6/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
-    - plzip -9vk < /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk.so.1 > libmtsk.so.1.lz
-    - plzip -9vk < /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk_crt.so.1 > libmtsk_crt.so.1.lz
+    - plzip -6vk < /opt/oracle/developerstudio12.6/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
+    - plzip -6vk < /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk.so.1 > libmtsk.so.1.lz
+    - plzip -6vk < /opt/oracle/developerstudio12.6/lib/compilers/rtlibs/usr/lib/amd64/libmtsk_crt.so.1 > libmtsk_crt.so.1.lz
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -895,9 +873,9 @@ Linux/x86_64, Fedora, AOCC, AOCL:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c 'rm -f amd_memcpy.o; rm -f src/dps8/amd_memcpy.o; . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && clang -Wno-unused-command-line-argument -Ofast -ffast-math -fomit-frame-pointer -ffast-math -mllvm -vector-library=AMDLIBM -c -o amd_memcpy.o /opt/AMD/aocl/latest/amd-memcpy/src/amd_memcpy.c /opt/AMD/aocl/latest/lib/libalm.a -lm && ls -la amd_memcpy.o && nm -s amd_memcpy.o | tee -i /dev/stderr | grep -w memcpy && size -A amd_memcpy.o && cp -f amd_memcpy.o src/dps8/amd_memcpy.o'
-    - eatmydata sh -x -c '. /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -fdata-sections -ffunction-sections -Ofast -ffast-math"; make CC="clang -mllvm -vector-library=AMDLIBM" LDFLAGS="-Wno-unused-command-line-argument -Wl,--gc-sections" LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib /opt/AMD/aocl/latest/lib/libalm.a amd_memcpy.o -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata sh -x -c 'printf %s\\n "SHOW VERSION" | ./src/dps8/dps8 ; exit "${?}"'
+    - rm -f amd_memcpy.o; rm -f src/dps8/amd_memcpy.o; . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && clang -Wno-unused-command-line-argument -Ofast -ffast-math -fomit-frame-pointer -ffast-math -mllvm -vector-library=AMDLIBM -c -o amd_memcpy.o /opt/AMD/aocl/latest/amd-memcpy/src/amd_memcpy.c /opt/AMD/aocl/latest/lib/libalm.a -lm && ls -la amd_memcpy.o && nm -s amd_memcpy.o | tee -i /dev/stderr | grep -w memcpy && size -A amd_memcpy.o && cp -f amd_memcpy.o src/dps8/amd_memcpy.o
+    - . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -Ofast -ffast-math"; make CC="clang -mllvm -vector-library=AMDLIBM" LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib /opt/AMD/aocl/latest/lib/libalm.a amd_memcpy.o -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -925,21 +903,18 @@ Linux/x86_64, Fedora, Clang, GCC:
   script:
     - export GLCICD_JOB="FedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
     - *scriptInstallNfpm
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -972,12 +947,12 @@ Linux/x86_64, Fedora Rawhide, Clang, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1006,8 +981,8 @@ AIX/powerpc64, IBM AIX, GCC 8:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'gmake CC=gcc -j 12 --output-sync --print-directory -k; exit "${?}"'
-    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - gmake CC=gcc NO_LTO=1 -j 12 --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1036,8 +1011,8 @@ AIX/powerpc64, IBM AIX, GCC 11:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'gmake CC=gcc-11 -j 12 --output-sync --print-directory; exit "${?}"'
-    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - gmake CC=gcc-11 NO_LTO=1 -j 12 --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1066,8 +1041,8 @@ AIX/powerpc64, IBM AIX, IBM XL C/C++ V16.1:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory; exit "${?}"'
-    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - export XLCXLC="xlc_r" && export XLCVER="16.1.0" && gmake -j 12 NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/${XLCXLC:?} -O3 -qhot -qarch=pwr8 -qchars=signed -q64 -qalign=natural -qtls" CFLAGS="-DUSE_POPT=1 -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DAIX_ATOMICS=1 -DNEED_128=1 -DLOCKLESS=1 -I/opt/freeware/include -I../simh -I../decNumber -D_GNU_SOURCE -U__STRICT_POSIX__" USE_POPT=1 NEED_128=1 PULIBS="-lpopt" LDFLAGS="-L/opt/freeware/lib -b64" LIBS="-luv -lbsd -lm" --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1096,8 +1071,8 @@ AIX/powerpc64, IBM AIX, IBM XL Clang V16.1:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - bash -x -c 'export XLCVER="16.1.0" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j 12 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1 --output-sync --print-directory; exit "${?}"'
-    - bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - export XLCVER="16.1.0" && LDFLAGS="-L/opt/freeware/lib -b64 -m64" CFLAGS="-m64 -I/opt/freeware/include" gmake -j 12 NO_LTO=1 CC="/opt/IBM/xlC/${XLCVER:?}/bin/xlclang" NEED_128=1 --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1128,8 +1103,8 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata bash -x -c 'export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1147,7 +1122,7 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
 
 ############################################################################
 
-Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS, TCMalloc:
+Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS:
   stage: build
   tags:
     - Shell-Linux
@@ -1160,8 +1135,8 @@ Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 15, IBM MASS, TCMalloc:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata bash -x -c 'export IBMXLMASSVER="latest-9" export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections -mveclibabi=mass -Ofast" LIBS="-L/opt/at${IBMATVER:?}/lib64 -L/opt/ibm/xlmass/${IBMXLMASSVER:?}/lib -ltcmalloc -luv -lmassvp9 -lmass_simdp9 -lmass -ldl -lrt -lm" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - export IBMXLMASSVER="latest-9" export IBMATVER="15.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="gcc -DNO_WARN_X86_INTRINSICS -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -mveclibabi=mass -Ofast -flto" LIBS="-L/opt/at${IBMATVER:?}/lib64 -L/opt/ibm/xlmass/${IBMXLMASSVER:?}/lib -luv -lmassvp9 -lmass_simdp9 -lmass -ldl -lrt -lm -flto" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
   dependencies: []
@@ -1191,8 +1166,8 @@ Linux/powerpc64el, Ubuntu LTS, IBM Advance Toolchain 14:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata bash -x -c 'export IBMATVER="14.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="cc -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -fdata-sections -ffunction-sections" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata bash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - export IBMATVER="14.0" && export PATH="/opt/at${IBMATVER:?}/bin:/opt/at${IBMATVER:?}/sbin:/opt/at${IBMATVER:?}/powerpc64le-linux-gnu/bin:${PATH:?}" && cc --version 2>&1 | grep "Advance" && make CC="gcc -ftree-vectorize -fpeel-loops -mcpu=power8 -mtune=power8 -fsigned-char -flto" -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
   dependencies: []
@@ -1218,15 +1193,13 @@ Windows/ARM64, LLVM-MinGW:
     - Linux
   script:
     - export GLCICD_JOB="LLVMMINGWARM64" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptBuildlibuvLLVMMGW64-aarch64
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
+    - make CC="aarch64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - *scriptCompressArtifacts
   dependencies: []
@@ -1249,15 +1222,13 @@ Windows/ARMv7, LLVM-MinGW:
     - Linux
   script:
     - export GLCICD_JOB="LLVMMINGWARM" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptBuildlibuvLLVMMGW64-armv7
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
+    - make CC="armv7-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - *scriptCompressArtifacts
   dependencies: []
@@ -1280,15 +1251,13 @@ Windows/i686, LLVM-MinGW:
     - Linux
   script:
     - export GLCICD_JOB="LLVMMINGWI686" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptBuildlibuvLLVMMGW64-i686
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
+    - make CC="i686-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread -D__int64_t=int64_t -D__MINGW64__" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" NEED_128=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - test -f src/dps8/dps8.exe
     - *scriptBuildInfo
     - *scriptCompressArtifacts
   dependencies: []
@@ -1311,16 +1280,14 @@ Windows/x86_64, LLVM-MinGW:
     - Linux
   script:
     - export GLCICD_JOB="LLVMMINGWX8664" && export DTIMESTAMP="$(stat -c "%Y" /opt/llvm-mingw)"
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptBuildlibuvLLVMMGW64-x86_64
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
+    - make CC="x86_64-w64-mingw32-clang -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - *scriptBuildInfo
+    - test -f src/dps8/dps8.exe
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1350,7 +1317,7 @@ Windows/x86_64, MinGW64-GCC V8:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
+    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - *scriptBuildInfo
     - cp -vf "/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll" "${CI_PROJECT_DIR:?}"
     - *scriptCompressArtifacts
@@ -1383,51 +1350,15 @@ Windows/x86_64, MinGW64-GCC V9:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
+    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - *scriptBuildInfo
+    - test -f src/dps8/dps8.exe
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
     expire_in: 1 day
     paths:
       - ${CI_PROJECT_DIR:?}/dps8m.zip
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Linux/x86_64, OpenSUSE Leap, Clang, GCC:
-  image: opensuse/leap:latest
-  stage: build
-  tags:
-    - Docker-x64
-    - amd64
-    - Linux
-  script:
-    - *scriptOSUSESetup
-    - *scriptInstallNfpm
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *scriptBuildInfo
-    - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
-    - *scriptBuildInfo
-    - *scriptVerifyVersion
-    - *scriptCompressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1445,22 +1376,19 @@ Linux/x86_64, Oracle Linux 8, Clang, GCC:
   script:
     - export GLCICD_JOB="OracleLinux8x64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptOUL8Setup
     - *scriptDnfSetup
     - *scriptInstallNfpm
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - sh -x -c 'make distclean; exit "${?}"'
-    - sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1489,10 +1417,10 @@ Source Kits:
     - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install zip advancecomp pigz tar make git > /dev/null || apt-get -qq -y install zip advancecomp pigz tar make git > /dev/null
     - *scriptSanity
     - *scriptCommon
-    - sh -x -c 'make distclean && make dist COMPRESS="pigz -9 -f" COMPRESSXT="gz"; exit "${?}"'
-    - sh -x -c 'cp sources.tar.gz /tmp'
-    - sh -x -c 'make distclean && make zipdist; exit "${?}"'
-    - sh -x -c 'cp /tmp/sources.tar.gz .'
+    - make distclean && make dist COMPRESS="pigz -9 -f" COMPRESSXT="gz"
+    - cp -vf sources.tar.gz /tmp
+    - make distclean && make zipdist
+    - cp -vf /tmp/sources.tar.gz .
   dependencies: []
   artifacts:
     expire_in: 1 day
@@ -1515,22 +1443,19 @@ Linux/x86_64, Ubuntu, Clang, GCC:
   script:
     - export GLCICD_JOB="UbuntuCurrentx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
     - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptAptSetup
     - *scriptInstallNfpm
     - *scriptAptInstallLibuv1
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - eatmydata sh -x -c 'make distclean; exit "${?}"'
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1558,22 +1483,19 @@ Linux/x86_64, Ubuntu LTS, Clang, GCC:
   script:
     - export GLCICD_JOB="UbuntuLTSx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
     - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptAptSetup
     - *scriptInstallNfpm
     - *scriptAptInstallLibuv1
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - eatmydata sh -x -c 'make distclean; exit "${?}"'
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1603,20 +1525,17 @@ Linux/x86_64, Void glibc, Clang, GCC:
   script:
     - export GLCICD_JOB="VoidGlibcX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
     - xbps-install -y wget bzip2 || xbps-install -y wget bzip2
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptVoidSetup
     - *scriptInstallNfpm
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - dash -x -c 'make distclean; exit "${?}"'
-    - dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1634,7 +1553,7 @@ Linux/x86_64, Void glibc, Clang, GCC:
 
 ############################################################################
 
-Linux/x86_64, Void musl, mimalloc, static, Clang, GCC:
+Linux/x86_64, Void musl, static, Clang, GCC:
   image:
     name: voidlinux/voidlinux-musl:latest
     entrypoint: [ '/bin/sh', '-c', 'xbps-install -Suy xbps; xbps-install -Suy xbps; xbps-install -Suy bash; xbps-install -Suy bash && ln -snf /bin/bash /bin/sh && /bin/bash -c $0' ]
@@ -1646,21 +1565,17 @@ Linux/x86_64, Void musl, mimalloc, static, Clang, GCC:
   script:
     - export GLCICD_JOB="VoidMuslX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/passwd)"
     - xbps-install -y wget bzip2 || xbps-install -y wget bzip2
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptVoidSetup
     - *scriptInstallNfpm
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - dash -x -c '(git config http.postBuffer 524288000 ; git config --global http.version HTTP/1.1; git clone https://github.com/microsoft/mimalloc && cd mimalloc && mkdir build && cd build && CC=gcc cmake .. -DCMAKE_BUILD_TYPE="Release" -DMI_BUILD_STATIC=1 -DMI_LOCAL_DYNAMIC_TLS=1 -DMI_INSTALL_TOPLEVEL=1 -G Ninja && ninja && ninja test && ninja install)'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - export LDFLAGS="-static"; make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'make distclean; exit "${?}"'
-    - LD_PRELOAD=libmimalloc.so dash -x -c 'export CFLAGS="${CFLAGS:-} -fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-static -Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
+    - make distclean
+    - export LDFLAGS="-static"; make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1719,10 +1634,10 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS" && gmake CC="/opt/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(psrinfo -p 2> /dev/null || printf %s\\n "4")" --output-sync --print-directory SUNPRO=1 NEED_128=1 -j $(psrinfo -p 2> /dev/null || printf %s\\n "4") 2>&1 | grep -v " not parallelized" | grep -v " enumerator value overflows INT_MAX"; exit "${?}"'
+    - export CSTD="c11" && export CFLAGS="-DNO_C_ELLIPSIS" && gmake CC="/opt/developerstudio-latest/bin/suncc -xatomic=studio -xautopar -Qy -xO5 -fast -m64 -native -xlibmil -xvpara -xCC -mt -xlibmopt -xloopinfo -xvector=simd -fma=fused -fno-semantic-interposition -xarch=avx2 -xregs=frameptr -xprefetch=auto -xreduction -xprefetch_level=3 -xjobs=$(psrinfo -p 2> /dev/null || printf %s\\n "4")" --output-sync --print-directory SUNPRO=1 NEED_128=1 -j $(psrinfo -p 2> /dev/null || printf %s\\n "4") 2>&1 | grep -v " not parallelized" | grep -v " enumerator value overflows INT_MAX"
     - *scriptBuildInfo
     - *scriptVerifyVersion
-    - lzip -9vk < /opt/developerstudio-latest/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
+    - lzip -6vk < /opt/developerstudio-latest/lib/compilers/atomic/amd64/libstatomic.so.1 > libstatomic.so.1.lz
     - *scriptCompressArtifacts
   dependencies: []
   artifacts:
@@ -1751,7 +1666,7 @@ illumos/x86_64, OpenIndiana Hipster, Clang 9, GCC 7.5, GCC 10.3:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - gmake CC=clang -j 4 --output-sync --print-directory
+    - gmake CC=clang NO_LTO=1 -j 4 --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - gmake distclean
@@ -1790,8 +1705,8 @@ Darwin/x86_64, macOS, Xcode:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'make -j 4 --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j 12 --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1822,8 +1737,8 @@ Darwin/x86_64, macOS, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - sh -x -c 'gmake CC=gcc-11 -j 4 --print-directory; exit "${?}"'
-    - sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - gmake CC=gcc-11 -j 12 --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1854,11 +1769,8 @@ Option Verification Test:
   parallel: 4
   script:
     - export GLCICD_JOB="OptTestFedoraX64_${CI_NODE_INDEX:?}" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1895,13 +1807,10 @@ Multics CI-Kit Test:
   script:
     - export GLCICD_JOB="CIKitTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
-    - dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils || dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils
+    - dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime || dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime
     - *scriptSanity
-    - bash -x -c '( cd src/ci-kit && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh )' || true
-    - *scriptCreateResticSnapshot
+    - ( cd src/ci-kit && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh ) || true
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
@@ -1928,8 +1837,6 @@ Linux/x86_64, Ubuntu 18.04, Clang, GCC:
   script:
     - export GLCICD_JOB="UbuntuLTSBionicx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
     - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptAptSetup
     - *scriptInstallNfpm
     - *scriptAptInstallLibuv1
@@ -1937,16 +1844,15 @@ Linux/x86_64, Ubuntu 18.04, Clang, GCC:
     - (apt-get -qq -y install tcsh passwd || apt-get -qq -y install tcsh passwd)
     - chsh -s /bin/tcsh root
     - export SHELL=/bin/tcsh
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=clang LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make CC=clang -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
-    - eatmydata sh -x -c 'make distclean; exit "${?}"'
-    - eatmydata sh -x -c 'export CFLAGS="-fdata-sections -ffunction-sections"; make CC=gcc LDFLAGS="-Wl,--gc-sections" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory; exit "${?}"'
-    - eatmydata sh -x -c 'printf %s\\n "show version" | ./src/dps8/dps8 ; exit "${?}"'
+    - make distclean
+    - make CC=gcc -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
     - *scriptCompressArtifacts
@@ -1980,7 +1886,7 @@ Flawfinder:
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 15; flawfinder -m 5 . 2>&1 > flawfinder.txt'
+    - flawfinder -m 5 . 2>&1 > flawfinder.txt
   dependencies: []
   artifacts:
     when: always
@@ -2009,7 +1915,7 @@ Cppcheck:
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 30; make cppcheck'
+    - make cppcheck
   dependencies: []
   artifacts:
     when: always
@@ -2039,7 +1945,7 @@ Oracle Developer Studio Lint:
     - *scriptCommon
     - *scriptExtraInfo
     - pkill lint > /dev/null 2>&1 || true
-    - eatmydata ionice -c 3 nice -n 14 sh -x -c 'sleep 30; make orstlint'
+    - make orstlint
     - pkill lint > /dev/null 2>&1 || true
   dependencies: []
   artifacts:
@@ -2066,12 +1972,9 @@ Source Tree Checks:
   script:
     - export GLCICD_JOB="GitHooksCheckFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
-    - *scriptInstallResticLinuxAMD64
-    - *scriptRestoreResticSnapshot
     - *scriptDnfSetup
     - dnf -q install -y cppi || dnf -q install -y cppi
     - *scriptSanity
-    - *scriptCreateResticSnapshot
     - *scriptCommon
     - *scriptExtraInfo
     - EXTRA_HOOK=1 DEBUG_HOOK=1 ./.githooks/pre-commit 2>&1 | tee -i pre-commit-test.txt

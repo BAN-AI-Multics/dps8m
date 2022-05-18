@@ -31,8 +31,9 @@
    * [tmux](https://tmux.github.io/)
 
  The following packages are optional, but highly recommended:
-   * [libfaketime](https://github.com/wolfcw/libfaketime/)
-   * [ncat](https://nmap.org/ncat/)
+   * [libfaketime](https://github.com/wolfcw/libfaketime/), used to set a
+       fixed date for the CI-Kit run, which enhances log reproducibility.
+   * [ncat](https://nmap.org/ncat/), used to probe for available ports.
 
  In addition, a visual difference comparison tool is highly useful to
  verify the output. Any of the following tools (*listed alphabetically*)

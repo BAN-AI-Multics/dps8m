@@ -48,6 +48,7 @@
 # include <fcntl.h>
 #else
 # include <unistd.h>
+# define HAVE_UNISTD 1
 #endif
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -2949,44 +2950,76 @@ for (; *ip && (op < oend); ) {
                         sprintf (rbuf, "%s", sim_show_message ? "" : "-Q");
                         ap = rbuf;
                         }
-                    else if (!strcmp ("PAGESIZE", gbuf)) {
-                        sprintf (rbuf, "%ld", sysconf(_SC_PAGESIZE));
-                        ap = rbuf;
-                        }
                     else if (!strcmp ("HOSTID", gbuf)) {
+#ifdef HAVE_UNISTD
                         sprintf (rbuf, "%ld", (long)gethostid());
+#else
+                        sprintf (rbuf, "00000000");
+#endif /* ifdef HAVE_UNISTD */
                         ap = rbuf;
                         }
                     else if (!strcmp ("UID", gbuf)) {
+#ifdef HAVE_UNISTD
                         sprintf (rbuf, "%ld", (long)getuid());
+#else
+                        sprintf (rbuf, "0");
+#endif /* ifdef HAVE_UNISTD */
                         ap = rbuf;
                         }
                     else if (!strcmp ("GID", gbuf)) {
+#ifdef HAVE_UNISTD
                         sprintf (rbuf, "%ld", (long)getgid());
+#else
+                        sprintf (rbuf, "0");
+#endif /* ifdef HAVE_UNISTD */
                         ap = rbuf;
                         }
                     else if (!strcmp ("EUID", gbuf)) {
+#ifdef HAVE_UNISTD
                         sprintf (rbuf, "%ld", (long)geteuid());
+#else
+                        sprintf (rbuf, "0");
+#endif /* ifdef HAVE_UNISTD */
                         ap = rbuf;
                         }
                     else if (!strcmp ("EGID", gbuf)) {
+#ifdef HAVE_UNISTD
                         sprintf (rbuf, "%ld", (long)getegid());
+#else
+                        sprintf (rbuf, "0");
+#endif /* ifdef HAVE_UNISTD */
                         ap = rbuf;
                         }
                     else if (!strcmp ("PID", gbuf)) {
+#ifdef HAVE_UNISTD
                         sprintf (rbuf, "%ld", (long)getpid());
+#else
+                        sprintf (rbuf, "0");
+#endif /* ifdef HAVE_UNISTD */
                         ap = rbuf;
                         }
                     else if (!strcmp ("PPID", gbuf)) {
+#ifdef HAVE_UNISTD
                         sprintf (rbuf, "%ld", (long)getppid());
+#else
+                        sprintf (rbuf, "0");
+#endif /* ifdef HAVE_UNISTD */
                         ap = rbuf;
                         }
                     else if (!strcmp ("PGID", gbuf)) {
+#ifdef HAVE_UNISTD
                         sprintf (rbuf, "%ld", (long)getpgid(getpid()));
+#else
+                        sprintf (rbuf, "0");
+#endif /* ifdef HAVE_UNISTD */
                         ap = rbuf;
                         }
                     else if (!strcmp ("SID", gbuf)) {
+#ifdef HAVE_UNISTD
                         sprintf (rbuf, "%ld", (long)getsid(getpid()));
+#else
+                        sprintf (rbuf, "0");
+#endif /* ifdef HAVE_UNISTD */
                         ap = rbuf;
                         }
                     else if (!strcmp ("ENDIAN", gbuf)) {
@@ -4561,11 +4594,7 @@ if (flag) {
                 fprintf (st, "\n\n Host System Information:");
 #if defined(_WIN32)
     if (1) {
-        char *proc_id = getenv ("PROCESSOR_IDENTIFIER");
         char *arch = getenv ("PROCESSOR_ARCHITECTURE");
-        char *procs = getenv ("NUMBER_OF_PROCESSORS");
-        char *proc_level = getenv ("PROCESSOR_LEVEL");
-        char *proc_rev = getenv ("PROCESSOR_REVISION");
         char *proc_arch3264 = getenv ("PROCESSOR_ARCHITEW6432");
         char osversion[PATH_MAX+1] = "";
         FILE *f;
