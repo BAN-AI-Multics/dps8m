@@ -696,107 +696,116 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
 }
 #endif
 
-char *formatDecimal (uint8_t * out, decContext *set, decNumber *r, int nout, int s, int sf, bool R, bool *OVR, bool *TRUNC)
-{
-    decNumber _sf;
-    decNumber _r2;
-    decNumber *r2 = &_r2;
-    enum rounding safeR = decContextGetRounding(set);         // save rounding mode
-    int safe = set->digits;
+char *formatDecimal (uint8_t * out, decContext *set, decNumber *r, int nout, int s, int sf, bool R, bool *OVR, bool *TRUNC) {
+  decNumber _sf;
+  decNumber _r2;
+  decNumber * r2 = & _r2;
+  enum rounding safeR = decContextGetRounding (set);         // save rounding mode
+  int safe = set->digits;
 
-    //char pr[256];
+  * OVR = false;
+  * TRUNC = false;
 
-    *OVR = false;
-    *TRUNC = false;
+  // CSFL isn't rescaled and can't overflow
+  if (s != CSFL) {
 
-    // CSFL isn't rescaled and can't overflow
-    if (s != CSFL) {
-
-        // rescale to sf first
-        // AL39: If N2 is not large enough to hold the integer part of C(Y-charn1) _as rescaled by SF2_, an overflow condition exists
-        // ET 336
-        if (sf != r->exponent) {
-            if (!R) {
-                decContextSetRounding(set, DEC_ROUND_DOWN);     // Round towards 0 (truncation). ISOLTS 815 09b
-                if (sf > r->exponent) // ET 330: truncation due to: output sf > input sf or exponent
-                    *TRUNC = true;
-            }
-            decNumberFromInt32(&_sf, sf);
-            decNumberRescale(r, r, &_sf, set);
-
-            //decNumberToString(r,pr); sim_printf("rescaled: %s %d\n",pr,r->digits);
-
-            //decContextSetRounding(set, safeR);              // restore rounding mode
-        }
-
-        // check for overflow and if it occurs, adjust the operand
-
-        decContextSetRounding(set, DEC_ROUND_DOWN);     // Round towards 0 (truncation).
-        decNumberToIntegralValue(r2, r, set);
-
-        //decNumberToString(r2,pr); sim_printf("integral: %s\n",pr);
-
-        int r2digits = r2->digits;
-        if (decNumberIsZero(r2))
-          r2digits = 0;
-
-        // if sf< 0, this reduces number of integer slots available
-        // if sf>=0, this doesn't change anything, nout integer slots are available
-        // ET 275, ET 336
-        if (nout + min(sf,0) < r2digits) {
-
-            // discard overflowing digits
-            // note that this may set zero flag: ISOLTS-810 01l
-            set->digits = r2digits - (nout + min(sf,0));
-            decNumberPlus(r2, r, set);
-            set->digits = safe;
-
-            //decNumberToString(r2,pr); sim_printf("subtracting: %s\n",pr);
-
-            decNumberSubtract(r, r, r2, set);
-
-            //decNumberToString(r,pr); sim_printf("discarded: %s\n",pr);
-
-            *OVR = true;
-
-        }
-        decContextSetRounding(set, safeR);
-
-    }
-    if (nout < r->digits) { // not enough space to move all digits
-        // round or truncate
-        if (!R) {
-            decContextSetRounding(set, DEC_ROUND_DOWN);     // Round towards 0 (truncation).
-            // truncation flag is independent of whether overflow occurred: ISOLTS-810 01k, 815 09b
-            *TRUNC = true;
-        }
-        set->digits = nout;
-        decNumberPlus(r, r, set);
-        set->digits = safe;
-
-        //decNumberToString(r,pr); sim_printf("r/trunc: %s\n",pr);
-
-        decContextSetRounding(set, safeR);              // restore rounding mode
+    // rescale to sf first
+    // AL39: If N2 is not large enough to hold the integer part of C(Y-charn1) _as rescaled by SF2_, an overflow condition exists
+    // ET 336
+    if (sf != r->exponent) {
+      if (!R) {
+        decContextSetRounding (set, DEC_ROUND_DOWN);     // Round towards 0 (truncation). ISOLTS 815 09b
+        if (sf > r->exponent) // ET 330: truncation due to: output sf > input sf or exponent
+          * TRUNC = true;
+      }
+      decNumberFromInt32 (& _sf, sf);
+#if 0
+      decNumberRescale (r, r, & _sf, set);
+#else
+# if 0
+      set->status = 0;
+      decNumberRescale (r2, r, & _sf, set);
+      if (set->status == 00200) {
+        // result would not fit in r.
+        * OVR = true;
+        goto mvn_write;
+      }
+      decNumberCopy(r, r2);
+# else
+      if (r->exponent > sf)
+        set->digits = min (DECNUMDIGITS, max (set->digits, r->digits + r->exponent - sf));
+      decNumberRescale (r, r, & _sf, set);
+      if (decContextGetStatus (set) == DEC_Invalid_operation) {
+        //sim_debug (DBG_TRACE, & cpu_dev, "formatD DEC_Invalid_operation\r\n");
+        decNumberZero (r);
+        * OVR = true;
+      }
+      set->digits = safe;
+# endif
+#endif
     }
 
-    // write out the digits
-    // note that even CSFL is aligned right - ISOLTS-810 05d
-    uint8_t tmp[256];
-    //int scale;
-    //decBCDFromNumber(out, nout, &scale, r);
-    decNumberGetBCD(r,tmp);
-    int justif = nout - r->digits;
-    //decNumberToString(r,pr); sim_printf("justif: %d %d %d\n",nout,r->digits,justif);
-    for (int i=0;i<nout;i++) {
-        if (i<justif)
-            out[i]='0';
-        else
-            out[i]=tmp[i-justif]+'0';
+    // check for overflow and if it occurs, adjust the operand
+
+    decContextSetRounding (set, DEC_ROUND_DOWN);     // Round towards 0 (truncation).
+    decNumberToIntegralValue (r2, r, set);
+
+    int r2digits = r2->digits;
+    if (decNumberIsZero (r2))
+      r2digits = 0;
+
+    // if sf< 0, this reduces number of integer slots available
+    // if sf>=0, this doesn't change anything, nout integer slots are available
+    // ET 275, ET 336
+    if (nout + min (sf,0) < r2digits) {
+
+      // discard overflowing digits
+      // note that this may set zero flag: ISOLTS-810 01l
+      set->digits = r2digits - (nout + min (sf,0));
+      decNumberPlus (r2, r, set);
+      set->digits = safe;
+
+      decNumberSubtract(r, r, r2, set);
+
+      * OVR = true;
+
     }
-    out[nout]=0;
+    decContextSetRounding (set, safeR);
 
-    return (char*)out;
+  }
 
+  if (nout < r->digits) { // not enough space to move all digits
+    // round or truncate
+    if (! R) {
+      decContextSetRounding(set, DEC_ROUND_DOWN);     // Round towards 0 (truncation).
+      // truncation flag is independent of whether overflow occurred: ISOLTS-810 01k, 815 09b
+      * TRUNC = true;
+    }
+    set->digits = nout;
+    decNumberPlus (r, r, set);
+    set->digits = safe;
+
+    decContextSetRounding (set, safeR);              // restore rounding mode
+  }
+
+#if 0
+mvn_write:;
+#endif
+
+  // write out the digits
+  // note that even CSFL is aligned right - ISOLTS-810 05d
+  uint8_t tmp[256];
+  decNumberGetBCD (r,tmp);
+  int justif = nout - r->digits;
+  for (int i = 0; i < nout; i ++) {
+    if (i < justif)
+      out [i] = '0';
+    else
+      out [i] = tmp [i - justif] + '0';
+  }
+  out [nout] = 0;
+
+  return (char *) out;
 }
 
 
