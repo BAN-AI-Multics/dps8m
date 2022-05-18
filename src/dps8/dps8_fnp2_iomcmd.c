@@ -44,11 +44,7 @@ static inline void fnp_core_read_n (word24 addr, word36 *data, uint n, UNUSED co
     lock_mem_rd ();
 # endif /* ifdef THREADZ */
     for (uint i = 0; i < n; i ++)
-# ifdef SCUMEM
-      iom_core_read (addr, data, ctx);
-# else
       data [i] = M [addr + i] & DMASK;
-# endif /* ifdef SCUMEM */
 # ifdef THREADZ
     unlock_mem ();
 # endif /* ifdef THREADZ */
@@ -1600,14 +1596,6 @@ static int interruptL66 (uint iomUnitIdx, uint chan)
     decoded_p->chan_num = chan;
     decoded_p->devUnitIdx = get_ctlr_idx (iomUnitIdx, chan);
     decoded_p->fudp = & fnpData.fnpUnitData [decoded_p->devUnitIdx];
-#ifdef SCUMEM
-    word24 offset;
-    int scuUnitNum =  query_IOM_SCU_bank_map (iomUnitIdx, decoded_p->fudp->mailboxAddress, & offset);
-    uint scuUnitIdx = cables->iom_to_scu[iomUnitIdx][scuUnitNum].scu_unit_idx;
-    decoded_p->mbxp = (vol struct mailbox *) & scu [scuUnitIdx].M [decoded_p->fudp->mailboxAddress];
-#else
-    //decoded_p->mbxp = (vol struct mailbox *) & M [decoded_p->fudp -> mailboxAddress];
-#endif
     word36 dia_pcw;
     iom_direct_data_service (decoded_p->iom_unit, decoded_p->chan_num, decoded_p->fudp->mailboxAddress+DIA_PCW, & dia_pcw, direct_load);
 

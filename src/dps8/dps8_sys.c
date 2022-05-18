@@ -78,13 +78,10 @@
 // I would guess that multiple SCUs helped relieve memory
 // contention across multiple CPUs, but that is a level of
 // emulation that will be ignored.
-// Building with SCUMEM defined puts the memory in the SCUs.
 
 struct system_state_s * system_state;
 
-#ifndef SCUMEM
 vol word36 * M = NULL;                                          // memory
-#endif
 
 //
 // These are part of the simh interface
@@ -2598,7 +2595,6 @@ fileDone:
 
 // STK
 
-# ifndef SCUMEM
 static t_stat stack_trace (UNUSED int32 arg,  UNUSED const char * buf)
   {
     char * msg;
@@ -2763,7 +2759,6 @@ skipArgs:;
       }
     return SCPE_OK;
   }
-# endif
 
 static t_stat list_source_at (UNUSED int32 arg, UNUSED const char *  buf)
   {
@@ -3036,7 +3031,6 @@ static t_stat lookup_system_book (UNUSED int32  arg, const char * buf)
     return SCPE_OK;
   }
 
-# ifndef SCUMEM
 // Assumes unpaged DSBR
 
 static sdw0_s *fetchSDW (word15 segno)
@@ -3181,11 +3175,9 @@ static t_stat virtAddrN (uint address)
     return SCPE_OK;
 
   }
-# endif
 
 // VIRTUAL address
 
-# ifndef SCUMEM
 static t_stat virt_address (UNUSED int32 arg, const char * buf)
   {
     uint address;
@@ -3193,7 +3185,6 @@ static t_stat virt_address (UNUSED int32 arg, const char * buf)
       return SCPE_ARG;
     return virtAddrN (address);
   }
-# endif
 
 // search path is path:path:path....
 
@@ -3441,7 +3432,6 @@ sim_msg ("%05o:%06o\n", cpu.PR[2].SNR, cpu.rX[0]);
 
 // SEARCHMEMORY value
 
-# ifndef SCUMEM
 static t_stat search_memory (UNUSED int32 arg, const char * buf)
   {
     word36 value;
@@ -3454,7 +3444,6 @@ static t_stat search_memory (UNUSED int32 arg, const char * buf)
         sim_msg ("%08o\n", i);
     return SCPE_OK;
   }
-# endif
 
 static t_stat set_dbg_cpu_mask (int32 UNUSED arg, const char * UNUSED buf)
   {
@@ -3820,17 +3809,13 @@ static CTAB dps8_cmds[] =
     {"PHDBG",               hdbg_print,               0, "phdbg: display history size\n", NULL, NULL},
     {"HDBG_CPU_MASK",       hdbg_cpu_mask,            0, "hdbg_cpu_mask: Which CPUS to track\n", NULL, NULL},
     {"ABSOLUTE",            abs_addr,                 0, "abs: Compute the absolute address of segno:offset\n", NULL, NULL},
-# ifndef SCUMEM
     {"STK",                 stack_trace,              0, "stk: Print a stack trace\n", NULL, NULL},
-# endif
     {"LIST",                list_source_at,           0, "list segno:offet: List source for an address\n", NULL, NULL},
     {"LD_SYSTEM_BOOK",      load_system_book,         0, "load_system_book: Load a Multics system book for symbolic debugging\n", NULL, NULL},
     {"ASBE",                add_system_book_entry,    0, "asbe: Add an entry to the system book\n", NULL, NULL},
     {"LOOKUP_SYSTEM_BOOK",  lookup_system_book,       0, "lookup_system_book: Lookup an address or symbol in the Multics system book\n", NULL, NULL},
     {"LSB",                 lookup_system_book,       0, "lsb: Lookup an address or symbol in the Multics system book\n", NULL, NULL},
-# ifndef SCUMEM
     {"VIRTUAL",             virt_address,             0, "virtual: Compute the virtural address(es) of segno:offset\n", NULL, NULL},
-# endif
     {"SPATH",               set_search_path,          0, "spath: Set source code search path\n", NULL, NULL},
     {"TEST",                brkbrk,                   0, "test: GDB hook\n", NULL, NULL},
 # ifdef DBGEVENT
@@ -3862,9 +3847,7 @@ static CTAB dps8_cmds[] =
     {"WATCH",               set_mem_watch,            1, "watch: Watch memory location\n", NULL, NULL},
     {"NOWATCH",             set_mem_watch,            0, "watch: Unwatch memory location\n", NULL, NULL},
 # endif
-# ifndef SCUMEM
     {"SEARCHMEMORY",        search_memory,            0, "searchmemory: Search memory for value\n", NULL, NULL},
-# endif
     {"DBGCPUMASK",          set_dbg_cpu_mask,         0, "dbgcpumask: Set per CPU debug enable", NULL, NULL},
 #endif // TESTING
 
@@ -4130,9 +4113,6 @@ static void dps8_init (void) {
 #  endif /* ifndef __MINGW32__ */
 # endif /* ifndef __MINGW64__ */
 
-# ifdef SCUMEM
-#  error SCUMEM not working with new shared memory model
-# endif
 #endif // ! PERF_STRIP
 
 #if defined(__MINGW64__) || defined(__MINGW32__)
@@ -4305,7 +4285,6 @@ static struct pr_table
     {0,     0}
   };
 
-# ifndef SCUMEM
 static int getAddress(int segno, int offset)
 {
     // XXX Do we need to 1st check SDWAM for segment entry?
@@ -4315,13 +4294,10 @@ static int getAddress(int segno, int offset)
 
     return (s->ADDR + (word18) offset) & 0xffffff; // keep to 24-bits
 }
-# endif // !SCUMEM
+
 static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
                           const char **optr)
   {
-# ifdef SCUMEM
-    return 0;
-# else
     // a segment reference?
     if (strchr(cptr, '|'))
     {
@@ -4413,7 +4389,6 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
 
     // No, determine absolute address given by cptr
     return (t_addr)strtol(cptr, (char **) optr, 8);
-# endif // !SCUMEM
 }
 #endif // TESTING
 
