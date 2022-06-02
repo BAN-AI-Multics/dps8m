@@ -4,6 +4,16 @@
 # Begin
 printf '#### %s\n' "Begin ${0} (${$})"
 
+# Check for /bin/sh
+test -x /bin/sh ||
+  {
+    printf '%s\n' \
+      'Error: No "/bin/sh" executable.'
+    exit 1
+  }
+
+export SHELL=/bin/sh
+
 # Strict
 set -eu > /dev/null 2>&1
 
@@ -16,7 +26,7 @@ test -z "${CI_JOB_ID:-}" &&
 # Sanity check
 test -f "./tapes/foo.tap" ||
   {
-	printf '%s\n' \
+    printf '%s\n' \
       'Error: "./tapes/foo.tap" missing; running "./init.sh"'
     ./init.sh ||
       exit 1
@@ -39,10 +49,47 @@ command -v "stdbuf" > /dev/null 2>&1 &&
   STDBUF="stdbuf -o L" ||
     STDBUF="exec"
 
+# Faketime configuration
+FAKETIME_PRG="faketime"
+test -n "${FAKETIME:-}" && FAKETIME_PRG="${FAKETIME:-faketime}"
+FAKETIME_ACK="${FAKETIME_PRG:?} --exclude-monotonic -m 2025-05-05"
+
+# Non-faketime configuration
+FAKETIME_NOP="env TZ=UTC"
+
+# Disable faketime if running Ubuntu <21.10 with faketime installed
+command -v "${FAKETIME_PRG:?}" > /dev/null 2>&1 || FORCEFAKETIME=1;
+# shellcheck disable=SC2015
+test "${FORCEFAKETIME:-}" -eq "1" 2> /dev/null ||
+{
+  grep -iq "ubuntu" "/etc/os-release" 2> /dev/null &&
+    grep "VERSION_ID=" "/etc/os-release" 2> /dev/null |
+      cut -d '=' -f 2- 2> /dev/null | tr -cd '[0-9].' 2> /dev/null |
+        ${AWK:-awk} '
+        { if ( 0+$1 != 0 )
+          { if ( 0+$1 < 21.10 )
+            {
+              printf("\n");
+              printf("NOTE: Disabling faketime support on Ubuntu <21.10!!\n");
+              printf("      Setting FORCEFAKETIME=1 overrides this check.\n");
+              printf("\n");
+              exit(0);
+            }
+          else
+            {
+              exit(1);
+            }
+          exit(1);
+          }
+        exit(1);
+        }' 2> /dev/null &&
+  FAKETIME_ACK="${FAKETIME_NOP:?}"
+}
+
 # Check for faketime
-command -v "faketime" > /dev/null 2>&1 &&
-  FAKETIME='faketime --exclude-monotonic -m 2025-05-05' ||
-    FAKETIME="env TZ=UTC"
+command -v "${FAKETIME_PRG:?}" > /dev/null 2>&1 &&
+  FAKETIME="${FAKETIME_ACK:?}" ||
+    FAKETIME="${FAKETIME_NOP:?}";
 
 # Check for awk
 command -v "${AWK:-awk}" > /dev/null 2>&1 ||
@@ -144,18 +191,26 @@ rm -f ./*.log 2> /dev/null
 SKIP_HOOK=1 &&
   export SKIP_HOOK 2> /dev/null
 
-# Configuration
+# Suppress rebuild?
+NRB="" > /dev/null 2>&1
+# shellcheck disable=SC2015,SC2016,SC2065
+test "0${NOREBUILD:-}" -eq 1 > /dev/null 2>&1 &&
+  export NRB="NOREBUILD=1"   > /dev/null 2>&1 ||
+  export NRB="REBUILD=1"     > /dev/null 2>&1
 export NOREBUILD 2> /dev/null
+
+# Configuration
 printf '*** %s\n' "   tmux job ID: \"cikit-${T_JOB_ID:?}-0\""
 printf '*** %s\n' "  tmux channel: \"cikit-${T_JOB_ID:?}-1\""
 export TMUX='' 2> /dev/null
 
 # Run CI-Kit in background tmux session
-# shellcheck disable=SC2048,SC2086,SC2248
+# shellcheck disable=SC2015,SC2048,SC2086,SC2140,SC2248
 eval tmux -u -2 new -d -s cikit-${T_JOB_ID:?}-0                          \
   "\"export CI_JOB_ID=\"${CI_JOB_ID:?}\";                                \
     export FNPPORT=\"${FNPPORT:?}\"; export CONPORT=\"${CONPORT:?}\";    \
-      eval ${FAKETIME:?} ${STDBUF:?} ${MAKE:-make} --no-print-directory  \
+      eval ${FAKETIME:?} ${STDBUF:?} ${MAKE:-make} ${NRB:-}              \
+       --no-print-directory                                              \
         -f "ci.makefile" ${*} \"s1\" \"s2\" \"s2p\" \"s3\" \"s3p\"       \
           \"s4\" \"s5\" \"s6\" \"s7\" 2>&1 |                             \
             ${STDBUF:?} ${TEE:-tee} -i -a ci.log;                        \

@@ -13,7 +13,8 @@
  **OpenSUSE**.
 
  Other operating systems, specifically IBM **AIX**, Apple **macOS**, Oracle
- **Solaris**, and illumos **OpenIndiana** have also been used successfuly.
+ **Solaris**, **FreeBSD**, and illumos **OpenIndiana** have also been used
+ successfuly.
 
  The following packages are required (beyond the build prerequisites):
    * [dos2unix](https://waterlan.home.xs4all.nl/dos2unix.html)
@@ -90,6 +91,13 @@
 ```sh
       ./ci.sh
 ```
+ * **NOTE**: On FreeBSD (tested with FreeBSD 13.1-RELEASE and
+   13.0-RELEASE-p11), after installation of the CI-Kit dependecies
+   (`coreutils`, `unix2dos`, `expect`, `nmap`, `mksh`, `gmake`,
+    `tmux`, `lzip`, etc.) the script should be started as follows:
+   ```sh
+   sh -c 'export SHELL=/bin/sh ; FAKETIME="env TZ=UTC" TAIL=gtail MAKE=gmake DATE=gdate mksh ./ci.sh'
+   ```
 
  5. Once the run completes, normalize the new output so the results can be
     (*visually*) compared against the included known good reference log file:
