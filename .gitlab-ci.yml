@@ -724,34 +724,6 @@ Windows/x86_64, Cygwin64-GCC:
 
 ############################################################################
 
-Code Quality Analysis:
-  stage: test
-  tags:
-    - codequality
-    - amd64
-    - Linux-Shell
-    - TopDocker
-  needs:
-    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
-    - job: Linux/x86_64, Fedora, Clang, GCC
-  script:
-    - *scriptSanity
-    - |
-      sh -c 'command time -f "\n### Elapsed Time: %E\n" /usr/local/bin/gl-codequality'
-  dependencies: []
-  artifacts:
-    expire_in: 2 months
-    paths:
-      - ${CI_PROJECT_DIR:?}/gl-code-quality-report.json
-    reports:
-      codequality:
-        - ${CI_PROJECT_DIR:?}/gl-code-quality-report.json
-  timeout: 1 hour
-  retry: 2
-  interruptible: false
-
-############################################################################
-
 Linux/x86_64, Fedora, Intel DPC++/C++:
   stage: build
   tags:
