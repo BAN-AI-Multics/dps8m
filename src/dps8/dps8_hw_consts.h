@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #ifndef DPS8_HW_CONSTS_H
@@ -47,11 +53,9 @@ enum { N_CELL_INTERRUPTS = 32 };
 // Memory addressing
 //
 
-
-# define VASIZE          18                       // virtual addr width
+# define VASIZE            18                     // virtual addr width
 # define AMASK           ((1U << VASIZE) - 1U)    // virtual addr mask
-# define SEGSIZE         (1U << VASIZE)           // size of segment in words
-
+# define SEGSIZE          (1U << VASIZE)          // size of segment in words
 
 /////////////////////////////////////
 //
@@ -65,7 +69,6 @@ enum { N_CELL_INTERRUPTS = 32 };
 // IOM
 //
 
-
 enum { MAX_CHANNELS = 64 };
 enum { N_IOM_PORTS = 8 };
 // The number of devices that a dev_code can address (6 bit number)
@@ -76,7 +79,6 @@ enum { IOM_CONNECT_CHAN = 2 };
 //
 // Words
 //
-
 
 # define MAX18           0777777U
 # define MAX18POS        0377777U                 //  2**17-1
@@ -202,7 +204,6 @@ enum { IOM_CONNECT_CHAN = 2 };
 # define MASK22          017777777llu
 # define SIGN22          010000000llu
 # define MASK27          0777777777llu
-
 
 // Sign extend DPS8M words into host words
 
@@ -421,7 +422,6 @@ static inline word72 SIGNEXT36_72 (word36 w)
 # define INST_V_ARN      33                       // n of AR[n] (Bit29=1)
 # define INST_M_ARN      07U
 
-
 # define GET_TAG(x)      ((word6)  ( (x)                   & INST_M_TAG ))
 # define GET_A(x)        ((word1)  (((x) >> INST_V_A)      & INST_M_A   ))
 # define GET_I(x)        ((int32)  (((x) >> INST_V_I)      & INST_M_I   ))
@@ -442,7 +442,6 @@ static inline word72 SIGNEXT36_72 (word36 w)
 # define TAG_RI          1U
 # define TAG_IT          2U
 # define TAG_IR          3U
-
 
 # define _TD(tag)        ((tag) & 017U)
 # define _TM(tag)        ((tag) & 060U)
@@ -690,7 +689,6 @@ enum _fault
 
 # define FAULTBASE_MASK  07740U       ///< mask off all but top 7 msb
 
-
 typedef enum _fault _fault;
 
 # if 0
@@ -742,7 +740,6 @@ typedef enum _fault _fault;
 
     //par_sdwam,  // A parity error has been detected in the SDWAM.
     //par_ptwam,  // A parity error has been detected in the PTWAM.
-
 
 };
 typedef enum _fault_subtype _fault_subtype;
@@ -879,7 +876,6 @@ enum _systemControllerIllegalActionCodes
     SCIAC_PAR16 =   016,
     SCIAC_PAR17 =   017
   };
-
 
 /////////////////////////////////////
 //

@@ -1,16 +1,22 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2015 Eric Swenson
  * Copyright (c) 2017 Michal Tomek
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include "dps8.h"
@@ -499,7 +505,6 @@ void Write (word18 address, word36 data, processor_cycle_type cyctyp)
     if (cpu.cu.XSF /*get_went_appending ()*/ || (cyctyp != INSTRUCTION_FETCH && cpu.currentInstruction.b29))
         goto B29;
 
-
     switch (get_addr_mode ())
       {
         case ABSOLUTE_mode:
@@ -587,7 +592,6 @@ B29:
 
     return ;//SCPE_UNK;
   }
-
 
 void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp)
   {
@@ -766,7 +770,6 @@ void Write8 (word18 address, word36 * data, bool isAR)
     if (isAR || cpu.cu.XSF /*get_went_appending ()*/)
       goto B29;
 
-
     switch (get_addr_mode ())
      {
         case ABSOLUTE_mode:
@@ -899,7 +902,6 @@ void WritePage (word18 address, word36 * data, bool isAR)
     if (isAR || cpu.cu.XSF /*get_went_appending ()*/)
       goto B29;
 
-
     switch (get_addr_mode ())
      {
         case ABSOLUTE_mode:
@@ -997,7 +999,6 @@ B29:
       }
     return ;//SCPE_UNK;
   }
-
 
 void ReadIndirect (void)
   {

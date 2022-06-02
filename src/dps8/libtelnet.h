@@ -1,19 +1,25 @@
-/*!
- * \brief libtelnet - TELNET protocol handling library
+/*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * libtelnet - TELNET protocol handling library
  *
  * SUMMARY:
  *
  * libtelnet is a library for handling the TELNET protocol.  It includes
- * routines for parsing incoming data from a remote peer as well as formatting
- * data to send to the remote peer.
+ * routines for parsing incoming data from a remote peer as well as
+ * formatting data to send to the remote peer.
  *
  * libtelnet uses a callback-oriented API, allowing application-specific
- * handling of various events.  The callback system is also used for buffering
- * outgoing protocol data, allowing the application to maintain control over
- * the actual socket connection.
+ * handling of various events.  The callback system is also used for
+ * buffering outgoing protocol data, allowing the application to maintain
+ * control over the actual socket connection.
  *
  * Features supported include the full TELNET protocol, Q-method option
  * negotiation, MCCP2, MSSP, and NEW-ENVIRON.
+ *
+ * ---------------------------------------------------------------------------
  *
  * CONFORMS TO:
  *
@@ -24,17 +30,22 @@
  * RFC1408 - http://www.faqs.org/rfcs/rfc1408.html
  * RFC1572 - http://www.faqs.org/rfcs/rfc1572.html
  *
+ * ---------------------------------------------------------------------------
+ *
  * LICENSE:
  *
- * The author or authors of this code dedicate any and all copyright interest
- * in this code to the public domain. We make this dedication for the benefit
- * of the public at large and to the detriment of our heirs and successors. We
- * intend this dedication to be an overt act of relinquishment in perpetuity of
- * all present and future rights to this code under copyright law.
+ * The author or authors of this code dedicate any and all copyright
+ * interest in this code to the public domain. We make this dedication
+ * for the benefit of the public at large and to the detriment of our
+ * heirs and successors. We intend this dedication to be an overt act
+ * of relinquishment in perpetuity of all present and future rights to
+ * this code under copyright law.
  *
- * \file libtelnet.h
+ * ---------------------------------------------------------------------------
  *
- * \author Sean Middleditch <sean@sourcemud.org>
+ * Sean Middleditch <sean@sourcemud.org>
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #if !defined(LIBTELNET_INCLUDE)
@@ -49,8 +60,10 @@
 extern "C" {
 # endif
 
+# include "../dpsprintf/dpsprintf.h"
+
 /* printf type checking feature in GCC and some other compilers */
-# if __GNUC__
+# if defined(__GNUC__) && !defined(USING_DPSPRINTF)
 #  define TELNET_GNU_PRINTF(f,a) __attribute__((format(printf, f, a))) /*!< internal helper */
 #  define TELNET_GNU_SENTINEL __attribute__((sentinel)) /*!< internal helper */
 # else
@@ -73,92 +86,92 @@ typedef struct telnet_telopt_t telnet_telopt_t;
 /*! \name Telnet commands */
 /*@{*/
 /*! Telnet commands and special values. */
-# define TELNET_IAC 255
-# define TELNET_DONT 254
-# define TELNET_DO 253
-# define TELNET_WONT 252
-# define TELNET_WILL 251
-# define TELNET_SB 250
-# define TELNET_GA 249
-# define TELNET_EL 248
-# define TELNET_EC 247
-# define TELNET_AYT 246
-# define TELNET_AO 245
-# define TELNET_IP 244
+# define TELNET_IAC   255
+# define TELNET_DONT  254
+# define TELNET_DO    253
+# define TELNET_WONT  252
+# define TELNET_WILL  251
+# define TELNET_SB    250
+# define TELNET_GA    249
+# define TELNET_EL    248
+# define TELNET_EC    247
+# define TELNET_AYT   246
+# define TELNET_AO    245
+# define TELNET_IP    244
 # define TELNET_BREAK 243
-# define TELNET_DM 242
-# define TELNET_NOP 241
-# define TELNET_SE 240
-# define TELNET_EOR 239
+# define TELNET_DM    242
+# define TELNET_NOP   241
+# define TELNET_SE    240
+# define TELNET_EOR   239
 # define TELNET_ABORT 238
-# define TELNET_SUSP 237
-# define TELNET_EOF 236
+# define TELNET_SUSP  237
+# define TELNET_EOF   236
 /*@}*/
 
 /*! \name Telnet option values. */
 /*@{*/
 /*! Telnet options. */
-# define TELNET_TELOPT_BINARY 0
-# define TELNET_TELOPT_ECHO 1
-# define TELNET_TELOPT_RCP 2
-# define TELNET_TELOPT_SGA 3
-# define TELNET_TELOPT_NAMS 4
-# define TELNET_TELOPT_STATUS 5
-# define TELNET_TELOPT_TM 6
-# define TELNET_TELOPT_RCTE 7
-# define TELNET_TELOPT_NAOL 8
-# define TELNET_TELOPT_NAOP 9
-# define TELNET_TELOPT_NAOCRD 10
-# define TELNET_TELOPT_NAOHTS 11
-# define TELNET_TELOPT_NAOHTD 12
-# define TELNET_TELOPT_NAOFFD 13
-# define TELNET_TELOPT_NAOVTS 14
-# define TELNET_TELOPT_NAOVTD 15
-# define TELNET_TELOPT_NAOLFD 16
-# define TELNET_TELOPT_XASCII 17
-# define TELNET_TELOPT_LOGOUT 18
-# define TELNET_TELOPT_BM 19
-# define TELNET_TELOPT_DET 20
-# define TELNET_TELOPT_SUPDUP 21
-# define TELNET_TELOPT_SUPDUPOUTPUT 22
-# define TELNET_TELOPT_SNDLOC 23
-# define TELNET_TELOPT_TTYPE 24
-# define TELNET_TELOPT_EOR 25
-# define TELNET_TELOPT_TUID 26
-# define TELNET_TELOPT_OUTMRK 27
-# define TELNET_TELOPT_TTYLOC 28
-# define TELNET_TELOPT_3270REGIME 29
-# define TELNET_TELOPT_X3PAD 30
-# define TELNET_TELOPT_NAWS 31
-# define TELNET_TELOPT_TSPEED 32
-# define TELNET_TELOPT_LFLOW 33
-# define TELNET_TELOPT_LINEMODE 34
-# define TELNET_TELOPT_XDISPLOC 35
-# define TELNET_TELOPT_ENVIRON 36
+# define TELNET_TELOPT_BINARY          0
+# define TELNET_TELOPT_ECHO            1
+# define TELNET_TELOPT_RCP             2
+# define TELNET_TELOPT_SGA             3
+# define TELNET_TELOPT_NAMS            4
+# define TELNET_TELOPT_STATUS          5
+# define TELNET_TELOPT_TM              6
+# define TELNET_TELOPT_RCTE            7
+# define TELNET_TELOPT_NAOL            8
+# define TELNET_TELOPT_NAOP            9
+# define TELNET_TELOPT_NAOCRD         10
+# define TELNET_TELOPT_NAOHTS         11
+# define TELNET_TELOPT_NAOHTD         12
+# define TELNET_TELOPT_NAOFFD         13
+# define TELNET_TELOPT_NAOVTS         14
+# define TELNET_TELOPT_NAOVTD         15
+# define TELNET_TELOPT_NAOLFD         16
+# define TELNET_TELOPT_XASCII         17
+# define TELNET_TELOPT_LOGOUT         18
+# define TELNET_TELOPT_BM             19
+# define TELNET_TELOPT_DET            20
+# define TELNET_TELOPT_SUPDUP         21
+# define TELNET_TELOPT_SUPDUPOUTPUT   22
+# define TELNET_TELOPT_SNDLOC         23
+# define TELNET_TELOPT_TTYPE          24
+# define TELNET_TELOPT_EOR            25
+# define TELNET_TELOPT_TUID           26
+# define TELNET_TELOPT_OUTMRK         27
+# define TELNET_TELOPT_TTYLOC         28
+# define TELNET_TELOPT_3270REGIME     29
+# define TELNET_TELOPT_X3PAD          30
+# define TELNET_TELOPT_NAWS           31
+# define TELNET_TELOPT_TSPEED         32
+# define TELNET_TELOPT_LFLOW          33
+# define TELNET_TELOPT_LINEMODE       34
+# define TELNET_TELOPT_XDISPLOC       35
+# define TELNET_TELOPT_ENVIRON        36
 # define TELNET_TELOPT_AUTHENTICATION 37
-# define TELNET_TELOPT_ENCRYPT 38
-# define TELNET_TELOPT_NEW_ENVIRON 39
-# define TELNET_TELOPT_MSSP 70
-# define TELNET_TELOPT_EXOPL 255
-# define TELNET_TELOPT_MCCP2 86
+# define TELNET_TELOPT_ENCRYPT        38
+# define TELNET_TELOPT_NEW_ENVIRON    39
+# define TELNET_TELOPT_MSSP           70
+# define TELNET_TELOPT_EXOPL         255
+# define TELNET_TELOPT_MCCP2          86
 /*@}*/
 
 /*! \name Protocol codes for TERMINAL-TYPE commands. */
 /*@{*/
 /*! TERMINAL-TYPE codes. */
-# define TELNET_TTYPE_IS 0
+# define TELNET_TTYPE_IS   0
 # define TELNET_TTYPE_SEND 1
 /*@}*/
 
 /*! \name Protocol codes for NEW-ENVIRON/ENVIRON commands. */
 /*@{*/
 /*! NEW-ENVIRON/ENVIRON codes. */
-# define TELNET_ENVIRON_IS 0
-# define TELNET_ENVIRON_SEND 1
-# define TELNET_ENVIRON_INFO 2
-# define TELNET_ENVIRON_VAR 0
-# define TELNET_ENVIRON_VALUE 1
-# define TELNET_ENVIRON_ESC 2
+# define TELNET_ENVIRON_IS      0
+# define TELNET_ENVIRON_SEND    1
+# define TELNET_ENVIRON_INFO    2
+# define TELNET_ENVIRON_VAR     0
+# define TELNET_ENVIRON_VALUE   1
+# define TELNET_ENVIRON_ESC     2
 # define TELNET_ENVIRON_USERVAR 3
 /*@}*/
 
@@ -172,23 +185,23 @@ typedef struct telnet_telopt_t telnet_telopt_t;
 /*! \name Telnet state tracker flags. */
 /*@{*/
 /*! Control behavior of telnet state tracker. */
-# define TELNET_FLAG_PROXY (1<<0)
+# define TELNET_FLAG_PROXY   (1<<0)
 # define TELNET_FLAG_NVT_EOL (1<<1)
 
 /* Internal-only bits in option flags */
 # define TELNET_FLAG_TRANSMIT_BINARY (1<<5)
-# define TELNET_FLAG_RECEIVE_BINARY (1<<6)
-# define TELNET_PFLAG_DEFLATE (1<<7)
+# define TELNET_FLAG_RECEIVE_BINARY  (1<<6)
+# define TELNET_PFLAG_DEFLATE        (1<<7)
 /*@}*/
 
 /*!
  * error codes
  */
 enum telnet_error_t {
-        TELNET_EOK = 0,   /*!< no error */
-        TELNET_EBADVAL,   /*!< invalid parameter, or API misuse */
-        TELNET_ENOMEM,    /*!< memory allocation failure */
-        TELNET_EOVERFLOW, /*!< data exceeds buffer size */
+        TELNET_EOK = 0,   /*!< no error                          */
+        TELNET_EBADVAL,   /*!< invalid parameter, or API misuse  */
+        TELNET_ENOMEM,    /*!< memory allocation failure         */
+        TELNET_EOVERFLOW, /*!< data exceeds buffer size          */
         TELNET_EPROTOCOL, /*!< invalid sequence of special bytes */
 };
 typedef enum telnet_error_t telnet_error_t; /*!< Error code type. */
@@ -197,18 +210,18 @@ typedef enum telnet_error_t telnet_error_t; /*!< Error code type. */
  * event codes
  */
 enum telnet_event_type_t {
-        TELNET_EV_DATA = 0,        /*!< raw text data has been received */
+        TELNET_EV_DATA = 0,        /*!< raw text data has been received   */
         TELNET_EV_SEND,            /*!< data needs to be sent to the peer */
-        TELNET_EV_IAC,             /*!< generic IAC code received */
-        TELNET_EV_WILL,            /*!< WILL option negotiation received */
-        TELNET_EV_WONT,            /*!< WONT option neogitation received */
-        TELNET_EV_DO,              /*!< DO option negotiation received */
-        TELNET_EV_DONT,            /*!< DONT option negotiation received */
-        TELNET_EV_SUBNEGOTIATION,  /*!< sub-negotiation data received */
-        TELNET_EV_TTYPE,           /*!< TTYPE command has been received */
+        TELNET_EV_IAC,             /*!< generic IAC code received         */
+        TELNET_EV_WILL,            /*!< WILL option negotiation received  */
+        TELNET_EV_WONT,            /*!< WONT option neogitation received  */
+        TELNET_EV_DO,              /*!< DO option negotiation received    */
+        TELNET_EV_DONT,            /*!< DONT option negotiation received  */
+        TELNET_EV_SUBNEGOTIATION,  /*!< sub-negotiation data received     */
+        TELNET_EV_TTYPE,           /*!< TTYPE command has been received   */
         TELNET_EV_ENVIRON,         /*!< ENVIRON command has been received */
-        TELNET_EV_MSSP,            /*!< MSSP command has been received */
-        TELNET_EV_WARNING,         /*!< recoverable error has occured */
+        TELNET_EV_MSSP,            /*!< MSSP command has been received    */
+        TELNET_EV_WARNING,         /*!< recoverable error has occured     */
         TELNET_EV_ERROR            /*!< non-recoverable error has occured */
 };
 typedef enum telnet_event_type_t telnet_event_type_t; /*!< Telnet event type. */
@@ -217,8 +230,8 @@ typedef enum telnet_event_type_t telnet_event_type_t; /*!< Telnet event type. */
  * environ/MSSP command information
  */
 struct telnet_environ_t {
-        unsigned char type; /*!< either TELNET_ENVIRON_VAR or TELNET_ENVIRON_USERVAR */
-        char *var;          /*!< name of the variable being set */
+        unsigned char type; /*!< either TELNET_ENVIRON_VAR or TELNET_ENVIRON_USERVAR   */
+        char *var;          /*!< name of the variable being set                        */
         char *value;        /*!< value of variable being set; empty string if no value */
 };
 
@@ -237,8 +250,8 @@ union telnet_event_t {
          * data event: for DATA and SEND events
          */
         struct data_t {
-                enum telnet_event_type_t _type; /*!< alias for type */
-                const char *buffer;             /*!< byte buffer */
+                enum telnet_event_type_t _type; /*!< alias for type            */
+                const char *buffer;             /*!< byte buffer               */
                 size_t size;                    /*!< number of bytes in buffer */
         } data;
 
@@ -246,19 +259,19 @@ union telnet_event_t {
          * WARNING and ERROR events
          */
         struct error_t {
-                enum telnet_event_type_t _type; /*!< alias for type */
-                const char *file;               /*!< file the error occured in */
+                enum telnet_event_type_t _type; /*!< alias for type                */
+                const char *file;               /*!< file the error occured in     */
                 const char *func;               /*!< function the error occured in */
-                const char *msg;                /*!< error message string */
+                const char *msg;                /*!< error message string          */
                 int line;                       /*!< line of file error occured on */
-                telnet_error_t errcode;         /*!< error code */
+                telnet_error_t errcode;         /*!< error code                    */
         } error;
 
         /*!
          * command event: for IAC
          */
         struct iac_t {
-                enum telnet_event_type_t _type; /*!< alias for type */
+                enum telnet_event_type_t _type; /*!< alias for type          */
                 unsigned char cmd;              /*!< telnet command received */
         } iac;
 
@@ -266,7 +279,7 @@ union telnet_event_t {
          * negotiation event: WILL, WONT, DO, DONT
          */
         struct negotiate_t {
-                enum telnet_event_type_t _type; /*!< alias for type */
+                enum telnet_event_type_t _type; /*!< alias for type          */
                 unsigned char telopt;           /*!< option being negotiated */
         } neg;
 
@@ -274,9 +287,9 @@ union telnet_event_t {
          * subnegotiation event
          */
         struct subnegotiate_t {
-                enum telnet_event_type_t _type; /*!< alias for type */
-                const char *buffer;             /*!< data of sub-negotiation */
-                size_t size;                    /*!< number of bytes in buffer */
+                enum telnet_event_type_t _type; /*!< alias for type              */
+                const char *buffer;             /*!< data of sub-negotiation     */
+                size_t size;                    /*!< number of bytes in buffer   */
                 unsigned char telopt;           /*!< option code for negotiation */
         } sub;
 
@@ -284,27 +297,27 @@ union telnet_event_t {
          * TTYPE event
          */
         struct ttype_t {
-                enum telnet_event_type_t _type; /*!< alias for type */
+                enum telnet_event_type_t _type; /*!< alias for type                       */
                 unsigned char cmd;              /*!< TELNET_TTYPE_IS or TELNET_TTYPE_SEND */
-                const char* name;               /*!< terminal type name (IS only) */
+                const char* name;               /*!< terminal type name (IS only)         */
         } ttype;
 
         /*!
          * ENVIRON/NEW-ENVIRON event
          */
         struct environ_t {
-                enum telnet_event_type_t _type;        /*!< alias for type */
-                const struct telnet_environ_t *values; /*!< array of variable values */
+                enum telnet_event_type_t _type;        /*!< alias for type               */
+                const struct telnet_environ_t *values; /*!< array of variable values     */
                 size_t size;                           /*!< number of elements in values */
-                unsigned char cmd;                     /*!< SEND, IS, or INFO */
+                unsigned char cmd;                     /*!< SEND, IS, or INFO            */
         } environ;
 
         /*!
          * MSSP event
          */
         struct mssp_t {
-                enum telnet_event_type_t _type;        /*!< alias for type */
-                const struct telnet_environ_t *values; /*!< array of variable values */
+                enum telnet_event_type_t _type;        /*!< alias for type               */
+                const struct telnet_environ_t *values; /*!< array of variable values     */
                 size_t size;                           /*!< number of elements in values */
         } mssp;
 };
@@ -329,8 +342,8 @@ typedef void (*telnet_event_handler_t)(telnet_t *telnet,
  */
 struct telnet_telopt_t {
         short telopt;      /*!< one of the TELOPT codes or -1 */
-        unsigned char us;  /*!< TELNET_WILL or TELNET_WONT */
-        unsigned char him; /*!< TELNET_DO or TELNET_DONT */
+        unsigned char us;  /*!< TELNET_WILL or TELNET_WONT    */
+        unsigned char him; /*!< TELNET_DO or TELNET_DONT      */
 };
 
 /*!

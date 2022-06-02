@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2020 Dean Anderson
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2020-2021 Dean Anderson
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -26,6 +32,8 @@
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
 #include "utfile.h"
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 
@@ -140,7 +148,7 @@ static DEBTAB prt_dt[] =
     { "ERR", DBG_ERR, NULL },
     { "WARN", DBG_WARN, NULL },
     { "DEBUG", DBG_DEBUG, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
+    { "ALL", DBG_ALL, NULL }, /* don't move as it messes up DBG message */
     { NULL, 0, NULL }
   };
 
@@ -151,116 +159,116 @@ static MTAB prt_mod[] =
     { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      prt_set_nunits, /* validation routine */
-      prt_show_nunits, /* display routine */
-      "Number of PRT units in the system", /* value descriptor */
-      NULL // Help
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask               */
+      0,                                          /* match              */
+      "NUNITS",                                   /* print string       */
+      "NUNITS",                                   /* match string       */
+      prt_set_nunits,                             /* validation routine */
+      prt_show_nunits,                            /* display routine    */
+      "Number of PRT units in the system",        /* value descriptor   */
+      NULL                                        /* help               */
     },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "PATH",     /* print string */
-      "PATH",         /* match string */
-      prt_set_path, /* validation routine */
-      prt_show_path, /* display routine */
-      "Path to write PRT files", /* value descriptor */
-      NULL // Help
+      MTAB_XTD | MTAB_VDV  | MTAB_NMO | \
+                 MTAB_VALR | MTAB_NC,             /* mask               */
+      0,                                          /* match              */
+      "PATH",                                     /* print string       */
+      "PATH",                                     /* match string       */
+      prt_set_path,                               /* validation routine */
+      prt_show_path,                              /* display routine    */
+      "Path to write PRT files",                  /* value descriptor   */
+      NULL                                        /* help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      prt_set_device_name, /* validation routine */
-      prt_show_device_name, /* display routine */
-      "Select the printer name", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,  /* mask               */
+      0,                                          /* match              */
+      "NAME",                                     /* print string       */
+      "NAME",                                     /* match string       */
+      prt_set_device_name,                        /* validation routine */
+      prt_show_device_name,                       /* display routine    */
+      "Select the printer name",                  /* value descriptor   */
+      NULL                                        /* help               */
     },
 
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "MODEL",     /* print string */
-      "MODEL",         /* match string */
-      prt_set_device_model, /* validation routine */
-      prt_show_device_model, /* display routine */
-      "Select the printer model", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,  /* mask               */
+      0,                                          /* match              */
+      "MODEL",                                    /* print string       */
+      "MODEL",                                    /* match string       */
+      prt_set_device_model,                       /* validation routine */
+      prt_show_device_model,                      /* display routine    */
+      "Select the printer model",                 /* value descriptor   */
+      NULL                                        /* help               */
     },
     {
-      MTAB_XTD | MTAB_VUN, /* mask */
-      0,            /* match */
-      (char *) "CONFIG",     /* print string */
-      (char *) "CONFIG",         /* match string */
-      prt_set_config,         /* validation routine */
-      prt_show_config, /* display routine */
-      NULL,          /* value descriptor */
-      NULL,            /* help */
+      MTAB_XTD | MTAB_VUN,                        /* mask               */
+      0,                                          /* match              */
+      (char *) "CONFIG",                          /* print string       */
+      (char *) "CONFIG",                          /* match string       */
+      prt_set_config,                             /* validation routine */
+      prt_show_config,                            /* display routine    */
+      NULL,                                       /* value descriptor   */
+      NULL,                                       /* help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "READY",     /* print string */
-      "READY",         /* match string */
-      prt_set_ready,         /* validation routine */
-      NULL, /* display routine */
-      NULL,          /* value descriptor */
-      NULL   // help string
+      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask               */
+      0,                                          /* match              */
+      "READY",                                    /* print string       */
+      "READY",                                    /* match string       */
+      prt_set_ready,                              /* validation routine */
+      NULL,                                       /* display routine    */
+      NULL,                                       /* value descriptor   */
+      NULL                                        /* help               */
     },
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
   };
 
-
 DEVICE prt_dev = {
-    "PRT",       /*  name */
-    prt_unit,    /* units */
-    NULL,         /* registers */
-    prt_mod,     /* modifiers */
-    N_PRT_UNITS, /* #units */
-    10,           /* address radix */
-    24,           /* address width */
-    1,            /* address increment */
-    8,            /* data radix */
-    36,           /* data width */
-    NULL,         /* examine */
-    NULL,         /* deposit */
-    prt_reset,   /* reset */
-    NULL,         /* boot */
-    NULL,         /* attach */
-    NULL,         /* detach */
-    NULL,         /* context */
-    DEV_DEBUG,    /* flags */
+    "PRT",        /* name                */
+    prt_unit,     /* unit                */
+    NULL,         /* registers           */
+    prt_mod,      /* modifiers           */
+    N_PRT_UNITS,  /* number of units     */
+    10,           /* address radix       */
+    24,           /* address width       */
+    1,            /* address increment   */
+    8,            /* data radix          */
+    36,           /* data width          */
+    NULL,         /* examine             */
+    NULL,         /* deposit             */
+    prt_reset,    /* reset               */
+    NULL,         /* boot                */
+    NULL,         /* attach              */
+    NULL,         /* detach              */
+    NULL,         /* context             */
+    DEV_DEBUG,    /* flags               */
     0,            /* debug control flags */
-    prt_dt,      /* debug flag names */
-    NULL,         /* memory size change */
-    NULL,         /* logical name */
-    NULL,         // help
-    NULL,         // attach help
-    NULL,         // attach context
-    NULL,         // description
-    NULL
+    prt_dt,       /* debug flag names    */
+    NULL,         /* memory size change  */
+    NULL,         /* logical name        */
+    NULL,         /* help                */
+    NULL,         /* attach help         */
+    NULL,         /* attach context      */
+    NULL,         /* description         */
+    NULL          /* end                 */
 };
 
 typedef struct
   {
     enum prt_mode
       {
-        prtNoMode, prtPrt, prtLdImgBuf, prtRdStatReg, prtLdVFCImg
-      } ioMode;
-    int prtUnitNum;
+         prtNoMode, prtPrt, prtLdImgBuf, prtRdStatReg, prtLdVFCImg
+      }  ioMode;
+    int  prtUnitNum;
     bool isBCD;
     bool isEdited;
-    int slew;
+    int  slew;
     char device_name[MAX_DEV_NAME_LEN];
-    int prtfile; // fd
+    int  prtfile; // fd
     //bool last;
     bool cachedFF;
     bool split;
-    int model;
+    int  model;
   } prt_state_t;
 
 static prt_state_t prt_state[N_PRT_UNITS_MAX];
@@ -268,14 +276,21 @@ static prt_state_t prt_state[N_PRT_UNITS_MAX];
 static char prt_path[1025];
 
 #define N_MODELS 13
+
 static const char * model_names[N_MODELS] =
   {
-    "202", "300", "301", "302", "303", "304", "401", "402", "901", "1000", "1200", "1201", "1600"
+    "202", "300", "301",  "302",  "303",  "304",
+    "401", "402", "901", "1000", "1200", "1201",
+    "1600"
   };
+
 #define MODEL_1600 12
 
 static const int model_type[N_MODELS] =
-  {   1,     2,     2,     2,     3,     3,     4,     4,     4,      4,      4,      4,      4};
+  { 1, 2, 2, 2, 3, 3,
+    4, 4, 4, 4, 4, 4,
+    4
+  };
 
 #ifdef NO_C_ELLIPSIS
 static const uint8 newlines[128] = {
@@ -296,6 +311,7 @@ static const uint8 newlines[128] = {
   '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n',
   '\n', '\n', '\n', '\n', '\n', '\n', '\n', '\n'
 };
+
 static const uint8 spaces[128] = {
   ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
   ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
@@ -404,7 +420,6 @@ static int parseID (word36 * b, uint tally, char * qno, char * name)
     return -1;
   }
 
-
 // 0 ok
 // -1 unable to open print file
 // -2 unable to write to print file
@@ -496,7 +511,6 @@ static int eoj (word36 * buffer, uint tally)
 // means "a 0 in char 1" means normal.
 //
 
-
 #if 0
 static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint chan)
   {
@@ -528,7 +542,6 @@ static int prt_read_status_register (uint dev_unit_idx, uint iom_unit_idx, uint 
         sim_printf ("%s expected DDCW\n", __func__);
         return -1;
       }
-
 
     uint tally = p -> DDCW_TALLY;
 
@@ -717,7 +730,6 @@ for (uint i = 0; i < tally; i ++)
 //        write (prt_state[prt_unit_num].prtfile, cr, 1);
 //      }
 
-
     if (tally)
       {
             if (isBCD)
@@ -747,7 +759,6 @@ for (uint i = 0; i < tally; i ++)
                 // 2  - second change: upper case, question mark.
                 int BCD_cset = 0;
                 char * table[3] = { bcd, bcd_lc, bcd_uc };
-
 
                 for (uint i = 0; i < nchars; i ++)
                   {
@@ -1057,7 +1068,6 @@ static iom_cmd_rc_t print_cmd (uint iom_unit_idx, uint chan, int prt_unit_num, b
                                 & wordsProcessed, false);
         p -> initiate = false;
 
-
 #if 0
 for (uint i = 0; i < tally; i ++)
    sim_printf (" %012"PRIo64"", buffer[i]);
@@ -1104,7 +1114,6 @@ sim_printf ("\r\n");
     //return IOM_CMD_PROCEED;
     return IOM_CMD_RESIDUE;
   }
-
 
 iom_cmd_rc_t prt_cmd_202 (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
@@ -1426,7 +1435,6 @@ iom_cmd_rc_t prt_cmd_400 (uint iomUnitIdx, uint chan) {
       //      toop_pattern init ("111"b3),                           /* top of outside page pattern */
       //      bop_pattern init ("060"b3))                            /* bottom of page pattern */
       //      bit (9) static options (constant);
-
 
       case 005: // CMD 005 -- Load VFC image
         sim_debug (DBG_DEBUG, & prt_dev, "%s: Load VFC Image\n", __func__);

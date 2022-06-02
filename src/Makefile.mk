@@ -1,12 +1,12 @@
 # DPS/8M simulator: src/Makefile.mk
-# vim: filetype=make:tabstop=4:tw=76
-#
+# vim: filetype=make:tabstop=4:tw=76:noexpandtab
+
 ###############################################################################
 #
 # Copyright (c) 2014-2016 Charles Anthony
 # Copyright (c) 2016 Michal Tomek
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #
@@ -37,9 +37,10 @@ else
        MAKEFLAGS += --no-print-directory
 endif
 GETCONF    ?= getconf
-ENV        ?= env
+ENV        := env
 CCACHE     ?= ccache
-SHELL      ?= sh
+BASENAME   ?= basename
+SHELL      ?= /bin/sh
 SH         ?= $(SHELL)
 UNAME      ?= uname
 CPPI       ?= cppi
@@ -69,7 +70,9 @@ EXPAND     ?= expand
 GPG        ?= gpg --batch --status-fd --with-colons
 WC         ?= wc
 SED        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" sed
-AWK        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" awk
+AWK        ?= $(shell $(COMMAND) -v gawk 2> /dev/null || \
+                $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" \
+                  sh -c "$(COMMAND) -v awk" || $(PRINTF) %s\\n awk)
 CMP        ?= cmp
 CKSUM      ?= cksum
 WEBDL      ?= wget
@@ -194,16 +197,48 @@ else
 endif
 
 ###############################################################################
-# Default FLAGS
+# Default CFLAGS, optimizations, and math library
 
-ifndef TESTING
-  OPTFLAGS = -O3 -g3
+MATHLIB ?= -lm
+
+ifdef NATIVE
+  CFLAGS += -march=native
+endif
+
+ifdef ALLOW_STRICT_ALIASING
+  STRICT_ALIASING = -fstrict-aliasing
 else
-  OPTFLAGS = -O0 -g3 -fno-inline -ggdb -U_FORTIFY_SOURCE -fno-stack-protector
+  STRICT_ALIASING = -fno-strict-aliasing
 endif
 
 ifndef SUNPRO
-  CFLAGS  += -Wall $(OPTFLAGS) -fno-strict-aliasing
+  ifdef DUMA
+    CFLAGS += $(shell $(CC) -E -ftrivial-auto-var-init=pattern -  \
+                < /dev/null > /dev/null 2>&1 && printf '%s\n'     \
+                  "-ftrivial-auto-var-init=pattern")
+  endif
+endif
+
+ifndef TESTING
+  OPTFLAGS = -O3 -g3
+  ifdef DUMA
+    CFLAGS   += -I../dps8 -I. -include dps8_duma.h
+    OPTFLAGS += -DDUMA=1
+    DUMALIBS ?= -l:libduma.a
+    export DUMALIBS
+  endif
+else
+  OPTFLAGS = -O0 -g3 -fno-inline -ggdb -U_FORTIFY_SOURCE -fno-stack-protector
+  ifdef DUMA
+    CFLAGS   += -I../dps8 -I. -include dps8_duma.h
+    OPTFLAGS += -DDUMA=1
+    DUMALIBS ?= -l:libduma.a
+    export DUMALIBS
+  endif
+endif
+
+ifndef SUNPRO
+  CFLAGS  += -Wall $(OPTFLAGS) $(STRICT_ALIASING)
 endif
 
 CFLAGS  += $(X_FLAGS)
@@ -269,7 +304,8 @@ else
     KRNBITS=$(shell getconf KERNEL_BITMODE 2> /dev/null || printf '%s' "64")
     CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1 -DHAVE_POPT=1 -maix$(KRNBITS)       \
               -Wl,-b$(KRNBITS)
-    LDFLAGS += -lm -lpthread -lpopt -lbsd -maix$(KRNBITS) -Wl,-b$(KRNBITS)
+    LDFLAGS += $(MATHLIB) -lpthread -lpopt -lbsd -maix$(KRNBITS)              \
+               -Wl,-b$(KRNBITS)
     CC?=gcc
   endif
 
@@ -295,14 +331,26 @@ else
     ifeq ($(shell $(UNAME) -o 2> /dev/null),illumos)
       ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
       CFLAGS  +=-I/usr/local/include -m$(ISABITS) -DUSE_FCNTL=1
-      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -m$(ISABITS)
+      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl $(MATHLIB) -lpthread          \
+                -lmtmalloc -ldl -m$(ISABITS)
     endif
     ifeq ($(shell $(UNAME) -o 2> /dev/null),Solaris)
       ISABITS=$(shell isainfo -b 2> /dev/null || printf '%s' "64")
       CFLAGS  +=-I/usr/local/include -m$(ISABITS) -DUSE_FCNTL=1
-      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl -lm -lpthread -luv -lkstat    \
-                -ldl -m$(ISABITS)
+      LDFLAGS +=-L/usr/local/lib -lsocket -lnsl $(MATHLIB) -lpthread          \
+                -lmtmalloc -lkstat -ldl -m$(ISABITS)
       CC?=gcc
+    endif
+  endif
+endif
+
+###############################################################################
+# FreeBSD atomics
+
+ifeq ($(UNAME_S),FreeBSD)
+  ifeq ($(CROSS),)
+    ifneq ($(CYGWIN_MINGW-CROSS),1)
+      ATOMICS?=BSD
     endif
   endif
 endif
@@ -421,7 +469,7 @@ endif
 ###############################################################################
 
 %.o: %.c
-	@$(PRINTF) '%s\n' "CC: $<"
+	@$(PRINTF) '%s\n' "CC: $$($(BASENAME) "$<")"
 	@$(SETV); $(CC) $(CFLAGS) $(CPPFLAGS) $(X_FLAGS) -c "$<" -o "$@"          \
     -DBUILDINFO_"$(shell $(PRINTF) '%s\n' "$@"                            |   \
     $(CUT) -f 1 -d '.'                                      2> /dev/null  |   \

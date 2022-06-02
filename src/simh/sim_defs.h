@@ -1,7 +1,11 @@
 /* sim_defs.h: simulator definitions
 
+   vim: filetype=c:tabstop=4:tw=100:expandtab
+
+   ---------------------------------------------------------------------------
+
    Copyright (c) 1993-2008 Robert M Supnik
-   Copyright (c) 2021 The DPS8M Development Team
+   Copyright (c) 2021-2022 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -16,13 +20,17 @@
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+   OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
 
-   Except as contained in this notice, the name of Robert M Supnik shall not be
-   used in advertising or otherwise to promote the sale, use or other dealings
-   in this Software without prior written authorization from Robert M Supnik.
+   Except as contained in this notice, the name of Robert M Supnik shall not
+   be used in advertising or otherwise to promote the sale, use or other
+   dealings in this Software without prior written authorization from
+   Robert M Supnik.
+
+   ---------------------------------------------------------------------------
 */
 
 /*
@@ -83,9 +91,9 @@
 #  undef PAGESIZE
 # endif
 
-
 # ifndef TRUE
 #  define TRUE            1
+#  undef FALSE
 #  define FALSE           0
 # endif
 
@@ -370,7 +378,6 @@ struct DEVICE {
 # define DEV_NOSAVE      (1 << DEV_V_NOSAVE)             /* Don't save device state */
 # define DEV_NET         0                               /* Deprecated - meaningless */
 
-
 # define DEV_TYPEMASK    (((1 << DEV_S_TYPE) - 1) << DEV_V_TYPE)
 # define DEV_DISK        (1 << DEV_V_TYPE)               /* sim_disk Attach */
 # define DEV_TAPE        (2 << DEV_V_TYPE)               /* sim_tape Attach */
@@ -544,7 +551,6 @@ struct MTAB {
                                                         /* int * if not */
     const char          *help;                          /* help string */
     };
-
 
 /* mtab mask flag bits */
 /* NOTE: MTAB_VALR and MTAB_VALO are only used to display help */

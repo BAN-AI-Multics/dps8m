@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
- * Copyright (c) 2013-2021 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2013-2022 Charles Anthony
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 //
@@ -143,7 +149,6 @@
 //     Tape 0 reads record 1
 //   ctrl == 0 in chan 10 (12) DCW
 
-
 // Bootload check tape controller firmware loaded test
 //
 // CIOC 138
@@ -268,7 +273,6 @@
 //   Tape IOT Read
 //   ctrl == 0 in chan 10 (12) DCW
 
-
 // Bootload searching for console
 //
 // CIOC 8191828
@@ -293,7 +297,6 @@
 //   PGE              0
 //   AUX              0
 //
-
 
 // Bootload finding console
 //
@@ -321,7 +324,6 @@
 //
 // CONSOLE: ALERT
 
-
 // Bootload console read ID
 //
 // Connect channel LPW 037312020000 (case b)
@@ -345,7 +347,6 @@
 //   PGE              0
 //   AUX              0
 //
-
 
 // Bootload console write ASCII
 //
@@ -460,7 +461,6 @@
 // Control Error, Connect Channel" will be generated. Case c. will be
 // used in the bootload program.
 
-
 // LPW bits
 //
 //  0-17  DCW pointer
@@ -498,7 +498,6 @@
 //  65    AUX
 //  66-21 not used
 
-
 // IDCW
 //
 //   0-11 Channel information
@@ -507,7 +506,6 @@
 //  21    EC
 //  22-35 Channel Information
 //
-
 
 // TDCW
 //
@@ -552,6 +550,8 @@
 # include "threadz.h"
 #endif
 
+#include "../dpsprintf/dpsprintf.h"
+
 #define DBG_CTR 1
 
 // Nomenclature
@@ -571,7 +571,6 @@
 
 iom_chan_data_t iom_chan_data[N_IOM_UNITS_MAX][MAX_CHANNELS];
 
-
 typedef enum iom_status_t
   {
     iomStatNormal = 0,
@@ -583,7 +582,6 @@ typedef enum iom_status_t
     iomStatCPDiscrepancy = 6,
     iomStatParityErr = 7
   } iom_status_t;
-
 
 enum config_sw_OS_t
   {
@@ -598,7 +596,6 @@ enum config_sw_model_t
     CONFIG_SW_MODEL_IMU
   };
 
-
 // Boot device: CARD/TAPE;
 enum config_sw_bootlood_device_e { CONFIG_SW_BLCT_CARD, CONFIG_SW_BLCT_TAPE };
 
@@ -608,7 +605,6 @@ typedef struct
 
     // Interrupt multiplex base address: 12 toggles
     word12 configSwIomBaseAddress;
-
 
     // Mailbox base aka IOM base address: 9 toggles
     // Note: The IOM number is encoded in the lower two bits
@@ -852,7 +848,6 @@ void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36
 #endif
   }
 
-
 void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
@@ -902,7 +897,6 @@ static t_stat iom_show_mbx (UNUSED FILE * st,
   {
     return SCPE_OK;
   }
-
 
 static t_stat iom_show_units (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
   {
@@ -1244,7 +1238,6 @@ static t_stat iom_reset_unit (UNIT * uptr, UNUSED int32 value, UNUSED const char
     return SCPE_OK;
   }
 
-
 static MTAB iom_mod[] =
   {
     {
@@ -1405,7 +1398,6 @@ static void init_memory_iom (uint iom_unit_idx)
     else // CONFIG_SW_BLCT_TAPE
       bootchan = iom_unit_data[iom_unit_idx].configSwBootloadMagtapeChan;
 
-
     // 1
     // system fault vector; DIS 0 instruction (imu bit not mentioned by
     // 43A239854)
@@ -1459,7 +1451,6 @@ static void init_memory_iom (uint iom_unit_idx)
 
     M[4] = 030 << 18;
 
-
     // 7
     // Default SCW points at unused first mailbox.
 
@@ -1503,14 +1494,12 @@ static void init_memory_iom (uint iom_unit_idx)
     //  being non-zero in the idcw in the "IOM" provided information.  (This is
     //  normally zero until firmware is loaded into the bootload tape MPC.)
 
-
     M[1] = ((word36) (bootchan) << 27) | port;
 
     // 10
     // word after PCW (used by program)
 
     M[2] = ((word36) base_addr << 18) | (pi_base) | iom_num;
-
 
     // 11
     // IDCW for read binary
@@ -1891,7 +1880,6 @@ static void fetch_IDSPTW (uint iom_unit_idx, int chan, word18 addr)
       sim_warn ("%s: chan %d addr %#o ptw %012"PRIo64"\n",
                 __func__, chan, addr, p -> PTW_DCW);
   }
-
 
 static word24 build_LPWPTW_address (word18 PCW_PAGE_TABLE_PTR, word1 seg, word8 pageNumber)
   {
@@ -2763,7 +2751,6 @@ int iom_list_service (uint iom_unit_idx, uint chan,
         goto D;
       }
 
-
     // Not connect channel
 
     // LPW 21 (NC), 22 (TAL) is {00, 01, 1x}?
@@ -2888,16 +2875,13 @@ A:;
 //  and
 //   (d) an auxiliary PTW in not being used.
 
-
 //   (a) the DCW list is already paged   --  LPW PAGED: 3b, 4
 //       and the TDCW calls for the
 //       DCW [list to be] segmented      --  LPW SEG:       5
 
-
 //   (b) the data is already segmented   --  DCW SEG:   3a, 4
 //       and the TDCW calls for the
 //       DCW list to be paged            --  DCW PAGED:  2, 3b
-
 
 //   (c) neither data is segmented       -- DCW !SEG     1, 2, 3b
 //       nor DCW list is paged           -- LPW !PAGED   1, 2, 3a
@@ -2911,7 +2895,6 @@ A:;
           sim_warn ("TDCW_31_SEG\n");
 
         update_chan_mode (iom_unit_idx, chan, true);
-
 
         // Decrement tally
         p -> LPW_TALLY = (p -> LPW_TALLY - 1u) & MASK12;

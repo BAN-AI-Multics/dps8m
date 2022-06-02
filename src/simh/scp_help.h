@@ -1,7 +1,11 @@
 /* scp_help.h: hierarchical help definitions
 
+   vim: filetype=c:tabstop=4:tw=100:expandtab
+
+   ---------------------------------------------------------------------------
+
    Copyright (c) 2013 Timothe Litt
-   Copyright (c) 2021 The DPS8M Development Team
+   Copyright (c) 2021-2022 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -23,6 +27,8 @@
    Except as contained in this notice, the name of the author shall not be
    used in advertising or otherwise to promote the sale, use or other dealings
    in this Software without prior written authorization from the author.
+
+   ---------------------------------------------------------------------------
 */
 
 #ifndef SCP_HELP_H_

@@ -1,13 +1,19 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2013-2019 Charles Anthony
  * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <uv.h>
@@ -18,6 +24,7 @@
 #include "dps8_utils.h"
 #include "libtelnet.h"
 #include "uvutil.h"
+#include "../dpsprintf/dpsprintf.h"
 
 #define USE_REQ_DATA
 
@@ -157,7 +164,6 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
       sim_printf ("uv_write returns %d\n", ret);
   }
 
-
 void accessStartWrite (uv_tcp_t * client, char * data, ssize_t datalen)
   {
     if ((client == NULL) || uv_is_closing ((uv_handle_t *) client))
@@ -168,7 +174,6 @@ void accessStartWrite (uv_tcp_t * client, char * data, ssize_t datalen)
     else
       accessStartWriteActual (client, data, (ssize_t) datalen);
   }
-
 
 static void accessPutCharForce (uv_access * access, char ch)
   {
@@ -368,7 +373,6 @@ done:;
     //uv_read_stop ((uv_stream_t *) client);
   }
 
-
 static void accessTelnetReadCallback (uv_tcp_t * client,
                             ssize_t nread,
                             unsigned char * buf)
@@ -379,7 +383,6 @@ static void accessTelnetReadCallback (uv_tcp_t * client,
     else
       accessLogon (access, buf, nread);
   }
-
 
 static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event,
                        void *user_data)
@@ -467,7 +470,6 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event,
 
   }
 
-
 static const telnet_telopt_t my_telopts[] =
   {
     { TELNET_TELOPT_SGA,       TELNET_WILL, TELNET_DO   },
@@ -498,7 +500,6 @@ static void * accessTelnetConnect (uv_tcp_t * client)
     return p;
   }
 
-
 //
 // Connection callback handler
 //
@@ -507,7 +508,7 @@ static void onNewAccess (uv_stream_t * server, int status)
   {
     if (status < 0)
       {
-        fprintf (stderr, "New connection error %s\n", uv_strerror (status));
+        fprintf (stderr, "[FNP emulation: new connection error %s]\n", uv_strerror (status));
         // error!
         return;
       }
@@ -568,7 +569,6 @@ static void onNewAccess (uv_stream_t * server, int status)
       }
   }
 
-
 void uv_open_access (uv_access * access)
   {
     if (! access->port)
@@ -595,7 +595,7 @@ void uv_open_access (uv_access * access)
                        onNewAccess);
     if (r)
      {
-        fprintf (stderr, "Listen error %s\n", uv_strerror (r));
+        fprintf (stderr, "[FNP emulation: listen error %s\n", uv_strerror (r));
       }
     access->open = true;
   }

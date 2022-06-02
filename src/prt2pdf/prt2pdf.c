@@ -1,14 +1,20 @@
 /*
- * Copyright (c) 1998 P. G. Womack
+ * vim: filetype=c:tabstop=4:tw=132:expandtab
+ *
+ * =================================================================================================================================
+ *
+ * Copyright (c) 1998 P. G. Womack, Diss, Norfolk, UK.
  * Copyright (c) 2006 John S. Urban <urbanjost@comcast.net>
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * =================================================================================================================================
  */
 
 /* ============================================================================================================================== */
@@ -75,6 +81,8 @@
 #include <unistd.h>
 #include <getopt.h>
 
+#include "../dpsprintf/dpsprintf.h"
+
 /* ============================================================================================================================== */
 #define MAX(x, y)       ((x) > (y) ?  (x) : (y))
 /* #define MIN(x, y)       ((x) < (y) ?  (x) : (y)) */
@@ -109,7 +117,7 @@ int GLOBAL_GREEN_BAR;
 
 /* ============================================================================================================================== */
  int GLOBAL_ADD=0;
- int GLOBAL_VERSION = 2;
+ int GLOBAL_VERSION = 3;
  float GLOBAL_LEAD_SIZE;
  float GLOBAL_FONT_SIZE;
  int GLOBAL_OBJECT_ID = 1;
@@ -142,7 +150,7 @@ int GLOBAL_GREEN_BAR;
 
    if(n == NULL) {
       fprintf(stderr,"FATAL: Unable to allocate array for page %d.", GLOBAL_NUM_PAGES + 1);
-      exit(1);
+      _Exit(1);
    }
    n->next = NULL;
    n->page_id = id;
@@ -168,14 +176,13 @@ int GLOBAL_GREEN_BAR;
 
            if(new_xrefs == NULL) {
               fprintf(stderr, "FATAL: Unable to allocate array for object %d.", id);
-              exit(1);
+              _Exit(1);
            }
 
            memcpy(new_xrefs, GLOBAL_XREFS, GLOBAL_NUM_XREFS * sizeof(*GLOBAL_XREFS));
            free(GLOBAL_XREFS);
            GLOBAL_XREFS = new_xrefs;
            GLOBAL_NUM_XREFS = new_num_xrefs;
-
         }
 
         GLOBAL_XREFS[id] = ftell(stdout);
@@ -183,10 +190,10 @@ int GLOBAL_GREEN_BAR;
 
  }
 /* ============================================================================================================================== */
- void print_bars(){
+ void print_bars(void){
 
         float x1;
-        float y1;
+        float yyy1;
         float height;
         float width;
         float step;
@@ -209,7 +216,7 @@ int GLOBAL_GREEN_BAR;
 
         x1=GLOBAL_PAGE_MARGIN_LEFT-0.1*GLOBAL_FONT_SIZE;
         height=GLOBAL_SHADE_STEP*GLOBAL_LEAD_SIZE;
-        y1 = GLOBAL_PAGE_DEPTH - GLOBAL_PAGE_MARGIN_TOP - height- 0.22*GLOBAL_FONT_SIZE;
+        yyy1 = GLOBAL_PAGE_DEPTH - GLOBAL_PAGE_MARGIN_TOP - height- 0.22*GLOBAL_FONT_SIZE;
         width=GLOBAL_PAGE_WIDTH-GLOBAL_PAGE_MARGIN_LEFT-GLOBAL_PAGE_MARGIN_RIGHT;
         step=1.0;
         if(GLOBAL_DASHCODE[0] != '\0'){
@@ -247,7 +254,6 @@ int GLOBAL_GREEN_BAR;
 
                               [ 2 3 ] 11                                    1 on, 3 off, 2 on, 3 off, 2 on, ...
 
-
          Dashed lines shall wrap around curves and corners just as solid stroked lines do. The ends of each dash shall
          be treated with the current line cap style, and corners within dashes shall be treated with the current line join
          style. A stroking operation shall take no measures to coordinate the dash pattern with features of the path; it
@@ -257,21 +263,21 @@ int GLOBAL_GREEN_BAR;
          the dash pattern shall be restarted and the dash phase shall be reapplied to it at the beginning of each subpath.
          */
 
-        while ( y1 >= (GLOBAL_PAGE_MARGIN_BOTTOM-height) ){
+        while ( yyy1 >= (GLOBAL_PAGE_MARGIN_BOTTOM-height) ){
            if(GLOBAL_DASHCODE[0] ==  '\0'){
                 /* a shaded bar */
-                 fprintf(stdout,"%f %f %f %f re f\n",x1,y1,width,height);
+                 fprintf(stdout,"%f %f %f %f re f\n",x1,yyy1,width,height);
                  step=2.0;
                 /*
-                 * x1 y1 m x2 y2 l S
+                 * x1 yyy1 m x2 y2 l S
                  * xxx w  # line width
-                 fprintf(stdout,"0.6 0.8 0.6 RG\n %f %f m %f %f l S\n",x1,y1,x1+width,y1);
+                 fprintf(stdout,"0.6 0.8 0.6 RG\n %f %f m %f %f l S\n",x1,yyy1,x1+width,yyy1);
                  */
            }else{
-                  fprintf(stdout, "%f %f m ", x1 ,y1);
-                  fprintf(stdout, "%f %f l s\n",x1+width,y1);
+                  fprintf(stdout, "%f %f m ", x1 ,yyy1);
+                  fprintf(stdout, "%f %f l s\n",x1+width,yyy1);
            }
-           y1=y1-step*height;
+           yyy1=yyy1-step*height;
         }
         if(GLOBAL_DASHCODE[0] != '\0'){
            fprintf(stdout, "[] 0 d\n"); /* set dash pattern to solid line */
@@ -309,7 +315,7 @@ int GLOBAL_GREEN_BAR;
         fprintf(stdout," Tj ET\n");
  }
 /* ============================================================================================================================== */
- void printme_top(){
+ void printme_top(void){
         char *varname;
         if( (varname=getenv("IMPACT_TOP")) != (char *)NULL ) {
            char IMPACT_TOP[256];
@@ -333,7 +339,7 @@ int GLOBAL_GREEN_BAR;
         }
  }
 /* ============================================================================================================================== */
- void print_margin_label(){
+ void print_margin_label(void){
      float charwidth;
      float start;
      int hold;
@@ -372,7 +378,7 @@ int GLOBAL_GREEN_BAR;
 
  }
 /* ============================================================================================================================== */
- void start_page() {
+ void start_page(void) {
    GLOBAL_STREAM_ID = GLOBAL_OBJECT_ID++;
    GLOBAL_STREAM_LEN_ID = GLOBAL_OBJECT_ID++;
    GLOBAL_PAGECOUNT++;
@@ -388,7 +394,7 @@ int GLOBAL_GREEN_BAR;
    printf("%g TL\n", GLOBAL_LEAD_SIZE);
  }
 /* ============================================================================================================================== */
- void end_page(){
+ void end_page(void){
 
     long stream_len;
     int page_id = GLOBAL_OBJECT_ID++;
@@ -409,7 +415,7 @@ void increment_ypos(float mult){
    }
 }
 /* ============================================================================================================================== */
-void do_text ()
+void do_text (void)
   {
 
     char buffer [8192];
@@ -468,23 +474,24 @@ printline:
    end_page();
 }
 /* ============================================================================================================================== */
-void dopages(){
+void dopages(void){
         int i, catalog_id, font_id0, font_id1;
         long start_xref;
 
         printf("%%PDF-1.0\n");
 
         /*
-           Note: If a PDF file contains binary data, as most do , it is
+           Note: If a PDF file contains binary data, as most do, it is
            recommended that the header line be immediately followed by a
-           comment line containing at least four binary characters--that is,
-           characters whose codes are 128 or greater. This will ensure proper behavior of file
-           transfer applications that inspect data near the beginning of a
-           file to determine whether to treat the file's contents as text or as binary.
+           comment line containing at least four binary characters - that
+           is, characters whose codes are 128 or greater. This will ensure
+           proper behavior of file transfer applications that inspect data
+           near the beginning of a file to determine whether to treat the
+           file's contents as text or as binary.
         */
+
         fprintf(stdout,"%%%c%c%c%c\n",128,129,130,131);
         fprintf(stdout,"%% PDF: Adobe Portable Document Format\n");
-
 
         GLOBAL_LEAD_SIZE=(GLOBAL_PAGE_DEPTH-GLOBAL_PAGE_MARGIN_TOP-GLOBAL_PAGE_MARGIN_BOTTOM)/GLOBAL_LINES_PER_PAGE;
         GLOBAL_FONT_SIZE=GLOBAL_LEAD_SIZE;
@@ -677,7 +684,7 @@ fprintf (stderr,"-S %d # right shift\n", GLOBAL_SHIFT);
 fprintf (stderr,"-N [flag=%d]   # add line numbers \n", GLOBAL_LINENUMBERS);
 fprintf (stderr,"-P [flag=%d]   # add page numbers\n", GLOBAL_PAGES);
 
-fprintf (stderr,"-v %d # version number\n", GLOBAL_VERSION);
+fprintf (stderr,"-v    # display version number\n");
 fprintf (stderr,"-V    # display build info\n");
 fprintf (stderr,"-h    # display help\n");
 break;
@@ -698,8 +705,8 @@ int main(int argc, char **argv) {
 
    char *varname;
 
-       int prindex;
-       int c;
+   int prindex;
+   int c;
    GLOBAL_PAGE_DEPTH =        612.0;
    GLOBAL_PAGE_WIDTH =        792.0;      /* Default is 72 points per inch */
    GLOBAL_PAGE_MARGIN_TOP =    36.0 -24.0;
@@ -709,7 +716,6 @@ int main(int argc, char **argv) {
    GLOBAL_LINES_PER_PAGE=      64.0;
    GLOBAL_GRAY_SCALE=           0.800781; /* gray-scale value */
    GLOBAL_GREEN_BAR=           0;
-
 
    varname=getenv("IMPACT_GRAY");
    if (varname == (char*)NULL ){
@@ -725,7 +731,6 @@ int main(int argc, char **argv) {
 
    GLOBAL_LEFT_TITLE[0]='\0';
    GLOBAL_CENTER_TITLE[0]='\0';
-
 
    opterr = 0;
 
@@ -757,7 +762,7 @@ int main(int argc, char **argv) {
 
            case 'N': GLOBAL_LINENUMBERS=1;                                                    break; /* number lines             */
            case 'P': GLOBAL_PAGES=1;                                                          break; /* number pages             */
-           case 'h': showhelp(1);exit(1);                                                     break; /* help                     */
+           case 'h': showhelp(1);exit(0);                                                     break; /* help                     */
            case 'X': showhelp(2);
                                                                                               break;
            case 'V': ;
@@ -779,9 +784,9 @@ int main(int argc, char **argv) {
                      fprintf (stderr, "Compiler: %s\n", __VERSION__ );
 # endif /* ifdef __GNUC__ */
 #endif /* ifdef __VERSION__ */
-                     exit(1);
+                     exit(0);
         break; /* build info               */
-           case 'v': fprintf (stderr, "prt2pdf version %d\n",GLOBAL_VERSION); exit(2);        break; /* version                  */
+           case 'v': fprintf (stderr, "prt2pdf version %d.0\n",GLOBAL_VERSION); exit(0);        break; /* version                */
            case '?':
              fprintf(stderr," SWITCH IS %c\n",c);
              if (isprint (optopt)){
@@ -790,7 +795,7 @@ int main(int argc, char **argv) {
                fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
              }
              showhelp(2);
-             exit(1);
+             _Exit(1);
              /*NOTREACHED*/
 #ifndef __SUNPRO_C
 # ifndef __SUNPRO_CC

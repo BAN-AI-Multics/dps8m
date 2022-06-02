@@ -1,11 +1,11 @@
 # DPS/8M simulator: src/prt2pdf/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=76
-#
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+
 ###############################################################################
 #
 # Copyright (c) 2013-2016 Charles Anthony
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #
@@ -25,11 +25,6 @@ endif
 
 ###############################################################################
 
-PRFLAGS=-Wall -Wextra
-CFLAGS+=$(PRFLAGS)
-
-###############################################################################
-
 ifneq "$(findstring icc,$(CC))" ""
   CFLAGS += -diag-disable=11074,11076,10148
 endif
@@ -38,24 +33,27 @@ endif
 
 .PHONY: all
 all: prt2pdf$(EXE)
+	-@$(TRUE)
 
 ###############################################################################
 
-prt2pdf$(EXE): prt2pdf.c
+prt2pdf$(EXE): prt2pdf.c ../dpsprintf/dpsprintf.o
 	@$(PRINTF) '%s\n' "CC: prt2pdf"     ||  $(TRUE)
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o prt2pdf$(EXE) prt2pdf.c $(PRLIBS)
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) "../dpsprintf/dpsprintf.o"           \
+      -o prt2pdf$(EXE) prt2pdf.c $(MATHLIB) $(DUMALIBS)
 
 ###############################################################################
 
-.PHONY: clean
+.PHONY: clean distclean
 ifneq (,$(findstring clean,$(MAKECMDGOALS)))
-.NOTPARALLEL: clean
+.NOTPARALLEL: clean distclean
 endif
-clean:
+clean distclean:
 	@$(PRINTF) '%s\n' "CLEAN: prt2pdf"
 	-@$(SETV); $(RMF) "prt2pdf$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "prt2pdf.exe"    > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "prt2pdf.o"      > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o"  > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 

@@ -1,7 +1,11 @@
 /* sim_tape.c: simulator tape support library
 
+   vim: filetype=c:tabstop=4:tw=100:expandtab
+
+   ---------------------------------------------------------------------------
+
    Copyright (c) 1993-2008 Robert M Supnik
-   Copyright (c) 2021 The DPS8M Development Team
+   Copyright (c) 2021-2022 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -10,19 +14,23 @@
    and/or sell copies of the Software, and to permit persons to whom the
    Software is furnished to do so, subject to the following conditions:
 
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
+   The above copyright notice and this permission notice shall be included
+   in all copies or substantial portions of the Software.
 
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
+   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+   OTHER DEALINGS IN THE SOFTWARE.
 
-   Except as contained in this notice, the name of Robert M Supnik shall not be
-   used in advertising or otherwise to promote the sale, use or other dealings
-   in this Software without prior written authorization from Robert M Supnik.
+   Except as contained in this notice, the name of Robert M Supnik shall
+   not be used in advertising or otherwise to promote the sale, use or
+   other dealings in this Software without prior written authorization from
+   Robert M Supnik.
+
+   ---------------------------------------------------------------------------
 */
 
 /*
@@ -62,6 +70,8 @@
 #include "sim_tape.h"
 #include <ctype.h>
 
+#include "../dpsprintf/dpsprintf.h"
+
 struct sim_tape_fmt {
     const char          *name;                          /* name */
     int32               uflags;                         /* unit flags */
@@ -95,7 +105,6 @@ static t_stat sim_tape_simh_check (UNIT *uptr);
 static t_stat sim_tape_e11_check (UNIT *uptr);
 static t_addr sim_tape_tpc_fnd (UNIT *uptr, t_addr *map);
 static void sim_tape_data_trace (UNIT *uptr, const uint8 *data, size_t len, const char* txt, int detail, uint32 reason);
-
 
 struct tape_context {
     DEVICE              *dptr;              /* Device for unit (access to debug flags) */
@@ -789,7 +798,6 @@ t_stat r = SCPE_OK;
 return r;
 }
 
-
 /* Read record reverse
 
    Inputs:
@@ -1037,7 +1045,6 @@ return r;
    read error           unchanged, PNU set
    write error          unchanged, PNU set
    gap written          updated
-
 
    An erase gap is represented in the tape image file by a special metadata
    value.  This value is chosen so that it is still recognizable even if it has
@@ -1932,7 +1939,6 @@ return SCPE_OK;
 static t_addr sim_tape_tpc_fnd (UNIT *uptr, t_addr *map)
 {
 uint32 lo, hi, p;
-
 
 if (map == NULL)
     return 0;

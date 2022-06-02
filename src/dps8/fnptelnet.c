@@ -1,12 +1,18 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -23,16 +29,17 @@
 #include "fnpuv.h"
 #include "fnptelnet.h"
 
+#include "../dpsprintf/dpsprintf.h"
+
 static const telnet_telopt_t my_telopts[] = {
     { TELNET_TELOPT_SGA,       TELNET_WILL, TELNET_DO   },
     { TELNET_TELOPT_ECHO,      TELNET_WILL, TELNET_DONT },
-
-    //{ TELNET_TELOPT_TTYPE,     TELNET_WONT, TELNET_DONT },
-    //{ TELNET_TELOPT_COMPRESS2, TELNET_WONT, TELNET_DO   },
-    //{ TELNET_TELOPT_ZMP,       TELNET_WONT, TELNET_DO   },
-    //{ TELNET_TELOPT_MSSP,      TELNET_WONT, TELNET_DO   },
+  //{ TELNET_TELOPT_TTYPE,     TELNET_WONT, TELNET_DONT },
+  //{ TELNET_TELOPT_COMPRESS2, TELNET_WONT, TELNET_DO   },
+  //{ TELNET_TELOPT_ZMP,       TELNET_WONT, TELNET_DO   },
+  //{ TELNET_TELOPT_MSSP,      TELNET_WONT, TELNET_DO   },
     { TELNET_TELOPT_BINARY,    TELNET_WILL, TELNET_DO   },
-    //{ TELNET_TELOPT_NAWS,      TELNET_WONT, TELNET_DONT },
+  //{ TELNET_TELOPT_NAWS,      TELNET_WONT, TELNET_DONT },
     { -1, 0, 0 }
   };
 
@@ -42,7 +49,6 @@ static const telnet_telopt_t my_3270telopts[] = {
     { TELNET_TELOPT_EOR,       TELNET_WILL, TELNET_DO   },
     { -1, 0, 0 }
   };
-
 
 static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *user_data)
   {
@@ -91,7 +97,7 @@ static void evHandler (UNUSED telnet_t *telnet, telnet_event_t *event, void *use
               }
             else if (event->neg.telopt == TELNET_TELOPT_EOR)
               {
-//sim_printf ("EOR rcvd\n");
+                //sim_printf ("EOR rcvd\n");
                 //fnpuv_recv_eor (client);
                 // DO EOR
               }

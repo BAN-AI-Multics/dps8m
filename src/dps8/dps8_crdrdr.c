@@ -1,16 +1,22 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2016 Michal Tomek
  * Copyright (c) 2021 Dean S. Anderson
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -34,6 +40,8 @@
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 #define N_RDR_UNITS 1 // default
@@ -121,7 +129,6 @@ static MTAB rdr_mod [] =
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
   };
 
-
 DEVICE rdr_dev = {
     "RDR",        /* name */
     rdr_unit,     /* units */
@@ -174,10 +181,8 @@ static struct rdr_state
     char fname [PATH_MAX+1];
   } rdr_state [N_RDR_UNITS_MAX];
 
-
 static char* rdr_name = "rdr";
 static char rdr_path_prefix[PATH_MAX+1];
-
 
 /*
  * rdr_init()
@@ -369,7 +374,6 @@ static void asciiToH (char * str, uint * hstr, size_t l)
         p ++;
       }
   }
-
 
 #if 0
 static char * testDeck [] =
@@ -689,7 +693,6 @@ empty:;
         //cardImage [l] = 0;
       }
 
-
       uint hbuf [l];
       asciiToH ((char *) cardImage, hbuf, l);
 
@@ -850,7 +853,7 @@ static void scanForCards(uint16 readerIndex)
     closedir (dp);
   }
 
-void rdrProcessEvent ()
+void rdrProcessEvent (void)
   {
     if (rdr_path_prefix [0])
       {
@@ -872,7 +875,6 @@ void rdrProcessEvent ()
         scanForCards(0);
       }
   }
-
 
 void rdrCardReady (int unitNum)
   {

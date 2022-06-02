@@ -1,13 +1,19 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2014-2016 Charles Anthony
  * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 /* Shared memory functions */
@@ -29,6 +35,8 @@
 #include <sys/stat.h> /* For mode constants */
 #include <sys/types.h>
 #include <unistd.h>
+
+#include "../dpsprintf/dpsprintf.h"
 
 #include "shm.h"
 
@@ -125,6 +133,7 @@ create_shm(char *key, size_t shm_size)
   unsigned long lkpid = 0;
   char sthostname[HOST_NAME_MAX + 1];
   char shostname[HOST_NAME_MAX * 2];
+  /* cppcheck-suppress unreadVariable */
   int pch = 0;
   int ypch = 0;
   FILE *lck_fp;

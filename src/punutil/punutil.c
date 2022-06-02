@@ -1,11 +1,17 @@
 /*
- * Copyright (c) 2021 The DPS8M Development Team
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * -------------------------------------------------------------------------
+ *
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * -------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -24,6 +30,8 @@
 #else
 # include <getopt.h>
 #endif /* ifdef USE_POPT */
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define CARD_COL_COUNT 80
 #define NIBBLES_PER_COL 3
@@ -431,7 +439,7 @@ static int mcc_to_ascii(word12 punch_code)
 }
 
 // Scans data cards to determine if they contain all valid MCC punch codes
-static bool check_for_valid_mcc_cards()
+static bool check_for_valid_mcc_cards(void)
 {
     CARD_CACHE_ENTRY *current_card = data_card_cache.first_cache_card;
     while (current_card != NULL)
@@ -659,7 +667,7 @@ static char get_lace_char(const word12 *buffer, uint char_pos)
     if (char_pos >= GLYPHS_PER_CARD)
     {
         fprintf(stderr, "*** Error: Attempt to read punch block character out of range (%u)\n", char_pos);
-        exit(4);
+        _Exit(4);
     }
 
     bool top = char_pos < 11;                                      // Top or bottom line of characters
@@ -701,13 +709,13 @@ static void scan_card_for_glyphs(card_image_t *card)
     }
 }
 
-static card_image_t *allocate_card()
+static card_image_t *allocate_card(void)
 {
     card_image_t *card = malloc(sizeof(card_image_t));
     if (card == NULL)
     {
         fprintf(stderr, "*** Error: Failed to allocate card image!\n");
-        exit(1);
+        _Exit(1);
     }
 
     memset(card, 0, sizeof(card_image_t));
@@ -732,12 +740,12 @@ static card_image_t *read_card(FILE *in_file)
         {
             // Something bad happened, report the error and exit
             perror("Reading card file\n");
-            exit(2);
+            _Exit(2);
         }
         else
         {
             fprintf(stderr, "*** Error: fread returned zero but failed to set the error or eof flags!\n");
-            exit(2);
+            _Exit(2);
         }
     }
 
@@ -745,7 +753,7 @@ static card_image_t *read_card(FILE *in_file)
     if (bytes_read != BYTES_PER_CARD)
     {
         fprintf(stderr, "*** Error: failed to read a full card (only read %d of %d bytes)\n", bytes_read, BYTES_PER_CARD);
-        exit(3);
+        _Exit(3);
     }
 
     // We have a full card so allocate a card and convert the byte buffer into the card image
@@ -1087,7 +1095,7 @@ static void parse_cards(FILE *in_file)
     }
 }
 
-static void init()
+static void init(void)
 {
     memset(&banner_card_cache, 0, sizeof(banner_card_cache));
     memset(&data_card_cache, 0, sizeof(data_card_cache));
@@ -1189,7 +1197,7 @@ static void parse_options(int argc, char *argv[])
 
         case '7':
             fprintf(stderr, "*** Sorry: 7punch format is not yet supported!\n");
-            exit(1);
+            _Exit(1);
 
         case 'a':
             output_auto = true;
@@ -1250,11 +1258,11 @@ static void parse_options(int argc, char *argv[])
         case 'h':
         case '?':
             print_help(argv[0]);
-            exit(1);
+            exit(0);
 
         default:
             fprintf(stderr, "*** Internal Error: did not recognize option when parsing options, got %d\n", c);
-            exit(1);
+            _Exit(1);
         }
 #ifdef USE_POPT
      }
@@ -1267,7 +1275,7 @@ static void parse_options(int argc, char *argv[])
     if (!output_auto && !override_in_effect)
     {
         fprintf(stderr, "*** Error: auto mode was disabled with no override mode selected!\n");
-        exit(1);
+        _Exit(1);
     }
 }
 
@@ -1339,7 +1347,7 @@ static void dump_raw(FILE *out_file)
             if (fwrite(&byte, 1, 1, out_file) != 1)
             {
                 perror("Failed to write output file\n");
-                exit(5);
+                _Exit(5);
             }
         }
         current_entry = current_entry->next_entry;

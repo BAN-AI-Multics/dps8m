@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
- * Copyright (c) 2013-2021 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2013-2022 Charles Anthony
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 // IDCW Instruction                   18-20 111
@@ -73,38 +79,35 @@ typedef enum chanStat
 //   idcw.chan_cmd = "03"b3;          /* data security erase */
 //   dcw.chan_cmd = "30"b3;           /* use normal values, auto-retry */
 
-
 // iom_word_macros.incl.alm
 //
 // Channel control
 #define CHAN_CTRL_TERMINATE 0
-#define CHAN_CTRL_PROCEED 2
-#define CHAN_CTRL_MARKER 3
+#define CHAN_CTRL_PROCEED   2
+#define CHAN_CTRL_MARKER    3
 
 // Channel command
-#define CHAN_CMD_RECORD 0
-#define CHAN_CMD_NONDATA 2
+#define CHAN_CMD_RECORD      0
+#define CHAN_CMD_NONDATA     2
 #define CHAN_CMD_MULTIRECORD 6
-#define CHAN_CMD_CHARACTER 8
+#define CHAN_CMD_CHARACTER   8
 
-
-#define IS_IDCW(p) ((p)->DCW_18_20_CP == 07)
+#define IS_IDCW(p)     ((p)->DCW_18_20_CP == 07)
 #define IS_NOT_IDCW(p) ((p)->DCW_18_20_CP != 07)
-#define IS_TDCW(p) ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 2)
-#define IS_IOTD(p) ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 0)
-#define IS_IONTP(p) ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 3)
+#define IS_TDCW(p)     ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 2)
+#define IS_IOTD(p)     ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 0)
+#define IS_IONTP(p)    ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 3)
 
 // exercise_disk.pl1
-#define CHAN_CMD_INHIB_AUTO_RETRY 021
+#define CHAN_CMD_INHIB_AUTO_RETRY    021
 // load_mpc.pl1
-#define CHAN_CMD_SPECIAL_CTLR 040
+#define CHAN_CMD_SPECIAL_CTLR        040
 // poll_mpc.pl1
-#define CHAN_CMD_DEV_ORDER 030
-#define CHAN_CMD_SPECIAL_CTLR2 041
+#define CHAN_CMD_DEV_ORDER           030
+#define CHAN_CMD_SPECIAL_CTLR2       041
 // tape_ioi_io.pl1
-#define CHAN_CMD_DATA_SECURITY_ERASE 03
-#define CHAN_CMD_NORM_AUTO_TRY 030
-
+#define CHAN_CMD_DATA_SECURITY_ERASE  03
+#define CHAN_CMD_NORM_AUTO_TRY       030
 
 typedef volatile struct
   {
@@ -144,7 +147,7 @@ typedef volatile struct
     word18 PCW_PAGE_TABLE_PTR;
     word1 PCW_63_PTP;
     word1 PCW_64_PGE;
-    word1 PCW_65_AUX;  // XXX
+    word1 PCW_65_AUX; // XXX
     word1 PCW_21_MSK; // Sometimes called 'M' // see 3.2.2, pg 25
 
     // packed DCW
@@ -174,7 +177,8 @@ typedef volatile struct
     word12 DDCW_TALLY;
     word2  DDCW_22_23_TYPE; // '2' indicates TDCW
     // xDCW
-    word3  DCW_18_20_CP; // '7' indicates IDCW // XXX pg 30; the indirect data service needs to use this.
+    word3  DCW_18_20_CP; // '7' indicates IDCW
+    // XXX pg 30; the indirect data service needs to use this.
 
     word6 ADDR_EXT; // 3.2.2, 3.2.3.1
     word1 SEG;  // pg B21

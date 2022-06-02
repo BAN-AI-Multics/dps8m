@@ -3,17 +3,19 @@ set userName Clayton
 set projName SysAdmin
 set password password
 
-remove_nulls 1
-match_max 4096
-set timeout 350000
+#exp_internal -f ci_t3.debug.log 1
 
-proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2}
-proc  wi {     } { expect -re {Input.\r}; sleep 0.2}
-proc  wn {     } { expect -re {\n}; sleep 0.2}
-proc  sw { txt } { send $txt; send "\r"; w }
+remove_nulls 1
+match_max 14096
+set timeout 750000
+
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2 }
+proc  wi {     } { expect -re {Input.\r}; sleep 0.2 }
+proc  wn {     } { expect -re {\n}; sleep 0.2 }
+proc  sw { txt } { send $txt; send "\r"; w  }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.5}
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.4 }
 proc swf { txt } { send $txt; send "\r"; wf }
 
 spawn telnet -E 127.0.0.1 "$env(FNPPORT)"
@@ -31,10 +33,12 @@ expect "Password:"
 send "password\r"
 
 # If it works, we should get the TOLTS prompt
-expect -timeout 10  "isolts"
+expect "olts"; sleep 2
+send "quit\n"; sleep 1
+sleep 2
+set timeout 3
 
-send "quit\r"
-swn "logout\r"; sleep 6
+# Scram
+exec kill -9 [exp_pid $telnetID]; sleep 1
 close $telnetID
-
 exit

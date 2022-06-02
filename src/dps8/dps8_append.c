@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2017 Charles Anthony
  * Copyright (c) 2017 Michal Tomek
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -25,6 +31,8 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -114,7 +122,6 @@ static char *str_sdw (char * buf, sdw_s *SDW);
 //  number.)
 //  5. C(PRn.BITNO) -> TPR.BITNO
 //
-
 
 // Define this to do error detection on the PTWAM table.
 // Useful if PTWAM reports an error message, but it slows the emulator
@@ -219,7 +226,6 @@ void do_ldbr (word36 * Ypair)
             cpu.DSBR.ADDR, cpu.DSBR.BND, cpu.DSBR.U, cpu.DSBR.STACK);
   }
 
-
 /*
  * fetch descriptor segment PTW ...
  */
@@ -268,7 +274,6 @@ static void fetch_dsptw (word15 segno)
             cpu.PTW0.M, cpu.PTW0.DF, cpu.PTW0.FC);
   }
 
-
 /*
  * modify descriptor segment PTW (Set U=1) ...
  */
@@ -312,7 +317,6 @@ static void modify_dsptw (word15 segno)
       add_APU_history (APUH_MDSPTW);
 #endif
   }
-
 
 #ifdef DPS8M
 static word6 calc_hit_am (word6 LRU, uint hit_level)
@@ -1035,9 +1039,7 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
        if (! PTW2.DF)
            // initiate a directed fault
            doFault (FAULT_DF0 + PTW2.FC, fst_zero, "PTW2.F == 0");
-
   }
-
 
 /*
  * Is the instruction a SToRage OPeration ?
@@ -1109,9 +1111,7 @@ static char *str_pct (processor_cycle_type t)
         default:
             return "Unhandled processor_cycle_type";
       }
-
   }
-
 
 /*
  * recoding APU functions to more closely match Fig 5,6 & 8 ...
@@ -1651,7 +1651,6 @@ E1:
         FMSG (acvFaultsMsg = "acvFaults(E1) C(TPR.TRR) < SDW.R1";)
       }
 
-
     // C(TPR.TRR) > C(PPR.PRR)?
     if (cpu.TPR.TRR > cpu.PPR.PRR)
       {
@@ -1667,7 +1666,6 @@ E1:
                   "C(PPR.PRR) < SDW.R2";)
           }
       }
-
 
     DBGAPP ("do_append_cycle(E1): CALL6 TPR.TRR %o SDW->R2 %o\n",
             cpu.TPR.TRR, cpu.SDW->R2);
@@ -1940,7 +1938,6 @@ HI:
     //  handled above
    goto Exit;
 
-
 ////////////////////////////////////////
 //
 // Sheet 9: "J"
@@ -2202,7 +2199,6 @@ P:; // ITP
     DBGAPP ("do_append_cycle(P) Set TRR to %o\n", cpu.TPR.TRR);
 
     goto Exit;
-
 
 Exit:;
 

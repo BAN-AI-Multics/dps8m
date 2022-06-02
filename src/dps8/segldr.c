@@ -1,11 +1,18 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2021 Charles Anthony
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <unistd.h>
@@ -22,26 +29,28 @@
 #include "dps8_state.h"
 #include "dps8_utils.h"
 
+#include "../dpsprintf/dpsprintf.h"
+
 #include "segldr.h"
-/* 
+
+/*
  * Segment loader memory layout
- * 
+ *
  * 0000   Intterrupt and fault vectors
  *
  * 2000   Bootstrap code entry
- * 
+ *
  * 4000   Page tables
- * 
+ *
  * Paged segments
  *
  *     4000 descriptor segment page table
- *        4000 PTW for segments 0-511. 0-777
+ *     4000 PTW for segments 0-511. 0-777
  *     6000 descriptor segment page for segments 0-777
  *     7000 segment page tables
- *    10000  Segment storage
- * 
- */ 
-
+ *    10000 Segment storage
+ *
+ */
 
 #define ADDR_BOOT   02000
 #define ADDR_DSPT   04000
@@ -53,10 +62,10 @@
 
 /*
  *  sl init       initialize segment loader
- *  sl bload <segment number> <filename> 
+ *  sl bload <segment number> <filename>
  *                copy the binary file into the next avialable storage
  *                and create an SDW for the file
- *  sl bload boot <filename> 
+ *  sl bload boot <filename>
  *                copy the binary file into memory starting at address 0
  *  al stack <segno> <n_pages>
  */
@@ -82,19 +91,19 @@ static void initPageTables (void)
 static void addSDW (word24 addr, long segnum, long length)
   {
     // Round length up to page boundary
-    //long lengthp = (length + 01777) & 077776000;
+    // long lengthp = (length + 01777) & 077776000;
 
     // Number of pages
-    long npages = length / 1024;
+    long npages = (long)(length / 1024);
 
     // Add SDW, allocate space
-    word14 bound = ((length + 15) >> 4) + 1;
+    word14 bound = (word14)(((length + 15) >> 4) + 1);
 
     // Add PTW to DSPT
-    word24 y1 = (2u * segnum) % 1024u;
+    word24 y1 = (word24)((2u * segnum) % 1024u);
 
     // Allocate target segment page table
-    word24 pgTblAddr = nextPageAddr;
+    word24 pgTblAddr = (word24)(nextPageAddr);
     nextPageAddr += 1024;
 
     // Build Descriptor Segment Page SDW
@@ -104,15 +113,15 @@ static void addSDW (word24 addr, long segnum, long length)
     //sim_printf ("segnum %lo length %lu bound %u sdw0 %o sdw1 %o ADDR %06o\n", (unsigned long) segnum, length, bound, sdw0, sdw1, pgTblAddr);
     putbits36_24 ((word36 *) & M[sdw0],  0, pgTblAddr); // ADDR
 // I can't get segldr_boot to cross to ring 4
-//    putbits36_3  (& M[sdw0], 24, 4);         // R1
-//    putbits36_3  (& M[sdw0], 27, 4);         // R2
-//    putbits36_3  (& M[sdw0], 30, 4);         // R3
-    putbits36_3  ((word36 *) & M[sdw0], 24, 0);         // R1
-    putbits36_3  ((word36 *) & M[sdw0], 27, 0);         // R2
-    putbits36_3  ((word36 *) & M[sdw0], 30, 0);         // R3
-    putbits36_1  ((word36 *) & M[sdw0], 33, 1);         // F
-    putbits36_2  ((word36 *) & M[sdw0], 34, 0);         // FC
-    putbits36_1  ((word36 *) & M[sdw1], 0, 0);      // 0
+//    putbits36_3  (& M[sdw0], 24, 4);                // R1
+//    putbits36_3  (& M[sdw0], 27, 4);                // R2
+//    putbits36_3  (& M[sdw0], 30, 4);                // R3
+    putbits36_3  ((word36 *) & M[sdw0], 24, 0);     // R1
+    putbits36_3  ((word36 *) & M[sdw0], 27, 0);     // R2
+    putbits36_3  ((word36 *) & M[sdw0], 30, 0);     // R3
+    putbits36_1  ((word36 *) & M[sdw0], 33, 1);     // F
+    putbits36_2  ((word36 *) & M[sdw0], 34, 0);     // FC
+    putbits36_1  ((word36 *) & M[sdw1],  0, 0);     // 0
     putbits36_14 ((word36 *) & M[sdw1],  1, bound); // BOUND
     putbits36_1  ((word36 *) & M[sdw1], 15, 1);     // R
     putbits36_1  ((word36 *) & M[sdw1], 16, 1);     // E
@@ -127,7 +136,7 @@ static void addSDW (word24 addr, long segnum, long length)
 
     for (word24 pg = 0; pg <= npages; pg ++)
       {
-        //word36 * ptwp = (word36 *) M + pgTblAddr + pg;
+        // word36 * ptwp = (word36 *) M + pgTblAddr + pg;
         word24 ptw = pgTblAddr + pg;
         word18 pgAddr = (addr + pg * 1024) >> 6;
         putbits36_18 ((word36 *) & M[ptw],  0,    pgAddr); // points to the Segment Page
@@ -236,7 +245,6 @@ static t_stat bload (char * p2, char * p3)
         return SCPE_ARG;
       }
 
-
     // Copy segment into memory
     word24 addr = nextSegAddr;
     word24 startAddr;
@@ -250,7 +258,7 @@ static t_stat bload (char * p2, char * p3)
     for (;;)
       {
         ssize_t sz;
-// 72 bits at a time; 2 dps8m words == 9 bytes
+        // 72 bits at a time; 2 dps8m words == 9 bytes
         uint8_t bytes [9];
         memset (bytes, 0, 9);
         sz = read (deckfd, bytes, 9);
@@ -265,7 +273,7 @@ static t_stat bload (char * p2, char * p3)
       }
     word24 length = addr - startAddr;
 
-    int lengthp;
+    word24 lengthp;
     if (segnum >= 0)
       {
         // Add SDW

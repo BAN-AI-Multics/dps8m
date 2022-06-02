@@ -1,12 +1,18 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2019-2021 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #ifndef API
@@ -26,11 +32,11 @@ enum symbolType {
 };
 
 enum valueType {
-  SYM_UNDEF     =    0,
-  SYM_STRING    =   10,
-  SYM_PTR       =   20,
-  SYM_ARRAY     =   21,
-  SYM_SZ        =   30,
+  SYM_UNDEF     =     0,
+  SYM_STRING    =    10,
+  SYM_PTR       =    20,
+  SYM_ARRAY     =    21,
+  SYM_SZ        =    30,
 
   SYM_UINT8     =   800,
   SYM_UINT8_1   =   801,
@@ -65,7 +71,6 @@ struct symbolTable_s {
   int32_t symtabVer; // = STATE_VER
   struct symbol_s symbols[N_SYMBOLS];
 };
-
 
 #define STATE_HDR "dps8m state"
 #define STATE_HDR_SZ 16

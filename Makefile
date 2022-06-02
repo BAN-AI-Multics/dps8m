@@ -1,10 +1,10 @@
 # DPS/8M simulator: Makefile
-# vim: filetype=make:tabstop=4:tw=76
+# vim: set filetype=make:tabstop=4:tw=76:
 #
 ###############################################################################
 #
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #

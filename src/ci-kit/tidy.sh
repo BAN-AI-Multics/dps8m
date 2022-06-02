@@ -1,6 +1,12 @@
 #!/usr/bin/env sh
+export SHELL=/bin/sh
 set -u > /dev/null 2>&1
-test -z "${SED:-}" && SED="sed" && export SED
+test -z "${SED:-}" &&
+  {
+    SED="$( command -v gsed 2> /dev/null || \
+             env PATH="$(command -p env getconf PATH)" sh -c "command -v sed" )"
+    export SED
+  }
 test -z "${TR:-}" && TR="tr" && export TR
 ${SED:?} 's///g' | \
 ${SED:?} 's///g' | \
@@ -68,13 +74,13 @@ s/Segment quota used changed from .*$/Segment quota used changed from ???? to ??
 s/Directory quota used changed from .*$/Directory quota used changed from ???? to ????/
 s/ \$[1-9].* (logo)/ ???.??? (logo)/
 s/Automatic update: users = [0-9].*//
-s/^cycles = [1-9].*/cycles = ????/
+s/^cycles .* [1-9].*$/cycles ????/
 s/^instructions .* [1-9].*$/instructions ????/
-s/^lockCnt .* [1-9].*$/lockCnt ????/
-s/^lockImmediate .* [1-9].*$/lockImmediate ????/
-s/^lockWait .* [1-9].*$/lockWait ????/
-s/^lockWaitMax .* [1-9].*$/lockWaitMax ????/
-s/^lockYield .* [1-9].*$/lockYield ????/
+s/^lockCnt .* [0-9].*$/lockCnt ????/
+s/^lockImmediate .* [0-9].*$/lockImmediate ????/
+s/^lockWait .* [0-9].*$/lockWait ????/
+s/^lockWaitMax .* [0-9].*$/lockWaitMax ????/
+s/^lockYield .* [0-9].*$/lockYield ????/
 s/FNP emulation: listening .. .*/FNP emulation: listening ?? ????/
 s/^ ????  ut   [1-9].*root/ ????  ut   ????/
 s/^Cutoff date: .*$/Cutoff date: ????/
@@ -101,4 +107,7 @@ s/^MIPS AVE = [0-9].*/MIPS AVE = ????/
 s/^CPU . cache: ON .*[0-9].*$/CPU ? cache: ON      ????/
 s/^PID: [0-9][0-9].*  LOCK ID: [0-9][0-9].*$/PID: ????  LOCK ID: ????/
 s/prta.spool.*prt/prta.spool.??????.prt/
+s/^ \+Elapsed: [0-9]\+.*//
+s/^ \+dps 8.em.*[0-9]\+.*//
+s/^Log >sl1>syserr_log from .*//
 '

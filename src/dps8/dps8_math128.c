@@ -1,16 +1,24 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2016 Jean-Michel Merliot
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #ifndef DPS8_MATH128
 # define DPS8_MATH128
+
+# include "../dpsprintf/dpsprintf.h"
 
 # ifndef CPPCHECK
 
@@ -277,7 +285,6 @@ int128 rshift_s128 (int128 a, unsigned int n)
     uint128 t = rshift_128 (cast_128 (a), n);
     return cast_s128 (t);
   }
-
 
 // See: http://www.icodeguru.com/Embedded/Hacker's-Delight/
 
@@ -801,7 +808,6 @@ int main (int argc, char * argv [])
     tsub (MASK64, MASK64,   0, 0,             MASK64, MASK64);
     tsub (0, 0,             0, 1,             MASK64, MASK64);
 
-
     tneg (0, 0,  0, 0);
     tneg (0, 1,  MASK64, MASK64);
     tneg (MASK64, MASK64, 0, 1);
@@ -847,7 +853,6 @@ int main (int argc, char * argv [])
     tsmul (0, 1, MASK64, MASK64, MASK64, MASK64);
     tsmul (MASK64, MASK64, MASK64, MASK64, 0, 1);
 
-
     tdiv16 (0, 1,           1,                0, 1,               0);
     tdiv16 (0, 10,          2,                0, 5,               0);
     tdiv16 (MASK64, MASK64, 16,               MASK64>>4, MASK64,  15);
@@ -889,7 +894,12 @@ void __udivmodti3(UTItype div, UTItype dvd,UTItype *result,UTItype *remain)
         *remain = div;
 
         if( z1 == (UTItype)0)
+#   ifndef CPPCHECK
                 1/0;
+#   else
+                abort();
+#   endif /* ifndef CPPCHECK */
+
 
         while( z1 < *remain )
         {

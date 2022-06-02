@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2012 Dave Jordan
  * Copyright (c) 2013-2018 Charles Anthony
  * Copyright (c) 2016 Jean-Michel Merliot
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #ifndef DPS8_H
@@ -211,7 +217,6 @@ typedef unsigned int uint;      // efficient unsigned int, at least 32 bits
 # include "dps8_hw_consts.h"
 # include "dps8_em_consts.h"
 
-
 # define SETF(flags, x)         flags = ((flags) |  (x))
 # define CLRF(flags, x)         flags = ((flags) & ~(x))
 # define TSTF(flags, x)         (((flags) & (x)) ? 1 : 0)
@@ -333,7 +338,6 @@ typedef enum
     STORE_YBLOCK32  = (1U << 28),  // fetches/reads Y-block16 operands from memory
   } opc_flag;
 
-
 // opcode metadata (disallowed) modifications
 typedef enum opc_mod
   {
@@ -355,7 +359,6 @@ typedef enum opc_mod
 // None except au, qu, al, ql, xn for MF1 and REG
 // None except du, au, qu, al, ql, xn for MF2
 // None except au, qu, al, ql, xn for MF1, MF2, and MF3
-
 
 # define IS_NONE(tag) (!(tag))
 /*! non-tally: du or dl */
@@ -438,7 +441,6 @@ enum { OP_1     = 00001U,
     OP_X        = 01000U
 };
 
-
 enum eCAFoper {
     unknown = 0,
     readCY,
@@ -480,7 +482,6 @@ typedef enum eCAFoper eCAFoper;
 
 // Numeric operand descriptors
 
-
 // AL39 Table 4-3. Alphanumeric Data Type (TA) Codes
 enum
   {
@@ -507,7 +508,6 @@ enum
     CSNS = 3U   // Scaled fixed-point, unsigned
   };
 
-
 enum
   {
     // Address register flag. This flag controls interpretation of the ADDRESS
@@ -530,7 +530,6 @@ enum
 
     MFkREGMASK = 0xfU
   };
-
 
 // EIS instruction take on a life of their own. Need to take into account
 // RNR/SNR/BAR etc.

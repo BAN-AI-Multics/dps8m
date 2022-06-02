@@ -1,8 +1,12 @@
 /* scp.c: simulator control program
 
+   vim: filetype=c:tabstop=4:tw=100:expandtab
+
+   ---------------------------------------------------------------------------
+
    Copyright (c) 1993-2016 Robert M Supnik
-   Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-   Copyright (c) 2021 The DPS8M Development Team
+   Copyright (c) 2021-2022 Jeffrey H. Johnson <trnsz@pobox.com>
+   Copyright (c) 2021-2022 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -17,13 +21,17 @@
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+   OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
 
-   Except as contained in this notice, the name of Robert M Supnik shall not be
-   used in advertising or otherwise to promote the sale, use or other dealings
-   in this Software without prior written authorization from Robert M Supnik.
+   Except as contained in this notice, the name of Robert M Supnik shall not
+   be used in advertising or otherwise to promote the sale, use or other
+   dealings in this Software without prior written authorization from
+   Robert M Supnik.
+
+   ---------------------------------------------------------------------------
 */
 
 /* Macros and data structures */
@@ -80,6 +88,8 @@
 #include "../decNumber/decNumberLocal.h"
 
 #include "dispatch.h"
+
+#include "../dpsprintf/dpsprintf.h"
 
 #ifndef MAX
 # define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
@@ -297,6 +307,7 @@ int32 sim_quiet = 0;
 int32 sim_randstate = 0;
 int32 sim_randompst = 0;
 int32 sim_step = 0;
+int nodist = 0;
 static double sim_time;
 static uint32 sim_rtime;
 static int32 noqueue_time;
@@ -426,16 +437,16 @@ static const char simh_help[] =
 #define HLP_RESET       "*Commands Resetting Devices"
        /***************** 80 character line width template *************************/
       "2Resetting Devices\n"
-      " The RESET command (abbreviated RE) resets a device or the entire simulator\n"
-      " to a predefined condition.  If the switch \"-p\" is specified, the device\n"
-      " is reset to its initial power-up state:\n\n"
+      " The `RESET` command (abbreviated `RE`) resets a device or the entire\n"
+      " simulator to a predefined condition.  If the switch \"-p\" is specified,\n"
+      " the device is reset to its initial power-on state:\n\n"
       "++RESET                  resets all devices\n"
       "++RESET -p               power-cycle all devices\n"
       "++RESET ALL              resets all devices\n"
       "++RESET <device>         resets the specified <device>\n\n"
-      " Typically, RESET aborts in-progress I/O operations, clears any interrupt\n"
-      " requests, and returns the device to a quiescent state.  It does NOT clear\n"
-      " the main memory or affect associated I/O connections.\n"
+      " Typically, `RESET` *aborts* in-progress I/O operations, *clears* any\n"
+      " interrupt requests, and returns the device to a quiescent state.\n"
+      " It does **NOT** clear the main memory or affect associated I/O connections.\n"
 #define HLP_EXAMINE     "*Commands Examining_and_Changing_State"
 #define HLP_IEXAMINE    "*Commands Examining_and_Changing_State"
 #define HLP_DEPOSIT     "*Commands Examining_and_Changing_State"
@@ -443,21 +454,21 @@ static const char simh_help[] =
        /***************** 80 character line width template *************************/
       "2Examining and Changing State\n"
       " There are four commands to examine and change state:\n\n"
-      "++EXAMINE (abbreviated E) examines state\n"
-      "++DEPOSIT (abbreviated D) changes state\n"
-      "++IEXAMINE (interactive examine, abbreviated IE) examines state and allows\n"
-      "++++the user to interactively change it\n"
-      "++IDEPOSIT (interactive deposit, abbreviated ID) allows the user to\n"
-      "++++interactively change state\n\n"
-      " All four commands take the form\n\n"
+      " * `EXAMINE` (abbreviated `E`) examines state\n"
+      " * `DEPOSIT` (abbreviated `D`) changes state\n"
+      " * `IEXAMINE` (\"interactive examine\", abbreviated `IE`) examines state\n"
+      "    and allows the user to interactively change it\n"
+      " * `IDEPOSIT` (interactive deposit, abbreviated `ID`) allows the user to\n"
+      "    interactively change state\n\n"
+      " All four commands take the form:\n\n"
       "++command {modifiers} <object list>\n\n"
-      " Deposit must also include a deposit value at the end of the command.\n\n"
+      " The `DEPOSIT` command requires the deposit value at the end of the command.\n\n"
       " There are four kinds of modifiers: switches, device/unit name, search\n"
-      " specifier, and for EXAMINE, output file.  Switches have been described\n"
+      " specifier, and for `EXAMINE`, output file.  Switches have been described\n"
       " previously.  A device/unit name identifies the device and unit whose\n"
       " address space is to be examined or modified.  If no device is specified,\n"
-      " the CPU (main memory)is selected; if a device but no unit is specified,\n"
-      " unit 0 of the device is selected.\n\n"
+      " the CPU main memory is selected; if a device but no unit is specified,\n"
+      " unit `0` of the specified device is selected.\n\n"
       " The search specifier provides criteria for testing addresses or registers\n"
       " to see if they should be processed.  A specifier consists of a logical\n"
       " operator, a relational operator, or both, optionally separated by spaces.\n\n"
@@ -470,12 +481,12 @@ static const char simh_help[] =
       " ignored.  If a relational operator is specified without a logical operator,\n"
       " no logical operation is performed.  All comparisons are unsigned.\n\n"
       " The output file modifier redirects command output to a file instead of the\n"
-      " console.  An output file modifier consists of @ followed by a valid file\n"
-      " name.\n\n"
+      " console.  An output file modifier consists of the \"`@`\" (*commercial-at*)\n"
+      " character followed by a valid file name.\n\n"
       " Modifiers may be specified in any order.  If multiple modifiers of the\n"
       " same type are specified, later modifiers override earlier modifiers.  Note\n"
-      " that if the device/unit name comes after the search specifier, the search\n"
-      " values will interpreted in the radix of the CPU, rather than of the\n"
+      " that if the device/unit name comes *after* the search specifier, the search\n"
+      " values will interpreted in the *radix of the CPU*, rather than of the\n"
       " device/unit.\n\n"
       " The \"object list\" consists of one or more of the following, separated by\n"
       " commas:\n\n"
@@ -510,7 +521,6 @@ static const char simh_help[] =
       "++-d                 display as decimal\n"
       "++-h                 display as hexadecimal\n\n"
       "3Examples\n"
-      " Examples:\n\n"
       "++ex 1000-1100                examine 1000 to 1100\n"
       "++de PC 1040                  set PC to 1040\n"
       "++ie 40-50                    interactively examine 40:50\n"
@@ -522,71 +532,71 @@ static const char simh_help[] =
       "++de &77>0 0                  set all addresses whose low order\n"
       "+++++++++                     bits are non-zero to 0\n"
       "++ex -m @memdump.txt 0-7777   dump memory to file\n\n"
-      " Note: to terminate an interactive command, simply type any bad value\n"
-      "       (eg, XYZ) when input is requested.\n"
+      " NOTE: To terminate an interactive command, simply type any bad value\n"
+      "       (e.g. XYZ) when input is requested.\n"
 #define HLP_EVALUATE    "*Commands Evaluating_Instructions"
        /***************** 80 character line width template *************************/
       "2Evaluating Instructions\n"
-      " The EVAL command evaluates a symbolic expression and returns the equivalent\n"
-      " numeric value.  This is useful for obtaining numeric arguments for a search\n"
-      " command:\n\n"
+      " The `EVAL` command evaluates a symbolic expression and returns the\n"
+      " equivalent numeric value.  This is useful for obtaining numeric arguments\n"
+      " for a search command:\n\n"
       "++EVAL <expression>\n"
        /***************** 80 character line width template *************************/
       "2Saving and Restoring State\n"
 #define HLP_SAVE        "*Commands Saving_and_Restoring_State SAVE"
       "3SAVE\n"
-      " The SAVE command (abbreviation SA) save the complete state of the simulator\n"
-      " to a file.  This includes the contents of main memory and all registers,\n"
-      " and the I/O connections of devices:\n\n"
+      " The `SAVE` command (abbreviation `SA`) saves the state of the simulator\n"
+      " to a file.  This includes the contents of main memory, all registers,\n"
+      " and the  I/O connections of devices.\n\n"
       "++SAVE <filename>\n\n"
 #define HLP_RESTORE     "*Commands Saving_and_Restoring_State RESTORE"
       "3RESTORE\n"
-      " The RESTORE command (abbreviation REST, alternately GET) restores a\n"
+      " The RESTORE command (abbreviation `REST`, alternately `GET`) restores a\n"
       " previously saved simulator state:\n\n"
       "++RESTORE <filename>\n"
       "4Switches\n"
-      " Switches can influence the output and behavior of the RESTORE command\n\n"
+      " Switches can influence the output and behavior of the `RESTORE` command\n\n"
       "++-Q      Suppresses version warning messages\n"
       "++-D      Suppress detaching and attaching devices during a restore\n"
       "++-F      Overrides timestamp validation during restore\n"
       "\n"
-      "4Notes:\n"
-      " The SAVE file format may compress data to minimize file size.\n"
+      "4Notes\n"
+      " The `SAVE` file format *may* compress data to minimize file size.\n"
        /***************** 80 character line width template *************************/
       "2Running A Simulated Program\n"
 #define HLP_RUN         "*Commands Running_A_Simulated_Program RUN"
       "3RUN\n"
-      " The RUN command (abbreviated RU) resets all devices, deposits its argument\n"
-      " (if given) in the PC, and starts execution.  If no argument is given,\n"
-      " execution starts at the current PC.\n"
+      " The `RUN` command (abbreviated `RU`) resets all devices, deposits its\n"
+      " argument, if given, in the PC (program counter), and starts execution.\n"
+      " If no argument is given execution starts at the current PC.\n"
 #define HLP_GO          "*Commands Running_A_Simulated_Program GO"
       "3GO\n"
-      " The GO command does not reset devices, deposits its argument (if given)\n"
+      " The `GO` command does *not* reset devices, deposits its argument (if given)\n"
       " in the PC, and starts execution.  If no argument is given, execution\n"
-      " starts at the current PC.\n"
+      " starts at the current PC (program counter).\n"
 #define HLP_CONTINUE    "*Commands Running_A_Simulated_Program CONTINUE"
       "3CONTINUE\n"
-      " The CONT command (abbreviated CO) does not reset devices and resumes\n"
-      " execution at the current PC.\n"
+      " The `CONT` command (abbreviated `CO`) does *not* reset devices and resumes\n"
+      " execution at the current PC (program counter).\n"
 #define HLP_STEP        "*Commands Running_A_Simulated_Program STEP"
       "3STEP\n"
-      " The STEP command (abbreviated S) resumes execution at the current PC for\n"
-      " the number of instructions given by its argument.  If no argument is\n"
+      " The `STEP` command (abbreviated `S`) resumes execution at the current PC\n"
+      " for the number of instructions given by its argument.  If no argument is\n"
       " supplied, one instruction is executed.\n"
       "4Switches\n"
-      " If the STEP command is invoked with the \"-T\" switch, the step command\n"
+      " If the `STEP` command is invoked with the \"-T\" switch, the step command\n"
       " will cause execution to run for microseconds rather than instructions.\n"
 #define HLP_NEXT        "*Commands Running_A_Simulated_Program NEXT"
       "3NEXT\n"
-      " The NEXT command (abbreviated N) resumes execution at the current PC for\n"
-      " one instruction, attempting to execute through a subroutine calls.\n"
-      " If the next instruction to be executed is not a subroutine call,\n"
+      " The `NEXT` command (abbreviated `N`) resumes execution at the current PC\n"
+      " for one instruction, attempting to execute through subroutine calls.\n"
+      " If the next instruction to be executed is not a subroutine call, then\n"
       " one instruction is executed.\n"
 #define HLP_BOOT        "*Commands Running_A_Simulated_Program BOOT"
       "3BOOT\n"
-      " The BOOT command (abbreviated BO) resets all devices and bootstraps the\n"
-      " device and unit given by its argument.  If no unit is supplied, unit 0 is\n"
-      " bootstrapped.  The specified unit must be attached.\n"
+      " The `BOOT` command (abbreviated `BO`) resets all devices and bootstraps\n"
+      " the device and unit given by its argument. If no unit is supplied, unit `0`\n"
+      " is bootstrapped.  The specified unit must be attached.\n"
        /***************** 80 character line width template *************************/
       "2Stopping The Simulator\n"
       " The simulator runs until the simulated hardware encounters an error, or\n"
@@ -602,38 +612,38 @@ static const char simh_help[] =
       "+++the simulation.\n"
       "3User Specified Stop Conditions\n"
       " Typing the interrupt character stops simulation.  The interrupt character\n"
-      " is defined by the WRU (where are you) console option and is initially set\n"
-      " to 005 (^E).\n\n"
+      " is defined by the `WRU` (*where are you*) console option, and is initially\n"
+      " set to 005 (^E).\n\n"
        /***************** 80 character line width template *************************/
 #define HLP_BREAK       "*Commands Stopping_The_Simulator User_Specified_Stop_Conditions BREAK"
 #define HLP_NOBREAK     "*Commands Stopping_The_Simulator User_Specified_Stop_Conditions BREAK"
       "4Breakpoints\n"
       " The simulator offers breakpoint capability for debugging. Users may define\n"
-      " breakpoints of different types, identified by letter (for example, E for\n"
-      " execution, R for read, W for write, etc).\n\n"
-      " Associated with a breakpoint are a count and, optionally, one or more\n"
-      " actions.  Each time the breakpoint is taken, the associated count is\n"
-      " decremented.  If the count is less than or equal to 0, the breakpoint\n"
-      " occurs; otherwise, it is deferred.  When the breakpoint occurs, the\n"
+      " breakpoints of different types, identified by letter (for example, `E`\n"
+      " for *execution*, `R` for *read*, `W` for *write*, etc).\n\n"
+      " Associated with each breakpoint is a count and, optionally, one or more\n"
+      " actions.  Each time a breakpoint occurs, the associated count\n"
+      " is *decremented*.  If the count is less than or equal to `0`, the breakpoint\n"
+      " occurs; otherwise, it is deferred.  When the breakpoint occurs, any\n"
       " optional actions are automatically executed.\n\n"
-      " A breakpoint is set by the BREAK or the SET BREAK commands:\n\n"
-      "++BREAK {-types} {<addr range>{[count]},{addr range...}}{;action;action...}\n"
-      "++SET BREAK {-types} {<addr range>{[count]},{addr range...}}{;action;action...}\n\n"
-      " If no type is specified, the simulator-specific default breakpoint type\n"
-      " (usually E for execution) is used.  If no address range is specified, the\n"
-      " current PC is used.  As with EXAMINE and DEPOSIT, an address range may be a\n"
-      " single address, a range of addresses low-high, or a relative range of\n"
-      " address/length.\n"
+      " A breakpoint is set by the `BREAK` or the `SET BREAK` commands:\n\n"
+      "++BREAK {-types} {<addr range>{[count]},{addr range…}}{;action;action…}\n"
+      "++SET BREAK {-types} {<addr range>{[count]},{addr range…}}{;action;action…}\n\n"
+      " If no type is specified, the default breakpoint type (`E`, *execution*) is\n"
+      " used.  If no address range is specified, the current PC is used.  As\n"
+      " with `EXAMINE` and `DEPOSIT`, an address range may be a single address, a\n"
+      " range of addresses low-high, or a relative range of address/length.\n"
        /***************** 80 character line width template *************************/
       "5Displaying Breakpoints\n"
-      " Currently set breakpoints can be displayed with the SHOW BREAK command:\n\n"
-      "++SHOW {-C} {-types} BREAK {ALL|<addr range>{,<addr range>...}}\n\n"
+      " Currently set breakpoints can be displayed with the `SHOW BREAK` command:\n\n"
+      "++SHOW {-C} {-types} BREAK {ALL|<addr range>{,<addr range>…}}\n\n"
       " Locations with breakpoints of the specified type are displayed.\n\n"
       " The \"-C\" switch displays the selected breakpoint(s) formatted as commands\n"
       " which may be subsequently used to establish the same breakpoint(s).\n\n"
       "5Removing Breakpoints\n"
-      " Breakpoints can be cleared by the NOBREAK or the SET NOBREAK commands.\n"
+      " Breakpoints can be cleared by the `NOBREAK` or the `SET NOBREAK` commands.\n"
       "5Examples\n"
+      " The following examples illustrate breakpoint usage:\n\n"
       "++BREAK                      set E break at current PC\n"
       "++BREAK -e 200               set E break at 200\n"
       "++BREAK 2000/2[2]            set E breaks at 2000,2001 with count = 2\n"
@@ -646,7 +656,7 @@ static const char simh_help[] =
       " simulated unit, the user must specify the file to be accessed by that unit.\n"
 #define HLP_ATTACH      "*Commands Connecting_and_Disconnecting_Devices ATTACH"
       "3ATTACH\n"
-      " The ATTACH (abbreviation AT) command associates a unit and a file:\n"
+      " The `ATTACH` (abbreviation `AT`) command associates a unit and a file:\n\n"
       "++ATTACH <unit> <filename>\n\n"
       " Some devices have more detailed or specific help available with:\n\n"
       "++HELP <device> ATTACH\n\n"
@@ -656,21 +666,21 @@ static const char simh_help[] =
       " is created, and an appropriate message is printed.\n"
       "5-e\n"
       " If the file does not exist, and the \"-e\" switch was not specified, a new\n"
-      " file is created, and an appropriate message is printed.  If the -e switch\n"
+      " file is created, and an appropriate message is printed.  If the `-e` switch\n"
       " was specified, a new file is not created, and an error message is printed.\n"
       "5-r\n"
-      " If the -r switch is specified, or the file is write protected, ATTACH tries\n"
-      " to open the file read only.  If the file does not exist, or the unit does\n"
-      " not support read only operation, an error occurs.  Input-only devices, such\n"
-      " as paper-tape readers, and devices with write lock switches, such as disks\n"
-      " and tapes, support read only operation; other devices do not.  If a file is\n"
-      " attached read only, its contents can be examined but not modified.\n"
+      " If the `-r` switch is specified, or the file is write protected, `ATTACH`\n"
+      " tries to open the file read only.  If the file does not exist, or the unit\n"
+      " does not support read only operation, an error occurs.  Input-only devices,\n"
+      " such as paper-tape readers, or devices with write lock switches, such as\n"
+      " disks and tapes, support read only operation; other devices do not.  If a\n"
+      " file is attached read only, its contents can be examined but not modified.\n"
       "5-q\n"
-      " If the -q switch is specified when creating a new file (-n) or opening one\n"
-      " read only (-r), the message announcing this fact is suppressed.\n"
+      " If the `-q` switch is specified when creating a new file (-n) or opening\n"
+      " one read only (-r), the message announcing this fact is suppressed.\n"
       "5-f\n"
-      " For simulated magnetic tapes, the ATTACH command can specify the format of\n"
-      " the attached tape image file:\n\n"
+      " For simulated magnetic tapes, the `ATTACH` command can specify the format\n"
+      " of the attached tape image file:\n\n"
       "++ATTACH -f <tape_unit> <format> <filename>\n\n"
       " The currently supported tape image file formats are:\n\n"
       "++SIMH                   SIMH portable tape format\n"
@@ -678,36 +688,36 @@ static const char simh_help[] =
       "++TPC                    TPC format\n"
       "++P7B                    Pierce simulator 7-track format\n\n"
        /***************** 80 character line width template *************************/
-      " For some simulated disk devices, the ATTACH command can specify the format\n"
-      " of the attached disk image file:\n\n"
+      " For some simulated disk devices, the `ATTACH` command can specify the\n"
+      " format of the attached disk image file:\n\n"
       "++ATTACH -f <disk_unit> <format> <filename>\n\n"
       " The currently supported disk image file formats are:\n\n"
       "++SIMH                   SIMH portable disk format\n\n"
-      " The disk format can also be set with the SET command prior to ATTACH:\n\n"
+      " The disk format can also be set with the `SET` command prior to `ATTACH`:\n\n"
       "++SET <disk_unit> FORMAT=<format>\n"
       "++ATT <disk_unit> <filename>\n\n"
        /***************** 80 character line width template *************************/
-      " The format of an attached tape or disk file can be displayed with the SHOW\n"
-      " command:\n"
+      " The format of an attached tape or disk can be displayed with the `SHOW`\n"
+      " command:\n\n"
       "++SHOW <unit> FORMAT\n\n"
-      " For TELNET-based terminal emulation devices, the ATTACH command associates\n"
-      " the master unit with a TCP listening port:\n\n"
+      " For `TELNET`-based terminal emulation devices, the `ATTACH` command\n"
+      " associates the master unit with a TCP listening port:\n\n"
       "++ATTACH <unit> <port>\n\n"
       " The port is a decimal number between 1 and 65535 that is not already used\n"
       " other TCP/IP applications.\n"
        /***************** 80 character line width template *************************/
 #define HLP_DETACH      "*Commands Connecting_and_Disconnecting_Devices DETACH"
       "3DETACH\n"
-      " The DETACH (abbreviation DET) command breaks the association between a unit\n"
-      " and a file, port, or network device:\n\n"
+      " The `DETACH` (abbreviation `DET`) command breaks the association between\n"
+      " a unit and it's backing file, port, or device:\n\n"
       "++DETACH ALL             Detach all units\n"
       "++DETACH <unit>          Detach specified unit\n\n"
-      " The EXIT command performs an automatic DETACH ALL.\n"
+      " The `EXIT` command performs an automatic `DETACH ALL`.\n"
 #define HLP_SET         "*Commands SET"
       "2SET\n"
        /***************** 80 character line width template *************************/
 #define HLP_SET_CONSOLE "*Commands SET CONSOLE"
-      "3Console\n"
+      "3CONSOLE\n"
       "+SET CONSOLE arg{,arg...}    Set console options\n"
       "+SET CONSOLE WRU             Specify console Drop character\n"
       "+SET CONSOLE BRK             Specify console Break character\n"
@@ -730,28 +740,28 @@ static const char simh_help[] =
       "+SET CONSOLE NOTELNET        Disable console TELNET\n"
        /***************** 80 character line width template *************************/
 #define HLP_SET_REMOTE "*Commands SET REMOTE"
-      "3Remote\n"
+      "3REMOTE\n"
       "+SET REMOTE TELNET=port      Specify remote console TELNET port\n"
       "+SET REMOTE NOTELNET         Disables remote console\n"
       "+SET REMOTE CONNECTIONS=n    Specify number of concurrent remote\n"
       "++++++++                     console sessions\n"
       "+SET REMOTE TIMEOUT=n        Specify number of seconds without input\n"
-      "++++++++                     before automatic continue\n"
+      "++++++++                     before continuing automatically\n"
 #define HLP_SET_LOG    "*Commands SET Log"
-      "3Log\n"
-      " Interactions with the simulator session (at the \"sim>\" prompt\n"
-      " can be recorded to a log file\n\n"
+      "3LOG\n"
+      " Interactions with the simulator session can be recorded to a log file.\n\n"
       "+SET LOG log_file            Specify the log destination\n"
       "++++++++                     (STDOUT,DEBUG or filename)\n"
       "+SET NOLOG                   Disables any currently active logging\n"
       "4Switches\n"
-      " By default, log output is written at the end of the specified log file.\n"
-      " A new log file can created if the -N switch is used on the command line.\n\n"
-      " By default, log output is written in text mode.  The log file can be\n"
-      " opened for binary mode writing if the -B switch is used on the command line.\n"
+      " By default, log output is written at the *end* of the specified log file.\n"
+      " A new log file can created if the `-N` switch is used on the command line.\n\n"
+      " By default, log output is written in *text* mode.  The log file can be\n"
+      " opened for *binary* mode writing if the `-B` switch is used on the command\n"
+      " line.\n"
 #define HLP_SET_DEBUG  "*Commands SET Debug"
        /***************** 80 character line width template *************************/
-      "3Debug\n"
+      "3DEBUG\n"
       "+SET DEBUG debug_file        Specify the debug destination\n"
       "++++++++                     (STDOUT,STDERR,LOG or filename)\n"
       "+SET NODEBUG                 Disables any currently active debug output\n"
@@ -761,27 +771,26 @@ static const char simh_help[] =
       " Debug message output can be enhanced to contain additional, potentially\n"
       " useful information.\n"
       "5-T\n"
-      " The -T switch causes debug output to contain a time of day displayed\n"
-      " as hh:mm:ss.msec.\n"
+      " The `-T` switch causes debug output to contain a time of day displayed\n"
+      " as `hh:mm:ss.msec`.\n"
       "5-A\n"
-      " The -A switch causes debug output to contain a time of day displayed\n"
-      " as seconds.msec.\n"
+      " The `-A` switch causes debug output to contain a time of day displayed\n"
+      " as `seconds.msec`.\n"
       "5-R\n"
-      " The -R switch causes the time of day displayed due to the -T or -A\n"
-      " switches to be relative to the start time of debugging.  If neither\n"
-      " -T or -A is explicitly specified, -T is implied.\n"
+      " The `-R` switch causes timing to be relative to the start of debugging.\n"
+      " If neither `-T` or `-A` was specified, `-T` is implied.\n"
       "5-P\n"
-      " The -P switch adds the output of the PC (Program Counter) to each debug\n"
+      " The `-P` switch adds the output of the PC (program counter) to each debug\n"
       " message.\n"
       "5-N\n"
-      " The -N switch causes a new/empty file to be written to.  The default\n"
+      " The `-N` switch causes a new empty file to be written to.  The default\n"
       " is to append to an existing debug log file.\n"
       "5-D\n"
-      " The -D switch causes data blob output to also display the data as\n"
-      " RADIX-50 characters.\n"
+      " The `-D` switch causes data blob output to also display the data\n"
+      " as *RADIX-50* characters.\n"
       "5-E\n"
-      " The -E switch causes data blob output to also display the data as\n"
-      " EBCDIC characters.\n"
+      " The `-E` switch causes data blob output to also display the data\n"
+      " as *EBCDIC* characters.\n"
 #define HLP_SET_BREAK  "*Commands SET Breakpoints"
       "3Breakpoints\n"
       "+SET BREAK <list>            Set breakpoints\n"
@@ -798,9 +807,9 @@ static const char simh_help[] =
       "+SET NOON                    Disables error checking after command\n"
       "++++++++                     execution\n"
       "+SET ON INHERIT              Enables inheritance of ON state and\n"
-      "++++++++                     actions into do command files\n"
+      "++++++++                     actions into DO command files\n"
       "+SET ON NOINHERIT            Disables inheritance of ON state and\n"
-      "++++++++                     actions into do command files\n"
+      "++++++++                     actions into DO command files\n"
 #define HLP_SET_VERIFY "*Commands SET Command_Execution_Display"
       "3Command Execution Display\n"
       "+SET VERIFY                  Re-enables display of command file\n"
@@ -846,8 +855,8 @@ static const char simh_help[] =
       "+SH{OW} CONS{OLE} {aRg}      Show console options\n"
       "+SH{OW} DEV{ICES}            Show devices\n"
       "+SH{OW} FEA{TURES}           Show system devices with descriptions\n"
-      "+SH{OW} M{ODIFIERS}          Show modifiers for all devices\n"
-      "+SH{OW} S{HOW}               Show SHOW commands for all devices\n"
+      "+SH{OW} M{ODIFIERS}          Show modifiers applicable to all devices\n"
+      "+SH{OW} S{HOW}               Show SHOW commands applicable to all devices\n"
       "+SH{OW} N{AMES}              Show logical names\n"
       "+SH{OW} Q{UEUE}              Show event queue\n"
       "+SH{OW} TI{ME}               Show simulated time\n"
@@ -862,9 +871,8 @@ static const char simh_help[] =
       "+SH{OW} <dev> {arg,...}      Show device parameters\n"
       "+SH{OW} <unit> {arg,...}     Show unit parameters\n"
       "+SH{OW} CLOCKS               Show calibrated timers\n"
-      "+SH{OW} ON                   Show on condition actions\n"
-      "+H{ELP} <dev> SHOW           Displays the device specific show commands\n"
-      "++++++++                     available\n"
+      "+SH{OW} ON                   Show ON condition actions\n"
+      "+H{ELP} <dev> SHOW           Show device-specific SHOW commands\n\n"
 #define HLP_SHOW_CONFIG         "*Commands SHOW"
 #define HLP_SHOW_DEVICES        "*Commands SHOW"
 #define HLP_SHOW_FEATURES       "*Commands SHOW"
@@ -899,10 +907,11 @@ static const char simh_help[] =
       "+H{ELP} <dev> <command>      Show help for device specific <command> command\n"
        /***************** 80 character line width template *************************/
       "2Altering The Simulated Configuration\n"
-      " The SET <device> DISABLED command removes a device from the configuration.\n"
-      " A DISABLED device is invisible to running programs.  The device can still\n"
-      " be RESET, but it cannot be ATTAChed, DETACHed, or BOOTed.\n\n"
-      " SET <device> ENABLED restores a disabled device to a configuration.\n\n"
+      " The \"SET <device> DISABLED\" command removes a device from the configuration.\n"
+      " A `DISABLED` device is invisible to running programs.  The device can still\n"
+      " be `RESET`, but it cannot be `ATTACH`ed, `DETACH`ed, or `BOOT`ed.\n\n"
+      " The \"SET <device> ENABLED\" command restores a disabled device to a\n"
+      " configuration.\n\n"
       " Most multi-unit devices allow units to be enabled or disabled:\n\n"
       "++SET <unit> ENABLED\n"
       "++SET <unit> DISABLED\n\n"
@@ -911,8 +920,9 @@ static const char simh_help[] =
 #define HLP_DEASSIGN    "*Commands Logical_Names"
       "2Logical Names\n"
       " The standard device names can be supplemented with logical names.  Logical\n"
-      " names must be unique within a simulator (that is, they cannot be the same\n"
-      " as an existing device name).  To assign a logical name to a device:\n\n"
+      " names must be unique within a simulator instance (that is, they cannot be\n"
+      " the same as any currently existing device name).  To assign a new logical\n"
+      " name to a device:\n\n"
       "++ASSIGN <device> <log-name>      assign log-name to device\n\n"
       " To remove a logical name:\n\n"
       "++DEASSIGN <device>               remove logical name\n\n"
@@ -923,42 +933,43 @@ static const char simh_help[] =
        /***************** 80 character line width template *************************/
 #define HLP_DO          "*Commands Executing_Command_Files"
       "2Executing Command Files\n"
-      " The simulator can execute command files with the DO command:\n\n"
-      "++DO <filename> {arguments...}       execute commands in file\n\n"
-      " The DO command allows command files to contain substitutable arguments.\n"
-      " The string %%n, where n is between 1 and 9, is replaced with argument n\n"
-      " from the DO command line. The string %%0 is replaced with <filename>.\n"
-      " The sequences \\%% and \\\\ are replaced with the literal characters %% and \\,\n"
-      " respectively.  Arguments with spaces can be enclosed in matching single\n"
-      " or double quotation marks.\n\n"
-      " DO commands may be nested up to ten invocations deep.\n\n"
+      " The simulator can execute command files with the `DO` command:\n\n"
+      "++DO <filename> {arguments…}       execute commands in file\n\n"
+      " The `DO` command allows command files to contain substitutable arguments.\n"
+      " The string `%%n`, where `n` is a number between 1 and 9, is replaced with\n"
+      " argument `n` from the `DO` command line. The string `%%0` is replaced\n"
+      " with <filename>. The sequences `\\%%` and `\\\\` are replaced with the\n"
+      " literal characters `%%` and `\\`, respectively.  Arguments with spaces can\n"
+      " be enclosed in matching single or double quotation marks.\n\n"
+      " Nested `DO` commands is supported, up to ten invocations deep.\n\n"
       "3Switches\n"
-      " If the switch -v is specified, the commands in the file are echoed before\n"
+      " If the switch `-v` is specified, commands in the file are echoed *before*\n"
       " they are executed.\n\n"
-      " If the switch -e is specified, command processing (including nested command\n"
-      " invocations) will be aborted if a command error is encountered.\n"
-      " (Simulation stop never abort processing; use ASSERT to catch unexpected\n"
-      " stops.)  Without the switch, all errors except ASSERT failures will be\n"
+      " If the switch `-e` is specified, command processing (including nested\n"
+      " command invocations) will be aborted if any command error is encountered.\n"
+      " (A simulation stop never aborts processing; use `ASSERT` to catch unexpected\n"
+      " stops.)  Without the switch, all errors except `ASSERT` failures will be\n"
       " ignored, and command processing will continue.\n\n"
-      " If the switch -o is specified, the on conditions and actions from the\n"
+      " If the switch `-o` is specified, the on conditions and actions from the\n"
       " calling command file will be inherited in the command file being invoked.\n"
-      " If the switch -q is specified, the quiet mode will be explicitly enabled\n"
-      " for the called command file, otherwise quiet mode is inherited from the\n"
+      " If the switch `-q` is specified, the *quiet mode* will be explicitly enabled\n"
+      " for the called command file, otherwise *quiet mode* is inherited from the\n"
       " calling context.\n"
        /***************** 80 character line width template *************************/
 #define HLP_GOTO        "*Commands Executing_Command_Files GOTO"
       "3GOTO\n"
       " Commands in a command file execute in sequence until either an error\n"
       " trap occurs (when a command completes with an error status), or when an\n"
-      " explict request is made to start command execution elsewhere with the\n"
-      " GOTO command:\n\n"
+      " explict request is made to start command execution elsewhere with\n"
+      " the `GOTO` command:\n\n"
       "++GOTO <label>\n\n"
-      " Labels are lines in a command file which the first non whitespace\n"
-      " character is a \":\".  The target of a goto is the first matching label\n"
-      " in the current do command file which is encountered.  Since labels\n"
-      " don't do anything else besides being the targets of goto's, they could\n"
-      " also be used to provide comments in do command files.\n\n"
+      " Labels are lines in a command file which the first non-whitespace\n"
+      " character is a \":\".  The target of a `GOTO` is the first matching label\n"
+      " in the current `DO` command file which is encountered.  Since labels\n"
+      " don't do anything other than specifying the target of a `GOTO`, they\n"
+      " may also be used to provide comments in `DO` command files.\n\n"
       "4Examples\n\n"
+      " The following examples illustrate usage of the `GOTO` command:\n\n"
       "++:: This is a comment\n"
       "++echo Some Message to Output\n"
       "++:Target\n"
@@ -967,19 +978,19 @@ static const char simh_help[] =
 #define HLP_RETURN      "*Commands Executing_Command_Files RETURN"
        /***************** 80 character line width template *************************/
       "3RETURN\n"
-      " The RETURN command causes the current procedure call to be restored to the\n"
-      " calling context, possibly returning a specific return status.\n"
+      " The `RETURN` command causes the current procedure call to be restored to\n"
+      " the calling context, possibly returning a specific return status.\n"
       " If no return status is specified, the return status from the last command\n"
-      " executed will be returned.  The calling context may have ON traps defined\n"
+      " executed will be returned.  The calling context may have `ON` traps defined\n"
       " which may redirect command flow in that context.\n\n"
       "++RETURN                   return from command file with last command status\n"
       "++RETURN {-Q} <status>     return from command file with specific status\n\n"
       " The status return can be any numeric value or one of the standard SCPE_\n"
       " condition names.\n\n"
-      " The -Q switch on the RETURN command will cause the specified status to\n"
+      " The `-Q` switch on the `RETURN` command will cause the specified status to\n"
       " be returned, but normal error status message printing to be suppressed.\n"
       "4Condition Names\n"
-      " The available standard SCPE_ condition names are\n"
+      " The available standard SCPE_ condition names and their meanings are:\n"
       "5 NXM\n"
       " Address space exceeded\n"
       "5 UNATT\n"
@@ -1068,90 +1079,89 @@ static const char simh_help[] =
       " Invalid remote console command\n"
 #define HLP_SHIFT       "*Commands Executing_Command_Files SHIFT"
       "3SHIFT\n"
-      "++SHIFT                    Shift the command file's positional parameters\n"
+      "++SHIFT                    Shift the command files positional parameters\n"
 #define HLP_CALL        "*Commands Executing_Command_Files CALL"
       "3CALL\n"
       "++CALL                     Transfer control to a labeled subroutine\n"
 #define HLP_ON          "*Commands Executing_Command_Files ON"
       "3ON\n"
       "++ON <condition> <action>  Perform action(s) after condition\n"
-      "++ON <condition>           Clear action for specific condition\n"
+      "++ON <condition>           Clears action of specified condition\n"
 #define HLP_PROCEED     "*Commands Executing_Command_Files PROCEED"
 #define HLP_IGNORE      "*Commands Executing_Command_Files PROCEED"
        /***************** 80 character line width template *************************/
-      "3PROCEED/IGNORE\n"
-      " The PROCEED or IGNORE commands do nothing.  They are potentially useful\n"
-      " placeholders for an ON action condition which should be explicitly ignored\n"
+      "3PROCEED (IGNORE)\n"
+      " The `PROCEED` and `IGNORE` commands do nothing.  They are potentially\n"
+      " useful placeholders for an `ON` action condition which should be\n"
+      " explicitly ignored.\n\n"
       "++PROCEED                  Continue command file execution without doing anything\n"
       "++IGNORE                   Continue command file execution without doing anything\n"
 #define HLP_ECHO        "*Commands Executing_Command_Files Displaying_Arbitrary_Text"
        /***************** 80 character line width template *************************/
       "3Displaying Arbitrary Text\n"
-      " The ECHO command is a useful way of annotating command files.  ECHO prints\n"
-      " out its arguments on the console (and log):\n\n"
+      " The `ECHO` command is a useful way of annotating command files.  `ECHO`\n"
+      " prints out its arguments to the console (and to any applicable log file):\n\n"
       "++ECHO <string>      Output string to console\n\n"
-      " If there is no argument, ECHO prints a blank line on the console.  This\n"
-      " may be used to provide spacing in the console display or log.\n"
+      " If there is no argument, `ECHO` prints a blank line.  This may be used to\n"
+      " provide spacing in the console display or log file output.\n"
        /***************** 80 character line width template *************************/
 #define HLP_SEND        "*Commands Executing_Command_Files Injecting_Console_Input"
        /***************** 80 character line width template *************************/
       "3Injecting Console Input\n"
-      " The SEND command provides a way to insert input into the console device of\n"
-      " a simulated system as if it was entered by a user.\n\n"
+      " The `SEND` command provides a way to inject input to the console devices\n"
+      " of the simulated system, as if it was entered by an interactive user.\n\n"
       "++SEND {-t} {after=nn,}{delay=nn,}\"<string>\"\n\n"
-      " The string argument must be delimited by quote characters.  Quotes may\n"
-      " be either single or double but the opening and closing quote characters\n"
+      " The string argument *must* be delimited by quote characters.  Quotes may\n"
+      " be either single or double, but the opening and closing quote characters\n"
       " must match.  Data in the string may contain escaped character strings.\n\n"
-      " The SEND command can also insert input into any serial device on a\n"
-      " simulated system as if it was entered by a user.\n\n"
-      "++SEND {-t} <dev>:line {after=nn,}{delay=nn,}\"<string>\"\n\n"
-      "4Delay\n"
+      "++SEND {-t} <dev> {after=nn,}{delay=nn,}\"<string>\"\n\n"
+      "4DELAY\n"
       " Specifies a positive integer representing a minimal instruction delay\n"
-      " between characters being sent.  The value specified in a delay\n"
-      " argument persists across SEND commands to the same device (console or\n"
-      " serial device).  The delay parameter can be set by itself with:\n\n"
+      " between characters being sent.  The value specified in a `DELAY`\n"
+      " argument persists across `SEND` commands to the same device.  The `DELAY`\n"
+      " parameter can be set by itself with:\n\n"
       "++SEND DELAY=n\n\n"
-      " The default value of the delay parameter is 1000.\n"
+      " The default value of the `DELAY` parameter is `1000`.\n"
        /***************** 80 character line width template *************************/
-      "4After\n"
+      "4AFTER\n"
       " Specifies a positive integer representing a minimal number of instructions\n"
       " which must execute before the first character in the string is sent.\n"
-      " The value specified as the after parameter persists across SEND commands\n"
-      " to the same device (console or serial device).   The after parameter value\n"
-      " can be set by itself with:\n\n"
+      " The value specified as the `AFTER` parameter persists across `SEND`\n"
+      " commands to the same device.  The `AFTER` parameter value can be set by\n"
+      " itself with:\n\n"
       "++SEND AFTER=n\n\n"
-      " If the after parameter isn't explicitly set, it defaults to the value of\n"
-      " the delay parameter.\n"
+      " If the `AFTER` parameter isn't explicitly set, it defaults to the value of\n"
+      " the `DELAY` parameter.\n"
       "4Escaping String Data\n"
-      " The following character escapes are explicitly supported:\n"
-      "++\\r  Sends the ASCII Carriage Return character (Decimal value 13)\n"
-      "++\\n  Sends the ASCII Linefeed character (Decimal value 10)\n"
-      "++\\f  Sends the ASCII Formfeed character (Decimal value 12)\n"
-      "++\\t  Sends the ASCII Horizontal Tab character (Decimal value 9)\n"
-      "++\\v  Sends the ASCII Vertical Tab character (Decimal value 11)\n"
-      "++\\b  Sends the ASCII Backspace character (Decimal value 8)\n"
-      "++\\\\  Sends the ASCII Backslash character (Decimal value 92)\n"
-      "++\\'  Sends the ASCII Single Quote character (Decimal value 39)\n"
-      "++\\\"  Sends the ASCII Double Quote character (Decimal value 34)\n"
-      "++\\?  Sends the ASCII Question Mark character (Decimal value 63)\n"
-      "++\\e  Sends the ASCII Escape character (Decimal value 27)\n"
-      " as well as octal character values of the form:\n"
-      "++\\n{n{n}} where each n is an octal digit (0-7)\n"
-      " and hext character values of the form:\n"
-      "++\\xh{h} where each h is a hex digit (0-9A-Fa-f)\n"
+      " Some characters, when escaped (*prefixed*) with the backslash\n"
+      " character, have the special meaning to the `SEND` command:\n\n"
+      " * `r` - Sends the ASCII Carriage Return character (Decimal value `13`)\n"
+      " * `n` - Sends the ASCII Linefeed character (Decimal value `10`)\n"
+      " * `f` - Sends the ASCII Formfeed character (Decimal value `12`)\n"
+      " * `t` - Sends the ASCII Horizontal Tab character (Decimal value `9`)\n"
+      " * `v` - Sends the ASCII Vertical Tab character (Decimal value `11`)\n"
+      " * `b` - Sends the ASCII Backspace character (Decimal value `8`)\n"
+      " * `\"` - Sends the ASCII Double Quote character (Decimal value `34`)\n"
+      " * `?` - Sends the ASCII Question Mark character (Decimal value `63`)\n"
+      " * `e` - Sends the ASCII Escape character (Decimal value `27`)\n"
+      " * `'` - Sends the ASCII Single Quote character (Decimal value `39`)\n\n"
+      " as well as *octal* character values of the form:\n\n"
+      "+++n{n{n}}   where each n is an octal digit (0-7)\n"
+      " and *hexadecimal* character values of the form:\n\n"
+      "+++xh{h}   where each `h` is a hex digit (0-9A-Fa-f)\n"
       "4Switches\n"
-      " Switches can be used to influence the behavior of SEND commands\n\n"
+      " Switches can be used to influence the behavior of `SEND` commands\n\n"
       "5-t\n"
-      " The -t switch indicates that the Delay and After values are in\n"
+      " The -t switch indicates that the `DELAY` and `AFTER` values are in\n"
       " units of microseconds rather than instructions.\n"
        /***************** 80 character line width template *************************/
 #define HLP_EXPECT      "*Commands Executing_Command_Files Reacting_To_Console_Output"
        /***************** 80 character line width template *************************/
       "3Reacting To Console Output\n"
-      " The EXPECT command provides a way to stop execution and take actions\n"
-      " when specific output has been generated by the simulated system.\n"
-      "++EXPECT {dev:line} {[count]} {HALTAFTER=n,}\"<string>\" {actioncommand {; actioncommand}...}\n\n"
-      " The string argument must be delimited by quote characters.  Quotes may\n"
+      " The `EXPECT` command provides a way to stop execution and take actions\n"
+      " when specific output has been generated by the simulated system.\n\n"
+      "++EXPECT {dev} {[count]} {HALTAFTER=n,}\"<string>\" {command {; command}…}\n\n"
+      " The string argument *must* be delimited by quote characters.  Quotes may\n"
       " be either single or double but the opening and closing quote characters\n"
       " must match.  Data in the string may contain escaped character strings.\n"
       " If a [count] is specified, the rule will match after the match string\n"
@@ -1163,80 +1173,78 @@ static const char simh_help[] =
       " evaluation processing is done on each output character, rule matching\n"
       " is not specifically line oriented.  If line oriented matching is desired\n"
       " then rules should be defined which contain the simulated system's line\n"
-      " ending character sequence (i.e. \"\\r\\n\").\n"
-      " Once data has matched any expect rule, that data is no longer eligible\n"
-      " to match other expect rules which may already be defined.\n"
-      " Data which is output prior to the definition of an expect rule is not\n"
-      " eligible to be matched against.\n"
+      " ending character sequence. Once data has matched any expect rule, that\n"
+      " data is no longer eligible to match other expect rules which may already\n"
+      " be defined.  Data which is output prior to the definition of an expect\n"
+      " rule is not eligible to be matched against.\n"
        /***************** 80 character line width template *************************/
       "4Switches\n"
-      " Switches can be used to influence the behavior of EXPECT rules\n\n"
+      " Switches can be used to influence the behavior of expect rules:\n"
       "5-p\n"
-      " EXPECT rules default to be one shot activities.  That is a rule is\n"
-      " automatically removed when it matches unless it is designated as a\n"
-      " persistent rule by using a -p switch when the rule is defined.\n"
+      " An expect rule is, by default, a one shot activity.  That is, a rule is\n"
+      " automatically removed when it matches, unless it is designated as a\n"
+      " persistent rule by using the `-p` switch when the rule is defined.\n"
       "5-c\n"
-      " If an expect rule is defined with the -c switch, it will cause all\n"
+      " If an expect rule is defined with the `-c` switch, it will cause all\n"
       " pending expect rules on the current device to be cleared when the rule\n"
       " matches data in the device output stream.\n"
        /***************** 80 character line width template *************************/
       "5-t\n"
-      " The -t switch indicates that the value specified by the HaltAfter\n"
+      " The `-t` switch indicates that the value specified by the `HALTAFTER`\n"
       " parameter are in units of microseconds rather than instructions.\n"
       "4Determining Which Output Matched\n"
       " When an expect rule matches data in the output stream, the rule which\n"
       " matched is recorded in the environment variable _EXPECT_MATCH_PATTERN.\n"
        /***************** 80 character line width template *************************/
-      "4Escaping String Data\n"
-      "++\\r  Expect the ASCII Carriage Return character (Decimal value 13)\n"
-      "++\\n  Expect the ASCII Linefeed character (Decimal value 10)\n"
-      "++\\f  Expect the ASCII Formfeed character (Decimal value 12)\n"
-      "++\\t  Expect the ASCII Horizontal Tab character (Decimal value 9)\n"
-      "++\\v  Expect the ASCII Vertical Tab character (Decimal value 11)\n"
-      "++\\b  Expect the ASCII Backspace character (Decimal value 8)\n"
-      "++\\\\  Expect the ASCII Backslash character (Decimal value 92)\n"
-      "++\\'  Expect the ASCII Single Quote character (Decimal value 39)\n"
-      "++\\\"  Expect the ASCII Double Quote character (Decimal value 34)\n"
-      "++\\?  Expect the ASCII Question Mark character (Decimal value 63)\n"
-      "++\\e  Expect the ASCII Escape character (Decimal value 27)\n"
-      " as well as octal character values of the form:\n"
-      "++\\n{n{n}} where each n is an octal digit (0-7)\n"
-      " and hext character values of the form:\n"
-      "++\\xh{h} where each h is a hex digit (0-9A-Fa-f)\n"
-      "4HaltAfter\n"
+      "4Backslash-Escaping String Data\n"
+      " * `r` - Expect the ASCII Carriage Return character (Decimal value `13`)\n"
+      " * `n` - Expect the ASCII Linefeed character (Decimal value `10`)\n"
+      " * `f` - Expect the ASCII Formfeed character (Decimal value `12`)\n"
+      " * `t` - Expect the ASCII Horizontal Tab character (Decimal value `9`)\n"
+      " * `v` - Expect the ASCII Vertical Tab character (Decimal value `11`)\n"
+      " * `b` - Expect the ASCII Backspace character (Decimal value `8`)\n"
+      " * `\"` - Expect the ASCII Double Quote character (Decimal value `34`)\n"
+      " * `?` - Expect the ASCII Question Mark character (Decimal value `63`)\n"
+      " * `e` - Expect the ASCII Escape character (Decimal value `27`)\n"
+      " * `'` - Expect the ASCII Single Quote character (Decimal value `39`)\n\n"
+      " as well as *octal* character values of the form:\n\n"
+      "++n{n{n}}  where each n is an octal digit (0-7)\n"
+      " and *hexadecimal* character values of the form:\n\n"
+      "++xh{h}  where each h is a hex digit (0-9A-Fa-f)\n"
+      "4HALTAFTER\n"
       " Specifies the number of instructions which should be executed before\n"
       " simulator instruction execution should stop.  The default is to stop\n"
-      " executing instructions immediately (i.e. HALTAFTER=0).\n"
-      " The HaltAfter delay, once set, persists for all expect behaviors for\n"
-      " that device.\n"
-      " The HaltAfter parameter value can be set by itself with:\n\n"
+      " executing instructions immediately (i.e. `HALTAFTER=0`).\n"
+      " The `HALTAFTER` delay, once set, persists for all expect behaviors\n"
+      " for that device.\n"
+      " The `HALTAFTER` parameter value can be set by itself with:\n\n"
       "++EXPECT HALTAFTER=n\n\n"
       " To avoid potentially unpredictable system hehavior that will happen\n"
-      " if multiple expect rules are in effect and a haltafter value is large\n"
-      " enough for more than one expect rule to match before an earlier haltafter\n"
-      " delay has expired, only a single EXPECT rule can be defined if a non-zero\n"
-      " HaltAfter parameter has been set.\n"
+      " if multiple expect rules are in effect and a `HALTAFTER` value is large\n"
+      " enough for more than one rule to match before an earlier `HALTAFTER`\n"
+      " delay has expired, only a single expect rule can be defined if a\n"
+      " non-zero `HALTAFTER` parameter has been set.\n"
       /***************** 80 character line width template *************************/
 #define HLP_ASSERT      "*Commands Executing_Command_Files Testing_Simulator_State"
 #define HLP_IF          "*Commands Executing_Command_Files Testing_Simulator_State"
       "3Testing Simulator State\n"
-      " There are two ways for a command file to examine simulator state and\n"
-      " then take action based on that state:\n"
+      " There are two ways for a command file to examine the simulator state and\n"
+      " take a specific action: the `ASSERT` command and the `IF` commands.\n"
       "4ASSERT\n"
-      " The ASSERT command tests a simulator state condition and halts command\n"
+      " The `ASSERT` command tests a simulator state condition and halts command\n"
       " file execution if the condition is false:\n\n"
       "++ASSERT <Simulator State Expressions>\n\n"
       " If the indicated expression evaluates to false, the command completes\n"
-      " with an AFAIL condition.  By default, when a command file encounters a\n"
-      " command which returns the AFAIL condition, it will exit the running\n"
-      " command file with the AFAIL status to the calling command file.  This\n"
-      " behavior can be changed with the ON command as well as switches to the\n"
-      " invoking DO command.\n\n"
-      "5Examples:\n"
+      " with an `AFAIL` condition.  By default, when a command file encounters a\n"
+      " command which returns the `AFAIL` condition, it will exit the running\n"
+      " command file with the `AFAIL` status to the calling command file.  This\n"
+      " behavior can be changed with the `ON` command as well as switches to the\n"
+      " invoking `DO` command.\n\n"
+      "5Examples\n"
       " A command file might be used to bootstrap an operating system that\n"
-      " halts after the initial load from disk.  The ASSERT command is then\n"
+      " halts after the initial load from disk.  The `ASSERT` command is then\n"
       " used to confirm that the load completed successfully by examining the\n"
-      " CPU's \"A\" register for the expected value:\n\n"
+      " CPU's \"`A`\" register for the expected value:\n\n"
       "++; OS bootstrap command file\n"
       "++;\n"
       "++ATTACH DS0 os.disk\n"
@@ -1247,17 +1255,17 @@ static const char simh_help[] =
       "++ATTACH MT1 user.tape\n"
       "++RUN\n\n"
        /***************** 80 character line width template *************************/
-      " In the example, if the A register is not 0, the \"ASSERT A=0\" command will\n"
-      " be echoed, the command file will be aborted with an \"Assertion failed\"\n"
-      " message.  Otherwise, the command file will continue to bring up the\n"
-      " operating system.\n"
+      " In the above example, if the \"`A`\" register is not `0`, the \"`ASSERT A=0`\"\n"
+      " command will be displayed to the user, and the command file will be\n"
+      " aborted with an \"`Assertion failed`\" message.  Otherwise, the command\n"
+      " file will continue to bring up the operating system.\n"
       "4IF\n"
-      " The IF command tests a simulator state condition and executes additional\n"
+      " The `IF` command tests a simulator state condition and executes additional\n"
       " commands if the condition is true:\n\n"
-      "++IF <Simulator State Expressions> commandtoprocess{; additionalcommandtoprocess}...\n\n"
-      "5Examples:\n"
+      "++IF <Simulator State Expressions> commandtoprocess{; additionalcommand}…\n\n"
+      "5Examples\n"
       " A command file might be used to bootstrap an operating system that\n"
-      " halts after the initial load from disk.  The ASSERT command is then\n"
+      " halts after the initial load from disk.  The `ASSERT` command is then\n"
       " used to confirm that the load completed successfully by examining the\n"
       " CPU's \"A\" register for the expected value:\n\n"
       "++; OS bootstrap command file\n"
@@ -1265,19 +1273,19 @@ static const char simh_help[] =
       "++ATTACH DS0 os.disk\n"
       "++BOOT DS\n"
       "++; A register contains error code; 0 = good boot\n"
-      "++IF NOT A=0 echo Boot failed - Failure Code; EX A; exit AFAIL\n"
+      "++IF NOT A=0 echo Boot failed - Failure Code ; EX A; exit AFAIL\n"
       "++ATTACH MT0 sys.tape\n"
       "++ATTACH MT1 user.tape\n"
       "++RUN\n\n"
        /***************** 80 character line width template *************************/
-      " In the example, if the A register is not 0, the message \"Boot failed -\n"
-      " Failure Code:\" command will be displayed, the contents of the A register\n"
-      " will be displayed and the command file will be aborted with an \"Assertion\n"
-      " failed\" message.  Otherwise, the command file will continue to bring up\n"
-      " the operating system.\n"
+      " In the above example, if the `A` register is not `0`, the\n"
+      " message \"`Boot failed - Failure Code `\" will be displayed, the contents\n"
+      " of the `A` register will be displayed, and the command file will be\n"
+      " aborted with an \"`Assertion failed`\" message.  Otherwise, the command\n"
+      " file will continue to bring up the operating system.\n"
       "4Conditional Expressions\n"
-      " The IF and ASSERT commands evaluate two different forms of conditional\n"
-      " expressions.:\n\n"
+      " The `IF` and `ASSERT` commands evaluate the following two different forms\n"
+      " of conditional expressions.\n\n"
       "5Simulator State Expressions\n"
       " The values of simulator registers can be evaluated with:\n\n"
       "++{NOT} {<dev>} <reg>|<addr>{<logical-op><value>}<conditional-op><value>\n\n"
@@ -1285,22 +1293,22 @@ static const char simh_help[] =
       " or subscripted) belonging to the indicated device.  <addr> is an address\n"
       " in the address space of the indicated device.  The <conditional-op>\n"
       " and optional <logical-op> are the same as those used for \"search\n"
-      " specifiers\" by the EXAMINE and DEPOSIT commands.  The <value>s are\n"
+      " specifiers\" by the `EXAMINE` and `DEPOSIT` commands.  The <value>s are\n"
       " expressed in the radix specified for <reg>, not in the radix for the\n"
       " device when referencing a register and when an address is referenced\n"
       " the device radix is used as the default.\n\n"
       " If the <logical-op> and <value> are specified, the target register value\n"
-      " is first altered as indicated.  The result is then compared to the\n"
-      " <value> via the <conditional-op>.  If the result is true, the additional\n"
+      " is first altered as indicated.  The result is then compared to\n"
+      " the <value> via the <conditional-op>.  If the result is true, the\n"
       " command(s) are executed before proceeding to the next line in the command\n"
       " file.  Otherwise, the next command in the command file is processed.\n\n"
       "5String Comparison Expressions\n"
-      " String Values can be compared with:\n"
+      " String Values can be compared with:\n\n"
       "++{-i} {NOT} \"<string1>\" <compare-op> \"<string2>\"\n\n"
-      " The -i switch, if present, causes comparisons to be case insensitive.\n"
-      " <string1> and <string2> are quoted string values which may have\n"
+      " The `-i` switch, if present, causes comparisons to be case insensitive.\n"
+      " The <string1> and <string2> are quoted string values which may have\n"
       " environment variables substituted as desired.\n"
-      " <compare-op> may be one of:\n\n"
+      " The <compare-op> may be one of:\n\n"
       "++==  - equal\n"
       "++EQU - equal\n"
       "++!=  - not equal\n"
@@ -1320,19 +1328,20 @@ static const char simh_help[] =
        /***************** 80 character line width template *************************/
 #define HLP_EXIT        "*Commands Exiting_The_Simulator"
       "2Exiting The Simulator\n"
-      " EXIT (synonyms QUIT and BYE) returns control to the operating system.\n"
+      " The `EXIT` command (synonyms `QUIT` and `BYE`) exits the simulation,\n"
+      " returning control to the operating system.\n"
        /***************** 80 character line width template *************************/
 #define HLP_SPAWN       "*Commands Executing_System_Commands"
       "2Executing System Commands\n"
-      " The simulator can execute operating system commands with the ! (spawn)\n"
+      " The simulator can execute operating system commands with the `!` (*spawn*)\n"
       " command:\n\n"
       "++!                    execute local command interpreter\n"
       "++! <command>          execute local host command\n"
       " If no operating system command is provided, the simulator attempts to\n"
-      " launch the host operating system's command shell.\n"
+      " launch the host operating system's default interactive command shell.\n"
       " The exit status from the command which was executed is set as the command\n"
-      " completion status for the ! command.  This may influence any enabled ON\n"
-      " condition traps\n";
+      " completion status for the `!` command.  This may influence any\n"
+      " enabled `ON` condition traps\n";
 
 static CTAB cmd_table[] = {
     { "RESET",      &reset_cmd,     0,          HLP_RESET },
@@ -1516,6 +1525,15 @@ char *strremove(char *str, const char *sub)
     return str;
 }
 
+#ifdef USE_DUMA
+void CleanDUMA(void)
+{
+  (void)fflush(stdout);
+  DUMA_CHECKALL();
+  (void)fflush(stderr);
+}
+#endif /* ifdef USE_DUMA */
+
 /* Main command loop */
 
 #ifndef PERF_STRIP
@@ -1552,6 +1570,21 @@ t_stat stat;
 #   define NEED_CONSOLE_SETUP
 #  endif
 # endif /* ifdef CROSS_MINGW64 */
+
+# ifdef USE_DUMA
+#  ifdef DUMA_EXPLICIT_INIT
+duma_init();
+(void)fflush(stderr);
+#  endif /* ifdef DUMA_EXPLICIT_INIT */
+#  ifdef DUMA_MIN_ALIGNMENT
+#   if DUMA_MIN_ALIGNMENT > 0
+DUMA_SET_ALIGNMENT(DUMA_MIN_ALIGNMENT);
+#   endif /* if DUMA_MIN_ALIGNMENT > 0 */
+#  endif /* ifdef DUMA_MIN_ALIGNMENT) */
+DUMA_SET_FILL(0x2E);
+(void)fflush(stderr);
+(void)atexit(CleanDUMA);
+# endif /* ifdef USE_DUMA */
 
 # if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
 #  include <windows.h>
@@ -1681,10 +1714,19 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
         fprintf (stdout, "\n  -v, -V            Prints commands read from script file before execution");
         fprintf (stdout, "\n  --version         Prints only the simulator identification text and exit");
         fprintf (stdout, "\n");
+# ifdef USE_DUMA
+        nodist++;
+# endif /* ifdef USE_DUMA */
+if (!nodist) {
         fprintf (stdout, "\n This software is made available under the terms of the ICU License, version");
         fprintf (stdout, "\n 1.8.1 or later.  For complete details, see the \"LICENSE.md\" file included");
-        fprintf (stdout, "\n with the software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
-        fprintf (stdout, "\n\n");
+        fprintf (stdout, "\n with the software or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md\n");
+}
+else
+{
+        fprintf (stdout, "\n********** LICENSE RESTRICTED BUILD ****** NOT FOR REDISTRIBUTION **********");
+}
+        fprintf (stdout, "\n");
         return 0;
     }
     /* invalid arguments? */
@@ -2836,7 +2878,7 @@ for (; *ip && (op < oend); ) {
                         ap = rbuf;
                         }
                     else if (!strcmp ("LTIME", gbuf)) {
-                        strftime (rbuf, sizeof(rbuf), "%r", tmnow);
+                        strftime (rbuf, sizeof(rbuf), "%I:%M:%S %p", tmnow);
                         ap = rbuf;
                         }
                     else if (!strcmp ("CTIME", gbuf)) {
@@ -3115,7 +3157,7 @@ return 1;
    If command
 
    Syntax: ASSERT {NOT} {<dev>} <reg>{<logical-op><value>}<conditional-op><value>
-   Syntax: IF {NOT} {<dev>} <reg>{<logical-op><value>}<conditional-op><value> commandtoprocess{; additionalcommandtoprocess}...
+   Syntax: IF {NOT} {<dev>} <reg>{<logical-op><value>}<conditional-op><value> commandtoprocess{; additionalcommand}...
 
        If NOT is specified, the resulting expression value is inverted.
        If <dev> is not specified, sim_dflt_dev (CPU) is assumed.
@@ -3124,7 +3166,7 @@ return 1;
        allowed for examine and deposit search specifications.
 
    Syntax: ASSERT {-i} {NOT} "<string1>" <compare-op> "<string2>"
-   Syntax: IF {-i} {NOT} "<string1>" <compare-op> "<string2>" commandtoprocess{; additionalcommandtoprocess}...
+   Syntax: IF {-i} {NOT} "<string1>" <compare-op> "<string2>" commandtoprocess{; additionalcommand}...
 
        If -i is specified, the comparisons are done in a case insensitive manner.
        If NOT is specified, the resulting expression value is inverted.
@@ -4232,7 +4274,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #   endif /* ifdef UV_VERSION_PATCH */
 #  endif /* ifdef UV_VERSION_MINOR */
     unsigned int CurrentUvVersion = uv_version();
-    if (((void *)&CurrentUvVersion != NULL) && (CurrentUvVersion > 0))
+    if (CurrentUvVersion > 0)
         if (uv_version_string() != NULL)
             fprintf (st, "; %s in use", uv_version_string());
 # endif /* ifdef UV_VERSION_MAJOR */
@@ -4296,9 +4338,15 @@ if (cptr && (*cptr != 0))
     return SCPE_2MARG;
 if (flag) {
         fprintf (st, " %s Simulator:", sim_name);
+#if defined(USE_DUMA)
+# undef NO_SUPPORT_VERSION
+# define NO_SUPORT_VERSION 1
+        nodist++;
+#endif /* if defined(USE_DUMA) */
 #if defined(NO_SUPPORT_VERSION) || \
     defined(TESTING)            || \
-    defined(ISOLTS)
+    defined(ISOLTS)             || \
+    defined(USE_DUMA)
 # ifndef NO_SUPPORT_VERSION
 #  define NO_SUPPORT_VERSION 1
 # endif
@@ -4671,11 +4719,18 @@ if (flag) {
         sim_printf ("\n\n  ****** RUNNING UNDER APPLE ROSETTA 2, EXPECT REDUCED PERFORMANCE ******");
     }
 #endif
-fprintf (st, "\n");
-fprintf (st, "\n This software is made available under the terms of the ICU License,");
-fprintf (st, "\n version 1.8.1 or later.  For complete details, see the \"LICENSE.md\"");
-fprintf (st, "\n included or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
-fprintf (st, "\n");
+    if (nodist)
+      {
+        sim_printf ("\n\n ********* LICENSE RESTRICTED BUILD *** NOT FOR REDISTRIBUTION *********\n");
+      }
+    else
+      {
+        fprintf (st, "\n");
+        fprintf (st, "\n This software is made available under the terms of the ICU License,");
+        fprintf (st, "\n version 1.8.1 or later.  For complete details, see the \"LICENSE.md\"");
+        fprintf (st, "\n included or https://gitlab.com/dps8m/dps8m/-/blob/master/LICENSE.md");
+      }
+        fprintf (st, "\n");
     }
 return SCPE_OK;
 }

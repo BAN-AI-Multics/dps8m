@@ -3,9 +3,11 @@ set userName \*
 set projName HFED
 set password fed
 
+#exp_internal -f isolts.debug.log 1
+
 remove_nulls 1
-match_max 4096
-set timeout 350000
+match_max 14096
+set timeout 750000
 
 cd ./run
 spawn ./dps8 -r isolts.ini
@@ -15,13 +17,13 @@ expect "M-> CONSOLE: RELEASED"
 
 set spawn_id $dps8ID
 
-proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2}
-proc  wi {     } { expect -re {Input.\r}; sleep 0.2}
-proc  wn {     } { expect -re {\n}; sleep 0.2}
-proc  sw { txt } { send $txt; send "\r"; w }
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2 }
+proc  wi {     } { expect -re {Input.\r}; sleep 0.2 }
+proc  wn {     } { expect -re {\n}; sleep 0.2 }
+proc  sw { txt } { send $txt; send "\r"; w  }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.5}
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.4 }
 proc swf { txt } { send $txt; send "\r"; wf }
 
 if {![fork]} {
@@ -34,47 +36,11 @@ sleep 2
 set spawn_id $dps8ID
 
 # Waiting for logout
-expect "LOGOUT"; sleep 1
+expect "LOGOUT"
+sleep 2
+set timeout 3
 
-# Sending escape
-send "\x1b"
-
-# Waiting for prompt
-expect "M->"; sleep 1
-
-# Logout
-send "logout * * *\r"
-
-# Waiting for prompt
-expect "M->"; sleep 1
-
-# Sending escape, wait, escape
-send "\x1b"; sleep 60
-send "\x1b"
-
-# Waiting for prompt
-expect "M->"; sleep 1
-
-# Shutdown
-send "shut\r"
-
-# Waiting for prompt
-expect "bce (boot)"; sleep 1
-
-# Sending escape
-send "\x1b"
-
-# Waiting for prompt
-expect "M->"; sleep 1
-
-# Sending die
-send "die\r"
-
-# Waiting for prompt
-expect "M->"; sleep 1
-
-# Affirmative
-send "y\r"
-
-# Finish
-expect eof
+# Scram
+exec kill -9 [exp_pid $dps8ID]; sleep 1
+close $dps8ID
+exit

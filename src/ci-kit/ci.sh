@@ -5,14 +5,52 @@
 printf '#### %s\n' "Begin ${0} (${$})"
 
 # Check for /bin/sh
-test -x /bin/sh ||
+test -x "/bin/sh" ||
   {
-    printf '%s\n' \
-      'Error: No "/bin/sh" executable.'
+    printf '%s\n'  \
+      '*** Error: No "/bin/sh" executable.'
     exit 1
   }
 
 export SHELL=/bin/sh
+
+# Show git diff before starting
+# shellcheck disable=SC2009
+GIT_DIFF_OUT="$(git diff 2> /dev/null)"
+test -z "${GIT_DIFF_OUT:-}" ||
+  {
+    printf '%s\n'  \
+      "*** Note: Dirty tree! \"git diff\" output:"
+    printf '%s\n' "${GIT_DIFF_OUT:-}"
+    printf '%s\n' "" "*** Continuing in 5 seconds ... "
+    sleep 5 > /dev/null 2>&1
+  }
+
+# Show tmux existing sessions
+# shellcheck disable=SC2009
+TMUX_SESSIONS="$(tmux list-sessions 2> /dev/null |  \
+                   grep '^ci-kit' 2> /dev/null)"
+test -z "${TMUX_SESSIONS:-}" ||
+  {
+    printf '%s\n'  \
+      '*** Note: CI-Kit tmux sessions possibly active:'
+    printf '%s\n' "${TMUX_SESSIONS:-}"
+    printf '%s\n' "" "*** Continuing in 5 seconds ... "
+    sleep 5 > /dev/null 2>&1
+  }
+
+# Show existing dps8 processes
+# shellcheck disable=SC2009
+DPS8_SESSIONS="$(ps -ef 2> /dev/null | grep 'dps8.*yoyo' 2> /dev/null |  \
+                   grep -v ' grep' 2> /dev/null)"
+test -z "${DPS8_SESSIONS:-}" ||
+  {
+    printf '%s\n'  \
+      '*** Note: CI-Kit dps8 sessions possibly active:'
+    printf '%s\n' "${DPS8_SESSIONS:-}"
+    printf '%s\n' "" "*** Continuing in 5 seconds ... "
+    sleep 5 > /dev/null 2>&1
+  }
 
 # Strict
 set -eu > /dev/null 2>&1
@@ -26,8 +64,8 @@ test -z "${CI_JOB_ID:-}" &&
 # Sanity check
 test -f "./tapes/foo.tap" ||
   {
-    printf '%s\n' \
-      'Error: "./tapes/foo.tap" missing; running "./init.sh"'
+    printf '%s\n'  \
+      '*** Note: "./tapes/foo.tap" missing; running "./init.sh"'
     ./init.sh ||
       exit 1
   }
@@ -39,8 +77,8 @@ test -d ./run &&
 # Check for tmux
 command -v tmux > /dev/null 2>&1 ||
   {
-    printf '%s\n' \
-      'Error: "tmux" not found in PATH.'
+    printf '%s\n'  \
+      '*** Error: "tmux" not found in PATH.'
     exit 1
   }
 
@@ -62,6 +100,7 @@ command -v "${FAKETIME_PRG:?}" > /dev/null 2>&1 || FORCEFAKETIME=1;
 # shellcheck disable=SC2015
 test "${FORCEFAKETIME:-}" -eq "1" 2> /dev/null ||
 {
+  # shellcheck disable=SC2016
   grep -iq "ubuntu" "/etc/os-release" 2> /dev/null &&
     grep "VERSION_ID=" "/etc/os-release" 2> /dev/null |
       cut -d '=' -f 2- 2> /dev/null | tr -cd '[0-9].' 2> /dev/null |
@@ -94,7 +133,7 @@ command -v "${FAKETIME_PRG:?}" > /dev/null 2>&1 &&
 # Check for awk
 command -v "${AWK:-awk}" > /dev/null 2>&1 ||
   {
-    printf '%s\n' \
+    printf '%s\n'  \
       "Error: \"${AWK:-awk}\" not found in PATH."
     exit 1
   }
@@ -126,7 +165,7 @@ portCanBind()
 # Port ${1} open?
 portFree()
   {
-    ${NCAT:?} -n --send-only "127.0.0.1" "${1:?}" \
+    ${NCAT:?} -n --send-only "127.0.0.1" "${1:?}"  \
       < /dev/null > /dev/null 2>&1 ||
         {
           printf '%s\n' "${1:?}"
@@ -139,14 +178,15 @@ portFree()
 # Generate random ephemeral port
 randomPort()
   {
+    sleep 1 > /dev/null 2>&1
     # shellcheck disable=SC2312
-    ${AWK:-awk} "BEGIN                                           \
-      { srand($( ( ${DATE:-date} -u 2> /dev/null;                \
-         ${PS:-ps} 2> /dev/null; ${PS:-ps} auxw 2> /dev/null ) | \
-           ${CKSUM:-cksum} 2> /dev/null |                        \
-             ${TR:-tr} -cd '0-9\n' 2> /dev/null |                \
-               ${DD:-dd} bs=1 count=5 2> /dev/null ) );          \
-        printf( \"%d\\n\", ( 16380 * rand() ) + 49154 );         \
+    ${AWK:-awk} "BEGIN                                            \
+      { srand($( ( ${DATE:-date} -u 2> /dev/null;                 \
+         ${PS:-ps} 2> /dev/null; ${PS:-ps} auxw 2> /dev/null ) |  \
+           ${CKSUM:-cksum} 2> /dev/null |                         \
+             ${TR:-tr} -cd '0-9\n' 2> /dev/null |                 \
+               ${DD:-dd} bs=1 count=5 2> /dev/null ) );           \
+        printf( \"%d\\n\", ( 16380 * rand() ) + 49154 );          \
       }"
   }
 
@@ -159,23 +199,23 @@ assignOpenPort()
   }
 
 # Tool configuration
-printf '***           make: "%s"\n' \
+printf '***           make: "%s"\n'  \
   "${MAKE:-make}"
-printf '***           tail: "%s"\n' \
+printf '***           tail: "%s"\n'  \
   "${TAIL:-tail}"
-printf '***       faketime: "%s"\n' \
+printf '***       faketime: "%s"\n'  \
   "${FAKETIME:?}"
-printf '***         stdbuf: "%s"\n' \
+printf '***         stdbuf: "%s"\n'  \
   "${STDBUF:?}"
 
 # Port configuration
 while test "${CONPORT:-0}" = "${FNPPORT:-0}"; do
   CONPORT="$(assignOpenPort)" &&
-    printf '***   console port: %s\n' \
+    printf '***   console port: %s\n'  \
       "\"${CONPORT:?}\" ${NCSTATUS:?}" &&
         export CONPORT 2> /dev/null
   FNPPORT="$(assignOpenPort)" &&
-    printf '***       FNP port: %s\n' \
+    printf '***       FNP port: %s\n'  \
       "\"${FNPPORT:?}\" ${NCSTATUS:?}" &&
         export FNPPORT 2> /dev/null
 done
@@ -206,28 +246,35 @@ export TMUX='' 2> /dev/null
 
 # Run CI-Kit in background tmux session
 # shellcheck disable=SC2015,SC2048,SC2086,SC2140,SC2248
-eval tmux -u -2 new -d -s cikit-${T_JOB_ID:?}-0                          \
-  "\"export CI_JOB_ID=\"${CI_JOB_ID:?}\";                                \
-    export FNPPORT=\"${FNPPORT:?}\"; export CONPORT=\"${CONPORT:?}\";    \
-      eval ${FAKETIME:?} ${STDBUF:?} ${MAKE:-make} ${NRB:-}              \
-       --no-print-directory                                              \
-        -f "ci.makefile" ${*} \"s1\" \"s2\" \"s2p\" \"s3\" \"s3p\"       \
-          \"s4\" \"s5\" \"s6\" \"s7\" 2>&1 |                             \
-            ${STDBUF:?} ${TEE:-tee} -i -a ci.log;                        \
-              tmux wait -S cikit-${T_JOB_ID:?}-1 \"" &&                  \
+eval tmux -u -2 new -d -s cikit-${T_JOB_ID:?}-0                        \
+  "\"export CI_JOB_ID=\"${CI_JOB_ID:?}\";                              \
+    export FNPPORT=\"${FNPPORT:?}\"; export CONPORT=\"${CONPORT:?}\";  \
+      eval ${FAKETIME:?} ${STDBUF:?} ${MAKE:-make} ${NRB:-}            \
+       --no-print-directory                                            \
+        -f "ci.makefile" ${*} \"s1\" \"s2\" \"s2p\" \"s3\" \"s3p\"     \
+          \"s4\" \"s4p\" \"s5\" \"s6\" \"s7\" 2>&1 |                   \
+            ${STDBUF:?} ${TEE:-tee} -i -a ci.log;                      \
+              tmux wait -S cikit-${T_JOB_ID:?}-1 \"" &&                \
   tmux wait cikit-${T_JOB_ID:?}-1 &
 BGJOB="${!}" && export BGJOB
 printf '***  %s\n' "tmux wait PID: \"${BGJOB:?}\""
 
 # Live tail log files
 # shellcheck disable=SC2248
-eval ${STDBUF:?} "${TAIL:-tail}" -q -s 0.1 -F -n "+0" --pid="${BGJOB:?}" \
-  "ci.log" "ci_t2.log" "ci_t3.log" "isolts.log" "perf.log" 2> /dev/null
+TSTAMPER="$(./timestamp.sh 2> /dev/null)"
+printf '*** %s\n' "   timestamper: \"${TSTAMPER:-cat}\""
+# shellcheck disable=SC2086,SC2248
+( eval ${STDBUF:?} "${TAIL:-tail}" -q -s 0.1 -F -n "+0" --pid="${BGJOB:?}"  \
+   "ci.log" "ci_t2.log" "ci_t3.log" "isolts.log" "perf.log"                 \
+     "ci_t1.debug.log" "ci_t2.debug.log" "ci_t3.debug.log"                  \
+       "isolts.debug.log" "isolts_run.debug.log" 2> /dev/null )             \
+  | eval ${TSTAMPER:-cat}
 
 # Finish
 wait "${BGJOB:?}" &&
-  (exec ${STDBUF:?} date -u "+Timestamp: %Y-%m-%d %H:%M:%S %Z." 2> /dev/null |
-    ${STDBUF:?} "${TEE:-tee}" -i -a "ci.log" > /dev/null 2>&1)
+  ( exec ${STDBUF:?} date -u "+Timestamp: %Y-%m-%d %H:%M:%S %Z."  \
+      2> /dev/null | ${STDBUF:?} "${TEE:-tee}" -i -a "ci.log"     \
+        > /dev/null 2>&1)
 
 # End
 printf '#### %s\n' "End ${0} (${$})"

@@ -47,7 +47,7 @@ ${DEBUG_CALL:?} Check for spaces in new filenames ...
 # Spaces in new filenames
 if (${HOOK_CALL:?} | awk '{ print "\""$0"\"" }' | grep ' ' >&2); then
 	{
-		printf '%s\n' "ERROR: Filename check failed due to spaces in above files!" >&2;
+		printf '%s\n' "ERROR: Filename check failed due to spaces in staged commit!" >&2;
 		exit "${EXIT_STATUS:-1}";
 	};
 fi
@@ -56,18 +56,18 @@ ${DEBUG_CALL:?} Checking whitespace ...
 # Whitespace (depends on Git settings)
 ${GIT:-git} diff --check >&2 ||
 	{
-		printf '%s\n' "ERROR: Whitespace check failed in above files!" >&2
+		printf '%s\n' "ERROR: Whitespace check failed in staged commit!" >&2
 		exit "${EXIT_STATUS:-1}"
 	};
 
 ${DEBUG_CALL:?} Checking Cppi indentation ...
 # Cpp indentation
 if (command -v cppi > /dev/null 2>&1); then
-	CPPISCAN="$(${MAKE:-make} cppiscan 2> /dev/null | grep '/' || true)"
+	CPPISCAN="$(${MAKE:-make} cppiscan 2> /dev/null | grep '/' | grep -v '^LIBUV' || true)"
 	test -z "${CPPISCAN:-}" ||
 		{
 			printf '%s\n' "${CPPISCAN:?}" >&2;
-			printf '%s\n' "ERROR: Cppi check failed in above files!" >&2;
+			printf '%s\n' "ERROR: Cppi check failed in staged commit!" >&2;
 			printf '%s\n' "       (Try \"${MAKE:-make} cppifix\" for auto fix)" >&2;
 			exit "${EXIT_STATUS:-1}";
 		};
@@ -80,7 +80,7 @@ ${DEBUG_CALL:?} Checking for tabs in C source code files ...
 TLIST="$(${HOOK_CALL:?} | grep '\.[ch]$' | xargs -L 1 grep -l "$(printf '\t')" 2> /dev/null)";
 printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
 	{
-		printf '%s\n' "ERROR: Tabs check failed in above files!" >&2;
+		printf '%s\n' "ERROR: Tabs check failed in staged commit!" >&2;
 		exit "${EXIT_STATUS:-1}";
 	}
 

@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2018 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -28,6 +34,8 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -270,9 +278,8 @@ static void do_ITS (void)
     return;
   }
 
-
 // CANFAULT
-static void do_ITS_ITP ()
+static void do_ITS_ITP (void)
   {
     word6 ind_tag = GET_TAG (cpu.itxPair [0]);
 
@@ -301,7 +308,6 @@ static void do_ITS_ITP ()
     // address modifier will cause an illegal procedure, illegal modifier,
     // fault.
 
-
     if (ISITS (ind_tag))
         do_ITS ();
     else
@@ -311,7 +317,6 @@ static void do_ITS_ITP ()
     cpu.cu.XSF = 1;
     sim_debug (DBG_APPENDING, & cpu_dev, "do_ITS_ITP sets XSF to 1\n");
   }
-
 
 void updateIWB (word18 addr, word6 tag)
   {
@@ -454,9 +459,7 @@ startCA:;
     sim_warn ("(startCA): unknown Tmi; can't happen!\n");
     return;
 
-
     // Register modification. Fig 6-3
-
     R_MOD:;
       {
         if (Td == TD_N) // TPR.CA = address from opcode
@@ -507,9 +510,7 @@ startCA:;
         return;
       } // R_MOD
 
-
     // Figure 6-4. Register Then Indirect Modification Flowchart
-
     RI_MOD:;
       {
         sim_debug (DBG_ADDRMOD, & cpu_dev, "RI_MOD: Td=%o\n", Td);
@@ -566,7 +567,6 @@ startCA:;
         // If the indirect word faults, on restart the CA will be the post
         // register modification value, so we want to prevent it from
         // happening again on restart
-
         word18 saveCA = cpu.TPR.CA;
         ReadIndirect ();
 
@@ -651,7 +651,6 @@ startCA:;
         // ReadIndirect does NOT update cpu.rTAG anymore
         if (GET_TM(cpu.rTAG) == TM_IR)
           cpu.cu.CT_HOLD = cpu.rTAG;
-
 
         if ((saveCA & 1) == 0 && (ISITP (cpu.itxPair[0]) || ISITS (cpu.itxPair[0])))
           {
@@ -819,7 +818,6 @@ startCA:;
                 doFault(FAULT_F3, fst_zero, "IT_MOD: IT_F3");
               }
 
-
             case IT_CI:  // Character indirect (Td = 10)
             case IT_SC:  // Sequence character (Td = 12)
             case IT_SCR: // Sequence character reverse (Td = 5)
@@ -926,7 +924,6 @@ startCA:;
                     cpu.ou.characterOperandSize = sz;
                     cpu.ou.characterOperandOffset = os;
                   }
-
 
 // What if readOperands and/of writeOperands fault? On restart, doCAF will be
 // called again and the indirect word would incorrectly be updated a second
@@ -1177,7 +1174,6 @@ startCA:;
                            "IT_MOD(IT_SD): wrote tally word %012"PRIo64
                            " to %06o\n",
                            indword, saveCA);
-
 
                 cpu.TPR.CA = Yi;
                 updateIWB (cpu.TPR.CA, (TM_R|TD_N));

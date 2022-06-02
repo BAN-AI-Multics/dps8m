@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2018 Charles Anthony
  * Copyright (c) 2021 Dean Anderson
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -25,6 +31,8 @@
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
 #include "dps8_mt.h"
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 
@@ -143,7 +151,6 @@ static t_stat mtp_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
     mtp_dev.numunits = (uint32) n;
     return SCPE_OK;
   }
-
 
 static t_stat mtp_show_boot_drive (UNUSED FILE * st, UNIT * uptr,
                                    UNUSED int val, UNUSED const void * desc)
@@ -299,13 +306,11 @@ DEVICE mtp_dev =
     NULL
   };
 
-
 //////////////
 //////////////
 //
 // tape drive
 //
-
 
 #define MT_UNIT_NUM(uptr) ((uptr) - mt_unit)
 
@@ -316,7 +321,6 @@ static char tape_path_prefix [PATH_MAX+2];
 
 // Multics RCP limits the volume name in the label to 32 characters
 #define LABEL_MAX 32
-
 
 #define N_MT_UNITS 1 // default
 
@@ -442,7 +446,6 @@ struct path_node
       PATH_ENTRY *next_entry;
   };
 
-
 static PATH_ENTRY *search_list_head = NULL;
 static PATH_ENTRY *search_list_tail = NULL;
 
@@ -498,7 +501,6 @@ static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value,
 
     return SCPE_OK;
   }
-
 
 static t_stat mt_add_tape_search_path(UNUSED UNIT * uptr, UNUSED int32 value,
                              const char * cptr, UNUSED void * desc)
@@ -632,7 +634,6 @@ static t_stat mt_set_capac (UNUSED UNIT * uptr, UNUSED int32 value,
       }
     return SCPE_OK;
   }
-
 
 t_stat signal_tape (uint tap_unit_idx, word8 status0, word8 status1) {
 
@@ -803,7 +804,6 @@ static t_stat mt_reset (DEVICE * dptr)
     return SCPE_OK;
   }
 
-
 DEVICE tape_dev =
   {
     "TAPE",           /* name */
@@ -875,7 +875,7 @@ static void deterimeFullTapeFileName(char * tapeFileName, char * buffer, int buf
     // Everything will fit so construct the full tape file name and path
     int buffWrote;
     buffWrote = snprintf(buffer,
-                    ((strlen(selected_path)+strlen(tapeFileName))+1),
+                    ((int)((strlen(selected_path)+strlen(tapeFileName))+1)),
                         "%s%s", selected_path, tapeFileName);
     if (buffWrote < 0)
       sim_warn("%s snprintf problem, returned %d\n", __func__, buffWrote);
@@ -1488,7 +1488,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //        2 idcw2 bit (36),                           /* Will be initiate read data transfer */
 //        2 dcw2 bit (36),                            /* Address=stat_buf.mem, tally=rest of segment */
 
-
 //        2 control,                                  /* Describes where data is in mpc */
 //          3 addr bit (16) unal,                     /* Addr in mpc memory */
 //          3 tally bit (16) unal,                    /* Count in mpc words */
@@ -1496,7 +1495,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //        2 stats (0:83) bit (18) unal;               /* EURC statistics in ASCII */
 
 //       2 mem (0:mpc_memory_size - 1) bit (18) unal; /* This is the mpc memory */
-
 
 //    / * Build read or write (dev stat block) main memory dcw list */
 //
@@ -2318,7 +2316,6 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
   return rc;
 } // mt_iom_cmd
-
 
 // 031 read statistics
 //  idcw.chan_cmd = "41"b3;  /* Indicate special controller command */

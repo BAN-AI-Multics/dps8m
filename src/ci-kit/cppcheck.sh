@@ -3,7 +3,7 @@
 
 ############################################################################
 #
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -19,6 +19,8 @@ test -d "./.git" ||
   printf '%s\n' "Error: Not in top-level git repository."
   exit 1
 }
+
+export SHELL=/bin/sh
 
 test -d "./.cppbdir" ||
 {
@@ -207,7 +209,7 @@ do_cppcheck()
 }
 
 full_line
-title_line "Running ${CPPCHECK:?} with up to $(count_cpus) parallel tasks" 
+title_line "Running ${CPPCHECK:?} with up to $(count_cpus) parallel tasks"
 full_line
 
 printf '%s\n' ""

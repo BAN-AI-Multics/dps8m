@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
- * Copyright (c) 2013-2018 Charles Anthony
+ * Copyright (c) 2013-2021 Charles Anthony
  * Copyright (c) 2017 Michal Tomek
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -44,6 +50,8 @@
 # include "threadz.h"
 __thread uint current_running_cpu_idx;
 #endif
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -134,7 +142,6 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                 cpus[cpu_unit_idx].switches.sdwam_enable ? "Enabled" : "Disabled");
     sim_msg ("PTWAM:                    %s\n",
                 cpus[cpu_unit_idx].switches.ptwam_enable ? "Enabled" : "Disabled");
-
 
     sim_msg ("Processor speed:          %02o(8)\n",
                 cpus[cpu_unit_idx].switches.proc_speed);
@@ -855,7 +862,6 @@ static MTAB cpu_mod[] =
       NULL                       // help
     },
 
-
 // RESET  -- reset CPU
 // INITIALIZE -- reset CPU
 
@@ -916,7 +922,6 @@ static MTAB cpu_mod[] =
       NULL,                      // value descriptor
       NULL                       // help
     },
-
 
     {
       MTAB_dev_value,            // mask
@@ -1157,7 +1162,7 @@ void setup_scbank_map (void)
                 else
                   {
                     // Assign it
-                    cpu.sc_addr_map[addr_bks] = port_num * ZONE_SZ + pg * SCBANK_SZ;
+                    cpu.sc_addr_map[addr_bks] = (int)((int)port_num * (int)ZONE_SZ + (int)pg * (int)SCBANK_SZ);
                     cpu.sc_scu_map[addr_bks] = port_num;
                   }
               }
@@ -1239,7 +1244,6 @@ static void get_serial_number (void)
       fclose (fp);
   }
 
-
 #ifdef STATS
 static void do_stats (void)
   {
@@ -1314,7 +1318,6 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
     PNL (panel_process_event ());
   }
 
-
 // called once initialization
 
 void cpu_init (void)
@@ -1352,7 +1355,6 @@ void cpu_init (void)
     for (int i = 0; i < N_FAULTS; i ++)
       cpu.faultCnt [i] = 0;
 
-
 #ifdef MATRIX
     initializeTheMatrix ();
 #endif
@@ -1377,7 +1379,6 @@ static t_stat sim_cpu_reset (UNUSED DEVICE *dptr)
 
     // Fill DPS8M memory with zeros, plus a flag only visible to the emulator
     // marking the memory as uninitialized.
-
 
     cpu_reset ();
     return SCPE_OK;
@@ -1559,7 +1560,6 @@ t_stat simh_hooks (void)
 
     return reason;
   }
-
 
 #ifdef PANEL
 static void panel_process_event (void)
@@ -2073,7 +2073,6 @@ setCPU:;
 
 #endif
 
-
         if (cpu.rTR & ~MASK27)
           {
             cpu.rTR &= MASK27;
@@ -2188,7 +2187,6 @@ setCPU:;
 // Since XEx/RPx may overwrite IWB, we must remember
 // the inhibit bits (cpu.wasInhibited).
 
-
 // If the instruction pair virtual address being formed is the result of a
 // transfer of control condition or if the current instruction is
 // Execute (xec), Execute Double (xed), Repeat (rpt), Repeat Double (rpd),
@@ -2214,7 +2212,6 @@ setCPU:;
 // A connect signal ($CON strobe) has been received from a system controller.
 // This event is to be distinguished from a Connect Input/Output Channel (cioc)
 // instruction encountered in the program sequence.
-
 
                 // check BAR bound and raise store fault if above
                 // pft 04d 10070, ISOLTS-776 06ad
@@ -2265,7 +2262,6 @@ setCPU:;
                       }
                   }
 
-
 // Multics executes a CPU connect instruction (which should eventually cause a
 // connect fault) while interrupts are inhibited and an IOM interrupt is
 // pending. Multics then executes a DIS instruction (Delay Until Interrupt
@@ -2288,7 +2284,6 @@ setCPU:;
 //
 // Next, the CPU sees the that cpu.interrupt flag is set, and starts the
 // interrupt cycle despite the fact that a higher priority g7 fault is pending.
-
 
 // To fix this, check (or recheck) g7 if an interrupt is going to be faulted.
 // Either DIS set interrupt_flag and FETCH_cycle didn't so g7 needs to be
@@ -2345,7 +2340,6 @@ setCPU:;
                     do_LUF_fault ();
                   }
               } // lufCounter > luf_limit
-
 
             // After 32ms, the LUF fires regardless of priv.
             if (cpu.lufCounter > luf_limits[4])
@@ -2524,7 +2518,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 
                     } // fault or interrupt
 
-
                   //if (TST_I_ABS && get_went_appending ())
                   if (TST_I_ABS && cpu.cu.XSF)
                     {
@@ -2545,7 +2538,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               if (ret == CONT_DIS)
                 {
                   CPT (cpt1U, 25); // DIS instruction
-
 
 // If we get here, we have encountered a DIS instruction in EXEC_cycle.
 //
@@ -2575,7 +2567,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 //    force the simh queues to process
 //    continue processing
 //
-
 
 // The usleep logic is not smart enough w.r.t. ROUND_ROBIN/ISOLTS.
 // The sleep should only happen if all running processors are in
@@ -2923,7 +2914,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               break;
             }
 
-
           }  // switch (cpu.cycle)
       }
 #ifdef ROUND_ROBIN
@@ -2938,19 +2928,20 @@ leave:
 #ifdef TESTING
     HDBGPrint ();
 #endif
-    sim_msg ("\ncycles = %llu\n", cpu.cycleCnt);
-    sim_msg ("instructions  %15llu\n", cpu.instrCnt);
-    sim_msg ("lockCnt       %15llu\n", cpu.lockCnt);
-    sim_msg ("lockImmediate %15llu\n", cpu.lockImmediate);
-    sim_msg ("lockWait      %15llu\n", cpu.lockWait);
-    sim_msg ("lockWaitMax   %15llu\n", cpu.lockWaitMax);
-    sim_msg ("lockYield     %15llu\n", cpu.lockYield);
+    sim_msg ("\n");
+    sim_msg ("cycles        %'15llu\n", (unsigned long long)cpu.cycleCnt);
+    sim_msg ("instructions  %'15llu\n", (unsigned long long)cpu.instrCnt);
+    sim_msg ("lockCnt       %'15llu\n", (unsigned long long)cpu.lockCnt);
+    sim_msg ("lockImmediate %'15llu\n", (unsigned long long)cpu.lockImmediate);
+    sim_msg ("lockWait      %'15llu\n", (unsigned long long)cpu.lockWait);
+    sim_msg ("lockWaitMax   %'15llu\n", (unsigned long long)cpu.lockWaitMax);
+    sim_msg ("lockYield     %'15llu\n", (unsigned long long)cpu.lockYield);
 #if 0
     for (int i = 0; i < N_FAULTS; i ++)
       {
         if (cpu.faultCnt [i])
-          sim_msg  ("%s faults = %ld\n",
-                      faultNames [i], cpu.faultCnt [i]);
+          sim_msg  ("%s faults = %llu\n",
+                      faultNames [i], (unsigned long long)cpu.faultCnt [i]);
       }
 #endif
 
@@ -2970,7 +2961,6 @@ leave:
     return reason;
   }
 
-
 /*!
  cd@libertyhaven.com - sez ....
  If the instruction addresses a block of four words, the target of the
@@ -2982,10 +2972,7 @@ go back 1 to 3 words. Analogous explanation for 8, 16, and 32 cases.
  olin@olinsibert.com - sez ...
  It means that the appropriate low bits of the address are forced to zero. So
 it's the previous words, not the succeeding words, that are used to satisfy the
-request.
-
- -- Olin
-
+request. -- Olin
  */
 
 int operand_size (void)
@@ -3569,7 +3556,6 @@ int is_priv_mode (void)
     return 0;
   }
 
-
 /*
  * get_bar_mode: During fault processing, we do not want to fetch and execute
  * the fault vector instructions in BAR mode. We leverage the
@@ -3602,7 +3588,6 @@ addr_modes_e get_addr_mode (void)
           return APPEND_mode;
       }
   }
-
 
 /*
  * set_addr_mode()
@@ -3655,7 +3640,6 @@ void set_addr_mode (addr_modes_e mode)
 /*
  * stuff to handle BAR mode ...
  */
-
 
 /*
  * The Base Address Register provides automatic hardware Address relocation and
@@ -3940,7 +3924,6 @@ void add_DU_history (void)
     PNL (add_history (DU_HIST_REG, cpu.du.cycle1, cpu.du.cycle2);)
   }
 
-
 void add_OU_history (void)
   {
     CPT (cpt1L, 26); // add ou hist
@@ -4137,7 +4120,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
 # if defined(NO_vsnprintf)
             len = vsprintf (buf, fmt, arglist);
 # else                                                   /* !defined(NO_vsnprintf) */
-            len = vsnprintf (buf, (unsigned long) bufsize-1, fmt, arglist);
+            len = vsnprintf (buf, (int)((unsigned long)(bufsize)-1), fmt, arglist);
 # endif                                                  /* NO_vsnprintf */
             va_end (arglist);
 

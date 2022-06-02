@@ -1,14 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * libtelnet - TELNET protocol handling library
  *
  * Sean Middleditch
  * sean@sourcemud.org
  *
- * The author or authors of this code dedicate any and all copyright interest
- * in this code to the public domain. We make this dedication for the benefit
- * of the public at large and to the detriment of our heirs and successors. We
- * intend this dedication to be an overt act of relinquishment in perpetuity of
- * all present and future rights to this code under copyright law.
+ * The author or authors of this code dedicate any and all copyright
+ * interest in this code to the public domain. We make this dedication
+ * for the benefit of the public at large and to the detriment of our heirs
+ * and successors. We intend this dedication to be an overt act of
+ * relinquishment in perpetuity of all present and future rights to this
+ * code under copyright law.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdlib.h>
@@ -28,7 +35,6 @@
 
 /* Win32 compatibility */
 #if defined(_WIN32)
-# define vsnprintf _vsnprintf
 # define __func__ __FUNCTION__
 # if defined(_MSC_VER)
 #  if _MSC_VER <= 1700
@@ -36,6 +42,8 @@
 #  endif
 # endif
 #endif
+
+#include "../dpsprintf/dpsprintf.h"
 
 #include "libtelnet.h"
 
@@ -213,8 +221,9 @@ static __inline__ void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
                         telnet->q[i].state = (unsigned char) Q_MAKE(us,him);
                         if (telopt != TELNET_TELOPT_BINARY)
                                 return;
-                        telnet->flags &= ~(TELNET_FLAG_TRANSMIT_BINARY |
-                                           TELNET_FLAG_RECEIVE_BINARY);
+                        telnet->flags &=
+                            (unsigned char)~(TELNET_FLAG_TRANSMIT_BINARY |
+                                             TELNET_FLAG_RECEIVE_BINARY);
                         if (us == Q_YES)
                                 telnet->flags |= TELNET_FLAG_TRANSMIT_BINARY;
                         if (him == Q_YES)
@@ -1180,7 +1189,7 @@ int telnet_vprintf(telnet_t *telnet, const char *fmt, va_list va) {
                         va_end(va2);
                         return -1;
                 }
-                rs = vsnprintf(output, (unsigned long) (rs + 1), fmt, va2);
+                rs = vsnprintf(output, rs + 1, fmt, va2);
         }
         va_end(va2);
         va_end(va);
@@ -1250,7 +1259,7 @@ int telnet_raw_vprintf(telnet_t *telnet, const char *fmt, va_list va) {
                         va_end(va2);
                         return -1;
                 }
-                rs = vsnprintf(output, (unsigned int) rs + 1, fmt, va2);
+                rs = vsnprintf(output, (int)((unsigned int) rs + 1), fmt, va2);
         }
         va_end(va2);
         va_end(va);

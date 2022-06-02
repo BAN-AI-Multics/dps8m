@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2016 Michal Tomek
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -34,6 +40,8 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
+
+#include "../dpsprintf/dpsprintf.h"
 
 #include "ver.h"
 
@@ -511,7 +519,6 @@ static void scu2words (word36 *words)
       }
   }
 
-
 void cu_safe_store (void)
 {
     // Save current Control Unit Data in hidden temporary so a later SCU
@@ -797,7 +804,6 @@ static void words2du (word36 * words)
 
 static char *PRalias[] = {"ap", "ab", "bp", "bb", "lp", "lb", "sp", "sb" };
 
-
 //=============================================================================
 
 // illegal modifications for various instructions
@@ -817,7 +823,6 @@ static char *PRalias[] = {"ap", "ab", "bp", "bb", "lp", "lb", "sp", "sb" };
 
  60     *n  *au *qu --  *ic *al *al --  IR
  70     *0  *1  *2  *3  *4  *5  *6  *7
-
 
  bool _allowed[] = {
  // Tm = 0 (register) R
@@ -1063,7 +1068,6 @@ t_stat display_the_matrix (UNUSED int32 arg, UNUSED const char * buf)
     return SCPE_OK;
 }
 #endif
-
 
 // fetch instrcution at address
 // CANFAULT
@@ -1340,7 +1344,6 @@ t_stat executeInstruction (void)
 //     Check for repeat termination
 // Post-instruction debug
 
-
 ///
 /// executeInstruction: Decode the instruction
 ///
@@ -1359,9 +1362,8 @@ t_stat executeInstruction (void)
     const opc_flag flags = info->flags;
     const opc_mod mods = info->mods;
     const uint32 opcode = ci->opcode;   // opcode
-    const bool opcodeX = ci->opcodeX;  // opcode extension
+    const bool opcodeX = ci->opcodeX;   // opcode extension
     const word6 tag = ci->tag;          // instruction tag
-
 
 #ifdef MATRIX
     {
@@ -2043,7 +2045,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
             cpu.cu.CT_HOLD = 0; // Clear interrupted IR mode flag
           }
 
-
 #if 0 // #ifndef CA_REWORK
         //
         // If POT is set, a page fault occured during the fetch of the data word
@@ -2184,7 +2185,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 ///
 /// executeInstruction: RPT/RPD/RPL processing
 ///
-
 
     // The semantics of these are that even is the first instruction of
     // and RPD, and odd the second.
@@ -2617,7 +2617,6 @@ static t_stat doInstruction (void)
 
     switch (opcode10)
       {
-
 
 // Operations sorted by frequency of use; should help with caching issues
 
@@ -3232,7 +3231,6 @@ static t_stat doInstruction (void)
           }
           break;
 
-
         case x0 (0315):  // cana
           // C(Z)i = C(A)i & C(Y)i for i = (0, 1, ..., 35)
           {
@@ -3547,7 +3545,6 @@ static t_stat doInstruction (void)
               }
             break;
 
-
         case x1 (0250):  // spbp0
         case x0 (0251):  // spbp1
         case x1 (0252):  // spbp2
@@ -3700,7 +3697,6 @@ static t_stat doInstruction (void)
           SCF (i->stiTally, cpu.CY, I_TALLY);
           break;
 
-
         ///    FIXED-POINT ARITHMETIC INSTRUCTIONS
 
         /// Fixed-Point Data Movement Load
@@ -3787,7 +3783,6 @@ static t_stat doInstruction (void)
             // forming the twos complement of the string of 72 bits. In twos
             // complement arithmetic, the value 0 is its own negative. An
             // overflow condition exists if C(Y-pair) = -2**71.
-
 
             if (cpu.Ypair[0] == 0400000000000LL && cpu.Ypair[1] == 0)
               {
@@ -4185,7 +4180,6 @@ static t_stat doInstruction (void)
             }
           break;
 
-
 // Optimized to the top of the loop
 //        case x0 (0754): // sti
 
@@ -4199,7 +4193,6 @@ static t_stat doInstruction (void)
           else
             cpu.CY = (cpu.rTR & MASK27) << 9;
           break;
-
 
 // Optimized to the top of the loop
 //                         // stxn
@@ -4606,7 +4599,6 @@ static t_stat doInstruction (void)
             overflow (ovf, false, "adl overflow fault");
           }
           break;
-
 
         case x0 (0037):   // adlaq
           {
@@ -9848,7 +9840,7 @@ static int emCall (void)
      {
        // OP 1: Print the unsigned decimal representation of the first data
        //       word.
-       case 1: 
+       case 1:
          sim_printf ("%lld\n", (long long int) M[i->address+1]);
          break;
 
@@ -9868,13 +9860,13 @@ static int emCall (void)
        // OP 4: Report CPU clock
        case 4:
          {
-#define ns_sec (1000000000)
+#define ns_sec  (1000000000)
 #define ns_msec (1000000000 / 1000)
 #define ns_usec (1000000000 / 1000 / 1000)
            uv_rusage_t now;
            uv_getrusage (& now);
-           uint64_t start = startTime.ru_utime.tv_usec * 1000 + startTime.ru_utime.tv_sec * ns_sec;
-           uint64_t stop = now.ru_utime.tv_usec * 1000 + now.ru_utime.tv_sec * ns_sec;
+           uint64_t start = (uint64_t)(startTime.ru_utime.tv_usec * 1000 + startTime.ru_utime.tv_sec * ns_sec);
+           uint64_t stop = (uint64_t)(now.ru_utime.tv_usec * 1000 + now.ru_utime.tv_sec * ns_sec);
            uint64_t delta = stop - start;
            uint64_t seconds = delta / ns_sec;
            uint64_t milliseconds = (delta / ns_msec) % 1000;
@@ -9885,13 +9877,13 @@ static int emCall (void)
            long double ips = (long double)(((long double) nInsts) / ((long double) secs));
            long double mips = ips / 1000000.0L;
 
-           sim_printf ("CPU time %llu.%03llu,%03llu,%03llu\n",
+           sim_printf ("CPU time %'llu.%03llu,%03llu,%03llu\n",
                        (unsigned long long) seconds,
                        (unsigned long long) milliseconds,
                        (unsigned long long) microseconds,
                        (unsigned long long) nanoseconds);
-           sim_printf ("%'lld instructions\n", (long long) nInsts);
-           sim_printf ("%Lf MIPS\n", (long double) mips);
+           sim_printf ("%'llu instructions\n", (unsigned long long) nInsts);
+           sim_printf ("%'f MIPS\n", (double) mips);
            break;
          }
        default:

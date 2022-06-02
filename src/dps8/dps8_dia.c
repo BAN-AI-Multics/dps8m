@@ -1,13 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
- * Copyright (c) 2013-2017 Charles Anthony
+ * Copyright (c) 2013-2022 Charles Anthony
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -30,6 +37,8 @@
 #ifdef THREADZ
 # include "threadz.h"
 #endif
+
+#include "../dpsprintf/dpsprintf.h"
 
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
@@ -114,7 +123,6 @@ static t_stat show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     return SCPE_OK;
   }
 
-
 static t_stat show_status (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
                              UNUSED const void * desc)
   {
@@ -190,7 +198,6 @@ static MTAB dia_mod [] =
     { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
   };
 
-
 UNIT dia_unit [N_DIA_UNITS_MAX] = {
     {UDATA (NULL, UNIT_DISABLE | UNIT_IDLE, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL}
 };
@@ -206,7 +213,6 @@ static DEBTAB dia_DT [] =
     { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
     { NULL, 0, NULL }
   };
-
 
 static t_stat reset (UNUSED DEVICE * dptr)
   {
@@ -376,7 +382,6 @@ static uint virtToPhys (uint ptPtr, uint l66Address)
     return addr;
   }
 
-
 //
 // udp packets
 //
@@ -441,7 +446,6 @@ static int interruptL66 (uint iom_unit_idx, uint chan)
 // addresses and tallies of data buffers in tty_buf. In this case,
 // dia_man connects to a DCW list to read them into a reserved area
 // in dia_man. ...
-
 
 // interrupt level (in "cell"):
 //
@@ -556,7 +560,6 @@ static void processMBX (uint iom_unit_idx, uint chan)
 //  dcl  INIT_ERROR fixed bin int static options (constant) init (4);
 //  dcl  UNWIRE_STATUS fixed bin int static options (constant) init (5);
 //  dcl  MAX_STATUS fixed bin int static options (constant) init (5);
-
 
 // 3.5.1 Commands Issued by Central System
 //
@@ -701,7 +704,6 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
         //word24 D = (word24) getbits36_3  (dia_pcw, 29);
         //word24 L66Addr = (B << (24 - 3)) | (D << (24 - 3 - 3)) | A;
 
-
         // According to fnp_util:
         //  dcl  1 a_dia_pcw aligned based (mbxp),                      /* better declaration than the one used when MCS is running */
         //         2 address fixed bin (18) unsigned unaligned,
@@ -715,7 +717,6 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
         //
         //   a_dia_pcw.address = address;
         //
-
 
         //word24 L66Addr = (word24) getbits36_18 (dia_pcw, 0);
         //sim_printf ("L66 xfer\n");
@@ -859,7 +860,6 @@ static void load_stored_boot (void)
     // executed by L6 after the load from L66 assuming that the L66
     // bootload is independent of the mechanization used in L66
 
-
     sim_printf ("got load_stored_boot\n");
   }
 
@@ -878,7 +878,6 @@ static int poll_coupler (uint unitno, uint8_t * * pktp)
     * pktp = pkt;
     return sz;
   }
-
 
 void dia_unit_process_events (uint unit_num)
   {

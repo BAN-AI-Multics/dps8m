@@ -1,11 +1,18 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * -------------------------------------------------------------------------
+ *
  * linehistory.h
+ *
+ * linehistory is forked from linenoise; the original version
+ * is available from https://github.com/antirez/linenoise
  *
  * ------------------------------------------------------------------------
  *
- * Copyright (c) 2010-2014, Salvatore Sanfilippo <antirez at gmail dot com>
- * Copyright (c) 2010-2013, Pieter Noordhuis <pcnoordhuis at gmail dot com>
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2010-2014 Salvatore Sanfilippo <antirez@gmail.com>
+ * Copyright (c) 2010-2013 Pieter Noordhuis <pcnoordhuis@gmail.com>
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
@@ -31,6 +38,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * -------------------------------------------------------------------------
  */
 
 #ifndef _POSIX_C_SOURCE

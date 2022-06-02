@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2017 Michal Tomek
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -27,6 +33,8 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -82,76 +90,75 @@
 
 #ifndef QUIET_UNUSED
 static dps8faults _faultsP[] = { // sorted by priority
-//  number  address  mnemonic   name                 Priority    Group
-    {   12,     030,    "suf",  "Startup",                  1,       1,     false },
-    {   15,     036,    "exf",  "Execute",                  2,       1,     false },
-    {   31,     076,    "trb",  "Trouble",                  3,       2,     false },
-    {   11,     026,    "onc",  "Operation not complete",       4,           2,     false },
-    {   7,      016,    "luf",  "Lockup",                       5,           4,     false },
-    {   14,     034,    "div",  "Divide check",                 6,           3,     false },
-    {   13,     032,    "ofl",  "Overflow",                     7,           3,     false },
-    {   9,      022,    "par",  "Parity",                       8,           4,     false },
-    {   5,      012,    "cmd",  "Command",                      9,           4,     false },
-    {   1,       2 ,    "str",  "Store",                        10,          4,     false },
-    {   2,       4 ,    "mme",  "Master mode entry 1",          11,          5,     false },
-    {   21,     052,    "mme2", "Master mode entry 2",          12,          5,     false },
-    {   22,     054,    "mme3", "Master mode entry 3",          13,          5,     false },
-    {   23,     056,    "mme4", "Master mode entry 4",          14,          5,     false },
-    {   6,      014,    "drl",  "Derail",                       15,          5,     false },
-    {   10,     024,    "ipr",  "Illegal procedure",            16,          5,     false },
-    {   3,       06,    "f1",   "Fault tag 1",                  17,          5,     false },
-    {   24,     060,    "f2",   "Fault tag 2",                  18,          5,     false },
-    {   25,     062,    "f3",   "Fault tag 3",                  19,          5,     false },
-    {   16,     040,    "df0",  "Directed fault 0",             20,          6,     false },
-    {   17,     042,    "df1",  "Directed fault 1",             21,          6,     false },
-    {   18,     044,    "df2",  "Directed fault 2",             22,          6,     false },
-    {   19,     046,    "df3",  "Directed fault 3",             23,          6,     false },
-    {   20,     050,    "acv",  "Access violation",             24,          6,     false },
-    {   8,      020,    "con",  "Connect",                      25,          7,     false },
-    {   4,      010,    "tro",  "Timer runout",                 26,          7,     false },
-    {   0,       0 ,    "sdf",  "Shutdown",                     27,          7,     false },
-    {   26,     064,    "???",  "Unassigned",               -1,     -1,     false },
-    {   27,     066,    "???",  "Unassigned",               -1,     -1,     false },
-    {   -1,     -1,     NULL,   NULL,                       -1,     -1,     false }
+//      number  address  mnemonic  name                   Priority   Group
+    {   12,     030,     "suf",    "Startup",                   1,      1,     false },
+    {   15,     036,     "exf",    "Execute",                   2,      1,     false },
+    {   31,     076,     "trb",    "Trouble",                   3,      2,     false },
+    {   11,     026,     "onc",    "Operation not complete",    4,      2,     false },
+    {    7,     016,     "luf",    "Lockup",                    5,      4,     false },
+    {   14,     034,     "div",    "Divide check",              6,      3,     false },
+    {   13,     032,     "ofl",    "Overflow",                  7,      3,     false },
+    {    9,     022,     "par",    "Parity",                    8,      4,     false },
+    {    5,     012,     "cmd",    "Command",                   9,      4,     false },
+    {    1,       2,     "str",    "Store",                    10,      4,     false },
+    {    2,       4,     "mme",    "Master mode entry 1",      11,      5,     false },
+    {   21,     052,    "mme2",    "Master mode entry 2",      12,      5,     false },
+    {   22,     054,    "mme3",    "Master mode entry 3",      13,      5,     false },
+    {   23,     056,    "mme4",    "Master mode entry 4",      14,      5,     false },
+    {    6,     014,     "drl",    "Derail",                   15,      5,     false },
+    {   10,     024,     "ipr",    "Illegal procedure",        16,      5,     false },
+    {    3,      06,      "f1",    "Fault tag 1",              17,      5,     false },
+    {   24,     060,      "f2",    "Fault tag 2",              18,      5,     false },
+    {   25,     062,      "f3",    "Fault tag 3",              19,      5,     false },
+    {   16,     040,     "df0",    "Directed fault 0",         20,      6,     false },
+    {   17,     042,     "df1",    "Directed fault 1",         21,      6,     false },
+    {   18,     044,     "df2",    "Directed fault 2",         22,      6,     false },
+    {   19,     046,     "df3",    "Directed fault 3",         23,      6,     false },
+    {   20,     050,     "acv",    "Access violation",         24,      6,     false },
+    {    8,     020,     "con",    "Connect",                  25,      7,     false },
+    {    4,     010,     "tro",    "Timer runout",             26,      7,     false },
+    {    0,       0,     "sdf",    "Shutdown",                 27,      7,     false },
+    {   26,     064,     "???",    "Unassigned",               -1,     -1,     false },
+    {   27,     066,     "???",    "Unassigned",               -1,     -1,     false },
+    {   -1,      -1,      NULL,     NULL,                      -1,     -1,     false }
 };
 #endif
 #ifndef QUIET_UNUSED
 static dps8faults _faults[] = {    // sorted by number
-    //  number  address  mnemonic   name                 Priority    Group
-    {   0,       0 ,    "sdf",  "Shutdown",                     27,          7,     false },
-    {   1,       2 ,    "str",  "Store",                        10,          4,     false },
-    {   2,       4 ,    "mme",  "Master mode entry 1",          11,          5,     false },
-    {   3,       06,    "f1",   "Fault tag 1",                  17,          5,     false },
-    {   4,      010,    "tro",  "Timer runout",                 26,          7,     false },
-    {   5,      012,    "cmd",  "Command",                      9,           4,     false },
-    {   6,      014,    "drl",  "Derail",                       15,          5,     false },
-    {   7,      016,    "luf",  "Lockup",                       5,           4,     false },
-    {   8,      020,    "con",  "Connect",                      25,          7,     false },
-    {   9,      022,    "par",  "Parity",                       8,           4,     false },
-    {   10,     024,    "ipr",  "Illegal procedure",            16,          5,     false },
-    {   11,     026,    "onc",  "Operation not complete",       4,           2,     false },
-    {   12,     030,    "suf",  "Startup",                  1,       1,     false },
-    {   13,     032,    "ofl",  "Overflow",                     7,           3,     false },
-    {   14,     034,    "div",  "Divide check",                 6,           3,     false },
-    {   15,     036,    "exf",  "Execute",                  2,       1,     false },
-    {   16,     040,    "df0",  "Directed fault 0",             20,          6,     false },
-    {   17,     042,    "df1",  "Directed fault 1",             21,          6,     false },
-    {   18,     044,    "df2",  "Directed fault 2",             22,          6,     false },
-    {   19,     046,    "df3",  "Directed fault 3",             23,          6,     false },
-    {   20,     050,    "acv",  "Access violation",             24,          6,     false },
-    {   21,     052,    "mme2", "Master mode entry 2",          12,          5,     false },
-    {   22,     054,    "mme3", "Master mode entry 3",          13,          5,     false },
-    {   23,     056,    "mme4", "Master mode entry 4",          14,          5,     false },
-    {   24,     060,    "f2",   "Fault tag 2",                  18,          5,     false },
-    {   25,     062,    "f3",   "Fault tag 3",                  19,          5,     false },
-    {   26,     064,    "???",  "Unassigned",               -1,     -1,     false },
-    {   27,     066,    "???",  "Unassigned",               -1,     -1,     false },
-    {   28,     070,    "???",  "Unassigned",               -1,     -1,     false },
-    {   29,     072,    "???",  "Unassigned",               -1,     -1,     false },
-    {   30,     074,    "???",  "Unassigned",               -1,     -1,     false },
-    {   31,     076,    "trb",  "Trouble",                  3,       2,     false },
-
-    {   -1,     -1,     NULL,   NULL,                       -1,     -1,     false }
+//      number  address  mnemonic  name                   Priority   Group
+    {   0,        0,     "sdf",    "Shutdown",                 27,      7,     false },
+    {   1,        2,     "str",    "Store",                    10,      4,     false },
+    {   2,        4,     "mme",    "Master mode entry 1",      11,      5,     false },
+    {   3,       06,      "f1",    "Fault tag 1",              17,      5,     false },
+    {   4,      010,     "tro",    "Timer runout",             26,      7,     false },
+    {   5,      012,     "cmd",    "Command",                  9,       4,     false },
+    {   6,      014,     "drl",    "Derail",                   15,      5,     false },
+    {   7,      016,     "luf",    "Lockup",                   5,       4,     false },
+    {   8,      020,     "con",    "Connect",                  25,      7,     false },
+    {   9,      022,     "par",    "Parity",                   8,       4,     false },
+    {   10,     024,     "ipr",    "Illegal procedure",        16,      5,     false },
+    {   11,     026,     "onc",    "Operation not complete",   4,       2,     false },
+    {   12,     030,     "suf",    "Startup",                  1,       1,     false },
+    {   13,     032,     "ofl",    "Overflow",                 7,       3,     false },
+    {   14,     034,     "div",    "Divide check",             6,       3,     false },
+    {   15,     036,     "exf",    "Execute",                  2,       1,     false },
+    {   16,     040,     "df0",    "Directed fault 0",         20,      6,     false },
+    {   17,     042,     "df1",    "Directed fault 1",         21,      6,     false },
+    {   18,     044,     "df2",    "Directed fault 2",         22,      6,     false },
+    {   19,     046,     "df3",    "Directed fault 3",         23,      6,     false },
+    {   20,     050,     "acv",    "Access violation",         24,      6,     false },
+    {   21,     052,    "mme2",    "Master mode entry 2",      12,      5,     false },
+    {   22,     054,    "mme3",    "Master mode entry 3",      13,      5,     false },
+    {   23,     056,    "mme4",    "Master mode entry 4",      14,      5,     false },
+    {   24,     060,      "f2",    "Fault tag 2",              18,      5,     false },
+    {   25,     062,      "f3",    "Fault tag 3",              19,      5,     false },
+    {   26,     064,     "???",    "Unassigned",               -1,     -1,     false },
+    {   27,     066,     "???",    "Unassigned",               -1,     -1,     false },
+    {   28,     070,     "???",    "Unassigned",               -1,     -1,     false },
+    {   29,     072,     "???",    "Unassigned",               -1,     -1,     false },
+    {   30,     074,     "???",    "Unassigned",               -1,     -1,     false },
+    {   31,     076,     "trb",    "Trouble",                   3,      2,     false },
+    {   -1,     -1,       NULL,     NULL,                      -1,     -1,     false }
 };
 #endif
 
@@ -192,7 +199,6 @@ char * faultNames [N_FAULTS] =
   };
 //bool pending_fault = false;     // true when a fault has been signalled, but not processed
 
-
 #ifndef QUIET_UNUSED
 static bool port_interrupts[8] = {false, false, false, false, false, false, false, false };
 #endif
@@ -228,7 +234,6 @@ static word18 fault_ic;
 static word15 fault_psr;
 static char fault_msg [1024];
 
-
 void emCallReportFault (void)
   {
            sim_printf ("fault report:\n");
@@ -238,7 +243,6 @@ void emCallReportFault (void)
            sim_printf ("  msg %s\n", fault_msg);
   }
 #endif
-
 
 void clearFaultCycle (void)
   {
@@ -371,6 +375,9 @@ else if (faultNumber == FAULT_ACV)
                faultNumber, faultNumber, subFault.bits, subFault.bits,
                cpu . bTroubleFaultCycle ? 'Y' : 'N', faultMsg);
 #ifdef PROFILER
+# ifndef GNU_ATOMICS
+#  error PROFILER requires GNU_ATOMICS
+# endif
     __atomic_add_fetch (& cpu.faults[faultNumber], 1u, __ATOMIC_ACQUIRE);
 #endif
 #ifdef TESTING

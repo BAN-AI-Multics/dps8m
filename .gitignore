@@ -12,6 +12,9 @@ a.out
 # Data
 *.tap
 
+# Config
+serial.txt
+
 # Cruft
 .DS_Store
 .cproject
@@ -19,6 +22,11 @@ a.out
 .settings/
 .vscode/
 .nvimlog
+.debug
+src/mcmb/mcmb.dSYM/
+src/prt2pdf/prt2pdf.dSYM/
+src/punutil/punutil.dSYM/
+src/vmpctool/vmpctool.dSYM/
 
 # Tags
 tags
@@ -143,6 +151,7 @@ GNUmakefile.local
 .envrc
 
 # CI/CD
+src/ci-kit/.yoyodyne.s4
 src/ci-kit/run
 src/ci-kit/dps8m
 options*.txt
@@ -163,3 +172,19 @@ reallyclean
 libuv/
 libuv*.tar*
 libuv-local/
+libuv-1.x/
+
+# Profiling
+*.gcda
+*.gcov
+*.gcno
+*.profdata
+*.profout
+
+# Docs
+docs/docinfo.yml
+docs/*.tmp
+docs/commandref.md
+docs/dps8*.pdf
+docs/color-rings.pdf
+docs/docsdocker

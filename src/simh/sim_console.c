@@ -1,7 +1,11 @@
 /* sim_console.c: simulator console I/O library
 
+   vim: filetype=c:tabstop=4:tw=100:expandtab
+
+   ---------------------------------------------------------------------------
+
    Copyright (c) 1993-2014 Robert M Supnik
-   Copyright (c) 2021 The DPS8M Development Team
+   Copyright (c) 2021-2022 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -16,13 +20,17 @@
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+   OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
 
-   Except as contained in this notice, the name of Robert M Supnik shall not be
-   used in advertising or otherwise to promote the sale, use or other dealings
-   in this Software without prior written authorization from Robert M Supnik.
+   Except as contained in this notice, the name of Robert M Supnik shall not
+   be used in advertising or otherwise to promote the sale, use or other
+   dealings in this Software without prior written authorization from
+   Robert M Supnik.
+
+   ---------------------------------------------------------------------------
 */
 
 /*
@@ -72,6 +80,8 @@
 # define nice(n) ({})
 #endif
 
+#include "../dpsprintf/dpsprintf.h"
+
 /* Forward Declaraations of Platform specific routines */
 
 static t_stat sim_os_poll_kbd (void);
@@ -91,7 +101,6 @@ static t_stat sim_set_halt (int32 flag, CONST char *cptr);
 static t_stat sim_set_response (int32 flag, CONST char *cptr);
 static t_stat sim_set_delay (int32 flag, CONST char *cptr);
 
-
 #define KMAP_WRU        0
 #define KMAP_BRK        1
 #define KMAP_DEL        2
@@ -110,6 +119,7 @@ int32 sim_del_char = 0177;
 static t_stat sim_con_poll_svc (UNIT *uptr);                /* console connection poll routine */
 static t_stat sim_con_reset (DEVICE *dptr);                 /* console reset routine */
 UNIT sim_con_unit = { UDATA (&sim_con_poll_svc, 0, 0)  };   /* console connection unit */
+
 /* debugging bitmaps */
 #define DBG_TRC  TMXR_DBG_TRC                           /* trace routine calls */
 #define DBG_XMT  TMXR_DBG_XMT                           /* display Transmitted Data */
@@ -147,9 +157,8 @@ DEVICE sim_con_telnet = {
     1, 0, 0, 0, 0, 0,
     NULL, NULL, sim_con_reset, NULL, NULL, NULL,
     NULL, DEV_DEBUG, 0, sim_con_debug};
-TMLN sim_con_ldsc = { 0 };                                          /* console line descr */
-TMXR sim_con_tmxr = { 1, 0, 0, &sim_con_ldsc, NULL, &sim_con_telnet };/* console line mux */
-
+TMLN sim_con_ldsc = { 0 };                                             /* line descr */
+TMXR sim_con_tmxr = { 1, 0, 0, &sim_con_ldsc, NULL, &sim_con_telnet }; /* line mux   */
 
 SEND sim_con_send = {SEND_DEFAULT_DELAY, &sim_con_telnet, DBG_SND};
 EXPECT sim_con_expect = {&sim_con_telnet, DBG_EXP};
@@ -160,13 +169,15 @@ static t_bool sim_con_console_port = TRUE;
 
 static t_stat sim_con_poll_svc (UNIT *uptr)
 {
-if ((sim_con_tmxr.master == 0) &&                       /* not Telnet and not WRU polling? */
+if ((sim_con_tmxr.master  == 0) &&                      /* not Telnet and not WRU polling? */
     (sim_con_ldsc.serport == 0) &&
+    /* cppcheck-suppress knownConditionTrueFalse */
     (sim_con_console_port))
     return SCPE_OK;                                     /* done */
 if (tmxr_poll_conn (&sim_con_tmxr) >= 0)                /* poll connect */
     sim_con_ldsc.rcve = 1;                              /* rcv enabled */
 sim_activate_after(uptr, 1000000);                      /* check again in 1 second */
+/* cppcheck-suppress knownConditionTrueFalse */
 if (!sim_con_console_port)                              /* WRU poll needed */
     sim_poll_kbd();                                     /* sets global stop_cpu when WRU received */
 if (sim_con_ldsc.conn)
@@ -178,7 +189,6 @@ static t_stat sim_con_reset (DEVICE *dptr)
 {
 return sim_con_poll_svc (&dptr->units[0]);              /* establish polling as needed */
 }
-
 
 /* Set/show data structures */
 
@@ -339,7 +349,6 @@ static t_bool sim_rem_master_mode = FALSE;  /* Master Mode Enabled Flag */
 static t_bool sim_rem_master_was_enabled = FALSE; /* Master was Enabled */
 static t_bool sim_rem_master_was_connected = FALSE; /* Master Mode has been connected */
 static t_offset sim_rem_cmd_log_start = 0;  /* Log File saved position */
-
 
 /* SET REMOTE CONSOLE command */
 
@@ -958,6 +967,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                 sim_is_running = 1;
                 sim_start_timer_services ();
                 }
+            /* cppcheck-suppress knownConditionTrueFalse */
             if (cmdp && (cmdp->action == &x_continue_cmd))
                 sim_rem_single_mode[i] = TRUE;
             else {
@@ -1825,7 +1835,6 @@ t_bool sim_ttisatty (void)
 return sim_os_ttisatty ();
 }
 
-
 /* Platform specific routine definitions */
 
 #if defined (_WIN32)
@@ -2252,7 +2261,6 @@ else {
 
 return SCPE_OK;
 }
-
 
 /* Set console response */
 

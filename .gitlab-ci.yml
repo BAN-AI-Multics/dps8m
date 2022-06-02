@@ -390,7 +390,7 @@
     test -z "${SKIP_UPDATE}" && dnf -y --best install 'dnf-command(copr)' || dnf -y --nobest install 'dnf-command(copr)'
     test -z "${SKIP_UPDATE}" && echo "Enabling Cygwin repo ..."
     test -z "${SKIP_UPDATE}" && dnf -y copr enable yselkowitz/cygwin || dnf -y copr enable yselkowitz/cygwin
-    test -z "${SKIP_UPDATE}" && echo "Installing Cygwin softawre ..."
+    test -z "${SKIP_UPDATE}" && echo "Installing Cygwin software ..."
     test -z "${SKIP_UPDATE}" && dnf --best install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 || dnf --skip-broken --nobest install -y cygport cygwin64-binutils cygwin64-w32api-headers cygwin64-w32api-runtime cygwin64-libltdl cygwin64-cpp cygwin64-gcc cygwin64-libtool cygwin64-filesystem cygwin64 cygwin64
     echo -e "section_end:`date +%s`:coprcygwinstall_section\r\e[0K" || true
 
@@ -527,6 +527,8 @@
 stages:
   - build
   - test
+  - docs
+  - deploy
 
 ############################################################################
 # Jobs
@@ -738,7 +740,7 @@ Linux/x86_64, Fedora, Intel DPC++/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - . /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && make CC=icx -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - . /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icx -V && CFLAGS="-Wno-tautological-constant-compare" make CC=icx NO_LTO=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1075,7 +1077,7 @@ Linux/powerpc64el, Ubuntu LTS, IBM XL C/C++:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - export IBMXLCVER="latest" && /opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -qversion 2>&1 | grep "Version" && make NO_LTO=1 CC=/opt/ibm/xlC/"${IBMXLCVER:?}"/bin/c99_r -j $(grep -c "^cpu" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1272,40 +1274,7 @@ Windows/x86_64, LLVM-MinGW:
 
 ############################################################################
 
-Windows/x86_64, MinGW64-GCC V8:
-  image: debian:sid
-  stage: build
-  tags:
-    - Docker-x64
-    - amd64
-    - Linux
-  script:
-    - export GLCICD_JOB="GCCMINGW64" && export DTIMESTAMP="$(stat -c "%Y" /etc/os-release)"
-    - (apt-get -qq -y update > /dev/null || apt-get -qq -y update > /dev/null); apt-get -qq -y install bzip2 wget > /dev/null || apt-get -qq -y install wget bzip2 > /dev/null
-    - *scriptAptSetup
-    - *scriptAptInstallMinGW64
-    - *scriptBuildlibuvMGW64
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - make CC="x86_64-w64-mingw32-gcc -I/usr/local/include -L/usr/local/lib -pthread" CROSS="MINGW64" LIBUV="/usr/local/lib/libuv.a -lpthread" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
-    - *scriptBuildInfo
-    - cp -vf "/usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll" "${CI_PROJECT_DIR:?}"
-    - *scriptCompressArtifacts
-    - rm -f "${CI_PROJECT_DIR:?}/libwinpthread-1.dll"
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/dps8m.zip
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
-Windows/x86_64, MinGW64-GCC V9:
+Windows/x86_64, MinGW64-GCC:
   image:
     name: alpine:latest
     entrypoint: [ '/bin/sh', '-c', 'sed -i "s/https/http/g" /etc/apk/repositories; apk update; apk add bash; apk add bash && ln -snf /bin/bash /bin/sh && exec /bin/bash -c $0' ]
@@ -1565,7 +1534,7 @@ Linux/x86_64, Void musl, static, Clang, GCC:
 
 ############################################################################
 
-Solaris/x86_64, Oracle Solaris 11.4, GCC 7.3:
+Solaris/x86_64, Oracle Solaris 11.4, GCC:
   stage: build
   tags:
     - Solaris
@@ -1626,7 +1595,7 @@ Solaris/x86_64, Oracle Solaris 11.4, Oracle Developer Studio:
 
 ############################################################################
 
-illumos/x86_64, OpenIndiana Hipster, Clang 9, GCC 7.5, GCC 10.3:
+illumos/x86_64, OpenIndiana Hipster, Clang, GCC 11:
   stage: build
   tags:
     - OpenIndiana
@@ -1642,11 +1611,7 @@ illumos/x86_64, OpenIndiana Hipster, Clang 9, GCC 7.5, GCC 10.3:
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - gmake distclean
-    - gmake CC=gcc-10 -j 4 --output-sync --print-directory
-    - printf %s\\n "show version" | ./src/dps8/dps8
-    - *scriptBuildInfo
-    - gmake distclean
-    - gmake CC=gcc -j 4 --output-sync --print-directory
+    - gmake CC=gcc-11 -j 4 --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1709,7 +1674,7 @@ Darwin/x86_64, macOS, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - gmake CC=gcc-11 -j 12 --print-directory
+    - gmake NO_LTO=1 CC=gcc-11 -j 12 --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1765,6 +1730,37 @@ Option Verification Test:
 
 #############################################################################
 
+DPS8M Omnibus Documentation:
+  when: always
+  stage: docs
+  image: fedora:latest
+  tags:
+    - Docker-x64-fast
+    - Linux
+    - amd64
+  script:
+    - export GLCICD_JOB="OmnibusDocsGenX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - dnf -q install -y bzip2 || dnf -q install -y bzip2
+    - *scriptDnfSetup
+    - dnf -v install -y python3-pygments texlive-pygmentex biber texlive-enumitem-zref texlive-zref texlive-xurl texlive-xecjk texlive-upquote texlive-unicode-math texlive-ulem texlive-ucharcat texlive-titling texlive-sourcesanspro texlive-sourcecodepro texlive-pagecolor texlive-needspace texlive-mweights texlive-mdframed texlive-ly1 texlive-letltxmacro texlive-fvextra texlive-framed texlive-footmisc texlive-filehook texlive-everypage texlive-csquotes texlive-collectbox texlive-bidi texlive-background texlive-babel-german texlive-footnotebackref texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash || dnf -v install -y texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash texlive-footnotebackref texlive-babel-german texlive-background texlive-bidi texlive-collectbox texlive-csquotes texlive-everypage texlive-filehook texlive-footmisc texlive-framed texlive-fvextra texlive-letltxmacro texlive-ly1 texlive-mdframed texlive-mweights texlive-needspace texlive-pagecolor texlive-sourcecodepro texlive-sourcesanspro texlive-titling texlive-ucharcat texlive-ulem texlive-unicode-math texlive-upquote texlive-xecjk texlive-xurl texlive-zref texlive-enumitem-zref biber texlive-pygmentex python3-pygments
+    - mktexfmt xelatex.fmt || true
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptExtraInfo
+    - *scriptDPS8Mods
+    - gmake -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") && cd docs && ./builddoc.sh
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf
+  retry: 2
+  timeout: 120 minutes
+  interruptible: true
+
+############################################################################
+
 Multics CI-Kit Test:
   stage: test
   image: fedora:latest
@@ -1780,7 +1776,7 @@ Multics CI-Kit Test:
     - export GLCICD_JOB="CIKitTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
     - *scriptDnfSetup
-    - dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime || dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime
+    - dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter || dnf -q install -y telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter
     - *scriptSanity
     - ( cd src/ci-kit && env NO_CI_SYMLINK_TAPES=1 STASH_CI_TAPES=1 ./init.sh ) || true
     - *scriptCommon
@@ -1959,5 +1955,31 @@ Source Tree Checks:
   retry: 2
   timeout: 45 minutes
   interruptible: true
+
+############################################################################
+
+pages:
+  image: alpine:latest
+  tags:
+    - Docker-amd64
+    - DPS8M
+    - Linux
+    - amd64
+  needs:
+    - job: DPS8M Omnibus Documentation
+  dependencies: ["DPS8M Omnibus Documentation"]
+  stage: deploy
+  script:
+  - mkdir -p public
+  - cp -f ${CI_PROJECT_DIR:?}/docs/dps8-omnibus.pdf public/dps8m-omnibus.pdf
+  artifacts:
+    paths:
+    - public
+    expire_in: 1 day
+  only:
+  - master
+  retry: 2
+  timeout: 30 minutes
+  interruptible: false
 
 ############################################################################

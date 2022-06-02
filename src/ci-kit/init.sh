@@ -4,47 +4,49 @@ set -e > /dev/null 2>&1
 
 printf '#### %s\n' "Begin ${0} (${$})"
 
+export SHELL=/bin/sh
+
 mkdir -vp tapes 2> /dev/null
 
 cd tapes ||
   {
-    printf '%s\n' "Error: unable to enter tapes directory."
+    printf '%s\n' "*** Error: unable to enter tapes directory."
     exit 1
   }
 
 command -v telnet > /dev/null 2>&1 ||
   {
-    printf '%s\n' "Error: No telnet in PATH."
-	exit 1
+    printf '%s\n' "*** Error: No telnet in PATH."
+    exit 1
   }
 
 command -v dos2unix > /dev/null 2>&1 ||
   {
-    printf '%s\n' "Error: No dos2unix in PATH."
-	exit 1
+    printf '%s\n' "*** Error: No dos2unix in PATH."
+    exit 1
   }
 
 command -v expect > /dev/null 2>&1 ||
   {
-    printf '%s\n' "Error: No expect in PATH."
+    printf '%s\n' "*** Error: No expect in PATH."
     exit 1
   }
 
 command -v wget > /dev/null 2>&1 ||
   {
-    printf '%s\n' "Error: No wget in PATH."
-	exit 1
+    printf '%s\n' "*** Error: No wget in PATH."
+    exit 1
   }
 
 command -v lzip > /dev/null 2>&1 ||
   {
-    printf '%s\n' "Error: No lzip in PATH."
+    printf '%s\n' "*** Error: No lzip in PATH."
     exit 1
   }
 
 command -v tmux > /dev/null 2>&1 ||
   {
-    printf '%s\n' "Error: No tmux in PATH."
+    printf '%s\n' "*** Error: No tmux in PATH."
     exit 1
   }
 
@@ -52,11 +54,11 @@ MD5=$(command -v md5sum 2> /dev/null) ||
   MD5=$(command -v md5  2> /dev/null)
 test -z "${MD5:-}" &&
   {
-    printf '%s\n' "Error: No \"${MD5:-md5}\" in PATH."
+    printf '%s\n' "*** Error: No \"${MD5:-md5}\" in PATH."
     exit 1
   }
 
-printf '%s\n' "Preparing tape files..."
+printf '%s\n' "*** Preparing tape files..."
 
 MRSITE="https://s3.amazonaws.com/eswenson-multics/public/releases/" &&
   export MRSITE > /dev/null 2>&1
@@ -79,13 +81,13 @@ for tape in               \
                 > /dev/null 2>&1 || true
             }
         }
-	  test -f "${tape:?}" ||
+      test -f "${tape:?}" ||
         cp -f "/var/cache/tapes/${tape:?}" . \
           > /dev/null 2>&1 || true
 done
 
 touch "12.7MULTICS.tap" 2> /dev/null || true
-${MD5:-} "12.7MULTICS.tap" |
+${MD5:-} "12.7MULTICS.tap" 2> /dev/null |
   grep -wq 746ff9fddc3ce837df5eec83020f58ba ||
     {
       rm -f "12.7MULTICS.tap"
@@ -94,7 +96,7 @@ ${MD5:-} "12.7MULTICS.tap" |
     }
 
 touch "12.7EXEC.tap" 2> /dev/null || true
-${MD5:-} "12.7EXEC.tap" |
+${MD5:-} "12.7EXEC.tap" 2> /dev/null |
   grep -wq 9faacd6f79cb6755a3e6c45415bdd168 ||
     {
       rm -f "12.7EXEC.tap"
@@ -103,7 +105,7 @@ ${MD5:-} "12.7EXEC.tap" |
     }
 
 touch "12.7LDD_STANDARD.tap" 2> /dev/null || true
-${MD5:-} "12.7LDD_STANDARD.tap" |
+${MD5:-} "12.7LDD_STANDARD.tap" 2> /dev/null |
   grep -wq f1f5a0b9c61107ad368253ee7dd21b66 ||
     {
       rm -f "12.7LDD_STANDARD.tap"
@@ -112,7 +114,7 @@ ${MD5:-} "12.7LDD_STANDARD.tap" |
     }
 
 touch "12.7UNBUNDLED.tap" 2> /dev/null || true
-${MD5:-} "12.7UNBUNDLED.tap" |
+${MD5:-} "12.7UNBUNDLED.tap" 2> /dev/null |
   grep -wq 64384cd30f0b7acf60e17b318b9c459d ||
     {
       rm -f "12.7UNBUNDLED.tap"
@@ -121,7 +123,7 @@ ${MD5:-} "12.7UNBUNDLED.tap" |
     }
 
 touch "12.7MISC.tap" 2> /dev/null || true
-${MD5:-} "12.7MISC.tap" |
+${MD5:-} "12.7MISC.tap" 2> /dev/null |
   grep -wq fc117d9dc58d1077271a9ceb0c93e020 ||
     {
       rm -f "12.7MISC.tap"
@@ -130,7 +132,7 @@ ${MD5:-} "12.7MISC.tap" |
     }
 
 touch "12.7LISTINGS.tap" 2> /dev/null || true
-${MD5:-} "12.7LISTINGS.tap" |
+${MD5:-} "12.7LISTINGS.tap" 2> /dev/null |
   grep -wq b64f6ca3670d4859c0fb42d9eae860e4 ||
     {
       rm -f "12.7LISTINGS.tap"

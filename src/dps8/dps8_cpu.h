@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
- * Copyright (c) 2013-2018 Charles Anthony
+ * Copyright (c) 2013-2022 Charles Anthony
  * Copyright (c) 2015-2021 Eric Swenson
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #ifndef __STDC_WANT_IEC_60559_BFP_EXT__
@@ -30,7 +36,6 @@
 #define JMP_REFETCH           4
 #define JMP_RESTART           5
 
-
 // The CPU supports 3 addressing modes
 // [CAC] I tell a lie: 4 modes...
 // [CAC] I tell another lie: 5 modes...
@@ -40,7 +45,6 @@ typedef enum
     ABSOLUTE_mode,
     APPEND_mode,
   } addr_modes_e;
-
 
 // The control unit of the CPU is always in one of several states. We
 // don't currently use all of the states used in the physical CPU.
@@ -319,7 +323,6 @@ struct sdw0_s
 typedef struct sdw0_s sdw0_s;
 #endif
 
-
 // PTW as used by APU
 
 struct ptw_s
@@ -542,7 +545,6 @@ typedef struct EISstruct_s
 #define MF1    MF [0]       // Modification field for operand descriptor 1
 #define MF2    MF [1]       // Modification field for operand descriptor 2
 #define MF3    MF [2]       // Modification field for operand descriptor 3
-
 
     uint   CN [3];
 #define CN1 CN [0]
@@ -1862,8 +1864,7 @@ extern cpu_state_t * restrict cpup;
 #endif
 #define cpu (* cpup)
 
-
-#define N_STALL_POINTS 8
+#define N_STALL_POINTS 16
 struct stall_point_s
   {
     word15 segno;
@@ -2081,13 +2082,25 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
 // AIX_ATOMICS are SYNC_ATOMICS (for now)
 # if ( defined (AIX_ATOMICS) \
  && (! (defined (SYNC_ATOMICS))))
-#  define SYNC_ATOMICS
+#  define SYNC_ATOMICS 1
+# endif
+
+// FreeBSD atomics (default on for FreeBSD)
+# if (! defined (GNU_ATOMICS)) && (! defined (SYNC_ATOMICS)) \
+ && (! defined (BSD_ATOMICS)) && (! defined (AIX_ATOMICS))
+#  if defined(__FreeBSD__) \
+  || defined(__FreeBSD_kernel__) \
+  || defined(__DragonFly__)
+#   undef BSD_ATOMICS
+#   define BSD_ATOMICS 1
+#  endif
 # endif
 
 // Otherwise, default to GNU_ATOMICS
 # if (! defined (GNU_ATOMICS)) && (! defined (BSD_ATOMICS)) \
- && (! defined (SYNC_ATOMICS))  && (! defined (AIX_ATOMICS))
-#  define GNU_ATOMICS
+ && (! defined (SYNC_ATOMICS)) && (! defined (AIX_ATOMICS))
+#  undef GNU_ATOMICS
+#  define GNU_ATOMICS 1
 # endif
 
 int core_read_lock (word24 addr, word36 *data, const char * ctx);

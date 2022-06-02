@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2016 Michal Tomek
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <uv.h>
@@ -140,7 +146,6 @@ typedef struct t_MState
         uint inSize; // Number of bytes in inBuffer
         uint inUsed; // Number of consumed bytes in buffer
 
-
         // Dialout hooks
         uv_connect_t doConnect;
 
@@ -240,7 +245,6 @@ extern t_fnpData fnpData;
 //       { abs_addr:24, tally:12 } [24]
 //       command_data
 
-
 //
 // The FNP communicates with Multics with in-memory mailboxes
 //
@@ -284,25 +288,24 @@ struct mailbox
     struct fnp_submailbox fnp_sub_mbxes [4];
   };
 
-#define MAILBOX_WORDS       (sizeof (struct mailbox) / sizeof (word36))
+#define MAILBOX_WORDS           (sizeof (struct mailbox) / sizeof (word36))
 
-#define DIA_PCW                     (offsetof (struct mailbox, dia_pcw) / sizeof (word36))
+#define DIA_PCW                 (offsetof (struct mailbox, dia_pcw) / sizeof (word36))
 #define TERM_INPT_MPX_WD        (offsetof (struct mailbox, term_inpt_mpx_wd) / sizeof (word36))
 #define CRASH_DATA              (offsetof (struct mailbox, crash_data) / sizeof (word36))
 #define DN355_SUB_MBXES         (offsetof (struct mailbox, dn355_sub_mbxes) / sizeof (word36))
 #define FNP_SUB_MBXES           (offsetof (struct mailbox, fnp_sub_mbxes) / sizeof (word36))
 
-
 #define FNP_SUB_MBX_SIZE        (sizeof (struct fnp_submailbox) / sizeof (word36))
 #define DN355_SUB_MBX_SIZE      (sizeof (struct dn355_submailbox) / sizeof (word36))
 
-#define WORD1                   0
-#define WORD2                   1
-#define COMMAND_DATA            2
-#define MYSTERY                 2
-#define WORD6                   5
-#define N_BUFFERS               2
-#define DCWS                    3
+#define WORD1                    0
+#define WORD2                    1
+#define COMMAND_DATA             2
+#define MYSTERY                  2
+#define WORD6                    5
+#define N_BUFFERS                2
+#define DCWS                     3
 #define N_DCWS                  24
 #define INP_COMMAND_DATA        27
 

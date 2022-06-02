@@ -37,7 +37,7 @@ l2002:	vfd	18/l4002+1,12/2,6/45
 l4002:	vfd	18/l4003+1,12/1,6/45
 
 "
-" Third descriptor 
+" Third descriptor
 "
 " addr 6005, tally 12, tag IDC (057, 47)
 
