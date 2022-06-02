@@ -1,13 +1,19 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2016 Charles Anthony
  * Copyright (c) 2016 Michal Tomek
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 // The FNP <--> libuv interface
@@ -75,7 +81,6 @@
 //
 //     The port number that a slave line listens on, as set by Devices.txt.
 //
-
 
 // Dialup logic.
 //
@@ -146,7 +151,6 @@
 // will cause an 'accept_new_terminal' command to be send to Multics.
 //
 
-
 #ifdef TUN
 // TUN interface
 
@@ -202,6 +206,8 @@
 #include "fnpuv.h"
 #include "fnptelnet.h"
 
+#include "../dpsprintf/dpsprintf.h"
+
 //#define TEST
 
 #define USE_REQ_DATA
@@ -249,7 +255,6 @@ static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size,
   {
     * buf = uv_buf_init ((char *) malloc (suggested_size), (uint) suggested_size);
   }
-
 
 void fnpuv_associated_brk (uv_tcp_t * client)
   {
@@ -529,7 +534,6 @@ for (ssize_t i = 0; i < datalen; i ++)
 sim_printf ("\r\n");
 #endif
 
-
     // Find the client from the device selection call
 
     uint stn_no;
@@ -544,7 +548,6 @@ sim_printf ("\r\n");
     uv_tcp_t * stn_client = fnpData.ibm3270ctlr[ASSUME0].stations[stn_no].client;
     if (! stn_client || uv_is_closing ((uv_handle_t *) stn_client))
       return;
-
 
     // Allocate write request
 
@@ -679,7 +682,6 @@ sim_printf ("fnpuv: detected EOT\r\n");
       //fnpuv_send_eor (client);
   }
 
-
 // C-string wrapper for fnpuv_start_write
 
 void fnpuv_start_writestr (uv_tcp_t * client, unsigned char * data)
@@ -710,7 +712,6 @@ void fnpuv_send_eor (uv_tcp_t * client)
     //unsigned char EOR [] = { TELNET_IAC, TELNET_EOR };
     //fnpuv_start_write_special (client, (char *) EOR, sizeof (EOR));
   }
-
 
 void fnpuv_recv_eor (uv_tcp_t * client)
   {
@@ -906,7 +907,6 @@ void fnpuvProcessEvent (void)
     /* int ret = */ uv_run (fnpData.loop, UV_RUN_NOWAIT);
   }
 
-
 //
 // dialout line connection callback
 //
@@ -1019,7 +1019,6 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
         }
 #endif
 
-
 // firewall
 
     // Default is accept
@@ -1053,7 +1052,6 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
 
     linep->line_client = (uv_tcp_t *) malloc (sizeof (uv_tcp_t));
     uv_tcp_init (fnpData.loop, linep->line_client);
-
 
     uvClientData * p = (uvClientData *) malloc (sizeof (uvClientData));
     if (! p)
@@ -1106,7 +1104,6 @@ static void on_slave_connect (uv_stream_t * server, int status)
     linep->accept_new_terminal = true;
   }
 #endif
-
 
 //
 // Start a slave line connection listener.

@@ -1,3 +1,4 @@
+// vim: filetype=c:tabstop=4:tw=72:expandtab
 /* ------------------------------------------------------------------ */
 /* Decimal 32-bit format module header                                */
 /* ------------------------------------------------------------------ */
@@ -32,7 +33,8 @@
 # define DECIMAL32_String 15            /* maximum string length, +1  */
 # define DECIMAL32_EconL  6             /* exp. continuation length   */
   /* highest biased exponent (Elimit-1)                               */
-# define DECIMAL32_Ehigh  (DECIMAL32_Emax+DECIMAL32_Bias-DECIMAL32_Pmax+1)
+# define DECIMAL32_Ehigh                                               \
+    (DECIMAL32_Emax+DECIMAL32_Bias-DECIMAL32_Pmax+1)
 
   /* check enough digits, if pre-defined                              */
 # if defined(DECNUMDIGITS)
@@ -65,7 +67,8 @@
   /* Routines                                                         */
   /* ---------------------------------------------------------------- */
   /* String conversions                                               */
-  decimal32 * decimal32FromString(decimal32 *, const char *, decContext *);
+  decimal32 * decimal32FromString(decimal32 *, const char *,
+    decContext *);
   char * decimal32ToString(const decimal32 *, char *);
   char * decimal32ToEngString(const decimal32 *, char *);
 

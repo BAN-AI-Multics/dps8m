@@ -1,5 +1,6 @@
 # DPS8/M + Multics Continuous Integration Scripts
 
+-------------------------------------------------
 
 ## Introduction
 
@@ -8,63 +9,66 @@
 
 ## Requirements
 
- These scripts were designed to run under **Linux** and have been tested
- with **Red Hat Enterprise Linux**, **Fedora**, **Ubuntu**, and
- **OpenSUSE**.
+ These scripts were designed to run under **Linux** and are regularly tested
+ with **Red Hat Enterprise Linux**, **Fedora**, **Debian**, **Ubuntu**,
+ and **OpenSUSE**.
 
- Other operating systems, specifically IBM **AIX**, Apple **macOS**, Oracle
+ Other operating systems, specifically, IBM **AIX**, Apple **macOS**, Oracle
  **Solaris**, **FreeBSD**, and illumos **OpenIndiana** have also been used
- successfuly.
+ with various levels of success.
 
- The following packages are required (beyond the build prerequisites):
+ The following packages are required (*beyond the basic build prerequisites*):
    * [dos2unix](https://waterlan.home.xs4all.nl/dos2unix.html)
+     (packaged with "*unix2dos*")
    * [Expect](https://core.tcl-lang.org/expect/)
    * [GNU Coreutils](https://www.gnu.org/software/coreutils/)
    * [GNU Diffutils](https://www.gnu.org/software/diffutils/)
    * [GNU sed](https://www.gnu.org/software/sed/)
    * [GNU Wget](https://www.gnu.org/software/wget/)
    * [lzip](https://www.nongnu.org/lzip/)
-   * **BSD**-derived `telnet` client, such as:
-     * [BAN Telnet](https://github.com/BAN-AI-Multics/ban-telnet/)
-     * [GNU Inetutils](https://www.gnu.org/software/inetutils/)
-     * [illumos Telnet](https://github.com/illumos/illumos-gate/tree/master/usr/src/cmd/cmd-inet/)
-     * [NetKit Telnet-SSL](https://github.com/marado/netkit-telnet-ssl/)
    * [tmux](https://tmux.github.io/)
 
+ A BSD-derived `telnet` client is required, such as:
+   * [BAN Telnet](https://github.com/BAN-AI-Multics/ban-telnet/)
+   * [GNU Inetutils](https://www.gnu.org/software/inetutils/)
+   * [illumos Telnet](https://github.com/illumos/illumos-gate/tree/master/usr/src/cmd/cmd-inet/)
+   * [NetKit Telnet-SSL](https://github.com/marado/netkit-telnet-ssl/)
+
  The following packages are optional, but highly recommended:
-   * [libfaketime](https://github.com/wolfcw/libfaketime/), used to set a
-       fixed date for the CI-Kit run, which enhances log reproducibility.
-   * [ncat](https://nmap.org/ncat/), used to probe for available ports.
+   * [mksh](http://www.mirbsd.org/mksh.htm), the MirBSD™ Korn Shell, a
+       high quality Korn Shell implementation
+   * [libfaketime](https://github.com/wolfcw/libfaketime/) - used to set a
+       fixed starting date for CI-Kit runs, enhancing log reproducibility
+   * [ncat](https://nmap.org/ncat/) - used to probe for available ports
+   * [ansifilter](https://gitlab.com/saalen/ansifilter) - ANSI sequence filter
+   * [moreutils](https://joeyh.name/code/moreutils/) - timestamp filter
 
  In addition, a visual difference comparison tool is highly useful to
  verify the output. Any of the following tools (*listed alphabetically*)
  are known to be sufficient for this task:
    * [Beyond Compare](https://www.scootersoftware.com/)
    * [Code Compare](https://www.devart.com/codecompare/)
-   * [Comparison Tool](https://www.eclipse.org/)
    * [Delta](https://github.com/dandavison/delta/)
    * [Diffinity](https://truehumandesign.se/)
    * [DiffMerge](https://sourcegear.com/diffmerge/)
-   * [DiffoScope](https://diffoscope.org/)
+   * [diffoscope](https://diffoscope.org/)
    * [ExamDiff](https://www.prestosoft.com/)
    * [Guiffy](https://www.guiffy.com/)
    * [jMeld](https://github.com/albfan/jmeld/)
    * [KDiff3](https://github.com/KDE/kdiff3/)
    * [Meld](https://meldmerge.org/)
-   * [Merge](https://www.araxis.com/merge/)
+   * [Araxis Merge](https://www.araxis.com/merge/)
    * [P4Merge](https://www.perforce.com/downloads/visual-merge-tool/)
-   * [SemanticMerge](https://www.semanticmerge.com/)
    * [UltraCompare](https://www.ultraedit.com/products/ultracompare/)
-   * Vim/NeoVim
-     * [NeoVim Diff](https://neovim.io/doc/user/diff.html)
-     * [Vim Diff](https://vimhelp.org/diff.txt.html)
-     * [DiffChar](https://github.com/rickhowe/diffchar.vim)
    * [WinMerge](https://github.com/winmerge/winmerge/)
    * [WinMerge2011](https://github.com/datadiode/winmerge2011/)
    * [Xcode FileMerge](https://developer.apple.com/xcode/)
    * [Xdiff](https://www.plasticscm.com/features/xmerge/)
    * [xxdiff](https://furius.ca/xxdiff/)
-
+   * Vim/NeoVim
+     * [NeoVim Diff](https://neovim.io/doc/user/diff.html)
+     * [Vim Diff](https://vimhelp.org/diff.txt.html)
+     * [DiffChar](https://github.com/rickhowe/diffchar.vim)
 
 ## Usage
 
@@ -76,7 +80,7 @@
 ```
 
  2. Set the `NOREBUILD` environment variable if you have already built the
-    simulator, and want the tests to run against that compiled binary.
+    simulator, and want the tests run against the that compiled binary.
 ```sh
       export NOREBUILD=1
 ```
@@ -91,13 +95,15 @@
 ```sh
       ./ci.sh
 ```
- * **NOTE**: On FreeBSD (tested with FreeBSD 13.1-RELEASE and
-   13.0-RELEASE-p11), after installation of the CI-Kit dependecies
+ * For FreeBSD systems, after installing the CI-Kit dependencies,
    (`coreutils`, `unix2dos`, `expect`, `nmap`, `mksh`, `gmake`,
-    `tmux`, `lzip`, etc.) the script should be started as follows:
+   `tmux`, `lzip`, etc.), the CI-Kit run may be started as follows:
+
    ```sh
    sh -c 'export SHELL=/bin/sh ; FAKETIME="env TZ=UTC" TAIL=gtail MAKE=gmake DATE=gdate mksh ./ci.sh'
    ```
+
+   * A helper script - `ci-fbsd.sh` - is provided to automate this.
 
  5. Once the run completes, normalize the new output so the results can be
     (*visually*) compared against the included known good reference log file:
@@ -124,6 +130,8 @@ cikit-1010045678912345678-0: 1 windows (created Fri Dec 25 11:12:13 2222)
 $ tmux kill-session -t cikit-1010045678912345678-0
 ```
 
+You should examine your login session and system process table to ensure that
+the simulator and any related processes have been terminated.
 
 ## Files
 
@@ -175,7 +183,6 @@ $ tmux kill-session -t cikit-1010045678912345678-0
   good job but there are still some things it doesn't catch. Also, it can't
   do anything about lines being out of order (which can happen quite a bit).
 
-
 ## History
 
    *Charles Anthony* wrote the initial version of these scripts.
@@ -183,7 +190,7 @@ $ tmux kill-session -t cikit-1010045678912345678-0
    original limitations in the scripts. *Jeffrey Johnson* made additional
    enhancements and adapted the scripts for compatibility with the GitLab
    CI/CD environment.
-   
+
    The initial version of the scripts did everything in a single script.
    Since both the Multics console and a telnet session were used, it
    required the `expect` script to deal with switching between the emulator
@@ -195,7 +202,6 @@ $ tmux kill-session -t cikit-1010045678912345678-0
    separated the emulator console use from the telnet session. This proved to
    be most effective in resolving the "wedging" issues and also removed some
    intermixing of the logs.
-
 
 ## Issues
 

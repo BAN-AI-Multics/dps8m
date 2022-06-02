@@ -1,7 +1,11 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2002-2019 Devin Teske <dteske@FreeBSD.org>
  * Copyright (c) 2020-2021 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
@@ -27,6 +31,8 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 /*
@@ -54,6 +60,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
+
+#include "../dpsprintf/dpsprintf.h"
 
 #ifndef TRUE
 # define TRUE 1
@@ -276,7 +284,7 @@ static struct cmb_xitem *cmb_transform_find;
             if (cmb_transform_find_buf == NULL)                               \
               {                                                               \
                 (void)fprintf(stderr, "FATAL: Out of memory?!\n");            \
-                exit(EXIT_FAILURE);                                           \
+                _Exit(EXIT_FAILURE);                                          \
                 /* NOTREACHED */                                              \
               }                                                               \
             cmb_transform_find_buf_size = len;                                \
@@ -396,7 +404,7 @@ static struct cmb_xitem *cmb_transform_find;
 # define CMB_PARSE_FRAGSIZE 512
 #endif /* ifndef CMB_PARSE_FRAGSIZE */
 
-static const char mcmbver[]         = "2120.4.12-dps";
+static const char mcmbver[]         = "2120.4.13-dps";
 static const char libversion[]      = "libcmb 3.5.6";
 static const char libversion_long[] = "$Version: libcmb 3.5.6 $";
 
@@ -638,6 +646,7 @@ cmb_parse(struct cmb_config *config, int fd, uint32_t *nitems, uint32_t max)
       else if (_nitems % CMB_PARSE_FRAGSIZE == 0)
         {
           itemsize += fragsize;
+          /* cppcheck-suppress memleakOnRealloc */
           if (( items = realloc(items, itemsize)) == NULL)
             {
               goto cmb_parse_return;
@@ -800,7 +809,7 @@ cmb_count(struct cmb_config *config, uint32_t nitems)
        curset += (uint32_t)nextset)
     {
 
-      /* 
+      /*
        * Calculate number of combinations (incrementing)
        */
 
@@ -827,7 +836,7 @@ cmb_count(struct cmb_config *config, uint32_t nitems)
 
       count += ncombos;
 
-      /* 
+      /*
        * Calculate number of combinations (decrementing)
        */
 
@@ -967,7 +976,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
       setdone = nitems;
     }
 
-  /* 
+  /*
    * Set the direction of flow (incrementing vs. decrementing)
    */
 
@@ -976,7 +985,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
       nextset = -1;
     }
 
-  /* 
+  /*
    * Show the empty set consisting of a single combination of no-items
    */
 
@@ -1018,14 +1027,14 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
   if (( curitems = (char **)malloc(sizeof ( char * ) * setmax)) == NULL)
     {
       (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-      exit(EXIT_FAILURE);
+      _Exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
 
   if (( setnums = (uint32_t *)malloc(sizeof ( uint32_t ) * setmax)) == NULL)
     {
       (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-      exit(EXIT_FAILURE);
+      _Exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
 
@@ -1033,7 +1042,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
           (uint32_t *)malloc(sizeof ( uint32_t ) * setmax)) == NULL)
     {
       (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-      exit(EXIT_FAILURE);
+      _Exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
 
@@ -1051,7 +1060,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
        curset += (uint32_t)nextset)
     {
 
-      /* 
+      /*
        * Calculate number of combinations (incrementing)
        */
 
@@ -1072,7 +1081,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
           return errno = ERANGE;
         }
 
-      /* 
+      /*
        * Jump to next set if requested start is beyond this one
        */
 
@@ -1094,7 +1103,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
             }
         }
 
-      /* 
+      /*
        * Fill array with the initial positional arguments
        */
 
@@ -1142,7 +1151,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
           if (setnums == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
           setnums[n] = n;
@@ -1154,7 +1163,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
           if (setnums_backend == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
           setnums_backend[p++] = nitems - n;
@@ -1263,7 +1272,7 @@ cmb(struct cmb_config *config, uint32_t nitems, char *items[])
             }
         } /* for combo */
 
-      /* 
+      /*
        * Calculate number of combinations (decrementing)
        */
 
@@ -1302,7 +1311,7 @@ CMB_ACTION(cmb_print)
   const char *prefix    = NULL;
   const char *suffix    = NULL;
 
-  /* 
+  /*
    * Process config options
    */
 
@@ -1505,7 +1514,7 @@ main(int argc, char *argv[])
   uint32_t nitems           = 0;
   uint32_t rstart           = 0;
   uint32_t rstop            = 0;
-  size_t config_size        = sizeof ( struct cmb_config );
+  size_t config_size        = sizeof ( struct cmb_config ) + 1;
   size_t cp_size            = sizeof ( char * );
   size_t optlen             = 0;
   struct cmb_config *config = NULL;
@@ -1527,7 +1536,7 @@ main(int argc, char *argv[])
   if (( config = malloc(config_size)) == NULL)
     {
       (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-      exit(EXIT_FAILURE);
+      _Exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
 
@@ -1556,7 +1565,7 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "Error: -c: %s `%s'\n",
                 strerror(EINVAL), optarg);
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1566,7 +1575,7 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "Error: -c: %s `%s'\n",
                 strerror(errno), optarg);
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1592,7 +1601,7 @@ main(int argc, char *argv[])
             malloc(sizeof ( struct cmb_xitem ))) == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1609,7 +1618,7 @@ main(int argc, char *argv[])
 
               (void)fprintf(stderr, "Error: -F: %s `%s'\n",
                 strerror(errno), optarg);
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1621,6 +1630,7 @@ main(int argc, char *argv[])
           break;
 
         case 'h': /* help */
+          free(config);
           cmb_usage();
           /* NOTREACHED */
           break;
@@ -1635,7 +1645,7 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "Error: -i: %s `%s'\n",
                 strerror(EINVAL), optarg);
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1655,7 +1665,7 @@ main(int argc, char *argv[])
                 {
                   (void)fprintf(stderr, "Error: -i: %s `%s'\n",
                     strerror(errno), optarg);
-                  exit(EXIT_FAILURE);
+                  _Exit(EXIT_FAILURE);
                   /* NOTREACHED */
                 }
             }
@@ -1668,7 +1678,7 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "Error: -k: %s `%s'\n",
                 strerror(errno), optarg);
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1683,7 +1693,7 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "Error: -n: %s `%s'\n",
                 strerror(errno), optarg);
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1694,7 +1704,7 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "Error: -n: %s `%s'\n",
                 strerror(errno), optarg);
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1765,9 +1775,14 @@ main(int argc, char *argv[])
         " %s (cmb %s + %s)\n", mcmbver, cmdver, libver);
 #ifdef HAVE_BUILD
       if (!opt_build)
+        {
 #endif /* ifdef HAVE_BUILD */
-        exit(EXIT_SUCCESS);
-        /* NOTREACHED */
+          free(config);
+          exit(EXIT_SUCCESS);
+          /* NOTREACHED */
+#ifdef HAVE_BUILD
+        }
+#endif /* ifdef HAVE_BUILD */
     }
 
 #ifdef HAVE_BUILD
@@ -1793,6 +1808,7 @@ main(int argc, char *argv[])
       (void)fprintf(stdout, "Compiler: %s\n", __VERSION__ );
 #  endif /* ifdef __GNUC__ */
 # endif /* ifdef __VERSION__ */
+      free(config);
       exit(EXIT_SUCCESS);
       /* NOTREACHED */
     }
@@ -1815,7 +1831,7 @@ main(int argc, char *argv[])
   if (opt_find && opt_transform == NULL)
     {
       (void)fprintf(stderr, "Error: `-X op' required when using `-F num'\n");
-      exit(EXIT_FAILURE);
+      _Exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
 
@@ -1826,7 +1842,7 @@ main(int argc, char *argv[])
   if (opt_precision && opt_transform == NULL)
     {
       (void)fprintf(stderr, "Error: `-X op' required when using `-P num'\n");
-      exit(EXIT_FAILURE);
+      _Exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
 
@@ -1837,7 +1853,7 @@ main(int argc, char *argv[])
   if (opt_nulparse && !opt_file)
     {
       (void)fprintf(stderr, "Error: `-f' required when using `-0'\n");
-      exit(EXIT_FAILURE);
+      _Exit(EXIT_FAILURE);
       /* NOTREACHED */
     }
 
@@ -1858,7 +1874,7 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "Error: -r: %s `%s'\n",
                 strerror(errno), argv[n]);
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1880,7 +1896,7 @@ main(int argc, char *argv[])
           if (ritems + ull > UINT_MAX)
             {
               (void)fprintf(stderr, "Error: -r: Too many items\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1897,6 +1913,7 @@ main(int argc, char *argv[])
       count = cmb_count(config, (uint32_t)ritems);
       if (opt_silent)
         {
+          free(config);
           exit(EXIT_SUCCESS);
           /* NOTREACHED */
         }
@@ -1908,6 +1925,7 @@ main(int argc, char *argv[])
         }
 
       (void)fprintf(stdout, "%" PRIu64 "%s", count, opt_nulprint ? "" : "\n");
+      free(config);
       exit(EXIT_SUCCESS);
       /* NOTREACHED */
     }
@@ -1931,7 +1949,7 @@ main(int argc, char *argv[])
             {
               (void)fprintf(stderr, "FATAL: %s\n",
                 errno ? strerror(errno) : "Out of memory?!");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1939,7 +1957,7 @@ main(int argc, char *argv[])
             {
               free(items_tmp);
               (void)fprintf(stderr, "FATAL: -f: Too many items\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1949,14 +1967,14 @@ main(int argc, char *argv[])
           if (items == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
           if (items_tmp == NULL)
             {
-              (void)fprintf(stderr, "FATAL: Out of memory?!\n");  
-              exit(EXIT_FAILURE);
+              (void)fprintf(stderr, "FATAL: Out of memory?!\n");
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -1975,7 +1993,7 @@ main(int argc, char *argv[])
       if (( items = calloc(ritems, sizeof ( char * ))) == NULL)
         {
           (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-          exit(EXIT_FAILURE);
+          _Exit(EXIT_FAILURE);
           /* NOTREACHED */
         }
 
@@ -2026,7 +2044,7 @@ main(int argc, char *argv[])
       if (( optlen = strlen(opt_transform)) == 0)
         {
           (void)fprintf(stderr, "Error: -X %s\n", strerror(EINVAL));
-          exit(EXIT_FAILURE);
+          _Exit(EXIT_FAILURE);
           /* NOTREACHED */
         }
 
@@ -2053,7 +2071,7 @@ main(int argc, char *argv[])
         {
           (void)fprintf(stderr, "Error: -X: %s `%s'\n",
             strerror(EINVAL), opt_transform);
-          exit(EXIT_FAILURE);
+          _Exit(EXIT_FAILURE);
           /* NOTREACHED */
         }
 
@@ -2067,7 +2085,7 @@ main(int argc, char *argv[])
           if (( items_tmp = calloc(nitems, ul)) == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -2076,7 +2094,7 @@ main(int argc, char *argv[])
               if (( xitem = malloc(sizeof ( struct cmb_xitem ))) == NULL)
                 {
                   (void)fprintf(stderr, "FATAL: Out of memory?!");
-                  exit(EXIT_FAILURE);
+                  _Exit(EXIT_FAILURE);
                   /* NOTREACHED */
                 }
 
@@ -2093,7 +2111,7 @@ main(int argc, char *argv[])
 
                   (void)fprintf(stderr, "Error: -X: %s `%s'\n",
                     strerror(errno), items[n]);
-                  exit(EXIT_FAILURE);
+                  _Exit(EXIT_FAILURE);
                   /* NOTREACHED */
                 }
 
@@ -2145,7 +2163,7 @@ main(int argc, char *argv[])
               if (cmb_transform_find->cp == NULL)
                 {
                   (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-                  exit(EXIT_FAILURE);
+                  _Exit(EXIT_FAILURE);
                   /* NOTREACHED */
                 }
 
@@ -2169,7 +2187,7 @@ main(int argc, char *argv[])
           if (cmb_transform_find->cp == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -2191,6 +2209,7 @@ main(int argc, char *argv[])
       count = cmb_count(config, nitems);
       if (opt_silent)
         {
+          free(config);
           exit(EXIT_SUCCESS);
           /* NOTREACHED */
         }
@@ -2198,7 +2217,7 @@ main(int argc, char *argv[])
       if (errno)
         {
           (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
-          exit(EXIT_FAILURE);
+          _Exit(EXIT_FAILURE);
           /* NOTREACHED */
         }
 
@@ -2212,7 +2231,7 @@ main(int argc, char *argv[])
           if (errno)
             {
               (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -2228,7 +2247,7 @@ main(int argc, char *argv[])
           if (errno)
             {
               (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -2246,7 +2265,7 @@ main(int argc, char *argv[])
       if (errno)
         {
           (void)fprintf(stderr, "FATAL: %s\n", strerror(errno));
-          exit(EXIT_FAILURE);
+          _Exit(EXIT_FAILURE);
           /* NOTREACHED */
         }
     }
@@ -2359,7 +2378,8 @@ cmb_usage(void)
     "-X op", "Perform math on item(s) where 'op' is add, sub, div, or mul");
   (void)fprintf(stderr, OPTFMT,
     "-z", "Print combinations NULL terminated (use with GNU 'xargs -0')");
-  exit(EXIT_FAILURE);
+
+  _Exit(EXIT_FAILURE);
 }
 
 /*
@@ -2704,7 +2724,7 @@ range_char(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           if (( dst[idx] = malloc((unsigned long)len)) == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -2720,7 +2740,7 @@ range_char(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           if (( dst[idx] = (char *)malloc((unsigned long)len)) == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -2748,7 +2768,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           if (( xitem = malloc(size)) == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -2756,7 +2776,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           if (( xitem->cp = malloc((unsigned long)len)) == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -2773,7 +2793,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           if (( xitem = malloc(size)) == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 
@@ -2781,7 +2801,7 @@ range_float(uint32_t start, uint32_t stop, uint32_t idx, char *dst[])
           if (( xitem->cp = malloc((unsigned long)len)) == NULL)
             {
               (void)fprintf(stderr, "FATAL: Out of memory?!\n");
-              exit(EXIT_FAILURE);
+              _Exit(EXIT_FAILURE);
               /* NOTREACHED */
             }
 

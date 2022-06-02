@@ -1,6 +1,10 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * -------------------------------------------------------------------------
+ *
  * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,7 +28,9 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * -------------------------------------------------------------------------
  */
 
-"@(#) $ Version: 2120.2.13-dps $\n"
-"@(#) $    Date: 2021-11-09 06:49:13 +0000 $\n"
+"@(#) $ Version: 2120.2.14-dps $\n"
+"@(#) $    Date: 2022-05-20 02:19:53 +0000 $\n"

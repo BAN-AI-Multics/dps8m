@@ -1,16 +1,22 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2015-2016 Craig Ruff
  * Copyright (c) 2016 Michal Tomek
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #ifdef EIS_PTR
@@ -48,6 +54,8 @@
 #include "dps8_ins.h"
 #include "dps8_eis.h"
 #include "dps8_utils.h"
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -1226,7 +1234,6 @@ sim_printf ("setupOperandDescriptor %012"PRIo64"\n", IWB_IRODD);
         // pointer to an operand descriptor and is interpreted as shown in
         // Figure 4-5.
 
-
         // Mike Mondy michael.mondy@coffeebird.net sez' ...
         // EIS indirect pointers to operand descriptors use PR registers.
         // However, operand descriptors use AR registers according to the
@@ -1366,7 +1373,6 @@ static void parseAlphanumericOperandDescriptor (uint k, uint useTA, bool allowDU
           }
       }
 #endif
-
 
 // 8. Modification of the operand descriptor address begins. This step is
 // reached directly from 2 if no indirection is involved. The AR bit of MF1 is
@@ -1877,7 +1883,6 @@ static void parseBitstringOperandDescriptor (int k, fault_ipr_subtype_ *mod_faul
     sim_debug (DBG_TRACEEXT, & cpu_dev, "bitstring k %d opdesc %012"PRIo64"\n", k, opDesc);
     sim_debug (DBG_TRACEEXT, & cpu_dev, "N%u %u\n", k, e->N[k-1]);
 
-
     word4 B = getbits36_4(opDesc, 20);    // bit# from descriptor
     word2 C = getbits36_2 (opDesc, 18);     // char# from descriptor
 
@@ -1994,14 +1999,12 @@ void a4bd (void)
 //if (current_running_cpu_idx)
 //sim_printf ("a4bd sum %o %d.\n", sum, sum);
 
-
     // Handle over/under flow
     while (sum < 0)
       sum += n4chars;
     sum = sum % n4chars;
 //if (current_running_cpu_idx)
 //sim_printf ("a4bd sum %o %d.\n", sum, sum);
-
 
     cpu.AR[ARn].WORDNO = (word18) (sum / 8) & AMASK;
 //if (current_running_cpu_idx)
@@ -2032,7 +2035,6 @@ void a4bd (void)
 //if (current_running_cpu_idx)
 //sim_printf ("a4bd BITNO %o %d.\n", cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
-
 
 void s4bd (void)
   {
@@ -2104,7 +2106,6 @@ void axbd (uint sz)
       r = SIGNEXT18_32 ((word18) rcnt);
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "axbd sz %d ARn 0%o address 0%o reg 0%o r 0%o\n", sz, ARn, address, reg, r);
-
 
     uint augend = 0;
     if (GET_A (cpu.cu.IWB))
@@ -2279,7 +2280,6 @@ if (current_running_cpu_idx)
 sim_printf ("abd r 0%o %d.\n", r, r);
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev, "abd augend 0%o\n", augend);
 
-
         // BITNO overflows oddly; handle separately
 
         int32_t deltaBits = rBitcnt + bitno;
@@ -2349,7 +2349,6 @@ sim_printf ("abd sum 0%o %d.\n", sum, sum);
     //cpu.AR[ARn].CHAR = (bitno >> 4) & MASK2;
     //cpu.AR[ARn].BITNO = bitno & MASK4;
 
-
 if (current_running_cpu_idx)
 sim_printf ("abd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
@@ -2370,7 +2369,6 @@ void awd (void)
 
     sim_debug (DBG_TRACEEXT|DBG_CAC, & cpu_dev,
                "awd ARn 0%o address 0%o reg 0%o r 0%o\n", ARn, address, reg, r);
-
 
     uint augend = 0;
     if (GET_A (cpu.cu.IWB))
@@ -2516,7 +2514,6 @@ void s9bd (void)
 //if (current_running_cpu_idx)
 //sim_printf ("s9bd WORDNO 0%o %d. CHAR %o BITNO 0%o %d.\n", cpu.AR[ARn].WORDNO, cpu.AR[ARn].WORDNO, cpu.AR[ARn].CHAR, cpu.AR[ARn].BITNO, cpu.AR[ARn].BITNO);
   }
-
 
 //
 // Address Register arithmetic
@@ -3090,12 +3087,11 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "cmpc tally %d c1 %03o c2 %03o\n", cpu.du.CH
     cleanupOperandDescriptor (2);
   }
 
-
 /*
  * SCD - Scan Characters Double
  */
 
-void scd ()
+void scd (void)
   {
     EISstruct * e = & cpu.currentEISinstruction;
 
@@ -3242,7 +3238,6 @@ void scd ()
           c2 &= 0777;   // keep 9-bits
           break;
       }
-
 
     PNL (L68_ (if (e->N1 < 128)
       DU_CYCLE_FLEN_128;))
@@ -3460,7 +3455,6 @@ void scdr (void)
     cleanupOperandDescriptor (2);
     cleanupOperandDescriptor (3);
   }
-
 
 /*
  * SCM - Scan with Mask
@@ -3846,7 +3840,6 @@ static word9 xlate (EISaddr * xlatTbl, uint dstTA, uint c)
     return 0;
   }
 
-
 void tct (void)
   {
     EISstruct * e = & cpu.currentEISinstruction;
@@ -3871,7 +3864,6 @@ void tct (void)
     // the string length count is exhausted.
     // The character number of Y-char92 must be zero, i.e., Y-char92 must start
     // on a word boundary.
-
 
     fault_ipr_subtype_ mod_fault = 0;
 
@@ -4067,7 +4059,6 @@ void tctr (void)
 
     // The character number of Y-char92 must be zero, i.e., Y-char92 must start
     // on a word boundary.
-
 
     fault_ipr_subtype_ mod_fault = 0;
 
@@ -4441,7 +4432,6 @@ void mlr (void)
     //bool bOvp = false;  // true when a negative overpunch character has been
                         // found @ N1-1
 
-
 #ifdef EIS_PTR3
     sim_debug (DBG_TRACEEXT, & cpu_dev, "MLR TALLY %u TA1 %u TA2 %u N1 %u N2 %u CN1 %u CN2 %u\n", cpu.du.CHTALLY, TA1, TA2, e -> N1, e -> N2, e -> CN1, e -> CN2);
 #else
@@ -4455,7 +4445,6 @@ void mlr (void)
 // The MLR implementation is correct, not efficent. Copy invokes 12 append
 // cycles per word, and fill 8.
 //
-
 
 //
 // Page copy
@@ -4698,7 +4687,6 @@ void mlr (void)
     else
       CLR_I_TRUNC;
   }
-
 
 void mrl (void)
   {
@@ -5182,7 +5170,6 @@ static void EISloadInputBufferNumeric (int k)
       }
 }
 
-
 /*
  * Load decimal unit input buffer with sending string characters. Data is read
  * from main memory in unaligned units (not modulo 8 boundary) of Y-block8
@@ -5222,7 +5209,6 @@ static void EISwriteOutputBufferToMemory (int k)
         EISput469 (k, n, c49);
       }
   }
-
 
 static void writeToOutputBuffer (word9 **dstAddr, int szSrc, int szDst, word9 c49)
 {
@@ -5922,7 +5908,6 @@ static int mopMFLC (void)
         sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC c %d (0%o)\n", c, c);
         if (!e->mopES) { // e->mopES is OFF
 
-
             sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC ES off\n");
             if (isDecimalZero (c)) {
                 sim_debug (DBG_TRACEEXT, & cpu_dev, "MFLC is zero\n");
@@ -6209,7 +6194,6 @@ static int mopMSES (void)
     if (e->mvne == true)
         return mopMVC ();   // XXX I think!
 
-
     if (e->mopIF == 0)
         e->mopIF = 16;
 
@@ -6412,14 +6396,13 @@ static int mopSES (void)
 #ifndef QUIET_UNUSED
 static char * mopCodes [040] =
   {
-    //        0       1       2       3       4       5       6       7
-    /* 00 */  0,     "insm", "enf",  "ses",  "mvzb", "mvza", "mfls", "mflc",
-    /* 10 */ "insb", "insa", "insn", "insp", "ign",  "mvc",  "mses", "mors",
-    /* 20 */ "lte",  "cht",   0,      0,      0,      0,      0,      0,
-    /* 30 */   0,      0,     0,      0,      0,      0,      0,      0
+    //            0       1       2       3       4       5       6       7
+    /* 00 */      0, "insm",  "enf",  "ses", "mvzb", "mvza", "mfls", "mflc",
+    /* 10 */ "insb", "insa", "insn", "insp",  "ign",  "mvc", "mses", "mors",
+    /* 20 */  "lte",  "cht",      0,      0,      0,      0,      0,      0,
+    /* 30 */      0,      0,      0,      0,      0,      0,      0,      0
   };
 #endif
-
 
 static MOP_struct mopTab[040] = {
     {NULL, 0},
@@ -6456,7 +6439,6 @@ static MOP_struct mopTab[040] = {
     {NULL, 0}
 };
 
-
 /*!
  * fetch MOP from e->mopAddr/e->mopPos ...
  */
@@ -6466,7 +6448,6 @@ static MOP_struct* EISgetMop (void)
     EISstruct * e = & cpu.currentEISinstruction;
     //static word18 lastAddress;  // try to keep memory access' down
     //static word36 data;
-
 
     if (e == NULL)
     //{
@@ -6523,7 +6504,6 @@ static MOP_struct* EISgetMop (void)
 
     return m;
 }
-
 
 #ifdef EIS_PTR2
 static void mopExecutor (void)
@@ -6664,7 +6644,6 @@ static void mopExecutor (int kMop)
     if (e -> _faults)
       doFault (FAULT_IPR, fst_ill_proc, "mopExecutor");
 }
-
 
 void mve (void)
   {
@@ -6822,7 +6801,6 @@ void mvne (void)
     // Bits 0, 1, 9, and 10 MBZ
     if (IWB_IRODD & 0600600000000)
       doFault (FAULT_IPR, (_fault_subtype) {.fault_ipr_subtype=FR_ILL_OP|mod_fault}, "mvne: 0, 1, 9, 10 MBZ");
-
 
     // Bit 24-29 of OP1 MBZ
     // Multics has been observed to use 600162017511, cf RJ78
@@ -7312,7 +7290,6 @@ void mvt (void)
       CLR_I_TRUNC;
   }
 
-
 /*
  * cmpn - Compare Numeric
  */
@@ -7427,7 +7404,6 @@ void cmpn (void)
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "cmpn adjusted n2<1");
 
-
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
     decContextDefaultDPS8(&set);
@@ -7539,12 +7515,10 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
             break;
     }
 
-
     EISWriteIdx(p, 0, w, true); // XXX this is the inefficient part!
 
     *pos += 1;       // to next char.
 }
-
 
 /*
  * write 9-bit bytes to memory @ pos ...
@@ -7609,7 +7583,6 @@ static void EISwrite49(EISaddr *p, int *pos, int tn, word9 c49)
             return;
     }
 }
-
 
 void mvn (void)
 {
@@ -7785,7 +7758,6 @@ void mvn (void)
 
     bool Ovr = false, EOvr = false, Trunc = false;
 
-
     uint8_t out [256];
     char * res = formatDecimal (out, & set, op1, n2, (int) e->S2, e->SF2, R,
                                 & Ovr, & Trunc);
@@ -7946,7 +7918,6 @@ sim_debug (DBG_CAC, & cpu_dev, "Ovr %o\n", Ovr);
           doFault (FAULT_OFL, fst_zero, "mvn overflow fault");
     }
 }
-
 
 void csl (void)
   {
@@ -8802,7 +8773,6 @@ void sztr (void)
       }
   }
 
-
 /*
  * CMPB - Compare Bit Strings
  */
@@ -8856,7 +8826,6 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
 void cmpb (void)
 {
     EISstruct * e = & cpu.currentEISinstruction;
-
 
     // For i = 1, 2, ..., minimum (N1,N2)
     //   C(Y-bit1)i-1 :: C(Y-bit2)i-1
@@ -9369,7 +9338,6 @@ static word9 getSign (word72s n128)
     }
 }
 
-
 // perform a binary to decimal conversion ...
 
 // Since (according to DH02) we want to "right-justify" the output string it
@@ -9455,7 +9423,6 @@ static void _btd (bool * ovfp)
 void btd (void)
 {
     EISstruct * e = & cpu.currentEISinstruction;
-
 
     // C(Y-char91) converted to decimal → C(Y-charn2)
     /*!
@@ -9586,7 +9553,6 @@ void btd (void)
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "btd adjusted n2<1");
-
 
     decContext set;
     decContextDefaultDPS8(&set);
@@ -9999,7 +9965,6 @@ void dtb (void)
         doFault(FAULT_IPR, fst_ill_proc, "dtb():  N2 = 0 or N2 > 8 etc.");
     }
 
-
     int n1 = 0;
 
     /*
@@ -10029,7 +9994,6 @@ void dtb (void)
 
     if (n1 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "dtb adjusted n1<1");
-
 
     EISloadInputBufferNumeric (1);   // according to MF1
 
@@ -10119,7 +10083,6 @@ sim_printf("dtb: N1 %d N2 %d nin %d CN1 %d CN2 %d msk %012"PRIo64" %012"PRIo64"\
 /*
  * decimal EIS instructions ...
  */
-
 
 #define ASC(x)  ((x) + '0')
 
@@ -10243,7 +10206,6 @@ void ad2d (void)
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "ad2d adjusted n2<1");
-
 
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
@@ -10617,7 +10579,6 @@ void ad3d (void)
     if (n3 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "ad3d adjusted n3<1");
 
-
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
     decContextDefaultDPS8(&set);
@@ -10866,7 +10827,6 @@ void sb2d (void)
     PNL (L68_ (if (R)
       DU_CYCLE_FRND;))
 
-
     uint srcTN = e->TN1;    // type of chars in src
 
     uint dstTN = e->TN2;    // type of chars in dst
@@ -10937,7 +10897,6 @@ void sb2d (void)
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "sb2d adjusted n2<1");
-
 
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
@@ -11270,7 +11229,6 @@ void sb3d (void)
     if (n3 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "sb3d adjusted n3<1");
 
-
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
     decContextDefaultDPS8(&set);
@@ -11579,7 +11537,6 @@ void mp2d (void)
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "mp2d adjusted n2<1");
 
-
     decContext set;
     decContextDefaultDPS8Mul(&set); // 126 digits for multiply
 
@@ -11871,7 +11828,6 @@ void mp3d (void)
     if (n3 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "mp3d adjusted n3<1");
 
-
     decContext set;
     //decContextDefault(&set, DEC_INIT_BASE);         // initialize
     decContextDefaultDPS8Mul(&set);     // 126 digits for multiply
@@ -12126,7 +12082,6 @@ static uint8_t * decBCDFromNumber(uint8_t *bcd, int length, int *scale, const de
     return bcd;
 } // decBCDFromNumber
 
-
 static unsigned char *getBCD(decNumber *a)
 {
     static uint8_t bcd[256];
@@ -12140,7 +12095,6 @@ static unsigned char *getBCD(decNumber *a)
     return (unsigned char *) bcd;
 }
 
-
 static char *getBCDn(decNumber *a, int digits)
 {
     static uint8_t bcd[256];
@@ -12153,7 +12107,6 @@ static char *getBCDn(decNumber *a, int digits)
 
     return (char *) bcd;
 }
-
 
 static int findFirstDigit(unsigned char *bcd)
 {
@@ -12260,7 +12213,6 @@ static decNumber * decBCDToNumber(const uByte *bcd, Int length, const Int scale,
     return dn;
 } // decBCDToNumber
 
-
 static int decCompareMAG(decNumber *lhs, decNumber *rhs, decContext *set)
 {
     decNumber _cmpm, *cmpm;
@@ -12274,7 +12226,6 @@ static int decCompareMAG(decNumber *lhs, decNumber *rhs, decContext *set)
 
     return 1;       // lhs > rhs
 }
-
 
 /*
  * output formatting for DV?X (divide) instructions ....
@@ -12351,7 +12302,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 //        int c = decCompare(dividend, divisor, set);
 //        sim_printf("c0 = %d\n", c);
 
-
         // we want to do a funky fractional alignment here so we can compare the mantissa's
 
         unsigned char *c1 = getBCD(num);
@@ -12364,7 +12314,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
         divisor = decBCDToNumber(c2+f2, 63, 63, &_dvsr);
         PRINTDEC("aligned divisor", divisor);
 
-
 //        PRINTALL("BCD 1 num/dividend", dividend, set);
 //        PRINTALL("BCD 1 den/divisor ", divisor, set);
 //
@@ -12375,7 +12324,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 //        PRINTDEC("divisor ", divisor);
 //        PRINTALL("BCD 2 num/dividend", dividend, set);
 //        PRINTALL("BCD 2 den/divisor ", divisor, set);
-
 
         if (decCompareMAG(dividend, divisor, set) == -1)
           {
@@ -12441,7 +12389,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 
     decNumber _sf;  // scaling factor
     {
-
 
 # ifndef SPEED
       int scale;
@@ -12564,7 +12511,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                   }
               }
           } // s == CSFL
-
 
         decBCDFromNumber(out, adjLen, &scale, r2);
 
@@ -12701,7 +12647,6 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
                 for(int i = 0 ; i < adjLen ; i += 1 )
                     out[i] += '0';
                 out[adjLen] = 0;
-
 
                 // 1) Floating-point quotient
                 //  NQ = N3, but if the divisor is greater than the dividend after operand alignment, the leading zero digit produced is counted and the effective precision of the result is reduced by one.
@@ -12914,7 +12859,6 @@ void dv2d (void)
 
     if (n2 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "dv2d adjusted n2<1");
-
 
     decContext set;
     decContextDefaultDPS8(&set);
@@ -13327,7 +13271,6 @@ void dv3d (void)
     if (n3 < 1)
         doFault (FAULT_IPR, fst_ill_proc, "dv3d adjusted n3<1");
 
-
     decContext set;
     decContextDefaultDPS8(&set);
 
@@ -13360,7 +13303,6 @@ void dv3d (void)
         op2->bits |= DECNEG;
     if (e->S2 == CSFL)
         op2->exponent = e->exponent;
-
 
     // The number of required quotient digits, NQ, is determined before
     // division begins as follows:

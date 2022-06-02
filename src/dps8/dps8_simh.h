@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 extern DEVICE scu_dev;
@@ -96,11 +102,9 @@ extern DEVICE scu_dev;
 // this or not)
 // XXX above is not entirely correct (anymore).
 
-
 //#define SCPE_OK    0
 #define STOP_STOP   1
 #define STOP_BKPT   2
-
 
 // not really STOP codes, but get returned from instruction loops
 #define CONT_TRA    -1  // encountered a transfer instruction; don't bump PPR.IC
@@ -147,18 +151,11 @@ extern DEVICE scu_dev;
 
 extern uint32 sim_brk_summ, sim_brk_types, sim_brk_dflt;
 extern FILE *sim_deb;
-void sim_printf( const char * format, ... )    // not really simh, by my impl
-#ifdef __GNUC__
-  __attribute__ ((format (printf, 1, 2)))
-#endif
-;
+void sim_printf( const char * format, ... );    // not really simh, by my impl
 
 #if defined(THREADZ) || defined(LOCKLESS)
-void dps8_sim_debug (uint32 dbits, DEVICE* dptr, unsigned long long cnt, const char* fmt, ...)
-# ifdef __GNUC__
-  __attribute__ ((format (printf, 4, 5)))
-# endif
-;
+void dps8_sim_debug (uint32 dbits, DEVICE* dptr, unsigned long long cnt, const char* fmt, ...);
+
 #endif
 #define sim_fatal(format, ...) { _sim_err (format, ##__VA_ARGS__); exit (1); }
 #define sim_msg sim_printf

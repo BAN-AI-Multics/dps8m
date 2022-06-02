@@ -1,8 +1,12 @@
 /* scp.h: simulator control program headers
 
+   vim: filetype=c:tabstop=4:tw=100:expandtab
+
+   ---------------------------------------------------------------------------
+
    Copyright (c) 1993-2009 Robert M Supnik
-   Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-   Copyright (c) 2021 The DPS8M Development Team
+   Copyright (c) 2021-2022 Jeffrey H. Johnson <trnsz@pobox.com>
+   Copyright (c) 2021-2022 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -17,13 +21,18 @@
    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+   OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
 
    Except as contained in this notice, the name of Robert M Supnik shall not
-   be used in advertising or otherwise to promote the sale, use or other dealings
-   in this Software without prior written authorization from Robert M Supnik.
+   be used in advertising or otherwise to promote the sale, use or other
+   dealings in this Software without prior written authorization from
+   Robert M Supnik.
+
+   ---------------------------------------------------------------------------
+
 */
 
 #ifndef SIM_SCP_H_
@@ -393,7 +402,6 @@ sim_panel_add_register_indirect (PANEL *panel,
            should be called.  The panel API will make a best effort to deliver
            the current register state at the desired rate.
 
-
    Note 1: The buffers described in a panel's register set will be
            dynamically revised as soon as data is available from the
            simulator.  The callback routine merely serves as a notification
@@ -407,10 +415,6 @@ sim_panel_add_register_indirect (PANEL *panel,
 int
 sim_panel_get_registers (PANEL *panel, unsigned long long *simulation_time);
 
-/**
-
-
- */
 typedef void (*PANEL_DISPLAY_PCALLBACK)(PANEL *panel,
                                         unsigned long long simulation_time,
                                         void *context);
@@ -477,7 +481,6 @@ sim_panel_break_output_set (PANEL *panel, const char *condition);
 int
 sim_panel_break_output_clear (PANEL *panel, const char *condition);
 
-
 /**
 
     When a front panel application needs to change or access
@@ -492,7 +495,6 @@ sim_panel_break_output_clear (PANEL *panel, const char *condition);
                                    location
 
  */
-
 
 /**
 
@@ -621,7 +623,6 @@ sim_panel_mount (PANEL *panel,
 int
 sim_panel_dismount (PANEL *panel,
                     const char *device);
-
 
 typedef enum {
     Halt,       /* Simulation is halted (instructions not being executed) */

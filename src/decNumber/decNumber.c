@@ -1,3 +1,4 @@
+// vim: filetype=c:tabstop=4:tw=72:expandtab
 /* ------------------------------------------------------------------ */
 /* Decimal Number arithmetic module                                   */
 /* ------------------------------------------------------------------ */
@@ -27,8 +28,8 @@
 /* 1. This code is ANSI C89 except:                                   */
 /*                                                                    */
 /*    a) C99 line comments (double forward slash) are used.  (Most C  */
-/*       compilers accept these.  If yours does not, a simple script  */
-/*       can be used to convert them to ANSI C comments.)             */
+/*       compilers accept these.  If yours does not, the "uncrustify" */
+/*       program can be used to convert them to ANSI C comments.)     */
 /*                                                                    */
 /*    b) Types from C99 stdint.h are used.  If you do not have this   */
 /*       header file, see the User's Guide section of the decNumber   */
@@ -168,6 +169,8 @@
 #include <ctype.h>                 // for lower
 #include "decNumber.h"             // base number library
 #include "decNumberLocal.h"        // decNumber local types, etc.
+
+#include "../dpsprintf/dpsprintf.h"
 
 /* Constants */
 // Public lookup table used by the D2U macro
@@ -314,8 +317,9 @@ static void decCheckInexact(const decNumber *, decContext *);
 
 #if DECTRACE || DECCHECK
 // Optional trace/debugging routines (may or may not be used)
-void decNumberShow(const decNumber *);  // displays the components of a number
 static void decDumpAr(char, const Unit *, Int);
+// displays the components of a number
+void decNumberShow(const decNumber *);
 #endif
 
 /* ================================================================== */
@@ -424,7 +428,7 @@ uInt decNumberToUInt32(const decNumber *dn, decContext *set) {
     for (d=DECDPUN; d<dn->digits; up++, d+=DECDPUN) hi+=*up*powers[d-1];
 
     // now low has the lsd, hi the remainder
-    if (hi>429496729 || (hi==429496729 && lo>5)) ; // no reprieve possible
+    if (hi>429496729 || (hi==429496729 && lo>5)) ; // no reprieve
      else return X10(hi)+lo;
     } // integer
   decContextSetStatus(set, DEC_Invalid_operation); // [may not return]
@@ -3310,7 +3314,6 @@ decNumber * decNumberXor(decNumber *res, const decNumber *lhs,
   return res;  // [no status to set]
   } // decNumberXor
 
-
 /* ================================================================== */
 /* Utility routines                                                   */
 /* ================================================================== */
@@ -5143,7 +5146,6 @@ static decNumber * decMultiplyOp(decNumber *res, const decNumber *lhs,
       exponent=-2*DECNUMMAXE;                // force underflow
     res->exponent=exponent;                  // OK to overwrite now
 
-
     // Set the coefficient.  If any rounding, residue records
     decSetCoeff(res, set, acc, res->digits, &residue, status);
     decFinish(res, set, &residue, status);   // final cleanup
@@ -6057,13 +6059,13 @@ decNumber * decCompareOp(decNumber *res, const decNumber *lhs,
     if (op==COMPTOTAL) {                // total ordering
       /* cppcheck-suppress bitwiseOnBoolean */
       /* cppcheck-suppress clarifyCondition */
-      if (decNumberIsNegative(lhs) & !decNumberIsNegative(rhs)) {
+      if (decNumberIsNegative(lhs) && !decNumberIsNegative(rhs)) {
         result=-1;
         break;
         }
       /* cppcheck-suppress bitwiseOnBoolean */
       /* cppcheck-suppress clarifyCondition */
-      if (!decNumberIsNegative(lhs) & decNumberIsNegative(rhs)) {
+      if (!decNumberIsNegative(lhs) && decNumberIsNegative(rhs)) {
         result=+1;
         break;
         }
@@ -7337,7 +7339,6 @@ static void decFinalize(decNumber *dn, decContext *set, Int *residue,
 
   // Check for overflow [redundant in the 'rare' case] or clamp
   if (dn->exponent<=set->emax-set->digits+1) return;   // neither needed
-
 
   // here when might have an overflow or clamp to do
   if (dn->exponent>set->emax-dn->digits+1) {           // too big

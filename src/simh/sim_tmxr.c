@@ -1,7 +1,11 @@
 /* sim_tmxr.c: Telnet terminal multiplexer library
 
+   vim: filetype=c:tabstop=4:tw=100:expandtab
+
+   ---------------------------------------------------------------------------
+
    Copyright (c) 2001-2011 Robert M Supnik
-   Copyright (c) 2021 The DPS8M Development Team
+   Copyright (c) 2021-2022 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -10,19 +14,23 @@
    and/or sell copies of the Software, and to permit persons to whom the
    Software is furnished to do so, subject to the following conditions:
 
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
+   The above copyright notice and this permission notice shall be included
+   in all copies or substantial portions of the Software.
 
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
+   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+   OTHER DEALINGS IN THE SOFTWARE.
 
-   Except as contained in this notice, the name of Robert M Supnik shall not be
-   used in advertising or otherwise to promote the sale, use or other dealings
-   in this Software without prior written authorization from Robert M Supnik.
+   Except as contained in this notice, the name of Robert M Supnik shall
+   not be used in advertising or otherwise to promote the sale, use or
+   other dealings in this Software without prior written authorization from
+   Robert M Supnik.
+
+   ---------------------------------------------------------------------------
 */
 
 /*
@@ -87,6 +95,8 @@
 
 #include <ctype.h>
 #include <math.h>
+
+#include "../dpsprintf/dpsprintf.h"
 
 /* Telnet protocol constants - negatives are for init'ing signed char data */
 
@@ -239,7 +249,6 @@ memset (lp->rbr, 0, lp->rxbsz);                         /* clear break status ar
 return;
 }
 
-
 /* Report a connection to a line.
 
    If the indicated line (lp) is speaking the telnet wire protocol, a
@@ -300,7 +309,6 @@ if (unwritten == 0)                                     /* buffer now empty? */
 lp->txcnt -= (int32)strlen (msgbuf);                    /* adjust statistics */
 return;
 }
-
 
 /* Report a disconnection to a line.
 
@@ -420,7 +428,6 @@ else                                                    /* Telnet connection */
     return sim_read_sock (lp->sock, &(lp->rxb[i]), length);
 }
 
-
 /* Write to a line.
 
    Up to "length" characters are written from the character buffer associated
@@ -447,7 +454,6 @@ else
   return written;
 }
 
-
 /* Remove a character from the read buffer.
 
    The character at position "p" in the read buffer associated with line "lp" is
@@ -466,7 +472,6 @@ lp->rbr[p] = 0;                                         /* clear potential break
 lp->rxbpi = lp->rxbpi - 1;                              /* drop buffer insert index */
 return;
 }
-
 
 /* Find a line descriptor indicated by unit or number.
 
@@ -497,7 +502,6 @@ if ((val < 0) || (val >= mp->lines))                    /* invalid line? */
     return NULL;
 return mp->ldsc + val;                                  /* line descriptor */
 }
-
 
 /* Get a line descriptor indicated by a string or unit.
 
@@ -601,10 +605,7 @@ if (*tptr == '\0') {
 return tptr;
 }
 
-
-
 /* Global routines */
-
 
 /* Return the Line specific attach setup currently configured for a given line
 
@@ -657,7 +658,6 @@ if (*tptr == '\0') {
     }
 return tptr;
 }
-
 
 /* Poll for new connection
 
@@ -1574,7 +1574,6 @@ for (i = 0; i < mp->lines; i++) {                       /* loop thru lines */
 return;
 }
 
-
 /* Return count of available characters for line */
 
 int32 tmxr_rqln_bare (const TMLN *lp, t_bool speed)
@@ -1592,7 +1591,6 @@ int32 tmxr_rqln (const TMLN *lp)
 {
 return tmxr_rqln_bare (lp, TRUE);
 }
-
 
 /* Store character in line buffer
 
@@ -1718,7 +1716,6 @@ for (i = 0; i < mp->lines; i++) {                       /* loop thru lines */
 return;
 }
 
-
 /* Send buffered data across network
 
    Inputs:
@@ -1775,7 +1772,6 @@ if ((nbytes == 0) && (tmxr_tqln(lp) > 0))
     return tmxr_send_buffered_data (lp);
 return tmxr_tqln(lp) + tmxr_tpqln(lp);
 }
-
 
 /* Return count of buffered characters for line */
 
@@ -1921,7 +1917,6 @@ lp->txdelta = lp->rxdelta;
 lp->txnexttime = lp->rxnexttime;
 return SCPE_OK;
 }
-
 
 /* Open a master listening socket (and all of the other variances of connections).
 
@@ -2392,7 +2387,6 @@ if (r == SCPE_OK)
 return r;
 }
 
-
 /* Declare which unit polls for input
 
    Inputs:
@@ -2537,7 +2531,6 @@ t_stat tmxr_change_async (void)
 return SCPE_OK;
 }
 
-
 /* Attach unit to master socket */
 
 t_stat tmxr_attach_ex (TMXR *mp, UNIT *uptr, CONST char *cptr, t_bool async)
@@ -2574,7 +2567,6 @@ if (mp->dptr) {
 tmxr_add_to_open_list (mp);
 return SCPE_OK;
 }
-
 
 t_stat tmxr_startup (void)
 {
@@ -2669,7 +2661,6 @@ else {
 return SCPE_OK;
 }
 
-
 /* Close a master listening socket.
 
    The listening socket associated with multiplexer descriptor "mp" is closed
@@ -2735,7 +2726,6 @@ _tmxr_remove_from_open_list (mp);
 return SCPE_OK;
 }
 
-
 /* Detach unit from master socket and close all active network connections.
    Note that we return SCPE_OK, regardless of whether a listening socket was
    attached.
@@ -2763,7 +2753,6 @@ uptr->flags &= ~(UNIT_ATT);                             /* not attached */
 uptr->dynflags &= ~(UNIT_TM_POLL|TMUF_NOASYNCH);        /* no polling, not asynch disabled  */
 return SCPE_OK;
 }
-
 
 t_stat tmxr_activate (UNIT *uptr, int32 interval)
 {
@@ -2990,7 +2979,6 @@ t_stat tmxr_dep (t_value val, t_addr addr, UNIT *uptr, int32 sw)
 return SCPE_NOFNC;
 }
 
-
 /* Write a message directly to a socket */
 
 void tmxr_msg (SOCKET sock, const char *msg)
@@ -2999,7 +2987,6 @@ if ((sock) && (sock != INVALID_SOCKET))
     sim_write_sock (sock, msg, (int32)strlen (msg));
 return;
 }
-
 
 /* Write a message to a line */
 
@@ -3013,7 +3000,6 @@ while (*msg) {
     }
 return;
 }
-
 
 /* Write a formatted message to a line */
 
@@ -3070,7 +3056,6 @@ if (buf != stackbuf)
     free (buf);
 return;
 }
-
 
 /* Print connections - used only in named SHOW command */
 
@@ -3137,7 +3122,6 @@ if (lp->txlog)
 return;
 }
 
-
 /* Print statistics - used only in named SHOW command */
 
 void tmxr_fstats (FILE *st, const TMLN *lp, int32 ln)
@@ -3175,7 +3159,6 @@ if (lp->txdrp)
     fprintf (st, "  dropped = %d\n", lp->txdrp);
 return;
 }
-
 
 /* Disconnect a line.
 
@@ -3229,7 +3212,6 @@ if ((lp->sock)
 return SCPE_OK;
 }
 
-
 /* Enable logging for line */
 
 t_stat tmxr_set_log (UNIT *uptr, int32 val, CONST char *cptr, void *desc)
@@ -3258,7 +3240,6 @@ if (mp->uptr)                                           /* attached?, then updat
 return SCPE_OK;
 }
 
-
 /* Disable logging for line */
 
 t_stat tmxr_set_nolog (UNIT *uptr, int32 val, CONST char *cptr, void *desc)
@@ -3282,7 +3263,6 @@ if (mp->uptr)
 return SCPE_OK;
 }
 
-
 /* Show logging status for line */
 
 t_stat tmxr_show_log (FILE *st, UNIT *uptr, int32 val, CONST void *desc)
@@ -3298,7 +3278,6 @@ if (lp->txlog)
 else fprintf (st, "no logging");
 return SCPE_OK;
 }
-
 
 /* Set the line connection order.
 
@@ -3416,7 +3395,6 @@ free (tbuf);                                            /* free arg copy with ; 
 
 return result;
 }
-
 
 /* Show line connection order.
 

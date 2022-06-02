@@ -1,7 +1,7 @@
 .\"
 .\" Copyright (c) 2002-2019 Devin Teske <dteske@FreeBSD.org>
 .\" Copyright (c) 2020-2021 Jeffrey H. Johnson <trnsz@pobox.com>
-.\" Copyright (c) 2021 The DPS8M Development Team
+.\" Copyright (c) 2021-2022 The DPS8M Development Team
 .\"
 .\" All rights reserved.
 .\"
@@ -47,7 +47,7 @@
 .Op Fl p Ar str
 .Op Fl s Ar str
 .Op Fl X Ar op
-.Op Ar item Ar \ ...\ 
+.Op Ar item Ar \ ...\
 .Sh DESCRIPTION
 The
 .Nm
@@ -113,7 +113,7 @@ If an argument is
 .Ql Li - ,
 read from stdin.
 The sum of items read from all files cannot exceed the value of
-.Va UINT_MAX 
+.Va UINT_MAX
 (4,294,967,295 on most systems).
 .It Fl h
 Print help text to stderr and exit.
@@ -228,7 +228,7 @@ Print version information to stdout and exit.
 .It Fl X Ar op
 Perform math on items where
 .Ar op
-is 
+is
 .Ql Li add ,
 .Ql Li subtract ,
 .Ql Li divide ,

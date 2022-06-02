@@ -1,5 +1,5 @@
 " STORAGE FOR AUTOMATIC VARIABLES.
-" 
+"
 " nqueens
 	bool	start,50
 	bool	a,50		" temp a[16]

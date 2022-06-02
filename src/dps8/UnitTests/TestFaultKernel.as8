@@ -1,5 +1,5 @@
 "
-" Access an unmapped segment page; fault; map the page; return from fault, 
+" Access an unmapped segment page; fault; map the page; return from fault,
 " restarting the faulted instruction.
 "
 " Virtual Memory layout
@@ -94,9 +94,9 @@ ldbr_data:
 "  ADDR    0  24  If U = 1, the memory address of the origin of the descriptor
 "                 segment; if U = 0, the memory address of the descriptor
 "                 segment page table
-" 
-"  BOUND  37  14  The 14 most significant bits of the highest Y-block16 
-"                 address of the descriptor segment that can be addressed 
+"
+"  BOUND  37  14  The 14 most significant bits of the highest Y-block16
+"                 address of the descriptor segment that can be addressed
 "                 without causing an fault.
 
 "  U      55   1  U = 0: descriptor segment is paged; 1: unpaged.
@@ -132,7 +132,7 @@ descr_seg_page_table:
 
 " PTW format:
 "    ADDR  x x x x x x 0 0 U 0 0 M x x x F FC
-"    x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x 
+"    x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x
 "
 "        pos len
 "  ADDR:   0  18  modulo 64 absolute main memory address of page
@@ -140,7 +140,7 @@ descr_seg_page_table:
 "     M   29   1  page has been modfied
 "     F   33   1  0: page not in memory; 1: page in memory
 "     FC  34   2  direct fault number
-   
+
 	bool	fbit,4
 	bool	fmask,777777777773
 
@@ -149,7 +149,7 @@ descr_seg_page_table:
 	equ	FC0,0
 	equ	FC3,3
 
-" The following vfd allocate 24 bits for the addr to hand-wave away the 
+" The following vfd allocate 24 bits for the addr to hand-wave away the
 " divide by 64.
 
 	macro	PTW "ADDR,F,FC
@@ -168,7 +168,7 @@ descr_seg_page_table:
 
 " even word
 "        pos len
-" ADDR     0  24   U=1: address of the unpaged segment; 0 address of the 
+" ADDR     0  24   U=1: address of the unpaged segment; 0 address of the
 "                  segment page table
 " R1      24   3
 " R2      27   3
@@ -178,8 +178,8 @@ descr_seg_page_table:
 
 " odd word
 "        pos len
-" BOUND    1  14   14 high-order bits of the largest 18-bit modulo 16 
-"                  offset that may without causing a descriptor 
+" BOUND    1  14   14 high-order bits of the largest 18-bit modulo 16
+"                  offset that may without causing a descriptor
 "                  violation, out of segment bounds, fault.
 "                  [Each page is 1024 words, which is 10 bits;
 "                  ignore the low 4 bits (i.e. modulo 16) leaves

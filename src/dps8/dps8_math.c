@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2016 Michal Tomek
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -25,6 +31,8 @@
 #include "dps8_ins.h"
 #include "dps8_math.h"
 #include "dps8_utils.h"
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -1099,7 +1107,6 @@ void fnoEAQ(word8 *E, word36 *A, word36 *Q)
     }
     int8   e = (int8)*E;
 
-
     bool s = m & SIGN72;    ///< save sign bit
     while ((bool)(m & SIGN72) == (bool)(m & (SIGN72 >> 1))) // until C(AQ)0 ≠ C(AQ)1?
     {
@@ -1170,7 +1177,6 @@ void fneg (void)
         e += 1;
     } else
         mc = ~m + 1;     // take 2-comp of mantissa
-
 
     //mc &= FLOAT72MASK;
     mc &= ((word72)1 << 72) - 1;
@@ -1735,7 +1741,6 @@ void frd (void)
         return;
       }
 
-
 #if 1 // according to RJ78
     // C(AQ) + (11...1)29,71 → C(AQ)
     bool ovf;
@@ -2036,7 +2041,7 @@ void fcmp(void)
 /*!
  * single precision Floating Compare magnitude ...
  */
-void fcmg ()
+void fcmg (void)
   {
     // C(E) :: C(Y)0,7
     // | C(AQ)0,27 | :: | C(Y)8,35 |
@@ -2309,7 +2314,6 @@ static void ExpMantToYpair(word72 mant, int exp, word36 *yPair)
     yPair[1] = (mant >> 8) & 0777777777777LL;   //400LL;
 }
 #endif
-
 
 /*!
  * unnormalized floating double-precision add
@@ -2727,7 +2731,6 @@ void dufm (void)
     sim_debug (DBG_TRACEEXT, & cpu_dev,
                "dufm e2 %d %03o m2 %012"PRIo64" %012"PRIo64"\n", e2, e2, (word36) (m2 >> 36) & MASK36, (word36) m2 & MASK36);
 #endif
-
 
 #ifdef NEED_128
     if (iszero_128 (m1) || iszero_128 (m2))
@@ -3173,7 +3176,6 @@ void dfdi (void)
     dfdvX (true);
   }
 
-
 //#define DVF_HWR
 //#define DVF_FRACTIONAL
 #define DVF_CAC
@@ -3404,7 +3406,6 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
     }
 # endif
 
-
     // dividend format
     // 0  1     70 71
     // s  dividend x
@@ -3613,7 +3614,6 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
     SC_I_ZERO (cpu . rA == 0 && cpu . rQ == 0);
     SC_I_NEG (cpu . rA & SIGN36);
 }
-
 
 /*!
  * double precision floating round ...

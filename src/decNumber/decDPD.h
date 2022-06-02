@@ -1,3 +1,4 @@
+// vim: filetype=c:tabstop=4:tw=82:expandtab
 /* ------------------------------------------------------------------------ */
 /* Binary Coded Decimal and Densely Packed Decimal conversion lookup tables */
 /*                  [Automatically generated 2008.06.21]                    */

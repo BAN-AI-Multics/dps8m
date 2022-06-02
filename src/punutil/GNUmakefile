@@ -1,9 +1,9 @@
 # DPS/8M simulator: src/punutil/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=76
-#
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+
 ###############################################################################
 #
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #
@@ -23,11 +23,6 @@ endif
 
 ###############################################################################
 
-PUFLAGS=-Wall -Wextra
-CFLAGS+=$(PUFLAGS)
-
-###############################################################################
-
 ifneq "$(findstring icc,$(CC))" ""
   CFLAGS += -diag-disable=11074,11076,10148
 endif
@@ -36,24 +31,27 @@ endif
 
 .PHONY: all
 all: punutil$(EXE)
+	-@$(TRUE)
 
 ###############################################################################
 
-punutil$(EXE): punutil.c
+punutil$(EXE): punutil.c ../dpsprintf/dpsprintf.o
 	@$(PRINTF) '%s\n' "CC: punutil"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) -o punutil$(EXE) punutil.c $(PULIBS)
+	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) "../dpsprintf/dpsprintf.o"           \
+      -o punutil$(EXE) punutil.c $(MATHLIB) $(DUMALIBS)
 
 ###############################################################################
 
-.PHONY: clean
+.PHONY: clean distclean
 ifneq (,$(findstring clean,$(MAKECMDGOALS)))
-.NOTPARALLEL: clean
+.NOTPARALLEL: clean distclean
 endif
-clean:
+clean distclean:
 	@$(PRINTF) '%s\n' "CLEAN: punutil"
-	@$(SETV); $(RMF) "punutil$(EXE)" > /dev/null 2>&1  ||  $(TRUE)
-	@$(SETV); $(RMF) "punutil.exe"   > /dev/null 2>&1  ||  $(TRUE)
-	@$(SETV); $(RMF) "punutil.o"     > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "punutil$(EXE)" > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "punutil.exe"   > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "punutil.o"     > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o"  > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 

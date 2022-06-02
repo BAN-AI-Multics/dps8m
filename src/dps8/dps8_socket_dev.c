@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2017 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -44,7 +50,6 @@ struct skc_state_s
   };
 static struct skc_state_s skc_state[N_SKC_UNITS_MAX];
 
-
 static struct {
     const char *name;
     int code;
@@ -53,6 +58,8 @@ static struct {
 #include "errnos.h"
 };
 #define N_ERRNOS (sizeof (errnos) / sizeof (errnos[0]))
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define N_FDS 1024
 
@@ -149,7 +156,6 @@ static MTAB sk_mod [] =
     MTAB_eol
   };
 
-
 UNIT sk_unit [N_SKC_UNITS_MAX] = {
 #ifdef NO_C_ELLIPSIS
   { UDATA ( NULL, 0, 0), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
@@ -226,12 +232,12 @@ UNIT sk_unit [N_SKC_UNITS_MAX] = {
 static DEBTAB sk_dt [] =
   {
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    {   "INFO",   DBG_INFO, NULL },
+    {    "ERR",    DBG_ERR, NULL },
+    {   "WARN",   DBG_WARN, NULL },
+    {  "DEBUG",  DBG_DEBUG, NULL },
+    {    "ALL",    DBG_ALL, NULL }, // don't move as it messes up DBG message
+    {     NULL,          0, NULL }
   };
 
 static t_stat sk_reset (UNUSED DEVICE * dptr)
@@ -239,35 +245,34 @@ static t_stat sk_reset (UNUSED DEVICE * dptr)
     return SCPE_OK;
   }
 
-
 DEVICE skc_dev = {
-    "SKC",            /* name */
-    sk_unit,          /* units */
-    NULL,             /* registers */
-    sk_mod,           /* modifiers */
-    N_SKC_UNITS,      /* #units */
-    10,               /* address radix */
-    31,               /* address width */
-    1,                /* address increment */
-    8,                /* data radix */
-    9,                /* data width */
-    NULL,             /* examine routine */
-    NULL,             /* deposit routine */
-    sk_reset,         /* reset routine */
-    NULL,             /* boot routine */
-    NULL,             /* attach routine */
-    NULL,             /* detach routine */
-    NULL,             /* context */
-    DEV_DEBUG,        /* flags */
+    "SKC",            /* name                */
+    sk_unit,          /* unit                */
+    NULL,             /* registers           */
+    sk_mod,           /* modifiers           */
+    N_SKC_UNITS,      /* number of units     */
+    10,               /* address radix       */
+    31,               /* address width       */
+    1,                /* address increment   */
+    8,                /* data radix          */
+    9,                /* data width          */
+    NULL,             /* examine routine     */
+    NULL,             /* deposit routine     */
+    sk_reset,         /* reset routine       */
+    NULL,             /* boot routine        */
+    NULL,             /* attach routine      */
+    NULL,             /* detach routine      */
+    NULL,             /* context             */
+    DEV_DEBUG,        /* flags               */
     0,                /* debug control flags */
-    sk_dt,            /* debug flag names */
-    NULL,             /* memory size change */
-    NULL,             /* logical name */
-    NULL,             // attach help
-    NULL,             // help
-    NULL,             // help context
-    NULL,             // device description
-    NULL
+    sk_dt,            /* debug flag names    */
+    NULL,             /* memory size change  */
+    NULL,             /* logical name        */
+    NULL,             /* attach help         */
+    NULL,             /* help                */
+    NULL,             /* help context        */
+    NULL,             /* device description  */
+    NULL              /* end                 */
 };
 
 void sk_init(void)
@@ -1111,7 +1116,6 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
     return IOM_CMD_DISCONNECT; // don't continue down the dcw list.
   }
 
-
 iom_cmd_rc_t skc_iom_cmd (uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx] [chan];
@@ -1128,7 +1132,6 @@ iom_cmd_rc_t skc_iom_cmd (uint iom_unit_idx, uint chan)
         return IOM_CMD_ERROR;
       }
     return rc; //  don't contine down the dcw list.
-
   }
 
 static void do_try_accept (uint unit_idx, word6 dev_code)

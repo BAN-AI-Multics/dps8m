@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2021 Dean Anderson
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -26,6 +32,8 @@
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
 #include "utfile.h"
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 
@@ -138,7 +146,6 @@ static MTAB pun_mod [] =
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
   };
 
-
 DEVICE pun_dev = {
     "PUN",       /*  name */
     pun_unit,    /* units */
@@ -246,7 +253,6 @@ static t_stat pun_reset (UNUSED DEVICE * dptr)
     return SCPE_OK;
   }
 
-
 //                       *****  *   *  ****          *****  *****
 //                       *      **  *  *   *         *   *  *
 //                       ****   * * *  *   *         *   *  ****
@@ -333,7 +339,6 @@ static word36 bannerCard [WORDS_PER_CARD] =
     0770477047700llu,
     0000000050000llu
   };
-
 
 /*
  *                  Glyph Pattern Lookup
@@ -601,7 +606,6 @@ static void create_punch_file(pun_state_t * state)
       }
 
   }
-
 
 static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_count, bool banner_card)
   {
@@ -942,7 +946,6 @@ static enum parse_event do_state_end_of_job(enum parse_event event, pun_state_t 
     return Done;
   }
 
-
 static void unexpected_event(enum parse_event event, pun_state_t * state)
   {
     sim_warn("*** Punch: Unexpected event ");
@@ -1237,7 +1240,7 @@ static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
     if (len >= (sizeof(pun_path_prefix) - 2))
       return SCPE_ARG;
 
-    strncpy(pun_path_prefix, cptr, sizeof(pun_path_prefix));
+    strncpy(pun_path_prefix, cptr, sizeof(pun_path_prefix) - 1);
     if (len > 0)
       {
         if (pun_path_prefix[len - 1] != '/')

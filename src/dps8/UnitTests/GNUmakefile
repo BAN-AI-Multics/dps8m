@@ -1,9 +1,9 @@
 # DPS/8M simulator: src/dps8/UnitTests/GNUMakefile
-# vim: filetype=make:tabstop=4:tw=76
-#
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+
 ###############################################################################
 #
-# Copyright (c) 2018-2021 The DPS8M Development Team
+# Copyright (c) 2018-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #

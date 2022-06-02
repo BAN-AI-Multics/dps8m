@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
- * Copyright (c) 2013-2018 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2013-2022 Charles Anthony
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 /*
@@ -120,7 +126,6 @@
  *     cells."
  *
  */
-
 
 /*
  * === Initialization and Booting -- Part 1 -- Operator's view
@@ -535,6 +540,8 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 
@@ -969,7 +976,6 @@ static MTAB scu_mod [] =
     }
   };
 
-
 //static t_stat scu_reset (DEVICE *dptr);
 
 static DEBTAB scu_dt [] =
@@ -1100,7 +1106,6 @@ void scu_unit_reset (int scu_unit_idx)
     up -> interlace = sw -> interlace;
     up -> lwr = sw -> lwr;
 
-
 // This is to allow the CPU reset to update the memory map. IAC clears the
 // attached SCUs; they clear the attached IOMs.
 
@@ -1120,7 +1125,7 @@ void scu_unit_reset (int scu_unit_idx)
 
     for (int i = 0; i < N_ASSIGNMENTS; i ++)
       {
-// XXX Hack for t4d
+        // XXX Hack for t4d
         up -> exec_intr_mask [i] = 037777777777;
       }
   }
@@ -1133,7 +1138,6 @@ t_stat scu_reset (UNUSED DEVICE * dptr)
       scu_unit_reset (scu_unit_idx);
     return SCPE_OK;
   }
-
 
 // ============================================================================
 
@@ -1310,7 +1314,6 @@ done:
 
   }
 
-
 //static char pcellb [N_CELL_INTERRUPTS + 1];
 static char * pcells (uint scu_unit_idx, char * buf)
   {
@@ -1336,7 +1339,6 @@ static char * pcells (uint scu_unit_idx, char * buf)
 // potential race condiions:
 //   CPU variables: XIP
 //   SCU variables: cells, mask_enable, exec_intr_mask, mask assignment
-
 
 // Always called with SCU lock set
 
@@ -1366,7 +1368,6 @@ static void deliver_interrupts (uint scu_unit_idx)
         sim_debug (DBG_DEBUG, & scu_dev, "trying to deliver %d\n", inum);
         sim_debug (DBG_INTR, & scu_dev,
                    "scu %u trying to deliver %d\n", scu_unit_idx, inum);
-
 
         for (uint pima = 0; pima < N_ASSIGNMENTS; pima ++) // A, B
           {
@@ -1434,7 +1435,6 @@ sim_debug (DBG_DEBUG, & scu_dev, "interrupt set for CPU %d SCU %d\n", cpu_unit_u
         sim_debug (DBG_DEBUG, & scu_dev, "trying to deliver %d\n", inum);
         sim_debug (DBG_INTR, & scu_dev,
                    "scu %u trying to deliver %d\n", scu_unit_idx, inum);
-
 
         for (uint pima = 0; pima < N_ASSIGNMENTS; pima ++) // A, B
           {
@@ -2357,7 +2357,6 @@ done:
 #endif
     return rc;
 }
-
 
 // =============================================================================
 

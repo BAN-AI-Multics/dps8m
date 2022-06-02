@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2018 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 // source/library_dir_dir/system_library_1/source/bound_volume_rldr_ut_.s.archive/rdisk_.pl1
@@ -30,6 +36,8 @@
 #ifdef LOCKLESS
 # include "threadz.h"
 #endif
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 
@@ -95,7 +103,6 @@
 //   1  222     ""
 //   1  223     "509"
 
-
 // fs_dev.sect_per_dev:
 //           vfd       36/4000000          Bulk
 //           vfd       36/814*40*19        MSU0500
@@ -106,7 +113,6 @@
 //           vfd       36/840*64*20        MSU0501
 //           vfd       36/885*255          FIPS 3380
 //           vfd       36/1770*255         FIPS 3381
-
 
 //dcl  last_sect_num (9) fixed bin (24) static options (constant) init /* table of # last sector number for each device */
 //     (0, 618639, 616359, 309319, 239722, 71999, 1075199, 225674, 451349);
@@ -600,7 +606,6 @@ static MTAB disk_mod[] =
     MTAB_eol
   };
 
-
 static t_stat disk_reset (UNUSED DEVICE * dptr)
   {
     return SCPE_OK;
@@ -1058,10 +1063,8 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 //        2 st_dcw bit (36),         /* Address=dau_buf.data(130), tally=315 */
 //        2 data (0:759) bit (18) unal;    /* Config & statistics area */
 
-
 // XXX need status register data format
 // system_library_tools/source/bound_io_tools_.s.archive/analyze_detail_stat_.pl1  anal_fips_disk_().
-
 
 // poll_mpc.pl1
 //
@@ -1293,7 +1296,6 @@ if (chan == 014)
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
-
 
       case 030: // CMD 30 SEEK_512
 #ifdef POLTS_DISK_TESTING
@@ -1585,7 +1587,6 @@ done:
 #endif
   return rc;
 }
-
 
 //////////
 //////////

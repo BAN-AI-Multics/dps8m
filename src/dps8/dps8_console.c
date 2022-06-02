@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -40,6 +46,8 @@
 #ifdef CONSOLE_FIX
 # include "threadz.h"
 #endif /* ifdef CONSOLE_FIX */
+
+#include "../dpsprintf/dpsprintf.h"
 
 #ifdef SIM_NAME
 # undef SIM_NAME
@@ -173,7 +181,6 @@ static MTAB opc_mtab[] =
     MTAB_eol
 };
 
-
 static DEBTAB opc_dt[] =
   {
     { "NOTIFY", DBG_NOTIFY, NULL },
@@ -206,7 +213,6 @@ static DEBTAB opc_dt[] =
 // 4M ~= 1 sec
 # define ACTIVATE_1SEC 4000000
 #endif
-
 
 static t_stat opc_svc (UNIT * unitp);
 
@@ -256,7 +262,6 @@ DEVICE opc_dev = {
     NULL,          // description
     NULL
 };
-
 
 enum console_model { m6001 = 0, m6004 = 1, m6601 = 2 };
 
@@ -374,7 +379,6 @@ static int ta_get (void)
       ta_flush ();
     return c;
   }
-
 
 static t_stat opc_reset (UNUSED DEVICE * dptr)
   {
@@ -745,7 +749,6 @@ static void sendConsole (int conUnitIdx, word12 stati)
     send_terminate_interrupt (iomUnitIdx, chan_num);
   }
 
-
 static void console_putchar (int conUnitIdx, char ch);
 static void console_putstr (int conUnitIdx, char * str);
 
@@ -856,6 +859,25 @@ static void consoleProcessIdx (int conUnitIdx)
               }
             continue;
           }
+
+//// ^P  Prompt
+
+        // ATTN is ambiguous; in read mode, it cancels the read.
+        // In write mode, is discards output and asks for a prompt.
+
+        // ^P will check the mode, and if it is not input, will do an
+        // ATTN signal. There is still a small race window; if Multics
+        // is in the process of starting read mode, it may end up canceling
+        // the read.
+
+        if (ch == 020) { // ^P
+          if (csp->io_mode != opc_read_mode) {
+            if (csp->attn_flush)
+              ta_flush ();
+            csp->attn_pressed = true;
+          }
+          continue;
+        }
 
 //// ^T
 
@@ -981,7 +1003,6 @@ static void consoleProcessIdx (int conUnitIdx)
         return;
       }
 
-
 //// Console is reading and autoinput is ready
 ////   Move line of text from autoinput buffer to console buffer
 
@@ -1048,7 +1069,6 @@ eol:
           } // for (;;)
       } // if (autop)
 
-
 //// Read mode and nothing in console buffer
 ////   Check for timeout
 
@@ -1064,7 +1084,6 @@ eol:
                                              // distracted
           }
       }
-
 
 //// Peek at the character in the typeahead buffer
 
@@ -1257,7 +1276,6 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         p->recordResidue --;
         p->stati = 04000;
         break;
-
 
 // Model 6001 vs. 6601.
 //
@@ -1706,22 +1724,6 @@ static t_stat opc_set_device_name (UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-//TODO: This is a deprecated function to be removed in the next major release
-t_stat set_console_port (int32 arg, const char * buf)
-  {
-    sim_warn("WARNING: CONSOLEPORT and CONSOLEPORT1 are deprecated and will be removed in a future release!\n       Use: SET OPC0 PORT=n\n");
-    if (! buf)
-      return SCPE_ARG;
-    int n = atoi (buf);
-    if (n < 0 || n > 65535) // 0 is 'disable'
-      return SCPE_ARG;
-    if (arg < 0 || arg >= N_OPC_UNITS_MAX)
-      return SCPE_ARG;
-    console_state[arg].console_access.port = n;
-    sim_msg ("Console %d port set to %d\n", arg, n);
-    return SCPE_OK;
-  }
-
 static t_stat opc_set_console_port (UNIT * uptr, UNUSED int32 value,
                                     const char * cptr, UNUSED void * desc)
   {
@@ -1741,7 +1743,6 @@ static t_stat opc_set_console_port (UNIT * uptr, UNUSED int32 value,
       console_state[dev_idx].console_access.port = 0;
     return SCPE_OK;
   }
-
 
 static t_stat opc_show_console_port (UNUSED FILE * st, UNIT * uptr,
                                        UNUSED int val, UNUSED const void * desc)
@@ -1775,7 +1776,6 @@ static t_stat opc_set_console_address (UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-
 static t_stat opc_show_console_address (UNUSED FILE * st, UNIT * uptr,
                                        UNUSED int val, UNUSED const void * desc)
   {
@@ -1783,20 +1783,6 @@ static t_stat opc_show_console_address (UNUSED FILE * st, UNIT * uptr,
     if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
       return SCPE_ARG;
     sim_printf("Console %d address set to %s\n", dev_idx, console_state[dev_idx].console_access.address);
-    return SCPE_OK;
-  }
-
-
-//TODO: This is a deprecated function to be removed in the next major release
-t_stat set_console_address (int32 arg, const char * buf)
-  {
-    sim_warn("WARNING: CONSOLEADDRESS and CONSOLEADDRESS1 are deprecated and will be removed in a future release!\n       Use: SET OPC0 ADDRESS=xxx\n");
-    if (arg < 0 || arg >= N_OPC_UNITS_MAX)
-      return SCPE_ARG;
-    if (console_state[arg].console_access.address)
-      free (console_state[arg].console_access.address);
-    console_state[arg].console_access.address = strdup (buf);
-    sim_msg ("Console %d address set to %s\n", arg, console_state[arg].console_access.address);
     return SCPE_OK;
   }
 
@@ -1826,7 +1812,6 @@ static t_stat opc_set_console_pw (UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-
 static t_stat opc_show_console_pw (UNUSED FILE * st, UNIT * uptr,
                                        UNUSED int val, UNUSED const void * desc)
   {
@@ -1834,30 +1819,6 @@ static t_stat opc_show_console_pw (UNUSED FILE * st, UNIT * uptr,
     if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
       return SCPE_ARG;
     sim_printf("Console %d password set to %s\n", dev_idx, console_state[dev_idx].console_access.pw);
-    return SCPE_OK;
-  }
-
-//TODO: This is a deprecated function to be removed in the next major release
-t_stat set_console_pw (int32 arg, UNUSED const char * buf)
-  {
-    sim_warn("WARNING: CONSOLEPW and CONSOLEPW1 are deprecated and will be removed in a future release!\n       Use: SET OPC0 PW=xxx\n");
-    if (arg < 0 || arg >= N_OPC_UNITS_MAX)
-      return SCPE_ARG;
-    if (strlen (buf) == 0)
-      {
-        sim_msg ("no password\n");
-        console_state[arg].console_access.pw[0] = 0;
-        return SCPE_OK;
-      }
-    if (arg < 0 || arg >= N_OPC_UNITS_MAX)
-      return SCPE_ARG;
-    char token[strlen (buf)];
-    int rc = sscanf (buf, "%s", token);
-    if (rc != 1)
-      return SCPE_ARG;
-    if (strlen (token) > PW_SIZE)
-      return SCPE_ARG;
-    strcpy (console_state[arg].console_access.pw, token);
     return SCPE_OK;
   }
 

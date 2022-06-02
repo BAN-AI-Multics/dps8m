@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# vim: filetype=sh:tabstop=4:tw=76:expandtab
+
 IFS=
 # shellcheck disable=SC2086
 UNIFDEF="$(printf '%s' ${0} | sed 's/unifdef\.wrapper\.sh/unifdef/')"

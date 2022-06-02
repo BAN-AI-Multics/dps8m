@@ -1,6 +1,6 @@
 # DPS/8M simulator: src/dps8/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=76
-#
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+
 ###############################################################################
 #
 # Copyright (c) 2013-2016 Harry Reed
@@ -8,7 +8,7 @@
 # Copyright (c) 2016 Jean-Michel Merliot
 # Copyright (c) 2016 Michal Tomek
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #
@@ -155,41 +155,21 @@ ifneq ($(MINGW_CROSS),1)
 endif
 
 ###############################################################################
-# What needs -ldl?
+# What has -ldl?
 
 OSTYPE = $(shell $(UNAME) -s 2> /dev/null)
 ifeq ($(OSTYPE),AIX)
-  LIBS += -lm
+  LIBS += -ldl
 endif
 ifeq ($(OSTYPE),FreeBSD)
-  LIBS += -lm -pthread
+  LIBS += -ldl -pthread
 endif
 ifeq ($(OSTYPE),Linux)
-  ifeq ($(CROSS),MINGW32)
-    LIBS += -lm
+  ifndef CROSS
+    ifndef MINGW_CROSS
+      LIBS += -ldl
+    endif
   endif
-  ifeq ($(CROSS),MINGW64)
-    LIBS += -lm
-  else
-    LIBS += -lm -ldl
-  endif
-endif
-
-###############################################################################
-# What needs -lm explicitly?
-
-OSTYPE = $(shell $(UNAME) -s)
-ifeq ($(OSTYPE),OpenBSD)
-  LIBS += -lm
-endif
-ifeq ($(OSTYPE),FreeBSD)
-  LIBS += -lm -pthread
-endif
-ifeq ($(OSTYPE),Linux)
-  LIBS += -lm
-endif
-ifeq ($(OSTYPE),GNU)
-  LIBS += -lm
 endif
 
 ###############################################################################
@@ -329,15 +309,9 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all: sysdefs.h                                                                \
-     ver.h                                                                    \
-     unifdef                                                                  \
-     locallibs_then_dps8                                                      \
-     prt2pdf                                                                  \
-     punutil                                                                  \
-     mcmb                                                                     \
-     vmpctool                                                                 \
-     $(TAGS)
+all:  sysdefs.h   ../../dpsprintf.o   ver.h   unifdef    locallibs_then_dps8  \
+      prt2pdf     punutil             mcmb    vmpctool   $(TAGS)
+	-@$(TRUE)
 
 ###############################################################################
 
@@ -373,10 +347,12 @@ printmod:
 ###############################################################################
 
 .PHONY: all ctags
-dps8$(EXE): $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(DECN_OBJS) $(SIMH_OBJS) ctags
+dps8$(EXE): $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(DECN_OBJS) $(SIMH_OBJS)       \
+            ../../dpsprintf.o ctags
 	@$(PRINTF) '%s\n' "LD: dps8$(EXE)"
 	@$(SETV); $(CC) -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS)             \
-        $(DECN_OBJS) $(SIMH_OBJS) $(LOCALLIBS) $(LIBS)
+          "../dpsprintf/dpsprintf.o" $(MATHLIB) $(DECN_OBJS) $(SIMH_OBJS)     \
+            $(LIBS) $(LOCALLIBS) $(DUMALIBS)
 
 ###############################################################################
 
@@ -387,7 +363,7 @@ ifeq (,$(wildcard ver.h~))
 # not git, not kit
 ver.h:
 	@$(SETV); $(RMF) "./ver.h"
-	@$(PRINTF) '%s\n' "WARNING: This source tree does not appear to be a"    \
+	@$(PRINTF) '%s\n' "WARNING: This source tree does not appear to be a"     \
                       "         full git clone or a complete source kit."
 	@$(SETV); $(TOUCH) "./ver.h"
 else
@@ -433,34 +409,44 @@ locallibs_then_dps8: ver.h sysdefs.h
 
 ###############################################################################
 
+.PHONY: prt2pdf
 prt2pdf: sysdefs.h
 	@$(SETV); $(MAKE) -C "../prt2pdf" "all"
 
 ###############################################################################
 
+.PHONY: unifdef
 unifdef: ver.h
 	-@$(SETV); $(MAKE) -C "../unifdef" "all"
 
 ###############################################################################
 
+.PHONY: punutil
 punutil:
 	-@$(SETV); $(MAKE) -C "../punutil" "all"
 
 ###############################################################################
 
+.PHONY: mcmb
 mcmb:
 	-@$(SETV); $(MAKE) -C "../mcmb" "all"
 
 ###############################################################################
 
+.PHONY: vmpctool
 vmpctool:
 	-@$(SETV); $(MAKE) -C "../vmpctool" "all"
 
 ###############################################################################
 
-udplib: udplib.c udplib.h
-udplib$(EXE): udplib.c udplib.h
-	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
+.PHONY: dpsprintf
+dpsprintf ../../dpsprintf.o:
+	-@$(SETV); $(MAKE) -C "../dpsprintf" "all"
+
+###############################################################################
+
+udplib$(EXE): udplib.c udplib.h ../dpsprintf/dpsprintf.o
+	@$(SETV); $(CC) udplib.c -o udplib "../dpsprintf/dpsprintf.o" -DTEST=1
 
 ###############################################################################
 
@@ -510,42 +496,63 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 .NOTPARALLEL: distclean clean
 endif
 distclean: clean
-	@$(RMF) ../../dps8m*.state                ||  $(TRUE)
-	@$(RMF) ../dps8m*.state                   ||  $(TRUE)
-	@$(RMF) dps8m*.state                      ||  $(TRUE)
-	@$(RMF) "../../dps8m.state"               ||  $(TRUE)
-	@$(RMF) "../dps8m.state"                  ||  $(TRUE)
-	@$(RMF) "dps8m.state"                     ||  $(TRUE)
-	@$(RMF) "../../l68.state"                 ||  $(TRUE)
-	@$(RMF) "../l68.state"                    ||  $(TRUE)
-	@$(RMF) "l68.state"                       ||  $(TRUE)
-	@$(RMF) ../../l68*.state                  ||  $(TRUE)
-	@$(RMF) ../l68*.state                     ||  $(TRUE)
-	@$(RMF) l68*.state                        ||  $(TRUE)
-	@$(RMF) "../../.dps8m.state"              ||  $(TRUE)
-	@$(RMF) "../.dps8m.state"                 ||  $(TRUE)
-	@$(RMF) ".dps8m.state"                    ||  $(TRUE)
-	@$(RMF) ../../.dps8m*.state               ||  $(TRUE)
-	@$(RMF) ../.dps8m*.state                  ||  $(TRUE)
-	@$(RMF) .dps8m*.state                     ||  $(TRUE)
-	@$(RMF) "../../.l68.state"                ||  $(TRUE)
-	@$(RMF) "../.l68.state"                   ||  $(TRUE)
-	@$(RMF) ".l68.state"                      ||  $(TRUE)
-	@$(RMF) ../../.l68*.state                 ||  $(TRUE)
-	@$(RMF) ../.l68*.state                    ||  $(TRUE)
-	@$(RMF) .l68*.state                       ||  $(TRUE)
-	@$(SETV); $(RMF) "restoreMultics.log"     ||  $(TRUE)
-	@$(SETV); $(RMF) "TAGS"                   ||  $(TRUE)
-	@$(SETV); $(RMF) "tags"                   ||  $(TRUE)
-	@$(SETV); $(RMF) "ver.h~"                 ||  $(TRUE)
-	@$(SETV); $(RMF) "../../GPATH"            ||  $(TRUE)
-	@$(SETV); $(RMF) "../../GRTAGS"           ||  $(TRUE)
-	@$(SETV); $(RMF) "../../GTAGS"            ||  $(TRUE)
-	@$(SETV); $(RMF) "cscope.in.out"          ||  $(TRUE)
-	@$(SETV); $(RMF) "cscope.out"             ||  $(TRUE)
-	@$(SETV); $(RMF) "cscope.po.out"          ||  $(TRUE)
-	@$(SETV); $(TEST) -d "../../libuv-local"  &&                              \
-              $(RMF) -r  "../../libuv-local"  ||  $(TRUE)
+	@$(RMF) *.gc??                           2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../blinkenLights2/*.gc??         2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../decNumber/*.gc??              2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../dpsprintf/*.gc??              2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../mcmb/*.gc??                   2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../prt2pdf/*.gc??                2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../punutil/*.gc??                2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../simh/*.gc??                   2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../unifdef/*.gc??                2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../vmpctool/*.gc??               2> /dev/null  ||  $(TRUE)
+	@$(RMF) *.prof*                          2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../blinkenLights2/*.prof*        2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../decNumber/*.prof*             2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../dpsprintf/*.prof*             2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../mcmb/*.prof*                  2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../prt2pdf/*.prof*               2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../simh/*.prof*                  2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../unifdef/*.prof*               2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../vmpctool/*.prof*              2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../pubutil/*.prof*               2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../../dps8m*.state               2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../dps8m*.state                  2> /dev/null  ||  $(TRUE)
+	@$(RMF) dps8m*.state                     2> /dev/null  ||  $(TRUE)
+	@$(RMF) "../../dps8m.state"                            ||  $(TRUE)
+	@$(RMF) "../dps8m.state"                               ||  $(TRUE)
+	@$(RMF) "dps8m.state"                                  ||  $(TRUE)
+	@$(RMF) "../../l68.state"                              ||  $(TRUE)
+	@$(RMF) "../l68.state"                                 ||  $(TRUE)
+	@$(RMF) "l68.state"                                    ||  $(TRUE)
+	@$(RMF) ../../l68*.state                 2> /dev/null  ||  $(TRUE)
+	@$(RMF) ../l68*.state                    2> /dev/null  ||  $(TRUE)
+	@$(RMF) l68*.state                       2> /dev/null  ||  $(TRUE)
+	@$(RMF) "../../.dps8m.state"                           ||  $(TRUE)
+	@$(RMF) "../.dps8m.state"                              ||  $(TRUE)
+	@$(RMF) ".dps8m.state"                                 ||  $(TRUE)
+	@$(RMF) ../../.dps8m*.state             2> /dev/null   ||  $(TRUE)
+	@$(RMF) ../.dps8m*.state                2> /dev/null   ||  $(TRUE)
+	@$(RMF) .dps8m*.state                   2> /dev/null   ||  $(TRUE)
+	@$(RMF) "../../.l68.state"                             ||  $(TRUE)
+	@$(RMF) "../.l68.state"                                ||  $(TRUE)
+	@$(RMF) ".l68.state"                                   ||  $(TRUE)
+	@$(RMF) ../../.l68*.state               2> /dev/null   ||  $(TRUE)
+	@$(RMF) ../.l68*.state                  2> /dev/null   ||  $(TRUE)
+	@$(RMF) .l68*.state                     2> /dev/null   ||  $(TRUE)
+	@$(RMF) "../dpsprintf/dpsprintf.o"      2> /dev/null   ||  $(TRUE)
+	@$(SETV); $(RMF) "restoreMultics.log"                  ||  $(TRUE)
+	@$(SETV); $(RMF) "TAGS"                                ||  $(TRUE)
+	@$(SETV); $(RMF) "tags"                                ||  $(TRUE)
+	@$(SETV); $(RMF) "ver.h~"                              ||  $(TRUE)
+	@$(SETV); $(RMF) "../../GPATH"                         ||  $(TRUE)
+	@$(SETV); $(RMF) "../../GRTAGS"                        ||  $(TRUE)
+	@$(SETV); $(RMF) "../../GTAGS"                         ||  $(TRUE)
+	@$(SETV); $(RMF) "cscope.in.out"                       ||  $(TRUE)
+	@$(SETV); $(RMF) "cscope.out"                          ||  $(TRUE)
+	@$(SETV); $(RMF) "cscope.po.out"                       ||  $(TRUE)
+	@$(SETV); $(TEST) -d "../../libuv-local"               &&                 \
+              $(RMF) -r  "../../libuv-local"               ||  $(TRUE)
 
 ###############################################################################
 
@@ -560,6 +567,7 @@ clean:
 	@$(SETV); $(MAKE) -C "../punutil"        -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../vmpctool"       -f "GNUmakefile"  "clean"
+	@$(SETV); $(MAKE) -C "../dpsprintf"      -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
@@ -594,7 +602,7 @@ clean_dps8:
 	@$(SETV); $(RMF) $(OBJS) $(C_DEPS) $(EXECUTABLES) "dps8$(EXE)"            \
       "tags" "TAGS" $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*))        \
         "dps8.exe" "errnos.h" "udplib.exe" "udplib" "tracker.o" "dump.[icd]"  \
-          || $(TRUE)
+          "../dpsprintf/dpsprintf.o"  2> /dev/null  ||  $(TRUE)
 
 ###############################################################################
 
@@ -731,14 +739,14 @@ sysdefs.h: useddef.txt
 
 ###############################################################################
 
-dps8_absi.o:        dps8.h
-dps8_absi.o:        dps8_simh.h
+dps8_absi.o:        dps8.h ../dpsprintf/dpsprintf.h
+dps8_absi.o:        dps8_simh.h ../dpsprintf/dpsprintf.h
 dps8_absi.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_absi.o:        dps8_iom.h
 dps8_absi.o:        dps8_absi.h dps8_sys.h
 dps8_absi.o:        dps8_scu.h
 dps8_absi.o:        dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h udplib.h
-dps8_addrmods.o:    dps8.h
+dps8_addrmods.o:    dps8.h ../dpsprintf/dpsprintf.h
 dps8_addrmods.o:    dps8_simh.h
 dps8_addrmods.o:    dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_addrmods.o:    dps8_addrmods.h dps8_sys.h
@@ -746,13 +754,13 @@ dps8_addrmods.o:    dps8_faults.h
 dps8_addrmods.o:    dps8_scu.h dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h
 dps8_addrmods.o:    dps8_append.h dps8_ins.h dps8_iefp.h dps8_opcodetable.h
 dps8_addrmods.o:    dps8_utils.h
-dps8_append.o:      dps8_simh.h
+dps8_append.o:      dps8_simh.h ../dpsprintf/dpsprintf.h
 dps8_append.o:      dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_append.o:      dps8_sys.h
 dps8_append.o:      dps8_scu.h
 dps8_append.o:      dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_append.h
 dps8_append.o:      dps8_addrmods.h dps8_utils.h
-dps8_cable.o:       dps8.h
+dps8_cable.o:       dps8.h ../dpsprintf/dpsprintf.h
 dps8_cable.o:       dps8_simh.h
 dps8_cable.o:       dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_cable.o:       dps8_iom.h
@@ -762,7 +770,7 @@ dps8_cable.o:       dps8_cable.h dps8_cpu.h hdbg.h dps8_state.h dps8_console.h
 dps8_cable.o:       dps8_disk.h dps8_fnp2.h libtelnet.h dps8_urp.h
 dps8_cable.o:       dps8_crdrdr.h
 dps8_cable.o:       dps8_crdpun.h dps8_prt.h dps8_utils.h dps8_absi.h
-dps8_console.o:     dps8.h
+dps8_console.o:     dps8.h ../dpsprintf/dpsprintf.h
 dps8_console.o:     dps8_simh.h
 dps8_console.o:     dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_console.o:     dps8_iom.h
@@ -770,7 +778,7 @@ dps8_console.o:     dps8_console.h dps8_sys.h
 dps8_console.o:     dps8_faults.h
 dps8_console.o:     dps8_scu.h dps8_cable.h dps8_cpu.h hdbg.h dps8_mt.h
 dps8_console.o:     dps8_disk.h dps8_utils.h libtelnet.h
-dps8_cpu.o:         dps8.h
+dps8_cpu.o:         dps8.h ../dpsprintf/dpsprintf.h
 dps8_cpu.o:         dps8_simh.h
 dps8_cpu.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_cpu.o:         dps8_addrmods.h
@@ -781,7 +789,7 @@ dps8_cpu.o:         dps8_math.h dps8_iefp.h dps8_console.h dps8_fnp2.h
 dps8_cpu.o:         libtelnet.h
 dps8_cpu.o:         dps8_socket_dev.h dps8_crdrdr.h dps8_absi.h dps8_utils.h
 dps8_cpu.o:         dps8_opcodetable.h
-dps8_crdpun.o:      dps8.h
+dps8_crdpun.o:      dps8.h ../dpsprintf/dpsprintf.h
 dps8_crdpun.o:      dps8_simh.h
 dps8_crdpun.o:      dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_crdpun.o:      dps8_iom.h
@@ -789,19 +797,21 @@ dps8_crdpun.o:      dps8_crdpun.h dps8_sys.h
 dps8_crdpun.o:      dps8_scu.h
 dps8_crdpun.o:      dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
 dps8_crdpun.o:      utfile.h
-dps8_crdrdr.o:      dps8.h
+dps8_crdrdr.o:      dps8.h ../dpsprintf/dpsprintf.h
 dps8_crdrdr.o:      dps8_simh.h
 dps8_crdrdr.o:      dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_crdrdr.o:      dps8_iom.h
 dps8_crdrdr.o:      dps8_crdrdr.h dps8_sys.h
 dps8_crdrdr.o:      dps8_scu.h
 dps8_crdrdr.o:      dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
+dps8_decimal.o:     dps8.h ../dpsprintf/dpsprintf.h
 dps8_decimal.o:     dps8_simh.h
 dps8_decimal.o:     dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_decimal.o:     dps8_sys.h
 dps8_decimal.o:     dps8_faults.h
 dps8_decimal.o:     dps8_scu.h dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h
 dps8_decimal.o:     dps8_decimal.h dps8_eis.h dps8_utils.h
+dps8_dia.o:         dps8.h ../dpsprintf/dpsprintf.h
 dps8_dia.o:         dps8_simh.h
 dps8_dia.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_dia.o:         dps8_dia.h
@@ -809,43 +819,48 @@ dps8_dia.o:         dps8_sys.h
 dps8_dia.o:         dps8_scu.h
 dps8_dia.o:         dps8_cpu.h hdbg.h dps8_iom.h dps8_cable.h dps8_utils.h
 dps8_dia.o:         udplib.h
+dps8_disk.o:        dps8.h ../dpsprintf/dpsprintf.h
 dps8_disk.o:        dps8_simh.h
 dps8_disk.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_disk.o:        dps8_iom.h
 dps8_disk.o:        dps8_disk.h dps8_sys.h
 dps8_disk.o:        dps8_scu.h
 dps8_disk.o:        dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
+dps8_eis.o:         dps8.h ../dpsprintf/dpsprintf.h
 dps8_eis.o:         dps8_simh.h
 dps8_eis.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_eis.o:         dps8_sys.h
 dps8_eis.o:         dps8_scu.h
 dps8_eis.o:         dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_iefp.h
 dps8_eis.o:         dps8_decimal.h dps8_ins.h dps8_eis.h dps8_utils.h
+dps8_faults.o:      dps8.h ../dpsprintf/dpsprintf.h
 dps8_faults.o:      dps8_simh.h
 dps8_faults.o:      dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_faults.o:      dps8_sys.h
 dps8_faults.o:      dps8_scu.h
 dps8_faults.o:      dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_append.h
 dps8_faults.o:      dps8_ins.h dps8_utils.h
+dps8_fnp2.o:        dps8.h ../dpsprintf/dpsprintf.h
 dps8_fnp2.o:        dps8_simh.h
 dps8_fnp2.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_fnp2.o:        dps8_sys.h
 dps8_fnp2.o:        dps8_scu.h
 dps8_fnp2.o:        dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_fnp2.h
 dps8_fnp2.o:        libtelnet.h fnptelnet.h fnpuv.h dps8_utils.h utlist.h
-dps8_fnp2_iomcmd.o: dps8.h
+dps8_fnp2_iomcmd.o: dps8.h ../dpsprintf/dpsprintf.h
 dps8_fnp2_iomcmd.o: dps8_simh.h dps8_math128.h dps8_hw_consts.h
 dps8_fnp2_iomcmd.o: dps8_em_consts.h dps8_sys.h
 dps8_fnp2_iomcmd.o: dps8_scu.h
 dps8_fnp2_iomcmd.o: dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_fnp2.h
 dps8_fnp2_iomcmd.o: libtelnet.h dps8_fnp2_iomcmd.h dps8_utils.h fnpuv.h
-dps8_iefp.o:        dps8.h
+dps8_iefp.o:        dps8.h ../dpsprintf/dpsprintf.h
 dps8_iefp.o:        dps8_simh.h
 dps8_iefp.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_iefp.o:        dps8_sys.h
 dps8_iefp.o:        dps8_scu.h
 dps8_iefp.o:        dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_append.h
 dps8_iefp.o:        dps8_iefp.h dps8_addrmods.h dps8_utils.h
+dps8_ins.o:         dps8.h ../dpsprintf/dpsprintf.h
 dps8_ins.o:         dps8_simh.h
 dps8_ins.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_ins.o:         dps8_addrmods.h
@@ -856,16 +871,17 @@ dps8_ins.o:         dps8_math.h
 dps8_ins.o:         dps8_opcodetable.h dps8_decimal.h dps8_iefp.h dps8_utils.h
 dps8_ins.o:         ver.h
 dps8_ins.o:         dps8_prom.h
-dps8_iom.o:         dps8.h
+dps8_iom.o:         dps8.h ../dpsprintf/dpsprintf.h
 dps8_iom.o:         dps8_simh.h
 dps8_iom.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_iom.o:         dps8_sys.h
 dps8_iom.o:         uvutil.h dps8_faults.h dps8_scu.h dps8_iom.h dps8_cable.h
 dps8_iom.o:         dps8_cpu.h hdbg.h dps8_console.h dps8_fnp2.h libtelnet.h
 dps8_iom.o:         dps8_utils.h
-dps8_math128.o:     dps8.h
+dps8_math128.o:     dps8.h ../dpsprintf/dpsprintf.h
 dps8_math128.o:     dps8_simh.h
 dps8_math128.o:     dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
+dps8_math.o:        dps8.h ../dpsprintf/dpsprintf.h
 dps8_math.o:        dps8_simh.h
 dps8_math.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_math.o:        dps8_sys.h
@@ -873,15 +889,16 @@ dps8_math.o:        dps8_scu.h
 dps8_math.o:        dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_ins.h
 dps8_math.o:        dps8_math.h
 dps8_math.o:        dps8_utils.h
+dps8_mt.o:          dps8.h ../dpsprintf/dpsprintf.h
 dps8_mt.o:          dps8_simh.h
 dps8_mt.o:          dps8_math128.h dps8_hw_consts.h dps8_em_consts.h dps8_mt.h
 dps8_mt.o:          dps8_sys.h
 dps8_mt.o:          dps8_scu.h
 dps8_mt.o:          dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
-dps8_opcodetable.o: dps8.h
+dps8_opcodetable.o: dps8.h ../dpsprintf/dpsprintf.h
 dps8_opcodetable.o: dps8_simh.h dps8_math128.h dps8_hw_consts.h
 dps8_opcodetable.o: dps8_em_consts.h dps8_opcodetable.h
-dps8_prt.o:         dps8.h
+dps8_prt.o:         dps8.h ../dpsprintf/dpsprintf.h
 dps8_prt.o:         dps8_simh.h
 dps8_prt.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_prt.o:         dps8_iom.h
@@ -889,23 +906,25 @@ dps8_prt.o:         dps8_prt.h dps8_sys.h
 dps8_prt.o:         dps8_scu.h
 dps8_prt.o:         dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
 dps8_prt.o:         utfile.h
-dps8_scu.o:         dps8.h
+dps8_scu.o:         dps8.h ../dpsprintf/dpsprintf.h
 dps8_scu.o:         dps8_simh.h
 dps8_scu.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_scu.o:         dps8_sys.h
 dps8_scu.o:         uvutil.h dps8_faults.h dps8_scu.h dps8_iom.h dps8_cable.h
 dps8_scu.o:         dps8_cpu.h hdbg.h dps8_utils.h
-dps8_simh.o:        dps8.h
+dps8_simh.o:        dps8.h ../dpsprintf/dpsprintf.h
 dps8_simh.o:        dps8_simh.h
 dps8_simh.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_simh.o:        dps8_sys.h
 dps8_simh.o:        uvutil.h
+dps8_socket_dev.o:  dps8.h ../dpsprintf/dpsprintf.h
 dps8_socket_dev.o:  dps8_simh.h
 dps8_socket_dev.o:  dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_socket_dev.o:  dps8_socket_dev.h dps8_sys.h
 dps8_socket_dev.o:  dps8_faults.h
 dps8_socket_dev.o:  dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
 dps8_socket_dev.o:  errnos.h
+dps8_sys.o:         dps8.h ../dpsprintf/dpsprintf.h
 dps8_sys.o:         dps8_simh.h
 dps8_sys.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_sys.o:         dps8_console.h
@@ -919,25 +938,28 @@ dps8_sys.o:         dps8_fnp2.h libtelnet.h dps8_crdrdr.h dps8_crdpun.h
 dps8_sys.o:         dps8_prt.h
 dps8_sys.o:         dps8_urp.h dps8_absi.h dps8_utils.h shm.h utlist.h
 dps8_sys.o:         ver.h
-dps8_urp.o:         dps8.h
+dps8_urp.o:         dps8.h ../dpsprintf/dpsprintf.h
 dps8_urp.o:         dps8_simh.h
 dps8_urp.o:         dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_urp.o:         dps8_iom.h
 dps8_urp.o:         dps8_urp.h dps8_sys.h
 dps8_urp.o:         dps8_scu.h
 dps8_urp.o:         dps8_cable.h dps8_cpu.h hdbg.h dps8_utils.h
+dps8_utils.o:       dps8.h ../dpsprintf/dpsprintf.h
 dps8_utils.o:       dps8_simh.h
 dps8_utils.o:       dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 dps8_utils.o:       dps8_sys.h
 dps8_utils.o:       dps8_scu.h
 dps8_utils.o:       dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_ins.h
 dps8_utils.o:       dps8_opcodetable.h dps8_utils.h
+fnptelnet.o:        dps8.h ../dpsprintf/dpsprintf.h
 fnptelnet.o:        dps8_simh.h
 fnptelnet.o:        dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 fnptelnet.o:        dps8_sys.h
 fnptelnet.o:        dps8_scu.h
 fnptelnet.o:        dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_fnp2.h
 fnptelnet.o:        libtelnet.h dps8_utils.h fnpuv.h fnptelnet.h
+fnpuv.o:            dps8.h ../dpsprintf/dpsprintf.h
 fnpuv.o:            dps8_simh.h
 fnpuv.o:            dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 fnpuv.o:            dps8_scu.h
@@ -946,28 +968,28 @@ fnpuv.o:            dps8_cable.h
 fnpuv.o:            dps8_cpu.h hdbg.h dps8_fnp2.h libtelnet.h dps8_utils.h
 fnpuv.o:            fnpuv.h
 fnpuv.o:            fnptelnet.h
-hdbg.o:             dps8.h
+hdbg.o:             dps8.h ../dpsprintf/dpsprintf.h
 hdbg.o:             dps8_simh.h
 hdbg.o:             dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 hdbg.o:             dps8_sys.h
 hdbg.o:             uvutil.h dps8_cpu.h hdbg.h dps8_utils.h
-libtelnet.o:        libtelnet.h
-shm.o:              shm.h
-threadz.o:          dps8.h
+libtelnet.o:        libtelnet.h ../dpsprintf/dpsprintf.h
+shm.o:              shm.h ../dpsprintf/dpsprintf.h
+threadz.o:          dps8.h ../dpsprintf/dpsprintf.h
 threadz.o:          dps8_simh.h
 threadz.o:          dps8_math128.h dps8_hw_consts.h dps8_em_consts.h
 threadz.o:          dps8_sys.h
 threadz.o:          uvutil.h dps8_cpu.h hdbg.h dps8_faults.h dps8_iom.h
 threadz.o:          dps8_utils.h
 threadz.o:          threadz.h
-tracker.o:          tracker.h
-udplib.o:           h316_imp.h
-uvutil.o:           dps8.h
+tracker.o:          tracker.h ../dpsprintf/dpsprintf.h
+udplib.o:           h316_imp.h ../dpsprintf/dpsprintf.h
+uvutil.o:           dps8.h ../dpsprintf/dpsprintf.h
 uvutil.o:           dps8_hw_consts.h
 uvutil.o:           dps8_em_consts.h dps8_sys.h uvutil.h dps8_cpu.h hdbg.h
 uvutil.o:           dps8_utils.h
 uvutil.o:           libtelnet.h
-utfile.o:           utfile.h bsd_random.h
+utfile.o:           utfile.h bsd_random.h ../dpsprintf/dpsprintf.h
 bsd_random.o:       bsd_random.h
 
 ###############################################################################

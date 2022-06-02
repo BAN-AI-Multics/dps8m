@@ -1,3 +1,4 @@
+// vim: filetype=c:tabstop=4:tw=72:expandtab
 /* ------------------------------------------------------------------ */
 /* Decimal 128-bit format module header                               */
 /* ------------------------------------------------------------------ */
@@ -32,7 +33,8 @@
 # define DECIMAL128_String 43           /* maximum string length, +1  */
 # define DECIMAL128_EconL  12           /* exp. continuation length   */
   /* highest biased exponent (Elimit-1)                               */
-# define DECIMAL128_Ehigh  (DECIMAL128_Emax+DECIMAL128_Bias-DECIMAL128_Pmax+1)
+# define DECIMAL128_Ehigh                                              \
+    (DECIMAL128_Emax+DECIMAL128_Bias-DECIMAL128_Pmax+1)
 
   /* check enough digits, if pre-defined                              */
 # if defined(DECNUMDIGITS)
@@ -65,7 +67,8 @@
   /* Routines                                                         */
   /* ---------------------------------------------------------------- */
   /* String conversions                                               */
-  decimal128 * decimal128FromString(decimal128 *, const char *, decContext *);
+  decimal128 * decimal128FromString(decimal128 *, const char *,
+    decContext *);
   char * decimal128ToString(const decimal128 *, char *);
   char * decimal128ToEngString(const decimal128 *, char *);
 

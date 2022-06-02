@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 // There is a lurking bug in fnpProcessEvent(). A second 'input' messages
@@ -94,6 +100,8 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif /* defined(THREADZ) || defined(LOCKLESS) */
+
+#include "../dpsprintf/dpsprintf.h"
 
 static t_stat fnpShowConfig (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat fnpSetConfig (UNIT * uptr, int value, const char * cptr, void * desc);
@@ -301,7 +309,7 @@ void fnpInit(void)
   {
     // 0 sets set service to service_undefined
     memset(& fnpData, 0, sizeof(fnpData));
-    fnpData.telnet_address = strdup ("0.0.0.0");
+    fnpData.telnet_address = strdup("0.0.0.0");
     fnpData.telnet_port = 6180;
     fnpData.telnet3270_port = 3270;
     fnpTelnetInit ();
@@ -924,7 +932,6 @@ static inline bool processInputCharacter (struct t_line * linep, unsigned char k
 
                     linep->input_break = false;
 
-
 #if 0
                     // MTB418 pg 15:
                     // "This determination is made by the ''input processor''
@@ -1200,7 +1207,6 @@ static void fnpProcessBuffers (void)
 //      2 op fixed binary (17) unaligned,                       /* contains reason for status */
 //      2 val (3) fixed binary (17) unaligned;
 
-
 //  /* Values for line_stat.op */
 //
 //  dcl (BID_FAILED                    initial (1),
@@ -1285,7 +1291,6 @@ static void send_stn_in_buffer (void)
 // ibm3270_mpx expects: STX text_msg ETX
 //
 // x3270 sends aid, cursor1, cursor2
-
 
 //sim_printf ("sending rcvd data\r\n");
 
@@ -1966,7 +1971,6 @@ static t_stat fnpSetFW (UNIT * uptr, UNUSED int32 value,
 
 // parse cidr
 
-
         tok = strtok_r (NULL, ":", & saveptr);
         char * end;
         unsigned long cidr = strtoul (tok, & end, 10);
@@ -1996,10 +2000,8 @@ static t_stat fnpSetFW (UNIT * uptr, UNUSED int32 value,
         fw_entries[n_fw_entries].accept = accept;
         n_fw_entries ++;
 
-
         return SCPE_OK;
       } // ADD
-
 
     if (strcasecmp (tok, "LIST") == 0)
       {
@@ -2059,7 +2061,6 @@ static t_stat fnpShowFW (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
 #endif
     return SCPE_OK;
   }
-
 
 static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
                              UNUSED const void * desc)
@@ -2140,7 +2141,6 @@ static t_stat fnp_set_device_name (UNIT * uptr, UNUSED int32 value,
       fnpData.fnpUnitData[n].device_name[0] = 0;
     return SCPE_OK;
   }
-
 
 static config_list_t fnp_config_list [] =
   {
@@ -2266,7 +2266,6 @@ t_stat fnpLoad (UNUSED int32 arg, const char * buf)
             break;
           }
 
-
 // Ingored
         else if (strcmp (first, "Service") == 0 ||
                  strcmp (first, "Charge") == 0 ||
@@ -2320,8 +2319,8 @@ t_stat set_fnp_server_address (UNUSED int32 arg, const char * buf)
         sim_printf ("[FNP emulation: FNP server address error: FNP already initialized]\n");
         return SCPE_INCOMP;
       }
-    if (! buf)
-      return SCPE_ARG;
+    if ( (!buf) || (buf[0] == 0) )
+        return SCPE_ARG;
     if (fnpData.telnet_address)
       free (fnpData.telnet_address);
     fnpData.telnet_address = strdup (buf);
@@ -2364,7 +2363,6 @@ t_stat fnp_start (UNUSED int32 arg, UNUSED const char * buf)
     //   return SCPE_INCOMP;
     return SCPE_OK;
   }
-
 
 #define PROMPT  "HSLA Port ("
 
@@ -2794,7 +2792,6 @@ check:;
     sim_printf ("<%s>", cpy);
     p->nPos = 0;
     fnpuv_start_writestr (client, (unsigned char *) "\r\n");
-
 
     uint fnp_unit_idx = 0;
     uint lineno = 0;

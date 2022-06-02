@@ -1,9 +1,9 @@
 # DPS/8M simulator: src/Makefile.var
-# vim: filetype=make:tabstop=4:tw=76
-#
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+
 ###############################################################################
 #
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #
@@ -75,7 +75,56 @@ endif
 
 ifdef TESTING
   TESTING=1
+  OS_PRINTF=1
+  NO_LTO=1
   CFLAGS += -DTESTING
+endif
+
+###############################################################################
+# Enable default LTO (link-time optimization) flags
+
+ifndef LTO_SKIP
+  ifndef NO_LTO
+    ifndef SUNPRO
+      ifndef SUNLINT
+      # LTO invocation: See if `-flto=auto` works, if not, fall back to `-ftlo`
+      LTOSYN=$(shell $(CC) -flto=auto -E - < /dev/null > /dev/null 2>&1 &&    \
+               $(PRINTF) '%s\n' "-flto=auto" || $(PRINTF) '%s\n' "-flto")
+        ifeq "$(findstring clang,$(CC))" ""
+          ifeq "$(findstring gcc,$(CC))" ""
+            ifeq "$(findstring icc,$(CC))" ""
+              # Other
+              CFLAGS += $(LTOSYN)
+              LDFLAGS += $(LTOSYN)
+            else
+              # Intel C Compiler Classic (no LTO)
+              NO_LTO=1
+              LTO_SKIP=1
+              export NO_LTO
+              export LTO_SKIP
+            endif
+          else
+            # GCC
+            CFLAGS  += $(LTOSYN)
+            LDFLAGS += $(LTOSYN)
+          endif
+        else
+          # Clang
+          CFLAGS  += $(LTOSYN) -Wno-ignored-optimization-argument
+          LDFLAGS += $(LTOSYN) -Wno-ignored-optimization-argument
+        endif
+      endif
+    endif
+  endif
+endif
+
+###############################################################################
+# Use OS-provided printf functions
+
+ifdef OS_PRINTF
+  OS_PRINTF=1
+  USE_SYSTEM_PRINTF=1
+  CFLAGS += -DUSE_SYSTEM_PRINTF
 endif
 
 ###############################################################################

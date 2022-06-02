@@ -1,7 +1,11 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * -------------------------------------------------------------------------
+ *
  * Copyright (c) 2012-2013 Tony Finch <dot@dotat.at>
  * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,6 +29,8 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * -------------------------------------------------------------------------
  */
 
 #include <sys/stat.h>

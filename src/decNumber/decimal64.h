@@ -1,3 +1,4 @@
+// vim: filetype=c:tabstop=4:tw=72:expandtab
 /* ------------------------------------------------------------------ */
 /* Decimal 64-bit format module header                                */
 /* ------------------------------------------------------------------ */
@@ -23,7 +24,7 @@
 # define DEC64FULLNAME "Decimal 64-bit Number"        /* Verbose name */
 # define DEC64AUTHOR   "Mike Cowlishaw"               /* Who to blame */
 
-  /* parameters for decimal64s                                        */
+  /* parameters for decimal64s */
 # define DECIMAL64_Bytes  8             /* length                     */
 # define DECIMAL64_Pmax   16            /* maximum precision (digits) */
 # define DECIMAL64_Emax   384           /* maximum adjusted exponent  */
@@ -32,7 +33,8 @@
 # define DECIMAL64_String 24            /* maximum string length, +1  */
 # define DECIMAL64_EconL  8             /* exp. continuation length   */
   /* highest biased exponent (Elimit-1)                               */
-# define DECIMAL64_Ehigh  (DECIMAL64_Emax+DECIMAL64_Bias-DECIMAL64_Pmax+1)
+# define DECIMAL64_Ehigh                                               \
+    (DECIMAL64_Emax+DECIMAL64_Bias-DECIMAL64_Pmax+1)
 
   /* check enough digits, if pre-defined                              */
 # if defined(DECNUMDIGITS)
@@ -40,7 +42,6 @@
 #   error decimal64.h needs pre-defined DECNUMDIGITS>=16 for safe use
 #  endif
 # endif
-
 
 # ifndef DECNUMDIGITS
 #  define DECNUMDIGITS DECIMAL64_Pmax  /* size if not already defined */
@@ -66,7 +67,8 @@
   /* Routines                                                         */
   /* ---------------------------------------------------------------- */
   /* String conversions                                               */
-  decimal64 * decimal64FromString(decimal64 *, const char *, decContext *);
+  decimal64 * decimal64FromString(decimal64 *, const char *,
+    decContext *);
   char * decimal64ToString(const decimal64 *, char *);
   char * decimal64ToEngString(const decimal64 *, char *);
 

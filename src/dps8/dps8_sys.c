@@ -1,16 +1,22 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
- * Copyright (c) 2013-2017 Charles Anthony
+ * Copyright (c) 2013-2021 Charles Anthony
  * Copyright (c) 2016 Michal Tomek
  * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -68,6 +74,8 @@
 
 #include "segldr.h"
 
+#include "../dpsprintf/dpsprintf.h"
+
 #define DBG_CTR cpu.cycleCnt
 
 #define ASSUME0 0
@@ -81,7 +89,7 @@
 
 struct system_state_s * system_state;
 
-vol word36 * M = NULL;                                          // memory
+vol word36 * M = NULL;  // memory
 
 //
 // These are part of the simh interface
@@ -93,9 +101,9 @@ char sim_name[] = "DPS8/M";
 #ifdef L68
 char sim_name[] = "L68";
 #endif
-int32 sim_emax = 4; // some EIS can take up to 4-words
+int32 sim_emax = 4;  // some EIS can take up to 4-words
 static void dps8_init(void);
-void (*sim_vm_init) (void) = & dps8_init;    // CustomCmds;
+void (*sim_vm_init) (void) = & dps8_init;  // CustomCmds;
 
 #ifdef TESTING
 static t_addr parse_addr(DEVICE *dptr, const char *cptr, const char **optr);
@@ -3750,88 +3758,81 @@ static CTAB dps8_cmds[] =
 // System configuration
 //
 
-    {"DEFAULT_BASE_SYSTEM", set_default_base_system,  0, "default_base_system: Set configuration to defaults\n", NULL, NULL},
+    {"DEFAULT_BASE_SYSTEM", set_default_base_system,  0, "Set configuration to defaults\n", NULL, NULL},
 
-    {"CABLE",               sys_cable,                0, "cable: String a cable\n" , NULL, NULL},
-    {"UNCABLE",             sys_cable,                1, "uncable: Unstring a cable\n" , NULL, NULL},
-    {"CABLE_RIPOUT",        sys_cable_ripout,         0, "cable: Unstring all cables\n" , NULL, NULL},
-    {"CABLE_SHOW",          sys_cable_show,           0, "cable: Show cables\n" , NULL, NULL},
+    {"CABLE",               sys_cable,                0, "String a cable\n" , NULL, NULL},
+    {"UNCABLE",             sys_cable,                1, "Unstring a cable\n" , NULL, NULL},
+    {"CABLE_RIPOUT",        sys_cable_ripout,         0, "Unstring all cables\n" , NULL, NULL},
+    {"CABLE_SHOW",          sys_cable_show,           0, "Show cables\n" , NULL, NULL},
 
-    {"FNPSERVERPORT",       set_fnp_server_port,      0, "fnpserverport: Set the FNP dialin TELNET port number\n", NULL, NULL},
-    {"FNPSERVERADDRESS",    set_fnp_server_address,   0, "fnpserveraddress: Set the FNP dialin server binding address\n", NULL, NULL},
-    {"FNPSERVER3270PORT",   set_fnp_3270_server_port, 0, "fnpserver3270port: Set the FNP TN3270 dialin port number\n", NULL, NULL},
-
-    {"CONSOLEPORT",         set_console_port,         0, "consoleport: Set the Operator Console port number\n", NULL, NULL},
-    {"CONSOLEADDRESS",      set_console_address,      0, "consoleport: Set the Operator Console address\n", NULL, NULL},
-    {"CONSOLEPW",           set_console_pw,           0, "consolepw: Set the Operator Console port password\n", NULL, NULL},
-    {"CONSOLEPORT1",        set_console_port,         1, "consoleport1: Set the CPU-B Operator Console port number\n", NULL, NULL},
-    {"CONSOLEADDRESS1",     set_console_address,      1, "consoleport: Set the Operator Console address\n", NULL, NULL},
-    {"CONSOLEPW1",          set_console_pw,           1, "consolepw1: Set the CPU-B Operator Console port password\n", NULL, NULL},
+    {"FNPSERVERPORT",       set_fnp_server_port,      0, "Set the FNP dialin TELNET port number\n", NULL, NULL},
+    {"FNPSERVERADDRESS",    set_fnp_server_address,   0, "Set the FNP dialin server binding address\n", NULL, NULL},
+    {"FNPSERVER3270PORT",   set_fnp_3270_server_port, 0, "Set the FNP TN3270 dialin port number\n", NULL, NULL},
 
 //
 // System contol
 //
 
-    {"SKIPBOOT",            boot_skip,                0, "skipboot: Skip forward on boot tape\n", NULL, NULL},
-    {"FNPSTART",            fnp_start,                0, "fnpstart: Force immediate FNP initialization\n", NULL, NULL},
-    {"MOUNT",               mount_tape,               0, "mount: Mount tape image and signal Mulitcs\n", NULL, NULL },
-    {"LOAD",                load_media,               1, "mount: Mount disk or tape image and signal Mulitcs\n", NULL, NULL },
-    {"UNLOAD",              load_media,               0, "mount: Unmount disk or tape image and signal Mulitcs\n", NULL, NULL },
-    {"READY",               ready_media,              0, "ready: Signal Mulitcs that media is ready\n", NULL, NULL },
-    {"REWIND",              rewind_media,             0, "rewind: Rewind tape\n", NULL, NULL },
-    {"XF",                  do_execute_fault,         0, "xf: Execute fault: Press the execute fault button\n", NULL, NULL},
-    {"RESTART",             do_restart,         0, "xf: Execute fault: Press the execute fault button\n", NULL, NULL},
-    {"POLL",                set_sys_polling_interval, 0, "Set polling interval in milliseconds", NULL, NULL },
-    {"SLOWPOLL",            set_sys_slow_polling_interval, 0, "Set slow polling interval in polling intervals", NULL, NULL },
-    {"CHECKPOLL",           set_sys_poll_check_rate, 0, "Set slow polling interval in polling intervals", NULL, NULL },
-    {"BURST",               burst_printer,           0, "Burst output from printrt", NULL, NULL },
+    {"SKIPBOOT",            boot_skip,                0, "Skip forward on boot tape\n", NULL, NULL},
+    {"FNPSTART",            fnp_start,                0, "Force an immediate FNP initialization\n", NULL, NULL},
+    {"MOUNT",               mount_tape,               0, "Mount tape image and signal Mulitcs\n", NULL, NULL },
+    {"LOAD",                load_media,               1, "Mount disk or tape image and signal Mulitcs\n", NULL, NULL },
+    {"UNLOAD",              load_media,               0, "Unmount disk or tape image and signal Mulitcs\n", NULL, NULL },
+    {"READY",               ready_media,              0, "Signal Mulitcs that media is ready\n", NULL, NULL },
+    {"REWIND",              rewind_media,             0, "Rewind tape\n", NULL, NULL },
+    {"XF",                  do_execute_fault,         0, "Execute fault: Press the execute fault button\n", NULL, NULL},
+    {"RESTART",             do_restart,               0, "Execute fault: Press the execute fault button\n", NULL, NULL},
+    {"POLL",                set_sys_polling_interval, 0, "Set polling interval (in milliseconds)", NULL, NULL },
+    {"SLOWPOLL",            set_sys_slow_polling_interval, 0, "Set slow polling interval (in polling intervals)", NULL, NULL },
+    {"CHECKPOLL",           set_sys_poll_check_rate,  0, "Set polling check rate (in polling intervals)", NULL, NULL },
+    {"BURST",               burst_printer,            0, "Burst process output from printer", NULL, NULL },
 
 //
 // Debugging
 //
 
 #ifdef TESTING
-    {"TRKW",                trkw,                     0, "tracker: Start tracking to track.dat\n", NULL, NULL},
-    {"TRKR",                trkr,                     0, "tracker: Start comparing with track.dat\n", NULL, NULL},
-    {"DBGMMECNTDWN",        dps_debug_mme_cntdwn,     0, "dbgmmecntdwn: Enable debug after n MMEs\n", NULL, NULL},
-    {"DBGSKIP",             dps_debug_skip,           0, "dbgskip: Skip first n TRACE debugs\n", NULL, NULL},
-    {"DBGSTART",            dps_debug_start,          0, "dbgstart: Limit debugging to N > Cycle count\n", NULL, NULL},
-    {"DBGSTOP",             dps_debug_stop,           0, "dbgstop: Limit debugging to N < Cycle count\n", NULL, NULL},
-    {"DBGBREAK",            dps_debug_break,          0, "dbgstop: Break when N >= Cycle count\n", NULL, NULL},
-    {"DBGSEGNO",            dps_debug_segno,          1, "dbgsegno: Limit debugging to PSR == segno\n", NULL, NULL},
-    {"NODBGSEGNO",          dps_debug_segno,          0, "nodbgsegno: Reset to debugging all segments\n", NULL, NULL},
-    {"DBGRINGNO",           dps_debug_ringno,         0, "dbgsegno: Limit debugging to PRR == ringno\n", NULL, NULL},
-    {"DBGBAR",              dps_debug_bar,            1, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
-    {"NODBGBAR",            dps_debug_bar,            0, "dbgbar: Limit debugging to BAR mode\n", NULL, NULL},
-    {"HDBG",                hdbg_size,                0, "hdbg: set history debugger buffer size\n", NULL, NULL},
-    {"HDSEG",               hdbgSegmentNumber,        0, "hdseg: set history debugger segment number\n", NULL, NULL},
-    {"HDBL",                hdbgBlacklist,            0, "hdbl: set history debugger blacklist\n", NULL, NULL},
-    {"PHDBG",               hdbg_print,               0, "phdbg: display history size\n", NULL, NULL},
-    {"HDBG_CPU_MASK",       hdbg_cpu_mask,            0, "hdbg_cpu_mask: Which CPUS to track\n", NULL, NULL},
-    {"ABSOLUTE",            abs_addr,                 0, "abs: Compute the absolute address of segno:offset\n", NULL, NULL},
-    {"STK",                 stack_trace,              0, "stk: Print a stack trace\n", NULL, NULL},
-    {"LIST",                list_source_at,           0, "list segno:offet: List source for an address\n", NULL, NULL},
-    {"LD_SYSTEM_BOOK",      load_system_book,         0, "load_system_book: Load a Multics system book for symbolic debugging\n", NULL, NULL},
-    {"ASBE",                add_system_book_entry,    0, "asbe: Add an entry to the system book\n", NULL, NULL},
-    {"LOOKUP_SYSTEM_BOOK",  lookup_system_book,       0, "lookup_system_book: Lookup an address or symbol in the Multics system book\n", NULL, NULL},
-    {"LSB",                 lookup_system_book,       0, "lsb: Lookup an address or symbol in the Multics system book\n", NULL, NULL},
-    {"VIRTUAL",             virt_address,             0, "virtual: Compute the virtural address(es) of segno:offset\n", NULL, NULL},
-    {"SPATH",               set_search_path,          0, "spath: Set source code search path\n", NULL, NULL},
-    {"TEST",                brkbrk,                   0, "test: GDB hook\n", NULL, NULL},
+    {"TRKW",                trkw,                     0, "Start tracking to track.dat\n", NULL, NULL},
+    {"TRKR",                trkr,                     0, "Start comparing with track.dat\n", NULL, NULL},
+    {"DBGMMECNTDWN",        dps_debug_mme_cntdwn,     0, "Enable debug after n MMEs\n", NULL, NULL},
+    {"DBGSKIP",             dps_debug_skip,           0, "Skip first n TRACE debugs\n", NULL, NULL},
+    {"DBGSTART",            dps_debug_start,          0, "Limit debugging to N > Cycle count\n", NULL, NULL},
+    {"DBGSTOP",             dps_debug_stop,           0, "Limit debugging to N < Cycle count\n", NULL, NULL},
+    {"DBGBREAK",            dps_debug_break,          0, "Break when N >= Cycle count\n", NULL, NULL},
+    {"DBGSEGNO",            dps_debug_segno,          1, "Limit debugging to PSR == segno\n", NULL, NULL},
+    {"NODBGSEGNO",          dps_debug_segno,          0, "Reset to debugging all segments\n", NULL, NULL},
+    {"DBGRINGNO",           dps_debug_ringno,         0, "Limit debugging to PRR == ringno\n", NULL, NULL},
+    {"DBGBAR",              dps_debug_bar,            1, "Limit debugging to BAR mode\n", NULL, NULL},
+    {"NODBGBAR",            dps_debug_bar,            0, "Limit debugging to BAR mode\n", NULL, NULL},
+    {"HDBG",                hdbg_size,                0, "Set history debugger buffer size\n", NULL, NULL},
+    {"HDSEG",               hdbgSegmentNumber,        0, "Set history debugger segment number\n", NULL, NULL},
+    {"HDBL",                hdbgBlacklist,            0, "Set history debugger blacklist\n", NULL, NULL},
+    {"PHDBG",               hdbg_print,               0, "Display history size\n", NULL, NULL},
+    {"HDBG_CPU_MASK",       hdbg_cpu_mask,            0, "Set which CPUs to track (by mask)\n", NULL, NULL},
+    {"ABSOLUTE",            abs_addr,                 0, "Compute the absolute address of segno:offset\n", NULL, NULL},
+    {"STK",                 stack_trace,              0, "Print a stack trace\n", NULL, NULL},
+    {"LIST",                list_source_at,           0, "List source for address / segno:offset\n", NULL, NULL},
+    {"LD_SYSTEM_BOOK",      load_system_book,         0, "Load a Multics system book for symbolic debugging\n", NULL, NULL},
+    {"ASBE",                add_system_book_entry,    0, "Add an entry to the system book\n", NULL, NULL},
+    {"LOOKUP_SYSTEM_BOOK",  lookup_system_book,       0, "Lookup an address or symbol in the Multics system book\n", NULL, NULL},
+    {"LSB",                 lookup_system_book,       0, "Lookup an address or symbol in the Multics system book\n", NULL, NULL},
+    {"VIRTUAL",             virt_address,             0, "Compute the virtural address(es) of segno:offset\n", NULL, NULL},
+    {"SPATH",               set_search_path,          0, "Set source code search path\n", NULL, NULL},
+    {"TEST",                brkbrk,                   0, "GDB test hook\n", NULL, NULL},
 # ifdef DBGEVENT
-    {"DBG0EVENT",           set_dbgevent,             0, "dbg0event: set t0 event\n", NULL, NULL},
-    {"DBGEVENT",            set_dbgevent,             1, "dbgevent: set event\n", NULL, NULL},
-    {"DBGNOEVENT",          set_dbgevent,             2, "dbgnoevent: clear event\n", NULL, NULL},
-    {"DBGLISTEVENTS",       set_dbgevent,             3, "dbglistevents: list events\n", NULL, NULL},
-    {"DBGCLEAREVENTS",      set_dbgevent,             4, "dbgevent: clear events\n", NULL, NULL},
+    {"DBG0EVENT",           set_dbgevent,             0, "Set t0 debug event\n", NULL, NULL},
+    {"DBGEVENT",            set_dbgevent,             1, "Set debug event\n", NULL, NULL},
+    {"DBGNOEVENT",          set_dbgevent,             2, "Clear debug event\n", NULL, NULL},
+    {"DBGLISTEVENTS",       set_dbgevent,             3, "List debug events\n", NULL, NULL},
+    {"DBGCLEAREVENTS",      set_dbgevent,             4, "Clear debug events\n", NULL, NULL},
 # endif
 
 // copied from scp.c
-# define SSH_ST          0                               /* set */
-# define SSH_SH          1                               /* show */
-# define SSH_CL          2                               /* clear */
-    {"SBREAK",              sbreak,               SSH_ST, "sbreak: Set a breakpoint with segno:offset syntax\n", NULL, NULL},
-    {"NOSBREAK",            sbreak,               SSH_CL, "nosbreak: Unset an SBREAK\n", NULL, NULL},
+# define SSH_ST 0        /* set */
+# define SSH_SH 1        /* show */
+# define SSH_CL 2        /* clear */
+    {"SBREAK",              sbreak,                  SSH_ST, "Set a breakpoint with segno:offset syntax\n", NULL, NULL},
+    {"NOSBREAK",            sbreak,                  SSH_CL, "Unset an SBREAK\n", NULL, NULL},
 # ifdef DVFDBG
     // dvf debugging
     {"DFX1ENTRY",           dfx1entry,                0, "\n", NULL, NULL},
@@ -3844,11 +3845,11 @@ static CTAB dps8_cmds[] =
     // doesn't work
     //{"DUMPKST",             dumpKST,                  0, "dumpkst: dump the Known Segment Table\n", NULL},
 # ifndef SPEED
-    {"WATCH",               set_mem_watch,            1, "watch: Watch memory location\n", NULL, NULL},
-    {"NOWATCH",             set_mem_watch,            0, "watch: Unwatch memory location\n", NULL, NULL},
+    {"WATCH",               set_mem_watch,            1, "Watch memory location\n", NULL, NULL},
+    {"NOWATCH",             set_mem_watch,            0, "Unwatch memory location\n", NULL, NULL},
 # endif
-    {"SEARCHMEMORY",        search_memory,            0, "searchmemory: Search memory for value\n", NULL, NULL},
-    {"DBGCPUMASK",          set_dbg_cpu_mask,         0, "dbgcpumask: Set per CPU debug enable", NULL, NULL},
+    {"SEARCHMEMORY",        search_memory,            0, "Search memory for value\n", NULL, NULL},
+    {"DBGCPUMASK",          set_dbg_cpu_mask,         0, "Set per-CPU debug enable mask", NULL, NULL},
 #endif // TESTING
 
     {"SEGLDR",              segment_loader,           0, "Segment Loader", NULL, NULL},
@@ -3858,7 +3859,7 @@ static CTAB dps8_cmds[] =
 //
 
 #ifdef MATRIX
-    {"DISPLAYMATRIX",       display_the_matrix,         0, "displaymatrix: Display instruction usage counts\n", NULL, NULL},
+    {"DISPLAYMATRIX",       display_the_matrix,       0, "Display instruction usage counts\n", NULL, NULL},
 #endif
 
 
@@ -3866,12 +3867,12 @@ static CTAB dps8_cmds[] =
 // Console scripting
 //
 
-    {"AUTOINPUT",           add_opc_autoinput,      0, "autoinput: Set console auto-input\n", NULL, NULL},
-    {"AI",                  add_opc_autoinput,      0, "ai: Set console auto-input\n", NULL, NULL},
-    {"AUTOINPUT2",          add_opc_autoinput,      1, "autoinput2: Set CPU-B console auto-input\n", NULL, NULL},
-    {"AI2",                 add_opc_autoinput,      1, "ai2: Set console CPU-B auto-input\n", NULL, NULL},
-    {"CLRAUTOINPUT",        clear_opc_autoinput,    0, "clrautoinput: Clear console auto-input\n", NULL, NULL},
-    {"CLRAUTOINPUT2",       clear_opc_autoinput,    1, "clrautoinput1: Clear CPU-B console auto-input\n", NULL, NULL},
+    {"AUTOINPUT",           add_opc_autoinput,        0, "Set console auto-input\n", NULL, NULL},
+    {"AI",                  add_opc_autoinput,        0, "Set console auto-input\n", NULL, NULL},
+    {"AUTOINPUT2",          add_opc_autoinput,        1, "Set CPU-B console auto-input\n", NULL, NULL},
+    {"AI2",                 add_opc_autoinput,        1, "Set console CPU-B auto-input\n", NULL, NULL},
+    {"CLRAUTOINPUT",        clear_opc_autoinput,      0, "Clear console auto-input\n", NULL, NULL},
+    {"CLRAUTOINPUT2",       clear_opc_autoinput,      1, "Clear CPU-B console auto-input\n", NULL, NULL},
 
 
 //
@@ -3879,8 +3880,8 @@ static CTAB dps8_cmds[] =
 //
 
 #if YIELD
-    {"CLEAR_YIELD",         clear_yield,            1, "clear_yield: clear yield data\n", NULL, NULL},
-    {"YIELD",               yield,                  1, "yield: define yield point\n", NULL, NULL},
+    {"CLEAR_YIELD",         clear_yield,              1, "Clear yield data points\n", NULL, NULL},
+    {"YIELD",               yield,                    1, "Define yield data point\n", NULL, NULL},
 #endif
 
 //
@@ -3889,15 +3890,15 @@ static CTAB dps8_cmds[] =
 // Hacks
 //
 
-    {"LUF",                 set_luf,                1, "Enable normal LUF handling\n", NULL, NULL},
-    {"NOLUF",               set_luf,                0, "Disable normal LUF handling\n", NULL, NULL},
+    {"LUF",                 set_luf,                  1, "Enable normal LUF handling\n", NULL, NULL},
+    {"NOLUF",               set_luf,                  0, "Disable normal LUF handling\n", NULL, NULL},
 
 //
 // Misc.
 //
 
 #ifdef PANEL
-    {"SCRAPER",             scraper,                  0, "scraper: Control scraper\n", NULL, NULL},
+    {"SCRAPER",             scraper,                  0, "Control panel scraper\n", NULL, NULL},
 #endif
     { NULL,                 NULL,                     0, NULL, NULL, NULL}
   }; // dps8_cmds
@@ -4121,8 +4122,8 @@ static void dps8_init (void) {
 # define srandom bsd_srandom
 #endif /* if defined(__MINGW64__) || defined(__MINGW32__) */
 
-  int    rcap = 0;
-  int    rnum = 0;
+  char   rcap = 0;
+  char   rnum = 0;
   char   rssuffix[20];
   char   statenme[30];
   struct timespec ts;

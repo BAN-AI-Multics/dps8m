@@ -1,11 +1,11 @@
 # DPS/8M simulator: src/dps8/GNUmakefile.local(.sam)
-# vim: filetype=make:tabstop=4:tw=76
-#
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+
 ###############################################################################
 #
 # Copyright (c) 2016 Charles Anthony
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #
@@ -17,12 +17,9 @@
 # Developer localized settings (sample)
 
 ###############################################################################
-# Enable Level-68 mode
-#CFLAGS += -DL68
-
-###############################################################################
 # Enable panel display support
-#CFLAGS += -DPANEL
+
+#CFLAGS += -DPANEL=1
 
 ###############################################################################
 

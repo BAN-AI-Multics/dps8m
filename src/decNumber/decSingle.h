@@ -1,3 +1,4 @@
+// vim: filetype=c:tabstop=4:tw=72:expandtab
 /* ------------------------------------------------------------------ */
 /* decSingle.h -- Decimal 32-bit format module header                 */
 /* ------------------------------------------------------------------ */
@@ -35,7 +36,8 @@
 # define DECSINGLE_EconL    6      /* exponent continuation length    */
 # define DECSINGLE_Declets  2      /* count of declets                */
   /* highest biased exponent (Elimit-1) */
-# define DECSINGLE_Ehigh (DECSINGLE_Emax + DECSINGLE_Bias - (DECSINGLE_Pmax-1))
+# define DECSINGLE_Ehigh                                               \
+    (DECSINGLE_Emax + DECSINGLE_Bias - (DECSINGLE_Pmax-1))
 
   /* Required includes                                                */
 # include "decContext.h"

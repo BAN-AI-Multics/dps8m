@@ -1,13 +1,19 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2015-2018 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -24,6 +30,8 @@
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
+
+#include "../dpsprintf/dpsprintf.h"
 
 #include "udplib.h"
 
@@ -60,7 +68,7 @@ static DEBTAB absi_dt[] =
 static t_stat absi_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                                 UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf ("Number of ABSIunits in system is %d\n", absi_dev.numunits);
+    sim_printf ("Number of ABSI units in system is %d\n", absi_dev.numunits);
     return SCPE_OK;
   }
 
@@ -102,7 +110,6 @@ static t_stat absi_set_device_name (UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-
 #define UNIT_WATCH UNIT_V_UF
 
 static MTAB absi_mod[] =
@@ -116,7 +123,7 @@ static MTAB absi_mod[] =
       "NUNITS",         /* match string */
       absi_set_nunits,  /* validation routine */
       absi_show_nunits, /* display routine */
-      "Number of ABSIunits in the system", /* value descriptor */
+      "Number of ABSI units in the system", /* value descriptor */
       NULL /* Help */
     },
     {
@@ -196,7 +203,6 @@ static t_stat absiDetach (UNIT * uptr)
     return SCPE_OK;
   }
 
-
 DEVICE absi_dev = {
     "ABSI",       /* name */
     absi_unit,    /* units */
@@ -249,7 +255,6 @@ static iom_cmd_rc_t absi_cmd (uint iomUnitIdx, uint chan)
                "absi_cmd CHAN_CMD %o DEV_CODE %o DEV_CMD %o COUNT %o\n",
                p->IDCW_CHAN_CMD, p->IDCW_DEV_CODE, p->IDCW_DEV_CMD,
                p->IDCW_COUNT);
-
 
     // Not IDCW?
     if (IS_NOT_IDCW (p))

@@ -1,12 +1,18 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=132:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2014-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdbool.h>
@@ -24,6 +30,8 @@
 #define API
 #include "dps8_state.h"
 
+#include "../dpsprintf/dpsprintf.h"
+
 static struct system_state_s * system_state;
 
 typedef uint8_t byte;
@@ -35,9 +43,9 @@ static uint32_t * IC_p, * IR_p, * rTR_p, * rX_p[8], * WORDNO_p[8], * CA_p, * ADD
 static uint64_t * IWB_p, * rA_p, * rQ_p;
 static size_t sizeof_cpu, sizeof_rX, sizeof_PAR;
 
-static uint32_t FAULT_SDF, FAULT_STR, FAULT_MME, FAULT_F1, FAULT_TRO, FAULT_CMD, FAULT_DRL, FAULT_LUF, FAULT_CON, FAULT_PAR, FAULT_IPR,
-  FAULT_ONC, FAULT_SUF, FAULT_OFL, FAULT_DIV, FAULT_EXF, FAULT_DF0, FAULT_DF1, FAULT_DF2, FAULT_DF3, FAULT_ACV, FAULT_MME2,
-  FAULT_MME3, FAULT_MME4, FAULT_F2, FAULT_F3, FAULT_TRB;
+static uint32_t FAULT_SDF, FAULT_STR, FAULT_MME, FAULT_F1, FAULT_TRO, FAULT_CMD, FAULT_DRL, FAULT_LUF, FAULT_CON, FAULT_PAR,
+  FAULT_IPR, FAULT_ONC, FAULT_SUF, FAULT_OFL, FAULT_DIV, FAULT_EXF, FAULT_DF0, FAULT_DF1, FAULT_DF2, FAULT_DF3, FAULT_ACV,
+  FAULT_MME2, FAULT_MME3, FAULT_MME4, FAULT_F2, FAULT_F3, FAULT_TRB;
 
 static struct {
   uint8_t PRR, P, rE, rRALR, RNR[8], PR_BITNO[8], TRR, TBR, U;
@@ -302,7 +310,6 @@ static gboolean time_handler (GtkWidget * widget) {
   PROBE (TSR, {for (int i = 0; i < 15; i ++) TSR_state [14 - i] = BIT (TSR); });
   PROBE (TBR, {for (int i = 0; i < 6; i ++) TBR_state [3 - i] = BIT (TBR); });
   PROBE (CA, {for (int i = 0; i < 18; i ++) CA_state [17 - i] = BIT (CA); });
-
 
 //  if (memcmp (& cpun->BAR, & previous.BAR, sizeof (previous.BAR))) {
 //    update = true;
@@ -830,7 +837,6 @@ int main (int argc, char * argv []) {
 //  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_oob_label, 22, 0, 1, 1);
 //  gtk_grid_attach (GTK_GRID (fault_display[1]), FAULT_oob_lights, 23, 0, 1, 1);
 
-
 // window_rows
 
   gtk_grid_attach (GTK_GRID (window_rows), PPR_display,  0, 0, 1, 1);
@@ -865,4 +871,3 @@ int main (int argc, char * argv []) {
 
   return 0;
 }
-

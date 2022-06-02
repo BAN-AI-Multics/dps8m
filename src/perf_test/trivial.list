@@ -30,7 +30,7 @@ Start          0       0        32          42       7          42
 Length       204       7        10         125      23           0
 
 BLOCK NAME                   STACK SIZE     TYPE            WHY NONQUICK/WHO SHARES STACK FRAME
-trivial                              64 external procedure  is an external procedure.  
+trivial                              64 external procedure  is an external procedure.
 
 THE FOLLOWING EXTERNAL OPERATORS ARE USED BY THIS PROGRAM.
 return_mac          ext_entry

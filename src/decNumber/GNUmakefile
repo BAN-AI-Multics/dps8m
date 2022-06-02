@@ -1,12 +1,12 @@
 # DPS/8M simulator: src/decNumber/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=76
-#
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+
 ###############################################################################
 #
 # Copyright (c) 2014-2016 Charles Anthony
 # Copyright (c) 2016 Michal Tomek
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #
@@ -49,16 +49,18 @@ endif
 
 .PHONY: all decNumber.a
 all decNumber.a: $(OBJS)
+	-@$(TRUE)
 
 ###############################################################################
 
-.PHONY: clean
+.PHONY: clean distclean
 ifneq (,$(findstring clean,$(MAKECMDGOALS)))
-.NOTPARALLEL: clean
+.NOTPARALLEL: clean distclean
 endif
-clean:
+clean distclean:
 	@$(PRINTF) '%s\n' "CLEAN: decNumber"
 	-@$(SETV); $(RMF) $(OBJS) "decNumber.a"  ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o"  ||  $(TRUE) > /dev/null 2>&1
 
 ###############################################################################
 
@@ -75,10 +77,10 @@ $(OBJS): decContext.h  decimal128.h  decNumber.h  decQuad.h                   \
 
 decContext.o: decContext.h decimal128.h decNumber.h decQuad.h decDouble.h
 decContext.o: decDPD.h decimal32.h decNumberLocal.h decSingle.h decimal64.h
-decContext.o: decPacked.h
+decContext.o: decPacked.h ../dps8/dps8_duma.h
 decNumber.o:  decContext.h decimal128.h decNumber.h decQuad.h decDouble.h
 decNumber.o:  decDPD.h decimal32.h decNumberLocal.h decSingle.h decimal64.h
-decNumber.o:  decPacked.h
+decNumber.o:  decPacked.h ../dps8/dps8_duma.h
 
 ###############################################################################
 

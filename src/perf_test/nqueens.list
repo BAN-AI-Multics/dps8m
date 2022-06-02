@@ -12,7 +12,7 @@ COMPILATION LISTING OF SEGMENT nqueens
         6     count = 0;
         7     call queen(11);
         8     return;
-        9 
+        9
        10     place: procedure (ps) returns (fixed bin (35));
        11         dcl ps bin fixed(35);
        12         dcl i  bin fixed(35) init(0);
@@ -22,7 +22,7 @@ COMPILATION LISTING OF SEGMENT nqueens
        16         end;
        17         return (1);
        18     end place;
-       19 
+       19
        20     queen: procedure (n);
        21         dcl n bin fixed (35);
        22         dcl k bin fixed (35);
@@ -47,7 +47,7 @@ COMPILATION LISTING OF SEGMENT nqueens
        41             end;
        42         end;  /* of external while loop  */
        43     end queen;
-       44 
+       44
        45 end nqueens;
 
           SOURCE FILES USED IN THIS COMPILATION.
@@ -88,9 +88,9 @@ Start          0       0       224         234     200         234
 Length       376     200        10         125      23           0
 
 BLOCK NAME                   STACK SIZE     TYPE            WHY NONQUICK/WHO SHARES STACK FRAME
-nqueens                              97 external procedure  is an external procedure.  
-place                                   internal procedure  shares stack frame of external procedure nqueens.  
-queen                                   internal procedure  shares stack frame of external procedure nqueens.  
+nqueens                              97 external procedure  is an external procedure.
+place                                   internal procedure  shares stack frame of external procedure nqueens.
+queen                                   internal procedure  shares stack frame of external procedure nqueens.
 
 STORAGE FOR AUTOMATIC VARIABLES.
 

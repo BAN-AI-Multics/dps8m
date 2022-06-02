@@ -1,14 +1,18 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * -------------------------------------------------------------------------
+ *
  * vmpctool - a virtual memory page cache utility
- * 
+ *
  * vmpctool is forked from vmtouch; the original version
  * is available from https://hoytech.com/vmtouch/
  *
  * -------------------------------------------------------------------------
  *
  * Copyright (c) 2009-2017 Doug Hoyte and contributors.
- * Copyright (c) 2020 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2020-2021 Jeffrey H. Johnson <trnsz@pobox.com>
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
@@ -37,11 +41,13 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * -------------------------------------------------------------------------
  */
 
 #define PROGNAME "vmpctool"
 #define PROGDESC "virtual memory page cache utility"
-#define VMTOUCH_VERSION "2101.13.3 (2021-12-02)"
+#define VMTOUCH_VERSION "2101.14.2-dps (2022-05-27)"
 #define RESIDENCY_CHART_WIDTH 41
 #define CHART_UPDATE_INTERVAL 0.37
 #define KiB 1024
@@ -53,25 +59,41 @@
 #if defined( __linux__ ) || defined( __SVR4__ )
 # define _FILE_OFFSET_BITS 64
 # define _POSIX_SOURCE 1
-# define _XOPEN_SOURCE 600
+# ifdef _XOPEN_SOURCE
+#  undef _XOPEN_SOURCE
+#  define _XOPEN_SOURCE 600
+# endif /* ifdef _XOPEN_SOURCE */
 # define _DEFAULT_SOURCE 1
 # define _BSD_SOURCE 1
 # define _GNU_SOURCE 1
-# if defined ( __linux__ )
-#  define voff64_t __off64_t
-# elif defined ( __SVR4__ )
-#  define __EXTENSIONS__ 1
-#  define voff64_t off_t
-# endif /* if defined (__linux__) */
-#else
-# define voff64_t long long int
 #endif /* if defined( __linux__ ) || defined( __SVR4__ ) */
+
+#if defined ( __linux__ ) && defined ( __GNU_LIBRARY__ )
+# define voff64_t __off64_t
+#endif /* if defined ( __linux__ ) && defined ( __GNU_LIBRARY__ ) */
+
+#if defined ( __SVR4__ )
+# define __EXTENSIONS__ 1
+# define voff64_t off_t
+#endif /* if defined ( __SVR4__ ) */
+
+#ifndef voff64_t
+# define voff64_t long long int
+#endif /* ifndef voff64_t */
+
+#if !defined( __MINGW32__ ) && !defined( __MINGW64__ ) \
+  && !defined( CROSS_MINGW32 ) && !defined( CROSS_MINGW64 )
+# define HAVE_FNMATCH 1
+# define HAVE_MMAN 1
+#endif /* !Windows */
 
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <fnmatch.h>
+#ifdef HAVE_FNMATCH
+# include <fnmatch.h>
+#endif /* ifdef HAVE_FNMATCH */
 #include <inttypes.h>
 #include <libgen.h>
 #include <limits.h>
@@ -85,7 +107,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/mman.h>
+#ifdef HAVE_MMAN
+# include <sys/mman.h>
+#endif /* ifdef HAVE_MMAN */
 #include <sys/resource.h>
 #include <sys/select.h>
 #include <sys/stat.h>
@@ -109,6 +133,8 @@
 # include <sys/mount.h>
 # include <sys/utsname.h>
 #endif /* if defined( __linux__ ) */
+
+#include "../dpsprintf/dpsprintf.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX 4 * KiB
@@ -159,7 +185,6 @@ static size_t o_max_file_size = SIZE_MAX;
 static int o_wait = 0;
 static char *o_batch = NULL;
 static char *o_pidfile = NULL;
-static char *o_output = NULL;
 static int o_0_delim = 0;
 static char *ignore_list[MAX_NUMBER_OF_IGNORES];
 static char *filename_filter_list[MAX_NUMBER_OF_FILENAME_FILTERS];
@@ -185,37 +210,36 @@ send_exit_signal(char code)
 static void
 progversion(void)
 {
-  (void)printf("\r%s %s - %s\n", PROGNAME, VMTOUCH_VERSION, PROGDESC);
+  (void)fprintf(stderr, "\r%s %s - %s\n", PROGNAME, VMTOUCH_VERSION, PROGDESC);
 }
 
 static void
 usage(char *prog)
 {
   progversion();
-  (void)printf("\r USAGE: %s [ SWITCHES ... ] < FILES ... >\n", prog);
-  (void)printf("\r  Switches:\n");
-  (void)printf("\r    -?             \t display this help text and exit\n");
-  (void)printf("\r    -t             \t touch pages from files into memory\n");
-  (void)printf("\r    -e             \t evict pages from files from memory\n");
-  (void)printf("\r    -l             \t lock files pages using mlock(2)\n");
-  (void)printf("\r    -L             \t lock files pages using mlockall(2)\n");
-  (void)printf("\r    -d             \t daemonize %s process\n", PROGNAME);
-  (void)printf("\r    -m <MAXSIZE>   \t process files only up to <MAXSIZE>\n");
-  (void)printf("\r    -p <RANGE>     \t process only specified <RANGE>\n");
-  (void)printf("\r    -f             \t include symbolic link targets\n");
-  (void)printf("\r    -F             \t single filesystem mode\n");
-  (void)printf("\r    -h             \t include hard link targets\n");
-  (void)printf("\r    -i <PATTERN>   \t ignore files matching <PATTERN>\n");
-  (void)printf("\r    -I <PATTERN>   \t only process files matching <PATTERN>\n");
-  (void)printf("\r    -b <INFILE>    \t read files to process from <INFILE>\n");
-  (void)printf("\r    -0             \t use NULL character as seperator\n");
-  (void)printf("\r    -w             \t wait for processes before daemonizing\n");
-  (void)printf("\r    -P <PIDFILE>   \t write a <PIDFILE> to disk\n");
-  (void)printf("\r    -o kv          \t format output as key/value pairs\n");
-  (void)printf("\r    -v             \t verbose; increase output verbosity\n");
-  (void)printf("\r    -V             \t display version information and exit\n");
-  (void)printf("\r    -q             \t quiet; suppress non-essential output\n");
-  exit(1);
+  (void)fprintf(stderr, "\r USAGE: %s [ SWITCHES ... ] < FILES ... >\n", prog);
+  (void)fprintf(stderr, "\r  Switches:\n");
+  (void)fprintf(stderr, "\r    -?             \t display this help text and exit\n");
+  (void)fprintf(stderr, "\r    -t             \t touch pages from files into memory\n");
+  (void)fprintf(stderr, "\r    -e             \t evict pages from files from memory\n");
+  (void)fprintf(stderr, "\r    -l             \t lock files pages using mlock(2)\n");
+  (void)fprintf(stderr, "\r    -L             \t lock files pages using mlockall(2)\n");
+  (void)fprintf(stderr, "\r    -d             \t daemonize %s process\n", PROGNAME);
+  (void)fprintf(stderr, "\r    -m <MAXSIZE>   \t process files only up to <MAXSIZE>\n");
+  (void)fprintf(stderr, "\r    -p <RANGE>     \t process only specified <RANGE>\n");
+  (void)fprintf(stderr, "\r    -f             \t include symbolic link targets\n");
+  (void)fprintf(stderr, "\r    -F             \t single filesystem mode\n");
+  (void)fprintf(stderr, "\r    -h             \t include hard link targets\n");
+  (void)fprintf(stderr, "\r    -i <PATTERN>   \t ignore files matching <PATTERN>\n");
+  (void)fprintf(stderr, "\r    -I <PATTERN>   \t only process files matching <PATTERN>\n");
+  (void)fprintf(stderr, "\r    -b <INFILE>    \t read files to process from <INFILE>\n");
+  (void)fprintf(stderr, "\r    -0             \t use NULL character as seperator\n");
+  (void)fprintf(stderr, "\r    -w             \t wait for processes before daemonizing\n");
+  (void)fprintf(stderr, "\r    -P <PIDFILE>   \t write a <PIDFILE> to disk\n");
+  (void)fprintf(stderr, "\r    -v             \t verbose; increase output verbosity\n");
+  (void)fprintf(stderr, "\r    -V             \t display version information and exit\n");
+  (void)fprintf(stderr, "\r    -q             \t quiet; suppress non-essential output\n");
+  _Exit(1);
 }
 
 static void
@@ -230,7 +254,7 @@ fatal(const char *fmt, ...)
 
   (void)fprintf(stderr, "\rFATAL: %s:%s\n", PROGNAME, buf);
   send_exit_signal(1);
-  exit(1);
+  _Exit(1);
 }
 
 static void
@@ -258,7 +282,7 @@ reopen_all(void)
         "%s:%d: freopen failed\r\n       -> %s (error %d)",
         __func__, __LINE__, strerror(errno), errno);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 }
 
@@ -284,7 +308,7 @@ wait_for_child(void)
             "%s:%d: select failed\r\n       -> %s (error %d)",
             __func__, __LINE__, strerror(errno), errno);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
 
       if (waitpid(daemon_pid, &wait_status, WNOHANG) > 0)
@@ -293,7 +317,7 @@ wait_for_child(void)
             "%s:%d: daemon failure\r\n       -> daemon exited unexpectedly",
             __func__, __LINE__);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
 
       if (FD_ISSET(exit_pipe[0], &rfds))
@@ -306,7 +330,7 @@ wait_for_child(void)
         "%s:%d: read failure\r\n       -> %s (error %d)",
         __func__, __LINE__, strerror(errno), errno);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   return exit_value;
@@ -322,7 +346,7 @@ go_daemon(void)
         "%s:%d: fork failure\r\n       -> %s (error %d)",
         __func__, __LINE__, strerror(errno), errno);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   if (daemon_pid)
@@ -338,7 +362,7 @@ go_daemon(void)
         "%s:%d: setsid failure\r\n       -> %s (error %d)",
         __func__, __LINE__, strerror(errno), errno);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   if (!o_wait)
@@ -410,7 +434,7 @@ parse_size(char *inp)
     {
       fatal("%s:%d: %s", __func__, __LINE__, errstr);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   mult_char = (char)tolower(inp[len - 1]);
@@ -438,7 +462,7 @@ parse_size(char *inp)
         default:
           fatal("%s:%d: unknown multiplier %c", __func__, __LINE__, mult_char);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
       inp[len - 1] = '\0';
     }
@@ -449,7 +473,7 @@ parse_size(char *inp)
     {
       fatal("%s:%d: %s", __func__, __LINE__, errstr);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   val *= mult;
@@ -458,7 +482,7 @@ parse_size(char *inp)
     {
       fatal("%s:%d: %s", __func__, __LINE__, errstr);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   return (int64_t)val;
@@ -471,7 +495,7 @@ bytes2pages(int64_t bytes)
     {
       fatal("%s:%d: pagesize cannot be 0", __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   return ( bytes + pagesize - 1 ) / pagesize;
@@ -495,7 +519,7 @@ parse_range(char *inp)
         {
           fatal("%s:%d: token cannot be NULL", __func__, __LINE__);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
 
       token = strsep(&inp, "-");
@@ -507,7 +531,7 @@ parse_range(char *inp)
         {
           fatal("%s:%d: malformed range; multiple hyphens", __func__, __LINE__);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
     }
 
@@ -516,7 +540,7 @@ parse_range(char *inp)
     {
       fatal("%s:%d: pagesize cannot be 0", __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   offset = ( (unsigned long)lower_range / (unsigned long)pagesize )
@@ -528,7 +552,7 @@ parse_range(char *inp)
         {
           fatal("%s:%d: range limits out of order", __func__, __LINE__);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
 
       max_len = upper_range - offset;
@@ -608,7 +632,7 @@ increment_nofile_rlimit(void)
         "%s:%d: increment_nofile_rlimit: getrlimit failed\r\n       -> %s (error %d)",
         __func__, __LINE__, strerror(errno), errno);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   r.rlim_cur = r.rlim_max + 1; r.rlim_max = r.rlim_max + 1;
@@ -662,7 +686,7 @@ gettimeofday_as_double(void)
         {
           fatal("%s:%d: gettimeofday failure", __func__, __LINE__);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
     }
 
@@ -695,7 +719,7 @@ print_page_residency_chart(FILE *out, char *mincore_array,
 
   stretch_factor = RESIDENCY_CHART_WIDTH - ( pages_in_file / pages_per_char );
 
-  (void)fprintf(out, "\r[");
+  (void)fprintf(stderr, "\r[");
   for (i = 0; i < (int64_t)pages_in_file; i++)
     {
       if (is_mincore_page_resident(mincore_array[i]))
@@ -705,11 +729,11 @@ print_page_residency_chart(FILE *out, char *mincore_array,
       if (j == pages_per_char)
         {
           if (curr == pages_per_char)
-            { (void)fprintf(out, "="); }
+            { (void)fprintf(stderr, "="); }
           else if (curr == 0)
-            { (void)fprintf(out, " "); }
+            { (void)fprintf(stderr, " "); }
           else
-            { (void)fprintf(out, "-"); }
+            { (void)fprintf(stderr, "-"); }
           j = curr = 0;
         }
     }
@@ -717,11 +741,11 @@ print_page_residency_chart(FILE *out, char *mincore_array,
   if (j)
     {
       if (curr == j)
-        { (void)fprintf(out, "="); }
+        { (void)fprintf(stderr, "="); }
       else if (curr == 0)
-        { (void)fprintf(out, " "); }
+        { (void)fprintf(stderr, " "); }
       else
-        { (void)fprintf(out, "-"); }
+        { (void)fprintf(stderr, "-"); }
     }
 
   unsigned long subtint = intlength(pages_in_core);
@@ -735,28 +759,28 @@ print_page_residency_chart(FILE *out, char *mincore_array,
   if (formint < 0)
     { formint = 0; }
 
-  (void)fprintf(out, "]");
+  (void)fprintf(stderr, "]");
 
   if (pages_in_file < RESIDENCY_CHART_WIDTH)
-    { (void)fprintf(out, " "); }
+    { (void)fprintf(stderr, " "); }
 
   if (pages_per_char >= 1)
-    { (void)fprintf(out, " "); }
+    { (void)fprintf(stderr, " "); }
 
   for (long ik = (long)( leadint - subtint ) + leadspc - formint + stretch_factor;
        ik >= 0; --ik)
-         { (void)fprintf(out, " "); }
+         { (void)fprintf(stderr, " "); }
 
-  (void)fprintf(out, "%" PRId64 "/%" PRId64, pages_in_core, pages_in_file);
+  (void)fprintf(stderr, "%" PRId64 "/%" PRId64, pages_in_core, pages_in_file);
   for (long k = formint; k >= 0; --k)
-    { (void)fprintf(out, " "); }
+    { (void)fprintf(stderr, " "); }
 
-  (void)fflush(out); (void)fflush(stderr); (void)fflush(stdout);
-  (void)fprintf(out, "~%s  %-3.0Lf%%",
+  (void)fflush(stderr); (void)fflush(stdout);
+  (void)fprintf(stderr, "~%s  %-3.0Lf%%",
     pretty_print_size(pagesize * pages_in_file),
     (long double)((long double)((long double)pages_in_core + 0.01L )
       / (long double)((long double)pages_in_file + 0.01L ) * 100L ));
-  (void)fflush(out); (void)fflush(stderr); (void)fflush(stdout);
+  (void)fflush(stderr); (void)fflush(stdout);
 }
 
 #ifdef __linux__
@@ -858,7 +882,7 @@ retry_open:
         "%s:%d: discovery of block device size not supported",
         __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
 #endif /* if defined( __linux__ ) */
     }
   else
@@ -903,7 +927,7 @@ retry_open:
     {
       fatal("%s:%d: mmap: %s: not page aligned", __func__, __LINE__, path);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   pages_in_range = (int64_t)bytes2pages((int64_t)len_of_range);
@@ -913,7 +937,7 @@ retry_open:
   if (o_evict)
     {
       if (o_verbose)
-        { (void)fprintf(stdout, "Evicting %s\n", path); }
+        { (void)fprintf(stderr, "Evicting %s\n", path); }
 
 #if defined( __linux__ )
 # ifdef POSIX_FADV_DONTNEED
@@ -941,7 +965,7 @@ retry_open:
 #else  /* if defined( __linux__ ) */
       fatal("%s:%d: cache eviction not supported", __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
 #endif /* if defined( __linux__ ) */
     }
   else
@@ -963,7 +987,7 @@ retry_open:
             "%s:%d: mincore failed for %s\r\n       -> %s (error %d)",
             __func__, __LINE__, path, strerror(errno), errno);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
 #else /* if !defined( __OpenBSD__) */
       if ( !o_quiet )
@@ -985,15 +1009,15 @@ retry_open:
               if (path[0] == '/' && path[1] == '/')
                 {
                   char *ctpath = path + 1;
-                  (void)fprintf(stdout, "\r%s\n", ctpath);
+                  (void)fprintf(stderr, "\r%s\n", ctpath);
                 }
               else
-                { (void)fprintf(stdout, "\r%s\n", path); }
+                { (void)fprintf(stderr, "\r%s\n", path); }
             }
           else
             {
               (void)fprintf(
-                stdout,
+                stderr,
                 "\r... %s\n",
                 ( path + ( strlen(path) - ( 33 + RESIDENCY_CHART_WIDTH ))));
             }
@@ -1008,7 +1032,7 @@ retry_open:
 #endif /* ifdef __linux__ */
 
           last_chart_print_time = gettimeofday_as_double();
-          print_page_residency_chart(stdout, mincore_array, pages_in_range);
+          print_page_residency_chart(stderr, mincore_array, pages_in_range);
         }
 
       if (o_touch)
@@ -1025,7 +1049,7 @@ retry_open:
                   if (temp_time > ( last_chart_print_time + CHART_UPDATE_INTERVAL ))
                     {
                       last_chart_print_time = temp_time;
-                      print_page_residency_chart(stdout, mincore_array, pages_in_range);
+                      print_page_residency_chart(stderr, mincore_array, pages_in_range);
                     }
                 }
             }
@@ -1033,8 +1057,8 @@ retry_open:
 
       if (o_verbose)
         {
-          print_page_residency_chart(stdout, mincore_array, pages_in_range);
-          (void)fprintf(stdout, "\n");
+          print_page_residency_chart(stderr, mincore_array, pages_in_range);
+          (void)fprintf(stderr, "\n");
         }
 
       free(mincore_array);
@@ -1083,13 +1107,13 @@ compare_func(const void *p1, const void *p2)
 static inline void
 add_object(struct stat *st)
 {
-  struct dev_and_inode *newp = malloc(sizeof ( struct dev_and_inode ));
+  struct dev_and_inode *newp = malloc( sizeof ( struct dev_and_inode ) );
 
   if (newp == NULL)
     {
       fatal("%s:%d: malloc: out of memory", __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   newp->dev = st->st_dev; newp->ino = st->st_ino;
@@ -1097,10 +1121,11 @@ add_object(struct stat *st)
     {
       fatal("%s:%d: tsearch: out of memory", __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 }
 
+#ifdef HAVE_FNMATCH
 static int
 is_ignored(const char *path)
 {
@@ -1154,6 +1179,7 @@ is_filename_filtered(const char *path)
   free(path_copy);
   return match;
 }
+#endif /* ifdef HAVE_FNMATCH */
 
 static inline int
 find_object(struct stat *st)
@@ -1185,8 +1211,10 @@ vmpc_rdir(char *path)
   if (path[tp_path_len - 1] == '/' && tp_path_len > 1)
     { path[tp_path_len - 1] = '\0'; }
 
+#ifdef HAVE_FNMATCH
   if (is_ignored(path))
     { return; }
+#endif /* ifdef HAVE_FNMATCH */
 
   res = o_followsymlinks ? stat(path, &sb) : lstat(path, &sb);
 
@@ -1251,7 +1279,7 @@ vmpc_rdir(char *path)
                 "%s:%d: maximum directory depth reached: %s",
                 __func__, __LINE__, path);
               /* NOTREACHED */
-              exit(1);
+              _Exit(1);
             }
 
           total_dirs++;
@@ -1308,7 +1336,9 @@ bail:
         }
       else if (S_ISREG(sb.st_mode) || S_ISBLK(sb.st_mode))
         {
+#ifdef HAVE_FNMATCH
           if (is_filename_filtered(path))
+#endif /* ifdef HAVE_FNMATCH */
             { total_files++; vmpc_file(path); }
         }
       else
@@ -1400,7 +1430,8 @@ signal_handler_clear_pidfile(int signal_num)
 static void
 register_signals_for_pidfile(void)
 {
-  struct sigaction sa = { 0 };
+  struct sigaction sa;;
+  memset( &sa, 0, sizeof(sa) );
 
   sa.sa_handler = signal_handler_clear_pidfile;
   if (sigaction(SIGINT, &sa, NULL) < 0 || sigaction(SIGTERM, &sa, NULL) < 0
@@ -1421,7 +1452,7 @@ main(int argc, char **argv)
   struct timeval end_time;
 
   setlocale(LC_NUMERIC, "");
-  
+
   if (pipe(exit_pipe))
     {
       fatal(
@@ -1436,7 +1467,7 @@ main(int argc, char **argv)
     {
       fatal("%s:%d: unable to determine pagesize", __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   while (( ch = getopt(argc, argv, "?tevVqlLdfFh0i:I:p:b:m:P:wo:")) != -1)
@@ -1515,7 +1546,7 @@ main(int argc, char **argv)
             {
               fatal("%s:%d: value for -m exceeds limit", __func__, __LINE__);
               /* NOTREACHED */
-              exit(1);
+              _Exit(1);
             }
 
           break;
@@ -1537,9 +1568,6 @@ main(int argc, char **argv)
           o_pidfile = optarg;
           break;
 
-        case 'o':
-          o_output = optarg;
-          break;
         }
     }
 
@@ -1553,7 +1581,7 @@ main(int argc, char **argv)
             "%s:%d: invalid option combination: -t and -e",
             __func__, __LINE__);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
     }
 
@@ -1565,7 +1593,7 @@ main(int argc, char **argv)
             "%s:%d: invalid option combination: -e and -l",
             __func__, __LINE__);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
     }
 
@@ -1575,7 +1603,7 @@ main(int argc, char **argv)
         "%s:%d: invalid option combination: -l and -L",
         __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   if (o_daemon)
@@ -1586,7 +1614,7 @@ main(int argc, char **argv)
             "%s:%d: invalid optionncombination: missing -l or -L",
             __func__, __LINE__);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
 
       if (!o_wait)
@@ -1599,7 +1627,7 @@ main(int argc, char **argv)
         "%s:%d: invalid option combination: missing -d",
         __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   if (o_quiet && o_verbose)
@@ -1608,7 +1636,7 @@ main(int argc, char **argv)
         "%s:%d: invalid option combination: -q and -v",
         __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   if (o_pidfile && ( !o_lock && !o_lockall ))
@@ -1617,7 +1645,7 @@ main(int argc, char **argv)
         "%s:%d: invslid option combination: missing -l or -L",
         __func__, __LINE__);
       /* NOTREACHED */
-      exit(1);
+      _Exit(1);
     }
 
   if (!argc && !o_batch)
@@ -1626,7 +1654,7 @@ main(int argc, char **argv)
         stderr,
         "Incorrect number of arguments; try %s '-?' for help.\n",
         prog);
-      exit(1);
+      _Exit(1);
     }
 
   if (o_daemon)
@@ -1650,7 +1678,7 @@ main(int argc, char **argv)
         {
           fatal("%s:%d: gettimeofday failure", __func__, __LINE__);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
     }
 
@@ -1678,7 +1706,7 @@ main(int argc, char **argv)
         {
           fatal("%s:%d: gettimeofday failure", __func__, __LINE__);
           /* NOTREACHED */
-          exit(1);
+          _Exit(1);
         }
     }
 
@@ -1694,6 +1722,7 @@ main(int argc, char **argv)
     {
       if (o_lockall)
         {
+#ifndef __CYGWIN__
           if (mlockall(MCL_CURRENT))
             {
               fatal(
@@ -1704,6 +1733,13 @@ main(int argc, char **argv)
               /* NOTREACHED */
               exit(errno);
             }
+#else
+          fatal(
+            "%s:%d: unable to mlockall on Cygwin\r\n       -> Unavailable (error -1)",
+            __func__, __LINE__);
+          /* NOTREACHED */
+          _Exit(1);
+#endif /* ifndef __CYGWIN__ */
         }
 
       if (o_pidfile)
@@ -1711,7 +1747,7 @@ main(int argc, char **argv)
 
       if (!o_quiet)
         {
-          (void)printf(
+          (void)fprintf(stderr,
             "LOCKED %'" PRId64 " pages (%s)\n",
             total_pages,
             pretty_print_size(total_pages_size));
@@ -1727,78 +1763,66 @@ main(int argc, char **argv)
 
   if (!o_quiet)
     {
-      if (o_output == NULL)
-        {
-          if (o_verbose)
-            { (void)printf("\n"); }
+      {
+        if (o_verbose)
+          { (void)fprintf(stderr, "\n"); }
 
-          (void)printf("           Files: %'" PRId64 "\n", total_files);
-          (void)printf("     Directories: %'" PRId64 "\n", total_dirs);
-          if (o_touch)
-            {
-              (void)printf(
-                "   Touched Pages: %'" PRId64 " (%s)\n",
-                total_pages,
-                pretty_print_size(total_pages_size));
-            }
-          else if (o_evict)
-            {
-              (void)printf(
-                "   Evicted Pages: %'" PRId64 " (%s)\n",
-                total_pages,
-                pretty_print_size(total_pages_size));
-            }
-          else
-            {
-              (void)printf(
-                "  Resident Pages: %'" PRId64 "/%'" PRId64 "  ",
-                total_pages_in_core,
-                total_pages);
-              (void)printf("%s/", pretty_print_size(total_pages_in_core_size));
-              (void)printf("%s  ", pretty_print_size(total_pages_size));
-              if (total_pages)
-                {
-                  (void)printf("%.3g%%", total_pages_in_core_perc);
-                }
+        (void)fprintf(stderr, "           Files: %'" PRId64 "\n", total_files);
+        (void)fprintf(stderr, "     Directories: %'" PRId64 "\n", total_dirs);
+        if (o_touch)
+          {
+            (void)fprintf(stderr,
+              "   Touched Pages: %'" PRId64 " (%s)\n",
+              total_pages,
+              pretty_print_size(total_pages_size));
+          }
+        else if (o_evict)
+          {
+            (void)fprintf(stderr,
+              "   Evicted Pages: %'" PRId64 " (%s)\n",
+              total_pages,
+              pretty_print_size(total_pages_size));
+          }
+        else
+          {
+            (void)fprintf(stderr,
+              "  Resident Pages: %'" PRId64 "/%'" PRId64 "  ",
+              total_pages_in_core,
+              total_pages);
+            (void)fprintf(stderr, "%s/", pretty_print_size(total_pages_in_core_size));
+            (void)fprintf(stderr, "%s  ", pretty_print_size(total_pages_size));
+            if (total_pages)
+              {
+                (void)fprintf(stderr, "%.3g%%", total_pages_in_core_perc);
+              }
 
-              (void)printf("\n");
-            }
+            (void)fprintf(stderr, "\n");
+          }
 
-          (void)elapsed;
-          if (elapsed <= 0)
-            {
-              (void)printf("         Elapsed: -- seconds\n");
-            }
+        (void)elapsed;
+        if (elapsed <= 0)
+          {
+            (void)fprintf(stderr, "         Elapsed: -- seconds\n");
+          }
 
-          if (elapsed < 0.001)
-            {
-              (void)printf(
-                "         Elapsed: %.5g microseconds\n",
-                elapsed * 1000000);
-            }
-          else if (elapsed < 0.01)
-            {
-              (void)printf("         Elapsed: %.5g milliseconds\n", elapsed * 1000);
-            }
-          else
-            {
-              (void)printf("         Elapsed: %.5g seconds\n", elapsed);
-            }
-        }
-      else if (strncmp(o_output, "kv", 2) == 0)
-        {
-          char *desc = o_touch ? "Touched" : o_evict ? "Evicted" : "Resident";
-          (void)printf(
-            "Files=%" PRId64 " Directories=%" PRId64
-            " %sPages=%" PRId64 " TotalPages=%" PRId64
-            " %sSize=%" PRId64 " TotalSize=%" PRId64
-            " %sPercent=%.3g Elapsed=%.5g\n",
-            total_files, total_dirs, desc,
-            total_pages_in_core, total_pages, desc,
-            total_pages_in_core_size, total_pages_size, desc,
-            total_pages_in_core_perc, elapsed);
-        }
-    }
+        if (elapsed < 0.001)
+          {
+            (void)fprintf(stderr,
+              "         Elapsed: %.5g microseconds\n",
+              elapsed * 1000000);
+          }
+        else if (elapsed < 0.01)
+          {
+            (void)fprintf(stderr, "         Elapsed: %.5g milliseconds\n", elapsed * 1000);
+          }
+        else
+          {
+            (void)fprintf(stderr, "         Elapsed: %.5g seconds\n", elapsed);
+          }
+      }
+  }
 
+  _Exit(0);
+  /* NOTREACHED */
   return 0;
 }

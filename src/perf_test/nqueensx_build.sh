@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# vim: filetype=sh:tabstop=4:tw=76:expandtab
+
 set -eu > /dev/null 2>&1
 # Assemble
 ../../../dps8m_devel_tools/src/as8+/as8+ nqueensx.as8 -o nqueensx.oct

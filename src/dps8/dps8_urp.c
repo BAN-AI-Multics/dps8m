@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -24,6 +30,8 @@
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
+
+#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 
@@ -82,18 +90,18 @@ UNIT urp_unit [N_URP_UNITS_MAX] = {
 static DEBTAB urp_dt [] =
   {
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "TRACE", DBG_TRACE, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    {   "INFO",   DBG_INFO, NULL },
+    {    "ERR",    DBG_ERR, NULL },
+    {   "WARN",   DBG_WARN, NULL },
+    {  "DEBUG",  DBG_DEBUG, NULL },
+    {  "TRACE",  DBG_TRACE, NULL },
+    {    "ALL",    DBG_ALL, NULL }, // don't move as it messes up DBG message
+    {     NULL,          0, NULL }
   };
 
 static t_stat urpShowUnits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
   {
-    sim_printf("Number of URPunits in system is %d\n", urp_dev.numunits);
+    sim_printf("Number of URP units in system is %d\n", urp_dev.numunits);
     return SCPE_OK;
   }
 
@@ -139,24 +147,24 @@ static MTAB urp_mod [] =
     { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      urpSetUnits, /* validation routine */
-      urpShowUnits, /* display routine */
-      "Number of URPunits in the system", /* value descriptor */
-      NULL // Help
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask               */
+      0,                                          /* match              */
+      "NUNITS",                                   /* print string       */
+      "NUNITS",                                   /* match string       */
+      urpSetUnits,                                /* validation routine */
+      urpShowUnits,                               /* display routine    */
+      "Number of URP units in the system",        /* value descriptor   */
+      NULL                                        /* help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      urpSetDeviceName, /* validation routine */
-      urpShowDeviceName, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,  /* mask               */
+      0,                                          /* match              */
+      "NAME",                                     /* print string       */
+      "NAME",                                     /* match string       */
+      urpSetDeviceName,                           /* validation routine */
+      urpShowDeviceName,                          /* display routine    */
+      "Set the device name",                      /* value descriptor   */
+      NULL                                        /* help               */
     },
 
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
@@ -167,40 +175,38 @@ static t_stat urpReset (UNUSED DEVICE * dptr)
     return SCPE_OK;
   }
 
-
 DEVICE urp_dev = {
-    "URP",       /*  name */
-    urp_unit,    /* units */
-    NULL,         /* registers */
-    urp_mod,     /* modifiers */
-    N_PRU_UNITS, /* #units */
-    10,           /* address radix */
-    24,           /* address width */
-    1,            /* address increment */
-    8,            /* data radix */
-    36,           /* data width */
-    NULL,         /* examine */
-    NULL,         /* deposit */
-    urpReset,   /* reset */
-    NULL,         /* boot */
-    NULL,         /* attach */
-    NULL,         /* detach */
-    NULL,         /* context */
-    DEV_DEBUG,    /* flags */
+    "URP",        /* name                */
+    urp_unit,     /* unit                */
+    NULL,         /* registers           */
+    urp_mod,      /* modifiers           */
+    N_PRU_UNITS,  /* number of units     */
+    10,           /* address radix       */
+    24,           /* address width       */
+    1,            /* address increment   */
+    8,            /* data radix          */
+    36,           /* data width          */
+    NULL,         /* examine             */
+    NULL,         /* deposit             */
+    urpReset,     /* reset               */
+    NULL,         /* boot                */
+    NULL,         /* attach              */
+    NULL,         /* detach              */
+    NULL,         /* context             */
+    DEV_DEBUG,    /* flags               */
     0,            /* debug control flags */
-    urp_dt,      /* debug flag names */
-    NULL,         /* memory size change */
-    NULL,         /* logical name */
-    NULL,         // help
-    NULL,         // attach help
-    NULL,         // attach context
-    NULL,         // description
-    NULL
+    urp_dt,       /* debug flag names    */
+    NULL,         /* memory size change  */
+    NULL,         /* logical name        */
+    NULL,         /* help                */
+    NULL,         /* attach help         */
+    NULL,         /* attach context      */
+    NULL,         /* description         */
+    NULL          /* end                 */
 };
 
 /*
  * urp_init()
- *
  */
 
 // Once-only initialization
@@ -209,7 +215,6 @@ void urp_init (void)
   {
     memset (urpState, 0, sizeof (urpState));
   }
-
 
 static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];

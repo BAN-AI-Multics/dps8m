@@ -1,7 +1,11 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2021 Troy D. Hanson
  *     http://troydhanson.github.io/uthash/
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
@@ -22,6 +26,8 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #ifndef UTLIST_H
@@ -172,7 +178,6 @@ do {                                                                            
     }                                                                                          \
   }                                                                                            \
 } while (0)
-
 
 # define DL_SORT(list, cmp)                                                                    \
     DL_SORT2(list, cmp, prev, next)
@@ -508,7 +513,6 @@ do {                                                                            
  }                                                                                             \
 } while (0)                                                                                    \
 
-
 /*
  ******************************************************************************
  * doubly linked list macros (non-circular)                                   *
@@ -586,7 +590,6 @@ do {                                                                            
   }                                                                                            \
 } while (0)
 
-
 # define DL_FOREACH(head,el)                                                                   \
     DL_FOREACH2(head,el,next)
 
@@ -654,7 +657,6 @@ do {                                                                            
   (add)->prev->next = (add);                                                                   \
  }                                                                                             \
 } while (0)                                                                                    \
-
 
 /*
  ******************************************************************************

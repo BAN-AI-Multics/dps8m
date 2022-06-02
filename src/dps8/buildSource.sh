@@ -1,18 +1,19 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2248,SC2250
-#
-###############################################################################
+# vim: filetype=sh:tabstop=4:tw=78:expandtab
+
+##############################################################################
 #
 # Copyright (c) 2014-2016 Charles Anthony
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #
-# This software is made available under the terms of the ICU  
+# This software is made available under the terms of the ICU
 # License, version 1.8.1 or later.  For more details, see the
 # LICENSE.md file at the top-level directory of this distribution.
 #
-###############################################################################
+##############################################################################
 
 T=./source/
 S3=./MR12.3+5/
@@ -39,7 +40,7 @@ mdmv() {
   bn="$(basename "${1}")" &&
   dn="$(dirname "${1}")" &&
   mv "${1}" "${2}" &&
-  mv "${dn}/.${bn}.md" "${2}" && 
+  mv "${dn}/.${bn}.md" "${2}" &&
   {
     unset dn > /dev/null 2>&1 || true
     unset bn > /dev/null 2>&1 || true
@@ -48,15 +49,15 @@ mdmv() {
 
 #mv $S5/documentation/MR12.5/* $S3/documentation/
 cp -r $S5/documentation/MR12.5/* $S3/documentation/
-rm -r $S5/documentation/MR12.5/ 
-rmdir $S5/documentation 
+rm -r $S5/documentation/MR12.5/
+rmdir $S5/documentation
 
 cp -r $S5/library_dir_dir/crossref $S3/library_dir_dir
 rm -r $S5/library_dir_dir/crossref
 
 cp -r $S5/library_dir_dir/system_library_1/info/ $S3/library_dir_dir/system_library_1/
 rm -r $S5/library_dir_dir/system_library_1/info
-rmdir $S5/library_dir_dir/system_library_1 
+rmdir $S5/library_dir_dir/system_library_1
 
 mkdir $S3/library_dir_dir/MR12.5/
 mdmv $S5/library_dir_dir/MR12.5/12.5.C_COMPILER/bound_cc_commands $S3/system_library_3rd_party/C_COMPILER/executable/
@@ -247,7 +248,6 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_system_security.archive $S3/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_tty_active.archive $S3/library_dir_dir/system_library_1/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_volume_reloader_.archive $S3/library_dir_dir/system_library_1/object/
 
-
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_volume_reloader_ $S3/library_dir_dir/system_library_1/execution/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_system_control_ $S3/library_dir_dir/system_library_1/execution/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_segment_control $S3/library_dir_dir/system_library_1/execution/
@@ -330,7 +330,6 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_command_loop_.s.archive $S3/libra
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_command_env_.s.archive $S3/library_dir_dir/system_library_standard/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_as_misc_.s.archive $S3/library_dir_dir/system_library_tools/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_active_function_.s.archive $S3/library_dir_dir/system_library_standard/source/
-
 
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_volume_retv_.archive $S3/library_dir_dir/system_library_tools/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_user_ctl_.archive $S3/library_dir_dir/system_library_tools/object/
@@ -518,17 +517,17 @@ cat > $T/README.txt <<NOTICE
 Historical Background
 
 This edition of the Multics software materials and documentation is provided and donated
-to Massachusetts Institute of Technology by Group BULL including BULL HN Information Systems Inc. 
-as a contribution to computer science knowledge.  
+to Massachusetts Institute of Technology by Group BULL including BULL HN Information Systems Inc.
+as a contribution to computer science knowledge.
 This donation is made also to give evidence of the common contributions of Massachusetts Institute of Technology,
 Bell Laboratories, General Electric, Honeywell Information Systems Inc., Honeywell BULL Inc., Groupe BULL
-and BULL HN Information Systems Inc. to the development of this operating system. 
+and BULL HN Information Systems Inc. to the development of this operating system.
 Multics development was initiated by Massachusetts Institute of Technology Project MAC (1963-1970),
 renamed the MIT Laboratory for Computer Science and Artificial Intelligence in the mid 1970s, under the leadership
-of Professor Fernando Jose Corbato. Users consider that Multics provided the best software architecture 
-for managing computer hardware properly and for executing programs. Many subsequent operating systems 
+of Professor Fernando Jose Corbato. Users consider that Multics provided the best software architecture
+for managing computer hardware properly and for executing programs. Many subsequent operating systems
 incorporated Multics principles.
-Multics was distributed in 1975 to 2000 by Group Bull in Europe , and in the U.S. by Bull HN Information Systems Inc., 
+Multics was distributed in 1975 to 2000 by Group Bull in Europe , and in the U.S. by Bull HN Information Systems Inc.,
 as successor in interest by change in name only to Honeywell Bull Inc. and Honeywell Information Systems Inc. .
 
                                           -----------------------------------------------------------

@@ -1,10 +1,10 @@
 # DPS/8M simulator: src/Makefile.loc
-# vim: filetype=make:tabstop=4:tw=76
-#
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+
 ###############################################################################
 #
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # All rights reserved.
 #
@@ -20,12 +20,19 @@
 ###############################################################################
 
 ###############################################################################
+# DUMA support?
+
+ifdef DUMA
+  DUMACFG = CFLAGS=\"-I../../src/dps8 -include dps8_duma.h\"
+endif
+
+###############################################################################
 # Convenience target: Builds libuv from source code (release)
 
-RELVER=v1.42.0
+RELVER=v1.44.1
 RELNAM=libuv-$(RELVER).tar.gz
 LIBREL=https://dist.libuv.org/dist/$(RELVER)/$(RELNAM)
-LUVSUM=332408242
+LUVSUM=1378990356
 
 .PHONY: libuvrel
 libuvrel:                                                                     \
@@ -46,11 +53,16 @@ libuvrel:                                                                     \
 	@$(PRINTF) '%s\n' "Decompress archive ..."
 	@$(SETV); ($(CD) "libuv-local" && $(GZCAT) $(RELNAM) | $(TAR) xvf - )
 	@$(PRINTF) '%s\n' "Configure and build libuv ..."
-	@$(SETV); ($(CD) "libuv-local/libuv-$(RELVER)" && $(SHELL) autogen.sh &&  \
-      $(SHELL) "configure" $(LOCAL_CONFOPTS) --disable-shared --enable-static \
-        --disable-dependency-tracking --prefix="$$($(GCWD) -P)/../local" &&   \
-            $(MAKE) $(MAKEFLAGS) && $(MAKE) install && $(MAKE) clean) &&      \
-                $(PRINTF) '%s\n' "*** Local libuv built successfully!"
+	@$(PRINTF) '%s\n' "# NOTE: Broken pipe / could not flush stdout messages" \
+                      "        are expected below and can be safely ignored."
+	@$(SETV); ($(CD) "libuv-local/libuv-$(RELVER)" &&                         \
+      $(ENV) $(SHELL) autogen.sh &&                                           \
+        eval export $(DUMACFG) &&                                             \
+          $(SHELL) "configure" $(LOCAL_CONFOPTS) --disable-shared             \
+            --enable-static --disable-dependency-tracking                     \
+              --prefix="$$($(GCWD) -P)/../local" &&   \
+                $(MAKE) $(MAKEFLAGS) && $(MAKE) install && $(MAKE) clean) &&  \
+                   $(PRINTF) '%s\n' "*** Local libuv built successfully!"
 
 ###############################################################################
 # Convenience target: Builds libuv from GitHub (development)
@@ -73,10 +85,14 @@ libuvdev:                                                                     \
 	@$(SETV); ($(CD) "libuv-local" &&                                         \
         $(GIT) clone $(LOCAL_CLONEOPTS) -b $(LIBUVBRN) $(LIBUVGIT))
 	@$(PRINTF) '%s\n' "Configure and build libuv ..."
-	@$(SETV); ($(CD) "libuv-local/libuv" && $(SHELL) autogen.sh &&            \
-      $(SHELL) "configure" $(LOCAL_CONFOPTS) --disable-shared --enable-static \
-        --disable-dependency-tracking --prefix="$$($(GCWD) -P)/../local" &&   \
-            $(MAKE) $(MAKEFLAGS) && $(MAKE) install && $(MAKE) clean) &&      \
+	@$(PRINTF) '%s\n' "# NOTE: Broken pipe / could not flush stdout messages" \
+                      "        are expected below and can be safely ignored."
+	@$(SETV); ($(CD) "libuv-local/libuv" && $(ENV) $(SHELL) autogen.sh &&     \
+      eval export $(DUMACFG) &&                                               \
+        $(SHELL) "configure" $(LOCAL_CONFOPTS) --disable-shared               \
+		  --enable-static --disable-dependency-tracking                       \
+            --prefix="$$($(GCWD) -P)/../local" &&                             \
+              $(MAKE) $(MAKEFLAGS) && $(MAKE) install && $(MAKE) clean) &&    \
                 $(PRINTF) '%s\n' "*** Local libuv built successfully!"
 
 ###############################################################################
@@ -91,16 +107,18 @@ ifneq (,$(wildcard libuv-local/local/include/uv.h))
         endif
       endif
       ifneq (,$(wildcard libuv-local/local/lib/pkgconfig/libuv.pc))
-        Pklibs=$(shell exec 2> /dev/null; eval $$( $(TR) -d '"' <             \
-          libuv-local/local/lib/pkgconfig/libuv.pc | $(SED) 's/=/="/' |       \
-            $(SED) 's/: /="/' | $(GREP) '"' | $(SED) 's/$$/"/' |              \
-              $(SED) 's/\ \+"/"/g' | $(GREP) '=".*"$$' );                     \
-                $(PRINTF) '%s\n' $$Libs)
-        Pkcflags=$(shell exec 2> /dev/null; eval $$( $(TR) -d '"' <           \
-          libuv-local/local/lib/pkgconfig/libuv.pc | $(SED) 's/=/="/' |       \
-            $(SED) 's/: /="/' | $(GREP) '"' | $(SED) 's/$$/"/' |              \
-              $(SED) 's/\ \+"/"/g' | $(GREP) '=".*"$$' );                     \
-                $(PRINTF) '%s\n' $$Cflags)
+        Pklibs=$(shell exec 2> /dev/null; eval $$( 2> /dev/null $(TR) -d '"' \
+          < libuv-local/local/lib/pkgconfig/libuv.pc | $(SED) 's/=/="/'      \
+            2> /dev/null | $(SED) 's/: /="/' 2> /dev/null | $(GREP) '"'      \
+              2> /dev/null | $(SED) 's/$$/"/' 2> /dev/null |                 \
+                $(SED) 's/\ \+"/"/g' 2> /dev/null | $(GREP) '=".*"$$'        \
+                  2> /dev/null ); $(PRINTF) '%s\n' $$Libs)
+        Pkcflags=$(shell exec 2> /dev/null; eval $$( 2> /dev/null            \
+          $(TR) -d '"' < libuv-local/local/lib/pkgconfig/libuv.pc |          \
+            $(SED) 's/=/="/' 2> /dev/null | $(SED) 's/: /="/' 2> /dev/null | \
+              $(GREP) '"' 2> /dev/null | $(SED) 's/$$/"/' 2> /dev/null |     \
+                $(SED) 's/\ \+"/"/g' 2> /dev/null | $(GREP) '=".*"$$'        \
+                  2> /dev/null ); $(PRINTF) '%s\n' $$Cflags)
       endif
       ifeq (,$(findstring uv,$(Pklibs)))
         Pklibs=../../libuv-local/local/lib/libuv.a
@@ -108,9 +126,15 @@ ifneq (,$(wildcard libuv-local/local/include/uv.h))
       ifeq (,$(findstring -,$(Pkcflags)))
         Pkcflags=-I../../libuv-local/local/include
       endif
-      CFLAGS+=$(Pkcflags)
+      # This horrible construct is to work around an old make bug.
+      LLUVFLAGS=$(shell $(PRINTF) %s%s\\n \
+                   "$(Pkcflags) -I..\/..\/libuv-local\/local\/include " \
+                     " $(CFLAGS)" | $(SED) 's/-I -I/-I/' 2> /dev/null)
+	  CFLAGS:=$(shell $(PRINTF) %s\\n "$(LLUVFLAGS)")
       export CFLAGS
-      LIBUV=$(Pklibs)
+      LIBUV=$(shell $(PRINTF) %s\\n "$(Pklibs)" | \
+              $(SED) 's/-L -luv/..\/..\/libuv-local\/local\/lib\/libuv.a /' \
+                2> /dev/null)
       export LIBUV
       export LOCAL_LIBUV=1
     endif

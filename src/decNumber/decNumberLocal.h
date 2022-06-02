@@ -1,3 +1,4 @@
+// vim: filetype=c:tabstop=4:tw=72:expandtab
 /* ------------------------------------------------------------------ */
 /* decNumber package local type, tuning, and macro definitions        */
 /* ------------------------------------------------------------------ */
@@ -35,6 +36,8 @@
 # endif
 
 # include <sys/types.h>
+
+# include "../dpsprintf/dpsprintf.h"
 
 # if defined(__linux__) || defined(__CYGWIN__) || \
      defined(__GNU__)   || defined(__GLIBC__)  || \
@@ -120,7 +123,6 @@
                               /* rounded up to a multiple of 4; must  */
                               /* be zero or positive.                 */
 # endif
-
 
   /* ---------------------------------------------------------------- */
   /* Check parameter dependencies                                     */
@@ -226,7 +228,6 @@
 # define BILLION      1000000000             /* 10**9                 */
   /* CHARMASK: 0x30303030 for ASCII/UTF8; 0xF0F0F0F0 for EBCDIC       */
 # define CHARMASK ((((((((uInt)'0')<<8)+'0')<<8)+'0')<<8)+'0')
-
 
   /* ---------------------------------------------------------------- */
   /* Definitions for arbitary-precision modules (only valid after     */
@@ -724,7 +725,6 @@
       (buf)[11]=DECCOMBMSD[sourhi>>26];}
 #  endif
 
-
     /* Macros to decode the coefficient in a finite decFloat *df and  */
     /* add to a base-thousand uInt array (as for GETCOEFFTHOU).       */
     /* After the addition then most significant 'digit' in the array  */
@@ -786,7 +786,6 @@
       if (buf[10]>999) {buf[10]-=1000; buf[11]++;}                     \
       (buf)[11]+=DECCOMBMSD[sourhi>>26];}
 #  endif
-
 
     /* Set a decFloat to the maximum positive finite number (Nmax)    */
 #  if DECPMAX==7

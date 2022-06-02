@@ -1,7 +1,11 @@
 /* sim_disk.c: simulator disk support library
 
+   vim: filetype=c:tabstop=4:tw=100:expandtab
+
+   ---------------------------------------------------------------------------
+
    Copyright (c) 2011 Mark Pizzolato
-   Copyright (c) 2021 The DPS8M Development Team
+   Copyright (c) 2021-2022 The DPS8M Development Team
 
    Permission is hereby granted, free of charge, to any person obtaining a
    copy of this software and associated documentation files (the "Software"),
@@ -10,22 +14,26 @@
    and/or sell copies of the Software, and to permit persons to whom the
    Software is furnished to do so, subject to the following conditions:
 
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
+   The above copyright notice and this permission notice shall be included
+   in all copies or substantial portions of the Software.
 
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+   IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
+   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+   OTHER DEALINGS IN THE SOFTWARE.
 
-   Except as contained in this notice, the names of Mark Pizzolato shall not be
-   used in advertising or otherwise to promote the sale, use or other dealings
-   in this Software without prior written authorization from Mark Pizzolato.
+   Except as contained in this notice, the names of Mark Pizzolato shall not
+   be used in advertising or otherwise to promote the sale, use or other
+   dealings in this Software without prior written authorization from Mark
+   Pizzolato.
 
    This is the place which hides processing of various disk formats,
    as well as OS-specific direct hardware access.
+
+   ---------------------------------------------------------------------------
 */
 
 /*
@@ -85,6 +93,8 @@ Internal routines:
 #ifndef DECLITEND
 # error Unknown platform endianness
 #endif /* ifndef DECLITEND */
+
+#include "../dpsprintf/dpsprintf.h"
 
 struct disk_context {
     DEVICE              *dptr;              /* Device for unit (access to debug flags) */
@@ -1453,7 +1463,6 @@ switch (DK_GET_FMT (uptr)) {                            /* case on format */
 return SCPE_OK;
 }
 
-
 void sim_disk_data_trace(UNIT *uptr, const uint8 *data, size_t lba, size_t len, const char* txt, int detail, uint32 reason)
 {
 struct disk_context *ctx = (struct disk_context *)uptr->disk_ctx;
@@ -1465,7 +1474,6 @@ if (sim_deb && (ctx->dptr->dctrl & reason)) {
     sim_data_trace(ctx->dptr, uptr, (detail ? data : NULL), pos, len, txt, reason);
     }
 }
-
 
 /* OS Specific RAW Disk I/O support */
 

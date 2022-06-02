@@ -1,3 +1,4 @@
+// vim: filetype=c:tabstop=4:tw=72:expandtab
 /* ------------------------------------------------------------------ */
 /* Decimal Context module header                                      */
 /* ------------------------------------------------------------------ */
@@ -46,6 +47,8 @@
 # endif
 # include <stdio.h>                /* for printf, etc.                */
 # include <signal.h>               /* for traps                       */
+
+# include "../dpsprintf/dpsprintf.h"
 
   /* Extended flags setting -- set this to 0 to use only IEEE flags   */
 # if !defined(DECEXTFLAG)

@@ -3,19 +3,21 @@ set userName Clayton
 set projName SysAdmin
 set password password
 
+#exp_internal -f ci_t2.debug.log 1
+
 remove_nulls 1
-match_max 4096
-set timeout 350000
+match_max 14096
+set timeout 750000
 
 cd ./run
 
-proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2}
-proc  wi {     } { expect -re {Input.\r}; sleep 0.2}
-proc  wn {     } { expect -re {\n}; sleep 0.2}
-proc  sw { txt } { send $txt; send "\r"; w }
+proc   w {     } { expect -re {\nr [0-9]+:[0-9]+ .*\r}; sleep 0.2 }
+proc  wi {     } { expect -re {Input.\r}; sleep 0.2 }
+proc  wn {     } { expect -re {\n}; sleep 0.2 }
+proc  sw { txt } { send $txt; send "\r"; w  }
 proc swi { txt } { send $txt; send "\r"; wi }
 proc swn { txt } { send $txt; send "\r"; wn }
-proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.5}
+proc  wf {     } { expect -re {\nr  [0-9]+\r}; sleep 0.4 }
 proc swf { txt } { send $txt; send "\r"; wf }
 
 spawn telnet -E 127.0.0.1 "$env(FNPPORT)"
@@ -201,7 +203,7 @@ swn "  dcl  code fixed bin (35);"
 swn "  dcl (addr, dimension, length, size, string, verify)     builtin;"
 swn " "
 swn "  dcl 1 expected aligned,                                   /* The data structure prepared in the test_f2_data_.cds  */"
-swn "                                                            /*  file.                                                 */"
+swn "                                                            /*  file.                                                */"
 swn "      2 integers,"
 swn "        3 count     fixed bin init(5),"
 swn "        3 iArray (5) fixed bin init(1, 2, 3, 4, 5),"
@@ -486,5 +488,11 @@ sw "disk_stat_print -lv"
 sw "spg -ht"
 sw "pr spg.log"
 
-swn "logout\r"; sleep 5
+swn "logout\r"
+sleep 2
+set timeout 3
+
+# Scram
+exec kill -9 [exp_pid $telnetID]; sleep 1
 close $telnetID
+exit

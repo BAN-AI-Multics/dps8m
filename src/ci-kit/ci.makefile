@@ -1,43 +1,91 @@
-### Initial Setup
+# DPS/8M simulator: src/ci-kit/ci.makefile
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+
+###############################################################################
+#
+# Copyright (c) 2018-2022 The DPS8M Development Team
+#
+# All rights reserved.
+#
+# This software is made available under the terms of the ICU
+# License, version 1.8.1 or later.  For more details, see the
+# LICENSE.md file at the top-level directory of this distribution.
+#
+###############################################################################
+
+### Initial Setup ############################################################
+
+# Default console port
 ifndef CONPORT
   CONPORT=6001
 endif
 export CONPORT
 
+# Default FNP port
 ifndef FNPPORT
   FNPPORT=9180
 endif
 export FNPPORT
 
-### Instructions
-.PHONY: all
-all:
-	@printf '%s\n' "Targets:"
-	@printf '%s\n' ""
-	@printf '%s\n' " s1 ......... Build simulator"
-	@printf '%s\n' " s2 ......... Build working directory"
-	@printf '%s\n' " s2p ........ Warm caches for s3"
-	@printf '%s\n' " s3 ......... Run MR12.7_install.ini"
-	@printf '%s\n' " s3p ........ Warm caches for s4"
-	@printf '%s\n' " s4 ......... Setup Yoyodyne"
-	@printf '%s\n' " s5 ......... Run ci_t1.expect"
-	@printf '%s\n' " s6 ......... Run isolts.expect"
-	@printf '%s\n' " s7 ......... Run performance test"
-	@printf '%s\n' " diff ....... Post-process results"
+# Default tools
+AWK      ?= $(shell command -v gawk 2> /dev/null  ||                         \
+                env PATH="$$(command -p env getconf PATH)"                   \
+                    sh -c "command -v awk")
+GREP     ?= $(shell command -v ggrep 2> /dev/null ||                         \
+                env PATH="$$(command -p env getconf PATH)"                   \
+                    sh -c "command -v grep")
+SED      ?= $(shell command -v gsed 2> /dev/null  ||                         \
+                env PATH="$$(command -p env getconf PATH)"                   \
+                    sh -c "command -v sed")
+TR       ?= tr
+CAT      ?= cat
+DOS2UNIX ?= dos2unix
 
-### Stage 1
+### Instructions #############################################################
+
+.PHONY: all help
+all help:
+	@printf '%s\n' "  "
+	@printf '%s\n' "  Targets"
+	@printf '%s\n' "  ======="
+	@printf '%s\n' "  "
+	@printf '%s\n' "  s1 ..................... Build simulator"
+	@printf '%s\n' "  s2 ..................... Build CI-Kit working directory"
+	@printf '%s\n' "  s2p .................... Warm caches for s3"
+	@printf '%s\n' "  s3 ..................... Run MR12.7_install.ini"
+	@printf '%s\n' "  s3p .................... Warm caches for s4"
+	@printf '%s\n' "  s4 ..................... Setup Yoyodyne system"
+	@printf '%s\n' "  s4p .................... Warm caches for s5"
+	@printf '%s\n' "  s5 ..................... Run ci_t1.expect"
+	@printf '%s\n' "  s6 ..................... Run isolts.expect"
+	@printf '%s\n' "  s7 ..................... Run performance test"
+	@printf '%s\n' "  diff ................... Post-process results"
+	@printf '%s\n' "  "
+
+### Stage 1 - Build simulator ################################################
+
 .PHONY: s1
 s1:
-	@printf '%s\n' "Start Stage 1: Build simulator"
+	@printf '\n%s\n' "### Start Stage 1: Build simulator ####################"
 ifndef NOREBUILD
-	(cd ../.. && $(MAKE) superclean > /dev/null 2>&1 && $(MAKE) 2>&1)
+	( cd ../.. && $(MAKE) superclean > /dev/null 2>&1 && $(MAKE) 2>&1 )
 endif
-	@printf '%s\n' "End Stage 1"
+ifdef NOREBUILD
+	@printf '%s\n' "  *** NOREBUILD set - skipping simulator build ***"
+endif
+	-@sleep 2 > /dev/null 2>&1 || true
+	@test -x "../dps8/dps8" || {                                             \
+        printf '\n%s\n\n' "ERROR: No dps8 executable";                       \
+        exit 1; }
+	-@sleep 2 > /dev/null 2>&1 || true
+	@printf '\n%s\n' "### End Stage 1 #######################################"
 
-### Stage 2
+### Stage 2 - Build working directory ########################################
+
 .PHONY: s2
-s2:
-	@printf '%s\n' "Start Stage 2: Build working directory"
+s2: ../dps8/dps8
+	@printf '\n%s\n' "### Start Stage 2: Build CI-Kit working directory #####"
+	@rm -f    ./.yoyodyne.s4
 	@rm -Rf   ./run
 	@mkdir -p ./run
 	@mkdir -p ./run/tapes
@@ -50,93 +98,144 @@ s2:
 	@cp -fp ./tapes/foo.tap ./run/tapes/general
 	@cp -fp ./ini/* ./run
 	@cp -fp ./ec/*  ./run
-	@printf '%s\n' "End Stage 2"
+	@printf '\n%s\n' "### End Stage 2 #######################################"
 
-### Stage 2p
+### Stage 2p - Warm caches for s3 ############################################
+
 .PHONY: s2p
 s2p:
-	-@test -x ../vmpctool/vmpctool && ../vmpctool/vmpctool -qhft ./tapes/foo.tap ./tapes/*LISTINGS.tap ./tapes/*MISC.tap ./tapes/*UNBUNDLED.tap ./tapes/*LDD_STANDARD.tap ./tapes/*EXEC.tap ./tapes/*MULTICS.tap 2> /dev/null || true
+	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                        \
+        "### Priming caches ####################################"            \
+            || true
+	-@test -x ../vmpctool/vmpctool && ../vmpctool/vmpctool -hft              \
+        ./tapes/*.tap || true
+	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                        \
+        "### Cache primed ######################################"            \
+            || true
 
-### Stage 3
+### Stage 3 - Run MR12.7_install.ini #########################################
+
 .PHONY: s3
-s3:
-	@printf '%s\n' "Start Stage 3: Test MR12.7_install.ini"
-	cd ./run && env CPUPROFILE=install.prof.out ./dps8 -r MR12.7_install.ini 2>&1
-	@printf '%s\n' "End Stage 3"
+s3: ../dps8/dps8
+	@printf '%s\n' "" || true
+	@printf '%s\n' "### Start Stage 3: Test MR12.7_install.ini ############" \
+        || true
+	@rm -f ./run/disks/root.dsk.reloaded > /dev/null 2>&1 || true
+	@rm -f ./run/disks/newinstall.dsk    > /dev/null 2>&1 || true
+	cd ./run && env CPUPROFILE=install.prof.out \
+        ./dps8 -r MR12.7_install.ini 2>&1
+	@cp -fp ./run/disks/newinstall.dsk ./run/disks/yoyodyne.dsk
+	@printf '%s\n' ""
+	@printf '%s\n' "### End Stage 3 #######################################" \
+        || true
 
-### Stage 3p
+### Stage 3p - Warm caches for s4 ############################################
+
 .PHONY: s3p
-s3p: s2p
+s3p:
+	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                        \
+        "### Priming caches ####################################"            \
+            || true
+	-@test -x ../vmpctool/vmpctool && ../vmpctool/vmpctool -hft              \
+      ./tapes/*.tap ./run/disks/yoyodyne.dsk || true
+	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                        \
+        "### Cache primed ######################################"            \
+            || true
 
-### Stage 4
+### Stage 4 - Setup Yoyodyne #################################################
+
 .PHONY: s4
-s4:
-	@printf '%s\n' "Start Stage 4: Setup Yoyodyne"
-	cd ./run && env CPUPROFILE=yoyodyne.prof.out ./dps8 -r yoyodyne.ini 2>&1
-	@printf '%s\n' "End Stage 4"
+s4: ./run/disks/yoyodyne.dsk ../dps8/dps8
+	@printf '\n%s\n' "### Start Stage 4: Setup Yoyodyne #####################"
+	cd ./run && env CPUPROFILE=yoyodyne.prof.out \
+        ./dps8 -r yoyodyne.ini 2>&1
+	@printf '\n%s\n' "### End Stage 4 #######################################"
 
-### Stage 5
+### Stage 4p - Warm caches for s5 ############################################
+
+.PHONY: s4p
+s4p:
+	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                        \
+        "### Priming caches ####################################"            \
+            || true
+	-@test -x ../vmpctool/vmpctool && ../vmpctool/vmpctool -hft              \
+        ./run/tapes/* ./run/disks/yoyodyne.dsk || true
+	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                        \
+        "### Cache primed ######################################"            \
+            || true
+
+### Stage 5 - Run ci_t1.expect ###############################################
+
 .PHONY: s5
-s5:
-	@printf '%s\n' "Start Stage 5: Run ci_t1.expect"
-	env CPUPROFILE=run.prof.out ./ci_t1.sh 0 2>&1
-	@printf '%s\n' "End Stage 5"
+s5: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
+	@printf '\n%s\n' "### Start Stage 5: Run ci_t1.expect ###################"
+	env CPUPROFILE=run.prof.out \
+        ./ci_t1.sh 0 2>&1
+	@printf '\n%s\n' "### End Stage 5 #######################################"
 
-### Stage 6
+### Stage 6 - Run isolts.expect ##############################################
+
 .PHONY: s6
-s6:
-	@printf '%s\n' "Start Stage 6: Run isolts.expect"
-	env CPUPROFILE=isolts.prof.out ./isolts.sh 0 2>&1
-	@printf '%s\n' "End Stage 6"
+s6: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
+	@printf '\n%s\n' "### Start Stage 6: Run isolts.expect ##################"
+	env CPUPROFILE=isolts.prof.out \
+        ./isolts.sh 0 2>&1
+	@printf '\n%s\n' "### End Stage 6 #######################################"
 
-### Stage 7
+### Stage 7 - Run performance test ###########################################
+
 .PHONY: s7
-s7:
-	@printf '%s\n' "Start Stage 7: Run performance test"
-	env CPUPROFILE=perf.prof.out ./perf.sh 0 2>&1
-	@printf '%s\n' "End Stage 7"
+s7: ../dps8/dps8
+	@printf '\n%s\n' "### Start Stage 7: Run performance test ###############"
+	env CPUPROFILE=perf.prof.out \
+        ./perf.sh 0 2>&1
+	@printf '\n%s\n' "### End Stage 7 #######################################"
 
-### Post-processing
-.PHONY: diff
-diff:
-	@printf '%s\n'  "============================="    >  ci_full.log
-	@printf '%s\n'  "=         ci.log            ="   >>  ci_full.log
-	@printf '%s\n'  "============================="   >>  ci_full.log
-	@cat ci.log                                       >>  ci_full.log
-	@printf '%s\n'  "============================="   >>  ci_full.log
-	@printf '%s\n'  "=        ci_t2.log          ="   >>  ci_full.log
-	@printf '%s\n'  "============================="   >>  ci_full.log
-	@cat ci_t2.log                                    >>  ci_full.log
-	@printf '%s\n'  "============================="   >>  ci_full.log
-	@printf '%s\n'  "=        ci_t3.log          ="   >>  ci_full.log
-	@printf '%s\n'  "============================="   >>  ci_full.log
-	@cat ci_t3.log                                    >>  ci_full.log
-	-@ls -1 ./run/printers/prta/* 2> /dev/null        >>  ci_full.log
-	@printf '%s\n'  "============================="   >>  ci_full.log
-	@printf '%s\n'  "=        isolts.log         ="   >>  ci_full.log
-	@printf '%s\n'  "============================="   >>  ci_full.log
-	@cat isolts.log                                   >>  ci_full.log
-	@printf '%s\n'  "============================="   >>  ci_full.log
-	@printf '%s\n'  "=        perf.log           ="   >>  ci_full.log
-	@printf '%s\n'  "============================="   >>  ci_full.log
-	@cat perf.log                                     >>  ci_full.log
-	@tr -d '\0' < ci_full.log.ref | tr -cd '[:print:][:space:]\n' | \
-     sed 's/\r//g' | awk '{ print "\n"$$0"\r" }'                  | \
-     grep -v '^$$' | dos2unix -f | ./tidy.sh           >  old.log
-	@tr -d '\0' < ci_full.log | tr -cd '[:print:][:space:]\n'     | \
-     sed 's/\r//g' | awk '{ print "\n"$$0"\r" }'                  | \
-     grep -v '^$$' | dos2unix -f | ./tidy.sh           >  new.log
+### Post-processing 1 ########################################################
+
+.PHONY: diff tidy
+diff: ci.log ci_t2.log ci_t3.log isolts.log perf.log
+	@printf '%s\n'  "####################################"   >  ci_full.log
+	@printf '%s\n'  "#########  CI Log: Part 1  #########"  >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@$(CAT) ci.log                                          >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@printf '%s\n'  "#########  CI Log: Part 2  #########"  >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@$(CAT) ci_t2.log                                       >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@printf '%s\n'  "#########  CI Log: Part 3  #########"  >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@$(CAT) ci_t3.log                                       >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@printf '%s\n'  "#############  ISOLTS  #############"  >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@$(CAT) isolts.log                                      >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@printf '%s\n'  "########  Performance Test  ########"  >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@$(CAT) perf.log                                        >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@printf '%s\n'  "##############  EOF  ###############"  >>  ci_full.log
+	@printf '%s\n'  "####################################"  >>  ci_full.log
+	@$(TR) -d '\0' < ci_full.log.ref | $(TR) -cd '[:print:][:space:]\n' |    \
+     $(SED) 's/\r//g' | $(AWK) '{ print "\n"$$0"\r" }'                  |    \
+     $(GREP) -v '^$$' | $(DOS2UNIX) -f | ./tidy.sh     >  old.log
+	@$(TR) -d '\0' < ci_full.log | $(TR) -cd '[:print:][:space:]\n'     |    \
+     $(SED) 's/\r//g' | $(AWK) '{ print "\n"$$0"\r" }'                  |    \
+     $(GREP) -v '^$$' | $(DOS2UNIX) -f | ./tidy.sh     >  new.log
 	@printf '%s\n' "Done; you may now compare old.log and new.log"
 
-### Post-processing
-.PHONY: diff_files
-diff_files:
-	@tr -d '\0' < ci.log.ref | tr -cd '[:print:][:space:]\n'      | \
-     sed 's/\r//g' | awk '{ print "\n"$$0"\r" }'                  | \
-     grep -v '^$$' | dos2unix -f | ./tidy.sh           > old.log
-	@tr -d '\0' < ci.log  | tr -cd '[:print:][:space:]\n'         | \
-     sed 's/\r//g' | awk '{ print "\n"$$0"\r" }'                  | \
-     grep -v '^$$' | dos2unix -f | ./tidy.sh           > new.log
+### Post-processing 2 ########################################################
+
+.PHONY: diff_files tidy
+diff_files: ci.log.ref ci.log
+	@$(TR) -d '\0' < ci.log.ref | $(TR) -cd '[:print:][:space:]\n' |         \
+     $(SED) 's/\r//g' | $(AWK) '{ print "\n"$$0"\r" }'             |         \
+     $(GREP) -v '^$$' | $(DOS2UNIX) -f | ./tidy.sh     > old.log
+	@$(TR) -d '\0' < ci.log  | $(TR) -cd '[:print:][:space:]\n'    |         \
+     $(SED) 's/\r//g' | $(AWK) '{ print "\n"$$0"\r" }'             |         \
+     $(GREP) -v '^$$' | $(DOS2UNIX) -f | ./tidy.sh     > new.log
 	@printf '%s\n' "Done; you may now compare old.log and new.log"
 
-# EOF
+### EOF ######################################################################

@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 //
@@ -36,6 +42,8 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
+
+#include "../dpsprintf/dpsprintf.h"
 
 #ifdef TESTING
 static inline void fnp_core_read_n (word24 addr, word36 *data, uint n, UNUSED const char * ctx)
@@ -171,7 +179,6 @@ static int wcd (struct decoded_t *decoded_p)
 
           }
           break;
-
 
         case  3: // dont_accept_calls
           {
@@ -933,7 +940,6 @@ static int wcd (struct decoded_t *decoded_p)
 //      2 saved_meters like fnp_channel_meters;
 //
 
-
 //  dcl 1 fnp_channel_meters based aligned,
 struct fnp_channel_meters
   {
@@ -1103,7 +1109,6 @@ static void fnp_wtx_output (struct decoded_t *decoded_p, uint tally, uint dataAd
   {
     sim_debug (DBG_TRACE, & fnp_dev, "[%u]rcd wtx_output\n", decoded_p->slot_no);
     struct t_line * linep = & decoded_p->fudp->MState.line[decoded_p->slot_no];
-
 
     uint wordOff = 0;
     word36 word = 0;
@@ -1623,7 +1628,6 @@ static int interruptL66 (uint iomUnitIdx, uint chan)
 // dia_man connects to a DCW list to read them into a reserved area
 // in dia_man. ...
 
-
 // interrupt level (in "cell"):
 //
 // mbxs 0-7 are CS -> FNP
@@ -1791,7 +1795,6 @@ static void processMBX (uint iomUnitIdx, uint chan)
 //  dcl  UNWIRE_STATUS fixed bin int static options (constant) init (5);
 //  dcl  MAX_STATUS fixed bin int static options (constant) init (5);
 
-
 // 3.5.1 Commands Issued by Central System
 //
 // In the issuing of an order by the Central System to the Coupler, the
@@ -1898,7 +1901,6 @@ for (uint i = 0370*2; i <=0400*2; i ++)
   sim_printf ("%05o %08o\n", i, getl6core (iomUnitIdx, chan, l66addr + image_off, i));
 #endif
 
-
 // comm_ref
 //   0640   crldt  72
 //   0644   crbdt  72
@@ -1906,7 +1908,6 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 //   0651   crmem  18
 //   0652   crnbf  18
 //   0653   criom  18
-
 
 //     2 comm_reg unal,                   /* software communications region */
 // 0640  3 crldt fixed bin (71) aligned,  /* date and time binder */
@@ -2071,7 +2072,6 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         if (nfound != crnls)
           sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
 # endif
-
 
         // Number of HSLAs
 # ifdef VERBOSE_BOOT
@@ -2282,7 +2282,6 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 # endif
 #endif
 
-
 #if defined(THREADZ) || defined(LOCKLESS)
         lock_libuv ();
 #endif
@@ -2318,7 +2317,6 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         //word24 D = (word24) getbits36_3  (dia_pcw, 29);
         //word24 L66Addr = (B << (24 - 3)) | (D << (24 - 3 - 3)) | A;
 
-
         // According to fnp_util:
         //  dcl  1 a_dia_pcw aligned based (mbxp),                      /* better declaration than the one used when MCS is running */
         //         2 address fixed bin (18) unsigned unaligned,
@@ -2332,7 +2330,6 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         //
         //   a_dia_pcw.address = address;
         //
-
 
         //word24 L66Addr = (word24) getbits36_18 (dia_pcw, 0);
         //sim_printf ("L66 xfer\n");

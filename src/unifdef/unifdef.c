@@ -1,7 +1,11 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * -------------------------------------------------------------------------
+ *
  * Copyright (c) 2002-2020 Tony Finch <dot@dotat.at>
  * Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,6 +29,8 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ * -------------------------------------------------------------------------
  */
 
 /*
@@ -46,6 +52,8 @@ static const char copyright[] =
 #include "version.h"
   "@(#) $  Author: The DPS8M Development Team and Tony Finch <dot@dotat.at> $\n"
   "@(#) $     URL: https://gitlab.com/dps8m/dps8m/-/tree/master/src/unifdef $\n";
+
+#include "../dpsprintf/dpsprintf.h"
 
 /* types of input lines: */
 typedef enum

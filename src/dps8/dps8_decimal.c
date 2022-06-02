@@ -1,15 +1,21 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2000-2009 IBM Corporation
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
  * Copyright (c) 2017 Michal Tomek
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -24,6 +30,8 @@
 #include "dps8_decimal.h"
 #include "dps8_eis.h"
 #include "dps8_utils.h"
+
+#include "../dpsprintf/dpsprintf.h"
 
 /* ------------------------------------------------------------------ */
 /* HWR 6/28/14 18:54 derived from ......                              */
@@ -85,7 +93,6 @@ decContext * decContextDefaultDPS8_80(decContext *context)
     return context;
 }
 #endif
-
 
 decNumber * decBCD9ToNumber(const word9 *bcd, Int length, const Int scale, decNumber *dn)
 {
@@ -292,14 +299,15 @@ static unsigned char *getBCD(uint8_t bcd [256], decNumber *a)
 static const char *CS[] = {"CSFL", "CSLS", "CSTS", "CSNS"};
 static const char *CTN[] = {"CTN9", "CTN4"};
 
-
 char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf, bool R, bool *OVR, bool *TRUNC)
 {
     uint8_t bcd [256];
 # if 1
-   /*
+
+    /*
      * this is for mp3d ISOLTS error (and perhaps others)
      */
+
     if (r->digits > 63 || r->digits > n)
     {
         static char out1 [132];
@@ -382,7 +390,6 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
         return (char *) out2;
     }
 # endif
-
 
     if (s == CSFL)
         sf = 0;
@@ -582,7 +589,6 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                     ro = decNumberPlus(ro, ro, set);    // round to adjLen digits
                     decBCDFromNumber((uint8_t *)out, adjLen, &scale, ro);
                     set->digits = dig;
-
 
 //                    decNumber _i;
 //                    decNumber *i = decNumberToIntegralValue(&_i, ro, set);
@@ -807,7 +813,6 @@ mvn_write:;
 
   return (char *) out;
 }
-
 
 #ifndef QUIET_UNUSED
 // If the lhs is less than the rhs in the total order then the number will be set to the value -1. If they are equal, then number is set to 0. If the lhs is greater than the rhs then the number will be set to the value 1.

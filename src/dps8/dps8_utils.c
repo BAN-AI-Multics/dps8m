@@ -1,14 +1,20 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2007-2013 Michael Mondy
  * Copyright (c) 2012-2016 Harry Reed
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -26,6 +32,8 @@
 #include "dps8_opcodetable.h"
 #include "dps8_utils.h"
 
+#include "../dpsprintf/dpsprintf.h"
+
 #define DBG_CTR 1
 
 /*
@@ -42,7 +50,7 @@ char * dump_flags(char * buffer, word18 flags)
             "",
 #endif
             flags & I_ABS   ? "Abs "   : "",
-            flags & I_MIF   ? "MIF "  : "",
+            flags & I_MIF   ? "MIF "   : "",
             flags & I_TRUNC ? "Trunc " : "",
             flags & I_NBAR  ? "~BAR "  : "",
             flags & I_PMASK ? "PMask " : "",
@@ -136,7 +144,6 @@ char *disassemble(char * result, word36 instruction)
  *
  * Convert instruction address modifier tag to printable string
  * WARNING: returns pointer to statically allocated string
- *
  */
 
 char *get_mod_string(char * msg, word6 tag)
@@ -158,7 +165,6 @@ char *get_mod_string(char * msg, word6 tag)
     }
     return msg;
 }
-
 
 /*
  * 36-bit arithmetic stuff ...
@@ -635,7 +641,6 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     return res;
   }
 
-
 word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 * flags, bool * ovf)
   {
     CPT (cpt2L, 22); // Sub72b
@@ -995,7 +1000,6 @@ void cmp36(word36 oP1, word36 oP2, word18 *flags)
     word36 sign1 = (word36) op1 & SIGN36;
     word36 sign2 = (word36) op2 & SIGN36;
 
-
     if ((! sign1) && sign2)  // op1 > 0, op2 < 0 :: op1 > op2
       CLRF (* flags, I_ZERO | I_NEG | I_CARRY);
 
@@ -1041,7 +1045,6 @@ void cmp18(word18 oP1, word18 oP2, word18 *flags)
 
     word18 sign1 = (word18) op1 & SIGN18;
     word18 sign2 = (word18) op2 & SIGN18;
-
 
     if ((! sign1) && sign2)  // op1 > 0, op2 < 0 :: op1 > op2
       CLRF (* flags, I_ZERO | I_NEG | I_CARRY);

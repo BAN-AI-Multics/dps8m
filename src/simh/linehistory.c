@@ -1,4 +1,8 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * -------------------------------------------------------------------------
+ *
  * linehistory.c
  *
  * linehistory is forked from linenoise; the original version
@@ -6,9 +10,9 @@
  *
  * ------------------------------------------------------------------------
  *
- * Copyright (c) 2010-2016, Salvatore Sanfilippo <antirez at gmail dot com>
- * Copyright (c) 2010-2013, Pieter Noordhuis <pcnoordhuis at gmail dot com>
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2010-2014 Salvatore Sanfilippo <antirez@gmail.com>
+ * Copyright (c) 2010-2013 Pieter Noordhuis <pcnoordhuis@gmail.com>
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
@@ -34,6 +38,8 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * -------------------------------------------------------------------------
  */
 
 #ifndef _POSIX_C_SOURCE
@@ -67,6 +73,8 @@
 # include <sys/stat.h>
 # include <sys/types.h>
 # include <unistd.h>
+
+# include "../dpsprintf/dpsprintf.h"
 
 # define LINENOISE_DEFAULT_HISTORY_MAX_LEN 100
 # define LINENOISE_MAX_LINE 4096
@@ -584,7 +592,7 @@ abAppend(struct abuf *ab, const char *s, int len)
     return;
   }
 
-  char *new = realloc(ab->b, ab->len + len);
+  char *new = realloc(ab->b, 1 + ab->len + len);
 
   if (new == NULL)
   {

@@ -1,12 +1,18 @@
 /*
+ * vim: filetype=pli:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2015-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
- * This software is made available under the terms of the ICU  
+ * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 cload:
@@ -26,7 +32,7 @@ cload:
 */
     dcl iox_$attach_ioname entry (char (*), ptr, char (*), fixed bin (35));
     dcl iox_$open entry (ptr, fixed bin, bit (1) aligned, fixed bin (35));
-    dcl iox_$read_record entry (ptr, ptr, fixed bin (21), fixed bin (21), 
+    dcl iox_$read_record entry (ptr, ptr, fixed bin (21), fixed bin (21),
              fixed bin (35));
     dcl iox_$close entry (ptr, fixed bin (35));
     dcl iox_$detach_iocb entry (ptr, fixed bin (35));
@@ -51,7 +57,7 @@ cload:
     dcl com_err_ entry options (variable);
     dcl cu_$arg_ptr entry (fixed bin, ptr, fixed bin, fixed bin (35));
     dcl cu_$arg_count entry (fixed bin);
- 
+
     dcl error_table_$end_of_info fixed binary (35) external;
 
     dcl iocbp ptr;
@@ -99,7 +105,7 @@ cload:
     rings (2) = 4;
     rings (3) = 4;
 
-    
+
     call iox_$attach_ioname  ("tape_switch", iocbp, "tape_nstd_ " || arg, code);
     if code ^= 0 then do;
       call com_err_ (code, "cload", "attach_ioname");
@@ -195,7 +201,7 @@ dloop:
            /* minium buffer size */
            if this_read_chars < 256 then
              this_read_chars = 256;
-           
+
            bn = bn + 1;
            p = addr (segp -> s.block (bn));
 

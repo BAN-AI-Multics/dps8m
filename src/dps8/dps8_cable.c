@@ -1,12 +1,18 @@
 /*
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ *
+ * ---------------------------------------------------------------------------
+ *
  * Copyright (c) 2013-2016 Charles Anthony
- * Copyright (c) 2021 The DPS8M Development Team
+ * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
  *
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 //  The cable command
@@ -131,21 +137,23 @@
 # include "shm.h"
 #endif
 
+#include "../dpsprintf/dpsprintf.h"
+
 #define DBG_CTR 1
 
 struct cables_s * cables = NULL;
 
 char * ctlr_type_strs [/* enum ctlr_type_e */] =
   {
-    "none", "MTP", "MSP", "IPC", "OPC",
-    "URP", "FNP", "ABSI", "SKC"
+    "none",
+     "MTP", "MSP", "IPC", "OPC",
+     "URP", "FNP", "ABSI", "SKC"
   };
 
 char * chan_type_strs [/* enum ctlr_type_e */] =
   {
     "CPI", "PSI", "Direct"
   };
-
 
 static int parseval (char * value)
   {
@@ -176,7 +184,6 @@ static int getval (char * * save, char * text)
       }
     return parseval (value);
   }
-
 
 // Match "FOO" with "FOOxxx" where xx is a decimal number or [A-Za-z]
 //  "IOM" : IOM0 IOMB iom15 IOMc
@@ -270,7 +277,7 @@ static t_stat cable_scu_to_iom (int uncable, uint scu_unit_idx, uint scu_port_nu
         p->in_use = false;
         scu[scu_unit_idx].ports[scu_port_num].type = ADEV_NONE;
         scu[scu_unit_idx].ports[scu_port_num].dev_idx = 0;
-// XXX is this wrong? is is_exp supposed to be an accumulation of bits?
+        // XXX is this wrong? is is_exp supposed to be an accumulation of bits?
         scu[scu_unit_idx].ports[scu_port_num].is_exp = false;
         //scu[scu_unit_idx].ports[scu_port_num].dev_port[scu_subport_num] = 0;
       }
@@ -297,7 +304,7 @@ static t_stat cable_scu_to_iom (int uncable, uint scu_unit_idx, uint scu_port_nu
         scu[scu_unit_idx].ports[scu_port_num].type = ADEV_IOM;
         scu[scu_unit_idx].ports[scu_port_num].dev_idx = (int) iom_unit_idx;
         scu[scu_unit_idx].ports[scu_port_num].dev_port[0] = (int) iom_port_num;
-// XXX is this wrong? is is_exp supposed to be an accumulation of bits?
+        // XXX is this wrong? is is_exp supposed to be an accumulation of bits?
         scu[scu_unit_idx].ports[scu_port_num].is_exp = 0;
         //scu[scu_unit_idx].ports[scu_port_num].dev_port[scu_subport_num] = 0;
       }
@@ -352,7 +359,7 @@ static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_nu
         p->in_use = false;
         scu[scu_unit_idx].ports[scu_port_num].type = ADEV_NONE;
         scu[scu_unit_idx].ports[scu_port_num].dev_idx = 0;
-// XXX is this wrong? is is_exp supposed to be an accumulation of bits?
+        // XXX is this wrong? is is_exp supposed to be an accumulation of bits?
         scu[scu_unit_idx].ports[scu_port_num].is_exp = false;
         scu[scu_unit_idx].ports[scu_port_num].dev_port[scu_subport_num] = 0;
       }
@@ -379,7 +386,7 @@ static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_nu
         scu[scu_unit_idx].ports[scu_port_num].type = ADEV_CPU;
         scu[scu_unit_idx].ports[scu_port_num].dev_idx = (int) cpu_unit_idx;
         scu[scu_unit_idx].ports[scu_port_num].dev_port[0] = (int) cpu_port_num;
-// XXX is this wrong? is is_exp supposed to be an accumulation of bits?
+        // XXX is this wrong? is is_exp supposed to be an accumulation of bits?
         scu[scu_unit_idx].ports[scu_port_num].is_exp = is_exp;
         scu[scu_unit_idx].ports[scu_port_num].dev_port[scu_subport_num] = (int) cpu_port_num;
 
@@ -390,8 +397,8 @@ static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_nu
     return SCPE_OK;
   }
 
-//    cable SCUx port# IOMx port#
-//    cable SCUx port# CPUx port#
+// cable SCUx port# IOMx port#
+// cable SCUx port# CPUx port#
 
 static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
   {
@@ -414,7 +421,7 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
     //        return SCPE_ARG;
     //      }
 
-// XXX combine into parse_match ()
+    // XXX combine into parse_match ()
     // extract 'IOMx' or 'CPUx'
     char * param = strtok_r (NULL, ", ", name_save);
     if (! param)
@@ -424,9 +431,7 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
       }
     uint unit_idx;
 
-
-// SCUx IOMx
-
+    // SCUx IOMx
     if (name_match (param, "IOM", & unit_idx))
       {
         if (unit_idx >= N_IOM_UNITS_MAX)
@@ -459,9 +464,7 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
         return cable_scu_to_iom (uncable, scu_unit_idx, (uint) scu_port_num, unit_idx, (uint) iom_port_num);
       }
 
-
-// SCUx CPUx
-
+    // SCUx CPUx
     else if (name_match (param, "CPU", & unit_idx))
       {
         if (unit_idx >= N_CPU_UNITS_MAX)
@@ -516,8 +519,6 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
           }
         return cable_scu_to_cpu (uncable, scu_unit_idx, (uint) scu_port_num, (uint) scu_subport_num, unit_idx, (uint) cpu_port_num, is_exp);
       }
-
-
     else
       {
         sim_printf ("cable SCU: can't parse IOM or CPU\n");
@@ -664,8 +665,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
       }
     uint unit_idx;
 
-
-// IOMx IPCx
+    // IOMx IPCx
     if (name_match (param, "IPC", & unit_idx))
       {
         if (unit_idx >= N_IPC_UNITS_MAX)
@@ -695,7 +695,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            & ipc_unit [unit_idx], dsk_iom_cmd); // XXX mtp_iom_cmd?
       }
 
-// IOMx MSPx
+    // IOMx MSPx
     if (name_match (param, "MSP", & unit_idx))
       {
         if (unit_idx >= N_MSP_UNITS_MAX)
@@ -725,7 +725,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            & msp_unit [unit_idx], dsk_iom_cmd); // XXX mtp_iom_cmd?
       }
 
-// IOMx MTPx
+    // IOMx MTPx
     if (name_match (param, "MTP", & unit_idx))
       {
         if (unit_idx >= N_MTP_UNITS_MAX)
@@ -755,7 +755,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            & mtp_unit [unit_idx], mt_iom_cmd); // XXX mtp_iom_cmd?
       }
 
-// IOMx URPx
+    // IOMx URPx
     if (name_match (param, "URP", & unit_idx))
       {
         if (unit_idx >= N_URP_UNITS_MAX)
@@ -786,7 +786,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            & urp_unit [unit_idx], urp_iom_cmd);
       }
 
-// IOMx OPCx
+    // IOMx OPCx
     if (name_match (param, "OPC", & unit_idx))
       {
         if (unit_idx >= N_OPC_UNITS_MAX)
@@ -806,7 +806,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
                            & opc_unit [unit_idx], opc_iom_cmd);
       }
 
-// IOMx FNPx
+    // IOMx FNPx
     if (name_match (param, "FNP", & unit_idx))
       {
         if (unit_idx >= N_FNP_UNITS_MAX)
@@ -830,7 +830,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
 # ifndef __MINGW32__
 #  ifndef CROSS_MINGW64
 #   ifndef CROSS_MINGW32
-// IOMx ABSIx
+    // IOMx ABSIx
     if (name_match (param, "ABSI", & unit_idx))
       {
         if (unit_idx >= N_ABSI_UNITS_MAX)
@@ -858,7 +858,7 @@ static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
 # ifndef __MINGW32__
 #  ifndef CROSS_MINGW32
 #   ifndef CROSS_MINGW64
-// IOMx SKCx
+    // IOMx SKCx
     if (name_match (param, "SKC", & unit_idx))
       {
         if (unit_idx >= N_SKC_UNITS_MAX)
@@ -979,7 +979,7 @@ static t_stat cable_periph (int uncable,
     return SCPE_OK;
   }
 
-//     cable MTPx dev_code TAPEx
+// cable MTPx dev_code TAPEx
 
 static t_stat cable_mtp (int uncable, uint ctlr_unit_idx, char * * name_save)
   {
@@ -1008,8 +1008,7 @@ static t_stat cable_mtp (int uncable, uint ctlr_unit_idx, char * * name_save)
       }
     uint mt_unit_idx;
 
-
-// MPCx TAPEx
+    // MPCx TAPEx
     if (name_match (param, "TAPE", & mt_unit_idx))
       {
         if (mt_unit_idx >= N_MT_UNITS_MAX)
@@ -1033,7 +1032,7 @@ static t_stat cable_mtp (int uncable, uint ctlr_unit_idx, char * * name_save)
     return SCPE_ARG;
   }
 
-//     cable IPCx dev_code DISKx
+// cable IPCx dev_code DISKx
 
 static t_stat cable_ipc (int uncable, uint ctlr_unit_idx, char * * name_save)
   {
@@ -1062,8 +1061,7 @@ static t_stat cable_ipc (int uncable, uint ctlr_unit_idx, char * * name_save)
       }
     uint dsk_unit_idx;
 
-
-// MPCx DISKx
+    // MPCx DISKx
     if (name_match (param, "DISK", & dsk_unit_idx))
       {
         if (dsk_unit_idx >= N_DSK_UNITS_MAX)
@@ -1087,7 +1085,7 @@ static t_stat cable_ipc (int uncable, uint ctlr_unit_idx, char * * name_save)
     return SCPE_ARG;
   }
 
-//     cable MSPx dev_code DISKx
+// cable MSPx dev_code DISKx
 
 static t_stat cable_msp (int uncable, uint ctlr_unit_idx, char * * name_save)
   {
@@ -1116,8 +1114,7 @@ static t_stat cable_msp (int uncable, uint ctlr_unit_idx, char * * name_save)
       }
     uint dsk_unit_idx;
 
-
-// MPCx DISKx
+    // MPCx DISKx
     if (name_match (param, "DISK", & dsk_unit_idx))
       {
         if (dsk_unit_idx >= N_DSK_UNITS_MAX)
@@ -1141,7 +1138,7 @@ static t_stat cable_msp (int uncable, uint ctlr_unit_idx, char * * name_save)
     return SCPE_ARG;
   }
 
-//     cable URPx dev_code [RDRx PUNx PRTx]
+// cable URPx dev_code [RDRx PUNx PRTx]
 
 static t_stat cable_urp (int uncable, uint ctlr_unit_idx, char * * name_save)
   {
@@ -1170,8 +1167,7 @@ static t_stat cable_urp (int uncable, uint ctlr_unit_idx, char * * name_save)
       }
     uint unit_idx;
 
-
-// URPx RDRx
+    // URPx RDRx
     if (name_match (param, "RDR", & unit_idx))
       {
         if (unit_idx >= N_RDR_UNITS_MAX)
@@ -1191,7 +1187,7 @@ static t_stat cable_urp (int uncable, uint ctlr_unit_idx, char * * name_save)
                              "CABLE URPx RDRx");
       }
 
-// URPx PUNx
+    // URPx PUNx
     if (name_match (param, "PUN", & unit_idx))
       {
         if (unit_idx >= N_PUN_UNITS_MAX)
@@ -1211,7 +1207,7 @@ static t_stat cable_urp (int uncable, uint ctlr_unit_idx, char * * name_save)
                              "CABLE URPx PUNx");
       }
 
-// URPx PRTx
+    // URPx PRTx
     if (name_match (param, "PRT", & unit_idx))
       {
         if (unit_idx >= N_PRT_UNITS_MAX)
