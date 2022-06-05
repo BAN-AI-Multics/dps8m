@@ -3,21 +3,21 @@
  *
  * ---------------------------------------------------------------------------
  *
- * libtelnet - TELNET protocol handling library
+ * libTELNET - TELNET protocol handling library
  *
  * SUMMARY:
  *
- * libtelnet is a library for handling the TELNET protocol.  It includes
+ * libTELNET is a library for handling the TELNET protocol.  It includes
  * routines for parsing incoming data from a remote peer as well as
  * formatting data to send to the remote peer.
  *
- * libtelnet uses a callback-oriented API, allowing application-specific
+ * libTELNET uses a callback-oriented API, allowing application-specific
  * handling of various events.  The callback system is also used for
  * buffering outgoing protocol data, allowing the application to maintain
  * control over the actual socket connection.
  *
  * Features supported include the full TELNET protocol, Q-method option
- * negotiation, MCCP2, MSSP, and NEW-ENVIRON.
+ * negotiation, and NEW-ENVIRON.
  *
  * ---------------------------------------------------------------------------
  *
@@ -51,7 +51,7 @@
 #if !defined(LIBTELNET_INCLUDE)
 # define LIBTELNET_INCLUDE 1
 
-/* standard C headers necessary for the libtelnet API */
+/* standard C headers necessary for the libTELNET API */
 # include <stdarg.h>
 # include <stddef.h>
 
@@ -151,9 +151,7 @@ typedef struct telnet_telopt_t telnet_telopt_t;
 # define TELNET_TELOPT_AUTHENTICATION 37
 # define TELNET_TELOPT_ENCRYPT        38
 # define TELNET_TELOPT_NEW_ENVIRON    39
-# define TELNET_TELOPT_MSSP           70
 # define TELNET_TELOPT_EXOPL         255
-# define TELNET_TELOPT_MCCP2          86
 /*@}*/
 
 /*! \name Protocol codes for TERMINAL-TYPE commands. */
@@ -173,13 +171,6 @@ typedef struct telnet_telopt_t telnet_telopt_t;
 # define TELNET_ENVIRON_VALUE   1
 # define TELNET_ENVIRON_ESC     2
 # define TELNET_ENVIRON_USERVAR 3
-/*@}*/
-
-/*! \name Protocol codes for MSSP commands. */
-/*@{*/
-/*! MSSP codes. */
-# define TELNET_MSSP_VAR 1
-# define TELNET_MSSP_VAL 2
 /*@}*/
 
 /*! \name Telnet state tracker flags. */
@@ -220,14 +211,13 @@ enum telnet_event_type_t {
         TELNET_EV_SUBNEGOTIATION,  /*!< sub-negotiation data received     */
         TELNET_EV_TTYPE,           /*!< TTYPE command has been received   */
         TELNET_EV_ENVIRON,         /*!< ENVIRON command has been received */
-        TELNET_EV_MSSP,            /*!< MSSP command has been received    */
         TELNET_EV_WARNING,         /*!< recoverable error has occured     */
         TELNET_EV_ERROR            /*!< non-recoverable error has occured */
 };
 typedef enum telnet_event_type_t telnet_event_type_t; /*!< Telnet event type. */
 
 /*!
- * environ/MSSP command information
+ * environ command information
  */
 struct telnet_environ_t {
         unsigned char type; /*!< either TELNET_ENVIRON_VAR or TELNET_ENVIRON_USERVAR   */
@@ -311,15 +301,6 @@ union telnet_event_t {
                 size_t size;                           /*!< number of elements in values */
                 unsigned char cmd;                     /*!< SEND, IS, or INFO            */
         } environ;
-
-        /*!
-         * MSSP event
-         */
-        struct mssp_t {
-                enum telnet_event_type_t _type;        /*!< alias for type               */
-                const struct telnet_environ_t *values; /*!< array of variable values     */
-                size_t size;                           /*!< number of elements in values */
-        } mssp;
 };
 
 /*!
@@ -328,7 +309,7 @@ union telnet_event_t {
  * This is the type of function that must be passed to
  * telnet_init() when creating a new telnet object.  The
  * function will be invoked once for every event generated
- * by the libtelnet protocol parser.
+ * by the libTELNET protocol parser.
  *
  * \param telnet    The telnet object that generated the event
  * \param event     Event structure with details about the event
@@ -355,7 +336,7 @@ struct telnet_t;
  * \brief Initialize a telnet state tracker.
  *
  * This function initializes a new state tracker, which is used for all
- * other libtelnet functions.  Each connection must have its own
+ * other libTELNET functions.  Each connection must have its own
  * telnet state tracker object.
  *
  * \param telopts   Table of TELNET options the application supports.
@@ -404,7 +385,7 @@ extern void telnet_iac(telnet_t *telnet, unsigned char cmd);
 /*!
  * \brief Send negotiation command.
  *
- * Internally, libtelnet uses RFC1143 option negotiation rules.
+ * Internally, libTELNET uses RFC1143 option negotiation rules.
  * The negotiation commands sent with this function may be ignored
  * if they are determined to be redundant.
  *
