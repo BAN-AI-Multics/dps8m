@@ -38,7 +38,7 @@ all: punutil$(EXE)
 punutil$(EXE): punutil.c ../dpsprintf/dpsprintf.o
 	@$(PRINTF) '%s\n' "CC: punutil"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) "../dpsprintf/dpsprintf.o"           \
-      -o punutil$(EXE) punutil.c $(MATHLIB) $(DUMALIBS)
+      -o punutil$(EXE) punutil.c $(PULIBS) $(MATHLIB) $(DUMALIBS)
 
 ###############################################################################
 
