@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
-# Converts dps8 flat help to PFL; requires GNU tooling.
+# vim: filetype=sh:tabstop=4:expandtab
+
+############################################################################
+#
+# Copyright (c) 2021-2022 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+############################################################################
+
+# Converts dps8 flat help to Pandoc-flavored Markdown; requires GNU tooling.
+
 set -e
 
 rm -f ./temp1.tmp > /dev/null 2>&1 || true

@@ -754,7 +754,7 @@ Linux/x86_64, Fedora, Intel DPC++/C++:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 60 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -787,7 +787,7 @@ Linux/x86_64, Fedora, Intel C/C++:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 60 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -862,7 +862,7 @@ Linux/x86_64, Fedora, AOCC, AOCL:
       - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
       - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
   retry: 2
-  timeout: 60 minutes
+  timeout: 120 minutes
   interruptible: true
 
 ############################################################################
@@ -1862,7 +1862,37 @@ Flawfinder:
     paths:
       - ${CI_PROJECT_DIR:?}/flawfinder.txt
   retry: 2
-  timeout: 60 minutes
+  timeout: 120 minutes
+  interruptible: true
+
+#############################################################################
+
+Clang Analyzer:
+  stage: test
+  needs:
+    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
+    - job: Linux/x86_64, Fedora, Clang, GCC
+  tags:
+    - Linux
+    - ClangAnalyzer
+    - amd64
+    - Linux-Shell
+    - POSIX
+  script:
+    - export GLCICD_JOB="ClangAnalyzer" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
+    - *scriptSanity
+    - *scriptCommon
+    - *scriptExtraInfo
+    - gmake superclean
+    - gmake clsanalz
+  dependencies: []
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - ${CI_PROJECT_DIR:?}/out/*
+  retry: 2
+  timeout: 120 minutes
   interruptible: true
 
 #############################################################################
@@ -1884,6 +1914,8 @@ Cppcheck:
     - *scriptCommon
     - *scriptExtraInfo
     - make cppcheck
+    - ansifilter -T cppcheck.txt > cppcheck.txt.1 2> /dev/null
+    - env mv -f cppcheck.txt.1 cppcheck.txt > /dev/null 2>&1
   dependencies: []
   artifacts:
     when: always
@@ -1891,7 +1923,7 @@ Cppcheck:
     paths:
       - ${CI_PROJECT_DIR:?}/cppcheck.txt
   retry: 2
-  timeout: 60 minutes
+  timeout: 120 minutes
   interruptible: true
 
 #############################################################################
@@ -1922,7 +1954,7 @@ Oracle Developer Studio Lint:
     paths:
       - ${CI_PROJECT_DIR:?}/orstlint.txt
   retry: 2
-  timeout: 60 minutes
+  timeout: 120 minutes
   interruptible: true
 
 #############################################################################

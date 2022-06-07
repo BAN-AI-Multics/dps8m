@@ -1,5 +1,17 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2310,SC2312
+# vim: filetype=sh:tabstop=4:tw=78:expandtab
+
+############################################################################
+#
+# Copyright (c) 2021-2022 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+############################################################################
 
 # Begin
 printf '#### %s\n' "Begin ${0} (${$})"
@@ -51,6 +63,13 @@ test -z "${DPS8_SESSIONS:-}" ||
     printf '%s\n' "" "*** Continuing in 5 seconds ... "
     sleep 5 > /dev/null 2>&1
   }
+
+# DUMA settings
+export DUMA_DISABLE_BANNER=1
+export DUMA_OUTPUT_FILE="dumalog.txt"
+export DUMA_OUTPUT_STDOUT=0
+export DUMA_OUTPUT_STDERR=0
+export DUMA_MEMCPY_OVERLAP=1
 
 # Strict
 set -eu > /dev/null 2>&1

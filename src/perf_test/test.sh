@@ -2,6 +2,17 @@
 # shellcheck disable=SC2248
 # vim: filetype=sh:tabstop=2:tw=100:expandtab
 
+####################################################################################################
+#
+# Copyright (c) 2021-2022 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+####################################################################################################
+
 # Set a CPU to as static a configuration that we can manage; run the benchmark; restore the CPU.
 CPU=15
 
