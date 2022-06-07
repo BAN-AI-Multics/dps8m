@@ -4261,7 +4261,7 @@ t_stat show_buildinfo (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST cha
 #       define UV_RELEASE_TYPE " (release)"
 #      endif /* if UV_VERSION_IS_RELEASE == 1 */
 #      if UV_VERSION_IS_RELEASE == 0
-#       define UV_RELEASE_TYPE " (snapshot)"
+#       define UV_RELEASE_TYPE "-dev"
 #      endif /* if UV_VERSION_IS_RELEASE == 0 */
 #      ifndef UV_RELEASE_TYPE
 #       define UV_RELEASE_TYPE ""

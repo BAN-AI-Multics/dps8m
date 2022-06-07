@@ -53,7 +53,7 @@ libuvrel:                                                                     \
 	@$(PRINTF) '%s\n' "Decompress archive ..."
 	@$(SETV); ($(CD) "libuv-local" && $(GZCAT) $(RELNAM) | $(TAR) xvf - )
 	@$(PRINTF) '%s\n' "Configure and build libuv ..."
-	@$(PRINTF) '%s\n' "# NOTE: Broken pipe / could not flush stdout messages" \
+	@$(PRINTF) '%s\n' "# NOTE: Errors may be printed below. These errors are" \
                       "        are expected below and can be safely ignored."
 	@$(SETV); ($(CD) "libuv-local/libuv-$(RELVER)" &&                         \
       $(ENV) $(SHELL) autogen.sh &&                                           \
@@ -85,7 +85,7 @@ libuvdev:                                                                     \
 	@$(SETV); ($(CD) "libuv-local" &&                                         \
         $(GIT) clone $(LOCAL_CLONEOPTS) -b $(LIBUVBRN) $(LIBUVGIT))
 	@$(PRINTF) '%s\n' "Configure and build libuv ..."
-	@$(PRINTF) '%s\n' "# NOTE: Broken pipe / could not flush stdout messages" \
+	@$(PRINTF) '%s\n' "# NOTE: Errors may be printed below. These errors are" \
                       "        are expected below and can be safely ignored."
 	@$(SETV); ($(CD) "libuv-local/libuv" && $(ENV) $(SHELL) autogen.sh &&     \
       eval export $(DUMACFG) &&                                               \

@@ -154,6 +154,15 @@ endif
 
 ###############################################################################
 
+ifeq ($(UNAME_S),NetBSD)
+  OS = NetBSD
+  CFLAGS  += -Wno-char-subscripts -I/usr/pkg/include                          \
+                 -DUSE_FLOCK=1 -DUSE_FCNTL=1
+  LDFLAGS += -L/usr/pkg/lib -Wl,-R/usr/pkg/lib
+endif
+
+###############################################################################
+
 ifeq ($(OS), OSX)
   msys_version = 0
 else
