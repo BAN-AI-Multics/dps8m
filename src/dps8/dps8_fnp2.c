@@ -316,6 +316,34 @@ void fnpInit(void)
     fnp3270Init ();
   }
 
+void fnpExit (void) {
+  if (fnpData.telnet_address) {
+    free (fnpData.telnet_address);
+    fnpData.telnet_address = NULL;
+  }
+  // For each FNP
+  for (uint fnpUnitIdx = 0; fnpUnitIdx < N_FNP_UNITS_MAX; fnpUnitIdx ++) {
+    struct fnpUnitData_s * unitp = & fnpData.fnpUnitData[fnpUnitIdx];
+    // For each line 
+    for (uint lineNum = 0; lineNum < MAX_LINES; lineNum ++) {
+      uv_tcp_t * line_client = (uv_tcp_t *) unitp->MState.line[lineNum].line_client;
+      // If line_client not null
+      if (line_client) {
+        uvClientData * data = (uvClientData *) line_client->data;
+        // If user data field not null and telnetp field not null
+        if (data && data->telnetp) {
+          sim_warn ("fnpExit freeing unit %u line %u telnetp %p\r\n", fnpUnitIdx, lineNum, data->telnetp);
+          free (data->telnetp);
+          data->telnetp = NULL;
+        }
+        sim_warn ("fnpExit freeing unit %u line %u line_client %p\r\n", fnpUnitIdx, lineNum, line_client);
+        free (line_client);
+        unitp->MState.line[lineNum].line_client = NULL;
+      }
+    }
+  }
+}
+
 static t_stat fnpReset (UNUSED DEVICE * dptr)
   {
 #if 0

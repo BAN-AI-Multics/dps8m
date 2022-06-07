@@ -84,6 +84,9 @@
 #include "../dps8/ver.h"
 #include "../dps8/sysdefs.h"
 
+#include "../dps8/dps8_iom.h"
+#include "../dps8/dps8_fnp2.h"
+
 #include "../decNumber/decContext.h"
 #include "../decNumber/decNumberLocal.h"
 
@@ -158,6 +161,7 @@ t_bool sim_asynch_enabled = FALSE;
    The other per-simulator pointers can be overrriden by the init routine */
 
 extern void (*sim_vm_init) (void);
+extern void (*sim_vm_exit) (void);
 char* (*sim_vm_read) (char *ptr, int32 size, FILE *stream) = NULL;
 void (*sim_vm_post) (t_bool from_scp) = NULL;
 CTAB *sim_vm_cmd = NULL;
@@ -1840,6 +1844,9 @@ else if (*argv[0]) {                                    /* sim name arg? */
 
 stat = process_stdin_commands (SCPE_BARE_STATUS(stat), argv);
 
+if (sim_vm_exit != NULL)                                /* call once only */
+    (*sim_vm_exit)();
+
 detach_all (0, TRUE);                                   /* close files */
 sim_set_deboff (0, NULL);                               /* close debug */
 sim_set_logoff (0, NULL);                               /* close log */
@@ -1848,6 +1855,14 @@ sim_ttclose ();                                         /* close console */
 sim_cleanup_sock ();                                    /* cleanup sockets */
 fclose (stdnul);                                        /* close bit bucket file handle */
 free (targv);                                           /* release any argv copy that was made */
+free (sim_prompt);
+free (sim_eval);
+free (sim_internal_devices);
+free (sim_brk_tab);
+free (sim_staba.comp);
+free (sim_staba.mask);
+free (sim_stabr.comp);
+free (sim_stabr.mask);
 return 0;
 }
 #endif
@@ -2610,6 +2625,7 @@ if (flag >= 0) {                                        /* Only bump nesting fro
                     sim_on_check[sim_do_depth] = 0;
                     sim_brk_clract ();                  /* defang breakpoint actions */
                     --sim_do_depth;                     /* unwind nesting */
+                    fclose(fpin);
                     return SCPE_MEM;
                     }
                 strcpy(sim_on_actions[sim_do_depth][i], sim_on_actions[sim_do_depth-1][i]);
@@ -2723,7 +2739,8 @@ do {
         (*sim_vm_post) (TRUE);
     } while (staying);
 Cleanup_Return:
-fclose (fpin);                                          /* close file */
+if (fpin)
+    fclose (fpin);                                      /* close file */
 sim_gotofile = NULL;
 if (flag >= 0) {
     sim_do_echo = saved_sim_do_echo;                    /* restore echo state we entered with */
@@ -3282,7 +3299,8 @@ else {
     else {                                              /* not reg, check for memory */
         if (sim_dfdev && sim_vm_parse_addr)             /* get addr */
             addr = sim_vm_parse_addr (sim_dfdev, gbuf, &gptr);
-        else addr = (t_addr) strtotv (gbuf, &gptr, sim_dfdev->dradix);
+        else
+            addr = (t_addr) strtotv (gbuf, &gptr, sim_dfdev ? sim_dfdev->dradix : sim_dflt_dev->dradix);
         if (gbuf == gptr)                               /* error? */
             return SCPE_NXREG;
         }
@@ -4993,15 +5011,19 @@ t_stat ssh_break (FILE *st, const char *cptr, int32 flg)
 char gbuf[CBUFSIZE], *aptr, abuf[4*CBUFSIZE];
 CONST char *tptr, *t1ptr;
 DEVICE *dptr = sim_dflt_dev;
-UNIT *uptr = dptr ? dptr->units : NULL;
+UNIT *uptr;
 t_stat r;
-t_addr lo, hi, max = uptr->capac - 1;
+t_addr lo, hi, max;
 int32 cnt;
 
 if (sim_brk_types == 0)
     return sim_messagef (SCPE_NOFNC, "No breakpoint support in this simulator\n");
-if ((dptr == NULL) || (uptr == NULL))
+if (dptr == NULL)
     return SCPE_IERR;
+uptr = dptr->units;
+if (uptr == NULL)
+    return SCPE_IERR;
+max = uptr->capac - 1;
 abuf[sizeof(abuf)-1] = '\0';
 strncpy (abuf, cptr, sizeof(abuf)-1);
 cptr = abuf;
@@ -5185,8 +5207,7 @@ if (uptr->flags & UNIT_ATT) {                           /* already attached? */
         !(dptr->flags & DEV_DONTAUTO)) {                /* and auto detachable */
         r = scp_detach_unit (dptr, uptr);               /* detach it */
         if (r != SCPE_OK)                               /* error? */
-            return r;
-        }
+            return r; }
     else {
         if (!(uptr->dynflags & UNIT_ATTMULT))
             return SCPE_ALATT;                          /* Already attached */
@@ -5712,10 +5733,16 @@ t_bool suppress_warning = ((sim_switches & SWMASK ('Q')) != 0);
 t_bool warned = FALSE;
 
 sim_switches &= ~(SWMASK ('F') | SWMASK ('D') | SWMASK ('Q'));  /* remove digested switches */
-#define READ_S(xx) if (read_line ((xx), sizeof(xx), rfile) == NULL) \
-    return SCPE_IOERR;
-#define READ_I(xx) if (sim_fread (&xx, sizeof (xx), 1, rfile) == 0) \
-    return SCPE_IOERR;
+
+#define READ_S(xx) if (read_line ((xx), sizeof(xx), rfile) == NULL) {   \
+    r = SCPE_IOERR;                                                     \
+    goto Cleanup_Return;                                                \
+    }
+
+#define READ_I(xx) if (sim_fread (&xx, sizeof (xx), 1, rfile) == 0) {   \
+    r = SCPE_IOERR;                                                     \
+    goto Cleanup_Return;                                                \
+    }
 
 fstat (fileno (rfile), &rstat);
 READ_S (buf);                                           /* [V2.5+] read version */
@@ -5784,13 +5811,16 @@ for ( ;; ) {                                            /* device loop */
         break;
     if ((dptr = find_dev (buf)) == NULL) {              /* locate device */
         sim_printf ("Invalid device name: %s\n", buf);
-        return SCPE_INCOMP;
+        r = SCPE_INCOMP;
+        goto Cleanup_Return;
         }
     READ_S (buf);                                       /* [V3.0+] logical name */
     deassign_device (dptr);                             /* delete old name */
     if ((buf[0] != 0) &&
-        ((r = assign_device (dptr, buf)) != SCPE_OK))
-        return r;
+        ((r = assign_device (dptr, buf)) != SCPE_OK)) {
+        r = SCPE_INCOMP;
+        goto Cleanup_Return;
+    }
     READ_I (flg);                                       /* [V2.10+] ctlr flags */
     if (!v32)
         flg = ((flg & DEV_UFMASK_31) << (DEV_V_UF - DEV_V_UF_31)) |
@@ -5804,7 +5834,8 @@ for ( ;; ) {                                            /* device loop */
             break;
         if ((uint32) unitno >= dptr->numunits) {        /* too big? */
             sim_printf ("Invalid unit number: %s%d\n", sim_dname (dptr), unitno);
-            return SCPE_INCOMP;
+            r = SCPE_INCOMP;
+            goto Cleanup_Return;
             }
         READ_I (time);                                  /* event time */
         uptr = (dptr->units) + unitno;
@@ -5834,9 +5865,11 @@ for ( ;; ) {                                            /* device loop */
         if ((uptr->flags & UNIT_ATT) &&                 /* unit currently attached? */
             (!dont_detach_attach)) {
             r = scp_detach_unit (dptr, uptr);           /* detach it */
-            if (r != SCPE_OK)
-                return r;
+            if (r != SCPE_OK) {
+                r = SCPE_INCOMP;
+                goto Cleanup_Return;
             }
+        }
         if ((buf[0] != '\0') &&                         /* unit to be reattached? */
             ((uptr->flags & UNIT_ATTABLE) ||            /*  and unit is attachable */
              (dptr->attach != NULL))) {                 /*    or VM attach routine provided? */
@@ -5858,7 +5891,8 @@ for ( ;; ) {                                            /* device loop */
             if (((uptr->flags & (UNIT_FIX + UNIT_ATTABLE)) != UNIT_FIX) ||
                  (dptr->deposit == NULL)) {
                 sim_printf ("Can't restore memory: %s%d\n", sim_dname (dptr), unitno);
-                return SCPE_INCOMP;
+                r = SCPE_INCOMP;
+                goto Cleanup_Return;
                 }
             if (high != old_capac) {                    /* size change? */
                 uptr->capac = old_capac;                /* temp restore old */
@@ -5867,7 +5901,8 @@ for ( ;; ) {                                            /* device loop */
                      (dptr->msize (uptr, (int32) high, NULL, NULL) != SCPE_OK))) {
                     sim_printf ("Can't change memory size: %s%d\n",
                                 sim_dname (dptr), unitno);
-                    return SCPE_INCOMP;
+                    r = SCPE_INCOMP;
+                    goto Cleanup_Return;
                     }
                 uptr->capac = high;                     /* new memory size */
                 sim_printf ("Memory size changed: %s%d = ", sim_dname (dptr), unitno);
@@ -5877,19 +5912,23 @@ for ( ;; ) {                                            /* device loop */
                 sim_printf ("\n");
                 }
             sz = SZ_D (dptr);                           /* allocate buffer */
-            if ((mbuf = calloc (SRBSIZ, sz)) == NULL)
-                return SCPE_MEM;
+            if ((mbuf = calloc (SRBSIZ, sz)) == NULL) {
+                r = SCPE_MEM;
+                goto Cleanup_Return;
+            }
             for (k = 0; k < high; ) {                   /* loop thru mem */
                 if (sim_fread (&blkcnt, sizeof (blkcnt), 1, rfile) == 0) {/* block count */
                     free (mbuf);
-                    return SCPE_IOERR;
+                    r = SCPE_IOERR;
+                    goto Cleanup_Return;
                     }
                 if (blkcnt < 0)                         /* compressed? */
                     limit = -blkcnt;
                 else limit = (int32)sim_fread (mbuf, sz, blkcnt, rfile);
                 if (limit <= 0) {                       /* invalid or err? */
                     free (mbuf);
-                    return SCPE_IOERR;
+                    r = SCPE_IOERR;
+                    goto Cleanup_Return;
                     }
                 for (j = 0; j < limit; j++, k = k + (dptr->aincr)) {
                     if (blkcnt < 0)                     /* compressed? */
@@ -5898,7 +5937,7 @@ for ( ;; ) {                                            /* device loop */
                     r = dptr->deposit (val, k, uptr, SIM_SW_REST);
                     if (r != SCPE_OK) {
                         free (mbuf);
-                        return r;
+                        goto Cleanup_Return;
                         }
                     }                                   /* end for j */
                 }                                       /* end for k */
@@ -5920,6 +5959,8 @@ for ( ;; ) {                                            /* device loop */
         if (depth != rptr->depth) {                      /* [V2.10+] mismatch? */
             sim_printf ("Register depth mismatch: %s %s, file = %d, sim = %d\n",
                         sim_dname (dptr), buf, depth, rptr->depth);
+            if (depth > rptr->depth)
+                depth = rptr->depth;
             }
         mask = width_mask[rptr->width];                 /* get mask */
         for (us = 0; us < depth; us++) {                /* loop thru values */
@@ -5970,7 +6011,11 @@ for (j=0, r = SCPE_OK; j<attcnt; j++) {
             }
         }
     free (attnames[j]);
+    attnames[j] = NULL;
     }
+Cleanup_Return:
+for (j=0; j < attcnt; j++)
+    free (attnames[j]);
 free (attnames);
 free (attunits);
 free (attswitches);
@@ -9375,6 +9420,7 @@ ep->switches = switches;                                /* set switches */
 match_buf = (uint8 *)calloc (strlen (match) + 1, 1);
 if ((match_buf == NULL) || (ep->match_pattern == NULL)) {
     sim_exp_clr_tab (exp, ep);                          /* clear it */
+    free (match_buf);                                   /* release allocation */
     return SCPE_MEM;
     }
 if (switches & EXP_TYP_REGEX) {
@@ -9700,7 +9746,7 @@ int32 cond;
 *stat = SCPE_ARG;
 cptr = get_glyph (cptr, gbuf, 0);
 if (0 == memcmp("SCPE_", gbuf, 5))
-    strcpy (gbuf, gbuf+5);   /* skip leading SCPE_ */
+    memmove (gbuf, gbuf + 5, 1 + strlen (gbuf + 5));  /* skip leading SCPE_ */
 for (cond=0; cond < (SCPE_MAX_ERR-SCPE_BASE); cond++)
     if (0 == strcmp(scp_errors[cond].code, gbuf)) {
         cond += SCPE_BASE;

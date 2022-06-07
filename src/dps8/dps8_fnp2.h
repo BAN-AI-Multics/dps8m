@@ -329,6 +329,7 @@ struct fw_entry_s
 extern struct fw_entry_s fw_entries [N_FW_ENTRIES];
 
 void fnpInit(void);
+void fnpExit (void);
 int lookupFnpsIomUnitNumber (int fnpUnitNum);
 int lookupFnpLink (int fnpUnitNum);
 void fnpProcessEvent (void);

@@ -106,6 +106,8 @@ scp.o:         ../dps8/dps8_prom.h
 scp.o:         ../dps8/sysdefs.h
 scp.o:         ../decNumber/decContext.h
 scp.o:         ../decNumber/decNumberLocal.h
+scp.o:         ../dps8/dps8_iom.h
+scp.o:         ../dps8/dps8_fnp2.h
 scp.o:         linehistory.h
 scp.o:         dispatch.h
 linehistory.o: linehistory.h ../dpsprintf/dpsprintf.h
