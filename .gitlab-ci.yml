@@ -42,7 +42,7 @@
     test -z "${SKIP_UPDATE}" && echo "Running apk upgrade ..."
     test -z "${SKIP_UPDATE}" && apk upgrade || apk upgrade
     test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="libc-dev linux-headers musl-dev gcc g++ llvm llvm-dev llvm-static clang clang-libs clang-dev git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev cmake ninja automake"; apk add ${ARGS:?} || apk add ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && export ARGS="libc-dev linux-headers musl-dev gcc g++ llvm llvm-dev llvm-static clang clang-libs clang-dev git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-dev libuv-static psmisc grep moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-dev automake"; apk add ${ARGS:?} || apk add ${ARGS:?}
     echo -e "section_end:`date +%s`:alpinesetup_section\r\e[0K" || true
 
 ############################################################################
@@ -510,7 +510,7 @@
     test -z "${SKIP_UPDATE}" && echo "Updating system ..."
     test -z "${SKIP_UPDATE}" && xbps-install -Suy || xbps-install -Suy
     test -z "${SKIP_UPDATE}" && echo "Installing software ..."
-    test -z "${SKIP_UPDATE}" && export ARGS="mksh gcc clang llvm clang-tools-extra git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-devel psmisc grep mawk moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel cmake ninja"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
+    test -z "${SKIP_UPDATE}" && export ARGS="mksh gcc clang llvm clang-tools-extra git unzip zip curl wget sed tar gawk file bash dash coreutils make ctags lzip gzip libuv-devel psmisc grep moreutils gnupg libtool util-linux pigz autoconf autoconf-archive bzip2 ccache popt-devel"; xbps-install -Suy ${ARGS:?} || xbps-install -Suy ${ARGS:?}
     echo -e "section_end:`date +%s`:voidlsetup_section\r\e[0K" || true
 
 ############################################################################
