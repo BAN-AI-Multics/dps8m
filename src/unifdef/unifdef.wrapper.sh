@@ -1,6 +1,17 @@
 #!/usr/bin/env sh
 # vim: filetype=sh:tabstop=4:tw=76:expandtab
 
+############################################################################
+#
+# Copyright (c) 2021-2022 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+############################################################################
+
 IFS=
 # shellcheck disable=SC2086
 UNIFDEF="$(printf '%s' ${0} | sed 's/unifdef\.wrapper\.sh/unifdef/')"

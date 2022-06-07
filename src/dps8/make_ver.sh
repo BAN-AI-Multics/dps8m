@@ -3,8 +3,7 @@
 # vim: filetype=sh:tabstop=4:tw=78:expandtab
 
 ##############################################################################
-# License
-
+#
 # Copyright (c) 2020-2021 Jeffrey H. Johnson <trnsz@pobox.com>
 # Copyright (c) 2021-2022 The DPS8M Development Team
 #
@@ -13,6 +12,8 @@
 # This software is made available under the terms of the ICU
 # License, version 1.8.1 or later.  For more details, see the
 # LICENSE.md file at the top-level directory of this distribution.
+#
+##############################################################################
 
 ##############################################################################
 # Check for csh as sh.

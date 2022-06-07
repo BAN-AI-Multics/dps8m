@@ -1,5 +1,5 @@
 # DPS/8M simulator: GNUmakefile
-# vim: filetype=make:tabstop=4:tw=78
+# vim: filetype=make:tabstop=4:tw=79
 
 ##############################################################################
 #
@@ -302,9 +302,12 @@ endif
 distclean: clean                                                             \
     # distclean:    # Cleans up tree to pristine conditions
 	-@$(PRINTF) '%s\n' "BUILD: Starting distclean" 2> /dev/null || $(TRUE)
-	@$(RMF) ".needrebuild" || $(TRUE)
-	@$(RMF) ".rebuild.env" || $(TRUE)
-	@$(RMF) ".rebuild.vne" || $(TRUE)
+	@$(RMF) ".needrebuild"   || $(TRUE)
+	@$(RMF) ".rebuild.env"   || $(TRUE)
+	@$(RMF) ".rebuild.vne"   || $(TRUE)
+	@$(RMF) -rf "./out"      || $(TRUE)
+	@$(RMF) "cppcheck.txt"   || $(TRUE)
+	@$(RMF) "./orstlint.txt" || $(TRUE)
 	@$(MAKE) -C "src/dps8" "distclean" &&                                    \
       $(PRINTF) '%s\n' "BUILD: Successful distclean" 2> /dev/null || $(TRUE)
 

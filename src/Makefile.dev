@@ -123,6 +123,14 @@ orstlint:                                                                     \
             $(SORT) | $(UNIQ) -c | $(SORT) -rn | $(TEE) -a orstlint.txt
 
 ###############################################################################
+# Convenience target: Runs the Clang Analyzer & save output
+
+.PHONY: clsanalz
+clsanalz:                                                                     \
+    # clsanalz:    # Runs the Clang Analyzer & save output
+	@test -x ./src/ci-kit/scan-build.sh && ./src/ci-kit/scan-build.sh
+
+###############################################################################
 
 # Local Variables:
 # mode: make

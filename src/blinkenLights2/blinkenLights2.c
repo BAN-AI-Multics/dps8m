@@ -295,6 +295,7 @@ static gboolean time_handler (GtkWidget * widget) {
   PROBE (rQ,  { for (int i = 0; i < 36; i ++) Q_state    [35 - i] = BIT (rQ);  });
   PROBE (rE,  { for (int i = 0; i <  8; i ++) E_state    [ 7 - i] = BIT (rE);  });
   for(int nreg = 0; nreg < 8; nreg ++) {
+    /* cppcheck-suppress internalAstError */
     PROBEns (rX, nreg, { for (int i = 0; i < 18; i ++) X_state [nreg][17 - i] = BIT (rX[nreg]);  });
   }
   PROBE (IR, { for (int i = 0; i < 18; i ++) IR_state [17 - i] = BIT (IR); });

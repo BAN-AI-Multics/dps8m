@@ -151,6 +151,8 @@ GNUmakefile.local
 .envrc
 
 # CI/CD
+out
+dumalog.txt
 src/ci-kit/.yoyodyne.s4
 src/ci-kit/run
 src/ci-kit/dps8m

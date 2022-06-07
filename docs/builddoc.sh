@@ -1,6 +1,18 @@
 #!/usr/bin/env sh
-# vim: filetype=sh:tabstop=4:tw=78:expandtab
 # shellcheck disable=SC2086
+# vim: filetype=sh:tabstop=4:tw=78:expandtab
+
+#############################################################################
+#
+# Copyright (c) 2021-2022 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+#############################################################################
+
 # WARNING: Removes all `*.pdf`, `*.tmp`, and `*.state` files during operation.
 # WARNING: Installs the templates to `${HOME}/.local/share/pandoc/templates/`.
 

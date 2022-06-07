@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2310,SC2312,SC2320
+# vim: filetype=sh:tabstop=4:tw=78:expandtab
 
 ############################################################################
 #
@@ -15,27 +16,27 @@
 # Requires: Cppcheck, Clang, GCC, GNU tools, lscpu, tput (from [n]curses)
 
 test -d "./.git" ||
-{
-  printf '%s\n' "Error: Not in top-level git repository."
-  exit 1
-}
+  {
+    printf '%s\n' "Error: Not in top-level git repository."
+    exit 1
+  }
 
 export SHELL=/bin/sh
 
 test -d "./.cppbdir" ||
-{
-  mkdir -p "./.cppbdir" ||
-    {
-      printf '%s\n' "Error: Unable to create .cppbdir dorectory."
-      exit 1
-    }
-}
+  {
+    mkdir -p "./.cppbdir" ||
+      {
+        printf '%s\n' "Error: Unable to create .cppbdir dorectory."
+        exit 1
+      }
+  }
 
 set -eu 2> /dev/null 2>&1
 
 test -z "${MAKE:-}" && MAKE="command -p env make"
 CPPCHECK="cppcheck"
-CPPCHECKS="warning,style,performance,portability"
+CPPCHECKS="warning,performance,portability"
 CPPDEFINE='-DDECNUMDIGITS=126 -U__VERSION__ -D_GNU_SOURCE -DDECBUFFER=32
            -U__STRICT_POSIX__ -Dint32_t=int32 -DCPPCHECK=1 -U__WATCOMC__
            -U__USE_POSIX199309 -DPRIo64="llo" -DPRId64="lld" -DPRIu64="llu"
@@ -102,59 +103,56 @@ include_paths()
       # shellcheck disable=SC2086,SC2048
       printf '\n%s\n' ${*:-}
     ) |
-    sort -u |
-      tr '\n' ' '
+      sort -u |
+        tr '\n' ' '
     set -e
 }
 
 full_line()
 {
   set +e
-  printf '%s\r' ""
   LINECHAR="#"
-  printf '%*s\n' "${COLUMNS:-$(tput cols || printf '%s\n' "72")}" '' |
-    tr ' ' "${LINECHAR:--}"
-  printf '%s\r' ""
+  printf '%*s\n' "${COLUMNS:-$(tput cols 2> /dev/null ||
+    printf '%s\n' "72")}" '' | tr ' ' "${LINECHAR:--}"
   set -e
 }
 
 title_line()
 {
   set +e
-  printf '%s\r' ""
   # shellcheck disable=SC2015
   test "${#}" -gt 0 &&
     test "${#}" -lt 2 ||
-    {
-      printf '%s\n' "Error: title_line() requires exactly 1 argument."
-      set -e
-      exit 1
-    }
+      {
+        printf '%s\n' "Error: title_line() requires exactly 1 argument."
+        set -e
+        exit 1
+      }
   TITLEWORD=" ${1:?} "
   TITLELEN="${#TITLEWORD}"
   LINECHAR="#"
   HALFWIDTH="$(printf '((%d/2)-1)-(((%d+2)/2)-1)\n' \
-    "${COLUMNS:-$(tput cols || printf '%s\n' "72")}" "${TITLELEN:-1}" |
-      bc 2> /dev/null || printf '%s\n' "36")"
+    "${COLUMNS:-$(tput cols 2> /dev/null ||
+      printf '%s\n' "72")}" "${TITLELEN:-1}" | bc 2> /dev/null ||
+        printf '%s\n' "36")"
   TITLELINE="$(printf '%s%s%s' "$(printf '%*s' "${HALFWIDTH:?}" '' |
       tr ' ' "${LINECHAR:--}")" \
       "$(printf '%s' "${TITLEWORD:?}")" \
         "$(printf '%*s\n' "${HALFWIDTH:?}" '' | tr ' ' "${LINECHAR:--}")")"
   TITLELLEN="${#TITLELINE}"
   SLACKLEN="$(printf '%d-%d\n' \
-    "${COLUMNS:-$(tput cols || printf '%s\n' "72")}" "${TITLELLEN:-1}" |
-      bc 2> /dev/null || printf '%s\n' "0")"
+    "${COLUMNS:-$(tput cols 2> /dev/null ||
+      printf '%s\n' "72")}" "${TITLELLEN:-1}" |
+        bc 2> /dev/null || printf '%s\n' "0")"
   printf '%s' "${TITLELINE:?}"
   test "${SLACKLEN:-0}" -gt 0 && printf '%*s\n' "${SLACKLEN:?}" '' |
     tr ' ' "${LINECHAR:--}"
-  printf '%s\r' ""
   set -e
 }
 
 do_cppcheck()
 {
   set +e
-  printf '%s\r\n' ""
   test "${#}" -gt 1 ||
     {
       printf '%s\n' "Error: cppcheck($*) requires 2 or more arguments."
@@ -165,12 +163,6 @@ do_cppcheck()
   shift
   infiles="${*:-}"
   for compiler in ${COMPILERS:?}; do
-    (
-      printf '%s\n' \
-        " * Using $(${compiler:?} --version 2>&1 |
-          head -n 1 || printf '%s\n' '???' 2>&1 || true) ..." |
-            grep -v '???' || true
-    ) && printf '%s\n' "" >&2 &&
     command -v "${compiler:?}" > /dev/null 2>&1 &&
       {
         # shellcheck disable=SC2086,SC2310
@@ -214,20 +206,37 @@ full_line
 
 printf '%s\n' ""
 
-title_line "$(date -u 2> /dev/null)"
+title_line "$(printf '%s' 'vmpctool')" >&2
+printf '%s\n' "" >&2
+do_cppcheck "vmpctool" "./src/vmpctool"
+printf '%s\n' "" >&2
+
+title_line "$(printf '%s' 'unifdef')" >&2
+printf '%s\n' "" >&2
 do_cppcheck "unifdef" "./src/unifdef"
+printf '%s\n' "" >&2
 
-title_line "$(date -u 2> /dev/null)"
+title_line "$(printf '%s' 'punutil')" >&2
+printf '%s\n' "" >&2
 do_cppcheck "punutil" "./src/punutil"
+printf '%s\n' "" >&2
 
-title_line "$(date -u 2> /dev/null)"
+title_line "$(printf '%s' 'mcmb')" >&2
+printf '%s\n' "" >&2
 do_cppcheck "mcmb" "./src/mcmb"
+printf '%s\n' "" >&2
 
-title_line "$(date -u 2> /dev/null)"
+title_line "$(printf '%s' 'prt2pdf')" >&2
+printf '%s\n' "" >&2
 do_cppcheck "prt2pdf" "./src/prt2pdf"
+printf '%s\n' "" >&2
 
-title_line "$(date -u 2> /dev/null)"
+title_line "$(printf '%s' 'blinkenLights2')" >&2
+printf '%s\n' "" >&2
 do_cppcheck "blinkenLights2" "./src/blinkenLights2"
+printf '%s\n' "" >&2
 
-title_line "$(date -u 2> /dev/null)"
+title_line "$(printf '%s' 'dps8')" >&2
+printf '%s\n' "" >&2
 do_cppcheck "dps8" "./src/decNumber" "./src/simh" "./src/dps8"
+printf '%s\n' "" >&2

@@ -1934,6 +1934,7 @@ main(int argc, char *argv[])
    * Read arguments ...
    */
 
+#ifndef __clang_analyzer__
   if (opt_file)
     {
 
@@ -2020,6 +2021,7 @@ main(int argc, char *argv[])
       nitems = (uint32_t)ritems;
     }
   else
+#endif  /* ifndef __clang_analyzer__ */
     {
 
       /*
@@ -2390,10 +2392,18 @@ static uint64_t
 cmb_rand_range(uint64_t range)
 {
   static const uint64_t M = ( uint64_t ) ~0;
+
+  if (range == 0)
+    {
+      (void)fprintf(stderr, "FATAL: Range cannot be zero!\n");
+      _Exit(EXIT_FAILURE);
+      /* NOTREACHED */
+    }
+
   uint64_t exclusion = p2(range) ? 0 : M % range + 1;
   uint64_t res = 0;
 
-  while (( res = urand64()) < exclusion)
+  while ( ( res = urand64() ) < exclusion )
     {
       (void)0; /* NULL */
     }

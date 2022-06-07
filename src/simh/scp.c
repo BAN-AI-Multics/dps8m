@@ -4506,7 +4506,9 @@ if (flag) {
         fprintf (st, "\n  Compiler: %s", postver);
     }
 # endif
-# if defined (__clang_version__) && defined (__VERSION__)
+# if defined (__clang_analyzer__ )
+    fprintf (st, "\n  Compiler: Clang C/C++ Static Analyzer");
+# elif defined (__clang_version__) && defined (__VERSION__)
     char clangllvmver[1024];
     sprintf(clangllvmver, "%.1023s", __clang_version__);
     strremove(clangllvmver, "git://github.com/OpenIndiana/oi-userland.git ");
