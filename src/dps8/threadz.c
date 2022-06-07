@@ -387,19 +387,21 @@ void createCPUThread (uint cpuNum)
 
     char nm [17];
     sprintf (nm, "CPU %c", 'a' + cpuNum);
-#if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) || defined ( __OpenBSD__ ) )
+#ifndef __NetBSD__
+# if ( defined ( __FreeBSD__ ) || defined ( __FreeBSD_kernel__ ) || defined ( __OpenBSD__ ) )
     pthread_set_name_np (p->cpuThread, nm);
-#else
-# ifdef __APPLE__
-    pthread_setname_np (nm);
 # else
-#  ifndef _AIX
-#   ifndef __gnu_hurd__
+#  ifdef __APPLE__
+    pthread_setname_np (nm);
+#  else
+#   ifndef _AIX
+#    ifndef __gnu_hurd__
     pthread_setname_np (p->cpuThread, nm);
-#   endif /* ifndef __gnu_hurd__ */
-#  endif /* ifndef _AIX */
-# endif /* ifdef __APPLE__ */
-#endif /* ifdef FreeBSD || OpenBSD */
+#    endif /* ifndef __gnu_hurd__ */
+#   endif /* ifndef _AIX */
+#  endif /* ifdef __APPLE__ */
+# endif /* ifdef FreeBSD || OpenBSD */
+#endif /* ifndef __NetBSD__ */
 
 #ifdef AFFINITY
     if (cpus[cpuNum].set_affinity)
