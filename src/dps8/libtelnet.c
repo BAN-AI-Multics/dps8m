@@ -3,7 +3,7 @@
  *
  * ---------------------------------------------------------------------------
  *
- * libtelnet - TELNET protocol handling library
+ * libTELNET - TELNET protocol handling library
  *
  * Sean Middleditch
  * sean@sourcemud.org
@@ -569,85 +569,6 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
         return 1;
 }
 
-/* process an MSSP subnegotiation buffer */
-static int _mssp_telnet(telnet_t *telnet, char* buffer, size_t size) {
-        telnet_event_t ev;
-        struct telnet_environ_t *values;
-        char *var = 0;
-        char *c, *last, *out;
-        size_t i, count;
-        unsigned char next_type;
-
-        /* if we have no data, just pass it through */
-        if (size == 0) {
-                return 0;
-        }
-
-        /* first byte must be a VAR */
-        if ((unsigned)buffer[0] != TELNET_MSSP_VAR) {
-                _error(telnet, __LINE__, __func__, TELNET_EPROTOCOL, 0,
-                                "MSSP subnegotiation has invalid data");
-                return 0;
-        }
-
-        /* count the arguments, any part that starts with VALUE */
-        for (count = 0, i = 0; i != size; ++i) {
-                if ((unsigned)buffer[i] == TELNET_MSSP_VAL) {
-                        ++count;
-                }
-        }
-
-        /* allocate argument array, bail on error */
-        if ((values = (struct telnet_environ_t *)calloc(count,
-                        sizeof(struct telnet_environ_t))) == 0) {
-                _error(telnet, __LINE__, __func__, TELNET_ENOMEM, 0,
-                                "calloc() failed: %s", strerror(errno));
-                return 0;
-        }
-
-        ev.mssp.values = values;
-        ev.mssp.size = count;
-
-        /* allocate strings in argument array */
-        out = last = buffer;
-        next_type = (unsigned char) buffer[0];
-        for (i = 0, c = buffer + 1; c < buffer + size;) {
-                /* search for end marker */
-                while (c < buffer + size && (unsigned)*c != TELNET_MSSP_VAR &&
-                                (unsigned)*c != TELNET_MSSP_VAL) {
-                        *out++ = *c++;
-                }
-                *out++ = '\0';
-
-                /* if it's a variable name, just store the name for now */
-                if (next_type == TELNET_MSSP_VAR) {
-                        var = last;
-                } else if (next_type == TELNET_MSSP_VAL && var != 0) {
-                        values[i].var = var;
-                        values[i].value = last;
-                        ++i;
-                } else {
-                        _error(telnet, __LINE__, __func__, TELNET_EPROTOCOL, 0,
-                                        "invalid MSSP subnegotiation data");
-                        free(values);
-                        return 0;
-                }
-
-                /* remember our next type and increment c for next loop run */
-                last = out;
-                next_type = (unsigned char) (*c++);
-        }
-
-        /* invoke event with our arguments */
-        ev.type = TELNET_EV_MSSP;
-        telnet->eh(telnet, &ev, telnet->ud);
-
-        /* clean up */
-        free(values);
-
-        return 0;
-}
-
 /* parse TERMINAL-TYPE command subnegotiation buffers */
 static int _ttype_telnet(telnet_t *telnet, const char* buffer, size_t size) {
         telnet_event_t ev;
@@ -719,8 +640,6 @@ static int _subnegotiate(telnet_t *telnet) {
         case TELNET_TELOPT_NEW_ENVIRON:
                 return _environ_telnet(telnet, telnet->sb_telopt, telnet->buffer,
                                 telnet->buffer_pos);
-        case TELNET_TELOPT_MSSP:
-                return _mssp_telnet(telnet, telnet->buffer, telnet->buffer_pos);
         default:
                 return 0;
         }
