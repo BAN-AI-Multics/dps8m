@@ -47,6 +47,7 @@ extern UNIT mtp_unit [N_MTP_UNITS_MAX];
 extern DEVICE mtp_dev;
 
 void mt_init(void);
+void mt_exit (void);
 int get_mt_numunits (void);
 //UNIT * getTapeUnit (uint driveNumber);
 //void tape_send_special_interrupt (uint driveNumber);

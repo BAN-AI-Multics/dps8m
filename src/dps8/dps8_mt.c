@@ -925,6 +925,16 @@ void mt_init(void)
       }
   }
 
+void mt_exit (void) {
+  // If any paths have been added, we need to remove them now
+  PATH_ENTRY * current_entry = search_list_head;
+  while (current_entry != NULL) {
+    PATH_ENTRY * old_entry = current_entry;
+    current_entry = current_entry->next_entry;
+    free (old_entry);
+  }
+}
+
 static iom_cmd_rc_t mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
 

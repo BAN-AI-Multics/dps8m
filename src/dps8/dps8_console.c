@@ -433,6 +433,24 @@ void console_init (void)
       }
   }
 
+// Once-only shutdown
+
+void console_exit (void) {
+  for (uint i = 0; i < N_OPC_UNITS_MAX; i ++) {
+    opc_state_t * csp = console_state + i;
+    if (csp->auto_input) {
+      free (csp->auto_input);
+      csp->auto_input = NULL;
+    }
+    if (csp->console_access.telnetp) {
+      sim_warn ("console_exit freeing console %u telnetp %p\r\n", i, csp->console_access.telnetp);
+      telnet_free (csp->console_access.telnetp);
+      free (csp->console_access.telnetp);
+      csp->console_access.telnetp = NULL;
+    }
+  }
+}
+
 static int opc_autoinput_set (UNIT * uptr, UNUSED int32 val,
                                 const char *  cptr, UNUSED void * desc)
   {

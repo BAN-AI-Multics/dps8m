@@ -103,7 +103,9 @@ char sim_name[] = "L68";
 #endif
 int32 sim_emax = 4;  // some EIS can take up to 4-words
 static void dps8_init(void);
+static void dps8_exit (void);
 void (*sim_vm_init) (void) = & dps8_init;  // CustomCmds;
+void (*sim_vm_exit) (void) = & dps8_exit;  // CustomCmds;
 
 #ifdef TESTING
 static t_addr parse_addr(DEVICE *dptr, const char *cptr, const char **optr);
@@ -4247,6 +4249,14 @@ static void dps8_init (void) {
 #if defined(THREADZ) || defined(LOCKLESS)
   initThreadz ();
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
+}
+
+// Once-only shutdown; invoked by simh
+
+static void dps8_exit (void) {
+  console_exit ();
+  mt_exit ();
+  fnpExit ();
 }
 
 #ifdef TESTING

@@ -1219,6 +1219,7 @@ if ((created) && (!copied)) {
             }
         if (!sim_quiet)
             sim_printf ("%s%lu: Initialized To Sector Address %luMB.  100%% complete.\n", sim_dname (dptr), (unsigned long)(uptr-dptr->units), (unsigned long)((((float)lba)*sector_size)/1000000));
+        free (init_buf);
         }
     }
 
@@ -3334,7 +3335,7 @@ if ((szFileSpec[0] != '/') || (strchr (szFileSpec, ':')))
 else
     strncpy (szFullFileSpecBuffer, szFileSpec, BufferSize);
 if ((c = strstr (szFullFileSpecBuffer, "]/")))
-    memcpy (c+1, c+2, strlen(c+2)+1);
+    memmove (c+1, c+2, strlen(c+2)+1);
 memset (szFullFileSpecBuffer + strlen (szFullFileSpecBuffer), 0, BufferSize - strlen (szFullFileSpecBuffer));
 # endif
 }
@@ -3362,14 +3363,14 @@ if ((c = strrchr (szVhdPath, ']'))) {
 while ((c = strchr (szVhdPath, '/')))
     *c = '\\';
 for (c = strstr (szVhdPath, "\\.\\"); c; c = strstr (szVhdPath, "\\.\\"))
-    memcpy (c, c+2, strlen(c+2)+1);
+    memmove (c, c+2, strlen(c+2)+1);
 for (c = strstr (szVhdPath, "\\\\"); c; c = strstr (szVhdPath, "\\\\"))
-    memcpy (c, c+1, strlen(c+1)+1);
+    memmove (c, c+1, strlen(c+1)+1);
 while ((c = strstr (szVhdPath, "\\..\\"))) {
     *c = '\0';
     d = strrchr (szVhdPath, '\\');
     if (d)
-        memcpy (d, c+3, strlen(c+3)+1);
+        memmove (d, c+3, strlen(c+3)+1);
     else
         return d;
     }
