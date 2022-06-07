@@ -1509,8 +1509,9 @@ enum { CUH_XINT = 0100, CUH_IFT = 040, CUH_CRD = 020, CUH_MRD = 010,
 
 typedef struct
   {
-    jmp_buf jmpMain; // This is the entry to the CPU state machine
-    cycles_e cycle;
+
+    EISstruct currentEISinstruction;
+
     unsigned long long cycleCnt;
     unsigned long long instrCnt;
     unsigned long long instrCntT0;
@@ -1520,14 +1521,179 @@ typedef struct
     unsigned long long lockWait;
     unsigned long long lockWaitMax;
     unsigned long long lockYield;
+
+    // From the control unit history register:
+    _fault_subtype subFault; // saved by doFault
+
+    word36   rA;     // accumulator
+    word36   rQ;     // quotient
+
+    fault_acv_subtype_  acvFaults;   // pending ACV faults
+
+    sdw_s * SDW; // working SDW
+
+    // Zone mask
+    word36 zone;
+
+    ptw_s * PTW;
+
+    word36 CY;              // C(Y) operand data from memory
+
+    uint64 lufCounter;
+
+    _fault_subtype dlySubFltNum;
+
+    const char * dlyCtx;
+
+    word36 faultRegister [2];
+
+    word36 itxPair [2];
+
+#if defined(THREADZ) || defined(LOCKLESS)
+    struct timespec rTRTime; // time when rTR was set
+#endif
+
+    mode_register_s MR;
+    // Changes to the mode register history bits do not take affect until
+    // the next instruction (ISOLTS 700 2a). Cache the values here so
+    // that post register updates can see the old values.
+    mode_register_s MR_cache;
+
+    DCDstruct currentInstruction;
+
+    ou_unit_data_t ou;
+
+    word36 Ypair[2];        // 2-words
+    word36 Yblock8[8];      // 8-words
+    word36 Yblock16[16];    // 16-words
+    word36 Yblock32[32];    // 32-words
+
+    word36 scu_data[8];     // For SCU instruction
+
+    ctl_unit_data_t cu;
+    du_unit_data_t du;
+
+    switches_t switches;
+    switches_t isolts_switches_save;
+
+    jmp_buf jmpMain; // This is the entry to the CPU state machine
+
     unsigned long      faultCnt [N_FAULTS];
+
+    _fault_subtype  g7SubFaults [N_FAULTS];
+
+    word36 history [N_HIST_SETS] [N_HIST_SIZE] [2];
+
+    cycles_e cycle;
+
+    _fault faultNumber;      // fault number saved by doFault
+
+    apu_unit_data_t apu;
+
+    word27   rTR;    // timer [map: TR, 9 0's]
+#if defined(THREADZ) || defined(LOCKLESS)
+    uint     rTRsample;
+#endif
+
+    word24   rY;       // address operand
+
+    word18 lnk;  // rpl link value
+
+    uint g7FaultsPreset;
+    uint g7Faults;
+
+    word24 iefpFinalAddress;
+
+    // ISOLTS fine grain TR estimation
+    uint rTRlsb;
+    uint shadowTR;
+    uint TR0; // The value that the TR was set to.
+
+    // Arguments for delayed overflow fault
+    _fault dlyFltNum;
+
+    word18 last_write;
+
+#ifdef LOCKLESS
+    word24 locked_addr;
+    word24 char_word_address;
+#endif
+
+    word24 rmw_address;
+
+    uint restart_address;
+
+    struct
+      {
+        word15 PSR;
+        word3  PRR;
+        word18 IC;
+      } cu_data;            // For STCD instruction
+    uint rTRticks;
+
+    struct tpr_s TPR;     // Temporary Pointer Register
+    struct ppr_s PPR;     // Procedure Pointer Register
+    struct dsbr_s DSBR;   // Descriptor Segment Base Register
+    ptw0_s PTW0; // a PTW not in PTWAM (PTWx1)
+
+    uint history_cyclic [N_HIST_SETS]; // 0..63
+
+    sdw_s SDW0;  // a SDW not in SDWAM
+    sdw_s _s;
+
+    word18   rX [8]; // index
+
+    // Nmber of banks in each SCU
+    uint sc_num_banks [N_SCU_UNITS_MAX];
+
+    // Caching some cabling data for interrupt handling.
+    // When a CPU calls get_highest_intr(), it needs to know
+    // what port on the SCU it is attached to. Because of port
+    // exapanders several CPUs can be attached to an SCU port,
+    // mapping from the CPU to the SCU is easier to query
+    uint scu_port[N_SCU_UNITS_MAX];
+
+#ifdef L68
+    // FFV faults
+
+     uint FFV_faults_preset;
+     uint FFV_faults;
+     uint FFV_fault_number;
+#endif
+
+#ifdef AFFINITY
+    uint affinity;
+#endif
+
+    events_t events;
+
+    word24 pad[16];
+
+    struct par_s PAR [8]; // pointer/address resisters
+
+    ptw_s PTWAM [N_WAM_ENTRIES];
+
+    // Map memory address through memory configuraiton switches
+    // Minimum allocation chunk is 64K (SCBANK_SZ)
+    // addr / SCBANK_SZ => bank_number
+    // scbank_map[bank_number] is address of the bank in M. -1 is unmapped.
+    int sc_addr_map [N_SCBANKS];
+    // The SCU number holding each bank
+    int sc_scu_map [N_SCBANKS];
+
+    sdw_s SDWAM [N_WAM_ENTRIES]; // Segment Descriptor Word Associative Memory
+
+    // Address Modification tally
+    word12 AM_tally;
+
+    struct bar_s BAR;     // Base Address Register
+
+    cache_mode_register_s CMR;
 
     // The following are all from the control unit history register:
 
     bool interrupt_flag;     // an interrupt is pending in this cycle
     bool g7_flag;            // a g7 fault is pending in this cycle;
-    _fault faultNumber;      // fault number saved by doFault
-    _fault_subtype subFault; // saved by doFault
 
     bool wasXfer;      // The previous instruction was a transfer
 
@@ -1539,54 +1705,97 @@ typedef struct
     bool isXED;   // The instruction being executed is the target of an
                   // XEC instruction
 
-    DCDstruct currentInstruction;
-    EISstruct currentEISinstruction;
 
-    events_t events;
-    switches_t switches;
-    switches_t isolts_switches_save;
     bool  isolts_switches_saved;
-    ctl_unit_data_t cu;
-    du_unit_data_t du;
-    ou_unit_data_t ou;
-    apu_unit_data_t apu;
-    word36 faultRegister [2];
 
-    word36 itxPair [2];
-
-    word36   rA;     // accumulator
-    word36   rQ;     // quotient
     word8    rE;     // exponent [map: rE, 28 0's]
 
-    word18   rX [8]; // index
-    word27   rTR;    // timer [map: TR, 9 0's]
-#if defined(THREADZ) || defined(LOCKLESS)
-    struct timespec rTRTime; // time when rTR was set
-    uint     rTRsample;
-#endif
-    word24   rY;       // address operand
     word6    rTAG;     // instruction tag
     word3    rRALR;    // ring alarm [3b] [map: 33 0's, RALR]
     word3    RSDWH_R1; // Track the ring number of the last SDW
-    fault_acv_subtype_  acvFaults;   // pending ACV faults
 
-    word18 lnk;  // rpl link value
-
-    struct tpr_s TPR;     // Temporary Pointer Register
-    struct ppr_s PPR;     // Procedure Pointer Register
-    struct par_s PAR [8]; // pointer/address resisters
-    struct bar_s BAR;     // Base Address Register
-    struct dsbr_s DSBR;   // Descriptor Segment Base Register
-    sdw_s SDWAM [N_WAM_ENTRIES]; // Segment Descriptor Word Associative Memory
 #ifdef L68
     word4 SDWAMR;
 #endif
 #ifdef DPS8M
     word6 SDWAMR;
 #endif
-    sdw_s * SDW; // working SDW
-    sdw_s SDW0;  // a SDW not in SDWAM
-    sdw_s _s;
+
+    // Zone mask
+    bool useZone;
+
+#ifdef L68
+    word4 PTWAMR;
+#endif
+#ifdef DPS8M
+    word6 PTWAMR;
+#endif
+
+    // G7 faults
+    bool bTroubleFaultCycle;
+
+    bool lufOccurred;
+    bool secret_addressing_mode;
+    // Used by LCPR to prevent the LCPR instruction from being recorded
+    // in the CU.
+    bool skip_cu_hist;
+
+    // If the instruction wants overflow thrown after operand write
+    bool dlyFlt;
+
+    bool restart;
+
+#ifdef L68
+    // FFV faults
+     bool is_FFV;
+#endif
+
+#ifdef ROUND_ROBIN
+    bool isRunning;
+#endif
+
+#ifdef AFFINITY
+    bool set_affinity;
+#endif
+
+#ifdef SPEED
+# define SC_MAP_ADDR(addr,real_addr)                           \
+   if (cpu.switches.useMap)                                    \
+      {                                                        \
+        uint pgnum = addr / SCBANK_SZ;                         \
+        uint os = addr % SCBANK_SZ;                            \
+        int base = cpu.sc_addr_map[pgnum];                     \
+        if (base < 0)                                          \
+          {                                                    \
+            doFault (FAULT_STR, fst_str_nea,  __func__);       \
+          }                                                    \
+        real_addr = (uint) base + os;                          \
+      }                                                        \
+    else                                                       \
+      real_addr = addr;
+#else // !SPEED
+# define SC_MAP_ADDR(addr,real_addr)                            \
+   if (cpu.switches.useMap)                                    \
+      {                                                        \
+        uint pgnum = addr / SCBANK_SZ;                         \
+        uint os = addr % SCBANK_SZ;                            \
+        int base = cpu.sc_addr_map[pgnum];                     \
+        if (base < 0)                                          \
+          {                                                    \
+            doFault (FAULT_STR, fst_str_nea,  __func__);       \
+          }                                                    \
+        real_addr = (uint) base + os;                          \
+      }                                                        \
+    else                                                       \
+      {                                                        \
+        nem_check (addr, __func__);                            \
+        real_addr = addr;                                      \
+      }
+#endif
+
+
+
+
 #ifdef PANEL
     // Intermediate data collection for APU SCROLL
     word18 lastPTWOffset;
@@ -1696,158 +1905,6 @@ typedef struct
 #define cptUseCMR  15
 #define cptUseIR   16
 
-    // Address Modification tally
-    word12 AM_tally;
-
-    // Zone mask
-    word36 zone;
-    bool useZone;
-
-    ptw_s PTWAM [N_WAM_ENTRIES];
-#ifdef L68
-    word4 PTWAMR;
-#endif
-#ifdef DPS8M
-    word6 PTWAMR;
-#endif
-    ptw_s * PTW;
-    ptw0_s PTW0; // a PTW not in PTWAM (PTWx1)
-    cache_mode_register_s CMR;
-    mode_register_s MR;
-
-    // G7 faults
-
-    bool bTroubleFaultCycle;
-    uint g7FaultsPreset;
-    uint g7Faults;
-    _fault_subtype  g7SubFaults [N_FAULTS];
-
-#ifdef L68
-    // FFV faults
-
-     uint FFV_faults_preset;
-     uint FFV_faults;
-     uint FFV_fault_number;
-     bool is_FFV;
-#endif
-
-    word24 iefpFinalAddress;
-    word36 CY;              // C(Y) operand data from memory
-    word36 Ypair[2];        // 2-words
-    word36 Yblock8[8];      // 8-words
-    word36 Yblock16[16];    // 16-words
-    word36 Yblock32[32];    // 32-words
-    word36 scu_data[8];     // For SCU instruction
-    struct
-      {
-        word15 PSR;
-        word3  PRR;
-        word18 IC;
-      } cu_data;            // For STCD instruction
-    uint rTRticks;
-
-    // ISOLTS fine grain TR estimation
-    uint rTRlsb;
-    uint shadowTR;
-    uint TR0; // The value that the TR was set to.
-
-    uint64 lufCounter;
-    bool lufOccurred;
-    bool secret_addressing_mode;
-    //bool went_appending; // we will go....
-#ifdef ROUND_ROBIN
-    bool isRunning;
-#endif
-    // Map memory address through memory configuraiton switches
-    // Minimum allocation chunk is 64K (SCBANK_SZ)
-    // addr / SCBANK_SZ => bank_number
-    // scbank_map[bank_number] is address of the bank in M. -1 is unmapped.
-    int sc_addr_map [N_SCBANKS];
-    // The SCU number holding each bank
-    int sc_scu_map [N_SCBANKS];
-    // Nmber of banks in each SCU
-    uint sc_num_banks [N_SCU_UNITS_MAX];
-
-#ifdef SPEED
-# define SC_MAP_ADDR(addr,real_addr)                            \
-   if (cpu.switches.useMap)                                    \
-      {                                                        \
-        uint pgnum = addr / SCBANK_SZ;                         \
-        uint os = addr % SCBANK_SZ;                            \
-        int base = cpu.sc_addr_map[pgnum];                     \
-        if (base < 0)                                          \
-          {                                                    \
-            doFault (FAULT_STR, fst_str_nea,  __func__);       \
-          }                                                    \
-        real_addr = (uint) base + os;                          \
-      }                                                        \
-    else                                                       \
-      real_addr = addr;
-#else // !SPEED
-# define SC_MAP_ADDR(addr,real_addr)                            \
-   if (cpu.switches.useMap)                                    \
-      {                                                        \
-        uint pgnum = addr / SCBANK_SZ;                         \
-        uint os = addr % SCBANK_SZ;                            \
-        int base = cpu.sc_addr_map[pgnum];                     \
-        if (base < 0)                                          \
-          {                                                    \
-            doFault (FAULT_STR, fst_str_nea,  __func__);       \
-          }                                                    \
-        real_addr = (uint) base + os;                          \
-      }                                                        \
-    else                                                       \
-      {                                                        \
-        nem_check (addr, __func__);                            \
-        real_addr = addr;                                      \
-      }
-#endif
-
-    uint history_cyclic [N_HIST_SETS]; // 0..63
-    word36 history [N_HIST_SETS] [N_HIST_SIZE] [2];
-
-    // Used by LCPR to prevent the LCPR instruction from being recorded
-    // in the CU.
-    bool skip_cu_hist;
-    // Changes to the mode register history bits do not take affect until
-    // the next instruction (ISOLTS 700 2a). Cache the values here so
-    // that post register updates can see the old values.
-    mode_register_s MR_cache;
-
-    // If the instruction wants overflow thrown after operand write
-    bool dlyFlt;
-
-    // Arguments for delayed overflow fault
-
-    _fault dlyFltNum;
-    _fault_subtype dlySubFltNum;
-    const char * dlyCtx;
-
-    word18 last_write;
-#ifdef LOCKLESS
-    word24 locked_addr;
-    word24 char_word_address;
-#endif
-    word24 rmw_address;
-    word24 pad[16];
-//#ifdef THREADZ
-//    // Set if this thread has set memlock
-//    bool havelock; // Vetinari
-//bool have_tst_lock;
-//#endif
-#ifdef AFFINITY
-    bool set_affinity;
-    uint affinity;
-#endif
-    bool restart;
-    uint restart_address;
-
-    // Caching some cabling data for interrupt handling.
-    // When a CPU calls get_highest_intr(), it needs to know
-    // what port on the SCU it is attached to. Because of port
-    // exapanders several CPUs can be attached to an SCU port,
-    // mapping from the CPU to the SCU is easier to query
-    uint scu_port[N_SCU_UNITS_MAX];
 
   } cpu_state_t;
 
