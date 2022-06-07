@@ -1316,27 +1316,34 @@ int strmask (char * str, char * mask)
       } // while (1)
   }
 
+#if 0
 /*
  * strtok() with string quoting...
  * (implemented as a small fsm, kinda...
  * (add support for embedded " later, much later...)
  */
-#define NORMAL 1
-#define IN_STRING 2
-#define EOB 3
+# define NORMAL 1
+# define IN_STRING 2
+# define EOB 3
 
-char *
-Strtok(char *line, char *sep)
-{
+char * Strtok (char * line, char * sep) {
 
-    static char *p; /*!< current pointer position in input line*/
+    static char *p = NULL; // current pointer position in input line; initialized to NULL for robustness.
     static int state = NORMAL;
 
-    char *q; /*!< beginning of current field*/
+    char *q; // beginning of current field
 
-    if (line) { /* 1st invocation */
+    if (line) { // 1st invocation
         p = line;
         state = NORMAL;
+    }
+
+    if (! p) {
+      // Called without proper initialization
+      sim_warn ("Strtok called without initialization\r\n");
+      // Treat it as an empty line
+      state = NORMAL;
+      return NULL;
     }
 
     q = p;
@@ -1345,7 +1352,7 @@ Strtok(char *line, char *sep)
             case NORMAL:
                 switch (*p) {
                     case 0: // at end of buffer
-                        state = EOB; // set state to "end Of Buffer
+                        state = EOB; // set state to "End Of Buffer
                         return q;
 
                     case '"': // beginning of a quoted string
@@ -1395,6 +1402,8 @@ Strtok(char *line, char *sep)
     return NULL; /* no more fields in buffer */
 
 }
+#endif
+
 #if 0
 bool startsWith(const char *str, const char *pre)
 {
