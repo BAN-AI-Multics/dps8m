@@ -171,13 +171,13 @@ static struct rdr_state
       {
         rdr_no_mode, rdr_rd_bin
       } io_mode;
-    char device_name [MAX_DEV_NAME_LEN];
     int deckfd;
-    bool running;
     // Sending a ++END means that the read_cards command has to be reissued
     //enum { deckStart = 0, eof1Sent, uid1Sent, inputSent, eof2Sent, uid2Sent } deckState;
     enum { deckStart = 0, eof1Sent, uid1Sent, inputSent, eof2Sent} deckState;
     enum deckFormat deckFormat;
+    bool running;
+    char device_name [MAX_DEV_NAME_LEN];
     char fname [PATH_MAX+1];
   } rdr_state [N_RDR_UNITS_MAX];
 

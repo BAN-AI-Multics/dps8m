@@ -268,28 +268,30 @@ enum console_model { m6001 = 0, m6004 = 1, m6601 = 2 };
 // Hangs off the device structure
 typedef struct opc_state_t
   {
-    char device_name [MAX_DEV_NAME_LEN];
-    enum console_model model;
-    enum console_mode { opc_no_mode, opc_read_mode, opc_write_mode } io_mode;
-// Multics does console reads with a tally of 64 words; so 256 characters + NUL.
-// If the tally is smalleri then the contents of the buffer, sendConsole will
-// issue a warning and discard the excess.
-#define bufsize 257
-    unsigned char keyboardLineBuffer[bufsize];
-    bool tabStops [bufsize];
+    // Track progress of reads through the autoinput buffer
     unsigned char *tailp;
     unsigned char *readp;
+
+    // Autoinput buffer pointers
     unsigned char *auto_input;
     unsigned char *autop;
-    bool echo;
 
     // stuff saved from the Read ASCII command
     time_t startTime;
+    UNIT * unitp;
+
+    // telnet connection to console
+    uv_access console_access;
+
+    enum console_model model;
+    enum console_mode { opc_no_mode, opc_read_mode, opc_write_mode } io_mode;
+
+    // stuff saved from the Read ASCII command
     uint tally;
     uint daddr;
-    UNIT * unitp;
     int chan;
 
+    // ^T
     // Generate "accept" command when dial_ctl announces dialin console
     int autoaccept;
     // Replace empty console input with "@"
@@ -297,25 +299,33 @@ typedef struct opc_state_t
     // ATTN flushes typeahead buffer
     int attn_flush;
 
-    bool attn_pressed;
-    bool simh_attn_pressed;
-#define simh_buffer_sz 4096
-    char simh_buffer[simh_buffer_sz];
     int simh_buffer_cnt;
-
-    bool bcd;
-    uv_access console_access;
-
-    // ^T
-    //unsigned long keyboard_poll_cnt;
 
     // Track the carrier position to allow tab expansion
     // (If the left margin is 1, then the tab stops are 11, 21, 31, 41, ...)
     int carrierPosition;
 
+    bool echo;
+
+    bool attn_pressed;
+    bool simh_attn_pressed;
+
+    bool bcd;
+
     // Handle escape sequence
     bool escapeSequence;
 
+    char device_name [MAX_DEV_NAME_LEN];
+
+// Multics does console reads with a tally of 64 words; so 256 characters + NUL.
+// If the tally is smalleri then the contents of the buffer, sendConsole will
+// issue a warning and discard the excess.
+#define bufsize 257
+    unsigned char keyboardLineBuffer[bufsize];
+    bool tabStops [bufsize];
+
+#define simh_buffer_sz 4096
+    char simh_buffer[simh_buffer_sz];
  } opc_state_t;
 
 static opc_state_t console_state[N_OPC_UNITS_MAX];
