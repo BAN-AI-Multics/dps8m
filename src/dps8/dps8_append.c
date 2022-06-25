@@ -1090,7 +1090,7 @@ static char *str_acv (_fault_subtype acv)
   }
 #endif
 
-#if 0
+#ifdef TESTING
 static char *str_pct (processor_cycle_type t)
   {
     switch (t)
