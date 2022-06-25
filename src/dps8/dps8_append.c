@@ -4,7 +4,7 @@
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2012-2016 Harry Reed
- * Copyright (c) 2013-2017 Charles Anthony
+ * Copyright (c) 2013-2022 Charles Anthony
  * Copyright (c) 2017 Michal Tomek
  * Copyright (c) 2021-2022 The DPS8M Development Team
  *
@@ -1090,6 +1090,7 @@ static char *str_acv (_fault_subtype acv)
   }
 #endif
 
+#if 0
 static char *str_pct (processor_cycle_type t)
   {
     switch (t)
@@ -1103,16 +1104,61 @@ static char *str_pct (processor_cycle_type t)
         case APU_DATA_READ: return "APU_DATA_READ";
         case APU_DATA_STORE: return "APU_DATA_STORE";
         case ABSA_CYCLE : return "ABSA_CYCLE";
-#ifdef LOCKLESS
+# ifdef LOCKLESS
         case OPERAND_RMW : return "OPERAND_RMW";
         case APU_DATA_RMW : return "APU_DATA_RMW";
-#endif
+# endif
 
         default:
             return "Unhandled processor_cycle_type";
       }
   }
+#endif
 
+word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWords) {
+  switch (thisCycle) {
+    case OPERAND_STORE:
+      return doAppendCycleOperandStore (data, nWords);
+    case OPERAND_READ:
+      return doAppendCycleOperandRead (data, nWords);
+    case INDIRECT_WORD_FETCH:
+      return doAppendCycleIndirectWordFetch (data, nWords);
+    case RTCD_OPERAND_FETCH:
+      return doAppendCycleRTCDOperandFetch (data, nWords);
+    case INSTRUCTION_FETCH:
+      return doAppendCycleInstructionFetch (data, nWords);
+    case APU_DATA_READ:
+      return doAppendCycleAPUDataRead (data, nWords);
+    case APU_DATA_STORE:
+      return doAppendCycleAPUDataStore (data, nWords);
+    case ABSA_CYCLE:
+      return doAppendCycleABSA (data, nWords);
+#ifdef LOCKLESS
+    case OPERAND_RMW:
+      return doAppendCycleOperandRMW (data, nWords);
+    case APU_DATA_RMW:
+      return doAppendCycleAPUDataRMW (data, nWords);
+#endif
+    case UNKNOWN_CYCLE:
+    default:
+      sim_fatal ("APU cycle %u\r\n", thisCycle);
+  }
+}
+
+#include "doAppendCycleOperandStore.h"
+#include "doAppendCycleOperandRead.h"
+#include "doAppendCycleIndirectWordFetch.h"
+#include "doAppendCycleRTCDOperandFetch.h"
+#include "doAppendCycleInstructionFetch.h"
+#include "doAppendCycleAPUDataRead.h"
+#include "doAppendCycleAPUDataStore.h"
+#include "doAppendCycleABSA.h"
+#ifdef LOCKLESS
+# include "doAppendCycleOperandRMW.h"
+# include "doAppendCycleAPUDataRMW.h"
+#endif
+
+#if 0
 /*
  * recoding APU functions to more closely match Fig 5,6 & 8 ...
  * Returns final address suitable for core_read/write
@@ -1241,7 +1287,7 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
     cpu.acvFaults = 0;
 
 //#define FMSG(x) x
-#define FMSG(x)
+# define FMSG(x)
     FMSG (char * acvFaultsMsg = "<unknown>";)
 
     word24 finalAddress = (word24) -1;  // not everything requires a final
@@ -1386,7 +1432,7 @@ A:;
     if (thisCycle == OPERAND_READ && (i->info->flags & CALL6_INS))
       goto E;
 
-#if 0
+# if 0
     // If the instruction is a transfer operand or we are doing an instruction
     // fetch, the operand is destined to be executed. Verify that the operand
     // is executable
@@ -1405,7 +1451,7 @@ A:;
     if (boolA != boolB)
       sim_warn ("do_append_cycle(B) boolA %d != boolB %d cycle %s insflag %d\n",
                 boolA, boolB, str_pct (thisCycle), i->info->flags & TRANSFER_INS);
-#endif
+# endif
 
     // Transfer or instruction fetch?
     if (thisCycle == INSTRUCTION_FETCH ||
@@ -1416,11 +1462,11 @@ A:;
     // check read bracket for read access
     //
 
-#ifdef LOCKLESS
+# ifdef LOCKLESS
     if (!StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
-#else
+# else
     if (!StrOp)
-#endif
+# endif
       {
         DBGAPP ("do_append_cycle(B):!STR-OP\n");
 
@@ -1461,11 +1507,11 @@ A:;
     //
     // check write bracket for write access
     //
-#ifdef LOCKLESS
+# ifdef LOCKLESS
     if (StrOp || thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW)
-#else
+# else
     if (StrOp)
-#endif
+# endif
       {
         DBGAPP ("do_append_cycle(B):STR-OP\n");
 
@@ -1808,7 +1854,7 @@ H:;
     DBGAPP ("do_append_cycle(H): FANP\n");
 
     PNL (L68_ (cpu.apu.state |= apu_FANP;))
-#if 0
+# if 0
     // ISOLTS pa865 test-01a 101232
     if (get_bar_mode ())
       {
@@ -1816,7 +1862,7 @@ H:;
       }
     else
       ....
-#endif
+# endif
     set_apu_status (apuStatus_FANP);
 
     DBGAPP ("do_append_cycle(H): SDW->ADDR=%08o CA=%06o \n",
@@ -1847,13 +1893,13 @@ I:;
 // Set PTW.M
 
     DBGAPP ("do_append_cycle(I): FAP\n");
-#ifdef LOCKLESS
+# ifdef LOCKLESS
     if ((StrOp ||
         thisCycle == OPERAND_RMW ||
         thisCycle == APU_DATA_RMW) && cpu.PTW->M == 0)  // is this the right way to do this?
-#else
+# else
     if (StrOp && cpu.PTW->M == 0)  // is this the right way to do this?
-#endif
+# endif
       {
        modify_ptw (cpu.SDW, cpu.TPR.CA);
       }
@@ -1870,10 +1916,10 @@ I:;
     finalAddress &= 0xffffff;
     PNL (cpu.APUMemAddr = finalAddress;)
 
-#ifdef L68
+# ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
       add_APU_history (APUH_FAP);
-#endif
+# endif
     DBGAPP ("do_append_cycle(H:FAP): (%05o:%06o) finalAddress=%08o\n",
             cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
@@ -1901,7 +1947,7 @@ HI:
       }
     else
       {
-#ifdef LOCKLESS
+# ifdef LOCKLESS
         if ((thisCycle == OPERAND_RMW || thisCycle == APU_DATA_RMW) && nWords == 1)
           {
             core_read_lock (finalAddress, data, str_pct (thisCycle));
@@ -1912,9 +1958,9 @@ HI:
               sim_warn("do_append_cycle: RMW nWords %d !=1\n", nWords);
             core_readN (finalAddress, data, nWords, str_pct (thisCycle));
           }
-#else
+# else
         core_readN (finalAddress, data, nWords, str_pct (thisCycle));
-#endif
+# endif
       }
 
     // Was this an indirect word fetch?
@@ -1965,7 +2011,7 @@ J:;
     //   TM_RI always indirects
     //   TM_IR always indirects
     //   TM_IT always indirects
-#if 0
+# if 0
     //     IT_CI, IT_SC, IT_SCR -- address is used for tally word
     //     IT_I indirects
     //     IT_AD -- address is used for tally word
@@ -1992,9 +2038,9 @@ J:;
         true, true, true, true, true, true, true, true
       };
     if (isInd[(* data) & MASK6])
-#else
+# else
     if ((* data) & 060)
-#endif
+# endif
       {
         // C(Y)0,17 -> C(IWB)0,17
         // C(Y)30,35 -> C(IWB)30,35
@@ -2061,9 +2107,9 @@ L:; // Transfer or instruction fetch
           cpu.PR[n].SNR = cpu.PPR.PSR;
         cpu.PR[n].WORDNO = (cpu.PPR.IC + 1) & MASK18;
         SET_PR_BITNO (n, 0);
-#ifdef TESTING
+# ifdef TESTING
         HDBGRegPRW (n, "app tspn");
-#endif
+# endif
       }
 
     // lastCycle == RTCD_OPERAND_FETCH
@@ -2089,7 +2135,7 @@ L:; // Transfer or instruction fetch
         cpu.PR[5].RNR =
         cpu.PR[6].RNR =
         cpu.PR[7].RNR = cpu.TPR.TRR;
-#ifdef TESTING
+# ifdef TESTING
         HDBGRegPRW (0, "app rtcd");
         HDBGRegPRW (1, "app rtcd");
         HDBGRegPRW (2, "app rtcd");
@@ -2098,7 +2144,7 @@ L:; // Transfer or instruction fetch
         HDBGRegPRW (5, "app rtcd");
         HDBGRegPRW (6, "app rtcd");
         HDBGRegPRW (7, "app rtcd");
-#endif
+# endif
       }
     goto KL;
 
@@ -2154,9 +2200,9 @@ N: // CALL6
     cpu.PR[7].WORDNO = 0;
     // 000000 -> C(PR7.BITNO)
     SET_PR_BITNO (7, 0);
-#ifdef TESTING
+# ifdef TESTING
     HDBGRegPRW (7, "app call6");
-#endif
+# endif
     // C(TPR.TRR) -> C(PPR.PRR)
     cpu.PPR.PRR = cpu.TPR.TRR;
     // C(TPR.TSR) -> C(PPR.PSR)
@@ -2214,6 +2260,8 @@ Exit:;
 
     return finalAddress;    // or 0 or -1???
   }
+#endif
+
 
 // Translate a segno:offset to a absolute address.
 // Return 0 if successful.

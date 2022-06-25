@@ -123,8 +123,20 @@ static inline void set_apu_status (apuStatusBits status)
 #ifdef TESTING
 t_stat dump_sdwam (void);
 #endif
-word24 do_append_cycle (processor_cycle_type thisCycle,
-                      word36 * data, uint nWords);
+word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWords);
+word24 doAppendCycleUnknown (word36 * data, uint nWords);
+word24 doAppendCycleOperandStore (word36 * data, uint nWords);
+word24 doAppendCycleOperandRead (word36 * data, uint nWords);
+word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords);
+word24 doAppendCycleRTCDOperandFetch (word36 * data, uint nWords);
+word24 doAppendCycleInstructionFetch (word36 * data, uint nWords);
+word24 doAppendCycleAPUDataRead (word36 * data, uint nWords);
+word24 doAppendCycleAPUDataStore (word36 * data, uint nWords);
+word24 doAppendCycleABSA (word36 * data, uint nWords);
+#ifdef LOCKLESS
+word24 doAppendCycleOperandRMW (word36 * data, uint nWords);
+word24 doAppendCycleAPUDataRMW (word36 * data, uint nWords);
+#endif
 void do_ldbr (word36 * Ypair);
 void do_sdbr (word36 * Ypair);
 void do_camp (word36 Y);
