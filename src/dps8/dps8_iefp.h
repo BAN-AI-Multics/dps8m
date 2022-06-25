@@ -19,6 +19,10 @@
  */
 
 void Read (word18 addr, word36 *dat, processor_cycle_type cyctyp);
+void readAPUDataRead (word18 addr, word36 *dat);
+void readOperandRead (word18 addr, word36 *dat);
+void readAPUDataRMW (word18 addr, word36 *dat);
+void readInstructionFetch (word18 addr, word36 *dat);
 void Read2 (word18 addr, word36 *dat, processor_cycle_type cyctyp);
 void Write (word18 addr, word36 dat, processor_cycle_type cyctyp);
 void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp);

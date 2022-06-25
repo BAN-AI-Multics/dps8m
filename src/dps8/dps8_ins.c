@@ -238,7 +238,7 @@ static void readOperands (void)
 static void read_tra_op (void)
   {
     if (cpu.TPR.CA & 1)
-      Read (cpu.TPR.CA, &cpu.CY, OPERAND_READ);
+      readOperandRead (cpu.TPR.CA, &cpu.CY);
     else
       Read2 (cpu.TPR.CA, cpu.Ypair, OPERAND_READ);
     if (! (get_addr_mode () == APPEND_mode || cpu.cu.TSN_VALID [0] ||
@@ -1096,7 +1096,7 @@ void fetchInstruction (word18 addr)
           {
             CPT (cpt2U, 11); // fetch rpt even
             if (addr & 1)
-              Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+              readInstructionFetch (addr, & cpu.cu.IWB);
             else
               {
                 word36 tmp[2];
@@ -1123,7 +1123,7 @@ void fetchInstruction (word18 addr)
           }
         else // Odd
           {
-            Read (addr, & cpu.cu.IWB, INSTRUCTION_FETCH);
+            readInstructionFetch (addr, & cpu.cu.IWB);
             cpu.cu.IRODD = cpu.cu.IWB;
           }
       }
@@ -1943,11 +1943,10 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
 #else
             // append cycles updates cpu.PPR.IC to TPR.CA
             word18 saveIC = cpu.PPR.IC;
-            Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
-                  INSTRUCTION_FETCH);
+            //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n], INSTRUCTION_FETCH);
+            readInstructionFetch (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n]);
             cpu.PPR.IC = saveIC;
-            //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n],
-            //      APU_DATA_READ);
+            //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n], APU_DATA_READ);
 #endif
           }
         PNL (cpu.IWRAddr = cpu.currentEISinstruction.op[0]);
@@ -6500,7 +6499,7 @@ static t_stat doInstruction (void)
             // C(Y)0,17 -> C(PPR.IC)
             // C(Y)18,31 -> C(IR)
             do_caf ();
-            Read (cpu.TPR.CA, &cpu.CY, OPERAND_READ);
+            readOperandRead (cpu.TPR.CA, & cpu.CY);
 
             cpu.PPR.IC = GETHI (cpu.CY);
             word18 tempIR = GETLO (cpu.CY) & 0777770;
@@ -10103,7 +10102,8 @@ static int doABSA (word36 * result)
     // ISOLTS-860 02
     //   res = (word36) do_append_cycle (cpu.TPR.CA & MASK18, ABSA_CYCLE, NULL,
     //                                   0) << 12;
-    res = (word36) do_append_cycle (ABSA_CYCLE, NULL, 0) << 12;
+    //res = (word36) do_append_cycle (ABSA_CYCLE, NULL, 0) << 12;
+    res = (word36) doAppendCycleABSA (NULL, 0) << 12;
 
     * result = res;
 

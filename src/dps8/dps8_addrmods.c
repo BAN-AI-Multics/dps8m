@@ -838,7 +838,7 @@ startCA:;
 
                 word36 indword;
                 word18 indaddr = cpu.TPR.CA;
-                Read (indaddr, & indword, APU_DATA_READ);
+                readAPUDataRead (indaddr, & indword);
 #ifdef LOCKLESS
                 word24 phys_address = cpu.iefpFinalAddress;
 #endif
@@ -944,7 +944,7 @@ startCA:;
                 // gives warnings as another lock is aquired in between
                 Read (cpu.TPR.CA, & cpu.ou.character_data, (i->info->flags & RMW) == STORE_OPERAND ? OPERAND_RMW : OPERAND_READ);
 #else
-                Read (cpu.TPR.CA, & cpu.ou.character_data, OPERAND_READ);
+                readOperandRead (cpu.TPR.CA, & cpu.ou.character_data);
 #endif
 #ifdef LOCKLESS
                 cpu.char_word_address = cpu.iefpFinalAddress;
@@ -1063,7 +1063,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                readAPUDataRMW (cpu.TPR.CA, & indword);
 
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
                 delta = GET_DELTA (indword); // 6-bits
@@ -1130,7 +1130,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                readAPUDataRMW (cpu.TPR.CA, & indword);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_SD): reading indirect word from %06o\n",
@@ -1201,7 +1201,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                readAPUDataRMW (cpu.TPR.CA, & indword);
 
                 Yi = GETHI (indword);
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
@@ -1269,7 +1269,7 @@ startCA:;
 #endif
 
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                readAPUDataRMW (cpu.TPR.CA, & indword);
 
                 Yi = GETHI (indword);
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
@@ -1352,7 +1352,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                readAPUDataRMW (cpu.TPR.CA, & indword);
 
                 cpu.cu.pot = 0;
 
@@ -1464,7 +1464,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
+                readAPUDataRMW (cpu.TPR.CA, & indword);
 
                 cpu.cu.pot = 0;
 

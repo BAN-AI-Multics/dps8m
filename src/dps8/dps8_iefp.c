@@ -137,6 +137,267 @@ B29:;
     return ;//SCPE_UNK;
   }
 
+void readAPUDataRead (word18 address, word36 * result) {
+  cpu.TPR.CA = cpu.iefpFinalAddress = address;
+  bool isBAR = get_bar_mode ();
+
+  if (cpu.cu.XSF || cpu.currentInstruction.b29)
+    goto B29;
+
+  switch (get_addr_mode ()) {
+    case ABSOLUTE_mode: {
+      if (isBAR) {
+        set_apu_status (apuStatus_FABS); // XXX maybe...
+        cpu.iefpFinalAddress = get_BAR_address (address);
+        fauxDoAppendCycle (APU_DATA_READ);
+        core_read (cpu.iefpFinalAddress, result, __func__);
+        sim_debug (DBG_FINAL, & cpu_dev, "readAPUDataRead (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n", address, *result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "readAPUDataRead ABS BAR");
+        HDBGMRead (cpu.iefpFinalAddress, * result, "readAPUDataRead ABS BAR");
+#endif
+        return;
+      } else {
+        set_apu_status (apuStatus_FABS);
+        fauxDoAppendCycle (APU_DATA_READ);
+        core_read (address, result, __func__);
+        sim_debug (DBG_FINAL, & cpu_dev, "readAPUDataRead (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\n", address, *result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_abs_read, 0, address, "readAPUDataRead ABS");
+        HDBGMRead (address, * result, "readAPUDataRead ABS");
+#endif
+        return;
+      }
+    }
+
+    case APPEND_mode: {
+B29:;
+      if (isBAR) {
+        cpu.TPR.CA = get_BAR_address (address);
+        cpu.TPR.TSR = cpu.PPR.PSR;
+        cpu.TPR.TRR = cpu.PPR.PRR;
+        cpu.iefpFinalAddress = doAppendCycleAPUDataRead (result, 1);
+        sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, "readAPUDataRead (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\n", cpu.iefpFinalAddress, * result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "readAPUDataRead BAR");
+        HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "readAPUDataRead BAR");
+#endif
+        return;
+      } else {
+        cpu.iefpFinalAddress = doAppendCycleAPUDataRead (result, 1);
+        // XXX Don't trace Multics idle loop
+        if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307) {
+          sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, "readAPUDataRead (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\n", cpu.iefpFinalAddress, * result);
+#ifdef TESTING
+          HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "readAPUDataRead");
+          HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "readAPUDataRead");
+#endif
+        }
+      }
+      return;
+    }
+  }
+  return ;//SCPE_UNK;
+}
+
+void readOperandRead (word18 address, word36 * result) {
+  cpu.TPR.CA = cpu.iefpFinalAddress = address;
+  bool isBAR = get_bar_mode ();
+
+  if (cpu.cu.XSF || cpu.currentInstruction.b29)
+    goto B29;
+
+  switch (get_addr_mode ()) {
+    case ABSOLUTE_mode: {
+      if (isBAR) {
+        set_apu_status (apuStatus_FABS); // XXX maybe...
+        cpu.iefpFinalAddress = get_BAR_address (address);
+        fauxDoAppendCycle (OPERAND_READ);
+        core_read (cpu.iefpFinalAddress, result, __func__);
+        sim_debug (DBG_FINAL, & cpu_dev, "readOperandRead (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n", address, *result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "readOperandRead ABS BAR");
+        HDBGMRead (cpu.iefpFinalAddress, * result, "readOperandRead ABS BAR");
+#endif
+        return;
+      } else {
+        set_apu_status (apuStatus_FABS);
+        fauxDoAppendCycle (OPERAND_READ);
+        core_read (address, result, __func__);
+        sim_debug (DBG_FINAL, & cpu_dev, "readOperandRead (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\n", address, *result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_abs_read, 0, address, "readOperandRead ABS");
+        HDBGMRead (address, * result, "readOperandRead ABS");
+#endif
+        return;
+      }
+    }
+
+    case APPEND_mode: {
+B29:;
+      if (isBAR) {
+        cpu.TPR.CA = get_BAR_address (address);
+        cpu.TPR.TSR = cpu.PPR.PSR;
+        cpu.TPR.TRR = cpu.PPR.PRR;
+        cpu.iefpFinalAddress = doAppendCycleOperandRead (result, 1);
+        sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, "readOperandRead (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\n", cpu.iefpFinalAddress, * result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "readOperandRead BAR");
+        HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "readOperandRead BAR");
+#endif
+
+        return;
+      } else {
+        cpu.iefpFinalAddress = doAppendCycleOperandRead (result, 1);
+        // XXX Don't trace Multics idle loop
+        if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307) {
+          sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, "readOperandRead (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\n", cpu.iefpFinalAddress, * result);
+#ifdef TESTING
+          HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "readOperandRead");
+          HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "readOperandRead");
+#endif
+        }
+      }
+      return;
+    }
+  }
+  return ;//SCPE_UNK;
+}
+
+void readAPUDataRMW (word18 address, word36 * result) {
+  cpu.TPR.CA = cpu.iefpFinalAddress = address;
+  bool isBAR = get_bar_mode ();
+
+  if (cpu.cu.XSF || cpu.currentInstruction.b29)
+    goto B29;
+
+  switch (get_addr_mode ()) {
+    case ABSOLUTE_mode: {
+      if (isBAR) {
+        set_apu_status (apuStatus_FABS); // XXX maybe...
+        cpu.iefpFinalAddress = get_BAR_address (address);
+        fauxDoAppendCycle (APU_DATA_RMW);
+#ifdef LOCKLESS
+        core_read_lock (cpu.iefpFinalAddress, result, __func__);
+#else
+        core_read (cpu.iefpFinalAddress, result, __func__);
+#endif
+        sim_debug (DBG_FINAL, & cpu_dev, "readAPUDataRMW (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n", address, *result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "readAPUDataRMW ABS BAR");
+        HDBGMRead (cpu.iefpFinalAddress, * result, "readAPUDataRMW ABS BAR");
+#endif
+        return;
+      } else {
+        set_apu_status (apuStatus_FABS);
+        fauxDoAppendCycle (APU_DATA_RMW);
+#ifdef LOCKLESS
+        core_read_lock (address, result, __func__);
+#else
+        core_read (address, result, __func__);
+#endif
+        sim_debug (DBG_FINAL, & cpu_dev, "readAPUDataRMW (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\n", address, *result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_abs_read, 0, address, "readAPUDataRMW ABS");
+        HDBGMRead (address, * result, "readAPUDataRMW ABS");
+#endif
+        return;
+      }
+    }
+
+    case APPEND_mode: {
+B29:;
+      if (isBAR) {
+        cpu.TPR.CA = get_BAR_address (address);
+        cpu.TPR.TSR = cpu.PPR.PSR;
+        cpu.TPR.TRR = cpu.PPR.PRR;
+        cpu.iefpFinalAddress = doAppendCycleAPUDataRMW (result, 1);
+        sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, "readAPUDataRMW (Actual) Read:  bar iefpFinalAddress=%08o  " "readData=%012"PRIo64"\n", cpu.iefpFinalAddress, * result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "readAPUDataRMW BAR");
+        HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "readAPUDataRMW BAR");
+#endif
+        return;
+      } else {
+        cpu.iefpFinalAddress = doAppendCycleAPUDataRMW (result, 1);
+        // XXX Don't trace Multics idle loop
+        if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307) {
+          sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, "readAPUDataRMW (Actual) Read:  iefpFinalAddress=%08o  readData=%012"PRIo64"\n", cpu.iefpFinalAddress, * result);
+#ifdef TESTING
+          HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "readAPUDataRMW");
+          HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "readAPUDataRMW");
+#endif
+        }
+      }
+      return;
+    }
+  }
+  return ;//SCPE_UNK;
+}
+
+void readInstructionFetch (word18 address, word36 * result) {
+  cpu.TPR.CA = cpu.iefpFinalAddress = address;
+  bool isBAR = get_bar_mode ();
+
+  if (cpu.cu.XSF)
+    goto B29;
+
+  switch (get_addr_mode ()) {
+    case ABSOLUTE_mode: {
+      if (isBAR) {
+        set_apu_status (apuStatus_FABS); // XXX maybe...
+        cpu.iefpFinalAddress = get_BAR_address (address);
+        fauxDoAppendCycle (INSTRUCTION_FETCH);
+        core_read (cpu.iefpFinalAddress, result, __func__);
+        sim_debug (DBG_FINAL, & cpu_dev, "readInstructionFetch (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n", address, *result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "readInstructionFetch ABS BAR");
+        HDBGMRead (cpu.iefpFinalAddress, * result, "readInstructionFetch ABS BAR");
+#endif
+        return;
+      } else {
+        set_apu_status (apuStatus_FABS);
+        fauxDoAppendCycle (INSTRUCTION_FETCH);
+        core_read (address, result, __func__);
+        sim_debug (DBG_FINAL, & cpu_dev, "readInstructionFetch (Actual) Read:       abs address=%08o  readData=%012"PRIo64"\n", address, *result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_abs_read, 0, address, "readInstructionFetch ABS");
+        HDBGMRead (address, * result, "readInstructionFetch ABS");
+#endif
+        return;
+      }
+    }
+
+    case APPEND_mode: {
+B29:;
+      if (isBAR) {
+        cpu.TPR.CA = get_BAR_address (address);
+        cpu.TPR.TSR = cpu.PPR.PSR;
+        cpu.TPR.TRR = cpu.PPR.PRR;
+        cpu.iefpFinalAddress = doAppendCycleInstructionFetch (result, 1);
+        sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, "readInstructionFetch (Actual) Read:  bar iefpFinalAddress=%08o  readData=%012"PRIo64"\n", cpu.iefpFinalAddress, * result);
+#ifdef TESTING
+        HDBGIEFP (hdbgIEFP_bar_read, cpu.TPR.TSR, address, "readInstructionFetch BAR");
+        HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "readInstructionFetch BAR");
+#endif
+        return;
+      } else {
+        cpu.iefpFinalAddress = doAppendCycleInstructionFetch (result, 1);
+        // XXX Don't trace Multics idle loop
+        if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307) {
+          sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, "readInstructionFetch (Actual) Read:  iefpFinalAddress=%08o  " "readData=%012"PRIo64"\n", cpu.iefpFinalAddress, * result);
+#ifdef TESTING
+          HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "readInstructionFetch");
+          HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "readInstructionFetch");
+#endif
+        }
+      }
+      return;
+    }
+  }
+  return ;//SCPE_UNK;
+}
+
 void Read2 (word18 address, word36 * result, processor_cycle_type cyctyp)
   {
     cpu.TPR.CA = cpu.iefpFinalAddress = address;
@@ -325,8 +586,8 @@ B29:;
                 cpu.TPR.CA = get_BAR_address (address);
                 cpu.TPR.TSR = cpu.PPR.PSR;
                 cpu.TPR.TRR = cpu.PPR.PRR;
-                cpu.iefpFinalAddress = do_append_cycle (APU_DATA_READ, result,
-                                                        8);
+                //cpu.iefpFinalAddress = do_append_cycle (APU_DATA_READ, result, 8);
+                cpu.iefpFinalAddress = doAppendCycleAPUDataRead (result, 8);
                 if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev)
                   {
                     for (uint i = 0; i < 8; i ++)
@@ -344,8 +605,8 @@ B29:;
               }
             else
               {
-                cpu.iefpFinalAddress = do_append_cycle (APU_DATA_READ, result,
-                                                        8);
+                //cpu.iefpFinalAddress = do_append_cycle (APU_DATA_READ, result, 8);
+                cpu.iefpFinalAddress = doAppendCycleAPUDataRead (result, 8);
                 // XXX Don't trace Multics idle loop
                 if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307)
                   {
@@ -450,8 +711,8 @@ B29:;
                 cpu.TPR.CA = get_BAR_address (address);
                 cpu.TPR.TSR = cpu.PPR.PSR;
                 cpu.TPR.TRR = cpu.PPR.PRR;
-                cpu.iefpFinalAddress = do_append_cycle (APU_DATA_READ, result,
-                                                        PGSZ);
+                //cpu.iefpFinalAddress = do_append_cycle (APU_DATA_READ, result, PGSZ);
+                cpu.iefpFinalAddress = doAppendCycleAPUDataRead (result, PGSZ);
                 if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev)
                   {
                     for (uint i = 0; i < PGSZ; i ++)
@@ -470,8 +731,8 @@ B29:;
               }
             else
               {
-                cpu.iefpFinalAddress = do_append_cycle (APU_DATA_READ, result,
-                                                        PGSZ);
+                //cpu.iefpFinalAddress = do_append_cycle (APU_DATA_READ, result, PGSZ);
+                cpu.iefpFinalAddress = doAppendCycleAPUDataRead (result, PGSZ);
                 // XXX Don't trace Multics idle loop
                 if (cpu.PPR.PSR != 061 && cpu.PPR.IC != 0307)
                   {
@@ -729,8 +990,8 @@ B29:
                 cpu.TPR.CA = get_BAR_address (address);
                 cpu.TPR.TSR = cpu.PPR.PSR;
                 cpu.TPR.TRR = cpu.PPR.PRR;
-                cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, & data,
-                                                        1);
+                //cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, & data, 1);
+                cpu.iefpFinalAddress = doAppendCycleAPUDataStore (& data, 1);
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                            "Write8(Actual) Write: bar iefpFinalAddress="
                            "%08o writeData=%012"PRIo64"\n",
@@ -743,8 +1004,8 @@ B29:
               }
             else
               {
-                cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, & data,
-                                                       1);
+                //cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, & data, 1);
+                cpu.iefpFinalAddress = doAppendCycleAPUDataStore (& data, 1);
                 sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev,
                            "Write(Actual) Write: iefpFinalAddress=%08o "
                            "writeData=%012"PRIo64"\n",
@@ -825,8 +1086,8 @@ B29:
                 cpu.TPR.CA = get_BAR_address (address);
                 cpu.TPR.TSR = cpu.PPR.PSR;
                 cpu.TPR.TRR = cpu.PPR.PRR;
-                cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, data,
-                                                        8);
+                //cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, data, 8);
+                cpu.iefpFinalAddress = doAppendCycleAPUDataStore (data, 8);
                 if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev)
                   {
                     for (uint i = 0; i < 8; i ++)
@@ -845,8 +1106,8 @@ B29:
               }
             else
               {
-                cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, data,
-                                                        8);
+                //cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, data, 8);
+                cpu.iefpFinalAddress = doAppendCycleAPUDataStore (data, 8);
                 if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev)
                   {
                     for (uint i = 0; i < 8; i ++)
@@ -957,8 +1218,8 @@ B29:
                 cpu.TPR.CA = get_BAR_address (address);
                 cpu.TPR.TSR = cpu.PPR.PSR;
                 cpu.TPR.TRR = cpu.PPR.PRR;
-                cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, data,
-                                                        PGSZ);
+                //cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, data, PGSZ);
+                cpu.iefpFinalAddress = doAppendCycleAPUDataStore (data, PGSZ);
                 if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev)
                   {
                     for (uint i = 0; i < PGSZ; i ++)
@@ -977,8 +1238,8 @@ B29:
               }
             else
               {
-                cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, data,
-                                                        PGSZ);
+                //cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, data, PGSZ);
+                cpu.iefpFinalAddress = doAppendCycleAPUDataStore (data, PGSZ);
                 if_sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev)
                   {
                     for (uint i = 0; i < PGSZ; i ++)
