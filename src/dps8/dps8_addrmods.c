@@ -838,7 +838,7 @@ startCA:;
 
                 word36 indword;
                 word18 indaddr = cpu.TPR.CA;
-                readAPUDataRead (indaddr, & indword);
+                ReadAPUDataRead (indaddr, & indword);
 #ifdef LOCKLESS
                 word24 phys_address = cpu.iefpFinalAddress;
 #endif
@@ -944,7 +944,7 @@ startCA:;
                 // gives warnings as another lock is aquired in between
                 Read (cpu.TPR.CA, & cpu.ou.character_data, (i->info->flags & RMW) == STORE_OPERAND ? OPERAND_RMW : OPERAND_READ);
 #else
-                readOperandRead (cpu.TPR.CA, & cpu.ou.character_data);
+                ReadOperandRead (cpu.TPR.CA, & cpu.ou.character_data);
 #endif
 #ifdef LOCKLESS
                 cpu.char_word_address = cpu.iefpFinalAddress;
@@ -1006,7 +1006,7 @@ startCA:;
 #ifdef LOCKLESS
                     core_write_unlock(phys_address, indword, __func__);
 #else
-                    Write (indaddr, indword, APU_DATA_STORE);
+                    WriteAPUDataStore (indaddr, indword);
 #endif
 
                     SC_I_TALLY (tally == 0);
@@ -1063,7 +1063,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                readAPUDataRMW (cpu.TPR.CA, & indword);
+                ReadAPUDataRMW (cpu.TPR.CA, & indword);
 
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
                 delta = GET_DELTA (indword); // 6-bits
@@ -1095,7 +1095,7 @@ startCA:;
 #ifdef LOCKLESS
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                WriteAPUDataStore (saveCA, indword);
 #endif
 
 #ifdef THREADZ
@@ -1130,7 +1130,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                readAPUDataRMW (cpu.TPR.CA, & indword);
+                ReadAPUDataRMW (cpu.TPR.CA, & indword);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_SD): reading indirect word from %06o\n",
@@ -1163,7 +1163,7 @@ startCA:;
 #ifdef LOCKLESS
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                WriteAPUDataStore (saveCA, indword);
 #endif
 
 #ifdef THREADZ
@@ -1201,7 +1201,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                readAPUDataRMW (cpu.TPR.CA, & indword);
+                ReadAPUDataRMW (cpu.TPR.CA, & indword);
 
                 Yi = GETHI (indword);
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
@@ -1236,7 +1236,7 @@ startCA:;
 #ifdef LOCKLESS
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                WriteAPUDataStore (saveCA, indword);
 #endif
 
 #ifdef THREADZ
@@ -1269,7 +1269,7 @@ startCA:;
 #endif
 
                 word36 indword;
-                readAPUDataRMW (cpu.TPR.CA, & indword);
+                ReadAPUDataRMW (cpu.TPR.CA, & indword);
 
                 Yi = GETHI (indword);
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
@@ -1307,7 +1307,7 @@ startCA:;
 #ifdef LOCKLESS
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                WriteAPUDataStore (saveCA, indword);
 #endif
 
 #ifdef THREADZ
@@ -1352,7 +1352,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                readAPUDataRMW (cpu.TPR.CA, & indword);
+                ReadAPUDataRMW (cpu.TPR.CA, & indword);
 
                 cpu.cu.pot = 0;
 
@@ -1389,7 +1389,7 @@ startCA:;
 #ifdef LOCKLESS
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                WriteAPUDataStore (saveCA, indword);
 #endif
 
 #ifdef THREADZ
@@ -1464,7 +1464,7 @@ startCA:;
 
                 word18 saveCA = cpu.TPR.CA;
                 word36 indword;
-                readAPUDataRMW (cpu.TPR.CA, & indword);
+                ReadAPUDataRMW (cpu.TPR.CA, & indword);
 
                 cpu.cu.pot = 0;
 
@@ -1501,7 +1501,7 @@ startCA:;
 #ifdef LOCKLESS
                 core_write_unlock(cpu.iefpFinalAddress, indword, __func__);
 #else
-                Write (saveCA, indword, APU_DATA_STORE);
+                WriteAPUDataStore (saveCA, indword);
 #endif
 
 #ifdef THREADZ

@@ -2993,63 +2993,74 @@ int operand_size (void)
 
 // read instruction operands
 
-t_stat read_operand (word18 addr, processor_cycle_type cyctyp)
-  {
-    CPT (cpt1L, 6); // read_operand
+void readOperandRead (word18 addr) {
+  CPT (cpt1L, 6); // read_operand
 
 #ifdef THREADZ
-    if (cyctyp == OPERAND_READ)
-      {
-        DCDstruct * i = & cpu.currentInstruction;
-# if 1
-        if (RMWOP (i))
-# else
-        if ((i -> opcode == 0034 && ! i -> opcodeX) ||  // ldac
-            (i -> opcode == 0032 && ! i -> opcodeX) ||  // ldqc
-            (i -> opcode == 0354 && ! i -> opcodeX) ||  // stac
-            (i -> opcode == 0654 && ! i -> opcodeX) ||  // stacq
-            (i -> opcode == 0214 && ! i -> opcodeX))    // sznc
-# endif
-          {
-            lock_rmw ();
-          }
-      }
+  DCDstruct * i = & cpu.currentInstruction;
+  if (RMWOP (i)) // ldac, ldqc, stac, stacq, snzc
+    lock_rmw ();
 #endif
 
-    switch (operand_size ())
-      {
-        case 1:
-            CPT (cpt1L, 7); // word
-            Read (addr, & cpu.CY, cyctyp);
-            return SCPE_OK;
-        case 2:
-            CPT (cpt1L, 8); // double word
-            addr &= 0777776;   // make even
-            Read2 (addr, cpu.Ypair, cyctyp);
-            break;
-        case 8:
-            CPT (cpt1L, 9); // oct word
-            addr &= 0777770;   // make on 8-word boundary
-            Read8 (addr, cpu.Yblock8, cpu.currentInstruction.b29);
-            break;
-        case 16:
-            CPT (cpt1L, 10); // 16 words
-            addr &= 0777770;   // make on 8-word boundary
-            Read16 (addr, cpu.Yblock16);
-            break;
-        case 32:
-            CPT (cpt1L, 11); // 32 words
-            addr &= 0777740;   // make on 32-word boundary
-            for (uint j = 0 ; j < 32 ; j += 1)
-                Read (addr + j, cpu.Yblock32 + j, cyctyp);
-
-            break;
-      }
-    //cpu.TPR.CA = addr;  // restore address
-
-    return SCPE_OK;
-
+  switch (operand_size ()) {
+    case 1:
+      CPT (cpt1L, 7); // word
+      ReadOperandRead (addr, & cpu.CY);
+      break;
+    case 2:
+      CPT (cpt1L, 8); // double word
+      addr &= 0777776;   // make even
+      Read2OperandRead (addr, cpu.Ypair);
+      break;
+    case 8:
+      CPT (cpt1L, 9); // oct word
+      addr &= 0777770;   // make on 8-word boundary
+      Read8 (addr, cpu.Yblock8, cpu.currentInstruction.b29);
+      break;
+    case 16:
+      CPT (cpt1L, 10); // 16 words
+      addr &= 0777770;   // make on 8-word boundary
+      Read16 (addr, cpu.Yblock16);
+      break;
+    case 32:
+      CPT (cpt1L, 11); // 32 words
+      addr &= 0777740;   // make on 32-word boundary
+      for (uint j = 0 ; j < 32 ; j += 1)
+        ReadOperandRead (addr + j, cpu.Yblock32 + j);
+      break;
   }
+}
+
+void readOperandRMW (word18 addr) {
+  CPT (cpt1L, 6); // read_operand
+  switch (operand_size ()) {
+    case 1:
+      CPT (cpt1L, 7); // word
+      ReadOperandRMW (addr, & cpu.CY);
+      break;
+    case 2:
+      CPT (cpt1L, 8); // double word
+      addr &= 0777776;   // make even
+      Read2OperandRead (addr, cpu.Ypair);
+      break;
+    case 8:
+      CPT (cpt1L, 9); // oct word
+      addr &= 0777770;   // make on 8-word boundary
+      Read8 (addr, cpu.Yblock8, cpu.currentInstruction.b29);
+      break;
+    case 16:
+      CPT (cpt1L, 10); // 16 words
+      addr &= 0777770;   // make on 8-word boundary
+      Read16 (addr, cpu.Yblock16);
+      break;
+    case 32:
+      CPT (cpt1L, 11); // 32 words
+      addr &= 0777740;   // make on 32-word boundary
+      for (uint j = 0 ; j < 32 ; j += 1)
+        ReadOperandRMW (addr + j, cpu.Yblock32 + j);
+      break;
+  }
+}
 
 // write instruction operands
 
@@ -3059,12 +3070,12 @@ t_stat write_operand (word18 addr, UNUSED processor_cycle_type cyctyp)
       {
         case 1:
             CPT (cpt1L, 12); // word
-            Write (addr, cpu.CY, OPERAND_STORE);
+            WriteOperandStore (addr, cpu.CY);
             break;
         case 2:
             CPT (cpt1L, 13); // double word
             addr &= 0777776;   // make even
-            Write2 (addr + 0, cpu.Ypair, OPERAND_STORE);
+            Write2OperandStore (addr + 0, cpu.Ypair);
             break;
         case 8:
             CPT (cpt1L, 14); // 8 words

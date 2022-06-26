@@ -128,7 +128,7 @@ static void writeOperands (void)
         // gives warnings as another lock is aquired in between
         core_write_unlock (cpu.char_word_address, cpu.ou.character_data, __func__);
 #else
-        Write (cpu.ou.character_address, cpu.ou.character_data, OPERAND_STORE);
+        WriteOperandStore (cpu.ou.character_address, cpu.ou.character_data);
 #endif
 
         sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -227,9 +227,12 @@ static void readOperands (void)
       } // IT
 
 #ifdef LOCKLESS
-    read_operand (cpu.TPR.CA, ((i->info->flags & RMW) == RMW) ? OPERAND_RMW : OPERAND_READ);
+    if ((i->info->flags & RMW) == RMW)
+      readOperandRMW (cpu.TPR.CA);
+    else
+      readOperandRead (cpu.TPR.CA);
 #else
-    read_operand (cpu.TPR.CA, OPERAND_READ);
+    readOperandRead (cpu.TPR.CA, OPERAND_READ);
 #endif
 
     return;
@@ -238,9 +241,9 @@ static void readOperands (void)
 static void read_tra_op (void)
   {
     if (cpu.TPR.CA & 1)
-      readOperandRead (cpu.TPR.CA, &cpu.CY);
+      ReadOperandRead (cpu.TPR.CA, &cpu.CY);
     else
-      Read2 (cpu.TPR.CA, cpu.Ypair, OPERAND_READ);
+      Read2OperandRead (cpu.TPR.CA, cpu.Ypair);
     if (! (get_addr_mode () == APPEND_mode || cpu.cu.TSN_VALID [0] ||
            cpu.cu.XSF || cpu.currentInstruction.b29 /*get_went_appending ()*/))
       {
@@ -1096,11 +1099,11 @@ void fetchInstruction (word18 addr)
           {
             CPT (cpt2U, 11); // fetch rpt even
             if (addr & 1)
-              readInstructionFetch (addr, & cpu.cu.IWB);
+              ReadInstructionFetch (addr, & cpu.cu.IWB);
             else
               {
                 word36 tmp[2];
-                Read2 (addr, tmp, INSTRUCTION_FETCH);
+                Read2InstructionFetch (addr, tmp);
                 cpu.cu.IWB = tmp[0];
                 cpu.cu.IRODD = tmp[1];
               }
@@ -1117,13 +1120,13 @@ void fetchInstruction (word18 addr)
         if ((cpu.PPR.IC & 1) == 0) // Even
           {
             word36 tmp[2];
-            Read2 (addr, tmp, INSTRUCTION_FETCH);
+            Read2InstructionFetch (addr, tmp);
             cpu.cu.IWB = tmp[0];
             cpu.cu.IRODD = tmp[1];
           }
         else // Odd
           {
-            readInstructionFetch (addr, & cpu.cu.IWB);
+            ReadInstructionFetch (addr, & cpu.cu.IWB);
             cpu.cu.IRODD = cpu.cu.IWB;
           }
       }
@@ -1944,7 +1947,7 @@ sim_printf ("XXX this had b29 of 0; it may be necessary to clear TSN_VALID[0]\n"
             // append cycles updates cpu.PPR.IC to TPR.CA
             word18 saveIC = cpu.PPR.IC;
             //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n], INSTRUCTION_FETCH);
-            readInstructionFetch (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n]);
+            ReadInstructionFetch (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n]);
             cpu.PPR.IC = saveIC;
             //Read (cpu.PPR.IC + 1 + n, & cpu.currentEISinstruction.op[n], APU_DATA_READ);
 #endif
@@ -3357,7 +3360,7 @@ static t_stat doInstruction (void)
           // the Y-pair, the C(PPR.PSR) and C(PPR.PRR) are not altered.
 
           do_caf ();
-          Read2 (cpu.TPR.CA, cpu.Ypair, RTCD_OPERAND_FETCH);
+          Read2RTCDOperandFetch (cpu.TPR.CA, cpu.Ypair);
           // RTCD always ends up in append mode.
           set_addr_mode (APPEND_mode);
 
@@ -6499,7 +6502,7 @@ static t_stat doInstruction (void)
             // C(Y)0,17 -> C(PPR.IC)
             // C(Y)18,31 -> C(IR)
             do_caf ();
-            readOperandRead (cpu.TPR.CA, & cpu.CY);
+            ReadOperandRead (cpu.TPR.CA, & cpu.CY);
 
             cpu.PPR.IC = GETHI (cpu.CY);
             word18 tempIR = GETLO (cpu.CY) & 0777770;

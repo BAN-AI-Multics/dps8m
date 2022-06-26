@@ -1964,7 +1964,9 @@ static inline void SET_AR_CHAR_BITNO (uint n, word2 c, word4 b)
 bool sample_interrupts (void);
 t_stat simh_hooks (void);
 int operand_size (void);
-t_stat read_operand (word18 addr, processor_cycle_type cyctyp);
+//void read_operand (word18 addr, processor_cycle_type cyctyp);
+void readOperandRead (word18 addr);
+void readOperandRMW (word18 addr);
 t_stat write_operand (word18 addr, processor_cycle_type acctyp);
 
 #ifdef PANEL

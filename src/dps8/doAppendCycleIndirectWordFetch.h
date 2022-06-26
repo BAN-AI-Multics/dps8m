@@ -1,14 +1,14 @@
 word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
   DCDstruct * i = & cpu.currentInstruction;
-  DBGAPP ("do_append_cycle(Entry) thisCycle=INDIRECT_WORD_FETCH\n");
-  DBGAPP ("do_append_cycle(Entry) lastCycle=%s\n", str_pct (cpu.apu.lastCycle));
-  DBGAPP ("do_append_cycle(Entry) CA %06o\n", cpu.TPR.CA);
-  DBGAPP ("do_append_cycle(Entry) n=%2u\n", nWords);
-  DBGAPP ("do_append_cycle(Entry) PPR.PRR=%o PPR.PSR=%05o\n", cpu.PPR.PRR, cpu.PPR.PSR);
-  DBGAPP ("do_append_cycle(Entry) TPR.TRR=%o TPR.TSR=%05o\n", cpu.TPR.TRR, cpu.TPR.TSR);
+  DBGAPP ("doAppendCycleIndirectWordFetch(Entry) thisCycle=INDIRECT_WORD_FETCH\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(Entry) lastCycle=%s\n", str_pct (cpu.apu.lastCycle));
+  DBGAPP ("doAppendCycleIndirectWordFetch(Entry) CA %06o\n", cpu.TPR.CA);
+  DBGAPP ("doAppendCycleIndirectWordFetch(Entry) n=%2u\n", nWords);
+  DBGAPP ("doAppendCycleIndirectWordFetch(Entry) PPR.PRR=%o PPR.PSR=%05o\n", cpu.PPR.PRR, cpu.PPR.PSR);
+  DBGAPP ("doAppendCycleIndirectWordFetch(Entry) TPR.TRR=%o TPR.TSR=%05o\n", cpu.TPR.TRR, cpu.TPR.TSR);
 
   if (i->b29)
-    DBGAPP ("do_append_cycle(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
+    DBGAPP ("doAppendCycleIndirectWordFetch(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
 
   bool nomatch = true;
   if (! cpu.switches.disable_wam) {
@@ -27,7 +27,7 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
   processor_cycle_type lastCycle = cpu.apu.lastCycle;
   cpu.apu.lastCycle = INDIRECT_WORD_FETCH;
 
-  DBGAPP ("do_append_cycle(Entry) XSF %o\n", cpu.cu.XSF);
+  DBGAPP ("doAppendCycleIndirectWordFetch(Entry) XSF %o\n", cpu.cu.XSF);
 
   PNL (L68_ (cpu.apu.state = 0;))
 
@@ -63,19 +63,19 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
   //PNL (cpu.APUMemAddr = address;)
   PNL (cpu.APUMemAddr = cpu.TPR.CA;)
 
-  DBGAPP ("do_append_cycle(A)\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(A)\n");
 
   // is SDW for C(TPR.TSR) in SDWAM?
   if (nomatch || ! fetch_sdw_from_sdwam (cpu.TPR.TSR)) {
     // No
-    DBGAPP ("do_append_cycle(A):SDW for segment %05o not in SDWAM\n", cpu.TPR.TSR);
-    DBGAPP ("do_append_cycle(A):DSBR.U=%o\n", cpu.DSBR.U);
+    DBGAPP ("doAppendCycleIndirectWordFetch(A):SDW for segment %05o not in SDWAM\n", cpu.TPR.TSR);
+    DBGAPP ("doAppendCycleIndirectWordFetch(A):DSBR.U=%o\n", cpu.DSBR.U);
 
     if (cpu.DSBR.U == 0) {
       fetch_dsptw (cpu.TPR.TSR);
 
       if (! cpu.PTW0.DF)
-        doFault (FAULT_DF0 + cpu.PTW0.FC, fst_zero, "do_append_cycle(A): PTW0.F == 0");
+        doFault (FAULT_DF0 + cpu.PTW0.FC, fst_zero, "doAppendCycleIndirectWordFetch(A): PTW0.F == 0");
 
       if (! cpu.PTW0.U)
           modify_dsptw (cpu.TPR.TSR);
@@ -85,14 +85,14 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
       fetch_nsdw (cpu.TPR.TSR); // load SDW0 from descriptor segment table.
 
     if (cpu.SDW0.DF == 0) {
-      DBGAPP ("do_append_cycle(A): SDW0.F == 0! " "Initiating directed fault\n");
+      DBGAPP ("doAppendCycleIndirectWordFetch(A): SDW0.F == 0! " "Initiating directed fault\n");
       // initiate a directed fault ...
       doFault (FAULT_DF0 + cpu.SDW0.FC, fst_zero, "SDW0.F == 0");
     }
     // load SDWAM .....
     load_sdwam (cpu.TPR.TSR, nomatch);
   }
-  DBGAPP ("do_append_cycle(A) R1 %o R2 %o R3 %o E %o\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
+  DBGAPP ("doAppendCycleIndirectWordFetch(A) R1 %o R2 %o R3 %o E %o\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
 
   // Yes...
   cpu.RSDWH_R1 = cpu.SDW->R1;
@@ -107,7 +107,7 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
 // B: Check the ring
 //
 
-  DBGAPP ("do_append_cycle(B)\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(B)\n");
 
   // check ring bracket consistency
 
@@ -137,13 +137,13 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
   // check read bracket for read access
   //
 
-  DBGAPP ("do_append_cycle(B):!STR-OP\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(B):!STR-OP\n");
 
   // No
   // C(TPR.TRR) > C(SDW .R2)?
   if (cpu.TPR.TRR > cpu.SDW->R2) {
     DBGAPP ("ACV3\n");
-    DBGAPP ("do_append_cycle(B) ACV3\n");
+    DBGAPP ("doAppendCycleIndirectWordFetch(B) ACV3\n");
     //Set fault ACV3 = ORB
     cpu.acvFaults |= ACV3;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
@@ -157,13 +157,13 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
     //C(PPR.PSR) = C(TPR.TSR)?
     if (cpu.PPR.PSR != cpu.TPR.TSR) {
       DBGAPP ("ACV4\n");
-      DBGAPP ("do_append_cycle(B) ACV4\n");
+      DBGAPP ("doAppendCycleIndirectWordFetch(B) ACV4\n");
       //Set fault ACV4 = R-OFF
       cpu.acvFaults |= ACV4;
       PNL (L68_ (cpu.apu.state |= apu_FLT;))
       FMSG (acvFaultsMsg = "acvFaults(B) C(PPR.PSR) = C(TPR.TSR)";)
     } else {
-      // sim_warn ("do_append_cycle(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\n", cpu.PPR.PSR);
+      // sim_warn ("doAppendCycleIndirectWordFetch(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\n", cpu.PPR.PSR);
     }
   }
 
@@ -177,12 +177,12 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
 
 G:;
 
-  DBGAPP ("do_append_cycle(G)\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(G)\n");
 
   //C(TPR.CA)0,13 > SDW.BOUND?
   if (((cpu.TPR.CA >> 4) & 037777) > cpu.SDW->BOUND) {
     DBGAPP ("ACV15\n");
-    DBGAPP ("do_append_cycle(G) ACV15\n");
+    DBGAPP ("doAppendCycleIndirectWordFetch(G) ACV15\n");
     cpu.acvFaults |= ACV15;
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
@@ -190,7 +190,7 @@ G:;
   }
 
   if (cpu.acvFaults) {
-    DBGAPP ("do_append_cycle(G) acvFaults\n");
+    DBGAPP ("doAppendCycleIndirectWordFetch(G) acvFaults\n");
     PNL (L68_ (cpu.apu.state |= apu_FLT;))
     // Initiate an access violation fault
     doFault (FAULT_ACV, (_fault_subtype) {.fault_acv_subtype=cpu.acvFaults}, "ACV fault");
@@ -203,7 +203,7 @@ G:;
   // Yes. segment is paged ...
   // is PTW for C(TPR.CA) in PTWAM?
 
-  DBGAPP ("do_append_cycle(G) CA %06o\n", cpu.TPR.CA);
+  DBGAPP ("doAppendCycleIndirectWordFetch(G) CA %06o\n", cpu.TPR.CA);
   if (nomatch ||
       ! fetch_ptw_from_ptwam (cpu.SDW->POINTER, cpu.TPR.CA)) {
     fetch_ptw (cpu.SDW, cpu.TPR.CA);
@@ -232,7 +232,7 @@ G:;
 ////////////////////////////////////////
 
 H:;
-  DBGAPP ("do_append_cycle(H): FANP\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(H): FANP\n");
 
   PNL (L68_ (cpu.apu.state |= apu_FANP;))
 #if 0
@@ -245,13 +245,13 @@ H:;
 #endif
   set_apu_status (apuStatus_FANP);
 
-  DBGAPP ("do_append_cycle(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
+  DBGAPP ("doAppendCycleIndirectWordFetch(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
 
   finalAddress = (cpu.SDW->ADDR & 077777760) + cpu.TPR.CA;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
 
-  DBGAPP ("do_append_cycle(H:FANP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
+  DBGAPP ("doAppendCycleIndirectWordFetch(H:FANP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   goto HI;
 
@@ -259,7 +259,7 @@ I:;
 
 // Set PTW.M
 
-  DBGAPP ("do_append_cycle(I): FAP\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(I): FAP\n");
 
     // final address paged
   set_apu_status (apuStatus_FAP);
@@ -277,12 +277,12 @@ I:;
   if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
     add_APU_history (APUH_FAP);
 #endif
-  DBGAPP ("do_append_cycle(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
+  DBGAPP ("doAppendCycleIndirectWordFetch(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
   goto HI;
 
 HI:
-  DBGAPP ("do_append_cycle(HI)\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(HI)\n");
 
   // isolts 870
   cpu.cu.XSF = 1;
@@ -299,7 +299,7 @@ HI:
 
 // Indirect operand fetch
 
-  DBGAPP ("do_append_cycle(J)\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(J)\n");
 
   // ri or ir & TPC.CA even?
   word6 tag = GET_TAG (IWB_IRODD);
@@ -363,28 +363,28 @@ HI:
 ////////////////////////////////////////
 
 O:; // ITS, RTCD
-  DBGAPP ("do_append_cycle(O)\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(O)\n");
   word3 its_RNR = GET_ITS_RN (data);
-  DBGAPP ("do_append_cycle(O) TRR %o RSDWH.R1 %o ITS.RNR %o\n", cpu.TPR.TRR, cpu.RSDWH_R1, its_RNR);
+  DBGAPP ("doAppendCycleIndirectWordFetch(O) TRR %o RSDWH.R1 %o ITS.RNR %o\n", cpu.TPR.TRR, cpu.RSDWH_R1, its_RNR);
 
   // Maximum of
   //  C(Y)18,20;  C(TPR.TRR); C(SDW.R1) -> C(TPR.TRR)
   cpu.TPR.TRR = max3 (its_RNR, cpu.TPR.TRR, cpu.RSDWH_R1);
-  DBGAPP ("do_append_cycle(O) Set TRR to %o\n", cpu.TPR.TRR);
+  DBGAPP ("doAppendCycleIndirectWordFetch(O) Set TRR to %o\n", cpu.TPR.TRR);
 
   goto Exit;
 
 P:; // ITP
 
-  DBGAPP ("do_append_cycle(P)\n");
+  DBGAPP ("doAppendCycleIndirectWordFetch(P)\n");
 
   n = GET_ITP_PRNUM (data);
-  DBGAPP ("do_append_cycle(P) TRR %o RSDWH.R1 %o PR[n].RNR %o\n", cpu.TPR.TRR, cpu.RSDWH_R1, cpu.PR[n].RNR);
+  DBGAPP ("doAppendCycleIndirectWordFetch(P) TRR %o RSDWH.R1 %o PR[n].RNR %o\n", cpu.TPR.TRR, cpu.RSDWH_R1, cpu.PR[n].RNR);
 
   // Maximum of
   // cpu.PR[n].RNR;  C(TPR.TRR); C(SDW.R1) -> C(TPR.TRR)
   cpu.TPR.TRR = max3 (cpu.PR[n].RNR, cpu.TPR.TRR, cpu.RSDWH_R1);
-  DBGAPP ("do_append_cycle(P) Set TRR to %o\n", cpu.TPR.TRR);
+  DBGAPP ("doAppendCycleIndirectWordFetch(P) Set TRR to %o\n", cpu.TPR.TRR);
 
   goto Exit;
 
@@ -395,8 +395,8 @@ Exit:;
 
   PNL (L68_ (cpu.apu.state |= apu_FA;))
 
-  DBGAPP ("do_append_cycle (Exit) PRR %o PSR %05o P %o IC %06o\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
-  DBGAPP ("do_append_cycle (Exit) TRR %o TSR %05o TBR %02o CA %06o\n", cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
+  DBGAPP ("doAppendCycleIndirectWordFetch (Exit) PRR %o PSR %05o P %o IC %06o\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
+  DBGAPP ("doAppendCycleIndirectWordFetch (Exit) TRR %o TSR %05o TBR %02o CA %06o\n", cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
 
-  return finalAddress;    // or 0 or -1???
+  return finalAddress;
 }

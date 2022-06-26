@@ -18,14 +18,23 @@
  * ---------------------------------------------------------------------------
  */
 
-void Read (word18 addr, word36 *dat, processor_cycle_type cyctyp);
-void readAPUDataRead (word18 addr, word36 *dat);
-void readOperandRead (word18 addr, word36 *dat);
-void readAPUDataRMW (word18 addr, word36 *dat);
-void readInstructionFetch (word18 addr, word36 *dat);
-void Read2 (word18 addr, word36 *dat, processor_cycle_type cyctyp);
+//void Read (word18 addr, word36 *dat, processor_cycle_type cyctyp);
+void ReadAPUDataRead (word18 addr, word36 *dat);
+void ReadOperandRead (word18 addr, word36 *dat);
+void ReadOperandRMW (word18 addr, word36 *dat);
+void ReadAPUDataRMW (word18 addr, word36 *dat);
+void ReadInstructionFetch (word18 addr, word36 *dat);
+//void Read2 (word18 addr, word36 *dat, processor_cycle_type cyctyp);
+void Read2OperandRead (word18 address, word36 * result);
+void Read2IOperandRMW (word18 address, word36 * result);
+void Read2InstructionFetch (word18 address, word36 * result);
+void Read2RTCDOperandFetch (word18 address, word36 * result);
+void Read2IndirectWordFetch (word18 address, word36 * result);
 void Write (word18 addr, word36 dat, processor_cycle_type cyctyp);
-void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp);
+void WriteAPUDataStore (word18 addr, word36 dat);
+void WriteOperandStore (word18 addr, word36 dat);
+//void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp);
+void Write2OperandStore (word18 address, word36 * data);
 void Write1 (word18 address, word36 data, bool isAR);
 void Write8 (word18 address, word36 * data, bool isAR);
 void Write16 (word18 address, word36 * data);

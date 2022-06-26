@@ -1115,6 +1115,7 @@ static char *str_pct (processor_cycle_type t)
   }
 #endif
 
+#if 0
 word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWords) {
   switch (thisCycle) {
     case OPERAND_STORE:
@@ -1133,17 +1134,18 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWor
       return doAppendCycleAPUDataStore (data, nWords);
     case ABSA_CYCLE:
       return doAppendCycleABSA (data, nWords);
-#ifdef LOCKLESS
+# ifdef LOCKLESS
     case OPERAND_RMW:
       return doAppendCycleOperandRMW (data, nWords);
     case APU_DATA_RMW:
       return doAppendCycleAPUDataRMW (data, nWords);
-#endif
+# endif
     case UNKNOWN_CYCLE:
     default:
       sim_fatal ("APU cycle %u\r\n", thisCycle);
   }
 }
+#endif
 
 #include "doAppendCycleOperandStore.h"
 #include "doAppendCycleOperandRead.h"
