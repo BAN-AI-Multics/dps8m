@@ -7,8 +7,9 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
   DBGAPP ("doAppendCycleIndirectWordFetch(Entry) PPR.PRR=%o PPR.PSR=%05o\n", cpu.PPR.PRR, cpu.PPR.PSR);
   DBGAPP ("doAppendCycleIndirectWordFetch(Entry) TPR.TRR=%o TPR.TSR=%05o\n", cpu.TPR.TRR, cpu.TPR.TSR);
 
-  if (i->b29)
+  if (i->b29) {
     DBGAPP ("doAppendCycleIndirectWordFetch(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
+  }
 
   bool nomatch = true;
   if (! cpu.switches.disable_wam) {

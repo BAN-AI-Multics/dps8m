@@ -195,11 +195,10 @@ B29:;
           HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "ReadAPUDataRead");
 #endif
         }
+        return;
       }
-      return;
     }
   }
-  return ;//SCPE_UNK;
 }
 
 void ReadOperandRead (word18 address, word36 * result) {
@@ -259,11 +258,10 @@ B29:;
           HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "readOperandRead");
 #endif
         }
+        return;
       }
-      return;
     }
   }
-  return ;//SCPE_UNK;
 }
 
 void ReadOperandRMW (word18 address, word36 * result) {
@@ -287,7 +285,7 @@ void ReadOperandRMW (word18 address, word36 * result) {
         sim_debug (DBG_FINAL, & cpu_dev, "ReadOperandRMW (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n", address, *result);
 #ifdef TESTING
         HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "ReadOperandRMW ABS BAR");
-        HDBGMReadOperandRMW (cpu.iefpFinalAddress, * result, "Read ABS BAR");
+        HDBGMRead (cpu.iefpFinalAddress, * result, "ReadOperandRMW ABS BAR");
 #endif
         return;
       } else {
@@ -330,8 +328,8 @@ B29:;
           HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "ReadOperandRMW");
 #endif
         }
+        return;
       }
-      return;
     }
   }
 }
@@ -400,8 +398,8 @@ B29:;
           HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "ReadAPUDataRMW");
 #endif
         }
+        return;
       }
-      return;
     }
   }
   return ;//SCPE_UNK;
@@ -463,11 +461,10 @@ B29:;
           HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "ReadInstructionFetch");
 #endif
         }
+        return;
       }
-      return;
     }
   }
-  return ;//SCPE_UNK;
 }
 
 #if 0
@@ -631,8 +628,8 @@ B29:;
         HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "Read2OperandRead evn");
         HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, * (result+1), "Read2OperandRead odd");
 #endif
+        return;
       }
-      return;
     }
   }
 }
@@ -708,8 +705,8 @@ B29:;
         HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "Read2OperandRMW evn");
         HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, * (result+1), "Read2OperandRMW odd");
 #endif
+        return;
       }
-      return;
     }
   }
 }
@@ -785,8 +782,8 @@ B29:;
         HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "Read2InstructionFetch evn");
         HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, * (result+1), "Read2InstructionFetch odd");
 #endif
+        return;
       }
-      return;
     }
   }
 }
@@ -822,8 +819,8 @@ void Read2RTCDOperandFetch (word18 address, word36 * result) {
     HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "Read2 evn");
     HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, * (result+1), "Read2 odd");
 #endif
+    return;
   }
-  return;
 }
 
 void Read2IndirectWordFetch (word18 address, word36 * result) {
@@ -896,9 +893,9 @@ B29:;
         HDBGIEFP (hdbgIEFP_read, cpu.TPR.TSR, address, "Read2IndirectWordFetch");
         HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "Read2IndirectWordFetch evn");
         HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, * (result+1), "Read2IndirectWordFetch odd");
+        return;
 #endif
       }
-      return;
     }
   }
 }
@@ -1008,11 +1005,10 @@ B29:;
                       HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + i, cpu.iefpFinalAddress + i, result [i], "Read8");
 #endif
                   }
+                return;
               }
-            return;
           }
       }
-    return ;//SCPE_UNK;
   }
 
 void Read16 (word18 address, word36 * result)
@@ -1134,11 +1130,10 @@ B29:;
                       HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA + i, cpu.iefpFinalAddress + i, result [i], "ReadPage");
 #endif
                   }
+                return;
               }
-            return;
           }
       }
-    return ;//SCPE_UNK;
   }
 
 void ReadIndirectWordFetch (word18 address, word36 * result) {
@@ -1158,7 +1153,7 @@ void ReadIndirectWordFetch (word18 address, word36 * result) {
         sim_debug (DBG_FINAL, & cpu_dev, "ReadIndirectWordFetch (Actual) Read:       bar address=%08o  readData=%012"PRIo64"\n", address, *result);
 #ifdef TESTING
         HDBGIEFP (hdbgIEFP_abs_bar_read, 0, address, "ReadIndirectWordFetch ABS BAR");
-        HDBGMReadIndirectWordFetch (cpu.iefpFinalAddress, * result, "Read ABS BAR");
+        HDBGMRead (cpu.iefpFinalAddress, * result, "ReadIndirectWordFetch ABS BAR");
 #endif
         return;
       } else {
@@ -1197,8 +1192,8 @@ B29:;
             HDBGAPURead (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, * result, "ReadIndirectWordFetch");
 #endif
           }
+          return;
         }
-      return;
     }
   }
 }
@@ -1319,7 +1314,7 @@ B29:
 #endif
         return;
       } else {
-        cpu.iefpFinalAddress = do_append_cycle (APU_DATA_STORE, & data, 1);
+        cpu.iefpFinalAddress = doAppendCycleAPUDataStore (& data, 1);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, "WriteAPUDataStore(Actual) Write: iefpFinalAddress=%08o " "writeData=%012"PRIo64"\n", cpu.iefpFinalAddress, data);
 #ifdef TESTING
         HDBGIEFP (hdbgIEFP_write, cpu.TPR.TSR, address, "WriteAPUDataStore");
@@ -1426,6 +1421,7 @@ void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp)
                            "Write2 (Actual) Write:      bar address=%08o "
                            "writeData=%012"PRIo64" %012"PRIo64"\n",
                            address, data [0], data [1]);
+                return;
               }
             else
               {
@@ -1441,9 +1437,9 @@ void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp)
                 HDBGMWrite (address, data [0], "Write2 AB evn");
                 HDBGMWrite (address+1, data [1], "Write2 AB odd");
 # endif
+                return;
               }
           }
-          break;
 
         case APPEND_mode:
           {
@@ -1463,6 +1459,7 @@ B29:
                 HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, data[0], "Write2 BR evn");
                 HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, data[1], "Write2 BR odd");
 # endif
+                return;
               }
             else
               {
@@ -1476,11 +1473,10 @@ B29:
                 HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, data[0], "Write2 evn");
                 HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, data[1], "Write2 odd");
 # endif
+                return;
               }
           }
-          break;
       }
-    return ;//SCPE_UNK;
   }
 #endif
 
@@ -1504,6 +1500,7 @@ void Write2OperandStore (word18 address, word36 * data) {
         HDBGMWrite (cpu.iefpFinalAddress+1, data [1], "Write2OperandStore ABBR odd");
 #endif
         sim_debug (DBG_FINAL, & cpu_dev, "Write2OperandStore (Actual) Write:      bar address=%08o " "writeData=%012"PRIo64" %012"PRIo64"\n", address, data [0], data [1]);
+        return;
       } else {
         set_apu_status (apuStatus_FABS);
         fauxDoAppendCycle (OPERAND_STORE);
@@ -1514,8 +1511,8 @@ void Write2OperandStore (word18 address, word36 * data) {
         HDBGMWrite (address, data [0], "Write2OperandStore AB evn");
         HDBGMWrite (address+1, data [1], "Write2OperandStore AB odd");
 #endif
+        return;
       }
-      return;
     }
 
     case APPEND_mode: {
@@ -1531,6 +1528,7 @@ B29:
         HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, data[0], "Write2OperandStore BR evn");
         HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, data[1], "Write2OperandStore BR odd");
 #endif
+        return;
       } else {
         cpu.iefpFinalAddress = doAppendCycleOperandStore (data, 2);
         sim_debug (DBG_APPENDING | DBG_FINAL, & cpu_dev, "Write2OperandStore (Actual) Write: iefpFinalAddress=%08o " "writeData=%012"PRIo64" %012"PRIo64"\n", address, data [0], data [1]);
@@ -1539,9 +1537,9 @@ B29:
         HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA, cpu.iefpFinalAddress, data[0], "Write2OperandStore evn");
         HDBGAPUWrite (cpu.TPR.TSR, cpu.TPR.CA + 1, cpu.iefpFinalAddress + 1, data[1], "Write2OperandStore odd");
 #endif
+        return;
       }
     }
-    return;
   }
 }
 
@@ -1624,7 +1622,6 @@ B29:
               }
           }
       }
-    return ;//SCPE_UNK;
   }
 
 void Write8 (word18 address, word36 * data, bool isAR)
@@ -1732,7 +1729,6 @@ B29:
               }
           }
       }
-    return ;//SCPE_UNK;
   }
 
 void Write16 (word18 address, word36 * data)
@@ -1740,7 +1736,6 @@ void Write16 (word18 address, word36 * data)
     address &= paragraphMask; // Round to 8 word boundary
     Write8 (address, data, cpu.currentInstruction.b29);
     Write8 (address + 8, data + 8, cpu.currentInstruction.b29);
-    return;
   }
 
 void Write32 (word18 address, word36 * data)
@@ -1752,7 +1747,6 @@ void Write32 (word18 address, word36 * data)
     Write8 (address + 8, data + 8, cpu.currentInstruction.b29);
     Write8 (address + 16, data + 16, cpu.currentInstruction.b29);
     Write8 (address + 24, data + 24, cpu.currentInstruction.b29);
-    return;
   }
 
 void WritePage (word18 address, word36 * data, bool isAR)
@@ -1864,7 +1858,6 @@ B29:
               }
           }
       }
-    return ;//SCPE_UNK;
   }
 
 void ReadIndirect (void)
@@ -1878,5 +1871,4 @@ void ReadIndirect (void)
       {
         Read2IndirectWordFetch (cpu.TPR.CA, cpu.itxPair);
       }
-    return;
   }

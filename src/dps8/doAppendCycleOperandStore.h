@@ -7,8 +7,9 @@ word24 doAppendCycleOperandStore (word36 * data, uint nWords) {
   DBGAPP ("doAppendCycleOperandStore(Entry) PPR.PRR=%o PPR.PSR=%05o\n", cpu.PPR.PRR, cpu.PPR.PSR);
   DBGAPP ("doAppendCycleOperandStore(Entry) TPR.TRR=%o TPR.TSR=%05o\n", cpu.TPR.TRR, cpu.TPR.TSR);
 
-  if (i->b29)
+  if (i->b29) {
     DBGAPP ("doAppendCycleOperandStore(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
+  }
 
   bool nomatch = true;
   if (! cpu.switches.disable_wam) {

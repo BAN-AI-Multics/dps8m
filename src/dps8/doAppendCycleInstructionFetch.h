@@ -7,8 +7,9 @@ word24 doAppendCycleInstructionFetch (word36 * data, uint nWords) {
   DBGAPP ("doAppendCycleInstructionFetch(Entry) PPR.PRR=%o PPR.PSR=%05o\n", cpu.PPR.PRR, cpu.PPR.PSR);
   DBGAPP ("doAppendCycleInstructionFetch(Entry) TPR.TRR=%o TPR.TSR=%05o\n", cpu.TPR.TRR, cpu.TPR.TSR);
 
-  if (i->b29)
+  if (i->b29) {
     DBGAPP ("doAppendCycleInstructionFetch(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
+  }
 
   bool nomatch = true;
   if (! cpu.switches.disable_wam) {
