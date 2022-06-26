@@ -1090,7 +1090,7 @@ static char *str_acv (_fault_subtype acv)
   }
 #endif
 
-#ifdef TESTING
+#if defined (TESTING) || defined (OLDAPP)
 static char *str_pct (processor_cycle_type t)
   {
     switch (t)
@@ -1115,7 +1115,7 @@ static char *str_pct (processor_cycle_type t)
   }
 #endif
 
-#if 0
+#ifndef OLDAPP
 word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWords) {
   switch (thisCycle) {
     case OPERAND_STORE:
@@ -1145,22 +1145,24 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data, uint nWor
       sim_fatal ("APU cycle %u\r\n", thisCycle);
   }
 }
-#endif
+#endif // !OLDAPP
 
-#include "doAppendCycleOperandStore.h"
-#include "doAppendCycleOperandRead.h"
-#include "doAppendCycleIndirectWordFetch.h"
-#include "doAppendCycleRTCDOperandFetch.h"
-#include "doAppendCycleInstructionFetch.h"
-#include "doAppendCycleAPUDataRead.h"
-#include "doAppendCycleAPUDataStore.h"
-#include "doAppendCycleABSA.h"
-#ifdef LOCKLESS
-# include "doAppendCycleOperandRMW.h"
-# include "doAppendCycleAPUDataRMW.h"
-#endif
+#ifndef OLDAPP
+# include "doAppendCycleOperandStore.h"
+# include "doAppendCycleOperandRead.h"
+# include "doAppendCycleIndirectWordFetch.h"
+# include "doAppendCycleRTCDOperandFetch.h"
+# include "doAppendCycleInstructionFetch.h"
+# include "doAppendCycleAPUDataRead.h"
+# include "doAppendCycleAPUDataStore.h"
+# include "doAppendCycleABSA.h"
+# ifdef LOCKLESS
+#  include "doAppendCycleOperandRMW.h"
+#  include "doAppendCycleAPUDataRMW.h"
+# endif // LOCKLESS
+#endif // !OLDAPP
 
-#if 0
+#ifdef OLDAPP
 /*
  * recoding APU functions to more closely match Fig 5,6 & 8 ...
  * Returns final address suitable for core_read/write
@@ -2262,7 +2264,7 @@ Exit:;
 
     return finalAddress;    // or 0 or -1???
   }
-#endif
+#endif // OLDAPP
 
 
 // Translate a segno:offset to a absolute address.
