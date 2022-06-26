@@ -25,12 +25,16 @@ void Write (word18 addr, word36 dat, processor_cycle_type cyctyp);
 void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp);
 # define ReadAPUDataRead(addr,data) Read (addr, data, APU_DATA_READ)
 # define ReadOperandRead(addr,data) Read (addr, data, OPERAND_READ)
-# define ReadOperandRMW(addr,data) Read (addr, data, OPERAND_RMW)
-# define ReadAPUDataRMW(addr,data) Read (addr, data, APU_DATA_RMW)
+# ifdef LOCKLESS
+#  define ReadOperandRMW(addr,data) Read (addr, data, OPERAND_RMW)
+#  define ReadAPUDataRMW(addr,data) Read (addr, data, APU_DATA_RMW)
+# endif
 # define ReadInstructionFetch(addr,data) Read (addr, data, INSTRUCTION_FETCH)
 # define ReadIndirectWordFetch(addr,data) Read2 (addr, data, INDIRECT_WORD_FETCH)
 # define Read2OperandRead(addr,data) Read2 (addr, data, OPERAND_READ)
-# define Read2OperandRMW(addr,data) Read2 (addr, data, OPERAND_RMW)
+# ifdef LOCKLESS
+#  define Read2OperandRMW(addr,data) Read2 (addr, data, OPERAND_RMW)
+# endif
 # define Read2InstructionFetch(addr,data) Read2 (addr, data, INSTRUCTION_FETCH)
 # define Read2RTCDOperandFetch(addr,data) Read2 (addr, data, RTCD_OPERAND_FETCH)
 # define Read2IndirectWordFetch(addr,data) Read2 (addr, data, INDIRECT_WORD_FETCH)
@@ -40,12 +44,19 @@ void Write2 (word18 address, word36 * data, processor_cycle_type cyctyp);
 #else // !OLDAPP
 void ReadAPUDataRead (word18 addr, word36 *dat);
 void ReadOperandRead (word18 addr, word36 *dat);
+# ifdef LOCKLESS
 void ReadOperandRMW (word18 addr, word36 *dat);
 void ReadAPUDataRMW (word18 addr, word36 *dat);
+# else
+#  define ReadOperandRMW ReadOperandRead
+#  define ReadAPUDataRMW ReadAPUDataRead
+# endif
 void ReadInstructionFetch (word18 addr, word36 *dat);
 void ReadIndirectWordFetch (word18 address, word36 * result);
 void Read2OperandRead (word18 address, word36 * result);
+# ifdef LOCKLESS
 void Read2OperandRMW (word18 address, word36 * result);
+# endif
 void Read2InstructionFetch (word18 address, word36 * result);
 void Read2RTCDOperandFetch (word18 address, word36 * result);
 void Read2IndirectWordFetch (word18 address, word36 * result);

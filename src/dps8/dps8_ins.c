@@ -232,7 +232,7 @@ static void readOperands (void)
     else
       readOperandRead (cpu.TPR.CA);
 #else
-    readOperandRead (cpu.TPR.CA, OPERAND_READ);
+    readOperandRead (cpu.TPR.CA);
 #endif
 
     return;
