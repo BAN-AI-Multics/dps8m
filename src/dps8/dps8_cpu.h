@@ -1507,11 +1507,31 @@ enum { CUH_XINT = 0100, CUH_IFT = 040, CUH_CRD = 020, CUH_MRD = 010,
 # define N_WAM_MASK 017
 #endif
 
+// Micro cache
+
+struct ucache_s {
+  bool valid;
+  word15 segno;
+  word18 offset;
+  word14 bound;
+  word1  p;
+  word24 address;
+  word3  r1;
+};
+typedef struct ucache_s ucache_t;
+
+#define uc_instruction 0
+#define uc_NUM 1
+
+
 typedef struct
   {
 
     EISstruct currentEISinstruction;
 
+    ucache_t uc_caches[uc_NUM];
+    unsigned long long uc_hits[uc_NUM];
+    unsigned long long uc_misses[uc_NUM];
     unsigned long long cycleCnt;
     unsigned long long instrCnt;
     unsigned long long instrCntT0;

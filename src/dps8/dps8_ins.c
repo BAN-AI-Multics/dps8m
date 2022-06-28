@@ -36,6 +36,7 @@
 #include "dps8_decimal.h"
 #include "dps8_iefp.h"
 #include "dps8_utils.h"
+#include "ucache.h"
 
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
@@ -8247,6 +8248,7 @@ elapsedtime ();
                 cpu.PTW0.USE = 0;
               }
           }
+          uc_invalidate ();
           break;
 
         case x0 (0532):  // cams
@@ -8298,7 +8300,8 @@ elapsedtime ();
                 cpu.SDW0.FE = 0;
                 cpu.SDW0.USE = 0;
               }
-  }
+          }
+          uc_invalidate ();
           break;
 
         /// Privileged - Configuration and Status

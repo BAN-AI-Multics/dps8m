@@ -1,4 +1,50 @@
+//
+//    A get SDW
+//       |
+//       V
+//    B last cycle = RTCD operand fetch?
+//       Yes                            No
+//        |                              |
+//        V                              V
+//    C check ring brackets           F check ring brackets
+//        |                              |
+//        +------------------------------+
+//        |
+//        V
+//    D check RALR
+//        |
+//        V
+//    G check bound
+//      paged?
+//       Yes                            No
+//        |                              |
+//        V                              |
+//    G1 get PTW                         |
+//        |                              |
+//        V                              V
+//    I calc. paged address           H calc. unpaged address
+//        |                              |
+//        +------------------------------+
+//        |
+//        V
+//    HI set XSF
+//       read memory
+//        |
+//        V
+//    L lastcyle RTCD operand fetch handling
+//        |
+//        V
+//    KL set PSR, IC
+//        |
+//        V
+//    M  set P
+//        |
+//        V
+//    EXIT  return final address
+
 word24 doAppendCycleInstructionFetch (word36 * data, uint nWords) {
+//sim_printf ("doAppendCycleInstructionFetch %05o:%06o\r\n", 
+static int evcnt = 0;
   DCDstruct * i = & cpu.currentInstruction;
   DBGAPP ("doAppendCycleInstructionFetch(Entry) thisCycle=INSTRUCTION_FETCH\n");
   DBGAPP ("doAppendCycleInstructionFetch(Entry) lastCycle=%s\n", str_pct (cpu.apu.lastCycle));
@@ -10,6 +56,81 @@ word24 doAppendCycleInstructionFetch (word36 * data, uint nWords) {
   if (i->b29) {
     DBGAPP ("doAppendCycleInstructionFetch(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
   }
+
+  word24 finalAddress = 0;
+  word3 RSDWH_R1 = 0;
+  word14 bound = 0;
+  word1 p = 0;
+
+// ucache logic:
+// The cache will hit if:
+//   No CAMS/CAMP instruction has been executed.
+//   The segment number matches the cached value.
+//   The offset is on the same page as the cached value.
+//
+// doAppendCycle (INSTRUCTION_FETCH) checks:
+//   associative memory: Don't Care. If the cache hits, the WAM won't be queried which is the best case condition.
+//   lastCycle: Set to INSTRUCTION_FETCH.
+//   RSDWH_R1: Restored from cache.
+//   lastCycle == RTCD_OPERAND_FETCH. One would think that RTCD would always go to a new page, but that is not guarenteed; skip ucache.
+//   rRALR. Since it is perforce a segment change, the ucache will always miss.
+//   Ring brackets.  They will be the same, so recheck is unneccessary.
+//   ACVs: They will be the same, so recheck is unneccessary.
+//   SDW/PTW : They will be the same, so recheck is unneccessary.
+//   Prepage mode:  Skip ucache.
+//   History registers... Hm. skip for now; Values could be stashed...
+
+// Is this cycle a candidate for ucache?
+
+  // lastCycle == RTCD_OPERAND_FETCH
+  if (i->opcode == 0610  && ! i->opcodeX) {
+    //sim_printf ("skip RTCD\r\n");
+    goto skip_ucache;
+  }
+
+  // RALR
+  if (cpu.rRALR) {
+    //sim_printf ("skip rRALR\r\n");
+    goto skip_ucache;
+  }
+
+  // Prepage mode?
+  // check for "uninterruptible" EIS instruction
+  // ISOLTS-878 02: mvn,cmpn,mvne,ad3d; obviously also
+  // ad2/3d,sb2/3d,mp2/3d,dv2/3d
+  // DH03 p.8-13: probably also mve,btd,dtb
+  if (i->opcodeX && ((i->opcode & 0770)== 0200|| (i->opcode & 0770) == 0220
+      || (i->opcode & 0770)== 020|| (i->opcode & 0770) == 0300)) {
+    //sim_printf ("skip uniterruptable\r\n");
+    goto skip_ucache;
+  }
+
+// Yes; check the ucache
+
+//#define TEST_UCACHE
+#ifdef TEST_UCACHE
+  word24 cachedAddress;
+  word3 cachedR1;
+  bool cacheHit;
+  word14 cachedBound;
+  cacheHit = uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedAddress, & cachedR1);
+  goto skip_ucache2;
+#else
+  if (! uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & finalAddress, & cpu.RSDWH_R1))
+    goto skip_ucache;
+#endif
+
+// ucache hit; housekeeping...
+  //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+
+  cpu.apu.lastCycle = INSTRUCTION_FETCH;
+  goto HI;
+
+skip_ucache:;
+  //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+#ifdef TEST_UCACHE
+skip_ucache2:;
+#endif
 
   bool nomatch = true;
   if (! cpu.switches.disable_wam) {
@@ -40,7 +161,6 @@ word24 doAppendCycleInstructionFetch (word36 * data, uint nWords) {
 #define FMSG(x)
   FMSG (char * acvFaultsMsg = "<unknown>";)
 
-  word24 finalAddress = (word24) -1;  // not everything requires a final address
 
 ////////////////////////////////////////
 //
@@ -88,7 +208,7 @@ word24 doAppendCycleInstructionFetch (word36 * data, uint nWords) {
   DBGAPP ("doAppendCycleInstructionFetch(A) R1 %o R2 %o R3 %o E %o\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
 
   // Yes...
-  cpu.RSDWH_R1 = cpu.SDW->R1;
+  RSDWH_R1 = cpu.RSDWH_R1 = cpu.SDW->R1;
 
 ////////////////////////////////////////
 //
@@ -131,42 +251,6 @@ word24 doAppendCycleInstructionFetch (word36 * data, uint nWords) {
 
   // Transfer or instruction fetch?
   goto F;
-
-  //
-  // check read bracket for read access
-  //
-
-  DBGAPP ("doAppendCycleInstructionFetch(B):!STR-OP\n");
-
-  // No
-  // C(TPR.TRR) > C(SDW .R2)?
-  if (cpu.TPR.TRR > cpu.SDW->R2) {
-    DBGAPP ("ACV3\n");
-    DBGAPP ("doAppendCycleInstructionFetch(B) ACV3\n");
-    //Set fault ACV3 = ORB
-    cpu.acvFaults |= ACV3;
-    PNL (L68_ (cpu.apu.state |= apu_FLT;))
-    FMSG (acvFaultsMsg = "acvFaults(B) C(TPR.TRR) > C(SDW .R2)";)
-  }
-
-  if (cpu.SDW->R == 0) {
-    // isolts 870
-    cpu.TPR.TRR = cpu.PPR.PRR;
-
-    //C(PPR.PSR) = C(TPR.TSR)?
-    if (cpu.PPR.PSR != cpu.TPR.TSR) {
-      DBGAPP ("ACV4\n");
-      DBGAPP ("doAppendCycleInstructionFetch(B) ACV4\n");
-      //Set fault ACV4 = R-OFF
-      cpu.acvFaults |= ACV4;
-      PNL (L68_ (cpu.apu.state |= apu_FLT;))
-      FMSG (acvFaultsMsg = "acvFaults(B) C(PPR.PSR) = C(TPR.TSR)";)
-    } else {
-      // sim_warn ("doAppendCycleInstructionFetch(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\n", cpu.PPR.PSR);
-    }
-  }
-
-  goto G;
 
 ////////////////////////////////////////
 //
@@ -297,6 +381,8 @@ G:;
     FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
     DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o", cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
   }
+  bound = cpu.SDW->BOUND;
+  p = cpu.SDW->P;
 
   if (cpu.acvFaults) {
     DBGAPP ("doAppendCycleInstructionFetch(G) acvFaults\n");
@@ -388,18 +474,30 @@ I:;
 #endif
   DBGAPP ("doAppendCycleInstructionFetch(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
-  goto HI;
-
 HI:
   DBGAPP ("doAppendCycleInstructionFetch(HI)\n");
 
+
+#ifdef TEST_UCACHE
+if (cacheHit) {
+  if (cachedAddress != finalAddress) sim_printf ("cachedAddress %08o != finalAddress %08o\r\n", cachedAddress, finalAddress);
+  if (cachedR1 != RSDWH_R1) sim_printf ("cachedR1 %01o != RSDWH_R1 %01o\r\n", cachedR1, RSDWH_R1);
+  if (evcnt == 27 || cachedAddress != finalAddress || cachedR1 != RSDWH_R1) { hdbgPrint ();  sim_printf ("err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA); exit (1); }
+  //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+}
+else
+{
+  //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+}
+#endif
+
+  uc_cache_save (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, bound, p, finalAddress, RSDWH_R1);
+evcnt ++;
   // isolts 870
   cpu.cu.XSF = 1;
   sim_debug (DBG_TRACEEXT, & cpu_dev, "loading of cpu.TPR.TSR sets XSF to 1\n");
 
   core_readN (finalAddress, data, nWords, "INSTRUCTION_FETCH");
-
-  goto L;
 
 ////////////////////////////////////////
 //
@@ -407,7 +505,7 @@ HI:
 //
 ////////////////////////////////////////
 
-L:; // Transfer or instruction fetch
+//L:; // Transfer or instruction fetch
 
   DBGAPP ("doAppendCycleInstructionFetch(L)\n");
 
@@ -461,7 +559,8 @@ M: // Set P
   // C(TPR.TRR) = 0?
   if (cpu.TPR.TRR == 0) {
     // C(SDW.P) -> C(PPR.P)
-    cpu.PPR.P = cpu.SDW->P;
+    //cpu.PPR.P = cpu.SDW->P;
+    cpu.PPR.P = p;
   } else {
     // 0 C(PPR.P)
     cpu.PPR.P = 0;

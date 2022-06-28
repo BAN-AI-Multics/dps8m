@@ -227,6 +227,7 @@ ifeq ($(LOCKLESS),1)
 endif
 C_SRCS += utfile.c
 C_SRCS += uvutil.c
+C_SRCS += ucache.c
 
 ###############################################################################
 
@@ -294,6 +295,7 @@ ifeq ($(TESTING),1)
   H_SRCS += tracker.h
 endif
 H_SRCS += uvutil.h
+H_SRCS += ucache.h
 
 ###############################################################################
 
@@ -760,6 +762,7 @@ dps8_append.o:      dps8_sys.h
 dps8_append.o:      dps8_scu.h
 dps8_append.o:      dps8_iom.h dps8_cable.h dps8_cpu.h hdbg.h dps8_append.h
 dps8_append.o:      dps8_addrmods.h dps8_utils.h
+dps8_append.o:      doAppendCycleABSA.h         doAppendCycleAPUDataRMW.h    doAppendCycleIndirectWordFetch.h  doAppendCycleOperandRead.h  doAppendCycleOperandStore.h doAppendCycleAPUDataRead.h  doAppendCycleAPUDataStore.h  doAppendCycleInstructionFetch.h   doAppendCycleOperandRMW.h   doAppendCycleRTCDOperandFetch.h
 dps8_cable.o:       dps8.h ../dpsprintf/dpsprintf.h
 dps8_cable.o:       dps8_simh.h
 dps8_cable.o:       dps8_math128.h dps8_hw_consts.h dps8_em_consts.h

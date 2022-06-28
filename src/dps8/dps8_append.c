@@ -28,6 +28,7 @@
 #include "dps8_append.h"
 #include "dps8_addrmods.h"
 #include "dps8_utils.h"
+#include "ucache.h"
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
