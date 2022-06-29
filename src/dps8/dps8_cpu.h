@@ -1517,11 +1517,13 @@ struct ucache_s {
   word1  p;
   word24 address;
   word3  r1;
+  bool paged;
 };
 typedef struct ucache_s ucache_t;
 
 #define uc_instruction 0
-#define uc_NUM 1
+#define uc_operand_read 1
+#define uc_NUM 2
 
 
 typedef struct

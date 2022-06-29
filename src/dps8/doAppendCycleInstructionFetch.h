@@ -58,9 +58,11 @@ static int evcnt = 0;
   }
 
   word24 finalAddress = 0;
+  word24 pageAddress = 0;
   word3 RSDWH_R1 = 0;
   word14 bound = 0;
   word1 p = 0;
+  bool paged = false;
 
 // ucache logic:
 // The cache will hit if:
@@ -113,12 +115,19 @@ static int evcnt = 0;
   word3 cachedR1;
   bool cacheHit;
   word14 cachedBound;
-  cacheHit = uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedAddress, & cachedR1);
+  bool cachePaged;
+  cacheHit = uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedAddress, & cachedR1, & cachePaged);
   goto skip_ucache2;
 #else
-  if (! uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & finalAddress, & cpu.RSDWH_R1))
+  if (! uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & cpu.RSDWH_R1, & paged))
     goto skip_ucache;
 #endif
+
+  if (paged) {
+    finalAddress = pageAddress + (cpu.TPR.CA & OS18MASK);
+  } else {
+    finalAddress = pageAddress + cpu.TPR.CA;
+  }
 
 // ucache hit; housekeeping...
   //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
@@ -429,6 +438,8 @@ G:;
 H:;
   DBGAPP ("doAppendCycleInstructionFetch(H): FANP\n");
 
+  paged = false;
+
   PNL (L68_ (cpu.apu.state |= apu_FANP;))
 #if 0
   // ISOLTS pa865 test-01a 101232
@@ -442,6 +453,7 @@ H:;
 
   DBGAPP ("doAppendCycleInstructionFetch(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
 
+  pageAddress = (cpu.SDW->ADDR & 077777760);
   finalAddress = (cpu.SDW->ADDR & 077777760) + cpu.TPR.CA;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
@@ -456,12 +468,15 @@ I:;
 
   DBGAPP ("doAppendCycleInstructionFetch(I): FAP\n");
 
+  paged = true;
+
   // final address paged
   set_apu_status (apuStatus_FAP);
   PNL (L68_ (cpu.apu.state |= apu_FAP;))
 
   word24 y2 = cpu.TPR.CA % 1024;
 
+  pageAddress = (((word24)cpu.PTW->ADDR & 0777760) << 6);
   // AL39: The hardware ignores low order bits of the main memory page
   // address according to page size
   finalAddress = (((word24)cpu.PTW->ADDR & 0777760) << 6) + y2;
@@ -479,10 +494,45 @@ HI:
 
 
 #ifdef TEST_UCACHE
+  if (cacheHit) {
+    bool err = false;
+    if (cachedAddress != pageAddress) {
+     sim_printf ("cachedAddress %08o != finalAddress %08o\r\n", cachedAddress, pageAddress);
+     err = true;
+    }
+    if (cachedR1 != RSDWH_R1) {
+      sim_printf ("cachedR1 %01o != RSDWH_R1 %01o\r\n", cachedR1, RSDWH_R1);
+      err = true;
+    }
+    if (cachedBound != bound) {
+      sim_printf ("cachedBound %01o != bound %01o\r\n", cachedBound, bound);
+      err = true;
+    }
+    if (cachedPaged != paged) {
+      sim_printf ("cachedPaged %01o != paged %01o\r\n", cachedPaged, paged);
+      err = true;
+    }
+    if (err) {
+//#ifdef HDBG
+      HDBGPrint ();
+//#endif
+      sim_printf ("err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+      exit (1);
+    }
+    //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+# ifdef HDBG
+    hdbgNote ("doAppendCycleOperandRead.h", "test hit %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+# endif
+  } else {
+    //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+# ifdef HDBG
+    hdbgNote ("doAppendCycleOperandRead.h", "test miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+# endif
+  }
+#endif
+#ifdef TEST_UCACHE
 if (cacheHit) {
-  if (cachedAddress != finalAddress) sim_printf ("cachedAddress %08o != finalAddress %08o\r\n", cachedAddress, finalAddress);
-  if (cachedR1 != RSDWH_R1) sim_printf ("cachedR1 %01o != RSDWH_R1 %01o\r\n", cachedR1, RSDWH_R1);
-  if (evcnt == 27 || cachedAddress != finalAddress || cachedR1 != RSDWH_R1) { hdbgPrint ();  sim_printf ("err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA); exit (1); }
+  if (cachedPaged != paged) sim_printf ("cachedPaged %01o != paged %01o\r\n", cachedPaged, paged);
   //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 }
 else
@@ -491,7 +541,7 @@ else
 }
 #endif
 
-  uc_cache_save (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, bound, p, finalAddress, RSDWH_R1);
+  uc_cache_save (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
 evcnt ++;
   // isolts 870
   cpu.cu.XSF = 1;
@@ -574,5 +624,5 @@ M: // Set P
   DBGAPP ("doAppendCycleInstructionFetch (Exit) PRR %o PSR %05o P %o IC %06o\n", cpu.PPR.PRR, cpu.PPR.PSR, cpu.PPR.P, cpu.PPR.IC);
   DBGAPP ("doAppendCycleInstructionFetch (Exit) TRR %o TSR %05o TBR %02o CA %06o\n", cpu.TPR.TRR, cpu.TPR.TSR, cpu.TPR.TBR, cpu.TPR.CA);
 
-  return finalAddress;    // or 0 or -1???
+  return finalAddress;
 }
