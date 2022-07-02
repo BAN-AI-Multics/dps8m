@@ -31,21 +31,24 @@ endif
 
 .PHONY: all
 ifeq ($(CROSS),MINGW64)
-  WINDOWS_COMPILE=1
+  SKIP_COMPILATION=1
 endif # MINGW64
 ifeq ($(CROSS),MINGW32)
-  WINDOWS_COMPILE=1
+  SKIP_COMPILATION=1
 endif # MINGW32
 ifeq ($(CYGWIN_MINGW_CROSS),1)
-  WINDOWS_COMPILE=1
+  SKIP_COMPILATION=1
 endif # CYGWIN_MINGW_CROSS
-ifneq ($(WINDOWS_COMPILE),1)
+ifeq ($(UNAME_S),Haiku)
+  SKIP_COMPILATION=1
+endif # Haiku
+ifneq ($(SKIP_COMPILATION),1)
 all: vmpctool$(EXE)
 	-@$(TRUE)
-else # !WINDOWS_COMPILE
+else # !SKIP_COMPILATION
 all:
 	-@$(TRUE)
-endif # WINDOWS_COMPILE
+endif # SKIP_COMPILATION
 
 ###############################################################################
 

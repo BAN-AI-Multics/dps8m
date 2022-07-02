@@ -25,7 +25,9 @@
 #  ifndef CROSS_MINGW64
 #   ifndef CROSS_MINGW32
 #    ifndef __OpenBSD__
-#     include <wordexp.h>
+#     ifndef __HAIKU__
+#      include <wordexp.h>
+#     endif /* ifndef __HAIKU__ */
 #    endif /* ifndef __OpenBSD__ */
 #    include <signal.h>
 #   endif /* ifndef CROSS_MINGW32 */

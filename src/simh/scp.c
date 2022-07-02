@@ -3010,11 +3010,11 @@ for (; *ip && (op < oend); ) {
                         ap = rbuf;
                         }
                     else if (!strcmp ("HOSTID", gbuf)) {
-#ifdef HAVE_UNISTD
+#if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ )
                         sprintf (rbuf, "%ld", (long)gethostid());
 #else
                         sprintf (rbuf, "00000000");
-#endif /* ifdef HAVE_UNISTD */
+#endif /* if defined( HAVE_UNISTD ) && !defined ( __HAIKU__ ) */
                         ap = rbuf;
                         }
                     else if (!strcmp ("UID", gbuf)) {

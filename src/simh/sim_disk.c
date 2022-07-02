@@ -2214,11 +2214,15 @@ return NULL;
         http://www.microsoft.com/interop/osp/default.mspx.
 --*/
 
+# ifndef __HAIKU__
 typedef t_uint64    uint64;
+# endif
 # ifdef _AIX
 typedef long        int64;
 # else
+#  ifndef __HAIKU__
 typedef t_int64     int64;
+#  endif
 # endif
 
 typedef struct _VHD_Footer {
