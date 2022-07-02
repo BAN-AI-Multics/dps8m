@@ -62,7 +62,7 @@ static int evcnt = 0;
 // Is this cycle a candidate for ucache?
 
 
-#define TEST_UCACHE
+//#define TEST_UCACHE
 #ifdef TEST_UCACHE
   bool cacheHit;
   cacheHit = false; // Assume skip...
