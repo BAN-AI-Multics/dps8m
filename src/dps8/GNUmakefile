@@ -143,13 +143,22 @@ ifneq ($(M32),)
 endif
 
 ###############################################################################
+# Need to link with -lnetwork?
+
+ifeq ($(UNAME_S),Haiku)
+  LIBS += -lnetwork
+endif
+
+###############################################################################
 # The system_state code relies on M_SHARED.
 
 ifneq ($(MINGW_CROSS),1)
   CFLAGS += -DM_SHARED
   ifneq ($(OS),OSX)
     ifneq ($(UNAME_S),OpenBSD)
-      LIBS += -lrt
+      ifneq ($(UNAME_S),Haiku)
+        LIBS += -lrt
+      endif
     endif
   endif
 endif

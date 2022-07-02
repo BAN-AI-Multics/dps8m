@@ -146,6 +146,13 @@ endif
 
 ###############################################################################
 
+ifeq ($(UNAME_S),Haiku)
+  OS = Haiku
+  CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1
+endif
+
+###############################################################################
+
 ifeq ($(UNAME_S),OpenBSD)
   OS = OpenBSD
   CFLAGS += -DUSE_FLOCK=1 -DUSE_FCNTL=1 -I/usr/local/include

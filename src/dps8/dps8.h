@@ -143,7 +143,13 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 #   undef PRIo64
 #  endif
 #  ifndef PRIo64
-#   define PRIo64 "llo"
+#   ifdef __HAIKU__
+#    define PRIo64 "lo"
+#    undef llo
+#    define llo "lo"
+#   else
+#    define PRIo64 "llo"
+#   endif
 #  endif
 # endif
 
@@ -155,9 +161,18 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 #  include <stdint.h>
 typedef t_uint64    u_int64_t;
 # endif
+# ifdef __HAIKU__
+#  include <stdint.h>
+typedef long int64;
+typedef unsigned long uint64;
+# endif
+# ifndef __HAIKU__
 typedef t_uint64    uint64;
+# endif
 # ifndef _AIX
+#  ifndef __HAIKU__
 typedef t_int64     int64;
+#  endif
 # else
 typedef long        int64;
 # endif

@@ -201,9 +201,9 @@ create_shm(char *key, size_t shm_size)
         }
     }
 
-# ifndef __APPLE__
+# if !defined( __APPLE__ ) && !defined( __HAIKU__ )
   (void)fdatasync(lck_fd);
-# endif /* ifndef __APPLE__ */
+# endif /* if !defined( __APPLE__ ) && !defined( __HAIKU__ ) */
 
   (void)snprintf(spid, SPIDLEN, "%ld ", (long)getpid());
 
@@ -312,9 +312,9 @@ create_shm(char *key, size_t shm_size)
       return NULL;
     }
 
-#ifndef __APPLE__
+#if !defined( __APPLE__ ) && !defined( __HAIKU__ )
   (void)fdatasync(fd);
-#endif /* ifndef __APPLE__ */
+#endif /* if !defined( __APPLE__ ) && !defined( __HAIKU__ ) */
 
   p = mmap(NULL, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   if (p == MAP_FAILED)

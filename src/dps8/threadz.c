@@ -35,6 +35,11 @@
 # include <pthread_np.h>
 #endif /* FreeBSD || OpenBSD */
 
+#if defined ( __HAIKU__ )
+# undef pthread_setname_np
+# define pthread_setname_np(x,y)
+#endif /* Haiku */
+
 #include "../dpsprintf/dpsprintf.h"
 
 //

@@ -354,7 +354,7 @@ sim_printf ("socket() protocol %d\n", protocol);
 sim_printf ("socket() domain EAFNOSUPPORT\n");
         _errno = EAFNOSUPPORT;
       }
-#if defined(__APPLE__) || defined(_AIX)
+#if defined(__APPLE__) || defined(_AIX) || defined(__HAIKU__)
     else if (type != SOCK_STREAM && type != (SOCK_STREAM)) // Only SOCK_STREAM or SOCK_STREAM + SOCK_NONBLOCK
 #else
     else if (type != SOCK_STREAM && type != (SOCK_STREAM|SOCK_NONBLOCK)) // Only SOCK_STREAM or SOCK_STREAM + SOCK_NONBLOCK
@@ -381,7 +381,7 @@ sim_printf ("errno %d\n", errno);
           {
             sk_data.fd_unit[fd] = (int) unit_idx;
             sk_data.fd_dev_code[fd] = dev_code;
-#if defined(__APPLE__) || defined(_AIX)
+#if defined(__APPLE__) || defined(_AIX) || defined(__HAIKU__)
             sk_data.fd_nonblock[fd] = 0;
 #else
             sk_data.fd_nonblock[fd] = !! (type & SOCK_NONBLOCK);
