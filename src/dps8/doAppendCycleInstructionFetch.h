@@ -519,9 +519,9 @@ HI:
       err = true;
     }
     if (err) {
-#ifdef HDBG
+# ifdef HDBG
       HDBGPrint ();
-#endif
+# endif
       sim_printf ("ins fetch err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
       exit (1);
     }
