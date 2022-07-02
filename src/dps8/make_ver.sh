@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2236,SC3040,SC2015,SC2310,SC2312
 # vim: filetype=sh:tabstop=4:tw=78:expandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: 97aea429-f62f-11ec-b49f-80ee73e9b8e7
 
 ##############################################################################
 #
@@ -766,7 +768,7 @@ fi
 #  *     dtN[NN]
 #  *     drN[NN] .......... for dev
 #  *
-#  *  Thus, from here, we can use this "last2" comparsion table:
+#  *  Thus, from here, we can use this "last2" comparison table:
 #  *
 #  *    rc ................................. rc    (C)
 #  *    at / ha ............................ alpha (A)
@@ -817,7 +819,7 @@ debug_print "End release type heuristics"
 
 ##############################################################################
 
-debug_print "Start of version splittng"
+debug_print "Start of version splitting"
 
 debug_print "Setting BUILD_TMP_VER_SPLIT_INIT"
 BUILD_TMP_VER_SPLIT_INIT="$(get_git_vers)" ||
@@ -828,7 +830,7 @@ BUILD_TMP_VER_SPLIT_INIT="$(get_git_vers)" ||
     } # /* BUILD_TMP_VER_SPLIT_INIT */
 debug_print "BUILD_TMP_VER_SPLIT_INIT is ${BUILD_TMP_VER_SPLIT_INIT:-}"
 
-debug_print "Settting BUILD_TMP_VER_SPLIT"
+debug_print "Setting BUILD_TMP_VER_SPLIT"
 # shellcheck disable=SC2086
 BUILD_TMP_VER_SPLIT="$(printf '%s\n' \
     ${BUILD_TMP_VER_SPLIT_INIT:-999.999.999.999} | \
@@ -841,7 +843,7 @@ BUILD_TMP_VER_SPLIT="$(printf '%s\n' \
 # shellcheck disable=SC2086
 debug_print "BUILD_TMP_VER_SPLIT is" "[" ${BUILD_TMP_VER_SPLIT:-} "]"
 
-# /* Avoiding awk, m4, +/- syntax, extended regex, and substution! */
+# /* Avoiding awk, m4, +/- syntax, extended regex, and substitution! */
 
 # /* TODO: Abort if parts < 3 and give useful error message. */
 

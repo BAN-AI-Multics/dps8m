@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: bd0d99ce-f62e-11ec-b63c-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -49,7 +51,7 @@ enum { GRP_UNKN =   0,
        GRP_FXM =    6,  // Fixed-Point Multiplication
        GRP_FXD =    7,  // Fixed-Point Division
        GRP_FXN =    8,  // Fixed-Point Negate
-       GRP_FXC =    9,  // Fixed-Point Comparision
+       GRP_FXC =    9,  // Fixed-Point Comparison
        GRP_FXI =   10,  // Fixed-Point Miscellaneous
        GRP_BA =    11,  // Boolean And
        GRP_BO =    12,  // Boolean Or
@@ -91,8 +93,8 @@ enum { GRP_UNKN =   0,
        GRP_EBSI =  48,  // EIS - Bit String Set Indicators
        GRP_EDC =   49,  // EIS - Data Conversion
        GRP_EDA =   50,  // EIS - Decimal Addition
-       GRP_EDS =   51,  // EIS - Decimal Subtration
+       GRP_EDS =   51,  // EIS - Decimal Subtraction
        GRP_EDM =   52,  // EIS - Decimal Multiplication
-       GRP_EDD =   53,  // EIS - Decimal Divison
+       GRP_EDD =   53,  // EIS - Decimal Division
 };
 #endif

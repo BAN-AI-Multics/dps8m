@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 5118dce3-f62e-11ec-8fe3-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -35,7 +37,7 @@ extern DEVICE fnp_dev;
 // MState_t state of an FNP
 //
 
-// memset(0) sets service to serivce_undefined (0)
+// memset(0) sets service to service_undefined (0)
 enum service_types {service_undefined = 0, service_login, service_3270, service_autocall, service_slave};
 
 typedef struct t_MState
@@ -55,7 +57,7 @@ typedef struct t_MState
 
         // libuv hook
         // For non-multiplexed lines, the connection to the remote is stored here;
-        // For multiplexed lines (3270), the connection to the currenty selected station is stored here. Used by wtx.
+        // For multiplexed lines (3270), the connection to the currently selected station is stored here. Used by wtx.
         uv_tcp_t * line_client;
 
         // libtelnet hook

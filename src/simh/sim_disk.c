@@ -1,6 +1,8 @@
 /* sim_disk.c: simulator disk support library
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: b2c7f6c3-f62a-11ec-9f60-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 
@@ -777,10 +779,13 @@ if ((dptr = find_dev_from_unit (uptr)) == NULL)
     return ret_val;
 capac_factor = ((dptr->dwidth / dptr->aincr) == 16) ? 2 : 1; /* save capacity units (word: 2, byte: 1) */
 saved_capac = uptr->capac;
+/* cppcheck-suppress signConversion */
 uptr->capac = (t_addr)(temp_capac/(capac_factor*((dptr->flags & DEV_SECTORS) ? 512 : 1)));
 if (sim_disk_rdsect (uptr, 1, (uint8 *)&Home, NULL, 1))
     goto Return_Cleanup;
+/* cppcheck-suppress comparePointers */
 CheckSum1 = ODS2Checksum (&Home, (uint16)((((char *)&Home.hm2_w_checksum1)-((char *)&Home.hm2_l_homelbn))/2));
+/* cppcheck-suppress comparePointers */
 CheckSum2 = ODS2Checksum (&Home, (uint16)((((char *)&Home.hm2_w_checksum2)-((char *)&Home.hm2_l_homelbn))/2));
 if ((Home.hm2_l_homelbn == 0) ||
     (Home.hm2_l_alhomelbn == 0) ||
@@ -1170,7 +1175,7 @@ if ((created) && (!copied)) {
          2) it allocates storage for the whole disk at creation time to
             avoid strange failures which may happen during simulator execution
             if the containing disk is full
-         3) it leaves a Sinh Format disk at the intended size so it may
+         3) it leaves a SIMH Format disk at the intended size so it may
             subsequently be autosized with the correct size.
     */
     if (secbuf == NULL)
@@ -1378,7 +1383,7 @@ fprintf (st, "%s Disk Attach Help\n\n", dptr->name);
 fprintf (st, "Disk container files can be one of 2 different types:\n\n");
 fprintf (st, "    SIMH   A disk is an unstructured binary file of the size appropriate\n");
 fprintf (st, "           for the disk drive being simulated\n");
-fprintf (st, "    RAW    platform specific access to physical disk or CDROM drives\n\n");
+fprintf (st, "    RAW    platform specific access to physical disk or CD-ROM drives\n\n");
 
 if (0 == (uptr-dptr->units)) {
     if (dptr->numunits > 1) {
@@ -1676,7 +1681,7 @@ if (strchr (openmode, 'r'))
 if (strchr (openmode, 'w') || strchr (openmode, '+'))
     DesiredAccess |= GENERIC_WRITE;
 /* SCP Command Line parsing replaces \\ with \ presuming this is an
-   escape sequence.  This only affecdts RAW device names and UNC paths.
+   escape sequence.  This only affects RAW device names and UNC paths.
    We handle the RAW device name case here by prepending paths beginning
    with \.\ with an extra \. */
 if (!memcmp ("\\.\\", rawdevicename, 3)) {
@@ -2003,7 +2008,8 @@ return close ((int)((long)f));
 
 static void sim_os_disk_flush_raw (FILE *f)
 {
-fsync ((int)((long)f));
+if ( !(sim_nostate) )
+  fsync ((int)((long)f));
 }
 
 static t_offset sim_os_disk_size_raw (FILE *f)

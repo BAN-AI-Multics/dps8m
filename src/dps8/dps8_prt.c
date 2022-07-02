@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: cb56e6b9-f62e-11ec-8a20-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -40,14 +42,6 @@
 //-- // XXX We use this where we assume there is only one unit
 //-- #define ASSUME0 0
 //--
-
-/*
- * Copyright (c) 2007-2013 Michael Mondy
- *
- * This software is made available under the terms of the ICU
- * License, version 1.8.1 or later.  For more details, see the
- * LICENSE.md file at the top-level directory of this distribution.
- */
 
 // printer_types.incl.pl1
 //
@@ -156,8 +150,10 @@ static DEBTAB prt_dt[] =
 
 static MTAB prt_mod[] =
   {
+#ifndef SPEED
     { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
+#endif
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask               */
       0,                                          /* match              */
@@ -633,7 +629,7 @@ static int print_buf (int prt_unit_num, bool isBCD, bool is_edited, int slew, wo
       "^jklmnop"
       "qr_$*);'"
       "+/stuvwx"
-      "yz~,!=\"!"; // '!' is actuallt the escape character, caught above
+      "yz~,!=\"!"; // '!' is actually the escape character, caught above
 
 // derived from pr2_conv_$upper_case_table
 //
@@ -648,13 +644,13 @@ static int print_buf (int prt_unit_num, bool isBCD, bool is_edited, int slew, wo
 // 070   'Y'  'Z'  '\\' ','  '%'  '='  '"'
     static char * bcd_uc =
       "01234567"
-      "89[#@;>?"  // '?' is actully in the lower case table; pr2_conv_ never generates 017 in upper case mode
+      "89[#@;>?"  // '?' is actually in the lower case table; pr2_conv_ never generates 017 in upper case mode
       " ABCDEFG"
       "HI&.](<\\"
       "^JKLMNOP"
       "QR-$*);'"
       "+/STUVWX"
-      "YZ_,%=\"!"; // '!' is actuallt the escape character, caught above
+      "YZ_,%=\"!"; // '!' is actually the escape character, caught above
 
 // Used for nonedited; has question mark.
     static char * bcd =
@@ -1772,7 +1768,7 @@ static t_stat prt_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) PRT_UNIT_NUM (uptr);
     if (n < 0 || n >= N_PRT_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Printer device name is %s\n", prt_state[n].device_name);
+    sim_printf("name     : %s", prt_state[n].device_name);
     return SCPE_OK;
   }
 
@@ -1805,7 +1801,7 @@ static t_stat prt_show_device_model (UNUSED FILE * st, UNIT * uptr,
     int n = (int) PRT_UNIT_NUM (uptr);
     if (n < 0 || n >= N_PRT_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Printer device model is %s\n", model_names[prt_state[n].model]);
+    sim_printf("model    : %s", model_names[prt_state[n].model]);
     return SCPE_OK;
   }
 
@@ -1993,6 +1989,6 @@ static t_stat prt_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
   {
     int devUnitIdx = (int) PRT_UNIT_NUM (uptr);
     prt_state_t * psp = prt_state + devUnitIdx;
-    sim_msg ("split:  %d\n", psp->split);
+    sim_msg ("split    : %d", psp->split);
     return SCPE_OK;
   }

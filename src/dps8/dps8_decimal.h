@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: a5232a07-f62d-11ec-86fd-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -17,31 +19,31 @@
  * ---------------------------------------------------------------------------
  */
 
-#define DECUSE64    1
-#define DECSUBSET   1
-#define DECDPUN     8
-#define DECBUFFER   32
-
-#define DECNUMDIGITS    126
+#define DECUSE64       1
+#define DECSUBSET      1
+#define DECDPUN        8
+#define DECBUFFER     32
+#define DECNUMDIGITS 126
 
 #include "../dpsprintf/dpsprintf.h"
 
 #include "decNumber.h"        // base number library
 #include "decNumberLocal.h"   // decNumber local types, etc.
 
-#define PRINTDEC(msg, dn) \
-    { \
-        if_sim_debug (DBG_TRACEEXT, & cpu_dev)  \
-        { \
-            char temp[256]; \
-            decNumberToString(dn, temp); \
-            sim_printf("%s:'%s'\n", msg, temp);   \
-        } \
+#define PRINTDEC(msg, dn)                        \
+    {                                            \
+        if_sim_debug (DBG_TRACEEXT, & cpu_dev)   \
+        {                                        \
+            char temp[256];                      \
+            decNumberToString(dn, temp);         \
+            sim_printf("%s:'%s'\n", msg, temp);  \
+        }                                        \
     }
-#define PRINTALL(msg, dn, set) \
-    { \
-        if_sim_debug (DBG_TRACEEXT, & cpu_dev)  \
-        sim_printf("%s:'%s E%d'\n", msg, getBCDn(dn, set->digits), dn->exponent);   \
+
+#define PRINTALL(msg, dn, set)                                                     \
+    {                                                                              \
+        if_sim_debug (DBG_TRACEEXT, & cpu_dev)                                     \
+        sim_printf("%s:'%s E%d'\n", msg, getBCDn(dn, set->digits), dn->exponent);  \
     }
 
 decContext * decContextDefaultDPS8(decContext *context);

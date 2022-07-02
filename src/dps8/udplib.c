@@ -1,6 +1,8 @@
 /* udplib.c: IMP/TIP Modem and Host Interface socket routines using UDP
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: 18c1dbd2-f630-11ec-8f2f-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 
@@ -102,7 +104,7 @@ struct _UDP_LINK
 typedef struct _UDP_LINK UDP_LINK;
 
 //   This magic number is stored at the beginning of every UDP message and is
-// checked on receive.  It's hardly foolproof, but its a simple attempt to
+// checked on receive.  It's hardly foolproof, but it's a simple attempt to
 // guard against other applications dumping unsolicited UDP messages into our
 // receiver socket...
 #define MAGIC   ((uint32_t) (((((('H' << 8) | '3') << 8) | '1') << 8) | '6'))
@@ -263,7 +265,7 @@ int udp_create (const char * premote, int * pln)
       return -5;
 
 // As I understand it, a connect on UDP sets the send address and limits
-// recieving to the specifed address; creating a 'connection'; I am not
+// receiving to the specified address; creating a 'connection'; I am not
 // sure the udplib wants that. The alternative is to use sendto().
 
     struct addrinfo * ai;
@@ -321,7 +323,7 @@ int udp_send (int link, uint16_t * pdata, uint16_t count, uint16_t flags)
     // is a pointer (usually into H316 simulated memory) to the IMP packet data,
     // count is the length of the data (in H316 words, not bytes!), and pdest is
     // the destination socket.  There are two things worthy of note here - first,
-    // notice that the H316 words are sent in network order, so the remote simh
+    // notice that the H316 words are sent in network order, so the remote
     // doesn't necessarily need to have the same endian-ness as this machine.
     // Second, notice that transmitting sockets are NOT set to non blocking so
     // this routine might wait, but we assume the wait will never be too long.
@@ -461,16 +463,15 @@ int udp_receive (int link, uint16_t * pdata, uint16_t maxbuf)
         // packets.  In that case we MUST update rxsequence to match this one;
         // otherwise the two ends could never resynchronize after a lost packet.
         //
-        //  And there's one final complication to worry about - if the simh on the
-        // other end is restarted for some reason, then his sequence numbers will
-        // reset to zero.  In that case we'll never recover synchronization without
-        // special efforts.  The hack is to check for a packet sequence number of
-        // zero and, if we find it, force synchronization.  This improves the
-        // situation, but I freely admit that it's possible to think of a number of
-        // cases where this also fails.  The only absolute solution is to implement
-        // a more complicated system with non-IMP control messages exchanged between
-        // the modem emulation on both ends.  That'd be nice, but I'll leave it as
-        // an exercise for later.
+        //  And there's one final complication to worry about - if the other end is
+        // restarted for some reason, then his sequence numbers will reset to zero.
+        // In that case we'll never recover synchronization without special efforts.
+        // The hack is to check for a packet sequence number of zero and, if we find
+        // it, force synchronization.  This improves the situation, but I freely
+        // admit that it's possible to think of a number of cases where this also
+        // fails.  The only absolute solution is to implement a more complicated system
+        // with non-IMP control messages exchanged between the modem emulation on both
+        // ends.  That'd be nice, but I'll leave it as an exercise for later.
 
         pktseq = ntohl (pkt . sequence);
         if ((pktseq == 0) && (udp_links [link] . rxsequence != 0))

@@ -1,6 +1,8 @@
 /* scp_help.h: hierarchical help definitions
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: 9896d74a-f62a-11ec-9179-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 
@@ -47,7 +49,7 @@
  *     * %D    - Inserts the name of the device     (e.g. "DTA").
  *     * %U    - Inserts the name of the unit       (e.g. "DTA0").
  *     * %S    - Inserts the current simulator name (e.g. "PDP-10")
- *     * %#s   - Inserts the string suppled in the "#"th optional argument to the help
+ *     * %#s   - Inserts the string supplied in the "#"th optional argument to the help
  *               routine.  # starts with 1.  Any embedded newlines will cause following
  *               text to be indented.
  *     * %#H   - Appends the #th optional argument to the help text.  Use to add common

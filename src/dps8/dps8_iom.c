@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 89f10936-f62e-11ec-b310-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -27,9 +29,9 @@
 // Only the Paged mode is supported.
 //
 // Backup list service not implemented
-// Wraparound channal not implemented
-// Snapshot channal not implemented
-// Scratchpad Access channal not implemented
+// Wraparound channel not implemented
+// Snapshot channel not implemented
+// Scratchpad Access channel not implemented
 
 // Direct data service
 
@@ -38,9 +40,9 @@
 
 // Definitions:
 //  unit number -- ambiguous: May indicate either the Multics
-//                 designation for IOMA, IOMB, etc. or the simh
+//                 designation for IOMA, IOMB, etc. or the scp
 //                 UNIT table offset.
-//    unit_idx --  always refers to the simh unit table offset.
+//    unit_idx --  always refers to the scp unit table offset.
 //
 //
 
@@ -597,7 +599,7 @@ enum config_sw_model_t
   };
 
 // Boot device: CARD/TAPE;
-enum config_sw_bootlood_device_e { CONFIG_SW_BLCT_CARD, CONFIG_SW_BLCT_TAPE };
+enum config_sw_bootload_device_e { CONFIG_SW_BLCT_CARD, CONFIG_SW_BLCT_TAPE };
 
 typedef struct
   {
@@ -625,7 +627,7 @@ typedef struct
     enum config_sw_OS_t config_sw_OS; // = CONFIG_SW_MULTICS;
 
     // Bootload device: Toggle switch CARD/TAPE
-    enum config_sw_bootlood_device_e configSwBootloadCardTape; // = CONFIG_SW_BLCT_TAPE;
+    enum config_sw_bootload_device_e configSwBootloadCardTape; // = CONFIG_SW_BLCT_TAPE;
 
     // Bootload tape IOM channel: 6 toggles
     word6 configSwBootloadMagtapeChan; // = 0;
@@ -677,7 +679,7 @@ typedef enum iomSysFaults_t
     iomNoFlt = 000,
     iomIllChanFlt = 001,    // PCW to chan with chan number >= 40
                             // or channel without scratchpad installed
-    iomIllSrvReqFlt = 002,  // A channel requested a serice request code
+    iomIllSrvReqFlt = 002,  // A channel requested a service request code
                             // of zero, a channel number of zero, or
                             // a channel number >= 40
     // =003,                // Parity error scratchpad
@@ -983,7 +985,7 @@ static t_stat iom_show_config (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     for (i = 0; i < N_IOM_PORTS; i ++)
       sim_printf (" %3o", p -> configSwPortHalfsize[i]);
     sim_printf ("\n");
-    sim_printf ("Port Storesize:           ");
+    sim_printf ("Port Storesize:          ");
     for (i = 0; i < N_IOM_PORTS; i ++)
       sim_printf (" %3o", p -> configSwPortStoresize[i]);
     sim_printf ("\n");
@@ -1130,7 +1132,7 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
 
         if (strcmp (name, "boot") == 0)
           {
-            p -> configSwBootloadCardTape = (enum config_sw_bootlood_device_e) v;
+            p -> configSwBootloadCardTape = (enum config_sw_bootload_device_e) v;
             continue;
           }
 
@@ -1144,7 +1146,7 @@ static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, 
           {
             // The IOM number is in the low 2 bits
             // The address is in the high 7 bits which are mapped
-            // to bits 12 to 18 of a 24 bit addrss
+            // to bits 12 to 18 of a 24 bit address
             //
 //  0  1  2  3  4  5  6  7  8
 //  x  x  x  x  x  x  x  y  y
@@ -1301,10 +1303,9 @@ static DEBTAB iom_dt[] =
 // iom_unit_reset_idx ()
 //
 //  Reset -- Reset to initial state -- clear all device flags and cancel any
-//  any outstanding timing operations. Used by SIMH's RESET, RUN, and BOOT
-//  commands
+//  any outstanding timing operations. Used by RESET, RUN, and BOOT commands
 //
-//  Note that all reset ()s run after once-only init ().
+//  Note that all reset()s run after once-only init().
 //
 //
 
@@ -1390,7 +1391,7 @@ static void init_memory_iom (uint iom_unit_idx)
     //    XXXX00 - Base Addr -- 01400
     //    XXYYYY0 Program Interrupt Base
 
-    enum config_sw_bootlood_device_e bootdev = iom_unit_data[iom_unit_idx].configSwBootloadCardTape;
+    enum config_sw_bootload_device_e bootdev = iom_unit_data[iom_unit_idx].configSwBootloadCardTape;
 
     word6 bootchan;
     if (bootdev == CONFIG_SW_BLCT_CARD)
@@ -1407,8 +1408,8 @@ static void init_memory_iom (uint iom_unit_idx)
     M[010 + 2 * iom_num + 0] = (imu << 34) | dis0;
 
     // Simulator specific hack; the simulator flags memory words as
-    // being "unitialized"; because the fault pair is fetched as a
-    // pair, the odd word's uninitialixed state may generate a
+    // being "uninitialized"; because the fault pair is fetched as a
+    // pair, the odd word's uninitialized state may generate a
     // run-time warning, even though it is not executed.
     //
     // By zeroing it here, we clear the flag and avoid the message
@@ -1510,13 +1511,13 @@ static void init_memory_iom (uint iom_unit_idx)
 static t_stat boot_svc (UNIT * unitp)
   {
     uint iom_unit_idx = (uint) (unitp - boot_channel_unit);
-    // the docs say press sysinit, then boot; simh doesn't have an
-    // explicit "sysinit", so we ill treat  "reset iom" as sysinit.
-    // The docs don't say what the behavior is is you dont press sysinit
-    // first so we wont worry about it.
+    // the docs say press sysinit, then boot; we don't have an
+    // explicit "sysinit", so we treat "reset iom" as sysinit.
+    // The docs don't say what the behavior is if you don't press
+    // sysinit first so we won't worry about it.
 
     //sim_debug (DBG_DEBUG, & iom_dev, "%s: starting on IOM %c\n",
-      //__func__, iomChar (iom_unit_idx));
+    //__func__, iomChar (iom_unit_idx));
 
     // This is needed to reset the interrupt mask registers; Multics tampers
     // with runtime values, and mucks up rebooting on multi-CPU systems.
@@ -1539,8 +1540,7 @@ static t_stat boot_svc (UNIT * unitp)
     startFNPListener ();
 
     // simulate $CON
-// XXX XXX XXX
-// Making the assumption that low memory is connected to port 0, ..., high to 3
+    // XXX Making the assumption that low memory is connected to port 0, ..., high to 3
     if (! cables->iom_to_scu[iom_unit_idx][0].in_use)
       {
         sim_warn ("boot iom can't find a SCU\n");
@@ -1551,7 +1551,7 @@ static t_stat boot_svc (UNIT * unitp)
 
     //sim_debug (DBG_DEBUG, &iom_dev, "%s finished\n", __func__);
 
-    // returning OK from the simh BOOT command causes simh to start the CPU
+    // returning OK from the BOOT command causes the CPU start
     return SCPE_OK;
   }
 
@@ -1621,7 +1621,7 @@ static uint mbxLoc (uint iom_unit_idx, uint chan)
  * value to the low 4 bits of the first status word.  See comments
  * at the top of mt.c. [CAC] Not true. The IIOC writes those bits to
  * tell the bootloader code whether the boot came from an IOM or IIOC.
- * The connect channel does not write status bits. The disg tape crash
+ * The connect channel does not write status bits. The diag tape crash
  * was due so some other issue.
  *
  */
@@ -1682,7 +1682,7 @@ static uint mbxLoc (uint iom_unit_idx, uint chan)
 //   char_pos is used by tape, console
 
 // pg B26: "The DCW residues stored in the status in page mode will
-// represent the next absoulute address (bits 6-23) of data prior to
+// represent the next absolute address (bits 6-23) of data prior to
 // the application of the Page Table Word"
 
 static int status_service (uint iom_unit_idx, uint chan, bool marker)
@@ -1917,7 +1917,7 @@ static void fetch_LPWPTW (uint iom_unit_idx, uint chan)
                 __func__, chan, addr, p -> PTW_LPW);
   }
 
-// 'write' means periperal write; i.e. the peripheral is writing to core after
+// 'write' means peripheral write; i.e. the peripheral is writing to core after
 // reading media.
 
 void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36 * data,
@@ -1959,7 +1959,7 @@ void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36
 
 // 'tally' is the transfer size request by Multics.
 // For write, '*cnt' is the number of words in 'data'.
-// For read, '*cnt' will be set to the number of words transfered.
+// For read, '*cnt' will be set to the number of words transferred.
 // Caller responsibility to allocate 'data' large enough to accommodate
 // 'tally' words.
 void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data, uint * cnt, bool write) {
@@ -2812,7 +2812,7 @@ A:;
         if (p -> LPW_18_RES)
           {
             // SET USER FAULT FLAG
-            uff = true; // XXX Why? uff isn't not examinded later.
+            uff = true; // XXX Why? uff isn't not examined later.
             // send = false; implicit...
           }
         else
@@ -2853,7 +2853,7 @@ A:;
 
         p -> LPW_DCW_PTR = p -> TDCW_DATA_ADDRESS;
         // OR TDCW 33, 34, 35 INTO LPW 20, 18, 23
-        // XXX is 33 bogus? it's semantics change based on PCW 64...
+        // XXX is 33 bogus? its semantics change based on PCW 64...
         // should be okay; pg B21 says that this is correct; implies that the
         // semantics are handled in the LPW code. Check...
         p -> LPW_20_AE |= p -> TDCW_33_EC; // TDCW_33_PDCW
@@ -2863,7 +2863,7 @@ A:;
 // Pg B21: (TDCW_31_SEG)
 // "SEG = This bit furnishes the 19th address bit (MSD) of a TDCW address
 //  used for locating the DCW list in a 512 word page table. It will have
-//  meaning only in the TDCW whre:
+//  meaning only in the TDCW where:
 //   (a) the DCW list is already paged and the TDCW calls for the
 //       DCW [to be] segmented
 //  or
@@ -2889,7 +2889,7 @@ A:;
 //       and the TDCW calls for both.    -- DCW SEG & LPW PAGED
 //                                                       4
 
-//put that wierd SEG logic in here
+//put that weird SEG logic in here
 
         if (p -> TDCW_31_SEG)
           sim_warn ("TDCW_31_SEG\n");
@@ -2918,7 +2918,7 @@ A:;
     // CP VIOLATION?
 
     // 43A239854 3.2.3.3 "The byte size, defined by the channel, determines
-    // what CP vaues are valid..."
+    // what CP values are valid..."
 
     // If we get here, the DCW is not a IDCW and not a TDCW, therefore
     // it must be a DDCW. If the list service knew the sub-word size
@@ -3023,7 +3023,7 @@ static int doPayloadChannel (uint iomUnitIdx, uint chan) {
 //
 // loop until:
 //
-//  listService sets ptro, indicating that no more DCWs are availible. or
+//  listService sets ptro, indicating that no more DCWs are available. or
 //     control is 0, indicating last IDCW
 
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
@@ -3192,7 +3192,7 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
     }
 
     if (rc2 == IOM_CMD_PENDING) // handler still processing command, don't set
-      goto pending;                // terminate intrrupt.
+      goto pending;                // terminate interrupt.
 
     // If IDCW and terminate and nondata
     if (IS_IDCW (p) && p->IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE && p->IDCW_CHAN_CMD == CHAN_CMD_NONDATA) {
@@ -3248,7 +3248,7 @@ static int doConnectChan (uint iom_unit_idx) {
   // from the core, under the control of the LPW for the connect channel.
   //
   // If the IOM Central does not indicate a PTRO during the list service,
-  // the connect channel obtains anther list service.
+  // the connect channel obtains another list service.
   //
   // The connect channel does not interrupt or store status.
   //

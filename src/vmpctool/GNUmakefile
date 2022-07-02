@@ -1,5 +1,7 @@
-# DPS/8M simulator: src/vmpctool/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+# DPS8M simulator: src/vmpctool/GNUmakefile
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: a704c048-f631-11ec-88ba-80ee73e9b8e7
 
 ###############################################################################
 #
@@ -53,7 +55,7 @@ endif # SKIP_COMPILATION
 ###############################################################################
 
 vmpctool$(EXE): vmpctool.c ../dpsprintf/dpsprintf.o
-	@$(PRINTF) '%s\n' "CC: vmpctool.c"
+	@$(PRINTF) '%s\n' "CC: vmpctool"
 	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) "../dpsprintf/dpsprintf.o"           \
       -o vmpctool$(EXE) vmpctool.c $(MATHLIB) $(DUMALIBS)
 
@@ -68,7 +70,32 @@ clean distclean:
 	-@$(SETV); $(RMF) "vmpctool$(EXE)" > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "vmpctool.exe"   > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "vmpctool.o"     > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) ./*.gcda      > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o" > /dev/null 2>&1  ||  $(TRUE)
+
+###############################################################################
+
+ifneq (,$(wildcard ./Dependency))
+  include ./Dependency
+endif
+
+###############################################################################
+
+ifneq (,$(wildcard ../Makefile.dev))
+.PHONY: dep depend
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: dep depend
+endif
+dep depend: ../Makefile.dev
+	@( $(CD) "../.." && $(MAKE) -j 1 -s "depend" )
+
+.PHONY: cleandep depclean cleandepend dependclean
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: cleandep depclean cleandepend dependclean
+endif
+cleandep depclean cleandepend dependclean:
+	@( $(CD) "../.." && $(MAKE) -j 1 -s "depclean" )
+endif
 
 ###############################################################################
 

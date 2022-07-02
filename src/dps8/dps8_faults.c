@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 4182f303-f62e-11ec-9475-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -290,11 +292,11 @@ For now, at least, we must remember a few things:
 1) We only have 1 cpu so we have few & limited async faults - shutdown, TRO,
 etc.
 2) We have no overlapping instruction execution
-3) Becuase of 2) we have no pending instructions
+3) Because of 2) we have no pending instructions
 4) We have no system controller to wait for
 
 Group 1 & 2 faults can be processed immediately and then proceed to next
-instruction as long as no transfer prevents us from returing from the XED pair.
+instruction as long as no transfer prevents us from returning from the XED pair.
 
 Group 3 faults will probably also execute immediately since a G3 fault causes
 "the processor to "close out" current functions without taking any irrevocable
@@ -318,7 +320,7 @@ access violation, out of segment bounds, fault during certain interruptible EIS
 instructions), the instruction is considered "complete" upon detection of the
 fault."
 
-For furter justification of immediate execution since "Faults in groups 3
+For further justification of immediate execution since "Faults in groups 3
 through 6 must wait for the system controller to acknowledge the last access
 request before entering the FAULT CYCLE."
 
@@ -501,7 +503,7 @@ else if (faultNumber == FAULT_ACV)
     cpu . cu . IACHN = 0;
     cpu . cu . CNCHN = (faultNumber == FAULT_CON) ? subFault.fault_con_subtype & MASK3 : 0;
 
-    // Set control unit 'fault occured during instruction fetch' flag
+    // Set control unit 'fault occurred during instruction fetch' flag
     cpu . cu . FIF = cpu . cycle == FETCH_cycle ? 1 : 0;
     cpu . cu . FI_ADDR = (word5) faultNumber;
 
@@ -534,9 +536,9 @@ sim_debug (DBG_FAULT, & cpu_dev, "cycle %u ndes %u fn %u v %u\n", cpu.cycle, cpu
 
     if (faultNumber == FAULT_ACV)
       {
-        // This is annoyingly inefficent since the subFault value
+        // This is annoyingly inefficient since the subFault value
         // is bitwise the same as the upper half of CU word1;
-        // if the upperhalf were not broken out, then this would be
+        // if the upper half were not broken out, then this would be
         // cpu . cu . word1_upper_half = subFault.
 
         if (subFault.fault_acv_subtype & ACV0)
@@ -756,7 +758,7 @@ void do_FFV_fault (uint fault_number, const char * fault_msg)
     cpu.cu.IACHN = 0;
     cpu.cu.CNCHN = 0;
 
-    // Set control unit 'fault occured during instruction fetch' flag
+    // Set control unit 'fault occurred during instruction fetch' flag
     cpu.cu.FIF = 0;
     cpu.cu.FI_ADDR = (word5) fault_number & MASK5;
 
@@ -847,7 +849,7 @@ void dlyDoFault (_fault faultNumber, _fault_subtype subFault,
 //
 
 // Note: The DIS code assumes that the only G7 fault is TRO. Adding any
-// other G7 faults will potentailly require changing the DIS code.
+// other G7 faults will potentially require changing the DIS code.
 
 bool bG7Pending (void)
   {

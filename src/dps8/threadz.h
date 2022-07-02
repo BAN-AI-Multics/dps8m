@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 07828852-f630-11ec-a049-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -96,7 +98,7 @@ void lock_libuv (void);
 void unlock_libuv (void);
 bool test_libuv_lock (void);
 
-// simh resource lock
+// resource lock
 #ifndef QUIET_UNUSED
 void lock_simh (void);
 void unlock_simh (void);

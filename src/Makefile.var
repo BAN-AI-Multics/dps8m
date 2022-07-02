@@ -1,5 +1,7 @@
-# DPS/8M simulator: src/Makefile.var
-# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+# DPS8M simulator: src/Makefile.var
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: 2d62a287-f62b-11ec-badd-80ee73e9b8e7
 
 ###############################################################################
 #
@@ -12,6 +14,7 @@
 # LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
+
 # src/Makefile.var: Variable processing logic and build configuration
 
 ###############################################################################

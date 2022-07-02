@@ -1,6 +1,8 @@
 /* sim_console.c: simulator console I/O library
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: a2e214e2-f62a-11ec-89cf-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 
@@ -82,7 +84,7 @@
 
 #include "../dpsprintf/dpsprintf.h"
 
-/* Forward Declaraations of Platform specific routines */
+/* Forward Declarations of Platform specific routines */
 
 static t_stat sim_os_poll_kbd (void);
 static t_stat sim_os_putchar (int32 out);
@@ -477,11 +479,12 @@ static CTAB allowed_remote_cmds[] = {
     { "EVALUATE", &eval_cmd,          0 },
     { "ATTACH",   &attach_cmd,        0 },
     { "DETACH",   &detach_cmd,        0 },
+#if 0 /* Needs updating for dps8 */
     { "ASSIGN",   &assign_cmd,        0 },
     { "DEASSIGN", &deassign_cmd,      0 },
+#endif /* Needs updating for dps8 */
     { "CONTINUE", &x_continue_cmd,    0 },
     { "STEP",     &x_step_cmd,        0 },
-    { "SAVE",     &save_cmd,          0 },
     { "ECHO",     &echo_cmd,          0 },
     { "SET",      &set_cmd,           0 },
     { "SHOW",     &show_cmd,          0 },
@@ -495,11 +498,12 @@ static CTAB allowed_master_remote_cmds[] = {
     { "EVALUATE", &eval_cmd,          0 },
     { "ATTACH",   &attach_cmd,        0 },
     { "DETACH",   &detach_cmd,        0 },
+#if 0 /* Needs updating for dps8 */
     { "ASSIGN",   &assign_cmd,        0 },
     { "DEASSIGN", &deassign_cmd,      0 },
+#endif /* Needs updating for dps8 */
     { "CONTINUE", &x_continue_cmd,    0 },
     { "STEP",     &x_step_cmd,        0 },
-    { "SAVE",     &save_cmd,          0 },
     { "ECHO",     &echo_cmd,          0 },
     { "SET",      &set_cmd,           0 },
     { "SHOW",     &show_cmd,          0 },
@@ -551,7 +555,7 @@ return SCPE_OK;
 static t_stat _sim_rem_message (const char *cmd, t_stat stat)
 {
 CTAB *cmdp = NULL;
-t_stat stat_nomessage = stat & SCPE_NOMESSAGE;  /* extract possible message supression flag */
+t_stat stat_nomessage = stat & SCPE_NOMESSAGE;  /* extract possible message suppression flag */
 
 cmdp = find_cmd (cmd);
 stat = SCPE_BARE_STATUS(stat);              /* remove possible flag */
@@ -1004,7 +1008,7 @@ if (sim_rem_cmd_active_line != -1) {
         return SCPE_REMOTE;                             /* force sim_instr() to exit to process command */
     }
 else
-    sim_activate_after(uptr, 100000);                   /* check again in 100 milliaeconds */
+    sim_activate_after(uptr, 100000);                   /* check again in 100 milliseconds */
 if (sim_rem_master_was_enabled && !sim_rem_master_mode) {/* Transitioning out of master mode? */
     lp = &sim_rem_con_tmxr.ldsc[0];
     tmxr_linemsgf (lp, "Non Master Mode Session...");   /* report transition */
@@ -1204,7 +1208,7 @@ return tmxr_set_line_speed (&sim_con_ldsc, cptr);
 t_stat sim_show_cons_speed (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
 {
 if (sim_con_ldsc.rxbps) {
-    fprintf (st, "Speed = %d", sim_con_ldsc.rxbps);
+    fprintf (st, "Speed = %ld", (long)sim_con_ldsc.rxbps);
     if (sim_con_ldsc.rxbpsfactor != TMXR_RX_BPS_UNIT_SCALE)
         fprintf (st, "*%.0f", sim_con_ldsc.rxbpsfactor/TMXR_RX_BPS_UNIT_SCALE);
     fprintf (st, " bps\n");

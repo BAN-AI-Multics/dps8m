@@ -1,5 +1,7 @@
-# DPS/8M simulator: src/ci-kit/ci.makefile
-# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+# DPS8M simulator: src/ci-kit/ci.makefile
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: 5ccd4788-f62b-11ec-954c-80ee73e9b8e7
 
 ###############################################################################
 #
@@ -44,6 +46,7 @@ DOS2UNIX ?= dos2unix
 ### Instructions #############################################################
 
 .PHONY: all help
+.NOTPARALLEL: all help
 all help:
 	@printf '%s\n' "  "
 	@printf '%s\n' "  Targets"
@@ -65,6 +68,7 @@ all help:
 ### Stage 1 - Build simulator ################################################
 
 .PHONY: s1
+.NOTPARALLEL: s1
 s1:
 	@printf '\n%s\n' "### Start Stage 1: Build simulator ####################"
 ifndef NOREBUILD
@@ -84,6 +88,7 @@ endif
 ### Stage 2 - Build working directory ########################################
 
 .PHONY: s2
+.NOTPARALLEL: s2
 s2: ../dps8/dps8
 	@printf '\n%s\n' "### Start Stage 2: Build CI-Kit working directory #####"
 	@rm -f    ./.yoyodyne.s4
@@ -104,6 +109,7 @@ s2: ../dps8/dps8
 ### Stage 2p - Warm caches for s3 ############################################
 
 .PHONY: s2p
+.NOTPARALLEL: s2p
 s2p:
 	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                        \
         "### Priming caches ####################################"            \
@@ -117,6 +123,7 @@ s2p:
 ### Stage 3 - Run MR12.7_install.ini #########################################
 
 .PHONY: s3
+.NOTPARALLEL: s3
 s3: ../dps8/dps8
 	@printf '%s\n' "" || true
 	@printf '%s\n' "### Start Stage 3: Test MR12.7_install.ini ############" \
@@ -133,6 +140,7 @@ s3: ../dps8/dps8
 ### Stage 3p - Warm caches for s4 ############################################
 
 .PHONY: s3p
+.NOTPARALLEL: s3p
 s3p:
 	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                        \
         "### Priming caches ####################################"            \
@@ -146,6 +154,7 @@ s3p:
 ### Stage 4 - Setup Yoyodyne #################################################
 
 .PHONY: s4
+.NOTPARALLEL: s4
 s4: ./run/disks/yoyodyne.dsk ../dps8/dps8
 	@printf '\n%s\n' "### Start Stage 4: Setup Yoyodyne #####################"
 	cd ./run && env CPUPROFILE=yoyodyne.prof.out \
@@ -155,6 +164,7 @@ s4: ./run/disks/yoyodyne.dsk ../dps8/dps8
 ### Stage 4p - Warm caches for s5 ############################################
 
 .PHONY: s4p
+.NOTPARALLEL: s4p
 s4p:
 	-@test -x ../vmpctool/vmpctool && printf '\n%s\n'                        \
         "### Priming caches ####################################"            \
@@ -168,6 +178,7 @@ s4p:
 ### Stage 5 - Run ci_t1.expect ###############################################
 
 .PHONY: s5
+.NOTPARALLEL: s5
 s5: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
 	@printf '\n%s\n' "### Start Stage 5: Run ci_t1.expect ###################"
 	env CPUPROFILE=run.prof.out \
@@ -177,6 +188,7 @@ s5: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
 ### Stage 6 - Run isolts.expect ##############################################
 
 .PHONY: s6
+.NOTPARALLEL: s6
 s6: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
 	@printf '\n%s\n' "### Start Stage 6: Run isolts.expect ##################"
 	env CPUPROFILE=isolts.prof.out \
@@ -186,6 +198,7 @@ s6: ./run/disks/yoyodyne.dsk ../dps8/dps8 ./.yoyodyne.s4
 ### Stage 7 - Run performance test ###########################################
 
 .PHONY: s7
+.NOTPARALLEL: s7
 s7: ../dps8/dps8
 	@printf '\n%s\n' "### Start Stage 7: Run performance test ###############"
 	env CPUPROFILE=perf.prof.out \
@@ -195,6 +208,7 @@ s7: ../dps8/dps8
 ### Post-processing 1 ########################################################
 
 .PHONY: diff tidy
+.NOTPARALLEL: diff tidy
 diff: ci.log ci_t2.log ci_t3.log isolts.log perf.log
 	@printf '%s\n'  "####################################"   >  ci_full.log
 	@printf '%s\n'  "#########  CI Log: Part 1  #########"  >>  ci_full.log
@@ -230,6 +244,7 @@ diff: ci.log ci_t2.log ci_t3.log isolts.log perf.log
 ### Post-processing 2 ########################################################
 
 .PHONY: diff_files tidy
+.NOTPARALLEL: diff_files tidy
 diff_files: ci.log.ref ci.log
 	@$(TR) -d '\0' < ci.log.ref | $(TR) -cd '[:print:][:space:]\n' |         \
      $(SED) 's/\r//g' | $(AWK) '{ print "\n"$$0"\r" }'             |         \
@@ -239,4 +254,9 @@ diff_files: ci.log.ref ci.log
      $(GREP) -v '^$$' | $(DOS2UNIX) -f | ./tidy.sh     > new.log
 	@printf '%s\n' "Done; you may now compare old.log and new.log"
 
-### EOF ######################################################################
+### Done #####################################################################
+
+# Local Variables:
+# mode: make
+# tab-width: 4
+# End:

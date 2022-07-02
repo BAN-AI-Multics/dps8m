@@ -1,3 +1,11 @@
+<!-- SPDX-License-Identifier: FSFAP -->
+<!-- scspell-id: ebdd502d-f777-11ec-9466-80ee73e9b8e7 -->
+<!-- Copyright (c) 2021-2022 The DPS8M Development Team
+     Copying and distribution of this file, with or without modification,
+     are permitted in any medium without royalty provided the copyright
+     notice and this notice are preserved.  This file is offered "AS-IS",
+     without any warranty. -->
+
 # DPS8/M + Multics Continuous Integration Scripts
 
 -------------------------------------------------

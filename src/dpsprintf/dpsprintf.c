@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: MIT
+ * scspell-id: 71c4cc4f-f630-11ec-97d6-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *

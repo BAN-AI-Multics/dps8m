@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 24f735f0-f62f-11ec-b8af-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -36,8 +38,6 @@ static const telnet_telopt_t my_telopts[] = {
     { TELNET_TELOPT_ECHO,      TELNET_WILL, TELNET_DONT },
   //{ TELNET_TELOPT_TTYPE,     TELNET_WONT, TELNET_DONT },
   //{ TELNET_TELOPT_COMPRESS2, TELNET_WONT, TELNET_DO   },
-  //{ TELNET_TELOPT_ZMP,       TELNET_WONT, TELNET_DO   },
-  //{ TELNET_TELOPT_MSSP,      TELNET_WONT, TELNET_DO   },
     { TELNET_TELOPT_BINARY,    TELNET_WILL, TELNET_DO   },
   //{ TELNET_TELOPT_NAWS,      TELNET_WONT, TELNET_DONT },
     { -1, 0, 0 }

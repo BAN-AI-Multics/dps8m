@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: BSD-1-Clause
+ * scspell-id: 570dd12a-f630-11ec-9b96-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *

@@ -1,6 +1,8 @@
 /* sim_tmxr.h: terminal multiplexer definitions
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: ecf608fb-f62a-11ec-bbba-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 
@@ -85,7 +87,7 @@ typedef struct SERPORT *SERHANDLE;
 # define TMUF_NOASYNCH     (1u << TMUF_V_NOASYNCH)      /* This flag can be defined */
                                                         /* statically in a unit's flag field */
                                                         /* This will disable the unit from */
-                                                        /* supporting asynchronmous mux behaviors */
+                                                        /* supporting asynchronous mux behaviors */
 /* Receive line speed limits */
 
 # define TMLN_SPD_50_BPS     200000 /* usec per character */

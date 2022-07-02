@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: cda5f9ab-f62f-11ec-a92b-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -36,7 +38,7 @@
 /*
  * Segment loader memory layout
  *
- * 0000   Intterrupt and fault vectors
+ * 0000   Interrupt and fault vectors
  *
  * 2000   Bootstrap code entry
  *
@@ -63,7 +65,7 @@
 /*
  *  sl init       initialize segment loader
  *  sl bload <segment number> <filename>
- *                copy the binary file into the next avialable storage
+ *                copy the binary file into the next available storage
  *                and create an SDW for the file
  *  sl bload boot <filename>
  *                copy the binary file into memory starting at address 0
@@ -279,7 +281,7 @@ static t_stat bload (char * p2, char * p3)
         // Add SDW
         addSDW (startAddr, segnum, length);
 
-        // Round lentgth up to page (1024) boundary
+        // Round length up to page (1024) boundary
         lengthp = (length + 01777) & 077776000;
 
         // Mark the pages as used

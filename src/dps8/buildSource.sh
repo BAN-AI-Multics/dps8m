@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2248,SC2250
 # vim: filetype=sh:tabstop=4:tw=78:expandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: f9a9d15c-f62c-11ec-a8f3-80ee73e9b8e7
 
 ##############################################################################
 #
@@ -18,23 +20,32 @@
 T=./source/
 S3=./MR12.3+5/
 S5=./MR12.5/
+
+##############################################################################
+
 #TAPES=/home/cac/Projects/multics/bitsavers.trailing-edge.com/bits/Honeywell/multics/tape/
 TAPES=/home/cac/Projects/Multics/tapelib/
+
+##############################################################################
 
 ../tapeUtils/restore_tape $S3 $TAPES/88534.tap $TAPES/88631.tap
 ../tapeUtils/restore_tape $S3 $TAPES/98570.tap $TAPES/99019.tap
 ../tapeUtils/restore_tape $S3 $TAPES/88632.tap $TAPES/88633.tap \
-  $TAPES/88634.tap $TAPES/88635.tap $TAPES/88636.tap $TAPES/99020.tap
+                              $TAPES/88634.tap $TAPES/88635.tap \
+                              $TAPES/88636.tap $TAPES/99020.tap
 ../tapeUtils/restore_tape $S3 $TAPES/93085.tap
-
 ../tapeUtils/restore_tape $S5 $TAPES/20185.tap
 ../tapeUtils/restore_tape $S5 $TAPES/20186.tap
 ../tapeUtils/restore_tape $S5 $TAPES/20188.tap
 ../tapeUtils/restore_tape $S5 $TAPES/20187.tap
 
+##############################################################################
+
 # move things from MR12.5 into MR12.3
 
 echo "Start merge"
+
+##############################################################################
 
 mdmv() {
   bn="$(basename "${1}")" &&
@@ -47,17 +58,25 @@ mdmv() {
   } || exit 1
 }
 
+##############################################################################
+
 #mv $S5/documentation/MR12.5/* $S3/documentation/
 cp -r $S5/documentation/MR12.5/* $S3/documentation/
 rm -r $S5/documentation/MR12.5/
 rmdir $S5/documentation
 
+##############################################################################
+
 cp -r $S5/library_dir_dir/crossref $S3/library_dir_dir
 rm -r $S5/library_dir_dir/crossref
+
+##############################################################################
 
 cp -r $S5/library_dir_dir/system_library_1/info/ $S3/library_dir_dir/system_library_1/
 rm -r $S5/library_dir_dir/system_library_1/info
 rmdir $S5/library_dir_dir/system_library_1
+
+##############################################################################
 
 mkdir $S3/library_dir_dir/MR12.5/
 mdmv $S5/library_dir_dir/MR12.5/12.5.C_COMPILER/bound_cc_commands $S3/system_library_3rd_party/C_COMPILER/executable/
@@ -68,6 +87,8 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.C_COMPILER/bound_cc_commands.s.archive $S3/
 mdmv $S5/library_dir_dir/MR12.5/12.5.C_COMPILER/cc_info.incl.pl1 $S3/system_library_3rd_party/C_COMPILER/include/
 mdmv $S5/library_dir_dir/MR12.5/12.5.C_COMPILER/install_ccompiler.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.C_COMPILER/
+
+##############################################################################
 
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXECUTABLE/bound_absentee_com_ $S3/system_library_standard/
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXECUTABLE/bound_active_function_ $S3/system_library_standard/
@@ -180,17 +201,23 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.EXECUTABLE/xforum_prompt.info $S3/documenta
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXECUTABLE/install_executable.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.EXECUTABLE
 
+##############################################################################
+
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXECUTIVE_MAIL/bound_executive_mail_.s.archive $S3/library_dir_dir/system_library_unbundled/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXECUTIVE_MAIL/bound_executive_mail_.archive $S3/library_dir_dir/system_library_unbundled/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXECUTIVE_MAIL/bound_executive_mail_ $S3/system_library_unbundled/
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXECUTIVE_MAIL/install_executive_mail.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.EXECUTIVE_MAIL
 
+##############################################################################
+
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXTENDED_MAIL/bound_extended_mail_.s.archive $S3/library_dir_dir/system_library_unbundled/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXTENDED_MAIL/bound_extended_mail_.archive $S3/library_dir_dir/system_library_unbundled/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXTENDED_MAIL/bound_extended_mail_ $S3/system_library_unbundled/
 mdmv $S5/library_dir_dir/MR12.5/12.5.EXTENDED_MAIL/install_extended_mail.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.EXTENDED_MAIL
+
+##############################################################################
 
 mdmv $S5/library_dir_dir/MR12.5/12.5.FORTRAN/bound_fort_.1.s.archive $S3/library_dir_dir/system_library_unbundled/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.FORTRAN/bound_fort_.2.s.archive $S3/library_dir_dir/system_library_unbundled/source/
@@ -201,6 +228,8 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.FORTRAN/bound_fort_.3.archive $S3/library_d
 mdmv $S5/library_dir_dir/MR12.5/12.5.FORTRAN/bound_fort_ $S3/system_library_unbundled/
 mdmv $S5/library_dir_dir/MR12.5/12.5.FORTRAN/install_fortran.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.FORTRAN
+
+##############################################################################
 
 mdmv $S5/library_dir_dir/MR12.5/12.5.FORUM/bound_forum_.s.archive $S3/library_dir_dir/system_library_unbundled/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.FORUM/bound_v2_forum_mgr_.s.archive $S3/library_dir_dir/system_library_unbundled/source/
@@ -217,10 +246,14 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.FORUM/forum_trans_list.incl.pl1 $S3/library
 mdmv $S5/library_dir_dir/MR12.5/12.5.FORUM/install_forum.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.FORUM
 
+##############################################################################
+
 mdmv $S5/library_dir_dir/MR12.5/12.5.cleanup_library.ec $S3/library_dir_dir/MR12.5/
 mdmv $S5/library_dir_dir/MR12.5/12.5.install_part1.ec $S3/library_dir_dir/MR12.5/
 mdmv $S5/library_dir_dir/MR12.5/12.5.install_part2.ec $S3/library_dir_dir/MR12.5/
 mdmv $S5/library_dir_dir/MR12.5/update.ec $S3/library_dir_dir/MR12.5/
+
+##############################################################################
 
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_dir_control.s.archive $S3/library_dir_dir/system_library_1/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_file_system.s.archive $S3/library_dir_dir/system_library_1/source/
@@ -235,6 +268,8 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_system_security.s.archive $S
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_tty_active.s.archive $S3/library_dir_dir/system_library_1/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_volume_reloader_.s.archive $S3/library_dir_dir/system_library_1/source/
 
+##############################################################################
+
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_dir_control.archive $S3/library_dir_dir/system_library_1/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_file_system.archive $S3/library_dir_dir/system_library_1/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_hc_initlzr_auxl_.archive $S3/library_dir_dir/system_library_1/object/
@@ -247,6 +282,8 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_system_control_.archive $S3/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_system_security.archive $S3/library_dir_dir/system_library_1/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_tty_active.archive $S3/library_dir_dir/system_library_1/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_volume_reloader_.archive $S3/library_dir_dir/system_library_1/object/
+
+##############################################################################
 
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_volume_reloader_ $S3/library_dir_dir/system_library_1/execution/
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/bound_system_control_ $S3/library_dir_dir/system_library_1/execution/
@@ -272,6 +309,8 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/fw.dsc191.m191.v1 $S3/library_dir_
 mdmv $S5/library_dir_dir/MR12.5/12.5.HARDCORE/install_hard.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.HARDCORE
 
+##############################################################################
+
 #mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/*.s.archive $S3/library_dir_dir/system_library_tools/source
 #mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/*.archive $S3/library_dir_dir/system_library_tools/object
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/ask_ $S3/library_dir_dir/system_library_tools/object/
@@ -279,6 +318,8 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/ask_.pl1 $S3/library_dir_dir/system_lib
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/nothing $S3/library_dir_dir/system_library_tools/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/nothing.alm $S3/library_dir_dir/system_library_tools/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/dfm_data.incl.pl1 $S3/library_dir_dir/include/
+
+##############################################################################
 
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_volume_retv_.s.archive $S3/library_dir_dir/system_library_tools/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_user_ctl_.s.archive $S3/library_dir_dir/system_library_tools/source/
@@ -331,6 +372,8 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_command_env_.s.archive $S3/librar
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_as_misc_.s.archive $S3/library_dir_dir/system_library_tools/source/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_active_function_.s.archive $S3/library_dir_dir/system_library_standard/source/
 
+##############################################################################
+
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_volume_retv_.archive $S3/library_dir_dir/system_library_tools/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_user_ctl_.archive $S3/library_dir_dir/system_library_tools/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_pnt_interface_.archive $S3/library_dir_dir/system_library_tools/object/
@@ -382,8 +425,12 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_command_env_.archive $S3/library_
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_as_misc_.archive $S3/library_dir_dir/system_library_tools/object/
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/bound_active_function_.archive $S3/library_dir_dir/system_library_standard/object/
 
+##############################################################################
+
 mdmv $S5/library_dir_dir/MR12.5/12.5.LDD/install_ldd.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.LDD
+
+##############################################################################
 
 mdmv $S5/library_dir_dir/MR12.5/12.5.LINUS/bound_linus_.1.s.archive $S3/library_dir_dir/system_library_unbundled/source
 mdmv $S5/library_dir_dir/MR12.5/12.5.LINUS/bound_linus_.2.s.archive $S3/library_dir_dir/system_library_unbundled/source
@@ -393,11 +440,15 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.LINUS/bound_linus_ $S3/system_library_unbun
 mdmv $S5/library_dir_dir/MR12.5/12.5.LINUS/install_linus.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.LINUS
 
+##############################################################################
+
 mdmv $S5/library_dir_dir/MR12.5/12.5.LISTER/bound_lister_.s.archive $S3/library_dir_dir/system_library_unbundled/source
 mdmv $S5/library_dir_dir/MR12.5/12.5.LISTER/bound_lister_.archive $S3/library_dir_dir/system_library_unbundled/object
 mdmv $S5/library_dir_dir/MR12.5/12.5.LISTER/bound_lister_ $S3/system_library_unbundled
 mdmv $S5/library_dir_dir/MR12.5/12.5.LISTER/install_lister.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.LISTER
+
+##############################################################################
 
 mdmv $S5/library_dir_dir/MR12.5/12.5.PASCAL/bound_pascal_.1.s.archive $S3/library_dir_dir/system_library_unbundled/source
 mdmv $S5/library_dir_dir/MR12.5/12.5.PASCAL/bound_pascal_.2.s.archive $S3/library_dir_dir/system_library_unbundled/source
@@ -409,10 +460,14 @@ mdmv $S5/library_dir_dir/MR12.5/12.5.PASCAL/bound_pascal_ $S3/system_library_unb
 mdmv $S5/library_dir_dir/MR12.5/12.5.PASCAL/bound_pascal_runtime_ $S3/system_library_unbundled
 mdmv $S5/library_dir_dir/MR12.5/12.5.PASCAL/install_pascal.ec $S3/library_dir_dir/MR12.5/
 rmdir $S5/library_dir_dir/MR12.5/12.5.PASCAL
-
 rmdir $S5/library_dir_dir/MR12.5
+
+##############################################################################
+
 rmdir $S5/library_dir_dir
 rmdir $S5
+
+##############################################################################
 
 echo "Bulk extract"
 
@@ -463,7 +518,9 @@ echo "Bulk extract"
                              -name "*.listin" -o \
                              -name "*.bind_fnp" -o \
                              -name "tut_" \
- \)  -print0) | xargs -0 -n 1 -I{} ../tapeUtils/p72_to_acsii $S3/'{}' $T/'{}'
+ \)  -print0) | xargs -0 -n 1 -I{} ../tapeUtils/p72_to_ascii $S3/'{}' $T/'{}'
+
+##############################################################################
 
 echo "Specials extract"
 
@@ -495,18 +552,23 @@ echo "Specials extract"
            library_dir_dir/system_library_tools/object/psp_info_ \
            library_dir_dir/system_library_tools/object/psp_info_.1 \
            ; do
-echo $N
-             ../../tapeUtils/p72_to_acsii $N ../$T/$N
+             echo $N
+             ../../tapeUtils/p72_to_ascii $N ../$T/$N
            done)
 
+##############################################################################
+
 echo "Archives extract"
+
 # *.s.archive
-(cd $S3 && find . -type f -name "*.s.archive" -print0) | xargs -0 -n 1 -I{} ../tapeUtils/p72archive_to_acsii $S3/'{}' $T/'{}'
-(cd $S3 && find . -type f -name "*.incl.archive" -print0) | xargs -0 -n 1 -I{} ../tapeUtils/p72archive_to_acsii $S3/'{}' $T/'{}'
-(cd $S3 && find . -type f -name "maps.archive" -print0) | xargs -0 -n 1 -I{} ../tapeUtils/p72archive_to_acsii $S3/'{}' $T/'{}'
+(cd $S3 && find . -type f -name "*.s.archive" -print0) | xargs -0 -n 1 -I{} ../tapeUtils/p72archive_to_ascii $S3/'{}' $T/'{}'
+(cd $S3 && find . -type f -name "*.incl.archive" -print0) | xargs -0 -n 1 -I{} ../tapeUtils/p72archive_to_ascii $S3/'{}' $T/'{}'
+(cd $S3 && find . -type f -name "maps.archive" -print0) | xargs -0 -n 1 -I{} ../tapeUtils/p72archive_to_ascii $S3/'{}' $T/'{}'
 
 # *.archive::*.bind
 (cd $S3 && find . -type f -name "*.archive" -print0) | xargs -0 -n 1 -I{} ../tapeUtils/p72archive_bind_to_ascii $S3/'{}' $T/'{}'
+
+##############################################################################
 
 echo "Notice"
 
@@ -543,6 +605,10 @@ to distribution of the programs without specific prior written permission.
     All Rights Reserved
 NOTICE
 
+##############################################################################
+
 echo "chmod ..."
 
 chmod -w -R $T
+
+##############################################################################

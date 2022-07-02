@@ -1,6 +1,8 @@
 /* sim_fio.c: simulator file I/O library
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: bc8c09f8-f62a-11ec-9723-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 

@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 72d91a53-f62d-11ec-a98f-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -388,7 +390,7 @@ typedef struct ptw0_s ptw0_s;
 #endif
 
 //
-// Cache Mode Regsiter
+// Cache Mode Register
 //
 
 struct cache_mode_register_s
@@ -491,7 +493,7 @@ typedef struct EISaddr_s
 
     // for type of data being address by this object
 
-    // eisDataType _type;   // type of data - alphunumeric/numeric
+    // eisDataType _type;   // type of data - alphanumeric/numeric
 
 #ifndef EIS_PTR3
     int     TA;    // type of Alphanumeric chars in src
@@ -516,7 +518,7 @@ typedef struct EISaddr_s
     // others will not check for a hit, and will use the old value.
     // AL39 warns that overlapping operands can cause unexpected behavior
     // due to caching issues, so the this behavior is closer to the actual
-    // h/w then to the theoretical need for cache consistancy.
+    // h/w then to the theoretical need for cache consistency.
 
     // We don't need to cache mat or TPR because they will be constant
     // across an instruction.
@@ -670,7 +672,7 @@ typedef struct EISstruct_s
     bool    mvne;           // for MSES micro-op. True when mvne, false when mve
   } EISstruct;
 
-// Instruction decode structure. Used to represent instrucion information
+// Instruction decode structure. Used to represent instruction information
 
 typedef struct DCDstruct_s
   {
@@ -680,7 +682,7 @@ typedef struct DCDstruct_s
     uint32 opcode10;        // opcode | (opcodeX ? 01000 : 0)
     word18 address;         // bits 0-17 of instruction
     word1  b29;             // bit-29 - address via pointer register. Usually.
-    bool   i;               // interrupt inhinit bit.
+    bool   i;               // interrupt inhibit bit.
     word6  tag;             // instruction tag
 
     bool stiTally;          // for sti instruction
@@ -907,7 +909,7 @@ typedef struct
     word1 ROFF_IPR;//  4    R-OFF     AVF Read bit is off
                    //       IPR       IPF Illegal EIS digit
     word1 OWB_NEA; //  5    OWB       AVF Out of write bracket
-                   //       NEA       SF  Nonexistant address
+                   //       NEA       SF  Nonexistent address
     word1 WOFF_OOB;//  6    W-OFF     AVF Write bit is off
                    //       OOB       SF  Out of bounds (BAR mode)
     word1 NO_GA;   //  7    NO GA     AVF Not a gate
@@ -1006,7 +1008,7 @@ typedef struct
     word1 itp;     // 26    ITP Execute ITP indirect cycle
     word1 rfi;     // 27    RFI Restart this instruction
     word1 its;     // 28    ITS Execute ITS indirect cycle
-    word1 FIF;     // 29    FIF Fault occured during instruction fetch
+    word1 FIF;     // 29    FIF Fault occurred during instruction fetch
     word6 CT_HOLD; // 30-35 CT HOLD contents of the "remember modifier" register
 
     /* word 6 */
@@ -1649,7 +1651,7 @@ typedef struct
     // Caching some cabling data for interrupt handling.
     // When a CPU calls get_highest_intr(), it needs to know
     // what port on the SCU it is attached to. Because of port
-    // exapanders several CPUs can be attached to an SCU port,
+    // expanders several CPUs can be attached to an SCU port,
     // mapping from the CPU to the SCU is easier to query
     uint scu_port[N_SCU_UNITS_MAX];
 
@@ -1669,11 +1671,11 @@ typedef struct
 
     word24 pad[16];
 
-    struct par_s PAR [8]; // pointer/address resisters
+    struct par_s PAR [8]; // pointer/address registers
 
     ptw_s PTWAM [N_WAM_ENTRIES];
 
-    // Map memory address through memory configuraiton switches
+    // Map memory address through memory configuration switches
     // Minimum allocation chunk is 64K (SCBANK_SZ)
     // addr / SCBANK_SZ => bank_number
     // scbank_map[bank_number] is address of the bank in M. -1 is unmapped.
@@ -1698,7 +1700,7 @@ typedef struct
     bool wasXfer;      // The previous instruction was a transfer
 
     bool wasInhibited; // One or both of the previous instruction
-                       // pair was interrupr inhibited.
+                       // pair was interrupt inhibited.
 
     bool isExec;  // The instruction being executed is the target of
                   // an XEC or XED instruction

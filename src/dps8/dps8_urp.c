@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 0aeda9d7-f62f-11ec-a611-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -38,14 +40,6 @@
 //-- // XXX We use this where we assume there is only one unit
 //-- #define ASSUME0 0
 //--
-
- /*
-  * Copyright (c) 2007-2013 Michael Mondy
-  *
-  * This software is made available under the terms of the ICU
-  * License, version 1.8.1 or later.  For more details, see the
-  * LICENSE.md file at the top-level directory of this distribution.
-  */
 
 #define N_PRU_UNITS 1 // default
 
@@ -121,7 +115,7 @@ static t_stat urpShowDeviceName (UNUSED FILE * st, UNIT * uptr, UNUSED int val, 
     int n = (int) URPUNIT_NUM (uptr);
     if (n < 0 || n >= N_URP_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf ("Unit record processor device name is %s\n", urpState[n].deviceName);
+    sim_printf ("name     : %s", urpState[n].deviceName);
     return SCPE_OK;
   }
 
@@ -144,8 +138,10 @@ static t_stat urpSetDeviceName (UNUSED UNIT * uptr, UNUSED int32 value, UNUSED c
 
 static MTAB urp_mod [] =
   {
+#ifndef SPEED
     { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
+#endif
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask               */
       0,                                          /* match              */
@@ -298,7 +294,7 @@ static iom_cmd_rc_t urpCmd (uint iomUnitIdx, uint chan) {
       break;
 
      default:
-      if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP IOT unkown %d\r\n", statep->ioMode); }
+      if_sim_debug (DBG_TRACE, & urp_dev) { sim_printf ("// URP IOT unknown %d\r\n", statep->ioMode); }
       sim_warn ("%s: Unrecognized ioMode %d\n", __func__, statep->ioMode);
       return IOM_CMD_ERROR;
   }

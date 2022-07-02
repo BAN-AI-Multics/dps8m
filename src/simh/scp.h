@@ -1,6 +1,8 @@
 /* scp.h: simulator control program headers
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: 9166cfe3-f62a-11ec-beb9-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 
@@ -76,10 +78,10 @@ t_stat run_cmd (int32 flag, CONST char *ptr);
 void run_cmd_message (const char *unechod_cmdline, t_stat r);
 t_stat attach_cmd (int32 flag, CONST char *ptr);
 t_stat detach_cmd (int32 flag, CONST char *ptr);
+# if 0 /* Needs updating for dps8 */
 t_stat assign_cmd (int32 flag, CONST char *ptr);
 t_stat deassign_cmd (int32 flag, CONST char *ptr);
-t_stat save_cmd (int32 flag, CONST char *ptr);
-t_stat restore_cmd (int32 flag, CONST char *ptr);
+# endif /* Needs updating for dps8 */
 t_stat exit_cmd (int32 flag, CONST char *ptr);
 t_stat set_cmd (int32 flag, CONST char *ptr);
 t_stat show_cmd (int32 flag, CONST char *ptr);
@@ -226,6 +228,7 @@ extern int32 sim_nolock;
 extern int32 sim_randompst;
 extern int32 sim_quiet;
 extern int32 sim_randstate;
+extern int32 sim_nostate;
 extern int32 sim_step;
 extern t_stat sim_last_cmd_stat;                        /* Command Status */
 extern FILE *sim_log;                                   /* log file */
@@ -291,7 +294,7 @@ extern t_bool (*sim_vm_is_subroutine_call) (t_addr **ret_addrs);
         device_panel_count  the number of sub panels for connected devices
 
     Note 1: - The path specified must be either a fully specified path or
-              it could be merey the simulator name if the simulator binary
+              it could be merely the simulator name if the simulator binary
               is located in the current PATH.
             - The simulator binary must be built from the same version
               simh source code that the frontpanel API was acquired fron
@@ -349,7 +352,7 @@ sim_panel_destroy (PANEL *panel);
    the simulator uses as internal state to implement the running
    simulator.
 
-   The registers that a particular frontpanel application mught need
+   The registers that a particular frontpanel application might need
    access to are described by the application by calling:
 
    sim_panel_add_register
@@ -652,7 +655,7 @@ void sim_panel_clear_error (void);
 
 /**
 
-    The panek<->simulator wire protocol can be traced if protocol problems arise.
+    The panel<->simulator wire protocol can be traced if protocol problems arise.
 
     sim_panel_set_debug_file    - Specifies the log file to record debug traffic
     sim_panel_set_debug_mode    - Specifies the debug detail to be recorded

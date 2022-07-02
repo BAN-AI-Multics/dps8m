@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 928c0e86-f62e-11ec-ab5c-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -446,7 +448,7 @@ again:
              un[j+n] = (uint16_t) (un[j+n] + k);
           }
       } // End j.
-    // If the caller wants the remainder, unnormalize
+    // If the caller wants the remainder, denormalize
     // it and pass it back.
     if (r != NULL)
       {

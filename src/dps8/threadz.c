@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: fe96c073-f62f-11ec-bf37-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -46,7 +48,8 @@
 // Resource locks
 //
 
-// simh library serializer
+// scp library serializer
+
 #ifdef IO_ASYNC_PAYLOAD_CHAN_THREAD
 pthread_cond_t iomCond;
 pthread_mutex_t iom_start_lock;

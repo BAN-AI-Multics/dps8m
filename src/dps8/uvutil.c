@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 6315eaa3-f630-11ec-96fc-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -156,8 +158,8 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
 //sim_printf ("write %u<%s>\n", datalen, data);
     int ret = uv_write (req, (uv_stream_t *) client, & buf, 1,
                         accessWriteCallback);
-// There seems to be a race condition when Mulitcs signals a disconnect_line;
-// We close the socket, but Mulitcs is still writing its goodbye text trailing
+// There seems to be a race condition when Multics signals a disconnect_line;
+// We close the socket, but Multics is still writing its goodbye text trailing
 // NULs.
 // If the socket has been closed, write will return BADF; just ignore it.
     if (ret < 0 && ret != -EBADF)
@@ -474,11 +476,8 @@ static const telnet_telopt_t my_telopts[] =
   {
     { TELNET_TELOPT_SGA,       TELNET_WILL, TELNET_DO   },
     { TELNET_TELOPT_ECHO,      TELNET_WILL, TELNET_DONT },
-
     //{ TELNET_TELOPT_TTYPE,     TELNET_WONT, TELNET_DONT },
     //{ TELNET_TELOPT_COMPRESS2, TELNET_WONT, TELNET_DO   },
-    //{ TELNET_TELOPT_ZMP,       TELNET_WONT, TELNET_DO   },
-    //{ TELNET_TELOPT_MSSP,      TELNET_WONT, TELNET_DO   },
     { TELNET_TELOPT_BINARY,    TELNET_WILL, TELNET_DO   },
     //{ TELNET_TELOPT_NAWS,      TELNET_WONT, TELNET_DONT },
     { -1, 0, 0 }

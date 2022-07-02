@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 6effbe78-f62e-11ec-87ca-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -176,7 +178,7 @@ enum { IOM_CONNECT_CHAN = 2 };
 # define SIGN12          0x800U                   // sign mask 12-bit number
 # define MASK12          07777U
 
-# define SIGN6           0040U                    // sign bit of 6-bit signed numfer (e.g. Scaling Factor)
+# define SIGN6           0040U                    // sign bit of 6-bit signed number (e.g. Scaling Factor)
 
 # define MASK35          0377777777777llu
 
@@ -410,7 +412,7 @@ static inline word72 SIGNEXT36_72 (word36 w)
 # define INST_M_I        1U
 # define INST_V_OP       9                        // opcode
 # define INST_M_OP       0777U
-# define INST_V_OPX      8                        // opcode etension
+# define INST_V_OPX      8                        // opcode extension
 # define INST_M_OPX      1U
 
 # define INST_V_ADDR     18                       // Address
@@ -639,7 +641,7 @@ enum {
 //
 
 # define FLOAT36MASK     01777777777LLU               ///< user to extract mantissa from single precision C(CEAQ)
-# define FLOAT72MASK     01777777777777777777777LLU   ///< use to extract mastissa from double precision C(EAQ)
+# define FLOAT72MASK     01777777777777777777777LLU   ///< use to extract mantissa from double precision C(EAQ)
 # define FLOAT72SIGN     (1LLU << 63)                 ///< mantissa sign mask for full precision C(EAQ)
 // XXX beware the 72's are not what they seem!
 
@@ -663,7 +665,7 @@ enum _fault
     FAULT_LUF  =  7U, // lockup
     FAULT_CON  =  8U, // connect
     FAULT_PAR  =  9U, // parity
-    FAULT_IPR  = 10U, // illegal proceedure
+    FAULT_IPR  = 10U, // illegal procedure
     FAULT_ONC  = 11U, // operation not complete
     FAULT_SUF  = 12U, // startup
     FAULT_OFL  = 13U, // overflow

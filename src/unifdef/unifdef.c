@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: BSD-2-Clause
+ * scspell-id: 864bd423-f631-11ec-9c81-80ee73e9b8e7
  *
  * -------------------------------------------------------------------------
  *
@@ -38,9 +40,9 @@
  *
  * This code was derived from software contributed to Berkeley by Dave Yost.
  * It was rewritten to support ANSI C by Tony Finch. The original version
- * of unifdef carried the 4-clause BSD copyright licence. None of its code
+ * of unifdef carried the 4-clause BSD copyright license. None of its code
  * remains in this version (though some of the names remain) so it now
- * carries a more liberal licence.
+ * carries a more liberal license.
  */
 
 #include <stdlib.h>

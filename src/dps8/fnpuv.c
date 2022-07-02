@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 2fdee814-f62f-11ec-8f3d-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -36,7 +38,7 @@
 //       HSLA line as specified by 'fnpno' and 'lineno'. A dialup line is
 //       associated by the user entering the FNP name and line number in the
 //       multiplexor dial in dialog. For slave and dialout lines, 'assoc'
-//       is always true as the assoication is predetermined by the FNP
+//       is always true as the association is predetermined by the FNP
 //       configuration.
 //
 //    char buffer [1024];
@@ -79,7 +81,7 @@
 //
 //   int port;
 //
-//     The port number that a slave line listens on, as set by Devices.txt.
+//     The port number that a slave line listens on.
 //
 
 // Dialup logic.
@@ -101,8 +103,8 @@
 // is a dialup or slave listener. For the case of dialup, a 'uvClientData'
 // object is created and its 'assoc' field is set to false to flag the
 // the connection as not yet being associated with an HSLA line; the
-// libtelnet data structure is intialized and the initial Telnet negotiations
-// are started. 'client->data' is set the the 'uvClientData' object,
+// libtelnet data structure is initialized and the initial Telnet negotiations
+// are started. 'client->data' is set to the 'uvClientData' object,
 // reading is enabled on 'client', and the HSLA line selection dialog
 // prompt is sent down the dialup connection.
 //
@@ -110,7 +112,7 @@
 // a buffer, fills it with the data calls the 'fuv_read_cb()' callback handler.
 //
 // The handler looks at the 'data' field of the connection to access the
-// 'uvClientData' structure; if the sturcture indicates that Telnet
+// 'uvClientData' structure; if the structure indicates that Telnet
 // processing is to be done, it passes the data to libtelent handler.
 // Otherwise, it checks the 'assoc' field; if true the data is passed to the
 // FNP incoming data handler; if false, to the multiplexor line selection
@@ -129,7 +131,7 @@
 // 'fnpuv_start_write_actual'. If telnet is not in play, the data is sent
 // directly on to 'fnpuv_start_write_actual()' There, a buffer is allocated
 // and the data copied and a 'uv_write_t' request object is created and
-// initalized data the buffer address and length, and a write request
+// initialized data the buffer address and length, and a write request
 // is send to libuv.
 //
 // When the write is complete, libuv calls the write callback 'fuv_write_cb()',
@@ -247,7 +249,7 @@ static int tun_alloc (char * dev)
 #endif
 
 //
-// alloc_buffer: libuv callback handler to allocate buffers for incomingd data.
+// alloc_buffer: libuv callback handler to allocate buffers for incoming data.
 //
 
 static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size,
@@ -293,14 +295,14 @@ void fnpuv_3270_readcb (uv_tcp_t * client,
     process3270Input (client, buf, nread);
   }
 
-// read callback for connections that are no tassociated with an HSLA line;
+// read callback for connections that are no associated with an HSLA line;
 // forward the data to the line selection dialog handler
 
 void fnpuv_unassociated_readcb (uv_tcp_t * client,
                            ssize_t nread,
                            unsigned char * buf)
   {
-    //printf ("unaassoc. <%*s>\n", (int) nread, buf->base);
+    //printf ("unassoc. <%*s>\n", (int) nread, buf->base);
     processUserInput (client, buf, nread);
   }
 
@@ -326,7 +328,7 @@ void close_connection (uv_stream_t* stream)
     if (p)
       {
         // If assoc is false, then the disconnect happened before the actual
-        // associaton took place
+        // association took place
         if (p->assoc)
           {
             struct t_line * linep = & fnpData.fnpUnitData[p->fnpno].MState.line[p->lineno];
@@ -562,8 +564,8 @@ sim_printf ("\r\n");
 //sim_printf ("fnpuv_start_write_actual req %p buf.base %p\n", req, buf.base);
     memcpy (buf.base, data, (unsigned long) datalen);
     int ret = uv_write (req, (uv_stream_t *) stn_client, & buf, 1, fuv_write_3270_cb);
-// There seems to be a race condition when Mulitcs signals a disconnect_line;
-// We close the socket, but Mulitcs is still writing its goodbye text trailing
+// There seems to be a race condition when Multics signals a disconnect_line;
+// We close the socket, but Multics is still writing its goodbye text trailing
 // NULs.
 // If the socket has been closed, write will return BADF; just ignore it.
     if (ret < 0 && ret != -EBADF)
@@ -585,8 +587,8 @@ void fnpuv_start_write_actual (uv_tcp_t * client, unsigned char * data, ssize_t 
 //sim_printf ("fnpuv_start_write_actual req %p buf.base %p\n", req, buf.base);
     memcpy (buf.base, data, (unsigned long) datalen);
     int ret = uv_write (req, (uv_stream_t *) client, & buf, 1, fuv_write_cb);
-// There seems to be a race condition when Mulitcs signals a disconnect_line;
-// We close the socket, but Mulitcs is still writing its goodbye text trailing
+// There seems to be a race condition when Multics signals a disconnect_line;
+// We close the socket, but Multics is still writing its goodbye text trailing
 // NULs.
 // If the socket has been closed, write will return BADF; just ignore it.
     if (ret < 0 && ret != -EBADF)
@@ -890,7 +892,7 @@ int fnpuvInit (int telnet_port, char * telnet_address)
     return 0;
   }
 
-// Make a single pass through the libev event queue.
+// Make a single pass through the libuv event queue.
 
 void fnpuvProcessEvent (void)
   {
@@ -1370,7 +1372,7 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
         return;
       }
 
-    // Search for an availible station
+    // Search for an available station
     uint stn_no;
     for (stn_no = 0; stn_no < IBM3270_STATIONS_MAX; stn_no ++)
       {
@@ -1379,7 +1381,7 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
       }
     if (stn_no >= IBM3270_STATIONS_MAX)
       {
-        // No stations availible
+        // No stations available
         uv_close ((uv_handle_t *) client, fuv_close_cb);
         return;
       }

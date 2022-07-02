@@ -1,3 +1,7 @@
+% SPDX-License-Identifier: LicenseRef-DPS8M-Doc AND LicenseRef-CFGAL
+% SPDX-FileCopyrightText: 2019-2021 Dean S. Anderson
+% SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+
 \subsection[Cabling System Components]{CABLING SYSTEM COMPONENTS}
 
 This section describes how the simulated components of a system are cabled together.
@@ -6,12 +10,12 @@ This section describes how the simulated components of a system are cabled toget
 
 This section describes the CABLE command and its options.
 
-This command is responsible for managing the interconnection of 
+This command is responsible for managing the interconnection of
 major subsystems: CPU, SCU, IOM; contollers: MTP, IPC, MSP, URP;
 
 The unit numbers for CPUs, IOMs, and SCUs (eg IOM3 is IOM unit 3) are
 SIMH unit numbers; these units can be individually configured to
-desired Multics unit numbers. However, it is somewhat easier to 
+desired Multics unit numbers. However, it is somewhat easier to
 adopt an one-to-one practice; IOM0 == IOMA, etc.
 
 The following shows all the various options for the CABLE command:
@@ -20,114 +24,114 @@ The following shows all the various options for the CABLE command:
 
 \begin{adjustwidth}{5ex}{1ex}
   Remove all cables from the configuration.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE SHOW}
 
 \begin{adjustwidth}{5ex}{1ex}
   Show the current cabling configuration.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE DUMP}
 
 \begin{adjustwidth}{5ex}{1ex}
   Show the current cabling configuration in great detail.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE SCUi j IOMk l}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect SCU i port j to IOM k port l.
   "cable SCU0 0 IOM0 2"
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE SCUi j CPUk l}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect SCU i port j to CPU k port l.
   "cable SCU0 7 CPU0 7"
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE IOMi j MTPk} \\
 \textbf{CABLE IOMi j MTPk l}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect IOM i channel j to MTP k port l (l defaults to 0).
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE IOMi j MSPk} \\
 \textbf{CABLE IOMi j MSPk l}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect IOM i channel j to MSP k port l (l defaults to 0).
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE IOMi j IPCk} \\
 \textbf{CABLE IOMi j IPCk l} \\
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect IOM i channel j to IPC k port l (l defaults to 0).
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE IOMi j OPCk}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect IOM i channel j to OPC k.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE IOMi j FNPk}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect IOM i channel j to FNP k.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE IOMi j ABSIk}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect IOM i channel j to ABSI k.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE IOMi j SKCk}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect IOM i channel j to SKC k.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE MTPi j TAPEk}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect MTP i device code j to tape unit k.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE IPCi j DISKk}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect IPC i device code j to disk unit k.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE MSPi j DISKk}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect MSP i device code j to disk unit k.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE URPi j RDRk}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect URP i device code j to card reader unit k.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE URPi j PUNk}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect URP i device code j to card punch unit k.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{CABLE URPi j PRTk}
 
 \begin{adjustwidth}{5ex}{1ex}
   Connect URP i device code j to printer unit k.
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \subsubsection[Default Cable Configuration]{DEFAULT CABLE CONFIGURATION}
 

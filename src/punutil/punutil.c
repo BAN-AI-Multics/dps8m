@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 62d95d16-f631-11ec-9329-80ee73e9b8e7
  *
  * -------------------------------------------------------------------------
  *
@@ -272,7 +274,7 @@ static word12 end_of_deck_card[] =
 };
 
 /*
- *   MCC Punch Codes -> ASCI Conversion Table
+ *   MCC Punch Codes -> ASCII Conversion Table
  * The table entry is the MCC Punch Code and the
  * index of the entry is the ASCII character code.
  */
@@ -478,7 +480,7 @@ static void convert_mcc_to_ascii(word12 *buffer, char *ascii_string)
 /*
  *                  Glyph Pattern Lookup
  * This is the parsing of the "lace" cards and extracting the ASCII characters
- * have been punched into the cards (as glphys) so the operator knows how to
+ * have been punched into the cards (as glyphs) so the operator knows how to
  * deliver the deck.
  */
 

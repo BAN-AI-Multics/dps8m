@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: BSD-2-Clause
+ * scspell-id: f32bf565-f629-11ec-8ceb-80ee73e9b8e7
  *
  * -------------------------------------------------------------------------
  *
@@ -54,7 +56,8 @@ void __intel_cpu_features_init_x();
       defined( __INTEL_MKL__ )
 void __intel_mkl_features_init();
 void __intel_mkl_features_init_x();
-#  endif /* if defined( INTEL_MKL_VERSION ) ||
+#  endif
+         /* if defined( INTEL_MKL_VERSION ) ||
                defined( __INTEL_MKL__ ) */
 
 void agner_compiler_patch();
@@ -62,15 +65,18 @@ void agner_compiler_patch();
       defined( __INTEL_CLANG_COMPILER ) || \
       defined( __INTEL_LLVM_COMPILER )
 void agner_cpu_patch();
-#  endif /* if defined( __INTEL_COMPILER )       ||
+#  endif
+         /* if defined( __INTEL_COMPILER )       ||
                defined( __INTEL_CLANG_COMPILER ) ||
                defined( __INTEL_LLVM_COMPILER ) */
 #  if defined( INTEL_MKL_VERSION ) || defined( __INTEL_MKL__ )
 void agner_mkl_patch();
-#  endif /* if defined( INTEL_MKL_VERSION ) ||
+#  endif
+         /* if defined( INTEL_MKL_VERSION ) ||
                defined( __INTEL_MKL__ ) */
 
-# endif /* if defined( __INTEL_COMPILER )       ||
+# endif
+        /* if defined( __INTEL_COMPILER )       ||
               defined( __INTEL_CLANG_COMPILER ) ||
               defined( __INTEL_LLVM_COMPILER )  ||
               defined( INTEL_MKL_VERSION )      ||

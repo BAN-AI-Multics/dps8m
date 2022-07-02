@@ -1,3 +1,12 @@
+" SPDX-License-Identifier: ICU AND Multics
+" SPDX-FileCopyrightText: 1972 The Massachusetts Institute of Technology
+" SPDX-FileCopyrightText: 1972 Honeywell Information Systems, Inc.
+" SPDX-FileCopyrightText: 2006 Bull HN Information Systems, Inc.
+" SPDX-FileCopyrightText: 2006 Bull SAS
+" SPDX-FileCopyrightText: 2019-2021 Juergen Weiss
+" SPDX-FileCopyrightText: 2021 Eric Swenson
+" SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+" scspell-id: 3c9549bc-f776-11ec-816a-80ee73e9b8e7
 "
 " Access an unmapped segment page; fault; map the page; return from fault,
 " restarting the faulted instruction.
@@ -137,7 +146,7 @@ descr_seg_page_table:
 "        pos len
 "  ADDR:   0  18  modulo 64 absolute main memory address of page
 "     U   26   1  page has been used
-"     M   29   1  page has been modfied
+"     M   29   1  page has been modified
 "     F   33   1  0: page not in memory; 1: page in memory
 "     FC  34   2  direct fault number
 
@@ -217,7 +226,7 @@ descr_seg_page_table:
 
 seg_0_descr_seg_page_table:
 
-" segment 0 (non-existant)
+" segment 0 (non-existent)
 	SDW	-1, nonresident, FC0, 0, R_n, E_n, W_n, P_n, paged
 
 

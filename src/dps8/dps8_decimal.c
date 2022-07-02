@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 9868415b-f62d-11ec-9c75-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -327,7 +329,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                     adjLen -= 3;    // a sign and 2 4-bit digits making up the exponent
                 break;              // until we have an example of what to do here, let's just ignore it and hope it goes away
             case CSLS:
-            case CSTS:              // take sign into assount. One less char to play with
+            case CSTS:              // take sign into account. One less char to play with
                 adjLen -= 1;
                 break;              // until we have an example of what to do here, let's just ignore it and hope it goes away (again)
             case CSNS:              // no sign to worry about. Use everything
@@ -369,7 +371,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                     adjLen -= 3;    // a sign and 2 4-bit digits making up the exponent
                 break;              // until we have an example of what to do here, let's just ignore it and hope it goes away
             case CSLS:
-            case CSTS:              // take sign into assount. One less char to play with
+            case CSTS:              // take sign into account. One less char to play with
                 adjLen -= 1;
                 break;              // until we have an example of what to do here, let's just ignore it and hope it goes away (again)
             case CSNS:              // no sign to worry about. Use everything
@@ -410,7 +412,7 @@ char *formatDecimal(decContext *set, decNumber *r, int tn, int n, int s, int sf,
                 adjLen -= 3;    // a sign and 2 4-bit digits making up the exponent
             break;
         case CSLS:
-        case CSTS:              // take sign into assount. One less char to play with
+        case CSTS:              // take sign into account. One less char to play with
             adjLen -= 1;
             break;
         case CSNS:

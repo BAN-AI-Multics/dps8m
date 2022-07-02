@@ -1,4 +1,6 @@
 // vim: filetype=c:tabstop=4:tw=72:expandtab
+// SPDX-License-Identifier: ICU
+// scspell-id: c39f59d7-f62c-11ec-ba31-80ee73e9b8e7
 /* ------------------------------------------------------------------ */
 /* Decimal Number arithmetic module                                   */
 /* ------------------------------------------------------------------ */
@@ -2195,7 +2197,7 @@ decNumber * decNumberPower(decNumber *res, const decNumber *lhs,
       // if a negative power the constant 1 is needed, and if not subset
       // invert the lhs now rather than inverting the result later
       if (decNumberIsNegative(rhs)) {   // was a **-n [hence digits>0]
-        decNumber *inv=invbuff;         // asssume use fixed buffer
+        decNumber *inv=invbuff;         // assume use fixed buffer
         decNumberCopy(&dnOne, dac);     // dnOne=1;  [needed now or later]
 #if DECSUBSET
         if (set->extended) {            // need to calculate 1/lhs
@@ -3826,7 +3828,7 @@ static void decToString(const decNumber *dn, char *string, Flag eng) {
 /*                                                                    */
 /* Addition, especially x=x+1, is speed-critical.                     */
 /* The static buffer is larger than might be expected to allow for    */
-/* calls from higher-level funtions (notable exp).                    */
+/* calls from higher-level functions (notable exp).                   */
 /* ------------------------------------------------------------------ */
 static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
                             const decNumber *rhs, decContext *set,
@@ -4204,7 +4206,7 @@ static decNumber * decAddOp(decNumber *res, const decNumber *lhs,
 /*          if =0 then (* quick exit without subtract *) do           */
 /*             this_unit=this_unit+1; output this_unit                */
 /*             leave outer_loop; end                                  */
-/*          Compare lengths of numbers (mantissae):                   */
+/*          Compare lengths of numbers (mantissa):                    */
 /*          If same then tops2=msu2pair -- {units 1&2 of var2}        */
 /*                  else tops2=msu2plus -- {0, unit 1 of var2}        */
 /*          tops1=first_unit_of_Var1*10**DECDPUN +second_unit_of_var1 */
@@ -4840,7 +4842,7 @@ static decNumber * decDivideOp(decNumber *res,
 /* than two calls to decUnitAddSub would be made.                     */
 /*                                                                    */
 /* The fastpath version lumps units together into 8-digit or 9-digit  */
-/* chunks, and also uses a lazy carry strategy to minimise expensive  */
+/* chunks, and also uses a lazy carry strategy to minimize expensive  */
 /* 64-bit divisions.  The chunks are then broken apart again into     */
 /* units for continuing processing.  Despite this overhead, the       */
 /* fastpath can speed up some 16-digit operations by 10x (and much    */
@@ -4937,7 +4939,7 @@ static decNumber * decMultiplyOp(decNumber *res, const decNumber *lhs,
 
   // For best speed, as in DMSRCN [the original Rexx numerics
   // module], use the shorter number as the multiplier (rhs) and
-  // the longer as the multiplicand (lhs) to minimise the number of
+  // the longer as the multiplicand (lhs) to minimize the number of
   // adds (partial products)
   if (lhs->digits<rhs->digits) {   // swap...
     const decNumber *hold=lhs;
@@ -8123,7 +8125,7 @@ static void *decMalloc(size_t n) {
   uInt  uiwork;                    // for macros
 
   alloc=malloc(size);              // -> allocated storage
-  if (alloc==NULL) return NULL;    // out of strorage
+  if (alloc==NULL) return NULL;    // out of storage
   b0=(uByte *)alloc;               // as bytes
   decAllocBytes+=n;                // account for storage
   UBFROMUI(alloc, n);              // save n

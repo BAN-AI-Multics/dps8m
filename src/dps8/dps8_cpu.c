@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 6e07fe19-f62d-11ec-86f2-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -193,7 +195,7 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 //    Hacks:
 //           dis_enable = n
 //           steadyclock = on|off
-//           halt_on_unimplmented = n
+//           halt_on_unimplemented = n
 //           disable_wam = n
 //           report_faults = n
 //               n = 0 don't
@@ -751,7 +753,7 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
       {
         for (uint i = 0; i < MEMSIZE; i ++)
           {
-            // Clear lock bits and data field; set unitialized
+            // Clear lock bits and data field; set uninitialized
 #ifdef LOCKLESS
             M[i] = (M[i] & ~(MASK36 | MEM_LOCKED)) | MEM_UNINITIALIZED;
 #else
@@ -984,7 +986,7 @@ static DEBTAB cpu_dt[] =
     { NULL,         0, NULL               }
   };
 
-// This is part of the simh interface
+// This is part of the scp interface
 const char *sim_stop_messages[] =
   {
     "Unknown error",           // SCPE_OK
@@ -992,15 +994,15 @@ const char *sim_stop_messages[] =
     "Breakpoint",              // STOP_BKPT
   };
 
-/* End of simh interface */
+/* End of scp interface */
 
 /* Processor configuration switches
  *
- * From AM81-04 Multics System Maintainance Procedures
+ * From AM81-04 Multics System Maintenance Procedures
  *
- * "A level 68 IOM system may contain a maximum of 7 CPUs, 4 IOMs, 8 SCUs and
- * 16MW of memory
- * [CAC]: but AN87 says multics only supports two IOMs
+ * "A Level 68 IOM system may contain a maximum of 7 CPUs, 4 IOMs, 8 SCUs,
+ * and 16MW of memory ...
+ * [CAC]: ... but AN87 says Multics only supports two IOMs
  *
  * ASSIGNMENT: 3 toggle switches determine the base address of the SCU
  * connected to the port. The base address (in KW) is the product of this
@@ -1042,8 +1044,8 @@ static t_stat cpu_boot (UNUSED int32 cpu_unit_idx, UNUSED DEVICE * dptr)
     return SCPE_ARG;
   }
 
-// The original h/w had one to four (dps8m) or eight (l68) SCUs; each SCU
-// held memory.
+// The original h/w had one to four (DPS8/M) or eight (Level 68) SCUs;
+// each SCU held memory.
 // Memory accesses were sent to the SCU that held the region of memory
 // being addressed.
 //
@@ -1080,7 +1082,7 @@ static t_stat cpu_boot (UNUSED int32 cpu_unit_idx, UNUSED DEVICE * dptr)
 
 void setup_scbank_map (void)
   {
-    // Initalize to unmapped
+    // Initialize to unmapped
     for (uint pg = 0; pg < N_SCBANKS; pg ++)
       {
         cpu.sc_addr_map [pg] = -1;
@@ -1097,8 +1099,8 @@ void setup_scbank_map (void)
           continue;
 
         // Ignore disconnected ports
-        // This will happen during SIMH early initialization before
-        // the cables are run.
+        // This will happen during early initialization,
+        // before any cables are run.
         if (! cables->cpu_to_scu[current_running_cpu_idx][port_num].in_use)
           {
             continue;
@@ -1125,7 +1127,7 @@ void setup_scbank_map (void)
 // isolts: a "lda 65536" (64k) failed to produce a store fault
 //
 // So it seems that the memory size is expected to be 64K, not 128K as per
-// the swithes; presumably step 3 causes this. Fake it by tweaking store table:
+// the switches; presumably step 3 causes this. Fake it by tweaking store table:
 //
         uint store_table [8] =
           { 32768, 65536, 4194304, 131072, 524288, 1048576, 2097152, 262144 };
@@ -1419,7 +1421,7 @@ static t_stat cpu_dep (t_value val, t_addr addr, UNUSED UNIT * uptr,
  */
 
 #ifdef M_SHARED
-// simh has to have a statically allocated IC to refer to.
+// scp has to have a statically allocated IC to refer to.
 static word18 dummy_IC;
 #endif
 
@@ -1435,7 +1437,7 @@ static REG cpu_reg[] =
   };
 
 /*
- * simh interface
+ * scp interface
  */
 
 REG *sim_PC = & cpu_reg[0];
@@ -1579,7 +1581,7 @@ static void panel_process_event (void)
       }
     // EXECUTE pressed; EXECUTE PB set, EXECUTE FAULT set
     if (cpu.DATA_panel_s_trig_sw == 0 &&
-        cpu.DATA_panel_execute_sw && // EXECUTE buttton
+        cpu.DATA_panel_execute_sw && // EXECUTE button
         cpu.DATA_panel_scope_sw && // 'EXECUTE PB/SCOPE REPEAT' set to PB
         cpu.DATA_panel_exec_sw == 0) // 'EXECUTE SWITCH/EXECUTE FAULT'
                                      //  set to FAULT
@@ -1759,7 +1761,7 @@ static uint fast_queue_subsample = 0;
 #endif
 
 //
-// Okay, lets treat this as a state machine
+// Okay, let's treat this as a state machine
 //
 //  INTERRUPT_cycle
 //     clear interrupt, load interrupt pair into instruction buffer
@@ -1797,11 +1799,11 @@ static uint fast_queue_subsample = 0;
 //
 //  XEC_cycle
 //     load instruction into instruction buffer
-//     set EXEC_cyvle
+//     set EXEC_cycle
 //
 //  XED_cycle
 //     load instruction pair into instruction buffer
-//     set EXEC_cyvle
+//     set EXEC_cycle
 //
 // other extant cycles:
 //  ABORT_cycle
@@ -1901,9 +1903,10 @@ t_stat threadz_sim_instr (void)
 #if !defined(THREADZ) && !defined(LOCKLESS)
     set_cpu_idx (0);
 # ifdef M_SHARED
-// simh needs to have the IC statically allocated, so a placeholder was
-// created. Copy the placeholder in so the IC can be set by simh.
+// scp needs to have the IC statically allocated, so a placeholder was
+// created.
 
+    // Copy the placeholder so the IC can be set
     cpus [0].PPR.IC = dummy_IC;
 # endif
 
@@ -2044,7 +2047,7 @@ setCPU:;
                   {
                     cpu.rTRlsb = 0;
                     cpu.shadowTR = (cpu.shadowTR - 1) & MASK27;
-                    if (cpu.shadowTR == 0) // passing thorugh 0...
+                    if (cpu.shadowTR == 0) // passing through 0...
                       {
                         if (cpu.switches.tro_enable)
                           setG7fault (current_running_cpu_idx, FAULT_TRO, fst_zero);
@@ -2087,7 +2090,7 @@ setCPU:;
           {
             case INTERRUPT_cycle:
               {
-                CPT (cpt1U, 0); // Interupt cycle
+                CPT (cpt1U, 0); // Interrupt cycle
                 // In the INTERRUPT CYCLE, the processor safe-stores
                 // the Control Unit Data (see Section 3) into
                 // program-invisible holding registers in preparation
@@ -2180,7 +2183,7 @@ setCPU:;
 
                 PNL (L68_ (cpu.INS_FETCH = false;))
 
-// "If the interrupt inhibit bit is not set in the currect instruction
+// "If the interrupt inhibit bit is not set in the current instruction
 // word at the point of the next sequential instruction pair virtual
 // address formation, the processor samples the [group 7 and interrupts]."
 
@@ -2347,7 +2350,7 @@ setCPU:;
                 do_LUF_fault ();
               }
 
-            // If the LUF occured in priv. mode and we left priv. mode,
+            // If the LUF occurred in priv. mode and we left priv. mode,
             // fault.
             if (! tmp_priv_mode && cpu.lufOccurred)
               {
@@ -2443,7 +2446,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 
               // The only time we are going to execute out of IRODD is
               // during RPD, at which time interrupts are automatically
-              // inhibited; so the following can igore RPD harmelessly
+              // inhibited; so the following can ignore RPD harmlessly
               if (GET_I (cpu.cu.IWB))
                 cpu.wasInhibited = true;
 
@@ -2564,7 +2567,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 //    sleep for 1/100 of a second
 //    update the polling state to trigger a poll
 //    update the timer register by 1/100 of a second
-//    force the simh queues to process
+//    force the scp queues to process
 //    continue processing
 //
 
@@ -2578,7 +2581,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   // in uSec;
 # if defined(THREADZ) || defined(LOCKLESS)
 
-// XXX If interupt inhibit set, then sleep forever instead of TRO
+// XXX If interrupt inhibit set, then sleep forever instead of TRO
                   // rTR is 512KHz; sleepCPU is in 1Mhz
                   //   rTR * 1,000,000 / 512,000
                   //   rTR * 1000 / 512
@@ -2781,7 +2784,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               // skip dis - we may need to take interrupts/g7faults
               // skip if (last instruction) wrote to current instruction range
               //  the hardware really does this and isolts tests it
-              //  multics differences manual DPS8 70/M
+              //  Multics Differences Manual DPS8 70/M
               //  should take segment number into account?
               if ((cpu.PPR.IC & 1) == 0 &&
                   ci->info->ndes == 0 &&
@@ -2950,9 +2953,9 @@ leave:
 #endif
 
 #ifdef M_SHARED
-// simh needs to have the IC statically allocated, so a placeholder was
-// created. Update the placeholder in so the IC can be seen by simh, and
-// restarting sim_instr doesn't lose the place.
+// scp needs to have the IC statically allocated, so a placeholder
+// was created. Update the placeholder so the IC can be seen via scp
+// and restarting sim_instr won't lose the place.
 
     set_cpu_idx (0);
     dummy_IC = cpu.PPR.IC;
@@ -2961,18 +2964,18 @@ leave:
     return reason;
   }
 
-/*!
- cd@libertyhaven.com - sez ....
- If the instruction addresses a block of four words, the target of the
-instruction is supposed to be an address that is aligned on a four-word
-boundary (0 mod 4). If not, the processor will grab the four-word block
-containing that address that begins on a four-word boundary, even if it has to
-go back 1 to 3 words. Analogous explanation for 8, 16, and 32 cases.
-
- olin@olinsibert.com - sez ...
- It means that the appropriate low bits of the address are forced to zero. So
-it's the previous words, not the succeeding words, that are used to satisfy the
-request. -- Olin
+/*
+ * cd@libertyhaven.com - sez ...
+ *  If the instruction addresses a block of four words, the target of the
+ * instruction is supposed to be an address that is aligned on a four-word
+ * boundary (0 mod 4). If not, the processor will grab the four-word block
+ * containing that address that begins on a four-word boundary, even if it
+ * has to go back 1 to 3 words. Analogous explanation for 8, 16, and 32 cases.
+ *
+ * olin@olinsibert.com - sez ...
+ *  It means that the appropriate low bits of the address are forced to zero.
+ * So it's the previous words, not the succeeding words, that are used to
+ * satisfy the request. -- Olin
  */
 
 int operand_size (void)
@@ -3157,7 +3160,7 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
     if (M[addr] & MEM_UNINITIALIZED)
       {
         sim_debug (DBG_WARN, & cpu_dev,
-                   "Unitialized memory accessed at address %08o; "
+                   "Uninitialized memory accessed at address %08o; "
                    "IC is 0%06o:0%06o (%s(\n",
                    addr, cpu.PPR.PSR, cpu.PPR.IC, ctx);
       }
@@ -3351,7 +3354,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
     if (M[addr] & MEM_UNINITIALIZED)
       {
         sim_debug (DBG_WARN, & cpu_dev,
-                   "Unitialized memory accessed at address %08o; "
+                   "Uninitialized memory accessed at address %08o; "
                    "IC is 0%06o:0%06o (%s)\n",
                    addr, cpu.PPR.PSR, cpu.PPR.IC, ctx);
       }
@@ -3386,7 +3389,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
     if (M[addr] & MEM_UNINITIALIZED)
       {
         sim_debug (DBG_WARN, & cpu_dev,
-                   "Unitialized memory accessed at address %08o; "
+                   "Uninitialized memory accessed at address %08o; "
                    "IC is 0%06o:0%06o (%s)\n",
                     addr, cpu.PPR.PSR, cpu.PPR.IC, ctx);
       }

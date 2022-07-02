@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 55ddc42f-f62e-11ec-ad7c-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -661,7 +663,7 @@ static int wcd (struct decoded_t *decoded_p)
           {
             sim_debug (DBG_TRACE, & fnp_dev, "[%u]    alter_parameters\n", decoded_p->slot_no);
             //sim_printf ("fnp alter parameters\n");
-            // The docs insist the subype is in word2, but I think
+            // The docs insist the subtype is in word2, but I think
             // it is in command data...
             uint subtype = getbits36_9 (command_data[0], 0);
             uint flag = getbits36_1 (command_data[0], 17);
@@ -1004,7 +1006,7 @@ word36 pad;
           {
             sim_debug (DBG_TRACE, & fnp_dev, "[%u]    report_meters\n", decoded_p->slot_no);
             //sim_printf ("fnp report_meters\n");
-// XXX Do nothing, the requset will timeout...
+// XXX Do nothing, the request will timeout...
           }
           break;
 
@@ -1066,7 +1068,7 @@ static void tun_write (struct t_line * linep, uint16_t * data, uint tally)
       sim_printf ("%4o", data[i]);
     sim_printf ("\r\n");
 # endif
-// XXX this code is buggy; if a buffer is recieved with an embedded frame start, the embedded frame
+// XXX this code is buggy; if a buffer is received with an embedded frame start, the embedded frame
 // XXX will be lost
 
     for (uint i = 0; i < tally; i ++)
@@ -1234,7 +1236,7 @@ static void fnp_rtx_input_accepted (struct decoded_t *decoded_p)
 //  Input Accepted (005)
 //
 //    Purpose:
-//      Resopone to an accept input operation bu providing the addreess
+//      Response to an accept input operation by providing the address
 //      (in the circular buffer) to which input is sent.
 //
 //    Associated Data:
@@ -1244,7 +1246,7 @@ static void fnp_rtx_input_accepted (struct decoded_t *decoded_p)
 //      Bits 18...35 contain the number of characters to be placed in the
 //      specified location.
 //
-//      Word 4: If non-zero, contains the addess and tally as described
+//      Word 4: If non-zero, contains the address and tally as described
 //      above for the remaining data. This word is only used if the input
 //      request required a wraparound of the circular buffer.
 //
@@ -1299,7 +1301,7 @@ sim_printf ("']\n");
             addr ++;
           }
       }
-    // temporary until the logic is in place XXX
+    // XXX temporary until the logic is in place
     // This appears to only be used in tty_interrupt.pl1 as
     // rtx_info.output_in_fnp as part of echo negotiation:
     //    if ^rtx_info.output_in_fnp  /* if there's no output going on */
@@ -1371,7 +1373,7 @@ static int interruptL66_CS_to_FNP (struct decoded_t *decoded_p)
           }
           break;
 
-        case 1: // rcd (read contol data)
+        case 1: // rcd (read control data)
           {
             sim_debug (DBG_TRACE, & fnp_dev, "[%u]rcd unimplemented\n", decoded_p->slot_no);
             sim_debug (DBG_ERR, & fnp_dev, "[%u]fnp unimplemented io_cmd %d\n", decoded_p->slot_no, io_cmd);
@@ -1393,7 +1395,7 @@ static int interruptL66_CS_to_FNP (struct decoded_t *decoded_p)
 
 static int interruptL66_FNP_to_CS (struct decoded_t *decoded_p)
   {
-    // The CS has updated the FNP sub mailbox; this acknowleges processing
+    // The CS has updated the FNP sub mailbox; this acknowledges processing
     // of the FNP->CS command that was in the submailbox
 
     uint mbx = decoded_p->cell - 8;
@@ -1725,7 +1727,7 @@ static void processMBX (uint iomUnitIdx, uint chan)
 // 60132445 FEP Coupler EPS
 // 2.2.1 Control Intercommunication
 //
-// "In Level 66 momory, at a location known to the coupler and
+// "In Level 66 memory, at a location known to the coupler and
 // to Level 6 software is a mailbox area consisting to an Overhead
 // mailbox and 7 Channel mailboxes."
 
@@ -1802,14 +1804,14 @@ static void processMBX (uint iomUnitIdx, uint chan)
 //
 // 1. The L66 program creates a LPW and Pcw for the Central System Connect
 // channel. It also generates and stores a control word containing a command
-// int he L66 maillbox. A Connect is then issued to the L66 IOM.
+// int he L66 mailbox. A Connect is then issued to the L66 IOM.
 //
 // 2. The Connect Channel accesses the PCW to get the channel number of
 // the Direct Channel that the coupler is attached to. the direct Channel
-// sends a signelto the Coupler that a Connect has been issued.
+// sends a signal to the Coupler that a Connect has been issued.
 //
 // 3. The Coupler now reads the content of the L66 mailbox, obtaining the
-// control word. If the control word is legel, the Coupler will write a
+// control word. If the control word is legal, the Coupler will write a
 // word of all zeros into the mailbox.
 //
 
@@ -1817,9 +1819,9 @@ static void processMBX (uint iomUnitIdx, uint chan)
 // The transfer control word, which is pointed to by the
 // mailbox word in l66 memory on Op Codes 72, 7, 76 contains
 // a starting address which applies to L6 memory an a Tally
-// of the number of 36 bit words to be transfered. The l66
+// of the number of 36 bit words to be transferred. The l66
 // memory locations to/from which the transfers occur are
-// those immediately follwoing the location where this word
+// those immediately following the location where this word
 // was obtained.
 //
 //    00-02  001

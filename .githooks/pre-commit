@@ -1,89 +1,136 @@
 #!/usr/bin/env sh
+# vim: filetype=sh:tabstop=4:tw=100:expandtab
+# SPDX-License-Identifier: FSFAP
+# scspell-id: 6fefda68-f778-11ec-85a4-80ee73e9b8e7
+
+####################################################################################################
+#
+# Copyright (c) 2021-2022 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+####################################################################################################
+
 set +e > /dev/null 2>&1
 set -u > /dev/null 2>&1
 
+####################################################################################################
+
 # shellcheck disable=SC2015
 test -z "${VERBOSE_HOOK:-}" &&
-	{
-		set +x 2> /dev/null;
-	} || {
-		set -x 2> /dev/null;
-	};
+  {
+    set +x 2> /dev/null;
+  } || {
+    set -x 2> /dev/null;
+  };
+
+####################################################################################################
 
 # shellcheck disable=SC2015
 test -z "${DEBUG_HOOK:-}" &&
-	{
-		DEBUG_CALL="true";
-	} || {
-		DEBUG_CALL="echo";
-	};
+  {
+    DEBUG_CALL="true";
+  } || {
+    DEBUG_CALL="echo";
+  };
+
+####################################################################################################
 
 # shellcheck disable=SC2015
 test -z "${EXTRA_HOOK:-}" &&
-	{
-		HOOK_CALL="${GIT:-git} diff --cached --name-only";
-	} || {
-		HOOK_CALL="find . -print";
-	};
-${DEBUG_CALL:?} HOOK_CALL is ${HOOK_CALL:?} ...
+  {
+    HOOK_CALL="${GIT:-git} diff --cached --name-only";
+  } || {
+    HOOK_CALL="find . -print";
+  };
+${DEBUG_CALL:?} HOOK_CALL is "${HOOK_CALL:?}" ...
+
+####################################################################################################
 
 # shellcheck disable=SC2015
 test -z "${SKIP_HOOK:-}" &&
-	{
-		EXIT_STATUS=1;
-	} || {
-		EXIT_STATUS=0;
-	};
+  {
+    EXIT_STATUS=1;
+  } || {
+    EXIT_STATUS=0;
+  };
 ${DEBUG_CALL:?} EXIT_STATUS is ${EXIT_STATUS:?} ...
+
+####################################################################################################
 
 ${DEBUG_CALL:?} Finding git toplevel ...
 cd "$(${GIT:-git} rev-parse --show-toplevel)" ||
-	{
-		printf '%s\n' "ERROR: Unable to find git toplevel." >&2;
-		exit "${EXIT_STATUS:-1}";
-	};
+  {
+    printf '%s\n' "ERROR: Unable to find git toplevel!" >&2;
+    exit "${EXIT_STATUS:-1}";
+  };
+
+####################################################################################################
 
 ${DEBUG_CALL:?} Check for spaces in new filenames ...
-# Spaces in new filenames
 if (${HOOK_CALL:?} | awk '{ print "\""$0"\"" }' | grep ' ' >&2); then
-	{
-		printf '%s\n' "ERROR: Filename check failed due to spaces in staged commit!" >&2;
-		exit "${EXIT_STATUS:-1}";
-	};
+  {
+    printf '%s\n' "ERROR: Filename check failed due to spaces in staged commit!" >&2;
+    exit "${EXIT_STATUS:-1}";
+  };
 fi
+
+####################################################################################################
 
 ${DEBUG_CALL:?} Checking whitespace ...
-# Whitespace (depends on Git settings)
 ${GIT:-git} diff --check >&2 ||
-	{
-		printf '%s\n' "ERROR: Whitespace check failed in staged commit!" >&2
-		exit "${EXIT_STATUS:-1}"
-	};
+  {
+    printf '%s\n' "ERROR: Whitespace check failed in staged commit!" >&2
+    exit "${EXIT_STATUS:-1}"
+  };
+
+####################################################################################################
 
 ${DEBUG_CALL:?} Checking Cppi indentation ...
-# Cpp indentation
 if (command -v cppi > /dev/null 2>&1); then
-	CPPISCAN="$(${MAKE:-make} cppiscan 2> /dev/null | grep '/' | grep -v '^LIBUV' || true)"
-	test -z "${CPPISCAN:-}" ||
-		{
-			printf '%s\n' "${CPPISCAN:?}" >&2;
-			printf '%s\n' "ERROR: Cppi check failed in staged commit!" >&2;
-			printf '%s\n' "       (Try \"${MAKE:-make} cppifix\" for auto fix)" >&2;
-			exit "${EXIT_STATUS:-1}";
-		};
+  CPPISCAN="$(${MAKE:-make} cppiscan 2> /dev/null | grep '/' | grep -v '^LIBUV' || true)"
+  test -z "${CPPISCAN:-}" ||
+    {
+      printf '%s\n' "${CPPISCAN:?}" >&2;
+      printf '%s\n' "ERROR: Cppi check failed in staged commit!" >&2;
+      printf '%s\n' "       (Try \"${MAKE:-make} cppifix\" for auto fix)" >&2;
+      exit "${EXIT_STATUS:-1}";
+    };
 else
-	printf '%s\n' 'WARNING: "cppi" not found in PATH - some checks skipped!' >&2;
+  printf '%s\n' 'WARNING: "cppi" not found in PATH - some checks skipped!' >&2;
 fi
 
+####################################################################################################
+
 ${DEBUG_CALL:?} Checking for tabs in C source code files ...
-# Tabs
 TLIST="$(${HOOK_CALL:?} | grep '\.[ch]$' | xargs -L 1 grep -l "$(printf '\t')" 2> /dev/null)";
 printf "%s\n" "${TLIST:-}" | grep -v '^$' 2> /dev/null | grep . >&2 &&
-	{
-		printf '%s\n' "ERROR: Tabs check failed in staged commit!" >&2;
-		exit "${EXIT_STATUS:-1}";
-	}
+  {
+    printf '%s\n' "ERROR: Tabs check failed in staged commit!" >&2;
+    exit "${EXIT_STATUS:-1}";
+  }
+
+####################################################################################################
+
+test -z "${TEST_DEPENDS:-}" ||
+  {
+    ${DEBUG_CALL:?} Regenerating dependencies ...
+    ${MAKE:-make} "depend" > /dev/null 2>&1;
+    ${DEBUG_CALL:?} Checking for uncommited changes ...
+    UCHNG="$(${GIT:-git} diff 2>&1)";
+    printf "%s\n" "${UCHNG:-}" | grep . >&2 &&
+      {
+        printf '%s\n' "ERROR: Uncommited changes found (after dependency regeneration)!" >&2;
+        exit "${EXIT_STATUS:-1}";
+      }
+  }
+
+####################################################################################################
 
 ${DEBUG_CALL:?} Completed pre-commit hook ...
 exit 0;
-# EOF
+
+####################################################################################################

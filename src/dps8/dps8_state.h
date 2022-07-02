@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: fa4a490d-f62e-11ec-bbb0-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -97,4 +99,5 @@ int sim_iglock = 0;
 int sim_nolock = 0;
 int sim_randompst = 0;
 int sim_randstate = 0;
+int sim_nostate = 0;
 #endif

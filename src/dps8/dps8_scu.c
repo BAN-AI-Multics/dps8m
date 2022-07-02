@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: d49ab489-f62e-11ec-9ac1-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -64,7 +66,7 @@
  * four 10-position rotary switches.  Later hardware versions had
  * two 9-position (0..7 and off) rotary switches.
  *
- * Config panel -- level 68 6000 SCU
+ * Config panel -- Level 68 6000 SCU
  * -- from AM81
  * store A and store B
  * 3 position rotary switch: on line, maint, off line
@@ -198,7 +200,7 @@
  * Every active device must have the same SCU on the same port,
  * so all active devices will have the same config panel settings.
  * Ports must correspond -- port A on every CPU and IOM must either
- * be connected tothe same SCU or not connected to any SCU.
+ * be connected to the same SCU or not connected to any SCU.
  * IOMs should be on lower-numbered SCU ports than CPUs.
  * Multics can have 16MW words of memory.
  * CPUs have 8 ports, a..h.
@@ -209,22 +211,22 @@
  *   system control and monitor (cont&mon/mon/off)
  *   system boot control (on/off)
  *   alarm (disable/normal)
- *   maintainance panel mode (test/normal)
+ *   maintenance panel mode (test/normal)
  *   store a
  *      mode (offline/maint/online)
  *      size (32k, 64k, 128k, 256k)
  *   store b
  *      mode (offline/maint/online)
  *      size (32k, 64k, 128k, 256k)
- *   execute interrupt mask assigment
+ *   execute interrupt mask assignment
  *      (A through D; off/0/1/2/3/4/5/6/7/m)
- *   [CAC] I interperet this as CPU [A..D] is connected to my port [0..7]
+ *   [CAC] I interpret this as CPU [A..D] is connected to my port [0..7]
  *   address control
  *      lower store (a/b)
  *      offset (off, 16k, 32k, 64k)
  *      interlace (on/off)
  *   cycle port priority (on/off)
- *   port control (8 toogles) (enabled/prog cont/disable)
+ *   port control (8 toggles) (enabled/prog cont/disable)
  *
  * The EXECUTE INTERRUPT MASK ASSIGNMENT (EIMA) rotary switches
  * determine where interrupts sent to memory are directed. The four EIMA
@@ -455,7 +457,7 @@
  * corresponding bit in the execute interrupt cell register. Each
  * interrupt mask assignment register has two parts, an assigned bit
  * and a set of ports to which it is assigned (8 bits). When a bit
- * is set in the execute  interrupt sells register, the SCU ands this
+ * is set in the execute  interrupt sells register, the SCU ANDs this
  * bit with the corresponding bit in each of the execute interrupt
  * mask registers. If the corresponding bit of execute interrupt
  * mask register A, for example, is on, the SCU then looks at the A
@@ -499,7 +501,7 @@
  * assigned to it. If not, rmcm returns zero (no interrupt are
  * enabled to it) and a smcm is ignored (actually the port mask
  * setting is still done). The rscr and sscr instructions allow the
- * examing/setting of the execute interrupt mask register for any
+ * examining/setting of the execute interrupt mask register for any
  * port on a SCU; these have the same effect as smcm and rmcm if the
  * SCU port being referenced does not have a mask assigned to it.
  * The format of the data returned by these instructions is as
@@ -702,20 +704,20 @@ static t_stat scu_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
           break;
       }
 
-    sim_printf ("Mode:                     %s\n", mode);
+    sim_printf ("Mode:                       %s\n", mode);
     sim_printf ("Port Enable:             ");
     for (int i = 0; i < N_SCU_PORTS; i ++)
       sim_printf (" %3o", sw -> port_enable [i]);
     sim_printf ("\n");
     for (int i = 0; i < N_ASSIGNMENTS; i ++)
       {
-        sim_printf ("Mask %c:                   %s\n",
+        sim_printf ("Mask %c:                     %s\n",
                     'A' + i,
                     sw->mask_enable[i] ? (map[sw->mask_assignment[i]]) : "Off");
       }
-    sim_printf ("Lower Store Size:        %o\n", sw -> lower_store_size);
-    sim_printf ("Cyclic:                  %03o\n", sw -> cyclic);
-    sim_printf ("Non-existent address:    %03o\n", sw -> nea);
+    sim_printf ("Lower Store Size:           %o\n", sw -> lower_store_size);
+    sim_printf ("Cyclic:                     %03o\n", sw -> cyclic);
+    sim_printf ("Non-existent address:       %03o\n", sw -> nea);
 
     return SCPE_OK;
   }
@@ -740,7 +742,7 @@ static t_stat scu_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
 //         is provided.
 //      o  interlace not implemented; will read as 'off'
 //      o  LOWER STORE A/B not implemented.
-//      o  MASK is 'MASK/PORT ASSIGNMENT' analagous to the
+//      o  MASK is 'MASK/PORT ASSIGNMENT' analogous to the
 //         'EXECUTE INTERRUPT MASK ASSIGNMENT of a 6000 SCU
 
 static config_value_list_t cfg_mode_list [] =
@@ -1336,7 +1338,7 @@ static char * pcells (uint scu_unit_idx, char * buf)
 // deliver_interrupts is called either from a CPU instruction or from
 // IOM set_general_interrupt on the IOM thread.
 //
-// potential race condiions:
+// potential race conditions:
 //   CPU variables: XIP
 //   SCU variables: cells, mask_enable, exec_intr_mask, mask assignment
 
@@ -1350,8 +1352,8 @@ static void deliver_interrupts (uint scu_unit_idx)
         cpus[cpun].events.XIP[scu_unit_idx] = false;
       }
 
-// If the CIOC generates marker and terminate interrupts, they will be posted simultainiously.
-// Since the interrupts are recognized by priority and terminate has a highter priority then
+// If the CIOC generates marker and terminate interrupts, they will be posted simultaneously.
+// Since the interrupts are recognized by priority and terminate has a higher priority then
 // marker, if will be delivered first. The following code will deliver marker before terminate.
 
 #ifdef REORDER
@@ -1683,7 +1685,7 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
                            scu_unit_idx, 'a' + maskab, up->mask_enable[maskab],
                            up->mask_assignment[maskab]);
               }
-            // AN87-00A, pg 2-5, 2-6 specifiy which fields are and are not
+            // AN87-00A, pg 2-5, 2-6 specify which fields are and are not
             //  settable.
 
             //if (up -> lower_store_size != ((rega >> 24) & 07))

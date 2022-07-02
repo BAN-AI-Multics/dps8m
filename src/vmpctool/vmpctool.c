@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: BSD-3-Clause
+ * scspell-id: aab0e237-f631-11ec-9aea-80ee73e9b8e7
  *
  * -------------------------------------------------------------------------
  *
@@ -233,7 +235,7 @@ usage(char *prog)
   (void)fprintf(stderr, "\r    -i <PATTERN>   \t ignore files matching <PATTERN>\n");
   (void)fprintf(stderr, "\r    -I <PATTERN>   \t only process files matching <PATTERN>\n");
   (void)fprintf(stderr, "\r    -b <INFILE>    \t read files to process from <INFILE>\n");
-  (void)fprintf(stderr, "\r    -0             \t use NULL character as seperator\n");
+  (void)fprintf(stderr, "\r    -0             \t use NULL character as separator\n");
   (void)fprintf(stderr, "\r    -w             \t wait for processes before daemonizing\n");
   (void)fprintf(stderr, "\r    -P <PIDFILE>   \t write a <PIDFILE> to disk\n");
   (void)fprintf(stderr, "\r    -v             \t verbose; increase output verbosity\n");
@@ -953,8 +955,8 @@ retry_open:
         }
 # endif /* ifdef POSIX_FADV_DONTNEED */
 
-#elif defined( __OpenBSD__ ) || defined( __FreeBSD_kernel__ ) \
-   || defined( __FreeBSD__ ) || defined( __sun__ ) || defined( __APPLE__ )
+#elif defined( __OpenBSD__ ) || defined( __FreeBSD_kernel__ ) || \
+      defined( __FreeBSD__ ) || defined( __sun__ ) || defined( __APPLE__ )
       if (msync(mem, len_of_range, MS_INVALIDATE))
         {
           warning(
@@ -1642,7 +1644,7 @@ main(int argc, char **argv)
   if (o_pidfile && ( !o_lock && !o_lockall ))
     {
       fatal(
-        "%s:%d: invslid option combination: missing -l or -L",
+        "%s:%d: invalid option combination: missing -l or -L",
         __func__, __LINE__);
       /* NOTREACHED */
       _Exit(1);

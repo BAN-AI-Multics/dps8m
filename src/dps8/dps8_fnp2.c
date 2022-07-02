@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 4c1eb5cb-f62e-11ec-9d6d-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -34,7 +36,7 @@
 //    Station number is assigned.
 //    Connection is saved:
 //      fnpData.ibm3270ctlr[ASSUME0].stations[stn_no].client = client;
-//    Read callback regeistered.
+//    Read callback registered.
 //      client->data->read_cb = fnpuv_3270_readcb;
 //    Telnet negotiation is started:
 //      client->data->telnetp = ltnConnect3270 (client);
@@ -324,7 +326,7 @@ void fnpExit (void) {
   // For each FNP
   for (uint fnpUnitIdx = 0; fnpUnitIdx < N_FNP_UNITS_MAX; fnpUnitIdx ++) {
     struct fnpUnitData_s * unitp = & fnpData.fnpUnitData[fnpUnitIdx];
-    // For each line 
+    // For each line
     for (uint lineNum = 0; lineNum < MAX_LINES; lineNum ++) {
       uv_tcp_t * line_client = (uv_tcp_t *) unitp->MState.line[lineNum].line_client;
       // If line_client not null
@@ -1326,7 +1328,7 @@ static void send_stn_in_buffer (void)
     uint lineno = fnpData.ibm3270ctlr[ASSUME0].lineno;
     struct t_line * linep = & fnpData.fnpUnitData[fnpno].MState.line[lineno];
 
-    // Idle until buffer availible
+    // Idle until buffer available
     if (linep->accept_input)
       return;
     if (linep->input_reply_pending)
@@ -1474,7 +1476,7 @@ void fnpProcessEvent (void)
     fnpuvProcessEvent ();
 
     // Move characters from inBuffer to buffer, based on line discipline
-    // and data availibility
+    // and data availability
 
     fnpProcessBuffers ();
 
@@ -1739,7 +1741,7 @@ static t_stat fnpShowIPCname (UNUSED FILE * st, UNIT * uptr,
     long n = FNP_UNIT_IDX (uptr);
     if (n < 0 || n >= N_FNP_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("FNP IPC name is %s\n", fnpData.fnpUnitData [n] . ipcName);
+    sim_printf(" FNP IPC name: %s", fnpData.fnpUnitData [n] . ipcName);
     return SCPE_OK;
   }
 
@@ -1767,25 +1769,31 @@ static t_stat fnpShowService (UNUSED FILE * st, UNIT * uptr,
       return SCPE_ARG;
     for (uint linenum = 0; linenum < MAX_LINES; linenum ++)
       {
+        if (linenum == 0)
+            sim_printf("\t");
+        else
+            sim_printf("\t\t");
         enum service_types st = fnpData.fnpUnitData[devnum].MState.line[linenum].service;
         switch (st)
           {
             case service_undefined:
-              sim_printf("%c.%03d undefined\r\n", 'a' + (int) devnum, linenum);
+              sim_printf("%c.%03d: undefined", (char)('a' + (int) devnum), linenum);
               break;
             case service_login:
-              sim_printf("%c.%03d login\r\n", 'a' + (int) devnum, linenum);
+              sim_printf("%c.%03d: login", (char)('a' + (int) devnum), linenum);
               break;
             case service_autocall:
-              sim_printf("%c.%03d autocall\r\n", 'a' + (int) devnum, linenum);
+              sim_printf("%c.%03d: autocall", (char)('a' + (int) devnum), linenum);
               break;
             case service_slave:
-              sim_printf("%c.%03d slave\r\n", 'a' + (int) devnum, linenum);
+              sim_printf("%c.%03d: slave", (char)('a' + (int) devnum), linenum);
               break;
             default:
-              sim_printf("%d.%03d ERR (%u)\r\n", 'a' + (int) devnum, linenum, st);
+              sim_printf("%d.%03d: ERR (%u)", (char)('a' + (int) devnum), linenum, st);
               break;
           }
+        if (linenum != (MAX_LINES - 1))
+            sim_printf("\r\n");
       }
     return SCPE_OK;
   }
@@ -1850,15 +1858,13 @@ static t_stat fnpShowConfig (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
     sim_printf ("FNP unit number %ld\n", (long) fnpUnitIdx);
     struct fnpUnitData_s * fudp = fnpData.fnpUnitData + fnpUnitIdx;
 
-    sim_printf ("FNP Mailbox Address:         %04o(8)\n", fudp -> mailboxAddress);
+    sim_printf ("FNP mailbox address:         %04o(8)\n", fudp -> mailboxAddress);
 
     return SCPE_OK;
   }
 
 //  SET FNPn FW RESET
 //  SET FNPn FW ADD <line number list>:<ipaddr>:<ipmask>: ACCEPT | DENY
-//
-//
 
 int n_fw_entries = 0;
 struct fw_entry_s fw_entries [N_FW_ENTRIES];
@@ -2102,43 +2108,43 @@ static t_stat fnpShowStatus (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
         return SCPE_ARG;
       }
 
-    sim_printf ("FNP unit number %ld\n", (long) fnpUnitIdx);
+    sim_printf ("FNP unit number %ld:\n", (long) fnpUnitIdx);
     struct fnpUnitData_s * fudp = fnpData.fnpUnitData + fnpUnitIdx;
 
-    sim_printf ("mailboxAddress:              %04o\n", fudp->mailboxAddress);
-    sim_printf ("fnpIsRunning:                %o\n", fudp->fnpIsRunning);
-    sim_printf ("fnpMBXinUse:                 %o %o %o %o\n", fudp->fnpMBXinUse[0], fudp->fnpMBXinUse[1], fudp->fnpMBXinUse[2], fudp->fnpMBXinUse[3]);
-    sim_printf ("lineWaiting:                 %o %o %o %o\n", fudp->lineWaiting[0], fudp->lineWaiting[1], fudp->lineWaiting[2], fudp->lineWaiting[3]);
-    sim_printf ("fnpMBXlineno:                %o %o %o %o\n", fudp->fnpMBXlineno[0], fudp->fnpMBXlineno[1], fudp->fnpMBXlineno[2], fudp->fnpMBXlineno[3]);
-    sim_printf ("accept_calls:                %o\n", fudp->MState.accept_calls);
+    sim_printf ("\tmailboxAddress:              %04o\n", fudp->mailboxAddress);
+    sim_printf ("\tfnpIsRunning:                %o\n", fudp->fnpIsRunning);
+    sim_printf ("\tfnpMBXinUse:                 %o %o %o %o\n", fudp->fnpMBXinUse[0], fudp->fnpMBXinUse[1], fudp->fnpMBXinUse[2], fudp->fnpMBXinUse[3]);
+    sim_printf ("\tlineWaiting:                 %o %o %o %o\n", fudp->lineWaiting[0], fudp->lineWaiting[1], fudp->lineWaiting[2], fudp->lineWaiting[3]);
+    sim_printf ("\tfnpMBXlineno:                %o %o %o %o\n", fudp->fnpMBXlineno[0], fudp->fnpMBXlineno[1], fudp->fnpMBXlineno[2], fudp->fnpMBXlineno[3]);
+    sim_printf ("\taccept_calls:                %o\n", fudp->MState.accept_calls);
     for (int l = 0; l < MAX_LINES; l ++)
       {
-        sim_printf ("line: %d\n", l);
-        sim_printf ("service:                     %d\n", fudp->MState.line[l].service);
-        sim_printf ("line_client:                 %p\n", (void *) fudp->MState.line[l].line_client);
-        sim_printf ("was_CR:                      %d\n", fudp->MState.line[l].was_CR);
-        sim_printf ("listen:                      %d\n", fudp->MState.line[l].listen);
-        sim_printf ("inputBufferSize:             %d\n", fudp->MState.line[l].inputBufferSize);
-        sim_printf ("line_break:                  %d\n", fudp->MState.line[l].line_break);
-        sim_printf ("send_output:                 %d\n", fudp->MState.line[l].send_output);
-        sim_printf ("accept_new_terminal:         %d\n", fudp->MState.line[l].accept_new_terminal);
+        sim_printf ("  line %d:\n", l);
+        sim_printf ("\tservice:                     %d\n", fudp->MState.line[l].service);
+        sim_printf ("\tline_client:                 %p\n", (void *) fudp->MState.line[l].line_client);
+        sim_printf ("\twas_CR:                      %d\n", fudp->MState.line[l].was_CR);
+        sim_printf ("\tlisten:                      %d\n", fudp->MState.line[l].listen);
+        sim_printf ("\tinputBufferSize:             %d\n", fudp->MState.line[l].inputBufferSize);
+        sim_printf ("\tline_break:                  %d\n", fudp->MState.line[l].line_break);
+        sim_printf ("\tsend_output:                 %d\n", fudp->MState.line[l].send_output);
+        sim_printf ("\taccept_new_terminal:         %d\n", fudp->MState.line[l].accept_new_terminal);
 #if DISC_DELAY
-        sim_printf ("line_disconnected:           %d\n", fudp->MState.line[l].line_disconnected);
+        sim_printf ("\tline_disconnected:           %d\n", fudp->MState.line[l].line_disconnected);
 #else
-        sim_printf ("line_disconnected:           %c\n", fudp->MState.line[l].line_disconnected ? 'T' : 'F');
+        sim_printf ("\tline_disconnected:           %c\n", fudp->MState.line[l].line_disconnected ? 'T' : 'F');
 #endif
-        sim_printf ("acu_dial_failure:            %d\n", fudp->MState.line[l].acu_dial_failure);
-        sim_printf ("accept_input:                %d\n", fudp->MState.line[l].accept_input);
-        sim_printf ("waitForMbxDone:              %d\n", fudp->MState.line[l].waitForMbxDone);
-        sim_printf ("input_reply_pending:         %d\n", fudp->MState.line[l].input_reply_pending);
-        sim_printf ("input_break:                 %d\n", fudp->MState.line[l].input_break);
-        sim_printf ("nPos:                        %d\n", fudp->MState.line[l].nPos);
-        sim_printf ("inBuffer:                    %p\n", (void *) fudp->MState.line[l].inBuffer);
-        sim_printf ("inSize:                      %d\n", fudp->MState.line[l].inSize);
-        sim_printf ("inUsed:                      %d\n", fudp->MState.line[l].inUsed);
-        //sim_printf ("doConnect:                   %p\n", fudp->MState.line[l].doConnect);
-        //sim_printf ("server:                      %p\n", fudp->MState.line[l].server);
-        sim_printf ("port:                        %d\n", fudp->MState.line[l].port);
+        sim_printf ("\tacu_dial_failure:            %d\n", fudp->MState.line[l].acu_dial_failure);
+        sim_printf ("\taccept_input:                %d\n", fudp->MState.line[l].accept_input);
+        sim_printf ("\twaitForMbxDone:              %d\n", fudp->MState.line[l].waitForMbxDone);
+        sim_printf ("\tinput_reply_pending:         %d\n", fudp->MState.line[l].input_reply_pending);
+        sim_printf ("\tinput_break:                 %d\n", fudp->MState.line[l].input_break);
+        sim_printf ("\tnPos:                        %d\n", fudp->MState.line[l].nPos);
+        sim_printf ("\tinBuffer:                    %p\n", (void *) fudp->MState.line[l].inBuffer);
+        sim_printf ("\tinSize:                      %d\n", fudp->MState.line[l].inSize);
+        sim_printf ("\tinUsed:                      %d\n", fudp->MState.line[l].inUsed);
+        //sim_printf ("\tdoConnect:                   %p\n", fudp->MState.line[l].doConnect);
+        //sim_printf ("\tserver:                      %p\n", fudp->MState.line[l].server);
+        sim_printf ("\tport:                        %d\n", fudp->MState.line[l].port);
 
       }
     return SCPE_OK;
@@ -2150,7 +2156,10 @@ static t_stat fnp_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) FNP_UNIT_IDX (uptr);
     if (n < 0 || n >= N_FNP_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Controller device name is %s\n", fnpData.fnpUnitData[n].device_name);
+    if (fnpData.fnpUnitData[n].device_name[0] != 0)
+      sim_printf("         name: %s", fnpData.fnpUnitData[n].device_name);
+    else
+      sim_printf("         name: default");
     return SCPE_OK;
   }
 
@@ -2237,7 +2246,7 @@ t_stat fnpLoad (UNUSED int32 arg, const char * buf)
     while (fgets (buff, sizeof (buff), fileref))
       {
         char * p = trim (buff);   // trim leading and trailing whitespace
-        if (p [0] == '#')  // '#' as first non-white charater is comment line
+        if (p [0] == '#')  // '#' as first non-white character is comment line
           continue;
         if (p [0] == 0)          // blank line
           continue;;
@@ -2294,7 +2303,7 @@ t_stat fnpLoad (UNUSED int32 arg, const char * buf)
             break;
           }
 
-// Ingored
+// Ignored
         else if (strcmp (first, "Service") == 0 ||
                  strcmp (first, "Charge") == 0 ||
                  strcmp (first, "Terminal_type") == 0 ||
@@ -2553,9 +2562,9 @@ void processLineInput (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
 
     struct t_line * linep = & fnpData.fnpUnitData[fnpno].MState.line[lineno];
 
-// By design, inBuffer overun shouldn't happen, but it has been seen in IMFT.
+// By design, inBuffer overrun shouldn't happen, but it has been seen in IMFT.
 // (When the TCP backs up, the buffers are merged so that larger and larger
-// reads occur. When the backedup buffer exceeds 65536, libev calls the read
+// reads occur. When the backed-up buffer exceeds 65536, libuv calls the read
 // callback twice in a row, once with the first 65536, and the next with the
 // remaining.
 // Cope with it my realloc'ing the buffer and appending the new data. Ugh.
@@ -2629,9 +2638,9 @@ void process3270Input (uv_tcp_t * client, unsigned char * buf, ssize_t nread)
         return;
       }
 
-// By design, inBuffer overun shouldn't happen, but it has been seen in IMFT.
+// By design, inBuffer overrun shouldn't happen, but it has been seen in IMFT.
 // (When the TCP backs up, the buffers are merged so that larger and larger
-// reads occur. When the backedup buffer exceeds 65536, libev calls the read
+// reads occur. When the backed-up buffer exceeds 65536, libuv calls the read
 // callback twice in a row, once with the first 65536, and the next with the
 // remaining.
 // Cope with it my realloc'ing the buffer and appending the new data. Ugh.
@@ -2838,7 +2847,7 @@ check:;
         if (fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].service != service_login ||
             fnpData.fnpUnitData[fnp_unit_idx].MState.line[lineno].line_client)
           {
-            fnpuv_start_writestr (client, (unsigned char *) "not availible\r\n");
+            fnpuv_start_writestr (client, (unsigned char *) "not available\r\n");
             goto reprompt;
           }
         goto associate;

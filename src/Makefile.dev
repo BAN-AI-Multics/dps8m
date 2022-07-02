@@ -1,5 +1,7 @@
-# DPS/8M simulator: src/Makefile.dev
-# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+# DPS8M simulator: src/Makefile.dev
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: 0495e6fe-f62b-11ec-ab1d-80ee73e9b8e7
 
 ###############################################################################
 #
@@ -50,6 +52,116 @@ ifndef HOOK_WARNED
 endif
 
 ###############################################################################
+# Regenerate build system dependencies
+
+MKDEP_OPTS := "-D__MINGW64__=1" "-DTESTING=1"
+DO_MAKEDEP := for j in $(MKDEP_OPTS) ; do $(FIND) . -name '*.c' -exec         \
+              $(MAKEDEPEND) -w1 -Y -f- -- "$${j:?}" -- "{}" 2> /dev/null \;   \
+              2> /dev/null ; done | $(SED) -e 's/^\.\///' 2> /dev/null |      \
+              $(GREP) '^.*: .*$$' | $(ENV) LC_ALL=C $(SORT) -u | $(TEE)       \
+              "./Dependency" 2> /dev/null | $(WC) -l 2> /dev/null | $(AWK)    \
+              '/./ { print " - "$$0" rule(s)" }' 2> /dev/null | $(TR) -s ' '  \
+              2> /dev/null ||                                                 \
+                $(PRINTF) '%s\n' " - Error generating dependencies!"
+
+.PHONY: predep predepend
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: predep predepend
+endif
+predep predepend:
+	@$(PRINTF) '%s\n' "" 2> /dev/null |                                       \
+      $(MAKEDEPEND) -w1 -Y -f- -s'# OK' 2> /dev/null |                        \
+        $(GREP) -q '^# OK$$' 2> /dev/null ||                                  \
+          {                                                                   \
+            $(PRINTF) '%s\n'                                                  \
+              "ERROR: Unusable or missing \"makedepend\" utility!" ;          \
+            $(SLEEP) 1 > /dev/null 2>&1 ;                                     \
+            exit 1 ;                                                          \
+          }
+	@$(PRINTF) 'DEPEND: %s\n' "ver.h" ;                                       \
+      ( $(CD) "src/dps8" && $(MAKE) -j 1 -s "ver.h" )
+	@$(PRINTF) 'DEPEND: %s\n' "sysdefs.h" ;                                   \
+      ( $(CD) "src/dps8" && $(MAKE) -j 1 -s "sysdefs.h" )
+	@$(PRINTF) 'DEPEND: %s\n' "errnos.h" ;                                    \
+      ( $(CD) "src/dps8" && $(MAKE) -j 1 -s "errnos.h" )
+
+.PHONY: dep depend predepend
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: dep depend predepend
+endif
+dep depend: predepend                                                         \
+    # depend:    # Regenerates build system dependencies
+	@$(PRINTF) 'DEPEND: %s' "decNumber" ;                                     \
+      ( $(CD) "src/decNumber" && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "dps8" ;                                          \
+      ( $(CD) "src/dps8"      && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "dpsprintf" ;                                     \
+      ( $(CD) "src/dpsprintf" && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "empty" ;                                         \
+      ( $(CD) "src/empty"     && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
+      ( $(CD) "src/mcmb"      && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "prt2pdf" ;                                       \
+      ( $(CD) "src/prt2pdf"   && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "punutil" ;                                       \
+      ( $(CD) "src/punutil"   && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "simh" ;                                          \
+      ( $(CD) "src/simh"      && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "unifdef" ;                                       \
+      ( $(CD) "src/unifdef"   && $(DO_MAKEDEP) )
+	@$(PRINTF) 'DEPEND: %s' "vmpctool" ;                                      \
+      ( $(CD) "src/vmpctool"  && $(DO_MAKEDEP) )
+
+###############################################################################
+# Remove dependencies for untracked C files
+
+DO_CLEANDEP := $(TEST) -f ./Dependency && { BCDC=$$($(WC) -l ./Dependency 2>  \
+               /dev/null | $(CUT) -d '.' -f 1 2> /dev/null ) ; $(PRINTF)      \
+               ' - %s > ' "$${BCDC:-0}" | $(TR) -s ' '; $(PRINTF) '%s\n'      \
+               "($$( $(GIT) status -uall -s *.c 2> /dev/null | $(GREP) '^?? ' \
+               2> /dev/null | $(CUT) -d ' ' -f2- 2> /dev/null | $(AWK)        \
+               '/./ { print "^"$$0": " }' 2> /dev/null | $(SED) 's/\./\\\./g' \
+               2> /dev/null | $(TR) '\n' ' ' 2> /dev/null | $(TR) ' ' '|' 2>  \
+               /dev/null ))" | $(SED) -e 's/|)$$/)/' -e 's/|)/)/' -e          \
+               's/||/|/g' 2> /dev/null | $(AWK)                               \
+               '{ print("grep -vE \047"$$0"\047 ./Dependency >                \
+               ./.Dependency && mv -f ./.Dependency ./Dependency ; rm -f      \
+               ./.Dependency"); }' 2> /dev/null | $(GREP) -v "'()'" 2>        \
+               /dev/null | $(SED) 's/\\\.c:/\\\.o: /g' 2> /dev/null | sh &&   \
+               $(PRINTF) '%s\n' "$$( $(WC) -l ./Dependency 2> /dev/null |     \
+               $(CUT) -d '.' -f 1 2> /dev/null | $(TR) -d ' ' 2> /dev/null    \
+               ) rule(s)"; } ; $(RMF) ./.Dependency > /dev/null 2>&1 ;        \
+               $(TOUCH) ./Dependency > /dev/null 2>&1 || $(TRUE) > /dev/null  \
+               2>&1
+
+.PHONY: dependclean depclean cleandepend cleandep
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: dependclean depclean cleandepend cleandep
+endif
+dependclean depclean cleandepend cleandep:                                    \
+    # cleandep:    # Cleans-up untracked file dependencies
+	@$(PRINTF) 'DEPEND: %s' "decNumber" ;                                     \
+      ( $(CD) "src/decNumber" && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "dps8" ;                                          \
+      ( $(CD) "src/dps8"      && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "dpsprintf" ;                                     \
+      ( $(CD) "src/dpsprintf" && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "empty" ;                                         \
+      ( $(CD) "src/empty"     && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
+      ( $(CD) "src/mcmb"      && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "prt2pdf" ;                                       \
+      ( $(CD) "src/prt2pdf"   && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "punutil" ;                                       \
+      ( $(CD) "src/punutil"   && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "simh" ;                                          \
+      ( $(CD) "src/simh"      && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "unifdef" ;                                       \
+      ( $(CD) "src/unifdef"   && $(DO_CLEANDEP) )
+	@$(PRINTF) 'DEPEND: %s' "vmpctool" ;                                      \
+      ( $(CD) "src/vmpctool"  && $(DO_CLEANDEP) )
+
+###############################################################################
 # Displays preprocessor definitions
 
 .PHONY: printdefs
@@ -78,8 +190,19 @@ printdefs:                                                                    \
 cppcheck:                                                                     \
     # cppcheck:    # Check Cppcheck linter and save output
 	-@$(RMF) ./cppcheck.txt > /dev/null 2>&1 || $(TRUE)
+	-@$(TEST) -z "$(HTMLOUT)" ||                                              \
+      $(PRINTF) '%s\n' "CPPCHECK: HTML report generation enabled."
+	-@$(TEST) -z "$(HTMLOUT)" &&                                              \
+      $(PRINTF) '%s\n'                                                        \
+        "CPPCHECK: Set \"HTMLOUT=1\" to enable HTML report generation." ||    \
+          $(TRUE)
 	@( $(PRINTF) '%s\n' "Starting in 5s, saving output to cppcheck.txt";      \
-      $(SLEEP) 5 && ./src/ci-kit/cppcheck.sh 2> "cppcheck.txt" || $(TRUE) )
+      $(SLEEP) 5 && $(PRINTF) '%s\n' "" &&                                    \
+        ./src/ci-kit/cppcheck.sh 2> "cppcheck.txt" || $(TRUE) )
+	-@$(TEST) -z "$(HTMLOUT)" ||                                              \
+      $(TEST) -d "./cppcheck" &&                                              \
+        $(PRINTF) '%s\n'                                                      \
+          "CPPCHECK: Check the \"./cppcheck\" directory for HTML reports."
 
 ###############################################################################
 # Convenience target: Cppi scan/check
@@ -128,7 +251,55 @@ orstlint:                                                                     \
 .PHONY: clsanalz
 clsanalz:                                                                     \
     # clsanalz:    # Runs the Clang Analyzer & save output
-	@test -x ./src/ci-kit/scan-build.sh && ./src/ci-kit/scan-build.sh
+	@$(TEST) -x "./src/ci-kit/scan-build.sh" &&                               \
+      $(ENV) sh "./src/ci-kit/scan-build.sh"
+
+###############################################################################
+# Convenience target: scspell check scspell-id tagged files
+
+.PHONY: scspell
+scspell:                                                                      \
+    # scspell:    # scspell check scspell-id tagged files
+	@$(SCSPELLCMD) --version 2>&1 | $(GREP) -q '^scspell ' 2> /dev/null ||    \
+      { $(PRINTF) '%s\n' "ERROR: $(SCSPELLCMD) command unusable."; exit 1 ; }
+	@$(TEST) -f "./.scspell/dictionary.txt" 2> /dev/null ||                   \
+      { $(PRINTF) '%s\n' "ERROR: scspell dictionary not found."; exit 1 ; }
+	@{ for i in $$( $(FIND) "./" -exec $(GREP) -al 'scspell-id: ' "{}"        \
+      2> "/dev/null" \; 2> "/dev/null" | $(GREP) -v '^\./\.git/' ); do        \
+        $(PRINTF) 'SCSPELL: %s\n' "$${i:?}" ; $(SCSPELLCMD)                   \
+          --override-dictionary "./.scspell/dictionary.txt" "$${i:?}";        \
+            done ; }
+
+###############################################################################
+# Convenience target: Display files without scspell-id tags
+
+.PHONY: lmscspell
+lmscspell:                                                                    \
+    # lmscspell:    # Display files without scspell-id tags
+	@$(SCSPELLCMD) --version 2>&1 | $(GREP) -q '^scspell ' 2> /dev/null ||    \
+      { $(PRINTF) '%s\n' "ERROR: $(SCSPELLCMD) command unusable."; exit 1 ; }
+	@$(PRINTF) '%s\n' "*** Begin lmscspell"
+	@$(GREP) -riaL 'scspell-id: ' | $(GREP) -Ev '(\.o$$|\.lz$$|\.txt$$|\.ec$$|\.ref$$|\.list$$|\.mem$$|\.out$$|\.ascii$$|dps8\/ver.h$$|dps8\/errnos.h$$|dps8\/sysdefs.h$$|perf_test\/trivial.pl1$$|\.Attic\/|\.pdf$$|\.o$$|\.d$$|\.svg$$|\.exe$$|.\yml.in$$|rebuild\.env$$|^\.git\/.|Dependency$$|tags$$|TAGS$$|bound_library_wired_$$|nqueens$$|nqueensx$$|trivial$$|segldr_boot$$|segldr_bootx$$|\/mcmb$$|\/dps8$$|\/empty$$|\/prt2pdf$$|\/unifdef$$|\/vmpctool$$|\/punutil$$|GPATH$$|\.license$$)' || $(TRUE)
+	@$(PRINTF) '%s\n' "*** End lmscspell"
+
+###############################################################################
+# Convenience target: Check SPDX license data using reuse (WIP)
+
+# TODO: Identify and mark files (in src/dps8) that need Multics tags.
+
+# Requires reuse, GNU utilities, etc.  Tested with reuse 0.13.0.
+.PHONY: spdxcheck
+spdxcheck:                                                                    \
+    # spdxcheck:    # Check SPDX licensing data using reuse
+	@$(REUSETOOL) --version 2>&1 | $(GREP) -q '^reuse ' 2> /dev/null ||       \
+      { $(PRINTF) '%s\n' "ERROR: $(REUSETOOL) command unusable."; exit 1 ; }
+	@$(PRINTF) '%s\n' "*** Begin spdxcheck"
+	@$(REUSETOOL) lint | $(GREP) -v '^$$' | $(SED) -n                         \
+      '/^# MISSING COPYRIGHT AND LICENSING INFORMATION/,//p' | $(GREP) -v     \
+        'of the REUSE Specification' | $(SED) -e 's/^\*/  \*/'                \
+          -e 's/^#/\n\*/' -e 's/^\(The following \)/\n\* \1/' |               \
+            $(GREP) -Ev '(* Bad licenses:|* Deprecated licenses:|* Licenses without file extension:|* Missing licenses:|* Unused licenses:|* Used licenses:)' || $(TRUE)
+	@$(PRINTF) '%s\n' "*** End spdxcheck"
 
 ###############################################################################
 

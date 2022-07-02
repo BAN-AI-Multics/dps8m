@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: BSD-1-Clause
+ * scspell-id: 5c109fb8-f630-11ec-b1f7-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -111,10 +113,10 @@
 # endif
 
 /*
- ******************************************************************************
- * The sort macro is an adaptation of Simon Tatham's O(n log(n)) mergesort    *
- * Unwieldy variable names used here to avoid shadowing passed-in variables.  *
- ******************************************************************************
+ *****************************************************************************
+ * The sort macro is an adaptation of Simon Tatham's O(n log(n)) mergesort   *
+ * Unwieldy variable names used here to avoid shadowing passed-in variables. *
+ *****************************************************************************
  */
 
 # define LL_SORT(list, cmp)                                                                    \

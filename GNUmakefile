@@ -1,5 +1,7 @@
-# DPS/8M simulator: GNUmakefile
-# vim: filetype=make:tabstop=4:tw=79
+# DPS8M simulator: GNUmakefile
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: bfdf848e-f631-11ec-9b72-80ee73e9b8e7
 
 ##############################################################################
 #
@@ -60,7 +62,6 @@ ifneq (,$(wildcard src/Makefile.mk))
 endif
 
 export MAKE
-
 export MAKE_TOPLEVEL
 
 ##############################################################################
@@ -86,6 +87,12 @@ build default all dps8: .rebuild.env                                         \
 # Print build flags help
 
 .PHONY: flags options .rebuild.env
+ifneq (,$(findstring flags,$(MAKECMDGOALS)))
+.NOTPARALLEL: flags
+endif
+ifneq (,$(findstring options,$(MAKECMDGOALS)))
+.NOTPARALLEL: options
+endif
 options:                                                                     \
     # options:    # Display help for optional build flags
 	-@$(PRINTF) '%s\n' "Optional build flags:" 2> /dev/null || $(TRUE)
@@ -177,6 +184,20 @@ vmpctool: .rebuild.env                                                       \
             2> /dev/null || $(TRUE)
 
 ##############################################################################
+# Builds empty pseudo-terminal tool
+
+.PHONY: empty .rebuild.env
+empty: .rebuild.env                                                          \
+    # empty:    # Builds the empty pseudo-terminal tool
+	-@$(PRINTF) '%s\n' "BUILD: Starting empty build" 2> /dev/null ||         \
+        $(TRUE)
+	-@$(MAKE) -s -C "." ".rebuild.env";                                      \
+      $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);        \
+        $(MAKE) -C "src/empty" "all" &&                                      \
+          $(PRINTF) '%s\n' "BUILD: Successful empty build"                   \
+            2> /dev/null || $(TRUE)
+
+##############################################################################
 # Builds blinkenLights2
 
 .PHONY: blinkenLights2 .rebuild.env
@@ -203,6 +224,9 @@ endif
 # Initial GCC 10+ based PGO (profile-guided optimization) build
 
 .PHONY: pgobuild
+ifneq (,$(findstring pgobuild,$(MAKECMDGOALS)))
+.NOTPARALLEL: pgobuild
+endif
 pgobuild:                                                                    \
     # pgobuild:    # Profile Guided Optimization (GCC 10+)
 	-@$(PRINTF) '%s\n' "BUILD: Starting PGO build"   2> /dev/null || $(TRUE)
@@ -216,7 +240,7 @@ pgobuild:                                                                    \
                 "ERROR: \"CC=$(CC)\", failed substring match for \"gcc\"."   \
                 ""                                                           \
              " *********************************************************"    \
-             " ***  The \"CC\" environment variable MUST be explicity  ***"  \
+             " ***  The \"CC\" environment variable MUST be explicitly ***"  \
              " *** specified when using Profile Guided Optimization! ***"    \
              " ***        Example: \"env CC=gcc make pgobuild\"        ***"  \
              " *********************************************************"    \
@@ -245,13 +269,14 @@ pgobuild:                                                                    \
                         " *************************************************" \
                         "" ; $(SLEEP) 1 ;                                    \
        ( $(CD) ./src/perf_test &&                                            \
-         ( ../dps8/dps8 -vr nqueensx.ini 2>&1 | $(GREP) -w MIPS ) &&         \
+         ( ../dps8/dps8 -vr nqueensx.ini > /dev/null 2>&1 ) &&               \
            ( ../mcmb/mcmb -v > /dev/null 2>&1 || $(TRUE) );                  \
              ( ../punutil/punutil -h > /dev/null 2>&1 || $(TRUE) );          \
                ( ../prt2pdf/prt2pdf -v > /dev/null 2>&1 || $(TRUE) );        \
                  ( ../unifdef/unifdef -v > /dev/null 2>&1 || $(TRUE) );      \
                    ( ../vmpctool/vmpctool -q ../vmpctool/vmpctool            \
-                      > /dev/null 2>&1 || $(TRUE) ) );                       \
+                     > /dev/null 2>&1 || $(TRUE) ); ( ../empty/empty -h      \
+                       > /dev/null 2>&1 || $(TRUE) ); );                     \
          export PMODE="use" &&                                               \
          export LDFLAGS="$${XXLDFLAGS:?} -fprofile-partial-training          \
                          -fprofile-correction -fprofile-$${PMODE:?}          \
@@ -271,6 +296,9 @@ pgobuild:                                                                    \
 # Install
 
 .PHONY: install
+ifneq (,$(findstring install,$(MAKECMDGOALS)))
+.NOTPARALLEL: install
+endif
 install:                                                                     \
     # install:    # Builds and installs the sim and tools
 	-@$(PRINTF) '%s\n' "BUILD: Starting install" || $(TRUE)
@@ -287,8 +315,8 @@ endif
 clean:                                                                       \
     # clean:    # Cleans up executable and object files
 	-@$(PRINTF) '%s\n' "BUILD: Starting clean" 2> /dev/null || $(TRUE)
-	@$(RMF) ".needrebuild" || $(TRUE)
-	@$(RMF) ".rebuild.vne" || $(TRUE)
+	@$(RMF)  ".needrebuild"  ||  $(TRUE)
+	@$(RMF)  ".rebuild.vne"  ||  $(TRUE)
 	@$(MAKE) -C "src/dps8" "clean" &&                                        \
       $(PRINTF) '%s\n' "BUILD: Successful clean" 2> /dev/null || $(TRUE)
 
@@ -302,13 +330,16 @@ endif
 distclean: clean                                                             \
     # distclean:    # Cleans up tree to pristine conditions
 	-@$(PRINTF) '%s\n' "BUILD: Starting distclean" 2> /dev/null || $(TRUE)
-	@$(RMF) ".needrebuild"   || $(TRUE)
-	@$(RMF) ".rebuild.env"   || $(TRUE)
-	@$(RMF) ".rebuild.vne"   || $(TRUE)
-	@$(RMF) -rf "./out"      || $(TRUE)
-	@$(RMF) "cppcheck.txt"   || $(TRUE)
-	@$(RMF) "./orstlint.txt" || $(TRUE)
-	@$(MAKE) -C "src/dps8" "distclean" &&                                    \
+	@$(RMF)   ".needrebuild"                   || $(TRUE)
+	@$(RMF)   ".rebuild.env"                   || $(TRUE)
+	@$(RMF)   ".rebuild.vne"                   || $(TRUE)
+	@$(RMF)   -rf "./out"                      || $(TRUE)
+	@$(RMF)   "cppcheck.txt"                   || $(TRUE)
+	@$(RMF)   "./orstlint.txt"                 || $(TRUE)
+	@$(RMF)   -rf "./cppcheck"                 || $(TRUE)
+	@$(RMF)   "./"*".xml"                      || $(TRUE)
+	@$(RMDIR) "./.cppbdir"  > /dev/null  2>&1  || $(TRUE)
+	@$(MAKE)  -C "src/dps8" "distclean" &&                                    \
       $(PRINTF) '%s\n' "BUILD: Successful distclean" 2> /dev/null || $(TRUE)
 
 ##############################################################################
@@ -353,6 +384,12 @@ endif
 
 ##############################################################################
 
+ifneq (,$(wildcard src/Makefile.doc))
+  include src/Makefile.doc
+endif
+
+##############################################################################
+
 ifneq (,$(wildcard src/Makefile.dep))
   include src/Makefile.dep
 endif
@@ -361,6 +398,12 @@ endif
 # Print help output
 
 .PHONY: help info
+ifneq (,$(findstring help,$(MAKECMDGOALS)))
+.NOTPARALLEL: help
+endif
+ifneq (,$(findstring info,$(MAKECMDGOALS)))
+.NOTPARALLEL: info
+endif
 help info:                                                                   \
     # help:    # Display this list of Makefile targets
 	@$(GREP) -E '^.* # .*:    # .*$$' $(MAKEFILE_LIST) 2> /dev/null        | \
@@ -374,7 +417,7 @@ help info:                                                                   \
                     $(GREP) -v 'GREP' 2> /dev/null                         | \
                       $(GREP) -v '_LIST' 2> /dev/null | $(SED) 's/^n//g'   | \
                        $(SED) 's/n$$//g'                                  || \
-                       { $(PRINTF) '%s\n' "Error: Unable to display help.";  \
+                        { $(PRINTF) '%s\n' "Error: Unable to display help."; \
                           $(TRUE) > /dev/null 2>&1; }                     || \
                             $(TRUE) > /dev/null 2>&1
 	@$(PRINTF) '%s\n' "" 2> /dev/null || $(TRUE) > /dev/null 2>&1

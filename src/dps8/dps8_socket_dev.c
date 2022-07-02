@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: eec1f540-f62e-11ec-8889-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -111,7 +113,8 @@ static t_stat skc_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) SKC_UNIT_IDX (uptr);
     if (n < 0 || n >= N_SKC_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Controller device name is %s\n", skc_state[n].device_name);
+    if (skc_state[n].device_name[1] != 0)
+      sim_printf("Name: %s", skc_state[n].device_name);
     return SCPE_OK;
   }
 
@@ -1131,7 +1134,7 @@ iom_cmd_rc_t skc_iom_cmd (uint iom_unit_idx, uint chan)
         sim_warn ("%s expected IDCW\n", __func__);
         return IOM_CMD_ERROR;
       }
-    return rc; //  don't contine down the dcw list.
+    return rc; //  don't continue down the dcw list.
   }
 
 static void do_try_accept (uint unit_idx, word6 dev_code)

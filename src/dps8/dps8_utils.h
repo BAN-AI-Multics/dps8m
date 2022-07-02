@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 1881c7a6-f62f-11ec-b538-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -73,7 +75,7 @@ char *rtrim(char *s);
 //
 // getbitsNN/setbitsNN/putbitsNN
 //
-//   Manipluate bitfields.
+//   Manipulate bitfields.
 //     NN      the word size (18, 36, 72).
 //     data    the incoming word
 //     i       the starting bit number (DPS8 notation, 0 is the MSB)

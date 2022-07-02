@@ -1,6 +1,8 @@
 /* h316_imp.h- BBN ARPAnet IMP/TIP Definitions
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: 50c5a696-f62f-11ec-99dc-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 

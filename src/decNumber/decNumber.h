@@ -1,4 +1,6 @@
 // vim: filetype=c:tabstop=4:tw=72:expandtab
+// SPDX-License-Identifier: ICU
+// scspell-id: ca5518dc-f62c-11ec-9785-80ee73e9b8e7
 /* ------------------------------------------------------------------ */
 /* Decimal Number arithmetic module header                            */
 /* ------------------------------------------------------------------ */
