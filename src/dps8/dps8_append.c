@@ -1913,7 +1913,9 @@ HI:
             core_readN (finalAddress, data, nWords, str_pct (thisCycle));
           }
 #else
-        core_readN (finalAddress, data, nWords, str_pct (thisCycle));
+        if (thisCycle != ABSA_CYCLE)
+          core_readN (finalAddress, data, nWords, str_pct (thisCycle));
+        //else sim_printf ("############### bogus absa read\r\n");
 #endif
       }
 
