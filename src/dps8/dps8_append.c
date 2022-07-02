@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 4bc3e31c-f62d-11ec-bf00-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -1368,8 +1370,8 @@ A:;
     // lastCycle == RTCD_OPERAND_FETCH
     // if a fault happens between the RTCD_OPERAND_FETCH and the INSTRUCTION_FETCH
     // of the next instruction - this happens about 35 time for just booting  and
-    // shutting down multics -- a stored lastCycle is useless.
-    // the opcode is preserved accross faults and only replaced as the
+    // shutting down Multics -- a stored lastCycle is useless.
+    // the opcode is preserved across faults and only replaced as the
     // INSTRUCTION_FETCH succeeds.
     if (thisCycle == INSTRUCTION_FETCH &&
         i->opcode == 0610  && ! i->opcodeX)

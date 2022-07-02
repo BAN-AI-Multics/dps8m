@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 5d03518d-f62d-11ec-a03b-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -23,7 +25,7 @@ typedef enum chanType { chanTypeCPI, chanTypePSI, chanTypeDirect } chanType;
 // Multics devices (from prph card, AM81-04, pp 7-21 on)
 //
 //  CCUn   Combination record units  CCU0401
-//  DIAn   Direct Interface Adpator
+//  DIAn   Direct Interface Adapter
 //  DSKn   Disk MSU0400 MSU0402 MSU0451 MSU0500 MSU0501 MSU3380 MSU3381
 //  FNPn   FNP DN6670
 //  OPCn   Operator Console CSU6001 CSU6004 CSU6601
@@ -146,7 +148,7 @@ struct cpu_to_scu_s
 struct iom_to_ctlr_s
   {
     bool in_use;
-    uint ctlr_unit_idx; // SIMH unit number ("ctrl#")
+    uint ctlr_unit_idx; // unit number ("ctrl#")
     uint port_num; // port#
     enum ctlr_type_e ctlr_type; // TAPE, DISK, CON, ...
     enum chan_type_e chan_type; // CPI, PSI, Direct
@@ -205,7 +207,7 @@ struct dev_to_ctlr_s
     bool in_use;
     uint ctlr_unit_idx;
     uint dev_code;
-    enum ctlr_type_e ctlr_type; // Used by disks to determine if the controler
+    enum ctlr_type_e ctlr_type; // Used by disks to determine if the controller
                                 // is MSP or IPC
   };
 

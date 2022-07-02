@@ -1,5 +1,7 @@
-# DPS/8M simulator: src/Makefile.mk
-# vim: filetype=make:tabstop=4:tw=76:noexpandtab
+# DPS8M simulator: src/Makefile.mk
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: 1cea05fd-f62b-11ec-b08e-80ee73e9b8e7
 
 ###############################################################################
 #
@@ -15,7 +17,9 @@
 # LICENSE.md file at the top-level directory of this distribution.
 #
 ###############################################################################
+
 # src/Makefile.mk: Macro definitions and operating system detection defaults
+
 ###############################################################################
 # Default configuration
 
@@ -67,6 +71,7 @@ UNIQ       ?= uniq
 CKSUM      ?= cksum
 EXPAND     ?= expand
 GPG        ?= gpg --batch --status-fd --with-colons
+REUSETOOL  ?= reuse
 WC         ?= wc
 SED        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" sed
 AWK        ?= $(shell $(COMMAND) -v gawk 2> /dev/null || \
@@ -87,6 +92,7 @@ WC         ?= wc
 EXPAND     ?= expand
 RMNF       ?= rm
 RMF        ?= $(RMNF) -f
+RMDIR      ?= rmdir
 CTAGS      ?= ctags
 ETAGS      ?= etags
 GTAGS      ?= gtags
@@ -104,6 +110,7 @@ TAR        ?= tar
 XARGS      ?= xargs
 GTARUSER   ?= dps8m
 GTARGROUP  ?= $(GTARUSER)
+MAKEDEPEND ?= makedepend
 MAKETAR    ?= $(TAR) --owner=$(GTARUSER) --group=$(GTARGROUP) --posix -c      \
                      --transform 's/^/.\/dps8\//g' -$(ZCTV)
 TARXT      ?= tar
@@ -113,6 +120,7 @@ GZIP       ?= gzip
 GZCAT      ?= $(GZIP) -dc
 COMPRESSXT ?= gz
 KITNAME    ?= sources
+SCSPELLCMD ?= scspell
 SIMHx       = ../simh
 
 ###############################################################################
@@ -141,6 +149,10 @@ ifneq ($(OS),Windows_NT)
   UNAME_S := $(shell  $(UNAME) -s)
   ifeq ($(UNAME_S),Darwin)
     OS = OSX
+    ifeq "$(findstring gcc,$(CC))" ""
+      # NOTE: Trailing whitespace on the following line was added intentionally
+      CFLAGS += -D__thread= 
+    endif
   endif
 endif
 
@@ -271,7 +283,7 @@ ifeq ($(OS),Windows_NT)
   endif
 
 ###############################################################################
-# macOS
+# macOS / OS X
 
 else
   UNAME_S := $(shell $(UNAME) -s 2> /dev/null)

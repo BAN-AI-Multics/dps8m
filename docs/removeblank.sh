@@ -1,7 +1,9 @@
 #!/usr/bin/env sh
-# vim: filetype=sh:tabstop=4:tw=76:expandtab
+# vim: filetype=sh:tabstop=4:tw=78:expandtab
+# SPDX-License-Identifier: FSFAP
+# scspell-id: 46316a14-f632-11ec-8919-80ee73e9b8e7
 
-############################################################################
+##############################################################################
 #
 # Copyright (c) 2021-2022 The DPS8M Development Team
 #
@@ -10,7 +12,7 @@
 # notice and this notice are preserved.  This file is offered "AS-IS",
 # without any warranty.
 #
-############################################################################
+##############################################################################
 
 ##############################################################################
 # Initialization

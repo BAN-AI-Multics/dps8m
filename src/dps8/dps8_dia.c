@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 134751ac-f62e-11ec-b67e-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -225,7 +227,7 @@ static t_stat attach (UNIT * uptr, const char * cptr)
       return SCPE_ARG;
     int unitno = (int) (uptr - dia_unit);
 
-    // ATTACH DNn llll:w.x.y.z:rrrr - connect via UDP to a remote simh host
+    // ATTACH DNn llll:w.x.y.z:rrrr - connect via UDP to a remote
 
     t_stat ret;
     char * pfn;
@@ -491,7 +493,7 @@ static void processMBX (uint iom_unit_idx, uint chan)
 // 60132445 FEP Coupler EPS
 // 2.2.1 Control Intercommunication
 //
-// "In Level 66 momory, at a location known to the coupler and
+// "In Level 66 memory, at a location known to the coupler and
 // to Level 6 software is a mailbox area consisting to an Overhead
 // mailbox and 7 Channel mailboxes."
 
@@ -568,14 +570,14 @@ static void processMBX (uint iom_unit_idx, uint chan)
 //
 // 1. The L66 program creates a LPW and Pcw for the Central System Connect
 // channel. It also generates and stores a control word containing a command
-// int he L66 maillbox. A Connect is then issued to the L66 IOM.
+// in the L66 mailbox. A Connect is then issued to the L66 IOM.
 //
 // 2. The Connect Channel accesses the PCW to get the channel number of
 // the Direct Channel that the coupler is attached to. the direct Channel
-// sends a signelto the Coupler that a Connect has been issued.
+// sends a signal to the Coupler that a Connect has been issued.
 //
 // 3. The Coupler now reads the content of the L66 mailbox, obtaining the
-// control word. If the control word is legel, the Coupler will write a
+// control word. If the control word is legal, the Coupler will write a
 // word of all zeros into the mailbox.
 //
 
@@ -583,9 +585,9 @@ static void processMBX (uint iom_unit_idx, uint chan)
 // The transfer control word, which is pointed to by the
 // mailbox word in l66 memory on Op Codes 72, 7, 76 contains
 // a starting address which applies to L6 memory an a Tally
-// of the number of 36 bit words to be transfered. The l66
+// of the number of 36 bit words to be transferred. The l66
 // memory locations to/from which the transfers occur are
-// those immediately follwoing the location where this word
+// those immediately following the location where this word
 // was obtained.
 //
 //    00-02  001
@@ -881,7 +883,7 @@ static int poll_coupler (uint unitno, uint8_t * * pktp)
 
 void dia_unit_process_events (uint unit_num)
   {
-// XXX rememeber
+// XXX remember
 // XXX        //dudp -> fnpIsRunning = true;
 // XXX when bootload complete!
 

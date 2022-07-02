@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: ff1a12fc-f62e-11ec-aea6-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -94,7 +96,7 @@ struct system_state_s * system_state;
 vol word36 * M = NULL;  // memory
 
 //
-// These are part of the simh interface
+// These are part of the scp interface
 //
 
 #ifdef DPS8M
@@ -118,7 +120,7 @@ int32 luf_flag = 1;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// simh Commands
+// SCP Commands
 //
 
 //
@@ -151,7 +153,7 @@ static char * default_base_system_script [] =
     // ; The actual memory size of the memory attached to the SCU attached to
     // ; the processor port in questions is 32K * 2 ** (encoded memory size).
     // ; The port assignment couples with the memory size to determine the base
-    // ; address of the SCU connected to the specified CPU port (absoulte
+    // ; address of the SCU connected to the specified CPU port (absolute
     // ; address of the first location in the memory attached to that SCU). The
     // ; base address of the SCU is the (actual memory size) * (port assignment).
     // ;
@@ -1697,7 +1699,7 @@ static t_stat set_default_base_system (UNUSED int32 arg, UNUSED const char * buf
 // The T&D tape first record is for testing DPS8s, the
 // second record (1st record / tape mark / 2nd record)
 // is for testing DPS8/Ms.
-// XXX assumes the boot tape is on SIMH tape unit 0 XXX
+// XXX assumes the boot tape is on tape unit 0
 
 static t_stat boot_skip (int32 UNUSED arg, UNUSED const char * buf)
   {
@@ -1710,7 +1712,7 @@ static t_stat boot_skip (int32 UNUSED arg, UNUSED const char * buf)
 
 // Simulate pressing the 'EXECUTE FAULT' button. Used as an
 // emergency interrupt of Multics if it hangs and becomes
-// unresponive to the operators console.
+// unresponsive to the operators console.
 
 static t_stat do_execute_fault (UNUSED int32 arg,  UNUSED const char * buf)
   {
@@ -1795,7 +1797,7 @@ static t_stat set_sys_poll_check_rate (UNUSED int32 arg, const char * buf)
     int n = atoi (buf);
     if (n < 1 || n > 1024*1024) // 1 - poll check rate in CPY cycles: 1 - check every cycle; 1024 check every 1024 cycles
       {
-        sim_printf ("CHECKPOLL %d: must be 1 (check every cycle) to 1048576 (ckeck every million cycles\r\n", n);
+        sim_printf ("CHECKPOLL %d: must be 1 (check every cycle) to 1048576 (check every million cycles\r\n", n);
         return SCPE_ARG;
       }
     sim_printf ("Poll check rate set to %d CPU cycles\r\n", n);
@@ -1813,9 +1815,9 @@ static t_stat set_sys_poll_check_rate (UNUSED int32 arg, const char * buf)
 
 // Start debug output at CPU cycle N.
 uint64 sim_deb_start = 0;
-// Stop debug outout at CPU cycle N.
+// Stop debug output at CPU cycle N.
 uint64 sim_deb_stop = 0;
-// Break to simh prompt at CPU cycle N.
+// Break to scp prompt at CPU cycle N.
 uint64 sim_deb_break = 0;
 // Enable CPU sim_debug iff PPR.PSR == N
 bool sim_deb_segno_on = false;
@@ -1826,19 +1828,19 @@ bool sim_deb_segno[DEBUG_SEGNO_LIMIT] = { [0 ... DEBUG_SEGNO_LIMIT - 1] = false 
 # endif
 // Enable CPU sim_debug iff PPR.PRR == N
 uint64 sim_deb_ringno = NO_SUCH_RINGNO;
-// Supress CPU sim_debug calls that pass all
+// Suppress CPU sim_debug calls that pass all
 // of the filters after N times
 uint64 sim_deb_skip_limit = 0;
-// Supress the first N CPU sim_debug calls
+// Suppress the first N CPU sim_debug calls
 // that pass all of the filters
 uint64 sim_deb_skip_cnt = 0;
-// Supress sim_debug until the MME instruction
+// Suppress sim_debug until the MME instruction
 // has been executed N times
 uint64 sim_deb_mme_cntdwn = 0;
-// Supress CPU sim_debug unless CPU number bit set
+// Suppress CPU sim_debug unless CPU number bit set
 uint dbgCPUMask = 0377; // default all 8 on
 
-// Supress CPU sim_debug unless BAR mode
+// Suppress CPU sim_debug unless BAR mode
 bool sim_deb_bar = false;
 
 // Set the various filters
@@ -2147,7 +2149,7 @@ static t_stat abs_addr_n (int segno, uint offset)
   }
 
 // ABS segno:offset
-// simh command to translate segno:offset to absolute address
+// scp command to translate segno:offset to absolute address
 
 static t_stat abs_addr (UNUSED int32 arg, const char * buf)
   {
@@ -2551,7 +2553,7 @@ void list_source (char * compname, word18 offset, uint dflag)
                     searchPrefix[6] = bestLines[4];
                     searchPrefix[7] = bestLines[5];
                     searchPrefix[8] = bestLines[6];
-                    // ignore trailing space; some times its a tab
+                    // ignore trailing space; some times it's a tab
                     // searchPrefix[ 9] = bestLines[ 7];
                     searchPrefix[9] = '\0';
 
@@ -3213,8 +3215,8 @@ static t_stat set_search_path (UNUSED int32 arg, UNUSED const char * buf)
 
 // Hook for gdb
 //
-// The idea is that if you want to set a gdb breakpoint for a particulary
-// complex condition, you can add a test for the condtion to the emulator
+// The idea is that if you want to set a gdb breakpoint for a particularly
+// complex condition, you can add a test for the condition to the emulator
 // code and call brkbrk() when the condition is met; by doing a gdb
 // 'b brkbrk', gdb will see when the condition is met.
 //
@@ -3774,22 +3776,22 @@ static CTAB dps8_cmds[] =
     {"FNPSERVER3270PORT",   set_fnp_3270_server_port, 0, "Set the FNP TN3270 dialin port number\n", NULL, NULL},
 
 //
-// System contol
+// System control
 //
 
     {"SKIPBOOT",            boot_skip,                0, "Skip forward on boot tape\n", NULL, NULL},
     {"FNPSTART",            fnp_start,                0, "Force an immediate FNP initialization\n", NULL, NULL},
-    {"MOUNT",               mount_tape,               0, "Mount tape image and signal Mulitcs\n", NULL, NULL },
-    {"LOAD",                load_media,               1, "Mount disk or tape image and signal Mulitcs\n", NULL, NULL },
-    {"UNLOAD",              load_media,               0, "Unmount disk or tape image and signal Mulitcs\n", NULL, NULL },
-    {"READY",               ready_media,              0, "Signal Mulitcs that media is ready\n", NULL, NULL },
+    {"MOUNT",               mount_tape,               0, "Mount tape image and signal Multics\n", NULL, NULL },
+    {"LOAD",                load_media,               1, "Mount disk or tape image and signal Multics\n", NULL, NULL },
+    {"UNLOAD",              load_media,               0, "Unmount disk or tape image and signal Multics\n", NULL, NULL },
+    {"READY",               ready_media,              0, "Signal Multics that media is ready\n", NULL, NULL },
     {"REWIND",              rewind_media,             0, "Rewind tape\n", NULL, NULL },
     {"XF",                  do_execute_fault,         0, "Execute fault: Press the execute fault button\n", NULL, NULL},
     {"RESTART",             do_restart,               0, "Execute fault: Press the execute fault button\n", NULL, NULL},
-    {"POLL",                set_sys_polling_interval, 0, "Set polling interval (in milliseconds)", NULL, NULL },
-    {"SLOWPOLL",            set_sys_slow_polling_interval, 0, "Set slow polling interval (in polling intervals)", NULL, NULL },
-    {"CHECKPOLL",           set_sys_poll_check_rate,  0, "Set polling check rate (in polling intervals)", NULL, NULL },
-    {"BURST",               burst_printer,            0, "Burst process output from printer", NULL, NULL },
+    {"POLL",                set_sys_polling_interval, 0, "Set polling interval (in milliseconds)\n", NULL, NULL },
+    {"SLOWPOLL",            set_sys_slow_polling_interval, 0, "Set slow polling interval (in polling intervals)\n", NULL, NULL },
+    {"CHECKPOLL",           set_sys_poll_check_rate,  0, "Set polling check rate (in polling intervals)\n", NULL, NULL },
+    {"BURST",               burst_printer,            0, "Burst process output from printer\n", NULL, NULL },
 
 //
 // Debugging
@@ -3820,7 +3822,7 @@ static CTAB dps8_cmds[] =
     {"ASBE",                add_system_book_entry,    0, "Add an entry to the system book\n", NULL, NULL},
     {"LOOKUP_SYSTEM_BOOK",  lookup_system_book,       0, "Lookup an address or symbol in the Multics system book\n", NULL, NULL},
     {"LSB",                 lookup_system_book,       0, "Lookup an address or symbol in the Multics system book\n", NULL, NULL},
-    {"VIRTUAL",             virt_address,             0, "Compute the virtural address(es) of segno:offset\n", NULL, NULL},
+    {"VIRTUAL",             virt_address,             0, "Compute the virtual address(es) of segno:offset\n", NULL, NULL},
     {"SPATH",               set_search_path,          0, "Set source code search path\n", NULL, NULL},
     {"TEST",                brkbrk,                   0, "GDB test hook\n", NULL, NULL},
 # ifdef DBGEVENT
@@ -3853,10 +3855,10 @@ static CTAB dps8_cmds[] =
     {"NOWATCH",             set_mem_watch,            0, "Unwatch memory location\n", NULL, NULL},
 # endif
     {"SEARCHMEMORY",        search_memory,            0, "Search memory for value\n", NULL, NULL},
-    {"DBGCPUMASK",          set_dbg_cpu_mask,         0, "Set per-CPU debug enable mask", NULL, NULL},
+    {"DBGCPUMASK",          set_dbg_cpu_mask,         0, "Set per-CPU debug enable mask\n", NULL, NULL},
 #endif // TESTING
 
-    {"SEGLDR",              segment_loader,           0, "Segment Loader", NULL, NULL},
+    {"SEGLDR",              segment_loader,           0, "Segment Loader\n", NULL, NULL},
 
 //
 // Statistics
@@ -4025,7 +4027,7 @@ static void systabInit (void) {
 }
 
 
-// Once-only initialization; invoked by simh
+// Once-only initialization; invoked via SCP
 
 static void dps8_init (void) {
   fflush(stderr); fflush(stdout);
@@ -4092,10 +4094,10 @@ static void dps8_init (void) {
     fflush(stderr); fflush(stdout);
   }
 
-  // special dps8 initialization stuff that cant be done in reset, etc .....
+  // special dps8 initialization stuff that can't be done in reset, etc. ...
 
 # ifdef TESTING
-  // These are part of the simh interface
+  // These are part of the scp interface
   sim_vm_parse_addr = parse_addr;
   sim_vm_fprint_addr = fprint_addr;
 # endif // TESTING
@@ -4157,8 +4159,11 @@ static void dps8_init (void) {
     sprintf(statenme, "%s.state", rssuffix);
   else
     sprintf(statenme, "state");
-  system_state = (struct system_state_s *)
-    create_shm (statenme, sizeof (struct system_state_s));
+  if (!sim_nostate)
+    system_state = (struct system_state_s *)
+      create_shm (statenme, sizeof (struct system_state_s));
+  else
+    system_state = malloc (sizeof (struct system_state_s));
 #endif
 
   if (!system_state) {
@@ -4226,7 +4231,7 @@ static void dps8_init (void) {
 #  endif /* ifndef __MINGW64__ */
 # endif /* ifndef __MINGW32__ */
   fnpInit ();
-  console_init (); // must come after fnpInit due to libuv initiailization
+  console_init (); // must come after fnpInit due to libuv initialization
  /* mpc_init (); */
   scu_init ();
   cpu_init ();
@@ -4253,7 +4258,7 @@ static void dps8_init (void) {
 #endif /* if defined(THREADZ) || defined(LOCKLESS) */
 }
 
-// Once-only shutdown; invoked by simh
+// Once-only shutdown; invoked via SCP
 
 static void dps8_exit (void) {
   console_exit ();
@@ -4369,7 +4374,7 @@ static t_addr parse_addr (UNUSED DEVICE * dptr, const char *cptr,
 
         word24 abs_addr = (word24) getAddress(segno, (int) (offset + PRoffset));
 
-        // TODO: only luckily does this work FixMe
+        // TODO: only by luck does this work FixMe
         *optr = endp;   //cptr + strlen(cptr);
 
         return abs_addr;
@@ -4412,10 +4417,10 @@ static void fprint_addr (FILE * stream, UNUSED DEVICE *  dptr, t_addr simh_addr)
 }
 #endif // TESTING
 
-// This is part of the simh interface
+// This is part of the scp interface
 // Based on the switch variable, symbolically output to stream ofile the data in
 //  array val at the specified addr in unit uptr.
-// simh "fprint_sym" – Based on the switch variable, symbolically output to
+// "fprint_sym" – Based on the switch variable, symbolically output to
 // stream ofile the data in array val at the specified addr in unit uptr.
 
 t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
@@ -4466,7 +4471,7 @@ t_stat fprint_sym (UNUSED FILE * ofile, UNUSED t_addr addr,
     return SCPE_ARG;
 }
 
-// This is part of the simh interface
+// This is part of the scp interface
 //  – Based on the switch variable, parse character string cptr for a
 //  symbolic value val at the specified addr in unit uptr.
 
@@ -4635,10 +4640,10 @@ static DEVICE sys_dev = {
 };
 
 
-// This is part of the simh interface
+// This is part of the scp interface
 DEVICE * sim_devices[] =
   {
-    & cpu_dev, // dev[0] is special to simh; it is the 'default device'
+    & cpu_dev, // dev[0] is special to the scp interface; it is the 'default device'
     & iom_dev,
     & tape_dev,
 #ifndef __MINGW64__

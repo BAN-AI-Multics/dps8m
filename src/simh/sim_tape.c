@@ -1,6 +1,8 @@
 /* sim_tape.c: simulator tape support library
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: d4f34561-f62a-11ec-85d5-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 
@@ -1980,16 +1982,16 @@ t_stat sim_tape_show_capac (FILE *st, UNIT *uptr, int32 val, CONST void *desc)
 {
 if (uptr->capac) {
     if (uptr->capac >= (t_addr) 1000000)
-        fprintf (st, "capacity=%luMB", (unsigned long)(uptr->capac / ((t_addr) 1000000)));
+        fprintf (st, "capacity : %luMB", (unsigned long)(uptr->capac / ((t_addr) 1000000)));
     else {
         if (uptr->capac >= (t_addr) 1000)
-            fprintf (st, "capacity=%luKB", (unsigned long)(uptr->capac / ((t_addr) 1000)));
+            fprintf (st, "capacity : %luKB", (unsigned long)(uptr->capac / ((t_addr) 1000)));
         else
-            fprintf (st, "capacity=%luB", (unsigned long)uptr->capac);
+            fprintf (st, "capacity : %luB", (unsigned long)uptr->capac);
         }
     }
 else
-    fprintf (st, "unlimited capacity");
+    fprintf (st, "capacity : unlimited");
 return SCPE_OK;
 }
 

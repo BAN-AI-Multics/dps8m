@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 # vim: filetype=sh:tabstop=4:tw=78:expandtab
+# SPDX-License-Identifier: FSFAP
+# scspell-id: 74e820f7-f62c-11ec-8aa1-80ee73e9b8e7
 
 ##############################################################################
 #
@@ -12,11 +14,7 @@
 #
 ##############################################################################
 
-##############################################################################
-# Check for `stdbuf`
-
 HAVE_STDBUF=0
-
 command -v "stdbuf" > /dev/null 2>&1 &&
     {
       HAVE_STDBUF=1
@@ -24,11 +22,8 @@ command -v "stdbuf" > /dev/null 2>&1 &&
     }
 
 ##############################################################################
-# Check for filters
 
 HAVE_FILTER=0
-
-# Check for `ansifilter`
 command ansifilter --version 2>&1 | \
   grep -q 'ansifilter version' 2> /dev/null &&
     {
@@ -37,19 +32,14 @@ command ansifilter --version 2>&1 | \
     }
 
 ##############################################################################
-# Check for stampers
 
 HAVE_STAMPER=0
-
-# Check for `ts`
 command ts --help 2>&1 | \
   grep -q  'usage:.*-s.*\[-m\].*\[format\]' 2> /dev/null &&
     {
       HAVE_STAMPER=1
       TS_STAMPER="ts -s -m '[%H:%M:%.S]'"
     }
-
-# Check for `moreutils-ts`
 test "${HAVE_STAMPER:-0}" -eq 0 2> /dev/null &&
     {
         command moreutils-ts --help 2>&1 | \
@@ -61,11 +51,11 @@ test "${HAVE_STAMPER:-0}" -eq 0 2> /dev/null &&
     }
 
 ##############################################################################
-# Display output
 
 test "${HAVE_FILTER:-0}" -eq 1          2> /dev/null &&
     test "${HAVE_STAMPER:-0}" -eq 1     2> /dev/null &&
         test "${HAVE_STDBUF:-0}" -eq 1  2> /dev/null &&
             TS_TIMESTAMPER="${TS_STDBUF:?} ${TS_FILTER:?} | ${TS_STAMPER:?}"
-
 printf '%s\n' "${TS_TIMESTAMPER:-cat}"
+
+##############################################################################

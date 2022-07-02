@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=132:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 563cbc3d-f631-11ec-a429-80ee73e9b8e7
  *
  * =================================================================================================================================
  *
@@ -25,25 +27,11 @@
 */
 
 /*
- * Copyright (c) 2006 John S. Urban, USA. <urbanjost@comcast.net>
- *
- * All rights reserved.
- *
- * Permission to use, copy, modify and distribute this software and
- * its documentation is hereby granted, provided that both the copyright
- * notice and this permission notice appear in all copies of the
- * software, derivative works or modified versions, and any portions
- * thereof, and that both notices appear in supporting documentation.
- *
- * JOHN S. URBAN ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
- * CONDITION.  JOHN S. URBAN DISCLAIMS ANY LIABILITY OF ANY KIND
- * FOR ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
- *
  * ---------------------------------------------------------------------------
  *
- * Modified: asa2pdf - John S. Urban - Apr 30, 2006
+ * Derived from asa2pdf - John S. Urban - Apr 30, 2006
  *
- * Needed to emulate an old ASA 60 line by 132 column lineprinter quicky with
+ * Needed to emulate an old ASA 60 line by 132 column lineprinter quickly with
  * output as a PDF file.
  *
  * Tested with xpdf, gv/ghostview, and acroread (PC version) PDF interpreters.
@@ -53,7 +41,7 @@
  * V1:
  *
  *   *  Began with txt2pdf; Copyright 1998; P. G. Womack, Diss, Norfolk, UK.
- *          "Do what you like, but don't claim you wrote it."
+ *   *  "Do what you like, but don't claim you wrote it."
  *   *  Added bar shading.
  *   *  user-settable gray scale value via environment variable IMPACT_GRAY
  *   *  placed Adobe-recommended "binary" flag at top of PDF file.

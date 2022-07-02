@@ -1,4 +1,6 @@
 // vim: filetype=c:tabstop=4:tw=72:expandtab
+// SPDX-License-Identifier: ICU
+// scspell-id: cdc19497-f62c-11ec-888c-80ee73e9b8e7
 /* ------------------------------------------------------------------ */
 /* decNumber package local type, tuning, and macro definitions        */
 /* ------------------------------------------------------------------ */
@@ -230,7 +232,7 @@
 # define CHARMASK ((((((((uInt)'0')<<8)+'0')<<8)+'0')<<8)+'0')
 
   /* ---------------------------------------------------------------- */
-  /* Definitions for arbitary-precision modules (only valid after     */
+  /* Definitions for arbitrary-precision modules (only valid after    */
   /* decNumber.h has been included)                                   */
   /* ---------------------------------------------------------------- */
 

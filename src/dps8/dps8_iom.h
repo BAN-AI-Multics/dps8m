@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 8e66ce24-f62e-11ec-8690-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -187,9 +189,9 @@ typedef volatile struct
            /* EXT */ cm1e, cm2e } chanMode;
 
 // XXX CP XXXX
-// "Specifies the positions of the first character withe the first word
+// "Specifies the positions of the first character with the first word
 // of the block. The byte size, defined by the channel, determines
-// what CP vaues are valid/
+// what CP values are valid/
 //  6 bit: 0-5; 9 bit: 0-4; 18 bit: 0-1; 36 bit: 0-6
 //
 // For word channels, CP is sent to the channel during list service,
@@ -203,7 +205,7 @@ typedef volatile struct
 //  and make it's own decisions about "zeros". After all, it is
 //  not clear what a non-zero CP means for a word channel.]
 //
-// For sub-word channels which depent on IOM Central for packing and
+// For sub-word channels which depend on IOM Central for packing and
 // unpacking words, [IOM Central uses and updates the CP to access
 // sub-words].
 //

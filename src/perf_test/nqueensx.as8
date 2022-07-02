@@ -1,3 +1,7 @@
+" SPDX-License-Identifier: ICU
+" SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+" scspell-id: c11ee994-f776-11ec-96f3-80ee73e9b8e7
+"
 " STORAGE FOR AUTOMATIC VARIABLES.
 "
 " nqueens
@@ -24,7 +28,7 @@
 " nqueens: proc;
 
 nqueens:	spri4	pr6|nqueens_ret
-" we entered thorugh "tsp4 pr1|0", so pr1 has out segment number. Set up tbp...
+" we entered through "tsp4 pr1|0", so pr1 has our segment number. Set up tbp...
 	spbp1	pr6|38	" tbp?
 
 " count = 0;

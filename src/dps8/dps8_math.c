@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 9ca9a790-f62e-11ec-a677-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -432,7 +434,7 @@ float36 IEEEdoubleTofloat36(double f0)
 //#define HEX_MSB  (         BIT71 | BIT70 | BIT69 | BIT68)
 # ifdef NEED_128
 #  define HEX_SIGN construct_128 (0xF0, 0)
-#  define HEX_MSB  consturct_128 (0x70, 0)
+#  define HEX_MSB  construct_128 (0x70, 0)
 #  define HEX_NORM construct_128 (0x78, 0)
 # else
 #  define HEX_SIGN (SIGN72 | BIT71 | BIT70 | BIT69)
@@ -447,7 +449,7 @@ static inline bool isHex (void)
 #endif
 
 /*!
- * unnormalized floating single-precision add
+ * Unnormalized floating single-precision add
  */
 void ufa (bool sub)
 {
@@ -1219,7 +1221,7 @@ void fneg (void)
 # endif
       {
         // Negation of 400..0 / 2 is 200..0; we can get there shifting; we know
-        // that a zero will be shifted into the sign bit becuase fo the masking
+        // that a zero will be shifted into the sign bit because fo the masking
         // in 'm='.
 # ifdef NEED_128
         m = rshift_128 (m, 1);
@@ -2028,7 +2030,7 @@ void fcmp(void)
 #endif
       }
 
-    // need to do algebraic comparisons of mantissae
+    // need to do algebraic comparisons of mantissa
 #ifdef NEED_128
     SC_I_ZERO (iseq_128 (m1, m2));
     SC_I_NEG (islt_s128 (SIGNEXT72_128(m1), SIGNEXT72_128(m2)));
@@ -2306,7 +2308,7 @@ static void YPairToExpMant(word36 Ypair[], word72 *mant, int *exp)
     *exp = SIGNEXT8_int (getbits36_8 (Ypair[0], 0) & 0377U);           // 8-bit signed integer (incl sign)
 }
 
-//! combine mantissa + exponent intoa YPair ....
+//! combine mantissa + exponent into a YPair ....
 static void ExpMantToYpair(word72 mant, int exp, word36 *yPair)
 {
     yPair[0] = ((word36)exp & 0377) << 28;
@@ -3203,7 +3205,7 @@ void dvf (void)
 
 // HWR code
 //HWR--#ifdef DVF_HWR
-//HWR--    // m1 divedend
+//HWR--    // m1 Dividend
 //HWR--    // m2 divisor
 //HWR--
 //HWR--    word72 m1 = SIGNEXT36_72((cpu . rA << 36) | (cpu . rQ & 0777777777776LLU));
@@ -3272,10 +3274,10 @@ void dvf (void)
 //HWR--    cpu . rQ = m3r & MASK36;   //01777777777LL;
 //HWR--#endif
 
-// canonial code
+// canonical code
 #ifdef DVF_FRACTIONAL
 // http://www.ece.ucsb.edu/~parhami/pres_folder/f31-book-arith-pres-pt4.pdf
-// slide 10: sequential algorithim
+// slide 10: sequential algorithm
 
     // dividend format
     // 0  1     70 71
@@ -3831,7 +3833,7 @@ void dfcmp (void)
         m2 >>= shift_count;
     }
 
-    // need to do algebraic comparisons of mantissae
+    // need to do algebraic comparisons of mantissa
     SC_I_ZERO (m1 == m2);
     SC_I_NEG  (m1 <  m2);
 #else

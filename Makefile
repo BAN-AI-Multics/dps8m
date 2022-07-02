@@ -1,6 +1,8 @@
-# DPS/8M simulator: Makefile
-# vim: set filetype=make:tabstop=4:tw=76:
-#
+# DPS8M simulator: Makefile
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: c59ea528-f631-11ec-a3d7-80ee73e9b8e7
+
 ###############################################################################
 #
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
@@ -18,9 +20,13 @@ all:
 	@printf '%s\n'                                                            \
         "*** GNU Make is required; try \"gmake\"."
 
+###############################################################################
+
 .DEFAULT:
 	@printf '%s\n'                                                            \
         "*** GNU Make is required; try \"gmake\"."
+
+###############################################################################
 
 .PHONY: all
 

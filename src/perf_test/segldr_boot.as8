@@ -1,4 +1,8 @@
-" * 0000   Intterrupt and fault vectors
+" SPDX-License-Identifier: ICU
+" SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+" scspell-id: e3aaa820-f776-11ec-b757-80ee73e9b8e7
+"
+" * 0000   Interrupt and fault vectors
 " *
 " * 2000   Bootstrap code
 
@@ -88,7 +92,7 @@
 
           equ       stack_header.parent_ptr,16              " ptr to parent stack or null
           equ       stack_header.stack_begin_ptr,18         " ptr to first stack frame
-          equ       stack_header.stack_end_ptr,20           " ptr to next useable stack frame
+          equ       stack_header.stack_end_ptr,20           " ptr to next usable stack frame
           equ       stack_header.lot_ptr,22                 " ptr to the lot for the current ring
 
           equ       stack_header.signal_ptr,24              " ptr to signal proc for current ring
@@ -211,7 +215,7 @@ apptar:
 
 " Register usage
 
-" 0 ap operator segment pointer  I think this is actualy the argument list pointer
+" 0 ap operator segment pointer  I think this is actually the argument list pointer
 " 4 lp linkage section pointer
 " 6 sp stack frame pointer
 " 7 sb stack base pointer

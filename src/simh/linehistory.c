@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: BSD-2-Clause
+ * scspell-id: 676f2224-f62a-11ec-baf3-80ee73e9b8e7
  *
  * -------------------------------------------------------------------------
  *
@@ -239,7 +241,7 @@ enableRawMode(int fd)
   raw.c_iflag &= ~( BRKINT | ICRNL | INPCK | ISTRIP | IXON );
   /* control modes - set 8 bit chars */
   raw.c_cflag |= ( CS8 );
-  /* local modes - choing off, canonical off, no extended functions,
+  /* local modes - echoing off, canonical off, no extended functions,
    * no signal chars (^Z,^C) */
   raw.c_lflag &= ~( ECHO | ICANON | IEXTEN | ISIG );
   /* control chars - set return condition: min number of bytes and timer.
@@ -1064,11 +1066,11 @@ linenoiseEditHistoryNext(struct linenoiseState *l, int dir)
 
 /*
  * Search a line in history that start with the same characters as the
- * currently edited line. Substitue the current line with this history
+ * currently edited line. Substitute the current line with this history
  */
 
 # define LINENOISE_SEARCH_HISTORY_FORWARD 0
-# define LINENOISE_SEARCH_HISTROY_REVERSE 1
+# define LINENOISE_SEARCH_HISTORY_REVERSE 1
 void
 linenoiseSearchInHistory(struct linenoiseState *l, int direction)
 {
@@ -1093,14 +1095,14 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
 
         /*
          * Search a history entry that start with same
-         * as the current line until the curser position
+         * as the current line until the cursor position
          */
 
         if (strncmp(l->buf, history[cnt], l->pos) == 0)
         {
           strncpy(l->buf, history[cnt], l->buflen);
           l->buf[l->buflen - 1] = '\0';
-          /* Don't change old curser postion */
+          /* Don't change old cursor position */
           l->len = strlen(l->buf);
 
           /*
@@ -1114,7 +1116,7 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
         }
       }
     }
-    else if (direction == LINENOISE_SEARCH_HISTROY_REVERSE)
+    else if (direction == LINENOISE_SEARCH_HISTORY_REVERSE)
     {
       cnt = history_len - l->history_index;
       for (; cnt < history_len; cnt++)
@@ -1122,14 +1124,14 @@ linenoiseSearchInHistory(struct linenoiseState *l, int direction)
 
         /*
          * Search a history entry that start with same
-         * as the current line until the curser position
+         * as the current line until the cursor position
          */
 
         if (strncmp(l->buf, history[cnt], l->pos) == 0)
         {
           strncpy(l->buf, history[cnt], l->buflen);
           l->buf[l->buflen - 1] = '\0';
-          /* Don't change old curser position */
+          /* Don't change old cursor position */
           l->len = strlen(l->buf);
 
           /*
@@ -1178,7 +1180,7 @@ linenoiseEditBackspace(struct linenoiseState *l)
 }
 
 /*
- * Delete the previosu word, maintaining the
+ * Delete the previous word, maintaining the
  * cursor at the start of the current word.
  */
 
@@ -1424,7 +1426,7 @@ linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen,
             case '6': /* Page Down */
               linenoiseSearchInHistory(
                 &l,
-                LINENOISE_SEARCH_HISTROY_REVERSE);
+                LINENOISE_SEARCH_HISTORY_REVERSE);
               break;
 
             case '5': /* Page Up */

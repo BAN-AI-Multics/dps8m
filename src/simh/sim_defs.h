@@ -1,6 +1,8 @@
 /* sim_defs.h: simulator definitions
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: ae37b35b-f62a-11ec-8c79-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 
@@ -143,7 +145,10 @@ typedef uint32          t_addr;
 # define T_ADDR_FMT      ""
 
 # if defined (_WIN32)
-#  define vsnprintf _vsnprintf
+#  if defined (USE_SYSTEM_PRINTF)
+#   undef vsnprintf
+#   define vsnprintf _vsnprintf
+#  endif
 # endif
 # define STACKBUFSIZE 2048
 
@@ -254,7 +259,7 @@ typedef uint32          t_addr;
 # define SCPE_MAX_ERR    (SCPE_BASE + 47)                /* Maximum SCPE Error Value */
 # define SCPE_KFLAG      0x1000                          /* tti data flag */
 # define SCPE_BREAK      0x2000                          /* tti break flag */
-# define SCPE_NOMESSAGE  0x10000000                      /* message display supression flag */
+# define SCPE_NOMESSAGE  0x10000000                      /* message display suppression flag */
 # define SCPE_BARE_STATUS(stat) ((stat) & ~(SCPE_NOMESSAGE|SCPE_KFLAG|SCPE_BREAK))
 
 /* Print value format codes */
@@ -680,7 +685,7 @@ struct FILEREF {
 
 # define UDATA(act,fl,cap) NULL,act,NULL,NULL,NULL,0,0,(fl),0,(cap),0,NULL,0,0
 
-# if defined (__STDC__) || defined (_WIN32) /* Variants which depend on how macro arguments are convered to strings */
+# if defined (__STDC__) || defined (_WIN32) /* Variants which depend on how macro arguments are converted to strings */
 /* Generic Register declaration for all fields.
    If the register structure is extended, this macro will be retained and a
    new macro will be provided that populates the new register structure */

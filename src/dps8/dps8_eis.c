@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 312e3076-f62e-11ec-a7f3-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -364,7 +366,7 @@ static word36 getCrAR (word4 reg)
 //                   Meaning as used in:
 //
 //  Octal  R-type  MF.REG   Indirect operand    C(operand descriptor)32,35
-//  Code                    decriptor-pointer
+//  Code                    descriptor-pointer
 //  00         n       n          n                      IPR
 //  01        au      au          au                      au
 //  02        qu      qu          qu                      qu
@@ -1018,7 +1020,7 @@ static void EISput469 (int k, uint i, word9 c469)
 
 /*
  * return a 4- or 9-bit character at memory "*address" and position "*pos".
- * Increment pos (and address if necesary)
+ * Increment pos (and address if necessary)
  */
 
 static word9 EISget49 (EISaddr * p, int * pos, int tn)
@@ -4235,7 +4237,7 @@ void tctr (void)
  */
 
 /*
- * does 6-bit char represent a GEBCD negative overpuch? if so, whice numeral?
+ * does 6-bit char represent a GEBCD negative overpunch? if so, which numeral?
  * Refer to Bull NovaScale 9000 RJ78 Rev2 p11-178
  */
 
@@ -4251,7 +4253,7 @@ static bool isOvp (uint c, word9 * on)
     if (c2 >= 020 && c2 <= 031)   // positive overpunch
       {
         * on = c2 - 020;          // return GEBCD number 0-9 (020 is +0)
-        return false;             // well, it's not a negative overpunch is it?
+        return false;             // well, it's not a negative overpunch, is it?
       }
     if (c2 >= 040 && c2 <= 052)   // negative overpunch
       {
@@ -4442,7 +4444,7 @@ void mlr (void)
 // Multics frequently uses certain code sequences which are easily detected
 // and optimized; eg. it uses the MLR instruction to copy or zero segments.
 //
-// The MLR implementation is correct, not efficent. Copy invokes 12 append
+// The MLR implementation is correct, not efficient. Copy invokes 12 append
 // cycles per word, and fill 8.
 //
 
@@ -5422,7 +5424,7 @@ static int mopENF (void)
 static int mopIGN (void)
 {
     EISstruct * e = & cpu.currentEISinstruction;
-// AL-39 dosen't specify the == 0 test, but NovaScale does;
+// AL-39 doesn't specify the == 0 test, but NovaScale does;
 // also ISOLTS ps830 test-04a seems to rely on it.
     if (e->mopIF == 0)
         e->mopIF = 16;
@@ -6522,7 +6524,7 @@ static void mopExecutor (int kMop)
     e->mopPos   = (int) e->CN[kMop-1];        // starting at char pos CN
 #endif
 
-    word9 *p9 = e->editInsertionTable; // re-initilize edit insertion table
+    word9 *p9 = e->editInsertionTable; // re-initialize edit insertion table
     char *q = defaultEditInsertionTable;
     while((*p9++ = (word9) (*q++)))
         ;
@@ -9293,7 +9295,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         x |= GETBYTE(data, pos);   // fetch byte at position pos and 'or' it in
 #endif
 
-        pos += 1;           // onto next posotion
+        pos += 1;           // onto next position
 
         m -= 1;             // decrement byte counter
     }
@@ -9341,7 +9343,7 @@ static word9 getSign (word72s n128)
 // perform a binary to decimal conversion ...
 
 // Since (according to DH02) we want to "right-justify" the output string it
-// might be better to presere the reverse writing and start writing
+// might be better to preserve the reverse writing and start writing
 // characters directly into the output string taking into account the output
 // string length.....
 
@@ -9763,7 +9765,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
                     // not a leading sign
                     doFault(FAULT_IPR, fst_ill_proc, "loadDec(): no leading sign (1)");
             }
-            pos += 1;           // onto next posotion
+            pos += 1;           // onto next position
             continue;
         }
 
@@ -9784,7 +9786,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
                     // not a leading sign
                     doFault(FAULT_IPR, fst_ill_proc, "loadDec(): no leading sign (2)");
             }
-            pos += 1;           // onto next posotion
+            pos += 1;           // onto next position
             continue;
         }
 
@@ -9834,7 +9836,7 @@ if (eisaddr_idx < 0 || eisaddr_idx > 2) { sim_warn ("IDX1"); return }
         sim_debug (DBG_TRACEEXT, & cpu_dev,
               "loadDec:  x %"PRId64"\n", (int64) x);
 
-        pos += 1;           // onto next posotion
+        pos += 1;           // onto next position
     }
 
     e->x = sgn * x;
@@ -10610,7 +10612,10 @@ void ad3d (void)
     // result to exceed 63 digits after decimal point alignment of source operands, followed by addition.
     // ISOLTS 846 07c, 10a, 11b internal register overflow
     // trailing zeros are not counted towards the limit
-    // XXX it is not clear which digits are lost, but I suppose it should be the most significant. ISOLTS doesn't check for this
+
+    // XXX it is not clear which digits are lost, but I suppose it should be the most significant.
+    // ISOLTS doesn't check for this.
+
     // XXX the algorithm should be similar/the same as dv3d NQ? It is to some extent already...
     bool iOvr = 0;
     if (op3->digits > 63) {
@@ -12343,7 +12348,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
     // adjust output length according to type ....
     //This implies that an unsigned fixed-point receiving field has a minimum
     //length of 1 character; a signed fixed-point field, 2 characters; and a
-    //floating-point field, haracters.
+    //floating-point field, characters.
 
     int adjLen = n;             // adjLen is the adjusted allowed length of the result taking into account signs and/or exponent
     switch (s)
@@ -12355,7 +12360,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
             adjLen -= 3;        // a sign and 2 4-bit digits making up the exponent
           break;
         case CSLS:
-        case CSTS:              // take sign into assount. One less char to play with
+        case CSTS:              // take sign into account. One less char to play with
           adjLen -= 1;
           break;
         case CSNS:
@@ -12471,7 +12476,7 @@ static char * formatDecimalDIV (decContext * set, decNumber * r, int tn,
 
             // if it's floating justify it ...
             /// <remark>
-            /// The dps88 and afterwards would generate a quotient with the maximim number of significant digits.
+            /// The dps88 and afterwards would generate a quotient with the maximum number of significant digits.
             /// Not so the dps8. According the manuals "if the divisor is greater than the dividend after operand alignment,
             ///    the leading zero digit produced is counted and the effective precision of the result is reduced by one."
             /// No problem. However, according to eis_tester
@@ -13003,7 +13008,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
             res[0] = '0';
             sim_debug (DBG_TRACEEXT, & cpu_dev, "dv2d: addzero n2 %d %s exp %d\n",n2,res,op3->exponent);
         } else {
-            // full n2 digits are retured
+            // full n2 digits are returned
             res = formatDecimal(out, &set, op3, n2, (int) e->S2, e->SF2, R, &Ovr, &Trunc);
         }
     } else {
@@ -13431,7 +13436,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d S1 %d S2 %d N1 %d N2 %d clz1 %d clz2 %
             res[0] = '0';
             sim_debug (DBG_TRACEEXT, & cpu_dev, "dv3d: addzero n3 %d %s exp %d\n",n3,res,op3->exponent);
         } else {
-            // full n3 digits are retured
+            // full n3 digits are returned
             res = formatDecimal(out, &set, op3, n3, (int) e->S3, e->SF3, R, &Ovr, &Trunc);
         }
     } else {

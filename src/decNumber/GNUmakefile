@@ -1,5 +1,7 @@
-# DPS/8M simulator: src/decNumber/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+# DPS8M simulator: src/decNumber/GNUmakefile
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: df455d55-f62c-11ec-8d80-80ee73e9b8e7
 
 ###############################################################################
 #
@@ -59,7 +61,8 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 endif
 clean distclean:
 	@$(PRINTF) '%s\n' "CLEAN: decNumber"
-	-@$(SETV); $(RMF) $(OBJS) "decNumber.a"  ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) $(OBJS) "decNumber.a"       ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) ./*.gcda > /dev/null 2>&1   ||  $(TRUE)
 	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o"  ||  $(TRUE) > /dev/null 2>&1
 
 ###############################################################################
@@ -75,12 +78,27 @@ $(OBJS): decContext.h  decimal128.h  decNumber.h  decQuad.h                   \
 
 ###############################################################################
 
-decContext.o: decContext.h decimal128.h decNumber.h decQuad.h decDouble.h
-decContext.o: decDPD.h decimal32.h decNumberLocal.h decSingle.h decimal64.h
-decContext.o: decPacked.h ../dps8/dps8_duma.h
-decNumber.o:  decContext.h decimal128.h decNumber.h decQuad.h decDouble.h
-decNumber.o:  decDPD.h decimal32.h decNumberLocal.h decSingle.h decimal64.h
-decNumber.o:  decPacked.h ../dps8/dps8_duma.h
+ifneq (,$(wildcard ./Dependency))
+  include ./Dependency
+endif
+
+###############################################################################
+
+ifneq (,$(wildcard ../Makefile.dev))
+.PHONY: dep depend
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: dep depend
+endif
+dep depend: ../Makefile.dev
+	@( $(CD) "../.." && $(MAKE) -j 1 -s "depend" )
+
+.PHONY: cleandep depclean cleandepend dependclean
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: cleandep depclean cleandepend dependclean
+endif
+cleandep depclean cleandepend dependclean:
+	@( $(CD) "../.." && $(MAKE) -j 1 -s "depclean" )
+endif
 
 ###############################################################################
 

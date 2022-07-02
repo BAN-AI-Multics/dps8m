@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: ae1c781a-f62e-11ec-bd2e-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -54,7 +56,7 @@
  * AN70, page 2-1 says that when the tape is read in native mode via an
  * IOM or IOCC, the tape drive number in the IDCW will be zero.  It says
  * that a non-zero tape drive number in the IDCW indicates that BOS is
- * being used to simulate an IOM. (Presumaby written before BCE replaced
+ * being used to simulate an IOM. (Presumably written before BCE replaced
  * BOS.)
  *
  * However...
@@ -161,7 +163,7 @@ static t_stat mtp_show_boot_drive (UNUSED FILE * st, UNIT * uptr,
         sim_printf ("Controller unit number out of range\n");
         return SCPE_ARG;
       }
-    sim_printf ("Tape drive dev_code to boot from is %u\n",
+    sim_printf ("boot     : %u",
                 mtp_state[mtp_unit_idx].boot_drive);
     return SCPE_OK;
   }
@@ -215,7 +217,7 @@ static t_stat mtp_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) MTP_UNIT_IDX (uptr);
     if (n < 0 || n >= N_MTP_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Controller device name is %s\n", mtp_state [n].device_name);
+    sim_printf("name     : %s", mtp_state [n].device_name);
     return SCPE_OK;
   }
 
@@ -325,8 +327,7 @@ static char tape_path_prefix [PATH_MAX+2];
 #define N_MT_UNITS 1 // default
 
 UNIT mt_unit [N_MT_UNITS_MAX] = {
-    // NOTE: other SIMH tape sims don't set UNIT_SEQ
-    // CAC: Looking at SIMH source, the only place UNIT_SEQ is used
+    // CAC: Looking at SCP source, the only place UNIT_SEQ is used
     // by the "run" command's reset sequence; units that have UNIT_SEQ
     // set will be issued a rewind on reset.
     // Looking at the sim source again... It is used on several of the
@@ -409,7 +410,10 @@ static t_stat mt_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) MT_UNIT_NUM (uptr);
     if (n < 0 || n >= N_MT_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Tape drive device name is %s\n", tape_states [n] . device_name);
+    if (tape_states[n].device_name[1] == 0)
+      sim_printf("name     : default");
+    else
+      sim_printf("name     : %s", tape_states[n].device_name);
     return SCPE_OK;
   }
 
@@ -457,7 +461,7 @@ static t_stat mt_set_tape_path (UNUSED UNIT * uptr, UNUSED int32 value,
 
     size_t len = strlen(cptr);
 
-    // We check for legnth - (2 + max label length) to allow for the null, a possible '/' being added and the label file name being added
+    // We check for length - (2 + max label length) to allow for the null, a possible '/' being added and the label file name being added
     if (len >= (sizeof(tape_path_prefix) - (LABEL_MAX + 2)))
       return SCPE_ARG;
 
@@ -709,8 +713,10 @@ static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
 
 static MTAB mt_mod [] =
   {
+#ifndef SPEED
     { UNIT_WATCH, UNIT_WATCH, "WATCH", "WATCH", NULL, NULL, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", NULL, NULL, NULL, NULL },
+#endif
     {
        MTAB_XTD | MTAB_VUN | MTAB_NC, /* mask */
       0,            /* match */
@@ -1063,7 +1069,7 @@ static iom_cmd_rc_t mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
                        __func__, chan);
 
       }
-// XXX This assumes that the tally was bigger then the record
+// XXX This assumes that the tally was bigger than the record
     if (tape_statep -> is9)
       p -> charPos = tape_statep -> tbc % 4;
     else
@@ -1109,7 +1115,7 @@ static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
 //  5     2 mpc_stat bit (16),                                 /* Mpc statistics table pointer */
 //  6     2 dev_stat bit (16),                                 /* Device statistics table pointer */
 //  7     2 rev_l_tab bit (16),                                /* Revision level table? */
-//  8     2 fw_id bit (16),                                    /* Firmware identifacation */
+//  8     2 fw_id bit (16),                                    /* Firmware identification */
 //  9     2 fw_rev,                                            /* Firmware revision */
 //          3 pad1 bit (4),
 //          3 lrev (2) bit (4),                                /* Letter revision */
@@ -1272,7 +1278,7 @@ static int mtWriteRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
       }
     p -> tallyResidue = (word12) (tally - i);
 
-// XXX This assumes that the tally was bigger then the record
+// XXX This assumes that the tally was bigger than the record
     if (tape_statep -> is9)
       p -> charPos = tape_statep -> tbc % 4;
     else
@@ -1424,14 +1430,14 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 #ifdef TESTING
   if_sim_debug (DBG_TRACE, & tape_dev) dumpDCW (p->DCW, 0);
 #endif
-// The bootload read command does a read on drive 0; the controler
-// recgnizes (somehow) a special case for bootload and subs. in
+// The bootload read command does a read on drive 0; the controller
+// recognizes (somehow) a special case for bootload and subs. in
 // the boot drive unit set by the controller config. switches
 // XXX But controller commands are directed to drive 0, so this
 // logic is incorrect. If we just set the boot drive to 0, the
 // system will just boot from 0, and ignore it thereafter.
 // Although, the install process identifies tapa_00 as a device;
-// check the survey code to make sure it's not incorrectly
+// check the survey code to make sure its not incorrectly
 // reporting 0 as a valid device.
 
 // Simplifying design decision: tapa_00 is hidden, always has the boot tape.
@@ -1461,14 +1467,14 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
     //  idcw.chan_cmd = "40"b3; /* Indicate special controller command */
     //  idcw.chan_cmd = "41"b3; /* Indicate special controller command */
 
-    // The bootload read command does a read on drive 0; the controler
-    // recgnizes (somehow) a special case for bootload and subs. in
+    // The bootload read command does a read on drive 0; the controller
+    // recognizes (somehow) a special case for bootload and subs. in
     // the boot drive unit set by the controller config. switches
     // XXX But controller commands are directed to drive 0, so this
     // logic is incorrect. If we just set the boot drive to 0, the
     // system will just boot from 0, and ignore it thereafter.
     // Although, the install process identifies tapa_00 as a device;
-    // check the survey code to make sure it's not incorrectly
+    // check the survey code to make sure its not incorrectly
     // reporting 0 as a valid device.
 
     tape_statep->io_mode = tape_no_mode;
@@ -1487,7 +1493,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           } else {
             p->stati = 04000;
           }
-          sim_debug (DBG_DEBUG, & tape_dev, "%s: Request status: %04o contol %0o chan_cmd %02o\n", __func__,
+          sim_debug (DBG_DEBUG, & tape_dev, "%s: Request status: %04o control %0o chan_cmd %02o\n", __func__,
                      p->stati, p->IDCW_CHAN_CTRL, p->IDCW_CHAN_CMD);
         }
         break;
@@ -1598,8 +1604,8 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 //       substr (mpc_mem_bin (i), 9, 8) = substr (buf.mem (i), 11, 8);
 //     end;
 //
-// I interpet that as the 16 bit memory being broken into 8 bit bytes, zero
-// extented to 9 bits, and packed 4 to a word.
+// I interpret that as the 16 bit memory being broken into 8 bit bytes, zero
+// extended to 9 bits, and packed 4 to a word.
 
 // From char_mpc_.pl1, assuming MTP501
 //
@@ -1666,7 +1672,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
           if (p->IDCW_CHAN_CMD == 040) { // If special controller command, then command 020 is 'release'
             sim_debug (DBG_DEBUG, & tape_dev, "%s: Release controller\n", __func__);
             p->stati = 04000; // have_status = 1
-            sim_debug (DBG_DEBUG, & tape_dev, "%s: Release status: %04o contol %0o chan_cmd %02o\n",
+            sim_debug (DBG_DEBUG, & tape_dev, "%s: Release status: %04o control %0o chan_cmd %02o\n",
                        __func__, p->stati, p->IDCW_CHAN_CTRL, p->IDCW_CHAN_CMD);
             send_special_interrupt (iomUnitIdx, chan, p->IDCW_DEV_CODE, 02, 0 /* released */);
           } else {
@@ -1693,7 +1699,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
 //      case 030: Unassigned
 
-//      case 031: Diagnostic Mode Contol
+//      case 031: Diagnostic Mode Control
 
 // 032: MTP write main memory (binary) (poll_mpc.pl1)
 
@@ -2034,8 +2040,8 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 // to devices in the PCW, with the understanding that only the console
 // device will "respond", whatever that means.
 // But, bootload_tape_label checks for controller firmware loaded
-// ("intellegence") by sending a 051 in a IDCW.
-// Since it's diffcult here to test for PCW/IDCW, assume that the PCW case
+// ("intelligence") by sending a 051 in a IDCW.
+// Since it's difficult here to test for PCW/IDCW, assume that the PCW case
 // has been filtered out at a higher level
       case 051: {              // CMD 051 -- Reset device status
           if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape Reset Device Status\r\n"); }
@@ -2236,10 +2242,10 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
   // Not IDCW; TDCW are captured in IOM, so must be IOTD, IOTP or IOTNP
   switch (tape_statep->io_mode) {
     case tape_no_mode:
-// It appears that in some cases Mulitcs builds a dcw list from a generic "single IDCW plus optional DDCW" template.
-// That template sets the IDCW channel command to "record", regardless of whether or not the instruciton
+// It appears that in some cases Multics builds a dcw list from a generic "single IDCW plus optional DDCW" template.
+// That template sets the IDCW channel command to "record", regardless of whether or not the instruction
 // needs an DDCW. In particular, disk_ctl pings the disk by sending a "Reset status" with "record" and a apparently
-// unitialized IOTD. The payload channel will send the IOTD because of the "record"; the Reset Status command left
+// uninitialized IOTD. The payload channel will send the IOTD because of the "record"; the Reset Status command left
 // IO mode at "no mode" so we don't know what to do with it. Since this appears benign, we will assume that the
 // original H/W ignored, and so shall we.
       //sim_warn ("%s: Unexpected IOTx\n", __func__);
@@ -2289,12 +2295,12 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
       break;
 
     case tape_rd_ctlr:
-      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT Read Nenory\r\n"); }
+      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT Read Memory\r\n"); }
       mtReadCtrlMainMem (devUnitIdx, iomUnitIdx, chan);
       break;
 
     case tape_initiate_rd_mem:
-      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT Write Nenory\r\n"); }
+      if_sim_debug (DBG_TRACE, & tape_dev) { sim_printf ("// Tape IOT Write Memory\r\n"); }
       mtInitRdMem (devUnitIdx, iomUnitIdx, chan);
       break;
 
@@ -2337,7 +2343,7 @@ iom_cmd_rc_t mt_iom_cmd (uint iomUnitIdx, uint chan) {
 
 static const char *simh_tape_msg(int code)
 {
-    // WARNING: Only selected SIMH tape routines return private tape codes
+    // WARNING: Only selected tape routines return private tape codes
     // WARNING: returns static buf
     // BUG: Is using a string constant equivalent to using a static buffer?
     // static char msg[80];
@@ -2362,7 +2368,7 @@ static const char *simh_tape_msg(int code)
     else if (code == MTSE_WRP)
         return "Write protected unit during write operation";
     else
-        return "Unknown SIMH tape error";
+        return "Unknown tape error";
   }
 
 t_stat attachTape (char * label, bool withring, char * drive)

@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: dab0da0d-f62e-11ec-8f5d-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -74,7 +76,7 @@ typedef struct
         vol int xipmaskval;
       } ports [N_SCU_PORTS];
 
-    // system controller mode regsister
+    // system controller mode register
     word4 id;
     word18 mode_reg;
 

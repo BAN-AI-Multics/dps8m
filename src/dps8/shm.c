@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: db14885d-f62f-11ec-9741-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -50,6 +52,7 @@
 
 extern int sim_randstate;
 extern int sim_randompst;
+extern int sim_nostate;
 extern int sim_iglock;
 extern int sim_nolock;
 
@@ -202,7 +205,8 @@ create_shm(char *key, size_t shm_size)
     }
 
 # if !defined( __APPLE__ ) && !defined( __HAIKU__ )
-  (void)fdatasync(lck_fd);
+  if ( !(sim_nostate) )
+    (void)fdatasync(lck_fd);
 # endif /* if !defined( __APPLE__ ) && !defined( __HAIKU__ ) */
 
   (void)snprintf(spid, SPIDLEN, "%ld ", (long)getpid());
@@ -229,7 +233,8 @@ create_shm(char *key, size_t shm_size)
         }
     }
 
-  (void)fsync(lck_fd);
+  if ( !(sim_nostate) )
+    (void)fsync(lck_fd);
 
   if (write(lck_fd, shostname, strlen(shostname)) != strlen(shostname))
     {
@@ -245,7 +250,8 @@ create_shm(char *key, size_t shm_size)
         }
     }
 
-  (void)fsync(lck_fd);
+  if ( !(sim_nostate) )
+    (void)fsync(lck_fd);
 #endif /* ifdef USE_BFLOCK */
 
 #ifdef USE_FLOCK
@@ -313,7 +319,8 @@ create_shm(char *key, size_t shm_size)
     }
 
 #if !defined( __APPLE__ ) && !defined( __HAIKU__ )
-  (void)fdatasync(fd);
+  if ( !(sim_nostate) )
+    (void)fdatasync(fd);
 #endif /* if !defined( __APPLE__ ) && !defined( __HAIKU__ ) */
 
   p = mmap(NULL, shm_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
@@ -328,16 +335,17 @@ create_shm(char *key, size_t shm_size)
       return NULL;
     }
 
-  if (msync(p, shm_size, MS_SYNC) == -1)
-    {
-      fprintf(
-        stderr,
-        "%s(): Failed to synchronize \"%s\" (error %d)\r\n",
-        __func__,
-        buf,
-        errno);
-      return NULL;
-    }
+  if ( !(sim_nostate) )
+    if (msync(p, shm_size, MS_SYNC) == -1)
+      {
+        fprintf(
+          stderr,
+          "%s(): Failed to synchronize \"%s\" (error %d)\r\n",
+          __func__,
+          buf,
+          errno);
+        return NULL;
+      }
 
   return p;
 }
@@ -465,7 +473,8 @@ open_shm(char *key, size_t shm_size)
           (void)fcntl(fd, F_SETLK, &lock);
         }
 
-      (void)fsync(fd);
+      if ( !(sim_nostate) )
+        (void)fsync(fd);
       (void)close(fd);
 # endif /* ifdef USE_FCNTL */
 
@@ -476,7 +485,8 @@ open_shm(char *key, size_t shm_size)
           (void)fcntl(lck_fd, F_SETLK, &bflock);
         }
 
-      (void)fsync(lck_fd);
+      if ( !(sim_nostate) )
+        (void)fsync(lck_fd);
       (void)close(lck_fd);
 # endif /* ifdef USE_BFLOCK */
 
@@ -489,7 +499,8 @@ open_shm(char *key, size_t shm_size)
       return NULL;
     }
 
-  (void)msync(p, shm_size, MS_SYNC);
+  if ( !(sim_nostate) )
+    (void)msync(p, shm_size, MS_SYNC);
 
   return p;
 }

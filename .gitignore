@@ -1,3 +1,18 @@
+# SPDX-FileCopyrightText: Copyright (c) The DPS8M Development Team
+# SPDX-License-Identifier: FSFAP
+# scspell-id: 678f9a77-f778-11ec-ae0f-80ee73e9b8e7
+
+##############################################################################
+#
+# Copyright (c) 2006-2022 The DPS8M Development Team
+#
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.  This file is offered "AS-IS",
+# without any warranty.
+#
+##############################################################################
+
 # Objects
 *.o
 *.lo
@@ -27,6 +42,8 @@ src/mcmb/mcmb.dSYM/
 src/prt2pdf/prt2pdf.dSYM/
 src/punutil/punutil.dSYM/
 src/vmpctool/vmpctool.dSYM/
+.Dependency
+typescript
 
 # Tags
 tags
@@ -75,6 +92,8 @@ src/mcmb/mcmb
 src/mcmb/mcmb.exe
 src/vmpctool/vmpctool
 src/vmpctool/vmpctool.exe
+src/empty/empty
+src/empty/empty.exe
 src/dps8/dps8
 src/dps8/dps8.exe
 src/dps8/ver.h
@@ -124,6 +143,20 @@ olint126.txt
 oralint126.txt
 flawfinder.txt
 unused.txt
+cppcheck/
+blinkenLights2.xml
+dpsprintf.xml
+punutil.xml
+empty.xml
+mcmb.xml
+simh.xml
+decNumber.xml
+unifdef.xml
+dps8.xml
+dps8m.xml
+prt2pdf.xml
+vmpctool.xml
+cppcheck.xml
 
 # Vim
 *.*.swp
@@ -184,9 +217,11 @@ libuv-1.x/
 *.profout
 
 # Docs
-docs/docinfo.yml
+docs/yaml/docinfo.yml
 docs/*.tmp
 docs/commandref.md
 docs/dps8*.pdf
-docs/color-rings.pdf
 docs/docsdocker
+
+# Clang
+compile_commands.json

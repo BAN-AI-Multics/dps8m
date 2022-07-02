@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 336ce0b0-f62d-11ec-873c-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -90,7 +92,10 @@ static t_stat absi_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) ABSI_UNIT_IDX (uptr);
     if (n < 0 || n >= N_ABSI_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Controller device name is %s\n", absi_state [n].device_name);
+    if (absi_state[n].device_name[1] != 0)
+      sim_printf("name     : %s", absi_state[n].device_name);
+      else
+        sim_printf("name     : ABSI%d", n);
     return SCPE_OK;
   }
 
@@ -114,8 +119,10 @@ static t_stat absi_set_device_name (UNIT * uptr, UNUSED int32 value,
 
 static MTAB absi_mod[] =
   {
+#ifndef SPEED
     { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
+#endif
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
       0,                /* match */
@@ -152,7 +159,7 @@ static t_stat absiAttach (UNIT * uptr, const char * cptr)
       return SCPE_ARG;
     int unitno = (int) (uptr - absi_unit);
 
-    //    ATTACH HIn llll:w.x.y.z:rrrr - connect via UDP to a remote simh host
+    //    ATTACH HIn llll:w.x.y.z:rrrr - connect via UDP to a remote
 
     t_stat ret;
     char * pfn;

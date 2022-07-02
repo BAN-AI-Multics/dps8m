@@ -1,3 +1,7 @@
+% SPDX-License-Identifier: LicenseRef-DPS8M-Doc AND LicenseRef-CFGAL
+% SPDX-FileCopyrightText: 2019-2021 Dean S. Anderson
+% SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+
 \subsection[Card Punch]{CARD PUNCH}
 
 This section describes the configuration and operation of the simulated Card Punch.
@@ -9,7 +13,7 @@ by the "path" global option (see below).
 The file will contain all banner, lace and trailer cards that Multics prints. The lace
 cards are parsed to extract job information that is used to name the spool file.
 
-Note that there is a utility "punutil" that can be used to extract the various cards from 
+Note that there is a utility "punutil" that can be used to extract the various cards from
 the deck in a more usable format (such as ASCII).
 
 \subsubsection[Card Punch File Format]{CARD PUNCH FILE FORMAT}
@@ -52,7 +56,7 @@ Given the above, an 80 column punched card would then look like this:
 	\end{tabular}
 \end{adjustwidth}
 
-When representing a card column, the most obvious way to do it is to assign a single bit per punch. This 
+When representing a card column, the most obvious way to do it is to assign a single bit per punch. This
 means that there are 12 bits for each column. When looking at a hexadecimal dump of a spool file, each column
 occupies three 4 bit nibbles. The following representation is big-endian:
 
@@ -86,7 +90,7 @@ The "\texttt{SHOW PUN XXXX}" command will show the current value of a global par
 
 \begin{adjustwidth}{5ex}{1ex}
     Sets the path that will be used as the location to write punch spool files. When not set, all punch spool files will be written
-    to the simulator's current directory. When this path is set, the simulator expects there to be a subdirectory for each named punch 
+    to the simulator's current directory. When this path is set, the simulator expects there to be a subdirectory for each named punch
     unit (the simulator will \textbf{not} create any directories).  For example, if the PATH is set to "/home/tom/punches" and three
     card punch units are defined (puna, punb and punc), then the following directory structure must exist for punch jobs to be output properly:
 
@@ -116,11 +120,11 @@ Options are set on a per device basis with the "\texttt{SET PUNn CONFIG=XXXX=yyy
         \begin{tabular}{cc}
             \hline
             \texttt{0}  & \\
-            \texttt{off} & Turn off logging of card punch diagnostic data \\ 
+            \texttt{off} & Turn off logging of card punch diagnostic data \\
             \texttt{disable} & \\
             \hline
             \texttt{1} & \\
-            \texttt{on} & Turn on logging of card punch diagnostic data \\ 
+            \texttt{on} & Turn on logging of card punch diagnostic data \\
             \texttt{enable} & \\
             \hline
         \end{tabular}

@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 7ec3e12d-f62d-11ec-8431-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -100,8 +102,10 @@ static DEBTAB pun_dt [] =
 
 static MTAB pun_mod [] =
   {
+#ifndef SPEED
     { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
+#endif
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
       0,            /* match */
@@ -343,7 +347,7 @@ static word36 bannerCard [WORDS_PER_CARD] =
 /*
  *                  Glyph Pattern Lookup
  * This is the parsing of the "lace" cards and extracting the ASCII characters
- * have been punched into the cards (as glphys) so the operator knows how to
+ * have been punched into the cards (as glyphs) so the operator knows how to
  * deliver the deck.
  */
 
@@ -1208,7 +1212,7 @@ static t_stat pun_show_device_name (UNUSED FILE * st, UNIT * uptr,
     long n = PUN_UNIT_NUM (uptr);
     if (n < 0 || n >= N_PUN_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Card punch device name is %s\n", pun_state [n] . device_name);
+    sim_printf("name     : %s", pun_state [n] . device_name);
     return SCPE_OK;
   }
 
@@ -1302,6 +1306,6 @@ static t_stat pun_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
   {
     int devUnitIdx = (int) PUN_UNIT_NUM (uptr);
     pun_state_t * psp = pun_state + devUnitIdx;
-    sim_msg ("logcards:  %d\n", psp->log_cards);
+    sim_msg ("logcards : %d", psp->log_cards);
     return SCPE_OK;
   }

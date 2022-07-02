@@ -1,8 +1,10 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2310,SC2312
 # vim: filetype=sh:tabstop=4:tw=78:expandtab
+# SPDX-License-Identifier: FSFAP
+# scspell-id: 628508d5-f62b-11ec-99af-80ee73e9b8e7
 
-############################################################################
+##############################################################################
 #
 # Copyright (c) 2021-2022 The DPS8M Development Team
 #
@@ -11,12 +13,12 @@
 # notice and this notice are preserved.  This file is offered "AS-IS",
 # without any warranty.
 #
-############################################################################
+##############################################################################
 
-# Begin
 printf '#### %s\n' "Begin ${0} (${$})"
 
-# Check for /bin/sh
+##############################################################################
+
 test -x "/bin/sh" ||
   {
     printf '%s\n'  \
@@ -24,9 +26,12 @@ test -x "/bin/sh" ||
     exit 1
   }
 
+##############################################################################
+
 export SHELL=/bin/sh
 
-# Show git diff before starting
+##############################################################################
+
 # shellcheck disable=SC2009
 GIT_DIFF_OUT="$(git diff 2> /dev/null)"
 test -z "${GIT_DIFF_OUT:-}" ||
@@ -38,7 +43,8 @@ test -z "${GIT_DIFF_OUT:-}" ||
     sleep 5 > /dev/null 2>&1
   }
 
-# Show tmux existing sessions
+##############################################################################
+
 # shellcheck disable=SC2009
 TMUX_SESSIONS="$(tmux list-sessions 2> /dev/null |  \
                    grep '^ci-kit' 2> /dev/null)"
@@ -51,7 +57,8 @@ test -z "${TMUX_SESSIONS:-}" ||
     sleep 5 > /dev/null 2>&1
   }
 
-# Show existing dps8 processes
+##############################################################################
+
 # shellcheck disable=SC2009
 DPS8_SESSIONS="$(ps -ef 2> /dev/null | grep 'dps8.*yoyo' 2> /dev/null |  \
                    grep -v ' grep' 2> /dev/null)"
@@ -64,23 +71,28 @@ test -z "${DPS8_SESSIONS:-}" ||
     sleep 5 > /dev/null 2>&1
   }
 
-# DUMA settings
+##############################################################################
+
 export DUMA_DISABLE_BANNER=1
 export DUMA_OUTPUT_FILE="dumalog.txt"
 export DUMA_OUTPUT_STDOUT=0
 export DUMA_OUTPUT_STDERR=0
 export DUMA_MEMCPY_OVERLAP=1
 
+##############################################################################
+
 # Strict
 set -eu > /dev/null 2>&1
 
-# Job ID
+##############################################################################
+
 T_JOB_ID="$(date 2> /dev/null | tr -cd 0-9 2> /dev/null)$$" &&
   export T_JOB_ID 2> /dev/null
 test -z "${CI_JOB_ID:-}" &&
   export CI_JOB_ID="${T_JOB_ID:?}"
 
-# Sanity check
+##############################################################################
+
 test -f "./tapes/foo.tap" ||
   {
     printf '%s\n'  \
@@ -89,11 +101,13 @@ test -f "./tapes/foo.tap" ||
       exit 1
   }
 
-# Clean-up 1/2
+##############################################################################
+
 test -d ./run &&
   rm -rf ./run > /dev/null 2>&1
 
-# Check for tmux
+##############################################################################
+
 command -v tmux > /dev/null 2>&1 ||
   {
     printf '%s\n'  \
@@ -101,18 +115,25 @@ command -v tmux > /dev/null 2>&1 ||
     exit 1
   }
 
-# Check for stdbuf
+##############################################################################
+
 command -v "stdbuf" > /dev/null 2>&1 &&
   STDBUF="stdbuf -o L" ||
     STDBUF="exec"
+
+##############################################################################
 
 # Faketime configuration
 FAKETIME_PRG="faketime"
 test -n "${FAKETIME:-}" && FAKETIME_PRG="${FAKETIME:-faketime}"
 FAKETIME_ACK="${FAKETIME_PRG:?} --exclude-monotonic -m 2025-05-05"
 
+##############################################################################
+
 # Non-faketime configuration
 FAKETIME_NOP="env TZ=UTC"
+
+##############################################################################
 
 # Disable faketime if running Ubuntu <21.10 with faketime installed
 command -v "${FAKETIME_PRG:?}" > /dev/null 2>&1 || FORCEFAKETIME=1;
@@ -144,18 +165,23 @@ test "${FORCEFAKETIME:-}" -eq "1" 2> /dev/null ||
   FAKETIME_ACK="${FAKETIME_NOP:?}"
 }
 
+##############################################################################
+
 # Check for faketime
 command -v "${FAKETIME_PRG:?}" > /dev/null 2>&1 &&
   FAKETIME="${FAKETIME_ACK:?}" ||
     FAKETIME="${FAKETIME_NOP:?}";
 
-# Check for awk
+##############################################################################
+
 command -v "${AWK:-awk}" > /dev/null 2>&1 ||
   {
     printf '%s\n'  \
       "Error: \"${AWK:-awk}\" not found in PATH."
     exit 1
   }
+
+##############################################################################
 
 # Port status?
 NCSTATUS="(open)" && test -z "${NCAT:-}" && NCAT="ncat"
@@ -164,6 +190,8 @@ ${NCAT:?} "--version" 2>&1 | grep -q '^Ncat:.*nmap\.org' ||
     NCAT="true;false;:"
     NCSTATUS="(unverified)"
   }
+
+##############################################################################
 
 # Port ${1} bindable?
 portCanBind()
@@ -181,6 +209,8 @@ portCanBind()
     return 1
   }
 
+##############################################################################
+
 # Port ${1} open?
 portFree()
   {
@@ -193,6 +223,8 @@ portFree()
     printf '%s\n' "-1"
     return 1
   }
+
+##############################################################################
 
 # Generate random ephemeral port
 randomPort()
@@ -209,6 +241,8 @@ randomPort()
       }"
   }
 
+##############################################################################
+
 # Assign a port - racy - but better than nothing ...
 assignOpenPort()
   {
@@ -216,6 +250,8 @@ assignOpenPort()
       portCanBind "$(portFree "$(randomPort)")" && break
     done
   }
+
+##############################################################################
 
 # Tool configuration
 printf '***           make: "%s"\n'  \
@@ -226,6 +262,8 @@ printf '***       faketime: "%s"\n'  \
   "${FAKETIME:?}"
 printf '***         stdbuf: "%s"\n'  \
   "${STDBUF:?}"
+
+##############################################################################
 
 # Port configuration
 while test "${CONPORT:-0}" = "${FNPPORT:-0}"; do
@@ -239,16 +277,23 @@ while test "${CONPORT:-0}" = "${FNPPORT:-0}"; do
         export FNPPORT 2> /dev/null
 done
 
-# Cleanup 2/2
+##############################################################################
+
 rm -f ./*.log 2> /dev/null
+
+##############################################################################
 
 # Timestamp
 (exec ${STDBUF:?} date -u "+Timestamp: %Y-%m-%d %H:%M:%S %Z." 2> /dev/null |
   ${STDBUF:?} "${TEE:-tee}" -i -a "ci.log" > /dev/null 2>&1)
 
+##############################################################################
+
 # Suppress hook warnings
 SKIP_HOOK=1 &&
   export SKIP_HOOK 2> /dev/null
+
+##############################################################################
 
 # Suppress rebuild?
 NRB="" > /dev/null 2>&1
@@ -258,10 +303,14 @@ test "0${NOREBUILD:-}" -eq 1 > /dev/null 2>&1 &&
   export NRB="REBUILD=1"     > /dev/null 2>&1
 export NOREBUILD 2> /dev/null
 
+##############################################################################
+
 # Configuration
 printf '*** %s\n' "   tmux job ID: \"cikit-${T_JOB_ID:?}-0\""
 printf '*** %s\n' "  tmux channel: \"cikit-${T_JOB_ID:?}-1\""
 export TMUX='' 2> /dev/null
+
+##############################################################################
 
 # Run CI-Kit in background tmux session
 # shellcheck disable=SC2015,SC2048,SC2086,SC2140,SC2248
@@ -278,6 +327,8 @@ eval tmux -u -2 new -d -s cikit-${T_JOB_ID:?}-0                        \
 BGJOB="${!}" && export BGJOB
 printf '***  %s\n' "tmux wait PID: \"${BGJOB:?}\""
 
+##############################################################################
+
 # Live tail log files
 # shellcheck disable=SC2248
 TSTAMPER="$(./timestamp.sh 2> /dev/null)"
@@ -289,13 +340,15 @@ printf '*** %s\n' "   timestamper: \"${TSTAMPER:-cat}\""
        "isolts.debug.log" "isolts_run.debug.log" 2> /dev/null )             \
   | eval ${TSTAMPER:-cat}
 
-# Finish
+##############################################################################
+
 wait "${BGJOB:?}" &&
   ( exec ${STDBUF:?} date -u "+Timestamp: %Y-%m-%d %H:%M:%S %Z."  \
       2> /dev/null | ${STDBUF:?} "${TEE:-tee}" -i -a "ci.log"     \
         > /dev/null 2>&1)
 
-# End
+##############################################################################
+
 printf '#### %s\n' "End ${0} (${$})"
 
-# EOF
+##############################################################################

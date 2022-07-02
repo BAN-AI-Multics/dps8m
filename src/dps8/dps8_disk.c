@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 22079097-f62e-11ec-b987-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -42,11 +44,11 @@
 #define DBG_CTR 1
 
 //
-// A possible disk data packing algoritim
+// A possible disk data packing algorithm
 //
 // Currently sectors are 512 * word36. Word36 is 64bits; that 56% utilization,
-// A computationally effectent packing would improve disk throughput and storage
-// efficency
+// A computationally efficient packing would improve disk throughput and storage
+// efficiency
 //
 //     word36 in[512]
 //     struct dsksec
@@ -64,7 +66,7 @@
 //       }
 //
 // This 36/40 -- 90% utilization; at the cost of the scatter/gather and
-// the cost of emulated disk sectors size not a multilple of host disk
+// the cost of emulated disk sectors size not a multiple of host disk
 // sector size.
 //
 
@@ -206,7 +208,7 @@ struct dsk_state dsk_states [N_DSK_UNITS_MAX];
 //     Sector count limit, bits 0-11: These bits define the binary sector count.
 //     All zeros is a maximum count of 4096.
 //   Track indicator, bits 12-13:
-//     These bits inidicate a complete track as good, defective, or alternate.
+//     These bits indicate a complete track as good, defective, or alternate.
 //       00 = primary track - good
 //       01 = alternate track - good
 //       10 = defective track - alternate track assigned
@@ -344,7 +346,6 @@ static t_stat disk_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, const cha
     return SCPE_OK;
   }
 
-#if 0
 static t_stat disk_show_type (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
   {
     int diskUnitIdx = (int) DSK_UNIT_IDX (uptr);
@@ -354,11 +355,10 @@ static t_stat disk_show_type (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int v
         return SCPE_ARG;
       }
 
-    sim_printf("type %s\r\n", diskTypes[dsk_states[diskUnitIdx].typeIdx].typename);
+    sim_printf("type     : %s", diskTypes[dsk_states[diskUnitIdx].typeIdx].typename);
 
     return SCPE_OK;
   }
-#endif
 
 static t_stat disk_set_type (UNUSED UNIT * uptr, UNUSED int32 value, const char * cptr, UNUSED void * desc)
   {
@@ -402,7 +402,7 @@ static t_stat dsk_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) DSK_UNIT_IDX (uptr);
     if (n < 0 || n >= N_DSK_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Controller device name is %s\n", dsk_states[n].device_name);
+    sim_printf("name     : %s", dsk_states[n].device_name);
     return SCPE_OK;
   }
 
@@ -423,14 +423,14 @@ static t_stat dsk_set_device_name (UNIT * uptr, UNUSED int32 value,
   }
 
 //
-// Looking at rcp_disk.pl1, it appears that the special interupt for disks
+// Looking at rcp_disk.pl1, it appears that the special interrupt for disks
 // only causes rcp to poll the device for status; there don't appear to
 // be any status specific bits to send here; signal ready is a misnomer;
 // it is just signal.
 
 t_stat signal_disk_ready (uint dsk_unit_idx) {
 
-  // Don't signal in the sim is actually running....
+  // Don't signal if the sim is not actually running....
   if (! sim_is_running)
     return SCPE_OK;
   // if substr (special_status_word, 20, 1) ^= "1"b | substr (special_status_word, 13, 6) ^= "00"b3
@@ -449,7 +449,7 @@ t_stat signal_disk_ready (uint dsk_unit_idx) {
   uint ctlr_unit_idx = cables->dsk_to_ctlr[dsk_unit_idx].ctlr_unit_idx;
   enum ctlr_type_e ctlr_type = cables->dsk_to_ctlr[dsk_unit_idx].ctlr_type;
   if (ctlr_type != CTLR_T_MSP && ctlr_type != CTLR_T_IPC) {
-    // If None, assume that the cabling hasn't happend yey.
+    // If None, assume that the cabling hasn't happened yet.
     if (ctlr_type != CTLR_T_NONE) {
       sim_warn ("loadDisk lost\n");
       return SCPE_ARG;
@@ -561,8 +561,10 @@ t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, bool ro) {
 
 static MTAB disk_mod[] =
   {
+#ifndef SPEED
     { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
+#endif
     {
       MTAB_dev_value, /* mask */
       0,            /* match */
@@ -579,9 +581,9 @@ static MTAB disk_mod[] =
       "TYPE",               // print string
       "TYPE",               // match string
       disk_set_type,        // validation routine
-      NULL /*disk_show_type*/,       // display routine
+      disk_show_type,       // display routine
       "disk type",          // value descriptor
-      "D500, D451, D400, D190, D181, D501, 3380, 3381" // Help
+      "D500, D451, D400, D190, D181, D501, 3380, 3381", // Help
     },
     {
       MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
@@ -623,10 +625,10 @@ static t_stat disk_attach (UNIT *uptr, CONST char *cptr)
     return loadDisk ((uint) diskUnitIdx, cptr, false);
   }
 
-// No disks known to multics had more than 2^24 sectors...
+// No disks known to Multics had more than 2^24 sectors...
 DEVICE dsk_dev = {
     "DISK",       /*  name */
-    dsk_unit,    /* units */
+    dsk_unit,     /* units */
     NULL,         /* registers */
     disk_mod,     /* modifiers */
     N_DISK_UNITS, /* #units */
@@ -656,7 +658,6 @@ DEVICE dsk_dev = {
 
 /*
  * disk_init()
- *
  */
 
 // Once-only initialization
@@ -1399,7 +1400,7 @@ if (chan == 014)
 if (chan == 014)
 #endif
         if_sim_debug (DBG_TRACE, & dsk_dev) {
-          sim_printf ("// Disk Set Standbu\r\n");
+          sim_printf ("// Disk Set Standby\r\n");
         }
         p->stati = 04000;
         if (! unitp->fileref)
@@ -1433,10 +1434,10 @@ if (chan == 014)
       if_sim_debug (DBG_TRACE, & dsk_dev) {
         sim_printf ("// Disk IOT No Mode\r\n");
       }
-// It appears that in some cases Mulitcs builds a dcw list from a generic "single IDCW plus optional DDCW" template.
-// That template sets the IDCW channel command to "record", regardless of whether or not the instruciton
+// It appears that in some cases Multics builds a dcw list from a generic "single IDCW plus optional DDCW" template.
+// That template sets the IDCW channel command to "record", regardless of whether or not the instruction
 // needs an DDCW. In particular, disk_ctl pings the disk by sending a "Reset status" with "record" and a apparently
-// unitialized IOTD. The payload channel will send the IOTD because of the "record"; the Reset Status command left
+// uninitialized IOTD. The payload channel will send the IOTD because of the "record"; the Reset Status command left
 // IO mode at "no mode" so we don't know what to do with it. Since this appears benign, we will assume that the
 // original H/W ignored, and so shall we.
 
@@ -1653,7 +1654,10 @@ static t_stat ipc_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) IPC_UNIT_IDX (uptr);
     if (n < 0 || n >= N_IPC_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Controller device name is %s\n", ipc_states[n].device_name);
+    if (ipc_states[n].device_name[0] != 0)
+      sim_printf("name     : %s", ipc_states[n].device_name);
+    else
+      sim_printf("name     : default");
     return SCPE_OK;
   }
 
@@ -1792,7 +1796,10 @@ static t_stat msp_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) MSP_UNIT_IDX (uptr);
     if (n < 0 || n >= N_MSP_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Controller device name is %s\n", msp_states[n].device_name);
+    if (msp_states[n].device_name[0] != 0)
+      sim_printf("name     : %s", msp_states[n].device_name);
+    else
+      sim_printf("name     : default");
     return SCPE_OK;
   }
 

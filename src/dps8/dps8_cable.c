@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 571b2a19-f62d-11ec-b8e7-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -18,11 +20,11 @@
 //  The cable command
 //
 //  This command is responsible for managing the interconnection of
-//  major substems: CPU, SCU, IOM; contollers: MTP, IPC, MSP, URP;
-//  periperals:
+//  major subsystems: CPU, SCU, IOM; controllers: MTP, IPC, MSP, URP;
+//  peripherals:
 //
 //  The unit numbers for CPUs, IOMs, and SCUs (eg IOM3 is IOM unit 3) are
-//  simh unit numbers; these units can can indvidually configured to
+//  scp unit numbers; these units can can individually configured to
 //  desired Multics unit numbers. However, it is somewhat easier to
 //  adopt an one-to-one practice; IOM0 == IOMA, etc.
 //

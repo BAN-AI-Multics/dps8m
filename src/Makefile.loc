@@ -1,5 +1,7 @@
-# DPS/8M simulator: src/Makefile.loc
-# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+# DPS8M simulator: src/Makefile.loc
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: 17a08b6c-f62b-11ec-9acc-80ee73e9b8e7
 
 ###############################################################################
 #
@@ -35,6 +37,9 @@ LIBREL=https://dist.libuv.org/dist/$(RELVER)/$(RELNAM)
 LUVSUM=1378990356
 
 .PHONY: libuvrel
+ifneq (,$(findstring libuvrel,$(MAKECMDGOALS)))
+.NOTPARALLEL: libuvrel
+endif
 libuvrel:                                                                     \
     # libuvrel:    # Build a local libuv library (release)
 	@$(SETV); $(PRINTF) '%s\n' "$$($(GCWD) -P)" | $(GREP) -q " " &&           \
@@ -72,6 +77,9 @@ LIBUVGIT=https://github.com/libuv/libuv
 LOCAL_CLONEOPTS?=--depth=1
 
 .PHONY: libuvdev
+ifneq (,$(findstring libuvdev,$(MAKECMDGOALS)))
+.NOTPARALLEL: libuvdev
+endif
 libuvdev:                                                                     \
     # libuvdev:    # Build a local libuv library (develop)
 	@$(SETV); $(PRINTF) '%s\n' "$$($(GCWD) -P)" | $(GREP) -q " " &&           \
@@ -107,17 +115,17 @@ ifneq (,$(wildcard libuv-local/local/include/uv.h))
         endif
       endif
       ifneq (,$(wildcard libuv-local/local/lib/pkgconfig/libuv.pc))
-        Pklibs=$(shell exec 2> /dev/null; eval $$( 2> /dev/null $(TR) -d '"' \
-          < libuv-local/local/lib/pkgconfig/libuv.pc | $(SED) 's/=/="/'      \
-            2> /dev/null | $(SED) 's/: /="/' 2> /dev/null | $(GREP) '"'      \
-              2> /dev/null | $(SED) 's/$$/"/' 2> /dev/null |                 \
-                $(SED) 's/\ \+"/"/g' 2> /dev/null | $(GREP) '=".*"$$'        \
+        Pklibs=$(shell exec 2> /dev/null; eval $$( 2> /dev/null $(TR) -d '"'  \
+          < libuv-local/local/lib/pkgconfig/libuv.pc | $(SED) 's/=/="/'       \
+            2> /dev/null | $(SED) 's/: /="/' 2> /dev/null | $(GREP) '"'       \
+              2> /dev/null | $(SED) 's/$$/"/' 2> /dev/null |                  \
+                $(SED) 's/\ \+"/"/g' 2> /dev/null | $(GREP) '=".*"$$'         \
                   2> /dev/null ); $(PRINTF) '%s\n' $$Libs)
-        Pkcflags=$(shell exec 2> /dev/null; eval $$( 2> /dev/null            \
-          $(TR) -d '"' < libuv-local/local/lib/pkgconfig/libuv.pc |          \
-            $(SED) 's/=/="/' 2> /dev/null | $(SED) 's/: /="/' 2> /dev/null | \
-              $(GREP) '"' 2> /dev/null | $(SED) 's/$$/"/' 2> /dev/null |     \
-                $(SED) 's/\ \+"/"/g' 2> /dev/null | $(GREP) '=".*"$$'        \
+        Pkcflags=$(shell exec 2> /dev/null; eval $$( 2> /dev/null             \
+          $(TR) -d '"' < libuv-local/local/lib/pkgconfig/libuv.pc |           \
+            $(SED) 's/=/="/' 2> /dev/null | $(SED) 's/: /="/' 2> /dev/null |  \
+              $(GREP) '"' 2> /dev/null | $(SED) 's/$$/"/' 2> /dev/null |      \
+                $(SED) 's/\ \+"/"/g' 2> /dev/null | $(GREP) '=".*"$$'         \
                   2> /dev/null ); $(PRINTF) '%s\n' $$Cflags)
       endif
       ifeq (,$(findstring uv,$(Pklibs)))
@@ -128,12 +136,12 @@ ifneq (,$(wildcard libuv-local/local/include/uv.h))
       endif
       # This horrible construct is to work around an old make bug.
       LLUVFLAGS=$(shell $(PRINTF) %s%s\\n \
-                   "$(Pkcflags) -I..\/..\/libuv-local\/local\/include " \
+                   "$(Pkcflags) -I..\/..\/libuv-local\/local\/include "       \
                      " $(CFLAGS)" | $(SED) 's/-I -I/-I/' 2> /dev/null)
 	  CFLAGS:=$(shell $(PRINTF) %s\\n "$(LLUVFLAGS)")
       export CFLAGS
       LIBUV=$(shell $(PRINTF) %s\\n "$(Pklibs)" | \
-              $(SED) 's/-L -luv/..\/..\/libuv-local\/local\/lib\/libuv.a /' \
+              $(SED) 's/-L -luv/..\/..\/libuv-local\/local\/lib\/libuv.a /'   \
                 2> /dev/null)
       export LIBUV
       export LOCAL_LIBUV=1

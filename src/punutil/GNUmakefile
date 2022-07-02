@@ -1,5 +1,7 @@
-# DPS/8M simulator: src/punutil/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+# DPS8M simulator: src/punutil/GNUmakefile
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: 5daf1b6a-f631-11ec-9e7c-80ee73e9b8e7
 
 ###############################################################################
 #
@@ -51,7 +53,32 @@ clean distclean:
 	-@$(SETV); $(RMF) "punutil$(EXE)" > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "punutil.exe"   > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "punutil.o"     > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) ./*.gcda        > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o"  > /dev/null 2>&1  ||  $(TRUE)
+
+###############################################################################
+
+ifneq (,$(wildcard ./Dependency))
+  include ./Dependency
+endif
+
+###############################################################################
+
+ifneq (,$(wildcard ../Makefile.dev))
+.PHONY: dep depend
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: dep depend
+endif
+dep depend: ../Makefile.dev
+	@( $(CD) "../.." && $(MAKE) -j 1 -s "depend" )
+
+.PHONY: cleandep depclean cleandepend dependclean
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: cleandep depclean cleandepend dependclean
+endif
+cleandep depclean cleandepend dependclean:
+	@( $(CD) "../.." && $(MAKE) -j 1 -s "depclean" )
+endif
 
 ###############################################################################
 

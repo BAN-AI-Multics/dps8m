@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: BSD-2-Clause
+ * scspell-id: ec490dbd-f630-11ec-a71d-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -772,8 +774,11 @@ cmb_count(struct cmb_config *config, uint32_t nitems)
               errno = ERANGE;
               return 0;
             }
-
-          return 1 << nitems;
+          else
+            {
+              /* cppcheck-suppress shiftTooManyBits */
+              return 1 << nitems;
+            }
         }
       else
         {
@@ -1474,13 +1479,13 @@ static struct cmb_xfdef cmb_xforms[] = {
   { NULL,       NULL,    NULL         },
 };
 
-#if ( defined(__VERSION__) && defined(__GNUC__) ) \
-  || ( defined(__VERSION__) && defined(__clang_version__) )
+#if ( defined(__VERSION__) && defined(__GNUC__) ) || \
+  ( defined(__VERSION__) && defined(__clang_version__) )
 # ifndef HAVE_BUILD
 #  define HAVE_BUILD
 # endif /* ifndef HAVE_BUILD */
-#endif /* if  ( defined(__VERSION__) && defined(__GNUC__) )
-           || ( defined(__VERSION__) && defined(__clang_version__) */
+#endif /* if  ( defined(__VERSION__) && defined(__GNUC__) ) ||
+           ( defined(__VERSION__) && defined(__clang_version__) */
 
 int
 main(int argc, char *argv[])

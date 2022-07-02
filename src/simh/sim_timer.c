@@ -1,6 +1,8 @@
 /* sim_timer.c: simulator timer library
 
    vim: filetype=c:tabstop=4:tw=100:expandtab
+   SPDX-License-Identifier: X11
+   scspell-id: de3abd63-f62a-11ec-a888-80ee73e9b8e7
 
    ---------------------------------------------------------------------------
 

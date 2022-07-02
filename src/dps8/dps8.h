@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 6965b612-f62e-11ec-a432-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -57,7 +59,7 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 // Enable round-robin multi-CPU
 //#define ROUND_ROBIN
 
-// Experimential dial_out line disconnect delay
+// Experimental dial_out line disconnect delay
 // FNP polled ~100Hz; 2 secs. is 200 polls
 # define DISC_DELAY 200
 
@@ -325,7 +327,7 @@ typedef enum
     STORE_YBLOCK8   = (1U << 14),  // stores/writes Y-block8 operand to memory
     IGN_B29         = (1U << 15),  // Bit-29 has an instruction specific meaning. Ignore.
     NO_TAG          = (1U << 16),  // tag is interpreted differently and for addressing purposes is effectively 0
-    PRIV_INS        = (1U << 17),  // priveleged instruction
+    PRIV_INS        = (1U << 17),  // privileged instruction
     NO_BAR          = (1U << 18),  // not allowed in BAR mode
 //  NO_XEC          = (1U << 19),  // can't be executed via xec/xed
     NO_XED          = (1U << 20),  // No execution via XEC/XED instruction

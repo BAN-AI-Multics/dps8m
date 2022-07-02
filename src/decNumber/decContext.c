@@ -1,4 +1,6 @@
 // vim: filetype=c:tabstop=4:tw=72:expandtab
+// SPDX-License-Identifier: ICU
+// scspell-id: a0c30a33-f62c-11ec-a4e6-80ee73e9b8e7
 /* ------------------------------------------------------------------ */
 /* Decimal Context module                                             */
 /* ------------------------------------------------------------------ */
@@ -159,8 +161,8 @@ uInt decContextGetStatus(decContext *context) {
 /*  context is the context structure to be updated                    */
 /*  newstatus is the source for the bits to be restored               */
 /*  mask indicates the bits to be restored (the status bit that       */
-/*    corresponds to each 1 bit in the mask is set to the value of    */
-/*    the correspnding bit in newstatus)                              */
+/*  corresponds to each 1 bit in the mask is set to the value of      */
+/*  the corresponding bit in newstatus)                               */
 /*  returns context                                                   */
 /*                                                                    */
 /* No error is possible.                                              */

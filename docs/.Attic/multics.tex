@@ -1,3 +1,7 @@
+% SPDX-License-Identifier: LicenseRef-DPS8M-Doc AND LicenseRef-CFGAL
+% SPDX-FileCopyrightText: 2019-2021 Dean S. Anderson
+% SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+
 \section[Multics Configuration]{MULTICS CONFIGURATION}
 
 This section describes how to match the Multics configuration to the simulator.
@@ -39,8 +43,8 @@ devices that are cabled by default:
     \texttt{dbmj 64. 700. 400. 150. 60. 25.} \\
     \texttt{tcd -apt 1000. -itt 2000.} \\
     \texttt{intk warm 0. rpvs star} \\
-    \texttt{parm dirw} \\    
-\end{adjustwidth}  
+    \texttt{parm dirw} \\
+\end{adjustwidth}
 
 
 \subsection[Large System Config Deck]{LARGE SYSTEM CONFIG DECK}
@@ -81,7 +85,7 @@ The following config deck uses most of the default cabling and will allow Multic
     \texttt{mpc  -ctlr   urpf -iom a -chn 52 -model 8004. -nchan 1} \\
     \texttt{prph -device prtd -iom a -chn 52 -model 1600. -train 600. -ll 136.} \\
     \texttt{prph -device opcb -iom a -chn 53 -model 6001. -ll 256. -state alt} \\
-    \texttt{mpc  -ctlr   urpg -iom a -chn 55 -model 8004. -nchan 1} \\ 
+    \texttt{mpc  -ctlr   urpg -iom a -chn 55 -model 8004. -nchan 1} \\
     \texttt{prph -device rdrb -iom a -chn 55 -model 301.} \\
     \texttt{mpc  -ctlr   urph -iom a -chn 56 -model 8004. -nchan 1} \\
     \texttt{prph -device rdrc -iom a -chn 56 -model 301.} \\
@@ -97,8 +101,8 @@ The following config deck uses most of the default cabling and will allow Multic
     \texttt{dbmj 64. 700. 400. 150. 60. 25.} \\
     \texttt{tcd -apt 1000. -itt 2000.} \\
     \texttt{intk warm 0. rpvs star} \\
-    \texttt{parm dirw} \\    
-\end{adjustwidth}  
+    \texttt{parm dirw} \\
+\end{adjustwidth}
 
 \textbf{IMPORTANT WARNING:}
 
@@ -121,5 +125,5 @@ If you get something like this, you have made a configuration that is too large:
     \texttt{1454.2  page\_fault: fatal error at loc 2330} \\
     \texttt{1454.2  Multics not in operation; control process: Initializer.SysDaemon.z.} \\
     \texttt{bce (crash) 1454.2: M->} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 

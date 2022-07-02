@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 7f512181-f62e-11ec-ad25-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -125,7 +127,7 @@ static void writeOperands (void)
         PNL (cpu.prepare_state |= ps_SAW);
 
 #ifdef LOCKLESSXXX
-        // gives warnings as another lock is aquired in between
+        // gives warnings as another lock is acquired in between
         core_write_unlock (cpu.char_word_address, cpu.ou.character_data, __func__);
 #else
         Write (cpu.ou.character_address, cpu.ou.character_data, OPERAND_STORE);
@@ -328,7 +330,7 @@ static void scu2words (word36 *words)
     // XXX Only the top 9 bits are used in APUCycleBits, so this is
     // zeroing the 3 FTC bits at the end of the word; on the
     // other hand this keeps the values in apuStatusBits clearer.
-    // If FTC is ever used, be sure to put it's save code after this
+    // If FTC is ever used, be sure to put its save code after this
     // line.
     putbits36_12 (& words[0], 24, cpu.cu.APUCycleBits);
 #endif
@@ -390,7 +392,7 @@ static void scu2words (word36 *words)
     putbits36_18 (& words[4], 18, cpu.cu.IR);
 
     // ISOLTS 887 test-03a
-    // Adding this makes test03 hang instead of errorign;
+    // Adding this makes test03 hang instead of erroring;
     // presumably it's stuck on some later test.
     // An 'Add Delta' addressing mode will alter the TALLY bit;
     // restore it.
@@ -1069,7 +1071,7 @@ t_stat display_the_matrix (UNUSED int32 arg, UNUSED const char * buf)
 }
 #endif
 
-// fetch instrcution at address
+// fetch instruction at address
 // CANFAULT
 void fetchInstruction (word18 addr)
 {
@@ -1639,7 +1641,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF)
 #endif
         if (!is_priv_mode ())
           {
-            // "multics" privileged instructions: absa,ldbr,lra,rcu,scu,sdbr,ssdp,ssdr,sptp,sptr
+            // Multics privileged instructions: absa,ldbr,lra,rcu,scu,sdbr,ssdp,ssdr,sptp,sptr
             // ISOLTS 890 05abc,06abc
 #ifdef DPS8M
             if (((opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX )
@@ -1727,7 +1729,7 @@ restart_1:
     ci->stiTally = TST_I_TALLY;   // for sti instruction
 
 ///
-/// executeInstruction: simh hooks
+/// executeInstruction: scp hooks
 ///
 
 #ifndef SPEED
@@ -2047,7 +2049,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 
 #if 0 // #ifndef CA_REWORK
         //
-        // If POT is set, a page fault occured during the fetch of the data word
+        // If POT is set, a page fault occurred during the fetch of the data word
         // pointed to by an indirect addressing word, and the saved CA points
         // to the data word instead of the indirect word; reset the CA correctly
         //
@@ -2126,7 +2128,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
         PNL (cpu.IWRAddr = 0);
       }
 
-// Initiialize zone to 'entire word'
+// Initialize zone to 'entire word'
 
     cpu.useZone = false;
     cpu.zone = MASK36;
@@ -2291,7 +2293,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 ///////
 //
 // ISOLTS test 769 claims in test-02a that 'rpt;div' with a divide
-// fault should delay the divide fault until after the tremination
+// fault should delay the divide fault until after the termination
 // check (it checks that the tally should be decremented) and in test-02b
 // that 'rpl;div' with a divide fault should not due the termination
 // check (the tally should not be decremented).
@@ -2446,7 +2448,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
         doFault (cpu.dlyFltNum, cpu.dlySubFltNum, cpu.dlyCtx);
       }
 ///
-/// executeInstruction: simh hooks
+/// executeInstruction: scp hooks
 ///
 
     cpu.instrCnt ++;
@@ -2501,7 +2503,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 static inline void overflow (bool ovf, bool dly, const char * msg)
   {
     CPT (cpt2L, 15); // overflow check
-    // If an overflow occured and the repeat instruction is not inhibiting
+    // If an overflow occurred and the repeat instruction is not inhibiting
     // overflow checking.
     if (ovf && chkOVF ())
       {
@@ -3107,7 +3109,7 @@ static t_stat doInstruction (void)
              if (oSNR == 07777)
                cpu.PR[n].SNR = 077777;
              else
-               cpu.PR[n].SNR = oSNR; // usigned word will 0-extend.
+               cpu.PR[n].SNR = oSNR; // unsigned word will 0-extend.
               //C(Y)18,35 -> C(PRn.WORDNO)
               cpu.PR[n].WORDNO = GETLO (cpu.CY);
 
@@ -7219,7 +7221,7 @@ static t_stat doInstruction (void)
           // address. The instruction pair repeated is that instruction pair
           // at C PPR.IC)+1, that is, the instruction pair immediately
           // following the xed instruction. C(PPR.IC) is adjusted during the
-          // execution of the repeated instruction pair so the the next
+          // execution of the repeated instruction pair so the next
           // instruction fetched for execution is from the first word
           // following the repeated instruction pair.
           //
@@ -7450,7 +7452,7 @@ static t_stat doInstruction (void)
         /// Privileged - Register Load
 
         case x0 (0674):  // lcpr
-          // DPS8M interpratation
+          // DPS8M interpretation
           switch (i->tag)
             {
               // Extract bits from 'from' under 'mask' shifted to where (where
@@ -7541,7 +7543,7 @@ static t_stat doInstruction (void)
                       cpu.MR.solin = getbits36_1 (cpu.CY, 19);
                       cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
                       cpu.MR.separ = getbits36_1 (cpu.CY, 21);
-// tm/vm are only set if the processor maintainence panel PROG switch is on
+// tm/vm are only set if the processor maintenance panel PROG switch is on
 #  if 1
                       cpu.MR.tm = getbits36_2 (cpu.CY, 22);
                       cpu.MR.vm = getbits36_2 (cpu.CY, 24);
@@ -7561,7 +7563,7 @@ static t_stat doInstruction (void)
                   cpu.MR.solin = getbits36_1 (cpu.CY, 19);
                   cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
                   cpu.MR.separ = getbits36_1 (cpu.CY, 21);
-// tm/vm are only set if the processor maintainence panel PROG switch is on
+// tm/vm are only set if the processor maintenance panel PROG switch is on
 #  if 1
                   cpu.MR.tm = getbits36_2 (cpu.CY, 22);
                   cpu.MR.vm = getbits36_2 (cpu.CY, 24);
@@ -7838,7 +7840,7 @@ elapsedtime ();
                         putbits36_1 (& cpu.Ypair[0], 19, cpu.MR.solin);
                         putbits36_1 (& cpu.Ypair[0], 20, cpu.MR.sdpap);
                         putbits36_1 (& cpu.Ypair[0], 21, cpu.MR.separ);
-// tm/vm are only set if the processor maintainence panel PROG switch is on
+// tm/vm are only set if the processor maintenance panel PROG switch is on
 #  if 1
                         putbits36_2 (& cpu.Ypair[0], 22, cpu.MR.tm);
                         putbits36_2 (& cpu.Ypair[0], 24, cpu.MR.vm);
@@ -7854,7 +7856,7 @@ elapsedtime ();
                     putbits36_1 (& cpu.Ypair[0], 20, cpu.MR.sdpap);
                     putbits36_1 (& cpu.Ypair[0], 21, cpu.MR.separ);
 # endif
-// tm/vm are only set if the processor maintainence panel PROG switch is on
+// tm/vm are only set if the processor maintenance panel PROG switch is on
 # if 1
                     putbits36_2 (& cpu.Ypair[0], 22, cpu.MR.tm);
                     putbits36_2 (& cpu.Ypair[0], 24, cpu.MR.vm);
@@ -8204,7 +8206,7 @@ elapsedtime ();
             // The full/empty bit of cache PTWAM register is set to zero and
             // the LRU counters are initialized.
             if (! cpu.switches.disable_wam)
-              { // disabled by simh, do nothing
+              { // disabled, do nothing
 #ifdef DPS8M
                 if (cpu.cu.PT_ON) // only clear when enabled
 #endif
@@ -8227,8 +8229,8 @@ elapsedtime ();
 // C(TPR.CA) 10+j = 1; j=1,2,3,4
 // All levels are selected to be enabled/disabled if
 // C(TPR.CA) 11,14 = 0
-// This is contrary to what AL39 says, so I'm not going to implement it. In
-// fact, I'm not even going to implement the halves.
+// This is contrary to what AL39 says, so I'm not going to implement it.
+// In fact, I'm not even going to implement the halves.
 
 #ifdef DPS8M
                 if (cpu.TPR.CA != 0000002 && (cpu.TPR.CA & 3) != 0)
@@ -8257,7 +8259,7 @@ elapsedtime ();
             // memory.
             // This may be done to either or both halves.
             if (!cpu.switches.disable_wam)
-              { // disabled by simh, do nothing
+              { // disabled, do nothing
 #ifdef DPS8M
                 if (cpu.cu.SD_ON) // only clear when enabled
 #endif
@@ -8443,14 +8445,14 @@ elapsedtime ();
 //       ID bits of RSW 2 and the ID bits of PROM locations
 //       35-40. This condition could result when alterable
 //       configuration condition is contained in the PROM.
-//       The user is adviced to ignore the PROM fields which
+//       The user is advised to ignore the PROM fields which
 //       contain the processor fault vector base (GCOS III)
 //       and the processor number and rely on the RSW 2 bits
 //       for this purpose. Bits 14-16 of the RSW 2 should be
-//       ignored and the bits represnting this information in
+//       ignored and the bits representing this information in
 //       the PROM should be treated as valid.
 
-// "0-13" disagress with Multics source (start_pl1); it interprets
+// "0-13" disagrees with Multics source (start_pl1); it interprets
 // it as "0-12"; most likely a typo in 58009997-040.
 
 // CAC notes: I interpret the fields as
@@ -8886,7 +8888,7 @@ elapsedtime ();
             // the word at Y) sends a connect signal to the port specified
             // by C(Y) 33,35.
             int cpu_port_num = lookup_cpu_mem_map (cpu.iefpFinalAddress);
-            // If the there is no port to that memory location, fault
+            // If there is no port to that memory location, fault
             if (cpu_port_num < 0)
               {
                 doFault (FAULT_ONC, fst_onc_nem, "(cioc)");
@@ -9075,8 +9077,8 @@ elapsedtime ();
 
 #if 0
 # ifdef LOCKLESS
-// Changes to pxss.alm will move the address of the delete_me dis instuction
-// That dis has a distintive bit pattern; use the segment and IWB instead
+// Changes to pxss.alm will move the address of the delete_me dis instruction
+// That dis has a distinctive bit pattern; use the segment and IWB instead
 // of segment and IC.
 
 // pxss.list
@@ -9132,13 +9134,13 @@ elapsedtime ();
               cpu.interrupt_flag = true;
               break;
             }
-// Implementing TRO according to AL39 for the DIS cause caues idle systems to
+// Implementing TRO according to AL39 for the DIS cause the idle systems to
 // hang in the DIS instruction. Revert back to the old behavior.
 #if 1
           if (GET_I (cpu.cu.IWB) ? bG7PendingNoTRO () : bG7Pending ())
 #else
           //if (GET_I (cpu.cu.IWB) ? bG7PendingNoTRO () : bG7Pending ())
-          // Don't check timer runout if in absolute mode, privledged, or
+          // Don't check timer runout if in absolute mode, privileged, or
           // interrupts inhibited.
           bool noCheckTR = is_priv_mode ()  ||
                             GET_I (cpu.cu.IWB);
@@ -9784,8 +9786,7 @@ elapsedtime ();
             dv3d ();
             break;
 
-        case x1 (0420):  // emcall instruction Custom, for an emulator call for
-                    //  simh stuff ...
+        case x1 (0420):  // emcall instruction Custom, for an emulator call for scp
         {
             if (cpu.switches.enable_emcall) {
               int ret = emCall ();
@@ -9995,7 +9996,7 @@ static int emCall (void)
         }
 
         case 16:     // puts - A high points to by an aci string; print it.
-                     // The string includes C-sytle escapes: \0 for end
+                     // The string includes C-style escapes: \0 for end
                      // of string, \n for newline, \\ for a backslash
         case 21: // puts: A contains a 24 bit address
         {
@@ -10211,7 +10212,7 @@ elapsedtime ();
 
 #define rework
 #ifdef rework
-    if (cpu.cu.FIF) // fault occured during instruction fetch
+    if (cpu.cu.FIF) // fault occurred during instruction fetch
       {
 //if (cpu.cu.rfi) sim_printf ( "RCU FIF refetch return caught rfi\n");
         // I am misusing this bit; on restart I want a way to tell the
@@ -10254,7 +10255,7 @@ elapsedtime ();
       }
 #else
     if (cpu.cu.rfi || // S/W asked for the instruction to be started
-        cpu.cu.FIF) // fault occured during instruction fetch
+        cpu.cu.FIF) // fault occurred during instruction fetch
       {
 
         // I am misusing this bit; on restart I want a way to tell the
@@ -10282,7 +10283,7 @@ elapsedtime ();
 #endif
 
 #if 0
-// I beleive this logic is correct (cf. ISOLTS pa870 test-02d TRA PR1|6 not
+// I believe this logic is correct (cf. ISOLTS pa870 test-02d TRA PR1|6 not
 // switching to append mode do to page fault clearing went_appending), but the
 // emulator's refetching of operand descriptors after page fault of EIS
 // instruction in absolute mode is breaking the logic.

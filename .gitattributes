@@ -1,7 +1,0 @@
-docs/*.txt linguist-documentation
-docs/*.mingw linguist-documentation
-docs/*.md linguist-documentation
-docs/*.ubuntu linguist-documentation
-docs/*.windows linguist-documentation
-*.md linguist-documentation
-src/decNumber linguist-vendored

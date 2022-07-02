@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 89935fa0-f62d-11ec-beae-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -93,8 +95,10 @@ static DEBTAB rdr_dt [] =
 
 static MTAB rdr_mod [] =
   {
+#ifndef SPEED
     { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
+#endif
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
       0,            /* match */
@@ -226,7 +230,7 @@ static t_stat rdr_reset (UNUSED DEVICE * dptr)
 //
 // General Electric used the following collating sequence on their machines,
 // including the GE 600 (the machine on which Multics was developed); this is
-// largely upward compatable from the IBM 026 commercial character set, and it
+// largely upward compatible from the IBM 026 commercial character set, and it
 // shows strong influence from the IBM 1401 character set while supporting the
 // full ASCII character set, with 64 printable characters, as it was understood
 // in the 1960's.
@@ -667,7 +671,7 @@ empty:;
   switch (thisCard) {
 
     case sevenDeck: {
-      // This will overead rawCardImage by 12 bits, but that's okay
+      // This will overread rawCardImage by 12 bits, but that's okay
       // because Multics will ignore the last 12 bits.
       for (uint i = 0; i < 27; i ++)
         buffer [i] = extr36 ((uint8 *) rawCardImage, i);
@@ -1016,7 +1020,7 @@ static t_stat rdr_show_device_name (UNUSED FILE * st, UNIT * uptr,
     long n = RDR_UNIT_NUM (uptr);
     if (n < 0 || n >= N_RDR_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Card reader device name is %s\n", rdr_state [n] . device_name);
+    sim_printf("name     : %s", rdr_state [n] . device_name);
     return SCPE_OK;
   }
 
@@ -1044,7 +1048,7 @@ static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
 
     size_t len = strlen(cptr);
 
-    // We check for legnth - (3 + length of rdr_name) to allow for the null, a possible '/' being added and "rdrx" being added
+    // We check for length - (3 + length of rdr_name) to allow for the null, a possible '/' being added and "rdrx" being added
     if (len >= (sizeof(rdr_path_prefix) - (strlen(rdr_name) + 3)))
       return SCPE_ARG;
 

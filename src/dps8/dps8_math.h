@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: a3d21800-f62e-11ec-8838-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -41,7 +43,7 @@ void fcmg(void);
 
 //void dufa (void);
 //void dufs (void);
-void dufa (bool subtraact);
+void dufa (bool subtract);
 void dufm (void);
 void dfdv (void);
 void dfdi (void);

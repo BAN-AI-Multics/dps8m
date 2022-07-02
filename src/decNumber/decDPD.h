@@ -1,4 +1,6 @@
 // vim: filetype=c:tabstop=4:tw=82:expandtab
+// SPDX-License-Identifier: ICU
+// scspell-id: b25eb5f9-f62c-11ec-83da-80ee73e9b8e7
 /* ------------------------------------------------------------------------ */
 /* Binary Coded Decimal and Densely Packed Decimal conversion lookup tables */
 /*                  [Automatically generated 2008.06.21]                    */

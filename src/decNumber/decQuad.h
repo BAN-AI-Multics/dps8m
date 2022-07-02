@@ -1,4 +1,6 @@
 // vim: filetype=c:tabstop=4:tw=72:expandtab
+// SPDX-License-Identifier: ICU
+// scspell-id: d4c85f73-f62c-11ec-a704-80ee73e9b8e7
 /* ------------------------------------------------------------------ */
 /* decQuad.h -- Decimal 128-bit format module header                  */
 /* ------------------------------------------------------------------ */

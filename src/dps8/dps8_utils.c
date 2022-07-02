@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 1414c8ee-f62f-11ec-885a-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -1003,7 +1005,7 @@ void cmp36(word36 oP1, word36 oP2, word18 *flags)
     if ((! sign1) && sign2)  // op1 > 0, op2 < 0 :: op1 > op2
       CLRF (* flags, I_ZERO | I_NEG | I_CARRY);
 
-    else if (sign1 == sign2) // both operands have the same sogn
+    else if (sign1 == sign2) // both operands have the same sign
       {
          if (op1 > op2)
            {
@@ -1049,7 +1051,7 @@ void cmp18(word18 oP1, word18 oP2, word18 *flags)
     if ((! sign1) && sign2)  // op1 > 0, op2 < 0 :: op1 > op2
       CLRF (* flags, I_ZERO | I_NEG | I_CARRY);
 
-    else if (sign1 == sign2) // both operands have the same sogn
+    else if (sign1 == sign2) // both operands have the same sign
       {
         if (op1 > op2)
           {
@@ -1319,7 +1321,7 @@ int strmask (char * str, char * mask)
 #if 0
 /*
  * strtok() with string quoting...
- * (implemented as a small fsm, kinda...
+ * (implemented as a small fsm, kind of...
  * (add support for embedded " later, much later...)
  */
 # define NORMAL 1
@@ -1366,7 +1368,7 @@ char * Strtok (char * line, char * sep) {
                             continue;
                         } else {
                             *p++ = (char)0; /* ... iff >0 */
-                            while (*p && strchr(sep, *p)) /* skip over seperator(s)*/
+                            while (*p && strchr(sep, *p)) /* skip over separator(s)*/
                                 p++;
                             return q; /* return field */
                         }
@@ -1617,15 +1619,15 @@ void cfg_parse_done (config_state_t * state)
 //   \n  newline
 //   \t  tab
 //   \f  formfeed
-//   \r  carrriage return
-//   \0  null  // doesn't work, commented out.
+//   \r  carriage return
+//   \0  null              // doesn't work, commented out.
 //
 // \\ doesn't seem to work...
-//  Also, a simh specific:
+//  Also, a scp specific:
 //
 //   \e  (end simulation)
 //
-//  the simh parser doesn't handle these very well...
+//  the scp parser doesn't handle these very well...
 //
 //   \_  space
 //   \c  comma
@@ -1635,7 +1637,7 @@ void cfg_parse_done (config_state_t * state)
 //   \w  <backslash>
 //   \z  ^D eof (DECism)
 //   \^  caret
-//   \x  expect; used by the autoinput parserj
+//   \x  expect; used by the autoinput parser
 //
 // And a special case:
 //
@@ -1670,21 +1672,21 @@ char * strdupesc (const char * str)
           * p = '\f';
         else if (p [1] == 'r')       //  \r    carriage return
           * p = '\r';
-        else if (p [1] == 'e')       //  \e    control E; Multics escape char.
+        else if (p [1] == 'e')       //  \e    ^E; Multics escape char.
           * p = '\005';
         else if (p [1] == '_')       //  \_    space; needed for leading or
-                                     //        trailing spaces (simh parser
+                                     //        trailing spaces (scp parser
                                      //        issue)
           * p = ' ';
-        else if (p [1] == 'c')       //  \c    comma (simh parser issue)
+        else if (p [1] == 'c')       //  \c    comma (scp parser issue)
           * p = ',';
-        else if (p [1] == 's')       //  \s    semicolon (simh parser issue)
+        else if (p [1] == 's')       //  \s    semicolon (scp parser issue)
           * p = ';';
-        else if (p [1] == 'd')       //  \d    dollar sign (simh parser issue)
+        else if (p [1] == 'd')       //  \d    dollar sign (scp parser issue)
           * p = '$';
-        else if (p [1] == 'q')       //  \q    double quote (simh parser issue)
+        else if (p [1] == 'q')       //  \q    double quote (scp parser issue)
           * p = '"';
-        else if (p [1] == 'z')       //  \z    ^D  eof (VAXism)
+        else if (p [1] == 'z')       //  \z    ^D eof (VAXism)
           * p = '\004';
         else if (p [1] == 'k')       //  \k    caret
           * p = '^';
@@ -1722,10 +1724,11 @@ char * strdupesc (const char * str)
     return buf;
   }
 
-// Layout of data as read from simh tape format
+// Layout of data as read from tape file format
 //
-//   bits: buffer of bits from a simh tape. The data is
-//   packed as 2 36 bit words in 9 eight bit bytes (2 * 36 == 7 * 9)
+//   bits: buffer of bits from tape. The data is
+//   packed as 2 36 bit words in 9 eight bit bytes
+//     (2 * 36 == 7 * 9)
 //   The of the bytes in bits is
 //      byte     value
 //       0       most significant byte in word 0
@@ -1734,7 +1737,7 @@ char * strdupesc (const char * str)
 //       3       4th msb in word 0
 //       4       upper half is 4 least significant bits in word 0
 //               lower half is 4 most significant bit in word 1
-//       5       5th to 13th most signicant bits in word 1
+//       5       5th to 13th most significant bits in word 1
 //       6       ...
 //       7       ...
 //       8       least significant byte in word 1
@@ -1744,7 +1747,7 @@ char * strdupesc (const char * str)
 
 // Data conversion routines
 //
-//  'bits' is the packed bit stream read from the simh tape
+//  'bits' is the packed bit stream read from the tape
 //    it is assumed to start at an even word36 address
 //
 //   extr36
@@ -1760,13 +1763,13 @@ static word36 extrASCII36 (uint8 * bits, uint woffset)
     w |= ((uint64) p [1]) << 18;
     w |= ((uint64) p [2]) << 9;
     w |= ((uint64) p [3]);
-    // mask shouldn't be neccessary but is robust
+    // mask shouldn't be necessary but is robust
     return (word36) (w & MASK36);
   }
 
 // Data conversion routines
 //
-//  'bits' is the packed bit stream read from the simh tape
+//  'bits' is the packed bit stream read from the tape
 //    it is assumed to start at an even word36 address
 //
 //   extr36
@@ -1796,7 +1799,7 @@ word36 extr36 (uint8 * bits, uint woffset)
         w |=  ((uint64) p [3]) << 4;
         w |= (((uint64) p [4]) >> 4) & 0xf;
       }
-    // mask shouldn't be neccessary but is robust
+    // mask shouldn't be necessary but is robust
     return (word36) (w & MASK36);
   }
 
@@ -1843,7 +1846,7 @@ void put36 (word36 val, uint8 * bits, uint woffset)
         //w |=  (uint64) (p [3]) << 4;
         //w |= ((uint64) (p [4]) >> 4) & 0xf;
       }
-    // mask shouldn't be neccessary but is robust
+    // mask shouldn't be necessary but is robust
   }
 
 int extractASCII36FromBuffer (uint8 * bufp, t_mtrlnt tbc, uint * words_processed, word36 *wordp)
@@ -1985,7 +1988,7 @@ void currentTR (word27 * trunits, bool * ovf)
     timespec_diff (& cpu.rTRTime, & now, & delta);
     if (delta.tv_sec > 263)
       {
-        // The elapsed time is manifestly larger then the TR range
+        // The elapsed time is manifestly larger than the TR range
         * trunits = (~0llu) & MASK27;
         * ovf = true;
         return;

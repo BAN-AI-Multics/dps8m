@@ -1,0 +1,1 @@
+vmpctool.o: ../dpsprintf/dpsprintf.h

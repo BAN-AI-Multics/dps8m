@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 410f7ba2-f62d-11ec-b7d6-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -386,7 +388,7 @@ void do_caf (void)
     word6 Tm = 0;
     word6 Td = 0;
 
-    /* word6 iTAG; */   // tag of word preceeding an indirect fetch
+    /* word6 iTAG; */   // tag of word preceding an indirect fetch
 
     cpu.ou.directOperandFlag = false;
 
@@ -555,10 +557,10 @@ startCA:;
                        "RI_MOD: CA(After)=%06o\n", cpu.TPR.CA);
           }
 
-        // - multics link snap code (adjust_mc) sets rTAG to TM_RI
-        // - after directed faults RI modifier after IR modifer end
-        //   up here
-        // - in both cases continue with indirect chain
+        // - Multics link snap code (adjust_mc) sets rTAG to TM_RI
+        // - After directed faults RI modifier after IR modifier end
+        //     up here
+        // - In both cases continue with indirect chain
         if (GET_TM(cpu.cu.CT_HOLD) == TM_IR)
           {
             goto IR_MOD_2;
@@ -941,7 +943,7 @@ startCA:;
                 cpu.cu.pot = 1;
 
 #ifdef LOCKLESSXXX
-                // gives warnings as another lock is aquired in between
+                // gives warnings as another lock is acquired in between
                 Read (cpu.TPR.CA, & cpu.ou.character_data, (i->info->flags & RMW) == STORE_OPERAND ? OPERAND_RMW : OPERAND_READ);
 #else
                 Read (cpu.TPR.CA, & cpu.ou.character_data, OPERAND_READ);

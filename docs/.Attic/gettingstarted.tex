@@ -1,3 +1,7 @@
+% SPDX-License-Identifier: LicenseRef-DPS8M-Doc AND LicenseRef-CFGAL
+% SPDX-FileCopyrightText: 2019-2021 Dean S. Anderson
+% SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
+
 \section[Getting Started]{GETTING STARTED}
 
 This section covers getting started with the simulator. First, getting a copy of the simulator (build or download) will be discussed.
@@ -5,7 +9,7 @@ Then a review of a quick Multics startup will be shown.
 
 \subsection[Building the Simulator from Git]{BUILDING THE SIMULATOR FROM GIT}
 
-Building the simulator has been tested on a number of platforms. 
+Building the simulator has been tested on a number of platforms.
 
 \textbf{\textcolor{red}{DRAFT NOTE: All of the instructions below are for Release 2.0 of the simulator and need to be verified and/or updated for 2.1.}}
 
@@ -18,7 +22,7 @@ Building the simulator has been tested on a number of platforms.
 \begin{adjustwidth}{5ex}{1ex}
 	\texttt{(for 16.04):    sudo apt install git clang} \\
     \texttt{(for 18.04):    sudo apt install git clang libtool m4 automake}
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Build 'libuv'}
 
@@ -31,7 +35,7 @@ Building the simulator has been tested on a number of platforms.
     \texttt{make} \\
     \texttt{sudo make install} \\
     \texttt{cd ..} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Build dps8}
 
@@ -40,14 +44,14 @@ Building the simulator has been tested on a number of platforms.
     \texttt{cd dps8m} \\
     \texttt{git checkout R2.0} \\
     \texttt{make LOCKLESS=1} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Running the Simulator}
 
 \begin{adjustwidth}{5ex}{1ex}
     \texttt{(Copy 'src/dps8/dps8' to the desired working directory)} \\
     \texttt{./dps8 [boot script]} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \newpage
 
@@ -59,7 +63,7 @@ Building the simulator has been tested on a number of platforms.
 
 \begin{adjustwidth}{5ex}{1ex}
 	\texttt{brew install git clang libtool m4 automake} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Build 'libuv'}
 
@@ -72,7 +76,7 @@ Building the simulator has been tested on a number of platforms.
     \texttt{make LOCKLESS=1} \\
     \texttt{sudo make install} \\
     \texttt{cd ..} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Build dps8}
 
@@ -81,14 +85,14 @@ Building the simulator has been tested on a number of platforms.
     \texttt{cd dps8m} \\
     \texttt{git checkout R2.0} \\
     \texttt{make LOCKLESS=1} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Running the Simulator}
 
 \begin{adjustwidth}{5ex}{1ex}
     \texttt{(Copy 'src/dps8/dps8' to the desired working directory)} \\
     \texttt{./dps8 [boot script]} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \newpage
 
@@ -100,7 +104,7 @@ Building the simulator has been tested on a number of platforms.
 
 \begin{adjustwidth}{5ex}{1ex}
 	\texttt{sudo yum install git automake libtool clang} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Build 'libuv'}
 
@@ -113,13 +117,13 @@ Building the simulator has been tested on a number of platforms.
     \texttt{make} \\
     \texttt{sudo make install} \\
     \texttt{cd ..} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 NOTE: For some reason libuv is not being found in its default installation location of /usr/local/lib and it was necessary do the following for it to be found:
 
 \begin{adjustwidth}{5ex}{1ex}
     \texttt{sudo ln -s /usr/local/lib/libuv.so.1.0.0 /usr/lib64/libuv.so.1} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Build dps8}
 
@@ -128,14 +132,14 @@ NOTE: For some reason libuv is not being found in its default installation locat
     \texttt{cd dps8m} \\
     \texttt{git checkout R2.0} \\
     \texttt{make LOCKLESS=1} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Running the Simulator}
 
 \begin{adjustwidth}{5ex}{1ex}
     \texttt{(Copy 'src/dps8/dps8' to the desired working directory)} \\
     \texttt{./dps8 [boot script]} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \newpage
 
@@ -148,7 +152,7 @@ NOTE: For some reason libuv is not being found in its default installation locat
 \begin{adjustwidth}{5ex}{1ex}
 	\texttt{sudo dnf install git mingw64-gcc mingw64-libgnurx libtool make} \\
     \texttt{sudo dnf update perl-Errno} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Build 'libuv'}
 
@@ -161,7 +165,7 @@ NOTE: For some reason libuv is not being found in its default installation locat
     \texttt{make} \\
     \texttt{sudo make install} \\
     \texttt{cd ..} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Build dps8}
 
@@ -170,7 +174,7 @@ NOTE: For some reason libuv is not being found in its default installation locat
     \texttt{cd dps8m} \\
     \texttt{git checkout R2.0} \\
     \texttt{make CROSS=MINGW64 LOCKLESS=1} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Running the Simulator}
 
@@ -179,7 +183,7 @@ NOTE: For some reason libuv is not being found in its default installation locat
     \texttt{dps8.exe} \\
     \texttt{/usr/x86\_64-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll} \\
     \texttt{/usr/x86\_64-w64-mingw32/sys-root/mingw/bin/libuv-1.dll} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \newpage
 
@@ -214,7 +218,7 @@ code, needed libraries and packages by entering: \\
     \texttt{pacman -S autoconf} \\
     \texttt{pacman -S unzip} \\
     \texttt{pacman -S zip} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Start a MSYS2 MinGW window and build the code:}
 
@@ -232,7 +236,7 @@ code, needed libraries and packages by entering: \\
     \texttt{git checkout R2.0} \\
     \texttt{git fetch} \\
     \texttt{mingw32-make.exe} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Running the Simulator}
 
@@ -240,7 +244,7 @@ Start a Windows command shell:
 
 \begin{adjustwidth}{5ex}{1ex}
     \texttt{Start -> All programs -> Accessories -> Command Prompt} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 Change directory to where the simulator is to be run from and copy the needed files:
 
@@ -249,13 +253,13 @@ Change directory to where the simulator is to be run from and copy the needed fi
     \texttt{copy c:\textbackslash{}msys64\textbackslash{}home\textbackslash{}Admin\textbackslash{}dps8m-code\textbackslash{}rc\textbackslash{}dps8\textbackslash{}dps8.exe} \\
     \texttt{copy c:\textbackslash{}msys64\textbackslash{}mingw64\textbackslash{}bin\textbackslash{}libwinpthread-1.dll} \\
     \texttt{copy c:\textbackslash{}msys64\textbackslash{}mingw64\textbackslash{}bin\textbackslash{}libuv-1.dll} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 Run Multics:
 
 \begin{adjustwidth}{5ex}{1ex}
     \texttt{.\textbackslash{}dps8.exe <boot.ini>} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \newpage
 
@@ -268,7 +272,7 @@ Run Multics:
 \begin{adjustwidth}{5ex}{1ex}
 	\texttt{sudo apt-get update} \\
     \texttt{sudo apt-get install git libtool automake clang}
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Build 'libuv'}
 
@@ -281,7 +285,7 @@ Run Multics:
     \texttt{make} \\
     \texttt{sudo make install} \\
     \texttt{cd ..} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Build dps8}
 
@@ -290,12 +294,12 @@ Run Multics:
     \texttt{cd dps8m} \\
     \texttt{git checkout R2.0} \\
     \texttt{make M32=1} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 
 \textbf{Running the Simulator}
 
 \begin{adjustwidth}{5ex}{1ex}
     \texttt{(Copy 'src/dps8/dps8' to the desired working directory)} \\
     \texttt{./dps8 [boot script]} \\
-\end{adjustwidth}  
+\end{adjustwidth}
 

@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: e959445f-f62e-11ec-b5eb-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -66,7 +68,7 @@ extern DEVICE scu_dev;
 #define DBG_REGDUMPPR     (1U << 4)      ///< pointer registers dump
 //#define DBG_REGDUMPADR  (1U << 5)      ///< address registers dump
 #define DBG_REGDUMPPPR    (1U << 6)      ///< PPR register dump
-#define DBG_REGDUMPDSBR   (1U << 7)      ///< descritptor segment base register dump
+#define DBG_REGDUMPDSBR   (1U << 7)      ///< descriptor segment base register dump
 #define DBG_REGDUMPFLT    (1U << 8)      ///< C(EAQ) floating-point register dump
 
 //#define DBG_REGDUMP     (DBG_REGDUMPAQI | DBG_REGDUMPIDX | DBG_REGDUMPPR |

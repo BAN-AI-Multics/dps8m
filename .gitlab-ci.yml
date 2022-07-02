@@ -1,9 +1,12 @@
+# SPDX-License-Identifier: FSFAP
+# scspell-id: 5a5d276b-f778-11ec-bbe8-80ee73e9b8e7
+
 ############################################################################
 #
 # Copyright (c) 2018-2019 Charles Anthony <charles.unix.pro@gmail.com>
 # Copyright (c) 2019-2020 Eric Swenson <eric@swenson.org>
 # Copyright (c) 2021 Jeffrey H. Johnson <trnsz@pobox.com>
-# Copyright (c) 2021 The DPS8M Development Team
+# Copyright (c) 2021-2022 The DPS8M Development Team
 #
 # Copying and distribution of this file, with or without modification,
 # are permitted in any medium without royalty provided the copyright
@@ -1734,7 +1737,7 @@ DPS8M Omnibus Documentation:
     - export GLCICD_JOB="OmnibusDocsGenX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
     - *scriptDnfSetup
-    - dnf -v install -y python3-pygments texlive-pygmentex biber texlive-enumitem-zref texlive-zref texlive-xurl texlive-xecjk texlive-upquote texlive-unicode-math texlive-ulem texlive-ucharcat texlive-titling texlive-sourcesanspro texlive-sourcecodepro texlive-pagecolor texlive-needspace texlive-mweights texlive-mdframed texlive-ly1 texlive-letltxmacro texlive-fvextra texlive-framed texlive-footmisc texlive-filehook texlive-everypage texlive-csquotes texlive-collectbox texlive-bidi texlive-background texlive-babel-german texlive-footnotebackref texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash || dnf -v install -y texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash texlive-footnotebackref texlive-babel-german texlive-background texlive-bidi texlive-collectbox texlive-csquotes texlive-everypage texlive-filehook texlive-footmisc texlive-framed texlive-fvextra texlive-letltxmacro texlive-ly1 texlive-mdframed texlive-mweights texlive-needspace texlive-pagecolor texlive-sourcecodepro texlive-sourcesanspro texlive-titling texlive-ucharcat texlive-ulem texlive-unicode-math texlive-upquote texlive-xecjk texlive-xurl texlive-zref texlive-enumitem-zref biber texlive-pygmentex python3-pygments
+    - dnf -v install -y graphviz texlive-graphviz graphviz-devil graphviz-gd graphviz-lua python3-pygments texlive-pygmentex biber texlive-enumitem-zref texlive-zref texlive-xurl texlive-xecjk texlive-upquote texlive-unicode-math texlive-ulem texlive-ucharcat texlive-titling texlive-sourcesanspro texlive-sourcecodepro texlive-pagecolor texlive-needspace texlive-mweights texlive-mdframed texlive-ly1 texlive-letltxmacro texlive-fvextra texlive-framed texlive-footmisc texlive-filehook texlive-everypage texlive-csquotes texlive-collectbox texlive-bidi texlive-background texlive-babel-german texlive-footnotebackref texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash || dnf -v install -y texlive-adjustbox telnet tmux mksh expect tcsh wget lzip dos2unix diffutils moreutils libfaketime nmap ansifilter poppler-utils pandoc qpdf ghostscript bc pdftk-java adobe-source-code-pro-fonts adobe-source-sans-pro-fonts texlive-scheme-basic texlive-collection-xetex bash texlive-footnotebackref texlive-babel-german texlive-background texlive-bidi texlive-collectbox texlive-csquotes texlive-everypage texlive-filehook texlive-footmisc texlive-framed texlive-fvextra texlive-letltxmacro texlive-ly1 texlive-mdframed texlive-mweights texlive-needspace texlive-pagecolor texlive-sourcecodepro texlive-sourcesanspro texlive-titling texlive-ucharcat texlive-ulem texlive-unicode-math texlive-upquote texlive-xecjk texlive-xurl texlive-zref texlive-enumitem-zref biber texlive-pygmentex python3-pygments graphviz texlive-graphviz graphviz-devil graphviz-gd graphviz-lua
     - mktexfmt xelatex.fmt || true
     - *scriptSanity
     - *scriptCommon
@@ -1846,7 +1849,7 @@ Flawfinder:
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - flawfinder -m 5 . 2>&1 > flawfinder.txt
+    - flawfinder -C -m 5 . 2>&1 > flawfinder.txt
   dependencies: []
   artifacts:
     when: always
@@ -1905,7 +1908,7 @@ Cppcheck:
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - make cppcheck
+    - env HTMLOUT=1 make cppcheck
     - ansifilter -T cppcheck.txt > cppcheck.txt.1 2> /dev/null
     - env mv -f cppcheck.txt.1 cppcheck.txt > /dev/null 2>&1
   dependencies: []
@@ -1914,6 +1917,8 @@ Cppcheck:
     expire_in: 30 days
     paths:
       - ${CI_PROJECT_DIR:?}/cppcheck.txt
+      - ${CI_PROJECT_DIR:?}/cppcheck/index.html
+      - ${CI_PROJECT_DIR:?}/cppcheck/*/*
   retry: 2
   timeout: 120 minutes
   interruptible: true
@@ -1965,11 +1970,11 @@ Source Tree Checks:
     - export GLCICD_JOB="GitHooksCheckFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
     - *scriptDnfSetup
-    - dnf -q install -y cppi || dnf -q install -y cppi
+    - dnf -q install -y cppi imake || dnf -q install -y cppi imake
     - *scriptSanity
     - *scriptCommon
     - *scriptExtraInfo
-    - EXTRA_HOOK=1 DEBUG_HOOK=1 ./.githooks/pre-commit 2>&1 | tee -i pre-commit-test.txt
+    - EXTRA_HOOK=1 DEBUG_HOOK=1 TEST_DEPENDS=1 ./.githooks/pre-commit 2>&1 | tee -i pre-commit-test.txt
   dependencies: []
   artifacts:
     when: always

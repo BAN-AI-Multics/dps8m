@@ -1,5 +1,7 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * SPDX-License-Identifier: ICU
+ * scspell-id: 6421764a-f62d-11ec-b542-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
@@ -318,7 +320,7 @@ typedef struct opc_state_t
     char device_name [MAX_DEV_NAME_LEN];
 
 // Multics does console reads with a tally of 64 words; so 256 characters + NUL.
-// If the tally is smalleri then the contents of the buffer, sendConsole will
+// If the tally is smaller than the contents of the buffer, sendConsole will
 // issue a warning and discard the excess.
 #define bufsize 257
     unsigned char keyboardLineBuffer[bufsize];
@@ -418,7 +420,7 @@ int check_attn_key (void)
     return -1;
   }
 
-// Once-only initialation
+// Once-only initialization
 
 void console_init (void)
   {
@@ -529,9 +531,9 @@ static int opc_autoinput_show (UNUSED FILE * st, UNIT * uptr,
     int conUnitIdx = (int) OPC_UNIT_IDX (uptr);
     opc_state_t * csp = console_state + conUnitIdx;
     if (csp->auto_input)
-      sim_print ("Autoinput: '%s'\n", csp->auto_input);
+      sim_print ("autoinput: '%s'", csp->auto_input);
     else
-      sim_print ("Autoinput: NULL\n");
+      sim_print ("autoinput: empty");
     return SCPE_OK;
   }
 
@@ -803,7 +805,7 @@ static void consoleProcessIdx (int conUnitIdx)
           }
 
         // Check for ^E
-        //   (Windows doesn't handle ^E as a signal; need to explictily test
+        //   (Windows doesn't handle ^E as a signal; need to explicitly test
         //   for it.)
 
         if (breakEnable && c == SCPE_STOP)
@@ -1253,7 +1255,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
   //int conUnitIdx = (int) d->devUnitIdx;
 
   // The 6001 only executes the PCW DCW command; the 6601 executes
-  // the the PCW DCW and (at least) the first DCW list item.
+  // the PCW DCW and (at least) the first DCW list item.
   // When Multics uses the 6601, the PCW DCW is always 040 RESET.
   // The 040 RESET will trigger the DCW list read.
   // will change this.
@@ -1350,7 +1352,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
       case 057:               // Read ID (according to AN70-1)
         // FIXME: No support for Read ID; appropriate values are not known
         //[CAC] Looking at the bootload console code, it seems more
-        // concerned about the device responding, rather then the actual
+        // concerned about the device responding, rather than the actual
         // returned value. Make some thing up.
         sim_debug (DBG_DEBUG, & opc_dev, "%s: Read ID\n", __func__);
         p->stati = 04500;
@@ -1617,7 +1619,7 @@ static t_stat opc_svc (UNIT * unitp)
 static t_stat opc_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
                                  UNUSED int val, UNUSED const void * desc)
   {
-    sim_print ("Number of OPC units in system is %d\n", opc_dev.numunits);
+    sim_print ("%d units\n", opc_dev.numunits);
     return SCPE_OK;
   }
 
@@ -1720,9 +1722,10 @@ static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
   {
     int devUnitIdx = (int) OPC_UNIT_IDX (uptr);
     opc_state_t * csp = console_state + devUnitIdx;
-    sim_msg ("autoaccept:  %d\n", csp->autoaccept);
-    sim_msg ("noempty:  %d\n", csp->noempty);
-    sim_msg ("attn_flush:  %d\n", csp->attn_flush);
+    sim_msg ("flags    : ");
+    sim_msg ("autoaccept=%d, ", csp->autoaccept);
+    sim_msg ("noempty=%d, ", csp->noempty);
+    sim_msg ("attn_flush=%d", csp->attn_flush);
     return SCPE_OK;
   }
 
@@ -1732,7 +1735,7 @@ static t_stat opc_show_device_name (UNUSED FILE * st, UNIT * uptr,
     int n = (int) OPC_UNIT_IDX (uptr);
     if (n < 0 || n >= N_OPC_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Controller device name is %s\n", console_state[n].device_name);
+    sim_printf("name     : OPC%d", n);
     return SCPE_OK;
   }
 
@@ -1765,7 +1768,10 @@ static t_stat opc_set_console_port (UNIT * uptr, UNUSED int32 value,
         if (port < 0 || port > 65535) // 0 is 'disable'
           return SCPE_ARG;
         console_state[dev_idx].console_access.port = port;
-        sim_msg ("Console %d port set to %d\n", dev_idx, port);
+        if (port == 0)
+          sim_msg ("port: disabled");
+        else
+          sim_msg ("port: %d", port);
       }
     else
       console_state[dev_idx].console_access.port = 0;
@@ -1778,7 +1784,10 @@ static t_stat opc_show_console_port (UNUSED FILE * st, UNIT * uptr,
     int dev_idx = (int) OPC_UNIT_IDX (uptr);
     if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Console %d port set to %d\n", dev_idx, console_state[dev_idx].console_access.port);
+    if (console_state[dev_idx].console_access.port)
+      sim_printf("port     : %d", console_state[dev_idx].console_access.port);
+    else
+      sim_printf("port     : disabled");
     return SCPE_OK;
   }
 
@@ -1810,7 +1819,10 @@ static t_stat opc_show_console_address (UNUSED FILE * st, UNIT * uptr,
     int dev_idx = (int) OPC_UNIT_IDX (uptr);
     if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Console %d address set to %s\n", dev_idx, console_state[dev_idx].console_access.address);
+    if (console_state[dev_idx].console_access.address)
+      sim_printf("address  : %s", console_state[dev_idx].console_access.address);
+    else
+      sim_printf("address  : any");
     return SCPE_OK;
   }
 
@@ -1846,7 +1858,7 @@ static t_stat opc_show_console_pw (UNUSED FILE * st, UNIT * uptr,
     int dev_idx = (int) OPC_UNIT_IDX (uptr);
     if (dev_idx < 0 || dev_idx >= N_OPC_UNITS_MAX)
       return SCPE_ARG;
-    sim_printf("Console %d password set to %s\n", dev_idx, console_state[dev_idx].console_access.pw);
+    sim_printf("password : %s", console_state[dev_idx].console_access.pw);
     return SCPE_OK;
   }
 
@@ -1870,7 +1882,7 @@ static void consolePutchar0 (int conUnitIdx, char ch) {
 
 static void console_putchar (int conUnitIdx, char ch) {
   opc_state_t * csp = console_state + conUnitIdx;
-  if (csp->escapeSequence) { // Prior character was an esacpe
+  if (csp->escapeSequence) { // Prior character was an escape
     csp->escapeSequence = false;
     if (ch == '1') { // Set tab
       if (csp->carrierPosition >= 1 && csp->carrierPosition <= 256) {
@@ -1899,7 +1911,7 @@ static void console_putchar (int conUnitIdx, char ch) {
       csp->carrierPosition = 1;
   } else if (ch == '\033') { // Escape
       csp->escapeSequence = true;
-  } else { // Non-printing and we don't recognize a carriage motion characatr, so just print it...
+  } else { // Non-printing and we don't recognize a carriage motion character, so just print it...
       consolePutchar0 (conUnitIdx, ch);
   }
 }

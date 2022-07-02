@@ -1,5 +1,7 @@
-# DPS/8M simulator: src/simh/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=76:noexpandtab
+# DPS8M simulator: src/simh/GNUmakefile
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# SPDX-License-Identifier: ICU
+# scspell-id: 5f6d7a56-f62a-11ec-b245-80ee73e9b8e7
 
 ###############################################################################
 #
@@ -85,6 +87,7 @@ clean distclean:
 	-@$(RMF) ".l68.state"                  ||  $(TRUE) > /dev/null 2>&1
 	-@$(RMF) .dps8m*.state                 ||  $(TRUE) > /dev/null 2>&1
 	-@$(RMF) .l68*.state                   ||  $(TRUE) > /dev/null 2>&1
+	-@$(RMF) ./*.gcda 2> /dev/null         ||  $(TRUE) > /dev/null 2>&1
 	-@$(RMF) "../dpsprintf/dpsprintf.o"    ||  $(TRUE) > /dev/null 2>&1
 	-@$(SETV); $(RMF) "../dps8/sysdefs.n"  ||  $(TRUE) > /dev/null 2>&1
 
@@ -95,60 +98,35 @@ clean distclean:
 
 ###############################################################################
 
-scp.o:         ../dpsprintf/dpsprintf.h
-scp.o:         sim_defs.h
-scp.o:         sim_timer.h
-scp.o:         sim_disk.h sim_tape.h sim_sock.h
-scp.o:         sim_tmxr.h
-scp.o:         ../dps8/dps8_duma.h
-scp.o:         ../dps8/ver.h
-scp.o:         ../dps8/dps8_prom.h
-scp.o:         ../dps8/sysdefs.h
-scp.o:         ../decNumber/decContext.h
-scp.o:         ../decNumber/decNumberLocal.h
-scp.o:         ../dps8/dps8_iom.h
-scp.o:         ../dps8/dps8_fnp2.h
-scp.o:         linehistory.h
-scp.o:         dispatch.h
-linehistory.o: linehistory.h ../dpsprintf/dpsprintf.h
-dispatch.o:    dispatch.h
-sim_console.o: sim_defs.h ../dpsprintf/dpsprintf.h
-sim_console.o: scp.h sim_console.h sim_timer.h
-sim_console.o: sim_fio.h
-sim_console.o: sim_tmxr.h sim_sock.h
-sim_disk.o:    sim_defs.h ../dpsprintf/dpsprintf.h
-sim_disk.o:    scp.h
-sim_disk.o:    sim_console.h sim_timer.h
-sim_disk.o:    sim_disk.h
-sim_disk.o:    sim_sock.h
-sim_fio.o:     sim_defs.h ../dpsprintf/dpsprintf.h
-sim_fio.o:     scp.h
-sim_fio.o:     sim_console.h sim_timer.h
-sim_fio.o:     sim_fio.h
-sim_fio.o:     ../decNumber/decContext.h
-sim_fio.o:     ../decNumber/decNumberLocal.h
-sim_sock.o:    sim_sock.h ../dpsprintf/dpsprintf.h
-sim_tape.o:    sim_defs.h
-sim_tape.o:    scp.h
-sim_tape.o:    sim_console.h sim_timer.h
-sim_tape.o:    sim_tape.h
-sim_timer.o:   sim_defs.h ../dpsprintf/dpsprintf.h
-sim_timer.o:   scp.h
-sim_timer.o:   sim_console.h sim_timer.h
-sim_timer.o:   sim_fio.h
-sim_tmxr.o:    sim_defs.h ../dpsprintf/dpsprintf.h
-sim_tmxr.o:    scp.h
-sim_tmxr.o:    sim_console.h sim_timer.h
-sim_tmxr.o:    sim_fio.h
-sim_tmxr.o:    sim_sock.h
-
-###############################################################################
-
 ifdef CFLAGS
   export CFLAGS
   ifneq (,$(wildcard ../Makefile.mk))
     include ../Makefile.mk
   endif
+endif
+
+###############################################################################
+
+ifneq (,$(wildcard ./Dependency))
+  include ./Dependency
+endif
+
+###############################################################################
+
+ifneq (,$(wildcard ../Makefile.dev))
+.PHONY: dep depend
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: dep depend
+endif
+dep depend: ../Makefile.dev
+	@( $(CD) "../.." && $(MAKE) -j 1 -s "depend" )
+
+.PHONY: cleandep depclean cleandepend dependclean
+ifneq (,$(findstring dep,$(MAKECMDGOALS)))
+.NOTPARALLEL: cleandep depclean cleandepend dependclean
+endif
+cleandep depclean cleandepend dependclean:
+	@( $(CD) "../.." && $(MAKE) -j 1 -s "depclean" )
 endif
 
 ###############################################################################
