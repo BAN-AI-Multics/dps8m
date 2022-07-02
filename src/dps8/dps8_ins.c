@@ -7641,6 +7641,7 @@ static t_stat doInstruction (void)
 
         case x0 (0232):  // ldbr
           do_ldbr (cpu.Ypair);
+          uc_invalidate ();
           break;
 
         case x0 (0637):  // ldt

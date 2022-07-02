@@ -92,7 +92,7 @@ static int evcnt = 0;
 # endif
   goto skip_ucache2;
 #else
-  if (! uc_cache_check (uc_operand_read, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & cpu.RSDWH_R1, & paged)) {
+  if (! uc_cache_check (uc_operand_read, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged)) {
 # ifdef HDBG
     hdbgNote ("doAppendCycleOperandRead.h", "miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 # endif
@@ -120,9 +120,9 @@ skip_ucache:;
 #ifdef HDBG
   hdbgNote ("doAppendCycleOperandRead.h", "skip %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 #endif
-#ifdef TEST_UCACHE
+//#ifdef TEST_UCACHE
 skip_ucache2:;
-#endif
+//#endif
 
   bool nomatch = true;
   if (! cpu.switches.disable_wam) {
@@ -586,7 +586,7 @@ HI:
   if (cacheHit) {
     bool err = false;
     if (cachedAddress != pageAddress) {
-     sim_printf ("cachedAddress %08o != finalAddress %08o\r\n", cachedAddress, pageAddress);
+     sim_printf ("cachedAddress %08o != pageAddress %08o\r\n", cachedAddress, pageAddress);
      err = true;
     }
     if (cachedR1 != RSDWH_R1) {
@@ -605,7 +605,7 @@ HI:
 # ifdef HDBG
       HDBGPrint ();
 # endif
-      sim_printf ("err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+      sim_printf ("oprnd read err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
       exit (1);
     }
     //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);

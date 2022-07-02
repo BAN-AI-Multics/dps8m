@@ -84,6 +84,12 @@ static int evcnt = 0;
 
 // Is this cycle a candidate for ucache?
 
+//#define TEST_UCACHE
+#ifdef TEST_UCACHE
+  bool cacheHit;
+  cacheHit = false; // Assume skip...
+#endif
+
   // lastCycle == RTCD_OPERAND_FETCH
   if (i->opcode == 0610  && ! i->opcodeX) {
     //sim_printf ("skip RTCD\r\n");
@@ -113,13 +119,13 @@ static int evcnt = 0;
 #ifdef TEST_UCACHE
   word24 cachedAddress;
   word3 cachedR1;
-  bool cacheHit;
   word14 cachedBound;
-  bool cachePaged;
-  cacheHit = uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedAddress, & cachedR1, & cachePaged);
+  word1 cachedP;
+  bool cachedPaged;
+  cacheHit = uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
   goto skip_ucache2;
 #else
-  if (! uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & cpu.RSDWH_R1, & paged))
+  if (! uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged))
     goto skip_ucache;
 #endif
 
@@ -497,7 +503,7 @@ HI:
   if (cacheHit) {
     bool err = false;
     if (cachedAddress != pageAddress) {
-     sim_printf ("cachedAddress %08o != finalAddress %08o\r\n", cachedAddress, pageAddress);
+     sim_printf ("cachedAddress %08o != pageAddress %08o\r\n", cachedAddress, pageAddress);
      err = true;
     }
     if (cachedR1 != RSDWH_R1) {
@@ -513,10 +519,10 @@ HI:
       err = true;
     }
     if (err) {
-//#ifdef HDBG
+#ifdef HDBG
       HDBGPrint ();
-//#endif
-      sim_printf ("err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+#endif
+      sim_printf ("ins fetch err  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
       exit (1);
     }
     //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
@@ -626,3 +632,4 @@ M: // Set P
 
   return finalAddress;
 }
+#undef TEST_UCACHE
