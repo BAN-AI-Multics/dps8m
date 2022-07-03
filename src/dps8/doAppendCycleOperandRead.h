@@ -58,7 +58,7 @@ static int evcnt = 0;
   word24 pageAddress = 0;
   word3 RSDWH_R1 = 0;
   word14 bound = 0;
-  word1 p = 0; // Unused, as PPR.P is only checked for CALL6 and transfer, which are not cached.
+  word1 p = 0; 
   bool paged;
 
 // Is this cycle a candidate for ucache?
@@ -70,14 +70,15 @@ static int evcnt = 0;
   cacheHit = false; // Assume skip...
 #endif
 
-#if 1
+#if 0
   // Is OPCODE call6?
   if (i->info->flags & CALL6_INS) {
     cpu.uc_call6_skip ++;
     goto skip_ucache;
   }
+#endif
 
-
+#if 0
   // Transfer or instruction fetch?
   if (i->info->flags & TRANSFER_INS) {
     cpu.uc_xfer_skip ++;
@@ -704,7 +705,7 @@ M: // Set P
   // C(TPR.TRR) = 0?
   if (cpu.TPR.TRR == 0) {
     // C(SDW.P) -> C(PPR.P)
-    cpu.PPR.P = cpu.SDW->P;
+    cpu.PPR.P = p;
   } else {
     // 0 C(PPR.P)
     cpu.PPR.P = 0;
