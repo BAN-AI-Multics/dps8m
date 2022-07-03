@@ -2936,6 +2936,21 @@ leave:
     sim_msg ("lockWait      %'15llu\n", (unsigned long long)cpu.lockWait);
     sim_msg ("lockWaitMax   %'15llu\n", (unsigned long long)cpu.lockWaitMax);
     sim_msg ("lockYield     %'15llu\n", (unsigned long long)cpu.lockYield);
+#ifdef UCACHE_STATS
+    sim_msg ("Micro-cache statisitics (hit/miss/skip)\n");
+# define pct(a, b) ((b) ? (a) * 100.0 / ((a) + (b)) : 0)
+# define args(a, b, c) a, b, c, pct (a, (b + c))
+# define stats(n) args (cpu.uc_hits[n], cpu.uc_misses[n], cpu.uc_skips[n])
+    sim_msg ("  Instruction fetch %'lu/%'lu/%'lu %4.1f%%\n", stats (uc_instruction_fetch));
+    sim_msg ("  Operand read %'lu/%'lu/%'lu %4.1f%%\n", stats (uc_operand_read));
+    sim_msg ("     CALL6 skips: %'lu\n", cpu.uc_call6_skip);
+    sim_msg ("     Transfer skips: %'lu\n", cpu.uc_xfer_skip);
+    sim_msg ("  Indirect word fetch %'lu/%'lu/%'lu %4.1f%%\n", stats (uc_indirect_word_fetch));
+# undef pct
+# undef args
+# undef stats
+#endif
+
 #if 0
     for (int i = 0; i < N_FAULTS; i ++)
       {

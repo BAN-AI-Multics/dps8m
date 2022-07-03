@@ -1521,9 +1521,10 @@ struct ucache_s {
 };
 typedef struct ucache_s ucache_t;
 
-#define uc_instruction 0
+#define uc_instruction_fetch 0
 #define uc_operand_read 1
-#define uc_NUM 2
+#define uc_indirect_word_fetch 2
+#define uc_NUM 3
 
 
 typedef struct
@@ -1532,8 +1533,12 @@ typedef struct
     EISstruct currentEISinstruction;
 
     ucache_t uc_caches[uc_NUM];
-    unsigned long long uc_hits[uc_NUM];
-    unsigned long long uc_misses[uc_NUM];
+#ifdef UCACHE_STATS
+    uint64_t uc_hits[uc_NUM];
+    uint64_t uc_misses[uc_NUM];
+    uint64_t uc_skips[uc_NUM];
+    uint64_t uc_call6_skip, uc_xfer_skip;
+#endif
     unsigned long long cycleCnt;
     unsigned long long instrCnt;
     unsigned long long instrCntT0;

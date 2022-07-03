@@ -57,6 +57,8 @@ static int evcnt = 0;
     DBGAPP ("doAppendCycleInstructionFetch(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
   }
 
+  uint this = uc_instruction_fetch;
+
   word24 finalAddress = 0;
   word24 pageAddress = 0;
   word3 RSDWH_R1 = 0;
@@ -122,11 +124,11 @@ static int evcnt = 0;
   word14 cachedBound;
   word1 cachedP;
   bool cachedPaged;
-  cacheHit = uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
-  goto skip_ucache2;
+  cacheHit = uc_cache_check (this, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
+  goto miss_ucache;
 #else
-  if (! uc_cache_check (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged))
-    goto skip_ucache;
+  if (! uc_cache_check (this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged))
+    goto miss_ucache;
 #endif
 
   if (paged) {
@@ -134,6 +136,7 @@ static int evcnt = 0;
   } else {
     finalAddress = pageAddress + cpu.TPR.CA;
   }
+  cpu.RSDWH_R1 = RSDWH_R1;
 
 // ucache hit; housekeeping...
   //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
@@ -143,9 +146,11 @@ static int evcnt = 0;
 
 skip_ucache:;
   //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-#ifdef TEST_UCACHE
-skip_ucache2:;
+#ifdef UCACHE_STATS
+  cpu.uc_skips[this] ++;
 #endif
+
+miss_ucache:;
 
   bool nomatch = true;
   if (! cpu.switches.disable_wam) {
@@ -547,7 +552,7 @@ else
 }
 #endif
 
-  uc_cache_save (uc_instruction, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
+  uc_cache_save (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
 evcnt ++;
   // isolts 870
   cpu.cu.XSF = 1;

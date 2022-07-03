@@ -1,3 +1,39 @@
+//  Indirect word fetch
+//
+//     A: Get SDW
+//         |
+//         V
+//     B: Check the ring
+//         |
+//         V
+//     G: Check BOUND
+//        Paged? No-------------------+
+//          Yes                       |
+//           |                        |
+//           V                        |
+//        Get PTW                     |
+//           |                        |
+//           V                        V
+//     I: Compute final address   H: Compute final address
+//           |                        |
+//           <------------------------+
+//           |
+//           V
+//     HI: Read data
+//           |
+//           V
+//     J: ITS? Yes------------------+
+//        ITP? Yes----+             |
+//          |         |             |
+//          |         V             V
+//          |       P: ITP        O: ITS
+//          |       Update TRR     Update TRR
+//          |         |             |
+//          +<--------+-------------+
+//          |
+//          V
+//        Exit: return final address
+
 word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
   DCDstruct * i = & cpu.currentInstruction;
   DBGAPP ("doAppendCycleIndirectWordFetch(Entry) thisCycle=INDIRECT_WORD_FETCH\n");
@@ -10,6 +46,54 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
   if (i->b29) {
     DBGAPP ("doAppendCycleIndirectWordFetch(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
   }
+
+  uint this = uc_indirect_word_fetch;
+
+  word24 finalAddress = 0;
+  word24 pageAddress = 0;
+  word3 RSDWH_R1 = 0;
+  word14 bound = 0;
+  word1 p = 0;
+  bool paged = false;
+
+goto miss_ucache;
+// Is this cycle a candidate for ucache?
+
+  // Prepage mode?
+  // check for "uninterruptible" EIS instruction
+  // ISOLTS-878 02: mvn,cmpn,mvne,ad3d; obviously also
+  // ad2/3d,sb2/3d,mp2/3d,dv2/3d
+  // DH03 p.8-13: probably also mve,btd,dtb
+  if (i->opcodeX && ((i->opcode & 0770)== 0200|| (i->opcode & 0770) == 0220
+      || (i->opcode & 0770)== 020|| (i->opcode & 0770) == 0300)) {
+    //sim_printf ("skip uniterruptable\r\n");
+    goto skip_ucache;
+  }
+
+// Yes; check the ucache
+  if (! uc_cache_check (this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged))
+    goto miss_ucache;
+
+  if (paged) {
+    finalAddress = pageAddress + (cpu.TPR.CA & OS18MASK);
+  } else {
+    finalAddress = pageAddress + cpu.TPR.CA;
+  }
+  cpu.RSDWH_R1 = RSDWH_R1;
+
+// ucache hit; housekeeping...
+  //sim_printf ("hit  %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
+
+  cpu.apu.lastCycle = INDIRECT_WORD_FETCH;
+  goto HI;
+
+skip_ucache:;
+#ifdef UCACHE_STATS
+  cpu.uc_skips[this] ++;
+#endif
+
+miss_ucache:;
+  //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 
   bool nomatch = true;
   if (! cpu.switches.disable_wam) {
@@ -39,8 +123,6 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
 //#define FMSG(x) x
 #define FMSG(x)
   FMSG (char * acvFaultsMsg = "<unknown>";)
-
-  word24 finalAddress = (word24) -1;  // not everything requires a final address
 
 ////////////////////////////////////////
 //
@@ -96,7 +178,7 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
   DBGAPP ("doAppendCycleIndirectWordFetch(A) R1 %o R2 %o R3 %o E %o\n", cpu.SDW->R1, cpu.SDW->R2, cpu.SDW->R3, cpu.SDW->E);
 
   // Yes...
-  cpu.RSDWH_R1 = cpu.SDW->R1;
+  RSDWH_R1 = cpu.RSDWH_R1 = cpu.SDW->R1;
 
 ////////////////////////////////////////
 //
@@ -168,7 +250,7 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
     }
   }
 
-  goto G;
+//  goto G;
 
 ////////////////////////////////////////
 //
@@ -176,7 +258,7 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
 //
 ////////////////////////////////////////
 
-G:;
+//G:;
 
   DBGAPP ("doAppendCycleIndirectWordFetch(G)\n");
 
@@ -189,6 +271,8 @@ G:;
     FMSG (acvFaultsMsg = "acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND";)
     DBGAPP ("acvFaults(G) C(TPR.CA)0,13 > SDW.BOUND\n" "   CA %06o CA>>4 & 037777 %06o SDW->BOUND %06o", cpu.TPR.CA, ((cpu.TPR.CA >> 4) & 037777), cpu.SDW->BOUND);
   }
+  bound = cpu.SDW->BOUND;
+  p = cpu.SDW->P;
 
   if (cpu.acvFaults) {
     DBGAPP ("doAppendCycleIndirectWordFetch(G) acvFaults\n");
@@ -235,6 +319,8 @@ G:;
 H:;
   DBGAPP ("doAppendCycleIndirectWordFetch(H): FANP\n");
 
+  paged = false;
+
   PNL (L68_ (cpu.apu.state |= apu_FANP;))
 #if 0
   // ISOLTS pa865 test-01a 101232
@@ -248,6 +334,7 @@ H:;
 
   DBGAPP ("doAppendCycleIndirectWordFetch(H): SDW->ADDR=%08o CA=%06o \n", cpu.SDW->ADDR, cpu.TPR.CA);
 
+  pageAddress = (cpu.SDW->ADDR & 077777760);
   finalAddress = (cpu.SDW->ADDR & 077777760) + cpu.TPR.CA;
   finalAddress &= 0xffffff;
   PNL (cpu.APUMemAddr = finalAddress;)
@@ -262,12 +349,15 @@ I:;
 
   DBGAPP ("doAppendCycleIndirectWordFetch(I): FAP\n");
 
-    // final address paged
+  paged = true;
+
+  // final address paged
   set_apu_status (apuStatus_FAP);
   PNL (L68_ (cpu.apu.state |= apu_FAP;))
 
   word24 y2 = cpu.TPR.CA % 1024;
 
+  pageAddress = (((word24)cpu.PTW->ADDR & 0777760) << 6);
   // AL39: The hardware ignores low order bits of the main memory page
   // address according to page size
   finalAddress = (((word24)cpu.PTW->ADDR & 0777760) << 6) + y2;
@@ -280,10 +370,12 @@ I:;
 #endif
   DBGAPP ("doAppendCycleIndirectWordFetch(H:FAP): (%05o:%06o) finalAddress=%08o\n", cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 
-  goto HI;
+  // goto HI;
 
 HI:
   DBGAPP ("doAppendCycleIndirectWordFetch(HI)\n");
+
+  uc_cache_save (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
 
   // isolts 870
   cpu.cu.XSF = 1;
@@ -309,50 +401,6 @@ HI:
       goto O;
     if (ISITP (* data))
       goto P;
-  }
-
-  // C(Y) tag == other indirect?
-  //   TM_R never indirects
-  //   TM_RI always indirects
-  //   TM_IR always indirects
-  //   TM_IT always indirects
-#if 0
-  //     IT_CI, IT_SC, IT_SCR -- address is used for tally word
-  //     IT_I indirects
-  //     IT_AD -- address is used for tally word
-  //     IT_SD -- address is used for tally word
-  //     IT_DI -- address is used for tally word
-  //     IT_ID -- address is used for tally word
-  //     IT_DIC -- address is used for tally word
-  //     IT_IDC -- address is used for tally word
-  static const bool isInd[64] = {
-      // 00-15 R_MOD
-      false, false, false, false, false, false, false, false,
-      false, false, false, false, false, false, false, false,
-      // 16-31 RI_MOD
-      true, true, true, true, true, true, true, true,
-      true, true, true, true, true, true, true, true,
-      // 32-47 IT_MOD
-      // f1  und    und    und    sd     scr    f2     f3
-      false, false, false, false, true,  true,  false, false,
-      // ci  i      sc     ad     di     dic    id     idc
-      true,  true,  true,  true,  true,  true,  true,  true,
-      // 48-63 IR_MOD
-      true, true, true, true, true, true, true, true,
-      true, true, true, true, true, true, true, true
-    };
-  if (isInd[(* data) & MASK6])
-#else
-  if ((* data) & 060)
-#endif
-  {
-    // C(Y)0,17 -> C(IWB)0,17
-    // C(Y)30,35 -> C(IWB)30,35
-    // 0 -> C(IWB)29
-    //updateIWB (GET_ADDR (* data), (* data) & MASK6);
-    //cpu.cu.TSN_PRNO[0] = n;
-    //cpu.cu.TSN_VALID[0] = 1;
-
   }
 
   goto Exit;

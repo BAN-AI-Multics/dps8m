@@ -31,7 +31,7 @@ bool uc_cache_check (uint uc_num, word15 segno, word18 offset, word14 * bound, w
 #ifdef HDBG
     hdbgNote ("ucache", "check not valid");
 #endif
-    return false;
+    goto miss;
   }
   // Same segment?
   if (ep->segno != segno) {
@@ -39,7 +39,7 @@ bool uc_cache_check (uint uc_num, word15 segno, word18 offset, word14 * bound, w
 #ifdef HDBG
     hdbgNote ("ucache", "segno %o != %o\r\n", ep->segno, segno);
 #endif
-    return false;
+    goto miss;
   }
   // Same page?
   if (ep->paged && ((ep->offset & PG18MASK) != (offset & PG18MASK))) {
@@ -47,7 +47,7 @@ bool uc_cache_check (uint uc_num, word15 segno, word18 offset, word14 * bound, w
 #ifdef HDBG
     hdbgNote ("ucache", "pgno %o != %o\r\n", (ep->offset & PG18MASK), (offset & PG18MASK));
 #endif
-    return false;
+    goto miss;
   }
   // In bounds?
   if (((offset >> 4) & 037777) > ep->bound) {
@@ -55,7 +55,7 @@ bool uc_cache_check (uint uc_num, word15 segno, word18 offset, word14 * bound, w
 #ifdef HDBG
     hdbgNote ("ucache", "bound %o != %o\r\n", ((offset >> 4) & 037777), ep->bound);
 #endif
-    return false;
+    goto miss;
   }
 #ifdef HDBG
   hdbgNote ("ucache", "hit %u %05o:%06o %05o %o %08o %o %o", uc_num, segno, offset, ep->bound, ep->p, ep->address, ep->r1, ep->paged);
@@ -80,7 +80,15 @@ bool uc_cache_check (uint uc_num, word15 segno, word18 offset, word14 * bound, w
   * r1 = ep->r1;
   * p = ep->p;
   * paged = ep->paged;
+#ifdef UCACHE_STATS
+  cpu.uc_hits[uc_num] ++;
+#endif
   return true;
+miss:;
+#ifdef UCACHE_STATS
+  cpu.uc_misses[uc_num] ++;
+#endif
+  return false;
 }
 
 
