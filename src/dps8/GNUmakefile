@@ -359,8 +359,8 @@ printmod:
 ###############################################################################
 
 .PHONY: all ctags
-dps8$(EXE): $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(DECN_OBJS) $(SIMH_OBJS)       \
-            ../../dpsprintf.o ctags
+dps8$(EXE): sysdefs.h $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(DECN_OBJS)          \
+            $(SIMH_OBJS) ../../dpsprintf.o ctags
 	@$(PRINTF) '%s\n' "LD: dps8$(EXE)"
 	@$(SETV); $(CC) -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS)             \
           "../dpsprintf/dpsprintf.o" $(MATHLIB) $(DECN_OBJS) $(SIMH_OBJS)     \
