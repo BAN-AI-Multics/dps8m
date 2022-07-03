@@ -1507,25 +1507,7 @@ enum { CUH_XINT = 0100, CUH_IFT = 040, CUH_CRD = 020, CUH_MRD = 010,
 # define N_WAM_MASK 017
 #endif
 
-// Micro cache
-
-struct ucache_s {
-  bool valid;
-  word15 segno;
-  word18 offset;
-  word14 bound;
-  word1  p;
-  word24 address;
-  word3  r1;
-  bool paged;
-};
-typedef struct ucache_s ucache_t;
-
-#define uc_instruction_fetch 0
-#define uc_operand_read 1
-#define uc_indirect_word_fetch 2
-#define uc_NUM 3
-
+#include "ucache.h"
 
 typedef struct
   {
@@ -1537,7 +1519,6 @@ typedef struct
     uint64_t uc_hits[uc_NUM];
     uint64_t uc_misses[uc_NUM];
     uint64_t uc_skips[uc_NUM];
-    uint64_t uc_call6_skip, uc_xfer_skip;
 #endif
     unsigned long long cycleCnt;
     unsigned long long instrCnt;

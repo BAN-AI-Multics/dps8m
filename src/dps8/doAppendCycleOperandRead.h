@@ -73,7 +73,7 @@ static int evcnt = 0;
 #if 0
   // Is OPCODE call6?
   if (i->info->flags & CALL6_INS) {
-    cpu.uc_call6_skip ++;
+    //cpu.uc_call6_skip ++;
     goto skip_ucache;
   }
 #endif
@@ -81,7 +81,7 @@ static int evcnt = 0;
 #if 0
   // Transfer or instruction fetch?
   if (i->info->flags & TRANSFER_INS) {
-    cpu.uc_xfer_skip ++;
+    //cpu.uc_xfer_skip ++;
     goto skip_ucache;
   }
 #endif
@@ -124,13 +124,15 @@ static int evcnt = 0;
   cpu.apu.lastCycle = OPERAND_READ;
   goto HI;
 
+#if 0
 skip_ucache:;
   //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-#ifdef HDBG
+# ifdef HDBG
   hdbgNote ("doAppendCycleOperandRead.h", "skip %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
-#endif
-#ifdef UCACHE_STATS
+# endif
+# ifdef UCACHE_STATS
   cpu.uc_skips[this] ++;
+# endif
 #endif
 
 miss_ucache:;

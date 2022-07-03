@@ -15,6 +15,25 @@
  * ---------------------------------------------------------------------------
  */
 
+// Micro cache
+
+struct ucache_s {
+  bool valid;
+  word15 segno;
+  word18 offset;
+  word14 bound;
+  word1  p;
+  word24 address;
+  word3  r1;
+  bool paged;
+};
+typedef struct ucache_s ucache_t;
+
+#define uc_instruction_fetch 0
+#define uc_operand_read 1
+#define uc_indirect_word_fetch 2
+#define uc_NUM 3
+
 void uc_invalidate (void);
 void uc_cache_save (uint uc_num, word15 segno, word18 offset, word14 bound, word1 p, word24 address, word3 r1, bool paged);
 bool uc_cache_check (uint uc_num, word15 segno, word18 offset, word14 * bound, word1 * p, word24 * address, word3 * r1, bool * paged);

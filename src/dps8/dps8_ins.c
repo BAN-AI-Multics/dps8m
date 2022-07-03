@@ -36,7 +36,6 @@
 #include "dps8_decimal.h"
 #include "dps8_iefp.h"
 #include "dps8_utils.h"
-#include "ucache.h"
 
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"

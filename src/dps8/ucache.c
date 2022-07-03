@@ -2,7 +2,6 @@
 
 #include "dps8.h"
 #include "dps8_cpu.h"
-#include "ucache.h"
 
 void uc_invalidate (void) {
   memset (cpu.uc_caches, 0, sizeof (cpu.uc_caches));
