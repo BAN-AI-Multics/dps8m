@@ -7640,7 +7640,7 @@ static t_stat doInstruction (void)
 
         case x0 (0232):  // ldbr
           do_ldbr (cpu.Ypair);
-          uc_invalidate ();
+          ucInvalidate ();
           break;
 
         case x0 (0637):  // ldt
@@ -8248,7 +8248,7 @@ elapsedtime ();
                 cpu.PTW0.USE = 0;
               }
           }
-          uc_invalidate ();
+          ucInvalidate ();
           break;
 
         case x0 (0532):  // cams
@@ -8301,7 +8301,7 @@ elapsedtime ();
                 cpu.SDW0.USE = 0;
               }
           }
-          uc_invalidate ();
+          ucInvalidate ();
           break;
 
         /// Privileged - Configuration and Status

@@ -57,7 +57,7 @@ static int evcnt = 0;
     DBGAPP ("doAppendCycleInstructionFetch(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
   }
 
-  uint this = uc_instruction_fetch;
+  uint this = UC_INSTRUCTION_FETCH;
 
   word24 finalAddress = 0;
   word24 pageAddress = 0;
@@ -124,10 +124,10 @@ static int evcnt = 0;
   word14 cachedBound;
   word1 cachedP;
   bool cachedPaged;
-  cacheHit = uc_cache_check (this, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
+  cacheHit = ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & cachedBound, & cachedP, & cachedAddress, & cachedR1, & cachedPaged);
   goto miss_ucache;
 #else
-  if (! uc_cache_check (this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged))
+  if (! ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged))
     goto miss_ucache;
 #endif
 
@@ -147,7 +147,7 @@ static int evcnt = 0;
 skip_ucache:;
   //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 #ifdef UCACHE_STATS
-  cpu.uc_skips[this] ++;
+  cpu.uCache.skips[this] ++;
 #endif
 
 miss_ucache:;
@@ -552,7 +552,7 @@ else
 }
 #endif
 
-  uc_cache_save (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
+  ucCacheSave (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
 evcnt ++;
   // isolts 870
   cpu.cu.XSF = 1;

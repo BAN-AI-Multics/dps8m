@@ -15,6 +15,8 @@
  * ---------------------------------------------------------------------------
  */
 
+#define UC_BIG_CACHE_SZ 4096
+
 // Micro cache
 
 struct ucache_s {
@@ -29,11 +31,24 @@ struct ucache_s {
 };
 typedef struct ucache_s ucache_t;
 
-#define uc_instruction_fetch 0
-#define uc_operand_read 1
-#define uc_indirect_word_fetch 2
-#define uc_NUM 3
+#define UC_INSTRUCTION_FETCH 0
+#define UC_OPERAND_READ 1
+#define UC_INDIRECT_WORD_FETCH 2
+#define UC_NUM 3
 
-void uc_invalidate (void);
-void uc_cache_save (uint uc_num, word15 segno, word18 offset, word14 bound, word1 p, word24 address, word3 r1, bool paged);
-bool uc_cache_check (uint uc_num, word15 segno, word18 offset, word14 * bound, word1 * p, word24 * address, word3 * r1, bool * paged);
+struct uCache_s {
+  ucache_t caches[UC_NUM];
+  ucache_t operandReadBigCache[UC_BIG_CACHE_SZ];
+#ifdef UCACHE_STATS
+  uint64_t hits[UC_NUM];
+  uint64_t misses[UC_NUM];
+  uint64_t skips[UC_NUM];
+  uint64_t call6Skips;
+#endif
+};
+
+typedef struct uCache_s uCache_t;
+
+void ucInvalidate (void);
+void ucCacheSave (uint ucNum, word15 segno, word18 offset, word14 bound, word1 p, word24 address, word3 r1, bool paged);
+bool ucCacheCheck (uint ucNum, word15 segno, word18 offset, word14 * bound, word1 * p, word24 * address, word3 * r1, bool * paged);

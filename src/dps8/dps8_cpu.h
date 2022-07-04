@@ -1514,12 +1514,8 @@ typedef struct
 
     EISstruct currentEISinstruction;
 
-    ucache_t uc_caches[uc_NUM];
-#ifdef UCACHE_STATS
-    uint64_t uc_hits[uc_NUM];
-    uint64_t uc_misses[uc_NUM];
-    uint64_t uc_skips[uc_NUM];
-#endif
+    uCache_t uCache;
+
     unsigned long long cycleCnt;
     unsigned long long instrCnt;
     unsigned long long instrCntT0;

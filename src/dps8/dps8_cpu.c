@@ -2940,10 +2940,11 @@ leave:
     sim_msg ("Micro-cache statisitics (hit/miss/skip)\n");
 # define pct(a, b) ((b) ? (a) * 100.0 / ((a) + (b)) : 0)
 # define args(a, b, c) a, b, c, pct (a, (b + c))
-# define stats(n) args (cpu.uc_hits[n], cpu.uc_misses[n], cpu.uc_skips[n])
-    sim_msg ("  Instruction fetch %'lu/%'lu/%'lu %4.1f%%\n", stats (uc_instruction_fetch));
-    sim_msg ("  Operand read %'lu/%'lu/%'lu %4.1f%%\n", stats (uc_operand_read));
-    sim_msg ("  Indirect word fetch %'lu/%'lu/%'lu %4.1f%%\n", stats (uc_indirect_word_fetch));
+# define stats(n) args (cpu.uCache.hits[n], cpu.uCache.misses[n], cpu.uCache.skips[n])
+    sim_msg ("  Instruction fetch %'lu/%'lu/%'lu %4.1f%%\n", stats (UC_INSTRUCTION_FETCH));
+    sim_msg ("  Operand read %'lu/%'lu/%'lu %4.1f%%\n", stats (UC_OPERAND_READ));
+    sim_msg ("    CALL6 skips: %'lu\n", cpu.uCache.call6Skips);
+    sim_msg ("  Indirect word fetch %'lu/%'lu/%'lu %4.1f%%\n", stats (UC_INDIRECT_WORD_FETCH));
 # undef pct
 # undef args
 # undef stats

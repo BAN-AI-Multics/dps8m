@@ -3,12 +3,20 @@
 #include "dps8.h"
 #include "dps8_cpu.h"
 
-void uc_invalidate (void) {
-  memset (cpu.uc_caches, 0, sizeof (cpu.uc_caches));
+void ucInvalidate (void) {
+  memset (cpu.uCache.caches, 0, sizeof (cpu.uCache.caches));
+  memset (cpu.uCache.operandReadBigCache, 0, sizeof (cpu.uCache.operandReadBigCache));
 }
 
-void uc_cache_save (uint uc_num, word15 segno, word18 offset, word14 bound, word1 p, word24 address, word3 r1, bool paged) {
-  ucache_t * ep = cpu.uc_caches + uc_num;
+void ucCacheSave (uint ucNum, word15 segno, word18 offset, word14 bound, word1 p, word24 address, word3 r1, bool paged) {
+  ucache_t * ep;
+  if (ucNum == UC_OPERAND_READ) {
+    if (segno >= UC_BIG_CACHE_SZ)
+      return;
+    ep = cpu.uCache.operandReadBigCache + segno;
+  } else {
+    ep = cpu.uCache.caches + ucNum;
+  }
   ep->valid = true;
   ep->segno = segno;
   ep->offset = offset;
@@ -18,12 +26,19 @@ void uc_cache_save (uint uc_num, word15 segno, word18 offset, word14 bound, word
   ep->p = p;
   ep->paged = paged;
 #ifdef HDBG
-  hdbgNote ("ucache", "save %u %05o:%06o %05o %o %08o %o %o", uc_num, segno, offset, bound, p, address, r1, paged);
+  hdbgNote ("ucache", "save %u %05o:%06o %05o %o %08o %o %o", ucNum, segno, offset, bound, p, address, r1, paged);
 #endif
 }
 
-bool uc_cache_check (uint uc_num, word15 segno, word18 offset, word14 * bound, word1 * p, word24 * address, word3 * r1, bool * paged) {
-  ucache_t * ep = cpu.uc_caches + uc_num;
+bool ucCacheCheck (uint ucNum, word15 segno, word18 offset, word14 * bound, word1 * p, word24 * address, word3 * r1, bool * paged) {
+  ucache_t * ep;
+  if (ucNum == UC_OPERAND_READ) {
+    if (segno >= UC_BIG_CACHE_SZ)
+      return false;
+    ep = cpu.uCache.operandReadBigCache + segno;
+  } else {
+    ep = cpu.uCache.caches + ucNum;
+  }
   // Is cache entry valid?
   if (! ep->valid) {
     //sim_printf ("!valid\r\n");
@@ -57,7 +72,7 @@ bool uc_cache_check (uint uc_num, word15 segno, word18 offset, word14 * bound, w
     goto miss;
   }
 #ifdef HDBG
-  hdbgNote ("ucache", "hit %u %05o:%06o %05o %o %08o %o %o", uc_num, segno, offset, ep->bound, ep->p, ep->address, ep->r1, ep->paged);
+  hdbgNote ("ucache", "hit %u %05o:%06o %05o %o %08o %o %o", ucNum, segno, offset, ep->bound, ep->p, ep->address, ep->r1, ep->paged);
 #endif
   * bound = ep->bound;
 #if 0
@@ -80,12 +95,12 @@ bool uc_cache_check (uint uc_num, word15 segno, word18 offset, word14 * bound, w
   * p = ep->p;
   * paged = ep->paged;
 #ifdef UCACHE_STATS
-  cpu.uc_hits[uc_num] ++;
+  cpu.uCache.hits[ucNum] ++;
 #endif
   return true;
 miss:;
 #ifdef UCACHE_STATS
-  cpu.uc_misses[uc_num] ++;
+  cpu.uCache.misses[ucNum] ++;
 #endif
   return false;
 }

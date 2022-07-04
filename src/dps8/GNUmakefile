@@ -994,7 +994,7 @@ uvutil.o:           dps8_utils.h
 uvutil.o:           libtelnet.h
 utfile.o:           utfile.h bsd_random.h ../dpsprintf/dpsprintf.h
 bsd_random.o:       bsd_random.h
-
+ucache.o:			ucache.h dps8.h dps8_cpu.h
 ###############################################################################
 
 ifdef LIBS

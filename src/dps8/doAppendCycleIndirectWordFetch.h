@@ -47,7 +47,7 @@ word24 doAppendCycleIndirectWordFetch (word36 * data, uint nWords) {
     DBGAPP ("doAppendCycleIndirectWordFetch(Entry) isb29 PRNO %o\n", GET_PRN (IWB_IRODD));
   }
 
-  uint this = uc_indirect_word_fetch;
+  uint this = UC_INDIRECT_WORD_FETCH;
 
   word24 finalAddress = 0;
   word24 pageAddress = 0;
@@ -71,7 +71,7 @@ goto miss_ucache;
   }
 
 // Yes; check the ucache
-  if (! uc_cache_check (this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged))
+  if (! ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged))
     goto miss_ucache;
 
   if (paged) {
@@ -89,7 +89,7 @@ goto miss_ucache;
 
 skip_ucache:;
 #ifdef UCACHE_STATS
-  cpu.uc_skips[this] ++;
+  cpu.uCache.skips[this] ++;
 #endif
 
 miss_ucache:;
@@ -375,7 +375,7 @@ I:;
 HI:
   DBGAPP ("doAppendCycleIndirectWordFetch(HI)\n");
 
-  uc_cache_save (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
+  ucCacheSave (this, cpu.TPR.TSR, cpu.TPR.CA, bound, p, pageAddress, RSDWH_R1, paged);
 
   // isolts 870
   cpu.cu.XSF = 1;
