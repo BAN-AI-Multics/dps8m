@@ -754,39 +754,6 @@ Linux/x86_64, Fedora, Intel DPC++/C++:
 
 ############################################################################
 
-Linux/x86_64, Fedora, Intel C/C++:
-  stage: build
-  tags:
-    - Linux
-    - Intel
-    - oneAPI
-    - amd64
-    - Linux-Shell
-  script:
-    - export GLCICD_JOB="oneAPIICCx64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
-    - *scriptSanity
-    - *scriptCommon
-    - *scriptDPS8Mods
-    - *scriptExtraInfo
-    - . /opt/intel/oneapi/common.sh 2> /dev/null && . /opt/intel/oneapi/setvars.sh 2> /dev/null && icc -V && make -C src/dps8 NO_LTO=1 CC="icx" udplib.o && make -C src/simh NO_LTO=1 CC="icx" sim_sock.o && make -C src/dps8 NO_LTO=1 CC="icx" dps8_socket_dev.o && make CC="icc -no-restrict" NO_LTO=1 -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
-    - printf %s\\n "show version" | ./src/dps8/dps8
-    - *scriptBuildInfo
-    - *scriptVerifyVersion
-    - *scriptCompressArtifacts
-  dependencies: []
-  artifacts:
-    expire_in: 1 day
-    paths:
-      - ${CI_PROJECT_DIR:?}/src/dps8/dps8.lz
-      - ${CI_PROJECT_DIR:?}/src/prt2pdf/prt2pdf.lz
-      - ${CI_PROJECT_DIR:?}/src/punutil/punutil.lz
-      - ${CI_PROJECT_DIR:?}/src/dps8/useddef.txt.lz
-  retry: 2
-  timeout: 120 minutes
-  interruptible: true
-
-############################################################################
-
 Linux/x86_64, Fedora, Oracle Developer Studio:
   stage: build
   tags:
@@ -842,8 +809,7 @@ Linux/x86_64, Fedora, AOCC, AOCL:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - rm -f amd_memcpy.o; rm -f src/dps8/amd_memcpy.o; . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && clang -Wno-unused-command-line-argument -Ofast -ffast-math -fomit-frame-pointer -ffast-math -mllvm -vector-library=AMDLIBM -c -o amd_memcpy.o /opt/AMD/aocl/latest/amd-memcpy/src/amd_memcpy.c /opt/AMD/aocl/latest/lib/libalm.a -lm && ls -la amd_memcpy.o && nm -s amd_memcpy.o | tee -i /dev/stderr | grep -w memcpy && size -A amd_memcpy.o && cp -f amd_memcpy.o src/dps8/amd_memcpy.o
-    - . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -Ofast -ffast-math"; make CC="clang -mllvm -vector-library=AMDLIBM" LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib /opt/AMD/aocl/latest/lib/libalm.a amd_memcpy.o -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
+    - . /opt/AMD/aocc-latest/setenv_AOCC.sh 2> /dev/null && export PATH="/opt/AMD/aocc-latest/bin:${PATH:?}" && export LD_LIBRARY_PATH="/opt/AMD/aocc-latest/lib:/opt/AMD/aocl/latest/lib:${LD_LIBRARY_PATH:-}" && clang --version && export CFLAGS="-Wno-unused-command-line-argument -Ofast -ffast-math"; make CC="clang -mllvm -vector-library=AMDLIBM" LIBS="-L/opt/AMD/aocl/latest/lib -L/opt/AMD/aocc-latest/lib /opt/AMD/aocl/latest/lib/libalm.a /opt/AMD/aocl/latest/amd-memcpy/lib/libamd_memcpy.so -lpthread -luv -lm" -j $(grep -c "^model name" /proc/cpuinfo 2> /dev/null || printf %s\\n "4") --output-sync --print-directory
     - printf %s\\n "SHOW VERSION" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
