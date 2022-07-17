@@ -31,10 +31,10 @@ endif
 ###############################################################################
 # Convenience target: Builds libuv from source code (release)
 
-RELVER=v1.44.1
+RELVER=v1.44.2
 RELNAM=libuv-$(RELVER).tar.gz
 LIBREL=https://dist.libuv.org/dist/$(RELVER)/$(RELNAM)
-LUVSUM=1378990356
+LUVSUM=3607875690
 
 .PHONY: libuvrel
 ifneq (,$(findstring libuvrel,$(MAKECMDGOALS)))

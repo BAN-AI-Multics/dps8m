@@ -6359,6 +6359,7 @@ lbsd
 ldconfig
 letltxmacro
 libalm
+libamd
 libc
 libfaketime
 libltdl

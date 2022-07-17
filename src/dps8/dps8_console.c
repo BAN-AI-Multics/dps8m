@@ -1768,10 +1768,8 @@ static t_stat opc_set_console_port (UNIT * uptr, UNUSED int32 value,
         if (port < 0 || port > 65535) // 0 is 'disable'
           return SCPE_ARG;
         console_state[dev_idx].console_access.port = port;
-        if (port == 0)
-          sim_msg ("port: disabled");
-        else
-          sim_msg ("port: %d", port);
+        if (port != 0)
+          sim_msg ("[OPC emulation: TELNET server port set to %d]\r\n", (int)port);
       }
     else
       console_state[dev_idx].console_access.port = 0;
