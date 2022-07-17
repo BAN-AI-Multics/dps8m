@@ -521,7 +521,10 @@
 
 stages:
   - build
+  - cmb_test
   - test
+  - src_test
+  - ci_test
   - docs
   - deploy
 
@@ -935,7 +938,7 @@ AIX/powerpc64, IBM AIX, GCC 8:
 
 ############################################################################
 
-AIX/powerpc64, IBM AIX, GCC 11:
+AIX/powerpc64, IBM AIX, GCC 10:
   stage: build
   tags:
     - AIX
@@ -946,7 +949,7 @@ AIX/powerpc64, IBM AIX, GCC 11:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - gmake CC=gcc-11 NO_LTO=1 -j 12 --output-sync --print-directory
+    - gmake CC=gcc-10 NO_LTO=1 -j 12 --output-sync --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1635,7 +1638,7 @@ Darwin/x86_64, macOS, GCC:
     - *scriptCommon
     - *scriptDPS8Mods
     - *scriptExtraInfo
-    - gmake NO_LTO=1 CC=gcc-11 -j 12 --print-directory
+    - gmake CC=gcc-12 -j 12 --print-directory
     - printf %s\\n "show version" | ./src/dps8/dps8
     - *scriptBuildInfo
     - *scriptVerifyVersion
@@ -1655,7 +1658,7 @@ Darwin/x86_64, macOS, GCC:
 #############################################################################
 
 Option Verification Test:
-  stage: test
+  stage: cmb_test
   image: fedora:latest
   needs:
     - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
@@ -1699,6 +1702,8 @@ DPS8M Omnibus Documentation:
     - Docker-x64-fast
     - Linux
     - amd64
+  needs:
+    - job: Multics CI-Kit Test
   script:
     - export GLCICD_JOB="OmnibusDocsGenX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
@@ -1723,16 +1728,15 @@ DPS8M Omnibus Documentation:
 ############################################################################
 
 Multics CI-Kit Test:
-  stage: test
+  stage: ci_test
   image: fedora:latest
-  needs:
-    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
-    - job: Linux/x86_64, Fedora, Clang, GCC
   tags:
     - Docker-x64-fast
     - Linux
     - CIKit-x64
     - amd64
+  needs:
+    - job: Source Tree Checks
   script:
     - export GLCICD_JOB="CIKitTestFedoraX64" && export DTIMESTAMP="$(stat -c "%Y" /etc/machine-id)"
     - dnf -q install -y bzip2 || dnf -q install -y bzip2
@@ -1804,6 +1808,7 @@ Flawfinder:
   needs:
     - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
     - job: Linux/x86_64, Fedora, Clang, GCC
+    - job: Option Verification Test
   tags:
     - Linux
     - Flawfinder
@@ -1833,6 +1838,7 @@ Clang Analyzer:
   needs:
     - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
     - job: Linux/x86_64, Fedora, Clang, GCC
+    - job: Option Verification Test
   tags:
     - Linux
     - ClangAnalyzer
@@ -1863,6 +1869,7 @@ Cppcheck:
   needs:
     - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
     - job: Linux/x86_64, Fedora, Clang, GCC
+    - job: Option Verification Test
   tags:
     - Linux
     - Cppcheck
@@ -1896,6 +1903,7 @@ Oracle Developer Studio Lint:
   needs:
     - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
     - job: Linux/x86_64, Fedora, Clang, GCC
+    - job: Option Verification Test
   tags:
     - Linux
     - Sun-CC
@@ -1923,11 +1931,8 @@ Oracle Developer Studio Lint:
 #############################################################################
 
 Source Tree Checks:
-  stage: test
+  stage: src_test
   image: fedora:latest
-  needs:
-    - job: Linux/x86_64, Ubuntu LTS, Clang, GCC
-    - job: Linux/x86_64, Fedora, Clang, GCC
   tags:
     - Docker-x64
     - Linux

@@ -149,9 +149,8 @@ ifneq ($(OS),Windows_NT)
   UNAME_S := $(shell  $(UNAME) -s)
   ifeq ($(UNAME_S),Darwin)
     OS = OSX
-    ifeq "$(findstring gcc,$(CC))" ""
-      # NOTE: Trailing whitespace on the following line was added intentionally
-      CFLAGS += -D__thread= 
+    ifneq "$(findstring gcc,$(CC))" ""
+      CFLAGS += -D__thread=
     endif
   endif
 endif
