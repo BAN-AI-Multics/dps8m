@@ -1692,8 +1692,11 @@ t_stat sim_instr (void)
           return STOP_STOP;
 # endif
 
-        if (bce_dis_called)
-          return STOP_STOP;
+        if (bce_dis_called) {
+          //return STOP_STOP;
+          reason = STOP_STOP;
+          break;
+        }
 
 # ifndef PERF_STRIP
 // Loop runs at 1000 Hz
@@ -1747,6 +1750,11 @@ t_stat sim_instr (void)
 # endif
       }
     while (reason == 0);
+
+    for (uint cpuNo = 0; cpuNo < N_CPU_UNITS_MAX; cpuNo ++) {
+      cpuStats (cpuNo);
+    }
+
 # ifdef TESTING
     HDBGPrint ();
 # endif
@@ -2927,36 +2935,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 leave:
 #ifdef TESTING
     HDBGPrint ();
-#endif
-    sim_msg ("\n");
-    sim_msg ("cycles        %'15llu\n", (unsigned long long)cpu.cycleCnt);
-    sim_msg ("instructions  %'15llu\n", (unsigned long long)cpu.instrCnt);
-    sim_msg ("lockCnt       %'15llu\n", (unsigned long long)cpu.lockCnt);
-    sim_msg ("lockImmediate %'15llu\n", (unsigned long long)cpu.lockImmediate);
-    sim_msg ("lockWait      %'15llu\n", (unsigned long long)cpu.lockWait);
-    sim_msg ("lockWaitMax   %'15llu\n", (unsigned long long)cpu.lockWaitMax);
-    sim_msg ("lockYield     %'15llu\n", (unsigned long long)cpu.lockYield);
-#ifdef UCACHE_STATS
-    sim_msg ("Micro-cache statisitics (hit/miss/skip)\n");
-# define pct(a, b) ((b) ? (a) * 100.0 / ((a) + (b)) : 0)
-# define args(a, b, c) a, b, c, pct (a, (b + c))
-# define stats(n) args (cpu.uCache.hits[n], cpu.uCache.misses[n], cpu.uCache.skips[n])
-    sim_msg ("  Instruction fetch %'lu/%'lu/%'lu %4.1f%%\n", stats (UC_INSTRUCTION_FETCH));
-    sim_msg ("  Operand read %'lu/%'lu/%'lu %4.1f%%\n", stats (UC_OPERAND_READ));
-    sim_msg ("    CALL6 skips: %'lu\n", cpu.uCache.call6Skips);
-    sim_msg ("  Indirect word fetch %'lu/%'lu/%'lu %4.1f%%\n", stats (UC_INDIRECT_WORD_FETCH));
-# undef pct
-# undef args
-# undef stats
-#endif
-
-#if 0
-    for (int i = 0; i < N_FAULTS; i ++)
-      {
-        if (cpu.faultCnt [i])
-          sim_msg  ("%s faults = %llu\n",
-                      faultNames [i], (unsigned long long)cpu.faultCnt [i]);
-      }
 #endif
 
 #if defined(THREADZ) || defined(LOCKLESS)
@@ -4192,3 +4170,26 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
     //pthread_mutex_unlock (& debug_lock);
   }
 #endif
+
+void cpuStats (uint cpuNo) {
+  if (! cpus[cpuNo].cycleCnt)
+    return;
+  sim_msg ("\n");
+  sim_msg ("CPU %c:\n", 'A' + cpuNo);
+  sim_msg ("cycles        %'15llu\n", (unsigned long long)cpus[cpuNo].cycleCnt);
+  sim_msg ("instructions  %'15llu\n", (unsigned long long)cpus[cpuNo].instrCnt);
+  sim_msg ("lockCnt       %'15llu\n", (unsigned long long)cpus[cpuNo].lockCnt);
+  sim_msg ("lockImmediate %'15llu\n", (unsigned long long)cpus[cpuNo].lockImmediate);
+  sim_msg ("lockWait      %'15llu\n", (unsigned long long)cpus[cpuNo].lockWait);
+  sim_msg ("lockWaitMax   %'15llu\n", (unsigned long long)cpus[cpuNo].lockWaitMax);
+  sim_msg ("lockYield     %'15llu\n", (unsigned long long)cpus[cpuNo].lockYield);
+#ifdef UCACHE_STATS
+  ucacheStats (cpuNo);
+#endif
+#if 0
+  for (int i = 0; i < N_FAULTS; i ++) {
+    if (cpus[cpuNo].faultCnt [i])
+      sim_msg  ("%s faults = %llu\n", faultNames [i], (unsigned long long)cpus[cpuNo].faultCnt [i]);
+  }
+#endif
+}

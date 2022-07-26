@@ -5,18 +5,14 @@
 
 void ucInvalidate (void) {
   memset (cpu.uCache.caches, 0, sizeof (cpu.uCache.caches));
-  memset (cpu.uCache.operandReadBigCache, 0, sizeof (cpu.uCache.operandReadBigCache));
 }
 
 void ucCacheSave (uint ucNum, word15 segno, word18 offset, word14 bound, word1 p, word24 address, word3 r1, bool paged) {
-  ucache_t * ep;
-  if (ucNum == UC_OPERAND_READ) {
-    if (segno >= UC_BIG_CACHE_SZ)
-      return;
-    ep = cpu.uCache.operandReadBigCache + segno;
-  } else {
-    ep = cpu.uCache.caches + ucNum;
+  if (segno >= UC_CACHE_SZ) {
+    return;
   }
+  ucache_t * ep;
+  ep = & cpu.uCache.caches[ucNum][segno];
   ep->valid = true;
   ep->segno = segno;
   ep->offset = offset;
@@ -31,33 +27,30 @@ void ucCacheSave (uint ucNum, word15 segno, word18 offset, word14 bound, word1 p
 }
 
 bool ucCacheCheck (uint ucNum, word15 segno, word18 offset, word14 * bound, word1 * p, word24 * address, word3 * r1, bool * paged) {
-  ucache_t * ep;
-  if (ucNum == UC_OPERAND_READ) {
-    if (segno >= UC_BIG_CACHE_SZ)
-      return false;
-    ep = cpu.uCache.operandReadBigCache + segno;
-  } else {
-    ep = cpu.uCache.caches + ucNum;
+  if (segno >= UC_CACHE_SZ) {
+    cpu.uCache.segnoSkips ++;
+    return false;
   }
+  ucache_t * ep;
+  ep = & cpu.uCache.caches[ucNum][segno];
   // Is cache entry valid?
   if (! ep->valid) {
-    //sim_printf ("!valid\r\n");
 #ifdef HDBG
     hdbgNote ("ucache", "check not valid");
 #endif
     goto miss;
   }
+#if 0
   // Same segment?
   if (ep->segno != segno) {
-    //sim_printf ("segno %o != %o\r\n", ep->segno, segno);
-#ifdef HDBG
+# ifdef HDBG
     hdbgNote ("ucache", "segno %o != %o\r\n", ep->segno, segno);
-#endif
+# endif
     goto miss;
   }
+#endif
   // Same page?
   if (ep->paged && ((ep->offset & PG18MASK) != (offset & PG18MASK))) {
-    //sim_printf ("pgno %o != %o\r\n", (ep->offset & PG18MASK), (offset & PG18MASK));
 #ifdef HDBG
     hdbgNote ("ucache", "pgno %o != %o\r\n", (ep->offset & PG18MASK), (offset & PG18MASK));
 #endif
@@ -105,4 +98,22 @@ miss:;
   return false;
 }
 
+#ifdef UCACHE_STATS
+void ucacheStats (int cpuNo) {
+
+  sim_msg ("Micro-cache statisitics (hit/miss/skip)\n");
+# define pct(a, b) ((b) ? (a) * 100.0 / ((a) + (b)) : 0)
+# define args(a, b, c) a, b, c, pct (a, (b + c))
+# define stats(n) args (cpus[cpuNo].uCache.hits[n], cpus[cpuNo].uCache.misses[n], cpus[cpuNo].uCache.skips[n])
+  sim_msg ("  Instruction fetch %'lu/%'lu/%'lu %4.1f%%\n", stats (UC_INSTRUCTION_FETCH));
+  sim_msg ("  Operand read %'lu/%'lu/%'lu %4.1f%%\n", stats (UC_OPERAND_READ));
+  sim_msg ("  Indirect word fetch %'lu/%'lu/%'lu %4.1f%%\n", stats (UC_INDIRECT_WORD_FETCH));
+  sim_msg ("  RALR skips: %'lu\n", cpus[cpuNo].uCache.ralrSkips);
+  sim_msg ("  CALL6 skips: %'lu\n", cpus[cpuNo].uCache.call6Skips);
+  sim_msg ("  Segno skips: %'lu\n", cpus[cpuNo].uCache.segnoSkips);
+# undef pct
+# undef args
+# undef stats
+}
+#endif
 

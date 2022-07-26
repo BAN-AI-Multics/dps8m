@@ -53,6 +53,10 @@ static int evcnt = 0;
   }
 
   uint this = UC_OPERAND_READ;
+  if (i->info->flags & TRANSFER_INS)
+    this = UC_OPERAND_READ_TRA;
+  if (i->info->flags & CALL6_INS)
+    this = UC_OPERAND_READ_CALL6;
 
   word24 finalAddress = 0;
   word24 pageAddress = 0;
@@ -72,9 +76,12 @@ static int evcnt = 0;
 
 #if 1
   // Is OPCODE call6?
+
+  // See E1; The TRR needs to be checked and set to R2; this will vary across different
+  // CALL6 calls.
   if (i->info->flags & CALL6_INS) {
     cpu.uCache.call6Skips ++;
-    goto skip_ucache;
+    goto skip;
   }
 #endif
 
@@ -82,9 +89,18 @@ static int evcnt = 0;
   // Transfer or instruction fetch?
   if (i->info->flags & TRANSFER_INS) {
     //cpu.uCache.uc_xfer_skip ++;
-    goto skip_ucache;
+    goto skip;
   }
 #endif
+
+  // Transfer?
+  if (i->info->flags & TRANSFER_INS) {
+    // check ring alarm to catch outbound transfers
+    if (cpu.rRALR && (cpu.PPR.PRR >= cpu.rRALR)) {
+      cpu.uCache.ralrSkips ++;
+      goto skip;
+    }
+  }
 
 // Yes; check the ucache
 
@@ -98,13 +114,13 @@ static int evcnt = 0;
 # ifdef HDBG
   hdbgNote ("doAppendCycleOperandRead.h", "test cache check %s %d %u %05o:%06o %05o %o %08o %o %o", cacheHit ? "hit" : "miss", evcnt, this, cpu.TPR.TSR, cpu.TPR.CA, cachedBound, cachedP, cachedAddress, cachedR1, cachedPaged);
 # endif
-  goto miss_ucache;
+  goto miss;
 #else
   if (! ucCacheCheck (this, cpu.TPR.TSR, cpu.TPR.CA, & bound, & p, & pageAddress, & RSDWH_R1, & paged)) {
 # ifdef HDBG
     hdbgNote ("doAppendCycleOperandRead.h", "miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 # endif
-    goto miss_ucache;
+    goto miss;
   }
 #endif
 
@@ -125,7 +141,7 @@ static int evcnt = 0;
   goto HI;
 
 #if 1
-skip_ucache:;
+skip:;
   //sim_printf ("miss %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
 # ifdef HDBG
   hdbgNote ("doAppendCycleOperandRead.h", "skip %d %05o:%06o\r\n", evcnt, cpu.TPR.TSR, cpu.TPR.CA);
@@ -135,7 +151,7 @@ skip_ucache:;
 # endif
 #endif
 
-miss_ucache:;
+miss:;
 
   bool nomatch = true;
   if (! cpu.switches.disable_wam) {
@@ -263,7 +279,7 @@ miss_ucache:;
     goto E;
 
 
-  // Transfer or instruction fetch?
+  // Transfer
   if (i->info->flags & TRANSFER_INS)
     goto F;
 

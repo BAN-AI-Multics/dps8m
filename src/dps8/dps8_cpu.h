@@ -2377,3 +2377,4 @@ t_stat threadz_sim_instr (void);
 void * cpu_thread_main (void * arg);
 #endif
 void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem);
+void cpuStats (uint cpuNo);
