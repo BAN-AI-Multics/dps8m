@@ -103,6 +103,7 @@ static t_stat simh_cpu_reset_and_clear_unit (UNIT * uptr,
                                              UNUSED int32 value,
                                              UNUSED const char * cptr,
                                              UNUSED void * desc);
+static char * cycle_str (cycles_e cycle);
 
 static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
                                UNUSED int val, UNUSED const void * desc)
@@ -175,8 +176,8 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
       sim_msg ("CPU affinity              not set\n");
 #endif
 
-    sim_msg ("ISOLTS mode:              %01o(8)\n",
-                cpus[cpu_unit_idx].switches.isolts_mode);
+    sim_msg ("ISOLTS mode:              %01o(8)\n", cpus[cpu_unit_idx].switches.isolts_mode);
+    sim_msg ("NODIS mode :              %01o(8)\n", cpus[cpu_unit_idx].switches.nodis);
     return SCPE_OK;
   }
 
@@ -366,6 +367,7 @@ static config_list_t cpu_config_list [] =
 #endif
 
     { "isolts_mode", 0, 1, cfg_on_off },
+    { "nodis", 0, 1, cfg_on_off },
     { NULL, 0, 0, NULL }
   };
 
@@ -570,6 +572,8 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
                 simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
               }
           }
+        else if (strcmp (p, "nodis") == 0)
+          cpus[cpu_unit_idx].switches.nodis = v;
         else
           {
             sim_warn ("error: cpu_set_config: Invalid cfg_parse rc <%ld>\n",
@@ -625,6 +629,7 @@ static t_stat cpu_set_kips (UNUSED UNIT * uptr, UNUSED int32 value,
     luf_limits[4] = 32000*kips/1000;
     return SCPE_OK;
   }
+
 
 static t_stat cpu_show_stall (UNUSED FILE * st, UNUSED UNIT * uptr,
                              UNUSED int val, UNUSED const void * desc)
@@ -788,7 +793,12 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     cpu.cu.SD_ON = cpu.switches.sdwam_enable ? 1 : 0;
     cpu.cu.PT_ON = cpu.switches.ptwam_enable ? 1 : 0;
 
-    set_cpu_cycle (FETCH_cycle);
+    if (cpu.switches.nodis) {
+      set_cpu_cycle (FETCH_cycle);
+    } else {
+      set_cpu_cycle (EXEC_cycle);
+      cpu.cu.IWB = 0000000616000; // Stuff DIS instrction in instruction buffer
+    }
 
     cpu.wasXfer = false;
     cpu.wasInhibited = false;
@@ -2637,7 +2647,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 #  endif // !NO_TIMEWAIT
                   cpu.rTRticks = 0;
                   break;
-# else // !THREADZ
+# else // ! (THREADZ || LOCKLESS)
                   //sim_sleep (10000);
                   sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
                   // Trigger I/O polling
@@ -2655,7 +2665,6 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   fast_queue_subsample = 0;
 
                   sim_interval = 0;
-# endif // !THREADZ
                   // Timer register runs at 512 KHz
                   // 512000 is 1 second
                   // 512000/100 -> 5120  is .01 second
@@ -2674,6 +2683,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                                     fst_zero);
                     }
                   cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
+# endif // ! (THREADZ || LOCKLESS)
 #endif // ! ROUND_ROBIN
                   break;
                 }

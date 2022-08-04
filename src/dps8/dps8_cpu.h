@@ -731,6 +731,7 @@ typedef struct
     bool useMap;
     bool isolts_mode;     // If true, CPU is configured to run ISOLTS.
     bool enable_emcall;
+    bool nodis;           // If true, start CPU is FETCH cycle.
   } switches_t;
 
 #ifdef L68

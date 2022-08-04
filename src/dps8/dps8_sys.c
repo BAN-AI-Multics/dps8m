@@ -1655,7 +1655,11 @@ static char * default_base_system_script [] =
 #if defined(THREADZ) || defined(LOCKLESS)
     "set cpu nunits=6",
 #else
+# ifdef ROUND_ROBIN
+    "set cpu nunits=6",
+# else
     "set cpu nunits=1",
+# endif
 #endif // THREADZ
     // "set sys config=activate_time=8",
     // "set sys config=terminate_time=8",
