@@ -211,16 +211,19 @@ return SCPE_OK;
 
 t_stat sim_tape_detach (UNIT *uptr)
 {
-struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
+struct tape_context *ctx;
 uint32 f = 0;
 t_stat r;
 t_bool auto_format = FALSE;
 
-if (uptr != NULL)
-    f = MT_GET_FMT (uptr);
-
-if ((ctx == NULL) || !(uptr->flags & UNIT_ATT))
+if (uptr == NULL)
     return SCPE_IERR;
+
+if (!(uptr->flags & UNIT_ATT))
+    return SCPE_UNATT;
+
+ctx = (struct tape_context *)uptr->tape_ctx;
+f = MT_GET_FMT (uptr);
 
 if (uptr->io_flush)
     uptr->io_flush (uptr);                              /* flush buffered data */
