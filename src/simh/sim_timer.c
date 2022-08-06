@@ -396,7 +396,7 @@ _rtcn_configure_calibrated_clock (tmr);
 return time;
 }
 
-int32 sim_rtcn_calb (int32 ticksper, int32 tmr)
+int32 sim_rtcn_calb (uint32 ticksper, int32 tmr)
 {
 
 if (tmr == SIM_INTERNAL_CLK)

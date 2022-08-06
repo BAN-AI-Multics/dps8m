@@ -1666,6 +1666,7 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 # else
         fprintf (stdout, "%s simulator\n", sim_name);
 # endif /* ifdef VER_H_GIT_VERSION */
+        free (targv);
         return 0;
     }
 
@@ -7109,6 +7110,7 @@ while (size--) {
         case '\'':
             if (quote == *iptr)
                 *tptr++ = '\\';
+        /* fallthrough */
         default:
             if (sim_isprint (*iptr))
                 *tptr++ = *iptr;
@@ -9145,7 +9147,7 @@ if (i != exp->size) {                                   /* Found? */
             }
         sim_activate (&sim_expect_unit,                 /* schedule simulation stop when indicated */
                       (ep->switches & EXP_TYP_TIME) ?
-                            (int32)((sim_timer_inst_per_sec ()*exp->after)/1000000.0) :
+                            (uint32)((sim_timer_inst_per_sec ()*exp->after)/1000000.0) :
                             exp->after);
         }
     /* Matched data is no longer available for future matching */

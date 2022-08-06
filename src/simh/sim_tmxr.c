@@ -1592,7 +1592,7 @@ if ((lp->txbfd && !lp->notelnet) || (TXBUF_AVAIL(lp) > 1)) {/* room for char (+ 
     if ((TN_IAC == (u_char) chr) && (!lp->notelnet))    /* char == IAC in telnet session? */
         TXBUF_CHAR (lp, TN_IAC);                        /* stuff extra IAC char */
     TXBUF_CHAR (lp, chr);                               /* buffer char & adv pointer */
-    if ((!lp->txbfd) && (TXBUF_AVAIL (lp) <= TMXR_GUARD))/* near full? */
+    if ((!lp->txbfd) && ((unsigned long int)TXBUF_AVAIL (lp) <= TMXR_GUARD)) /* near full? */
         lp->xmte = 0;                                   /* disable line */
     if (lp->txlog)                                      /* log if available */
         fputc (chr, lp->txlog);

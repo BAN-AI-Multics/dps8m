@@ -62,7 +62,7 @@ int32 sim_rtcn_init (int32 time, int32 tmr);
 int32 sim_rtcn_init_unit (UNIT *uptr, int32 time, int32 tmr);
 int sim_usleep(useconds_t tusleep);
 void sim_rtcn_init_all (void);
-int32 sim_rtcn_calb (int32 ticksper, int32 tmr);
+int32 sim_rtcn_calb (uint32 ticksper, int32 tmr);
 t_stat sim_show_timers (FILE* st, DEVICE *dptr, UNIT* uptr, int32 val, CONST char* desc);
 t_stat sim_show_clock_queues (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr);
 uint32 sim_os_msec (void);
