@@ -105,13 +105,11 @@
 ```
  * For FreeBSD systems, after installing the CI-Kit dependencies,
    (`coreutils`, `unix2dos`, `expect`, `nmap`, `mksh`, `gmake`,
-   `tmux`, `lzip`, etc.), the CI-Kit run may be started as follows:
+   `tmux`, `lzip`, etc.), the run should be started with `ci-fbsd.sh`.
 
    ```sh
-   sh -c 'export SHELL=/bin/sh ; FAKETIME="env TZ=UTC" TAIL=gtail MAKE=gmake DATE=gdate mksh ./ci.sh'
+   ./ci-fbsd.sh
    ```
-
-   * A helper script - `ci-fbsd.sh` - is provided to automate this.
 
  5. Once the run completes, normalize the new output so the results can be
     (*visually*) compared against the included known good reference log file:

@@ -900,6 +900,7 @@ switch (f) {                                            /* case on format */
 
     case MTUF_F_STD:                                    /* standard */
         sbc = MTR_L ((bc + 1) & ~1);                    /* pad odd length */
+    /* fallthrough */
     case MTUF_F_E11:                                    /* E11 */
         (void)sim_fwrite (&bc, sizeof (t_mtrlnt), 1, uptr->fileref);
         (void)sim_fwrite (buf, sizeof (uint8), sbc, uptr->fileref);

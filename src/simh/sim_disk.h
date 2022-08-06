@@ -51,15 +51,11 @@ typedef uint32          t_lba;                          /* disk logical block ad
 # define DKUF_N_FMT      (1u << DKUF_W_FMT)              /* number of formats */
 # define DKUF_M_FMT      ((1u << DKUF_W_FMT) - 1)
 # define DKUF_F_STD      0                              /* SIMH format */
-# define DKUF_F_RAW      1                              /* Raw Physical Disk Access */
-# define DKUF_F_VHD      2                              /* VHD format */
 # define DKUF_V_UF       (DKUF_V_FMT + DKUF_W_FMT)
 # define DKUF_WLK        (1u << DKUF_V_WLK)
 # define DKUF_FMT        (DKUF_M_FMT << DKUF_V_FMT)
 # define DKUF_WRP        (DKUF_WLK | UNIT_RO)
 # define DK_F_STD        (DKUF_F_STD << DKUF_V_FMT)
-# define DK_F_RAW        (DKUF_F_RAW << DKUF_V_FMT)
-# define DK_F_VHD        (DKUF_F_VHD << DKUF_V_FMT)
 # define DK_GET_FMT(u)   (((u)->flags >> DKUF_V_FMT) & DKUF_M_FMT)
 
 /* Return status codes */

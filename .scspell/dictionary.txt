@@ -1862,6 +1862,7 @@ nodebug
 nodelay
 nodelayack
 nodigit
+nodis
 nodist
 nodlcss
 nodudl
@@ -3993,6 +3994,7 @@ noassoc
 noasynch
 noatt
 nodelay
+nodis
 noexpect
 nofnc
 nolink
@@ -4652,6 +4654,7 @@ nequal
 newinstall
 nless
 nodebug
+nodis
 noempty
 noluf
 noquota

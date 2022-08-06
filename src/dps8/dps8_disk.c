@@ -240,8 +240,8 @@ struct dsk_state dsk_states [N_DSK_UNITS_MAX];
 static int nCmds = 0;
 #endif
 
-#define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
-                     UNIT_IDLE | DKUF_F_RAW)
+#define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | \
+                     UNIT_DISABLE | UNIT_IDLE | DKUF_F_STD )
 UNIT dsk_unit[N_DSK_UNITS_MAX] = {
 #ifdef NO_C_ELLIPSIS
   { UDATA (/* & disk_svc */ NULL, UNIT_FLAGS, M3381_SECTORS), 0, 0, 0, 0, 0, NULL, NULL, NULL, NULL },
