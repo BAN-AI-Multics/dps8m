@@ -23,11 +23,10 @@
 
 #ifdef NEED_128
 
-//#define cast_128(x) (* (uint128 *) & (x))
-//#define cast_s128(x) (* (int128 *) & (x))
 # define cast_128(x) construct_128 ((uint64_t) (x).h, (x).l)
 # define cast_s128(x) construct_s128 ((int64_t) (x).h, (x).l)
 
+int math128_test (void);
 bool iszero_128 (uint128 w);
 bool isnonzero_128 (uint128 w);
 bool iseq_128 (uint128 a, uint128 b);
@@ -54,6 +53,7 @@ uint128 lshift_128 (uint128 a, unsigned int n);
 int128 lshift_s128 (int128 a, unsigned int n);
 uint128 rshift_128 (uint128 a, unsigned int n);
 int128 rshift_s128 (int128 a, unsigned int n);
+
 #else
 
 /* if (sizeof(long) < 8), I expect we're on a 32 bit system */

@@ -285,6 +285,7 @@ dps8_fnp2_iomcmd.o: fnpuv.h
 dps8_fnp2_iomcmd.o: hdbg.h
 dps8_fnp2_iomcmd.o: libtelnet.h
 dps8_fnp2_iomcmd.o: uvutil.h
+dps8_iefp.o: ../dpsprintf/dpsprintf.h
 dps8_iefp.o: dps8.h
 dps8_iefp.o: dps8_addrmods.h
 dps8_iefp.o: dps8_append.h

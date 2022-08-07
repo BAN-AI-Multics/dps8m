@@ -19,6 +19,8 @@
  * ---------------------------------------------------------------------------
  */
 
+#include "../dpsprintf/dpsprintf.h"
+
 // Interface for cfg_parse
 
 typedef struct config_value_list_s

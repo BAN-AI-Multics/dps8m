@@ -1597,6 +1597,16 @@ if (handle != INVALID_HANDLE_VALUE)
 puts ("\e[0m");
 # endif /* NEED_CONSOLE_SETUP */
 
+# ifdef NEED_128
+/* math128 sanity test */
+int testMath128 = math128_test();
+if (testMath128 != 0) {
+  fprintf (stderr,
+    "Error: 128-bit (NEED_128) math functions failed verification; aborting.\n");
+  return 0;
+}
+# endif /* NEED_128 */
+
 /* endian-ness sanity test */
 int testEndian = decContextTestEndian(1);
 if (testEndian != 0) {

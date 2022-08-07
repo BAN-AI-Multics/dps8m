@@ -21,37 +21,7 @@
 # define DPS8_MATH128
 
 # include "../dpsprintf/dpsprintf.h"
-
-# ifndef CPPCHECK
-
-#  ifdef TEST_128
-// gcc -m32 -DTEST_128 -DNEED_128 dps8_math128.c
-#   include <stdbool.h>
-#   include <stdint.h>
-#   include <inttypes.h>
-#   include <stdio.h>
-
-typedef struct { uint64_t h; uint64_t l; } uint128;
-typedef struct { int64_t h; uint64_t l; } int128;
-
-typedef uint128 word72;
-typedef int128  word72s;
-typedef uint128 word73;
-typedef uint128 word74;
-
-#   define construct_128(h, l) ((uint128_t) { (h), (l) })
-#   define construct_s128(h, l) ((int128) { (h), (l) })
-
-#   define MASK63          0x7FFFFFFFFFFFFFFF
-#   define MASK64          0xFFFFFFFFFFFFFFFF
-#   define SIGN64          ((uint64_t)1U << 63)
-#  else
-
-#   include "dps8.h"
-#  endif
-
-# endif /* ifndef CPPCHECK */
-
+# include "dps8.h"
 # include "dps8_math128.h"
 
 # ifdef NEED_128
@@ -617,252 +587,299 @@ uint128 divide_128_32 (uint128 a, uint32_t b, uint32_t * remp)
        (((uint64_t) q [0]) <<  0));
   }
 
-#  ifdef TEST_128
+#  ifdef NEED_128
 
-static void tisz (uint64_t h, uint64_t l, bool expect)
+static int test128_tisz (uint64_t h, uint64_t l, bool expect)
   {
     bool r = iszero_128 (construct_128 (h, l));
-    if (r != expect)
-      fprintf (stderr, "iszero_128 (%llu, %llu) returned %u\n", h, l, r);
-    return;
+    if (r != expect) {
+      fprintf (stderr, "Failure: iszero_128 (%llu, %llu) returned %u\n", h, l, r);
+      return 0;
+    }
+    return 1;
   }
 
-static void tand (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                  uint64_t rh, uint64_t rl)
+static int test128_tand (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                         uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     uint128 r = and_128 (a, b);
-    if (r.h != rh || r.l != rl)
-      fprintf (stderr, "and_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+    if (r.h != rh || r.l != rl) {
+      fprintf (stderr, "Failure: and_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
                ah, al, bh, bl, r.h, r.l);
+      return 0;
+    }
+    return 1;
   }
 
-static void tor (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                 uint64_t rh, uint64_t rl)
+static int test128_tor (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                        uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     uint128 r = or_128 (a, b);
-    if (r.h != rh || r.l != rl)
-      fprintf (stderr, "or_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+    if (r.h != rh || r.l != rl) {
+      fprintf (stderr, "Failure: or_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
                ah, al, bh, bl, r.h, r.l);
+      return 0;
+    }
+    return 1;
   }
 
-static void tcomp (uint64_t ah, uint64_t al,
-                   uint64_t rh, uint64_t rl)
+static int test128_tcomp (uint64_t ah, uint64_t al,
+                          uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 r = complement_128 (a);
-    if (r.h != rh || r.l != rl)
-      fprintf (stderr, "complement_128 (%016llx%016llx) returned %016llx%016llx\n",
+    if (r.h != rh || r.l != rl) {
+      fprintf (stderr, "Failure: complement_128 (%016llx%016llx) returned %016llx%016llx\n",
                ah, al, r.h, r.l);
+      return 0;
+    }
+    return 1;
   }
 
-static void tadd (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                  uint64_t rh, uint64_t rl)
+static int test128_tadd (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                         uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     uint128 r = add_128 (a, b);
-    if (r.h != rh || r.l != rl)
-      fprintf (stderr, "add_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+    if (r.h != rh || r.l != rl) {
+      fprintf (stderr, "Failure: add_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
                ah, al, bh, bl, r.h, r.l);
+      return 0;
+    }
+    return 1;
   }
 
-static void tsub (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                  uint64_t rh, uint64_t rl)
+static int test128_tsub (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                         uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     uint128 r = subtract_128 (a, b);
-    if (r.h != rh || r.l != rl)
-      fprintf (stderr, "subtract_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+    if (r.h != rh || r.l != rl) {
+      fprintf (stderr, "Failure: subtract_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
                ah, al, bh, bl, r.h, r.l);
+      return 0;
+    }
+    return 1;
   }
 
-static void tneg (uint64_t ah, uint64_t al,
-                  uint64_t rh, uint64_t rl)
+static int test128_tneg (uint64_t ah, uint64_t al,
+                         uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 r = negate_128 (a);
-    if (r.h != rh || r.l != rl)
-      fprintf (stderr, "negate_128 (%016llx%016llx) returned %016llx%016llx\n",
+    if (r.h != rh || r.l != rl) {
+      fprintf (stderr, "Failure: negate_128 (%016llx%016llx) returned %016llx%016llx\n",
                ah, al, r.h, r.l);
+      return 0;
+    }
+    return 1;
   }
 
-static void tgt (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                 bool expect)
+static int test128_tgt (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                        bool expect)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     bool r = isgt_128 (a, b);
-    if (r != expect)
-      fprintf (stderr, "gt_128 (%016llx%016llx, %016llx%016llx) returned %u\n",
+    if (r != expect) {
+      fprintf (stderr, "Failure: gt_128 (%016llx%016llx, %016llx%016llx) returned %u\n",
                ah, al, bh, bl, r);
+      return 0;
+    }
+    return 1;
   }
 
-static void tls (uint64_t ah, uint64_t al, unsigned int n,
-                 uint64_t rh, uint64_t rl)
+static int test128_tls (uint64_t ah, uint64_t al, unsigned int n,
+                        uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 r = lshift_128 (a, n);
-    if (r.h != rh || r.l != rl)
-      fprintf (stderr, "lshift_128 (%016llx%016llx, %u) returned %016llx%016llx\n",
+    if (r.h != rh || r.l != rl) {
+      fprintf (stderr, "Failure: lshift_128 (%016llx%016llx, %u) returned %016llx%016llx\n",
                ah, al, n, r.h, r.l);
+      return 0;
+    }
+    return 1;
   }
 
-static void trs (uint64_t ah, uint64_t al, unsigned int n,
-                 uint64_t rh, uint64_t rl)
+static int test128_trs (uint64_t ah, uint64_t al, unsigned int n,
+                        uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 r = rshift_128 (a, n);
-    if (r.h != rh || r.l != rl)
-      fprintf (stderr, "rshift_128 (%016llx%016llx, %u) returned %016llx%016llx\n",
+    if (r.h != rh || r.l != rl) {
+      fprintf (stderr, "Failure: rshift_128 (%016llx%016llx, %u) returned %016llx%016llx\n",
                ah, al, n, r.h, r.l);
+      return 0;
+    }
+    return 1;
   }
 
-static void tmul (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                  uint64_t rh, uint64_t rl)
+static int test128_tmul (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                         uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     uint128 r = multiply_128 (a, b);
-    if (r.h != rh || r.l != rl)
-      fprintf (stderr, "multiply_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+    if (r.h != rh || r.l != rl) {
+      fprintf (stderr, "Failure: multiply_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
                ah, al, bh, bl, r.h, r.l);
+      return 0;
+    }
+    return 1;
   }
 
-static void tsmul (int64_t ah, uint64_t al, int64_t bh, uint64_t bl,
-                  int64_t rh, uint64_t rl)
+static int test128_tsmul (int64_t ah, uint64_t al, int64_t bh, uint64_t bl,
+                          int64_t rh, uint64_t rl)
   {
     int128 a = construct_s128 (ah, al);
     int128 b = construct_s128 (bh, bl);
     int128 r = multiply_s128 (a, b);
-    if (r.h != rh || r.l != rl)
-      fprintf (stderr, "multiply_s128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+    if (r.h != rh || r.l != rl) {
+      fprintf (stderr, "Failure: multiply_s128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
                ah, al, bh, bl, r.h, r.l);
+      return 0;
+    }
+    return 1;
   }
 
-static void tdiv16 (uint64_t ah, uint64_t al, uint16_t b,
-                    uint64_t resh, uint64_t resl,
-                    uint16_t remainder)
+static int test128_tdiv16 (uint64_t ah, uint64_t al, uint16_t b,
+                           uint64_t resh, uint64_t resl,
+                           uint16_t remainder)
   {
     uint128 a = construct_128 (ah, al);
     uint16_t rem;
     uint128 res = divide_128_16 (a, b, & rem);
-    if (res.h != resh || res.l != resl || rem != remainder)
-      fprintf (stderr, "divide_128_16 (%016llx%016llx, %04x) returned %016llx%016llx, %04x\n",
+    if (res.h != resh || res.l != resl || rem != remainder) {
+      fprintf (stderr, "Failure: divide_128_16 (%016llx%016llx, %04x) returned %016llx%016llx, %04x\n",
                ah, al, b, res.h, res.l, rem);
+      return 0;
+    }
+    return 1;
   }
 
-static void tdiv32 (uint64_t ah, uint64_t al, uint32_t b,
-                  uint64_t resh, uint64_t resl,
-                  uint32_t remainder)
+static int test128_tdiv32 (uint64_t ah, uint64_t al, uint32_t b,
+                           uint64_t resh, uint64_t resl,
+                           uint32_t remainder)
   {
     uint128 a = construct_128 (ah, al);
     uint32_t rem;
     uint128 res = divide_128_32 (a, b, & rem);
-    if (res.h != resh || res.l != resl || rem != remainder)
-      fprintf (stderr, "divide_128_32 (%016llx%016llx, %08x) returned %016llx%016llx, %08x\n",
+    if (res.h != resh || res.l != resl || rem != remainder) {
+      fprintf (stderr, "Failure: divide_128_32 (%016llx%016llx, %08x) returned %016llx%016llx, %08x\n",
                ah, al, b, res.h, res.l, rem);
+      return 0;
+    }
+    return 1;
   }
 
-int main (int argc, char * argv [])
+/* Fast compile-time sanity check */
+
+#   if ( (!(defined(SIGN64))) || ((!defined(MASK64))) )
+#    error NEED_128 constants undefined
+#   endif /* ( !SIGN64 || !MASK64 ) */
+
+/* Fast run-time sanity check */
+
+#   ifdef MATH128_TEST_VERBOSE
+#    undef MATH128_TEST_VERBOSE
+#    define MATH128_TEST_VERBOSE 1
+#   else
+#    define MATH128_TEST_VERBOSE 0
+#   endif
+#   define MATH_TEST(x)            \
+    if(!x)                         \
+      test_failures++;             \
+    else if(MATH128_TEST_VERBOSE)  \
+      fprintf(stderr, "OK: %s;\n", #x);
+
+int math128_test (void)
   {
+    int test_failures = 0;
 
-    //uint128 x = construct_128 (0, 0);
-    //int128 y;
-    //y = * (int128 *) & x;
+    MATH_TEST( test128_tisz (0,      0,      true)  );
+    MATH_TEST( test128_tisz (1,      0,      false) );
+    MATH_TEST( test128_tisz (0,      1,      false) );
+    MATH_TEST( test128_tisz (1,      1,      false) );
+    MATH_TEST( test128_tisz (SIGN64, 0,      false) );
+    MATH_TEST( test128_tisz (0,      SIGN64, false) );
+    MATH_TEST( test128_tisz (SIGN64, SIGN64, false) );
 
-    tisz (0, 0, true);
-    tisz (1, 0, false);
-    tisz (0, 1, false);
-    tisz (1, 1, false);
-    tisz (SIGN64, 0, false);
-    tisz (0, SIGN64, false);
-    tisz (SIGN64, SIGN64, false);
+    MATH_TEST( test128_tcomp (MASK64, MASK64, 0,      0)        );
+    MATH_TEST( test128_tneg  (MASK64, MASK64, 0,      1)        );
+    MATH_TEST( test128_tcomp (0,      0,      MASK64, MASK64)   );
+    MATH_TEST( test128_tneg  (0,      1,      MASK64, MASK64)   );
+    MATH_TEST( test128_tcomp (0,      1,      MASK64, MASK64-1) );
+    MATH_TEST( test128_tneg  (0,      0,      0,      0)        );
 
-    tand (0, 0,              0, 0,              0, 0);
-    tand (MASK64, MASK64,    0, 0,              0, 0);
-    tand (0, 0,              MASK64, MASK64,    0, 0);
-    tand (MASK64, MASK64,    MASK64, MASK64,    MASK64, MASK64);
+    MATH_TEST( test128_tgt (0,      1,      0,      0,          true)     );
+    MATH_TEST( test128_tgt (MASK64, MASK64, 0,      0,          true)     );
+    MATH_TEST( test128_tgt (0,      0,      0,      0,          false)    );
+    MATH_TEST( test128_tgt (0,      0,      0,      1,          false)    );
+    MATH_TEST( test128_tgt (MASK64, MASK64, MASK64, MASK64,     false)    );
+    MATH_TEST( test128_tgt (0,      0,      MASK64, MASK64,     false)    );
+    MATH_TEST( test128_tls (0,      0,      0,      0,          0)        );
+    MATH_TEST( test128_tls (MASK64, MASK64, 0,      MASK64,     MASK64)   );
+    MATH_TEST( test128_tls (0,      1,      127,    SIGN64,     0)        );
+    MATH_TEST( test128_tls (0,      MASK64, 64,     MASK64,     0)        );
+    MATH_TEST( test128_tls (0,      MASK64, 1,      1,          MASK64-1) );
+    MATH_TEST( test128_tls (0,      1,      64,     1,          0)        );
+    MATH_TEST( test128_tls (0,      1,      63,     0,          SIGN64)   );
+    MATH_TEST( test128_tls (1,      0,      63,     SIGN64,     0)        );
+    MATH_TEST( test128_trs (0,      0,      0,      0,          0)        );
+    MATH_TEST( test128_trs (MASK64, MASK64, 0,      MASK64,     MASK64)   );
+    MATH_TEST( test128_trs (SIGN64, 0,      127,    MASK64,     MASK64)   );
+    MATH_TEST( test128_trs (MASK64, 0,      64,     MASK64,     MASK64)   );
+    MATH_TEST( test128_trs (MASK64, 0,      1,      MASK64,     SIGN64)   );
+    MATH_TEST( test128_trs (1,      0,      64,     0,          1)        );
+    MATH_TEST( test128_trs (1,      0,      1,      0,          SIGN64)   );
+    MATH_TEST( test128_trs (SIGN64, 0,      63,     MASK64,     0)        );
+    MATH_TEST( test128_trs (SIGN64, 0,      64,     MASK64,     SIGN64)   );
 
-    tor (0, 0,              0, 0,              0, 0);
-    tor (MASK64, MASK64,    0, 0,              MASK64, MASK64);
-    tor (0, 0,              MASK64, MASK64,    MASK64, MASK64);
-    tor (MASK64, MASK64,    MASK64, MASK64,    MASK64, MASK64);
+    MATH_TEST( test128_tand   (0,      0,      0,      0,          0,       0)        );
+    MATH_TEST( test128_tand   (MASK64, MASK64, 0,      0,          0,       0)        );
+    MATH_TEST( test128_tand   (0,      0,      MASK64, MASK64,     0,       0)        );
+    MATH_TEST( test128_tand   (MASK64, MASK64, MASK64, MASK64,     MASK64,  MASK64)   );
+    MATH_TEST( test128_tor    (0,      0,      0,      0,          0,       0)        );
+    MATH_TEST( test128_tor    (MASK64, MASK64, 0,      0,          MASK64,  MASK64)   );
+    MATH_TEST( test128_tor    (0,      0,      MASK64, MASK64,     MASK64,  MASK64)   );
+    MATH_TEST( test128_tor    (MASK64, MASK64, MASK64, MASK64,     MASK64,  MASK64)   );
+    MATH_TEST( test128_tadd   (0,      0,      0,      0,          0,       0)        );
+    MATH_TEST( test128_tadd   (0,      0,      0,      1,          0,       1)        );
+    MATH_TEST( test128_tadd   (0,      1,      0,      0,          0,       1)        );
+    MATH_TEST( test128_tadd   (0,      1,      0,      1,          0,       2)        );
+    MATH_TEST( test128_tadd   (0,      1,      0,      MASK64,     1,       0)        );
+    MATH_TEST( test128_tadd   (0,      1,      MASK64, MASK64,     0,       0)        );
+    MATH_TEST( test128_tsub   (0,      0,      0,      0,          0,       0)        );
+    MATH_TEST( test128_tsub   (0,      1,      0,      1,          0,       0)        );
+    MATH_TEST( test128_tsub   (MASK64, MASK64, MASK64, MASK64,     0,       0)        );
+    MATH_TEST( test128_tsub   (MASK64, MASK64, 0,      0,          MASK64,  MASK64)   );
+    MATH_TEST( test128_tsub   (0,      0,      0,      1,          MASK64,  MASK64)   );
+    MATH_TEST( test128_tmul   (0,      0,      0,      0,          0,       0)        );
+    MATH_TEST( test128_tmul   (MASK64, MASK64, 0,      0,          0,       0)        );
+    MATH_TEST( test128_tmul   (0,      0,      MASK64, MASK64,     0,       0)        );
+    MATH_TEST( test128_tmul   (0,      1,      0,      1,          0,       1)        );
+    MATH_TEST( test128_tmul   (0,      1,      0,      10,         0,       10)       );
+    MATH_TEST( test128_tmul   (0,      10,     0,      10,         0,       100)      );
+    MATH_TEST( test128_tmul   (0,      100,    0,      10,         0,       1000)     );
+    MATH_TEST( test128_tmul   (0,      MASK64, 0,      2,          1,       MASK64-1) );
+    MATH_TEST( test128_tmul   (MASK64, MASK64, MASK64, MASK64,     0,       1)        );
+    MATH_TEST( test128_tsmul  (0,      1,      MASK64, MASK64,     MASK64,  MASK64)   );
+    MATH_TEST( test128_tsmul  (MASK64, MASK64, MASK64, MASK64,     0,       1)        );
+    MATH_TEST( test128_tdiv16 (0,      1,      1,      0,          1,       0)        );
+    MATH_TEST( test128_tdiv16 (0,      10,     2,      0,          5,       0)        );
+    MATH_TEST( test128_tdiv16 (MASK64, MASK64, 16,     MASK64>>4,  MASK64,  15)       );
+    MATH_TEST( test128_tdiv16 (0,      3,      2,      0,          1,       1)        );
+    MATH_TEST( test128_tdiv32 (1,      0,      1<<16,  0,          1ll<<48, 0)        );
+    MATH_TEST( test128_tdiv32 (MASK64, MASK64, 1<<16,  MASK64>>16, MASK64,  0xffff)   );
 
-    tcomp (MASK64,   MASK64,   0, 0);
-    tcomp (0, 0,     MASK64,   MASK64);
-    tcomp (0, 1,     MASK64,   MASK64 - 1);
-
-    tadd (0, 0,      0, 0,             0, 0);
-    tadd (0, 0,      0, 1,             0, 1);
-    tadd (0, 1,      0, 0,             0, 1);
-    tadd (0, 1,      0, 1,             0, 2);
-    tadd (0, 1,      0, MASK64,        1, 0);
-    tadd (0, 1,      MASK64, MASK64,   0, 0);
-
-    tsub (0, 0,             0, 0,             0, 0);
-    tsub (0, 1,             0, 1,             0, 0);
-    tsub (MASK64, MASK64,   MASK64, MASK64,   0, 0);
-    tsub (MASK64, MASK64,   0, 0,             MASK64, MASK64);
-    tsub (0, 0,             0, 1,             MASK64, MASK64);
-
-    tneg (0, 0,  0, 0);
-    tneg (0, 1,  MASK64, MASK64);
-    tneg (MASK64, MASK64, 0, 1);
-
-    tgt (0, 0,              0, 0,              false);
-    tgt (0, 0,              0, 1,              false);
-    tgt (0, 1,              0, 0,              true);
-    tgt (MASK64, MASK64,    MASK64, MASK64,    false);
-    tgt (0, 0,              MASK64, MASK64,    false);
-    tgt (MASK64, MASK64,    0, 0,              true);
-
-    tls (0, 0,              0,    0, 0);
-    tls (MASK64, MASK64,    0,    MASK64, MASK64);
-    tls (0, 1,            127,    SIGN64, 0);
-    tls (0, MASK64,        64,    MASK64, 0);
-    tls (0, MASK64,         1,    1, MASK64 - 1);
-    tls (0, 1,             64,    1, 0);
-    tls (0, 1,             63,    0, SIGN64);
-    tls (1, 0,             63,    SIGN64, 0);
-
-    trs (0, 0,              0,    0, 0);
-    trs (MASK64, MASK64,    0,    MASK64, MASK64);
-    trs (SIGN64, 0,       127,    MASK64, MASK64);
-    trs (MASK64, 0,        64,    MASK64, MASK64);
-    trs (MASK64, 0,         1,    MASK64, SIGN64);
-    trs (1, 0,             64,    0, 1);
-    trs (1, 0,              1,    0, SIGN64);
-    trs (SIGN64, 0,        63,    MASK64, 0);
-    trs (SIGN64, 0,        64,    MASK64, SIGN64);
-
-    tmul (0, 0,            0, 0,            0, 0);
-    tmul (MASK64, MASK64,  0, 0,            0, 0);
-    tmul (0, 0,            MASK64, MASK64,  0, 0);
-    tmul (0, 1,            0, 1,            0, 1);
-    tmul (0, 1,            0, 10,           0, 10);
-    tmul (0, 10,           0, 10,           0, 100);
-    tmul (0, 100,          0, 10,           0, 1000);
-    tmul (0, MASK64,       0, 2,            1, MASK64-1);
-//printf ("%016llx\n", (uint64_t) -1ll * (uint64_t) -1ll);
-//printf ("%016llx\n", (int64_t) -1ll * (int64_t) -1ll);
-    tmul (MASK64, MASK64, MASK64, MASK64,   0, 1);
-
-    tsmul (0, 1, MASK64, MASK64, MASK64, MASK64);
-    tsmul (MASK64, MASK64, MASK64, MASK64, 0, 1);
-
-    tdiv16 (0, 1,           1,                0, 1,               0);
-    tdiv16 (0, 10,          2,                0, 5,               0);
-    tdiv16 (MASK64, MASK64, 16,               MASK64>>4, MASK64,  15);
-    tdiv16 (0, 3,           2,                0, 1,               1);
-
-    tdiv32 (1, 0,           1 << 16,          0, 1ll << 48,         0);
-    tdiv32 (MASK64, MASK64, 1 << 16,          MASK64 >> 16, MASK64, 0xffff);
-    return 0;
+    return test_failures;
   }
 #  endif
 
