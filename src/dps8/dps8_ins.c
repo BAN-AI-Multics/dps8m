@@ -453,7 +453,7 @@ static void scu2words (word36 *words)
     if_sim_debug (DBG_FAULT, & cpu_dev)
         dump_words (words);
 
-    if (cpu.switches.isolts_mode)
+    if (cpu.tweaks.isolts_mode)
       {
         struct
         {
@@ -681,7 +681,7 @@ static void du2words (word36 * words)
   {
     CPT (cpt2U, 7); // du2words
 
-    if (cpu.switches.isolts_mode)
+    if (cpu.tweaks.isolts_mode)
       {
         for (int i = 0; i < 8; i ++)
           {
@@ -701,7 +701,7 @@ static void du2words (word36 * words)
 
     // Word 1
 
-    if (cpu.switches.isolts_mode)
+    if (cpu.tweaks.isolts_mode)
       words[1] = words[0];
 
     // Word 2
@@ -795,7 +795,7 @@ static void words2du (word36 * words)
 
     cpu.du.D3_RES   = getbits36_24 (words[7], 12);
 
-    if (cpu.switches.isolts_mode)
+    if (cpu.tweaks.isolts_mode)
       {
         for (int i = 0; i < 8; i ++)
           {
@@ -3992,7 +3992,7 @@ static t_stat doInstruction (void)
           cpu.Yblock8[4] = cpu.rA;
           cpu.Yblock8[5] = cpu.rQ;
           cpu.Yblock8[6] = ((word36)(cpu.rE & MASK8)) << 28;
-          if (cpu.switches.isolts_mode)
+          if (cpu.tweaks.isolts_mode)
             cpu.Yblock8[7] = (((-- cpu.shadowTR) & MASK27) << 9) | (cpu.rRALR & 07);
           else
             cpu.Yblock8[7] = ((cpu.rTR & MASK27) << 9) | (cpu.rRALR & 07);
@@ -4190,7 +4190,7 @@ static t_stat doInstruction (void)
 
         case x0 (0454):  // stt
           CPTUR (cptUseTR);
-          if (cpu.switches.isolts_mode)
+          if (cpu.tweaks.isolts_mode)
             cpu.CY = ((-- cpu.shadowTR) & MASK27) << 9;
           else
             cpu.CY = (cpu.rTR & MASK27) << 9;
@@ -7186,7 +7186,7 @@ static t_stat doInstruction (void)
           // is obtained from the FAULT VECTOR switches on the processor
           // configuration panel.
 
-          if (cpu.switches.drl_fatal)
+          if (cpu.tweaks.drl_fatal)
             {
               return STOP_STOP;
             }
@@ -7646,7 +7646,7 @@ static t_stat doInstruction (void)
           CPTUR (cptUseTR);
           cpu.rTR = (cpu.CY >> 9) & MASK27;
           cpu.rTRticks = 0;
-          if (cpu.switches.isolts_mode)
+          if (cpu.tweaks.isolts_mode)
             {
               cpu.shadowTR = cpu.TR0 = cpu.rTR;
               cpu.rTRlsb = 0;
@@ -8205,8 +8205,8 @@ elapsedtime ();
             // This may be done to either or both halves.
             // The full/empty bit of cache PTWAM register is set to zero and
             // the LRU counters are initialized.
-            if (! cpu.switches.disable_wam)
-              { // disabled, do nothing
+            if (cpu.tweaks.enable_wam)
+              {
 #ifdef DPS8M
                 if (cpu.cu.PT_ON) // only clear when enabled
 #endif
@@ -8258,8 +8258,8 @@ elapsedtime ();
             // C(TPR.CA) 16,17 control disabling or enabling the associative
             // memory.
             // This may be done to either or both halves.
-            if (!cpu.switches.disable_wam)
-              { // disabled, do nothing
+            if (cpu.tweaks.enable_wam)
+              {
 #ifdef DPS8M
                 if (cpu.cu.SD_ON) // only clear when enabled
 #endif
@@ -8426,106 +8426,8 @@ elapsedtime ();
             word6 Tm = GET_TM (rTAG);
             if (Tm == TM_R && Td == TD_DL)
               {
-
-// 58009997-040 MULTICS Differences Manual DPS 8-70M Aug83
-//
-// THESE OFFSETS ARE IN OCTAL
-//
-//  0-13 CPU Model Number
-// 13-25 CPU Serial Number
-// 26-33 Date-Ship code (YYMMDD)
-// 34-40 CPU ID Field (reference RSW 2)
-//  Byte 40: Bits 03 (Bits 32-35 of RSW 2 Field
-//           Bit 4=1 Hex Option included
-//           Bit 5=1 RSCR (Clock) is Slave Mode included
-//           Bits 6-7 Reserved for later use.
-//       50: Operating System Use
-// 51-1777(8) To be defined.
-// NOTE: There is the possibility of disagreement between the
-//       ID bits of RSW 2 and the ID bits of PROM locations
-//       35-40. This condition could result when alterable
-//       configuration condition is contained in the PROM.
-//       The user is advised to ignore the PROM fields which
-//       contain the processor fault vector base (GCOS III)
-//       and the processor number and rely on the RSW 2 bits
-//       for this purpose. Bits 14-16 of the RSW 2 should be
-//       ignored and the bits representing this information in
-//       the PROM should be treated as valid.
-
-// "0-13" disagrees with Multics source (start_pl1); it interprets
-// it as "0-12"; most likely a typo in 58009997-040.
-
-// CAC notes: I interpret the fields as
-//  0-12 CPU Model Number                                          //  0-10  11 chars
-// 13-25 CPU Serial Number // 13 chars                             // 11-21  11 chars
-// 26-33 Date-Ship code (YYMMDD) // 8 chars (enough for YYYYMMDD). // 22-27   6 chars
-// 34-40 CPU ID Field (reference RSW 2)                            // 28-32   5 chars
-//  Byte 40: Bits 03 (Bits 32-35 of RSW 2 Field                    //    32
-//           Bit 4=1 Hex Option included
-//           Bit 5=1 RSCR (Clock) is Slave Mode included
-//           Bits 6-7 Reserved for later use.
-//       50: Operating System Use                                  //    40
-
-# include "dps8_prom.h"
-                word36 tmp = 0;
-                tmp |= (word36) ((cpu.switches.interlace[0] == 2 ? 1LL : 0LL)
-                       << (35- 0));
-                tmp |= (word36) ((cpu.switches.interlace[1] == 2 ? 1LL : 0LL)
-                       << (35- 1));
-                tmp |= (word36) ((cpu.switches.interlace[2] == 2 ? 1LL : 0LL)
-                       << (35- 2));
-                tmp |= (word36) ((cpu.switches.interlace[3] == 2 ? 1LL : 0LL)
-                       << (35- 3));
-                tmp |= (word36) ((01L)  /* 0b01 DPS8M */
-                       << (35- 5));
-                tmp |= (word36) ((cpu.switches.FLT_BASE & 0177LL)
-                       << (35-12));
-                tmp |= (word36) ((01L) /* 0b1 ID_PROM installed */
-                       << (35-13));
-                tmp |= (word36) ((00L) /* 0b0000 */
-                       << (35-17));
-                //tmp |= (word36) ((0b111L)
-                       //<< (35-20));
-                // According to rsw.incl.pl1, Multics ignores this bit.
-                tmp |= (word36) ((00L) // 0b0 BCD option off
-                       << (35-18));
-                tmp |= (word36) ((01L) // 0b1 DPS option
-                       << (35-19));
-                tmp |= (word36) ((cpu.switches.enable_cache ? 1 : 0)  //8K cache
-                       << (35-20));
-                tmp |= (word36) ((00L) // 0b00
-                       << (35-22));
-                tmp |= (word36) ((01L)  /* 0b1 DPS8M */
-                       << (35-23));
-                tmp |= (word36) ((cpu.switches.procMode & 1U)
-                       << (35-24));
-                tmp |= (word36) ((00L) // 0b0
-                       << (35-25)); // new product line (CPL/NPL)
-                tmp |= (word36) ((0L) // 0b000
-                       << (35-28));
-                tmp |= (word36) ((cpu.switches.proc_speed & 017LL)
-                       << (35-32));
-                tmp |= (word36) ((cpu.switches.cpu_num & 07LL)
-                       << (35-35));
-                // 36: bits 00-07
-                PROM[034] = getbits36_8 (tmp, 0);
-                // 37: bits 08-15
-                PROM[035] = getbits36_8 (tmp, 8);
-                // 38: bits 16-23
-                PROM[036] = getbits36_8 (tmp, 16);
-                // 39: bits 24-31
-                PROM[037] = getbits36_8 (tmp, 24);
-                // 40: bits 32-35
-                // 40: bits 0-3: bits 32-35 of RSW 2 field
-                //     (this is dps8m, so only 32 is always 0)
-                //            4: hex option
-                //            5: RSCR clock is slave
-                //          6-7: reserved
-                PROM[040] = ((unsigned char) ((tmp & 017) << 4))
-                   // | 0100  // hex option
-                   // | 0040  // clock is slave
-                  ;
-
+                unsigned char PROM[1024];
+                setupPROM (current_running_cpu_idx, PROM);
                 cpu.rA = PROM[cpu.TPR.CA & 1023];
                 break;
               }
@@ -8734,7 +8636,7 @@ elapsedtime ();
                             << (35-25));
                   cpu.rA |= (word36) ((00L) // 0b000
                             << (35-28));
-                  cpu.rA |= (word36) ((cpu.switches.proc_speed & 017LL)
+                  cpu.rA |= (word36) ((cpu.options.proc_speed & 017LL)
                             << (35-32));
 #endif
 #ifdef L68
@@ -9040,7 +8942,7 @@ elapsedtime ();
 
         case x0 (0616):  // dis
 
-          if (! cpu.switches.dis_enable)
+          if (! cpu.tweaks.dis_enable)
             {
               return STOP_STOP;
             }
@@ -9052,7 +8954,7 @@ elapsedtime ();
           // ('if !interrupt goto .'))
           advanceG7Faults ();
 
-          if ((! cpu.switches.tro_enable) &&
+          if ((! cpu.tweaks.tro_enable) &&
               (! sample_interrupts ()) &&
               (sim_qcount () == 0))  // XXX If clk_svc is implemented it will
                                      // break this logic
@@ -9155,7 +9057,7 @@ elapsedtime ();
             {
               sim_debug (DBG_TRACEEXT, & cpu_dev, "DIS refetches\n");
 #ifdef ROUND_ROBIN
-              if (cpu.switches.isolts_mode)
+              if (cpu.tweaks.isolts_mode)
                 {
                   //sim_printf ("stopping CPU %c\n", current_running_cpu_idx + 'A');
                   cpu.isRunning = false;
@@ -9788,10 +9690,10 @@ elapsedtime ();
 
         case x1 (0420):  // emcall instruction Custom, for an emulator call for scp
         {
-            if (cpu.switches.enable_emcall) {
+            if (cpu.tweaks.enable_emcall) {
               int ret = emCall ();
               if (ret)
-              return ret;
+                return ret;
               break;
             }
             goto unimp;
@@ -9799,7 +9701,7 @@ elapsedtime ();
 
         default:
         unimp:
-          if (cpu.switches.halt_on_unimp)
+          if (cpu.tweaks.halt_on_unimp)
             return STOP_STOP;
           doFault (FAULT_IPR,
                    fst_ill_op,

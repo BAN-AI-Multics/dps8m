@@ -97,7 +97,7 @@ typedef struct { int64_t h;  uint64_t l; }  __int128_t;
 
 // debugging tool
 # ifdef TESTING
-#  define IF1 if (cpu.switches.isolts_mode)
+#  define IF1 if (cpu.tweaks.isolts_mode)
 # else
 #  define IF1 if (0)
 # endif

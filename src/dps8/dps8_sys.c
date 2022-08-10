@@ -248,6 +248,7 @@ static char * default_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu0 config=data=024000717200",
+    "set cpu0 config=address=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -296,7 +297,7 @@ static char * default_base_system_script [] =
     // ; 0 = GCOS 1 = VMS
     "set cpu0 config=mode=Multics",
 
-    "set cpu0 config=cache=enable",
+    "set cpu0 config=enable_cache=enable",
     "set cpu0 config=sdwam=enable",
     "set cpu0 config=ptwam=enable",
 
@@ -306,9 +307,16 @@ static char * default_base_system_script [] =
     "set cpu0 config=dis_enable=enable",
     "set cpu0 config=steady_clock=disable",
     "set cpu0 config=halt_on_unimplemented=disable",
-    "set cpu0 config=disable_wam=enable",
+    "set cpu0 config=enable_wam=disable",
+    "set cpu0 config=report_faults=disable",
     "set cpu0 config=tro_enable=enable",
     "set cpu0 config=y2k=disable",
+    "set cpu0 config=drl_fatal=disable",
+    "set cpu0 config=useMap=disable",
+    "set cpu0 config=prom_installed=enable",
+    "set cpu0 config=hex_mode_installed=enable",
+    "set cpu0 config=cache_installed=enable",
+    "set cpu0 config=clock_slave_installed=enable",
 
 // CPU1
 
@@ -318,6 +326,7 @@ static char * default_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu1 config=data=024000717200",
+    "set cpu1 config=address=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -366,7 +375,7 @@ static char * default_base_system_script [] =
     // ; 0 = GCOS 1 = VMS
     "set cpu1 config=mode=Multics",
 
-    "set cpu1 config=cache=enable",
+    "set cpu1 config=enable_cache=enable",
     "set cpu1 config=sdwam=enable",
     "set cpu1 config=ptwam=enable",
 
@@ -376,9 +385,17 @@ static char * default_base_system_script [] =
     "set cpu1 config=dis_enable=enable",
     "set cpu1 config=steady_clock=disable",
     "set cpu1 config=halt_on_unimplemented=disable",
-    "set cpu1 config=disable_wam=enable",
+    "set cpu1 config=enable_wam=disable",
+    "set cpu1 config=report_faults=disable",
     "set cpu1 config=tro_enable=enable",
     "set cpu1 config=y2k=disable",
+    "set cpu1 config=drl_fatal=disable",
+    "set cpu1 config=useMap=disable",
+    "set cpu1 config=prom_installed=enable",
+    "set cpu1 config=hex_mode_installed=enable",
+    "set cpu1 config=cache_installed=enable",
+    "set cpu1 config=clock_slave_installed=enable",
+
 
 
 // CPU2
@@ -389,6 +406,7 @@ static char * default_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu2 config=data=024000717200",
+    "set cpu2 config=address=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -437,7 +455,7 @@ static char * default_base_system_script [] =
     // ; 0 = GCOS 1 = VMS
     "set cpu2 config=mode=Multics",
 
-    "set cpu2 config=cache=enable",
+    "set cpu2 config=enable_cache=enable",
     "set cpu2 config=sdwam=enable",
     "set cpu2 config=ptwam=enable",
 
@@ -447,9 +465,17 @@ static char * default_base_system_script [] =
     "set cpu2 config=dis_enable=enable",
     "set cpu2 config=steady_clock=disable",
     "set cpu2 config=halt_on_unimplemented=disable",
-    "set cpu2 config=disable_wam=enable",
+    "set cpu2 config=enable_wam=disable",
+    "set cpu2 config=report_faults=disable",
     "set cpu2 config=tro_enable=enable",
     "set cpu2 config=y2k=disable",
+    "set cpu2 config=drl_fatal=disable",
+    "set cpu2 config=useMap=disable",
+    "set cpu2 config=prom_installed=enable",
+    "set cpu2 config=hex_mode_installed=enable",
+    "set cpu2 config=cache_installed=enable",
+    "set cpu2 config=clock_slave_installed=enable",
+
 
 
 // CPU3
@@ -460,6 +486,7 @@ static char * default_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu3 config=data=024000717200",
+    "set cpu3 config=address=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -508,7 +535,7 @@ static char * default_base_system_script [] =
     // ; 0 = GCOS 1 = VMS
     "set cpu3 config=mode=Multics",
 
-    "set cpu3 config=cache=enable",
+    "set cpu3 config=enable_cache=enable",
     "set cpu3 config=sdwam=enable",
     "set cpu3 config=ptwam=enable",
 
@@ -518,9 +545,17 @@ static char * default_base_system_script [] =
     "set cpu3 config=dis_enable=enable",
     "set cpu3 config=steady_clock=disable",
     "set cpu3 config=halt_on_unimplemented=disable",
-    "set cpu3 config=disable_wam=enable",
+    "set cpu3 config=enable_wam=disable",
+    "set cpu3 config=report_faults=disable",
     "set cpu3 config=tro_enable=enable",
     "set cpu3 config=y2k=disable",
+    "set cpu3 config=drl_fatal=disable",
+    "set cpu3 config=useMap=disable",
+    "set cpu3 config=prom_installed=enable",
+    "set cpu3 config=hex_mode_installed=enable",
+    "set cpu3 config=cache_installed=enable",
+    "set cpu3 config=clock_slave_installed=enable",
+
 
 
 // CPU4
@@ -531,6 +566,7 @@ static char * default_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu4 config=data=024000717200",
+    "set cpu4 config=address=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -579,7 +615,7 @@ static char * default_base_system_script [] =
     // ; 0 = GCOS 1 = VMS
     "set cpu4 config=mode=Multics",
 
-    "set cpu4 config=cache=enable",
+    "set cpu4 config=enable_cache=enable",
     "set cpu4 config=sdwam=enable",
     "set cpu4 config=ptwam=enable",
 
@@ -589,9 +625,17 @@ static char * default_base_system_script [] =
     "set cpu4 config=dis_enable=enable",
     "set cpu4 config=steady_clock=disable",
     "set cpu4 config=halt_on_unimplemented=disable",
-    "set cpu4 config=disable_wam=enable",
+    "set cpu4 config=enable_wam=disable",
+    "set cpu4 config=report_faults=disable",
     "set cpu4 config=tro_enable=enable",
     "set cpu4 config=y2k=disable",
+    "set cpu4 config=drl_fatal=disable",
+    "set cpu4 config=useMap=disable",
+    "set cpu4 config=prom_installed=enable",
+    "set cpu4 config=hex_mode_installed=enable",
+    "set cpu4 config=cache_installed=enable",
+    "set cpu4 config=clock_slave_installed=enable",
+
 
 
 // CPU5
@@ -602,6 +646,7 @@ static char * default_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu5 config=data=024000717200",
+    "set cpu5 config=address=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -650,7 +695,7 @@ static char * default_base_system_script [] =
     // ; 0 = GCOS 1 = VMS
     "set cpu5 config=mode=Multics",
 
-    "set cpu5 config=cache=enable",
+    "set cpu5 config=enable_cache=enable",
     "set cpu5 config=sdwam=enable",
     "set cpu5 config=ptwam=enable",
 
@@ -660,9 +705,17 @@ static char * default_base_system_script [] =
     "set cpu5 config=dis_enable=enable",
     "set cpu5 config=steady_clock=disable",
     "set cpu5 config=halt_on_unimplemented=disable",
-    "set cpu5 config=disable_wam=enable",
+    "set cpu5 config=enable_wam=disable",
+    "set cpu5 config=report_faults=disable",
     "set cpu5 config=tro_enable=enable",
     "set cpu5 config=y2k=disable",
+    "set cpu5 config=drl_fatal=disable",
+    "set cpu5 config=useMap=disable",
+    "set cpu5 config=prom_installed=enable",
+    "set cpu5 config=hex_mode_installed=enable",
+    "set cpu5 config=cache_installed=enable",
+    "set cpu5 config=clock_slave_installed=enable",
+
 
 
 #if 0 // Until the port expander code is working
@@ -674,6 +727,7 @@ static char * default_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu6 config=data=024000717200",
+    "set cpu6 config=address=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -722,7 +776,7 @@ static char * default_base_system_script [] =
     // ; 0 = GCOS 1 = VMS
     "set cpu6 config=mode=Multics",
 
-    "set cpu6 config=cache=enable",
+    "set cpu6 config=enable_cache=enable",
     "set cpu6 config=sdwam=enable",
     "set cpu6 config=ptwam=enable",
 
@@ -732,9 +786,17 @@ static char * default_base_system_script [] =
     "set cpu6 config=dis_enable=enable",
     "set cpu6 config=steady_clock=disable",
     "set cpu6 config=halt_on_unimplemented=disable",
-    "set cpu6 config=disable_wam=enable",
+    "set cpu6 config=enable_wam=disable",
+    "set cpu6 config=report_faults=disable",
     "set cpu6 config=tro_enable=enable",
     "set cpu6 config=y2k=disable",
+    "set cpu6 config=drl_fatal=disable",
+    "set cpu6 config=useMap=disable",
+    "set cpu6 config=prom_installed=enable",
+    "set cpu6 config=hex_mode_installed=enable",
+    "set cpu6 config=cache_installed=enable",
+    "set cpu6 config=clock_slave_installed=enable",
+
 #endif
 
 #if 0 // Until the port expander code is working
@@ -747,6 +809,7 @@ static char * default_base_system_script [] =
     // ; As per GB61-01 Operators Guide, App. A
     // ; switches: 4, 6, 18, 19, 20, 23, 24, 25, 26, 28
     "set cpu7 config=data=024000717200",
+    "set cpu7 config=address=000000000000",
 
     // ; enable ports 0 and 1 (scu connections)
     // ; portconfig: ABCD
@@ -795,7 +858,7 @@ static char * default_base_system_script [] =
     // ; 0 = GCOS 1 = VMS
     "set cpu7 config=mode=Multics",
 
-    "set cpu7 config=cache=enable",
+    "set cpu7 config=enable_cache=enable",
     "set cpu7 config=sdwam=enable",
     "set cpu7 config=ptwam=enable",
 
@@ -805,9 +868,17 @@ static char * default_base_system_script [] =
     "set cpu7 config=dis_enable=enable",
     "set cpu7 config=steady_clock=disable",
     "set cpu7 config=halt_on_unimplemented=disable",
-    "set cpu7 config=disable_wam=enable",
+    "set cpu7 config=enable_wam=disable",
+    "set cpu7 config=report_faults=disable",
     "set cpu7 config=tro_enable=enable",
     "set cpu7 config=y2k=disable",
+    "set cpu7 config=drl_fatal=disable",
+    "set cpu7 config=useMap=disable",
+    "set cpu7 config=prom_installed=enable",
+    "set cpu7 config=hex_mode_installed=enable",
+    "set cpu7 config=cache_installed=enable",
+    "set cpu7 config=clock_slave_installed=enable",
+
 #endif
 
 

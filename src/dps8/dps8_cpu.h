@@ -701,9 +701,10 @@ typedef struct
 // Physical Switches
 
 enum procModeSettings { procModeGCOS = 1, procModeMultics = 0 };
+
+// Switches on the Processor's maintenance and configuration panels
 typedef struct
   {
-    // Switches on the Processor's maintenance and configuration panels
     uint FLT_BASE; // normally 7 MSB of 12bit fault base addr
     uint cpu_num;  // zero for CPU 'A', one for 'B' etc.
     word36 data_switches;
@@ -714,25 +715,37 @@ typedef struct
     uint init_enable [N_CPU_PORTS];
     uint store_size [N_CPU_PORTS]; // 0-7 encoding 32K-4M
     enum procModeSettings procMode;  // 1 bit  Read by rsw instruction; format unknown
-    uint proc_speed; // 4 bits Read by rsw instruction; format unknown
-    bool enable_cache;   // 8K cache
-    bool sdwam_enable;
-    bool ptwam_enable;
 
-    // Emulator run-time options (virtual switches)
-    uint dis_enable;      // If non-zero, DIS works
-    uint halt_on_unimp;   // If non-zero, halt CPU on unimplemented instruction
-                          // instead of faulting
-    uint disable_wam;     // If non-zero, disable PTWAM, STWAM
+    bool enable_cache;   // Enable 8K cache
+    bool sdwam_enable;   // Enable Segment Descriptor WAM
+    bool ptwam_enable;   // Enable Page Table WAM
+
+    // CPU serial number; not strictly a switch; on DPS8/M, burned into the CPU PROM
+    uint serno;
+  } switches_t;
+
+// Optional H/W
+typedef struct {
+  uint proc_speed; // 4 bits Read by rsw instruction; format unknown
+  bool hex_mode_installed;
+  bool prom_installed;
+  bool cache_installed;
+  bool clock_slave_installed;
+} optionsType;
+
+// Hardware tweaks
+typedef struct {
     uint report_faults;   // If set, faults are reported and ignored
     uint tro_enable;      // If set, Timer runout faults are generated.
-    uint drl_fatal;
-    uint serno;
-    bool useMap;
+    uint drl_fatal;       // If set, DRL instructions halt the CPU
+    bool useMap;          // If set, consult memory configuration switches to translate memory addresses to SCU memory banks
+    uint dis_enable;      // If non-zero, DIS instruction works
+    uint halt_on_unimp;   // If non-zero, halt CPU on unimplemented instruction instead of faulting
     bool isolts_mode;     // If true, CPU is configured to run ISOLTS.
-    bool enable_emcall;
-    bool nodis;           // If true, start CPU is FETCH cycle.
-  } switches_t;
+    uint enable_wam;      // If zero, the simulated cache is ignored and always returns "miss"; turning it on incurs a large performance hit.
+    bool enable_emcall;   // If set, the instruction set is extended with simulator debugging instructions
+    bool nodis;           // If true, start CPU in FETCH cycle; else start in DIS instruction
+} tweaksType;
 
 #ifdef L68
 enum ou_cycle_e
@@ -1577,6 +1590,8 @@ typedef struct
     du_unit_data_t du;
 
     switches_t switches;
+    optionsType options;
+    tweaksType tweaks;
     switches_t isolts_switches_save;
 
     jmp_buf jmpMain; // This is the entry to the CPU state machine
@@ -1763,7 +1778,7 @@ typedef struct
 
 #ifdef SPEED
 # define SC_MAP_ADDR(addr,real_addr)                           \
-   if (cpu.switches.useMap)                                    \
+   if (cpu.tweaks.useMap)                                      \
       {                                                        \
         uint pgnum = addr / SCBANK_SZ;                         \
         uint os = addr % SCBANK_SZ;                            \
@@ -1777,8 +1792,8 @@ typedef struct
     else                                                       \
       real_addr = addr;
 #else // !SPEED
-# define SC_MAP_ADDR(addr,real_addr)                            \
-   if (cpu.switches.useMap)                                    \
+# define SC_MAP_ADDR(addr,real_addr)                           \
+   if (cpu.tweaks.useMap)                                      \
       {                                                        \
         uint pgnum = addr / SCBANK_SZ;                         \
         uint os = addr % SCBANK_SZ;                            \
@@ -2005,7 +2020,7 @@ static inline int core_write (word24 addr, word36 data, \
   {
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
-    if (cpu.switches.isolts_mode)
+    if (cpu.tweaks.isolts_mode)
       {
         if (cpu.MR.sdpap)
           {
@@ -2031,7 +2046,7 @@ static inline int core_write_zone (word24 addr, word36 data, \
   {
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
-    if (cpu.switches.isolts_mode)
+    if (cpu.tweaks.isolts_mode)
       {
         if (cpu.MR.sdpap)
           {
@@ -2072,7 +2087,7 @@ static inline int core_write2 (word24 addr, word36 even, word36 odd,
   {
     PNL (cpu.portBusy = true;)
     SC_MAP_ADDR (addr, addr);
-    if (cpu.switches.isolts_mode)
+    if (cpu.tweaks.isolts_mode)
       {
         if (cpu.MR.sdpap)
           {
@@ -2374,3 +2389,4 @@ t_stat threadz_sim_instr (void);
 void * cpu_thread_main (void * arg);
 #endif
 void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem);
+void setupPROM (uint cpuNo, unsigned char * PROM);

@@ -390,7 +390,7 @@ int main (int argc, char * argv[])
   {
     void dps8_init_strip (void);
     dps8_init_strip ();
-    cpus[0].switches.enable_emcall = 1;
+    cpus[0].tweaks.enable_emcall = 1;
     opc_dev.numunits = 1;
     cpu_reset_unit_idx (0, false);
     mrestore ("strip.mem");
