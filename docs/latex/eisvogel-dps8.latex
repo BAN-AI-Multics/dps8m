@@ -244,12 +244,9 @@ $if(outertheme)$
 \useoutertheme{$outertheme$}
 $endif$
 $endif$
-% Use upquote if available, for straight quotes in verbatim environments
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-\IfFileExists{microtype.sty}{% use microtype if available
-  \usepackage[$for(microtypeoptions)$$microtypeoptions$$sep$,$endfor$]{microtype}
-  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
-}{}
+\usepackage{upquote}
+\usepackage[$for(microtypeoptions)$$microtypeoptions$$sep$,$endfor$]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 $if(indent)$
 $else$
 \makeatletter
@@ -263,15 +260,17 @@ $else$
   \KOMAoptions{parskip=half}}
 \makeatother
 $endif$
-$if(verbatim-in-note)$
-\usepackage{fancyvrb}
-$endif$
 \usepackage{xcolor}
 \definecolor{default-linkcolor}{HTML}{A50000}
 \definecolor{default-filecolor}{HTML}{A50000}
 \definecolor{default-citecolor}{HTML}{4077C0}
 \definecolor{default-urlcolor}{HTML}{4077C0}
-\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\usepackage{fancyvrb}
+\usepackage[outputdir=temp.out]{minted}
+\usepackage{tcolorbox}
+\usepackage{cprotect}
+\tcbuselibrary{xparse,listings,external,hooks,fitting,poster,magazine,breakable,theorems,minted,raster,vignette,skins}
+\usepackage{xurl} % add URL line breaks if available
 $if(footnotes-pretty)$
 % load footmisc in order to customize footnotes (footmisc has to be loaded before hyperref, cf. https://tex.stackexchange.com/a/169124/144087)
 \usepackage[hang,flushmargin,bottom,multiple]{footmisc}
@@ -552,6 +551,9 @@ $if(titlepage)$
 \usepackage{afterpage}
 $if(titlepage-background)$
 \usepackage{tikz}
+\makeatletter
+\global\let\tikz@ensure@dollar@catcode=\relax
+\makeatother
 $endif$
 $if(geometry)$
 $else$

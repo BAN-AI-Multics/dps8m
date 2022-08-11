@@ -1,5 +1,6 @@
 # DPS8M simulator: src/punutil/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: 5daf1b6a-f631-11ec-9e7c-80ee73e9b8e7
 
@@ -37,10 +38,10 @@ all: punutil$(EXE)
 
 ###############################################################################
 
-punutil$(EXE): punutil.c ../dpsprintf/dpsprintf.o
+punutil$(EXE): punutil.c
 	@$(PRINTF) '%s\n' "CC: punutil"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) "../dpsprintf/dpsprintf.o"           \
-      -o punutil$(EXE) punutil.c $(PULIBS) $(MATHLIB) $(DUMALIBS)
+	@$(SETV); $(CC) $(CFLAGS)                                                 \
+      -o punutil$(EXE) punutil.c $(LDFLAGS) $(PULIBS) $(MATHLIB) $(DUMALIBS)
 
 ###############################################################################
 
@@ -53,8 +54,8 @@ clean distclean:
 	-@$(SETV); $(RMF) "punutil$(EXE)" > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "punutil.exe"   > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "punutil.o"     > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) ./*.ln          > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) ./*.gcda        > /dev/null 2>&1  ||  $(TRUE)
-	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o"  > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 

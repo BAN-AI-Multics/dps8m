@@ -47,8 +47,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "../dpsprintf/dpsprintf.h"
-
 #if defined( __SVR4 ) || defined( __hpux__ )
 # include <stropts.h>
 #endif /* if defined( __SVR4 ) || defined( __hpux__ ) */
@@ -105,6 +103,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 #include <sys/ipc.h>
 #include <sys/param.h>
 #include <sys/resource.h>
@@ -151,6 +150,7 @@ static struct sembuf free_sem = { 0, 1, 0 };
 int
 main(int argc, char *argv[])
 {
+  setlocale(LC_NUMERIC, "");
   struct winsize win;
   struct termios tt;
   int i, bl, cc, n, ch;
@@ -530,6 +530,7 @@ main(int argc, char *argv[])
                 program,
                 (long)ppid,
                 (long)pid);
+
               (void)sprintf(
                 outfifo,
                 "%s/%s.%ld.%ld.in",
@@ -537,6 +538,7 @@ main(int argc, char *argv[])
                 program,
                 (long)ppid,
                 (long)pid);
+
               in = (char *)infifo;
               out = (char *)outfifo;
             }
@@ -658,6 +660,7 @@ main(int argc, char *argv[])
         program,
         (long)ppid,
         (long)pid);
+
       (void)sprintf(
         outfifo,
         "%s/%s.%ld.%ld.out",
@@ -665,6 +668,7 @@ main(int argc, char *argv[])
         program,
         (long)ppid,
         (long)pid);
+
       in = (char *)infifo;
       out = (char *)outfifo;
     }
@@ -803,6 +807,7 @@ main(int argc, char *argv[])
       ioctl(slave, I_PUSH, "ldterm");
       ioctl(slave, I_PUSH, "ttcompat");
 # endif /* ifndef _AIX */
+
       /* Duplicate open file descriptor */
       dup2(slave, 0);
       dup2(slave, 1);
@@ -1341,4 +1346,6 @@ parsestr(char *dst, char *src, int len, int Sflg)
 
   return bi;
 }
+
 // vim: filetype=c:tabstop=4:tw=100:expandtab
+// vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan

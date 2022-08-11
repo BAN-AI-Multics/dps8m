@@ -1,59 +1,59 @@
-/* sim_timer.c: simulator timer library
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: de3abd63-f62a-11ec-a888-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 1993-2010 Robert M Supnik
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-   IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
-   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   OTHER DEALINGS IN THE SOFTWARE.
-
-   Except as contained in this notice, the name of Robert M Supnik shall
-   not be used in advertising or otherwise to promote the sale, use or
-   other dealings in this Software without prior written authorization from
-   Robert M Supnik.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * sim_timer.c: simulator timer library
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: de3abd63-f62a-11ec-a888-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 1993-2010 Robert M. Supnik
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Robert M. Supnik shall
+ * not be used in advertising or otherwise to promote the sale, use or
+ * other dealings in this Software without prior written authorization from
+ * Robert M. Supnik.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 /*
-   This library includes the following routines:
-
-   sim_timer_init -         initialize timing system
-   sim_os_msec  -           return elapsed time in msec
-   sim_os_sleep -           sleep specified number of seconds
-   sim_os_ms_sleep -        sleep specified number of milliseconds
-   sim_idle_ms_sleep -      sleep specified number of milliseconds
-                            or until awakened by an asynchronous
-                            event
-   sim_timespec_diff        subtract two timespec values
-   sim_timer_activate_after schedule unit for specific time
-*/
+ * This library includes the following routines:
+ *
+ * sim_timer_init -         initialize timing system
+ * sim_os_msec  -           return elapsed time in msec
+ * sim_os_sleep -           sleep specified number of seconds
+ * sim_os_ms_sleep -        sleep specified number of milliseconds
+ * sim_idle_ms_sleep -      sleep specified number of milliseconds
+ *                          or until awakened by an asynchronous
+ *                          event
+ * sim_timespec_diff        subtract two timespec values
+ * sim_timer_activate_after schedule unit for specific time
+ */
 
 #include "sim_defs.h"
 #include <ctype.h>
 #include <math.h>
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define SIM_INTERNAL_CLK (SIM_NTIMERS+(1<<30))
 #define SIM_INTERNAL_UNIT sim_internal_timer_unit
@@ -66,20 +66,20 @@
 
 uint32 sim_idle_ms_sleep (unsigned int msec);
 
-static int32 sim_calb_tmr = -1;                     /* the system calibrated timer */
-static int32 sim_calb_tmr_last = -1;                /* shadow value when at sim> prompt */
-static double sim_inst_per_sec_last = 0;            /* shadow value when at sim> prompt */
+static int32 sim_calb_tmr           = -1;     /* the system calibrated timer */
+static int32 sim_calb_tmr_last      = -1;     /* shadow value when at sim> prompt */
+static double sim_inst_per_sec_last =  0;     /* shadow value when at sim> prompt */
 
-static uint32 sim_idle_rate_ms = 0;
-static uint32 sim_os_sleep_min_ms = 0;
-static uint32 sim_os_sleep_inc_ms = 0;
-static uint32 sim_os_clock_resoluton_ms = 0;
-static uint32 sim_os_tick_hz = 0;
-static uint32 sim_idle_calib_pct = 0;
-static UNIT *sim_clock_unit[SIM_NTIMERS+1] = {NULL};
-UNIT * volatile sim_clock_cosched_queue[SIM_NTIMERS+1] = {NULL};
+static uint32 sim_idle_rate_ms                           = 0;
+static uint32 sim_os_sleep_min_ms                        = 0;
+static uint32 sim_os_sleep_inc_ms                        = 0;
+static uint32 sim_os_clock_resoluton_ms                  = 0;
+static uint32 sim_os_tick_hz                             = 0;
+static uint32 sim_idle_calib_pct                         = 0;
+static UNIT *sim_clock_unit[SIM_NTIMERS+1]               = {NULL};
+UNIT   * volatile sim_clock_cosched_queue[SIM_NTIMERS+1] = {NULL};
 static int32 sim_cosched_interval[SIM_NTIMERS+1];
-static t_bool sim_catchup_ticks = FALSE;
+static t_bool sim_catchup_ticks                          = FALSE;
 
 #define sleep1Samples       10
 
@@ -239,7 +239,7 @@ uint32 sim_os_ms_sleep (unsigned int milliseconds)
 uint32 stime = sim_os_msec ();
 struct timespec treq;
 
-treq.tv_sec = milliseconds / MILLIS_PER_SEC;
+treq.tv_sec  = milliseconds / MILLIS_PER_SEC;
 treq.tv_nsec = (milliseconds % MILLIS_PER_SEC) * NANOS_PER_MILLI;
 (void) nanosleep (&treq, NULL);
 return sim_os_msec () - stime;
@@ -269,48 +269,48 @@ while (diff->tv_nsec > 1000000000) {
 
 /* Forward declarations */
 
-static double _timespec_to_double (struct timespec *time);
-static void _double_to_timespec (struct timespec *time, double dtime);
-static void _rtcn_configure_calibrated_clock (int32 newtmr);
-static void _sim_coschedule_cancel(UNIT *uptr);
+static double _timespec_to_double              (struct timespec *time);
+static void   _double_to_timespec              (struct timespec *time, double dtime);
+static void   _rtcn_configure_calibrated_clock (int32  newtmr);
+static void   _sim_coschedule_cancel(UNIT      *uptr);
 
 /* OS independent clock calibration package */
 
-static int32 rtc_ticks[SIM_NTIMERS+1] = { 0 };            /* ticks */
-static uint32 rtc_hz[SIM_NTIMERS+1] = { 0 };              /* tick rate */
-static uint32 rtc_rtime[SIM_NTIMERS+1] = { 0 };           /* real time */
-static uint32 rtc_vtime[SIM_NTIMERS+1] = { 0 };           /* virtual time */
-static double rtc_gtime[SIM_NTIMERS+1] = { 0 };           /* instruction time */
-static uint32 rtc_nxintv[SIM_NTIMERS+1] = { 0 };          /* next interval */
-static int32 rtc_based[SIM_NTIMERS+1] = { 0 };            /* base delay */
-static int32 rtc_currd[SIM_NTIMERS+1] = { 0 };            /* current delay */
-static int32 rtc_initd[SIM_NTIMERS+1] = { 0 };            /* initial delay */
-static uint32 rtc_elapsed[SIM_NTIMERS+1] = { 0 };         /* sec since init */
-static uint32 rtc_calibrations[SIM_NTIMERS+1] = { 0 };    /* calibration count */
-static double rtc_clock_skew_max[SIM_NTIMERS+1] = { 0 };  /* asynchronous max skew */
-static double rtc_clock_start_gtime[SIM_NTIMERS+1] = { 0 };/* reference instruction time for clock */
-static double rtc_clock_tick_size[SIM_NTIMERS+1] = { 0 }; /* 1/hz */
-static uint32 rtc_calib_initializations[SIM_NTIMERS+1] = { 0 };/* Initialization Count */
-static double rtc_calib_tick_time[SIM_NTIMERS+1] = { 0 }; /* ticks time */
-static double rtc_calib_tick_time_tot[SIM_NTIMERS+1] = { 0 };/* ticks time - total*/
-static uint32 rtc_calib_ticks_acked[SIM_NTIMERS+1] = { 0 };/* ticks Acked */
-static uint32 rtc_calib_ticks_acked_tot[SIM_NTIMERS+1] = { 0 };/* ticks Acked - total */
-static uint32 rtc_clock_ticks[SIM_NTIMERS+1] = { 0 };/* ticks delivered since catchup base */
-static uint32 rtc_clock_ticks_tot[SIM_NTIMERS+1] = { 0 };/* ticks delivered since catchup base - total */
-static double rtc_clock_catchup_base_time[SIM_NTIMERS+1] = { 0 };/* reference time for catchup ticks */
-static uint32 rtc_clock_catchup_ticks[SIM_NTIMERS+1] = { 0 };/* Record of catchups */
-static uint32 rtc_clock_catchup_ticks_tot[SIM_NTIMERS+1] = { 0 };/* Record of catchups - total */
-static t_bool rtc_clock_catchup_pending[SIM_NTIMERS+1] = { 0 };/* clock tick catchup pending */
-static t_bool rtc_clock_catchup_eligible[SIM_NTIMERS+1] = { 0 };/* clock tick catchup eligible */
-static uint32 rtc_clock_time_idled[SIM_NTIMERS+1] = { 0 };/* total time idled */
-static uint32 rtc_clock_calib_skip_idle[SIM_NTIMERS+1] = { 0 };/* Calibrations skipped due to idling */
-static uint32 rtc_clock_calib_gap2big[SIM_NTIMERS+1] = { 0 };/* Calibrations skipped Gap Too Big */
-static uint32 rtc_clock_calib_backwards[SIM_NTIMERS+1] = { 0 };/* Calibrations skipped Clock Running Backwards */
+static int32  rtc_ticks[SIM_NTIMERS+1]                   = { 0 }; /* ticks */
+static uint32 rtc_hz[SIM_NTIMERS+1]                      = { 0 }; /* tick rate */
+static uint32 rtc_rtime[SIM_NTIMERS+1]                   = { 0 }; /* real time */
+static uint32 rtc_vtime[SIM_NTIMERS+1]                   = { 0 }; /* virtual time */
+static double rtc_gtime[SIM_NTIMERS+1]                   = { 0 }; /* instruction time */
+static uint32 rtc_nxintv[SIM_NTIMERS+1]                  = { 0 }; /* next interval */
+static int32  rtc_based[SIM_NTIMERS+1]                   = { 0 }; /* base delay */
+static int32  rtc_currd[SIM_NTIMERS+1]                   = { 0 }; /* current delay */
+static int32  rtc_initd[SIM_NTIMERS+1]                   = { 0 }; /* initial delay */
+static uint32 rtc_elapsed[SIM_NTIMERS+1]                 = { 0 }; /* sec since init */
+static uint32 rtc_calibrations[SIM_NTIMERS+1]            = { 0 }; /* calibration count */
+static double rtc_clock_skew_max[SIM_NTIMERS+1]          = { 0 }; /* asynchronous max skew */
+static double rtc_clock_start_gtime[SIM_NTIMERS+1]       = { 0 }; /* reference instruction time for clock */
+static double rtc_clock_tick_size[SIM_NTIMERS+1]         = { 0 }; /* 1/hz */
+static uint32 rtc_calib_initializations[SIM_NTIMERS+1]   = { 0 }; /* Initialization Count */
+static double rtc_calib_tick_time[SIM_NTIMERS+1]         = { 0 }; /* ticks time */
+static double rtc_calib_tick_time_tot[SIM_NTIMERS+1]     = { 0 }; /* ticks time - total*/
+static uint32 rtc_calib_ticks_acked[SIM_NTIMERS+1]       = { 0 }; /* ticks Acked */
+static uint32 rtc_calib_ticks_acked_tot[SIM_NTIMERS+1]   = { 0 }; /* ticks Acked - total */
+static uint32 rtc_clock_ticks[SIM_NTIMERS+1]             = { 0 }; /* ticks delivered since catchup base */
+static uint32 rtc_clock_ticks_tot[SIM_NTIMERS+1]         = { 0 }; /* ticks delivered since catchup base - total */
+static double rtc_clock_catchup_base_time[SIM_NTIMERS+1] = { 0 }; /* reference time for catchup ticks */
+static uint32 rtc_clock_catchup_ticks[SIM_NTIMERS+1]     = { 0 }; /* Record of catchups */
+static uint32 rtc_clock_catchup_ticks_tot[SIM_NTIMERS+1] = { 0 }; /* Record of catchups - total */
+static t_bool rtc_clock_catchup_pending[SIM_NTIMERS+1]   = { 0 }; /* clock tick catchup pending */
+static t_bool rtc_clock_catchup_eligible[SIM_NTIMERS+1]  = { 0 }; /* clock tick catchup eligible */
+static uint32 rtc_clock_time_idled[SIM_NTIMERS+1]        = { 0 }; /* total time idled */
+static uint32 rtc_clock_calib_skip_idle[SIM_NTIMERS+1]   = { 0 }; /* Calibrations skipped due to idling */
+static uint32 rtc_clock_calib_gap2big[SIM_NTIMERS+1]     = { 0 }; /* Calibrations skipped Gap Too Big */
+static uint32 rtc_clock_calib_backwards[SIM_NTIMERS+1]   = { 0 }; /* Calibrations skipped Clock Running Backwards */
 
-UNIT sim_timer_units[SIM_NTIMERS+1];                    /* one for each timer and one for an */
-                                                        /* internal clock if no clocks are registered */
-UNIT sim_internal_timer_unit;                           /* Internal calibration timer */
-UNIT sim_throttle_unit;                                 /* one for throttle */
+UNIT sim_timer_units[SIM_NTIMERS+1];                     /* one for each timer and one for an */
+                                                         /* internal clock if no clocks are registered */
+UNIT sim_internal_timer_unit;                            /* Internal calibration timer */
+UNIT sim_throttle_unit;                                  /* one for throttle */
 
 t_stat sim_throt_svc (UNIT *uptr);
 t_stat sim_timer_tick_svc (UNIT *uptr);
@@ -320,10 +320,10 @@ t_stat sim_timer_tick_svc (UNIT *uptr);
 #define DBG_TIM       0x020                 /* timer thread activities */
 #define DBG_ACK       0x080                 /* interrupt acknowledgement activities */
 DEBTAB sim_timer_debug[] = {
-  {"TRACE",   DBG_TRC, "Trace routine calls"},
-  {"IACK",    DBG_ACK, "interrupt acknowledgement activities"},
-  {"CALIB",   DBG_CAL, "Calibration activities"},
-  {"TIME",    DBG_TIM, "Activation and scheduling activities"},
+  {"TRACE", DBG_TRC, "Trace routine calls"},
+  {"IACK",  DBG_ACK, "interrupt acknowledgement activities"},
+  {"CALIB", DBG_CAL, "Calibration activities"},
+  {"TIME",  DBG_TIM, "Activation and scheduling activities"},
   {0}
 };
 
@@ -370,27 +370,27 @@ if (uptr) {
     if (!sim_clock_unit[tmr])
         sim_register_clock_unit_tmr (uptr, tmr);
     }
-rtc_clock_start_gtime[tmr] = sim_gtime();
-rtc_rtime[tmr] = sim_os_msec ();
-rtc_vtime[tmr] = rtc_rtime[tmr];
-rtc_nxintv[tmr] = 1000;
-rtc_ticks[tmr] = 0;
-rtc_hz[tmr] = 0;
-rtc_based[tmr] = time;
-rtc_currd[tmr] = time;
-rtc_initd[tmr] = time;
-rtc_elapsed[tmr] = 0;
-rtc_calibrations[tmr] = 0;
-rtc_clock_ticks_tot[tmr] += rtc_clock_ticks[tmr];
-rtc_clock_ticks[tmr] = 0;
-rtc_calib_tick_time_tot[tmr] += rtc_calib_tick_time[tmr];
-rtc_calib_tick_time[tmr] = 0;
-rtc_clock_catchup_pending[tmr] = FALSE;
-rtc_clock_catchup_eligible[tmr] = FALSE;
+rtc_clock_start_gtime[tmr]        = sim_gtime();
+rtc_rtime[tmr]                    = sim_os_msec ();
+rtc_vtime[tmr]                    = rtc_rtime[tmr];
+rtc_nxintv[tmr]                   = 1000;
+rtc_ticks[tmr]                    = 0;
+rtc_hz[tmr]                       = 0;
+rtc_based[tmr]                    = time;
+rtc_currd[tmr]                    = time;
+rtc_initd[tmr]                    = time;
+rtc_elapsed[tmr]                  = 0;
+rtc_calibrations[tmr]             = 0;
+rtc_clock_ticks_tot[tmr]         += rtc_clock_ticks[tmr];
+rtc_clock_ticks[tmr]              = 0;
+rtc_calib_tick_time_tot[tmr]     += rtc_calib_tick_time[tmr];
+rtc_calib_tick_time[tmr]          = 0;
+rtc_clock_catchup_pending[tmr]    = FALSE;
+rtc_clock_catchup_eligible[tmr]   = FALSE;
 rtc_clock_catchup_ticks_tot[tmr] += rtc_clock_catchup_ticks[tmr];
-rtc_clock_catchup_ticks[tmr] = 0;
-rtc_calib_ticks_acked_tot[tmr] += rtc_calib_ticks_acked[tmr];
-rtc_calib_ticks_acked[tmr] = 0;
+rtc_clock_catchup_ticks[tmr]      = 0;
+rtc_calib_ticks_acked_tot[tmr]   += rtc_calib_ticks_acked[tmr];
+rtc_calib_ticks_acked[tmr]        = 0;
 ++rtc_calib_initializations[tmr];
 _rtcn_configure_calibrated_clock (tmr);
 return time;
@@ -432,7 +432,7 @@ uint32 clock_start, clock_last, clock_now;
 sim_debug (DBG_TRC, &sim_timer_dev, "sim_timer_init()\n");
 for (tmr=0; tmr<=SIM_NTIMERS; tmr++) {
     sim_timer_units[tmr].action = &sim_timer_tick_svc;
-    sim_timer_units[tmr].flags = UNIT_DIS | UNIT_IDLE;
+    sim_timer_units[tmr].flags  = UNIT_DIS | UNIT_IDLE;
     }
 SIM_INTERNAL_UNIT.flags = UNIT_DIS | UNIT_IDLE;
 sim_register_internal_device (&sim_timer_dev);
@@ -630,20 +630,20 @@ if (stat == SCPE_OK) {
         skew = (_timespec_to_double(&now) - (rtc_calib_tick_time[tmr]+rtc_clock_catchup_base_time[tmr]));
 
         if (fabs(skew) > fabs(rtc_clock_skew_max[tmr]))
-            rtc_clock_skew_max[tmr] = skew;
+            rtc_clock_skew_max[tmr]   = skew;
         }
     while ((sim_clock_cosched_queue[tmr] != QUEUE_LIST_END) &&
            (sim_cosched_interval[tmr] < sim_clock_cosched_queue[tmr]->time)) {
-        UNIT *cptr = sim_clock_cosched_queue[tmr];
-        sim_clock_cosched_queue[tmr] = cptr->next;
-        cptr->next = NULL;
-        cptr->cancel = NULL;
+        UNIT *cptr                    = sim_clock_cosched_queue[tmr];
+        sim_clock_cosched_queue[tmr]  = cptr->next;
+        cptr->next                    = NULL;
+        cptr->cancel                  = NULL;
         _sim_activate (cptr, 0);
         }
     if (sim_clock_cosched_queue[tmr] != QUEUE_LIST_END)
-        sim_cosched_interval[tmr] = sim_clock_cosched_queue[tmr]->time;
+        sim_cosched_interval[tmr]     = sim_clock_cosched_queue[tmr]->time;
     else
-        sim_cosched_interval[tmr]  = 0;
+        sim_cosched_interval[tmr]     = 0;
     }
 sim_timer_activate_after (uptr, 1000000/rtc_hz[tmr]);
 return stat;
@@ -655,7 +655,7 @@ sim_usleep(useconds_t tusleep)
 #if ( !defined(__APPLE__) && !defined(__OpenBSD__) )
   struct timespec rqt;
 
-  rqt.tv_sec = tusleep / 1000000;
+  rqt.tv_sec  = tusleep / 1000000;
   rqt.tv_nsec = (tusleep % 1000000) * 1000;
   return clock_nanosleep(CLOCK_MONOTONIC, 0, &rqt, NULL);
 #else
@@ -670,7 +670,7 @@ return ((double)time->tv_sec)+(double)(time->tv_nsec)/1000000000.0;
 
 static void _double_to_timespec (struct timespec *time, double dtime)
 {
-time->tv_sec = (time_t)floor(dtime);
+time->tv_sec  = (time_t)floor(dtime);
 time->tv_nsec = (long)((dtime-floor(dtime))*1000000000.0);
 }
 
@@ -767,8 +767,8 @@ for (tmr=0; tmr<=SIM_NTIMERS; tmr++) {
             UNIT *cptr = sim_clock_cosched_queue[tmr];
 
             sim_clock_cosched_queue[tmr] = cptr->next;
-            cptr->next = NULL;
-            cptr->cancel = NULL;
+            cptr->next                   = NULL;
+            cptr->cancel                 = NULL;
 
             accum += cptr->time;
             _sim_activate (cptr, accum*rtc_currd[tmr]);
@@ -776,9 +776,9 @@ for (tmr=0; tmr<=SIM_NTIMERS; tmr++) {
         }
     }
 sim_cancel (&SIM_INTERNAL_UNIT);                    /* Make sure Internal Timer is stopped */
-sim_calb_tmr_last = sim_calb_tmr;                   /* Save calibrated timer value for display */
+sim_calb_tmr_last     = sim_calb_tmr;                   /* Save calibrated timer value for display */
 sim_inst_per_sec_last = sim_timer_inst_per_sec ();  /* Save execution rate for display */
-sim_calb_tmr = -1;
+sim_calb_tmr          = -1;
 }
 
 /* Instruction Execution rate. */

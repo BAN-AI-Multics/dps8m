@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: CC-PDDC
  * SPDX-FileCopyrightText: Public domain
  * scspell-id: 8a194784-f62f-11ec-85b5-80ee73e9b8e7
@@ -90,13 +91,6 @@
 # include <stdarg.h>
 # include <stddef.h>
 
-/* C++ support */
-# if defined(__cplusplus)
-extern "C" {
-# endif
-
-# include "../dpsprintf/dpsprintf.h"
-
 /* printf type checking feature in GCC and some other compilers */
 # if defined(__GNUC__) && !defined(USING_DPSPRINTF)
 #  define TELNET_GNU_PRINTF(f,a) __attribute__((format(printf, f, a))) /* internal helper */
@@ -118,8 +112,6 @@ typedef union telnet_event_t telnet_event_t;
 /* Telnet option table element type. */
 typedef struct telnet_telopt_t telnet_telopt_t;
 
-/* \name Telnet commands */
-/*@{*/
 /* Telnet commands and special values. */
 # define TELNET_IAC   255
 # define TELNET_DONT  254
@@ -141,11 +133,8 @@ typedef struct telnet_telopt_t telnet_telopt_t;
 # define TELNET_ABORT 238
 # define TELNET_SUSP  237
 # define TELNET_EOF   236
-/*@}*/
 
-/* \name Telnet option values. */
-/*@{*/
-/* Telnet options. */
+/* Telnet option values. */
 # define TELNET_TELOPT_BINARY          0
 # define TELNET_TELOPT_ECHO            1
 # define TELNET_TELOPT_RCP             2
@@ -187,18 +176,12 @@ typedef struct telnet_telopt_t telnet_telopt_t;
 # define TELNET_TELOPT_ENCRYPT        38
 # define TELNET_TELOPT_NEW_ENVIRON    39
 # define TELNET_TELOPT_EXOPL         255
-/*@}*/
 
-/* \name Protocol codes for TERMINAL-TYPE commands. */
-/*@{*/
-/* TERMINAL-TYPE codes. */
+/* Protocol codes for TERMINAL-TYPE commands. */
 # define TELNET_TTYPE_IS   0
 # define TELNET_TTYPE_SEND 1
-/*@}*/
 
-/* \name Protocol codes for NEW-ENVIRON/ENVIRON commands. */
-/*@{*/
-/* NEW-ENVIRON/ENVIRON codes. */
+/* Protocol codes for NEW-ENVIRON/ENVIRON commands. */
 # define TELNET_ENVIRON_IS      0
 # define TELNET_ENVIRON_SEND    1
 # define TELNET_ENVIRON_INFO    2
@@ -206,10 +189,9 @@ typedef struct telnet_telopt_t telnet_telopt_t;
 # define TELNET_ENVIRON_VALUE   1
 # define TELNET_ENVIRON_ESC     2
 # define TELNET_ENVIRON_USERVAR 3
-/*@}*/
 
-/* \name Telnet state tracker flags. */
-/*@{*/
+/* Telnet state tracker flags. */
+
 /* Control behavior of telnet state tracker. */
 # define TELNET_FLAG_PROXY   (1<<0)
 # define TELNET_FLAG_NVT_EOL (1<<1)
@@ -218,7 +200,6 @@ typedef struct telnet_telopt_t telnet_telopt_t;
 # define TELNET_FLAG_TRANSMIT_BINARY (1<<5)
 # define TELNET_FLAG_RECEIVE_BINARY  (1<<6)
 # define TELNET_PFLAG_DEFLATE        (1<<7)
-/*@}*/
 
 /*
  * error codes
@@ -265,14 +246,14 @@ struct telnet_environ_t {
  */
 union telnet_event_t {
         /*
-         * \brief Event type
+         * Event type
          *
          * The type field determines which event structure fields have been filled in.
          */
         enum telnet_event_type_t type;
 
         /*
-         * data event: for DATA and SEND events
+         * Data event: for DATA and SEND events
          */
         struct data_t {
                 enum telnet_event_type_t _type; /* alias for type            */
@@ -339,16 +320,16 @@ union telnet_event_t {
 };
 
 /*
- * \brief event handler
+ * event handler
  *
  * This is the type of function that must be passed to
  * telnet_init() when creating a new telnet object.  The
  * function will be invoked once for every event generated
  * by the libTELNET protocol parser.
  *
- * \param telnet    The telnet object that generated the event
- * \param event     Event structure with details about the event
- * \param user_data User-supplied pointer
+ * param telnet    The telnet object that generated the event
+ * param event     Event structure with details about the event
+ * param user_data User-supplied pointer
  */
 typedef void (*telnet_event_handler_t)(telnet_t *telnet,
                 telnet_event_t *event, void *user_data);
@@ -368,65 +349,65 @@ struct telnet_telopt_t {
 struct telnet_t;
 
 /*
- * \brief Initialize a telnet state tracker.
+ * Initialize a telnet state tracker.
  *
  * This function initializes a new state tracker, which is used for all
  * other libTELNET functions.  Each connection must have its own
  * telnet state tracker object.
  *
- * \param telopts   Table of TELNET options the application supports.
- * \param eh        Event handler function called for every event.
- * \param flags     0 or TELNET_FLAG_PROXY.
- * \param user_data Optional data pointer that will be passed to eh.
- * \return Telnet state tracker object.
+ * param telopts   Table of TELNET options the application supports.
+ * param eh        Event handler function called for every event.
+ * param flags     0 or TELNET_FLAG_PROXY.
+ * param user_data Optional data pointer that will be passed to eh.
+ * return Telnet state tracker object.
  */
 extern telnet_t* telnet_init(const telnet_telopt_t *telopts,
                 telnet_event_handler_t eh, unsigned char flags, void *user_data);
 
 /*
- * \brief Free up any memory allocated by a state tracker.
+ * Free up any memory allocated by a state tracker.
  *
  * This function must be called when a telnet state tracker is no
  * longer needed (such as after the connection has been closed) to
  * release any memory resources used by the state tracker.
  *
- * \param telnet Telnet state tracker object.
+ * param telnet Telnet state tracker object.
  */
 extern void telnet_free(telnet_t *telnet);
 
 /*
- * \brief Push a byte buffer into the state tracker.
+ * Push a byte buffer into the state tracker.
  *
  * Passes one or more bytes to the telnet state tracker for
  * protocol parsing.  The byte buffer is most often going to be
  * the buffer that recv() was called for while handling the
  * connection.
  *
- * \param telnet Telnet state tracker object.
- * \param buffer Pointer to byte buffer.
- * \param size   Number of bytes pointed to by buffer.
+ * param telnet Telnet state tracker object.
+ * param buffer Pointer to byte buffer.
+ * param size   Number of bytes pointed to by buffer.
  */
 extern void telnet_recv(telnet_t *telnet, const char *buffer,
                 size_t size);
 
 /*
- * \brief Send a telnet command.
+ * Send a telnet command.
  *
- * \param telnet Telnet state tracker object.
- * \param cmd    Command to send.
+ * param telnet Telnet state tracker object.
+ * param cmd    Command to send.
  */
 extern void telnet_iac(telnet_t *telnet, unsigned char cmd);
 
 /*
- * \brief Send negotiation command.
+ * Send negotiation command.
  *
  * Internally, libTELNET uses RFC1143 option negotiation rules.
  * The negotiation commands sent with this function may be ignored
  * if they are determined to be redundant.
  *
- * \param telnet Telnet state tracker object.
- * \param cmd    TELNET_WILL, TELNET_WONT, TELNET_DO, or TELNET_DONT.
- * \param opt    One of the TELNET_TELOPT_* values.
+ * param telnet Telnet state tracker object.
+ * param cmd    TELNET_WILL, TELNET_WONT, TELNET_DO, or TELNET_DONT.
+ * param opt    One of the TELNET_TELOPT_* values.
  */
 extern void telnet_negotiate(telnet_t *telnet, unsigned char cmd,
                 unsigned char opt);
@@ -434,9 +415,9 @@ extern void telnet_negotiate(telnet_t *telnet, unsigned char cmd,
 /*
  * Send non-command data (escapes IAC bytes).
  *
- * \param telnet Telnet state tracker object.
- * \param buffer Buffer of bytes to send.
- * \param size   Number of bytes to send.
+ * param telnet Telnet state tracker object.
+ * param buffer Buffer of bytes to send.
+ * param size   Number of bytes to send.
  */
 extern void telnet_send(telnet_t *telnet,
                 const char *buffer, size_t size);
@@ -445,38 +426,38 @@ extern void telnet_send(telnet_t *telnet,
  * Send non-command text (escapes IAC bytes and translates
  * \\r -> CR-NUL and \\n -> CR-LF unless in BINARY mode.
  *
- * \param telnet Telnet state tracker object.
- * \param buffer Buffer of bytes to send.
- * \param size   Number of bytes to send.
+ * param telnet Telnet state tracker object.
+ * param buffer Buffer of bytes to send.
+ * param size   Number of bytes to send.
  */
 extern void telnet_send_text(telnet_t *telnet,
                 const char *buffer, size_t size);
 
 /*
- * \brief Begin a sub-negotiation command.
+ * Begin a sub-negotiation command.
  *
  * Sends IAC SB followed by the telopt code.  All following data sent
  * will be part of the sub-negotiation, until telnet_finish_sb() is
  * called.
  *
- * \param telnet Telnet state tracker object.
- * \param telopt One of the TELNET_TELOPT_* values.
+ * param telnet Telnet state tracker object.
+ * param telopt One of the TELNET_TELOPT_* values.
  */
 extern void telnet_begin_sb(telnet_t *telnet,
                 unsigned char telopt);
 
 /*
- * \brief Finish a sub-negotiation command.
+ * Finish a sub-negotiation command.
  *
  * This must be called after a call to telnet_begin_sb() to finish a
  * sub-negotiation command.
  *
- * \param telnet Telnet state tracker object.
+ * param telnet Telnet state tracker object.
  */
 # define telnet_finish_sb(telnet) telnet_iac((telnet), TELNET_SE)
 
 /*
- * \brief Send formatted data.
+ * Send formatted data.
  *
  * This function is a wrapper around telnet_send().  It allows using
  * printf-style formatting.
@@ -485,44 +466,39 @@ extern void telnet_begin_sb(telnet_t *telnet,
  * \\n with CR LF, as well as automatically escaping IAC bytes like
  * telnet_send().
  *
- * \param telnet Telnet state tracker object.
- * \param fmt    Format string.
- * \return Number of bytes sent.
+ * param telnet Telnet state tracker object.
+ * param fmt    Format string.
+ * return Number of bytes sent.
  */
 extern int telnet_printf(telnet_t *telnet, const char *fmt, ...)
                 TELNET_GNU_PRINTF(2, 3);
 
 /*
- * \brief Send formatted data.
+ * Send formatted data.
  *
  * See telnet_printf().
  */
 extern int telnet_vprintf(telnet_t *telnet, const char *fmt, va_list va);
 
 /*
- * \brief Send formatted data (no newline escaping).
+ * Send formatted data (no newline escaping).
  *
  * This behaves identically to telnet_printf(), except that the \\r and \\n
  * characters are not translated.  The IAC byte is still escaped as normal
  * with telnet_send().
  *
- * \param telnet Telnet state tracker object.
- * \param fmt    Format string.
- * \return Number of bytes sent.
+ * param telnet Telnet state tracker object.
+ * param fmt    Format string.
+ * return Number of bytes sent.
  */
 extern int telnet_raw_printf(telnet_t *telnet, const char *fmt, ...)
                 TELNET_GNU_PRINTF(2, 3);
 
 /*
- * \brief Send formatted data (no newline escaping).
+ * Send formatted data (no newline escaping).
  *
  * See telnet_raw_printf().
  */
 extern int telnet_raw_vprintf(telnet_t *telnet, const char *fmt, va_list va);
-
-/* C++ support */
-# if defined(__cplusplus)
-} /* extern "C" */
-# endif
 
 #endif /* !defined(LIBTELNET_INCLUDE) */

@@ -1,5 +1,6 @@
 # DPS8M simulator: src/dps8/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: 42ec66a7-f62f-11ec-810d-80ee73e9b8e7
 
@@ -320,9 +321,8 @@ DECN_OBJS = ../decNumber/decContext.o  ../decNumber/decNumber.o
 ###############################################################################
 
 .PHONY: all
-all:  sysdefs.h   ../../dpsprintf.o   ver.h   unifdef    locallibs_then_dps8  \
-      prt2pdf     punutil             mcmb    vmpctool   empty                \
-      $(TAGS)
+all:  sysdefs.h   ver.h   unifdef   locallibs_then_dps8   prt2pdf             \
+      punutil     mcmb    vmpctool  empty                 $(TAGS)
 	-@$(TRUE)
 
 ###############################################################################
@@ -359,11 +359,10 @@ printmod:
 ###############################################################################
 
 .PHONY: all ctags
-dps8$(EXE): sysdefs.h $(OBJS) $(LOCALOBJS) $(LOCALLIBS) $(DECN_OBJS)          \
-            $(SIMH_OBJS) ../../dpsprintf.o ctags
+dps8$(EXE): sysdefs.h $(OBJS) $(LOCALOBJS) $(DECN_OBJS) $(SIMH_OBJS) ctags
 	@$(PRINTF) '%s\n' "LD: dps8$(EXE)"
 	@$(SETV); $(CC) -o dps8$(EXE) $(LDFLAGS) $(OBJS) $(LOCALOBJS)             \
-          "../dpsprintf/dpsprintf.o" $(MATHLIB) $(DECN_OBJS) $(SIMH_OBJS)     \
+           $(MATHLIB) $(DECN_OBJS) $(SIMH_OBJS)                               \
             $(LIBS) $(LOCALLIBS) $(DUMALIBS)
 
 ###############################################################################
@@ -457,14 +456,8 @@ empty:
 
 ###############################################################################
 
-.PHONY: dpsprintf
-dpsprintf ../../dpsprintf.o:
-	-@$(SETV); $(MAKE) -C "../dpsprintf" "all"
-
-###############################################################################
-
-udplib$(EXE): udplib.c udplib.h ../dpsprintf/dpsprintf.o
-	@$(SETV); $(CC) udplib.c -o udplib "../dpsprintf/dpsprintf.o" -DTEST=1
+udplib$(EXE): udplib.c udplib.h
+	@$(SETV); $(CC) udplib.c -o udplib -DTEST=1
 
 ###############################################################################
 
@@ -517,7 +510,6 @@ distclean: clean
 	@$(RMF) *.gc??                           2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.gc??         2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.gc??              2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../dpsprintf/*.gc??              2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../mcmb/*.gc??                   2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../prt2pdf/*.gc??                2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../punutil/*.gc??                2> /dev/null  ||  $(TRUE)
@@ -528,7 +520,6 @@ distclean: clean
 	@$(RMF) *.prof*                          2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../blinkenLights2/*.prof*        2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../decNumber/*.prof*             2> /dev/null  ||  $(TRUE)
-	@$(RMF) ../dpsprintf/*.prof*             2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../mcmb/*.prof*                  2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../prt2pdf/*.prof*               2> /dev/null  ||  $(TRUE)
 	@$(RMF) ../simh/*.prof*                  2> /dev/null  ||  $(TRUE)
@@ -560,7 +551,6 @@ distclean: clean
 	@$(RMF) ../../.l68*.state               2> /dev/null   ||  $(TRUE)
 	@$(RMF) ../.l68*.state                  2> /dev/null   ||  $(TRUE)
 	@$(RMF) .l68*.state                     2> /dev/null   ||  $(TRUE)
-	@$(RMF) "../dpsprintf/dpsprintf.o"      2> /dev/null   ||  $(TRUE)
 	@$(SETV); $(RMF) "restoreMultics.log"                  ||  $(TRUE)
 	@$(SETV); $(RMF) "TAGS"                                ||  $(TRUE)
 	@$(SETV); $(RMF) "tags"                                ||  $(TRUE)
@@ -588,7 +578,6 @@ clean:
 	@$(SETV); $(MAKE) -C "../mcmb"           -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../vmpctool"       -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../empty"          -f "GNUmakefile"  "clean"
-	@$(SETV); $(MAKE) -C "../dpsprintf"      -f "GNUmakefile"  "clean"
 	@$(SETV); $(MAKE) -C "../unifdef"        -f "GNUmakefile"  "clean"
 	@$(SETV); ( cd ../blinkenLights2 && $(RMF) blinkenLights2 || $(TRUE) )
 	@$(SETV); $(MAKE) -C "."                 -f "GNUmakefile"  "clean_dps8"
@@ -611,6 +600,8 @@ clean:
 	@$(SETV); $(RMF)  "amd_memcpy.o"                   ||  $(TRUE)
 	@$(SETV); $(RMF)  "../amd_memcpy.o"                ||  $(TRUE)
 	@$(SETV); $(RMF)  "../../amd_memcopy.o"            ||  $(TRUE)
+	@$(SETV); $(RMF)  "./null.i"                       ||  $(TRUE)
+	@$(SETV); $(RMF) ./*.ln > /dev/null 2>&1           ||  $(TRUE)
 	@$(SETV); $(RMF) ./*.gcda > /dev/null 2>&1         ||  $(TRUE)
 
 ###############################################################################
@@ -624,7 +615,7 @@ clean_dps8:
 	@$(SETV); $(RMF) $(OBJS) $(C_DEPS) $(EXECUTABLES) "dps8$(EXE)"            \
       "tags" "TAGS" $(C_SRCS:.c=.d) $(wildcard $(C_SRCS:.c=.d.[0-9]*))        \
         "dps8.exe" "errnos.h" "udplib.exe" "udplib" "tracker.o" "dump.[icd]"  \
-          "../dpsprintf/dpsprintf.o"  2> /dev/null  ||  $(TRUE)
+          2> /dev/null  ||  $(TRUE)
 
 ###############################################################################
 
@@ -632,8 +623,8 @@ clean_dps8:
 kit dist:
 	@$(PRINTF) '%s\n' "KIT: dps8"
 	@$(PRINTF) '%s\n' "ARCHIVE: $(KITNAME).$(TARXT)"
-	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)"                  ||  $(TRUE)
-	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)"."$(COMPRESSXT)"  ||  $(TRUE)
+	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)"                  || $(TRUE)
+	@$(SETV); $(RMF) ../../"$(KITNAME)"."$(TARXT)"."$(COMPRESSXT)"  || $(TRUE)
 	@$(SETV); MAKE="$(MAKE)" $(MAKE) "ver.h"
 	@$(SETV); $(CP) "./ver.h" "./ver.h~"
 	@$(SETV); ($(CD) "../.." &&                                               \
@@ -655,8 +646,8 @@ kit dist:
 zipkit zipdist:
 	@$(PRINTF) '%s\n' "ZIPKIT: dps8"
 	@$(PRINTF) '%s\n' "ARCHIVE: $(KITNAME).zip"
-	@$(SETV); $(RMF) ../../"$(KITNAME)"."zip"                       ||  $(TRUE)
-	@$(SETV); $(RMF) ../../"$(KITNAME)"."TMP"                       ||  $(TRUE)
+	@$(SETV); $(RMF) ../../"$(KITNAME)"."zip"                       || $(TRUE)
+	@$(SETV); $(RMF) ../../"$(KITNAME)"."TMP"                       || $(TRUE)
 	@$(SETV); MAKE="$(MAKE)" $(MAKE) "ver.h"
 	@$(SETV); $(CP) "./ver.h" "./ver.h~"
 	@$(SETV); ($(CD) "../.." &&                                               \

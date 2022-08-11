@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: BSD-2-Clause
  * scspell-id: ec490dbd-f630-11ec-a71d-80ee73e9b8e7
  *
@@ -62,8 +63,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
-
-#include "../dpsprintf/dpsprintf.h"
+#include <locale.h>
 
 #ifndef TRUE
 # define TRUE 1
@@ -1490,6 +1490,7 @@ static struct cmb_xfdef cmb_xforms[] = {
 int
 main(int argc, char *argv[])
 {
+  setlocale(LC_NUMERIC, "");
   uint8_t free_find         = FALSE;
   uint8_t opt_empty         = FALSE;
   uint8_t opt_file          = FALSE;
@@ -1939,9 +1940,10 @@ main(int argc, char *argv[])
    * Read arguments ...
    */
 
-#ifndef __clang_analyzer__
   if (opt_file)
     {
+/* Suppress Clang Analyzer's possible memory leak warning */
+#if !defined ( __clang_analyzer__ )
 
       /*
        * ... as a series of files if given `-f'
@@ -1988,6 +1990,7 @@ main(int argc, char *argv[])
         }
 
       nitems = (uint32_t)fitems;
+#endif /* if !defined ( __clang_analyzer__ ) */
     }
   else if (opt_range)
     {
@@ -2026,7 +2029,6 @@ main(int argc, char *argv[])
       nitems = (uint32_t)ritems;
     }
   else
-#endif  /* ifndef __clang_analyzer__ */
     {
 
       /*

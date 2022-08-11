@@ -66,11 +66,11 @@ send "\x1b"
 # Waiting for prompt
 expect "M->"
 send "\x1b"
-
-# Waiting for second logout
-expect "LOGOUT"
-sleep 2
 set timeout 3
+
+# Waiting for second logout or final console timeout
+expect "OUT"
+sleep 2
 
 # Scram
 exec kill -9 [exp_pid $dps8ID]; sleep 1

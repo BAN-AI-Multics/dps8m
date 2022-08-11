@@ -1,4 +1,5 @@
 // vim: filetype=c:tabstop=4:tw=72:expandtab
+// vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
 // SPDX-License-Identifier: ICU
 // scspell-id: a0c30a33-f62c-11ec-a4e6-80ee73e9b8e7
 /* ------------------------------------------------------------------ */
@@ -27,8 +28,6 @@
 #include <stdio.h>            // for printf if DECCHECK
 #include "decContext.h"       // context and base types
 #include "decNumberLocal.h"   // decNumber local types, etc.
-
-#include "../dpsprintf/dpsprintf.h"
 
 /* compile-time endian tester [assumes sizeof(Int)>1] */
 static  const  Int mfcone=1;                       // constant 1

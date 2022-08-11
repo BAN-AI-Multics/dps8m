@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 9ca9a790-f62e-11ec-a677-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -18,6 +20,16 @@
  * LICENSE.md file at the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -33,8 +45,6 @@
 #include "dps8_ins.h"
 #include "dps8_math.h"
 #include "dps8_utils.h"
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -58,7 +68,7 @@ long double EAQToIEEElongdouble(void)
 #ifdef NEED_128
 
     if (iszero_128 (Mant))
-        return 0;
+        return (long double)0;
 
     bool S = isnonzero_128 (and_128 (Mant, SIGN72)); // sign of mantissa
     if (S)
@@ -66,7 +76,7 @@ long double EAQToIEEElongdouble(void)
 #else
 
     if (Mant == 0)
-        return 0;
+        return (long double)0;
 
     bool S = Mant & SIGN72; // sign of mantissa
     if (S)
@@ -925,7 +935,7 @@ void fno (word8 * E, word36 * A, word36 * Q)
             // Negative
             // Until bits 1-4 != 014
             // Termination guarantee: Zeros are being shifted into the right
-          // end, so the loop will terminate when the first shifted
+            // end, so the loop will terminate when the first shifted
             // zero enters bits 1-4.
 # ifdef NEED_128
             while (iseq_128 (and_128 (m, HEX_NORM), HEX_NORM))
@@ -3276,8 +3286,8 @@ void dvf (void)
 
 // canonical code
 #ifdef DVF_FRACTIONAL
-// http://www.ece.ucsb.edu/~parhami/pres_folder/f31-book-arith-pres-pt4.pdf
-// slide 10: sequential algorithm
+// See: https://www.ece.ucsb.edu/~parhami/pres_folder/f31-book-arith-pres-pt4.pdf
+// Slide 10: Sequential Algorithm
 
     // dividend format
     // 0  1     70 71
@@ -3739,7 +3749,6 @@ void dfstr (word36 *Ypair)
 
         return;
     }
-
 
     // C(AQ) + (11...1)65,71 → C(AQ)
     bool ovf;

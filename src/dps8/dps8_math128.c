@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 928c0e86-f62e-11ec-ab5c-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -15,12 +17,20 @@
  * LICENSE.md file at the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #ifndef DPS8_MATH128
 # define DPS8_MATH128
-
-# include "../dpsprintf/dpsprintf.h"
 # include "dps8.h"
 # include "dps8_math128.h"
 
@@ -63,8 +73,8 @@ bool islt_128 (uint128 a, uint128 b)
 
 bool isge_128 (uint128 a, uint128 b)
   {
-    if (a.h > b.h) return true;
-    if (a.h < b.h) return false;
+    if (a.h >  b.h) return true;
+    if (a.h <  b.h) return false;
     if (a.l >= b.l) return true;
     return false;
   }
@@ -120,16 +130,16 @@ uint128 add_128 (uint128 a, uint128 b)
     uint64_t bl63 = b.l & MASK63;  // low 63 bits of b
     uint64_t l63 = al63 + bl63;    // low 63 bits of a + b, with carry into bit 64
     uint64_t c63 = l63 & SIGN64;   // the carry out of low 63 a + b
-    l63 &= MASK63;               // lose the carry bit
+    l63 &= MASK63;                 // lose the carry bit
 
     unsigned int al64 = (a.l >> 63) & 1; // bit 64 of a
     unsigned int bl64 = (b.l >> 63) & 1; // bit 64 of b
     unsigned int cl64 = (c63 >> 63) & 1; // the carry out of bit 63
-    uint64_t l64 = al64 + bl64 + cl64; // bit 64 a + b + carry in
-    unsigned int c64 = l64 > 1 ? 1 : 0;    // carry out of bit 64
-    l64 = (l64 & 1) << 63;         // put bit 64 in the right place
-    l64 |= l63;                    // put low 63 bits in
-    uint64_t h64 = a.h + b.h + c64;    // compute the high
+    uint64_t l64 = al64 + bl64 + cl64;   // bit 64 a + b + carry in
+    unsigned int c64 = l64 > 1 ? 1 : 0;  // carry out of bit 64
+    l64 = (l64 & 1) << 63;               // put bit 64 in the right place
+    l64 |= l63;                          // put low 63 bits in
+    uint64_t h64 = a.h + b.h + c64;      // compute the high
     return construct_128 (h64, l64);
   }
 
@@ -258,7 +268,7 @@ int128 rshift_s128 (int128 a, unsigned int n)
     return cast_s128 (t);
   }
 
-// See: http://www.icodeguru.com/Embedded/Hacker's-Delight/
+// See: https://web.archive.org/web/20190219173849/http://www.hackersdelight.org/
 
 static void mulmn (uint32_t w[], uint32_t u[],
                    uint32_t v[], int m, int n)
@@ -303,7 +313,8 @@ static void mulmns (uint32_t w[], uint32_t u[],
           {
             int t = (int) w[j + m] - (int) v[j] - b;
             w[j + m] = (uint32_t) t;
-            b = t >> 31;
+            //b = t >> 31;
+            b = (t & 0x40000000) ? 1 : 0;
           }
       }
     if ((int32_t)v[n - 1] < 0)
@@ -313,7 +324,8 @@ static void mulmns (uint32_t w[], uint32_t u[],
           {
             int t = (int) w[i + n] - (int) u[i] - b;
             w[i + n] = (uint32_t) t;
-            b = t >> 31;
+            //b = t >> 31;
+            b = (t & 0x40000000) ? 1 : 0;
           }
       }
     return;
@@ -338,15 +350,15 @@ int divmnu (uint16_t q[], uint16_t r[],
             int m, int n)
   {
 
-    const uint32_t b = 65536; // Number base (16 bits).
+    const uint32_t b = 65536;   // Number base (16 bits).
     //uint16_t *un, *vn;        // Normalized form of u, v.
-    unsigned qhat;            // Estimated quotient digit.
-    unsigned rhat;            // A remainder.
-    unsigned p;               // Product of two digits.
+    unsigned qhat;              // Estimated quotient digit.
+    unsigned rhat;              // A remainder.
+    unsigned p;                 // Product of two digits.
     int s, i, j, t, k;
 
     if (m < n || n <= 0 || v[n-1] == 0)
-      return 1;               // Return if invalid param.
+      return 1;                 // Return if invalid param.
 
     // Take care of the case of a single-digit span
     if (n == 1)
@@ -435,13 +447,13 @@ uint128 multiply_128 (uint128 a, uint128 b)
     uint32_t w[l+l], u[l], v[l];
 
     u[3] = (uint32_t) (a.h >> 32);
-    u[2] = (uint32_t) a.h;
+    u[2] = (uint32_t)  a.h;
     u[1] = (uint32_t) (a.l >> 32);
-    u[0] = (uint32_t) a.l;
+    u[0] = (uint32_t)  a.l;
     v[3] = (uint32_t) (b.h >> 32);
-    v[2] = (uint32_t) b.h;
+    v[2] = (uint32_t)  b.h;
     v[1] = (uint32_t) (b.l >> 32);
-    v[0] = (uint32_t) b.l;
+    v[0] = (uint32_t)  b.l;
     mulmn (w, u, v, l, l);
     return construct_128 (
        (((uint64_t) w[3]) << 32) | w[2],
@@ -455,16 +467,16 @@ int128 multiply_s128 (int128 a, int128 b)
     uint32_t w[l+l], u[l], v[l];
 
     u[3] = (uint32_t) (a.h >> 32);
-    u[2] = (uint32_t) a.h;
+    u[2] = (uint32_t)  a.h;
     u[1] = (uint32_t) (a.l >> 32);
-    u[0] = (uint32_t) a.l;
+    u[0] = (uint32_t)  a.l;
     v[3] = (uint32_t) (b.h >> 32);
-    v[2] = (uint32_t) b.h;
+    v[2] = (uint32_t)  b.h;
     v[1] = (uint32_t) (b.l >> 32);
-    v[0] = (uint32_t) b.l;
+    v[0] = (uint32_t)  b.l;
     mulmns (w, u, v, l, l);
     return construct_s128 (
-       (((int64_t) w[3]) << 32) | w[2],
+       (((int64_t)  w[3]) << 32) | w[2],
        (((uint64_t) w[1]) << 32) | w[0]);
   }
 
@@ -474,20 +486,20 @@ uint128 divide_128 (uint128 a, uint128 b, uint128 * remp)
     const int m = 8;
     const int n = 8;
     uint16_t q[m], u[m], v[n];
-    u[0] = (uint16_t) a.l;
+    u[0] = (uint16_t)  a.l;
     u[1] = (uint16_t) (a.l >> 16);
     u[2] = (uint16_t) (a.l >> 32);
     u[3] = (uint16_t) (a.l >> 48);
-    u[4] = (uint16_t) a.h;
+    u[4] = (uint16_t)  a.h;
     u[5] = (uint16_t) (a.h >> 16);
     u[6] = (uint16_t) (a.h >> 32);
     u[7] = (uint16_t) (a.h >> 48);
 
-    v[0] = (uint16_t) b.l;
+    v[0] = (uint16_t)  b.l;
     v[1] = (uint16_t) (b.l >> 16);
     v[2] = (uint16_t) (b.l >> 32);
     v[3] = (uint16_t) (b.l >> 48);
-    v[4] = (uint16_t) b.h;
+    v[4] = (uint16_t)  b.h;
     v[5] = (uint16_t) (b.h >> 16);
     v[6] = (uint16_t) (b.h >> 32);
     v[7] = (uint16_t) (b.h >> 48);
@@ -527,11 +539,11 @@ uint128 divide_128_16 (uint128 a, uint16_t b, uint16_t * remp)
     const int m = 8;
     const int n = 1;
     uint16_t q[m], u[m], v[n];
-    u[0] = (uint16_t) a.l;
+    u[0] = (uint16_t)  a.l;
     u[1] = (uint16_t) (a.l >> 16);
     u[2] = (uint16_t) (a.l >> 32);
     u[3] = (uint16_t) (a.l >> 48);
-    u[4] = (uint16_t) a.h;
+    u[4] = (uint16_t)  a.h;
     u[5] = (uint16_t) (a.h >> 16);
     u[6] = (uint16_t) (a.h >> 32);
     u[7] = (uint16_t) (a.h >> 48);
@@ -560,11 +572,11 @@ uint128 divide_128_32 (uint128 a, uint32_t b, uint32_t * remp)
     const int m = 8;
     const int n = 2;
     uint16_t q[m], u[m], v[n], r[2];
-    u[0] = (uint16_t) a.l;
+    u[0] = (uint16_t)  a.l;
     u[1] = (uint16_t) (a.l >> 16);
     u[2] = (uint16_t) (a.l >> 32);
     u[3] = (uint16_t) (a.l >> 48);
-    u[4] = (uint16_t) a.h;
+    u[4] = (uint16_t)  a.h;
     u[5] = (uint16_t) (a.h >> 16);
     u[6] = (uint16_t) (a.h >> 32);
     u[7] = (uint16_t) (a.h >> 48);
@@ -589,302 +601,311 @@ uint128 divide_128_32 (uint128 a, uint32_t b, uint32_t * remp)
 
 #  ifdef NEED_128
 
-static int test128_tisz (uint64_t h, uint64_t l, bool expect)
+static void tisz (uint64_t h, uint64_t l, bool expect)
   {
     bool r = iszero_128 (construct_128 (h, l));
     if (r != expect) {
-      fprintf (stderr, "Failure: iszero_128 (%llu, %llu) returned %u\n", h, l, r);
-      return 0;
+      fprintf (stderr, "FATAL: iszero_128 (%llu, %llu) returned %lu\n",
+               (unsigned long long)h, (unsigned long long)l, (unsigned long)r);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tand (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                         uint64_t rh, uint64_t rl)
+static void tand (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                  uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     uint128 r = and_128 (a, b);
     if (r.h != rh || r.l != rl) {
-      fprintf (stderr, "Failure: and_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-               ah, al, bh, bl, r.h, r.l);
-      return 0;
+      fprintf (stderr, "FATAL: and_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               (unsigned long long)ah, (unsigned long long)al,  (unsigned long long)bh,
+               (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tor (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                        uint64_t rh, uint64_t rl)
+static void tor (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                 uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     uint128 r = or_128 (a, b);
     if (r.h != rh || r.l != rl) {
-      fprintf (stderr, "Failure: or_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-               ah, al, bh, bl, r.h, r.l);
-      return 0;
+      fprintf (stderr, "FATAL: or_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               (unsigned long long)ah, (unsigned long long)al, (unsigned long long)bh,
+               (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tcomp (uint64_t ah, uint64_t al,
-                          uint64_t rh, uint64_t rl)
+static void tcomp (uint64_t ah, uint64_t al,
+                   uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 r = complement_128 (a);
     if (r.h != rh || r.l != rl) {
-      fprintf (stderr, "Failure: complement_128 (%016llx%016llx) returned %016llx%016llx\n",
-               ah, al, r.h, r.l);
-      return 0;
+      fprintf (stderr, "FATAL: complement_128 (%016llx%016llx) returned %016llx%016llx\n",
+               (unsigned long long)ah, (unsigned long long)al, (unsigned long long)r.h,
+               (unsigned long long)r.l);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tadd (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                         uint64_t rh, uint64_t rl)
+static void tadd (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                  uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     uint128 r = add_128 (a, b);
     if (r.h != rh || r.l != rl) {
-      fprintf (stderr, "Failure: add_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-               ah, al, bh, bl, r.h, r.l);
-      return 0;
+      fprintf (stderr, "FATAL: add_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               (unsigned long long)ah, (unsigned long long)al,  (unsigned long long)bh,
+               (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tsub (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                         uint64_t rh, uint64_t rl)
+static void tsub (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                  uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     uint128 r = subtract_128 (a, b);
     if (r.h != rh || r.l != rl) {
-      fprintf (stderr, "Failure: subtract_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-               ah, al, bh, bl, r.h, r.l);
-      return 0;
+      fprintf (stderr, "FATAL: subtract_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               (unsigned long long)ah, (unsigned long long)al,  (unsigned long long)bh,
+               (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tneg (uint64_t ah, uint64_t al,
-                         uint64_t rh, uint64_t rl)
+static void tneg (uint64_t ah, uint64_t al,
+                  uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 r = negate_128 (a);
     if (r.h != rh || r.l != rl) {
-      fprintf (stderr, "Failure: negate_128 (%016llx%016llx) returned %016llx%016llx\n",
-               ah, al, r.h, r.l);
-      return 0;
+      fprintf (stderr, "FATAL: negate_128 (%016llx%016llx) returned %016llx%016llx\n",
+               (unsigned long long)ah, (unsigned long long)al, (unsigned long long)r.h,
+               (unsigned long long)r.l);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tgt (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                        bool expect)
+static void tgt (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                 bool expect)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     bool r = isgt_128 (a, b);
     if (r != expect) {
-      fprintf (stderr, "Failure: gt_128 (%016llx%016llx, %016llx%016llx) returned %u\n",
-               ah, al, bh, bl, r);
-      return 0;
+      fprintf (stderr, "FATAL: gt_128 (%016llx%016llx, %016llx%016llx) returned %llu\n",
+               (unsigned long long)ah, (unsigned long long)al, (unsigned long long)bh,
+               (unsigned long long)bl, (unsigned long long)r);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tls (uint64_t ah, uint64_t al, unsigned int n,
-                        uint64_t rh, uint64_t rl)
+static void tls (uint64_t ah, uint64_t al, unsigned int n,
+                 uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 r = lshift_128 (a, n);
     if (r.h != rh || r.l != rl) {
-      fprintf (stderr, "Failure: lshift_128 (%016llx%016llx, %u) returned %016llx%016llx\n",
-               ah, al, n, r.h, r.l);
-      return 0;
+      fprintf (stderr, "FATAL: lshift_128 (%016llx%016llx, %llu) returned %016llx%016llx\n",
+               (unsigned long long)ah,  (unsigned long long)al, (unsigned long long)n,
+               (unsigned long long)r.h, (unsigned long long)r.l);
+      abort();
     }
-    return 1;
   }
 
-static int test128_trs (uint64_t ah, uint64_t al, unsigned int n,
-                        uint64_t rh, uint64_t rl)
+static void trs (uint64_t ah, uint64_t al, unsigned int n,
+                 uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 r = rshift_128 (a, n);
     if (r.h != rh || r.l != rl) {
-      fprintf (stderr, "Failure: rshift_128 (%016llx%016llx, %u) returned %016llx%016llx\n",
-               ah, al, n, r.h, r.l);
-      return 0;
+      fprintf (stderr, "FATAL: rshift_128 (%016llx%016llx, %llu) returned %016llx%016llx\n",
+               (unsigned long long)ah,  (unsigned long long)al, (unsigned long long)n,
+               (unsigned long long)r.h, (unsigned long long)r.l);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tmul (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
-                         uint64_t rh, uint64_t rl)
+static void tmul (uint64_t ah, uint64_t al, uint64_t bh, uint64_t bl,
+                  uint64_t rh, uint64_t rl)
   {
     uint128 a = construct_128 (ah, al);
     uint128 b = construct_128 (bh, bl);
     uint128 r = multiply_128 (a, b);
     if (r.h != rh || r.l != rl) {
-      fprintf (stderr, "Failure: multiply_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-               ah, al, bh, bl, r.h, r.l);
-      return 0;
+      fprintf (stderr, "FATAL: multiply_128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               (unsigned long long)ah, (unsigned long long)al,  (unsigned long long)bh,
+               (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tsmul (int64_t ah, uint64_t al, int64_t bh, uint64_t bl,
-                          int64_t rh, uint64_t rl)
+static void tsmul (int64_t ah, uint64_t al, int64_t bh, uint64_t bl,
+                   int64_t rh, uint64_t rl)
   {
     int128 a = construct_s128 (ah, al);
     int128 b = construct_s128 (bh, bl);
     int128 r = multiply_s128 (a, b);
     if (r.h != rh || r.l != rl) {
-      fprintf (stderr, "Failure: multiply_s128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
-               ah, al, bh, bl, r.h, r.l);
-      return 0;
+      fprintf (stderr, "FATAL: multiply_s128 (%016llx%016llx, %016llx%016llx) returned %016llx%016llx\n",
+               (unsigned long long)ah, (unsigned long long)al,  (unsigned long long)bh,
+               (unsigned long long)bl, (unsigned long long)r.h, (unsigned long long)r.l);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tdiv16 (uint64_t ah, uint64_t al, uint16_t b,
-                           uint64_t resh, uint64_t resl,
-                           uint16_t remainder)
+static void tdiv16 (uint64_t ah, uint64_t al, uint16_t b,
+                    uint64_t resh, uint64_t resl,
+                    uint16_t remainder)
   {
     uint128 a = construct_128 (ah, al);
     uint16_t rem;
     uint128 res = divide_128_16 (a, b, & rem);
     if (res.h != resh || res.l != resl || rem != remainder) {
-      fprintf (stderr, "Failure: divide_128_16 (%016llx%016llx, %04x) returned %016llx%016llx, %04x\n",
-               ah, al, b, res.h, res.l, rem);
-      return 0;
+      fprintf (stderr, "FATAL: divide_128_16 (%016llx%016llx, %04x) returned %016llx%016llx, %04x\n",
+               (unsigned long long)ah,    (unsigned long long)al, b,
+               (unsigned long long)res.h, (unsigned long long)res.l, rem);
+      abort();
     }
-    return 1;
   }
 
-static int test128_tdiv32 (uint64_t ah, uint64_t al, uint32_t b,
-                           uint64_t resh, uint64_t resl,
-                           uint32_t remainder)
+static void tdiv32 (uint64_t ah, uint64_t al, uint32_t b,
+                    uint64_t resh, uint64_t resl,
+                    uint32_t remainder)
   {
     uint128 a = construct_128 (ah, al);
     uint32_t rem;
     uint128 res = divide_128_32 (a, b, & rem);
     if (res.h != resh || res.l != resl || rem != remainder) {
-      fprintf (stderr, "Failure: divide_128_32 (%016llx%016llx, %08x) returned %016llx%016llx, %08x\n",
-               ah, al, b, res.h, res.l, rem);
-      return 0;
+      fprintf (stderr, "FATAL: divide_128_32 (%016llx%016llx, %08x) returned %016llx%016llx, %08x\n",
+               (unsigned long long)ah,    (unsigned long long)al, b,
+               (unsigned long long)res.h, (unsigned long long)res.l, rem);
+      abort();
     }
-    return 1;
   }
 
-/* Fast compile-time sanity check */
-
-#   if ( (!(defined(SIGN64))) || ((!defined(MASK64))) )
-#    error NEED_128 constants undefined
-#   endif /* ( !SIGN64 || !MASK64 ) */
-
-/* Fast run-time sanity check */
-
-#   ifdef MATH128_TEST_VERBOSE
-#    undef MATH128_TEST_VERBOSE
-#    define MATH128_TEST_VERBOSE 1
-#   else
-#    define MATH128_TEST_VERBOSE 0
-#   endif
-#   define MATH_TEST(x)            \
-    if(!x)                         \
-      test_failures++;             \
-    else if(MATH128_TEST_VERBOSE)  \
-      fprintf(stderr, "OK: %s;\n", #x);
-
-int math128_test (void)
+int test_math128 (void)
   {
-    int test_failures = 0;
-
-    MATH_TEST( test128_tisz (0,      0,      true)  );
-    MATH_TEST( test128_tisz (1,      0,      false) );
-    MATH_TEST( test128_tisz (0,      1,      false) );
-    MATH_TEST( test128_tisz (1,      1,      false) );
-    MATH_TEST( test128_tisz (SIGN64, 0,      false) );
-    MATH_TEST( test128_tisz (0,      SIGN64, false) );
-    MATH_TEST( test128_tisz (SIGN64, SIGN64, false) );
-
-    MATH_TEST( test128_tcomp (MASK64, MASK64, 0,      0)        );
-    MATH_TEST( test128_tneg  (MASK64, MASK64, 0,      1)        );
-    MATH_TEST( test128_tcomp (0,      0,      MASK64, MASK64)   );
-    MATH_TEST( test128_tneg  (0,      1,      MASK64, MASK64)   );
-    MATH_TEST( test128_tcomp (0,      1,      MASK64, MASK64-1) );
-    MATH_TEST( test128_tneg  (0,      0,      0,      0)        );
-
-    MATH_TEST( test128_tgt (0,      1,      0,      0,          true)     );
-    MATH_TEST( test128_tgt (MASK64, MASK64, 0,      0,          true)     );
-    MATH_TEST( test128_tgt (0,      0,      0,      0,          false)    );
-    MATH_TEST( test128_tgt (0,      0,      0,      1,          false)    );
-    MATH_TEST( test128_tgt (MASK64, MASK64, MASK64, MASK64,     false)    );
-    MATH_TEST( test128_tgt (0,      0,      MASK64, MASK64,     false)    );
-    MATH_TEST( test128_tls (0,      0,      0,      0,          0)        );
-    MATH_TEST( test128_tls (MASK64, MASK64, 0,      MASK64,     MASK64)   );
-    MATH_TEST( test128_tls (0,      1,      127,    SIGN64,     0)        );
-    MATH_TEST( test128_tls (0,      MASK64, 64,     MASK64,     0)        );
-    MATH_TEST( test128_tls (0,      MASK64, 1,      1,          MASK64-1) );
-    MATH_TEST( test128_tls (0,      1,      64,     1,          0)        );
-    MATH_TEST( test128_tls (0,      1,      63,     0,          SIGN64)   );
-    MATH_TEST( test128_tls (1,      0,      63,     SIGN64,     0)        );
-    MATH_TEST( test128_trs (0,      0,      0,      0,          0)        );
-    MATH_TEST( test128_trs (MASK64, MASK64, 0,      MASK64,     MASK64)   );
-    MATH_TEST( test128_trs (SIGN64, 0,      127,    MASK64,     MASK64)   );
-    MATH_TEST( test128_trs (MASK64, 0,      64,     MASK64,     MASK64)   );
-    MATH_TEST( test128_trs (MASK64, 0,      1,      MASK64,     SIGN64)   );
-    MATH_TEST( test128_trs (1,      0,      64,     0,          1)        );
-    MATH_TEST( test128_trs (1,      0,      1,      0,          SIGN64)   );
-    MATH_TEST( test128_trs (SIGN64, 0,      63,     MASK64,     0)        );
-    MATH_TEST( test128_trs (SIGN64, 0,      64,     MASK64,     SIGN64)   );
-
-    MATH_TEST( test128_tand   (0,      0,      0,      0,          0,       0)        );
-    MATH_TEST( test128_tand   (MASK64, MASK64, 0,      0,          0,       0)        );
-    MATH_TEST( test128_tand   (0,      0,      MASK64, MASK64,     0,       0)        );
-    MATH_TEST( test128_tand   (MASK64, MASK64, MASK64, MASK64,     MASK64,  MASK64)   );
-    MATH_TEST( test128_tor    (0,      0,      0,      0,          0,       0)        );
-    MATH_TEST( test128_tor    (MASK64, MASK64, 0,      0,          MASK64,  MASK64)   );
-    MATH_TEST( test128_tor    (0,      0,      MASK64, MASK64,     MASK64,  MASK64)   );
-    MATH_TEST( test128_tor    (MASK64, MASK64, MASK64, MASK64,     MASK64,  MASK64)   );
-    MATH_TEST( test128_tadd   (0,      0,      0,      0,          0,       0)        );
-    MATH_TEST( test128_tadd   (0,      0,      0,      1,          0,       1)        );
-    MATH_TEST( test128_tadd   (0,      1,      0,      0,          0,       1)        );
-    MATH_TEST( test128_tadd   (0,      1,      0,      1,          0,       2)        );
-    MATH_TEST( test128_tadd   (0,      1,      0,      MASK64,     1,       0)        );
-    MATH_TEST( test128_tadd   (0,      1,      MASK64, MASK64,     0,       0)        );
-    MATH_TEST( test128_tsub   (0,      0,      0,      0,          0,       0)        );
-    MATH_TEST( test128_tsub   (0,      1,      0,      1,          0,       0)        );
-    MATH_TEST( test128_tsub   (MASK64, MASK64, MASK64, MASK64,     0,       0)        );
-    MATH_TEST( test128_tsub   (MASK64, MASK64, 0,      0,          MASK64,  MASK64)   );
-    MATH_TEST( test128_tsub   (0,      0,      0,      1,          MASK64,  MASK64)   );
-    MATH_TEST( test128_tmul   (0,      0,      0,      0,          0,       0)        );
-    MATH_TEST( test128_tmul   (MASK64, MASK64, 0,      0,          0,       0)        );
-    MATH_TEST( test128_tmul   (0,      0,      MASK64, MASK64,     0,       0)        );
-    MATH_TEST( test128_tmul   (0,      1,      0,      1,          0,       1)        );
-    MATH_TEST( test128_tmul   (0,      1,      0,      10,         0,       10)       );
-    MATH_TEST( test128_tmul   (0,      10,     0,      10,         0,       100)      );
-    MATH_TEST( test128_tmul   (0,      100,    0,      10,         0,       1000)     );
-    MATH_TEST( test128_tmul   (0,      MASK64, 0,      2,          1,       MASK64-1) );
-    MATH_TEST( test128_tmul   (MASK64, MASK64, MASK64, MASK64,     0,       1)        );
-    MATH_TEST( test128_tsmul  (0,      1,      MASK64, MASK64,     MASK64,  MASK64)   );
-    MATH_TEST( test128_tsmul  (MASK64, MASK64, MASK64, MASK64,     0,       1)        );
-    MATH_TEST( test128_tdiv16 (0,      1,      1,      0,          1,       0)        );
-    MATH_TEST( test128_tdiv16 (0,      10,     2,      0,          5,       0)        );
-    MATH_TEST( test128_tdiv16 (MASK64, MASK64, 16,     MASK64>>4,  MASK64,  15)       );
-    MATH_TEST( test128_tdiv16 (0,      3,      2,      0,          1,       1)        );
-    MATH_TEST( test128_tdiv32 (1,      0,      1<<16,  0,          1ll<<48, 0)        );
-    MATH_TEST( test128_tdiv32 (MASK64, MASK64, 1<<16,  MASK64>>16, MASK64,  0xffff)   );
-
-    return test_failures;
+    tisz   (0,        0,      true);
+    if ( sizeof(void *) < 8 )
+      tisz   (1,      0,      false);
+    tisz     (0,      1,      false);
+    if ( sizeof(void *) < 8 )
+      tisz   (1,      1,      false);
+    tisz   (SIGN64,   0,      false);
+    if ( sizeof(void *) < 8 )
+      tisz   (0,      SIGN64, false);
+    tisz   (SIGN64,   SIGN64, false);
+    if ( sizeof(void *) < 8 )
+      tand   (0,      0,      0,      0,          0,       0);
+    tand   (MASK64,   MASK64, 0,      0,          0,       0);
+    if ( sizeof(void *) < 8 )
+      tand   (0,      0,      MASK64, MASK64,     0,       0);
+    tand   (MASK64,   MASK64, MASK64, MASK64,     MASK64,  MASK64);
+    if ( sizeof(void *) < 8 )
+      tor    (0,      0,      0,      0,          0,       0);
+    tor    (MASK64,   MASK64, 0,      0,          MASK64,  MASK64);
+    if ( sizeof(void *) < 8 )
+      tor    (0,      0,      MASK64, MASK64,     MASK64,  MASK64);
+    tor    (MASK64,   MASK64, MASK64, MASK64,     MASK64,  MASK64);
+    if ( sizeof(void *) < 8 )
+      tcomp  (MASK64, MASK64, 0,      0);
+    tcomp    (0,      0,      MASK64, MASK64);
+    if ( sizeof(void *) < 8 )
+      tcomp  (0,      1,      MASK64, MASK64 - 1);
+    tadd     (0,      0,      0,      0,          0,       0);
+    if ( sizeof(void *) < 8 )
+      tadd   (0,      0,      0,      1,          0,       1);
+    tadd     (0,      1,      0,      0,          0,       1);
+    if ( sizeof(void *) < 8 )
+      tadd   (0,      1,      0,      1,          0,       2);
+    tadd     (0,      1,      0,      MASK64,     1,       0);
+    if ( sizeof(void *) < 8 )
+      tadd   (0,      1,      MASK64, MASK64,     0,       0);
+    tsub     (0,      0,      0,      0,          0,       0);
+    if ( sizeof(void *) < 8 )
+      tsub   (0,      1,      0,      1,          0,       0);
+    tsub   (MASK64,   MASK64, MASK64, MASK64,     0,       0);
+    if ( sizeof(void *) < 8 )
+      tsub   (MASK64, MASK64, 0,      0,          MASK64,  MASK64);
+    tsub     (0,      0,      0,      1,          MASK64,  MASK64);
+    if ( sizeof(void *) < 8 )
+      tneg   (0,      0,      0,      0);
+    tneg     (0,      1,      MASK64, MASK64);
+    if ( sizeof(void *) < 8 )
+      tneg   (MASK64, MASK64, 0,      1);
+    tgt      (0,      0,      0,      0,          false);
+    if ( sizeof(void *) < 8 )
+      tgt    (0,      0,      0,      1,          false);
+    tgt      (0,      1,      0,      0,          true);
+    if ( sizeof(void *) < 8 )
+      tgt    (MASK64, MASK64, MASK64, MASK64,     false);
+    tgt      (0,      0,      MASK64, MASK64,     false);
+    if ( sizeof(void *) < 8 )
+      tgt    (MASK64, MASK64, 0,      0,          true);
+    tls      (0,      0,      0,      0,          0);
+    if ( sizeof(void *) < 8 )
+      tls    (MASK64, MASK64, 0,      MASK64,     MASK64);
+    tls      (0,      1,      127,    SIGN64,     0);
+    if ( sizeof(void *) < 8 )
+      tls    (0,      MASK64, 64,     MASK64,     0);
+    tls      (0,      MASK64, 1,      1,          MASK64 - 1);
+    if ( sizeof(void *) < 8 )
+      tls    (0,      1,      64,     1,          0);
+    tls      (0,      1,      63,     0,          SIGN64);
+    if ( sizeof(void *) < 8 )
+      tls    (1,      0,      63,     SIGN64,     0);
+    trs      (0,      0,      0,      0,          0);
+    if ( sizeof(void *) < 8 )
+      trs    (MASK64, MASK64, 0,      MASK64,     MASK64);
+    trs      (SIGN64, 0,      127,    MASK64,     MASK64);
+    if ( sizeof(void *) < 8 )
+      trs    (MASK64, 0,      64,     MASK64,     MASK64);
+    trs      (MASK64, 0,      1,      MASK64,     SIGN64);
+    if ( sizeof(void *) < 8 )
+      trs    (1,      0,      64,     0,          1);
+    trs      (1,      0,      1,      0,          SIGN64);
+    if ( sizeof(void *) < 8 )
+      trs    (SIGN64, 0,      63,     MASK64,     0);
+    trs      (SIGN64, 0,      64,     MASK64,     SIGN64);
+    if ( sizeof(void *) < 8 )
+      tmul   (0,      0,      0,      0,          0,       0);
+    tmul     (MASK64, MASK64, 0,      0,          0,       0);
+    if ( sizeof(void *) < 8 )
+      tmul   (0,      0,      MASK64, MASK64,     0,       0);
+    tmul     (0,      1,      0,      1,          0,       1);
+    if ( sizeof(void *) < 8 )
+      tmul   (0,      1,      0,      10,         0,       10);
+    tmul     (0,      10,     0,      10,         0,       100);
+    if ( sizeof(void *) < 8 )
+      tmul   (0,      100,    0,      10,         0,       1000);
+    tmul     (0,      MASK64, 0,      2,          1,       MASK64-1);
+    if ( sizeof(void *) < 8 )
+      tmul   (MASK64, MASK64, MASK64, MASK64,     0,       1);
+    tsmul    (0,      1,      MASK64, MASK64,     MASK64,  MASK64);
+    if ( sizeof(void *) < 8 )
+      tsmul  (MASK64, MASK64, MASK64, MASK64,     0,       1);
+    tdiv16   (0,      1,      1,      0,          1,       0);
+    if ( sizeof(void *) < 8 )
+      tdiv16 (0,      10,     2,      0,          5,       0);
+    tdiv16 (MASK64,   MASK64, 16,     MASK64>>4,  MASK64,  15);
+    if ( sizeof(void *) < 8 )
+      tdiv16 (0,      3,      2,      0,          1,       1);
+    if ( sizeof(void *) < 8 )
+      tdiv32 (1,      0,      1<<16,  0,          1ll<<48, 0);
+    if ( sizeof(void *) < 8 )
+      tdiv32 (MASK64, MASK64, 1<<16,  MASK64>>16, MASK64,  0xffff);
+    return 0;
   }
 #  endif
-
 # else
-
 #  if (__SIZEOF_LONG__ < 8) && ( !defined(__MINGW64__) || !defined(__MINGW32__) )
 
 #   include "dps8_math128.h"
@@ -919,22 +940,21 @@ void __udivmodti3(UTItype div, UTItype dvd,UTItype *result,UTItype *remain)
                 abort();
 #   endif /* ifndef CPPCHECK */
 
-
         while( z1 < *remain )
         {
-                z1 <<= 1 ;
-                z2 <<= 1;
+            z1 <<= 1 ;
+            z2 <<= 1;
         }
 
         do
         {
                 if( *remain >= z1 )
                 {
-                        *remain -= z1;
-                        *result += z2;
+                    *remain -= z1;
+                    *result += z2;
                 }
-                z1 >>= 1;
-                z2 >>= 1;
+            z1 >>= 1;
+            z2 >>= 1;
         } while( z2 );
 
 }
@@ -945,20 +965,20 @@ TItype __divti3(TItype div, TItype dvd)
 
         if (div < (TItype)0)
         {
-                sign = -1;
-                div = -div;
+            sign = -1;
+            div = -div;
         }
 
         if (dvd < (TItype)0)
         {
-                sign = -sign;
-                dvd = -dvd;
+            sign = -sign;
+            dvd = -dvd;
         }
 
         if (sign > 0)
-                return (TItype)__udivti3(div,dvd);
+            return (TItype)__udivti3(div,dvd);
         else
-                return -((TItype)__udivti3(div,dvd));
+            return -((TItype)__udivti3(div,dvd));
 }
 
 TItype __modti3(TItype div, TItype dvd)
@@ -967,20 +987,20 @@ TItype __modti3(TItype div, TItype dvd)
 
         if (div < (TItype)0)
         {
-                sign = -1;
-                div = -div;
+            sign = -1;
+            div = -div;
         }
 
         if (dvd < (TItype)0)
         {
-                sign = -sign;
-                dvd = -dvd;
+            sign = -sign;
+            dvd = -dvd;
         }
 
         if (sign > 0)
-                return (TItype)__umodti3(div,dvd);
+            return (TItype)__umodti3(div,dvd);
         else
-                return ((TItype)0-(TItype)__umodti3(div,dvd));
+            return ((TItype)0-(TItype)__umodti3(div,dvd));
 }
 
 UTItype __umodti3(UTItype div, UTItype dvd)
@@ -999,25 +1019,24 @@ TItype __multi3 (TItype u, TItype v)
 
         if(u<0)
         {
-                sign = -1;
-                u = -u;
+            sign = -1;
+            u = -u;
         }
 
         while (u!=(TItype)0)
         {
-                if( u&(TItype)1 )
-                        result += v;
-                u>>=1;
-                v<<=1;
+            if( u&(TItype)1 )
+                    result += v;
+            u>>=1;
+            v<<=1;
         }
 
         if ( sign < 0 )
-                return -result;
+            return -result;
         else
-                return result;
+            return result;
 
 }
 #  endif
 # endif
-
 #endif

@@ -1,78 +1,78 @@
-/* sim_tape.c: simulator tape support library
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: d4f34561-f62a-11ec-85d5-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 1993-2008 Robert M Supnik
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-   IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
-   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   OTHER DEALINGS IN THE SOFTWARE.
-
-   Except as contained in this notice, the name of Robert M Supnik shall
-   not be used in advertising or otherwise to promote the sale, use or
-   other dealings in this Software without prior written authorization from
-   Robert M Supnik.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * sim_tape.c: simulator tape support library
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: d4f34561-f62a-11ec-85d5-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 1993-2008 Robert M. Supnik
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Robert M. Supnik shall
+ * not be used in advertising or otherwise to promote the sale, use or other
+ * dealings in this Software without prior written authorization from
+ * Robert M. Supnik.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 /*
-   Public routines:
-
-   sim_tape_attach      attach tape unit
-   sim_tape_detach      detach tape unit
-   sim_tape_attach_help help routine for attaching tapes
-   sim_tape_rdrecf      read tape record forward
-   sim_tape_rdrecr      read tape record reverse
-   sim_tape_wrrecf      write tape record forward
-   sim_tape_sprecf      space tape record forward
-   sim_tape_sprecr      space tape record reverse
-   sim_tape_wrtmk       write tape mark
-   sim_tape_wreom       erase remainder of tape
-   sim_tape_wreomrw     erase remainder of tape & rewind
-   sim_tape_wrgap       write erase gap
-   sim_tape_sprecsf     space records forward
-   sim_tape_spfilef     space files forward
-   sim_tape_sprecsr     space records reverse
-   sim_tape_spfiler     space files reverse
-   sim_tape_position    generalized position
-   sim_tape_rewind      rewind
-   sim_tape_reset       reset unit
-   sim_tape_bot         TRUE if at beginning of tape
-   sim_tape_eot         TRUE if at or beyond end of tape
-   sim_tape_wrp         TRUE if write protected
-   sim_tape_set_fmt     set tape format
-   sim_tape_show_fmt    show tape format
-   sim_tape_set_capac   set tape capacity
-   sim_tape_show_capac  show tape capacity
-   sim_tape_set_dens    set tape density
-   sim_tape_show_dens   show tape density
-*/
+ * Public routines:
+ *
+ * sim_tape_attach      attach tape unit
+ * sim_tape_detach      detach tape unit
+ * sim_tape_attach_help help routine for attaching tapes
+ * sim_tape_rdrecf      read tape record forward
+ * sim_tape_rdrecr      read tape record reverse
+ * sim_tape_wrrecf      write tape record forward
+ * sim_tape_sprecf      space tape record forward
+ * sim_tape_sprecr      space tape record reverse
+ * sim_tape_wrtmk       write tape mark
+ * sim_tape_wreom       erase remainder of tape
+ * sim_tape_wreomrw     erase remainder of tape & rewind
+ * sim_tape_wrgap       write erase gap
+ * sim_tape_sprecsf     space records forward
+ * sim_tape_spfilef     space files forward
+ * sim_tape_sprecsr     space records reverse
+ * sim_tape_spfiler     space files reverse
+ * sim_tape_position    generalized position
+ * sim_tape_rewind      rewind
+ * sim_tape_reset       reset unit
+ * sim_tape_bot         TRUE if at beginning of tape
+ * sim_tape_eot         TRUE if at or beyond end of tape
+ * sim_tape_wrp         TRUE if write protected
+ * sim_tape_set_fmt     set tape format
+ * sim_tape_show_fmt    show tape format
+ * sim_tape_set_capac   set tape capacity
+ * sim_tape_show_capac  show tape capacity
+ * sim_tape_set_dens    set tape density
+ * sim_tape_show_dens   show tape density
+ */
 
 #include "sim_defs.h"
 #include "sim_tape.h"
 #include <ctype.h>
-
-#include "../dpsprintf/dpsprintf.h"
 
 struct sim_tape_fmt {
     const char          *name;                          /* name */
@@ -553,7 +553,9 @@ switch (f) {                                            /* the read method depen
     default:
         return MTSE_FMT;
         }
+#ifdef TESTING
 sim_debug (MTSE_DBG_STR, ctx->dptr, "rd_lnt: st: %d, lnt: %d, pos: %" T_ADDR_FMT "u\n", r, *bc, uptr->pos);
+#endif /* TESTING */
 return r;
 }
 
@@ -601,6 +603,7 @@ int32 runaway_counter, sizeof_gap;                      /* bytes remaining befor
 t_stat r = MTSE_OK;
 
 MT_CLR_PNU (uptr);                                      /* clear the position-not-updated flag */
+*bc = 0;
 
 if ((uptr->flags & UNIT_ATT) == 0)                      /* if the unit is not attached */
     return MTSE_UNATT;                                  /*   then quit with an error */
@@ -900,7 +903,7 @@ switch (f) {                                            /* case on format */
 
     case MTUF_F_STD:                                    /* standard */
         sbc = MTR_L ((bc + 1) & ~1);                    /* pad odd length */
-    /* fallthrough */
+    /*FALLTHRU*/ /* fallthrough */
     case MTUF_F_E11:                                    /* E11 */
         (void)sim_fwrite (&bc, sizeof (t_mtrlnt), 1, uptr->fileref);
         (void)sim_fwrite (buf, sizeof (uint8), sbc, uptr->fileref);
@@ -1313,6 +1316,7 @@ t_stat sim_tape_sprecf (UNIT *uptr, t_mtrlnt *bc)
 struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
 t_stat st;
 
+*bc = 0;
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */
 sim_debug (ctx->dbit, ctx->dptr, "sim_tape_sprecf(unit=%d)\n", (int)(uptr-ctx->dptr->units));
@@ -1493,8 +1497,7 @@ t_stat sim_tape_spfilebyrecf (UNIT *uptr, uint32 count, uint32 *skipped, uint32 
 struct tape_context *ctx = (struct tape_context *)uptr->tape_ctx;
 t_stat st;
 t_bool last_tapemark = FALSE;
-uint32 filerecsskipped;
-
+uint32 filerecsskipped = 0;
 *skipped = *recsskipped = 0;
 if (ctx == NULL)                                        /* if not properly attached? */
     return sim_messagef (SCPE_IERR, "Bad Attach\n");    /*   that's a problem */

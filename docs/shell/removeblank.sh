@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
+# shellcheck disable=SC2015
 # vim: filetype=sh:tabstop=4:tw=78:expandtab
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
 # SPDX-License-Identifier: FSFAP
 # scspell-id: 46316a14-f632-11ec-8919-80ee73e9b8e7
 
@@ -13,6 +15,20 @@
 # without any warranty.
 #
 ##############################################################################
+
+##############################################################################
+# Locking
+
+# Exit immediately on lock failure
+test "$(uname -s 2> /dev/null)" = "Linux" && {                               \
+FLOCK_COMMAND="$( command -v flock 2> /dev/null )" && {                      \
+[ "${FLOCKER:-}" != "${0}" ] && exec env                                     \
+FLOCKER="${0}" "${FLOCK_COMMAND:?}" -en "${0}" "${0}" "${@}" || : ; } ; } ;
+
+##############################################################################
+
+unset FLOCKER       > "/dev/null" 2>&1 || true
+unset FLOCK_COMMAND > "/dev/null" 2>&1 || true
 
 ##############################################################################
 # Initialization

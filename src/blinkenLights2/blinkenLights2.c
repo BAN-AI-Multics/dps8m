@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=132:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 4d1552ca-f62b-11ec-9d14-80ee73e9b8e7
  *
@@ -27,12 +28,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <string.h>
+#include <locale.h>
 #include <gtk/gtk.h>
 
 #define API
 #include "dps8_state.h"
-
-#include "../dpsprintf/dpsprintf.h"
 
 static struct system_state_s * system_state;
 
@@ -399,6 +399,8 @@ static void * openShm (char * key) {
 }
 
 int main (int argc, char * argv []) {
+  setlocale(LC_NUMERIC, "");
+
   struct sigaction quit_action;
   quit_action.sa_handler = SIG_IGN;
   quit_action.sa_flags = SA_RESTART;

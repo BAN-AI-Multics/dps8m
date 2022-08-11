@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 2fdee814-f62f-11ec-8f3d-80ee73e9b8e7
  *
@@ -208,8 +209,6 @@
 #include "fnpuv.h"
 #include "fnptelnet.h"
 
-#include "../dpsprintf/dpsprintf.h"
-
 //#define TEST
 
 #define USE_REQ_DATA
@@ -229,11 +228,13 @@ static int tun_alloc (char * dev)
 
     memset (& ifr, 0,  sizeof (ifr));
 
-    /* Flags: IFF_TUN   - TUN device (no Ethernet headers)
+    /*
+     *  Flags: IFF_TUN   - TUN device (no Ethernet headers)
      *        IFF_TAP   - TAP device
      *
      *        IFF_NO_PI - Do not provide packet information
      */
+
     ifr.ifr_flags = IFF_TUN;
     if (* dev)
       strncpy (ifr.ifr_name, dev, IFNAMSIZ);
@@ -254,8 +255,11 @@ static int tun_alloc (char * dev)
 
 static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size,
                           uv_buf_t * buf)
-  {
+ {
+/* Suppress Clang Analyzer's possible memory leak warning */
+#if !defined ( __clang_analyzer__ )
     * buf = uv_buf_init ((char *) malloc (suggested_size), (uint) suggested_size);
+#endif /* if !defined ( __clang_analyzer__ ) */
   }
 
 void fnpuv_associated_brk (uv_tcp_t * client)
@@ -349,9 +353,9 @@ void close_connection (uv_stream_t* stream)
                 if (linep->inBuffer)
                   free (linep->inBuffer);
                 linep->inBuffer = NULL;
-                linep->inSize = 0;
-                linep->inUsed = 0;
-                linep->nPos = 0;
+                linep->inSize   = 0;
+                linep->inUsed   = 0;
+                linep->nPos     = 0;
               }
             if (linep->line_client)
               {
@@ -552,15 +556,16 @@ sim_printf ("\r\n");
       return;
 
     // Allocate write request
-
+/* Suppress Clang Analyzer's possible memory leak warning */
+#if !defined ( __clang_analyzer__ )
     uv_write_t * req = (uv_write_t *) malloc (sizeof (uv_write_t));
     // This makes sure that bufs*.base and bufsml*.base are NULL
     memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen), (uint) datalen);
 //sim_printf ("allocated req %p data %p\n", req, buf.base);
-#ifdef USE_REQ_DATA
+# ifdef USE_REQ_DATA
     req->data = buf.base;
-#endif
+# endif
 //sim_printf ("fnpuv_start_write_actual req %p buf.base %p\n", req, buf.base);
     memcpy (buf.base, data, (unsigned long) datalen);
     int ret = uv_write (req, (uv_stream_t *) stn_client, & buf, 1, fuv_write_3270_cb);
@@ -570,20 +575,23 @@ sim_printf ("\r\n");
 // If the socket has been closed, write will return BADF; just ignore it.
     if (ret < 0 && ret != -EBADF)
       sim_printf ("[FNP emulation: uv_write returned %d]\n", ret);
+#endif /* if !defined ( __clang_analyzer__ ) */
   }
 
 void fnpuv_start_write_actual (uv_tcp_t * client, unsigned char * data, ssize_t datalen)
   {
     if (! client || uv_is_closing ((uv_handle_t *) client))
       return;
+/* Suppress Clang Analyzer's possible memory leak warning */
+#if !defined ( __clang_analyzer__ )
     uv_write_t * req = (uv_write_t *) malloc (sizeof (uv_write_t));
     // This makes sure that bufs*.base and bufsml*.base are NULL
     memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen), (uint) datalen);
 //sim_printf ("allocated req %p data %p\n", req, buf.base);
-#ifdef USE_REQ_DATA
+# ifdef USE_REQ_DATA
     req->data = buf.base;
-#endif
+# endif
 //sim_printf ("fnpuv_start_write_actual req %p buf.base %p\n", req, buf.base);
     memcpy (buf.base, data, (unsigned long) datalen);
     int ret = uv_write (req, (uv_stream_t *) client, & buf, 1, fuv_write_cb);
@@ -593,6 +601,7 @@ void fnpuv_start_write_actual (uv_tcp_t * client, unsigned char * data, ssize_t 
 // If the socket has been closed, write will return BADF; just ignore it.
     if (ret < 0 && ret != -EBADF)
       sim_printf ("[FNP emulation: uv_write returned %d]\n", ret);
+#endif /* if !defined ( __clang_analyzer__ ) */
   }
 
 //
@@ -806,17 +815,17 @@ sim_printf ("[FNP emulation: dropping 2nd slave]\n");
          sim_warn ("uvClientData malloc failed\n");
          return;
       }
-    client->data = p;
-    p->assoc = false;
-    p->nPos = 0;
-    p->ttype = NULL;
+    client->data       = p;
+    p->assoc           = false;
+    p->nPos            = 0;
+    p->ttype           = NULL;
     p->write_actual_cb = fnpuv_start_write_actual;
     // dialup connections are routed through libtelent
     if (! server->data)
       {
-        p->read_cb = fnpuv_unassociated_readcb;
+        p->read_cb  = fnpuv_unassociated_readcb;
         p->write_cb = fnpuv_start_write;
-        p->telnetp = ltnConnect (client);
+        p->telnetp  = ltnConnect (client);
 
         if (! p->telnetp)
           {
@@ -826,13 +835,13 @@ sim_printf ("[FNP emulation: dropping 2nd slave]\n");
       }
     else
       {
-        p->read_cb = fnpuv_associated_readcb;
-        p->write_cb = fnpuv_start_write_actual;
-        p->telnetp = NULL;
+        p->read_cb       = fnpuv_associated_readcb;
+        p->write_cb      = fnpuv_start_write_actual;
+        p->telnetp       = NULL;
         uvClientData * q = (uvClientData *) server->data;
-        p->fnpno = q->fnpno;
-        p->lineno = q->lineno;
-        p->assoc = true;
+        p->fnpno         = q->fnpno;
+        p->lineno        = q->lineno;
+        p->assoc         = true;
       }
     fnpuv_read_start (client);
     if (! server->data)
@@ -938,8 +947,8 @@ static void on_dialout_connect (uv_connect_t * server, int status)
     if (linep->lineType == 0) /* LINE_NONE */
       linep->lineType = 1; /* LINE_ASCII */
     linep->accept_new_terminal = true;
-    linep->was_CR = false;
-    linep->line_client->data = p;
+    linep->was_CR              = false;
+    linep->line_client->data   = p;
     if (p->telnetp)
       {
         ltnDialout (p->telnetp);
@@ -954,33 +963,34 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
   {
     if (! fnpData.loop)
       return;
-    sim_printf ("[FNP emulation: received dial_out %c.h%03d %012"PRIo64" %012"PRIo64" %012"PRIo64"]\n", fnpno+'a', lineno, d1, d2, d3);
+    sim_printf ("[FNP emulation: received dial_out %c.h%03d %012llu %012llu %012llu]\n", fnpno+'a', lineno,
+            (unsigned long long)d1, (unsigned long long)d2, (unsigned long long)d3);
     struct t_line * linep = & fnpData.fnpUnitData[fnpno].MState.line[lineno];
-    uint d01 = (d1 >> 30) & 017;
-    uint d02 = (d1 >> 24) & 017;
-    uint d03 = (d1 >> 18) & 017;
-    uint d04 = (d1 >> 12) & 017;
-    uint d05 = (d1 >>  6) & 017;
-    uint d06 = (d1 >>  0) & 017;
-    uint d07 = (d2 >> 30) & 017;
-    uint d08 = (d2 >> 24) & 017;
-    uint d09 = (d2 >> 18) & 017;
-    uint d10 = (d2 >> 12) & 017;
-    uint d11 = (d2 >>  6) & 017;
-    uint d12 = (d2 >>  0) & 017;
+    uint d01   = (d1 >> 30) & 017;
+    uint d02   = (d1 >> 24) & 017;
+    uint d03   = (d1 >> 18) & 017;
+    uint d04   = (d1 >> 12) & 017;
+    uint d05   = (d1 >>  6) & 017;
+    uint d06   = (d1 >>  0) & 017;
+    uint d07   = (d2 >> 30) & 017;
+    uint d08   = (d2 >> 24) & 017;
+    uint d09   = (d2 >> 18) & 017;
+    uint d10   = (d2 >> 12) & 017;
+    uint d11   = (d2 >>  6) & 017;
+    uint d12   = (d2 >>  0) & 017;
     uint flags = (d3 >> 30) & 017;
-    uint p1 = (d3 >> 24) & 017;
-    uint p2 = (d3 >> 18) & 017;
-    uint p3 = (d3 >> 12) & 017;
-    uint p4 = (d3 >>  6) & 017;
-    uint p5 = (d3 >>  0) & 017;
+    uint p1    = (d3 >> 24) & 017;
+    uint p2    = (d3 >> 18) & 017;
+    uint p3    = (d3 >> 12) & 017;
+    uint p4    = (d3 >>  6) & 017;
+    uint p5    = (d3 >>  0) & 017;
 
-    uint oct1 = d01 * 100 + d02 * 10 + d03;
-    uint oct2 = d04 * 100 + d05 * 10 + d06;
-    uint oct3 = d07 * 100 + d08 * 10 + d09;
-    uint oct4 = d10 * 100 + d11 * 10 + d12;
+    uint oct1  = d01 * 100 + d02 * 10 + d03;
+    uint oct2  = d04 * 100 + d05 * 10 + d06;
+    uint oct3  = d07 * 100 + d08 * 10 + d09;
+    uint oct4  = d10 * 100 + d11 * 10 + d12;
 
-    uint port = ((((p1 * 10) + p2) * 10 + p3) * 10 + p4) * 10 + p5;
+    uint port  = ((((p1 * 10) + p2) * 10 + p3) * 10 + p4) * 10 + p5;
 
 // Flags
 //   1    Use Telnet
@@ -1061,19 +1071,19 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
          sim_warn ("uvClientData malloc failed\n");
          return;
       }
-    p->assoc = true;
-    p->read_cb = fnpuv_associated_readcb;
-    p->nPos = 0;
-    p->ttype = NULL;
-    p->fnpno = fnpno;
-    p->lineno = lineno;
+    p->assoc                 = true;
+    p->read_cb               = fnpuv_associated_readcb;
+    p->nPos                  = 0;
+    p->ttype                 = NULL;
+    p->fnpno                 = fnpno;
+    p->lineno                = lineno;
     linep->line_client->data = p;
 
     if (flags & 1)
       {
-        p->write_cb = fnpuv_start_write;
+        p->write_cb        = fnpuv_start_write;
         p->write_actual_cb = fnpuv_start_write_actual;
-        p->telnetp = ltnConnect (linep->line_client);
+        p->telnetp         = ltnConnect (linep->line_client);
         if (! p->telnetp)
           {
               sim_warn ("ltnConnect failed\n");
@@ -1081,9 +1091,9 @@ void fnpuv_dial_out (uint fnpno, uint lineno, word36 d1, word36 d2, word36 d3)
       }
     else
       {
-        p->write_cb = fnpuv_start_write_actual;
+        p->write_cb        = fnpuv_start_write_actual;
         p->write_actual_cb = fnpuv_start_write_actual;
-        p->telnetp = NULL; // Mark this line as 'not a telnet connection'
+        p->telnetp         = NULL; // Mark this line as 'not a telnet connection'
       }
 
     uv_tcp_connect (& linep->doConnect, linep->line_client, (const struct sockaddr *) & dest, on_dialout_connect);
@@ -1135,14 +1145,14 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
          sim_warn ("uvClientData malloc failed\n");
          return;
       }
-    p->assoc = false;
-    p->read_cb = fnpuv_associated_readcb;
-    p->write_cb = fnpuv_start_write_actual;
+    p->assoc           = false;
+    p->read_cb         = fnpuv_associated_readcb;
+    p->write_cb        = fnpuv_start_write_actual;
     p->write_actual_cb = fnpuv_start_write_actual;
-    p->nPos = 0;
-    p->ttype = NULL;
-    p->fnpno = fnpno;
-    p->lineno = lineno;
+    p->nPos            = 0;
+    p->ttype           = NULL;
+    p->fnpno           = fnpno;
+    p->lineno          = lineno;
     linep->server.data = p;
     linep->line_client = NULL;
 
@@ -1170,11 +1180,11 @@ void fnpuv_open_slave (uint fnpno, uint lineno)
          sim_warn ("uvClientData malloc failed\n");
          return;
       }
-    p->assoc = false;
-    p->ttype = NULL;
+    p->assoc   = false;
+    p->ttype   = NULL;
     p->telnetp = NULL;
-    p->fnpno = fnpno;
-    p->lineno = lineno;
+    p->fnpno   = fnpno;
+    p->lineno  = lineno;
 
     linep->line_client->data = p;
 
@@ -1195,8 +1205,8 @@ sim_printf ("listening on port %d\n", linep->port);
 static void processPacketInput (int fnpno, int lineno, unsigned char * buf, ssize_t nread)
   {
     //uvClientData * p = (uvClientData *) client->data;
-    //uint fnpno = p -> fnpno;
-    //uint lineno = p -> lineno;
+    //uint fnpno       = p -> fnpno;
+    //uint lineno      = p -> lineno;
     if (fnpno >= N_FNP_UNITS_MAX || lineno >= MAX_LINES)
       {
         sim_printf ("[FNP emulation: processPacketInput bogus client data]\n");
@@ -1217,7 +1227,7 @@ static void processPacketInput (int fnpno, int lineno, unsigned char * buf, ssiz
             goto done;
           }
         memcpy (new + linep->inSize, buf, (unsigned long) nread);
-        linep->inSize += nread;
+        linep->inSize  += nread;
         linep->inBuffer = new;
       }
     else
@@ -1271,36 +1281,35 @@ static void fnoTUNProcessLine (int fnpno, int lineno, struct t_line * linep)
     /* Do whatever with the data */
     sim_printf("Read %ld bytes\n", (long) nread);
     sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\n",
-      buffer [0], buffer [1], buffer [2], buffer [3],
-      buffer [4], buffer [5], buffer [6], buffer [7]);
+      buffer [0],  buffer [1],  buffer [2],  buffer [3],
+      buffer [4],  buffer [5],  buffer [6],  buffer [7]);
     sim_printf ("%02x %02x %02x %02x %02x %02x %02x %02x\n",
-      buffer [8], buffer [9], buffer [10], buffer [11],
+      buffer [8],  buffer [9],  buffer [10], buffer [11],
       buffer [12], buffer [13], buffer [14], buffer [15]);
-    uint version =                            (buffer [ip + 0] >> 4) & 0xf;
-    uint ihl =                                (buffer [ip + 0]) & 0xf;
-    uint payload_offset = ip + ihl * 4;
-    uint tos =                                 buffer [ip + 1];
-    uint tl = ((uint)                 (buffer [ip + 2]) << 8) +
-                                                       buffer [ip + 3];
-    uint id = ((uint)                 (buffer [ip + 4]) << 8) +
-                                                       buffer [ip + 5];
-
-    uint df =                                 (buffer [ip + 6] & 0x40) ? 1 : 0;
-    uint mf =                                 (buffer [ip + 6] & 0x20) ? 1 : 0;
-    uint fragment_offset = ((uint)    (buffer [ip + 6] & 0x1f) << 8) +
-                                                       buffer [ip + 7];
-    uint ttl =                                 buffer [ip + 8];
-    uint protocol =                            buffer [ip + 9];
-    uint header_checksum =    (((uint) buffer [ip + 10]) << 8) +
-                                                       buffer [ip + 11];
-    uint source_address =     (((uint) buffer [ip + 12]) << 24) +
-                                      (((uint) buffer [ip + 13]) << 16) +
-                                      (((uint) buffer [ip + 14]) << 8) +
-                                                       buffer [ip + 15];
-    uint dest_address =       (((uint) buffer [ip + 16]) << 24) +
-                                      (((uint) buffer [ip + 17]) << 16) +
-                                      (((uint) buffer [ip + 18]) << 8) +
-                                                       buffer [ip + 19];
+    uint version         =         (buffer [ip +  0] >> 4) & 0xf;
+    uint ihl             =         (buffer [ip +  0]) & 0xf;
+    uint payload_offset  =                  ip + ihl * 4;
+    uint tos             =          buffer [ip +  1];
+    uint tl              = ((uint) (buffer [ip +  2]) << 8) +
+                                    buffer [ip +  3];
+    uint id              = ((uint) (buffer [ip +  4]) << 8) +
+                                    buffer [ip +  5];
+    uint df              =         (buffer [ip +  6] & 0x40) ? 1 : 0;
+    uint mf              =         (buffer [ip +  6] & 0x20) ? 1 : 0;
+    uint fragment_offset = ((uint) (buffer [ip +  6] & 0x1f) << 8) +
+                                    buffer [ip +  7];
+    uint ttl             =          buffer [ip +  8];
+    uint protocol        =          buffer [ip +  9];
+    uint header_checksum = (((uint) buffer [ip + 10]) << 8) +
+                                    buffer [ip + 11];
+    uint source_address  = (((uint) buffer [ip + 12]) << 24) +
+                           (((uint) buffer [ip + 13]) << 16) +
+                           (((uint) buffer [ip + 14]) << 8) +
+                                    buffer [ip + 15];
+    uint dest_address    = (((uint) buffer [ip + 16]) << 24) +
+                           (((uint) buffer [ip + 17]) << 16) +
+                           (((uint) buffer [ip + 18]) << 8) +
+                                    buffer [ip + 19];
     if (protocol == 1)
       {
         uint type = buffer [payload_offset + 0];
@@ -1386,7 +1395,7 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
         return;
       }
 
-    uint fnpno = fnpData.ibm3270ctlr[ASSUME0].fnpno;
+    uint fnpno  = fnpData.ibm3270ctlr[ASSUME0].fnpno;
     uint lineno = fnpData.ibm3270ctlr[ASSUME0].lineno;
     // Set the line client to NULL; the actual clients are in 'stations'
     fnpData.fnpUnitData[fnpno].MState.line[lineno].line_client = NULL;
@@ -1415,17 +1424,17 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
          sim_warn ("uvClientData malloc failed\n");
          return;
       }
-    client->data = p;
-    p->assoc = false;
-    p->fnpno = fnpno;
-    p->lineno = lineno;
-    p->nPos = 0;
-    p->ttype = NULL;
-    p->read_cb = fnpuv_3270_readcb;
-    p->write_cb = fnpuv_start_3270_write;
+    client->data       = p;
+    p->assoc           = false;
+    p->fnpno           = fnpno;
+    p->lineno          = lineno;
+    p->nPos            = 0;
+    p->ttype           = NULL;
+    p->read_cb         = fnpuv_3270_readcb;
+    p->write_cb        = fnpuv_start_3270_write;
     p->write_actual_cb = fnpuv_start_write_3270_actual;
-    p->stationNo = stn_no;
-    p->telnetp = ltnConnect3270 (client);
+    p->stationNo       = stn_no;
+    p->telnetp         = ltnConnect3270 (client);
 
     if (! p->telnetp)
       {
@@ -1434,42 +1443,42 @@ static void on_new_3270_connection (uv_stream_t * server, int status)
       }
     fnpuv_read_start (client);
     fnp3270ConnectPrompt (client);
-        //uvClientData * p = (uvClientData *) server->data;
-        //struct t_line * linep = & fnpData.fnpUnitData[p->fnpno].MState.line[p->lineno];
-        //linep->accept_new_terminal = true;
-        //linep->was_CR = false;
-        ////linep->listen = false;
-        //linep->inputBufferSize = 0;
-        //linep->ctrlStrIdx = 0;
-        //linep->breakAll = false;
-        //linep->handleQuit = false;
-        //linep->echoPlex = false;
-        //linep->crecho = false;
-        //linep->lfecho = false;
-        //linep->tabecho = false;
-        //linep->replay = false;
-        //linep->polite = false;
-        //linep->prefixnl = false;
-        //linep->eight_bit_out = false;
-        //linep->eight_bit_in = false;
-        //linep->odd_parity = false;
-        //linep->output_flow_control = false;
-        //linep->input_flow_control = false;
-        //linep->block_xfer_in_frame_sz = 0;
-        //linep->block_xfer_out_frame_sz = 0;
-        //memset (linep->delay_table, 0, sizeof (linep->delay_table));
-        //linep->inputSuspendLen = 0;
-        //memset (linep->inputSuspendStr, 0, sizeof (linep->inputSuspendStr));
-        //linep->inputResumeLen = 0;
-        //memset (linep->inputResumeStr, 0, sizeof (linep->inputResumeStr));
-        //linep->outputSuspendLen = 0;
-        //memset (linep->outputSuspendStr, 0, sizeof (linep->outputSuspendStr));
-        //linep->outputResumeLen = 0;
-        //memset (linep->outputResumeStr, 0, sizeof (linep->outputResumeStr));
-        //linep->frame_begin = 0;
-        //linep->frame_end = 0;
-        //memset (linep->echnego, 0, sizeof (linep->echnego));
-        //linep->line_break = false;
+       // uvClientData * p               = (uvClientData *) server->data;
+       // struct t_line * linep          = & fnpData.fnpUnitData[p->fnpno].MState.line[p->lineno];
+       // linep->accept_new_terminal     = true;
+       // linep->was_CR                  = false;
+       // //linep->listen                = false;
+       // linep->inputBufferSize         = 0;
+       // linep->ctrlStrIdx              = 0;
+       // linep->breakAll                = false;
+       // linep->handleQuit              = false;
+       // linep->echoPlex                = false;
+       // linep->crecho                  = false;
+       // linep->lfecho                  = false;
+       // linep->tabecho                 = false;
+       // linep->replay                  = false;
+       // linep->polite                  = false;
+       // linep->prefixnl                = false;
+       // linep->eight_bit_out           = false;
+       // linep->eight_bit_in            = false;
+       // linep->odd_parity              = false;
+       // linep->output_flow_control     = false;
+       // linep->input_flow_control      = false;
+       // linep->block_xfer_in_frame_sz  = 0;
+       // linep->block_xfer_out_frame_sz = 0;
+       // memset (linep->delay_table, 0, sizeof (linep->delay_table));
+       // linep->inputSuspendLen         = 0;
+       // memset (linep->inputSuspendStr, 0, sizeof (linep->inputSuspendStr));
+       // linep->inputResumeLen          = 0;
+       // memset (linep->inputResumeStr, 0, sizeof (linep->inputResumeStr));
+       // linep->outputSuspendLen        = 0;
+       // memset (linep->outputSuspendStr, 0, sizeof (linep->outputSuspendStr));
+       // linep->outputResumeLen         = 0;
+       // memset (linep->outputResumeStr, 0, sizeof (linep->outputResumeStr));
+       // linep->frame_begin             = 0;
+       // linep->frame_end               = 0;
+       // memset (linep->echnego, 0, sizeof (linep->echnego));
+       // linep->line_break              = false;
   }
 
 int fnpuv3270Init (int telnet3270_port)

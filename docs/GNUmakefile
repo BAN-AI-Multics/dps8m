@@ -1,9 +1,10 @@
 # DPS8M documentation: docs/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+# vim: filetype=make:tabstop=4:tw=78:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: 09779b94-f632-11ec-8a12-80ee73e9b8e7
 
-##############################################################################
+###############################################################################
 #
 # Copyright (c) 2022 The DPS8M Development Team
 #
@@ -13,56 +14,115 @@
 # License, version 1.8.1 or later.  For more details, see the
 # LICENSE.md file at the top-level directory of this distribution.
 #
-##############################################################################
+###############################################################################
 
 .DEFAULT_GOAL := all
 
-##############################################################################
+###############################################################################
 
-.PHONY: docs all
-.NOTPARALLEL: docs all
-docs all:
-	@./builddoc.sh
+.PHONY: docs all help
+.NOTPARALLEL: docs all help
+docs all help:
+	@printf '%s\n' ""
+	@printf '%s\n' "  ###############################################"
+	@printf '%s\n' "  #  DPS8M Omnibus Documentation Build Targets  #"
+	@printf '%s\n' "  ###############################################"
+	@printf '%s\n' ""
+	@$(MAKE) -C ".." "help"  |                                                \
+      grep 'Makefile.doc)$$' |                                                \
+        sed 's/(src\/Makefile.doc)//'
+	@printf '%s\n' ""
 
-##############################################################################
+###############################################################################
 
-.PHONY: clean distclean superclean
-ifneq (,$(findstring clean,$(MAKECMDGOALS)))
-.NOTPARALLEL: clean distclean superclean
-endif
-clean distclean superclean:
-	@rm -f  ./temp1.tmp           > /dev/null  2>&1 || true
-	@rm -f  ./temp2.tmp           > /dev/null  2>&1 || true
-	@rm -f  ./*.state             > /dev/null  2>&1 || true
-	@rm -f  ./.*.state            > /dev/null  2>&1 || true
-	@rm -f  ./yaml/docinfo.yml    > /dev/null  2>&1 || true
-	@rm -f  ./*.pdf               > /dev/null  2>&1 || true
-	@rm -f  ./*.tmp               > /dev/null  2>&1 || true
-	@rm -f  ./complete.out        > /dev/null  2>&1 || true
-	@rm -f  ./commandref.md       > /dev/null  2>&1 || true
+.PHONY: docspdf
+.NOTPARALLEL: docspdf
+docspdf:
+	@$(MAKE) --no-print-directory -C ".." "docspdf"
+	-@pdfinfo "dps8-omnibus.pdf" 2> "/dev/null" |                             \
+      awk '/^Pages:/ { printf("# %s pages written.\n", $$2); }'               \
+        2> "/dev/null" | grep '[0-9]' 2> "/dev/null" || true
 
-##############################################################################
+###############################################################################
+
+.PHONY: docsprt
+.NOTPARALLEL: docsprt
+docsprt:
+	@env ONESIDE=1 $(MAKE) --no-print-directory -C ".." "docsprt"
+	-@pdfinfo "dps8-omnibus.pdf" 2> "/dev/null" |                             \
+      awk '/^Pages:/ { printf("# %s pages written.\n", $$2); }'               \
+        2> "/dev/null" | grep '[0-9]' 2> "/dev/null" || true
+
+###############################################################################
+
+.PHONY: dokdocspdf
+.NOTPARALLEL: dokdocspdf
+dokdocspdf:
+	@$(MAKE) --no-print-directory -C ".." "dokdocspdf"
+	-@pdfinfo "dps8-omnibus.pdf" 2> "/dev/null" |                             \
+      awk '/^Pages:/ { printf("# %s pages written.\n", $$2); }'               \
+        2> "/dev/null" | grep '[0-9]' 2> "/dev/null" || true
+
+###############################################################################
+
+.PHONY: dokdocsprt
+.NOTPARALLEL: dokdocsprt
+dokdocsprt:
+	@env ONESIDE=1 $(MAKE) --no-print-directory -C ".." "dokdocsprt"
+	-@pdfinfo "dps8-omnibus.pdf" 2> "/dev/null" |                             \
+      awk '/^Pages:/ { printf("# %s pages written.\n", $$2); }'               \
+        2> "/dev/null" | grep '[0-9]' 2> "/dev/null" || true
+
+###############################################################################
+
+.PHONY: distclean superclean
+.NOTPARALLEL: distclean superclean
+distclean superclean: clean
+	@rm -f ./cmdref.sav                > /dev/null  2>&1 || true
+	@rm -f ./input.sav                 > /dev/null  2>&1 || true
+
+###############################################################################
+
+.PHONY: clean
+.NOTPARALLEL: clean
+clean:
+	@rm -f  ./temp1.tmp                > /dev/null  2>&1 || true
+	@rm -f  ./temp2.tmp                > /dev/null  2>&1 || true
+	@rm -f  ./*.state                  > /dev/null  2>&1 || true
+	@rm -f  ./.*.state                 > /dev/null  2>&1 || true
+	@rm -f  ./yaml/docinfo-post.yml    > /dev/null  2>&1 || true
+	@rm -f  ./*.pdf                    > /dev/null  2>&1 || true
+	@rm -f  ./*.tmp                    > /dev/null  2>&1 || true
+	@rm -f  ./stage*.zip               > /dev/null  2>&1 || true
+	@rm -f  ./complete.out             > /dev/null  2>&1 || true
+	@rm -f  ./md/commandref.md         > /dev/null  2>&1 || true
+	@rm -f  ./md/commandref.out        > /dev/null  2>&1 || true
+	@rm -rf ./temp.out                 > /dev/null  2>&1 || true
+	@rm -rf ./s1epub3.tmp              > /dev/null  2>&1 || true
+	@rm -rf ./s1temp.tmp               > /dev/null  2>&1 || true
+
+###############################################################################
 
 .PHONY: dep depend
-ifneq (,$(findstring dep,$(MAKECMDGOALS)))
 .NOTPARALLEL: dep depend
-endif
 dep depend:
 	@true
 
-##############################################################################
+###############################################################################
 
 .PHONY: strip
+.NOTPARALLEL: strip
 strip:
 	@true
 
-##############################################################################
+###############################################################################
 
 .PHONY: cleandep depclean cleandepend dependclean
+.NOTPARALLEL: cleandep depclean cleandepend dependclean
 cleandep depclean cleandepend dependclean:
 	@true
 
-##############################################################################
+###############################################################################
 
 # Local Variables:
 # mode: make

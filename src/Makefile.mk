@@ -1,5 +1,6 @@
 # DPS8M simulator: src/Makefile.mk
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: 1cea05fd-f62b-11ec-b08e-80ee73e9b8e7
 
@@ -24,7 +25,8 @@
 # Default configuration
 
 COMMAND    ?= command
-TRUE       ?= true
+TRUE       := true
+FALSE      := false
 SET        ?= set
 ifdef V
     V = 1
@@ -74,8 +76,8 @@ GPG        ?= gpg --batch --status-fd --with-colons
 REUSETOOL  ?= reuse
 WC         ?= wc
 SED        ?= $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" sed
-AWK        ?= $(shell $(COMMAND) -v gawk 2> /dev/null || \
-                $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)" \
+AWK        ?= $(shell $(COMMAND) -v gawk 2> /dev/null ||                      \
+                $(ENV) PATH="$$($(COMMAND) -p $(ENV) $(GETCONF) PATH)"        \
                   sh -c "$(COMMAND) -v awk" || $(PRINTF) %s\\n awk)
 CMP        ?= cmp
 CKSUM      ?= cksum
@@ -192,7 +194,7 @@ endif
 export msys_version
 
 ###############################################################################
-# Try to be smart about finding an appropriate compiler - but not too smart ...
+# Try to be somewhat smart about finding an appropriate cross-compiler
 
 ifeq ($(CROSS),MINGW32)
   ifeq ($(CYGWIN_MINGW_CROSS),1)
@@ -237,8 +239,8 @@ endif
 
 ifndef SUNPRO
   ifdef DUMA
-    CFLAGS += $(shell $(CC) -E -ftrivial-auto-var-init=pattern -  \
-                < /dev/null > /dev/null 2>&1 && printf '%s\n'     \
+    CFLAGS += $(shell $(CC) -E -ftrivial-auto-var-init=pattern -              \
+                < /dev/null > /dev/null 2>&1 && printf '%s\n'                 \
                   "-ftrivial-auto-var-init=pattern")
   endif
 endif
@@ -456,10 +458,29 @@ ifndef REBUILDVNE
 FORCE:
 rebuild.env rebuild.vne .rebuild.env .rebuild.vne: FORCE
 	-@$(PRINTF) '%s\n' "BUILD: Checksum build environment" || $(TRUE)
-	@$(SETV); ( $(SET) 2> /dev/null ; $(ENV) 2> /dev/null ) | $(GREP) -ivE '(stat|line|time|date|random|seconds|pid|user|\?|hist|old|tty|prev|^_|man|pwd|cwd|columns|gid|uid|grp|tmout|user|^ps.|anyerror|argv|^command|^killring|^shlvl|^mailcheck|^jobmax|^hist|^term|^opterr|^groups|^bash_arg|^dirstack|^psvar|idle)' 2> /dev/null | $(CKSUM) > ".rebuild.vne" 2> /dev/null || $(TRUE)
-	@$(SETV); $(TEST) -f ".rebuild.env" || ( $(SET) 2> /dev/null ; $(ENV) 2> /dev/null ) | $(GREP) -ivE '(stat|line|time|date|random|seconds|pid|user|\?|hist|old|tty|prev|^_|man|pwd|cwd|columns|gid|uid|grp|tmout|user|^ps.|anyerror|argv|^command|^killring|^shlvl|^mailcheck|^jobmax|^hist|^term|^opterr|^groups|^bash_arg|^dirstack|^psvar|idle)' 2> /dev/null | $(CKSUM) > ".rebuild.env" 2> /dev/null || $(TRUE)
-	@$(SETV); $(PRINTF) '%s\n' "$$($(CAT) .rebuild.env)" "$$($(CAT) .rebuild.vne)" > /dev/null 2>&1
-	@$(SETV); $(RMF) ".needrebuild"; $(CMP) ".rebuild.env" ".rebuild.vne" > /dev/null 2>&1 || { $(TOUCH) ".rebuild.vne";  $(PRINTF) '%s' "BUILD: Checksum updated: $$($(HEAD) -n 1 ".rebuild.env" | $(TR) -cd "0-9")"; $(CP) ".rebuild.vne" ".rebuild.env" > /dev/null; $(TOUCH) ".needrebuild" > /dev/null; $(PRINTF) '%s\n' " -> $$($(HEAD) -n 1 ".rebuild.env" | $(TR) -cd "0-9")"; }
+	@$(SETV); ( $(SET) 2> /dev/null ; $(ENV) 2> /dev/null ) |                 \
+      $(GREP) -ivE '(stat|line|time|date|random|seconds|pid|user|\?|hist)' |  \
+      $(GREP) -ivE '(old|tty|prev|^_|man|pwd|cwd|columns|gid|uid|grp)' |      \
+      $(GREP) -ivE '(tmout|user|^ps.|anyerror|argv|^command|^killring)' |     \
+      $(GREP) -ivE '(^shlvl|^mailcheck|^jobmax|^hist|^term|^opterr)' |        \
+      $(GREP) -ivE '(^groups|^bash_arg|^dirstack|^psvar|idle)' 2> /dev/null | \
+        $(CKSUM) > ".rebuild.vne" 2> /dev/null || $(TRUE)
+	@$(SETV); $(TEST) -f ".rebuild.env" || ( $(SET) 2> /dev/null ;            \
+      $(ENV) 2> /dev/null ) | $(GREP) -ivE '(stat|line|time|date|random)' |   \
+      $(GREP) -ivE '(seconds|pid|user|\?|hist|old|tty|prev|^_|man|pwd|cwd)' | \
+      $(GREP) -ivE '(columns|gid|uid|grp|tmout|user|^ps.|anyerror|argv)' |    \
+      $(GREP) -ivE '(^command|^killring|^shlvl|^mailcheck|^jobmax|^hist)' |   \
+      $(GREP) -ivE '(^term|^opterr|^groups|^bash_arg|^dirstack|^psvar|idle)'  \
+        2> /dev/null | $(CKSUM) > ".rebuild.env" 2> /dev/null || $(TRUE)
+	@$(SETV); $(PRINTF) '%s\n' "$$($(CAT) .rebuild.env)"                      \
+        "$$($(CAT) .rebuild.vne)" > /dev/null 2>&1
+	@$(SETV); $(RMF) ".needrebuild"; $(CMP) ".rebuild.env" ".rebuild.vne"     \
+        > /dev/null 2>&1 || { $(TOUCH) ".rebuild.vne";  $(PRINTF) '%s'        \
+          "BUILD: Checksum updated: $$($(HEAD) -n 1 ".rebuild.env" |          \
+     $(TR) -cd "0-9")"; $(CP) ".rebuild.vne" ".rebuild.env" > /dev/null;      \
+     $(TOUCH) ".needrebuild" > /dev/null;                                     \
+     $(PRINTF) '%s\n' " -> $$($(HEAD) -n 1 ".rebuild.env" |                   \
+       $(TR) -cd "0-9")"; }
 	@$(SETV); $(RMF) ".rebuild.vne"
 REBUILDVNE=1
 export REBUILDVNE

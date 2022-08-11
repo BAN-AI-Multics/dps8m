@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 410f7ba2-f62d-11ec-b7d6-80ee73e9b8e7
  *
@@ -36,8 +37,6 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -223,17 +222,17 @@ static void do_ITP (void)
 #ifdef TESTING
     HDBGRegPRR (n, "ITP");
 #endif
-    cpu.TPR.TSR = cpu.PR[n].SNR;
-    cpu.TPR.TRR = max3 (cpu.PR[n].RNR, cpu.RSDWH_R1, cpu.TPR.TRR);
-    cpu.TPR.TBR = GET_ITP_BITNO (cpu.itxPair);
-    cpu.TPR.CA = cpu.PAR[n].WORDNO + GET_ITP_WORDNO (cpu.itxPair);
-    cpu.TPR.CA &= AMASK;
-    cpu.rY = cpu.TPR.CA;
+    cpu.TPR.TSR  = cpu.PR[n].SNR;
+    cpu.TPR.TRR  = max3 (cpu.PR[n].RNR, cpu.RSDWH_R1, cpu.TPR.TRR);
+    cpu.TPR.TBR  = GET_ITP_BITNO (cpu.itxPair);
+    cpu.TPR.CA   = cpu.PAR[n].WORDNO + GET_ITP_WORDNO (cpu.itxPair);
+    cpu.TPR.CA  &= AMASK;
+    cpu.rY       = cpu.TPR.CA;
 
     cpu.rTAG = GET_ITP_MOD (cpu.itxPair);
 
-    cpu.cu.itp = 1;
-    cpu.cu.TSN_PRNO[0] = n;
+    cpu.cu.itp          = 1;
+    cpu.cu.TSN_PRNO[0]  = n;
     cpu.cu.TSN_VALID[0] = 1;
 
     return;
@@ -266,10 +265,10 @@ static void do_ITS (void)
                GET_ITS_RN (cpu.itxPair), cpu.RSDWH_R1, cpu.TPR.TRR,
                max3 (GET_ITS_RN (cpu.itxPair), cpu.RSDWH_R1, cpu.TPR.TRR));
 
-    cpu.TPR.TRR = max3 (GET_ITS_RN (cpu.itxPair), cpu.RSDWH_R1, cpu.TPR.TRR);
-    cpu.TPR.TBR = GET_ITS_BITNO (cpu.itxPair);
-    cpu.TPR.CA = GET_ITS_WORDNO (cpu.itxPair);
-    cpu.TPR.CA &= AMASK;
+    cpu.TPR.TRR  = max3 (GET_ITS_RN (cpu.itxPair), cpu.RSDWH_R1, cpu.TPR.TRR);
+    cpu.TPR.TBR  = GET_ITS_BITNO (cpu.itxPair);
+    cpu.TPR.CA   = GET_ITS_WORDNO (cpu.itxPair);
+    cpu.TPR.CA  &= AMASK;
 
     cpu.rY = cpu.TPR.CA;
 
@@ -333,8 +332,8 @@ void updateIWB (word18 addr, word6 tag)
                extMods [GET_TAG (* wb)].mod);
 
     putbits36_18 (wb,  0, addr);
-    putbits36_6 (wb, 30, tag);
-    putbits36_1 (wb, 29,  0);
+    putbits36_6  (wb, 30, tag);
+    putbits36_1  (wb, 29, 0);
 
     sim_debug (DBG_ADDRMOD, & cpu_dev,
                "updateIWB: IWB now %012"PRIo64" %06o %s\n",
@@ -418,7 +417,7 @@ startCA:;
         sim_debug (DBG_ADDRMOD, & cpu_dev,
                    "%s(startCA): restart; CT_HOLD %02o\n",
                    __func__, cpu.cu.CT_HOLD);
-// Part of ISOLTS tst885 ir
+       // Part of ISOLTS tst885 ir
        if (cpu.tweaks.isolts_mode &&
            GET_TM(cpu.cu.CT_HOLD) == TM_IT && GET_TD (cpu.cu.CT_HOLD) == IT_DIC &&
                 cpu.cu.pot == 1 && GET_ADDR (IWB_IRODD) == cpu.TPR.CA)
@@ -558,8 +557,7 @@ startCA:;
           }
 
         // - Multics link snap code (adjust_mc) sets rTAG to TM_RI
-        // - After directed faults RI modifier after IR modifier end
-        //     up here
+        // - After directed faults RI modifier after IR modifier end up here
         // - In both cases continue with indirect chain
         if (GET_TM(cpu.cu.CT_HOLD) == TM_IR)
           {
@@ -701,6 +699,7 @@ startCA:;
                           cpu.TPR.CA = saveCA;
                           doFault (FAULT_F2, fst_zero, "TM_IT: IT_F2 (1)");
 
+                        /*FALLTHRU*/
                         case IT_F3:
                           cpu.TPR.CA = saveCA;
                           doFault (FAULT_F3, fst_zero, "TM_IT: IT_F3");
@@ -724,6 +723,7 @@ startCA:;
 #endif
               } // TM_IT
 
+            /*FALLTHRU*/ /* fall through */ /* fallthrough */
             case TM_R:
               {
                 word6 Td_hold = GET_TD (cpu.cu.CT_HOLD);
@@ -774,15 +774,15 @@ startCA:;
     IT_MOD:;
       {
         //    IT_SD     = 004,
-        //    IT_SCR        = 005,
+        //    IT_SCR    = 005,
         //    IT_CI     = 010,
         //    IT_I      = 011,
         //    IT_SC     = 012,
         //    IT_AD     = 013,
         //    IT_DI     = 014,
-        //    IT_DIC        = 015,
+        //    IT_DIC    = 015,
         //    IT_ID     = 016,
-        //    IT_IDC        = 017
+        //    IT_IDC    = 017
         word6 idwtag, delta;
         word24 Yi = (word24) -1;
 
@@ -790,11 +790,13 @@ startCA:;
           {
             // XXX this is probably wrong. ITS/ITP are not standard addr mods
             case SPEC_ITP:
+            /*FALLTHRU*/
             case SPEC_ITS:
               {
                 doFault(FAULT_IPR, fst_ill_mod, "ITx in IT_MOD)");
               }
 
+            /*FALLTHRU*/
             case 2:
               {
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -805,23 +807,29 @@ startCA:;
                          "fault");
               }
 
+            /*FALLTHRU*/
             case IT_F1:
               {
                 doFault(FAULT_F1, fst_zero, "IT_MOD: IT_F1");
               }
 
+            /*FALLTHRU*/
             case IT_F2:
               {
                 doFault(FAULT_F2, fst_zero, "IT_MOD: IT_F2 (2)");
               }
 
+            /*FALLTHRU*/
             case IT_F3:
               {
                 doFault(FAULT_F3, fst_zero, "IT_MOD: IT_F3");
               }
 
+            /*FALLTHRU*/
             case IT_CI:  // Character indirect (Td = 10)
+            /*FALLTHRU*/
             case IT_SC:  // Sequence character (Td = 12)
+            /*FALLTHRU*/
             case IT_SCR: // Sequence character reverse (Td = 5)
               {
                 // There is complexity with managing page faults and tracking
@@ -852,9 +860,9 @@ startCA:;
                 // Parse and validate the indirect word
                 //
 
-                Yi = GET_ADDR (indword);
-                word6 sz = GET_TB (GET_TAG (indword));
-                word3 os = GET_CF (GET_TAG (indword));
+                Yi           = GET_ADDR (indword);
+                word6 sz     = GET_TB (GET_TAG (indword));
+                word3 os     = GET_CF (GET_TAG (indword));
                 word12 tally = GET_TALLY (indword);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
@@ -873,9 +881,9 @@ startCA:;
 
                 // Save data in OU registers for readOperands/writeOperands
 
-                cpu.TPR.CA = Yi;
-                cpu.ou.character_address = Yi;
-                cpu.ou.characterOperandSize = sz;
+                cpu.TPR.CA                    = Yi;
+                cpu.ou.character_address      = Yi;
+                cpu.ou.characterOperandSize   = sz;
                 cpu.ou.characterOperandOffset = os;
 
                 // CI uses the address, and SC uses the pre-increment address;
@@ -921,9 +929,9 @@ startCA:;
 
                     // Update saved values
 
-                    cpu.TPR.CA = Yi;
-                    cpu.ou.character_address = Yi;
-                    cpu.ou.characterOperandSize = sz;
+                    cpu.TPR.CA                    = Yi;
+                    cpu.ou.character_address      = Yi;
+                    cpu.ou.characterOperandSize   = sz;
                     cpu.ou.characterOperandOffset = os;
                   }
 
@@ -944,7 +952,8 @@ startCA:;
 
 #ifdef LOCKLESSXXX
                 // gives warnings as another lock is acquired in between
-                Read (cpu.TPR.CA, & cpu.ou.character_data, (i->info->flags & RMW) == STORE_OPERAND ? OPERAND_RMW : OPERAND_READ);
+                Read (cpu.TPR.CA, & cpu.ou.character_data, (i->info->flags & RMW) == \
+                        STORE_OPERAND ? OPERAND_RMW : OPERAND_READ);
 #else
                 Read (cpu.TPR.CA, & cpu.ou.character_data, OPERAND_READ);
 #endif
@@ -1002,7 +1011,7 @@ startCA:;
                     if (indword_new != indword)
                       sim_warn("indword changed from %llo to %llo\n", indword, indword_new);
 #endif
-                    putbits36_18 (& indword, 0, Yi);
+                    putbits36_18 (& indword,  0, Yi);
                     putbits36_12 (& indword, 18, tally);
                     putbits36_3  (& indword, 33, os);
 #ifdef LOCKLESS
@@ -1067,9 +1076,9 @@ startCA:;
                 word36 indword;
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
-                cpu.AM_tally = GET_TALLY (indword); // 12-bits
-                delta = GET_DELTA (indword); // 6-bits
-                Yi = GETHI (indword);        // from where data live
+                cpu.AM_tally  = GET_TALLY (indword); // 12-bits
+                delta         = GET_DELTA (indword); // 6-bits
+                Yi            = GETHI (indword);        // from where data live
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_AD): indword=%012"PRIo64"\n",
@@ -1205,9 +1214,9 @@ startCA:;
                 word36 indword;
                 Read (cpu.TPR.CA, & indword, APU_DATA_RMW);
 
-                Yi = GETHI (indword);
+                Yi           = GETHI (indword);
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
-                word6 junk = GET_TAG (indword); // get tag field, but ignore it
+                word6 junk   = GET_TAG (indword);   // get tag field, but ignore it
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_DI): indword=%012"PRIo64"\n",
@@ -1470,9 +1479,9 @@ startCA:;
 
                 cpu.cu.pot = 0;
 
-                Yi = GETHI (indword);
+                Yi           = GETHI (indword);
                 cpu.AM_tally = GET_TALLY (indword); // 12-bits
-                idwtag = GET_TAG (indword);
+                idwtag       = GET_TAG (indword);
 
                 sim_debug (DBG_ADDRMOD, & cpu_dev,
                            "IT_MOD(IT_IDC): indword=%012"PRIo64" Yi=%06o "

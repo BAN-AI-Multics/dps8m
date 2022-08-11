@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 0d484872-f630-11ec-b82e-80ee73e9b8e7
  *
@@ -26,9 +27,6 @@
 #include <stdlib.h>
 
 #include "dps8.h"
-
-#include "../dpsprintf/dpsprintf.h"
-
 #include "tracker.h"
 
 int brkbrk (int32_t arg, const char *  buf);

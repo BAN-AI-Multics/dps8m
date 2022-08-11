@@ -1,59 +1,61 @@
-/* udplib.c: IMP/TIP Modem and Host Interface socket routines using UDP
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: 18c1dbd2-f630-11ec-8f2f-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 2013 Robert Armstrong <bob@jfcl.com>
-   Copyright (c) 2015-2016 Charles Anthony
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-   IN NO EVENT SHALL ROBERT ARMSTRONG BE LIABLE FOR ANY CLAIM, DAMAGES OR
-   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   OTHER DEALINGS IN THE SOFTWARE.
-
-   Except as contained in this notice, the name of Robert Armstrong shall
-   not be used in advertising or otherwise to promote the sale, use or
-   other dealings in this Software without prior written authorization from
-   Robert Armstrong.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * udplib.c: IMP/TIP Modem and Host Interface socket routines using UDP
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: 18c1dbd2-f630-11ec-8f2f-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 2013 Robert Armstrong <bob@jfcl.com>
+ * Copyright (c) 2015-2016 Charles Anthony
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL ROBERT ARMSTRONG BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Robert Armstrong shall
+ * not be used in advertising or otherwise to promote the sale, use or
+ * other dealings in this Software without prior written authorization from
+ * Robert Armstrong.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 /*
-  INTERFACE
-
-   This module provides a simplified UDP socket interface.  These functions are
-   implemented -
-
-        udp_create      define a connection to the remote IMP
-        udp_release     release a connection
-        udp_send        send an IMP message to the other end
-        udp_receive     receive (w/o blocking!) a message if available
-
-   Note that each connection is assigned a unique "handle", a small integer,
-   which is used as an index into our internal connection data table.  There
-   is a limit on the maximum number of connections available, as set my the
-   MAXLINKS parameter.  Also, notice that all links are intrinsically full
-   duplex and bidirectional - data can be sent and received in both directions
-   independently.  Real modems and host cards were exactly the same.
-*/
+ * INTERFACE
+ *
+ * This module provides a simplified UDP socket interface.  These functions are
+ * implemented -
+ *
+ *      udp_create      define a connection to the remote IMP
+ *      udp_release     release a connection
+ *      udp_send        send an IMP message to the other end
+ *      udp_receive     receive (w/o blocking!) a message if available
+ *
+ * Note that each connection is assigned a unique "handle", a small integer,
+ * which is used as an index into our internal connection data table.  There
+ * is a limit on the maximum number of connections available, as set my the
+ * MAXLINKS parameter.  Also, notice that all links are intrinsically full
+ * duplex and bidirectional - data can be sent and received in both directions
+ * independently.  Real modems and host cards were exactly the same.
+ */
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -67,9 +69,8 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <errno.h>
+#include <locale.h>
 #include <netinet/in.h>
-
-#include "../dpsprintf/dpsprintf.h"
 
 #include "udplib.h"
 #include "h316_imp.h"
@@ -90,13 +91,13 @@
 //   One of these blocks is allocated for every simulated modem link.
 struct _UDP_LINK
   {
-    bool  used;                 // TRUE if this UDP_LINK is in use
-    char    rhost [64];
-    char    rport [64];        // Remote host:port
-    char    lport [64];            // Local port
+    bool      used;                 // TRUE if this UDP_LINK is in use
+    char      rhost [64];
+    char      rport [64];           // Remote host:port
+    char      lport [64];           // Local port
     int32_t   lportno;
     int32_t   rportno;
-    int sock;
+    int       sock;
     uint32_t  rxsequence;           // next message sequence number for receive
     uint32_t  txsequence;           // next message sequence number for transmit
   };
@@ -126,7 +127,9 @@ typedef struct _UDP_PACKET UDP_PACKET;
 
 static UDP_LINK udp_links [MAXLINKS];
 
-int sim_parse_addr (const char * cptr, char * host, size_t hostlen, const char * default_host, char * port, size_t port_len, const char * default_port, const char * validate_addr);
+int sim_parse_addr (const char * cptr, char * host, size_t hostlen, const char * default_host,
+                    char * port, size_t port_len, const char * default_port,
+                    const char * validate_addr);
 
 static int udp_parse_remote (int link, char * premote)
   {
@@ -177,7 +180,8 @@ static int udp_parse_remote (int link, char * premote)
         premote = end + 1;
       }
 
-    if (sim_parse_addr (premote, host, sizeof (host), "localhost", port, sizeof (port), NULL, NULL) != -1 /* SCPE_OK */)
+    if (sim_parse_addr (premote, host, sizeof (host), "localhost", port,
+                        sizeof (port), NULL, NULL) != -1 /* SCPE_OK */)
       return -1;
     sprintf (udp_links [link] . rhost, "%s", host);
     sprintf (udp_links [link] . rport, "%s", port);
@@ -342,10 +346,10 @@ int udp_send (int link, uint16_t * pdata, uint16_t count, uint16_t flags)
 
     //   Build the UDP packet, filling in our own header information and copying
     // the H316 words from memory.  REMEMBER THAT EVERYTHING IS IN NETWORK ORDER!
-    pkt . magic = htonl (MAGIC);
+    pkt . magic    = htonl (MAGIC);
     pkt . sequence = htonl (udp_links [link] . txsequence ++);
-    pkt . count = htons (count);
-    pkt . flags = htons (flags);
+    pkt . count    = htons (count);
+    pkt . flags    = htons (flags);
     for (i = 0; i < count; i ++)
       pkt . data [i] = htons (* pdata ++);
     pktlen = UDP_HEADER_LEN + count * sizeof (uint16_t);
@@ -642,6 +646,8 @@ return SCPE_OK;
 
 int main (int argc, char * argv [])
   {
+    setlocale(LC_NUMERIC, "");
+
     int rc;
     int linkno;
     rc = udp_create ("4500::4426", & linkno);

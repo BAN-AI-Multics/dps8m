@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 7f512181-f62e-11ec-ad25-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -16,6 +18,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -42,8 +54,6 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
-
-#include "../dpsprintf/dpsprintf.h"
 
 #include "ver.h"
 
@@ -309,7 +319,7 @@ static void scu2words (word36 *words)
     // words[0]
 
     putbits36_3 (& words[0],  0,  cpu.PPR.PRR);
-    putbits36_15 (& words[0],  3, cpu.PPR.PSR);
+    putbits36_15 (& words[0], 3,  cpu.PPR.PSR);
     putbits36_1 (& words[0], 18,  cpu.PPR.P);
     putbits36_1 (& words[0], 19,  cpu.cu.XSF);
     // 20, 1 SDWAMM Match on SDWAM
@@ -365,8 +375,8 @@ static void scu2words (word36 *words)
 
     // words[2]
 
-    putbits36_3 (& words[2],  0,  cpu.TPR.TRR);
-    putbits36_15 (& words[2],  3, cpu.TPR.TSR);
+    putbits36_3 (& words[2],  0, cpu.TPR.TRR);
+    putbits36_15 (& words[2], 3, cpu.TPR.TSR);
     // 18, 4 PTWAM levels enabled
     // 22, 4 SDWAM levels enabled
     // 26, 1 0
@@ -531,7 +541,7 @@ void cu_safe_store (void)
 
     cpu.cu_data.PSR = cpu.PPR.PSR;
     cpu.cu_data.PRR = cpu.PPR.PRR;
-    cpu.cu_data.IC =  cpu.PPR.IC;
+    cpu.cu_data.IC  = cpu.PPR.IC;
 
     tidy_cu ();
 
@@ -543,16 +553,16 @@ void tidy_cu (void)
 // once the CU is saved, it needs to be set to a usable state. Refactoring
 // that code here so that there is only a single copy to maintain.
 
-    cpu.cu.delta = 0;
+    cpu.cu.delta        = 0;
     cpu.cu.repeat_first = false;
-    cpu.cu.rpt = false;
-    cpu.cu.rd = false;
-    cpu.cu.rl = false;
-    cpu.cu.pot = false;
-    cpu.cu.itp = false;
-    cpu.cu.its = false;
-    cpu.cu.xde = false;
-    cpu.cu.xdo = false;
+    cpu.cu.rpt          = false;
+    cpu.cu.rd           = false;
+    cpu.cu.rl           = false;
+    cpu.cu.pot          = false;
+    cpu.cu.itp          = false;
+    cpu.cu.its          = false;
+    cpu.cu.xde          = false;
+    cpu.cu.xdo          = false;
   }
 
 static void words2scu (word36 * words)
@@ -828,24 +838,24 @@ static char *PRalias[] = {"ap", "ab", "bp", "bb", "lp", "lb", "sp", "sb" };
 
  bool _allowed[] = {
  // Tm = 0 (register) R
- // --  au     qu     du     ic     al     ql     dl
+ // --   au     qu     du     ic     al     ql     dl
  true,  false, false, false, false, false, false, false,
- // 0   1      2      3      4      5      6      7
+ // 0     1      2      3      4      5      6      7
  false, false, false, false, false, false, false, false,
  // Tm = 1 (register then indirect) RI
- // n*  au*    qu*    --     ic*    al*    al*    --
+ // n*   au*    qu*    --     ic*    al*    al*    --
  false, false, false, true,  false, false, false, true,
- // 0*  1*     2*     3*     4*     5*     6*     7*
+ // 0*   1*     2*     3*     4*     5*     6*     7*
  false, false, false, false, false, false, false, false,
  // Tm = 2 (indirect then tally) IT
- // f1  itp    --     its    sd     scr    f2     f3
+ // f1   itp    --     its    sd     scr    f2     f3
  false, false, true, false, false, false, false, false,
- // ci  i      sc     ad     di     dic    id     idc
+ // ci   i      sc     ad     di     dic    id     idc
  false, false, false, false, false, false, false, false,
  // Tm = 3 (indirect then register) IR
- // *n  *au    *qu    --     *ic    *al    *al    --
+ // *n   *au    *qu    --     *ic    *al    *al    --
  false, false, false, true,  false, false, false, true,
- // *0  *1     *2     *3     *4     *5     *6     *7
+ // *0   *1     *2     *3     *4     *5     *6     *7
  false, false, false, false, false, false, false, false,
  };
 
@@ -855,24 +865,24 @@ static char *PRalias[] = {"ap", "ab", "bp", "bb", "lp", "lb", "sp", "sb" };
 static bool _nodudl[] = {
     // Tm = 0 (register) R
     // --   au     qu     du     ic     al     ql     dl
-    false, false, false, true,  false, false, false, true,
+    false,  false, false, true,  false, false, false, true,
     // 0      1      2      3      4      5      6      7
      false, false, false, false, false, false, false, false,
     // Tm = 1 (register then indirect) RI
-    // n*  au*    qu*    --     ic*    al*    al*    --
-    false, false, false, true, false, false, false, true,
+    // n*    au*    qu*    --     ic*    al*    al*    --
+    false,  false, false, true,  false, false, false, true,
     // 0*     1*     2*     3*     4*     5*     6*     7*
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 2 (indirect then tally) IT
-    // f1  itp    --     its    sd     scr    f2     f3
-    false, false, true,  false, false, false, false, false,
+    // f1    itp    --     its    sd     scr    f2     f3
+    false,  false, true,  false, false, false, false, false,
     // ci     i      sc     ad     di     dic   id     idc
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 3 (indirect then register) IR
-    // *n   *au    *qu    --     *ic   *al    *al    --
-    false, false, false, true, false, false, false, true,
+    // *n     *au    *qu    --     *ic   *al    *al    --
+    false,  false, false, true,  false, false, false, true,
     // *0     *1     *2     *3     *4     *5     *6     *7
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
 };
 
 // No DU
@@ -881,120 +891,120 @@ static bool _nodudl[] = {
 // (NO_CI | NO_SC | NO_SCR)
 static bool _nocss[] = {
     // Tm = 0 (register) R
-    // *    au     qu     du     ic     al     ql     dl
-    false, false, false, false, false, false, false, false,
+    // *      au     qu     du     ic     al     ql     dl
+    false,  false, false, false, false, false, false, false,
     // 0      1      2      3      4      5      6      7
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 1 (register then indirect) RI
-    // n*  au*    qu*    --     ic*    al*    al*    --
-    false, false, false, true, false, false, false, true,
+    // n*    au*    qu*    --     ic*    al*    al*    --
+    false,  false, false, true,  false, false, false, true,
     // 0*     1*     2*     3*     4*     5*     6*     7*
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 2 (indirect then tally) IT
-    // f1  itp     --     its    sd     scr    f2     f3
-    false, false, true,  false, false, true, false, false,
+    // f1    itp     --     its    sd     scr    f2     f3
+    false,  false, true,  false, false, true,  false, false,
     // ci     i     sc     ad     di    dic    id     idc
-    true, false, true, false, false, false, false, false,
+    true,   false, true,  false, false, false, false, false,
     // Tm = 3 (indirect then register) IR
-    // *n   *au    *qu    --     *ic   *al    *al    --
-    false, false, false, true, false, false, false, true,
+    // *n    *au    *qu    --     *ic   *al    *al     --
+    false,  false, false, true,  false, false, false, true,
     // *0     *1     *2     *3     *4     *5     *6     *7
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
 };
 
 // (NO_DUDL | NO_CISCSCR)
 static bool _noddcss[] = {
     // Tm = 0 (register) R
-    // *    au     qu     du     ic     al     ql    dl
-    false, false, false, true, false, false, false, true,
+    // *      au     qu     du     ic     al     ql    dl
+    false,  false, false, true,  false, false, false, true,
     // 0      1      2      3      4      5      6      7
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 1 (register then indirect) RI
-    // n*  au*    qu*    --     ic*    al*    al*    --
-    false, false, false, true, false, false, false, true,
+    // n*    au*    qu*    --     ic*    al*    al*    --
+    false,  false, false, true,  false, false, false, true,
     // 0*     1*     2*     3*     4*     5*     6*     7*
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 2 (indirect then tally) IT
-    // f1  itp     --     its    sd     scr    f2     f3
-    false, false, true,  false, false, true, false, false,
+    // f1    itp     --     its    sd     scr    f2     f3
+    false,  false, true,  false, false, true,  false, false,
     // ci     i     sc     ad     di    dic    id     idc
-    true, false, true, false, false, false, false, false,
+    true,   false, true,  false, false, false, false, false,
     // Tm = 3 (indirect then register) IR
-    // *n   *au    *qu    --     *ic   *al    *al    --
-    false, false, false, true, false, false, false, true,
+    // *n    *au    *qu    --     *ic   *al    *al     --
+    false,  false, false, true,  false, false, false, true,
     // *0     *1     *2     *3     *4     *5     *6     *7
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
 };
 
 // (NO_DUDL | NO_CISCSCR)
 static bool _nodlcss[] = {
     // Tm = 0 (register) R
-    // *    au     qu     du      ic     al     ql    dl
-    false, false, false, false, false, false, false, true,
+    // *     au     qu     du      ic     al     ql    dl
+    false,  false, false, false, false, false, false, true,
     // 0      1      2      3      4      5      6      7
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 1 (register then indirect) RI
-    // n*  au*    qu*    --     ic*    al*    al*    --
-    false, false, false, true, false, false, false, true,
+    // n*    au*    qu*    --     ic*    al*    al*    --
+    false,  false, false, true,  false, false, false, true,
     // 0*     1*     2*     3*     4*     5*     6*     7*
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 2 (indirect then tally) IT
-    // f1  itp     --     its    sd     scr    f2     f3
-    false, false, true,  false, false, true, false, false,
+    // f1    itp     --     its    sd     scr    f2     f3
+    false,  false, true,  false, false, true,  false, false,
     // ci     i     sc     ad     di    dic    id     idc
-    true, false, true, false, false, false, false, false,
+    true,   false, true,  false, false, false, false, false,
     // Tm = 3 (indirect then register) IR
-    // *n   *au    *qu    --     *ic   *al    *al    --
-    false, false, false, true, false, false, false, true,
+    // *n    *au    *qu    --     *ic   *al    *al     --
+    false,  false, false, true,  false, false, false, true,
     // *0     *1     *2     *3     *4     *5     *6     *7
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
 };
 
 static bool _onlyaqxn[] = {
     // Tm = 0 (register) R
-    // --   au     qu     du     ic     al     ql     dl
-    false, false, false, true,  true, false, false, true,
+    // --    au     qu     du     ic     al     ql     dl
+    false,  false, false, true,  true,  false, false, true,
     // 0      1      2      3      4      5      6      7
      false, false, false, false, false, false, false, false,
     // Tm = 1 (register then indirect) RI
-    // n*  au*    qu*    --     ic*    al*    al*    --
-    false, false, false, true, false, false, false, true,
+    // n*    au*    qu*    --     ic*    al*    al*    --
+    false,  false, false, true,  false, false, false, true,
     // 0*     1*     2*     3*     4*     5*     6*     7*
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 2 (indirect then tally) IT
-    // f1  itp    --     its    sd     scr    f2     f3
-    false, false, true,  false, false, false, false, false,
+    // f1    itp    --     its    sd     scr    f2     f3
+    false,  false, true,  false, false, false, false, false,
     // ci     i      sc     ad     di     dic   id     idc
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 3 (indirect then register) IR
-    // *n   *au    *qu    --     *ic   *al    *al    --
-    false, false, false, true, false, false, false, true,
+    // *n    *au    *qu    --     *ic   *al    *al     --
+    false,  false, false, true,  false, false, false, true,
     // *0     *1     *2     *3     *4     *5     *6     *7
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
 };
 
 #ifndef QUIET_UNUSED
 static bool _illmod[] = {
     // Tm = 0 (register) R
-    // *    au     qu     du     ic     al     ql     dl
-    false, false, false, false, false, false, false, false,
+    // *     au     qu     du     ic     al     ql     dl
+    false,  false, false, false, false, false, false, false,
     // 0      1      2      3      4      5      6      7
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 1 (register then indirect) RI
-    // n*  au*    qu*    --     ic*    al*    al*    --
-    false, false, false, true, false, false, false, true,
+    // n*    au*    qu*    --     ic*    al*    al*    --
+    false,  false, false, true,  false, false, false, true,
     // 0*     1*     2*     3*     4*     5*     6*     7*
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 2 (indirect then tally) IT
-    // f1  itp    --     its    sd     scr    f2     f3
-    false, false, true,  false, false, false, false, false,
+    // f1    itp    --     its    sd     scr    f2     f3
+    false,  false, true,  false, false, false, false, false,
     // ci      i      sc     ad     di     dic   id     idc
-    false, false, false, false, false, false, false, false,
+    false,  false, false, false, false, false, false, false,
     // Tm = 3 (indirect then register) IR
-    // *n   *au    *qu    --     *ic   *al    *al    --
+    // *n     *au    *qu   --     *ic    *al    *al     --
     // *0     *1     *2     *3     *4     *5     *6     *7
-    false, false, false, true, false, false, false, true,
-    false, false, false, false, false, false, false, false,
+    false,  false, false, true,  false, false, false, true,
+    false,  false, false, false, false, false, false, false,
 };
 #endif
 
@@ -1017,8 +1027,8 @@ void addToTheMatrix (uint32 opcode, bool opcodeX, bool a, word6 tag)
     // safety
     uint _opcode = opcode & 01777;
     int _opcodeX = opcodeX ? 1 : 0;
-    int _a = a ? 1 : 0;
-    int _tag = tag & 077;
+    int _a       = a ? 1 : 0;
+    int _tag     = tag & 077;
     theMatrix[_opcode][_opcodeX][_a][_tag] ++;
 }
 
@@ -1026,7 +1036,7 @@ t_stat display_the_matrix (UNUSED int32 arg, UNUSED const char * buf)
 {
     long long count;
 
-    for (int opcode = 0; opcode < 01000; opcode ++)
+    for (int opcode  = 0; opcode < 01000; opcode ++)
     for (int opcodeX = 0; opcodeX < 2; opcodeX ++)
     {
     long long total = 0;
@@ -1079,7 +1089,7 @@ void fetchInstruction (word18 addr)
 
     if (get_addr_mode () == ABSOLUTE_mode)
       {
-        cpu.TPR.TRR = 0;
+        cpu.TPR.TRR  = 0;
         cpu.RSDWH_R1 = 0;
         //cpu.PPR.P = 1; // XXX this should be already set by set_addr_mode, so no worry here
       }
@@ -1103,7 +1113,7 @@ void fetchInstruction (word18 addr)
               {
                 word36 tmp[2];
                 Read2 (addr, tmp, INSTRUCTION_FETCH);
-                cpu.cu.IWB = tmp[0];
+                cpu.cu.IWB   = tmp[0];
                 cpu.cu.IRODD = tmp[1];
               }
           }
@@ -1120,7 +1130,7 @@ void fetchInstruction (word18 addr)
           {
             word36 tmp[2];
             Read2 (addr, tmp, INSTRUCTION_FETCH);
-            cpu.cu.IWB = tmp[0];
+            cpu.cu.IWB   = tmp[0];
             cpu.cu.IRODD = tmp[1];
           }
         else // Odd
@@ -1358,24 +1368,24 @@ t_stat executeInstruction (void)
 
 // Local caches of frequently accessed data
 
-    const uint ndes = info->ndes;
-    const bool restart = cpu.cu.rfi;         // instruction is to be restarted
-    cpu.cu.rfi = 0;
+    const uint ndes      = info->ndes;
+    const bool restart   = cpu.cu.rfi;         // instruction is to be restarted
+                           cpu.cu.rfi = 0;
     const opc_flag flags = info->flags;
-    const opc_mod mods = info->mods;
-    const uint32 opcode = ci->opcode;   // opcode
-    const bool opcodeX = ci->opcodeX;   // opcode extension
-    const word6 tag = ci->tag;          // instruction tag
+    const opc_mod mods   = info->mods;
+    const uint32 opcode  = ci->opcode;         // opcode
+    const bool opcodeX   = ci->opcodeX;        // opcode extension
+    const word6 tag      = ci->tag;            // instruction tag
 
 #ifdef MATRIX
     {
-      const uint32  opcode = ci->opcode;   // opcode
-      const bool   opcodeX = ci->opcodeX;  // opcode extension
-                                           // XXX replace with rY
-      const bool   b29 = ci->b29;              // bit-29 - addressing via pointer
-                                           // register
-      const word6  tag = ci->tag;          // instruction tag
-                                           //  XXX replace withrTAG
+      const uint32 opcode  = ci->opcode;      // opcode
+      const bool   opcodeX = ci->opcodeX;     // opcode extension
+                                                 // XXX replace with rY
+      const bool   b29     = ci->b29;         // bit-29 - addressing via pointer
+                                                 // register
+      const word6  tag     =  ci->tag;        // instruction tag
+                                                 // XXX replace withrTAG
       addToTheMatrix (opcode, opcodeX, b29, tag);
     }
 #endif
@@ -1416,9 +1426,9 @@ t_stat executeInstruction (void)
         cpu.cu.TSN_VALID[0] = 0;
         cpu.cu.TSN_VALID[1] = 0;
         cpu.cu.TSN_VALID[2] = 0;
-        cpu.cu.TSN_PRNO[0] = 0;
-        cpu.cu.TSN_PRNO[1] = 0;
-        cpu.cu.TSN_PRNO[2] = 0;
+        cpu.cu.TSN_PRNO[0]  = 0;
+        cpu.cu.TSN_PRNO[1]  = 0;
+        cpu.cu.TSN_PRNO[2]  = 0;
     }
 
     if (unlikely (restart))
@@ -1608,6 +1618,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF)
         if (_nodudl[tag])
             mod_fault |= FR_ILL_MOD; // "Illegal DU/DL modification"
     }
+    /*LINTED E_ENUM_CONSTS_HAVE_DIFF_TYPES*/
     else if (mods == ONLY_AU_QU_AL_QL_XN)
     {
         if (_onlyaqxn[tag])
@@ -1631,7 +1642,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF)
 #ifdef DPS8M
         // DPS8M illegal instructions lptp,lptr,lsdp,lsdr
         // ISOLTS 890 05abc
-        if (((opcode == 0232 || opcode == 0173) && opcodeX )
+        if ((( opcode == 0232 || opcode == 0173) && opcodeX )
            || (opcode == 0257))
         {
             doFault (FAULT_IPR,
@@ -1644,14 +1655,14 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "%s sets XSF to %o\n", __func__, cpu.cu.XSF)
             // Multics privileged instructions: absa,ldbr,lra,rcu,scu,sdbr,ssdp,ssdr,sptp,sptr
             // ISOLTS 890 05abc,06abc
 #ifdef DPS8M
-            if (((opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX )
+            if (((  opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX )
                || ((opcode == 0254 || opcode == 0774) && opcodeX )
-               || (opcode == 0557 || opcode == 0154))
+               || ( opcode == 0557 || opcode == 0154))
 #else // L68
             // on L68, lptp,lptr,lsdp,lsdr instructions are not illegal, so handle them here
-            if (((opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX )
+            if (((  opcode == 0212 || opcode == 0232 || opcode == 0613 || opcode == 0657) && !opcodeX )
                || ((opcode == 0254 || opcode == 0774 || opcode == 0232 || opcode == 0173) && opcodeX )
-               || (opcode == 0557 || opcode == 0154 || opcode == 0257))
+               || ( opcode == 0557 || opcode == 0154 || opcode == 0257))
 #endif
             {
                 if (!get_bar_mode ()) {
@@ -2064,11 +2075,11 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
 #endif
 
         // These are set by do_caf
-        cpu.ou.directOperandFlag = false;
-        cpu.ou.directOperand = 0;
-        cpu.ou.characterOperandSize = 0;
+        cpu.ou.directOperandFlag      = false;
+        cpu.ou.directOperand          = 0;
+        cpu.ou.characterOperandSize   = 0;
         cpu.ou.characterOperandOffset = 0;
-        cpu.ou.crflag = false;
+        cpu.ou.crflag                 = false;
 
 #define REORDER
 #ifdef REORDER
@@ -2227,7 +2238,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
             if (cpu.cu.rpt) // rpt
               {
                 CPT (cpt2L, 8); // RPT delta
-                uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
+                uint Xn    = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
                 cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
                 cpu.rX[Xn] = cpu.TPR.CA;
 #ifdef TESTING
@@ -2245,7 +2256,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
               {
                 CPT (cpt2L, 9); // RD even
                 // a:RJ78/rpd7
-                uint Xn = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
+                uint Xn    = (uint) getbits36_3 (cpu.cu.IWB, 36 - 3);
                 cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
                 cpu.rX[Xn] = cpu.TPR.CA;
 #ifdef TESTING
@@ -2259,7 +2270,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
               {
                 CPT (cpt2L, 10); // RD odd
                 // a:RJ78/rpd8
-                uint Xn = (uint) getbits36_3 (cpu.cu.IRODD, 36 - 3);
+                uint Xn    = (uint) getbits36_3 (cpu.cu.IRODD, 36 - 3);
                 cpu.TPR.CA = (cpu.rX[Xn] + cpu.cu.delta) & AMASK;
                 cpu.rX[Xn] = cpu.TPR.CA;
 #ifdef TESTING
@@ -2402,8 +2413,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
               {
                 CPT (cpt2L, 13); // RPx terminated
                 cpu.cu.rpt = false;
-                cpu.cu.rd = false;
-                cpu.cu.rl = false;
+                cpu.cu.rd  = false;
+                cpu.cu.rl  = false;
               }
             else
               {
@@ -2418,8 +2429,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "executeInstruction not EIS sets XSF to %o\n
               {
                 CPT (cpt2L, 13); // RPx terminated
                 cpu.cu.rpt = false;
-                cpu.cu.rd = false;
-                cpu.cu.rl = false;
+                cpu.cu.rd  = false;
+                cpu.cu.rl  = false;
                 SET_I_TALLY;
               }
             else
@@ -2555,12 +2566,12 @@ static t_stat doInstruction (void)
       CLR_I_MIF;
 
 #ifdef L68
-    cpu.ou.eac = 0;
+    cpu.ou.eac      = 0;
     cpu.ou.RB1_FULL = 0;
-    cpu.ou.RP_FULL = 0;
-    cpu.ou.RS_FULL = 0;
-    cpu.ou.STR_OP = 0;
-    cpu.ou.cycle = 0;
+    cpu.ou.RP_FULL  = 0;
+    cpu.ou.RS_FULL  = 0;
+    cpu.ou.STR_OP   = 0;
+    cpu.ou.cycle    = 0;
 #endif
     PNL (cpu.ou.RS = (word9) i->opcode);
     PNL (L68_ (DU_CYCLE_FDUD;)) // set DU idle
@@ -2578,8 +2589,8 @@ static t_stat doInstruction (void)
     if (insGrp [opcode10])
       {
         word8 grp = insGrp [opcode10] - 1;
-        uint row = grp / 36;
-        uint col = grp % 36;
+        uint row  = grp / 36;
+        uint col  = grp % 36;
         CPT (cpt3U + row, col); // 3U 0-35, 3L 0-17
       }
 #endif
@@ -2590,13 +2601,13 @@ static t_stat doInstruction (void)
         is_ou = true;
 # ifdef PANEL
     // XXX Punt on RP FULL, RS FULL
-        cpu.ou.RB1_FULL = cpu.ou.RP_FULL = cpu.ou.RS_FULL = 1;
-        cpu.ou.cycle |= ou_GIN;
-        cpu.ou.opsz = (opcodes10[i->opcode10].reg_use >> 12) & 037;
-        word10 reguse = (opcodes10[i->opcode10].reg_use) & MASK10;
-        cpu.ou.reguse = reguse;
-        if (reguse & ru_A) CPT (cpt5U, 4);
-        if (reguse & ru_Q) CPT (cpt5U, 5);
+        cpu.ou.RB1_FULL  = cpu.ou.RP_FULL = cpu.ou.RS_FULL = 1;
+        cpu.ou.cycle    |= ou_GIN;
+        cpu.ou.opsz      = (opcodes10[i->opcode10].reg_use >> 12) & 037;
+        word10 reguse    = (opcodes10[i->opcode10].reg_use) & MASK10;
+        cpu.ou.reguse    = reguse;
+        if (reguse & ru_A)  CPT (cpt5U, 4);
+        if (reguse & ru_Q)  CPT (cpt5U, 5);
         if (reguse & ru_X0) CPT (cpt5U, 6);
         if (reguse & ru_X1) CPT (cpt5U, 7);
         if (reguse & ru_X2) CPT (cpt5U, 8);
@@ -2889,8 +2900,8 @@ static t_stat doInstruction (void)
             //n = ((opcode10 & 020) ? 4 : 0) + (opcode10 & 03);
             uint n = ((opcode10 & 020) >> 2) | (opcode10 & 03);
             CPTUR (cptUsePRn + n);
-            cpu.PR[n].RNR = cpu.TPR.TRR;
-            cpu.PR[n].SNR = cpu.TPR.TSR;
+            cpu.PR[n].RNR    = cpu.TPR.TRR;
+            cpu.PR[n].SNR    = cpu.TPR.TSR;
             cpu.PR[n].WORDNO = cpu.TPR.CA;
             SET_PR_BITNO (n, cpu.TPR.TBR);
 #ifdef TESTING
@@ -3201,8 +3212,8 @@ static t_stat doInstruction (void)
             //n = ((opcode10 & 020) ? 4 : 0) + (opcode10 & 03);
             uint n = ((opcode10 & 020) >> 2) | (opcode10 & 03);
             CPTUR (cptUsePRn + n);
-            cpu.PR[n].RNR = cpu.TPR.TRR;
-            cpu.PR[n].SNR = cpu.TPR.TSR;
+            cpu.PR[n].RNR    = cpu.TPR.TRR;
+            cpu.PR[n].SNR    = cpu.TPR.TSR;
             cpu.PR[n].WORDNO = 0;
             SET_PR_BITNO (n, 0);
 #ifdef TESTING
@@ -3390,8 +3401,8 @@ static t_stat doInstruction (void)
           {
             uint32 n = opcode10 & 07;  // get n
             //SETHI (cpu.CY, cpu.rX[n]);
-            cpu.CY = ((word36) cpu.rX[n]) << 18;
-            cpu.zone = 0777777000000;
+            cpu.CY      = ((word36) cpu.rX[n]) << 18;
+            cpu.zone    = 0777777000000;
             cpu.useZone = true;
           }
           break;
@@ -3627,13 +3638,13 @@ static t_stat doInstruction (void)
           // 00...0 -> C(AQ)54,65
           // C(TPR.TBR) -> C(AQ)66,71
 
-          cpu.rA = cpu.TPR.TRR & MASK3;
+          cpu.rA  = cpu.TPR.TRR & MASK3;
           cpu.rA |= (word36) (cpu.TPR.TSR & MASK15) << 18;
 #ifdef TESTING
           HDBGRegAW ("epaq");
 #endif
 
-          cpu.rQ = cpu.TPR.TBR & MASK6;
+          cpu.rQ  = cpu.TPR.TBR & MASK6;
           cpu.rQ |= (word36) (cpu.TPR.CA & MASK18) << 18;
 #ifdef TESTING
           HDBGRegQW ("epaq");
@@ -3650,7 +3661,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
             HDBGRegQR ("qls");
 #endif
-            word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
+            word36 tmp36   = cpu.TPR.CA & 0177;   // CY bits 11-17
             word36 tmpSign = cpu.rQ & SIGN36;
             CLR_I_CARRY;
 
@@ -3694,7 +3705,7 @@ static t_stat doInstruction (void)
 #endif
           if (cpu.switches.procMode == procModeGCOS)
             cpu.CY = cpu.cu.IR & 0000000777600LL;
-          cpu.zone = 0000000777777;
+          cpu.zone    = 0000000777777;
           cpu.useZone = true;
           SCF (i->stiTally, cpu.CY, I_TALLY);
           break;
@@ -3769,7 +3780,7 @@ static t_stat doInstruction (void)
         case x0 (0327):  // lcx7
           {
             bool ovf;
-            uint32 n = opcode10 & 07;  // get n
+            uint32 n  = opcode10 & 07;  // get n
             cpu.rX[n] = compl18 (GETHI (cpu.CY), & cpu.cu.IR, & ovf);
 #ifdef TESTING
             HDBGRegXW (n, "lcxn");
@@ -3876,7 +3887,7 @@ static t_stat doInstruction (void)
         case x0 (0226):  // ldx6
         case x0 (0227):  // ldx7
           {
-            uint32 n = opcode10 & 07;  // get n
+            uint32 n  = opcode10 & 07;  // get n
             cpu.rX[n] = GETHI (cpu.CY);
 #ifdef TESTING
             HDBGRegXW (n, "ldxn");
@@ -4054,6 +4065,7 @@ static t_stat doInstruction (void)
 #endif
           cpu.CY = cpu.rA;
           cpu.zone =
+             /*LINTED E_CONST_PROMOTED_UNSIGNED_LONG*/
              ((i->tag & 040) ? 0777000000000u : 0) |
              ((i->tag & 020) ? 0000777000000u : 0) |
              ((i->tag & 010) ? 0000000777000u : 0) |
@@ -4071,11 +4083,12 @@ static t_stat doInstruction (void)
 #endif
           cpu.CY = cpu.rQ;
           cpu.zone =
+             /*LINTED E_CONST_PROMOTED_UNSIGNED_LONG*/
              ((i->tag & 040) ? 0777000000000u : 0) |
              ((i->tag & 020) ? 0000777000000u : 0) |
              ((i->tag & 010) ? 0000000777000u : 0) |
              ((i->tag & 004) ? 0000000000777u : 0);
-          cpu.useZone = true;
+          cpu.useZone   = true;
           cpu.ou.crflag = true;
           break;
 
@@ -4099,8 +4112,8 @@ static t_stat doInstruction (void)
           // set to IR, or left unchanged
           // RJ78 specifies unchanged
           // SETHI (cpu.CY, (cpu.PPR.IC + 2) & MASK18);
-          cpu.CY = ((word36) ((cpu.PPR.IC + 2) & MASK18)) << 18;
-          cpu.zone = 0777777000000;
+          cpu.CY      = ((word36) ((cpu.PPR.IC + 2) & MASK18)) << 18;
+          cpu.zone    = 0777777000000;
           cpu.useZone = true;
           break;
 
@@ -4114,6 +4127,7 @@ static t_stat doInstruction (void)
 #endif
           cpu.CY = cpu.rA;
           cpu.zone =
+             /*LINTED E_CONST_PROMOTED_UNSIGNED_LONG*/
              ((i->tag & 040) ? 0770000000000u : 0) |
              ((i->tag & 020) ? 0007700000000u : 0) |
              ((i->tag & 010) ? 0000077000000u : 0) |
@@ -4133,6 +4147,7 @@ static t_stat doInstruction (void)
 #endif
           cpu.CY = cpu.rQ;
           cpu.zone =
+             /*LINTED E_CONST_PROMOTED_UNSIGNED_LONG*/
              ((i->tag & 040) ? 0770000000000u : 0) |
              ((i->tag & 020) ? 0007700000000u : 0) |
              ((i->tag & 010) ? 0000077000000u : 0) |
@@ -4220,8 +4235,8 @@ static t_stat doInstruction (void)
         case x0 (0446):  // sxl6
         case x0 (0447):  // sxl7
           //SETLO (cpu.CY, cpu.rX[opcode10 & 07]);
-          cpu.CY = cpu.rX[opcode10 & 07];
-          cpu.zone = 0000000777777;
+          cpu.CY      = cpu.rX[opcode10 & 07];
+          cpu.zone    = 0000000777777;
           cpu.useZone = true;
           break;
 
@@ -4351,7 +4366,7 @@ static t_stat doInstruction (void)
             HDBGRegAR ("lls");
             HDBGRegQR ("lls");
 #endif
-            word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
+            word36 tmp36   = cpu.TPR.CA & 0177;   // CY bits 11-17
             word36 tmpSign = cpu.rA & SIGN36;
             for (uint j = 0 ; j < tmp36 ; j ++)
               {
@@ -4421,10 +4436,10 @@ static t_stat doInstruction (void)
             HDBGRegAR ("lrs");
             HDBGRegQR ("lrs");
 #endif
-            word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
-            cpu.rA &= DMASK; // Make sure the shifted in bits are 0
-            cpu.rQ &= DMASK; // Make sure the shifted in bits are 0
-            bool a0 = cpu.rA & SIGN36;    // A0
+            word36 tmp36  = cpu.TPR.CA & 0177;   // CY bits 11-17
+            cpu.rA       &= DMASK; // Make sure the shifted in bits are 0
+            cpu.rQ       &= DMASK; // Make sure the shifted in bits are 0
+            bool a0       = cpu.rA & SIGN36;    // A0
 
             for (uint j = 0 ; j < tmp36 ; j ++)
               {
@@ -4487,9 +4502,9 @@ static t_stat doInstruction (void)
 #endif
             word36 tmp36 = cpu.TPR.CA & 0177;   // CY bits 11-17
 
-            cpu.rQ &= DMASK;    // Make sure the shifted in bits are 0
+            cpu.rQ  &= DMASK;    // Make sure the shifted in bits are 0
             cpu.rQ >>= tmp36;
-            cpu.rQ &= DMASK;    // keep to 36-bits
+            cpu.rQ  &= DMASK;    // keep to 36-bits
 #ifdef TESTING
             HDBGRegQW ("qrl");
 #endif
@@ -4567,8 +4582,8 @@ static t_stat doInstruction (void)
 #endif
             bool ovf;
             word72 tmp72 = YPAIRTO72 (cpu.Ypair);
-            tmp72 = Add72b (convert_to_word72 (cpu.rA, cpu.rQ), tmp72, 0,
-                            I_ZNOC, & cpu.cu.IR, & ovf);
+            tmp72        = Add72b (convert_to_word72 (cpu.rA, cpu.rQ),
+                                   tmp72, 0, I_ZNOC, & cpu.cu.IR, & ovf);
             convert_to_word36 (tmp72, & cpu.rA, & cpu.rQ);
 #ifdef TESTING
             HDBGRegAW ("adaq");
@@ -4590,9 +4605,8 @@ static t_stat doInstruction (void)
 #endif
             bool ovf;
             word72 tmp72 = SIGNEXT36_72 (cpu.CY); // sign extend Cy
-            tmp72 = Add72b (convert_to_word72 (cpu.rA, cpu.rQ), tmp72, 0,
-                            I_ZNOC,
-                            & cpu.cu.IR, & ovf);
+            tmp72        = Add72b (convert_to_word72 (cpu.rA, cpu.rQ),
+                                   tmp72, 0, I_ZNOC, & cpu.cu.IR, & ovf);
             convert_to_word36 (tmp72, & cpu.rA, & cpu.rQ);
 #ifdef TESTING
             HDBGRegAW ("adl");
@@ -4618,8 +4632,8 @@ static t_stat doInstruction (void)
             bool ovf;
             word72 tmp72 = YPAIRTO72 (cpu.Ypair);
 
-            tmp72 = Add72b (convert_to_word72 (cpu.rA, cpu.rQ), tmp72, 0,
-                            I_ZNC, & cpu.cu.IR, & ovf);
+            tmp72 = Add72b (convert_to_word72 (cpu.rA, cpu.rQ),
+                            tmp72, 0, I_ZNC, & cpu.cu.IR, & ovf);
             convert_to_word36 (tmp72, & cpu.rA, & cpu.rQ);
 #ifdef TESTING
             HDBGRegAW ("adlaq");
@@ -5076,7 +5090,6 @@ static t_stat doInstruction (void)
           }
           break;
 
-
         case x0 (0171):  // swca
           {
             // If carry indicator ON, then C(A)- C(Y) -> C(A)
@@ -5141,8 +5154,8 @@ static t_stat doInstruction (void)
             HDBGRegQR ("mpf");
 # endif
             word72 tmp72 = multiply_128 (SIGNEXT36_72 (cpu.rA), SIGNEXT36_72 (cpu.CY));
-            tmp72 = and_128 (tmp72, MASK72);
-            tmp72 = lshift_128 (tmp72, 1);
+            tmp72        = and_128 (tmp72, MASK72);
+            tmp72        = lshift_128 (tmp72, 1);
 #else
             word72 tmp72 = SIGNEXT36_72 (cpu.rA) * SIGNEXT36_72 (cpu.CY);
             tmp72 &= MASK72;
@@ -5261,7 +5274,7 @@ static t_stat doInstruction (void)
           else
             {
               t_int64 dividend = (t_int64) (SIGNEXT36_64 (cpu.rQ));
-              t_int64 divisor = (t_int64) (SIGNEXT36_64 (cpu.CY));
+              t_int64 divisor  = (t_int64) (SIGNEXT36_64 (cpu.CY));
 #ifdef TESTING
 # ifdef DIV_TRACE
               sim_debug (DBG_CAC, & cpu_dev, "\n");
@@ -5502,7 +5515,6 @@ static t_stat doInstruction (void)
 // 1  1  0    0     1   0
 // 1  1  1    0     0   0
 
-
             SC_I_ZERO (Z == 0);
             SC_I_NEG (Z & SIGN36);
           }
@@ -5600,7 +5612,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegQR ("anq");
 #endif
-          cpu.rQ = cpu.rQ & cpu.CY;
+          cpu.rQ  = cpu.rQ & cpu.CY;
           cpu.rQ &= DMASK;
 #ifdef TESTING
           HDBGRegQW ("anq");
@@ -5616,7 +5628,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
             HDBGRegAR ("ansa");
 #endif
-            cpu.CY = cpu.rA & cpu.CY;
+            cpu.CY  = cpu.rA & cpu.CY;
             cpu.CY &= DMASK;
 
             SC_I_ZERO (cpu.CY == 0);
@@ -5630,7 +5642,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
             HDBGRegQR ("ansq");
 #endif
-            cpu.CY = cpu.rQ & cpu.CY;
+            cpu.CY  = cpu.rQ & cpu.CY;
             cpu.CY &= DMASK;
 
             SC_I_ZERO (cpu.CY == 0);
@@ -5705,7 +5717,7 @@ static t_stat doInstruction (void)
               HDBGRegQR ("oraq");
 #endif
               word72 tmp72 = YPAIRTO72 (cpu.Ypair);
-              word72 trAQ = convert_to_word72 (cpu.rA, cpu.rQ);
+              word72 trAQ  = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
               trAQ = or_128 (trAQ, tmp72);
               trAQ = and_128 (trAQ, MASK72);
@@ -5713,7 +5725,7 @@ static t_stat doInstruction (void)
               SC_I_ZERO (iszero_128 (trAQ));
               SC_I_NEG (isnonzero_128 (and_128 (trAQ, SIGN72)));
 #else
-              trAQ = trAQ | tmp72;
+              trAQ  = trAQ | tmp72;
               trAQ &= MASK72;
 
               SC_I_ZERO (trAQ == 0);
@@ -5732,7 +5744,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegQR ("orq");
 #endif
-          cpu.rQ = cpu.rQ | cpu.CY;
+          cpu.rQ  = cpu.rQ | cpu.CY;
           cpu.rQ &= DMASK;
 #ifdef TESTING
           HDBGRegQW ("orq");
@@ -5748,7 +5760,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegAR ("orsa");
 #endif
-          cpu.CY = cpu.rA | cpu.CY;
+          cpu.CY  = cpu.rA | cpu.CY;
           cpu.CY &= DMASK;
 
           SC_I_ZERO (cpu.CY == 0);
@@ -5760,7 +5772,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegQR ("orsq");
 #endif
-          cpu.CY = cpu.rQ | cpu.CY;
+          cpu.CY  = cpu.rQ | cpu.CY;
           cpu.CY &= DMASK;
 
           SC_I_ZERO (cpu.CY == 0);
@@ -5781,8 +5793,8 @@ static t_stat doInstruction (void)
           {
             uint32 n = opcode10 & 07;  // get n
 
-            word18 tmp18 = cpu.rX[n] | GETHI (cpu.CY);
-            tmp18 &= MASK18;
+            word18 tmp18  = cpu.rX[n] | GETHI (cpu.CY);
+            tmp18        &= MASK18;
 
             SC_I_ZERO (tmp18 == 0);
             SC_I_NEG (tmp18 & SIGN18);
@@ -5825,7 +5837,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegAR ("era");
 #endif
-          cpu.rA = cpu.rA ^ cpu.CY;
+          cpu.rA  = cpu.rA ^ cpu.CY;
           cpu.rA &= DMASK;
 #ifdef TESTING
           HDBGRegAW ("era");
@@ -5844,7 +5856,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegQR ("eraq");
 #endif
-          cpu.rQ = cpu.rQ ^ cpu.CY;
+          cpu.rQ  = cpu.rQ ^ cpu.CY;
           cpu.rQ &= DMASK;
 #ifdef TESTING
           HDBGRegQW ("eraq");
@@ -5858,7 +5870,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegAR ("ersa");
 #endif
-          cpu.CY = cpu.rA ^ cpu.CY;
+          cpu.CY  = cpu.rA ^ cpu.CY;
           cpu.CY &= DMASK;
 
           SC_I_ZERO (cpu.CY == 0);
@@ -5870,7 +5882,7 @@ static t_stat doInstruction (void)
 #ifdef TESTING
           HDBGRegQR ("ersq");
 #endif
-          cpu.CY = cpu.rQ ^ cpu.CY;
+          cpu.CY  = cpu.rQ ^ cpu.CY;
           cpu.CY &= DMASK;
 
           SC_I_ZERO (cpu.CY == 0);
@@ -5895,8 +5907,8 @@ static t_stat doInstruction (void)
             HDBGRegXR (n, "ersxn");
 #endif
 
-            word18 tmp18 = cpu.rX[n] ^ GETHI (cpu.CY);
-            tmp18 &= MASK18;
+            word18 tmp18  = cpu.rX[n] ^ GETHI (cpu.CY);
+            tmp18        &= MASK18;
 
             SC_I_ZERO (tmp18 == 0);
             SC_I_NEG (tmp18 & SIGN18);
@@ -5912,7 +5924,7 @@ static t_stat doInstruction (void)
         case x0 (0663):  // erx3
         case x0 (0664):  // erx4
         case x0 (0665):  // erx5
-        case x0 (0666):  // erx6 !!!! Beware !!!!
+        case x0 (0666):  // erx6  !!!! Beware !!!!
         case x0 (0667):  // erx7
           // For n = 0, 1, ..., or 7 as determined by operation code
           // C(Xn)i XOR C(Y)i -> C(Xn)i for i = (0, 1, ..., 17)
@@ -5945,7 +5957,7 @@ static t_stat doInstruction (void)
             HDBGRegQR ("canaq");
 #endif
             word72 tmp72 = YPAIRTO72 (cpu.Ypair);
-            word72 trAQ = convert_to_word72 (cpu.rA, cpu.rQ);
+            word72 trAQ  = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
             trAQ = and_128 (trAQ, tmp72);
             trAQ = and_128 (trAQ, MASK72);
@@ -5992,8 +6004,8 @@ static t_stat doInstruction (void)
 #ifdef TESTING
             HDBGRegXR (n, "canxn");
 #endif
-            word18 tmp18 = cpu.rX[n] & GETHI (cpu.CY);
-            tmp18 &= MASK18;
+            word18 tmp18  = cpu.rX[n] & GETHI (cpu.CY);
+            tmp18        &= MASK18;
             sim_debug (DBG_TRACEEXT, & cpu_dev,
                        "n %o rX %06o HI %06o tmp %06o\n",
                        n, cpu.rX[n], (word18) (GETHI (cpu.CY) & MASK18),
@@ -6094,12 +6106,12 @@ static t_stat doInstruction (void)
           // Neg: If C(AQ)0 = 1, then ON; otherwise OFF
 
           CPTUR (cptUseE);
-          cpu.rE = (cpu.Ypair[0] >> 28) & MASK8;
+          cpu.rE  = (cpu.Ypair[0] >> 28) & MASK8;
 
-          cpu.rA = (cpu.Ypair[0] & FLOAT36MASK) << 8;
+          cpu.rA  = (cpu.Ypair[0] & FLOAT36MASK) << 8;
           cpu.rA |= (cpu.Ypair[1] >> 28) & MASK8;
 
-          cpu.rQ = (cpu.Ypair[1] & FLOAT36MASK) << 8;
+          cpu.rQ  = (cpu.Ypair[1] & FLOAT36MASK) << 8;
 
 #ifdef TESTING
           HDBGRegAW ("dfld");
@@ -6474,7 +6486,6 @@ static t_stat doInstruction (void)
           cpu.useZone = true;
           break;
 
-
         /// TRANSFER INSTRUCTIONS
 
         case x0 (0713):  // call6
@@ -6487,7 +6498,6 @@ static t_stat doInstruction (void)
                      "call6 PRR %o PSR %o\n", cpu.PPR.PRR, cpu.PPR.PSR);
 
           return CONT_TRA;
-
 
         case x0 (0630):  // ret
           {
@@ -6536,7 +6546,6 @@ static t_stat doInstruction (void)
                 CLRF (tempIR, I_ABS);
               }
 
-
             //sim_debug (DBG_TRACEEXT, & cpu_dev,
             //           "RET NBAR was %d now %d\n",
             //           TST_NBAR ? 1 : 0,
@@ -6579,7 +6588,6 @@ static t_stat doInstruction (void)
               return CONT_TRA;
             }
           break;
-
 
 // Optimized to the top of the loop
 //        case x0 (0604):  // tmi
@@ -6632,7 +6640,6 @@ static t_stat doInstruction (void)
 
 // Optimized to the top of the loop
 //        case x0 (0710):  // tra
-
 
         case x0 (0603):  // trc
           //  If carry indicator ON then
@@ -6953,9 +6960,9 @@ static t_stat doInstruction (void)
                 cpu.PR[n].RNR = max3 (Crr, cpu.SDW->R1, cpu.TPR.TRR);
               else
                 cpu.PR[n].RNR = Crr;
-              cpu.PR[n].SNR = (cpu.Ypair[0] >> 18) & MASK15;
+              cpu.PR[n].SNR    = (cpu.Ypair[0] >> 18) & MASK15;
               cpu.PR[n].WORDNO = GETHI (cpu.Ypair[1]);
-              word6 bitno = (GETLO (cpu.Ypair[1]) >> 9) & 077;
+              word6 bitno      = (GETLO (cpu.Ypair[1]) >> 9) & 077;
 // According to ISOLTS, loading a 077 into bitno results in 037
 // pa851    test-04b    lpri test       bar-100176
 // test start 105321   patch 105461   subtest loop point 105442
@@ -7012,11 +7019,11 @@ static t_stat doInstruction (void)
           for (uint32 n = 0 ; n < 8 ; n++)
             {
               CPTUR (cptUsePRn + n);
-              cpu.Yblock16[2 * n] = 043;
-              cpu.Yblock16[2 * n] |= ((word36) cpu.PR[n].SNR) << 18;
-              cpu.Yblock16[2 * n] |= ((word36) cpu.PR[n].RNR) << 15;
+              cpu.Yblock16[2 * n]      = 043;
+              cpu.Yblock16[2 * n]     |= ((word36) cpu.PR[n].SNR) << 18;
+              cpu.Yblock16[2 * n]     |= ((word36) cpu.PR[n].RNR) << 15;
 
-              cpu.Yblock16[2 * n + 1] = (word36) cpu.PR[n].WORDNO << 18;
+              cpu.Yblock16[2 * n + 1]  = (word36) cpu.PR[n].WORDNO << 18;
               cpu.Yblock16[2 * n + 1] |= (word36) GET_PR_BITNO(n) << 9;
             }
 
@@ -7149,28 +7156,28 @@ static t_stat doInstruction (void)
                 // Clock at initialization
                 // date -d "Tue Jul 22 16:39:38 PDT 1999" +%s
                 // 932686778
-                uint64 UnixSecs = 932686778;
-                uint64 UnixuSecs = UnixSecs * 1000000LL;
+                uint64 UnixSecs     = 932686778;
+                uint64 UnixuSecs    = UnixSecs * 1000000LL;
                 // now determine uSecs since Jan 1, 1901 ...
                 uint64 MulticsuSecs = 2177452800000000LL + UnixuSecs;
 
                 // Back into 72 bits
-               word72 big = convert_to_word72 (cpu.rA, cpu.rQ);
+               word72 big           = convert_to_word72 (cpu.rA, cpu.rQ);
 # ifdef NEED_128
                 // Convert to time since boot
-                big = subtract_128 (big, construct_128 (0, MulticsuSecs));
+                big             = subtract_128 (big, construct_128 (0, MulticsuSecs));
                 uint32_t remainder;
                 uint128 bigsecs = divide_128_32 (big, 1000000u, & remainder);
-                uint64_t uSecs = remainder;
-                uint64_t secs = bigsecs.l;
+                uint64_t uSecs  = remainder;
+                uint64_t secs   = bigsecs.l;
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "Clock time since boot %4llu.%06llu seconds\n",
                            secs, uSecs);
 # else
                 // Convert to time since boot
-                big -= MulticsuSecs;
-                unsigned long uSecs = big % 1000000u;
-                unsigned long secs = (unsigned long) (big / 1000000u);
+                big                 -= MulticsuSecs;
+                unsigned long uSecs  = big % 1000000u;
+                unsigned long secs   = (unsigned long) (big / 1000000u);
                 sim_debug (DBG_TRACEEXT, & cpu_dev,
                            "Clock time since boot %4lu.%06lu seconds\n",
                            secs, uSecs);
@@ -7192,6 +7199,7 @@ static t_stat doInstruction (void)
             }
           doFault (FAULT_DRL, fst_zero, "drl");
 
+        /*FALLTHRU*/
         case x0 (0716):  // xec
           cpu.cu.xde = 1;
           cpu.cu.xdo = 0;
@@ -7242,7 +7250,7 @@ static t_stat doInstruction (void)
 // XXX NB. This used to be done in executeInstruction post-execution
 // processing; moving it here means that post-execution code cannot inspect IWB
 // to determine what the instruction or it flags were.
-          cpu.cu.IWB = cpu.Ypair[0];
+          cpu.cu.IWB   = cpu.Ypair[0];
           cpu.cu.IRODD = cpu.Ypair[1];
           return CONT_XEC;
 
@@ -7257,6 +7265,7 @@ static t_stat doInstruction (void)
           // configuration panel.
           doFault (FAULT_MME, fst_zero, "Master Mode Entry (mme)");
 
+        /*FALLTHRU*/
         case x0 (0004):   // mme2
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+(52)8. The value of C
@@ -7264,6 +7273,7 @@ static t_stat doInstruction (void)
           // configuration panel.
           doFault (FAULT_MME2, fst_zero, "Master Mode Entry 2 (mme2)");
 
+        /*FALLTHRU*/
         case x0 (0005):   // mme3
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+(54)8. The value of C
@@ -7271,6 +7281,7 @@ static t_stat doInstruction (void)
           // configuration panel.
           doFault (FAULT_MME3, fst_zero, "Master Mode Entry 3 (mme3)");
 
+        /*FALLTHRU*/
         case x0 (0007):   // mme4
           // Causes a fault that fetches and executes, in absolute mode, the
           // instruction pair at main memory location C+(56)8. The value of C
@@ -7278,6 +7289,7 @@ static t_stat doInstruction (void)
           // configuration panel.
           doFault (FAULT_MME4, fst_zero, "Master Mode Entry 4 (mme4)");
 
+        /*FALLTHRU*/
         case x0 (0011):   // nop
           break;
 
@@ -7310,7 +7322,7 @@ static t_stat doInstruction (void)
 
         case x0 (0500):  // rpl
           {
-            uint c = (i->address >> 7) & 1;
+            uint c       = (i->address >> 7) & 1;
             cpu.cu.delta = i->tag;
             if (c)
               {
@@ -7319,14 +7331,14 @@ static t_stat doInstruction (void)
                 HDBGRegXW (0, "rpl");
 #endif
               }
-            cpu.cu.rl = 1;
+            cpu.cu.rl           = 1;
             cpu.cu.repeat_first = 1;
           }
           break;
 
         case x0 (0520):  // rpt
           {
-            uint c = (i->address >> 7) & 1;
+            uint c       = (i->address >> 7) & 1;
             cpu.cu.delta = i->tag;
             if (c)
               {
@@ -7335,7 +7347,7 @@ static t_stat doInstruction (void)
                 HDBGRegXW (0, "rpt");
 #endif
               }
-            cpu.cu.rpt = 1;
+            cpu.cu.rpt          = 1;
             cpu.cu.repeat_first = 1;
           }
           break;
@@ -7357,11 +7369,10 @@ static t_stat doInstruction (void)
           // C(BAR) -> C(Y) 0,17
           CPTUR (cptUseBAR);
           //SETHI (cpu.CY, (cpu.BAR.BASE << 9) | cpu.BAR.BOUND);
-          cpu.CY = ((((word36) cpu.BAR.BASE) << 9) | cpu.BAR.BOUND) << 18;
-          cpu.zone = 0777777000000;
+          cpu.CY      = ((((word36) cpu.BAR.BASE) << 9) | cpu.BAR.BOUND) << 18;
+          cpu.zone    = 0777777000000;
           cpu.useZone = true;
           break;
-
 
         /// Translation
 
@@ -7374,9 +7385,9 @@ static t_stat doInstruction (void)
           // remainder -> C(A)
 
           {
-            word36 tmp1 = cpu.rA & SIGN36; // A0
-            word36 tmp36 = (cpu.rA << 3) & DMASK;
-            word36 tmp36q = tmp36 / cpu.CY; // this may be more than 4 bits, keep it for remainder calculation
+            word36 tmp1   = cpu.rA & SIGN36; // A0
+            word36 tmp36  = (cpu.rA << 3) & DMASK;
+            word36 tmp36q = tmp36 / cpu.CY;  // this may be more than 4 bits, keep it for remainder calculation
             word36 tmp36r = 0;
             if (!tmp1) {
                 tmp36r = tmp36 - tmp36q * cpu.CY;
@@ -7388,7 +7399,7 @@ static t_stat doInstruction (void)
                 // is represented in a residue style notation -- an unborrow
                 // result is 0-9 (000 - 011), a borrowed digit as 6-15 (006-017)
                 tmp36q += 6;
-                tmp36r = tmp36 + tmp36q * cpu.CY;
+                tmp36r  = tmp36 + tmp36q * cpu.CY;
             }
 
             cpu.rQ <<= 6;       // Shift C(Q) left six positions
@@ -7442,7 +7453,7 @@ static t_stat doInstruction (void)
           // C(Y)0,17 -> C(BAR)
           CPTUR (cptUseBAR);
           // BAR.BASE is upper 9-bits (0-8)
-          cpu.BAR.BASE = (GETHI (cpu.CY) >> 9) & 0777;
+          cpu.BAR.BASE  = (GETHI (cpu.CY) >> 9) & 0777;
           // BAR.BOUND is next lower 9-bits (9-17)
           cpu.BAR.BOUND = GETHI (cpu.CY) & 0777;
           break;
@@ -7469,8 +7480,8 @@ static t_stat doInstruction (void)
                   // a:AL39/cmr2  If either cache enable bit c or d changes
                   // from disable state to enable state, the entire cache is
                   // cleared.
-                  uint csh1_on = getbits36_1 (cpu.CY, 54 - 36);
-                  uint csh2_on = getbits36_1 (cpu.CY, 55 - 36);
+                  uint csh1_on    = getbits36_1 (cpu.CY, 54 - 36);
+                  uint csh2_on    = getbits36_1 (cpu.CY, 55 - 36);
                   //bool clear = (cpu.CMR.csh1_on == 0 && csh1_on != 0) ||
                                //(cpu.CMR.csh1_on == 0 && csh1_on != 0);
                   cpu.CMR.csh1_on = (word1) csh1_on;
@@ -7505,77 +7516,77 @@ static t_stat doInstruction (void)
 // SBZ
                   putbits36_2 (& cpu.MR.r, 33, 0);
 # ifdef L68
-                  cpu.MR.FFV = getbits36_15 (cpu.CY, 0);
-                  cpu.MR.OC_TRAP = getbits36_1 (cpu.CY, 16);
-                  cpu.MR.ADR_TRAP = getbits36_1 (cpu.CY, 17);
-                  cpu.MR.OPCODE = getbits36_9 (cpu.CY, 18);
-                  cpu.MR.OPCODEX = getbits36_1 (cpu.CY, 27);
+                  cpu.MR.FFV                = getbits36_15 (cpu.CY, 0);
+                  cpu.MR.OC_TRAP            = getbits36_1  (cpu.CY, 16);
+                  cpu.MR.ADR_TRAP           = getbits36_1  (cpu.CY, 17);
+                  cpu.MR.OPCODE             = getbits36_9  (cpu.CY, 18);
+                  cpu.MR.OPCODEX            = getbits36_1  (cpu.CY, 27);
 # endif
-                  cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
-                  cpu.MR.separ = getbits36_1 (cpu.CY, 21);
-                  cpu.MR.hrhlt = getbits36_1 (cpu.CY, 28);
+                  cpu.MR.sdpap              = getbits36_1  (cpu.CY, 20);
+                  cpu.MR.separ              = getbits36_1  (cpu.CY, 21);
+                  cpu.MR.hrhlt              = getbits36_1  (cpu.CY, 28);
 # ifdef DPS8M
-                  cpu.MR.hrxfr = getbits36_1 (cpu.CY, 29);
+                  cpu.MR.hrxfr              = getbits36_1  (cpu.CY, 29);
 # endif
-                  cpu.MR.ihr = getbits36_1 (cpu.CY, 30);
-                  cpu.MR.ihrrs = getbits36_1 (cpu.CY, 31);
-                  cpu.MR.emr = getbits36_1 (cpu.CY, 35);
+                  cpu.MR.ihr                = getbits36_1  (cpu.CY, 30);
+                  cpu.MR.ihrrs              = getbits36_1  (cpu.CY, 31);
+                  cpu.MR.emr                = getbits36_1  (cpu.CY, 35);
 # ifdef DPS8M
-                  cpu.MR.hexfp = getbits36_1 (cpu.CY, 33);
+                  cpu.MR.hexfp              = getbits36_1  (cpu.CY, 33);
 # endif
 #else
 # ifdef L68
-                  cpu.MR.FFV = getbits36_15 (cpu.CY, 0);
-                  cpu.MR.isolts_tracks = getbits36_1 (cpu.CY, 15);
-                  cpu.MR.OC_TRAP = getbits36_1 (cpu.CY, 16);
-                  cpu.MR.ADR_TRAP = getbits36_1 (cpu.CY, 17);
-                  cpu.MR.hropc = getbits36_1 (cpu.CY, 29);
+                  cpu.MR.FFV                = getbits36_15 (cpu.CY, 0);
+                  cpu.MR.isolts_tracks      = getbits36_1  (cpu.CY, 15);
+                  cpu.MR.OC_TRAP            = getbits36_1  (cpu.CY, 16);
+                  cpu.MR.ADR_TRAP           = getbits36_1  (cpu.CY, 17);
+                  cpu.MR.hropc              = getbits36_1  (cpu.CY, 29);
 #  if 1
                   //if (cpu.MR.OC_TRAP)
                   if (cpu.MR.OC_TRAP || cpu.MR.hropc)
                     {
-                      cpu.MR.OPCODE = getbits36_10 (cpu.CY, 18);
+                      cpu.MR.OPCODE         = getbits36_10 (cpu.CY, 18);
                     }
                   else
 #  endif
                     {
-                      cpu.MR.cuolin = getbits36_1 (cpu.CY, 18);
-                      cpu.MR.solin = getbits36_1 (cpu.CY, 19);
-                      cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
-                      cpu.MR.separ = getbits36_1 (cpu.CY, 21);
+                      cpu.MR.cuolin         = getbits36_1 (cpu.CY, 18);
+                      cpu.MR.solin          = getbits36_1 (cpu.CY, 19);
+                      cpu.MR.sdpap          = getbits36_1 (cpu.CY, 20);
+                      cpu.MR.separ          = getbits36_1 (cpu.CY, 21);
 // tm/vm are only set if the processor maintenance panel PROG switch is on
 #  if 1
-                      cpu.MR.tm = getbits36_2 (cpu.CY, 22);
-                      cpu.MR.vm = getbits36_2 (cpu.CY, 24);
+                      cpu.MR.tm             = getbits36_2 (cpu.CY, 22);
+                      cpu.MR.vm             = getbits36_2 (cpu.CY, 24);
                       cpu.MR.isolts_tracks2 = getbits36_2 (cpu.CY, 26);
 #  endif
                     }
-                  cpu.MR.hrhlt = getbits36_1 (cpu.CY, 28);
+                  cpu.MR.hrhlt              = getbits36_1 (cpu.CY, 28);
                   // Captured above
-                  //cpu.MR.hropc = getbits36_1 (cpu.CY, 29);
-                  cpu.MR.ihr = getbits36_1 (cpu.CY, 30);
-                  cpu.MR.ihrrs = getbits36_1 (cpu.CY, 31);
-                  //cpu.MR.mrgctl = getbits36_1 (cpu.CY, 32);
-                  cpu.MR.emr = getbits36_1 (cpu.CY, 35);
+                  //cpu.MR.hropc            = getbits36_1 (cpu.CY, 29);
+                  cpu.MR.ihr                = getbits36_1 (cpu.CY, 30);
+                  cpu.MR.ihrrs              = getbits36_1 (cpu.CY, 31);
+                  //cpu.MR.mrgctl           = getbits36_1 (cpu.CY, 32);
+                  cpu.MR.emr                = getbits36_1 (cpu.CY, 35);
 # endif
 # ifdef DPS8M
-                  cpu.MR.cuolin = getbits36_1 (cpu.CY, 18);
-                  cpu.MR.solin = getbits36_1 (cpu.CY, 19);
-                  cpu.MR.sdpap = getbits36_1 (cpu.CY, 20);
-                  cpu.MR.separ = getbits36_1 (cpu.CY, 21);
+                  cpu.MR.cuolin             = getbits36_1 (cpu.CY, 18);
+                  cpu.MR.solin              = getbits36_1 (cpu.CY, 19);
+                  cpu.MR.sdpap              = getbits36_1 (cpu.CY, 20);
+                  cpu.MR.separ              = getbits36_1 (cpu.CY, 21);
 // tm/vm are only set if the processor maintenance panel PROG switch is on
 #  if 1
-                  cpu.MR.tm = getbits36_2 (cpu.CY, 22);
-                  cpu.MR.vm = getbits36_2 (cpu.CY, 24);
-                  cpu.MR.isolts_tracks2 = getbits36_2 (cpu.CY, 26);
+                  cpu.MR.tm                 = getbits36_2 (cpu.CY, 22);
+                  cpu.MR.vm                 = getbits36_2 (cpu.CY, 24);
+                  cpu.MR.isolts_tracks2     = getbits36_2 (cpu.CY, 26);
 #  endif
-                  cpu.MR.hrhlt = getbits36_1 (cpu.CY, 28);
-                  cpu.MR.hrxfr = getbits36_1 (cpu.CY, 29);
-                  cpu.MR.ihr = getbits36_1 (cpu.CY, 30);
-                  cpu.MR.ihrrs = getbits36_1 (cpu.CY, 31);
-                  //cpu.MR.mrgctl = getbits36_1 (cpu.CY, 32);
-                  cpu.MR.hexfp = getbits36_1 (cpu.CY, 33);
-                  cpu.MR.emr = getbits36_1 (cpu.CY, 35);
+                  cpu.MR.hrhlt              = getbits36_1 (cpu.CY, 28);
+                  cpu.MR.hrxfr              = getbits36_1 (cpu.CY, 29);
+                  cpu.MR.ihr                = getbits36_1 (cpu.CY, 30);
+                  cpu.MR.ihrrs              = getbits36_1 (cpu.CY, 31);
+                  //cpu.MR.mrgctl           = getbits36_1 (cpu.CY, 32);
+                  cpu.MR.hexfp              = getbits36_1 (cpu.CY, 33);
+                  cpu.MR.emr                = getbits36_1 (cpu.CY, 35);
 # endif
 #endif
 
@@ -7678,10 +7689,10 @@ elapsedtime ();
 
             for (uint i = 0; i < 16; i ++)
               {
-                word4 m = cpu.PTWAM[i].USE;
+                word4 m              = cpu.PTWAM[i].USE;
                 cpu.PTWAM[m].POINTER = getbits36_15 (cpu.Yblock16[i],  0);
-                cpu.PTWAM[m].PAGENO =  getbits36_12 (cpu.Yblock16[i], 15);
-                cpu.PTWAM[m].FE =      getbits36_1  (cpu.Yblock16[i], 27);
+                cpu.PTWAM[m].PAGENO  = getbits36_12 (cpu.Yblock16[i], 15);
+                cpu.PTWAM[m].FE      = getbits36_1  (cpu.Yblock16[i], 27);
               }
           }
           break;
@@ -7699,9 +7710,9 @@ elapsedtime ();
             //   C(Y-block16+m)29 -> C(PTWAM(m).M)
             for (uint i = 0; i < 16; i ++)
               {
-                word4 m = cpu.PTWAM[i].USE;
+                word4 m           = cpu.PTWAM[i].USE;
                 cpu.PTWAM[m].ADDR = getbits36_18 (cpu.Yblock16[i],  0);
-                cpu.PTWAM[m].M =    getbits36_1  (cpu.Yblock16[i], 29);
+                cpu.PTWAM[m].M    = getbits36_1  (cpu.Yblock16[i], 29);
               }
           }
           break;
@@ -7732,9 +7743,9 @@ elapsedtime ();
             //   C(Y-block16+m)27 -> C(SDWAM(m).F) Note: typo in AL39, P(17) should be F(27)
             for (uint i = 0; i < 16; i ++)
               {
-                word4 m = cpu.SDWAM[i].USE;
+                word4 m              = cpu.SDWAM[i].USE;
                 cpu.SDWAM[m].POINTER = getbits36_15 (cpu.Yblock16[i],  0);
-                cpu.SDWAM[m].FE =      getbits36_1  (cpu.Yblock16[i], 27);
+                cpu.SDWAM[m].FE      = getbits36_1  (cpu.Yblock16[i], 27);
               }
           }
           break;
@@ -7748,39 +7759,40 @@ elapsedtime ();
           {
             // For i = 0, 1, ..., 15
             //   m = C(SDWAM(i).USE)
-            //   C(Y-block32+2m)0,23 -> C(SDWAM(m).ADDR)
+            //   C(Y-block32+2m)0,23  -> C(SDWAM(m).ADDR)
             //   C(Y-block32+2m)24,32 -> C(SDWAM(m).R1, R2, R3)
             //   C(Y-block32+2m)37,50 -> C(SDWAM(m).BOUND)
             //   C(Y-block32+2m)51,57 -> C(SDWAM(m).R, E, W, P, U, G, C) Note: typo in AL39, 52 should be 51
             //   C(Y-block32+2m)58,71 -> C(SDWAM(m).CL)
             for (uint i = 0; i < 16; i ++)
               {
-                word4 m = cpu.SDWAM[i].USE;
-                uint j = (uint)m * 2;
-                cpu.SDWAM[m].ADDR =    getbits36_24 (cpu.Yblock32[j],  0);
-                cpu.SDWAM[m].R1 =      getbits36_3  (cpu.Yblock32[j], 24);
-                cpu.SDWAM[m].R2 =      getbits36_3  (cpu.Yblock32[j], 27);
-                cpu.SDWAM[m].R3 =      getbits36_3  (cpu.Yblock32[j], 30);
+                word4 m            = cpu.SDWAM[i].USE;
+                uint j             = (uint)m * 2;
+                cpu.SDWAM[m].ADDR  = getbits36_24 (cpu.Yblock32[j],  0);
+                cpu.SDWAM[m].R1    = getbits36_3  (cpu.Yblock32[j], 24);
+                cpu.SDWAM[m].R2    = getbits36_3  (cpu.Yblock32[j], 27);
+                cpu.SDWAM[m].R3    = getbits36_3  (cpu.Yblock32[j], 30);
 
-                cpu.SDWAM[m].BOUND =   getbits36_14 (cpu.Yblock32[j + 1], 37 - 36);
-                cpu.SDWAM[m].R =       getbits36_1  (cpu.Yblock32[j + 1], 51 - 36);
-                cpu.SDWAM[m].E =       getbits36_1  (cpu.Yblock32[j + 1], 52 - 36);
-                cpu.SDWAM[m].W =       getbits36_1  (cpu.Yblock32[j + 1], 53 - 36);
-                cpu.SDWAM[m].P =       getbits36_1  (cpu.Yblock32[j + 1], 54 - 36);
-                cpu.SDWAM[m].U =       getbits36_1  (cpu.Yblock32[j + 1], 55 - 36);
-                cpu.SDWAM[m].G =       getbits36_1  (cpu.Yblock32[j + 1], 56 - 36);
-                cpu.SDWAM[m].C =       getbits36_1  (cpu.Yblock32[j + 1], 57 - 36);
-                cpu.SDWAM[m].EB =      getbits36_14 (cpu.Yblock32[j + 1], 58 - 36);
+                cpu.SDWAM[m].BOUND = getbits36_14 (cpu.Yblock32[j + 1], 37 - 36);
+                cpu.SDWAM[m].R     = getbits36_1  (cpu.Yblock32[j + 1], 51 - 36);
+                cpu.SDWAM[m].E     = getbits36_1  (cpu.Yblock32[j + 1], 52 - 36);
+                cpu.SDWAM[m].W     = getbits36_1  (cpu.Yblock32[j + 1], 53 - 36);
+                cpu.SDWAM[m].P     = getbits36_1  (cpu.Yblock32[j + 1], 54 - 36);
+                cpu.SDWAM[m].U     = getbits36_1  (cpu.Yblock32[j + 1], 55 - 36);
+                cpu.SDWAM[m].G     = getbits36_1  (cpu.Yblock32[j + 1], 56 - 36);
+                cpu.SDWAM[m].C     = getbits36_1  (cpu.Yblock32[j + 1], 57 - 36);
+                cpu.SDWAM[m].EB    = getbits36_14 (cpu.Yblock32[j + 1], 58 - 36);
               }
           }
           break;
 #endif
 
         case x0 (0613):  // rcu
-          doRCU (); // never returns
+          doRCU (); // never returns!
 
         /// Privileged - Register Store
 
+        /*FALLTHRU*/ /* fall through */ /* fallthrough */
         case x0 (0452):  // scpr
           {
             uint tag = (i->tag) & MASK6;
@@ -7803,8 +7815,8 @@ elapsedtime ();
                           // 00...0 -> C(Y-pair)36,71
                   {
                     CPTUR (cptUseFR);
-                    cpu.Ypair[0] = cpu.faultRegister[0];
-                    cpu.Ypair[1] = cpu.faultRegister[1];
+                    cpu.Ypair[0]         = cpu.faultRegister[0];
+                    cpu.Ypair[1]         = cpu.faultRegister[1];
                     cpu.faultRegister[0] = 0;
                     cpu.faultRegister[1] = 0;
                   }
@@ -7824,10 +7836,10 @@ elapsedtime ();
 #if 0
                     cpu.Ypair[0] = 0;
 # ifdef L68
-                    putbits36_15 (& cpu.Ypair[0], 0, cpu.MR.FFV);
-                    putbits36_1 (& cpu.Ypair[0], 15, cpu.MR.isolts_tracks);
-                    putbits36_1 (& cpu.Ypair[0], 16, cpu.MR.OC_TRAP);
-                    putbits36_1 (& cpu.Ypair[0], 17, cpu.MR.ADR_TRAP);
+                    putbits36_15 (& cpu.Ypair[0],  0, cpu.MR.FFV);
+                    putbits36_1  (& cpu.Ypair[0], 15, cpu.MR.isolts_tracks);
+                    putbits36_1  (& cpu.Ypair[0], 16, cpu.MR.OC_TRAP);
+                    putbits36_1  (& cpu.Ypair[0], 17, cpu.MR.ADR_TRAP);
 #  if 1
                     if (cpu.MR.OC_TRAP || cpu.MR.hropc)
                       {
@@ -7875,7 +7887,7 @@ elapsedtime ();
 # endif
                     putbits36_1 (& cpu.Ypair[0], 30, cpu.MR.ihr);
                     putbits36_1 (& cpu.Ypair[0], 31, cpu.MR.ihrrs);
-                    //putbits36_1 (& cpu.Ypair[0], 32, cpu.MR.mrgctl);
+                  //putbits36_1 (& cpu.Ypair[0], 32, cpu.MR.mrgctl);
 # ifdef DPS8M
                     putbits36_1 (& cpu.Ypair[0], 33, cpu.MR.hexfp);
 # endif
@@ -7885,23 +7897,23 @@ elapsedtime ();
                     cpu.Ypair[1] = 0;
                     putbits36_15 (& cpu.Ypair[1], 36 - 36,
                                   cpu.CMR.cache_dir_address);
-                    putbits36_1 (& cpu.Ypair[1], 51 - 36, cpu.CMR.par_bit);
-                    putbits36_1 (& cpu.Ypair[1], 52 - 36, cpu.CMR.lev_ful);
-                    putbits36_1 (& cpu.Ypair[1], 54 - 36, cpu.CMR.csh1_on);
-                    putbits36_1 (& cpu.Ypair[1], 55 - 36, cpu.CMR.csh2_on);
+                    putbits36_1  (& cpu.Ypair[1], 51 - 36, cpu.CMR.par_bit);
+                    putbits36_1  (& cpu.Ypair[1], 52 - 36, cpu.CMR.lev_ful);
+                    putbits36_1  (& cpu.Ypair[1], 54 - 36, cpu.CMR.csh1_on);
+                    putbits36_1  (& cpu.Ypair[1], 55 - 36, cpu.CMR.csh2_on);
 #ifdef L68
-                    putbits36_1 (& cpu.Ypair[1], 56 - 36, cpu.CMR.opnd_on);
+                    putbits36_1  (& cpu.Ypair[1], 56 - 36, cpu.CMR.opnd_on);
 #endif
-                    putbits36_1 (& cpu.Ypair[1], 57 - 36, cpu.CMR.inst_on);
-                    putbits36_1 (& cpu.Ypair[1], 59 - 36, cpu.CMR.csh_reg);
-                    putbits36_1 (& cpu.Ypair[1], 60 - 36, cpu.CMR.str_asd);
-                    putbits36_1 (& cpu.Ypair[1], 61 - 36, cpu.CMR.col_ful);
-                    putbits36_2 (& cpu.Ypair[1], 62 - 36, cpu.CMR.rro_AB);
+                    putbits36_1  (& cpu.Ypair[1], 57 - 36, cpu.CMR.inst_on);
+                    putbits36_1  (& cpu.Ypair[1], 59 - 36, cpu.CMR.csh_reg);
+                    putbits36_1  (& cpu.Ypair[1], 60 - 36, cpu.CMR.str_asd);
+                    putbits36_1  (& cpu.Ypair[1], 61 - 36, cpu.CMR.col_ful);
+                    putbits36_2  (& cpu.Ypair[1], 62 - 36, cpu.CMR.rro_AB);
 #ifdef DPS8M
-                    putbits36_1 (& cpu.Ypair[1], 68 - 36,
-                                 cpu.CMR.bypass_cache);
+                    putbits36_1  (& cpu.Ypair[1], 68 - 36,
+                                  cpu.CMR.bypass_cache);
 #endif
-                    putbits36_2 (& cpu.Ypair[1], 70 - 36, cpu.CMR.luf);
+                    putbits36_2  (& cpu.Ypair[1], 70 - 36, cpu.CMR.luf);
                   }
                   break;
 
@@ -8166,29 +8178,29 @@ elapsedtime ();
                 cpu.Yblock32[j * 2] = 0;
                 putbits36_24 (& cpu.Yblock32[j * 2],  0,
                            cpu.SDWAM[toffset + j].ADDR);
-                putbits36_3 (& cpu.Yblock32[j * 2], 24,
+                putbits36_3  (& cpu.Yblock32[j * 2], 24,
                            cpu.SDWAM[toffset + j].R1);
-                putbits36_3 (& cpu.Yblock32[j * 2], 27,
+                putbits36_3  (& cpu.Yblock32[j * 2], 27,
                            cpu.SDWAM[toffset + j].R2);
-                putbits36_3 (& cpu.Yblock32[j * 2], 30,
+                putbits36_3  (& cpu.Yblock32[j * 2], 30,
                            cpu.SDWAM[toffset + j].R3);
                 cpu.Yblock32[j * 2 + 1] = 0;
 
                 putbits36_14 (& cpu.Yblock32[j * 2 + 1], 37 - 36,
                            cpu.SDWAM[toffset + j].BOUND);
-                putbits36_1 (& cpu.Yblock32[j * 2 + 1], 51 - 36,
+                putbits36_1  (& cpu.Yblock32[j * 2 + 1], 51 - 36,
                            cpu.SDWAM[toffset + j].R);
-                putbits36_1 (& cpu.Yblock32[j * 2 + 1], 52 - 36,
+                putbits36_1  (& cpu.Yblock32[j * 2 + 1], 52 - 36,
                            cpu.SDWAM[toffset + j].E);
-                putbits36_1 (& cpu.Yblock32[j * 2 + 1], 53 - 36,
+                putbits36_1  (& cpu.Yblock32[j * 2 + 1], 53 - 36,
                            cpu.SDWAM[toffset + j].W);
-                putbits36_1 (& cpu.Yblock32[j * 2 + 1], 54 - 36,
+                putbits36_1  (& cpu.Yblock32[j * 2 + 1], 54 - 36,
                            cpu.SDWAM[toffset + j].P);
-                putbits36_1 (& cpu.Yblock32[j * 2 + 1], 55 - 36,
+                putbits36_1  (& cpu.Yblock32[j * 2 + 1], 55 - 36,
                            cpu.SDWAM[toffset + j].U);
-                putbits36_1 (& cpu.Yblock32[j * 2 + 1], 56 - 36,
+                putbits36_1  (& cpu.Yblock32[j * 2 + 1], 56 - 36,
                            cpu.SDWAM[toffset + j].G);
-                putbits36_1 (& cpu.Yblock32[j * 2 + 1], 57 - 36,
+                putbits36_1  (& cpu.Yblock32[j * 2 + 1], 57 - 36,
                            cpu.SDWAM[toffset + j].C);
                 putbits36_14 (& cpu.Yblock32[j * 2 + 1], 58 - 36,
                            cpu.SDWAM[toffset + j].EB);
@@ -8243,7 +8255,7 @@ elapsedtime ();
               }
             else
               {
-                cpu.PTW0.FE = 0;
+                cpu.PTW0.FE  = 0;
                 cpu.PTW0.USE = 0;
               }
           }
@@ -8295,7 +8307,7 @@ elapsedtime ();
               }
             else
               {
-                cpu.SDW0.FE = 0;
+                cpu.SDW0.FE  = 0;
                 cpu.SDW0.USE = 0;
               }
   }
@@ -8359,13 +8371,11 @@ elapsedtime ();
             // privileged_mode_ut makes no reference to the special case
             // of x6x and x7x.
 
-
             // According to DH02, RSCR in Slave Mode does the CAF
             // without BAR correction, and then forces the CA to 040,
             // resulting in a Clock Read from the SCU on port 0.
 
             // According to AL93, RSCR in BAR mode is IPR.
-
 
 //
 // Implementing privileged_mode_ut.alm algorithm
@@ -8378,7 +8388,6 @@ elapsedtime ();
 #ifdef L68
             uint cpu_port_num = (cpu.TPR.CA >> 10) & 07;
 #endif
-
 
             // Trace the cable from the port to find the SCU number
             // connected to that port
@@ -8422,8 +8431,8 @@ elapsedtime ();
 #ifdef DPS8M
             //if (i->tag == TD_DL)
             word6 rTAG = GET_TAG (IWB_IRODD);
-            word6 Td = GET_TD (rTAG);
-            word6 Tm = GET_TM (rTAG);
+            word6 Td   = GET_TD (rTAG);
+            word6 Tm   = GET_TM (rTAG);
             if (Tm == TM_R && Td == TD_DL)
               {
                 unsigned char PROM[1024];
@@ -8605,11 +8614,13 @@ elapsedtime ();
                   cpu.rA |= (word36) ((01L) /* 0b1 ID_PROM installed */
                              << (35-13));
 #endif
+                  /*LINTED E_EXPR_NULL_EFFECT*/
                   cpu.rA |= (word36) ((0L) // 0b0000
                             << (35-17));
                   //cpu.rA |= (word36) ((0b111L)
                               //<< (35-20));
                   // According to rsw.incl.pl1, Multics ignores this bit.
+                  /*LINTED E_EXPR_NULL_EFFECT*/
                   cpu.rA |= (word36) ((00L)  // 0b0 BCD option off
                             << (35-18));
 #ifdef DPS8M
@@ -8626,14 +8637,17 @@ elapsedtime ();
                                              // 0b1: installed
                   cpu.rA |= (word36) ((cpu.switches.enable_cache ? 1 : 0)
                             << (35-20));
+                  /*LINTED E_EXPR_NULL_EFFECT*/
                   cpu.rA |= (word36) ((00L) // 0b00
                             << (35-22));
                   cpu.rA |= (word36) ((cpu.switches.procMode)  /* 0b1 DPS8M */
                             << (35-23));
                   cpu.rA |= (word36) ((cpu.switches.procMode & 1U)
                             << (35-24));
+                  /*LINTED E_EXPR_NULL_EFFECT*/
                   cpu.rA |= (word36) ((00L) // 0b0 new product line (CPL/NPL)
                             << (35-25));
+                  /*LINTED E_EXPR_NULL_EFFECT*/
                   cpu.rA |= (word36) ((00L) // 0b000
                             << (35-28));
                   cpu.rA |= (word36) ((cpu.options.proc_speed & 017LL)
@@ -8961,8 +8975,10 @@ elapsedtime ();
             {
               sim_printf ("DIS@0%06o with no interrupts pending and"
                           " no events in queue\n", cpu.PPR.IC);
-              sim_printf ("\nCycles = %"PRId64"\n", cpu.cycleCnt);
-              sim_printf ("\nInstructions = %"PRId64"\n", cpu.cycleCnt);
+              sim_printf ("\nCycles = %'llu\n",
+                          (unsigned long long)cpu.cycleCnt);
+              sim_printf ("\nInstructions = %'llu\n",
+                          (unsigned long long)cpu.cycleCnt);
               longjmp (cpu.jmpMain, JMP_STOP);
             }
 
@@ -9768,17 +9784,19 @@ static int emCall (void)
 #define ns_usec (1000000000 / 1000 / 1000)
            uv_rusage_t now;
            uv_getrusage (& now);
-           uint64_t start = (uint64_t)(startTime.ru_utime.tv_usec * 1000 + startTime.ru_utime.tv_sec * ns_sec);
-           uint64_t stop = (uint64_t)(now.ru_utime.tv_usec * 1000 + now.ru_utime.tv_sec * ns_sec);
-           uint64_t delta = stop - start;
-           uint64_t seconds = delta / ns_sec;
-           uint64_t milliseconds = (delta / ns_msec) % 1000;
-           uint64_t microseconds = (delta / ns_usec) % 1000;
-           uint64_t nanoseconds = delta  % 1000;
+           uint64_t start            = (uint64_t)(startTime.ru_utime.tv_usec * 1000 +
+                                                  startTime.ru_utime.tv_sec * ns_sec);
+           uint64_t stop             = (uint64_t)(now.ru_utime.tv_usec * 1000 +
+                                                  now.ru_utime.tv_sec * ns_sec);
+           uint64_t delta            = stop - start;
+           uint64_t seconds          = delta / ns_sec;
+           uint64_t milliseconds     = (delta / ns_msec) % 1000;
+           uint64_t microseconds     = (delta / ns_usec) % 1000;
+           uint64_t nanoseconds      = delta  % 1000;
            unsigned long long nInsts = cpu.instrCnt - startInstrCnt;
-           double secs = (double)(((long double) delta) / ((long double) ns_sec));
-           long double ips = (long double)(((long double) nInsts) / ((long double) secs));
-           long double mips = ips / 1000000.0L;
+           double secs               = (double)(((long double) delta) / ((long double) ns_sec));
+           long double ips           = (long double)(((long double) nInsts) / ((long double) secs));
+           long double mips          = ips / 1000000.0L;
 
            sim_printf ("CPU time %'llu.%03llu,%03llu,%03llu\n",
                        (unsigned long long) seconds,
@@ -10109,7 +10127,6 @@ elapsedtime ();
 //  30        74               Unassigned
 //  31        76      trb      Trouble                 3 2                                  FETCH_cycle, doRCU
 
-
 // Reworking logic
 
 #define rework
@@ -10143,7 +10160,7 @@ elapsedtime ();
 // clear what it does to the MC data to signal RFI behavior.
 
     word5 fi_addr = getbits36_5  (cpu.Yblock8[1], 30);
-    if (fi_addr == FAULT_MME ||
+    if (fi_addr == FAULT_MME  ||
         fi_addr == FAULT_MME2 ||
         fi_addr == FAULT_MME3 ||
         fi_addr == FAULT_MME4 ||
@@ -10157,7 +10174,7 @@ elapsedtime ();
       }
 #else
     if (cpu.cu.rfi || // S/W asked for the instruction to be started
-        cpu.cu.FIF) // fault occurred during instruction fetch
+        cpu.cu.FIF)   // fault occurred during instruction fetch
       {
 
         // I am misusing this bit; on restart I want a way to tell the
@@ -10195,8 +10212,8 @@ elapsedtime ();
         fi_addr == FAULT_DF2 ||
         fi_addr == FAULT_DF3 ||
         fi_addr == FAULT_ACV ||
-        fi_addr == FAULT_F1 ||
-        fi_addr == FAULT_F2 ||
+        fi_addr == FAULT_F1  ||
+        fi_addr == FAULT_F2  ||
         fi_addr == FAULT_F3)
       {
         set_went_appending ();
@@ -10214,13 +10231,13 @@ elapsedtime ();
         longjmp (cpu.jmpMain, JMP_SYNC_FAULT_RETURN);
       }
 #else
-    if (fi_addr == FAULT_MME ||
-        /* fi_addr == FAULT_MME2 || */
+    if (fi_addr == FAULT_MME  ||
+     /* fi_addr == FAULT_MME2 || */
         fi_addr == FAULT_MME3 ||
         fi_addr == FAULT_MME4 ||
-        fi_addr == FAULT_DRL ||
-        fi_addr == FAULT_DIV ||
-        fi_addr == FAULT_OFL ||
+        fi_addr == FAULT_DRL  ||
+        fi_addr == FAULT_DIV  ||
+        fi_addr == FAULT_OFL  ||
         fi_addr == FAULT_IPR)
       {
         sim_debug (DBG_FAULT, & cpu_dev, "RCU MMEx sync fault return\n");
@@ -10242,9 +10259,9 @@ elapsedtime ();
         fi_addr == FAULT_DF2 ||
         fi_addr == FAULT_DF3 ||
         fi_addr == FAULT_ACV ||
-        fi_addr == FAULT_F1 ||
-        fi_addr == FAULT_F2 ||
-        fi_addr == FAULT_F3 ||
+        fi_addr == FAULT_F1  ||
+        fi_addr == FAULT_F2  ||
+        fi_addr == FAULT_F3  ||
         fi_addr == FAULT_CMD ||
         fi_addr == FAULT_EXF)
       {

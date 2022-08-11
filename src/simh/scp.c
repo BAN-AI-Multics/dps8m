@@ -1,40 +1,42 @@
-/* scp.c: simulator control program
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: 7cde852c-f62a-11ec-8444-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 1993-2022 Robert M Supnik
-   Copyright (c) 2006-2022 The DPS8M Development Team
-   Copyright (c) 2021-2022 Jeffrey H. Johnson <trnsz@pobox.com>
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-   OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   SOFTWARE.
-
-   Except as contained in this notice, the name of Robert M Supnik shall not
-   be used in advertising or otherwise to promote the sale, use or other
-   dealings in this Software without prior written authorization from
-   Robert M Supnik.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * scp.c: simulator control program
+ *
+ * vim: filetype=c:tabstop=4:tw=100:colorcolumn=84:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: 7cde852c-f62a-11ec-8444-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 1993-2022 Robert M. Supnik
+ * Copyright (c) 2006-2022 The DPS8M Development Team
+ * Copyright (c) 2021-2022 Jeffrey H. Johnson <trnsz@pobox.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+ * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Robert M. Supnik shall not
+ * be used in advertising or otherwise to promote the sale, use or other
+ * dealings in this Software without prior written authorization from
+ * Robert M. Supnik.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 /* Macros and data structures */
 
@@ -64,6 +66,7 @@
 #include <sys/types.h>
 #include <setjmp.h>
 #include <limits.h>
+#include <locale.h>
 
 #include "linehistory.h"
 
@@ -92,9 +95,9 @@
 #include "../decNumber/decContext.h"
 #include "../decNumber/decNumberLocal.h"
 
-#include "dispatch.h"
+#include "../dps8/dps8_math128.h"
 
-#include "../dpsprintf/dpsprintf.h"
+#include "dispatch.h"
 
 #ifndef MAX
 # define MAX(a,b)  (((a) >= (b)) ? (a) : (b))
@@ -162,12 +165,13 @@
     else if (sim_switches & SWMASK ('H')) val = 16; \
     else val = dft;
 
-/* Asynch I/O support */
+/*
+ * The per-simulator init routine is a weak global that defaults to NULL
+ * The other per-simulator pointers can be overridden by the init routine
+ */
+
 t_bool sim_asynch_enabled = FALSE;
-
-/* The per-simulator init routine is a weak global that defaults to NULL
-   The other per-simulator pointers can be overridden by the init routine */
-
+t_stat tmxr_locate_line_send (const char *dev_line, SEND **snd);
 extern void (*sim_vm_init) (void);
 extern void (*sim_vm_exit) (void);
 char* (*sim_vm_read) (char *ptr, int32 size, FILE *stream) = NULL;
@@ -287,61 +291,61 @@ static const char *get_dbg_verb (uint32 dbits, DEVICE* dptr);
 
 /* Global data */
 
-DEVICE *sim_dflt_dev = NULL;
-UNIT *sim_clock_queue = QUEUE_LIST_END;
-int32 sim_interval = 0;
-int32 sim_switches = 0;
-FILE *sim_ofile = NULL;
-SCHTAB *sim_schrptr = FALSE;
-SCHTAB *sim_schaptr = FALSE;
-DEVICE *sim_dfdev = NULL;
-UNIT *sim_dfunit = NULL;
-DEVICE **sim_internal_devices = NULL;
+DEVICE *sim_dflt_dev             = NULL;
+UNIT *sim_clock_queue            = QUEUE_LIST_END;
+int32 sim_interval               = 0;
+int32 sim_switches               = 0;
+FILE *sim_ofile                  = NULL;
+SCHTAB *sim_schrptr              = FALSE;
+SCHTAB *sim_schaptr              = FALSE;
+DEVICE *sim_dfdev                = NULL;
+UNIT *sim_dfunit                 = NULL;
+DEVICE **sim_internal_devices    = NULL;
 uint32 sim_internal_device_count = 0;
-int32 sim_opt_out = 0;
-int32 sim_is_running = 0;
-t_bool sim_processing_event = FALSE;
-uint32 sim_brk_summ = 0;
-uint32 sim_brk_types = 0;
-BRKTYPTAB *sim_brk_type_desc = NULL;                  /* type descriptions */
-uint32 sim_brk_dflt = 0;
+int32 sim_opt_out                = 0;
+int32 sim_is_running             = 0;
+t_bool sim_processing_event      = FALSE;
+uint32 sim_brk_summ              = 0;
+uint32 sim_brk_types             = 0;
+BRKTYPTAB *sim_brk_type_desc     = NULL;         /* type descriptions */
+uint32 sim_brk_dflt              = 0;
 uint32 sim_brk_match_type;
 t_addr sim_brk_match_addr;
 char *sim_brk_act[MAX_DO_NEST_LVL];
 char *sim_brk_act_buf[MAX_DO_NEST_LVL];
-BRKTAB **sim_brk_tab = NULL;
-int32 sim_brk_ent = 0;
-int32 sim_brk_lnt = 0;
-int32 sim_brk_ins = 0;
-int32 sim_iglock = 0;
-int32 sim_nolock = 0;
-int32 sim_quiet = 0;
-int32 sim_randstate = 0;
-int32 sim_randompst = 0;
-int32 sim_nostate = 0;
-int32 sim_step = 0;
-int nodist = 0;
+BRKTAB **sim_brk_tab             = NULL;
+int32 sim_brk_ent                = 0;
+int32 sim_brk_lnt                = 0;
+int32 sim_brk_ins                = 0;
+int32 sim_iglock                 = 0;
+int32 sim_nolock                 = 0;
+int32 sim_quiet                  = 0;
+int32 sim_randstate              = 0;
+int32 sim_randompst              = 0;
+int32 sim_nostate                = 0;
+int32 sim_step                   = 0;
+int nodist                       = 0;
 static double sim_time;
 static uint32 sim_rtime;
 static int32 noqueue_time;
-volatile int32 stop_cpu = 0;
+volatile int32 stop_cpu          = 0;
 static char **sim_argv;
-t_value *sim_eval = NULL;
+t_value *sim_eval                = NULL;
 static t_value sim_last_val;
 static t_addr sim_last_addr;
-FILE *sim_log = NULL;                                   /* log file */
-FILEREF *sim_log_ref = NULL;                            /* log file file reference */
-FILE *sim_deb = NULL;                                   /* debug file */
-FILEREF *sim_deb_ref = NULL;                            /* debug file file reference */
-int32 sim_deb_switches = 0;                             /* debug switches */
-struct timespec sim_deb_basetime;                       /* debug timestamp relative base time */
-char *sim_prompt = NULL;                                /* prompt string */
-static FILE *sim_gotofile;                              /* the currently open do file */
-static int32 sim_goto_line[MAX_DO_NEST_LVL+1];          /* the current line number in the currently open do file */
-static int32 sim_do_echo = 0;                           /* the echo status of the currently open do file */
-static int32 sim_show_message = 1;                      /* the message display status of the currently open do file */
-static int32 sim_on_inherit = 0;                        /* the inherit status of on state and conditions when executing do files */
-static int32 sim_do_depth = 0;
+FILE *sim_log                    = NULL;         /* log file */
+FILEREF *sim_log_ref             = NULL;         /* log file file reference */
+FILE *sim_deb                    = NULL;         /* debug file */
+FILEREF *sim_deb_ref             = NULL;         /* debug file file reference */
+int32 sim_deb_switches           = 0;            /* debug switches */
+struct timespec sim_deb_basetime;                /* debug timestamp relative base time */
+char *sim_prompt                 = NULL;         /* prompt string */
+static FILE *sim_gotofile;                       /* the currently open do file */
+static int32 sim_goto_line[MAX_DO_NEST_LVL+1];   /* the current line number in the currently open do file */
+static int32 sim_do_echo         = 0;            /* the echo status of the currently open do file */
+static int32 sim_show_message    = 1;            /* the message display status of the currently open do file */
+static int32 sim_on_inherit      = 0;            /* the inherit status of on state and conditions when executing do files */
+static int32 sim_do_depth        = 0;
 
 static int32 sim_on_check[MAX_DO_NEST_LVL+1];
 static char *sim_on_actions[MAX_DO_NEST_LVL+1][SCPE_MAX_ERR+1];
@@ -349,12 +353,12 @@ static char sim_do_filename[MAX_DO_NEST_LVL+1][CBUFSIZE];
 static const char *sim_do_ocptr[MAX_DO_NEST_LVL+1];
 static const char *sim_do_label[MAX_DO_NEST_LVL+1];
 
-t_stat sim_last_cmd_stat;                               /* Command Status */
+t_stat sim_last_cmd_stat;                        /* Command Status */
 
-static SCHTAB sim_stabr;                                /* Register search specifier */
-static SCHTAB sim_staba;                                /* Memory search specifier */
+static SCHTAB sim_stabr;                         /* Register search specifier */
+static SCHTAB sim_staba;                         /* Memory search specifier */
 
-static UNIT sim_step_unit = { UDATA (&step_svc, 0, 0)  };
+static UNIT sim_step_unit   = { UDATA (&step_svc, 0, 0)  };
 static UNIT sim_expect_unit = { UDATA (&expect_svc, 0, 0)  };
 
 /* Tables and strings */
@@ -447,16 +451,17 @@ static const char simh_help[] =
 #define HLP_RESET       "*Commands Resetting Devices"
        /***************** 80 character line width template *************************/
       "2Resetting Devices\n"
-      " The `RESET` command (abbreviated `RE`) resets a device or the entire\n"
-      " simulator to a predefined condition.  If the switch \"-p\" is specified,\n"
+      " The `RESET` command (*abbreviated* `RE`) resets a device or the entire\n"
+      " simulator to a predefined condition.  If the switch \"`-p`\" is specified,\n"
       " the device is reset to its initial power-on state:\n\n"
       "++RESET                  resets all devices\n"
       "++RESET -p               power-cycle all devices\n"
       "++RESET ALL              resets all devices\n"
       "++RESET <device>         resets the specified <device>\n\n"
-      " Typically, `RESET` *aborts* in-progress I/O operations, *clears* any\n"
-      " interrupt requests, and returns the device to a quiescent state.\n"
-      " It does **NOT** clear the main memory or affect associated I/O connections.\n"
+      " * Typically, `RESET` *aborts* in-progress I/O operations, *clears* any\n"
+      " interrupt requests, and returns the device to a quiescent state.\n\n"
+      " * It does **NOT** clear the main memory or affect associated I/O\n"
+      " connections.\n"
 #define HLP_EXAMINE     "*Commands Examining_and_Changing_State"
 #define HLP_IEXAMINE    "*Commands Examining_and_Changing_State"
 #define HLP_DEPOSIT     "*Commands Examining_and_Changing_State"
@@ -464,42 +469,48 @@ static const char simh_help[] =
        /***************** 80 character line width template *************************/
       "2Examining and Changing State\n"
       " There are four commands to examine and change state:\n\n"
-      " * `EXAMINE` (abbreviated `E`) examines state\n"
-      " * `DEPOSIT` (abbreviated `D`) changes state\n"
-      " * `IEXAMINE` (\"interactive examine\", abbreviated `IE`) examines state\n"
+      " * `EXAMINE` (*abbreviated* `E`) examines state\n"
+      " * `DEPOSIT` (*abbreviated* `D`) changes state\n"
+      " * `IEXAMINE` (\"interactive examine\", *abbreviated* `IE`) examines state\n"
       "    and allows the user to interactively change it\n"
-      " * `IDEPOSIT` (interactive deposit, abbreviated `ID`) allows the user to\n"
+      " * `IDEPOSIT` (interactive deposit, *abbreviated* `ID`) allows the user to\n"
       "    interactively change state\n\n"
       " All four commands take the form:\n\n"
       "++command {modifiers} <object list>\n\n"
       " The `DEPOSIT` command requires the deposit value at the end of the command.\n\n"
-      " There are four kinds of modifiers: switches, device/unit name, search\n"
-      " specifier, and for `EXAMINE`, output file.  Switches have been described\n"
-      " previously.  A device/unit name identifies the device and unit whose\n"
-      " address space is to be examined or modified.  If no device is specified,\n"
-      " the CPU main memory is selected; if a device but no unit is specified,\n"
-      " unit `0` of the specified device is selected.\n\n"
-      " The search specifier provides criteria for testing addresses or registers\n"
-      " to see if they should be processed.  A specifier consists of a logical\n"
-      " operator, a relational operator, or both, optionally separated by spaces.\n\n"
+      " There are four kinds of modifiers: **switches**, **device/unit name**,\n"
+      " **search specifier**, and for `EXAMINE`, **output file**.\n\n"
+      " * **Switches** have been described previously.\n"
+      " * A **device/unit name** identifies the device and unit whose address\n"
+      " space is to be examined or modified. If no device is specified, the CPU\n"
+      " main memory is selected. If a device but no unit is specified, unit `0`\n"
+      " of the specified device is selected automatically.\n"
+      " * The **search specifier** provides criteria for testing addresses or\n"
+      " registers to see if they should be processed.  The search specifier\n"
+      " consists of a \"<`logical operator`>\", a \"<`relational operator`>\", or\n"
+      " both, optionally separated by spaces:\n\n"
       "++{ < logical op >  < value > }  < relational op >  < value >\n\n"
        /***************** 80 character line width template *************************/
-      " where the logical operator is & (and), | (or), or ^ (exclusive or), and the\n"
-      " relational operator is = or == (equal), ! or != (not equal), >= (greater\n"
-      " than or equal), > (greater than), <= (less than or equal), or < (less than).\n"
-      " If a logical operator is specified without a relational operator, it is\n"
-      " ignored.  If a relational operator is specified without a logical operator,\n"
-      " no logical operation is performed.  All comparisons are unsigned.\n\n"
-      " The output file modifier redirects command output to a file instead of the\n"
-      " console.  An output file modifier consists of the \"`@`\" (*commercial-at*)\n"
-      " character followed by a valid file name.\n\n"
-      " Modifiers may be specified in any order.  If multiple modifiers of the\n"
-      " same type are specified, later modifiers override earlier modifiers.  Note\n"
-      " that if the device/unit name comes *after* the search specifier, the search\n"
-      " values will interpreted in the *radix of the CPU*, rather than of the\n"
-      " device/unit.\n\n"
-      " The \"object list\" consists of one or more of the following, separated by\n"
-      " commas:\n\n"
+      " * * The \"<`logical operator`>\" may be \"`&`\" (*and*), \"`|`\" (*or*),\n"
+      " or \"`^`\" (*exclusive or*), and the \"<`relational operator`>\" may\n"
+      " be \"`=`\" or \"`==`\" (*equal*), \"`!`\" or \"`!=`\" (*not\n"
+      " equal*), \">=\" (*greater than or equal*), \">\" (*greater\n"
+      " than*), \"<=\" (*less than or equal*), or \"<\" (*less than*).\n"
+      " * * If any \"<`logical operator`>\" is specified without\n"
+      " a \"<`relational operator`>\", it is ignored.\n"
+      " * * If any \"<`relational operator`>\" is specified without\n"
+      " a \"<`logical operator`>\", no logical operation is performed.\n"
+      " * * All comparisons are unsigned.\n\n"
+      " * The **output file** modifier redirects the command output to a file\n"
+      " instead of the console.  The **output file** modifier is specified with\n"
+      " the \"`@`\" (*commercial-at*) character, followed by a valid file name.\n\n"
+      " **NOTE**: Modifiers may be specified in any order.  If multiple\n"
+      " modifiers of the same type are specified, later modifiers override earlier\n"
+      " modifiers. If the **device/unit name** comes *after* the search specifier,\n"
+      " the search values will interpreted in the *radix of the CPU*, rather than\n"
+      " of the device/unit.\n\n"
+      " The \"<`object list`>\" argument consists of one or more of the following,\n"
+      " separated by commas:\n\n"
        /***************** 80 character line width template *************************/
       "++register                the specified register\n"
       "++register[sub1-sub2]     the specified register array locations,\n"
@@ -522,14 +533,21 @@ static const char simh_help[] =
       "++$                       the last value displayed by an EXAMINE\n"
       "++++++++                  command interpreted as an address\n"
       "3Switches\n"
-      " Switches can be used to control the format of display information:\n\n"
+      "4Formatting Control\n"
+      " Switches can be used to control the format of the displayed information:\n\n"
        /***************** 80 character line width template *************************/
-      "++-a                 display as ASCII\n"
-      "++-c                 display as character string\n"
-      "++-m                 display as instruction mnemonics\n"
-      "++-o                 display as octal\n"
-      "++-d                 display as decimal\n"
-      "++-h                 display as hexadecimal\n\n"
+      "5-a\n"
+      " display as ASCII\n"
+      "5-c\n"
+      " display as character string\n"
+      "5-m\n"
+      " display as instruction mnemonics\n"
+      "5-o\n"
+      " display as octal\n"
+      "5-d\n"
+      " display as decimal\n"
+      "5-h\n"
+      " display as hexadecimal\n\n"
       "3Examples\n"
       "++ex 1000-1100                examine 1000 to 1100\n"
       "++de PC 1040                  set PC to 1040\n"
@@ -542,8 +560,8 @@ static const char simh_help[] =
       "++de &77>0 0                  set all addresses whose low order\n"
       "+++++++++                     bits are non-zero to 0\n"
       "++ex -m @memdump.txt 0-7777   dump memory to file\n\n"
-      " NOTE: To terminate an interactive command, simply type any bad value\n"
-      "       (e.g. XYZ) when input is requested.\n"
+      " * **NOTE**: To terminate an interactive command, simply type any bad value\n"
+      "           (*e.g.* `XYZ`) when input is requested.\n"
 #define HLP_EVALUATE    "*Commands Evaluating_Instructions"
        /***************** 80 character line width template *************************/
       "2Evaluating Instructions\n"
@@ -555,37 +573,38 @@ static const char simh_help[] =
       "2Running A Simulated Program\n"
 #define HLP_RUN         "*Commands Running_A_Simulated_Program RUN"
       "3RUN\n"
-      " The `RUN` command (abbreviated `RU`) resets all devices, deposits its\n"
+      " The `RUN` command (*abbreviated* `RU`) resets all devices, deposits its\n"
       " argument, if given, in the PC (program counter), and starts execution.\n"
       " If no argument is given execution starts at the current PC.\n"
 #define HLP_GO          "*Commands Running_A_Simulated_Program GO"
       "3GO\n"
-      " The `GO` command does *not* reset devices, deposits its argument (if given)\n"
-      " in the PC, and starts execution.  If no argument is given, execution\n"
-      " starts at the current PC (program counter).\n"
+      " The `GO` command does *not* reset devices, deposits its argument (if\n"
+      " given) in the PC, and starts execution.  If no argument is given,\n"
+      " execution starts at the current PC (program counter).\n"
 #define HLP_CONTINUE    "*Commands Running_A_Simulated_Program CONTINUE"
       "3CONTINUE\n"
-      " The `CONT` command (abbreviated `CO`) does *not* reset devices and resumes\n"
-      " execution at the current PC (program counter).\n"
+      " The `CONT` command (*abbreviated* `CO`) does *not* reset devices and\n"
+      " resumes execution at the current PC (program counter).\n"
 #define HLP_STEP        "*Commands Running_A_Simulated_Program STEP"
       "3STEP\n"
-      " The `STEP` command (abbreviated `S`) resumes execution at the current PC\n"
-      " for the number of instructions given by its argument.  If no argument is\n"
-      " supplied, one instruction is executed.\n"
+      " The `STEP` command (*abbreviated* `S`) resumes execution at the current\n"
+      " PC for the number of instructions given by its argument.  If no argument\n"
+      " is supplied, one instruction is executed.\n"
       "4Switches\n"
-      " If the `STEP` command is invoked with the \"-T\" switch, the step command\n"
-      " will cause execution to run for microseconds rather than instructions.\n"
+      " If the `STEP` command is invoked with the \"`-T`\" switch, the step\n"
+      " command will cause execution to run for *microseconds* rather than\n"
+      " instructions.\n"
 #define HLP_NEXT        "*Commands Running_A_Simulated_Program NEXT"
       "3NEXT\n"
-      " The `NEXT` command (abbreviated `N`) resumes execution at the current PC\n"
-      " for one instruction, attempting to execute through subroutine calls.\n"
-      " If the next instruction to be executed is not a subroutine call, then\n"
+      " The `NEXT` command (*abbreviated* `N`) resumes execution at the current PC\n"
+      " for one instruction, attempting to execute *through* subroutine calls.\n"
+      " If the next instruction to be executed is *not* a subroutine call, then\n"
       " one instruction is executed.\n"
 #define HLP_BOOT        "*Commands Running_A_Simulated_Program BOOT"
       "3BOOT\n"
-      " The `BOOT` command (abbreviated `BO`) resets all devices and bootstraps\n"
-      " the device and unit given by its argument. If no unit is supplied, unit `0`\n"
-      " is bootstrapped.  The specified unit must be attached.\n"
+      " The `BOOT` command (*abbreviated* `BO`) resets all devices and bootstraps\n"
+      " the device and unit given by its argument. If no unit is supplied,\n"
+      " unit `0` is bootstrapped.  The specified unit must be attached.\n"
        /***************** 80 character line width template *************************/
       "2Stopping The Simulator\n"
       " The simulator runs until the simulated hardware encounters an error, or\n"
@@ -601,8 +620,8 @@ static const char simh_help[] =
       "+++the simulation.\n"
       "3User Specified Stop Conditions\n"
       " Typing the interrupt character stops simulation.  The interrupt character\n"
-      " is defined by the `WRU` (*where are you*) console option, and is initially\n"
-      " set to 005 (^E).\n\n"
+      " is defined by the `WRU` (*Where aRe yoU*) console option, and is initially\n"
+      " set to `005` (`^E`).\n\n"
        /***************** 80 character line width template *************************/
 #define HLP_BREAK       "*Commands Stopping_The_Simulator User_Specified_Stop_Conditions BREAK"
 #define HLP_NOBREAK     "*Commands Stopping_The_Simulator User_Specified_Stop_Conditions BREAK"
@@ -615,9 +634,8 @@ static const char simh_help[] =
       " is *decremented*.  If the count is less than or equal to `0`, the breakpoint\n"
       " occurs; otherwise, it is deferred.  When the breakpoint occurs, any\n"
       " optional actions are automatically executed.\n\n"
-      " A breakpoint is set by the `BREAK` or the `SET BREAK` commands:\n\n"
-      "++BREAK {-types} {<addr range>{[count]},{addr range…}}{;action;action…}\n"
-      "++SET BREAK {-types} {<addr range>{[count]},{addr range…}}{;action;action…}\n\n"
+      " A breakpoint is set by the `BREAK` (or `SET BREAK`) command:\n\n"
+      "++BREAK {-types} {<addr range>{[count]},{addr range...}}{;action;action...}\n\n"
       " If no type is specified, the default breakpoint type (`E`, *execution*) is\n"
       " used.  If no address range is specified, the current PC is used.  As\n"
       " with `EXAMINE` and `DEPOSIT`, an address range may be a single address, a\n"
@@ -625,10 +643,11 @@ static const char simh_help[] =
        /***************** 80 character line width template *************************/
       "5Displaying Breakpoints\n"
       " Currently set breakpoints can be displayed with the `SHOW BREAK` command:\n\n"
-      "++SHOW {-C} {-types} BREAK {ALL|<addr range>{,<addr range>…}}\n\n"
+      "++SHOW {-C} {-types} BREAK {ALL|<addr range>{,<addr range>...}}\n\n"
       " Locations with breakpoints of the specified type are displayed.\n\n"
-      " The \"-C\" switch displays the selected breakpoint(s) formatted as commands\n"
-      " which may be subsequently used to establish the same breakpoint(s).\n\n"
+      " The \"`-C`\" switch displays the selected breakpoint(s) formatted as\n"
+      " commands which may be subsequently used to establish the same\n"
+      " breakpoint(s).\n\n"
       "5Removing Breakpoints\n"
       " Breakpoints can be cleared by the `NOBREAK` or the `SET NOBREAK` commands.\n"
       "5Examples\n"
@@ -645,63 +664,54 @@ static const char simh_help[] =
       " simulated unit, the user must specify the file to be accessed by that unit.\n"
 #define HLP_ATTACH      "*Commands Connecting_and_Disconnecting_Devices ATTACH"
       "3ATTACH\n"
-      " The `ATTACH` (abbreviation `AT`) command associates a unit and a file:\n\n"
+      " The `ATTACH` (*abbreviation* `AT`) command associates a unit and a file:\n\n"
       "++ATTACH <unit> <filename>\n\n"
       " Some devices have more detailed or specific help available with:\n\n"
       "++HELP <device> ATTACH\n\n"
       "4Switches\n"
       "5-n\n"
-      " If the \"-n\" switch is specified when an attach is executed, a new file\n"
-      " is created, and an appropriate message is printed.\n"
+      " If the \"`-n`\" switch is specified when an `ATTACH` is executed, a new\n"
+      " file is created, and an appropriate message is printed.\n"
       "5-e\n"
-      " If the file does not exist, and the \"-e\" switch was not specified, a new\n"
-      " file is created, and an appropriate message is printed.  If the `-e` switch\n"
-      " was specified, a new file is not created, and an error message is printed.\n"
+      " If the file does not exist, and the \"`-e`\" switch *was not* specified,\n"
+      " a new file is created, and an appropriate message is printed.  If\n"
+      " the \"`-e`\" switch *was* specified, a new file is *not* created, and an\n"
+      " error message is printed.\n"
       "5-r\n"
-      " If the `-r` switch is specified, or the file is write protected, `ATTACH`\n"
-      " tries to open the file read only.  If the file does not exist, or the unit\n"
-      " does not support read only operation, an error occurs.  Input-only devices,\n"
-      " such as paper-tape readers, or devices with write lock switches, such as\n"
-      " disks and tapes, support read only operation; other devices do not.  If a\n"
-      " file is attached read only, its contents can be examined but not modified.\n"
+      " If the \"`-r`\" switch is specified, or the file is write protected by\n"
+      " host operating system, `ATTACH` tries to open the file in read only mode.\n"
+      " If the file does not exist, or the unit does not support read only\n"
+      " operation, an error occurs.  Input-only devices, such as card readers, or\n"
+      " storage devices with write locking switches, such as disks or tapes,\n"
+      " support read only operation - other devices do not.  If a file is\n"
+      " attached read only, its contents can be examined but not modified.\n"
       "5-q\n"
-      " If the `-q` switch is specified when creating a new file (-n) or opening\n"
-      " one read only (-r), the message announcing this fact is suppressed.\n"
+      " If the \"`-q`\" switch is specified when creating a new file (\"`-n`\")\n"
+      " or opening one read only (\"`-r`\"), the message announcing this fact\n"
+      " is suppressed.\n"
       "5-f\n"
       " For simulated magnetic tapes, the `ATTACH` command can specify the format\n"
       " of the attached tape image file:\n\n"
       "++ATTACH -f <tape_unit> <format> <filename>\n\n"
-      " The currently supported tape image file formats are:\n\n"
-      "++SIMH                   SIMH portable tape format\n"
-      "++E11                    E11 simulator format\n"
-      "++TPC                    TPC format\n"
-      "++P7B                    Pierce simulator 7-track format\n\n"
+      " * The currently supported magnetic tape image file formats are:\n\n"
+      " |                  |                                                      |\n"
+      " | ----------------:|:---------------------------------------------------- |\n"
+      " | \"**`SIMH`**\"   | The **SIMH** / **DPS8M** native portable tape format |\n"
+      " | \"**`E11`**\"    | The *D Bit* **Ersatz-11** simulator format           |\n"
+      " | \"**`TPC`**\"    | The **TPC** format (*used by _SIMH_ prior to V2.3*)  |\n"
+      " | \"**`P7B`**\"    | The **Paul Pierce** `7`-track tape archive format    |\n\n"
        /***************** 80 character line width template *************************/
-      " For some simulated disk devices, the `ATTACH` command can specify the\n"
-      " format of the attached disk image file:\n\n"
-      "++ATTACH -f <disk_unit> <format> <filename>\n\n"
-      " The currently supported disk image file formats are:\n\n"
-      "++SIMH                   SIMH portable disk format\n\n"
-      " The disk format can also be set with the `SET` command prior to `ATTACH`:\n\n"
-      "++SET <disk_unit> FORMAT=<format>\n"
-      "++ATT <disk_unit> <filename>\n\n"
-       /***************** 80 character line width template *************************/
-      " The format of an attached tape or disk can be displayed with the `SHOW`\n"
-      " command:\n\n"
+      " * The format of an attached tape image can be displayed with\n"
+      "   the `SHOW FORMAT` command:\n\n"
       "++SHOW <unit> FORMAT\n\n"
-      " For `TELNET`-based terminal emulation devices, the `ATTACH` command\n"
-      " associates the master unit with a TCP listening port:\n\n"
-      "++ATTACH <unit> <port>\n\n"
-      " The port is a decimal number between 1 and 65535 that is not already used\n"
-      " other TCP/IP applications.\n"
        /***************** 80 character line width template *************************/
 #define HLP_DETACH      "*Commands Connecting_and_Disconnecting_Devices DETACH"
       "3DETACH\n"
-      " The `DETACH` (abbreviation `DET`) command breaks the association between\n"
-      " a unit and it's backing file, port, or device:\n\n"
+      " The `DETACH` (*abbreviation* `DET`) command breaks the association between\n"
+      " a unit and its backing file or device:\n\n"
       "++DETACH ALL             Detach all units\n"
       "++DETACH <unit>          Detach specified unit\n\n"
-      " The `EXIT` command performs an automatic `DETACH ALL`.\n"
+      " * **NOTE:** The `EXIT` command performs an automatic `DETACH ALL`.\n"
 #define HLP_SET         "*Commands SET"
       "2SET\n"
        /***************** 80 character line width template *************************/
@@ -760,26 +770,26 @@ static const char simh_help[] =
       " Debug message output can be enhanced to contain additional, potentially\n"
       " useful information.\n"
       "5-T\n"
-      " The `-T` switch causes debug output to contain a time of day displayed\n"
+      " The \"`-T`\" switch causes debug output to contain a time of day displayed\n"
       " as `hh:mm:ss.msec`.\n"
       "5-A\n"
-      " The `-A` switch causes debug output to contain a time of day displayed\n"
+      " The \"`-A`\" switch causes debug output to contain a time of day displayed\n"
       " as `seconds.msec`.\n"
       "5-R\n"
-      " The `-R` switch causes timing to be relative to the start of debugging.\n"
-      " If neither `-T` or `-A` was specified, `-T` is implied.\n"
+      " The \"`-R`\" switch causes timing to be relative to the start of debugging.\n"
+      " If neither \"`-T`\" or \"`-A`\" was specified, \"`-T`\" is implied.\n"
       "5-P\n"
-      " The `-P` switch adds the output of the PC (program counter) to each debug\n"
-      " message.\n"
+      " The \"`-P`\" switch adds the output of the PC (program counter) to each\n"
+      " debug message.\n"
       "5-N\n"
-      " The `-N` switch causes a new empty file to be written to.  The default\n"
+      " The \"`-N`\" switch causes a new empty file to be written to.  The default\n"
       " is to append to an existing debug log file.\n"
       "5-D\n"
-      " The `-D` switch causes data blob output to also display the data\n"
-      " as *RADIX-50* characters.\n"
+      " The \"`-D`\" switch causes data blob output to also display the data\n"
+      " as **`RADIX-50`** characters.\n"
       "5-E\n"
-      " The `-E` switch causes data blob output to also display the data\n"
-      " as *EBCDIC* characters.\n"
+      " The \"`-E`\" switch causes data blob output to also display the data\n"
+      " as \"**EBCDIC**\" characters.\n"
 #define HLP_SET_BREAK  "*Commands SET Breakpoints"
       "3Breakpoints\n"
       "+SET BREAK <list>            Set breakpoints\n"
@@ -791,19 +801,15 @@ static const char simh_help[] =
       "+SET ENVIRONMENT NAME        Clear environment variable\n"
 #define HLP_SET_ON      "*Commands SET Command_Status_Trap_Dispatching"
       "3Command Status Trap Dispatching\n"
-      "+SET ON                      Enables error checking after command\n"
-      "++++++++                     execution\n"
-      "+SET NOON                    Disables error checking after command\n"
-      "++++++++                     execution\n"
-      "+SET ON INHERIT              Enables inheritance of ON state and\n"
-      "++++++++                     actions into DO command files\n"
-      "+SET ON NOINHERIT            Disables inheritance of ON state and\n"
-      "++++++++                     actions into DO command files\n"
+      "+SET ON                      Enables error checking command execution\n"
+      "+SET NOON                    Disables error checking command execution\n"
+      "+SET ON INHERIT              Enables inheritance of ON state and actions\n"
+      "+SET ON NOINHERIT            Disables inheritance of ON state and actions\n"
 #define HLP_SET_VERIFY "*Commands SET Command_Execution_Display"
       "3Command Execution Display\n"
-      "+SET VERIFY                  Re-enables display of command file\n"
+      "+SET VERIFY                  Enables display of command file\n"
       "++++++++                     processed commands\n"
-      "+SET VERBOSE                 Re-enables display of command file\n"
+      "+SET VERBOSE                 Enables display of command file\n"
       "++++++++                     processed commands\n"
       "+SET NOVERIFY                Disables display of command file processed\n"
       "++++++++                     commands\n"
@@ -823,7 +829,7 @@ static const char simh_help[] =
       "++++++++                     messages\n"
 #define HLP_SET_PROMPT "*Commands SET Command_Prompt"
       "3Command Prompt\n"
-      "+SET PROMPT \"string\"        Sets an alternate simulator prompt string\n"
+      "+SET PROMPT \"string\"          Sets an alternate simulator prompt string\n"
       "3Device and Unit\n"
       "+SET <dev> OCT|DEC|HEX       Set device display radix\n"
       "+SET <dev> ENABLED           Enable device\n"
@@ -834,14 +840,13 @@ static const char simh_help[] =
       "+SET <unit> ENABLED          Enable unit\n"
       "+SET <unit> DISABLED         Disable unit\n"
       "+SET <unit> arg{,arg...}     Set unit parameters\n"
-      "+HELP <dev> SET              Displays the device specific set commands\n"
-      "++++++++                     available\n"
+      "+HELP <dev> SET              Displays any device specific SET commands\n"
        /***************** 80 character line width template *************************/
 #define HLP_SHOW        "*Commands SHOW"
       "2SHOW\n"
       "+SH{OW} {-C} BR{EAK} <list>  Show breakpoints\n"
       "+SH{OW} CON{FIGURATION}      Show configuration\n"
-      "+SH{OW} CONS{OLE} {aRg}      Show console options\n"
+      "+SH{OW} CONS{OLE} {arg}      Show console options\n"
       "+SH{OW} DEV{ICES}            Show devices\n"
       "+SH{OW} FEA{TURES}           Show system devices with descriptions\n"
       "+SH{OW} M{ODIFIERS}          Show modifiers applicable to all devices\n"
@@ -925,27 +930,29 @@ static const char simh_help[] =
 #define HLP_DO          "*Commands Executing_Command_Files"
       "2Executing Command Files\n"
       " The simulator can execute command files with the `DO` command:\n\n"
-      "++DO <filename> {arguments…}       execute commands in file\n\n"
+      "++DO <filename> {arguments...}       execute commands in file\n\n"
       " The `DO` command allows command files to contain substitutable arguments.\n"
-      " The string `%%n`, where `n` is a number between 1 and 9, is replaced with\n"
-      " argument `n` from the `DO` command line. The string `%%0` is replaced\n"
-      " with <filename>. The sequences `\\%%` and `\\\\` are replaced with the\n"
-      " literal characters `%%` and `\\`, respectively.  Arguments with spaces can\n"
-      " be enclosed in matching single or double quotation marks.\n\n"
-      " Nested `DO` commands is supported, up to ten invocations deep.\n\n"
+      " The string \"`%%n`\", where \"`n`\" is a number between `1` and `9`, is\n"
+      " replaced with argument \"`n`\" from the `DO` command line.  The\n"
+      " string \"`%%0`\" is replaced with \"<`filename`>\".\n"
+      " The sequences \"`\\%%`\" and \"`\\\\`\" are replaced with the\n"
+      " literal characters \"`%%`\" and \"`\\`\", respectively.  Arguments with\n"
+      " spaces can be enclosed in matching single or double quotation marks.\n\n"
+      " * **NOTE**: Nested `DO` commands are supported, up to ten invocations deep.\n\n"
       "3Switches\n"
-      " If the switch `-v` is specified, commands in the file are echoed *before*\n"
-      " they are executed.\n\n"
-      " If the switch `-e` is specified, command processing (including nested\n"
+      " * If the switch \"`-v`\" is specified, commands in the command file are\n"
+      " echoed *before* they are executed.\n\n"
+      " * If the switch \"`-e`\" is specified, command processing (including nested\n"
       " command invocations) will be aborted if any command error is encountered.\n"
-      " (A simulation stop never aborts processing; use `ASSERT` to catch unexpected\n"
-      " stops.)  Without the switch, all errors except `ASSERT` failures will be\n"
-      " ignored, and command processing will continue.\n\n"
-      " If the switch `-o` is specified, the on conditions and actions from the\n"
-      " calling command file will be inherited in the command file being invoked.\n"
-      " If the switch `-q` is specified, the *quiet mode* will be explicitly enabled\n"
-      " for the called command file, otherwise *quiet mode* is inherited from the\n"
-      " calling context.\n"
+      " (A simulation stop **never** aborts processing; use `ASSERT` to catch\n"
+      " unexpected stops.) Without this switch, all errors except `ASSERT` failures\n"
+      " will be ignored, and command processing will continue.\n\n"
+      " * If the switch \"`-o`\" is specified, the `ON` conditions and actions from\n"
+      " the calling command file will be inherited by the command file being\n"
+      " invoked.\n"
+      " If the switch \"`-q`\" is specified, *quiet mode* will be explicitly\n"
+      " enabled for the called command file, otherwise the *quiet mode* setting\n"
+      " is inherited from the calling context.\n"
        /***************** 80 character line width template *************************/
 #define HLP_GOTO        "*Commands Executing_Command_Files GOTO"
       "3GOTO\n"
@@ -954,11 +961,12 @@ static const char simh_help[] =
       " explict request is made to start command execution elsewhere with\n"
       " the `GOTO` command:\n\n"
       "++GOTO <label>\n\n"
-      " Labels are lines in a command file which the first non-whitespace\n"
-      " character is a \":\".  The target of a `GOTO` is the first matching label\n"
-      " in the current `DO` command file which is encountered.  Since labels\n"
-      " don't do anything other than specifying the target of a `GOTO`, they\n"
-      " may also be used to provide comments in `DO` command files.\n\n"
+      " * Labels are lines in a command file which the first non-whitespace\n"
+      " character is a \"`:`\".\n"
+      " * The target of a `GOTO` is the first matching label in the current `DO`\n"
+      " command file which is encountered.\n"
+      " * Since labels don't do anything other than specifying the target of\n"
+      " a `GOTO`, they may also be used to provide comments in `DO` command files.\n\n"
       "4Examples\n\n"
       " The following examples illustrate usage of the `GOTO` command:\n\n"
       "++:: This is a comment\n"
@@ -974,12 +982,13 @@ static const char simh_help[] =
       " If no return status is specified, the return status from the last command\n"
       " executed will be returned.  The calling context may have `ON` traps defined\n"
       " which may redirect command flow in that context.\n\n"
-      "++RETURN                   return from command file with last command status\n"
-      "++RETURN {-Q} <status>     return from command file with specific status\n\n"
-      " The status return can be any numeric value or one of the standard SCPE_\n"
+      "++RETURN                 return from command file with last command status\n"
+      "++RETURN {-Q} <status>   return from command file with specific status\n\n"
+      " * The status return can be any numeric value or one of the standard SCPE_\n"
       " condition names.\n\n"
-      " The `-Q` switch on the `RETURN` command will cause the specified status to\n"
-      " be returned, but normal error status message printing to be suppressed.\n"
+      " * The \"`-Q`\" switch on the `RETURN` command will cause the specified\n"
+      " status to be returned, but normal error status message printing to be\n"
+      " suppressed.\n"
       "4Condition Names\n"
       " The available standard SCPE_ condition names and their meanings are:\n"
       "5 NXM\n"
@@ -1083,18 +1092,18 @@ static const char simh_help[] =
        /***************** 80 character line width template *************************/
       "3PROCEED (IGNORE)\n"
       " The `PROCEED` and `IGNORE` commands do nothing.  They are potentially\n"
-      " useful placeholders for an `ON` action condition which should be\n"
-      " explicitly ignored.\n\n"
-      "++PROCEED                  Continue command file execution without doing anything\n"
-      "++IGNORE                   Continue command file execution without doing anything\n"
+      " useful placeholders for any `ON` action conditions which should be\n"
+      " explicitly ignored, allowing command file execution to continue without\n"
+      " taking any specific action.\n"
 #define HLP_ECHO        "*Commands Executing_Command_Files Displaying_Arbitrary_Text"
        /***************** 80 character line width template *************************/
       "3Displaying Arbitrary Text\n"
       " The `ECHO` command is a useful way of annotating command files.  `ECHO`\n"
       " prints out its arguments to the console (and to any applicable log file):\n\n"
       "++ECHO <string>      Output string to console\n\n"
-      " If there is no argument, `ECHO` prints a blank line.  This may be used to\n"
-      " provide spacing in the console display or log file output.\n"
+      " **NOTE**: If no arguments are specified, `ECHO` prints a blank line.\n"
+      " This may be used to provide spacing for console messages or log file\n"
+      " output.\n"
        /***************** 80 character line width template *************************/
 #define HLP_SEND        "*Commands Executing_Command_Files Injecting_Console_Input"
        /***************** 80 character line width template *************************/
@@ -1102,7 +1111,7 @@ static const char simh_help[] =
       " The `SEND` command provides a way to inject input to the console devices\n"
       " of the simulated system, as if it was entered by an interactive user.\n\n"
       "++SEND {-t} {after=nn,}{delay=nn,}\"<string>\"\n\n"
-      " The string argument *must* be delimited by quote characters.  Quotes may\n"
+      " * The string argument *must* be delimited by quote characters.  Quotes may\n"
       " be either single or double, but the opening and closing quote characters\n"
       " must match.  Data in the string may contain escaped character strings.\n\n"
       "++SEND {-t} <dev> {after=nn,}{delay=nn,}\"<string>\"\n\n"
@@ -1137,29 +1146,29 @@ static const char simh_help[] =
       " * `e` - Sends the ASCII Escape character (Decimal value `27`)\n"
       " * `'` - Sends the ASCII Single Quote character (Decimal value `39`)\n\n"
       " as well as *octal* character values of the form:\n\n"
-      "+++n{n{n}}   where each n is an octal digit (0-7)\n"
+      "+++n{n{n}}   where each n is an octal digit (0-7)\n\n"
       " and *hexadecimal* character values of the form:\n\n"
-      "+++xh{h}   where each `h` is a hex digit (0-9A-Fa-f)\n"
+      "+++xh{h}   where each `h` is a hex digit (0-9A-Fa-f)\n\n"
       "4Switches\n"
       " Switches can be used to influence the behavior of `SEND` commands\n\n"
       "5-t\n"
-      " The -t switch indicates that the `DELAY` and `AFTER` values are in\n"
-      " units of microseconds rather than instructions.\n"
+      " The \"`-t`\" switch indicates that the `DELAY` and `AFTER` values are in\n"
+      " units of *microseconds* rather than instructions.\n"
        /***************** 80 character line width template *************************/
 #define HLP_EXPECT      "*Commands Executing_Command_Files Reacting_To_Console_Output"
        /***************** 80 character line width template *************************/
       "3Reacting To Console Output\n"
       " The `EXPECT` command provides a way to stop execution and take actions\n"
       " when specific output has been generated by the simulated system.\n\n"
-      "++EXPECT {dev} {[count]} {HALTAFTER=n,}\"<string>\" {command {; command}…}\n\n"
-      " The string argument *must* be delimited by quote characters.  Quotes may\n"
+      "++EXPECT {dev} {[count]} {HALTAFTER=n,}\"<string>\" {command {; command}...}\n\n"
+      " * The string argument *must* be delimited by quote characters.  Quotes may\n"
       " be either single or double but the opening and closing quote characters\n"
       " must match.  Data in the string may contain escaped character strings.\n"
       " If a [count] is specified, the rule will match after the match string\n"
       " has matched count times.\n\n"
-      " When multiple expect rules are defined with the same match string, they\n"
+      " * When multiple expect rules are defined with the same match string, they\n"
       " will match in the same order they were defined in.\n\n"
-      " When expect rules are defined, they are evaluated agains recently\n"
+      " * When expect rules are defined, they are evaluated agains recently\n"
       " produced output as each character is output to the device.  Since this\n"
       " evaluation processing is done on each output character, rule matching\n"
       " is not specifically line oriented.  If line oriented matching is desired\n"
@@ -1174,14 +1183,14 @@ static const char simh_help[] =
       "5-p\n"
       " An expect rule is, by default, a one shot activity.  That is, a rule is\n"
       " automatically removed when it matches, unless it is designated as a\n"
-      " persistent rule by using the `-p` switch when the rule is defined.\n"
+      " persistent rule by using the \"`-p`\" switch when the rule is defined.\n"
       "5-c\n"
-      " If an expect rule is defined with the `-c` switch, it will cause all\n"
+      " If an expect rule is defined with the \"`-c`\" switch, it will cause all\n"
       " pending expect rules on the current device to be cleared when the rule\n"
       " matches data in the device output stream.\n"
        /***************** 80 character line width template *************************/
       "5-t\n"
-      " The `-t` switch indicates that the value specified by the `HALTAFTER`\n"
+      " The \"`-t`\" switch indicates that the value specified by the `HALTAFTER`\n"
       " parameter are in units of microseconds rather than instructions.\n"
       "4Determining Which Output Matched\n"
       " When an expect rule matches data in the output stream, the rule which\n"
@@ -1199,9 +1208,9 @@ static const char simh_help[] =
       " * `e` - Expect the ASCII Escape character (Decimal value `27`)\n"
       " * `'` - Expect the ASCII Single Quote character (Decimal value `39`)\n\n"
       " as well as *octal* character values of the form:\n\n"
-      "++n{n{n}}  where each n is an octal digit (0-7)\n"
+      "++n{n{n}}  where each n is an octal digit (0-7)\n\n"
       " and *hexadecimal* character values of the form:\n\n"
-      "++xh{h}  where each h is a hex digit (0-9A-Fa-f)\n"
+      "++xh{h}  where each h is a hex digit (0-9A-Fa-f)\n\n"
       "4HALTAFTER\n"
       " Specifies the number of instructions which should be executed before\n"
       " simulator instruction execution should stop.  The default is to stop\n"
@@ -1210,22 +1219,24 @@ static const char simh_help[] =
       " for that device.\n"
       " The `HALTAFTER` parameter value can be set by itself with:\n\n"
       "++EXPECT HALTAFTER=n\n\n"
-      " To avoid potentially unpredictable system hehavior that will happen\n"
-      " if multiple expect rules are in effect and a `HALTAFTER` value is large\n"
-      " enough for more than one rule to match before an earlier `HALTAFTER`\n"
-      " delay has expired, only a single expect rule can be defined if a\n"
-      " non-zero `HALTAFTER` parameter has been set.\n"
+      " * **NOTE**: To avoid potentially unpredictable system hehavior that\n"
+      " will happen if multiple expect rules are in effect and a `HALTAFTER`\n"
+      " value is large enough for more than one rule to match before an\n"
+      " earlier `HALTAFTER` delay has expired, only a *single* expect rule can\n"
+      " be defined when a non-zero `HALTAFTER` parameter has been set.\n"
       /***************** 80 character line width template *************************/
 #define HLP_ASSERT      "*Commands Executing_Command_Files Testing_Simulator_State"
 #define HLP_IF          "*Commands Executing_Command_Files Testing_Simulator_State"
       "3Testing Simulator State\n"
       " There are two ways for a command file to examine the simulator state and\n"
-      " take a specific action: the `ASSERT` command and the `IF` commands.\n"
+      " take a specific action:\n\n"
+      " * the `ASSERT` command, and\n"
+      " * the `IF` command.\n\n"
       "4ASSERT\n"
       " The `ASSERT` command tests a simulator state condition and halts command\n"
       " file execution if the condition is false:\n\n"
       "++ASSERT <Simulator State Expressions>\n\n"
-      " If the indicated expression evaluates to false, the command completes\n"
+      " * If the indicated expression evaluates to false, the command completes\n"
       " with an `AFAIL` condition.  By default, when a command file encounters a\n"
       " command which returns the `AFAIL` condition, it will exit the running\n"
       " command file with the `AFAIL` status to the calling command file.  This\n"
@@ -1246,14 +1257,14 @@ static const char simh_help[] =
       "++ATTACH MT1 user.tape\n"
       "++RUN\n\n"
        /***************** 80 character line width template *************************/
-      " In the above example, if the \"`A`\" register is not `0`, the \"`ASSERT A=0`\"\n"
-      " command will be displayed to the user, and the command file will be\n"
-      " aborted with an \"`Assertion failed`\" message.  Otherwise, the command\n"
-      " file will continue to bring up the operating system.\n"
+      " * In the above example, if the \"`A`\" register is *not* `0`,\n"
+      " the \"`ASSERT A=0`\" command will be displayed to the user, and the\n"
+      " command file will be aborted with an \"`Assertion failed`\" message.\n"
+      " Otherwise, the command file will continue to bring up the operating system.\n"
       "4IF\n"
       " The `IF` command tests a simulator state condition and executes additional\n"
       " commands if the condition is true:\n\n"
-      "++IF <Simulator State Expressions> commandtoprocess{; additionalcommand}…\n\n"
+      "++IF <Simulator State Expressions> commandtoprocess{; additionalcommand}...\n\n"
       "5Examples\n"
       " A command file might be used to bootstrap an operating system that\n"
       " halts after the initial load from disk.  The `ASSERT` command is then\n"
@@ -1269,9 +1280,9 @@ static const char simh_help[] =
       "++ATTACH MT1 user.tape\n"
       "++RUN\n\n"
        /***************** 80 character line width template *************************/
-      " In the above example, if the `A` register is not `0`, the\n"
+      " * In the above example, if the \"`A`\" register is *not* `0`, the\n"
       " message \"`Boot failed - Failure Code `\" will be displayed, the contents\n"
-      " of the `A` register will be displayed, and the command file will be\n"
+      " of the \"`A`\" register will be displayed, and the command file will be\n"
       " aborted with an \"`Assertion failed`\" message.  Otherwise, the command\n"
       " file will continue to bring up the operating system.\n"
       "4Conditional Expressions\n"
@@ -1280,59 +1291,68 @@ static const char simh_help[] =
       "5Simulator State Expressions\n"
       " The values of simulator registers can be evaluated with:\n\n"
       "++{NOT} {<dev>} <reg>|<addr>{<logical-op><value>}<conditional-op><value>\n\n"
-      " If <dev> is not specified, CPU is assumed.  <reg> is a register (scalar\n"
-      " or subscripted) belonging to the indicated device.  <addr> is an address\n"
-      " in the address space of the indicated device.  The <conditional-op>\n"
-      " and optional <logical-op> are the same as those used for \"search\n"
-      " specifiers\" by the `EXAMINE` and `DEPOSIT` commands.  The <value>s are\n"
-      " expressed in the radix specified for <reg>, not in the radix for the\n"
-      " device when referencing a register and when an address is referenced\n"
-      " the device radix is used as the default.\n\n"
-      " If the <logical-op> and <value> are specified, the target register value\n"
-      " is first altered as indicated.  The result is then compared to\n"
-      " the <value> via the <conditional-op>.  If the result is true, the\n"
-      " command(s) are executed before proceeding to the next line in the command\n"
-      " file.  Otherwise, the next command in the command file is processed.\n\n"
+      " * If \"<`dev`>\" is not specified, `CPU` is assumed.  \"<`reg`>\" is a\n"
+      " register belonging to the indicated device.\n"
+      " * The \"<`addr`>\" is an address in the address space of the indicated\n"
+      " device.\n"
+      " * The \"<`conditional-op`>\" and optional \"<`logical-op`>\" are\n"
+      " the same as those used for \"search specifiers\" by the `EXAMINE` and\n"
+      " `DEPOSIT` commands.\n"
+      " The \"<`value`>\" is expressed in the radix specified for \"<`reg`>\",\n"
+      " not in the radix for the device when referencing a register; when an\n"
+      " address is referenced the device radix is used as the default.\n\n"
+      " * If \"<`logical-op`>\" and \"<`value`>\" are specified, the target\n"
+      " register value is first altered as indicated.  The result is then compared\n"
+      " to the \"<`value`>\" via the \"<`conditional-op`>\".\n"
+      " * * If the result is *true*, the command(s) are executed before proceeding\n"
+      " to the next line in the command file.\n"
+      " * * If the result is *false*, the next command in the command file is\n"
+      " processed.\n\n"
       "5String Comparison Expressions\n"
       " String Values can be compared with:\n\n"
       "++{-i} {NOT} \"<string1>\" <compare-op> \"<string2>\"\n\n"
-      " The `-i` switch, if present, causes comparisons to be case insensitive.\n"
-      " The <string1> and <string2> are quoted string values which may have\n"
-      " environment variables substituted as desired.\n"
-      " The <compare-op> may be one of:\n\n"
-      "++==  - equal\n"
-      "++EQU - equal\n"
-      "++!=  - not equal\n"
-      "++NEQ - not equal\n"
-      "++<   - less than\n"
-      "++LSS - less than\n"
-      "++<=  - less than or equal\n"
-      "++LEQ - less than or equal\n"
-      "++>   - greater than\n"
-      "++GTR - greater than\n"
-      "++>=  - greater than or equal\n"
-      "++GEQ - greater than or equal\n\n"
-      " Comparisons are generic.  This means that if both string1 and string2 are\n"
-      " comprised of all numeric digits, then the strings are converted to numbers\n"
-      " and a numeric comparison is performed. For example: \"+1\" EQU \"1\" will be\n"
-      " true.\n"
+      " * The \"`-i`\" switch, if present, causes a comparison to be case\n"
+      "   insensitive.\n"
+      " * The \"<`string1`>\" and \"<`string2`>\" arguments are quoted string\n"
+      "   values which may have environment variables substituted as desired.\n"
+      " * The \"<`compare-op`>\" may be one of:\n\n"
+      " |                  |                        |\n"
+      " | ----------------:|:---------------------- |\n"
+      " | \"**`==`**\"     |  equal                 |\n"
+      " | \"**`EQU`**\"    |  equal                 |\n"
+      " | \"**`!=`**\"     |  not equal             |\n"
+      " | \"**`NEQ`**\"    |  not equal             |\n"
+      " | \"**<**\"        |  less than             |\n"
+      " | \"**`LSS`**\"    |  less than             |\n"
+      " | \"**<=**\"       |  less than or equal    |\n"
+      " | \"**`LEQ`**\"    |  less than or equal    |\n"
+      " | \"**>**\"        |  greater than          |\n"
+      " | \"**`GTR`**\"    |  greater than          |\n"
+      " | \"**>=**\"       |  greater than or equal |\n"
+      " | \"**`GEQ`**\"    |  greater than or equal |\n"
+      " * **NOTE**: Comparisons are *generic*.  This means that if\n"
+      " both \"<`string1`>\" and \"<`string2`>\" are comprised of all numeric\n"
+      " digits, then the strings are converted to numbers and a numeric\n"
+      " comparison is performed.  For example, the comparison\n"
+      " '`\"+1\"` `EQU` `\"1\"`' evaluates to *true*.\n"
        /***************** 80 character line width template *************************/
 #define HLP_EXIT        "*Commands Exiting_The_Simulator"
       "2Exiting The Simulator\n"
-      " The `EXIT` command (synonyms `QUIT` and `BYE`) exits the simulation,\n"
-      " returning control to the operating system.\n"
+      " The `EXIT` command (*synonyms* `QUIT` *and* `BYE`) exits the simulator,\n"
+      " returning control to the host operating system.\n"
        /***************** 80 character line width template *************************/
 #define HLP_SPAWN       "*Commands Executing_System_Commands"
       "2Executing System Commands\n"
-      " The simulator can execute operating system commands with the `!` (*spawn*)\n"
-      " command:\n\n"
-      "++!                    execute local command interpreter\n"
-      "++! <command>          execute local host command\n"
-      " If no operating system command is provided, the simulator attempts to\n"
-      " launch the host operating system's default interactive command shell.\n"
-      " The exit status from the command which was executed is set as the command\n"
-      " completion status for the `!` command.  This may influence any\n"
-      " enabled `ON` condition traps\n";
+      " * The simulator can execute host operating system commands with\n"
+      " the \"`!`\" (*spawn*) command.\n\n"
+      " |                         |                                             |\n"
+      " |:----------------------- |:------------------------------------------- |\n"
+      " | \"**`!`**\"             | Spawn the hosts default command interpreter |\n"
+      " | \"**`!`** <`command`>\" | Execute the host operating system `command` |\n\n"
+      " * **NOTE**: The *exit status* from the command which was executed is set\n"
+      " as the *command completion status* for the \"`!`\" command.  This may\n"
+      " influence any enabled `ON` condition traps.\n" ;
+       /***************** 80 character line width template *************************/
 
 static CTAB cmd_table[] = {
     { "RESET",      &reset_cmd,     0,          HLP_RESET },
@@ -1576,6 +1596,8 @@ DUMA_SET_FILL(0x2E);
 (void)atexit(CleanDUMA);
 # endif /* ifdef USE_DUMA */
 
+setlocale(LC_NUMERIC, "");
+
 # if defined(NEED_CONSOLE_SETUP) && defined(_WIN32)
 #  include <windows.h>
 #  ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
@@ -1597,17 +1619,12 @@ if (handle != INVALID_HANDLE_VALUE)
 puts ("\e[0m");
 # endif /* NEED_CONSOLE_SETUP */
 
-# ifdef NEED_128
-/* math128 sanity test */
-int testMath128 = math128_test();
-if (testMath128 != 0) {
-  fprintf (stderr,
-    "Error: 128-bit (NEED_128) math functions failed verification; aborting.\n");
-  return 0;
-}
-# endif /* NEED_128 */
+/* sanity checks */
 
-/* endian-ness sanity test */
+if (argc == 0) {
+    fprintf (stderr, "Error: main() called directly!\n");
+    return 0;
+}
 int testEndian = decContextTestEndian(1);
 if (testEndian != 0) {
   if (testEndian == 1) {
@@ -1624,19 +1641,16 @@ if (testEndian != 0) {
     "Error: Unable to determine system byte order; aborting.\n");
   return 0;
 }
-
-/* invocation sanity check */
-if (argc == 0) {
-    fprintf (stderr, "Error: main() called directly!\n");
-    return 0;
-}
+# ifdef NEED_128
+test_math128();
+# endif
 
 /* patch intel dispatcher */
 # ifdef __DISPATCH_H_
-#  if defined(__INTEL_COMPILER)       || \
-     defined(__INTEL_CLANG_COMPILER) || \
-     defined(__INTEL_LLVM_COMPILER)  || \
-     defined(INTEL_MKL_VERSION)      || \
+#  if defined(__INTEL_COMPILER)      ||  \
+     defined(__INTEL_CLANG_COMPILER) ||  \
+     defined(__INTEL_LLVM_COMPILER)  ||  \
+     defined(INTEL_MKL_VERSION)      ||  \
      defined(__INTEL_MKL__)
 (void)agner_compiler_patch();
 #  endif
@@ -1666,12 +1680,15 @@ for (i = 1; i < argc; i++) {                            /* loop thru args */
 # ifdef VER_H_GIT_VERSION
 #  if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #   if VER_H_GIT_PATCH_INT < 1
-        fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
+        fprintf (stdout, "%s simulator %s\n",
+                 sim_name, VER_H_GIT_VERSION);
 #   else
-        fprintf (stdout, "%s simulator %s+%s\n", sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
+        fprintf (stdout, "%s simulator %s+%s\n",
+                 sim_name, VER_H_GIT_VERSION, VER_H_GIT_PATCH);
 #   endif /* if VER_H_GIT_PATCH_INT < 1 */
 #  else
-        fprintf (stdout, "%s simulator %s\n", sim_name, VER_H_GIT_VERSION);
+        fprintf (stdout, "%s simulator %s\n",
+                 sim_name, VER_H_GIT_VERSION);
 #  endif /* if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT) */
 # else
         fprintf (stdout, "%s simulator\n", sim_name);
@@ -1729,12 +1746,14 @@ else
         fprintf (stdout, "\n********** LICENSE RESTRICTED BUILD ****** NOT FOR REDISTRIBUTION **********");
 }
         fprintf (stdout, "\n");
+        free(argv);
         return 0;
     }
     /* invalid arguments? */
     if ((*argv[i] == '-') && lookswitch) {              /* switch? */
         if ((sw = get_switches (argv[i])) < 0) {
             fprintf (stderr, "Invalid switch \"%s\".\nTry \"%s -h\" for help.\n", argv[i], argv[0]);
+            free(argv);
             return 0;
             }
         sim_switches = sim_switches | sw;
@@ -1743,35 +1762,36 @@ else
     else {
         if ((strlen (argv[i]) + strlen (cbuf) + 3) >= sizeof(cbuf)) {
             fprintf (stderr, "Argument string too long\n");
+            free(argv);
             return 0;
             }
-        if (*cbuf)                                      /* concat args */
+        if (*cbuf)                                  /* concat args */
             strcat (cbuf, " ");
         sprintf(&cbuf[strlen(cbuf)], "%s%s%s", strchr(argv[i], ' ') ? \
           "\"" : "", argv[i], strchr(argv[i], ' ') ? "\"" : "");
-        lookswitch = FALSE;                             /* no more switches */
+        lookswitch = FALSE;                         /* no more switches */
         }
-    }                                                   /* end for */
-sim_nolock = sim_switches & SWMASK ('K');               /* -k means skip locking     */
-sim_iglock = sim_switches & SWMASK ('L');               /* -l means ignore locking   */
-sim_randompst = sim_switches & SWMASK ('S');            /* -s means persist random   */
-sim_quiet = sim_switches & SWMASK ('Q');                /* -q means quiet            */
-sim_randstate = sim_switches & SWMASK ('R');            /* -r means random sys_state */
-if (sim_randompst) sim_randstate = 1;                   /*    and is implied with -s */
-sim_nostate = sim_switches & SWMASK ('T');              /* -t means no sys_state     */
-if (sim_nostate)                                        /*    and disables -s and -r */
+    }                                               /* end for */
+sim_nolock = sim_switches & SWMASK ('K');           /* -k means skip locking     */
+sim_iglock = sim_switches & SWMASK ('L');           /* -l means ignore locking   */
+sim_randompst = sim_switches & SWMASK ('S');        /* -s means persist random   */
+sim_quiet = sim_switches & SWMASK ('Q');            /* -q means quiet            */
+sim_randstate = sim_switches & SWMASK ('R');        /* -r means random sys_state */
+if (sim_randompst) sim_randstate = 1;               /*    and is implied with -s */
+sim_nostate = sim_switches & SWMASK ('T');          /* -t means no sys_state     */
+if (sim_nostate)                                    /*    and disables -s and -r */
   {
     sim_randompst = 0;
     sim_randstate = 0;
   }
-sim_on_inherit = sim_switches & SWMASK ('O');           /* -o means inherit on state */
+sim_on_inherit = sim_switches & SWMASK ('O');       /* -o means inherit on state */
 
-sim_init_sock ();                                       /* init socket capabilities */
-if (sim_dflt_dev == NULL)                               /* if no default */
+sim_init_sock ();                                   /* init socket capabilities */
+if (sim_dflt_dev == NULL)                           /* if no default */
     sim_dflt_dev = sim_devices[0];
-if (sim_vm_init != NULL)                                /* call once only */
+if (sim_vm_init != NULL)                            /* call once only */
     (*sim_vm_init)();
-sim_finit ();                                           /* init fio package */
+sim_finit ();                                       /* init fio package */
 for (i = 0; cmd_table[i].name; i++) {
     size_t alias_len = strlen (cmd_table[i].name);
     char *cmd_name = (char *)calloc (1 + alias_len, sizeof (*cmd_name));
@@ -1799,20 +1819,24 @@ sim_timer_init ();
 if ((stat = sim_ttinit ()) != SCPE_OK) {
     fprintf (stderr, "Fatal terminal initialization error\n%s\n",
         sim_error_text (stat));
+    free(argv);
     return 0;
     }
 if ((sim_eval = (t_value *) calloc (sim_emax, sizeof (t_value))) == NULL) {
     fprintf (stderr, "Unable to allocate examine buffer\n");
+    free(argv);
     return 0;
     };
 if ((stat = reset_all_p (0)) != SCPE_OK) {
     fprintf (stderr, "Fatal simulator initialization error\n%s\n",
         sim_error_text (stat));
+    free(argv);
     return 0;
     }
 if ((stat = sim_brk_init ()) != SCPE_OK) {
     fprintf (stderr, "Fatal breakpoint table initialization error\n%s\n",
         sim_error_text (stat));
+    free(argv);
     return 0;
     }
 if (!sim_quiet) {
@@ -2349,11 +2373,11 @@ if (dptr->description)
     fprintf (st, "%s %s HELP\n", dptr->description (dptr), dptr->name);
 else
     fprintf (st, "%s HELP\n", dptr->name);
-fprint_set_help_ex (st, dptr, TRUE);
-fprint_show_help_ex (st, dptr, TRUE);
+fprint_set_help_ex    (st, dptr, TRUE);
+fprint_show_help_ex   (st, dptr, TRUE);
 fprint_attach_help_ex (st, dptr, TRUE);
-fprint_reg_help_ex (st, dptr, TRUE);
-fprint_brk_help_ex (st, dptr, TRUE);
+fprint_reg_help_ex    (st, dptr, TRUE);
+fprint_brk_help_ex    (st, dptr, TRUE);
 return SCPE_OK;
 }
 
@@ -2401,6 +2425,7 @@ if (*cptr) {
                     return r;
                     }
                 if (cmdp->action == &set_cmd) { /* HELP SET xxx (not device or unit) */
+                    /*LINTED E_EQUALITY_NOT_ASSIGNMENT*/
                     if ((cmdp = find_ctab (set_glob_tab, gbuf)) &&
                          (cmdp->help))
                         return help_cmd_output (flag, cmdp->help, cmdp->help_base);
@@ -2418,11 +2443,13 @@ if (*cptr) {
             }
         if (cmdp->help) {
             if (strcmp (cmdp->name, "HELP") == 0) {
+#if 0
                 DEVICE *dptr;
                 int i;
+                /*LINTED E_END_OF_LOOP_CODE_NOT_REACHED*/
                 for (i = 0; (dptr = sim_devices[i]) != NULL; i++) {
                     break;
-                    /* UNREACHABLE */
+                    /*NOTREACHED*/ /* XXX(jhj): NOTREACHED below */
                     if (dptr->help)
                         sim_printf ("H{ELP} %-17s Display help for device %s\n", dptr->name, dptr->name);
                     if (dptr->attach_help ||
@@ -2445,6 +2472,7 @@ if (*cptr) {
                             }
                         }
                     }
+#endif /* 0 */
                 }
             else {
                 if (((cmdp->action == &exdep_cmd) || (0 == strcmp(cmdp->name, "BOOT"))) &&
@@ -2521,31 +2549,25 @@ sim_printf ("%s\n", cptr);
 return SCPE_OK;
 }
 
-/* Do command
-
-   Syntax: DO {-E} {-V} <filename> {<arguments>...}
-
-   -E causes all command errors to be fatal; without it, only EXIT and ASSERT
-   failure will stop a command file.
-
-   -V causes commands to be echoed before execution.
-
-   Note that SCPE_STEP ("Step expired") is considered a note and not an error
-   and so does not abort command execution when using -E.
-
-   Inputs:
-        flag    =   caller and nesting level indicator
-        fcptr   =   filename and optional arguments, space-separated
-   Outputs:
-        status  =   error status
-
-   The "flag" input value indicates the source of the call, as follows:
-
-        -1      =   initialization file (no error if not found)
-         0      =   command line file
-         1      =   "DO" command
-        >1      =   nested "DO" command
-*/
+/*
+ * DO command
+ *
+ * Note that SCPE_STEP ("Step expired") is considered a note and
+ * not an error; it does not abort command execution when using -E.
+ *
+ * Inputs:
+ *      flag    =   caller and nesting level indicator
+ *      fcptr   =   filename and optional arguments, space-separated
+ * Outputs:
+ *      status  =   error status
+ *
+ * The "flag" input value indicates the source of the call, as follows:
+ *
+ *      -1      =   initialization file (no error if not found)
+ *       0      =   command line file
+ *       1      =   "DO" command
+ *      >1      =   nested "DO" command
+ */
 
 t_stat do_cmd (int32 flag, CONST char *fcptr)
 {
@@ -2556,7 +2578,10 @@ static char *do_position(void)
 {
 static char cbuf[4*CBUFSIZE];
 
-snprintf (cbuf, sizeof (cbuf), "%s%s%s-%d", sim_do_filename[sim_do_depth], sim_do_label[sim_do_depth] ? "::" : "", sim_do_label[sim_do_depth] ? sim_do_label[sim_do_depth] : "", sim_goto_line[sim_do_depth]);
+snprintf (cbuf, sizeof (cbuf), "%s%s%s-%d", sim_do_filename[sim_do_depth],
+    sim_do_label[sim_do_depth] ? "::" : "",
+    sim_do_label[sim_do_depth] ? sim_do_label[sim_do_depth] : "",
+    sim_goto_line[sim_do_depth]);
 return cbuf;
 }
 
@@ -2772,46 +2797,47 @@ if (cmdp && (cmdp->action == &return_cmd) && (0 != *cptr)) { /* return command w
 return stat | SCPE_NOMESSAGE;                           /* suppress message since we've already done that here */
 }
 
-/* Substitute_args - replace %n tokens in 'instr' with the do command's arguments
-                     and other enviroment variables
+/*
+ * Substitute_args - replace %n tokens in 'instr' with the do command's arguments
+ *                   and other enviroment variables
+ *
+ * Calling sequence
+ * instr        =       input string
+ * instr_size   =       sizeof input string buffer
+ * do_arg[10]   =       arguments
+ *
+ * Token "%0" expands to the command file name.
+ * Token %n (n being a single digit) expands to the n'th argument
+ * Tonen %* expands to the whole set of arguments (%1 ... %9)
+ *
+ * The input sequence "\%" represents a literal "%", and "\\" represents a
+ * literal "\".  All other character combinations are rendered literally.
+ *
+ * Omitted parameters result in null-string substitutions.
+ *
+ * A Tokens preceeded and followed by % characters are expanded as environment
+ * variables, and if one isn't found then can be one of several special
+ * variables:
+ *   %DATE%              yyyy-mm-dd
+ *   %TIME%              hh:mm:ss
+ *   %STIME%             hh_mm_ss
+ *   %CTIME%             Www Mmm dd hh:mm:ss yyyy
+ *   %STATUS%            Status value from the last command executed
+ *   %TSTATUS%           The text form of the last status value
+ *   %SIM_VERIFY%        The Verify/Verbose mode of the current Do command file
+ *   %SIM_VERBOSE%       The Verify/Verbose mode of the current Do command file
+ *   %SIM_QUIET%         The Quiet mode of the current Do command file
+ *   %SIM_MESSAGE%       The message display status of the current Do command file
+ * Environment variable lookups are done first with the precise name between
+ * the % characters and if that fails, then the name between the % characters
+ * is upcased and a lookup of that value is attempted.
 
-   Calling sequence
-   instr        =       input string
-   instr_size   =       sizeof input string buffer
-   do_arg[10]   =       arguments
-
-   Token "%0" expands to the command file name.
-   Token %n (n being a single digit) expands to the n'th argument
-   Tonen %* expands to the whole set of arguments (%1 ... %9)
-
-   The input sequence "\%" represents a literal "%", and "\\" represents a
-   literal "\".  All other character combinations are rendered literally.
-
-   Omitted parameters result in null-string substitutions.
-
-   A Tokens preceeded and followed by % characters are expanded as environment
-   variables, and if one isn't found then can be one of several special
-   variables:
-          %DATE%              yyyy-mm-dd
-          %TIME%              hh:mm:ss
-          %STIME%             hh_mm_ss
-          %CTIME%             Www Mmm dd hh:mm:ss yyyy
-          %STATUS%            Status value from the last command executed
-          %TSTATUS%           The text form of the last status value
-          %SIM_VERIFY%        The Verify/Verbose mode of the current Do command file
-          %SIM_VERBOSE%       The Verify/Verbose mode of the current Do command file
-          %SIM_QUIET%         The Quiet mode of the current Do command file
-          %SIM_MESSAGE%       The message display status of the current Do command file
-   Environment variable lookups are done first with the precise name between
-   the % characters and if that fails, then the name between the % characters
-   is upcased and a lookup of that value is attempted.
-
-   The first Space delimited token on the line is extracted in uppercase and
-   then looked up as an environment variable.  If found it the value is
-   substituted for the original string before expanding everything else.  If
-   it is not found, then the original beginning token on the line is left
-   untouched.
-*/
+ * The first Space delimited token on the line is extracted in uppercase and
+ * then looked up as an environment variable.  If found it the value is
+ * substituted for the original string before expanding everything else.  If
+ * it is not found, then the original beginning token on the line is left
+ * untouched.
+ */
 
 void sim_sub_args (char *instr, size_t instr_size, char *do_arg[])
 {
@@ -3174,39 +3200,8 @@ if (v1 < v2)
 return 1;
 }
 
-/* Assert command
-   If command
+/* Assert command */
 
-   Syntax: ASSERT {NOT} {<dev>} <reg>{<logical-op><value>}<conditional-op><value>
-   Syntax: IF {NOT} {<dev>} <reg>{<logical-op><value>}<conditional-op><value> commandtoprocess{; additionalcommand}...
-
-       If NOT is specified, the resulting expression value is inverted.
-       If <dev> is not specified, sim_dflt_dev (CPU) is assumed.
-       <value> is expressed in the radix specified for <reg>.
-       <logical-op> and <conditional-op> are the same as that
-       allowed for examine and deposit search specifications.
-
-   Syntax: ASSERT {-i} {NOT} "<string1>" <compare-op> "<string2>"
-   Syntax: IF {-i} {NOT} "<string1>" <compare-op> "<string2>" commandtoprocess{; additionalcommand}...
-
-       If -i is specified, the comparisons are done in a case insensitive manner.
-       If NOT is specified, the resulting expression value is inverted.
-       "<string1>" and "<string2>" are quote delimited strings which include
-       expansion references to environment variables in the simulator.
-       <compare-op> can be any one of:
-            ==  - equal
-            EQU - equal
-            !=  - not equal
-            NEQ - not equal
-            <   - less than
-            LSS - less than
-            <=  - less than or equal
-            LEQ - less than or equal
-            >   - greater than
-            GTR - greater than
-            >=  - greater than or equal
-            GEQ - greater than or equal
-*/
 t_stat assert_cmd (int32 flag, CONST char *cptr)
 {
 char gbuf[CBUFSIZE], gbuf2[CBUFSIZE];
@@ -3239,19 +3234,20 @@ if (*cptr == '"') {                                     /* quoted string compari
         t_bool invert;
         } *optr, compare_ops[] =
         {
-            {"==",   0,  0, FALSE},
-            {"EQU",  0,  0, FALSE},
-            {"!=",   0,  0, TRUE},
-            {"NEQ",  0,  0, TRUE},
-            {"<",   -1, -1, FALSE},
-            {"LSS", -1, -1, FALSE},
-            {"<=",   0, -1, FALSE},
-            {"LEQ",  0, -1, FALSE},
-            {">",    1,  1, FALSE},
-            {"GTR",  1,  1, FALSE},
-            {">=",   0,  1, FALSE},
-            {"GEQ",  0,  1, FALSE},
-            {NULL}};
+            { "==",   0,  0, FALSE },
+            { "EQU",  0,  0, FALSE },
+            { "!=",   0,  0, TRUE  },
+            { "NEQ",  0,  0, TRUE  },
+            { "<",   -1, -1, FALSE },
+            { "LSS", -1, -1, FALSE },
+            { "<=",   0, -1, FALSE },
+            { "LEQ",  0, -1, FALSE },
+            { ">",    1,  1, FALSE },
+            { "GTR",  1,  1, FALSE },
+            { ">=",   0,  1, FALSE },
+            { "GEQ",  0,  1, FALSE },
+            { NULL }
+        };
 
     tptr = (CONST char *)get_glyph_gen (cptr, gbuf, '=', (sim_switches & SWMASK ('I')), TRUE, '\\');
                                                     /* get first string */
@@ -3350,38 +3346,7 @@ else
 return SCPE_OK;
 }
 
-/* Send command
-
-   Syntax: SEND {After=m},{Delay=n},"string-to-send"
-
-   After  - is a positive integer representing a number of instruction delay
-            before the initial characters is sent.  The value specified
-            in a after argument persists across SEND commands.  The after
-            parameter can be set by itself with SEND AFTER=n
-   Delay  - is a positive integer representing a minimal instruction delay
-            before and between characters being sent.  The value specified
-            in a delay argument persists across SEND commands.  The delay
-            parameter can be set by itself with SEND DELAY=n
-   String - must be quoted.  Quotes may be either single or double but the
-            opening anc closing quote characters must match.  Within quotes
-            C style character escapes are allowed.
-            The following character escapes are explicitly supported:
-        \r  Sends the ASCII Carriage Return character (Decimal value 13)
-        \n  Sends the ASCII Linefeed character (Decimal value 10)
-        \f  Sends the ASCII Formfeed character (Decimal value 12)
-        \t  Sends the ASCII Horizontal Tab character (Decimal value 9)
-        \v  Sends the ASCII Vertical Tab character (Decimal value 11)
-        \b  Sends the ASCII Backspace character (Decimal value 8)
-        \\  Sends the ASCII Backslash character (Decimal value 92)
-        \'  Sends the ASCII Single Quote character (Decimal value 39)
-        \"  Sends the ASCII Double Quote character (Decimal value 34)
-        \?  Sends the ASCII Question Mark character (Decimal value 63)
-        \e  Sends the ASCII Escape character (Decimal value 27)
-     as well as octal character values of the form:
-        \n{n{n}} where each n is an octal digit (0-7)
-     and hext character values of the form:
-        \xh{h} where each h is a hex digit (0-9A-Fa-f)
-   */
+/* Send command */
 
 t_stat send_cmd (int32 flag, CONST char *cptr)
 {
@@ -3397,6 +3362,9 @@ SEND *snd = NULL;
 GET_SWITCHES (cptr);                                    /* get switches */
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
+    r = tmxr_locate_line_send (gbuf, &snd);
+    if (r != SCPE_OK)
+      return r;
     cptr = tptr;
     tptr = get_glyph (tptr, gbuf, ',');
     }
@@ -3443,10 +3411,14 @@ t_stat sim_show_send (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char
 {
 char gbuf[CBUFSIZE];
 CONST char *tptr;
+t_stat r;
 SEND *snd = NULL;
 
 tptr = get_glyph (cptr, gbuf, ',');
 if (sim_isalpha(gbuf[0]) && (strchr (gbuf, ':'))) {
+    r = tmxr_locate_line_send (gbuf, &snd);
+    if (r != SCPE_OK)
+      return r;
     cptr = tptr;
     }
 else
@@ -3531,40 +3503,43 @@ while (1) {
         return SCPE_OK;
         }
     }
-sim_do_echo = saved_do_echo;                            /* restore echo mode */
-fseek(sim_gotofile, fpos, SEEK_SET);                    /* restore start position */
-sim_goto_line[sim_do_depth] = saved_goto_line;          /* restore start line number */
+sim_do_echo = saved_do_echo;                       /* restore echo mode         */
+fseek(sim_gotofile, fpos, SEEK_SET);               /* restore start position    */
+sim_goto_line[sim_do_depth] = saved_goto_line;     /* restore start line number */
 return SCPE_ARG;
 }
 
 /* Return command */
-/* The return command is invalid unless encountered in a do_cmd context, */
-/* and in that context, it is handled as a special case inside of do_cmd() */
+
+/* The return command is invalid unless encountered in a do_cmd context,    */
+/* and in that context, it is handled as a special case inside of do_cmd()  */
 /* and not dispatched here, so if we get here a return has been issued from */
 /* interactive input */
 
 t_stat return_cmd (int32 flag, CONST char *fcptr)
 {
-return SCPE_UNK;                                        /* only valid inside of do_cmd */
+return SCPE_UNK;                                 /* only valid inside of do_cmd */
 }
 
 /* Shift command */
-/* The shift command is invalid unless encountered in a do_cmd context, */
+
+/* The shift command is invalid unless encountered in a do_cmd context,    */
 /* and in that context, it is handled as a special case inside of do_cmd() */
 /* and not dispatched here, so if we get here a shift has been issued from */
 /* interactive input (it is not valid interactively since it would have to */
-/* mess with the program's argv which is owned by the C runtime library */
+/* mess with the program's argv which is owned by the C runtime library    */
 
 t_stat shift_cmd (int32 flag, CONST char *fcptr)
 {
-return SCPE_UNK;                                        /* only valid inside of do_cmd */
+return SCPE_UNK;                                 /* only valid inside of do_cmd */
 }
 
 /* Call command */
-/* The call command is invalid unless encountered in a do_cmd context, */
+
+/* The call command is invalid unless encountered in a do_cmd context,     */
 /* and in that context, it is handled as a special case inside of do_cmd() */
-/* and not dispatched here, so if we get here a call has been issued from */
-/* interactive input */
+/* and not dispatched here, so if we get here a call has been issued from  */
+/* interactive input                                                       */
 
 t_stat call_cmd (int32 flag, CONST char *fcptr)
 {
@@ -3605,7 +3580,6 @@ return SCPE_OK;
 }
 
 /* noop command */
-/* The noop command (IGNORE, PROCEED) does nothing */
 
 t_stat noop_cmd (int32 flag, CONST char *cptr)
 {
@@ -3948,7 +3922,7 @@ return SCPE_OK;
 
 t_stat show_cmd (int32 flag, CONST char *cptr)
 {
-t_stat r;
+t_stat r = SCPE_IERR;
 
 cptr = get_sim_opt (CMD_OPT_SW|CMD_OPT_OF, cptr, &r);
                                                         /* get sw, ofile */
@@ -4383,9 +4357,9 @@ if (flag) {
 # define NO_SUPPORT_VERSION 1
         nodist++;
 #endif /* if defined(USE_DUMA) */
-#if defined(NO_SUPPORT_VERSION) || \
-    defined(TESTING)            || \
-    defined(ISOLTS)             || \
+#if defined(NO_SUPPORT_VERSION) ||  \
+    defined(TESTING)            ||  \
+    defined(ISOLTS)             ||  \
     defined(USE_DUMA)
 # ifndef NO_SUPPORT_VERSION
 #  define NO_SUPPORT_VERSION 1
@@ -4410,33 +4384,48 @@ if (flag) {
           }
 
         /* Dirty if version contains "Z", "D", "A", or "B" */
-        if ((strstr(VER_H_GIT_VERSION, "Z")) || \
-            (strstr(VER_H_GIT_VERSION, "D")) || \
-            (strstr(VER_H_GIT_VERSION, "A")) || \
+        if ((strstr(VER_H_GIT_VERSION, "Z")) ||  \
+            (strstr(VER_H_GIT_VERSION, "D")) ||  \
+            (strstr(VER_H_GIT_VERSION, "A")) ||  \
             (strstr(VER_H_GIT_VERSION, "B"))) {
                 dirty++;
         }
 #  if defined(VER_H_GIT_PATCH) && defined(VER_H_GIT_PATCH_INT)
 #   if defined(VER_H_GIT_HASH)
 #    if VER_H_GIT_PATCH_INT < 1
-    fprintf (st, "\n   Version: %s\n    Commit: %s", VER_H_GIT_VERSION, VER_H_GIT_HASH);
+    fprintf (st, "\n   Version: %s (%ld-bit)\n    Commit: %s",
+             VER_H_GIT_VERSION,
+             (long)(CHAR_BIT*sizeof(void *)),
+             VER_H_GIT_HASH);
 #    else
 #     define NO_SUPPORT_VERSION 1
-    fprintf (st, "\n   Version: %s+%s\n    Commit: %s", VER_H_GIT_VERSION, VER_H_GIT_PATCH, VER_H_GIT_HASH);
+    fprintf (st, "\n   Version: %s+%s (%ld-bit)\n    Commit: %s",
+             VER_H_GIT_VERSION, VER_H_GIT_PATCH,
+             (long)(CHAR_BIT*sizeof(void *)),
+             VER_H_GIT_HASH);
 #    endif
 #   else
 #    if VER_H_GIT_PATCH_INT < 1
-        fprintf (st, "\n   Version: %s", VER_H_GIT_VERSION);
+        fprintf (st, "\n   Version: %s (%ld-bit)",
+                 VER_H_GIT_VERSION,
+                 (long)(CHAR_BIT*sizeof(void *)));
 #    else
 #     define NO_SUPPORT_VERSION 1
-        fprintf (st, "\n   Version: %s+%s", VER_H_GIT_VERSION, VER_H_GIT_PATCH);
+        fprintf (st, "\n   Version: %s+%s (%ld-bit)",
+                 VER_H_GIT_VERSION, VER_H_GIT_PATCH,
+                 (long)(CHAR_BIT*sizeof(void *)));
 #    endif
 #   endif
 #  else
 #   if defined(VER_H_GIT_HASH)
-        fprintf (st, "\n   Version: %s\n    Commit: %s", VER_H_GIT_VERSION, VER_H_GIT_HASH);
+        fprintf (st, "\n   Version: %s (%ld-bit)\n    Commit: %s",
+                 VER_H_GIT_VERSION,
+                 (long)(CHAR_BIT*sizeof(void *)),
+                 VER_H_GIT_HASH);
 #   else
-        fprintf (st, "\n   Version: %s", VER_H_GIT_VERSION);
+        fprintf (st, "\n   Version: %s (%ld-bit)",
+                 VER_H_GIT_VERSION,
+                 (long)(CHAR_BIT*sizeof(void *)));
 #   endif
 #  endif
 # endif
@@ -4561,7 +4550,11 @@ if (flag) {
     fprintf (st, "\n  Compiler: %s", postver);
 # endif
 #elif defined (_MSC_FULL_VER) && defined (_MSC_BUILD)
-    fprintf (st, "\n  Compiler: Microsoft C %d.%02d.%05d.%02d", _MSC_FULL_VER/10000000, (_MSC_FULL_VER/100000)%100, _MSC_FULL_VER%100000, _MSC_BUILD);
+    fprintf (st, "\n  Compiler: Microsoft C %d.%02d.%05d.%02d",
+             _MSC_FULL_VER/10000000,
+            (_MSC_FULL_VER/100000)%100,
+             _MSC_FULL_VER%100000,
+             _MSC_BUILD);
 #elif ( defined (__xlc__) && !defined(__clang_version__) )
 # if defined (_AIX) && defined (PASE)
     fprintf (st, "\n  Compiler: IBM XL C/C++ V%s (PASE for IBM i)", __xlc__);
@@ -4602,7 +4595,9 @@ if (flag) {
 #elif defined (__VBCC__)
     fprintf (st, "\n  Compiler: Volker Barthelmann C Compiler (vbcc)");
 #elif defined (__WATCOMC__)
-    fprintf (st, "\n  Compiler: Watcom C/C++ %d.%d", __WATCOMC__ / 100, __WATCOMC__ % 100);
+    fprintf (st, "\n  Compiler: Watcom C/C++ %d.%d",
+            __WATCOMC__ / 100,
+            __WATCOMC__ % 100);
 #elif defined (__xlC__)
     fprintf (st, "\n  Compiler: IBM XL C/C++");
 #elif defined (SIM_COMPILER)
@@ -5100,14 +5095,17 @@ switch (flg) {
 
     case SSH_ST:
         return sim_brk_set (lo, sim_switches, cnt, aptr);
+        /*NOTREACHED*/
         break;
 
     case SSH_CL:
         return sim_brk_clr (lo, sim_switches);
+        /*NOTREACHED*/
         break;
 
     case SSH_SH:
         return sim_brk_show (st, lo, sim_switches);
+        /*NOTREACHED*/
         break;
 
     default:
@@ -5115,12 +5113,7 @@ switch (flg) {
     }
 }
 
-/* Reset command and routines
-
-   re[set]              reset all devices
-   re[set] all          reset all devices
-   re[set] device       reset specific device
-*/
+/* Reset command and routines */
 
 static t_bool run_cmd_did_reset = FALSE;
 
@@ -5200,10 +5193,7 @@ sim_switches = old_sw;
 return r;
 }
 
-/* Attach command
-
-   at[tach] unit file   attach specified unit to file
-*/
+/* Attach command */
 
 t_stat attach_cmd (int32 flag, CONST char *cptr)
 {
@@ -5351,11 +5341,7 @@ uptr->filename = NULL;
 return stat;
 }
 
-/* Detach command
-
-   det[ach] all         detach all units
-   det[ach] unit        detach specified unit
-*/
+/* Detach command */
 
 t_stat detach_cmd (int32 flag, CONST char *cptr)
 {
@@ -5471,75 +5457,6 @@ if (fclose (uptr->fileref) == EOF)
 return SCPE_OK;
 }
 
-/* Assign command
-
-   as[sign] device name assign logical name to device
-*/
-
-#if 0 /* Needs updates for dps8 */
-t_stat assign_cmd (int32 flag, CONST char *cptr)
-{
-char gbuf[CBUFSIZE];
-DEVICE *dptr;
-
-GET_SWITCHES (cptr);                                    /* get switches */
-if (*cptr == 0)                                         /* must be more */
-    return SCPE_2FARG;
-cptr = get_glyph (cptr, gbuf, 0);                       /* get next glyph */
-GET_SWITCHES (cptr);                                    /* get switches */
-if (*cptr == 0)                                         /* now eol? */
-    return SCPE_2FARG;
-dptr = find_dev (gbuf);                                 /* locate device */
-if (dptr == NULL)                                       /* found dev? */
-    return SCPE_NXDEV;
-cptr = get_glyph (cptr, gbuf, 0);                       /* get next glyph */
-if (*cptr != 0)                                         /* must be eol */
-    return SCPE_2MARG;
-if (find_dev (gbuf))                                    /* name in use */
-    return SCPE_ARG;
-deassign_device (dptr);                                 /* release current */
-return assign_device (dptr, gbuf);
-}
-
-t_stat assign_device (DEVICE *dptr, const char *cptr)
-{
-dptr->lname = (char *) calloc (1 + strlen (cptr), sizeof (char));
-if (dptr->lname == NULL)
-    return SCPE_MEM;
-strcpy (dptr->lname, cptr);
-return SCPE_OK;
-}
-
-/* Deassign command
-
-   dea[ssign] device    deassign logical name
-*/
-
-t_stat deassign_cmd (int32 flag, CONST char *cptr)
-{
-char gbuf[CBUFSIZE];
-DEVICE *dptr;
-
-GET_SWITCHES (cptr);                                    /* get switches */
-if (*cptr == 0)                                         /* must be more */
-    return SCPE_2FARG;
-cptr = get_glyph (cptr, gbuf, 0);                       /* get next glyph */
-if (*cptr != 0)                                         /* now eol? */
-    return SCPE_2MARG;
-dptr = find_dev (gbuf);                                 /* locate device */
-if (dptr == NULL)                                       /* found dev? */
-    return SCPE_NXDEV;
-return deassign_device (dptr);
-}
-
-t_stat deassign_device (DEVICE *dptr)
-{
-free (dptr->lname);
-dptr->lname = NULL;
-return SCPE_OK;
-}
-#endif /* Needs updates for dps8 */
-
 /* Get device display name */
 
 const char *sim_dname (DEVICE *dptr)
@@ -5562,21 +5479,7 @@ sprintf (uname, "%s%d", sim_dname (d), (int)(uptr-d->units));
 return uname;
 }
 
-/* Run, go, boot, cont, step, next commands
-
-   ru[n] [new PC]       reset and start simulation
-   go [new PC]          start simulation
-   co[nt]               start simulation
-   s[tep] [step limit]  start simulation for 'limit' instructions
-   next                 start simulation for 1 instruction
-                        stepping over subroutine calls
-   b[oot] device        bootstrap from device and start simulation
-
-   switches:
-    -Q                  quiet return status
-    -T                  (only for step), causes the step limit to
-                        be a number of microseconds to run for
-*/
+/* Run, go, boot, cont, step, next commands */
 
 t_stat run_cmd (int32 flag, CONST char *cptr)
 {
@@ -5597,7 +5500,7 @@ if ((flag == RU_RUN) || (flag == RU_GO)) {              /* run or go */
     if (*cptr != 0) {                                   /* argument? */
         cptr = get_glyph (cptr, gbuf, 0);               /* get next glyph */
         if (MATCH_CMD (gbuf, "UNTIL") != 0) {
-            if (sim_dflt_dev && sim_vm_parse_addr)                      /* address parser? */
+            if (sim_dflt_dev && sim_vm_parse_addr)      /* address parser? */
                 pcv = sim_vm_parse_addr (sim_dflt_dev, gbuf, &tptr);
             else pcv = strtotv (gbuf, &tptr, sim_PC->radix);/* parse PC */
             if ((tptr == gbuf) || (*tptr != 0) ||       /* error? */
@@ -5956,27 +5859,7 @@ stop_cpu = 1;
 return;
 }
 
-/* Examine/deposit commands
-
-   ex[amine] [modifiers] list           examine
-   de[posit] [modifiers] list val       deposit
-   ie[xamine] [modifiers] list          interactive examine
-   id[eposit] [modifiers] list          interactive deposit
-
-   modifiers
-        @filename                       output file
-        -letter(s)                      switches
-        devname'n                       device name and unit number
-        [{&|^}value]{=|==|!|!=|>|>=|<|<=} value search specification
-
-   list                                 list of addresses and registers
-        addr[:addr|-addr]               address range
-        ALL                             all addresses
-        register[:register|-register]   register range
-        register[index]                 register array element
-        register[start:end]             register array range
-        STATE                           all registers
-*/
+/* Examine/deposit commands */
 
 t_stat exdep_cmd (int32 flag, CONST char *cptr)
 {
@@ -5985,7 +5868,7 @@ CONST char *gptr;
 CONST char *tptr = NULL;
 int32 opt;
 t_addr low, high;
-t_stat reason;
+t_stat reason = SCPE_IERR;
 DEVICE *tdptr;
 REG *lowr, *highr;
 FILE *ofile;
@@ -6022,6 +5905,7 @@ for (gptr = gbuf, reason = SCPE_OK;
         continue;
         }
 
+    /* LINTED E_EQUALITY_NOT_ASSIGNMENT*/
     if ((lowr = find_reg (gptr, &tptr, tdptr)) ||       /* local reg or */
         (!(sim_opt_out & CMD_OPT_DFT) &&                /* no dflt, global? */
         (lowr = find_reg_glob (gptr, &tptr, &tdptr)))) {
@@ -6349,9 +6233,9 @@ size_t sz;
 t_value mask;
 uint32 *ptr;
 
-#define PUT_RVAL(sz,rp,id,v,m) \
-    *(((sz *) rp->loc) + id) = \
-        (sz)((*(((sz *) rp->loc) + id) & \
+#define PUT_RVAL(sz,rp,id,v,m)            \
+    *(((sz *) rp->loc) + id) =            \
+        (sz)((*(((sz *) rp->loc) + id) &  \
             ~((m) << (rp)->offset)) | ((v) << (rp)->offset))
 
 if (rptr == sim_PC)
@@ -6947,23 +6831,6 @@ return tptr;
    The input string must be quoted.  Quotes may be either single or
    double but the opening anc closing quote characters must match.
    Within quotes C style character escapes are allowed.
-
-   The following character escapes are explicitly supported:
-        \r  ASCII Carriage Return character (Decimal value 13)
-        \n  ASCII Linefeed character (Decimal value 10)
-        \f  ASCII Formfeed character (Decimal value 12)
-        \t  ASCII Horizontal Tab character (Decimal value 9)
-        \v  ASCII Vertical Tab character (Decimal value 11)
-        \b  ASCII Backspace character (Decimal value 8)
-        \\  ASCII Backslash character (Decimal value 92)
-        \'  ASCII Single Quote character (Decimal value 39)
-        \"  ASCII Double Quote character (Decimal value 34)
-        \?  ASCII Question Mark character (Decimal value 63)
-        \e  ASCII Escape character (Decimal value 27)
-     as well as octal character values of the form:
-        \n{n{n}} where each n is an octal digit (0-7)
-     and hext character values of the form:
-        \xh{h} where each h is a hex digit (0-9A-Fa-f)
 */
 
 t_stat sim_decode_quoted_string (const char *iptr, uint8 *optr, uint32 *osize)
@@ -7067,25 +6934,6 @@ return SCPE_OK;
                         the output buffer must be freed by the caller
 
    The input data will be encoded into a simply printable form.
-   Control and other non-printable data will be escaped using the
-   following rules:
-
-   The following character escapes are explicitly supported:
-        \r  ASCII Carriage Return character (Decimal value 13)
-        \n  ASCII Linefeed character (Decimal value 10)
-        \f  ASCII Formfeed character (Decimal value 12)
-        \t  ASCII Horizontal Tab character (Decimal value 9)
-        \v  ASCII Vertical Tab character (Decimal value 11)
-        \b  ASCII Backspace character (Decimal value 8)
-        \\  ASCII Backslash character (Decimal value 92)
-        \'  ASCII Single Quote character (Decimal value 39)
-        \"  ASCII Double Quote character (Decimal value 34)
-        \?  ASCII Question Mark character (Decimal value 63)
-        \e  ASCII Escape character (Decimal value 27)
-     as well as octal character values of the form:
-        \n{n{n}} where each n is an octal digit (0-7)
-     and hext character values of the form:
-        \xh{h} where each h is a hex digit (0-9A-Fa-f)
 */
 
 char *sim_encode_quoted_string (const uint8 *iptr, uint32 size)
@@ -7132,7 +6980,7 @@ while (size--) {
         case '\'':
             if (quote == *iptr)
                 *tptr++ = '\\';
-        /* fallthrough */
+        /*FALLTHRU*/ /* fall through */ /* fallthrough */
         default:
             if (sim_isprint (*iptr))
                 *tptr++ = *iptr;
@@ -7220,9 +7068,9 @@ if ((dptr = find_dev (cptr))) {                         /* exact match? */
 for (i = 0; (dptr = sim_devices[i]) != NULL; i++) {     /* base + unit#? */
     if (qdisable (dptr))                                /* device disabled? */
         continue;
-    if (dptr->numunits &&                               /* any units? */
+    if (dptr->numunits && /* LINTED E_EQUALITY_NOT_ASSIGNMENT*/ /* any units? */
         (((nptr = dptr->name) &&
-          (strncmp (cptr, nptr, strlen (nptr)) == 0)) ||
+          (strncmp (cptr, nptr, strlen (nptr)) == 0)) || /* LINTED E_EQUALITY_NOT_ASSIGNMENT*/
          ((nptr = dptr->lname) &&
           (strncmp (cptr, nptr, strlen (nptr)) == 0)))) {
         tptr = cptr + strlen (nptr);
@@ -7556,6 +7404,7 @@ const char logstr[] = "|&^", cmpstr[] = "=!><";
 logval = cmpval = 0;
 if (*cptr == 0)                                         /* check for clause */
     return NULL;
+/*LINTED E_EQUALITY_NOT_ASSIGNMENT*/
 for (logop = cmpop = -1; (c = *cptr++); ) {             /* loop thru clauses */
     if ((sptr = strchr (logstr, c))) {                  /* check for mask */
         logop = (int32)(sptr - logstr);
@@ -7620,6 +7469,7 @@ if (*cptr == 0)                                         /* check for clause */
     return NULL;
 logval = (t_value *)calloc (sim_emax, sizeof(*logval));
 cmpval = (t_value *)calloc (sim_emax, sizeof(*cmpval));
+/*LINTED E_EQUALITY_NOT_ASSIGNMENT*/
 for (logop = cmpop = -1; (c = *cptr++); ) {             /* loop thru clauses */
     if ((sptr = strchr (logstr, c))) {                  /* check for mask */
         logop = (int32)(sptr - logstr);
@@ -7965,38 +7815,20 @@ if (0 != strncmp ("1 ", buf, 2))
 return buf;
 }
 
-/* Event queue package
-
-        sim_activate            add entry to event queue
-        sim_activate_abs        add entry to event queue even if event already scheduled
-        sim_activate_after      add entry to event queue after a specified amount of wall time
-        sim_cancel              remove entry from event queue
-        sim_process_event       process entries on event queue
-        sim_is_active           see if entry is on event queue
-        sim_activate_time       return time until activation
-        sim_atime               return absolute time for an entry
-        sim_gtime               return global time
-        sim_qcount              return event queue entry count
-
-   Asynchronous events are set up by queueing a unit data structure
-   to the event queue with a timeout (in simulator units, relative
-   to the current time).  Each simulator 'times' these events by
-   counting down interval counter sim_interval.  When this reaches
-   zero the simulator calls sim_process_event to process the event
-   and to see if further events need to be processed, or sim_interval
-   reset to count the next one.
-
-   The event queue is maintained in clock order; entry timeouts are
-   RELATIVE to the time in the previous entry.
-
-   sim_process_event - process event
-
-   Inputs:
-        none
-   Outputs:
-        reason  =       reason code returned by any event processor,
-                        or 0 (SCPE_OK) if no exceptions
-*/
+/*
+ * Event queue package
+ *
+ *      sim_activate            add entry to event queue
+ *      sim_activate_abs        add entry to event queue even if event already scheduled
+ *      sim_activate_after      add entry to event queue after a specified amount of wall time
+ *      sim_cancel              remove entry from event queue
+ *      sim_process_event       process entries on event queue
+ *      sim_is_active           see if entry is on event queue
+ *      sim_activate_time       return time until activation
+ *      sim_atime               return absolute time for an entry
+ *      sim_gtime               return global time
+ *      sim_qcount              return event queue entry count
+ */
 
 t_stat sim_process_event (void)
 {
@@ -9154,6 +8986,8 @@ if (i != exp->size) {                                   /* Found? */
                                          ep->cnt, (ep->cnt == 1) ? "" : "es");
         }
     else {
+        uint32 after   = exp->after;
+        int32 switches = ep->switches;
         if (ep->act && *ep->act) {
             sim_debug (exp->dbit, exp->dptr, "Initiating actions: %s\n", ep->act);
             }
@@ -9168,9 +9002,9 @@ if (i != exp->size) {                                   /* Found? */
                 sim_exp_clr_tab (exp, ep);              /* delete it */
             }
         sim_activate (&sim_expect_unit,                 /* schedule simulation stop when indicated */
-                      (ep->switches & EXP_TYP_TIME) ?
+                      (switches & EXP_TYP_TIME) ?
                             (uint32)((sim_timer_inst_per_sec ()*exp->after)/1000000.0) :
-                            exp->after);
+                             after);
         }
     /* Matched data is no longer available for future matching */
     exp->buf_ins = 0;
@@ -9191,7 +9025,7 @@ if (snd->extoff != 0) {
     }
 if (snd->insoff+size > snd->bufsize) {
     snd->bufsize = snd->insoff+size;
-    snd->buffer = (uint8 *)realloc(snd->buffer, snd->bufsize);
+    snd->buffer  = (uint8 *)realloc(snd->buffer, snd->bufsize);
     }
 memcpy(snd->buffer+snd->insoff, data, size);
 snd->insoff += size;
@@ -9843,9 +9677,17 @@ static volatile struct {
     size_t line;
     } help_where = { "", NULL, 0, 0 };
 jmp_buf help_env;
-#define FAIL(why,text,here) { help_where.error = #text; help_where.prox = here; longjmp (help_env, (why)); }
 
-/* Add to topic text.
+#define FAIL(why,text,here)        \
+  {                                \
+    help_where.error = #text;      \
+    help_where.prox = here;        \
+    longjmp ( help_env, (why) );   \
+    /*LINTED E_STMT_NOT_REACHED*/  \
+  }
+
+/*
+ * Add to topic text.
  * Expands text buffer as necessary.
  */
 
@@ -9858,7 +9700,9 @@ if (!len)
 
 newt = (char *)realloc (topic->text, topic->len + len +1);
 if (!newt) {
+#ifndef SUNLINT
     FAIL (SCPE_MEM, No memory, NULL);
+#endif /* ifndef SUNLINT */
     }
 topic->text = newt;
 memcpy (newt + topic->len, text, len);
@@ -9972,14 +9816,19 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                                 while (sim_isdigit (*htext))
                                     n += (n * 10) + (*htext++ - '0');
                                 if (( *htext != 'H' && *htext != 's') ||
-                                    n == 0 || n >= VSMAX)
+                                    n == 0 || n >= VSMAX) {
+#ifndef SUNLINT
                                     FAIL (SCPE_ARG, Invalid escape, htext);
+#endif /* ifndef SUNLINT */
+                                    }
                                 while (n > vsnum)   /* Get arg pointer if not cached */
                                     vstrings[vsnum++] = va_arg (ap, char *);
                                 start = vstrings[n-1]; /* Insert selected string */
                                 if (*htext == 'H') {   /* Append as more input */
                                     if (asnum >= VSMAX) {
+#ifndef SUNLINT
                                         FAIL (SCPE_ARG, Too many blocks, htext);
+#endif /* ifndef SUNLINT */
                                         }
                                     astrings[asnum++] = (char *)start;
                                     break;
@@ -10002,7 +9851,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                                 appendText (topic, start, ep-start);
                                 break;
                                 }
+#ifndef SUNLINT
                             FAIL (SCPE_ARG, Invalid escape, htext);
+#endif /* ifndef SUNLINT */
                         } /* switch (escape) */
                     start = ++htext;
                     continue;                   /* Current line */
@@ -10026,7 +9877,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
             while (sim_isdigit (*htext))
                 n += (n * 10) + (*htext++ - '0');
             if ((htext == start) || !n) {
+#ifndef SUNLINT
                 FAIL (SCPE_ARG, Invalid topic heading, htext);
+#endif /* ifndef SUNLINT */
                 }
             if (n <= topic->level) {            /* Find level for new topic */
                 while (n <= topic->level)
@@ -10034,19 +9887,25 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 }
             else {
                 if (n > topic->level +1) {      /* Skipping down more than 1 */
+#ifndef SUNLINT
                     FAIL (SCPE_ARG, Level not contiguous, htext); /* E.g. 1 3, not reasonable */
+#endif /* ifndef SUNLINT */
                     }
                 }
             while (*htext && (*htext != '\n') && sim_isspace (*htext))
                 htext++;
             if (!*htext || (*htext == '\n')) {  /* Name missing */
+#ifndef SUNLINT
                 FAIL (SCPE_ARG, Missing topic name, htext);
+#endif /* ifndef SUNLINT */
                 }
             start = htext;
             while (*htext && (*htext != '\n'))
                 htext++;
             if (start == htext) {               /* Name NULL */
+#ifndef SUNLINT
                 FAIL (SCPE_ARG, Null topic name, htext);
+#endif /* ifndef SUNLINT */
                 }
             excluded = FALSE;
             if (*start == '?') {                /* Conditional topic? */
@@ -10054,8 +9913,11 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 start++;
                 while (sim_isdigit (*start))    /* Get param # */
                     n += (n * 10) + (*start++ - '0');
-                if (!*start || *start == '\n'|| n == 0 || n >= VSMAX)
+                if (!*start || *start == '\n'|| n == 0 || n >= VSMAX) {
+#ifndef SUNLINT
                     FAIL (SCPE_ARG, Invalid parameter number, start);
+#endif /* ifndef SUNLINT */
+                    }
                 while (n > vsnum)               /* Get arg pointer if not cached */
                     vstrings[vsnum++] = va_arg (ap, char *);
                 end = vstrings[n-1];            /* Check for True */
@@ -10068,12 +9930,16 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 }
             newt = (TOPIC *) calloc (sizeof (TOPIC), 1);
             if (!newt) {
+#ifndef SUNLINT
                 FAIL (SCPE_MEM, No memory, NULL);
+#endif /* ifndef SUNLINT */
                 }
             newt->title = (char *) malloc ((htext - start)+1);
             if (!newt->title) {
                 free (newt);
+#ifndef SUNLINT
                 FAIL (SCPE_MEM, No memory, NULL);
+#endif /* ifndef SUNLINT */
                 }
             memcpy (newt->title, start, htext - start);
             newt->title[htext - start] = '\0';
@@ -10088,7 +9954,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
             if (!children) {
                 free (newt->title);
                 free (newt);
+#ifndef SUNLINT
                 FAIL (SCPE_MEM, No memory, NULL);
+#endif /* ifndef SUNLINT */
                 }
             topic->children = children;
             topic->children[topic->kids++] = newt;
@@ -10104,7 +9972,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 free (newt->title);
                 topic->children[topic->kids -1] = NULL;
                 free (newt);
+#ifndef SUNLINT
                 FAIL (SCPE_MEM, No memory, NULL);
+#endif /* ifndef SUNLINT */
                 }
             sprintf (newt->label, "%s%s", topic->label, nbuf);
             topic = newt;
@@ -10115,7 +9985,9 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
                 htext++;
             continue;
             }
+#ifndef SUNLINT
         FAIL (SCPE_ARG, Unknown line type, htext);     /* Unknown line */
+#endif /* ifndef SUNLINT */
         } /* htext not at end */
     memset (vstrings, 0, VSMAX * sizeof (char *));
     vsnum = 0;
@@ -10124,7 +9996,8 @@ for (hblock = astrings; (htext = *hblock) != NULL; hblock++) {
 return topic;
 }
 
-/* Create prompt string - top thru current topic
+/*
+ * Create prompt string - top thru current topic
  * Add prompt at end.
  */
 static char *helpPrompt ( TOPIC *topic, const char *pstring, t_bool oneword )
@@ -10135,7 +10008,9 @@ char *newp, *newt;
 if (topic->level == 0) {
     prefix = (char *) calloc (2,1);
     if (!prefix) {
+#ifndef SUNLINT
         FAIL (SCPE_MEM, No memory, NULL);
+#endif /* ifndef SUNLINT */
         }
     prefix[0] = '\n';
     }
@@ -10146,7 +10021,9 @@ newp = (char *) malloc (strlen (prefix) + 1 + strlen (topic->title) + 1 +
                         strlen (pstring) +1);
 if (!newp) {
     free (prefix);
+#ifndef SUNLINT
     FAIL (SCPE_MEM, No memory, NULL);
+#endif /* ifndef SUNLINT */
     }
 strcpy (newp, prefix);
 if (topic->children) {
@@ -10250,7 +10127,8 @@ if (topic->flags & HLP_MAGIC_TOPIC) {
 else
     fprintf (st, "\n%s %s\n", topic->label, topic->title);
 
-/* Topic text (for magic topics, follows for explanations)
+/*
+ * Topic text (for magic topics, follows for explanations)
  * It's possible/reasonable for a magic topic to have no text.
  */
 

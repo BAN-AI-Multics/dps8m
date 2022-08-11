@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 987c49d9-f62e-11ec-a5f4-80ee73e9b8e7
  *
@@ -26,7 +27,7 @@
 # define cast_128(x) construct_128 ((uint64_t) (x).h, (x).l)
 # define cast_s128(x) construct_s128 ((int64_t) (x).h, (x).l)
 
-int math128_test (void);
+int test_math128(void);
 bool iszero_128 (uint128 w);
 bool isnonzero_128 (uint128 w);
 bool iseq_128 (uint128 a, uint128 b);
@@ -53,12 +54,11 @@ uint128 lshift_128 (uint128 a, unsigned int n);
 int128 lshift_s128 (int128 a, unsigned int n);
 uint128 rshift_128 (uint128 a, unsigned int n);
 int128 rshift_s128 (int128 a, unsigned int n);
-
 #else
 
 /* if (sizeof(long) < 8), I expect we're on a 32 bit system */
 
-# if __SIZEOF_LONG__ < 8 && ! defined (__MINGW64__)
+# if (__SIZEOF_LONG__ < 8) && ( !defined(__MINGW64__) || !defined(__MINGW32__) )
 
 typedef          int TItype     __attribute__ ((mode (TI)));
 typedef unsigned int UTItype    __attribute__ ((mode (TI)));

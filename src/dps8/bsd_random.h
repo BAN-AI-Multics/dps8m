@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: BSD-3-Clause
  * scspell-id: f4515dad-f62c-11ec-9f20-80ee73e9b8e7
  *
@@ -39,14 +40,14 @@
  * ---------------------------------------------------------------------------
  */
 
-#if defined(__MINGW64__) || defined(__MINGW32__)
+#if defined( __MINGW64__ ) || defined( __MINGW32__ )
 
 # ifndef BSD_RANDOM_H
 #  define BSD_RANDOM_H
 
-long bsd_random(void);
+long  bsd_random(void);
 char *bsd_setstate(char *arg_state);
-void bsd_srandom(unsigned int x);
+void  bsd_srandom(unsigned int x);
 char *bsd_initstate(unsigned int seed, char *arg_state, int n);
 
 # endif /* ifndef BSD_RANDOM_H */

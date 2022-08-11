@@ -1,64 +1,63 @@
-/* sim_disk.c: simulator disk support library
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: b2c7f6c3-f62a-11ec-9f60-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 2011 Mark Pizzolato
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-   IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
-   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   OTHER DEALINGS IN THE SOFTWARE.
-
-   Except as contained in this notice, the names of Mark Pizzolato shall not
-   be used in advertising or otherwise to promote the sale, use or other
-   dealings in this Software without prior written authorization from Mark
-   Pizzolato.
-
-   This is the place which hides processing of various disk formats,
-   as well as OS-specific direct hardware access.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * sim_disk.c: simulator disk support library
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: b2c7f6c3-f62a-11ec-9f60-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 2011 Mark Pizzolato
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the names of Mark Pizzolato shall not
+ * be used in advertising or otherwise to promote the sale, use or other
+ * dealings in this Software without prior written authorization from Mark
+ * Pizzolato.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 /*
-Public routines:
-
-   sim_disk_attach           attach disk unit
-   sim_disk_detach           detach disk unit
-   sim_disk_attach_help      help routine for attaching disks
-   sim_disk_rdsect           read disk sectors
-   sim_disk_rdsect_a         read disk sectors asynchronously
-   sim_disk_wrsect           write disk sectors
-   sim_disk_wrsect_a         write disk sectors asynchronously
-   sim_disk_unload           unload or detach a disk as needed
-   sim_disk_reset            reset unit
-   sim_disk_wrp              TRUE if write protected
-   sim_disk_isavailable      TRUE if available for I/O
-   sim_disk_size             get disk size
-   sim_disk_set_fmt          set disk format
-   sim_disk_show_fmt         show disk format
-   sim_disk_set_capac        set disk capacity
-   sim_disk_show_capac       show disk capacity
-   sim_disk_data_trace       debug support
-*/
+ * Public routines:
+ *
+ * sim_disk_attach           attach disk unit
+ * sim_disk_detach           detach disk unit
+ * sim_disk_attach_help      help routine for attaching disks
+ * sim_disk_rdsect           read disk sectors
+ * sim_disk_rdsect_a         read disk sectors asynchronously
+ * sim_disk_wrsect           write disk sectors
+ * sim_disk_wrsect_a         write disk sectors asynchronously
+ * sim_disk_unload           unload or detach a disk as needed
+ * sim_disk_reset            reset unit
+ * sim_disk_wrp              TRUE if write protected
+ * sim_disk_isavailable      TRUE if available for I/O
+ * sim_disk_size             get disk size
+ * sim_disk_set_fmt          set disk format
+ * sim_disk_show_fmt         show disk format
+ * sim_disk_set_capac        set disk capacity
+ * sim_disk_show_capac       show disk capacity
+ * sim_disk_data_trace       debug support
+ */
 
 #define _FILE_OFFSET_BITS 64    /* Set 64-bit file offset for I/O operations */
 
@@ -78,8 +77,6 @@ Public routines:
 #ifndef DECLITEND
 # error Unknown platform endianness
 #endif /* ifndef DECLITEND */
-
-#include "../dpsprintf/dpsprintf.h"
 
 struct disk_context {
     DEVICE              *dptr;              /* Device for unit (access to debug flags) */
@@ -105,8 +102,7 @@ struct sim_disk_fmt {
 
 static struct sim_disk_fmt fmts[DKUF_N_FMT] = {
     { "SIMH", 0, DKUF_F_STD, NULL},
-    { NULL,   0, 0, 0}
-    };
+    { NULL,   0, 0,          0   } };
 
 /* Set disk format */
 
@@ -195,6 +191,7 @@ if (!(uptr->flags & UNIT_ATT))                          /* attached? */
 switch (DK_GET_FMT (uptr)) {                            /* case on format */
     case DKUF_F_STD:                                    /* SIMH format */
         return TRUE;
+        /*NOTREACHED*/
         break;
     default:
         return FALSE;
@@ -222,6 +219,7 @@ t_offset sim_disk_size (UNIT *uptr)
 switch (DK_GET_FMT (uptr)) {                            /* case on format */
     case DKUF_F_STD:                                    /* SIMH format */
         return sim_fsize_ex (uptr->fileref);
+        /*NOTREACHED*/
         break;
     default:
         return (t_offset)-1;
@@ -277,16 +275,17 @@ if ((0 == (ctx->sector_size & (ctx->storage_sector_size - 1))) ||   /* Sector Al
     switch (DK_GET_FMT (uptr)) {                        /* case on format */
         case DKUF_F_STD:                                /* SIMH format */
             return _sim_disk_rdsect (uptr, lba, buf, sectsread, sects);
+            /*NOTREACHED*/
             break;
         default:
             return SCPE_NOFNC;
         }
-    if (sectsread)
-        *sectsread = sread;
-    if (r != SCPE_OK)
-        return r;
-    sim_buf_swap_data (buf, ctx->xfer_element_size, (sread * ctx->sector_size) / ctx->xfer_element_size);
-    return r;
+//    if (sectsread)
+//        *sectsread = sread;
+//    if (r != SCPE_OK)
+//        return r;
+//    sim_buf_swap_data (buf, ctx->xfer_element_size, (sread * ctx->sector_size) / ctx->xfer_element_size);
+//    return r;
     }
 else { /* Unaligned and/or partial sector transfers */
     uint8 *tbuf = (uint8*) malloc (sects*ctx->sector_size + 2*ctx->storage_sector_size);
@@ -668,19 +667,20 @@ if (sim_disk_rdsect (uptr, 1, (uint8 *)&Home, NULL, 1))
 CheckSum1 = ODS2Checksum (&Home, (uint16)((((char *)&Home.hm2_w_checksum1)-((char *)&Home.hm2_l_homelbn))/2));
 /* cppcheck-suppress comparePointers */
 CheckSum2 = ODS2Checksum (&Home, (uint16)((((char *)&Home.hm2_w_checksum2)-((char *)&Home.hm2_l_homelbn))/2));
-if ((Home.hm2_l_homelbn == 0) ||
-    (Home.hm2_l_alhomelbn == 0) ||
-    (Home.hm2_l_altidxlbn == 0) ||
-    ((Home.hm2_b_struclev != 2) && (Home.hm2_b_struclev != 5)) ||
-    (Home.hm2_b_strucver == 0) ||
-    (Home.hm2_w_cluster == 0) ||
-    (Home.hm2_w_homevbn == 0) ||
-    (Home.hm2_w_alhomevbn == 0) ||
-    (Home.hm2_w_ibmapvbn == 0) ||
-    (Home.hm2_l_ibmaplbn == 0) ||
-    (Home.hm2_w_resfiles >= Home.hm2_l_maxfiles) ||
-    (Home.hm2_w_ibmapsize == 0) ||
-    (Home.hm2_w_resfiles < 5) ||
+if ((Home.hm2_l_homelbn   == 0)  ||
+    (Home.hm2_l_alhomelbn == 0)  ||
+    (Home.hm2_l_altidxlbn == 0)  ||
+   ((Home.hm2_b_struclev  != 2)  &&
+    (Home.hm2_b_struclev  != 5)) ||
+    (Home.hm2_b_strucver  == 0)  ||
+    (Home.hm2_w_cluster   == 0)  ||
+    (Home.hm2_w_homevbn   == 0)  ||
+    (Home.hm2_w_alhomevbn == 0)  ||
+    (Home.hm2_w_ibmapvbn  == 0)  ||
+    (Home.hm2_l_ibmaplbn  == 0)  ||
+    (Home.hm2_w_resfiles  >= Home.hm2_l_maxfiles) ||
+    (Home.hm2_w_ibmapsize == 0)  ||
+    (Home.hm2_w_resfiles   < 5)  ||
     (Home.hm2_w_checksum1 != CheckSum1) ||
     (Home.hm2_w_checksum2 != CheckSum2))
     goto Return_Cleanup;
@@ -842,18 +842,6 @@ if (storage_function)
 if ((created) && (!copied)) {
     t_stat r = SCPE_OK;
     uint8 *secbuf = (uint8 *)calloc (1, ctx->sector_size);       /* alloc temp sector buf */
-
-    /*
-       On a newly created disk, we write a zero sector to the last and the
-       first sectors.  This serves 3 purposes:
-         1) it avoids strange allocation delays writing newly allocated
-            storage at the end of the disk during simulator operation
-         2) it allocates storage for the whole disk at creation time to
-            avoid strange failures which may happen during simulator execution
-            if the containing disk is full
-         3) it leaves a SIMH Format disk at the intended size so it may
-            subsequently be autosized with the correct size.
-    */
     if (secbuf == NULL)
         r = SCPE_MEM;
     if (r == SCPE_OK)
@@ -1049,10 +1037,9 @@ return SCPE_OK;
 t_stat sim_disk_attach_help(FILE *st, DEVICE *dptr, const UNIT *uptr, int32 flag, const char *cptr)
 {
 fprintf (st, "%s Disk Attach Help\n\n", dptr->name);
-
-fprintf (st, "Disk container files can be one of 2 different types:\n\n");
-fprintf (st, "    SIMH   A disk is an unstructured binary file of the size appropriate\n");
-fprintf (st, "           for the disk drive being simulated\n\n");
+fprintf (st, "Disk files are stored in the following format:\n\n");
+fprintf (st, "    SIMH   An unstructured binary file of the size appropriate\n");
+fprintf (st, "           for the disk drive being simulated.\n\n");
 
 if (0 == (uptr-dptr->units)) {
     if (dptr->numunits > 1) {
@@ -1108,6 +1095,7 @@ switch (DK_GET_FMT (uptr)) {                            /* case on format */
     case DKUF_F_STD:                                    /* SIMH format */
         perror (msg);
         sim_printf ("%s %s: %s\n", sim_uname(uptr), msg, strerror(saved_errno));
+    /*FALLTHRU*/
     default:
         ;
     }

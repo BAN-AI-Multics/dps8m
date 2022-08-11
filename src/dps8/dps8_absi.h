@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 3bd4abd3-f62d-11ec-a9ab-80ee73e9b8e7
  *
@@ -17,9 +18,9 @@
  * ---------------------------------------------------------------------------
  */
 
-extern DEVICE absi_dev;
-extern UNIT absi_unit [N_ABSI_UNITS_MAX];
+extern       DEVICE absi_dev;
+extern       UNIT absi_unit [N_ABSI_UNITS_MAX];
 
-void absi_init (void);
-void absi_process_event (void);
+void         absi_init (void);
+void         absi_process_event (void);
 iom_cmd_rc_t absi_iom_cmd (uint iomUnitIdx, uint chan);

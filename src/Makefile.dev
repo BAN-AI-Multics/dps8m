@@ -1,5 +1,6 @@
 # DPS8M simulator: src/Makefile.dev
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: 0495e6fe-f62b-11ec-ab1d-80ee73e9b8e7
 
@@ -17,7 +18,7 @@
 ###############################################################################
 
 ###############################################################################
-# Development Tools Targets                                                 \
+# Development Tools Targets                                                   \
     # XXXX:    # --------------------- Development Tools --------------------
 ###############################################################################
 
@@ -95,8 +96,6 @@ dep depend: predepend                                                         \
       ( $(CD) "src/decNumber" && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "dps8" ;                                          \
       ( $(CD) "src/dps8"      && $(DO_MAKEDEP) )
-	@$(PRINTF) 'DEPEND: %s' "dpsprintf" ;                                     \
-      ( $(CD) "src/dpsprintf" && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "empty" ;                                         \
       ( $(CD) "src/empty"     && $(DO_MAKEDEP) )
 	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
@@ -144,8 +143,6 @@ dependclean depclean cleandepend cleandep:                                    \
       ( $(CD) "src/decNumber" && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "dps8" ;                                          \
       ( $(CD) "src/dps8"      && $(DO_CLEANDEP) )
-	@$(PRINTF) 'DEPEND: %s' "dpsprintf" ;                                     \
-      ( $(CD) "src/dpsprintf" && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "empty" ;                                         \
       ( $(CD) "src/empty"     && $(DO_CLEANDEP) )
 	@$(PRINTF) 'DEPEND: %s' "mcmb" ;                                          \
@@ -228,22 +225,31 @@ cppifix:                                                                      \
          $(RMF) "$${i:?}.ifx"; done
 
 ###############################################################################
-# Convenience target: Runs Oracle Developer Studio 12.6 Lint
+# Convenience target: Runs Oracle Developer Studio 12.6 Lint on Linux/Solaris
 
 .PHONY: orstlint
 orstlint:                                                                     \
     # orstlint:    # Runs Oracle Studio Lint & save output
 	-@$(RMF) ./orstlint.txt > /dev/null 2>&1 || $(TRUE)
-	@( $(PRINTF) '%s\n' "Starting now, saving output to orstlint.txt";        \
-      export CSTD="gnu11" && export CFLAGS="-DNO_C_ELLIPSIS" && cd src/dps8   \
-       && $(MAKE) -i -k -s dps8 CC="$(ORSTLINT) -u -xO5 -m64 -xCC -a          \
-        -errshort=full -err=warn -errfmt=src -errtags=yes -m -v -x            \
-         -features=gcc_enums                                                  \
-          -erroff=E_STATIC_UNUSED,E_CONSTANT_CONDITION,E_SEC_STRNCPY_WARN"    \
-          SUNPRO=1 SUNLINT=1 NEED_128=1 --output-sync ) 2>&1 |                \
-          $(GREP) -v -E '(^make: .* Error 2$$|no output created$$|make: .* not remade because of errors.$$|^lint.*annot find source file.*\.o$$|^lint:.*o input source files specified.*no output generated$$)' | $(TEE) orstlint.txt; \
-           $(CAT) orstlint.txt | $(GREP) '^E_' | $(CUT) -d ',' -f 1 |         \
-            $(SORT) | $(UNIQ) -c | $(SORT) -rn | $(TEE) -a orstlint.txt
+	@$(PRINTF) '%s\n' "Starting in 5s, saving output to orstlint.txt";sleep 5;\
+( export CSTD="gnu11" && export CFLAGS="-DNO_C_ELLIPSIS -DSUNLINT=1" &&       \
+cd src/dps8 && $(MAKE) distclean >/dev/null 2>&1 && $(MAKE) -j1 -i -k -s dps8 \
+CC="$(ORSTLINT) -m64 -a -fd -m -v -x -err=warn -errshort=full -errfmt=src     \
+-errtags=yes -features=gcc_enums -erroff=\
+E_STATIC_UNUSED,E_CONSTANT_CONDITION,E_SEC_STRNCPY_WARN,\
+E_PTRDIFF_OVERFLOW,E_NOP_IF_STMT,E_BAD_PTR_CAST_ALIGN,\
+E_EMPTY_TRANSLATION_UNIT" SUNPRO=1 SUNLINT=1 NEED_128=1 ) 2>&1 |              \
+ stdbuf -o L $(GREP) -v -E '(^make: .* Error 2$$|no output created$$)' |      \
+ stdbuf -o L $(GREP) -v -E '(make: .* not remade because of errors.$$)' |     \
+ stdbuf -o L $(GREP) -v -E '(^lint.*annot find source file.*\.o$$)' |         \
+ stdbuf -o L $(GREP) -v -E '(^lint:.*o input source files.*generated$$)' |    \
+ stdbuf -o L $(GREP) -v -E '(^lint: pass2 not run - errors in $$)' |          \
+ stdbuf -o L $(SED) 's/^CC: /LINT: /' | stdbuf -o L $(GREP) -v -E             \
+ '(^PROC.*:|^UNIFDEF:|^COMM:|^USEDDEF:|^SYSDEFS:|^.TAGS:|^CSCOPE:|^LD:)' |    \
+   stdbuf -o L $(TEE) orstlint.txt; $(CAT) orstlint.txt |                     \
+    $(GREP) -E '(^E_)' | $(CUT) -d ',' -f 1 | $(SORT) | $(UNIQ) -c |          \
+     $(SORT) -rn | stdbuf -o L $(TEE) -a orstlint.txt;                        \
+      $(MAKE) clean >/dev/null 2>&1 || $(TRUE)
 
 ###############################################################################
 # Convenience target: Runs the Clang Analyzer & save output
@@ -265,41 +271,124 @@ scspell:                                                                      \
 	@$(TEST) -f "./.scspell/dictionary.txt" 2> /dev/null ||                   \
       { $(PRINTF) '%s\n' "ERROR: scspell dictionary not found."; exit 1 ; }
 	@{ for i in $$( $(FIND) "./" -exec $(GREP) -al 'scspell-id: ' "{}"        \
-      2> "/dev/null" \; 2> "/dev/null" | $(GREP) -v '^\./\.git/' ); do        \
-        $(PRINTF) 'SCSPELL: %s\n' "$${i:?}" ; $(SCSPELLCMD)                   \
-          --override-dictionary "./.scspell/dictionary.txt" "$${i:?}";        \
-            done ; }
+      2> "/dev/null" \; 2> "/dev/null" | $(GREP) -v '^\./\.git/' |            \
+        $(GREP) -v '^\./GPATH'); do $(PRINTF) 'SCSPELL: %s\n' "$${i:?}" ;     \
+          $(SCSPELLCMD) --override-dictionary "./.scspell/dictionary.txt"     \
+            "$${i:?}"; done; }
 
 ###############################################################################
-# Convenience target: Display files without scspell-id tags
+# Convenience target: Display files without scspell-id tags (needs GNU grep)
 
 .PHONY: lmscspell
 lmscspell:                                                                    \
     # lmscspell:    # Display files without scspell-id tags
-	@$(SCSPELLCMD) --version 2>&1 | $(GREP) -q '^scspell ' 2> /dev/null ||    \
-      { $(PRINTF) '%s\n' "ERROR: $(SCSPELLCMD) command unusable."; exit 1 ; }
-	@$(PRINTF) '%s\n' "*** Begin lmscspell"
-	@$(GREP) -riaL 'scspell-id: ' | $(GREP) -Ev '(\.o$$|\.lz$$|\.txt$$|\.ec$$|\.ref$$|\.list$$|\.mem$$|\.out$$|\.ascii$$|dps8\/ver.h$$|dps8\/errnos.h$$|dps8\/sysdefs.h$$|perf_test\/trivial.pl1$$|\.Attic\/|\.pdf$$|\.o$$|\.d$$|\.svg$$|\.exe$$|.\yml.in$$|rebuild\.env$$|^\.git\/.|Dependency$$|tags$$|TAGS$$|bound_library_wired_$$|nqueens$$|nqueensx$$|trivial$$|segldr_boot$$|segldr_bootx$$|\/mcmb$$|\/dps8$$|\/empty$$|\/prt2pdf$$|\/unifdef$$|\/vmpctool$$|\/punutil$$|GPATH$$|\.license$$)' || $(TRUE)
-	@$(PRINTF) '%s\n' "*** End lmscspell"
+	@$(PRINTF) '%s\n' "Checking for files missing scspell-id tags ..."
+	@( ( set -o pipefail > /dev/null 2>&1 ) && set -o pipefail ;              \
+     $(GREP) -riaL 'scspell-id: '                                           | \
+     $(GREP) -Ev '(\.ascii$$)'                                              | \
+     $(GREP) -Ev '(\.Attic/.)'                                              | \
+     $(GREP) -Ev '(bound_library_wired_$$)'                                 | \
+     $(GREP) -Ev '(\cctree.db$$)'                                           | \
+     $(GREP) -Ev '(\ci_full\.log)'                                          | \
+     $(GREP) -Ev '(/ci-kit/run/)'                                           | \
+     $(GREP) -Ev '(/ci-kit/tapes/)'                                         | \
+     $(GREP) -Ev '(commandref\.md$$)'                                       | \
+     $(GREP) -Ev '(\.d$$)'                                                  | \
+     $(GREP) -Ev '(/Dependency$$)'                                          | \
+     $(GREP) -Ev '(/dps8$$)'                                                | \
+     $(GREP) -Ev '(\.dsk$$)'                                                | \
+     $(GREP) -Ev '(\.ec$$)'                                                 | \
+     $(GREP) -Ev '(/empty$$)'                                               | \
+     $(GREP) -Ev '(\.env$$)'                                                | \
+     $(GREP) -Ev '(errnos\.h$$)'                                            | \
+     $(GREP) -Ev '(\.exe$$)'                                                | \
+     $(GREP) -Ev '(\.git/.)'                                                | \
+     $(GREP) -Ev '(GPATH$$)'                                                | \
+     $(GREP) -Ev '(GRTAGS$$)'                                               | \
+     $(GREP) -Ev '(GTAGS$$)'                                                | \
+     $(GREP) -Ev '(/HTML/)'                                                 | \
+     $(GREP) -Ev '(\.img$$)'                                                | \
+     $(GREP) -Ev '(\.license$$)'                                            | \
+     $(GREP) -Ev '(\.list$$)'                                               | \
+     $(GREP) -Ev '(\.lz$$)'                                                 | \
+     $(GREP) -Ev '(/mcmb$$)'                                                | \
+     $(GREP) -Ev '(\.mem$$)'                                                | \
+     $(GREP) -Ev '(nqueens$$)'                                              | \
+     $(GREP) -Ev '(nqueensx$$)'                                             | \
+     $(GREP) -Ev '(\.o$$)'                                                  | \
+     $(GREP) -Ev '(\.out$$)'                                                | \
+     $(GREP) -Ev '(\.pdf$$)'                                                | \
+     $(GREP) -Ev '(/prt2pdf$$)'                                             | \
+     $(GREP) -Ev '(/punutil$$)'                                             | \
+     $(GREP) -Ev '(\.rar$$)'                                                | \
+     $(GREP) -Ev '(\.ref$$)'                                                | \
+     $(GREP) -Ev '(\.sav$$)'                                                | \
+     $(GREP) -Ev '(segldr_boot$$)'                                          | \
+     $(GREP) -Ev '(segldr_bootx$$)'                                         | \
+     $(GREP) -Ev '(\.state$$)'                                              | \
+     $(GREP) -Ev '(\.svg$$)'                                                | \
+     $(GREP) -Ev '(sysdefs\.h$$)'                                           | \
+     $(GREP) -Ev '(/tags$$)'                                                | \
+     $(GREP) -Ev '(/TAGS$$)'                                                | \
+     $(GREP) -Ev '(\.tap$$)'                                                | \
+     $(GREP) -Ev '(\.tmp$$)'                                                | \
+     $(GREP) -Ev '(trivial$$)'                                              | \
+     $(GREP) -Ev '(\.trivial\.pl1$$)'                                       | \
+     $(GREP) -Ev '(\.txt$$)'                                                | \
+     $(GREP) -Ev '(/unifdef$$)'                                             | \
+     $(GREP) -Ev '(ver\.h$$)'                                               | \
+     $(GREP) -Ev '(\.vim$$)'                                                | \
+     $(GREP) -Ev '(/vmpctool$$)'                                            | \
+     $(GREP) -Ev '(\.yml$$)'                                                | \
+     $(GREP) -Ev '(\.yml\.in$$)'                                            | \
+     $(GREP) -Ev '(\.zip$$)'                                                | \
+      { $(GREP) "." && { exit 9 ; } ; } && exit 0 ) ; X=$$? ;                 \
+	  $(TEST) "$${X:?}" -ne "9" > /dev/null 2>&1
+	@$(TRUE)
 
 ###############################################################################
-# Convenience target: Check SPDX license data using reuse (WIP)
+# Convenience target: Runs the pre-commit source code tests
 
-# TODO: Identify and mark files (in src/dps8) that need Multics tags.
+.PHONY: checksrc
+checksrc:                                                                     \
+    # checksrc:    # Runs the pre-commit source code tests
+	@$(PRINTF) '%s\n' "Starting pre-commit source tests."
+	@$(TEST) -x "./.githooks/pre-commit" &&                                   \
+      $(ENV) MAKE_HOOK=1 DEBUG_HOOK=1 sh "./.githooks/pre-commit" &&          \
+      $(ENV) MAKE_HOOK=1 EXTRA_HOOK=1 DEBUG_HOOK=1 sh "./.githooks/pre-commit"
+	@$(PRINTF) '%s\n' "Successfully completed pre-commit source tests."
 
-# Requires reuse, GNU utilities, etc.  Tested with reuse 0.13.0.
-.PHONY: spdxcheck
-spdxcheck:                                                                    \
-    # spdxcheck:    # Check SPDX licensing data using reuse
-	@$(REUSETOOL) --version 2>&1 | $(GREP) -q '^reuse ' 2> /dev/null ||       \
-      { $(PRINTF) '%s\n' "ERROR: $(REUSETOOL) command unusable."; exit 1 ; }
-	@$(PRINTF) '%s\n' "*** Begin spdxcheck"
-	@$(REUSETOOL) lint | $(GREP) -v '^$$' | $(SED) -n                         \
-      '/^# MISSING COPYRIGHT AND LICENSING INFORMATION/,//p' | $(GREP) -v     \
-        'of the REUSE Specification' | $(SED) -e 's/^\*/  \*/'                \
-          -e 's/^#/\n\*/' -e 's/^\(The following \)/\n\* \1/' |               \
-            $(GREP) -Ev '(* Bad licenses:|* Deprecated licenses:|* Licenses without file extension:|* Missing licenses:|* Unused licenses:|* Used licenses:)' || $(TRUE)
-	@$(PRINTF) '%s\n' "*** End spdxcheck"
+###############################################################################
+# Convenience target: Runs reuse SPDX licensing linter checks
+
+.PHONY: spdxtest
+spdxtest:                                                                     \
+    # spdxtest:    # Runs the SPDX licensing linter checks
+	@$(COMMAND) -v "reuse" > "/dev/null" 2>&1 || {                            \
+        $(PRINTF) '%s\n' "Error: reuse tool not found." ; exit 1 ; }
+	@$(PRINTF) '%s\n' "Running the reuse SPDX license linter checks ..."
+	@$(MKDIR) "./LICENSES"
+	@$(TOUCH) "./LICENSES/BSD-1-Clause.txt"
+	@$(TOUCH) "./LICENSES/BSD-2-Clause.txt"
+	@$(TOUCH) "./LICENSES/BSD-3-Clause.txt"
+	@$(TOUCH) "./LICENSES/CC-PDDC.txt"
+	@$(TOUCH) "./LICENSES/FSFAP.txt"
+	@$(TOUCH) "./LICENSES/ICU.txt"
+	@$(TOUCH) "./LICENSES/ISC.txt"
+	@$(TOUCH) "./LICENSES/LicenseRef-CF-GAL.txt"
+	@$(TOUCH) "./LICENSES/LicenseRef-DPS8M-Doc.txt"
+	@$(TOUCH) "./LICENSES/Multics.txt"
+	@$(TOUCH) "./LICENSES/X11.txt"
+	@{ REUSE_OUT="$$( reuse lint 2>&1 )" ; export REUSE_RC="$$?" ;            \
+                  $(RMF) -rf "./LICENSES" 2> "/dev/null" ;                    \
+                  $(PRINTF) '%s\n' "$${REUSE_OUT:?}" |                        \
+                    $(GREP) -v "^Congratulations.*$$" |                       \
+                    $(GREP) -v "^Unfortunately.*$$" ;                         \
+                  $(SLEEP) "0.1" > "/dev/null" 2>&1 || $(TRUE) ;              \
+                  $(TEST) "$${REUSE_RC:?}" -ne 0 && {                         \
+                    $(PRINTF) '%s\n\n' "** ERROR: License test failed!" ; } ; \
+                  exit $${REUSE_RC:?} ; }
+	@$(PRINTF) '%s\n' "# OK"
 
 ###############################################################################
 

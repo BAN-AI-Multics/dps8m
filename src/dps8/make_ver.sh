@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 # shellcheck disable=SC2236,SC3040,SC2015,SC2310,SC2312
 # vim: filetype=sh:tabstop=4:tw=78:expandtab
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
 # SPDX-License-Identifier: ICU
 # scspell-id: 97aea429-f62f-11ec-b49f-80ee73e9b8e7
 

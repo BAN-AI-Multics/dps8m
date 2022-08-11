@@ -1,93 +1,93 @@
-/* sim_tmxr.c: Telnet terminal multiplexer library
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: e76cc98d-f62a-11ec-967b-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 2001-2011 Robert M Supnik
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-   IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
-   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   OTHER DEALINGS IN THE SOFTWARE.
-
-   Except as contained in this notice, the name of Robert M Supnik shall
-   not be used in advertising or otherwise to promote the sale, use or
-   other dealings in this Software without prior written authorization from
-   Robert M Supnik.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * sim_tmxr.c: Telnet terminal multiplexer library
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: e76cc98d-f62a-11ec-967b-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 2001-2011 Robert M. Supnik
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Robert M. Supnik shall
+ * not be used in advertising or otherwise to promote the sale, use or
+ * other dealings in this Software without prior written authorization from
+ * Robert M. Supnik.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 /*
-   Based on the original DZ11 simulator by Thord Nilson, as updated by
-   Arthur Krewat.
-
-   This library includes:
-
-   tmxr_poll_conn -                     poll for connection
-   tmxr_reset_ln -                      reset line (drops connections)
-   tmxr_detach_ln -                     reset line and close per line listener and outgoing destination
-   tmxr_getc_ln -                       get character for line
-   tmxr_get_packet_ln -                 get packet from line
-   tmxr_get_packet_ln_ex -              get packet from line with separator byte
-   tmxr_poll_rx -                       poll receive
-   tmxr_putc_ln -                       put character for line
-   tmxr_put_packet_ln -                 put packet on line
-   tmxr_put_packet_ln_ex -              put packet on line with separator byte
-   tmxr_poll_tx -                       poll transmit
-   tmxr_send_buffered_data -            transmit buffered data
-   tmxr_set_get_modem_bits -            set and/or get a line modem bits
-   tmxr_set_line_loopback -             enable or disable loopback mode on a line
-   tmxr_get_line_loopback -             returns the current loopback status of a line
-   tmxr_set_line_halfduplex -           enable or disable halfduplex mode on a line
-   tmxr_get_line_halfduplex -           returns the current halfduplex status of a line
-   tmxr_open_master -                   open master connection
-   tmxr_close_master -                  close master connection
-   tmxr_attach  -                       attach terminal multiplexor to listening port
-   tmxr_detach  -                       detach terminal multiplexor to listening port
-   tmxr_attach_help  -                  help routine for attaching multiplexer devices
-   tmxr_set_line_unit -                 set the unit which polls for input for a given line
-   tmxr_ex      -                       (null) examine
-   tmxr_dep     -                       (null) deposit
-   tmxr_msg     -                       send message to socket
-   tmxr_linemsg -                       send message to line
-   tmxr_linemsgf -                      send formatted message to line
-   tmxr_fconns  -                       output connection status
-   tmxr_fstats  -                       output connection statistics
-   tmxr_set_log -                       enable logging for line
-   tmxr_set_nolog -                     disable logging for line
-   tmxr_show_log -                      show logging status for line
-   tmxr_dscln   -                       disconnect line (SET routine)
-   tmxr_rqln    -                       number of available characters for line
-   tmxr_tqln    -                       number of buffered characters for line
-   tmxr_tpqln    -                      number of buffered packet characters for line
-   tmxr_tpbusyln -                      transmit packet busy status for line
-   tmxr_set_lnorder -                   set line connection order
-   tmxr_show_lnorder -                  show line connection order
-   tmxr_show_summ -                     show connection summary
-   tmxr_show_cstat -                    show line connections or status
-   tmxr_show_lines -                    show number of lines
-   tmxr_show_open_devices -             show info about all open tmxr devices
-
-   All routines are OS-independent.
-*/
+ * Based on the original DZ11 simulator by Thord Nilson, as updated by
+ * Arthur Krewat.
+ *
+ * This library includes:
+ *
+ * tmxr_poll_conn -                     poll for connection
+ * tmxr_reset_ln -                      reset line (drops connections)
+ * tmxr_detach_ln -                     reset line and close per line listener and outgoing destination
+ * tmxr_getc_ln -                       get character for line
+ * tmxr_get_packet_ln -                 get packet from line
+ * tmxr_get_packet_ln_ex -              get packet from line with separator byte
+ * tmxr_poll_rx -                       poll receive
+ * tmxr_putc_ln -                       put character for line
+ * tmxr_put_packet_ln -                 put packet on line
+ * tmxr_put_packet_ln_ex -              put packet on line with separator byte
+ * tmxr_poll_tx -                       poll transmit
+ * tmxr_send_buffered_data -            transmit buffered data
+ * tmxr_set_get_modem_bits -            set and/or get a line modem bits
+ * tmxr_set_line_loopback -             enable or disable loopback mode on a line
+ * tmxr_get_line_loopback -             returns the current loopback status of a line
+ * tmxr_set_line_halfduplex -           enable or disable halfduplex mode on a line
+ * tmxr_get_line_halfduplex -           returns the current halfduplex status of a line
+ * tmxr_open_master -                   open master connection
+ * tmxr_close_master -                  close master connection
+ * tmxr_attach  -                       attach terminal multiplexor to listening port
+ * tmxr_detach  -                       detach terminal multiplexor to listening port
+ * tmxr_attach_help  -                  help routine for attaching multiplexer devices
+ * tmxr_set_line_unit -                 set the unit which polls for input for a given line
+ * tmxr_ex      -                       (null) examine
+ * tmxr_dep     -                       (null) deposit
+ * tmxr_msg     -                       send message to socket
+ * tmxr_linemsg -                       send message to line
+ * tmxr_linemsgf -                      send formatted message to line
+ * tmxr_fconns  -                       output connection status
+ * tmxr_fstats  -                       output connection statistics
+ * tmxr_set_log -                       enable logging for line
+ * tmxr_set_nolog -                     disable logging for line
+ * tmxr_show_log -                      show logging status for line
+ * tmxr_dscln   -                       disconnect line (SET routine)
+ * tmxr_rqln    -                       number of available characters for line
+ * tmxr_tqln    -                       number of buffered characters for line
+ * tmxr_tpqln    -                      number of buffered packet characters for line
+ * tmxr_tpbusyln -                      transmit packet busy status for line
+ * tmxr_set_lnorder -                   set line connection order
+ * tmxr_show_lnorder -                  show line connection order
+ * tmxr_show_summ -                     show connection summary
+ * tmxr_show_cstat -                    show line connections or status
+ * tmxr_show_lines -                    show number of lines
+ * tmxr_show_open_devices -             show info about all open tmxr devices
+ */
 
 #include "sim_defs.h"
 #include "sim_sock.h"
@@ -97,8 +97,6 @@
 
 #include <ctype.h>
 #include <math.h>
-
-#include "../dpsprintf/dpsprintf.h"
 
 /* Telnet protocol constants - negatives are for init'ing signed char data */
 
@@ -194,7 +192,7 @@ static u_char mantra[] = {                  /* Telnet Option Negotiation Mantra 
     TN_IAC, TN_WILL, TN_SGA,
     TN_IAC, TN_WILL, TN_ECHO,
     TN_IAC, TN_WILL, TN_BIN,
-    TN_IAC, TN_DO, TN_BIN
+    TN_IAC, TN_DO,   TN_BIN
     };
 
 #define TMXR_GUARD  ((sizeof(mantra))) /* buffer guard */
@@ -216,36 +214,36 @@ static void tmxr_add_to_open_list (TMXR* mux);
 
 static void tmxr_init_line (TMLN *lp)
 {
-lp->tsta = 0;                                           /* init telnet state */
-lp->xmte = 1;                                           /* enable transmit */
-lp->dstb = 0;                                           /* default bin mode */
-lp->rxbpr = lp->rxbpi = lp->rxcnt = lp->rxpcnt = 0;     /* init receive indexes */
-if (!lp->txbfd || lp->notelnet)                         /* if not buffered telnet */
-    lp->txbpr = lp->txbpi = lp->txcnt = lp->txpcnt = 0; /*   init transmit indexes */
-lp->txdrp = 0;
+lp->tsta           = 0;                                           /* init telnet state */
+lp->xmte           = 1;                                           /* enable transmit */
+lp->dstb           = 0;                                           /* default bin mode */
+lp->rxbpr          = lp->rxbpi = lp->rxcnt = lp->rxpcnt = 0;      /* init receive indexes */
+if (!lp->txbfd || lp->notelnet)                                   /* if not buffered telnet */
+    lp->txbpr      = lp->txbpi = lp->txcnt = lp->txpcnt = 0;      /*   init transmit indexes */
+lp->txdrp          = 0;
 tmxr_set_get_modem_bits (lp, 0, 0, NULL);
 if ((!lp->mp->buffered) && (!lp->txbfd)) {
-    lp->txbfd = 0;
-    lp->txbsz = TMXR_MAXBUF;
-    lp->txb = (char *)realloc (lp->txb, lp->txbsz);
-    lp->rxbsz = TMXR_MAXBUF;
-    lp->rxb = (char *)realloc(lp->rxb, lp->rxbsz);
-    lp->rbr = (char *)realloc(lp->rbr, lp->rxbsz);
+    lp->txbfd      = 0;
+    lp->txbsz      = TMXR_MAXBUF;
+    lp->txb        = (char *)realloc (lp->txb, lp->txbsz);
+    lp->rxbsz      = TMXR_MAXBUF;
+    lp->rxb        = (char *)realloc(lp->rxb, lp->rxbsz);
+    lp->rbr        = (char *)realloc(lp->rbr, lp->rxbsz);
     }
 if (lp->loopback) {
-    lp->lpbsz = lp->rxbsz;
-    lp->lpb = (char *)realloc(lp->lpb, lp->lpbsz);
-    lp->lpbcnt = lp->lpbpi = lp->lpbpr = 0;
+    lp->lpbsz      = lp->rxbsz;
+    lp->lpb        = (char *)realloc(lp->lpb, lp->lpbsz);
+    lp->lpbcnt     = lp->lpbpi = lp->lpbpr = 0;
     }
 if (lp->rxpb) {
     lp->rxpboffset = lp->rxpbsize = 0;
     free (lp->rxpb);
-    lp->rxpb = NULL;
+    lp->rxpb       = NULL;
     }
 if (lp->txpb) {
-    lp->txpbsize = lp->txppsize = lp->txppoffset = 0;
+    lp->txpbsize   = lp->txppsize = lp->txppoffset = 0;
     free (lp->txpb);
-    lp->txpb = NULL;
+    lp->txpb       = NULL;
     }
 memset (lp->rbr, 0, lp->rxbsz);                         /* clear break status array */
 return;
@@ -267,9 +265,9 @@ return;
 static void tmxr_report_connection (TMXR *mp, TMLN *lp)
 {
 int32 unwritten, psave;
-char cmsg[160];
-char dmsg[80] = "";
-char lmsg[80] = "";
+char  cmsg[160];
+char   dmsg[80]  = "";
+char   lmsg[80]  = "";
 char msgbuf[512] = "";
 
 if ((!lp->notelnet) || (sim_switches & SWMASK ('V'))) {
@@ -287,9 +285,9 @@ if ((!lp->notelnet) || (sim_switches & SWMASK ('V'))) {
     }
 
 if (!mp->buffered) {
-    lp->txbpi = 0;                                      /* init buf pointers */
-    lp->txbpr = (int32)(lp->txbsz - strlen (msgbuf));
-    lp->rxcnt = lp->txcnt = lp->txdrp = 0;              /* init counters */
+    lp->txbpi  = 0;                                      /* init buf pointers */
+    lp->txbpr  = (int32)(lp->txbsz - strlen (msgbuf));
+    lp->rxcnt  = lp->txcnt = lp->txdrp = 0;              /* init counters */
     lp->rxpcnt = lp->txpcnt = 0;
     }
 else
@@ -298,7 +296,7 @@ else
     else
         lp->txbpr = (int32)(lp->txbsz - strlen (msgbuf));
 
-psave = lp->txbpi;                                      /* save insertion pointer */
+psave     = lp->txbpi;                                  /* save insertion pointer */
 lp->txbpi = lp->txbpr;                                  /* insert connection message */
 tmxr_linemsg (lp, msgbuf);                              /* beginning of buffer */
 lp->txbpi = psave;                                      /* restore insertion pointer */
@@ -721,9 +719,9 @@ mp->last_poll_time = poll_time;
 
 if (mp->master) {
     if (mp->ring_sock != INVALID_SOCKET) {  /* Use currently 'ringing' socket if one is active */
-        newsock = mp->ring_sock;
+        newsock       = mp->ring_sock;
         mp->ring_sock = INVALID_SOCKET;
-        address = mp->ring_ipad;
+        address       = mp->ring_ipad;
         mp->ring_ipad = NULL;
         }
     else
@@ -1443,7 +1441,7 @@ for (i = 0; i < mp->lines; i++) {                       /* loop thru lines */
                             lp->telnet_sent_opts[tmp] |= TNOS_DONT;/* Record DONT sent */
                             }
                         }
-                    /* fall through */ /* fallthrough */
+                /*FALLTHRU*/ /* fall through */ /* fallthrough */
                 case TNS_WONT:           /* IAC+WILL/WONT prev */
                     if (tmp == TN_BIN) {                /* BIN? */
                         if (lp->tsta == TNS_WILL) {
@@ -1522,7 +1520,7 @@ for (i = 0; i < mp->lines; i++) {                       /* loop thru lines */
                             lp->telnet_sent_opts[tmp] |= TNOS_WONT;/* Record WONT sent */
                             }
                         }
-                    /* fall through */ /* fallthrough */
+                /*FALLTHRU*/ /* fall through */ /* fallthrough */
                 case TNS_SKIP: default:                 /* skip char */
                     tmxr_rmvrc (lp, j);                 /* remove char */
                     lp->tsta = TNS_NORM;                /* next normal */
@@ -1627,6 +1625,7 @@ return tmxr_put_packet_ln_ex (lp, buf, size, 0);
 
 t_stat tmxr_put_packet_ln_ex (TMLN *lp, const uint8 *buf, size_t size, uint8 frame_byte)
 {
+/*LINTED E_FUNC_SET_NOT_USED*/
 t_stat r;
 size_t fc_size = (frame_byte ? 1 : 0);
 size_t pktlen_size = (lp->datagram ? 0 : 2);
@@ -1692,6 +1691,7 @@ return;
 int32 tmxr_send_buffered_data (TMLN *lp)
 {
 int32 nbytes, sbytes;
+/*LINTED E_FUNC_SET_NOT_USED*/
 t_stat r;
 
 nbytes = tmxr_tqln(lp);                                 /* avail bytes */
@@ -1806,28 +1806,28 @@ static int32 _tmln_speed_delta (CONST char *cptr)
 struct {
     const char *bps;
     int32 delta;
-    } *spd, speeds[] = {
-    {"50",      TMLN_SPD_50_BPS},
-    {"75",      TMLN_SPD_75_BPS},
-    {"110",     TMLN_SPD_110_BPS},
-    {"134",     TMLN_SPD_134_BPS},
-    {"150",     TMLN_SPD_150_BPS},
-    {"300",     TMLN_SPD_300_BPS},
-    {"600",     TMLN_SPD_600_BPS},
-    {"1200",    TMLN_SPD_1200_BPS},
-    {"1800",    TMLN_SPD_1800_BPS},
-    {"2000",    TMLN_SPD_2000_BPS},
-    {"2400",    TMLN_SPD_2400_BPS},
-    {"3600",    TMLN_SPD_3600_BPS},
-    {"4800",    TMLN_SPD_4800_BPS},
-    {"7200",    TMLN_SPD_7200_BPS},
-    {"9600",    TMLN_SPD_9600_BPS},
-    {"19200",   TMLN_SPD_19200_BPS},
-    {"38400",   TMLN_SPD_38400_BPS},
-    {"57600",   TMLN_SPD_57600_BPS},
-    {"76800",   TMLN_SPD_76800_BPS},
-    {"115200",  TMLN_SPD_115200_BPS},
-    {"0",       0}};                    /* End of List, last valid value */
+    } *spd,     speeds[] = {
+    { "50",     TMLN_SPD_50_BPS     },
+    { "75",     TMLN_SPD_75_BPS     },
+    { "110",    TMLN_SPD_110_BPS    },
+    { "134",    TMLN_SPD_134_BPS    },
+    { "150",    TMLN_SPD_150_BPS    },
+    { "300",    TMLN_SPD_300_BPS    },
+    { "600",    TMLN_SPD_600_BPS    },
+    { "1200",   TMLN_SPD_1200_BPS   },
+    { "1800",   TMLN_SPD_1800_BPS   },
+    { "2000",   TMLN_SPD_2000_BPS   },
+    { "2400",   TMLN_SPD_2400_BPS   },
+    { "3600",   TMLN_SPD_3600_BPS   },
+    { "4800",   TMLN_SPD_4800_BPS   },
+    { "7200",   TMLN_SPD_7200_BPS   },
+    { "9600",   TMLN_SPD_9600_BPS   },
+    { "19200",  TMLN_SPD_19200_BPS  },
+    { "38400",  TMLN_SPD_38400_BPS  },
+    { "57600",  TMLN_SPD_57600_BPS  },
+    { "76800",  TMLN_SPD_76800_BPS  },
+    { "115200", TMLN_SPD_115200_BPS },
+    { "0",      0 } };                /* End of List, last valid value */
 int nspeed;
 char speed[24];
 
@@ -2520,8 +2520,8 @@ if (mp->dptr) {
     for (i=0; i<mp->lines; i++) {
         mp->ldsc[i].expect.dptr = mp->dptr;
         mp->ldsc[i].expect.dbit = TMXR_DBG_EXP;
-        mp->ldsc[i].send.dptr = mp->dptr;
-        mp->ldsc[i].send.dbit = TMXR_DBG_SEND;
+        mp->ldsc[i].send.dptr   = mp->dptr;
+        mp->ldsc[i].send.dbit   = TMXR_DBG_SEND;
         }
     }
 tmxr_add_to_open_list (mp);

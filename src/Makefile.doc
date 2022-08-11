@@ -1,5 +1,6 @@
 # DPS8M simulator: src/Makefile.doc
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: 0c00aace-f62b-11ec-ac9b-80ee73e9b8e7
 
@@ -29,8 +30,7 @@ ifneq (,$(findstring docs,$(MAKECMDGOALS)))
 endif
 docspdf:                                                                      \
     # docspdf:    # Build Omnibus Docs (Book-style PDF)
-	@($(MAKE))
-	@( cd "docs" && $(ENV) sh "./builddoc.sh" )
+	@( cd "docs" && $(ENV) sh "./shell/builddoc.sh" )
 
 ###############################################################################
 # Print-only PDF
@@ -41,8 +41,29 @@ ifneq (,$(findstring docs,$(MAKECMDGOALS)))
 endif
 docsprt:                                                                      \
     # docsprt:    # Build Omnibus Docs (Print-only PDF)
-	@($(MAKE))
-	@( cd "docs" && $(ENV) ONESIDE=1 sh "./builddoc.sh" )
+	@( cd "docs" && $(ENV) ONESIDE=1 sh "./shell/builddoc.sh" )
+
+###############################################################################
+# Docker Book-style PDF
+
+.PHONY: dokdocspdf
+ifneq (,$(findstring docs,$(MAKECMDGOALS)))
+.NOTPARALLEL: dokdocspdf
+endif
+dokdocspdf:                                                                   \
+    # dokdocspdf:    # Build Omnibus Docs (Docker, Book)
+	@( cd "docs" && $(ENV) sh "./shell/builddoc-docker.sh" )
+
+###############################################################################
+# Docker Print-only PDF
+
+.PHONY: dokdocsprt
+ifneq (,$(findstring docs,$(MAKECMDGOALS)))
+.NOTPARALLEL: dokdocsprt
+endif
+dokdocsprt:                                                                   \
+    # dokdocsprt:    # Build Omnibus Docs (Docker, Print)
+	@( cd "docs" && $(ENV) ONESIDE=1 sh "./shell/builddoc-docker.sh" )
 
 ###############################################################################
 

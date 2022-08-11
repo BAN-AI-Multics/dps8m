@@ -1,5 +1,6 @@
 # DPS8M simulator: src/Makefile.loc
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: 17a08b6c-f62b-11ec-9acc-80ee73e9b8e7
 
@@ -17,7 +18,7 @@
 ###############################################################################
 
 ###############################################################################
-# Local Library Targets                                                     \
+# Local Library Targets                                                       \
     # XXXX:    # ---------------------- Local Libraries ---------------------
 ###############################################################################
 

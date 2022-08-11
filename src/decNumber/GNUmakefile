@@ -1,5 +1,6 @@
 # DPS8M simulator: src/decNumber/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: df455d55-f62c-11ec-8d80-80ee73e9b8e7
 
@@ -63,7 +64,7 @@ clean distclean:
 	@$(PRINTF) '%s\n' "CLEAN: decNumber"
 	-@$(SETV); $(RMF) $(OBJS) "decNumber.a"       ||  $(TRUE) > /dev/null 2>&1
 	-@$(SETV); $(RMF) ./*.gcda > /dev/null 2>&1   ||  $(TRUE)
-	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o"  ||  $(TRUE) > /dev/null 2>&1
+	-@$(SETV); $(RMF) ./*.ln   > /dev/null 2>&1   ||  $(TRUE)
 
 ###############################################################################
 

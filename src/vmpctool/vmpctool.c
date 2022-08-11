@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: BSD-3-Clause
  * scspell-id: aab0e237-f631-11ec-9aea-80ee73e9b8e7
  *
@@ -135,8 +136,6 @@
 # include <sys/mount.h>
 # include <sys/utsname.h>
 #endif /* if defined( __linux__ ) */
-
-#include "../dpsprintf/dpsprintf.h"
 
 #ifndef PATH_MAX
 # define PATH_MAX 4 * KiB

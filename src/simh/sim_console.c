@@ -1,76 +1,78 @@
-/* sim_console.c: simulator console I/O library
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: a2e214e2-f62a-11ec-89cf-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 1993-2014 Robert M Supnik
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-   OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   SOFTWARE.
-
-   Except as contained in this notice, the name of Robert M Supnik shall not
-   be used in advertising or otherwise to promote the sale, use or other
-   dealings in this Software without prior written authorization from
-   Robert M Supnik.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * sim_console.c: simulator console I/O library
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: a2e214e2-f62a-11ec-89cf-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 1993-2014 Robert M. Supnik
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+ * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Robert M. Supnik shall not
+ * be used in advertising or otherwise to promote the sale, use or other
+ * dealings in this Software without prior written authorization from
+ * Robert M. Supnik.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 /*
-   This module implements the following routines to support terminal and
-   Remote Console I/O:
-
-   sim_poll_kbd                 poll for keyboard input
-   sim_putchar                  output character to console
-   sim_set_console              set console parameters
-   sim_show_console             show console parameters
-   sim_set_remote_console       set remote console parameters
-   sim_show_remote_console      show remote console parameters
-   sim_set_cons_buff            set console buffered
-   sim_set_cons_unbuff          set console unbuffered
-   sim_set_cons_log             set console log
-   sim_set_cons_nolog           set console nolog
-   sim_show_cons_buff           show console buffered
-   sim_show_cons_log            show console log
-   sim_cons_get_send            get console send structure address
-   sim_cons_get_expect          get console expect structure address
-   sim_show_cons_send_input     show pending input data
-   sim_show_cons_expect         show expect rules and state
-   sim_ttinit                   called once to get initial terminal state
-   sim_ttrun                    called to put terminal into run state
-   sim_ttcmd                    called to return terminal to command state
-   sim_ttclose                  called once before the simulator exits
-   sim_ttisatty                 called to determine if running interactively
-   sim_os_poll_kbd              poll for keyboard input
-   sim_os_putchar               output character to console
-
-   The first group is OS-independent; the second group is OS-dependent.
-
-   The following routines are exposed but deprecated:
-
-   sim_set_telnet               set console to Telnet port
-   sim_set_notelnet             close console Telnet port
-   sim_show_telnet              show console status
-*/
+ * This module implements the following routines to support terminal and
+ * Remote Console I/O:
+ *
+ * sim_poll_kbd                 poll for keyboard input
+ * sim_putchar                  output character to console
+ * sim_set_console              set console parameters
+ * sim_show_console             show console parameters
+ * sim_set_remote_console       set remote console parameters
+ * sim_show_remote_console      show remote console parameters
+ * sim_set_cons_buff            set console buffered
+ * sim_set_cons_unbuff          set console unbuffered
+ * sim_set_cons_log             set console log
+ * sim_set_cons_nolog           set console nolog
+ * sim_show_cons_buff           show console buffered
+ * sim_show_cons_log            show console log
+ * sim_cons_get_send            get console send structure address
+ * sim_cons_get_expect          get console expect structure address
+ * sim_show_cons_send_input     show pending input data
+ * sim_show_cons_expect         show expect rules and state
+ * sim_ttinit                   called once to get initial terminal state
+ * sim_ttrun                    called to put terminal into run state
+ * sim_ttcmd                    called to return terminal to command state
+ * sim_ttclose                  called once before the simulator exits
+ * sim_ttisatty                 called to determine if running interactively
+ * sim_os_poll_kbd              poll for keyboard input
+ * sim_os_putchar               output character to console
+ *
+ * The first group is OS-independent; the second group is OS-dependent.
+ *
+ * The following routines are exposed but deprecated:
+ *
+ * sim_set_telnet               set console to Telnet port
+ * sim_set_notelnet             close console Telnet port
+ * sim_show_telnet              show console status
+ */
 
 #include "sim_defs.h"
 #include "sim_tmxr.h"
@@ -81,8 +83,6 @@
 #ifdef __HAIKU__
 # define nice(n) ({})
 #endif
-
-#include "../dpsprintf/dpsprintf.h"
 
 /* Forward Declarations of Platform specific routines */
 
@@ -132,20 +132,20 @@ UNIT sim_con_unit = { UDATA (&sim_con_poll_svc, 0, 0)  };   /* console connectio
 #define DBG_SND  0x00000002                             /* Send (Inject) data activity */
 
 static DEBTAB sim_con_debug[] = {
-  {"TRC",    DBG_TRC},
-  {"XMT",    DBG_XMT},
-  {"RCV",    DBG_RCV},
-  {"RET",    DBG_RET},
-  {"ASY",    DBG_ASY},
-  {"EXP",    DBG_EXP},
-  {"SND",    DBG_SND},
+  {"TRC", DBG_TRC},
+  {"XMT", DBG_XMT},
+  {"RCV", DBG_RCV},
+  {"RET", DBG_RET},
+  {"ASY", DBG_ASY},
+  {"EXP", DBG_EXP},
+  {"SND", DBG_SND},
   {0}
 };
 
 static REG sim_con_reg[] = {
-    { ORDATAD (WRU,   sim_int_char,  8, "interrupt character") },
-    { ORDATAD (BRK,   sim_brk_char,  8, "break character") },
-    { ORDATAD (DEL,   sim_del_char,  8, "delete character ") },
+    { ORDATAD (WRU,   sim_int_char, 8,  "interrupt character") },
+    { ORDATAD (BRK,   sim_brk_char, 8,  "break character") },
+    { ORDATAD (DEL,   sim_del_char, 8,  "delete character ") },
     { ORDATAD (PCHAR, sim_tt_pchar, 32, "printable character mask") },
   { 0 },
 };
@@ -155,10 +155,10 @@ static MTAB sim_con_mod[] = {
 };
 
 DEVICE sim_con_telnet = {
-    "CON-TEL", &sim_con_unit, sim_con_reg, sim_con_mod,
-    1, 0, 0, 0, 0, 0,
-    NULL, NULL, sim_con_reset, NULL, NULL, NULL,
-    NULL, DEV_DEBUG, 0, sim_con_debug};
+    "CON-TEL", &sim_con_unit, sim_con_reg,   sim_con_mod,
+    1,         0,             0,             0,           0,    0,
+    NULL,      NULL,          sim_con_reset, NULL,        NULL, NULL,
+    NULL,      DEV_DEBUG,     0,             sim_con_debug};
 TMLN sim_con_ldsc = { 0 };                                             /* line descr */
 TMXR sim_con_tmxr = { 1, 0, 0, &sim_con_ldsc, NULL, &sim_con_telnet }; /* line mux   */
 
@@ -195,58 +195,57 @@ return sim_con_poll_svc (&dptr->units[0]);              /* establish polling as 
 /* Set/show data structures */
 
 static CTAB set_con_tab[] = {
-    { "WRU", &sim_set_kmap, KMAP_WRU | KMAP_NZ },
-    { "BRK", &sim_set_kmap, KMAP_BRK },
-    { "DEL", &sim_set_kmap, KMAP_DEL |KMAP_NZ },
-    { "PCHAR", &sim_set_pchar, 0 },
-    { "SPEED", &sim_set_cons_speed, 0 },
-    { "TELNET", &sim_set_telnet, 0 },
-    { "NOTELNET", &sim_set_notelnet, 0 },
-    { "LOG", &sim_set_logon, 0 },
-    { "NOLOG", &sim_set_logoff, 0 },
-    { "DEBUG", &sim_set_debon, 0 },
-    { "NODEBUG", &sim_set_deboff, 0 },
+    { "WRU",         &sim_set_kmap,             KMAP_WRU | KMAP_NZ },
+    { "BRK",         &sim_set_kmap,             KMAP_BRK },
+    { "DEL",         &sim_set_kmap,             KMAP_DEL |KMAP_NZ },
+    { "PCHAR",       &sim_set_pchar,            0 },
+    { "SPEED",       &sim_set_cons_speed,       0 },
+    { "TELNET",      &sim_set_telnet,           0 },
+    { "NOTELNET",    &sim_set_notelnet,         0 },
+    { "LOG",         &sim_set_logon,            0 },
+    { "NOLOG",       &sim_set_logoff,           0 },
+    { "DEBUG",       &sim_set_debon,            0 },
+    { "NODEBUG",     &sim_set_deboff,           0 },
 #define CMD_WANTSTR     0100000
-    { "HALT", &sim_set_halt, 1 | CMD_WANTSTR },
-    { "NOHALT", &sim_set_halt, 0 },
-    { "DELAY", &sim_set_delay, 0 },
-    { "RESPONSE", &sim_set_response, 1 | CMD_WANTSTR },
-    { "NORESPONSE", &sim_set_response, 0 },
-    { NULL, NULL, 0 }
+    { "HALT",        &sim_set_halt,             1 | CMD_WANTSTR },
+    { "NOHALT",      &sim_set_halt,             0 },
+    { "DELAY",       &sim_set_delay,            0 },
+    { "RESPONSE",    &sim_set_response,         1 | CMD_WANTSTR },
+    { "NORESPONSE",  &sim_set_response,         0 },
+    { NULL,          NULL,                      0 }
     };
 
 static CTAB set_rem_con_tab[] = {
-    { "CONNECTIONS", &sim_set_rem_connections, 0 },
-    { "TELNET", &sim_set_rem_telnet, 1 },
-    { "NOTELNET", &sim_set_rem_telnet, 0 },
-    { "TIMEOUT", &sim_set_rem_timeout, 0 },
-    { NULL, NULL, 0 }
+    { "CONNECTIONS", &sim_set_rem_connections,  0 },
+    { "TELNET",      &sim_set_rem_telnet,       1 },
+    { "NOTELNET",    &sim_set_rem_telnet,       0 },
+    { "TIMEOUT",     &sim_set_rem_timeout,      0 },
+    { NULL,          NULL,                      0 }
     };
 
 static SHTAB show_con_tab[] = {
-    { "WRU", &sim_show_kmap, KMAP_WRU },
-    { "BRK", &sim_show_kmap, KMAP_BRK },
-    { "DEL", &sim_show_kmap, KMAP_DEL },
-    { "PCHAR", &sim_show_pchar, 0 },
-    { "SPEED", &sim_show_cons_speed, 0 },
-    { "LOG", &sim_show_cons_log, 0 },
-    { "TELNET", &sim_show_telnet, 0 },
-    { "BUFFERED", &sim_show_cons_buff, 0 },
-    { "EXPECT", &sim_show_cons_expect, 0 },
-    { "HALT", &sim_show_cons_expect, 0 },
-    { "INPUT", &sim_show_cons_send_input, 0 },
-    { "RESPONSE", &sim_show_cons_send_input, 0 },
-    { "DELAY", &sim_show_cons_expect, 0 },
-    { NULL, NULL, 0 }
+    { "WRU",         &sim_show_kmap,            KMAP_WRU },
+    { "BRK",         &sim_show_kmap,            KMAP_BRK },
+    { "DEL",         &sim_show_kmap,            KMAP_DEL },
+    { "SPEED",       &sim_show_cons_speed,      0 },
+    { "LOG",         &sim_show_cons_log,        0 },
+    { "TELNET",      &sim_show_telnet,          0 },
+    { "BUFFERED",    &sim_show_cons_buff,       0 },
+    { "EXPECT",      &sim_show_cons_expect,     0 },
+    { "HALT",        &sim_show_cons_expect,     0 },
+    { "INPUT",       &sim_show_cons_send_input, 0 },
+    { "RESPONSE",    &sim_show_cons_send_input, 0 },
+    { "DELAY",       &sim_show_cons_expect,     0 },
+    { NULL,          NULL,                      0 }
     };
 
 static CTAB set_con_telnet_tab[] = {
-    { "LOG", &sim_set_cons_log, 0 },
-    { "NOLOG", &sim_set_cons_nolog, 0 },
-    { "BUFFERED", &sim_set_cons_buff, 0 },
-    { "NOBUFFERED", &sim_set_cons_unbuff, 0 },
-    { "UNBUFFERED", &sim_set_cons_unbuff, 0 },
-    { NULL, NULL, 0 }
+    { "LOG",         &sim_set_cons_log,         0 },
+    { "NOLOG",       &sim_set_cons_nolog,       0 },
+    { "BUFFERED",    &sim_set_cons_buff,        0 },
+    { "NOBUFFERED",  &sim_set_cons_unbuff,      0 },
+    { "UNBUFFERED",  &sim_set_cons_unbuff,      0 },
+    { NULL,          NULL,                      0 }
     };
 
 static int32 *cons_kmap[] = {
@@ -318,9 +317,9 @@ UNIT sim_rem_con_unit[2] = {
     { UDATA (&sim_rem_con_data_svc, UNIT_IDLE, 0)  }};  /* console data handling unit */
 
 DEBTAB sim_rem_con_debug[] = {
-  {"TRC",    DBG_TRC},
-  {"XMT",    DBG_XMT},
-  {"RCV",    DBG_RCV},
+  {"TRC", DBG_TRC},
+  {"XMT", DBG_XMT},
+  {"RCV", DBG_RCV},
   {0}
 };
 
@@ -333,24 +332,24 @@ DEVICE sim_remote_console = {
     2, 0, 0, 0, 0, 0,
     NULL, NULL, sim_rem_con_reset, NULL, NULL, NULL,
     NULL, DEV_DEBUG | DEV_NOSAVE, 0, sim_rem_con_debug};
-#define MAX_REMOTE_SESSIONS 40          /* Arbitrary Session Limit */
-static int32 *sim_rem_buf_size = NULL;
-static int32 *sim_rem_buf_ptr = NULL;
-static char **sim_rem_buf = NULL;
-static t_bool *sim_rem_single_mode = NULL;  /* per line command mode (single command or must continue) */
-static TMXR sim_rem_con_tmxr = { 0, 0, 0, NULL, NULL, &sim_remote_console };/* remote console line mux */
-static uint32 sim_rem_read_timeout = 30;    /* seconds before automatic continue */
-static uint32 *sim_rem_read_timeouts = NULL;/* per line read timeout (default from sim_rem_read_timeout) */
-static int32 sim_rem_active_number = -1;    /* -1 - not active, >= 0 is index of active console */
-int32 sim_rem_cmd_active_line = -1;         /* step in progress on line # */
-static CTAB *sim_rem_active_command = NULL; /* active command */
-static char *sim_rem_command_buf;           /* active command buffer */
-static t_bool sim_log_temp = FALSE;         /* temporary log file active */
+#define MAX_REMOTE_SESSIONS 40  /* Arbitrary Session Limit */
+static int32 *sim_rem_buf_size             = NULL;
+static int32 *sim_rem_buf_ptr              = NULL;
+static char **sim_rem_buf                  = NULL;
+static t_bool *sim_rem_single_mode         = NULL;  /* per line command mode (single command or must continue) */
+static TMXR sim_rem_con_tmxr               = { 0, 0, 0, NULL, NULL, &sim_remote_console };/* remote console line mux */
+static uint32 sim_rem_read_timeout         = 30;    /* seconds before automatic continue */
+static uint32 *sim_rem_read_timeouts       = NULL;  /* per line read timeout (default from sim_rem_read_timeout) */
+static int32 sim_rem_active_number         = -1;    /* -1 - not active, >= 0 is index of active console */
+int32 sim_rem_cmd_active_line              = -1;    /* step in progress on line # */
+static CTAB *sim_rem_active_command        = NULL;  /* active command */
+static char *sim_rem_command_buf;                   /* active command buffer */
+static t_bool sim_log_temp                 = FALSE; /* temporary log file active */
 static char sim_rem_con_temp_name[PATH_MAX+1];
-static t_bool sim_rem_master_mode = FALSE;  /* Master Mode Enabled Flag */
-static t_bool sim_rem_master_was_enabled = FALSE; /* Master was Enabled */
+static t_bool sim_rem_master_mode          = FALSE; /* Master Mode Enabled Flag */
+static t_bool sim_rem_master_was_enabled   = FALSE; /* Master was Enabled */
 static t_bool sim_rem_master_was_connected = FALSE; /* Master Mode has been connected */
-static t_offset sim_rem_cmd_log_start = 0;  /* Log File saved position */
+static t_offset sim_rem_cmd_log_start      = 0;     /* Log File saved position */
 
 /* SET REMOTE CONSOLE command */
 
@@ -430,9 +429,9 @@ if (c >= 0) {                                           /* poll connect */
     char wru_name[8];
 
     sim_activate_after(uptr+1, 1000000);                /* start data poll after 1 second */
-    lp->rcve = 1;                                       /* rcv enabled */
-    sim_rem_buf_ptr[c] = 0;                             /* start with empty command buffer */
-    sim_rem_single_mode[c] = TRUE;                      /* start in single command mode */
+    lp->rcve                 = 1;                       /* rcv enabled */
+    sim_rem_buf_ptr[c]       = 0;                       /* start with empty command buffer */
+    sim_rem_single_mode[c]   = TRUE;                    /* start in single command mode */
     sim_rem_read_timeouts[c] = sim_rem_read_timeout;    /* Start with default timeout */
     if (isprint(sim_int_char&0xFF))
         sprintf(wru_name, "'%c'", sim_int_char&0xFF);
@@ -476,56 +475,56 @@ static t_stat x_help_cmd (int32 flag, CONST char *cptr);
 static CTAB allowed_remote_cmds[] = {
     { "EXAMINE",  &exdep_cmd,      EX_E },
     { "DEPOSIT",  &exdep_cmd,      EX_D },
-    { "EVALUATE", &eval_cmd,          0 },
-    { "ATTACH",   &attach_cmd,        0 },
-    { "DETACH",   &detach_cmd,        0 },
+    { "EVALUATE", &eval_cmd,       0 },
+    { "ATTACH",   &attach_cmd,     0 },
+    { "DETACH",   &detach_cmd,     0 },
 #if 0 /* Needs updating for dps8 */
-    { "ASSIGN",   &assign_cmd,        0 },
-    { "DEASSIGN", &deassign_cmd,      0 },
+    { "ASSIGN",   &assign_cmd,     0 },
+    { "DEASSIGN", &deassign_cmd,   0 },
 #endif /* Needs updating for dps8 */
-    { "CONTINUE", &x_continue_cmd,    0 },
-    { "STEP",     &x_step_cmd,        0 },
-    { "ECHO",     &echo_cmd,          0 },
-    { "SET",      &set_cmd,           0 },
-    { "SHOW",     &show_cmd,          0 },
-    { "HELP",     &x_help_cmd,        0 },
+    { "CONTINUE", &x_continue_cmd, 0 },
+    { "STEP",     &x_step_cmd,     0 },
+    { "ECHO",     &echo_cmd,       0 },
+    { "SET",      &set_cmd,        0 },
+    { "SHOW",     &show_cmd,       0 },
+    { "HELP",     &x_help_cmd,     0 },
     { NULL,       NULL }
     };
 
 static CTAB allowed_master_remote_cmds[] = {
     { "EXAMINE",  &exdep_cmd,      EX_E },
     { "DEPOSIT",  &exdep_cmd,      EX_D },
-    { "EVALUATE", &eval_cmd,          0 },
-    { "ATTACH",   &attach_cmd,        0 },
-    { "DETACH",   &detach_cmd,        0 },
+    { "EVALUATE", &eval_cmd,       0 },
+    { "ATTACH",   &attach_cmd,     0 },
+    { "DETACH",   &detach_cmd,     0 },
 #if 0 /* Needs updating for dps8 */
-    { "ASSIGN",   &assign_cmd,        0 },
-    { "DEASSIGN", &deassign_cmd,      0 },
+    { "ASSIGN",   &assign_cmd,     0 },
+    { "DEASSIGN", &deassign_cmd,   0 },
 #endif /* Needs updating for dps8 */
-    { "CONTINUE", &x_continue_cmd,    0 },
-    { "STEP",     &x_step_cmd,        0 },
-    { "ECHO",     &echo_cmd,          0 },
-    { "SET",      &set_cmd,           0 },
-    { "SHOW",     &show_cmd,          0 },
-    { "HELP",     &x_help_cmd,        0 },
-    { "EXIT",     &exit_cmd,          0 },
-    { "QUIT",     &exit_cmd,          0 },
-    { "RUN",      &x_run_cmd,    RU_RUN },
-    { "GO",       &x_run_cmd,     RU_GO },
-    { "BOOT",     &x_run_cmd,   RU_BOOT },
-    { "BREAK",    &brk_cmd,      SSH_ST },
-    { "NOBREAK",  &brk_cmd,      SSH_CL },
+    { "CONTINUE", &x_continue_cmd, 0 },
+    { "STEP",     &x_step_cmd,     0 },
+    { "ECHO",     &echo_cmd,       0 },
+    { "SET",      &set_cmd,        0 },
+    { "SHOW",     &show_cmd,       0 },
+    { "HELP",     &x_help_cmd,     0 },
+    { "EXIT",     &exit_cmd,       0 },
+    { "QUIT",     &exit_cmd,       0 },
+    { "RUN",      &x_run_cmd,      RU_RUN },
+    { "GO",       &x_run_cmd,      RU_GO },
+    { "BOOT",     &x_run_cmd,      RU_BOOT },
+    { "BREAK",    &brk_cmd,        SSH_ST },
+    { "NOBREAK",  &brk_cmd,        SSH_CL },
     { NULL,       NULL }
     };
 
 static CTAB allowed_single_remote_cmds[] = {
-    { "ATTACH",   &attach_cmd,        0 },
-    { "DETACH",   &detach_cmd,        0 },
+    { "ATTACH",   &attach_cmd,     0 },
+    { "DETACH",   &detach_cmd,     0 },
     { "EXAMINE",  &exdep_cmd,      EX_E },
-    { "EVALUATE", &eval_cmd,          0 },
-    { "ECHO",     &echo_cmd,          0 },
-    { "SHOW",     &show_cmd,          0 },
-    { "HELP",     &x_help_cmd,        0 },
+    { "EVALUATE", &eval_cmd,       0 },
+    { "ECHO",     &echo_cmd,       0 },
+    { "SHOW",     &show_cmd,       0 },
+    { "HELP",     &x_help_cmd,     0 },
     { NULL,       NULL }
     };
 
@@ -794,7 +793,7 @@ for (i=(was_active_command ? sim_rem_cmd_active_line : 0);
                 case '\n':
                     if (sim_rem_buf_ptr[i] == 0)
                         break;
-                /* fallthrough */
+                /*FALLTHRU*/ /* fallthrough */ /* fall through */
                 case '\r':
                     tmxr_linemsg (lp, "\r\n");
                     if (sim_rem_buf_ptr[i]+1 >= sim_rem_buf_size[i]) {
@@ -1169,33 +1168,6 @@ if ((r != SCPE_OK) ||
     ((val & 0x00002400) == 0))
     return SCPE_ARG;
 sim_tt_pchar = val;
-return SCPE_OK;
-}
-
-/* Show printable characters */
-
-t_stat sim_show_pchar (FILE *st, DEVICE *dptr, UNIT *uptr, int32 flag, CONST char *cptr)
-{
-if (sim_devices[0]->dradix == 16)
-    fprintf (st, "pchar mask = %X", sim_tt_pchar);
-else fprintf (st, "pchar mask = %o", sim_tt_pchar);
-if (sim_tt_pchar) {
-    static const char *pchars[] = {"NUL(^@)", "SOH(^A)", "STX(^B)", "ETX(^C)", "EOT(^D)", "ENQ(^E)", "ACK(^F)", "BEL(^G)",
-                                   "BS(^H)" , "HT(^I)",  "LF(^J)",  "VT(^K)",  "FF(^L)",  "CR(^M)",  "SO(^N)",  "SI(^O)",
-                                   "DLE(^P)", "DC1(^Q)", "DC2(^R)", "DC3(^S)", "DC4(^T)", "NAK(^U)", "SYN(^V)", "ETB(^W)",
-                                   "CAN(^X)", "EM(^Y)",  "SUB(^Z)", "ESC",     "FS",      "GS",      "RS",      "US"};
-    int i;
-    t_bool found = FALSE;
-
-    fprintf (st, " {");
-    for (i=31; i>=0; i--)
-        if (sim_tt_pchar & (1 << i)) {
-            fprintf (st, "%s%s", found ? "," : "", pchars[i]);
-            found = TRUE;
-            }
-    fprintf (st, "}");
-    }
-fprintf (st, "\n");
 return SCPE_OK;
 }
 
@@ -1817,8 +1789,10 @@ if (!sim_con_tmxr.ldsc->uptr) {                         /* If simulator didn't d
     sim_con_unit.dynflags &= ~UNIT_TM_POLL;             /* we can't poll asynchronously */
     sim_con_unit.dynflags |= TMUF_NOASYNCH;             /* disable asynchronous behavior */
     }
+#if 0
 else {
     }
+#endif
 tmxr_start_poll ();
 return sim_os_ttrun ();
 }
@@ -2008,14 +1982,14 @@ return SCPE_OK;
 # include <fcntl.h>
 # include <unistd.h>
 
-struct sgttyb cmdtty,runtty;                            /* V6/V7 stty data */
-struct tchars cmdtchars,runtchars;                      /* V7 editing */
-struct ltchars cmdltchars,runltchars;                   /* 4.2 BSD editing */
-int cmdfl,runfl;                                        /* TTY flags */
+struct sgttyb  cmdtty,     runtty;                       /* V6/V7 stty data */
+struct tchars  cmdtchars,  runtchars;                    /* V7 editing */
+struct ltchars cmdltchars, runltchars;                   /* 4.2 BSD editing */
+int cmdfl,runfl;                                         /* TTY flags */
 
 static t_stat sim_os_ttinit (void)
 {
-cmdfl = fcntl (0, F_GETFL, 0);                          /* get old flags  and status */
+cmdfl = fcntl (0, F_GETFL, 0);                           /* get old flags  and status */
 runfl = cmdfl | FNDELAY;
 if (ioctl (0, TIOCGETP, &cmdtty) < 0)
     return SCPE_TTIERR;
@@ -2023,41 +1997,41 @@ if (ioctl (0, TIOCGETC, &cmdtchars) < 0)
     return SCPE_TTIERR;
 if (ioctl (0, TIOCGLTC, &cmdltchars) < 0)
     return SCPE_TTIERR;
-runtty = cmdtty;                                        /* initial run state */
-runtty.sg_flags = cmdtty.sg_flags & ~(ECHO|CRMOD) | CBREAK;
-runtchars.t_intrc = sim_int_char;                       /* interrupt */
-runtchars.t_quitc = 0xFF;                               /* no quit */
-runtchars.t_startc = 0xFF;                              /* no host sync */
-runtchars.t_stopc = 0xFF;
-runtchars.t_eofc = 0xFF;
-runtchars.t_brkc = 0xFF;
-runltchars.t_suspc = 0xFF;                              /* no specials of any kind */
+runtty              = cmdtty;                            /* initial run state */
+runtty.sg_flags     = cmdtty.sg_flags & ~(ECHO|CRMOD) | CBREAK;
+runtchars.t_intrc   = sim_int_char;                      /* interrupt */
+runtchars.t_quitc   = 0xFF;                              /* no quit */
+runtchars.t_startc  = 0xFF;                              /* no host sync */
+runtchars.t_stopc   = 0xFF;
+runtchars.t_eofc    = 0xFF;
+runtchars.t_brkc    = 0xFF;
+runltchars.t_suspc  = 0xFF;                              /* no specials of any kind */
 runltchars.t_dsuspc = 0xFF;
 runltchars.t_rprntc = 0xFF;
 runltchars.t_flushc = 0xFF;
 runltchars.t_werasc = 0xFF;
 runltchars.t_lnextc = 0xFF;
-return SCPE_OK;                                         /* return success */
+return SCPE_OK;                                          /* return success */
 }
 
 static t_stat sim_os_ttrun (void)
 {
-runtchars.t_intrc = sim_int_char;                       /* in case changed */
-(void)fcntl (0, F_SETFL, runfl);                              /* non-block mode */
+runtchars.t_intrc = sim_int_char;                        /* in case changed */
+(void)fcntl (0, F_SETFL, runfl);                         /* non-block mode */
 if (ioctl (0, TIOCSETP, &runtty) < 0)
     return SCPE_TTIERR;
 if (ioctl (0, TIOCSETC, &runtchars) < 0)
     return SCPE_TTIERR;
 if (ioctl (0, TIOCSLTC, &runltchars) < 0)
     return SCPE_TTIERR;
-sim_os_set_thread_priority (PRIORITY_BELOW_NORMAL)l     /* lower priority */
+sim_os_set_thread_priority (PRIORITY_BELOW_NORMAL)l      /* lower priority */
 return SCPE_OK;
 }
 
 static t_stat sim_os_ttcmd (void)
 {
-sim_os_set_thread_priority (PRIORITY_NORMAL);           /* restore priority */
-(void)fcntl (0, F_SETFL, cmdfl);                              /* block mode */
+sim_os_set_thread_priority (PRIORITY_NORMAL);            /* restore priority */
+(void)fcntl (0, F_SETFL, cmdfl);                         /* block mode */
 if (ioctl (0, TIOCSETP, &cmdtty) < 0)
     return SCPE_TTIERR;
 if (ioctl (0, TIOCSETC, &cmdtchars) < 0)
@@ -2111,42 +2085,42 @@ struct termios cmdtty, runtty;
 
 static t_stat sim_os_ttinit (void)
 {
-if (!isatty (fileno (stdin)))                           /* skip if !tty */
+if (!isatty (fileno (stdin)))                                  /* skip if !tty */
     return SCPE_OK;
-if (tcgetattr (0, &cmdtty) < 0)                         /* get old flags */
+if (tcgetattr (0, &cmdtty) < 0)                                /* get old flags */
     return SCPE_TTIERR;
-runtty = cmdtty;
-runtty.c_lflag = runtty.c_lflag & ~(ECHO | ICANON);     /* no echo or edit */
-runtty.c_oflag = runtty.c_oflag & ~OPOST;               /* no output edit */
-runtty.c_iflag = runtty.c_iflag & ~ICRNL;               /* no cr conversion */
-runtty.c_cc[VINTR] = sim_int_char;                      /* interrupt */
-runtty.c_cc[VQUIT] = 0;                                 /* no quit */
-runtty.c_cc[VERASE] = 0;
-runtty.c_cc[VKILL] = 0;
-runtty.c_cc[VEOF] = 0;
-runtty.c_cc[VEOL] = 0;
-runtty.c_cc[VSTART] = 0;                                /* no host sync */
-runtty.c_cc[VSUSP] = 0;
-runtty.c_cc[VSTOP] = 0;
+runtty                = cmdtty;
+runtty.c_lflag        = runtty.c_lflag & ~(ECHO | ICANON);     /* no echo or edit */
+runtty.c_oflag        = runtty.c_oflag & ~OPOST;               /* no output edit */
+runtty.c_iflag        = runtty.c_iflag & ~ICRNL;               /* no cr conversion */
+runtty.c_cc[VINTR]    = sim_int_char;                          /* interrupt */
+runtty.c_cc[VQUIT]    = 0;                                     /* no quit */
+runtty.c_cc[VERASE]   = 0;
+runtty.c_cc[VKILL]    = 0;
+runtty.c_cc[VEOF]     = 0;
+runtty.c_cc[VEOL]     = 0;
+runtty.c_cc[VSTART]   = 0;                                     /* no host sync */
+runtty.c_cc[VSUSP]    = 0;
+runtty.c_cc[VSTOP]    = 0;
 # if defined (VREPRINT)
-runtty.c_cc[VREPRINT] = 0;                              /* no specials */
+runtty.c_cc[VREPRINT] = 0;                                     /* no specials */
 # endif
 # if defined (VDISCARD)
 runtty.c_cc[VDISCARD] = 0;
 # endif
 # if defined (VWERASE)
-runtty.c_cc[VWERASE] = 0;
+runtty.c_cc[VWERASE]  = 0;
 # endif
 # if defined (VLNEXT)
-runtty.c_cc[VLNEXT] = 0;
+runtty.c_cc[VLNEXT]   = 0;
 # endif
-runtty.c_cc[VMIN] = 0;                                  /* no waiting */
-runtty.c_cc[VTIME] = 0;
+runtty.c_cc[VMIN]     = 0;                                     /* no waiting */
+runtty.c_cc[VTIME]    = 0;
 # if defined (VDSUSP)
-runtty.c_cc[VDSUSP] = 0;
+runtty.c_cc[VDSUSP]   = 0;
 # endif
 # if defined (VSTATUS)
-runtty.c_cc[VSTATUS] = 0;
+runtty.c_cc[VSTATUS]  = 0;
 # endif
 return SCPE_OK;
 }
@@ -2219,6 +2193,7 @@ static void decode (char *decoded, const char *encoded)
 {
 char c;
 
+/*LINTED E_EQUALITY_NOT_ASSIGNMENT*/
 while ((c = *decoded++ = *encoded++))                   /* copy the character */
     if (c == ESC_CHAR) {                                /* does it start an escape? */
         if ((isalpha (*encoded)) ||                     /* is next character "A-Z" or "a-z"? */

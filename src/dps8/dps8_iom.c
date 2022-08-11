@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 89f10936-f62e-11ec-b310-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -15,6 +17,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -552,8 +564,6 @@
 # include "threadz.h"
 #endif
 
-#include "../dpsprintf/dpsprintf.h"
-
 #define DBG_CTR 1
 
 // Nomenclature
@@ -803,9 +813,11 @@ static char * cmdNames [] =
 void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
+# ifndef SUNLINT
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
+# endif /* ifndef SUNLINT */
 #else
     * data = M[addr] & DMASK;
 #endif
@@ -814,12 +826,16 @@ void iom_core_read (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UNUSED 
 void iom_core_read2 (UNUSED uint iom_unit_idx, word24 addr, word36 *even, word36 *odd, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
+# ifndef SUNLINT
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * even = v & DMASK;
+# endif /* ifndef SUNLINT */
     addr++;
+# ifndef SUNLINT
     LOAD_ACQ_CORE_WORD(v, addr);
     * odd = v & DMASK;
+# endif /* ifndef SUNLINT */
 #else
     * even = M[addr ++] & DMASK;
     * odd =  M[addr]    & DMASK;
@@ -830,7 +846,9 @@ void iom_core_write (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED 
   {
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
+# ifndef SUNLINT
     STORE_REL_CORE_WORD(addr, data);
+# endif /* ifndef SUNLINT */
 #else
     M[addr] = data & DMASK;
 #endif
@@ -840,10 +858,14 @@ void iom_core_write2 (UNUSED uint iom_unit_idx, word24 addr, word36 even, word36
   {
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
+# ifndef SUNLINT
     STORE_REL_CORE_WORD(addr, even);
+# endif /* ifndef SUNLINT */
     addr++;
     LOCK_CORE_WORD(addr);
+# ifndef SUNLINT
     STORE_REL_CORE_WORD(addr, odd);
+# endif /* ifndef SUNLINT */
 #else
     M[addr ++] = even;
     M[addr] =    odd;
@@ -854,9 +876,11 @@ void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UN
   {
 #ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
+# ifndef SUNLINT
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
+# endif /* ifndef SUNLINT */
 #else
     * data = M[addr] & DMASK;
 #endif
@@ -865,7 +889,9 @@ void iom_core_read_lock (UNUSED uint iom_unit_idx, word24 addr, word36 *data, UN
 void iom_core_write_unlock (UNUSED uint iom_unit_idx, word24 addr, word36 data, UNUSED const char * ctx)
   {
 #ifdef LOCKLESS
+# ifndef SUNLINT
     STORE_REL_CORE_WORD(addr, data);
+# endif /* ifndef SUNLINT */
 #else
     M[addr] = data & DMASK;
 #endif
@@ -1020,22 +1046,22 @@ static config_value_list_t cfg_model_list[] =
 
 static config_value_list_t cfg_os_list[] =
   {
-    { "gcos", CONFIG_SW_STD_GCOS },
+    { "gcos",    CONFIG_SW_STD_GCOS },
     { "gcosext", CONFIG_SW_EXT_GCOS },
-    { "multics", CONFIG_SW_MULTICS },
-    { NULL, 0 }
+    { "multics", CONFIG_SW_MULTICS  },
+    { NULL,      0 }
   };
 
 static config_value_list_t cfg_boot_list[] =
   {
     { "card", CONFIG_SW_BLCT_CARD },
     { "tape", CONFIG_SW_BLCT_TAPE },
-    { NULL, 0 }
+    { NULL,   0 }
   };
 
 static config_value_list_t cfg_base_list[] =
   {
-    { "multics", 014 },
+    { "multics",  014 },
     { "multics1", 014 }, // boot iom
     { "multics2", 020 },
     { "multics3", 024 },
@@ -1045,47 +1071,46 @@ static config_value_list_t cfg_base_list[] =
 
 static config_value_list_t cfg_size_list[] =
   {
-    { "32", 0 },
-    { "64", 1 },
-    { "128", 2 },
-    { "256", 3 },
-    { "512", 4 },
-    { "1024", 5 },
-    { "2048", 6 },
-    { "4096", 7 },
-    { "32K", 0 },
-    { "64K", 1 },
-    { "128K", 2 },
-    { "256K", 3 },
-    { "512K", 4 },
+    { "32",    0 },
+    { "64",    1 },
+    { "128",   2 },
+    { "256",   3 },
+    { "512",   4 },
+    { "1024",  5 },
+    { "2048",  6 },
+    { "4096",  7 },
+    { "32K",   0 },
+    { "64K",   1 },
+    { "128K",  2 },
+    { "256K",  3 },
+    { "512K",  4 },
     { "1024K", 5 },
     { "2048K", 6 },
     { "4096K", 7 },
-    { "1M", 5 },
-    { "2M", 6 },
-    { "4M", 7 },
-    { NULL, 0 }
+    { "1M",    5 },
+    { "2M",    6 },
+    { "4M",    7 },
+    { NULL,    0 }
   };
 
 static config_list_t iom_config_list[] =
   {
-    { "model", 1, 0, cfg_model_list },
-    { "os", 1, 0, cfg_os_list },
-    { "boot", 1, 0, cfg_boot_list },
-    { "iom_base", 0, 07777, cfg_base_list },
-    { "multiplex_base", 0, 0777, NULL },
-    { "tapechan", 0, 077, NULL },
-    { "cardchan", 0, 077, NULL },
-    { "scuport", 0, 07, NULL },
-    { "port", 0, N_IOM_PORTS - 1, NULL },
-    { "addr", 0, 7, NULL },
-    { "interlace", 0, 1, NULL },
-    { "enable", 0, 1, NULL },
-    { "initenable", 0, 1, NULL },
-    { "halfsize", 0, 1, NULL },
-    { "store_size", 0, 7, cfg_size_list },
-
-    { NULL, 0, 0, NULL }
+    { "model",          1, 0,               cfg_model_list },
+    { "os",             1, 0,               cfg_os_list    },
+    { "boot",           1, 0,               cfg_boot_list  },
+    { "iom_base",       0, 07777,           cfg_base_list  },
+    { "multiplex_base", 0, 0777,            NULL           },
+    { "tapechan",       0, 077,             NULL           },
+    { "cardchan",       0, 077,             NULL           },
+    { "scuport",        0, 07,              NULL           },
+    { "port",           0, N_IOM_PORTS - 1, NULL           },
+    { "addr",           0, 7,               NULL           },
+    { "interlace",      0, 1,               NULL           },
+    { "enable",         0, 1,               NULL           },
+    { "initenable",     0, 1,               NULL           },
+    { "halfsize",       0, 1,               NULL           },
+    { "store_size",     0, 7,               cfg_size_list  },
+    { NULL,             0, 0,               NULL           }
   };
 
 static t_stat iom_set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUSED void * desc)
@@ -1244,43 +1269,43 @@ static MTAB iom_mod[] =
   {
     {
        MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_NC, /* mask */
-      0,            /* match */
-      "MBX",        /* print string */
-      NULL,         /* match string */
-      NULL,         /* validation routine */
-      iom_show_mbx, /* display routine */
+      0,             /* match */
+      "MBX",         /* print string */
+      NULL,          /* match string */
+      NULL,          /* validation routine */
+      iom_show_mbx,  /* display routine */
       NULL,          /* value descriptor */
-      NULL   // help string
+      NULL           /* help string */
     },
     {
       MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "CONFIG",     /* print string */
+      0,                /* match */
+      "CONFIG",         /* print string */
       "CONFIG",         /* match string */
-      iom_set_config,         /* validation routine */
-      iom_show_config, /* display routine */
-      NULL,          /* value descriptor */
-      NULL   // help string
+      iom_set_config,   /* validation routine */
+      iom_show_config,  /* display routine */
+      NULL,             /* value descriptor */
+      NULL              /* help string */
     },
     {
       MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      (char *) "RESET",     /* print string */
-      (char *) "RESET",         /* match string */
-      iom_reset_unit, /* validation routine */
-      NULL, /* display routine */
+      0,                         /* match */
+      (char *) "RESET",          /* print string */
+      (char *) "RESET",          /* match string */
+      iom_reset_unit,            /* validation routine */
+      NULL,                      /* display routine */
       (char *) "reset IOM unit", /* value descriptor */
-      NULL /* help */
+      NULL                       /* help */
     },
     {
       MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      iom_set_units, /* validation routine */
-      iom_show_units, /* display routine */
-      "Number of IOM units in the system", /* value descriptor */
-      NULL   // help string
+      0,                                    /* match */
+      "NUNITS",                             /* print string */
+      "NUNITS",                             /* match string */
+      iom_set_units,                        /* validation routine */
+      iom_show_units,                       /* display routine */
+      "Number of IOM units in the system",  /* value descriptor */
+      NULL                                  /* help string */
     },
     {
       0, 0, NULL, NULL, 0, 0, NULL, NULL
@@ -1290,13 +1315,13 @@ static MTAB iom_mod[] =
 static DEBTAB iom_dt[] =
   {
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "TRACE", DBG_TRACE, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    { "INFO",   DBG_INFO,   NULL },
+    { "ERR",    DBG_ERR,    NULL },
+    { "WARN",   DBG_WARN,   NULL },
+    { "DEBUG",  DBG_DEBUG,  NULL },
+    { "TRACE",  DBG_TRACE,  NULL },
+    { "ALL",    DBG_ALL,    NULL }, // don't move as it messes up DBG message
+    { NULL,     0,          NULL }
   };
 
 //
@@ -1569,35 +1594,34 @@ static t_stat iom_boot (int unitNum, UNUSED DEVICE * dptr)
 
 DEVICE iom_dev =
   {
-    "IOM",       /* name */
+    "IOM",        /* name */
     iom_unit,     /* units */
-    NULL,        /* registers */
+    NULL,         /* registers */
     iom_mod,      /* modifiers */
-    N_IOM_UNITS, /* #units */
-    10,          /* address radix */
-    8,           /* address width */
-    1,           /* address increment */
-    8,           /* data radix */
-    8,           /* data width */
-    NULL,        /* examine routine */
-    NULL,        /* deposit routine */
+    N_IOM_UNITS,  /* #units */
+    10,           /* address radix */
+    8,            /* address width */
+    1,            /* address increment */
+    8,            /* data radix */
+    8,            /* data width */
+    NULL,         /* examine routine */
+    NULL,         /* deposit routine */
     iom_reset,    /* reset routine */
     iom_boot,     /* boot routine */
-    NULL,        /* attach routine */
-    NULL,        /* detach routine */
-    NULL,        /* context */
-    DEV_DEBUG,   /* flags */
-    0,           /* debug control flags */
+    NULL,         /* attach routine */
+    NULL,         /* detach routine */
+    NULL,         /* context */
+    DEV_DEBUG,    /* flags */
+    0,            /* debug control flags */
     iom_dt,       /* debug flag names */
-    NULL,        /* memory size change */
-    NULL,        /* logical name */
-    NULL,        // help
-    NULL,        // attach help
-    NULL,        // help context
-    NULL,        // description
-    NULL
+    NULL,         /* memory size change */
+    NULL,         /* logical name */
+    NULL,         /* help */
+    NULL,         /* attach help */
+    NULL,         /* help context */
+    NULL,         /* description */
+    NULL          /* end */
   };
-
 
 static uint mbxLoc (uint iom_unit_idx, uint chan)
   {
@@ -1696,7 +1720,7 @@ static int status_service (uint iom_unit_idx, uint chan, bool marker)
     word1 = 0;
     putbits36_12 (& word1, 0, p -> stati);
     // isOdd can be set to zero; see
-    //   http://ringzero.wikidot.com/wiki:cac-2015-10-22
+    //   https://ringzero.wikidot.com/wiki:cac-2015-10-22
     //putbits36_1 (& word1, 12, p -> isOdd ? 0 : 1);
     putbits36_1 (& word1, 13, marker ? 1 : 0);
     putbits36_2 (& word1, 14, 0); // software status
@@ -2199,16 +2223,16 @@ void dumpDCW (word36 DCW, word1 LPW_23_REL) {
     sim_printf ("//     count            %o\r\n", IDCW_COUNT);
   } else { // TDCW or DDCW
     word18 TDCW_DATA_ADDRESS = getbits36_18 (DCW,  0);
-    word1  TDCW_31_SEG =       getbits36_1 (DCW, 31);
-    word1  TDCW_32_PDTA =      getbits36_1 (DCW, 32);
-    word1  TDCW_33_PDCW =      getbits36_1 (DCW, 33);
-    word1  TDCW_33_EC =        getbits36_1 (DCW, 33);
-    word1  TDCW_34_RES =       getbits36_1 (DCW, 34);
-    word1  TDCW_35_REL =       getbits36_1 (DCW, 35);
+    word1  TDCW_31_SEG =       getbits36_1  (DCW, 31);
+    word1  TDCW_32_PDTA =      getbits36_1  (DCW, 32);
+    word1  TDCW_33_PDCW =      getbits36_1  (DCW, 33);
+    word1  TDCW_33_EC =        getbits36_1  (DCW, 33);
+    word1  TDCW_34_RES =       getbits36_1  (DCW, 34);
+    word1  TDCW_35_REL =       getbits36_1  (DCW, 35);
 
     word12 DDCW_TALLY =        getbits36_12 (DCW, 24);
     word18 DDCW_ADDR =         getbits36_18 (DCW,  0);
-    word2  DDCW_22_23_TYPE =   getbits36_2 (DCW, 22);
+    word2  DDCW_22_23_TYPE =   getbits36_2  (DCW, 22);
     static char * types[4] = { "IOTD", "IOTP", "TDCW", "IONTP" };
     if (DDCW_22_23_TYPE == 2) {
       sim_printf ("//   TDCW (2) %012llo\r\n", DCW);
@@ -2326,13 +2350,13 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
                "%s: lpw %08o %012"PRIo64"\n", __func__, chanLoc + IOM_MBX_LPW, p->LPW);
 
     p -> LPW_DCW_PTR = getbits36_18 (p -> LPW,  0);
-    p -> LPW_18_RES =  getbits36_1 (p -> LPW, 18);
-    p -> LPW_19_REL =  getbits36_1 (p -> LPW, 19);
-    p -> LPW_20_AE =   getbits36_1 (p -> LPW, 20);
-    p -> LPW_21_NC =   getbits36_1 (p -> LPW, 21);
-    p -> LPW_22_TAL =  getbits36_1 (p -> LPW, 22);
-    p -> LPW_23_REL =  getbits36_1 (p -> LPW, 23);
-    p -> LPW_TALLY =   getbits36_12 (p -> LPW, 24);
+    p -> LPW_18_RES  = getbits36_1  (p -> LPW, 18);
+    p -> LPW_19_REL  = getbits36_1  (p -> LPW, 19);
+    p -> LPW_20_AE   = getbits36_1  (p -> LPW, 20);
+    p -> LPW_21_NC   = getbits36_1  (p -> LPW, 21);
+    p -> LPW_22_TAL  = getbits36_1  (p -> LPW, 22);
+    p -> LPW_23_REL  = getbits36_1  (p -> LPW, 23);
+    p -> LPW_TALLY   = getbits36_12 (p -> LPW, 24);
 
     if (chan == IOM_CONNECT_CHAN)
       {
@@ -2344,7 +2368,7 @@ static void fetch_and_parse_LPW (uint iom_unit_idx, uint chan)
       {
         iom_core_read (iom_unit_idx, chanLoc + IOM_MBX_LPWX, (word36 *) & p -> LPWX, __func__);
         p -> LPWX_BOUND = getbits36_18 (p -> LPWX, 0);
-        p -> LPWX_SIZE = getbits36_18 (p -> LPWX, 18);
+        p -> LPWX_SIZE  = getbits36_18 (p -> LPWX, 18);
       }
     update_chan_mode (iom_unit_idx, chan, false);
   }
@@ -2356,18 +2380,18 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
 
     if (IS_IDCW (p)) // IDCW
       {
-        p -> IDCW_DEV_CMD =      getbits36_6 (p -> DCW,  0);
-        p -> IDCW_DEV_CODE =     getbits36_6 (p -> DCW,  6);
-        p -> IDCW_AE =           getbits36_6 (p -> DCW,  12);
+        p -> IDCW_DEV_CMD   = getbits36_6 (p -> DCW, 0);
+        p -> IDCW_DEV_CODE  = getbits36_6 (p -> DCW, 6);
+        p -> IDCW_AE        = getbits36_6 (p -> DCW, 12);
         if (p -> LPW_23_REL)
-          p -> IDCW_EC = 0;
+          p -> IDCW_EC      = 0;
         else
-          p -> IDCW_EC =         getbits36_1 (p -> DCW, 21);
+          p -> IDCW_EC      = getbits36_1 (p -> DCW, 21);
         if (p -> IDCW_EC)
-          p -> SEG = 1; // pat. step 45
-        p -> IDCW_CHAN_CTRL =    getbits36_2 (p -> DCW, 22);
-        p -> IDCW_CHAN_CMD =     getbits36_6 (p -> DCW, 24);
-        p -> IDCW_COUNT =        getbits36_6 (p -> DCW, 30);
+          p -> SEG          = 1; // pat. step 45
+        p -> IDCW_CHAN_CTRL = getbits36_2 (p -> DCW, 22);
+        p -> IDCW_CHAN_CMD  = getbits36_6 (p -> DCW, 24);
+        p -> IDCW_COUNT     = getbits36_6 (p -> DCW, 30);
         p->recordResidue = p->IDCW_COUNT;
 #ifdef TESTING
         sim_debug (DBG_DEBUG, & iom_dev,
@@ -2379,16 +2403,15 @@ static void unpack_DCW (uint iom_unit_idx, uint chan)
     else // TDCW or DDCW
       {
         p -> TDCW_DATA_ADDRESS = getbits36_18 (p -> DCW,  0);
-        p -> TDCW_31_SEG =       getbits36_1 (p -> DCW, 31);
-        p -> TDCW_32_PDTA =      getbits36_1 (p -> DCW, 32);
-        p -> TDCW_33_PDCW =      getbits36_1 (p -> DCW, 33);
-        p -> TDCW_33_EC =        getbits36_1 (p -> DCW, 33);
-        p -> TDCW_34_RES =       getbits36_1 (p -> DCW, 34);
-        p -> TDCW_35_REL =       getbits36_1 (p -> DCW, 35);
-
-        p -> DDCW_TALLY =        getbits36_12 (p -> DCW, 24);
-        p -> DDCW_ADDR =         getbits36_18 (p -> DCW,  0);
-        p -> DDCW_22_23_TYPE =   getbits36_2 (p -> DCW, 22);
+        p -> TDCW_31_SEG       = getbits36_1  (p -> DCW, 31);
+        p -> TDCW_32_PDTA      = getbits36_1  (p -> DCW, 32);
+        p -> TDCW_33_PDCW      = getbits36_1  (p -> DCW, 33);
+        p -> TDCW_33_EC        = getbits36_1  (p -> DCW, 33);
+        p -> TDCW_34_RES       = getbits36_1  (p -> DCW, 34);
+        p -> TDCW_35_REL       = getbits36_1  (p -> DCW, 35);
+        p -> DDCW_TALLY        = getbits36_12 (p -> DCW, 24);
+        p -> DDCW_ADDR         = getbits36_18 (p -> DCW,  0);
+        p -> DDCW_22_23_TYPE   = getbits36_2  (p -> DCW, 22);
         sim_debug (DBG_DEBUG, & iom_dev,
                    "%s: TDCW/DDCW %012llo tally %04o addr %06o type %o\n",
                    __func__, p->DCW, p->DDCW_TALLY, p->DDCW_ADDR, p->DDCW_22_23_TYPE);
@@ -2426,16 +2449,15 @@ static void pack_DCW (uint iom_unit_idx, uint chan)
 static void pack_LPW (uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
-    putbits36_18 ((word36 *) & p-> LPW,  0, p -> LPW_DCW_PTR);
-    putbits36_1 ((word36 *) & p-> LPW, 18, p -> LPW_18_RES);
-    putbits36_1 ((word36 *) & p-> LPW, 19, p -> LPW_19_REL);
-    putbits36_1 ((word36 *) & p-> LPW, 20, p -> LPW_20_AE);
-    putbits36_1 ((word36 *) & p-> LPW, 21, p -> LPW_21_NC);
-    putbits36_1 ((word36 *) & p-> LPW, 22, p -> LPW_22_TAL);
-    putbits36_1 ((word36 *) & p-> LPW, 23, p -> LPW_23_REL);
-    putbits36_12 ((word36 *) & p-> LPW, 24, p -> LPW_TALLY);
-
-    putbits36_18 ((word36 *) & p-> LPWX, 0, p -> LPWX_BOUND);
+    putbits36_18 ((word36 *) & p-> LPW,   0, p -> LPW_DCW_PTR);
+    putbits36_1  ((word36 *) & p-> LPW,  18, p -> LPW_18_RES);
+    putbits36_1  ((word36 *) & p-> LPW,  19, p -> LPW_19_REL);
+    putbits36_1  ((word36 *) & p-> LPW,  20, p -> LPW_20_AE);
+    putbits36_1  ((word36 *) & p-> LPW,  21, p -> LPW_21_NC);
+    putbits36_1  ((word36 *) & p-> LPW,  22, p -> LPW_22_TAL);
+    putbits36_1  ((word36 *) & p-> LPW,  23, p -> LPW_23_REL);
+    putbits36_12 ((word36 *) & p-> LPW,  24, p -> LPW_TALLY);
+    putbits36_18 ((word36 *) & p-> LPWX,  0, p -> LPWX_BOUND);
     putbits36_18 ((word36 *) & p-> LPWX, 18, p -> LPWX_SIZE);
   }
 
@@ -2444,13 +2466,13 @@ static void fetch_and_parse_PCW (uint iom_unit_idx, uint chan)
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
 
     iom_core_read2 (iom_unit_idx, p -> LPW_DCW_PTR, (word36 *) & p -> PCW0, (word36 *) & p -> PCW1, __func__);
-    p -> PCW_CHAN = getbits36_6 (p -> PCW1, 3);
-    p -> PCW_AE = getbits36_6 (p -> PCW0, 12);
-    p -> PCW_21_MSK = getbits36_1 (p -> PCW0, 21);
-    p -> PCW_PAGE_TABLE_PTR = getbits36_18 (p -> PCW1, 9);
-    p -> PCW_63_PTP = getbits36_1 (p -> PCW1, 27);
-    p -> PCW_64_PGE = getbits36_1 (p -> PCW1, 28);
-    p -> PCW_65_AUX = getbits36_1 (p -> PCW1, 29);
+    p -> PCW_CHAN           = getbits36_6  (p -> PCW1,  3);
+    p -> PCW_AE             = getbits36_6  (p -> PCW0, 12);
+    p -> PCW_21_MSK         = getbits36_1  (p -> PCW0, 21);
+    p -> PCW_PAGE_TABLE_PTR = getbits36_18 (p -> PCW1,  9);
+    p -> PCW_63_PTP         = getbits36_1  (p -> PCW1, 27);
+    p -> PCW_64_PGE         = getbits36_1  (p -> PCW1, 28);
+    p -> PCW_65_AUX         = getbits36_1  (p -> PCW1, 29);
     if (p -> PCW_65_AUX)
       sim_warn ("PCW_65_AUX\n");
     p -> DCW = p -> PCW0;
@@ -2856,7 +2878,7 @@ A:;
         // XXX is 33 bogus? its semantics change based on PCW 64...
         // should be okay; pg B21 says that this is correct; implies that the
         // semantics are handled in the LPW code. Check...
-        p -> LPW_20_AE |= p -> TDCW_33_EC; // TDCW_33_PDCW
+        p -> LPW_20_AE  |= p -> TDCW_33_EC; // TDCW_33_PDCW
         p -> LPW_18_RES |= p -> TDCW_34_RES;
         p -> LPW_23_REL |= p -> TDCW_35_REL;
 
@@ -3066,18 +3088,18 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
 //         the channel for subsequent use by the IOM in generating a 24-bit
 //         address for list of data services for the extended address modes."
 // see also 3.2.3.1
-  p -> ADDR_EXT = p -> PCW_AE;
+  p -> ADDR_EXT     = p -> PCW_AE;
 
-  p -> lsFirst = true;
+  p -> lsFirst      = true;
 
   p -> tallyResidue = 0;
-  p -> isRead = true;
-  p -> charPos = 0;
+  p -> isRead       = true;
+  p -> charPos      = 0;
 // As far as I can tell, initiate false means that an IOTx succeeded in
 // transferring data; assume it didn't since that is the most common
 // code path.
-  p -> initiate = true;
-  p -> chanStatus = chanStatNormal;
+  p -> initiate     = true;
+  p -> chanStatus   = chanStatNormal;
 
 //
 // Send the PCW's DCW
@@ -3112,12 +3134,13 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & iom_dev) sim_printf ("// termin
 
   bool ptro, send, uff;
   bool terminate = false;
-  p->isPCW = false;
+  p->isPCW       = false;
 
 #ifdef TESTING
   bool first = true;
 #endif
 
+  (void)terminate;
   bool idcw_terminate = p -> IDCW_CHAN_CTRL == CHAN_CTRL_TERMINATE;
   do {
     int rc2 = iom_list_service (iomUnitIdx, chan, & ptro, & send, & uff);
@@ -3167,9 +3190,9 @@ if (iomUnitIdx == 1 && chan == 020)
         p -> ADDR_EXT = getbits36_6 (p -> DCW, 12);
 
       p -> tallyResidue = 0;
-      p -> isRead = true;
-      p -> charPos = 0;
-      p -> chanStatus = chanStatNormal;
+      p -> isRead       = true;
+      p -> charPos      = 0;
+      p -> chanStatus   = chanStatNormal;
     }
 
 // Send the DCW list's DCW
@@ -3297,17 +3320,16 @@ static int doConnectChan (uint iom_unit_idx) {
       // Copy the PCW's DCW to the payload channel
       iom_chan_data_t * q = & iom_chan_data[iom_unit_idx][p -> PCW_CHAN];
 
-      q -> PCW0 =               p -> PCW0;
-      q -> PCW1 =               p -> PCW1;
-      q -> PCW_CHAN =           p -> PCW_CHAN;
-      q -> PCW_AE =             p -> PCW_AE;
+      q -> PCW0               = p -> PCW0;
+      q -> PCW1               = p -> PCW1;
+      q -> PCW_CHAN           = p -> PCW_CHAN;
+      q -> PCW_AE             = p -> PCW_AE;
       q -> PCW_PAGE_TABLE_PTR = p -> PCW_PAGE_TABLE_PTR;
-      q -> PCW_63_PTP =         p -> PCW_63_PTP;
-      q -> PCW_64_PGE =         p -> PCW_64_PGE;
-      q -> PCW_65_AUX =         p -> PCW_65_AUX;
-      q -> PCW_21_MSK =         p -> PCW_21_MSK;
-
-      q -> DCW =                p -> DCW;
+      q -> PCW_63_PTP         = p -> PCW_63_PTP;
+      q -> PCW_64_PGE         = p -> PCW_64_PGE;
+      q -> PCW_65_AUX         = p -> PCW_65_AUX;
+      q -> PCW_21_MSK         = p -> PCW_21_MSK;
+      q -> DCW                = p -> DCW;
 
       sim_debug (DBG_DEBUG, & iom_dev, "%s: PCW %012llo %012llo chan %02o\n", __func__, q->PCW0, q->PCW1, q->PCW_CHAN);
 
@@ -3390,11 +3412,11 @@ int send_special_interrupt (uint iom_unit_idx, uint chan, uint devCode,
     word36 dcw;
     iom_core_read_lock (iom_unit_idx, chanloc + IOM_MBX_DCW, & dcw, __func__);
 
-    word36 status = 0400000000000;
-    status |= (((word36) chan) & MASK6) << 27;
-    status |= (((word36) devCode) & MASK8) << 18;
-    status |= (((word36) status0) & MASK8) <<  9;
-    status |= (((word36) status1) & MASK8) <<  0;
+    word36 status  = 0400000000000;
+    status        |= (((word36) chan)    & MASK6) << 27;
+    status        |= (((word36) devCode) & MASK8) << 18;
+    status        |= (((word36) status0) & MASK8) <<  9;
+    status        |= (((word36) status1) & MASK8) <<  0;
     iom_core_write (iom_unit_idx, (dcw >> 18) & MASK18, status, __func__);
 
     uint tally = dcw & MASK12;
@@ -3460,8 +3482,8 @@ void iom_interrupt (uint scu_unit_idx, uint iom_unit_idx)
 #ifdef IO_THREADZ
 void * chan_thread_main (void * arg)
   {
-    uint myid = (uint) * (int *) arg;
-    this_iom_idx = (uint) myid / MAX_CHANNELS;
+    uint myid     = (uint) * (int *) arg;
+    this_iom_idx  = (uint) myid / MAX_CHANNELS;
     this_chan_num = (uint) myid % MAX_CHANNELS;
 
 // Set CPU context to allow sim_debug to work
@@ -3546,4 +3568,3 @@ char iomChar (uint iomUnitIdx)
   {
     return (iom_unit_data[iomUnitIdx].configSwMultiplexBaseAddress & 3) + 'A';
   }
-

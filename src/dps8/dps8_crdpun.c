@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 7ec3e12d-f62d-11ec-8431-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -16,6 +18,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -34,8 +46,6 @@
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
 #include "utfile.h"
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 
@@ -58,10 +68,14 @@ static t_stat pun_show_nunits (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat pun_set_nunits (UNIT * uptr, int32 value, const char * cptr, void * desc);
 static t_stat pun_show_device_name (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat pun_set_device_name (UNIT * uptr, int32 value, const char * cptr, void * desc);
-static t_stat pun_show_path (UNUSED FILE * st, UNIT * uptr, UNUSED int val, UNUSED const void * desc);
-static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value, const UNUSED char * cptr, UNUSED void * desc);
-static t_stat pun_set_config (UNUSED UNIT *  uptr, UNUSED int32 value, const char * cptr, UNUSED void * desc);
-static t_stat pun_show_config (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int  val, UNUSED const void * desc);
+static t_stat pun_show_path (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
+                             UNUSED const void * desc);
+static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value, const UNUSED char * cptr,
+                            UNUSED void * desc);
+static t_stat pun_set_config (UNUSED UNIT *  uptr, UNUSED int32 value, const char * cptr,
+                              UNUSED void * desc);
+static t_stat pun_show_config (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val,
+                               UNUSED const void * desc);
 
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE )
@@ -90,12 +104,12 @@ UNIT pun_unit [N_PUN_UNITS_MAX] =
 static DEBTAB pun_dt [] =
   {
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    { "INFO",   DBG_INFO,   NULL },
+    { "ERR",    DBG_ERR,    NULL },
+    { "WARN",   DBG_WARN,   NULL },
+    { "DEBUG",  DBG_DEBUG,  NULL },
+    { "ALL",    DBG_ALL,    NULL }, // don't move as it messes up DBG message
+    { NULL,     0,          NULL }
   };
 
 #define UNIT_WATCH UNIT_V_UF
@@ -103,96 +117,99 @@ static DEBTAB pun_dt [] =
 static MTAB pun_mod [] =
   {
 #ifndef SPEED
-    { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
+    { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
 #endif
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      pun_set_nunits, /* validation routine */
-      pun_show_nunits, /* display routine */
-      "Number of PUN units in the system", /* value descriptor */
-      NULL // Help
+      MTAB_XTD | MTAB_VDV | \
+      MTAB_NMO | MTAB_VALR,                 /* Mask               */
+      0,                                    /* Match              */
+      "NUNITS",                             /* Print string       */
+      "NUNITS",                             /* Match string       */
+      pun_set_nunits,                       /* Validation routine */
+      pun_show_nunits,                      /* Display routine    */
+      "Number of PUN units in the system",  /* Value descriptor   */
+      NULL                                  /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      pun_set_device_name, /* validation routine */
-      pun_show_device_name, /* display routine */
-      "Set the punch device name", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_VALR | MTAB_NC,                  /* Mask               */
+      0,                                    /* Match              */
+      "NAME",                               /* Print string       */
+      "NAME",                               /* Match string       */
+      pun_set_device_name,                  /* Validation routine */
+      pun_show_device_name,                 /* Display routine    */
+      "Set the punch device name",          /* Value descriptor   */
+      NULL                                  /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "PATH",     /* print string */
-      "PATH",         /* match string */
-      pun_set_path, /* validation routine */
-      pun_show_path, /* display routine */
-      "Path to card punch directories", /* value descriptor */
-      NULL // Help
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | \
+      MTAB_VALR | MTAB_NC,                  /* Mask               */
+      0,                                    /* Match              */
+      "PATH",                               /* Print string       */
+      "PATH",                               /* Match string       */
+      pun_set_path,                         /* Validation Routine */
+      pun_show_path,                        /* Display Routine    */
+      "Path to card punch directories",     /* Value Descriptor   */
+      NULL                                  /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN, /* mask */
-      0,            /* match */
-      (char *) "CONFIG",     /* print string */
-      (char *) "CONFIG",         /* match string */
-      pun_set_config,         /* validation routine */
-      pun_show_config, /* display routine */
-      NULL,          /* value descriptor */
-      NULL,            /* help */
+      MTAB_XTD | MTAB_VUN,                  /* Mask               */
+      0,                                    /* Match              */
+      (char *) "CONFIG",                    /* Print string       */
+      (char *) "CONFIG",                    /* Match string       */
+      pun_set_config,                       /* Validation routine */
+      pun_show_config,                      /* Display routine    */
+      NULL,                                 /* Value descriptor   */
+      NULL,                                 /* Help               */
     },
 
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
   };
 
 DEVICE pun_dev = {
-    "PUN",       /*  name */
-    pun_unit,    /* units */
-    NULL,         /* registers */
-    pun_mod,     /* modifiers */
-    N_PUN_UNITS, /* #units */
-    10,           /* address radix */
-    24,           /* address width */
-    1,            /* address increment */
-    8,            /* data radix */
-    36,           /* data width */
-    NULL,         /* examine */
-    NULL,         /* deposit */
-    pun_reset,    /* reset */
-    NULL,         /* boot */
-    NULL,         /* attach */
-    NULL,         /* detach */
-    NULL,         /* context */
-    DEV_DEBUG,    /* flags */
-    0,            /* debug control flags */
-    pun_dt,       /* debug flag names */
-    NULL,         /* memory size change */
-    NULL,         /* logical name */
-    NULL,         // help
-    NULL,         // attach help
-    NULL,         // attach context
-    NULL,         // description
-    NULL
+    "PUN",        /* Name                */
+    pun_unit,     /* Units               */
+    NULL,         /* Registers           */
+    pun_mod,      /* Modifiers           */
+    N_PUN_UNITS,  /* #Units              */
+    10,           /* Address radix       */
+    24,           /* Address width       */
+    1,            /* Address increment   */
+    8,            /* Data radix          */
+    36,           /* Data width          */
+    NULL,         /* Examine             */
+    NULL,         /* Deposit             */
+    pun_reset,    /* Reset               */
+    NULL,         /* Boot                */
+    NULL,         /* Attach              */
+    NULL,         /* Detach              */
+    NULL,         /* Context             */
+    DEV_DEBUG,    /* Flags               */
+    0,            /* Debug control flags */
+    pun_dt,       /* Debug flag names    */
+    NULL,         /* Memory size change  */
+    NULL,         /* Logical name        */
+    NULL,         /* Help                */
+    NULL,         /* Attach help         */
+    NULL,         /* Attach context      */
+    NULL,         /* Description         */
+    NULL          /* End                 */
 };
 
 static config_value_list_t cfg_on_off[] =
   {
-    { "off", 0 },
-    { "on", 1 },
+    { "off",     0 },
+    { "on",      1 },
     { "disable", 0 },
-    { "enable", 1 },
-    { NULL, 0 }
+    { "enable",  1 },
+    { NULL,      0 }
   };
 
 static config_list_t pun_config_list[] =
   {
    { "logcards", 0, 1, cfg_on_off },
-   { NULL, 0, 0, NULL }
+   { NULL,       0, 0, NULL }
   };
 
 #define WORDS_PER_CARD 27
@@ -222,7 +239,7 @@ struct card_cache_node
 typedef struct
   {
     char device_name[MAX_DEV_NAME_LEN];
-    int punfile_raw;                        // fd of file to get all cards in punch code (including banner cards)
+    int  punfile_raw;              // fd of file to get all cards in punch code (w/banner cards)
     bool log_cards;                         // Flag to log card images
     enum parse_state current_state;
     char raw_file_name [PATH_MAX + 1];      // Name associated with punfile_raw
@@ -247,7 +264,7 @@ void pun_init (void)
     memset (pun_state, 0, sizeof (pun_state));
     for (int i = 0; i < N_PUN_UNITS_MAX; i ++)
       {
-        pun_state [i] . punfile_raw = -1;
+        pun_state [i] . punfile_raw   = -1;
         pun_state [i] . current_state = Idle;
       }
   }
@@ -533,11 +550,11 @@ static char get_lace_char(word36* buffer, uint char_pos)
         return 0;
       }
 
-    bool top = char_pos < 11;                                       // Top or bottom line of characters
-    uint char_offset = (char_pos < 11) ? char_pos : char_pos - 11;  // Character number in the line
-    uint word_offset = glyph_char_word_offset[char_offset];           // Starting word in the buffer
-    uint nibble_offset = glyph_nibble_offset[char_offset];            // Starting nibble in the word
-    word12 col_buffer[5];                                           // The extracted 5 columns for the character
+    bool top           = char_pos < 11;                              // Top or bottom line of chars
+    uint char_offset   = (char_pos < 11) ? char_pos : char_pos - 11; // Character num in the line
+    uint word_offset   = glyph_char_word_offset[char_offset];        // Starting word in the buffer
+    uint nibble_offset = glyph_nibble_offset[char_offset];           // Starting nibble in the word
+    word12 col_buffer[5];                                            // Extracted 5 cols for char
 
     // Extract the five 12-bit words from the main buffer that make up the character
     // Note that in this process we reverse the character image so it reads normally
@@ -578,7 +595,7 @@ static void scan_card_for_glyphs(pun_state_t * state, word36* buffer)
         if (current_length < (sizeof(state -> glyph_buffer) - 1))
           {
             state -> glyph_buffer[current_length++] = c;
-            state -> glyph_buffer[current_length] = 0;
+            state -> glyph_buffer[current_length]   = 0;
           }
       }
   }
@@ -589,18 +606,24 @@ static void create_punch_file(pun_state_t * state)
 
     if (state -> punfile_raw != -1)
       {
-          sim_warn("*** Error: Punch file already open when attempting to create new file, closing old file!\n");
+          sim_warn \
+              ("*** Error: Punch file already open when attempting to create new file, closing old file!\n");
           close(state -> punfile_raw);
           state -> punfile_raw = -1;
       }
 
     if (pun_path_prefix [0])
       {
-        sprintf (template, "%s%s/%s.spool.%s.XXXXXX.pun", pun_path_prefix, state -> device_name, state -> device_name, state -> raw_file_name);
+        sprintf (template, "%s%s/%s.spool.%s.XXXXXX.pun",
+                 pun_path_prefix, state -> device_name,
+                 state -> device_name,
+                 state -> raw_file_name);
       }
     else
       {
-        sprintf (template, "%s.spool.%s.XXXXXX.pun", state -> device_name, state -> raw_file_name);
+        sprintf (template, "%s.spool.%s.XXXXXX.pun",
+                 state -> device_name,
+                 state -> raw_file_name);
       }
 
     state -> punfile_raw = utfile_mkstemps(template, 4);
@@ -611,7 +634,8 @@ static void create_punch_file(pun_state_t * state)
 
   }
 
-static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_count, bool banner_card)
+static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_count,
+                               bool banner_card)
   {
       if (word_count != WORDS_PER_CARD)
         {
@@ -627,7 +651,7 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
 
       for (int nibble_index = 0; nibble_index < (CARD_COL_COUNT * NIBBLES_PER_COL); nibble_index++)
         {
-          int byte_offset = nibble_index / 2;
+          int byte_offset   = nibble_index / 2;
           int word36_offset = nibble_index / 9;
           int nibble_offset = nibble_index % 9;
           uint8 nibble = (in_buffer[word36_offset] >> ((8 - nibble_offset) * 4)) & 0xF;
@@ -643,7 +667,7 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
               byte_buffer[byte_offset] |= (nibble << 4);
             }
 
-          int word12_offset = nibble_index / 3;
+          int word12_offset        =      nibble_index / 3;
           int word12_nibble_offset = 2 - (nibble_index % 3);
 
           word12_buffer[word12_offset] |= nibble << (word12_nibble_offset * 4);
@@ -661,7 +685,8 @@ static void write_punch_files (pun_state_t * state, word36* in_buffer, int word_
 
       if (state -> punfile_raw >= 0)
         {
-          if (write(state -> punfile_raw, byte_buffer, sizeof(byte_buffer)) != sizeof(byte_buffer)) {
+          if (write(state -> punfile_raw, byte_buffer, sizeof(byte_buffer)) \
+                  != sizeof(byte_buffer)) {
             sim_warn ("Failed to write to .raw card punch file!\n");
             perror("Writing .raw punch file\n");
           }
@@ -690,7 +715,7 @@ static void log_card(word12 tally, word36 * buffer)
         for (uint col = 0; col < 80; col ++)
           {
             // 3 cols/word
-            uint wordno = col / 3;
+            uint wordno  = col / 3;
             uint fieldno = col % 3;
             word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row);
             if (bit)
@@ -708,7 +733,7 @@ static void log_card(word12 tally, word36 * buffer)
         for (int col = 79; col >= 0; col --)
           {
             // 3 cols/word
-            uint wordno = (uint) col / 3;
+            uint wordno  = (uint) col / 3;
             uint fieldno = (uint) col % 3;
             word1 bit = getbits36_1 (buffer [wordno], fieldno * 12 + row);
             if (bit)
@@ -777,7 +802,8 @@ static void print_state(enum parse_state state)
       }
   }
 
-static void print_transition(enum parse_state old_state, enum parse_event event, enum parse_state new_state)
+static void print_transition(enum parse_state old_state, enum parse_event event,
+                             enum parse_state new_state)
   {
       sim_warn(">>> Punch Transition: ");
       print_event(event);
@@ -794,12 +820,12 @@ static void clear_card_cache(pun_state_t * state)
     while (current_entry != NULL)
       {
         CARD_CACHE_ENTRY *old_entry = current_entry;
-        current_entry = current_entry->next_entry;
+        current_entry               = current_entry->next_entry;
         free(old_entry);
       }
 
     state -> first_cached_card = NULL;
-    state -> last_cached_card = NULL;
+    state -> last_cached_card  = NULL;
   }
 
 static void save_card_in_cache(pun_state_t * state, word12 tally, word36 * card_buffer)
@@ -813,16 +839,17 @@ static void save_card_in_cache(pun_state_t * state, word12 tally, word36 * card_
     if (state -> first_cached_card == NULL)
       {
         state -> first_cached_card = new_entry;
-        state -> last_cached_card = new_entry;
+        state -> last_cached_card  = new_entry;
       }
     else
       {
         state -> last_cached_card -> next_entry = new_entry;
-        state -> last_cached_card = new_entry;
+        state -> last_cached_card               = new_entry;
       }
   }
 
-static void transition_state(enum parse_event event, pun_state_t * state, enum parse_state new_state)
+static void transition_state(enum parse_event event, pun_state_t * state,
+                             enum parse_state new_state)
   {
     if (state -> log_cards)
       {
@@ -841,7 +868,9 @@ static enum parse_event do_state_idle(enum parse_event event, pun_state_t * stat
     return NoEvent;
   }
 
-static enum parse_event do_state_starting_job(enum parse_event event, pun_state_t * state, word12 tally, word36 * card_buffer)
+static enum parse_event do_state_starting_job(enum parse_event event,
+                                              pun_state_t * state, word12 tally,
+                                              word36 * card_buffer)
   {
     transition_state(event, state, StartingJob);
 
@@ -852,18 +881,24 @@ static enum parse_event do_state_starting_job(enum parse_event event, pun_state_
     return NoEvent;
   }
 
-static enum parse_event do_state_scan_card_for_glyphs(enum parse_event event, pun_state_t * state, word12 tally, word36 * card_buffer)
+static enum parse_event do_state_scan_card_for_glyphs(enum parse_event event,
+                                                      pun_state_t * state,
+                                                      word12 tally,
+                                                      word36 * card_buffer)
   {
     transition_state(event, state, PunchGlyphLookup);
 
     scan_card_for_glyphs(state, card_buffer);
 
-    save_card_in_cache(state, tally, card_buffer);      // Save card in cache
+    save_card_in_cache(state, tally, card_buffer);    // Save card in cache
 
     return NoEvent;
   }
 
-static enum parse_event do_state_end_of_header(enum parse_event event, pun_state_t * state, word12 tally, word36 * card_buffer)
+static enum parse_event do_state_end_of_header(enum parse_event event,
+                                               pun_state_t * state,
+                                               word12 tally,
+                                               word36 * card_buffer)
   {
     transition_state(event, state, EndOfHeader);
 
@@ -877,7 +912,8 @@ static enum parse_event do_state_end_of_header(enum parse_event event, pun_state
     char punch_file_name[PATH_MAX+1];
     if (strlen(state -> glyph_buffer) < 86)
       {
-        sim_warn("*** Punch: glyph buffer too short, unable to parse file name '%s'\n", state -> glyph_buffer);
+        sim_warn \
+            ("*** Punch: glyph buffer too short, unable to parse file name '%s'\n", state -> glyph_buffer);
         punch_file_name[0] = 0;
       }
     else
@@ -906,7 +942,10 @@ static enum parse_event do_state_end_of_header(enum parse_event event, pun_state
     return NoEvent;
   }
 
-static enum parse_event do_state_cache_card(enum parse_event event, pun_state_t * state, word12 tally, word36 * card_buffer)
+static enum parse_event do_state_cache_card(enum parse_event event,
+                                            pun_state_t * state,
+                                            word12 tally,
+                                            word36 * card_buffer)
   {
     transition_state(event, state, CacheCard);
 
@@ -915,7 +954,10 @@ static enum parse_event do_state_cache_card(enum parse_event event, pun_state_t 
     return NoEvent;
   }
 
-static enum parse_event do_state_end_of_deck(enum parse_event event, pun_state_t * state, word12 tally, word36 * card_buffer)
+static enum parse_event do_state_end_of_deck(enum parse_event event,
+                                             pun_state_t * state,
+                                             word12 tally,
+                                             word36 * card_buffer)
   {
     transition_state(event, state, EndOfDeck);
 
@@ -924,7 +966,10 @@ static enum parse_event do_state_end_of_deck(enum parse_event event, pun_state_t
     return NoEvent;
   }
 
-static enum parse_event do_state_end_of_job(enum parse_event event, pun_state_t * state, word12 tally, word36 * card_buffer)
+static enum parse_event do_state_end_of_job(enum parse_event event,
+                                            pun_state_t * state,
+                                            word12 tally,
+                                            word36 * card_buffer)
   {
     transition_state(event, state, EndOfJob);
 
@@ -932,11 +977,12 @@ static enum parse_event do_state_end_of_job(enum parse_event event, pun_state_t 
     CARD_CACHE_ENTRY *current_entry = state -> first_cached_card;
     while (current_entry != NULL)
       {
-        write_punch_files (state, current_entry -> card_data, WORDS_PER_CARD, (current_entry -> next_entry == NULL));
+        write_punch_files (state, current_entry -> card_data, WORDS_PER_CARD,
+                (current_entry -> next_entry == NULL));
         current_entry = current_entry->next_entry;
       }
 
-    clear_card_cache(state);                            // Clear card cache
+    clear_card_cache(state);                                // Clear card cache
 
     write_punch_files (state, card_buffer, tally, true);    // Write card to spool file
 
@@ -1085,11 +1131,11 @@ static void parse_card(pun_state_t * state, word12 tally, word36 * card_buffer)
 static int punWriteRecord (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-    uint dev_code = p->IDCW_DEV_CODE;
-    uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-    uint devUnitIdx = cables->urp_to_urd[ctlr_unit_idx][dev_code].unit_idx;
-    UNIT * unitp = & pun_unit [devUnitIdx];
-    long pun_unit_num = PUN_UNIT_NUM (unitp);
+    uint dev_code       = p->IDCW_DEV_CODE;
+    uint ctlr_unit_idx  = get_ctlr_idx (iomUnitIdx, chan);
+    uint devUnitIdx     = cables->urp_to_urd[ctlr_unit_idx][dev_code].unit_idx;
+    UNIT * unitp        = & pun_unit [devUnitIdx];
+    long pun_unit_num   = PUN_UNIT_NUM (unitp);
 
     p -> isRead = false;
     if (p -> DDCW_TALLY != WORDS_PER_CARD)
@@ -1108,7 +1154,7 @@ static int punWriteRecord (uint iomUnitIdx, uint chan)
     word36 buffer [p -> DDCW_TALLY];
     uint wordsProcessed = 0;
     iom_indirect_data_service (iomUnitIdx, chan, buffer, & wordsProcessed, false);
-    p->initiate = false;
+    p->initiate         = false;
 
     if (pun_state [pun_unit_num] . log_cards)
       {
@@ -1122,14 +1168,15 @@ static int punWriteRecord (uint iomUnitIdx, uint chan)
   }
 
 iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
-  iom_cmd_rc_t rc = IOM_CMD_PROCEED;
+  iom_cmd_rc_t rc     = IOM_CMD_PROCEED;
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-  uint dev_code = p->IDCW_DEV_CODE;
+  uint dev_code       = p->IDCW_DEV_CODE;
 
-  sim_debug (DBG_TRACE, & pun_dev, "%s: PUN %c%02o_%02o\n", __func__, iomChar (iomUnitIdx), chan, dev_code);
+  sim_debug (DBG_TRACE, & pun_dev, "%s: PUN %c%02o_%02o\n",
+          __func__, iomChar (iomUnitIdx), chan, dev_code);
 
-  uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-  uint devUnitIdx = cables->urp_to_urd[ctlr_unit_idx][dev_code].unit_idx;
+  uint ctlr_unit_idx   = get_ctlr_idx (iomUnitIdx, chan);
+  uint devUnitIdx      = cables->urp_to_urd[ctlr_unit_idx][dev_code].unit_idx;
   pun_state_t * statep = & pun_state[devUnitIdx];
 
   // IDCW?
@@ -1141,7 +1188,7 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
       case 011: // CMD 011 Punch binary
         sim_debug (DBG_DEBUG, & pun_dev, "%s: Punch Binary\n", __func__);
         statep->ioMode = punWrBin;
-        p->stati = 04000;
+        p->stati       = 04000;
         break;
 
       case 031: // CMD 031 Set Diagnostic Mode (load_mpc.pl1)
@@ -1151,14 +1198,14 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
 
       case 040: // CMD 40 Reset status
         sim_debug (DBG_DEBUG, & pun_dev, "%s: Reset Status\n", __func__);
-        p->stati = 04000;
+        p->stati  = 04000;
         p->isRead = false;
         break;
 
       default:
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
           sim_warn ("%s: PUN unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
-        p->stati = 04501; // cmd reject, invalid opcode
+        p->stati      = 04501; // cmd reject, invalid opcode
         p->chanStatus = chanStatIncorrectDCW;
         return IOM_CMD_ERROR;
     } // switch IDCW_DEV_CMD
@@ -1189,13 +1236,15 @@ iom_cmd_rc_t pun_iom_cmd (uint iomUnitIdx, uint chan) {
   return rc;
 }
 
-static t_stat pun_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
+static t_stat pun_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val,
+                               UNUSED const void * desc)
   {
     sim_printf("Number of PUN units in system is %d\n", pun_dev . numunits);
     return SCPE_OK;
   }
 
-static t_stat pun_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, const char * cptr, UNUSED void * desc)
+static t_stat pun_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, const char * cptr,
+                              UNUSED void * desc)
   {
     if (! cptr)
       return SCPE_ARG;
@@ -1207,7 +1256,7 @@ static t_stat pun_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, const char
   }
 
 static t_stat pun_show_device_name (UNUSED FILE * st, UNIT * uptr,
-                                       UNUSED int val, UNUSED const void * desc)
+                                    UNUSED int val, UNUSED const void * desc)
   {
     long n = PUN_UNIT_NUM (uptr);
     if (n < 0 || n >= N_PUN_UNITS_MAX)
@@ -1217,7 +1266,7 @@ static t_stat pun_show_device_name (UNUSED FILE * st, UNIT * uptr,
   }
 
 static t_stat pun_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
-                                    UNUSED const char * cptr, UNUSED void * desc)
+                                   UNUSED const char * cptr, UNUSED void * desc)
   {
     long n = PUN_UNIT_NUM (uptr);
     if (n < 0 || n >= N_PUN_UNITS_MAX)
@@ -1233,14 +1282,15 @@ static t_stat pun_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
   }
 
 static t_stat pun_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
-                                    const UNUSED char * cptr, UNUSED void * desc)
+                            const UNUSED char * cptr, UNUSED void * desc)
   {
     if (! cptr)
       return SCPE_ARG;
 
     size_t len = strlen(cptr);
 
-    // Verify that we don't exceed the maximum prefix size ( -2 for the null terminator and a possible '/')
+    // Verify that we don't exceed the maximum prefix
+    // size ( -2 for the null terminator and a possible '/')
     if (len >= (sizeof(pun_path_prefix) - 2))
       return SCPE_ARG;
 
@@ -1268,8 +1318,8 @@ static t_stat pun_show_path (UNUSED FILE * st, UNUSED UNIT * uptr,
 static t_stat pun_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
                               const char * cptr, UNUSED void * desc)
   {
-    int devUnitIdx = (int) PUN_UNIT_NUM (uptr);
-    pun_state_t * psp = pun_state + devUnitIdx;
+    int devUnitIdx           = (int) PUN_UNIT_NUM (uptr);
+    pun_state_t * psp        = pun_state + devUnitIdx;
     config_state_t cfg_state = { NULL, NULL };
 
     for (;;)

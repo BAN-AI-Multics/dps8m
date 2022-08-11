@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 9868415b-f62d-11ec-9c75-80ee73e9b8e7
  *
@@ -32,8 +33,6 @@
 #include "dps8_decimal.h"
 #include "dps8_eis.h"
 #include "dps8_utils.h"
-
-#include "../dpsprintf/dpsprintf.h"
 
 /* ------------------------------------------------------------------ */
 /* HWR 6/28/14 18:54 derived from ......                              */
@@ -68,7 +67,7 @@ decContext * decContextDefaultDPS8(decContext *context)
 decContext * decContextDefaultDPS8Mul(decContext *context)
 {
     decContextDefault(context, DEC_INIT_BASE);
-    context->traps=0;
+    context->traps  = 0;
 
     context->digits = 63 + 63;   // worse case for multiply
 
@@ -817,7 +816,10 @@ mvn_write:;
 }
 
 #ifndef QUIET_UNUSED
-// If the lhs is less than the rhs in the total order then the number will be set to the value -1. If they are equal, then number is set to 0. If the lhs is greater than the rhs then the number will be set to the value 1.
+// If the lhs is less than the rhs in the total order then the number
+// will be set to the value -1. If they are equal, then number is set
+// to 0. If the lhs is greater than the rhs then the number will be
+// set to the value 1.
 int decCompare(decNumber *lhs, decNumber *rhs, decContext *set)
 {
     decNumber _cmp, *cmp;

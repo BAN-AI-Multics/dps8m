@@ -1,12 +1,13 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: BSD-1-Clause
  * scspell-id: 43cedd20-f630-11ec-8cef-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2008-2021 Troy D. Hanson
- *     http://troydhanson.github.io/uthash/
+ *     https://troydhanson.github.io/uthash/
  * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
@@ -47,9 +48,9 @@
 #  define _UNUSED_
 # endif
 
-# include <stddef.h>  /* size_t */
+# include <stddef.h>  /* size_t      */
 # include <string.h>  /* memset, etc */
-# include <stdlib.h>  /* exit */
+# include <stdlib.h>  /* exit        */
 
 # define oom() abort()
 
@@ -221,7 +222,6 @@ typedef struct {
 } while(0)
 
 # define utarray_find(a,v,cmp) bsearch((v),(a)->d,(a)->i,(a)->icd.sz,cmp)
-
 # define utarray_front(a) (((a)->i) ? (_utarray_eltptr(a,0)) : NULL)
 # define utarray_next(a,e) (((e)==NULL) ? utarray_front(a) : ((((a)->i) > (utarray_eltidx(a,e)+1)) ? _utarray_eltptr(a,utarray_eltidx(a,e)+1) : NULL))
 # define utarray_prev(a,e) (((e)==NULL) ? utarray_back(a) : ((utarray_eltidx(a,e) > 0) ? _utarray_eltptr(a,utarray_eltidx(a,e)-1) : NULL))

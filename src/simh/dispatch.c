@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: BSD-2-Clause
  * scspell-id: a36eadc5-f629-11ec-9353-80ee73e9b8e7
  *
@@ -162,15 +163,14 @@ mkl_serv_get_microarchitecture()
 void
 agner_mkl_patch()
 {
-  __intel_mkl_feature_indicator = 0;
+  __intel_mkl_feature_indicator   = 0;
   __intel_mkl_feature_indicator_x = 0;
   __intel_mkl_features_init_x();
-  __intel_mkl_feature_indicator = __intel_mkl_feature_indicator_x;
+  __intel_mkl_feature_indicator   = __intel_mkl_feature_indicator_x;
 }
 #  endif
          /* if defined( INTEL_MKL_VERSION ) ||
                defined( __INTEL_MKL__ ) */
-
 # endif
         /* if defined( __INTEL_COMPILER )       ||
               defined( __INTEL_CLANG_COMPILER ) ||

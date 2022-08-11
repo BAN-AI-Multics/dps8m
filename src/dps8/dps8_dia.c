@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 134751ac-f62e-11ec-b67e-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -15,6 +17,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -40,8 +52,6 @@
 # include "threadz.h"
 #endif
 
-#include "../dpsprintf/dpsprintf.h"
-
 static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char * ctx)
   {
 #ifdef THREADZ
@@ -57,8 +67,9 @@ static inline void fnp_core_read (word24 addr, word36 *data, UNUSED const char *
 
 static config_list_t dia_config_list [] =
   {
-    /*  0 */ { "mailbox", 0, 07777, NULL },
-    { NULL, 0, 0, NULL }
+    /*  0 */
+    { "mailbox",   0, 07777, NULL },
+    { NULL,        0, 0,     NULL }
   };
 
 static t_stat set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUSED void * desc)
@@ -67,8 +78,10 @@ static t_stat set_config (UNIT * uptr, UNUSED int value, const char * cptr, UNUS
     //if (dia_unit_idx >= dia_dev.numunits)
     if (dia_unit_idx >= N_DIA_UNITS_MAX)
       {
-        sim_debug (DBG_ERR, & dia_dev, "DIA SET CONFIG: Invalid unit number %ld\n", (long) dia_unit_idx);
-        sim_printf ("error: DIA SET CONFIG: Invalid unit number %ld\n", (long) dia_unit_idx);
+        sim_debug (DBG_ERR, & dia_dev, "DIA SET CONFIG: Invalid unit number %ld\n",
+                (long) dia_unit_idx);
+        sim_printf ("error: DIA SET CONFIG: Invalid unit number %ld\n",
+                (long) dia_unit_idx);
         return SCPE_ARG;
       }
 
@@ -166,36 +179,39 @@ static t_stat set_nunits (UNUSED UNIT * uptr, UNUSED int32 value,
 static MTAB dia_mod [] =
   {
     {
-      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "CONFIG",     /* print string */
-      "CONFIG",         /* match string */
-      set_config,         /* validation routine */
-      show_config, /* display routine */
-      NULL,          /* value descriptor */
-      NULL   // help string
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_NMO | MTAB_VALR,                 /* Mask               */
+      0,                                    /* Match              */
+      "CONFIG",                             /* Print string       */
+      "CONFIG",                             /* Match string       */
+      set_config,                           /* Validation routine */
+      show_config,                          /* Display routine    */
+      NULL,                                 /* Value descriptor   */
+      NULL                                  /* Help string        */
     },
 
     {
-      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "STATUS",     /* print string */
-      "STATUS",         /* match string */
-      NULL,         /* validation routine */
-      show_status, /* display routine */
-      NULL,          /* value descriptor */
-      NULL   // help string
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_NMO | MTAB_VALR,                 /* Mask               */
+      0,                                    /* Match              */
+      "STATUS",                             /* Print string       */
+      "STATUS",                             /* Match string       */
+      NULL,                                 /* Validation routine */
+      show_status,                          /* Display routine    */
+      NULL,                                 /* Value descriptor   */
+      NULL                                  /* Help string        */
     },
 
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      set_nunits, /* validation routine */
-      show_nunits, /* display routine */
-      "Number of DIA units in the system", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VDV | \
+      MTAB_NMO | MTAB_VALR,                 /* Mask               */
+      0,                                    /* Match              */
+      "NUNITS",                             /* Print string       */
+      "NUNITS",                             /* Match string       */
+      set_nunits,                           /* Validation routine */
+      show_nunits,                          /* Display routine    */
+      "Number of DIA units in the system",  /* Value descriptor   */
+      NULL                                  /* Help               */
     },
     { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
   };
@@ -206,14 +222,14 @@ UNIT dia_unit [N_DIA_UNITS_MAX] = {
 
 static DEBTAB dia_DT [] =
   {
-    { "TRACE", DBG_TRACE, NULL },
+    { "TRACE",  DBG_TRACE,  NULL },
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    { "INFO",   DBG_INFO,   NULL },
+    { "ERR",    DBG_ERR,    NULL },
+    { "WARN",   DBG_WARN,   NULL },
+    { "DEBUG",  DBG_DEBUG,  NULL },
+    { "ALL",    DBG_ALL,    NULL }, // don't move as it messes up DBG message
+    { NULL,     0,          NULL }
   };
 
 static t_stat reset (UNUSED DEVICE * dptr)
@@ -252,8 +268,8 @@ static t_stat attach (UNIT * uptr, const char * cptr)
         return ret;
       }
 
-    uptr->flags |= UNIT_ATT;
-    uptr->filename = pfn;
+    uptr->flags    |= UNIT_ATT;
+    uptr->filename  = pfn;
     return SCPE_OK;
   }
 
@@ -278,32 +294,32 @@ static t_stat detach (UNIT * uptr)
   }
 
 DEVICE dia_dev = {
-    "DIA",           /* name */
-    dia_unit,        /* units */
-    NULL,            /* registers */
-    dia_mod,         /* modifiers */
-    N_DIA_UNITS,     /* #units */
-    10,              /* address radix */
-    31,              /* address width */
-    1,               /* address increment */
-    8,               /* data radix */
-    9,               /* data width */
-    NULL,            /* examine routine */
-    NULL,            /* deposit routine */
-    reset,           /* reset routine */
-    NULL,            /* boot routine */
-    attach,          /* attach routine */
-    detach,          /* detach routine */
-    NULL,            /* context */
-    DEV_DEBUG,       /* flags */
-    0,               /* debug control flags */
-    dia_DT,          /* debug flag names */
-    NULL,            /* memory size change */
-    NULL,            /* logical name */
-    NULL,            // attach help
-    NULL,            // help
-    NULL,            // help context
-    NULL,            // device description
+    "DIA",           /* Name                */
+    dia_unit,        /* Units               */
+    NULL,            /* Registers           */
+    dia_mod,         /* Modifiers           */
+    N_DIA_UNITS,     /* #Units              */
+    10,              /* Address radix       */
+    31,              /* Address width       */
+    1,               /* Address increment   */
+    8,               /* Data radix          */
+    9,               /* Data width          */
+    NULL,            /* Examine routine     */
+    NULL,            /* Deposit routine     */
+    reset,           /* Reset routine       */
+    NULL,            /* Boot routine        */
+    attach,          /* Attach routine      */
+    detach,          /* Detach routine      */
+    NULL,            /* Context             */
+    DEV_DEBUG,       /* Flags               */
+    0,               /* Debug control flags */
+    dia_DT,          /* Debug flag names    */
+    NULL,            /* Memory size change  */
+    NULL,            /* Logical name        */
+    NULL,            /* Attach help         */
+    NULL,            /* Help                */
+    NULL,            /* Help context        */
+    NULL,            /* Device description  */
     NULL
 };
 
@@ -311,10 +327,10 @@ t_dia_data dia_data;
 
 struct dn355_submailbox
   {
-    word36 word1; // dn355_no; is_hsla; la_no; slot_no
-    word36 word2; // cmd_data_len; op_code; io_cmd
+    word36 word1;            // dn355_no; is_hsla; la_no; slot_no
+    word36 word2;            // cmd_data_len; op_code; io_cmd
     word36 command_data [3];
-    word36 word6; // data_addr, word_cnt;
+    word36 word6;            // data_addr, word_cnt;
     word36 pad3 [2];
   };
 
@@ -374,7 +390,7 @@ static inline void fnp_core_write (word24 addr, word36 data, UNUSED const char *
 
 static uint virtToPhys (uint ptPtr, uint l66Address)
   {
-    uint pageTable = ptPtr * 64u;
+    uint pageTable      = ptPtr * 64u;
     uint l66AddressPage = l66Address / 1024u;
 
     word36 ptw;
@@ -395,9 +411,9 @@ static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word2
   {
 
     uint fnpno = dev_unit_idx; // XXX
-    //iom_chan_data_t * p = & iom_chan_data [iom_unit_idx] [chan];
+    //iom_chan_data_t * p       = & iom_chan_data [iom_unit_idx] [chan];
     struct dia_unit_data * dudp = & dia_data.dia_unit_data[fnpno];
-    struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailbox_address];
+    struct mailbox vol * mbxp   = (struct mailbox vol *) & M[dudp->mailbox_address];
 
     dia_data.dia_unit_data[dev_unit_idx].l66_addr = l66_addr;
 
@@ -417,13 +433,13 @@ static void cmd_bootload (uint iom_unit_idx, uint dev_unit_idx, uint chan, word2
 
 static int interruptL66 (uint iom_unit_idx, uint chan)
   {
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
-    struct device * d = & cables->cablesFromIomToDev[iom_unit_idx].
+    iom_chan_data_t * p         = & iom_chan_data[iom_unit_idx][chan];
+    struct device * d           = & cables->cablesFromIomToDev[iom_unit_idx].
       devices[chan][p->IDCW_DEV_CODE];
-    uint dev_unit_idx = d->devUnitIdx;
+    uint dev_unit_idx           = d->devUnitIdx;
     struct dia_unit_data * dudp = &dia_data.dia_unit_data[dev_unit_idx];
-    struct mailbox vol * mbxp = (struct mailbox vol *) & M[dudp->mailbox_address];
-    word36 dia_pcw = mbxp -> dia_pcw;
+    struct mailbox vol * mbxp   = (struct mailbox vol *) & M[dudp->mailbox_address];
+    word36 dia_pcw              = mbxp -> dia_pcw;
 
 // AN85, pg 13-5
 // When the CS has control information or output data to send
@@ -484,10 +500,10 @@ static int interruptL66 (uint iom_unit_idx, uint chan)
 
 static void processMBX (uint iom_unit_idx, uint chan)
   {
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
-    struct device * d = & cables->cablesFromIomToDev[iom_unit_idx].
+    iom_chan_data_t * p         = & iom_chan_data[iom_unit_idx][chan];
+    struct device * d           = & cables->cablesFromIomToDev[iom_unit_idx].
       devices[chan][p->IDCW_DEV_CODE];
-    uint dev_unit_idx = d->devUnitIdx;
+    uint dev_unit_idx           = d->devUnitIdx;
     struct dia_unit_data * dudp = &dia_data.dia_unit_data[dev_unit_idx];
 
 // 60132445 FEP Coupler EPS
@@ -606,7 +622,7 @@ static void processMBX (uint iom_unit_idx, uint chan)
 //
 
     //uint chanNum = getbits36_6 (dia_pcw, 24);
-    uint command = getbits36_6 (dia_pcw, 30);
+    uint command          = getbits36_6 (dia_pcw, 30);
     word36 bootloadStatus = 0;
 
     if (command == 000) // reset
@@ -772,12 +788,13 @@ sim_printf ("phys_addr %08o\r\n", phys_addr);
     if (ok)
       {
         //if_sim_debug (DBG_TRACE, & fnp_dev) dmpmbx (dudp->mailbox_address);
-        fnp_core_write (dudp -> mailbox_address, 0, "dia_iom_cmd clear dia_pcw");
-        putbits36_1 (& bootloadStatus, 0, 1); // real_status = 1
-        putbits36_3 (& bootloadStatus, 3, 0); // major_status = BOOTLOAD_OK;
-        putbits36_8 (& bootloadStatus, 9, 0); // substatus = BOOTLOAD_OK;
-        putbits36_17 (& bootloadStatus, 17, 0); // channel_no = 0;
-        fnp_core_write (dudp -> mailbox_address + 6, bootloadStatus, "dia_iom_cmd set bootload status");
+        fnp_core_write (dudp -> mailbox_address,  0, "dia_iom_cmd clear dia_pcw");
+        putbits36_1    (& bootloadStatus,  0, 1);    // real_status = 1
+        putbits36_3    (& bootloadStatus,  3, 0);    // major_status = BOOTLOAD_OK;
+        putbits36_8    (& bootloadStatus,  9, 0);    // substatus = BOOTLOAD_OK;
+        putbits36_17   (& bootloadStatus, 17, 0);    // channel_no = 0;
+        fnp_core_write (dudp -> mailbox_address + 6, bootloadStatus,
+                "dia_iom_cmd set bootload status");
       }
     else
       {
@@ -805,7 +822,7 @@ static int dia_cmd (uint iom_unit_idx, uint chan)
 
         default:
           {
-            p -> stati = 04501;
+            p -> stati      = 04501;
             p -> chanStatus = chanStatIncorrectDCW;
             if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
               sim_warn ("dia daze %o\n", p->IDCW_DEV_CMD);
