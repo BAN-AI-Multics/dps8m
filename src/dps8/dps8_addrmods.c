@@ -419,7 +419,7 @@ startCA:;
                    "%s(startCA): restart; CT_HOLD %02o\n",
                    __func__, cpu.cu.CT_HOLD);
 // Part of ISOLTS tst885 ir
-       if (cpu.switches.isolts_mode &&
+       if (cpu.tweaks.isolts_mode &&
            GET_TM(cpu.cu.CT_HOLD) == TM_IT && GET_TD (cpu.cu.CT_HOLD) == IT_DIC &&
                 cpu.cu.pot == 1 && GET_ADDR (IWB_IRODD) == cpu.TPR.CA)
          {
@@ -1426,7 +1426,7 @@ startCA:;
 // Set the tally after the indirect word is processed; if it faults, the IR
 // should be unchanged. ISOLTS ps791 test-02g
                 SC_I_TALLY (cpu.AM_tally == 0);
-                if (cpu.switches.isolts_mode)
+                if (cpu.tweaks.isolts_mode)
                   updateIWB (YiSafe2, cpu.rTAG);
                 else
                   updateIWB (cpu.TPR.CA, cpu.rTAG);

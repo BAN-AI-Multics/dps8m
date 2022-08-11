@@ -162,7 +162,7 @@ static void selftest_ptwaw (void)
 void do_ldbr (word36 * Ypair)
   {
     CPTUR (cptUseDSBR);
-    if (! cpu.switches.disable_wam)
+    if (cpu.tweaks.enable_wam)
       {
         if (cpu.cu.SD_ON)
           {
@@ -344,7 +344,7 @@ static sdw_s * fetch_sdw_from_sdwam (word15 segno)
   {
     DBGAPP ("%s(0):segno=%05o\n", __func__, segno);
 
-    if (cpu.switches.disable_wam || ! cpu.cu.SD_ON)
+    if ((! cpu.tweaks.enable_wam) || (! cpu.cu.SD_ON))
       {
         DBGAPP ("%s(0): SDWAM disabled\n", __func__);
         return NULL;
@@ -629,7 +629,7 @@ static void load_sdwam (word15 segno, bool nomatch)
 
     cpu.SDW = & cpu.SDW0;
 
-    if (nomatch || cpu.switches.disable_wam || ! cpu.cu.SD_ON)
+    if (nomatch || (! cpu.tweaks.enable_wam) || (! cpu.cu.SD_ON))
       {
         DBGAPP ("%s: SDWAM disabled\n", __func__);
         return;
@@ -723,7 +723,7 @@ static void load_sdwam (word15 segno, bool nomatch)
 
 static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
   {
-    if (cpu.switches.disable_wam || ! cpu.cu.PT_ON)
+    if ((! cpu.tweaks.enable_wam) || (! cpu.cu.PT_ON))
       {
         DBGAPP ("%s: PTWAM disabled\n", __func__);
         return NULL;
@@ -875,7 +875,7 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
     cpu.PTW0.FE = true;
 
     cpu.PTW = & cpu.PTW0;
-    if (nomatch || cpu.switches.disable_wam || ! cpu.cu.PT_ON)
+    if (nomatch || (! cpu.tweaks.enable_wam) || (! cpu.cu.PT_ON))
       {
         DBGAPP ("loadPTWAM: PTWAM disabled\n");
         return;
@@ -1217,7 +1217,7 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
                   thisCycle == APU_DATA_STORE);
 
     bool nomatch = true;
-    if (! cpu.switches.disable_wam)
+    if (cpu.tweaks.enable_wam)
       {
         // AL39: The associative memory is ignored (forced to "no match") during
         // address preparation.
