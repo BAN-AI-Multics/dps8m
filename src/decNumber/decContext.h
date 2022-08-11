@@ -1,4 +1,5 @@
 // vim: filetype=c:tabstop=4:tw=72:expandtab
+// vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
 // SPDX-License-Identifier: ICU
 // scspell-id: a8a24c0b-f62c-11ec-ae11-80ee73e9b8e7
 /* ------------------------------------------------------------------ */
@@ -49,8 +50,6 @@
 # endif
 # include <stdio.h>                /* for printf, etc.                */
 # include <signal.h>               /* for traps                       */
-
-# include "../dpsprintf/dpsprintf.h"
 
   /* Extended flags setting -- set this to 0 to use only IEEE flags   */
 # if !defined(DECEXTFLAG)

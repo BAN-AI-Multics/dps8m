@@ -57,6 +57,9 @@ TAGS
 GRTAGS
 GTAGS
 GPATH
+ID
+HTML
+GPATH
 
 # Cores
 *.core
@@ -125,8 +128,12 @@ rebuild.vne
 *.d.*
 *.ifx
 serial.txt
+*.Po
+*.expand
 
 # Lint
+pre-commit-test.txt
+flawfinder.txt
 lint.txt
 olint.txt
 cpplint.txt
@@ -160,6 +167,15 @@ cppcheck.xml
 
 # Vim
 *.*.swp
+session.vim
+Session.vim.vim
+.vimundo
+.nvimundo
+.vimsession
+.nvimsession
+.undodir
+.session
+.sessions
 
 # Emacs
 *~
@@ -217,11 +233,22 @@ libuv-1.x/
 *.profout
 
 # Docs
-docs/yaml/docinfo.yml
+docs/yaml/docinfo-post.yml
 docs/*.tmp
+docs/*.sav
 docs/commandref.md
+docs/md/commandref.md
 docs/dps8*.pdf
 docs/docsdocker
+docs/stage?.pdf
+docs/temp.out
 
 # Clang
 compile_commands.json
+
+# CCTree
+cctree.db
+CCTree.db
+
+# reuse lint (for now)
+/LICENSES/

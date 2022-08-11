@@ -1,5 +1,6 @@
 # DPS8M simulator: src/unifdef/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: BSD-2-Clause
 # scspell-id: 8122e0e8-f631-11ec-8c75-80ee73e9b8e7
 
@@ -72,10 +73,10 @@ all: unifdef$(EXE)
 
 ###############################################################################
 
-unifdef$(EXE): unifdef.o unifdef.h version.h unifdef.c ../dpsprintf/dpsprintf.o
+unifdef$(EXE): unifdef.o unifdef.h version.h unifdef.c
 	@$(PRINTF) '%s\n' "LD: unifdef"
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) "../dpsprintf/dpsprintf.o"           \
-      -o unifdef$(EXE) unifdef.o $(MATHLIB) $(DUMALIBS)
+	@$(SETV); $(CC) $(CFLAGS)                                                 \
+      -o unifdef$(EXE) unifdef.o $(LDFLAGS) $(MATHLIB) $(DUMALIBS)
 
 ###############################################################################
 
@@ -85,11 +86,11 @@ ifneq (,$(findstring clean,$(MAKECMDGOALS)))
 endif
 clean distclean:
 	@$(PRINTF) '%s\n' "CLEAN: unifdef"
-	-@$(SETV); $(RMF) "unifdef$(EXE)"  > /dev/null 2>&1  ||  $(TRUE)
-	-@$(SETV); $(RMF) "unifdef.exe"    > /dev/null 2>&1  ||  $(TRUE)
-	-@$(SETV); $(RMF) "unifdef.o"      > /dev/null 2>&1  ||  $(TRUE)
-	-@$(SETV); $(RMF) ./*.gcda         > /dev/null 2>&1  ||  $(TRUE)
-	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o"  > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) "unifdef$(EXE)" > /dev/null 2>&1 || $(TRUE)
+	-@$(SETV); $(RMF) "unifdef.exe"   > /dev/null 2>&1 || $(TRUE)
+	-@$(SETV); $(RMF) "unifdef.o"     > /dev/null 2>&1 || $(TRUE)
+	-@$(SETV); $(RMF) ./*.gcda        > /dev/null 2>&1 || $(TRUE)
+	-@$(SETV); $(RMF) ./*.ln          > /dev/null 2>&1 || $(TRUE)
 
 ###############################################################################
 

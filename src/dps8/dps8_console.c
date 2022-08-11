@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 6421764a-f62d-11ec-b542-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -15,6 +17,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -48,8 +60,6 @@
 #ifdef CONSOLE_FIX
 # include "threadz.h"
 #endif /* ifdef CONSOLE_FIX */
-
-#include "../dpsprintf/dpsprintf.h"
 
 #ifdef SIM_NAME
 # undef SIM_NAME
@@ -105,10 +115,10 @@ static t_stat opc_show_device_name (UNUSED FILE * st, UNIT * uptr,
 static MTAB opc_mtab[] =
   {
     {
-       MTAB_unit_nouc,  /* mask */
-       0,               /* match */
-       "AUTOINPUT",     /* print string */
-       "AUTOINPUT",     /* match pstring */
+       MTAB_unit_nouc,     /* Mask          */
+       0,                  /* Match         */
+       "AUTOINPUT",        /* Print string  */
+       "AUTOINPUT",        /* Match pstring */
        opc_autoinput_set,
        opc_autoinput_show,
        NULL,
@@ -116,68 +126,69 @@ static MTAB opc_mtab[] =
     },
 
     {
-      MTAB_dev_valr,    /* mask */
-      0,                /* match */
-      "NUNITS",         /* print string */
-      "NUNITS",         /* match string */
-      opc_set_nunits,   /* validation routine */
-      opc_show_nunits,  /* display routine */
-      "Number of OPC units in the system", /* value descriptor */
-      NULL // Help
+      MTAB_dev_valr,                        /* Mask               */
+      0,                                    /* Match              */
+      "NUNITS",                             /* Print string       */
+      "NUNITS",                             /* Match string       */
+      opc_set_nunits,                       /* Validation routine */
+      opc_show_nunits,                      /* Display routine    */
+      "Number of OPC units in the system",  /* Value descriptor   */
+      NULL                                  /* Help               */
     },
 
     {
-      MTAB_unit_uc, /* mask */
-      0,            /* match */
-      (char *) "CONFIG",     /* print string */
-      (char *) "CONFIG",         /* match string */
-      opc_set_config,         /* validation routine */
-      opc_show_config, /* display routine */
-      NULL,          /* value descriptor */
-      NULL,            /* help */
+      MTAB_unit_uc,                   /* Mask               */
+      0,                              /* Match              */
+      (char *) "CONFIG",              /* Print string       */
+      (char *) "CONFIG",              /* Match string       */
+      opc_set_config,                 /* Validation routine */
+      opc_show_config,                /* Display routine    */
+      NULL,                           /* Value descriptor   */
+      NULL,                           /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      opc_set_device_name, /* validation routine */
-      opc_show_device_name, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL          // help
-    },
-
-    {
-      MTAB_unit_valr_nouc, /* mask */
-      0,            /* match */
-      "PORT",     /* print string */
-      "PORT",         /* match string */
-      opc_set_console_port, /* validation routine */
-      opc_show_console_port, /* display routine */
-      "Set the console port number", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_VALR | MTAB_NC,            /* Mask               */
+      0,                              /* Match              */
+      "NAME",                         /* Print string       */
+      "NAME",                         /* Match string       */
+      opc_set_device_name,            /* Validation routine */
+      opc_show_device_name,           /* Display routine    */
+      "Set the device name",          /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
     {
-      MTAB_unit_valr_nouc, /* mask */
-      0,            /* match */
-      "ADDRESS",     /* print string */
-      "ADDRESS",         /* match string */
-      opc_set_console_address, /* validation routine */
-      opc_show_console_address, /* display routine */
-      "Set the console IP Address", /* value descriptor */
-      NULL          // help
+      MTAB_unit_valr_nouc,            /* Mask               */
+      0,                              /* Match              */
+      "PORT",                         /* Print string       */
+      "PORT",                         /* Match string       */
+      opc_set_console_port,           /* validation routine */
+      opc_show_console_port,          /* Display routine    */
+      "Set the console port number",  /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
     {
-      MTAB_unit_valr_nouc, /* mask */
-      0,            /* match */
-      "PW",     /* print string */
-      "PW",         /* match string */
-      opc_set_console_pw, /* validation routine */
-      opc_show_console_pw, /* display routine */
-      "Set the console password", /* value descriptor */
-      NULL          // help
+      MTAB_unit_valr_nouc,            /* Mask               */
+      0,                              /* Match              */
+      "ADDRESS",                      /* Print string       */
+      "ADDRESS",                      /* Match string       */
+      opc_set_console_address,        /* Validation routine */
+      opc_show_console_address,       /* Display routine    */
+      "Set the console IP Address",   /* Value descriptor   */
+      NULL                            /* Help               */
+    },
+
+    {
+      MTAB_unit_valr_nouc,            /* Mask               */
+      0,                              /* Match              */
+      "PW",                           /* Print string       */
+      "PW",                           /* Match string       */
+      opc_set_console_pw,             /* Validation routine */
+      opc_show_console_pw,            /* Display routine    */
+      "Set the console password",     /* Value descriptor   */
+      NULL                            /* Help               */
     },
 
     MTAB_eol
@@ -186,12 +197,12 @@ static MTAB opc_mtab[] =
 static DEBTAB opc_dt[] =
   {
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    { "INFO",   DBG_INFO,   NULL },
+    { "ERR",    DBG_ERR,    NULL },
+    { "WARN",   DBG_WARN,   NULL },
+    { "DEBUG",  DBG_DEBUG,  NULL },
+    { "ALL",    DBG_ALL,    NULL }, // don't move as it messes up DBG message
+    { NULL,     0,          NULL }
   };
 
 // Multics only supports a single operator console; but
@@ -236,33 +247,33 @@ UNIT opc_unit[N_OPC_UNITS_MAX] = {
 };
 
 DEVICE opc_dev = {
-    "OPC",         /* name */
-    opc_unit,      /* units */
-    NULL,          /* registers */
-    opc_mtab,      /* modifiers */
-    N_OPC_UNITS,   /* #units */
-    10,            /* address radix */
-    8,             /* address width */
-    1,             /* address increment */
-    8,             /* address width */
-    8,             /* data width */
-    NULL,          /* examine routine */
-    NULL,          /* deposit routine */
-    opc_reset,     /* reset routine */
-    NULL,          /* boot routine */
-    NULL,          /* attach routine */
-    NULL,          /* detach routine */
-    NULL,          /* context */
-    DEV_DEBUG,     /* flags */
-    0,             /* debug control flags */
-    opc_dt,        /* debug flag names */
-    NULL,          /* memory size change */
-    NULL,          /* logical name */
-    NULL,          // help
-    NULL,          // attach help
-    NULL,          // help context
-    NULL,          // description
-    NULL
+    "OPC",         /* Name                */
+    opc_unit,      /* Units               */
+    NULL,          /* Registers           */
+    opc_mtab,      /* Modifiers           */
+    N_OPC_UNITS,   /* #units              */
+    10,            /* Address radix       */
+    8,             /* Address width       */
+    1,             /* Address increment   */
+    8,             /* Address width       */
+    8,             /* Data width          */
+    NULL,          /* Examine routine     */
+    NULL,          /* Deposit routine     */
+    opc_reset,     /* Reset routine       */
+    NULL,          /* Boot routine        */
+    NULL,          /* Attach routine      */
+    NULL,          /* Detach routine      */
+    NULL,          /* Context             */
+    DEV_DEBUG,     /* Flags               */
+    0,             /* Debug control flags */
+    opc_dt,        /* Debug flag names    */
+    NULL,          /* Memory size change  */
+    NULL,          /* Logical name        */
+    NULL,          /* Help                */
+    NULL,          /* Attach help         */
+    NULL,          /* Help context        */
+    NULL,          /* Description         */
+    NULL           /* End                 */
 };
 
 enum console_model { m6001 = 0, m6004 = 1, m6601 = 2 };
@@ -351,9 +362,9 @@ static char * bcd_code_page =
 #endif
 
 static int ta_buffer[TA_BUFFER_SIZE];
-static uint ta_cnt = 0;
+static uint ta_cnt  = 0;
 static uint ta_next = 0;
-static bool ta_ovf = false;
+static bool ta_ovf  = false;
 
 static void ta_flush (void)
   {
@@ -396,12 +407,12 @@ static t_stat opc_reset (UNUSED DEVICE * dptr)
   {
     for (uint i = 0; i < N_OPC_UNITS_MAX; i ++)
       {
-        console_state[i].io_mode = opc_no_mode;
-        console_state[i].tailp = console_state[i].keyboardLineBuffer;
-        console_state[i].readp = console_state[i].keyboardLineBuffer;
+        console_state[i].io_mode         = opc_no_mode;
+        console_state[i].tailp           = console_state[i].keyboardLineBuffer;
+        console_state[i].readp           = console_state[i].keyboardLineBuffer;
         console_state[i].carrierPosition = 1;
         memset (console_state[i].tabStops, 0, sizeof (console_state[i].tabStops));
-        console_state[i].escapeSequence = false;
+        console_state[i].escapeSequence  = false;
       }
     return SCPE_OK;
   }
@@ -427,20 +438,20 @@ void console_init (void)
     opc_reset (& opc_dev);
     for (uint i = 0; i < N_OPC_UNITS_MAX; i ++)
       {
-        opc_state_t * csp = console_state + i;
-        csp->model = m6001;
-        csp->auto_input = NULL;
-        csp->autop = NULL;
-        csp->attn_pressed = false;
+        opc_state_t * csp      = console_state + i;
+        csp->model             = m6001;
+        csp->auto_input        = NULL;
+        csp->autop             = NULL;
+        csp->attn_pressed      = false;
         csp->simh_attn_pressed = false;
-        csp->simh_buffer_cnt = 0;
+        csp->simh_buffer_cnt   = 0;
         strcpy (csp->console_access.pw, "MulticsRulez");
 
-        csp->autoaccept = 0;
-        csp->noempty = 0;
-        csp->attn_flush = 1;
+        csp->autoaccept      = 0;
+        csp->noempty         = 0;
+        csp->attn_flush      = 1;
         csp->carrierPosition = 1;
-        csp->escapeSequence = 1;
+        csp->escapeSequence  = 1;
         memset (csp->tabStops, 0, sizeof (csp->tabStops));
       }
   }
@@ -558,11 +569,11 @@ static UNIT attn_unit[N_OPC_UNITS_MAX] = {
 
 static t_stat console_attn (UNUSED UNIT * uptr)
   {
-    uint con_unit_idx = (uint) (uptr - attn_unit);
+    uint con_unit_idx  = (uint) (uptr - attn_unit);
     uint ctlr_port_num = 0; // Consoles are single ported
-    uint iom_unit_idx = cables->opc_to_iom[con_unit_idx][ctlr_port_num].iom_unit_idx;
-    uint chan_num = cables->opc_to_iom[con_unit_idx][ctlr_port_num].chan_num;
-    uint dev_code = 0; // Only a single console on the controller
+    uint iom_unit_idx  = cables->opc_to_iom[con_unit_idx][ctlr_port_num].iom_unit_idx;
+    uint chan_num      = cables->opc_to_iom[con_unit_idx][ctlr_port_num].chan_num;
+    uint dev_code      = 0; // Only a single console on the controller
 
     send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0, 0);
     return SCPE_OK;
@@ -618,9 +629,9 @@ static void handleRCP (uint con_unit_idx, char * text)
                 & label, & with, & drive);
 #endif
     size_t len = strlen (text);
-    char label [len + 1];
-    char with [len + 1];
-    char drive [len + 1];
+    char   label [len + 1];
+    char   with  [len + 1];
+    char   drive [len + 1];
     int rc = sscanf (text, "%*d.%*d RCP: Mount Reel %s %s ring on %s",
                 label, with, drive);
     if (rc == 3)
@@ -668,11 +679,11 @@ static void handleRCP (uint con_unit_idx, char * text)
 // Send entered text to the IOM.
 static void sendConsole (int conUnitIdx, word12 stati)
   {
-    opc_state_t * csp = console_state + conUnitIdx;
-    uint tally = csp->tally;
-    uint ctlr_port_num = 0; // Consoles are single ported
-    uint iomUnitIdx = cables->opc_to_iom[conUnitIdx][ctlr_port_num].iom_unit_idx;
-    uint chan_num = cables->opc_to_iom[conUnitIdx][ctlr_port_num].chan_num;
+    opc_state_t * csp   = console_state + conUnitIdx;
+    uint tally          = csp->tally;
+    uint ctlr_port_num  = 0; // Consoles are single ported
+    uint iomUnitIdx     = cables->opc_to_iom[conUnitIdx][ctlr_port_num].iom_unit_idx;
+    uint chan_num       = cables->opc_to_iom[conUnitIdx][ctlr_port_num].chan_num;
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan_num];
 
     //ASSURE (csp->io_mode == opc_read_mode);
@@ -770,17 +781,17 @@ static void sendConsole (int conUnitIdx, word12 stati)
     iom_indirect_data_service (iomUnitIdx, chan_num, buf, & n_words, true);
 
     p->charPos = n_chars % 4;
-    p->stati = (word12) stati;
+    p->stati   = (word12) stati;
 
-    csp->readp = csp->keyboardLineBuffer;
-    csp->tailp = csp->keyboardLineBuffer;
+    csp->readp   = csp->keyboardLineBuffer;
+    csp->tailp   = csp->keyboardLineBuffer;
     csp->io_mode = opc_no_mode;
 
     send_terminate_interrupt (iomUnitIdx, chan_num);
   }
 
 static void console_putchar (int conUnitIdx, char ch);
-static void console_putstr (int conUnitIdx, char * str);
+static void console_putstr  (int conUnitIdx, char * str);
 
 // Process characters entered on keyboard or autoinput
 static void consoleProcessIdx (int conUnitIdx)
@@ -988,8 +999,8 @@ static void consoleProcessIdx (int conUnitIdx)
                        console_putstr (conUnitIdx,
                          "\rUnrecognized " SIM_NAME " command.\r\n");
                   }
-                csp->simh_buffer_cnt = 0;
-                csp->simh_buffer[0] = 0;
+                csp->simh_buffer_cnt   = 0;
+                csp->simh_buffer[0]    = 0;
                 csp->simh_attn_pressed = false;
                 return;
               }
@@ -1000,8 +1011,8 @@ static void consoleProcessIdx (int conUnitIdx)
               {
                 console_putstr (conUnitIdx,  "\r\n" SIM_NAME " cancel\r\n");
                 // Empty input buffer
-                csp->simh_buffer_cnt = 0;
-                csp->simh_buffer[0] = 0;
+                csp->simh_buffer_cnt   = 0;
+                csp->simh_buffer[0]    = 0;
                 csp->simh_attn_pressed = false;
                 return;
               }
@@ -1053,10 +1064,10 @@ static void consoleProcessIdx (int conUnitIdx)
               {
                 free (csp->auto_input);
                 csp->auto_input = NULL;
-                csp->autop = NULL;
+                csp->autop      = NULL;
                 // Empty input buffer
-                csp->readp = csp->keyboardLineBuffer;
-                csp->tailp = csp->keyboardLineBuffer;
+                csp->readp      = csp->keyboardLineBuffer;
+                csp->tailp      = csp->keyboardLineBuffer;
                 sendConsole (conUnitIdx, 04310); // Null line, status operator
                                                  // distracted
                 console_putstr (conUnitIdx,  "CONSOLE: RELEASED\r\n");
@@ -1072,7 +1083,7 @@ static void consoleProcessIdx (int conUnitIdx)
               {
                 free (csp->auto_input);
                 csp->auto_input = NULL;
-                csp->autop = NULL;
+                csp->autop      = NULL;
                 goto eol;
               }
             if (announce)
@@ -1246,9 +1257,9 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
 #endif
 
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-  uint con_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-  UNIT * unitp = & opc_unit[con_unit_idx];
-  opc_state_t * csp = console_state + con_unit_idx;
+  uint con_unit_idx   = get_ctlr_idx (iomUnitIdx, chan);
+  UNIT * unitp        = & opc_unit[con_unit_idx];
+  opc_state_t * csp   = console_state + con_unit_idx;
 
   p->dev_code = p->IDCW_DEV_CODE;
   p->stati = 0;
@@ -1268,43 +1279,43 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
       case 000: // CMD 00 Request status
         sim_debug (DBG_DEBUG, & opc_dev, "%s: Status request\n", __func__);
         csp->io_mode = opc_no_mode;
-        p->stati = 04000;
+        p->stati     = 04000;
         break;
 
       case 003:               // Read BCD
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Read BCD echoed\n", __func__);
         csp->io_mode = opc_read_mode;
         p->recordResidue --;
-        csp->echo = true;
-        csp->bcd = true;
-        p->stati = 04000;
+        csp->echo    = true;
+        csp->bcd     = true;
+        p->stati     = 04000;
         break;
 
       case 013:               // Write BCD
         sim_debug (DBG_DEBUG, & opc_dev, "%s: Write BCD\n", __func__);
-        p->isRead = false;
-        csp->bcd = true;
+        p->isRead    = false;
+        csp->bcd     = true;
         csp->io_mode = opc_write_mode;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati     = 04000;
         break;
 
       case 023:               // Read ASCII
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII echoed\n", __func__);
         csp->io_mode = opc_read_mode;
         p->recordResidue --;
-        csp->echo = true;
-        csp->bcd = false;
-        p->stati = 04000;
+        csp->echo    = true;
+        csp->bcd     = false;
+        p->stati     = 04000;
         break;
 
       case 033:               // Write ASCII
         sim_debug (DBG_DEBUG, & opc_dev, "%s: Write ASCII\n", __func__);
-        p->isRead = false;
-        csp->bcd = false;
+        p->isRead    = false;
+        csp->bcd     = false;
         csp->io_mode = opc_write_mode;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati     = 04000;
         break;
 
 // Model 6001 vs. 6601.
@@ -1332,9 +1343,9 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         sim_debug (DBG_DEBUG, & tape_dev, "%s: Read ASCII unechoed\n", __func__);
         csp->io_mode = opc_read_mode;
         p->recordResidue --;
-        csp->echo = false;
-        csp->bcd = false;
-        p->stati = 04000;
+        csp->echo    = false;
+        csp->bcd     = false;
+        p->stati     = 04000;
         break;
 
       case 051:               // Write Alert -- Ring Bell
@@ -1342,7 +1353,7 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
         p->isRead = false;
         console_putstr ((int) con_unit_idx,  "CONSOLE: ALERT\r\n");
         console_putchar ((int) con_unit_idx, '\a');
-        p->stati = 04000;
+        p->stati  = 04000;
         if (csp->model == m6001 && p->isPCW) {
           rc = IOM_CMD_DISCONNECT;
           goto done;
@@ -1401,13 +1412,13 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
           tally = 4096;
         }
 
-        csp->tailp = csp->keyboardLineBuffer;
-        csp->readp = csp->keyboardLineBuffer;
+        csp->tailp     = csp->keyboardLineBuffer;
+        csp->readp     = csp->keyboardLineBuffer;
         csp->startTime = time (NULL);
-        csp->tally = tally;
-        csp->daddr = daddr;
-        csp->unitp = unitp;
-        csp->chan = (int) chan;
+        csp->tally     = tally;
+        csp->daddr     = daddr;
+        csp->unitp     = unitp;
+        csp->chan      = (int) chan;
 
         // If Multics has gone seriously awry (eg crash
         // to BCE during boot), the autoinput will become
@@ -1426,7 +1437,8 @@ iom_cmd_rc_t opc_iom_cmd (uint iomUnitIdx, uint chan) {
           // Assuming opc0.
           clear_opc_autoinput (ASSUME0, NULL);
           ta_flush ();
-          sim_printf ("\r\nScript wedged and abandoned; autoinput and typeahead buffers flushed\r\n");
+          sim_printf \
+              ("\r\nScript wedged and abandoned; autoinput and typeahead buffers flushed\r\n");
         }
         rc = IOM_CMD_PENDING; // command in progress; do not send terminate interrupt
         goto done;
@@ -1484,9 +1496,9 @@ if (csp->bcd) {
 #ifndef __MINGW64__
         newlineOff ();
 #endif
-        // 0 no escape character seen
-        // 1 ! seen
-        // 2 !! seen
+        // 0 == no escape character seen
+        // 1 ==  ! seen
+        // 2 == !! seen
         int escape_cnt = 0;
 
         while (tally) {
@@ -1607,10 +1619,10 @@ done:
 
 static t_stat opc_svc (UNIT * unitp)
   {
-    int con_unit_idx = (int) OPC_UNIT_IDX (unitp);
+    int con_unit_idx   = (int) OPC_UNIT_IDX (unitp);
     uint ctlr_port_num = 0; // Consoles are single ported
-    uint iom_unit_idx = cables->opc_to_iom[con_unit_idx][ctlr_port_num].iom_unit_idx;
-    uint chan_num = cables->opc_to_iom[con_unit_idx][ctlr_port_num].chan_num;
+    uint iom_unit_idx  = cables->opc_to_iom[con_unit_idx][ctlr_port_num].iom_unit_idx;
+    uint chan_num      = cables->opc_to_iom[con_unit_idx][ctlr_port_num].chan_num;
 
     opc_iom_cmd (iom_unit_idx, chan_num);
     return SCPE_OK;
@@ -1637,11 +1649,11 @@ static t_stat opc_set_nunits (UNUSED UNIT * uptr, int32 UNUSED value,
 
 static config_value_list_t cfg_on_off[] =
   {
-    { "off", 0 },
-    { "on", 1 },
+    { "off",     0 },
+    { "on",      1 },
     { "disable", 0 },
-    { "enable", 1 },
-    { NULL, 0 }
+    { "enable",  1 },
+    { NULL,      0 }
   };
 
 static config_value_list_t cfg_model[] =
@@ -1649,23 +1661,23 @@ static config_value_list_t cfg_model[] =
     { "m6001", m6001 },
     { "m6004", m6004 },
     { "m6601", m6601 },
-    { NULL, 0 }
+    { NULL,    0 }
   };
 
 static config_list_t opc_config_list[] =
   {
    { "autoaccept", 0, 1, cfg_on_off },
-   { "noempty", 0, 1, cfg_on_off },
+   { "noempty",    0, 1, cfg_on_off },
    { "attn_flush", 0, 1, cfg_on_off },
-   { "model", 1, 0, cfg_model },
-   { NULL, 0, 0, NULL }
+   { "model",      1, 0, cfg_model },
+   { NULL,         0, 0, NULL }
   };
 
 static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
                               const char * cptr, UNUSED void * desc)
   {
-    int devUnitIdx = (int) OPC_UNIT_IDX (uptr);
-    opc_state_t * csp = console_state + devUnitIdx;
+    int devUnitIdx           = (int) OPC_UNIT_IDX (uptr);
+    opc_state_t * csp        = console_state + devUnitIdx;
 // XXX Minor bug; this code doesn't check for trailing garbage
     config_state_t cfg_state = { NULL, NULL };
 
@@ -1720,12 +1732,12 @@ static t_stat opc_set_config (UNUSED UNIT *  uptr, UNUSED int32 value,
 static t_stat opc_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
                                UNUSED int  val, UNUSED const void * desc)
   {
-    int devUnitIdx = (int) OPC_UNIT_IDX (uptr);
+    int devUnitIdx    = (int) OPC_UNIT_IDX (uptr);
     opc_state_t * csp = console_state + devUnitIdx;
     sim_msg ("flags    : ");
     sim_msg ("autoaccept=%d, ", csp->autoaccept);
-    sim_msg ("noempty=%d, ", csp->noempty);
-    sim_msg ("attn_flush=%d", csp->attn_flush);
+    sim_msg ("noempty=%d, ",    csp->noempty);
+    sim_msg ("attn_flush=%d",   csp->attn_flush);
     return SCPE_OK;
   }
 
@@ -1805,7 +1817,8 @@ static t_stat opc_set_console_address (UNIT * uptr, UNUSED int32 value,
     if (cptr)
       {
         console_state[dev_idx].console_access.address = strdup (cptr);
-        sim_msg ("Console %d address set to %s\n", dev_idx, console_state[dev_idx].console_access.address);
+        sim_msg ("Console %d address set to %s\n",
+                dev_idx, console_state[dev_idx].console_access.address);
       }
 
     return SCPE_OK;
@@ -1918,7 +1931,7 @@ static void consoleConnectPrompt (uv_tcp_t * client)
   {
     accessStartWriteStr (client, "password: \r\n");
     uv_access * console_access = (uv_access *) client->data;
-    console_access->pwPos = 0;
+    console_access->pwPos      = 0;
   }
 
 void startRemoteConsole (void)
@@ -1926,8 +1939,8 @@ void startRemoteConsole (void)
     for (int conUnitIdx = 0; conUnitIdx < N_OPC_UNITS_MAX; conUnitIdx ++)
       {
         console_state[conUnitIdx].console_access.connectPrompt = consoleConnectPrompt;
-        console_state[conUnitIdx].console_access.connected = NULL;
-        console_state[conUnitIdx].console_access.useTelnet = true;
+        console_state[conUnitIdx].console_access.connected     = NULL;
+        console_state[conUnitIdx].console_access.useTelnet     = true;
 #ifdef CONSOLE_FIX
 # ifdef LOCKLESS
         lock_libuv ();

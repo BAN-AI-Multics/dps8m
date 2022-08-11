@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 34c5cd04-f62f-11ec-b27c-80ee73e9b8e7
  *
@@ -17,7 +18,7 @@
  * ---------------------------------------------------------------------------
  */
 
-typedef void (* uv_read_cb_t) (uv_tcp_t * client, ssize_t nread, unsigned char * buf);
+typedef void (* uv_read_cb_t)  (uv_tcp_t * client, ssize_t nread, unsigned char * buf);
 typedef void (* uv_write_cb_t) (uv_tcp_t * client, unsigned char * data, ssize_t datalen);
 struct uvClientData_s
   {
@@ -25,7 +26,7 @@ struct uvClientData_s
     uint fnpno;
     uint lineno;
     /* telnet_t */ void * telnetp;
-    uv_read_cb_t read_cb;
+    uv_read_cb_t  read_cb;
     uv_write_cb_t write_cb;
     uv_write_cb_t write_actual_cb;
     // Work buffer for processLineInput

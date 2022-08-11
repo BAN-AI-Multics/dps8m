@@ -1,5 +1,4 @@
 bsd_random.o: bsd_random.h
-dps8_absi.o: ../dpsprintf/dpsprintf.h
 dps8_absi.o: dps8.h
 dps8_absi.o: dps8_absi.h
 dps8_absi.o: dps8_cable.h
@@ -16,7 +15,6 @@ dps8_absi.o: dps8_utils.h
 dps8_absi.o: hdbg.h
 dps8_absi.o: udplib.h
 dps8_absi.o: uvutil.h
-dps8_addrmods.o: ../dpsprintf/dpsprintf.h
 dps8_addrmods.o: dps8.h
 dps8_addrmods.o: dps8_addrmods.h
 dps8_addrmods.o: dps8_append.h
@@ -36,7 +34,6 @@ dps8_addrmods.o: dps8_sys.h
 dps8_addrmods.o: dps8_utils.h
 dps8_addrmods.o: hdbg.h
 dps8_addrmods.o: uvutil.h
-dps8_append.o: ../dpsprintf/dpsprintf.h
 dps8_append.o: dps8.h
 dps8_append.o: dps8_addrmods.h
 dps8_append.o: dps8_append.h
@@ -53,7 +50,6 @@ dps8_append.o: dps8_sys.h
 dps8_append.o: dps8_utils.h
 dps8_append.o: hdbg.h
 dps8_append.o: uvutil.h
-dps8_cable.o: ../dpsprintf/dpsprintf.h
 dps8_cable.o: dps8.h
 dps8_cable.o: dps8_absi.h
 dps8_cable.o: dps8_cable.h
@@ -80,7 +76,6 @@ dps8_cable.o: dps8_utils.h
 dps8_cable.o: hdbg.h
 dps8_cable.o: libtelnet.h
 dps8_cable.o: uvutil.h
-dps8_console.o: ../dpsprintf/dpsprintf.h
 dps8_console.o: dps8.h
 dps8_console.o: dps8_cable.h
 dps8_console.o: dps8_console.h
@@ -99,7 +94,6 @@ dps8_console.o: dps8_utils.h
 dps8_console.o: hdbg.h
 dps8_console.o: libtelnet.h
 dps8_console.o: uvutil.h
-dps8_cpu.o: ../dpsprintf/dpsprintf.h
 dps8_cpu.o: dps8.h
 dps8_cpu.o: dps8_absi.h
 dps8_cpu.o: dps8_addrmods.h
@@ -127,7 +121,7 @@ dps8_cpu.o: dps8_utils.h
 dps8_cpu.o: hdbg.h
 dps8_cpu.o: libtelnet.h
 dps8_cpu.o: uvutil.h
-dps8_crdpun.o: ../dpsprintf/dpsprintf.h
+dps8_cpu.o: ver.h
 dps8_crdpun.o: dps8.h
 dps8_crdpun.o: dps8_cable.h
 dps8_crdpun.o: dps8_cpu.h
@@ -144,7 +138,6 @@ dps8_crdpun.o: dps8_utils.h
 dps8_crdpun.o: hdbg.h
 dps8_crdpun.o: utfile.h
 dps8_crdpun.o: uvutil.h
-dps8_crdrdr.o: ../dpsprintf/dpsprintf.h
 dps8_crdrdr.o: dps8.h
 dps8_crdrdr.o: dps8_cable.h
 dps8_crdrdr.o: dps8_cpu.h
@@ -160,7 +153,6 @@ dps8_crdrdr.o: dps8_sys.h
 dps8_crdrdr.o: dps8_utils.h
 dps8_crdrdr.o: hdbg.h
 dps8_crdrdr.o: uvutil.h
-dps8_decimal.o: ../dpsprintf/dpsprintf.h
 dps8_decimal.o: dps8.h
 dps8_decimal.o: dps8_cable.h
 dps8_decimal.o: dps8_cpu.h
@@ -177,7 +169,6 @@ dps8_decimal.o: dps8_sys.h
 dps8_decimal.o: dps8_utils.h
 dps8_decimal.o: hdbg.h
 dps8_decimal.o: uvutil.h
-dps8_dia.o: ../dpsprintf/dpsprintf.h
 dps8_dia.o: dps8.h
 dps8_dia.o: dps8_cable.h
 dps8_dia.o: dps8_cpu.h
@@ -194,7 +185,6 @@ dps8_dia.o: dps8_utils.h
 dps8_dia.o: hdbg.h
 dps8_dia.o: udplib.h
 dps8_dia.o: uvutil.h
-dps8_disk.o: ../dpsprintf/dpsprintf.h
 dps8_disk.o: dps8.h
 dps8_disk.o: dps8_cable.h
 dps8_disk.o: dps8_cpu.h
@@ -210,7 +200,6 @@ dps8_disk.o: dps8_sys.h
 dps8_disk.o: dps8_utils.h
 dps8_disk.o: hdbg.h
 dps8_disk.o: uvutil.h
-dps8_eis.o: ../dpsprintf/dpsprintf.h
 dps8_eis.o: dps8.h
 dps8_eis.o: dps8_cable.h
 dps8_eis.o: dps8_cpu.h
@@ -229,7 +218,6 @@ dps8_eis.o: dps8_sys.h
 dps8_eis.o: dps8_utils.h
 dps8_eis.o: hdbg.h
 dps8_eis.o: uvutil.h
-dps8_faults.o: ../dpsprintf/dpsprintf.h
 dps8_faults.o: dps8.h
 dps8_faults.o: dps8_append.h
 dps8_faults.o: dps8_cable.h
@@ -246,7 +234,6 @@ dps8_faults.o: dps8_sys.h
 dps8_faults.o: dps8_utils.h
 dps8_faults.o: hdbg.h
 dps8_faults.o: uvutil.h
-dps8_fnp2.o: ../dpsprintf/dpsprintf.h
 dps8_fnp2.o: dps8.h
 dps8_fnp2.o: dps8_cable.h
 dps8_fnp2.o: dps8_cpu.h
@@ -267,7 +254,6 @@ dps8_fnp2.o: libtelnet.h
 dps8_fnp2.o: uthash.h
 dps8_fnp2.o: utlist.h
 dps8_fnp2.o: uvutil.h
-dps8_fnp2_iomcmd.o: ../dpsprintf/dpsprintf.h
 dps8_fnp2_iomcmd.o: dps8.h
 dps8_fnp2_iomcmd.o: dps8_cable.h
 dps8_fnp2_iomcmd.o: dps8_cpu.h
@@ -285,7 +271,6 @@ dps8_fnp2_iomcmd.o: fnpuv.h
 dps8_fnp2_iomcmd.o: hdbg.h
 dps8_fnp2_iomcmd.o: libtelnet.h
 dps8_fnp2_iomcmd.o: uvutil.h
-dps8_iefp.o: ../dpsprintf/dpsprintf.h
 dps8_iefp.o: dps8.h
 dps8_iefp.o: dps8_addrmods.h
 dps8_iefp.o: dps8_append.h
@@ -303,7 +288,6 @@ dps8_iefp.o: dps8_sys.h
 dps8_iefp.o: dps8_utils.h
 dps8_iefp.o: hdbg.h
 dps8_iefp.o: uvutil.h
-dps8_ins.o: ../dpsprintf/dpsprintf.h
 dps8_ins.o: dps8.h
 dps8_ins.o: dps8_addrmods.h
 dps8_ins.o: dps8_append.h
@@ -320,7 +304,6 @@ dps8_ins.o: dps8_iom.h
 dps8_ins.o: dps8_math.h
 dps8_ins.o: dps8_math128.h
 dps8_ins.o: dps8_opcodetable.h
-dps8_ins.o: dps8_prom.h
 dps8_ins.o: dps8_scu.h
 dps8_ins.o: dps8_simh.h
 dps8_ins.o: dps8_sys.h
@@ -329,7 +312,6 @@ dps8_ins.o: hdbg.h
 dps8_ins.o: tracker.h
 dps8_ins.o: uvutil.h
 dps8_ins.o: ver.h
-dps8_iom.o: ../dpsprintf/dpsprintf.h
 dps8_iom.o: dps8.h
 dps8_iom.o: dps8_cable.h
 dps8_iom.o: dps8_console.h
@@ -347,7 +329,6 @@ dps8_iom.o: dps8_utils.h
 dps8_iom.o: hdbg.h
 dps8_iom.o: libtelnet.h
 dps8_iom.o: uvutil.h
-dps8_math.o: ../dpsprintf/dpsprintf.h
 dps8_math.o: dps8.h
 dps8_math.o: dps8_cable.h
 dps8_math.o: dps8_cpu.h
@@ -364,7 +345,6 @@ dps8_math.o: dps8_sys.h
 dps8_math.o: dps8_utils.h
 dps8_math.o: hdbg.h
 dps8_math.o: uvutil.h
-dps8_math128.o: ../dpsprintf/dpsprintf.h
 dps8_math128.o: dps8.h
 dps8_math128.o: dps8_em_consts.h
 dps8_math128.o: dps8_hw_consts.h
@@ -372,7 +352,6 @@ dps8_math128.o: dps8_math128.h
 dps8_math128.o: dps8_simh.h
 dps8_math128.o: dps8_sys.h
 dps8_math128.o: uvutil.h
-dps8_mt.o: ../dpsprintf/dpsprintf.h
 dps8_mt.o: dps8.h
 dps8_mt.o: dps8_cable.h
 dps8_mt.o: dps8_cpu.h
@@ -396,7 +375,6 @@ dps8_opcodetable.o: dps8_opcodetable.h
 dps8_opcodetable.o: dps8_simh.h
 dps8_opcodetable.o: dps8_sys.h
 dps8_opcodetable.o: uvutil.h
-dps8_prt.o: ../dpsprintf/dpsprintf.h
 dps8_prt.o: dps8.h
 dps8_prt.o: dps8_cable.h
 dps8_prt.o: dps8_cpu.h
@@ -413,7 +391,6 @@ dps8_prt.o: dps8_utils.h
 dps8_prt.o: hdbg.h
 dps8_prt.o: utfile.h
 dps8_prt.o: uvutil.h
-dps8_scu.o: ../dpsprintf/dpsprintf.h
 dps8_scu.o: dps8.h
 dps8_scu.o: dps8_cable.h
 dps8_scu.o: dps8_cpu.h
@@ -435,7 +412,6 @@ dps8_simh.o: dps8_math128.h
 dps8_simh.o: dps8_simh.h
 dps8_simh.o: dps8_sys.h
 dps8_simh.o: uvutil.h
-dps8_socket_dev.o: ../dpsprintf/dpsprintf.h
 dps8_socket_dev.o: dps8.h
 dps8_socket_dev.o: dps8_cable.h
 dps8_socket_dev.o: dps8_cpu.h
@@ -451,7 +427,6 @@ dps8_socket_dev.o: dps8_utils.h
 dps8_socket_dev.o: errnos.h
 dps8_socket_dev.o: hdbg.h
 dps8_socket_dev.o: uvutil.h
-dps8_sys.o: ../dpsprintf/dpsprintf.h
 dps8_sys.o: bsd_random.h
 dps8_sys.o: dps8.h
 dps8_sys.o: dps8_absi.h
@@ -487,7 +462,6 @@ dps8_sys.o: tracker.h
 dps8_sys.o: utlist.h
 dps8_sys.o: uvutil.h
 dps8_sys.o: ver.h
-dps8_urp.o: ../dpsprintf/dpsprintf.h
 dps8_urp.o: dps8.h
 dps8_urp.o: dps8_cable.h
 dps8_urp.o: dps8_cpu.h
@@ -503,7 +477,6 @@ dps8_urp.o: dps8_urp.h
 dps8_urp.o: dps8_utils.h
 dps8_urp.o: hdbg.h
 dps8_urp.o: uvutil.h
-dps8_utils.o: ../dpsprintf/dpsprintf.h
 dps8_utils.o: dps8.h
 dps8_utils.o: dps8_cable.h
 dps8_utils.o: dps8_cpu.h
@@ -520,7 +493,6 @@ dps8_utils.o: dps8_sys.h
 dps8_utils.o: dps8_utils.h
 dps8_utils.o: hdbg.h
 dps8_utils.o: uvutil.h
-fnptelnet.o: ../dpsprintf/dpsprintf.h
 fnptelnet.o: dps8.h
 fnptelnet.o: dps8_cable.h
 fnptelnet.o: dps8_cpu.h
@@ -539,7 +511,6 @@ fnptelnet.o: fnpuv.h
 fnptelnet.o: hdbg.h
 fnptelnet.o: libtelnet.h
 fnptelnet.o: uvutil.h
-fnpuv.o: ../dpsprintf/dpsprintf.h
 fnpuv.o: dps8.h
 fnpuv.o: dps8_cable.h
 fnpuv.o: dps8_cpu.h
@@ -557,7 +528,6 @@ fnpuv.o: fnpuv.h
 fnpuv.o: hdbg.h
 fnpuv.o: libtelnet.h
 fnpuv.o: uvutil.h
-hdbg.o: ../dpsprintf/dpsprintf.h
 hdbg.o: dps8.h
 hdbg.o: dps8_cpu.h
 hdbg.o: dps8_em_consts.h
@@ -569,9 +539,7 @@ hdbg.o: dps8_sys.h
 hdbg.o: dps8_utils.h
 hdbg.o: hdbg.h
 hdbg.o: uvutil.h
-libtelnet.o: ../dpsprintf/dpsprintf.h
 libtelnet.o: libtelnet.h
-segldr.o: ../dpsprintf/dpsprintf.h
 segldr.o: dps8.h
 segldr.o: dps8_cable.h
 segldr.o: dps8_cpu.h
@@ -587,9 +555,7 @@ segldr.o: dps8_utils.h
 segldr.o: hdbg.h
 segldr.o: segldr.h
 segldr.o: uvutil.h
-shm.o: ../dpsprintf/dpsprintf.h
 shm.o: shm.h
-threadz.o: ../dpsprintf/dpsprintf.h
 threadz.o: dps8.h
 threadz.o: dps8_cpu.h
 threadz.o: dps8_em_consts.h
@@ -603,7 +569,6 @@ threadz.o: dps8_utils.h
 threadz.o: hdbg.h
 threadz.o: threadz.h
 threadz.o: uvutil.h
-tracker.o: ../dpsprintf/dpsprintf.h
 tracker.o: dps8.h
 tracker.o: dps8_em_consts.h
 tracker.o: dps8_hw_consts.h
@@ -612,12 +577,9 @@ tracker.o: dps8_simh.h
 tracker.o: dps8_sys.h
 tracker.o: tracker.h
 tracker.o: uvutil.h
-udplib.o: ../dpsprintf/dpsprintf.h
 udplib.o: h316_imp.h
 udplib.o: udplib.h
-utfile.o: ../dpsprintf/dpsprintf.h
 utfile.o: bsd_random.h
-uvutil.o: ../dpsprintf/dpsprintf.h
 uvutil.o: dps8.h
 uvutil.o: dps8_cpu.h
 uvutil.o: dps8_em_consts.h

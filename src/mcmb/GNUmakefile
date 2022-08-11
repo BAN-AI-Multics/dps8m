@@ -1,6 +1,7 @@
 # DPS8M simulator: src/mcmb/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
-# SPDX-License-Identifier: ICU
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
+# SPDX-License-Identifier: BSD-2-Clause
 # scspell-id: 9d7a9ce4-f630-11ec-9e0e-80ee73e9b8e7
 
 ###############################################################################
@@ -9,9 +10,28 @@
 #
 # All rights reserved.
 #
-# This software is made available under the terms of the ICU
-# License, version 1.8.1 or later.  For more details, see the
-# LICENSE.md file at the top-level directory of this distribution.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
 #
 ###############################################################################
 
@@ -51,10 +71,10 @@ endif # WINDOWS_COMPILE
 
 ###############################################################################
 
-mcmb$(EXE): mcmb.c ../dpsprintf/dpsprintf.o
+mcmb$(EXE): mcmb.c
 	@$(PRINTF) '%s\n' "CC: mcmb"
-	-@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) "../dpsprintf/dpsprintf.o"          \
-      -o mcmb$(EXE) mcmb.c $(MATHLIB) $(CMBLIBS) $(DUMALIBS)
+	-@$(SETV); $(CC) $(CFLAGS)                                                \
+      -o mcmb$(EXE) mcmb.c $(LDFLAGS) $(MATHLIB) $(CMBLIBS) $(DUMALIBS)
 
 ###############################################################################
 
@@ -68,7 +88,7 @@ clean distclean:
 	-@$(SETV); $(RMF) "mcmb.exe"   > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "mcmb.o"     > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) ./*.gcda     > /dev/null 2>&1  ||  $(TRUE)
-	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o" > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) ./*.ln       > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 

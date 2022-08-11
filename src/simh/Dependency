@@ -1,5 +1,4 @@
 dispatch.o: dispatch.h
-linehistory.o: ../dpsprintf/dpsprintf.h
 linehistory.o: linehistory.h
 scp.o: ../decNumber/decContext.h
 scp.o: ../decNumber/decNumberLocal.h
@@ -10,7 +9,6 @@ scp.o: ../dps8/dps8_fnp2.h
 scp.o: ../dps8/dps8_hw_consts.h
 scp.o: ../dps8/dps8_iom.h
 scp.o: ../dps8/dps8_math128.h
-scp.o: ../dps8/dps8_prom.h
 scp.o: ../dps8/dps8_simh.h
 scp.o: ../dps8/dps8_sys.h
 scp.o: ../dps8/hdbg.h
@@ -18,7 +16,6 @@ scp.o: ../dps8/libtelnet.h
 scp.o: ../dps8/sysdefs.h
 scp.o: ../dps8/uvutil.h
 scp.o: ../dps8/ver.h
-scp.o: ../dpsprintf/dpsprintf.h
 scp.o: dispatch.h
 scp.o: linehistory.h
 scp.o: scp.h
@@ -29,7 +26,6 @@ scp.o: sim_fio.h
 scp.o: sim_sock.h
 scp.o: sim_tape.h
 scp.o: sim_timer.h
-sim_console.o: ../dpsprintf/dpsprintf.h
 sim_console.o: scp.h
 sim_console.o: sim_console.h
 sim_console.o: sim_defs.h
@@ -39,7 +35,6 @@ sim_console.o: sim_timer.h
 sim_console.o: sim_tmxr.h
 sim_disk.o: ../decNumber/decContext.h
 sim_disk.o: ../decNumber/decNumberLocal.h
-sim_disk.o: ../dpsprintf/dpsprintf.h
 sim_disk.o: scp.h
 sim_disk.o: sim_console.h
 sim_disk.o: sim_defs.h
@@ -48,28 +43,23 @@ sim_disk.o: sim_fio.h
 sim_disk.o: sim_timer.h
 sim_fio.o: ../decNumber/decContext.h
 sim_fio.o: ../decNumber/decNumberLocal.h
-sim_fio.o: ../dpsprintf/dpsprintf.h
 sim_fio.o: scp.h
 sim_fio.o: sim_console.h
 sim_fio.o: sim_defs.h
 sim_fio.o: sim_fio.h
 sim_fio.o: sim_timer.h
-sim_sock.o: ../dpsprintf/dpsprintf.h
 sim_sock.o: sim_sock.h
-sim_tape.o: ../dpsprintf/dpsprintf.h
 sim_tape.o: scp.h
 sim_tape.o: sim_console.h
 sim_tape.o: sim_defs.h
 sim_tape.o: sim_fio.h
 sim_tape.o: sim_tape.h
 sim_tape.o: sim_timer.h
-sim_timer.o: ../dpsprintf/dpsprintf.h
 sim_timer.o: scp.h
 sim_timer.o: sim_console.h
 sim_timer.o: sim_defs.h
 sim_timer.o: sim_fio.h
 sim_timer.o: sim_timer.h
-sim_tmxr.o: ../dpsprintf/dpsprintf.h
 sim_tmxr.o: scp.h
 sim_tmxr.o: sim_console.h
 sim_tmxr.o: sim_defs.h

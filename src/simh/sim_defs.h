@@ -1,58 +1,60 @@
-/* sim_defs.h: simulator definitions
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: ae37b35b-f62a-11ec-8c79-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 1993-2008 Robert M Supnik
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-   OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   SOFTWARE.
-
-   Except as contained in this notice, the name of Robert M Supnik shall not
-   be used in advertising or otherwise to promote the sale, use or other
-   dealings in this Software without prior written authorization from
-   Robert M Supnik.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * sim_defs.h: simulator definitions
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: ae37b35b-f62a-11ec-8c79-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 1993-2008 Robert M. Supnik
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+ * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Robert M. Supnik shall not
+ * be used in advertising or otherwise to promote the sale, use or other
+ * dealings in this Software without prior written authorization from
+ * Robert M. Supnik.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 /*
-   The interface between the simulator control package (SCP) and the
-   simulator consists of the following routines and data structures
-
-        sim_name                simulator name string
-        sim_devices[]           array of pointers to simulated devices
-        sim_PC                  pointer to saved PC register descriptor
-        sim_interval            simulator interval to next event
-        sim_stop_messages[]     array of pointers to stop messages
-        sim_instr()             instruction execution routine
-        sim_emax                maximum number of words in an instruction
-
-   In addition, the simulator must supply routines to print and parse
-   architecture specific formats
-
-        print_sym               print symbolic output
-        parse_sym               parse symbolic input
-*/
+ * The interface between the simulator control package (SCP) and the
+ * simulator consists of the following routines and data structures
+ *
+ *      sim_name                simulator name string
+ *      sim_devices[]           array of pointers to simulated devices
+ *      sim_PC                  pointer to saved PC register descriptor
+ *      sim_interval            simulator interval to next event
+ *      sim_stop_messages[]     array of pointers to stop messages
+ *      sim_instr()             instruction execution routine
+ *      sim_emax                maximum number of words in an instruction
+ *
+ * In addition, the simulator must supply routines to print and parse
+ * architecture specific formats
+ *
+ *      print_sym               print symbolic output
+ *      parse_sym               parse symbolic input
+ */
 
 #ifndef SIM_DEFS_H_
 # define SIM_DEFS_H_    0
@@ -145,10 +147,8 @@ typedef uint32          t_addr;
 # define T_ADDR_FMT      ""
 
 # if defined (_WIN32)
-#  if defined (USE_SYSTEM_PRINTF)
-#   undef vsnprintf
-#   define vsnprintf _vsnprintf
-#  endif
+#  undef vsnprintf
+#  define vsnprintf _vsnprintf
 # endif
 # define STACKBUFSIZE 2048
 

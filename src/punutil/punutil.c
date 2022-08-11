@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 62d95d16-f631-11ec-9329-80ee73e9b8e7
  *
@@ -22,6 +23,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <locale.h>
 #ifdef _AIX
 # ifndef USE_POPT
 #  define USE_POPT
@@ -32,8 +34,6 @@
 #else
 # include <getopt.h>
 #endif /* ifdef USE_POPT */
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define CARD_COL_COUNT 80
 #define NIBBLES_PER_COL 3
@@ -1358,6 +1358,8 @@ static void dump_raw(FILE *out_file)
 
 int main(int argc, char *argv[])
 {
+    setlocale(LC_NUMERIC, "");
+
     fprintf(stderr, "****\nPunch File Utility\n****\n");
 
     parse_options(argc, argv);

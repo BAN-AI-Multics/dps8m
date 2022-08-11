@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 72d91a53-f62d-11ec-a98f-80ee73e9b8e7
  *
@@ -451,7 +452,6 @@ typedef struct mode_register_s
                     //  0       0           26 history register overflow trap
                     //  0       0           27 strobe HR on opcode match
     word1 hrhlt;    //  g       i           28 history register overflow trap
-
 #ifdef DPS8M
     word1 hrxfr;    //  h       j           29 strobe HR on transfer made
 #endif
@@ -541,39 +541,39 @@ typedef struct EISstruct_s
 #define OP2 op [1]          // 2nd descriptor (3rd ins word)
 #define OP3 op [2]          // 3rd descriptor (4th ins word)
 
-    bool    P;              // 4-bit data sign character control
+    bool     P;             // 4-bit data sign character control
 
     uint    MF [3];
-#define MF1    MF [0]       // Modification field for operand descriptor 1
-#define MF2    MF [1]       // Modification field for operand descriptor 2
-#define MF3    MF [2]       // Modification field for operand descriptor 3
+#define MF1 MF [0]          // Modification field for operand descriptor 1
+#define MF2 MF [1]          // Modification field for operand descriptor 2
+#define MF3 MF [2]          // Modification field for operand descriptor 3
 
-    uint   CN [3];
+    uint    CN [3];
 #define CN1 CN [0]
 #define CN2 CN [1]
 #define CN3 CN [2]
 
-    uint   WN [3];
+    uint    WN [3];
 #define WN1 WN [0]
 #define WN2 WN [1]
 #define WN3 CN [2]
 
-    uint   C [3];
-#define C1 C [0]
-#define C2 C [1]
-#define C3 C [2]
+   uint     C [3];
+#define C1  C [0]
+#define C2  C [1]
+#define C3  C [2]
 
-    uint   B [3];
-#define B1 B [0]
-#define B2 B [1]
-#define B3 B [2]
+   uint     B [3];
+#define B1  B [0]
+#define B2  B [1]
+#define B3  B [2]
 
-    uint    N [3];
+   uint     N [3];
 #define N1  N [0]
 #define N2  N [1]
 #define N3  N [2]
 
-    uint   TN [3];          // type numeric
+    uint    TN [3];         // type numeric
 #define TN1 TN [0]
 #define TN2 TN [1]
 #define TN3 TN [2]
@@ -583,18 +583,18 @@ typedef struct EISstruct_s
 # define TA2 cpu.du.TAk[1]
 # define TA3 cpu.du.TAk[2]
 #else
-    uint   TA [3];          // type alphanumeric
+    uint     TA [3];        // type alphanumeric
 # define TA1 TA [0]
 # define TA2 TA [1]
 # define TA3 TA [2]
 #endif
 
-    uint   S [3];           // Sign and decimal type of number
+   uint     S [3];          // Sign and decimal type of number
 #define S1  S [0]
 #define S2  S [1]
 #define S3  S [2]
 
-    int    SF [3];          // scale factor
+    int     SF [3];         // scale factor
 #define SF1 SF [0]
 #define SF2 SF [1]
 #define SF3 SF [2]
@@ -710,10 +710,10 @@ typedef struct
     word36 data_switches;
     word18 addr_switches;
     uint assignment [N_CPU_PORTS];
-    uint interlace [N_CPU_PORTS]; // 0/2/4
+    uint interlace [N_CPU_PORTS];    // 0/2/4
     uint enable [N_CPU_PORTS];
     uint init_enable [N_CPU_PORTS];
-    uint store_size [N_CPU_PORTS]; // 0-7 encoding 32K-4M
+    uint store_size [N_CPU_PORTS];   // 0-7 encoding 32K-4M
     enum procModeSettings procMode;  // 1 bit  Read by rsw instruction; format unknown
 
     bool enable_cache;   // Enable 8K cache
@@ -765,13 +765,13 @@ enum ou_cycle_e
 typedef struct
   {
     // Operations Unit/Address Modification
-    bool directOperandFlag;
+    bool   directOperandFlag;
     word36 directOperand;
-    word6 characterOperandSize; // just the left most bit
-    word3 characterOperandOffset;
+    word6  characterOperandSize; // just the left most bit
+    word3  characterOperandOffset;
     word18 character_address;
     word36 character_data;
-    bool crflag;
+    bool   crflag;
 #ifdef L68
     word2 eac;
     word1 RB1_FULL;
@@ -781,8 +781,8 @@ typedef struct
     word1 STR_OP;
 #endif
 #ifdef PANEL
-    word9 RS;
-    word4 opsz;
+    word9  RS;
+    word4  opsz;
     word10 reguse;
 #endif
   } ou_unit_data_t;
@@ -1188,64 +1188,64 @@ enum du_cycle2_e
     //               = 0000000000001ll,
   };
 
-# define DU_CYCLE_GDLDA { clrmask (& cpu.du.cycle2, du2_nGDLDA);               \
-                        setmask (& cpu.du.cycle2, du2_nGDLDB | du2_nGDLDC); }
-# define DU_CYCLE_GDLDB { clrmask (& cpu.du.cycle2, du2_nGDLDB);               \
-                        setmask (& cpu.du.cycle2, du2_nGDLDA | du2_nGDLDC); }
-# define DU_CYCLE_GDLDC { clrmask (& cpu.du.cycle2, du2_nGDLDC);               \
-                        setmask (& cpu.du.cycle2, du2_nGDLDA | du2_nGDLDB); }
-# define DU_CYCLE_FA_I1     setmask (& cpu.du.cycle1, du1_FA_I1)
-# define DU_CYCLE_FA_I2     setmask (& cpu.du.cycle1, du1_FA_I2)
-# define DU_CYCLE_FA_I3     setmask (& cpu.du.cycle1, du1_FA_I3)
-# define DU_CYCLE_ANLD1     setmask (& cpu.du.cycle2, du2_ANLD1)
-# define DU_CYCLE_ANLD2     setmask (& cpu.du.cycle2, du2_ANLD2)
-# define DU_CYCLE_NLD1      setmask (& cpu.du.cycle2, du2_NLD1)
-# define DU_CYCLE_NLD2      setmask (& cpu.du.cycle2, du2_NLD2)
-# define DU_CYCLE_FRND      setmask (& cpu.du.cycle2, du2_FRND)
-# define DU_CYCLE_DGBD      setmask (& cpu.du.cycle2, du2_DGBD)
-# define DU_CYCLE_DGDB      setmask (& cpu.du.cycle2, du2_DGDB)
-# define DU_CYCLE_DDU_LDEA  clrmask (& cpu.du.cycle1, du1_nDDU_LDEA)
-# define DU_CYCLE_DDU_STEA  clrmask (& cpu.du.cycle1, du1_nDDU_STEA)
-# define DU_CYCLE_END       clrmask (& cpu.du.cycle1, du1_nEND)
-# define DU_CYCLE_LDWRT1    setmask (& cpu.du.cycle2, du2_LDWRT1)
-# define DU_CYCLE_LDWRT2    setmask (& cpu.du.cycle2, du2_LDWRT2)
-# define DU_CYCLE_FEXOP     setmask (& cpu.du.cycle2, du2_FEXOP)
-# define DU_CYCLE_ANSTR     setmask (& cpu.du.cycle2, du2_ANSTR)
-# define DU_CYCLE_GSTR      setmask (& cpu.du.cycle2, du2_GSTR)
-# define DU_CYCLE_FLEN_128  clrmask (& cpu.du.cycle2, du2_nFLEN_128)
-# define DU_CYCLE_FDUD  { cpu.du.cycle1 = \
-                      du1_nFPOL        | \
-                      du1_nFPOP        | \
-                      du1_nNEED_DESC   | \
-                      du1_nSEL_DIR     | \
-                      du1_nDLEN_DIRECT | \
-                      du1_nDFRST       | \
-                      du1_nFEXR        | \
-                      du1_nLAST_DFRST  | \
-                      du1_nDDU_LDEA    | \
-                      du1_nDDU_STEA    | \
-                      du1_nDREDO       | \
-                      du1_nDLVL_WD_SZ  | \
-                      du1_nEXH         | \
-                      du1_nEND         | \
-                      du1_nDU_RD_WRT   | \
-                      du1_nWRD         | \
-                      du1_nNINE        | \
-                      du1_nSIX         | \
-                      du1_nFOUR        | \
-                      du1_nBIT         | \
-                      du1_nINTRPTD     | \
-                      du1_nINHIB;        \
-                    cpu.du.cycle2 =      \
-                      du2_DUD          | \
-                      du2_nGDLDA       | \
-                      du2_nGDLDB       | \
-                      du2_nGDLDC       | \
-                      du2_nDATA_AVLDU  | \
-                      du2_nFEND_SEQ    | \
-                      du2_nFLEN_128;     \
-                  }
-# define DU_CYCLE_nDUD clrmask (& cpu.du.cycle2, du2_DUD)
+# define DU_CYCLE_GDLDA   { clrmask (& cpu.du.cycle2,  du2_nGDLDA); \
+                            setmask (& cpu.du.cycle2,  du2_nGDLDB | \
+                                                       du2_nGDLDC); }
+# define DU_CYCLE_GDLDB   { clrmask (& cpu.du.cycle2,  du2_nGDLDB); \
+                            setmask (& cpu.du.cycle2,  du2_nGDLDA | \
+                                                       du2_nGDLDC); }
+# define DU_CYCLE_GDLDC   { clrmask (& cpu.du.cycle2,  du2_nGDLDC); \
+                            setmask (& cpu.du.cycle2,  du2_nGDLDA | \
+                                                       du2_nGDLDB); }
+# define DU_CYCLE_FA_I1     setmask (& cpu.du.cycle1,  du1_FA_I1)
+# define DU_CYCLE_FA_I2     setmask (& cpu.du.cycle1,  du1_FA_I2)
+# define DU_CYCLE_FA_I3     setmask (& cpu.du.cycle1,  du1_FA_I3)
+# define DU_CYCLE_ANLD1     setmask (& cpu.du.cycle2,  du2_ANLD1)
+# define DU_CYCLE_ANLD2     setmask (& cpu.du.cycle2,  du2_ANLD2)
+# define DU_CYCLE_NLD1      setmask (& cpu.du.cycle2,  du2_NLD1)
+# define DU_CYCLE_NLD2      setmask (& cpu.du.cycle2,  du2_NLD2)
+# define DU_CYCLE_FRND      setmask (& cpu.du.cycle2,  du2_FRND)
+# define DU_CYCLE_DGBD      setmask (& cpu.du.cycle2,  du2_DGBD)
+# define DU_CYCLE_DGDB      setmask (& cpu.du.cycle2,  du2_DGDB)
+# define DU_CYCLE_DDU_LDEA  clrmask (& cpu.du.cycle1,  du1_nDDU_LDEA)
+# define DU_CYCLE_DDU_STEA  clrmask (& cpu.du.cycle1,  du1_nDDU_STEA)
+# define DU_CYCLE_END       clrmask (& cpu.du.cycle1,  du1_nEND)
+# define DU_CYCLE_LDWRT1    setmask (& cpu.du.cycle2,  du2_LDWRT1)
+# define DU_CYCLE_LDWRT2    setmask (& cpu.du.cycle2,  du2_LDWRT2)
+# define DU_CYCLE_FEXOP     setmask (& cpu.du.cycle2,  du2_FEXOP)
+# define DU_CYCLE_ANSTR     setmask (& cpu.du.cycle2,  du2_ANSTR)
+# define DU_CYCLE_GSTR      setmask (& cpu.du.cycle2,  du2_GSTR)
+# define DU_CYCLE_FLEN_128  clrmask (& cpu.du.cycle2,  du2_nFLEN_128)
+# define DU_CYCLE_FDUD               { cpu.du.cycle1 = du1_nFPOL        | \
+                                                       du1_nFPOP        | \
+                                                       du1_nNEED_DESC   | \
+                                                       du1_nSEL_DIR     | \
+                                                       du1_nDLEN_DIRECT | \
+                                                       du1_nDFRST       | \
+                                                       du1_nFEXR        | \
+                                                       du1_nLAST_DFRST  | \
+                                                       du1_nDDU_LDEA    | \
+                                                       du1_nDDU_STEA    | \
+                                                       du1_nDREDO       | \
+                                                       du1_nDLVL_WD_SZ  | \
+                                                       du1_nEXH         | \
+                                                       du1_nEND         | \
+                                                       du1_nDU_RD_WRT   | \
+                                                       du1_nWRD         | \
+                                                       du1_nNINE        | \
+                                                       du1_nSIX         | \
+                                                       du1_nFOUR        | \
+                                                       du1_nBIT         | \
+                                                       du1_nINTRPTD     | \
+                                                       du1_nINHIB;        \
+                                       cpu.du.cycle2 = du2_DUD          | \
+                                                       du2_nGDLDA       | \
+                                                       du2_nGDLDB       | \
+                                                       du2_nGDLDC       | \
+                                                       du2_nDATA_AVLDU  | \
+                                                       du2_nFEND_SEQ    | \
+                                                       du2_nFLEN_128; }
+# define DU_CYCLE_nDUD      clrmask (& cpu.du.cycle2,  du2_DUD)
 #endif
 
 #ifdef PANEL
@@ -1723,7 +1723,6 @@ typedef struct
     bool isXED;   // The instruction being executed is the target of an
                   // XEC instruction
 
-
     bool  isolts_switches_saved;
 
     word8    rE;     // exponent [map: rE, 28 0's]
@@ -1810,9 +1809,6 @@ typedef struct
         real_addr = addr;                                      \
       }
 #endif
-
-
-
 
 #ifdef PANEL
     // Intermediate data collection for APU SCROLL
@@ -1922,8 +1918,6 @@ typedef struct
 #define cptUseMR   14
 #define cptUseCMR  15
 #define cptUseIR   16
-
-
   } cpu_state_t;
 
 #ifdef M_SHARED
@@ -2134,7 +2128,7 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx);
  * For further details, see:
  *
  * AIX_ATOMICS:
- *  https://www.ibm.com/docs/en/aix/7.2?topic=services-atomic-operations
+ *  https://www.ibm.com/docs/en/aix/7.3?topic=services-atomic-operations
  *
  * BSD_ATOMICS:
  *  https://www.freebsd.org/cgi/man.cgi?query=atomic&sektion=9&format=html

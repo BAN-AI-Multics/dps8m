@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=132:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 563cbc3d-f631-11ec-a429-80ee73e9b8e7
  *
@@ -68,8 +69,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <getopt.h>
-
-#include "../dpsprintf/dpsprintf.h"
+#include <locale.h>
 
 /* ============================================================================================================================== */
 #define MAX(x, y)       ((x) > (y) ?  (x) : (y))
@@ -690,6 +690,7 @@ int main(int argc, char **argv) {
      * A second loop is used to process the remaining non-option
        arguments.
 */
+   setlocale(LC_NUMERIC, "");
 
    char *varname;
 

@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: d49ab489-f62e-11ec-9ac1-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -15,6 +17,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -543,8 +555,6 @@
 # include "threadz.h"
 #endif
 
-#include "../dpsprintf/dpsprintf.h"
-
 #define DBG_CTR 1
 
 scu_t scu [N_SCU_UNITS_MAX];
@@ -576,16 +586,16 @@ static UNIT scu_unit [N_SCU_UNITS_MAX] = {
 
 static struct config_switches
   {
-    uint mode; // program or manual
-    uint port_enable [N_SCU_PORTS];  // enable/disable
-    uint mask_enable [N_ASSIGNMENTS]; // enable/disable
+    uint mode;                            // program or manual
+    uint port_enable [N_SCU_PORTS];       // enable/disable
+    uint mask_enable [N_ASSIGNMENTS];     // enable/disable
     uint mask_assignment [N_ASSIGNMENTS]; // assigned port number
-    uint lower_store_size; // In K words, power of 2; 32 - 4096
-    uint cyclic; // 7 bits
-    uint nea; // 8 bits
-    uint onl; // 4 bits
-    uint interlace; // 1 bit
-    uint lwr; // 1 bit
+    uint lower_store_size;                // In K words, power of 2; 32 - 4096
+    uint cyclic;                          // 7 bits
+    uint nea;                             // 8 bits
+    uint onl;                             // 4 bits
+    uint interlace;                       // 1 bit
+    uint lwr;                             // 1 bit
   } config_switches [N_SCU_UNITS_MAX];
 
 enum { MODE_MANUAL = 0, MODE_PROGRAM = 1 };
@@ -658,17 +668,17 @@ static t_stat scu_show_state (UNUSED FILE * st, UNIT *uptr, UNUSED int val,
         sim_printf ("\n");
       }
     sim_printf("Lower store size: %d\n", scup -> lower_store_size);
-    sim_printf("Cyclic: %03o\n", scup -> cyclic);
-    sim_printf("NEA: %03o\n", scup -> nea);
-    sim_printf("Online: %02o\n", scup -> onl);
-    sim_printf("Interlace: %o\n", scup -> interlace);
-    sim_printf("Lower: %o\n", scup -> lwr);
-    sim_printf("ID: %o\n", scup -> id);
-    sim_printf("mode_reg: %06o\n", scup -> mode_reg);
-    sim_printf("Elapsed days: %d\n", scup -> elapsed_days);
-    sim_printf("Steady clock: %d\n", scup -> steady_clock);
-    sim_printf("Bullet time: %d\n", scup -> bullet_time);
-    sim_printf("Y2K enabled: %d\n", scup -> y2k);
+    sim_printf("Cyclic: %03o\n",         scup -> cyclic);
+    sim_printf("NEA: %03o\n",            scup -> nea);
+    sim_printf("Online: %02o\n",         scup -> onl);
+    sim_printf("Interlace: %o\n",        scup -> interlace);
+    sim_printf("Lower: %o\n",            scup -> lwr);
+    sim_printf("ID: %o\n",               scup -> id);
+    sim_printf("mode_reg: %06o\n",       scup -> mode_reg);
+    sim_printf("Elapsed days: %d\n",     scup -> elapsed_days);
+    sim_printf("Steady clock: %d\n",     scup -> steady_clock);
+    sim_printf("Bullet time: %d\n",      scup -> bullet_time);
+    sim_printf("Y2K enabled: %d\n",      scup -> y2k);
     return SCPE_OK;
   }
 
@@ -715,7 +725,7 @@ static t_stat scu_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
                     'A' + i,
                     sw->mask_enable[i] ? (map[sw->mask_assignment[i]]) : "Off");
       }
-    sim_printf ("Lower Store Size:           %o\n", sw -> lower_store_size);
+    sim_printf ("Lower Store Size:           %o\n",   sw -> lower_store_size);
     sim_printf ("Cyclic:                     %03o\n", sw -> cyclic);
     sim_printf ("Non-existent address:       %03o\n", sw -> nea);
 
@@ -747,86 +757,86 @@ static t_stat scu_show_config (UNUSED FILE * st, UNUSED UNIT * uptr,
 
 static config_value_list_t cfg_mode_list [] =
   {
-    { "manual", 0 },
+    { "manual",  0 },
     { "program", 1 },
-    { NULL, 0 }
+    { NULL,      0 }
   };
 
 static config_value_list_t cfg_mask_list [] =
   {
     { "off", -1 },
-    { NULL, 0 }
+    { NULL,  0 }
   };
 
 static config_value_list_t cfg_able_list [] =
   {
     { "disable", 0 },
-    { "enable", 1 },
-    { NULL, 0 }
+    { "enable",  1 },
+    { NULL,      0 }
   };
 
 static config_value_list_t cfg_size_list [] =
   {
-    { "32", 0 },
-    { "64", 1 },
-    { "128", 2 },
-    { "256", 3 },
-    { "512", 4 },
-    { "1024", 5 },
-    { "2048", 6 },
-    { "4096", 7 },
-    { "32K", 0 },
-    { "64K", 1 },
-    { "128K", 2 },
-    { "256K", 3 },
-    { "512K", 4 },
+    { "32",    0 },
+    { "64",    1 },
+    { "128",   2 },
+    { "256",   3 },
+    { "512",   4 },
+    { "1024",  5 },
+    { "2048",  6 },
+    { "4096",  7 },
+    { "32K",   0 },
+    { "64K",   1 },
+    { "128K",  2 },
+    { "256K",  3 },
+    { "512K",  4 },
     { "1024K", 5 },
     { "2048K", 6 },
     { "4096K", 7 },
-    { "1M", 5 },
-    { "2M", 6 },
-    { "4M", 7 },
-    { NULL, 0 }
+    { "1M",    5 },
+    { "2M",    6 },
+    { "4M",    7 },
+    { NULL,    0 }
   };
 
 static config_value_list_t cfg_on_off [] =
   {
-    { "off", 0 },
-    { "on", 1 },
+    { "off",     0 },
+    { "on",      1 },
     { "disable", 0 },
-    { "enable", 1 },
-    { NULL, 0 }
+    { "enable",  1 },
+    { NULL,      0 }
   };
 
 static config_list_t scu_config_list [] =
   {
-    /*  0 */ { "mode", 1, 0, cfg_mode_list },
-    /*  1 */ { "maska", 0, N_SCU_PORTS - 1, cfg_mask_list },
-    /*  2 */ { "maskb", 0, N_SCU_PORTS - 1, cfg_mask_list },
-    /*  3 */ { "port0", 1, 0, cfg_able_list },
-    /*  4 */ { "port1", 1, 0, cfg_able_list },
-    /*  5 */ { "port2", 1, 0, cfg_able_list },
-    /*  6 */ { "port3", 1, 0, cfg_able_list },
-    /*  7 */ { "port4", 1, 0, cfg_able_list },
-    /*  8 */ { "port5", 1, 0, cfg_able_list },
-    /*  9 */ { "port6", 1, 0, cfg_able_list },
-    /* 10 */ { "port7", 1, 0, cfg_able_list },
-    /* 11 */ { "lwrstoresize", 0, 7, cfg_size_list },
-    /* 12 */ { "cyclic", 0, 0177, NULL },
-    /* 13 */ { "nea", 0, 0377, NULL },
-               // mask: 8 a_online, 4 a1_online, 2 b_online, 1, b1_online
-    /* 14 */ { "onl", 0, 017, NULL },
-    /* 15 */ { "int", 0, 1, NULL },
-    /* 16 */ { "lwr", 0, 1, NULL },
+    /*  0 */ { "mode",         1, 0,               cfg_mode_list },
+    /*  1 */ { "maska",        0, N_SCU_PORTS - 1, cfg_mask_list },
+    /*  2 */ { "maskb",        0, N_SCU_PORTS - 1, cfg_mask_list },
+    /*  3 */ { "port0",        1, 0,               cfg_able_list },
+    /*  4 */ { "port1",        1, 0,               cfg_able_list },
+    /*  5 */ { "port2",        1, 0,               cfg_able_list },
+    /*  6 */ { "port3",        1, 0,               cfg_able_list },
+    /*  7 */ { "port4",        1, 0,               cfg_able_list },
+    /*  8 */ { "port5",        1, 0,               cfg_able_list },
+    /*  9 */ { "port6",        1, 0,               cfg_able_list },
+    /* 10 */ { "port7",        1, 0,               cfg_able_list },
+    /* 11 */ { "lwrstoresize", 0, 7,               cfg_size_list },
+    /* 12 */ { "cyclic",       0, 0177,            NULL },
+    /* 13 */ { "nea",          0, 0377,            NULL },
+    // mask: 8 a_online, 4 a1_online, 2 b_online, 1, b1_online
+    /* 14 */ { "onl",          0, 017,             NULL },
+    /* 15 */ { "int",          0, 1,               NULL },
+    /* 16 */ { "lwr",          0, 1,               NULL },
 
     // Hacks
 
-    /* 17 */ { "elapsed_days", 0, 20000, NULL },
-    /* 18 */ { "steady_clock", 0, 1, cfg_on_off },
-    /* 19 */ { "bullet_time", 0, 1, cfg_on_off },
-    /* 20 */ { "y2k", 0, 1, cfg_on_off },
+    /* 17 */ { "elapsed_days", 0, 20000,           NULL },
+    /* 18 */ { "steady_clock", 0, 1,               cfg_on_off },
+    /* 19 */ { "bullet_time",  0, 1,               cfg_on_off },
+    /* 20 */ { "y2k",          0, 1,               cfg_on_off },
 
-    { NULL, 0, 0, NULL }
+             { NULL,           0, 0,               NULL }
   };
 
 static t_stat scu_set_config (UNIT * uptr, UNUSED int32 value,
@@ -934,44 +944,48 @@ static t_stat scu_set_config (UNIT * uptr, UNUSED int32 value,
 static MTAB scu_mod [] =
   {
     {
-      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      (char *) "CONFIG",     /* print string */
-      (char *) "CONFIG",         /* match string */
-      scu_set_config,         /* validation routine */
-      scu_show_config, /* display routine */
-      NULL,          /* value descriptor */
-      NULL /* help */
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_NMO | MTAB_VALR,                          /* Mask               */
+      0,                                             /* Match              */
+      (char *) "CONFIG",                             /* Print string       */
+      (char *) "CONFIG",                             /* Match string       */
+      scu_set_config,                                /* Validation routine */
+      scu_show_config,                               /* Display routine    */
+      NULL,                                          /* Value descriptor   */
+      NULL                                           /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      (char *) "NUNITS",     /* print string */
-      (char *) "NUNITS",         /* match string */
-      scu_set_nunits, /* validation routine */
-      scu_show_nunits, /* display routine */
-      (char *) "Number of SCU units in the system", /* value descriptor */
-      NULL /* help */
+      MTAB_XTD | MTAB_VDV | \
+      MTAB_NMO | MTAB_VALR,                          /* Mask               */
+      0,                                             /* Match              */
+      (char *) "NUNITS",                             /* Print string       */
+      (char *) "NUNITS",                             /* Match string       */
+      scu_set_nunits,                                /* Validation routine */
+      scu_show_nunits,                               /* Display routine    */
+      (char *) "Number of SCU units in the system",  /* Value descriptor   */
+      NULL                                           /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      (char *) "STATE",     /* print string */
-      (char *) "STATE",         /* match string */
-      NULL, /* validation routine */
-      scu_show_state, /* display routine */
-      (char *) "SCU unit internal state", /* value descriptor */
-      NULL /* help */
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_NMO | MTAB_VALR,                          /* Mask               */
+      0,                                             /* Match              */
+      (char *) "STATE",                              /* Print string       */
+      (char *) "STATE",                              /* Match string       */
+      NULL,                                          /* Validation routine */
+      scu_show_state,                                /* Display routine    */
+      (char *) "SCU unit internal state",            /* Value descriptor   */
+      NULL                                           /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      (char *) "RESET",     /* print string */
-      (char *) "RESET",         /* match string */
-      scu_reset_unit, /* validation routine */
-      NULL, /* display routine */
-      (char *) "reset SCU unit", /* value descriptor */
-      NULL /* help */
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_NMO | MTAB_VALR,                          /* Mask               */
+      0,                                             /* Match              */
+      (char *) "RESET",                              /* Print string       */
+      (char *) "RESET",                              /* Match string       */
+      scu_reset_unit,                                /* Validation routine */
+      NULL,                                          /* Display routine    */
+      (char *) "reset SCU unit",                     /* Value descriptor   */
+      NULL                                           /* Help               */
     },
     {
       0, 0, NULL, NULL, NULL, NULL, NULL, NULL
@@ -982,47 +996,47 @@ static MTAB scu_mod [] =
 
 static DEBTAB scu_dt [] =
   {
-    { (char *) "TRACE",  DBG_TRACE, NULL },
+    { (char *) "TRACE",  DBG_TRACE,  NULL },
     { (char *) "NOTIFY", DBG_NOTIFY, NULL },
-    { (char *) "INFO",   DBG_INFO, NULL },
-    { (char *) "ERR",    DBG_ERR, NULL },
-    { (char *) "WARN",   DBG_WARN, NULL },
-    { (char *) "DEBUG",  DBG_DEBUG, NULL },
-    { (char *) "INTR",   DBG_INTR, NULL        },
-    // don't move as it messes up DBG message
-    { (char *) "ALL",    DBG_ALL, NULL },
-    { NULL, 0, NULL }
+    { (char *) "INFO",   DBG_INFO,   NULL },
+    { (char *) "ERR",    DBG_ERR,    NULL },
+    { (char *) "WARN",   DBG_WARN,   NULL },
+    { (char *) "DEBUG",  DBG_DEBUG,  NULL },
+    { (char *) "INTR",   DBG_INTR,   NULL },
+    // don't move as it messes up DBG messages
+    { (char *) "ALL",    DBG_ALL,    NULL },
+    {  NULL,             0,          NULL }
   };
 
 DEVICE scu_dev =
   {
-    (char *) "SCU",  /* name */
-    scu_unit,        /* units */
-    NULL,            /* registers */
-    scu_mod,         /* modifiers */
-    N_SCU_UNITS,     /* #units */
-    10,              /* address radix */
-    8,               /* address width */
-    1,               /* address increment */
-    8,               /* data radix */
-    8,               /* data width */
-    NULL,            /* examine routine */
-    NULL,            /* deposit routine */
-    & scu_reset,     /* reset routine */
-    NULL,            /* boot routine */
-    NULL,            /* attach routine */
-    NULL,            /* detach routine */
-    NULL,            /* context */
-    DEV_DEBUG,       /* flags */
-    0,               /* debug control flags */
-    scu_dt,          /* debug flag names */
-    NULL,            /* memory size change */
-    NULL,            /* logical name */
-    NULL,            /* help */
-    NULL,            /* attach_help */
-    NULL,            /* help_ctx */
-    NULL,            /* description */
-    NULL
+    (char *) "SCU",  /* Name                */
+    scu_unit,        /* Units               */
+    NULL,            /* Registers           */
+    scu_mod,         /* Modifiers           */
+    N_SCU_UNITS,     /* #Units              */
+    10,              /* Address radix       */
+    8,               /* Address width       */
+    1,               /* Address increment   */
+    8,               /* Data radix          */
+    8,               /* Data width          */
+    NULL,            /* Examine routine     */
+    NULL,            /* Deposit routine     */
+    & scu_reset,     /* Reset routine       */
+    NULL,            /* Boot routine        */
+    NULL,            /* Attach routine      */
+    NULL,            /* Detach routine      */
+    NULL,            /* Context             */
+    DEV_DEBUG,       /* Flags               */
+    0,               /* Debug control flags */
+    scu_dt,          /* Debug flag names    */
+    NULL,            /* Memory size change  */
+    NULL,            /* Logical name        */
+    NULL,            /* Help                */
+    NULL,            /* Attach_help         */
+    NULL,            /* Help_ctx            */
+    NULL,            /* Description         */
+    NULL             /* End                 */
   };
 
 static void dump_intr_regs (char * ctx, uint scu_unit_idx)
@@ -1098,15 +1112,15 @@ void scu_unit_reset (int scu_unit_idx)
 
     for (int i = 0; i < N_ASSIGNMENTS; i ++)
       {
-        up -> mask_enable [i] = sw -> mask_enable [i];
+        up -> mask_enable [i]     = sw -> mask_enable [i];
         up -> mask_assignment [i] = sw -> mask_assignment [i];
       }
     up -> lower_store_size = sw -> lower_store_size;
-    up -> cyclic = sw -> cyclic;
-    up -> nea = sw -> nea;
-    up -> onl = sw -> onl;
-    up -> interlace = sw -> interlace;
-    up -> lwr = sw -> lwr;
+    up -> cyclic           = sw -> cyclic;
+    up -> nea              = sw -> nea;
+    up -> onl              = sw -> onl;
+    up -> interlace        = sw -> interlace;
+    up -> lwr              = sw -> lwr;
 
 // This is to allow the CPU reset to update the memory map. IAC clears the
 // attached SCUs; they clear the attached IOMs.
@@ -1173,9 +1187,9 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
 
         //big += scu [0].elapsed_days * 1000000llu * 60llu * 60llu * 24llu;
         uint128 days = construct_128 (0, scu[0].elapsed_days);
-        days = multiply_128 (days, construct_128 (0, 1000000));
-        days = multiply_128 (days, construct_128 (0, 60 * 60 * 24));
-        big = add_128 (big, days);
+        days         = multiply_128 (days, construct_128 (0, 1000000));
+        days         = multiply_128 (days, construct_128 (0, 60 * 60 * 24));
+        big          = add_128 (big, days);
 #else
         __uint128_t big = cpu.instrCnt;
         // Sync up the clock and the TR; see wiki page "CAC 08-Oct-2014"
@@ -1191,7 +1205,7 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
 
 // load_fnp is complaining that FNP core image is more than 5 years old; try
 // moving the 'boot time' back to MR12.3 release date. (12/89 according to
-// http://www.multicians.org/chrono.html
+// https://www.multicians.org/chrono.html
 
         // date -d "1990-01-01 00:00:00 -9" +%s
         // 631184400
@@ -1240,7 +1254,7 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
     if (scu [0].y2k) // subtract 20 years....
       {
         // Back the clock up to just after the MR12.3 release (12/89
-        // according to http://www.multicians.org/chrono.html
+        // according to https://www.multicians.org/chrono.html
 
         // ticks at MR12.3 release
         // date -d "1990-01-01 00:00:00 -9" +%s
@@ -1289,8 +1303,8 @@ static uint64 set_SCU_clock (uint scu_unit_idx)
     static uint64 last_UNIX_usecs = 0;
     if (UNIX_usecs < last_UNIX_usecs)
       {
-        sim_warn ("gettimeofday() went backwards %"PRIu64" uS\n",
-                  last_UNIX_usecs - UNIX_usecs);
+        sim_warn ("gettimeofday() went backwards %llu uS\n",
+                  (unsigned long long)(last_UNIX_usecs - UNIX_usecs));
       }
     last_UNIX_usecs = UNIX_usecs;
 
@@ -1360,10 +1374,10 @@ static void deliver_interrupts (uint scu_unit_idx)
     for (uint jnum = 0; jnum < N_CELL_INTERRUPTS; jnum ++)
       {
         static const uint reorder[N_CELL_INTERRUPTS] = {
-            0,  1,  2,  3,  4,  5,  6,  7,
+           0,  1,  2,  3,  4,  5,  6,  7,
           16, 17, 18, 29, 20, 21, 22, 23,
-            8,  9, 10, 11, 12, 13, 14, 15,
-          25, 25, 26, 27, 28,29, 30, 31 };
+           8,  9, 10, 11, 12, 13, 14, 15,
+          25, 25, 26, 27, 28, 29, 30, 31 };
         uint inum = reorder[jnum];
         if (! scu [scu_unit_idx].cells [inum])
           continue; //
@@ -1691,19 +1705,19 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
             //if (up -> lower_store_size != ((rega >> 24) & 07))
               //sim_printf ("??? The CPU tried to change the SCU store size\n");
             up -> lower_store_size = (rega >> 24) & 07;
-            up -> cyclic = (regq >> 8) & 0177;
-            up -> nea = (rega >> 6) & 0377;
-            up -> onl = (rega >> 20) & 017;
-            up -> interlace = (rega >> 5) & 1;
-            up -> lwr = (rega >> 4) & 1;
-            up -> port_enable [0] = (rega >> 3) & 01;
-            up -> port_enable [1] = (rega >> 2) & 01;
-            up -> port_enable [2] = (rega >> 1) & 01;
-            up -> port_enable [3] = (rega >> 0) & 01;
-            up -> port_enable [4] = (regq >> 3) & 01;
-            up -> port_enable [5] = (regq >> 2) & 01;
-            up -> port_enable [6] = (regq >> 1) & 01;
-            up -> port_enable [7] = (regq >> 0) & 01;
+            up -> cyclic           = (regq >> 8) & 0177;
+            up -> nea              = (rega >> 6) & 0377;
+            up -> onl              = (rega >> 20) & 017;
+            up -> interlace        = (rega >> 5) & 1;
+            up -> lwr              = (rega >> 4) & 1;
+            up -> port_enable [0]  = (rega >> 3) & 01;
+            up -> port_enable [1]  = (rega >> 2) & 01;
+            up -> port_enable [2]  = (rega >> 1) & 01;
+            up -> port_enable [3]  = (rega >> 0) & 01;
+            up -> port_enable [4]  = (regq >> 3) & 01;
+            up -> port_enable [5]  = (regq >> 2) & 01;
+            up -> port_enable [6]  = (regq >> 1) & 01;
+            up -> port_enable [7]  = (regq >> 0) & 01;
 
 #if defined(THREADZ) || defined(LOCKLESS)
             unlock_scu ();
@@ -1834,8 +1848,8 @@ t_stat scu_sscr (uint scu_unit_idx, UNUSED uint cpu_unit_udx,
         case 00005:
           {
             // AQ: 20-35 clock bits 0-15, 36-71 clock bits 16-51
-            word16 b0_15 = (word16) getbits36_16 (cpu.rA, 20);
-            word36 b16_51 = cpu.rQ;
+            word16 b0_15   = (word16) getbits36_16 (cpu.rA, 20);
+            word36 b16_51  = cpu.rQ;
             uint64 new_clk = (((uint64) b0_15) << 36) | b16_51;
 #if defined(THREADZ) || defined(LOCKLESS)
             lock_scu ();
@@ -2108,7 +2122,7 @@ gotit:;
         case 00005:
           {
             uint64 clk = set_SCU_clock (scu_unit_idx);
-            cpu.rQ =  clk & 0777777777777;     // lower 36-bits of clock
+            cpu.rQ =  clk  & 0777777777777;    // lower 36-bits of clock
             cpu.rA = (clk >> 36) & 0177777;    // upper 16-bits of clock
 #ifdef TESTING
             HDBGRegAW ("rscr get clock");
@@ -2457,21 +2471,21 @@ void scu_init (void)
           {
             for (int s = 0; s < N_SCU_SUBPORTS; s ++)
               {
-                scu[u].ports[p].dev_port[s] = -1;
+                scu[u].ports[p].dev_port[s]        = -1;
                 scu[u].ports[p].subport_enables[s] = false;
-                scu[u].ports[p].xipmask[s] = false;
+                scu[u].ports[p].xipmask[s]         = false;
                 // Invalid value for detecting uninitialized XIP mask.
-                scu[u].ports[p].xipmaskval = N_SCU_SUBPORTS;
+                scu[u].ports[p].xipmaskval         = N_SCU_SUBPORTS;
               }
-            scu[u].ports[p].type = ADEV_NONE;
+            scu[u].ports[p].type   = ADEV_NONE;
             scu[u].ports[p].is_exp = false;
           }
 
         //  ID: 0000  8034, 8035
         //      0001  Level 68 SC
         //      0010  Level 66 SCU
-        scu [u].id = 02l; // 0b0010
-        scu [u].mode_reg = 0; // used by T&D
+        scu [u].id           = 02l; // 0b0010
+        scu [u].mode_reg     = 0;   // used by T&D
         scu [u].elapsed_days = 0;
       }
 
@@ -2551,17 +2565,17 @@ gotit:;
 
     * rega = 0;
     putbits36_16 (rega,  0, (mask_contents >> 16) & MASK16);
-    putbits36_1 (rega, 32,  (word1) up -> port_enable [0]);
-    putbits36_1 (rega, 33,  (word1) up -> port_enable [1]);
-    putbits36_1 (rega, 34,  (word1) up -> port_enable [2]);
-    putbits36_1 (rega, 35,  (word1) up -> port_enable [3]);
+    putbits36_1  (rega, 32,  (word1) up -> port_enable [0]);
+    putbits36_1  (rega, 33,  (word1) up -> port_enable [1]);
+    putbits36_1  (rega, 34,  (word1) up -> port_enable [2]);
+    putbits36_1  (rega, 35,  (word1) up -> port_enable [3]);
 
     * regq = 0;
     putbits36_16 (regq,  0, (mask_contents >>  0) & MASK16);
-    putbits36_1 (regq, 32,  (word1) up -> port_enable [4]);
-    putbits36_1 (regq, 33,  (word1) up -> port_enable [5]);
-    putbits36_1 (regq, 34,  (word1) up -> port_enable [6]);
-    putbits36_1 (regq, 35,  (word1) up -> port_enable [7]);
+    putbits36_1  (regq, 32,  (word1) up -> port_enable [4]);
+    putbits36_1  (regq, 33,  (word1) up -> port_enable [5]);
+    putbits36_1  (regq, 34,  (word1) up -> port_enable [6]);
+    putbits36_1  (regq, 35,  (word1) up -> port_enable [7]);
 
 #if defined(THREADZ) || defined(LOCKLESS)
     unlock_scu ();

@@ -1,5 +1,6 @@
 # DPS8M simulator: GNUmakefile
-# vim: filetype=make:tabstop=4:tw=78:noexpandtab
+# vim: nocp:filetype=make:tabstop=4:tw=78:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=78
 # SPDX-License-Identifier: ICU
 # scspell-id: bfdf848e-f631-11ec-9b72-80ee73e9b8e7
 
@@ -33,7 +34,6 @@
 #   NO_LOCKLESS=1                       Enable legacy (non-lockless) code
 #        NO_LTO=1                       Disables the use of LTO for build
 #   ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
-#     OS_PRINTF=1                       Enable standard *printf functions
 #       TESTING=1                       Enable developmental testing mode
 #          DUMA=1                       Enable the libDUMA malloc library
 #             V=1                       Enable verbose compilation output
@@ -79,7 +79,7 @@ build default all dps8: .rebuild.env                                         \
       2> /dev/null || $(TRUE)
 	@$(SETV); $(MAKE) -s -C "." ".rebuild.env";                              \
       $(TEST) -f ".needrebuild" && $(MAKE) -C "." "clean" || $(TRUE);        \
-        $(MAKE) -C "src/dpsprintf"; $(MAKE) -C "src/dps8" "all" &&           \
+        $(MAKE) -C "src/dps8" "all" &&                                       \
           $(PRINTF) '%s\n' "BUILD: Successful simulator and tools build"     \
             2> /dev/null || $(TRUE)
 
@@ -339,7 +339,7 @@ distclean: clean                                                             \
 	@$(RMF)   -rf "./cppcheck"                 || $(TRUE)
 	@$(RMF)   "./"*".xml"                      || $(TRUE)
 	@$(RMDIR) "./.cppbdir"  > /dev/null  2>&1  || $(TRUE)
-	@$(MAKE)  -C "src/dps8" "distclean" &&                                    \
+	@$(MAKE)  -C "src/dps8" "distclean" &&                                   \
       $(PRINTF) '%s\n' "BUILD: Successful distclean" 2> /dev/null || $(TRUE)
 
 ##############################################################################
@@ -362,7 +362,7 @@ ifneq (,$(wildcard src/Makefile.env))
 endif
 
 ###############################################################################
-# Help and Debugging Targets                                                  \
+# Help and Debugging Targets                                                 \
     # XXXX:    # --------------------- Help and Debugging -------------------
 ###############################################################################
 

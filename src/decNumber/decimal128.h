@@ -1,4 +1,5 @@
 // vim: filetype=c:tabstop=4:tw=72:expandtab
+// vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
 // SPDX-License-Identifier: ICU
 // scspell-id: b69cc81e-f62c-11ec-a05b-80ee73e9b8e7
 /* ------------------------------------------------------------------ */

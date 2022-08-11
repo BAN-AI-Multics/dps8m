@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: ae1c781a-f62e-11ec-bd2e-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -18,6 +20,16 @@
  * LICENSE.md file at the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
  */
 
 #include <stdio.h>
@@ -33,8 +45,6 @@
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
 #include "dps8_mt.h"
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 
@@ -714,88 +724,95 @@ static t_stat tape_set_ready (UNIT * uptr, UNUSED int32 value,
 static MTAB mt_mod [] =
   {
 #ifndef SPEED
-    { UNIT_WATCH, UNIT_WATCH, "WATCH", "WATCH", NULL, NULL, NULL, NULL },
-    { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", NULL, NULL, NULL, NULL },
+    { UNIT_WATCH, UNIT_WATCH, "WATCH",   "WATCH",   NULL, NULL, NULL, NULL },
+    { UNIT_WATCH, 0,          "NOWATCH", "NOWATCH", NULL, NULL, NULL, NULL },
 #endif
     {
-       MTAB_XTD | MTAB_VUN | MTAB_NC, /* mask */
-      0,            /* match */
-      NULL,         /* print string */
-      "REWIND",     /* match string */
-      mt_rewind,    /* validation routine */
-      NULL,         /* display routine */
-      NULL,         /* value descriptor */
-      NULL          // help
+       MTAB_XTD | MTAB_VUN | \
+       MTAB_NC,                                  /* Mask               */
+      0,                                         /* Match              */
+      NULL,                                      /* Print string       */
+      "REWIND",                                  /* Match string       */
+      mt_rewind,                                 /* Validation routine */
+      NULL,                                      /* Display routine    */
+      NULL,                                      /* Value descriptor   */
+      NULL                                       /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      mt_set_nunits, /* validation routine */
-      mt_show_nunits, /* display routine */
-      "Number of TAPE units in the system", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VDV | \
+      MTAB_NMO | MTAB_VALR,                      /* Mask               */
+      0,                                         /* Match              */
+      "NUNITS",                                  /* Print string       */
+      "NUNITS",                                  /* Match string       */
+      mt_set_nunits,                             /* Validation routine */
+      mt_show_nunits,                            /* Display routine    */
+      "Number of TAPE units in the system",      /* Value descriptor   */
+      NULL                                       /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      mt_set_device_name, /* validation routine */
-      mt_show_device_name, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_VALR | MTAB_NC,                       /* Mask               */
+      0,                                         /* Match              */
+      "NAME",                                    /* Print string       */
+      "NAME",                                    /* Match string       */
+      mt_set_device_name,                        /* Validation routine */
+      mt_show_device_name,                       /* Display routine    */
+      "Set the device name",                     /* Value descriptor   */
+      NULL                                       /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "DEFAULT_PATH",     /* print string */
-      "DEFAULT_PATH",         /* match string */
-      mt_set_tape_path, /* validation routine */
-      mt_show_tape_path, /* display routine */
-      "Set the default path to the directory containing tape images (also clear search paths)", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | \
+      MTAB_VALR | MTAB_NC,                       /* Mask               */
+      0,                                         /* Match              */
+      "DEFAULT_PATH",                            /* Print string       */
+      "DEFAULT_PATH",                            /* Match string       */
+      mt_set_tape_path,                          /* Validation routine */
+      mt_show_tape_path,                         /* Display routine    */
+      "Set the default path to the directory containing tape images (also clear search paths)",
+      NULL
     },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "ADD_PATH",     /* print string */
-      "ADD_PATH",         /* match string */
-      mt_add_tape_search_path, /* validation routine */
-      mt_show_tape_search_paths, /* display routine */
-      "Add a search path for tape directories", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | \
+      MTAB_VALR | MTAB_NC,                       /* Mask               */
+      0,                                         /* Match              */
+      "ADD_PATH",                                /* Print string       */
+      "ADD_PATH",                                /* Match string       */
+      mt_add_tape_search_path,                   /* Validation routine */
+      mt_show_tape_search_paths,                 /* Display routine    */
+      "Add a search path for tape directories",  /* Value descriptor   */
+      NULL                                       /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN, /* mask */
-      0,            /* match */
-      "CAPACITY",     /* print string */
-      "CAPACITY",         /* match string */
-      sim_tape_set_capac, /* validation routine */
-      sim_tape_show_capac, /* display routine */
-      "Set the device capacity", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN,                       /* Mask               */
+      0,                                         /* Match              */
+      "CAPACITY",                                /* Print string       */
+      "CAPACITY",                                /* Match string       */
+      sim_tape_set_capac,                        /* Validation routine */
+      sim_tape_show_capac,                       /* Display routine    */
+      "Set the device capacity",                 /* Value descriptor   */
+      NULL                                       /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "CAPACITY_ALL",     /* print string */
-      "CAPACITY_ALL",         /* match string */
-      mt_set_capac, /* validation routine */
-      NULL, /* display routine */
-      "Set the tape capacity of all drives", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VDV | \
+      MTAB_NMO | MTAB_VALR,                      /* Mask               */
+      0,                                         /* Match              */
+      "CAPACITY_ALL",                            /* Print string       */
+      "CAPACITY_ALL",                            /* Match string       */
+      mt_set_capac,                              /* Validation routine */
+      NULL,                                      /* Display routine    */
+      "Set the tape capacity of all drives",     /* Value descriptor   */
+      NULL                                       /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "READY",     /* print string */
-      "READY",         /* match string */
-      tape_set_ready,         /* validation routine */
-      NULL, /* display routine */
-      NULL,          /* value descriptor */
-      NULL   // help string
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_NMO | MTAB_VALR,                      /* Mask               */
+      0,                                         /* Match              */
+      "READY",                                   /* Print string       */
+      "READY",                                   /* Match string       */
+      tape_set_ready,                            /* Validation routine */
+      NULL,                                      /* Display routine    */
+      NULL,                                      /* Value descriptor   */
+      NULL                                       /* Help string        */
     },
     { 0, 0, NULL, NULL, NULL, NULL, NULL, NULL }
   };
@@ -812,33 +829,33 @@ static t_stat mt_reset (DEVICE * dptr)
 
 DEVICE tape_dev =
   {
-    "TAPE",           /* name */
-    mt_unit,          /* units */
-    NULL,             /* registers */
-    mt_mod,           /* modifiers */
-    N_MT_UNITS,       /* #units */
-    10,               /* address radix */
-    31,               /* address width */
-    1,                /* address increment */
-    8,                /* data radix */
-    9,                /* data width */
-    NULL,             /* examine routine */
-    NULL,             /* deposit routine */
-    mt_reset,         /* reset routine */
-    NULL,             /* boot routine */
-    &sim_tape_attach, /* attach routine */
-    &sim_tape_detach, /* detach routine */
-    NULL,             /* context */
-    DEV_DEBUG,        /* flags */
-    0,                /* debug control flags */
-    mt_dt,            /* debug flag names */
-    NULL,             /* memory size change */
-    NULL,             /* logical name */
-    NULL,             // attach help
-    NULL,             // help
-    NULL,             // help context
-    NULL,             // device description
-    NULL
+    "TAPE",            /* Name                */
+    mt_unit,           /* Units               */
+    NULL,              /* Registers           */
+    mt_mod,            /* Modifiers           */
+    N_MT_UNITS,        /* #Units              */
+    10,                /* Address radix       */
+    31,                /* Address width       */
+    1,                 /* Address increment   */
+    8,                 /* Data radix          */
+    9,                 /* Data width          */
+    NULL,              /* Examine routine     */
+    NULL,              /* Deposit routine     */
+    mt_reset,          /* Reset routine       */
+    NULL,              /* Boot routine        */
+    &sim_tape_attach,  /* Attach routine      */
+    &sim_tape_detach,  /* Detach routine      */
+    NULL,              /* Context             */
+    DEV_DEBUG,         /* Flags               */
+    0,                 /* Debug control flags */
+    mt_dt,             /* Debug flag names    */
+    NULL,              /* Memory size change  */
+    NULL,              /* Logical name        */
+    NULL,              /* Attach help         */
+    NULL,              /* Help                */
+    NULL,              /* Help context        */
+    NULL,              /* Device description  */
+    NULL               /* End                 */
   };
 
 static void deterimeFullTapeFileName(char * tapeFileName, char * buffer, int bufferLength)
@@ -872,7 +889,8 @@ static void deterimeFullTapeFileName(char * tapeFileName, char * buffer, int buf
     // Verify we won't overrun the output buffer
     if ((size_t) bufferLength < (strlen(selected_path) + strlen(tapeFileName) + 1))
       {
-          // Bad news, we are going to overrun the buffer so we just use as much of the tape file name as we can
+          // Bad news, we are going to overrun the buffer so
+          // we just use as much of the tape file name as we can
           strncpy(buffer, tapeFileName, (unsigned long)bufferLength);
           buffer[bufferLength - 1] = 0;
           return;
@@ -962,7 +980,8 @@ static iom_cmd_rc_t mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
       }
     t_stat rc = sim_tape_rdrecf (unitp, & tape_statep -> buf [0], & tape_statep -> tbc,
                                BUFSZ);
-    sim_debug (DBG_DEBUG, & tape_dev, "%s: sim_tape_rdrecf returned %d, with tbc %d\n", __func__, rc, tape_statep -> tbc);
+    sim_debug (DBG_DEBUG, & tape_dev, "%s: sim_tape_rdrecf returned %d, with tbc %d\n",
+            __func__, rc, tape_statep -> tbc);
     if (rc == MTSE_TMK)
        {
          tape_statep -> rec_num ++;
@@ -982,7 +1001,7 @@ static iom_cmd_rc_t mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
       {
         sim_debug (DBG_NOTIFY, & tape_dev,
                     "%s: EOM: %s\n", __func__, simh_tape_msg (rc));
-// If the tape is blank, a read should result in '4302' blank tape on read.
+        // If the tape is blank, a read should result in '4302' blank tape on read.
         if (sim_tape_bot (unitp))
           p -> stati = 04302; // blank tape on read
         else
@@ -1005,7 +1024,7 @@ static iom_cmd_rc_t mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
         sim_debug (DBG_ERR, & tape_dev,
                    "%s: Returning arbitrary error code\n",
                    __func__);
-        p -> stati = 05001; // BUG: arbitrary error code; config switch
+        p -> stati      = 05001; // BUG: arbitrary error code; config switch
         p -> chanStatus = chanStatParityErrPeriph;
         return IOM_CMD_ERROR;
       }
@@ -1037,9 +1056,11 @@ static iom_cmd_rc_t mtReadRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
     for (i = 0; i < tally; i ++)
       {
         if (tape_statep -> is9)
-          rc2 = extractASCII36FromBuffer (tape_statep -> buf, tape_statep -> tbc, & tape_statep -> words_processed, buffer + i);
+          rc2 = extractASCII36FromBuffer (tape_statep -> buf,
+                  tape_statep -> tbc, & tape_statep -> words_processed, buffer + i);
         else
-          rc2 = extractWord36FromBuffer (tape_statep -> buf, tape_statep -> tbc, & tape_statep -> words_processed, buffer + i);
+          rc2 = extractWord36FromBuffer (tape_statep -> buf,
+                  tape_statep -> tbc, & tape_statep -> words_processed, buffer + i);
         if (rc2)
           {
              break;
@@ -1086,7 +1107,7 @@ static void mtReadCtrlMainMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (count != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
     tape_statep -> cntlrAddress = getbits36_16 (control, 0);
-    tape_statep -> cntlrTally = getbits36_16 (control, 16);
+    tape_statep -> cntlrTally   = getbits36_16 (control, 16);
   }
 
 static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
@@ -1097,7 +1118,7 @@ static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (tally != 04000)
       {
         sim_warn ("%s: tape controller read memory expected tally of 04000\n", __func__);
-        p -> stati = 04501;
+        p -> stati      = 04501;
         p -> chanStatus = chanStatIncorrectDCW;
         return;
       }
@@ -1126,26 +1147,25 @@ static void mtInitRdMem (uint devUnitIdx, uint iomUnitIdx, uint chan)
 // 11     2 pad2 (5) bit (16);
 
 // For the 501
-//                    mpc_data.mpc_err_int_ctr_addr = 253;    /* 00FD */
-//                    mpc_data.mpc_err_data_reg_addr = 254;   /* 00FE */
+//  mpc_data.mpc_err_int_ctr_addr = 253;    /* 00FD */
+//  mpc_data.mpc_err_data_reg_addr = 254;   /* 00FE */
 
-    mem [charTableOS + 0] = 4096; // mem_sze
-    mem [charTableOS + 1] = 0; // config_sw
+    mem [charTableOS + 0]  = 4096;          // mem_sze
+    mem [charTableOS + 1]  = 0;             // config_sw
 
-// Set the addresses to recognizable values
-    mem [charTableOS + 2] = 04000 + 0123; // trace_tab_p
-    mem [charTableOS + 3] = 0; // trace_tab_size
-    mem [charTableOS + 4] = 0; // trace_tab_cur
-    mem [charTableOS + 5] = 04000 + 0234; // mpc_stat
-    mem [charTableOS + 6] = 04000 + 0345; // dev_stat
-    mem [charTableOS + 7] = 04000 + 0456; // rev_l_tab
-    mem [charTableOS + 8] = 012345; // fw_id
+    // Set the addresses to recognizable values
+    mem [charTableOS + 2]  = 04000 + 0123;  // trace_tab_p
+    mem [charTableOS + 3]  = 0;             // trace_tab_size
+    mem [charTableOS + 4]  = 0;             // trace_tab_cur
+    mem [charTableOS + 5]  = 04000 + 0234;  // mpc_stat
+    mem [charTableOS + 6]  = 04000 + 0345;  // dev_stat
+    mem [charTableOS + 7]  = 04000 + 0456;  // rev_l_tab
+    mem [charTableOS + 8]  = 012345;        // fw_id
 
-            // Set fw_rev to 0013; I thinks that will xlate as 'A3' (0x01 is A)
+    // Set fw_rev to 0013; I thinks that will xlate as 'A3' (0x01 is A)
+    mem [charTableOS + 9]  = 0x0013;        // fw_rev
 
-    mem [charTableOS + 9] = 0x0013; // fw_rev
-
-    mem [charTableOS + 10] = 0x1025; // as_date Oct 27.
+    mem [charTableOS + 10] = 0x1025;        // as_date Oct 27.
 
     word36 buf [tally];
     for (uint i = 0; i < tally; i ++)
@@ -1254,16 +1274,16 @@ static int mtWriteRecord (uint devUnitIdx, uint iomUnitIdx, uint chan)
         if (tape_statep -> is9)
           {
             rc2 = insertASCII36toBuffer (tape_statep -> buf,
-                                        tape_statep -> tbc,
-                                        & tape_statep -> words_processed,
-                                        buffer [i]);
+                                         tape_statep -> tbc,
+                                         & tape_statep -> words_processed,
+                                         buffer [i]);
           }
         else
           {
             rc2 = insertWord36toBuffer (tape_statep -> buf,
-                                       tape_statep -> tbc,
-                                       & tape_statep -> words_processed,
-                                       buffer [i]);
+                                        tape_statep -> tbc,
+                                        & tape_statep -> words_processed,
+                                        buffer [i]);
             }
         if (rc2)
           {

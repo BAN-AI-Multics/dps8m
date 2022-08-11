@@ -1,42 +1,44 @@
-/* scp_help.h: hierarchical help definitions
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: 9896d74a-f62a-11ec-9179-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 2013 Timothe Litt
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included in
-   all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-   Except as contained in this notice, the name of the author shall not be
-   used in advertising or otherwise to promote the sale, use or other dealings
-   in this Software without prior written authorization from the author.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * scp_help.h: hierarchical help definitions
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: 9896d74a-f62a-11ec-9179-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 2013 Timothe Litt
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name of the author shall not be
+ * used in advertising or otherwise to promote the sale, use or other dealings
+ * in this Software without prior written authorization from the author.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 #ifndef SCP_HELP_H_
 # define SCP_HELP_H_  0
 
-/* The SCP structured help uses help text that defines a hierarchy of information
+/* The structured help uses help text that defines a hierarchy of information
  * organized into topics and subtopics.
  *
  * The structure of the help text is:
@@ -46,9 +48,9 @@
  *     Additional indentation, where appropriate, can be obtained with '+', 4 spaces each.
  *
  *   * The following % escapes are recognized:
- *     * %D    - Inserts the name of the device     (e.g. "DTA").
- *     * %U    - Inserts the name of the unit       (e.g. "DTA0").
- *     * %S    - Inserts the current simulator name (e.g. "PDP-10")
+ *     * %D    - Inserts the name of the device     (e.g. "DSK").
+ *     * %U    - Inserts the name of the unit       (e.g. "DSK0").
+ *     * %S    - Inserts the current simulator name (e.g. "DPS-8/M")
  *     * %#s   - Inserts the string supplied in the "#"th optional argument to the help
  *               routine.  # starts with 1.  Any embedded newlines will cause following
  *               text to be indented.

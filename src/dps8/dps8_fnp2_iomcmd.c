@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 55ddc42f-f62e-11ec-ad7c-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -15,6 +17,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -44,8 +56,6 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
-
-#include "../dpsprintf/dpsprintf.h"
 
 #ifdef TESTING
 static inline void fnp_core_read_n (word24 addr, word36 *data, uint n, UNUSED const char * ctx)
@@ -1017,23 +1027,23 @@ word36 pad;
         case  9: // blast
         case 10: // accept_direct_output
         case 11: // accept_last_output
-        //case 13: // ???
+      //case 13: // ???
         case 14: // reject_request_temp
-        //case 15: // ???
+      //case 15: // ???
         case 16: // terminal_rejected
         case 17: // disconnect_accepted
         case 18: // init_complete
         case 19: // dump_mem
         case 20: // patch_mem
         case 21: // fnp_break
-        //case 24: // set_echnego_break_table
-        //case 25: // start_negotiated_echo
-        //case 26: // stop_negotiated_echo
-        //case 27: // init_echo_negotiation
-        //case 28: // ???
+      //case 24: // set_echnego_break_table
+      //case 25: // start_negotiated_echo
+      //case 26: // stop_negotiated_echo
+      //case 27: // init_echo_negotiation
+      //case 28: // ???
         case 29: // break_acknowledged
-        //case 32: // ???
-        //case 33: // ???
+      //case 32: // ???
+      //case 33: // ???
         case 35: // checksum_error
           {
             sim_debug (DBG_TRACE, & fnp_dev, "[%u]    unimplemented opcode\n", decoded_p->slot_no);
@@ -1112,8 +1122,8 @@ static void fnp_wtx_output (struct decoded_t *decoded_p, uint tally, uint dataAd
     sim_debug (DBG_TRACE, & fnp_dev, "[%u]rcd wtx_output\n", decoded_p->slot_no);
     struct t_line * linep = & decoded_p->fudp->MState.line[decoded_p->slot_no];
 
-    uint wordOff = 0;
-    word36 word = 0;
+    uint wordOff     = 0;
+    word36 word      = 0;
     uint lastWordOff = (uint) -1;
 #ifdef TUN
     uint16_t data9 [tally];
@@ -1500,8 +1510,8 @@ sim_printf ("reject_request_temp\r\n");
                 case 10: // accept_direct_output
                 case 11: // accept_last_output
                 case 12: // dial
-                //case 13: // ???
-                //case 15: // ???
+              //case 13: // ???
+              //case 15: // ???
                 case 16: // terminal_rejected
                 case 17: // disconnect_accepted
                 case 18: // init_complete
@@ -1514,12 +1524,12 @@ sim_printf ("reject_request_temp\r\n");
                 case 25: // start_negotiated_echo
                 case 26: // stop_negotiated_echo
                 case 27: // init_echo_negotiation
-                //case 28: // ???
+              //case 28: // ???
                 case 29: // break_acknowledged
                 case 30: // input_fc_chars
                 case 31: // output_fc_chars
-                //case 32: // ???
-                //case 33: // ???
+              //case 32: // ???
+              //case 33: // ???
                 case 34: // alter_parameters
                 case 35: // checksum_error
                 case 36: // report_meters
@@ -2017,7 +2027,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         //  first slot at first_lsla_ch 9
 
         bool hdr = false;
+# ifdef VERBOSE_BOOT
         uint nfound = 0;
+# endif /* ifdef VERBOSE_BOOT */
         for (uint lsla = 0; lsla < 6; lsla ++)
           {
             uint slot = lsla + 9;
@@ -2027,7 +2039,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
             uint device_type_code = (flags >> 4) & 037;
             if (device_type_code == 4)
               {
+# ifdef VERBOSE_BOOT
                 nfound ++;
+# endif /* ifdef VERBOSE_BOOT */
                 // get addr word
                 word18 tblp = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os + 1);
                 for (uint slot = 0; slot < 52; slot ++)
@@ -2055,17 +2069,17 @@ for (uint i = 0370*2; i <=0400*2; i ++)
                             "unused"
                           };
                         char * id = slot_ids[slot_id];
-# endif
+# endif /* ifdef VERBOSE_BOOT */
                         if (! hdr)
                           {
                             hdr = true;
 # ifdef VERBOSE_BOOT
                             sim_printf ("LSLA table: card number, slot, slot_id, slot_id string\n");
-# endif
+# endif /* ifdef VERBOSE_BOOT */
                           }
 # ifdef VERBOSE_BOOT
                         sim_printf ("%d %2d %d %s\n", lsla, slot, slot_id, id);
-# endif
+# endif /* ifdef VERBOSE_BOOT */
                       }
                   } // for slot
               } // if dev type 4 (LSLA)
@@ -2073,13 +2087,13 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 # ifdef VERBOSE_BOOT
         if (nfound != crnls)
           sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
-# endif
+# endif /* ifdef VERBOSE_BOOT */
 
         // Number of HSLAs
 # ifdef VERBOSE_BOOT
         word18 crnhs = getl6core (iomUnitIdx, chan, l66addr + image_off, 0654);
         sim_printf ("Number of HSLAs (crnhs) %d\n", crnhs);
-# endif
+# endif /* ifdef VERBOSE_BOOT */
 
         // Walk the HSLAs in the IOM table
         //  2 words/slot (flags, taddr)
@@ -2087,7 +2101,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
         //  first slot at first_hsla_ch 6
 
         hdr = false;
+# ifdef VERBOSE_BOOT
         nfound = 0;
+# endif /* ifdef VERBOSE_BOOT */
         for (uint hsla = 0; hsla < 3; hsla ++)
           {
             uint slot = hsla + 6;
@@ -2097,7 +2113,9 @@ for (uint i = 0370*2; i <=0400*2; i ++)
             uint device_type_code = (flags >> 4) & 037;
             if (device_type_code == 3)
               {
+# ifdef VERBOSE_BOOT
                 nfound ++;
+# endif /* ifdef VERBOSE_BOOT */
                 // get addr word
                 word18 tblp = getl6core (iomUnitIdx, chan, l66addr + image_off, criom + os + 1);
                 for (uint slot = 0; slot < 32; slot ++)
@@ -2281,7 +2299,7 @@ for (uint i = 0370*2; i <=0400*2; i ++)
 # ifdef VERBOSE_BOOT
         if (nfound != crnls)
           sim_printf ("LSLAs configured %d found %d\n", crnls, nfound);
-# endif
+# endif /* ifdef VERBOSE_BOOT */
 #endif
 
 #if defined(THREADZ) || defined(LOCKLESS)

@@ -1,46 +1,46 @@
-/* sim_sock.c: OS-dependent socket routines
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: ca7023db-f62a-11ec-a6b7-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 2001-2010 Robert M Supnik
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-   IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
-   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   OTHER DEALINGS IN THE SOFTWARE.
-
-   Except as contained in this notice, the name of Robert M Supnik shall
-   not be used in advertising or otherwise to promote the sale, use or
-   other dealings in this Software without prior written authorization from
-   Robert M Supnik.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * sim_sock.c: OS-dependent socket routines
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: ca7023db-f62a-11ec-a6b7-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 2001-2010 Robert M. Supnik
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Robert M. Supnik shall
+ * not be used in advertising or otherwise to promote the sale, use or
+ * other dealings in this Software without prior written authorization from
+ * Robert M. Supnik.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 #include "sim_sock.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "../dpsprintf/dpsprintf.h"
 
 #if defined(AF_INET6) && defined(_WIN32)
 # include <ws2tcpip.h>
@@ -270,14 +270,14 @@ for (ip=ips; (ip != NULL) && (*ip != NULL); ++ip) {
         s_freeaddrinfo(result);
         return EAI_MEMORY;
         }
-    ai->ai_family = PF_INET;
-    ai->ai_socktype = hints->ai_socktype;
-    ai->ai_protocol = hints->ai_protocol;
-    ai->ai_addr = NULL;
-    ai->ai_addrlen = sizeof(struct sockaddr_in);
+    ai->ai_family    = PF_INET;
+    ai->ai_socktype  = hints->ai_socktype;
+    ai->ai_protocol  = hints->ai_protocol;
+    ai->ai_addr      = NULL;
+    ai->ai_addrlen   = sizeof(struct sockaddr_in);
     ai->ai_canonname = NULL;
-    ai->ai_next = NULL;
-    ai->ai_addr = (struct sockaddr *)calloc(1, sizeof(struct sockaddr_in));
+    ai->ai_next      = NULL;
+    ai->ai_addr      = (struct sockaddr *)calloc(1, sizeof(struct sockaddr_in));
     if (NULL == ai->ai_addr) {
         free(ai);
         s_freeaddrinfo(result);
@@ -418,8 +418,8 @@ int load_ws2(void) {
 
       if (lib_loaded != 1) {
         /* unsuccessful load, connect stubs */
-        p_getaddrinfo = (getaddrinfo_func)s_getaddrinfo;
-        p_getnameinfo = (getnameinfo_func)s_getnameinfo;
+        p_getaddrinfo  = (getaddrinfo_func)s_getaddrinfo;
+        p_getnameinfo  = (getnameinfo_func)s_getnameinfo;
         p_freeaddrinfo = (freeaddrinfo_func)s_freeaddrinfo;
       }
       break;
@@ -493,6 +493,7 @@ gbuf[sizeof(gbuf)-1] = '\0';
 strncpy (gbuf, cptr, sizeof(gbuf)-1);
 hostp = gbuf;                                           /* default addr */
 portp = NULL;
+/*LINTED E_EQUALITY_NOT_ASSIGNMENT*/
 if ((portp = strrchr (gbuf, ':')) &&                    /* x:y? split */
     (NULL == strchr (portp, ']'))) {
     *portp++ = 0;
@@ -662,13 +663,13 @@ load_ws2 ();
 # endif                                                 /* endif AF_INET6 */
 #else                                                   /* Use native addrinfo APIs */
 # if defined(AF_INET6)
-    p_getaddrinfo = (getaddrinfo_func)getaddrinfo;
-    p_getnameinfo = (getnameinfo_func)getnameinfo;
+    p_getaddrinfo  = (getaddrinfo_func)getaddrinfo;
+    p_getnameinfo  = (getnameinfo_func)getnameinfo;
     p_freeaddrinfo = (freeaddrinfo_func)freeaddrinfo;
 # else
     /* Native APIs not available, connect stubs */
-    p_getaddrinfo = (getaddrinfo_func)s_getaddrinfo;
-    p_getnameinfo = (getnameinfo_func)s_getnameinfo;
+    p_getaddrinfo  = (getaddrinfo_func)s_getaddrinfo;
+    p_getnameinfo  = (getnameinfo_func)s_getnameinfo;
     p_freeaddrinfo = (freeaddrinfo_func)s_freeaddrinfo;
 # endif                                                 /* endif AF_INET6 */
 #endif                                                  /* endif _WIN32 */

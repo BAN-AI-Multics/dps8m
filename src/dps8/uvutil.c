@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 6315eaa3-f630-11ec-96fc-80ee73e9b8e7
  *
@@ -26,7 +27,6 @@
 #include "dps8_utils.h"
 #include "libtelnet.h"
 #include "uvutil.h"
-#include "../dpsprintf/dpsprintf.h"
 
 #define USE_REQ_DATA
 
@@ -41,8 +41,11 @@ static void accessTelnetReadCallback (uv_tcp_t * client,
 static void alloc_buffer (UNUSED uv_handle_t * handle, size_t suggested_size,
                           uv_buf_t * buf)
   {
+/* Suppress Clang Analyzer's possible memory leak warning */
+#if !defined ( __clang_analyzer__ )
     * buf = uv_buf_init ((char *) malloc (suggested_size),
                          (uint) suggested_size);
+#endif /* if !defined ( __clang_analyzer__ ) */
   }
 
 static void accessWriteCallback (uv_write_t * req, int status)
@@ -146,14 +149,16 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
   {
     if (! client || uv_is_closing ((uv_handle_t *) client))
       return;
+/* Suppress Clang Analyzer's possible memory leak warning */
+#if !defined ( __clang_analyzer__ )
     uv_write_t * req = (uv_write_t *) malloc (sizeof (uv_write_t));
     // This makes sure that bufs*.base and bufsml*.base are NULL
     memset (req, 0, sizeof (uv_write_t));
     uv_buf_t buf = uv_buf_init ((char *) malloc ((unsigned long) datalen),
                                                  (uint) datalen);
-#ifdef USE_REQ_DATA
+# ifdef USE_REQ_DATA
     req->data = buf.base;
-#endif
+# endif
     memcpy (buf.base, data, (unsigned long) datalen);
 //sim_printf ("write %u<%s>\n", datalen, data);
     int ret = uv_write (req, (uv_stream_t *) client, & buf, 1,
@@ -164,6 +169,7 @@ static void accessStartWriteActual (uv_tcp_t * client, char * data,
 // If the socket has been closed, write will return BADF; just ignore it.
     if (ret < 0 && ret != -EBADF)
       sim_printf ("uv_write returns %d\n", ret);
+#endif /* if !defined ( __clang_analyzer__ ) */
   }
 
 void accessStartWrite (uv_tcp_t * client, char * data, ssize_t datalen)
@@ -476,10 +482,9 @@ static const telnet_telopt_t my_telopts[] =
   {
     { TELNET_TELOPT_SGA,       TELNET_WILL, TELNET_DO   },
     { TELNET_TELOPT_ECHO,      TELNET_WILL, TELNET_DONT },
-    //{ TELNET_TELOPT_TTYPE,     TELNET_WONT, TELNET_DONT },
-    //{ TELNET_TELOPT_COMPRESS2, TELNET_WONT, TELNET_DO   },
+  //{ TELNET_TELOPT_TTYPE,     TELNET_WONT, TELNET_DONT },
     { TELNET_TELOPT_BINARY,    TELNET_WILL, TELNET_DO   },
-    //{ TELNET_TELOPT_NAWS,      TELNET_WONT, TELNET_DONT },
+  //{ TELNET_TELOPT_NAWS,      TELNET_WONT, TELNET_DONT },
     { -1, 0, 0 }
   };
 
@@ -535,11 +540,13 @@ static void onNewAccess (uv_stream_t * server, int status)
           {
             sim_printf ("access connect;addr err %d\n", ret);
           }
+#if 0
         else
           {
             // struct sockaddr_in * p = (struct sockaddr_in *) & name;
             // sim_printf ("access connect %s\n", inet_ntoa (p->sin_addr));
           }
+#endif
 
         if (access->useTelnet)
           {

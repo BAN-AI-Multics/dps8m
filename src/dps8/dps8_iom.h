@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 8e66ce24-f62e-11ec-8690-80ee73e9b8e7
  *
@@ -19,7 +20,7 @@
  * ---------------------------------------------------------------------------
  */
 
-// IDCW Instruction                   18-20 111
+// IDCW Instruction                   18-20  111
 // TDCW Transfer                      18-20 !111,  22-23 10
 // IOTD IO Transfer and disconnect    18-20 !111,  22-23 00
 // IOTP IO Transfer and proceed       18-20 !111,  22-23 01
@@ -33,9 +34,9 @@ extern __thread uint this_chan_num;
 
 //typedef enum
   //{
-    //cm_LPW_init_state, // No TDCWs encountered; state is:
-                       ////    PCW64 (pcw64_pge): on   PAGE CHAN
-                       ////    PCW64 (pcw64_pge): off  EXT MODE CHAN
+    //cm_LPW_init_state,       // No TDCWs encountered; state is:
+                             ////    PCW64 (pcw64_pge): on   PAGE CHAN
+                             ////    PCW64 (pcw64_pge): off  EXT MODE CHAN
     //cm_real_LPW_real_DCW,
     //cm_ext_LPW_real_DCW,
     //cm_paged_LPW_seg_DCW
@@ -43,14 +44,14 @@ extern __thread uint this_chan_num;
 
 typedef enum chanStat
   {
-    chanStatNormal = 0,
-    chanStatUnexpectedPCW = 1,
+    chanStatNormal          = 0,
+    chanStatUnexpectedPCW   = 1,
     chanStatInvalidInstrPCW = 2,
-    chanStatIncorrectDCW = 3,
-    chanStatIncomplete = 4,
-    chanStatUnassigned = 5,
+    chanStatIncorrectDCW    = 3,
+    chanStatIncomplete      = 4,
+    chanStatUnassigned      = 5,
     chanStatParityErrPeriph = 6,
-    chanStatParityErrBus = 7
+    chanStatParityErrBus    = 7
   } chanStat;
 
 // Due to lack of documentation, chan_cmd is largely ignored
@@ -96,9 +97,9 @@ typedef enum chanStat
 
 #define IS_IDCW(p)     ((p)->DCW_18_20_CP == 07)
 #define IS_NOT_IDCW(p) ((p)->DCW_18_20_CP != 07)
-#define IS_TDCW(p)     ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 2)
-#define IS_IOTD(p)     ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 0)
-#define IS_IONTP(p)    ((p)->DCW_18_20_CP != 7 && (p)->DDCW_22_23_TYPE == 3)
+#define IS_TDCW(p)     ((p)->DCW_18_20_CP !=  7 && (p)->DDCW_22_23_TYPE == 2)
+#define IS_IOTD(p)     ((p)->DCW_18_20_CP !=  7 && (p)->DDCW_22_23_TYPE == 0)
+#define IS_IONTP(p)    ((p)->DCW_18_20_CP !=  7 && (p)->DDCW_22_23_TYPE == 3)
 
 // exercise_disk.pl1
 #define CHAN_CMD_INHIB_AUTO_RETRY    021
@@ -256,7 +257,7 @@ typedef volatile struct
     word12 tallyResidue;
     word3 charPos;
     bool isRead;
-    // isOdd can be ignored; see http://ringzero.wikidot.com/wiki:cac-2015-10-22
+    // isOdd can be ignored; see https://ringzero.wikidot.com/wiki:cac-2015-10-22
     // bool isOdd;
     bool initiate;
 
@@ -365,9 +366,9 @@ typedef struct pcw_t
 enum iomImwPics
   {
     imwSystemFaultPic = 0,
-    imwTerminatePic = 1,
-    imwMarkerPic = 2,
-    imwSpecialPic = 3
+    imwTerminatePic   = 1,
+    imwMarkerPic      = 2,
+    imwSpecialPic     = 3
   };
 
 int send_general_interrupt (uint iom_unit_idx, uint chan, enum iomImwPics pic);
@@ -383,16 +384,16 @@ int send_special_interrupt (uint iom_unit_idx, uint chanNum, uint devCode,
 //  3; command pending, don't sent terminate interrupt
 // -1: error
 
-//#define IOM_CMD_OK      0
-//#define IOM_CMD_IGNORED 1
-//#define IOM_CMD_NO_DCW  2
-//#define IOM_CMD_PENDING 3
+//#define IOM_CMD_OK       0
+//#define IOM_CMD_IGNORED  1
+//#define IOM_CMD_NO_DCW   2
+//#define IOM_CMD_PENDING  3
 //#define IOM_CMD_ERROR   -1
 
 typedef enum
   {
-     IOM_CMD_ERROR = -1,
-     IOM_CMD_PROCEED = 0,
+     IOM_CMD_ERROR   = -1,
+     IOM_CMD_PROCEED =  0,
      IOM_CMD_RESIDUE,
      IOM_CMD_DISCONNECT,
      IOM_CMD_PENDING
@@ -400,13 +401,13 @@ typedef enum
 
 typedef iom_cmd_rc_t iom_cmd_t (uint iom_unit_idx, uint chan);
 int iom_list_service (uint iom_unit_idx, uint chan,
-                           bool * ptro, bool * sendp, bool * uffp);
+                      bool * ptro, bool * sendp, bool * uffp);
 int send_terminate_interrupt (uint iom_unit_idx, uint chanNum);
 void iom_interrupt (uint scuUnitNum, uint iom_unit_idx);
 void iom_direct_data_service (uint iom_unit_idx, uint chan, word24 daddr, word36 * data,
-                           iom_direct_data_service_op op);
+                              iom_direct_data_service_op op);
 void iom_indirect_data_service (uint iom_unit_idx, uint chan, word36 * data,
-                             uint * cnt, bool write);
+                                uint * cnt, bool write);
 void iom_init (void);
 int send_marker_interrupt (uint iom_unit_idx, int chan);
 #ifdef PANEL

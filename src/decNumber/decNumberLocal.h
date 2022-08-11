@@ -1,4 +1,5 @@
 // vim: filetype=c:tabstop=4:tw=72:expandtab
+// vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
 // SPDX-License-Identifier: ICU
 // scspell-id: cdc19497-f62c-11ec-888c-80ee73e9b8e7
 /* ------------------------------------------------------------------ */
@@ -38,8 +39,6 @@
 # endif
 
 # include <sys/types.h>
-
-# include "../dpsprintf/dpsprintf.h"
 
 # if defined(__linux__) || defined(__CYGWIN__) || \
      defined(__GNU__)   || defined(__GLIBC__)  || \

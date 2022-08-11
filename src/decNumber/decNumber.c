@@ -1,4 +1,5 @@
 // vim: filetype=c:tabstop=4:tw=72:expandtab
+// vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
 // SPDX-License-Identifier: ICU
 // scspell-id: c39f59d7-f62c-11ec-ba31-80ee73e9b8e7
 /* ------------------------------------------------------------------ */
@@ -165,14 +166,12 @@
 /*      **  -- raise to the power                                     */
 /* ------------------------------------------------------------------ */
 
+#include <string.h>                // for strcpy
 #include <stdlib.h>                // for malloc, free, etc.
 #include <stdio.h>                 // for printf [if needed]
-#include <string.h>                // for strcpy
 #include <ctype.h>                 // for lower
 #include "decNumber.h"             // base number library
 #include "decNumberLocal.h"        // decNumber local types, etc.
-
-#include "../dpsprintf/dpsprintf.h"
 
 /* Constants */
 // Public lookup table used by the D2U macro

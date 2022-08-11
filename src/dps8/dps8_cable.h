@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 5d03518d-f62d-11ec-a03b-80ee73e9b8e7
  *
@@ -222,40 +223,40 @@ struct cables_s
     struct cpu_to_scu_s cpu_to_scu [N_CPU_UNITS_MAX] [N_CPU_PORTS];
 
     // IOM->CTLR
-    struct iom_to_ctlr_s iom_to_ctlr [N_IOM_UNITS_MAX] [MAX_CHANNELS];
+    struct iom_to_ctlr_s iom_to_ctlr [N_IOM_UNITS_MAX]  [MAX_CHANNELS];
     //   mtp
-    struct ctlr_to_iom_s mtp_to_iom [N_MTP_UNITS_MAX] [MAX_CTLR_PORTS];
+    struct ctlr_to_iom_s mtp_to_iom  [N_MTP_UNITS_MAX]  [MAX_CTLR_PORTS];
     //   msp
-    struct ctlr_to_iom_s msp_to_iom [N_MSP_UNITS_MAX] [MAX_CTLR_PORTS];
+    struct ctlr_to_iom_s msp_to_iom  [N_MSP_UNITS_MAX]  [MAX_CTLR_PORTS];
     //   ipc
-    struct ctlr_to_iom_s ipc_to_iom [N_IPC_UNITS_MAX] [MAX_CTLR_PORTS];
+    struct ctlr_to_iom_s ipc_to_iom  [N_IPC_UNITS_MAX]  [MAX_CTLR_PORTS];
     //   urp
-    struct ctlr_to_iom_s urp_to_iom [N_URP_UNITS_MAX] [MAX_CTLR_PORTS];
+    struct ctlr_to_iom_s urp_to_iom  [N_URP_UNITS_MAX]  [MAX_CTLR_PORTS];
     //   dia
-    struct ctlr_to_iom_s dia_to_iom [N_DIA_UNITS_MAX] [MAX_CTLR_PORTS];
+    struct ctlr_to_iom_s dia_to_iom  [N_DIA_UNITS_MAX]  [MAX_CTLR_PORTS];
     //   fnp
-    struct ctlr_to_iom_s fnp_to_iom [N_FNP_UNITS_MAX] [MAX_CTLR_PORTS];
+    struct ctlr_to_iom_s fnp_to_iom  [N_FNP_UNITS_MAX]  [MAX_CTLR_PORTS];
     //   absi
     struct ctlr_to_iom_s absi_to_iom [N_ABSI_UNITS_MAX] [MAX_CTLR_PORTS];
     //   console
-    struct ctlr_to_iom_s opc_to_iom [N_OPC_UNITS_MAX] [MAX_CTLR_PORTS];
+    struct ctlr_to_iom_s opc_to_iom  [N_OPC_UNITS_MAX]  [MAX_CTLR_PORTS];
     //   socket
-    struct ctlr_to_iom_s sk_to_iom [N_SKC_UNITS_MAX] [MAX_CTLR_PORTS];
+    struct ctlr_to_iom_s sk_to_iom   [N_SKC_UNITS_MAX]  [MAX_CTLR_PORTS];
 
     // CTLR->DEV
     //   mtp->tape
-    struct ctlr_to_dev_s mtp_to_tape [N_MTP_UNITS_MAX] [N_DEV_CODES];
+    struct ctlr_to_dev_s mtp_to_tape [N_MTP_UNITS_MAX]  [N_DEV_CODES];
     struct dev_to_ctlr_s tape_to_mtp [N_MT_UNITS_MAX];
     //   ipc->disk
     //   msp->disk
-    struct ctlr_to_dev_s ipc_to_dsk [N_IPC_UNITS_MAX] [N_DEV_CODES];
-    struct ctlr_to_dev_s msp_to_dsk [N_MSP_UNITS_MAX] [N_DEV_CODES];
+    struct ctlr_to_dev_s ipc_to_dsk  [N_IPC_UNITS_MAX]  [N_DEV_CODES];
+    struct ctlr_to_dev_s msp_to_dsk  [N_MSP_UNITS_MAX]  [N_DEV_CODES];
     struct dev_to_ctlr_s dsk_to_ctlr [N_DSK_UNITS_MAX];
     //   urp->rdr/pun/prt
-    struct ctlr_to_dev_s urp_to_urd [N_URP_UNITS_MAX] [N_DEV_CODES];
-    struct dev_to_ctlr_s rdr_to_urp [N_RDR_UNITS_MAX];
-    struct dev_to_ctlr_s pun_to_urp [N_PUN_UNITS_MAX];
-    struct dev_to_ctlr_s prt_to_urp [N_PRT_UNITS_MAX];
+    struct ctlr_to_dev_s urp_to_urd  [N_URP_UNITS_MAX]  [N_DEV_CODES];
+    struct dev_to_ctlr_s rdr_to_urp  [N_RDR_UNITS_MAX];
+    struct dev_to_ctlr_s pun_to_urp  [N_PUN_UNITS_MAX];
+    struct dev_to_ctlr_s prt_to_urp  [N_PRT_UNITS_MAX];
   };
 
 extern struct cables_s * cables;

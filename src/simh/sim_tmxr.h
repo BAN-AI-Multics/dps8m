@@ -1,44 +1,46 @@
-/* sim_tmxr.h: terminal multiplexer definitions
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: ecf608fb-f62a-11ec-bbba-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 2001-2008 Robert M Supnik
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-   IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
-   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   OTHER DEALINGS IN THE SOFTWARE.
-
-   Except as contained in this notice, the name of Robert M Supnik shall
-   not be used in advertising or otherwise to promote the sale, use or
-   other dealings in this Software without prior written authorization from
-   Robert M Supnik.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * sim_tmxr.h: terminal multiplexer definitions
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: ecf608fb-f62a-11ec-bbba-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 2001-2008 Robert M. Supnik
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Robert M. Supnik shall
+ * not be used in advertising or otherwise to promote the sale, use or
+ * other dealings in this Software without prior written authorization from
+ * Robert M. Supnik.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 /*
-   Based on the original DZ11 simulator by Thord Nilson, as updated by
-   Arthur Krewat.
-*/
+ *  Based on the original DZ11 simulator by Thord Nilson, as updated by
+ *  Arthur Krewat.
+ */
 
 #ifndef SIM_TMXR_H_
 # define SIM_TMXR_H_    0
@@ -52,32 +54,32 @@ typedef struct SERPORT *SERHANDLE;
 
 # define TMXR_V_VALID    15
 # define TMXR_VALID      (1 << TMXR_V_VALID)
-# define TMXR_MAXBUF     256                             /* buffer size */
+# define TMXR_MAXBUF     256                    /* buffer size */
 
-# define TMXR_DTR_DROP_TIME 500                          /* milliseconds to drop DTR for 'pseudo' modem control */
-# define TMXR_MODEM_RING_TIME 3                          /* seconds to wait for DTR for incoming connections */
-# define TMXR_DEFAULT_CONNECT_POLL_INTERVAL 1            /* seconds between connection polls */
+# define TMXR_DTR_DROP_TIME               500   /* milliseconds to drop DTR for 'pseudo' modem control */
+# define TMXR_MODEM_RING_TIME               3   /* seconds to wait for DTR for incoming connections */
+# define TMXR_DEFAULT_CONNECT_POLL_INTERVAL 1   /* seconds between connection polls */
 
-# define TMXR_DBG_XMT    0x0010000                       /* Debug Transmit Data */
-# define TMXR_DBG_RCV    0x0020000                       /* Debug Received Data */
-# define TMXR_DBG_RET    0x0040000                       /* Debug Returned Received Data */
-# define TMXR_DBG_MDM    0x0080000                       /* Debug Modem Signals */
-# define TMXR_DBG_CON    0x0100000                       /* Debug Connection Activities */
-# define TMXR_DBG_ASY    0x0200000                       /* Debug Asynchronous Activities */
-# define TMXR_DBG_TRC    0x0400000                       /* Debug trace routine calls */
-# define TMXR_DBG_PXMT   0x0800000                       /* Debug Transmit Packet Data */
-# define TMXR_DBG_PRCV   0x1000000                       /* Debug Received Packet Data */
-# define TMXR_DBG_EXP    0x2000000                       /* Debug Expect Activities */
-# define TMXR_DBG_SEND   0x4000000                       /* Debug Send Activities */
+# define TMXR_DBG_XMT    0x0010000    /* Debug Transmit Data */
+# define TMXR_DBG_RCV    0x0020000    /* Debug Received Data */
+# define TMXR_DBG_RET    0x0040000    /* Debug Returned Received Data */
+# define TMXR_DBG_MDM    0x0080000    /* Debug Modem Signals */
+# define TMXR_DBG_CON    0x0100000    /* Debug Connection Activities */
+# define TMXR_DBG_ASY    0x0200000    /* Debug Asynchronous Activities */
+# define TMXR_DBG_TRC    0x0400000    /* Debug trace routine calls */
+# define TMXR_DBG_PXMT   0x0800000    /* Debug Transmit Packet Data */
+# define TMXR_DBG_PRCV   0x1000000    /* Debug Received Packet Data */
+# define TMXR_DBG_EXP    0x2000000    /* Debug Expect Activities */
+# define TMXR_DBG_SEND   0x4000000    /* Debug Send Activities */
 
 /* Modem Control Bits */
 
-# define TMXR_MDM_DTR        0x01    /* Data Terminal Ready */
-# define TMXR_MDM_RTS        0x02    /* Request To Send     */
-# define TMXR_MDM_DCD        0x04    /* Data Carrier Detect */
-# define TMXR_MDM_RNG        0x08    /* Ring Indicator      */
-# define TMXR_MDM_CTS        0x10    /* Clear To Send       */
-# define TMXR_MDM_DSR        0x20    /* Data Set Ready      */
+# define TMXR_MDM_DTR         0x01    /* Data Terminal Ready */
+# define TMXR_MDM_RTS         0x02    /* Request To Send     */
+# define TMXR_MDM_DCD         0x04    /* Data Carrier Detect */
+# define TMXR_MDM_RNG         0x08    /* Ring Indicator      */
+# define TMXR_MDM_CTS         0x10    /* Clear To Send       */
+# define TMXR_MDM_DSR         0x20    /* Data Set Ready      */
 # define TMXR_MDM_INCOMING   (TMXR_MDM_DCD|TMXR_MDM_RNG|TMXR_MDM_CTS|TMXR_MDM_DSR)  /* Settable Modem Bits */
 # define TMXR_MDM_OUTGOING   (TMXR_MDM_DTR|TMXR_MDM_RTS)  /* Settable Modem Bits */
 
@@ -114,8 +116,8 @@ typedef struct SERPORT *SERHANDLE;
 typedef struct tmln TMLN;
 typedef struct tmxr TMXR;
 struct loopbuf {
-    int32               bpr;                          /* xmt buf remove */
-    int32               bpi;                          /* xmt buf insert */
+    int32               bpr;                            /* xmt buf remove */
+    int32               bpi;                            /* xmt buf insert */
     int32               size;
     };
 

@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: CC-PDDC
  * SPDX-FileCopyrightText: Public domain
  * scspell-id: 845a8edb-f62f-11ec-a0d8-80ee73e9b8e7
@@ -8,8 +9,7 @@
  *
  * libTELNET - TELNET protocol handling library
  *
- * Sean Middleditch
- * sean@sourcemud.org
+ * Sean Middleditch <sean@sourcemud.org>
  *
  * The author or authors of this code dedicate any and all copyright
  * interest in this code to the public domain. We make this dedication
@@ -78,19 +78,17 @@
 # endif
 #endif
 
-#include "../dpsprintf/dpsprintf.h"
-
 #include "libtelnet.h"
 
 /* helper for Q-method option tracking */
-#define Q_US(q) ((q).state & 0x0F)
-#define Q_HIM(q) (((q).state & 0xF0) >> 4)
+#define Q_US(q)    ((q).state & 0x0F)
+#define Q_HIM(q)  (((q).state & 0xF0) >> 4)
 #define Q_MAKE(us,him) ((us) | ((him) << 4))
 
 /* helper for the negotiation routines */
 #define NEGOTIATE_EVENT(telnet,cmd,opt) \
-        ev.type = (cmd); \
-        ev.neg.telopt = (opt); \
+        ev.type = (cmd);                \
+        ev.neg.telopt = (opt);          \
         (telnet)->eh((telnet), &ev, (telnet)->ud);
 
 /* telnet state codes */
@@ -116,7 +114,7 @@ struct telnet_t {
         const telnet_telopt_t *telopts;
         /* event handler */
         telnet_event_handler_t eh;
-        /* RFC1143 option negotiation states */
+        /* RFC-1143 option negotiation states */
         struct telnet_rfc1143_t *q;
         /* sub-request buffer */
         char *buffer;
@@ -130,39 +128,39 @@ struct telnet_t {
         unsigned char flags;
         /* current subnegotiation telopt */
         unsigned char sb_telopt;
-        /* length of RFC1143 queue */
+        /* length of RFC-1143 queue */
         unsigned int q_size;
-        /* number of entries in RFC1143 queue */
+        /* number of entries in RFC-1143 queue */
         unsigned int q_cnt;
 };
 
-/* RFC1143 option negotiation state */
+/* RFC-1143 option negotiation state */
 typedef struct telnet_rfc1143_t {
         unsigned char telopt;
         unsigned char state;
 } telnet_rfc1143_t;
 
-/* RFC1143 state names */
-#define Q_NO 0
-#define Q_YES 1
-#define Q_WANTNO 2
-#define Q_WANTYES 3
-#define Q_WANTNO_OP 4
+/* RFC-1143 state names */
+#define Q_NO         0
+#define Q_YES        1
+#define Q_WANTNO     2
+#define Q_WANTYES    3
+#define Q_WANTNO_OP  4
 #define Q_WANTYES_OP 5
 
 /* telnet NVT EOL sequences */
-static const char CRLF[] = { '\r', '\n' };
+static const char CRLF[]  = { '\r', '\n' };
 static const char CRNUL[] = { '\r', '\0' };
 
 /* buffer sizes */
 static const size_t _buffer_sizes[] = { 0, 512, 2048, 8192, 16384, };
 static const size_t _buffer_sizes_count = sizeof(_buffer_sizes) /
-                sizeof(_buffer_sizes[0]);
+                                          sizeof(_buffer_sizes[0]);
 
 /* error generation function */
 static telnet_error_t _error(telnet_t *telnet, unsigned line,
-                const char* func, telnet_error_t err, int fatal, const char *fmt,
-                ...) {
+                             const char* func, telnet_error_t err,
+                             int fatal, const char *fmt, ...) {
         telnet_event_t ev;
         char buffer[512];
         va_list va;
@@ -173,11 +171,11 @@ static telnet_error_t _error(telnet_t *telnet, unsigned line,
         va_end(va);
 
         /* send error event to the user */
-        ev.type = fatal ? TELNET_EV_ERROR : TELNET_EV_WARNING;
+        ev.type       = fatal ? TELNET_EV_ERROR : TELNET_EV_WARNING;
         ev.error.file = __FILE__;
         ev.error.func = func;
         ev.error.line = (int) line;
-        ev.error.msg = buffer;
+        ev.error.msg  = buffer;
         telnet->eh(telnet, &ev, telnet->ud);
 
         return err;
@@ -185,12 +183,12 @@ static telnet_error_t _error(telnet_t *telnet, unsigned line,
 
 /* push bytes out */
 static void _send(telnet_t *telnet, const char *buffer,
-                size_t size) {
+                  size_t size) {
         telnet_event_t ev;
 
-        ev.type = TELNET_EV_SEND;
+        ev.type        = TELNET_EV_SEND;
         ev.data.buffer = buffer;
-        ev.data.size = size;
+        ev.data.size   = size;
         telnet->eh(telnet, &ev, telnet->ud);
 }
 
@@ -202,7 +200,7 @@ static void _send(telnet_t *telnet, const char *buffer,
  * supports it.  return non-zero if supported, zero if not supported.
  */
 static __inline__ int _check_telopt(telnet_t *telnet, unsigned char telopt,
-                int us) {
+                                    int us) {
         int i;
 
         /* if we have no telopts table, we obviously don't support it */
@@ -225,9 +223,9 @@ static __inline__ int _check_telopt(telnet_t *telnet, unsigned char telopt,
         return 0;
 }
 
-/* retrieve RFC1143 option state */
+/* retrieve RFC-1143 option state */
 static __inline__ telnet_rfc1143_t _get_rfc1143(telnet_t *telnet,
-                unsigned char telopt) {
+                                                unsigned char telopt) {
         telnet_rfc1143_t empty;
         unsigned int i;
 
@@ -240,13 +238,13 @@ static __inline__ telnet_rfc1143_t _get_rfc1143(telnet_t *telnet,
 
         /* not found, return empty value */
         empty.telopt = telopt;
-        empty.state = 0;
+        empty.state  = 0;
         return empty;
 }
 
-/* save RFC1143 option state */
+/* save RFC-1143 option state */
 static __inline__ void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
-                unsigned char us, unsigned char him) {
+                                    unsigned char us, unsigned char him) {
         telnet_rfc1143_t *qtmp;
         unsigned int i;
 
@@ -284,18 +282,18 @@ static __inline__ void _set_rfc1143(telnet_t *telnet, unsigned char telopt,
                        return;
                }
                memset(&qtmp[telnet->q_size], 0, sizeof(telnet_rfc1143_t) * QUANTUM);
-               telnet->q = qtmp;
+               telnet->q       = qtmp;
                telnet->q_size += QUANTUM;
         }
        /* Add entry to end of table */
        telnet->q[telnet->q_cnt].telopt = telopt;
-       telnet->q[telnet->q_cnt].state = (unsigned char) Q_MAKE(us, him);
+       telnet->q[telnet->q_cnt].state  = (unsigned char) Q_MAKE(us, him);
        telnet->q_cnt ++;
 }
 
 /* send negotiation bytes */
 static __inline__ void _send_negotiate(telnet_t *telnet, unsigned char cmd,
-                unsigned char telopt) {
+                                       unsigned char telopt) {
         unsigned char bytes[3];
         bytes[0] = TELNET_IAC;
         bytes[1] = cmd;
@@ -303,7 +301,7 @@ static __inline__ void _send_negotiate(telnet_t *telnet, unsigned char cmd,
         _sendu(telnet, bytes, 3);
 }
 
-/* negotiation handling magic for RFC1143 */
+/* negotiation handling magic for RFC-1143 */
 static void _negotiate(telnet_t *telnet, unsigned char telopt) {
         telnet_event_t ev;
         telnet_rfc1143_t q;
@@ -463,7 +461,7 @@ static void _negotiate(telnet_t *telnet, unsigned char telopt) {
  * of the original buffer.
  */
 static int _environ_telnet(telnet_t *telnet, unsigned char type,
-                char* buffer, size_t size) {
+                           char* buffer, size_t size) {
         telnet_event_t ev;
         struct telnet_environ_t *values = 0;
         char *c, *last, *out;
@@ -490,7 +488,7 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
         if (size == 1) {
                 /* no list of variables given */
                 ev.environ.values = 0;
-                ev.environ.size = 0;
+                ev.environ.size   = 0;
 
                 /* invoke event with our arguments */
                 ev.type = TELNET_EV_ENVIRON;
@@ -561,7 +559,7 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
                 *out++ = '\0';
 
                 /* store the variable name we have just received */
-                values[eindex].var = last;
+                values[eindex].var   = last;
                 values[eindex].value = "";
 
                 /* if we got a value, find the next end marker and
@@ -592,7 +590,7 @@ static int _environ_telnet(telnet_t *telnet, unsigned char type,
 
         /* pass values array and count to event */
         ev.environ.values = values;
-        ev.environ.size = count;
+        ev.environ.size   = count;
 
         /* invoke event with our arguments */
         ev.type = TELNET_EV_ENVIRON;
@@ -635,16 +633,16 @@ static int _ttype_telnet(telnet_t *telnet, const char* buffer, size_t size) {
                 memcpy(name, buffer + 1, size - 1);
                 name[size - 1] = '\0';
 
-                ev.type = TELNET_EV_TTYPE;
-                ev.ttype.cmd = TELNET_TTYPE_IS;
+                ev.type       = TELNET_EV_TTYPE;
+                ev.ttype.cmd  = TELNET_TTYPE_IS;
                 ev.ttype.name = name;
                 telnet->eh(telnet, &ev, telnet->ud);
 
                 /* clean up */
                 free(name);
         } else {
-                ev.type = TELNET_EV_TTYPE;
-                ev.ttype.cmd = TELNET_TTYPE_SEND;
+                ev.type       = TELNET_EV_TTYPE;
+                ev.ttype.cmd  = TELNET_TTYPE_SEND;
                 ev.ttype.name = 0;
                 telnet->eh(telnet, &ev, telnet->ud);
         }
@@ -659,10 +657,10 @@ static int _subnegotiate(telnet_t *telnet) {
         telnet_event_t ev;
 
         /* standard subnegotiation event */
-        ev.type = TELNET_EV_SUBNEGOTIATION;
+        ev.type       = TELNET_EV_SUBNEGOTIATION;
         ev.sub.telopt = telnet->sb_telopt;
         ev.sub.buffer = telnet->buffer;
-        ev.sub.size = telnet->buffer_pos;
+        ev.sub.size   = telnet->buffer_pos;
         telnet->eh(telnet, &ev, telnet->ud);
 
         switch (telnet->sb_telopt) {
@@ -681,17 +679,17 @@ static int _subnegotiate(telnet_t *telnet) {
 
 /* initialize a telnet state tracker */
 telnet_t *telnet_init(const telnet_telopt_t *telopts,
-                telnet_event_handler_t eh, unsigned char flags, void *user_data) {
+                      telnet_event_handler_t eh, unsigned char flags, void *user_data) {
         /* allocate structure */
         struct telnet_t *telnet = (telnet_t*)calloc(1, sizeof(telnet_t));
         if (telnet == 0)
                 return 0;
 
         /* initialize data */
-        telnet->ud = user_data;
+        telnet->ud      = user_data;
         telnet->telopts = telopts;
-        telnet->eh = eh;
-        telnet->flags = flags;
+        telnet->eh      = eh;
+        telnet->flags   = flags;
 
         return telnet;
 }
@@ -701,17 +699,17 @@ void telnet_free(telnet_t *telnet) {
         /* free sub-request buffer */
         if (telnet->buffer != 0) {
                 free(telnet->buffer);
-                telnet->buffer = 0;
+                telnet->buffer      = 0;
                 telnet->buffer_size = 0;
-                telnet->buffer_pos = 0;
+                telnet->buffer_pos  = 0;
         }
 
-        /* free RFC1143 queue */
+        /* free RFC-1143 queue */
         if (telnet->q) {
                 free(telnet->q);
-                telnet->q = NULL;
+                telnet->q      = NULL;
                 telnet->q_size = 0;
-                telnet->q_cnt = 0;
+                telnet->q_cnt  = 0;
         }
 
         /* free the telnet structure itself */
@@ -720,7 +718,7 @@ void telnet_free(telnet_t *telnet) {
 
 /* push a byte into the telnet buffer */
 static telnet_error_t _buffer_byte(telnet_t *telnet,
-                unsigned char byte) {
+                                   unsigned char byte) {
         char *new_buffer;
 
         /* check if we're out of room */
@@ -770,19 +768,19 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
                          * switch states */
                         if (byte == TELNET_IAC) {
                                 if (i != start) {
-                                        ev.type = TELNET_EV_DATA;
+                                        ev.type        = TELNET_EV_DATA;
                                         ev.data.buffer = buffer + start;
-                                        ev.data.size = i - start;
+                                        ev.data.size   = i - start;
                                         telnet->eh(telnet, &ev, telnet->ud);
                                 }
                                 telnet->state = TELNET_STATE_IAC;
                         } else if (byte == '\r' &&
-                                           (telnet->flags & TELNET_FLAG_NVT_EOL) &&
+                                            (telnet->flags & TELNET_FLAG_NVT_EOL) &&
                                            !(telnet->flags & TELNET_FLAG_RECEIVE_BINARY)) {
                                 if (i != start) {
-                                        ev.type = TELNET_EV_DATA;
+                                        ev.type        = TELNET_EV_DATA;
                                         ev.data.buffer = buffer + start;
-                                        ev.data.size = i - start;
+                                        ev.data.size   = i - start;
                                         telnet->eh(telnet, &ev, telnet->ud);
                                 }
                                 telnet->state = TELNET_STATE_EOL;
@@ -792,12 +790,12 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
                 /* NVT EOL to be translated */
                 case TELNET_STATE_EOL:
                         if (byte != '\n') {
-                                byte = '\r';
-                                ev.type = TELNET_EV_DATA;
+                                byte           = '\r';
+                                ev.type        = TELNET_EV_DATA;
                                 ev.data.buffer = (char*)&byte;
-                                ev.data.size = 1;
+                                ev.data.size   = 1;
                                 telnet->eh(telnet, &ev, telnet->ud);
-                                byte = (unsigned char) buffer[i];
+                                byte           = (unsigned char) buffer[i];
                         }
                         // any byte following '\r' other than '\n' or '\0' is invalid,
                         // so pass both \r and the byte
@@ -831,24 +829,24 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
                         /* IAC escaping */
                         case TELNET_IAC:
                                 /* event */
-                                ev.type = TELNET_EV_DATA;
+                                ev.type        = TELNET_EV_DATA;
                                 ev.data.buffer = (char*)&byte;
-                                ev.data.size = 1;
+                                ev.data.size   = 1;
                                 telnet->eh(telnet, &ev, telnet->ud);
 
                                 /* state update */
-                                start = i + 1;
+                                start         = i + 1;
                                 telnet->state = TELNET_STATE_DATA;
                                 break;
                         /* some other command */
                         default:
                                 /* event */
-                                ev.type = TELNET_EV_IAC;
-                                ev.iac.cmd = byte;
+                                ev.type       = TELNET_EV_IAC;
+                                ev.iac.cmd    = byte;
                                 telnet->eh(telnet, &ev, telnet->ud);
 
                                 /* state update */
-                                start = i + 1;
+                                start         = i + 1;
                                 telnet->state = TELNET_STATE_DATA;
                         }
                         break;
@@ -859,15 +857,15 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
                 case TELNET_STATE_DO:
                 case TELNET_STATE_DONT:
                         _negotiate(telnet, byte);
-                        start = i + 1;
+                        start         = i + 1;
                         telnet->state = TELNET_STATE_DATA;
                         break;
 
                 /* subnegotiation -- determine subnegotiation telopt */
                 case TELNET_STATE_SB:
-                        telnet->sb_telopt = byte;
+                        telnet->sb_telopt  = byte;
                         telnet->buffer_pos = 0;
-                        telnet->state = TELNET_STATE_SB_DATA;
+                        telnet->state      = TELNET_STATE_SB_DATA;
                         break;
 
                 /* subnegotiation -- buffer bytes until end request */
@@ -941,17 +939,17 @@ static void _process(telnet_t *telnet, const char *buffer, size_t size) {
 
         /* pass through any remaining bytes */
         if (telnet->state == TELNET_STATE_DATA && i != start) {
-                ev.type = TELNET_EV_DATA;
+                ev.type        = TELNET_EV_DATA;
                 ev.data.buffer = buffer + start;
-                ev.data.size = i - start;
+                ev.data.size   = i - start;
                 telnet->eh(telnet, &ev, telnet->ud);
         }
 }
 
 /* push a bytes into the state tracker */
 void telnet_recv(telnet_t *telnet, const char *buffer,
-                size_t size) {
-                _process(telnet, buffer, size);
+                 size_t size) {
+        _process(telnet, buffer, size);
 }
 
 /* send an iac command */
@@ -964,7 +962,7 @@ void telnet_iac(telnet_t *telnet, unsigned char cmd) {
 
 /* send negotiation */
 void telnet_negotiate(telnet_t *telnet, unsigned char cmd,
-                unsigned char telopt) {
+                      unsigned char telopt) {
         telnet_rfc1143_t q;
 
         /* if we're in proxy mode, just send it now */
@@ -1049,7 +1047,7 @@ void telnet_negotiate(telnet_t *telnet, unsigned char cmd,
 
 /* send non-command data (escapes IAC bytes) */
 void telnet_send(telnet_t *telnet, const char *buffer,
-                size_t size) {
+                 size_t size) {
         size_t i, l;
 
         for (l = i = 0; i != size; ++i) {
@@ -1074,7 +1072,7 @@ void telnet_send(telnet_t *telnet, const char *buffer,
 
 /* send non-command text (escapes IAC bytes and does NVT translation) */
 void telnet_send_text(telnet_t *telnet, const char *buffer,
-                size_t size) {
+                      size_t size) {
         size_t i, l;
 
         for (l = i = 0; i != size; ++i) {

@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 4bc3e31c-f62d-11ec-bf00-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -15,6 +17,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -33,8 +45,6 @@
 #if defined(THREADZ) || defined(LOCKLESS)
 # include "threadz.h"
 #endif
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -171,7 +181,7 @@ void do_ldbr (word36 * Ypair)
             //   i -> C(SDWAM(i).USE) for i = 0, 1, ..., 15
             for (uint i = 0; i < N_WAM_ENTRIES; i ++)
               {
-                cpu.SDWAM[i].FE = 0;
+                cpu.SDWAM[i].FE  = 0;
 #ifdef L68
                 cpu.SDWAM[i].USE = (word4) i;
 #endif
@@ -188,7 +198,7 @@ void do_ldbr (word36 * Ypair)
             //   i -> C(PTWAM(i).USE) for i = 0, 1, ..., 15
             for (uint i = 0; i < N_WAM_ENTRIES; i ++)
               {
-                cpu.PTWAM[i].FE = 0;
+                cpu.PTWAM[i].FE  = 0;
 #ifdef L68
                 cpu.PTWAM[i].USE = (word4) i;
 #endif
@@ -203,9 +213,9 @@ void do_ldbr (word36 * Ypair)
       }
     else
       {
-        cpu.SDW0.FE = 0;
+        cpu.SDW0.FE  = 0;
         cpu.SDW0.USE = 0;
-        cpu.PTW0.FE = 0;
+        cpu.PTW0.FE  = 0;
         cpu.PTW0.USE = 0;
       }
 
@@ -213,13 +223,13 @@ void do_ldbr (word36 * Ypair)
     // XXX no cache
 
     // C(Y-pair) 0,23 -> C(DSBR.ADDR)
-    cpu.DSBR.ADDR = (Ypair[0] >> (35 - 23)) & PAMASK;
+    cpu.DSBR.ADDR  = (Ypair[0] >> (35 - 23)) & PAMASK;
 
     // C(Y-pair) 37,50 -> C(DSBR.BOUND)
-    cpu.DSBR.BND = (Ypair[1] >> (71 - 50)) & 037777;
+    cpu.DSBR.BND   = (Ypair[1] >> (71 - 50)) & 037777;
 
     // C(Y-pair) 55 -> C(DSBR.U)
-    cpu.DSBR.U = (Ypair[1] >> (71 - 55)) & 01;
+    cpu.DSBR.U     = (Ypair[1] >> (71 - 55)) & 01;
 
     // C(Y-pair) 60,71 -> C(DSBR.STACK)
     cpu.DSBR.STACK = (Ypair[1] >> (71 - 71)) & 07777;
@@ -260,10 +270,10 @@ static void fetch_dsptw (word15 segno)
     core_read ((cpu.DSBR.ADDR + x1) & PAMASK, & PTWx1, __func__);
 
     cpu.PTW0.ADDR = GETHI (PTWx1);
-    cpu.PTW0.U = TSTBIT (PTWx1, 9);
-    cpu.PTW0.M = TSTBIT (PTWx1, 6);
-    cpu.PTW0.DF = TSTBIT (PTWx1, 2);
-    cpu.PTW0.FC = PTWx1 & 3;
+    cpu.PTW0.U    = TSTBIT (PTWx1, 9);
+    cpu.PTW0.M    = TSTBIT (PTWx1, 6);
+    cpu.PTW0.DF   = TSTBIT (PTWx1, 2);
+    cpu.PTW0.FC   = PTWx1 & 3;
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
@@ -452,23 +462,23 @@ static void fetch_psdw (word15 segno)
                 & SDWeven, & SDWodd, __func__);
 
     // even word
-    cpu.SDW0.ADDR = (SDWeven >> 12) & 077777777;
-    cpu.SDW0.R1 = (SDWeven >> 9) & 7;
-    cpu.SDW0.R2 = (SDWeven >> 6) & 7;
-    cpu.SDW0.R3 = (SDWeven >> 3) & 7;
-    cpu.SDW0.DF = TSTBIT (SDWeven, 2);
-    cpu.SDW0.FC = SDWeven & 3;
+    cpu.SDW0.ADDR  = (SDWeven >> 12) & 077777777;
+    cpu.SDW0.R1    = (SDWeven >> 9)  & 7;
+    cpu.SDW0.R2    = (SDWeven >> 6)  & 7;
+    cpu.SDW0.R3    = (SDWeven >> 3)  & 7;
+    cpu.SDW0.DF    = TSTBIT (SDWeven, 2);
+    cpu.SDW0.FC    = SDWeven & 3;
 
     // odd word
     cpu.SDW0.BOUND = (SDWodd >> 21) & 037777;
-    cpu.SDW0.R = TSTBIT (SDWodd, 20);
-    cpu.SDW0.E = TSTBIT (SDWodd, 19);
-    cpu.SDW0.W = TSTBIT (SDWodd, 18);
-    cpu.SDW0.P = TSTBIT (SDWodd, 17);
-    cpu.SDW0.U = TSTBIT (SDWodd, 16);
-    cpu.SDW0.G = TSTBIT (SDWodd, 15);
-    cpu.SDW0.C = TSTBIT (SDWodd, 14);
-    cpu.SDW0.EB = SDWodd & 037777;
+    cpu.SDW0.R     = TSTBIT (SDWodd, 20);
+    cpu.SDW0.E     = TSTBIT (SDWodd, 19);
+    cpu.SDW0.W     = TSTBIT (SDWodd, 18);
+    cpu.SDW0.P     = TSTBIT (SDWodd, 17);
+    cpu.SDW0.U     = TSTBIT (SDWodd, 16);
+    cpu.SDW0.G     = TSTBIT (SDWodd, 15);
+    cpu.SDW0.C     = TSTBIT (SDWodd, 14);
+    cpu.SDW0.EB    = SDWodd & 037777;
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
@@ -516,22 +526,22 @@ static void fetch_nsdw (word15 segno)
 
     // even word
     cpu.SDW0.ADDR = (SDWeven >> 12) & 077777777;
-    cpu.SDW0.R1 = (SDWeven >> 9) & 7;
-    cpu.SDW0.R2 = (SDWeven >> 6) & 7;
-    cpu.SDW0.R3 = (SDWeven >> 3) & 7;
-    cpu.SDW0.DF = TSTBIT (SDWeven, 2);
-    cpu.SDW0.FC = SDWeven & 3;
+    cpu.SDW0.R1   = (SDWeven >> 9)  & 7;
+    cpu.SDW0.R2   = (SDWeven >> 6)  & 7;
+    cpu.SDW0.R3   = (SDWeven >> 3)  & 7;
+    cpu.SDW0.DF   = TSTBIT (SDWeven, 2);
+    cpu.SDW0.FC   = SDWeven & 3;
 
     // odd word
     cpu.SDW0.BOUND = (SDWodd >> 21) & 037777;
-    cpu.SDW0.R = TSTBIT (SDWodd, 20);
-    cpu.SDW0.E = TSTBIT (SDWodd, 19);
-    cpu.SDW0.W = TSTBIT (SDWodd, 18);
-    cpu.SDW0.P = TSTBIT (SDWodd, 17);
-    cpu.SDW0.U = TSTBIT (SDWodd, 16);
-    cpu.SDW0.G = TSTBIT (SDWodd, 15);
-    cpu.SDW0.C = TSTBIT (SDWodd, 14);
-    cpu.SDW0.EB = SDWodd & 037777;
+    cpu.SDW0.R     = TSTBIT (SDWodd, 20);
+    cpu.SDW0.E     = TSTBIT (SDWodd, 19);
+    cpu.SDW0.W     = TSTBIT (SDWodd, 18);
+    cpu.SDW0.P     = TSTBIT (SDWodd, 17);
+    cpu.SDW0.U     = TSTBIT (SDWodd, 16);
+    cpu.SDW0.G     = TSTBIT (SDWodd, 15);
+    cpu.SDW0.C     = TSTBIT (SDWodd, 14);
+    cpu.SDW0.EB    = SDWodd & 037777;
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
@@ -553,23 +563,10 @@ static char *str_sdw (char * buf, sdw_s *SDW)
       sprintf (buf,
                "ADDR:%06o R1:%o R2:%o R3:%o BOUND:%o R:%o E:%o W:%o P:%o "
                "U:%o G:%o C:%o CL:%o DF:%o FC:%o POINTER=%o USE=%d",
-               SDW->ADDR,
-               SDW->R1,
-               SDW->R2,
-               SDW->R3,
-               SDW->BOUND,
-               SDW->R,
-               SDW->E,
-               SDW->W,
-               SDW->P,
-               SDW->U,
-               SDW->G,
-               SDW->C,
-               SDW->EB,
-               SDW->DF,
-               SDW->FC,
-               SDW->POINTER,
-               SDW->USE);
+               SDW->ADDR,    SDW->R1, SDW->R2, SDW->R3, SDW->BOUND,
+               SDW->R,       SDW->E,  SDW->W,  SDW->P,  SDW->U,
+               SDW->G,       SDW->C,  SDW->EB, SDW->DF, SDW->FC,
+               SDW->POINTER, SDW->USE);
     return buf;
   }
 
@@ -702,8 +699,8 @@ static void load_sdwam (word15 segno, bool nomatch)
     word6 u = calc_hit_am (p->USE, toffset >> 4); // before loading the SDWAM!
     * p = cpu.SDW0; // load the SDW
     p->POINTER = segno;
-    p->FE = true;  // in use
-    cpu.SDW = p; // export pointer for appending
+    p->FE = true;   // in use
+    cpu.SDW = p;    // export pointer for appending
 
     for (uint toffset1 = 0; toffset1 < 64; toffset1 += 16) // update LRU
       {
@@ -831,11 +828,11 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
     core_read ((sdw->ADDR + x2) & PAMASK, & PTWx2, __func__);
 #endif
 
-    cpu.PTW0.ADDR = GETHI (PTWx2);
-    cpu.PTW0.U = TSTBIT (PTWx2, 9);
-    cpu.PTW0.M = TSTBIT (PTWx2, 6);
-    cpu.PTW0.DF = TSTBIT (PTWx2, 2);
-    cpu.PTW0.FC = PTWx2 & 3;
+    cpu.PTW0.ADDR = GETHI  (PTWx2);
+    cpu.PTW0.U    = TSTBIT (PTWx2, 9);
+    cpu.PTW0.M    = TSTBIT (PTWx2, 6);
+    cpu.PTW0.DF   = TSTBIT (PTWx2, 2);
+    cpu.PTW0.FC   = PTWx2 & 3;
 
     // ISOLTS-861 02
 #ifndef LOCKLESS
@@ -869,10 +866,10 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
 
 static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
   {
-    cpu.PTW0.PAGENO = (offset >> 6) & 07760;
+    cpu.PTW0.PAGENO  = (offset >> 6) & 07760;
     cpu.PTW0.POINTER = segno;
-    cpu.PTW0.USE = 0;
-    cpu.PTW0.FE = true;
+    cpu.PTW0.USE     = 0;
+    cpu.PTW0.FE      = true;
 
     cpu.PTW = & cpu.PTW0;
     if (nomatch || (! cpu.tweaks.enable_wam) || (! cpu.cu.PT_ON))
@@ -895,10 +892,10 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
           {
             DBGAPP ("loadPTWAM(1):PTWAM[%d] FE=0 || USE=0\n", _n);
             *p = cpu.PTW0;
-            p->PAGENO = (offset >> 6) & 07760;
+            p->PAGENO  = (offset >> 6) & 07760;
             p->POINTER = segno;
-            p->USE = 0;
-            p->FE = true;
+            p->USE     = 0;
+            p->FE      = true;
 
             for (int _h = 0; _h < N_WAM_ENTRIES; _h++)
               {
@@ -910,9 +907,9 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
             cpu.PTW = p;
             DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o "
                     "POINTER=%o PAGENO=%o USE=%d\n",
-                    cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
-                    cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO,
-                    cpu.PTW->USE);
+                    cpu.PTW->ADDR,   cpu.PTW->U,   cpu.PTW->M,
+                    cpu.PTW->DF,     cpu.PTW->FC,  cpu.PTW->POINTER,
+                    cpu.PTW->PAGENO, cpu.PTW->USE);
 # ifdef do_selftestPTWAM
             selftest_ptwaw ();
 # endif
@@ -943,12 +940,12 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
     DBGAPP ("loadPTWAM(1):PTWAM[%d] FE=0 || LRU\n",
             toffset + setno);
 
-    word6 u = calc_hit_am (p->USE, toffset >> 4); // before loading the PTWAM
-    * p = cpu.PTW0; // load the PTW
-    p->PAGENO = (offset >> 6) & 07760;
+    word6 u    = calc_hit_am (p->USE, toffset >> 4); // before loading the PTWAM
+    * p        = cpu.PTW0; // load the PTW
+    p->PAGENO  = (offset >> 6) & 07760;
     p->POINTER = segno;
-    p->FE = true;  // in use
-    cpu.PTW = p; // export pointer for appending
+    p->FE      = true;  // in use
+    cpu.PTW    = p; // export pointer for appending
 
     for (uint toffset1 = 0; toffset1 < 64; toffset1 += 16) // update LRU
       {
@@ -959,8 +956,8 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
 
     DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o POINTER=%o "
             "PAGENO=%o USE=%d\n",
-            cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
-            cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO, cpu.PTW->USE);
+            cpu.PTW->ADDR, cpu.PTW->U,       cpu.PTW->M,      cpu.PTW->DF,
+            cpu.PTW->FC,   cpu.PTW->POINTER, cpu.PTW->PAGENO, cpu.PTW->USE);
 #endif
   }
 
@@ -1019,10 +1016,10 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
 
     ptw_s PTW2;
     PTW2.ADDR = GETHI (PTWx2n);
-    PTW2.U = TSTBIT (PTWx2n, 9);
-    PTW2.M = TSTBIT (PTWx2n, 6);
-    PTW2.DF = TSTBIT (PTWx2n, 2);
-    PTW2.FC = PTWx2n & 3;
+    PTW2.U    = TSTBIT (PTWx2n, 9);
+    PTW2.M    = TSTBIT (PTWx2n, 6);
+    PTW2.DF   = TSTBIT (PTWx2n, 2);
+    PTW2.FC   = PTWx2n & 3;
 
 #ifdef L68
     if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
@@ -1096,18 +1093,18 @@ static char *str_pct (processor_cycle_type t)
   {
     switch (t)
       {
-        case UNKNOWN_CYCLE: return "UNKNOWN_CYCLE";
-        case OPERAND_STORE : return "OPERAND_STORE";
-        case OPERAND_READ : return "OPERAND_READ";
+        case UNKNOWN_CYCLE:       return "UNKNOWN_CYCLE";
+        case OPERAND_STORE:       return "OPERAND_STORE";
+        case OPERAND_READ:        return "OPERAND_READ";
         case INDIRECT_WORD_FETCH: return "INDIRECT_WORD_FETCH";
-        case RTCD_OPERAND_FETCH: return "RTCD_OPERAND_FETCH";
-        case INSTRUCTION_FETCH: return "INSTRUCTION_FETCH";
-        case APU_DATA_READ: return "APU_DATA_READ";
-        case APU_DATA_STORE: return "APU_DATA_STORE";
-        case ABSA_CYCLE : return "ABSA_CYCLE";
+        case RTCD_OPERAND_FETCH:  return "RTCD_OPERAND_FETCH";
+        case INSTRUCTION_FETCH:   return "INSTRUCTION_FETCH";
+        case APU_DATA_READ:       return "APU_DATA_READ";
+        case APU_DATA_STORE:      return "APU_DATA_STORE";
+        case ABSA_CYCLE:          return "ABSA_CYCLE";
 #ifdef LOCKLESS
-        case OPERAND_RMW : return "OPERAND_RMW";
-        case APU_DATA_RMW : return "APU_DATA_RMW";
+        case OPERAND_RMW:         return "OPERAND_RMW";
+        case APU_DATA_RMW:        return "APU_DATA_RMW";
 #endif
 
         default:
@@ -1224,11 +1221,9 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
         // lptp,lptr,lsdp,lsdr,sptp,sptr,ssdp,ssdr
         // Unfortunately, ISOLTS doesn't try to execute any of these in append mode.
         // XXX should this be only for OPERAND_READ and OPERAND_STORE?
-        nomatch = ((i->opcode == 0232 || i->opcode == 0254 ||
-                    i->opcode == 0154 || i->opcode == 0173) &&
-                    i->opcodeX ) ||
-                   ((i->opcode == 0557 || i->opcode == 0257) &&
-                    ! i->opcodeX);
+        nomatch = ((i->opcode == 0232 || i->opcode == 0254  ||
+                    i->opcode == 0154 || i->opcode == 0173) &&   i->opcodeX) ||
+                  ((i->opcode == 0557 || i->opcode == 0257) && ! i->opcodeX);
       }
 
     processor_cycle_type lastCycle = cpu.apu.lastCycle;
@@ -1276,7 +1271,8 @@ word24 do_append_cycle (processor_cycle_type thisCycle, word36 * data,
         ! (cpu.cu.XSF || cpu.currentInstruction.b29) /*get_went_appending()*/)
       {
         cpu.TPR.TSR = 0;
-        DBGAPP ("RTCD_OPERAND_FETCH ABSOLUTE mode set TSR %05o TRR %o\n", cpu.TPR.TSR, cpu.TPR.TRR);
+        DBGAPP ("RTCD_OPERAND_FETCH ABSOLUTE mode set TSR %05o TRR %o\n",
+                cpu.TPR.TSR, cpu.TPR.TRR);
       }
 
     goto A;
@@ -1453,10 +1449,12 @@ A:;
                 PNL (L68_ (cpu.apu.state |= apu_FLT;))
                 FMSG (acvFaultsMsg = "acvFaults(B) C(PPR.PSR) = C(TPR.TSR)";)
               }
+#if 0
             else
               {
                 // sim_warn ("do_append_cycle(B) SDW->R == 0 && cpu.PPR.PSR == cpu.TPR.TSR: %0#o\n", cpu.PPR.PSR);
               }
+#endif
           }
       }
 
@@ -1972,10 +1970,10 @@ J:;
 #if 0
     //     IT_CI, IT_SC, IT_SCR -- address is used for tally word
     //     IT_I indirects
-    //     IT_AD -- address is used for tally word
-    //     IT_SD -- address is used for tally word
-    //     IT_DI -- address is used for tally word
-    //     IT_ID -- address is used for tally word
+    //     IT_AD  -- address is used for tally word
+    //     IT_SD  -- address is used for tally word
+    //     IT_DI  -- address is used for tally word
+    //     IT_ID  -- address is used for tally word
     //     IT_DIC -- address is used for tally word
     //     IT_IDC -- address is used for tally word
     static const bool isInd[64] =
@@ -1984,16 +1982,16 @@ J:;
         false, false, false, false, false, false, false, false,
         false, false, false, false, false, false, false, false,
         // 16-31 RI_MOD
-        true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true,
+        true,  true,  true,  true,  true,  true,  true,  true,
+        true,  true,  true,  true,  true,  true,  true,  true,
         // 32-47 IT_MOD
         // f1  und    und    und    sd     scr    f2     f3
         false, false, false, false, true,  true,  false, false,
         // ci  i      sc     ad     di     dic    id     idc
         true,  true,  true,  true,  true,  true,  true,  true,
         // 48-63 IR_MOD
-        true, true, true, true, true, true, true, true,
-        true, true, true, true, true, true, true, true
+        true,  true,  true,  true,  true,  true,  true,  true,
+        true,  true,  true,  true,  true,  true,  true,  true
       };
     if (isInd[(* data) & MASK6])
 #else
@@ -2056,8 +2054,8 @@ L:; // Transfer or instruction fetch
 
         // C(PPR.PRR) -> C(PRn .RNR)
         // C(PPR.PSR) -> C(PRn .SNR)
-        // C(PPR.IC) -> C(PRn .WORDNO)
-        // 000000 -> C(PRn .BITNO)
+        // C(PPR.IC)  -> C(PRn .WORDNO)
+        // 000000     -> C(PRn .BITNO)
         cpu.PR[n].RNR = cpu.PPR.PRR;
 // According the AL39, the PSR is 'undefined' in absolute mode.
 // ISOLTS thinks means don't change the operand
@@ -2110,9 +2108,9 @@ KL:
     DBGAPP ("do_append_cycle(KL)\n");
 
     // C(TPR.TSR) -> C(PPR.PSR)
-    cpu.PPR.PSR = cpu.TPR.TSR;
-    // C(TPR.CA) -> C(PPR.IC)
-    cpu.PPR.IC = cpu.TPR.CA;
+    cpu.PPR.PSR   = cpu.TPR.TSR;
+    // C(TPR.CA)  -> C(PPR.IC)
+    cpu.PPR.IC    = cpu.TPR.CA;
 
     goto M;
 
@@ -2162,11 +2160,11 @@ N: // CALL6
     HDBGRegPRW (7, "app call6");
 #endif
     // C(TPR.TRR) -> C(PPR.PRR)
-    cpu.PPR.PRR = cpu.TPR.TRR;
+    cpu.PPR.PRR   = cpu.TPR.TRR;
     // C(TPR.TSR) -> C(PPR.PSR)
-    cpu.PPR.PSR = cpu.TPR.TSR;
-    // C(TPR.CA) -> C(PPR.IC)
-    cpu.PPR.IC = cpu.TPR.CA;
+    cpu.PPR.PSR   = cpu.TPR.TSR;
+    // C(TPR.CA)  -> C(PPR.IC)
+    cpu.PPR.IC    = cpu.TPR.CA;
 
     goto M;
 
@@ -2272,22 +2270,22 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
 
         // even word
         SDW1.ADDR = (SDWeven >> 12) & 077777777;
-        SDW1.R1 = (SDWeven >> 9) & 7;
-        SDW1.R2 = (SDWeven >> 6) & 7;
-        SDW1.R3 = (SDWeven >> 3) & 7;
-        SDW1.DF = TSTBIT (SDWeven, 2);
-        SDW1.FC = SDWeven & 3;
+        SDW1.R1   = (SDWeven >> 9)  & 7;
+        SDW1.R2   = (SDWeven >> 6)  & 7;
+        SDW1.R3   = (SDWeven >> 3)  & 7;
+        SDW1.DF   = TSTBIT (SDWeven, 2);
+        SDW1.FC   = SDWeven & 3;
 
         // odd word
         SDW1.BOUND = (SDWodd >> 21) & 037777;
-        SDW1.R = TSTBIT (SDWodd, 20);
-        SDW1.E = TSTBIT (SDWodd, 19);
-        SDW1.W = TSTBIT (SDWodd, 18);
-        SDW1.P = TSTBIT (SDWodd, 17);
-        SDW1.U = TSTBIT (SDWodd, 16);
-        SDW1.G = TSTBIT (SDWodd, 15);
-        SDW1.C = TSTBIT (SDWodd, 14);
-        SDW1.EB = SDWodd & 037777;
+        SDW1.R     = TSTBIT (SDWodd, 20);
+        SDW1.E     = TSTBIT (SDWodd, 19);
+        SDW1.W     = TSTBIT (SDWodd, 18);
+        SDW1.P     = TSTBIT (SDWodd, 17);
+        SDW1.U     = TSTBIT (SDWodd, 16);
+        SDW1.G     = TSTBIT (SDWodd, 15);
+        SDW1.C     = TSTBIT (SDWodd, 14);
+        SDW1.EB    = SDWodd & 037777;
       }
     else // ! DSBR.U
       {
@@ -2300,22 +2298,22 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
 
         // even word
         SDW1.ADDR = (SDWeven >> 12) & 077777777;
-        SDW1.R1 = (SDWeven >> 9) & 7;
-        SDW1.R2 = (SDWeven >> 6) & 7;
-        SDW1.R3 = (SDWeven >> 3) & 7;
-        SDW1.DF = TSTBIT (SDWeven, 2);
-        SDW1.FC = SDWeven & 3;
+        SDW1.R1   = (SDWeven >> 9)  & 7;
+        SDW1.R2   = (SDWeven >> 6)  & 7;
+        SDW1.R3   = (SDWeven >> 3)  & 7;
+        SDW1.DF   = TSTBIT (SDWeven, 2);
+        SDW1.FC   = SDWeven & 3;
 
         // odd word
         SDW1.BOUND = (SDWodd >> 21) & 037777;
-        SDW1.R = TSTBIT (SDWodd, 20);
-        SDW1.E = TSTBIT (SDWodd, 19);
-        SDW1.W = TSTBIT (SDWodd, 18);
-        SDW1.P = TSTBIT (SDWodd, 17);
-        SDW1.U = TSTBIT (SDWodd, 16);
-        SDW1.G = TSTBIT (SDWodd, 15);
-        SDW1.C = TSTBIT (SDWodd, 14);
-        SDW1.EB = SDWodd & 037777;
+        SDW1.R     = TSTBIT (SDWodd, 20);
+        SDW1.E     = TSTBIT (SDWodd, 19);
+        SDW1.W     = TSTBIT (SDWodd, 18);
+        SDW1.P     = TSTBIT (SDWodd, 17);
+        SDW1.U     = TSTBIT (SDWodd, 16);
+        SDW1.G     = TSTBIT (SDWodd, 15);
+        SDW1.C     = TSTBIT (SDWodd, 14);
+        SDW1.EB    = SDWodd & 037777;
 
       }
 
@@ -2349,10 +2347,10 @@ int dbgLookupAddress (word18 segno, word18 offset, word24 * finalAddress,
         core_read ((SDW1.ADDR + x2) & PAMASK, & PTWx2, __func__);
 
         PTW1.ADDR = GETHI (PTWx2);
-        PTW1.U = TSTBIT (PTWx2, 9);
-        PTW1.M = TSTBIT (PTWx2, 6);
-        PTW1.DF = TSTBIT (PTWx2, 2);
-        PTW1.FC = PTWx2 & 3;
+        PTW1.U    = TSTBIT (PTWx2, 9);
+        PTW1.M    = TSTBIT (PTWx2, 6);
+        PTW1.DF   = TSTBIT (PTWx2, 2);
+        PTW1.FC   = PTWx2 & 3;
 
         if (! PTW1.DF)
           {

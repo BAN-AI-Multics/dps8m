@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 # vim: filetype=sh:tabstop=4:tw=100:expandtab
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
 # SPDX-License-Identifier: FSFAP
 # scspell-id: 557fb5c2-f62b-11ec-a98f-80ee73e9b8e7
 

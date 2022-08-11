@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 1414c8ee-f62f-11ec-885a-80ee73e9b8e7
  *
@@ -33,8 +34,6 @@
 #include "dps8_ins.h"
 #include "dps8_opcodetable.h"
 #include "dps8_utils.h"
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 
@@ -91,13 +90,13 @@ struct opcode_s * get_iwb_info  (DCDstruct * i)
 
 char *disassemble(char * result, word36 instruction)
 {
-    uint32 opcode  = GET_OP(instruction);   ///< get opcode
-    uint32 opcodeX = GET_OPX(instruction);  ///< opcode extension
+    uint32 opcode   = GET_OP(instruction);   ///< get opcode
+    uint32 opcodeX  = GET_OPX(instruction);  ///< opcode extension
     uint32 opcode10 = opcode | (opcodeX ? 01000 : 0);
-    word18 address = GET_ADDR(instruction);
-    word1  a       = GET_A(instruction);
+    word18 address  = GET_ADDR(instruction);
+    word1  a        = GET_A(instruction);
     //int32 i       = GET_I(instruction);
-    word6  tag     = GET_TAG(instruction);
+    word6  tag      = GET_TAG(instruction);
 
     //static char result[132] = "???";
     strcpy(result, "???");
@@ -177,23 +176,13 @@ word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
   {
     CPT (cpt2L, 17); // Add36b
     sim_debug (DBG_TRACEEXT, & cpu_dev, "Add36b op1 %012"PRIo64" op2 %012"PRIo64" carryin %o flagsToSet %06o flags %06o\n", op1, op2, carryin, flagsToSet, * flags);
-// https://en.wikipedia.org/wiki/Two%27s_complement#Addition
-//
-// In general, any two N-bit numbers may be added without overflow, by first
-// sign-extending both of them to N + 1 bits, and then adding as above. The
-// N + 1 bits result is large enough to represent any possible sum (N = 5 two's
-// complement can represent values in the range −16 to 15) so overflow will
-// never occur. It is then possible, if desired, to 'truncate' the result back
-// to N bits while preserving the value if and only if the discarded bit is a
-// proper sign extension of the retained result bits. This provides another
-// method of detecting overflow—which is equivalent to the method of comparing
-// the carry bits—but which may be easier to implement in some situations,
-// because it does not require access to the internals of the addition.
+
+// See: https://en.wikipedia.org/wiki/Two%27s_complement#Addition
 
     // 37 bit arithmetic for the above N+1 algorithm
     word38 op1e = op1 & MASK36;
     word38 op2e = op2 & MASK36;
-    word38 ci = carryin ? 1 : 0;
+    word38 ci   = carryin ? 1 : 0;
 
     // extend sign bits
     if (op1e & SIGN36)
@@ -221,9 +210,9 @@ word36 Add36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
     res &= MASK36;
 
 #ifdef PANEL
-    if (cry) CPT (cpt2L, 28); // carry
-    if (ovf) CPT (cpt2L, 29); // ovf
-    if (!res) CPT (cpt2L, 30); // zero
+    if (cry)  CPT (cpt2L, 28);         // carry
+    if (ovf)  CPT (cpt2L, 29);         // ovf
+    if (!res) CPT (cpt2L, 30);         // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -265,11 +254,8 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
   {
     CPT (cpt2L, 18); // Sub36b
 
-// https://en.wikipedia.org/wiki/Two%27s_complement
-//
-// As for addition, overflow in subtraction may be avoided (or detected after
-// the operation) by first sign-extending both inputs by an extra bit.
-//
+// See: https://en.wikipedia.org/wiki/Two%27s_complement
+
 // AL39:
 //
 //  If carry indicator ON, then C(A) - C(Y) -> C(A)
@@ -279,7 +265,7 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
     word38 op1e = op1 & MASK36;
     word38 op2e = op2 & MASK36;
     // Note that carryin has an inverted sense for borrow
-    word38 ci = carryin ? 0 : 1;
+    word38 ci   = carryin ? 0 : 1;
 
     // extend sign bits
     if (op1e & SIGN36)
@@ -307,9 +293,9 @@ word36 Sub36b (word36 op1, word36 op2, word1 carryin, word18 flagsToSet, word18 
     bool cry = r38;
 
 #ifdef PANEL
-    if (cry) CPT (cpt2L, 28); // carry
-    if (ovf) CPT (cpt2L, 29); // ovf
-    if (!res) CPT (cpt2L, 30); // zero
+    if (cry)  CPT (cpt2L, 28);         // carry
+    if (ovf)  CPT (cpt2L, 29);         // ovf
+    if (!res) CPT (cpt2L, 30);         // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -350,23 +336,12 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
   {
     CPT (cpt2L, 19); // Add18b
 
-// https://en.wikipedia.org/wiki/Two%27s_complement#Addition
-//
-// In general, any two N-bit numbers may be added without overflow, by first
-// sign-extending both of them to N + 1 bits, and then adding as above. The
-// N + 1 bits result is large enough to represent any possible sum (N = 5 two's
-// complement can represent values in the range −16 to 15) so overflow will
-// never occur. It is then possible, if desired, to 'truncate' the result back
-// to N bits while preserving the value if and only if the discarded bit is a
-// proper sign extension of the retained result bits. This provides another
-// method of detecting overflow—which is equivalent to the method of comparing
-// the carry bits—but which may be easier to implement in some situations,
-// because it does not require access to the internals of the addition.
+// See: https://en.wikipedia.org/wiki/Two%27s_complement#Addition
 
     // 19 bit arithmetic for the above N+1 algorithm
     word20 op1e = op1 & MASK18;
     word20 op2e = op2 & MASK18;
-    word20 ci = carryin ? 1 : 0;
+    word20 ci   = carryin ? 1 : 0;
 
     // extend sign bits
     if (op1e & SIGN18)
@@ -378,7 +353,7 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     word20 res = op1e + op2e + ci;
 
     // Extract the overflow bits
-    bool r19 = (res & BIT19) ? true : false;
+    bool r19 = (res & BIT19)  ? true : false;
     bool r18 = (res & SIGN18) ? true : false;
 
     // Extract the carry bit
@@ -394,9 +369,9 @@ word18 Add18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     bool cry = r20;
 
 #ifdef PANEL
-    if (cry) CPT (cpt2L, 28); // carry
-    if (ovf) CPT (cpt2L, 29); // ovf
-    if (!res) CPT (cpt2L, 30); // zero
+    if (cry)  CPT (cpt2L, 28);         // carry
+    if (ovf)  CPT (cpt2L, 29);         // ovf
+    if (!res) CPT (cpt2L, 30);         // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -437,11 +412,8 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
   {
     CPT (cpt2L, 20); // Sub18b
 
-// https://en.wikipedia.org/wiki/Two%27s_complement
-//
-// As for addition, overflow in subtraction may be avoided (or detected after
-// the operation) by first sign-extending both inputs by an extra bit.
-//
+// See: https://en.wikipedia.org/wiki/Two%27s_complement
+
 // AL39:
 //
 //  If carry indicator ON, then C(A) - C(Y) -> C(A)
@@ -451,7 +423,7 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     word20 op1e = op1 & MASK18;
     word20 op2e = op2 & MASK18;
     // Note that carryin has an inverted sense for borrow
-    word20 ci = carryin ? 0 : 1;
+    word20 ci   = carryin ? 0 : 1;
 
     // extend sign bits
     if (op1e & SIGN18)
@@ -463,7 +435,7 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     word20 res = op1e - op2e - ci;
 
     // Extract the overflow bits
-    bool r19 = res & BIT19 ? true : false;
+    bool r19 = res & BIT19  ? true : false;
     bool r18 = res & SIGN18 ? true : false;
 
     // Extract the carry bit
@@ -479,9 +451,9 @@ word18 Sub18b (word18 op1, word18 op2, word1 carryin, word18 flagsToSet, word18 
     bool cry = r20;
 
 #ifdef PANEL
-    if (cry) CPT (cpt2L, 28); // carry
-    if (ovf) CPT (cpt2L, 29); // ovf
-    if (!res) CPT (cpt2L, 30); // zero
+    if (cry)  CPT (cpt2L, 28);         // carry
+    if (ovf)  CPT (cpt2L, 29);         // ovf
+    if (!res) CPT (cpt2L, 30);         // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -522,28 +494,17 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
   {
     CPT (cpt2L, 21); // Add72b
 
-// https://en.wikipedia.org/wiki/Two%27s_complement#Addition
-//
-// In general, any two N-bit numbers may be added without overflow, by first
-// sign-extending both of them to N + 1 bits, and then adding as above. The
-// N + 1 bits result is large enough to represent any possible sum (N = 5 two's
-// complement can represent values in the range −16 to 15) so overflow will
-// never occur. It is then possible, if desired, to 'truncate' the result back
-// to N bits while preserving the value if and only if the discarded bit is a
-// proper sign extension of the retained result bits. This provides another
-// method of detecting overflow—which is equivalent to the method of comparing
-// the carry bits—but which may be easier to implement in some situations,
-// because it does not require access to the internals of the addition.
+// See: https://en.wikipedia.org/wiki/Two%27s_complement#Addition
 
     // 73 bit arithmetic for the above N+1 algorithm
 #ifdef NEED_128
     word74 op1e = and_128 (op1, MASK72);
     word74 op2e = and_128 (op2, MASK72);
-    word74 ci = construct_128 (0, carryin ? 1 : 0);
+    word74 ci   = construct_128 (0, carryin ? 1 : 0);
 #else
     word74 op1e = op1 & MASK72;
     word74 op2e = op2 & MASK72;
-    word74 ci = carryin ? 1 : 0;
+    word74 ci   = carryin ? 1 : 0;
 #endif
 
     // extend sign bits
@@ -571,7 +532,7 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     bool r73 = isnonzero_128 (and_128 (res, BIT73));
     bool r72 = isnonzero_128 (and_128 (res, SIGN72));
 #else
-    bool r73 = res & BIT73 ? true : false;
+    bool r73 = res & BIT73  ? true : false;
     bool r72 = res & SIGN72 ? true : false;
 #endif
 
@@ -596,9 +557,9 @@ word72 Add72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     bool cry = r74;
 
 #ifdef PANEL
-    if (cry) CPT (cpt2L, 28); // carry
-    if (ovf) CPT (cpt2L, 29); // ovf
-    if (!res) CPT (cpt2L, 30); // zero
+    if (cry)  CPT (cpt2L, 28);         // carry
+    if (ovf)  CPT (cpt2L, 29);         // ovf
+    if (!res) CPT (cpt2L, 30);         // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -654,11 +615,8 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
  (word36) ((op1 >> 36) & MASK36), (word36) (op1 & MASK36), (word36) ((op2 >> 36) & MASK36), (word36) (op2 & MASK36), carryin, flagsToSet, * flags);
 #endif
 
-// https://en.wikipedia.org/wiki/Two%27s_complement
-//
-// As for addition, overflow in subtraction may be avoided (or detected after
-// the operation) by first sign-extending both inputs by an extra bit.
-//
+// See: https://en.wikipedia.org/wiki/Two%27s_complement
+
 // AL39:
 //
 //  If carry indicator ON, then C(A) - C(Y) -> C(A)
@@ -716,7 +674,7 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     bool r73 = isnonzero_128 (and_128 (res, BIT73));
     bool r72 = isnonzero_128 (and_128 (res, SIGN72));
 #else
-    bool r73 = res & BIT73 ? true : false;
+    bool r73 = res & BIT73  ? true : false;
     bool r72 = res & SIGN72 ? true : false;
 #endif
 
@@ -741,9 +699,9 @@ word72 Sub72b (word72 op1, word72 op2, word1 carryin, word18 flagsToSet, word18 
     bool cry = r74;
 
 #ifdef PANEL
-    if (cry) CPT (cpt2L, 28); // carry
-    if (ovf) CPT (cpt2L, 29); // ovf
-    if (!res) CPT (cpt2L, 30); // zero
+    if (cry)  CPT (cpt2L, 28);         // carry
+    if (ovf)  CPT (cpt2L, 29);         // ovf
+    if (!res) CPT (cpt2L, 30);         // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -806,8 +764,8 @@ word36 compl36(word36 op1, word18 *flags, bool * ovf)
     * ovf = op1 == MAXNEG;
 
 #ifdef PANEL
-    if (* ovf) CPT (cpt2L, 29); // ovf
-    if (!res) CPT (cpt2L, 30); // zero
+    if (* ovf) CPT (cpt2L, 29);        // ovf
+    if (!res)  CPT (cpt2L, 30);        // zero
     if (res & SIGN36) CPT (cpt2L, 31); // neg
 #endif
 
@@ -839,8 +797,8 @@ word18 compl18(word18 op1, word18 *flags, bool * ovf)
 
     * ovf = op1 == MAX18NEG;
 #ifdef PANEL
-    if (* ovf) CPT (cpt2L, 29); // ovf
-    if (!res) CPT (cpt2L, 30); // zero
+    if (* ovf) CPT (cpt2L, 29);        // ovf
+    if (!res)  CPT (cpt2L, 30);        // zero
     if (res & SIGN18) CPT (cpt2L, 31); // neg
 #endif
 
@@ -983,10 +941,10 @@ void convert_to_word36 (word72 src, word36 *even, word36 *odd)
 {
 #ifdef NEED_128
     *even = rshift_128 (src, 36).l & DMASK;
-    *odd = src.l & DMASK;
+    *odd  = src.l & DMASK;
 #else
     *even = (word36)(src >> 36) & DMASK;
-    *odd = (word36)src & DMASK;
+    *odd  = (word36)src & DMASK;
 #endif
 }
 
@@ -996,8 +954,8 @@ void cmp36(word36 oP1, word36 oP2, word18 *flags)
 #ifdef L68
     cpu.ou.cycle |= ou_GOS;
 #endif
-    t_int64 op1 = SIGNEXT36_64(oP1 & DMASK);
-    t_int64 op2 = SIGNEXT36_64(oP2 & DMASK);
+    t_int64 op1  = SIGNEXT36_64(oP1 & DMASK);
+    t_int64 op2  = SIGNEXT36_64(oP2 & DMASK);
 
     word36 sign1 = (word36) op1 & SIGN36;
     word36 sign2 = (word36) op2 & SIGN36;
@@ -1029,8 +987,8 @@ void cmp36(word36 oP1, word36 oP2, word18 *flags)
       }
     else // op1 < 0, op2 > 0 :: op1 < op2
       {
-        CPT (cpt2L, 28); // carry
-        CPT (cpt2L, 31); // neg
+        CPT  (cpt2L, 28); // carry
+        CPT  (cpt2L, 31); // neg
         SETF (* flags, I_CARRY | I_NEG);
         CLRF (* flags, I_ZERO);
       }
@@ -1042,8 +1000,8 @@ void cmp18(word18 oP1, word18 oP2, word18 *flags)
 #ifdef L68
     cpu.ou.cycle |= ou_GOS;
 #endif
-    int32 op1 = SIGNEXT18_32 (oP1 & MASK18);
-    int32 op2 = SIGNEXT18_32 (oP2 & MASK18);
+    int32 op1    = SIGNEXT18_32 (oP1 & MASK18);
+    int32 op2    = SIGNEXT18_32 (oP2 & MASK18);
 
     word18 sign1 = (word18) op1 & SIGN18;
     word18 sign2 = (word18) op2 & SIGN18;
@@ -1316,6 +1274,7 @@ int strmask (char * str, char * mask)
               break;
           } // switch (* mp)
       } // while (1)
+    return false;
   }
 
 #if 0
@@ -1963,7 +1922,6 @@ void print_int128 (int128 n, char * p)
   }
 #endif
 
-// See: https://gist.github.com/diabloneo/9619917
 void timespec_diff(struct timespec * start, struct timespec * stop,
                    struct timespec * result)
 {

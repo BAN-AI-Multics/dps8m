@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: fe96c073-f62f-11ec-bf37-80ee73e9b8e7
  *
@@ -41,8 +42,6 @@
 # undef pthread_setname_np
 # define pthread_setname_np(x,y)
 #endif /* Haiku */
-
-#include "../dpsprintf/dpsprintf.h"
 
 //
 // Resource locks

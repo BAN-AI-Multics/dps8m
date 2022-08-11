@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: db14885d-f62f-11ec-9741-80ee73e9b8e7
  *
@@ -37,8 +38,6 @@
 #include <sys/stat.h> /* For mode constants */
 #include <sys/types.h>
 #include <unistd.h>
-
-#include "../dpsprintf/dpsprintf.h"
 
 #include "shm.h"
 

@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 89935fa0-f62d-11ec-beae-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -17,6 +19,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -43,8 +55,6 @@
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
 
-#include "../dpsprintf/dpsprintf.h"
-
 #define DBG_CTR 1
 #define N_RDR_UNITS 1 // default
 
@@ -53,8 +63,10 @@ static t_stat rdr_show_nunits (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat rdr_set_nunits (UNIT * uptr, int32 value, const char * cptr, void * desc);
 static t_stat rdr_show_device_name (FILE *st, UNIT *uptr, int val, const void *desc);
 static t_stat rdr_set_device_name (UNIT * uptr, int32 value, const char * cptr, void * desc);
-static t_stat rdr_show_path (UNUSED FILE * st, UNIT * uptr, UNUSED int val, UNUSED const void * desc);
-static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value, const UNUSED char * cptr, UNUSED void * desc);
+static t_stat rdr_show_path (UNUSED FILE * st, UNIT * uptr, UNUSED int val,
+                             UNUSED const void * desc);
+static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value, const UNUSED char * cptr,
+                            UNUSED void * desc);
 
 #define UNIT_FLAGS ( UNIT_FIX | UNIT_ATTABLE | UNIT_ROABLE | UNIT_DISABLE | \
                      UNIT_IDLE )
@@ -83,12 +95,12 @@ UNIT rdr_unit [N_RDR_UNITS_MAX] =
 static DEBTAB rdr_dt [] =
   {
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    { "INFO",   DBG_INFO,   NULL },
+    { "ERR",    DBG_ERR,    NULL },
+    { "WARN",   DBG_WARN,   NULL },
+    { "DEBUG",  DBG_DEBUG,  NULL },
+    { "ALL",    DBG_ALL,    NULL }, // don't move as it messes up DBG message
+    { NULL,     0,          NULL }
   };
 
 #define UNIT_WATCH UNIT_V_UF
@@ -96,71 +108,74 @@ static DEBTAB rdr_dt [] =
 static MTAB rdr_mod [] =
   {
 #ifndef SPEED
-    { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
+    { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
 #endif
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      rdr_set_nunits, /* validation routine */
-      rdr_show_nunits, /* display routine */
-      "Number of RDR units in the system", /* value descriptor */
+      MTAB_XTD | MTAB_VDV | \
+      MTAB_NMO | MTAB_VALR,                 /* Mask               */
+      0,                                    /* Match              */
+      "NUNITS",                             /* Print string       */
+      "NUNITS",                             /* Match string       */
+      rdr_set_nunits,                       /* Validation routine */
+      rdr_show_nunits,                      /* Display routine    */
+      "Number of RDR units in the system",  /* Value descriptor   */
       NULL // Help
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      rdr_set_device_name, /* validation routine */
-      rdr_show_device_name, /* display routine */
-      "Select the boot drive", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_VALR | MTAB_NC,                  /* Mask               */
+      0,                                    /* Match              */
+      "NAME",                               /* Print string       */
+      "NAME",                               /* Match string       */
+      rdr_set_device_name,                  /* Validation routine */
+      rdr_show_device_name,                 /* Display routine    */
+      "Select the boot drive",              /* Value descriptor   */
+      NULL                                  /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "PATH",     /* print string */
-      "PATH",         /* match string */
-      rdr_set_path, /* validation routine */
-      rdr_show_path, /* display routine */
-      "Path to card reader directories", /* value descriptor */
-      NULL // Help
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | \
+      MTAB_VALR | MTAB_NC,                  /* Mask               */
+      0,                                    /* Match              */
+      "PATH",                               /* Print string       */
+      "PATH",                               /* Match string       */
+      rdr_set_path,                         /* Validation routine */
+      rdr_show_path,                        /* Display routine    */
+      "Path to card reader directories",    /* Value descriptor   */
+      NULL                                  /* Help               */
     },
 
     { 0, 0, NULL, NULL, 0, 0, NULL, NULL }
   };
 
 DEVICE rdr_dev = {
-    "RDR",        /* name */
-    rdr_unit,     /* units */
-    NULL,         /* registers */
-    rdr_mod,      /* modifiers */
-    N_RDR_UNITS,  /* #units */
-    10,           /* address radix */
-    24,           /* address width */
-    1,            /* address increment */
-    8,            /* data radix */
-    36,           /* data width */
-    NULL,         /* examine */
-    NULL,         /* deposit */
-    rdr_reset,    /* reset */
-    NULL,         /* boot */
-    NULL,         /* attach */
-    NULL,         /* detach */
-    NULL,         /* context */
-    DEV_DEBUG,    /* flags */
-    0,            /* debug control flags */
-    rdr_dt,       /* debug flag names */
-    NULL,         /* memory size change */
-    NULL,         /* logical name */
-    NULL,         // help
-    NULL,         // attach help
-    NULL,         // attach context
-    NULL,         // description
-    NULL
+    "RDR",        /* Name                */
+    rdr_unit,     /* Units               */
+    NULL,         /* Registers           */
+    rdr_mod,      /* Modifiers           */
+    N_RDR_UNITS,  /* #units              */
+    10,           /* Address radix       */
+    24,           /* Address width       */
+    1,            /* Address increment   */
+    8,            /* Data radix          */
+    36,           /* Data width          */
+    NULL,         /* Examine             */
+    NULL,         /* Deposit             */
+    rdr_reset,    /* Reset               */
+    NULL,         /* Boot                */
+    NULL,         /* Attach              */
+    NULL,         /* Detach              */
+    NULL,         /* Context             */
+    DEV_DEBUG,    /* Flags               */
+    0,            /* Debug control flags */
+    rdr_dt,       /* Debug flag names    */
+    NULL,         /* Memory size change  */
+    NULL,         /* Logical name        */
+    NULL,         /* Help                */
+    NULL,         /* Attach help         */
+    NULL,         /* Attach context      */
+    NULL,         /* Description         */
+    NULL          /* End                 */
 };
 
 enum deckFormat { sevenDeck, cardDeck, streamDeck };
@@ -225,8 +240,7 @@ static t_stat rdr_reset (UNUSED DEVICE * dptr)
     return SCPE_OK;
   }
 
-// http://homepage.cs.uiowa.edu/~jones/cards/codes.html
-// General Electric
+// General Electric Cards
 //
 // General Electric used the following collating sequence on their machines,
 // including the GE 600 (the machine on which Multics was developed); this is
@@ -422,8 +436,9 @@ static int getCardLine (int fd, unsigned char * buffer)
         buffer [n ++] = ch;
         buffer [n] = 0;
         if (n > 79)
-         return 0;
-     }
+          return 0;
+      }
+    return 0;
   }
 
 static int getCardData (int fd, char * buffer)
@@ -452,8 +467,8 @@ static bool empty = false;
 static int rdrReadRecord (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
   sim_debug (DBG_NOTIFY, & rdr_dev, "Read binary\n");
-  uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-  uint unitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
+  uint ctlr_unit_idx  = get_ctlr_idx (iomUnitIdx, chan);
+  uint unitIdx        = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
 
 #if 0
   if (rdr_state [unitIdx].deckfd < 0) {
@@ -675,7 +690,8 @@ empty:;
       // because Multics will ignore the last 12 bits.
       for (uint i = 0; i < 27; i ++)
         buffer [i] = extr36 ((uint8 *) rawCardImage, i);
-      //sim_printf ("7deck %012"PRIo64" %012"PRIo64" %012"PRIo64" %012"PRIo64"\r\n", buffer [0], buffer [1], buffer [2], buffer [3]);
+      //sim_printf ("7deck %012"PRIo64" %012"PRIo64" %012"PRIo64" %012"PRIo64"\r\n",
+      //             buffer [0], buffer [1], buffer [2], buffer [3]);
     }
     break;
 
@@ -714,7 +730,7 @@ empty:;
       // filling the buffer with blanks.
       memset (buffer, 0, sizeof (buffer));
       for (uint col = 0; col < l; col ++) {
-        uint wordno = col / 3;
+        uint wordno  = col / 3;
         uint fieldno = col % 3;
         putbits36_12 (& buffer [wordno], fieldno * 12, (word12) hbuf [col]);
       }
@@ -738,10 +754,10 @@ empty:;
   uint tally = 27;
 
   iom_indirect_data_service (iomUnitIdx, chan, buffer, & tally, true);
-  p->initiate = false;
-  p->stati = 04000; // ok
+  p->initiate     = false;
+  p->stati        = 04000; // ok
   p->tallyResidue = (word12) tally & MASK12;
-  p->charPos = 0;
+  p->charPos      = 0;
 
   return IOM_CMD_PROCEED;
 }
@@ -762,8 +778,8 @@ static void submit (enum deckFormat fmt, char * fname, uint16 readerIndex)
     sim_printf ("submit %s\r\n", fname);
 #endif
     strcpy (rdr_state [readerIndex].fname, fname);
-    rdr_state [readerIndex].deckfd = deckfd;
-    rdr_state [readerIndex].deckState = deckStart;
+    rdr_state [readerIndex].deckfd     = deckfd;
+    rdr_state [readerIndex].deckState  = deckStart;
     rdr_state [readerIndex].deckFormat = fmt;
     if (deckfd >= 0)
       rdrCardReady (readerIndex);
@@ -884,22 +900,23 @@ void rdrCardReady (int unitNum)
   {
     uint ctlr_unit_idx = cables->rdr_to_urp [unitNum].ctlr_unit_idx;
     uint ctlr_port_num = 0; // Single port device
-    uint iom_unit_idx = cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
-    uint chan_num = cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
-    uint dev_code = cables->rdr_to_urp[unitNum].dev_code;
+    uint iom_unit_idx  = cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num].iom_unit_idx;
+    uint chan_num      = cables->urp_to_iom[ctlr_unit_idx][ctlr_port_num].chan_num;
+    uint dev_code      = cables->rdr_to_urp[unitNum].dev_code;
     send_special_interrupt (iom_unit_idx, chan_num, dev_code, 0377, 0377 /* card reader to ready */);
   }
 
 iom_cmd_rc_t rdr_iom_cmd (uint iomUnitIdx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data [iomUnitIdx] [chan];
-  uint dev_code = p->IDCW_DEV_CODE;
+  uint dev_code       = p->IDCW_DEV_CODE;
 
-  sim_debug (DBG_TRACE, & rdr_dev, "%s: RDR %c%02o_%02o\n", __func__, iomChar (iomUnitIdx), chan, dev_code);
+  sim_debug (DBG_TRACE, & rdr_dev, "%s: RDR %c%02o_%02o\n",
+          __func__, iomChar (iomUnitIdx), chan, dev_code);
 
-  uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
-  uint unitIdx = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
+  uint ctlr_unit_idx        = get_ctlr_idx (iomUnitIdx, chan);
+  uint unitIdx              = cables->urp_to_urd[ctlr_unit_idx][p->IDCW_DEV_CODE].unit_idx;
   struct rdr_state * statep = & rdr_state[unitIdx];
-  statep->running = true;
+  statep->running           = true;
 
   iom_cmd_rc_t rc = IOM_CMD_PROCEED;
   // IDCW?
@@ -923,7 +940,7 @@ sim_printf ("Request status %04o\r\n", p->stati);
       case 001: // CMD 01 Read binary
         sim_debug (DBG_DEBUG, & rdr_dev, "%s: Read Binary\n", __func__);
         if (rdr_state [unitIdx].deckfd < 0) {
-          p->stati = 04201; // hopper empty
+          p->stati        = 04201; // hopper empty
           p->tallyResidue = 0;
 #ifdef TESTING
           if (! empty)
@@ -933,7 +950,7 @@ sim_printf ("Request status %04o\r\n", p->stati);
           return IOM_CMD_DISCONNECT;
         }
         statep->io_mode = rdr_rd_bin;
-        p->stati = 04000;
+        p->stati        = 04000;
         // This is controller status, not device status
         //if (rdr_state[unitIdx].deckfd < 0)
           //p->stati = 04201; // hopper empty
@@ -944,7 +961,7 @@ sim_printf ("read binary %04o\r\n", p->stati);
 
       case 040: // CMD 40 Reset status
         sim_debug (DBG_DEBUG, & rdr_dev, "%s: Request Status\n", __func__);
-        p->stati = 04000;
+        p->stati  = 04000;
         p->isRead = false;
         // This is controller status, not device status
         //if (rdr_state[unitIdx].deckfd < 0)
@@ -960,7 +977,7 @@ sim_printf ("unknown  %o\r\n", p->IDCW_DEV_CMD);
 #endif
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
           sim_warn ("%s: RDR unrecognized device command  %02o\n", __func__, p->IDCW_DEV_CMD);
-        p->stati = 04501; // cmd reject, invalid opcode
+        p->stati      = 04501; // cmd reject, invalid opcode
         p->chanStatus = chanStatIncorrectDCW;
         return IOM_CMD_ERROR;
     } // switch IDCW_DEV_CMD
@@ -997,13 +1014,15 @@ sim_printf ("rdrReadRecord returned %d\r\n", rc);
   return rc;
 }
 
-static t_stat rdr_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val, UNUSED const void * desc)
+static t_stat rdr_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr, UNUSED int val,
+                               UNUSED const void * desc)
   {
     sim_printf("Number of RDR units in system is %d\n", rdr_dev . numunits);
     return SCPE_OK;
   }
 
-static t_stat rdr_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, const char * cptr, UNUSED void * desc)
+static t_stat rdr_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, const char * cptr,
+                              UNUSED void * desc)
   {
     if (! cptr)
       return SCPE_ARG;
@@ -1015,7 +1034,7 @@ static t_stat rdr_set_nunits (UNUSED UNIT * uptr, UNUSED int32 value, const char
   }
 
 static t_stat rdr_show_device_name (UNUSED FILE * st, UNIT * uptr,
-                                       UNUSED int val, UNUSED const void * desc)
+                                    UNUSED int val, UNUSED const void * desc)
   {
     long n = RDR_UNIT_NUM (uptr);
     if (n < 0 || n >= N_RDR_UNITS_MAX)
@@ -1025,7 +1044,7 @@ static t_stat rdr_show_device_name (UNUSED FILE * st, UNIT * uptr,
   }
 
 static t_stat rdr_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
-                                    UNUSED const char * cptr, UNUSED void * desc)
+                                   UNUSED const char * cptr, UNUSED void * desc)
   {
     long n = RDR_UNIT_NUM (uptr);
     if (n < 0 || n >= N_RDR_UNITS_MAX)
@@ -1041,14 +1060,15 @@ static t_stat rdr_set_device_name (UNUSED UNIT * uptr, UNUSED int32 value,
   }
 
 static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
-                                    const UNUSED char * cptr, UNUSED void * desc)
+                            const UNUSED char * cptr, UNUSED void * desc)
   {
     if (! cptr)
       return SCPE_ARG;
 
     size_t len = strlen(cptr);
 
-    // We check for length - (3 + length of rdr_name) to allow for the null, a possible '/' being added and "rdrx" being added
+    // We check for length - (3 + length of rdr_name) to allow for the
+    // null, a possible '/' being added and "rdrx" being added
     if (len >= (sizeof(rdr_path_prefix) - (strlen(rdr_name) + 3)))
       return SCPE_ARG;
 
@@ -1067,7 +1087,7 @@ static t_stat rdr_set_path (UNUSED UNIT * uptr, UNUSED int32 value,
   }
 
 static t_stat rdr_show_path (UNUSED FILE * st, UNUSED UNIT * uptr,
-                                       UNUSED int val, UNUSED const void * desc)
+                             UNUSED int val, UNUSED const void * desc)
   {
     sim_printf("Path to card reader directories is %s\n", rdr_path_prefix);
     return SCPE_OK;

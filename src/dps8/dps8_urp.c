@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 0aeda9d7-f62f-11ec-a611-80ee73e9b8e7
  *
@@ -32,8 +33,6 @@
 #include "dps8_cable.h"
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 

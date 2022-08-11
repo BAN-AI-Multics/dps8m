@@ -1,5 +1,6 @@
 # DPS8M simulator: src/prt2pdf/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: 50949946-f631-11ec-81f4-80ee73e9b8e7
 
@@ -39,10 +40,10 @@ all: prt2pdf$(EXE)
 
 ###############################################################################
 
-prt2pdf$(EXE): prt2pdf.c ../dpsprintf/dpsprintf.o
+prt2pdf$(EXE): prt2pdf.c
 	@$(PRINTF) '%s\n' "CC: prt2pdf"     ||  $(TRUE)
-	@$(SETV); $(CC) $(CFLAGS) $(LDFLAGS) "../dpsprintf/dpsprintf.o"           \
-      -o prt2pdf$(EXE) prt2pdf.c $(MATHLIB) $(DUMALIBS)
+	@$(SETV); $(CC) $(CFLAGS)                                                 \
+      -o prt2pdf$(EXE) prt2pdf.c $(LDFLAGS) $(MATHLIB) $(DUMALIBS)
 
 ###############################################################################
 
@@ -56,7 +57,7 @@ clean distclean:
 	-@$(SETV); $(RMF) "prt2pdf.exe"    > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) "prt2pdf.o"      > /dev/null 2>&1  ||  $(TRUE)
 	-@$(SETV); $(RMF) ./*.gcda         > /dev/null 2>&1  ||  $(TRUE)
-	-@$(SETV); $(RMF) "../dpsprintf/dpsprintf.o"  > /dev/null 2>&1  ||  $(TRUE)
+	-@$(SETV); $(RMF) ./*.ln           > /dev/null 2>&1  ||  $(TRUE)
 
 ###############################################################################
 

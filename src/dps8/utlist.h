@@ -1,12 +1,13 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: BSD-1-Clause
  * scspell-id: 5c109fb8-f630-11ec-b1f7-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2007-2021 Troy D. Hanson
- *     http://troydhanson.github.io/uthash/
+ *     https://troydhanson.github.io/uthash/
  * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.

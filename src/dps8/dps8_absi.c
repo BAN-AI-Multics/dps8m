@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 336ce0b0-f62d-11ec-873c-80ee73e9b8e7
  *
@@ -33,8 +34,6 @@
 #include "dps8_cpu.h"
 #include "dps8_utils.h"
 
-#include "../dpsprintf/dpsprintf.h"
-
 #include "udplib.h"
 
 #define DBG_CTR 1
@@ -59,12 +58,12 @@ UNIT absi_unit[N_ABSI_UNITS_MAX] =
 static DEBTAB absi_dt[] =
   {
     { "NOTIFY", DBG_NOTIFY, NULL },
-    { "INFO", DBG_INFO, NULL },
-    { "ERR", DBG_ERR, NULL },
-    { "WARN", DBG_WARN, NULL },
-    { "DEBUG", DBG_DEBUG, NULL },
-    { "ALL", DBG_ALL, NULL }, // don't move as it messes up DBG message
-    { NULL, 0, NULL }
+    { "INFO",   DBG_INFO,   NULL },
+    { "ERR",    DBG_ERR,    NULL },
+    { "WARN",   DBG_WARN,   NULL },
+    { "DEBUG",  DBG_DEBUG,  NULL },
+    { "ALL",    DBG_ALL,    NULL }, // don't move as it messes up DBG message
+    { NULL,     0,          NULL }
   };
 
 static t_stat absi_show_nunits (UNUSED FILE * st, UNUSED UNIT * uptr,
@@ -120,28 +119,28 @@ static t_stat absi_set_device_name (UNIT * uptr, UNUSED int32 value,
 static MTAB absi_mod[] =
   {
 #ifndef SPEED
-    { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
+    { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
 #endif
     {
-      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR, /* mask */
-      0,                /* match */
-      "NUNITS",         /* print string */
-      "NUNITS",         /* match string */
-      absi_set_nunits,  /* validation routine */
-      absi_show_nunits, /* display routine */
-      "Number of ABSI units in the system", /* value descriptor */
-      NULL /* Help */
+      MTAB_XTD | MTAB_VDV | MTAB_NMO | MTAB_VALR,  /* Mask               */
+      0,                                           /* Match              */
+      "NUNITS",                                    /* Print string       */
+      "NUNITS",                                    /* Match string       */
+      absi_set_nunits,                             /* Validation routine */
+      absi_show_nunits,                            /* Display routine    */
+      "Number of ABSI units in the system",        /* Value descriptor   */
+      NULL                                         /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,                     /* match */
-      "NAME",                /* print string */
-      "NAME",                /* match string */
-      absi_set_device_name,  /* validation routine */
-      absi_show_device_name, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL /* Help */
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,   /* Mask               */
+      0,                                           /* Match              */
+      "NAME",                                      /* Print string       */
+      "NAME",                                      /* Match string       */
+      absi_set_device_name,                        /* Validation routine */
+      absi_show_device_name,                       /* Display routine    */
+      "Set the device name",                       /* Value descriptor   */
+      NULL                                         /* Help               */
     },
     MTAB_eol
   };
@@ -211,33 +210,33 @@ static t_stat absiDetach (UNIT * uptr)
   }
 
 DEVICE absi_dev = {
-    "ABSI",       /* name */
-    absi_unit,    /* units */
-    NULL,         /* registers */
-    absi_mod,     /* modifiers */
-    N_ABSI_UNITS, /* #units */
-    10,           /* address radix */
-    24,           /* address width */
-    1,            /* address increment */
-    8,            /* data radix */
-    36,           /* data width */
-    NULL,         /* examine */
-    NULL,         /* deposit */
-    absi_reset,   /* reset */
-    NULL,         /* boot */
-    absiAttach,   /* attach */
-    absiDetach,   /* detach */
-    NULL,         /* context */
-    DEV_DEBUG,    /* flags */
-    0,            /* debug control flags */
-    absi_dt,      /* debug flag names */
-    NULL,         /* memory size change */
-    NULL,         /* logical name */
-    NULL,         // help
-    NULL,         // attach help
-    NULL,         // attach context
-    NULL,         // description
-    NULL
+    "ABSI",       /* Name                */
+    absi_unit,    /* Units               */
+    NULL,         /* Registers           */
+    absi_mod,     /* Modifiers           */
+    N_ABSI_UNITS, /* #units              */
+    10,           /* Address radix       */
+    24,           /* Address width       */
+    1,            /* Address increment   */
+    8,            /* Data radix          */
+    36,           /* Data width          */
+    NULL,         /* Examine             */
+    NULL,         /* Deposit             */
+    absi_reset,   /* Reset               */
+    NULL,         /* Boot                */
+    absiAttach,   /* Attach              */
+    absiDetach,   /* Detach              */
+    NULL,         /* Context             */
+    DEV_DEBUG,    /* Flags               */
+    0,            /* Debug control flags */
+    absi_dt,      /* Debug flag names    */
+    NULL,         /* Memory size change  */
+    NULL,         /* Logical name        */
+    NULL,         /* Help                */
+    NULL,         /* Attach help         */
+    NULL,         /* Attach context      */
+    NULL,         /* Description         */
+    NULL          /* End                 */
 };
 
 /*
@@ -329,14 +328,14 @@ sim_printf ("absi host switch up\n");
     return IOM_CMD_PROCEED;
   }
 
-// 1 ignored command
-// 0 ok
-// -1 problem
+//  1 == ignored command
+//  0 == ok
+// -1 == problem
 iom_cmd_rc_t absi_iom_cmd (uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-// Is it an IDCW?
 
+    // Is it an IDCW?
     if (IS_IDCW (p))
       {
         return absi_cmd (iomUnitIdx, chan);

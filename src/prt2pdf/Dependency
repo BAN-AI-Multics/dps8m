@@ -1,1 +1,0 @@
-prt2pdf.o: ../dpsprintf/dpsprintf.h

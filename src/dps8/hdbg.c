@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 56a3950b-f62f-11ec-9ec8-80ee73e9b8e7
  *
@@ -17,7 +18,7 @@
  * ---------------------------------------------------------------------------
  */
 
-// history debugging
+// History Debugging
 
 #ifdef TESTING
 
@@ -33,8 +34,6 @@
 # include "hdbg.h"
 
 # include "dps8_faults.h"
-
-# include "../dpsprintf/dpsprintf.h"
 
 enum hevtType {
   hevtEmpty = 0,
@@ -185,10 +184,10 @@ static long hdbg_inc (void) {
 void hdbgTrace (const char * ctx) {
   hev (hevtTrace, RD, FILTER);
   hevents[p].trace.addrMode = get_addr_mode ();
-  hevents[p].trace.segno = cpu.PPR.PSR;
-  hevents[p].trace.ic = cpu.PPR.IC;
-  hevents[p].trace.ring = cpu.PPR.PRR;
-  hevents[p].trace.inst = IWB_IRODD;
+  hevents[p].trace.segno    = cpu.PPR.PSR;
+  hevents[p].trace.ic       = cpu.PPR.IC;
+  hevents[p].trace.ring     = cpu.PPR.PRR;
+  hevents[p].trace.inst     = IWB_IRODD;
 done: ;
 }
 
@@ -208,26 +207,26 @@ done: ;
 
 void hdbgAPURead (word15 segno, word18 offset, word24 final, word36 data, const char * ctx) {
   hev (hevtAPU, RD, FILTER);
-  hevents[p].apu.segno = segno;
+  hevents[p].apu.segno  = segno;
   hevents[p].apu.offset = offset;
-  hevents[p].apu.final = final;
-  hevents[p].apu.data = data;
+  hevents[p].apu.final  = final;
+  hevents[p].apu.data   = data;
 done: ;
 }
 
 void hdbgAPUWrite (word15 segno, word18 offset, word24 final, word36 data, const char * ctx) {
   hev (hevtAPU, WR, FILTER);
-  hevents[p].apu.segno = segno;
+  hevents[p].apu.segno  = segno;
   hevents[p].apu.offset = offset;
-  hevents[p].apu.final = final;
-  hevents[p].apu.data = data;
+  hevents[p].apu.final  = final;
+  hevents[p].apu.data   = data;
 done: ;
 }
 
 void hdbgFault (_fault faultNumber, _fault_subtype subFault, const char * faultMsg, const char * ctx) {
   hev (hevtFault, RD, FILTER);
-  hevents[p].fault.faultNumber = faultNumber;
-  hevents[p].fault.subFault = subFault;
+  hevents[p].fault.faultNumber  = faultNumber;
+  hevents[p].fault.subFault     = subFault;
   strncpy (hevents[p].fault.faultMsg, faultMsg, 63);
   hevents[p].fault.faultMsg[63] = 0;
 done: ;
@@ -235,7 +234,7 @@ done: ;
 
 void hdbgIntrSet (uint inum, uint cpuUnitIdx, uint scuUnitIdx, const char * ctx) {
   hev (hevtIntrSet, RD, FILTER);
-  hevents[p].intrSet.inum = inum;
+  hevents[p].intrSet.inum       = inum;
   hevents[p].intrSet.cpuUnitIdx = cpuUnitIdx;
   hevents[p].intrSet.scuUnitIdx = scuUnitIdx;
 done: ;
@@ -243,10 +242,10 @@ done: ;
 
 void hdbgIntr (uint intr_pair_addr, const char * ctx) {
   hev (hevtIntr, RD, FILTER);
-  hevents[p].cpu_idx = current_running_cpu_idx;
-  hevents[p].time = cpu.cycleCnt;
+  hevents[p].cpu_idx             = current_running_cpu_idx;
+  hevents[p].time                = cpu.cycleCnt;
   strncpy (hevents[p].ctx, ctx, 15);
-  hevents[p].ctx[15] = 0;
+  hevents[p].ctx[15]             = 0;
   hevents[p].intr.intr_pair_addr = intr_pair_addr;
 done: ;
 }
@@ -297,8 +296,8 @@ done: ;
 
 void hdbgIEFP (enum hdbgIEFP_e type, word15 segno, word18 offset, const char * ctx) {
   hev (hevtIEFP, RD, FILTER);
-  hevents [p].iefp.type = type;
-  hevents [p].iefp.segno = segno;
+  hevents [p].iefp.type   = type;
+  hevents [p].iefp.segno  = segno;
   hevents [p].iefp.offset = offset;
 done: ;
 }
@@ -393,13 +392,13 @@ static void printIntr (struct hevt * p) {
 
 // Keep sync'd with hregs_t
 static char * regNames[] = {
-  "A  ",
-  "Q  ",
-  "X0", "X1", "X2", "X3", "X4", "X5", "X6", "X7",
-  "AR0", "AR1", "AR2", "AR3", "AR4", "AR5", "AR6", "AR7",
-  "PR0", "PR1", "PR2", "PR3", "PR4", "PR5", "PR6", "PR7",
-  "Y  ", "Z  ",
-  "IR ",
+   "A  ",
+   "Q  ",
+    "X0",  "X1",  "X2",  "X3",  "X4",  "X5",  "X6",  "X7",
+   "AR0", "AR1", "AR2", "AR3", "AR4", "AR5", "AR6", "AR7",
+   "PR0", "PR1", "PR2", "PR3", "PR4", "PR5", "PR6", "PR7",
+   "Y  ", "Z  ",
+   "IR ",
   "DSBR",
 };
 

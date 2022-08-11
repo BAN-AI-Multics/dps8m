@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: eec1f540-f62e-11ec-8889-80ee73e9b8e7
  *
@@ -60,8 +61,6 @@ static struct {
 #include "errnos.h"
 };
 #define N_ERRNOS (sizeof (errnos) / sizeof (errnos[0]))
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define N_FDS 1024
 
@@ -501,8 +500,6 @@ static void skt_bind (uint unit_idx, word6 dev_code, word36 * buffer)
 // /* sockaddr is from the API parameter */
 // /* errno, errno are the values returned by the host socket() call */
 
-//https://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
-
     int socket_fd = (int) buffer[0];
     int sin_family = (int) buffer[1];
     unsigned short sin_port = (unsigned short) getbits36_16 (buffer [2], 0);
@@ -518,11 +515,11 @@ static void skt_bind (uint unit_idx, word6 dev_code, word36 * buffer)
     addr <<= 8;
     addr |= (uint32_t) octet[3];
 
-sim_printf ("bind() socket     %d\n", socket_fd);
-sim_printf ("bind() sin_family %d\n", sin_family);
-sim_printf ("bind() sin_port   %u\n", sin_port);
+sim_printf ("bind() socket     %d\n",                  socket_fd);
+sim_printf ("bind() sin_family %d\n",                  sin_family);
+sim_printf ("bind() sin_port   %u\n",                  sin_port);
 sim_printf ("bind() s_addr     %hhu.%hhu.%hhu.%hhu\n", octet[0], octet[1], octet[2], octet[3]);
-sim_printf ("bind() s_addr     %08x\n", addr);
+sim_printf ("bind() s_addr     %08x\n",                addr);
   //(buffer [3] >> (36 - 1 * 8)) & MASK8,
   //(buffer [3] >> (36 - 2 * 8)) & MASK8,
   //(buffer [3] >> (36 - 3 * 8)) & MASK8,
@@ -537,9 +534,9 @@ sim_printf ("bind() s_addr     %08x\n", addr);
 
     struct sockaddr_in serv_addr;
     bzero ((char *) & serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_family      = AF_INET;
     serv_addr.sin_addr.s_addr = htonl (addr);
-    serv_addr.sin_port = htons (sin_port);
+    serv_addr.sin_port        = htons (sin_port);
 
     int _errno = 0;
     int rc = bind (socket_fd, (struct sockaddr *) & serv_addr, sizeof (serv_addr));
@@ -722,9 +719,9 @@ sim_printf ("read8() socket doesn't belong to us\n");
         set_error (& buffer[4], EBADF);
         return IOM_CMD_DISCONNECT; // send terminate interrupt
       }
-    sk_data.unit_data[unit_idx][dev_code].read_fd = socket_fd;
+    sk_data.unit_data[unit_idx][dev_code].read_fd        = socket_fd;
     sk_data.unit_data[unit_idx][dev_code].read_buffer_sz = count;
-    sk_data.unit_data[unit_idx][dev_code].unit_state = unit_read;
+    sk_data.unit_data[unit_idx][dev_code].unit_state     = unit_read;
     return IOM_CMD_DISCONNECT; // don't send terminate interrupt
   }
 
@@ -1007,6 +1004,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             return rc; // 3:command pending, don't send terminate interrupt, or
                        // 2:sent terminate interrupt
           }
+          /*NOTREACHED*/
           break;
 
         case 07:               // CMD 07 -- close()
@@ -1060,6 +1058,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
             return rc; // 3:command pending, don't send terminate interrupt, or
                        // 2:sent terminate interrupt
           }
+          /*NOTREACHED*/
           break;
 
         case 9:               // CMD 9 -- write8()
@@ -1086,6 +1085,7 @@ sim_printf ("device %u\n", p->IDCW_DEV_CODE);
                                        & words_processed, true);
           return rc;
           }
+          /*NOTREACHED*/
           break;
 
         case 040:               // CMD 040 -- Reset Status
@@ -1163,22 +1163,22 @@ static void do_try_accept (uint unit_idx, word6 dev_code)
       }
     word36 buffer [7];
     // sign extend int into word36
-    buffer[0] = ((word36) ((word36s) sk_data.unit_data[unit_idx][dev_code].accept_fd)) & MASK36;
-    buffer[1] = ((word36) ((word36s) fd)) & MASK36;
-    buffer[2] = ((word36) ((word36s) from.sin_family)) & MASK36;
+    buffer[0]     = ((word36) ((word36s) sk_data.unit_data[unit_idx][dev_code].accept_fd)) & MASK36;
+    buffer[1]     = ((word36) ((word36s) fd)) & MASK36;
+    buffer[2]     = ((word36) ((word36s) from.sin_family)) & MASK36;
     uint16_t port = ntohs (from.sin_port);
     putbits36_16 (& buffer[3], 0, port);
     uint32_t addr = ntohl (from.sin_addr.s_addr);
-    buffer[4] = ((word36) addr) << 4;
+    buffer[4]     = ((word36) addr) << 4;
     set_error (& buffer[5], _errno);
     // This makes me nervous; it is assuming that the decoded channel control
     // list data for the channel is intact, and that buffer is still in place.
-    uint iom_unit_idx = (uint) cables->sk_to_iom[unit_idx][0].iom_unit_idx;
-    uint chan = (uint) cables->sk_to_iom[unit_idx][0].chan_num;
+    uint iom_unit_idx    = (uint) cables->sk_to_iom[unit_idx][0].iom_unit_idx;
+    uint chan            = (uint) cables->sk_to_iom[unit_idx][0].chan_num;
     uint words_processed = sk_data.unit_data[unit_idx][dev_code].words_processed;
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                & words_processed, true);
-    iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
+    iom_chan_data_t * p  = & iom_chan_data[iom_unit_idx][chan];
     p->stati = 04000;
     sk_data.unit_data[unit_idx][dev_code].unit_state = unit_idle;
     send_terminate_interrupt (iom_unit_idx, chan);
@@ -1187,7 +1187,7 @@ static void do_try_accept (uint unit_idx, word6 dev_code)
 static void do_try_read (uint unit_idx, word6 dev_code)
   {
     int _errno = 0;
-    uint count = sk_data.unit_data[unit_idx][dev_code].read_buffer_sz;
+    uint count           = sk_data.unit_data[unit_idx][dev_code].read_buffer_sz;
     uint buffer_size_wds = (count + 3) / 4;
     word36 buffer [buffer_size_wds];
     uint8_t netdata [count];
@@ -1215,8 +1215,8 @@ static void do_try_read (uint unit_idx, word6 dev_code)
 
     // This makes me nervous; it is assuming that the decoded channel control
     // list data for the channel is intact, and that buffer is still in place.
-    uint iom_unit_idx = (uint) cables->sk_to_iom[unit_idx][0].iom_unit_idx;
-    uint chan = (uint) cables->sk_to_iom[unit_idx][0].chan_num;
+    uint iom_unit_idx    = (uint) cables->sk_to_iom[unit_idx][0].iom_unit_idx;
+    uint chan            = (uint) cables->sk_to_iom[unit_idx][0].chan_num;
     uint words_processed = sk_data.unit_data[unit_idx][dev_code].words_processed;
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                                & words_processed, true);

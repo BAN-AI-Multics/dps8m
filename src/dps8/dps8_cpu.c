@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 6e07fe19-f62d-11ec-86f2-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -16,6 +18,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -54,8 +66,6 @@ __thread uint current_running_cpu_idx;
 #endif
 
 #include "ver.h"
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR cpu.cycleCnt
 
@@ -119,75 +129,73 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 
     sim_msg ("CPU unit number %ld\n", (long) cpu_unit_idx);
 
-    sim_msg ("Fault base:               %03o(8)\n",
+    sim_msg ("Fault base:                   %03o(8)\n",
                 cpus[cpu_unit_idx].switches.FLT_BASE);
-    sim_msg ("CPU number:               %01o(8)\n",
+    sim_msg ("CPU number:                   %01o(8)\n",
                 cpus[cpu_unit_idx].switches.cpu_num);
-    sim_msg ("Data switches:            %012"PRIo64"(8)\n",
-                cpus[cpu_unit_idx].switches.data_switches);
-    sim_msg ("Address switches:         %06o(8)\n",
+    sim_msg ("Data switches:                %012llu(8)\n",
+                (unsigned long long)cpus[cpu_unit_idx].switches.data_switches);
+    sim_msg ("Address switches:             %06o(8)\n",
                 cpus[cpu_unit_idx].switches.addr_switches);
     for (int i = 0; i < N_CPU_PORTS; i ++)
       {
-        sim_msg ("Port%c enable:             %01o(8)\n",
+        sim_msg ("Port%c enable:                 %01o(8)\n",
                     'A' + i, cpus[cpu_unit_idx].switches.enable [i]);
-        sim_msg ("Port%c init enable:        %01o(8)\n",
+        sim_msg ("Port%c init enable:            %01o(8)\n",
                     'A' + i, cpus[cpu_unit_idx].switches.init_enable [i]);
-        sim_msg ("Port%c assignment:         %01o(8)\n",
+        sim_msg ("Port%c assignment:             %01o(8)\n",
                     'A' + i, cpus[cpu_unit_idx].switches.assignment [i]);
-        sim_msg ("Port%c interlace:          %01o(8)\n",
+        sim_msg ("Port%c interlace:              %01o(8)\n",
                     'A' + i, cpus[cpu_unit_idx].switches.interlace [i]);
-        sim_msg ("Port%c store size:         %01o(8)\n",
+        sim_msg ("Port%c store size:             %01o(8)\n",
                     'A' + i, cpus[cpu_unit_idx].switches.store_size [i]);
       }
-    sim_msg ("Processor mode:           %s [%o]\n",
+    sim_msg ("Processor mode:               %s [%o]\n",
                 cpus[cpu_unit_idx].switches.procMode == procModeMultics ? "Multics" : cpus[cpu_unit_idx].switches.procMode == procModeGCOS ? "GCOS" : "???",
                 cpus[cpu_unit_idx].switches.procMode);
-    sim_msg ("8K Cache:                 %s\n",
+    sim_msg ("8K Cache:                     %s\n",
                 cpus[cpu_unit_idx].switches.enable_cache ? "Enabled" : "Disabled");
-    sim_msg ("SDWAM:                    %s\n",
+    sim_msg ("SDWAM:                        %s\n",
                 cpus[cpu_unit_idx].switches.sdwam_enable ? "Enabled" : "Disabled");
-    sim_msg ("PTWAM:                    %s\n",
+    sim_msg ("PTWAM:                        %s\n",
                 cpus[cpu_unit_idx].switches.ptwam_enable ? "Enabled" : "Disabled");
 
-    sim_msg ("Processor speed:          %02o(8)\n",
+    sim_msg ("Processor speed:              %02o(8)\n",
                 cpus[cpu_unit_idx].options.proc_speed);
-    sim_msg ("DIS enable:               %01o(8)\n",
+    sim_msg ("DIS enable:                   %01o(8)\n",
                 cpus[cpu_unit_idx].tweaks.dis_enable);
-    sim_msg ("Steady clock:             %01o(8)\n",
+    sim_msg ("Steady clock:                 %01o(8)\n",
                 scu [0].steady_clock);
-    sim_msg ("Halt on unimplemented:    %01o(8)\n",
+    sim_msg ("Halt on unimplemented:        %01o(8)\n",
                 cpus[cpu_unit_idx].tweaks.halt_on_unimp);
     sim_msg ("Enable simulated SDWAM/PTWAM: %01o(8)\n",
                 cpus[cpu_unit_idx].tweaks.enable_wam);
-    sim_msg ("Report faults:            %01o(8)\n",
+    sim_msg ("Report faults:                %01o(8)\n",
                 cpus[cpu_unit_idx].tweaks.report_faults);
-    sim_msg ("TRO faults enabled:       %01o(8)\n",
+    sim_msg ("TRO faults enabled:           %01o(8)\n",
                 cpus[cpu_unit_idx].tweaks.tro_enable);
-    sim_msg ("Y2K enabled:              %01o(8)\n",
+    sim_msg ("Y2K enabled:                  %01o(8)\n",
                 scu [0].y2k);
-    sim_msg ("drl fatal enabled:        %01o(8)\n",
+    sim_msg ("drl fatal enabled:            %01o(8)\n",
                 cpus[cpu_unit_idx].tweaks.drl_fatal);
-    sim_msg ("useMap:                   %d\n",
+    sim_msg ("useMap:                       %d\n",
                 cpus[cpu_unit_idx].tweaks.useMap);
-    sim_msg ("PROM installed:           %01o(8)\n",
+    sim_msg ("PROM installed:               %01o(8)\n",
                 cpus[cpu_unit_idx].options.prom_installed);
-    sim_msg ("Hex mode installed:       %01o(8)\n",
+    sim_msg ("Hex mode installed:           %01o(8)\n",
                 cpus[cpu_unit_idx].options.hex_mode_installed);
-    sim_msg ("8K cache installed:       %01o(8)\n",
+    sim_msg ("8K cache installed:           %01o(8)\n",
                 cpus[cpu_unit_idx].options.cache_installed);
-    sim_msg ("Clock slave installed:    %01o(8)\n",
+    sim_msg ("Clock slave installed:        %01o(8)\n",
                 cpus[cpu_unit_idx].options.clock_slave_installed);
-
 #ifdef AFFINITY
     if (cpus[cpu_unit_idx].set_affinity)
-      sim_msg ("CPU affinity              %d\n", cpus[cpu_unit_idx].affinity);
+      sim_msg ("CPU affinity:                 %d\n", cpus[cpu_unit_idx].affinity);
     else
-      sim_msg ("CPU affinity              not set\n");
+      sim_msg ("CPU affinity:                 not set\n");
 #endif
-
-    sim_msg ("ISOLTS mode:              %01o(8)\n", cpus[cpu_unit_idx].tweaks.isolts_mode);
-    sim_msg ("NODIS mode :              %01o(8)\n", cpus[cpu_unit_idx].tweaks.nodis);
+    sim_msg ("ISOLTS mode:                  %01o(8)\n", cpus[cpu_unit_idx].tweaks.isolts_mode);
+    sim_msg ("NODIS mode:                   %01o(8)\n", cpus[cpu_unit_idx].tweaks.nodis);
     return SCPE_OK;
   }
 
@@ -219,36 +227,36 @@ static t_stat cpu_show_config (UNUSED FILE * st, UNIT * uptr,
 static config_value_list_t cfg_multics_fault_base [] =
   {
     { "multics", 2 },
-    { NULL, 0 }
+    { NULL,      0 }
   };
 
 static config_value_list_t cfg_on_off [] =
   {
-    { "off", 0 },
-    { "on", 1 },
+    { "off",     0 },
+    { "on",      1 },
     { "disable", 0 },
-    { "enable", 1 },
-    { NULL, 0 }
+    { "enable",  1 },
+    { NULL,      0 }
   };
 
 static config_value_list_t cfg_cpu_mode [] =
   {
-    { "gcos", 0 },
+    { "gcos",    0 },
     { "multics", 1 },
-    { NULL, 0 }
+    { NULL,      0 }
   };
 
 static config_value_list_t cfg_port_letter [] =
   {
-    { "a", 0 },
-    { "b", 1 },
-    { "c", 2 },
-    { "d", 3 },
+    { "a",  0 },
+    { "b",  1 },
+    { "c",  2 },
+    { "d",  3 },
 #ifdef L68
-    { "e", 4 },
-    { "f", 5 },
-    { "g", 6 },
-    { "h", 7 },
+    { "e",  4 },
+    { "f",  5 },
+    { "g",  6 },
+    { "h",  7 },
 #endif
     { NULL, 0 }
   };
@@ -256,16 +264,16 @@ static config_value_list_t cfg_port_letter [] =
 static config_value_list_t cfg_interlace [] =
   {
     { "off", 0 },
-    { "2", 2 },
-    { "4", 4 },
-    { NULL, 0 }
+    { "2",   2 },
+    { "4",   4 },
+    { NULL,  0 }
   };
 
 #ifdef AFFINITY
 static config_value_list_t cfg_affinity [] =
   {
     { "off", -1 },
-    { NULL, 0 }
+    { NULL,  0  }
   };
 #endif
 
@@ -284,27 +292,27 @@ static config_value_list_t cfg_size_list [] =
 //  installing  FCO # PHAF183 and using a group 10 patch plug, on L68 and DPS
 //  CPUs.
 
-    { "32", 0 },    //   32768
-    { "64", 1 },    //   65536
-    { "4096", 2 },  // 4194304
-    { "128", 3 },   //  131072
-    { "512", 4 },   //  524288
-    { "1024", 5 },  // 1048576
-    { "2048", 6 },  // 2097152
-    { "256", 7 },   //  262144
+    { "32",    0 }, //   32768
+    { "64",    1 }, //   65536
+    { "4096",  2 }, // 4194304
+    { "128",   3 }, //  131072
+    { "512",   4 }, //  524288
+    { "1024",  5 }, // 1048576
+    { "2048",  6 }, // 2097152
+    { "256",   7 }, //  262144
 
-    { "32K", 0 },
-    { "64K", 1 },
+    { "32K",   0 },
+    { "64K",   1 },
     { "4096K", 2 },
-    { "128K", 3 },
-    { "512K", 4 },
+    { "128K",  3 },
+    { "512K",  4 },
     { "1024K", 5 },
     { "2048K", 6 },
-    { "256K", 7 },
+    { "256K",  7 },
 
-    { "1M", 5 },
-    { "2M", 6 },
-    { "4M", 2 },
+    { "1M",    5 },
+    { "2M",    6 },
+    { "4M",    2 },
 #endif // L68
 
 #ifdef DPS8M
@@ -328,61 +336,57 @@ static config_value_list_t cfg_size_list [] =
     { "2048K", 6 },
     { "4096K", 7 },
 
-    { "1M", 5 },
-    { "2M", 6 },
-    { "4M", 7 },
+    { "1M",    5 },
+    { "2M",    6 },
+    { "4M",    7 },
 #endif // DPS8M
-    { NULL, 0 }
-
+    { NULL,    0 }
   };
 
 static config_list_t cpu_config_list [] =
   {
-    { "faultbase", 0, 0177, cfg_multics_fault_base },
-    { "num", 0, 07, NULL },
-    { "data", 0, 0777777777777, NULL },
-    { "stopnum", 0, 999999, NULL },
-    { "mode", 0, 01, cfg_cpu_mode },
-    { "speed", 0, 017, NULL }, // XXX use keywords
-    { "port", 0, N_CPU_PORTS - 1, cfg_port_letter },
-    { "assignment", 0, 7, NULL },
-    { "interlace", 0, 1, cfg_interlace },
-    { "enable", 0, 1, cfg_on_off },
-    { "init_enable", 0, 1, cfg_on_off },
-    { "store_size", 0, 7, cfg_size_list },
-    { "enable_cache", 0, 1, cfg_on_off },
-    { "sdwam", 0, 1, cfg_on_off },
-    { "ptwam", 0, 1, cfg_on_off },
+    { "faultbase",             0,  0177,            cfg_multics_fault_base },
+    { "num",                   0,  07,              NULL                   },
+    { "data",                  0,  0777777777777,   NULL                   },
+    { "stopnum",               0,  999999,          NULL                   },
+    { "mode",                  0,  01,              cfg_cpu_mode           },
+    { "speed",                 0,  017,             NULL                   },  // XXX use keywords
+    { "port",                  0,  N_CPU_PORTS - 1, cfg_port_letter        },
+    { "assignment",            0,  7,               NULL                   },
+    { "interlace",             0,  1,               cfg_interlace          },
+    { "enable",                0,  1,               cfg_on_off             },
+    { "init_enable",           0,  1,               cfg_on_off             },
+    { "store_size",            0,  7,               cfg_size_list          },
+    { "enable_cache",          0,  1,               cfg_on_off             },
+    { "sdwam",                 0,  1,               cfg_on_off             },
+    { "ptwam",                 0,  1,               cfg_on_off             },
 
     // Hacks
-
-    { "dis_enable", 0, 1, cfg_on_off },
+    { "dis_enable",            0,  1,               cfg_on_off             },
     // steady_clock was moved to SCU; keep here for script compatibility
-    { "steady_clock", 0, 1, cfg_on_off },
-    { "halt_on_unimplemented", 0, 1, cfg_on_off },
-    { "enable_wam", 0, 1, cfg_on_off },
-    { "report_faults", 0, 1, cfg_on_off },
-    { "tro_enable", 0, 1, cfg_on_off },
+    { "steady_clock",          0,  1,               cfg_on_off             },
+    { "halt_on_unimplemented", 0,  1,               cfg_on_off             },
+    { "enable_wam",            0,  1,               cfg_on_off             },
+    { "report_faults",         0,  1,               cfg_on_off             },
+    { "tro_enable",            0,  1,               cfg_on_off             },
     // y2k was moved to SCU; keep here for script compatibility
-    { "y2k", 0, 1, cfg_on_off },
-    { "drl_fatal", 0, 1, cfg_on_off },
-    { "useMap", 0, 1, cfg_on_off },
-    { "address", 0, 0777777, NULL },
-    { "prom_installed", 0, 1, cfg_on_off },
-    { "hex_mode_installed", 0, 1, cfg_on_off },
-    { "cache_installed", 0, 1, cfg_on_off },
-    { "clock_slave_installed", 0, 1, cfg_on_off },
-    { "enable_emcall", 0, 1, cfg_on_off },
+    { "y2k",                   0,  1,               cfg_on_off             },
+    { "drl_fatal",             0,  1,               cfg_on_off             },
+    { "useMap",                0,  1,               cfg_on_off             },
+    { "address",               0,  0777777,         NULL                   },
+    { "prom_installed",        0,  1,               cfg_on_off             },
+    { "hex_mode_installed",    0,  1,               cfg_on_off             },
+    { "cache_installed",       0,  1,               cfg_on_off             },
+    { "clock_slave_installed", 0,  1,               cfg_on_off             },
+    { "enable_emcall",         0,  1,               cfg_on_off             },
 
     // Tuning
-
 #ifdef AFFINITY
-    { "affinity", -1, 32767, cfg_affinity },
+    { "affinity",              -1, 32767,           cfg_affinity           },
 #endif
-
-    { "isolts_mode", 0, 1, cfg_on_off },
-    { "nodis", 0, 1, cfg_on_off },
-    { NULL, 0, 0, NULL }
+    { "isolts_mode",           0,  1,               cfg_on_off             },
+    { "nodis",                 0,  1,               cfg_on_off             },
+    { NULL,                    0,  0,               NULL                   }
   };
 
 static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
@@ -506,89 +510,89 @@ static t_stat cpu_set_config (UNIT * uptr, UNUSED int32 value,
             cpus[cpu_unit_idx].tweaks.isolts_mode = v;
             if (v)
               {
-                cpus[cpu_unit_idx].isolts_switches_save = cpus[cpu_unit_idx].switches;
-                cpus[cpu_unit_idx].isolts_switches_saved = true;
+                cpus[cpu_unit_idx].isolts_switches_save     = cpus[cpu_unit_idx].switches;
+                cpus[cpu_unit_idx].isolts_switches_saved    = true;
 
-                cpus[cpu_unit_idx].switches.data_switches = 00000030714000;
-                cpus[cpu_unit_idx].switches.addr_switches = 0100150;
-                cpus[cpu_unit_idx].tweaks.useMap = true;
-                cpus[cpu_unit_idx].tweaks.enable_wam = true;
-                cpus[cpu_unit_idx].switches.assignment [0] = false;
-                cpus[cpu_unit_idx].switches.interlace [0] = false;
-                cpus[cpu_unit_idx].switches.enable [0] = false;
+                cpus[cpu_unit_idx].switches.data_switches   = 00000030714000;
+                cpus[cpu_unit_idx].switches.addr_switches   = 0100150;
+                cpus[cpu_unit_idx].tweaks.useMap            = true;
+                cpus[cpu_unit_idx].tweaks.enable_wam        = true;
+                cpus[cpu_unit_idx].switches.assignment [0]  = false;
+                cpus[cpu_unit_idx].switches.interlace [0]   = false;
+                cpus[cpu_unit_idx].switches.enable [0]      = false;
                 cpus[cpu_unit_idx].switches.init_enable [0] = false;
 #ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [0] = 2;
+                cpus[cpu_unit_idx].switches.store_size  [0] = 2;
 #endif
 #ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [0] = 3;
+                cpus[cpu_unit_idx].switches.store_size  [0] = 3;
 #endif
 
-                cpus[cpu_unit_idx].switches.assignment [1] = 0;
-                cpus[cpu_unit_idx].switches.interlace [1] = false;
-                cpus[cpu_unit_idx].switches.enable [1] = true;
+                cpus[cpu_unit_idx].switches.assignment  [1] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [1] = false;
+                cpus[cpu_unit_idx].switches.enable      [1] = true;
                 cpus[cpu_unit_idx].switches.init_enable [1] = false;
 #ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [1] = 2;
+                cpus[cpu_unit_idx].switches.store_size  [1] = 2;
 #endif
 #ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [1] = 3;
+                cpus[cpu_unit_idx].switches.store_size  [1] = 3;
 #endif
 
-                cpus[cpu_unit_idx].switches.assignment [2] = 0;
-                cpus[cpu_unit_idx].switches.interlace [2] = false;
-                cpus[cpu_unit_idx].switches.enable [2] = false;
+                cpus[cpu_unit_idx].switches.assignment  [2] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [2] = false;
+                cpus[cpu_unit_idx].switches.enable      [2] = false;
                 cpus[cpu_unit_idx].switches.init_enable [2] = false;
 #ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [2] = 2;
+                cpus[cpu_unit_idx].switches.store_size  [2] = 2;
 #endif
 #ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [2] = 3;
+                cpus[cpu_unit_idx].switches.store_size  [2] = 3;
 #endif
 
-                cpus[cpu_unit_idx].switches.assignment [3] = 0;
-                cpus[cpu_unit_idx].switches.interlace [3] = false;
-                cpus[cpu_unit_idx].switches.enable [3] = false;
+                cpus[cpu_unit_idx].switches.assignment  [3] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [3] = false;
+                cpus[cpu_unit_idx].switches.enable      [3] = false;
                 cpus[cpu_unit_idx].switches.init_enable [3] = false;
 #ifdef DPS8M
-                cpus[cpu_unit_idx].switches.store_size [3] = 2;
+                cpus[cpu_unit_idx].switches.store_size  [3] = 2;
 #endif
 #ifdef L68
-                cpus[cpu_unit_idx].switches.store_size [3] = 3;
+                cpus[cpu_unit_idx].switches.store_size  [3] = 3;
 #endif
 #ifdef L68
-                cpus[cpu_unit_idx].switches.assignment [4] = 0;
-                cpus[cpu_unit_idx].switches.interlace [4] = false;
-                cpus[cpu_unit_idx].switches.enable [4] = false;
+                cpus[cpu_unit_idx].switches.assignment  [4] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [4] = false;
+                cpus[cpu_unit_idx].switches.enable      [4] = false;
                 cpus[cpu_unit_idx].switches.init_enable [4] = false;
-                cpus[cpu_unit_idx].switches.store_size [4] = 3;
+                cpus[cpu_unit_idx].switches.store_size  [4] = 3;
 
-                cpus[cpu_unit_idx].switches.assignment [5] = 0;
-                cpus[cpu_unit_idx].switches.interlace [5] = false;
-                cpus[cpu_unit_idx].switches.enable [5] = false;
+                cpus[cpu_unit_idx].switches.assignment  [5] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [5] = false;
+                cpus[cpu_unit_idx].switches.enable      [5] = false;
                 cpus[cpu_unit_idx].switches.init_enable [5] = false;
-                cpus[cpu_unit_idx].switches.store_size [5] = 3;
+                cpus[cpu_unit_idx].switches.store_size  [5] = 3;
 
-                cpus[cpu_unit_idx].switches.assignment [6] = 0;
-                cpus[cpu_unit_idx].switches.interlace [6] = false;
-                cpus[cpu_unit_idx].switches.enable [6] = false;
+                cpus[cpu_unit_idx].switches.assignment  [6] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [6] = false;
+                cpus[cpu_unit_idx].switches.enable      [6] = false;
                 cpus[cpu_unit_idx].switches.init_enable [6] = false;
-                cpus[cpu_unit_idx].switches.store_size [6] = 3;
+                cpus[cpu_unit_idx].switches.store_size  [6] = 3;
 
-                cpus[cpu_unit_idx].switches.assignment [7] = 0;
-                cpus[cpu_unit_idx].switches.interlace [7] = false;
-                cpus[cpu_unit_idx].switches.enable [7] = false;
+                cpus[cpu_unit_idx].switches.assignment  [7] = 0;
+                cpus[cpu_unit_idx].switches.interlace   [7] = false;
+                cpus[cpu_unit_idx].switches.enable      [7] = false;
                 cpus[cpu_unit_idx].switches.init_enable [7] = false;
-                cpus[cpu_unit_idx].switches.store_size [7] = 3;
+                cpus[cpu_unit_idx].switches.store_size  [7] = 3;
 #endif
                 cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
                 simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
-                cpus[cpu_unit_idx].switches.enable [1] = true;
+                cpus[cpu_unit_idx].switches.enable      [1] = true;
               }
             else
               {
                 cpus[cpu_unit_idx].switches = cpus[cpu_unit_idx].isolts_switches_save;
-                cpus[cpu_unit_idx].isolts_switches_saved = false;
+                cpus[cpu_unit_idx].isolts_switches_saved    = false;
 
                 cpu_reset_unit_idx ((uint) cpu_unit_idx, false);
                 simh_cpu_reset_and_clear_unit (cpu_unit + cpu_unit_idx, 0, NULL, NULL);
@@ -652,7 +656,6 @@ static t_stat cpu_set_kips (UNUSED UNIT * uptr, UNUSED int32 value,
     return SCPE_OK;
   }
 
-
 static t_stat cpu_show_stall (UNUSED FILE * st, UNUSED UNIT * uptr,
                              UNUSED int val, UNUSED const void * desc)
   {
@@ -710,10 +713,10 @@ static t_stat cpu_set_stall (UNUSED UNIT * uptr, UNUSED int32 value,
     if (t < 0 || t >= 1000000)
       return SCPE_ARG;
 
-    stall_points[n].segno = (word15) s;
+    stall_points[n].segno  = (word15) s;
     stall_points[n].offset = (word18) o;
-    stall_points[n].time = (unsigned int) t;
-    stall_point_active = false;
+    stall_points[n].time   = (unsigned int) t;
+    stall_point_active     = false;
 
     for (int i = 0; i < N_STALL_POINTS; i ++)
       if (stall_points[n].segno && stall_points[n].offset)
@@ -791,27 +794,27 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
     cpu.rA = 0;
     cpu.rQ = 0;
 
-    cpu.PPR.IC = 0;
-    cpu.PPR.PRR = 0;
-    cpu.PPR.PSR = 0;
-    cpu.PPR.P = 1;
+    cpu.PPR.IC   = 0;
+    cpu.PPR.PRR  = 0;
+    cpu.PPR.PSR  = 0;
+    cpu.PPR.P    = 1;
     cpu.RSDWH_R1 = 0;
-    cpu.rTR = MASK27;
+    cpu.rTR      = MASK27;
 //#if defined(THREADZ) || defined(LOCKLESS)
 //    clock_gettime (CLOCK_BOOTTIME, & cpu.rTRTime);
 //#endif
     if (cpu.tweaks.isolts_mode)
       {
         cpu.shadowTR = 0;
-        cpu.rTRlsb = 0;
+        cpu.rTRlsb   = 0;
       }
-    cpu.rTR = MASK27;
+    cpu.rTR      = MASK27;
     cpu.rTRticks = 0;
 
     set_addr_mode (ABSOLUTE_mode);
     SET_I_NBAR;
 
-    cpu.CMR.luf = 3;    // default of 16 mS
+    cpu.CMR.luf  = 3;    // default of 16 mS
     cpu.cu.SD_ON = cpu.switches.sdwam_enable ? 1 : 0;
     cpu.cu.PT_ON = cpu.switches.ptwam_enable ? 1 : 0;
 
@@ -822,11 +825,11 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
       cpu.cu.IWB = 0000000616000; // Stuff DIS instruction in instruction buffer
     }
 
-    cpu.wasXfer = false;
-    cpu.wasInhibited = false;
+    cpu.wasXfer        = false;
+    cpu.wasInhibited   = false;
 
     cpu.interrupt_flag = false;
-    cpu.g7_flag = false;
+    cpu.g7_flag        = false;
 
     cpu.faultRegister [0] = 0;
     cpu.faultRegister [1] = 0;
@@ -984,38 +987,38 @@ static MTAB cpu_mod[] =
 
 static DEBTAB cpu_dt[] =
   {
-    { "TRACE",      DBG_TRACE, NULL       },
-    { "TRACEEXT",   DBG_TRACEEXT, NULL    },
-    { "MESSAGES",   DBG_MSG, NULL         },
+    { "TRACE",       DBG_TRACE,       NULL },
+    { "TRACEEXT",    DBG_TRACEEXT,    NULL },
+    { "MESSAGES",    DBG_MSG,         NULL },
 
-    { "REGDUMPAQI", DBG_REGDUMPAQI, NULL  },
-    { "REGDUMPIDX", DBG_REGDUMPIDX, NULL  },
-    { "REGDUMPPR",  DBG_REGDUMPPR, NULL   },
-    { "REGDUMPPPR", DBG_REGDUMPPPR, NULL  },
-    { "REGDUMPDSBR",DBG_REGDUMPDSBR, NULL },
-    { "REGDUMPFLT", DBG_REGDUMPFLT, NULL  },
+    { "REGDUMPAQI",  DBG_REGDUMPAQI,  NULL },
+    { "REGDUMPIDX",  DBG_REGDUMPIDX,  NULL },
+    { "REGDUMPPR",   DBG_REGDUMPPR,   NULL },
+    { "REGDUMPPPR",  DBG_REGDUMPPPR,  NULL },
+    { "REGDUMPDSBR", DBG_REGDUMPDSBR, NULL },
+    { "REGDUMPFLT",  DBG_REGDUMPFLT,  NULL },
     // don't move as it messes up DBG message
-    { "REGDUMP",    DBG_REGDUMP, NULL     },
+    { "REGDUMP",     DBG_REGDUMP,     NULL },
 
-    { "ADDRMOD",    DBG_ADDRMOD, NULL     },
-    { "APPENDING",  DBG_APPENDING, NULL   },
+    { "ADDRMOD",     DBG_ADDRMOD,     NULL },
+    { "APPENDING",   DBG_APPENDING,   NULL },
 
-    { "NOTIFY",     DBG_NOTIFY, NULL      },
-    { "INFO",       DBG_INFO, NULL        },
-    { "ERR",        DBG_ERR, NULL         },
-    { "WARN",       DBG_WARN, NULL        },
-    { "DEBUG",      DBG_DEBUG, NULL       },
+    { "NOTIFY",      DBG_NOTIFY,      NULL },
+    { "INFO",        DBG_INFO,        NULL },
+    { "ERR",         DBG_ERR,         NULL },
+    { "WARN",        DBG_WARN,        NULL },
+    { "DEBUG",       DBG_DEBUG,       NULL },
     // don't move as it messes up DBG message
-    { "ALL",        DBG_ALL, NULL         },
+    { "ALL",         DBG_ALL,         NULL },
 
-    { "FAULT",      DBG_FAULT, NULL       },
-    { "INTR",       DBG_INTR, NULL        },
-    { "CORE",       DBG_CORE, NULL        },
-    { "CYCLE",      DBG_CYCLE, NULL       },
-    { "CAC",        DBG_CAC, NULL         },
-    { "FINAL",      DBG_FINAL, NULL       },
-    { "AVC",        DBG_AVC, NULL       },
-    { NULL,         0, NULL               }
+    { "FAULT",       DBG_FAULT,       NULL },
+    { "INTR",        DBG_INTR,        NULL },
+    { "CORE",        DBG_CORE,        NULL },
+    { "CYCLE",       DBG_CYCLE,       NULL },
+    { "CAC",         DBG_CAC,         NULL },
+    { "FINAL",       DBG_FINAL,       NULL },
+    { "AVC",         DBG_AVC,         NULL },
+    { NULL,          0,               NULL }
   };
 
 // This is part of the scp interface
@@ -1064,9 +1067,9 @@ char * str_SDW0 (char * buf, sdw0_s * SDW)
   {
     sprintf (buf, "ADDR=%06o R1=%o R2=%o R3=%o F=%o FC=%o BOUND=%o R=%o "
              "E=%o W=%o P=%o U=%o G=%o C=%o EB=%o",
-             SDW->ADDR, SDW->R1, SDW->R2, SDW->R3, SDW->DF,
-             SDW->FC, SDW->BOUND, SDW->R, SDW->E, SDW->W,
-             SDW->P, SDW->U, SDW->G, SDW->C, SDW->EB);
+             SDW->ADDR, SDW->R1,    SDW->R2, SDW->R3, SDW->DF,
+             SDW->FC,   SDW->BOUND, SDW->R,  SDW->E,  SDW->W,
+             SDW->P,    SDW->U,     SDW->G,  SDW->C,  SDW->EB);
     return buf;
   }
 
@@ -1118,7 +1121,7 @@ void setup_scbank_map (void)
     for (uint pg = 0; pg < N_SCBANKS; pg ++)
       {
         cpu.sc_addr_map [pg] = -1;
-        cpu.sc_scu_map [pg] = -1;
+        cpu.sc_scu_map  [pg] = -1;
       }
     for (uint u = 0; u < N_SCU_UNITS_MAX; u ++)
       cpu.sc_num_banks[u] = 0;
@@ -1164,19 +1167,19 @@ void setup_scbank_map (void)
         uint store_table [8] =
           { 32768, 65536, 4194304, 131072, 524288, 1048576, 2097152, 262144 };
         uint isolts_store_table [8] =
-          { 32768, 65536, 4194304, 65536, 524288, 1048576, 2097152, 262144 };
+          { 32768, 65536, 4194304, 65536,  524288, 1048576, 2097152, 262144 };
         uint sz_wds = cpu.tweaks.isolts_mode ?
             isolts_store_table [store_size] :
-            store_table [store_size];
+            store_table        [store_size];
 #endif
 
         // Calculate the base address that will be assigned to the SCU
         uint base_addr_wds = sz_wds * cpu.switches.assignment[port_num];
 
         // Now convert to SCBANK_SZ (number of banks)
-        uint num_banks = sz_wds / SCBANK_SZ;
+        uint num_banks             = sz_wds / SCBANK_SZ;
         cpu.sc_num_banks[port_num] = num_banks;
-        uint base_addr_bks = base_addr_wds / SCBANK_SZ;
+        uint base_addr_bks         = base_addr_wds / SCBANK_SZ;
 
         // For each page handled by the SCU
         for (uint pg = 0; pg < num_banks; pg ++)
@@ -1197,7 +1200,7 @@ void setup_scbank_map (void)
                   {
                     // Assign it
                     cpu.sc_addr_map[addr_bks] = (int)((int)port_num * (int)ZONE_SZ + (int)pg * (int)SCBANK_SZ);
-                    cpu.sc_scu_map[addr_bks] = port_num;
+                    cpu.sc_scu_map[addr_bks]  = port_num;
                   }
               }
             else
@@ -1234,8 +1237,8 @@ int lookup_cpu_mem_map (word24 addr)
 
 static void get_serial_number (void)
   {
-    bool havesn = false;
-    FILE * fp = fopen ("./serial.txt", "r");
+      bool havesn = false;
+      FILE * fp = fopen ("./serial.txt", "r");
     while (fp && ! feof (fp))
       {
         char buffer [81] = "";
@@ -1246,7 +1249,7 @@ static void get_serial_number (void)
           {
                         if (!sim_quiet)
                           {
-                    sim_msg ("%s CPU serial number: %u\n", sim_name, cpu.switches.serno);
+                             sim_msg ("%s CPU serial number: %u\n", sim_name, cpu.switches.serno);
                           }
                         havesn = true;
           }
@@ -1257,8 +1260,8 @@ static void get_serial_number (void)
                 cpus[cpun].switches.serno = sn;
                                 if (!sim_quiet)
                                   {
-                        sim_msg ("%s CPU %u serial number: %u\n",
-                                sim_name, cpun, cpus[cpun].switches.serno);
+                                     sim_msg ("%s CPU %u serial number: %u\n",
+                                     sim_name, cpun, cpus[cpun].switches.serno);
                                   }
                 havesn = true;
               }
@@ -1268,10 +1271,10 @@ static void get_serial_number (void)
       {
                 if (!sim_quiet)
                   {
-                sim_msg ("\r\nPlease register your system at "
-                        "https://ringzero.wikidot.com/wiki:register\n");
-                sim_msg ("or create the file 'serial.txt' containing the line "
-                        "'sn: 0'.\r\n\r\n");
+                     sim_msg ("\r\nPlease register your system at "
+                              "https://ringzero.wikidot.com/wiki:register\n");
+                     sim_msg ("or create the file 'serial.txt' containing the line "
+                              "'sn: 0'.\r\n\r\n");
                   }
       }
     if (fp)
@@ -1324,7 +1327,6 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
 #endif
         cpu.instrCntT0 = cpu.instrCntT1;
         cpu.instrCntT1 = cpu.instrCnt;
-
       }
     fnpProcessEvent ();
 #ifndef __MINGW64__
@@ -1461,11 +1463,11 @@ static REG cpu_reg[] =
   {
     // IC must be the first; see sim_PC.
 #ifdef M_SHARED
-    { ORDATA (IC, dummy_IC, VASIZE), 0, 0, 0 },
+    { ORDATA (IC, dummy_IC,       VASIZE), 0, 0, 0 },
 #else
     { ORDATA (IC, cpus[0].PPR.IC, VASIZE), 0, 0, 0 },
 #endif
-    { NULL, NULL, 0, 0, 0, 0, NULL, NULL, 0, 0, 0 }
+    { NULL, NULL, 0, 0, 0, 0,  NULL, NULL, 0, 0, 0 }
   };
 
 /*
@@ -1613,10 +1615,10 @@ static void panel_process_event (void)
       }
     // EXECUTE pressed; EXECUTE PB set, EXECUTE FAULT set
     if (cpu.DATA_panel_s_trig_sw == 0 &&
-        cpu.DATA_panel_execute_sw && // EXECUTE button
-        cpu.DATA_panel_scope_sw && // 'EXECUTE PB/SCOPE REPEAT' set to PB
-        cpu.DATA_panel_exec_sw == 0) // 'EXECUTE SWITCH/EXECUTE FAULT'
-                                     //  set to FAULT
+        cpu.DATA_panel_execute_sw &&  // EXECUTE button
+        cpu.DATA_panel_scope_sw &&    // 'EXECUTE PB/SCOPE REPEAT' set to PB
+        cpu.DATA_panel_exec_sw == 0)  // 'EXECUTE SWITCH/EXECUTE FAULT'
+                                      //  set to FAULT
       {
         // Wait for release
         while (cpu.DATA_panel_execute_sw)
@@ -1755,7 +1757,7 @@ t_stat sim_instr (void)
         if (next_time.tv_nsec >= 1000l * 1000l *1000l)
           {
             next_time.tv_nsec -= 1000l * 1000l *1000l;
-            next_time.tv_sec += (time_t) 1;
+            next_time.tv_sec  += (time_t) 1;
           }
         struct timespec new_time;
         do
@@ -1775,7 +1777,8 @@ t_stat sim_instr (void)
 
             clock_gettime (CLOCK_REALTIME, & new_time);
           }
-        while ((next_time.tv_sec == new_time.tv_sec) ? (next_time.tv_nsec > new_time.tv_nsec) : (next_time.tv_sec > new_time.tv_sec));
+        while ((next_time.tv_sec == new_time.tv_sec) ? (next_time.tv_nsec > new_time.tv_nsec) : \
+                                                       (next_time.tv_sec  > new_time.tv_sec));
 # else
         sim_usleep (1000); // 1000 us == 1 ms == 1/1000 sec.
 # endif
@@ -1858,7 +1861,7 @@ void * cpu_thread_main (void * arg)
 static void do_LUF_fault (void)
   {
     CPT (cpt1U, 16); // LUF
-    cpu.lufCounter = 0;
+    cpu.lufCounter  = 0;
     cpu.lufOccurred = false;
 // This is a hack to fix ISOLTS 776. ISOLTS checks that the TR has
 // decremented by the LUF timeout value. To implement this, we set
@@ -2077,7 +2080,7 @@ setCPU:;
                 cpu.rTRlsb ++;
                 if (cpu.rTRlsb >= 4)
                   {
-                    cpu.rTRlsb = 0;
+                    cpu.rTRlsb   = 0;
                     cpu.shadowTR = (cpu.shadowTR - 1) & MASK27;
                     if (cpu.shadowTR == 0) // passing through 0...
                       {
@@ -2097,13 +2100,13 @@ setCPU:;
 // two instructions (1/2 MHz)
 
 #if 0
-        cpu.rTR -= cpu.rTRticks * 100;
-        //cpu.rTR -= cpu.rTRticks * 50;
+        cpu.rTR     -= cpu.rTRticks * 100;
+        //cpu.rTR   -= cpu.rTRticks * 50;
         cpu.rTRticks = 0;
 #else
 # define TR_RATE 2
 
-        cpu.rTR -= cpu.rTRticks / TR_RATE;
+        cpu.rTR      -= cpu.rTRticks / TR_RATE;
         cpu.rTRticks %= TR_RATE;
 
 #endif
@@ -2182,7 +2185,7 @@ setCPU:;
                         cpu.cu.xde = 1;
                         cpu.cu.xdo = 1;
                         cpu.isExec = true;
-                        cpu.isXED = true;
+                        cpu.isXED  = true;
 
                         CPT (cpt1U, 4); // interrupt pair fetched
                         cpu.interrupt_flag = false;
@@ -2257,10 +2260,10 @@ setCPU:;
                 // ISOLTS-776 04bcf, 785 02c
                 // (but do if in a DIS instruction with bit28 clear)
                 bool tmp_priv_mode = is_priv_mode ();
-                bool is_dis = cpu.currentInstruction.opcode == 0616 &&
-                              cpu.currentInstruction.opcodeX == 0;
-                bool noCheckTR = tmp_priv_mode &&
-                                 ! (is_dis && GET_I (cpu.cu.IWB) == 0);
+                bool is_dis        = cpu.currentInstruction.opcode  == 0616 &&
+                                     cpu.currentInstruction.opcodeX == 0;
+                bool noCheckTR     = tmp_priv_mode &&
+                                     !(is_dis && GET_I (cpu.cu.IWB) == 0);
 
                 if (is_dis)
                   {
@@ -2333,7 +2336,7 @@ setCPU:;
 #endif
                 if (cpu.g7_flag)
                   {
-                      cpu.g7_flag = false;
+                      cpu.g7_flag        = false;
                       cpu.interrupt_flag = false;
                       sim_debug (DBG_CYCLE, & cpu_dev,
                                  "call doG7Fault (%d)\n", !noCheckTR);
@@ -2356,7 +2359,7 @@ setCPU:;
 // limit, the fault is recognized before any instruction in the new mode is
 // executed."
 
-                // fall through
+          /*FALLTHRU*/ /* fall through */
           case PSEUDO_FETCH_cycle:
 
             tmp_priv_mode = is_priv_mode ();
@@ -2422,27 +2425,27 @@ setCPU:;
 #endif
             if (cpu.cycle == PSEUDO_FETCH_cycle)
               {
-                cpu.apu.lastCycle = INSTRUCTION_FETCH;
-                cpu.cu.XSF = 0;
+                cpu.apu.lastCycle    = INSTRUCTION_FETCH;
+                cpu.cu.XSF           = 0;
                 cpu.cu.TSN_VALID [0] = 0;
-                cpu.TPR.TSR = cpu.PPR.PSR;
-                cpu.TPR.TRR = cpu.PPR.PRR;
-                cpu.wasInhibited = false;
+                cpu.TPR.TSR          = cpu.PPR.PSR;
+                cpu.TPR.TRR          = cpu.PPR.PRR;
+                cpu.wasInhibited     = false;
               }
             else
               {
                 CPT (cpt1U, 20); // not XEC or RPx
-                cpu.isExec = false;
-                cpu.isXED = false;
+                cpu.isExec               = false;
+                cpu.isXED                = false;
                 // fetch next instruction into current instruction struct
                 //clr_went_appending (); // XXX not sure this is the right
                                          //  place
-                cpu.cu.XSF = 0;
+                cpu.cu.XSF               = 0;
 sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
-                cpu.cu.TSN_VALID [0] = 0;
-                cpu.TPR.TSR = cpu.PPR.PSR;
-                cpu.TPR.TRR = cpu.PPR.PRR;
-                PNL (cpu.prepare_state = ps_PIA);
+                cpu.cu.TSN_VALID [0]     = 0;
+                cpu.TPR.TSR              = cpu.PPR.PSR;
+                cpu.TPR.TRR              = cpu.PPR.PRR;
+                PNL (cpu.prepare_state   = ps_PIA);
                 PNL (L68_ (cpu.INS_FETCH = true;))
                 fetchInstruction (cpu.PPR.IC);
               }
@@ -2462,7 +2465,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 if (stall_point_active)
                   {
                     for (int i = 0; i < N_STALL_POINTS; i ++)
-                      if (stall_points[i].segno && stall_points[i].segno == cpu.PPR.PSR &&
+                      if (stall_points[i].segno  && stall_points[i].segno  == cpu.PPR.PSR &&
                           stall_points[i].offset && stall_points[i].offset == cpu.PPR.IC)
                         {
 # ifdef CTRACE
@@ -2500,23 +2503,23 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 {
                   CPT (cpt1U, 27); // XEx instruction
                   cpu.wasXfer = false;
-                  cpu.isExec = true;
+                  cpu.isExec  = true;
                   if (cpu.cu.xdo)
                     cpu.isXED = true;
 
-                  cpu.cu.XSF = 0;
+                  cpu.cu.XSF           = 0;
                   cpu.cu.TSN_VALID [0] = 0;
-                  cpu.TPR.TSR = cpu.PPR.PSR;
-                  cpu.TPR.TRR = cpu.PPR.PRR;
+                  cpu.TPR.TSR          = cpu.PPR.PSR;
+                  cpu.TPR.TRR          = cpu.PPR.PRR;
                   break;
                 }
 
               if (ret == CONT_TRA || ret == CONT_RET)
                 {
                   CPT (cpt1U, 24); // transfer instruction
-                  cpu.cu.xde = cpu.cu.xdo = 0;
-                  cpu.isExec = false;
-                  cpu.isXED = false;
+                  cpu.cu.xde  = cpu.cu.xdo = 0;
+                  cpu.isExec  = false;
+                  cpu.isXED   = false;
                   // even for CONT_RET else isolts 886 fails
                   cpu.wasXfer = true;
 
@@ -2624,12 +2627,12 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 #  ifdef NO_TIMEWAIT
                   //sim_usleep (sys_opts.sys_poll_interval * 1000/*10000*/);
                   struct timespec req, rem;
-                  uint ms = sys_opts.sys_poll_interval;
-                  long int nsec = (long int) ms * 1000 * 1000;
-                  req.tv_nsec = nsec;
-                  req.tv_sec += req.tv_nsec / 1000000000;
-                  req.tv_nsec %= 1000000000;
-                  int rc = nanosleep (& req, & rem);
+                  uint ms        = sys_opts.sys_poll_interval;
+                  long int nsec  = (long int) ms * 1000 * 1000;
+                  req.tv_nsec    = nsec;
+                  req.tv_sec    += req.tv_nsec / 1000000000;
+                  req.tv_nsec   %= 1000000000;
+                  int rc         = nanosleep (& req, & rem);
                   // Awakened early?
                   if (rc == -1)
                     {
@@ -2707,6 +2710,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   cpu.rTR = (cpu.rTR - sys_opts.sys_poll_interval * 512) & MASK27;
 # endif // ! (THREADZ || LOCKLESS)
 #endif // ! ROUND_ROBIN
+                  /*NOTREACHED*/
                   break;
                 }
 
@@ -2742,11 +2746,11 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                   // cu_safe_restore calls decode_instruction ()
                   // we can determine the instruction length.
                   // decode_instruction() restores ci->info->ndes
-                  cpu.wasXfer = false;
-                  cpu.isExec = false;
-                  cpu.isXED = false;
+                  cpu.wasXfer  = false;
+                  cpu.isExec   = false;
+                  cpu.isXED    = false;
 
-                  cpu.PPR.IC += ci->info->ndes;
+                  cpu.PPR.IC  += ci->info->ndes;
                   cpu.PPR.IC ++;
 
                   set_cpu_cycle (FETCH_cycle);
@@ -2764,8 +2768,8 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 // we can safely assume that is the state that should be restored.
                   CPT (cpt1U, 12); // cu restored
                   cpu.wasXfer = false;
-                  cpu.isExec = false;
-                  cpu.isXED = false;
+                  cpu.isExec  = false;
+                  cpu.isXED   = false;
 
                   set_cpu_cycle (FETCH_cycle);
                   break;
@@ -2775,28 +2779,28 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               if (cpu.cu.xde && cpu.cu.xdo)
                 {
                   // Get the odd
-                  cpu.cu.IWB = cpu.cu.IRODD;
-                  cpu.cu.xde = 0;
-                  cpu.isExec = true;
-                  cpu.isXED = true;
-                  cpu.cu.XSF = 0;
+                  cpu.cu.IWB           = cpu.cu.IRODD;
+                  cpu.cu.xde           = 0;
+                  cpu.isExec           = true;
+                  cpu.isXED            = true;
+                  cpu.cu.XSF           = 0;
                   cpu.cu.TSN_VALID [0] = 0;
-                  cpu.TPR.TSR = cpu.PPR.PSR;
-                  cpu.TPR.TRR = cpu.PPR.PRR;
+                  cpu.TPR.TSR          = cpu.PPR.PSR;
+                  cpu.TPR.TRR          = cpu.PPR.PRR;
                   break; // go do the odd word
                 }
 
-              if (cpu.cu.xde || cpu.cu.xdo) // we are in an XEC/XED
+              if (cpu.cu.xde || cpu.cu.xdo)  // we are in an XEC/XED
                 {
-                  cpu.cu.xde = cpu.cu.xdo = 0;
-                  cpu.isExec = false;
-                  cpu.isXED = false;
-                  CPT (cpt1U, 27); // XEx instruction
-                  cpu.wasXfer = false;
+                  cpu.cu.xde        = cpu.cu.xdo = 0;
+                  cpu.isExec        = false;
+                  cpu.isXED         = false;
+                  CPT (cpt1U, 27);           // XEx instruction
+                  cpu.wasXfer       = false;
                   cpu.PPR.IC ++;
                   if (ci->info->ndes > 0)
-                    cpu.PPR.IC += ci->info->ndes;
-                  cpu.wasInhibited = true;
+                    cpu.PPR.IC     += ci->info->ndes;
+                  cpu.wasInhibited  = true;
                   set_cpu_cycle (FETCH_cycle);
                   break;
                 }
@@ -2807,7 +2811,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
 
               cpu.cu.xde = cpu.cu.xdo = 0;
               cpu.isExec = false;
-              cpu.isXED = false;
+              cpu.isXED  = false;
 
               // use prefetched instruction from cpu.cu.IRODD
               // we must have finished an instruction at an even location
@@ -2826,7 +2830,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
                 {
                   cpu.PPR.IC ++;
                   cpu.wasXfer = false;
-                  cpu.cu.IWB = cpu.cu.IRODD;
+                  cpu.cu.IWB  = cpu.cu.IRODD;
                   set_cpu_cycle (PSEUDO_FETCH_cycle);
                   break;
                 }
@@ -2941,7 +2945,7 @@ sim_debug (DBG_TRACEEXT, & cpu_dev, "fetchCycle bit 29 sets XSF to 0\n");
               cpu.cu.xde = 1;
               cpu.cu.xdo = 1;
               cpu.isExec = true;
-              cpu.isXED = true;
+              cpu.isXED  = true;
 
               CPT (cpt1U, 33); // set fault exec cycle
               set_cpu_cycle (FAULT_EXEC_cycle);
@@ -3208,9 +3212,11 @@ int32 core_read (word24 addr, word36 *data, const char * ctx)
       }
 # endif
 # ifdef LOCKLESS
+#  ifndef SUNLINT
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     *data = v & DMASK;
+#  endif /* ifndef SUNLINT */
 # else
     *data = M[addr] & DMASK;
 # endif
@@ -3238,9 +3244,11 @@ int32 core_read_lock (word24 addr, word36 *data, UNUSED const char * ctx)
       core_unlock_all ();
     }
     cpu.locked_addr = addr;
+# ifndef SUNLINT
     word36 v;
     LOAD_ACQ_CORE_WORD(v, addr);
     * data = v & DMASK;
+# endif /* ifndef SUNLINT */
     return 0;
 }
 #endif
@@ -3265,7 +3273,9 @@ int core_write (word24 addr, word36 data, const char * ctx)
       }
 # ifdef LOCKLESS
     LOCK_CORE_WORD(addr);
+#  ifndef SUNLINT
     STORE_REL_CORE_WORD(addr, data);
+#  endif /* ifndef SUNLINT */
 # else
     M[addr] = data & DMASK;
 # endif
@@ -3296,23 +3306,27 @@ int core_write_unlock (word24 addr, word36 data, UNUSED const char * ctx)
     if (cpu.locked_addr != addr)
       {
         sim_warn ("core_write_unlock: locked %08o locked_addr %08o %c %05o:%06o\n",
-                  addr, cpu.locked_addr, current_running_cpu_idx + 'A',
+                  addr,        cpu.locked_addr, current_running_cpu_idx + 'A',
                   cpu.PPR.PSR, cpu.PPR.IC);
        core_unlock_all ();
       }
 
+# ifndef SUNLINT
     STORE_REL_CORE_WORD(addr, data);
+# endif /* ifndef SUNLINT */
     cpu.locked_addr = 0;
     return 0;
 }
 
-int core_unlock_all ()
+int core_unlock_all (void)
 {
   if (cpu.locked_addr != 0) {
       sim_warn ("core_unlock_all: locked %08o %c %05o:%06o\n",
                 cpu.locked_addr, current_running_cpu_idx + 'A',
-                cpu.PPR.PSR, cpu.PPR.IC);
+                cpu.PPR.PSR,     cpu.PPR.IC);
+# ifndef SUNLINT
       STORE_REL_CORE_WORD(cpu.locked_addr, M[cpu.locked_addr]);
+# endif /* ifndef SUNLINT */
       cpu.locked_addr = 0;
   }
   return 0;
@@ -3372,6 +3386,7 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
   {
     PNL (cpu.portBusy = true;)
 # if defined(LOCKLESS)
+    /*LINTED E_FUNC_VAR_UNUSED*/ /* Appease SUNLINT */
     word36 v;
 # endif
     if (addr & 1)
@@ -3401,13 +3416,15 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
       }
 # endif
 # ifdef LOCKLESS
+#  ifndef SUNLINT
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: even locked %08o locked_addr %08o %c %05o:%06o\n",
-                addr, cpu.locked_addr, current_running_cpu_idx + 'A',
+                addr,        cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
     *even = v & DMASK;
     addr++;
+#  endif /* ifndef SUNLINT */
 # else
     *even = M[addr++] & DMASK;
 # endif
@@ -3436,12 +3453,14 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
       }
 # endif
 # ifdef LOCKLESS
+#  ifndef SUNLINT
     LOAD_ACQ_CORE_WORD(v, addr);
     if (v & MEM_LOCKED)
       sim_warn ("core_read2: odd locked %08o locked_addr %08o %c %05o:%06o\n",
-                addr, cpu.locked_addr, current_running_cpu_idx + 'A',
+                addr,        cpu.locked_addr, current_running_cpu_idx + 'A',
                 cpu.PPR.PSR, cpu.PPR.IC);
     *odd = v & DMASK;
+#  endif /* ifndef SUNLINT */
 # else
     *odd = M[addr] & DMASK;
 # endif
@@ -3460,7 +3479,9 @@ int core_read2 (word24 addr, word36 *even, word36 *odd, const char * ctx)
 int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
   PNL (cpu.portBusy = true;)
   if (addr & 1) {
-    sim_debug (DBG_MSG, & cpu_dev, "warning: subtracting 1 from pair at %o in core_write2 " "(%s)\n", addr, ctx);
+    sim_debug (DBG_MSG, & cpu_dev,
+               "warning: subtracting 1 from pair at %o in core_write2 " "(%s)\n",
+               addr, ctx);
     addr &= (word24)~1; /* make it even a dress, or iron a skirt ;) */
   }
   SC_MAP_ADDR (addr, addr);
@@ -3477,13 +3498,16 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
 
 # ifndef SPEED
   if (watch_bits [addr]) {
-    sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" " "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, even, ctx);
+    sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" " "(%s)\n",
+             cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, even, ctx);
     traceInstruction (0);
   }
 # endif
 # ifdef LOCKLESS
   LOCK_CORE_WORD(addr);
+#  ifndef SUNLINT
   STORE_REL_CORE_WORD(addr, even);
+#  endif /* ifndef SUNLINT */
   addr++;
 # else
   M[addr++] = even & DMASK;
@@ -3491,17 +3515,20 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
   sim_debug (DBG_CORE, & cpu_dev, "core_write2 %08o %012"PRIo64" (%s)\n", addr - 1, even, ctx);
 
   // If the even address is OK, the odd will be
-  //nem_check (addr,  "core_write2 nem");
+  //mem_check (addr,  "core_write2 nem");
 
 # ifndef SPEED
   if (watch_bits [addr]) {
-    sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" " "(%s)\n", cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, odd, ctx);
+    sim_msg ("WATCH [%"PRId64"] %05o:%06o write2 %08o %012"PRIo64" " "(%s)\n",
+             cpu.cycleCnt, cpu.PPR.PSR, cpu.PPR.IC, addr, odd, ctx);
     traceInstruction (0);
   }
 # endif
 # ifdef LOCKLESS
   LOCK_CORE_WORD(addr);
+#  ifndef SUNLINT
   STORE_REL_CORE_WORD(addr, odd);
+#  endif /* ifndef SUNLINT */
 # else
   M[addr] = odd & DMASK;
 # endif
@@ -3515,13 +3542,12 @@ int core_write2 (word24 addr, word36 even, word36 odd, const char * ctx) {
 #endif
 
 /*
- * instruction fetcher ...
- * fetch + decode instruction at 18-bit address 'addr'
+ * Instruction fetcher ...
+ * Fetch + decode instruction at 18-bit address 'addr'
  */
 
 /*
- * instruction decoder .....
- *
+ * Instruction decoder .....
  */
 
 void decode_instruction (word36 inst, DCDstruct * p)
@@ -3529,15 +3555,15 @@ void decode_instruction (word36 inst, DCDstruct * p)
     CPT (cpt1L, 17); // instruction decoder
     memset (p, 0, sizeof (DCDstruct));
 
-    p->opcode  = GET_OP (inst);   // get opcode
-    p->opcodeX = GET_OPX(inst);   // opcode extension
+    p->opcode   = GET_OP (inst);   // get opcode
+    p->opcodeX  = GET_OPX(inst);   // opcode extension
     p->opcode10 = p->opcode | (p->opcodeX ? 01000 : 0);
-    p->address = GET_ADDR (inst); // address field from instruction
-    p->b29     = GET_A (inst);    // "A" the indirect via pointer register flag
-    p->i       = GET_I (inst);    // "I" inhibit interrupt flag
-    p->tag     = GET_TAG (inst);  // instruction tag
+    p->address  = GET_ADDR (inst); // address field from instruction
+    p->b29      = GET_A (inst);    // "A" the indirect via pointer register flag
+    p->i        = GET_I (inst);    // "I" inhibit interrupt flag
+    p->tag      = GET_TAG (inst);  // instruction tag
 
-    p->info = get_iwb_info  (p);     // get info for IWB instruction
+    p->info     = get_iwb_info  (p);     // get info for IWB instruction
 
     if (p->info->flags & IGN_B29)
         p->b29 = 0;   // make certain 'a' bit is valid always
@@ -3629,7 +3655,6 @@ addr_modes_e get_addr_mode (void)
  *
  * Put the CPU into the specified addressing mode.   This involves
  * setting a couple of IR flags and the PPR priv flag.
- *
  */
 
 void set_addr_mode (addr_modes_e mode)
@@ -3652,7 +3677,6 @@ void set_addr_mode (addr_modes_e mode)
 
         SET_I_ABS;
         cpu.PPR.P = 1;
-
       }
     else if (mode == APPEND_mode)
       {
@@ -3660,14 +3684,14 @@ void set_addr_mode (addr_modes_e mode)
         if (! TST_I_ABS && TST_I_NBAR)
           sim_debug (DBG_DEBUG, & cpu_dev, "APU: Keeping append mode.\n");
         else
-           sim_debug (DBG_DEBUG, & cpu_dev, "APU: Setting append mode.\n");
+          sim_debug (DBG_DEBUG, & cpu_dev, "APU: Setting append mode.\n");
 
         CLR_I_ABS;
       }
     else
       {
         sim_debug (DBG_ERR, & cpu_dev,
-                   "APU: Unable to determine address mode.\n");
+                  "APU: Unable to determine address mode.\n");
         sim_warn ("APU: Unable to determine address mode. Can't happen!\n");
       }
   }
@@ -3752,48 +3776,48 @@ void add_CU_history (void)
     if (cpu.MR_cache.hrxfr && ! cpu.wasXfer)
       return;
 
-    word36 flags = 0; // XXX fill out
-    word5 proccmd = 0; // XXX fill out
-    word7 flags2 = 0; // XXX fill out
-    word36 w0 = 0, w1 = 0;
-    w0 |= flags & 0777777000000;
-    w0 |= IWB_IRODD & MASK18;
-    w1 |= (cpu.iefpFinalAddress & MASK24) << 12;
-    w1 |= (proccmd & MASK5) << 7;
-    w1 |= flags2 & 0176;
+    word36 flags   = 0; // XXX fill out
+    word5 proccmd  = 0; // XXX fill out
+    word7 flags2   = 0; // XXX fill out
+    word36 w0      = 0, w1 = 0;
+    w0            |= flags & 0777777000000;
+    w0            |= IWB_IRODD & MASK18;
+    w1            |= (cpu.iefpFinalAddress & MASK24) << 12;
+    w1            |= (proccmd & MASK5) << 7;
+    w1            |= flags2 & 0176;
     add_history (CU_HIST_REG, w0, w1);
   }
 
 # ifndef QUIET_UNUSED
 void add_DUOU_history (word36 flags, word18 ICT, word9 RS_REG, word9 flags2)
   {
-    word36 w0 = flags, w1 = 0;
-    w1 |= (ICT & MASK18) << 18;
-    w1 |= (RS_REG & MASK9) << 9;
-    w1 |= flags2 & MASK9;
+    word36 w0  = flags, w1 = 0;
+    w1        |= (ICT & MASK18) << 18;
+    w1        |= (RS_REG & MASK9) << 9;
+    w1        |= flags2 & MASK9;
     add_history (DU_OU_HIST_REG, w0, w1);
   }
 
 void add_APU_history (word15 ESN, word21 flags, word24 RMA, word3 RTRR, word9 flags2)
   {
-    word36 w0 = 0, w1 = 0;
-    w0 |= (ESN & MASK15) << 21;
-    w0 |= flags & MASK21;
-    w1 |= (RMA & MASK24) << 12;
-    w1 |= (RTRR & MASK3) << 9;
-    w1 |= flags2 & MASK9;
+    word36 w0  = 0, w1 = 0;
+    w0        |= (ESN & MASK15) << 21;
+    w0        |= flags & MASK21;
+    w1        |= (RMA & MASK24) << 12;
+    w1        |= (RTRR & MASK3) << 9;
+    w1        |= flags2 & MASK9;
     add_history (APU_HIST_REG, w0, w1);
   }
 
 void add_EAPU_history (word18 ZCA, word18 opcode)
   {
-    word36 w0 = 0;
-    w0 |= (ZCA & MASK18) << 18;
-    w0 |= opcode & MASK18;
+    word36 w0  = 0;
+    w0        |= (ZCA & MASK18) << 18;
+    w0        |= opcode & MASK18;
     add_history (EAPU_HIST_REG, w0, 0);
-    //cpu.eapu_hist[cpu.eapu_cyclic].ZCA = ZCA;
+    //cpu.eapu_hist[cpu.eapu_cyclic].ZCA    = ZCA;
     //cpu.eapu_hist[cpu.eapu_cyclic].opcode = opcode;
-    //cpu.history_cyclic[EAPU_HIST_REG] =
+    //cpu.history_cyclic[EAPU_HIST_REG]     =
       //(cpu.history_cyclic[EAPU_HIST_REG] + 1) % N_HIST_SIZE;
   }
 # endif
@@ -3858,24 +3882,24 @@ void add_CU_history (void)
     // 7 SAW
     PNL (putbits36_8 (& w0, 0, cpu.prepare_state);)
     // 8 TRG
-    putbits36_1 (& w0, 8, cpu.wasXfer);
+    putbits36_1  (& w0, 8, cpu.wasXfer);
     // 9 XDE
-    putbits36_1 (& w0, 9, cpu.cu.xde);
+    putbits36_1  (& w0, 9, cpu.cu.xde);
     // 10 XDO
-    putbits36_1 (& w0, 10, cpu.cu.xdo);
+    putbits36_1  (& w0, 10, cpu.cu.xdo);
     // 11 IC
-    putbits36_1 (& w0, 11, USE_IRODD?1:0);
+    putbits36_1  (& w0, 11, USE_IRODD?1:0);
     // 12 RPT
-    putbits36_1 (& w0, 12, cpu.cu.rpt);
+    putbits36_1  (& w0, 12, cpu.cu.rpt);
     // 13 WI Wait for instruction fetch XXX Not tracked
     // 14 ARF "AR F/E" Address register Full/Empty Address has valid data
     PNL (putbits36_1 (& w0, 14, cpu.AR_F_E);)
     // 15 !XA/Z "-XIP NOT prepare interrupt address"
-    putbits36_1 (& w0, 15, cpu.cycle != INTERRUPT_cycle?1:0);
+    putbits36_1  (& w0, 15, cpu.cycle != INTERRUPT_cycle?1:0);
     // 16 !FA/Z Not tracked. (cu.-FL?)
-    putbits36_1 (& w0, 16, cpu.cycle != FAULT_cycle?1:0);
+    putbits36_1  (& w0, 16, cpu.cycle != FAULT_cycle?1:0);
     // 17 M/S  (master/slave, cu.-BASE?, NOT BAR MODE)
-    putbits36_1 (& w0, 17, TSTF (cpu.cu.IR, I_NBAR)?1:0);
+    putbits36_1  (& w0, 17, TSTF (cpu.cu.IR, I_NBAR)?1:0);
     // 18:35 IWR (lower half of IWB)
     putbits36_18 (& w0, 18, (word18) (IWB_IRODD & MASK18));
 
@@ -3966,44 +3990,44 @@ void add_OU_history (void)
 
     // 0-16 RP
     //   0-8 OP CODE
-    PNL (putbits36_9 (& w0, 0, cpu.ou.RS);)
+    PNL (putbits36_9 (& w0,  0,       cpu.ou.RS);)
 
     //   9 CHAR
-    putbits36_1 (& w0, 9, cpu.ou.characterOperandSize ? 1 : 0);
+    putbits36_1 (& w0,       9,       cpu.ou.characterOperandSize ? 1 : 0);
 
     //   10-12 TAG 1/2/3
-    putbits36_3 (& w0, 10, cpu.ou.characterOperandOffset);
+    putbits36_3 (& w0,       10,      cpu.ou.characterOperandOffset);
 
     //   13 CRFLAG
-    putbits36_1 (& w0, 13, cpu.ou.crflag);
+    putbits36_1 (& w0,       13,      cpu.ou.crflag);
 
     //   14 DRFLAG
-    putbits36_1 (& w0, 14, cpu.ou.directOperandFlag ? 1 : 0);
+    putbits36_1 (& w0,       14,      cpu.ou.directOperandFlag ? 1 : 0);
 
     //   15-16 EAC
-    putbits36_2 (& w0, 15, cpu.ou.eac);
+    putbits36_2 (& w0,       15,      cpu.ou.eac);
 
     // 17 0
     // 18-26 RS REG
-    PNL (putbits36_9 (& w0, 18, cpu.ou.RS);)
+    PNL (putbits36_9 (& w0,  18,      cpu.ou.RS);)
 
     // 27 RB1 FULL
-    putbits36_1 (& w0, 27, cpu.ou.RB1_FULL);
+    putbits36_1 (& w0,       27,      cpu.ou.RB1_FULL);
 
     // 28 RP FULL
-    putbits36_1 (& w0, 28, cpu.ou.RP_FULL);
+    putbits36_1 (& w0,       28,      cpu.ou.RP_FULL);
 
     // 29 RS FULL
-    putbits36_1 (& w0, 29, cpu.ou.RS_FULL);
+    putbits36_1 (& w0,       29,      cpu.ou.RS_FULL);
 
     // 30-35 GIN/GOS/GD1/GD2/GOE/GOA
-    putbits36_6 (& w0, 30, (word6) (cpu.ou.cycle >> 3));
+    putbits36_6 (& w0,       30,      (word6) (cpu.ou.cycle >> 3));
 
     // 36-38 GOM/GON/GOF
-    putbits36_3 (& w1, 36-36, (word3) cpu.ou.cycle);
+    putbits36_3 (& w1,       36-36,   (word3) cpu.ou.cycle);
 
     // 39 STR OP
-    putbits36_1 (& w1, 39-36, cpu.ou.STR_OP);
+    putbits36_1 (& w1,       39-36,   cpu.ou.STR_OP);
 
     // 40 -DA-AV XXX
 
@@ -4014,7 +4038,7 @@ void add_OU_history (void)
     // 51-53 0
 
     // 54-71 ICT TRACKER
-    putbits36_18 (& w1, 54 - 36, cpu.PPR.IC);
+    putbits36_18 (& w1,      54 - 36, cpu.PPR.IC);
 
     add_history (OU_HIST_REG, w0, w1);
   }
@@ -4076,28 +4100,28 @@ void add_APU_history (enum APUH_e op)
     w0 = op; // set 17-24 FDSPTW/.../FAP bits
 
     // 0-14 ESN
-    putbits36_15 (& w0, 0, cpu.TPR.TSR);
+    putbits36_15 (& w0,      0,  cpu.TPR.TSR);
     // 15-16 BSY
-    PNL (putbits36_1 (& w0, 15, (cpu.apu.state & apu_ESN_SNR) ? 1 : 0);)
-    PNL (putbits36_1 (& w0, 16, (cpu.apu.state & apu_ESN_TSR) ? 1 : 0);)
+    PNL (putbits36_1 (& w0,  15, (cpu.apu.state & apu_ESN_SNR) ? 1 : 0);)
+    PNL (putbits36_1 (& w0,  16, (cpu.apu.state & apu_ESN_TSR) ? 1 : 0);)
     // 25 SDWAMM
-    putbits36_1 (& w0, 25, cpu.cu.SDWAMM);
+    putbits36_1 (& w0,       25, cpu.cu.SDWAMM);
     // 26-29 SDWAMR
-    putbits36_4 (& w0, 26, cpu.SDWAMR);
+    putbits36_4 (& w0,       26, cpu.SDWAMR);
     // 30 PTWAMM
-    putbits36_1 (& w0, 30, cpu.cu.PTWAMM);
+    putbits36_1 (& w0,       30, cpu.cu.PTWAMM);
     // 31-34 PTWAMR
-    putbits36_4 (& w0, 31, cpu.PTWAMR);
+    putbits36_4 (& w0,       31, cpu.PTWAMR);
     // 35 FLT
-    PNL (putbits36_1 (& w0, 35, (cpu.apu.state & apu_FLT) ? 1 : 0);)
+    PNL (putbits36_1 (& w0,  35, (cpu.apu.state & apu_FLT) ? 1 : 0);)
 
     // 36-59 ADD
-    PNL (putbits36_24 (& w1,  0, cpu.APUMemAddr);)
+    PNL (putbits36_24 (& w1, 0,  cpu.APUMemAddr);)
     // 60-62 TRR
-    putbits36_3 (& w1, 24, cpu.TPR.TRR);
+    putbits36_3 (& w1,       24, cpu.TPR.TRR);
     // 66 XXX Multiple match error in SDWAM
     // 70 Segment is encachable
-    putbits36_1 (& w1, 34, cpu.SDW0.C);
+    putbits36_1 (& w1,       34, cpu.SDW0.C);
     // 71 XXX Multiple match error in PTWAM
 
     add_history (APU_HIST_REG, w0, w1);
@@ -4112,7 +4136,7 @@ static const char * get_dbg_verb (uint32 dbits, DEVICE * dptr)
   {
     static const char * debtab_none    = "DEBTAB_ISNULL";
     static const char * debtab_nomatch = "DEBTAB_NOMATCH";
-    const char * some_match = NULL;
+    const char * some_match            = NULL;
     int32 offset = 0;
 
     if (dptr->debflags == 0)
@@ -4140,8 +4164,8 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
       {
         const char * debug_type = get_dbg_verb (dbits, dptr);
         char stackbuf[STACKBUFSIZE];
-        int32 bufsize = sizeof (stackbuf);
-        char * buf = stackbuf;
+        int32 bufsize           = sizeof (stackbuf);
+        char * buf              = stackbuf;
         va_list arglist;
         int32 i, j, len;
         struct timespec t;
@@ -4153,7 +4177,7 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
           {                 /* format passed string, args */
             va_start (arglist, fmt);
 # if defined(NO_vsnprintf)
-            len = vsprintf (buf, fmt, arglist);
+            len = vsprintf  (buf, fmt, arglist);
 # else                                                   /* !defined(NO_vsnprintf) */
             len = vsnprintf (buf, (int)((unsigned long)(bufsize)-1), fmt, arglist);
 # endif                                                  /* NO_vsnprintf */
@@ -4187,7 +4211,9 @@ void dps8_sim_debug (uint32 dbits, DEVICE * dptr, unsigned long long cnt, const 
                   {
                     if ((i != j) || (i == 0))
                       {
-                          fprintf (sim_deb, "%lld.%06ld: DBG(%lld) %o: %s %s %.*s\r\n", (long long)t.tv_sec, t.tv_nsec/1000, cnt, current_running_cpu_idx, dptr->name, debug_type, i-j, &buf[j]);
+                          fprintf (sim_deb, "%lld.%06ld: DBG(%lld) %o: %s %s %.*s\r\n",
+                                  (long long)t.tv_sec, t.tv_nsec/1000, cnt,
+                                  current_running_cpu_idx, dptr->name, debug_type, i-j, &buf[j]);
                       }
                   }
                 j = i + 1;
@@ -4223,14 +4249,14 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
 //       ID bits of RSW 2 and the ID bits of PROM locations
 //       35-40. This condition could result when alterable
 //       configuration condition is contained in the PROM.
-//       The user is adviced to ignore the PROM fields which
+//       The user is advised to ignore the PROM fields which
 //       contain the processor fault vector base (GCOS III)
 //       and the processor number and rely on the RSW 2 bits
 //       for this purpose. Bits 14-16 of the RSW 2 should be
-//       ignored and the bits represnting this information in
+//       ignored and the bits representing this information in
 //       the PROM should be treated as valid.
 
-// "0-13" disagress with Multics source (start_pl1); it interprets
+// "0-13" disagrees with Multics source (start_pl1); it interprets
 // it as "0-12"; most likely a typo in 58009997-040.
 
 // CAC notes: I interpret the fields as
@@ -4286,10 +4312,7 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
   // bits 6,7 reserved for future use
 
   char serial[12];
-  if (cpuNo < 0)
-    sprintf (serial, "%-11u", 0);
-  else
-    sprintf (serial, "%-11u", cpus[cpuNo].switches.serno);
+  sprintf (serial, "%-11u", cpus[cpuNo].switches.serno);
 
 #ifdef VER_H_PROM_SHIP
   char * ship = VER_H_PROM_SHIP;
@@ -4297,19 +4320,18 @@ void setupPROM (uint cpuNo, unsigned char * PROM) {
   char * ship = "200101";
 #endif /* VER_H_PROM_SHIP */
 
-
 #define BURN(offset, length, string) memcpy ((char *) PROM + (offset), string, length)
 #define BURN1(offset, byte) PROM[offset] = (char) (byte)
 
   memset (PROM, 255, 1024);
 
   //              12345678901
-  BURN  ( 00, 11, "DPS 8/SIM M");           //    0-10  CPU model          ("XXXXXXXXXXX"/%11s)
-  BURN  (013, 11, serial);                  //   11-21  CPU serial         ("DDDDDDDDDDD"/%11d)
-  BURN  (026,  6, ship);                    //   22-27  CPU ship date            ("YYMMDD"/%6s)
-  BURN1 (034,     getbits36_8 (rsw2,  0));  //   34     RSW 2 bits  0- 7
-  BURN1 (035,     getbits36_8 (rsw2,  8));  //   35     RSW 2 bits  8-15
-  BURN1 (036,     getbits36_8 (rsw2, 16));  //   36     RSW 2 bits 16-23
-  BURN1 (037,     getbits36_8 (rsw2, 24));  //   37     RSW 2 bits 24-31
+  BURN  ( 00,  11,  "DPS 8/SIM M");                            //    0-10  CPU model          ("XXXXXXXXXXX"/%11s)
+  BURN  (013,  11,  serial);                                   //   11-21  CPU serial         ("DDDDDDDDDDD"/%11d)
+  BURN  (026,   6,  ship);                                     //   22-27  CPU ship date            ("YYMMDD"/%6s)
+  BURN1 (034,       getbits36_8 (rsw2,  0));                   //   34     RSW 2 bits  0- 7
+  BURN1 (035,       getbits36_8 (rsw2,  8));                   //   35     RSW 2 bits  8-15
+  BURN1 (036,       getbits36_8 (rsw2, 16));                   //   36     RSW 2 bits 16-23
+  BURN1 (037,       getbits36_8 (rsw2, 24));                   //   37     RSW 2 bits 24-31
   BURN1 (040,     ((getbits36_4 (rsw2, 32) << 4) | rsw2Ext));  // 40  RSW 2 bits 32-35, options bits
 }

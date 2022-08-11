@@ -1,5 +1,6 @@
 # DPS8M simulator: src/simh/GNUmakefile
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: 5f6d7a56-f62a-11ec-b245-80ee73e9b8e7
 
@@ -88,7 +89,7 @@ clean distclean:
 	-@$(RMF) .dps8m*.state                 ||  $(TRUE) > /dev/null 2>&1
 	-@$(RMF) .l68*.state                   ||  $(TRUE) > /dev/null 2>&1
 	-@$(RMF) ./*.gcda 2> /dev/null         ||  $(TRUE) > /dev/null 2>&1
-	-@$(RMF) "../dpsprintf/dpsprintf.o"    ||  $(TRUE) > /dev/null 2>&1
+	-@$(RMF) ./*.ln   2> /dev/null         ||  $(TRUE) > /dev/null 2>&1
 	-@$(SETV); $(RMF) "../dps8/sysdefs.n"  ||  $(TRUE) > /dev/null 2>&1
 
 ###############################################################################

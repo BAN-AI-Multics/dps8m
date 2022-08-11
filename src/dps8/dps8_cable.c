@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 571b2a19-f62d-11ec-b8e7-80ee73e9b8e7
  *
@@ -139,8 +140,6 @@
 # include "shm.h"
 #endif
 
-#include "../dpsprintf/dpsprintf.h"
-
 #define DBG_CTR 1
 
 struct cables_s * cables = NULL;
@@ -277,10 +276,10 @@ static t_stat cable_scu_to_iom (int uncable, uint scu_unit_idx, uint scu_port_nu
           }
 
         p->in_use = false;
-        scu[scu_unit_idx].ports[scu_port_num].type = ADEV_NONE;
+        scu[scu_unit_idx].ports[scu_port_num].type    = ADEV_NONE;
         scu[scu_unit_idx].ports[scu_port_num].dev_idx = 0;
         // XXX is this wrong? is is_exp supposed to be an accumulation of bits?
-        scu[scu_unit_idx].ports[scu_port_num].is_exp = false;
+        scu[scu_unit_idx].ports[scu_port_num].is_exp  = false;
         //scu[scu_unit_idx].ports[scu_port_num].dev_port[scu_subport_num] = 0;
       }
     else
@@ -303,11 +302,11 @@ static t_stat cable_scu_to_iom (int uncable, uint scu_unit_idx, uint scu_port_nu
         p->iom_unit_idx = iom_unit_idx;
         p->iom_port_num = (uint) iom_port_num;
 
-        scu[scu_unit_idx].ports[scu_port_num].type = ADEV_IOM;
-        scu[scu_unit_idx].ports[scu_port_num].dev_idx = (int) iom_unit_idx;
+        scu[scu_unit_idx].ports[scu_port_num].type        = ADEV_IOM;
+        scu[scu_unit_idx].ports[scu_port_num].dev_idx     = (int) iom_unit_idx;
         scu[scu_unit_idx].ports[scu_port_num].dev_port[0] = (int) iom_port_num;
         // XXX is this wrong? is is_exp supposed to be an accumulation of bits?
-        scu[scu_unit_idx].ports[scu_port_num].is_exp = 0;
+        scu[scu_unit_idx].ports[scu_port_num].is_exp      = 0;
         //scu[scu_unit_idx].ports[scu_port_num].dev_port[scu_subport_num] = 0;
       }
     return SCPE_OK;
@@ -315,7 +314,8 @@ static t_stat cable_scu_to_iom (int uncable, uint scu_unit_idx, uint scu_port_nu
 
 // back cable SCUx port# CPUx port#
 
-static t_stat back_cable_cpu_to_scu (int uncable, uint cpu_unit_idx, uint cpu_port_num, uint scu_unit_idx, uint scu_port_num, uint scu_subport_num)
+static t_stat back_cable_cpu_to_scu (int uncable, uint cpu_unit_idx, uint cpu_port_num,
+        uint scu_unit_idx, uint scu_port_num, uint scu_subport_num)
   {
     struct cpu_to_scu_s * p = & cables->cpu_to_scu[cpu_unit_idx][cpu_port_num];
     if (uncable)
@@ -330,8 +330,8 @@ static t_stat back_cable_cpu_to_scu (int uncable, uint cpu_unit_idx, uint cpu_po
              return SCPE_ARG;
           }
         p->in_use = true;
-        p->scu_unit_idx = scu_unit_idx;
-        p->scu_port_num = scu_port_num;
+        p->scu_unit_idx    = scu_unit_idx;
+        p->scu_port_num    = scu_port_num;
         p->scu_subport_num = scu_subport_num;
       }
     return SCPE_OK;
@@ -339,14 +339,16 @@ static t_stat back_cable_cpu_to_scu (int uncable, uint cpu_unit_idx, uint cpu_po
 
 // cable SCUx CPUx
 
-static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_num, uint scu_subport_num, uint cpu_unit_idx, uint cpu_port_num, bool is_exp)
+static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_num,
+        uint scu_subport_num, uint cpu_unit_idx, uint cpu_port_num, bool is_exp)
   {
     struct scu_to_cpu_s * p = & cables->scu_to_cpu[scu_unit_idx][scu_port_num][scu_subport_num];
     if (uncable)
       {
         if (! p->in_use)
           {
-            sim_printf ("uncable SCU%u port %u subport %u: not cabled\n", scu_unit_idx, scu_port_num, scu_subport_num);
+            sim_printf ("uncable SCU%u port %u subport %u: not cabled\n",
+                    scu_unit_idx, scu_port_num, scu_subport_num);
             return SCPE_ARG;
           }
 
@@ -359,17 +361,18 @@ static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_nu
           }
 
         p->in_use = false;
-        scu[scu_unit_idx].ports[scu_port_num].type = ADEV_NONE;
-        scu[scu_unit_idx].ports[scu_port_num].dev_idx = 0;
+        scu[scu_unit_idx].ports[scu_port_num].type                      = ADEV_NONE;
+        scu[scu_unit_idx].ports[scu_port_num].dev_idx                   = 0;
         // XXX is this wrong? is is_exp supposed to be an accumulation of bits?
-        scu[scu_unit_idx].ports[scu_port_num].is_exp = false;
+        scu[scu_unit_idx].ports[scu_port_num].is_exp                    = false;
         scu[scu_unit_idx].ports[scu_port_num].dev_port[scu_subport_num] = 0;
       }
     else
       {
         if (p->in_use)
           {
-            sim_printf ("cable_scu: SCU %u port %u subport %u in use.\n", scu_unit_idx, scu_port_num, scu_subport_num);
+            sim_printf ("cable_scu: SCU %u port %u subport %u in use.\n",
+                    scu_unit_idx, scu_port_num, scu_subport_num);
             return SCPE_ARG;
           }
 
@@ -385,14 +388,14 @@ static t_stat cable_scu_to_cpu (int uncable, uint scu_unit_idx, uint scu_port_nu
         p->cpu_unit_idx = cpu_unit_idx;
         p->cpu_port_num = (uint) cpu_port_num;
 
-        scu[scu_unit_idx].ports[scu_port_num].type = ADEV_CPU;
-        scu[scu_unit_idx].ports[scu_port_num].dev_idx = (int) cpu_unit_idx;
-        scu[scu_unit_idx].ports[scu_port_num].dev_port[0] = (int) cpu_port_num;
+        scu[scu_unit_idx].ports[scu_port_num].type                      = ADEV_CPU;
+        scu[scu_unit_idx].ports[scu_port_num].dev_idx                   = (int) cpu_unit_idx;
+        scu[scu_unit_idx].ports[scu_port_num].dev_port[0]               = (int) cpu_port_num;
         // XXX is this wrong? is is_exp supposed to be an accumulation of bits?
-        scu[scu_unit_idx].ports[scu_port_num].is_exp = is_exp;
+        scu[scu_unit_idx].ports[scu_port_num].is_exp                    = is_exp;
         scu[scu_unit_idx].ports[scu_port_num].dev_port[scu_subport_num] = (int) cpu_port_num;
 
-        cpus[cpu_unit_idx].scu_port[scu_unit_idx] = scu_port_num;
+        cpus[cpu_unit_idx].scu_port[scu_unit_idx]                       = scu_port_num;
       }
     // Taking this out breaks the unit test segment loader.
     setup_scbank_map ();
@@ -463,7 +466,8 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
             sim_printf ("cable SCU: IOM port number out of range <%d>\n", iom_port_num);
             return SCPE_ARG;
           }
-        return cable_scu_to_iom (uncable, scu_unit_idx, (uint) scu_port_num, unit_idx, (uint) iom_port_num);
+        return cable_scu_to_iom (uncable, scu_unit_idx, (uint) scu_port_num,
+                                 unit_idx, (uint) iom_port_num);
       }
 
     // SCUx CPUx
@@ -519,7 +523,8 @@ static t_stat cable_scu (int uncable, uint scu_unit_idx, char * * name_save)
             sim_printf ("cable SCU: CPU port number out of range <%d>\n", cpu_port_num);
             return SCPE_ARG;
           }
-        return cable_scu_to_cpu (uncable, scu_unit_idx, (uint) scu_port_num, (uint) scu_subport_num, unit_idx, (uint) cpu_port_num, is_exp);
+        return cable_scu_to_cpu (uncable, scu_unit_idx, (uint) scu_port_num,
+                                 (uint) scu_subport_num, unit_idx, (uint) cpu_port_num, is_exp);
       }
     else
       {
@@ -555,7 +560,7 @@ static t_stat cable_ctlr_to_iom (int uncable, struct ctlr_to_iom_s * there,
           }
         there->in_use = true;
         there->iom_unit_idx = iom_unit_idx;
-        there->chan_num = chan_num;
+        there->chan_num     = chan_num;
       }
     return SCPE_OK;
   }
@@ -600,7 +605,7 @@ static t_stat cable_ctlr (int uncable,
           {
             return rc;
           }
-        p->in_use = false;
+        p->in_use  = false;
         p->iom_cmd = NULL;
       }
     else
@@ -619,26 +624,26 @@ static t_stat cable_ctlr (int uncable,
           {
             return rc;
           }
-        p->in_use = true;
+        p->in_use        = true;
         p->ctlr_unit_idx = ctlr_unit_idx;
-        p->port_num = port_num;
-        p->ctlr_type = ctlr_type;
-        p->chan_type = chan_type;
-        p->dev = devp;
-        p->board  = unitp;
-        p->iom_cmd  = iom_cmd;
+        p->port_num      = port_num;
+        p->ctlr_type     = ctlr_type;
+        p->chan_type     = chan_type;
+        p->dev           = devp;
+        p->board         = unitp;
+        p->iom_cmd       = iom_cmd;
       }
 
     return SCPE_OK;
   }
 
 //    cable IOMx chan# MTPx [port#]  // tape controller
-//    cable IOMx chan# MSPx [port#] // disk controller
-//    cable IOMx chah# IPCx [port#] // FIPS disk controller
-//    cable IOMx chan# OPCx       // Operator console
-//    cable IOMx chan# FNPx       // FNP
-//    cable IOMx chan# ABSIx      // ABSI
-//    cable IOMx chan# SKCx       // Socket controller
+//    cable IOMx chan# MSPx [port#]  // disk controller
+//    cable IOMx chah# IPCx [port#]  // FIPS disk controller
+//    cable IOMx chan# OPCx          // Operator console
+//    cable IOMx chan# FNPx          // FNP
+//    cable IOMx chan# ABSIx         // ABSI
+//    cable IOMx chan# SKCx          // Socket controller
 
 static t_stat cable_iom (int uncable, uint iom_unit_idx, char * * name_save)
   {
@@ -916,10 +921,10 @@ static t_stat cable_periph_to_ctlr (int uncable,
             sim_printf ("error: CABLE: device in use\n");
             return SCPE_ARG;
           }
-        there->in_use = true;
+        there->in_use        = true;
         there->ctlr_unit_idx = ctlr_unit_idx;
-        there->dev_code = dev_code;
-        there->ctlr_type = ctlr_type;
+        there->dev_code      = dev_code;
+        there->ctlr_type     = ctlr_type;
       }
     return SCPE_OK;
   }
@@ -951,7 +956,7 @@ static t_stat cable_periph (int uncable,
             return rc;
           }
 
-        here->in_use = false;
+        here->in_use  = false;
         here->iom_cmd = NULL;
       }
     else
@@ -973,9 +978,9 @@ static t_stat cable_periph (int uncable,
             return rc;
           }
 
-        here->in_use = true;
+        here->in_use   = true;
         here->unit_idx = unit_idx;
-        here->iom_cmd = iom_cmd;
+        here->iom_cmd  = iom_cmd;
       }
 
     return SCPE_OK;
@@ -1339,7 +1344,8 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
             {
               struct cpu_to_scu_s * p = & cables->cpu_to_scu[u][prt];
               if (p->in_use)
-                sim_printf (" %4u %4u    %4u %4u  %4u\n", u, prt, p->scu_unit_idx, p->scu_port_num, p->scu_subport_num);
+                sim_printf (" %4u %4u    %4u %4u  %4u\n",
+                        u, prt, p->scu_unit_idx, p->scu_port_num, p->scu_subport_num);
             }
         }
     sim_printf ("\n");
@@ -1352,19 +1358,22 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
         {
           struct iom_to_ctlr_s * p = & cables->iom_to_ctlr[u][c];
           if (p->in_use)
-            sim_printf (" %4u %4u     %4u  %4u %-6s  %-6s %10p %10p %10p\n", u, c, p->ctlr_unit_idx, p->port_num, ctlr_type_strs[p->ctlr_type], chan_type_strs[p->chan_type], (void *) p->dev, (void *) p->board, (void *) p->iom_cmd);
+            sim_printf (" %4u %4u     %4u  %4u %-6s  %-6s %10p %10p %10p\n",
+                    u, c, p->ctlr_unit_idx, p->port_num, ctlr_type_strs[p->ctlr_type],
+                    chan_type_strs[p->chan_type], (void *) p->dev,
+                    (void *) p->board, (void *) p->iom_cmd);
         }
 
     if (dump)
       {
-#define CTLR_IOM(big,small) \
-    sim_printf ("  %-4s port --> IOM channel\n", #big); \
-    all (u, N_ ## big ## _UNITS_MAX) \
-      all (prt, MAX_CTLR_PORTS) \
-        { \
-          struct ctlr_to_iom_s * p = & cables->small ## _to_iom[u][prt]; \
-          if (p->in_use) \
-            sim_printf (" %4u %4u    %4u %4u\n", u, prt, p->iom_unit_idx, p->chan_num); \
+#define CTLR_IOM(big,small)                                                              \
+    sim_printf ("  %-4s port --> IOM channel\n", #big);                                  \
+    all (u, N_ ## big ## _UNITS_MAX)                                                     \
+      all (prt, MAX_CTLR_PORTS)                                                          \
+        {                                                                                \
+          struct ctlr_to_iom_s * p = & cables->small ## _to_iom[u][prt];                 \
+          if (p->in_use)                                                                 \
+            sim_printf (" %4u %4u    %4u %4u\n", u, prt, p->iom_unit_idx, p->chan_num);  \
         }
         CTLR_IOM (MTP, mtp)
         CTLR_IOM (MSP, msp)
@@ -1396,22 +1405,23 @@ t_stat sys_cable_show (int32 dump, UNUSED const char * buf)
 
     sim_printf ("controller <--> device\n");
 
-#define CTLR_DEV(from_big,from_small, to_label, to_big, to_small) \
-    sim_printf ("  %-4s dev_code --> %-4s   command\n", #from_big, #to_label); \
-    all (u, N_ ## from_big ## _UNITS_MAX) \
-      all (prt, N_DEV_CODES) \
-        { \
-          struct ctlr_to_dev_s * p = & cables->from_small ## _to_ ## to_small[u][prt]; \
-          if (p->in_use) \
+#define CTLR_DEV(from_big,from_small, to_label, to_big, to_small)                                 \
+    sim_printf ("  %-4s dev_code --> %-4s   command\n", #from_big, #to_label);                    \
+    all (u, N_ ## from_big ## _UNITS_MAX)                                                         \
+      all (prt, N_DEV_CODES)                                                                      \
+        {                                                                                         \
+          struct ctlr_to_dev_s * p = & cables->from_small ## _to_ ## to_small[u][prt];            \
+          if (p->in_use)                                                                          \
             sim_printf (" %4u  %4u        %4u %10p\n", u, prt, p->unit_idx, (void *) p->iom_cmd); \
         }
-#define DEV_CTLR(from_big,from_small, to_label, to_big, to_small) \
-    sim_printf ("  %-4s --> %-4s dev_code type\n", #to_label, #from_big); \
-    all (u, N_ ## to_big ## _UNITS_MAX) \
-      { \
+#define DEV_CTLR(from_big,from_small, to_label, to_big, to_small)               \
+    sim_printf ("  %-4s --> %-4s dev_code type\n", #to_label, #from_big);       \
+    all (u, N_ ## to_big ## _UNITS_MAX)                                         \
+      {                                                                         \
         struct dev_to_ctlr_s * p = & cables->to_small ## _to_ ## from_small[u]; \
-        if (p->in_use) \
-          sim_printf (" %4u    %4u   %4u    %5s\n", u, p->ctlr_unit_idx, p->dev_code, ctlr_type_strs[p->ctlr_type]); \
+        if (p->in_use)                                                          \
+          sim_printf (" %4u    %4u   %4u    %5s\n", u, p->ctlr_unit_idx,        \
+                  p->dev_code, ctlr_type_strs[p->ctlr_type]);                   \
       }
     CTLR_DEV (MTP, mtp, TAPE, MT, tape);
     if (dump)

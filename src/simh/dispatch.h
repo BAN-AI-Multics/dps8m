@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: BSD-2-Clause
  * scspell-id: f32bf565-f629-11ec-8ceb-80ee73e9b8e7
  *
@@ -74,7 +75,6 @@ void agner_mkl_patch();
 #  endif
          /* if defined( INTEL_MKL_VERSION ) ||
                defined( __INTEL_MKL__ ) */
-
 # endif
         /* if defined( __INTEL_COMPILER )       ||
               defined( __INTEL_CLANG_COMPILER ) ||

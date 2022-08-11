@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: c48941bf-f62e-11ec-b993-80ee73e9b8e7
  *
@@ -19,8 +20,6 @@
  *
  * ---------------------------------------------------------------------------
  */
-
-#include "../dpsprintf/dpsprintf.h"
 
 unsigned char PROM[1024];
 memset (PROM, 255, sizeof (PROM));

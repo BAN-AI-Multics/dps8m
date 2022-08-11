@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: BSD-3-Clause
  * scspell-id: ecbb6700-f62c-11ec-a713-80ee73e9b8e7
  *
@@ -40,7 +41,7 @@
  * ---------------------------------------------------------------------------
  */
 
-#if defined(__MINGW64__) || defined(__MINGW32__)
+#if defined( __MINGW64__ ) || defined( __MINGW32__ )
 
 # include <stdio.h>
 
@@ -52,23 +53,23 @@
 # define SEP_0     0
 
 # define TYPE_1    1
-# define BREAK_1  32
+# define BREAK_1   32
 # define DEG_1     7
 # define SEP_1     3
 
 # define TYPE_2    2
-# define BREAK_2  64
-# define DEG_2    15
+# define BREAK_2   64
+# define DEG_2     15
 # define SEP_2     1
 
 # define TYPE_3    3
-# define BREAK_3 128
-# define DEG_3    31
+# define BREAK_3   128
+# define DEG_3     31
 # define SEP_3     3
 
 # define TYPE_4    4
-# define BREAK_4 256
-# define DEG_4    63
+# define BREAK_4   256
+# define DEG_4     63
 # define SEP_4     1
 
 # define MAX_TYPES 5
@@ -101,27 +102,26 @@ static long *end_ptr  = &randtbl[DEG_3 + 1];
 void
 bsd_srandom(unsigned int x)
 {
-
   if (rand_type == TYPE_0)
-  {
-    state[0] = x;
-  }
+    {
+      state[0] = x;
+    }
   else
-  {
-    register int i;
-    state[0] = x;
-    for (i = 1; i < rand_deg; i++)
     {
-      state[i] = 1103515245 * state[i - 1] + 12345;
-    }
+      register int i;
+      state[0] = x;
+      for (i = 1; i < rand_deg; i++)
+        {
+          state[i] = 1103515245 * state[i - 1] + 12345;
+        }
 
-    fptr = &state[rand_sep];
-    rptr = &state[0];
-    for (i = 0; i < 10 * rand_deg; i++)
-    {
-      (void)bsd_random();
+      fptr = &state[rand_sep];
+      rptr = &state[0];
+      for (i = 0; i < 10 * rand_deg; i++)
+        {
+          (void)bsd_random();
+        }
     }
-  }
 }
 
 char *
@@ -130,104 +130,104 @@ bsd_initstate(unsigned int seed, char *arg_state, int n)
   register char *ostate = (char *)( &state[-1] );
 
   if (rand_type == TYPE_0)
-  {
-    state[-1] = rand_type;
-  }
+    {
+      state[-1] = rand_type;
+    }
   else
-  {
-    state[-1] = MAX_TYPES * ( rptr - state ) + rand_type;
-  }
+    {
+      state[-1] = MAX_TYPES * ( rptr - state ) + rand_type;
+    }
 
   if (n < BREAK_0)
-  {
-    return ( 0 );
-  }
+    {
+      return 0;
+    }
 
   if (n < BREAK_1)
-  {
-    rand_type = TYPE_0;
-    rand_deg  = DEG_0;
-    rand_sep  = SEP_0;
-  }
+    {
+      rand_type = TYPE_0;
+      rand_deg  = DEG_0;
+      rand_sep  = SEP_0;
+    }
   else if (n < BREAK_2)
-  {
-    rand_type = TYPE_1;
-    rand_deg  = DEG_1;
-    rand_sep  = SEP_1;
-  }
+    {
+      rand_type = TYPE_1;
+      rand_deg  = DEG_1;
+      rand_sep  = SEP_1;
+    }
   else if (n < BREAK_3)
-  {
-    rand_type = TYPE_2;
-    rand_deg  = DEG_2;
-    rand_sep  = SEP_2;
-  }
+    {
+      rand_type = TYPE_2;
+      rand_deg  = DEG_2;
+      rand_sep  = SEP_2;
+    }
   else if (n < BREAK_4)
-  {
-    rand_type = TYPE_3;
-    rand_deg  = DEG_3;
-    rand_sep  = SEP_3;
-  }
+    {
+      rand_type = TYPE_3;
+      rand_deg  = DEG_3;
+      rand_sep  = SEP_3;
+    }
   else
-  {
-    rand_type = TYPE_4;
-    rand_deg  = DEG_4;
-    rand_sep  = SEP_4;
-  }
+    {
+      rand_type = TYPE_4;
+      rand_deg  = DEG_4;
+      rand_sep  = SEP_4;
+    }
 
   state   = &(((long *)arg_state )[1] );
   end_ptr = &state[rand_deg];
   bsd_srandom(seed);
   if (rand_type == TYPE_0)
-  {
-    state[-1] = rand_type;
-  }
+    {
+      state[-1] = rand_type;
+    }
   else
-  {
-    state[-1] = MAX_TYPES * ( rptr - state ) + rand_type;
-  }
+    {
+      state[-1] = MAX_TYPES * ( rptr - state ) + rand_type;
+    }
 
-  return ( ostate );
+  return ostate;
 }
 
 char *
 bsd_setstate(char *arg_state)
 {
   register long *new_state = (long *)arg_state;
-  register int  type       = (int)( new_state[0] % MAX_TYPES );
-  register int  rear       = (int)( new_state[0] / MAX_TYPES );
-  char          *ostate    = (char *)( &state[-1] );
+  register int type        = (int)( new_state[0] % MAX_TYPES );
+  register int rear        = (int)( new_state[0] / MAX_TYPES );
+  char *ostate             = (char *)( &state[-1] );
 
   if (rand_type == TYPE_0)
-  {
-    state[-1] = rand_type;
-  }
+    {
+      state[-1] = rand_type;
+    }
   else
-  {
-    state[-1] = MAX_TYPES * ( rptr - state ) + rand_type;
-  }
+    {
+      state[-1] = MAX_TYPES * ( rptr - state ) + rand_type;
+    }
 
   switch (type)
-  {
-  case TYPE_0:
-  case TYPE_1:
-  case TYPE_2:
-  case TYPE_3:
-  case TYPE_4:
-    rand_type = type;
-    rand_deg = degrees[type];
-    rand_sep = seps[type];
-    break;
-  }
+    {
+    case TYPE_0:
+    case TYPE_1:
+    case TYPE_2:
+    case TYPE_3:
+    case TYPE_4:
+      rand_type = type;
+      rand_deg  = degrees[type];
+      rand_sep  = seps[type];
+      break;
+    }
 
   state = &new_state[1];
   if (rand_type != TYPE_0)
-  {
-    rptr = &state[rear];
-    fptr = &state[( rear + rand_sep ) % rand_deg];
-  }
+    {
+      rptr = &state[rear];
+      fptr = &state[( rear + rand_sep ) % rand_deg];
+    }
 
   end_ptr = &state[rand_deg];
-  return ( ostate );
+  return ostate;
 }
 
 long
@@ -236,25 +236,25 @@ bsd_random(void)
   long i;
 
   if (rand_type == TYPE_0)
-  {
-    i = state[0] = ( state[0] * 1103515245 + 12345 ) & 0x7fffffff;
-  }
+    {
+      i = state[0] = ( state[0] * 1103515245 + 12345 ) & 0x7fffffff;
+    }
   else
-  {
-    *fptr += *rptr;
-    i = ( *fptr >> 1 ) & 0x7fffffff;
-    if (++fptr >= end_ptr)
     {
-      fptr = state;
-      ++rptr;
+      *fptr += *rptr;
+      i = ( *fptr >> 1 ) & 0x7fffffff;
+      if (++fptr >= end_ptr)
+        {
+          fptr = state;
+          ++rptr;
+        }
+      else if (++rptr >= end_ptr)
+        {
+          rptr = state;
+        }
     }
-    else if (++rptr >= end_ptr)
-    {
-      rptr = state;
-    }
-  }
 
-  return ( i );
+  return i;
 }
 
 #endif /* if defined(__MINGW64__) || defined(__MINGW32__) */

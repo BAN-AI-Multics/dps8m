@@ -1,5 +1,5 @@
 ---
-# SPDX-License-Identifier: LicenseRef-DPS8M-Doc OR LicenseRef-CFGAL
+# SPDX-License-Identifier: LicenseRef-DPS8M-Doc OR LicenseRef-CF-GAL
 # SPDX-FileCopyrightText: 2021-2022 The DPS8M Development Team
 # scspell-id: 554a8331-f8f2-11ec-9f86-80ee73e9b8e7
 title: "DPS8M: GE™ / Honeywell™ / Bull™ 6000-series & DPS‑8 ∕ M simulator"
@@ -18,6 +18,7 @@ titlepage: true
 toc-own-page: true
 footnotes-pretty: true
 book: true
+code-block-font-size: \normalsize
 listings-disable-line-numbers: true
 listings-no-page-break: true
 include-before: |
@@ -31,13 +32,13 @@ include-before: |
   ## Version Information
 
   * This documentation is intended for use with the following software:
-    * &nbsp; &nbsp; **DPS8M**    &nbsp; &nbsp;&nbsp;&nbsp; &nbsp;   **##BUILDVER##**
-    * &nbsp; &nbsp; **Prt2PDF**  &nbsp; &nbsp;&nbsp;                **##PRT2PDFV##**
-    * &nbsp; &nbsp; **PunUtil**  &nbsp; &nbsp;&nbsp; &nbsp;         **##PUNUTILV##**
-    * &nbsp; &nbsp; **Unifdef**  &nbsp; &nbsp;&nbsp; &nbsp;         **##UNIFDEFV##**
+    * &nbsp; &nbsp; **DPS8M** &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; **##BUILDVER##**
+    * &nbsp; &nbsp; **Prt2PDF** &nbsp; &nbsp;&nbsp; **##PRT2PDFV##**
+    * &nbsp; &nbsp; **PunUtil** &nbsp; &nbsp;&nbsp; &nbsp; **##PUNUTILV##**
+    * &nbsp; &nbsp; **Unifdef** &nbsp; &nbsp;&nbsp; &nbsp; **##UNIFDEFV##**
     * &nbsp; &nbsp; **mcmb** &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **##MCMBVERS##**
     * &nbsp; &nbsp; **vmpctool** &nbsp;&nbsp; **##VMPCVERS##**
-    * &nbsp; &nbsp; **empty** &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;  **##EMPTYVER##**
+    * &nbsp; &nbsp; **empty** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; **##EMPTYVER##**
 
   &nbsp;
 
@@ -239,3 +240,7 @@ include-before: |
 \hyphenation{domain}
 \hyphenation{vector}
 \hyphenation{without}
+\hyphenation{implementations}
+\hyphenation{functions}
+\hyphenation{implementing}
+\hyphenation{incorporate}

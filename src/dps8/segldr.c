@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: cda5f9ab-f62f-11ec-a92b-80ee73e9b8e7
  *
@@ -21,6 +22,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <locale.h>
 
 #include "dps8.h"
 #include "dps8_sys.h"
@@ -30,8 +32,6 @@
 #include "dps8_cable.h"
 #include "dps8_state.h"
 #include "dps8_utils.h"
-
-#include "../dpsprintf/dpsprintf.h"
 
 #include "segldr.h"
 
@@ -388,6 +388,7 @@ t_stat segment_loader (int32 arg, const char * buf)
 extern DEVICE opc_dev;
 int main (int argc, char * argv[])
   {
+    setlocale(LC_NUMERIC, "");
     void dps8_init_strip (void);
     dps8_init_strip ();
     cpus[0].tweaks.enable_emcall = 1;

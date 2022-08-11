@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 22079097-f62e-11ec-b987-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -15,6 +17,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -38,8 +50,6 @@
 #ifdef LOCKLESS
 # include "threadz.h"
 #endif
-
-#include "../dpsprintf/dpsprintf.h"
 
 #define DBG_CTR 1
 
@@ -562,48 +572,48 @@ t_stat loadDisk (uint dsk_unit_idx, const char * disk_filename, bool ro) {
 static MTAB disk_mod[] =
   {
 #ifndef SPEED
-    { UNIT_WATCH, 1, "WATCH", "WATCH", 0, 0, NULL, NULL },
+    { UNIT_WATCH, 1, "WATCH",   "WATCH",   0, 0, NULL, NULL },
     { UNIT_WATCH, 0, "NOWATCH", "NOWATCH", 0, 0, NULL, NULL },
 #endif
     {
-      MTAB_dev_value, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      disk_set_nunits, /* validation routine */
-      disk_show_nunits, /* display routine */
-      "Number of DISK units in the system", /* value descriptor */
-      NULL // Help
+      MTAB_dev_value,                                   /* Mask               */
+      0,                                                /* Match              */
+      "NUNITS",                                         /* Print string       */
+      "NUNITS",                                         /* Match string       */
+      disk_set_nunits,                                  /* Validation routine */
+      disk_show_nunits,                                 /* Display routine    */
+      "Number of DISK units in the system",             /* Value descriptor   */
+      NULL                                              /* Help               */
     },
     {
-      MTAB_unit_value_show, // mask
-      0,                    // match
-      "TYPE",               // print string
-      "TYPE",               // match string
-      disk_set_type,        // validation routine
-      disk_show_type,       // display routine
-      "disk type",          // value descriptor
-      "D500, D451, D400, D190, D181, D501, 3380, 3381", // Help
+      MTAB_unit_value_show,                             /* Mask               */
+      0,                                                /* Match              */
+      "TYPE",                                           /* Print string       */
+      "TYPE",                                           /* Match string       */
+      disk_set_type,                                    /* Validation routine */
+      disk_show_type,                                   /* Display routine    */
+      "disk type",                                      /* Value descriptor   */
+      "D500, D451, D400, D190, D181, D501, 3380, 3381", /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      dsk_set_device_name, /* validation routine */
-      dsk_show_device_name, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC,        /* Mask               */
+      0,                                                /* Match              */
+      "NAME",                                           /* Print string       */
+      "NAME",                                           /* Match string       */
+      dsk_set_device_name,                              /* Validation routine */
+      dsk_show_device_name,                             /* Display routine    */
+      "Set the device name",                            /* Value descriptor   */
+      NULL                                              /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR, /* mask */
-      0,            /* match */
-      "READY",     /* print string */
-      "READY",         /* match string */
-      disk_set_ready,         /* validation routine */
-      NULL, /* display routine */
-      NULL,          /* value descriptor */
-      NULL   // help string
+      MTAB_XTD | MTAB_VUN | MTAB_NMO | MTAB_VALR,       /* Mask               */
+      0,                                                /* Match              */
+      "READY",                                          /* Print string       */
+      "READY",                                          /* Match string       */
+      disk_set_ready,                                   /* Validation routine */
+      NULL,                                             /* Display routine    */
+      NULL,                                             /* Value descriptor   */
+      NULL                                              /* Help string        */
     },
     MTAB_eol
   };
@@ -627,33 +637,33 @@ static t_stat disk_attach (UNIT *uptr, CONST char *cptr)
 
 // No disks known to Multics had more than 2^24 sectors...
 DEVICE dsk_dev = {
-    "DISK",       /*  name */
-    dsk_unit,     /* units */
-    NULL,         /* registers */
-    disk_mod,     /* modifiers */
-    N_DISK_UNITS, /* #units */
-    10,           /* address radix */
-    24,           /* address width */
-    1,            /* address increment */
-    8,            /* data radix */
-    36,           /* data width */
-    NULL,         /* examine */
-    NULL,         /* deposit */
-    disk_reset,   /* reset */
-    NULL,         /* boot */
-    disk_attach,  /* attach */
-    NULL /*disk_detach*/,  /* detach */
-    NULL,         /* context */
-    DEV_DEBUG,    /* flags */
-    0,            /* debug control flags */
-    disk_dt,      /* debug flag names */
-    NULL,         /* memory size change */
-    NULL,         /* logical name */
-    NULL,         // help
-    NULL,         // attach help
-    NULL,         // attach context
-    NULL,         // description
-   NULL
+    "DISK",                /* Name                */
+    dsk_unit,              /* Units               */
+    NULL,                  /* Registers           */
+    disk_mod,              /* Modifiers           */
+    N_DISK_UNITS,          /* #Units              */
+    10,                    /* Address radix       */
+    24,                    /* Address width       */
+    1,                     /* Address increment   */
+    8,                     /* Data radix          */
+    36,                    /* Data width          */
+    NULL,                  /* Examine             */
+    NULL,                  /* Deposit             */
+    disk_reset,            /* Reset               */
+    NULL,                  /* Boot                */
+    disk_attach,           /* Attach              */
+    NULL /*disk_detach*/,  /* Detach              */
+    NULL,                  /* Context             */
+    DEV_DEBUG,             /* Flags               */
+    0,                     /* Debug control flags */
+    disk_dt,               /* Debug flag names    */
+    NULL,                  /* Memory size change  */
+    NULL,                  /* Logical name        */
+    NULL,                  /* Help                */
+    NULL,                  /* Attach help         */
+    NULL,                  /* Attach context      */
+    NULL,                  /* Description         */
+    NULL                   /* End                 */
 };
 
 /*
@@ -685,10 +695,10 @@ void disk_init (void)
 
 static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+    iom_chan_data_t * p            = & iom_chan_data[iomUnitIdx][chan];
     struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
 
-    uint typeIdx = disk_statep->typeIdx;
+    uint typeIdx                     = disk_statep->typeIdx;
     if (diskTypes[typeIdx].seekSize != seek_64)
       sim_warn ("%s: disk%u sent a SEEK_64 but is 512 sized\n", __func__, typeIdx);
 
@@ -724,10 +734,10 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (seekData >= diskTypes[typeIdx].capac)
       {
         disk_statep->seekValid = false;
-        p->stati = 04304; // Invalid seek address
+        p->stati               = 04304; // Invalid seek address
         return IOM_CMD_ERROR;
       }
-    disk_statep->seekValid = true;
+    disk_statep->seekValid    = true;
     disk_statep->seekPosition = (uint) seekData;
     p->stati = 04000; // Channel ready
     return IOM_CMD_PROCEED;
@@ -735,9 +745,9 @@ static iom_cmd_rc_t diskSeek64 (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
 static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+    iom_chan_data_t * p            = & iom_chan_data[iomUnitIdx][chan];
     struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
-    uint typeIdx = disk_statep->typeIdx;
+    uint typeIdx                   = disk_statep->typeIdx;
     if (diskTypes[typeIdx].seekSize != seek_512)
       sim_warn ("%s: disk%u sent a SEEK_512 but is 64 sized\n", __func__, typeIdx);
 
@@ -769,15 +779,15 @@ static int diskSeek512 (uint devUnitIdx, uint iomUnitIdx, uint chan)
         p->stati = 04304; // Invalid seek address
         return -1;
       }
-    disk_statep->seekValid = true;
+    disk_statep->seekValid    = true;
     disk_statep->seekPosition = (uint)seekData;
-    p->stati = 04000; // Channel ready
+    p->stati                  = 04000; // Channel ready
     return 0;
   }
 
 static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
+    iom_chan_data_t * p            = & iom_chan_data[iomUnitIdx][chan];
     struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
 
     uint typeIdx = disk_statep->typeIdx;
@@ -801,49 +811,54 @@ static iom_cmd_rc_t diskSeekSpecial (uint devUnitIdx, uint iomUnitIdx, uint chan
     uint count;
     iom_indirect_data_service (iomUnitIdx, chan, & seekData, &count, false);
     // POLTS claims that seek data doesn't count as an I/O xfer
-    p->initiate = true;
-    if (count != 1)
+    p->initiate  = true;
+    if (count   != 1)
       sim_warn ("%s: count %d not 1\n", __func__, count);
 
 #ifdef POLTS_DISK_TESTING
-    if_sim_debug (DBG_TRACE, & dsk_dev) { sim_printf ("// Seek address %012"PRIo64"\n", seekData); }
+    if_sim_debug (DBG_TRACE, & dsk_dev)
+      {
+        sim_printf ("// Seek address %012"PRIo64"\n", seekData);
+      }
 #endif
 
     seekData &= MASK21;
     if (seekData >= dsk_states[typeIdx].tAndDCapac)
       {
-        p->stati = 04304; // Invalid seek address
+        p->stati               = 04304; // Invalid seek address
         disk_statep->seekValid = false;
         //p->chanStatus = chanStatIncomplete;
         return IOM_CMD_ERROR;
       }
-    disk_statep->seekValid = true;
+    disk_statep->seekValid    = true;
     disk_statep->seekPosition = (uint) seekData;
-    p->stati = 04000; // Channel ready
+    p->stati                  = 04000; // Channel ready
     return IOM_CMD_PROCEED;
   }
 
 static int diskRead (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-    UNIT * unitp = & dsk_unit[devUnitIdx];
+    iom_chan_data_t * p            = & iom_chan_data[iomUnitIdx][chan];
+    UNIT * unitp                   = & dsk_unit[devUnitIdx];
     struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
-    uint typeIdx = disk_statep->typeIdx;
-    uint sectorSizeWords = diskTypes[typeIdx].sectorSizeWords;
-    uint sectorSizeBytes = ((36 * sectorSizeWords) / 8);
+    uint typeIdx                   = disk_statep->typeIdx;
+    uint sectorSizeWords           = diskTypes[typeIdx].sectorSizeWords;
+    uint sectorSizeBytes           = ((36 * sectorSizeWords) / 8);
 
     if (! unitp->fileref) {
       p->stati = 04240; // device offline
 #ifdef POLTS_TESTING
-if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead device offline\r\n");
+if (chan == 014)
+    if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead device offline\r\n");
 #endif
       return -1;
     }
     if (! disk_statep->seekValid) {
-      p->stati = 04510; // Invalid instruction sequence
+      p->stati               = 04510; // Invalid instruction sequence
       disk_statep->seekValid = false;
 #ifdef POLTS_TESTING
-if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek invalid\r\n");
+if (chan == 014)
+    if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek invalid\r\n");
 #endif
       return IOM_CMD_ERROR;
     }
@@ -861,7 +876,8 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRe
         sim_warn ("%s: fseek (read) returned %d, errno %d\n", __func__, rc, errno);
         p->stati = 04202; // attn, seek incomplete
 #ifdef POLTS_TESTING
-if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek incomplete\r\n");
+if (chan == 014)
+    if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek incomplete\r\n");
 #endif
         return -1;
       }
@@ -874,9 +890,9 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRe
 
     uint tallySectors = (tally + sectorSizeWords - 1) /
                          sectorSizeWords;
-    uint tallyWords = tallySectors * sectorSizeWords;
+    uint tallyWords   = tallySectors * sectorSizeWords;
     //uint tallyBytes = tallySectors * sectorSizeBytes;
-    uint p72ByteCnt = (tallyWords * 36) / 8;
+    uint p72ByteCnt   = (tallyWords * 36) / 8;
     uint8 diskBuffer[p72ByteCnt];
     memset (diskBuffer, 0, sizeof (diskBuffer));
 
@@ -892,7 +908,8 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRe
             p->stati = 04202; // attn, seek incomplete
             //p->chanStatus = chanStatIncorrectDCW;
 #ifdef POLTS_TESTING
-if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek incomplete2\r\n");
+if (chan == 014)
+    if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead seek incomplete2\r\n");
 #endif
             return -1;
           }
@@ -915,19 +932,20 @@ if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRe
                             & wordsProcessed, true);
     p->stati = 04000;
 #ifdef POLTS_TESTING
-if (chan == 014)      if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead ok\r\n");
+if (chan == 014)
+    if_sim_debug (DBG_TRACE, & dsk_dev) sim_printf ("// diskRead ok\r\n");
 #endif
     return 0;
   }
 
 static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
-    iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-    UNIT * unitp = & dsk_unit[devUnitIdx];
+    iom_chan_data_t * p            = & iom_chan_data[iomUnitIdx][chan];
+    UNIT * unitp                   = & dsk_unit[devUnitIdx];
     struct dsk_state * disk_statep = & dsk_states[devUnitIdx];
-    uint typeIdx = disk_statep->typeIdx;
-    uint sectorSizeWords = diskTypes[typeIdx].sectorSizeWords;
-    uint sectorSizeBytes = ((36 * sectorSizeWords) / 8);
+    uint typeIdx                   = disk_statep->typeIdx;
+    uint sectorSizeWords           = diskTypes[typeIdx].sectorSizeWords;
+    uint sectorSizeBytes           = ((36 * sectorSizeWords) / 8);
 
     if (! unitp->fileref) {
       p->stati = 04240; // device offline
@@ -935,7 +953,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
     }
 
     if (! disk_statep->seekValid) {
-      p->stati = 04510; // Invalid instruction sequence
+      p->stati               = 04510; // Invalid instruction sequence
       disk_statep->seekValid = false;
       return IOM_CMD_ERROR;
     }
@@ -965,8 +983,8 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
 
     uint tallySectors = (tally + sectorSizeWords - 1) /
                          sectorSizeWords;
-    uint tallyWords = tallySectors * sectorSizeWords;
-    uint p72ByteCnt = (tallyWords * 36) / 8;
+    uint tallyWords   = tallySectors * sectorSizeWords;
+    uint p72ByteCnt   = (tallyWords * 36) / 8;
     uint8 diskBuffer[p72ByteCnt];
     memset (diskBuffer, 0, sizeof (diskBuffer));
     uint wordsProcessed = 0;
@@ -989,7 +1007,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
     if (rc != (int) tallySectors)
       {
         sim_printf ("fwrite returned %d, errno %d\n", rc, errno);
-        p->stati = 04202; // attn, seek incomplete
+        p->stati      = 04202; // attn, seek incomplete
         p->chanStatus = chanStatIncorrectDCW;
         return -1;
       }
@@ -1003,7 +1021,7 @@ static int diskWrite (uint devUnitIdx, uint iomUnitIdx, uint chan)
 static int readStatusRegister (uint devUnitIdx, uint iomUnitIdx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-    UNIT * unitp = & dsk_unit[devUnitIdx];
+    UNIT * unitp        = & dsk_unit[devUnitIdx];
 
     uint tally = p->DDCW_TALLY;
 
@@ -1032,7 +1050,7 @@ buffer[0] = nCmds;
     iom_indirect_data_service (iomUnitIdx, chan, buffer,
                             & wordsProcessed, true);
     p->charPos = 0;
-    p->stati = 04000;
+    p->stati   = 04000;
     if (! unitp->fileref)
       p->stati = 04240; // device offline
     return 0;
@@ -1040,9 +1058,9 @@ buffer[0] = nCmds;
 
 static int diskRdCtrlReg (uint dev_unit_idx, uint iom_unit_idx, uint chan) {
   iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
-  UNIT * unitp = & dsk_unit[dev_unit_idx];
-  p->charPos = 0;
-  p->stati = 04000;
+  UNIT * unitp        = & dsk_unit[dev_unit_idx];
+  p->charPos          = 0;
+  p->stati            = 04000;
   if (! unitp->fileref)
     p->stati = 04240; // device offline
   return 0;
@@ -1051,7 +1069,7 @@ static int diskRdCtrlReg (uint dev_unit_idx, uint iom_unit_idx, uint chan) {
 static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
-    UNIT * unitp = & dsk_unit[dev_unit_idx];
+    UNIT * unitp        = & dsk_unit[dev_unit_idx];
 
     uint tally = p->DDCW_TALLY;
 
@@ -1132,7 +1150,7 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
     word36 buffer[tally];
     memset (buffer, 0, sizeof (buffer));
     putbits36_9 (& buffer[0],  0, 0x12);
-    putbits36_9 (& buffer[0],  9, 1);  // h/w revision
+    putbits36_9 (& buffer[0],  9, 1);    // h/w revision
     putbits36_9 (& buffer[0], 18, '1');  // fw maj revision
     putbits36_9 (& buffer[0], 27, 'a');  // fw sub revision
 
@@ -1141,18 +1159,18 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
          if (! dev_p[dev_num].in_use)
            continue;
          uint dsk_unit_idx = dev_p[dev_num].unit_idx;
-         word9 dau_type = (word9) diskTypes[dsk_unit_idx].dau_type;
-         putbits36_9 (& buffer[1+dev_num], 0, dau_type); // dev.type
-         putbits36_9 (& buffer[1+dev_num], 9, dev_num); // dev.number
-         putbits36_9 (& buffer[1+dev_num], 18, 0); // dev.summary_status // XXX
-         putbits36_9 (& buffer[1+dev_num], 27, dev_num); // dev.port_number
+         word9 dau_type    = (word9) diskTypes[dsk_unit_idx].dau_type;
+         putbits36_9 (& buffer[1+dev_num],  0, dau_type); // dev.type
+         putbits36_9 (& buffer[1+dev_num],  9, dev_num);  // dev.number
+         putbits36_9 (& buffer[1+dev_num], 18, 0);        // dev.summary_status // XXX
+         putbits36_9 (& buffer[1+dev_num], 27, dev_num);  // dev.port_number
      }
 
     uint wordsProcessed = tally;
     iom_indirect_data_service (iom_unit_idx, chan, buffer,
                             & wordsProcessed, true);
     p->charPos = 0;
-    p->stati = 04000;
+    p->stati   = 04000;
     if (! unitp->fileref)
       p->stati = 04240; // device offline
     return 0;
@@ -1161,12 +1179,12 @@ static int read_configuration (uint dev_unit_idx, uint iom_unit_idx, uint chan)
 static int read_and_clear_statistics (uint dev_unit_idx, uint iom_unit_idx, uint chan)
   {
     iom_chan_data_t * p = & iom_chan_data[iom_unit_idx][chan];
-    UNIT * unitp = & dsk_unit[dev_unit_idx];
+    UNIT * unitp        = & dsk_unit[dev_unit_idx];
 
     sim_debug (DBG_NOTIFY, & dsk_dev, "Read %d\n", dev_unit_idx);
 
     p->charPos = 0;
-    p->stati = 04000;
+    p->stati   = 04000;
     if (! unitp->fileref)
       p->stati = 04240; // device offline
     return 0;
@@ -1184,7 +1202,7 @@ iom_cmd_rc_t dsk_iom_cmd (uint iomUnitIdx, uint chan) {
 nCmds ++;
 #endif
   iom_chan_data_t * p = & iom_chan_data[iomUnitIdx][chan];
-  uint ctlr_unit_idx = get_ctlr_idx (iomUnitIdx, chan);
+  uint ctlr_unit_idx  = get_ctlr_idx (iomUnitIdx, chan);
   uint devUnitIdx;
 
 #ifdef POLTS_DISK_TESTING
@@ -1237,7 +1255,7 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_rd_clr_stats;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati             = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
@@ -1251,7 +1269,7 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_rd_status_reg;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati             = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
@@ -1265,7 +1283,7 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_rd_config;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati             = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
@@ -1279,7 +1297,7 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_rd;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati             = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
@@ -1293,7 +1311,7 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_rd_ctrl_reg;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati             = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
@@ -1307,7 +1325,7 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_seek_512;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati             = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
@@ -1322,7 +1340,7 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_wr;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati             = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
@@ -1336,7 +1354,7 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_seek_64;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati             = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
@@ -1351,7 +1369,7 @@ if (chan == 014)
         }
         disk_statep->io_mode = disk_special_seek;
         p->recordResidue --;
-        p->stati = 04000;
+        p->stati             = 04000;
         if (! unitp->fileref)
           p->stati = 04240; // device offline
         break;
@@ -1363,11 +1381,11 @@ if (chan == 014)
         if_sim_debug (DBG_TRACE, & dsk_dev) {
           sim_printf ("// Disk Reset Status\r\n");
         }
-        p->stati = 04000;
+        p->stati    = 04000;
         // XXX POLTS wants this; I don't understand why.
         p->recordResidue --;
         p->initiate = false; // According to POLTS
-        p->isRead = false;
+        p->isRead   = false;
         // T&D probing
         if (p->IDCW_DEV_CODE == 077) {
           p->stati = 04502; // invalid device code
@@ -1384,7 +1402,7 @@ if (chan == 014)
         if_sim_debug (DBG_TRACE, & dsk_dev) {
           sim_printf ("// Disk Restore\r\n");
         }
-        p->stati = 04000;
+        p->stati    = 04000;
         // XXX POLTS wants this; I don't understand why.
         p->recordResidue --;
         p->initiate = false; // According to POLTS
@@ -1414,7 +1432,7 @@ if (chan == 014)
         if_sim_debug (DBG_TRACE, & dsk_dev) {
           sim_printf ("// Disk unknown command %o\r\n", p->IDCW_DEV_CMD);
         }
-        p->stati = 04501;
+        p->stati      = 04501;
         p->chanStatus = chanStatIncorrectDCW;
         if (p->IDCW_DEV_CMD != 051) // ignore bootload console probe
           sim_warn ("%s: Unrecognized device command %02o\n", __func__, p->IDCW_DEV_CMD);
@@ -1434,11 +1452,14 @@ if (chan == 014)
       if_sim_debug (DBG_TRACE, & dsk_dev) {
         sim_printf ("// Disk IOT No Mode\r\n");
       }
-// It appears that in some cases Multics builds a dcw list from a generic "single IDCW plus optional DDCW" template.
-// That template sets the IDCW channel command to "record", regardless of whether or not the instruction
-// needs an DDCW. In particular, disk_ctl pings the disk by sending a "Reset status" with "record" and a apparently
-// uninitialized IOTD. The payload channel will send the IOTD because of the "record"; the Reset Status command left
-// IO mode at "no mode" so we don't know what to do with it. Since this appears benign, we will assume that the
+// It appears that in some cases Multics builds a dcw list from a generic
+// "single IDCW plus optional DDCW" template. That template sets the IDCW
+// channel command to "record", regardless of whether or not the
+// instruction needs an DDCW. In particular, disk_ctl pings the disk by
+// sending a "Reset status" with "record" and an apparently uninitialized
+// IOTD. The payload channel will send the IOTD because of the "record";
+// the Reset Status command left IO mode at "no mode" so we don't know what
+// to do with it. Since this appears benign, we will assume that the
 // original H/W ignored, and so shall we.
 
       //sim_warn ("%s: Unexpected IOTx\n", __func__);
@@ -1680,57 +1701,57 @@ static t_stat ipc_set_device_name (UNIT * uptr, UNUSED int32 value,
 static MTAB ipc_mod[] =
   {
     {
-      MTAB_dev_value, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      ipc_set_nunits, /* validation routine */
-      ipc_show_nunits, /* display routine */
-      "Number of DISK units in the system", /* value descriptor */
-      NULL // Help
+      MTAB_dev_value,                            /* Mask               */
+      0,                                         /* Match              */
+      "NUNITS",                                  /* Print string       */
+      "NUNITS",                                  /* Match string       */
+      ipc_set_nunits,                            /* Validation routine */
+      ipc_show_nunits,                           /* Display routine    */
+      "Number of DISK units in the system",      /* Value descriptor   */
+      NULL                                       /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      ipc_set_device_name, /* validation routine */
-      ipc_show_device_name, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* Mask               */
+      0,                                         /* Match              */
+      "NAME",                                    /* Print string       */
+      "NAME",                                    /* Match string       */
+      ipc_set_device_name,                       /* Validation routine */
+      ipc_show_device_name,                      /* Display routine    */
+      "Set the device name",                     /* Value descriptor   */
+      NULL                                       /* Help               */
     },
     MTAB_eol
   };
 
 DEVICE ipc_dev =
    {
-    "IPC",       /*  name */
-    ipc_unit,    /* units */
-    NULL,         /* registers */
-    ipc_mod,     /* modifiers */
-    N_IPC_UNITS, /* #units */
-    10,           /* address radix */
-    24,           /* address width */
-    1,            /* address increment */
-    8,            /* data radix */
-    36,           /* data width */
-    NULL,         /* examine */
-    NULL,         /* deposit */
-    NULL,   /* reset */
-    NULL,         /* boot */
-    NULL,  /* attach */
-    NULL /*disk_detach*/,  /* detach */
-    NULL,         /* context */
-    0,    /* flags */
-    0,            /* debug control flags */
-    NULL,      /* debug flag names */
-    NULL,         /* memory size change */
-    NULL,         /* logical name */
-    NULL,         // help
-    NULL,         // attach help
-    NULL,         // attach context
-    NULL,         // description
-    NULL
+    "IPC",                 /* Name                */
+    ipc_unit,              /* Units               */
+    NULL,                  /* Registers           */
+    ipc_mod,               /* Modifiers           */
+    N_IPC_UNITS,           /* #Units              */
+    10,                    /* Address radix       */
+    24,                    /* Address width       */
+    1,                     /* Address increment   */
+    8,                     /* Data radix          */
+    36,                    /* Data width          */
+    NULL,                  /* Examine             */
+    NULL,                  /* Deposit             */
+    NULL,                  /* Reset               */
+    NULL,                  /* Boot                */
+    NULL,                  /* Attach              */
+    NULL /*disk_detach*/,  /* Detach              */
+    NULL,                  /* Context             */
+    0,                     /* Flags               */
+    0,                     /* Debug control flags */
+    NULL,                  /* Debug flag names    */
+    NULL,                  /* Memory size change  */
+    NULL,                  /* Logical name        */
+    NULL,                  /* Help                */
+    NULL,                  /* Attach help         */
+    NULL,                  /* Attach context      */
+    NULL,                  /* Description         */
+    NULL                   /* End                 */
   };
 
 //////////
@@ -1822,55 +1843,56 @@ static t_stat msp_set_device_name (UNIT * uptr, UNUSED int32 value,
 static MTAB msp_mod[] =
   {
     {
-      MTAB_dev_value, /* mask */
-      0,            /* match */
-      "NUNITS",     /* print string */
-      "NUNITS",         /* match string */
-      msp_set_nunits, /* validation routine */
-      msp_show_nunits, /* display routine */
-      "Number of DISK units in the system", /* value descriptor */
-      NULL // Help
+      MTAB_dev_value,                        /* Mask               */
+      0,                                     /* Match              */
+      "NUNITS",                              /* Print string       */
+      "NUNITS",                              /* Match string       */
+      msp_set_nunits,                        /* Validation routine */
+      msp_show_nunits,                       /* Display routine    */
+      "Number of DISK units in the system",  /* Value descriptor   */
+      NULL                                   /* Help               */
     },
     {
-      MTAB_XTD | MTAB_VUN | MTAB_VALR | MTAB_NC, /* mask */
-      0,            /* match */
-      "NAME",     /* print string */
-      "NAME",         /* match string */
-      msp_set_device_name, /* validation routine */
-      msp_show_device_name, /* display routine */
-      "Set the device name", /* value descriptor */
-      NULL          // help
+      MTAB_XTD | MTAB_VUN | \
+      MTAB_VALR | MTAB_NC,                   /* Mask               */
+      0,                                     /* Match              */
+      "NAME",                                /* Print string       */
+      "NAME",                                /* Match string       */
+      msp_set_device_name,                   /* Validation routine */
+      msp_show_device_name,                  /* Display routine    */
+      "Set the device name",                 /* Value descriptor   */
+      NULL                                   /* Help               */
     },
     MTAB_eol
   };
 
 DEVICE msp_dev =
    {
-    "MSP",       /*  name */
-    msp_unit,    /* units */
-    NULL,         /* registers */
-    msp_mod,     /* modifiers */
-    N_MSP_UNITS, /* #units */
-    10,           /* address radix */
-    24,           /* address width */
-    1,            /* address increment */
-    8,            /* data radix */
-    36,           /* data width */
-    NULL,         /* examine */
-    NULL,         /* deposit */
-    NULL,   /* reset */
-    NULL,         /* boot */
-    NULL,  /* attach */
-    NULL /*disk_detach*/,  /* detach */
-    NULL,         /* context */
-    0,    /* flags */
-    0,            /* debug control flags */
-    NULL,      /* debug flag names */
-    NULL,         /* memory size change */
-    NULL,         /* logical name */
-    NULL,         // help
-    NULL,         // attach help
-    NULL,         // attach context
-    NULL,         // description
-    NULL
+    "MSP",                 /* Name                */
+    msp_unit,              /* Units               */
+    NULL,                  /* Registers           */
+    msp_mod,               /* Modifiers           */
+    N_MSP_UNITS,           /* #Units              */
+    10,                    /* Address radix       */
+    24,                    /* Address width       */
+    1,                     /* Address increment   */
+    8,                     /* Data radix          */
+    36,                    /* Data width          */
+    NULL,                  /* Examine             */
+    NULL,                  /* Deposit             */
+    NULL,                  /* Reset               */
+    NULL,                  /* Boot                */
+    NULL,                  /* Attach              */
+    NULL /*disk_detach*/,  /* Detach              */
+    NULL,                  /* Context             */
+    0,                     /* Flags               */
+    0,                     /* Debug control flags */
+    NULL,                  /* Debug flag names    */
+    NULL,                  /* Memory size change  */
+    NULL,                  /* Logical name        */
+    NULL,                  /* Help                */
+    NULL,                  /* Attach help         */
+    NULL,                  /* Attach context      */
+    NULL,                  /* Description         */
+    NULL                   /* End                 */
   };

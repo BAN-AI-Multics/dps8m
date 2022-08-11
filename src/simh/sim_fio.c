@@ -1,58 +1,58 @@
-/* sim_fio.c: simulator file I/O library
-
-   vim: filetype=c:tabstop=4:tw=100:expandtab
-   SPDX-License-Identifier: X11
-   scspell-id: bc8c09f8-f62a-11ec-9723-80ee73e9b8e7
-
-   ---------------------------------------------------------------------------
-
-   Copyright (c) 1993-2008 Robert M Supnik
-   Copyright (c) 2021-2022 The DPS8M Development Team
-
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the "Software"),
-   to deal in the Software without restriction, including without limitation
-   the rights to use, copy, modify, merge, publish, distribute, sublicense,
-   and/or sell copies of the Software, and to permit persons to whom the
-   Software is furnished to do so, subject to the following conditions:
-
-   The above copyright notice and this permission notice shall be included
-   in all copies or substantial portions of the Software.
-
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-   ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
-   OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-   SOFTWARE.
-
-   Except as contained in this notice, the name of Robert M Supnik shall not
-   be used in advertising or otherwise to promote the sale, use or other
-   dealings in this Software without prior written authorization from
-   Robert M Supnik.
-
-   ---------------------------------------------------------------------------
-*/
+/*
+ * sim_fio.c: simulator file I/O library
+ *
+ * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
+ * SPDX-License-Identifier: X11
+ * scspell-id: bc8c09f8-f62a-11ec-9723-80ee73e9b8e7
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * Copyright (c) 1993-2008 Robert M. Supnik
+ * Copyright (c) 2021-2022 The DPS8M Development Team
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * ROBERT M SUPNIK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+ * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * Except as contained in this notice, the name of Robert M. Supnik shall not
+ * be used in advertising or otherwise to promote the sale, use or other
+ * dealings in this Software without prior written authorization from
+ * Robert M. Supnik.
+ *
+ * ---------------------------------------------------------------------------
+ */
 
 /*
-   This library includes:
-
-   sim_finit         -       initialize package
-   sim_fopen         -       open file
-   sim_fread         -       endian independent read (formerly fxread)
-   sim_write         -       endian independent write (formerly fxwrite)
-   sim_fseek         -       conditionally extended (>32b) seek (
-   sim_fseeko        -       extended seek (>32b if available)
-   sim_fsize         -       get file size
-   sim_fsize_name    -       get file size of named file
-   sim_fsize_ex      -       get file size as a t_offset
-   sim_fsize_name_ex -       get file size as a t_offset of named file
-   sim_buf_copy_swapped -    copy data swapping elements along the way
-   sim_buf_swap_data -       swap data elements inplace in buffer
-
-   sim_fopen and sim_fseek are OS-dependent.  The other routines are not.
-*/
+ * This library includes:
+ *
+ * sim_finit            -       initialize package
+ * sim_fopen            -       open file
+ * sim_fread            -       endian independent read (formerly fxread)
+ * sim_write            -       endian independent write (formerly fxwrite)
+ * sim_fseek            -       conditionally extended (>32b) seek (
+ * sim_fseeko           -       extended seek (>32b if available)
+ * sim_fsize            -       get file size
+ * sim_fsize_name       -       get file size of named file
+ * sim_fsize_ex         -       get file size as a t_offset
+ * sim_fsize_name_ex    -       get file size as a t_offset of named file
+ * sim_buf_copy_swapped -       copy data swapping elements along the way
+ * sim_buf_swap_data    -       swap data elements inplace in buffer
+ */
 
 #include <fcntl.h>
 #include <sys/file.h>
@@ -60,8 +60,6 @@
 #include <sys/stat.h>
 
 #include "sim_defs.h"
-
-#include "../dpsprintf/dpsprintf.h"
 
 #include "../decNumber/decContext.h"
 #include "../decNumber/decNumberLocal.h"
@@ -74,27 +72,29 @@ t_bool sim_end;                     /* TRUE = little endian, FALSE = big endian 
 t_bool sim_taddr_64;                /* t_addr is > 32b and Large File Support available */
 t_bool sim_toffset_64;              /* Large File (>2GB) file I/O Support available */
 
-/* OS-independent, endian independent binary I/O package
-
-   For consistency, all binary data read and written by the simulator
-   is stored in little endian data order.  That is, in a multi-byte
-   data item, the bytes are written out right to left, low order byte
-   to high order byte.  On a big endian host, data is read and written
-   from high byte to low byte.  Consequently, data written on a little
-   endian system must be byte reversed to be usable on a big endian
-   system, and vice versa.
-
-   These routines are analogs of the standard C runtime routines
-   fread and fwrite.  If the host is little endian, or the data items
-   are size char, then the calls are passed directly to fread or
-   fwrite.  Otherwise, these routines perform the necessary byte swaps.
-   Sim_fread swaps in place, sim_fwrite uses an intermediate buffer.
-*/
+/*
+ * OS-independent, endian independent binary I/O package
+ *
+ * For consistency, all binary data read and written by the simulator
+ * is stored in little endian data order.  That is, in a multi-byte
+ * data item, the bytes are written out right to left, low order byte
+ * to high order byte.  On a big endian host, data is read and written
+ * from high byte to low byte.  Consequently, data written on a little
+ * endian system must be byte reversed to be usable on a big endian
+ * system, and vice versa.
+ *
+ * These routines are analogs of the standard C runtime routines
+ * fread and fwrite.  If the host is little endian, or the data items
+ * are size char, then the calls are passed directly to fread or
+ * fwrite.  Otherwise, these routines perform the necessary byte swaps.
+ * Sim_fread swaps in place, sim_fwrite uses an intermediate buffer.
+ */
 
 int32 sim_finit (void)
 {
 sim_end = DECLITEND;
 sim_toffset_64 = (sizeof(t_offset) > sizeof(int32));    /* Large File (>2GB) support */
+/*CONSTCOND*/
 sim_taddr_64 = sim_toffset_64 && (sizeof(t_addr) > sizeof(int32));
 return sim_end;
 }
@@ -368,10 +368,10 @@ return (t_offset)(ftello64 (st));
 /* Apple */
 
 # if defined (__APPLE__)          || \
-    defined (__FreeBSD__)        || \
-    defined (__FreeBSD_kernel__) || \
-    defined (__NetBSD__)         || \
-    defined (__OpenBSD__)        || \
+    defined (__FreeBSD__)         || \
+    defined (__FreeBSD_kernel__)  || \
+    defined (__NetBSD__)          || \
+    defined (__OpenBSD__)         || \
     defined (__CYGWIN__)
 #  define S_SIM_IO_FSEEK_EXT_ 1
 int sim_fseeko (FILE *st, t_offset xpos, int origin)

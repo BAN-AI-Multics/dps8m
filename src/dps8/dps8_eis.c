@@ -1,6 +1,8 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
+ * SPDX-License-Identifier: Multics
  * scspell-id: 312e3076-f62e-11ec-a7f3-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
@@ -17,6 +19,16 @@
  * This software is made available under the terms of the ICU
  * License, version 1.8.1 or later.  For more details, see the
  * LICENSE.md file at the top-level directory of this distribution.
+ *
+ * ---------------------------------------------------------------------------
+ *
+ * This source file may contain code comments that adapt, include, and/or
+ * incorporate Multics program code and/or documentation distributed under
+ * the Multics License.  In the event of any discrepancy between code
+ * comments herein and the original Multics materials, the original Multics
+ * materials should be considered authoritative unless otherwise noted.
+ * For more details and historical background, see the LICENSE.md file at
+ * the top-level directory of this distribution.
  *
  * ---------------------------------------------------------------------------
  */
@@ -57,38 +69,36 @@
 #include "dps8_eis.h"
 #include "dps8_utils.h"
 
-#include "../dpsprintf/dpsprintf.h"
-
 #define DBG_CTR cpu.cycleCnt
 
 //  Restart status
 //
 //  a6bd   n/a
-//  a4bd  n/a
-//  a9bd  n/a
-//  abd  n/a
-//  awd  n/a
-//  s4bd  n/a
-//  s6bd  n/a
-//  s9bd  n/a
-//  sbd  n/a
-//  swd  n/a
+//  a4bd   n/a
+//  a9bd   n/a
+//  abd    n/a
+//  awd    n/a
+//  s4bd   n/a
+//  s6bd   n/a
+//  s9bd   n/a
+//  sbd    n/a
+//  swd    n/a
 //  cmpc   done
-//  scd   done
+//  scd    done
 //  scdr   done
-//  scm   done
+//  scm    done
 //  scmr   done
-//  tct   done
+//  tct    done
 //  tctr   done
-//  mlr   done
-//  mrl   done
+//  mlr    done
+//  mrl    done
 //  mve
 //  mvne
-//  mvt   done
+//  mvt    done
 //  cmpn
 //  mvn
-//  csl done
-//  csr done
+//  csl    done
+//  csr    done
 //  cmpb
 //  btd
 //  dtb

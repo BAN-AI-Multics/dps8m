@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: ICU
  * scspell-id: 24f735f0-f62f-11ec-b8af-80ee73e9b8e7
  *
@@ -31,13 +32,10 @@
 #include "fnpuv.h"
 #include "fnptelnet.h"
 
-#include "../dpsprintf/dpsprintf.h"
-
 static const telnet_telopt_t my_telopts[] = {
     { TELNET_TELOPT_SGA,       TELNET_WILL, TELNET_DO   },
     { TELNET_TELOPT_ECHO,      TELNET_WILL, TELNET_DONT },
   //{ TELNET_TELOPT_TTYPE,     TELNET_WONT, TELNET_DONT },
-  //{ TELNET_TELOPT_COMPRESS2, TELNET_WONT, TELNET_DO   },
     { TELNET_TELOPT_BINARY,    TELNET_WILL, TELNET_DO   },
   //{ TELNET_TELOPT_NAWS,      TELNET_WONT, TELNET_DONT },
     { -1, 0, 0 }
@@ -45,8 +43,8 @@ static const telnet_telopt_t my_telopts[] = {
 
 static const telnet_telopt_t my_3270telopts[] = {
     { TELNET_TELOPT_TTYPE,     TELNET_WILL, TELNET_DO },
-    { TELNET_TELOPT_BINARY,    TELNET_WILL, TELNET_DO   },
-    { TELNET_TELOPT_EOR,       TELNET_WILL, TELNET_DO   },
+    { TELNET_TELOPT_BINARY,    TELNET_WILL, TELNET_DO },
+    { TELNET_TELOPT_EOR,       TELNET_WILL, TELNET_DO },
     { -1, 0, 0 }
   };
 
@@ -224,7 +222,7 @@ void * ltnConnect3270 (uv_tcp_t * client)
         sim_warn ("telnet_init failed\n");
       }
 
-// This behavior is copied from Hercules.
+    // This behavior is copied from Hercules.
     telnet_negotiate (p, TELNET_DO, (unsigned char) TELNET_TELOPT_TTYPE);
     telnet_begin_sb (p, TELNET_TELOPT_TTYPE);
     const char ttype [1] = { 1 };

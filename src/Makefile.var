@@ -1,5 +1,6 @@
 # DPS8M simulator: src/Makefile.var
-# vim: filetype=make:tabstop=4:tw=79:noexpandtab
+# vim: filetype=make:tabstop=4:tw=79:noexpandtab:list:listchars=tab\:\>\-
+# vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan:colorcolumn=79
 # SPDX-License-Identifier: ICU
 # scspell-id: 2d62a287-f62b-11ec-badd-80ee73e9b8e7
 
@@ -78,7 +79,6 @@ endif
 
 ifdef TESTING
   TESTING=1
-  OS_PRINTF=1
   NO_LTO=1
   CFLAGS += -DTESTING
 endif
@@ -90,7 +90,7 @@ ifndef LTO_SKIP
   ifndef NO_LTO
     ifndef SUNPRO
       ifndef SUNLINT
-      # LTO invocation: See if `-flto=auto` works, if not, fall back to `-ftlo`
+      # LTO invocation: Try `-flto=auto`, fall back to `-ftlo`
       LTOSYN=$(shell $(CC) -flto=auto -E - < /dev/null > /dev/null 2>&1 &&    \
                $(PRINTF) '%s\n' "-flto=auto" || $(PRINTF) '%s\n' "-flto")
         ifeq "$(findstring clang,$(CC))" ""
@@ -119,15 +119,6 @@ ifndef LTO_SKIP
       endif
     endif
   endif
-endif
-
-###############################################################################
-# Use OS-provided printf functions
-
-ifdef OS_PRINTF
-  OS_PRINTF=1
-  USE_SYSTEM_PRINTF=1
-  CFLAGS += -DUSE_SYSTEM_PRINTF
 endif
 
 ###############################################################################

@@ -1,5 +1,6 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: BSD-2-Clause
  * scspell-id: 864bd423-f631-11ec-9c81-80ee73e9b8e7
  *
@@ -47,6 +48,7 @@
 
 #include <stdlib.h>
 #include <getopt.h>
+#include <locale.h>
 
 #include "unifdef.h"
 
@@ -54,8 +56,6 @@ static const char copyright[] =
 #include "version.h"
   "@(#) $  Author: The DPS8M Development Team and Tony Finch <dot@dotat.at> $\n"
   "@(#) $     URL: https://gitlab.com/dps8m/dps8m/-/tree/master/src/unifdef $\n";
-
-#include "../dpsprintf/dpsprintf.h"
 
 /* types of input lines: */
 typedef enum
@@ -234,6 +234,8 @@ static const char   *xstrdup                (const char *, const char *);
 int
 main(int argc, char *argv[])
 {
+  setlocale(LC_NUMERIC, "");
+
   int opt;
 
   showversion = false;

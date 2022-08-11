@@ -1,12 +1,13 @@
 /*
  * vim: filetype=c:tabstop=4:tw=100:expandtab
+ * vim: ruler:hlsearch:incsearch:autoindent:wildmenu:wrapscan
  * SPDX-License-Identifier: BSD-1-Clause
  * scspell-id: 570dd12a-f630-11ec-9b96-80ee73e9b8e7
  *
  * ---------------------------------------------------------------------------
  *
  * Copyright (c) 2003-2021 Troy D. Hanson
- *     http://troydhanson.github.io/uthash/
+ *     https://troydhanson.github.io/uthash/
  * Copyright (c) 2021-2022 The DPS8M Development Team
  *
  * All rights reserved.
@@ -38,8 +39,6 @@
 # include <string.h>   /* memcmp,strlen */
 # include <stddef.h>   /* ptrdiff_t */
 # include <stdlib.h>
-
-# include "../dpsprintf/dpsprintf.h"
 
  /*
   *  These macros use decltype or the earlier __typeof GNU extension.
@@ -406,9 +405,8 @@ do {                                                                            
 } while (0)
 
  /*
-  * SAX/FNV/OAT/JEN hash functions are
-  * macro variants of those listed at
-  * http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+  * SAX/FNV/OAT/JEN hash functions are macro variants of those listed at:
+  * https://web.archive.org/web/20190310205940/http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
   */
 
 # define HASH_SAX(key,keylen,num_bkts,hashv,bkt)                                 \
