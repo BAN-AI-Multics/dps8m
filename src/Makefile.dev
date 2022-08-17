@@ -377,34 +377,13 @@ checksrc:                                                                     \
 ###############################################################################
 # Convenience target: Runs reuse SPDX licensing linter checks
 
-.PHONY: spdxtest
-spdxtest:                                                                     \
+.PHONY: spdxtest spdxcheck reusetest reusecheck
+spdxtest spdxcheck reusetest reusecheck:                                      \
     # spdxtest:    # Runs the SPDX licensing linter checks
 	@$(COMMAND) -v "reuse" > "/dev/null" 2>&1 || {                            \
         $(PRINTF) '%s\n' "Error: reuse tool not found." ; exit 1 ; }
 	@$(PRINTF) '%s\n' "Running the reuse SPDX license linter checks ..."
-	@$(MKDIR) "./LICENSES"
-	@$(TOUCH) "./LICENSES/BSD-1-Clause.txt"
-	@$(TOUCH) "./LICENSES/BSD-2-Clause.txt"
-	@$(TOUCH) "./LICENSES/BSD-3-Clause.txt"
-	@$(TOUCH) "./LICENSES/CC-PDDC.txt"
-	@$(TOUCH) "./LICENSES/FSFAP.txt"
-	@$(TOUCH) "./LICENSES/ICU.txt"
-	@$(TOUCH) "./LICENSES/ISC.txt"
-	@$(TOUCH) "./LICENSES/LicenseRef-CF-GAL.txt"
-	@$(TOUCH) "./LICENSES/LicenseRef-DPS8M-Doc.txt"
-	@$(TOUCH) "./LICENSES/Multics.txt"
-	@$(TOUCH) "./LICENSES/X11.txt"
-	@{ REUSE_OUT="$$( reuse lint 2>&1 )" ; export REUSE_RC="$$?" ;            \
-                  $(RMF) -rf "./LICENSES" 2> "/dev/null" ;                    \
-                  $(PRINTF) '%s\n' "$${REUSE_OUT:?}" |                        \
-                    $(GREP) -v "^Congratulations.*$$" |                       \
-                    $(GREP) -v "^Unfortunately.*$$" ;                         \
-                  $(SLEEP) "0.1" > "/dev/null" 2>&1 || $(TRUE) ;              \
-                  $(TEST) "$${REUSE_RC:?}" -ne 0 && {                         \
-                    $(PRINTF) '%s\n\n' "** ERROR: License test failed!" ; } ; \
-                  exit $${REUSE_RC:?} ; }
-	@$(PRINTF) '%s\n' "# OK"
+	@$(COMMAND) reuse lint 2>&1 && $(PRINTF) '%s\n' "# OK"
 
 ###############################################################################
 
