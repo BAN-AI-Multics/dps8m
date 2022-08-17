@@ -139,6 +139,7 @@ int32 luf_flag = 1;
 
 // Script to string cables and set switches
 
+#ifndef PERF_STRIP
 static char * default_base_system_script [] =
   {
     // ;
@@ -238,16 +239,16 @@ static char * default_base_system_script [] =
     "set rdr nunits=3",
     "set pun nunits=3",
     "set prt nunits=4",
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW64
-#   ifndef CROSS_MINGW32
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW64
+#    ifndef CROSS_MINGW32
     "set skc nunits=64",
     "set absi nunits=1",
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef CROSS_MINGW64 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#    endif /* ifndef CROSS_MINGW32 */
+#   endif /* ifndef CROSS_MINGW64 */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW64__ */
 
 // CPU0
 
@@ -717,7 +718,7 @@ static char * default_base_system_script [] =
     "set cpu5 config=cache_installed=enable",
     "set cpu5 config=clock_slave_installed=enable",
 
-#if 0 // Until the port expander code is working
+# if 0 // Until the port expander code is working
 // CPU6
 
     "set cpu6 config=faultbase=Multics",
@@ -796,9 +797,9 @@ static char * default_base_system_script [] =
     "set cpu6 config=cache_installed=enable",
     "set cpu6 config=clock_slave_installed=enable",
 
-#endif
+# endif
 
-#if 0 // Until the port expander code is working
+# if 0 // Until the port expander code is working
 
 // CPU7
 
@@ -878,7 +879,7 @@ static char * default_base_system_script [] =
     "set cpu7 config=cache_installed=enable",
     "set cpu7 config=clock_slave_installed=enable",
 
-#endif
+# endif
 
 // IOM0
 
@@ -971,7 +972,7 @@ static char * default_base_system_script [] =
     "set iom1 config=port=7",
     "set iom1   config=enable=0",
 
-#if 0
+# if 0
 
 // IOM2
 
@@ -1046,7 +1047,7 @@ static char * default_base_system_script [] =
     "set iom3   config=enable=0",
     "set iom3 config=port=7",
     "set iom3   config=enable=0",
-#endif
+# endif
 
 // SCU0
 
@@ -1128,7 +1129,7 @@ static char * default_base_system_script [] =
     "set scu3 config=int=0",
     "set scu3 config=lwr=0",
 
-#if 0
+# if 0
 // SCU4
 
     "set scu4 config=mode=program",
@@ -1208,7 +1209,7 @@ static char * default_base_system_script [] =
     "set scu7 config=onl=014",
     "set scu7 config=int=0",
     "set scu7 config=lwr=0",
-#endif
+# endif
 
     // ; There are bugs in the FNP code that require sim unit number
     // ; to be the same as the Multics unit number; ie fnp0 == fnpa, etc.
@@ -1514,10 +1515,10 @@ static char * default_base_system_script [] =
     "set pun2 name=punc",
     "cable urp9 1 punc",
 
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW32
-#   ifndef CROSS_MINGW64
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW32
+#    ifndef CROSS_MINGW64
     "cable IOMA 040 SKCA",
     "cable IOMA 041 SKCB",
     "cable IOMA 042 SKCC",
@@ -1526,12 +1527,12 @@ static char * default_base_system_script [] =
     "cable IOMA 045 SKCF",
     "cable IOMA 046 SKCG",
     "cable IOMA 047 SKCH",
-#   endif /* ifndef CROSS_MINGW64 */
-#  endif /* ifndef CROSS_MINGW32 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW64__ */
 
-#if 0
+# if 0
     // ; Attach PRT unit 1 to IOM 0, chan 017, dev_code 2
     "set prt1 name=prtb",
     "cable URP2 2 PRT1",
@@ -1593,18 +1594,18 @@ static char * default_base_system_script [] =
 
     // ; Attach PRT unit 16 to IOM 0, chan 017, dev_code 17
     "set prt16 name=prtq",
-#endif
+# endif
 
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW64
-#   ifndef CROSS_MINGW32
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW64
+#    ifndef CROSS_MINGW32
     // ; Attach ABSI unit 0 to IOM 0, chan 032, dev_code 0
     "cable IOM0 032 ABSI0",
-#   endif /* CROSS_MINGW32 */
-#  endif /* CROSS_MINGW64 */
-# endif /* __MINGW32__ */
-#endif /* __MINGW64__ */
+#    endif /* CROSS_MINGW32 */
+#   endif /* CROSS_MINGW64 */
+#  endif /* __MINGW32__ */
+# endif /* __MINGW64__ */
 
     // ; Attach IOM unit 0 port A (0) to SCU unit 0, port 0
     "cable SCU0 0 IOM0 0", // SCU0 port 0 IOM0 port 0
@@ -1717,15 +1718,15 @@ static char * default_base_system_script [] =
     "set scu3 reset",
     "set iom0 reset",
 
-#if defined(THREADZ) || defined(LOCKLESS)
-    "set cpu nunits=6",
-#else
-# ifdef ROUND_ROBIN
+# if defined(THREADZ) || defined(LOCKLESS)
     "set cpu nunits=6",
 # else
+#  ifdef ROUND_ROBIN
+    "set cpu nunits=6",
+#  else
     "set cpu nunits=1",
-# endif
-#endif // THREADZ
+#  endif
+# endif // THREADZ
     // "set sys config=activate_time=8",
     // "set sys config=terminate_time=8",
     "set sys config=connect_time=-1",
@@ -1754,13 +1755,13 @@ static void do_ini_line (char * text)
 
 static t_stat set_default_base_system (UNUSED int32 arg, UNUSED const char * buf)
   {
-#ifdef PERF_STRIP
+# ifdef PERF_STRIP
     cpu_dev.numunits = 1;
-#else
+# else
     int n_lines = sizeof (default_base_system_script) / sizeof (char *);
     for (int line = 0; line < n_lines; line ++)
       do_ini_line (default_base_system_script [line]);
-#endif
+# endif
     return SCPE_OK;
   }
 
@@ -1809,7 +1810,7 @@ static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
       }
     sim_printf ("Restart entry 0%o\n", n);
 
-#if 0
+# if 0
     // Assume bootload CPU
     cpu.cu.IWB = M [n] & MASK36;
     cpu.cu.IRODD = M [n + 1] & MASK36;
@@ -1819,7 +1820,7 @@ static t_stat do_restart (UNUSED int32 arg,  UNUSED const char * buf)
     cpu.isXED = true;
     cpu.cycle = FAULT_EXEC_cycle;
     set_addr_mode (ABSOLUTE_mode);
-#endif
+# endif
 
     cpu_reset_unit_idx (0, false);
     cpu.restart         = true;
@@ -1873,6 +1874,7 @@ static t_stat set_sys_poll_check_rate (UNUSED int32 arg, const char * buf)
     sys_opts.sys_poll_check_rate = (uint) n;
     return SCPE_OK;
   }
+#endif /* ifndef PERF_STRIP */
 
 //
 // Debugging commands
@@ -3581,11 +3583,13 @@ static t_stat yield (int32 flag, UNUSED const char * cptr)
   }
 #endif
 
+#ifndef PERF_STRIP
 static t_stat set_luf (int32 flag, UNUSED const char * cptr)
   {
     luf_flag = flag;
     return SCPE_OK;
   }
+#endif /* ifndef PERF_STRIP */
 
 #ifdef DBGEVENT
 uint n_dbgevents;
@@ -3828,6 +3832,7 @@ static t_stat trkr (UNUSED int32 arg, const char * buf)
   }
 #endif
 
+#ifndef PERF_STRIP
 static CTAB dps8_cmds[] =
   {
 
@@ -3868,7 +3873,7 @@ static CTAB dps8_cmds[] =
 // Debugging
 //
 
-#ifdef TESTING
+# ifdef TESTING
     {"TRKW",               trkw,                  0, "Start tracking to track.dat\n",                            NULL, NULL},
     {"TRKR",               trkr,                  0, "Start comparing with track.dat\n",                         NULL, NULL},
     {"DBGMMECNTDWN",       dps_debug_mme_cntdwn,  0, "Enable debug after n MMEs\n",                              NULL, NULL},
@@ -3896,21 +3901,21 @@ static CTAB dps8_cmds[] =
     {"VIRTUAL",            virt_address,          0, "Compute the virtual address(es) of segno:offset\n",        NULL, NULL},
     {"SPATH",              set_search_path,       0, "Set source code search path\n",                            NULL, NULL},
     {"TEST",               brkbrk,                0, "GDB test hook\n",                                          NULL, NULL},
-# ifdef DBGEVENT
+#  ifdef DBGEVENT
     {"DBG0EVENT",          set_dbgevent,          0, "Set t0 debug event\n",                                     NULL, NULL},
     {"DBGEVENT",           set_dbgevent,          1, "Set debug event\n",                                        NULL, NULL},
     {"DBGNOEVENT",         set_dbgevent,          2, "Clear debug event\n",                                      NULL, NULL},
     {"DBGLISTEVENTS",      set_dbgevent,          3, "List debug events\n",                                      NULL, NULL},
     {"DBGCLEAREVENTS",     set_dbgevent,          4, "Clear debug events\n",                                     NULL, NULL},
-# endif
+#  endif
 
 // copied from scp.c
-# define SSH_ST 0        /* set */
-# define SSH_SH 1        /* show */
-# define SSH_CL 2        /* clear */
+#  define SSH_ST 0        /* set */
+#  define SSH_SH 1        /* show */
+#  define SSH_CL 2        /* clear */
     {"SBREAK",       sbreak,           SSH_ST, "Set a breakpoint with segno:offset syntax\n", NULL, NULL},
     {"NOSBREAK",     sbreak,           SSH_CL, "Unset an SBREAK\n",                           NULL, NULL},
-# ifdef DVFDBG
+#  ifdef DVFDBG
     // dvf debugging
     {"DFX1ENTRY",    dfx1entry,        0,      "\n",                                          NULL, NULL},
     {"DFX2ENTRY",    dfx2entry,        0,      "\n",                                          NULL, NULL},
@@ -3918,16 +3923,16 @@ static CTAB dps8_cmds[] =
     {"DV2SCALE",     dv2scale,         0,      "\n",                                          NULL, NULL},
     {"MDFX3ENTRY",   mdfx3entry,       0,      "\n",                                          NULL, NULL},
     {"SMFX1ENTRY",   smfx1entry,       0,      "\n",                                          NULL, NULL},
-# endif
+#  endif
     // doesn't work
     //{"DUMPKST",             dumpKST,                  0, "dumpkst: dump the Known Segment Table\n", NULL},
-# ifndef SPEED
+#  ifndef SPEED
     {"WATCH",        set_mem_watch,    1,      "Watch memory location\n",                     NULL, NULL},
     {"NOWATCH",      set_mem_watch,    0,      "Unwatch memory location\n",                   NULL, NULL},
-# endif
+#  endif
     {"SEARCHMEMORY", search_memory,    0,      "Search memory for value\n",                   NULL, NULL},
     {"DBGCPUMASK",   set_dbg_cpu_mask, 0,      "Set per-CPU debug enable mask\n",             NULL, NULL},
-#endif // TESTING
+# endif // TESTING
 
     {"SEGLDR",       segment_loader,   0,      "Segment Loader\n",                            NULL, NULL},
 
@@ -3935,9 +3940,9 @@ static CTAB dps8_cmds[] =
 // Statistics
 //
 
-#ifdef MATRIX
+# ifdef MATRIX
     {"DISPLAYMATRIX", display_the_matrix,  0, "Display instruction usage counts\n", NULL, NULL},
-#endif
+# endif
 
 //
 // Console scripting
@@ -3954,12 +3959,10 @@ static CTAB dps8_cmds[] =
 // Tuning
 //
 
-#if YIELD
+# if YIELD
     {"CLEAR_YIELD",   clear_yield,         1, "Clear yield data points\n",          NULL, NULL},
     {"YIELD",         yield,               1, "Define yield data point\n",          NULL, NULL},
-#endif
-
-//
+# endif
 
 //
 // Hacks
@@ -3972,16 +3975,17 @@ static CTAB dps8_cmds[] =
 // Misc.
 //
 
-#ifdef PANEL
+# ifdef PANEL
     {"SCRAPER",       scraper,             0, "Control panel scraper\n",            NULL, NULL},
-#endif
+# endif
     { NULL,           NULL,                0, NULL,                                 NULL, NULL}
   }; // dps8_cmds
 
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW64
-#   ifndef CROSS_MINGW32
+# ifndef __MINGW64__
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW64
+#    ifndef CROSS_MINGW32
+#     ifndef PERF_STRIP
 static void usr1_signal_handler (UNUSED int sig)
   {
     sim_msg ("USR1 signal caught; pressing the EXF button\n");
@@ -3989,10 +3993,11 @@ static void usr1_signal_handler (UNUSED int sig)
     setG7fault (ASSUME0, FAULT_EXF, fst_zero);
     return;
   }
-#   endif /* ifndef CROSS_MINGW32 */
-#  endif /* ifndef CROSS_MINGW64 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
+#     endif /* ifndef PERF_STRIP */
+#    endif /* ifndef CROSS_MINGW32 */
+#   endif /* ifndef CROSS_MINGW64 */
+#  endif /* ifndef __MINGW32__ */
+# endif /* ifndef __MINGW64__ */
 
 static struct symbol_s symbols [] = {
     { "commit_id",              SYM_STATE_OFFSET,  SYM_STRING,    offsetof (struct system_state_s, commit_id) },
@@ -4051,7 +4056,7 @@ static struct symbol_s symbols [] = {
     { "cpus[].DSBR.STACK",      SYM_STRUCT_OFFSET, SYM_UINT16_12, offsetof (struct dsbr_s,         STACK) },
 
     { "cpus[].faultNumber",     SYM_STRUCT_OFFSET, SYM_UINT32,    offsetof (cpu_state_t,           faultNumber) },
-#define SYMTAB_ENUM32(e) { #e,  SYM_ENUM,          SYM_UINT32,    e }
+# define SYMTAB_ENUM32(e) { #e,  SYM_ENUM,          SYM_UINT32,    e }
     SYMTAB_ENUM32 (FAULT_SDF),
     SYMTAB_ENUM32 (FAULT_STR),
     SYMTAB_ENUM32 (FAULT_MME),
@@ -4093,6 +4098,7 @@ static void systabInit (void) {
   system_state->symbolTable.symtabVer = SYMTAB_VER;
   memcpy (system_state->symbolTable.symbols, symbols, sizeof (symbols));
 }
+#endif /* ifndef PERF_STRIP */
 
 // Once-only initialization; invoked via SCP
 

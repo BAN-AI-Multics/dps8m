@@ -885,8 +885,10 @@ static t_stat simh_cpu_reset_unit (UNIT * uptr,
     return SCPE_OK;
   }
 
+#ifndef PERF_STRIP
 static uv_loop_t * ev_poll_loop;
 static uv_timer_t ev_poll_handle;
+#endif /* ifndef PERF_STRIP */
 
 static MTAB cpu_mod[] =
   {
@@ -1237,6 +1239,7 @@ int lookup_cpu_mem_map (word24 addr)
 //  Additional numbers will be for multi-cpu systems.
 //  Other fields to be added.
 
+#ifndef PERF_STRIP
 static void get_serial_number (void)
   {
       bool havesn = false;
@@ -1282,6 +1285,7 @@ static void get_serial_number (void)
     if (fp)
       fclose (fp);
   }
+#endif /* ifndef PERF_STRIP */
 
 #ifdef STATS
 static void do_stats (void)
@@ -1316,6 +1320,7 @@ static void do_stats (void)
 
 // The 100Hz timer as expired; poll I/O
 
+#ifndef PERF_STRIP
 static void ev_poll_cb (UNUSED uv_timer_t * handle)
   {
     // Call the one hertz stuff every 100 loops
@@ -1324,37 +1329,38 @@ static void ev_poll_cb (UNUSED uv_timer_t * handle)
       {
         oneHz = 0;
         rdrProcessEvent ();
-#ifdef STATS
+# ifdef STATS
         do_stats ();
-#endif
+# endif
         cpu.instrCntT0 = cpu.instrCntT1;
         cpu.instrCntT1 = cpu.instrCnt;
       }
     fnpProcessEvent ();
-#ifndef __MINGW64__
-# ifndef __MINGW32__
-#  ifndef CROSS_MINGW32
-#   ifndef CROSS_MINGW64
-    sk_process_event ();
-#   endif /* ifndef CROSS_MINGW64 */
-#  endif /* ifndef CROSS_MINGW32 */
-# endif /* ifndef __MINGW32__ */
-#endif /* ifndef __MINGW64__ */
-    consoleProcess ();
-#ifdef IO_ASYNC_PAYLOAD_CHAN
-    iomProcess ();
-#endif
-#ifndef __MINGW32__
 # ifndef __MINGW64__
-#  ifndef CROSS_MINGW32
-#   ifndef CROSS_MINGW64
-    absi_process_event ();
-#   endif /* ifndef CROSS_MINGW64 */
-#  endif /* ifndef CROSS_MINGW32 */
+#  ifndef __MINGW32__
+#   ifndef CROSS_MINGW32
+#    ifndef CROSS_MINGW64
+    sk_process_event ();
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef __MINGW32__ */
 # endif /* ifndef __MINGW64__ */
-#endif /* ifndef __MINGW32__ */
+    consoleProcess ();
+# ifdef IO_ASYNC_PAYLOAD_CHAN
+    iomProcess ();
+# endif
+# ifndef __MINGW32__
+#  ifndef __MINGW64__
+#   ifndef CROSS_MINGW32
+#    ifndef CROSS_MINGW64
+    absi_process_event ();
+#    endif /* ifndef CROSS_MINGW64 */
+#   endif /* ifndef CROSS_MINGW32 */
+#  endif /* ifndef __MINGW64__ */
+# endif /* ifndef __MINGW32__ */
     PNL (panel_process_event ());
   }
+#endif /* ifndef PERF_STRIP */
 
 // called once initialization
 

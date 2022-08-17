@@ -19,6 +19,8 @@
  */
 
 #include <unistd.h>
+#include <errno.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -189,19 +191,39 @@ static t_stat stack (char * p2, char * p3)
     char * endptr;
     long segnum = strtol (p2, & endptr, 8);
     if (* endptr)
-      return SCPE_ARG;
+      {
+#ifdef PERF_STRIP
+        exit(1);
+        /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
+        return SCPE_ARG;
+      }
     if (segnum < 0 || segnum > MAX_SEG_NO)
       {
         sim_printf ("Segment number is limited to 0 to 0377\n");
+#ifdef PERF_STRIP
+        exit(1);
+        /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
 
     long len = strtol (p3, & endptr, 8);
     if (* endptr)
-      return SCPE_ARG;
+      {
+#ifdef PERF_STRIP
+        exit(1);
+        /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
+        return SCPE_ARG;
+      }
     if (len < 1 || len > 255)
       {
         sim_printf ("Segment length is limited to 1 to 0377\n");
+#ifdef PERF_STRIP
+        exit(1);
+        /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
 
@@ -231,10 +253,20 @@ static t_stat bload (char * p2, char * p3)
         char * endptr;
         segnum = strtol (p2, & endptr, 8);
         if (* endptr)
-          return SCPE_ARG;
+          {
+#ifdef PERF_STRIP
+            exit(1);
+            /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
+            return SCPE_ARG;
+          }
         if (segnum < 0 || segnum > MAX_SEG_NO)
           {
             sim_printf ("Segment number is limited to 0 to 0377\n");
+#ifdef PERF_STRIP
+            exit(1);
+            /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
             return SCPE_ARG;
           }
       }
@@ -243,7 +275,12 @@ static t_stat bload (char * p2, char * p3)
     int deckfd = open (p3, O_RDONLY);
     if (deckfd < 0)
       {
+        if (errno) sim_printf ("Error: %s\n", strerror(errno));
         sim_printf ("Unable to open '%s'\n", p3);
+#ifdef PERF_STRIP
+        exit(1);
+        /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
 
@@ -300,18 +337,29 @@ static t_stat bload (char * p2, char * p3)
 
 #define msize (MEMSIZE * sizeof (word36))
 
-static t_stat msave (char * p2)
+static t_stat msave (char * p2, word24 sz)
   {
+    uint wrsz = sz * sizeof (word36);
     int fd = open (p2, O_WRONLY | O_CREAT, 0664);
     if (fd < 0)
       {
+        if (errno) sim_printf ("Error: %s\n", strerror(errno));
         sim_printf ("Unable to open '%s'\n", p2);
+#ifdef PERF_STRIP
+        exit(1);
+        /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
-    ssize_t n = write (fd, (void *) M, msize);
-    if (n != msize)
+    ssize_t n = write (fd, (void *) M, wrsz);
+    if (n != wrsz)
       {
+        if (errno) sim_printf ("Error: %s\n", strerror(errno));
         sim_printf ("Unable to write '%s'\n", p2);
+#ifdef PERF_STRIP
+        exit(1);
+        /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
     (void) close (fd);
@@ -323,15 +371,31 @@ static t_stat mrestore (char * p2)
     int fd = open (p2, O_RDONLY);
     if (fd < 0)
       {
+        if (errno) sim_printf ("Error: %s\n", strerror(errno));
         sim_printf ("Unable to open '%s'\n", p2);
+        (void) close (fd);
+#ifdef PERF_STRIP
+        exit(1);
+        /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
     ssize_t n = read (fd, (void *) M, msize);
-    if (n != msize)
+    if (n < 1)
       {
+        if (errno) sim_printf ("Error: %s\n", strerror(errno));
         sim_printf ("Unable to read '%s'\n", p2);
+        (void) close (fd);
+#ifdef PERF_STRIP
+        exit(1);
+        /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
         return SCPE_ARG;
       }
+    sim_printf ("Read %'llu bytes (%'llu pages, %'llu segments)\n",
+                (unsigned long long) n,
+                (unsigned long long) (n / sizeof (word36)),
+                (unsigned long long) (n / sizeof (36) / 1024));
     (void) close (fd);
     return SCPE_OK;
   }
@@ -366,7 +430,7 @@ t_stat segment_loader (int32 arg, const char * buf)
       {
         if (nParams != 2)
           goto err;
-        return msave (p2);
+        return msave (p2, nextSegAddr);
       }
     else if (strcasecmp ("mrestore", p1) == 0)
       {
@@ -380,7 +444,11 @@ t_stat segment_loader (int32 arg, const char * buf)
   err:
     sim_msg ("Usage:\n"
              "   sl init    initialize\n"
-             "   sl bload <segno> <filename>\n");
+             "   sl bload   <segno> <filename>\n");
+#ifdef PERF_STRIP
+    exit(0);
+    /*NOTREACHED*/
+#endif /* ifdef PERF_STRIP */
     return SCPE_ARG;
   }
 
