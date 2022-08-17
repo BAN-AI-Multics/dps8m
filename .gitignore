@@ -125,6 +125,11 @@ rebuild.vne
 *.rar
 *.arj
 *.Z
+*.zpaq
+*.zst
+*.lzo
+*.lzh
+*.7z
 *.d.*
 *.ifx
 serial.txt
