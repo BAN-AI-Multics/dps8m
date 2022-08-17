@@ -1969,3 +1969,23 @@ void currentTR (word27 * trunits, bool * ovf)
     * ovf = false;
   }
 #endif
+
+
+// Test bit field code
+int testBitFields (void) {
+  word36 w;
+  w = (word36) 0;
+  putChar36 (& w, 0, (word9) 1);
+fprintf (stderr, "%012llo\n", w);
+  putChar36 (& w, 1, (word9) 2);
+fprintf (stderr, "%012llo\n", w);
+  putChar36 (& w, 2, (word9) 3);
+fprintf (stderr, "%012llo\n", w);
+  putChar36 (& w, 3, (word9) 4);
+fprintf (stderr, "%012llo\n", w);
+  if (w != (word36) 0001002003004ull) {
+    fprintf (stderr, "bit field test 1 failed; aborting\n");
+    return 1;
+  }
+  return 0;
+}

@@ -631,30 +631,88 @@ static inline void putbits36_9 (word36 * x, uint p, word9 val)
 
 // putchar36 - stuff 9-bit char into word36
 
-#define unlikely(x) __builtin_expect ((x), 0)
+//
+// bit field parameters
+//      35                        0
+//     |        |  data |  padding |
+// MSB                               LSB
+//
+// For 36 bit big endian notation [width, start bit (p)]
+//
+//     0         ^ start bit     35
+//
+// Convert to little endian
+//   le_start_bit = 35 - p
+//   padding start = le_start_bit - width
+//                   (35 - p) - width
+#define FIELD(dataWidth, paddingWidth) struct field { unsigned int padding : paddingWidth; unsigned int data : dataWidth; }
+#define FIELD0(dataWidth) struct field { unsigned int data : dataWidth; }
+
+
+
+#ifdef __xlc__
+# pragma pack(1)
+#else
+# pragma pack(push,1)
+#endif
+
+static inline void putChar36_0 (word36 * x, word9 val) {
+  val &= 0777;
+  FIELD (9, 27);
+  struct field * fp = (struct field *) x;
+  fp->data = val;
+}
+
+static inline void putChar36_1 (word36 * x, word9 val) {
+  val &= 0777;
+  FIELD (9, 18);
+  struct field * fp = (struct field *) x;
+  fp->data = val;
+}
+
+static inline void putChar36_2 (word36 * x, word9 val) {
+  val &= 0777;
+  FIELD (9, 9);
+  struct field * fp = (struct field *) x;
+  fp->data = val;
+}
+
+static inline void putChar36_3 (word36 * x, word9 val) {
+  val &= 0777;
+  FIELD0 (9);
+  struct field * fp = (struct field *) x;
+  fp->data = val;
+}
+
 static inline void putChar36 (word36 * x, uint charNo, word9 val) {
-  if (unlikely (sizeof (word36) != 64)) {
-    putbits36_9 (x, charNo * 9, val);
-    return;
-  }
-  struct bytes {
-    unsigned int pad : 28;
-    unsigned int c0 : 9;
-    unsigned int c1 : 9;
-    unsigned int c2 : 9;
-    unsigned int c3 : 9;
-  };
-  struct bytes * cp = (struct bytes *) x;
+//  val &= 0777;
+//  struct bytes {
+//    unsigned int c3 : 9;
+//    unsigned int c2 : 9;
+//    unsigned int c1 : 9;
+//    unsigned int c0 : 9;
+//  };
+//  struct bytes * cp = (struct bytes *) x;
   switch (charNo) {
-    case 0: cp-> c0 = val; return;
-    case 1: cp-> c1 = val; return;
-    case 2: cp-> c2 = val; return;
-    case 3: cp-> c3 = val; return;
+    //case 0: cp->c0 = val; return;
+    case 0: putChar36_0 (x, val); return;
+    //case 1: cp->c1 = val; return;
+    case 1: putChar36_1 (x, val); return;
+    //case 2: cp->c2 = val; return;
+    case 2: putChar36_2 (x, val); return;
+    //case 3: cp->c3 = val; return;
+    case 3: putChar36_3 (x, val); return;
     default: break;
   }
   sim_printf ("%s: bad args (%012llu,charNo=%u)\n", __func__, (unsigned long long)*x, charNo);
   return;
 }
+
+#ifdef __xlc__
+# pragma pack(reset)
+#else
+# pragma pack(pop)
+#endif
 
 static inline void putbits36_10 (word36 * x, uint p, word10 val)
 {
@@ -929,3 +987,4 @@ void timespec_diff(struct timespec *start, struct timespec *stop,
 #if defined(THREADZ) || defined(LOCKLESS)
 void currentTR (word27 * trunits, bool * ovf);
 #endif
+int testBitFields (void);

@@ -96,6 +96,7 @@
 #include "../decNumber/decNumberLocal.h"
 
 #include "../dps8/dps8_math128.h"
+#include "../dps8/dps8_utils.h"
 
 #include "dispatch.h"
 
@@ -1644,6 +1645,8 @@ if (testEndian != 0) {
 # ifdef NEED_128
 test_math128();
 # endif
+if (testBitFields ())
+  return 0;
 
 /* patch intel dispatcher */
 # ifdef __DISPATCH_H_
