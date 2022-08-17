@@ -824,7 +824,9 @@ void cpu_reset_unit_idx (UNUSED uint cpun, bool clear_mem)
       set_cpu_cycle (EXEC_cycle);
       cpu.cu.IWB = 0000000616000; // Stuff DIS instruction in instruction buffer
     }
-
+#ifdef PERF_STRIP
+    set_cpu_cycle (FETCH_cycle);
+#endif
     cpu.wasXfer        = false;
     cpu.wasInhibited   = false;
 
