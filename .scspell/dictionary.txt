@@ -5339,6 +5339,10 @@ explode
 foreach
 preg
 
+FILETYPE: Make; .mk
+arml
+iwmmxt
+
 FILEID: a704c048-f631-11ec-88ba-80ee73e9b8e7
 cleandep
 cleandepend
@@ -5467,6 +5471,8 @@ printdefs
 printf
 ptrdiff
 regenerates
+reusecheck
+reusetest
 reusetool
 ruler
 scspellcmd

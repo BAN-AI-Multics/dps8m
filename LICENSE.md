@@ -13,6 +13,8 @@
 
 # License Information
 
+&nbsp;[![REUSE Compliance](https://img.shields.io/reuse/compliance/GitLab.com/dps8m/dps8m.svg)](https://api.reuse.software/info/GitLab.com/dps8m/dps8m)
+
 <!-- toc -->
 
 - [**DPS8M Simulator**](#dps8m-simulator)

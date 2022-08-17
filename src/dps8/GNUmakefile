@@ -631,10 +631,13 @@ kit dist:
         $(MAKETAR) "$(KITNAME).$(TARXT)" $$( $(GIT) ls-files               |  \
          $(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                   |  \
           $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
-           $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v 'docs/manual'   |  \
+           $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v '^docs'         |  \
             $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
              $(GREP) -v '^src/dps8/listings/'                              |  \
-               $(GREP) -v '^src/Makefile.dev') 'src/dps8/ver.h~' )
+              $(GREP) -v '^.scspell' | $(GREP) -v '^LICENSES/'             |  \
+               $(GREP) -v '^.*\.license$$' | $(GREP) -v 'src/Makefile.doc' |  \
+                $(GREP) -v '^src/Makefile.dev')                               \
+                            'src/dps8/ver.h~' )
 	@$(PRINTF) '%s\n'                                                         \
        "COMPRESS: $(KITNAME).$(TARXT) -> $(KITNAME).$(TARXT).$(COMPRESSXT)"
 	@$(SETV); $(COMPRESS) "../../$(KITNAME).$(TARXT)"
@@ -654,9 +657,11 @@ zipkit zipdist:
         $(MAKETAR) "$(KITNAME).TMP" $$( $(GIT) ls-files                    |  \
          $(GREP) -v '^.git' | $(GREP) -v '^.whitesource'                   |  \
           $(GREP) -v '^.lgtm.yml' | $(GREP) -v '/.Attic/'                  |  \
-           $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v 'docs/manual'   |  \
+           $(GREP) -v '^src/dps8/make_ver.sh' | $(GREP) -v '^docs'         |  \
             $(GREP) -v '^src/Makefile.scc' | $(GREP) -v 'ci-kit'           |  \
-             $(GREP) -v '^src/dps8/listings/' )                               \
+             $(GREP) -v '^.scspell' | $(GREP) -v '^LICENSES/'              |  \
+              $(GREP) -v '^.*\.license$$' | $(GREP) -v 'src/Makefile.doc'  |  \
+               $(GREP) -v '^src/dps8/listings/' )                             \
                               'src/dps8/ver.h~' )
 	@$(SETV); ($(CD) "../.." && $(TAR) xf "$(KITNAME)"."TMP"              &&  \
       $(RMF) "$(KITNAME)"."zip"                                           &&  \

@@ -249,6 +249,3 @@ compile_commands.json
 # CCTree
 cctree.db
 CCTree.db
-
-# reuse lint (for now)
-/LICENSES/
