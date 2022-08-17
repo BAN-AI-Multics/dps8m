@@ -711,7 +711,8 @@ static void sendConsole (int conUnitIdx, word12 stati)
       {
         n_chars = 1;
         n_words = 1;
-        putbits36_9 (bufp, 0, '@');
+        //putbits36_9 (bufp, 0, '@');
+        putChar36 (bufp, 0, '@');
         tally --;
       }
     else
@@ -765,7 +766,8 @@ static void sendConsole (int conUnitIdx, word12 stati)
                     if (csp->readp >= csp->tailp)
                       break;
                     unsigned char c = (unsigned char) (* csp->readp ++);
-                    putbits36_9 (bufp, charno * 9, c);
+                    //putbits36_9 (bufp, charno * 9, c);
+                    putChar36 (bufp, charno, c);
                   }
               }
             bufp ++;

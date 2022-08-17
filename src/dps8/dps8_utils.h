@@ -629,6 +629,33 @@ static inline void putbits36_9 (word36 * x, uint p, word9 val)
 #endif /* ifndef __OPEN64__ */
 }
 
+// putchar36 - stuff 9-bit char into word36
+
+#define unlikely(x) __builtin_expect ((x), 0)
+static inline void putChar36 (word36 * x, uint charNo, word9 val) {
+  if (unlikely (sizeof (word36) != 64)) {
+    putbits36_9 (x, charNo * 9, val);
+    return;
+  }
+  struct bytes {
+    unsigned int pad : 28;
+    unsigned int c0 : 9;
+    unsigned int c1 : 9;
+    unsigned int c2 : 9;
+    unsigned int c3 : 9;
+  };
+  struct bytes * cp = (struct bytes *) x;
+  switch (charNo) {
+    case 0: cp-> c0 = val; return;
+    case 1: cp-> c1 = val; return;
+    case 2: cp-> c2 = val; return;
+    case 3: cp-> c3 = val; return;
+    default: break;
+  }
+  sim_printf ("%s: bad args (%012llu,charNo=%u)\n", __func__, (unsigned long long)*x, charNo);
+  return;
+}
+
 static inline void putbits36_10 (word36 * x, uint p, word10 val)
 {
     const int n = 10;
