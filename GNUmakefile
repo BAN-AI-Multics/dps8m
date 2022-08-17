@@ -33,6 +33,7 @@
 #        NATIVE=1                       Enable "-march=native" via CFLAGS
 #   NO_LOCKLESS=1                       Enable legacy (non-lockless) code
 #        NO_LTO=1                       Disables the use of LTO for build
+#    PERF_STRIP=1                       Enable CPU-only benchmarking mode
 #   ROUND_ROBIN=1                       Enable non-threaded multiple CPUs
 #       TESTING=1                       Enable developmental testing mode
 #          DUMA=1                       Enable the libDUMA malloc library

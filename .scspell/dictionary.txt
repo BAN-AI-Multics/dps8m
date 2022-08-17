@@ -3178,6 +3178,7 @@ wrlock
 wronly
 wrrecf
 wrsect
+wrsz
 wrtmk
 wsaapi
 wsadata
@@ -7793,6 +7794,7 @@ arise
 arises
 arising
 arithmetic
+arml
 armstrong
 around
 arranged
@@ -9916,6 +9918,7 @@ iterating
 iteration
 iterations
 itself
+iwmmxt
 january
 java
 jean

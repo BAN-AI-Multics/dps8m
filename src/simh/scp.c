@@ -320,16 +320,20 @@ int32 sim_brk_ins                = 0;
 int32 sim_iglock                 = 0;
 int32 sim_nolock                 = 0;
 int32 sim_quiet                  = 0;
-int32 sim_randstate              = 0;
 int32 sim_randompst              = 0;
-int32 sim_nostate                = 0;
+int32 sim_randstate              = 0;
 int32 sim_step                   = 0;
 int nodist                       = 0;
+#ifdef PERF_STRIP
+int32 sim_nostate                = 1;
+#else
+int32 sim_nostate                = 0;
+static char **sim_argv;
+#endif /* ifndef PERF_STRIP */
 static double sim_time;
 static uint32 sim_rtime;
 static int32 noqueue_time;
 volatile int32 stop_cpu          = 0;
-static char **sim_argv;
 t_value *sim_eval                = NULL;
 static t_value sim_last_val;
 static t_addr sim_last_addr;

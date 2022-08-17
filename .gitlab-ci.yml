@@ -1514,6 +1514,8 @@ Option Verification Test:
     - export CMB_CI_JOB="part_${CI_NODE_INDEX:?}_of_${CI_NODE_TOTAL:?}.sh"
     - cat ./"${CMB_CI_JOB:?}" && chmod a+x ./"${CMB_CI_JOB:?}"
     - ./"${CMB_CI_JOB:?}" 2>&1 | tee -i options-test.txt | grep --line-buffered '^+ env ITERATION'
+    - make clean > /dev/null 2>&1 && make PERF_STRIP=1 -j 3
+    - ( cd src/perf_test && ../../src/dps8/dps8 2>&1 || true )
   dependencies: []
   artifacts:
     when: always
