@@ -5332,6 +5332,7 @@ ypersetup
 FILETYPE: YAML; .yml
 docsprt
 libcmb
+roscspell
 
 FILETYPE: PHP; .php
 argv
@@ -5468,7 +5469,9 @@ printf
 ptrdiff
 regenerates
 reusetool
+roscspell
 ruler
+saves
 scspellcmd
 segldr
 setv
@@ -5553,6 +5556,7 @@ advzip
 alnum
 anyerror
 argv
+arml
 armv
 basename
 bitmode
@@ -5596,6 +5600,7 @@ ifneq
 infozip
 isabits
 isainfo
+iwmmxt
 jobmax
 killring
 kitname
