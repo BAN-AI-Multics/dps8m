@@ -185,7 +185,7 @@ printdefs:                                                                    \
 
 .PHONY: cppcheck
 cppcheck:                                                                     \
-    # cppcheck:    # Check Cppcheck linter and save output
+    # cppcheck:    # Runs Cppcheck linter and saves output
 	-@$(RMF) ./cppcheck.txt > /dev/null 2>&1 || $(TRUE)
 	-@$(TEST) -z "$(HTMLOUT)" ||                                              \
       $(PRINTF) '%s\n' "CPPCHECK: HTML report generation enabled."
@@ -273,8 +273,24 @@ scspell:                                                                      \
 	@{ for i in $$( $(FIND) "./" -exec $(GREP) -al 'scspell-id: ' "{}"        \
       2> "/dev/null" \; 2> "/dev/null" | $(GREP) -v '^\./\.git/' |            \
         $(GREP) -v '^\./GPATH'); do $(PRINTF) 'SCSPELL: %s\n' "$${i:?}" ;     \
-          $(SCSPELLCMD) --override-dictionary "./.scspell/dictionary.txt"     \
-            "$${i:?}"; done; }
+          $(SCSPELLCMD) --override-dictionary                                 \
+            "./.scspell/dictionary.txt" "$${i:?}"; done; }
+
+###############################################################################
+# Convenience target: Report-only scspell check scspell-id tagged files
+
+.PHONY: roscspell
+roscspell:                                                                    \
+    # roscspell:    # scspell tests scspell-id tagged files
+	@$(SCSPELLCMD) --version 2>&1 | $(GREP) -q '^scspell ' 2> /dev/null ||    \
+      { $(PRINTF) '%s\n' "ERROR: $(SCSPELLCMD) command unusable."; exit 1 ; }
+	@$(TEST) -f "./.scspell/dictionary.txt" 2> /dev/null ||                   \
+      { $(PRINTF) '%s\n' "ERROR: scspell dictionary not found."; exit 1 ; }
+	@{ for i in $$( $(FIND) "./" -exec $(GREP) -al 'scspell-id: ' "{}"        \
+      2> "/dev/null" \; 2> "/dev/null" | $(GREP) -v '^\./\.git/' |            \
+        $(GREP) -v '^\./GPATH'); do $(PRINTF) 'SCSPELL: %s\n' "$${i:?}" ;     \
+          $(SCSPELLCMD) --report-only --override-dictionary                   \
+            "./.scspell/dictionary.txt" "$${i:?}"; done; }
 
 ###############################################################################
 # Convenience target: Display files without scspell-id tags (needs GNU grep)
