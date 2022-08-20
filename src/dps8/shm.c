@@ -65,11 +65,7 @@ create_shm(char *key, size_t shm_size)
   char lck[260];
 #endif /* ifdef USE_BFLOCK */
 
-#ifdef L68
-  sprintf(buf, "l68.%s", key);
-#else
   sprintf(buf, "dps8m.%s", key);
-#endif /* ifdef L68 */
 
 #ifdef USE_BFLOCK
   sprintf(lck, ".%s", buf);
@@ -360,11 +356,7 @@ open_shm(char *key, size_t shm_size)
   char lck[260];
 # endif /* USE_BFLOCK */
 
-# ifdef L68
-  sprintf(buf, "l68.%s", key);
-# else  /* ifdef L68 */
   sprintf(buf, "dps8m.%s", key);
-# endif /* ifdef L68 */
 
 # ifdef USE_BFLOCK
   sprintf(lck, ".%s", buf);

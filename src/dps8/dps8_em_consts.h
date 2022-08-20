@@ -108,11 +108,8 @@ enum { MAX_CTLR_PORTS = 8 };
 // CPU ports
 //
 
-# ifdef DPS8M
-enum { N_CPU_PORTS = 4 };
-# endif
-# ifdef L68
-enum { N_CPU_PORTS = 8 };
-# endif
+enum { N_DPS8M_CPU_PORTS = 4 };
+enum { N_L68_CPU_PORTS = 8 };
+enum { N_CPU_PORTS = 8 }; // For data structures, allocate the worst case and enforce limit at run-time
 
 #endif // DPS8_EM_CONSTS_H

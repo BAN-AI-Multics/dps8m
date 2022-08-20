@@ -560,9 +560,7 @@ enum {
 # define F_N             (1LLU << F_V_N)
 # define F_O             (1LLU << F_V_O)
 
-# ifdef DPS8M
-#  define I_HEX   F_O     // base-16 exponent                 0000010
-# endif
+# define I_HEX   F_O     // base-16 exponent                 0000010  // DPS8M only
 # define I_ABS   F_N     // absolute mode                    0000020
 # define I_MIF   F_M     // mid-instruction interrupt fault  0000040
 # define I_TRUNC F_L     // truncation                       0000100
@@ -620,9 +618,7 @@ enum {
 # define TST_I_ZERO  TSTF (cpu.cu.IR, I_ZERO)
 # define TST_I_HEX   TSTF (cpu.cu.IR, I_HEX)
 
-# ifdef DPS8M
-#  define SC_I_HEX(v)   SCF (v, cpu.cu.IR, I_HEX)
-# endif
+# define SC_I_HEX(v)   SCF (v, cpu.cu.IR, I_HEX) // DPS8M only
 # define SC_I_MIF(v)   SCF (v, cpu.cu.IR, I_MIF)
 # define SC_I_TALLY(v) SCF (v, cpu.cu.IR, I_TALLY)
 # define SC_I_NEG(v)   SCF (v, cpu.cu.IR, I_NEG)
@@ -1465,12 +1461,10 @@ typedef enum {
 //
 
 enum { N_HIST_SETS = 4 };
-# ifdef DPS8M
-enum { N_HIST_SIZE = 64 };
-# endif
-# ifdef L68
-enum { N_HIST_SIZE = 16 };
-# endif
+enum { N_DPS8M_HIST_SIZE = 64 };
+enum { N_L68_HIST_SIZE = 16 };
+enum { N_MAX_HIST_SIZE = 64 };
+# define N_MODEL_HIST_SIZE (cpu.tweaks.l68_mode ? N_L68_HIST_SIZE : N_DPS8M_HIST_SIZE)
 
 // Bit in CU history register word 0
 
@@ -1584,11 +1578,7 @@ enum
     // bit 35 is marked 'w' but undocumented
   };
 
-# ifdef DPS8M
-enum { CU_HIST_REG = 0, DU_OU_HIST_REG = 1, APU_HIST_REG = 2, EAPU_HIST_REG = 3 };
-# endif
-# ifdef L68
-enum { CU_HIST_REG = 0, DU_HIST_REG = 1, OU_HIST_REG = 2, APU_HIST_REG = 3 };
-# endif
+enum { CU_HIST_REG = 0, DPS8M_DU_OU_HIST_REG = 1, DPS8M_APU_HIST_REG = 2, DPS8M_EAPU_HIST_REG = 3 };
+enum { /*CU_HIST_REG = 0,*/ L68_DU_HIST_REG = 1, L68_OU_HIST_REG = 2, L68_APU_HIST_REG = 3 };
 
 #endif // DPS8_HW_CONSTS_H

@@ -254,12 +254,9 @@ struct sdw_s
                      //  register is valid. If this bit is set OFF, a hit is
                      //  not possible. All SDWAM.F bits are set OFF by the
                      //  instructions that clear the SDWAM.
-#ifdef DPS8M
+    // L68: word4
+    // DPS8M: word6
     word6   USE;
-#endif
-#ifdef L68
-    word4   USE;
-#endif
                      // Usage count for the register. The SDWAM.USE field is
                      //  used to maintain a strict FIFO queue order among the
                      //  SDWs. When an SDW is matched, its USE value is set to
@@ -351,13 +348,9 @@ struct ptw_s
                      //  the register is valid. If this bit is set OFF, a
                      //  hit is not possible. All PTWAM.F bits are set OFF
                      //  by the instructions that clear the PTWAM.
-#ifdef DPS8M
+    // DPS8M: word6
+    // L68: word4
     word6   USE;
-#endif
-
-#ifdef L68
-    word4   USE;
-#endif
                      // Usage count for the register. The PTWAM.USE field
                      //  is used to maintain a strict FIFO queue order
                      //  among the PTWs. When an PTW is matched its USE
@@ -403,10 +396,9 @@ struct cache_mode_register_s
                       // enabled as per the state of inst_on
     word1    csh2_on; // 1: The upper half of the cache memory is active and
                       // enabled as per the state of inst_on
-#ifdef L68
-    word1    opnd_on; // 1: The cache memory (if active) is used for
-                      //  operands.
-#endif
+    // L68 only
+    word1    opnd_on; // 1: The cache memory (if active) is used for operands.
+
     word1    inst_on; // 1: The cache memory (if active) is used for
                       //  instructions.
     // When the cache-to-register mode flag (bit 59 of the cache mode register)
@@ -419,9 +411,7 @@ struct cache_mode_register_s
     word1    str_asd;
     word1    col_ful;
     word2    rro_AB;
-#ifdef DPS8M
-    word1    bypass_cache;
-#endif
+    word1    bypass_cache; // DPS8M only
     word2    luf;       // LUF value
                         // 0   1   2   3
                         // Lockup time
@@ -435,14 +425,14 @@ typedef struct cache_mode_register_s cache_mode_register_s;
 typedef struct mode_register_s
   {
     word36 r;
-#ifdef L68
+    // L68 only
                     //  8M      L68
     word15 FFV;     //  0       FFV     0 - 14
     word1 OC_TRAP;  //  0       a           16
     word1 ADR_TRAP; //  0       b           17
     word9 OPCODE;   //  0       OPCODE 18 - 26
     word1 OPCODEX;  //  0       OPCODE      27
-#endif
+
  // word1 cuolin;   //  a       c           18 control unit overlap inhibit
  // word1 solin;    //  b       d           19 store overlap inhibit
     word1 sdpap;    //  c       e           20 store incorrect data parity
@@ -452,20 +442,18 @@ typedef struct mode_register_s
                     //  0       0           26 history register overflow trap
                     //  0       0           27 strobe HR on opcode match
     word1 hrhlt;    //  g       i           28 history register overflow trap
-#ifdef DPS8M
+
+    // DPS8M only
     word1 hrxfr;    //  h       j           29 strobe HR on transfer made
-#endif
-#ifdef L68
+    // L68 only
                     //  h       j           29 strobe HR on opcode match
-#endif
     word1 ihr;      //  i       k           30 Enable HR
     word1 ihrrs;    //  j                   31 HR reset options
                     //          l           31 HR lock control
                     //  k                   32 margin control
                     //          m           32 test mode indicator
-#ifdef DPS8M
+    // DPS8M only
     word1 hexfp;    //  l       0           33 hex mode
-#endif
                     //  0       0           34
      word1 emr;     //  m       n           35 enable MR
   } mode_register_s;
@@ -745,9 +733,10 @@ typedef struct {
     uint enable_wam;      // If zero, the simulated cache is ignored and always returns "miss"; turning it on incurs a large performance hit.
     bool enable_emcall;   // If set, the instruction set is extended with simulator debugging instructions
     bool nodis;           // If true, start CPU in FETCH cycle; else start in DIS instruction
+    bool l68_mode;      // False: DPS8/M; True: 6180
+    bool hex_mode_installed;
 } tweaksType;
 
-#ifdef L68
 enum ou_cycle_e
   {
     ou_GIN = 0400,
@@ -760,7 +749,6 @@ enum ou_cycle_e
     ou_GON = 0002,
     ou_GOF = 0001
   };
-#endif
 
 typedef struct
   {
@@ -771,18 +759,20 @@ typedef struct
     word3  characterOperandOffset;
     word18 character_address;
     word36 character_data;
-    bool   crflag;
-#ifdef L68
+    bool crflag;
+
+    // L68 only
     word2 eac;
     word1 RB1_FULL;
     word1 RP_FULL;
     word1 RS_FULL;
     word9 cycle;
     word1 STR_OP;
-#endif
-#ifdef PANEL
-    word9  RS;
-    word4  opsz;
+    // End L68 only
+
+#ifdef PANEL68
+    word9 RS;
+    word4 opsz;
     word10 reguse;
 #endif
   } ou_unit_data_t;
@@ -850,7 +840,7 @@ enum {
 typedef struct
   {
     processor_cycle_type lastCycle;
-#ifdef PANEL
+#ifdef PANEL68
     word34 state;
 #endif
   } apu_unit_data_t;
@@ -1035,7 +1025,7 @@ typedef struct
 #define USE_IRODD (cpu.cu.rd && ((cpu. PPR.IC & 1) != 0))
 #define IWB_IRODD (USE_IRODD ? cpu.cu.IRODD : cpu.cu.IWB)
 
-#ifdef L68
+// L68 only
 enum du_cycle1_e
   {
     //  0 -FPOL Prepare operand length
@@ -1112,6 +1102,7 @@ enum du_cycle1_e
     //               = 0000000000001ll,
   };
 
+// L68 only
 enum du_cycle2_e
   {
     // 36 DUD Decimal unit idle
@@ -1188,67 +1179,67 @@ enum du_cycle2_e
     //               = 0000000000001ll,
   };
 
-# define DU_CYCLE_GDLDA   { clrmask (& cpu.du.cycle2,  du2_nGDLDA); \
-                            setmask (& cpu.du.cycle2,  du2_nGDLDB | \
-                                                       du2_nGDLDC); }
-# define DU_CYCLE_GDLDB   { clrmask (& cpu.du.cycle2,  du2_nGDLDB); \
-                            setmask (& cpu.du.cycle2,  du2_nGDLDA | \
-                                                       du2_nGDLDC); }
-# define DU_CYCLE_GDLDC   { clrmask (& cpu.du.cycle2,  du2_nGDLDC); \
-                            setmask (& cpu.du.cycle2,  du2_nGDLDA | \
-                                                       du2_nGDLDB); }
-# define DU_CYCLE_FA_I1     setmask (& cpu.du.cycle1,  du1_FA_I1)
-# define DU_CYCLE_FA_I2     setmask (& cpu.du.cycle1,  du1_FA_I2)
-# define DU_CYCLE_FA_I3     setmask (& cpu.du.cycle1,  du1_FA_I3)
-# define DU_CYCLE_ANLD1     setmask (& cpu.du.cycle2,  du2_ANLD1)
-# define DU_CYCLE_ANLD2     setmask (& cpu.du.cycle2,  du2_ANLD2)
-# define DU_CYCLE_NLD1      setmask (& cpu.du.cycle2,  du2_NLD1)
-# define DU_CYCLE_NLD2      setmask (& cpu.du.cycle2,  du2_NLD2)
-# define DU_CYCLE_FRND      setmask (& cpu.du.cycle2,  du2_FRND)
-# define DU_CYCLE_DGBD      setmask (& cpu.du.cycle2,  du2_DGBD)
-# define DU_CYCLE_DGDB      setmask (& cpu.du.cycle2,  du2_DGDB)
-# define DU_CYCLE_DDU_LDEA  clrmask (& cpu.du.cycle1,  du1_nDDU_LDEA)
-# define DU_CYCLE_DDU_STEA  clrmask (& cpu.du.cycle1,  du1_nDDU_STEA)
-# define DU_CYCLE_END       clrmask (& cpu.du.cycle1,  du1_nEND)
-# define DU_CYCLE_LDWRT1    setmask (& cpu.du.cycle2,  du2_LDWRT1)
-# define DU_CYCLE_LDWRT2    setmask (& cpu.du.cycle2,  du2_LDWRT2)
-# define DU_CYCLE_FEXOP     setmask (& cpu.du.cycle2,  du2_FEXOP)
-# define DU_CYCLE_ANSTR     setmask (& cpu.du.cycle2,  du2_ANSTR)
-# define DU_CYCLE_GSTR      setmask (& cpu.du.cycle2,  du2_GSTR)
-# define DU_CYCLE_FLEN_128  clrmask (& cpu.du.cycle2,  du2_nFLEN_128)
-# define DU_CYCLE_FDUD               { cpu.du.cycle1 = du1_nFPOL        | \
-                                                       du1_nFPOP        | \
-                                                       du1_nNEED_DESC   | \
-                                                       du1_nSEL_DIR     | \
-                                                       du1_nDLEN_DIRECT | \
-                                                       du1_nDFRST       | \
-                                                       du1_nFEXR        | \
-                                                       du1_nLAST_DFRST  | \
-                                                       du1_nDDU_LDEA    | \
-                                                       du1_nDDU_STEA    | \
-                                                       du1_nDREDO       | \
-                                                       du1_nDLVL_WD_SZ  | \
-                                                       du1_nEXH         | \
-                                                       du1_nEND         | \
-                                                       du1_nDU_RD_WRT   | \
-                                                       du1_nWRD         | \
-                                                       du1_nNINE        | \
-                                                       du1_nSIX         | \
-                                                       du1_nFOUR        | \
-                                                       du1_nBIT         | \
-                                                       du1_nINTRPTD     | \
-                                                       du1_nINHIB;        \
-                                       cpu.du.cycle2 = du2_DUD          | \
-                                                       du2_nGDLDA       | \
-                                                       du2_nGDLDB       | \
-                                                       du2_nGDLDC       | \
-                                                       du2_nDATA_AVLDU  | \
-                                                       du2_nFEND_SEQ    | \
-                                                       du2_nFLEN_128; }
-# define DU_CYCLE_nDUD      clrmask (& cpu.du.cycle2,  du2_DUD)
-#endif
+// L68 only
+#define DU_CYCLE_GDLDA { clrmask (& cpu.du.cycle2, du2_nGDLDA);               \
+                        setmask (& cpu.du.cycle2, du2_nGDLDB | du2_nGDLDC); }
+#define DU_CYCLE_GDLDB { clrmask (& cpu.du.cycle2, du2_nGDLDB);               \
+                        setmask (& cpu.du.cycle2, du2_nGDLDA | du2_nGDLDC); }
+#define DU_CYCLE_GDLDC { clrmask (& cpu.du.cycle2, du2_nGDLDC);               \
+                        setmask (& cpu.du.cycle2, du2_nGDLDA | du2_nGDLDB); }
+#define DU_CYCLE_FA_I1     setmask (& cpu.du.cycle1, du1_FA_I1)
+#define DU_CYCLE_FA_I2     setmask (& cpu.du.cycle1, du1_FA_I2)
+#define DU_CYCLE_FA_I3     setmask (& cpu.du.cycle1, du1_FA_I3)
+#define DU_CYCLE_ANLD1     setmask (& cpu.du.cycle2, du2_ANLD1)
+#define DU_CYCLE_ANLD2     setmask (& cpu.du.cycle2, du2_ANLD2)
+#define DU_CYCLE_NLD1      setmask (& cpu.du.cycle2, du2_NLD1)
+#define DU_CYCLE_NLD2      setmask (& cpu.du.cycle2, du2_NLD2)
+#define DU_CYCLE_FRND      setmask (& cpu.du.cycle2, du2_FRND)
+#define DU_CYCLE_DGBD      setmask (& cpu.du.cycle2, du2_DGBD)
+#define DU_CYCLE_DGDB      setmask (& cpu.du.cycle2, du2_DGDB)
+#define DU_CYCLE_DDU_LDEA  clrmask (& cpu.du.cycle1, du1_nDDU_LDEA)
+#define DU_CYCLE_DDU_STEA  clrmask (& cpu.du.cycle1, du1_nDDU_STEA)
+#define DU_CYCLE_END       clrmask (& cpu.du.cycle1, du1_nEND)
+#define DU_CYCLE_LDWRT1    setmask (& cpu.du.cycle2, du2_LDWRT1)
+#define DU_CYCLE_LDWRT2    setmask (& cpu.du.cycle2, du2_LDWRT2)
+#define DU_CYCLE_FEXOP     setmask (& cpu.du.cycle2, du2_FEXOP)
+#define DU_CYCLE_ANSTR     setmask (& cpu.du.cycle2, du2_ANSTR)
+#define DU_CYCLE_GSTR      setmask (& cpu.du.cycle2, du2_GSTR)
+#define DU_CYCLE_FLEN_128  clrmask (& cpu.du.cycle2, du2_nFLEN_128)
+#define DU_CYCLE_FDUD  { cpu.du.cycle1 = \
+                      du1_nFPOL        | \
+                      du1_nFPOP        | \
+                      du1_nNEED_DESC   | \
+                      du1_nSEL_DIR     | \
+                      du1_nDLEN_DIRECT | \
+                      du1_nDFRST       | \
+                      du1_nFEXR        | \
+                      du1_nLAST_DFRST  | \
+                      du1_nDDU_LDEA    | \
+                      du1_nDDU_STEA    | \
+                      du1_nDREDO       | \
+                      du1_nDLVL_WD_SZ  | \
+                      du1_nEXH         | \
+                      du1_nEND         | \
+                      du1_nDU_RD_WRT   | \
+                      du1_nWRD         | \
+                      du1_nNINE        | \
+                      du1_nSIX         | \
+                      du1_nFOUR        | \
+                      du1_nBIT         | \
+                      du1_nINTRPTD     | \
+                      du1_nINHIB;        \
+                    cpu.du.cycle2 =      \
+                      du2_DUD          | \
+                      du2_nGDLDA       | \
+                      du2_nGDLDB       | \
+                      du2_nGDLDC       | \
+                      du2_nDATA_AVLDU  | \
+                      du2_nFEND_SEQ    | \
+                      du2_nFLEN_128;     \
+                  }
+#define DU_CYCLE_nDUD clrmask (& cpu.du.cycle2, du2_DUD)
 
-#ifdef PANEL
+#ifdef PANEL68
 // Control points
 
 # define CPT(R,C) cpu.cpt[R][C]=1
@@ -1259,7 +1250,7 @@ enum du_cycle2_e
 #endif
 
 #if 0
-# ifdef PANEL
+# ifdef PANEL68
 // 6180 panel DU control flags with guessed meanings based on DU history
 // register bits.
 //
@@ -1484,7 +1475,7 @@ typedef struct du_unit_data_t
     // Image of LPL/SPL for ISOLTS compliance
     word36 image [8];
 
-#ifdef PANEL
+#ifdef PANEL68
     word37 cycle1;
     word37 cycle2;
     word1 POL; // Prepare operand length
@@ -1492,7 +1483,7 @@ typedef struct du_unit_data_t
 #endif
   } du_unit_data_t;
 
-#ifdef PANEL
+#ifdef PANEL68
 // prepare_state bits
 enum
   {
@@ -1514,14 +1505,12 @@ enum
 enum { CUH_XINT = 0100, CUH_IFT = 040, CUH_CRD = 020, CUH_MRD = 010,
        CUH_MSTO = 04, CUH_PIB = 02 };
 
-#ifdef DPS8M
-# define N_WAM_ENTRIES 64
-# define N_WAM_MASK 077
-#endif
-#ifdef L68
-# define N_WAM_ENTRIES 16
-# define N_WAM_MASK 017
-#endif
+#define N_DPS8M_WAM_ENTRIES 64
+#define N_DPS8M_WAM_MASK 077
+#define N_L68_WAM_ENTRIES 16
+#define N_L68_WAM_MASK 017
+#define N_NAX_WAM_ENTRIES 64
+#define N_MODEL_WAM_ENTRIES (cpu.tweaks.l68_mode ? N_L68_WAM_ENTRIES : N_DPS8M_WAM_ENTRIES)
 
 typedef struct
   {
@@ -1600,7 +1589,7 @@ typedef struct
 
     _fault_subtype  g7SubFaults [N_FAULTS];
 
-    word36 history [N_HIST_SETS] [N_HIST_SIZE] [2];
+    word36 history [N_HIST_SETS] [N_MAX_HIST_SIZE] [2];
 
     cycles_e cycle;
 
@@ -1671,13 +1660,11 @@ typedef struct
     // mapping from the CPU to the SCU is easier to query
     uint scu_port[N_SCU_UNITS_MAX];
 
-#ifdef L68
-    // FFV faults
+    // L68 FFV faults
 
      uint FFV_faults_preset;
      uint FFV_faults;
      uint FFV_fault_number;
-#endif
 
 #ifdef AFFINITY
     uint affinity;
@@ -1689,7 +1676,7 @@ typedef struct
 
     struct par_s PAR [8]; // pointer/address registers
 
-    ptw_s PTWAM [N_WAM_ENTRIES];
+    ptw_s PTWAM [N_NAX_WAM_ENTRIES];
 
     // Map memory address through memory configuration switches
     // Minimum allocation chunk is 64K (SCBANK_SZ)
@@ -1699,7 +1686,7 @@ typedef struct
     // The SCU number holding each bank
     int sc_scu_map [N_SCBANKS];
 
-    sdw_s SDWAM [N_WAM_ENTRIES]; // Segment Descriptor Word Associative Memory
+    sdw_s SDWAM [N_NAX_WAM_ENTRIES]; // Segment Descriptor Word Associative Memory
 
     // Address Modification tally
     word12 AM_tally;
@@ -1731,22 +1718,16 @@ typedef struct
     word3    rRALR;    // ring alarm [3b] [map: 33 0's, RALR]
     word3    RSDWH_R1; // Track the ring number of the last SDW
 
-#ifdef L68
-    word4 SDWAMR;
-#endif
-#ifdef DPS8M
+    // L68: word4
+    // DPS8M: word6
     word6 SDWAMR;
-#endif
 
     // Zone mask
     bool useZone;
 
-#ifdef L68
-    word4 PTWAMR;
-#endif
-#ifdef DPS8M
+    // L68: word4
+    // DPS8M: word6
     word6 PTWAMR;
-#endif
 
     // G7 faults
     bool bTroubleFaultCycle;
@@ -1762,10 +1743,8 @@ typedef struct
 
     bool restart;
 
-#ifdef L68
-    // FFV faults
-     bool is_FFV;
-#endif
+    // L68 FFV faults
+    bool is_FFV;
 
 #ifdef ROUND_ROBIN
     bool isRunning;
@@ -1810,7 +1789,10 @@ typedef struct
       }
 #endif
 
-#ifdef PANEL
+
+
+
+#ifdef PANEL68
     // Intermediate data collection for APU SCROLL
     word18 lastPTWOffset;
 // The L68 APU SCROLL 4U has an entry "ACSD"; I am interpreting it as
@@ -1979,7 +1961,7 @@ int operand_size (void);
 t_stat read_operand (word18 addr, processor_cycle_type cyctyp);
 t_stat write_operand (word18 addr, processor_cycle_type acctyp);
 
-#ifdef PANEL
+#ifdef PANEL68
 static inline void trackport (word24 a, word36 d)
   {
     // Simplifying assumption: 4 * 4MW SCUs
@@ -2363,19 +2345,14 @@ char *str_SDW0 (char * buf, sdw_s *SDW);
 int lookup_cpu_mem_map (word24 addr);
 void cpu_init (void);
 void setup_scbank_map (void);
-#ifdef DPS8M
-void add_CU_history (void);
-void add_DUOU_history (word36 flags, word18 ICT, word9 RS_REG, word9 flags2);
-void add_APU_history (word15 ESN, word21 flags, word24 RMA, word3 RTRR,
-                 word9 flags2);
-void add_EAPU_history (word18 ZCA, word18 opcode);
-#endif
-#ifdef L68
-void add_CU_history (void);
-void add_OU_history (void);
-void add_DU_history (void);
-void add_APU_history (enum APUH_e op);
-#endif
+void add_dps8m_CU_history (void);
+void add_dps8m_DUOU_history (word36 flags, word18 ICT, word9 RS_REG, word9 flags2);
+void add_dps8m_APU_history (word15 ESN, word21 flags, word24 RMA, word3 RTRR, word9 flags2);
+void add_dps8m_EAPU_history (word18 ZCA, word18 opcode);
+void add_l68_CU_history (void);
+void add_l68_OU_history (void);
+void add_l68_DU_history (void);
+void add_l68_APU_history (enum APUH_e op);
 void add_history_force (uint hset, word36 w0, word36 w1);
 word18 get_BAR_address(word18 addr);
 #if defined(THREADZ) || defined(LOCKLESS)

@@ -1486,7 +1486,7 @@ char *opcodes2text[1024] = {
 };
 #endif
 
-#ifdef PANEL
+#ifdef PANEL68
 word8 insGrp [02000] =
   {
 // nonEIS

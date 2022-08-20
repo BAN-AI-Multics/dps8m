@@ -142,22 +142,22 @@ static char *str_sdw (char * buf, sdw_s *SDW);
 #ifdef do_selftestPTWAM
 static void selftest_ptwaw (void)
   {
-    int usages[N_WAM_ENTRIES];
-    for (int i = 0; i < N_WAM_ENTRIES; i ++)
+    int usages[N_NAX_WAM_ENTRIES];
+    for (int i = 0; i < N_MODEL_WAM_ENTRIES; i ++)
       usages[i] = -1;
 
-    for (int i = 0; i < N_WAM_ENTRIES; i ++)
+    for (int i = 0; i < N_MODEL_WAM_ENTRIES; i ++)
       {
         ptw_s * p = cpu.PTWAM + i;
-        if (p->USE > N_WAM_ENTRIES - 1)
+        if (p->USE > N_MODEL_WAM_ENTRIES - 1)
           sim_printf ("PTWAM[%d].USE is %d; > %d!\n",
-                      i, p->USE, N_WAM_ENTRIES - 1);
+                      i, p->USE, N_MODEL_WAM_ENTRIES - 1);
         if (usages[p->USE] != -1)
           sim_printf ("PTWAM[%d].USE is equal to PTWAM[%d].USE; %d\n",
                       i, usages[p->USE], p->USE);
         usages[p->USE] = i;
       }
-    for (int i = 0; i < N_WAM_ENTRIES; i ++)
+    for (int i = 0; i < N_MODEL_WAM_ENTRIES; i ++)
       {
         if (usages[i] == -1)
           sim_printf ("No PTWAM had a USE of %d\n", i);
@@ -179,15 +179,11 @@ void do_ldbr (word36 * Ypair)
             // If SDWAM is enabled, then
             //   0 -> C(SDWAM(i).FULL) for i = 0, 1, ..., 15
             //   i -> C(SDWAM(i).USE) for i = 0, 1, ..., 15
-            for (uint i = 0; i < N_WAM_ENTRIES; i ++)
+            for (uint i = 0; i < N_MODEL_WAM_ENTRIES; i ++)
               {
-                cpu.SDWAM[i].FE  = 0;
-#ifdef L68
-                cpu.SDWAM[i].USE = (word4) i;
-#endif
-#ifdef DPS8M
-                cpu.SDWAM[i].USE = 0;
-#endif
+                cpu.SDWAM[i].FE = 0;
+                L68_ (cpu.SDWAM[i].USE = (word4) i;)
+                DPS8M_ (cpu.SDWAM[i].USE = 0;)
               }
           }
 
@@ -196,15 +192,11 @@ void do_ldbr (word36 * Ypair)
             // If PTWAM is enabled, then
             //   0 -> C(PTWAM(i).FULL) for i = 0, 1, ..., 15
             //   i -> C(PTWAM(i).USE) for i = 0, 1, ..., 15
-            for (uint i = 0; i < N_WAM_ENTRIES; i ++)
+            for (uint i = 0; i < N_MODEL_WAM_ENTRIES; i ++)
               {
-                cpu.PTWAM[i].FE  = 0;
-#ifdef L68
-                cpu.PTWAM[i].USE = (word4) i;
-#endif
-#ifdef DPS8M
-                cpu.PTWAM[i].USE = 0;
-#endif
+                cpu.PTWAM[i].FE = 0;
+                L68_ (cpu.PTWAM[i].USE = (word4) i;)
+                DPS8M_ (cpu.PTWAM[i].USE = 0;)
               }
 #ifdef do_selftestPTWAM
             selftest_ptwaw ();
@@ -275,10 +267,8 @@ static void fetch_dsptw (word15 segno)
     cpu.PTW0.DF   = TSTBIT (PTWx1, 2);
     cpu.PTW0.FC   = PTWx1 & 3;
 
-#ifdef L68
-    if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_FDSPTW);
-#endif
+    L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
+      add_l68_APU_history (APUH_FDSPTW);)
 
     DBGAPP ("%s x1 0%o DSBR.ADDR 0%o PTWx1 0%012"PRIo64" "
             "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
@@ -324,13 +314,10 @@ static void modify_dsptw (word15 segno)
 #endif
 
     cpu.PTW0.U = 1;
-#ifdef L68
-    if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_MDSPTW);
-#endif
+    L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
+      add_l68_APU_history (APUH_MDSPTW);)
   }
 
-#ifdef DPS8M
 static word6 calc_hit_am (word6 LRU, uint hit_level)
   {
     switch (hit_level)
@@ -348,98 +335,83 @@ static word6 calc_hit_am (word6 LRU, uint hit_level)
           return 0;
      }
   }
+
+static sdw_s * fetch_sdw_from_sdwam (word15 segno) {
+  DBGAPP ("%s(0):segno=%05o\n", __func__, segno);
+
+  if ((! cpu.tweaks.enable_wam || ! cpu.cu.SD_ON)) {
+    DBGAPP ("%s(0): SDWAM disabled\n", __func__);
+    return NULL;
+  }
+
+  if (cpu.tweaks.l68_mode) { // L68
+    int nwam = N_L68_WAM_ENTRIES;
+    for (int _n = 0; _n < nwam; _n++) {
+      // make certain we initialize SDWAM prior to use!!!
+      if (cpu.SDWAM[_n].FE && segno == cpu.SDWAM[_n].POINTER) {
+        DBGAPP ("%s(1):found match for segno %05o " "at _n=%d\n", __func__, segno, _n);
+
+        cpu.cu.SDWAMM = 1;
+        cpu.SDWAMR = (word4) _n;
+        cpu.SDW = & cpu.SDWAM[_n];
+
+        // If the SDWAM match logic circuitry indicates a hit, all usage
+        // counts (SDWAM.USE) greater than the usage count of the register
+        // hit are decremented by one, the usage count of the register hit
+        // is set to 15, and the contents of the register hit are read out
+        // into the address preparation circuitry.
+
+        for (int _h = 0; _h < nwam; _h++) {
+          if (cpu.SDWAM[_h].USE > cpu.SDW->USE)
+            cpu.SDWAM[_h].USE -= 1;
+        }
+        cpu.SDW->USE = N_L68_WAM_ENTRIES - 1;
+
+        char buf[256];
+        (void)buf;
+#ifdef TESTING
+        DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, _n, str_sdw (buf, cpu.SDW));
 #endif
-
-static sdw_s * fetch_sdw_from_sdwam (word15 segno)
-  {
-    DBGAPP ("%s(0):segno=%05o\n", __func__, segno);
-
-    if ((! cpu.tweaks.enable_wam) || (! cpu.cu.SD_ON))
-      {
-        DBGAPP ("%s(0): SDWAM disabled\n", __func__);
-        return NULL;
+        return cpu.SDW;
       }
+    }
+  }
 
-#ifdef L68
-    int nwam = N_WAM_ENTRIES;
-    for (int _n = 0; _n < nwam; _n++)
-      {
-        // make certain we initialize SDWAM prior to use!!!
-        if (cpu.SDWAM[_n].FE && segno == cpu.SDWAM[_n].POINTER)
-          {
-            DBGAPP ("%s(1):found match for segno %05o "
-                    "at _n=%d\n",
-                     __func__, segno, _n);
-
-            cpu.cu.SDWAMM = 1;
-            cpu.SDWAMR = (word4) _n;
-            cpu.SDW = & cpu.SDWAM[_n];
-
-            // If the SDWAM match logic circuitry indicates a hit, all usage
-            // counts (SDWAM.USE) greater than the usage count of the register
-            // hit are decremented by one, the usage count of the register hit
-            // is set to 15, and the contents of the register hit are read out
-            // into the address preparation circuitry.
-
-            for (int _h = 0; _h < nwam; _h++)
-              {
-                if (cpu.SDWAM[_h].USE > cpu.SDW->USE)
-                  cpu.SDWAM[_h].USE -= 1;
-              }
-            cpu.SDW->USE = N_WAM_ENTRIES - 1;
-
-            char buf[256];
-            (void)buf;
-# ifdef TESTING
-            DBGAPP ("%s(2):SDWAM[%d]=%s\n",
-                     __func__, _n, str_sdw (buf, cpu.SDW));
-# endif
-            return cpu.SDW;
-          }
-      }
-#endif
-#ifdef DPS8M
+  if (! cpu.tweaks.l68_mode) { // DPS8M
     uint setno = segno & 017;
     uint toffset;
     sdw_s *p;
-    for (toffset = 0; toffset < 64; toffset += 16)
-      {
-        p = & cpu.SDWAM[toffset + setno];
-        if (p->FE && segno == p->POINTER)
-          {
-            DBGAPP ("%s(1):found match for segno %05o "
-                    "at _n=%d\n",
-                    __func__, segno, toffset + setno);
+    for (toffset = 0; toffset < 64; toffset += 16) {
+      p = & cpu.SDWAM[toffset + setno];
+      if (p->FE && segno == p->POINTER) {
+        DBGAPP ("%s(1):found match for segno %05o " "at _n=%d\n", __func__, segno, toffset + setno);
 
-            cpu.cu.SDWAMM = 1;
-            cpu.SDWAMR = (word6) (toffset + setno);
-            cpu.SDW = p; // export pointer for appending
+        cpu.cu.SDWAMM = 1;
+        cpu.SDWAMR = (word6) (toffset + setno);
+        cpu.SDW = p; // export pointer for appending
 
-            word6 u = calc_hit_am (p->USE, toffset >> 4);
-            for (toffset = 0; toffset < 64; toffset += 16) // update LRU
-              {
-                p = & cpu.SDWAM[toffset + setno];
-                if (p->FE)
-                  p->USE = u;
-              }
+        word6 u = calc_hit_am (p->USE, toffset >> 4);
+        for (toffset = 0; toffset < 64; toffset += 16) { // update LRU
+          p = & cpu.SDWAM[toffset + setno];
+          if (p->FE)
+            p->USE = u;
+        }
 
-            char buf[256];
-            (void)buf;
-# ifdef TESTING
-            DBGAPP ("%s(2):SDWAM[%d]=%s\n",
-                    __func__, toffset + setno, str_sdw (buf, cpu.SDW));
-# endif
-            return cpu.SDW;
-          }
-      }
-#endif
+        char buf[256];
+        (void)buf;
 #ifdef TESTING
-    DBGAPP ("%s(3):SDW for segment %05o not found in SDWAM\n",
-            __func__, segno);
+        DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, toffset + setno, str_sdw (buf, cpu.SDW));
 #endif
-    cpu.cu.SDWAMM = 0;
-    return NULL;    // segment not referenced in SDWAM
+        return cpu.SDW;
+      }
+    }
   }
+#ifdef TESTING
+  DBGAPP ("%s(3):SDW for segment %05o not found in SDWAM\n", __func__, segno);
+#endif
+  cpu.cu.SDWAMM = 0;
+  return NULL;    // segment not referenced in SDWAM
+}
 
 /*
  * Fetches an SDW from a paged descriptor segment.
@@ -480,10 +452,10 @@ static void fetch_psdw (word15 segno)
     cpu.SDW0.C     = TSTBIT (SDWodd, 14);
     cpu.SDW0.EB    = SDWodd & 037777;
 
-#ifdef L68
-    if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_FSDWP);
-#endif
+    L68_ (
+      if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
+        add_l68_APU_history (APUH_FSDWP);
+     )
     DBGAPP ("%s y1 0%o p->ADDR 0%o SDW 0%012"PRIo64" 0%012"PRIo64" "
             "ADDR %o R %o%o%o BOUND 0%o REWPUGC %o%o%o%o%o%o%o "
             "F %o FC %o FE %o USE %o\n",
@@ -543,10 +515,10 @@ static void fetch_nsdw (word15 segno)
     cpu.SDW0.C     = TSTBIT (SDWodd, 14);
     cpu.SDW0.EB    = SDWodd & 037777;
 
-#ifdef L68
-    if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (0 /* No fetch no paged bit */);
-#endif
+    L68_ (
+      if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
+        add_l68_APU_history (0 /* No fetch no paged bit */);
+    )
 #ifndef SPEED
     char buf[256];
     (void)buf;
@@ -579,7 +551,7 @@ t_stat dump_sdwam (void)
   {
     char buf[256];
     (void)buf;
-    for (int _n = 0; _n < N_WAM_ENTRIES; _n++)
+    for (int _n = 0; _n < N_MODEL_WAM_ENTRIES; _n++)
       {
         sdw_s *p = & cpu.SDWAM[_n];
 
@@ -591,10 +563,9 @@ t_stat dump_sdwam (void)
 # endif
 #endif
 
-#ifdef DPS8M
 static uint to_be_discarded_am (word6 LRU)
   {
-# if 0
+#if 0
     uint cA=0,cB=0,cC=0,cD=0;
     if (LRU & 040) cB++; else cA++;
     if (LRU & 020) cC++; else cA++;
@@ -604,14 +575,13 @@ static uint to_be_discarded_am (word6 LRU)
     if (LRU & 02)  cD++; else cB++;
     if (cB==3) return 1;
     if (LRU & 01)  return 3; else return 2;
-# endif
+#endif
 
     if ((LRU & 070) == 070) return 0;
     if ((LRU & 046) == 006) return 1;
     if ((LRU & 025) == 001) return 2;
     return 3;
   }
-#endif
 
 /*
  * load the current in-core SDW0 into the SDWAM ...
@@ -632,90 +602,81 @@ static void load_sdwam (word15 segno, bool nomatch)
         return;
       }
 
-#ifdef L68
-    // If the SDWAM match logic does not indicate a hit, the SDW is fetched
-    // from the descriptor segment in main memory and loaded into the SDWAM
-    // register with usage count 0 (the oldest), all usage counts are
-    // decremented by one with the newly loaded register rolling over from 0 to
-    // 15, and the newly loaded register is read out into the address
-    // preparation circuitry.
+    if (cpu.tweaks.l68_mode) { // L68
+      // If the SDWAM match logic does not indicate a hit, the SDW is fetched
+      // from the descriptor segment in main memory and loaded into the SDWAM
+      // register with usage count 0 (the oldest), all usage counts are
+      // decremented by one with the newly loaded register rolling over from 0 to
+      // 15, and the newly loaded register is read out into the address
+      // preparation circuitry.
 
-    for (int _n = 0; _n < N_WAM_ENTRIES; _n++)
-      {
+      for (int _n = 0; _n < N_L68_WAM_ENTRIES; _n++) {
         sdw_s * p = & cpu.SDWAM[_n];
-        if (! p->FE || p->USE == 0)
-          {
-            DBGAPP ("%s(1):SDWAM[%d] FE=0 || USE=0\n", __func__, _n);
+        if (! p->FE || p->USE == 0) {
+          DBGAPP ("%s(1):SDWAM[%d] FE=0 || USE=0\n", __func__, _n);
 
-            * p = cpu.SDW0;
-            p->POINTER = segno;
-            p->USE = 0;
-            p->FE = true;     // in use by SDWAM
+          * p = cpu.SDW0;
+          p->POINTER = segno;
+          p->USE = 0;
+          p->FE = true;     // in use by SDWAM
 
-            for (int _h = 0; _h < N_WAM_ENTRIES; _h++)
-              {
-                sdw_s * q = & cpu.SDWAM[_h];
-                q->USE -= 1;
-                q->USE &= N_WAM_MASK;
-              }
-
-            cpu.SDW = p;
-
-            char buf[256];
-            (void)buf;
-# ifdef TESTING
-            DBGAPP ("%s(2):SDWAM[%d]=%s\n",
-                    __func__, _n, str_sdw (buf, p));
-# endif
-            return;
+          for (int _h = 0; _h < N_L68_WAM_ENTRIES; _h++) {
+            sdw_s * q = & cpu.SDWAM[_h];
+            q->USE -= 1;
+            q->USE &= N_L68_WAM_MASK;
           }
-      }
-    // if we reach this, USE is scrambled
-# ifdef TESTING
-    DBGAPP ("%s(3) no USE=0 found for segment=%d\n", __func__, segno);
-    sim_printf ("%s(%05o): no USE=0 found!\n", __func__, segno);
-    dump_sdwam ();
-# endif
-#endif
 
-#ifdef DPS8M
-    uint setno = segno & 017;
-    uint toffset;
-    sdw_s *p;
-    for (toffset = 0; toffset < 64; toffset += 16)
-      {
+          cpu.SDW = p;
+
+          char buf[256];
+          (void) buf;
+#ifdef TESTING
+          DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, _n, str_sdw (buf, p));
+#endif
+          return;
+        }
+      }
+      // if we reach this, USE is scrambled
+#ifdef TESTING
+      DBGAPP ("%s(3) no USE=0 found for segment=%d\n", __func__, segno);
+      sim_printf ("%s(%05o): no USE=0 found!\n", __func__, segno);
+      dump_sdwam ();
+#endif
+    }
+
+    if (! cpu.tweaks.l68_mode) { // DPS8M
+      uint setno = segno & 017;
+      uint toffset;
+      sdw_s *p;
+      for (toffset = 0; toffset < 64; toffset += 16) {
         p = & cpu.SDWAM[toffset + setno];
         if (!p->FE)
           break;
       }
-    if (toffset == 64) // all FE==1
-      {
+      if (toffset == 64) { // all FE==1
         toffset = to_be_discarded_am (p->USE) << 4;
         p = & cpu.SDWAM[toffset + setno];
       }
-    DBGAPP ("%s(1):SDWAM[%d] FE=0 || LRU\n",
-            __func__, toffset + setno);
+      DBGAPP ("%s(1):SDWAM[%d] FE=0 || LRU\n", __func__, toffset + setno);
 
-    word6 u = calc_hit_am (p->USE, toffset >> 4); // before loading the SDWAM!
-    * p = cpu.SDW0; // load the SDW
-    p->POINTER = segno;
-    p->FE = true;   // in use
-    cpu.SDW = p;    // export pointer for appending
+      word6 u = calc_hit_am (p->USE, toffset >> 4); // before loading the SDWAM!
+      * p = cpu.SDW0; // load the SDW
+      p->POINTER = segno;
+      p->FE = true;  // in use
+      cpu.SDW = p; // export pointer for appending
 
-    for (uint toffset1 = 0; toffset1 < 64; toffset1 += 16) // update LRU
-      {
+      for (uint toffset1 = 0; toffset1 < 64; toffset1 += 16) { // update LRU
         p = & cpu.SDWAM[toffset1 + setno];
         if (p->FE)
           p->USE = u;
       }
 
-    char buf[256];
-    (void)buf;
-# ifdef TESTING
-    DBGAPP ("%s(2):SDWAM[%d]=%s\n",
-            __func__, toffset + setno, str_sdw (buf, cpu.SDW));
-# endif
+      char buf[256];
+      (void) buf;
+#ifdef TESTING
+      DBGAPP ("%s(2):SDWAM[%d]=%s\n", __func__, toffset + setno, str_sdw (buf, cpu.SDW));
 #endif
+    } // DPS8M
   }
 
 static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
@@ -726,75 +687,75 @@ static ptw_s * fetch_ptw_from_ptwam (word15 segno, word18 CA)
         return NULL;
       }
 
-#ifdef L68
-    int nwam = N_WAM_ENTRIES;
-    for (int _n = 0; _n < nwam; _n++)
-      {
-        if (cpu.PTWAM[_n].FE && ((CA >> 6) & 07760) == cpu.PTWAM[_n].PAGENO &&
-            cpu.PTWAM[_n].POINTER == segno)   //_initialized)
-          {
-            DBGAPP ("%s: found match for segno=%o pageno=%o "
-                    "at _n=%d\n",
-                    __func__, segno, cpu.PTWAM[_n].PAGENO, _n);
-            cpu.cu.PTWAMM = 1;
-            cpu.PTWAMR = (word4) _n;
-            cpu.PTW = & cpu.PTWAM[_n];
+    if (cpu.tweaks.l68_mode) { // L68
+      int nwam = N_L68_WAM_ENTRIES;
+      for (int _n = 0; _n < nwam; _n++)
+        {
+          if (cpu.PTWAM[_n].FE && ((CA >> 6) & 07760) == cpu.PTWAM[_n].PAGENO &&
+              cpu.PTWAM[_n].POINTER == segno)   //_initialized
+            {
+              DBGAPP ("%s: found match for segno=%o pageno=%o "
+                      "at _n=%d\n",
+                      __func__, segno, cpu.PTWAM[_n].PAGENO, _n);
+              cpu.cu.PTWAMM = 1;
+              cpu.PTWAMR = (word4) _n;
+              cpu.PTW = & cpu.PTWAM[_n];
 
-            // If the PTWAM match logic circuitry indicates a hit, all usage
-            // counts (PTWAM.USE) greater than the usage count of the register
-            // hit are decremented by one, the usage count of the register hit
-            // is set to 15, and the contents of the register hit are read out
-            // into the address preparation circuitry.
+              // If the PTWAM match logic circuitry indicates a hit, all usage
+              // counts (PTWAM.USE) greater than the usage count of the register
+              // hit are decremented by one, the usage count of the register hit
+              // is set to 15, and the contents of the register hit are read out
+              // into the address preparation circuitry.
 
-            for (int _h = 0; _h < nwam; _h++)
-              {
-                if (cpu.PTWAM[_h].USE > cpu.PTW->USE)
-                  cpu.PTWAM[_h].USE -= 1; //PTW->USE -= 1;
-              }
-            cpu.PTW->USE = N_WAM_ENTRIES - 1;
-# ifdef do_selftestPTWAM
-            selftest_ptwaw ();
-# endif
-            DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
-                    __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M,
-                    cpu.PTW->DF, cpu.PTW->FC);
-            return cpu.PTW;
-          }
-      }
+              for (int _h = 0; _h < nwam; _h++)
+                {
+                  if (cpu.PTWAM[_h].USE > cpu.PTW->USE)
+                    cpu.PTWAM[_h].USE -= 1; //PTW->USE -= 1;
+                }
+              cpu.PTW->USE = N_L68_WAM_ENTRIES - 1;
+#ifdef do_selftestPTWAM
+              selftest_ptwaw ();
 #endif
+              DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
+                      __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M,
+                      cpu.PTW->DF, cpu.PTW->FC);
+              return cpu.PTW;
+            }
+        }
+    }
 
-#ifdef DPS8M
-    uint setno = (CA >> 10) & 017;
-    uint toffset;
-    ptw_s *p;
-    for (toffset = 0; toffset < 64; toffset += 16)
-      {
-        p = & cpu.PTWAM[toffset + setno];
+    DPS8M_ (
+      uint setno = (CA >> 10) & 017;
+      uint toffset;
+      ptw_s *p;
+      for (toffset = 0; toffset < 64; toffset += 16)
+        {
+          p = & cpu.PTWAM[toffset + setno];
 
-        if (p->FE && ((CA >> 6) & 07760) == p->PAGENO && p->POINTER == segno)
-          {
-            DBGAPP ("%s: found match for segno=%o pageno=%o "
-                    "at _n=%d\n",
-                    __func__, segno, p->PAGENO, toffset + setno);
-            cpu.cu.PTWAMM = 1;
-            cpu.PTWAMR = (word6) (toffset + setno);
-            cpu.PTW = p; // export pointer for appending
+          if (p->FE && ((CA >> 6) & 07760) == p->PAGENO && p->POINTER == segno)
+            {
+              DBGAPP ("%s: found match for segno=%o pageno=%o "
+                      "at _n=%d\n",
+                      __func__, segno, p->PAGENO, toffset + setno);
+              cpu.cu.PTWAMM = 1;
+              cpu.PTWAMR = (word6) (toffset + setno);
+              cpu.PTW = p; // export pointer for appending
 
-            word6 u = calc_hit_am (p->USE, toffset >> 4);
-            for (toffset = 0; toffset < 64; toffset += 16) // update LRU
-              {
-                p = & cpu.PTWAM[toffset + setno];
-                if (p->FE)
-                  p->USE = u;
-              }
+              word6 u = calc_hit_am (p->USE, toffset >> 4);
+              for (toffset = 0; toffset < 64; toffset += 16) // update LRU
+                {
+                  p = & cpu.PTWAM[toffset + setno];
+                  if (p->FE)
+                    p->USE = u;
+                }
 
-            DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
-                    __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M,
-                    cpu.PTW->DF, cpu.PTW->FC);
-            return cpu.PTW;
-          }
-      }
-#endif
+              DBGAPP ("%s: ADDR 0%o U %o M %o F %o FC %o\n",
+                      __func__, cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M,
+                      cpu.PTW->DF, cpu.PTW->FC);
+              return cpu.PTW;
+            }
+        }
+     )
     cpu.cu.PTWAMM = 0;
     return NULL;    // page not referenced in PTWAM
   }
@@ -853,10 +814,8 @@ static void fetch_ptw (sdw_s *sdw, word18 offset)
       unlock_rmw ();
 #endif
 
-#ifdef L68
-    if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_FPTW);
-#endif
+    L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
+      add_l68_APU_history (APUH_FPTW);)
 
     DBGAPP ("%s x2 0%o sdw->ADDR 0%o PTWx2 0%012"PRIo64" "
             "PTW0: ADDR 0%o U %o M %o F %o FC %o\n",
@@ -878,87 +837,87 @@ static void loadPTWAM (word15 segno, word18 offset, UNUSED bool nomatch)
         return;
       }
 
-#ifdef L68
-    // If the PTWAM match logic does not indicate a hit, the PTW is fetched
-    // from main memory and loaded into the PTWAM register with usage count 0
-    // (the oldest), all usage counts are decremented by one with the newly
-    // loaded register rolling over from 0 to 15, and the newly loaded register
-    // is read out into the address preparation circuitry.
+    if (cpu.tweaks.l68_mode) { // L68
+      // If the PTWAM match logic does not indicate a hit, the PTW is fetched
+      // from main memory and loaded into the PTWAM register with usage count 0
+      // (the oldest), all usage counts are decremented by one with the newly
+      // loaded register rolling over from 0 to 15, and the newly loaded register
+      // is read out into the address preparation circuitry.
 
-    for (int _n = 0; _n < N_WAM_ENTRIES; _n++)
-      {
-        ptw_s * p = & cpu.PTWAM[_n];
-        if (! p->FE || p->USE == 0)
-          {
-            DBGAPP ("loadPTWAM(1):PTWAM[%d] FE=0 || USE=0\n", _n);
-            *p = cpu.PTW0;
-            p->PAGENO  = (offset >> 6) & 07760;
-            p->POINTER = segno;
-            p->USE     = 0;
-            p->FE      = true;
+      for (int _n = 0; _n < N_L68_WAM_ENTRIES; _n++)
+        {
+          ptw_s * p = & cpu.PTWAM[_n];
+          if (! p->FE || p->USE == 0)
+            {
+              DBGAPP ("loadPTWAM(1):PTWAM[%d] FE=0 || USE=0\n", _n);
+              *p = cpu.PTW0;
+              p->PAGENO = (offset >> 6) & 07760;
+              p->POINTER = segno;
+              p->USE = 0;
+              p->FE = true;
 
-            for (int _h = 0; _h < N_WAM_ENTRIES; _h++)
-              {
-                ptw_s * q = & cpu.PTWAM[_h];
-                q->USE -= 1;
-                q->USE &= N_WAM_MASK;
-              }
+              for (int _h = 0; _h < N_L68_WAM_ENTRIES; _h++)
+                {
+                  ptw_s * q = & cpu.PTWAM[_h];
+                  q->USE -= 1;
+                  q->USE &= N_L68_WAM_MASK;
+                }
 
-            cpu.PTW = p;
-            DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o "
-                    "POINTER=%o PAGENO=%o USE=%d\n",
-                    cpu.PTW->ADDR,   cpu.PTW->U,   cpu.PTW->M,
-                    cpu.PTW->DF,     cpu.PTW->FC,  cpu.PTW->POINTER,
-                    cpu.PTW->PAGENO, cpu.PTW->USE);
-# ifdef do_selftestPTWAM
-            selftest_ptwaw ();
-# endif
-            return;
-          }
-      }
-    // if we reach this, USE is scrambled
-    sim_printf ("loadPTWAM(segno=%05o, offset=%012o): no USE=0 found!\n",
-                segno, offset);
+              cpu.PTW = p;
+              DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o "
+                      "POINTER=%o PAGENO=%o USE=%d\n",
+                      cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
+                      cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO,
+                      cpu.PTW->USE);
+#ifdef do_selftestPTWAM
+              selftest_ptwaw ();
 #endif
+              return;
+            }
+        }
+      // if we reach this, USE is scrambled
+      sim_printf ("loadPTWAM(segno=%05o, offset=%012o): no USE=0 found!\n",
+                  segno, offset);
+    }
 
-#ifdef DPS8M
-    uint setno = (offset >> 10) & 017;
-    uint toffset;
-    ptw_s *p;
-    for (toffset = 0; toffset < 64; toffset += 16)
-      {
-        p = & cpu.PTWAM[toffset + setno];
-        if (! p->FE)
-          break;
-      }
-    if (toffset == 64) // all FE==1
-      {
-        toffset = to_be_discarded_am (p->USE) << 4;
-        p = & cpu.PTWAM[toffset + setno];
-      }
+    DPS8M_ (
+      uint setno = (offset >> 10) & 017;
+      uint toffset;
+      ptw_s *p;
+      for (toffset = 0; toffset < 64; toffset += 16)
+        {
+          p = & cpu.PTWAM[toffset + setno];
+          if (! p->FE)
+            break;
+        }
+      if (toffset == 64) // all FE==1
+        {
+          toffset = to_be_discarded_am (p->USE) << 4;
+          p = & cpu.PTWAM[toffset + setno];
+        }
 
-    DBGAPP ("loadPTWAM(1):PTWAM[%d] FE=0 || LRU\n",
-            toffset + setno);
+      DBGAPP ("loadPTWAM(1):PTWAM[%d] FE=0 || LRU\n",
+              toffset + setno);
 
-    word6 u    = calc_hit_am (p->USE, toffset >> 4); // before loading the PTWAM
-    * p        = cpu.PTW0; // load the PTW
-    p->PAGENO  = (offset >> 6) & 07760;
-    p->POINTER = segno;
-    p->FE      = true;  // in use
-    cpu.PTW    = p; // export pointer for appending
+      word6 u = calc_hit_am (p->USE, toffset >> 4); // before loading the PTWAM
+      * p = cpu.PTW0; // load the PTW
+      p->PAGENO = (offset >> 6) & 07760;
+      p->POINTER = segno;
+      p->FE = true;  // in use
+      cpu.PTW = p; // export pointer for appending
 
-    for (uint toffset1 = 0; toffset1 < 64; toffset1 += 16) // update LRU
-      {
-        p = & cpu.PTWAM[toffset1 + setno];
-        if (p->FE)
-          p->USE = u;
-      }
+      for (uint toffset1 = 0; toffset1 < 64; toffset1 += 16) // update LRU
+        {
+          p = & cpu.PTWAM[toffset1 + setno];
+          if (p->FE)
+            p->USE = u;
+        }
 
-    DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o POINTER=%o "
-            "PAGENO=%o USE=%d\n",
-            cpu.PTW->ADDR, cpu.PTW->U,       cpu.PTW->M,      cpu.PTW->DF,
-            cpu.PTW->FC,   cpu.PTW->POINTER, cpu.PTW->PAGENO, cpu.PTW->USE);
-#endif
+      DBGAPP ("loadPTWAM(2): ADDR 0%o U %o M %o F %o FC %o POINTER=%o "
+              "PAGENO=%o USE=%d\n",
+              cpu.PTW->ADDR, cpu.PTW->U, cpu.PTW->M, cpu.PTW->DF,
+              cpu.PTW->FC, cpu.PTW->POINTER, cpu.PTW->PAGENO, cpu.PTW->USE);
+    )
   }
 
 /*
@@ -994,10 +953,8 @@ static void modify_ptw (sdw_s *sdw, word18 offset)
       unlock_rmw ();
 #endif
     cpu.PTW->M = 1;
-#ifdef L68
-    if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_MPTW);
-#endif
+    L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
+      add_l68_APU_history (APUH_MPTW);)
   }
 
 static void do_ptw2 (sdw_s *sdw, word18 offset)
@@ -1021,10 +978,8 @@ static void do_ptw2 (sdw_s *sdw, word18 offset)
     PTW2.DF   = TSTBIT (PTWx2n, 2);
     PTW2.FC   = PTWx2n & 3;
 
-#ifdef L68
-    if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_FPTW2);
-#endif
+    L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
+      add_l68_APU_history (APUH_FPTW2);)
 
     DBGAPP ("%s x2 0%o sdw->ADDR 0%o PTW2 0%012"PRIo64" "
             "PTW2: ADDR 0%o U %o M %o F %o FC %o\n",
@@ -1870,10 +1825,8 @@ I:;
     finalAddress &= 0xffffff;
     PNL (cpu.APUMemAddr = finalAddress;)
 
-#ifdef L68
-    if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
-      add_APU_history (APUH_FAP);
-#endif
+    L68_ (if (cpu.MR_cache.emr && cpu.MR_cache.ihr)
+      add_l68_APU_history (APUH_FAP);)
     DBGAPP ("do_append_cycle(H:FAP): (%05o:%06o) finalAddress=%08o\n",
             cpu.TPR.TSR, cpu.TPR.CA, finalAddress);
 

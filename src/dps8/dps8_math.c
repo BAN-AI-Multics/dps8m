@@ -541,9 +541,7 @@ void ufa (bool sub)
     int e3 = -1;
 
     // which exponent is smaller?
-#ifdef L68
-    cpu.ou.cycle |= ou_GOE;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GOE;)
     int shift_count = -1;
     word1 allones = 1;
     word1 notallzeros = 0;
@@ -795,9 +793,7 @@ void fno (word8 * E, word36 * A, word36 * Q)
     //
     // If C(AQ) = 0, then C(E) is set to -128 and the zero indicator is set ON.
 
-#ifdef L68
-    cpu.ou.cycle |= ou_GON;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GON;)
 #ifdef HEX_MODE
     uint shift_amt = isHex() ? 4 : 1;
     //uint shift_msk = isHex() ? 017 : 1;
@@ -1736,9 +1732,7 @@ void frd (void)
     // later models.) I'll assume AL39 is wrong.
 
     CPTUR (cptUseE);
-#ifdef L68
-    cpu.ou.cycle |= ou_GOS;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GOS;)
 
     word72 m = convert_to_word72 (cpu.rA, cpu.rQ);
 #ifdef NEED_128
@@ -1820,9 +1814,7 @@ void fstr (word36 *Y)
     // located under the description of the fno instruction.  Attempted
     // repetition with the rpl instruction causes an illegal procedure fault.
 
-#ifdef L68
-    cpu.ou.cycle |= ou_GOS;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GOS;)
     word36 A = cpu . rA, Q = cpu . rQ;
     word8 E = cpu . rE;
     //A &= DMASK;
@@ -1919,9 +1911,7 @@ void fcmp(void)
 
     //which exponent is smaller???
 
-#ifdef L68
-    cpu.ou.cycle = ou_GOE;
-#endif
+    L68_ (cpu.ou.cycle = ou_GOE;)
 #ifdef HEX_MODE
     uint shift_amt = isHex() ? 4 : 1;
 #endif
@@ -1934,9 +1924,7 @@ void fcmp(void)
       }
     else if (e1 < e2)
       {
-#ifdef L68
-        cpu.ou.cycle = ou_GOA;
-#endif
+        L68_ (cpu.ou.cycle = ou_GOA;)
 #ifdef HEX_MODE
         shift_count = abs(e2 - e1) * (int) shift_amt;
 #else
@@ -1987,9 +1975,7 @@ void fcmp(void)
     else
       {
         // e2 < e1;
-#ifdef L68
-        cpu.ou.cycle = ou_GOA;
-#endif
+        L68_ (cpu.ou.cycle = ou_GOA;)
 #ifdef HEX_MODE
         shift_count = abs(e1 - e2) * (int) shift_amt;
 #else
@@ -2075,9 +2061,7 @@ void fcmg (void)
     // number with the lower exponent is defined as zero.
 
     CPTUR (cptUseE);
-#ifdef L68
-   cpu.ou.cycle = ou_GOS;
-#endif
+    L68_ (cpu.ou.cycle = ou_GOS;)
 #ifdef HEX_MODE
     uint shift_amt = isHex() ? 4 : 1;
 #endif
@@ -2103,9 +2087,7 @@ void fcmg (void)
 
     //which exponent is smaller???
 
-# ifdef L68
-    cpu.ou.cycle = ou_GOE;
-# endif
+    L68_ (cpu.ou.cycle = ou_GOE;)
     int shift_count = -1;
     word1 notallzeros = 0;
 
@@ -2115,9 +2097,7 @@ void fcmg (void)
       }
     else if (e1 < e2)
       {
-# ifdef L68
-        cpu.ou.cycle = ou_GOA;
-# endif
+        L68_ (cpu.ou.cycle = ou_GOA;)
 # ifdef HEX_MODE
         shift_count = abs(e2 - e1) * (int) shift_amt;
 # else
@@ -2169,9 +2149,7 @@ void fcmg (void)
     else
       {
         // e2 < e1;
-# ifdef L68
-        cpu.ou.cycle = ou_GOA;
-# endif
+        L68_ (cpu.ou.cycle = ou_GOA;)
 # ifdef HEX_MODE
         shift_count = abs(e1 - e2) * (int) shift_amt;
 # else
@@ -2353,9 +2331,7 @@ void dufa (bool subtract)
     // main memory (op2) is used.
 
     CPTUR (cptUseE);
-#ifdef L68
-    cpu.ou.cycle |= ou_GOS;
-#endif
+    L68_ (cpu.ou.cycle = ou_GOS;)
 #ifdef HEX_MODE
     uint shift_amt = isHex() ? 4 : 1;
 #endif
@@ -2412,9 +2388,7 @@ void dufa (bool subtract)
 
     // which exponent is smaller?
 
-#ifdef L68
-    cpu.ou.cycle |= ou_GOE;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GOE;)
     int shift_count = -1;
     word1 notallzeros = 0;
 
@@ -2425,9 +2399,7 @@ void dufa (bool subtract)
       }
     else if (e1 < e2)
       {
-#ifdef L68
-        cpu.ou.cycle |= ou_GOA;
-#endif
+        L68_ (cpu.ou.cycle |= ou_GOA;)
 #ifdef HEX_MODE
         shift_count = abs(e2 - e1) * (int) shift_amt;
 #else
@@ -2479,9 +2451,7 @@ void dufa (bool subtract)
     else
       {
         // e2 < e1;
-#ifdef L68
-        cpu.ou.cycle |= ou_GOA;
-#endif
+        L68_ (cpu.ou.cycle |= ou_GOA;)
 #ifdef HEX_MODE
         shift_count = abs(e1 - e2) * (int) shift_amt;
 #else
@@ -2717,9 +2687,7 @@ void dufm (void)
     // * Exp Undr: If exponent is less than -128, then ON
 
     CPTUR (cptUseE);
-#ifdef L68
-    cpu.ou.cycle |= ou_GOS;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GOS;)
     word72 m1 = convert_to_word72 (cpu.rA, cpu.rQ);
     int    e1 = SIGNEXT8_int (cpu . rE & MASK8);
 
@@ -2911,9 +2879,7 @@ static void dfdvX (bool bInvert)
     //    C(AQ) / C(Y-pair)8,71 → C(AQ)0,63 00...0 → C(Q)64,71
 
     CPTUR (cptUseE);
-#ifdef L68
-    cpu.ou.cycle |= ou_GOS;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GOS;)
 #ifdef HEX_MODE
     uint shift_amt = isHex() ? 4 : 1;
 #endif
@@ -3099,9 +3065,7 @@ static void dfdvX (bool bInvert)
         doFault (FAULT_DIV, fst_zero, "DFDV: divide check fault");
       }
 
-#ifdef L68
-    cpu.ou.cycle |= ou_GOA;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GOA;)
 #ifdef NEED_128
     while (isge_128 (m1, m2))
       {
@@ -3137,9 +3101,7 @@ static void dfdvX (bool bInvert)
           dlyDoFault (FAULT_OFL, fst_zero, "dfdvX exp underflow fault");
       }
 
-#ifdef L68
-    cpu.ou.cycle |= ou_GD1;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GD1;)
 
     // We need 63 bits quotient + sign. Divisor is at most 64 bits.
     // Do a 127 by 64 fractional divide
@@ -3149,9 +3111,7 @@ static void dfdvX (bool bInvert)
 #else
     word72 m3 = ((uint128)m1 << (63-8)) / ((uint128)m2 >> 8);
 #endif
-#ifdef L68
-    cpu.ou.cycle |= ou_GD2;
-#endif
+    L68_ (cpu.ou.cycle |= ou_GD2;)
 
 #ifdef NEED_128
     m3 = lshift_128 (m3, 8);  // convert back to float
@@ -3294,9 +3254,7 @@ void dvf (void)
     // s  dividend x
     //  C(AQ)
 
-# ifdef L68
-    cpu.ou.cycle |= ou_GD1;
-# endif
+    L68_ (cpu.ou.cycle |= ou_GD1;)
     int sign = 1;
     bool dividendNegative = (getbits36_1 (cpu . rA, 0) != 0);
     bool divisorNegative = (getbits36_1 (cpu.CY, 0) != 0);
@@ -3355,9 +3313,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
         doFault(FAULT_DIV, fst_zero, "DVF: divide check fault");
       }
 
-# ifdef L68
-    cpu.ou.cycle |= ou_GD2;
-# endif
+    L68_ (cpu.ou.cycle |= ou_GD2;)
     uint128 sn = zFrac;
     word36 quot = 0;
     for (uint i = 0; i < 35; i ++)
@@ -3379,9 +3335,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
     if (dividendNegative)
       remainder = ~remainder + 1;
 
-# ifdef L68
-    cpu.ou.cycle |= ou_GD2;
-# endif
+    L68_ (cpu.ou.cycle |= ou_GD2;)
     // I am surmising that the "If | dividend | >= | divisor |" is an
     // overflow prediction; implement it by checking that the calculated
     // quotient will fit in 35 bits.
@@ -3423,9 +3377,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
     // s  dividend x
     //  C(AQ)
 
-# ifdef L68
-    cpu.ou.cycle |= ou_GD1;
-# endif
+    L68_ (cpu.ou.cycle |= ou_GD1;)
     int sign = 1;
     bool dividendNegative = (getbits36_1 (cpu . rA, 0) != 0);
     bool divisorNegative = (getbits36_1 (cpu.CY, 0) != 0);
@@ -3523,9 +3475,7 @@ sim_printf ("DVFa A %012"PRIo64" Q %012"PRIo64" Y %012"PRIo64"\n", cpu.rA, cpu.r
         return;
       }
 
-# ifdef L68
-    cpu.ou.cycle |= ou_GD2;
-# endif
+    L68_ (cpu.ou.cycle |= ou_GD2;)
 # ifdef NEED_128
     uint128 remainder;
     uint128 quot = divide_128 (zFrac, dFrac, & remainder);
@@ -4059,9 +4009,7 @@ void dfcmg (void)
     //int e3 = -1;
 
     //which exponent is smaller???
-#ifdef L68
-    cpu.ou.cycle = ou_GOE;
-#endif
+    L68_ (cpu.ou.cycle = ou_GOE;)
     int shift_count = -1;
     word1 notallzeros = 0;
 
@@ -4072,9 +4020,7 @@ void dfcmg (void)
       }
     else if (e1 < e2)
       {
-#ifdef L68
-        cpu.ou.cycle = ou_GOA;
-#endif
+        L68_ (cpu.ou.cycle = ou_GOA;);
 #ifdef HEX_MODE
         shift_count = abs(e2 - e1) * (int) shift_amt;
 #else

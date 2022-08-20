@@ -4795,6 +4795,7 @@ mdcs
 nfaults
 nframes
 nhandlers
+nohra
 nstd
 olts
 printf
@@ -12651,4 +12652,5 @@ zeroing
 zeros
 zone
 zones
+zpaq
 

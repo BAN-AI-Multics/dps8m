@@ -64,15 +64,7 @@
 #ifdef SIM_NAME
 # undef SIM_NAME
 #endif /* SIM_NAME */
-#ifndef SIM_NAME
-# if defined(L68)
-#  define SIM_NAME "L68"
-# elif defined(DPS8M) /* L68 */
-#  define SIM_NAME "DPS8M"
-# else /* DPS8M */
-#  define SIM_NAME "SIM"
-# endif /* !L68 !DPS8M */
-#endif /* !SIM_NAME */
+#define SIM_NAME "DPS8M"
 
 #define DBG_CTR 1
 #define ASSUME0 0

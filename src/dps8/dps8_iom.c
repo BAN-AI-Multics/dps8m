@@ -3541,7 +3541,7 @@ void iom_init (void)
     //sim_debug (DBG_INFO, & iom_dev, "%s: running.\n", __func__);
   }
 
-#ifdef PANEL
+#ifdef PANEL68
 void do_boot (void)
   {
     boot_svc (& boot_channel_unit[0]);

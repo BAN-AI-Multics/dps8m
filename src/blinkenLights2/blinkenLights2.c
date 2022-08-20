@@ -377,11 +377,7 @@ static gboolean time_handler (GtkWidget * widget) {
 static void * openShm (char * key) {
   void * p;
   char buf [256];
-#ifdef L68
-  sprintf (buf, "l68.%s", key);
-#else
   sprintf (buf, "dps8m.%s", key);
-#endif /* ifdef L68 */
   int fd = open (buf, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
   if (fd == -1)
     handleError ("open");
